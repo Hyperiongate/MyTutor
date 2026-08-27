@@ -2,6 +2,28 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD pe -- THE SENTENCES MAKE SENSE. Jim, on a live Algebra II
+#               lesson: "the text itself is as if someone is teaching math in a
+#               non-native language." He was right, and he also stopped me chasing
+#               the wrong cause: I had found that the canon forces "take away" on all
+#               336 lessons (a five-year-old's words governing Differential
+#               Equations) and proposed swapping 3,220 lines to "minus". His ruling:
+#               "Takeaway or minus, those were just as well. It's just when you put it
+#               in the whole context of those sentences, it just didn't make sense."
+#               The vocabulary was never the defect. The WRITING was.
+#               WHAT SHIPPED:
+#                 - alg2-u1-how-far-from-zero rewritten line by line with him, twice
+#                   (he rejected my first trap beat: "saying that the negative sign
+#                   only tells you which way you went is really confusing").
+#                 - 171 stray spaces before punctuation closed, and 11 before "?".
+#                 - 22 spoken sentences over 34 words split; 2 nominalizations fixed.
+#                 - rule 14 REPAIRED: it demanded a literal f" {sym} ", so authors had
+#                   been padding "terms , and" to satisfy it. Closing the spaces broke
+#                   70 lessons at once, which is how the dependency surfaced. It now
+#                   matches on word boundaries.
+#                 - two new authoring rules (5b) that survived a canon sweep against
+#                   all 1,989 cards; a third ("stacked dashes/colons", 390 hits) was
+#                   CUT for false positives, the same way ox's arm was.
 #   2026-08-27  BUILD ou -- ANSWER FREELY. read_answer() turns what a child TYPED
 #               or SAID into the integer this engine grades: pure code, no model,
 #               no network, refusing rather than guessing (a fraction, a spoken
@@ -1447,6 +1469,10 @@ MAX_PROBLEMS = 10         # past 10 without a streak, stop -- see drop/end rules
 DROP_AFTER_INTERVENTIONS = 2   # 2nd AI intervention on a skill -> easier representation
 LEVELS = ("abstract", "pictorial", "concrete")   # drop direction, left to right
 BEAT_WORD_CAP = 80        # rule 19c / build jd: one beat per turn, spoken
+# (pe) ...and one SENTENCE inside that beat a listener can hold. 34 is where the
+# 336 authored lessons actually sat: 22 sentences were over it, every one of them
+# clearer once split, and nothing legitimate was near the line.
+SPOKEN_SENTENCE_CAP = 34
 
 # ---- CANON VOCABULARY (build jr's lesson: one rule, one wording) ------------------
 # canon phrase -> the synonyms that are BANNED anywhere in any lesson's speech.
@@ -4846,7 +4872,7 @@ _PREALGEBRA_U9 = [
         "symbols": ("x", "letter"),
         "advance_line": "Three in a row — you've got it! Swap the letter for its number, then work it out.",
         "teach": [
-            ["Here is the biggest idea in all of algebra, and it is small enough to hold: a letter can stand for a number. When we write x , we mean some number that x is holding for us. Tell me what x holds, and every question about x becomes a question about that number.",
+            ["Here is the biggest idea in all of algebra, and it is small enough to hold: a letter can stand for a number. When we write x, we mean some number that x is holding for us. Tell me what x holds, and every question about x becomes a question about that number.",
              '[[goal text="A letter holds a number"]]'],
             ["Say x is holding 5. What is x plus 3? Swap the letter for its number: x plus 3 becomes 5 plus 3, which equals 8. That swap is the whole move.",
              '[[step eq="x = 5"]][[step eq="x + 3 = 5 + 3 = 8"]]'],
@@ -4922,7 +4948,7 @@ _PREALGEBRA_U9 = [
         "symbols": ("x", "terms"),
         "advance_line": "Three in a row — you've got it! x's collect by counting, like apples.",
         "teach": [
-            ["You do not need to know what x is holding to do some things with it. 3 x plus 2 x — three of something plus two of the same something is five of it. Three apples plus two apples: five apples. Three x's plus two x's: five x's. Pieces like 3 x and 2 x are called terms , and terms of x collect by counting.",
+            ["You do not need to know what x is holding to do some things with it. 3 x plus 2 x — three of something plus two of the same something is five of it. Three apples plus two apples: five apples. Three x's plus two x's: five x's. Pieces like 3 x and 2 x are called terms, and terms of x collect by counting.",
              '[[goal text="Collecting the x\'s"]]'],
             ["Watch: 3 x plus 2 x. Count them: 3 of them plus 2 of them equals 5 of them. So 3 x plus 2 x equals 5 x — whatever x turns out to be holding.",
              '[[step eq="3x + 2x"]][[step eq="3 of them + 2 of them = 5 of them"]]'],
@@ -5529,7 +5555,7 @@ _ALGEBRA1_U4 = [
         "symbols": ("y", "line"),
         "advance_line": "Three in a row — you've got it! Every point is an input standing under its output.",
         "teach": [
-            ["Last unit the machine answered one input at a time. A graph answers ALL of them at once. The rule y equals x plus 2 becomes a line on the graph. Pick any x along the bottom, go straight up to the line , and the height you reach is that x's answer — its y.",
+            ["Last unit the machine answered one input at a time. A graph answers ALL of them at once. The rule y equals x plus 2 becomes a line on the graph. Pick any x along the bottom, go straight up to the line, and the height you reach is that x's answer — its y.",
              '[[goal text="Reading the line"]][[graph lines="y=x+2" range="0..8" caption="y=x+2 on the grid"]]'],
             ["What is y when x is 3? Find 3 along the bottom, climb up to the line, and read the height: 3 plus 2 equals 5. The point sits at 3 comma 5 — the input and its output, standing together.",
              '[[graph lines="y=x+2" points="(3,5)" range="0..8" caption="y=x+2 — the point (3,5)"]][[step eq="x = 3"]] [[step eq="y = 3 + 2 = 5"]]'],
@@ -5701,7 +5727,7 @@ _ALGEBRA1_U5 = [
         "symbols": ("cross", "x"),
         "advance_line": "Three in a row — you've got it! The crossing is where both rules tell the same story.",
         "teach": [
-            ["Two rules can both talk about the same x and y. One says y equals x plus 2. Another says y equals 3 times x. Usually they disagree — feed them the same x and they give different y's. But look at the picture: two lines, and they cross .",
+            ["Two rules can both talk about the same x and y. One says y equals x plus 2. Another says y equals 3 times x. Usually they disagree — feed them the same x and they give different y's. But look at the picture: two lines, and they cross.",
              '[[goal text="Where two rules agree"]][[graph lines="y=x+2; y=3x" range="0..4" caption="both rules on one grid"]]'],
             ["At the crossing, both rules give the SAME y. Try x equals 1: the first rule says 3, the second says 3. They agree! That is what the crossing point means — the one x where both lines stand at the same height.",
              '[[graph lines="y=x+2; y=3x" points="(1,3)" range="0..4" caption="both rules on one grid — they cross at (1,3)"]][[step eq="x + 2 = 3x at x = 1"]]'],
@@ -5813,9 +5839,9 @@ _ALGEBRA1_U5 = [
         "symbols": ("take away", "cents"),
         "advance_line": "Three in a row — you've got it! Take one buy away from the other and a whole unknown vanishes.",
         "teach": [
-            ["Two shopping trips, paid in cents , the smallest coins. Trip one: two pencils and an eraser, 14 cents. Trip two: one pencil and the same eraser, 9 cents. Nobody told you what anything costs — and yet you can work out the pencil exactly.",
+            ["Two shopping trips, paid in cents, the smallest coins. Trip one: two pencils and an eraser, 14 cents. Trip two: one pencil and the same eraser, 9 cents. Nobody told you what anything costs — and yet you can work out the pencil exactly.",
              '[[goal text="The eraser vanishes"]][[step eq="2 pencils + eraser = 14"]][[step eq="1 pencil + eraser = 9"]]'],
-            ["Take the second trip away from the first. The eraser is in both, so it vanishes . One pencil is left over on one side, and 14 take away 9 equals 5 on the other. A pencil costs 5 cents.",
+            ["Take the second trip away from the first. The eraser is in both, so it vanishes. One pencil is left over on one side, and 14 take away 9 equals 5 on the other. A pencil costs 5 cents.",
              '[[step eq="difference: 1 pencil = 14 − 9 = 5"]]'],
             ["And the eraser? Put the pencil back into trip two: 5 plus eraser equals 9, so the eraser is 4 cents. Careful when you tap — 4 is the ERASER'S price, and the question asked for the pencil. A system holds two answers, and only one of them is yours.",
              '[[step eq="pencil = 5 ✓ · eraser = 4 — the other unknown"]][[step eq="check: 2 × 5 + 4 = 14 ✓"]]'],
@@ -5983,7 +6009,7 @@ _ALGEBRA1_U6 = [
         "symbols": ("doubles", "day"),
         "advance_line": "Three in a row — you've got it! Doubling doubles everything there is, not just the start.",
         "teach": [
-            ["A pond has 3 lily pads, and lily pads double : every day, each pad becomes two. Watch a few days go by — 3, then 6, then 12, then 24. Look how fast that pulled away. This kind of growing has a name: exponential.",
+            ["A pond has 3 lily pads, and lily pads double: every day, each pad becomes two. Watch a few days go by — 3, then 6, then 12, then 24. Look how fast that pulled away. This kind of growing has a name: exponential.",
              '[[goal text="The doubling pond"]][[step eq="3 → 6 → 12 → 24"]]'],
             ["Why so fast? Because each day doubles EVERYTHING there is, not just the pads you started with. After 3 days the pond has been doubled 3 times: 3 times 2 times 2 times 2, which equals 24. The days count the doublings — the days are a power of 2.",
              '[[step eq="3 × 2 × 2 × 2 = 24"]][[step eq="3 × 2³"]]'],
@@ -6033,7 +6059,7 @@ _ALGEBRA1_U7 = [
         "symbols": ("rooms", "x"),
         "advance_line": "Three in a row — you've got it! The middle rooms add; the corner room times.",
         "teach": [
-            ["The rectangle picture grows up today. x plus 2, times x plus 3 — BOTH sides have an x in them now, so the wall cuts each way and the rectangle has four rooms : an x-squared room, two x rooms, and a corner of plain number.",
+            ["The rectangle picture grows up today. x plus 2, times x plus 3. BOTH sides have an x in them now, so the wall cuts each way. That gives the rectangle four rooms: an x-squared room, two x rooms, and a corner of plain number.",
              '[[goal text="The four rooms"]][[areamodel rows="x,2" cols="x,3" caption="a (x + 2) by (x + 3) rectangle — read the rooms"]]'],
             ["Read the rooms. x times x is x squared. The two middle rooms are 3 x and 2 x — together 5 x. The corner is 2 times 3, which equals 6. So x plus 2, times x plus 3, comes to x squared plus 5 x plus 6.",
              '[[areamodel rows="x,2" cols="x,3" caption="a (x + 2) by (x + 3) rectangle — read the rooms"]][[step eq="(x + 2)(x + 3) = x² + 5x + 6"]]'],
@@ -6071,7 +6097,7 @@ _ALGEBRA1_U7 = [
         "symbols": ("factoring", "x"),
         "advance_line": "Three in a row — you've got it! The right number fits BOTH clues at once.",
         "teach": [
-            ["Now run yesterday's picture backwards. You are handed the finished sum — x squared plus 5 x plus 6 — and asked what two sides built it. Working back from the rooms to the sides is called factoring , and it is a detective game with two clues.",
+            ["Now run yesterday's picture backwards. You are handed the finished sum — x squared plus 5 x plus 6 — and asked what two sides built it. Working back from the rooms to the sides is called factoring, and it is a detective game with two clues.",
              '[[goal text="Running the rooms backwards"]][[areamodel rows="x,2" cols="x,3" caption="a (x + 2) by (x + 3) rectangle — read the rooms"]]'],
             ["The clues: the two hidden numbers ADD to the x count, 5, and TIMES to the corner, 6. Try pairs: 1 and 4? Add to 5, but times to 4 — no. 2 and 3? Add to 5 AND times to 6. Both clues fit, so the sides are x plus 2 and x plus 3.",
              '[[step eq="? + ? = 5 · ? × ? = 6"]][[step eq="2 + 3 = 5 ✓ · 2 × 3 = 6 ✓"]]'],
@@ -6109,7 +6135,7 @@ _ALGEBRA1_U7 = [
         "symbols": ("common factor", "x"),
         "advance_line": "Three in a row — you've got it! Both parts share, or it is not a common factor.",
         "teach": [
-            ["Sometimes the whole expression shares one number. Look at 6 x plus 9: the 6 is 3 times 2, and the 9 is 3 times 3. The 3 lives in BOTH parts — it is a common factor , and you can pull it out front.",
+            ["Sometimes the whole expression shares one number. Look at 6 x plus 9: the 6 is 3 times 2, and the 9 is 3 times 3. The 3 lives in BOTH parts — it is a common factor, and you can pull it out front.",
              '[[goal text="Pulling out the common factor"]][[step eq="6x + 9 = 3 · 2x + 3 · 3"]]'],
             ["Pull the 3 out: 6 x plus 9 equals 3 times, 2 x plus 3. Check it with the distributive lesson's own rule — the 3 reaches both rooms: 3 times 2 x is 6 x, and 3 times 3 is 9. It all comes back.",
              '[[step eq="6x + 9 = 3(2x + 3)"]][[step eq="check: 3 × 2x = 6x ✓ · 3 × 3 = 9 ✓"]]'],
@@ -6149,7 +6175,7 @@ _ALGEBRA1_U7 = [
         "teach": [
             ["One special pair of sides does something wonderful. x plus 3, times x TAKE AWAY 3. Build the rooms: x squared, then plus 3 x from one middle and take away 3 x from the other, then the corner, 3 times 3 taken away.",
              '[[goal text="The vanishing middle"]][[step eq="(x + 3)(x − 3)"]][[step eq="x² + 3x − 3x − 9"]]'],
-            ["Watch the middles: plus 3 x and take away 3 x. They cancel — land exactly on nothing. All that survives is x squared take away 9. The whole middle of the answer vanished .",
+            ["Watch the middles: plus 3 x and take away 3 x. They cancel — land exactly on nothing. All that survives is x squared take away 9. The whole middle of the answer vanished.",
              '[[step eq="+3x − 3x = 0"]][[step eq="(x + 3)(x − 3) = x² − 9"]]'],
             ["And notice WHICH 9: it is 3 squared, not 3 and not 6. The corner room is 3 times 3. This pattern — x squared take away a square — is famous enough to have a name, the difference of squares, and it works for any number in the 3's place.",
              '[[step eq="x² − 9 ✓ (9 = 3²)"]][[step eq="x² − 3 ✗ · x² − 6x... ✗ nothing survived but the squares"]]'],
@@ -6197,7 +6223,7 @@ _ALGEBRA1_U8 = [
         "symbols": ("squared", "curve"),
         "advance_line": "Three in a row — you've got it! Squared means times itself, never times two.",
         "teach": [
-            ["Every line you have drawn was straight. Meet the first rule that bends: y equals x squared. Feed it 1, 2, 3, 4 and out come 1, 4, 9, 16 — each step up costs more than the last, so the graph bends into a curve , shaped like a bowl.",
+            ["Every line you have drawn was straight. Meet the first rule that bends: y equals x squared. Feed it 1, 2, 3, 4 and out come 1, 4, 9, 16 — each step up costs more than the last, so the graph bends into a curve, shaped like a bowl.",
              '[[goal text="The curve"]][[graph func="x^2" range="-4..4" caption="x^2 on the grid"]]'],
             ["Read it like any rule. y equals x squared plus 2, at x equals 3: 3 squared is 3 times 3, which equals 9, plus 2 equals 11.",
              '[[graph func="x^2+2" range="-4..4" caption="x^2+2 on the grid"]][[step eq="y = 3² + 2 = 9 + 2 = 11"]]'],
@@ -6313,7 +6339,7 @@ _ALGEBRA1_U8 = [
         "teach": [
             ["Throw a ball and its height follows a bending curve — quadratics are how the world falls. Here is one: y equals 25 take away x squared. At x equals 0 the height is 25, and as x grows, x squared eats the height away.",
              '[[goal text="The ball comes down"]][[graph func="25-x^2" range="0..6" caption="25-x^2 on the grid"]]'],
-            ["When does it hit the ground? The ground is where the height is zero , so 25 take away x squared equals 0 — x squared must equal 25. Now the question turns around — WHAT NUMBER, squared, equals 25? Five: 5 times 5 is 25. The ball lands at x equals 5.",
+            ["When does it hit the ground? The ground is where the height is zero, so 25 take away x squared equals 0 — x squared must equal 25. Now the question turns around — WHAT NUMBER, squared, equals 25? Five: 5 times 5 is 25. The ball lands at x equals 5.",
              '[[step eq="25 − x² = 0"]][[step eq="x² = 25"]] [[step eq="x = 5"]]'],
             ["That backwards question has a name: 5 is the square root of 25 — the number that squares to it. It is not half of 25. Halving undoes doubling; the square root undoes SQUARING, and you have known since the curve lesson that those are different beasts.",
              '[[step eq="x = 5 ✓ (5² = 25)"]][[step eq="x = 12 ✗ — half undoes DOUBLING, not squaring"]]'],
@@ -6443,7 +6469,7 @@ _ALGEBRA1_U9 = [
         "symbols": ("range", "spread"),
         "advance_line": "Three in a row — you've got it! The range is how far the data stretches.",
         "teach": [
-            ["The mean and the median both tell you where the data SITS. How far it reaches is its spread , and the range measures exactly that. The range tells you something else entirely: how far it stretches. Biggest take away smallest — one take away, and it describes the whole spread of the data.",
+            ["The mean and the median both tell you where the data SITS. How far it reaches is its spread, and the range measures exactly that. The range tells you something else entirely: how far it stretches. Biggest take away smallest — one take away, and it describes the whole spread of the data.",
              '[[goal text="The range"]][[bars data="smallest:4 | biggest:19" caption="smallest 4, biggest 19"]]'],
             ["Smallest 4, biggest 19. The range is 19 take away 4, which equals 15. The data covers a stretch of 15.",
              '[[step eq="19 − 4 = 15"]]'],
@@ -6537,7 +6563,7 @@ _GEOMETRY_U1 = [
         "symbols": ("right angle", "degrees"),
         "advance_line": "Three in a row — you've got it! A right angle is 90, so the pair adds to 90.",
         "teach": [
-            ["Welcome to geometry. You already know two totals: a right angle is 90 degrees , and a straight line is 180. Today's angles share the smaller one — two angles that together make a right angle, a perfect square corner.",
+            ["Welcome to geometry. You already know two totals: a right angle is 90 degrees, and a straight line is 180. Today's angles share the smaller one — two angles that together make a right angle, a perfect square corner.",
              '[[goal text="Two angles make a right angle"]][[angle deg="90" split="30" caption="a square corner split — 30° and the rest"]]'],
             ["Here is a right angle with a ray drawn inside it, splitting it in two. One angle is 30 degrees. The two angles fill the corner, so together they make 90 — and the other piece is 90 take away 30, which equals 60.",
              '[[angle deg="90" split="30" caption="a square corner split — 30° and the rest"]][[step eq="90° − 30° = 60°"]]'],
@@ -6575,9 +6601,9 @@ _GEOMETRY_U1 = [
         "symbols": ("cross", "degrees"),
         "advance_line": "Three in a row — you've got it! Neighbours make 180; opposites are equal.",
         "teach": [
-            ["Two straight lines can cross , and where they cross they make an X with four angles in it. They are not four separate mysteries — they come in two pairs, and knowing ONE of the four tells you all the others.",
+            ["Two straight lines can cross, and where they cross they make an X with four angles in it. They are not four separate mysteries — they come in two pairs, and knowing ONE of the four tells you all the others.",
              '[[goal text="When two lines cross"]][[angle deg="180" split="50" caption="a straight line split — 50° and the rest"]]'],
-            ["Say one angle measures 50 degrees , and remember a straight line is 180. The angle NEXT to it sits with it on that straight line, so the two make 180: it is 180 take away 50, which equals 130. And the angle straight OPPOSITE the 50 is 50 again — opposite angles are always equal.",
+            ["Say one angle measures 50 degrees, and remember a straight line is 180. The angle NEXT to it sits with it on that straight line, so the two make 180: it is 180 take away 50, which equals 130. And the angle straight OPPOSITE the 50 is 50 again — opposite angles are always equal.",
              '[[angle deg="180" split="50" caption="a straight line split — 50° and the rest"]][[step eq="next to it: 180° − 50° = 130°"]][[step eq="opposite: 50° again"]]'],
             ["So read the question carefully: NEXT to, or OPPOSITE? Next-door angles add to 180. Opposite angles are twins. Both facts are true at once, and answering with the wrong one is the whole danger of an X.",
              '[[step eq="next to 50° → 130° ✓"]][[step eq="opposite 50° → 50° (true, but not what was asked)"]]'],
@@ -6613,7 +6639,7 @@ _GEOMETRY_U1 = [
         "symbols": ("radius", "diameter"),
         "advance_line": "Three in a row — you've got it! The diameter is two radiuses.",
         "teach": [
-            ["A circle is every point the same distance from one middle point. That distance — middle to edge — is the radius . Draw it and you have the circle's one measurement; everything else about the circle follows from it.",
+            ["A circle is every point the same distance from one middle point. That distance — middle to edge — is the radius. Draw it and you have the circle's one measurement; everything else about the circle follows from it.",
              '[[goal text="Radius and diameter"]][[circle center="O" r="5" caption="middle to edge: the radius is 5"]]'],
             ["Now go all the way across, edge to edge, through the middle. That is the diameter — and it is simply two radiuses laid end to end. If the radius is 5, the diameter is 2 times 5, which equals 10.",
              '[[circle center="O" r="5" caption="middle to edge: the radius is 5"]][[step eq="diameter = 2 × 5 = 10"]]'],
@@ -6651,7 +6677,7 @@ _GEOMETRY_U1 = [
         "symbols": ("midpoint", "halfway"),
         "advance_line": "Three in a row — you've got it! Add the two ends and share by two.",
         "teach": [
-            ["Every line has an exact middle — the point halfway along, the same distance from both ends. It is called the midpoint , and finding it is the first real construction in geometry.",
+            ["Every line has an exact middle — the point halfway along, the same distance from both ends. It is called the midpoint, and finding it is the first real construction in geometry.",
              '[[goal text="The midpoint"]][[numberline min="1" max="11" points="2,10" caption="the ends, 2 and 10 — where is the middle?"]]'],
             ["A line runs from 2 to 10. Add the two ends: 2 plus 10 equals 12. Share by two: 6. And check it — 6 is 4 away from 2, and 4 away from 10. Equal both ways, so 6 is the midpoint.",
              '[[numberline min="1" max="11" points="2,6,10" caption="ends 2 and 10, middle 6"]][[step eq="(2 + 10) ÷ 2 = 6"]]'],
@@ -6703,7 +6729,7 @@ _GEOMETRY_U2 = [
         "symbols": ("slide", "coordinates"),
         "advance_line": "Three in a row — you've got it! A slide right changes only x.",
         "teach": [
-            ["Geometry can MOVE a shape. The first move is a slide — every point travels the same distance in the same direction, and the shape never turns or flips. Mathematicians call a slide a translation. On the grid, a point's address is its two coordinates : x across, then y up.",
+            ["Geometry can MOVE a shape. The first move is a slide — every point travels the same distance in the same direction, and the shape never turns or flips. Mathematicians call a slide a translation. On the grid, a point's address is its two coordinates: x across, then y up.",
              '[[goal text="Slide it over"]][[graph points="(3,5)" range="0..14" yrange="0..10" caption="the point (3,5)"]]'],
             ["Take the point at 3 across and 5 up. Slide it 4 to the right. Only the ACROSS number changes: x goes from 3 to 3 plus 4, which equals 7. The point lands at 7 across, 5 up.",
              '[[graph points="(3,5),(7,5)" range="0..14" yrange="0..10" caption="from (3,5) to (7,5)"]][[step eq="x: 3 + 4 = 7 · y stays 5"]]'],
@@ -6741,7 +6767,7 @@ _GEOMETRY_U2 = [
         "symbols": ("flip", "mirror"),
         "advance_line": "Three in a row — you've got it! A flip across the y line changes only the sign of x.",
         "teach": [
-            ["The second move is a flip . Stand a mirror upright on the y line — the line where x is zero — and every point jumps to the other side, the same distance away. A flip is also called a reflection.",
+            ["The second move is a flip. Stand a mirror upright on the y line — the line where x is zero — and every point jumps to the other side, the same distance away. A flip is also called a reflection.",
              '[[goal text="Flip it across"]][[graph lines="x=0" points="(4,6)" range="-9..9" yrange="0..10" caption="x=0 — the point (4,6)"]]'],
             ["Take the point at 4 across, 6 up. Flip it across the y line. Its height does not change, and its distance from the mirror does not change — only the SIDE changes. New x: the sign flips, and 4 becomes negative 4. The point lands at negative 4 across, 6 up.",
              '[[graph lines="x=0" points="(4,6),(-4,6)" range="-9..9" yrange="0..10" caption="x=0 — the point (4,6)"]][[step eq="x: 4 → −4 · y stays 6"]]'],
@@ -6819,7 +6845,7 @@ _GEOMETRY_U2 = [
         "teach": [
             ["Some shapes come back. Turn a square a quarter of the way around and it lands exactly on itself — you cannot tell it ever moved. That is called turn symmetry, and the question is always the same one: how many degrees is the smallest turn that works?",
              '[[goal text="It turns onto itself"]][[pie parts="4" caption="4 equal parts"]]'],
-            ["One full turn — all the way around — is 360 degrees . A wheel cut into 4 equal parts lands on itself 4 times in one full turn, so the smallest working turn is 360 divided by 4, which equals 90 degrees.",
+            ["One full turn — all the way around — is 360 degrees. A wheel cut into 4 equal parts lands on itself 4 times in one full turn, so the smallest working turn is 360 divided by 4, which equals 90 degrees.",
              '[[pie parts="4" caption="4 equal parts"]][[step eq="360° ÷ 4 = 90°"]]'],
             ["Two traps. Half a turn, 180, feels safe — but a wheel with 5 equal parts does NOT land on itself at 180; only the sharing rule works. And the number of parts is a COUNT, not an angle — 5 parts is an answer in pieces, not in degrees.",
              '[[pie parts="5" caption="5 equal parts"]][[step eq="360° ÷ 5 = 72° ✓ · 180° ✗ · 5 ✗"]]'],
@@ -6867,7 +6893,7 @@ _GEOMETRY_U3 = [
         "symbols": ("congruent", "matching"),
         "advance_line": "Three in a row — you've got it! The letters name the matching parts.",
         "teach": [
-            ["Two shapes are congruent when one is an exact copy of the other — every side the same length, every angle the same size. The word does real work in proofs: say two triangles are congruent and you have said six things at once, three sides and three angles, all matching .",
+            ["Two shapes are congruent when one is an exact copy of the other — every side the same length, every angle the same size. The word does real work in proofs: say two triangles are congruent and you have said six things at once, three sides and three angles, all matching.",
              '[[goal text="Matching parts"]][[triangle v="A,B,C" sides="4,7,5" caption="sides 4, 7, 5"]]'],
             ["Which side matches which? The LETTERS tell you. Triangle ABC congruent to triangle DEF means A matches D, B matches E, and C matches F — in that exact order. So side AB matches side DE, side BC matches side EF, and side CA matches side FD.",
              '[[step eq="A↔D · B↔E · C↔F"]][[step eq="AB↔DE · BC↔EF · CA↔FD"]]'],
@@ -6905,7 +6931,7 @@ _GEOMETRY_U3 = [
         "symbols": ("isosceles", "base angles"),
         "advance_line": "Three in a row — you've got it! Both base angles go in before the top comes out.",
         "teach": [
-            ["Some triangles carry a secret pair. When two sides are the same length — drawn with little tick marks — the triangle is called isosceles , and its two base angles — the pair down at the bottom — are equal to each other. Equal sides face equal angles: that is the whole secret.",
+            ["Some triangles carry a secret pair. When two sides are the same length, we mark them with little ticks. That triangle is called isosceles. Its two base angles, the pair down at the bottom, are equal to each other. Equal sides face equal angles: that is the whole secret.",
              '[[goal text="Two equal sides"]][[triangle v="A,B,C" ticks="BC,CA" caption="the tick marks show two equal sides"]]'],
             ["Every triangle's three angles put together are 180 degrees — you proved that back in prealgebra. So if each base angle is 50, the two of them use 100, and the top angle gets what is left over: 180 take away 100 equals 80 degrees.",
              '[[triangle v="A,B,C" ticks="BC,CA" angles="50,50," caption="base angles 50° — the top is waiting"]][[step eq="50° + 50° + ? = 180°"]][[step eq="180° − 100° = 80°"]]'],
@@ -6943,9 +6969,9 @@ _GEOMETRY_U3 = [
         "symbols": ("exterior", "straight line"),
         "advance_line": "Three in a row — you've got it! The exterior angle equals the two far angles put together.",
         "teach": [
-            ["Take any triangle and stretch one side out past the corner, like opening a door. The new angle outside the triangle is called the exterior angle — and it comes with the first little proof of this course, built from two facts you already own: a straight line is 180, and so are the three angles inside a triangle.",
+            ["Take any triangle and stretch one side out past the corner, like opening a door. The new angle outside the triangle is called the exterior angle. It comes with the first little proof of this course. You already own both facts it needs: a straight line is 180, and so are the three angles inside a triangle.",
              '[[goal text="The outside angle"]][[triangle v="A,B,C" angles="40,60," caption="angles 40° and 60° — the third is forced"]]'],
-            ["Watch the proof. Angles of 40 and 60 leave the inside corner at 180 take away 100 — 80 degrees. The inside corner and the exterior angle sit together on one straight line , so the exterior is 180 take away 80 — 100 degrees. And look: 100 is exactly 40 plus 60.",
+            ["Watch the proof. Angles of 40 and 60 leave the inside corner at 180 take away 100 — 80 degrees. The inside corner and the exterior angle sit together on one straight line, so the exterior is 180 take away 80 — 100 degrees. And look: 100 is exactly 40 plus 60.",
              '[[triangle v="A,B,C" angles="40,60," caption="angles 40° and 60° — the third is forced"]][[step eq="inside: 180 − 40 − 60 = 80"]][[step eq="exterior: 180 − 80 = 100 = 40 + 60"]]'],
             ["That is the shortcut, proved once and yours forever: the exterior angle equals the two FAR angles put together. The trap is answering with the inside corner instead — 80 sits inside the triangle, and the question points outside.",
              '[[step eq="exterior = the two far angles put together"]][[step eq="the inside corner ✗ — that is the exterior\'s neighbour"]]'],
@@ -6981,7 +7007,7 @@ _GEOMETRY_U3 = [
         "symbols": ("apex", "base angles"),
         "advance_line": "Three in a row — you've got it! Take the apex out first, then share the rest.",
         "teach": [
-            ["Yesterday's triangle ran base to top. Today runs top to base — given the apex , the single angle up where the two equal sides meet, find the pair of equal base angles below. Same triangle, same 180, read in the other direction.",
+            ["Yesterday's triangle ran base to top. Today runs top to base — given the apex, the single angle up where the two equal sides meet, find the pair of equal base angles below. Same triangle, same 180, read in the other direction.",
              '[[goal text="Share the rest"]][[triangle v="A,B,C" ticks="BC,CA" angles=",,40" caption="apex 40° — the base angles share the rest"]]'],
             ["Say the apex is 40. The three angles put together are 180, so the two base angles share what the apex leaves behind: 180 take away 40 is 140. They are equal, so they split it evenly — 140 divided by 2 equals 70 degrees each.",
              '[[triangle v="A,B,C" ticks="BC,CA" angles=",,40" caption="apex 40° — the base angles share the rest"]][[step eq="180° − 40° = 140°"]][[step eq="140° ÷ 2 = 70°"]]'],
@@ -7033,7 +7059,7 @@ _GEOMETRY_U4 = [
         "symbols": ("scale factor", "similar"),
         "advance_line": "Three in a row — you've got it! A scale factor is a times, never an add.",
         "teach": [
-            ["Geometry has one more move, and this one changes SIZE. An enlargement copies a shape bigger — same shape, same angles, new size — and one number runs the whole job: the scale factor . Scale factor 2 means every length comes out 2 times as long. Shapes related this way are called similar .",
+            ["Geometry has one more move, and this one changes SIZE. An enlargement copies a shape bigger — same shape, same angles, new size — and one number runs the whole job: the scale factor. Scale factor 2 means every length comes out 2 times as long. Shapes related this way are called similar.",
              '[[goal text="Scaling one side"]][[triangle v="A,B,C" sides="4,6,5" caption="sides 4, 6, 5"]]'],
             ["Enlarge this triangle by scale factor 2. The side of 4 becomes 4 times 2 — 8. The side of 6 becomes 12, and the side of 5 becomes 10. Each side keeps its place and times by the same factor; that is why the copy keeps its shape.",
              '[[triangle v="A,B,C" sides="4,6,5" caption="sides 4, 6, 5"]][[step eq="× 2: 4 → 8 · 6 → 12 · 5 → 10"]]'],
@@ -7071,7 +7097,7 @@ _GEOMETRY_U4 = [
         "symbols": ("scale factor", "matches"),
         "advance_line": "Three in a row — you've got it! Big side divided by the side it matches.",
         "teach": [
-            ["Two similar shapes stand side by side — the same shape in two sizes. Somewhere between them hides the number that turns one into the other: the scale factor . Finding it is one division: a big side divided by the small side it matches .",
+            ["Two similar shapes stand side by side — the same shape in two sizes. Somewhere between them hides the number that turns one into the other: the scale factor. Finding it is one division: a big side divided by the small side it matches.",
              '[[goal text="The scale factor"]][[bars data="small:4 | big:12" caption="matching sides: 4 and 12"]]'],
             ["A side of 4 in the small shape matches a side of 12 in the big one. The factor is 12 divided by 4 — 3. Check it the other way: 4 times 3 equals 12. One matching pair of sides is all it ever takes.",
              '[[bars data="small:4 | big:12" caption="matching sides: 4 and 12"]][[step eq="12 ÷ 4 = 3"]]'],
@@ -7198,7 +7224,7 @@ _GEOMETRY_U5 = [
         "symbols": ("hypotenuse", "legs"),
         "advance_line": "Three in a row — you've got it! Leg squared plus leg squared equals hypotenuse squared.",
         "teach": [
-            ["Every right triangle hides an equation. The two sides that form the square corner are called the legs , and the longest side — always across from the right angle — is the hypotenuse . More than two thousand years ago Pythagoras proved: leg squared plus leg squared equals hypotenuse squared. Every right triangle, every time.",
+            ["Every right triangle hides an equation. The two sides that form the square corner are called the legs, and the longest side — always across from the right angle — is the hypotenuse. More than two thousand years ago Pythagoras proved: leg squared plus leg squared equals hypotenuse squared. Every right triangle, every time.",
              '[[goal text="The longest side"]][[righttriangle adj="4" opp="3" hyp="5" caption="legs 3 and 4, hypotenuse 5"]]'],
             ["Try it on legs of 3 and 4. 3 squared is 9, and 4 squared is 16. Put together: 25. Now, which number times itself equals 25? 5 — so the hypotenuse is 5. The famous three-four-five triangle.",
              '[[righttriangle adj="4" opp="3" hyp="5" caption="legs 3 and 4, hypotenuse 5"]][[step eq="3² + 4² = 9 + 16 = 25"]][[step eq="5 × 5 = 25"]] [[step eq="hyp = 5"]]'],
@@ -7236,7 +7262,7 @@ _GEOMETRY_U5 = [
         "symbols": ("hypotenuse", "leg"),
         "advance_line": "Three in a row — you've got it! Square first, take away, then square back.",
         "teach": [
-            ["The equation runs backwards too. Know the hypotenuse and one leg , and the other leg is waiting inside the same rule — because if leg squared plus leg squared equals hypotenuse squared, then the missing square is the hypotenuse's square take away the known leg's square.",
+            ["The equation runs backwards too. Know the hypotenuse and one leg, and the other leg is waiting inside the same rule. Leg squared plus leg squared equals hypotenuse squared. So the missing square is the hypotenuse's square take away the known leg's square.",
              '[[goal text="The missing leg"]][[righttriangle adj="4" opp="3" hyp="5" caption="legs 3 and 4, hypotenuse 5"]]'],
             ["The hypotenuse is 13 and one leg is 5. 13 squared is 169; 5 squared is 25. Take away: 144. Which number times itself equals 144? 12 — the missing leg is 12.",
              '[[righttriangle adj="12" opp="5" hyp="13" caption="legs 5 and 12, hypotenuse 13"]][[step eq="13² − 5² = 169 − 25 = 144"]][[step eq="12 × 12 = 144"]] [[step eq="leg = 12"]]'],
@@ -7274,7 +7300,7 @@ _GEOMETRY_U5 = [
         "symbols": ("tangent", "opposite"),
         "advance_line": "Three in a row — you've got it! Tangent is opposite divided by adjacent.",
         "teach": [
-            ["Now the angle itself starts talking. Stand at an angle in a right triangle: the leg touching it is the adjacent side, and the leg across from it is the opposite side. Their ratio — opposite divided by adjacent — is called the tangent , and it measures how steeply the angle climbs.",
+            ["Now the angle itself starts talking. Stand at an angle in a right triangle: the leg touching it is the adjacent side, and the leg across from it is the opposite side. Their ratio — opposite divided by adjacent — is called the tangent, and it measures how steeply the angle climbs.",
              '[[goal text="The climb ratio"]][[righttriangle adj="4" opp="8" caption="legs 8 and 4"]]'],
             ["Here the adjacent side is 4 and the opposite side is 8. The tangent is 8 divided by 4 — 2. That number says: for every 1 you walk across, the angle climbs 2. You met this in Algebra as the climb of a line; the tangent is that same climb, living inside a triangle.",
              '[[righttriangle adj="4" opp="8" caption="legs 8 and 4"]][[step eq="tan = 8 ÷ 4 = 2"]]'],
@@ -7311,7 +7337,7 @@ _GEOMETRY_U5 = [
         "symbols": ("tangent", "adjacent"),
         "advance_line": "Three in a row — you've got it! Adjacent times tangent equals opposite.",
         "teach": [
-            ["The tangent works backwards too, and this is where it earns its keep: know an angle's tangent and how far away you stand, and it hands you a height you could never reach with a ruler. Given the tangent and the adjacent side, the side opposite the angle is adjacent times tangent .",
+            ["The tangent works backwards too, and this is where it earns its keep. Know an angle's tangent and how far away you stand. It hands you a height you could never reach with a ruler. Given the tangent and the adjacent side, the side opposite the angle is adjacent times tangent.",
              '[[goal text="Using the tangent"]][[righttriangle adj="5" opp="15" caption="legs 15 and 5"]]'],
             ["Say the tangent is 3 and the adjacent side is 5. A tangent of 3 climbs 3 for every 1 across. Walk 5 across and it climbs 3, five times over: 5 times 3 equals 15. The opposite side is 15.",
              '[[righttriangle adj="5" opp="15" caption="legs 15 and 5"]][[step eq="opposite = 5 × 3 = 15"]]'],
@@ -7364,7 +7390,7 @@ _GEOMETRY_U6 = [
         "symbols": ("arc", "degrees"),
         "advance_line": "Three in a row — you've got it! A circle's pieces share 360.",
         "teach": [
-            ["Welcome to circles. Cut a circle with two radiuses and you get two arcs — two pieces of the rim — and every arc is measured in degrees , by the angle it opens at the middle. All the way around is one full turn: 360 degrees. A circle's pieces always share exactly 360.",
+            ["Welcome to circles. Cut a circle with two radiuses and you get two arcs — two pieces of the rim — and every arc is measured in degrees, by the angle it opens at the middle. All the way around is one full turn: 360 degrees. A circle's pieces always share exactly 360.",
              '[[goal text="The rest of the circle"]][[circle center="O" caption="the circle"]]'],
             ["Say the small arc opens at 60 degrees. The rest of the circle is everything else: 360 take away 60, which equals 300 degrees. Check by putting the pieces back: 60 plus 300 equals 360 — the whole circle again.",
              '[[circle center="O" caption="the circle"]][[step eq="360° − 60° = 300°"]][[step eq="60° + 300° = 360° ✓"]]'],
@@ -7402,7 +7428,7 @@ _GEOMETRY_U6 = [
         "symbols": ("inscribed", "arc"),
         "advance_line": "Three in a row — you've got it! From the rim, the arc looks half.",
         "teach": [
-            ["An angle can stand at the middle of a circle — or on the rim itself. An angle whose corner sits ON the circle is called an inscribed angle, and it opens onto an arc across from it. Here is the circle's most famous rule: an inscribed angle is HALF its arc .",
+            ["An angle can stand at the middle of a circle — or on the rim itself. An angle whose corner sits ON the circle is called an inscribed angle, and it opens onto an arc across from it. Here is the circle's most famous rule: an inscribed angle is HALF its arc.",
              '[[goal text="Half the arc"]][[circle center="O" inscribed="80" caption="an angle standing on the rim"]]'],
             ["Look: the arc across measures 80 degrees, and the inscribed angle on the rim measures half of that — 80 divided by 2, which equals 40 degrees. Slide the corner anywhere along the rim: still 40. The arc rules the angle from anywhere on the circle.",
              '[[circle center="O" inscribed="80" caption="an angle standing on the rim"]][[step eq="80° ÷ 2 = 40°"]]'],
@@ -7440,7 +7466,7 @@ _GEOMETRY_U6 = [
         "symbols": ("inscribed", "arc"),
         "advance_line": "Three in a row — you've got it! From angle to arc, you double.",
         "teach": [
-            ["Now read the rule the other way. You stand on the rim, you measure the inscribed angle — and the arc across from you is waiting to be found. If the angle is half the arc , then the arc is DOUBLE the angle. One rule, two directions, like every good rule in this course.",
+            ["Now read the rule the other way. You stand on the rim, you measure the inscribed angle — and the arc across from you is waiting to be found. If the angle is half the arc, then the arc is DOUBLE the angle. One rule, two directions, like every good rule in this course.",
              '[[goal text="Double it back"]][[circle center="O" inscribed="80" caption="an angle standing on the rim"]]'],
             ["The inscribed angle measures 40 degrees. The arc across from it is double that: 2 times 40 equals 80 degrees. And check it forwards: half of 80 is 40 — the same picture, read both ways.",
              '[[circle center="O" inscribed="80" caption="an angle standing on the rim"]][[step eq="arc = 2 × 40° = 80°"]]'],
@@ -7478,7 +7504,7 @@ _GEOMETRY_U6 = [
         "symbols": ("arc", "equal parts"),
         "advance_line": "Three in a row — you've got it! One equal part of the distance around.",
         "teach": [
-            ["One last measure: not the degrees of an arc , but its LENGTH — how far you would walk along the rim. When the central angle divides 360 evenly, the circle cuts into equal parts , and the arc is simply one part of the whole distance around.",
+            ["One last measure: not the degrees of an arc, but its LENGTH — how far you would walk along the rim. When the central angle divides 360 evenly, the circle cuts into equal parts, and the arc is simply one part of the whole distance around.",
              '[[goal text="A piece of the rim"]][[pie parts="4" shaded="1" caption="4 equal parts, 1 shaded"]]'],
             ["Say the distance around a circle is 12, and the arc sits under a central angle of 90 degrees. 90 goes into 360 four times, so the circle is 4 equal parts and the arc is one of them: 12 divided by 4, which equals 3.",
              '[[pie parts="4" shaded="1" caption="4 equal parts, 1 shaded"]][[step eq="360° ÷ 90° = 4 parts"]][[step eq="12 ÷ 4 = 3"]]'],
@@ -7530,11 +7556,11 @@ _GEOMETRY_U7 = [
         "symbols": ("segment", "grid"),
         "advance_line": "Three in a row — you've got it! Count the steps, never the dots.",
         "teach": [
-            ["A new unit: geometry on the grid , where every point has an address and every shape can be measured straight from its coordinates. Start with the simplest measure — an up-and-down segment . How long is it? Count the STEPS between the ends, never the dots.",
+            ["A new unit: geometry on the grid, where every point has an address and every shape can be measured straight from its coordinates. Start with the simplest measure — an up-and-down segment. How long is it? Count the STEPS between the ends, never the dots.",
              '[[goal text="Straight up"]][[graph points="(4,2),(4,7)" range="0..10" yrange="0..10" caption="from (4,2) to (4,7)"]]'],
             ["The segment runs from (4, 2) up to (4, 7). Its length is the gap between the heights: 7 take away 2, which equals 5. Count the steps to check: 2 to 3, to 4, to 5, to 6, to 7 — five steps.",
              '[[graph points="(4,2),(4,7)" range="0..10" yrange="0..10" caption="from (4,2) to (4,7)"]][[step eq="7 − 2 = 5"]]'],
-            ["The trap is counting DOTS instead of steps. From 2 to 7 there are six dots but only five steps — a fence with six posts has five rails. Length is the steps. Take away, and trust the take away over your finger.",
+            ["The trap is counting DOTS instead of steps. From 2 to 7 there are six dots but only five steps — a fence with six posts has five rails. Length is the steps. Do the take away, and trust it over your counting finger.",
              '[[step eq="7 − 2 = 5 ✓ steps"]][[step eq="6 ✗ — that counts the dots, posts instead of rails"]]'],
         ],
         "pairs": [
@@ -7568,7 +7594,7 @@ _GEOMETRY_U7 = [
         "symbols": ("distance", "across"),
         "advance_line": "Three in a row — you've got it! Across squared plus up squared, then square back.",
         "teach": [
-            ["Now the slanted path. How far is it STRAIGHT from one point to another — not walking the grid lines, but cutting across ? Drop a right triangle under the slant: count the across, count the up, and the straight distance is the hypotenuse. Pythagoras came to the grid.",
+            ["Now the slanted path. How far is it STRAIGHT from one point to another — not walking the grid lines, but cutting across? Drop a right triangle under the slant: count the across, count the up, and the straight distance is the hypotenuse. Pythagoras came to the grid.",
              '[[goal text="The straight path"]][[graph points="(2,1),(5,5)" range="0..10" yrange="0..10" caption="from (2,1) to (5,5)"]]'],
             ["From (2, 1) to (5, 5): across is 3, up is 4. 3 squared plus 4 squared is 9 plus 16 — 25. Which number times itself equals 25? 5. The straight distance is 5 — while walking the grid would cost 3 plus 4, seven.",
              '[[graph points="(2,1),(5,5)" range="0..10" yrange="0..10" caption="from (2,1) to (5,5)"]][[step eq="across 3 · up 4"]][[step eq="3² + 4² = 25"]] [[step eq="√25 = 5"]]'],
@@ -7696,7 +7722,7 @@ _GEOMETRY_U8 = [
         "symbols": ("parallelogram", "height"),
         "advance_line": "Three in a row — you've got it! Base times height — the slant just leans.",
         "teach": [
-            ["One more area idea, and it is a sneaky one. A parallelogram is a pushed-over rectangle — same base, same height , just leaning. Its area is still base times height. But watch the words: the height is measured straight up, and the leaning side is NOT the height.",
+            ["One more area idea, and it is a sneaky one. A parallelogram is a pushed-over rectangle — same base, same height, just leaning. Its area is still base times height. But watch the words: the height is measured straight up, and the leaning side is NOT the height.",
              '[[goal text="The true height"]][[step eq="area = base × height"]]'],
             ["Base 6, slanted side 5, height 4. The area is base times height: 6 times 4, which equals 24. Why not the 5? Push the leaning stack straight and it becomes a rectangle 6 long and 4 tall — the 5 was never how tall it stood.",
              '[[step eq="6 × 4 = 24"]][[step eq="push it straight: a 6 by 4 rectangle"]]'],
@@ -7734,7 +7760,7 @@ _GEOMETRY_U8 = [
         "symbols": ("area", "rectangles"),
         "advance_line": "Three in a row — you've got it! Cut, measure, put together.",
         "teach": [
-            ["Real floors are not always rectangles — but they are usually MADE of rectangles . An L-shaped room is two rectangles standing together, and its area is found by cutting: find each rectangle's area , then put the pieces together.",
+            ["Real floors are not always rectangles — but they are usually MADE of rectangles. An L-shaped room is two rectangles standing together, and its area is found by cutting: find each rectangle's area, then put the pieces together.",
              '[[goal text="Two rooms"]][[step eq="cut the L into two rectangles"]]'],
             ["One part is 5 long and 3 wide: area 15. The other is 2 long and 3 wide: area 6. The whole floor is 15 plus 6, which equals 21 — cut, measure, put together. Any shape built from rectangles gives in to this.",
              '[[step eq="5 × 3 = 15 · 2 × 3 = 6"]][[step eq="15 + 6 = 21"]]'],
@@ -7772,7 +7798,7 @@ _GEOMETRY_U8 = [
         "symbols": ("surface area", "faces"),
         "advance_line": "Three in a row — you've got it! Six faces, always six.",
         "teach": [
-            ["A cube is wrapped in six identical square faces — a top, a bottom, and four around the sides — and the wrapping has a name: surface area , the area of everything you could touch. Know ONE face and you know all six: the surface area is six of that face.",
+            ["A cube is wrapped in six identical square faces: a top, a bottom, and four around the sides. That wrapping has a name. Surface area is the area of everything you could touch. Know ONE face and you know all six: the surface area is six of that face.",
              '[[goal text="Six faces"]][[step eq="a cube wears 6 equal faces"]]'],
             ["Say one face has an area of 7. The cube has six faces just like it, so the surface area is 6 times 7, which equals 42 square units. One face, times six — that is the whole trick.",
              '[[step eq="one face: 7"]][[step eq="6 × 7 = 42"]]'],
@@ -7863,7 +7889,7 @@ _GEOMETRY_U9 = [
         "symbols": ("chance", "in all"),
         "advance_line": "Three in a row — you've got it! Out of means out of everything.",
         "teach": [
-            ["A new kind of number: chance . A bag holds 3 red marbles and 2 blue ones. Pick without looking, and red is not certain — it has a chance: 3 out of 5. The first number counts the reds; the second counts everything in the bag — the marbles in all .",
+            ["A new kind of number: chance. A bag holds 3 red marbles and 2 blue ones. Pick without looking, and red is not certain — it has a chance: 3 out of 5. The first number counts the reds; the second counts everything in the bag — the marbles in all.",
              '[[goal text="Out of all"]][[bars data="red:3 | blue:2" caption="red 3 and blue 2"]]'],
             ["Why 5? Because the pick does not know about colors — it lands on one of ALL the marbles. 3 reds plus 2 blues is 5 marbles, so red's chance is 3 out of 5, and blue's is 2 out of 5. The out-of number is always the whole bag.",
              '[[bars data="red:3 | blue:2" caption="red 3 and blue 2"]][[step eq="3 + 2 = 5 in the bag"]][[step eq="red: 3 out of 5 · blue: 2 out of 5"]]'],
@@ -7939,7 +7965,7 @@ _GEOMETRY_U9 = [
         "symbols": ("choice", "times"),
         "advance_line": "Three in a row — you've got it! Choices times up, never add.",
         "teach": [
-            ["Counting comes back, one last time. Say you own 2 shirts and 3 hats. Getting dressed is one choice , then another — and for EVERY shirt, every one of the hats is still open. Choices do not add up; they times up: 2 shirts times 3 hats.",
+            ["Counting comes back, one last time. Say you own 2 shirts and 3 hats. Getting dressed is one choice, then another — and for EVERY shirt, every one of the hats is still open. Choices do not add up; they times up: 2 shirts times 3 hats.",
              '[[goal text="How many ways"]][[areamodel rows="2" cols="3" caption="2 rows of 3 — count the boxes"]]'],
             ["Draw the grid: one row for each shirt, one column for each hat. Every box is one full outfit — first shirt with first hat, first shirt with second hat, and so on. 2 rows of 3 boxes: 2 times 3, which equals 6 outfits.",
              '[[areamodel rows="2" cols="3" caption="2 rows of 3 — count the boxes"]][[step eq="2 × 3 = 6 outfits"]]'],
@@ -7977,7 +8003,7 @@ _GEOMETRY_U9 = [
         "symbols": ("table", "row"),
         "advance_line": "Three in a row — you've got it! The right row, the right column, the box where they cross.",
         "teach": [
-            ["Numbers love a table . A class chose sports: the boys' counts sit in one row , the girls' in another; soccer fills one column, art the next. Every child lands in exactly one box, and reading the right box answers most questions before any arithmetic starts.",
+            ["Numbers love a table. A class chose sports: the boys' counts sit in one row, the girls' in another; soccer fills one column, art the next. Every child lands in exactly one box, and reading the right box answers most questions before any arithmetic starts.",
              '[[goal text="Reading the table"]][[twoway rowlabels="boys,girls" collabels="soccer,art" data="4,3|2,6" caption="rows and columns of counts"]]'],
             ["How many girls chose soccer? Find the girls row — the second one. Slide along to the soccer column. The box where they cross holds 2: two girls chose soccer. Row first, then column — an address, like a point on the grid.",
              '[[twoway rowlabels="boys,girls" collabels="soccer,art" data="4,3|2,6" caption="rows and columns of counts"]][[step eq="girls row → soccer column → 2"]]'],
@@ -8026,20 +8052,37 @@ _ALGEBRA2_U1 = [
         "op": "absv", "max_value": 20, "min_value": -20,
         "levels": ("abstract",),
         "symbols": ("absolute value", "distance"),
-        "advance_line": "Three in a row — you've got it! Take away, keep the size, drop the sign.",
+        "advance_line": "Three in a row — you've got it! Do the take away, keep the size, drop the sign.",
+        # (pe, 2026-08-27) REWRITTEN WITH JIM, LINE BY LINE. The old version is the
+        # lesson he was looking at when he said "the text itself is as if someone is
+        # teaching math in a non-native language". The fault was WRITING, not
+        # vocabulary -- he ruled on that himself after I went chasing the wrong thing:
+        # "Takeaway or minus, those were just as well. It's just when you put it in
+        # the whole context of those sentences, it just didn't make sense."
+        #   1. THE VERB BECAME A NOUN -- "The take away gives negative 5", "stopping
+        #      at the take away", "far-apart is never negative". Say what someone DOES.
+        #   2. METAPHORS NOBODY SET UP -- "nowhere on this walk", "the bars strip the
+        #      minus". A student has no picture for either.
+        #   3. THREE IDEAS PER SENTENCE, welded with dashes and colons. Unfollowable
+        #      by ear, which is the only way this lane is ever received.
+        # And his ruling on the trap beat: "saying that the negative sign only tells
+        # you which way you went is really confusing. All we really want to know is
+        # the distance between the two." So the trap argues from the thing itself --
+        # you cannot be negative 5 apart from something -- and the board no longer
+        # flashes an "11 ✗" that the spoken line stopped explaining.
         "teach": [
-            ["Welcome to Algebra Two. It opens with a small mark that asks a big question: two straight bars around a number, called absolute value , asking only — how FAR from zero? And distance ignores direction: 4 and negative 4 are both 4 steps from zero, so both have absolute value 4.",
-             '[[goal text="How far from zero"]][[numberline min="-5" max="5" points="-4,4" caption="−4 and 4 — both sit 4 from zero"]]'],
-            ["The same idea measures the gap between two numbers. The absolute value of 3 take away 8 asks how far apart 3 and 8 sit. The take away gives negative 5 — but far-apart is never negative, so the bars strip the minus: the distance is 5.",
+            ["Welcome to Algebra Two. Here are two straight bars around a number. They are called absolute value, and they ask one question: how far is this number from zero? It does not matter which side of zero the number is on. Four is four steps from zero. Negative four is also four steps from zero. So both have absolute value four.",
+             '[[goal text="How far from zero"]][[numberline min="-5" max="5" points="-4,4" caption="−4 and 4 are both 4 from zero"]]'],
+            ["The same bars measure the gap between two numbers. Take 8 away from 3 and you get negative 5. Now ask the real question: how far apart are 3 and 8? They are 5 apart. The bars drop the negative sign and leave the 5.",
              '[[numberline min="1" max="10" points="3,8" caption="3 and 8 — how far apart?"]][[step eq="|3 − 8| → 5 apart"]]'],
-            ["The trap is stopping at the take away. Negative 5 says which DIRECTION you walked; the absolute value never cares. And adding the two numbers reaches 11 — nowhere on this walk. Take away, keep the size, drop the sign.",
-             '[[step eq="|3 − 8| = 5 ✓"]][[step eq="negative 5 ✗ a direction, not a distance · 11 ✗"]]'],
+            ["Here is where students go wrong. They do the take away, get negative 5, and stop there. But think about what we asked: how far apart are 3 and 8? Two numbers cannot be negative 5 apart. A distance is always a plain count of steps. So finish the job: drop the sign. They are 5 apart.",
+             '[[step eq="|3 − 8| = 5 ✓"]][[step eq="negative 5 ✗ two numbers cannot be negative 5 apart"]]'],
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The absolute value of 4 take away 9: the take away lands on negative 5, and the distance is 5.",
+            {"worked": ["Here is one more, done for you. Take 9 away from 4 and you get negative 5. Keep the size, drop the sign. So 4 and 9 are 5 apart.",
                         '[[numberline min="2" max="11" points="4,9" caption="4 and 9 — how far apart?"]][[step eq="|4 − 9| → 5"]]'],
              "ask": {"a": 2, "b": 5, "op": "absv"}},
-            {"worked": ["One more together. 5 take away 11 is negative 6 — the absolute value is 6.",
+            {"worked": ["One more together. Take 11 away from 5 and you get negative 6. Drop the sign: the absolute value is 6.",
                         '[[step eq="|5 − 11| → 6"]]'],
              "ask": {"a": 7, "b": 18, "op": "absv"}},
         ],
@@ -8104,7 +8147,7 @@ _ALGEBRA2_U1 = [
         "symbols": ("clue", "cents"),
         "advance_line": "Three in a row — you've got it! Vanish, then share.",
         "teach": [
-            ["Algebra One taught the vanishing trick: two shopping trips priced in cents , and taking one clue away from the other made the shared item disappear. Algebra Two adds one step. Sometimes what is left after the vanishing is not one unknown — it is a PAIR, and the pair still needs sharing.",
+            ["Algebra One taught the vanishing trick: two shopping trips priced in cents, and taking one clue away from the other made the shared item disappear. Algebra Two adds one step. Sometimes what is left after the vanishing is not one unknown — it is a PAIR, and the pair still needs sharing.",
              '[[goal text="The bananas cancel"]][[step eq="clue 1 − clue 2 → the shared part vanishes"]]'],
             ["Three apples and two bananas cost 14 cents; one apple and the same two bananas cost 8. Take the small trip away: the bananas vanish, and 3 apples take away 1 apple leaves 2 apples — costing 14 take away 8, which is 6. Two apples for 6: one apple is 3.",
              '[[step eq="2 apples = 14 − 8 = 6"]][[step eq="1 apple = 6 ÷ 2 = 3"]]'],
@@ -8231,9 +8274,9 @@ _ALGEBRA2_U2 = [
         "symbols": ("roots", "sum"),
         "advance_line": "Three in a row — you've got it! Two crossings, and questions about the answers mean both.",
         "teach": [
-            ["A quadratic in factored form hands you its answers: x take away 2, times x take away 5, equals zero — so x is 2 or x is 5, the two places the curve crosses. Algebra Two starts asking what the answers do TOGETHER, because pairs of roots carry secrets single roots cannot.",
+            ["A quadratic in factored form hands you its answers. Look at x take away 2, times x take away 5, equals zero. So x is 2 or x is 5, the two places the curve crosses. Algebra Two starts asking what the answers do TOGETHER, because pairs of roots carry secrets single roots cannot.",
              '[[goal text="Both answers count"]][[graph func="(x-2)*(x-5)" range="-1..8" caption="(x-2)*(x-5) on the grid"]]'],
-            ["The two crossings are called the roots , and today's question is their sum : 2 put together with 5 is 7. Simple — but only if you remember BOTH answers exist. One crossing is half the story.",
+            ["The two crossings are called the roots, and today's question is their sum: 2 put together with 5 is 7. Simple — but only if you remember BOTH answers exist. One crossing is half the story.",
              '[[graph func="(x-2)*(x-5)" range="-1..8" caption="(x-2)*(x-5) on the grid"]][[step eq="roots 2 and 5 · 2 + 5 = 7"]]'],
             ["Two traps. 2 times 5 is 10 — a real number, and famous later — but it is the product, not the sum. And answering 2 alone forgets the second crossing entirely. A curve that touches zero twice has two answers; questions about THE answers mean both.",
              '[[step eq="2 + 5 = 7 ✓"]][[step eq="10 ✗ the product · 2 ✗ one answer of two"]]'],
@@ -8269,7 +8312,7 @@ _ALGEBRA2_U2 = [
         "symbols": ("discriminant", "test number"),
         "advance_line": "Three in a row — you've got it! The sign is the message: 2, 1 or 0.",
         "teach": [
-            ["Can you count a curve's crossings without drawing it? y equals x squared plus 2 x plus 7 hides a test number , called the discriminant : the x part squared, take away 4 times the plain number. Its SIGN — not its size — counts the crossings with the x line.",
+            ["Can you count a curve's crossings without drawing it? y equals x squared plus 2 x plus 7 hides a test number, called the discriminant: the x part squared, take away 4 times the plain number. Its SIGN — not its size — counts the crossings with the x line.",
              '[[goal text="The test number"]][[step eq="x² + a·x + b → test: a² − 4b"]]'],
             ["Try it: 2 squared is 4, and 4 times 7 is 28 — the test number falls below zero. A negative test means the curve never reaches the x line at all: zero crossings. Positive would mean two. And exactly zero means one perfect touch.",
              '[[step eq="2² − 4·7 → below zero"]][[step eq="below zero → 0 · zero → 1 · above zero → 2"]]'],
@@ -8309,7 +8352,7 @@ _ALGEBRA2_U2 = [
         "teach": [
             ["The unit ends with a door opening. x squared equals negative 9 has no everyday answer — squares are never negative. For centuries, that was the end of it. Then mathematicians imagined a new number, called i, with exactly one job: i squared equals negative 1. The impossible question opened.",
              '[[goal text="A new number"]][[step eq="i² = −1"]]'],
-            ["With i in hand, x equals 3 i solves it. Check: 3 i times 3 i is 9 times i squared — and i squared is negative 1 — so it equals negative 9. Numbers built with i are called imaginary , though they are as real to mathematics as any invention that works.",
+            ["With i in hand, x equals 3 i solves it. Check: 3 i times 3 i is 9 times i squared — and i squared is negative 1 — so it equals negative 9. Numbers built with i are called imaginary, though they are as real to mathematics as any invention that works.",
              '[[step eq="(3i)² = 9 · i² = −9 ✓"]]'],
             ["Handle it with care. x squared equals negative 9 does not mean x is negative 3 — negative 3 squared is POSITIVE 9, the wrong sign entirely. The minus is i's job, not the number's. And 9 alone forgot the root: the number in front of i is what SQUARED gives 9 — that is 3.",
              '[[step eq="x = 3i ✓ — the i carries the minus"]][[step eq="−3 ✗ (−3)² = +9 · 9 ✗ forgot the root"]]'],
@@ -8359,7 +8402,7 @@ _ALGEBRA2_U3 = [
         "teach": [
             ["Polynomials are algebra's long expressions, and their single most important fact is the degree — the highest power inside. Multiply two of them and the degrees do something beautifully simple. You met it in Algebra One with powers: joining piles of x's ADDS the counts. Degrees ride the same rule.",
              '[[goal text="Degrees add"]][[step eq="x³ · x² = x⁵"]]'],
-            ["Take a degree 4 polynomial times a degree 3 polynomial . The biggest power in the first is x to the 4; in the second, x cubed. When they meet, the piles join: x to the 4 times x cubed is x to the 7. Degree 4 times degree 3 lands on degree 7.",
+            ["Take a degree 4 polynomial times a degree 3 polynomial. The biggest power in the first is x to the 4; in the second, x cubed. When they meet, the piles join: x to the 4 times x cubed is x to the 7. Degree 4 times degree 3 lands on degree 7.",
              '[[step eq="x⁴ · x³ = x⁷"]][[step eq="degree 4 × degree 3 → degree 7"]]'],
             ["The trap is multiplying: 4 times 3 is 12, but degrees do not times — the powers INSIDE do the timesing, and powers add their counts. And do not just keep the bigger degree: that is addition's rule. Adding polynomials lets the biggest survive; timesing builds something bigger than both.",
              '[[step eq="4 + 3 = 7 ✓"]][[step eq="12 ✗ degrees do not times · 4 ✗ that is adding\'s rule"]]'],
@@ -8433,9 +8476,9 @@ _ALGEBRA2_U3 = [
         "symbols": ("roots", "crossings"),
         "advance_line": "Three in a row — you've got it! Count your crossings before you add.",
         "teach": [
-            ["Algebra One factored quadratics; Algebra Two grows them. x take away 1, times x take away 3, times x take away 5, equals zero — THREE factors, a cubic, three crossings : 1, 3 and 5. Each factor donates one answer, exactly as before. More factors, more crossings.",
+            ["Algebra One factored quadratics; Algebra Two grows them. x take away 1, times x take away 3, times x take away 5, equals zero — THREE factors, a cubic, three crossings: 1, 3 and 5. Each factor donates one answer, exactly as before. More factors, more crossings.",
              '[[goal text="Three crossings"]][[graph func="(x-1)*(x-3)*(x-5)" range="0..6" caption="(x-1)*(x-3)*(x-5) on the grid"]]'],
-            ["Now the Algebra Two question: what do the answers do together? These are the curve's roots , and their sum is 1 put together with 3 with 5 — 9. Simple — but only if you count all three. One crossing is a third of the story.",
+            ["Now the Algebra Two question: what do the answers do together? These are the curve's roots, and their sum is 1 put together with 3 with 5 — 9. Simple — but only if you count all three. One crossing is a third of the story.",
              '[[graph func="(x-1)*(x-3)*(x-5)" range="0..6" caption="(x-1)*(x-3)*(x-5) on the grid"]][[step eq="1 + 3 + 5 = 9"]]'],
             ["Two traps. 1 times 3 times 5 is 15 — the product, the roots' OTHER shared secret, not their sum. And 1 plus 3 is 4 — a cubic has THREE answers, and questions about the answers mean all of them. Count your crossings before you add.",
              '[[step eq="1 + 3 + 5 = 9 ✓"]][[step eq="15 ✗ the product · 4 ✗ forgot the third"]]'],
@@ -8471,7 +8514,7 @@ _ALGEBRA2_U3 = [
         "symbols": ("cubed", "feed"),
         "advance_line": "Three in a row — you've got it! Read the power, keep the sign.",
         "teach": [
-            ["A polynomial is a machine, like every function since Algebra One: feed it an x and it answers. y equals: x cubed , take away 2 x, plus 3. Feeding it means every x in the recipe gets the same meal — the cubed one AND the plain one.",
+            ["A polynomial is a machine, like every function since Algebra One: feed it an x and it answers. y equals: x cubed, take away 2 x, plus 3. Feeding it means every x in the recipe gets the same meal — the cubed one AND the plain one.",
              '[[goal text="Feed the cube"]][[step eq="y = x³ − 2x + 3"]]'],
             ["Feed x equals 5: 5 cubed is 125; take away 2 times 5 — 10 — leaves 115; plus 3 is 118. Watch the first step: 5 CUBED, 125. The whole tower stands on reading that power right.",
              '[[step eq="5³ = 125"]][[step eq="125 − 10 + 3 = 118"]]'],
@@ -8559,7 +8602,7 @@ _ALGEBRA2_U4 = [
         "symbols": ("divided by", "undo"),
         "advance_line": "Three in a row — you've got it! Rebuild, then divide.",
         "teach": [
-            ["Now run the sharing backwards. 20 divided by x equals 5 — some crowd got 5 each out of 20. Every function question can turn around: Algebra One asked which input went in, and the answer was always the same move — undo . Division's undo starts with a question: what times 5 rebuilds 20?",
+            ["Now run the sharing backwards. 20 divided by x equals 5 — some crowd got 5 each out of 20. Every function question can turn around: Algebra One asked which input went in, and the answer was always the same move — undo. Division's undo starts with a question: what times 5 rebuilds 20?",
              '[[goal text="Which x was fed"]][[step eq="20 ÷ x = 5"]]'],
             ["x times 5 must rebuild the 20 — so x is 20 divided by 5, which equals 4. Check by feeding it forward: 20 divided by 4 is 5. True. The undo of being divided by x turns out to be one more divide — the reciprocal's strange charm.",
              '[[step eq="x · 5 = 20"]] [[step eq="x = 20 ÷ 5 = 4"]][[step eq="check: 20 ÷ 4 = 5 ✓"]]'],
@@ -8597,7 +8640,7 @@ _ALGEBRA2_U4 = [
         "symbols": ("forbidden", "zero"),
         "advance_line": "Three in a row — you've got it! The danger is where the BOTTOM is zero.",
         "teach": [
-            ["Every function so far accepted every x. Division ends that. y equals 5 divided by: x take away 4. Feed most x's and all is well — but ONE x breaks the machine, because it turns the bottom into zero , and dividing by zero is the one thing mathematics never allows. That x is forbidden .",
+            ["Every function so far accepted every x. Division ends that. y equals 5 divided by: x take away 4. Feed most x's and all is well — but ONE x breaks the machine, because it turns the bottom into zero, and dividing by zero is the one thing mathematics never allows. That x is forbidden.",
              '[[goal text="The forbidden x"]][[step eq="y = 5 ÷ (x − 4)"]]'],
             ["Find it by asking when the bottom dies: x take away 4 equals zero exactly at x equals 4. Feed 4 and the division has no answer — the machine jams. Feed anything else — 5, 100, negative 7 — and the function answers happily. One hole in an endless road.",
              '[[step eq="x − 4 = 0"]] [[step eq="x = 4 forbidden"]]'],
@@ -8637,7 +8680,7 @@ _ALGEBRA2_U4 = [
         "teach": [
             ["Last lesson of the unit: what happens far, far away? y equals 6 divided by x fades as x grows huge — share 6 among a million and each gets almost nothing. But y equals: 2 x plus 6, all divided by x, hides a survivor. Split it and see.",
              '[[goal text="The survivor"]][[graph func="(2*x+6)/x" range="0..20" caption="(2*x+6)/x on the grid"]]'],
-            ["Split the top: 2 x divided by x is just 2; 6 divided by x is the fading part. So y equals 2 plus 6-divided-by-x. Let x grow huge : the fading part dies toward zero, the 2 stands untouched — y settles toward 2.",
+            ["Split the top: 2 x divided by x is just 2; 6 divided by x is the fading part. So y equals 2 plus 6-divided-by-x. Let x grow huge: the fading part dies toward zero, the 2 stands untouched — y settles toward 2.",
              '[[graph func="(2*x+6)/x" range="0..20" caption="(2*x+6)/x on the grid"]][[step eq="y = 2 + 6 ÷ x"]] [[step eq="settles at 2"]]'],
             ["The traps are the two other numbers in the room. Zero was plain division's answer — 6 over x alone dies — but today's function keeps a survivor, and tapping 0 forgets him. And 6 is the fading part's number — the part that dies. The survivor is the number riding on x. Find who lives, then answer.",
              '[[step eq="settles at 2 ✓"]][[step eq="0 ✗ that was plain 6 ÷ x · 6 ✗ the fading part"]]'],
@@ -8685,7 +8728,7 @@ _ALGEBRA2_U5 = [
         "symbols": ("square root", "times"),
         "advance_line": "Three in a row — you've got it! Roots times under one roof.",
         "teach": [
-            ["Back to roots — with a rule that turns ragged numbers clean. The square root of 2 is a messy, unending decimal. But the root of 2 times the root of 2 is exactly 2 — and in general, roots TIMES under one roof: root of a, times root of b, equals the root of a times b.",
+            ["Back to roots — with a rule that turns ragged numbers clean. The square root of 2 is a messy, unending decimal. But the root of 2 times the root of 2 is exactly 2. In general, two roots can go under one roof. Root of a, times root of b, equals the root of a times b.",
              '[[goal text="Under one roof"]][[step eq="√a · √b = √(a·b)"]]'],
             ["The square root of 3, times the square root of 48. Alone, each is ragged. Under one roof: 3 times 48 is 144 — and 144 is a perfect square! Twelve times twelve. Two messy roots, one clean answer: 12.",
              '[[step eq="√3 · √48 = √144"]][[step eq="12 × 12 = 144"]] [[step eq="√144 = 12"]]'],
@@ -8722,7 +8765,7 @@ _ALGEBRA2_U5 = [
         "symbols": ("one-half power", "square root"),
         "advance_line": "Three in a row — you've got it! A one-half power is a root, never a halving.",
         "teach": [
-            ["Exponents can wear fractions. What could 25 to the one-half power mean? Follow the adding rule: 25 to the one-half, times 25 to the one-half, is 25 to the one — plain 25. So the one-half power is the number that times ITSELF into 25. That is a square root .",
+            ["Exponents can wear fractions. What could 25 to the one-half power mean? Follow the adding rule: 25 to the one-half, times 25 to the one-half, is 25 to the one — plain 25. So the one-half power is the number that times ITSELF into 25. That is a square root.",
              '[[goal text="The fraction power"]][[step eq="25^½ · 25^½ = 25¹"]]'],
             ["So 25 to the one-half power is the square root of 25 — which is 5. Check it: 5 times 5 is 25. The fraction in the exponent is not arithmetic waiting to happen; it is a costume the root wears.",
              '[[step eq="25^½ = √25 = 5"]][[step eq="5 × 5 = 25 ✓"]]'],
@@ -8759,7 +8802,7 @@ _ALGEBRA2_U5 = [
         "symbols": ("square root", "undo"),
         "advance_line": "Three in a row — you've got it! The root's undo is the square.",
         "teach": [
-            ["Now the root lands in an equation: the square root of x equals 15. Something, rooted, gave 15 — find the something. Every equation move since Algebra One is an undo , and the square root's undo is its opposite power: the SQUARE.",
+            ["Now the root lands in an equation: the square root of x equals 15. Something, rooted, gave 15 — find the something. Every equation move since Algebra One is an undo, and the square root's undo is its opposite power: the SQUARE.",
              '[[goal text="Undo the root"]][[step eq="√x = 15"]]'],
             ["Square both sides: the root of x, squared, is plain x — and 15 squared is 225. So x is 225. Check by rooting it forward: the square root of 225 is 15. True.",
              '[[step eq="x = 15² = 225"]][[step eq="check: √225 = 15 ✓"]]'],
@@ -8801,7 +8844,7 @@ _ALGEBRA2_U5 = [
              '[[goal text="Between the squares"]][[step eq="36 < 40 < 49"]][[step eq="6 < √40 < 7"]]'],
             ["Which is it closer to? Measure in the world of squares: 40 sits 4 past 36, and 9 short of 49. It leans toward 36 — so the root of 40 is closest to 6. Square the neighbours, then see who is nearer.",
              '[[step eq="40 − 36 = 4 · 49 − 40 = 9"]][[step eq="√40 → closest to 6"]]'],
-            ["The traps: leaning the wrong way — 7 is a neighbour, but the far one here — and the oldest trap in the unit, halving: half of 40 is 20, and 20 times 20 is 400, absurdly far. The root of a number near 40 is small — squares grow FAST. Neighbours first, half never.",
+            ["Two traps. First, leaning the wrong way: 7 is a neighbour, but it is the far one here. Second, the oldest trap in the unit, halving. Half of 40 is 20, and 20 times 20 is 400, absurdly far. The root of a number near 40 is small — squares grow FAST. Neighbours first, half never.",
              '[[step eq="√40 → 6 ✓"]][[step eq="7 ✗ the far neighbour · 20 ✗ the halving habit"]]'],
         ],
         "pairs": [
@@ -8848,7 +8891,7 @@ _ALGEBRA2_U6 = [
         "symbols": ("halves", "decay"),
         "advance_line": "Three in a row — you've got it! A divide each day, never a take away.",
         "teach": [
-            ["The doubling pond had a shadow. Some things grow by times — and some things FADE by times: a medicine in the blood, a hot drink's extra warmth, a radioactive speck. Each day the sample halves — it drops to half of whatever it was. That fading-by-times has a name: decay .",
+            ["The doubling pond had a shadow. Some things grow by times — and some things FADE by times: a medicine in the blood, a hot drink's extra warmth, a radioactive speck. Each day the sample halves — it drops to half of whatever it was. That fading-by-times has a name: decay.",
              '[[goal text="The fading half"]][[step eq="whole → half → quarter → eighth"]]'],
             ["A sample of 48 grams halves for 3 days: 48 to 24, 24 to 12, 12 to 6. Three days, three divides — and dividing by 2 three times is dividing by 8. Big numbers fall FAST when the fall is a times.",
              '[[step eq="48 → 24 → 12 → 6"]][[step eq="48 ÷ 8 = 6"]]'],
@@ -8886,9 +8929,9 @@ _ALGEBRA2_U6 = [
         "symbols": ("logarithm", "power"),
         "advance_line": "Three in a row — you've got it! The logarithm is the hidden exponent.",
         "teach": [
-            ["Every power question can turn around. Forward: 3 to the power 4 is 81. Backwards: 3 raised to WHAT equals 27? Count the threes: 3 times 3 times 3 — three of them. That backwards question is one of the great tools of mathematics, and its answer has a name: the logarithm .",
+            ["Every power question can turn around. Forward: 3 to the power 4 is 81. Backwards: 3 raised to WHAT equals 27? Count the threes: 3 times 3 times 3 — three of them. That backwards question is one of the great tools of mathematics, and its answer has a name: the logarithm.",
              '[[goal text="The hidden exponent"]][[step eq="3^? = 27"]] [[step eq="? = 3"]]'],
-            ["The logarithm is the hidden exponent — nothing more. 10 raised to what equals 100? Two tens: the logarithm is 2. The value can be enormous while the logarithm stays tiny; that smallness is its whole power , and why earthquakes and sound are measured in logs.",
+            ["The logarithm is the hidden exponent — nothing more. 10 raised to what equals 100? Two tens: the logarithm is 2. The value can be enormous while the logarithm stays tiny; that smallness is its whole power, and why earthquakes and sound are measured in logs.",
              '[[step eq="10^? = 100"]] [[step eq="? = 2"]][[step eq="the log counts the layers"]]'],
             ["Two traps. Dividing by the base — 27 divided by 3 is 9 — peels ONE layer, then stops; the logarithm counts ALL the layers. And the base itself — the 3 you were handed — is the brick, not the count of bricks. Count how many times the base stacks, and answer with the count.",
              '[[step eq="3^3 = 27"]] [[step eq="log is 3 ✓"]][[step eq="9 ✗ one divide, not the count · 3 as the base ✗ the brick, not the stack"]]'],
@@ -8962,7 +9005,7 @@ _ALGEBRA2_U6 = [
         "symbols": ("logarithm", "between"),
         "advance_line": "Three in a row — you've got it! Power the neighbours, then see who is nearer.",
         "teach": [
-            ["Most numbers are not perfect powers — but their logarithms still live somewhere, exactly as ragged roots lived between the squares. Take the logarithm , base 2, of 18: 18 is not a power of 2, but it sits between 16 and 32 — between 2 to the 4 and 2 to the 5. So its log lives between 4 and 5.",
+            ["Most numbers are not perfect powers — but their logarithms still live somewhere, exactly as ragged roots lived between the squares. Take the logarithm, base 2, of 18: 18 is not a power of 2, but it sits between 16 and 32 — between 2 to the 4 and 2 to the 5. So its log lives between 4 and 5.",
              '[[goal text="Between the powers"]][[step eq="16 < 18 < 32"]][[step eq="4 < log 18 < 5"]]'],
             ["Which is it closer to? 18 sits 2 past 16, and 14 short of 32 — it leans hard toward 16, so the log of 18 is closest to 4. Same move as the squares: power the neighbours, then see who is nearer.",
              '[[step eq="18 − 16 = 2 · 32 − 18 = 14"]][[step eq="log 18 → closest to 4"]]'],
@@ -9013,7 +9056,7 @@ _ALGEBRA2_U7 = [
         "symbols": ("term", "step"),
         "advance_line": "Three in a row — you've got it! Term one is already standing at the start.",
         "teach": [
-            ["A pattern with a steady step is a road you can ride. 4, 7, 10, 13 — it starts at 4 and grows by 3. To find a far-off term , you could walk: add 3, add 3, add 3… or you could RIDE: count the steps and jump there in one move.",
+            ["A pattern with a steady step is a road you can ride. 4, 7, 10, 13 — it starts at 4 and grows by 3. To find a far-off term, you could walk: add 3, add 3, add 3… or you could RIDE: count the steps and jump there in one move.",
              '[[goal text="Ride the pattern"]][[step eq="4, 7, 10, 13, …"]]'],
             ["How far is term 10? Careful — the famous trap lives right here. Term 1 is already standing at the start; walking from term 1 to term 10 crosses NINE steps, not ten. So term 10 is 4 plus 9 steps of 3 — 4 plus 27 — 31.",
              '[[step eq="term 1 → term 10: 9 steps"]][[step eq="4 + 9 × 3 = 31"]]'],
@@ -9051,7 +9094,7 @@ _ALGEBRA2_U7 = [
         "symbols": ("term", "ratio"),
         "advance_line": "Three in a row — you've got it! A ratio is a times, never an add.",
         "teach": [
-            ["Some patterns do not step — they LEAP. 2, 6, 18, 54: each term is 3 times the one before. The times-number has a name, the ratio , and a pattern that rides a ratio grows the way the doubling pond grew: slowly at first, then away.",
+            ["Some patterns do not step — they LEAP. 2, 6, 18, 54: each term is 3 times the one before. The times-number has a name, the ratio, and a pattern that rides a ratio grows the way the doubling pond grew: slowly at first, then away.",
              '[[goal text="Times again"]][[step eq="2, 6, 18, 54, …"]]'],
             ["Ride it the same way: term 5 from a start of 2 with ratio 3 is four leaps — times 3, four times over. 2 times 81 is 162. The step-counting rule survives: one fewer leap than the term number.",
              '[[step eq="term 5: 4 leaps of × 3"]][[step eq="2 × 81 = 162"]]'],
@@ -9127,11 +9170,11 @@ _ALGEBRA2_U7 = [
         "symbols": ("rule", "term"),
         "advance_line": "Three in a row — you've got it! Apply the WHOLE rule, every term.",
         "teach": [
-            ["Some patterns hand you no shortcut — only a rule : to get the next term , take the one before, times 2, then take away 1. Start at 5. There is nothing to ride here; you walk, one term at a time, applying the whole rule at every step.",
+            ["Some patterns hand you no shortcut — only a rule: to get the next term, take the one before, times 2, then take away 1. Start at 5. There is nothing to ride here; you walk, one term at a time, applying the whole rule at every step.",
              '[[goal text="Walk the rule"]][[step eq="rule: × 2, then − 1"]]'],
             ["Walk it. Term 1 is 5. Term 2: 2 times 5 is 10, take away 1 — 9. Term 3: 2 times 9 is 18, take away 1 — 17. Each answer feeds back in; that is why it is a walk and not a jump.",
              '[[step eq="5 → 9 → 17"]]'],
-            ["Two traps, both about not finishing. Stopping at term 2 answers a different question — count your arrivals. And applying only HALF the rule — doubling without the take away — walks a different pattern entirely: 5, 10, 20. The rule is a package: all of it, every term.",
+            ["Two traps, both about not finishing. Stopping at term 2 answers a different question — count your arrivals. And applying only HALF the rule, doubling without taking away, walks a different pattern entirely: 5, 10, 20. The rule is a package: all of it, every term.",
              '[[step eq="5 → 9 → 17 ✓"]][[step eq="9 ✗ stopped early · 18 ✗ the take away got dropped"]]'],
         ],
         "pairs": [
@@ -9218,11 +9261,11 @@ _ALGEBRA2_U8 = [
         "symbols": ("cosine", "across"),
         "advance_line": "Three in a row — you've got it! Same arrow, other coordinate.",
         "teach": [
-            ["The sine read the arrow's height. Its partner, the cosine , reads the ACROSS — how far right or left of the middle the tip sits. Same circle, same arrow, other coordinate: sine is up-and-down, cosine is side-to-side.",
+            ["The sine read the arrow's height. Its partner, the cosine, reads the ACROSS — how far right or left of the middle the tip sits. Same circle, same arrow, other coordinate: sine is up-and-down, cosine is side-to-side.",
              '[[goal text="The across"]][[unitcircle angle="0" caption="the arrow at 0°"]]'],
             ["At 0 degrees the arrow points flat-right: fully across — cosine 1. At 180, flat-left: cosine negative 1. And straight up or straight down, the tip hangs over the middle with no across at all: cosine 0. The compass points swap their jobs.",
              '[[unitcircle angle="180" caption="the arrow at 180°"]][[step eq="0° → 1 · 180° → −1 · up or down → 0"]]'],
-            ["Notice the swap exactly: where the sine was 0 — the flat directions — the cosine is 1 or negative 1; where the sine was 1 or negative 1 — up and down — the cosine is 0. Full spins still vanish first. Point the arrow, then read ACROSS, not up.",
+            ["Notice the swap exactly. Where the sine was 0, in the flat directions, the cosine is 1 or negative 1. Where the sine was 1 or negative 1, up and down, the cosine is 0. Full spins still vanish first. Point the arrow, then read ACROSS, not up.",
              '[[unitcircle angle="810" caption="the arrow at 810°"]][[step eq="810° = two spins + 90°"]] [[step eq="up → across 0"]]'],
         ],
         "pairs": [
@@ -9344,11 +9387,11 @@ _ALGEBRA2_U9 = [
         "symbols": ("mean", "weight"),
         "advance_line": "Three in a row — you've got it! Every score goes in as many times as it happened.",
         "teach": [
-            ["Algebra One taught the mean: put together, share out. But scores REPEAT — and a score that happens three times pulls three times as hard. That pull is called its weight . Three quizzes of 10 and two of 5 do not average like one 10 and one 5.",
+            ["Algebra One taught the mean: put together, share out. But scores REPEAT — and a score that happens three times pulls three times as hard. That pull is called its weight. Three quizzes of 10 and two of 5 do not average like one 10 and one 5.",
              '[[goal text="The heavier mean"]][[step eq="10, 10, 10, 5, 5"]]'],
             ["Do it honestly: all five scores go in. Three 10s are 30; two 5s are 10; put together, 40 — shared by the five quizzes, the mean is 8. Notice where 8 sits: closer to 10 than to 5, dragged by the heavier side.",
              '[[step eq="30 + 10 = 40 · 40 ÷ 5 = 8"]][[step eq="8 sits nearer the three 10s"]]'],
-            ["The trap is averaging the two NUMBERS and forgetting how often each happened: 10 and 5 average to 7 and a half — but that treats a three-time score and a two-time score as equals. Count the repeats. Every score goes in as many times as it happened.",
+            ["The trap is averaging the two NUMBERS and forgetting how often each happened. 10 and 5 average to 7 and a half. But that treats a three-time score and a two-time score as equals. Count the repeats. Every score goes in as many times as it happened.",
              '[[step eq="mean of the five = 8 ✓"]][[step eq="averaging just 10 and 5 ✗ — the repeats vanished"]]'],
         ],
         "pairs": [
@@ -9381,7 +9424,7 @@ _ALGEBRA2_U9 = [
         "symbols": ("choice", "slot"),
         "advance_line": "Three in a row — you've got it! Times every slot, skip none.",
         "teach": [
-            ["Geometry counted outfits from two choices: shirts times hats. Add pants and nothing changes but the length: every choice is a slot , and slots TIMES together. 2 shirts, 5 pants, 3 hats — for each shirt, every pair of pants; for each of those, every hat.",
+            ["Geometry counted outfits from two choices: shirts times hats. Add pants and nothing changes but the length: every choice is a slot, and slots TIMES together. 2 shirts, 5 pants, 3 hats — for each shirt, every pair of pants; for each of those, every hat.",
              '[[goal text="Three slots"]][[step eq="shirts · pants · hats"]]'],
             ["Count it: 2 times 5 is 10 shirt-and-pants pairs, and each pair takes any of 3 hats: 10 times 3 is 30 outfits. Slot by slot, left to right — the times just keeps rolling.",
              '[[step eq="2 × 5 = 10 · 10 × 3 = 30"]]'],
@@ -9419,7 +9462,7 @@ _ALGEBRA2_U9 = [
         "symbols": ("expect", "tokens"),
         "advance_line": "Three in a row — you've got it! Count the paying plays, then times.",
         "teach": [
-            ["Chance can be planned for. A game pays 5 tokens , and you win exactly 2 times out of every 6 plays. Play 6 times: you cannot say WHICH plays pay — but you can say how much to expect , because about 2 of them will.",
+            ["Chance can be planned for. A game pays 5 tokens, and you win exactly 2 times out of every 6 plays. Play 6 times: you cannot say WHICH plays pay — but you can say how much to expect, because about 2 of them will.",
              '[[goal text="What to expect"]][[step eq="6 plays · 2 winners among them"]]'],
             ["Expect it out: 2 winning plays, 5 tokens each — about 10 tokens over the 6 plays. Not a promise; a center of gravity. Casinos, insurers and weather planners live on exactly this number.",
              '[[step eq="2 wins × 5 tokens = 10 expected"]]'],
@@ -9457,7 +9500,7 @@ _ALGEBRA2_U9 = [
         "symbols": ("sample", "about"),
         "advance_line": "Three in a row — you've got it! Scale the sample, and keep the word ABOUT.",
         "teach": [
-            ["The last idea of Algebra Two is the boldest: ask a few, learn about everyone. A sample of 20 students found 5 like pizza. The school holds 60 — nobody asked them all. Statistics says the sample SPEAKS for the school, about .",
+            ["The last idea of Algebra Two is the boldest: ask a few, learn about everyone. A sample of 20 students found 5 like pizza. The school holds 60 — nobody asked them all. Statistics says the sample SPEAKS for the school, about.",
              '[[goal text="The sample speaks"]][[step eq="asked 20 · 5 said yes · school: 60"]]'],
             ["Scale it: 60 students is three samples of 20, side by side. If each slice of 20 behaves like the one we asked, each holds about 5 pizza-lovers: 5 times 3 — about 15 in the school. The similarity unit's factor thinking, aimed at people.",
              '[[step eq="60 = 3 × 20 · 5 × 3 = about 15"]]'],
@@ -9546,7 +9589,7 @@ _PRECALC_U1 = [
         "symbols": ("slides", "opposite"),
         "advance_line": "Three in a row — you've got it! The minus inside slides the graph right.",
         "teach": [
-            ["One rule moves EVERY graph ever drawn. Change y equals f of x into y equals f of: x take away 3 — and the whole picture slides 3 to the RIGHT. The vertex lesson met this for one curve; it is true for all of them, and the minus still points opposite .",
+            ["One rule moves EVERY graph ever drawn. Change y equals f of x into y equals f of: x take away 3 — and the whole picture slides 3 to the RIGHT. The vertex lesson met this for one curve; it is true for all of them, and the minus still points opposite.",
              '[[goal text="The graph slides"]][[step eq="f(x − 3): everything slides right 3"]]'],
             ["Why right? To get the OLD answer at f of zero, x take away 3 must BE zero — so x must be 3. Every old moment happens 3 later. A point like (4, 2) keeps its height and slides across: it lands at (7, 2).",
              '[[step eq="old (4, 2) → new (7, 2)"]]'],
@@ -9584,7 +9627,7 @@ _PRECALC_U1 = [
         "symbols": ("domain", "allowed"),
         "advance_line": "Three in a row — you've got it! The doorway is where the inside hits zero — and it is welcome.",
         "teach": [
-            ["Not every x may enter every function. The set of allowed x's is the function's domain , and Pre-Calculus reads it straight off the formula. y equals the square root of: x take away 13 — roots refuse negatives, so the inside must stay at zero or above.",
+            ["Not every x may enter every function. The set of allowed x's is the function's domain, and Pre-Calculus reads it straight off the formula. y equals the square root of: x take away 13 — roots refuse negatives, so the inside must stay at zero or above.",
              '[[goal text="The doorway"]][[step eq="√(x − 13): the inside must not go negative"]]'],
             ["Solve the doorway: x take away 13 stays at zero or above exactly when x is 13 or more. So 13 is the smallest x allowed — the domain's front door. At the door itself the root gets zero, and the root of zero is zero: perfectly fine.",
              '[[step eq="x − 13 ≥ 0 → x ≥ 13"]][[step eq="√0 = 0 · the door is open"]]'],
@@ -9671,7 +9714,7 @@ _PRECALC_U2 = [
         "symbols": ("power", "even"),
         "advance_line": "Three in a row — you've got it! Even wipes the minus; odd leaves one.",
         "teach": [
-            ["Unit Two turns to polynomials — and starts with the smallest one that bites: negative 1, raised to a power . Each minus sign cancels the one before it, so everything hangs on whether the power is even or odd. A parade of minus signs, counted in pairs.",
+            ["Unit Two turns to polynomials — and starts with the smallest one that bites: negative 1, raised to a power. Each minus sign cancels the one before it, so everything hangs on whether the power is even or odd. A parade of minus signs, counted in pairs.",
              '[[goal text="The minus parade"]][[step eq="(−1)^n — even n → 1 · odd n → −1"]]'],
             ["Raise negative 1 to the power 14: the minus signs pair up — 7 pairs, none left out — so every minus cancels and the answer is 1. An even power wipes the minus away completely.",
              '[[step eq="(−1)^14 = 1 — 7 pairs, all cancel"]]'],
@@ -9785,11 +9828,11 @@ _PRECALC_U2 = [
         "symbols": ("forbidden", "factors"),
         "advance_line": "Three in a row — you've got it! Count the different zeros, not the factors.",
         "teach": [
-            ["Algebra Two found division's forbidden x — the one x that zeroes a bottom. Pre-Calculus bottoms come factored: 1 divided by, x take away 3, times x take away 7. TWO factors now — so how many x's are forbidden ? Count the zeros, and count carefully.",
+            ["Algebra Two found division's forbidden x — the one x that zeroes a bottom. Pre-Calculus bottoms come factored: 1 divided by, x take away 3, times x take away 7. TWO factors now — so how many x's are forbidden? Count the zeros, and count carefully.",
              '[[goal text="Twice forbidden"]][[step eq="y = 1 ÷ (x − 3)(x − 7)"]]'],
             ["Each factor dies at its own x: x equals 3 zeroes the first, x equals 7 zeroes the second, and either one alone flattens the whole bottom. Two different zeros — two forbidden x's. The count is 2.",
              '[[step eq="x = 3 ✗ · x = 7 ✗ — two forbidden"]]'],
-            ["But factors can repeat: 1 divided by, x take away 8, times x take away 8. Two factors , yet both die at the SAME x. Only x equals 8 is forbidden — the count is 1. Count the different zeros, never the factors.",
+            ["But factors can repeat: 1 divided by, x take away 8, times x take away 8. Two factors, yet both die at the SAME x. Only x equals 8 is forbidden — the count is 1. Count the different zeros, never the factors.",
              '[[step eq="(x − 8)(x − 8): both die at 8 → count 1"]]'],
         ],
         "pairs": [
@@ -9873,7 +9916,7 @@ _PRECALC_U3 = [
         "symbols": ("logarithm", "rebuild"),
         "advance_line": "Three in a row — you've got it! Stack the base and rebuild.",
         "teach": [
-            ["A logarithm can sit inside an equation: the logarithm , base 2, of some mystery number equals 10. Solving it means running the log BACKWARDS — the log counted the layers, so you rebuild the number by stacking the layers again.",
+            ["A logarithm can sit inside an equation: the logarithm, base 2, of some mystery number equals 10. Solving it means running the log BACKWARDS — the log counted the layers, so you rebuild the number by stacking the layers again.",
              '[[goal text="Rebuild the number"]][[step eq="log ? = 10 · base 2"]]'],
             ["Ten layers of 2: 2 multiplied out 10 times equals 1024. The mystery number is 1024 — the exponential un-did the logarithm. Check it forward: log base 2 of 1024 is indeed 10. Rebuilt, and confirmed.",
              '[[step eq="? = 2 stacked 10 times = 1024"]][[step eq="log 1024 = 10 ✓"]]'],
@@ -9911,7 +9954,7 @@ _PRECALC_U3 = [
         "symbols": ("halvings", "days"),
         "advance_line": "Three in a row — you've got it! Count the halvings, not the ratio.",
         "teach": [
-            ["Algebra Two halved a sample forward: start, halve for a stretch of days , find the end. Pre-Calculus asks it BACKWARDS: here is the start, here is the end — how many halvings happened? That backwards question is exactly a logarithm wearing work clothes.",
+            ["Algebra Two halved a sample forward: start, halve for a stretch of days, find the end. Pre-Calculus asks it BACKWARDS: here is the start, here is the end — how many halvings happened? That backwards question is exactly a logarithm wearing work clothes.",
              '[[goal text="Count the halvings"]][[step eq="start → half, half, half → end" cap="how many halvings?"]]'],
             ["A tank starts at 56 liters and drops to half each day; now it holds 7. Halve and count: 56, then 28, then 14, then 7. Three halvings — three days went by. You rode the halving down and counted the steps.",
              '[[step eq="56 → 28 → 14 → 7 · 3 days"]]'],
@@ -9949,7 +9992,7 @@ _PRECALC_U3 = [
         "symbols": ("doubles", "years"),
         "advance_line": "Three in a row — you've got it! Count the doublings first, then double.",
         "teach": [
-            ["The exponential's favorite home is money. Save some dollars where the pile doubles every few years , and the growth is not a climb — it is a rocket. This lesson reads the rocket: how much after the years go by?",
+            ["The exponential's favorite home is money. Save some dollars where the pile doubles every few years, and the growth is not a climb — it is a rocket. This lesson reads the rocket: how much after the years go by?",
              '[[goal text="Money doubles"]][[step eq="$ → ×2 → ×2 → ×2 …"]]'],
             ["Say 4 dollars, doubling every 3 years, left alone for 6 years. First count the doublings: 6 divided by 3 equals 2. Then double twice: 4, then 8, then 16. Sixteen dollars — the years only matter through the COUNT of doublings.",
              '[[step eq="6 ÷ 3 = 2 doublings"]][[step eq="4 → 8 → 16"]]'],
@@ -9999,7 +10042,7 @@ _PRECALC_U4 = [
         "symbols": ("radians", "pi"),
         "advance_line": "Three in a row — you've got it! Count the half turns — that is the pi's.",
         "teach": [
-            ["Unit Four hands the circle a second language. Degrees chop a turn into 360 thin slices; mathematicians also measure in radians , and the dictionary has one entry: a half turn — 180 degrees — is exactly pi radians. Pi, the circle number, near 3.14.",
+            ["Unit Four hands the circle a second language. Degrees chop a turn into 360 thin slices; mathematicians also measure in radians, and the dictionary has one entry: a half turn — 180 degrees — is exactly pi radians. Pi, the circle number, near 3.14.",
              '[[goal text="The half-turn language"]][[step eq="180° = π rad"]]'],
             ["Count half turns to translate. 3600 degrees is twenty half turns — 20 pi radians. And 180 itself is one half turn: 1 pi. The number of pi's IS the number of half turns; nothing else to it.",
              '[[step eq="3600° = 20 half turns = 20π"]]'],
@@ -10113,7 +10156,7 @@ _PRECALC_U4 = [
         "symbols": ("period", "repeats"),
         "advance_line": "Three in a row — you've got it! Divide 360 by the multiplier.",
         "teach": [
-            ["The plain sine wave repeats its whole story every 360 degrees — its period . Write y equals the sine of 2 x and the wave wiggles twice as fast: the story that took 360 degrees now fits in 180. Faster wiggle, shorter period.",
+            ["The plain sine wave repeats its whole story every 360 degrees — its period. Write y equals the sine of 2 x and the wave wiggles twice as fast: the story that took 360 degrees now fits in 180. Faster wiggle, shorter period.",
              '[[goal text="The faster wave"]][[graph func="sin(2*x)" range="-7..7" caption="sin(2*x) on the grid"]][[step eq="sin 2x: the story fits in 180°"]]'],
             ["The rule: divide 360 by the multiplier. y equals the sine of 30 x races thirty times faster, so it repeats every 360 divided by 30 — 12 degrees. The whole rise-and-fall, squeezed into 12.",
              '[[step eq="period = 360 ÷ 30 = 12°"]]'],
@@ -10164,7 +10207,7 @@ _PRECALC_U5 = [
         "teach": [
             ["Unit Five is about what is ALWAYS true. Here is trigonometry's most famous always: for every angle, sine squared plus cosine squared equals exactly 1. Height squared plus across squared — one whole, every single time. It is Pythagoras, living on the circle.",
              '[[goal text="One whole between them"]][[step eq="sin² + cos² = 1 — always"]]'],
-            ["Split the whole into hundredths : 1 is 100 hundredths. If sine squared takes 20 of them, cosine squared holds the rest — 100 take away 20 is 80. The pair splits one whole between them, wherever the arrow points.",
+            ["Split the whole into hundredths: 1 is 100 hundredths. If sine squared takes 20 of them, cosine squared holds the rest — 100 take away 20 is 80. The pair splits one whole between them, wherever the arrow points.",
              '[[step eq="sin² = 20/100"]] [[step eq="cos² = 80/100"]]'],
             ["Two traps. Copying sine's share hands back the number you were given — the question asked for the PARTNER. And answering 100 forgets that sine already claimed its part. Take the given share away from 100; what is left is cosine's.",
              '[[step eq="100 − given ✓"]][[step eq="copied ✗ · 100 ✗ the whole"]]'],
@@ -10276,7 +10319,7 @@ _PRECALC_U5 = [
         "symbols": ("turn", "finish"),
         "advance_line": "Three in a row — you've got it! Count one turn's crossings, then times the turns.",
         "teach": [
-            ["The last identity skill is counting answers. An equation like: the sine equals 0 — how many angles solve it? Sweep the arrow one full turn , and count every moment the height hits the target — skip the start, keep the finish .",
+            ["The last identity skill is counting answers. An equation like: the sine equals 0 — how many angles solve it? Sweep the arrow one full turn, and count every moment the height hits the target — skip the start, keep the finish.",
              '[[goal text="Count the crossings"]][[step eq="sweep · skip the start, keep the finish"]]'],
             ["Sine equal 0 in one turn: the height is 0 at flat left and again at the finish — twice. Sine equal 1: only straight up — once. The middle value gets hit going up AND coming down; the ends of the swing get touched once.",
              '[[step eq="sin = 0: twice · sin = 1: once"]]'],
@@ -10328,7 +10371,7 @@ _PRECALC_U6 = [
         "teach": [
             ["Unit Six puts trigonometry to work, starting with area. Base times height, halved, needs a height you may not have. Two sides and the angle between them are enough: the area is half of one side, times the other side, times the sine of that angle.",
              '[[goal text="Two sides and the angle"]][[step eq="area = ½ · side · side · sin(angle)"]]'],
-            ["Two sines carry this lesson. The sine of 90 degrees is 1, so a right angle hands over half the product outright: sides 10 and 4, with 90 degrees between them, cover half of 40 — an area of 20.",
+            ["Two sines carry this lesson. The sine of 90 degrees is 1, so a right angle hands over half the product outright. Take sides 10 and 4, with 90 degrees between them. They cover half of 40, an area of 20.",
              '[[triangle v="A,B,C" right="A" sides="10,,4" angles="90,," caption="sides 10 and 4 — one side missing"]][[step eq="½ · 10 · 4 · 1 = 20"]]'],
             ["The sine of 30 degrees is exactly one half — keep that one in your pocket. So 30 degrees between those same sides quarters the product: 10. And 150 shares that sine, because its reference angle is 30 — the wide triangle covers what the sharp one covers.",
              '[[step eq="30° → ¼ · 40 = 10"]][[step eq="150° → reference 30° → 10 as well"]]'],
@@ -10364,7 +10407,7 @@ _PRECALC_U6 = [
         "symbols": ("ramp", "half"),
         "advance_line": "Three in a row — you've got it! At 30 degrees, the climb is half the length.",
         "teach": [
-            ["A ramp rises at 30 degrees. How high does its far end sit? The sine of an angle is the rise divided by the slope's length, so the rise equals length times sine — and at 30 degrees that sine is a half . The ramp climbs half its length.",
+            ["A ramp rises at 30 degrees. How high does its far end sit? The sine of an angle is the rise divided by the slope's length, so the rise equals length times sine — and at 30 degrees that sine is a half. The ramp climbs half its length.",
              '[[goal text="The thirty-degree ramp"]][[step eq="rise = length × sin 30° = ½ × length"]]'],
             ["A 22-foot ramp at 30 degrees: half of 22 is 11 feet up. You walk 22 along the slope and rise 11. The climb is always the smaller number — you travel farther than you rise, on every ramp ever built.",
              '[[triangle v="A,B,C" right="B" sides=",11,22" angles="30,," caption="a 22-foot ramp at 30°"]]'],
@@ -10402,7 +10445,7 @@ _PRECALC_U6 = [
         "symbols": ("bearing", "clockwise"),
         "advance_line": "Three in a row — you've got it! Add the turn, then wrap at 360.",
         "teach": [
-            ["Sailors and pilots steer by a bearing : degrees measured clockwise from north, from 0 up to 360. Turn clockwise and the bearing grows — but the circle stops at 360, and a turn that passes it starts counting again from zero.",
+            ["Sailors and pilots steer by a bearing: degrees measured clockwise from north, from 0 up to 360. Turn clockwise and the bearing grows — but the circle stops at 360, and a turn that passes it starts counting again from zero.",
              '[[goal text="Past the full turn"]][[step eq="bearing: 0° → 360°, clockwise from north"]]'],
             ["A ship on bearing 350 turns 40 degrees clockwise. 350 plus 40 is 390 — past the full turn. Take away 360 and the true bearing is 30: the ship has swung around through north and is heading nearly north again.",
              '[[step eq="350 + 40 = 390"]] [[step eq="390 − 360 = 30"]]'],
@@ -10440,7 +10483,7 @@ _PRECALC_U6 = [
         "symbols": ("arrow", "steps"),
         "advance_line": "Three in a row — you've got it! The arrow is the hypotenuse of its two steps.",
         "teach": [
-            ["An arrow on a grid is described by its steps : so many to the right, so many up. Those two steps meet at a right angle — so the arrow itself is a hypotenuse, and Geometry's Pythagoras measures it without a ruler.",
+            ["An arrow on a grid is described by its steps: so many to the right, so many up. Those two steps meet at a right angle — so the arrow itself is a hypotenuse, and Geometry's Pythagoras measures it without a ruler.",
              '[[goal text="The arrow and its steps"]][[vector v="3,4" caption="3 across, 4 up"]]'],
             ["Right 3 and up 4: 9 put together with 16 is 25, and 5 times 5 squares back to it. The arrow is 5 long — farther than either step on its own, and shorter than walking 3 and then 4, which is 7.",
              '[[step eq="3² + 4² = 25"]] [[step eq="√25 = 5"]][[step eq="5 > 4 · 5 < 3 + 4"]]'],
@@ -10491,7 +10534,7 @@ _PRECALC_U7 = [
         "symbols": ("radius", "circle"),
         "advance_line": "Three in a row — you've got it! Un-square the right-hand number.",
         "teach": [
-            ["Unit Seven reads shapes straight off their equations. A circle can be written: x take away 2, squared, plus y take away 9, squared, equals 49 — every point sitting one fixed distance from the middle. That 49 is not the radius , though.",
+            ["Unit Seven reads shapes straight off their equations. A circle can be written: x take away 2, squared, plus y take away 9, squared, equals 49 — every point sitting one fixed distance from the middle. That 49 is not the radius, though.",
              '[[goal text="Un-square the radius"]][[conic type="circle" r="7" caption="the circle"]]'],
             ["It is the radius SQUARED. Un-square 49 and the radius is 7 — the circle reaches 7 in every direction from its middle. The distance formula built this equation, and distances arrive squared; un-squaring is how you get them back.",
              '[[step eq="(x − 2)² + (y − 9)² = 49"]][[step eq="un-square 49 → radius 7"]]'],
@@ -10567,7 +10610,7 @@ _PRECALC_U7 = [
         "symbols": ("ellipse", "edge"),
         "advance_line": "Three in a row — you've got it! Un-square, then double.",
         "teach": [
-            ["Stretch a circle and you have an ellipse : x squared over 144, plus y squared over 25, equals 1. Those two bottom numbers are squares as well — and un-squaring them says how far the shape reaches in each direction.",
+            ["Stretch a circle and you have an ellipse: x squared over 144, plus y squared over 25, equals 1. Those two bottom numbers are squares as well — and un-squaring them says how far the shape reaches in each direction.",
              '[[goal text="Edge to edge"]][[conic type="ellipse" a="12" b="5" caption="the ellipse"]]'],
             ["Un-square 144: the ellipse reaches 12 to the left and 12 to the right of its middle. From the left edge to the right edge is double that — 24 across. The 25 does the same work upward: 5 each way, so 10 tall.",
              '[[step eq="un-square 144 → 12 each way → 24 across"]][[step eq="un-square 25 → 5 each way → 10 tall"]]'],
@@ -10605,7 +10648,7 @@ _PRECALC_U7 = [
         "symbols": ("time", "path"),
         "advance_line": "Three in a row — you've got it! Plug the time in first, then measure straight.",
         "teach": [
-            ["The unit ends in motion. Instead of tying y to x, tie BOTH of them to time : x equals 3 times t, y equals 4 times t. Hand it a moment and it hands back a position, so the curve becomes a path something travels.",
+            ["The unit ends in motion. Instead of tying y to x, tie BOTH of them to time: x equals 3 times t, y equals 4 times t. Hand it a moment and it hands back a position, so the curve becomes a path something travels.",
              '[[goal text="Where you are at time t"]][[step eq="x = 3t · y = 4t"]]'],
             ["At t equals 1 second the ball sits 3 right and 4 up — 5 away from its start, by Pythagoras. At t equals 10 seconds it is at 30 and 40, which is 50 away. Every second adds another 5 of distance.",
              '[[step eq="t = 1: point (3, 4), 5 away"]][[step eq="t = 10: point (30, 40), 50 away"]]'],
@@ -10691,7 +10734,7 @@ _PRECALC_U8 = [
         "symbols": ("sigma", "instruction"),
         "advance_line": "Three in a row — you've got it! Pull the multiplier out, then sum 1 up to n.",
         "teach": [
-            ["Mathematics writes long sums in shorthand: a big Greek S — sigma — with a start below it and a stop above. It is not a new idea, only an instruction : run k from the bottom number to the top one, work out the recipe each time, and put every result together.",
+            ["Mathematics writes long sums in shorthand: a big Greek S — sigma — with a start below it and a stop above. It is not a new idea, only an instruction: run k from the bottom number to the top one, work out the recipe each time, and put every result together.",
              '[[goal text="The instruction called sigma"]][[step eq="Σ (k = 1 to 5) of k = 1+2+3+4+5 = 15"]]'],
             ["Now a recipe with a multiplier: the sum, for k from 1 to 5, of 10 times k. That is 10, 20, 30, 40, 50 — and every term carries the 10, so pull it out front: 1 up to 5 sums to 15, and 10 times 15 is 150.",
              '[[step eq="Σ (k = 1 to 5) of 10k = 10 × 15 = 150"]]'],
@@ -10767,7 +10810,7 @@ _PRECALC_U8 = [
         "symbols": ("forever", "settles"),
         "advance_line": "Three in a row — you've got it! Halving forever settles at twice the first piece.",
         "teach": [
-            ["Here is the strangest true thing in Unit Eight. Add 1, then a half, then a quarter, then an eighth — forever , with no last term. The running total climbs to 1, then one and a half, then one and three quarters, and it never once passes 2.",
+            ["Here is the strangest true thing in Unit Eight. Add 1, then a half, then a quarter, then an eighth — forever, with no last term. The running total climbs to 1, then one and a half, then one and three quarters, and it never once passes 2.",
              '[[goal text="The sum that never ends"]][[step eq="1 + ½ + ¼ + ⅛ + … → 2"]]'],
             ["Each new piece covers half of what is left over, so there is always a little gap and the gap always shrinks. The sum settles on 2 without ever arriving — a first taste of the idea Unit Nine is built from.",
              '[[step eq="gap halves every step · total → 2"]]'],
@@ -10818,7 +10861,7 @@ _PRECALC_U9 = [
         "symbols": ("limit", "creeps"),
         "advance_line": "Three in a row — you've got it! Nothing breaks, so walk the value in.",
         "teach": [
-            ["The last unit of Pre-Calculus asks one question: where was it HEADED? Follow a curve toward some x without ever landing on it, and the value it approaches is called the limit . You have met one already — the settling number of an endless sum.",
+            ["The last unit of Pre-Calculus asks one question: where was it HEADED? Follow a curve toward some x without ever landing on it, and the value it approaches is called the limit. You have met one already — the settling number of an endless sum.",
              '[[goal text="Walk the value in"]][[step eq="x → some number · y → ?"]]'],
             ["When nothing breaks, the answer is the plainest possible. As x creeps toward 4, 5 x plus 2 creeps toward 5 times 4 plus 2 — 22. Walk x in, and the value walks in beside it. No limit needed, strictly speaking; the function is simply there.",
              '[[step eq="y = 5x + 2 · x: 4 · y: 22"]]'],
@@ -10932,7 +10975,7 @@ _PRECALC_U9 = [
         "symbols": ("rise", "window"),
         "advance_line": "Three in a row — you've got it! Rise divided by run — and on this curve, it is the two x's put together.",
         "teach": [
-            ["Pre-Calculus ends by handing Calculus its first question. On y equals x squared, move x from 2 to 6. y climbs from 4 to 36 — a rise of 32 — while x moves 4. So y rose 8 for each step of x, on average across that window .",
+            ["Pre-Calculus ends by handing Calculus its first question. On y equals x squared, move x from 2 to 6. y climbs from 4 to 36 — a rise of 32 — while x moves 4. So y rose 8 for each step of x, on average across that window.",
              '[[goal text="The shrinking window"]][[step eq="rise 32 ÷ run 4 = 8 per step"]]'],
             ["And 8 is simply 2 plus 6. On this curve the average rate is always the two x's put together — try 3 to 5: rise 16, run 2, and 8 again, which is 3 plus 5. A tidy shortcut, and it is about to do something remarkable.",
              '[[step eq="2 to 6 → 8 · 3 to 5 → 8"]]'],
@@ -10981,7 +11024,7 @@ _PROBSTAT_U1 = [
         "symbols": ("mode", "stack"),
         "advance_line": "Three in a row — you've got it! The mode is the value under the stack.",
         "teach": [
-            ["Welcome to Probability and Statistics, where the first move is always to LOOK. A dot plot puts one dot above a number for every time that number happened, so the shape of the data stands up off the page — tall where values repeat, flat where they do not.",
+            ["Welcome to Probability and Statistics, where the first move is always to LOOK. A dot plot puts one dot above a number for every time that number happened. The shape of the data stands up off the page. It is tall where values repeat and flat where they do not.",
              '[[goal text="Under the tallest stack"]][[dotplot values="3,4,4,5,5,5,5,6,6,7" caption="one dot per value — spot the stacks"]]'],
             ["The mode is the value that happened most often — so find the tallest stack and read the number UNDERNEATH it. Here four dots stand over 5, more than any other number, so the mode is 5.",
              '[[step eq="tallest stack sits over 5 → mode = 5"]]'],
@@ -11019,7 +11062,7 @@ _PROBSTAT_U1 = [
         "symbols": ("count", "line"),
         "advance_line": "Three in a row — you've got it! Count only past the line, and never the dot standing on it.",
         "teach": [
-            ["A dot plot answers more than one question. Beyond what is most common, you can count how many values sit past some mark — how many players scored more than 8, how many days ran over an hour. Draw a line , then count one side of it.",
+            ["A dot plot answers more than one question. Beyond what is most common, you can count how many values sit past some mark — how many players scored more than 8, how many days ran over an hour. Draw a line, then count one side of it.",
              '[[goal text="Count the ones above"]][[dotplot values="6,7,7,8,9,9,10,11" caption="one dot per value — spot the stacks"]]'],
             ["Count how many are MORE than 8 here: 9, 9, 10 and 11 — four dots to the right of 8. Work left to right and touch each dot once; a count you cannot repeat exactly is a count you should do again.",
              '[[step eq="more than 8 → 9, 9, 10, 11 → 4"]]'],
@@ -11059,7 +11102,7 @@ _PROBSTAT_U1 = [
         "teach": [
             ["When there are too many values for one dot each, a histogram sorts them into groups and draws a bar for each group. The bar's height is how many landed in that group — and on this board, each bar carries its count printed above it.",
              '[[goal text="Add the bars"]][[histogram values="5,5,5,15,15,15,15,25,25" caption="how many land in each range"]]'],
-            ["To find how many values there are in all, add the bars : 3 plus 4 plus 2 equals 9 values. A histogram never shows you the values themselves — it shows you how many landed in each group, and adding those counts brings them all back.",
+            ["To find how many values there are in all, add the bars: 3 plus 4 plus 2 equals 9 values. A histogram never shows you the values themselves — it shows you how many landed in each group, and adding those counts brings them all back.",
              '[[step eq="3 + 4 + 2 = 9 values in all"]]'],
             ["Two easy misreads. The tallest bar, 4, is only the biggest group — it is not the whole. And counting the bars themselves gives 3, which is how many GROUPS there are, not how many values. Add the heights, always.",
              '[[step eq="9 ✓"]][[step eq="4 ✗ tallest group · 3 ✗ number of groups"]]'],
@@ -11095,9 +11138,9 @@ _PROBSTAT_U1 = [
         "symbols": ("outlier", "cluster"),
         "advance_line": "Three in a row — you've got it! The outlier is the value sitting alone, far from the crowd.",
         "teach": [
-            ["Algebra One showed what one unusual value does to a mean — it drags it. Before you can watch for that, you have to SPOT the stray. On a dot plot it is obvious: nearly every dot huddles in one cluster , and one sits out on its own with a gap between.",
+            ["Algebra One showed what one unusual value does to a mean — it drags it. Before you can watch for that, you have to SPOT the stray. On a dot plot it is obvious: nearly every dot huddles in one cluster, and one sits out on its own with a gap between.",
              '[[goal text="The one that sits alone"]][[dotplot values="6,7,7,8,8,9,26" caption="one dot per value — spot the stacks"]]'],
-            ["That lonely dot is called an outlier , and here it sits at 26 while the crowd huddles between 6 and 9. The outlier is the VALUE it sits above — 26 — the same way the mode was the value under its stack.",
+            ["That lonely dot is called an outlier, and here it sits at 26 while the crowd huddles between 6 and 9. The outlier is the VALUE it sits above — 26 — the same way the mode was the value under its stack.",
              '[[step eq="crowd 6 to 9 · stray at 26 → outlier = 26"]]'],
             ["Two things not to hand back. 7, where the crowd is thickest, is the mode — a different question. And 20, the size of the gap, tells you how far out the stray is, not what it is. Point at the lonely dot and read the number below it.",
              '[[step eq="26 ✓"]][[step eq="7 ✗ the crowd · 20 ✗ the gap"]]'],
@@ -11148,7 +11191,7 @@ _PROBSTAT_U2 = [
              '[[goal text="No single middle"]][[step eq="4, 6, | 8, 10 | , 12, 14"]]'],
             ["Take 4, 6, 8, 10, 12, 14 — six numbers, so three sit either side and the middles are 8 and 10. The median is halfway between them: add and halve, 8 plus 10 is 18, halved is 9. The median of an even list often is not in the list at all.",
              '[[step eq="middles 8 and 10 → (8 + 10) ÷ 2 = 9"]]'],
-            ["Neither middle on its own will do. Answering 8 takes the lower one and 10 takes the upper, and both leave half the data unbalanced — 9 is the only number with three below it and three above. Find both middles , then go halfway.",
+            ["Neither middle on its own will do. Answering 8 takes the lower one and 10 takes the upper, and both leave half the data unbalanced — 9 is the only number with three below it and three above. Find both middles, then go halfway.",
              '[[step eq="9 ✓"]][[step eq="8 ✗ lower middle · 10 ✗ upper middle"]]'],
         ],
         "pairs": [
@@ -11258,7 +11301,7 @@ _PROBSTAT_U2 = [
         "symbols": ("percentile", "percent"),
         "advance_line": "Three in a row — you've got it! A percentile is a percent of the group, not a count of people.",
         "teach": [
-            ["A last way to place one value inside a distribution: say what percent of the others it beat. That is a percentile . Sitting at the 80th percentile means you scored higher than 80 percent of the people you were measured against — nothing more, nothing less.",
+            ["A last way to place one value inside a distribution: say what percent of the others it beat. That is a percentile. Sitting at the 80th percentile means you scored higher than 80 percent of the people you were measured against — nothing more, nothing less.",
              '[[goal text="A percent, not a person"]][[step eq="80th percentile → higher than 80% of them"]]'],
             ["Turn it into people by taking that percent of the group. Sit a test with 20 others at the 80th percentile: 80 percent of 20 is 16, so you beat 16 of them and 4 scored above you. The percentile never changes, but the headcount depends on the group.",
              '[[step eq="80% of 20 = 16 beaten · 4 above"]]'],
@@ -11311,7 +11354,7 @@ _PROBSTAT_U3 = [
         "teach": [
             ["Every plot so far showed ONE measurement. A scatterplot shows two at once: each dot is one child, placed across by hours practiced and up by points scored. One dot, two numbers — and that pairing is what lets you see whether practice and points travel together.",
              '[[goal text="One dot, two numbers"]][[scatter points="(2,8),(4,16),(6,19),(8,27),(10,30),(12,38)" caption="each dot is one pair"]]'],
-            ["To read a child, find their hours along the bottom, go straight up until you meet their dot , then straight across to the side. The child at 8 hours sits level with 27 — so 27 points. Across first, then up, then across again.",
+            ["To read a child, find their hours along the bottom, go straight up until you meet their dot, then straight across to the side. The child at 8 hours sits level with 27 — so 27 points. Across first, then up, then across again.",
              '[[step eq="8 hours → up to the dot → across → 27 points"]]'],
             ["The mix-up to avoid is answering with the number you were GIVEN. 8 is the hours, and hours live across the bottom; the points live up the side. And it is easy to land on the dot next door — 30 belongs to the child who practiced 10 hours, not 8.",
              '[[step eq="27 ✓"]][[step eq="8 ✗ that is the hours · 30 ✗ the next dot"]]'],
@@ -11387,7 +11430,7 @@ _PROBSTAT_U3 = [
         "teach": [
             ["A best-fit line predicts, and predictions miss. Read the line at some child's hours and it names a score; look at that child's real dot and you see what they actually got. The gap between those two is the interesting part.",
              '[[goal text="How far off the line"]][[step eq="predicted 30 · actual 36"]]'],
-            ["That gap has a name: the residual . If the line predicted 30 and the child scored 36, the residual is 6 — the line was 6 points low. A dot above the line has the line guessing low; a dot below has it guessing high.",
+            ["That gap has a name: the residual. If the line predicted 30 and the child scored 36, the residual is 6 — the line was 6 points low. A dot above the line has the line guessing low; a dot below has it guessing high.",
              '[[step eq="36 − 30 = 6"]] [[step eq="residual = 6"]]'],
             ["The best-fit line is chosen to keep these gaps as small as they can be across every dot at once — that is what BEST fit means. So do not hand back 36, which is what the child scored, or 66, which puts two unrelated numbers together. The residual is the distance between them.",
              '[[step eq="6 ✓"]][[step eq="36 ✗ the actual score · 66 ✗ added"]]'],
@@ -11425,7 +11468,7 @@ _PROBSTAT_U3 = [
         "teach": [
             ["Here is a fact about the best-fit line that catches people out: it does not sit on top of the cloud, or underneath it. It runs THROUGH the middle, so dots end up on both sides — some above it, some below.",
              '[[goal text="Through the middle of the cloud"]][[scatter points="(2,8),(4,16),(6,19),(8,27),(10,30),(12,38)" fit="true" caption="each dot is one pair — with the best-fit line"]]'],
-            ["That turns the counting into one take-away. If 14 dots are plotted and none lands exactly on the line, then every dot is either above or below. With 6 above , the other 8 must be below : 14 take away 6.",
+            ["That turns the counting into one take-away. If 14 dots are plotted and none lands exactly on the line, then every dot is either above or below. With 6 above, the other 8 must be below: 14 take away 6.",
              '[[step eq="14 dots · 6 above → 14 − 6 = 8 below"]]'],
             ["Two answers to resist. 6 is the side you were already told about — the question asked for the other one. And 14 is every dot on the plot, both sides at once. Take the side you know away from the whole.",
              '[[step eq="8 ✓"]][[step eq="6 ✗ the side you were given · 14 ✗ all of them"]]'],
@@ -11475,7 +11518,7 @@ _PROBSTAT_U4 = [
         "teach": [
             ["Algebra Two took a sample's answer and scaled it up to a whole school. That only works if the sample looks like the school. So this unit builds the sample first — and the plainest way is to keep the same mix of people inside it.",
              '[[goal text="A sample that matches"]][[step eq="school 40 girls · 60 boys → sample keeps 40:60"]]'],
-            ["A school of 40 girls and 60 boys is two-fifths girls. A sample of 20 students should be two-fifths girls too: 20 times 40, divided by 100 — 8 girls, and 12 boys. Take the share the group has, and give the sample that same share .",
+            ["A school of 40 girls and 60 boys is two-fifths girls. A sample of 20 students should be two-fifths girls too: 20 times 40, divided by 100 — 8 girls, and 12 boys. Take the share the group has, and give the sample that same share.",
              '[[step eq="20 × 40 ÷ 100 = 8 girls"]]'],
             ["The lazy move is splitting the sample down the middle — 10 and 10 — which only matches a school that really is half and half. And copying 40 straight across would ask more girls than the whole sample holds. Work out the share, then take it.",
              '[[step eq="8 ✓"]][[step eq="10 ✗ half and half · 40 ✗ the school\'s own count"]]'],
@@ -11511,9 +11554,9 @@ _PROBSTAT_U4 = [
         "symbols": ("response rate", "percent"),
         "advance_line": "Three in a row — you've got it! Returned out of sent, as a percent.",
         "teach": [
-            ["Sending a survey is not the same as getting answers. Of everyone you ask, only some reply — and the percent who do is called the response rate . It is the first number a statistician looks for, before believing a word of the results.",
+            ["Sending a survey is not the same as getting answers. Of everyone you ask, only some reply — and the percent who do is called the response rate. It is the first number a statistician looks for, before believing a word of the results.",
              '[[goal text="Who actually answered"]][[step eq="60 sent · 15 back → ?%"]]'],
-            ["Work it out as any percent : 15 back out of 60 sent is a quarter — 25 percent. Three out of every four people you asked said nothing at all, and a survey reporting only the quarter who answered is reporting a quarter of the story.",
+            ["Work it out as any percent: 15 back out of 60 sent is a quarter — 25 percent. Three out of every four people you asked said nothing at all, and a survey reporting only the quarter who answered is reporting a quarter of the story.",
              '[[step eq="15 ÷ 60 = 25%"]]'],
             ["Why it matters: the silent ones may differ from the answerers. People with strong feelings reply; the contented shrug and bin it. So do not hand back 15, which is a count of surveys, or 45, which is how many stayed silent. The rate is the percent.",
              '[[step eq="25 ✓"]][[step eq="15 ✗ a count · 45 ✗ the silent ones"]]'],
@@ -11551,7 +11594,7 @@ _PROBSTAT_U4 = [
         "teach": [
             ["A survey can be perfectly run and still be wrong, if it asks the wrong crowd. Hand a lunch survey only to the children in the cafeteria and every child who brings lunch from home is invisible — and they are the ones with the strongest opinions about school lunches.",
              '[[goal text="The ones you never asked"]][[step eq="asked: 120 in the cafeteria · school: 300"]]'],
-            ["Count them: a school of 300 with 120 in the cafeteria leaves 180 children who never had a chance of being handed the survey. Not 180 who said no — 180 who were never asked at all. A sample like that is called biased .",
+            ["Count them: a school of 300 with 120 in the cafeteria leaves 180 children who never had a chance of being handed the survey. Not 180 who said no — 180 who were never asked at all. A sample like that is called biased.",
              '[[step eq="300 − 120 = 180 never asked"]]'],
             ["The cure is giving everyone a chance of being picked, usually at random. And notice which numbers do not answer the question: 120 is the crowd that WAS asked, and 300 is everybody, asked or not. The gap between them is the blind spot.",
              '[[step eq="180 ✓"]][[step eq="120 ✗ those asked · 300 ✗ everyone"]]'],
@@ -11638,11 +11681,11 @@ _PROBSTAT_U5 = [
         "symbols": ("percent", "chance"),
         "advance_line": "Three in a row — you've got it! A chance is a percent of the whole.",
         "teach": [
-            ["Geometry counted a chance : 3 red marbles out of 10 is 3 out of 10. That is true, but two chances counted out of different wholes cannot be compared. So probability puts every chance on ONE scale, from 0 to 100.",
+            ["Geometry counted a chance: 3 red marbles out of 10 is 3 out of 10. That is true, but two chances counted out of different wholes cannot be compared. So probability puts every chance on ONE scale, from 0 to 100.",
              '[[goal text="Chance on a scale"]][[step eq="0 = never · 100 = always"]]'],
             ["Turn a count into a percent the ordinary way. 3 red out of 10 marbles is 30 percent — 3 divided by 10, then out of a hundred. Now it can be set beside any other chance in the world: a 30 percent chance of red, a 40 percent chance of rain.",
              '[[step eq="3 out of 10 → 30%"]]'],
-            ["The two ends anchor the scale: 0 percent never happens, 100 percent always does, and everything real lives between. So do not hand back 3, the count of red marbles, or 7, the count that is not red. The question asks for the percent .",
+            ["The two ends anchor the scale: 0 percent never happens, 100 percent always does, and everything real lives between. So do not hand back 3, the count of red marbles, or 7, the count that is not red. The question asks for the percent.",
              '[[step eq="30 ✓"]][[step eq="3 ✗ a count · 7 ✗ the others"]]'],
         ],
         "pairs": [
@@ -11718,7 +11761,7 @@ _PROBSTAT_U5 = [
              '[[goal text="Both at once"]][[step eq="rain 1 in 4 · late bus 1 in 3"]]'],
             ["Think it through. Of every 4 days, one is rainy — and on that rainy day, only one bus in 3 runs late. So a rainy day WITH a late bus turns up one time in 4 times 3: one in 12. Wanting both times the two chances together.",
              '[[step eq="1 in 4 × 1 in 3 → 1 in 12"]]'],
-            ["Notice the direction: asking for both always leaves a chance rarer , so the answer must be a bigger \"one in\" number than either you started with. One in 7 — adding them — is more common than rain alone, which cannot be right.",
+            ["Notice the direction: asking for both always leaves a chance rarer, so the answer must be a bigger \"one in\" number than either you started with. One in 7 — adding them — is more common than rain alone, which cannot be right.",
              '[[step eq="1 in 12 ✓ rarer"]][[step eq="1 in 7 ✗ added · 1 in 4 ✗ the bus ignored"]]'],
         ],
         "pairs": [
@@ -11841,7 +11884,7 @@ _PROBSTAT_U6 = [
         "teach": [
             ["Once the world has shrunk, work out the chance the ordinary way — just inside the smaller group. Every girl in a class chose one club: 9 chose soccer and 6 chose art. Among the girls, that is 15 children in all.",
              '[[goal text="Inside the smaller world"]][[step eq="girls: 9 soccer + 6 art = 15"]]'],
-            ["So the chance a girl chose soccer is 9 out of 15 — 60 percent . The boys never enter the arithmetic at any point, however many of them there are, because the question already sent them away.",
+            ["So the chance a girl chose soccer is 9 out of 15 — 60 percent. The boys never enter the arithmetic at any point, however many of them there are, because the question already sent them away.",
              '[[step eq="9 out of 15 → 60%"]]'],
             ["Two answers not to give: 9 is a headcount, not a percent, and 40 percent is the art share — the rest of the girls. Read which group is being asked about, count that group, and divide inside it.",
              '[[step eq="60 ✓"]][[step eq="9 ✗ a count · 40 ✗ the other club"]]'],
@@ -11877,7 +11920,7 @@ _PROBSTAT_U6 = [
         "symbols": ("independent", "rate"),
         "advance_line": "Three in a row — you've got it! Independent means the group looks just like everyone.",
         "teach": [
-            ["Two things are independent when knowing one tells you nothing about the other. That is a claim you can TEST, because it carries a promise: the group's rate should match the overall rate , exactly.",
+            ["Two things are independent when knowing one tells you nothing about the other. That is a claim you can TEST, because it carries a promise: the group's rate should match the overall rate, exactly.",
              '[[goal text="What independent claims"]][[step eq="independent → group rate = overall rate"]]'],
             ["Say 30 percent of a school likes maths. If left-handedness were independent of liking maths, then 30 percent of the left-handers would like maths too — the same 30, whether there are 20 left-handers or 200.",
              '[[step eq="school 30% → left-handers 30% if independent"]]'],
@@ -11964,9 +12007,9 @@ _PROBSTAT_U7 = [
         "symbols": ("chances", "hundred"),
         "advance_line": "Three in a row — you've got it! The chances fill the hundred, and what is left is the last one.",
         "teach": [
-            ["A random variable is just an outcome with a number on it — the prize a machine gives, the score a spinner shows. List every value it can take and the chance of each, and you have its distribution. Those chances have a duty: they must fill the whole hundred .",
+            ["A random variable is just an outcome with a number on it — the prize a machine gives, the score a spinner shows. List every value it can take and the chance of each, and you have its distribution. Those chances have a duty: they must fill the whole hundred.",
              '[[goal text="The chances fill the hundred"]][[step eq="small 25% · medium 40% · large ?%"]]'],
-            ["Why? Because something happens every single time. If small comes up 25 percent of the time and medium 40, that is 65 accounted for, so large takes the 35 that are left — there is nowhere else for those plays to go.",
+            ["Why? Because something happens every single time. If small comes up 25 percent of the time and medium 40, that is 65 accounted for. So large takes the 35 that are left. There is nowhere else for those plays to go.",
              '[[step eq="25 + 40 = 65"]] [[step eq="large: 100 − 65 = 35%"]]'],
             ["So any missing chance can be found. Add the ones you know, take them from 100, and the leftover is the answer. Handing back 65, the part you added, forgets the very outcome you were asked about — and 100 is all three together.",
              '[[step eq="35 ✓"]][[step eq="65 ✗ the two given · 100 ✗ all of them"]]'],
@@ -12002,9 +12045,9 @@ _PROBSTAT_U7 = [
         "symbols": ("average", "often"),
         "advance_line": "Three in a row — you've got it! Weigh each payout by how often it comes.",
         "teach": [
-            ["What is one play worth? Not the best prize, and not the worst — something in between, pulled toward whichever turns up more often . That in-between number is the expected value, and it is a weighted average, exactly like the heavier mean of Algebra Two.",
+            ["What is one play worth? Not the best prize, and not the worst — something in between, pulled toward whichever turns up more often. That in-between number is the expected value, and it is a weighted average, exactly like the heavier mean of Algebra Two.",
              '[[goal text="What one play is worth"]][[step eq="20 tokens 40% · 5 tokens 60%"]]'],
-            ["Take 20 tokens 40 percent of the time and 5 tokens the other 60. Over a hundred plays that is 40 twenties and 60 fives — 800 plus 300, which is 1100 tokens across 100 plays. So one play is worth 11 tokens on average .",
+            ["Take 20 tokens 40 percent of the time and 5 tokens the other 60. Over a hundred plays that is 40 twenties and 60 fives — 800 plus 300, which is 1100 tokens across 100 plays. So one play is worth 11 tokens on average.",
              '[[step eq="40×20 + 60×5 = 1100"]] [[step eq="1100 ÷ 100 = 11 a play"]]'],
             ["The trap is averaging the two prizes and stopping: 20 and 5 average to 12 point 5, which would only be right if both came up equally often. They do not — the small prize comes up more, so the true value sits lower, at 11. And the big prize alone is not what a play is worth.",
              '[[step eq="11 ✓"]][[step eq="12 or 13 ✗ the prizes averaged · 20 ✗ the big prize"]]'],
@@ -12078,11 +12121,11 @@ _PROBSTAT_U7 = [
         "symbols": ("long run", "back"),
         "advance_line": "Three in a row — you've got it! Paid out take away paid back — that is the real cost.",
         "teach": [
-            ["Real games are not fair, and the gap is the whole business model. You pay a fixed price each play; expected value says what comes back on average. Take one from the other and you have what a play really costs you in the long run .",
+            ["Real games are not fair, and the gap is the whole business model. You pay a fixed price each play; expected value says what comes back on average. Take one from the other and you have what a play really costs you in the long run.",
              '[[goal text="Why the machine stays open"]][[step eq="pay 10 · get back 7 on average"]]'],
             ["Pay 10 tokens and get 7 back on average: each play quietly costs 3. Play once and you might walk away up — that is why anyone plays. Play four hundred times and the 3 arrives with perfect reliability: 1200 tokens gone.",
              '[[step eq="10 − 7 = 3 a play"]]'],
-            ["So the two numbers to keep apart are what comes back and what it costs. 7 is what comes back , and adding the two is nothing at all — no play ever costs you 17. The gap is small on purpose: small enough to ignore, steady enough to build a business on.",
+            ["So the two numbers to keep apart are what comes back and what it costs. 7 is what comes back, and adding the two is nothing at all — no play ever costs you 17. The gap is small on purpose: small enough to ignore, steady enough to build a business on.",
              '[[step eq="3 ✓"]][[step eq="7 ✗ what comes back · 17 ✗ added"]]'],
         ],
         "pairs": [
@@ -12129,9 +12172,9 @@ _PROBSTAT_U8 = [
         "symbols": ("bell curve", "standard deviation"),
         "advance_line": "Three in a row — you've got it! About 68 in every hundred sit in the middle band.",
         "teach": [
-            ["Measure almost anything about a big group of people — heights, test scores, how long a walk to school takes — and the picture comes out the same shape: a bell curve , crowded in the middle and thinning at both ends.",
+            ["Measure almost anything about a big group of people. Heights, test scores, how long a walk to school takes. The picture comes out the same shape every time: a bell curve, crowded in the middle and thinning at both ends.",
              '[[goal text="The crowded middle"]][[normal mean="100" sd="10" lo="90" hi="110" caption="the bell curve — middle 100, spread 10"]]'],
-            ["The spread has a ruler: one standard deviation , the typical distance from the middle that Unit Two measured. And the bell always shares itself out the same way — about 68 percent of everybody sits no further than one standard deviation from the mean.",
+            ["The spread has a ruler: one standard deviation, the typical distance from the middle that Unit Two measured. And the bell always shares itself out the same way — about 68 percent of everybody sits no further than one standard deviation from the mean.",
              '[[step eq="no further than 1 deviation → about 68%"]]'],
             ["Turn that into people. In a school of 200, about 68 percent — 136 students — are no further than one standard deviation from the average height. The 68 is a percent and never a headcount, and 200 is everybody, middle and ends together.",
              '[[step eq="68% of 200 = 136 students"]][[step eq="68 ✗ a percent · 200 ✗ everyone"]]'],
@@ -12205,9 +12248,9 @@ _PROBSTAT_U8 = [
         "symbols": ("mean", "two"),
         "advance_line": "Three in a row — you've got it! Two steps of the deviation, starting from the mean.",
         "teach": [
-            ["The ruler works in both directions. Instead of asking how far out a value is, name a distance and ask which value sits there — two standard deviations above the mean, say, where only about 2 people in a hundred ever reach.",
+            ["The ruler works in both directions. Instead of asking how far out a value is, name a distance and ask which value sits there. Two standard deviations above the mean, say. Only about 2 people in a hundred ever reach that far.",
              '[[goal text="Which value sits out there?"]][[normal mean="50" sd="8" lo="66" hi="82" caption="the bell curve — middle 50, spread 8"]]'],
-            ["Mean 50, one deviation 8. Two deviations is 8 twice — 16 — and that distance starts FROM the mean : 50 plus 16 is 66. Everything above 66 is that rare top sliver of the curve.",
+            ["Mean 50, one deviation 8. Two deviations is 8 twice — 16 — and that distance starts FROM the mean: 50 plus 16 is 66. Everything above 66 is that rare top sliver of the curve.",
              '[[step eq="50 + 2×8 = 66"]]'],
             ["Two slips. Adding one 8 gives 58, which is only one deviation out. And answering 16 gives the distance while forgetting to start from 50 — a distance is not a value. Two steps, always beginning at the mean.",
              '[[step eq="66 ✓"]][[step eq="58 ✗ one deviation · 16 ✗ the distance alone"]]'],
@@ -12245,7 +12288,7 @@ _PROBSTAT_U8 = [
         "teach": [
             ["The bell keeps sharing itself out the same way. About 68 percent sit no further than one standard deviation out, and about 95 percent no further than two — which leaves just 5 percent outside two deviations in all.",
              '[[goal text="Almost nobody out there"]][[normal mean="100" sd="10" lo="80" hi="120" caption="the bell curve — middle 100, spread 10"]]'],
-            ["And that 5 percent is split between the two ends of the curve, evenly, because the bell is symmetric. In a group of 400: 5 percent is 20 people out at the ends , so 10 sit above two deviations and 10 below.",
+            ["And that 5 percent is split between the two ends of the curve, evenly, because the bell is symmetric. In a group of 400: 5 percent is 20 people out at the ends, so 10 sit above two deviations and 10 below.",
              '[[step eq="5% of 400 = 20 · half at each end = 10"]]'],
             ["Forgetting the split is the slip — 20 counts BOTH ends when the question asked for one. And a bell curve never has half its people out at the edges; that is what the shape is telling you. Rare really does mean rare.",
              '[[step eq="10 ✓"]][[step eq="20 ✗ both ends · 200 ✗ half the group"]]'],
@@ -12458,7 +12501,7 @@ _CALCULUS_U1 = [
              '[[goal text="Limits pass through"]][[step eq="f → 6 · g → 5"]]'],
             ["If f is heading for 6 as x creeps toward some point, and g is heading for 5, then f plus g heads for 11 and f times g heads for 30. The limits pass straight through the arithmetic — whatever you do to the functions, you may do to their limits instead.",
              '[[step eq="f + g → 11 · f × g → 30"]]'],
-            ["That single permission is what every later rule rests on: complicated functions get taken apart, their pieces followed separately, and the answers put back together. So for a product , times the two limits — adding answers the wrong question.",
+            ["That single permission is what every later rule rests on: complicated functions get taken apart, their pieces followed separately, and the answers put back together. So for a product, times the two limits — adding answers the wrong question.",
              '[[step eq="30 ✓"]][[step eq="11 ✗ that is the sum · 6 ✗ just the bigger"]]'],
         ],
         "pairs": [
@@ -12492,7 +12535,7 @@ _CALCULUS_U1 = [
         "symbols": ("infinity", "cancel"),
         "advance_line": "Three in a row — you've got it! Same power top and bottom — the ratio survives.",
         "teach": [
-            ["Some limits are asked at the far end of the number line, where x runs off toward infinity . Algebra Two met one: a fraction whose bottom outgrew its top settled to a number. Calculus asks it in general.",
+            ["Some limits are asked at the far end of the number line, where x runs off toward infinity. Algebra Two met one: a fraction whose bottom outgrew its top settled to a number. Calculus asks it in general.",
              '[[goal text="Far out, only the leaders matter"]][[step eq="y = 8x² ÷ 2x² · for huge x"]]'],
             ["Take 8 x squared over 2 x squared. However enormous x becomes, the two x squareds cancel exactly — they grow at the very same speed — and what is left is 8 over 2, which is 4. The curve flattens toward 4 and stays there.",
              '[[step eq="the x²s cancel → 8 ÷ 2 = 4"]]'],
@@ -12617,7 +12660,7 @@ _CALCULUS_U2 = [
         "teach": [
             ["Pre-Calculus ended by shrinking a window on the curve y equals x squared and watching the average rate settle. That settling number has a name — the derivative — and it is the slope of the curve at one single point, which nothing before Calculus could measure.",
              '[[goal text="The window closes"]][[step eq="average rate from a to b = a + b"]]'],
-            ["The average rate between two x's was the two put together. Now slide the second one onto the first: between 4 and 5 the rate is 9; between 4 and 4 point 1, about 8 point 1; and closing in, it settles on 8 — which is 4 plus 4.",
+            ["The average rate between two x's was the two put together. Now slide the second one onto the first. Between 4 and 5 the rate is 9. Between 4 and 4 point 1 it is about 8 point 1. Closing in, it settles on 8, which is 4 plus 4.",
              '[[step eq="4→5: 9 · 4→4.1: 8.1 · closing in: 8"]]'],
             ["So on this curve the slope at any x is simply twice that x. At 4 the curve climbs at 8, at 10 it climbs at 20, and it never stops steepening. Careful: 16 is how HIGH the curve sits above 4, which is a different question entirely.",
              '[[step eq="slope at 4 = 8 ✓"]][[step eq="16 ✗ that is the height"]]'],
@@ -12643,7 +12686,7 @@ _CALCULUS_U2 = [
         "symbols": ("power rule", "exponent"),
         "advance_line": "Three in a row — you've got it! The exponent comes down and times what is already there.",
         "teach": [
-            ["Shrinking a window every time would be unbearable, so Calculus finds the pattern once and keeps it. It is called the power rule : the exponent comes down in front, and the power drops by one.",
+            ["Shrinking a window every time would be unbearable, so Calculus finds the pattern once and keeps it. It is called the power rule: the exponent comes down in front, and the power drops by one.",
              '[[goal text="The power comes down front"]][[step eq="x^n → n·x^(n−1)"]]'],
             ["Watch it agree with what you know. For x squared the 2 comes down and the power drops to 1, giving 2 x — exactly the twice-the-x from the last lesson. Now try 5 x to the power 3: the 3 comes down onto the 5, giving 15 x squared.",
              '[[step eq="5x³"]] [[step eq="3 × 5 = 15"]] [[step eq="15x²"]]'],
@@ -12766,7 +12809,7 @@ _CALCULUS_U3 = [
         "symbols": ("chain rule", "inside"),
         "advance_line": "Three in a row — you've got it! The power comes down AND the inside's derivative comes out.",
         "teach": [
-            ["Pre-Calculus fed one machine into another and called it composition. Differentiating one of those needs the chain rule , and it says: differentiate the outside, then times by the derivative of the inside .",
+            ["Pre-Calculus fed one machine into another and called it composition. Differentiating one of those needs the chain rule, and it says: differentiate the outside, then times by the derivative of the inside.",
              '[[goal text="Do not forget the inside"]][[step eq="y = (5x + 3)^4"]]'],
             ["Take the quantity 5 x plus 3, raised to the power 4. The outside is something to the 4, so the 4 comes down. But the inside, 5 x plus 3, has its own derivative — 5 — and that comes out too. Front number: 4 times 5, which is 20.",
              '[[step eq="4 comes down · inside gives 5 → 20"]]'],
@@ -12794,7 +12837,7 @@ _CALCULUS_U3 = [
         "symbols": ("squared", "inside"),
         "advance_line": "Three in a row — you've got it! Twice the inside, times the inside's derivative.",
         "teach": [
-            ["Now use the chain rule on a real number. For the quantity 3 x plus 5, squared , the rule gives: 2, times the quantity itself, times the inside's derivative 3.",
+            ["Now use the chain rule on a real number. For the quantity 3 x plus 5, squared, the rule gives: 2, times the quantity itself, times the inside's derivative 3.",
              '[[goal text="The chain rule at a point"]][[step eq="y = (3x + 5)²"]] [[step eq="slope = 2(3x + 5)·3"]]'],
             ["At x equals zero the inside is just 5, because the 3 x vanishes. So the slope is 2 times 5 times 3 — 30. Work the inside out first, then let the two outside numbers do their work.",
              '[[step eq="inside = 5"]] [[step eq="2 × 5 × 3 = 30"]]'],
@@ -12982,7 +13025,7 @@ _CALCULUS_U5 = [
         "symbols": ("optimisation", "fence"),
         "advance_line": "Three in a row — you've got it! A fixed fence wants a square.",
         "teach": [
-            ["This unit is about optimisation — asking for the BEST — and calculus finds the best where the slope is zero. The oldest question of the kind: with a fixed length of fence , what rectangle encloses the most ground?",
+            ["This unit is about optimisation — asking for the BEST — and calculus finds the best where the slope is zero. The oldest question of the kind: with a fixed length of fence, what rectangle encloses the most ground?",
              '[[goal text="The best rectangle"]][[step eq="40 m of fence · biggest area?"]]'],
             ["With 40 metres of fence, write the area in terms of one side, differentiate, set the slope to zero — and out comes a side of 10. Four tens use the fence exactly, so the winner is a square, 10 by 10.",
              '[[step eq="40 ÷ 4 = 10 m each side"]]'],
@@ -13012,7 +13055,7 @@ _CALCULUS_U5 = [
         "teach": [
             ["Knowing the best SHAPE is half the answer. The other half is how much ground it actually encloses — and that is what tells you whether the fence was worth buying.",
              '[[goal text="How much ground that wins"]][[step eq="40 m fence → square of side 10"]]'],
-            ["40 metres of fence gives a square of side 10, and its area is 10 times 10 — 100 square metres . No other rectangle with that same fence can beat it: 5 by 15 uses the identical fence and encloses only 75.",
+            ["40 metres of fence gives a square of side 10, and its area is 10 times 10 — 100 square metres. No other rectangle with that same fence can beat it: 5 by 15 uses the identical fence and encloses only 75.",
              '[[step eq="10 × 10 = 100 m² · 5 × 15 = only 75"]]'],
             ["So the answer to how much is the side SQUARED. Handing back 10 gives the side rather than the ground, and 40 is the fence you started with — three different measurements, and the question names one.",
              '[[step eq="100 ✓"]][[step eq="10 ✗ the side · 40 ✗ the fence"]]'],
@@ -13038,7 +13081,7 @@ _CALCULUS_U5 = [
         "symbols": ("product", "halves"),
         "advance_line": "Three in a row — you've got it! Split it down the middle and multiply.",
         "teach": [
-            ["Strip the fence away and the same truth shows up in plain numbers. Two numbers must add to 20. Which pair has the biggest product ?",
+            ["Strip the fence away and the same truth shows up in plain numbers. Two numbers must add to 20. Which pair has the biggest product?",
              '[[goal text="Equal halves win"]][[step eq="two numbers adding to 20 · biggest product?"]]'],
             ["Try a few: 1 and 19 give 19; 5 and 15 give 75; 9 and 11 give 99; and 10 with 10 gives 100. Equal halves win, every time — it is the square fence again, with the fence taken away.",
              '[[step eq="10 × 10 = 100 · beats 9 × 11 = 99"]]'],
@@ -13066,7 +13109,7 @@ _CALCULUS_U5 = [
         "symbols": ("bend", "second derivative"),
         "advance_line": "Three in a row — you've got it! Set the second derivative to zero.",
         "teach": [
-            ["A curve can bend like a cup or like a dome, and somewhere between the two it changes its mind. That place is an inflection point, and the FIRST derivative cannot find it — being flat is a different thing from changing your bend .",
+            ["A curve can bend like a cup or like a dome, and somewhere between the two it changes its mind. That place is an inflection point, and the FIRST derivative cannot find it — being flat is a different thing from changing your bend.",
              '[[goal text="Where the bend changes"]][[step eq="cup ↔ dome" cap="where does it swap?"]]'],
             ["The second derivative measures the bending, so set THAT to zero. For y equals x cubed take away 6 x squared, the second derivative is 6 x take away 12, which is zero at x equals 2. Before 2 the curve is a dome; after it, a cup.",
              '[[step eq="6x − 12 = 0"]] [[step eq="x = 2"]]'],
@@ -13106,7 +13149,7 @@ _CALCULUS_U6 = [
         "symbols": ("antiderivative", "backwards"),
         "advance_line": "Three in a row — you've got it! Halve the front number and put the power back.",
         "teach": [
-            ["Every unit so far has asked what the derivative of a function is. This one asks it backwards . Given a derivative, which function did it come from? That function is called an antiderivative .",
+            ["Every unit so far has asked what the derivative of a function is. This one asks it backwards. Given a derivative, which function did it come from? That function is called an antiderivative.",
              '[[goal text="The rule run backwards"]][[step eq="derivative = 6x" cap="what came from it?"]]'],
             ["Forwards, x squared drops its 2 down the front, so 3 x squared differentiates to 6 x. Backwards from 6 x, then, you HALVE the front number: 6 halved is 3, and the power climbs back up to squared.",
              '[[step eq="3x² → 6x  ·  6x → 3x²"]]'],
@@ -13134,7 +13177,7 @@ _CALCULUS_U6 = [
         "symbols": ("reverse", "exponent"),
         "advance_line": "Three in a row — you've got it! Raise the exponent by one, then divide by it.",
         "teach": [
-            ["Halving worked because the power was 2. For any other power the reverse move is the same shape: raise the exponent by one, then divide the front number by that new exponent .",
+            ["Halving worked because the power was 2. For any other power the reverse move is the same shape: raise the exponent by one, then divide the front number by that new exponent.",
              '[[goal text="Raise, then divide"]][[step eq="derivative = 24x³" cap="what came from it?"]]'],
             ["From 24 x cubed: the power 3 climbs to 4, and 24 divided by 4 is 6. So 6 x to the fourth is the answer. Check it forwards — the 4 comes down onto the 6 and gives 24 x cubed back, which is the reverse move undone.",
              '[[step eq="3 + 1 = 4 · 24 ÷ 4 = 6"]]'],
@@ -13165,7 +13208,7 @@ _CALCULUS_U6 = [
         "teach": [
             ["Here is the catch in running the rule backwards. A flat number differentiates to nothing, so x squared and x squared plus 5 have the SAME derivative. Going backwards cannot tell them apart.",
              '[[goal text="A whole family"]][[step eq="x² and x² + 5 · one derivative"]]'],
-            ["That means an antiderivative is never one curve but a whole family of them, every member the same shape shifted up or down the page by a constant . Curves 5 apart at one x are 5 apart at every x.",
+            ["That means an antiderivative is never one curve but a whole family of them, every member the same shape shifted up or down the page by a constant. Curves 5 apart at one x are 5 apart at every x.",
              '[[step eq="same derivative · fixed gap everywhere"]]'],
             ["So if the lower curve reads 12 and the gap is 5, the higher one reads 17 — add the gap on. Taking it away drops you below the curve you were given, and the gap alone is not a height at all.",
              '[[step eq="12 + 5 = 17 ✓"]][[step eq="7 ✗ taken away · 5 ✗ the gap"]]'],
@@ -13233,9 +13276,9 @@ _CALCULUS_U7 = [
         "symbols": ("integral", "rectangle"),
         "advance_line": "Three in a row — you've got it! Height times width is the area under the graph.",
         "teach": [
-            ["Unit 6 ran the derivative backwards. This unit does something that sounds unrelated and turns out to be the same thing: measuring the AREA underneath a graph. That area is called a definite integral .",
+            ["Unit 6 ran the derivative backwards. This unit does something that sounds unrelated and turns out to be the same thing: measuring the AREA underneath a graph. That area is called a definite integral.",
              '[[goal text="The area is the answer"]][[step eq="speed 8 m/s · for 5 s"]]'],
-            ["Draw a car holding a steady 8 metres a second for 5 seconds on a speed graph and you get a rectangle , 8 tall and 5 wide. Its area is 40 — and 40 metres is exactly how far the car went. The area MEANS something.",
+            ["Draw a car holding a steady 8 metres a second for 5 seconds on a speed graph and you get a rectangle, 8 tall and 5 wide. Its area is 40 — and 40 metres is exactly how far the car went. The area MEANS something.",
              '[[step eq="8 × 5 = 40 m"]]'],
             ["So multiply the height by the width. Adding them puts metres and seconds together as though they measured the same thing, and the width alone is just the time you were already told.",
              '[[step eq="40 ✓"]][[step eq="13 ✗ added · 5 ✗ the time"]]'],
@@ -13264,7 +13307,7 @@ _CALCULUS_U7 = [
         "teach": [
             ["Steady speed drew a rectangle. Now let the car speed up steadily, so that after t seconds it is going t metres a second. The graph is no longer flat — it is a straight ramp climbing from the corner.",
              '[[goal text="When the graph is a ramp"]][[step eq="speed = t · from 0 to 6 s"]]'],
-            ["Under a ramp the shape is a triangle , 6 wide and 6 tall after 6 seconds. A triangle covers half of the rectangle around it, so the area is 6 times 6 halved — 18 metres.",
+            ["Under a ramp the shape is a triangle, 6 wide and 6 tall after 6 seconds. A triangle covers half of the rectangle around it, so the area is 6 times 6 halved — 18 metres.",
              '[[step eq="6 × 6 ÷ 2 = 18 m"]]'],
             ["Forgetting the half claims 36, the whole rectangle, as if the car had gone flat out from the very first second. And the time itself, 6, is not a distance at all.",
              '[[step eq="18 ✓"]][[step eq="36 ✗ no half · 6 ✗ the time"]]'],
@@ -13321,7 +13364,7 @@ _CALCULUS_U7 = [
         "teach": [
             ["One last thing the area can tell you. Suppose you know the area under a curve and you want a single number for how high the curve typically ran. Flatten it out.",
              '[[goal text="Flatten it out"]][[step eq="area 60 · width 5"]]'],
-            ["Imagine pushing the humps down into the dips until the top is flat . An area of 60 spread across a width of 5 stands 12 high, so 12 is the curve's average height — the average value of the function.",
+            ["Imagine pushing the humps down into the dips until the top is flat. An area of 60 spread across a width of 5 stands 12 high, so 12 is the curve's average height — the average value of the function.",
              '[[step eq="60 ÷ 5 = 12"]]'],
             ["Some of the curve towers above that line and some falls below, and the two trade places exactly. Handing back 60 answers with an area where a height was asked for, and 5 is only the width.",
              '[[step eq="12 ✓"]][[step eq="60 ✗ the area · 5 ✗ the width"]]'],
@@ -13390,7 +13433,7 @@ _CALCULUS_U8 = [
         "teach": [
             ["A rectangle came from a steady speed and a triangle from a speed starting at nothing. Now a train that is already moving speeds up further — the graph is a ramp that starts partway up the page.",
              '[[goal text="A speed that climbs"]][[step eq="4 m/s → 10 m/s over 5 s"]]'],
-            ["That shape is a trapezium , and there is a lovely shortcut. The speed climbs steadily, so the average speed is exactly halfway between 4 and 10 — that is 7 — and 7 metres a second for 5 seconds is 35 metres.",
+            ["That shape is a trapezium, and there is a lovely shortcut. The speed climbs steadily, so the average speed is exactly halfway between 4 and 10 — that is 7 — and 7 metres a second for 5 seconds is 35 metres.",
              '[[step eq="(4 + 10) ÷ 2 = 7 · 7 × 5 = 35"]]'],
             ["Forgetting to halve holds both speeds at once and doubles the answer to 70. Using the top speed for the whole journey claims 50, as though the train had never been slower than its finish.",
              '[[step eq="35 ✓"]][[step eq="70 ✗ no half · 50 ✗ top speed only"]]'],
@@ -13420,7 +13463,7 @@ _CALCULUS_U8 = [
         "teach": [
             ["Areas have measured distances so far. Here is the same idea measuring something you can pour. A tank holds 20 litres, and water runs in at 6 litres a minute for 5 minutes.",
              '[[goal text="Adding on to what was there"]][[step eq="20 L in the tank · 6 L/min for 5 min"]]'],
-            ["Six litres a minute for five minutes is 30 litres — that is the area under the flow graph. But the tank was not empty at the start , so those 30 land on top of the 20 already in it: 50 litres.",
+            ["Six litres a minute for five minutes is 30 litres — that is the area under the flow graph. But the tank was not empty at the start, so those 30 land on top of the 20 already in it: 50 litres.",
              '[[step eq="6 × 5 = 30 · 20 + 30 = 50"]]'],
             ["This is what accumulation means: an integral measures the CHANGE, never the amount. Answering 30 forgets the water that was already there, and adding all three numbers loosely gives 31, which measures nothing at all.",
              '[[step eq="50 ✓"]][[step eq="30 ✗ the change only · 31 ✗ all three added"]]'],
@@ -13448,7 +13491,7 @@ _CALCULUS_U8 = [
         "symbols": ("revolution", "radius"),
         "advance_line": "Three in a row — you've got it! Square the radius, then stack it along the length.",
         "teach": [
-            ["The boldest use of all. Take a flat shape, spin it around a line, and it sweeps out a solid — a volume of revolution . Integration measures that solid as easily as it measured the flat area.",
+            ["The boldest use of all. Take a flat shape, spin it around a line, and it sweeps out a solid — a volume of revolution. Integration measures that solid as easily as it measured the flat area.",
              '[[goal text="Spin it into a solid"]][[step eq="rectangle 3 tall, 4 long · spun"]]'],
             ["Spin a rectangle 3 tall and 4 long and you get a cylinder of radius 3. Every slice through it is a circle of area pi times 3 squared — 9 pi — and 4 lengths of that stack up to 36 pi.",
              '[[step eq="3² × 4 = 36 · volume = 36π"]]'],
@@ -13578,7 +13621,7 @@ _CALCULUS_U9 = [
         "symbols": ("equilibrium", "population"),
         "advance_line": "Three in a row — you've got it! Set the rate to zero and solve for P.",
         "teach": [
-            ["The last question of the whole course, and it is a quiet one. A differential equation tells you how fast things change — so ask it where the change stops. That place is called equilibrium .",
+            ["The last question of the whole course, and it is a quiet one. A differential equation tells you how fast things change — so ask it where the change stops. That place is called equilibrium.",
              '[[goal text="Where the change stops"]][[step eq="dP/dt = 45 − 5P"]]'],
             ["This population changes at a rate of 45 take away 5 P. Set that rate to zero: 5 P has to equal 45, so P is 9. Park the population at exactly 9 and nothing moves — births and deaths balance.",
              '[[step eq="5P = 45"]] [[step eq="P = 9"]]'],
@@ -13619,7 +13662,7 @@ _DIFFEQ_U1 = [
         "symbols": ("slope field", "order"),
         "advance_line": "Three in a row — you've got it! Feed the point into the equation and read the slope.",
         "teach": [
-            ["A differential equation is named by how deep its derivatives go: one derivative is first order , two is second. This whole first unit stays first order — and asks what such an equation LOOKS like.",
+            ["A differential equation is named by how deep its derivatives go: one derivative is first order, two is second. This whole first unit stays first order — and asks what such an equation LOOKS like.",
              '[[goal text="A dash at every point"]][[step eq="dy/dx = x + y"]]'],
             ["Here is the trick that turns it into a picture. Take d y d x equals x plus y, pick any point — say x is 7 and y is 5 — and the equation hands you a number: 12. Draw a tiny dash there leaning at that steepness.",
              '[[graph points="(7,5)" caption="the dash lives at (7, 5), leaning 12 steep"]][[step eq="at (7, 5) · slope 7 + 5 = 12"]]'],
@@ -13648,11 +13691,11 @@ _DIFFEQ_U1 = [
         "symbols": ("law", "field"),
         "advance_line": "Three in a row — you've got it! Square the x first, then take the y off it.",
         "teach": [
-            ["The plane never changes. The points never change. Change the equation, though, and every dash on it swings to a new angle — so the field is a picture of the law , not of the paper.",
+            ["The plane never changes. The points never change. Change the equation, though, and every dash on it swings to a new angle — so the field is a picture of the law, not of the paper.",
              '[[goal text="Change the law, change the field"]][[step eq="dy/dx = x² − y"]]'],
             ["This one says d y d x equals x squared, take away y. At the point where x is 5 and y is 9: square the 5 first, giving 25, then take the 9 off it. The dash there has slope 16.",
              '[[step eq="5² − 9 = 25 − 9 = 16"]]'],
-            ["Order matters. Adding the y instead climbs to 34, and leaving the y off the end hands back 25, the bare square — the same point, three different fields, and only one of them is the equation you were handed.",
+            ["Order matters. Adding the y instead climbs to 34. Leaving the y off the end hands back 25, the bare square. Same point, three different fields, and only one of them is the equation you were handed.",
              '[[step eq="16 ✓"]][[step eq="34 ✗ added · 25 ✗ y left off"]]'],
         ],
         "pairs": [
@@ -13679,7 +13722,7 @@ _DIFFEQ_U1 = [
         "teach": [
             ["Drawing a field dash by dash is slow. Here is how it is really done: instead of asking what slope sits at a point, ask where all the points with the SAME slope are.",
              '[[goal text="Reading the field backwards"]][[step eq="dy/dx = x + y = 14"]]'],
-            ["In d y d x equals x plus y, every dash leaning at 14 sits where x plus y comes to 14 — a straight line. At x equals 5 on that line, y has to be 9. Such a line is called an isocline .",
+            ["In d y d x equals x plus y, every dash leaning at 14 sits where x plus y comes to 14 — a straight line. At x equals 5 on that line, y has to be 9. Such a line is called an isocline.",
              '[[step eq="x + y = 14 · at x = 5"]] [[step eq="y = 9"]]'],
             ["So take the x off the slope. Adding them instead lands at 19, nowhere near the line, and answering 5 hands back the x you were already given.",
              '[[step eq="9 ✓"]][[step eq="19 ✗ added · 5 ✗ the x again"]]'],
@@ -13706,7 +13749,7 @@ _DIFFEQ_U1 = [
         "symbols": ("solution", "curve"),
         "advance_line": "Three in a row — you've got it! Climb by the slope for every step across, then add the start.",
         "teach": [
-            ["Now the payoff. A solution of a differential equation is not a number — it is a whole curve , and on a slope field you can see it: start somewhere and walk, always following the dash under your feet.",
+            ["Now the payoff. A solution of a differential equation is not a number. It is a whole curve, and on a slope field you can see it. Start somewhere and walk, always following the dash under your feet.",
              '[[goal text="Joining the dashes"]][[step eq="start at y = 5 · slope 3 all the way"]]'],
             ["Take an easy field where every dash leans at 3. Start at height 5 and walk 4 across: a slope of 3 climbs 3 for every 1 across, so 4 across is 12 of climb, landing at 17.",
              '[[step eq="3 × 4 = 12 · 5 + 12 = 17"]]'],
@@ -13781,7 +13824,7 @@ _DIFFEQ_U2 = [
              '[[goal text="When the y is underneath"]][[step eq="dy/dx = 3/y"]] [[step eq="y dy = 3 dx"]]'],
             ["Integrating gives y squared over 2 equals 3 x plus a constant, so y squared equals 6 x plus C. Start the curve at height 4 when x is zero and C is 16. At x equals 8: 48 plus 16 is 64, and y is the square root of that — 8.",
              '[[step eq="y² = 6x + 16 · at x = 8"]] [[step eq="64"]] [[step eq="y = 8"]]'],
-            ["Two traps sit here. Stopping at 64 answers y SQUARED where a height was asked for, and guessing a straight climb from 4 gives 28 — but the curve does not climb in a straight line, and only separating tells you so.",
+            ["Two traps sit here. Stopping at 64 answers y SQUARED where a height was asked for. Guessing a straight climb from 4 gives 28. But the curve does not climb in a straight line, and only separating tells you so.",
              '[[step eq="8 ✓"]][[step eq="64 ✗ that is y² · 28 ✗ a straight guess"]]'],
         ],
         "pairs": [
@@ -13839,7 +13882,7 @@ _DIFFEQ_U2 = [
         "teach": [
             ["The other famous linear equation is a tank of salty water with fresh brine running in and the mixture running out. Every one of them turns on a single number, and it is not the salt.",
              '[[goal text="The tank of brine"]][[step eq="45 g of salt · 3 L of water"]]'],
-            ["It is the concentration : how much salt rides in each litre . Stir 45 grams evenly into 3 litres and every litre carries 15 grams. That is the number the outflow pipe takes away with it.",
+            ["It is the concentration: how much salt rides in each litre. Stir 45 grams evenly into 3 litres and every litre carries 15 grams. That is the number the outflow pipe takes away with it.",
              '[[step eq="45 ÷ 3 = 15 g per litre"]]'],
             ["Which is why the equation has the salt DIVIDED by the volume inside it. Taking the litres off the grams reaches 42 and muddles two different measurements, and 3 is the size of the tank, not the strength of the brine.",
              '[[step eq="15 ✓"]][[step eq="42 ✗ taken away · 3 ✗ the litres"]]'],
@@ -13879,7 +13922,7 @@ _DIFFEQ_U3 = [
         "symbols": ("logistic", "ceiling"),
         "advance_line": "Three in a row — you've got it! Fish times room left, then divide.",
         "teach": [
-            ["Unit 2 solved equations. This unit refuses to, and finds out the shape anyway. Start with the most useful rate law in biology: growth that runs into a ceiling .",
+            ["Unit 2 solved equations. This unit refuses to, and finds out the shape anyway. Start with the most useful rate law in biology: growth that runs into a ceiling.",
              '[[goal text="The crowded pond"]][[step eq="ceiling 40 · 10 fish · ÷ 5"]]'],
             ["A pond holds at most 40 fish. Logistic growth says the rate is the fish times the room still left, divided by some constant — say 5. With 10 fish there is room for 30, so the rate is 10 times 30 over 5: 60.",
              '[[step eq="10 × 30 ÷ 5 = 60"]]'],
@@ -14012,7 +14055,7 @@ _DIFFEQ_U4 = [
         "teach": [
             ["Most differential equations cannot be solved on paper at all. So a computer does what Unit 1 did by eye: it walks the slope field. The oldest such method is Euler's, and it is exactly that walk.",
              '[[goal text="Walking it in straight steps"]][[step eq="dy/dx = 2x · start 5 · steps of 3"]]'],
-            ["Here is Euler's one rule: read the slope at the START of a step , then hold it for the whole width. Take d y d x equals 2 x from height 5, in two steps of 3. The first step starts at x equals zero, where the slope is nothing, so it climbs nothing.",
+            ["Here is Euler's one rule: read the slope at the START of a step, then hold it for the whole width. Take d y d x equals 2 x from height 5, in two steps of 3. The first step starts at x equals zero, where the slope is nothing, so it climbs nothing.",
              '[[step eq="step 1: slope 0 → no climb"]]'],
             ["The second step starts at 3, where the slope is 6, and holding 6 across a width of 3 climbs 18 — landing at 23. But the true curve reaches 41, because the slope kept rising while Euler was using an old one. Euler always lags on a curve that bends upward.",
              '[[step eq="23 ✓"]][[step eq="41 ✗ the true curve · 18 ✗ climb only"]]'],
@@ -14099,7 +14142,7 @@ _DIFFEQ_U4 = [
         "teach": [
             ["Runge-Kutta is not magic, and this last lesson is the fine print. It reads the slope FOUR times inside every step — once at the start, twice in the middle, once at the end — and averages them.",
              '[[goal text="What accuracy costs"]][[step eq="Euler 100 × 1 · RK4 9 × 4"]]'],
-            ["So count the slope evaluations , which is what a method really costs. Euler needs 100 steps at one evaluation each: 100. Runge-Kutta gets there in 9 steps, but pays 4 each — 36. It saves 64.",
+            ["So count the slope evaluations, which is what a method really costs. Euler needs 100 steps at one evaluation each: 100. Runge-Kutta gets there in 9 steps, but pays 4 each — 36. It saves 64.",
              '[[step eq="100 − 36 = 64"]]'],
             ["Four times the cost per step, and it still wins easily, because it needs so very many fewer of them. Comparing the step counts alone gives 91 and forgets the price; 36 is what Runge-Kutta spent, not what it saved.",
              '[[step eq="64 ✓"]][[step eq="91 ✗ steps only · 36 ✗ what it spent"]]'],
@@ -14223,7 +14266,7 @@ _DIFFEQ_U5 = [
         "symbols": ("damped", "slower"),
         "advance_line": "Three in a row — you've got it! Four times the last, take off the middle squared, root it, halve it.",
         "teach": [
-            ["Put a little damping back — not enough to stop the rocking, only enough to shrink it. Everyone expects the swing to get smaller. Almost nobody expects the rocking to get slower , but it does.",
+            ["Put a little damping back — not enough to stop the rocking, only enough to shrink it. Everyone expects the swing to get smaller. Almost nobody expects the rocking to get slower, but it does.",
              '[[goal text="Damping slows the rocking"]][[step eq="y″ + 8y′ + 25y = 0"]]'],
             ["The damped frequency is 4 times the last number, take away the middle squared, then rooted and halved. For 8 and 25: 100 take away 64 is 36, whose root is 6, and half of that is 3.",
              '[[step eq="4×25 − 8² = 36 · √36 ÷ 2 = 3"]]'],
@@ -14327,7 +14370,7 @@ _DIFFEQ_U6 = [
              '[[goal text="Why soldiers break step"]][[step eq="natural² 9 · driver² 3"]]'],
             ["The swing that builds up is the force shared out over the gap between the two frequencies squared. Natural 9 against a driver of 3 leaves a gap of 6, so a force of 42 builds a swing of 7.",
              '[[step eq="42 ÷ (9 − 3) = 7"]]'],
-            ["Now close that gap and watch. A gap of 3 doubles the swing; a gap of 1 gives 42; and at a gap of nothing there is no size left to name — the swing simply grows without stopping. That is resonance . Dividing by the driver instead reaches 14.",
+            ["Now close that gap and watch. A gap of 3 doubles the swing; a gap of 1 gives 42; and at a gap of nothing there is no size left to name — the swing simply grows without stopping. That is resonance. Dividing by the driver instead reaches 14.",
              '[[step eq="7 ✓"]][[step eq="14 ✗ divided by the driver · 42 ✗ the force"]]'],
         ],
         "pairs": [
@@ -14425,7 +14468,7 @@ _DIFFEQ_U7 = [
         "symbols": ("algebra", "solve"),
         "advance_line": "Three in a row — you've got it! Add the two on the bottom, then share the top over it.",
         "teach": [
-            ["Once every derivative has become a multiplication, look at what is left on the page. No derivatives. No integrals. Just letters and numbers — plain algebra , and you have been solving that since Algebra I.",
+            ["Once every derivative has become a multiplication, look at what is left on the page. No derivatives. No integrals. Just letters and numbers — plain algebra, and you have been solving that since Algebra I.",
              '[[goal text="And now it is just algebra"]][[step eq="(s + 6)Y = 96"]]'],
             ["Say the transforming left s plus 6, all times Y, equals 96. Solve for Y the way you always would: Y is 96 over s plus 6. Then at s equals 2 the bottom is 8, and 96 over 8 is 12.",
              '[[step eq="Y = 96/(s + 6) · at s = 2"]] [[step eq="96 ÷ 8 = 12"]]'],
@@ -14525,7 +14568,7 @@ _DIFFEQ_U8 = [
         "symbols": ("system", "arrow"),
         "advance_line": "Three in a row — you've got it! The x part first, then take off the y.",
         "teach": [
-            ["Everything so far has followed one quantity. Now follow two at once, each one watching the other: rabbits and foxes, a spring in two directions, two tanks feeding each other. That is a system .",
+            ["Everything so far has followed one quantity. Now follow two at once, each one watching the other: rabbits and foxes, a spring in two directions, two tanks feeding each other. That is a system.",
              '[[goal text="Two things at once"]][[step eq="x′ = 4x − y"]]'],
             ["Say x grows by 4 for every x it already has, and loses 1 for every y. At the point where x is 9 and y is 5: 4 times 9 is 36, and the 5 of y pulls it back to 31.",
              '[[step eq="4 × 9 − 5 = 31"]]'],
@@ -14559,7 +14602,7 @@ _DIFFEQ_U8 = [
              '[[goal text="Where an arrow goes flat"]][[step eq="x′ = 0 where y = 5x"]]'],
             ["For our system x stops changing exactly where 5 x equals y. That is a straight line through the origin, and it is called a nullcline — the x one, since x is what has stopped. At x equals 12, it sits at y equals 60.",
              '[[step eq="5 × 12 = 60"]]'],
-            ["Along that whole line the arrows point straight up or straight down, since x is going nowhere. Adding gives 17, and 25 is the slope squared rather than a height. And where the x-nullcline and the y-nullcline cross , nothing moves at all — an equilibrium.",
+            ["Along that whole line the arrows point straight up or straight down, since x is going nowhere. Adding gives 17, and 25 is the slope squared rather than a height. And where the x-nullcline and the y-nullcline cross, nothing moves at all — an equilibrium.",
              '[[step eq="60 ✓"]][[step eq="17 ✗ added · 25 ✗ slope squared"]]'],
         ],
         "pairs": [
@@ -14584,11 +14627,11 @@ _DIFFEQ_U8 = [
         "symbols": ("determinant", "saddle"),
         "advance_line": "Three in a row — you've got it! Diagonal product, take away the corner squared.",
         "teach": [
-            ["A linear system is carried by four numbers arranged in a square, and out of those four comes one number that classifies the entire picture. It is called the determinant .",
+            ["A linear system is carried by four numbers arranged in a square, and out of those four comes one number that classifies the entire picture. It is called the determinant.",
              '[[goal text="The number in the corner"]][[step eq="[9 4; 4 6]"]]'],
             ["Take 9 and 6 down the diagonal with 4 in both corners. The determinant is 9 times 6, take away 4 squared: 54 take away 16 is 38.",
              '[[step eq="9×6 − 4² = 38"]]'],
-            ["Now what it means. The determinant is the two eigenvalues multiplied together — so if it ever falls below zero, one of them must be positive and you have a saddle : a point that pulls you in one way and flings you out the other. Adding the corners gives 70, and skipping the squaring gives 50.",
+            ["Now what it means. The determinant is the two eigenvalues times each other. So if it ever falls below zero, one of them must be positive and you have a saddle. A saddle pulls you in one way and flings you out the other. Adding the corners gives 70, and skipping the squaring gives 50.",
              '[[step eq="38 ✓"]][[step eq="70 ✗ added · 50 ✗ not squared"]]'],
         ],
         "pairs": [
@@ -14614,7 +14657,7 @@ _DIFFEQ_U8 = [
         "symbols": ("eigenvalues", "trace"),
         "advance_line": "Three in a row — you've got it! Take the one you know off the trace.",
         "teach": [
-            ["The determinant was the two eigenvalues multiplied. Their SUM has a name too — the trace , the sum down the diagonal — and between the sum and the product you can always recover both.",
+            ["The determinant was the two eigenvalues multiplied. Their SUM has a name too — the trace, the sum down the diagonal — and between the sum and the product you can always recover both.",
              '[[goal text="Two numbers decide the picture"]][[step eq="trace 60 = λ₁ + λ₂"]]'],
             ["Suppose the trace is 60 and the work has already turned up one eigenvalue, 14. The two must add to 60, so the other is 46. No further algebra needed.",
              '[[step eq="60 − 14 = 46"]]'],
@@ -14659,7 +14702,7 @@ _DIFFEQ_U9 = [
         "teach": [
             ["Almost nothing in the world is linear. Real rate laws bend, and Unit 8's neat straight-line systems look like a special case — until you notice the trick that rescues all of it.",
              '[[goal text="Up close it is a line"]][[step eq="rate = 9 − P²"]]'],
-            ["Zoom in far enough on any curve and it becomes its own tangent . The nonlinear law 9 take away P squared sits still at P equals 3, and near there it pulls back at 2 times 3 for every 1 of distance. Sitting 4 out, that is 24.",
+            ["Zoom in far enough on any curve and it becomes its own tangent. The nonlinear law 9 take away P squared sits still at P equals 3, and near there it pulls back at 2 times 3 for every 1 of distance. Sitting 4 out, that is 24.",
              '[[step eq="2×3 = 6 per 1 · × 4 = 24"]]'],
             ["So close to an equilibrium, every curved law behaves like a straight one — which is exactly why the last unit was worth learning. Forgetting to double gives 12, and adding the two gives 7.",
              '[[step eq="24 ✓"]][[step eq="12 ✗ not doubled · 7 ✗ added"]]'],
@@ -14687,7 +14730,7 @@ _DIFFEQ_U9 = [
         "symbols": ("predator", "balance"),
         "advance_line": "Three in a row — you've got it! Count the new rabbits, then share them among the foxes.",
         "teach": [
-            ["Here is the most famous nonlinear system there is — a predator and its prey — and the reason it cannot be linear: rabbits eat grass, foxes eat rabbits, and the eating depends on BOTH numbers at once.",
+            ["Here is the most famous nonlinear system there is: a predator and its prey. Here is why it cannot be linear. Rabbits eat grass, foxes eat rabbits, and the eating depends on BOTH numbers at once.",
              '[[goal text="Rabbits and foxes"]][[step eq="20 rabbits · 3 born each · 5 eaten per fox"]]'],
             ["Say a wood holds 20 rabbits, each adding 3 new ones a year — 60 new rabbits. If every fox eats 5 rabbits a year, then 12 foxes eat exactly those 60, and the rabbit number holds still. That is a balance point.",
              '[[step eq="20 × 3 ÷ 5 = 12 foxes"]]'],
@@ -14719,7 +14762,7 @@ _DIFFEQ_U9 = [
         "teach": [
             ["A balance point is not where rabbits and foxes actually go. Nudge them off it and they do something no straight-line system can do: they circle it, for ever, in a closed loop.",
              '[[goal text="Round and round"]][[step eq="cycle 60 months"]]'],
-            ["And the loop has a shape. Plenty of rabbits feed more foxes; more foxes eat the rabbits down; fewer rabbits starve the foxes; fewer foxes let the rabbits back. So the foxes always peak a quarter of a cycle after the rabbits. In a 60-month cycle , that is 15 months.",
+            ["And the loop has a shape. Plenty of rabbits feed more foxes; more foxes eat the rabbits down; fewer rabbits starve the foxes; fewer foxes let the rabbits back. So the foxes always peak a quarter of a cycle after the rabbits. In a 60-month cycle, that is 15 months.",
              '[[step eq="60 ÷ 4 = 15 months"]]'],
             ["Halving instead of quartering gives 30 — half a cycle, which would put the foxes at their fewest just as the rabbits peak. And 60 is the whole loop, not the lag inside it.",
              '[[step eq="15 ✓"]][[step eq="30 ✗ halved · 60 ✗ the whole cycle"]]'],
@@ -15446,7 +15489,7 @@ OP_EXT = {
                             and p["a"] * p["b"] // 100 >= 1,
                             "the percent must come out whole, and at least 1"),
     },
-    "rate": {  # b things cost a dollars; one costs ?
+    "rate": {  # b things cost a dollars; one costs?
         "ans": lambda p: p["a"] // p["b"],
         "spoken": lambda p: (f"{p['b']} apples cost {p['a']} dollars. What does "
                              f"one apple cost, in dollars?"),
@@ -16980,7 +17023,7 @@ OP_EXT = {
                             f'({p["b"] + 1},{p["c"] + p["a"]})" '
                             f'range="0..{p["b"] + 3}"]]'
                             f'[[step eq="y: {p["c"]} → {p["c"] + p["a"]}, '
-                            f'a climb of ?"]]'),
+                            f'a climb of?"]]'),
         "praise": lambda p: (f"x stepped once and y climbed from {p['c']} to "
                              f"{p['c'] + p['a']} — a climb of {p['a']}. That climb "
                              f"is called the slope."),
@@ -18730,7 +18773,7 @@ OP_EXT = {
                              f"degree {p['b']}. Multiply the two together. "
                              f"What is the degree of the answer?"),
         "board": lambda p: (f'[[step eq="x{_sup(p["a"])} · x{_sup(p["b"])} = '
-                            f'x to the ?"]]'),
+                            f'x to the?"]]'),
         "praise": lambda p: (f"The top powers join: x to the {p['a']} times x "
                              f"to the {p['b']} is x to the "
                              f"{p['a'] + p['b']} — degree {p['a'] + p['b']}."),
@@ -19017,7 +19060,7 @@ OP_EXT = {
                             f'[[step eq="{lo}² = {lo * lo} · {lo + 1}² = '
                             f'{(lo + 1) * (lo + 1)}"]]'
                             f'[[step eq="{p["a"]} sits between — closest '
-                            f'to ?"]]')(int(p["a"] ** 0.5)),
+                            f'to?"]]')(int(p["a"] ** 0.5)),
         "praise": lambda p: (lambda lo, hi:
                              f"{p['a']} sits {p['a'] - lo * lo} past "
                              f"{lo * lo} and {hi * hi - p['a']} short of "
@@ -19145,7 +19188,7 @@ OP_EXT = {
                             f'[[step eq="2^{lo} = {2 ** lo} · 2^{lo + 1} = '
                             f'{2 ** (lo + 1)}"]]'
                             f'[[step eq="{p["a"]} sits between — closest '
-                            f'to ?"]]')(p["a"].bit_length() - 1),
+                            f'to?"]]')(p["a"].bit_length() - 1),
         "praise": lambda p: (lambda lo:
                              f"{p['a']} sits {p['a'] - 2 ** lo} past "
                              f"{2 ** lo} and {2 ** (lo + 1) - p['a']} short "
@@ -19489,7 +19532,7 @@ OP_EXT = {
                              f"students in the school like pizza?"),
         "board": lambda p: (f'[[step eq="sample: {p["b"]} of {p["a"]}"]]'
                             f'[[step eq="school: {p["a"] * p["c"]} students '
-                            f'· about ?"]]'),
+                            f'· about?"]]'),
         "praise": lambda p: (f"The school is {p['c']} samples wide: "
                              f"{p['b']} liked it per sample, times "
                              f"{p['c']} — about {p['b'] * p['c']}."),
@@ -21237,7 +21280,7 @@ OP_EXT = {
                              f"of the time and medium {p['b']} percent. "
                              f"What percent of the time is it large?"),
         "board": lambda p: (f'[[step eq="small {p["a"]}% · medium '
-                            f'{p["b"]}% · large ?%"]]'
+                            f'{p["b"]}% · large?%"]]'
                             f'[[step eq="every chance adds to 100"]]'),
         "praise": lambda p: (f"All the chances of one machine add to the "
                              f"whole 100: {p['a']} plus {p['b']} is "
@@ -22957,7 +23000,7 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="dy/dx = 2x · start {p["a"]} · two '
                             f'steps of {p["b"]}"]]'
                             f'[[step eq="0 climb, then 2×{p["b"]}×{p["b"]} '
-                            f'· lands ?"]]'),
+                            f'· lands?"]]'),
         "praise": lambda p: (f"The first step starts where the slope is "
                              f"nothing, so it climbs nothing. The second "
                              f"starts at {p['b']}, slope {2 * p['b']}, held "
@@ -24411,10 +24454,52 @@ def validate(lesson, board_tag_names=None):
            f"{len(spoken.split())} words")
 
     # 5. rule 14 by construction: the lesson's symbols are READ ALOUD in teach
+    # ⚠️ (pe, 2026-08-27) THIS CHECK USED TO DEMAND LITERAL SPACES -- f" {sym} " --
+    # and that quietly shaped the prose for months. To satisfy it, a line that ended a
+    # clause on the symbol had to be written "are called terms , and terms of x
+    # collect", with a SPACE BEFORE THE COMMA, because "terms," has no trailing space.
+    # 171 of those stray spaces were sitting in the authored lines; they read as
+    # sloppy on screen and make the voice stumble. When pe closed them, 70 lessons
+    # failed rule 14 at once -- which is how the dependency was found. The prose was
+    # never the problem: a word followed by a comma is still the word. The check now
+    # matches on WORD BOUNDARIES, so "terms," "terms." and "terms" all count, and an
+    # author never has to bend a sentence around a test again.
     teach_text = " ".join(s for s, _b in lesson["teach"]).lower()
     for sym in lesson["symbols"]:
-        ck(f"'{sym}'" in teach_text or f" {sym} " in teach_text,
+        _sym_re = re.compile(r"(?<![a-z])" + re.escape(sym.lower()) + r"(?![a-z])")
+        ck(bool(_sym_re.search(teach_text)),
            f"{lid}: the {sym} sign is introduced by name (rule 14)", "")
+
+    # 5b. (pe, 2026-08-27) THE SENTENCES HAVE TO MAKE SENSE OUT LOUD. Jim, on a live
+    # Algebra II lesson: "the text itself is as if someone is teaching math in a
+    # non-native language ... when you put it in the whole context of those sentences,
+    # it just didn't make sense." Most of what was wrong there is a judgement call and
+    # NO TEST CAN CATCH IT -- a first pass at detectors flagged 390 lines for "stacked
+    # dashes and colons" and nearly all of them were fine ("Eight plus three: eight —
+    # nine, ten, eleven." is exactly right). The canon sweep threw that pattern out,
+    # the same way build ox's "first...then...then" arm was cut for hitting 11 good
+    # cards. What survived the sweep are the two defects that are MECHANICAL, that a
+    # reader can verify without taste, and that had zero false positives across all
+    # 1,989 authored cards:
+    #   (a) a stray space before punctuation -- "terms , and". 171 of them; they read
+    #       as sloppy in the bubble and make the voice stumble.
+    #   (b) a spoken sentence over 34 words. 22 of them. This lane is heard, not read;
+    #       a listener cannot re-scan a 44-word sentence, and every one of the 22 got
+    #       clearer when it was split.
+    # Everything else about the writing is reviewed by a person, on purpose.
+    for _line in [s for s, _b in lesson["teach"]] + \
+                 [pr["worked"][0] for pr in lesson["pairs"]] + \
+                 [lesson.get("advance_line") or "", lesson.get("practice_intro") or ""]:
+        if not _line:
+            continue
+        ck(not re.search(r"\s+[,.;:?!]", _line),
+           f"{lid}: no stray space before punctuation: \"{_line[:34]}...\"",
+           "a word followed by a comma is still the word -- do not pad it to please a test")
+        for _sent in re.split(r"(?<=[.?!])\s+", _line):
+            ck(len(_sent.split()) <= SPOKEN_SENTENCE_CAP,
+               f"{lid}: spoken sentence under {SPOKEN_SENTENCE_CAP} words: "
+               f"\"{_sent[:34]}...\"",
+               f"{len(_sent.split())} words -- a listener cannot re-scan a long sentence")
 
     # 6. rule 44 by construction: every ask SPEAKS its numbers
     for p in problems:

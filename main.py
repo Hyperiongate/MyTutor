@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27pe-the-sentences-make-sense". BUILD pe -- the
+#               third of Jim's three complaints, the one pd left open: "the text
+#               itself is as if someone is teaching math in a non-native language."
+#               I first blamed the VOCABULARY canon (it forces "take away" on all 336
+#               lessons and bans "subtract", so a five-year-old's wording governs
+#               Differential Equations) and proposed a 3,220-line swap. He overruled
+#               it: "Takeaway or minus, those were just as well. It's just when you
+#               put it in the whole context of those sentences, it just didn't make
+#               sense." Measurable is not causal. No Python changed except this stamp;
+#               the work is in lessonscripts.py. Proof: PART 3fi, plus validate()
+#               running 35,526 checks across all 336 lessons with zero failures.
 #   2026-08-27  APP_BUILD -> "2026-08-27pd-let-the-lesson-breathe". BUILD pd -- Jim:
 #               "This is the worst lesson I have seen so far. There was no pause at
 #               any time. pictures showed up and disappeared." One bug, two symptoms,
@@ -12443,7 +12454,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27pd-let-the-lesson-breathe"
+APP_BUILD = "2026-08-27pe-the-sentences-make-sense"
 
 
 @app.get("/health")

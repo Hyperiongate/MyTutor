@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD pe -- PART 3fi: the sentences make sense. Jim: "the text itself
+#               is as if someone is teaching math in a non-native language" -- and
+#               then, when I blamed the vocabulary canon: "Takeaway or minus, those
+#               were just as well." The writing was the defect. Pins the rewritten
+#               absolute-value lesson, the two authoring rules that survived a canon
+#               sweep (stray space before punctuation; spoken sentence over 34 words),
+#               the third that was CUT for 390 false positives, and rule 14's repair
+#               after closing the spaces broke 70 lessons at once.
 #   2026-08-27  BUILD pd -- PART 3fh: let the lesson breathe. Jim: "There was no pause
 #               at any time. pictures showed up and disappeared." pb's scripted player
 #               advanced on `else scrNext()` -- the instant speak() RESOLVED -- so a
@@ -13079,6 +13087,108 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fi_the_sentences_make_sense():
+    """PART 3fi (build pe, 2026-08-27) -- THE SENTENCES MAKE SENSE.
+
+    Jim, on a live Algebra II absolute-value lesson: "the text itself is as if someone
+    is teaching math in a non-native language."
+
+    ⚠️ AND HE STOPPED ME CHASING THE WRONG CAUSE, which is the part worth keeping. I
+    had found something real and measurable -- VOCABULARY forces "take away" on all
+    336 lessons and BANS "subtract", so a five-year-old's wording governs Differential
+    Equations, and the upper courses used it MORE than the lower ones (algebra2 13 of
+    36; diffeq 10 of 36; entry only 5 of 20). I proposed swapping 3,220 lines to
+    "minus" for about $100. His ruling: "Takeaway or minus, those were just as well.
+    It's just when you put it in the whole context of those sentences, it just didn't
+    make sense." He was right. Measurable is not the same as causal, and a swap would
+    have left every broken sentence exactly as broken.
+
+    WHAT WAS ACTUALLY WRONG, from the lesson he was looking at:
+      1. THE VERB BECAME A NOUN -- "The take away gives negative 5", "stopping at the
+         take away", "far-apart is never negative".
+      2. METAPHORS NOBODY SET UP -- "nowhere on this walk", "the bars strip the minus".
+      3. THREE IDEAS PER SENTENCE, welded with dashes and colons.
+      4. DISTRACTORS WITH NO REASON -- "adding the two numbers reaches 11" when
+         nobody was adding.
+    He rejected the first rewrite of the trap beat too: "saying that the negative sign
+    only tells you which way you went is really confusing. All we really want to know
+    is the distance between the two." The beat now argues from the thing itself.
+
+    ⭐ MOST OF THIS CANNOT BE TESTED, AND THE CANON SWEEP PROVED IT. A first pass at
+    detectors flagged 390 lines for "stacked dashes and colons" across 181 lessons,
+    and almost every one was fine -- "Eight plus three: eight — nine, ten, eleven." is
+    exactly right. That pattern was CUT, the same way build ox cut its
+    "first...then...then" arm for hitting 11 good cards. Two survived with zero false
+    positives, and only those two are enforced. The rest of the writing is reviewed by
+    a person, on purpose.
+
+    ⚠️ AND CLOSING THE STRAY SPACES BROKE 70 LESSONS AT ONCE -- which is how a hidden
+    dependency surfaced. Rule 14 demanded a LITERAL f" {sym} ", so an author whose
+    clause ended on the symbol had to write "are called terms , and terms of x
+    collect" -- a space before the comma -- to pass. The prose had been bent around a
+    test for months. The test was what was wrong; it now matches word boundaries."""
+    print("\nPART 3fi — the sentences make sense (build pe)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    src = open(os.path.join(here, "lessonscripts.py"), encoding="utf-8").read()
+    code = code_only(src)
+    import lessonscripts as _ls
+
+    lessons, seen = [], set()
+    for _n in dir(_ls):
+        _v = getattr(_ls, _n)
+        if isinstance(_v, list) and _v and isinstance(_v[0], dict) \
+           and "course" in _v[0] and "teach" in _v[0]:
+            for _l in _v:
+                if _l["id"] not in seen:
+                    seen.add(_l["id"]); lessons.append(_l)
+    check("all 336 authored lessons are present", len(lessons) == 336, len(lessons))
+
+    def prose(l):
+        o = [s for s, _b in l["teach"]] + [pr["worked"][0] for pr in l["pairs"]]
+        if l.get("advance_line"): o.append(l["advance_line"])
+        if l.get("practice_intro"): o.append(l["practice_intro"])
+        return o
+
+    stray = [(l["id"], t[:40]) for l in lessons for t in prose(l)
+             if re.search(r"\s+[,.;:?!]", t)]
+    check("⭐ no authored line pads a space before its punctuation",
+          not stray, stray[:3])
+    longs = [(l["id"], len(x.split())) for l in lessons for t in prose(l)
+             for x in re.split(r"(?<=[.?!])\s+", t)
+             if len(x.split()) > _ls.SPOKEN_SENTENCE_CAP]
+    check(f"⭐ no spoken sentence runs past {_ls.SPOKEN_SENTENCE_CAP} words",
+          not longs, longs[:3])
+
+    check("⭐ rule 14 matches a WORD, not a word wrapped in literal spaces",
+          'f" {sym} " in teach_text' not in code and "_sym_re.search(teach_text)" in code,
+          "the literal-space form is what bent the prose; it must not come back")
+    check("  ...and both new authoring rules are enforced inside validate()",
+          "SPOKEN_SENTENCE_CAP = 34" in code
+          and 'no stray space before punctuation' in src
+          and 'spoken sentence under' in src,
+          "a rule nobody runs is a comment")
+    check("  the pattern that failed its canon sweep was NOT enforced",
+          "stacked" not in code.lower().split("def validate")[-1][:4000],
+          "390 hits, almost all of them good writing -- cut, like ox's arm")
+
+    les = [l for l in lessons if l["id"] == "alg2-u1-how-far-from-zero"][0]
+    teach = " ".join(s for s, _b in les["teach"])
+    check("⭐ the lesson Jim watched no longer nominalizes its verbs",
+          "The take away gives" not in teach and "stopping at the take away" not in teach
+          and "far-apart" not in teach, teach[:80])
+    check("⭐ ...and its trap argues from the distance, as he asked",
+          "Two numbers cannot be negative 5 apart" in teach
+          and "which way you went" not in teach and "this walk" not in teach,
+          "'all we really want to know is the distance between the two'")
+    check("  ...and the board stopped flashing an 11 the words no longer explain",
+          "11 ✗" not in " ".join(b for _s, b in les["teach"]),
+          "a wrong answer on screen with no reason attached is worse than none")
+
+    bad = [(l["id"], lab) for l in lessons for ok, lab, _d in _ls.validate(l) if not ok]
+    check("⭐ every one of the 336 lessons passes its own validator",
+          not bad, bad[:3])
+
+
 def part3fh_let_the_lesson_breathe():
     """PART 3fh (build pd, 2026-08-27) -- LET THE LESSON BREATHE.
 
@@ -14182,7 +14292,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,036</b>" in page,
+          "<b>7,046</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22639,6 +22749,7 @@ def main():
     part3ff_the_classroom_gets_fast()
     part3fg_the_figure_fills_the_board()
     part3fh_let_the_lesson_breathe()
+    part3fi_the_sentences_make_sense()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
