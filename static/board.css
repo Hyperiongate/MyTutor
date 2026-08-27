@@ -2,6 +2,21 @@
    board.css  --  THE WHITEBOARD'S STYLES, FOR THE SCRIPTED LANE  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-27  (pc) THE FIGURE FILLS THE BOARD. Kept in step with session.html's
+                 copy of the same rule: .feed .mblock centers its children, so a
+                 .mfig was sized by its content -- an <svg> whose CSS width is a
+                 PERCENTAGE, which cannot size a shrink-to-fit box. Every figure
+                 collapsed to the 300px replaced-element default and every display
+                 cap in math-figures.js / geo-figures.js was dead letter.
+                 align-self:stretch gives the percentage a real box to resolve
+                 against. NOTE for whoever reads this next: the scripted pages
+                 (pilot.html, drill.html) host their board in a <div id="board">
+                 with no .feed ancestor, so BOTH the .mblock rule below and this
+                 one are inert there -- their .mblock is a plain block that already
+                 fills its width, which is why the pilot page's figures never
+                 looked small. The rule is added here so the two copies of the
+                 board's styles do not drift; see script-board.js's header on why
+                 this lane shares files instead of copying them.
      2026-08-21  NEW FILE (build kj). board.js has been the one copy of the board's
                  LOGIC since build he, but its STYLES still lived inline in
                  session.html, so nothing else could draw a board. The scripted lane
@@ -183,6 +198,8 @@
 .feed .stage-hint { margin: auto; }
 .feed .mblock { align-self: center; width: 100%; display: flex; flex-direction: column;
       align-items: center; padding: 6px 0; }
+/* ⚠️ (pc) see the header note: without this, a figure is 300px wide forever. */
+.feed .mfig { align-self: stretch; width: 100%; text-align: center; }
 
 /* ---- keyframes the rules above use ---- */
 @keyframes pop { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }

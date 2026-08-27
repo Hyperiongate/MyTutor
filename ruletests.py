@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD pc -- PART 3fg: the figure fills the board. Jim: "Why is it so
+#               hard to make a big number line". It was not hard -- .mfig was a
+#               shrink-to-fit box, so an <svg> sized in PERCENT collapsed to the
+#               300px replaced-element default and THREE builds' worth of raised
+#               display caps (je 660, nw 1100, ox 1500) were dead letter. One CSS
+#               line fixes it; the new part pins the line, pins that .mblock still
+#               centers everything else, and pins the aspect-scaled cap floor that
+#               math-figures.js / geo-figures.js now apply with Math.max so no
+#               earlier build's chosen cap is ever undone. Measured, not reasoned:
+#               /tmp/pcdrive.py, 14 assertions in a real browser.
 #   2026-08-27  BUILD pb -- PART 3ff REWRITTEN: the classroom itself gets fast. pa
 #               moved the child to a second page to make things quick; Jim wanted
 #               the same room, quicker. The authored lessons play inside
@@ -13059,6 +13069,89 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fg_the_figure_fills_the_board():
+    """PART 3fg (build pc, 2026-08-27) -- THE FIGURE FILLS THE BOARD.
+
+    Jim, watching a live Algebra II absolute-value beat whose number line sat in
+    the corner like a ribbon: "Why is it so hard to make a big number line".
+
+    IT WAS NOT HARD. IT HAD BEEN MEASURED WRONG FOR THREE BUILDS, and that is the
+    thing worth pinning. session.html's `.feed .mblock` is a flex COLUMN with
+    align-items:center, which sizes every child to its own CONTENT. A figure block
+    (.mfig) has exactly one child: an <svg> whose CSS width is a PERCENTAGE. A
+    percentage contributes nothing to intrinsic sizing, so the browser fell back to
+    the CSS default width for a replaced element -- 300px -- and then applied
+    max-width to a box that was already 300px wide. EVERY figure on that board
+    rendered at exactly 300px, on every screen, however much room the board had.
+
+    So the three builds that answered "make it bigger" by raising the display cap
+    -- je (660), nw (1100), ox (1500) -- were each raising a ceiling the floor
+    could never reach, and each one looked like it had done the job because the
+    number in the file changed. Nobody measured the rendered pixels. THAT is the
+    lesson (the same one build oz learned when Jim said "nothing has changed"):
+    a layout claim is only worth what a real render says.
+
+    THE FIX IS ONE CSS LINE: `.feed .mfig { align-self: stretch }` opts the figure
+    out of the centering so width:100% has a real box to resolve against. Driven in
+    a real browser (/tmp/pcdrive.py, 14 assertions, green) at two desktop widths and
+    a phone: the number line goes 300px -> 936px at a 1512px window and -> 1218px at
+    1920px, keeps its 660x120 shape, still shrinks to fit a phone, still fits inside
+    a [[stepcard]] instead of bursting it -- and the worklist, which carries its own
+    max-width, is untouched and still centered.
+
+    AND WITH THE CAP FINALLY REAL, the caps themselves get a floor. Most were
+    written while they did nothing, so several figures would still have drawn small.
+    math-figures.js and geo-figures.js now compute the width that puts a drawing
+    about 420px tall at its OWN aspect ratio (ceiling 1100) and take the larger of
+    that and the figure's own cap -- Math.max, so nothing ever shrinks: bars keeps
+    ol's 720, the number line keeps ox's 1500, and geometry lifts 300 -> ~520 while
+    the wide [[segment]] line reaches ~940."""
+    print("\nPART 3fg — the figure fills the board (build pc)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    ses = code_only(open(os.path.join(here, "static", "session.html"), encoding="utf-8").read())
+    css = code_only(open(os.path.join(here, "static", "board.css"), encoding="utf-8").read())
+    mf = code_only(open(os.path.join(here, "static", "math-figures.js"), encoding="utf-8").read())
+    gf = code_only(open(os.path.join(here, "static", "geo-figures.js"), encoding="utf-8").read())
+
+    def squash(t):
+        return " ".join(t.split())
+
+    check("⭐ the figure block is opted OUT of .mblock's centering",
+          "align-self: stretch" in squash(ses).split(".feed .mfig {")[-1][:120]
+          if ".feed .mfig {" in squash(ses) else False,
+          "without align-self:stretch every figure is 300px wide forever")
+    check("  ...and .mblock still centers everything else (do no harm)",
+          ".feed .mblock { align-self: center;" in squash(ses)
+          and "align-items: center; padding: 6px 0; }" in squash(ses),
+          "the worklist, colmath and solveboard keep their own caps and stay centered")
+    check("  the scripted lane's copy of the board styles carries the same rule",
+          ".feed .mfig { align-self: stretch;" in squash(css),
+          "board.css and session.html must not drift -- see script-board.js's header")
+
+    check("⭐ a figure's display cap has a FLOOR that scales with its shape",
+          "function figCap(w, h, maxw)" in mf and "FIG_TALL = 420" in mf
+          and "figCap(w, h, maxw)" in mf,
+          "most caps were chosen while they did nothing at all")
+    check("  the floor NEVER shrinks a figure -- it is a Math.max, not a replacement",
+          "Math.max(maxw || 400, Math.min(FIG_CEIL, want))" in mf,
+          "bars must keep ol's 720 and the number line ox's 1500")
+    check("  geometry gets the same rule, floor 340",
+          "function figCap(w, h)" in gf and "FIG_TALL = 420" in gf
+          and "Math.max(FIG_FLOOR, Math.min(FIG_CEIL, want))" in gf,
+          "a triangle at 300px is not a picture, it is a postage stamp")
+
+    check("⭐ the number line's own cap is still the one build ox chose",
+          "svgOpen(W, H, 1500)" in mf,
+          "pc makes ox's number real; it does not overwrite it")
+    check("  and the bar chart's is still the one build ol chose",
+          "svgOpen(W, H, 720)" in mf,
+          "same reasoning, same promise")
+
+    check("⭐ the number line's viewBox is untouched -- only the DISPLAY moves",
+          "var W = 660, H = 120, left = 30, right = W - 30, axisY = 62" in squash(mf),
+          "every coordinate, tick and geometry pin depends on 660x120")
+
+
 def part3ff_the_classroom_gets_fast():
     """PART 3ff (build pb, 2026-08-27) -- THE CLASSROOM ITSELF GETS FAST.
 
@@ -13990,7 +14083,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,016</b>" in page,
+          "<b>7,025</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22445,6 +22538,7 @@ def main():
     part3fd_the_day_you_can_feel()
     part3fe_the_board_uses_the_room()
     part3ff_the_classroom_gets_fast()
+    part3fg_the_figure_fills_the_board()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

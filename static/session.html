@@ -1,5 +1,25 @@
 <!DOCTYPE html>
 <!--
+    (pc) 2026-08-27 -- THE FIGURE FILLS THE BOARD. Jim, looking at a live Algebra II
+    absolute-value beat whose number line was a ribbon in the corner: "Why is it so
+    hard to make a big number line". It was not hard. It was MEASURED WRONG, three
+    builds running. .feed .mblock is a flex COLUMN with align-items:center, which
+    sizes every child to its own content. A figure block (.mfig) has exactly one
+    child: an <svg> whose CSS width is a PERCENTAGE. Percentages contribute nothing
+    to intrinsic sizing, so the browser fell back to the CSS default width for a
+    replaced element -- 300px -- and then applied max-width to a box that was already
+    300px wide. EVERY figure on this board rendered at 300px, on every screen, no
+    matter how much room the board had. The three builds that answered "make it
+    bigger" by raising the display cap (je 660, nw 1100, ox 1500) raised a ceiling
+    the floor could never reach. ONE LINE FIXES IT: .feed .mfig { align-self:
+    stretch } opts the figure out of the centering, so width:100% finally has a real
+    box to resolve against. MEASURED, NOT REASONED (the oz lesson): at a 1512px
+    window the number line goes 300px -> 945px; at 1920px, 300px -> 1222px. The same
+    line also delivers, at last, what ol's bar-chart cap and every other raised cap
+    were always for.
+    DO NO HARM: the rule touches .mfig only. .worklist, .colmath, .solveboard,
+    .writeboard, .machine and .scale keep their own max-widths and stay centered by
+    .mblock's align-items:center, which is unchanged.
     (os) 2026-08-27 -- THE BOARD READS ONE, TWO, THREE. NEW [[stepcard n="1"
     title="..."]] tag dispatched here (labeled Step-N cards side by side, following
     blocks land inside the open card); clearStepGrid() at turn start. Machinery and
@@ -1517,6 +1537,14 @@
       font-size: 13px; padding: 2px; }
     .feed .mblock { align-self: center; width: 100%; display: flex; flex-direction: column;
       align-items: center; padding: 6px 0; }
+    /* ⚠️ (pc) THE FIGURE FILLS THE BOARD -- read the header note before touching this.
+       .mblock centers its children, which means each child is sized by its CONTENT.
+       A .mfig's only content is an <svg> sized in PERCENT, and a percentage cannot
+       size a shrink-to-fit box, so the figure collapsed to the 300px replaced-element
+       default and every display cap in math-figures.js / geo-figures.js was dead
+       letter. align-self:stretch gives the percentage a real box. Deleting this line
+       makes every figure on the board 300px wide again. */
+    .feed .mfig { align-self: stretch; width: 100%; text-align: center; }
     /* build oj ([[beside]]): two board blocks shoulder to shoulder. flex-wrap is the law:
        on a narrow screen the columns STACK, which is why prose names work by content,
        never by left/right (referee 40). */

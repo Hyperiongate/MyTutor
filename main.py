@@ -2,6 +2,28 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27pc-the-figure-fills-the-board". BUILD pc --
+#               Jim, on a live Algebra II absolute-value beat: "Why is it so hard to
+#               make a big number line". It was not hard. It had been MEASURED WRONG
+#               for three builds. session.html's .feed .mblock is a flex COLUMN with
+#               align-items:center, so every child is sized by its own content -- and
+#               a figure block's only content is an <svg> whose CSS width is a
+#               PERCENTAGE. A percentage contributes nothing to intrinsic sizing, so
+#               the browser used the CSS default width for a replaced element, 300px,
+#               and then applied max-width to a box that was already 300px. EVERY
+#               figure on the board rendered at exactly 300px on every screen. The
+#               three builds that answered "make it bigger" by raising the display
+#               cap (je 660 -> nw 1100 -> ox 1500) were raising a ceiling the floor
+#               could never reach. One CSS line -- .feed .mfig { align-self: stretch }
+#               -- opts the figure out of the centering and gives the percentage a
+#               real box. Measured on a real render: the number line goes 300px ->
+#               936px at a 1512px window, 1218px at 1920px. With the cap finally
+#               real, math-figures.js and geo-figures.js got a matching FLOOR (the
+#               width that puts a drawing about 420px tall at its own aspect ratio,
+#               ceiling 1100, applied with Math.max so nothing shrinks): geometry
+#               goes 300 -> ~520px, the [[segment]] line to ~940px. No Python
+#               changed except this stamp. Proof: /tmp/pcdrive.py, plus all eight
+#               earlier drives re-run green.
 #   2026-08-27  APP_BUILD -> "2026-08-27pb-the-classroom-gets-fast". BUILD pb --
 #               THE CORRECTION, and the mistake is worth recording. Build pa read
 #               Jim's "open the gate so that every lesson at every course is fast"
@@ -12403,7 +12425,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27pb-the-classroom-gets-fast"
+APP_BUILD = "2026-08-27pc-the-figure-fills-the-board"
 
 
 @app.get("/health")

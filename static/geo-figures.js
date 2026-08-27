@@ -2,6 +2,16 @@
    geo-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-27  BUILD pc -- THE FIGURE FILLS THE BOARD. Every geometry figure was
+                 capped at 340px, and until pc that cap did not even apply: .mfig was
+                 a shrink-to-fit box and the SVG's percentage width collapsed to the
+                 300px replaced-element default (session.html's header carries the
+                 measurement). Now that the cap is real, open() uses the same rule
+                 math-figures.js uses -- the width that puts the drawing about 420px
+                 tall at its own aspect ratio, floor 340, ceiling 1100. A triangle
+                 goes 300px -> ~520px; the wide [[segment]] line goes to ~1000px.
+                 Every coordinate, label and test in this file is untouched: only the
+                 display cap moves, exactly as builds je / nw / ox intended.
      2026-07-28  NEW. Shared geometry whiteboard figures for the multi-course tutor. Exposes
                  window.GeoFigures.svg(kind, attrs) -> a self-contained SVG string (no external
                  CSS; all styling is inline) for three tutor control tags:
@@ -64,9 +74,16 @@
       '" font-weight="' + (weight || 600) + '" font-family="system-ui,Segoe UI,Arial,sans-serif"' +
       ' text-anchor="middle" dominant-baseline="middle">' + esc(s) + "</text>";
   }
+  // (pc, 2026-08-27) see the header: the cap is a real limit now, so it scales with
+  // the SHAPE instead of pinning every drawing at 340px.
+  var FIG_TALL = 420, FIG_FLOOR = 340, FIG_CEIL = 1100;
+  function figCap(w, h) {
+    var want = (h > 0) ? Math.round(w / h * FIG_TALL) : 0;
+    return Math.max(FIG_FLOOR, Math.min(FIG_CEIL, want));
+  }
   function open(w, h) {
     return '<svg viewBox="0 0 ' + w + " " + h + '" class="geofig" xmlns="' + NS +
-      '" style="width:100%;max-width:340px;height:auto;display:block;margin:6px auto;">';
+      '" style="width:100%;max-width:' + figCap(w, h) + 'px;height:auto;display:block;margin:6px auto;">';
   }
   function dot(p, r) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (r || 3.2) + '" fill="' + INK + '"/>'; }
   function line(p, q, col, wd) {

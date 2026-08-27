@@ -2,6 +2,18 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-27  BUILD pc -- THE FIGURE FILLS THE BOARD. session.html's .mfig was a
+                 shrink-to-fit box, so every display cap set in this file was dead
+                 letter: each figure rendered at the 300px replaced-element default
+                 no matter what maxw said (see session.html's header for the full
+                 measurement). With that fixed, maxw is a REAL limit for the first
+                 time -- and several of the caps here were written back when they
+                 did nothing, so a few figures would still render small. svgOpen now
+                 applies a FLOOR alongside each figure's own cap: the width that
+                 puts the drawing about 420px tall, capped at 1100. It is a
+                 Math.max, so no figure ever gets SMALLER than the cap its own build
+                 chose (bars keeps ol's 720; the number line keeps ox's 1500) -- it
+                 only lifts the ones whose cap predates the fix. Do no harm.
      2026-08-27  BUILD ot -- THE FIGURE SHELF GROWS (Jim: "I want all the graphics
                  that math teaches to be available"). Three new figures + one new
                  attribute:
@@ -496,8 +508,18 @@
   // First multiple of `step` at or above `min` -- so labels land on round numbers.
   function firstTick(min, step) { return Math.ceil(min / step - 1e-9) * step; }
 
+  // (pc, 2026-08-27) FIG_TALL is the height a figure should aim for once .mfig
+  // actually gives it room. The floor is the width that reaches that height at the
+  // figure's own aspect ratio -- so a wide drawing (a number line) is allowed to be
+  // wide and a square one is not stretched into the whole board. Math.max means a
+  // figure NEVER shrinks below the cap its own build chose.
+  var FIG_TALL = 420, FIG_CEIL = 1100;
+  function figCap(w, h, maxw) {
+    var want = (h > 0) ? Math.round(w / h * FIG_TALL) : 0;
+    return Math.max(maxw || 400, Math.min(FIG_CEIL, want));
+  }
   function svgOpen(w, h, maxw) {
-    return '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="' + NS + '" style="width:100%;max-width:' + (maxw || 400) + 'px;height:auto;display:block;margin:6px auto;">';
+    return '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="' + NS + '" style="width:100%;max-width:' + figCap(w, h, maxw) + 'px;height:auto;display:block;margin:6px auto;">';
   }
   function tspan(x, y, s, fill, size, weight, anchor) {
     return '<text x="' + x + '" y="' + y + '" fill="' + (fill || "#26263a") + '" font-size="' + (size || 12) +
