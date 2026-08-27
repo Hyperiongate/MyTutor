@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27pf-the-first-course-read-for-sense". BUILD pf
+#               -- Jim: "Start at the beginning." All 20 Entry lessons read line by
+#               line. Entry turned out to be SOUND: eight lines across six lessons
+#               changed, one of them a statement that was simply false ("17 take away
+#               9 equals 8 cubes longer"). No Python changed except this stamp.
 #   2026-08-27  APP_BUILD -> "2026-08-27pe-the-sentences-make-sense". BUILD pe -- the
 #               third of Jim's three complaints, the one pd left open: "the text
 #               itself is as if someone is teaching math in a non-native language."
@@ -12454,7 +12459,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27pe-the-sentences-make-sense"
+APP_BUILD = "2026-08-27pf-the-first-course-read-for-sense"
 
 
 @app.get("/health")

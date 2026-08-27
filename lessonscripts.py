@@ -2,6 +2,26 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD pf -- THE FIRST COURSE, READ FOR SENSE. Jim: "Start at the
+#               beginning." All 20 Entry lessons read line by line. THE HONEST RESULT
+#               IS THAT ENTRY IS IN GOOD SHAPE -- it was authored earliest and most
+#               carefully, its sentences are short and concrete, and only EIGHT lines
+#               across six lessons needed anything. That is the finding, not a
+#               disappointment: the prose rot Jim hit is in the upper courses, where
+#               beats were written dense to fit a lot of idea into 80 words.
+#               ⭐ ONE OF THE EIGHT WAS A FALSE STATEMENT, not a style problem:
+#               entry-u8-how-much-longer said "17 take away 9 equals 8 cubes longer".
+#               17 take away 9 equals 8. It does not equal "8 cubes longer". The
+#               lesson's OWN first beat gets it right ("equals 9, so the pencil is 9
+#               cubes longer") and the three lines after it had dropped the "so", so
+#               a child was being read an equation that is not true, three times.
+#               And entry-u9-sides-and-corners said "A triangle has 3 of each, and
+#               that is true for every flat shape" -- which reads as "every flat shape
+#               has 3 of each". It now says the counts MATCH, which is what was meant.
+#               The other six: two sentences that made the ACTION the object ("
+#               Mathematicians write putting together with a special sign"), a minute
+#               hand that "passes" five minutes instead of stepping them, and an
+#               "out loud" dangling off the end of a clock line.
 #   2026-08-27  BUILD pe -- THE SENTENCES MAKE SENSE. Jim, on a live Algebra II
 #               lesson: "the text itself is as if someone is teaching math in a
 #               non-native language." He was right, and he also stopped me chasing
@@ -1581,8 +1601,8 @@ LESSONS = [
              "groups together and count every star: one, two, three, four, five. "
              "There are five stars in all.",
              '[[objects emoji="⭐" groups="3" add="2" caption="count every star"]]'),
-            ("Mathematicians write putting together with a special sign. We write "
-             "it like this, and we say it 'plus'. Three plus two.",
+            ("Putting together has its very own sign. We write it like this, and "
+             "we say it 'plus'. Three plus two.",
              '[[step eq="3 + 2"]]'),
             ("And when we know how many in all, we use one more sign. We write it "
              "like this, and we say it 'equals'. Three plus two equals five.",
@@ -1633,8 +1653,8 @@ LESSONS = [
             ("Here are five stars. Watch me take two away. Count what is left: "
              "one, two, three. Three stars are left.",
              '[[objects emoji="⭐" groups="5" take="2" caption="start with five — take two away, then count what is left"]]'),
-            ("Mathematicians write taking away with its own sign. We write it "
-             "like this, and we say it 'minus'. Five minus two.",
+            ("Taking away has its own sign too. We write it like this, and we "
+             "say it 'minus'. Five minus two.",
              '[[step eq="5 − 2"]]'),
             ("You already know the equals sign. Five minus two equals three.",
              '[[step eq="5 − 2 = 3"]]'),
@@ -2875,7 +2895,7 @@ _MORE_LESSONS = [
                          "You can tell what time it will be later."),
         "teach": [
             ("The short hand on a clock tells the hour. When it points at 3, we "
-             "say 3 o'clock out loud.",
+             "say it is 3 o'clock.",
              '[[goal text="Later on the clock"]]'
              '[[numberline min="1" max="12" points="3" caption="the clock hours — the hand at 3"]]'),
             ("Watch me. It is 9 o'clock now. Two hours later, count on: 10, 11. "
@@ -2918,7 +2938,7 @@ _MORE_LESSONS = [
                          "You can read the minutes on a clock."),
         "teach": [
             ("The long hand is the minute hand, and it moves faster than the "
-             "short one. Every number it passes is five minutes.",
+             "short one. From one number to the next is five minutes.",
              '[[goal text="Minutes past the hour"]]'),
             ("Watch me. The minute hand points to 6. Count by five: 5, 10, 15, "
              "20, 25, 30. That is 30 minutes past the hour.",
@@ -3019,18 +3039,19 @@ _MORE_LESSONS = [
              '[[bars data="pencil:13 | crayon:4" caption="pencil 13 and crayon 4"]]'
              '[[step eq="13 cubes − 4 cubes = 9"]]'),
             ("One more, watch. The pencil is 17 cubes. The crayon is 9 cubes. "
-             "17 take away 9 equals 8 cubes longer.",
+             "17 take away 9 equals 8, so the pencil is 8 cubes longer.",
              '[[bars data="pencil:17 | crayon:9" caption="pencil 17 and crayon 9"]]'
              '[[step eq="17 cubes − 9 cubes = 8"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. The pencil is 19 "
                         "cubes. The crayon is 12 cubes. 19 take away 12 equals "
-                        "7 cubes longer.",
+                        "7, so the pencil is 7 cubes longer.",
                         '[[step eq="19 cubes − 12 cubes = 7"]]'),
              "ask": {"a": 11, "b": 5, "op": "cube"}},
             {"worked": ("One more together. The pencil is 20 cubes. The crayon "
-                        "is 13 cubes. 20 take away 13 equals 7 cubes longer.",
+                        "is 13 cubes. 20 take away 13 equals 7, so the pencil is "
+                        "7 cubes longer.",
                         '[[step eq="20 cubes − 13 cubes = 7"]]'),
              "ask": {"a": 15, "b": 6, "op": "cube"}},
         ],
@@ -3079,7 +3100,8 @@ _MORE_LESSONS = [
              "even says so: tri means three.",
              '[[step eq="triangle → 3 sides"]]'),
             ("Now its corners, watch. Corner, corner, corner — 3 corners. A "
-             "triangle has 3 of each, and that is true for every flat shape.",
+             "triangle has 3 sides and 3 corners. Every flat shape is like that: "
+             "it has just as many corners as sides.",
              '[[step eq="triangle → 3 corners, the same as its sides"]]'),
         ],
         "pairs": [

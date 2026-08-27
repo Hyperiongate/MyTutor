@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD pf -- PART 3fj: the first course, read for sense. Jim: "Start at
+#               the beginning." All 20 Entry lessons read; Entry turned out SOUND, and
+#               only eight lines across six lessons changed. One was FALSE -- "17 take
+#               away 9 equals 8 cubes longer" -- read to a five-year-old three times
+#               in one lesson, and no validator here could ever have caught it.
 #   2026-08-27  BUILD pe -- PART 3fi: the sentences make sense. Jim: "the text itself
 #               is as if someone is teaching math in a non-native language" -- and
 #               then, when I blamed the vocabulary canon: "Takeaway or minus, those
@@ -13087,6 +13092,83 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fj_the_first_course_read_for_sense():
+    """PART 3fj (build pf, 2026-08-27) -- THE FIRST COURSE, READ FOR SENSE.
+
+    Jim, after pe: "Start at the beginning." All 20 Entry lessons read line by line.
+
+    ⭐ THE HONEST RESULT IS THAT ENTRY WAS ALREADY GOOD. It was authored earliest and
+    most carefully; its sentences are short, concrete and one idea each. Eight lines
+    across six lessons needed anything at all. That is worth recording as a FINDING
+    rather than a thin build: the prose Jim hit is concentrated in the UPPER courses,
+    where beats were written dense to pack a lot of idea into 80 words. A pass over
+    Entry that "found" fifty problems would have been inventing them.
+
+    ⚠️ ONE OF THE EIGHT WAS NOT A STYLE PROBLEM -- IT WAS FALSE.
+    entry-u8-how-much-longer read: "17 take away 9 equals 8 cubes longer."
+    17 take away 9 equals 8. It does not equal "8 cubes longer". The lesson's OWN
+    first beat says it correctly -- "13 take away 4 equals 9, so the pencil is 9 cubes
+    longer" -- and the three lines after it had dropped the "so", so a five-year-old
+    was read an untrue equation three times in one lesson. That is the kind of defect
+    that only a person reading the lesson out loud will ever find; no validator in
+    this file could have.
+
+    AND ONE WAS AMBIGUOUS IN A WAY THAT READS AS FALSE.
+    entry-u9-sides-and-corners: "A triangle has 3 of each, and that is true for every
+    flat shape" -- which parses as "every flat shape has 3 of each". The intended idea
+    is that the two counts MATCH, and it now says exactly that.
+
+    THE OTHER SIX: two sentences that made the ACTION the object of the verb
+    ("Mathematicians write putting together with a special sign" -- the hardest
+    possible parse for a five-year-old), a minute hand that "passes" five minutes
+    rather than stepping them, and an "out loud" dangling off a clock line."""
+    print("\nPART 3fj — the first course, read for sense (build pf)")
+    import lessonscripts as _ls
+    lessons, seen = [], set()
+    for _n in dir(_ls):
+        _v = getattr(_ls, _n)
+        if isinstance(_v, list) and _v and isinstance(_v[0], dict) \
+           and "course" in _v[0] and "teach" in _v[0]:
+            for _l in _v:
+                if _l["id"] not in seen:
+                    seen.add(_l["id"]); lessons.append(_l)
+    entry = [l for l in lessons if l["course"] == "entry"]
+    check("the Entry course is all 20 lessons", len(entry) == 20, len(entry))
+
+    def say(l):
+        o = [s for s, _b in l["teach"]] + [pr["worked"][0] for pr in l["pairs"]]
+        if l.get("advance_line"): o.append(l["advance_line"])
+        return " ".join(o)
+
+    cubes = say([l for l in entry if l["id"] == "entry-u8-how-much-longer"][0])
+    check("⭐ the cubes lesson no longer reads an equation that is FALSE",
+          "equals 8 cubes longer" not in cubes
+          and "equals 7 cubes longer" not in cubes,
+          "17 take away 9 equals 8 -- it does not equal '8 cubes longer'")
+    check("  ...and every one of its four lines now separates sum from conclusion",
+          cubes.count("so the pencil is") == 4, cubes.count("so the pencil is"))
+
+    shapes = say([l for l in entry if l["id"] == "entry-u9-sides-and-corners"][0])
+    check("⭐ the shapes lesson says the COUNTS MATCH, not '3 of each' for everything",
+          "3 of each" not in shapes and "just as many corners as sides" in shapes,
+          "'that is true for every flat shape' parsed as 'every shape has 3'")
+
+    both = " ".join(say(l) for l in entry)
+    check("⭐ no Entry beat makes the action the object of the sentence",
+          "Mathematicians write putting together" not in both
+          and "Mathematicians write taking away" not in both,
+          "a five-year-old cannot parse a gerund phrase as a direct object")
+    check("  the minute hand STEPS five minutes rather than passing them",
+          "Every number it passes is five minutes" not in both
+          and "From one number to the next is five minutes" in both, "")
+    check("  and nothing dangles off the end of the clock line",
+          "o'clock out loud" not in both, "")
+
+    bad = [(l["id"], lab) for l in lessons for ok, lab, _d in _ls.validate(l) if not ok]
+    check("⭐ all 336 lessons still pass their own validator",
+          not bad, bad[:3])
+
+
 def part3fi_the_sentences_make_sense():
     """PART 3fi (build pe, 2026-08-27) -- THE SENTENCES MAKE SENSE.
 
@@ -14292,7 +14374,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,046</b>" in page,
+          "<b>7,054</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22750,6 +22832,7 @@ def main():
     part3fg_the_figure_fills_the_board()
     part3fh_let_the_lesson_breathe()
     part3fi_the_sentences_make_sense()
+    part3fj_the_first_course_read_for_sense()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
