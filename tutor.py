@@ -2,6 +2,20 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD ok -- GRADE WHAT THEY SAID, EARN WHAT YOU SCORE. Jim's live
+#               probstat catch: student tapped "Spring" (right!) and the reply
+#               opened "Pie chart -- correct! That's question 1 done" -- wrong
+#               answer graded, quiz declared mid-stream, question 1 credited
+#               though never asked. (1) tapped_answer_conflict's iy digit gate
+#               was the hole: word answers (Spring, Pie chart -- the buttons
+#               39(e) ships everywhere) were exempt with the request taps. A
+#               wordy tap now counts as an answer whenever the reply GRADES
+#               (_TA_GRADING_RE, narrow verbs); request taps stay exempt because
+#               their replies do the thing instead of grading it. (2) NEW
+#               quiz_credit_conflict (the FIFTY-SECOND referee): "question N
+#               done" is rejected unless the conversation actually asked a
+#               question N (heard-gated). Rule 18(c) and new 47(k) are the
+#               prompt-side twins.
 #   2026-08-26  BUILD oj -- SIDE BY SIDE ON PURPOSE (one word here). The new
 #               [[beside]] board tag (board.js + rule 58d) joins _LEAK_SHAPES'
 #               tag-name list so "I'll send a beside tag" spoken to a child is
@@ -2195,7 +2209,14 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # Eighth verse, same discipline: teaching is never trimmed to duck a tripwire; the
 # raise is deliberate and this is its dated note. The two-prompt-sizes LARGE
 # result remains the evidence that should set this number.
-PROMPT_CEILING = 197_000
+# 2026-08-26 (build ok): RAISED 197,000 -> 199,000. Grade-what-they-said wrote
+# 18(c)'s echo-their-answer clause and 47(k)'s quiz-credit law into the shared
+# block (from Jim's live "Spring" -> "Pie chart -- correct!" catch), and the
+# all-heard algebra2 deferred prompt measured 197,592. Ninth verse, same
+# discipline: teaching is never trimmed to duck a tripwire; the raise is
+# deliberate and this is its dated note. The two-prompt-sizes LARGE result
+# remains the evidence that should set this number.
+PROMPT_CEILING = 199_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -4600,6 +4621,20 @@ def spoken_length_conflict(reply: str):
 # and `prev_tutor` (the ORIGINAL last assistant turn, from _create_verified).
 _TA_SEP = r"[\s\-,]{1,3}"
 
+# (ok) THE GRADING SHAPES. Jim's live probstat catch, 2026-08-26: the student
+# tapped "Spring" (a WORD answer to "which season came in second?") and the reply
+# opened "Pie chart -- correct! That's question 1 done" -- grading a different
+# thread entirely -- while this referee stayed silent, because build iy's digit
+# gate exempted every wordless-digit tap. iy's insight was right (a "Quiz me!"
+# tap is a REQUEST, and its reply rightly does the thing instead of echoing it)
+# but the gate was too wide: word ANSWERS (Spring, Pie chart, Supplementary --
+# the very buttons rule 39(e) now ships everywhere) rode out with the requests.
+# The honest separator is the REPLY: a reply that GRADES something was answering
+# an answer. Narrow verbs only -- "right" and "exactly" alone are everyday words.
+_TA_GRADING_RE = re.compile(
+    r"\b(?:correct|incorrect|not\s+quite|spot\s+on|nailed\s+it|"
+    r"that(?:'s|\s+is)\s+right|well\s+done|you\s+got\s+it)\b", re.I)
+
 
 def _ta_option_pattern(opt):
     """A compiled pattern matching this choice option spoken OR written --
@@ -4670,11 +4705,16 @@ def tapped_answer_conflict(reply: str, student_message: str = "", prev_tutor=Non
         # build iy (caught live in Jim's arm-1 run: the referee demanded the
         # tutor "say 'Quiz me!' back and tell them whether it is right"): not
         # every button is an ANSWER. "Quiz me!" / "Keep practicing" are REQUESTS
-        # -- the right response is to DO the thing, not to echo it. Only a
+        # -- the right response is to DO the thing, not to echo it. A
         # QUANTITATIVE tap (the option itself contains a digit: "32", "3/4",
-        # "2 tens") is a graded answer this referee may demand engagement with.
-        if not re.search(r"\d", msg):
-            return ""              # a wordy button is a request, not an answer
+        # "2 tens") is always a graded answer this referee may demand engagement
+        # with. (ok) And a WORD tap is one too whenever the reply is GRADING
+        # (_TA_GRADING_RE): a reply that says "correct" while engaging no option
+        # of the question just answered is grading the wrong question -- Jim's
+        # "Spring" -> "Pie chart -- correct!" catch. Request taps stay exempt
+        # because their replies do the thing rather than grade it.
+        if not re.search(r"\d", msg) and not _TA_GRADING_RE.search(str(reply or "")):
+            return ""              # a wordy tap with an ungraded reply is a request
         if msg.lower() not in {o.lower() for o in opts}:
             return ""              # typed/spoken answers are the model's judgment
         text = str(reply or "")
@@ -5546,6 +5586,63 @@ def vertical_angles_conflict(reply: str, heard=None):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[vertangles] crashed (fail open): {exc}")
         _event("referee_crash", "vertangles", str(exc))
+        return ""
+
+
+# BUILD ok -- QUIZ CREDIT IS EARNED, NEVER NARRATED (the FIFTY-SECOND referee).
+# Jim's live probstat catch, 2026-08-26: the student answered "Spring" to a
+# teaching question about a bar chart, and the reply said "Pie chart -- correct!
+# That's question 1 done. This is the bar charts & pie charts quiz, five
+# questions..." -- a quiz declared mid-stream WITH QUESTION 1 ALREADY CREDITED,
+# though no question 1 was ever asked. That is the fast-forward disease (oc)
+# wearing quiz clothes: score appears for work the student never met, and it
+# lands on their permanent record. The reply may only mark question N done if
+# this conversation actually POSED a question N (any of its costumes: "Question
+# 3", "Q3", "third question"). HEARD-GATED (nv's law: silent when it cannot
+# see); rule 47(k) is the prompt-side twin. Canon swept before enforcement.
+_QC_WORD = {"1": "one", "2": "two", "3": "three", "4": "four", "5": "five",
+            "6": "six", "7": "seven", "8": "eight", "9": "nine", "10": "ten"}
+_QC_ORD = {"1": "first", "2": "second", "3": "third", "4": "fourth",
+           "5": "fifth", "6": "sixth", "7": "seventh", "8": "eighth",
+           "9": "ninth", "10": "tenth"}
+_QC_DONE_RE = re.compile(
+    r"\bquestion\s+(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)"
+    r"\s+(?:is\s+|was\s+)?(?:done|down|complete|completed|finished|"
+    r"in\s+the\s+books|out\s+of\s+the\s+way)\b", re.I)
+
+
+def quiz_credit_conflict(reply: str, heard=None):
+    """Return a description of quiz credit granted for a question this
+    conversation never asked, or "". Never raises: fail open."""
+    try:
+        if heard is None:
+            return ""                 # cannot see the conversation: never accuse
+        prose = _spoken_only(str(reply or ""))
+        m = _QC_DONE_RE.search(prose)
+        if not m:
+            return ""
+        raw = m.group(1).lower()
+        digit = raw if raw.isdigit() else next(
+            (d for d, w in _QC_WORD.items() if w == raw), None)
+        if not digit:
+            return ""
+        word, ordinal = _QC_WORD.get(digit, ""), _QC_ORD.get(digit, "")
+        asked = re.compile(
+            r"\bquestion\s+(?:%s|%s)\b|\bq\s*%s\b|\b%s\s+question\b"
+            % (digit, word, digit, ordinal), re.I)
+        if asked.search(str(heard)):
+            return ""                 # the question was really asked -- credit earned
+        return ('you mark question {d} done -- but this conversation never asked '
+                "a question {d}, so credit just appeared for work the student "
+                "never met, and it is headed for their record. Rule 47(k): quiz "
+                "credit is EARNED -- a question counts only when it was posed AS "
+                "that question and answered. Rewrite: first grade the answer the "
+                "student actually just gave to your last question; then, if a "
+                "quiz is starting, ASK question {d} and wait. Never re-label "
+                "earlier teaching as quiz credit.").format(d=digit)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[quizcredit] crashed (fail open): {exc}")
+        _event("referee_crash", "quizcredit", str(exc))
         return ""
 
 
@@ -6820,6 +6917,11 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if vert:
             _event("referee_fire", "vertangles", vert)
             return vert
+        # (ok) the fifty-second: quiz credit is earned, never narrated. Heard-gated.
+        qcredit = quiz_credit_conflict(reply, heard)
+        if qcredit:
+            _event("referee_fire", "quizcredit", qcredit)
+            return qcredit
         repeatq = repeat_question_conflict(reply, prev_tutor)
         if repeatq:
             _event("referee_fire", "repeatq", repeatq)

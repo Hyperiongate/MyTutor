@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD ok -- PART 3er: grade what they said, earn what you score
+#               (Jim's probstat screenshot: "Spring" answered, "Pie chart --
+#               correct! That's question 1 done" replied). tapped_answer's iy
+#               digit gate opens for word taps whenever the reply GRADES; NEW
+#               referee 52 (quiz_credit_conflict) rejects "question N done"
+#               when the conversation never asked question N. 18(c) + 47(k).
 #   2026-08-26  BUILD oj -- PART 3eq: side by side on purpose. Jim: "the
 #               whiteboard is underutilized." Bubbles 80% -> 96% on the three
 #               classroom pages, and the NEW [[beside]] tag places the next
@@ -11547,9 +11553,11 @@ def part3ep_the_fifth_flag_harvest():
     # the eighth ceiling raise (the recap gloss + leading fork are SHARED clauses;
     # the all-heard algebra2 prompt measured 195,223 and the wire fired exactly as
     # designed) -- raised, never trimmed, and this pin demands the dated note.
+    # (ok) the CURRENT value moved on to 199,000 (ninth raise, same day); this pin
+    # now guards that oi's HISTORY note survives in the ledger.
     traw = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
     check("the eighth ceiling raise carries its dated note",
-          "PROMPT_CEILING = 197_000" in traw
+          "197,000" in traw
           and "2026-08-26 (build oi): RAISED" in traw,
           "an undated raise is how the ledger's discipline dies")
 
@@ -11623,6 +11631,109 @@ def part3eq_side_by_side_on_purpose():
     check("  the leak referee knows the new tag's name",
           "|board|beside)" in tsrc,
           "'I'll send a beside tag' spoken to a child must fire like its siblings")
+
+
+def part3er_grade_what_they_said():
+    """PART 3er (build ok) -- GRADE WHAT THEY SAID, EARN WHAT YOU SCORE.
+
+    Jim's screenshot, live probstat run: the student tapped "Spring" -- the
+    RIGHT answer to "which season came in second most popular?" -- and the
+    reply opened "Pie chart -- correct! That's question 1 done. This is the
+    bar charts & pie charts quiz, five questions..." Two diseases in one turn:
+    ① the wrong answer graded ("Pie chart" -- a word the student never said,
+      from a thread they were not on). tapped_answer_conflict existed for
+      exactly this but build iy's digit gate had exempted every word tap; the
+      gate now opens whenever the reply is GRADING (_TA_GRADING_RE, narrow
+      verbs), while request taps ("Quiz me!") stay exempt because their
+      replies do the thing instead of grading it.
+    ② quiz credit invented: question 1 marked done though no question 1 was
+      ever asked. NEW referee 52 (quiz_credit_conflict, heard-gated): a
+      "question N done" the conversation cannot show is rejected. Rules 18(c)
+      and 47(k) carry the prompt-side law."""
+    print("\nPART 3er — grade what they said, earn what you score (build ok)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import tutor as TT
+
+    PREV = ('Which season came in second most popular? '
+            '[[choices options="Summer | Fall | Winter | Spring"]]')
+    FLAGGED = ("Pie chart -- correct! That's question 1 done. This is the bar "
+               "charts & pie charts quiz, five questions, no hints from me. "
+               "Question 2: what kind of chart is that?")
+
+    # ① the widened tapped-answer referee ---------------------------------------
+    for want, label, reply, msg, prev in (
+        (True,  "⭐ Jim's catch: 'Spring' tapped, 'Pie chart -- correct!' fires",
+         FLAGGED, "Spring", PREV),
+        (False, "  engaging THEIR answer passes",
+         "Spring -- right! Six votes puts it second.", "Spring", PREV),
+        (False, "  iy intact: a request tap with a doing reply stays exempt",
+         "Question 1: what is a bar chart best for?", "Quiz me!",
+         'Want to keep going? [[choices options="Quiz me! | Keep practicing"]]'),
+        (False, "  narrow verbs: a plain 'Right, ...' reply never fires",
+         "Right, let's keep practicing. Try 5 + 6.", "Keep practicing",
+         'Want to keep going? [[choices options="Quiz me! | Keep practicing"]]'),
+        (True,  "  the original numeric case still fires (build is intact)",
+         "Eleven is the answer we wanted.", "32",
+         'What is 30 + 2? [[choices options="32 | 23"]]')):
+        check(label, bool(TT.tapped_answer_conflict(reply, msg, prev)) == want,
+              "grading a question they did not just answer" if want
+              else "requests and honest gradings must never pay a retry")
+
+    # ② quiz credit is earned ---------------------------------------------------
+    for want, label, reply, heard in (
+        (True,  "⭐ 'question 1 done' with no question 1 asked fires",
+         FLAGGED, "Student: Spring\nTutor: which season came in second?"),
+        (False, "  silent when Question 1 was really asked",
+         FLAGGED, "Tutor: Question 1: which chart shows share of a whole?"),
+        (False, "  silent when asked as Q1",
+         FLAGGED, "Q1: which chart?"),
+        (False, "  silent when asked as 'the first question'",
+         FLAGGED, "Here comes the first question of the quiz."),
+        (True,  "  the word form ('question one is done') fires too",
+         "Question one is done, on to two.", "chatter"),
+        (False, "  everyday 'that question is done' never fires",
+         "Good, that question is done and dusted.", "x")):
+        check(label, bool(TT.quiz_credit_conflict(reply, heard)) == want,
+              "credit appeared for work the student never met" if want
+              else "earned credit and everyday talk must never pay a retry")
+    check("  nv's law: silent when it cannot see (heard=None)",
+          TT.quiz_credit_conflict(FLAGGED, None) == "",
+          "a heard-gated referee never accuses what it cannot see")
+
+    # the canon stays untouched -------------------------------------------------
+    import foundations as FND
+    fires = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            t = (_sc.get("say") or "") + "\n" + "\n".join(_sc.get("board") or [])
+            if TT.quiz_credit_conflict(t, heard=t):
+                fires += 1
+    check("⭐ zero canon fires under the quiz-credit shape", fires == 0,
+          f"{fires} scripts rejected")
+
+    # wiring + prompt law -------------------------------------------------------
+    tsrc = code_only(open(os.path.join(here, "tutor.py"), encoding="utf-8").read())
+    check("referee 52 rides the sweep",
+          "quiz_credit_conflict(reply, heard)" in tsrc,
+          "an unwired referee catches nothing")
+    psrc = open(os.path.join(here, "prompts.py"), encoding="utf-8").read()
+    check("⭐ 18(c): the first words after their answer name THEIR answer",
+          "THE FIRST WORDS AFTER THEIR ANSWER NAME *THEIR* ANSWER" in psrc,
+          "the referee enforces a law the prompt must state")
+    check("⭐ 47(k): quiz credit is earned, never narrated",
+          "QUIZ CREDIT IS EARNED, NEVER NARRATED" in psrc
+          and "a quiz begins by ASKING question 1, not by" in psrc,
+          "invented credit lands on a child's permanent record")
+
+    # the ninth ceiling raise (18c + 47k are SHARED clauses; the all-heard
+    # algebra2 prompt measured 197,592 and the wire fired exactly as designed)
+    # -- raised, never trimmed, and this pin demands the dated note.
+    traw = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    check("the ninth ceiling raise carries its dated note",
+          "PROMPT_CEILING = 199_000" in traw
+          and "2026-08-26 (build ok): RAISED" in traw,
+          "an undated raise is how the ledger's discipline dies")
 
 
 def part3dy_one_keyboard_not_two():
@@ -12340,7 +12451,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,760</b>" in page,
+          "<b>6,777</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -20723,6 +20834,7 @@ def main():
     part3eo_the_fourth_flag_harvest()
     part3ep_the_fifth_flag_harvest()
     part3eq_side_by_side_on_purpose()
+    part3er_grade_what_they_said()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

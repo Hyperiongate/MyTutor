@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26ok-grade-what-they-said". BUILD ok --
+#               Jim's probstat screenshot: "Spring" answered, "Pie chart --
+#               correct! That's question 1 done" replied. tapped_answer widened
+#               to word taps when the reply grades; NEW referee 52 rejects
+#               invented quiz credit; 18(c)/47(k) carry the law (tutor.py/
+#               prompts.py/ruletests.py); only this stamp here.
 #   2026-08-26  APP_BUILD -> "2026-08-26oj-side-by-side-on-purpose". BUILD oj --
 #               Jim: "the whiteboard is underutilized." Bubbles 80% -> 96% and
 #               the NEW [[beside]] board tag (next block lands NEXT TO the
@@ -11953,7 +11959,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26oj-side-by-side-on-purpose"
+APP_BUILD = "2026-08-26ok-grade-what-they-said"
 
 
 @app.get("/health")
