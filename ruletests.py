@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD pa -- PART 3ff: the gate is open. Every course's lessons door
+#               is the authored lane; the live screen survives beside it as "Teach
+#               me something else". Two pins OVERTURNED and recorded in place.
 #   2026-08-27  BUILD oz -- PART 3fe: the board uses the room. MEASURED first (a
 #               browser drive replayed Jim's own transcript and reported 560px of
 #               work in a 1,732px board, 1,593px of scroll for one problem), then
@@ -12295,15 +12298,21 @@ def part3ew_the_authored_spine_pilot():
 
     hsrc = open(os.path.join(here, "static", "home.html"), encoding="utf-8").read()
     hc = code_only(hsrc)
-    check("⭐ home's prealgebra hub carries the pilot door, lens included",
-          # (oq) the door WIDENED to the whole course on Jim's expansion order --
-          # the pin now demands the course lens and deliberately not unit=1.
-          'COURSE === "prealgebra"' in hc
-          and "course=prealgebra" in hc,
-          "without the door the authored lane is a page nobody reaches")
-    check("  ...and the classic course tile is untouched beside it",
-          '"/session" + q' in hc,
-          "the pilot is an EXTRA door -- never a replacement, until it earns it")
+    # ⚠️ RULING OVERTURNED BY JIM, 2026-08-27 (build pa), recorded not deleted.
+    # This pin read "home's PREALGEBRA hub carries the pilot door" and its sibling
+    # said the pilot is "an EXTRA door -- never a replacement, UNTIL IT EARNS IT".
+    # It earned it: Jim drove it, ordered the flip, deployed the whole stack, had
+    # the course audio rendered, and said "open the gate so that every lesson at
+    # every course is fast." The lane is no longer a pilot and no longer gated to
+    # one course, so the pins now hold the OPPOSITE law -- and the live screen
+    # keeps its place beside it, which is the part that must never regress.
+    check("⭐ EVERY course's lessons door is the fast lane (the gate is open)",
+          '"/pilot" + q' in hc and 'COURSE === "prealgebra"' not in hc,
+          "a gate that opens for one course is a pilot; Jim opened it for all ten")
+    check("  ...and the live, model-taught screen is still one tap away",
+          '"/session" + q' in hc and "Teach me something else" in hsrc,
+          "the script cannot answer a problem the child brings in, or a topic they "
+          "want to explore -- retiring that screen would strand them")
 
     msrc = code_only(open(os.path.join(here, "main.py"), encoding="utf-8").read())
     check("⭐ the /pilot route serves the page",
@@ -12394,10 +12403,11 @@ def part3ex_the_raised_hand():
           "the server can only fence an answer the client names")
 
     hc = code_only(open(os.path.join(here, "static", "home.html"), encoding="utf-8").read())
-    check("⭐ the home tile now carries the WHOLE prealgebra course",
-          '"/pilot" + codeQ + "&course=prealgebra"' in hc
-          and "course=prealgebra&unit=1" not in hc,
-          "Jim: 'I'm satisfied with unit one. Start expanding this.'")
+    # (pa) WIDENED AGAIN, from one course to all ten -- the tile is built from the
+    # hub's own course, so there is no course name in the code to pin any more.
+    check("⭐ the lessons tile carries whatever course the hub is showing",
+          '"/pilot" + q' in hc and 'const q = codeQ + "&course=" + encodeURIComponent(COURSE);' in hc,
+          "Jim: 'open the gate so that every lesson at every course is fast'")
 
 
 def part3ez_answer_freely():
@@ -13045,6 +13055,57 @@ def part3fe_the_board_uses_the_room():
         check("  ...%s: phones keep the single column" % page,
               "@media (min-width: 901px) {\n      .feed { display: grid;" in p,
               "dz's phone layout is load-bearing")
+
+
+def part3ff_the_gate_is_open():
+    """PART 3ff (build pa, 2026-08-27) -- THE GATE IS OPEN.
+
+    Jim, after deploying the whole stack and rendering the course audio: "open the
+    gate so that every lesson at every course is fast." The authored lane stops
+    being a pilot. All ten courses, 336 lessons, every word pre-written,
+    pre-checked and pre-voiced -- a beat starts the moment the child taps.
+
+    ⭐ THE LIVE LANE IS RE-AIMED, NOT RETIRED, and that is the invariant this part
+    exists to hold. The script cannot answer a problem the child brings in, a
+    topic they want to explore, or a question its author never wrote -- and Entry
+    and Basic still have ladder topics with no script at all. A flip that removed
+    the model-taught screen would strand a child on the first such question, so it
+    stays one tap away under an honest name.
+
+    Two earlier pins are OVERTURNED here rather than deleted: "home's PREALGEBRA
+    hub carries the pilot door" and "the pilot is an EXTRA door -- never a
+    replacement, until it earns it". It earned it."""
+    print("\nPART 3ff — the gate is open (build pa)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    h = open(os.path.join(here, "static", "home.html"), encoding="utf-8").read()
+    hc = code_only(h)
+    p = open(os.path.join(here, "static", "pilot.html"), encoding="utf-8").read()
+
+    check("⭐ the lessons door is the fast lane, for whatever course the hub shows",
+          '"/pilot" + q' in hc
+          and 'const q = codeQ + "&course=" + encodeURIComponent(COURSE);' in hc,
+          "one course was a pilot; ten is the product")
+    check("⭐ NO COURSE IS GATED OUT any more",
+          'COURSE === "prealgebra"' not in hc,
+          "the gate that made this a pilot is the thing Jim asked me to open")
+    check("⭐ the live screen survives, named for what it is now",
+          '"/session" + q' in hc and "Teach me something else" in h,
+          "a scripted lane that pretended to cover everything would strand a child "
+          "the first time they asked something the author never wrote")
+    check("  the fast lane's copy promises the thing that changed",
+          "no waiting" in h,
+          "the tile has to say why it is different, or nobody chooses it")
+    check("⭐ the lesson room stops calling itself a pilot",
+          "scripted pilot" not in p and "Scripted Lesson Pilot" not in p
+          and "Scripted lesson pilot" not in p
+          and "My Lessons</title>" in p,
+          "build language in front of a child is a bug")
+    check("  ...and its way out lands on the course hub it came from",
+          'window.COURSE ? "&course=" + encodeURIComponent(window.COURSE)' in p,
+          "the main road's exit must not dump the child on the subject picker")
+    check("  the first-timer copy follows the gate",
+          "straight \u2014 no waiting, in his own voice." in h
+          or "no waiting" in h, "")
 
 
 def part3ey_the_walk_away_list():
@@ -13916,7 +13977,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,008</b>" in page,
+          "<b>7,015</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22370,6 +22431,7 @@ def main():
     part3fc_seventh_flag_harvest()
     part3fd_the_day_you_can_feel()
     part3fe_the_board_uses_the_room()
+    part3ff_the_gate_is_open()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

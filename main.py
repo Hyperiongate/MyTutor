@@ -2,6 +2,24 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27pa-the-gate-is-open". BUILD pa -- THE FLIP.
+#               Jim, with the whole stack deployed and the course audio rendered:
+#               "open the gate so that every lesson at every course is fast."
+#               The authored lane stops being a pilot. EVERY course's lessons door
+#               now opens on it -- all ten, 336 lessons, every word pre-written,
+#               pre-checked and pre-voiced, so a beat starts the moment the child
+#               taps instead of waiting on a model.
+#               ⭐ THE LIVE LANE IS RE-AIMED, NOT RETIRED. It keeps every job the
+#               script cannot do -- a problem the child brings in, a topic they
+#               want to explore, a question the author never wrote -- and Entry and
+#               Basic still have ladder topics with no script at all. It sits
+#               beside the lessons tile as "Teach me something else". Retiring it
+#               would strand a child on the first off-script question.
+#               The lesson room also stops calling itself a pilot in front of
+#               children, and its exit lands on the course hub it came from.
+#               Front-end only; this file carries the stamp. PART 3ff, and TWO
+#               EARLIER PINS OVERTURNED (prealgebra-only, and "never a replacement
+#               until it earns it") -- recorded in place, not deleted.
 #   2026-08-27  APP_BUILD -> "2026-08-27oz-the-board-uses-the-room". BUILD oz --
 #               Jim, for the third time, with a screenshot: "it's still not using
 #               the full screen ... answer something and move over to the side of
@@ -12364,7 +12382,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27oz-the-board-uses-the-room"
+APP_BUILD = "2026-08-27pa-the-gate-is-open"
 
 
 @app.get("/health")

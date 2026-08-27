@@ -312,25 +312,38 @@
       el("courseBlurb").textContent = "Pick up your start-to-finish " + title + " lessons right where you left off.";
 
       const q = codeQ + "&course=" + encodeURIComponent(COURSE);
-      el("courseTile").href = "/session" + q;
-      // (op, 2026-08-27) THE AUTHORED-SPINE PILOT DOOR. Pre-Algebra Unit 1 is the
-      // first unit served from the authored lane (instant, pre-voiced, machine-
-      // checked -- Jim's Phase 3 "go"). The classic course tile is untouched;
-      // this is an EXTRA door beside it, so the two lanes can be compared live.
-      if (COURSE === "prealgebra") {
-        const pt = document.createElement("a");
-        pt.className = "tile";
-        // (oq) WIDENED on Jim's order after the Unit 1 verdict: the whole
-        // course now rides the authored lane, grouped by unit on the picker.
-        pt.href = "/pilot" + codeQ + "&course=prealgebra";
-        pt.innerHTML = '<div class="ic">\u{1F4DC}</div>'
-          + '<h3>My lessons \u2014 the fast track</h3>'
-          + '<p>Every unit, taught from Mr. Cadabra\u2019s written script '
-          + '\u2014 instant, in his real voice. Raise your hand anytime!</p>'
-          + '<div class="go">Start \u2192</div>';
-        const anchor = el("courseTile");
-        anchor.parentNode.insertBefore(pt, anchor.nextSibling);
-      }
+      // ===== build pa (2026-08-27) THE GATE IS OPEN ==========================
+      // Jim: "open the gate so that every lesson at every course is fast."
+      // The authored lane stops being a pilot. EVERY course's lessons door now
+      // goes to it -- all ten, 336 lessons, every word pre-written, pre-checked
+      // and pre-voiced, so a beat starts the moment the child taps instead of
+      // waiting five to ten seconds on a model.
+      //
+      // ⭐ THE LIVE LANE IS NOT RETIRED, IT IS RE-AIMED. It keeps every job the
+      // script cannot do -- a problem the child brings in, a topic they want to
+      // explore, a question off the script -- and it stays one tap away under an
+      // honest name. A scripted lane that pretended to cover everything would
+      // strand a child the first time they asked something the author never
+      // wrote, and Entry and Basic genuinely have topics with no script yet.
+      el("courseTile").href = "/pilot" + q;
+      el("courseTitle").textContent = "Continue my " + title + " course";
+      el("courseBlurb").textContent =
+        "Your start-to-finish " + title + " lessons, straight through with no "
+        + "waiting \u2014 Mr. Cadabra\u2019s own voice, ready the moment you tap. "
+        + "Raise your hand any time you want to ask him something.";
+      el("courseGo").textContent = "Start \u2192";
+      // The classic, model-taught lesson screen, kept and plainly labelled.
+      const ct = document.createElement("a");
+      ct.className = "tile";
+      ct.href = "/session" + q;
+      ct.innerHTML = '<div class="ic">\u{1F4AC}</div>'
+        + '<h3>Teach me something else</h3>'
+        + '<p>Off the lesson plan \u2014 anything in ' + title + ' you want to go '
+        + 'over, at your own pace. He thinks about each answer, so it is a little '
+        + 'slower.</p>'
+        + '<div class="go">Open \u2192</div>';
+      const anchor = el("courseTile");
+      anchor.parentNode.insertBefore(ct, anchor.nextSibling);
       el("practiceTile").href = "/practice" + q;
       el("topicTile").href = "/topic" + q;
       el("dashChip").href = "/dashboard" + q;
@@ -349,9 +362,13 @@
           if (data.name) el("hello").textContent = "Hi, " + data.name + "!";
           const hasHistory = (data.history || []).length > 0;
           if (!hasHistory) {
+            // (pa) the tile now opens the FAST lane, so the first-timer wording
+            // says what that is rather than the old "start-to-finish journey".
             el("courseTitle").textContent = "Start my " + title + " course";
-            el("courseBlurb").textContent = "Begin your start-to-finish " + title + " journey with Mr. Cadabra.";
-            el("courseGo").textContent = "Start →";
+            el("courseBlurb").textContent =
+              "Begin your " + title + " lessons with Mr. Cadabra \u2014 straight "
+              + "through, no waiting, in his own voice.";
+            el("courseGo").textContent = "Start \u2192";
           }
           // (No forced placement redirect any more — first entry starts the lesson at Unit 1.)
         } catch (e) { /* keep the friendly defaults */ }

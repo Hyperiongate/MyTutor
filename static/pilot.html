@@ -202,7 +202,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Mr. Cadabra — Scripted Lesson Pilot</title>
+<title>Mr. Cadabra's Classroom — My Lessons</title>
 <style>
   :root{--purple:#6d5ae6;--teal:#0aa5a0;--ink:#232336;--muted:#6b6b80;
         --card:#ffffff;--line:#e6e4f2;--bg:#f7f6fc;--good:#177a52;--warn:#8a5a12}
@@ -286,12 +286,15 @@
 </head>
 <body>
 <div class="wrap">
-  <header><div class="dot"></div><h1>Mr. Cadabra</h1><span class="pill">scripted pilot</span></header>
+  <header><div class="dot"></div><h1>Mr. Cadabra</h1><span class="pill">my lessons</span></header>
 
   <div class="card" id="gate">
-    <p class="big" style="margin-bottom:10px">Scripted lesson pilot</p>
-    <p style="color:var(--muted);margin-bottom:14px">Every word pre-written, pre-checked,
-      and pre-recorded. The AI only appears if an answer is wrong.</p>
+    <p class="big" style="margin-bottom:10px">My lessons</p>
+    <!-- (pa) THE GATE IS OPEN: this is the main lesson room for every course now,
+         not a pilot, so it stops describing itself in build language. -->
+    <p style="color:var(--muted);margin-bottom:14px">Every lesson, straight through with
+      no waiting — in Mr. Cadabra’s own voice. Raise your hand any time to ask
+      him something.</p>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
       <input id="code" inputmode="numeric" placeholder="code" autocomplete="off">
       <span style="color:var(--muted);font-size:14px">your student code — then tap a lesson to start it</span>
@@ -775,7 +778,10 @@
     var home = document.createElement("button");
     home.className = "opt"; home.textContent = "\u{1F3EB} Back to my classroom";
     home.onclick = function () {
-      location.href = "/home?code=" + encodeURIComponent(CODE);
+      // (pa) back to THIS course's hub, not the subject picker -- the lessons
+      // door is the main road now, so its exit must land where the child was.
+      location.href = "/home?code=" + encodeURIComponent(CODE)
+        + (window.COURSE ? "&course=" + encodeURIComponent(window.COURSE) : "");
     };
     ctl.appendChild(home);
     var again = document.createElement("button");
