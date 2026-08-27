@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD om -- PART 3et: skip the introduction. Jim: "The
+#               introduction to Abrabot should have a skip introduction button."
+#               Server-marked intro steps (intro: True through _drill_clean),
+#               drill.html's "⏭ Skip the intro" (silences the clip, drops only
+#               marked steps, can never double-advance or eat teaching).
+#               11-assertion browser drive green (skip + listen-through).
 #   2026-08-26  BUILD ol -- PART 3es: the sixth flag harvest (six probstat
 #               flags). Named-binary quiz questions ship buttons (two part3dx
 #               assertions flip DELIBERATELY, dated); "or want another" + clause
@@ -11893,6 +11899,71 @@ def part3es_the_sixth_flag_harvest():
           "an undated raise is how the ledger's discipline dies")
 
 
+def part3et_skip_the_introduction():
+    """PART 3et (build om) -- THE ABRABOT INTRODUCTION CAN BE SKIPPED.
+
+    Jim, 2026-08-27: "The introduction to Abrabot should have a skip
+    introduction button, so I don't have to listen to it over and over again."
+    (The intro is once-per-child PER PROCESS by design -- a redeploy
+    re-introduces everyone, and Jim redeploys daily.)
+
+    The server marks the introduction's steps (intro: True) in
+    _drill_intro_steps and _drill_clean lets the mark ride to the page;
+    drill.html shows "⏭ Skip the intro" while a marked step plays -- click
+    silences the clip (stopAllSpeech), drops every remaining marked step, and
+    walks straight into practice. ONLY the server's own mark is skippable, so
+    the button can never eat teaching (a re-teach or lesson step never carries
+    it). The 11-assertion browser drive (real page, real startDrill flow, skip
+    AND listen-through scenarios, zero errors) ran green before these pins."""
+    print("\nPART 3et — skip the introduction (build om)")
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    src = open(os.path.join(here, "static", "drill.html"), encoding="utf-8").read()
+    sc = code_only(src)
+    check("⭐ the Skip button exists and only on intro-marked steps",
+          "Skip the intro" in src and "if (step.intro)" in sc,
+          "Jim: 'so I don't have to listen to it over and over again'")
+    check("  skipping silences the clip and drops ONLY marked steps",
+          "stopAllSpeech" in sc
+          and "queue.filter(function (s) { return !s.intro; })" in sc,
+          "a skip that eats teaching, or talks over itself, is worse than none")
+    check("  the interrupted clip can never double-advance",
+          "advanced = true;" in sc.split("if (step.intro)")[1][:600],
+          "onDone firing after a skip would swallow the first practice step")
+    check("  `intro` rides through the arrive/teach/leave re-wrap",
+          "natural: step.natural, intro: step.intro" in sc,
+          "the re-wrap dropping the mark hides the button on every intro step")
+
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    mc = code_only(msrc)
+    check("⭐ the server marks the introduction's steps",
+          '"intro": True' in mc,
+          "an unmarked intro gives the page nothing to key the button on")
+    check("  ...and _drill_clean lets the mark through its whitelist",
+          'c["intro"] = True' in mc,
+          "the payload cleaner silently stripping the mark = no button, ever")
+
+    # functional: the mark is on every intro step, once per child, and survives
+    # the payload cleaner -- in a subprocess so importing main stays contained.
+    import subprocess as _sp
+    codecheck = _sp.run(
+        [sys.executable, "-c", (
+            "import os; os.environ.pop('DATABASE_URL', None); "
+            "os.environ['SPEC_DISABLE_THREAD']='1'; "
+            "import main; "
+            "s = main._drill_intro_steps('kid-3et'); "
+            "assert s and all(x.get('intro') is True for x in s), 'unmarked intro'; "
+            "assert main._drill_intro_steps('kid-3et') == [], 'not once-per-child'; "
+            "c = main._drill_clean(s); "
+            "assert all(x.get('intro') is True for x in c), 'cleaner stripped the mark'; "
+            "assert all(x.get('who') == 'cadabra' for x in c), 'intro lost its speaker'; "
+            "print('OK')")],
+        capture_output=True, text=True, cwd=here, timeout=120)
+    check("⭐ live: marked, once per child, and the cleaner passes the mark",
+          "OK" in (codecheck.stdout or ""),
+          (codecheck.stderr or codecheck.stdout or "")[-300:])
+
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -12618,7 +12689,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,803</b>" in page,
+          "<b>6,810</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -21003,6 +21074,7 @@ def main():
     part3eq_side_by_side_on_purpose()
     part3er_grade_what_they_said()
     part3es_the_sixth_flag_harvest()
+    part3et_skip_the_introduction()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27om-skip-the-introduction". BUILD om --
+#               Jim: "The introduction to Abrabot should have a skip introduction
+#               button." _drill_intro_steps marks its steps intro: True and
+#               _drill_clean lets the mark ride to the page; drill.html shows
+#               "⏭ Skip the intro" on marked steps -- click silences the clip and
+#               drops the remaining marked run. Only the server's own mark is
+#               skippable, so the button can never eat teaching.
 #   2026-08-26  APP_BUILD -> "2026-08-26ol-the-sixth-flag-harvest". BUILD ol --
 #               six probstat flags: named-binary quiz questions ship buttons
 #               (Jim's ruling); "or want another" + clause forks; "Question 3:
@@ -9694,7 +9701,12 @@ def _drill_intro_steps(code: str) -> list:
     if not lines:
         return []
     kinds = ["arrive"] + ["teach"] * (len(lines) - 2) + ["leave"]
-    return [{"kind": k, "who": "cadabra", "spoken": ln, "board": ""}
+    # (om, 2026-08-27) Jim: "The introduction to Abrabot should have a skip
+    # introduction button, so I don't have to listen to it over and over again."
+    # Each intro step is MARKED, so the page can offer "Skip the intro" exactly
+    # while one is playing and drop the rest of the marked run -- and nothing
+    # else: a lesson step never carries the mark, so skip can never eat teaching.
+    return [{"kind": k, "who": "cadabra", "spoken": ln, "board": "", "intro": True}
             for k, ln in zip(kinds, lines)]
 
 
@@ -9809,6 +9821,10 @@ def _drill_clean(steps) -> list:
         # lines the course authored AND rendered. Advisory -- the server refuses a
         # drill ticket for anything else regardless of what the page believes.
         c["natural"] = bool(s.get("who") == "cadabra" and _drill_speakable(s.get("spoken")))
+        # (om) the introduction's mark rides to the page -- it is what makes the
+        # "Skip the intro" button appear on those steps and only those.
+        if s.get("intro"):
+            c["intro"] = True
         if s["kind"] == "ask":
             c["choices"] = s.get("choices", "")
         if s["kind"] == "end":
@@ -11970,7 +11986,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26ol-the-sixth-flag-harvest"
+APP_BUILD = "2026-08-27om-skip-the-introduction"
 
 
 @app.get("/health")

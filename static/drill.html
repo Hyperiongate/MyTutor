@@ -40,6 +40,16 @@
     drill.html  --  ABRABOT'S PRACTICE ROOM  --  Hyperion Shift LLC
     =========================================================================
     CHANGE NOTES (keep newest at top):
+  - 2026-08-27  BUILD om. SKIP THE INTRO (Jim: "The introduction to Abrabot
+    should have a skip introduction button, so I don't have to listen to it
+    over and over again"). The server marks the introduction's steps
+    (intro: true, main.py _drill_intro_steps); while one plays, a "⏭ Skip the
+    intro" button sits in the controls -- click silences the clip
+    (stopAllSpeech), drops every remaining marked step, and walks straight
+    into practice. Only server-marked steps are skippable, so the button can
+    never eat teaching; `advanced` is set before skipping so the interrupted
+    clip's own onDone cannot double-advance. `intro` rides through the
+    arrive/teach/leave re-wrap.
   - 2026-08-26  BUILD nw. THREE DOORS AT THE END OF A DRILL RUN (Jim: "Abrabot
     says 'pick another lesson' and no other option"): Pick another lesson (the
     picker again), Back to my lesson (/session, same code+course), Done for now
@@ -720,9 +730,11 @@
     // (mj) arrive / teach / leave are Mr. Cadabra's beats. They PLAY like a say beat
     // -- words, a board, one Next -- so there is exactly one narration path on this
     // page rather than a second one to keep in step with the first.
+    // (om) `intro` rides through the re-wrap -- dropping it here would hide the
+    // skip button on exactly the steps it exists for.
     if (step.kind === "arrive" || step.kind === "teach" || step.kind === "leave") {
       step = { kind: "say", spoken: step.spoken, board: step.board,
-               who: step.who, natural: step.natural };
+               who: step.who, natural: step.natural, intro: step.intro };
     }
 
     if (step.kind === "say") {
@@ -743,6 +755,29 @@
       b.onclick = go;
       var reveal = function () { b.style.display = ""; b.disabled = false; };
       ctl.appendChild(b);
+      // (om, 2026-08-27) Jim: "The introduction to Abrabot should have a skip
+      // introduction button, so I don't have to listen to it over and over
+      // again." Visible the whole time an INTRO step is playing (server-marked;
+      // nothing else ever carries the mark, so this can never skip teaching).
+      // Skipping: silence the current clip, drop every remaining intro step,
+      // and walk straight into the practice. `advanced` is set FIRST so the
+      // interrupted clip's own onDone can never double-advance past the first
+      // real step. The mx law holds: this is not a button under a talking
+      // teacher for no reason -- it is the door past a speech the listener has
+      // already heard, which is exactly what Jim asked for.
+      if (step.intro) {
+        var sk = document.createElement("button");
+        sk.className = "opt"; sk.textContent = "⏭ Skip the intro";
+        sk.onclick = function () {
+          if (advanced) return;
+          advanced = true;
+          try { if (typeof stopAllSpeech === "function") stopAllSpeech(); } catch (e) {}
+          __mood = "idle";
+          queue = queue.filter(function (s) { return !s.intro; });
+          playNext();
+        };
+        ctl.appendChild(sk);
+      }
       // Auto-advance only when the words GENUINELY played. Silent (no speech engine,
       // blocked autoplay) means a reader is pacing themselves, and racing them is
       // worse than the stall it fixes -- the same rule pilot.html settled on.
