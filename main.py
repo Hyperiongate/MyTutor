@@ -2,6 +2,31 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27oz-the-board-uses-the-room". BUILD oz --
+#               Jim, for the third time, with a screenshot: "it's still not using
+#               the full screen ... answer something and move over to the side of
+#               the whiteboard ... nothing has changed. We're just marching
+#               straight down." THIS TIME I MEASURED IT instead of reasoning: his
+#               board was 1,732px wide with the maths in a 560px column down the
+#               middle (two thirds of the whiteboard empty) and 1,593px of scroll
+#               for ONE problem. Four changes, all front-end:
+#                 (1) THE FEED IS TWO COLUMNS -- his words left, the work they
+#                     drew right, paired on one row by grid auto-placement. No
+#                     wrapper element, so the fold/scroll/flag machinery walks the
+#                     same DOM. Unlisted children default to FULL WIDTH (the first
+#                     version squeezed [[stepcard]] rows into the 32% column).
+#                 (2) THE WORKLIST FLOWS ACROSS -- rows fill a column then continue
+#                     in the next one to the right; an op and its result never split.
+#                 (3) THE RE-STATED SNAPSHOT SUPERSEDES THE OLD ONE. Rule 35 makes
+#                     him re-state the whole equation every turn, so six turns
+#                     stacked six near-identical boards. Earlier snapshots collapse
+#                     behind ONE quiet chip. Figures never collapse.
+#                 (4) THE CHECK LINE'S "|" IS GONE -- two sides, real space, a soft
+#                     divider. Its spacing is INLINE because session.html does not
+#                     load board.css at all (the first version fixed only the pilot
+#                     page and rendered "= 115 + 6", worse than the bar).
+#               Measured after: one problem now fits on ONE screen. This file
+#               carries the stamp only. PART 3fe.
 #   2026-08-27  APP_BUILD -> "2026-08-27oy-the-day-you-can-feel". BUILD oy -- Jim:
 #               "the progress bar for the daily progress needs to be more specific
 #               ... as we go lesson by lesson by lesson we should see progress
@@ -12339,7 +12364,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27oy-the-day-you-can-feel"
+APP_BUILD = "2026-08-27oz-the-board-uses-the-room"
 
 
 @app.get("/health")

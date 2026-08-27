@@ -449,6 +449,28 @@
     .feed .checkcard.pass .ck-badge { color:#0e9f6e; font-weight:800; }
     .feed .checkcard.keep .ck-badge { color:#a5741a; font-weight:800; }
     .feed .bubble { max-width: 96%; padding: 10px 14px; border-radius: 14px; font-size: 16px; line-height: 1.5; }   /* build oj: 80% wasted a fifth of the board (Jim) */
+
+    /* ===== build oz (2026-08-27): HIS WORDS LEFT, HIS WORK RIGHT =================
+       Measured on Jim's own session: a 1,732px board with the maths in a 560px
+       column down the middle -- two thirds of the whiteboard empty. The feed is a
+       TWO-COLUMN GRID now: a tutor bubble lands left, the board work it drew lands
+       right, and grid auto-placement puts them on the same row. No wrapper element
+       and no change to the DOM the fold/scroll/flag machinery walks, which is why
+       this is safe. Anything that must span gets both columns. Phones opt out. */
+    @media (min-width: 901px) {
+      .feed { display: grid; grid-template-columns: minmax(260px, 32%) 1fr;
+        align-content: start; align-items: start; column-gap: 22px; row-gap: 10px; }
+      /* ⚠️ DEFAULT TO FULL WIDTH, then opt IN to the two columns. The first version
+         listed the spanning elements instead, and [[stepcard]]'s .steprow -- which
+         was not on the list -- was squeezed into the 32% column at 380px on a
+         1,230px board. An element nobody thought of must degrade to exactly what
+         it looked like before this build, never to a third of the room. */
+      .feed > * { grid-column: 1 / -1; }
+      .feed > .bubble.tutor { grid-column: 1; justify-self: start; max-width: 100%; }
+      .feed > .mblock, .feed > .mrow, .feed > .steprow { grid-column: 2; }
+      .feed > .bubble.student { justify-self: end; }
+      .feed > .bubble.system { justify-self: center; }
+    }
     .feed .bubble.tutor { align-self: flex-start; background: #f2f4ff; border: 1px solid #e2e5fb;
       color: var(--ink); border-bottom-left-radius: 5px; }
     .feed .bubble.student { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 5px; }

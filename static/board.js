@@ -743,6 +743,123 @@ function opRow(opText) {
   return row;
 }
 
+// ---------- build oz: THE RE-STATED SNAPSHOT SUPERSEDES THE OLD ONE ----------
+// Jim: "nothing has changed. We're just marching straight down." The measurement
+// says why, and it is NOT that the tutor is doing anything wrong: rule 35 makes
+// him RE-STATE the whole equation every turn (build jg, from Jim's own earlier
+// complaint that the original scrolled out of sight). So each turn draws a fresh
+// block whose first line repeats the last block's first line, and six turns of one
+// problem stack six near-identical snapshots down the board.
+//
+// When this turn's board opens with the SAME line the previous block opened with,
+// that previous block is a superseded snapshot. It COLLAPSES to a single quiet row
+// -- one click brings it back, nothing is deleted -- so the board shows the CURRENT
+// state of the working plus the history, folded, instead of a column of ghosts.
+let _supCssDone = false;
+function supersedeCss() {
+  if (_supCssDone) return; _supCssDone = true;
+  const st = document.createElement("style");
+  // ⚠️ ONE QUIET CHIP, NOT A STACK OF BARS. The first version gave every superseded
+  // snapshot its own full-width summary row, and a six-turn problem then showed five
+  // grey bars filling the board -- I replaced a column of ghosts with a column of
+  // labels, which is not better. Superseded blocks are simply hidden; the live block
+  // carries ONE small chip that brings them all back.
+  st.textContent =
+    ".mblock.superseded{display:none}" +
+    ".feed.show-earlier .mblock.superseded{display:flex}" +
+    ".supchip{align-self:center;background:#f4f5fb;border:1px solid #e7e6f2;" +
+    "border-radius:999px;padding:3px 12px;font:inherit;font-size:12px;font-weight:700;" +
+    "color:#8288a0;cursor:pointer;margin-bottom:6px}" +
+    ".supchip:hover{background:#eceefa;color:#5b5bd6}";
+  document.head.appendChild(st);
+}
+
+// ONE chip on the live block: "5 earlier steps", click to show them all again.
+function supChip(liveBlock) {
+  try {
+    const n = feed.querySelectorAll(".mblock.superseded").length;
+    let c = liveBlock.querySelector(".supchip");
+    if (!c) {
+      c = document.createElement("button");
+      c.type = "button"; c.className = "supchip";
+      c.addEventListener("click", function () {
+        feed.classList.toggle("show-earlier");
+        paintChip(c);
+      });
+      liveBlock.insertBefore(c, liveBlock.firstChild);
+    }
+    paintChip(c);
+  } catch (e) {}
+}
+function paintChip(c) {
+  const n = feed.querySelectorAll(".mblock.superseded").length;
+  const open = feed.classList.contains("show-earlier");
+  c.textContent = (open ? "\u25be hide" : "\u25b8 show") + " the " + n
+    + " earlier step" + (n === 1 ? "" : "s");
+}
+
+// The first equation of a block, as plain text -- the identity of the snapshot.
+function _firstLine(block) {
+  try {
+    const r = block.querySelector(".worklist .wrow");
+    if (!r) return "";
+    return (r.textContent || "").replace(/\s+/g, " ").trim();
+  } catch (e) { return ""; }
+}
+
+function supersedePrevious(wl) {
+  try {
+    const self = wl.closest(".mblock") || wl.parentElement;
+    if (!_firstLine(self)) return;
+    const kids = feed.children;
+    let seenSelf = false;
+    for (let i = kids.length - 1; i >= 0; i--) {
+      const k = kids[i];
+      if (!k.classList) continue;
+      // Stop at the last FOLDED problem: everything before it is already history,
+      // and everything after it belongs to the problem being worked now.
+      if (k.classList.contains("probdone")) return;
+      if (!k.classList.contains("mblock")) continue;
+      if (!seenSelf) { seenSelf = true; continue; }      // this turn's own block
+      if (k.classList.contains("superseded")) continue;  // already folded; keep walking
+      // ⚠️ ONLY WRITTEN WORK IS SUPERSEDED. A block carrying a FIGURE -- a graph, a
+      // triangle, a number line -- is not a re-statement of anything and must stay
+      // on the board; the whole point of drawing it was that the child can look at
+      // it while they work. First draft collapsed those too, which would have
+      // deleted the picture out from under the question about it.
+      if (!k.querySelector(".worklist") || k.querySelector(".mfig, .graphwrap, "
+          + ".colmath, .objwrap, .scale, .machine, .solveboard, .steprow")) continue;
+      supersedeCss();
+      k.classList.add("superseded");
+      supChip(self);
+      // keep walking: EVERY earlier snapshot of this problem folds, so the board
+      // shows the current state of the work and its history, folded -- not a column
+      // of ghosts. (Jim: "we're just marching straight down.")
+    }
+  } catch (e) {}
+}
+
+// ---------- build oz: THE WORKLIST FLOWS ACROSS, NOT DOWN ----------
+// Measured on Jim's own algebra2 session: a 1,732px board with the work in a
+// 560px column down the middle, and 1,593px of scrolling for one problem. Rows
+// now fill a column and then continue in the NEXT column to the right, so a long
+// solve uses the width it has. A short turn produces one column and looks exactly
+// as it always did -- which is why every existing board pin still holds.
+const WCOL_ROWS = 4;          // equation rows per column before it moves right
+
+function workCol(wl) {
+  let col = wl.lastElementChild;
+  if (!col || !col.classList || !col.classList.contains("wcol")
+      || col.querySelectorAll(".wrow").length >= WCOL_ROWS) {
+    col = document.createElement("div");
+    col.className = "wcol";
+    wl.appendChild(col);
+  }
+  return col;
+}
+
+// The check line and the caption belong to the whole solve, so they sit in the
+// WORKLIST itself (full width, under the columns), never inside a column.
 function setWorkCap(wl, capText) {
   const old = wl.querySelector(".wcap"); if (old) old.remove();
   if (capText) { const cap = document.createElement("div"); cap.className = "wcap"; cap.textContent = capText; wl.appendChild(cap); }
@@ -756,11 +873,44 @@ function showStep(a) {
   const wl = getWorklist();
   const oldCap = wl.querySelector(".wcap"); if (oldCap) oldCap.remove();   // keep any caption last
   const eq = a.eq || a.result || a.line || a.text || "";
-  if (a.op) fitRow(wl.appendChild(opRow(a.op)));
-  if (eq) fitRow(wl.appendChild(eqRow(eq)));
-  if (a.check) { const c = document.createElement("div"); c.className = "wcheck"; c.innerHTML = styleVars(a.check); wl.appendChild(c); }
+  // build oz: an operation and the line it produces are ONE move -- they must not
+  // be split across a column break, or the "- 1" ends up orphaned at the bottom of
+  // one column with its result at the top of the next.
+  let col = workCol(wl);
+  if (a.op && eq && col.querySelectorAll(".wrow").length >= WCOL_ROWS - 1) {
+    col = workCol(wl);   // (the current one is full enough that the pair would split)
+  }
+  const wasEmpty = !wl.querySelector(".wrow");
+  if (a.op) fitRow(col.appendChild(opRow(a.op)));
+  if (eq) fitRow(col.appendChild(eqRow(eq)));
+  // build oz: the moment this turn's first line exists, fold away the previous
+  // snapshot if it was the same problem re-stated.
+  if (wasEmpty && wl.querySelector(".wrow")) supersedePrevious(wl);
+  if (a.check) { const c = document.createElement("div"); c.className = "wcheck"; c.innerHTML = checkHTML(a.check); wl.appendChild(c); }
   if (a.cap || a.caption) setWorkCap(wl, a.cap || a.caption);
   scrollFeed();
+}
+
+// build oz -- Jim: "why don't they just create a space or something instead of
+// having this vertical bar separating it, which is confusing." A check that
+// compares two sides is written "left | right"; the bar used to be rendered
+// literally, in a green line of maths, where it reads as notation. Now each side
+// becomes its own cell with real space between them.
+function checkHTML(text) {
+  const parts = String(text == null ? "" : text).split("|")
+    .map(s => s.trim()).filter(Boolean);
+  if (parts.length < 2) return styleVars(String(text || ""));
+  // ⚠️ THE SPACING IS INLINE, DELIBERATELY. session.html does NOT load board.css --
+  // it carries its own inline copy of the board styles -- so a rule added to the
+  // stylesheet reached the pilot page and nothing else. The first version of this
+  // shipped exactly that way and rendered "2(5 - 1) + 3 = 115 + 6 = 11", which is
+  // worse than the bar Jim complained about. Inline styles cannot be missed by a
+  // page that never loaded the sheet.
+  return parts.map(function (p, i) {
+    return '<span style="display:inline-block;margin:0 18px;'
+      + (i ? "padding-left:34px;border-left:2px dashed #b6e0c9;" : "")
+      + '">' + styleVars(p) + "</span>";
+  }).join("");
 }
 
 // ---- Column arithmetic (place-value aligned add/subtract) ----
@@ -876,7 +1026,7 @@ function showColumn(a) {
 function showWrite(a) {
   const wl = getWorklist();
   const lines = String(a.lines || a.text || "").split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean);
-  for (const ln of lines) fitRow(wl.appendChild(eqRow(ln)));
+  for (const ln of lines) fitRow(workCol(wl).appendChild(eqRow(ln)));   // build oz: flows across
   if (a.caption || a.cap) setWorkCap(wl, a.caption || a.cap);
   scrollFeed();
 }

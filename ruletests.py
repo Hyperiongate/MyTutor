@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD oz -- PART 3fe: the board uses the room. MEASURED first (a
+#               browser drive replayed Jim's own transcript and reported 560px of
+#               work in a 1,732px board, 1,593px of scroll for one problem), then
+#               fixed, then re-measured. Two self-inflicted defects recorded in
+#               place: a stylesheet fix that reached only the page which loads
+#               board.css, and a grid that listed the spanners instead of the
+#               exceptions.
 #   2026-08-27  BUILD oy -- PART 3fd: the day you can feel (partial goal fill on
 #               both lanes, today stated in words, and the honesty rule that a
 #               partial fill can never reach 100).
@@ -3690,9 +3697,15 @@ def part3e_page_parity():
     else:
         with open(bpath, encoding="utf-8") as fh:
             bsrc = fh.read()
+        # (oz) the rows go into a COLUMN of the worklist now (workCol), so the call
+        # sites moved. The invariant these pins exist for is unchanged and still
+        # pinned: every equation line drawn by [[step]] and [[write]] goes through
+        # fitRow, so a long line shrinks instead of wrapping into a different
+        # equation (the audit-#1-item-11 defect).
         for label, needle in (("fitRow() shrinks an oversized line", "function fitRow(row)"),
-                              ("[[step]] lines are fitted", "fitRow(wl.appendChild(eqRow(eq)))"),
-                              ("[[write]] lines are fitted", "fitRow(wl.appendChild(eqRow(ln)))")):
+                              ("[[step]] lines are fitted", "fitRow(col.appendChild(eqRow(eq)))"),
+                              ("[[write]] lines are fitted",
+                               "fitRow(workCol(wl).appendChild(eqRow(ln)))")):
             check(f"board.js: {label}", needle in bsrc,
                   "the audit-#1-item-11 fitting is gone from the ONE copy every page uses")
     for label, needle in SESSION_ONLY_PARITY:
@@ -12967,6 +12980,73 @@ def part3fd_the_day_you_can_feel():
           'id="dayBar" hidden' in pfull, "an empty strip on the picker is furniture")
 
 
+def part3fe_the_board_uses_the_room():
+    """PART 3fe (build oz, 2026-08-27) -- THE BOARD USES THE ROOM.
+
+    Jim's third report of the same thing, this time with a screenshot: "it's still
+    not using the full screen ... answer something and move over to the SIDE of the
+    whiteboard ... nothing has changed. We're just marching straight down."
+
+    ⭐ THIS ONE WAS MEASURED, NOT REASONED. A browser drive replayed his own
+    algebra2 transcript and reported: board 1,732px wide, worklist capped at 560px
+    (two thirds of the whiteboard empty), 1,593px of scroll for one problem in a
+    703px window. Every change below is against a number, and the same drive
+    re-measured after.
+
+    ⚠️ TWO SELF-INFLICTED DEFECTS THE SCREENSHOT CAUGHT, both recorded because both
+    were invisible to the pins: the check-line spacing was added to board.css,
+    which session.html DOES NOT LOAD (it carries its own inline copy) -- so the
+    fix reached the pilot page only and the live board rendered "= 115 + 6", worse
+    than the bar Jim complained about. And the first grid listed the elements that
+    should SPAN, so [[stepcard]]'s row -- unlisted -- was squeezed into the 32%
+    column. Both now fail safe: inline spacing, and span-by-default."""
+    print("\nPART 3fe — the board uses the room (build oz)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    b = open(os.path.join(here, "static", "board.js"), encoding="utf-8").read()
+    bc = code_only(b)
+
+    check("⭐ the worklist flows into COLUMNS instead of one narrow ribbon",
+          "function workCol(wl)" in bc and "WCOL_ROWS" in bc,
+          "measured: 560px of work in a 1,732px board")
+    check("  ...and an operation is never split from the line it produces",
+          "col = workCol(wl);   // (the current one is full enough" in b
+          or "would split" in b,
+          "a '- 1' orphaned at the foot of one column with its result atop the next")
+    check("⭐ the re-stated snapshot supersedes the old one",
+          "function supersedePrevious(" in bc and "superseded" in bc,
+          "rule 35 makes him re-state every turn; six turns stacked six boards")
+    check("  ...behind ONE chip, not a stack of bars",
+          "function supChip(" in bc and ".supchip" in b and ".supsum" not in b,
+          "the first version gave every snapshot its own full-width label -- a "
+          "column of ghosts replaced by a column of labels is not better")
+    check("⭐ a FIGURE is never superseded",
+          ".mfig, .graphwrap, " in b and "colmath" in b,
+          "the picture must stay while the child answers the question about it")
+    check("⭐ the check line's bar is replaced by real space",
+          "function checkHTML(" in bc and 'split("|")' in bc,
+          "Jim: 'why don't they just create a space or something instead of "
+          "having this vertical bar separating it, which is confusing'")
+    check("  ...and its spacing is INLINE, not in a stylesheet one page ignores",
+          'style="display:inline-block;margin:0 18px;' in b,
+          "session.html does not load board.css; the first version fixed the pilot "
+          "page only and rendered '= 115 + 6' on the page Jim was actually using")
+
+    for page in ("session.html", "practice.html", "topic.html"):
+        p = open(os.path.join(here, "static", page), encoding="utf-8").read()
+        check("⭐ %s: the feed pairs his WORDS with his WORK" % page,
+              "grid-template-columns: minmax(260px, 32%) 1fr;" in p
+              and ".feed > .bubble.tutor { grid-column: 1;" in p
+              and ".feed > .mblock, .feed > .mrow, .feed > .steprow { grid-column: 2; }" in p,
+              "'answer something and move over to the side of the whiteboard'")
+        check("  ...%s: an UNLISTED child spans, never squeezes" % page,
+              ".feed > * { grid-column: 1 / -1; }" in p,
+              "[[stepcard]]'s row was squeezed to 380px on a 1,230px board by the "
+              "first version, which listed the spanners instead of the exceptions")
+        check("  ...%s: phones keep the single column" % page,
+              "@media (min-width: 901px) {\n      .feed { display: grid;" in p,
+              "dz's phone layout is load-bearing")
+
+
 def part3ey_the_walk_away_list():
     """PART 3ey (builds or + os + ot, 2026-08-27) -- THE WALK-AWAY LIST.
 
@@ -13836,7 +13916,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,992</b>" in page,
+          "<b>7,008</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22289,6 +22369,7 @@ def main():
     part3fb_use_the_whole_board()
     part3fc_seventh_flag_harvest()
     part3fd_the_day_you_can_feel()
+    part3fe_the_board_uses_the_room()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
