@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD ox -- PART 3fc: the seventh flag harvest (referees 56/57/58,
+#               the [[segment]] figure, the bigger number line, and the server's
+#               session-length note). Also THREE PIN REPAIRS this build earned:
+#               two pins were matching their OWN explanatory text (the same lesson
+#               build ov learned), and one depended on where a line happened to
+#               wrap -- now whitespace-normalised.
+#   2026-08-27  BUILD ow -- PART 3fb: use the whole board.
 #   2026-08-27  BUILD ov -- PART 3fa: quizzes through the authored spine. Also
 #               THREE FIXTURE REPAIRS this build exposed, each recorded in place:
 #               the drill-ticket test compared against ONE lesson's closure while
@@ -10873,9 +10880,13 @@ def part3ef_the_second_flag_harvest():
           '"/home" + cq' in dc,
           "an exit door that drops the code logs the child out")
     mf = open(os.path.join(here, "static", "math-figures.js"), encoding="utf-8").read()
-    check("⭐ the number line may span the board (display cap 1100)",
-          "svgOpen(W, H, 1100)" in mf and "var W = 660, H = 120" in mf,
-          "Jim: 'nearly microscopic while it should span the white board' -- and "
+    # (ox) the cap moved 1100 -> 1500 on Jim's second flag about the same figure
+    # ("numer line should be 5 times bigger"). The viewBox is STILL 660, which is
+    # the part that matters: every coordinate, and the je geometry pins with them,
+    # are untouched -- only the display cap and the mark sizes changed.
+    check("⭐ the number line may span the board (display cap 1500)",
+          "svgOpen(W, H, 1500)" in mf and "var W = 660, H = 120" in mf,
+          "Jim, twice: 'nearly microscopic' then 'should be 5 times bigger' -- and "
           "the viewBox stays 660 so the je geometry pins keep holding")
     psrc = re.sub(r"\s+", " ", open(os.path.join(here, "prompts.py"),
                                     encoding="utf-8").read())
@@ -12715,10 +12726,10 @@ def part3fb_use_the_whole_board():
           '_event("referee_fire", "spokensteps"' in tc,
           "an unwired referee is a comment")
     check("⭐ the eleventh ceiling raise carries its dated note",
-          "PROMPT_CEILING = 203_000" in open(os.path.join(here, "tutor.py"),
-                                             encoding="utf-8").read()
-          and "2026-08-27 (build ow): RAISED 201,000 -> 203,000" in
-              open(os.path.join(here, "tutor.py"), encoding="utf-8").read(),
+          "2026-08-27 (build ow): RAISED 201,000 -> 203,000" in
+              open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+          and "Eleventh verse" in open(os.path.join(here, "tutor.py"),
+                                       encoding="utf-8").read(),
           "rule 58(e)'s hard clause is SHARED text; the all-heard algebra2 prompt "
           "measured 201,629 and the wire fired exactly as designed -- raised, "
           "never trimmed")
@@ -12734,6 +12745,151 @@ def part3fb_use_the_whole_board():
     check("  ...and the width half of Jim's sentence is answered too",
           "USE THE WIDTH" in PR.GRAPH_TOOL_NOTE and "[[beside]]" in PR.GRAPH_TOOL_NOTE,
           "'it's not putting side by side problems as we progress'")
+
+
+def part3fc_seventh_flag_harvest():
+    """PART 3fc (build ox, 2026-08-27) -- THE SEVENTH FLAG HARVEST (seven live flags).
+
+    Jim's corrections queue, one sitting. Three of the seven were the SAME defect
+    flagged three times in three minutes, which is how a queue tells you what it
+    thinks is worst:
+      18:14 / 18:15 / 18:16 geometry -- "Still showing answer from previous
+        question under new question. Very misleading" (x3), and "There should be
+        visuals for these types of questions" on a run of midpoint questions.
+      00:20 diffeq -- "'that's' followed by a colon makes no sense".
+      00:16 entry  -- "Don't ask me every 2 minutes if I want to stop".
+      00:15 entry  -- "numer line should be 5 times bigger".
+      00:13 entry  -- "This level of math is supposed to be all bubbles".
+
+    THREE NEW REFEREES (56, 57, 58), each swept against all 1,989 authored cards
+    before being allowed to enforce; a NEW [[segment]] figure; a bigger number
+    line; and -- for the stop-nag -- a SERVER-STATED FACT rather than another
+    rule, because the model has no clock and was guessing "you've been working
+    hard for a while now" after three exchanges."""
+    print("\nPART 3fc — the seventh flag harvest (build ox)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import tutor as TT
+    import tags as TG
+    import prompts as PR
+
+    # ---- 56: a new numbered question over the old answer (flagged 3x) ----
+    check("⭐ 56 fires on Jim's exact geometry reply",
+          bool(TT.stale_board_conflict(
+              "Correct! Question 4. Point K is the midpoint of segment JL. "
+              "If JK is 9 units long, how long is the whole segment JL?")),
+          "flagged three times in three minutes -- 'very misleading'")
+    check("  ...and goes quiet when the board is wiped first",
+          TT.stale_board_conflict(
+              "Correct! [[clear]] Question 4. How long is JL?") == "",
+          "satisfiable in one move, or it is a trap")
+    check("⭐ question ONE is exempt -- it has no previous answer to sit under",
+          TT.stale_board_conflict("Quiz time. Question 1. What is five plus two?") == "",
+          "the quiz's own opening must not be nagged")
+    check("  a numbered question with no question mark is not a question",
+          TT.stale_board_conflict("That was question 3.") == "", "")
+
+    # ---- 57: the colon that points at nothing in the ear ----
+    check("⭐ 57 fires on Jim's exact diffeq reply",
+          bool(TT.dangling_colon_conflict(
+              "if T is the object's temperature and the room is a constant 70, "
+              "that's: [[step eq=\"dT/dt = -k(T - 70)\"]] Notice the pattern")),
+          "'that's' followed by a colon makes no sense -- in the EAR the tag is gone")
+    check("  an ordinary spoken colon is untouched",
+          TT.dangling_colon_conflict(
+              'Step one: draw the line. [[step eq="x = 1"]]') == "",
+          "its payload is in the sentence, so the ear gets it")
+
+    # ---- 58: the littlest courses answer by tapping ----
+    JIM = ("Here's a quick reminder of make-a-ten. Can you tell me — when we use "
+           "the make-a-ten trick, what number are we trying to build first?")
+    check("⭐ 58 fires on Jim's exact entry reply",
+          bool(TT.elementary_buttons_conflict(JIM, "entry")),
+          "'This level of math is supposed to be all bubbles'")
+    check("  ...and goes quiet the moment buttons ship",
+          TT.elementary_buttons_conflict(
+              JIM + ' [[choices options="Ten | Five | Twenty"]]', "entry") == "", "")
+    check("⭐ it is COURSE-GATED -- the older courses are untouched",
+          TT.elementary_buttons_conflict(JIM, "algebra1") == ""
+          and TT.elementary_buttons_conflict(JIM, "geometry") == ""
+          and bool(TT.elementary_buttons_conflict(JIM, "basic")),
+          "typing and talking are the norm everywhere else")
+    check("  a rhetorical question the reply answers itself is not a question",
+          TT.elementary_buttons_conflict(
+              "What comes right after 5? Count up one: 6.", "entry") == "",
+          "eleven canon cards do exactly this -- requiring the question to come "
+          "LAST takes all eleven out")
+    check("  asking for their OWN WORDS cannot be a button, and is allowed",
+          TT.elementary_buttons_conflict(
+              "Can you say it back to me in your own words?", "entry") == "", "")
+
+    # ---- all three are wired, and swept clean ----
+    tc = code_only(open(os.path.join(here, "tutor.py"), encoding="utf-8").read())
+    for name in ("staleboard", "danglingcolon", "elembuttons"):
+        check("  %s is wired into the pipeline" % name,
+              '_event("referee_fire", "%s"' % name in tc, "an unwired referee is a comment")
+    for fn in (TT.stale_board_conflict, TT.dangling_colon_conflict):
+        check("  %s fails open on junk" % fn.__name__,
+              fn(None) == "" and fn("") == "", "")
+
+    # ---- the prompt side ----
+    check("⭐ 47(l) tells him to wipe the board before a new numbered question",
+          "A NEW NUMBERED QUESTION STARTS ON A CLEAN BOARD" in PR.GRAPH_TOOL_NOTE,
+          "the referee and the rule must say the same thing")
+    check("⭐ 48(d3) forbids the spoken colon pointing at the board",
+          "NEVER POINT A SPOKEN COLON AT THE BOARD" in PR.GRAPH_TOOL_NOTE, "")
+    # ⚠️ pin the removed INSTRUCTION, not the phrase -- the new rule has to QUOTE
+    # the old wording to explain why it was wrong, and a pin that punishes writing
+    # the reason down teaches us to stop writing it down (the same lesson build ov
+    # learned about mic.js and `paused`).
+    check("⭐ the elementary open-ended LOOPHOLE is closed",
+          "EVERY QUESTION YOU END A TURN WITH SHIPS ITS BUTTONS"
+          in PR.ELEMENTARY_SYSTEM_PROMPT_TEMPLATE
+          and "Only skip the\n  tag when the question is genuinely open-ended"
+          not in PR.ELEMENTARY_SYSTEM_PROMPT_TEMPLATE,
+          "that clause was doing all the damage -- almost any question can be "
+          "argued open-ended, and a child who cannot type is then stuck")
+    # (the phrase wraps across a line in the template, so normalise whitespace
+    # before testing -- a pin that depends on where a line happens to break is a
+    # pin that will fail on the next reflow)
+    _elem_flat = " ".join(PR.ELEMENTARY_SYSTEM_PROMPT_TEMPLATE.split())
+    _shared_flat = " ".join(PR.GRAPH_TOOL_NOTE.split())
+    check("  ...and it lives in the ELEMENTARY template only (no shared cost)",
+          "NO EXCEPTIONS YOU TALK YOURSELF INTO" not in _shared_flat
+          and "NO EXCEPTIONS YOU TALK YOURSELF INTO" in _elem_flat,
+          "a course-local rule must not be paid for by nine other courses "
+          "(39(e)'s own title contains 'SHIPS ITS BUTTONS', so that string cannot "
+          "be the test)")
+
+    # ---- the segment figure ----
+    check("⭐ [[segment]] is registered as a figure", "segment" in TG.FIGURE_TAGS, "")
+    g = open(os.path.join(here, "static", "geo-figures.js"), encoding="utf-8").read()
+    check("  ...rendered, exported, and documented where it is taught",
+          "function segment(a)" in g and "segment: segment," in g
+          and "[[segment points=" in PR.GEOMETRY_SYSTEM_PROMPT_TEMPLATE,
+          "five midpoint questions in a row were asked with nothing drawn")
+    check("  ...and every lane can draw it",
+          all('"segment"' in open(os.path.join(here, "static", p),
+                                  encoding="utf-8").read()
+              for p in ("session.html", "practice.html", "topic.html",
+                        "script-board.js")),
+          "a registered tag a page cannot draw is a silent blank board")
+    check("  the midpoint TICKS are what make it teach",
+          'mark = the point that is the' in g or "mark" in g,
+          "a midpoint drawn without congruence marks is a word, not a picture")
+
+    # ---- the number line, and the stop-nag ----
+    mf = open(os.path.join(here, "static", "math-figures.js"), encoding="utf-8").read()
+    check("⭐ the number line grew for young eyes",
+          "svgOpen(W, H, 1500)" in mf,
+          "Jim: 'numer line should be 5 times bigger' -- nw's 1100 was still small")
+    mc = code_only(open(os.path.join(here, "main.py"), encoding="utf-8").read())
+    check("⭐ the STOP NAG is answered with a fact, not another rule",
+          "SESSION LENGTH: this session is" in mc and "_turns < 25" in mc,
+          "the model has no clock; it was writing 'you've been working hard for a "
+          "while now' after three exchanges, and no prompt rule can fix a guess")
+    check("  ...and the note rides the TURN, never the cached prefix",
+          "turn_note += (" in mc,
+          "build cm's law: per-turn information belongs next to the message")
 
 
 def part3ey_the_walk_away_list():
@@ -13605,7 +13761,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,953</b>" in page,
+          "<b>6,980</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22056,6 +22212,7 @@ def main():
     part3ez_answer_freely()
     part3fa_quizzes_through_the_spine()
     part3fb_use_the_whole_board()
+    part3fc_seventh_flag_harvest()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

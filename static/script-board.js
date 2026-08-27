@@ -153,7 +153,7 @@ function drawBoard(text) {
       else if (name === "machine") { showMachine(a); drew = true; }
       else if (name === "graph") { showFig("graph", a); drew = true; }
       else if (FIGURE_KINDS.indexOf(name) >= 0) { showFig(name, a); drew = true; }
-      else if (["triangle", "angle", "circle", "transversal", "polygon", "solid"].indexOf(name) >= 0) {
+      else if (["triangle", "angle", "circle", "transversal", "polygon", "solid", "segment"].indexOf(name) >= 0) {
         showGeo(name, a); drew = true;   // (ot) +transversal/polygon/solid
       }
       else if (name === "clear") { wipeBoard(); }

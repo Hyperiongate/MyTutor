@@ -2,6 +2,24 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27ox-the-seventh-flag-harvest". BUILD ox --
+#               seven live flags, three of them the SAME defect flagged three
+#               times in three minutes. NEW REFEREES 56/57/58, each swept against
+#               all 1,989 authored cards before enforcing: 56 a new numbered
+#               question asked over the previous answer's board (rule 47l, the
+#               triple flag -- "very misleading"); 57 a spoken colon pointing at a
+#               stripped board tag (48d3, "that's:" is silence in the ear); 58 an
+#               open question with no taps in a course answered by TAPPING (39f,
+#               course-gated to entry/basic -- "this level of math is supposed to
+#               be all bubbles"), which also CLOSED the "genuinely open-ended"
+#               loophole that was doing the damage. NEW [[segment]] figure (five
+#               midpoint questions were asked with nothing drawn). Number line cap
+#               1100 -> 1500 with bigger marks. THIS FILE'S OWN CHANGE: the
+#               SESSION LENGTH note -- Jim's "don't ask me every 2 minutes if I
+#               want to stop" is a thing no prompt rule can fix, because the model
+#               has no clock; the server now states the turn count and the ruling,
+#               riding the turn note so the cached prefix never moves.
+#               PROMPT_CEILING 203,000 -> 205,000, twelfth dated verse.
 #   2026-08-27  APP_BUILD -> "2026-08-27ow-use-the-whole-board". BUILD ow -- THE
 #               FIFTY-FIFTH REFEREE. Jim, live in geometry: "the screen is still
 #               not using the full screen... it's not saying step one, step two,
@@ -12305,7 +12323,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27ow-use-the-whole-board"
+APP_BUILD = "2026-08-27ox-the-seventh-flag-harvest"
 
 
 @app.get("/health")
@@ -13370,6 +13388,29 @@ def chat(req: ChatRequest):
     # more" four turns later -- Jim's live catch, 2026-08-20). Rides the TURN for
     # exactly the reason build cm gives above: the cached system prefix must not move.
     # Empty for a student who has been taught nothing yet, so a first lesson pays zero.
+    # (ox) HOW LONG THIS SESSION ACTUALLY IS. Jim's Entry flag: "Don't ask me every
+    # 2 minutes if I want to stop." Rule 29(b) offers the keep-going/stop fork at
+    # "roughly twenty-five or thirty minutes of back-and-forth" -- and the model has
+    # NO CLOCK. It was guessing from the feel of the transcript, writing "you've been
+    # working hard for a while now" after three exchanges, and build nz's scoping of
+    # 29(c) could not help because this is 29(b), the LENGTH branch. So the server
+    # states the fact, the way it already states the gap and the phrasing memory:
+    # a count the model cannot misjudge, with the ruling attached. Cheap (one short
+    # line), rides the TURN so the cached prefix never moves.
+    try:
+        _turns = sum(1 for h in history
+                     if isinstance(h, dict) and h.get("role") == "user"
+                     and not str(h.get("content", "")).startswith("__"))
+        if _turns < 25:
+            turn_note += ("\n(SESSION LENGTH: this session is " + str(_turns)
+                          + " student turns old. Rule 29(b)'s long-session mark is "
+                          "about 25-30 minutes of back-and-forth, which you have NOT "
+                          "reached. Do NOT offer to stop, take a break, or call this "
+                          "a good stopping point. Ask 'ready for another?' instead. "
+                          "The ONLY exceptions are the student saying they must go, "
+                          "or a real boundary under rule 29(c).)")
+    except Exception as _sexc:  # noqa: BLE001 -- a note must never cost a lesson
+        print(f"[session] length note failed (ignored): {_sexc}")
     try:
         turn_note += tutor.phrasing_note(code, req.course)
     except Exception as _pexc:  # noqa: BLE001 -- a memory must never cost a lesson

@@ -64,6 +64,9 @@ FIGURE_TAGS = (
     # build ot (2026-08-27): the figure shelf grows -- Jim: "I want all the
     # graphics that math teaches to be available."
     "transversal", "polygon", "solid", "venn", "tape", "clock",
+    # build ox (2026-08-27): the segment -- a labeled line with midpoint
+    # ticks, from Jim's live flag on midpoint questions asked with no picture.
+    "segment",
 )
 
 # ---- WRITING: tags that put words/equations on the board -------------------------

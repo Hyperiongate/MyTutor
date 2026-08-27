@@ -889,7 +889,12 @@
     // stays 660 (every coordinate above is untouched); only the DISPLAY cap rises,
     // so the SVG scales up to fill the feed -- ticks, dots and labels grow with
     // it, which is exactly what young eyes need. width:100% was already there.
-    var s = svgOpen(W, H, 1100);
+    // (ox, 2026-08-27) Jim's Entry flag: "number line should be 5 times bigger".
+    // nw raised the cap 660 -> 1100; the ribbon is still small for a five-year-old
+    // counting hops. Cap 1500 (it fills whatever width the board gives it, and
+    // build or's collapsed sidebar gave it most of the window), and the marks grow
+    // with it below -- ticks, dots and labels, not just the frame.
+    var s = svgOpen(W, H, 1500);
     var ineq = String(a.ineq || a.inequality || "").match(/(>=|<=|>|<)\s*(-?\d*\.?\d+)/);
     if (ineq) {
       var op = ineq[1], val = parseFloat(ineq[2]), right2 = (op === ">" || op === ">="), closed = (op === ">=" || op === "<=");
@@ -914,10 +919,10 @@
     for (var t = firstTick(min, nstep); t <= max + 1e-9; t += nstep) {
       var x = mapX(t);
       s += '<line x1="' + x + '" y1="' + (axisY - 5) + '" x2="' + x + '" y2="' + (axisY + 5) + '" stroke="#9aa7b6"/>';
-      s += tspan(x, axisY + 20, String(trimnum(t)), "#66707e", 12, 600);
+      s += tspan(x, axisY + 21, String(trimnum(t)), "#66707e", 15, 700);
     }
-    parseNums(a.points).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="6" fill="#e0392b"/>'; });
-    parseNums(a.open).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="6" fill="#fff" stroke="#e0392b" stroke-width="2.5"/>'; });
+    parseNums(a.points).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="7.5" fill="#e0392b"/>'; });
+    parseNums(a.open).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="7.5" fill="#fff" stroke="#e0392b" stroke-width="2.5"/>'; });
     // (ot, 2026-08-27) hops="2,5,8,11": COUNTING ARCS between consecutive landing
     // points, each labeled with its own jump (+3, -2). The child SEES the skip-count
     // or the count-back happen instead of imagining it. Landing points get dots too.
@@ -936,7 +941,7 @@
         s += '<path d="M ' + hx2 + ' ' + (axisY - 6) + ' l ' + (-8 * hd) + ' -6 l ' + (3 * hd) +
              ' 8 z" fill="#e0392b"/>';
         var jump = trimnum(hops[hi + 1] - hops[hi]);
-        s += tspan(hmx, axisY - 13 - lift, (jump >= 0 ? "+" : "") + jump, "#e0392b", 12, 800);
+        s += tspan(hmx, axisY - 13 - lift, (jump >= 0 ? "+" : "") + jump, "#e0392b", 14, 800);
       }
     }
     return s + "</svg>";

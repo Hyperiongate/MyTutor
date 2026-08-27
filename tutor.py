@@ -2282,7 +2282,16 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # 201,629. Eleventh verse, same discipline: teaching is never trimmed to duck a
 # tripwire; the raise is deliberate and this is its dated note. The two-prompt-
 # sizes LARGE result remains the evidence that should set this number.
-PROMPT_CEILING = 203_000
+# 2026-08-27 (build ox): RAISED 203,000 -> 205,000. The seventh flag harvest wrote
+# 47(l) (a new numbered question starts on a CLEAN board -- flagged three times in
+# three minutes) and 48(d3) (never point a spoken colon at a board tag) into the
+# shared block, and the all-heard algebra2 deferred prompt measured 203,089. The
+# harvest's THIRD rule -- every entry/basic question ships its buttons -- was put
+# in the ELEMENTARY template instead, so nine other courses pay nothing for it.
+# Twelfth verse, same discipline: teaching is never trimmed to duck a tripwire;
+# the raise is deliberate and this is its dated note. The two-prompt-sizes LARGE
+# result remains the evidence that should set this number.
+PROMPT_CEILING = 205_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -5880,6 +5889,153 @@ def spoken_steps_conflict(reply: str):
         return ""
 
 
+# =============================================================================
+# REFEREE 56 -- A NEW QUESTION OVER THE OLD ANSWER  (build ox, 2026-08-27)
+# -----------------------------------------------------------------------------
+# Jim flagged this THREE TIMES in three minutes of one live geometry quiz:
+#   "Still showing answer from previous question under new question. Very
+#    misleading" ... "again...showing answer from previous question after asking
+#    a new question"
+# The board is designed to PERSIST across turns -- it only wipes on [[clear]] --
+# which is right while one problem is being worked and wrong the instant a new
+# numbered question is asked. The child reads "Question 4" over the worked answer
+# to question 3 and reasonably takes the number on the board as a given.
+#
+# THE SHAPE: the reply poses a NUMBERED question ("Question 4.") and sends no
+# [[clear]]. Numbering is the tutor's own declaration that a new problem has
+# started, so this is his word against his board -- objective, and satisfiable in
+# one move ([[clear]] before the new question).
+#
+# NOT FIRED on the FIRST question of a quiz -- "Question 1" follows the quiz
+# announcement, where the board was already wiped to start the quiz, and a first
+# question has no previous answer to sit under.
+# =============================================================================
+_SB_QNUM = re.compile(
+    r"\bquestion\s+(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b", re.I)
+_SB_CLEAR = re.compile(r"\[\[\s*clear\b", re.I)
+_SB_WORDNUM = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+               "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10}
+
+
+def stale_board_conflict(reply: str):
+    """Return a description of a new numbered question asked over an un-wiped
+    board, or "". Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        if _SB_CLEAR.search(text):
+            return ""                       # the board was wiped: nothing to say
+        prose = _spoken_only(text)
+        if "?" not in prose:
+            return ""                       # not posing anything
+        nums = []
+        for m in _SB_QNUM.finditer(prose):
+            raw = m.group(1).lower()
+            nums.append(int(raw) if raw.isdigit() else _SB_WORDNUM.get(raw, 0))
+        nums = [n for n in nums if n >= 2]   # question 1 has no predecessor
+        if not nums:
+            return ""
+        return ("the reply poses question %d but sends no [[clear]], so the "
+                "previous question's worked answer is still on the board under "
+                "the new one" % nums[0])
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+# =============================================================================
+# REFEREE 57 -- A COLON THAT POINTS AT NOTHING IN THE EAR  (build ox, 2026-08-27)
+# -----------------------------------------------------------------------------
+# Jim's diffeq flag: "'that's' followed by a colon makes no sense". The reply read
+#   "... if T is the object's temperature and the room is a constant 70, that's:
+#    [[step ...]] Notice the pattern in both examples ..."
+# On the page the colon points at the equation. In the EAR -- and this is a voice
+# app -- the tags are stripped, so the child hears "...that's:" and then a new
+# sentence about something else. The colon promised a thing that never arrives.
+#
+# THE SHAPE is exact and mechanical: a colon whose very next content is a board
+# TAG. Spoken text must stand alone; if the board is carrying the payload, the
+# words have to name it ("here it is on the board") rather than dangle a colon at
+# it. Ordinary spoken colons ("Step one: draw the line") are untouched, because
+# their payload is in the sentence.
+# =============================================================================
+_DC_COLON_TAG = re.compile(r":\s*\[\[", re.I)
+
+
+def dangling_colon_conflict(reply: str):
+    """Return a description of a spoken colon whose payload is a board tag, or "".
+    Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        m = _DC_COLON_TAG.search(text)
+        if not m:
+            return ""
+        lead = text[max(0, m.start() - 60):m.start()].strip()
+        return ("a spoken colon points straight at a board tag (\"" + lead[-40:]
+                + ":\"), and the tags are stripped before the child hears it -- "
+                "so the colon promises something the ear never gets")
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+# =============================================================================
+# REFEREE 58 -- THE LITTLEST COURSES ANSWER BY TAPPING  (build ox, 2026-08-27)
+# -----------------------------------------------------------------------------
+# Jim, on an Entry-Level lesson, and then again in conversation: "This level of
+# math is supposed to be all bubbles." He is right, and the app already promises
+# it -- the opening tour tells a five-year-old "big answer buttons pop up right
+# down here at the bottom; just tap the answer you think is right", and the whole
+# elementary mode was built on the fact that these children cannot type.
+#
+# Rule 39(e) only required buttons when the answer space was SMALL (three or
+# fewer). That is the right rule for a fifteen-year-old and the wrong one here:
+# "what number are we trying to build first?" has one honest answer, ships no
+# buttons under 39(e), and leaves a child who cannot type with no way in. So for
+# ENTRY-LEVEL and BASIC only, every question the reply leaves OPEN ships its
+# buttons -- with honest distractors when the answer space is not naturally small.
+#
+# THE SHAPE: the reply's last spoken thing is a question, and there is no
+# [[choices]] anywhere in it. Rule 39(b) already requires the question to come
+# last, so "ends with a question" IS "asks the child something".
+#
+# ⚠️ RHETORICAL QUESTIONS ARE NOT THIS. "What comes right after 5? Count up one:
+# 6." is a demonstration that answers itself mid-sentence, and the canon is full
+# of them -- eleven in the entry/basic scripts. Requiring the question to be the
+# LAST thing said takes all eleven out, because a self-answered question never
+# ends the turn. The sweep over those 299 cards left exactly ONE hit, an authored
+# TEACH beat whose answer arrives in the very next beat (rule 19b's demo
+# exemption, the same class the battery already exempts); authored beats never
+# route through this referee in production, and the shape is left honest rather
+# than contorted to reach a zero that would cost precision.
+# =============================================================================
+_EB_COURSES = ("entry", "basic")
+# "tell me in your own words" cannot be a button, and asking for it is good teaching
+_EB_OPEN_ASK = re.compile(
+    r"\b(?:your\s+own\s+words|say\s+it\s+back|explain|walk\s+me\s+through|"
+    r"tell\s+me\s+about|what\s+do\s+you\s+notice|how\s+did\s+you)\b", re.I)
+_EB_CHOICES = re.compile(r"\[\[\s*choices\b", re.I)
+
+
+def elementary_buttons_conflict(reply: str, course: str = ""):
+    """Return a description of an open question asked to a young child with no tap
+    buttons, or "". Never raises (fail open)."""
+    try:
+        if str(course or "").strip().lower() not in _EB_COURSES:
+            return ""
+        text = str(reply or "")
+        if _EB_CHOICES.search(text):
+            return ""
+        prose = _spoken_only(text).strip()
+        if not prose.endswith("?"):
+            return ""                       # nothing left open for the child
+        tail = prose.rsplit(".", 1)[-1][-160:]
+        if _EB_OPEN_ASK.search(tail):
+            return ""                       # asking for their own words, on purpose
+        return ("the reply ends by asking a question with no [[choices]], and this "
+                "course is answered by TAPPING -- a child who cannot type has no "
+                "way to answer it")
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 def spoken_time_collision_conflict(reply: str):
     """Return a description of a question number colliding into a clock-time
     reading, or "". Never raises: fail open."""
@@ -7198,6 +7354,25 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if ssteps:
             _event("referee_fire", "spokensteps", ssteps)
             return ssteps
+        # (ox) the fifty-sixth: a new numbered question asked over the previous
+        # answer's board (rule 47l). Jim flagged this three times in one quiz.
+        staleb = stale_board_conflict(reply)
+        if staleb:
+            _event("referee_fire", "staleboard", staleb)
+            return staleb
+        # (ox) the fifty-seventh: a spoken colon pointing at a stripped board tag
+        # (rule 48d3). "that's:" is silence in the ear.
+        dcolon = dangling_colon_conflict(reply)
+        if dcolon:
+            _event("referee_fire", "danglingcolon", dcolon)
+            return dcolon
+        # (ox) the fifty-eighth: an open question with no taps in a course that is
+        # answered by tapping (rule 39f). Course-gated, so it cannot touch the
+        # older courses where typing and talking are the norm.
+        ebtn = elementary_buttons_conflict(reply, course)
+        if ebtn:
+            _event("referee_fire", "elembuttons", ebtn)
+            return ebtn
         repeatq = repeat_question_conflict(reply, prev_tutor)
         if repeatq:
             _event("referee_fire", "repeatq", repeatq)

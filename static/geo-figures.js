@@ -18,6 +18,12 @@
 // 2026-08-01  [[angle]] gained split="60" / split="60,30": an interior ray from the vertex
 //             splitting the angle, with the pieces labeled (second defaults to "?") -- so
 //             complementary/supplementary lessons can SHOW the split they talk about.
+// 2026-08-27  (build ox) [[segment]] -- a labeled line segment, with midpoint
+//             congruence ticks, per-piece lengths and an optional total brace.
+//             From Jim's live geometry flag ("There should be visuals for these
+//             types of questions") on a run of midpoint questions asked with
+//             nothing drawn at all: the shelf could draw triangles, angles and
+//             circles but not the one-dimensional figure a whole unit is about.
 // 2026-08-27  (build ot) THE FIGURE SHELF GROWS -- Jim: "I noticed that we had trouble
 //             making crossed lines yesterday. I want all the graphics that math teaches
 //             to be available." Three new figures:
@@ -400,9 +406,63 @@
     return s + "</svg>";
   }
 
+  // ---- [[segment]] : a labeled line segment with points, halves and lengths ----
+  // (ox, 2026-08-27) Jim's geometry flag: "There should be visuals for these types
+  // of questions", on a run of midpoint questions -- "Point W is the midpoint of
+  // segment VZ. If VW is 6.5 units, how long is WZ?" -- asked with nothing drawn.
+  // The shelf had no way to draw a SEGMENT at all: triangles, angles and circles,
+  // but not the one-dimensional figure half of a geometry unit is about.
+  //   [[segment points="J,K,L" lengths="9,?" mark="K" total="?" caption="..."]]
+  // points  = 2 to 4 labels, left to right along the line
+  // lengths = the length of each gap, in order ("?" for the unknown)
+  // mark    = a point that is the MIDPOINT: congruence ticks on both sides of it,
+  //           which is how a midpoint is shown on paper and the reason the child
+  //           can SEE that the two halves are equal instead of being told
+  // total   = a brace above the whole segment with this label
+  function segment(a) {
+    var W = 360, H = 150;
+    var P = String(a.points || "A,B").split(",").map(function (x) { return x.trim(); })
+             .filter(Boolean).slice(0, 4);
+    if (P.length < 2) P = ["A", "B"];
+    var y = a.total ? 92 : 76, x0 = 34, x1 = W - 34;
+    var gap = (x1 - x0) / (P.length - 1);
+    var xs = P.map(function (_, i) { return x0 + i * gap; });
+    var s = open(W, H);
+    s += line([x0, y], [x1, y], ACC, 3);
+    var mark = String(a.mark || "").trim();
+    var mi = P.indexOf(mark);
+    P.forEach(function (lbl, i) {
+      s += dot([xs[i], y], 4.5);
+      s += txt(xs[i], y - 17, lbl, INK, 16, 800);
+    });
+    // the gap lengths, under each piece
+    var L2 = String(a.lengths || "").split(",").map(function (x) { return x.trim(); });
+    for (var i = 0; i + 1 < P.length; i++) {
+      if (!L2[i]) continue;
+      s += txt((xs[i] + xs[i + 1]) / 2, y + 22, L2[i], INK, 15, 700);
+    }
+    // ⭐ THE MIDPOINT TICKS. Two short crossbars, one on each side of the marked
+    // point -- the standard congruence mark. Without them "midpoint" is a word
+    // the child has to take on trust.
+    if (mi > 0 && mi < P.length - 1) {
+      [[xs[mi - 1], xs[mi]], [xs[mi], xs[mi + 1]]].forEach(function (pr) {
+        var mx = (pr[0] + pr[1]) / 2;
+        s += line([mx, y - 9], [mx, y + 9], TEAL, 2.6);
+      });
+    }
+    if (a.total) {
+      var by = y - 40;
+      s += '<path d="M ' + x0 + ' ' + (by + 9) + ' L ' + x0 + ' ' + by + ' L ' + x1 +
+           ' ' + by + ' L ' + x1 + ' ' + (by + 9) + '" fill="none" stroke="' + TEAL +
+           '" stroke-width="2"/>';
+      s += txt((x0 + x1) / 2, by - 11, String(a.total), TEAL, 15, 800);
+    }
+    return s + "</svg>";
+  }
+
   window.GeoFigures = {
     triangle: triangle, angle: angle, circle: circle,
-    transversal: transversal, polygon: polygon, solid: solid,
+    transversal: transversal, polygon: polygon, solid: solid, segment: segment,
     svg: function (kind, a) {
       try { return this[kind] ? this[kind](a || {}) : ""; } catch (e) { return ""; }
     }

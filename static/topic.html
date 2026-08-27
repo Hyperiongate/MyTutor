@@ -1163,7 +1163,7 @@
         else if (name === "quiz") showQuiz(attrs);
         else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); sawMark = true; }   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
         else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); }   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
-        else if (["triangle","angle","circle","transversal","polygon","solid"].indexOf(name) >= 0) showGeo(name, attrs);   /* build ot: +transversal/polygon/solid */
+        else if (["triangle","angle","circle","transversal","polygon","solid","segment"].indexOf(name) >= 0) showGeo(name, attrs);   /* build ot: +transversal/polygon/solid */
         else if (name === "choices") showChoices(attrs);
         else if (name === "objects") showObjects(attrs);
         else if (name === "beside") armBeside();   /* build oj: the NEXT block joins the previous one side by side */
