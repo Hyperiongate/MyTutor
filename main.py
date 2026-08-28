@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  APP_BUILD -> "2026-08-28pn-precalc-read-for-sense". BUILD pn -- all 36
+#               Pre-Calculus lessons read; the first course with NO prose defects at
+#               all. Sixteen second worked examples now show their operation. No
+#               Python changed except this stamp.
 #   2026-08-28  APP_BUILD -> "2026-08-28pm-algebra-two-read-for-sense". BUILD pm --
 #               all 36 Algebra II lessons read; the course that started this thread
 #               now reads well. Ten changes, one of them internal shorthand spoken to
@@ -12492,7 +12496,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-28pm-algebra-two-read-for-sense"
+APP_BUILD = "2026-08-28pn-precalc-read-for-sense"
 
 
 @app.get("/health")

@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pn -- PART 3fr: Pre-Calculus read for sense. The first course
+#               with NO prose defects. Sixteen second worked examples fixed, and
+#               THREE NEW PINS on a property no other read surfaced: the course keeps
+#               promises made in OTHER courses ("Later is now"), and the battery now
+#               guards those cross-course debts.
 #   2026-08-28  BUILD pm -- PART 3fq: Algebra Two read for sense. The course that
 #               started the thread now reads well. Ten changes, one of them a NEW
 #               defect class -- internal shorthand spoken to a child ("pyth's") --
@@ -13138,6 +13143,84 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fr_precalc_read_for_sense():
+    """PART 3fr (build pn, 2026-08-28) -- PRE-CALCULUS, READ FOR SENSE.
+
+    All 36 Pre-Calculus lessons read line by line. Seven courses; 252 of 360.
+
+    ⭐ ITS PROSE IS CLEAN. Not one broken sentence in the whole course -- the first
+    course where that is true. No false statement, no leaked shorthand, no beat that
+    says the same thing twice.
+
+    ⭐ AND IT IS THE BEST-BUILT COURSE IN THE PRODUCT, for a reason none of the other
+    reads turned up: IT KEEPS ITS PROMISES ACROSS UNITS AND ACROSS YEARS.
+      - Algebra Two told a student the roots' product "would be famous later".
+        Vieta's lesson here opens: "Later is now."
+      - The domain lesson answers division's forbidden x with its exact opposite:
+        the bottom's zero was BANNED, but "zero under a root is WELCOME".
+      - The minus-parade's even/odd powers come back, units later, to explain why
+        cosine ignores a minus and sine does not: "just like an odd power."
+      - The final lesson shrinks a window toward a point, lands on 8, and says:
+        "that limit is called the derivative, and Calculus starts exactly there."
+    A curriculum that REMEMBERS WHAT IT SAID is rarer than one that says it well, and
+    it is worth pinning as a property rather than admiring in passing.
+
+    SIXTEEN CHANGES, every one build pl's shape -- a second worked example stating
+    the answer without doing the operation. The last of them was short but honest
+    ("Negative 155 plus 360 — 205"); it now NAMES the move as well as doing it."""
+    print("\nPART 3fr — Pre-Calculus, read for sense (build pn)")
+    import lessonscripts as _ls
+    byid = {l["id"]: l for l in _ls.LESSONS}
+    second = lambda lid: byid[lid]["pairs"][1]["worked"][0]
+    teach = lambda lid: " ".join(s for s, _b in byid[lid]["teach"])
+
+    fixed = {
+        "pc-u1-machines-in-a-row": "inside, g of 7 is 14",
+        "pc-u1-the-graph-slides": "7 plus 6",
+        "pc-u2-the-roots-secret": "2 times 9",
+        "pc-u3-the-power-comes-down": "log of 32 is 5",
+        "pc-u3-rebuild-the-number": "stack nine 2s",
+        "pc-u3-money-doubles": "6, then 12, then 24",
+        "pc-u4-the-backwards-spin": "add a full turn",
+        "pc-u4-hug-the-flat-line": "180 take away 112",
+        "pc-u4-the-faster-wave": "360 divided by 40",
+        "pc-u5-one-whole-between-them": "100 take away 45",
+        "pc-u5-partners-across-ninety": "42 plus 48 equals 90",
+        "pc-u6-the-thirty-degree-ramp": "half of 30",
+        "pc-u7-un-square-the-radius": "un-square 196",
+        "pc-u8-the-sum-that-never-ends": "twice 60",
+        "pc-u9-walk-the-value-in": "4 times 8 plus 6",
+        "pc-u9-the-hole-in-the-curve": "x plus 13",
+    }
+    missing = [lid for lid, frag in fixed.items() if frag not in second(lid)]
+    check("⭐ all sixteen second examples now do the operation, not just the answer",
+          not missing, missing)
+    short = [l["id"] for l in _ls.LESSONS if l["course"] == "precalc"
+             and len(l["pairs"]) > 1
+             and len(l["pairs"][1]["worked"][0].split()) < 12]
+    check("  and none is a one-line answer either", not short, short)
+
+    # ⭐ THE PROPERTY WORTH PINNING: the course keeps promises made in other courses.
+    check("⭐ Vieta's lesson still collects the debt Algebra Two ran up",
+          "Later is now" in teach("pc-u2-the-roots-secret")
+          and "famous later" in teach("alg2-u2-both-answers-count"),
+          "Algebra Two promised the product would be famous later; this is later")
+    check("  the domain lesson still answers division's forbidden x",
+          "WELCOME" in teach("pc-u1-the-doorway")
+          and "forbidden" in teach("alg2-u4-the-forbidden-x"),
+          "the bottom's zero is banned; zero under a root is welcome -- the contrast "
+          "is the teaching, and it spans two courses")
+    check("  and Pre-Calculus still hands Calculus its first question",
+          "Calculus starts exactly there" in teach("pc-u9-the-shrinking-window"),
+          "the last lesson of the course names the derivative and stops")
+
+    read = ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2",
+            "precalc")
+    check("⭐ seven courses read line by line; 252 lessons of 360",
+          sum(len([l for l in _ls.LESSONS if l["course"] == c]) for c in read) == 252,
+          sum(len([l for l in _ls.LESSONS if l["course"] == c]) for c in read))
+
+
 def part3fq_algebra_two_read_for_sense():
     """PART 3fq (build pm, 2026-08-28) -- ALGEBRA TWO, READ FOR SENSE.
 
@@ -14931,7 +15014,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,168</b>" in page,
+          "<b>7,174</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23397,6 +23480,7 @@ def main():
     part3fo_algebra_one_read_for_sense()
     part3fp_geometry_read_for_sense()
     part3fq_algebra_two_read_for_sense()
+    part3fr_precalc_read_for_sense()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

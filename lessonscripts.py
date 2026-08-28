@@ -2,6 +2,20 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pn -- PRE-CALCULUS, READ FOR SENSE. All 36 lessons read line by
+#               line. ⭐ ITS PROSE IS CLEAN -- not one broken sentence in the whole
+#               course, the first course where that is true. And it is the best-built
+#               course in the product for a different reason: it keeps its promises
+#               ACROSS units and across years. Algebra Two was told the roots' product
+#               "would be famous later"; Vieta's lesson opens "Later is now." The
+#               doorway lesson answers division's forbidden x with its opposite --
+#               "zero under a root is WELCOME." The last lesson shrinks a window
+#               toward a point, reaches 8, and says "that limit is called the
+#               derivative, and Calculus starts exactly there." A curriculum that
+#               remembers what it said is rarer than one that says it well.
+#               SIXTEEN changes, every one of them build pl's shape: a second worked
+#               example that states the answer without doing the operation. No prose
+#               defects, no leaks, no false statements.
 #   2026-08-28  BUILD pm -- ALGEBRA TWO, READ FOR SENSE. All 36 lessons read line by
 #               line -- the course whose absolute-value beat started this whole
 #               thread. ⭐ IT READS WELL NOW. pe's rewrite of lesson one landed, and
@@ -10625,7 +10639,7 @@ _PRECALC_U1 = [
             {"worked": ["Here is one more, done for you. f adds 4, g times by 3. f of g of 2: inside, g of 2 is 6; then f — 10.",
                         '[[step eq="g(2) = 6"]] [[step eq="f(6) = 10"]]'],
              "ask": {"a": 2, "b": 2, "c": 4, "op": "fcmp"}},
-            {"worked": ["One more together. f adds 5, g doubles. f of g of 7: 14, then 19.",
+            {"worked": ["One more together. f adds 5, g doubles. f of g of 7: inside, g of 7 is 14; then f — 19.",
                         '[[step eq="g(7) = 14"]] [[step eq="f(14) = 19"]]'],
              "ask": {"a": 7, "b": 3, "c": 6, "op": "fcmp"}},
         ],
@@ -10663,7 +10677,7 @@ _PRECALC_U1 = [
             {"worked": ["Here is one more, done for you. y = f of: x take away 2. The point (5, 6) slides right 2 — new x is 7.",
                         '[[step eq="(5, 6) → (7, 6)"]]'],
              "ask": {"a": 3, "b": 5, "c": 2, "op": "fshf"}},
-            {"worked": ["One more together. f of: x take away 6, and the point (7, 3): new x is 13.",
+            {"worked": ["One more together. f of: x take away 6, and the point (7, 3): it slides right 6, so the new x is 7 plus 6 — 13.",
                         '[[step eq="(7, 3) → (13, 3)"]]'],
              "ask": {"a": 7, "b": 8, "c": 4, "op": "fshf"}},
         ],
@@ -10864,7 +10878,7 @@ _PRECALC_U2 = [
             {"worked": ["Here is one more, done for you. Roots 4 and 7: the end number is 4 times 7 — 28. The middle would be 11.",
                         '[[step eq="(x − 4)(x − 7) → end 28 · middle 11"]]'],
              "ask": {"a": 2, "b": 8, "op": "vprd"}},
-            {"worked": ["One more together. Roots 2 and 9: the end number is 18.",
+            {"worked": ["One more together. Roots 2 and 9: the end number is 2 times 9 — 18.",
                         '[[step eq="(x − 2)(x − 9) → end 18"]]'],
              "ask": {"a": 5, "b": 7, "op": "vprd"}},
         ],
@@ -10952,7 +10966,7 @@ _PRECALC_U3 = [
             {"worked": ["Here is one more, done for you. Log base 2 of 256 to the power 3: log of 256 is 8, and 3 times 8 equals 24.",
                         '[[step eq="log 256^3 = 3 × 8 = 24"]]'],
              "ask": {"a": 512, "b": 2, "op": "logp"}},
-            {"worked": ["One more together. Log base 2 of 32 to the power 4: 4 times 5 equals 20.",
+            {"worked": ["One more together. Log base 2 of 32 to the power 4: log of 32 is 5, and 4 times 5 equals 20.",
                         '[[step eq="log 32^4 = 4 × 5 = 20"]]'],
              "ask": {"a": 128, "b": 3, "op": "logp"}},
         ],
@@ -10990,7 +11004,7 @@ _PRECALC_U3 = [
             {"worked": ["Here is one more, done for you. Log base 3 of the mystery equals 6: stack six 3s — 729.",
                         '[[step eq="3 stacked 6 times = 729"]]'],
              "ask": {"a": 2, "b": 8, "op": "lsol"}},
-            {"worked": ["One more together. Log base 2 of the mystery equals 9: 512.",
+            {"worked": ["One more together. Log base 2 of the mystery equals 9: stack nine 2s — 512.",
                         '[[step eq="2 stacked 9 times = 512"]]'],
              "ask": {"a": 10, "b": 3, "op": "lsol"}},
         ],
@@ -11066,7 +11080,7 @@ _PRECALC_U3 = [
             {"worked": ["Here is one more, done for you. 3 dollars doubling every 2 years, for 6 years: three doublings — 3, then 6, then 12, then 24.",
                         '[[step eq="6 ÷ 2 = 3"]] [[step eq="3 → 6 → 12 → 24"]]'],
              "ask": {"a": 2, "b": 2, "c": 6, "op": "cmpd"}},
-            {"worked": ["One more together. 6 dollars doubling every 4 years, for 8 years: two doublings — 24.",
+            {"worked": ["One more together. 6 dollars doubling every 4 years, for 8 years: two doublings — 6, then 12, then 24.",
                         '[[step eq="8 ÷ 4 = 2"]] [[step eq="6 → 12 → 24"]]'],
              "ask": {"a": 6, "b": 4, "c": 5, "op": "cmpd"}},
         ],
@@ -11154,7 +11168,7 @@ _PRECALC_U4 = [
             {"worked": ["Here is one more, done for you. Negative 25: add 360 — 335.",
                         '[[step eq="−25° + 360° = 335°"]]'],
              "ask": {"a": 70, "b": 0, "op": "nspn"}},
-            {"worked": ["One more together. Negative 155 plus 360 — 205.",
+            {"worked": ["One more together. Negative 155: add a full turn — negative 155 plus 360 is 205.",
                         '[[step eq="−155° + 360° = 205°"]]'],
              "ask": {"a": 110, "b": 0, "op": "nspn"}},
         ],
@@ -11192,7 +11206,7 @@ _PRECALC_U4 = [
             {"worked": ["Here is one more, done for you. 155 degrees: 180 take away 155 — the reference angle is 25.",
                         '[[step eq="155° → 180 − 155 = 25°"]]'],
              "ask": {"a": 125, "b": 0, "op": "refq"}},
-            {"worked": ["One more together. 112 degrees: the reference is 68.",
+            {"worked": ["One more together. 112 degrees: 180 take away 112 — the reference angle is 68.",
                         '[[step eq="112° → 180 − 112 = 68°"]]'],
              "ask": {"a": 165, "b": 0, "op": "refq"}},
         ],
@@ -11230,7 +11244,7 @@ _PRECALC_U4 = [
             {"worked": ["Here is one more, done for you. The sine of 36 x: 360 divided by 36 — the period is 10 degrees.",
                         '[[step eq="360 ÷ 36 = 10°"]]'],
              "ask": {"a": 20, "b": 0, "op": "wper"}},
-            {"worked": ["One more together. The sine of 40 x: the period is 9.",
+            {"worked": ["One more together. The sine of 40 x: 360 divided by 40 — the period is 9 degrees.",
                         '[[step eq="360 ÷ 40 = 9°"]]'],
              "ask": {"a": 24, "b": 0, "op": "wper"}},
         ],
@@ -11279,7 +11293,7 @@ _PRECALC_U5 = [
             {"worked": ["Here is one more, done for you. Sine squared equals 70 hundredths: 100 take away 70 — cosine squared is 30 hundredths.",
                         '[[step eq="sin² = 70/100"]] [[step eq="cos² = 30/100"]]'],
              "ask": {"a": 30, "b": 0, "op": "pyid"}},
-            {"worked": ["One more together. Sine squared 45 hundredths: cosine squared 55.",
+            {"worked": ["One more together. Sine squared 45 hundredths: 100 take away 45 — cosine squared is 55 hundredths.",
                         '[[step eq="sin² = 45/100"]] [[step eq="cos² = 55/100"]]'],
              "ask": {"a": 55, "b": 0, "op": "pyid"}},
         ],
@@ -11317,7 +11331,7 @@ _PRECALC_U5 = [
             {"worked": ["Here is one more, done for you. The sine of 85 equals the cosine of 5 — together they finish 90.",
                         '[[step eq="sin 85° = cos 5°"]]'],
              "ask": {"a": 25, "b": 0, "op": "cofn"}},
-            {"worked": ["One more together. The sine of 42 equals the cosine of 48.",
+            {"worked": ["One more together. The sine of 42 equals the cosine of 48, because 42 plus 48 equals 90.",
                         '[[step eq="sin 42° = cos 48°"]]'],
              "ask": {"a": 75, "b": 0, "op": "cofn"}},
         ],
@@ -11481,7 +11495,7 @@ _PRECALC_U6 = [
             {"worked": ["Here is one more, done for you. A 26-foot ramp at 30 degrees: half of 26 — it rises 13 feet.",
                         '[[step eq="½ · 26 = 13 ft"]]'],
              "ask": {"a": 32, "b": 0, "op": "ramp"}},
-            {"worked": ["One more together. A 30-foot ramp at the same 30 degrees rises 15 feet.",
+            {"worked": ["One more together. A 30-foot ramp at the same 30 degrees: half of 30 — it rises 15 feet.",
                         '[[step eq="½ · 30 = 15 ft"]]'],
              "ask": {"a": 36, "b": 0, "op": "ramp"}},
         ],
@@ -11608,7 +11622,7 @@ _PRECALC_U7 = [
             {"worked": ["Here is one more, done for you. x take away 5, squared, plus y take away 5, squared, equals 169: un-square 169 — the radius is 13.",
                         '[[step eq="= 169"]] [[step eq="radius = 13"]]'],
              "ask": {"a": 8, "b": 3, "c": 12, "op": "crad"}},
-            {"worked": ["One more together. That same shape ending in 196 has a radius of 14.",
+            {"worked": ["One more together. That same shape ending in 196: un-square 196 — the radius is 14.",
                         '[[step eq="= 196"]] [[step eq="radius = 14"]]'],
              "ask": {"a": 6, "b": 11, "c": 10, "op": "crad"}},
         ],
@@ -11884,7 +11898,7 @@ _PRECALC_U8 = [
             {"worked": ["Here is one more, done for you. A first bounce of 52 feet, halving forever: the whole trip is twice 52 — 104 feet.",
                         '[[step eq="52 + 26 + 13 + … → 104"]]'],
              "ask": {"a": 48, "b": 0, "op": "gser"}},
-            {"worked": ["One more together. A first bounce of 60 feet halving forever travels 120 feet in all.",
+            {"worked": ["One more together. A first bounce of 60 feet, halving forever: twice 60 — 120 feet in all.",
                         '[[step eq="60 + 30 + 15 + … → 120"]]'],
              "ask": {"a": 56, "b": 0, "op": "gser"}},
         ],
@@ -11935,7 +11949,7 @@ _PRECALC_U9 = [
             {"worked": ["Here is one more, done for you. As x creeps toward 6, 7 x plus 2 creeps toward 44.",
                         '[[step eq="7 × 6 + 2 = 44"]]'],
              "ask": {"a": 8, "b": 6, "c": 3, "op": "lsub"}},
-            {"worked": ["One more together. As x creeps toward 8, 4 x plus 6 creeps toward 38.",
+            {"worked": ["One more together. As x creeps toward 8, 4 x plus 6 creeps toward 4 times 8 plus 6 — 38.",
                         '[[step eq="4 × 8 + 6 = 38"]]'],
              "ask": {"a": 9, "b": 7, "c": 5, "op": "lsub"}},
         ],
@@ -11973,7 +11987,7 @@ _PRECALC_U9 = [
             {"worked": ["Here is one more, done for you. x squared take away 100, over x take away 10: away from the hole it is x plus 10, so the heading is 20.",
                         '[[step eq="x → 10 · y → 20"]]'],
              "ask": {"a": 14, "b": 0, "op": "lhol"}},
-            {"worked": ["One more together. x squared take away 169, over x take away 13: the heading is 26.",
+            {"worked": ["One more together. x squared take away 169, over x take away 13: away from the hole it is x plus 13, so the heading is 26.",
                         '[[step eq="x → 13 · y → 26"]]'],
              "ask": {"a": 16, "b": 0, "op": "lhol"}},
         ],
