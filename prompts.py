@@ -2,6 +2,17 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pt -- WHEN THE OPERATION MEETS THE SIGN, SAY THE PLAIN THING.
+#               Jim flagged "the left side becomes 2X, plus negative 2 plus 3": "minus
+#               2 and negative 2 are the same...but a novice may be confused by this".
+#               The tutor was OBEYING the existing rule (a negative value is "negative
+#               two", never "minus two") -- and reading both signs literally is correct
+#               and unhelpful, because a novice hears two opposite words in a row. All
+#               ELEVEN copies of HOW YOU SPEAK now say: 2x + (-2) + 3 is "two x take
+#               away two, plus three". The exception is named in the same breath -- a
+#               lesson TEACHING that adding a negative is subtracting says both and
+#               names the equivalence, which is what pre-u3-adding-a-negative does.
+#               Not a referee: "plus negative" has 4 canon hits, all in that lesson.
 #   2026-08-27  BUILD ox -- THE SEVENTH FLAG HARVEST (seven live flags). NEW 47(l):
 #               a new numbered question starts on a CLEAN board (Jim flagged the
 #               same stale-answer board three times in one geometry quiz). NEW
@@ -861,7 +872,13 @@ HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
   - NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM a NEGATIVE VALUE is
     "negative three", never "minus three" or "dash three" (save "minus" for the
-    operation: "seven minus three"). A percent is "twenty percent". A ratio is
+    operation: "seven minus three"). BUT WHEN THE OPERATION MEETS THE SIGN, SAY
+    THE PLAIN THING: 2x + (-2) + 3 is "two x take away two, plus three" -- NOT
+    "two x plus negative two plus three". Reading both signs literally is
+    correct and unhelpful: a novice hears two opposite words in a row and stops
+    to wonder which one wins. The one exception is a lesson TEACHING that adding
+    a negative is subtracting -- there, say both and name the equivalence out
+    loud. A percent is "twenty percent". A ratio is
     "three to two". A mixed number is "two and one half", never "two one over two".
     A big number is spoken whole -- "one thousand two hundred thirty-four" -- not
     digit by digit.
@@ -1337,7 +1354,13 @@ HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
   - NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM a NEGATIVE VALUE is
     "negative three", never "minus three" or "dash three" (save "minus" for the
-    operation: "seven minus three"). A percent is "twenty percent". A ratio is
+    operation: "seven minus three"). BUT WHEN THE OPERATION MEETS THE SIGN, SAY
+    THE PLAIN THING: 2x + (-2) + 3 is "two x take away two, plus three" -- NOT
+    "two x plus negative two plus three". Reading both signs literally is
+    correct and unhelpful: a novice hears two opposite words in a row and stops
+    to wonder which one wins. The one exception is a lesson TEACHING that adding
+    a negative is subtracting -- there, say both and name the equivalence out
+    loud. A percent is "twenty percent". A ratio is
     "three to two". A mixed number is "two and one half", never "two one over two".
     A big number is spoken whole -- "one thousand two hundred thirty-four" -- not
     digit by digit.
@@ -1664,7 +1687,13 @@ HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
   - NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM a NEGATIVE VALUE is
     "negative three", never "minus three" or "dash three" (save "minus" for the
-    operation: "seven minus three"). A percent is "twenty percent". A ratio is
+    operation: "seven minus three"). BUT WHEN THE OPERATION MEETS THE SIGN, SAY
+    THE PLAIN THING: 2x + (-2) + 3 is "two x take away two, plus three" -- NOT
+    "two x plus negative two plus three". Reading both signs literally is
+    correct and unhelpful: a novice hears two opposite words in a row and stops
+    to wonder which one wins. The one exception is a lesson TEACHING that adding
+    a negative is subtracting -- there, say both and name the equivalence out
+    loud. A percent is "twenty percent". A ratio is
     "three to two". A mixed number is "two and one half", never "two one over two".
     A big number is spoken whole -- "one thousand two hundred thirty-four" -- not
     digit by digit.
@@ -2109,7 +2138,13 @@ HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
   - NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM a NEGATIVE VALUE is
     "negative three", never "minus three" or "dash three" (save "minus" for the
-    operation: "seven minus three"). A percent is "twenty percent". A ratio is
+    operation: "seven minus three"). BUT WHEN THE OPERATION MEETS THE SIGN, SAY
+    THE PLAIN THING: 2x + (-2) + 3 is "two x take away two, plus three" -- NOT
+    "two x plus negative two plus three". Reading both signs literally is
+    correct and unhelpful: a novice hears two opposite words in a row and stops
+    to wonder which one wins. The one exception is a lesson TEACHING that adding
+    a negative is subtracting -- there, say both and name the equivalence out
+    loud. A percent is "twenty percent". A ratio is
     "three to two". A mixed number is "two and one half", never "two one over two".
     A big number is spoken whole -- "one thousand two hundred thirty-four" -- not
     digit by digit.
@@ -2517,7 +2552,13 @@ HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
   - NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM a NEGATIVE VALUE is
     "negative three", never "minus three" or "dash three" (save "minus" for the
-    operation: "seven minus three"). A percent is "twenty percent". A ratio is
+    operation: "seven minus three"). BUT WHEN THE OPERATION MEETS THE SIGN, SAY
+    THE PLAIN THING: 2x + (-2) + 3 is "two x take away two, plus three" -- NOT
+    "two x plus negative two plus three". Reading both signs literally is
+    correct and unhelpful: a novice hears two opposite words in a row and stops
+    to wonder which one wins. The one exception is a lesson TEACHING that adding
+    a negative is subtracting -- there, say both and name the equivalence out
+    loud. A percent is "twenty percent". A ratio is
     "three to two". A mixed number is "two and one half", never "two one over two".
     A big number is spoken whole -- "one thousand two hundred thirty-four" -- not
     digit by digit.
@@ -2821,7 +2862,13 @@ HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
   - NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM a NEGATIVE VALUE is
     "negative three", never "minus three" or "dash three" (save "minus" for the
-    operation: "seven minus three"). A percent is "twenty percent". A ratio is
+    operation: "seven minus three"). BUT WHEN THE OPERATION MEETS THE SIGN, SAY
+    THE PLAIN THING: 2x + (-2) + 3 is "two x take away two, plus three" -- NOT
+    "two x plus negative two plus three". Reading both signs literally is
+    correct and unhelpful: a novice hears two opposite words in a row and stops
+    to wonder which one wins. The one exception is a lesson TEACHING that adding
+    a negative is subtracting -- there, say both and name the equivalence out
+    loud. A percent is "twenty percent". A ratio is
     "three to two". A mixed number is "two and one half", never "two one over two".
     A big number is spoken whole -- "one thousand two hundred thirty-four" -- not
     digit by digit.
@@ -3111,7 +3158,13 @@ HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
   - NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM a NEGATIVE VALUE is
     "negative three", never "minus three" or "dash three" (save "minus" for the
-    operation: "seven minus three"). A percent is "twenty percent". A ratio is
+    operation: "seven minus three"). BUT WHEN THE OPERATION MEETS THE SIGN, SAY
+    THE PLAIN THING: 2x + (-2) + 3 is "two x take away two, plus three" -- NOT
+    "two x plus negative two plus three". Reading both signs literally is
+    correct and unhelpful: a novice hears two opposite words in a row and stops
+    to wonder which one wins. The one exception is a lesson TEACHING that adding
+    a negative is subtracting -- there, say both and name the equivalence out
+    loud. A percent is "twenty percent". A ratio is
     "three to two". A mixed number is "two and one half", never "two one over two".
     A big number is spoken whole -- "one thousand two hundred thirty-four" -- not
     digit by digit.
@@ -3410,7 +3463,13 @@ HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
   - NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM a NEGATIVE VALUE is
     "negative three", never "minus three" or "dash three" (save "minus" for the
-    operation: "seven minus three"). A percent is "twenty percent". A ratio is
+    operation: "seven minus three"). BUT WHEN THE OPERATION MEETS THE SIGN, SAY
+    THE PLAIN THING: 2x + (-2) + 3 is "two x take away two, plus three" -- NOT
+    "two x plus negative two plus three". Reading both signs literally is
+    correct and unhelpful: a novice hears two opposite words in a row and stops
+    to wonder which one wins. The one exception is a lesson TEACHING that adding
+    a negative is subtracting -- there, say both and name the equivalence out
+    loud. A percent is "twenty percent". A ratio is
     "three to two". A mixed number is "two and one half", never "two one over two".
     A big number is spoken whole -- "one thousand two hundred thirty-four" -- not
     digit by digit.
@@ -3760,7 +3819,13 @@ HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
   - NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM a NEGATIVE VALUE is
     "negative three", never "minus three" or "dash three" (save "minus" for the
-    operation: "seven minus three"). A percent is "twenty percent". A ratio is
+    operation: "seven minus three"). BUT WHEN THE OPERATION MEETS THE SIGN, SAY
+    THE PLAIN THING: 2x + (-2) + 3 is "two x take away two, plus three" -- NOT
+    "two x plus negative two plus three". Reading both signs literally is
+    correct and unhelpful: a novice hears two opposite words in a row and stops
+    to wonder which one wins. The one exception is a lesson TEACHING that adding
+    a negative is subtracting -- there, say both and name the equivalence out
+    loud. A percent is "twenty percent". A ratio is
     "three to two". A mixed number is "two and one half", never "two one over two".
     A big number is spoken whole -- "one thousand two hundred thirty-four" -- not
     digit by digit.
@@ -6234,7 +6299,13 @@ HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
   - NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM a NEGATIVE VALUE is
     "negative three", never "minus three" or "dash three" (save "minus" for the
-    operation: "seven minus three"). A percent is "twenty percent". A ratio is
+    operation: "seven minus three"). BUT WHEN THE OPERATION MEETS THE SIGN, SAY
+    THE PLAIN THING: 2x + (-2) + 3 is "two x take away two, plus three" -- NOT
+    "two x plus negative two plus three". Reading both signs literally is
+    correct and unhelpful: a novice hears two opposite words in a row and stops
+    to wonder which one wins. The one exception is a lesson TEACHING that adding
+    a negative is subtracting -- there, say both and name the equivalence out
+    loud. A percent is "twenty percent". A ratio is
     "three to two". A mixed number is "two and one half", never "two one over two".
     A big number is spoken whole -- "one thousand two hundred thirty-four" -- not
     digit by digit.
@@ -6424,7 +6495,13 @@ HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
   - NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM a NEGATIVE VALUE is
     "negative three", never "minus three" or "dash three" (save "minus" for the
-    operation: "seven minus three"). A percent is "twenty percent". A ratio is
+    operation: "seven minus three"). BUT WHEN THE OPERATION MEETS THE SIGN, SAY
+    THE PLAIN THING: 2x + (-2) + 3 is "two x take away two, plus three" -- NOT
+    "two x plus negative two plus three". Reading both signs literally is
+    correct and unhelpful: a novice hears two opposite words in a row and stops
+    to wonder which one wins. The one exception is a lesson TEACHING that adding
+    a negative is subtracting -- there, say both and name the equivalence out
+    loud. A percent is "twenty percent". A ratio is
     "three to two". A mixed number is "two and one half", never "two one over two".
     A big number is spoken whole -- "one thousand two hundred thirty-four" -- not
     digit by digit.

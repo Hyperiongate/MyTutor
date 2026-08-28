@@ -1,0 +1,544 @@
+<!doctype html>
+<!--
+  ============================================================================
+  mockup/landing-quiet.html  -  "The Quiet Front Door"
+  LANDING PAGE LAYOUT MOCKUP.  NOT PRODUCTION.  NOT LINKED FROM ANYWHERE.
+  ============================================================================
+
+  WHAT THIS IS
+    A quieter home page: one honest sentence, three doors (Try it as a guest /
+    Take the tour / Log in), and a slim "hear him teach" strip - all above the
+    fold at 1280x800.  Everything we sell with stays below the fold, and the
+    old top-nav links move to the footer where crawlers still read them.
+
+    Click "Show design notes" in the top bar to reveal the reasoning inline
+    plus a marker showing where the fold falls.
+
+  CHANGE NOTES (newest first)
+    2026-08-28  Created.  Then, in the same session:
+                - Mr. Cadabra repainted No.2 yellow and redrawn without legs,
+                  to match mockup/cadabra-pencil.html
+                - the "hear him teach" strip changed from gold to grey, to
+                  keep the rule that YELLOW IS THE CHARACTER'S AND NOTHING
+                  ELSE'S on the site
+                - footer contact link shortened (fixed a horizontal overflow
+                  on narrow phones)
+
+  DELIBERATELY ABSENT
+    No price.  Pricing waits on the production serve-cost number.
+    No testimonials, no invented figures.  Nothing here claims anything the
+    product cannot do - the tutor speaks, the child types or taps, and the
+    microphone stays off.
+
+  SAFE TO DEPLOY, SAFE TO DELETE
+    - Self-contained.  No API calls, no server needed.
+    - Does NOT touch or import landing.html, site-nav.js or any live page.
+    - Only external request is Google Fonts (falls back cleanly if blocked).
+    - No APP_BUILD change and no ruletests PART is needed.  In particular the
+      PART 3ag screenshot pins are untouched - this page uses no screenshots.
+
+  SUGGESTED LOCATION
+    static/mockup/landing-quiet.html  ->  served at
+    /static/mockup/landing-quiet.html once pushed.  noindex is set so it
+    cannot compete with the real landing page in search.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='12' y='9' width='8' height='15' fill='%23F2BC1B'/%3E%3Crect x='12' y='7' width='8' height='2.5' fill='%23C8CAD4'/%3E%3Cpath d='M9 7 L23 7 L20 2 L12 2 Z' fill='%233A2C69'/%3E%3Cpath d='M12 24 L20 24 L16 30 Z' fill='%232F2C39'/%3E%3C/svg%3E">
+<style>*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}img{max-width:100%}[hidden]{display:none!important}</style>
+
+<title>The Quiet Front Door</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+:root{
+  --bg:#FAF9FD; --panel:#FFFFFF; --panel-2:#F3F1F9;
+  --ink:#1A1726; --ink-2:#403A55; --muted:#6C6684;
+  --line:#E4E0EF; --line-strong:#CFC8E4;
+  --accent:#5B36AB; --accent-2:#7C57CF; --accent-soft:#F0EAFB;
+  --gold:#9A6408; --gold-soft:#FBF1DC;
+  --board:#201B33;
+  --note:#0F6E5C; --note-soft:#E4F3EF;
+
+  /* his paint - a standard No.2 yellow; the purple stays the company's and rides on his hat */
+  --c-body:#F2BC1B; --c-body-dk:#C08F0C; --c-body-lt:#FBD96A;
+  --c-indigo:#3A2C69; --c-indigo-dk:#2B2050; --c-band:#6B44BE; --c-gold:#F2BC1B;
+  --c-graphite:#2F2C39; --c-wood:#DFC08A; --c-wood-dk:#C0A067;
+  --c-ferrule:#C8CAD4; --c-ferrule-dk:#9EA1B1; --c-eye:#FBFAFF; --c-mitt:#F5F0E5;
+
+  --display:"Literata",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#100E1B; --panel:#191527; --panel-2:#211C33;
+    --ink:#F0EDF8; --ink-2:#CDC6E0; --muted:#9891B2;
+    --line:#2C2542; --line-strong:#3B3257;
+    --accent:#B79BF0; --accent-2:#9A7AE4; --accent-soft:#241C3D;
+    --gold:#E0B45F; --gold-soft:#2A2213;
+    --board:#0B0914;
+    --note:#6ED3BC; --note-soft:#10261F;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#100E1B; --panel:#191527; --panel-2:#211C33;
+  --ink:#F0EDF8; --ink-2:#CDC6E0; --muted:#9891B2;
+  --line:#2C2542; --line-strong:#3B3257;
+  --accent:#B79BF0; --accent-2:#9A7AE4; --accent-soft:#241C3D;
+  --gold:#E0B45F; --gold-soft:#2A2213;
+  --board:#0B0914;
+  --note:#6ED3BC; --note-soft:#10261F;
+}
+
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:17px; line-height:1.6; -webkit-font-smoothing:antialiased}
+.wrap{width:min(1100px,90vw); margin-inline:auto}
+h1,h2,h3{font-family:var(--display); margin:0; text-wrap:balance}
+p{margin:0}
+a{color:inherit}
+
+/* ---------------- mockup frame ---------------- */
+.mock-bar{
+  background:var(--accent-soft); border-bottom:1px solid var(--line);
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.09em; text-transform:uppercase; color:var(--accent);
+}
+.mock-bar .wrap{display:flex; justify-content:space-between; align-items:center; gap:16px; padding:10px 0; flex-wrap:wrap}
+.toggle{
+  font:inherit; letter-spacing:.09em; text-transform:uppercase; cursor:pointer;
+  background:var(--panel); color:var(--accent); border:1px solid var(--line-strong);
+  padding:6px 13px; border-radius:999px;
+}
+.toggle:hover{border-color:var(--accent)}
+.toggle:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+.dnote{display:none}
+body.notes-on .dnote{
+  display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:start;
+  background:var(--note-soft); border-left:3px solid var(--note);
+  padding:14px 18px; margin:22px 0; border-radius:0 4px 4px 0;
+  font-size:.93rem; line-height:1.5; color:var(--ink-2);
+}
+.dnote b{font-family:var(--mono); font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--note); padding-top:3px}
+body.notes-on .fold{display:flex}
+.fold{
+  display:none; align-items:center; gap:14px; margin-top:34px;
+  font-family:var(--mono); font-size:.68rem; letter-spacing:.11em; text-transform:uppercase; color:var(--muted);
+}
+.fold::before,.fold::after{content:""; height:0; flex:1; border-top:1px dashed var(--line-strong)}
+
+/* ---------------- top nav ---------------- */
+.topnav{border-bottom:1px solid var(--line); background:var(--bg)}
+.topnav .wrap{display:flex; align-items:center; justify-content:space-between; gap:20px; padding:16px 0}
+.brand{display:flex; align-items:center; gap:11px; font-family:var(--display); font-weight:700; font-size:1.06rem; letter-spacing:-.01em}
+.brand svg{display:block}
+.topnav nav{display:flex; align-items:center; gap:8px; font-size:.94rem}
+.topnav nav a{padding:8px 12px; border-radius:4px; text-decoration:none; color:var(--ink-2)}
+.topnav nav a:hover{background:var(--panel-2); color:var(--ink)}
+.topnav nav a.primary{color:var(--accent); font-weight:600}
+
+/* ---------------- hero ---------------- */
+.hero{padding:clamp(32px,4.5vw,54px) 0 clamp(28px,4vw,46px)}
+.hero-grid{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); gap:clamp(30px,5vw,64px); align-items:center}
+@media (max-width:840px){ .hero-grid{grid-template-columns:1fr} }
+
+.hero h1{font-size:clamp(2.1rem,4.6vw,3.15rem); font-weight:600; line-height:1.12; letter-spacing:-.02em}
+.hero .sub{margin-top:16px; font-size:clamp(1.04rem,1.6vw,1.16rem); color:var(--ink-2); max-width:44ch; line-height:1.55}
+
+.doors{display:flex; flex-direction:column; gap:0; margin-top:clamp(22px,3vw,30px); border-top:1px solid var(--line)}
+.door{
+  display:grid; grid-template-columns:1fr auto; align-items:center; gap:18px;
+  padding:16px 4px 16px 0; border-bottom:1px solid var(--line);
+  text-decoration:none; color:inherit; background:none;
+  transition:padding-left .18s ease, background-color .18s ease;
+}
+.door:hover,.door:focus-visible{background:var(--panel-2); padding-left:14px; outline:none}
+.door:focus-visible{box-shadow:inset 3px 0 0 var(--accent)}
+.door .t{font-family:var(--display); font-weight:600; font-size:1.14rem; display:block}
+.door .d{color:var(--muted); font-size:.95rem; display:block; margin-top:2px}
+.door .go{color:var(--accent); font-size:1.2rem; line-height:1}
+.door.lead .t{color:var(--accent)}
+
+.hear{
+  display:flex; align-items:center; gap:15px; margin-top:22px;
+  background:var(--panel-2); border:1px solid var(--line-strong);
+  border-radius:4px; padding:13px 16px; width:100%; text-align:left;
+  font:inherit; color:var(--ink); cursor:pointer;
+}
+.hear:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.hear .play{
+  width:34px; height:34px; border-radius:50%; background:var(--accent); color:var(--panel);
+  display:grid; place-items:center; flex:none; font-size:.8rem;
+}
+.hear .lab{display:flex; flex-direction:column; line-height:1.35}
+.hear .lab b{font-weight:600; font-size:.98rem}
+.hear .lab span{color:var(--muted); font-size:.85rem}
+.wave{display:flex; align-items:flex-end; gap:3px; height:22px; margin-left:auto; flex:none}
+.wave i{width:3px; background:var(--accent); opacity:.45; border-radius:2px; height:6px}
+.hear.playing .wave i{animation:bar .9s ease-in-out infinite; opacity:.9}
+.wave i:nth-child(2){animation-delay:.1s}.wave i:nth-child(3){animation-delay:.2s}
+.wave i:nth-child(4){animation-delay:.3s}.wave i:nth-child(5){animation-delay:.15s}
+.wave i:nth-child(6){animation-delay:.25s}.wave i:nth-child(7){animation-delay:.05s}
+@keyframes bar{0%,100%{height:5px}50%{height:20px}}
+
+/* hero right: the board */
+.stage{display:flex; align-items:flex-end; gap:10px; justify-content:center}
+.board{
+  background:var(--board); border:1px solid var(--line-strong); border-radius:6px; padding:24px 26px 22px;
+  flex:1; min-width:0;
+}
+.board .eq{font-family:var(--mono); color:#F4F1FF; font-size:clamp(1.1rem,2.2vw,1.4rem); letter-spacing:.04em}
+.board .eq .dim{color:#8E85B5}
+.board .rule{height:3px; background:var(--accent-2); border-radius:2px; margin:14px 0 16px; width:62%}
+.board .say{color:#CFC7EA; font-size:.95rem; line-height:1.5; font-style:italic}
+.stage .who{width:clamp(70px,12vw,104px); flex:none}
+.stage .who svg{display:block; width:100%; height:auto}
+
+/* ---------------- sections ---------------- */
+section{padding:clamp(46px,7vw,82px) 0; border-top:1px solid var(--line)}
+.eyebrow{font-family:var(--mono); font-size:.71rem; letter-spacing:.13em; text-transform:uppercase; color:var(--muted)}
+.sec-head{display:flex; flex-direction:column; gap:11px; margin-bottom:clamp(26px,4vw,40px)}
+.sec-head h2{font-size:clamp(1.5rem,2.9vw,2rem); font-weight:600; letter-spacing:-.015em}
+.sec-head p{color:var(--ink-2); max-width:60ch}
+
+.three{display:grid; grid-template-columns:repeat(auto-fit,minmax(235px,1fr)); gap:clamp(22px,3.5vw,40px)}
+.three .item{display:flex; flex-direction:column; gap:8px}
+.three h3{font-size:1.08rem; font-weight:700}
+.three p{color:var(--ink-2); font-size:.97rem; line-height:1.55}
+
+/* course ladder */
+.ladder{display:flex; flex-wrap:wrap; gap:8px}
+.rung{
+  font-size:.92rem; padding:8px 14px; border:1px solid var(--line-strong);
+  border-radius:999px; color:var(--ink-2); background:var(--panel);
+}
+.rung.edge{border-color:var(--accent); color:var(--accent); font-weight:600}
+.ladder-note{margin-top:18px; color:var(--muted); font-size:.94rem}
+
+/* exchange */
+.exchange{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px}
+.bubble{background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:20px 22px; display:flex; flex-direction:column; gap:9px}
+.bubble .who{font-family:var(--mono); font-size:.68rem; letter-spacing:.11em; text-transform:uppercase; color:var(--muted)}
+.bubble p{font-size:1rem; line-height:1.55; color:var(--ink)}
+.bubble.bad{border-color:var(--line)}
+.bubble.bad p{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line-strong)}
+.bubble.good{border-color:var(--accent); background:var(--accent-soft)}
+
+/* audience doors */
+.aud{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px}
+.aud a{
+  display:flex; flex-direction:column; gap:7px; text-decoration:none;
+  background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:22px;
+  transition:border-color .18s ease, transform .18s ease;
+}
+.aud a:hover{border-color:var(--accent); transform:translateY(-2px)}
+.aud a:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.aud b{font-family:var(--display); font-size:1.06rem; font-weight:600}
+.aud span{color:var(--muted); font-size:.93rem; line-height:1.5}
+.aud em{font-style:normal; color:var(--accent); font-size:.88rem; font-weight:600; margin-top:auto; padding-top:10px}
+
+/* trust */
+.trust{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:22px 30px}
+.trust div{display:flex; flex-direction:column; gap:5px}
+.trust b{font-size:.98rem}
+.trust span{color:var(--muted); font-size:.92rem; line-height:1.5}
+
+/* footer */
+footer{border-top:1px solid var(--line); background:var(--panel-2); padding:clamp(38px,5vw,60px) 0 46px}
+.fcols{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:28px 24px}
+.fcol{display:flex; flex-direction:column; gap:9px}
+.fcol b{font-family:var(--mono); font-size:.68rem; letter-spacing:.11em; text-transform:uppercase; color:var(--muted)}
+.fcol a{text-decoration:none; color:var(--ink-2); font-size:.95rem; overflow-wrap:anywhere}
+.fcol a:hover{color:var(--accent); text-decoration:underline}
+.legal{margin-top:34px; padding-top:22px; border-top:1px solid var(--line); color:var(--muted); font-size:.86rem; display:flex; flex-direction:column; gap:5px}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important; transition:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="mock-bar">
+  <div class="wrap">
+    <span>Layout mockup &middot; not the live site &middot; 28 Aug 2026</span>
+    <button class="toggle" id="toggle" aria-pressed="false">Show design notes</button>
+  </div>
+</div>
+
+<div class="topnav">
+  <div class="wrap">
+    <span class="brand"><span id="mark"></span> Mr. Cadabra&rsquo;s Classroom</span>
+    <nav>
+      <a href="#plans">Plans</a>
+      <a href="#" class="primary">Log in</a>
+    </nav>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <h1>A math tutor who talks your child through it.</h1>
+        <p class="sub">Counting to calculus, one patient teacher, ten courses. He explains out loud, works on the board, and never just hands over the answer.</p>
+
+        <div class="doors">
+          <a class="door lead" href="#">
+            <span><span class="t">Try it as a guest</span><span class="d">A real lesson, right now. No account, no card, nothing to cancel.</span></span>
+            <span class="go" aria-hidden="true">&rarr;</span>
+          </a>
+          <a class="door" href="#">
+            <span><span class="t">Take the tour</span><span class="d">Two guided minutes. Watch how a lesson actually goes.</span></span>
+            <span class="go" aria-hidden="true">&rarr;</span>
+          </a>
+          <a class="door" href="#">
+            <span><span class="t">Log in</span><span class="d">You have an account, or your child has a class code.</span></span>
+            <span class="go" aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+
+        <button class="hear" id="hear">
+          <span class="play" aria-hidden="true">&#9654;</span>
+          <span class="lab"><b>Hear him teach</b><span>Twenty seconds of a real lesson, in his own voice.</span></span>
+          <span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        </button>
+      </div>
+
+      <div class="stage">
+        <div class="board">
+          <div class="eq">2x + 6 = 14<br><span class="dim">2x = 8</span></div>
+          <div class="rule"></div>
+          <p class="say">&ldquo;Six is being added on the left. What could we do to both sides to get rid of it?&rdquo;</p>
+        </div>
+        <div class="who" id="who"></div>
+      </div>
+    </div>
+
+    <div class="fold">the fold on a laptop</div>
+
+    <div class="dnote"><b>Note 1</b><div>Everything above this line is the whole page for a returning child: three doors, one sentence, and his voice. The guest door leads because a first-time visitor doing a real lesson is the strongest thing this product owns &mdash; and it is the one door that costs the visitor nothing to open.</div></div>
+    <div class="dnote"><b>Colour rule</b><div>One rule worth keeping now that he is yellow: <b>yellow is his and nothing else's.</b> No button, badge or highlight on the site uses it. Purple stays the product's colour and rides on his hat, so the two read as related without competing. It is why the &ldquo;hear him teach&rdquo; strip above is grey and not gold.</div></div>
+    <div class="dnote"><b>Note 2</b><div>The top nav is down to two links. Everything that used to live up there &mdash; mission, how we teach, courses, students, parents, teachers, community, beta &mdash; is in the footer, where crawlers still read it and a curious parent can still find it. That is how the page gets quiet without going dark to search.</div></div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">What it is</p>
+      <h2>Not a video, not a worksheet, not a chatbot</h2>
+    </div>
+    <div class="three">
+      <div class="item">
+        <h3>He teaches out loud</h3>
+        <p>A warm voice explaining, and a whiteboard filling in beside it, step by step. Your child answers on the board or the keypad &mdash; the microphone stays off.</p>
+      </div>
+      <div class="item">
+        <h3>He never just gives the answer</h3>
+        <p>A wrong answer gets a question back, then a smaller question, then a worked example of a different problem. The one thing he will not do is finish it for them.</p>
+      </div>
+      <div class="item">
+        <h3>The whole journey, not one grade</h3>
+        <p>Ten courses under one subscription, from first counting through differential equations. Placement at the start, mastery quizzes along the way, and a child who never outgrows their tutor.</p>
+      </div>
+    </div>
+    <div class="dnote"><b>Note 3</b><div>Three claims, no adjectives, in the order a parent asks them. Anything you cannot show in the demo does not belong in this row.</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Ten courses</p>
+      <h2>One tutor, counting to calculus</h2>
+    </div>
+    <div class="ladder">
+      <span class="rung edge">Entry-Level Math</span>
+      <span class="rung">Basic Math</span>
+      <span class="rung">Prealgebra</span>
+      <span class="rung">Algebra I</span>
+      <span class="rung">Geometry</span>
+      <span class="rung">Algebra II</span>
+      <span class="rung">Trigonometry &amp; Pre-Calculus</span>
+      <span class="rung">Probability &amp; Statistics</span>
+      <span class="rung">Calculus</span>
+      <span class="rung edge">Differential Equations</span>
+    </div>
+    <p class="ladder-note">Each course places your child where they actually are, then moves when they have proved they are ready &mdash; not when the calendar says so.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">The difference, in one exchange</p>
+      <h2>What happens when your child gets it wrong</h2>
+    </div>
+    <div class="exchange">
+      <div class="bubble bad">
+        <span class="who">What a solver does</span>
+        <p>x = 4. Here are the steps.</p>
+      </div>
+      <div class="bubble good">
+        <span class="who">What he does</span>
+        <p>&ldquo;Close. You subtracted the six from the left side &mdash; look at the right side with me. What has to happen there?&rdquo;</p>
+      </div>
+    </div>
+    <div class="dnote"><b>Note 4</b><div>This panel is doing the work your headline used to do. It is also the section a parent screenshots and sends to another parent, which is worth more than a testimonial you would have to go and collect.</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Pick your door</p>
+      <h2>The same tutor, explained for your situation</h2>
+    </div>
+    <div class="aud">
+      <a href="#"><b>Parents</b><span>Is my child actually learning, and will she actually want to do this?</span><em>See a parent&rsquo;s week &rarr;</em></a>
+      <a href="#"><b>Homeschool</b><span>Instructional hours, printable records, and a scope and sequence you can file.</span><em>See the records &rarr;</em></a>
+      <a href="#"><b>Teachers</b><span>An assistant for the twenty-eight children you cannot sit beside at once.</span><em>See the class view &rarr;</em></a>
+      <a href="#"><b>Students</b><span>He listens, he waits, and he never makes you feel slow.</span><em>Take a lesson &rarr;</em></a>
+    </div>
+  </div>
+</section>
+
+<section id="plans">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Trust</p>
+      <h2>The boring promises, kept</h2>
+    </div>
+    <div class="trust">
+      <div><b>No microphone</b><span>The tutor speaks; your child types or taps. Nothing in your house is listening.</span></div>
+      <div><b>Parents hold the account</b><span>You create it, you see everything in it, and you can delete it.</span></div>
+      <div><b>Honest dashboards</b><span>Real minutes and real quiz results. Nothing is rounded up to look better.</span></div>
+      <div><b>Your data is not for sale</b><span>Not sold, not shared, not used to sell you anything else.</span></div>
+      <div><b>Practice is never extra</b><span>Every problem your child wants to try is included.</span></div>
+      <div><b>One price, ten courses</b><span>One subscription covers the whole journey, for the whole family.</span></div>
+    </div>
+    <div class="dnote"><b>Note 5</b><div>Homeschool parents read privacy pages before they read pricing. This block is placed where it is because it is the last thing they need before deciding &mdash; and the pricing number itself is deliberately not on this mockup until you have the serve-cost figure.</div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fcols">
+      <div class="fcol">
+        <b>The product</b>
+        <a href="#">Take a tour</a><a href="#">Try as a guest</a><a href="#">Courses</a><a href="#">Plans</a>
+      </div>
+      <div class="fcol">
+        <b>How it works</b>
+        <a href="#">How we teach</a><a href="#">Our mission</a><a href="#">Community</a><a href="#">Beta</a>
+      </div>
+      <div class="fcol">
+        <b>For you</b>
+        <a href="#">Parents</a><a href="#">Homeschool</a><a href="#">Teachers</a><a href="#">Students</a>
+      </div>
+      <div class="fcol">
+        <b>The fine print</b>
+        <a href="#">Privacy</a><a href="#">Terms</a><a href="#">Refunds</a><a href="#">Contact support</a>
+      </div>
+    </div>
+    <div class="legal">
+      <span>Mr. Cadabra&rsquo;s Classroom &middot; Hyperion Shift LLC &middot; mrcadabra.com</span>
+      <span>Layout mockup for review, 28 August 2026. No production file was opened or changed to make this page.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var css = getComputedStyle(document.documentElement);
+  function v(n){ return css.getPropertyValue(n).trim(); }
+  var P = {
+    body:v('--c-body'), bodyDk:v('--c-body-dk'), bodyLt:v('--c-body-lt'),
+    indigo:v('--c-indigo'), indigoDk:v('--c-indigo-dk'), band:v('--c-band'), gold:v('--c-gold'),
+    graphite:v('--c-graphite'), wood:v('--c-wood'), woodDk:v('--c-wood-dk'),
+    ferrule:v('--c-ferrule'), ferruleDk:v('--c-ferrule-dk'), eye:v('--c-eye'), mitt:v('--c-mitt')
+  };
+  var STAR = "M0 -10 L2.9 -3.5 L9.5 -3.1 L4.5 1.2 L6.1 7.6 L0 4 L-6.1 7.6 L-4.5 1.2 L-9.5 -3.1 L-2.9 -3.5 Z";
+  var g = P.graphite, S = 'fill="none" stroke="'+g+'" stroke-linecap="round" stroke-linejoin="round"';
+
+  function eye(cx,cy,rx,ry,px,py,pr){
+    return '<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" fill="'+P.eye+'" stroke="'+g+'" stroke-width="2.2"/>'
+         + '<circle cx="'+px+'" cy="'+py+'" r="'+pr+'" fill="'+g+'"/>';
+  }
+  function face(kind){
+    var inner;
+    if(kind==='teaching'){
+      inner = '<path d="M90 137 Q99 131 108 136" '+S+' stroke-width="2.6"/><path d="M112 136 Q121 131 130 137" '+S+' stroke-width="2.6"/>'
+        + eye(99,158,8,9,100,159,3.4) + eye(121,158,8,9,122,159,3.4)
+        + '<ellipse cx="110" cy="185" rx="6.2" ry="7.6" fill="'+g+'"/>';
+    } else {
+      inner = '<path d="M90 143 Q99 138 108 142" '+S+' stroke-width="2.6"/><path d="M112 142 Q121 138 130 143" '+S+' stroke-width="2.6"/>'
+        + eye(99,158,8,9,100,159.5,3.4) + eye(121,158,8,9,122,159.5,3.4)
+        + '<path d="M97 181 Q110 192 123 181" '+S+' stroke-width="2.6"/>';
+    }
+    return '<g transform="translate(0,8)">'+inner+'</g>';
+  }
+  function hat(star){
+    return '<ellipse cx="110" cy="89" rx="50" ry="9.5" fill="'+P.indigoDk+'"/>'
+      + '<path d="M68 87 Q78 44 110 20 Q126 11 133 20 Q124 48 152 87 Q110 97 68 87 Z" fill="'+P.indigo+'"/>'
+      + '<path d="M112 21 Q124 48 152 87 Q136 93 124 94 Q128 56 112 21 Z" fill="'+P.indigoDk+'" opacity=".55"/>'
+      + '<path d="M70 79 Q110 90 150 79 L151 87 Q110 98 69 87 Z" fill="'+P.band+'"/>'
+      + (star ? '<path transform="translate(118,50) scale(.78)" d="'+STAR+'" fill="'+P.gold+'"/>' : '');
+  }
+  function barrel(bottom){
+    var h = bottom-114;
+    return '<rect x="82" y="114" width="56" height="'+h+'" fill="'+P.body+'"/>'
+      + '<rect x="82" y="114" width="15" height="'+h+'" fill="'+P.bodyLt+'" opacity=".33"/>'
+      + '<rect x="123" y="114" width="15" height="'+h+'" fill="'+P.bodyDk+'" opacity=".42"/>'
+      + '<path d="M97 114 V'+bottom+' M123 114 V'+bottom+'" stroke="'+P.bodyDk+'" stroke-width="1.2" opacity=".5"/>'
+      + '<rect x="82" y="114" width="56" height="'+h+'" fill="none" stroke="'+g+'" stroke-width="1.8" opacity=".7"/>';
+  }
+  function ferrule(){
+    return '<rect x="86" y="98" width="48" height="17" fill="'+P.ferrule+'"/>'
+      + '<path d="M86 103.5 H134 M86 109.5 H134" stroke="'+P.ferruleDk+'" stroke-width="1.5"/>';
+  }
+  function full(expr){
+    return '<ellipse cx="110" cy="378" rx="34" ry="5" fill="'+g+'" opacity=".16"/>'
+      + '<path d="M82 292 L138 292 L119 348 L101 348 Z" fill="'+P.wood+'" stroke="'+g+'" stroke-width="1.6" stroke-linejoin="round"/>'
+      + '<path d="M126 292 L138 292 L119 348 L112 348 Z" fill="'+P.woodDk+'" opacity=".6"/>'
+      + '<path d="M101 348 L119 348 L110 374 Z" fill="'+g+'"/>'
+      + '<path d="M86 202 C68 212, 58 228, 60 244" fill="none" stroke="'+g+'" stroke-width="4.6" stroke-linecap="round"/>'
+      + '<path d="M134 202 C152 210, 163 224, 161 240" fill="none" stroke="'+g+'" stroke-width="4.6" stroke-linecap="round"/>'
+      + '<circle cx="60" cy="248" r="9.5" fill="'+P.mitt+'" stroke="'+g+'" stroke-width="2"/>'
+      + '<circle cx="161" cy="244" r="9.5" fill="'+P.mitt+'" stroke="'+g+'" stroke-width="2"/>'
+      + barrel(292) + ferrule() + hat(true) + face(expr);
+  }
+  function markSVG(){
+    return '<svg viewBox="60 6 100 200" width="22" height="34" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+      + barrel(212) + ferrule() + hat(true) + face('neutral') + '</svg>';
+  }
+
+  document.getElementById('who').innerHTML =
+    '<svg viewBox="30 0 160 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mr. Cadabra, a purple pencil in a wizard hat, standing beside the whiteboard">'
+    + full('teaching') + '</svg>';
+  document.getElementById('mark').innerHTML = markSVG();
+
+  var t = document.getElementById('toggle');
+  t.addEventListener('click', function(){
+    var on = document.body.classList.toggle('notes-on');
+    t.textContent = on ? 'Hide design notes' : 'Show design notes';
+    t.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+
+  var h = document.getElementById('hear');
+  h.addEventListener('click', function(){
+    h.classList.toggle('playing');
+    setTimeout(function(){ h.classList.remove('playing'); }, 6000);
+  });
+})();
+</script>
+
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

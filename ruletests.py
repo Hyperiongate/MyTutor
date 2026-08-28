@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pt -- PART 3fx: the child cannot be right. Three referees from
+#               Jim's flag queue (60/61/62), every one invisible to the other 59: tap
+#               buttons that do not contain the answer, a question whose answer is
+#               already on the board, and a question about a problem the reply never
+#               drew. The first is the worst defect this session has found -- and a
+#               PERSON found it, not the machine. A fourth flag was cut to a speaking
+#               rule with its canon numbers. The both-directions test caught my own
+#               bug first: mathcheck calls "2x + 1 = 5" wrong, not unverifiable.
 #   2026-08-28  BUILD ps -- PART 3fw: the hole that always appears. Rule 61's SECOND
 #               enforced slice (referee 59). The rule already named this exact case in
 #               prompt words and the live lane broke it anyway -- promoted, not
@@ -13180,6 +13188,162 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fx_the_child_cannot_be_right():
+    """PART 3fx (build pt, 2026-08-28) -- THREE THINGS THE FLAG QUEUE CAUGHT AND
+    FIFTY-NINE REFEREES DID NOT. Referees SIXTY, SIXTY-ONE, SIXTY-TWO.
+
+    Jim flagged one prealgebra reply with three words: "something is wrong here."
+
+        [[objects emoji="⭐" groups="1" add="2" caption="count every star"]]
+        [[step eq="1 + 2 = 3"]]
+        "...When we are putting together 1 and 2, we get 3 in all... Here is our
+         problem again for you to try."
+        [[step eq="1 + 2 = ?"]]
+        [[choices options="9 | 4 | 7"]]
+
+    ⭐ THE ANSWER IS NOT AMONG THE CHOICES. A child is asked what 1 + 2 is and offered
+    9, 4 and 7. Whatever they tap is marked wrong -- for a question they were never
+    given the chance to answer -- and it lands in their record as a maths failure.
+    This is the worst defect this session has found, and it was found by a person,
+    not by the machine.
+
+    ⚠️ MEASURED BEFORE ANYTHING WAS WRITTEN: ALL FIFTY-NINE REFEREES WERE SILENT on
+    that reply, and mathcheck.verify_reply returned "ok". Not a bug in any of them --
+    every equation the board STATES is arithmetically true. The product checked that
+    the teacher's own arithmetic was right and never asked the only question that
+    matters to the child in front of it: CAN THEY BE RIGHT? The authored lane has
+    asked this since the beginning (validate(): "choices contain the answer exactly
+    once"); the live lane never did.
+
+    ⚠️ THE SAME REPLY ALSO ANSWERS ITSELF -- "1 + 2 = 3" written on the board, then
+    "1 + 2 = ?" asked underneath it (rule 17). Two independent defects, one reply,
+    zero referees.
+
+    ⭐ A THIRD FLAG, an algebra2 welcome-back, asked "What's the first move to simplify
+    the left side?" with NO BOARD IN THE REPLY AT ALL. Jim: "It does no good to go
+    through a problem unless you SHOW it to me as you talk about it. Otherwise...just
+    remind me of the type of things we were working on." That is rule 15, and it is
+    now enforced: a question that POINTS at a problem ("this one", "the left side")
+    while the reply draws nothing.
+
+    ⚠️ THE FOURTH FLAG WAS NOT MADE A REFEREE, and the sweep is why. Jim flagged
+    "the left side becomes 2X, plus negative 2 plus 3" -- "minus 2 and negative 2 are
+    the same...but a novice may be confused by this". He is right. But "plus negative"
+    has FOUR canon hits, every one of them in pre-u3-adding-a-negative -- the lesson
+    that exists to teach that adding a negative IS subtracting. A referee there would
+    fight the curriculum. It went into HOW YOU SPEAK instead, in all eleven copies:
+    say the plain thing ("two x take away two, plus three"), except in the lesson that
+    is teaching the equivalence.
+
+    ⚠️ AND THE BOTH-DIRECTIONS TEST CAUGHT MY OWN BUG BEFORE IT SHIPPED. The choices
+    referee first fired on "2x + 1 = ?" offered as 5 | 7 | 9 -- perfectly good options
+    for a question whose answer depends on x. mathcheck calls that WRONG ("it actually
+    equals 2x + 1"), not unverifiable, so the "unverifiable buys silence" escape did
+    not catch it. Any letter in the left side now buys silence."""
+    print("\nPART 3fx — the child cannot be right (build pt)")
+    import tutor as _t
+    import foundations as _f
+    import lessonscripts as _ls
+
+    FLAG1 = ('[[objects emoji="⭐" groups="1" add="2" caption="count every star"]] '
+             '[[step eq="1 + 2 = 3"]] '
+             "Let's count every star together, one number at a time: one, two, three! "
+             "When we are putting together 1 and 2, we get 3 in all. Here is our "
+             'problem again for you to try. [[step eq="1 + 2 = ?"]] '
+             '[[choices options="9 | 4 | 7"]]')
+
+    check("⭐⭐ the child can no longer be offered three wrong answers",
+          bool(_t.unanswerable_choices_conflict(FLAG1)),
+          "1 + 2 offered as 9 | 4 | 7 -- every tap marked wrong, recorded as a maths "
+          "failure the child did not earn")
+    check("  ...and the nudge says to re-issue the row with the answer in it",
+          "with the correct answer as one of the options"
+          in (_t.unanswerable_choices_conflict(FLAG1) or ""),
+          "an unsatisfiable referee burns three attempts and ships anyway")
+    check("⭐ ...and the same reply's spoiled check is caught too (rule 17)",
+          bool(_t.answer_already_shown_conflict(FLAG1)),
+          '"1 + 2 = 3" is on the board when "1 + 2 = ?" is asked')
+
+    FLAG3 = ("Welcome back, Demo Student! last time we worked through a multi-step "
+             "equation together, subtracting 2X from both sides, and then adding 4 to "
+             "both sides, to land on X equals 5. Let's loosen back up with this one. "
+             "What's the first move to simplify the left side?")
+    check("⭐ a question about a problem the reply never draws is caught (rule 15)",
+          bool(_t.question_without_a_problem_conflict(FLAG3)),
+          "Jim: 'It does no good to go through a problem unless you SHOW it to me'")
+    check("  ...and the nudge offers BOTH fixes Jim named",
+          "DRAW the problem" in (_t.question_without_a_problem_conflict(FLAG3) or "")
+          and "keep the recap general"
+          in (_t.question_without_a_problem_conflict(FLAG3) or ""), "")
+
+    # ---- both directions, on every one of the three ----
+    OK_CHOICES = [
+        '[[step eq="1 + 2 = ?"]][[choices options="3 | 4 | 7"]]',       # answer present
+        '[[step eq="1 + 2 = ?"]][[choices options="Keep going | Stop"]]',  # a menu
+        '[[choices options="Quick warm-up | I remember"]] Ready?',       # rule 39(e)
+        '[[step eq="2x + 1 = ?"]][[choices options="5 | 7 | 9"]]',       # symbolic lhs
+        '[[step eq="0.5 + 0.25 = ?"]][[choices options="0.75 | 1 | 2"]]',
+    ]
+    noisy = [c for c in OK_CHOICES if _t.unanswerable_choices_conflict(c)]
+    check("  five honest choice rows stay silent", not noisy, noisy)
+    check("⚠️ ...including the symbolic one that caught my own bug",
+          not _t.unanswerable_choices_conflict(
+              '[[step eq="2x + 1 = ?"]][[choices options="5 | 7 | 9"]]'),
+          "mathcheck calls 2x + 1 = 5 WRONG, not unverifiable -- a letter in the left "
+          "side must buy silence or every algebra question fires")
+
+    OK_SHOWN = ['[[step eq="4 + 4 = 8"]][[step eq="1 + 2 = ?"]]',   # a DIFFERENT problem
+                '[[step eq="1 + 2 = ?"]][[choices options="3|4|7"]]']
+    check("  showing a different worked problem is still fine",
+          not [c for c in OK_SHOWN if _t.answer_already_shown_conflict(c)], "")
+
+    OK_NOPROB = ["How are you feeling about fractions so far?",
+                 "Ready to keep going, or should I show it a different way?",
+                 '[[step eq="2x - 4 = 6"]] What is the first move on the left side?']
+    check("  a board-less check-in, and a question WITH its board, stay silent",
+          not [c for c in OK_NOPROB if _t.question_without_a_problem_conflict(c)], "")
+
+    # ---- the canon, all three ----
+    cards = []
+    for c, scr in _f.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            cards.append((sc.get("say") or "") + "\n"
+                         + "\n".join(sc.get("board") or []))
+    for l in _ls.LESSONS:
+        for t, b in (l.get("teach") or []):
+            cards.append((t or "") + "\n" + (b or ""))
+        for p in (l.get("pairs") or []):
+            w = p.get("worked") or ("", "")
+            cards.append((w[0] or "") + "\n" + (w[1] if len(w) > 1 else ""))
+    for nm, fn in (("choices", _t.unanswerable_choices_conflict),
+                   ("answer-shown", _t.answer_already_shown_conflict),
+                   ("no-problem", _t.question_without_a_problem_conflict)):
+        hits = [c[:60] for c in cards if fn(c)]
+        check("  ZERO canon hits for the %s referee (%d cards)" % (nm, len(cards)),
+              not hits, hits[:3])
+
+    # ---- flag 4: the cut, and where it went instead ----
+    import prompts as _p
+    src = _p.__file__ and open(_p.__file__, encoding="utf-8").read()
+    check("⚠️ the 'plus negative' flag became a SPEAKING rule, not a referee",
+          # the BLOCK form, so this build's own header note is not miscounted as a
+          # twelfth copy -- which is exactly what it did on the first run.
+          src.count("BUT WHEN THE OPERATION MEETS THE SIGN") == 11,
+          "four canon hits, all in pre-u3-adding-a-negative -- the lesson that "
+          "teaches adding a negative IS subtracting; a referee would fight it")
+    check("  ...and it still protects the lesson that teaches the equivalence",
+          "TEACHING that adding" in src, "")
+
+    # ---- the seat count moves, and the tile moves with it ----
+    import inspect as _insp, re as _re
+    n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
+    check("⭐ sixty-two referees now, counted from the code", n_ref == 62, n_ref)
+    page = open("static/methodology.html", encoding="utf-8").read()
+    check("  ...and methodology.html's referee tile matches",
+          "<b>%d</b>" % n_ref in page, "")
+
+
 def part3fw_the_hole_that_always_appears():
     """PART 3fw (build ps, 2026-08-28) -- RULE 61'S SECOND ENFORCED SLICE.
 
@@ -13304,8 +13468,11 @@ def part3fw_the_hole_that_always_appears():
     import inspect as _insp
     import re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ fifty-nine referees now, counted from the code not from memory",
-          n_ref == 59, n_ref)
+    # (pt) the LITERAL count lives in PART 3fx alone -- this part introduced the
+    # discipline, so it asserts the mechanism: the count only ever grows, and the
+    # tile tracks it. Two places holding the same number is how tiles go stale.
+    check("⭐ the referee count is taken from the code, and only grows",
+          n_ref >= 59, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile MATCHES that count",
           "<b>%d</b>" % n_ref in page,
@@ -15702,7 +15869,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,230</b>" in page,
+          "<b>7,246</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24186,6 +24353,7 @@ def main():
     part3fu_the_eyes_report_what_they_saw()
     part3fv_a_fragment_of_an_unspoken_whole()
     part3fw_the_hole_that_always_appears()
+    part3fx_the_child_cannot_be_right()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

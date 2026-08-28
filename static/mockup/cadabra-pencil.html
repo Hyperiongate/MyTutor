@@ -1,0 +1,847 @@
+<!doctype html>
+<!--
+  ============================================================================
+  mockup/cadabra-pencil.html  -  "Mr. Cadabra, Sharpened"
+  CHARACTER CONCEPT PAGE.  NOT PRODUCTION.  NOT LINKED FROM ANYWHERE.
+  ============================================================================
+
+  WHAT THIS IS
+    A design study for Mr. Cadabra redrawn as a No.2 yellow pencil: the full
+    character, size tests in the face orb, five expressions, a talking mouth,
+    and the trade-offs behind each decision.  Built for Jim to review and to
+    share with marketing.
+
+  CHANGE NOTES (newest first)
+    2026-08-28  Created.  Then, in the same session:
+                - repainted from purple to a standard No.2 yellow (#F2BC1B);
+                  the company purple moved to his hat band (#6B44BE)
+                - adopted point Option B: NO LEGS, he balances on his own
+                  point over a soft shadow
+                - added the talking mouth (open/close + brow lift + idle blink)
+                - added "About that point" showing options A / B / C
+
+  SAFE TO DEPLOY, SAFE TO DELETE
+    - Self-contained.  No API calls, no server needed - it opens by double-click.
+    - Shares NO code with tutor-face.js, board.js, voice.js, session.html or
+      demo.html.  Nothing in the app imports it.  Nothing links to it.
+    - Only external request is Google Fonts (falls back cleanly if blocked).
+    - No APP_BUILD change and no ruletests PART is needed, exactly like
+      static/demolab.html.
+
+  SUGGESTED LOCATION
+    static/mockup/cadabra-pencil.html  ->  served at
+    /static/mockup/cadabra-pencil.html once pushed.  noindex is set so it
+    cannot reach search results or the sitemap.
+
+  KNOWN GAP FOR WHOEVER BUILDS THIS FOR REAL
+    tutor-face.js has NOT been read.  The yellow (#F2BC1B) and the hat purple
+    (#6B44BE) are concept values.  Match them to the real palette in
+    tutor-face.js before any production work, and repoint the pixel-regression
+    pins that currently assert he is purple.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='12' y='9' width='8' height='15' fill='%23F2BC1B'/%3E%3Crect x='12' y='7' width='8' height='2.5' fill='%23C8CAD4'/%3E%3Cpath d='M9 7 L23 7 L20 2 L12 2 Z' fill='%233A2C69'/%3E%3Cpath d='M12 24 L20 24 L16 30 Z' fill='%232F2C39'/%3E%3C/svg%3E">
+<style>*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}img{max-width:100%}[hidden]{display:none!important}</style>
+
+<title>Mr. Cadabra, Sharpened</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+:root{
+  --paper:#F1F0F6; --card:#FFFFFF; --card-2:#F7F6FB;
+  --ink:#1B1926; --ink-2:#3D3850; --muted:#6A6480;
+  --line:#DEDAEA; --line-2:#EAE7F2;
+  --accent:#6B44BE; --accent-ink:#5B36AB; --accent-soft:#EFE9FB;
+  --gold:#B87B14; --orb:#241F33;
+
+  /* character paints - brand, not theme */
+  /* his paint - a standard No.2 yellow. The purple stays the COMPANY's colour
+     and now lives on his hat, so he still carries the brand on his head. */
+  --c-body:#F2BC1B; --c-body-dk:#C08F0C; --c-body-lt:#FBD96A;
+  --c-indigo:#3A2C69; --c-indigo-dk:#2B2050; --c-band:#6B44BE; --c-gold:#F2BC1B;
+  --c-graphite:#2F2C39; --c-wood:#DFC08A; --c-wood-dk:#C0A067;
+  --c-ferrule:#C8CAD4; --c-ferrule-dk:#9EA1B1; --c-eraser:#E4959E; --c-eye:#FBFAFF; --c-mitt:#F5F0E5;
+  --c-cyan:#2FA9BC; --c-cyan-dk:#20808F; --c-amber:#F0A93B;
+
+  --serif:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --sans:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#121020; --card:#1C1930; --card-2:#232037;
+    --ink:#EFECF8; --ink-2:#CFC9E2; --muted:#9A93B4;
+    --line:#332C4C; --line-2:#2A2440;
+    --accent:#A487E4; --accent-ink:#C0AAF0; --accent-soft:#2A2145;
+    --gold:#E3A233; --orb:#0D0B16;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121020; --card:#1C1930; --card-2:#232037;
+  --ink:#EFECF8; --ink-2:#CFC9E2; --muted:#9A93B4;
+  --line:#332C4C; --line-2:#2A2440;
+  --accent:#A487E4; --accent-ink:#C0AAF0; --accent-soft:#2A2145;
+  --gold:#E3A233; --orb:#0D0B16;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:17px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{width:min(1080px,92vw); margin-inline:auto}
+.narrow{width:min(680px,92vw); margin-inline:auto}
+
+h1,h2,h3{font-family:var(--serif); text-wrap:balance; margin:0}
+h1{font-size:clamp(2.5rem,6vw,4.1rem); font-weight:800; letter-spacing:-.025em; line-height:1.02}
+h2{font-size:clamp(1.5rem,3vw,2rem); font-weight:700; letter-spacing:-.015em; line-height:1.15}
+h3{font-size:1.06rem; font-weight:700; letter-spacing:-.005em}
+p{margin:0}
+
+.eyebrow{
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--muted);
+}
+
+/* ---------- masthead ---------- */
+.masthead{padding:clamp(48px,8vw,88px) 0 clamp(28px,4vw,44px); border-bottom:1px solid var(--line)}
+.masthead .wrap{display:flex; flex-direction:column; gap:20px}
+.standfirst{
+  font-size:clamp(1.05rem,1.9vw,1.24rem); color:var(--ink-2);
+  max-width:60ch; line-height:1.55;
+}
+.chip{
+  display:inline-flex; align-items:center; gap:8px; align-self:flex-start;
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--accent-ink); background:var(--accent-soft);
+  border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  padding:6px 12px; border-radius:999px;
+}
+
+/* ---------- sections ---------- */
+section{padding:clamp(44px,7vw,84px) 0; border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+.sec-head{display:flex; flex-direction:column; gap:12px; margin-bottom:clamp(28px,4vw,44px)}
+.sec-head p{color:var(--muted); max-width:62ch}
+
+/* ---------- model sheet ---------- */
+.sheet{
+  display:grid; grid-template-columns:1fr auto 1fr; gap:clamp(16px,3vw,40px);
+  align-items:center;
+}
+.figure-plate{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:18px;
+  background-image:
+    linear-gradient(var(--line-2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-2) 1px, transparent 1px);
+  background-size:22px 22px;
+  background-position:-1px -1px;
+}
+.figure-plate svg{display:block; width:min(300px,60vw); height:auto}
+.notes{display:flex; flex-direction:column; gap:26px}
+.notes.right{text-align:right}
+.note{display:flex; flex-direction:column; gap:4px}
+.note b{font-family:var(--mono); font-size:.68rem; font-weight:500; letter-spacing:.11em; text-transform:uppercase; color:var(--accent-ink)}
+.note span{font-size:.94rem; color:var(--ink-2); line-height:1.45}
+.note::after{content:""; height:1px; background:var(--line); margin-top:8px}
+
+@media (max-width:860px){
+  .sheet{grid-template-columns:1fr; justify-items:center}
+  .notes.right{text-align:left}
+  .notes{width:100%}
+}
+
+/* ---------- the point, three ways ---------- */
+.opts{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:clamp(16px,2.5vw,26px)}
+.opt{
+  background:var(--card); border:1px solid var(--line); border-radius:4px;
+  padding:22px 22px 24px; display:flex; flex-direction:column; gap:9px;
+}
+.opt.rec{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent)}
+.opt-fig{
+  display:grid; place-items:center; background:var(--card-2);
+  border-radius:3px; padding:14px 0; margin-bottom:6px;
+}
+.opt-fig svg{display:block}
+.opt .tag{
+  align-self:flex-start; font-family:var(--mono); font-size:.64rem; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--muted); border:1px solid var(--line);
+  padding:4px 9px; border-radius:999px;
+}
+.opt.rec .tag{color:var(--accent-ink); background:var(--accent-soft); border-color:color-mix(in srgb, var(--accent) 30%, transparent)}
+.opt p{font-size:.95rem; color:var(--ink-2); line-height:1.55}
+
+/* ---------- talking ---------- */
+.talk-row{display:flex; gap:clamp(22px,4vw,48px); align-items:center; flex-wrap:wrap}
+.talk-orb{
+  width:clamp(180px,26vw,236px); aspect-ratio:1; border-radius:50%;
+  background:var(--orb); overflow:hidden; flex:none;
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 40%, transparent);
+  transition:box-shadow .25s ease;
+}
+.talk-orb.is-talking{box-shadow:0 0 0 3px var(--accent), 0 0 0 11px color-mix(in srgb, var(--accent) 16%, transparent)}
+.talk-orb svg{display:block; width:100%; height:100%}
+.talk-copy{display:flex; flex-direction:column; gap:14px; max-width:52ch}
+.talk-copy p{color:var(--ink-2); font-size:.99rem; line-height:1.6}
+.btn{
+  align-self:flex-start; font-family:var(--mono); font-size:.76rem; letter-spacing:.1em;
+  text-transform:uppercase; cursor:pointer; background:var(--accent); color:#fff;
+  border:0; padding:11px 20px; border-radius:999px;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+
+/* ---------- palette ---------- */
+.palette{display:flex; flex-wrap:wrap; gap:14px; margin-top:32px}
+.sw{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-size:.76rem; color:var(--muted)}
+.sw i{width:26px; height:26px; border-radius:3px; border:1px solid rgba(0,0,0,.14); display:block}
+
+/* ---------- prose columns ---------- */
+.cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:clamp(20px,3vw,36px)}
+.col{display:flex; flex-direction:column; gap:9px}
+.col p{color:var(--ink-2); font-size:.97rem; line-height:1.55}
+
+/* ---------- orb tests ---------- */
+.orbs{display:flex; flex-wrap:wrap; gap:clamp(20px,4vw,44px); align-items:flex-end}
+.orb-item{display:flex; flex-direction:column; align-items:center; gap:12px}
+.orb{
+  background:var(--orb); border-radius:50%;
+  display:grid; place-items:center; overflow:hidden;
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.orb svg{display:block}
+.arrow{font-size:1.6rem; color:var(--muted); line-height:1; display:block; padding:0 4px}
+.cap{font-family:var(--mono); font-size:.7rem; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); text-align:center}
+
+/* ---------- compare ---------- */
+.compare{display:flex; gap:clamp(18px,3vw,36px); flex-wrap:wrap; align-items:flex-end}
+.tile{
+  background:var(--card-2); border:1px solid var(--line); border-radius:4px;
+  display:grid; place-items:center; padding:16px 20px;
+}
+.tile.pair{display:flex; gap:26px; align-items:flex-end}
+.tile svg{display:block}
+
+/* ---------- expressions ---------- */
+.faces{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:18px}
+.face-card{
+  background:var(--card); border:1px solid var(--line); border-radius:4px;
+  padding:14px 10px 12px; display:flex; flex-direction:column; align-items:center; gap:10px;
+}
+.face-card svg{display:block; width:100%; height:auto; max-width:132px}
+
+/* ---------- board scene ---------- */
+.scene{
+  background:var(--card); border:1px solid var(--line); border-radius:4px;
+  padding:clamp(12px,2vw,22px); overflow-x:auto;
+}
+.scene svg{display:block; width:100%; min-width:520px; height:auto}
+
+/* ---------- tradeoffs ---------- */
+.stack{display:flex; flex-direction:column; gap:2px}
+.row{
+  display:grid; grid-template-columns:180px 1fr; gap:clamp(14px,3vw,32px);
+  padding:22px 0; border-top:1px solid var(--line); align-items:start;
+}
+.row:last-child{border-bottom:1px solid var(--line)}
+.row h3{color:var(--ink)}
+.row p{color:var(--ink-2); font-size:.98rem; line-height:1.6; max-width:62ch}
+.row p + p{margin-top:10px}
+@media (max-width:700px){ .row{grid-template-columns:1fr; gap:8px} }
+
+/* ---------- questions ---------- */
+ol.q{list-style:none; counter-reset:q; padding:0; margin:0; display:flex; flex-direction:column; gap:20px}
+ol.q li{counter-increment:q; display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:start}
+ol.q li::before{
+  content:counter(q); font-family:var(--mono); font-size:.78rem; color:var(--accent-ink);
+  background:var(--accent-soft); border:1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  width:28px; height:28px; border-radius:50%; display:grid; place-items:center; margin-top:2px;
+}
+ol.q b{display:block; font-family:var(--serif); font-weight:700; font-size:1.02rem; margin-bottom:3px}
+ol.q span{color:var(--ink-2); font-size:.97rem; line-height:1.55}
+
+footer{padding:44px 0 72px; color:var(--muted); font-size:.88rem}
+footer .wrap{display:flex; flex-direction:column; gap:6px}
+
+/* ---------- motion ---------- */
+.bob{animation:bob 4.6s ease-in-out infinite; transform-origin:50% 100%}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-.6deg)}50%{transform:translateY(-5px) rotate(.6deg)}}
+.twinkle{animation:tw 5s ease-in-out infinite}
+@keyframes tw{0%,72%,100%{opacity:1}82%{opacity:.42}}
+.walker{animation:walk 6s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes walk{0%{transform:translate(110px,17px)}62%{transform:translate(380px,17px)}100%{transform:translate(380px,17px)}}
+.inkline{stroke-dasharray:292; stroke-dashoffset:292; animation:draw 6s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes draw{0%{stroke-dashoffset:292}62%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@media (prefers-reduced-motion: reduce){
+  .twinkle,.walker,.inkline,.bob{animation:none}
+  .walker{transform:translate(380px,17px)}
+  .inkline{stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Character study &middot; 28 August 2026</p>
+    <h1>Mr. Cadabra, Sharpened</h1>
+    <p class="standfirst">Your pencil idea, drawn out. A No.2 yellow wizard who balances on his own point, made of the same thing as the marks on his board, with a face drawn on rather than built in. Every line here is vector, so he holds at any size, in any expression, and costs nothing to show.</p>
+    <span class="chip">Concept &middot; nothing shipped &middot; no code touched</span>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="sheet">
+      <div class="notes">
+        <div class="note"><b>The hat carries the brand</b><span>It sits where the eraser used to be, and it is the one purple thing on him. The company stays purple; he goes yellow.</span></div>
+        <div class="note"><b>Drawn on, not built in</b><span>Eyes, brows and mouth are graphite strokes with a slight wobble &mdash; the same line quality as his handwriting on the board.</span></div>
+        <div class="note"><b>Arms are pencil lines</b><span>Thin graphite strokes with soft mitts &mdash; the only limbs he has. Nothing mechanical. He is a drawing that got up.</span></div>
+      </div>
+
+      <div class="figure-plate" id="plate"></div>
+
+      <div class="notes right">
+        <div class="note"><b>The ferrule is the tell</b><span>That silver band with two ridges is what still says &ldquo;pencil&rdquo; when he is 70 pixels tall and the tip is out of frame.</span></div>
+        <div class="note"><b>Six flats and a No.2 yellow</b><span>Facet lines with a light and a dark side. The yellow does more work than any other decision here: nobody has to work out what he is.</span></div>
+        <div class="note"><b>He stands on his point</b><span>No legs, no shoes, nothing to misread. A soft shadow underneath does the grounding, and leaning in to write is now one small tilt.</span></div>
+      </div>
+    </div>
+
+    <div class="palette" id="palette"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">You were right</p>
+      <h2>About that point</h2>
+      <p>It read as a tail, and once you see it you cannot unsee it. The cause was mechanical: the tip sat at the same height as his shoes, so the eye grouped it with his legs instead of with the pencil. Three ways out, drawn rather than described.</p>
+    </div>
+    <div class="opts" id="points"></div>
+    <div class="cols" style="margin-top:34px">
+      <div class="col">
+        <h3>Why B is the right call</h3>
+        <p>Because a character with no legs has no anatomy to misread &mdash; not standing, not walking, not leaning, not at 44 pixels in a nav bar. You are not managing the problem any more, you have deleted it. And balancing on his own point is simply a better idea than standing next to it: it says the thing the whole character is for.</p>
+      </div>
+      <div class="col">
+        <h3>What you give up</h3>
+        <p>Legs, and the walking they would have allowed. Honestly, not much: what he actually needs to do is arrive, stand, watch, lean in to write, and celebrate &mdash; and every one of those is better as a hop, a tilt or a bob than as a walk cycle. A hovering pencil is also easier to move around a screen than a walking one.</p>
+      </div>
+      <div class="col">
+        <h3>The bit that sells it</h3>
+        <p>The soft shadow under his tip. Without it he looks like he is falling; with it he looks like he is balancing, and a wizard who balances on his own point reads as deliberate rather than unfinished. Costs one ellipse.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Why this works</p>
+      <h2>Three things the pencil buys you that the robot never could</h2>
+    </div>
+    <div class="cols">
+      <div class="col">
+        <h3>He is the subject</h3>
+        <p>A robot is a tutor-shaped thing borrowed from science fiction. A pencil is what the child is holding. The mascot and the work are finally the same material, and every visual joke you will ever want &mdash; writing, erasing, getting shorter, being sharpened &mdash; comes free with the shape.</p>
+      </div>
+      <div class="col">
+        <h3>Nobody mistakes him for Abrabot</h3>
+        <p>Today two robots share one screen and you told me they were indistinguishable. Tall and pointed beside short and boxy is a difference a child reads in bad lighting, at a glance, without knowing why. That is a silhouette problem solved rather than a colour problem managed.</p>
+      </div>
+      <div class="col">
+        <h3>He can never fall in the valley</h3>
+        <p>Your standing rule is that clearly-a-character beats almost-lifelike, especially for children. A pencil is the most committed version of that rule you can make. It also means his face can be animated cheaply, forever, with no render bill.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">The mouth</p>
+      <h2>He talks</h2>
+    </div>
+    <div class="talk-row">
+      <div class="talk-orb" id="talkorb"><div id="talk" style="width:100%;height:100%"></div></div>
+      <div class="talk-copy">
+        <p>Press it. The mouth opens and closes on the loud parts and rests closed on the quiet ones, the brows lift a little when he emphasises, and he blinks on his own every few seconds &mdash; that last one costs nothing and is most of what makes a face look alive.</p>
+        <p><b>How it should be wired, and this is the good part.</b> Not a random loop. The browser can read the <em>actual loudness</em> of the clip that is playing, sixty times a second, straight off the audio element. The mouth follows the real voice. That means it works with the ElevenLabs lines you have already paid for &mdash; every one of them, including all six thousand of Prealgebra &mdash; with no re-rendering, no new audio, and no per-word work by anyone.</p>
+        <p><b>And on the voice itself:</b> keep it. A warm adult voice coming out of a clearly-drawn character is how nearly every animated teacher has ever worked, and the mismatch people actually notice runs the other way &mdash; a cartoon voice would make him a toy. The one thing to watch is that he is drawn as a grown-up: the hat, the calm brows, the unhurried blink. Get that right and the voice you bought fits him better than it fits the robot.</p>
+        <button class="btn" id="talkbtn" aria-pressed="false">Say a line</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">The size that actually matters</p>
+      <h2>In the orb, at real pixels</h2>
+      <p>These are not scaled illustrations &mdash; they are the working sizes, on the session page&rsquo;s dark circle. This is where a mascot usually dies, so it is the first place to look.</p>
+    </div>
+    <div class="orbs" id="orbs"></div>
+    <div class="cols" style="margin-top:38px">
+      <div class="col">
+        <h3>The honest problem</h3>
+        <p>A pencil is tall and thin and a face slot is round, so upright he leaves air on both sides and reads small. The robot filled that circle because a robot head is round.</p>
+      </div>
+      <div class="col">
+        <h3>The fix, and I like it better anyway</h3>
+        <p>Two changes. A shorter hat for the small slot, and a lean of about eighteen degrees &mdash; the diagonal is the longest line in a circle, so he grows by a third without getting bigger. And the lean earns its keep: he now reads as leaning in to look at the child&rsquo;s work. A posture, not a workaround.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">The build mn test</p>
+      <h2>Tell them apart at seventy pixels</h2>
+      <p>The robot on the right stands in for Abrabot &mdash; his real design is the one already in the app. Yellow against Abrabot&rsquo;s cyan now separates them on colour as well as shape, which is two independent reasons a child can tell them apart instead of one.</p>
+    </div>
+    <div class="compare" id="compare"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Range</p>
+      <h2>Five faces off one body</h2>
+      <p>Same character, five states, no new artwork &mdash; only the strokes on his barrel change. This is the part that would be impossible with video and expensive with 3D.</p>
+    </div>
+    <div class="faces" id="faces"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">The moment worth having</p>
+      <h2>He writes with himself</h2>
+      <p>He does not hold a pen. He leans in, kicks his legs back, and his own point leaves the line. Note what that buys us: standing, his taper is blunt and tucked away &mdash; the <em>sharp</em> point only appears in the pose where it means something. That is the cleanest possible answer to your worry. The point is not a permanent feature of his body. It is something he does.</p>
+    </div>
+    <div class="scene" id="scene"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Before you say yes</p>
+      <h2>What this costs you</h2>
+    </div>
+    <div class="stack">
+      <div class="row">
+        <h3>The video presence work</h3>
+        <div>
+          <p>This is the real bill. The presence layer puts a lifelike human face in the same circular slot, and a pencil and a photorealistic person cannot be the same character. Choosing the pencil shelves that path, or turns those clips into a narrator who is explicitly not him.</p>
+          <p>Worth saying plainly: your own vision doc already sequences an <em>animated character</em> before any photoreal attempt. The pencil is not a detour from that plan. It is that plan, with a shape.</p>
+        </div>
+      </div>
+      <div class="row">
+        <h3>The pixel pins</h3>
+        <div>
+          <p>Six pages render his face and read the pixels back to prove he is still purple. Going yellow means every one of those gets repointed &mdash; mechanical work, but be clear that it is a <em>brand</em> decision and not a side effect of the drawing.</p>
+          <p>The version I would defend: build <span style="font-family:var(--mono);font-size:.9em">u</span> already separated the two, the robot being him and the logo being the company. So the company stays purple &mdash; the site, the logo, the accent &mdash; and yellow becomes his, with the purple riding on his hat so the two are visibly related. He gains more than he gives up: on the dark orb yellow is brighter than the purple ever was, and nobody has to work out what he is.</p>
+        </div>
+      </div>
+      <div class="row">
+        <h3>The magic problem</h3>
+        <div>
+          <p>Your promise is that he never just gives the answer. A wizard who waves a wand and produces one contradicts that in a single image. So: the hat is a hat. He owns no wand, nothing appears in a puff, and the only trick he ever performs is that the child suddenly understands. That line is worth writing down before an illustrator ever draws him holding something.</p>
+        </div>
+      </div>
+      <div class="row">
+        <h3>What I do not have</h3>
+        <div>
+          <p><span style="font-family:var(--mono);font-size:.9em">tutor-face.js</span> itself. I still have not read it, so I do not know how many pins name a colour, whether the palette is reachable from outside, or what the presence layer does to the canvas parent. The yellow here is my own <span style="font-family:var(--mono);font-size:.9em">#F2BC1B</span> &mdash; a standard No.2 &mdash; and the purple on his hat is <span style="font-family:var(--mono);font-size:.9em">#6B44BE</span>, which should be replaced with the real brand purple out of the file. Send it and the estimate stops being an estimate.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap narrow">
+    <div class="sec-head">
+      <p class="eyebrow">Yours to answer</p>
+      <h2>Four decisions</h2>
+    </div>
+    <ol class="q">
+      <li><div><b>Confirm B and the yellow</b><span>Both are drawn above and used everywhere on this page. If they hold up at full size on your own screen, the character is settled and the rest is engineering.</span></div></li>
+      <li><div><b>Does he wear out?</b><span>A pencil that got shorter over a school year is a lovely idea and a support nightmare. I would say no &mdash; he is the same height forever.</span></div></li>
+      <li><div><b>Hat on always?</b><span>Including in the small orb, where it costs vertical room. I say yes: at 70 pixels the hat is half of what makes him him.</span></div></li>
+      <li><div><b>Does the video presence path close?</b><span>The one answer I cannot give you. Everything else follows from it.</span></div></li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Mr. Cadabra&rsquo;s Classroom &middot; Hyperion Shift LLC &middot; character concept, 28 August 2026.</p>
+    <p>Drawn as vectors so he can be handed straight to the drawing code. No production file was opened or changed to make this page.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var css = getComputedStyle(document.documentElement);
+  function v(n){ return css.getPropertyValue(n).trim(); }
+  var P = {
+    body:v('--c-body'), bodyDk:v('--c-body-dk'), bodyLt:v('--c-body-lt'),
+    indigo:v('--c-indigo'), indigoDk:v('--c-indigo-dk'), band:v('--c-band'), gold:v('--c-gold'),
+    graphite:v('--c-graphite'), wood:v('--c-wood'), woodDk:v('--c-wood-dk'),
+    ferrule:v('--c-ferrule'), ferruleDk:v('--c-ferrule-dk'), eraser:v('--c-eraser'), eye:v('--c-eye'), mitt:v('--c-mitt'),
+    cyan:v('--c-cyan'), cyanDk:v('--c-cyan-dk'), amber:v('--c-amber')
+  };
+  var STAR = "M0 -10 L2.9 -3.5 L9.5 -3.1 L4.5 1.2 L6.1 7.6 L0 4 L-6.1 7.6 L-4.5 1.2 L-9.5 -3.1 L-2.9 -3.5 Z";
+
+  function face(kind){
+    return '<g transform="translate(0,8)">' + faceInner(kind) + '</g>';
+  }
+  function faceInner(kind){
+    var g = P.graphite, s = 'fill="none" stroke="'+g+'" stroke-linecap="round" stroke-linejoin="round"';
+    function eye(cx,cy,rx,ry,px,py,pr){
+      return '<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" fill="'+P.eye+'" stroke="'+g+'" stroke-width="2.2"/>'
+           + '<circle cx="'+px+'" cy="'+py+'" r="'+pr+'" fill="'+g+'"/>';
+    }
+    if(kind==='teaching'){
+      return '<path d="M90 137 Q99 131 108 136" '+s+' stroke-width="2.6"/>'
+           + '<path d="M112 136 Q121 131 130 137" '+s+' stroke-width="2.6"/>'
+           + eye(99,158,8,9,100,159,3.4) + eye(121,158,8,9,122,159,3.4)
+           + '<ellipse cx="110" cy="185" rx="6.2" ry="7.6" fill="'+g+'"/>';
+    }
+    if(kind==='pleased'){
+      return '<path d="M90 139 Q99 134 108 138" '+s+' stroke-width="2.5"/>'
+           + '<path d="M112 138 Q121 134 130 139" '+s+' stroke-width="2.5"/>'
+           + '<path d="M91 160 Q99 150 107 160" '+s+' stroke-width="3"/>'
+           + '<path d="M113 160 Q121 150 129 160" '+s+' stroke-width="3"/>'
+           + '<path d="M94 177 Q110 195 126 177" '+s+' stroke-width="2.8"/>';
+    }
+    if(kind==='thinking'){
+      return '<path d="M90 147 Q99 143 108 146" '+s+' stroke-width="2.6"/>'
+           + '<path d="M112 137 Q121 130 130 136" '+s+' stroke-width="2.6"/>'
+           + eye(99,158,8,9,102,155,3.4) + eye(121,158,8,9,124,155,3.4)
+           + '<path d="M99 185 Q105 180 111 184 Q117 188 124 183" '+s+' stroke-width="2.4"/>';
+    }
+    if(kind==='listening'){
+      return '<path d="M89 141 Q99 137 109 141" '+s+' stroke-width="2.5"/>'
+           + '<path d="M111 141 Q121 137 131 141" '+s+' stroke-width="2.5"/>'
+           + eye(98,158,9,10,99,159,3.6) + eye(122,158,9,10,123,159,3.6)
+           + '<path d="M101 183 Q110 187 119 183" '+s+' stroke-width="2.5"/>';
+    }
+    return '<path d="M90 143 Q99 138 108 142" '+s+' stroke-width="2.6"/>'
+         + '<path d="M112 142 Q121 138 130 143" '+s+' stroke-width="2.6"/>'
+         + eye(99,158,8,9,100,159.5,3.4) + eye(121,158,8,9,122,159.5,3.4)
+         + '<path d="M97 181 Q110 192 123 181" '+s+' stroke-width="2.6"/>';
+  }
+
+  function hat(withStar){
+    return '<ellipse cx="110" cy="89" rx="50" ry="9.5" fill="'+P.indigoDk+'"/>'
+      + '<path d="M68 87 Q78 44 110 20 Q126 11 133 20 Q124 48 152 87 Q110 97 68 87 Z" fill="'+P.indigo+'"/>'
+      + '<path d="M112 21 Q124 48 152 87 Q136 93 124 94 Q128 56 112 21 Z" fill="'+P.indigoDk+'" opacity=".55"/>'
+      + '<path d="M70 79 Q110 90 150 79 L151 87 Q110 98 69 87 Z" fill="'+P.band+'"/>'
+      + (withStar ? '<g class="twinkle"><path transform="translate(118,50) scale(.78)" d="'+STAR+'" fill="'+P.gold+'"/></g>' : '');
+  }
+
+  function hatShort(withStar){
+    return '<ellipse cx="110" cy="89" rx="50" ry="9.5" fill="'+P.indigoDk+'"/>'
+      + '<path d="M68 87 Q75 60 104 45 Q119 38 125 47 Q119 62 152 87 Q110 97 68 87 Z" fill="'+P.indigo+'"/>'
+      + '<path d="M108 46 Q119 62 152 87 Q136 93 124 94 Q126 68 108 46 Z" fill="'+P.indigoDk+'" opacity=".55"/>'
+      + '<path d="M70 79 Q110 90 150 79 L151 87 Q110 98 69 87 Z" fill="'+P.band+'"/>'
+      + (withStar ? '<g class="twinkle"><path transform="translate(116,66) scale(.66)" d="'+STAR+'" fill="'+P.gold+'"/></g>' : '');
+  }
+  function bust(expr){
+    return barrel(212)
+      + '<rect x="86" y="98" width="48" height="17" fill="'+P.ferrule+'"/>'
+      + '<path d="M86 103.5 H134 M86 109.5 H134" stroke="'+P.ferruleDk+'" stroke-width="1.5"/>'
+      + hatShort(true) + face(expr);
+  }
+  function upper(expr, star){
+    return '<rect x="86" y="98" width="48" height="17" fill="'+P.ferrule+'"/>'
+      + '<path d="M86 103.5 H134 M86 109.5 H134" stroke="'+P.ferruleDk+'" stroke-width="1.5"/>'
+      + hat(star)
+      + face(expr);
+  }
+
+  function barrel(bottom){
+    var h = bottom - 114;
+    return '<rect x="82" y="114" width="56" height="'+h+'" fill="'+P.body+'"/>'
+      + '<rect x="82" y="114" width="15" height="'+h+'" fill="'+P.bodyLt+'" opacity=".33"/>'
+      + '<rect x="123" y="114" width="15" height="'+h+'" fill="'+P.bodyDk+'" opacity=".42"/>'
+      + '<path d="M97 114 V'+bottom+' M123 114 V'+bottom+'" stroke="'+P.bodyDk+'" stroke-width="1.2" opacity=".5"/>'
+      + '<rect x="82" y="114" width="56" height="'+h+'" fill="none" stroke="'+P.graphite+'" stroke-width="1.8" opacity=".7"/>';
+  }
+
+  function shoes(lx,rx_,y){
+    return '<ellipse cx="'+lx+'" cy="'+y+'" rx="15" ry="7.5" fill="'+P.graphite+'"/>'
+         + '<ellipse cx="'+rx_+'" cy="'+y+'" rx="15" ry="7.5" fill="'+P.graphite+'"/>';
+  }
+  function cone(top, flat, tip, shade){
+    var half = 28 * (1 - 0);
+    var out = '<path d="M82 '+top+' L138 '+top+' L117 '+flat+' L103 '+flat+' Z" fill="'+P.wood+'" stroke="'+P.graphite+'" stroke-width="1.6" stroke-linejoin="round"/>';
+    if(shade!==false) out += '<path d="M126 '+top+' L138 '+top+' L117 '+flat+' L111 '+flat+' Z" fill="'+P.woodDk+'" opacity=".6"/>';
+    out += '<path d="M103 '+flat+' L117 '+flat+' L110 '+tip+' Z" fill="'+P.graphite+'"/>';
+    return out;
+  }
+  /* A - the taper ends blunt and well clear of the floor; the feet are the lowest thing */
+  function lowerTuck(){
+    return shoes(80,140,374)
+      + '<path d="M100 286 C95 318, 90 348, 86 370" fill="none" stroke="'+P.graphite+'" stroke-width="6" stroke-linecap="round"/>'
+      + '<path d="M120 286 C125 318, 130 348, 134 370" fill="none" stroke="'+P.graphite+'" stroke-width="6" stroke-linecap="round"/>'
+      + '<path d="M82 292 L138 292 L120 330 L100 330 Z" fill="'+P.wood+'" stroke="'+P.graphite+'" stroke-width="1.6" stroke-linejoin="round"/>'
+      + '<path d="M126 292 L138 292 L120 330 L113 330 Z" fill="'+P.woodDk+'" opacity=".6"/>'
+      + '<path d="M100 330 L120 330 L117 337 Q110 340 103 337 Z" fill="'+P.graphite+'"/>';
+  }
+  /* B - no legs at all; the point is the foot */
+  function lowerBalance(){
+    return '<ellipse cx="110" cy="378" rx="34" ry="5" fill="'+P.graphite+'" opacity=".16"/>'
+      + cone(292, 348, 374);
+  }
+  /* C - flat base; the sharpened end has moved to the top and become the hat */
+  function lowerFlat(){
+    return shoes(86,134,372)
+      + '<path d="M100 286 C97 316, 94 344, 92 368" fill="none" stroke="'+P.graphite+'" stroke-width="5.5" stroke-linecap="round"/>'
+      + '<path d="M120 286 C123 316, 126 344, 128 368" fill="none" stroke="'+P.graphite+'" stroke-width="5.5" stroke-linecap="round"/>'
+      + '<rect x="86" y="290" width="48" height="16" fill="'+P.ferrule+'"/>'
+      + '<path d="M86 295 H134 M86 301 H134" stroke="'+P.ferruleDk+'" stroke-width="1.5"/>'
+      + '<rect x="88" y="304" width="44" height="22" rx="9" fill="'+P.eraser+'"/>';
+  }
+  /* the writing pose - with no legs, writing is simply a lean */
+  function lowerWrite(){ return cone(292, 348, 374); }
+  /* the sharpened end, worn as the hat */
+  function topPoint(withStar){
+    return '<ellipse cx="110" cy="113" rx="49" ry="9.5" fill="'+P.indigoDk+'"/>'
+      + '<path d="M82 114 L138 114 L118 48 L102 48 Z" fill="'+P.indigo+'"/>'
+      + '<path d="M120 114 L138 114 L118 48 L112 48 Z" fill="'+P.indigoDk+'" opacity=".5"/>'
+      + '<path d="M102 48 L118 48 L110 22 Z" fill="'+P.graphite+'"/>'
+      + '<path d="M84 96 L136 96 L138 106 L82 106 Z" fill="'+P.band+'"/>'
+      + (withStar ? '<g class="twinkle"><path transform="translate(122,74) scale(.62)" d="'+STAR+'" fill="'+P.gold+'"/></g>' : '');
+  }
+  function arms(){
+    return '<path d="M86 202 C68 212, 58 228, 60 244" fill="none" stroke="'+P.graphite+'" stroke-width="4.6" stroke-linecap="round"/>'
+      + '<path d="M134 202 C152 210, 163 224, 161 240" fill="none" stroke="'+P.graphite+'" stroke-width="4.6" stroke-linecap="round"/>'
+      + '<circle cx="60" cy="248" r="9.5" fill="'+P.mitt+'" stroke="'+P.graphite+'" stroke-width="2"/>'
+      + '<circle cx="161" cy="244" r="9.5" fill="'+P.mitt+'" stroke="'+P.graphite+'" stroke-width="2"/>';
+  }
+
+  function full(expr, variant, star){
+    variant = variant || 'balance';
+    star = (star===undefined) ? true : star;
+    var low = variant==='balance' ? lowerBalance()
+            : variant==='pointhat' ? lowerFlat()
+            : variant==='write' ? lowerWrite()
+            : lowerTuck();
+    var top = variant==='pointhat'
+            ? topPoint(star) + face(expr)
+            : upper(expr, star);
+    return low + arms() + barrel(292) + top;
+  }
+  function head(expr, star){
+    return barrel(210) + upper(expr, star===undefined?true:star);
+  }
+
+  function svg(vb, inner, attrs){
+    return '<svg viewBox="'+vb+'" '+(attrs||'')+' xmlns="http://www.w3.org/2000/svg" role="img">'+inner+'</svg>';
+  }
+
+  function robot(){
+    var d = P.graphite;
+    return '<ellipse cx="82" cy="352" rx="16" ry="8" fill="'+d+'"/>'
+      + '<ellipse cx="138" cy="352" rx="16" ry="8" fill="'+d+'"/>'
+      + '<rect x="74" y="300" width="16" height="46" rx="7" fill="'+P.cyanDk+'"/>'
+      + '<rect x="130" y="300" width="16" height="46" rx="7" fill="'+P.cyanDk+'"/>'
+      + '<rect x="42" y="220" width="16" height="60" rx="8" fill="'+P.cyanDk+'"/>'
+      + '<rect x="162" y="220" width="16" height="60" rx="8" fill="'+P.cyanDk+'"/>'
+      + '<rect x="56" y="212" width="108" height="96" rx="20" fill="'+P.cyan+'"/>'
+      + '<rect x="78" y="238" width="64" height="34" rx="8" fill="'+P.cyanDk+'" opacity=".55"/>'
+      + '<path d="M110 116 V96" stroke="'+P.cyanDk+'" stroke-width="5" stroke-linecap="round"/>'
+      + '<circle cx="110" cy="88" r="8" fill="'+P.amber+'"/>'
+      + '<rect x="52" y="114" width="116" height="94" rx="26" fill="'+P.cyan+'"/>'
+      + '<rect x="52" y="114" width="116" height="94" rx="26" fill="none" stroke="'+P.cyanDk+'" stroke-width="3"/>'
+      + '<circle cx="86" cy="156" r="13" fill="'+P.amber+'"/><circle cx="86" cy="156" r="5" fill="'+d+'"/>'
+      + '<circle cx="134" cy="156" r="13" fill="'+P.amber+'"/><circle cx="134" cy="156" r="5" fill="'+d+'"/>'
+      + '<rect x="92" y="182" width="36" height="7" rx="3.5" fill="'+d+'"/>';
+  }
+
+  /* ---- the talking head ---- */
+  function liveFace(){
+    var g = P.graphite;
+    return '<g transform="translate(0,8)">'
+      + '<g id="lv-brows"><path d="M90 143 Q99 138 108 142" fill="none" stroke="'+g+'" stroke-width="2.6" stroke-linecap="round"/>'
+      + '<path d="M112 142 Q121 138 130 143" fill="none" stroke="'+g+'" stroke-width="2.6" stroke-linecap="round"/></g>'
+      + '<ellipse id="lv-eyeL" cx="99" cy="158" rx="8" ry="9" fill="'+P.eye+'" stroke="'+g+'" stroke-width="2.2"/>'
+      + '<ellipse id="lv-eyeR" cx="121" cy="158" rx="8" ry="9" fill="'+P.eye+'" stroke="'+g+'" stroke-width="2.2"/>'
+      + '<circle cx="100" cy="159.5" r="3.4" fill="'+g+'"/><circle cx="122" cy="159.5" r="3.4" fill="'+g+'"/>'
+      + '<ellipse id="lv-mouth" cx="110" cy="186" rx="9" ry="1.3" fill="'+g+'"/>'
+      + '</g>';
+  }
+  function liveBust(){
+    return barrel(212)
+      + '<rect x="86" y="98" width="48" height="17" fill="'+P.ferrule+'"/>'
+      + '<path d="M86 103.5 H134 M86 109.5 H134" stroke="'+P.ferruleDk+'" stroke-width="1.5"/>'
+      + hatShort(true) + liveFace();
+  }
+  var talk = document.getElementById('talk');
+  if(talk){
+    talk.innerHTML = '<svg viewBox="13 25 194 194" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mr. Cadabra with his mouth moving as he speaks">'
+      + '<g transform="rotate(-18 110 122)">' + liveBust() + '</g></svg>';
+    var mth = document.getElementById('lv-mouth'),
+        eyL = document.getElementById('lv-eyeL'), eyR = document.getElementById('lv-eyeR'),
+        brw = document.getElementById('lv-brows');
+    /* A stand-in speech envelope. In production this is the REAL amplitude of the
+       ElevenLabs clip, read once per frame from a Web Audio AnalyserNode on the
+       existing <audio> element - so the mouth matches his actual voice, and no new
+       audio has to be rendered or paid for. */
+    var script = [], t = 0;
+    (function build(){
+      var words = [7,4,9,5,11,3,6,8,4,10,6,3,9,5,7];
+      for(var i=0;i<words.length;i++){
+        for(var j=0;j<words[i];j++) script.push(0.45 + 0.55*Math.abs(Math.sin(j*1.7 + i)));
+        var gap = (i%4===3) ? 7 : 3;
+        for(var k=0;k<gap;k++) script.push(0);
+      }
+    })();
+    var speaking = false, idx = 0, last = 0, o = 0, blink = 1, nextBlink = 0;
+    function frame(now){
+      if(!last) last = now;
+      var dt = now - last;
+      if(dt > 55){
+        last = now;
+        var target = 0;
+        if(speaking){ target = script[idx % script.length]; idx++; }
+        o += (target - o) * 0.55;
+        if(now > nextBlink){ blink = 0.08; nextBlink = now + 2200 + Math.random()*3400; }
+        else blink += (1 - blink) * 0.35;
+        mth.setAttribute('rx', (9 - 2.7*o).toFixed(2));
+        mth.setAttribute('ry', (1.3 + 8.4*o).toFixed(2));
+        eyL.setAttribute('ry', (9*blink).toFixed(2));
+        eyR.setAttribute('ry', (9*blink).toFixed(2));
+        brw.setAttribute('transform', 'translate(0,' + (-2.6*o).toFixed(2) + ')');
+      }
+      requestAnimationFrame(frame);
+    }
+    if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(frame);
+    var btn = document.getElementById('talkbtn');
+    btn.addEventListener('click', function(){
+      speaking = !speaking;
+      if(!speaking) idx = 0;
+      btn.textContent = speaking ? 'Stop' : 'Say a line';
+      btn.setAttribute('aria-pressed', speaking ? 'true' : 'false');
+      document.getElementById('talkorb').classList.toggle('is-talking', speaking);
+    });
+  }
+
+  /* ---- the point, three ways ---- */
+  var pts = document.getElementById('points');
+  if(pts){
+    var opts = [
+      ['balance','B &middot; The point is the foot','Chosen','No legs at all. He balances on his own tip like a chess piece, with a soft shadow under him. Nothing to misread in any pose, ever &mdash; and writing becomes a simple lean.'],
+      ['tuck','A &middot; Tuck the point','Considered','Keep the legs, end the barrel in a blunt taper well clear of the floor. It works, but it spends detail on a pair of legs that were never the point of him.'],
+      ['pointhat','C &middot; The point is the hat','Considered','Turn him over: the sharpened end goes on top, painted as the wizard hat. Safe, but he can no longer write with his own point &mdash; the best thing the idea gave us.']
+    ];
+    pts.innerHTML = opts.map(function(o){
+      return '<div class="opt'+(o[2]==='Chosen'?' rec':'')+'">'
+        + '<div class="opt-fig">' + svg("24 0 172 392", full('neutral', o[0]), 'width="104" height="238" aria-hidden="true"') + '</div>'
+        + '<span class="tag">'+o[2]+'</span>'
+        + '<h3>'+o[1]+'</h3><p>'+o[3]+'</p></div>';
+    }).join('');
+  }
+
+  /* ---- hero plate ---- */
+  document.getElementById('plate').innerHTML =
+    '<svg viewBox="24 0 172 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mr. Cadabra drawn as a purple pencil with a wizard hat, a drawn-on face, arms and legs">'
+    + '<defs><filter id="sketch" x="-8%" y="-6%" width="116%" height="112%">'
+    + '<feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="9" result="n"/>'
+    + '<feDisplacementMap in="SourceGraphic" in2="n" scale="1.9" xChannelSelector="R" yChannelSelector="G"/>'
+    + '</filter></defs>'
+    + '<g filter="url(#sketch)" class="bob">' + full('neutral') + '</g>'
+    + '</svg>';
+
+  /* ---- palette ---- */
+  var sw = [['Barrel','#F2BC1B'],['Shadow side','#C08F0C'],['Light side','#FBD96A'],['Hat','#3A2C69'],['Hat band','#6B44BE'],['Graphite','#2F2C39'],['Wood','#DFC08A'],['Ferrule','#C8CAD4']];
+  document.getElementById('palette').innerHTML = sw.map(function(x){
+    return '<span class="sw"><i style="background:'+x[1]+'"></i>'+x[0]+' &middot; '+x[1]+'</span>';
+  }).join('');
+
+  /* ---- orb tests ---- */
+  var HEADVB = "12 6 196 200";
+  var FACEVB = "24 8 172 208";
+  function orbItem(px, inner, cap){
+    return '<div class="orb-item"><div class="orb" style="width:'+px+'px;height:'+px+'px">'
+      + svg(HEADVB, inner, 'width="'+px+'" height="'+px+'" aria-hidden="true"')
+      + '</div><span class="cap">'+cap+'</span></div>';
+  }
+  var BUSTVB = "13 25 194 194";
+  function orbItem2(px, vb, inner, cap){
+    return '<div class="orb-item"><div class="orb" style="width:'+px+'px;height:'+px+'px">'
+      + svg(vb, inner, 'width="'+px+'" height="'+px+'" aria-hidden="true"')
+      + '</div><span class="cap">'+cap+'</span></div>';
+  }
+  function tilted(expr){ return '<g transform="rotate(-18 110 122)">'+bust(expr)+'</g>'; }
+
+  document.getElementById('orbs').innerHTML =
+      orbItem2(92, HEADVB, head('neutral'), 'Upright &middot; 92px')
+    + orbItem2(70, HEADVB, head('neutral'), 'Upright &middot; 70px')
+    + '<div class="orb-item" style="align-self:center"><span class="arrow">&rarr;</span></div>'
+    + orbItem2(92, BUSTVB, tilted('teaching'), 'Leaning &middot; 92px')
+    + orbItem2(70, BUSTVB, tilted('pleased'), 'Leaning &middot; 70px')
+    + orbItem2(140, BUSTVB, tilted('listening'), 'Leaning &middot; 140px session orb');
+
+  /* ---- compare ---- */
+  document.getElementById('compare').innerHTML =
+      '<div class="orb-item"><div class="tile">'
+        + svg("24 0 172 380", full('neutral'), 'width="86" height="190" aria-hidden="true"')
+      + '</div><span class="cap">Mr. Cadabra</span></div>'
+    + '<div class="orb-item"><div class="tile">'
+        + svg("24 0 172 380", robot(), 'width="86" height="190" aria-hidden="true"')
+      + '</div><span class="cap">Abrabot stand-in</span></div>'
+    + '<div class="orb-item"><div class="tile pair">'
+        + svg("24 0 172 380", full('neutral'), 'width="32" height="70" aria-hidden="true"')
+        + svg("24 0 172 380", robot(), 'width="32" height="70" aria-hidden="true"')
+      + '</div><span class="cap">Both at 70px tall</span></div>'
+    + '<div class="orb-item"><div class="tile pair">'
+        + svg("24 0 172 380", full('neutral'), 'width="20" height="44" aria-hidden="true"')
+        + svg("24 0 172 380", robot(), 'width="20" height="44" aria-hidden="true"')
+      + '</div><span class="cap">Both at 44px &middot; nav bar</span></div>';
+
+  /* ---- expressions ---- */
+  var faces = [['neutral','Waiting'],['teaching','Teaching'],['pleased','Pleased'],['thinking','Thinking'],['listening','Listening']];
+  document.getElementById('faces').innerHTML = faces.map(function(f){
+    return '<div class="face-card">' + svg(FACEVB, head(f[0], false), 'aria-hidden="true"')
+      + '<span class="cap">'+f[1]+'</span></div>';
+  }).join('');
+
+  /* ---- board scene ---- */
+  document.getElementById('scene').innerHTML =
+    '<svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mr. Cadabra walking along a whiteboard line, drawing it with his own graphite tip">'
+    + '<rect x="8" y="8" width="684" height="234" rx="6" fill="var(--card-2)" stroke="var(--line)"/>'
+    + '<text x="150" y="104" font-family="IBM Plex Mono, monospace" font-size="34" fill="var(--ink)" letter-spacing="2">2x + 6 = 14</text>'
+    + '<path class="inkline" d="M150 152 Q285 166 420 152" fill="none" stroke="var(--ink)" stroke-width="5.5" stroke-linecap="round" opacity=".8"/>'
+    + '<g class="walker"><g transform="scale(0.36)"><g transform="rotate(-35 110 362)">' + full('teaching','write', false) + '</g></g></g>'
+    + '<text x="470" y="206" font-family="IBM Plex Mono, monospace" font-size="12" letter-spacing="1.4" fill="var(--muted)">NO PEN. NO WAND. JUST HIM.</text>'
+    + '</svg>';
+})();
+</script>
+
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

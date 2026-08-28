@@ -2,6 +2,18 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pt -- THE CHILD CANNOT BE RIGHT (referees 60, 61, 62), from
+#               Jim's flag queue. A prealgebra reply asked "1 + 2 = ?" and offered
+#               9 | 4 | 7 -- the answer absent, every tap marked wrong, recorded as a
+#               maths failure the child did not earn. MEASURED: all 59 referees silent,
+#               mathcheck "ok", because every equation the board STATES is true. We
+#               checked the teacher's arithmetic and never asked whether the CHILD
+#               could be right. The same reply also wrote "1 + 2 = 3" above the
+#               question (rule 17), and a third flag asked for "the first move on the
+#               left side" with no board at all (rule 15). All three swept clean over
+#               2,829 cards. A FOURTH flag ("plus negative 2 plus 3") was NOT made a
+#               referee -- 4 canon hits, all in pre-u3-adding-a-negative -- and became
+#               a HOW YOU SPEAK clause instead. See ruletests PART 3fx.
 #   2026-08-28  BUILD ps -- RULE 61'S SECOND ENFORCED SLICE (the FIFTY-NINTH referee).
 #               Two night-watch falsehoods in one limits-hole lesson: "a hole never
 #               just appears... it comes from dividing by zero" and "cancelling always
@@ -4619,6 +4631,162 @@ _FU_ESCAPE = re.compile(r"asymptot|simplif|surviv", re.I)
 _FU_SENTENCE = re.compile(r"[^.!?\n]+[.!?]?")
 
 
+# =============================================================================
+# BUILD pt (2026-08-28) -- THREE THINGS THE FLAG QUEUE CAUGHT AND FIFTY-NINE
+# REFEREES DID NOT. Referees SIXTY, SIXTY-ONE and SIXTY-TWO.
+# =============================================================================
+# Jim flagged one prealgebra reply with three words: "something is wrong here."
+#
+#     [[objects emoji="⭐" groups="1" add="2" caption="count every star"]]
+#     [[step eq="1 + 2 = 3"]]
+#     "Let's count every star together... When we are putting together 1 and 2, we
+#      get 3 in all... Here is our problem again for you to try."
+#     [[step eq="1 + 2 = ?"]]
+#     [[choices options="9 | 4 | 7"]]
+#
+# ⚠️ THE ANSWER IS NOT AMONG THE CHOICES. The child is asked what 1 + 2 is and offered
+# 9, 4 and 7. Whatever they tap is marked wrong, and it lands in the record as a maths
+# failure -- for a question they were never given the chance to answer. MEASURED: all
+# 59 referees were silent on this reply, and mathcheck.verify_reply returned "ok",
+# because every equation the board STATES is arithmetically true. Nothing in the
+# product asked the only question that matters here: CAN THE CHILD BE RIGHT?
+#
+# ⚠️ AND THE SAME REPLY ANSWERS ITSELF. "1 + 2 = 3" is written on the board, and then
+# "1 + 2 = ?" is asked underneath it. Rule 17: never answer your own question -- if the
+# answer is already on the board when the question is asked, the check is spoiled,
+# however correct that answer happens to be.
+#
+# A third flag, an algebra2 welcome-back, asked "What's the first move to simplify the
+# left side?" with NO BOARD IN THE REPLY AT ALL. Jim: "It does no good to go through a
+# problem unless you SHOW it to me as you talk about it." Rule 15: a question must be
+# complete on the board before it is asked.
+#
+# All three swept CLEAN across all 2,829 authored cards. All three fail open. All three
+# are satisfiable in one edit, and each nudge dictates that edit.
+_UC_NUM = re.compile(r"^\s*-?\d+(?:\.\d+)?\s*$|^\s*-?\d+\s*/\s*\d+\s*$")
+
+
+def _uc_tag_values(text: str, name: str):
+    out = []
+    for tag in re.findall(r"\[\[\s*" + name + r"\b([^\]]*)\]\]", text or "", re.I):
+        for attr, val in re.findall(r'(\w+)\s*=\s*"([^"]*)"', tag):
+            out.append((attr, val))
+    return out
+
+
+def unanswerable_choices_conflict(reply: str):
+    """Return a description of tap-buttons that do not contain the answer, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        opts = [v for a, v in _uc_tag_values(text, "choices") if a == "options"]
+        if not opts:
+            return ""
+        pend = [v for a, v in _uc_tag_values(text, "step")
+                if a == "eq" and v.strip().endswith("?")]
+        if not pend:
+            return ""
+        import mathcheck as _mc
+        for o in opts:
+            parts = [p.strip() for p in o.split("|") if p.strip()]
+            # NARROW: only an all-numeric button row is a maths answer row. A menu
+            # ("Keep going | Stop for today", "Quick warm-up | I remember") is left
+            # alone, which is why rule 39(e)'s two-button offers never trip this.
+            if len(parts) < 2 or not all(_UC_NUM.match(p) for p in parts):
+                continue
+            for p in pend:
+                lhs = p.split("=")[0].strip()
+                if not lhs:
+                    continue
+                # ⚠️ ONLY a left side that resolves to a NUMBER may be judged. The
+                # checker calls "2x + 1 = 5" WRONG (it "actually equals 2x + 1"), not
+                # unverifiable, so a symbolic question with perfectly good options
+                # would fire. Any letter buys silence -- caught in this build's own
+                # both-directions test before it ever ran live.
+                if re.search(r"[A-Za-z]", lhs):
+                    continue
+                verdicts = [_mc._check_tag(lhs, x)[0] for x in parts]
+                # anything the checker could not evaluate buys silence, always
+                if "unverifiable" in verdicts or "ok" in verdicts:
+                    continue
+                return ('you ask "{q}" and offer {opts} -- and NONE of them is the '
+                        "answer. Whatever this child taps will be marked wrong, for a "
+                        "question they were never given the chance to answer, and it "
+                        "will sit in their record as a maths failure. Re-issue the "
+                        "[[choices]] row with the correct answer as one of the "
+                        "options.").format(q=" ".join(p.split())[:40],
+                                           opts=" | ".join(parts))
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[choicesanswer] crashed (fail open): {exc}")
+        _event("referee_crash", "choicesanswer", str(exc))
+        return ""
+
+
+def answer_already_shown_conflict(reply: str):
+    """Return a description of a question whose answer is already on the board, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        steps = [v for a, v in _uc_tag_values(text, "step") if a == "eq"]
+        asked = {v.split("=")[0].strip() for v in steps if v.strip().endswith("?")}
+        if not asked:
+            return ""
+        for v in steps:
+            if v.strip().endswith("?") or "=" not in v:
+                continue
+            lhs, rhs = v.split("=", 1)
+            if lhs.strip() in asked and re.match(r"^\s*-?\d+(?:\.\d+)?\s*$", rhs):
+                return ('the board already says "{shown}", and then asks "{lhs} = ?" '
+                        "underneath it. Rule 17: NEVER ANSWER YOUR OWN QUESTION -- an "
+                        "answer that is already on the board when the question is asked "
+                        "spoils the check, however correct it happens to be. Either "
+                        "clear the worked line before asking, or ask a DIFFERENT "
+                        "problem.").format(shown=" ".join(v.split())[:40],
+                                           lhs=lhs.strip()[:24])
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- fail open, always
+        print(f"[shownanswer] crashed (fail open): {exc}")
+        _event("referee_crash", "shownanswer", str(exc))
+        return ""
+
+
+# Jim's third flag: "It does no good to go through a problem unless you SHOW it to me
+# as you talk about it. Otherwise...just remind me of the type of things we were
+# working on." GENEROUS BY DESIGN: ONE board tag anywhere in the reply buys silence,
+# and only a question that POINTS at a problem ("this one", "the left side", "the
+# first move") can fire. "How are you feeling about fractions?" never trips it.
+_QP_DEICTIC = re.compile(
+    r"\bthis one\b|\bthis problem\b|\bthe left side\b|\bthe right side\b"
+    r"|\bthe first (?:move|step)\b|\bthis equation\b", re.I)
+
+
+def question_without_a_problem_conflict(reply: str):
+    """Return a description of a question about a problem that was never drawn, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        if "[[" in text:          # any board at all -- generous on purpose
+            return ""
+        prose = _spoken_only(text)
+        if "?" not in prose:
+            return ""
+        m = _QP_DEICTIC.search(prose)
+        if not m:
+            return ""
+        return ('you ask about "{d}" and the reply draws NOTHING -- there is no board '
+                "line in it at all, so the problem you are pointing at does not exist "
+                "for this child. Rule 15: a question must be complete on the board "
+                "before it is asked. Either DRAW the problem in this same reply and "
+                "read it aloud, or keep the recap general and name the KIND of work "
+                'you did, not the steps of a problem nobody can see.').format(
+                    d=m.group(0))
+    except Exception as exc:  # noqa: BLE001 -- fail open, always
+        print(f"[noproblem] crashed (fail open): {exc}")
+        _event("referee_crash", "noproblem", str(exc))
+        return ""
+
+
 def false_universal_conflict(reply: str):
     """Return a description of a hole/cancelling law spoken as unconditional, or "".
     Never raises: any unexpected input yields "" (fail open)."""
@@ -7666,6 +7834,25 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if holelaw:
             _event("referee_fire", "falseuniversal", holelaw)
             return holelaw
+        # build pt: SIXTIETH -- the child cannot be right. From Jim's flag queue,
+        # "1 + 2 = ?" offered as 9 | 4 | 7. Highest severity in the file: it turns a
+        # correct child into a wrong answer in their own record.
+        badopts = unanswerable_choices_conflict(reply)
+        if badopts:
+            _event("referee_fire", "choicesanswer", badopts)
+            return badopts
+        # build pt: SIXTY-FIRST -- rule 17, the same flagged reply: "1 + 2 = 3"
+        # written on the board and "1 + 2 = ?" asked underneath it.
+        shown = answer_already_shown_conflict(reply)
+        if shown:
+            _event("referee_fire", "shownanswer", shown)
+            return shown
+        # build pt: SIXTY-SECOND -- rule 15, Jim's third flag: a welcome-back that
+        # asked for "the first move to simplify the left side" and drew nothing.
+        noprob = question_without_a_problem_conflict(reply)
+        if noprob:
+            _event("referee_fire", "noproblem", noprob)
+            return noprob
         # builds id/ie/if: referees TWENTY-FIVE through TWENTY-EIGHT -- the
         # promotion batch (Tier A of the audit): four rules that were words alone
         # until the night Jim asked why the moles kept coming. All reply-only.
