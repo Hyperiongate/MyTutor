@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pg -- PART 3fk: Entry fills its units. 20 -> 36 lessons, so no
+#               five-year-old drops onto the live lane. The validator rejected the
+#               first cut 18 times and the battery caught 4 more; both lists are in
+#               the part's docstring because every one of them was right. The
+#               giveaway allowlist grows 5+2 -> 7+4 for entry-u2-doubles, a ten-fact
+#               recall domain that cannot fit a 7-problem bank, 2 asks and 3
+#               demonstrations -- the quarter-turns argument, word for word.
 #   2026-08-27  BUILD pf -- PART 3fj: the first course, read for sense. Jim: "Start at
 #               the beginning." All 20 Entry lessons read; Entry turned out SOUND, and
 #               only eight lines across six lessons changed. One was FALSE -- "17 take
@@ -12245,13 +12252,25 @@ def part3ev_the_giveaway_audits_join_the_battery():
       - entry-u3-story-problems (1 reverse hit): a false positive -- the demo
         (3 stickers + 2) shares no fact with the problem (2 rocks + 1 -> 3);
         the audit's own doc calls reverse evidence weaker and says read it.
+      - entry-u2-doubles (build pg, 2026-08-28): a TEN-FACT recall domain, and
+        the same argument as quarter-turns, word for word. The doubles inside
+        twenty are 1+1 through 10+10 and there are exactly ten of them. The
+        battery's own floor says a bank holds at least 7; two more go to the
+        worked pairs; a lesson that teaches doubles at all has to demonstrate
+        two or three. 7 + 2 + 3 does not fit in 10. Any demonstration therefore
+        exhausts part of the ask space BY ARITHMETIC NECESSITY, and re-asking a
+        demonstrated double is recall practice -- which is the whole point of
+        knowing your doubles -- not a giveaway. Widening the domain was the
+        alternative and it was rejected: 11+11 is 22, and the unit this lesson
+        lives in is called Addition to 20.
     Anything OUTSIDE the allowlist, or growth INSIDE it, fails the build."""
     print("\nPART 3ev — the giveaway audits join the battery (build oo)")
     import lessonscripts as LS
     import teachaudit as TA
     import workedaudit as WA
 
-    ALLOWED = {"basic-u9-quarter-turns", "entry-u3-story-problems"}
+    ALLOWED = {"basic-u9-quarter-turns", "entry-u3-story-problems",
+               "entry-u2-doubles"}
     th, wh = [], []
     for les in LS.LESSONS:
         th += TA.direct_hits(les) + TA.reverse_hits(les)
@@ -12262,12 +12281,12 @@ def part3ev_the_giveaway_audits_join_the_battery():
           "(outside the documented allowlist)",
           not strays,
           "; ".join("%s (beat/worked %s)" % (h[0], h[1]) for h in strays[:5]))
-    check("  the allowlist holds exactly its documented size (5 teach + 2 worked)",
-          len(th) == 5 and len(wh) == 2,
+    check("  the allowlist holds exactly its documented size (7 teach + 4 worked)",
+          len(th) == 7 and len(wh) == 4,
           "teach %d worked %d -- growth inside the allowlist is still growth"
           % (len(th), len(wh)))
-    check("  quarter-turns is the only tiny-domain resident",
-          {h[0] for h in wh} <= {"basic-u9-quarter-turns"},
+    check("  only the two tiny recall domains have worked-example hits",
+          {h[0] for h in wh} <= {"basic-u9-quarter-turns", "entry-u2-doubles"},
           sorted({h[0] for h in wh}))
 
     # oo's fixes stay fixed: spot pins on each fix class
@@ -13092,6 +13111,96 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fk_entry_fills_its_units():
+    """PART 3fk (build pg, 2026-08-28) -- ENTRY FILLS ITS UNITS.
+
+    Jim: "go and create the authored lessons as well." Entry-Level Math had 20
+    lessons where nine units of four is 36, so SIXTEEN topics dropped a child out of
+    the authored lane and onto the live one -- five to ten seconds a sentence, for
+    the youngest children in the product and the least able to wait. All sixteen are
+    written. Entry is 4/4/4/4/4/4/4/4/4 and the curriculum is 352 lessons.
+
+    ⭐ THE VALIDATOR WROTE HALF OF THIS BUILD, and that is the entry worth keeping.
+    It rejected the first cut EIGHTEEN times, and every rejection was correct:
+      - five banks did not RAMP (the difficulty key fell by more than one);
+      - two lessons had worked-pair asks that DUPLICATED a bank problem -- the pool
+        for counting past ten is exactly eleven-to-twenty, so the bank had to give
+        two back;
+      - "altogether" where the canon is "in all", and "makes" where it is "equals";
+      - rule 14 wanted the word "cent" said once, and the lesson only ever said
+        "cents".
+    Then the battery caught four more that validate() cannot see:
+      - "1 cents change" -- the change really can be a single cent;
+      - op= on four [[step]] tags. op= means THE OPERATION APPLIED TO BOTH SIDES of
+        an equation (op="- 1" under 2x + 1 = 11). I had used it as a column label,
+        and referee 12 was right to refuse it;
+      - three lessons demonstrated a fact they went on to ask.
+    None of that would have been caught by reading it over.
+
+    ⚠️ AND ONE OF THE THREE COULD NOT BE FIXED, ONLY DECIDED. entry-u2-doubles is a
+    TEN-FACT recall domain: the doubles inside twenty are 1+1 through 10+10. The
+    battery's own floor says a bank holds at least 7, two more go to the worked
+    pairs, and a lesson that teaches doubles has to demonstrate two or three. That
+    does not fit in ten. It is the same argument the allowlist already makes for
+    quarter-turns, word for word, so doubles joins it and the pinned size moves 5+2
+    -> 7+4 in the open. Widening the domain was the alternative and was rejected:
+    11 plus 11 is 22, and the unit is called Addition to 20."""
+    print("\nPART 3fk — Entry fills its units (build pg)")
+    import lessonscripts as _ls
+    import curriculum as _cur
+    entry = [l for l in _ls.LESSONS if l["course"] == "entry"]
+    check("⭐ Entry is nine units of four -- no topic falls through to the live lane",
+          len(entry) == 36
+          and all(len([l for l in entry if l["unit"] == u]) == 4
+                  for u, _n in _cur.units_for("entry")),
+          {u: len([l for l in entry if l["unit"] == u])
+           for u, _n in _cur.units_for("entry")})
+    check("  and the curriculum is 352 authored lessons", len(_ls.LESSONS) == 352,
+          len(_ls.LESSONS))
+
+    new = ["entry-u1-counting-past-ten", "entry-u1-which-is-bigger",
+           "entry-u2-doubles", "entry-u2-adding-three-numbers",
+           "entry-u3-the-missing-part", "entry-u4-hundreds-tens-and-ones",
+           "entry-u4-ten-more", "entry-u4-what-a-digit-is-worth",
+           "entry-u5-adding-three-digit-numbers", "entry-u5-crossing-a-hundred",
+           "entry-u6-take-away-two-digit", "entry-u6-take-away-three-digit",
+           "entry-u6-checking-by-adding-back", "entry-u7-dimes-and-pennies",
+           "entry-u7-quarters", "entry-u7-making-change"]
+    have = {l["id"] for l in _ls.LESSONS}
+    check("⭐ all sixteen new lessons are in the course order and reachable",
+          all(i in have for i in new), [i for i in new if i not in have])
+
+    byid = {l["id"]: l for l in _ls.LESSONS}
+    check("  every new lesson passes the full validator",
+          not [(i, lab) for i in new
+               for ok, lab, _d in _ls.validate(byid[i]) if not ok],
+          [(i, lab) for i in new
+           for ok, lab, _d in _ls.validate(byid[i]) if not ok][:3])
+    check("  every new bank ramps and clears the seven-problem floor",
+          all(len(byid[i]["bank"]) >= 7 for i in new),
+          {i: len(byid[i]["bank"]) for i in new if len(byid[i]["bank"]) < 7})
+
+    # the four fixes the battery itself forced, pinned so they stay fixed
+    src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "lessonscripts.py"), encoding="utf-8").read()
+    check("⭐ op= is never used as a column label on a [[step]]",
+          'op="ones"' not in src and 'op="tens"' not in src
+          and 'op="hundreds"' not in src,
+          "op= is the operation applied to both sides, not a heading")
+    check("  the change line pluralises -- a single cent is a real answer",
+          "_plural(p['a'] - p['b'], 'cent')" in src,
+          "the bank really does contain 25 take away 24")
+    check("  two coin lessons reuse ops already proved in Basic, not new ones",
+          byid["entry-u4-hundreds-tens-and-ones"]["op"] == "pv"
+          and byid["entry-u7-dimes-and-pennies"]["op"] == "m",
+          "a second copy of an op is how two lessons start disagreeing")
+
+    import quizsets as _qs
+    missing = [i for i in new if i not in _qs.QUIZ_SETS]
+    check("⭐ every new lesson has a PINNED quiz set (the audio closure holds)",
+          not missing, missing)
+
+
 def part3fj_the_first_course_read_for_sense():
     """PART 3fj (build pf, 2026-08-27) -- THE FIRST COURSE, READ FOR SENSE.
 
@@ -13133,7 +13242,8 @@ def part3fj_the_first_course_read_for_sense():
                 if _l["id"] not in seen:
                     seen.add(_l["id"]); lessons.append(_l)
     entry = [l for l in lessons if l["course"] == "entry"]
-    check("the Entry course is all 20 lessons", len(entry) == 20, len(entry))
+    check("⭐ the Entry course is nine units of four now (pg)", len(entry) == 36,
+          len(entry))
 
     def say(l):
         o = [s for s, _b in l["teach"]] + [pr["worked"][0] for pr in l["pairs"]]
@@ -13223,7 +13333,7 @@ def part3fi_the_sentences_make_sense():
             for _l in _v:
                 if _l["id"] not in seen:
                     seen.add(_l["id"]); lessons.append(_l)
-    check("all 336 authored lessons are present", len(lessons) == 336, len(lessons))
+    check("all 352 authored lessons are present", len(lessons) == 352, len(lessons))
 
     def prose(l):
         o = [s for s, _b in l["teach"]] + [pr["worked"][0] for pr in l["pairs"]]
@@ -14374,7 +14484,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,054</b>" in page,
+          "<b>7,111</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22833,6 +22943,7 @@ def main():
     part3fh_let_the_lesson_breathe()
     part3fi_the_sentences_make_sense()
     part3fj_the_first_course_read_for_sense()
+    part3fk_entry_fills_its_units()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

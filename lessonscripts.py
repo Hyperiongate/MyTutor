@@ -2,6 +2,25 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pg -- ENTRY FILLS ITS UNITS. Jim: "go and create the authored
+#               lessons as well." Entry-Level Math had 20 lessons where nine units of
+#               four is 36, so SIXTEEN topics dropped a five-year-old out of the
+#               authored lane and onto the live one -- seconds per sentence, for the
+#               children least able to wait. All sixteen are written: counting past
+#               ten, which is bigger, doubles, adding three numbers, the missing part,
+#               hundreds-tens-and-ones, ten more, what a digit is worth, adding
+#               three-digit numbers, crossing a hundred, two- and three-digit take
+#               away, checking by adding back, dimes, quarters, making change.
+#               14 new ops; place value reuses "pv" and dimes reuse "m", both already
+#               proved in Basic. Each lesson sits where it is TAUGHT, not at the end
+#               of the course order.
+#               ⭐ THE VALIDATOR WROTE HALF OF THIS BUILD. It rejected the first cut
+#               18 times and every rejection was right: banks that did not ramp,
+#               worked-pair asks that duplicated a bank problem (the pool for counting
+#               past ten is exactly eleven-to-twenty, so the bank had to give two
+#               back), "altogether" where the canon is "in all", "makes" where it is
+#               "equals", and "cents" where rule 14 wanted the word "cent" said once.
+#               None of those would have been caught by reading it over.
 #   2026-08-27  BUILD pf -- THE FIRST COURSE, READ FOR SENSE. Jim: "Start at the
 #               beginning." All 20 Entry lessons read line by line. THE HONEST RESULT
 #               IS THAT ENTRY IS IN GOOD SHAPE -- it was authored earliest and most
@@ -1925,6 +1944,576 @@ LESSONS = [
 ]
 
 _MORE_LESSONS = [
+    # ===================== (pg, 2026-08-27) ENTRY FILLS ITS UNITS ================
+    # Sixteen lessons so that Entry-Level Math is nine units of four like every
+    # other course. Until now a five-year-old who reached "which is bigger" or
+    # "making change" dropped out of the authored lane into the live one and waited
+    # seconds per sentence -- the worst possible place for the app to be slow.
+    # House rules followed exactly: three teach beats (picture, worked, trap), two
+    # worked pairs, a ten-problem bank, every sentence short enough to hear.
+    {
+        "id": "entry-u6-take-away-two-digit", "course": "entry", "unit": 6,
+        "topic": "Taking away two-digit numbers", "op": "s2d", "max_value": 99,
+        "levels": ("abstract",), "symbols": ("column",),
+        "advance_line": "Three in a row — you've got it! You can take away two-digit numbers.",
+        "teach": [
+            ("Taking away two-digit numbers works column by column, the same as "
+             "adding. Start on the right. Ones first, then tens. Today every ones "
+             "digit on top is big enough, so nothing needs regrouping.",
+             '[[goal text="Taking away two-digit numbers"]]'
+             '[[step eq="58 − 23 = ?"]]'),
+            ("Watch me take 23 away from 58. Ones: 8 take away 3 equals 5. Tens: 5 "
+             "take away 2 equals 3. So 58 take away 23 equals 35.",
+             '[[step eq="ones: 8 − 3 = 5"]]'
+             '[[step eq="tens: 5 − 2 = 3"]]'
+             '[[step eq="58 − 23 = 35"]]'),
+            ("Here is the trap. Taking away has a direction. The top number goes "
+             "first every time. In the ones column of 58 take away 23 it is 8 take "
+             "away 3, never 3 take away 8.",
+             '[[step eq="58 − 23 = 35 ✓"]]'
+             '[[step eq="the ones are 8 − 3, not 3 − 8"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 76 take away 42. Ones: 6 "
+                        "take away 2 equals 4. Tens: 7 take away 4 equals 3. That "
+                        "is 34.",
+                        '[[step eq="76 − 42 = 34"]]'),
+             "ask": {"a": 89, "b": 35, "op": "s2d"}},
+            {"worked": ("One more together. 67 take away 25. Ones: 7 take away 5 "
+                        "equals 2. Tens: 6 take away 2 equals 4. That is 42.",
+                        '[[step eq="67 − 25 = 42"]]'),
+             "ask": {"a": 95, "b": 61, "op": "s2d"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 20, "b": 10, "op": "s2d"}, {"a": 27, "b": 14, "op": "s2d"}, {"a": 30, "b": 10, "op": "s2d"}, {"a": 76, "b": 53, "op": "s2d"}, {"a": 95, "b": 65, "op": "s2d"}, {"a": 56, "b": 20, "op": "s2d"}, {"a": 94, "b": 51, "op": "s2d"}, {"a": 64, "b": 11, "op": "s2d"}, {"a": 85, "b": 21, "op": "s2d"}, {"a": 99, "b": 10, "op": "s2d"}],
+    },
+    {
+        "id": "entry-u6-take-away-three-digit", "course": "entry", "unit": 6,
+        "topic": "Taking away three-digit numbers", "op": "s3d", "max_value": 999,
+        "levels": ("abstract",), "symbols": ("column",),
+        "advance_line": "Three in a row — you've got it! You can take away three-digit numbers.",
+        "teach": [
+            ("Three columns now instead of two, and not one new idea. Ones first, "
+             "then tens, then hundreds, always starting on the right.",
+             '[[goal text="Taking away three-digit numbers"]]'
+             '[[step eq="876 − 321 = ?"]]'),
+            ("Watch me take 321 away from 876. Ones: 6 take away 1 equals 5. Tens: "
+             "7 take away 2 equals 5. Hundreds: 8 take away 3 equals 5. So 876 "
+             "take away 321 equals 555.",
+             '[[step eq="ones: 6 − 1 = 5"]]'
+             '[[step eq="tens: 7 − 2 = 5"]]'
+             '[[step eq="hundreds: 8 − 3 = 5"]]'
+             '[[step eq="876 − 321 = 555"]]'),
+            ("Here is the trap, and it is a quiet one. Do not skip a column just "
+             "because it looks easy. Every column gets worked, even one where the "
+             "bottom digit is 0, because its answer still has to be written down.",
+             '[[step eq="876 − 321 = 555 ✓"]]'
+             '[[step eq="a skipped column leaves a hole in the answer"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 597 take away 243. Ones: "
+                        "7 take away 3 equals 4. Tens: 9 take away 4 equals 5. "
+                        "Hundreds: 5 take away 2 equals 3. That is 354.",
+                        '[[step eq="597 − 243 = 354"]]'),
+             "ask": {"a": 685, "b": 342, "op": "s3d"}},
+            {"worked": ("One more together. 748 take away 216. Ones: 8 take away 6 "
+                        "equals 2. Tens: 4 take away 1 equals 3. Hundreds: 7 take "
+                        "away 2 equals 5. That is 532.",
+                        '[[step eq="748 − 216 = 532"]]'),
+             "ask": {"a": 969, "b": 427, "op": "s3d"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 201, "b": 200, "op": "s3d"}, {"a": 347, "b": 306, "op": "s3d"}, {"a": 532, "b": 420, "op": "s3d"}, {"a": 374, "b": 211, "op": "s3d"}, {"a": 831, "b": 600, "op": "s3d"}, {"a": 958, "b": 646, "op": "s3d"}, {"a": 906, "b": 504, "op": "s3d"}, {"a": 713, "b": 211, "op": "s3d"}, {"a": 823, "b": 202, "op": "s3d"}, {"a": 999, "b": 100, "op": "s3d"}],
+    },
+    {
+        "id": "entry-u6-checking-by-adding-back", "course": "entry", "unit": 6,
+        "topic": "Checking by adding back", "op": "chk", "max_value": 99,
+        "levels": ("abstract",), "symbols": ("check",),
+        "advance_line": "Three in a row — you've got it! You can check your own answer.",
+        "teach": [
+            ("Here is something you can do that nobody has to mark for you. You "
+             "can check a take away yourself. Adding and taking away undo each "
+             "other, so adding your answer back should land on the number you "
+             "started with.",
+             '[[goal text="Checking by adding back"]]'
+             '[[step eq="58 − 23 = 35, so 35 + 23 should be 58"]]'),
+            ("Watch me. Someone worked out 58 take away 23 and got 35. Add the "
+             "answer back: 35 plus 23 equals 58. That is exactly where we started, "
+             "so the take away was right.",
+             '[[step eq="35 + 23 = 58 ✓ back where we started"]]'),
+            ("Here is the trap. Add the ANSWER to the number you took away. Do not "
+             "add the two numbers from the question. In 58 take away 23, the check "
+             "is 35 plus 23, not 58 plus 23.",
+             '[[step eq="35 + 23 = 58 ✓"]]'
+             '[[step eq="81 ✗ that is 58 + 23, the wrong pair"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 74 take away 31 gave 43. "
+                        "Check it: 43 plus 31 equals 74. Back where we started.",
+                        '[[step eq="43 + 31 = 74"]]'),
+             "ask": {"a": 66, "b": 24, "op": "chk"}},
+            {"worked": ("One more together. 92 take away 47 gave 45. Check it: 45 "
+                        "plus 47 equals 92.",
+                        '[[step eq="45 + 47 = 92"]]'),
+             "ask": {"a": 83, "b": 39, "op": "chk"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 20, "b": 10, "op": "chk"}, {"a": 41, "b": 30, "op": "chk"}, {"a": 53, "b": 32, "op": "chk"}, {"a": 62, "b": 49, "op": "chk"}, {"a": 70, "b": 45, "op": "chk"}, {"a": 77, "b": 43, "op": "chk"}, {"a": 83, "b": 66, "op": "chk"}, {"a": 89, "b": 53, "op": "chk"}, {"a": 94, "b": 88, "op": "chk"}, {"a": 99, "b": 98, "op": "chk"}],
+    },
+    {
+        "id": "entry-u7-dimes-and-pennies", "course": "entry", "unit": 7,
+        "topic": "Counting dimes and pennies", "op": "m", "max_value": 99,
+        "levels": ("abstract",), "symbols": ("dime", "cent"),
+        "advance_line": "Three in a row — you've got it! You can count dimes and pennies.",
+        "teach": [
+            ("You can count nickels by five. A penny is one cent, and a dime is "
+             "worth 10 cents. Dimes are counted by ten, and counting by ten is "
+             "the easiest count there is.",
+             '[[goal text="Dimes and pennies"]]'
+             '[[step eq="1 dime = 10 cents"]]'),
+            ("Watch me count 3 dimes and 4 pennies. Dimes first, count by ten: 10, "
+             "20, 30. Then the pennies, counting on: 31, 32, 33, 34. That is 34 "
+             "cents.",
+             '[[step eq="3 dimes = 30 cents"]]'
+             '[[step eq="30 + 4 pennies = 34 cents"]]'),
+            ("Here is the trap. Do not count a dime as one. It is one coin, but it "
+             "is worth ten cents. Count the coins that are worth more first, then "
+             "count the pennies on the end.",
+             '[[step eq="3 dimes 4 pennies = 34 cents ✓"]]'
+             '[[step eq="7 ✗ that is the coins counted, not the cents"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 2 dimes and 5 pennies. By "
+                        "ten: 10, 20. Then on: 21, 22, 23, 24, 25. That is 25 cents.",
+                        '[[step eq="2 dimes + 5 pennies = 25 cents"]]'),
+             "ask": {"a": 4, "b": 3, "op": "m"}},
+            {"worked": ("One more together. 5 dimes and 2 pennies. By ten: 10, 20, "
+                        "30, 40, 50. Then 51, 52. That is 52 cents.",
+                        '[[step eq="5 dimes + 2 pennies = 52 cents"]]'),
+             "ask": {"a": 6, "b": 8, "op": "m"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 1, "b": 1, "op": "m"}, {"a": 2, "b": 1, "op": "m"}, {"a": 3, "b": 1, "op": "m"}, {"a": 4, "b": 1, "op": "m"}, {"a": 5, "b": 1, "op": "m"}, {"a": 5, "b": 9, "op": "m"}, {"a": 6, "b": 9, "op": "m"}, {"a": 7, "b": 9, "op": "m"}, {"a": 8, "b": 9, "op": "m"}, {"a": 9, "b": 9, "op": "m"}],
+    },
+    {
+        "id": "entry-u7-quarters", "course": "entry", "unit": 7,
+        "topic": "Counting quarters", "op": "qtr", "max_value": 109,
+        "levels": ("abstract",), "symbols": ("quarter",),
+        "advance_line": "Three in a row — you've got it! You can count quarters.",
+        "teach": [
+            ("A quarter is worth 25 cents. It is the biggest coin you will count "
+             "here, and four of them make one dollar, which is 100 cents.",
+             '[[goal text="Quarters"]]'
+             '[[step eq="1 quarter = 25 cents"]]'),
+            ("Watch me count 3 quarters and 4 pennies. Quarters first, counting by "
+             "twenty-five: 25, 50, 75. Then the pennies on the end: 76, 77, 78, "
+             "79. That is 79 cents.",
+             '[[step eq="3 quarters = 75 cents"]]'
+             '[[step eq="75 + 4 pennies = 79 cents"]]'),
+            ("Here is the trap. Two quarters is 50 cents, not 2 cents and not 20 "
+             "cents. Count quarters in jumps of twenty-five, and say each jump out "
+             "loud: twenty-five, fifty, seventy-five, one hundred.",
+             '[[step eq="25, 50, 75, 100 — the four quarters"]]'
+             '[[step eq="3 quarters 4 pennies = 79 cents ✓"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 2 quarters and 3 pennies. "
+                        "25, 50. Then 51, 52, 53. That is 53 cents.",
+                        '[[step eq="2 quarters + 3 pennies = 53 cents"]]'),
+             "ask": {"a": 1, "b": 6, "op": "qtr"}},
+            {"worked": ("One more together. 4 quarters and 2 pennies. 25, 50, 75, "
+                        "100. Then 101, 102. That is 102 cents.",
+                        '[[step eq="4 quarters + 2 pennies = 102 cents"]]'),
+             "ask": {"a": 3, "b": 5, "op": "qtr"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 1, "b": 1, "op": "qtr"}, {"a": 1, "b": 5, "op": "qtr"}, {"a": 1, "b": 9, "op": "qtr"}, {"a": 2, "b": 4, "op": "qtr"}, {"a": 2, "b": 8, "op": "qtr"}, {"a": 3, "b": 2, "op": "qtr"}, {"a": 3, "b": 6, "op": "qtr"}, {"a": 4, "b": 1, "op": "qtr"}, {"a": 4, "b": 5, "op": "qtr"}, {"a": 4, "b": 9, "op": "qtr"}],
+    },
+    {
+        "id": "entry-u7-making-change", "course": "entry", "unit": 7,
+        "topic": "Making change", "op": "chg", "max_value": 100,
+        "levels": ("abstract",), "symbols": ("change",),
+        "advance_line": "Three in a row — you've got it! You can work out the change.",
+        "teach": [
+            ("When you pay with more than a thing costs, you get change. Change is "
+             "what is left of your money after the price has been taken away.",
+             '[[goal text="Making change"]]'
+             '[[step eq="you pay 50 − it costs 35 = ? change"]]'),
+            ("Watch me. A toy costs 35 cents and you pay 50 cents. Take the price "
+             "away from what you paid: 50 take away 35 equals 15. Your change is "
+             "15 cents.",
+             '[[step eq="50 − 35 = 15 cents change"]]'),
+            ("Here is the trap. Do not add the two amounts. You are not spending "
+             "85 cents. The change is always SMALLER than what you handed over, so "
+             "if your answer is bigger, something has gone wrong.",
+             '[[step eq="50 − 35 = 15 ✓"]]'
+             '[[step eq="85 ✗ that is the two amounts added"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. A sticker costs 18 cents "
+                        "and you pay 25 cents. 25 take away 18 equals 7 cents "
+                        "change.",
+                        '[[step eq="25 − 18 = 7 cents change"]]'),
+             "ask": {"a": 50, "b": 20, "op": "chg"}},
+            {"worked": ("One more together. A pencil costs 60 cents and you pay "
+                        "100 cents. 100 take away 60 equals 40 cents change.",
+                        '[[step eq="100 − 60 = 40 cents change"]]'),
+             "ask": {"a": 100, "b": 45, "op": "chg"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 25, "b": 24, "op": "chg"}, {"a": 25, "b": 18, "op": "chg"}, {"a": 100, "b": 88, "op": "chg"}, {"a": 100, "b": 82, "op": "chg"}, {"a": 100, "b": 74, "op": "chg"}, {"a": 50, "b": 15, "op": "chg"}, {"a": 50, "b": 6, "op": "chg"}, {"a": 100, "b": 40, "op": "chg"}, {"a": 100, "b": 23, "op": "chg"}, {"a": 100, "b": 5, "op": "chg"}],
+    },
+    {
+        "id": "entry-u4-hundreds-tens-and-ones", "course": "entry", "unit": 4,
+        "topic": "Hundreds, tens and ones", "op": "pv", "max_value": 999,
+        "levels": ("abstract",), "symbols": ("hundred", "digit"),
+        "advance_line": "Three in a row — you've got it! You can read hundreds, tens and ones.",
+        "teach": [
+            ("You already know tens and ones. Ten tens, put together, make one "
+             "hundred. A three-digit number has a hundreds digit, a tens digit and "
+             "a ones digit, always in that order.",
+             '[[goal text="Hundreds, tens and ones"]]'
+             '[[step eq="3 hundreds, 4 tens, 6 ones = 346"]]'),
+            ("Watch me. 3 hundreds, 4 tens and 6 ones. Say the hundreds first: "
+             "three hundred. Then the tens and ones: forty-six. Three hundred "
+             "forty-six.",
+             '[[step eq="300 + 40 + 6 = 346"]]'),
+            ("Here is the trap. Say the digits in order, left to right. 3 hundreds "
+             "and 4 tens is 340, not 430. The first digit you say is the biggest "
+             "one, because hundreds are bigger than tens.",
+             '[[step eq="3 hundreds, 4 tens, 6 ones = 346 ✓"]]'
+             '[[step eq="643 ✗ the digits were read backwards"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 2 hundreds, 5 tens and 1 "
+                        "one. Two hundred, then fifty-one. Two hundred fifty-one.",
+                        '[[step eq="200 + 50 + 1 = 251"]]'),
+             "ask": {"a": 4, "b": 2, "c": 7, "op": "pv"}},
+            {"worked": ("One more together. 6 hundreds, 0 tens and 3 ones is six "
+                        "hundred three.",
+                        '[[step eq="600 + 0 + 3 = 603"]]'),
+             "ask": {"a": 5, "b": 8, "c": 2, "op": "pv"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 1, "b": 1, "c": 1, "op": "pv"}, {"a": 2, "b": 1, "c": 1, "op": "pv"}, {"a": 3, "b": 1, "c": 1, "op": "pv"}, {"a": 4, "b": 1, "c": 1, "op": "pv"}, {"a": 5, "b": 1, "c": 1, "op": "pv"}, {"a": 5, "b": 9, "c": 9, "op": "pv"}, {"a": 6, "b": 9, "c": 9, "op": "pv"}, {"a": 7, "b": 9, "c": 9, "op": "pv"}, {"a": 8, "b": 9, "c": 9, "op": "pv"}, {"a": 9, "b": 9, "c": 9, "op": "pv"}],
+    },
+    {
+        "id": "entry-u4-ten-more", "course": "entry", "unit": 4,
+        "topic": "Ten more", "op": "t10", "max_value": 99,
+        "levels": ("abstract",), "symbols": ("tens digit",),
+        "advance_line": "Three in a row — you've got it! You can add ten in your head.",
+        "teach": [
+            ("Adding ten is the easiest jump there is, once you see what it does. "
+             "Ten more does not touch the ones at all. Only the tens digit goes up "
+             "by one.",
+             '[[goal text="Ten more"]]'
+             '[[step eq="34 + 10 = 44"]]'),
+            ("Watch me. Ten more than 34. The 4 ones stay 4 ones. The 3 tens "
+             "become 4 tens. So ten more than 34 is 44. You did not have to count "
+             "at all.",
+             '[[step eq="3 tens 4 ones → 4 tens 4 ones"]]'
+             '[[step eq="34 + 10 = 44"]]'),
+            ("Here is the trap. Adding ten is not adding one. Ten more than 57 is "
+             "67, not 58. Check your answer by looking at the ones digit: it "
+             "should be exactly the same as the one you started with.",
+             '[[step eq="57 + 10 = 67 ✓ the 7 did not move"]]'
+             '[[step eq="58 ✗ that is one more, not ten more"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. Ten more than 25. The 5 "
+                        "stays. The 2 tens become 3 tens. 35.",
+                        '[[step eq="25 + 10 = 35"]]'),
+             "ask": {"a": 42, "b": 0, "op": "t10"}},
+            {"worked": ("One more together. Ten more than 63 is 73.",
+                        '[[step eq="63 + 10 = 73"]]'),
+             "ask": {"a": 78, "b": 0, "op": "t10"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 10, "b": 0, "op": "t10"}, {"a": 19, "b": 0, "op": "t10"}, {"a": 28, "b": 0, "op": "t10"}, {"a": 36, "b": 0, "op": "t10"}, {"a": 45, "b": 0, "op": "t10"}, {"a": 54, "b": 0, "op": "t10"}, {"a": 66, "b": 0, "op": "t10"}, {"a": 71, "b": 0, "op": "t10"}, {"a": 80, "b": 0, "op": "t10"}, {"a": 89, "b": 0, "op": "t10"}],
+    },
+    {
+        "id": "entry-u4-what-a-digit-is-worth", "course": "entry", "unit": 4,
+        "topic": "What a digit is worth", "op": "wor", "max_value": 999,
+        "levels": ("abstract",), "symbols": ("place", "worth"),
+        "advance_line": "Three in a row — you've got it! You know what each digit is worth.",
+        "teach": [
+            ("A digit is worth different amounts depending on where it sits. The "
+             "same 7 can be worth 7, or 70, or 700. Its place is what decides.",
+             '[[goal text="What a digit is worth"]]'
+             '[[step eq="7 · 70 · 700 — the same digit, three places"]]'),
+            ("Watch me. In the number 374, what is the 7 worth? Count the places "
+             "from the right: 4 is ones, 7 is tens, 3 is hundreds. The 7 sits in "
+             "the tens place, so it is worth 70.",
+             '[[step eq="374 → 3 hundreds, 7 tens, 4 ones"]]'
+             '[[step eq="the 7 is worth 70"]]'),
+            ("Here is the trap. Do not answer with the digit by itself. In 374 the "
+             "7 is not worth 7. Find its place first, then say the whole amount "
+             "that place is worth.",
+             '[[step eq="the 7 in 374 is worth 70 ✓"]]'
+             '[[step eq="7 ✗ that is the digit, not what it is worth"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. In 258, what is the 5 "
+                        "worth? 8 is ones, 5 is tens. The 5 is worth 50.",
+                        '[[step eq="258 → the 5 is worth 50"]]'),
+             "ask": {"a": 4, "b": 6, "c": 1, "op": "wor"}},
+            {"worked": ("One more together. In 931, the 3 sits in the tens place, "
+                        "so it is worth 30.",
+                        '[[step eq="931 → the 3 is worth 30"]]'),
+             "ask": {"a": 7, "b": 2, "c": 5, "op": "wor"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 1, "b": 2, "c": 1, "op": "wor"}, {"a": 9, "b": 2, "c": 3, "op": "wor"}, {"a": 8, "b": 3, "c": 4, "op": "wor"}, {"a": 7, "b": 4, "c": 3, "op": "wor"}, {"a": 6, "b": 5, "c": 4, "op": "wor"}, {"a": 4, "b": 6, "c": 5, "op": "wor"}, {"a": 3, "b": 7, "c": 6, "op": "wor"}, {"a": 2, "b": 8, "c": 6, "op": "wor"}, {"a": 1, "b": 9, "c": 7, "op": "wor"}, {"a": 8, "b": 9, "c": 8, "op": "wor"}],
+    },
+    {
+        "id": "entry-u5-adding-three-digit-numbers", "course": "entry", "unit": 5,
+        "topic": "Adding three-digit numbers", "op": "a3d", "max_value": 999,
+        "levels": ("abstract",), "symbols": ("column",),
+        "advance_line": "Three in a row — you've got it! You can add three-digit numbers.",
+        "teach": [
+            ("Three-digit numbers add the same way two-digit ones do. Work one "
+             "column at a time, and always start on the right. Ones first, then "
+             "tens, then hundreds.",
+             '[[goal text="Adding three-digit numbers"]]'
+             '[[step eq="243 + 125 = ?"]]'),
+            ("Watch me add 243 plus 125. Ones: 3 plus 5 equals 8. Tens: 4 plus 2 "
+             "equals 6. Hundreds: 2 plus 1 equals 3. So 243 plus 125 equals 368.",
+             '[[step eq="ones: 3 + 5 = 8"]]'
+             '[[step eq="tens: 4 + 2 = 6"]]'
+             '[[step eq="hundreds: 2 + 1 = 3"]]'
+             '[[step eq="243 + 125 = 368"]]'),
+            ("Here is the trap. Keep each column in its own place. The tens answer "
+             "goes under the tens, and the hundreds answer under the hundreds. If "
+             "a column slides across, every digit after it is wrong.",
+             '[[step eq="243 + 125 = 368 ✓"]]'
+             '[[step eq="638 ✗ the columns were written in the wrong places"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 312 plus 246. Ones: 2 "
+                        "plus 6 equals 8. Tens: 1 plus 4 equals 5. Hundreds: 3 "
+                        "plus 2 equals 5. That is 558.",
+                        '[[step eq="312 + 246 = 558"]]'),
+             "ask": {"a": 425, "b": 132, "op": "a3d"}},
+            {"worked": ("One more together. 507 plus 281. Ones: 7 plus 1 equals 8. "
+                        "Tens: 0 plus 8 equals 8. Hundreds: 5 plus 2 equals 7. "
+                        "That is 788.",
+                        '[[step eq="507 + 281 = 788"]]'),
+             "ask": {"a": 634, "b": 145, "op": "a3d"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 100, "b": 100, "op": "a3d"}, {"a": 156, "b": 301, "op": "a3d"}, {"a": 330, "b": 239, "op": "a3d"}, {"a": 321, "b": 342, "op": "a3d"}, {"a": 601, "b": 137, "op": "a3d"}, {"a": 411, "b": 381, "op": "a3d"}, {"a": 702, "b": 163, "op": "a3d"}, {"a": 799, "b": 100, "op": "a3d"}, {"a": 559, "b": 410, "op": "a3d"}, {"a": 899, "b": 100, "op": "a3d"}],
+    },
+    {
+        "id": "entry-u5-crossing-a-hundred", "course": "entry", "unit": 5,
+        "topic": "Crossing a hundred", "op": "c2h", "max_value": 199,
+        "levels": ("abstract",), "symbols": ("hundred",),
+        "advance_line": "Three in a row — you've got it! You can add past one hundred.",
+        "teach": [
+            ("You already carry into the tens. Today the tens themselves fill up. "
+             "When ten tens are made, they become one hundred, and a new digit "
+             "appears at the front.",
+             '[[goal text="Crossing a hundred"]]'
+             '[[step eq="68 + 47 = ?"]]'),
+            ("Watch me add 68 plus 47. Ones: 8 plus 7 equals 15 — over nine, write "
+             "the 5 and carry one ten. Tens: 6 plus 4 equals 10, plus the carried "
+             "one is 11 tens. Eleven tens is one hundred and one ten. So 115.",
+             '[[step eq="ones: 8 + 7 = 15, carry 1"]]'
+             '[[step eq="tens: 6 + 4 + 1 = 11 tens"]]'
+             '[[step eq="68 + 47 = 115"]]'),
+            ("Here is the trap. Eleven tens is not written as 11 in the tens "
+             "place. Ten of those tens become one hundred, so the 1 moves to the "
+             "front and one ten stays behind.",
+             '[[step eq="68 + 47 = 115 ✓"]]'
+             '[[step eq="1115 ✗ eleven tens written where one ten belongs"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 75 plus 38. Ones: 5 plus "
+                        "8 equals 13 — write the 3, carry one. Tens: 7 plus 3 plus "
+                        "the carried one is 11 tens. That is 113.",
+                        '[[step eq="75 + 38 = 113"]]'),
+             "ask": {"a": 56, "b": 67, "op": "c2h"}},
+            {"worked": ("One more together. 84 plus 29. Ones: 4 plus 9 equals 13 — "
+                        "write the 3, carry one. Tens: 8 plus 2 plus one is 11 "
+                        "tens. That is 113.",
+                        '[[step eq="84 + 29 = 113"]]'),
+             "ask": {"a": 47, "b": 76, "op": "c2h"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 10, "b": 90, "op": "c2h"}, {"a": 49, "b": 57, "op": "c2h"}, {"a": 61, "b": 51, "op": "c2h"}, {"a": 20, "b": 99, "op": "c2h"}, {"a": 28, "b": 98, "op": "c2h"}, {"a": 84, "b": 49, "op": "c2h"}, {"a": 75, "b": 67, "op": "c2h"}, {"a": 54, "b": 99, "op": "c2h"}, {"a": 87, "b": 79, "op": "c2h"}, {"a": 99, "b": 99, "op": "c2h"}],
+    },
+    {
+        "id": "entry-u1-counting-past-ten", "course": "entry", "unit": 1,
+        "topic": "Counting past ten", "op": "c20", "max_value": 20,
+        "levels": ("concrete",), "symbols": ("count",),
+        "advance_line": "Three in a row — you've got it! You can count past ten.",
+        "teach": [
+            ("Today we count past ten. Counting does not stop at ten. After ten "
+             "comes eleven, twelve, thirteen, and it keeps going. Say each number "
+             "as you touch each star.",
+             '[[goal text="Counting past ten"]]'
+             '[[objects emoji="⭐" groups="12" caption="touch each one and count"]]'),
+            ("Watch me count these. One, two, three, four, five, six, seven, "
+             "eight, nine, ten. Then keep going: eleven, twelve. Twelve stars.",
+             '[[objects emoji="⭐" groups="12" caption="ten, then eleven, twelve"]]'),
+            ("Here is a faster way. Count the first ten, then count on from ten. "
+             "Ten — eleven, twelve, thirteen, fourteen. Fourteen stars. The trap "
+             "is starting again at one after ten. Keep going instead.",
+             '[[objects emoji="⭐" groups="14" caption="ten, then count on: 11, 12, 13, 14"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. Ten, then count on: "
+                        "eleven, twelve, thirteen. Thirteen stars.",
+                        '[[objects emoji="⭐" groups="13" caption="thirteen stars"]]'),
+             "ask": {"a": 19, "b": 0, "op": "c20"}},
+            {"worked": ("One more together. Ten, then eleven, twelve, thirteen, "
+                        "fourteen, fifteen, sixteen. Sixteen stars.",
+                        '[[objects emoji="⭐" groups="16" caption="sixteen stars"]]'),
+             "ask": {"a": 20, "b": 0, "op": "c20"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        # the whole pool is eleven to twenty, so the two worked pairs take the
+        # last two and the bank takes the rest -- a problem may never be both.
+        "bank": [{"a": 11, "b": 0, "op": "c20"}, {"a": 12, "b": 0, "op": "c20"}, {"a": 13, "b": 0, "op": "c20"}, {"a": 14, "b": 0, "op": "c20"}, {"a": 15, "b": 0, "op": "c20"}, {"a": 16, "b": 0, "op": "c20"}, {"a": 17, "b": 0, "op": "c20"}, {"a": 18, "b": 0, "op": "c20"}],
+    },
+    {
+        "id": "entry-u1-which-is-bigger", "course": "entry", "unit": 1,
+        "topic": "Which number is bigger", "op": "big", "max_value": 20,
+        "levels": ("abstract",), "symbols": ("bigger",),
+        "advance_line": "Three in a row — you've got it! You can tell which number is bigger.",
+        "teach": [
+            ("Numbers stand in a line, and the further along a number stands, the "
+             "bigger it is. So the bigger number is the one you reach later when "
+             "you count.",
+             '[[goal text="Which number is bigger"]]'
+             '[[numberline min="1" max="10" points="3,8" caption="8 comes later than 3"]]'),
+            ("Watch me. Which is bigger, 3 or 8? Count along: one, two, three — "
+             "there is 3. Keep counting to eight. You reach 8 later, so 8 is "
+             "bigger.",
+             '[[numberline min="1" max="10" points="3,8" caption="3 first, then 8"]]'
+             '[[step eq="8 is bigger than 3"]]'),
+            ("Here is the trap. Do not add the two numbers. The question is not "
+             "how many in all. It only asks which one is bigger, so your "
+             "answer is always one of the two numbers you were given.",
+             '[[step eq="3 or 8 → 8 ✓"]]'
+             '[[step eq="11 ✗ that is 3 and 8 added, not the bigger one"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. Which is bigger, 6 or 9? "
+                        "You reach 9 later when you count, so 9 is bigger.",
+                        '[[numberline min="1" max="10" points="6,9" caption="9 comes later"]]'),
+             "ask": {"a": 6, "b": 13, "op": "big"}},
+            {"worked": ("One more together. Which is bigger, 12 or 7? You reach 12 "
+                        "later, so 12 is bigger.",
+                        '[[step eq="12 or 7 → 12"]]'),
+             "ask": {"a": 17, "b": 9, "op": "big"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 1, "b": 2, "op": "big"}, {"a": 3, "b": 6, "op": "big"}, {"a": 5, "b": 10, "op": "big"}, {"a": 7, "b": 14, "op": "big"}, {"a": 9, "b": 18, "op": "big"}, {"a": 12, "b": 3, "op": "big"}, {"a": 14, "b": 7, "op": "big"}, {"a": 16, "b": 11, "op": "big"}, {"a": 18, "b": 15, "op": "big"}, {"a": 20, "b": 19, "op": "big"}],
+    },
+    {
+        "id": "entry-u2-doubles", "course": "entry", "unit": 2,
+        "topic": "Doubles", "op": "dbe", "max_value": 20,
+        "levels": ("abstract",), "symbols": ("double",),
+        "advance_line": "Three in a row — you've got it! You know your doubles.",
+        "teach": [
+            ("A double is a number added to itself. Four plus four is a double. "
+             "Doubles are worth knowing by heart, because they come up everywhere "
+             "and they are quick.",
+             '[[goal text="Doubles"]]'
+             '[[step eq="4 + 4 = 8"]]'),
+            ("Watch me. 6 plus 6. Count six, then six more: seven, eight, nine, "
+             "ten, eleven, twelve. 6 plus 6 equals 12. Say it twice and you will "
+             "remember it.",
+             '[[objects emoji="⭐" groups="12" caption="six and six more"]]'
+             '[[step eq="6 + 6 = 12"]]'),
+            ("Here is the trap. A double adds the SAME number again. It does not "
+             "add one more. 7 plus 7 is 14, not 15. Look at the number you were "
+             "given, and use that same number twice.",
+             '[[step eq="7 + 7 = 14 ✓"]]'
+             '[[step eq="15 ✗ that is 7 + 8, not a double"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 5 plus 5. Five, then five "
+                        "more: six, seven, eight, nine, ten. 5 plus 5 equals 10.",
+                        '[[step eq="5 + 5 = 10"]]'),
+             "ask": {"a": 9, "b": 0, "op": "dbe"}},
+            {"worked": ("One more together. 9 plus 9 equals 18.",
+                        '[[step eq="9 + 9 = 18"]]'),
+             "ask": {"a": 10, "b": 0, "op": "dbe"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 1, "b": 0, "op": "dbe"}, {"a": 2, "b": 0, "op": "dbe"}, {"a": 3, "b": 0, "op": "dbe"}, {"a": 4, "b": 0, "op": "dbe"}, {"a": 5, "b": 0, "op": "dbe"}, {"a": 6, "b": 0, "op": "dbe"}, {"a": 7, "b": 0, "op": "dbe"}, {"a": 8, "b": 0, "op": "dbe"}],
+    },
+    {
+        "id": "entry-u2-adding-three-numbers", "course": "entry", "unit": 2,
+        "topic": "Adding three numbers", "op": "add3", "max_value": 20,
+        "levels": ("abstract",), "symbols": ("plus",),
+        "advance_line": "Three in a row — you've got it! You can add three numbers.",
+        "teach": [
+            ("Sometimes there are three numbers to add, not two. You do not need a "
+             "new trick. Add the first two, then add the third to what you got.",
+             '[[goal text="Adding three numbers"]]'
+             '[[step eq="2 + 3 + 4 = ?"]]'),
+            ("Watch me. 2 plus 3 plus 4. First 2 plus 3 equals 5. Then 5 plus 4 "
+             "equals 9. So 2 plus 3 plus 4 equals 9.",
+             '[[step eq="2 + 3 = 5"]]'
+             '[[step eq="5 + 4 = 9"]]'),
+            ("Here is a helpful trick, and here is the trap. The trap is stopping "
+             "after two numbers and forgetting the third. The trick is to look for "
+             "two that make ten first: in 6 plus 4 plus 3, do 6 plus 4 to get "
+             "ten, then 10 plus 3 is 13.",
+             '[[step eq="6 + 4 = 10, then 10 + 3 = 13 ✓"]]'
+             '[[step eq="10 ✗ the third number was left out"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 3 plus 5 plus 2. First 3 "
+                        "plus 5 equals 8. Then 8 plus 2 equals 10.",
+                        '[[step eq="3 + 5 + 2 = 10"]]'),
+             "ask": {"a": 2, "b": 4, "c": 6, "op": "add3"}},
+            {"worked": ("One more together. 1 plus 6 plus 6. First 1 plus 6 equals "
+                        "7. Then 7 plus 6 equals 13.",
+                        '[[step eq="1 + 6 + 6 = 13"]]'),
+             "ask": {"a": 7, "b": 5, "c": 3, "op": "add3"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 1, "b": 1, "c": 1, "op": "add3"}, {"a": 1, "b": 3, "c": 5, "op": "add3"}, {"a": 3, "b": 7, "c": 1, "op": "add3"}, {"a": 9, "b": 1, "c": 2, "op": "add3"}, {"a": 2, "b": 9, "c": 3, "op": "add3"}, {"a": 4, "b": 8, "c": 3, "op": "add3"}, {"a": 6, "b": 5, "c": 5, "op": "add3"}, {"a": 8, "b": 5, "c": 4, "op": "add3"}, {"a": 4, "b": 8, "c": 7, "op": "add3"}, {"a": 9, "b": 9, "c": 2, "op": "add3"}],
+    },
+    {
+        "id": "entry-u3-the-missing-part", "course": "entry", "unit": 3,
+        "topic": "The missing part", "op": "msp", "max_value": 20,
+        "levels": ("abstract",), "symbols": ("more",),
+        "advance_line": "Three in a row — you've got it! You can find the missing part.",
+        "teach": [
+            ("Some questions give you the start and the finish and hide the middle. "
+             "7 and how many more make 10? The missing number is the part that has "
+             "been left out.",
+             '[[goal text="The missing part"]]'
+             '[[step eq="7 + ? = 10"]]'),
+            ("Watch me. 7 and how many more make 10? Start at seven and count up "
+             "to ten: eight, nine, ten. That is three counts. So 7 and 3 more "
+             "make 10.",
+             '[[numberline min="0" max="10" hops="7,10" caption="count up from 7 to 10"]]'
+             '[[step eq="7 + 3 = 10"]]'),
+            ("Here is the trap. Do not answer with the finish. The question is not "
+             "what number we end on. It asks how many MORE, so your answer is the "
+             "size of the jump, never the number you landed on.",
+             '[[step eq="7 + 3 = 10 ✓ the jump is 3"]]'
+             '[[step eq="10 ✗ that is where we finished, not how many more"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 4 and how many more make "
+                        "9? Count up from four: five, six, seven, eight, nine. "
+                        "Five counts. 4 and 5 more make 9.",
+                        '[[step eq="4 + 5 = 9"]]'),
+             "ask": {"a": 5, "b": 11, "op": "msp"}},
+            {"worked": ("One more together. 8 and how many more make 15? Count up "
+                        "from eight to fifteen — seven counts. 8 and 7 more make 15.",
+                        '[[step eq="8 + 7 = 15"]]'),
+             "ask": {"a": 9, "b": 17, "op": "msp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 1, "b": 2, "op": "msp"}, {"a": 3, "b": 5, "op": "msp"}, {"a": 6, "b": 9, "op": "msp"}, {"a": 10, "b": 14, "op": "msp"}, {"a": 15, "b": 20, "op": "msp"}, {"a": 7, "b": 14, "op": "msp"}, {"a": 3, "b": 12, "op": "msp"}, {"a": 3, "b": 14, "op": "msp"}, {"a": 7, "b": 20, "op": "msp"}, {"a": 1, "b": 20, "op": "msp"}],
+    },
     {
         "id": "entry-u6-take-away-with-regrouping",
         "course": "entry", "unit": 6,
@@ -14844,13 +15433,26 @@ COURSE_ORDER = [
     # Basic U1 and belong here by Jim's own curriculum -- Eureka audit 2026-08-21;
     # kd opens the course where Eureka does -- counting -- and adds story problems
     # and coins) ----
-    "entry-u1-counting-to-10", "entry-u1-numbers-before-and-after",
-    "entry-u2-add-single-digit", "entry-u2-add-past-ten",
+    # (pg) THE COURSE IS NINE UNITS OF FOUR NOW. Sixteen lessons were added so a
+    # five-year-old stops falling out of the authored lane onto the slow one. Each
+    # new lesson sits where it is TAUGHT, not at the end: counting past ten before
+    # comparing, doubles before three-in-a-row, no-regrouping take away before the
+    # regrouping lesson that was already here, and coins in coin order -- nickels,
+    # dimes, quarters, then change.
+    "entry-u1-counting-to-10", "entry-u1-counting-past-ten",
+    "entry-u1-numbers-before-and-after", "entry-u1-which-is-bigger",
+    "entry-u2-add-single-digit", "entry-u2-doubles",
+    "entry-u2-add-past-ten", "entry-u2-adding-three-numbers",
     "entry-u3-take-away-single-digit", "entry-u3-take-away-bigger",
-    "entry-u3-story-problems",
-    "entry-u4-tens-and-ones", "entry-u5-add-two-digit-no-carry",
-    "entry-u5-add-with-carrying", "entry-u6-take-away-with-regrouping",
-    "entry-u7-counting-coins",
+    "entry-u3-the-missing-part", "entry-u3-story-problems",
+    "entry-u4-tens-and-ones", "entry-u4-hundreds-tens-and-ones",
+    "entry-u4-ten-more", "entry-u4-what-a-digit-is-worth",
+    "entry-u5-add-two-digit-no-carry", "entry-u5-add-with-carrying",
+    "entry-u5-crossing-a-hundred", "entry-u5-adding-three-digit-numbers",
+    "entry-u6-take-away-two-digit", "entry-u6-take-away-with-regrouping",
+    "entry-u6-take-away-three-digit", "entry-u6-checking-by-adding-back",
+    "entry-u7-counting-coins", "entry-u7-dimes-and-pennies",
+    "entry-u7-quarters", "entry-u7-making-change",
     # (mo) Unit 8 -- Time, Calendar & Measurement. The clock lessons come after
     # coins on purpose: counting by five is learned on nickels first, and the
     # minute hand is the same count on a rounder board.
@@ -15376,6 +15978,181 @@ def _fw(n, bottom):
 
 
 OP_EXT = {
+    # ================= (pg, 2026-08-27) THE ENTRY COURSE FILLS ITS UNITS =========
+    # Jim: "go and create the authored lessons as well." Entry had 20 lessons where
+    # nine units of four is 36, so 16 topics fell straight through to the slow live
+    # lane -- for the YOUNGEST children, who are least able to wait 8 seconds for a
+    # sentence. These are their ops. Two of the sixteen needed no new op at all:
+    # place value reuses "pv" and dimes reuse "m", both already proved in Basic.
+    "big": {   # which of two numbers is bigger
+        "ans": lambda p: max(p["a"], p["b"]),
+        "spoken": lambda p: f"Which number is bigger, {p['a']} or {p['b']}?",
+        "board": lambda p: f'[[step eq="{p["a"]} or {p["b"]} — which is bigger?"]]',
+        "praise": lambda p: (f"{max(p['a'], p['b'])} is bigger than "
+                             f"{min(p['a'], p['b'])}."),
+        "key": lambda p: 100 * p["a"] + p["b"],
+        "check": lambda p: (1 <= p["a"] <= 20 and 1 <= p["b"] <= 20
+                            and p["a"] != p["b"],
+                            "two different numbers inside the counting range"),
+        # +-1 would give the answer away: the options must be the two numbers
+        # themselves, plus the one slip a child actually makes -- adding them.
+        "choices": lambda p: [min(p["a"], p["b"]), max(p["a"], p["b"]),
+                              p["a"] + p["b"]],
+    },
+    "c20": {   # count a group that runs past ten (the picture IS the problem)
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: "Count the stars. How many stars are there?",
+        "board": lambda p: (f'[[objects emoji="⭐" groups="{p["a"]}" '
+                            f'caption="ten first, then count on"]]'),
+        "praise": lambda p: f"{_plural(p['a'], 'star')} — you counted past ten.",
+        "key": lambda p: p["a"],
+        "check": lambda p: (11 <= p["a"] <= 20,
+                            "past ten, and still countable on one screen"),
+        # same reasoning as "cnt": saying the number would answer the question.
+        "speaks": lambda p, sp: True,
+    },
+    "dbe": {   # a double: a and a again
+        "ans": lambda p: 2 * p["a"],
+        "spoken": lambda p: f"What is {p['a']} plus {p['a']}?",
+        "board": lambda p: f'[[step eq="{p["a"]} + {p["a"]} = ?"]]',
+        "praise": lambda p: (f"{p['a']} plus {p['a']} equals {2 * p['a']} — "
+                             f"that is a double."),
+        "key": lambda p: p["a"],
+        "check": lambda p: (1 <= p["a"] <= 10, "the double stays inside twenty"),
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+    },
+    "add3": {  # three single digits in one go
+        "ans": lambda p: p["a"] + p["b"] + p["c"],
+        "spoken": lambda p: (f"What is {p['a']} plus {p['b']} plus {p['c']}?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} + {p["b"]} + {p["c"]} = ?"]]'),
+        "praise": lambda p: (f"{p['a']} plus {p['b']} plus {p['c']} equals "
+                             f"{p['a'] + p['b'] + p['c']}."),
+        "key": lambda p: p["a"] + p["b"] + p["c"],
+        "check": lambda p: (1 <= p["a"] <= 9 and 1 <= p["b"] <= 9
+                            and 1 <= p.get("c", 0) <= 9
+                            and p["a"] + p["b"] + p["c"] <= 20,
+                            "three single digits whose total stays inside twenty"),
+    },
+    "msp": {   # the missing part: a and how many more make b
+        "ans": lambda p: p["b"] - p["a"],
+        "spoken": lambda p: f"{p['a']} and how many more make {p['b']}?",
+        "board": lambda p: f'[[step eq="{p["a"]} + ? = {p["b"]}"]]',
+        "praise": lambda p: (f"{p['a']} and {p['b'] - p['a']} more make {p['b']}."),
+        "key": lambda p: p["b"] - p["a"],
+        "check": lambda p: (1 <= p["a"] < p["b"] <= 20,
+                            "the whole is under twenty and the part is smaller"),
+    },
+    "t10": {   # ten more than a
+        "ans": lambda p: p["a"] + 10,
+        "spoken": lambda p: f"What is ten more than {p['a']}?",
+        "board": lambda p: f'[[step eq="{p["a"]} + 10 = ?"]]',
+        "praise": lambda p: (f"Ten more than {p['a']} is {p['a'] + 10} — only the "
+                             f"tens digit changed."),
+        "key": lambda p: p["a"],
+        "check": lambda p: (10 <= p["a"] <= 89, "the answer stays under a hundred"),
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+    },
+    "wor": {   # what the TENS digit of a three-digit number is worth
+        "ans": lambda p: 10 * p["b"],
+        "spoken": lambda p: (f"In the number {100 * p['a'] + 10 * p['b'] + p['c']}, "
+                             f"what is the {p['b']} worth?"),
+        "board": lambda p: (f'[[step eq="{100 * p["a"] + 10 * p["b"] + p["c"]} → '
+                            f'the {p["b"]} is worth ?"]]'),
+        "praise": lambda p: (f"The {p['b']} sits in the tens place, so it is worth "
+                             f"{10 * p['b']}."),
+        "key": lambda p: p["b"],
+        "check": lambda p: (1 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and 1 <= p.get("c", 0) <= 9
+                            and p["b"] != p["a"] and p["b"] != p["c"],
+                            "the tens digit appears once, so the question has one "
+                            "possible reading"),
+        # the whole lesson is WHICH PLACE it sits in, so the distractors are the
+        # same digit read in the other two places.
+        "choices": lambda p: [p["b"], 10 * p["b"], 100 * p["b"]],
+    },
+    "a3d": {   # three-digit plus three-digit, no column carrying
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: f"What is {p['a']} plus {p['b']}?",
+        "board": lambda p: f'[[step eq="{p["a"]} + {p["b"]} = ?"]]',
+        "praise": lambda p: f"{p['a']} plus {p['b']} equals {p['a'] + p['b']}.",
+        "key": lambda p: p["a"] + p["b"],
+        "check": lambda p: (100 <= p["a"] <= 899 and 100 <= p["b"] <= 899
+                            and p["a"] % 10 + p["b"] % 10 <= 9
+                            and (p["a"] // 10) % 10 + (p["b"] // 10) % 10 <= 9
+                            and p["a"] + p["b"] <= 999,
+                            "three digits each, and not one column carries"),
+    },
+    "c2h": {   # two-digit plus two-digit that crosses one hundred
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: f"What is {p['a']} plus {p['b']}?",
+        "board": lambda p: f'[[step eq="{p["a"]} + {p["b"]} = ?"]]',
+        "praise": lambda p: (f"{p['a']} plus {p['b']} equals {p['a'] + p['b']} — "
+                             f"it went past one hundred."),
+        "key": lambda p: p["a"] + p["b"],
+        "check": lambda p: (10 <= p["a"] <= 99 and 10 <= p["b"] <= 99
+                            and 100 <= p["a"] + p["b"] <= 199,
+                            "both two-digit, and the answer crosses one hundred"),
+    },
+    "s2d": {   # two-digit take away, no column regrouping
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: f"What is {p['a']} take away {p['b']}?",
+        "board": lambda p: f'[[step eq="{p["a"]} − {p["b"]} = ?"]]',
+        "praise": lambda p: (f"{p['a']} take away {p['b']} equals "
+                             f"{p['a'] - p['b']}."),
+        "key": lambda p: p["a"] - p["b"],
+        "check": lambda p: (20 <= p["a"] <= 99 and 10 <= p["b"] < p["a"]
+                            and p["a"] % 10 >= p["b"] % 10
+                            and p["a"] // 10 > p["b"] // 10,
+                            "two digits each, and no column needs regrouping"),
+    },
+    "s3d": {   # three-digit take away, no column regrouping
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: f"What is {p['a']} take away {p['b']}?",
+        "board": lambda p: f'[[step eq="{p["a"]} − {p["b"]} = ?"]]',
+        "praise": lambda p: (f"{p['a']} take away {p['b']} equals "
+                             f"{p['a'] - p['b']}."),
+        "key": lambda p: p["a"] - p["b"],
+        "check": lambda p: (200 <= p["a"] <= 999 and 100 <= p["b"] < p["a"]
+                            and p["a"] % 10 >= p["b"] % 10
+                            and (p["a"] // 10) % 10 >= (p["b"] // 10) % 10,
+                            "three digits each, and no column needs regrouping"),
+    },
+    "chk": {   # check a take away by adding the answer back
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: (f"Someone worked out {p['a']} take away {p['b']} and "
+                             f"got {p['a'] - p['b']}. Add {p['a'] - p['b']} and "
+                             f"{p['b']} to check. What do you get?"),
+        "board": lambda p: f'[[step eq="{p["a"] - p["b"]} + {p["b"]} = ?"]]',
+        "praise": lambda p: (f"{p['a'] - p['b']} plus {p['b']} equals {p['a']}, the "
+                             f"number they started with, so the take away was right."),
+        "key": lambda p: p["a"],
+        "check": lambda p: (20 <= p["a"] <= 99 and 10 <= p["b"] < p["a"],
+                            "a two-digit take away with something left to check"),
+    },
+    "qtr": {   # a quarters + b pennies = ? cents
+        "ans": lambda p: 25 * p["a"] + p["b"],
+        "spoken": lambda p: (f"How many cents is {_plural(p['a'], 'quarter')} and "
+                             f"{_irr(p['b'], 'penny', 'pennies')}?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} quarters + {p["b"]} pennies '
+                            f'= ? cents"]]'),
+        "praise": lambda p: (f"{_plural(p['a'], 'quarter')} and "
+                             f"{_irr(p['b'], 'penny', 'pennies')} equals "
+                             f"{25 * p['a'] + p['b']} cents."),
+        "key": lambda p: 25 * p["a"] + p["b"],
+        "check": lambda p: (1 <= p["a"] <= 4 and 1 <= p["b"] <= 9,
+                            "up to a dollar in quarters, and loose pennies"),
+    },
+    "chg": {   # pay a cents for something costing b cents -- the change
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: (f"A toy costs {p['b']} cents. You pay {p['a']} cents. "
+                             f"How much change do you get?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} − {p["b"]} = ? cents change"]]'),
+        "praise": lambda p: (f"{p['a']} take away {p['b']} equals "
+                             f"{_plural(p['a'] - p['b'], 'cent')} change."),
+        "key": lambda p: p["a"] - p["b"],
+        "check": lambda p: (p["a"] in (25, 50, 100) and 5 <= p["b"] < p["a"],
+                            "you pay with one real coin and there is change to give"),
+    },
     "*": {
         "ans": lambda p: p["a"] * p["b"],
         "spoken": lambda p: f"What is {p['a']} times {p['b']}?",

@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  APP_BUILD -> "2026-08-28pg-entry-fills-its-units". BUILD pg -- Jim:
+#               "go and create the authored lessons as well." Entry goes 20 -> 36
+#               lessons, nine units of four, so no five-year-old falls through to the
+#               live lane any more. 352 authored lessons in the curriculum now. No
+#               Python changed except this stamp; the work is in lessonscripts.py and
+#               the regenerated quizsets.py.
 #   2026-08-27  APP_BUILD -> "2026-08-27pf-the-first-course-read-for-sense". BUILD pf
 #               -- Jim: "Start at the beginning." All 20 Entry lessons read line by
 #               line. Entry turned out to be SOUND: eight lines across six lessons
@@ -12459,7 +12465,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27pf-the-first-course-read-for-sense"
+APP_BUILD = "2026-08-28pg-entry-fills-its-units"
 
 
 @app.get("/health")
