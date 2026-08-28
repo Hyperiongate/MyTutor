@@ -2,6 +2,12 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pv -- THE INTERVENTION WAS TOLD TO TEACH THE WRONG OPERATION.
+#               script_intervention's note names the real operator ("The problem was
+#               90 - 29") and then said, hardcoded, "Teach Model-Lead-Test on {a} + {b}
+#               now" -- a PLUS for every problem, subtraction included. That is how
+#               Jim's Geometry angle lesson ended up teaching place value. It now
+#               teaches {a} {op} {b}. One line, from a screenshot.
 #   2026-08-28  BUILD pt -- THE CHILD CANNOT BE RIGHT (referees 60, 61, 62), from
 #               Jim's flag queue. A prealgebra reply asked "1 + 2 = ?" and offered
 #               9 | 4 | 7 -- the answer absent, every tap marked wrong, recorded as a
@@ -8359,7 +8365,12 @@ def script_intervention(code: str, course: str, context: dict, history=None) -> 
         note = (f"(SYSTEM: The problem was {a} {op} {b}. The child answered "
                 f"{context.get('got')!r}; the correct answer is {right}. The child is "
                 f"working at the {context.get('level', 'abstract')} level. Teach "
-                f"Model-Lead-Test on {a} + {b} now, and end with exactly this tag: "
+                # ⚠️ (pv) THIS SAID "+" FOR EVERY PROBLEM, including subtraction. The
+                # sentence above names the real operator ("The problem was 90 − 29")
+                # and then this line told the model to teach 90 + 29. Jim's screenshot
+                # is what that looks like: a Geometry angle question answered
+                # correctly, graded wrong, and the intervention teaching addition.
+                f"Model-Lead-Test on {a} {op} {b} now, and end with exactly this tag: "
                 f"{context.get('choices', '')} )")
         reply = _reply_pipeline(
             lambda: _SCRIPT_INTERVENE_SYSTEM,

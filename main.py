@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  APP_BUILD -> "2026-08-28pv-one-character-three-failures". BUILD pv --
+#               Jim's Geometry screenshot, three bugs. NEW _split_ai_reply(): the AI
+#               intervention step returned the model's WHOLE reply in `spoken` with an
+#               empty `board`, so its [[step]] and [[choices]] tags were PRINTED TO THE
+#               CHILD as literal text. Every other step kind in this lane splits prose
+#               from tags; the AI step now does too, at BOTH return sites. The other
+#               two fixes are in lessonscripts.py (the hyphen) and tutor.py (the
+#               operator).
 #   2026-08-28  APP_BUILD -> "2026-08-28pu-fit-the-turn-to-the-board". BUILD pu --
 #               board.js grows fitTurnToBoard(): a turn whose figures make it taller
 #               than the board is shrunk to fit before the anchor runs, so the picture
@@ -9649,6 +9657,43 @@ def _script_intervene(code, course, context, history):
     return tutor.script_intervention(code, course, context, history)
 
 
+_AI_TAG = re.compile(r"\[\[[^\]]*\]\]")
+
+
+def _split_ai_reply(reply: str):
+    """(pv) Split an intervention reply into (spoken prose, board tags).
+
+    ⚠️ WHY THIS EXISTS. The intervention returned {"kind": "ai", "spoken": reply,
+    "board": ""} -- the model's WHOLE reply, tags and all, in the SPOKEN field. The
+    scripted player renders `spoken` as bubble text and `board` through handleTags,
+    so every [[step]] and [[choices]] the model wrote was PRINTED TO THE CHILD as
+    literal text. Jim's screenshot shows exactly that:
+
+        [[step eq="9 + 0 = 9"]]
+        [[step eq="2 + 0 = 2"]]
+        [[choices options="61 | 151 | 29"]]
+
+    ...sitting in the bubble as words, with an empty whiteboard beside them. Every
+    other step kind in this lane carries prose in `spoken` and tags in `board`; the
+    AI step was the one that did not, so it is split here to match. The live lane
+    never had this bug because its client parses tags out of the reply itself.
+
+    Never raises: on any surprise the reply is returned unsplit, which is exactly
+    today's behaviour and no worse."""
+    try:
+        text = str(reply or "")
+        tags = "".join(_AI_TAG.findall(text))
+        prose = _AI_TAG.sub(" ", text)
+        # a removed tag leaves a whitespace-only line behind; the child should not
+        # get a gap where a board line used to be
+        prose = "\n".join(ln.rstrip() for ln in prose.split("\n"))
+        prose = re.sub(r"[ \t]{2,}", " ", prose)
+        prose = re.sub(r"\n\s*\n\s*\n+", "\n\n", prose).strip()
+        return prose, tags
+    except Exception:  # noqa: BLE001 -- never brick a lesson over formatting
+        return reply, ""
+
+
 def _script_clean(steps):
     """The client payload: never the expected answer, never the raw problem."""
     out = []
@@ -9865,8 +9910,9 @@ def script_answer(body: ScriptAnswerIn):
                 sess["ai_turns"] += 1
                 sess["history"].append({"role": "assistant", "content": reply})
                 _script_log(code, lesson["course"], t0)
-                return {"ok": True, "steps": [{"kind": "ai", "spoken": reply,
-                                               "board": ""}]}
+                _say, _brd = _split_ai_reply(reply)
+                return {"ok": True, "steps": [{"kind": "ai", "spoken": _say,
+                                               "board": _brd}]}
         steps, state = lessonscripts.step(lesson, state, ("resume",))
         sess.update(state=state, mode="script", ai_turns=0, history=[], redo=None)
         for s in steps:
@@ -9892,7 +9938,8 @@ def script_answer(body: ScriptAnswerIn):
                                   "expected": s["expected"],
                                   "choices": context["choices"],
                                   "context": context})
-                out.append({"kind": "ai", "spoken": reply, "board": ""})
+                _say, _brd = _split_ai_reply(reply)
+                out.append({"kind": "ai", "spoken": _say, "board": _brd})
             else:
                 # the model is unreachable or produced nothing: the script absorbs
                 # it -- straight to the engine's retest, no dead air, no error page
@@ -12530,7 +12577,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-28pu-fit-the-turn-to-the-board"
+APP_BUILD = "2026-08-28pv-one-character-three-failures"
 
 
 @app.get("/health")

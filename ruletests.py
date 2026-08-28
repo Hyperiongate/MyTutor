@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pv -- PART 3fz: one character, three visible failures. From
+#               Jim's Geometry screenshot. A hyphened stutter ("Si-61") parsed as
+#               NEGATIVE 61 and graded a right answer wrong; the intervention it
+#               triggered PRINTED ITS BOARD TAGS to the child as text; and that
+#               intervention had been told, hardcoded, to teach "{a} + {b}" for every
+#               problem including subtraction. None of the 62 referees could have seen
+#               any of it -- two happen before a reply exists and one is a field they
+#               never read. A person with a screenshot found it.
 #   2026-08-28  BUILD pu -- PART 3fy: what he is saying is on the screen. Jim's board
 #               complaint, MEASURED in a real browser (tools/puedrive.py) before a line
 #               was written. The scripted lane came back CLEAN; the LIVE lane puts 90px
@@ -13198,6 +13206,104 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fz_a_hyphen_marked_a_right_answer_wrong():
+    """PART 3fz (build pv, 2026-08-28) -- ONE CHARACTER, THREE VISIBLE FAILURES.
+
+    Jim, from a live Geometry lesson, board reading 90 - 29 = ?:
+    he said "sixty-one degrees", the recogniser wrote "Si-61 degrees", and the
+    screenshot shows the tutor answering "Not quite -- let's look at it together",
+    then teaching ADDING ZERO, with its board tags PRINTED IN THE BUBBLE AS TEXT:
+
+        [[step eq="9 + 0 = 9"]]
+        [[step eq="2 + 0 = 2"]]
+        [[choices options="61 | 151 | 29"]]
+
+    THE CHILD WAS RIGHT. 90 - 29 = 61. Three separate bugs, all confirmed by reading
+    the code, and the first one caused the other two to be reached at all.
+
+    ⭐ (1) A HYPHEN GLUED TO A WORD WAS READ AS A MINUS SIGN. read_answer's numeral
+    pattern accepted "-" as a sign wherever it appeared, so "Si-61" parsed as NEGATIVE
+    61. Measured before the fix: read_answer("Si-61 degrees") -> -61. A correct answer
+    was graded wrong by a stutter the speech recogniser hyphenated. The sign now
+    requires that the character before it is not a LETTER; digits are deliberately
+    still allowed, so "3-5" keeps exactly its old reading. The defect is a word prefix
+    and the fix is no wider than the defect.
+
+    ⭐ (2) THE INTERVENTION'S TAGS WERE PRINTED TO THE CHILD. The AI step returned
+    {"kind": "ai", "spoken": reply, "board": ""} -- the model's whole reply, tags and
+    all, in the SPOKEN field. The scripted player renders `spoken` as bubble text and
+    `board` through handleTags, so every [[step]] and [[choices]] became literal words
+    on screen beside an empty whiteboard. EVERY OTHER STEP KIND in this lane carries
+    prose in `spoken` and tags in `board`; the AI step was the only one that did not.
+    _split_ai_reply now splits it to match. (The live lane never had this bug: its
+    client parses the tags out of the reply itself.)
+
+    ⭐ (3) THE INTERVENTION WAS TOLD TO TEACH THE WRONG OPERATION. Its note names the
+    real operator -- "The problem was 90 - 29" -- and then said, hardcoded:
+        "Teach Model-Lead-Test on {a} + {b} now"
+    A "+" for every problem, subtraction included. So the model was handed a
+    subtraction question, told the answer was 61, and instructed to teach 90 + 29.
+    That is how a Geometry angle lesson ended up teaching place value.
+
+    ⚠️ NONE OF THE 62 REFEREES COULD HAVE CAUGHT ANY OF THIS. (1) and (3) happen
+    before a reply exists; (2) is a field the referees never see. This one came from
+    a person with a screenshot, like build pt's."""
+    print("\nPART 3fz — a hyphen marked a right answer wrong (build pv)")
+    import lessonscripts as _ls
+    import main as _m
+    import inspect as _insp
+
+    # ---- (1) the root cause, both directions ----
+    check("⭐⭐ \"Si-61 degrees\" is SIXTY-ONE again, not negative sixty-one",
+          _ls.read_answer("Si-61 degrees") == {"kind": "value", "value": 61},
+          _ls.read_answer("Si-61 degrees"))
+    still_negative = {"-5": -5, "minus 5": -5, "negative 5": -5,
+                      "the answer is -12": -12, "\u22124": -4,
+                      "I think it is -8": -8}
+    broke = {k: _ls.read_answer(k) for k, v in still_negative.items()
+             if _ls.read_answer(k) != {"kind": "value", "value": v}}
+    check("  ...and every REAL negative is still negative", not broke, broke)
+    word_hyphen = {"twenty-one": 21, "sixty-one": 61, "uh-7": 7, "x-3": 3}
+    bad = {k: _ls.read_answer(k) for k, v in word_hyphen.items()
+           if _ls.read_answer(k) != {"kind": "value", "value": v}}
+    check("  ...and no word-glued hyphen makes a number negative", not bad, bad)
+    check("⚠️ a DIGIT-glued hyphen is left exactly as it was (fix no wider than the bug)",
+          _ls.read_answer("3-5") == {"kind": "value", "value": -5},
+          "changing this would be a second, unmeasured change riding along")
+
+    # ---- (2) the tags reach the board, not the bubble ----
+    reply = "\n".join([
+        "We have 2 tens and 9 ones in 29.", "",
+        '[[step eq="9 + 0 = 9"]]', '[[step eq="2 + 0 = 2"]]', "",
+        "Now you try 29 plus 0!", "", '[[choices options="61 | 151 | 29"]]'])
+    say, brd = _m._split_ai_reply(reply)
+    check("⭐ the intervention's tags go to the BOARD, never into the bubble",
+          "[[" not in say and brd.count("[[") == 3, {"say": say[:60], "brd": brd[:60]})
+    check("  ...and the child's tap row survives the split",
+          "choices" in brd and "61 | 151 | 29" in brd, brd[:80])
+    check("  ...and the prose keeps its words, minus the gaps the tags left",
+          "We have 2 tens" in say and "Now you try 29 plus 0!" in say
+          and "\n\n\n" not in say, repr(say[:90]))
+    check("  it never raises, whatever it is handed",
+          _m._split_ai_reply(None)[0] in (None, "")
+          and _m._split_ai_reply("plain words") == ("plain words", ""), "")
+    msrc = _insp.getsource(_m)
+    check("⭐ BOTH ai-step return sites are split, not just the one in the screenshot",
+          msrc.count("_split_ai_reply(reply)") == 2,
+          "the second site is the ordinary-turn path and leaks the same way")
+
+    # ---- (3) the operator the problem actually has ----
+    # scoped to the FUNCTION, not the file: this build's own change note quotes the
+    # old string verbatim, and a whole-file scan reads that as the bug still present.
+    import tutor as _tt
+    fsrc = _insp.getsource(_tt.script_intervention)
+    check("⭐ the intervention is told to teach the REAL operator",
+          'Model-Lead-Test on {a} {op} {b} now' in fsrc,
+          'it said "{a} + {b}" for every problem, subtraction included')
+    check("  ...and the hardcoded plus is gone from the code that runs",
+          "Model-Lead-Test on {a} + {b}" not in fsrc, "")
+
+
 def part3fy_visible_without_moving_anything():
     """PART 3fy (build pu, 2026-08-28) -- WHAT HE IS SAYING IS ON THE SCREEN.
 
@@ -15959,7 +16065,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,256</b>" in page,
+          "<b>7,267</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24445,6 +24551,7 @@ def main():
     part3fw_the_hole_that_always_appears()
     part3fx_the_child_cannot_be_right()
     part3fy_visible_without_moving_anything()
+    part3fz_a_hyphen_marked_a_right_answer_wrong()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

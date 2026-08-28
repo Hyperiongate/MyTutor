@@ -2,6 +2,15 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pv -- A HYPHEN MARKED A RIGHT ANSWER WRONG. Jim said "sixty-one
+#               degrees" to a Geometry angle question (90 - 29); the recogniser wrote
+#               "Si-61 degrees" and read_answer returned NEGATIVE 61, so a correct
+#               child was told "Not quite" and dropped into an AI intervention that
+#               then taught adding zero with its tags printed as text. ONE CHARACTER,
+#               THREE VISIBLE FAILURES. _RA_NUMERAL's sign now requires that the
+#               character before it is not a LETTER. Digits still count ("3-5" keeps
+#               its old reading) -- the defect is a word prefix and the fix is no
+#               wider than the defect. See ruletests PART 3fz.
 #   2026-08-28  BUILD pp -- THE LAST TWO COURSES. THE WHOLE CURRICULUM IS READ.
 #               Jim: "Finish the last twenty percent now." Probability & Statistics
 #               and Differential Equations, all 72 lessons, line by line. With these
@@ -25295,7 +25304,16 @@ _RA_UNSURE = re.compile(
     r"|i\s*am\s*stuck|i'?m\s*stuck|stuck|help(?:\s*me)?"
     r"|i\s*(?:ca|can)n(?:no|')?t\b)", re.I)
 # a numeral, with an optional sign and an optional decimal part
-_RA_NUMERAL = re.compile(r"(-|\u2212|minus\s+|negative\s+)?(\d+(?:\.\d+)?)", re.I)
+# ⚠️ (pv) A HYPHEN GLUED TO A WORD IS NOT A MINUS SIGN. Jim spoke "sixty-one
+# degrees" into a Geometry angle question; the transcript came back "Si-61
+# degrees" -- a stutter the recogniser hyphenated -- and this pattern read the
+# "-" as a sign and returned NEGATIVE 61. The child was RIGHT (90 - 29 = 61),
+# was told "Not quite", and was dropped into an AI intervention that then taught
+# adding zero in a geometry lesson. One character, three visible failures.
+# The sign now requires that the character before it is not a LETTER. Digits are
+# deliberately still allowed ("3-5" keeps its old reading) -- the defect is a
+# word prefix, and a narrow fix is the one that cannot break something else.
+_RA_NUMERAL = re.compile(r"((?<![A-Za-z])-|(?<![A-Za-z])\u2212|minus\s+|negative\s+)?(\d+(?:\.\d+)?)", re.I)
 _RA_WORDNUM = re.compile(
     r"(minus\s+|negative\s+)?(" + _numw.NUMWORD_PATTERN + r")", re.I)
 # ⚠️ THE SPOKEN FORMS OF "NOT A WHOLE NUMBER", found by driving the parser over
