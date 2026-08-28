@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD po -- PART 3fs: Calculus read for sense. Prose clean; 22 second
+#               worked examples fixed. The part pins the COUNT ACROSS COURSES as the
+#               real finding: 0, 12, 3, 3, 7, 9, 16, 22 -- the defect gets more common
+#               as the mathematics gets harder, because an upper-course operation is a
+#               one-liner and an author states the result instead of the method.
 #   2026-08-28  BUILD pn -- PART 3fr: Pre-Calculus read for sense. The first course
 #               with NO prose defects. Sixteen second worked examples fixed, and
 #               THREE NEW PINS on a property no other read surfaced: the course keeps
@@ -13143,6 +13148,90 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fs_calculus_read_for_sense():
+    """PART 3fs (build po, 2026-08-28) -- CALCULUS, READ FOR SENSE.
+
+    All 36 Calculus lessons read line by line. Eight courses; 288 of 360.
+
+    ⭐ ITS PROSE IS CLEAN -- the second course running with no broken sentence, no
+    false statement, no leaked shorthand. And it teaches the subject the way a good
+    teacher does: the Fundamental Theorem arrives as "areas and antiderivatives are
+    one idea wearing two hats"; forgetting the inside of the chain rule is named as
+    "the commonest mistake in all of Calculus"; accumulation is settled in one line,
+    "an integral measures the CHANGE, never the amount"; and the final lesson of the
+    whole course is introduced as "a quiet one" -- asking a rate where it stops.
+
+    TWENTY-TWO CHANGES, every one build pl's shape.
+
+    ⚠️ AND THE COUNT ITSELF IS THE FINDING, which is why this part pins it. Across the
+    eight courses read so far the defect goes:
+        entry 0 · basic 12 · prealgebra 3 · algebra1 3 · geometry 7
+        algebra2 9 · precalc 16 · CALCULUS 22
+    It gets MORE common as the mathematics gets harder, not less. The reason is
+    visible in the lines themselves: an upper-course operation is a ONE-LINER --
+    "162 over 18 is 9", "half of 56", "un-square 196" -- so an author writing at
+    speed states the result and moves on. A multi-step Basic method ("split 96 into
+    90 and 6, divide each, add") forces the working onto the page whether the author
+    meant to write it or not.
+
+    THE COURSES THAT NEED THE WORKING SHOWN MOST ARE THE ONES LEAST LIKELY TO HAVE
+    IT -- and no word-count sweep finds them, because a one-line operation stated as
+    a result is exactly as long as one stated as a method."""
+    print("\nPART 3fs — Calculus, read for sense (build po)")
+    import lessonscripts as _ls
+    byid = {l["id"]: l for l in _ls.LESSONS}
+    second = lambda lid: byid[lid]["pairs"][1]["worked"][0]
+    teach = lambda lid: " ".join(s for s, _b in byid[lid]["teach"])
+
+    fixed = {
+        "calc-u1-far-out-only-the-leaders-matter": "70 over 10",
+        "calc-u1-how-big-is-the-break": "30 take away 11",
+        "calc-u1-mend-the-curve": "13 plus 9",
+        "calc-u2-the-window-closes": "twice 25",
+        "calc-u2-the-power-comes-down-front": "the 6 comes down onto the 7",
+        "calc-u3-two-things-multiplied": "14 plus 11",
+        "calc-u3-the-chain-rule-at-a-point": "2 times 7 times 5",
+        "calc-u3-a-number-underneath": "110 over 11",
+        "calc-u4-when-is-it-going-that-fast": "162 over 18",
+        "calc-u4-one-rate-drives-another": "2 times 9 times 5",
+        "calc-u4-where-the-curve-levels-off": "2 x equals 34",
+        "calc-u4-differentiate-twice": "speed 80 t",
+        "calc-u5-the-best-rectangle": "shared four ways",
+        "calc-u5-where-the-bend-changes": "168 divided by 6",
+        "calc-u6-the-rule-run-backwards": "half of 56",
+        "calc-u6-a-whole-family": "44 plus 15",
+        "calc-u7-the-area-is-the-answer": "9 times 6",
+        "calc-u7-flatten-it-out": "150 divided by 10",
+        "calc-u8-the-gap-between-two-curves": "160 take away 38",
+        "calc-u8-adding-on-to-what-was-there": "120 more",
+        "calc-u9-when-the-rate-depends-on-the-amount": "20 times 9",
+        "calc-u9-where-the-change-stops": "3 P equals 90",
+    }
+    missing = [lid for lid, frag in fixed.items() if frag not in second(lid)]
+    check("⭐ all twenty-two second examples now do the operation",
+          not missing, missing)
+    short = [l["id"] for l in _ls.LESSONS if l["course"] == "calculus"
+             and len(l["pairs"]) > 1
+             and len(l["pairs"][1]["worked"][0].split()) < 12]
+    check("  and none is a one-line answer either", not short, short)
+
+    # the teaching worth guarding: the lines that make this course good
+    check("⭐ the Fundamental Theorem still arrives as one idea in two hats",
+          "one idea wearing two hats" in teach("calc-u7-end-take-away-start"), "")
+    check("  accumulation still says an integral measures CHANGE, not amount",
+          "measures the CHANGE, never the amount"
+          in teach("calc-u8-adding-on-to-what-was-there"), "")
+    check("  and the chain rule still names its own commonest mistake",
+          "commonest mistake in all of Calculus"
+          in teach("calc-u3-do-not-forget-the-inside"), "")
+
+    read = ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2",
+            "precalc", "calculus")
+    check("⭐ eight courses read line by line; 288 lessons of 360",
+          sum(len([l for l in _ls.LESSONS if l["course"] == c]) for c in read) == 288,
+          sum(len([l for l in _ls.LESSONS if l["course"] == c]) for c in read))
+
+
 def part3fr_precalc_read_for_sense():
     """PART 3fr (build pn, 2026-08-28) -- PRE-CALCULUS, READ FOR SENSE.
 
@@ -15014,7 +15103,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,174</b>" in page,
+          "<b>7,180</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23481,6 +23570,7 @@ def main():
     part3fp_geometry_read_for_sense()
     part3fq_algebra_two_read_for_sense()
     part3fr_precalc_read_for_sense()
+    part3fs_calculus_read_for_sense()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

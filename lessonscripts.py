@@ -2,6 +2,25 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD po -- CALCULUS, READ FOR SENSE. All 36 lessons read line by
+#               line. ⭐ ITS PROSE IS CLEAN -- the second course running with no broken
+#               sentence, no false statement, no leaked shorthand. And it teaches the
+#               subject the way a good teacher does: the Fundamental Theorem arrives
+#               as "areas and antiderivatives are one idea wearing two hats"; the
+#               chain rule's omission is named as "the commonest mistake in all of
+#               Calculus"; accumulation is settled in one line -- "an integral
+#               measures the CHANGE, never the amount"; and the last lesson of the
+#               course is "a quiet one", asking a rate where it stops.
+#               TWENTY-TWO changes, every one build pl's shape: a second worked
+#               example stating the answer without doing the operation.
+#               ⚠️ AND THE COUNT ITSELF IS THE FINDING. 22 in Calculus and 16 in
+#               Pre-Calculus, against 4 in Algebra One. The defect gets MORE common
+#               as the mathematics gets harder, and the reason is visible in the
+#               lines: an upper-course operation is a one-liner ("162 over 18 is 9",
+#               "half of 56"), so an author writing at speed states the result and
+#               moves on -- where a multi-step Basic method forces the working onto
+#               the page whether the author meant to write it or not. The courses
+#               that need the working shown most are the ones least likely to have it.
 #   2026-08-28  BUILD pn -- PRE-CALCULUS, READ FOR SENSE. All 36 lessons read line by
 #               line. ⭐ ITS PROSE IS CLEAN -- not one broken sentence in the whole
 #               course, the first course where that is true. And it is the best-built
@@ -13623,7 +13642,7 @@ _CALCULUS_U1 = [
             {"worked": ["Here is one more, done for you. 45 x squared over 9 x squared: the x squareds cancel, leaving 5.",
                         '[[step eq="45 ÷ 9 = 5"]]'],
              "ask": {"a": 36, "b": 3, "op": "linf"}},
-            {"worked": ["One more together. 70 x squared over 10 x squared settles toward 7.",
+            {"worked": ["One more together. 70 x squared over 10 x squared: the x squareds cancel, leaving 70 over 10 — 7.",
                         '[[step eq="70 ÷ 10 = 7"]]'],
              "ask": {"a": 26, "b": 2, "op": "linf"}},
         ],
@@ -13661,7 +13680,7 @@ _CALCULUS_U1 = [
             {"worked": ["Here is one more, done for you. The left side heads for 9 and the right for 25: a jump of 16.",
                         '[[step eq="25 − 9 = 16"]]'],
              "ask": {"a": 2, "b": 14, "op": "jump"}},
-            {"worked": ["One more together. Sides of 11 and 30 make a jump of 19.",
+            {"worked": ["One more together. Sides of 11 and 30: 30 take away 11 — a jump of 19.",
                         '[[step eq="30 − 11 = 19"]]'],
              "ask": {"a": 4, "b": 17, "op": "jump"}},
         ],
@@ -13699,7 +13718,7 @@ _CALCULUS_U1 = [
             {"worked": ["Here is one more, done for you. y equals x plus 8 up to x equals 12: the slope arrives at 20, so the flat piece must be 20.",
                         '[[step eq="12 + 8 = 20"]]'],
              "ask": {"a": 6, "b": 2, "c": 9, "op": "cfix"}},
-            {"worked": ["One more together. x plus 9 running up to x equals 13 arrives at 22.",
+            {"worked": ["One more together. x plus 9 running up to x equals 13 arrives at 13 plus 9 — 22, so the flat piece must be 22.",
                         '[[step eq="13 + 9 = 22"]]'],
              "ask": {"a": 7, "b": 2, "c": 9, "op": "cfix"}},
         ],
@@ -13746,7 +13765,7 @@ _CALCULUS_U2 = [
             {"worked": ["Here is one more, done for you. At x equals 30 the slope of x squared is twice 30 — 60.",
                         '[[step eq="slope at 30 = 60"]]'],
              "ask": {"a": 13, "b": 0, "op": "derv"}},
-            {"worked": ["One more together. At x equals 25 the slope is 50.",
+            {"worked": ["One more together. At x equals 25 the slope is twice 25 — 50.",
                         '[[step eq="slope at 25 = 50"]]'],
              "ask": {"a": 14, "b": 0, "op": "derv"}},
         ],
@@ -13774,7 +13793,7 @@ _CALCULUS_U2 = [
             {"worked": ["Here is one more, done for you. For 9 x to the power 4: the 4 comes down onto the 9 — 36.",
                         '[[step eq="4 × 9 = 36"]]'],
              "ask": {"a": 2, "b": 11, "op": "pwrc"}},
-            {"worked": ["One more together. 7 x to the power 6 gives a front number of 42.",
+            {"worked": ["One more together. 7 x to the power 6: the 6 comes down onto the 7 — 42.",
                         '[[step eq="6 × 7 = 42"]]'],
              "ask": {"a": 8, "b": 3, "op": "pwrc"}},
         ],
@@ -13869,7 +13888,7 @@ _CALCULUS_U3 = [
             {"worked": ["Here is one more, done for you. y equals x times x plus 9: the slope is 2 x plus 9, and at x equals 8 that is 25.",
                         '[[step eq="2(8) + 9 = 25"]]'],
              "ask": {"a": 6, "b": 0, "c": 5, "op": "prod"}},
-            {"worked": ["One more together. With x plus 11 inside, the slope at x equals 7 is 25.",
+            {"worked": ["One more together. With x plus 11 inside, the slope is 2 x plus 11, and at x equals 7 that is 14 plus 11 — 25.",
                         '[[step eq="2(7) + 11 = 25"]]'],
              "ask": {"a": 5, "b": 0, "c": 6, "op": "prod"}},
         ],
@@ -13925,7 +13944,7 @@ _CALCULUS_U3 = [
             {"worked": ["Here is one more, done for you. The quantity 4 x plus 9, squared: at zero the slope is 2 times 9 times 4 — 72.",
                         '[[step eq="2 × 9 × 4 = 72"]]'],
              "ask": {"a": 8, "b": 3, "op": "chev"}},
-            {"worked": ["One more together. With 7 inside and a multiplier of 5, the slope at zero is 70.",
+            {"worked": ["One more together. With 7 inside and a multiplier of 5: 2 times 7 times 5 — the slope at zero is 70.",
                         '[[step eq="2 × 7 × 5 = 70"]]'],
              "ask": {"a": 9, "b": 3, "op": "chev"}},
         ],
@@ -13953,7 +13972,7 @@ _CALCULUS_U3 = [
             {"worked": ["Here is one more, done for you. 45 x squared over 9: the top gives 90 x, and 90 over 9 is 10.",
                         '[[step eq="90 ÷ 9 = 10"]]'],
              "ask": {"a": 22, "b": 2, "op": "quot"}},
-            {"worked": ["One more together. 55 x squared over 11 gives a front number of 10.",
+            {"worked": ["One more together. 55 x squared over 11: the top gives 110 x, and 110 over 11 is 10.",
                         '[[step eq="110 ÷ 11 = 10"]]'],
              "ask": {"a": 24, "b": 2, "op": "quot"}},
         ],
@@ -13990,7 +14009,7 @@ _CALCULUS_U4 = [
             {"worked": ["Here is one more, done for you. Speed 12 t, asked when it reaches 84: 84 over 12 is 7 seconds.",
                         '[[step eq="12t = 84"]] [[step eq="t = 7"]]'],
              "ask": {"a": 6, "b": 144, "op": "vsol"}},
-            {"worked": ["One more together. Speed 18 t reaching 162 gives 9 seconds.",
+            {"worked": ["One more together. Speed 18 t reaching 162: 162 over 18 is 9 seconds.",
                         '[[step eq="18t = 162"]] [[step eq="t = 9"]]'],
              "ask": {"a": 7, "b": 182, "op": "vsol"}},
         ],
@@ -14018,7 +14037,7 @@ _CALCULUS_U4 = [
             {"worked": ["Here is one more, done for you. A side of 12 growing at 3: the area gains 2 times 12 times 3 — 72 a second.",
                         '[[step eq="2 × 12 × 3 = 72"]]'],
              "ask": {"a": 11, "b": 2, "op": "mrat"}},
-            {"worked": ["One more together. A side of 9 growing at 5 gives 90 square centimetres a second.",
+            {"worked": ["One more together. A side of 9 growing at 5: 2 times 9 times 5 — 90 square centimetres a second.",
                         '[[step eq="2 × 9 × 5 = 90"]]'],
              "ask": {"a": 6, "b": 4, "op": "mrat"}},
         ],
@@ -14046,7 +14065,7 @@ _CALCULUS_U4 = [
             {"worked": ["Here is one more, done for you. Slope 2 x take away 30: zero at x equals 15.",
                         '[[step eq="2x = 30"]] [[step eq="x = 15"]]'],
              "ask": {"a": 24, "b": 0, "op": "crit"}},
-            {"worked": ["One more together. A slope of 2 x take away 34 levels off at 17.",
+            {"worked": ["One more together. A slope of 2 x take away 34: set it to zero, so 2 x equals 34 and x is 17.",
                         '[[step eq="2x = 34"]] [[step eq="x = 17"]]'],
              "ask": {"a": 26, "b": 0, "op": "crit"}},
         ],
@@ -14074,7 +14093,7 @@ _CALCULUS_U4 = [
             {"worked": ["Here is one more, done for you. Falling 30 t squared gives speed 60 t, so the acceleration is 60.",
                         '[[step eq="30t² → 60t → 60"]]'],
              "ask": {"a": 12, "b": 0, "op": "acce"}},
-            {"worked": ["One more together. 40 t squared gives an acceleration of 80.",
+            {"worked": ["One more together. 40 t squared gives speed 80 t, so the acceleration is 80.",
                         '[[step eq="40t² → 80t → 80"]]'],
              "ask": {"a": 13, "b": 0, "op": "acce"}},
         ],
@@ -14113,7 +14132,7 @@ _CALCULUS_U5 = [
             {"worked": ["Here is one more, done for you. 72 metres of fence: each side of the best rectangle is 18.",
                         '[[step eq="72 ÷ 4 = 18"]]'],
              "ask": {"a": 56, "b": 0, "op": "optr"}},
-            {"worked": ["One more together. 84 metres of fence gives sides of 21.",
+            {"worked": ["One more together. 84 metres of fence, shared four ways — sides of 21.",
                         '[[step eq="84 ÷ 4 = 21"]]'],
              "ask": {"a": 60, "b": 0, "op": "optr"}},
         ],
@@ -14197,7 +14216,7 @@ _CALCULUS_U5 = [
             {"worked": ["Here is one more, done for you. Second derivative 6 x take away 156: zero at x equals 26.",
                         '[[step eq="6x = 156"]] [[step eq="x = 26"]]'],
              "ask": {"a": 66, "b": 0, "op": "infl"}},
-            {"worked": ["One more together. 6 x take away 168 is zero at 28.",
+            {"worked": ["One more together. 6 x take away 168: 6 x equals 168, so x is 168 divided by 6 — 28.",
                         '[[step eq="6x = 168"]] [[step eq="x = 28"]]'],
              "ask": {"a": 72, "b": 0, "op": "infl"}},
         ],
@@ -14237,7 +14256,7 @@ _CALCULUS_U6 = [
             {"worked": ["Here is one more, done for you. A derivative of 52 x came from 26 x squared — half of 52.",
                         '[[step eq="52 ÷ 2 = 26"]]'],
              "ask": {"a": 44, "b": 0, "op": "anti"}},
-            {"worked": ["One more together. 56 x came from 28 x squared.",
+            {"worked": ["One more together. 56 x came from 28 x squared — half of 56.",
                         '[[step eq="56 ÷ 2 = 28"]]'],
              "ask": {"a": 48, "b": 0, "op": "anti"}},
         ],
@@ -14294,7 +14313,7 @@ _CALCULUS_U6 = [
             {"worked": ["Here is one more, done for you. A gap of 13 above a lower curve reading 30: the higher one reads 43.",
                         '[[step eq="30 + 13 = 43"]]'],
              "ask": {"a": 28, "b": 17, "op": "plusc"}},
-            {"worked": ["One more together. Lower curve 44, gap 15, higher curve 59.",
+            {"worked": ["One more together. Lower curve 44, gap 15: 44 plus 15 — the higher curve reads 59.",
                         '[[step eq="44 + 15 = 59"]]'],
              "ask": {"a": 52, "b": 9, "op": "plusc"}},
         ],
@@ -14364,7 +14383,7 @@ _CALCULUS_U7 = [
             {"worked": ["Here is one more, done for you. 6 metres a second for 4 seconds is a rectangle of area 24 metres.",
                         '[[step eq="6 × 4 = 24 m"]]'],
              "ask": {"a": 11, "b": 5, "op": "defi"}},
-            {"worked": ["One more together. 9 metres a second for 6 seconds covers 54 metres.",
+            {"worked": ["One more together. 9 metres a second for 6 seconds: 9 times 6 — 54 metres.",
                         '[[step eq="9 × 6 = 54 m"]]'],
              "ask": {"a": 10, "b": 9, "op": "defi"}},
         ],
@@ -14450,7 +14469,7 @@ _CALCULUS_U7 = [
             {"worked": ["Here is one more, done for you. An area of 96 across a width of 8 flattens to a height of 12.",
                         '[[step eq="96 ÷ 8 = 12"]]'],
              "ask": {"a": 154, "b": 11, "op": "avgv"}},
-            {"worked": ["One more together. 150 of area across a width of 10 stands 15 high.",
+            {"worked": ["One more together. 150 of area across a width of 10: 150 divided by 10 — it stands 15 high.",
                         '[[step eq="150 ÷ 10 = 15"]]'],
              "ask": {"a": 153, "b": 9, "op": "avgv"}},
         ],
@@ -14490,7 +14509,7 @@ _CALCULUS_U8 = [
             {"worked": ["Here is one more, done for you. A top area of 120 with 45 underneath it: the strip between them is 75.",
                         '[[step eq="120 − 45 = 75"]]'],
              "ask": {"a": 150, "b": 31, "op": "btwn"}},
-            {"worked": ["One more together. Top 160, bottom 38, so the gap is 122.",
+            {"worked": ["One more together. Top 160, bottom 38: 160 take away 38 — the gap is 122.",
                         '[[step eq="160 − 38 = 122"]]'],
              "ask": {"a": 164, "b": 22, "op": "btwn"}},
         ],
@@ -14549,7 +14568,7 @@ _CALCULUS_U8 = [
             {"worked": ["Here is one more, done for you. 14 litres in the tank, 11 a minute for 10 minutes: 110 more, so 124.",
                         '[[step eq="14 + 110 = 124"]]'],
              "ask": {"a": 6, "b": 9, "c": 36, "op": "accu"}},
-            {"worked": ["One more together. 23 litres to start, 10 a minute for 12 minutes: 143 litres.",
+            {"worked": ["One more together. 23 litres to start, 10 a minute for 12 minutes: 120 more, so 143 litres.",
                         '[[step eq="23 + 120 = 143"]]'],
              "ask": {"a": 12, "b": 9, "c": 5, "op": "accu"}},
         ],
@@ -14680,7 +14699,7 @@ _CALCULUS_U9 = [
             {"worked": ["Here is one more, done for you. 18 bacteria gaining 9 each a minute: the rate is 162 a minute.",
                         '[[step eq="18 × 9 = 162"]]'],
              "ask": {"a": 28, "b": 4, "op": "pgrw"}},
-            {"worked": ["One more together. 20 bacteria at 9 each: 180 a minute.",
+            {"worked": ["One more together. 20 bacteria at 9 each: 20 times 9 — 180 a minute.",
                         '[[step eq="20 × 9 = 180"]]'],
              "ask": {"a": 21, "b": 7, "op": "pgrw"}},
         ],
@@ -14709,7 +14728,7 @@ _CALCULUS_U9 = [
             {"worked": ["Here is one more, done for you. A rate of 58 take away 2 P is zero when P is 29.",
                         '[[step eq="2P = 58"]] [[step eq="P = 29"]]'],
              "ask": {"a": 144, "b": 6, "op": "eqbm"}},
-            {"worked": ["One more together. 90 take away 3 P is zero at P equals 30.",
+            {"worked": ["One more together. 90 take away 3 P is zero when 3 P equals 90, so P is 30.",
                         '[[step eq="3P = 90"]] [[step eq="P = 30"]]'],
              "ask": {"a": 189, "b": 7, "op": "eqbm"}},
         ],
