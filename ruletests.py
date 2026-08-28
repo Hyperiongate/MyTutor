@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pi -- PART 3fm: the second example teaches too. Basic read line
+#               by line; the course is sound, but eleven "One more together" worked
+#               examples had collapsed to the bare answer (a twelfth was found by
+#               the part's own sweep, after my read missed it) -- one of them to a
+#               FRAGMENT ("90 plus 3 — 93") that skipped the method it was teaching.
 #   2026-08-28  BUILD ph -- PART 3fl: the last eight, the curriculum is whole. All ten
 #               courses are nine units of four (360 lessons). Pins the two findings
 #               only the validator could make: a fraction op whose whole pool was six
@@ -13117,6 +13122,91 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fm_the_second_example_teaches_too():
+    """PART 3fm (build pi, 2026-08-28) -- THE SECOND EXAMPLE TEACHES TOO.
+
+    Basic read line by line, all 29 lessons that predate this session. Like Entry
+    before it, THE COURSE IS SOUND: short sentences, clear methods, nothing like the
+    prose Jim hit in Algebra II. But it carries one systematic defect that Entry does
+    not, and it took reading both courses side by side to see it.
+
+    EVERY LESSON SHIPS TWO WORKED EXAMPLES. The first opens "Here is one more, done
+    for you" and shows its working. The second opens "One more together" -- and in
+    eleven Basic lessons it collapsed to the bare answer:
+        "One more together. One fifth of 10 equals 2."
+        "One more together. 7 long and 3 wide — the perimeter equals 20."
+    A worked example that shows no work is not a worked example. It is the answer
+    with a friendly opening, and it lands at exactly the moment the child is supposed
+    to be working ALONGSIDE the teacher rather than watching.
+
+    ⚠️ THE WORST OF THE ELEVEN WAS NOT BARE, IT WAS A FRAGMENT:
+        "One more together. 31 times 3. 90 plus 3 — 93."
+    Where did the 90 come from? Splitting 31 into 30 and 1 is the entire method that
+    lesson exists to teach, and the one example a child works through with the
+    teacher skipped it and showed the arithmetic that comes after.
+
+    LEFT ALONE ON PURPOSE, and the reasoning matters as much as the fixes: times
+    tables (a recall domain -- "eight times six equals 48" IS the working), and the
+    same-bottom fraction lessons, where the count is visible in the numbers being
+    read aloud. Fixing those would have been churn dressed up as thoroughness."""
+    print("\nPART 3fm — the second example teaches too (build pi)")
+    import lessonscripts as _ls
+    byid = {l["id"]: l for l in _ls.LESSONS}
+
+    def second(lid):
+        return byid[lid]["pairs"][1]["worked"][0]
+
+    fixed = {
+        "basic-u2-multiply-two-digit": "Split 31 into 30 and 1",
+        "basic-u3-divide-two-digit": "Split 96 into 90 and 6",
+        "basic-u3-left-overs": "Three groups of four equals 12",
+        "basic-u4-greatest-common-factor": "Factors of 10:",
+        "basic-u5-fraction-of-a-group": "Share 10 into 5 equal groups",
+        "basic-u5-equivalent-fractions": "Cut every fourth in two",
+        "basic-u7-dimes-and-pennies": "The dimes bring 40 cents",
+        "basic-u8-percent-of": "Fifty percent is one half",
+        "basic-u8-one-costs": "15 divided by 5",
+        "basic-u9-perimeter": "7 plus 3 plus 7 plus 3",
+        "basic-u9-area": "4 rows of 7 squares",
+    }
+    fixed["basic-u3-what-dividing-means"] = "Share 15 into 5 equal groups"
+    missing = [lid for lid, frag in fixed.items() if frag not in second(lid)]
+    check("⭐ all twelve second worked examples now show their working",
+          not missing, missing)
+    check("⭐ the two-digit times example no longer starts mid-method",
+          "90 plus 3 — 93." not in second("basic-u2-multiply-two-digit")
+          and "30 times 3 equals 90" in second("basic-u2-multiply-two-digit"),
+          "'90 plus 3' arrived from nowhere -- the split IS the lesson")
+
+    # the shape that made the defect findable: both examples work the problem
+    # ⚠️ THIS CHECK CAUGHT MY OWN MISS. The first pass fixed eleven; the sweep
+    # named five, and one of them -- what-dividing-means -- was a real twelfth I had
+    # read past. The other four are the DOCUMENTED exceptions, named here rather
+    # than the check being loosened: a lesson may ship a short second example only
+    # when the fact IS the working.
+    SHORT_ON_PURPOSE = {
+        "basic-u2-times-tables",              # recall: "nine times seven equals 63"
+        "basic-u6-add-fractions-same-bottom",  # the count is visible in the numbers
+        "basic-u7-tenths",
+        "basic-u7-hundredths",
+    }
+    thin = [l["id"] for l in _ls.LESSONS if l["course"] == "basic"
+            and len(l["pairs"]) > 1
+            and len(l["pairs"][1]["worked"][0].split()) < 12
+            and l["id"] not in SHORT_ON_PURPOSE]
+    check("  no other Basic second example is a one-line answer", not thin, thin)
+    check("  ...and the four exceptions are still exactly four",
+          len([l for l in _ls.LESSONS if l["course"] == "basic"
+               and len(l["pairs"]) > 1
+               and len(l["pairs"][1]["worked"][0].split()) < 12]) == 4,
+          "growth in the exception list is still growth")
+
+    check("  the recall and same-bottom lessons were deliberately NOT churned",
+          "Eight times six equals 48" in second("basic-u2-times-tables")
+          or len(second("basic-u2-times-tables").split()) < 20,
+          "times tables are recall; the fact IS the working")
+
+
 def part3fl_the_curriculum_is_whole():
     """PART 3fl (build ph, 2026-08-28) -- THE LAST EIGHT. THE CURRICULUM IS WHOLE.
 
@@ -14564,7 +14654,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,143</b>" in page,
+          "<b>7,148</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23025,6 +23115,7 @@ def main():
     part3fj_the_first_course_read_for_sense()
     part3fk_entry_fills_its_units()
     part3fl_the_curriculum_is_whole()
+    part3fm_the_second_example_teaches_too()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

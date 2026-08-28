@@ -2,6 +2,28 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pi -- THE SECOND EXAMPLE TEACHES TOO. Basic read line by line,
+#               all 29 lessons that predate this session. The course is SOUND -- its
+#               sentences are short and its methods are clear -- but it carries one
+#               systematic defect Entry does not: the pair of worked examples is
+#               lopsided. "Here is one more, done for you" shows its working; "One
+#               more together" often collapsed to the bare answer. A worked example
+#               that shows no work is not a worked example, it is the answer with a
+#               friendly opening -- and it lands at exactly the moment the child is
+#               meant to be working alongside.
+#               ⚠️ THE WORST OF THE ELEVEN WAS NOT BARE, IT WAS A FRAGMENT:
+#               "One more together. 31 times 3. 90 plus 3 — 93." The 90 arrives from
+#               nowhere. Splitting 31 into 30 and 1 IS the method of that lesson, and
+#               the one example a child works alongside skipped it.
+#               TWELVE fixed (my first pass found eleven and the battery found the
+#               twelfth -- what-dividing-means), in the lessons where the method is
+#               the point: two-digit
+#               multiplying and dividing, left-overs, greatest common factor, a
+#               fraction of a group, equivalent fractions, dimes, percent, what one
+#               costs, perimeter and area. Left alone on purpose: times tables (a
+#               recall domain, where "eight times six equals 48" IS the working) and
+#               the same-bottom fraction lessons, where the count is visible in the
+#               numbers themselves.
 #   2026-08-28  BUILD ph -- THE LAST EIGHT. THE CURRICULUM IS WHOLE. Basic was short
 #               seven lessons and Pre-Algebra one; all eight are written, so every one
 #               of the TEN courses is now nine units of four -- 360 authored lessons,
@@ -2947,7 +2969,9 @@ _MORE_LESSONS = [
             {"worked": ('Here is one more, done for you. Ten divided by two. Share 10 into 2 equal groups: each gets 5. Ten divided by two equals five.',
                         '[[step eq="10 ÷ 2 = 5"]]'),
              "ask": {'a': 8, 'b': 2, 'op': '/'}},
-            {"worked": ('One more together. Fifteen divided by five equals three.',
+            {"worked": ('One more together. Fifteen divided by five. Share 15 into 5 '
+                        'equal groups — each gets 3. Fifteen divided by five '
+                        'equals three.',
                         '[[step eq="15 ÷ 5 = 3"]]'),
              "ask": {'a': 20, 'b': 5, 'op': '/'}},
         ],
@@ -2975,7 +2999,9 @@ _MORE_LESSONS = [
             {"worked": ('Here is one more, done for you. 11 shared into groups of 3. Three groups of three equals 9, and 11 take away 9 equals 2 left over.',
                         '[[step eq="11 ÷ 3"]][[step eq="left over = 2"]]'),
              "ask": {'a': 10, 'b': 3, 'op': 'rem'}},
-            {"worked": ('One more together. 14 shared into groups of 4 leaves 2 left over.',
+            {"worked": ('One more together. 14 shared into groups of 4. Three groups of '
+                        'four equals 12, and 14 take away 12 equals 2. So 2 '
+                        'are left over.',
                         '[[step eq="14 ÷ 4"]][[step eq="left over = 2"]]'),
              "ask": {'a': 13, 'b': 5, 'op': 'rem'}},
         ],
@@ -3031,7 +3057,9 @@ _MORE_LESSONS = [
             {"worked": ('Here is one more, done for you. 6 and 9. Factors of 6: 1, 2, 3, 6. Factors of 9: 1, 3, 9. The greatest common factor equals 3.',
                         '[[step eq="GCF of 6 and 9 = 3"]]'),
              "ask": {'a': 6, 'b': 8, 'op': 'gcf'}},
-            {"worked": ('One more together. 10 and 15 — the greatest common factor equals 5.',
+            {"worked": ('One more together. 10 and 15. Factors of 10: 1, 2, 5, 10. '
+                        'Factors of 15: 1, 3, 5, 15. The greatest one they '
+                        'share equals 5.',
                         '[[step eq="GCF of 10 and 15 = 5"]]'),
              "ask": {'a': 12, 'b': 16, 'op': 'gcf'}},
         ],
@@ -3059,7 +3087,8 @@ _MORE_LESSONS = [
             {"worked": ('Here is one more, done for you. One fourth of 12. Share 12 into 4 equal groups — each gets 3. One fourth of 12 equals 3.',
                         '[[step eq="1/4 of 12 = 3"]]'),
              "ask": {'a': 8, 'b': 4, 'op': 'of'}},
-            {"worked": ('One more together. One fifth of 10 equals 2.',
+            {"worked": ('One more together. One fifth of 10. Share 10 into 5 equal '
+                        'groups — each gets 2. One fifth of 10 equals 2.',
                         '[[step eq="1/5 of 10 = 2"]]'),
              "ask": {'a': 15, 'b': 5, 'op': 'of'}},
         ],
@@ -3087,7 +3116,8 @@ _MORE_LESSONS = [
             {"worked": ('Here is one more, done for you. One half equals how many sixths? Cut every half into three — one half equals three sixths.',
                         '[[step eq="1/2 = 3/6"]]'),
              "ask": {'a': 1, 'b': 2, 'c': 8, 'op': 'eqf'}},
-            {"worked": ('One more together. One fourth equals two eighths.',
+            {"worked": ('One more together. One fourth equals how many eighths? Cut '
+                        'every fourth in two — one fourth equals two eighths.',
                         '[[step eq="1/4 = 2/8"]]'),
              "ask": {'a': 1, 'b': 2, 'c': 10, 'op': 'eqf'}},
         ],
@@ -3199,7 +3229,9 @@ _MORE_LESSONS = [
             {"worked": ('Here is one more, done for you. 2 dimes and 7 pennies. 20 plus 7 equals 27 cents.',
                         '[[step eq="2 dimes + 7 pennies = 27 cents"]]'),
              "ask": {'a': 2, 'b': 5, 'op': 'm'}},
-            {"worked": ('One more together. 4 dimes and 6 pennies equals 46 cents.',
+            {"worked": ('One more together. 4 dimes and 6 pennies. The dimes bring 40 '
+                        'cents, the pennies bring 6 more. 40 plus 6 equals 46 '
+                        'cents.',
                         '[[step eq="4 dimes + 6 pennies = 46 cents"]]'),
              "ask": {'a': 4, 'b': 3, 'op': 'm'}},
         ],
@@ -3227,7 +3259,8 @@ _MORE_LESSONS = [
             {"worked": ('Here is one more, done for you. 25 percent of 8. Twenty-five percent is one fourth, and one fourth of 8 equals 2.',
                         '[[step eq="25% of 8 = 2"]]'),
              "ask": {'a': 25, 'b': 12, 'op': 'pc'}},
-            {"worked": ('One more together. 50 percent of 12 equals 6.',
+            {"worked": ('One more together. 50 percent of 12. Fifty percent is one '
+                        'half, and one half of 12 equals 6.',
                         '[[step eq="50% of 12 = 6"]]'),
              "ask": {'a': 50, 'b': 14, 'op': 'pc'}},
         ],
@@ -3255,7 +3288,8 @@ _MORE_LESSONS = [
             {"worked": ('Here is one more, done for you. 3 apples cost 9 dollars. 9 divided by 3 equals 3 — one costs 3 dollars.',
                         '[[step eq="9 ÷ 3 = 3"]]'),
              "ask": {'a': 8, 'b': 4, 'op': 'rate'}},
-            {"worked": ('One more together. 5 apples cost 15 dollars — one costs 3 dollars.',
+            {"worked": ('One more together. 5 apples cost 15 dollars. 15 divided by 5 '
+                        'equals 3 — one apple costs 3 dollars.',
                         '[[step eq="15 ÷ 5 = 3"]]'),
              "ask": {'a': 12, 'b': 3, 'op': 'rate'}},
         ],
@@ -3283,7 +3317,8 @@ _MORE_LESSONS = [
             {"worked": ('Here is one more, done for you. 4 long and 2 wide: 4 plus 2 plus 4 plus 2 equals 12.',
                         '[[step eq="4 + 2 + 4 + 2 = 12"]]'),
              "ask": {'a': 5, 'b': 2, 'op': 'peri'}},
-            {"worked": ('One more together. 7 long and 3 wide — the perimeter equals 20.',
+            {"worked": ('One more together. 7 long and 3 wide. Walk around: 7 plus 3 '
+                        'plus 7 plus 3 equals 20. The perimeter equals 20.',
                         '[[step eq="7 + 3 + 7 + 3 = 20"]]'),
              "ask": {'a': 6, 'b': 4, 'op': 'peri'}},
         ],
@@ -3311,7 +3346,9 @@ _MORE_LESSONS = [
             {"worked": ('Here is one more, done for you. 6 long and 2 wide: 6 times 2 equals 12 squares.',
                         '[[step eq="6 × 2 = 12"]]'),
              "ask": {'a': 3, 'b': 2, 'op': 'area'}},
-            {"worked": ('One more together. 7 long and 4 wide — the area equals 28 squares.',
+            {"worked": ('One more together. 7 long and 4 wide. That is 4 rows of 7 '
+                        'squares: 7 times 4 equals 28. The area equals 28 '
+                        'squares.',
                         '[[step eq="7 × 4 = 28"]]'),
              "ask": {'a': 5, 'b': 4, 'op': 'area'}},
         ],
@@ -3504,7 +3541,9 @@ _MORE_LESSONS = [
                         "equals 80; 2 times 2 equals 4. 84.",
                         '[[step eq="42 × 2 = 84"]]'),
              "ask": {"a": 43, "b": 2, "op": "*"}},
-            {"worked": ("One more together. 31 times 3. 90 plus 3 — 93.",
+            {"worked": ("One more together. 31 times 3. Split 31 into 30 and 1. "
+                        "30 times 3 equals 90; 1 times 3 equals 3. "
+                        "90 plus 3 equals 93.",
                         '[[step eq="31 × 3 = 93"]]'),
              "ask": {"a": 32, "b": 3, "op": "*"}},
         ],
@@ -3544,7 +3583,9 @@ _MORE_LESSONS = [
                         "divided by 2 equals 20; 8 divided by 2 equals 4. 24.",
                         '[[step eq="48 ÷ 2 = 24"]]'),
              "ask": {"a": 46, "b": 2, "op": "/"}},
-            {"worked": ("One more together. 96 divided by 3 — 32.",
+            {"worked": ("One more together. 96 divided by 3. Split 96 into 90 and 6. "
+                        "90 divided by 3 equals 30; 6 divided by 3 equals 2. "
+                        "30 plus 2 equals 32.",
                         '[[step eq="96 ÷ 3 = 32"]]'),
              "ask": {"a": 93, "b": 3, "op": "/"}},
         ],
