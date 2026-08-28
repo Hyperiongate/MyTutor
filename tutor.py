@@ -2,6 +2,14 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pq -- RULE 42'S TWO OPEN DOORS. The night watch caught three
+#               comparison-to-others lines in one run. MEASURED, not assumed: two were
+#               detector misses ("a lot of PEOPLE", bare "EVERYONE") and the third
+#               ("lots of kids") FIRED and shipped anyway -- a pass_through, not a
+#               hole. _CMP_SHAPES gains "a lot of" + the people-nouns. The canon sweep
+#               CUT "most people" (probstat says it legitimately) and the entire
+#               everyone/everybody family (17 canon hits; no regex spares real
+#               teaching). See ruletests PART 3fu.
 #   2026-08-27  BUILD oq -- THE RAISED HAND. NEW script_question() +
 #               _SCRIPT_QUESTION_SYSTEM: one bounded spoken answer to a child's
 #               mid-script question (60 words, no board tags -- stripped if any
@@ -4810,8 +4818,33 @@ def tapped_answer_conflict(reply: str, student_message: str = "", prev_tutor=Non
 # as comfort and lands as a measurement against a room they cannot see. So the
 # comfort form fires too, on purpose. Comparisons to the student's OWN earlier
 # work (rule 42a) contain none of these shapes and pass untouched.
+# (pq) 2026-08-28 -- THE NIGHT WATCH FOUND TWO WAYS ROUND THIS LIST. A live reply
+# said "this one trips up A LOT OF PEOPLE" and another "the exact trap almost
+# EVERYONE falls into", and neither fired: the quantifier list had no "a lot of"
+# and the noun list had no "people". Both are the comfort form rule 42 names.
+# CANON SWEPT over all 2,841 authored cards -- lessonscripts AND foundations --
+# before enforcing (the standing law). ⚠️ MY FIRST SWEEP WAS INCOMPLETE: it read
+# lessonscripts only (2,535 lines), passed clean, and the BATTERY's own canon sweep
+# then caught what I had missed in foundations.py. The sweep is only as good as the
+# canon it covers. Three tempting additions died:
+#   people / folks / beginners, with ANY quantifier -- 4 canon hits, every one
+#                     legitimate teaching about an IDEA rather than about the child:
+#                     foundation "denominator" ("that surprises A LOT OF PEOPLE: one
+#                     eighth is smaller than one fourth"), foundation "experiment",
+#                     and ps-u4 twice ("not in the way MOST PEOPLE expect", "four
+#                     times as MANY PEOPLE"). The live miss that started this --
+#                     "this one trips up a lot of people!" -- uses the SAME WORDS as
+#                     the denominator card. The difference is whether it describes an
+#                     idea or measures the child, and no regex can see that. The
+#                     people-nouns are NOT enforced; that miss belongs to the live
+#                     critic and the night watch, and is recorded as such.
+#   everyone/everybody, in ANY form -- 17 canon hits bare ("the mean is what
+#                     EVERYBODY would have", "ask a few, learn about EVERYONE"), and
+#                     even verb-anchored it still caught alg1-u9-the-mean.
+# WHAT SURVIVED is one word: "a lot of" joins the quantifiers for the KID-nouns,
+# which is clean across all 2,841 cards.
 _CMP_SHAPES = re.compile(
-    r"\b(?:most|other|many|lots\s+of|plenty\s+of)\s+(?:kids|students|children|learners)\b"
+    r"\b(?:most|other|many|lots\s+of|plenty\s+of|a\s+lot\s+of)\s+(?:kids|students|children|learners)\b"
     r"|\b(?:kids|students|children)\s+(?:your|his|her|their)\s+age\b"
     r"|\byour\s+classmates?\b"
     r"|\bthe\s+average\s+(?:kid|student|child)\b"

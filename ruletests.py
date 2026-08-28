@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pq -- PART 3fu: the eyes report what they saw. The night watch's
+#               own report, worked. Rule 42 widened after MEASURING all three findings
+#               (two misses, one pass_through -- assuming three misses would have been
+#               three wrong fixes); "most people" and the whole everyone/everybody
+#               family CUT by canon sweep. The watch now prints crash REASONS. And six
+#               of its nine "refutations" turned out to be the reviewer's conduct list
+#               being shorter than the referee set -- now surfaced as unjudged, never
+#               counted as skepticism.
 #   2026-08-28  BUILD pp -- PART 3ft: the last two courses, THE CURRICULUM IS READ.
 #               Jim: "Finish the last twenty percent now." Prob & Stat and Diffeq,
 #               72 lessons. With these, all ten courses / 360 lessons have been read
@@ -13157,6 +13165,165 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fu_the_eyes_report_what_they_saw():
+    """PART 3fu (build pq, 2026-08-28) -- THE EYES REPORT WHAT THEY SAW.
+
+    The 2026-08-28 night watch found 15 confirmed defects in 10 lessons and carried two
+    numbers nobody could act on: 33 referee crashes and 58 replies shipped WITH a known
+    finding. Three separate failures of the machinery, each fixed here.
+
+    ⭐ (1) RULE 42 HAD TWO DOORS LEFT OPEN, and I MEASURED rather than reasoned. Of the
+    three rule-42 findings, running the live strings through the referee showed:
+        "this one trips up A LOT OF PEOPLE"          -> MISSED (no "a lot of", no "people")
+        "the exact trap almost EVERYONE falls into"  -> MISSED (no bare "everyone")
+        "LOTS OF KIDS feel that way at first"        -> FIRED
+    The third is the important one: the referee CAUGHT it and the reply shipped anyway.
+    That is a pass_through, not a detector hole, and it would have been invisible if I
+    had assumed all three were misses and "fixed" the regex three times.
+
+    ⚠️⚠️ AND MY OWN CANON SWEEP WAS INCOMPLETE -- THIS BATTERY CAUGHT IT. I swept
+    lessonscripts.py (2,535 lines), got a clean result for the people-nouns, shipped
+    the widened regex, and the sweep in PART 3cx immediately failed on foundations.py:
+        foundation "denominator": "That surprises A LOT OF PEOPLE: one eighth is
+        smaller than one fourth, even though eight is bigger than four."
+    THE SAME FIVE WORDS as the live line that started this. The difference is that the
+    card describes an IDEA and the live reply measured a CHILD, and no regex can see
+    the difference. A canon sweep is only as good as the canon it covers, and I covered
+    less than the canon. Re-swept properly: 2,841 cards, lessonscripts AND foundations.
+
+    ⚠️ SO THREE ADDITIONS DIED AND ONE SURVIVED:
+        people / folks / beginners, ANY quantifier -- CUT. 4 canon hits, every one
+            legitimate teaching (foundation denominator, foundation experiment,
+            ps-u4 twice). This means "trips up a lot of people" IS STILL NOT CAUGHT by
+            a referee, and saying otherwise would be the comfortable lie. It belongs to
+            the live critic and the night watch, and it is written down as unfixed.
+        everyone / everybody, ANY form -- CUT. 17 canon hits bare ("the mean is what
+            EVERYBODY would have"), and even anchored to a verb it still caught
+            alg1-u9-the-mean.
+        "a lot of" + kids/students/children/learners -- KEPT. Zero hits in 2,841 cards.
+    One word of widening, honestly earned, is worth more than a regex that fights the
+    curriculum.
+
+    ⭐ (2) THE REPORT COUNTED CRASHES AND THREW AWAY THE REASON. store.event_stats()
+    groups by (kind, name) and never selects the detail column, so the watch could say
+    "referee_crash · livecritic: 33x" and not one word about why. Build of proved the
+    detail IS the value -- its crash message named a typo'd model ID and the fix took
+    minutes. recent_events() has carried detail all along; the report simply never
+    asked. It asks now, distinct reasons only.
+
+    ⭐ (3) SIX OF THE NINE "REFUTATIONS" WERE THE REVIEWER REPORTING A HOLE IN ITS OWN
+    LIST. VERIFY_SYSTEM names ELEVEN conduct rules. The watch filed findings against
+    rules 7, 26, 27, 41, 46 and 50 -- and the reviewer dismissed them with, in its own
+    words, "the cited requirement is not one of the conduct promises listed here."
+    That is not skepticism. It is an unjudged defect wearing a refutation's coat, and
+    it inflates the health metric that is supposed to catch exactly this. Build ni saw
+    it happen once with rule 42 and hand-added that rule; the list drifted behind the
+    referees again within days, because hand-maintenance always does. So the reviewer
+    now returns rule_known, unjudged findings are held in their OWN section, and they
+    are kept OUT of the refuted count for good."""
+    print("\nPART 3fu — the eyes report what they saw (build pq)")
+    import tutor as _t
+    import nightwatch as _nw
+    import inspect as _insp
+
+    # ---- (1) the widened rule-42 shapes, both directions ----
+    must_fire = [
+        "a lot of kids get stuck on this one",      # the ONE thing pq widened
+        "lots of kids feel that way at first",
+        "most kids find this hard",
+        "a lot of students get stuck here",
+        "plenty of students get stuck here",
+    ]
+    missed = [t for t in must_fire if not _t.student_compare_conflict(t)]
+    check("⭐ rule 42 catches 'a lot of' + kids/students -- pq's one clean widening",
+          not missed, missed)
+
+    # ⚠️ THE HONEST LIST. Every one of these is language a real teacher uses about an
+    # IDEA, and the canon says so. A referee that fires here fights the curriculum.
+    must_pass = [
+        "That surprises a lot of people: one eighth is smaller than one fourth",
+        "not in the way most people expect",
+        "however many people you reach",
+        "you need four times as many people: 100 becomes 400",
+        "The mean is what everybody would have if you shared it",
+        "the fact almost everybody gets wrong",
+        "three weeks ago this stopped you, and you just did two in a row",  # rule 42a
+    ]
+    fired = [t for t in must_pass if _t.student_compare_conflict(t)]
+    check("  ...and fires on NONE of the canon language the sweep protected",
+          not fired, fired)
+
+    # ⚠️ NOT FIXED, AND SAID OUT LOUD. The live line that opened this build is still
+    # uncaught, because the identical words are in the denominator foundation card.
+    check("⚠️ 'trips up a lot of people' is STILL uncaught -- by decision, not oversight",
+          not _t.student_compare_conflict("this one trips up a lot of people!"),
+          "if this ever starts firing, check foundation 'denominator' still passes")
+
+    src = _insp.getsource(_t)
+    shapes = src.split("_CMP_SHAPES = re.compile(")[1].split("re.I)")[0]
+    # build id's ORIGINAL narrow shape -- "everyone else IN/AT your class" -- stays;
+    # it names a room. What must never appear is a bare or verb-anchored "everyone".
+    check("  the only 'everyone' shape is build id's narrow 'everyone else in/at'",
+          "everyone\\s+else\\s+(?:in|at)" in shapes
+          and "every(?:one|body)" not in shapes,
+          "a bare or verb-anchored 'everyone' cannot spare real teaching (17 canon "
+          "hits) -- do not add it back")
+    check("  ...and it still ignores a bare 'everyone' in teaching prose",
+          not _t.student_compare_conflict(
+              "the fact almost everybody gets wrong")
+          and not _t.student_compare_conflict(
+              "The mean is what everyone would have"), "")
+    check("  the people/folks nouns are NOT in the regex (4 canon hits)",
+          "people" not in shapes and "folks" not in shapes,
+          "foundation 'denominator' says 'a lot of people' and means the idea")
+    check("  ...and both cuts stay documented above the pattern",
+          "MY FIRST SWEEP WAS INCOMPLETE" in src and "denominator" in src,
+          "a cut with no reason written down gets re-added by the next person")
+
+    # ---- (2) the crash REASON reaches the report ----
+    nsrc = _insp.getsource(_nw)
+    check("⭐ the night watch now asks for crash DETAIL, not just counts",
+          "recent_events(" in nsrc and "distinct reasons" in nsrc,
+          "a crash counter with no message is a number nobody can act on")
+    check("  ...and says so loudly when counters fire but no detail comes back",
+          "not a quiet week" in nsrc and "NO detail rows came back" in nsrc,
+          "silence must not read as a quiet week")
+
+    # ---- (3) the reviewer's own list is audited ----
+    check("⭐ the verifier is asked whether it KNOWS the rule it was handed",
+          '"rule_known"' in _nw.VERIFY_SYSTEM
+          and "SHORTER than the set of rules" in _nw.VERIFY_SYSTEM, "")
+    check("  ...and is told never to refute merely for a missing rule",
+          "Never\nrefute a finding merely because its rule is missing" in _nw.VERIFY_SYSTEM
+          or "refute a finding merely because its rule is missing" in _nw.VERIFY_SYSTEM, "")
+    check("  verify_finding returns the flag as a fourth value",
+          len(_insp.signature(_nw.verify_finding).parameters) == 4
+          and "rule_known" in _insp.getsource(_nw.verify_finding), "")
+
+    # a finding the reviewer could not judge is NOT counted as a refutation
+    res = {"ok": True, "ran": 1, "new": [], "recurring": 0, "refuted": 0,
+           "refuted_list": [],
+           "harness_gap": [{"scenario": "i-dont-know", "severity": "LOW", "rule": "41",
+                            "what": "first picture has no caption", "quote": "",
+                            "reviewer": "not one of the conduct promises listed here"}],
+           "errors": [], "seconds": 1.0, "probes_run": [], "budget_stopped": False}
+    md = _nw.report_markdown(res, build="pq-selftest")
+    check("⭐ an unjudged finding gets its OWN section, not the refuted list",
+          "The reviewer was never given these rules (1)" in md
+          and "Rules missing from the list: 41" in md, "")
+    check("  ...and rides in the headline so the night cannot read as healthy",
+          "1 unjudged (rule not in the reviewer's list)" in md, "")
+    check("  ...while the refuted count stays honestly zero",
+          "0 refuted on review" in md,
+          "a hole in our list must never be counted as skepticism")
+
+    # DO NO HARM: a result dict from before this build still renders
+    old = {k: v for k, v in res.items() if k != "harness_gap"}
+    old_md = _nw.report_markdown(old, build="pq-oldshape")
+    check("  an older result dict (no harness_gap key) still renders",
+          "Night watch" in old_md and "never given these rules" not in old_md, "")
+
+
 def part3ft_the_curriculum_is_read():
     """PART 3ft (build pp, 2026-08-28) -- THE LAST TWO COURSES. THE CURRICULUM IS READ.
 
@@ -15279,7 +15446,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,193</b>" in page,
+          "<b>7,211</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -15904,17 +16071,29 @@ def part3ak_night_watch():
     tr = [("user", "hi"), ("assistant", "something")]
     scn = {"id": "x", "course": "geometry"}
     F = {"severity": "high", "rule": 63, "what": "w", "quote": "q", "why": "y"}
-    real, _why, err = nw.verify_finding(
+    # (pq) verify_finding returns a FOURTH value now -- rule_known, the reviewer
+    # telling us whether it was even given the rule the finding names.
+    real, _why, err, known = nw.verify_finding(
         lambda *a, **k: (_json.dumps({"real": True, "why": "confirmed"}), None), scn, tr, F)
     check("night watch: a confirmed finding survives review", real is True and not err)
-    real, _why, err = nw.verify_finding(
+    check("night watch: a verdict with no rule_known defaults to KNOWN",
+          known is True,
+          "absent must mean 'no opinion', never an invented harness gap")
+    real, _why, err, known = nw.verify_finding(
         lambda *a, **k: (_json.dumps({"real": False, "why": "taste"}), None), scn, tr, F)
     check("night watch: a refuted finding is dropped", real is False and not err,
           "an audit finding is an opinion (build fe)")
-    real, _why, err = nw.verify_finding(lambda *a, **k: ("not json at all", None), scn, tr, F)
+    real, _why, err, known = nw.verify_finding(
+        lambda *a, **k: (_json.dumps({"real": False, "why": "rule not in my list",
+                                      "rule_known": False}), None), scn, tr, F)
+    check("⭐ night watch: a rule the reviewer never had is UNJUDGED, not refuted",
+          real is False and known is False,
+          "six of nine refutations on 2026-08-28 were this -- they must not be "
+          "counted as skepticism")
+    real, _why, err, known = nw.verify_finding(lambda *a, **k: ("not json at all", None), scn, tr, F)
     check("night watch: an unreadable verdict is UNVERIFIED, never a silent confirm",
           real is None and bool(err), "a garbled reviewer must not promote a finding")
-    real, _why, err = nw.verify_finding(lambda *a, **k: ("", "openai timed out"), scn, tr, F)
+    real, _why, err, known = nw.verify_finding(lambda *a, **k: ("", "openai timed out"), scn, tr, F)
     check("night watch: a transport error is UNVERIFIED, never a silent confirm",
           real is None and bool(err), "a dead reviewer must not promote a finding")
 
@@ -23748,6 +23927,7 @@ def main():
     part3fr_precalc_read_for_sense()
     part3fs_calculus_read_for_sense()
     part3ft_the_curriculum_is_read()
+    part3fu_the_eyes_report_what_they_saw()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

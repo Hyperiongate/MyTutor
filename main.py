@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  APP_BUILD -> "2026-08-28pq-the-eyes-report-what-they-saw". BUILD pq --
+#               the 2026-08-28 night watch, worked. Rule 42's referee widened (canon
+#               swept; two additions CUT). The watch now reports crash REASONS, not
+#               just counts, and separates findings the reviewer could not judge from
+#               findings it refuted. No teaching content changed.
 #   2026-08-28  APP_BUILD -> "2026-08-28pp-the-curriculum-is-read". BUILD pp -- the
 #               last two courses. All 36 Prob & Stat and all 36 Diffeq lessons read;
 #               both courses' prose clean, 48 worked examples now show their
@@ -12505,7 +12510,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-28pp-the-curriculum-is-read"
+APP_BUILD = "2026-08-28pq-the-eyes-report-what-they-saw"
 
 
 @app.get("/health")
