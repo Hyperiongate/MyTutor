@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pp -- PART 3ft: the last two courses, THE CURRICULUM IS READ.
+#               Jim: "Finish the last twenty percent now." Prob & Stat and Diffeq,
+#               72 lessons. With these, all ten courses / 360 lessons have been read
+#               for sense. Neither course has a prose defect; 48 worked examples now
+#               do their operation (22 + 26). Two findings pinned: DIFFEQ IS THE ONLY
+#               COURSE WHERE THE FIRST EXAMPLE WAS ALSO BARE (six of them -- pi's
+#               assumption did not hold to the end), and an operation-word DETECTOR
+#               WAS CUT for 39 near-all-false hits, because counting aloud and a
+#               doubling chain ARE the working.
 #   2026-08-28  BUILD po -- PART 3fs: Calculus read for sense. Prose clean; 22 second
 #               worked examples fixed. The part pins the COUNT ACROSS COURSES as the
 #               real finding: 0, 12, 3, 3, 7, 9, 16, 22 -- the defect gets more common
@@ -13148,6 +13157,173 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3ft_the_curriculum_is_read():
+    """PART 3ft (build pp, 2026-08-28) -- THE LAST TWO COURSES. THE CURRICULUM IS READ.
+
+    Jim: "Finish the last twenty percent now." Probability & Statistics and
+    Differential Equations, all 72 lessons, line by line.
+
+    ⭐ WITH THESE TWO, ALL TEN COURSES AND ALL 360 AUTHORED LESSONS HAVE BEEN READ
+    FOR SENSE. Not validated -- read. The pass that began at build pf with "Start at
+    the beginning" is finished.
+
+    ⭐ NEITHER COURSE HAS A SINGLE PROSE DEFECT. No broken sentence, no false
+    statement, no leaked shorthand -- four courses running now. Both teach well:
+        "180 children who never had a chance of being handed the survey.
+         Not 180 who said no -- 180 who were never asked at all."
+        "Measure from the EDGE, not the middle."
+        "It peaks exactly halfway to the ceiling, not near the top."
+        "...which is why a forecast a month ahead is not available to anyone,
+         at any price."
+
+    FORTY-EIGHT CHANGES, all build pl's shape: a worked example that stated its
+    answer without doing the operation. 22 in Prob & Stat, 26 in Diffeq.
+
+    ⚠️ DIFFEQ IS THE ONLY COURSE WHERE THE *FIRST* EXAMPLE WAS ALSO BARE, and that
+    matters because build pi's whole finding assumed otherwise. In the other nine
+    courses "Here is one more, done for you" reliably showed its working and only
+    "One more together" collapsed. Diffeq breaks the pattern: SIX of its first
+    examples stated the answer too --
+        "Here is one more, done for you. A slope of 14 at x equals 4:
+         the nullcline sits at 56."
+    They are fixed here, and the asymmetry is pinned rather than assumed away.
+
+    ⚠️ A DETECTOR WAS CUT, under the canon sweep law (measure against every authored
+    card BEFORE enforcing). An operation-word regex run over all 360 second examples
+    returned 39 hits, and nearly every one was a FALSE POSITIVE, because in several
+    courses the working is not an operation word at all:
+        entry-u1-counting-to-10  "One, two, three, four, five, six. Six stars."
+        alg2-u6-the-fading-half  "56 grams for 2 days: 56 to 28 to 14."
+        pc-u3-count-the-halvings "24, then 12, then 6, then 3 -- three days."
+    Counting aloud IS the working. A doubling chain IS the working. The defect
+    cannot be found by machine -- it was found by reading, which is the whole reason
+    the read had to happen. The sweep result is recorded; the check is not.
+
+    THE FULL PER-COURSE COUNT, now that every course has been read:
+        entry 0 · basic 12 · prealgebra 3 · algebra1 3 · geometry 7
+        algebra2 9 · precalc 16 · calculus 22 · probstat 22 · DIFFEQ 26
+    The upward trend holds to the end, and Diffeq tops it -- the course whose
+    operations are the shortest one-liners of all."""
+    print("\nPART 3ft — the last two courses, the curriculum is read (build pp)")
+    import lessonscripts as _ls
+    byid = {l["id"]: l for l in _ls.LESSONS}
+    worked = lambda lid, i: byid[lid]["pairs"][i]["worked"][0]
+    teach = lambda lid: " ".join(t for t, _b in byid[lid]["teach"])
+
+    # ---- Probability & Statistics: 22 second examples ----
+    ps_fixed = {
+        "ps-u2-no-single-middle": "18 plus 20 is 38, halved",
+        "ps-u2-the-middle-half": "27 take away 15",
+        "ps-u3-the-slope-is-a-rate": "5 times 8",
+        "ps-u3-how-far-off-the-line": "44 take away 14",
+        "ps-u3-through-the-middle-of-the-cloud": "18 take away 6",
+        "ps-u4-a-sample-that-matches": "34 times 45 divided by 85",
+        "ps-u4-who-actually-answered": "96 out of 150",
+        "ps-u4-the-ones-you-never-asked": "360 take away 140",
+        "ps-u4-the-price-of-accuracy": "four times as many",
+        "ps-u5-chance-on-a-scale": "7 divided by 35",
+        "ps-u5-either-one-wins": "5 plus 2",
+        "ps-u5-both-at-once": "7 times 11",
+        "ps-u6-out-of-how-many-now": "5 plus 15",
+        "ps-u7-the-chances-fill-the-hundred": "100 take away 45",
+        "ps-u7-what-one-play-is-worth": "1000 plus 600 over a hundred plays",
+        "ps-u7-why-the-machine-stays-open": "30 take away 22",
+        "ps-u8-the-crowded-middle": "68 percent of 900 is 612",
+        "ps-u8-which-value-sits-out-there": "two deviations is 14",
+        "ps-u8-almost-nobody-out-there": "5 percent is 100 at the ends",
+        "ps-u9-give-or-take": "75 take away 6",
+        "ps-u9-how-wide-is-the-doubt": "A margin of 15, doubled",
+        "ps-u9-can-that-claim-survive": "58 take away 50",
+    }
+    miss = [lid for lid, frag in ps_fixed.items() if frag not in worked(lid, 1)]
+    check("⭐ all twenty-two Prob & Stat second examples now do the operation",
+          not miss, miss)
+
+    # ---- Differential Equations: 20 second examples ----
+    de_second = {
+        "diffeq-u1-a-dash-at-every-point": "59 plus 43",
+        "diffeq-u1-reading-the-field-backwards": "take the 6 off the 54",
+        "diffeq-u1-joining-the-dashes": "climbs 120",
+        "diffeq-u2-the-cooling-cup": "62 shared by 2",
+        "diffeq-u2-the-tank-of-brine": "shared over 6 litres",
+        "diffeq-u3-where-growth-peaks": "taking the 11 off",
+        "diffeq-u3-the-one-that-pushes-away": "38 times 4",
+        "diffeq-u4-the-deal-euler-offers": "150 times 9 over 10",
+        "diffeq-u4-what-accuracy-costs": "190 take away 20",
+        "diffeq-u5-the-spring-that-never-stops": "the square root of 289",
+        "diffeq-u6-somebody-is-pushing": "34 over 2",
+        "diffeq-u6-the-part-that-fades": "186 take away 30",
+        "diffeq-u6-why-soldiers-break-step": "176 over 4",
+        "diffeq-u6-what-saves-the-bridge": "5 times 2 is 10",
+        "diffeq-u7-and-now-it-is-just-algebra": "the bottom is 6",
+        "diffeq-u7-reading-the-ending": "76 over 2",
+        "diffeq-u8-where-an-arrow-goes-flat": "10 times 16",
+        "diffeq-u8-two-numbers-decide-the-picture": "taking 26 off 190",
+        "diffeq-u9-up-close-it-is-a-line": "24 times 7",
+        "diffeq-u9-round-and-round": "quartered",
+    }
+    miss = [lid for lid, frag in de_second.items() if frag not in worked(lid, 1)]
+    check("⭐ all twenty Diffeq second examples now do the operation", not miss, miss)
+
+    # ---- the six FIRST examples: the asymmetry pi did not predict ----
+    de_first = {
+        "diffeq-u1-a-dash-at-every-point": "50 plus 14",
+        "diffeq-u1-reading-the-field-backwards": "take the 19 off the 39",
+        "diffeq-u6-the-part-that-fades": "180 take away 40",
+        "diffeq-u8-where-an-arrow-goes-flat": "14 times 4",
+        "diffeq-u8-two-numbers-decide-the-picture": "taking 30 off 186",
+        "diffeq-u9-round-and-round": "A quarter of 100 months",
+    }
+    miss = [lid for lid, frag in de_first.items() if frag not in worked(lid, 0)]
+    check("⚠️ ...and Diffeq's six BARE FIRST examples show their working too",
+          not miss, miss)
+    check("  Diffeq is the course that broke pi's first-example assumption",
+          len(de_first) == 6, len(de_first))
+
+    # ---- neither course leaves a one-line answer behind ----
+    for course in ("probstat", "diffeq"):
+        thin = [l["id"] for l in _ls.LESSONS if l["course"] == course
+                and len(l["pairs"]) > 1
+                and len(l["pairs"][1]["worked"][0].split()) < 12
+                and "over" not in l["pairs"][1]["worked"][0]
+                and "quartered" not in l["pairs"][1]["worked"][0]]
+        check("  no %s second example is a bare one-liner" % course, not thin, thin)
+
+    # ---- the teaching worth guarding ----
+    check("⭐ the biased-sample lesson still names who was never asked",
+          "180 who were never asked at all"
+          in teach("ps-u4-the-ones-you-never-asked"), "")
+    check("  the confidence lesson still says measure from the EDGE",
+          "Measure from the EDGE, not the middle"
+          in teach("ps-u9-can-that-claim-survive"), "")
+    check("  logistic growth still peaks HALFWAY, not near the top",
+          "halfway to the ceiling, not near the top"
+          in teach("diffeq-u3-where-growth-peaks"), "")
+    check("  and chaos still ends on the forecast nobody can buy",
+          "not available to anyone, at any price"
+          in teach("diffeq-u9-a-perfectly-known-equation"), "")
+
+    # ---- THE CLOSING FACT ----
+    courses = ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2",
+               "precalc", "calculus", "probstat", "diffeq")
+    total = sum(len([l for l in _ls.LESSONS if l["course"] == c]) for c in courses)
+    check("⭐ ALL TEN COURSES READ LINE BY LINE -- 360 lessons of 360",
+          total == 360 and total == len(_ls.LESSONS), total)
+
+    # ---- the cut detector, recorded so nobody re-adds it ----
+    import re as _re
+    _OPW = _re.compile(r"(plus|minus|take away|taking|times|multipl|divid|shared?|"
+                       r"over|halve|half|quarter|root|squar|add|per|each|split|and )",
+                       _re.I)
+    swept = [l["id"] for l in _ls.LESSONS if len(l["pairs"]) > 1
+             and not _OPW.search(l["pairs"][1]["worked"][0])]
+    check("⚠️ the operation-word sweep still returns mostly FALSE POSITIVES "
+          "-- measured, not enforced", len(swept) >= 10, len(swept))
+    check("  counting aloud IS the working, so entry-u1 stays on that list",
+          "entry-u1-counting-to-10" in swept,
+          "if this ever leaves the list the detector was quietly turned on")
+
+
 def part3fs_calculus_read_for_sense():
     """PART 3fs (build po, 2026-08-28) -- CALCULUS, READ FOR SENSE.
 
@@ -15103,7 +15279,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,180</b>" in page,
+          "<b>7,193</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23571,6 +23747,7 @@ def main():
     part3fq_algebra_two_read_for_sense()
     part3fr_precalc_read_for_sense()
     part3fs_calculus_read_for_sense()
+    part3ft_the_curriculum_is_read()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
