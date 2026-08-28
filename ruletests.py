@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pu -- PART 3fy: what he is saying is on the screen. Jim's board
+#               complaint, MEASURED in a real browser (tools/puedrive.py) before a line
+#               was written. The scripted lane came back CLEAN; the LIVE lane puts 90px
+#               of a 406px turn above the fold on a 1280x600 window. ⚠️ My first run
+#               said the scripted lane was broken too and my first run was WRONG -- it
+#               tracked a stale copy of the figure that is SUPPOSED to scroll away.
+#               ⚠️ And the fix Jim chose is necessary but NOT sufficient: text alone is
+#               396px of that turn, so shrinking the picture cannot close it. The floor
+#               was raised 190 -> 340 (at 190 the figure became unreadable) and turn
+#               LENGTH is written into board.js as the next build.
 #   2026-08-28  BUILD pt -- PART 3fx: the child cannot be right. Three referees from
 #               Jim's flag queue (60/61/62), every one invisible to the other 59: tap
 #               buttons that do not contain the answer, a question whose answer is
@@ -13188,6 +13198,86 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fy_visible_without_moving_anything():
+    """PART 3fy (build pu, 2026-08-28) -- WHAT HE IS SAYING IS ON THE SCREEN.
+
+    Jim: "we're still having Mr. Cadabra talking about a problem that is not
+    immediately visible on the whiteboard, so the student either has to scroll up to
+    what are you talking about or scroll down to where is it at. Whatever he's saying
+    needs to be visible on the whiteboard without the student moving anything."
+
+    MEASURED IN A REAL BROWSER before one line was written -- tools/puedrive.py plays a
+    REAL authored lesson beat by beat at three viewports and reports, for each beat,
+    how much of that beat sits outside the board.
+
+    ⭐ THE SCRIPTED LANE CAME BACK CLEAN. Every authored beat's own board work is fully
+    on screen at 1280x800 AND 1280x600. The authored beats re-draw their figure each
+    time, so the picture is always beside the words that discuss it.
+
+    ⚠️ MY FIRST RUN SAID OTHERWISE AND MY FIRST RUN WAS WRONG. It tracked the FIRST
+    .mfig in the feed -- beat 1's copy of the number line -- and reported it 167px
+    above the fold. That copy scrolling away is CORRECT: a newer copy is drawn with
+    every beat. Measuring the NEWEST block instead took the failure count from 3 to 0.
+    I came within one edit of shipping a fix for a bug I had invented.
+
+    ⭐ THE LIVE LANE IS WHERE IT BREAKS. One live reply -- a number line, three worked
+    steps, then the question -- is 406px of content. On a 1280x600 window the board is
+    335px, and 90px sits ABOVE THE FOLD while the words say "look back at the number
+    line". The cause is build ns's own follow-the-pen: the anchor is
+    max(turnTop - 6, natural - clientHeight), so once a turn outgrows the window the
+    second term wins, the END of the turn is pinned to the bottom, and the TOP of the
+    SAME turn scrolls away. ns guaranteed the newest line is never below the fold. It
+    never guaranteed the picture that line points at is still on screen.
+
+    ⚠️⚠️ AND THE FIX JIM CHOSE IS NECESSARY BUT NOT SUFFICIENT -- measured, not guessed.
+    fitTurnToBoard() shrinks the turn's figures until it fits. It fires correctly (the
+    number line went 787px -> 190px wide, recovering 108px) and the turn STILL did not
+    fit, because that turn breaks down as:
+            bubble (five sentences of prose)   190px
+            the number line                    143px
+            four [[step]] rows                 206px
+            TEXT ALONE                         396px   in a 335px board
+    The picture was never the problem. So the floor was RAISED to 340px -- at 190 the
+    fitter left the child squinting at the very thing being pointed to, which is a
+    worse failure than scrolling -- and the real fix, TURN LENGTH, is written down as
+    the next build instead of being quietly hoped away."""
+    print("\nPART 3fy — visible without moving anything (build pu)")
+    src = open("static/board.js", encoding="utf-8").read()
+
+    check("⭐ the board fits the turn before it anchors it",
+          "function fitTurnToBoard" in src
+          and "fitTurnToBoard(turnTop);" in src,
+          "anchoring can only choose WHICH half of an over-tall turn to hide")
+    check("  ...and it runs BEFORE the anchor maths, not after",
+          src.index("fitTurnToBoard(turnTop);") < src.index("const target = Math.max("),
+          "shrinking after the scroll is set leaves the scroll wrong for one frame")
+    check("⭐ the legibility floor is 340, not the 190 that crushed the number line",
+          "FIG_FIT_MIN = 340" in src,
+          "at 190 the fitter recovered 108px and left the figure unreadable -- a "
+          "worse failure than scrolling")
+    check("  the shrink is RESTORED before every measurement (a window can grow back)",
+          "data-pu-maxw" in src and 'svgs[j].style.maxWidth = o' in src,
+          "a one-way shrink would leave a laptop stuck with a phone-sized picture")
+    check("  ...and it never touches a turn that already fits",
+          "if (over <= 1) return;" in src, "do no harm")
+    check("  the fit iterates, because one pass measurably was not enough",
+          "pass < 3" in src,
+          "shrinking reflows everything under it, so the first factor is an estimate")
+    body = src.split("function fitTurnToBoard")[1].split("\nfunction ")[0]
+    check("  it fails open like every referee (a layout guard must never throw)",
+          "try {" in body and "catch (e)" in body, body[-90:])
+
+    # the honesty pins: the numbers that say this is not the whole fix
+    check("⚠️ the measurement that says TEXT is the real bulk stays in the file",
+          "TEXT ALONE" in src and "396px" in src,
+          "a partial fix with no number attached gets mistaken for a whole one")
+    check("  ...and the next build is named in the code, not just in a report",
+          "turn length" in src.lower() and "next build" in src.lower(), "")
+    check("  the browser drive that measured all this is kept",
+          __import__("os").path.exists("tools/puedrive.py"),
+          "a layout claim with no drive behind it is an opinion")
+
+
 def part3fx_the_child_cannot_be_right():
     """PART 3fx (build pt, 2026-08-28) -- THREE THINGS THE FLAG QUEUE CAUGHT AND
     FIFTY-NINE REFEREES DID NOT. Referees SIXTY, SIXTY-ONE, SIXTY-TWO.
@@ -15869,7 +15959,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,246</b>" in page,
+          "<b>7,256</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24354,6 +24444,7 @@ def main():
     part3fv_a_fragment_of_an_unspoken_whole()
     part3fw_the_hole_that_always_appears()
     part3fx_the_child_cannot_be_right()
+    part3fy_visible_without_moving_anything()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

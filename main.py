@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  APP_BUILD -> "2026-08-28pu-fit-the-turn-to-the-board". BUILD pu --
+#               board.js grows fitTurnToBoard(): a turn whose figures make it taller
+#               than the board is shrunk to fit before the anchor runs, so the picture
+#               the words point at stays on screen. Measured, not reasoned. Partial by
+#               its own admission -- see PART 3fy. No Python changed except this stamp.
 #   2026-08-28  APP_BUILD -> "2026-08-28pt-the-child-cannot-be-right". BUILD pt --
 #               three referees from Jim's flag queue (60/61/62). The worst: tap buttons
 #               that do not contain the answer, so every tap is marked wrong. All 59
@@ -12525,7 +12530,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-28pt-the-child-cannot-be-right"
+APP_BUILD = "2026-08-28pu-fit-the-turn-to-the-board"
 
 
 @app.get("/health")

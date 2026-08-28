@@ -2,6 +2,18 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+   2026-08-28  BUILD pu -- SHRINK THE PICTURE UNTIL THE TURN FITS. Jim: "whatever
+               he's saying needs to be visible on the whiteboard without the student
+               moving anything." MEASURED in a real browser (tools/puedrive.py): the
+               SCRIPTED lane is clean at 1280x800 and 1280x600; the LIVE lane is not
+               -- one reply is 406px of content in a 335px board, 90px above the
+               fold, while the words say "look back at the number line". Cause is
+               build ns's own follow-the-pen: once a turn outgrows the window the
+               anchor pins its END, so the top of the SAME turn scrolls away.
+               fitTurnToBoard() now shrinks that turn's figures (aspect kept, floor
+               340px, restored when the window grows back) before the anchor runs.
+               ⚠️ IT DOES NOT CLOSE THIS CASE: text alone is 396px of that turn, so
+               the next build is turn LENGTH. Both numbers are in the code.
      2026-08-27  BUILD os -- THE BOARD READS ONE, TWO, THREE. Jim: "I want ...
                  Cadabra to talk and then puts up the problem as he's explaining
                  it. And it says step one... right next to it, it says step two,
@@ -1074,6 +1086,120 @@ function feedPadEl() {
   return p;
 }
 
+
+// =============================================================================
+// BUILD pu (2026-08-28) -- SHRINK THE PICTURE UNTIL THE TURN FITS THE BOARD.
+// -----------------------------------------------------------------------------
+// Jim: "we're still having Mr. Cadabra talking about a problem that is not
+// immediately visible on the whiteboard, so the student either has to scroll up to
+// what are you talking about or scroll down to where is it at. Whatever he's saying
+// needs to be visible on the whiteboard without the student moving anything."
+//
+// MEASURED FIRST, in a real browser (tools/puedrive.py), and the scripted lane came
+// back CLEAN -- every authored beat's own board work is on screen at 1280x800 and
+// 1280x600. The LIVE lane is where it breaks: one reply (a number line, three worked
+// steps, then the question) is 406px of content, and on a 1280x600 window the board
+// is 335px, so 90px sits ABOVE THE FOLD. The reply says "look back at the number
+// line" while the number line is off the top of the screen.
+//
+// ⚠️ THE CAUSE IS BUILD ns's OWN FIX. Follow-the-pen anchors to
+// max(turnTop - 6, natural - clientHeight); once a turn outgrows the window the
+// second term wins, so the END of the turn is pinned to the bottom and the TOP of
+// the SAME turn scrolls away. ns guaranteed the newest line is never below the fold.
+// It never guaranteed the picture that line refers to is still on screen.
+//
+// 406px will not fit in 335px, so something has to give, and Jim chose the picture.
+// Build pc raised the figure caps so pictures could be BIG (je 660, nw 1100, ox 1500);
+// this is the reciprocal rule it never had -- never so big that the turn stops
+// fitting. A figure's <svg> is sized "width:100%;max-width:Npx;height:auto", so its
+// height follows its width: shrinking max-width shrinks the picture and keeps its
+// aspect exactly.
+//
+// DO NO HARM: the original max-width is stashed on the node and RESTORED before every
+// measurement, so a window that grows back gets its full-size picture back, and a turn
+// that already fits is never touched at all.
+//
+// ⚠️⚠️ NECESSARY BUT NOT SUFFICIENT, AND THE MEASUREMENT SAYS SO PLAINLY. With the
+// fitter running, that same live turn at 1280x600 breaks down as:
+//        bubble (five sentences of prose)   190px
+//        the number line                    143px  ->  35px at the 190 floor
+//        four [[step]] rows                 206px
+//        ------------------------------------------
+//        TEXT ALONE                         396px   in a 335px board
+// The picture was never the problem. Crushing it to nothing recovered 108px and the
+// turn STILL did not fit, because five prose sentences plus four board rows cannot fit
+// a short window whatever the picture does. This fitter is the right guard for a turn
+// a big FIGURE dominates (build pc lets a figure reach 1500px, and one of those really
+// can own the board on its own). It is not the fix for a turn the WORDS dominate.
+// That one is turn length, and it is the next build. Recorded here rather than
+// quietly hoped away.
+// ⚠️ THE FLOOR IS HIGH ON PURPOSE, and the drive is why. At 190 the fitter crushed a
+// number line from 787px wide to 190px -- it recovered 108px of height and left the
+// child squinting at the very thing the tutor was pointing to, which is a worse
+// failure than scrolling. 340px still reads. See the measured composition below.
+var FIG_FIT_MIN = 340;      // legibility floor -- never shrink a figure below this
+
+function fitTurnToBoard(turnTop) {
+  try {
+    if (!lastTurnEl || !lastTurnEl.isConnected) return;
+    var vh = feed.clientHeight;
+    if (!vh) return;
+    // collect this turn's figures: lastTurnEl and every sibling after it
+    var svgs = [], n = lastTurnEl;
+    while (n) {
+      if (n.nodeType === 1 && n.id !== "feedPad") {
+        var here = n.querySelectorAll ? n.querySelectorAll(".mfig svg") : [];
+        for (var i = 0; i < here.length; i++) svgs.push(here[i]);
+      }
+      n = n.nextSibling;
+    }
+    // ALWAYS restore first -- this is what lets the picture grow back
+    var touched = false;
+    for (var j = 0; j < svgs.length; j++) {
+      var o = svgs[j].getAttribute("data-pu-maxw");
+      if (o !== null) { svgs[j].style.maxWidth = o; touched = true; }
+    }
+    if (!svgs.length) return;
+    if (touched) void feed.offsetHeight;            // reflow at full size before measuring
+
+    var pad = feedPadEl();
+    var natural = feed.scrollHeight - pad.offsetHeight;
+    var over = (natural - turnTop) - vh;
+    if (over <= 1) return;                          // it fits: nothing to do
+
+    var figH = 0;
+    for (var k = 0; k < svgs.length; k++) figH += svgs[k].offsetHeight;
+    if (figH <= 0) return;                          // no picture to give: leave it alone
+
+    // ⚠️ ONE PASS IS NOT ENOUGH, and the drive proved it: shrinking a figure reflows
+    // everything under it, so the first factor is only an estimate (the first cut
+    // closed 0 of a measured 90px overage). Iterate until it fits or the floor stops
+    // us -- three passes is plenty and is bounded work.
+    for (var pass = 0; pass < 3 && over > 1; pass++) {
+      figH = 0;
+      for (var k2 = 0; k2 < svgs.length; k2++) figH += svgs[k2].offsetHeight;
+      if (figH <= 0) break;
+      var factor = (figH - over) / figH;
+      if (!(factor > 0)) factor = 0.35;             // take as much as the floor allows
+      var moved = false;
+      for (var m = 0; m < svgs.length; m++) {
+        var el = svgs[m];
+        if (el.getAttribute("data-pu-maxw") === null) {
+          el.setAttribute("data-pu-maxw", el.style.maxWidth || "");
+        }
+        var w = el.getBoundingClientRect().width;
+        if (!w) continue;
+        var want = Math.max(FIG_FIT_MIN, Math.round(w * factor));
+        if (Math.abs(want - w) > 2) { el.style.maxWidth = want + "px"; moved = true; }
+      }
+      if (!moved) break;                            // every figure is at the floor
+      void feed.offsetHeight;                       // reflow, then measure again
+      natural = feed.scrollHeight - pad.offsetHeight;
+      over = (natural - turnTop) - vh;
+    }
+  } catch (e) {}
+}
+
 function scrollFeed() {
   requestAnimationFrame(() => {
     if (!stickBottom) return;
@@ -1083,7 +1209,12 @@ function scrollFeed() {
       // below. (Build ax did this only for turns taller than the window; short turns
       // pinned bottom, and Jim's eyes had to hunt the bottom edge every time.)
       const pad = feedPadEl();
-      const turnTop = lastTurnEl.getBoundingClientRect().top - feed.getBoundingClientRect().top + feed.scrollTop;
+      let turnTop = lastTurnEl.getBoundingClientRect().top - feed.getBoundingClientRect().top + feed.scrollTop;
+      // (pu) BEFORE anchoring, make the turn FIT. Jim's rule: whatever he is saying
+      // must be visible without the student moving anything. Anchoring can only
+      // choose WHICH part of an over-tall turn to hide; this stops it being over-tall.
+      fitTurnToBoard(turnTop);
+      turnTop = lastTurnEl.getBoundingClientRect().top - feed.getBoundingClientRect().top + feed.scrollTop;
       const natural = feed.scrollHeight - pad.offsetHeight;    // real content, without the blank
       const extra = Math.max(0, Math.round(turnTop + feed.clientHeight - natural));
       if (Math.abs(pad.offsetHeight - extra) > 1) pad.style.height = extra + "px";
