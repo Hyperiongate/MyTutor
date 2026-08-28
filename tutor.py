@@ -2,6 +2,17 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD ps -- RULE 61'S SECOND ENFORCED SLICE (the FIFTY-NINTH referee).
+#               Two night-watch falsehoods in one limits-hole lesson: "a hole never
+#               just appears... it comes from dividing by zero" and "cancelling always
+#               leaves a hole". Both false -- (x-1)/(x-1)² cancels and is still an
+#               ASYMPTOTE. ⚠️ RULE 61(c) ALREADY NAMED THIS CASE with the true form
+#               written out, and the model said the false thing anyway: a rule held by
+#               prompt words alone is a wish, so the case was PROMOTED rather than
+#               re-worded. Narrow, sentence-scoped, always satisfiable (one mention of
+#               asymptote/simplified/survives buys silence). ⚠️ The canon sweep fired on
+#               OUR OWN calculus foundation card ("a hole never simply appears") -- see
+#               foundations.py, same build. One shape CUT: 'we always say "f of 6"'.
 #   2026-08-28  BUILD pr -- RULE 44'S THIRD PHANTOM: A FRAGMENT OF AN UNSPOKEN WHOLE.
 #               The night watch's order-of-operations turn drew "4 + 5 x 2", asked
 #               "5 x 2 = ?", and never said the problem. Rule 44's referee was silent
@@ -4553,6 +4564,92 @@ _PL_GROUPING = re.compile(r"parenthes|paren\b|parens|bracket|grouping", re.I)
 _PL_SENTENCE = re.compile(r"[^.!?\n]+[.!?]?")
 
 
+# =============================================================================
+# BUILD ps (2026-08-28) -- RULE 61'S SECOND ENFORCED SLICE: THE HOLE THAT ALWAYS APPEARS.
+# =============================================================================
+# From the 2026-08-28 night watch, a limits-hole lesson, two confirmed findings:
+#     "a hole never just appears out of nowhere. It comes from dividing by zero at
+#      one single input."
+#     "cancelling is legit, but it always leaves a hole at the exact input that made
+#      the factor zero, since the original was undefined there."
+# Both are false. A cancelled factor leaves a hole ONLY when the simplified expression
+# is defined at that x -- in (x-1)/(x-1)² the (x-1) cancels and x = 1 is still a
+# VERTICAL ASYMPTOTE. A child who believes the second sentence mishandles every
+# rational function with a repeated root.
+#
+# ⚠️ THE DAMNING PART: RULE 61(c) ALREADY NAMES THIS EXACT CASE, with the true form
+# written out -- "a cancelled zero is a hole only when the fully SIMPLIFIED expression
+# is defined at that x". The prompt said it, in the rule, in the list of twelve, and
+# the model said the false thing anyway. That is the promotion audit's finding in one
+# line: a rule held by prompt words alone is a wish. Rule 61 already had ONE enforced
+# slice (overgeneralized_precedence_conflict, the 37th referee, from the 2026-08-20
+# watch). This is its second.
+#
+# ⚠️ AND THE CANON SWEEP POINTED AT OUR OWN CARD. Sweeping "never" near "hole" over all
+# 2,829 authored cards returned exactly ONE hit -- the calculus foundation card for
+# "removable discontinuity", whose opener reads "a hole never simply appears". That
+# card asserts no false mechanism, but it hands the live model a loaded opener, and the
+# model completed it with one. The card now carries its condition (build ps also edits
+# foundations.py), which takes the sweep to ZERO.
+#
+# NARROW, ON PURPOSE -- three conditions, ALL required, modelled on the 37th referee:
+#   (a) ONE sentence of the SPOKEN prose names a hole (or a removable discontinuity)
+#       or a cancelling, AND
+#   (b) that same sentence carries a universality marker (always / never / every time /
+#       whenever / no matter what / only ever). "Here the cancelled factor leaves a
+#       hole" is teaching about THIS problem and is left alone;
+#   (c) the reply mentions NO escape term ANYWHERE -- asymptote, simplified, survives.
+#       ONE mention anywhere buys silence, deliberately generous: a missed
+#       overgeneralization costs one sentence, a false fire costs a whole model call.
+# The nudge dictates rule 61(c)'s true form VERBATIM, so this referee is ALWAYS
+# SATISFIABLE -- the property build iz's phantom lacked.
+#
+# ⚠️ ONE SHAPE WAS CUT. The same watch flagged 'we always say "f of 6," never "f
+# bracket 6"' as a rule 61 universal (true: "f evaluated at 6" is also standard). The
+# pattern `we always say ... never` sweeps clean on the canon, but it was left OUT: the
+# sentence it condemns is decent pedagogy -- a child SHOULD not say "f bracket 6" --
+# and the falsehood lives only in the word "always". Spending a referee's satisfiability
+# budget on that is a poor trade. It stays with the live critic.
+_FU_TOPIC = re.compile(
+    r"(?:removable discontinuit\w*|\bhole\b|cancel\w*)", re.I)
+_FU_UNIVERSAL = re.compile(
+    r"\b(?:always|never|every time|all the time|whenever|no matter what|"
+    r"only ever|in every case|in all cases)\b", re.I)
+_FU_ESCAPE = re.compile(r"asymptot|simplif|surviv", re.I)
+_FU_SENTENCE = re.compile(r"[^.!?\n]+[.!?]?")
+
+
+def false_universal_conflict(reply: str):
+    """Return a description of a hole/cancelling law spoken as unconditional, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        # (c) one mention of the condition ANYWHERE buys silence
+        if _FU_ESCAPE.search(prose):
+            return ""
+        for sent in _FU_SENTENCE.findall(prose):
+            if not _FU_TOPIC.search(sent):
+                continue
+            if not _FU_UNIVERSAL.search(sent):
+                continue
+            said = " ".join(sent.split())[:90]
+            return ('you state a law about holes that is FALSE as written -- "{s}". '
+                    "A cancelled factor leaves a hole ONLY when the fully simplified "
+                    "expression is DEFINED at that x; when the factor survives in the "
+                    "bottom -- (x-1) over (x-1) squared -- that x is a vertical "
+                    "ASYMPTOTE, not a hole. Rule 61: a generalization carries its "
+                    "condition. Say the whole true sentence: \"a cancelled zero is a "
+                    "hole only when the simplified expression is defined there; when "
+                    "the factor survives in the bottom, it is an asymptote.\"").format(
+                        s=said)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[falseuniversal] crashed (fail open): {exc}")
+        _event("referee_crash", "falseuniversal", str(exc))
+        return ""
+
+
 def overgeneralized_precedence_conflict(reply: str):
     """Return a description of an order-of-operations rule spoken as an unconditional
     law, or "". Never raises: any unexpected input yields "" (fail open)."""
@@ -7561,6 +7658,14 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if preclaw:
             _event("referee_fire", "precedencelaw", preclaw)
             return preclaw
+        # build ps: FIFTY-NINTH -- rule 61's SECOND enforced slice, from the
+        # 2026-08-28 night watch. A hole/cancelling law spoken unconditionally.
+        # The rule already NAMED this case in prompt words and the model said the
+        # false thing anyway.
+        holelaw = false_universal_conflict(reply)
+        if holelaw:
+            _event("referee_fire", "falseuniversal", holelaw)
+            return holelaw
         # builds id/ie/if: referees TWENTY-FIVE through TWENTY-EIGHT -- the
         # promotion batch (Tier A of the audit): four rules that were words alone
         # until the night Jim asked why the moles kept coming. All reply-only.

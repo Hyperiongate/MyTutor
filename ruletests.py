@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD ps -- PART 3fw: the hole that always appears. Rule 61's SECOND
+#               enforced slice (referee 59). The rule already named this exact case in
+#               prompt words and the live lane broke it anyway -- promoted, not
+#               re-worded. The canon sweep fired on our own calculus foundation card,
+#               which is fixed in the same build (sweep 1 -> 0). The referee tile is
+#               now PINNED to a count taken from the code, so 58 -> 59 can never drift
+#               silently again. One shape CUT with its reason.
 #   2026-08-28  BUILD pr -- PART 3fv: a fragment of an unspoken whole. All FIVE of the
 #               night watch's remaining referee-backed findings were run through their
 #               own referees first: unlike pq, ALL FIVE WERE SILENT -- holes, not
@@ -13173,6 +13180,139 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fw_the_hole_that_always_appears():
+    """PART 3fw (build ps, 2026-08-28) -- RULE 61'S SECOND ENFORCED SLICE.
+
+    Two confirmed findings from the 2026-08-28 night watch, one limits-hole lesson:
+        "a hole never just appears out of nowhere. It comes from dividing by zero at
+         one single input."
+        "cancelling is legit, but it always leaves a hole at the exact input that made
+         the factor zero, since the original was undefined there."
+    Both false. A cancelled factor leaves a hole ONLY when the simplified expression is
+    defined at that x: in (x-1)/(x-1)² the (x-1) cancels and x = 1 is still a VERTICAL
+    ASYMPTOTE. A child who believes the second sentence mishandles every rational
+    function with a repeated root.
+
+    ⚠️ RULE 61(c) ALREADY NAMED THIS EXACT CASE, with the true form spelled out --
+    "a cancelled zero is a hole only when the fully SIMPLIFIED expression is defined at
+    that x". It was in the prompt, in the rule, in the list of twelve worked examples,
+    and the model said the false thing anyway. That is the promotion audit's finding in
+    one sentence: A RULE HELD BY PROMPT WORDS ALONE IS A WISH. So this build does not
+    add more words to rule 61 -- words already failed. It promotes the case.
+
+    ⚠️⚠️ AND THE CANON SWEEP POINTED AT OUR OWN CARD. Sweeping "never" near "hole" over
+    2,829 authored cards returned exactly ONE hit -- the calculus foundation card for
+    "removable discontinuity", opening "a hole never simply appears". That card asserts
+    no false mechanism, so it is not itself a lie; but it hands a loaded opener to the
+    live model, and the model completed it with one. Authored cards are read VERBATIM to
+    every child with no model and no referee in the way, so the standard there is higher,
+    not lower. The card now carries its condition -- rule 61(c)'s true form, word for
+    word -- and the sweep goes 1 -> 0. THE REFEREE FIRED ON OUR OWN SHIPPED TEXT, which
+    is the sweep doing exactly what it exists to do.
+
+    ⚠️ ONE SHAPE WAS CUT. The same watch flagged 'we always say "f of 6," never "f
+    bracket 6"' as a rule 61 universal, and it is one ("f evaluated at 6" is also
+    standard). The pattern sweeps clean on the canon -- and it was still left out,
+    because the sentence it condemns is decent pedagogy: a child SHOULD not say "f
+    bracket 6". The falsehood lives only in the word "always", and a referee that
+    regenerates a whole reply over that is a poor trade against build iz's phantom.
+
+    THE FIFTY-NINTH REFEREE. Modelled on the 37th (overgeneralized_precedence_conflict,
+    rule 61's FIRST slice, from the 2026-08-20 watch): narrow, sentence-scoped, both
+    directions tested, canon swept, fail open, and ALWAYS SATISFIABLE -- one mention of
+    "asymptote", "simplified" or "survives" anywhere in the reply buys silence, and the
+    nudge dictates the true sentence verbatim so the fix is always reachable."""
+    print("\nPART 3fw — the hole that always appears (build ps)")
+    import tutor as _t
+    import foundations as _f
+    import lessonscripts as _ls
+
+    LIVE = [
+        ("Right — cancelling is legit, but it always leaves a hole at the exact input "
+         "that made the factor zero, since the original was undefined there."),
+        ("Good question — a hole never just appears out of nowhere. It comes from "
+         "dividing by zero at one single input."),
+    ]
+    missed = [x for x in LIVE if not _t.false_universal_conflict(x)]
+    check("⭐ both 2026-08-28 limits-hole falsehoods are now caught", not missed, missed)
+    check("  ...and the nudge dictates rule 61(c)'s true sentence verbatim",
+          "only when the simplified expression is defined there"
+          in (_t.false_universal_conflict(LIVE[0]) or ""),
+          "a referee whose fix is not reachable burns three attempts and ships anyway "
+          "-- build iz's phantom")
+
+    QUIET = [
+        # the true form itself
+        "A cancelled zero is a hole only when the simplified expression is defined at "
+        "that x; when the factor survives in the bottom, it is an asymptote.",
+        # teaching about THIS problem carries no universal
+        "Here the x minus two cancels, so x equals two is a hole in this curve.",
+        # a TRUE absolute on another topic (rule 61d: do not overcorrect into mush)
+        "Line up the decimal points every single time.",
+        # a board tag is not a spoken law
+        '[[write text="always a hole when cancelled"]]\nLet us look at the graph.',
+    ]
+    noisy = [q for q in QUIET if _t.false_universal_conflict(q)]
+    check("  four honest replies stay silent (both directions tested)", not noisy, noisy)
+
+    # ---- THE CARD. Fired before, silent after; the sweep justified the edit. ----
+    OLD_OPENER = ("A removable discontinuity is the proper name for a hole in a graph, "
+                  "and the part that matters is where the hole came from: a hole never "
+                  "simply appears.")
+    check("⭐ the card AS IT SHIPPED would fire -- the sweep caught our own text",
+          bool(_t.false_universal_conflict(OLD_OPENER)),
+          "if this ever goes silent the referee has been loosened, not the card fixed")
+
+    card = ""
+    for c, scr in _f.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            if sc.get("term") == "removable discontinuity":
+                card = sc.get("say") or ""
+    check("  the calculus card no longer opens with the loaded universal",
+          card and "a hole never simply appears" not in card, "")
+    # asserted by SUBSTANCE, not by phrasing: the card is length-capped (130 words)
+    # and was re-worded twice to fit, so pinning a sentence verbatim just breaks on
+    # the next trim. What must never go missing is the condition and the alternative.
+    check("⭐ ...and it now names the condition AND the asymptote case",
+          "only because" in card and "simplified" in card
+          and "survives" in card and "asymptote" in card,
+          "rule 61(b): the condition costs about six words and is the part that makes "
+          "the sentence true")
+    check("  ...and the card still fits the spoken cap it is held to",
+          25 <= len(card.split()) <= 130, len(card.split()))
+    check("  ...without hedging into mush (rule 61d)",
+          "sometimes" not in card.lower() and "it may be that" not in card.lower(),
+          "hedging a true sentence is its own failure")
+
+    # ---- the whole canon, clean ----
+    cards = []
+    for c, scr in _f.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            cards.append((f"foundation:{sc.get('term')}", sc.get("say") or ""))
+    for l in _ls.LESSONS:
+        for i, (t, b) in enumerate(l.get("teach") or []):
+            cards.append((f'{l["id"]}[t{i}]', t or ""))
+        for i, p in enumerate(l.get("pairs") or []):
+            cards.append((f'{l["id"]}[w{i}]', (p.get("worked") or [""])[0]))
+    hits = [i for i, t in cards if _t.false_universal_conflict(t)]
+    check("⭐ ZERO hits across the whole authored canon (%d cards)" % len(cards),
+          not hits, hits[:5])
+
+    # ---- the seat count, pinned so the tile cannot go stale ----
+    import inspect as _insp
+    import re as _re
+    n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
+    check("⭐ fifty-nine referees now, counted from the code not from memory",
+          n_ref == 59, n_ref)
+    page = open("static/methodology.html", encoding="utf-8").read()
+    check("  ...and methodology.html's referee tile MATCHES that count",
+          "<b>%d</b>" % n_ref in page,
+          "the tile is hand-maintained and drifted silently before this pin; pq's "
+          "lesson about the reviewer's hand-kept rule list applies to tiles too")
+
+
 def part3fv_a_fragment_of_an_unspoken_whole():
     """PART 3fv (build pr, 2026-08-28) -- RULE 44'S THIRD PHANTOM.
 
@@ -15562,7 +15702,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,219</b>" in page,
+          "<b>7,230</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24045,6 +24185,7 @@ def main():
     part3ft_the_curriculum_is_read()
     part3fu_the_eyes_report_what_they_saw()
     part3fv_a_fragment_of_an_unspoken_whole()
+    part3fw_the_hole_that_always_appears()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

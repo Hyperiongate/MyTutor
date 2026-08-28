@@ -2,6 +2,19 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD ps -- THE REMOVABLE-DISCONTINUITY CARD CARRIES ITS CONDITION.
+#               The 2026-08-28 night watch caught the LIVE lane saying "a hole never
+#               just appears out of nowhere -- it comes from dividing by zero", which
+#               is false. Sweeping the canon for the shape found exactly one hit: THIS
+#               CARD, opening "a hole never simply appears". The card asserted no false
+#               mechanism, so it was not itself a lie -- but it handed the model a
+#               loaded opener and the model completed it with one. Authored cards are
+#               read VERBATIM to every child with no model and no referee in the way,
+#               so the standard here is higher, not lower. The opener is gone and the
+#               card now closes with rule 61(c)'s true form: a cancelled factor leaves
+#               a hole ONLY when the simplified expression is defined there; if the
+#               factor survives in the bottom it is a vertical asymptote. Not hedged
+#               (rule 61d) -- conditioned. ONE NEW SPOKEN LINE = one TTS cache key.
 #   2026-08-25  BUILD nj -- THE DOMAIN SCRIPT READS ITS RULE. The new func-rule
 #               referee's canonical sweep caught algebra1/domain writing f(x)=1/x
 #               and never reading it -- a real rule-44 gap in authored content, the
@@ -2187,14 +2200,14 @@ FOUNDATIONS = {
             "heading somewhere.",
          "board": ['[[write text="what is it approaching, as x gets close?"]]']},
         {"term": "removable discontinuity", "say":
-            "A **removable discontinuity** is the proper name for a hole in a graph, and the part that "
-            "matters is where the hole came from: a hole never simply appears. Take f of x "
-            "equals x squared minus four, all over x minus two. The top factors into x minus two times "
-            "x plus two, so the x minus two cancels and leaves x plus two, everywhere except at x equals "
-            "two, where the original fraction divided by zero. Division by zero is undefined, so that "
-            "one input has no output: the graph is the line y equals x plus two with one point punched "
-            "out of it. Cancelling did not repair x equals two, and that is why the limit there is four "
-            "while f of two does not exist.",
+            "A **removable discontinuity** is the proper name for a hole in a graph. Take f of x "
+            "equals x squared minus four, over x minus "
+            "two. The top factors into x minus two times x plus two, so that factor cancels and leaves "
+            "x plus two everywhere except at x equals two, where the original divided by zero. "
+            "That input has no output: the graph is the line y equals x plus two with one point "
+            "punched out. Cancelling did not repair x equals two, and that is why the limit "
+            "there is four while f of two does not exist. It is a hole only because the simplified "
+            "line is defined at two; a factor that survives in the bottom makes an asymptote instead.",
          "board": ['[[write text="f(x) = (x^2 - 4)/(x - 2)"]]',
                    '[[write text="= (x-2)(x+2)/(x-2) = x + 2,   x \u2260 2"]]',
                    '[[graph lines="y=x+2" hole="2" range="-1..5" caption="the same line, with x = 2 removed -- the curve runs right up to the gap from both sides"]]']},

@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  APP_BUILD -> "2026-08-28ps-the-hole-that-always-appears". BUILD ps --
+#               rule 61's second enforced slice (referee 59): a hole/cancelling law
+#               spoken unconditionally. The canon sweep fired on our own calculus
+#               foundation card, which is corrected in the same build. ONE authored
+#               spoken line changed -- one TTS cache key needs rendering.
 #   2026-08-28  APP_BUILD -> "2026-08-28pr-a-fragment-of-an-unspoken-whole". BUILD pr
 #               -- rule 44 gains an eye for a pending question that is only a FRAGMENT
 #               of a board problem nobody read aloud. Measured first: all five of the
@@ -12515,7 +12520,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-28pr-a-fragment-of-an-unspoken-whole"
+APP_BUILD = "2026-08-28ps-the-hole-that-always-appears"
 
 
 @app.get("/health")
