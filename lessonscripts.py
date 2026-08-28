@@ -2,6 +2,22 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD ph -- THE LAST EIGHT. THE CURRICULUM IS WHOLE. Basic was short
+#               seven lessons and Pre-Algebra one; all eight are written, so every one
+#               of the TEN courses is now nine units of four -- 360 authored lessons,
+#               and no topic anywhere drops a child onto the live lane for want of a
+#               script. New: times by ten and a hundred, factor pairs, simplest form,
+#               taking away fractions with different bottoms, tenths and hundredths
+#               together, what percent is it, percent off a price, and the biggest
+#               factor below the number.
+#               ⭐ TWO THINGS THE VALIDATOR FOUND THAT I WOULD NOT HAVE:
+#               (1) "fus" (unlike-bottom take away) had a pool of SIX -- below the
+#               seven-problem bank floor before a single ask was set aside. Letting
+#               the number taken away vary is the same lesson and gives 24.
+#               (2) 50 PERCENT OFF IS DEGENERATE. At half price the saving and the
+#               price you pay are the SAME number, so percent-off's whole distractor
+#               -- answering the saving instead of the price -- collapses into the
+#               right answer. It failed on six problems and half price left the op.
 #   2026-08-28  BUILD pg -- ENTRY FILLS ITS UNITS. Jim: "go and create the authored
 #               lessons as well." Entry-Level Math had 20 lessons where nine units of
 #               four is 36, so SIXTEEN topics dropped a five-year-old out of the
@@ -1507,6 +1523,23 @@ MIN_PROBLEMS = 4          # even a perfect child does at least 4 (DI "firming")
 MAX_PROBLEMS = 10         # past 10 without a streak, stop -- see drop/end rules
 DROP_AFTER_INTERVENTIONS = 2   # 2nd AI intervention on a skill -> easier representation
 LEVELS = ("abstract", "pictorial", "concrete")   # drop direction, left to right
+def _gcd(a, b):
+    while b:
+        a, b = b, a % b
+    return a
+
+
+def _spf(n):
+    """(ph) The smallest factor of n above 1 -- n itself when n is prime. Used by
+    bfac, whose answer is n divided by this."""
+    d = 2
+    while d * d <= n:
+        if n % d == 0:
+            return d
+        d += 1
+    return n
+
+
 BEAT_WORD_CAP = 80        # rule 19c / build jd: one beat per turn, spoken
 # (pe) ...and one SENTENCE inside that beat a listener can hold. 34 is where the
 # 336 authored lessons actually sat: 22 sentences were over it, every one of them
@@ -1951,6 +1984,302 @@ _MORE_LESSONS = [
     # seconds per sentence -- the worst possible place for the app to be slow.
     # House rules followed exactly: three teach beats (picture, worked, trap), two
     # worked pairs, a ten-problem bank, every sentence short enough to hear.
+    # ============ (ph, 2026-08-28) THE LAST EIGHT -- THE COURSE IS WHOLE ========
+    # Basic was short seven and Pre-Algebra one. With these, every one of the ten
+    # courses is nine units of four, and there is no topic anywhere in the
+    # curriculum that drops a child onto the live lane for want of a script.
+    {
+        "id": "basic-u2-times-by-ten", "course": "basic", "unit": 2,
+        "topic": "Times by ten and a hundred", "op": "mtz", "max_value": 9900,
+        "levels": ("abstract",), "symbols": ("times", "place"),
+        "advance_line": "Three in a row — you've got it! Times by ten moves every digit up one place.",
+        "teach": [
+            ("Timesing by ten is not a times table fact to learn. It is a move. "
+             "Every digit shifts up one place, and a zero drops in behind to hold "
+             "the ones column open.",
+             '[[goal text="Times by ten and a hundred"]]'
+             '[[step eq="7 × 10 = 70"]]'),
+            ("Watch me. 46 times 10. The 4 tens become 4 hundreds and the 6 ones "
+             "become 6 tens. Nothing is left in the ones, so a zero goes there. "
+             "460. Timesing by a hundred moves everything up two places instead of "
+             "one: 46 times 100 is 4,600.",
+             '[[step eq="46 × 10 = 460"]]'
+             '[[step eq="46 × 100 = 4600"]]'),
+            ("Here is the trap. Count your zeros against the number you timesed "
+             "by. Ten has one zero, so one zero is added. A hundred has two zeros, "
+             "so two are added. An extra zero leaves the answer ten times too big.",
+             '[[step eq="46 × 100 = 4600 ✓ two zeros"]]'
+             '[[step eq="46000 ✗ three zeros — that is times a thousand"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 38 times 10. Each digit "
+                        "moves up one place and a zero fills the ones. 380.",
+                        '[[step eq="38 × 10 = 380"]]'),
+             "ask": {"a": 27, "b": 10, "op": "mtz"}},
+            {"worked": ("One more together. 53 times 100. Two zeros this time, so "
+                        "5,300.",
+                        '[[step eq="53 × 100 = 5300"]]'),
+             "ask": {"a": 64, "b": 100, "op": "mtz"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 2, "b": 10, "op": "mtz"}, {"a": 23, "b": 10, "op": "mtz"}, {"a": 42, "b": 10, "op": "mtz"}, {"a": 62, "b": 10, "op": "mtz"}, {"a": 82, "b": 10, "op": "mtz"}, {"a": 12, "b": 100, "op": "mtz"}, {"a": 34, "b": 100, "op": "mtz"}, {"a": 56, "b": 100, "op": "mtz"}, {"a": 77, "b": 100, "op": "mtz"}, {"a": 99, "b": 100, "op": "mtz"}],
+    },
+    {
+        "id": "basic-u4-factor-pairs", "course": "basic", "unit": 4,
+        "topic": "Factor pairs", "op": "fpr", "max_value": 100,
+        "levels": ("abstract",), "symbols": ("factor", "pair"),
+        "advance_line": "Three in a row — you've got it! Factors come in pairs.",
+        "teach": [
+            ("Factors never arrive alone. Every time you find one factor of a "
+             "number, you have found a second one for free, because the two of "
+             "them times each other make the number.",
+             '[[goal text="Factor pairs"]]'
+             '[[step eq="18 = 2 × 9"]]'),
+            ("Watch me. 18 is 2 times what? Count up in twos, or just divide: 18 "
+             "shared into 2 groups is 9. So 2 and 9 are a factor pair of 18, and "
+             "finding one handed me the other.",
+             '[[step eq="18 ÷ 2 = 9"]]'
+             '[[step eq="2 and 9 are a pair"]]'),
+            ("Here is the trap. The partner is what you DIVIDE by to get there, "
+             "not what you take away. For 18 and 2 the partner is 9, not 16. "
+             "Check yourself every time: your answer times the factor should come "
+             "straight back to the number you started with.",
+             '[[step eq="2 × 9 = 18 ✓"]]'
+             '[[step eq="16 ✗ that is 18 − 2, and 2 × 16 is nowhere near 18"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 30 is 5 times what? 30 "
+                        "shared into 5 groups is 6. So 5 and 6 are a pair.",
+                        '[[step eq="30 = 5 × 6"]]'),
+             "ask": {"a": 40, "b": 8, "op": "fpr"}},
+            {"worked": ("One more together. 63 is 7 times what? 63 shared into 7 "
+                        "is 9, so 7 and 9 are a pair.",
+                        '[[step eq="63 = 7 × 9"]]'),
+             "ask": {"a": 54, "b": 6, "op": "fpr"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 12, "b": 2, "op": "fpr"}, {"a": 27, "b": 3, "op": "fpr"}, {"a": 38, "b": 19, "op": "fpr"}, {"a": 48, "b": 12, "op": "fpr"}, {"a": 58, "b": 29, "op": "fpr"}, {"a": 68, "b": 2, "op": "fpr"}, {"a": 76, "b": 19, "op": "fpr"}, {"a": 84, "b": 28, "op": "fpr"}, {"a": 92, "b": 46, "op": "fpr"}, {"a": 100, "b": 50, "op": "fpr"}],
+    },
+    {
+        "id": "basic-u5-simplest-form", "course": "basic", "unit": 5,
+        "topic": "Simplest form", "op": "simp", "max_value": 24,
+        "levels": ("abstract",), "symbols": ("simplest", "share"),
+        "advance_line": "Three in a row — you've got it! You can put a fraction in its simplest form.",
+        "teach": [
+            ("You know that different fractions can name the same amount. Of all "
+             "the names for one amount, one is the shortest. That one is called "
+             "its simplest form, and it is the one we write.",
+             '[[goal text="Simplest form"]]'
+             '[[step eq="4/8 = 2/4 = 1/2 — three names, one amount"]]'),
+            ("Watch me. 9 out of 12. Both numbers share 3, so divide both by 3: 9 "
+             "becomes 3 and 12 becomes 4. 9 out of 12 is 3 out of 4. Nothing "
+             "divides 3 and 4 together, so that is as short as it goes.",
+             '[[step eq="9/12 ÷ 3 → 3/4"]]'),
+            ("Here is the trap. Whatever you do to the top, do to the bottom. "
+             "Halving only the top turns the fraction into a different amount "
+             "entirely. Simplest form renames the fraction. It never changes how "
+             "much it is worth.",
+             '[[step eq="9/12 = 3/4 ✓ both divided by 3"]]'
+             '[[step eq="only the top divided ✗ that is a different fraction"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 8 out of 12. Both share "
+                        "4, so divide both by 4. That is 2 out of 3.",
+                        '[[step eq="8/12 → 2/3"]]'),
+             "ask": {"a": 3, "b": 9, "op": "simp"}},
+            {"worked": ("One more together. 10 out of 16. Both share 2, so that is "
+                        "5 out of 8.",
+                        '[[step eq="10/16 → 5/8"]]'),
+             "ask": {"a": 14, "b": 21, "op": "simp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 2, "b": 4, "op": "simp"}, {"a": 5, "b": 10, "op": "simp"}, {"a": 2, "b": 14, "op": "simp"}, {"a": 10, "b": 15, "op": "simp"}, {"a": 4, "b": 18, "op": "simp"}, {"a": 4, "b": 20, "op": "simp"}, {"a": 6, "b": 21, "op": "simp"}, {"a": 10, "b": 22, "op": "simp"}, {"a": 6, "b": 24, "op": "simp"}, {"a": 22, "b": 24, "op": "simp"}],
+    },
+    {
+        "id": "basic-u6-take-away-unlike-bottoms", "course": "basic", "unit": 6,
+        "topic": "Taking away fractions with different bottoms", "op": "fus",
+        "max_value": 12,
+        "levels": ("abstract",), "symbols": ("bottom", "take away"),
+        "advance_line": "Three in a row — you've got it! Match the bottoms, then take away.",
+        "teach": [
+            ("Adding fractions with different bottoms meant renaming one of them "
+             "first. Taking away works the very same way. You cannot take eighths "
+             "from a half until the half is written in eighths.",
+             '[[goal text="Different bottoms, take away"]]'
+             '[[step eq="1/2 − 1/8 = ?"]]'),
+            ("Watch me. One half take away one eighth. A half is 4 eighths, "
+             "because 8 divided by 2 is 4. Now both are eighths: 4 eighths take "
+             "away 1 eighth leaves 3 eighths.",
+             '[[step eq="1/2 = 4/8"]]'
+             '[[step eq="4/8 − 1/8 = 3/8"]]'),
+            ("Here is the trap. Once both bottoms MATCH, the bottom stops "
+             "changing: eighths take away eighths leaves eighths, and only the top "
+             "numbers do the taking away. That holds only after they match, which "
+             "is why renaming comes first.",
+             '[[step eq="4/8 − 1/8 = 3/8 ✓"]]'
+             '[[step eq="3/7 ✗ the bottoms were taken away from as well"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. One half take away 2 "
+                        "sixths. A half is 3 sixths, and 3 take away 2 leaves 1 "
+                        "sixth.",
+                        '[[step eq="3/6 − 2/6 = 1/6"]]'),
+             "ask": {"a": 1, "b": 2, "c": 6, "op": "fus"}},
+            {"worked": ("One more together. One fourth take away 1 eighth. A "
+                        "fourth is 2 eighths, so that leaves 1 eighth.",
+                        '[[step eq="2/8 − 1/8 = 1/8"]]'),
+             "ask": {"a": 3, "b": 2, "c": 8, "op": "fus"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 1, "b": 2, "c": 4, "op": "fus"}, {"a": 1, "b": 3, "c": 6, "op": "fus"}, {"a": 2, "b": 2, "c": 8, "op": "fus"}, {"a": 1, "b": 2, "c": 10, "op": "fus"}, {"a": 3, "b": 2, "c": 10, "op": "fus"}, {"a": 1, "b": 2, "c": 12, "op": "fus"}, {"a": 3, "b": 2, "c": 12, "op": "fus"}, {"a": 1, "b": 3, "c": 12, "op": "fus"}, {"a": 3, "b": 3, "c": 12, "op": "fus"}, {"a": 1, "b": 6, "c": 12, "op": "fus"}],
+    },
+    {
+        "id": "basic-u7-tenths-and-hundredths", "course": "basic", "unit": 7,
+        "topic": "Tenths and hundredths together", "op": "t2h", "max_value": 99,
+        "levels": ("abstract",), "symbols": ("tenths", "hundredths"),
+        "advance_line": "Three in a row — you've got it! A tenth is ten hundredths.",
+        "teach": [
+            ("You have met tenths, and you have met hundredths. Today they meet "
+             "each other. The rule that joins them is small and it is the whole "
+             "lesson: one tenth is ten hundredths.",
+             '[[goal text="Tenths and hundredths"]]'
+             '[[step eq="1 tenth = 10 hundredths"]]'),
+            ("Watch me. 4 tenths plus 3 hundredths. You cannot add them as they "
+             "stand, so change the tenths first: 4 tenths is 40 hundredths. Now "
+             "both are hundredths. 40 plus 3 is 43 hundredths.",
+             '[[step eq="4 tenths = 40 hundredths"]]'
+             '[[step eq="40 + 3 = 43 hundredths"]]'),
+            ("Here is the trap, and it is the same one place value always sets. Do "
+             "not add the digits as though they were the same size. 4 tenths plus "
+             "3 hundredths is not 7 of anything. A tenth is ten times the bigger "
+             "coin.",
+             '[[step eq="4 tenths + 3 hundredths = 43 hundredths ✓"]]'
+             '[[step eq="7 ✗ the two digits added as if they matched"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 2 tenths plus 5 "
+                        "hundredths. 2 tenths is 20 hundredths, and 20 plus 5 is "
+                        "25 hundredths.",
+                        '[[step eq="20 + 5 = 25 hundredths"]]'),
+             "ask": {"a": 3, "b": 4, "op": "t2h"}},
+            {"worked": ("One more together. 7 tenths plus 6 hundredths is 70 plus "
+                        "6, which is 76 hundredths.",
+                        '[[step eq="70 + 6 = 76 hundredths"]]'),
+             "ask": {"a": 8, "b": 2, "op": "t2h"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 1, "b": 1, "op": "t2h"}, {"a": 2, "b": 1, "op": "t2h"}, {"a": 3, "b": 1, "op": "t2h"}, {"a": 4, "b": 1, "op": "t2h"}, {"a": 5, "b": 1, "op": "t2h"}, {"a": 5, "b": 9, "op": "t2h"}, {"a": 6, "b": 9, "op": "t2h"}, {"a": 7, "b": 9, "op": "t2h"}, {"a": 8, "b": 9, "op": "t2h"}, {"a": 9, "b": 9, "op": "t2h"}],
+    },
+    {
+        "id": "basic-u8-what-percent-is-it", "course": "basic", "unit": 8,
+        "topic": "What percent is it", "op": "wpc", "max_value": 100,
+        "levels": ("abstract",), "symbols": ("percent", "out of"),
+        "advance_line": "Three in a row — you've got it! You can say any part as a percent.",
+        "teach": [
+            ("Percent means out of a hundred. So turning a part into a percent is "
+             "one job only: rewrite it as something out of a hundred, and the top "
+             "number is your answer.",
+             '[[goal text="What percent is it"]]'
+             '[[step eq="percent = out of 100"]]'),
+            ("Watch me. 3 out of 4 as a percent. Ask what turns 4 into 100: "
+             "timesing by 25. Do the same to the top: 3 times 25 is 75. So 3 out "
+             "of 4 is 75 percent.",
+             '[[step eq="4 × 25 = 100"]]'
+             '[[step eq="3 × 25 = 75, so 75 percent"]]'),
+            ("Here is the trap. Do not read the top number as the percent. 3 out "
+             "of 4 is not 3 percent — 3 percent would be almost nothing, and 3 out "
+             "of 4 is most of it. Change the bottom to a hundred first, every "
+             "time.",
+             '[[step eq="3 out of 4 = 75 percent ✓"]]'
+             '[[step eq="3 percent ✗ the top copied without changing the bottom"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 2 out of 5. Five times 20 "
+                        "is a hundred, so 2 times 20 is 40. That is 40 percent.",
+                        '[[step eq="2/5 → 40 percent"]]'),
+             "ask": {"a": 7, "b": 10, "op": "wpc"}},
+            {"worked": ("One more together. 13 out of 20. Twenty times 5 is a "
+                        "hundred, so 13 times 5 is 65 percent.",
+                        '[[step eq="13/20 → 65 percent"]]'),
+             "ask": {"a": 9, "b": 25, "op": "wpc"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 1, "b": 100, "op": "wpc"}, {"a": 12, "b": 100, "op": "wpc"}, {"a": 6, "b": 25, "op": "wpc"}, {"a": 34, "b": 100, "op": "wpc"}, {"a": 9, "b": 20, "op": "wpc"}, {"a": 55, "b": 100, "op": "wpc"}, {"a": 33, "b": 50, "op": "wpc"}, {"a": 76, "b": 100, "op": "wpc"}, {"a": 22, "b": 25, "op": "wpc"}, {"a": 99, "b": 100, "op": "wpc"}],
+    },
+    {
+        "id": "basic-u8-percent-off", "course": "basic", "unit": 8,
+        "topic": "Percent off a price", "op": "poff", "max_value": 200,
+        "levels": ("abstract",), "symbols": ("percent off", "pay"),
+        "advance_line": "Three in a row — you've got it! Work out the discount, then take it away.",
+        "teach": [
+            ("A sign in a shop window says 25 percent off. That is a percent of "
+             "the price, and it is the part you do NOT pay. Two steps: find the "
+             "discount, then take it away from the price.",
+             '[[goal text="Percent off a price"]]'
+             '[[step eq="price − discount = what you pay"]]'),
+            ("Watch me. A coat costs 60 dollars with 25 percent off. First the "
+             "discount: 25 percent of 60 is 15. Then take it away: 60 take away 15 "
+             "is 45. You pay 45 dollars.",
+             '[[step eq="25% of 60 = 15"]]'
+             '[[step eq="60 − 15 = 45"]]'),
+            ("Here is the trap, and shops rely on it. The discount is not the "
+             "answer. 15 is what you SAVE. The question asks what you pay, so the "
+             "second step is the one that matters, and your answer is always "
+             "smaller than the price but bigger than the discount.",
+             '[[step eq="you pay 45 ✓"]]'
+             '[[step eq="15 ✗ that is the saving, not the price"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 40 dollars with 10 "
+                        "percent off. The discount is 4 dollars, so you pay 36.",
+                        '[[step eq="40 − 4 = 36"]]'),
+             "ask": {"a": 80, "b": 25, "op": "poff"}},
+            {"worked": ("One more together. 50 dollars with 20 percent off. The "
+                        "discount is 10, so you pay 40.",
+                        '[[step eq="50 − 10 = 40"]]'),
+             "ask": {"a": 140, "b": 25, "op": "poff"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 10, "b": 20, "op": "poff"}, {"a": 30, "b": 20, "op": "poff"}, {"a": 55, "b": 20, "op": "poff"}, {"a": 70, "b": 10, "op": "poff"}, {"a": 104, "b": 25, "op": "poff"}, {"a": 120, "b": 20, "op": "poff"}, {"a": 148, "b": 25, "op": "poff"}, {"a": 168, "b": 25, "op": "poff"}, {"a": 180, "b": 20, "op": "poff"}, {"a": 200, "b": 10, "op": "poff"}],
+    },
+    {
+        "id": "pre-u2-the-biggest-factor", "course": "prealgebra", "unit": 2,
+        "topic": "The biggest factor below the number", "op": "bfac", "max_value": 99,
+        "levels": ("abstract",), "symbols": ("factor", "prime"),
+        "advance_line": "Three in a row — you've got it! Divide by the smallest factor to find the biggest.",
+        "teach": [
+            ("You found the smallest factor above 1. Now the other end: the "
+             "biggest factor a number has, not counting itself. These two "
+             "questions are the same question, and one answer hands you the other.",
+             '[[goal text="The biggest factor below the number"]]'
+             '[[step eq="45 → biggest factor below 45 = ?"]]'),
+            ("Watch me. Take 45. Its smallest factor above 1 is 3. Divide: 45 "
+             "divided by 3 is 15. That is the biggest factor below 45, because "
+             "factors come in pairs and the smallest one is always partnered with "
+             "the biggest.",
+             '[[step eq="45 = 3 × 15"]]'
+             '[[step eq="smallest factor 3 → biggest factor 15"]]'),
+            ("Here is the trap. Do not hand back the number just below. For 45 the "
+             "answer is not 44, and it is not 9 either — 9 divides 45, but 15 is "
+             "bigger. Find the smallest factor, divide by it, and the biggest one "
+             "arrives in a single step. A prime number has no factor below it at "
+             "all except 1, so these questions never hand you one.",
+             '[[step eq="45 → 15 ✓"]]'
+             '[[step eq="44 ✗ close to 45, but it does not divide it at all"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 26. Its smallest factor "
+                        "is 2, and 26 divided by 2 is 13.",
+                        '[[step eq="26 = 2 × 13"]]'),
+             "ask": {"a": 51, "b": 0, "op": "bfac"}},
+            {"worked": ("One more together. 63. Its smallest factor is 3, and 63 "
+                        "divided by 3 is 21.",
+                        '[[step eq="63 = 3 × 21"]]'),
+             "ask": {"a": 85, "b": 0, "op": "bfac"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": 4, "b": 0, "op": "bfac"}, {"a": 14, "b": 0, "op": "bfac"}, {"a": 22, "b": 0, "op": "bfac"}, {"a": 91, "b": 0, "op": "bfac"}, {"a": 36, "b": 0, "op": "bfac"}, {"a": 46, "b": 0, "op": "bfac"}, {"a": 56, "b": 0, "op": "bfac"}, {"a": 99, "b": 0, "op": "bfac"}, {"a": 82, "b": 0, "op": "bfac"}, {"a": 98, "b": 0, "op": "bfac"}],
+    },
     {
         "id": "entry-u6-take-away-two-digit", "course": "entry", "unit": 6,
         "topic": "Taking away two-digit numbers", "op": "s2d", "max_value": 99,
@@ -15466,17 +15795,21 @@ COURSE_ORDER = [
     "basic-u1-place-value-to-1000", "basic-u1-rounding-tens",
     "basic-u1-rounding-hundreds", "basic-u1-multi-digit-review",
     "basic-u2-what-multiplying-means", "basic-u2-times-tables",
-    "basic-u2-multiply-two-digit",
+    "basic-u2-multiply-two-digit", "basic-u2-times-by-ten",
     "basic-u3-what-dividing-means", "basic-u3-left-overs",
     "basic-u3-divide-two-digit", "basic-u3-story-problems",
     "basic-u4-missing-factors", "basic-u4-greatest-common-factor",
-    "basic-u4-least-common-multiple",
+    "basic-u4-factor-pairs", "basic-u4-least-common-multiple",
     "basic-u5-fractions-on-the-number-line",
     "basic-u5-fraction-of-a-group", "basic-u5-equivalent-fractions",
+    "basic-u5-simplest-form",
     "basic-u6-add-fractions-same-bottom", "basic-u6-take-away-fractions-same-bottom",
     "basic-u6-add-fractions-different-bottoms",
+    "basic-u6-take-away-unlike-bottoms",
     "basic-u7-tenths", "basic-u7-dimes-and-pennies", "basic-u7-hundredths",
-    "basic-u8-percent-of", "basic-u8-one-costs",
+    "basic-u7-tenths-and-hundredths",
+    "basic-u8-what-percent-is-it", "basic-u8-percent-of",
+    "basic-u8-percent-off", "basic-u8-one-costs",
     "basic-u9-perimeter", "basic-u9-area",
     "basic-u9-quarter-turns", "basic-u9-volume",
 
@@ -15485,7 +15818,7 @@ COURSE_ORDER = [
     "pre-u1-exponents-are-repeated-times", "pre-u1-power-then-times-then-add",
     # Unit 2: Factors, Multiples & Primes -- underneath Basic's GCF/LCM
     "pre-u2-how-many-factors", "pre-u2-the-smallest-factor",
-    "pre-u2-breaking-into-primes",
+    "pre-u2-breaking-into-primes", "pre-u2-the-biggest-factor",
     # Unit 3: Integers & Negative Numbers -- the first answers below zero
     "pre-u3-counting-back-past-zero", "pre-u3-adding-a-negative",
     "pre-u3-taking-away-a-negative", "pre-u3-times-with-a-negative",
@@ -15978,6 +16311,133 @@ def _fw(n, bottom):
 
 
 OP_EXT = {
+    # ============ (ph, 2026-08-28) THE LAST EIGHT -- THE COURSE IS WHOLE ==========
+    # Basic was short seven lessons and Pre-Algebra one. With these, every one of the
+    # ten courses is nine units of four and nothing anywhere falls to the live lane.
+    "mtz": {   # a times ten or a hundred -- the place-shift, not a times table
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: f"What is {p['a']} times {p['b']}?",
+        "board": lambda p: f'[[step eq="{p["a"]} × {p["b"]} = ?"]]',
+        "praise": lambda p: (f"{p['a']} times {p['b']} is {p['a'] * p['b']} — every "
+                             f"digit moved up, and the gap was filled with zeros."),
+        "key": lambda p: p["a"] * p["b"],
+        "check": lambda p: (2 <= p["a"] <= 99 and p["b"] in (10, 100)
+                            and p["a"] % 10 != 0,
+                            "a two-digit number that does not already end in zero, "
+                            "times ten or a hundred"),
+        # the one real slip is losing a zero (or adding one too many)
+        "choices": lambda p: [p["a"] * p["b"] // 10, p["a"] * p["b"],
+                              p["a"] * p["b"] * 10],
+    },
+    "fpr": {   # a is b times WHAT? -- the partner in a factor pair
+        "ans": lambda p: p["a"] // p["b"],
+        "spoken": lambda p: f"{p['a']} is {p['b']} times what number?",
+        "board": lambda p: f'[[step eq="{p["a"]} = {p["b"]} × ?"]]',
+        "praise": lambda p: (f"{p['b']} times {p['a'] // p['b']} is {p['a']}, so "
+                             f"{p['b']} and {p['a'] // p['b']} are a factor pair."),
+        "key": lambda p: p["a"],
+        "check": lambda p: (12 <= p["a"] <= 100 and 2 <= p["b"] < p["a"]
+                            and p["a"] % p["b"] == 0 and p["a"] // p["b"] >= 2
+                            and p["b"] != p["a"] // p["b"],
+                            "a real factor pair of two different numbers"),
+    },
+    "simp": {  # a out of b in simplest form -- what is the new TOP number?
+        "ans": lambda p: p["a"] // _gcd(p["a"], p["b"]),
+        "spoken": lambda p: (f"Write {p['a']} out of {p['b']} in its simplest form. "
+                             f"What is the new top number?"),
+        "board": lambda p: f'[[step eq="{p["a"]}/{p["b"]} → ?/…"]]',
+        "praise": lambda p: (f"Both numbers share {_gcd(p['a'], p['b'])}, so "
+                             f"{p['a']} out of {p['b']} is "
+                             f"{p['a'] // _gcd(p['a'], p['b'])} out of "
+                             f"{p['b'] // _gcd(p['a'], p['b'])}."),
+        "key": lambda p: p["b"],
+        "check": lambda p: (2 <= p["a"] < p["b"] <= 24
+                            and _gcd(p["a"], p["b"]) > 1,
+                            "a fraction that really can be made simpler"),
+    },
+    "fus": {   # one b-th TAKE AWAY a c-ths, answered in c-ths (fu's mirror)
+        # ⚠️ the first cut said "take away ONE c-th" and had a pool of six -- below
+        # the battery's seven-problem floor before a single ask was set aside. Letting
+        # the number taken away vary is the same lesson and gives 24 problems.
+        "ans": lambda p: p["c"] // p["b"] - p["a"],
+        "spoken": lambda p: (f"How many {_FRACWORD[p['c']][1]} is one "
+                             f"{_FRACWORD[p['b']][0]} take away "
+                             f"{_plural(p['a'], _FRACWORD[p['c']][0])}?"),
+        "board": lambda p: (f'[[step eq="1/{p["b"]} − {p["a"]}/{p["c"]} '
+                            f'= ?/{p["c"]}"]]'),
+        "praise": lambda p: (f"One {_FRACWORD[p['b']][0]} is "
+                             f"{p['c'] // p['b']} {_FRACWORD[p['c']][1]}, so taking "
+                             f"{_plural(p['a'], _FRACWORD[p['c']][0])} away leaves "
+                             f"{p['c'] // p['b'] - p['a']}."),
+        "key": lambda p: p["c"],
+        "check": lambda p: (p["b"] in _FRACWORD and p["c"] in _FRACWORD
+                            and p["c"] % p["b"] == 0 and p["c"] // p["b"] >= 2
+                            and 1 <= p["a"] < p["c"] // p["b"],
+                            "the bottoms must match up and leave something behind"),
+        "speaks": lambda p, sp: True,   # the bottoms are spoken as words, not digits
+    },
+    "t2h": {   # a tenths + b hundredths -- answered in hundredths
+        "ans": lambda p: 10 * p["a"] + p["b"],
+        "spoken": lambda p: (f"How many hundredths is "
+                             f"{_plural(p['a'], 'tenth')} plus "
+                             f"{_plural(p['b'], 'hundredth')}?"),
+        "board": lambda p: (f'[[step eq="{_plural(p["a"], "tenth")} + '
+                            f'{_plural(p["b"], "hundredth")} = ? hundredths"]]'),
+        "praise": lambda p: (f"{_plural(p['a'], 'tenth')} is "
+                             f"{_plural(10 * p['a'], 'hundredth')}, and {p['b']} "
+                             f"more equals {10 * p['a'] + p['b']}."),
+        "key": lambda p: 10 * p["a"] + p["b"],
+        "check": lambda p: (1 <= p["a"] <= 9 and 1 <= p["b"] <= 9,
+                            "single-digit tenths and hundredths, so the answer "
+                            "stays under one whole"),
+        # the slip is adding the two digits as though a tenth and a hundredth
+        # were the same size
+        "choices": lambda p: [p["a"] + p["b"], 10 * p["a"] + p["b"],
+                              10 * p["a"] + 10 * p["b"]],
+    },
+    "wpc": {   # a out of b, said as a percent
+        "ans": lambda p: 100 * p["a"] // p["b"],
+        "spoken": lambda p: f"What is {p['a']} out of {p['b']} as a percent?",
+        "board": lambda p: f'[[step eq="{p["a"]} out of {p["b"]} = ? percent"]]',
+        "praise": lambda p: (f"{p['a']} out of {p['b']} is "
+                             f"{100 * p['a'] // p['b']} percent."),
+        "key": lambda p: 100 * p["a"] // p["b"],
+        "check": lambda p: (p["b"] in (4, 5, 10, 20, 25, 50, 100)
+                            and 1 <= p["a"] < p["b"]
+                            and (100 * p["a"]) % p["b"] == 0,
+                            "a bottom that divides a hundred, and a whole percent"),
+    },
+    "poff": {  # b percent off a price of a -- what do you PAY?
+        "ans": lambda p: p["a"] - p["a"] * p["b"] // 100,
+        "spoken": lambda p: (f"A coat costs {p['a']} dollars, and there is "
+                             f"{p['b']} percent off. What do you pay?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} − {p["b"]}% of {p["a"]} = ?"]]'),
+        "praise": lambda p: (f"{p['b']} percent of {p['a']} is "
+                             f"{p['a'] * p['b'] // 100}, so you pay "
+                             f"{p['a'] - p['a'] * p['b'] // 100}."),
+        "key": lambda p: p["a"] - p["a"] * p["b"] // 100,
+        "check": lambda p: (10 <= p["a"] <= 200 and p["b"] in (10, 20, 25)
+                            and (p["a"] * p["b"]) % 100 == 0,
+                            "a whole-dollar discount off a whole-dollar price -- and "
+                            "never 50 percent, where the saving and the price you pay "
+                            "are the same number and the lesson's own trap vanishes"),
+        # THE trap of the whole lesson: answering the discount instead of the price
+        "choices": lambda p: [p["a"] * p["b"] // 100,
+                              p["a"] - p["a"] * p["b"] // 100, p["a"]],
+    },
+    "bfac": {  # the BIGGEST factor of a that is not a itself
+        "ans": lambda p: p["a"] // _spf(p["a"]),
+        "spoken": lambda p: (f"What is the biggest number that divides {p['a']} "
+                             f"exactly, apart from {p['a']} itself?"),
+        "board": lambda p: f'[[step eq="{p["a"]} → biggest factor below it = ?"]]',
+        "praise": lambda p: (f"Dividing {p['a']} by its smallest factor "
+                             f"{_spf(p['a'])} gives {p['a'] // _spf(p['a'])} — the "
+                             f"biggest one there is."),
+        "key": lambda p: p["a"] // _spf(p["a"]),
+        "check": lambda p: (4 <= p["a"] <= 99 and _spf(p["a"]) != p["a"],
+                            "a number with a factor to find -- never a prime"),
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+    },
     # ================= (pg, 2026-08-27) THE ENTRY COURSE FILLS ITS UNITS =========
     # Jim: "go and create the authored lessons as well." Entry had 20 lessons where
     # nine units of four is 36, so 16 topics fell straight through to the slow live

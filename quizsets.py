@@ -331,6 +331,13 @@ QUIZ_SETS = {
         {"op": '*', "a": 54, "b": 2, "c": 0},
         {"op": '*', "a": 32, "b": 5, "c": 0},
     ],
+    'basic-u2-times-by-ten': [
+        {"op": 'mtz', "a": 3, "b": 10, "c": 0},
+        {"op": 'mtz', "a": 39, "b": 10, "c": 0},
+        {"op": 'mtz', "a": 74, "b": 10, "c": 0},
+        {"op": 'mtz', "a": 21, "b": 100, "c": 0},
+        {"op": 'mtz', "a": 59, "b": 100, "c": 0},
+    ],
     'basic-u3-what-dividing-means': [
         {"op": '/', "a": 10, "b": 2, "c": 0},
         {"op": '/', "a": 15, "b": 5, "c": 0},
@@ -373,6 +380,13 @@ QUIZ_SETS = {
         {"op": 'gcf', "a": 4, "b": 28, "c": 0},
         {"op": 'gcf', "a": 3, "b": 39, "c": 0},
     ],
+    'basic-u4-factor-pairs': [
+        {"op": 'fpr', "a": 12, "b": 6, "c": 0},
+        {"op": 'fpr', "a": 35, "b": 7, "c": 0},
+        {"op": 'fpr', "a": 52, "b": 2, "c": 0},
+        {"op": 'fpr', "a": 69, "b": 23, "c": 0},
+        {"op": 'fpr', "a": 85, "b": 17, "c": 0},
+    ],
     'basic-u4-least-common-multiple': [
         {"op": 'lcm', "a": 4, "b": 2, "c": 0},
         {"op": 'lcm', "a": 6, "b": 2, "c": 0},
@@ -401,6 +415,13 @@ QUIZ_SETS = {
         {"op": 'eqf', "a": 1, "b": 6, "c": 12},
         {"op": 'eqf', "a": 1, "b": 5, "c": 10},
     ],
+    'basic-u5-simplest-form': [
+        {"op": 'simp', "a": 2, "b": 6, "c": 0},
+        {"op": 'simp', "a": 10, "b": 12, "c": 0},
+        {"op": 'simp', "a": 10, "b": 16, "c": 0},
+        {"op": 'simp', "a": 12, "b": 20, "c": 0},
+        {"op": 'simp', "a": 14, "b": 22, "c": 0},
+    ],
     'basic-u6-add-fractions-same-bottom': [
         {"op": 'fa', "a": 1, "b": 1, "c": 3},
         {"op": 'fa', "a": 2, "b": 1, "c": 5},
@@ -421,6 +442,13 @@ QUIZ_SETS = {
         {"op": 'fu', "a": 7, "b": 5, "c": 10},
         {"op": 'fu', "a": 3, "b": 4, "c": 12},
         {"op": 'fu', "a": 4, "b": 3, "c": 12},
+    ],
+    'basic-u6-take-away-unlike-bottoms': [
+        {"op": 'fus', "a": 2, "b": 2, "c": 6},
+        {"op": 'fus', "a": 1, "b": 4, "c": 8},
+        {"op": 'fus', "a": 1, "b": 5, "c": 10},
+        {"op": 'fus', "a": 2, "b": 4, "c": 12},
+        {"op": 'fus', "a": 2, "b": 3, "c": 12},
     ],
     'basic-u7-tenths': [
         {"op": 'dt', "a": 2, "b": 1, "c": 0},
@@ -443,12 +471,33 @@ QUIZ_SETS = {
         {"op": 'dh', "a": 18, "b": 22, "c": 0},
         {"op": 'dh', "a": 12, "b": 34, "c": 0},
     ],
+    'basic-u7-tenths-and-hundredths': [
+        {"op": 't2h', "a": 2, "b": 2, "c": 0},
+        {"op": 't2h', "a": 4, "b": 6, "c": 0},
+        {"op": 't2h', "a": 6, "b": 2, "c": 0},
+        {"op": 't2h', "a": 7, "b": 4, "c": 0},
+        {"op": 't2h', "a": 8, "b": 7, "c": 0},
+    ],
+    'basic-u8-what-percent-is-it': [
+        {"op": 'wpc', "a": 3, "b": 25, "c": 0},
+        {"op": 'wpc', "a": 29, "b": 100, "c": 0},
+        {"op": 'wpc', "a": 47, "b": 100, "c": 0},
+        {"op": 'wpc', "a": 16, "b": 25, "c": 0},
+        {"op": 'wpc', "a": 80, "b": 100, "c": 0},
+    ],
     'basic-u8-percent-of': [
         {"op": 'pc', "a": 20, "b": 5, "c": 0},
         {"op": 'pc', "a": 20, "b": 15, "c": 0},
         {"op": 'pc', "a": 45, "b": 20, "c": 0},
         {"op": 'pc', "a": 36, "b": 25, "c": 0},
         {"op": 'pc', "a": 20, "b": 40, "c": 0},
+    ],
+    'basic-u8-percent-off': [
+        {"op": 'poff', "a": 10, "b": 10, "c": 0},
+        {"op": 'poff', "a": 48, "b": 25, "c": 0},
+        {"op": 'poff', "a": 92, "b": 25, "c": 0},
+        {"op": 'poff', "a": 132, "b": 25, "c": 0},
+        {"op": 'poff', "a": 165, "b": 20, "c": 0},
     ],
     'basic-u8-one-costs': [
         {"op": 'rate', "a": 4, "b": 2, "c": 0},
@@ -533,6 +582,13 @@ QUIZ_SETS = {
         {"op": 'npf', "a": 28, "b": 2, "c": 0},
         {"op": 'npf', "a": 40, "b": 2, "c": 0},
         {"op": 'npf', "a": 52, "b": 4, "c": 0},
+    ],
+    'pre-u2-the-biggest-factor': [
+        {"op": 'bfac', "a": 6, "b": 0, "c": 0},
+        {"op": 'bfac', "a": 27, "b": 0, "c": 0},
+        {"op": 'bfac', "a": 32, "b": 0, "c": 0},
+        {"op": 'bfac', "a": 75, "b": 0, "c": 0},
+        {"op": 'bfac', "a": 70, "b": 0, "c": 0},
     ],
     'pre-u3-counting-back-past-zero': [
         {"op": 'cbz', "a": 5, "b": 18},

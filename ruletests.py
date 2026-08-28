@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD ph -- PART 3fl: the last eight, the curriculum is whole. All ten
+#               courses are nine units of four (360 lessons). Pins the two findings
+#               only the validator could make: a fraction op whose whole pool was six
+#               problems, and 50-percent-off, where the saving and the price you pay
+#               are the same number so the lesson's own distractor collides with its
+#               answer.
 #   2026-08-28  BUILD pg -- PART 3fk: Entry fills its units. 20 -> 36 lessons, so no
 #               five-year-old drops onto the live lane. The validator rejected the
 #               first cut 18 times and the battery caught 4 more; both lists are in
@@ -13111,6 +13117,80 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fl_the_curriculum_is_whole():
+    """PART 3fl (build ph, 2026-08-28) -- THE LAST EIGHT. THE CURRICULUM IS WHOLE.
+
+    Basic was short seven lessons and Pre-Algebra one. With these eight written,
+    EVERY ONE OF THE TEN COURSES is nine units of four -- 360 authored lessons -- and
+    there is no topic anywhere in the curriculum that drops a child onto the live
+    lane for want of a script. That was the whole point of the scripted lane and it
+    is finally true.
+
+    ⭐ TWO THINGS THE VALIDATOR FOUND THAT READING WOULD NOT HAVE.
+
+    (1) THE POOL WAS TOO SMALL TO FILL A BANK. "fus" -- taking away fractions with
+    different bottoms -- was first written as "one b-th take away ONE c-th". With the
+    eight fraction words the file knows, and the bottoms having to divide, that is
+    exactly SIX problems: fewer than the battery's seven-problem bank floor, before a
+    single worked-pair ask was set aside. Letting the number taken away vary is the
+    same lesson taught the same way and gives 24.
+
+    (2) FIFTY PERCENT OFF IS DEGENERATE, and this one is a content bug, not a
+    counting one. The percent-off lesson exists to break ONE habit: answering the
+    saving instead of the price. At half price the saving and the price you pay are
+    the SAME NUMBER, so the distractor and the answer are identical and the lesson
+    quietly teaches nothing. The validator caught it as "choices contain the answer
+    exactly once" failing on six problems. Half price left the op, and the reason is
+    written into its check so nobody puts it back."""
+    print("\nPART 3fl — the last eight, the curriculum is whole (build ph)")
+    import lessonscripts as _ls
+    import curriculum as _cur
+    courses = ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2",
+               "precalc", "calculus", "probstat", "diffeq")
+    shape = {}
+    for c in courses:
+        cl = [l for l in _ls.LESSONS if l["course"] == c]
+        shape[c] = {u: len([l for l in cl if l["unit"] == u])
+                    for u, _n in _cur.units_for(c)}
+    check("⭐ EVERY course is nine units of four -- the authored lane covers it all",
+          all(len(v) == 9 and set(v.values()) == {4} for v in shape.values()),
+          {c: v for c, v in shape.items() if set(v.values()) != {4}})
+    check("  360 authored lessons", len(_ls.LESSONS) == 360, len(_ls.LESSONS))
+
+    new = ["basic-u2-times-by-ten", "basic-u4-factor-pairs", "basic-u5-simplest-form",
+           "basic-u6-take-away-unlike-bottoms", "basic-u7-tenths-and-hundredths",
+           "basic-u8-what-percent-is-it", "basic-u8-percent-off",
+           "pre-u2-the-biggest-factor"]
+    byid = {l["id"]: l for l in _ls.LESSONS}
+    check("⭐ all eight new lessons are in the course order and reachable",
+          all(i in byid for i in new), [i for i in new if i not in byid])
+    check("  every one passes the full validator",
+          not [(i, lab) for i in new
+               for ok, lab, _d in _ls.validate(byid[i]) if not ok],
+          [(i, lab) for i in new
+           for ok, lab, _d in _ls.validate(byid[i]) if not ok][:3])
+    check("  and every new bank clears the seven-problem floor",
+          all(len(byid[i]["bank"]) >= 7 for i in new),
+          {i: len(byid[i]["bank"]) for i in new if len(byid[i]["bank"]) < 7})
+
+    # the two findings, pinned so they cannot come back
+    pool = [1 for b in (2, 3, 4, 5, 6, 8, 10, 12) for c in (2, 3, 4, 5, 6, 8, 10, 12)
+            for a in range(1, 7)
+            if _ls.OP_EXT["fus"]["check"]({"op": "fus", "a": a, "b": b, "c": c})[0]]
+    check("⭐ the unlike-bottom take away has a pool big enough to fill a bank",
+          len(pool) >= 20, len(pool))
+    half = _ls.OP_EXT["poff"]["check"]({"op": "poff", "a": 60, "b": 50})[0]
+    check("⭐ 50 percent off is refused -- at half price the trap IS the answer",
+          not half,
+          "the saving and the price you pay are the same number, so the "
+          "distractor and the answer collide")
+
+    import quizsets as _qs
+    check("  every new lesson has a PINNED quiz set",
+          all(i in _qs.QUIZ_SETS for i in new),
+          [i for i in new if i not in _qs.QUIZ_SETS])
+
+
 def part3fk_entry_fills_its_units():
     """PART 3fk (build pg, 2026-08-28) -- ENTRY FILLS ITS UNITS.
 
@@ -13155,7 +13235,7 @@ def part3fk_entry_fills_its_units():
                   for u, _n in _cur.units_for("entry")),
           {u: len([l for l in entry if l["unit"] == u])
            for u, _n in _cur.units_for("entry")})
-    check("  and the curriculum is 352 authored lessons", len(_ls.LESSONS) == 352,
+    check("  and the curriculum is 360 authored lessons", len(_ls.LESSONS) == 360,
           len(_ls.LESSONS))
 
     new = ["entry-u1-counting-past-ten", "entry-u1-which-is-bigger",
@@ -13333,7 +13413,7 @@ def part3fi_the_sentences_make_sense():
             for _l in _v:
                 if _l["id"] not in seen:
                     seen.add(_l["id"]); lessons.append(_l)
-    check("all 352 authored lessons are present", len(lessons) == 352, len(lessons))
+    check("all 360 authored lessons are present", len(lessons) == 360, len(lessons))
 
     def prose(l):
         o = [s for s, _b in l["teach"]] + [pr["worked"][0] for pr in l["pairs"]]
@@ -14484,7 +14564,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,111</b>" in page,
+          "<b>7,143</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22944,6 +23024,7 @@ def main():
     part3fi_the_sentences_make_sense()
     part3fj_the_first_course_read_for_sense()
     part3fk_entry_fills_its_units()
+    part3fl_the_curriculum_is_whole()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
