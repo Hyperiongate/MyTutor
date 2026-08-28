@@ -2,6 +2,24 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pm -- ALGEBRA TWO, READ FOR SENSE. All 36 lessons read line by
+#               line -- the course whose absolute-value beat started this whole
+#               thread. ⭐ IT READS WELL NOW. pe's rewrite of lesson one landed, and
+#               the rest of the course was never the problem: Gauss put his slate
+#               down in seconds; expected value is "not a promise, a center of
+#               gravity"; the fencepost error returns as "the fencepost from the grid
+#               unit, wearing a new coat". Ten changes in 36 lessons.
+#               ⚠️ ONE WAS A NEW KIND OF DEFECT, AND THE ONLY ONE OF ITS KIND IN THE
+#               WHOLE CURRICULUM: INTERNAL SHORTHAND SPOKEN TO A CHILD. The roots
+#               lesson said "stopping there is pyth's old stopped-at-the-square
+#               slip." "pyth" is THIS CODEBASE'S ABBREVIATION for the Pythagoras op.
+#               It is not a word. A student hearing it has been handed a filename.
+#               A sweep of all 360 lessons for op codes and build letters spoken as
+#               English found exactly this one -- the other four hits were ordinary
+#               possessives ("the leg's square", "the area's rate") that happen to
+#               collide with op names. Isolated, and now gone.
+#               The other nine are build pl's shape: a second worked example that
+#               states the answer without ever doing the operation.
 #   2026-08-28  BUILD pl -- GEOMETRY, READ FOR SENSE. All 36 lessons read line by
 #               line. ⭐ THE COURSE IS EXCELLENT, and what carries it is that every
 #               unit's trap is a MISTAKE SOMEONE ACTUALLY MAKES, named out loud: 180
@@ -9330,7 +9348,7 @@ _ALGEBRA2_U2 = [
             {"worked": ["Here is one more, done for you. x take away 3, times x take away 6, equals zero: the roots are 3 and 6, and their sum is 9.",
                         '[[graph func="(x-3)*(x-6)" range="-1..9" caption="(x-3)*(x-6) on the grid"]][[step eq="3 + 6 = 9"]]'],
              "ask": {"a": 3, "b": 5, "op": "rsum"}},
-            {"worked": ["One more together. Roots of 5 and 7 — put together, 12.",
+            {"worked": ["One more together. The roots are 5 and 7, and their sum is 5 plus 7 — 12.",
                         '[[step eq="5 + 7 = 12"]]'],
              "ask": {"a": 6, "b": 8, "op": "rsum"}},
         ],
@@ -9494,7 +9512,7 @@ _ALGEBRA2_U3 = [
             {"worked": ["Here is one more, done for you. Degree 18 — huge — and still the same promise: at most 17 turns.",
                         '[[step eq="degree 18 → at most 17 turns"]]'],
              "ask": {"a": 3, "b": 0, "op": "turnc"}},
-            {"worked": ["One more together. Degree 20: at most 19 turns.",
+            {"worked": ["One more together. Degree 20: one fewer than the degree — at most 19 turns.",
                         '[[step eq="degree 20 → at most 19"]]'],
              "ask": {"a": 16, "b": 0, "op": "turnc"}},
         ],
@@ -9532,7 +9550,7 @@ _ALGEBRA2_U3 = [
             {"worked": ["Here is one more, done for you. Roots of 2, 3 and 6: put together, 11.",
                         '[[graph func="(x-2)*(x-3)*(x-6)" range="0..7" caption="(x-2)*(x-3)*(x-6) on the grid"]][[step eq="2 + 3 + 6 = 11"]]'],
              "ask": {"a": 1, "b": 3, "c": 6, "op": "rsum3"}},
-            {"worked": ["One more together. 1, 5 and 7 — together, 13.",
+            {"worked": ["One more together. Roots of 1, 5 and 7: 1 plus 5 plus 7, put together — 13.",
                         '[[step eq="1 + 5 + 7 = 13"]]'],
              "ask": {"a": 2, "b": 5, "c": 7, "op": "rsum3"}},
         ],
@@ -9620,7 +9638,7 @@ _ALGEBRA2_U4 = [
             {"worked": ["Here is one more, done for you. y equals 16 divided by x, at x equals 4: 16 shared among 4 — 4.",
                         '[[graph func="16/x" range="0..17" caption="16/x on the grid"]][[step eq="16 ÷ 4 = 4"]]'],
              "ask": {"a": 9, "b": 3, "op": "rdiv"}},
-            {"worked": ["One more together. 25 divided by x, at x equals 5 — 5.",
+            {"worked": ["One more together. 25 divided by x, at x equals 5: 25 shared among 5 — 5.",
                         '[[step eq="25 ÷ 5 = 5"]]'],
              "ask": {"a": 30, "b": 6, "op": "rdiv"}},
         ],
@@ -9658,7 +9676,7 @@ _ALGEBRA2_U4 = [
             {"worked": ["Here is one more, done for you. 24 divided by x equals 8: x is 24 divided by 8 — 3.",
                         '[[step eq="x = 24 ÷ 8 = 3"]]'],
              "ask": {"a": 10, "b": 5, "op": "rsol"}},
-            {"worked": ["One more together. 36 divided by x is 4: x equals 9.",
+            {"worked": ["One more together. 36 divided by x is 4: x is 36 divided by 4 — 9.",
                         '[[step eq="x = 36 ÷ 4 = 9"]]'],
              "ask": {"a": 30, "b": 10, "op": "rsol"}},
         ],
@@ -9777,7 +9795,7 @@ _ALGEBRA2_U5 = [
              '[[goal text="Under one roof"]][[step eq="√a · √b = √(a·b)"]]'],
             ["The square root of 3, times the square root of 48. Alone, each is ragged. Under one roof: 3 times 48 is 144 — and 144 is a perfect square! Twelve times twelve. Two messy roots, one clean answer: 12.",
              '[[step eq="√3 · √48 = √144"]][[step eq="12 × 12 = 144"]] [[step eq="√144 = 12"]]'],
-            ["Two traps. 144 is what sits UNDER the roof — the root still has to be taken; stopping there is pyth's old stopped-at-the-square slip. And the roots never ADD: root 3 plus root 48 is 51 under nobody's roof — adding under roots is the famous illegal move.",
+            ["Two traps. 144 is what sits UNDER the roof — the root still has to be taken; stopping there is the same slip as stopping at the square back in Pythagoras. And the roots never ADD: root 3 plus root 48 is 51 under nobody's roof — adding under roots is the famous illegal move.",
              '[[step eq="√3 · √48 = 12 ✓"]][[step eq="144 ✗ still under the roof · 51 ✗ roots never add"]]'],
         ],
         "pairs": [
@@ -9858,7 +9876,7 @@ _ALGEBRA2_U5 = [
             {"worked": ["Here is one more, done for you. The square root of x equals 20: x is 20 squared — 400. Check: root 400 is 20.",
                         '[[step eq="√x = 20"]] [[step eq="x = 400"]]'],
              "ask": {"a": 3, "b": 0, "op": "rsq"}},
-            {"worked": ["One more together. Root of x equals 16: x is 256.",
+            {"worked": ["One more together. Root of x equals 16: x is 16 squared — 256.",
                         '[[step eq="√x = 16"]] [[step eq="x = 256"]]'],
              "ask": {"a": 14, "b": 0, "op": "rsq"}},
         ],
@@ -10354,7 +10372,7 @@ _ALGEBRA2_U8 = [
             {"worked": ["Here is one more, done for you. 55 degrees, one more full turn: 55 plus 360 — 415.",
                         '[[step eq="55° + 360° = 415°"]]'],
              "ask": {"a": 35, "b": 0, "op": "spin"}},
-            {"worked": ["One more together. 72 degrees plus a full turn: 432.",
+            {"worked": ["One more together. 72 degrees plus a full turn: 72 plus 360 — 432.",
                         '[[step eq="72° + 360° = 432°"]]'],
              "ask": {"a": 65, "b": 0, "op": "spin"}},
         ],
@@ -10480,7 +10498,7 @@ _ALGEBRA2_U9 = [
             {"worked": ["Here is one more, done for you. 3 shirts, 3 pants, 2 hats: 3 times 3 is 9, times 2 — 18 outfits.",
                         '[[step eq="3 × 3 × 2 = 18"]]'],
              "ask": {"a": 2, "b": 3, "c": 3, "op": "cnt3"}},
-            {"worked": ["One more together. 4 shirts, 2 pants, 5 hats: 8, then 40.",
+            {"worked": ["One more together. 4 shirts, 2 pants, 5 hats: 4 times 2 is 8, and 8 times 5 is 40 outfits.",
                         '[[step eq="4 × 2 × 5 = 40"]]'],
              "ask": {"a": 5, "b": 4, "c": 4, "op": "cnt3"}},
         ],
@@ -10556,7 +10574,7 @@ _ALGEBRA2_U9 = [
             {"worked": ["Here is one more, done for you. A sample of 10 found 4 readers; the school has 30 — three samples wide. About 12 readers.",
                         '[[step eq="4 × 3 = about 12"]]'],
              "ask": {"a": 10, "b": 2, "c": 5, "op": "samp"}},
-            {"worked": ["One more together. 15 asked, 6 said yes; the school is 45. About 18.",
+            {"worked": ["One more together. 15 asked, 6 said yes; the school is 45 — three samples wide, so 6 times 3: about 18.",
                         '[[step eq="6 × 3 = about 18"]]'],
              "ask": {"a": 30, "b": 9, "c": 4, "op": "samp"}},
         ],

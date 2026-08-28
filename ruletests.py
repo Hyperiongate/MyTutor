@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pm -- PART 3fq: Algebra Two read for sense. The course that
+#               started the thread now reads well. Ten changes, one of them a NEW
+#               defect class -- internal shorthand spoken to a child ("pyth's") --
+#               with a sweep proving it the only instance in 360 lessons.
 #   2026-08-28  BUILD pl -- PART 3fp: Geometry read for sense. Seven second worked
 #               examples stated the answer where the first stated the operation --
 #               and FIVE of the seven were too long for pi's word-count sweep to see.
@@ -13134,6 +13138,85 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fq_algebra_two_read_for_sense():
+    """PART 3fq (build pm, 2026-08-28) -- ALGEBRA TWO, READ FOR SENSE.
+
+    All 36 Algebra II lessons read line by line -- the course whose absolute-value
+    beat started this entire thread when Jim said the text read "as if someone is
+    teaching math in a non-native language."
+
+    ⭐ IT READS WELL NOW. Build pe's rewrite of lesson one landed, and the rest of the
+    course was never the problem: a nine-year-old Gauss puts his slate down in
+    seconds; expected value is "not a promise; a center of gravity"; the fencepost
+    error comes back as "the fencepost from the grid unit, wearing a new coat."
+
+    ⚠️ ONE CHANGE WAS A NEW KIND OF DEFECT -- AND THE ONLY ONE OF ITS KIND IN ALL 360
+    LESSONS: INTERNAL SHORTHAND SPOKEN TO A CHILD.
+        "the root still has to be taken; stopping there is pyth's old
+         stopped-at-the-square slip."
+    "pyth" is this codebase's abbreviation for the Pythagoras op. It is not a word.
+    A student hearing that sentence has been handed a filename, and no validator in
+    this file would ever object -- it is short, correctly punctuated, canon-clean.
+
+    A sweep of every authored line for op codes and build letters used as English
+    found EXACTLY this one. The other four hits were ordinary possessives that
+    happen to collide with op names: "the leg's square", "the fading part's number",
+    "the forwards spin's mirror image", "the area's rate". Isolated, not systemic --
+    which is worth recording, because the opposite would have meant a much larger
+    problem.
+
+    The other nine changes are build pl's shape: a second worked example that states
+    the answer without ever doing the operation in front of the child."""
+    print("\nPART 3fq — Algebra Two, read for sense (build pm)")
+    import lessonscripts as _ls
+    import re
+    byid = {l["id"]: l for l in _ls.LESSONS}
+    second = lambda lid: byid[lid]["pairs"][1]["worked"][0]
+    teach = lambda lid: " ".join(s for s, _b in byid[lid]["teach"])
+
+    check("⭐ no op code is spoken to a child as though it were a word",
+          "pyth's" not in teach("alg2-u5-under-one-roof")
+          and "Pythagoras" in teach("alg2-u5-under-one-roof"),
+          "'pyth' is a filename, not a word a student has ever met")
+
+    # the sweep that proved it isolated, kept so a future build cannot reintroduce one
+    def prose(l):
+        o = [s for s, _b in l["teach"]] + [pr["worked"][0] for pr in l["pairs"]]
+        if l.get("advance_line"):
+            o.append(l["advance_line"])
+        return o
+    LEGIT = {"leg", "part", "spin", "area"}   # real English possessives
+    leaks = []
+    for l in _ls.LESSONS:
+        for t in prose(l):
+            for m in re.finditer(r"\b([a-z]{2,5})'s\b", t):
+                w = m.group(1)
+                if w in _ls.OP_EXT and w not in LEGIT:
+                    leaks.append((l["id"], w))
+    check("  and the sweep across all 360 lessons finds no other leak",
+          not leaks, leaks[:4])
+
+    fixed = {
+        "alg2-u2-both-answers-count": "5 plus 7",
+        "alg2-u3-the-wiggle-count": "one fewer than the degree",
+        "alg2-u3-three-crossings": "1 plus 5 plus 7",
+        "alg2-u4-sharing-shrinks": "25 shared among 5",
+        "alg2-u4-which-x-was-fed": "36 divided by 4",
+        "alg2-u5-undo-the-root": "16 squared",
+        "alg2-u8-spin-once-more": "72 plus 360",
+        "alg2-u9-three-slots": "4 times 2 is 8",
+        "alg2-u9-the-sample-speaks": "6 times 3",
+    }
+    missing = [lid for lid, frag in fixed.items() if frag not in second(lid)]
+    check("⭐ all nine second examples now do the operation, not just the answer",
+          not missing, missing)
+
+    read = ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2")
+    check("⭐ six courses read line by line; 216 lessons of 360",
+          sum(len([l for l in _ls.LESSONS if l["course"] == c]) for c in read) == 216,
+          sum(len([l for l in _ls.LESSONS if l["course"] == c]) for c in read))
+
+
 def part3fp_geometry_read_for_sense():
     """PART 3fp (build pl, 2026-08-28) -- GEOMETRY, READ FOR SENSE.
 
@@ -14848,7 +14931,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,164</b>" in page,
+          "<b>7,168</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23313,6 +23396,7 @@ def main():
     part3fn_prealgebra_read_for_sense()
     part3fo_algebra_one_read_for_sense()
     part3fp_geometry_read_for_sense()
+    part3fq_algebra_two_read_for_sense()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
