@@ -2,6 +2,31 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pj -- PRE-ALGEBRA, READ FOR SENSE. All 35 lessons that predate
+#               this session read line by line. ⭐ IT IS THE STRONGEST COURSE IN THE
+#               PRODUCT and the finding is worth recording as praise, not as a thin
+#               build: its traps are named out loud ("if you had gone left to right
+#               you would have said 20, and 20 is wrong"), its checks are honest
+#               ("if the two shares do not put back together, something went wrong"),
+#               and its pictures are concrete (the rectangle round a right triangle,
+#               the two rooms the times has to reach). SEVEN changes across five
+#               lessons, and only three of them were sentences:
+#                 - "More digits does NOT mean bigger" -- a plural subject with a
+#                   singular verb, in the beat that teaches decimal comparison.
+#                 - "small parts fit in many times" -- not English. The idea is that
+#                   small pieces go into a whole many times over, which is exactly
+#                   why dividing by a fraction GROWS the answer.
+#                 - the 180-degree fact, the most useful sentence in the course,
+#                   delivered with TWO dash clauses in one breath, the second
+#                   dangling off "180 degrees". Split in two.
+#               The other four are build pi's rule applied to the course pi did not
+#               reach: three second worked examples that had stopped showing their
+#               working, and "a decimal point number", which is not a thing.
+#               ⚠️ AND RULE 14 CAUGHT THE FIX. Renaming "a decimal point number" to
+#               "a decimal number" deleted the lesson's only utterance of its own
+#               declared sign. It now reads "a number with a decimal point in it" --
+#               better English AND the sign said out loud. Second time this session
+#               that rule 14 has caught prose being tidied past a promise.
 #   2026-08-28  BUILD pi -- THE SECOND EXAMPLE TEACHES TOO. Basic read line by line,
 #               all 29 lessons that predate this session. The course is SOUND -- its
 #               sentences are short and its methods are clear -- but it carries one
@@ -4868,7 +4893,7 @@ _PREALGEBRA_U23 = [
             {"worked": ["Here is one more, done for you. 4 plus negative 9. Start at 4, move 9 to the left, land on negative 5.",
                         '[[numberline min="-10" max="10" points="-5" caption="find -5 on the line"]][[step eq="4 + (−9) = −5"]]'],
              "ask": {"a": 6, "b": 13, "op": "addneg"}},
-            {"worked": ["One more together. 2 plus negative 8 lands on negative 6.",
+            {"worked": ["One more together. 2 plus negative 8. Start at 2, move 8 to the left, and land on negative 6.",
                         '[[numberline min="-10" max="10" points="-6" caption="find -6 on the line"]][[step eq="2 + (−8) = −6"]]'],
              "ask": {"a": 8, "b": 12, "op": "addneg"}},
         ],
@@ -5072,7 +5097,7 @@ _PREALGEBRA_U4 = [
         "symbols": ("fraction", "divided by"),
         "advance_line": "Three in a row — you've got it! Flip the fraction, then times.",
         "teach": [
-            ["Dividing asks how many of these fit inside that. You just counted how many fourths fit in 3 wholes and got 12 — a bigger number. Dividing by a fraction gives a BIGGER answer, because small parts fit in many times.",
+            ["Dividing asks how many of these fit inside that. You just counted how many fourths fit in 3 wholes and got 12 — a bigger number. Dividing by a fraction gives a BIGGER answer, because small pieces go into a whole many times over.",
              '[[goal text="Dividing by a fraction"]]'],
             ["The rule is short: flip the fraction over, then times. Watch. 4 divided by two thirds. Flip two thirds to get three halves. Now times: 4 times 3 equals 12, and 12 divided by 2 equals 6.",
              '[[step eq="4 ÷ 2/3"]][[step eq="4 × 3/2"]][[step eq="12 ÷ 2 = 6"]]'],
@@ -5169,7 +5194,7 @@ _PREALGEBRA_U5 = [
              '[[goal text="How many hundredths"]]'],
             ["0 point 4 5 is 4 tenths and 5 hundredths. Each tenth is 10 hundredths, so 4 tenths are 40 hundredths. Put the 5 with them and you have 45 hundredths.",
              '[[step eq="0.45 = 40 + 5 = 45 hundredths"]]'],
-            ["Here is why that matters. Which is bigger, 0 point 5 or 0 point 4 5? Count them the same way: 0 point 5 is 50 hundredths, 0 point 4 5 is 45 hundredths. 50 beats 45. More digits does NOT mean bigger.",
+            ["Here is why that matters. Which is bigger, 0 point 5 or 0 point 4 5? Count them the same way: 0 point 5 is 50 hundredths, 0 point 4 5 is 45 hundredths. 50 beats 45. More digits do NOT mean a bigger number.",
              '[[numberline min="0" max="1" points="0.5,0.45" caption="0.5 and 0.45, side by side"]][[step eq="0.5 = 50 hundredths · 0.45 = 45 hundredths"]]'],
         ],
         "pairs": [
@@ -5203,7 +5228,7 @@ _PREALGEBRA_U5 = [
         "symbols": ("decimal point", "place"),
         "advance_line": "Three in a row — you've got it! Times by ten and every digit moves one place left.",
         "teach": [
-            ["Timesing by ten does something tidy to a decimal point number: every digit moves one place to the left. The tenths become ones, the ones become tens. Nothing is dropped and nothing is invented.",
+            ["Timesing by ten does something tidy to a number with a decimal point in it: every digit moves one place to the left. The tenths become ones, the ones become tens. Nothing is dropped and nothing is invented.",
              '[[goal text="Timesing a decimal by ten"]]'],
             ["Watch: 3 point 7 times 10. The 7 was seven tenths; move it one place left and it is seven ones. The 3 was three ones; it becomes three tens. So the answer is 37.",
              '[[step eq="3.7 × 10 = 37"]]'],
@@ -5214,7 +5239,7 @@ _PREALGEBRA_U5 = [
             {"worked": ["Here is one more, done for you. 6 point 4 times 10. Both digits move one place left: 64.",
                         '[[step eq="6.4 × 10 = 64"]]'],
              "ask": {"a": 7, "b": 3, "op": "x10"}},
-            {"worked": ["One more together. 1 point 9 times 10 equals 19.",
+            {"worked": ["One more together. 1 point 9 times 10. Both digits move one place left: 19.",
                         '[[step eq="1.9 × 10 = 19"]]'],
              "ask": {"a": 4, "b": 6, "op": "x10"}},
         ],
@@ -5792,7 +5817,7 @@ _PREALGEBRA_U8 = [
         "symbols": ("degrees", "triangle"),
         "advance_line": "Three in a row — you've got it! The three angles of any triangle are 180 degrees.",
         "teach": [
-            ["Here is one of the most useful facts in all of geometry. Take any triangle at all — thin, wide, lopsided — and its three angles always come to 180 degrees — the same 180 as a straight line, and that is not a coincidence.",
+            ["Here is one of the most useful facts in all of geometry. Take any triangle at all — thin, wide, lopsided — and its three angles always come to 180 degrees. That is the same 180 as a straight line, and it is not a coincidence.",
              '[[goal text="Angles in a triangle"]][[triangle v="A,B,C" angles="50,60,70" caption="angles 50°, 60°, 70°"]]'],
             ["So if you are given two of them, the third one is forced. Two angles are 50 and 60. Add those: 50 plus 60 equals 110. Now 180 take away 110 equals 70 degrees.",
              '[[triangle v="A,B,C" angles="50,60," caption="angles 50° and 60° — the third is forced"]][[step eq="50° + 60° = 110°"]][[step eq="180° − 110° = 70°"]]'],
@@ -5940,7 +5965,7 @@ _PREALGEBRA_U9 = [
             {"worked": ["Here is one more, done for you. 4 x plus 5 x. Four of them plus five of them equals nine of them: 9 x.",
                         '[[step eq="4x + 5x = 9x"]]'],
              "ask": {"a": 5, "b": 6, "op": "clt"}},
-            {"worked": ["One more together. 7 x plus 2 x equals 9 x.",
+            {"worked": ["One more together. 7 x plus 2 x. Seven of them plus two of them equals nine of them: 9 x.",
                         '[[step eq="7x + 2x = 9x"]]'],
              "ask": {"a": 8, "b": 6, "op": "clt"}},
         ],

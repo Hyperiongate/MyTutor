@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pj -- PART 3fn: Pre-Algebra read for sense. The strongest course
+#               in the product; seven changes across five lessons. Rule 14 caught one
+#               of the fixes deleting a sign the lesson had promised to name -- the
+#               second time this session.
 #   2026-08-28  BUILD pi -- PART 3fm: the second example teaches too. Basic read line
 #               by line; the course is sound, but eleven "One more together" worked
 #               examples had collapsed to the bare answer (a twelfth was found by
@@ -13122,6 +13126,65 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fn_prealgebra_read_for_sense():
+    """PART 3fn (build pj, 2026-08-28) -- PRE-ALGEBRA, READ FOR SENSE.
+
+    All 35 Pre-Algebra lessons that predate this session, read line by line.
+
+    ⭐ IT IS THE STRONGEST COURSE IN THE PRODUCT, and that is the finding. Its traps
+    are named out loud ("if you had gone left to right you would have said 20, and 20
+    is wrong"). Its checks are honest ("if the two shares do not put back together,
+    something went wrong"). Its pictures are concrete -- the rectangle drawn round a
+    right triangle, the two rooms a times has to reach. Seven changes across five
+    lessons is the whole list, and inventing more would have been churn.
+
+    THREE WERE SENTENCES THAT DO NOT SURVIVE BEING READ ALOUD:
+      - "More digits does NOT mean bigger" -- a plural subject with a singular verb,
+        sitting in the beat that teaches a child to compare decimals.
+      - "small parts fit in many times" -- not English. The idea is that small pieces
+        go into a whole many times over, which is exactly why dividing by a fraction
+        GROWS the answer, and the sentence was carrying the reason.
+      - the 180-degree fact -- the most useful sentence in the course -- delivered
+        with TWO dash clauses in one breath, the second dangling off "180 degrees".
+
+    THE OTHER FOUR are build pi's rule applied to the course pi did not reach: three
+    second worked examples that had stopped showing their working, plus "a decimal
+    point number", which is not a thing.
+
+    ⚠️ AND RULE 14 CAUGHT THE FIX ITSELF. Tidying "a decimal point number" into "a
+    decimal number" deleted the lesson's only utterance of its own declared sign, and
+    validate() refused it. It now reads "a number with a decimal point in it" --
+    better English AND the sign said out loud. That is the SECOND time this session
+    rule 14 has caught prose being tidied past a promise the lesson had made."""
+    print("\nPART 3fn — Pre-Algebra, read for sense (build pj)")
+    import lessonscripts as _ls
+    byid = {l["id"]: l for l in _ls.LESSONS}
+    teach = lambda lid: " ".join(s for s, _b in byid[lid]["teach"])
+
+    check("⭐ the decimal-comparison beat agrees with itself grammatically",
+          "More digits do NOT mean a bigger number" in teach("pre-u5-how-many-hundredths")
+          and "does NOT mean bigger" not in teach("pre-u5-how-many-hundredths"),
+          "'More digits does' -- plural subject, singular verb")
+    check("⭐ dividing by a fraction explains WHY the answer grows, in English",
+          "small pieces go into a whole many times over"
+          in teach("pre-u4-dividing-by-a-fraction")
+          and "fit in many times" not in teach("pre-u4-dividing-by-a-fraction"), "")
+    check("⭐ the 180-degree fact is two sentences, not one with two dash clauses",
+          "That is the same 180 as a straight line"
+          in teach("pre-u8-angles-in-a-triangle")
+          and "180 degrees — the same 180" not in teach("pre-u8-angles-in-a-triangle"),
+          "the most useful sentence in the course has to be followable by ear")
+    check("  ...and it still names the decimal point, which rule 14 promised",
+          "decimal point" in teach("pre-u5-times-by-ten"),
+          "tidying the phrase away deleted the lesson's only utterance of its sign")
+
+    short = [l["id"] for l in _ls.LESSONS if l["course"] == "prealgebra"
+             and len(l["pairs"]) > 1
+             and len(l["pairs"][1]["worked"][0].split()) < 12]
+    check("⭐ no Pre-Algebra second worked example is a one-line answer (pi's rule)",
+          not short, short)
+
+
 def part3fm_the_second_example_teaches_too():
     """PART 3fm (build pi, 2026-08-28) -- THE SECOND EXAMPLE TEACHES TOO.
 
@@ -14654,7 +14717,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,148</b>" in page,
+          "<b>7,153</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23116,6 +23179,7 @@ def main():
     part3fk_entry_fills_its_units()
     part3fl_the_curriculum_is_whole()
     part3fm_the_second_example_teaches_too()
+    part3fn_prealgebra_read_for_sense()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
