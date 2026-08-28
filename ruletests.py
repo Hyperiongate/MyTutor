@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pl -- PART 3fp: Geometry read for sense. Seven second worked
+#               examples stated the answer where the first stated the operation --
+#               and FIVE of the seven were too long for pi's word-count sweep to see.
+#               That is the case for reading a course instead of sweeping it.
+#   2026-08-28  BUILD pk -- PART 3fo: Algebra One read for sense. Four changes in 36
+#               lessons; one beat made the same contrast twice. Also closes the
+#               radians fragment PART 3fn flagged and left open -- a flagged defect
+#               that is not fixed is a debt. All four foundation courses now read.
 #   2026-08-28  BUILD pj -- PART 3fn: Pre-Algebra read for sense. The strongest course
 #               in the product; seven changes across five lessons. Rule 14 caught one
 #               of the fixes deleting a sign the lesson had promised to name -- the
@@ -13126,6 +13134,129 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fp_geometry_read_for_sense():
+    """PART 3fp (build pl, 2026-08-28) -- GEOMETRY, READ FOR SENSE.
+
+    All 36 Geometry lessons read line by line. Five courses read; 252 of 360 lessons.
+
+    ⭐ THE COURSE IS EXCELLENT, and what carries it is that every trap is a mistake
+    someone ACTUALLY MAKES, named out loud: 180 leaping to mind inside a 90-degree
+    corner "because you met 180 first, in the straight-line lesson, and 180 sticks";
+    a fence with six posts and five rails; the slanted side of a parallelogram that is
+    longer than the height, so grabbing it "always looks generous"; and volume
+    punished by "the course's own history" -- times the factor once is the LENGTH
+    habit, twice is the AREA habit, three times is right.
+
+    ⚠️ SEVEN CHANGES, ALL ONE SHAPE, AND IT IS SHARPER HERE THAN ANYWHERE: the FIRST
+    worked example states the OPERATION and the second states only the ANSWER.
+        W1  "The arc measures 56 degrees, so the inscribed angle is 56 divided by
+             2 — 28 degrees."
+        W2  "An arc of 110: the inscribed angle is 55 degrees."
+    Halving IS the lesson. Doubling the radius IS the lesson. Dividing opposite by
+    adjacent IS the lesson.
+
+    ⭐ AND ONLY TWO OF THE SEVEN WERE VISIBLE TO A SWEEP. Build pi's rule counts words
+    and flags a second example under twelve; five of these seven state a correct
+    answer at a perfectly normal length and simply never do the arithmetic in front
+    of the child. "An inscribed angle of 75: the arc is 150 degrees" is thirteen
+    words and passes every automated check in this file. That is the argument for
+    reading a course rather than sweeping it, and it is why the remaining four
+    courses still need a person."""
+    print("\nPART 3fp — Geometry, read for sense (build pl)")
+    import lessonscripts as _ls
+    byid = {l["id"]: l for l in _ls.LESSONS}
+    second = lambda lid: byid[lid]["pairs"][1]["worked"][0]
+
+    fixed = {
+        "geo-u1-across-the-circle": "2 times 11",
+        "geo-u5-the-climb-ratio": "20 divided by 10",
+        "geo-u6-half-the-arc": "110 divided by 2",
+        "geo-u6-double-it-back": "2 times 75",
+        "geo-u6-a-piece-of-the-rim": "32 divided by 8",
+        "geo-u7-the-straight-path": "9 plus 16 is 25",
+        "geo-u9-the-other-chance": "13 take away 6",
+    }
+    missing = [lid for lid, frag in fixed.items() if frag not in second(lid)]
+    check("⭐ all seven second examples now do the arithmetic in front of the child",
+          not missing, missing)
+
+    # the point of the part: five of these were INVISIBLE to the word-count sweep
+    invisible = [lid for lid in fixed
+                 if lid not in ("geo-u1-across-the-circle", "geo-u5-the-climb-ratio")]
+    check("  five of the seven were longer than twelve words -- no sweep saw them",
+          len(invisible) == 5, invisible)
+
+    short = [l["id"] for l in _ls.LESSONS if l["course"] == "geometry"
+             and len(l["pairs"]) > 1
+             and len(l["pairs"][1]["worked"][0].split()) < 12]
+    check("  and none is a one-line answer either (pi's rule still holds)",
+          not short, short)
+
+    read = ("entry", "basic", "prealgebra", "algebra1", "geometry")
+    check("⭐ five courses read line by line; 180 lessons of 360",
+          sum(len([l for l in _ls.LESSONS if l["course"] == c]) for c in read) == 180,
+          sum(len([l for l in _ls.LESSONS if l["course"] == c]) for c in read))
+
+
+def part3fo_algebra_one_read_for_sense():
+    """PART 3fo (build pk, 2026-08-28) -- ALGEBRA ONE, READ FOR SENSE.
+
+    All 36 Algebra I lessons read line by line. With this, the FOUR FOUNDATION
+    COURSES -- Entry, Basic, Pre-Algebra, Algebra I -- have all been read.
+
+    ⭐ ALGEBRA I IS AS GOOD AS PRE-ALGEBRA AND POSSIBLY BETTER, and its teaching
+    PICTURES are why: an equation is a balance scale and equals means level; two
+    undos come off in socks-and-shoes order, last on first off; a function is a
+    machine with a door in and a door out; a product is a rectangle of rooms, and
+    "middles add, corner times" is the entire danger of that unit said in four words.
+    FOUR changes in thirty-six lessons is the whole list.
+
+    ⚠️ ONE WAS A BEAT THAT SAID THE SAME THING TWICE:
+      "The mean and the median both tell you where the data SITS. How far it reaches
+       is its spread, and the range measures exactly that. The range tells you
+       something else entirely: how far it stretches."
+    The third sentence announces a contrast the second already made. A listener is
+    told twice that spread is not position, and never told it cleanly once. Cut to
+    one sentence.
+
+    THE OTHER THREE are build pi's rule again -- second worked examples that had
+    stopped showing their method -- and this part also closes the fragment PART 3fn
+    flagged and left open: pc-u4-the-half-turn-language said "One more together. 2700
+    degrees: 15 pi." Dividing by 180 to count the half turns IS that lesson's method,
+    and the one example a child works through alongside the teacher skipped it.
+    Flagging a defect and not fixing it is a debt; this pays it."""
+    print("\nPART 3fo — Algebra One, read for sense (build pk)")
+    import lessonscripts as _ls
+    byid = {l["id"]: l for l in _ls.LESSONS}
+    teach = lambda lid: " ".join(s for s, _b in byid[lid]["teach"])
+    second = lambda lid: byid[lid]["pairs"][1]["worked"][0]
+
+    check("⭐ the range beat states its contrast once, not twice",
+          "How far it reaches is its spread" not in teach("alg1-u9-the-range")
+          and "something else entirely" in teach("alg1-u9-the-range"),
+          "two sentences making the same contrast leave it made by neither")
+    check("⭐ the radians fragment PART 3fn flagged is closed",
+          "2700 divided by 180 equals 15" in second("pc-u4-the-half-turn-language"),
+          "dividing by 180 IS the method; the example showed only its answer")
+    check("  the range's own second example shows the take away",
+          "25 take away 7" in second("alg1-u9-the-range"), "")
+    check("  powers of ten counts its zeros out loud",
+          "two zeros behind it" in second("alg1-u6-times-ten-again"), "")
+    check("  reading the line climbs to the point instead of naming it",
+          "The point is 4 comma 9" in second("alg1-u4-reading-the-line"), "")
+
+    short = [l["id"] for l in _ls.LESSONS if l["course"] == "algebra1"
+             and len(l["pairs"]) > 1
+             and len(l["pairs"][1]["worked"][0].split()) < 12]
+    check("⭐ no Algebra I second worked example is a one-line answer (pi's rule)",
+          not short, short)
+
+    read = ("entry", "basic", "prealgebra", "algebra1")
+    check("⭐ all four foundation courses have now been read line by line",
+          all(len([l for l in _ls.LESSONS if l["course"] == c]) == 36 for c in read),
+          {c: len([l for l in _ls.LESSONS if l["course"] == c]) for c in read})
+
+
 def part3fn_prealgebra_read_for_sense():
     """PART 3fn (build pj, 2026-08-28) -- PRE-ALGEBRA, READ FOR SENSE.
 
@@ -14717,7 +14848,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,153</b>" in page,
+          "<b>7,164</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23180,6 +23311,8 @@ def main():
     part3fl_the_curriculum_is_whole()
     part3fm_the_second_example_teaches_too()
     part3fn_prealgebra_read_for_sense()
+    part3fo_algebra_one_read_for_sense()
+    part3fp_geometry_read_for_sense()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

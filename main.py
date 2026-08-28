@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  APP_BUILD -> "2026-08-28pl-geometry-read-for-sense". BUILD pl -- all
+#               36 Geometry lessons read line by line; seven second worked examples
+#               stated the answer where the first stated the operation. Five of the
+#               seven were invisible to the word-count sweep. No Python changed
+#               except this stamp.
+#   2026-08-28  APP_BUILD -> "2026-08-28pk-algebra-one-read-for-sense". BUILD pk --
+#               all 36 Algebra I lessons read line by line; four changes, plus the
+#               Pre-Calc radians fragment pj flagged. The four foundation courses
+#               (Entry, Basic, Pre-Algebra, Algebra I) have now all been read.
+#               No Python changed except this stamp.
 #   2026-08-28  APP_BUILD -> "2026-08-28pj-prealgebra-read-for-sense". BUILD pj --
 #               all 35 Pre-Algebra lessons read line by line. It is the strongest
 #               course in the product; seven changes across five lessons. No Python
@@ -12477,7 +12487,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-28pj-prealgebra-read-for-sense"
+APP_BUILD = "2026-08-28pl-geometry-read-for-sense"
 
 
 @app.get("/health")

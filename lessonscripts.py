@@ -2,6 +2,45 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pl -- GEOMETRY, READ FOR SENSE. All 36 lessons read line by
+#               line. ⭐ THE COURSE IS EXCELLENT, and what carries it is that every
+#               unit's trap is a MISTAKE SOMEONE ACTUALLY MAKES, named out loud: 180
+#               leaping to mind inside a 90-degree corner because the straight-line
+#               lesson came first; a fence with six posts and five rails; the slanted
+#               side of a parallelogram that is longer than its height, so grabbing
+#               it "always looks generous"; and volume punished by "the course's own
+#               history" -- times the factor once is the LENGTH habit, twice is the
+#               AREA habit. Seven changes in 36 lessons, all of one shape.
+#               ⚠️ THE SHAPE, sharper here than anywhere: the FIRST worked example
+#               states the OPERATION and the second states only the ANSWER.
+#                   W1  "The arc measures 56 degrees, so the inscribed angle is
+#                        56 divided by 2 — 28 degrees."
+#                   W2  "An arc of 110: the inscribed angle is 55 degrees."
+#               Halving IS the lesson. Doubling the radius IS the lesson. Dividing by
+#               the adjacent IS the lesson. Only two of the seven were short enough
+#               for build pi's word-count sweep to catch -- the other five state a
+#               correct answer at a normal length and simply never do the arithmetic
+#               in front of the child. A sweep cannot see that; reading it can.
+#   2026-08-28  BUILD pk -- ALGEBRA ONE, READ FOR SENSE. All 36 lessons read line by
+#               line. ⭐ IT IS AS GOOD AS PRE-ALGEBRA AND POSSIBLY BETTER, and the
+#               teaching pictures are the reason: an equation is a BALANCE SCALE and
+#               equals means level; two undos come off in SOCKS-AND-SHOES order; a
+#               function is a MACHINE with a door in and a door out; a product is a
+#               rectangle of ROOMS, and "middles add, corner times" is the whole
+#               danger of the unit said in four words. FOUR changes in 36 lessons.
+#               ⚠️ ONE WAS A BEAT THAT SAID THE SAME THING TWICE. The range lesson
+#               opened: "The mean and the median both tell you where the data SITS.
+#               How far it reaches is its spread, and the range measures exactly
+#               that. The range tells you something else entirely: how far it
+#               stretches." The second sentence announces a contrast the first one
+#               already made, so a listener is told twice that spread is not
+#               position and never told it cleanly once. Cut to one.
+#               The other three are build pi's rule again -- second worked examples
+#               that had stopped showing their method.
+#               AND THE FRAGMENT pj FLAGGED IS FIXED: pc-u4-the-half-turn-language
+#               said "One more together. 2700 degrees: 15 pi." Dividing by 180 to
+#               count the half turns IS that lesson's method, and the one example a
+#               child works through alongside the teacher skipped it.
 #   2026-08-28  BUILD pj -- PRE-ALGEBRA, READ FOR SENSE. All 35 lessons that predate
 #               this session read line by line. ⭐ IT IS THE STRONGEST COURSE IN THE
 #               PRODUCT and the finding is worth recording as praise, not as a thin
@@ -6572,7 +6611,7 @@ _ALGEBRA1_U4 = [
             {"worked": ["Here is one more, done for you. y equals x plus 4, and x is 2. Climb: 2 plus 4 equals 6. The point is 2 comma 6, and y is 6.",
                         '[[graph lines="y=x+4" points="(2,6)" range="0..8" caption="y=x+4 — the point (2,6)"]][[step eq="y = 2 + 4 = 6"]]'],
              "ask": {"a": 3, "b": 6, "op": "lny"}},
-            {"worked": ["One more together. y equals x plus 5, and x is 4: y equals 9.",
+            {"worked": ["One more together. y equals x plus 5, and x is 4. Climb: 4 plus 5 equals 9. The point is 4 comma 9, so y is 9.",
                         '[[step eq="y = 4 + 5 = 9"]]'],
              "ask": {"a": 7, "b": 6, "op": "lny"}},
         ],
@@ -6988,7 +7027,7 @@ _ALGEBRA1_U6 = [
             {"worked": ["Here is one more, done for you. 5 times 10 to the 3. That is 5 times 1000 — 5000, the 5 with three zeros behind it.",
                         '[[step eq="5 × 10³ = 5000"]]'],
              "ask": {"a": 2, "b": 4, "op": "sci"}},
-            {"worked": ["One more together. 7 times 10 to the 2 equals 700.",
+            {"worked": ["One more together. 7 times 10 to the 2. That is 7 times 100 — 700, the 7 with two zeros behind it.",
                         '[[step eq="7 × 10² = 700"]]'],
              "ask": {"a": 3, "b": 5, "op": "sci"}},
         ],
@@ -7475,7 +7514,7 @@ _ALGEBRA1_U9 = [
         "symbols": ("range", "spread"),
         "advance_line": "Three in a row — you've got it! The range is how far the data stretches.",
         "teach": [
-            ["The mean and the median both tell you where the data SITS. How far it reaches is its spread, and the range measures exactly that. The range tells you something else entirely: how far it stretches. Biggest take away smallest — one take away, and it describes the whole spread of the data.",
+            ["The mean and the median both tell you where the data SITS. The range tells you something else entirely: how far it stretches. Biggest take away smallest — one take away, and it describes the whole spread of the data.",
              '[[goal text="The range"]][[bars data="smallest:4 | biggest:19" caption="smallest 4, biggest 19"]]'],
             ["Smallest 4, biggest 19. The range is 19 take away 4, which equals 15. The data covers a stretch of 15.",
              '[[step eq="19 − 4 = 15"]]'],
@@ -7486,7 +7525,7 @@ _ALGEBRA1_U9 = [
             {"worked": ["Here is one more, done for you. Smallest 5, biggest 21. The range is 21 take away 5, which equals 16.",
                         '[[step eq="21 − 5 = 16"]]'],
              "ask": {"a": 3, "b": 15, "op": "rnge"}},
-            {"worked": ["One more together. Smallest 7, biggest 25: a range of 18.",
+            {"worked": ["One more together. Smallest 7, biggest 25. The range is 25 take away 7, which equals 18.",
                         '[[step eq="25 − 7 = 18"]]'],
              "ask": {"a": 9, "b": 30, "op": "rnge"}},
         ],
@@ -7656,7 +7695,7 @@ _GEOMETRY_U1 = [
             {"worked": ["Here is one more, done for you. A radius of 9 gives a diameter of 2 times 9 — 18.",
                         '[[circle center="O" r="9" caption="middle to edge: the radius is 9"]][[step eq="2 × 9 = 18"]]'],
              "ask": {"a": 14, "b": 0, "op": "circ"}},
-            {"worked": ["One more together. A radius of 11: the diameter is 22.",
+            {"worked": ["One more together. A radius of 11: the diameter is 2 times 11, which equals 22.",
                         '[[step eq="2 × 11 = 22"]]'],
              "ask": {"a": 22, "b": 0, "op": "circ"}},
         ],
@@ -8317,7 +8356,7 @@ _GEOMETRY_U5 = [
             {"worked": ["Here is one more, done for you. Adjacent 2, opposite 10: the tangent is 10 divided by 2 — 5.",
                         '[[righttriangle adj="2" opp="10" caption="legs 10 and 2"]][[step eq="tan = 10 ÷ 2 = 5"]]'],
              "ask": {"a": 2, "b": 8, "op": "tang"}},
-            {"worked": ["One more together. Adjacent 10, opposite 20: the tangent is 2.",
+            {"worked": ["One more together. Adjacent 10, opposite 20: the tangent is 20 divided by 10, which equals 2.",
                         '[[step eq="tan = 20 ÷ 10 = 2"]]'],
              "ask": {"a": 6, "b": 12, "op": "tang"}},
         ],
@@ -8445,7 +8484,7 @@ _GEOMETRY_U6 = [
             {"worked": ["Here is one more, done for you. The arc measures 56 degrees, so the inscribed angle is 56 divided by 2 — 28 degrees.",
                         '[[circle center="O" inscribed="56" caption="an angle standing on the rim"]][[step eq="56° ÷ 2 = 28°"]]'],
              "ask": {"a": 36, "b": 0, "op": "insc"}},
-            {"worked": ["One more together. An arc of 110: the inscribed angle is 55 degrees.",
+            {"worked": ["One more together. An arc of 110: the inscribed angle is 110 divided by 2, which equals 55 degrees.",
                         '[[step eq="110° ÷ 2 = 55°"]]'],
              "ask": {"a": 150, "b": 0, "op": "insc"}},
         ],
@@ -8483,7 +8522,7 @@ _GEOMETRY_U6 = [
             {"worked": ["Here is one more, done for you. The inscribed angle is 26 degrees, so its arc is 2 times 26 — 52 degrees.",
                         '[[circle center="O" inscribed="52" caption="an angle standing on the rim"]][[step eq="arc = 2 × 26° = 52°"]]'],
              "ask": {"a": 16, "b": 0, "op": "iarc"}},
-            {"worked": ["One more together. An inscribed angle of 75: the arc is 150 degrees.",
+            {"worked": ["One more together. An inscribed angle of 75: the arc is 2 times 75, which equals 150 degrees.",
                         '[[step eq="arc = 2 × 75° = 150°"]]'],
              "ask": {"a": 44, "b": 0, "op": "iarc"}},
         ],
@@ -8521,7 +8560,7 @@ _GEOMETRY_U6 = [
             {"worked": ["Here is one more, done for you. Distance around: 18. Central angle: 60 degrees — that is 6 equal parts, so the arc is 18 divided by 6, which equals 3.",
                         '[[pie parts="6" shaded="1" caption="6 equal parts, 1 shaded"]][[step eq="18 ÷ 6 = 3"]]'],
              "ask": {"a": 90, "b": 20, "op": "alen"}},
-            {"worked": ["One more together. Distance around 32, central angle 45 — eight equal parts: the arc is 4.",
+            {"worked": ["One more together. Distance around 32, central angle 45 — that is eight equal parts, so the arc is 32 divided by 8, which equals 4.",
                         '[[step eq="32 ÷ 8 = 4"]]'],
              "ask": {"a": 120, "b": 24, "op": "alen"}},
         ],
@@ -8611,7 +8650,7 @@ _GEOMETRY_U7 = [
             {"worked": ["Here is one more, done for you. From (1, 2) to (7, 10): across 6, up 8. 36 plus 64 is 100, and 10 times 10 equals 100 — the distance is 10.",
                         '[[graph points="(1,2),(7,10)" range="0..14" yrange="0..14" caption="from (1,2) to (7,10)"]][[step eq="6² + 8² = 100"]] [[step eq="√100 = 10"]]'],
              "ask": {"a": 3, "b": 4, "c": 1, "op": "dist"}},
-            {"worked": ["One more together. From (4, 1) to (7, 5): across 3, up 4 — the straight distance is 5.",
+            {"worked": ["One more together. From (4, 1) to (7, 5): across 3, up 4. 9 plus 16 is 25, and 5 times 5 equals 25 — the straight distance is 5.",
                         '[[step eq="3² + 4² = 25"]] [[step eq="√25 = 5"]]'],
              "ask": {"a": 2, "b": 2, "c": 2, "op": "dist"}},
         ],
@@ -8944,7 +8983,7 @@ _GEOMETRY_U9 = [
             {"worked": ["Here is one more, done for you. A chance of 4 out of 9: the other chance is 9 take away 4 — 5 out of 9.",
                         '[[pie parts="9" shaded="4" caption="9 equal parts, 4 shaded"]][[step eq="9 − 4 = 5"]]'],
              "ask": {"a": 2, "b": 9, "op": "notp"}},
-            {"worked": ["One more together. 6 out of 13: the other chance is 7 out of 13.",
+            {"worked": ["One more together. 6 out of 13: the other chance is 13 take away 6 — 7 out of 13.",
                         '[[step eq="13 − 6 = 7"]]'],
              "ask": {"a": 7, "b": 20, "op": "notp"}},
         ],
@@ -11059,7 +11098,7 @@ _PRECALC_U4 = [
             {"worked": ["Here is one more, done for you. 2520 degrees: 2520 divided by 180 equals 14 — 14 pi radians.",
                         '[[step eq="2520 ÷ 180 = 14"]] [[step eq="so 14π"]]'],
              "ask": {"a": 12, "b": 0, "op": "rad1"}},
-            {"worked": ["One more together. 2700 degrees: 15 pi.",
+            {"worked": ["One more together. 2700 degrees: 2700 divided by 180 equals 15 — 15 pi radians.",
                         '[[step eq="2700 ÷ 180 = 15"]] [[step eq="so 15π"]]'],
              "ask": {"a": 13, "b": 0, "op": "rad1"}},
         ],
