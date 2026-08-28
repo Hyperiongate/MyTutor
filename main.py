@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  APP_BUILD -> "2026-08-28pr-a-fragment-of-an-unspoken-whole". BUILD pr
+#               -- rule 44 gains an eye for a pending question that is only a FRAGMENT
+#               of a board problem nobody read aloud. Measured first: all five of the
+#               night watch's referee-backed findings were HOLES, not pass-throughs.
+#               Two repairs cut by canon sweep. No teaching content changed.
 #   2026-08-28  APP_BUILD -> "2026-08-28pq-the-eyes-report-what-they-saw". BUILD pq --
 #               the 2026-08-28 night watch, worked. Rule 42's referee widened (canon
 #               swept; two additions CUT). The watch now reports crash REASONS, not
@@ -12510,7 +12515,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-28pq-the-eyes-report-what-they-saw"
+APP_BUILD = "2026-08-28pr-a-fragment-of-an-unspoken-whole"
 
 
 @app.get("/health")

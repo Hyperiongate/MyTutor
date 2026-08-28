@@ -2,6 +2,17 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pr -- RULE 44'S THIRD PHANTOM: A FRAGMENT OF AN UNSPOKEN WHOLE.
+#               The night watch's order-of-operations turn drew "4 + 5 x 2", asked
+#               "5 x 2 = ?", and never said the problem. Rule 44's referee was silent
+#               for TWO measured reasons: the whole line carries no "?" so it was never
+#               a candidate, AND _pq_spoken_covers passes on one spoken number. Two
+#               repairs CUT by canon sweep: strict coverage newly condemns 169 authored
+#               cards (58 -> 227), and even gated behind an announcement it hits 29,
+#               because it counts "÷ 2" as a quantity where a teacher says "halved".
+#               What shipped is narrower -- a pending question that is a FRAGMENT of a
+#               larger board expression whose extra numbers were never spoken. Zero
+#               hits in 2,109 cards. Inside rule 44's existing seat: still 58 referees.
 #   2026-08-28  BUILD pq -- RULE 42'S TWO OPEN DOORS. The night watch caught three
 #               comparison-to-others lines in one run. MEASURED, not assumed: two were
 #               detector misses ("a lot of PEOPLE", bare "EVERYONE") and the third
@@ -6672,6 +6683,103 @@ def _pq_spoken_covers(prose: str, board_value: str) -> bool:
         return True
 
 
+# =============================================================================
+# BUILD pr (2026-08-28) -- RULE 44'S THIRD PHANTOM: A FRAGMENT OF AN UNSPOKEN WHOLE.
+# =============================================================================
+# From the 2026-08-28 night watch, an order-of-operations turn:
+#
+#     "Here's one for you."
+#     [[step eq="4 + 5 × 2"]]
+#     [[step eq="5 × 2 = ?"]]
+#     "Same rule as before -- multiply before you add. What does five times two equal?"
+#
+# The child never hears "four plus five times two". They are asked to multiply two
+# numbers with no idea what problem the multiplication belongs to -- which is rule 44's
+# exact failure, and the referee was silent for TWO independent reasons. Both were
+# MEASURED before anything was written:
+#
+#   (1) CANDIDACY. The referee only ever examines board values containing "?" or a
+#       "Q1:" label. "4 + 5 × 2" carries neither, so the new problem was never a
+#       candidate at all.
+#   (2) GENEROSITY. _pq_spoken_covers returns True the moment ONE number of the line
+#       appears in the prose. "five times two" covers 5 and 2, so even as a candidate
+#       the line would have passed.
+#
+# ⚠️ TWO OBVIOUS REPAIRS WERE MEASURED AND CUT, both by the canon sweep:
+#   Tightening _pq_spoken_covers to build eq's stated intent -- "every quantity the
+#     board line states has to appear in the words" -- newly condemns 169 AUTHORED
+#     CARDS (58 -> 227). The docstring's generosity is not sloppiness; it is what keeps
+#     the referee from fighting boards that show full working while the prose narrates
+#     part of it. The lenient bar STAYS.
+#   Applying strict coverage only after a "here's one for you" announcement still hits
+#     29 authored cards, because strict counting treats an operator constant as a
+#     quantity: "(11 + 13) ÷ 2 = 12" demands the prose say "2" when a real teacher says
+#     "halved". Also cut.
+#
+# WHAT SURVIVED is narrower and truer to the defect: a pending question that is a
+# genuine FRAGMENT of a larger board expression, where the numbers only the WHOLE
+# carries were never spoken. Zero hits across all 2,109 authored cards, and it goes
+# quiet the moment the tutor reads the problem out. It lives inside rule 44's existing
+# referee -- same rule, same nudge, same telemetry name, no new seat.
+def _pq_fragment_of_unspoken_whole(text: str, prose: str) -> str:
+    """The child is asked about a FRAGMENT of a problem whose WHOLE was never read.
+    Returns a description, or "". Never raises."""
+    try:
+        if "?" not in prose:
+            return ""
+        eqs = []
+        for tag in re.findall(r"\[\[\s*(?:" + "|".join(_PQ_BOARD_TAGS) + r")\b([^\]]*)\]\]",
+                              text, re.I):
+            for attr, val in re.findall(r'(\w+)\s*=\s*"([^"]*)"', tag):
+                if attr == "eq":
+                    eqs.append(val)
+        pend = [v for v in eqs if "?" in v]
+        whole = [v for v in eqs if "?" not in v and re.search(r"[+\-−×x*/÷^]", v)]
+        if not pend or not whole:
+            return ""
+
+        def _core(v):
+            return re.split(r"=", v)[0].strip()
+
+        def _nums(v):
+            return [int(n) for n in re.findall(r"\b\d{1,4}\b", v or "")]
+
+        low = " " + re.sub(r"[^a-z0-9/\.\s-]", " ", prose.lower()) + " "
+        spoken = _spoken_numbers(prose)
+
+        def _said(n):
+            if re.search(r"\b%d\b" % n, low):
+                return True
+            w = _EQ_NUMWORD.get(n)
+            if w and re.search(r"\b%s\b" % w, low):
+                return True
+            return n in spoken
+
+        for w in whole:
+            wc = _core(w)
+            for p in pend:
+                pc = _core(p)
+                # a genuine fragment: strictly contained, never the whole thing again
+                if not pc or pc == wc or pc not in wc:
+                    continue
+                missing = [n for n in _nums(wc)
+                           if n not in _nums(pc) and not _said(n)]
+                if missing:
+                    return ('the board asks about "{p}", which is only a PIECE of '
+                            '"{w}" -- and the whole problem was never read aloud '
+                            "({m} never spoken). Rule 44: READ THE PROBLEM ALOUD, IN "
+                            "FULL, BEFORE IT IS WORKED. A child who hears only the "
+                            "fragment is being asked to work a step with no idea what "
+                            "problem it belongs to. Say the whole problem the way a "
+                            "person says it, then ask about the step.").format(
+                                p=" ".join(p.split())[:40],
+                                w=" ".join(w.split())[:40],
+                                m=", ".join(str(m) for m in missing[:3]))
+        return ""
+    except Exception:  # noqa: BLE001 -- fail open, always
+        return ""
+
+
 def prose_unspoken_problem_conflict(reply: str):
     """Return a description of a board problem the spoken words never read aloud,
     or "". Never raises: any unexpected input yields "" (fail open)."""
@@ -6681,6 +6789,11 @@ def prose_unspoken_problem_conflict(reply: str):
         low = prose.lower()
         if "?" not in prose and "your turn" not in low:
             return ""
+        # (pr) THE FRAGMENT PASS runs first: it catches the shape the pending-line
+        # scan below cannot see, because the unspoken whole carries no "?" at all.
+        frag = _pq_fragment_of_unspoken_whole(text, prose)
+        if frag:
+            return frag
         pend = []
         for tag in re.findall(r"\[\[\s*(?:" + "|".join(_PQ_BOARD_TAGS) + r")\b([^\]]*)\]\]",
                               text, re.I):

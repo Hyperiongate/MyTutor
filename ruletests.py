@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pr -- PART 3fv: a fragment of an unspoken whole. All FIVE of the
+#               night watch's remaining referee-backed findings were run through their
+#               own referees first: unlike pq, ALL FIVE WERE SILENT -- holes, not
+#               pass-throughs. Only the order-of-operations one is fixed, because it is
+#               the only finding whose spoken prose the report reproduces in full; the
+#               other four would be fixes built on my reconstruction and are recorded
+#               as measured-but-unfixed. Two tempting repairs cut with their numbers
+#               (169 and 29 authored cards). No new referee.
 #   2026-08-28  BUILD pq -- PART 3fu: the eyes report what they saw. The night watch's
 #               own report, worked. Rule 42 widened after MEASURING all three findings
 #               (two misses, one pass_through -- assuming three misses would have been
@@ -13165,6 +13173,114 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fv_a_fragment_of_an_unspoken_whole():
+    """PART 3fv (build pr, 2026-08-28) -- RULE 44'S THIRD PHANTOM.
+
+    From the 2026-08-28 night watch, an order-of-operations turn:
+        "Here's one for you."
+        [[step eq="4 + 5 x 2"]]
+        [[step eq="5 x 2 = ?"]]
+        "Same rule as before -- multiply before you add. What does five times two
+         equal?"
+    The child never hears "four plus five times two". They are asked to multiply two
+    numbers with no idea what problem the multiplication belongs to.
+
+    ⭐ FIVE ESCAPED LINES WERE RUN THROUGH THEIR OWN REFEREES FIRST, and unlike the
+    rule 42 findings in build pq -- where one of three turned out to be a pass-through
+    -- ALL FIVE WERE SILENT. These are holes, not unresolved objections:
+        rule 44 order-of-ops (this one)          SILENT
+        rule 44 returning-student equation       SILENT
+        rule 16 discriminant substitution        SILENT
+        rule 14 Pythagorean a, b, c              SILENT
+        rule 14 the arrow                        SILENT
+    Only the first is fixed here, and the reason is discipline rather than appetite:
+    the night watch quotes BOARD LINES verbatim but not whole replies, and the
+    order-of-operations finding is the one whose spoken prose the report reproduces in
+    full. The other four would be fixes built on my own reconstruction of what the
+    tutor said. They are recorded as measured holes and left for a build that can see
+    the transcripts.
+
+    THE REFEREE WAS SILENT FOR TWO INDEPENDENT REASONS, both measured:
+      (1) CANDIDACY -- it only examines board values containing "?" or a "Q1:" label,
+          and "4 + 5 x 2" carries neither.
+      (2) GENEROSITY -- _pq_spoken_covers returns True the moment ONE number of the
+          line is spoken, so "five times two" would have covered it anyway.
+
+    ⚠️ TWO REPAIRS WERE CUT BY THE CANON SWEEP, and the numbers are why:
+      Tightening _pq_spoken_covers to build eq's stated intent ("every quantity the
+        board line states has to appear in the words") takes authored-card fires from
+        58 to 227 -- 169 NEWLY CONDEMNED CARDS. The generosity in that docstring is
+        deliberate: it is what stops the referee fighting boards that show full working
+        while the prose narrates part of it. THE LENIENT BAR STAYS.
+      Strict coverage gated behind a "here's one for you" announcement still hits 29
+        authored cards, because strict counting treats an operator constant as a
+        quantity: "(11 + 13) / 2 = 12" would demand the prose say "2" where a real
+        teacher says "halved". Also cut.
+
+    WHAT SURVIVED is narrower and truer: a pending question that is a genuine FRAGMENT
+    of a larger board expression, where the numbers only the WHOLE carries were never
+    spoken. ZERO hits across all 2,109 authored cards. No new referee -- it lives
+    inside rule 44's existing seat, so the count stays 58."""
+    print("\nPART 3fv — a fragment of an unspoken whole (build pr)")
+    import tutor as _t
+
+    LIVE = ('Here\'s one for you.\n[[step eq="4 + 5 × 2"]]\n[[step eq="5 × 2 = ?"]]\n'
+            'Same rule as before — multiply before you add. What does five times two '
+            'equal?')
+    check("⭐ the 2026-08-28 order-of-operations turn is now caught",
+          bool(_t.prose_unspoken_problem_conflict(LIVE)),
+          "a child asked to multiply a fragment of a problem nobody read to them")
+    check("  ...and the nudge names the WHOLE, not just the fragment",
+          "only a PIECE" in (_t.prose_unspoken_problem_conflict(LIVE) or ""),
+          "the tutor has to be told which problem to read, or it cannot comply")
+
+    FIXED = ('Here\'s one for you: four plus five times two.\n'
+             '[[step eq="4 + 5 × 2"]]\n[[step eq="5 × 2 = ?"]]\n'
+             'Multiply before you add. What does five times two equal?')
+    check("⭐ ...and it goes SILENT the moment the problem is read aloud",
+          not _t.prose_unspoken_problem_conflict(FIXED),
+          "a referee that cannot be satisfied is build iz's phantom -- three attempts "
+          "burned and the flawed reply ships anyway")
+
+    # both directions, the standing discipline
+    quiet = [
+        # the pending line IS the whole problem -- nothing hidden
+        '[[step eq="7 × 8 = ?"]]\nWhat is seven times eight?',
+        # two unrelated lines: not a fragment
+        '[[step eq="3 + 4 = 7"]]\n[[step eq="9 − 2 = ?"]]\nNow try nine take away two.',
+        # no pending question at all
+        '[[step eq="4 + 5 × 2"]]\n[[step eq="5 × 2 = 10"]]\nSo four plus ten is fourteen.',
+        # the whole spoken in numerals
+        'Here\'s one for you: 4 + 5 × 2.\n[[step eq="4 + 5 × 2"]]\n'
+        '[[step eq="5 × 2 = ?"]]\nWhat does five times two equal?',
+        # compound number words -- build jo's ear must still work
+        '[[step eq="300 + 25 × 2"]]\n[[step eq="25 × 2 = ?"]]\nThree hundred plus '
+        'twenty five times two. What is twenty five times two?',
+    ]
+    noisy = [q for q in quiet if _t.prose_unspoken_problem_conflict(q)]
+    check("  five honest replies stay silent (both directions tested)", not noisy, noisy)
+
+    loud = ['[[step eq="12 + 6 ÷ 3"]]\n[[step eq="6 ÷ 3 = ?"]]\n'
+            'Divide first — what is six divided by three?']
+    check("  ...and a second, differently-shaped fragment still fires",
+          all(_t.prose_unspoken_problem_conflict(x) for x in loud), "")
+
+    # ---- THE CUTS, pinned so nobody quietly re-tightens the bar ----
+    check("⚠️ the LENIENT coverage bar is intact -- one spoken number still counts",
+          _t._pq_spoken_covers("what does five times two equal?", "4 + 5 × 2"),
+          "tightening this to 'every quantity' newly condemns 169 authored cards; "
+          "the generosity is deliberate and the fragment pass is what replaced it")
+    src = __import__("inspect").getsource(_t)
+    check("  ...and the 169 / 29 measurements stay written down beside the code",
+          "169 AUTHORED" in src and "29 authored cards" in src,
+          "a cut with no number attached gets re-tried by the next person")
+
+    # ---- no new seat ----
+    check("  rule 44 gained an eye, not a referee (the seat count is untouched)",
+          "_pq_fragment_of_unspoken_whole" in src
+          and src.count("def prose_unspoken_problem_conflict") == 1, "")
+
+
 def part3fu_the_eyes_report_what_they_saw():
     """PART 3fu (build pq, 2026-08-28) -- THE EYES REPORT WHAT THEY SAW.
 
@@ -15446,7 +15562,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,211</b>" in page,
+          "<b>7,219</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23928,6 +24044,7 @@ def main():
     part3fs_calculus_read_for_sense()
     part3ft_the_curriculum_is_read()
     part3fu_the_eyes_report_what_they_saw()
+    part3fv_a_fragment_of_an_unspoken_whole()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
