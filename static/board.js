@@ -2,6 +2,18 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+   2026-08-28  BUILD pw -- A DIFFERENT PROBLEM IS NOT A STALE SNAPSHOT. Jim's
+               order-of-operations screenshot: the worked "6 + 4 x 2 = 14" and the
+               earlier "3 + 2 x 5 = 13" both hidden behind "show the 5 earlier steps"
+               on a board around 90% empty. supersedePrevious()'s own comment says a
+               block folds when this turn opens with the SAME first line -- but the
+               code computed _firstLine(self), tested it only for emptiness, and NEVER
+               CALLED _firstLine(k). Every earlier written block folded, whatever
+               problem it belonged to. One missing `if`. Build oz's fold survives
+               untouched for real re-statements (rule 35 restates every turn), and a
+               folding block now takes its own chip with it -- the drive caught it
+               reading "1 earlier step" while two were folded. tools/pwdrive.py,
+               both directions, in a real browser.
    2026-08-28  BUILD pu -- SHRINK THE PICTURE UNTIL THE TURN FITS. Jim: "whatever
                he's saying needs to be visible on the whiteboard without the student
                moving anything." MEASURED in a real browser (tools/puedrive.py): the
@@ -822,7 +834,19 @@ function _firstLine(block) {
 function supersedePrevious(wl) {
   try {
     const self = wl.closest(".mblock") || wl.parentElement;
-    if (!_firstLine(self)) return;
+    // ⚠️ (pw) THE COMPARISON THIS FUNCTION IS NAMED FOR WAS NEVER MADE. The comment
+    // above says a block folds when THIS turn's board "opens with the SAME line the
+    // previous block opened with" -- that is what makes it a superseded SNAPSHOT of
+    // one problem. _firstLine(self) was computed and then only tested for emptiness;
+    // _firstLine(k) was never called at all, so EVERY earlier written block folded,
+    // whatever problem it belonged to.
+    // Jim's order-of-operations screenshot is what that looks like: "3 + 2 x 5" and
+    // the worked "6 + 4 x 2" both hidden behind "show the 5 earlier steps" while the
+    // board sits 90% empty and the tutor talks about work the child cannot see. It
+    // is his standing rule broken by a missing `if`: whatever he is saying has to be
+    // visible without the student moving anything.
+    const mine = _firstLine(self);
+    if (!mine) return;
     const kids = feed.children;
     let seenSelf = false;
     for (let i = kids.length - 1; i >= 0; i--) {
@@ -841,8 +865,17 @@ function supersedePrevious(wl) {
       // deleted the picture out from under the question about it.
       if (!k.querySelector(".worklist") || k.querySelector(".mfig, .graphwrap, "
           + ".colmath, .objwrap, .scale, .machine, .solveboard, .steprow")) continue;
+      // (pw) A DIFFERENT PROBLEM IS NOT A STALE SNAPSHOT OF THIS ONE. Only a block
+      // that opens with the same first line is a re-statement, and only that folds.
+      if (_firstLine(k) !== mine) continue;
       supersedeCss();
       k.classList.add("superseded");
+      // (pw) A BLOCK THAT FOLDS TAKES ITS OWN CHIP WITH IT. Caught by this build's
+      // drive: the live chip read "show the 1 earlier step" while TWO were folded,
+      // because an older block had been given a chip and was then superseded itself,
+      // carrying a stale count into the hidden pile. One chip, on the live block.
+      const stale = k.querySelector(".supchip");
+      if (stale) stale.remove();
       supChip(self);
       // keep walking: EVERY earlier snapshot of this problem folds, so the board
       // shows the current state of the work and its history, folded -- not a column

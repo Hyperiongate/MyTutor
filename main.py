@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  APP_BUILD -> "2026-08-28pw-a-different-problem-is-not-a-snapshot". BUILD pw --
+#               board.js only: supersedePrevious now COMPARES first lines, so a
+#               different problem is no longer folded away as a stale snapshot of the
+#               current one. From Jim's order-of-operations screenshot. No Python
+#               changed except this stamp.
 #   2026-08-28  APP_BUILD -> "2026-08-28pv-one-character-three-failures". BUILD pv --
 #               Jim's Geometry screenshot, three bugs. NEW _split_ai_reply(): the AI
 #               intervention step returned the model's WHOLE reply in `spoken` with an
@@ -12577,7 +12582,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-28pv-one-character-three-failures"
+APP_BUILD = "2026-08-28pw-a-different-problem-is-not-a-snapshot"
 
 
 @app.get("/health")

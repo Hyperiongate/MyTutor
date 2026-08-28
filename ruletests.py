@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-28  BUILD pw -- PART 3ga: a different problem is not a snapshot. Jim's
+#               order-of-operations screenshot. supersedePrevious folded EVERY earlier
+#               written block, not just re-statements of the current problem, because
+#               the comparison the function is named for was never made -- one missing
+#               `if`. The board hid a worked example behind a click while sitting 90%
+#               empty. Build oz's fold is intact; the drive also caught a stale chip
+#               count and that is fixed too. tools/pwdrive.py, both directions.
 #   2026-08-28  BUILD pv -- PART 3fz: one character, three visible failures. From
 #               Jim's Geometry screenshot. A hyphened stutter ("Si-61") parsed as
 #               NEGATIVE 61 and graded a right answer wrong; the intervention it
@@ -13206,6 +13213,68 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3ga_a_different_problem_is_not_a_snapshot():
+    """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
+
+    Jim's order-of-operations screenshot: the tutor has just worked "3 + 2 x 5 = 13"
+    and demonstrated "6 + 4 x 2 = 14", and asks "What is 2 plus 3 times 6?" -- and the
+    board shows ONE line, "2 + 3 x 6 = ?", with everything else hidden behind
+    "> show the 5 earlier steps", on a board that is around 90% empty.
+
+    ⭐ THE BUG IS A MISSING `if`. supersedePrevious()'s own comment says a block folds
+    when this turn's board "opens with the SAME line the previous block opened with" --
+    that is what makes it a superseded SNAPSHOT of one problem, and folding those is
+    build oz's win (Jim: "we're just marching straight down"). But the code computed
+    _firstLine(self) and then only tested it for EMPTINESS. _firstLine(k) was never
+    called at all. So every earlier written block folded, whatever problem it belonged
+    to -- a worked example from a different question was treated as a stale snapshot of
+    the current one and hidden behind a click.
+
+    That is Jim's standing board rule broken by an omission: "whatever he's saying needs
+    to be visible on the whiteboard without the student moving anything." Build pu made
+    an over-tall turn fit the window. This one was the opposite failure -- a board with
+    room to spare, hiding the work anyway.
+
+    ⚠️ AND THE DRIVE CAUGHT A SECOND ONE. With the fix in, the re-statement case
+    reported "show the 1 earlier step" while TWO blocks were folded: a chip had been
+    put on a block that was itself superseded a turn later, and it carried a stale
+    count into the hidden pile. A folding block now takes its own chip with it.
+
+    MEASURED IN A REAL BROWSER, both directions -- tools/pwdrive.py:
+        A. three DIFFERENT problems  -> 0 folded, no chip, both earlier problems
+                                        still on the board
+        B. the SAME problem re-stated -> 2 folded, exactly ONE chip, reading two.
+    """
+    print("\nPART 3ga — a different problem is not a snapshot (build pw)")
+    b = open("static/board.js", encoding="utf-8").read()
+
+    check("⭐ supersedePrevious actually COMPARES the two first lines now",
+          "const mine = _firstLine(self);" in b
+          and "if (_firstLine(k) !== mine) continue;" in b,
+          "the function was named for a comparison it never made")
+    check("  ...and the reason is written where the next person will read it",
+          "A DIFFERENT PROBLEM IS NOT A STALE SNAPSHOT" in b, "")
+    check("⭐ a folding block takes its own chip with it (no stale count)",
+          'const stale = k.querySelector(".supchip");' in b
+          and "stale.remove();" in b,
+          "the drive read 'show the 1 earlier step' while two were folded")
+
+    # build oz's win must survive: a genuine re-statement still folds
+    check("  the fold itself is intact -- a re-stated snapshot still collapses",
+          "k.classList.add(\"superseded\")" in b and "function supChip(" in b,
+          "rule 35 makes the tutor re-state the whole equation every turn; without "
+          "the fold the board is a column of ghosts")
+    check("  ...and a FIGURE is still never folded (build oz's exemption)",
+          '.mfig, .graphwrap, ' in b,
+          "the picture was drawn so the child can look at it while they work")
+    check("  ...and the walk still stops at the last finished problem",
+          'k.classList.contains("probdone")' in b, "")
+
+    check("  the browser drive that measured both directions is kept",
+          __import__("os").path.exists("tools/pwdrive.py"),
+          "a board claim with no drive behind it is an opinion")
+
+
 def part3fz_a_hyphen_marked_a_right_answer_wrong():
     """PART 3fz (build pv, 2026-08-28) -- ONE CHARACTER, THREE VISIBLE FAILURES.
 
@@ -16065,7 +16134,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,267</b>" in page,
+          "<b>7,274</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24552,6 +24621,7 @@ def main():
     part3fx_the_child_cannot_be_right()
     part3fy_visible_without_moving_anything()
     part3fz_a_hyphen_marked_a_right_answer_wrong()
+    part3ga_a_different_problem_is_not_a_snapshot()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
