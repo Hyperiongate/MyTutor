@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  APP_BUILD -> "2026-08-29qf-one-thought-per-line". BUILD qf -- Jim's two
+#               Algebra I screenshots: (tutor.py) the 64th referee rejects a board line
+#               that finishes one equation and starts another; (foundations.py) four
+#               authored cards that did exactly that are split, one thought per line;
+#               (board.js) an operation on an expression is shown once, not under two
+#               sides. No Python changed here except this stamp.
 #   2026-08-29  APP_BUILD -> "2026-08-29qe-say-the-course-name". BUILD qe -- speech-text.js
 #               only: forSpeech reads "Algebra I" as "Algebra One" and "Algebra II" as
 #               "Algebra Two" (Jim: "Algebra I is being pronounced Algebra Eye"). No
@@ -12623,7 +12629,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-29qe-say-the-course-name"
+APP_BUILD = "2026-08-29qf-one-thought-per-line"
 
 
 @app.get("/health")

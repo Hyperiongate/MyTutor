@@ -2,6 +2,11 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+   2026-08-29  BUILD qf -- THE OP IS SHOWN ONCE FOR AN EXPRESSION. Jim: "why are we
+               showing substitute x=3 twice?" opRow drew the operation under the
+               left side AND the right side; "2x + 5" has one side. When the line
+               the op produces has no "=", the op is drawn once, centred (inline
+               style, so every page's own .worow copy is covered).
    2026-08-28  BUILD pw -- A DIFFERENT PROBLEM IS NOT A STALE SNAPSHOT. Jim's
                order-of-operations screenshot: the worked "6 + 4 x 2 = 14" and the
                earlier "3 + 2 x 5 = 13" both hidden behind "show the 5 earlier steps"
@@ -760,9 +765,23 @@ function eqRow(eqText) {
 
 // The operation applied to BOTH sides, shown under each side (e.g. "- 1" under the
 // left and "- 1" under the right), so the student SEES it done to both sides.
-function opRow(opText) {
+// (qf) 2026-08-29 -- ONCE, WHEN THERE IS ONLY ONE SIDE. Jim's screenshot: "2x + 5"
+// with "substitute x = 3   substitute x = 3" under it -- "why are we showing
+// substitute x=3 twice?" Because this row always drew the op under the LEFT side
+// and under the RIGHT side, and an expression has no right side. When the line the
+// op produces has no "=", the op is drawn once, centred. The styling is INLINE on
+// purpose: session/practice/topic each carry their own copy of the .worow rules
+// (checkHTML learned this the hard way), so a stylesheet-only fix would reach one
+// page and miss the others.
+function opRow(opText, solo) {
   const op = styleVars(String(opText == null ? "" : opText).trim());
   const row = document.createElement("div"); row.className = "worow";
+  if (solo) {
+    row.classList.add("solo");
+    row.style.gridTemplateColumns = "1fr";
+    row.innerHTML = '<span class="ol" style="text-align:center">' + op + '</span>';
+    return row;
+  }
   row.innerHTML = '<span class="ol">' + op + '</span><span class="oe"></span><span class="orr">' + op + '</span>';
   return row;
 }
@@ -926,7 +945,7 @@ function showStep(a) {
     col = workCol(wl);   // (the current one is full enough that the pair would split)
   }
   const wasEmpty = !wl.querySelector(".wrow");
-  if (a.op) fitRow(col.appendChild(opRow(a.op)));
+  if (a.op) fitRow(col.appendChild(opRow(a.op, !!eq && String(eq).indexOf("=") < 0)));   // (qf) once for an expression
   if (eq) fitRow(col.appendChild(eqRow(eq)));
   // build oz: the moment this turn's first line exists, fold away the previous
   // snapshot if it was the same problem re-stated.

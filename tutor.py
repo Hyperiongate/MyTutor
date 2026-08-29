@@ -2,6 +2,14 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qf -- TWO THOUGHTS ON ONE LINE (the SIXTY-FOURTH referee). Jim's
+#               screenshot: "4x² + 3x² = 7x²   4x² + 7x stays as it is" -- "more than one
+#               idea on a line." board_two_thoughts_conflict: a board line that
+#               finishes one equation and then starts another expression (a TERM then
+#               an OPERATOR after "= result"). Its canon sweep found the line itself in
+#               the algebra1 like-terms foundation card, plus three more authored cards
+#               using runs of spaces as separators -- all split in foundations.py.
+#               Sweep after: 0 of 2,109 cards + 3,699 bank boards. PART 3gj.
 #   2026-08-29  BUILD qd -- THE INTERVENTION TEACHES THE PROBLEM THAT WAS ASKED. Jim's
 #               screenshots: an Algebra II absolute-value miss (|6 − 9|, he said "Two")
 #               became "let's count every star: 6 + 9 = 15". script_intervention
@@ -5719,6 +5727,52 @@ def board_cram_conflict(reply: str):
         return ""
 
 
+
+# (qf) THE SIXTY-FOURTH REFEREE -- TWO THOUGHTS ON ONE LINE. Jim's screenshot,
+# 2026-08-29, Algebra I combining like terms: the board wrote
+#     4x² + 3x² = 7x²   4x² + 7x stays as it is
+# Jim: "a classic example of trying to put more than one idea on a line ... I see an
+# equal sign and wonder what is going on." Build oe's check-cram referee holds one
+# shape of this (a check label welded to its equation); this is the general one: a
+# single board line that finishes one equation (= result) and then starts ANOTHER
+# expression on the same line. The tell is precise and spacing-independent: after
+# "= <result>" comes a TERM (a number, a letter, or a number hugging a letter) and
+# then an OPERATOR -- "= 7x² 4x² +". A single thought never has that: "= 7x² + 3"
+# puts the operator right after the result; "= 11 ✓", "= 5 cm", "= 3 when x = 3"
+# never put term-then-operator after the result. Card items and choice rows split
+# on "|" first (each pipe piece is its own line). Canon swept: 0 of 2,109.
+# The result must be NUMBER-LED (7x², 11, 2(3), −1) or a single variable: a word
+# result ("= log a + log b", "= sin u + C") is a function name, not a finished
+# thought. The middle dot is NOT an operator here -- the authored lessons use " · "
+# as the separator of a deliberate side-by-side contrast ("100 ✓ · 75 ✗").
+_TWO_THOUGHTS_RE = re.compile(
+    r"=\s*(?:[-−]?\d[\w²³.]*(?:\([^)]*\))?|[a-z][²³]?)\s+"   # = result
+    r"([-−]?\d*[a-z]?[²³]?\d*)"                                 # a second TERM
+    r"\s*(?:[+×/]|[-−](?=\s*\d|\s*[a-z])|=)",                   # ...then an operator
+    re.I)
+
+
+def board_two_thoughts_conflict(reply: str):
+    """Return a description of a board line that finishes one equation and starts
+    another expression on the same line, or "". Never raises (fail open)."""
+    try:
+        for val in _note_tag_vals(str(reply or "")):
+            for piece in val.split("|"):
+                m = _TWO_THOUGHTS_RE.search(piece)
+                if m and m.group(1) and re.search(r"[\da-z]", m.group(1), re.I):
+                    shown = " ".join(piece.split())[:70]
+                    second = " ".join(piece[m.start(1):].split())[:40]
+                    return ('the board line "{s}" finishes one equation and then starts '
+                            'ANOTHER thought on the same line ("{t}"). One thought per '
+                            "line: re-emit the second part as its OWN [[step]] line "
+                            "(or a caption if it is a remark). Change nothing "
+                            "else.").format(s=shown, t=second)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[twothoughts] crashed (fail open): {exc}")
+        _event("referee_crash", "twothoughts", str(exc))
+        return ""
+
 # (oc) THE FORTY-EIGHTH REFEREE -- A RESULT YOU SPEAK IS A RESULT YOU DREW.
 # Jim's flag, 2026-08-26, a live algebra lesson: the student answered "+3 to each
 # side" (one step) and the very next reply said "We got X equals 5 -- nice work
@@ -8051,6 +8105,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if cram:
             _event("referee_fire", "boardcram", cram)
             return cram
+        # (qf) the sixty-fourth: two thoughts on one line -- an equation finished
+        # and another expression begun on the same board line. Jim's screenshot.
+        two = board_two_thoughts_conflict(reply)
+        if two:
+            _event("referee_fire", "twothoughts", two)
+            return two
         # (oi) the fiftieth: the board does the drawing -- paper is never the
         # only picture. Heard-gated.
         paper = paper_drawing_conflict(reply, heard)

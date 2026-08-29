@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qf -- PART 3gj: one thought per line, in the boards. The 64th
+#               referee (board_two_thoughts_conflict); its canon sweep found Jim's
+#               screenshot line in the algebra1 like-terms FOUNDATION card and three
+#               more -- all split. opRow shows the op once for an expression. PART 3fx's
+#               literal referee count moves 63 -> 64.
 #   2026-08-29  BUILD qe -- forSpeech says "Algebra One" / "Algebra Two" for the Roman
 #               numerals in course names (Jim: "Algebra I is being pronounced Algebra
 #               Eye"). Four SPEECH_CASES, the pronoun I guarded.
@@ -14113,6 +14118,130 @@ def part3gi_the_intervention_teaches_the_problem_that_was_asked():
           'step.kind === "ask" || step.kind === "ai"' in pil, "")
 
 
+def part3gj_one_thought_per_line_in_the_boards():
+    """PART 3gj (build qf, 2026-08-29) -- TWO THOUGHTS ON ONE LINE, AND THE OP SHOWN TWICE.
+
+    Jim's two screenshots, Algebra I, live lane.
+
+    ⭐ "4x² + 3x² = 7x²   4x² + 7x stays as it is" -- Jim: "a classic example of trying
+    to put more than one idea on a line ... I see an equal sign and wonder what is
+    going on." The new referee board_two_thoughts_conflict (the 64th) holds the
+    general shape: a board line that finishes one equation ("= result") and then
+    starts ANOTHER expression -- the spacing-independent tell is a TERM followed by
+    an OPERATOR right after the result ("= 7x² 4x² +"). A single thought never has
+    that. Number-led results only ("= log a + log b" is a function name, not a
+    finished thought); the middle dot is not an operator (the authored lessons use
+    " · " as a deliberate side-by-side separator: "100 ✓ · 75 ✗").
+
+    ⚠️ THE CANON SWEEP FOUND JIM'S LINE. It is the algebra1 "like terms" FOUNDATION
+    card, verbatim -- authored, read to every Algebra I student -- and three more
+    like it (entry fact family, prealgebra like terms, algebra2 imaginary number),
+    every one using a RUN OF SPACES as a separator, which HTML collapses to one
+    space. Each is now one [[write]] per thought. Board only: no spoken line
+    changed, no audio key. Sweep after: 0 of 2,109 cards and 3,699 generated bank
+    boards.
+
+    ⭐ "substitute x = 3   substitute x = 3" -- Jim: "why are we showing it twice?"
+    opRow draws the operation under the LEFT side and the RIGHT side so a child
+    sees it done to both sides of an equation; "2x + 5" has one side. When the line
+    the op produces has no "=", the op is drawn once, centred -- with INLINE style,
+    because session/practice/topic each carry their own copy of the .worow rules
+    (checkHTML's lesson). Measured in a real browser: the expression's op row is
+    .solo with one span; the equation's op row still has both sides.
+    """
+    print("\nPART 3gj — one thought per line, in the boards (build qf)")
+    import tutor as _t
+    import foundations as FND
+    import lessonscripts as LS
+    F = _t.board_two_thoughts_conflict
+    for v, label in (
+            ('[[step eq="4x² + 3x² = 7x²   4x² + 7x stays as it is"]]', "Jim's line"),
+            ('[[step eq="4x² + 3x² = 7x² 4x² + 7x stays as it is"]]', "the same with one space (as rendered)"),
+            ('[[step eq="2x + 1 = 11 2x = 10"]]', "two equation steps welded"),
+            ('[[step eq="x = 3 y = 4"]]', "two assignments"),
+            ('[[write text="i = √(−1)   so  i² = −1   3 + 2i is complex"]]', "the old imaginary-number card")):
+        r = F(v)
+        check(f"⭐ FIRES: {label}", bool(r) and "One thought per line" in r and "OWN [[step]]" in r,
+              f"silent on {v}")
+    for v, label in (
+            ('[[step eq="4x² + 3x² = 7x²"]]', "one equation"),
+            ('[[step eq="2(3) + 5 = 6 + 5 = 11"]]', "a chained equality"),
+            ('[[step eq="3x + 4, evaluate at x = 2"]]', "a remark after a comma"),
+            ('[[step eq="x = 5 ✓"]]', "a check mark"),
+            ('[[step eq="A = 25 cm²"]]', "a unit"),
+            ('[[step eq="y = 2x + 3 when x = 1"]]', "a condition"),
+            ('[[step eq="log(a · b) = log a + log b"]]', "a function-name result"),
+            ('[[step eq="10 × 10 = 100 m² · 5 × 15 = only 75"]]', "the authored · contrast"),
+            ('[[card title="check" items="2x = 10 | x = 5"]]', "card items are separate lines"),
+            ('[[step eq="4 + 3 = 7 stars"]]', "a word after the result")):
+        check(f"  SILENT: {label}", not F(v), (F(v) or "")[:90])
+    check("  never raises", F(None) == "" and F(7) == "", "")
+    tsrc = open(_t.__file__, encoding="utf-8").read()
+    check("⭐ wired with its own fire event",
+          "two = board_two_thoughts_conflict(reply)" in tsrc
+          and '_event("referee_fire", "twothoughts", two)' in tsrc, "")
+
+    # the four authored cards, split
+    def _card(course, term):
+        scr = FND.FOUNDATIONS[course]
+        items = scr.values() if isinstance(scr, dict) else scr
+        return [sc for sc in items if sc.get("term") == term][0]
+    a1 = _card("algebra1", "like terms")
+    check("⭐ the algebra1 like-terms card (Jim's screenshot) is one thought per line",
+          '[[write text="4x² + 3x² = 7x²"]]' in "".join(a1["board"])
+          and '[[write text="4x² + 7x stays as it is"]]' in "".join(a1["board"])
+          and not any("        " in b for b in a1["board"]), a1["board"])
+    check("  ...and the prealgebra one",
+          '[[write text="3x + 5x = 8x"]][[write text="3x + 5y stays 3x + 5y"]]'
+          in "".join(_card("prealgebra", "like terms")["board"]), "")
+    check("  ...and the imaginary-number card",
+          '[[write text="so i² = −1"]]' in "".join(_card("algebra2", "imaginary number")["board"]), "")
+    check("  ...and the fact family, one fact per line",
+          "".join(_card("entry", "fact family")["board"]).count("[[write") == 5, "")
+
+    hits, n, m = [], 0, 0
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1
+                if F(t):
+                    hits.append(("foundation", c, sc.get("term")))
+    for les in LS.LESSONS:
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            t = (sp or "") + "\n" + (b or "")
+            if t.strip():
+                n += 1
+                if F(t):
+                    hits.append(("teach", les["id"], i))
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            t = (w[0] or "") + "\n" + (w[1] or "")
+            if t.strip():
+                n += 1
+                if F(t):
+                    hits.append(("worked", les["id"], i))
+        for p in les.get("bank") or []:
+            for lv in les.get("levels", LS.LEVELS):
+                m += 1
+                if F(LS.board_for(p, lv)):
+                    hits.append(("bank", les["id"], str(p)))
+    check("⭐ canon sweep: 0 fires (%d cards + %d generated bank boards)" % (n, m),
+          not hits, str(hits[:4]))
+    check("  the sweep covered the whole canon", n >= 1900 and m >= 3000, "%d/%d" % (n, m))
+
+    # the op shown once for an expression
+    b = open("static/board.js", encoding="utf-8").read()
+    check("⭐ opRow draws the op ONCE when the line has no '='",
+          "function opRow(opText, solo)" in b and 'row.classList.add("solo")' in b
+          and 'style="text-align:center"' in b, "")
+    check("  ...decided from the eq that follows",
+          'opRow(a.op, !!eq && String(eq).indexOf("=") < 0)' in b, "")
+    check("  ...and both sides still get the op for an equation",
+          '<span class="orr">' in b, "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -14509,7 +14638,7 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ sixty-three referees now, counted from the code (62 + pz)", n_ref == 63, n_ref)
+    check("⭐ sixty-four referees now, counted from the code (62 + pz + qf)", n_ref == 64, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -17040,7 +17169,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,437</b>" in page,
+          "<b>7,463</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25540,6 +25669,7 @@ def main():
     part3gg_the_check_that_can_be_failed()
     part3gh_the_bars_are_on_the_board()
     part3gi_the_intervention_teaches_the_problem_that_was_asked()
+    part3gj_one_thought_per_line_in_the_boards()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

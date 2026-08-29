@@ -2,6 +2,14 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qf -- ONE THOUGHT PER LINE, IN THE AUTHORED BOARDS TOO. Jim's
+#               screenshot of the Algebra I like-terms card: "4x² + 3x² = 7x²   4x² + 7x
+#               stays as it is" -- two ideas on one line, because the card used a run
+#               of spaces as a separator and HTML collapses runs of spaces. The new
+#               referee's canon sweep found four such cards (entry fact family,
+#               prealgebra + algebra1 like terms, algebra2 imaginary number); each is
+#               now one [[write]] per thought. Board only -- no spoken line changed,
+#               no audio key. PART 3gj.
 #   2026-08-28  BUILD ps -- THE REMOVABLE-DISCONTINUITY CARD CARRIES ITS CONDITION.
 #               The 2026-08-28 night watch caught the LIVE lane saying "a hole never
 #               just appears out of nowhere -- it comes from dividing by zero", which
@@ -358,7 +366,7 @@ FOUNDATIONS = {
             "Five take away two leaves three. Same three numbers, four different facts. Once you know one "
             "of them, you already know the other three. That is why families are faster than learning "
             "facts one at a time.",
-         "board": ['[[write text="2,  3,  5   →   2+3=5    3+2=5    5−3=2    5−2=3"]]']},
+         "board": ['[[write text="2, 3, 5"]][[write text="2 + 3 = 5"]][[write text="3 + 2 = 5"]][[write text="5 − 3 = 2"]][[write text="5 − 2 = 3"]]']},
         {"term": "place value", "say":
             "**Place value** means a digit tells you something different depending on where it sits. Look "
             "at the number twenty-three. The three is three ones. The two is not two. It is two tens, "
@@ -794,7 +802,7 @@ FOUNDATIONS = {
             "You cannot combine those, and there is nothing wrong with an answer that still has two "
             "pieces in it. When you do combine like terms, the letter never changes. Only the number in "
             "front of it does.",
-         "board": ['[[write text="3x + 5x = 8x        3x + 5y stays 3x + 5y"]]']},
+         "board": ['[[write text="3x + 5x = 8x"]][[write text="3x + 5y stays 3x + 5y"]]']},
         # --- build gc (2026-08-14): red-list additions for this course. See the
         # change note at the top of this file. Appended, never edited.
         {"term": "angle", "say":
@@ -885,7 +893,7 @@ FOUNDATIONS = {
             "just counting. Four of them plus seven of them is eleven of them. The variable part never "
             "changes when you combine. Four x squared plus three x squared is seven x squared, not seven "
             "x to the fourth.",
-         "board": ['[[write text="4x² + 3x² = 7x²        4x² + 7x  stays as it is"]]']},
+         "board": ['[[write text="4x² + 3x² = 7x²"]][[write text="4x² + 7x stays as it is"]]']},
         {"term": "distributive property", "say":
             "The **distributive property** says that multiplying a sum is the same as multiplying each "
             "piece and then adding. Three times the quantity x plus two equals three x plus six. Picture "
@@ -1434,7 +1442,7 @@ FOUNDATIONS = {
             "terrible name, because these are not fake and they are not useless — they describe real "
             "electrical current and real waves every day. Add a real number to an imaginary one, like "
             "three plus two i, and you have a complex number.",
-         "board": ['[[write text="i = √(−1)        so  i² = −1        3 + 2i  is complex"]]']},
+         "board": ['[[write text="i = √(−1)"]][[write text="so i² = −1"]][[write text="3 + 2i is complex"]]']},
         {"term": "polynomial", "say":
             "A **polynomial** is a sum of terms, where each term is a number multiplied by a variable "
             "raised to a whole number power. Three x cubed minus five x plus two is one. The degree is "
