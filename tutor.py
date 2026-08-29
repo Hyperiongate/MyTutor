@@ -2,6 +2,14 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qb -- THE CHECK THAT CAN BE FAILED. The watch's rule-39 finding:
+#               "Does that difference make sense?" cannot be failed. New _BARE_CHECK_RE
+#               in finite_answer_conflict: a bare comprehension ask ending the turn is
+#               nudged to rule 39(d)'s OWN required form ("Does that click, or should I
+#               show it a different way?" + It clicks | Show me another way) -- checked
+#               before the plain yes/no so "Got it?" is caught. Also _EITHER_OR_RE now
+#               takes NUMERIC alternatives ("Which is bigger, 3 or 5?"), final sentence
+#               only (3 canon worked-example hits before the scope, 0 after). PART 3gg.
 #   2026-08-29  BUILD qa -- ONE ENTRY PER FUNCTION LETTER (rule 48). The 2026-08-29 watch:
 #               g(2) = 8 written after f(x), "g of two" never said. The notation
 #               referee's entry held f/g/h in ONE class (f in the history made g
@@ -6012,9 +6020,13 @@ def board_parens_conflict(reply: str):
 # "is favorite ice cream flavor itself categorical or quantitative DATA?" slipped
 # because "quantitative data?" is two words. The captured options stay the two
 # alternatives themselves. Canon swept 0.
+# (qb) 2026-08-29 -- the alternatives may be NUMBERS. "Which is bigger, 3 or 5?"
+# slipped because both alternatives had to start with a letter. A number, a
+# decimal or a simple fraction now counts; the labels are the numbers themselves.
 _EITHER_OR_RE = re.compile(
     r"\b(?:is|are|was|were|does|do|did|which|acute|call)\b[^.?!]*?"
-    r"\b([A-Za-z][\w-]{1,14})\s+or\s+([A-Za-z][\w-]{1,14})(?:\s+[a-z][\w-]{1,12})?\s*\?", re.I)
+    r"(?<![\w.])([A-Za-z][\w-]{1,14}|-?\d{1,4}(?:[.,]\d{1,3})?(?:/\d{1,3})?)\s+or\s+"
+    r"([A-Za-z][\w-]{1,14}|-?\d{1,4}(?:[.,]\d{1,3})?(?:/\d{1,3})?)(?:\s+[a-z][\w-]{1,12})?\s*\?", re.I)
 _YESNO_RE = re.compile(r"\byes or no\b", re.I)
 # (oh) a BARE ready-check ending the turn ("Ready to see how those work?").
 # Jim's flag: "has a binary answer yes or no. should have bubbles." Final
@@ -6073,6 +6085,22 @@ _PLAIN_YESNO_RE = re.compile(
 # a CHECK-IN ("make sense?", "with me?", "ready?") gets "Yes | Not yet" -- Jim's
 # choice, 2026-08-29: "Not yet" invites another look instead of admitting failure.
 # A FACTUAL yes/no ("Is 7 prime?") gets plain "Yes | No".
+# (qb) 2026-08-29 -- THE BARE CHECK, rule 39's own finding from the 2026-08-29 watch:
+# "Does that difference make sense?" is not easy to FAIL (a confused child says yes
+# fastest of all). Rule 39(d) already prescribes the shape that IS failable and
+# dignified -- "Does that click, or should I show it a different way?" -- so when the
+# turn's final sentence is a BARE comprehension ask (the whole sentence is the
+# check, nothing specific named), the nudge hands the model that required form and
+# its two buttons, instead of merely bolting Yes | Not yet onto a check that cannot
+# fail. One rewrite, one sentence, always satisfiable. Canon swept: 0.
+_BARE_CHECK_RE = re.compile(
+    r"^[\"'(]*(?:(?:so|now|and|but|okay|ok|well|alright)[,\s]+)?"
+    r"(?:(?:does|did|is)\s+(?:that|this|it|everything|all\s+(?:of\s+)?that|(?:that|this|the)\s+[a-z]+)\s+"
+    r"(?:(?:all\s+)?make\s+sense|click|help|clear|okay|ok)(?:\s+(?:so\s+far|now|to\s+you))?"
+    r"|(?:are\s+you\s+)?(?:still\s+)?with\s+me(?:\s+so\s+far)?"
+    r"|got\s+it|(?:do\s+you\s+)?(?:follow|understand)(?:\s+(?:that|me|so\s+far))?"
+    r"|(?:is\s+)?(?:that|everything)\s+clear(?:\s+so\s+far)?)"
+    r"\s*\?\s*$", re.I)
 _CHECKIN_WORDS_RE = re.compile(
     r"\b(?:makes?\s+sense|ready|got\s+it|clear|with\s+me|follow|remember|want|like|"
     r"feel|okay|ok|see\s+(?:how|why|what)|understand|try|need|know)\b", re.I)
@@ -6110,6 +6138,13 @@ def finite_answer_conflict(reply: str):
                 break
             hit = _EITHER_OR_RE.search(sent)
             if hit:
+                # (qb) NUMERIC alternatives fire on the FINAL sentence only: the
+                # canon's entry-level worked examples ask "Which is bigger, 6 or 9?"
+                # and answer themselves in the next breath -- teaching, not an ask.
+                # (3 canon hits before this scope; 0 after.)
+                if re.match(r"^-?\d", hit.group(1)) and re.match(r"^-?\d", hit.group(2)) \
+                        and sent != sentences[-1]:
+                    continue
                 m, a, b = hit, hit.group(1), hit.group(2)
                 break
             if quiz:
@@ -6153,6 +6188,20 @@ def finite_answer_conflict(reply: str):
         # and only on the turn's final sentence.
         if not m and sentences:
             last = sentences[-1]
+            # (qb) a BARE check ("Got it?", "Does that make sense?") gets rule 39(d)'s
+            # required form, not a Yes button -- checked before the plain shape so
+            # "Got it?" (no auxiliary) is caught too
+            bare = _BARE_CHECK_RE.match(" ".join(last.split())) if "?" in last else None
+            if bare:
+                said = " ".join(bare.group(0).split())[:60].lstrip(".!?\"'( ")
+                return ('your turn ends on "{s}" -- a check that cannot be failed: '
+                        "a confused child says yes fastest of all. Rule 39(d): hand "
+                        "them a dignified way out IN THE SAME BREATH. Replace that "
+                        'sentence with: "Does that click, or should I show it a '
+                        'different way?" and ADD [[choices options="It clicks | '
+                        'Show me another way"]] right after it (the app adds its '
+                        "own \"I'm not sure\"). Keep everything else the "
+                        "same.").format(s=said)
             pm = _PLAIN_YESNO_RE.search(last) if "?" in last else None
             if pm:
                 said = " ".join(pm.group(0).split())[:60].lstrip(".!?\"'( ")

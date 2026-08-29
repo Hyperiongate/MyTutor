@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  APP_BUILD -> "2026-08-29qb-the-check-that-can-be-failed". BUILD qb --
+#               tutor.py: a bare "make sense?" ending is rewritten to rule 39(d)'s
+#               failable form with its buttons; numeric either-ors get their numbers as
+#               buttons. Canon 0. No Python changed here except this stamp.
 #   2026-08-29  APP_BUILD -> "2026-08-29qa-one-entry-per-function-letter". BUILD qa --
 #               tutor.py: the notation referee (rule 14/48) treats f, g and h as
 #               separate first uses and sees numeric arguments, so "g(2) = 8" after
@@ -12603,7 +12607,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-29qa-one-entry-per-function-letter"
+APP_BUILD = "2026-08-29qb-the-check-that-can-be-failed"
 
 
 @app.get("/health")

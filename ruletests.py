@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qb -- PART 3gg: the check that can be failed (rule 39(d)'s required
+#               form replaces a bare "make sense?" ending) and the numeric either-or
+#               ("Which is bigger, 3 or 5?", final sentence only). Both directions;
+#               canon swept through the full stack, 0.
 #   2026-08-29  BUILD qa -- PART 3gf: one entry per function letter (rule 48). The
 #               notation referee's f/g/h entry was one character class, so f in the
 #               history silenced g, and it needed a letter argument, so g(2) was never
@@ -13498,10 +13502,14 @@ def part3gd_the_plain_yes_no_gets_its_buttons():
     import lessonscripts as LS
     F = TT.finite_answer_conflict
 
+    # (qb) the three BARE checks that used to sit here ("Does that difference make
+    # sense?", "Are you with me?", "Is that clear so far?") now take rule 39(d)'s
+    # failable form instead of Yes | Not yet -- PART 3gg owns them. The plain shape
+    # keeps every yes/no that is NOT a bare comprehension check.
     fires = [
-        ("Nice work. Does that difference make sense?", "the night-watch sentence itself"),
-        ("So the answer is 12. Are you with me?", "a check-in"),
-        ("Is that clear so far?", "a bare clarity check"),
+        ("Nice work. Do you remember the 5 from last time?", "a check-in with content"),
+        ("So the answer is 12. Are you ready for a harder one?", "a check-in"),
+        ("Do you want to try one on your own?", "a want-to ask"),
         ("Let's check. Is 7 a prime number?", "a FACTUAL yes/no"),
         ("So, is 12 even?", "a lead-in word before the verb"),
         ("Question 1. Is 9 a square number?", "a quiz yes/no names its whole answer space"),
@@ -13512,7 +13520,7 @@ def part3gd_the_plain_yes_no_gets_its_buttons():
         r = F(reply)
         check(f"⭐ FIRES: {label}", bool(r) and "yes/no question with no buttons" in r,
               f"silent on {reply!r}")
-    r = F("Nice work. Does that difference make sense?")
+    r = F("So the answer is 12. Are you ready for a harder one?")
     check("⭐ a CHECK-IN is nudged toward Yes | Not yet (Jim's pick)",
           '[[choices options="Yes | Not yet"]]' in r, r[:120])
     r = F("Let's check. Is 7 a prime number?")
@@ -13805,6 +13813,110 @@ def part3gf_one_entry_per_function_letter():
     check("  three entries, one per letter, and the shared class is gone",
           tsrc.count('("function notation (') == 3
           and 're.compile(r"\\b[fgh]\\s*\\(\\s*[a-z]\\s*\\)")' not in tsrc, "")
+
+
+def part3gg_the_check_that_can_be_failed():
+    """PART 3gg (build qb, 2026-08-29) -- THE CHECK THAT CAN BE FAILED, AND THE NUMERIC
+    EITHER-OR.
+
+    Two leftovers from the 2026-08-29 review, both in finite_answer_conflict.
+
+    ⭐ THE BARE CHECK. The watch's rule-39 finding: "Does that difference make sense?"
+    -- "a student can say yes without showing whether they know why". Build py gave it
+    buttons (Yes | Not yet), which is Jim's rule; but rule 39's own promise is that a
+    check is easy to FAIL, and a bare "make sense? / got it? / with me?" cannot be.
+    Rule 39(d) already prescribes the failable, dignified form -- "Does that click, or
+    should I show it a different way?" -- so when the FINAL sentence is a bare
+    comprehension ask (the whole sentence is the check; at most one noun after
+    "that"), the nudge hands the model that required sentence and its two buttons
+    ("It clicks | Show me another way") instead of bolting a Yes onto a check that
+    cannot fail. Checked BEFORE the plain yes/no shape, so "Got it?" (no auxiliary
+    verb) is caught too. A specific ask -- "Does 5 line up with the 4?" -- is NOT bare
+    and keeps its Yes | No.
+
+    THE NUMERIC EITHER-OR. "Which is bigger, 3 or 5?" was silent because both
+    alternatives had to start with a letter. Numbers, decimals and simple fractions
+    now count, labels are the numbers themselves -- FINAL SENTENCE ONLY, because the
+    canon's entry-level worked examples ask "Which is bigger, 6 or 9?" and answer
+    themselves in the next breath (3 canon hits before that scope, 0 after).
+
+    Canon swept through the FULL referee stack (prose_board_conflict, heard=t):
+    0 of 2,109 cards.
+    """
+    print("\nPART 3gg — the check that can be failed, and the numeric either-or (build qb)")
+    import tutor as _t
+    F = _t.finite_answer_conflict
+
+    for reply, label in (
+            ("Nice work. Does that difference make sense?", "the watch's sentence"),
+            ("Got it?", "no auxiliary verb at all"),
+            ("So, got it?", "with a lead-in"),
+            ("Does that step make sense so far?", "one noun after 'that'"),
+            ("Are you with me so far?", "with me"),
+            ("Is that clear?", "clear"),
+            ("Do you understand?", "understand"),
+            ("Does this all make sense?", "'this all'")):
+        r = F(reply)
+        check(f"⭐ 39(d) FORM: {label}",
+              bool(r) and "Rule 39(d)" in r and '"It clicks | Show me another way"' in r
+              and "Does that click, or should I show it a different way?" in r,
+              f"{reply!r} -> {(r or '')[:80]}")
+    for reply, label, want in (
+            ("Does 5 line up with the 4?", "a SPECIFIC yes/no keeps Yes | No", "Yes | No"),
+            ("Is the difference 7?", "a factual ask keeps Yes | No", "Yes | No"),
+            ("Are you ready to go?", "a ready-check keeps its buttons", "Yes | Not yet")):
+        r = F(reply)
+        check(f"  plain shape untouched: {label}",
+              bool(r) and "39(d)" not in r and f'"{want}"' in r, (r or "")[:90])
+    check("  SILENT: the 39(d) form with its buttons (the fix itself)",
+          not F('Does that click, or should I show it a different way? '
+                '[[choices options="It clicks | Show me another way"]]'), "")
+    check("  SILENT: a bare check mid-turn, not the final sentence",
+          not F("Does that make sense? Good. Now what is 3 plus 5?"), "")
+
+    for reply, want in (("Look at both. Which is bigger, 3 or 5?", '"3 | 5"'),
+                        ("Is the answer 12 or 14?", '"12 | 14"'),
+                        ("Is that 1/2 or 3/4?", '"1/2 | 3/4"'),
+                        ("Which comes first, 2.5 or 2.05?", '"2.5 | 2.05"')):
+        r = F(reply)
+        check(f"⭐ numeric either-or FIRES with the numbers as labels: {reply[:34]}",
+              bool(r) and want in r, (r or "")[:90])
+    check("  SILENT: a worked example that asks and answers itself (canon shape)",
+          not F("Which is bigger, 6 or 9? Nine is bigger, because it comes later."), "")
+    check("  the letter form is untouched: acute or obtuse",
+          "Acute | Obtuse" in (F("Is this angle acute or obtuse?") or ""), "")
+    check("  never raises", F(None) == "" and F(42) == "", "")
+
+    import foundations as FND
+    import lessonscripts as LS
+    hits, n = [], 0
+
+    def probe(t):
+        nonlocal n
+        n += 1
+        r = _t.prose_board_conflict(t, heard=t) or ""
+        if "39(d)" in r or ("small, known answer space" in r
+                           and re.search(r'options="-?\d', r)):
+            hits.append(r[:80])
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                probe(t)
+    for les in LS.LESSONS:
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            t = (sp or "") + "\n" + (b or "")
+            if t.strip():
+                probe(t)
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            t = (w[0] or "") + "\n" + (w[1] or "")
+            if t.strip():
+                probe(t)
+    check("⭐ canon sweep through the full stack: 0 fires (%d swept)" % n, not hits,
+          "; ".join(hits[:3]))
+    check("  the sweep covered the whole canon", n >= 1900, "%d" % n)
 
 
 def part3ga_a_different_problem_is_not_a_snapshot():
@@ -16728,7 +16840,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,391</b>" in page,
+          "<b>7,413</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25225,6 +25337,7 @@ def main():
     part3gd_the_plain_yes_no_gets_its_buttons()
     part3ge_the_named_list_of_falsehoods()
     part3gf_one_entry_per_function_letter()
+    part3gg_the_check_that_can_be_failed()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
