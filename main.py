@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  APP_BUILD -> "2026-08-29qd-the-problem-that-was-asked". BUILD qd -- from
+#               Jim's three screenshots: (tutor.py) the scripted-lane intervention
+#               describes the missed problem with the engine's own words, board,
+#               answer and explanation instead of reducing it to a + b, and stars are
+#               scoped to plain adding/taking away; (session.html) an "ai" step counts
+#               as an ask, so the redo is graded by code here instead of drifting to
+#               the live tutor with stale history. No Python changed here except this
+#               stamp.
 #   2026-08-29  APP_BUILD -> "2026-08-29qc-the-bars-are-on-the-board". BUILD qc --
 #               lessonscripts.py only: the Algebra II opener draws the absolute-value
 #               bars it talks about. From Jim's screenshot. No Python changed here
@@ -12611,7 +12619,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-29qc-the-bars-are-on-the-board"
+APP_BUILD = "2026-08-29qd-the-problem-that-was-asked"
 
 
 @app.get("/health")

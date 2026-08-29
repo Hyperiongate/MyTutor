@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+    (qd) 2026-08-29 -- AN AI INTERVENTION IS AN ASK. scrPlay set SCR.pending only for
+    kind "ask"; an "ai" step (the Model-Lead-Test turn after a wrong answer) left it
+    false, so the child's redo was sent to the live tutor with stale history. Now
+    "ai" counts as an ask, as pilot.html has done since ou. From Jim's screenshot.
     (pd) 2026-08-27 -- LET THE LESSON BREATHE. Jim, on a live Algebra II scripted
     lesson: "This is the worst lesson I have seen so far. There was no pause at any
     time. pictures showed up and disappeared." He was right, and it was mine. Build
@@ -3638,7 +3642,15 @@
       const words = step.spoken || "";
       addBubble("tutor", words); lastTutorText = words;
       handleTags(step.board || "");
-      const isAsk = (step.kind === "ask");
+      // (qd) 2026-08-29 -- AN AI INTERVENTION IS AN ASK. pilot.html has treated
+      // "ai" like "ask" since build ou; the pb port of the player into this page
+      // did not, so after Mr. Cadabra's Model-Lead-Test turn ("now it's your
+      // turn") SCR.pending stayed false and the child's redo went to the LIVE
+      // tutor -- with the live lane's OLD history. Jim's screenshot: "15" answered
+      // with "I'm not quite sure what 15 is answering -- I'd just asked if you're
+      // ready to move into absolute value equations." The redo now goes where the
+      // server expects it: /api/script/answer, graded by code against the redo.
+      const isAsk = (step.kind === "ask" || step.kind === "ai");
       SCR.pending = isAsk;
       statusEl.textContent = tutorName + " is talking…";
       if (isAsk) {

@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qd -- PART 3gi: the intervention teaches the problem that was
+#               asked. Jim's three screenshots: |6 − 9| became "count fifteen stars",
+#               then the redo went to the live tutor with stale history. The note is
+#               now engine-described (spoken_for/board_for/ans/praise); session.html
+#               treats an "ai" step as an ask. PART 3fx's pv pin is superseded here.
 #   2026-08-29  BUILD qc -- PART 3gh: the bars are on the board. Jim's screenshot of the
 #               Algebra II opener: "there is no absolute value sign." Two [[step]] lines
 #               added ahead of the number line in lessonscripts; spoken line untouched.
@@ -13974,6 +13979,131 @@ def part3gh_the_bars_are_on_the_board():
           all(ok for ok, _l, _d in _ls.validate(les)), "")
 
 
+def part3gi_the_intervention_teaches_the_problem_that_was_asked():
+    """PART 3gi (build qd, 2026-08-29) -- FROM ALGEBRA II TO COUNTING STARS AND BACK.
+
+    Jim's three screenshots, in order. (1) Algebra II, absolute value: "What is the
+    absolute value of 6 take away 9?" with |6 − 9| on the board; he answers "Two".
+    (2) "Not quite -- let's look at it together. Let's count every star together:
+    1, 2, 3 ... 15! Six stars plus nine stars equals fifteen in all." -- fifteen
+    stars on the board and "6 + 9 = ?". (3) He answers "15", and the tutor replies
+    "I'm not quite sure what '15' is answering there -- I'd just asked if you're
+    ready to move into absolute value equations."
+
+    Two bugs, one per lane boundary.
+
+    ⭐ THE INTERVENTION REDUCED EVERY PROBLEM TO + OR −. script_intervention built its
+    note from `op = "−" if op == "-" else "+"` and `right = a ± b`. Build pv fixed the
+    one character that said "+" for subtraction; it was still wrong for every op in
+    OP_EXT -- absolute value, rounding, fractions, equations, dozens of them -- because
+    they all fell through to "+". So |6 − 9| became "the problem was 6 + 9, the answer
+    is 15", and the prompt's star recipe did the rest. The engine already knows how to
+    SAY, DRAW, ANSWER and EXPLAIN every op (spoken_for, board_for, ans, and OP_EXT's
+    praise line). The note now hands the model exactly those, and the system prompt
+    says: this problem, the lesson's words, the lesson's picture; stars ONLY for plain
+    adding and taking away of small whole numbers.
+
+    ⭐ THE REDO WENT TO THE WRONG TUTOR. session.html's scrPlay set SCR.pending only for
+    kind "ask". An "ai" step left it false, so the child's redo bypassed
+    /api/script/answer (where the server was waiting, in intervene mode, to grade it
+    against the redo) and went to runTutor -- the LIVE lane, with the live lane's old
+    history, which is why the reply remembered a conversation from before the lesson.
+    pilot.html has treated "ai" as an ask since build ou; the pb port of the player
+    dropped it. One condition.
+    """
+    print("\nPART 3gi — the intervention teaches the problem that was asked (build qd)")
+    import tutor as _t
+    import lessonscripts as _ls
+
+    # ---- (1) the note, built for real, with the pipeline stubbed ----
+    saved = _t._reply_pipeline
+    seen = {}
+
+    def _stub(pf, hist, note, tag, meta, where, label):
+        seen["note"] = note
+        seen["system"] = pf()
+        return '[[step eq="|6 − 9| = 3"]] Look at the line. [[choices options="3 | -3 | 15"]]'
+    _t._reply_pipeline = _stub
+    try:
+        p = {"a": 6, "b": 9, "op": "absv"}
+        ctx = {"problem": p, "expected": 3, "got": 2, "level": "abstract",
+               "choices": _ls.choices_for(p)}
+        out = _t.script_intervention("0000", "algebra2", ctx, [])
+        note = seen.get("note", "")
+        check("⭐ the absolute-value problem is described as ABSOLUTE VALUE, in the lesson's words",
+              "What is the absolute value of 6 take away 9?" in note, note[:200])
+        check("  ...with the lesson's own board (number line + bars)",
+              '[[numberline min="4" max="11" points="6,9"]]' in note and "|6 − 9|" in note,
+              note[:300])
+        check("  ...the RIGHT answer (3, not 15)",
+              "The correct answer is 3." in note and "15" not in note.split("choices")[0]
+              .replace("[[choices", ""), note[:300])
+        check("  ...and the lesson's explanation of the idea",
+              "distance is never negative" in note, "")
+        check("  the note never says 6 + 9", "6 + 9" not in note, note)
+        check("  the choices tag rides the note", '[[choices options="3 | -3 | 15"]]' in note, "")
+        check("  the reply still comes back", out.startswith("[[step"), out)
+        sysp = seen.get("system", "")
+        check("⭐ the prompt scopes stars to PLAIN adding/taking away of small numbers",
+              "ONLY for plain ADDING" in sysp and "Any other kind of problem: NO stars" in sysp,
+              "the star recipe is what turned |6 − 9| into fifteen stars")
+        check("  ...and forbids swapping the problem for a simpler one",
+              "Never swap it for a different or simpler" in sysp
+              and "problem, and never change what the problem is asking" in sysp, "")
+        check("  ...and keeps the canon words, scoped to adding/taking away",
+              "When the problem IS adding or taking away" in sysp
+              and '"putting together"' in sysp and '"in all"' in sysp, "")
+        check("  the prompt is still TINY (< 2500 chars)", len(sysp) < 2500, len(sysp))
+
+        # plain adding at the concrete level still gets its stars
+        p2 = {"a": 7, "b": 5, "op": "+"}
+        ctx2 = {"problem": p2, "expected": 12, "got": 11, "level": "concrete",
+                "choices": _ls.choices_for(p2)}
+        _t.script_intervention("0000", "entry", ctx2, [])
+        n2 = seen.get("note", "")
+        check("  DO NO HARM: plain adding is still described with its stars and 'in all'",
+              'emoji="⭐"' in n2 and "How many in all?" in n2 and "The correct answer is 12." in n2,
+              n2[:200])
+        # subtraction (pv's case) is still right
+        p3 = {"a": 90, "b": 29, "op": "-"}
+        ctx3 = {"problem": p3, "expected": 61, "got": -61, "level": "abstract",
+                "choices": _ls.choices_for(p3)}
+        _t.script_intervention("0000", "geometry", ctx3, [])
+        n3 = seen.get("note", "")
+        check("  DO NO HARM: pv's subtraction case still teaches 90 minus 29 = 61",
+              "90 minus 29" in n3 and "The correct answer is 61." in n3, n3[:200])
+    finally:
+        _t._reply_pipeline = saved
+
+    # ---- (2) every op the engine knows survives the note builder ----
+    _t._reply_pipeline = lambda *a, **k: "ok"
+    try:
+        broken = []
+        for op in list(_ls.OP_EXT) + ["+", "-", "t"]:
+            p = {"a": 6, "b": 9, "op": op}
+            try:
+                _t.script_intervention("0000", "basic", {"problem": p, "expected": 0,
+                                                         "got": 1, "level": "abstract",
+                                                         "choices": ""}, [])
+            except Exception as exc:  # noqa: BLE001
+                broken.append((op, str(exc)[:60]))
+        check("  the note builder survives every op in OP_EXT (%d ops)" % (len(_ls.OP_EXT) + 3),
+              not broken, broken[:3])
+    finally:
+        _t._reply_pipeline = saved
+
+    # ---- (3) the client routes the redo to the script ----
+    html = open("static/session.html", encoding="utf-8").read()
+    check("⭐ session.html: an 'ai' step is an ask -- the redo goes to /api/script/answer",
+          'const isAsk = (step.kind === "ask" || step.kind === "ai");' in html,
+          "the redo went to the live tutor with stale history")
+    check("  ...and the pending gate still routes through scrAnswer",
+          "if (SCR.on && SCR.pending) { await scrAnswer(message); return; }" in html, "")
+    pil = open("static/pilot.html", encoding="utf-8").read()
+    check("  pilot.html already treated 'ai' as an ask (the model for this fix)",
+          'step.kind === "ask" || step.kind === "ai"' in pil, "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -14127,11 +14257,17 @@ def part3fz_a_hyphen_marked_a_right_answer_wrong():
     # old string verbatim, and a whole-file scan reads that as the bug still present.
     import tutor as _tt
     fsrc = _insp.getsource(_tt.script_intervention)
-    check("⭐ the intervention is told to teach the REAL operator",
-          'Model-Lead-Test on {a} {op} {b} now' in fsrc,
+    # (qd) pv's one-character fix is superseded: the note no longer names an
+    # operator at all -- it hands the model the engine's own spoken line, board,
+    # answer and explanation for the problem (PART 3gi). The property pv pinned --
+    # the intervention teaches the problem that was asked -- is now asserted there
+    # by running the note builder on an absolute-value problem.
+    check("⭐ the intervention is told to teach the REAL problem (engine-described)",
+          "_ls.spoken_for(p, level)" in fsrc and "_ls.ans(p)" in fsrc,
           'it said "{a} + {b}" for every problem, subtraction included')
     check("  ...and the hardcoded plus is gone from the code that runs",
-          "Model-Lead-Test on {a} + {b}" not in fsrc, "")
+          "Model-Lead-Test on {a} + {b}" not in fsrc
+          and 'op = "−" if p.get("op") == "-" else "+"' not in fsrc, "")
 
 
 def part3fy_visible_without_moving_anything():
@@ -16895,7 +17031,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,420</b>" in page,
+          "<b>7,437</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25394,6 +25530,7 @@ def main():
     part3gf_one_entry_per_function_letter()
     part3gg_the_check_that_can_be_failed()
     part3gh_the_bars_are_on_the_board()
+    part3gi_the_intervention_teaches_the_problem_that_was_asked()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

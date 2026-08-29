@@ -2,6 +2,17 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qd -- THE INTERVENTION TEACHES THE PROBLEM THAT WAS ASKED. Jim's
+#               screenshots: an Algebra II absolute-value miss (|6 − 9|, he said "Two")
+#               became "let's count every star: 6 + 9 = 15". script_intervention
+#               reduced EVERY op to + or − (pv fixed one character of this; every
+#               OP_EXT op still fell through to "+"). The note is now built by the
+#               engine that asked the question -- lessonscripts.spoken_for, board_for,
+#               ans, and OP_EXT's praise line -- and _SCRIPT_INTERVENE_SYSTEM scopes the
+#               star recipe to plain adding/taking away of small numbers, with "never
+#               swap the problem" said outright. Still < 2500 chars. PART 3gi. (The
+#               companion client bug -- the redo going to the live tutor -- is in
+#               static/session.html.)
 #   2026-08-29  BUILD qb -- THE CHECK THAT CAN BE FAILED. The watch's rule-39 finding:
 #               "Does that difference make sense?" cannot be failed. New _BARE_CHECK_RE
 #               in finite_answer_conflict: a bare comprehension ask ending the turn is
@@ -8610,36 +8621,39 @@ def _turn_ms(tokens):
 # scripted architecture pays its latency dividend on the one turn that still
 # thinks -- and the referees still ride it, because _reply_pipeline is unchanged.
 _SCRIPT_INTERVENE_SYSTEM = """\
-You are Mr. Cadabra, a warm, patient math tutor for a young child, stepping in
-because the child just answered a practice problem incorrectly. You will teach
-THIS ONE PROBLEM and nothing else.
+You are Mr. Cadabra, a warm, patient math tutor, stepping in because the student
+just answered a practice problem incorrectly. You will teach THIS ONE PROBLEM and
+nothing else -- the exact problem the lesson asked, in the lesson's own words,
+with the lesson's own kind of picture. Never swap it for a different or simpler
+problem, and never change what the problem is asking (a distance question stays a
+distance question; a rounding question stays rounding).
 
 Teach it in one short turn, Model-Lead-Test:
-1. MODEL: show the problem worked out completely.
-   For ADDING (+) with single-digit numbers: draw the two star groups with
-   [[objects emoji="⭐" groups="A" add="B" caption="count every star"]] and write
-   [[step eq="A + B = C"]]. Count every star out loud, one number at a time.
-   For ADDING two-digit numbers: no stars. Write the steps: the ones first, then
-   -- only if the ones add up to over nine -- "write X, carry 1", then the tens,
-   then the whole answer, each as its own [[step eq="..."]] line.
-   For TAKING AWAY (−): draw the starting group with
-   [[objects emoji="⭐" groups="A" caption="start with A — take B away"]] and write
-   [[step eq="A − B = C"]]. Count back out loud from A, one number at a time.
-2. LEAD: invite the child to count along with you.
-3. TEST: ask the child to try THE SAME problem again, and end your reply with the
+1. MODEL: show THIS problem worked out completely. Redraw the board line the note
+   gives you, then add [[step eq="..."]] lines that show the work, ending in the
+   correct answer. If the note explains the idea, teach that idea in those words.
+   ONLY for plain ADDING (+) of two single-digit numbers: draw the star groups with
+   [[objects emoji="⭐" groups="A" add="B" caption="count every star"]] and count
+   every star out loud. ONLY for plain TAKING AWAY (−) of small whole numbers: draw
+   [[objects emoji="⭐" groups="A" caption="start with A — take B away"]] and count
+   back out loud. Two-digit adding: no stars -- ones first, "write X, carry 1" only
+   if the ones add up to over nine, then the tens, each as its own [[step]] line.
+   Any other kind of problem: NO stars, no counting -- the lesson's picture and steps.
+2. LEAD: invite the student to do the key step with you.
+3. TEST: ask the student to try THE SAME problem again, and end your reply with the
    answer choices tag you are given.
 
 Hard rules:
 - Speak at most 60 words. One idea at a time. Warm, never disappointed.
-- NEVER say the child's wrong answer back to them, and never scold.
-- Use ONLY these words for these ideas, exactly: adding is "putting together";
-  an adding result is how many "in all"; taking away is "take away"; a take-away
-  result is how many "are left"; + is said "plus"; − is said "minus"; = is said
-  "equals"; the carrying rule is "the ones add up to over nine" -- NEVER "ten or
-  more". Do not use "makes", "altogether", "total", "combine", "subtract", or
-  "remove".
+- NEVER say the student's wrong answer back to them, and never scold.
+- When the problem IS adding or taking away, use ONLY these words for these ideas,
+  exactly: adding is "putting together"; an adding result is how many "in all";
+  taking away is "take away"; a take-away result is how many "are left"; + is said
+  "plus"; − is said "minus"; = is said "equals"; the carrying rule is "the ones add
+  up to over nine" -- NEVER "ten or more". Do not use "makes", "altogether",
+  "total", "combine", "subtract", or "remove".
 - Do not greet, do not say goodbye, do not mention this note, do not move to any
-  other problem. The lesson script resumes by itself after the child answers.
+  other problem. The lesson script resumes by itself after the student answers.
 """
 
 
@@ -8709,18 +8723,35 @@ def script_intervention(code: str, course: str, context: dict, history=None) -> 
     falls back to the scripted path, because the model must never brick a lesson."""
     try:
         p = context.get("problem") or {}
-        a, b = int(p.get("a", 0)), int(p.get("b", 0))
-        op = "−" if p.get("op") == "-" else "+"
-        right = a - b if op == "−" else a + b
-        note = (f"(SYSTEM: The problem was {a} {op} {b}. The child answered "
-                f"{context.get('got')!r}; the correct answer is {right}. The child is "
-                f"working at the {context.get('level', 'abstract')} level. Teach "
-                # ⚠️ (pv) THIS SAID "+" FOR EVERY PROBLEM, including subtraction. The
-                # sentence above names the real operator ("The problem was 90 − 29")
-                # and then this line told the model to teach 90 + 29. Jim's screenshot
-                # is what that looks like: a Geometry angle question answered
-                # correctly, graded wrong, and the intervention teaching addition.
-                f"Model-Lead-Test on {a} {op} {b} now, and end with exactly this tag: "
+        level = context.get("level", "abstract")
+        # (qd) 2026-08-29 -- THE PROBLEM IS DESCRIBED BY THE ENGINE THAT ASKED IT.
+        # Build pv fixed one character here ("+" for every problem -> the real
+        # operator) and it was still wrong for every problem that is NOT plain
+        # adding or taking away: the op was reduced to "+" or "−", so an Algebra II
+        # absolute-value question |6 − 9| became "6 + 9", and the intervention
+        # taught a child to count fifteen stars. Jim's screenshot, 2026-08-29:
+        # "it went from Algebra II to learning basic math." lessonscripts already
+        # knows how to SAY, DRAW, ANSWER and EXPLAIN every op (spoken_for, board_for,
+        # ans, and OP_EXT's praise line); the note now hands the model exactly those,
+        # so the intervention teaches the problem the lesson asked, in its words.
+        import lessonscripts as _ls
+        spoken = _ls.spoken_for(p, level)
+        board = _ls.board_for(p, level)
+        right = _ls.ans(p)
+        explain = ""
+        ext = _ls.OP_EXT.get(p.get("op", "+"), {})
+        if "praise" in ext:
+            try:
+                explain = str(ext["praise"](p))
+            except Exception:  # noqa: BLE001 -- an explanation is a bonus, never a need
+                explain = ""
+        note = (f"(SYSTEM: The lesson asked, in these exact words: \"{spoken}\" "
+                f"Its board was: {board} The correct answer is {right}. The child "
+                f"answered {context.get('got')!r}. "
+                + (f"How the lesson explains it: \"{explain}\" " if explain else "")
+                + f"The child is working at the {level} level. Teach Model-Lead-Test "
+                f"on THIS problem now -- say it the way the lesson says it, draw the "
+                f"same kind of board, and end with exactly this tag: "
                 f"{context.get('choices', '')} )")
         reply = _reply_pipeline(
             lambda: _SCRIPT_INTERVENE_SYSTEM,
