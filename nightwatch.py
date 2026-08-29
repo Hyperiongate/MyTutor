@@ -2,6 +2,14 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD px -- THE REVIEWER'S LIST IS GENERATED, NOT HAND-KEPT. The
+#               2026-08-29 watch could not judge FIVE findings ("rule not in the
+#               reviewer's list": 28, 47, 61, 63) -- all four are real, enforced rules.
+#               VERIFY_SYSTEM's (B) list had been hand-maintained at eleven and drifted
+#               three times (jk, ni, pq). It is now a template; the full 65-rule index
+#               is rendered at import from tutor.rule_titles() -- the SAME extraction
+#               that generates RULES.md -- and the eleven elaborations stay above it.
+#               Fails open to the eleven if the registry cannot be read. PART 3gc.
 #   2026-08-28  BUILD pq -- THE EYES REPORT WHAT THEY SAW. Two holes in this file,
 #               both found by reading its own 2026-08-28 report. (1) THE CRASH REASON
 #               WAS BEING THROWN AWAY: event_stats groups by (kind, name) and never
@@ -228,7 +236,7 @@ def day_index(now=None) -> int:
 # =============================================================================
 # PART 3 -- ADVERSARIAL VERIFICATION: an audit finding is an opinion (build fe)
 # =============================================================================
-VERIFY_SYSTEM = """\
+_VERIFY_TEMPLATE = """\
 You are a skeptical reviewer of AUDIT FINDINGS about a maths tutor for children. You are
 not reviewing the tutor. You are reviewing the CRITIC, and your default position is that
 the critic is wrong.
@@ -266,6 +274,13 @@ THIS TUTOR IS JUDGED ON TWO THINGS, NOT ONE.
     Every one of these is enforced on live replies by a machine referee. If a referee
     would regenerate the reply for it, it is not "taste".
 
+    THE FULL INDEX OF PROMISES. The eleven above are elaborated because they were the
+    ones a reviewer once refuted as "tone". They are not the whole list. EVERY numbered
+    rule this product enforces is below, generated from the tutor's own rule registry
+    (the same text the tutor is given), and a finding that names any of them is a
+    CONDUCT finding under (B):
+{RULE_INDEX}
+
 REFUTE the finding if ANY of these hold:
 - the quoted words are not actually in the transcript, or are quoted misleadingly
 - the maths is correct under standard conventions, however surprising it looks
@@ -289,16 +304,40 @@ YOUR SKEPTICISM BELONGS TO THE EVIDENCE, NOT TO THE STANDARD. When you cannot se
 transcript that the thing described actually happened, REFUTE. When you can see it
 plainly and it breaks (A) or (B), CONFIRM -- "it was harmless" is not a reason to refute.
 
-ONE MORE FIELD, AND IT IS NOT ABOUT THE TUTOR. The list in (B) is hand-maintained and
-is SHORTER than the set of rules this product enforces. If the finding cites a rule
-number that does not appear in (B) above, set "rule_known": false -- whatever else you
-decide. That is not a judgment about the tutor; it tells us OUR LIST is short. Never
-refute a finding merely because its rule is missing from (B): judge it on (A) truth and
-on the plain conduct promise it describes, and let "rule_known": false carry the gap.
+ONE MORE FIELD, AND IT IS NOT ABOUT THE TUTOR. The index in (B) is generated from the
+product's rule registry, so it should be complete -- but if the finding cites a rule
+number that appears NOWHERE in (B) above, set "rule_known": false -- whatever else you
+decide. That is not a judgment about the tutor; it tells us the critic named a rule the
+registry does not hold. Never refute a finding merely because its rule is missing from
+(B): judge it on (A) truth and on the plain conduct promise it describes, and let
+"rule_known": false carry the gap.
 
 Return STRICT JSON only:
 {"real": true|false, "why": "<one sentence>", "rule_known": true|false}
 """
+
+
+def _rule_index_lines():
+    """The (B) index: one line per numbered rule, read from the tutor's own registry
+    (tutor.rule_titles -- the same extraction that generates RULES.md). Fails open
+    to a one-line notice so a registry hiccup can never take the reviewer down."""
+    try:
+        import tutor as _tu
+        titles = _tu.rule_titles()
+        if titles:
+            return "\n".join(f"      - rule {n:<3} {titles[n]}" for n in sorted(titles))
+    except Exception as exc:  # noqa: BLE001 -- the watch must run with or without it
+        print(f"[nightwatch] rule registry unavailable ({exc}); reviewer keeps the eleven")
+    return "      (the rule registry could not be read tonight -- the eleven above stand)"
+
+
+def render_verify_system():
+    """VERIFY_SYSTEM with the (B) index filled from the registry. Rendered once at
+    import (the constant below) and callable again so a test can see it fresh."""
+    return _VERIFY_TEMPLATE.replace("{RULE_INDEX}", _rule_index_lines())
+
+
+VERIFY_SYSTEM = render_verify_system()
 
 
 def verify_finding(openai_call, scenario, transcript, finding):
@@ -521,8 +560,10 @@ def report_markdown(result, build="") -> str:
         L += [f"## ⚠️ The reviewer was never given these rules ({len(gaps)})", "",
               "_These findings were NOT refuted -- they could not be judged at all, "
               "because the rule they name is missing from the reviewer's conduct list. "
-              "Add the rule to VERIFY_SYSTEM, or decide out loud that it is not a "
-              "promise this product makes._", ""]
+              "Since build px that list is generated from the tutor's own rule registry "
+              "(tutor.rule_titles), so a number here means the critic cited a rule the "
+              "registry does not hold -- check the number, or decide out loud that it is "
+              "not a promise this product makes._", ""]
         if seen_rules:
             L += [f"**Rules missing from the list: {', '.join(seen_rules)}**", ""]
         for g in gaps:

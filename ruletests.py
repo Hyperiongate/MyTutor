@@ -2,6 +2,25 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD py -- PART 3gd: the plain yes/no gets its buttons. Jim's standing
+#               rule, restated: a binary question ships bubbles, everywhere. The six
+#               shapes finite_answer_conflict knew were each one screenshot; the new
+#               _PLAIN_YESNO_RE is the general one (final sentence opens with an
+#               auxiliary, no "or", no wh-word). Both directions, and the canon sweep
+#               is repeated INSIDE the PART so the 0 can never go stale.
+#   2026-08-29  BUILD px -- PART 3gc: the reviewer reads the rule registry. _rule_titles
+#               now delegates to tutor.rule_titles(); nightwatch renders its (B) index
+#               from the same function. The "SHORTER than the set of rules" pin from
+#               build pq is replaced by the new wording, because the list is no longer
+#               short.
+#   2026-08-29  BUILD px -- PART 3gb: ship the best draft, and read the critic's
+#               verdict. The 2026-08-29 watch named the livecritic crash reason ("Extra
+#               data" -- a verdict with chatter after it) and counted 66 replies shipped
+#               with a known finding. The PART drives _create_verified end to end with
+#               scripted referees: a clean draft ships byte-identical (do no harm); a
+#               critic-only first draft ships over two prose drafts; three equal
+#               findings still ship the last draft. _critic_verdict is tested on the
+#               exact chatty shape from the watch.
 #   2026-08-28  BUILD pw -- PART 3ga: a different problem is not a snapshot. Jim's
 #               order-of-operations screenshot. supersedePrevious folded EVERY earlier
 #               written block, not just re-statements of the current problem, because
@@ -4594,25 +4613,11 @@ _TITLE_END = re.compile(r"[.:]\s|\s--\s|\s\(")
 
 
 def _rule_titles():
-    """{number: the rule's headline}. The headline is the SHOUTED part at the start of
-    each rule; the prose that follows it is the rule itself and is not repeated here.
-    (First version split on the first ". " anywhere, which turned rule 2 into
-    '"Show me", "can I see' -- the heading has to end where the capitals do.)"""
-    out = {}
-    # A rule opens at column 0 as "N. " followed by a SHOUTED headline, then prose. The
-    # headline is what belongs in an index; the prose is the rule and is not repeated.
-    # The headline ends at the first word containing a lower-case letter -- ALL-CAPS
-    # words continue it, "Something", "Never", "(Jim's" end it. (Two earlier attempts
-    # failed here: splitting on the first ". " turned rule 2 into '"Show me", "can I
-    # see', and a length-bounded body match found only the two shortest rules.)
-    for m in re.finditer(r"^(\d{1,2})\. (.{6,200})$", tutor.GRAPH_TOOL_NOTE, re.M):
-        keep = []
-        for w in m.group(2).split():
-            if re.search(r"[a-z]", w) and len(keep) >= 3:
-                break
-            keep.append(w)
-        out[int(m.group(1))] = " ".join(keep).strip(" ,.:;-") or m.group(2)[:70]
-    return out
+    """{number: the rule's headline}. (py) The extraction now lives in
+    tutor.rule_titles() -- ONE registry read by RULES.md's generator AND the night
+    watch's reviewer, so neither can drift from the other. This name is kept so every
+    caller in the battery still works."""
+    return tutor.rule_titles()
 
 
 def part3i_rule_verification():
@@ -13213,6 +13218,370 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3gb_ship_the_best_draft():
+    """PART 3gb (build px, 2026-08-29) -- THE CRASH REASONS, AND THE DRAFT THAT SHIPS.
+
+    Build pq made the night watch print crash REASONS instead of bare counts, and the
+    2026-08-29 watch (10 lessons, 11 confirmed findings, 34 livecritic crashes in the
+    7-day window) finally said what they were. Exactly two:
+
+      1. "Extra data: line 6 column 1 (char 360..665)" -- json.loads refusing a string
+         that holds a valid verdict AND THEN MORE. The critic wrote its object and kept
+         talking; the old parse sliced from the first "{" to the LAST "}", so the
+         chatter was inside the slice and the whole read raised. Fail-open turned every
+         one into a turn with NO second opinion. _critic_verdict now reads ONE JSON
+         value with raw_decode and measures what follows instead of parsing it.
+      2. "model: claude-haiku-4.5 not found" -- the 2026-08-26 typo incident (build of),
+         still inside the seven-day window. Render has said claude-haiku-4-5 for weeks;
+         the dotted name is nowhere in the repo. NOT a current problem, and nothing to
+         fix. Written here so the next reader does not chase it again.
+
+    ⭐ AND THE LARGER NUMBER: 66 replies shipped WITH a known finding (33 livecritic,
+    32 prosecheck, 1 mathcheck). Every one came from _create_verified running out of
+    attempts and shipping WHATEVER THE THIRD DRAFT WAS. A third draft that fixed the
+    critic's objection and picked up a prose contradiction shipped over a first draft
+    that carried only the objection. The drafts were all in hand; nobody compared
+    them. _best_draft ranks them (critic < prose < mathcheck) and the newest wins a
+    tie -- so a run of three equal findings ships exactly what it shipped before.
+    Zero extra seconds: no fourth model call on the product's slowest lane.
+
+    BOTH DIRECTIONS, as always: the clean path must be byte-identical (do no harm).
+    """
+    print("\nPART 3gb — ship the best draft, and read the critic's verdict (build px)")
+    import tutor as _t
+    import mathcheck as _mc
+
+    # ---- (1) the verdict parser ----------------------------------------------------
+    v, tr = _t._critic_verdict('{"ok": true}')
+    check("⭐ a clean verdict parses, nothing trailing", v == {"ok": True} and tr == 0,
+          f"{v!r} {tr}")
+    chatty = ('{"ok": false, "problem": "The draft never grades the answer 12."}\n\n'
+              'Explanation: the student said {12} and the tutor moved on.')
+    v, tr = _t._critic_verdict(chatty)
+    check("⭐ a verdict FOLLOWED BY PROSE (with a brace in it) is still read",
+          v is not None and v.get("ok") is False and "grades" in v.get("problem", ""),
+          f"this exact shape was 'Extra data: line 6 column 1' in the watch: {v!r}")
+    check("  ...and the trailing text is measured, not parsed", tr > 20, f"trailing={tr}")
+    two = '{"ok": true}\n{"ok": false, "problem": "second thoughts"}'
+    v, tr = _t._critic_verdict(two)
+    check("  two objects: the FIRST is the verdict", v == {"ok": True} and tr > 0, f"{v!r}")
+    check("  the prefilled form (opening brace re-attached by the caller) parses",
+          _t._critic_verdict('{ok": false}')[0] is None
+          and _t._critic_verdict('{"ok": false, "problem": "prefilled"}')[0].get("problem") == "prefilled",
+          "")
+    check("  garbage yields None (fail open), never an exception",
+          _t._critic_verdict("no braces here")[0] is None
+          and _t._critic_verdict("{not json")[0] is None
+          and _t._critic_verdict("")[0] is None and _t._critic_verdict(None)[0] is None, "")
+    check("  a JSON value that is not an object is not a verdict",
+          _t._critic_verdict("[1, 2]")[0] is None and _t._critic_verdict("{}")[0] == {}, "")
+    csrc = _insp_src(_t._live_critic_review)
+    check("⭐ _live_critic_review reads through _critic_verdict (the slice is gone)",
+          "_critic_verdict(text)" in csrc and 'rfind("}")' not in csrc,
+          "the find/rfind slice is the crash")
+    check("  trailing chatter is logged as referee_soft, NOT referee_crash",
+          '_event("referee_soft", "livecritic"' in csrc, "")
+    check("  the critic is told: one object, nothing after the brace",
+          "nothing after its closing brace" in _t._CRITIC_SYSTEM, "")
+
+    # ---- (2) the ranking ------------------------------------------------------------
+    check("⭐ a critic-only draft outranks a prose contradiction",
+          _t._best_draft([(1, "A", "critic", "c"), (2, "B", "prose", "p")])[1] == "A", "")
+    check("  a prose draft outranks a mathcheck-wrong draft",
+          _t._best_draft([(1, "A", "mathcheck", "m"), (2, "B", "prose", "p")])[1] == "B", "")
+    check("  a critic-only draft outranks a mathcheck-wrong draft, whichever came first",
+          _t._best_draft([(1, "A", "mathcheck", "m"), (2, "B", "critic", "c"),
+                          (3, "C", "mathcheck", "m")])[1] == "B", "")
+    check("  three equal findings: the NEWEST ships (exactly what shipped before)",
+          _t._best_draft([(1, "A", "prose", "p"), (2, "B", "prose", "p"),
+                          (3, "C", "prose", "p")])[1] == "C", "")
+    check("  an unknown kind ranks as the worst, an empty list yields an empty reply",
+          _t._best_draft([(1, "A", "??", ""), (2, "B", "critic", "c")])[1] == "B"
+          and _t._best_draft([])[1] == "", "")
+
+    # ---- (3) the loop, end to end, with scripted referees ---------------------------
+    class _B:
+        pass
+
+    def _resp(text):
+        r = _B()
+        b = _B()
+        b.type, b.text = "text", text
+        r.content, r.stop_reason, r.usage = [b], "end_turn", None
+        return r
+
+    class _Stub:
+        def __init__(self, script):
+            self.script, self.calls, self.messages = list(script), [], self
+
+        def create(self, **kw):
+            self.calls.append(kw)
+            return _resp(self.script.pop(0))
+
+    saved = (_mc.verify_reply, _t.prose_board_conflict, _t._live_critic_review,
+             _t._event)
+    events = []
+
+    def _run(drafts, verdicts, prose, critic):
+        _mc.verify_reply = lambda r: verdicts.get(r, ("ok", ""))
+        _t.prose_board_conflict = lambda r, *a, **k: prose.get(r, "")
+        _t._live_critic_review = lambda r, *a, **k: critic.get(r, "")
+        _t._event = lambda kind, name, detail="", code="", course="": events.append(
+            (kind, name, detail))
+        events.clear()
+        stub = _Stub(drafts)
+        out = _t._create_verified(stub, "px-stub", None,
+                                  [{"role": "user", "content": "what is 3 plus 4"}],
+                                  " [test]", {"code": "T", "course": "basic"})
+        return out, stub
+
+    try:
+        # do no harm: a clean first draft ships unchanged, one call, no pass_through
+        out, stub = _run(["Seven. [[step eq=\"3 + 4 = 7\"]]"], {}, {}, {})
+        check("⭐ DO NO HARM: a clean draft ships as-is, one call, no event",
+              out == "Seven. [[step eq=\"3 + 4 = 7\"]]" and len(stub.calls) == 1
+              and not [e for e in events if e[0] == "pass_through"],
+              f"out={out!r} calls={len(stub.calls)} events={events}")
+        # critic objects once, second draft is clean: the second draft ships (as before)
+        out, stub = _run(["D1", "D2"], {}, {}, {"D1": "never graded 7"})
+        check("  a critic objection is retried and the clean retry ships",
+              out == "D2" and len(stub.calls) == 2, f"out={out!r}")
+        # THE CASE FROM THE WATCH: D1 critic-only, D2 prose, D3 prose -> D1 ships
+        out, stub = _run(["D1", "D2", "D3"], {}, {"D2": "words vs board", "D3": "again"},
+                         {"D1": "never graded 7"})
+        check("⭐ attempts spent: the critic-only FIRST draft ships over two prose drafts",
+              out == "D1" and len(stub.calls) == 3, f"out={out!r} calls={len(stub.calls)}")
+        pt = [e for e in events if e[0] == "pass_through"]
+        check("  ...and the pass_through names WHICH attempt shipped and why",
+              len(pt) == 1 and pt[0][1] == "livecritic" and "attempt 1 of 3" in pt[0][2],
+              f"{pt}")
+        # three prose contradictions: the last ships, exactly as before
+        out, stub = _run(["D1", "D2", "D3"], {}, {"D1": "a", "D2": "b", "D3": "c"}, {})
+        pt = [e for e in events if e[0] == "pass_through"]
+        check("  three prose findings: the LAST draft ships (unchanged behaviour)",
+              out == "D3" and pt and pt[0][1] == "prosecheck" and "attempt 3 of 3" in pt[0][2],
+              f"out={out!r} {pt}")
+        # mathcheck wrong three times: the last ships (the checker mis-read, fail open)
+        out, stub = _run(["D1", "D2", "D3"],
+                         {"D1": ("wrong", "x"), "D2": ("wrong", "y"), "D3": ("wrong", "z")},
+                         {}, {})
+        pt = [e for e in events if e[0] == "pass_through"]
+        check("  three mathcheck-wrong drafts: the LAST ships (unchanged behaviour)",
+              out == "D3" and pt and pt[0][1] == "mathcheck", f"out={out!r} {pt}")
+        # mathcheck wrong on 1 and 3, critic-only on 2: draft 2 ships
+        out, stub = _run(["D1", "D2", "D3"],
+                         {"D1": ("wrong", "x"), "D3": ("wrong", "z")}, {}, {"D2": "c"})
+        check("⭐ arithmetic wrong on 1 and 3, critic-only on 2: draft 2 ships",
+              out == "D2", f"out={out!r}")
+        # critic unresolved three times: the last ships, logged as livecritic
+        out, stub = _run(["D1", "D2", "D3"], {}, {}, {"D1": "a", "D2": "b", "D3": "c"})
+        pt = [e for e in events if e[0] == "pass_through"]
+        check("  three critic objections: the LAST ships, logged as livecritic",
+              out == "D3" and pt and pt[0][1] == "livecritic" and "attempt 3 of 3" in pt[0][2],
+              f"out={out!r} {pt}")
+    finally:
+        _mc.verify_reply, _t.prose_board_conflict, _t._live_critic_review, _t._event = saved
+
+    lsrc = _insp_src(_t._create_verified)
+    check("  every unresolved exit goes through ONE settle path",
+          lsrc.count("return _settle(drafts)") == 3, f"{lsrc.count('return _settle(drafts)')}")
+    check("  MATHCHECK_MAX_ATTEMPTS is still 3 -- the fix costs no extra model call",
+          _t.MATHCHECK_MAX_ATTEMPTS == 3, "")
+
+
+def _insp_src(fn):
+    import inspect as _i
+    try:
+        return _i.getsource(fn)
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def part3gc_the_reviewer_reads_the_registry():
+    """PART 3gc (build px, 2026-08-29) -- THE REVIEWER'S LIST IS GENERATED, NOT HAND-KEPT.
+
+    The 2026-08-29 watch: "5 unjudged (rule not in the reviewer's list) -- rules
+    missing: 28, 47, 61, 63". Every one of those is a real, enforced rule (one name per
+    thing; no cold quizzes; a generalization carries its condition; the words and the
+    picture are the same figure). Two of the five looked real on their face. They were
+    not refuted and not confirmed -- they were dropped on the floor, because
+    VERIFY_SYSTEM's section (B) was a hand-typed list of ELEVEN rule numbers in a
+    product with SIXTY-FIVE, and it had already drifted three times (jk added the
+    nine, ni added 42, pq added rule_known so the drift would at least be visible).
+
+    ⭐ ONE REGISTRY. RULES.md has been generated from the tutor's own prompt text since
+    build ~fe precisely so it "cannot drift away from what the classroom really does".
+    That extraction (_rule_titles) now lives in tutor.rule_titles(), and the reviewer
+    renders its (B) index from it at import. The eleven elaborations stay -- they are
+    the ones a reviewer once refuted as "tone", and the elaboration is the defence --
+    and the full index follows them. A registry hiccup fails open to the eleven.
+
+    BOTH DIRECTIONS: the four missing numbers are in; the eleven are still there;
+    the rule_known field survives; the report's unjudged section still renders.
+    """
+    print("\nPART 3gc — the reviewer reads the rule registry (build px)")
+    import nightwatch as _nw
+    titles = tutor.rule_titles()
+    check("⭐ tutor.rule_titles() reads every numbered rule (65)",
+          len(titles) == 65 and titles.get(39, "").startswith("TALK LESS"),
+          f"{len(titles)} rules read")
+    check("  the battery's own _rule_titles is the SAME function (one registry)",
+          _rule_titles() == titles, "RULES.md and the reviewer would drift again")
+    v = _nw.VERIFY_SYSTEM
+    for n in (28, 47, 61, 63):
+        check(f"⭐ rule {n} -- unjudged on 2026-08-29 -- is now in the reviewer's list",
+              f"- rule {n:<3} {titles[n]}" in v, f"rule {n} missing from VERIFY_SYSTEM")
+    check("  every one of the 65 rules is in the rendered list",
+          all(f"- rule {n:<3} " in v for n in titles), "")
+    check("  the template placeholder is gone from the rendered prompt",
+          "{RULE_INDEX}" not in v, "")
+    for frag in ("rule 43", "rule 62", "rule 15", "rule 16", "rule 17", "rule 39",
+                 "rule 44", "rules 14 and 48", "rule 40", "rule 42"):
+        check(f"  the elaborated promise for {frag} survives", frag in v, "")
+    check("  render_verify_system() is repeatable and identical",
+          _nw.render_verify_system() == v, "")
+    check("  the fail-open notice exists for a registry that cannot be read",
+          "could not be read tonight" in _insp_src(_nw._rule_index_lines), "")
+    check("  rule_known is still requested and still not a reason to refute",
+          '"rule_known"' in v and "Never refute a finding merely because" in v, "")
+    check("  the report's unjudged section now points at the registry, not a hand list",
+          "tutor.rule_titles" in _insp_src(_nw.report_markdown), "")
+    check("  RULES.md on disk still carries the same 65 (regenerate with --rules if not)",
+          open("RULES.md", encoding="utf-8").read().count("\n### ") == 65, "")
+
+
+def part3gd_the_plain_yes_no_gets_its_buttons():
+    """PART 3gd (build py, 2026-08-29) -- THE PLAIN YES/NO, AT LAST.
+
+    Jim, 2026-08-29, restating a standing rule: "If it says 'are you ready to go' and
+    there's only a yes or no answer, we should have a yes or no bubble. And that
+    should be throughout. Whenever there's a yes/no or a binary answer, we should
+    have bubbles."
+
+    ⭐ WHY IT KEPT SLIPPING. Rule 39(e) has been enforced since build nn, and every
+    shape finite_answer_conflict knew was added after ONE of Jim's screenshots: the
+    literal "yes or no" (nn), "X or Y?" (nn), the offer fork (nu), the ready-check
+    with a fixed verb list (oh), the leading fork (oi), the clause fork (ol). Six
+    shapes, six flags -- a ratchet, not a detector. The 2026-08-29 night watch then
+    flagged "Does that difference make sense?" -- a plain yes/no that matched none
+    of them, because no shape said the plain thing: the turn ENDS on a sentence that
+    OPENS with an auxiliary verb and holds no "or". _PLAIN_YESNO_RE is that shape.
+
+    THE SCOPE THAT KEEPS IT HONEST: final sentence only (a mid-turn rhetorical is
+    teaching -- the clause fork learned this from algebra2's sequence card); no
+    wh-word inside ("Do you know HOW MANY?" wants a number); no "or" (the either-or
+    shape owns that, with its own labels); a reply that already ships [[choices]]
+    never fires. Fires in a quiz too, by the (ol) ruling: a yes/no names its whole
+    answer space, so tapping reveals nothing the words did not.
+
+    THE LABELS ARE JIM'S: a CHECK-IN ("make sense?", "with me?", "ready?") gets
+    "Yes | Not yet" -- the dignified way out -- and a FACTUAL yes/no ("Is 7 prime?")
+    gets "Yes | No". Rule 39(e)'s own text says the same now.
+
+    CANON SWEPT before enforcement: 0 hits on all authored cards, foundations AND
+    lessonscripts, using the battery's own card walker (the sweep is repeated below
+    so the number can never go stale). The authored lane already ships taps on every
+    ask (lessonscripts.choices_for) -- the gap was the live lane alone.
+    """
+    print("\nPART 3gd — the plain yes/no gets its buttons (build py)")
+    import tutor as TT
+    import foundations as FND
+    import lessonscripts as LS
+    F = TT.finite_answer_conflict
+
+    fires = [
+        ("Nice work. Does that difference make sense?", "the night-watch sentence itself"),
+        ("So the answer is 12. Are you with me?", "a check-in"),
+        ("Is that clear so far?", "a bare clarity check"),
+        ("Let's check. Is 7 a prime number?", "a FACTUAL yes/no"),
+        ("So, is 12 even?", "a lead-in word before the verb"),
+        ("Question 1. Is 9 a square number?", "a quiz yes/no names its whole answer space"),
+        ("The last digit is the ones place. Did you know that?", "past-tense auxiliary"),
+        ("[[step eq=\"3 + 4 = ?\"]] Is it 7?", "a yes/no after a board line"),
+    ]
+    for reply, label in fires:
+        r = F(reply)
+        check(f"⭐ FIRES: {label}", bool(r) and "yes/no question with no buttons" in r,
+              f"silent on {reply!r}")
+    r = F("Nice work. Does that difference make sense?")
+    check("⭐ a CHECK-IN is nudged toward Yes | Not yet (Jim's pick)",
+          '[[choices options="Yes | Not yet"]]' in r, r[:120])
+    r = F("Let's check. Is 7 a prime number?")
+    check("⭐ a FACTUAL yes/no is nudged toward Yes | No",
+          '[[choices options="Yes | No"]]' in r, r[:120])
+    check("  the nudge dictates the fix and tells the model to keep its wording",
+          "ADD [[choices" in r and "Keep your wording" in r, "")
+
+    silents = [
+        ("Does that make sense? [[choices options=\"Yes | Not yet\"]]", "the buttons are there"),
+        ("Is it 7? Good. Now what is 3 plus 5?", "a mid-turn yes/no -- final sentence only"),
+        ("Is the difference constant, or is the ratio constant? It's the ratio.",
+         "a rhetorical fork the tutor answers itself"),
+        ("What is 2 plus 3 times 6?", "an open question"),
+        ("How many do you see?", "a wh-question"),
+        ("Do you know how many sides a triangle has?", "an embedded wh-word wants a number"),
+        ("Can you see why the 5 lines up with the 4?", "an embedded why (conservative: silent)"),
+        ("Should we add or subtract here?", "an 'or' inside is the either-or shape's business"),
+        ("Let's add 3 and 4.", "no question at all"),
+    ]
+    for reply, label in silents:
+        r = F(reply)
+        check(f"  SILENT: {label}", not r or "yes/no question with no buttons" not in r,
+              f"fired on {reply!r}: {r[:90]}")
+    # the older shapes keep their OWN labels -- the plain shape is checked after them
+    r = F("Yes or no: is 4 even?")
+    check("  the literal 'yes or no' shape still owns its sentence",
+          "small, known answer space" in r, r[:100])
+    r = F("Is this angle acute or obtuse?")
+    check("  the either-or shape still owns its sentence (Acute | Obtuse)",
+          "Acute | Obtuse" in r, r[:100])
+    r = F("Ready to try one?")
+    check("  the ready-check shape still fires (either shape may claim it)",
+          bool(r), "")
+
+    # ---- the canon sweep, live, with the battery's own walker ----
+    hits, n = [], 0
+
+    def probe(kind, ident, t):
+        r = F(t)
+        # the plain shape's own nudge carries Jim's labels; the ready-check shape's
+        # nudge ("Ready! | Show me again") is a different, older, already-swept shape
+        if r and "yes/no question with no buttons" in r \
+                and ('"Yes | Not yet"' in r or '"Yes | No"' in r):
+            hits.append((kind, ident, r[:80]))
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1
+                probe("foundation", "%s/%s" % (c, sc.get("term") or "?"), t)
+    for les in LS.LESSONS:
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            t = (sp or "") + "\n" + (b or "")
+            if t.strip():
+                n += 1
+                probe("teach", "%s[t%d]" % (les["id"], i), t)
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            t = (w[0] or "") + "\n" + (w[1] or "")
+            if t.strip():
+                n += 1
+                probe("worked", "%s[w%d]" % (les["id"], i), t)
+    check("⭐ canon sweep: the plain yes/no shape fires on 0 authored cards (%d swept)" % n,
+          not hits, "; ".join("%s %s: %s" % h for h in hits[:4]))
+    check("  the sweep covered the whole canon", n >= 1900, "%d cards" % n)
+
+    # ---- the rule text agrees with the referee ----
+    import prompts as _p
+    src = open(_p.__file__, encoding="utf-8").read()
+    check("  rule 39(e) names both label pairs (check-in vs factual)",
+          'options="Yes | Not yet"' in src and 'options="Yes | No"' in src, "")
+    tsrc = open(TT.__file__, encoding="utf-8").read()
+    check("  the shape is final-sentence scoped in code, not just in prose",
+          "last = sentences[-1]" in tsrc and "_PLAIN_YESNO_RE.search(last)" in tsrc, "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -13980,7 +14349,7 @@ def part3fu_the_eyes_report_what_they_saw():
     # ---- (3) the reviewer's own list is audited ----
     check("⭐ the verifier is asked whether it KNOWS the rule it was handed",
           '"rule_known"' in _nw.VERIFY_SYSTEM
-          and "SHORTER than the set of rules" in _nw.VERIFY_SYSTEM, "")
+          and "appears NOWHERE in (B)" in _nw.VERIFY_SYSTEM, "")
     check("  ...and is told never to refute merely for a missing rule",
           "Never\nrefute a finding merely because its rule is missing" in _nw.VERIFY_SYSTEM
           or "refute a finding merely because its rule is missing" in _nw.VERIFY_SYSTEM, "")
@@ -16134,7 +16503,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,274</b>" in page,
+          "<b>7,349</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -17815,8 +18184,12 @@ def part3at_eyes():
           fire_events >= 19,
           "prose_board_conflict no longer records which referee fired")
     for needle, why in [
-            ('_event("pass_through", "prosecheck"', "a shipped-with-finding reply is invisible again"),
-            ('_event("pass_through", "mathcheck"', "an unresolved-math pass-through is invisible again"),
+            # (px) the three pass-through exits share ONE _settle path; the referee
+            # name is chosen there ("prosecheck" | "livecritic" | "mathcheck") and
+            # PART 3gb asserts each name at runtime with scripted referees.
+            ('_event("pass_through", referee', "a shipped-with-finding reply is invisible again"),
+            ('{"critic": "livecritic", "prose": "prosecheck"}.get(b_kind, "mathcheck")',
+             "an unresolved-math pass-through is invisible again"),
             ('_event("probe", "countclaim"', "the countclaim probe stopped counting"),
             ('_event("probe", "markcheck"', "the markcheck probe stopped counting"),
             # build hg: the catch-all lives ONCE in _reply_pipeline; the getters pass
@@ -24622,6 +24995,9 @@ def main():
     part3fy_visible_without_moving_anything()
     part3fz_a_hyphen_marked_a_right_answer_wrong()
     part3ga_a_different_problem_is_not_a_snapshot()
+    part3gb_ship_the_best_draft()
+    part3gc_the_reviewer_reads_the_registry()
+    part3gd_the_plain_yes_no_gets_its_buttons()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

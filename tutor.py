@@ -2,6 +2,30 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD py -- THE PLAIN YES/NO GETS ITS BUTTONS. Jim, restating a standing
+#               rule: "whenever there's a yes or no or a binary answer, we should have
+#               bubbles -- throughout." finite_answer_conflict knew six shapes, each
+#               from one screenshot; the 2026-08-29 watch's "Does that difference make
+#               sense?" matched none. New _PLAIN_YESNO_RE: the FINAL sentence opens
+#               with an auxiliary verb, holds no "or" and no wh-word, ends in "?".
+#               Check-ins get "Yes | Not yet" (Jim's pick), factual yes/no gets
+#               "Yes | No". Canon swept 0 of 2,109 cards. PART 3gd, both directions.
+#   2026-08-29  BUILD px -- SHIP THE BEST DRAFT, AND READ THE CRITIC'S VERDICT. The
+#               2026-08-29 night watch finally printed the livecritic crash REASONS
+#               (build pq's eyes): "Extra data: line 6 column 1" -- json.loads refusing
+#               a verdict the critic kept talking after, because the parse sliced from
+#               the first brace to the LAST one. New _critic_verdict reads ONE object
+#               with raw_decode; trailing chatter is counted as referee_soft, not a
+#               crash. (The other reason, "claude-haiku-4.5 not found", is the 08-26
+#               typo incident still inside the 7-day window; Render is correct.) And
+#               the bigger number: 66 replies shipped WITH a known finding in 7 days --
+#               every one from _create_verified shipping the THIRD draft, whatever it
+#               was. New _best_draft ranks the kept drafts (critic < prose < mathcheck,
+#               newest wins a tie) and ONE _settle path ships the least-bad one, logging
+#               WHICH attempt shipped. Zero extra model calls. PART 3gb, both directions.
+#               Also NEW rule_titles(): the rule registry as a function (the battery's
+#               own RULES.md extraction), so nightwatch's reviewer renders its conduct
+#               list from it instead of a hand list that drifted three times. PART 3gc.
 #   2026-08-28  BUILD pv -- THE INTERVENTION WAS TOLD TO TEACH THE WRONG OPERATION.
 #               script_intervention's note names the real operator ("The problem was
 #               90 - 29") and then said, hardcoded, "Teach Model-Lead-Test on {a} + {b}
@@ -2042,6 +2066,39 @@ def _event(kind: str, name: str, detail: str = "", code: str = "", course: str =
             store.record_event(kind, name, str(detail or "")[:300], code, course)
     except Exception:  # noqa: BLE001 -- telemetry must never harm a lesson
         pass
+
+
+# =============================================================================
+# THE RULE REGISTRY, AS A FUNCTION  (build px, 2026-08-29)
+# -----------------------------------------------------------------------------
+# prompts.GRAPH_TOOL_NOTE is where the numbered teaching rules live -- "N. SHOUTED
+# HEADLINE, then prose". ruletests.py has read them out of that text since build
+# ~fe to generate RULES.md ("do not edit by hand ... cannot drift"). The night
+# watch's reviewer, meanwhile, carried a HAND-WRITTEN list of eleven rule numbers,
+# and drifted three times (builds jk, ni, pq each patched it); the 2026-08-29 watch
+# could not judge five findings because they cited rules 28, 47, 61 and 63 -- all
+# real, all enforced, none on the hand list. One registry, read by both, ends that.
+# The extraction is the battery's own (_rule_titles), moved here so nightwatch.py
+# can import it without importing the battery. (prompts.py holds TEXT ONLY -- the
+# battery enforces that -- so the function lives here, beside the prompt's reader.)
+# =============================================================================
+def rule_titles():
+    """{rule number: SHOUTED headline} for every numbered rule in GRAPH_TOOL_NOTE.
+    The headline ends at the first word that carries a lower-case letter once three
+    words are in hand ("Something", "Never", "(Jim's" end it; ALL-CAPS continue it).
+    Never raises: a malformed line is skipped, an empty registry returns {}."""
+    out = {}
+    try:
+        for m in re.finditer(r"^(\d{1,2})\. (.{6,200})$", GRAPH_TOOL_NOTE, re.M):
+            keep = []
+            for w in m.group(2).split():
+                if re.search(r"[a-z]", w) and len(keep) >= 3:
+                    break
+                keep.append(w)
+            out[int(m.group(1))] = " ".join(keep).strip(" ,.:;-") or m.group(2)[:70]
+    except Exception:  # noqa: BLE001 -- a registry read must never break a turn
+        pass
+    return out
 
 # The default course. Until the course picker (Phase 3 UI) supplies a course, everything
 # resolves to Algebra I, so single-course behavior is exactly as before.
@@ -5836,6 +5893,30 @@ _CLAUSE_FORK_RE = re.compile(
 _LEAD_FORK_RE = re.compile(
     r"(?:^|[.!?]\s+)(?:want|would\s+you\s+like|do\s+you\s+want)"
     r"\b[^.?!]*?,?\s+or\s+[^.?!]*\?", re.I)
+# (py) 2026-08-29 -- THE PLAIN YES/NO, AT LAST. Jim's standing ask, restated on
+# 2026-08-29: "if it says 'are you ready to go' and there's only a yes or no answer,
+# we should have a yes or no bubble. And that should be throughout." Every shape
+# above was added after ONE of his screenshots -- literal "yes or no", "X or Y?",
+# the offer fork, the leading fork, a ready-check with a fixed verb list -- and the
+# 2026-08-29 night watch flagged "Does that difference make sense?", which is a plain
+# yes/no and matched none of them. This is the general shape: the turn's FINAL
+# sentence opens with an auxiliary verb (is/are/does/can/will/...), holds no "or"
+# (that is the either-or shape) and no wh-word (an embedded "how many" wants a
+# number, not a yes), and ends in "?". An optional lead-in ("So, is 12 even?") is
+# allowed. FINAL SENTENCE ONLY, like the clause fork: a mid-turn rhetorical is
+# teaching. Fires in a quiz too -- a yes/no names its whole answer space, so tapping
+# reveals nothing the words did not (the (ol) ruling). Canon swept: 0 of 2,109 cards
+# (foundations AND lessonscripts, the battery's own walker), both files.
+_PLAIN_YESNO_RE = re.compile(
+    r"(?:^|[.!?]\s+)[\"'(]*(?:\*\*)?(?:(?:so|now|and|but|okay|ok|well|alright)[,\s]+)?"
+    r"(?:is|are|was|were|do|does|did|can|could|will|would|should|shall|have|has|had|am)\b"
+    r"(?:(?!\b(?:or|how|what|which|why|when|where|who|whom|whose)\b)[^.?!])*\?\s*$", re.I)
+# a CHECK-IN ("make sense?", "with me?", "ready?") gets "Yes | Not yet" -- Jim's
+# choice, 2026-08-29: "Not yet" invites another look instead of admitting failure.
+# A FACTUAL yes/no ("Is 7 prime?") gets plain "Yes | No".
+_CHECKIN_WORDS_RE = re.compile(
+    r"\b(?:makes?\s+sense|ready|got\s+it|clear|with\s+me|follow|remember|want|like|"
+    r"feel|okay|ok|see\s+(?:how|why|what)|understand|try|need|know)\b", re.I)
 _QUIZ_MOMENT_RE = re.compile(r"\[\[\s*(?:quiz|check|finalexam)\b|\bQ\s*\d+\s*:"
                              r"|\bquestion\s+(?:one|two|three|four|five|six|seven|"
                              r"eight|nine|ten|\d+)\b", re.I)
@@ -5908,6 +5989,21 @@ def finite_answer_conflict(reply: str):
                     '(e.g. "Ready! | Show me again"). The app adds its own '
                     "\"I'm not sure\". Keep your wording; change nothing "
                     "else.").format(s=said)
+        # (py) the plain yes/no ending the turn -- see _PLAIN_YESNO_RE. Checked
+        # AFTER the named shapes so a "yes or no" / either-or keeps its own labels,
+        # and only on the turn's final sentence.
+        if not m and sentences:
+            last = sentences[-1]
+            pm = _PLAIN_YESNO_RE.search(last) if "?" in last else None
+            if pm:
+                said = " ".join(pm.group(0).split())[:60].lstrip(".!?\"'( ")
+                a, b = ("Yes", "Not yet") if _CHECKIN_WORDS_RE.search(said) else ("Yes", "No")
+                return ('your turn ends on "{s}" -- a yes/no question with no '
+                        "buttons. Rule 39(e): ADD [[choices options=\"{a} | {b}\"]] "
+                        "right after it, in this same reply (the app adds its own "
+                        "\"I'm not sure\" button). Saying the answer stays welcome -- "
+                        "the buttons are the fast lane. Keep your wording; change "
+                        "nothing else.").format(s=said, a=a, b=b)
         if not m:
             return ""
         said = " ".join(m.group(0).split())[:60]
@@ -8018,7 +8114,9 @@ _CRITIC_SYSTEM = (
     "are NOT defects -- pass them. Object ONLY when you are confident a child "
     "would be wrongly graded, misled, or confused by an actual error.\n\n"
     'Answer with pure JSON and nothing else: {"ok": true} OR '
-    '{"ok": false, "problem": "<one specific sentence a rewrite can act on>"}')
+    '{"ok": false, "problem": "<one specific sentence a rewrite can act on>"}. '
+    "ONE object only. Write nothing after its closing brace -- no explanation, "
+    "no second object.")
 
 # (np) "fixing exactly that problem" was not landing: 11 of 28 critic objections
 # shipped unresolved in Jim's first production week, and the commonest class was
@@ -8071,6 +8169,34 @@ _CRITIC_MODEL_FALLBACK = {"bad": "", "announced": False}
 def _is_model_not_found(exc) -> bool:
     s = str(exc)
     return "not_found_error" in s and "model" in s.lower()
+
+
+# (px) 2026-08-29 -- THE VERDICT IS ONE OBJECT, WHATEVER FOLLOWS IT. Build pq made the
+# night watch print crash REASONS instead of bare counts, and the 2026-08-29 watch
+# finally said what the livecritic crashes were: "Extra data: line 6 column 1
+# (char 360..665)". That is json.loads refusing a string that holds a valid verdict
+# AND THEN MORE -- the critic wrote {"ok": false, "problem": "..."} and kept talking
+# (a second object, a restatement, prose with a brace in it). The old parse sliced
+# from the first "{" to the LAST "}", so the chatter was inside the slice and the
+# whole read raised. Fail-open turned every one into a turn with NO second opinion.
+# raw_decode reads exactly one JSON value from the first brace and reports where it
+# stopped; what follows is measured and discarded, never parsed. The prefilled form
+# ("{" + text) and the plain form both pass through here.
+def _critic_verdict(text: str):
+    """(verdict_dict, trailing_char_count) or (None, 0) when no JSON object can be
+    read at all. Never raises."""
+    import json as _json
+    try:
+        s = (text or "").find("{")
+        if s < 0:
+            return None, 0
+        v, end = _json.JSONDecoder().raw_decode(text[s:])
+        if not isinstance(v, dict):
+            return None, 0
+        trailing = len(text[s + end:].strip())
+        return v, trailing
+    except Exception:  # noqa: BLE001 -- a verdict that cannot be read is a pass
+        return None, 0
 
 
 def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None,
@@ -8144,12 +8270,20 @@ def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None,
                                 attempts=1, verify_status="critic")
         except Exception:  # noqa: BLE001
             pass
-        import json as _json
-        s, e = text.find("{"), text.rfind("}")
-        if s < 0 or e <= s:
+        # (px) THE VERDICT IS READ WITH raw_decode -- see _critic_verdict. The old
+        # first-brace-to-last-brace slice raised "Extra data" whenever the critic kept
+        # talking after its verdict, and every one of those was a silently EMPTIED
+        # seat on a live child's turn (5+ referee_crash rows in the 2026-08-29 watch).
+        v, trailing = _critic_verdict(text)
+        if v is None:
             print(f"[livecritic]{log_prefix} non-JSON verdict -- fail open")
             return ""
-        v = _json.loads(text[s:e + 1])
+        if trailing:
+            # visible, but NOT a crash: the verdict was read; only the chatter was dropped
+            print(f"[livecritic]{log_prefix} verdict followed by {trailing} chars of "
+                  "trailing text -- discarded")
+            _event("referee_soft", "livecritic",
+                   f"verdict read; {trailing} trailing chars discarded")
         if v.get("ok") is True:
             return ""
         prob = str(v.get("problem", "")).strip()
@@ -8870,6 +9004,39 @@ def missing_mark_probe(reply: str, messages) -> str:
         return ""
 
 
+# (px) 2026-08-29 -- SHIP THE BEST DRAFT, NOT THE LAST ONE. The 2026-08-29 night watch
+# counted 66 replies shipped WITH a known finding in seven days (33 livecritic, 32
+# prosecheck, 1 mathcheck). Every one came from this loop running out of attempts
+# and shipping WHATEVER THE THIRD DRAFT WAS -- it never looked back. A third draft
+# that fixed the critic's objection and introduced a prose contradiction shipped over
+# a first draft that carried only the objection. The drafts were all in hand; nobody
+# compared them. Severity order, mildest first: a critic objection (a judgment call
+# by a second model, on a draft the arithmetic and the prose referee both passed) <
+# a prose contradiction (the words disagree with the board) < a mathcheck "wrong"
+# (the arithmetic itself). Ties go to the NEWEST draft -- it had the most guidance,
+# and it is exactly what shipped before, so a run of three equal findings changes
+# nothing. A draft rejected early was never read by the later referees, so its rank
+# is a floor, not a promise -- but a floor is the honest comparison we have, and
+# "known critic-only" beats "known prose contradiction" every time.
+_DRAFT_RANK = {"critic": 1, "prose": 2, "mathcheck": 3}
+
+
+def _best_draft(drafts):
+    """drafts: [(attempt, reply, kind, detail)] in order. Returns the tuple to ship:
+    lowest rank, newest on ties. Never raises; an empty list yields an empty reply."""
+    try:
+        if not drafts:
+            return (0, "", "mathcheck", "")
+        best = None
+        for d in drafts:
+            r = _DRAFT_RANK.get(d[2], 3)
+            if best is None or r <= _DRAFT_RANK.get(best[2], 3):
+                best = d
+        return best
+    except Exception:  # noqa: BLE001 -- the choice must never cost a turn
+        return drafts[-1]
+
+
 def _create_verified(client, model, system_blocks, messages, log_prefix, meta=None):
     """One model call, refereed. Returns the verified reply with [[verify]] tags
     stripped, or "" if the model returned nothing (caller shows its fallback).
@@ -8893,6 +9060,31 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     reply = ""
     tokens = {}
     tokens["_t0"] = time.monotonic()      # build jm: the turn clock starts here
+    # (px) EVERY DRAFT IS KEPT WITH WHAT WAS FOUND IN IT -- see _best_draft. When the
+    # attempts run out, the child gets the LEAST-BAD draft, not merely the LAST one.
+    drafts = []
+
+    def _settle(kept):
+        """The attempts are spent and a finding still stands. Ship the least-bad
+        draft, log WHICH attempt shipped and what it still carried, and return it
+        stripped -- the one exit for every unresolved pass-through."""
+        b_attempt, reply, b_kind, b_detail = _best_draft(kept)
+        referee = {"critic": "livecritic", "prose": "prosecheck"}.get(b_kind, "mathcheck")
+        status = {"critic": "critic-unresolved", "prose": "prose-unresolved"}.get(
+            b_kind, "unresolved")
+        print(f"[{referee}]{log_prefix} UNRESOLVED -- shipping attempt "
+              f"{b_attempt}/{MATHCHECK_MAX_ATTEMPTS} ({status}): {b_detail}")
+        # one event, named for the referee whose finding the shipped draft carries:
+        # "prosecheck", "livecritic" or "mathcheck" -- exactly the names the counters
+        # and the night watch have always read.
+        _event("pass_through", referee,
+               f"shipped attempt {b_attempt} of {MATHCHECK_MAX_ATTEMPTS}: {b_detail}",
+               (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+        _measure_output(tokens, reply, meta)                    # build jq
+        remember_phrasings(reply, meta)                         # build jr
+        _log_brain_usage(meta, model, tokens, MATHCHECK_MAX_ATTEMPTS, status)
+        return mathcheck.strip_verify_tags(reply)
+
     for attempt in range(1, MATHCHECK_MAX_ATTEMPTS + 1):
         # build jm: whatever rejected the previous draft -- mathcheck, the prose
         # referee, or the live critic -- everything from here on is RETRY cost.
@@ -8940,13 +9132,15 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             if prose_detail and attempt < MATHCHECK_MAX_ATTEMPTS:
                 print(f"[prosecheck]{log_prefix} CONTRADICTION on attempt "
                       f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {prose_detail}")
+                drafts.append((attempt, reply, "prose", prose_detail))
                 msgs = msgs + [{"role": "assistant", "content": reply},
                                {"role": "user", "content": _PROSE_NUDGE.format(detail=prose_detail)}]
                 continue
             if prose_detail:
-                print(f"[prosecheck]{log_prefix} UNRESOLVED -- passing through: {prose_detail}")
-                _event("pass_through", "prosecheck", prose_detail,
-                       (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+                # (px) the attempts are spent: ship the LEAST-BAD draft, not this one
+                # by default -- a critic-only draft outranks a prose contradiction.
+                drafts.append((attempt, reply, "prose", prose_detail))
+                return _settle(drafts)
             # build iv: THE LIVE CRITIC SEAT (empty by default -- see _CRITIC_SYSTEM
             # above). A second model reads the draft the regex referees just passed;
             # a confident objection is a retry, exactly like theirs. Runs only on
@@ -8960,14 +9154,17 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                           f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {critic_detail}")
                     _event("referee_fire", "livecritic", critic_detail,
                            (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+                    drafts.append((attempt, reply, "critic", critic_detail))
                     msgs = msgs + [{"role": "assistant", "content": reply},
                                    {"role": "user",
                                     "content": _CRITIC_NUDGE.format(detail=critic_detail)}]
                     continue
                 if critic_detail:
-                    print(f"[livecritic]{log_prefix} UNRESOLVED -- passing through: {critic_detail}")
-                    _event("pass_through", "livecritic", critic_detail,
-                           (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+                    # (px) attempts spent with a critic objection standing: every kept
+                    # draft is critic-only at worst, so the newest wins the tie -- the
+                    # same reply as before, now logged with WHICH attempt shipped.
+                    drafts.append((attempt, reply, "critic", critic_detail))
+                    return _settle(drafts)
             # build gv: MEASUREMENT ONLY -- claims about what has already happened.
             try:
                 count_claim_probe(reply, (meta or {}).get("code", ""),
@@ -8995,19 +9192,19 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             _log_brain_usage(meta, model, tokens, attempt, status)
             return mathcheck.strip_verify_tags(reply)
         print(f"[mathcheck]{log_prefix} WRONG on attempt {attempt}/{MATHCHECK_MAX_ATTEMPTS}: {detail}")
+        drafts.append((attempt, reply, "mathcheck", str(detail)))
         if attempt < MATHCHECK_MAX_ATTEMPTS:
             msgs = msgs + [{"role": "assistant", "content": reply},
                            {"role": "user", "content": _MATHCHECK_NUDGE.format(detail=detail)}]
     # Three drafts in a row judged wrong, WITH the correction in hand, almost always
-    # means the CHECKER mis-read an unusual claim -- so pass the last draft through
-    # (fail open) rather than brick the lesson, and log loudly for the developer.
+    # means the CHECKER mis-read an unusual claim -- so pass a draft through (fail
+    # open) rather than brick the lesson, and log loudly for the developer.
+    # (px) WHICH draft: the least-bad one. Three mathcheck-wrong drafts tie, and the
+    # newest wins the tie -- the last draft, exactly as before. But when an EARLIER
+    # draft passed the arithmetic and fell only to the prose referee or the critic,
+    # that draft ships instead of one the checker calls wrong.
     print(f"[mathcheck]{log_prefix} UNRESOLVED after {MATHCHECK_MAX_ATTEMPTS} attempts -- passing through")
-    _event("pass_through", "mathcheck", str(detail),
-           (meta or {}).get("code", ""), (meta or {}).get("course", ""))
-    _measure_output(tokens, reply, meta)                  # build jq
-    remember_phrasings(reply, meta)                       # build jr
-    _log_brain_usage(meta, model, tokens, MATHCHECK_MAX_ATTEMPTS, "unresolved")
-    return mathcheck.strip_verify_tags(reply)
+    return _settle(drafts)
 
 
 def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,

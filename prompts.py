@@ -2,6 +2,12 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD py -- RULE 39(e) NAMES THE PLAIN YES/NO. Jim, 2026-08-29: "whenever
+#               there's a yes or no or a binary answer, we should have bubbles." The
+#               rule's example labels now split the CHECK-IN ("Does that make sense?"
+#               -> Yes | Not yet -- Jim's pick, the dignified way out) from the FACTUAL
+#               yes/no ("Is 7 prime?" -> Yes | No). The referee that holds it is
+#               tutor.finite_answer_conflict's new _PLAIN_YESNO_RE. One copy of 39(e).
 #   2026-08-28  BUILD pt -- WHEN THE OPERATION MEETS THE SIGN, SAY THE PLAIN THING.
 #               Jim flagged "the left side becomes 2X, plus negative 2 plus 3": "minus
 #               2 and negative 2 are the same...but a novice may be confused by this".
@@ -4772,8 +4778,10 @@ ground is laid, and guidance fades as the student gains expertise, never before.
             "Is that clear, or is there a part you'd like me to slow down on?"
     (e) A SMALL ANSWER SPACE SHIPS ITS BUTTONS -- EVERY COURSE. When your question
         has three or fewer honest answers, put them on the board as taps in the SAME
-        reply: a yes/no check-in ships [[choices options="Yes | No"]] (the app adds
-        its own "I'm not sure" button -- never add your own); an either/or
+        reply: a yes/no check-in ("Does that make sense?", "Ready?") ships
+        [[choices options="Yes | Not yet"]] -- "Not yet" is the dignified way out; a
+        FACTUAL yes/no ("Is 7 prime?") ships [[choices options="Yes | No"]] (the app
+        adds its own "I'm not sure" button -- never add your own); an either/or
         classification ships the two names -- "supplementary or complementary?"
         ships [[choices options="Supplementary | Complementary"]]. Tapping is the
         fast lane, never the only lane: the tap arrives as ordinary text, and saying

@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  APP_BUILD -> "2026-08-29py-the-plain-yes-no-gets-its-buttons". BUILD py --
+#               tutor.py + prompts.py: rule 39(e)'s referee learns the general yes/no
+#               shape (final sentence opens with an auxiliary, no "or"), so "Does that
+#               make sense?" ships Yes | Not yet and "Is 7 prime?" ships Yes | No.
+#               Canon swept 0. No Python changed here except this stamp.
+#   2026-08-29  APP_BUILD -> "2026-08-29px-ship-the-best-draft". BUILD px -- three
+#               fixes from the 2026-08-29 night watch, none in this file. tutor.py: the
+#               critic's verdict is read with raw_decode (the "Extra data" crashes the
+#               watch finally named), and when the attempts run out the LEAST-BAD draft
+#               ships instead of the last one. tutor.py + nightwatch.py: the
+#               reviewer's conduct list is generated from the rule registry (five
+#               findings went unjudged for citing rules 28/47/61/63). No Python changed
+#               here except this stamp.
 #   2026-08-28  APP_BUILD -> "2026-08-28pw-a-different-problem-is-not-a-snapshot". BUILD pw --
 #               board.js only: supersedePrevious now COMPARES first lines, so a
 #               different problem is no longer folded away as a stale snapshot of the
@@ -12582,7 +12595,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-28pw-a-different-problem-is-not-a-snapshot"
+APP_BUILD = "2026-08-29py-the-plain-yes-no-gets-its-buttons"
 
 
 @app.get("/health")
