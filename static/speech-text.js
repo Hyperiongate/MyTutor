@@ -2,6 +2,10 @@
    speech-text.js  --  WHAT THE TUTOR SAYS OUT LOUD  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-29  SAY THE COURSE NAME (build qe, Jim: "Algebra I is being pronounced
+                 Algebra Eye"). Roman numerals in course names are spoken as words --
+                 "Algebra I" -> "Algebra One", "Algebra II" -> "Algebra Two" -- and
+                 only after the word Algebra, so the pronoun I is never touched.
      2026-08-19  SPEAK THE PRIMES (build ip, Jim in Differential Equations: "it is
                  pronouncing y-double-prime as 'yuh' ... sometimes 'y', sometimes
                  'y prime', y double prime is calling it 'u' ... it's wrong in several
@@ -71,6 +75,14 @@ function moneyWords(_, d, c) {
 
 function forSpeech(text) {
   return String(text)
+    // build qe (2026-08-29, Jim: "Algebra I is being pronounced Algebra Eye"). The
+    // course names carry ROMAN numerals on screen -- Algebra I, Algebra II -- and the
+    // voice read the numeral as the letter. Said first, before any other rule can
+    // touch the letters: "Algebra One", "Algebra Two". Only after the word Algebra,
+    // so the pronoun I and a quoted "I" are never renamed. II before I, so Algebra II
+    // is never read as "Algebra One I".
+    .replace(/\bAlgebra\s+II\b/g, "Algebra Two")
+    .replace(/\bAlgebra\s+I\b/g, "Algebra One")
     // build ga (2026-08-14): **bold** used to become TWO SPACES, which stranded a space
     // before whatever punctuation followed -- the log shows "that's a right angle ." going
     // to the voice -- and the voice reads that gap as a hesitation. Pairs go first and

@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  APP_BUILD -> "2026-08-29qe-say-the-course-name". BUILD qe -- speech-text.js
+#               only: forSpeech reads "Algebra I" as "Algebra One" and "Algebra II" as
+#               "Algebra Two" (Jim: "Algebra I is being pronounced Algebra Eye"). No
+#               Python changed except this stamp.
 #   2026-08-29  APP_BUILD -> "2026-08-29qd-the-problem-that-was-asked". BUILD qd -- from
 #               Jim's three screenshots: (tutor.py) the scripted-lane intervention
 #               describes the missed problem with the engine's own words, board,
@@ -12619,7 +12623,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-29qd-the-problem-that-was-asked"
+APP_BUILD = "2026-08-29qe-say-the-course-name"
 
 
 @app.get("/health")

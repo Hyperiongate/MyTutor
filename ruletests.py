@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qe -- forSpeech says "Algebra One" / "Algebra Two" for the Roman
+#               numerals in course names (Jim: "Algebra I is being pronounced Algebra
+#               Eye"). Four SPEECH_CASES, the pronoun I guarded.
 #   2026-08-29  BUILD qd -- PART 3gi: the intervention teaches the problem that was
 #               asked. Jim's three screenshots: |6 − 9| became "count fifteen stars",
 #               then the redo went to the live tutor with stale history. The note is
@@ -2937,6 +2940,12 @@ SPEECH_CASES = [
     ('the word "vertex" matters', 'the word "vertex" matters', "prime"),
     ('call it "y" for now', 'call it "y" for now', "prime"),
     ("the students' answers", "the students' answers", "prime"),
+    # build qe (2026-08-29, Jim: "Algebra I is being pronounced Algebra Eye"): Roman
+    # numerals in course names are spoken as words; the pronoun I is never touched.
+    ("Algebra II picks up where Algebra I left off", "Algebra Two picks up where Algebra One left off", "Algebra I"),
+    ("Welcome to Algebra I.", "Welcome to Algebra One.", "Algebra I"),
+    ("I think Algebra II is fun and I like it", "I think Algebra Two is fun and I like it", "Algebra I"),
+    ("so I said, x is 5", "so I said, x is 5", "One"),
 ]
 _JS_HARNESS = r"""
 const fs=require("fs");
