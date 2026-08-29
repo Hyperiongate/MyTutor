@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  APP_BUILD -> "2026-08-29qa-one-entry-per-function-letter". BUILD qa --
+#               tutor.py: the notation referee (rule 14/48) treats f, g and h as
+#               separate first uses and sees numeric arguments, so "g(2) = 8" after
+#               f(x) is read aloud. No Python changed here except this stamp.
+#   2026-08-29  APP_BUILD -> "2026-08-29pz-the-named-list-of-falsehoods". BUILD pz --
+#               tutor.py: the 63rd referee, a table of named false general statements
+#               (three from the 2026-08-29 watch, ten from PART 3w) with the true form
+#               in every nudge. Canon swept 0. No Python changed here except this stamp.
 #   2026-08-29  APP_BUILD -> "2026-08-29py-the-plain-yes-no-gets-its-buttons". BUILD py --
 #               tutor.py + prompts.py: rule 39(e)'s referee learns the general yes/no
 #               shape (final sentence opens with an auxiliary, no "or"), so "Does that
@@ -12595,7 +12603,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-29py-the-plain-yes-no-gets-its-buttons"
+APP_BUILD = "2026-08-29qa-one-entry-per-function-letter"
 
 
 @app.get("/health")

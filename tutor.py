@@ -2,6 +2,22 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qa -- ONE ENTRY PER FUNCTION LETTER (rule 48). The 2026-08-29 watch:
+#               g(2) = 8 written after f(x), "g of two" never said. The notation
+#               referee's entry held f/g/h in ONE class (f in the history made g
+#               "known") and required a letter argument (g(2) was never seen). Three
+#               entries now, each its own first use, numeric arguments included; the
+#               nudge quotes "g of two". Lenient canon sweep 0; strict ceiling 12
+#               recorded in PART 3gf. This is Jim's 2026-08-09 "flipped over to g of x".
+#   2026-08-29  BUILD pz -- THE NAMED LIST OF FALSEHOODS (the SIXTY-THIRD referee).
+#               The 2026-08-29 watch confirmed three false universals ("the hypotenuse
+#               always gets the letter c"; "division is sharing until nothing's left
+#               over"; "every digit's in the ones place"). Rule 61 was enforced live for
+#               two topics only; everything else was prompt words. NEW KNOWN_FALSEHOODS
+#               table + known_falsehood_conflict: each entry is the false sentence
+#               itself, its escape condition, and the true form the nudge dictates.
+#               PART 3w's ten authored bans join it live (precedence excluded -- the
+#               37th owns it). True absolutes untouched. Canon swept 0 of 2,109. PART 3ge.
 #   2026-08-29  BUILD py -- THE PLAIN YES/NO GETS ITS BUTTONS. Jim, restating a standing
 #               rule: "whenever there's a yes or no or a binary answer, we should have
 #               bubbles -- throughout." finite_answer_conflict knew six shapes, each
@@ -4300,10 +4316,27 @@ _NOTATIONS = (
      re.compile(r"absolute\s+value", re.I),
      "Those tall straight bars mean ABSOLUTE VALUE -- how far a number is from "
      'zero -- so "the absolute value of negative five" is just five.'),
-    ("function notation", re.compile(r"\b[fgh]\s*\(\s*[a-z]\s*\)"),
-     re.compile(r"\b[fgh]\s+of\s+[a-z]\b", re.I),
+    # (qa) 2026-08-29 -- ONE ENTRY PER FUNCTION LETTER. The old single entry held
+    # f, g and h in one character class, so f(x) in the history made g "known" and
+    # the referee stayed silent when the tutor switched names -- exactly Jim's
+    # 2026-08-09 live complaint ("...and then it flipped over to g of x") and the
+    # 2026-08-29 night watch's rule-48 finding (g(2) = 8 written, "g of two" never
+    # said). It also required a LETTER inside the parentheses, so g(2) was never
+    # even seen. Each letter is now its own first use, and the argument may be a
+    # letter, a number, or a short expression. The reading may be "g of two",
+    # "g of 2" or "g of x".
+    ("function notation (f)", re.compile(r"\bf\s*\(\s*[-+\w.]{1,10}\s*\)"),
+     re.compile(r"\bf\s+of\s+\w", re.I),
      'We read f(x) out loud as "f of x" -- the name of a machine that takes x '
      "in and sends one number back out."),
+    ("function notation (g)", re.compile(r"\bg\s*\(\s*[-+\w.]{1,10}\s*\)"),
+     re.compile(r"\bg\s+of\s+\w", re.I),
+     'We read g(2) out loud as "g of two" -- g is just a different name for a '
+     "different rule, and it works exactly like f."),
+    ("function notation (h)", re.compile(r"\bh\s*\(\s*[-+\w.]{1,10}\s*\)"),
+     re.compile(r"\bh\s+of\s+\w", re.I),
+     'We read h(x) out loud as "h of x" -- h is just another name for another '
+     "rule, and it works exactly like f."),
     # (ni) 2026-08-25 -- THREE SYMBOLS THE NIGHT WATCH CAUGHT SHIPPING UNREAD.
     # "8 ÷ 2 = ?" reached a beginner with nobody saying "divided by" (i-dont-know,
     # basic), and the three-forms card handed an Algebra II student r₁, r₂ and the
@@ -4878,6 +4911,132 @@ def false_universal_conflict(reply: str):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[falseuniversal] crashed (fail open): {exc}")
         _event("referee_crash", "falseuniversal", str(exc))
+        return ""
+
+
+
+# =============================================================================
+# BUILD pz (2026-08-29) -- THE NAMED LIST OF FALSEHOODS (the SIXTY-THIRD referee).
+# -----------------------------------------------------------------------------
+# The 2026-08-29 night watch confirmed three false general statements in ten lessons:
+#   "whichever side skips the right-angle vertex is the hypotenuse, and it always
+#    gets the lowercase letter c"                                (geometry, rule 61)
+#   "that's really all division is: sharing fairly until nothing's left over"
+#                                                                  (basic, rule 61)
+#   "with whole numbers, lining up the last digits works, since every digit's in
+#    the ones place"                                          (prealgebra, rule 13)
+# Rule 61 is "ENFORCED" only for AUTHORED text: PART 3w bans ten known-false forms
+# from the files a child hears verbatim, and the two live slices (precedence, the
+# hole law) each hold ONE topic. Every other falsehood the model can say is held by
+# prompt words alone -- and build ps already learned that "a rule held by prompt
+# words alone is a wish". This referee is the general mechanism the review asked
+# for: a TABLE of named falsehoods, each a tight pattern for the FALSE SENTENCE
+# ITSELF (never a keyword, never a bare "always"), each with the condition that
+# buys silence and the TRUE sentence the nudge dictates. Not an "always"-detector:
+# true absolutes ("the hypotenuse is always the longest side") must stay crisp
+# (rule 61(d)), and this table cannot touch them because it only knows the false
+# sentences it was given. Sentence-scoped; one mention of the condition ANYWHERE in
+# the reply buys silence (satisfiable in one clause, like the 37th and 59th). The
+# two precedence forms from PART 3w are NOT here -- overgeneralized_precedence_conflict
+# owns them live, and two referees on one sentence is a nudge fight. Canon swept:
+# 0 of 2,109 cards, both files (PART 3ge repeats the sweep).
+# =============================================================================
+_KF_SENTENCE = re.compile(r"[^.!?]+[.!?]?")
+KNOWN_FALSEHOODS = [
+    # (name, the FALSE sentence, the condition that buys silence, the TRUE form)
+    ("hypotenuse-is-always-c",
+     re.compile(r"hypotenuse[^.!?]{0,80}\balways\b[^.!?]{0,40}\b(?:letter\s+)?c\b"
+                r"|\balways\s+(?:gets|get|is|has|takes)\s+(?:the\s+)?(?:lowercase\s+)?"
+                r"(?:letter\s+)?c\b[^.!?]{0,60}hypotenuse"
+                r"|hypotenuse\s+is\s+always\s+(?:side\s+)?c\b", re.I),
+     re.compile(r"right\s+angle\s+(?:is|was|sits|lives)\s+at\s+\w|"
+                r"(?:letter|name)\s+of\s+the\s+(?:opposite|right-angle)\s+(?:vertex|corner)"
+                r"|only\s+(?:when|if|because)", re.I),
+     "the hypotenuse takes the lowercase letter of the vertex it skips -- it is c "
+     "here because the right angle is at C; with the right angle at B it would be b"),
+    ("division-never-has-leftovers",
+     re.compile(r"\b(?:all\s+)?division\s+(?:is|means)\b[^.!?]{0,60}"
+                r"(?:until|so(?:\s+that)?|with|and)\s+nothing(?:'s|\s+is)?\s+left(?:\s+over)?", re.I),
+     re.compile(r"remainder|left\s*over\s+sometimes|sometimes\s+(?:some|a few|one)\s+"
+                r"(?:is|are)\s+left|for\s+(?:these|today's|our)\s+(?:first\s+)?problems|"
+                r"in\s+these\s+problems", re.I),
+     "for these problems, division shares fairly so each friend gets the same amount "
+     "and nothing is left over -- some division problems DO have leftovers, and we "
+     "call that a remainder"),
+    ("every-digit-in-the-ones-place",
+     re.compile(r"every\s+digit(?:'s|\s+is|\s+sits)\s+in\s+the\s+ones\s+place", re.I),
+     re.compile(r"last\s+digit\s+(?:is|sits|lives)\s+(?:in\s+)?the\s+ones\s+place|"
+                r"tens\s+(?:line|lines)\s+up\s+with\s+tens", re.I),
+     "lining up the LAST digits works because the last digit of a whole number is the "
+     "ones place, so tens line up with tens and hundreds with hundreds"),
+    # ---- PART 3w's authored bans, now held LIVE (precedence forms excluded: the
+    #      37th referee owns them) ----
+    ("zero-over-zero-means-common-factor",
+     re.compile(r"means\s+(?:the\s+expression\s+)?has\s+a\s+hidden\s+common\s+factor", re.I),
+     re.compile(r"not\s+always|often|usually|sometimes|might|may\b", re.I),
+     "0/0 at a point means the limit needs more work -- OFTEN a common factor cancels, "
+     "but not always"),
+    ("parentheses-mean-function-notation",
+     re.compile(r"letter\s+with\s+something\s+tucked\s+inside\s+parentheses", re.I),
+     re.compile(r"when\s+(?:the\s+)?letter\s+names\s+a\s+function|only\s+(?:when|if)|"
+                r"multiplication", re.I),
+     "f(x) is function notation only when the letter names a function -- a(b + c) "
+     "is multiplication; say which one this is"),
+    ("square-root-always-two-answers",
+     re.compile(r"square\s+root\s+always\s+gives\s+(?:you\s+)?(?:two|2)", re.I),
+     re.compile(r"symbol|principal|non-?negative|the\s+equation\s+x\s*(?:\^|²)", re.I),
+     "the square-root SYMBOL gives one non-negative value; it is the EQUATION x squared "
+     "equals 9 that has two solutions"),
+    ("always-half-the-middle-coefficient",
+     re.compile(r"always\s+half\s+the\s+middle\s+coefficient", re.I),
+     re.compile(r"when\s+(?:the\s+)?(?:x\s*(?:\^|²)|leading|squared)\s*(?:coefficient|term)?"
+                r"\s+is\s+(?:one|1)|leading\s+coefficient", re.I),
+     "half the middle coefficient, squared, completes the square when the x-squared "
+     "coefficient is 1 -- divide that coefficient out first otherwise"),
+    ("discriminant-counts-all-solutions",
+     re.compile(r"discriminant\s+to\s+predict\s+how\s+many\s+solutions", re.I),
+     re.compile(r"\breal\b", re.I),
+     "the discriminant tells how many REAL solutions a quadratic has"),
+    ("a-fraction-always-means",
+     re.compile(r"\bfraction\s+always\s+means\b", re.I),
+     re.compile(r"can\s+(?:also\s+)?mean|division|ratio|number\s+line", re.I),
+     "a fraction can mean pieces of one whole, a division, a ratio, or a point on the "
+     "number line -- name the meaning you are using here"),
+    ("unmatched-one-sided-limits-are-a-jump",
+     re.compile(r"when\s+they\s+don'?t,?\s+you'?ve\s+got\s+a\s+jump", re.I),
+     re.compile(r"does\s+not\s+exist|one\s+way|infinite|oscillat", re.I),
+     "when the one-sided limits differ, the limit does not exist -- a jump is ONE way "
+     "that happens"),
+    ("plus-minus-always-two-answers",
+     re.compile(r"means\s+you\s+(?:actually\s+)?get\s+two\s+answers", re.I),
+     re.compile(r"candidate|check\s+(?:both|each)|satisf|original\s+equation", re.I),
+     "plus-or-minus gives two CANDIDATES; they are two answers only when both satisfy "
+     "the original equation -- check each"),
+]
+
+
+def known_falsehood_conflict(reply: str):
+    """Return a description of a named false general statement, or "". Never raises:
+    any unexpected input yields "" (fail open)."""
+    try:
+        prose = _spoken_only(str(reply or ""))
+        if not prose.strip():
+            return ""
+        for name, false_re, unless_re, true_form in KNOWN_FALSEHOODS:
+            if unless_re.search(prose):
+                continue                     # the condition is somewhere in the reply
+            for sent in _KF_SENTENCE.findall(prose):
+                if false_re.search(sent):
+                    said = " ".join(sent.split())[:90]
+                    return ('you say "{s}" -- a general statement that is FALSE as '
+                            "written ({n}). Rule 61: a generalization carries its "
+                            "condition. Replace that sentence with the true one: "
+                            '"{t}." Keep everything else the same.').format(
+                                s=said, n=name.replace("-", " "), t=true_form)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[knownfalse] crashed (fail open): {exc}")
+        _event("referee_crash", "knownfalse", str(exc))
         return ""
 
 
@@ -7936,6 +8095,14 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if holelaw:
             _event("referee_fire", "falseuniversal", holelaw)
             return holelaw
+        # build pz: SIXTY-THIRD -- the NAMED LIST of falsehoods (rule 61 / 13), from
+        # the 2026-08-29 night watch's three confirmed false universals. Table-
+        # driven: each entry is the false sentence itself, its escape condition,
+        # and the true form the nudge dictates. Reply-only.
+        knownfalse = known_falsehood_conflict(reply)
+        if knownfalse:
+            _event("referee_fire", "knownfalse", knownfalse)
+            return knownfalse
         # build pt: SIXTIETH -- the child cannot be right. From Jim's flag queue,
         # "1 + 2 = ?" offered as 9 | 4 | 7. Highest severity in the file: it turns a
         # correct child into a wrong answer in their own record.

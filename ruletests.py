@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qa -- PART 3gf: one entry per function letter (rule 48). The
+#               notation referee's f/g/h entry was one character class, so f in the
+#               history silenced g, and it needed a letter argument, so g(2) was never
+#               seen. Both directions; lenient sweep 0, strict sweep ceiling 12 recorded.
+#   2026-08-29  BUILD pz -- PART 3ge: the named list of falsehoods (the 63rd referee,
+#               known_falsehood_conflict). Three false universals from the 2026-08-29
+#               watch plus PART 3w's ten authored bans, now held LIVE from one table.
+#               Both directions (true absolutes stay silent), canon sweep repeated in
+#               the PART. PART 3fx's literal referee count moves 62 -> 63.
 #   2026-08-29  BUILD py -- PART 3gd: the plain yes/no gets its buttons. Jim's standing
 #               rule, restated: a binary question ships bubbles, everywhere. The six
 #               shapes finite_answer_conflict knew were each one screenshot; the new
@@ -13582,6 +13591,222 @@ def part3gd_the_plain_yes_no_gets_its_buttons():
           "last = sentences[-1]" in tsrc and "_PLAIN_YESNO_RE.search(last)" in tsrc, "")
 
 
+def part3ge_the_named_list_of_falsehoods():
+    """PART 3ge (build pz, 2026-08-29) -- THE NAMED LIST OF FALSEHOODS (the 63rd referee).
+
+    The 2026-08-29 night watch confirmed three false general statements in ten lessons,
+    each one a sentence a child would believe forever:
+        "...the hypotenuse, and it always gets the lowercase letter c"   (rule 61)
+        "that's really all division is: sharing fairly until nothing's left over"
+        "lining up the last digits works, since every digit's in the ones place" (13)
+
+    ⭐ WHY A TABLE. Rule 61 was "ENFORCED" only for AUTHORED text (PART 3w bans ten
+    known-false forms from the files a child hears verbatim) plus two live slices of
+    one topic each (the 37th: precedence; the 59th: the hole law). Everything else
+    the model can say falsely was held by prompt words alone, and build ps already
+    wrote the lesson: a rule held by prompt words alone is a wish. The review asked
+    for "a named list of falsehoods, each a tight regex with the true sentence in the
+    nudge -- not a general always-detector". KNOWN_FALSEHOODS is that list: tonight's
+    three, plus PART 3w's ten now held LIVE (minus the two precedence forms, which the
+    37th referee owns -- two referees on one sentence is a nudge fight).
+
+    THE DISCIPLINE, from the 37th and 59th: the pattern is the FALSE SENTENCE ITSELF,
+    never a keyword; one mention of the condition anywhere in the reply buys silence,
+    so every nudge is satisfiable in one clause; the true form is dictated, not
+    hinted. Rule 61(d)'s true absolutes ("the hypotenuse is always the longest side")
+    cannot be touched, because the table only knows the sentences it was given.
+
+    CANON SWEPT: 0 of 2,109 cards, both files, repeated below.
+    """
+    print("\nPART 3ge — the named list of falsehoods (build pz)")
+    import tutor as _t
+    import foundations as FND
+    import lessonscripts as LS
+    F = _t.known_falsehood_conflict
+
+    LIVE = [
+        ("That's the rule: whichever side skips the right-angle vertex is the hypotenuse, "
+         "and it always gets the lowercase letter c.", "hypotenuse is always c"),
+        ("That's really all division is: sharing fairly until nothing's left over.",
+         "division never has leftovers"),
+        ("Division means sharing fairly so nothing is left over.",
+         "division never has leftovers (the 'so' form)"),
+        ("With whole numbers, lining up the last digits works, since every digit's in "
+         "the ones place.", "every digit in the ones place (rule 13)"),
+        ("A fraction always means pieces of one whole.", "3w: a fraction always means"),
+        ("Taking the square root always gives you two answers.", "3w: square root always two"),
+        ("It's always half the middle coefficient, squared.", "3w: always half the middle"),
+        ("Use the discriminant to predict how many solutions there are.",
+         "3w: discriminant counts all solutions"),
+        ("If the one-sided limits match, that's the limit; when they don't, you've got a "
+         "jump.", "3w: unmatched one-sided limits are a jump"),
+        ("The plus-or-minus means you actually get two answers.", "3w: plus-minus two answers"),
+        ("A letter with something tucked inside parentheses is always a function.",
+         "3w: parentheses mean function notation"),
+        ("Getting 0/0 means the expression has a hidden common factor.",
+         "3w: 0/0 means a common factor"),
+    ]
+    for reply, label in LIVE:
+        r = F(reply)
+        check(f"⭐ FIRES: {label}", bool(r) and "Rule 61" in r and "Replace that sentence" in r,
+              f"silent on {reply!r}")
+    r = F(LIVE[0][0])
+    check("  the nudge dictates the TRUE sentence, with its condition",
+          "because the right angle is at C" in r and "with the right angle at B it would be b" in r,
+          r[:160])
+
+    QUIET = [
+        ("Whichever side skips the right-angle vertex is the hypotenuse. In this triangle, "
+         "because the right angle is at C, that side is labeled c.", "the condition is said"),
+        ("The hypotenuse is always the longest side.", "rule 61(d): a TRUE absolute stays crisp"),
+        ("An acute angle is always smaller than a right angle.", "another true absolute"),
+        ("For these first problems, division means sharing fairly so each friend gets the "
+         "same amount and nothing is left over.", "scoped to these problems"),
+        ("Sharing 7 cookies between 2 friends leaves one left over -- that's a remainder.",
+         "remainder named"),
+        ("With whole numbers, lining up the last digits works because the last digit is the "
+         "ones place, so tens line up with tens.", "the true reason"),
+        ("A fraction can also mean a division. Here a fraction means pieces of one whole.",
+         "the other meaning is named"),
+        ("The square-root symbol gives one non-negative value.", "symbol named"),
+        ("Multiply and divide before you add and subtract, every time.",
+         "the 37th referee's sentence -- NOT this table's"),
+        ("So 3 + 4 = 7. [[step eq=\"3 + 4 = 7\"]] Does that make sense?", "ordinary teaching"),
+        ("", "empty"),
+    ]
+    for reply, label in QUIET:
+        check(f"  SILENT: {label}", not F(reply), f"fired: {(F(reply) or '')[:90]}")
+    check("  the precedence forms are deliberately absent from the table",
+          not any("precedence" in n or "multipl" in n for n, *_ in _t.KNOWN_FALSEHOODS),
+          "the 37th referee owns them")
+    check("  every entry carries a true form and an escape",
+          all(len(e) == 4 and e[3] and e[2] for e in _t.KNOWN_FALSEHOODS)
+          and len(_t.KNOWN_FALSEHOODS) >= 11, "")
+    check("  never raises", F(None) == "" and F(12345) == "", "")
+
+    # ---- wired, counted, and swept ----
+    tsrc = open(_t.__file__, encoding="utf-8").read()
+    check("⭐ wired into the referee stack with its own fire event",
+          "knownfalse = known_falsehood_conflict(reply)" in tsrc
+          and '_event("referee_fire", "knownfalse", knownfalse)' in tsrc, "")
+    hits, n = [], 0
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1
+                if F(t):
+                    hits.append(("foundation", c, sc.get("term")))
+    for les in LS.LESSONS:
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            t = (sp or "") + "\n" + (b or "")
+            if t.strip():
+                n += 1
+                if F(t):
+                    hits.append(("teach", les["id"], i))
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            t = (w[0] or "") + "\n" + (w[1] or "")
+            if t.strip():
+                n += 1
+                if F(t):
+                    hits.append(("worked", les["id"], i))
+    check("⭐ canon sweep: 0 authored cards fire (%d swept)" % n, not hits, str(hits[:4]))
+    check("  the sweep covered the whole canon", n >= 1900, "%d" % n)
+
+
+def part3gf_one_entry_per_function_letter():
+    """PART 3gf (build qa, 2026-08-29) -- RULE 48 FOR A NEW FUNCTION LETTER.
+
+    The 2026-08-29 night watch (function-notation, algebra1, rule 48): the tutor
+    wrote [[step eq="g(2) = 8"]], said "Notice I used the letter g this time instead
+    of f", asked for g(3) -- and never once said "g of two" or "g of three". The
+    student had been taught to SAY f(3) as "f of three"; the new name arrived on the
+    board only. This is Jim's own 2026-08-09 live complaint, word for word: "it's
+    never been clearly stated to me... how to say f of x... and then it flipped over
+    to g of x."
+
+    ⭐ WHY THE NOTATION REFEREE WAS SILENT. Its function-notation entry held f, g and h
+    in ONE character class -- so f(x) anywhere in the history made g "known" -- and it
+    required a LETTER inside the parentheses, so g(2) was not even seen. One entry per
+    letter now, each its own first use, and the argument may be a letter, a number or
+    a short expression. The reading may be "g of two", "g of 2" or "g of x".
+
+    MEASURED, both ways. With the real conversation as `heard` (the battery's full
+    canon sweep), 0 authored cards fire. With heard="" (every card as if it were the
+    conversation's first turn) 12 cards write a function letter their words never
+    read as "<letter> of" -- nine foundations (calculus/diffeq mostly: f(a), g(t)) and
+    three lesson cards. All twelve are read verbatim in the AUTHORED lane, which never
+    passes through a referee, and every one sits in a course where the letter was
+    introduced earlier in the same conversation. Recorded here so the next person
+    does not re-measure it; the number is a ceiling, not a target.
+    """
+    print("\nPART 3gf — one entry per function letter (build qa, rule 48)")
+    import tutor as _t
+    import foundations as FND
+    import lessonscripts as LS
+    N = _t.notation_intro_conflict
+    H = ('we learned f(x). [[step eq="f(x) = 2x + 3"]] we read f(x) as f of x. '
+         "what is f(3)?")
+    check("⭐ FIRES: the watch's reply -- g(2) written after f(x), 'g of' never said",
+          "function notation (g)" in (N('Notice I used the letter g this time instead of '
+                                        'f. [[step eq="g(2) = 8"]] Now you try: '
+                                        '[[step eq="g(3) = ?"]]', H) or ""),
+          "f in the history still silences g")
+    check("  ...and the nudge quotes the sentence to say",
+          '"g of two"' in (N('Look. [[step eq="g(2) = 8"]] Try g(3).', H) or ""), "")
+    check("  SILENT: the reply reads it -- 'g of two' / 'g of three'",
+          not N('We read g(2) as "g of two". [[step eq="g(2) = 8"]] What is g of three? '
+                '[[step eq="g(3) = ?"]]', H), "the fix itself is being rejected")
+    check("  SILENT: 'g of 2' (digit) is a reading too",
+          not N('Let g be the rule. [[step eq="g(x) = 3x"]] What is g of 2?', H), "")
+    check("  SILENT: f again, already known from the history",
+          not N('Back to f. [[step eq="f(4) = ?"]] What is it?', H),
+          "rule 14 is about the FIRST time")
+    check("  FIRES: a numeric argument is seen now -- f(3) on a first turn, unread",
+          "function notation (f)" in (N('Here is a machine. [[step eq="f(3) = 7"]] '
+                                        "What comes out?", "hello") or ""), "")
+    check("  SILENT: h introduced with its reading",
+          not N('Meet h, we say h of x. [[step eq="h(x) = x - 1"]] Try h(5)!', H), "")
+    check("  SILENT: no heard supplied", not N('[[step eq="g(2) = 8"]] Go!', None), "")
+
+    lenient, strict, n = 0, 0, 0
+
+    def probe(t):
+        nonlocal lenient, strict, n
+        n += 1
+        if "function notation" in (N(t, heard=t) or ""):
+            lenient += 1
+        if "function notation" in (N(t, heard="") or ""):
+            strict += 1
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                probe(t)
+    for les in LS.LESSONS:
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            t = (sp or "") + "\n" + (b or "")
+            if t.strip():
+                probe(t)
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            t = (w[0] or "") + "\n" + (w[1] or "")
+            if t.strip():
+                probe(t)
+    check("⭐ canon sweep with the conversation as heard: 0 fires (%d swept)" % n,
+          lenient == 0, "%d" % lenient)
+    check("  strict first-turn sweep: at most the 12 recorded cards (%d)" % strict,
+          strict <= 12, "the shape started fighting real teaching -- re-read the twelve")
+    check("  the sweep covered the whole canon", n >= 1900, "%d" % n)
+    tsrc = open(_t.__file__, encoding="utf-8").read()
+    check("  three entries, one per letter, and the shared class is gone",
+          tsrc.count('("function notation (') == 3
+          and 're.compile(r"\\b[fgh]\\s*\\(\\s*[a-z]\\s*\\)")' not in tsrc, "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -13972,7 +14197,7 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ sixty-two referees now, counted from the code", n_ref == 62, n_ref)
+    check("⭐ sixty-three referees now, counted from the code (62 + pz)", n_ref == 63, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -16503,7 +16728,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,349</b>" in page,
+          "<b>7,391</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24998,6 +25223,8 @@ def main():
     part3gb_ship_the_best_draft()
     part3gc_the_reviewer_reads_the_registry()
     part3gd_the_plain_yes_no_gets_its_buttons()
+    part3ge_the_named_list_of_falsehoods()
+    part3gf_one_entry_per_function_letter()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
