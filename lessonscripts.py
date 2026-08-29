@@ -2,6 +2,11 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qc -- THE BARS ARE ON THE BOARD. Jim's screenshot of the Algebra
+#               II opener (alg2-u1-how-far-from-zero, teach[0]): the words say "here are
+#               two straight bars around a number" and the board showed only the number
+#               line. |4| = 4 and |−4| = 4 now lead the board. Spoken line untouched --
+#               no new audio key. PART 3gh.
 #   2026-08-28  BUILD pv -- A HYPHEN MARKED A RIGHT ANSWER WRONG. Jim said "sixty-one
 #               degrees" to a Geometry angle question (90 - 29); the recogniser wrote
 #               "Si-61 degrees" and read_answer returned NEGATIVE 61, so a correct
@@ -9200,7 +9205,12 @@ _ALGEBRA2_U1 = [
         # flashes an "11 ✗" that the spoken line stopped explaining.
         "teach": [
             ["Welcome to Algebra Two. Here are two straight bars around a number. They are called absolute value, and they ask one question: how far is this number from zero? It does not matter which side of zero the number is on. Four is four steps from zero. Negative four is also four steps from zero. So both have absolute value four.",
-             '[[goal text="How far from zero"]][[numberline min="-5" max="5" points="-4,4" caption="−4 and 4 are both 4 from zero"]]'],
+             # (qc) 2026-08-29 -- Jim's screenshot: "there is no absolute value sign." The
+             # words say "here are two straight bars around a number" and the board showed
+             # only the number line. Rule 4 (say it -> write it) and rule 63 (the words and
+             # the picture are the same figure): the bars are now ON the board, first.
+             # Spoken line untouched, so no new audio key.
+             '[[goal text="How far from zero"]][[step eq="|4| = 4"]][[step eq="|−4| = 4"]][[numberline min="-5" max="5" points="-4,4" caption="−4 and 4 are both 4 from zero"]]'],
             ["The same bars measure the gap between two numbers. Take 8 away from 3 and you get negative 5. Now ask the real question: how far apart are 3 and 8? They are 5 apart. The bars drop the negative sign and leave the 5.",
              '[[numberline min="1" max="10" points="3,8" caption="3 and 8 — how far apart?"]][[step eq="|3 − 8| → 5 apart"]]'],
             ["Here is where students go wrong. They do the take away, get negative 5, and stop there. But think about what we asked: how far apart are 3 and 8? Two numbers cannot be negative 5 apart. A distance is always a plain count of steps. So finish the job: drop the sign. They are 5 apart.",

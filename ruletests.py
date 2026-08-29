@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qc -- PART 3gh: the bars are on the board. Jim's screenshot of the
+#               Algebra II opener: "there is no absolute value sign." Two [[step]] lines
+#               added ahead of the number line in lessonscripts; spoken line untouched.
+#               The screenshot's other two items (no 🚩; a page of white space) were
+#               measured in a real browser and did not reproduce -- recorded in the PART.
 #   2026-08-29  BUILD qb -- PART 3gg: the check that can be failed (rule 39(d)'s required
 #               form replaces a bare "make sense?" ending) and the numeric either-or
 #               ("Which is bigger, 3 or 5?", final sentence only). Both directions;
@@ -13919,6 +13924,56 @@ def part3gg_the_check_that_can_be_failed():
     check("  the sweep covered the whole canon", n >= 1900, "%d" % n)
 
 
+def part3gh_the_bars_are_on_the_board():
+    """PART 3gh (build qc, 2026-08-29) -- THE BARS ARE ON THE BOARD.
+
+    Jim's screenshot of the Algebra II opener, 2026-08-29: the tutor says "Here are two
+    straight bars around a number. They are called absolute value" -- and the board
+    shows a number line with two red dots. No bars anywhere. Rule 4 (say it -> write
+    it, in the same reply) and rule 63 (the words and the picture are the same
+    figure), broken by an AUTHORED card -- the lane with zero model calls and zero
+    referees between the card and the child. Nothing in the battery could have seen
+    it, because every referee is silent on a card whose words and board are each fine
+    on their own; only a person looking at the screen sees that "here are two bars"
+    points at nothing.
+
+    The fix is two [[step]] lines -- |4| = 4 and |−4| = 4 -- ahead of the number line,
+    so the bars the words introduce are the first thing drawn. The SPOKEN line is
+    untouched: no new audio key (33k-line closure intact).
+
+    Two more things in the same screenshot are recorded, not fixed, because they were
+    measured and did NOT reproduce here: (1) no 🚩 on the tutor bubble -- the flag is
+    owner-only and per-device (localStorage mt_owner_key, enabled from /admin), and
+    session.html's scripted beats DO call addBubble("tutor") -> ownerFlagAttach;
+    (2) "a page of white space after this" -- the #feedPad spacer (build ir, Jim's
+    own ruling that a tutor turn starts at the top of the board) measured 126-212px
+    at four viewports in a real browser, never a page. Both need a second look with
+    Jim's device in hand, not a guess.
+    """
+    print("\nPART 3gh — the bars are on the board (build qc)")
+    import lessonscripts as _ls
+    import tutor as _t
+    les = [l for l in _ls.LESSONS if l["id"] == "alg2-u1-how-far-from-zero"][0]
+    spoken, board = les["teach"][0]
+    check("⭐ the opener that says 'two straight bars' now DRAWS them",
+          '[[step eq="|4| = 4"]]' in board and '[[step eq="|−4| = 4"]]' in board,
+          "the words point at a picture that is not there")
+    check("  ...ahead of the number line, so the bars come first",
+          board.index('[[step eq="|4| = 4"]]') < board.index("[[numberline"), "")
+    check("  the spoken line is untouched (no new audio key)",
+          spoken.startswith("Welcome to Algebra Two. Here are two straight bars around a number.")
+          and "So both have absolute value four." in spoken, "")
+    check("  the number line and its caption survive",
+          'points="-4,4"' in board and "both 4 from zero" in board, "")
+    t = spoken + "\n" + board
+    check("  the card passes the full referee stack (bars are read aloud as 'bars')",
+          not _t.prose_board_conflict(t, heard=t), _t.prose_board_conflict(t, heard=t))
+    check("  ...and the notation referee on a first turn",
+          not _t.notation_intro_conflict(t, heard=""), "")
+    check("  the lesson still passes its own validator",
+          all(ok for ok, _l, _d in _ls.validate(les)), "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -16840,7 +16895,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,413</b>" in page,
+          "<b>7,420</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25338,6 +25393,7 @@ def main():
     part3ge_the_named_list_of_falsehoods()
     part3gf_one_entry_per_function_letter()
     part3gg_the_check_that_can_be_failed()
+    part3gh_the_bars_are_on_the_board()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

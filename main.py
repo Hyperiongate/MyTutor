@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  APP_BUILD -> "2026-08-29qc-the-bars-are-on-the-board". BUILD qc --
+#               lessonscripts.py only: the Algebra II opener draws the absolute-value
+#               bars it talks about. From Jim's screenshot. No Python changed here
+#               except this stamp.
 #   2026-08-29  APP_BUILD -> "2026-08-29qb-the-check-that-can-be-failed". BUILD qb --
 #               tutor.py: a bare "make sense?" ending is rewritten to rule 39(d)'s
 #               failable form with its buttons; numeric either-ors get their numbers as
@@ -12607,7 +12611,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-29qb-the-check-that-can-be-failed"
+APP_BUILD = "2026-08-29qc-the-bars-are-on-the-board"
 
 
 @app.get("/health")
