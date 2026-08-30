@@ -15352,6 +15352,118 @@ def part3gr_every_course_he_is_actually_in():
           "<!-- I did no harm and this file is not truncated. -->"), "")
 
 
+def part3gs_one_page_one_child():
+    """PART 3gs (build qp, 2026-08-30) -- A FORM LETTER ABOUT ONE CHILD.
+
+    Jim, on the live parent view: "This should not say 'How are THEY doing, really?' It is
+    just for a single child, so 'How is my child doing, really?' Also, the paragraph says
+    'they' instead of 'your child'."
+
+    ⭐ ONE PAGE, ONE CHILD. /dashboard?view=parent is opened from ONE row of the family
+    page, for ONE child whose name is in the title bar. "They" is the voice of a form
+    letter, and it is the tell that nobody on the writing side remembered there was exactly
+    one person being described. The button and the paragraph live in two different places
+    and are fixed in both: the button here, the paragraph in the model's parent voice.
+    A TEACHER gets different words again -- a teacher has many students and is not their
+    parent, so "my child" would be wrong on that door.
+
+    ⚠️ AND READING THAT PARAGRAPH TURNED UP A FALSE NUMBER. It said "206 real working
+    minutes across 25 ACTIVE DAYS" over a fourteen-day window. That cannot be true, and it
+    sat on a page whose own sub-line promises "every number on this page is recorded, never
+    estimated". Two independent defects produced it, both in _assessment_facts:
+
+      (a) store.get_time() HAS NO DATE FILTER. It returns the newest `days * 12` ROWS --
+          twelve courses of headroom per day -- not the last `days` days. Summing those raw
+          rows can reach back months. /api/time survives this because it aggregates per day
+          and THEN slices [:days]; this call site summed the raw rows and did not.
+      (b) A ROW IS (day, COURSE). Counting rows counted a child who worked in three courses
+          on one afternoon as three active days.
+
+    The honest reader already existed: get_time_between() takes a real ISO window and is
+    what the printed records report uses. So this is not new machinery, it is the right
+    existing one -- plus a DISTINCT-day count. Worked, on rows shaped like the live ones:
+    three courses on 2026-08-30 (40+30+20) plus one row from 2026-07-02 (116) gave the old
+    code "4 active days, 206 minutes" and gives the new code "1 active day, 90 minutes".
+    """
+    print("\nPART 3gs — one page, one child (build qp)")
+    html = open("static/dashboard.html", encoding="utf-8").read()
+    msrc = open("main.py", encoding="utf-8").read()
+    import prompts as _p
+
+    # ---- 1. the button asks about ONE child, and knows which door it is on ----
+    check("⭐ the button no longer asks how 'they' are doing",
+          "How are they doing, really?" not in code_only(html),
+          "Jim: 'it is just for a single child'")
+    check("⭐ the parent's door asks about their child",
+          '"💬 How is my child doing, really?"' in html, "")
+    check("⭐ the teacher's door does NOT say 'my child'",
+          '"💬 How is this student doing, really?"' in html
+          and 'btn.textContent = (VIEW === "teacher")' in html,
+          "a teacher has many students and is not their parent")
+    check("  ...and a student still asks in their own voice",
+          '"💬 How am I doing?"' in html or "How am I doing?" in html, "")
+
+    # ---- 2. the paragraph is written in the same voice -------------------------
+    par = _p.ASSESSMENT_SYSTEM_PARENT
+    check("⭐ the parent voice FORBIDS the plural pronoun for the child",
+          'NAME THE CHILD, NEVER "THEY"' in par
+          and 'never as "they", "them" or "their"' in par,
+          "Jim: 'the paragraph says they instead of your child' -- the button was only half "
+          "of it; the prose is written by the model and had no rule about this")
+    check("  ...and offers the two forms that are always safe",
+          '"your child"' in par and "Refer to the child\nby name" in par, "")
+    check("⭐ ...and it never GUESSES the child's pronouns",
+          "pronouns are not in the data and must" in par,
+          "the store does not hold them; inventing 'he' or 'she' for a real child is worse "
+          "than the form letter it replaces")
+    check("  the student voice was not disturbed",
+          "ASSESSMENT_SYSTEM_STUDENT" in dir(_p)
+          and isinstance(_p.ASSESSMENT_SYSTEM_STUDENT, str)
+          and len(_p.ASSESSMENT_SYSTEM_STUDENT) > 200, "")
+
+    # ---- 3. the engaged-time fact is true now ----------------------------------
+    facts = msrc.split("def _assessment_facts(", 1)[1].split("\n@app.get(", 1)[0]
+    check("⭐ the 14-day fact reads a REAL 14-day window",
+          "store.get_time_between(code, _t_from.isoformat(), _t_to.isoformat())" in facts
+          and "timedelta(days=13)" in facts,
+          "store.get_time() returns the newest days*12 ROWS with no date filter at all, so "
+          "'last 14 days' could silently sum months")
+    check("⭐ ...and counts DISTINCT days, not rows",
+          'days_active = len({r["day"] for r in time_rows if r["minutes"] > 0})' in facts,
+          "a row is (day, COURSE): three courses in one afternoon read as three days")
+    check("  ...the old row-counting form is gone",
+          'sum(1 for r in time_rows if r["minutes"] > 0)' not in facts, "")
+    check("  ...and the sentence itself says a day counts once",
+          "a day counts once however many courses " in facts and "were touched)" in facts,
+          "the number and its caption have to agree, or the next reader re-derives the bug")
+    check("  ...a failed read leaves the rest of the facts intact",
+          "[assessment] get_time_between failed" in facts and "time_rows = []" in facts,
+          "one missing fact must never cost the parent the whole paragraph")
+
+    # ---- 4. the reader it now uses is real, and windowed ----------------------
+    st = open("store.py", encoding="utf-8").read()
+    gtb = st.split("def get_time_between(", 1)[1].split("\ndef ", 1)[0]
+    check("  contract: get_time_between really filters by date, both ends",
+          "(t.c.day >= day_from) & (t.c.day <= day_to)" in gtb,
+          "the whole fix rests on this being a true window")
+    gt = st.split("def get_time(", 1)[1].split("\ndef ", 1)[0]
+    check("  ...and get_time still does NOT, which is why it was the wrong reader",
+          "day >=" not in gt and ".limit(" in gt,
+          "left as it is on purpose -- /api/time uses it correctly by aggregating then "
+          "slicing, and changing it under that caller would be the risky fix, not the safe one")
+
+    # ---- 5. nothing else moved -------------------------------------------------
+    check("  do no harm: the assessment is still cached and rate-limited",
+          "_ASSESS_CACHE" in msrc and 'audience = "parent" if audience == "parent" else "student"'
+          in msrc, "")
+    check("  do no harm: build qo's per-course blocks still render",
+          "function renderCourseSections()" in html, "")
+    check("  do no harm: build qn's resolved course still drives the card",
+          'fetch("/api/assessment/me?course=" + encodeURIComponent(COURSE)' in html, "")
+    check("  the file is whole", html.rstrip().endswith(
+          "<!-- I did no harm and this file is not truncated. -->"), "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -18279,7 +18391,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,659</b>" in page,
+          "<b>7,678</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -26791,6 +26903,7 @@ def main():
     part3gp_the_quiz_says_correct_every_time()
     part3gq_the_parent_reads_the_right_course()
     part3gr_every_course_he_is_actually_in()
+    part3gs_one_page_one_child()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

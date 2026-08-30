@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+    2026-08-30  ONE PAGE, ONE CHILD (build qp). Jim, on the live parent view: "this should
+                not say 'How are they doing, really?' -- it is just for a single child, so
+                'How is my child doing, really?' Also, the paragraph says 'they' instead of
+                'your child'." Both halves fixed, in the two different places they live:
+                the BUTTON is this file (and a teacher, who has many students and is not
+                their parent, gets "How is this student doing, really?"); the PARAGRAPH is
+                written by the model, so prompts.py's parent voice now forbids the plural
+                pronoun outright. And while reading that paragraph a false number turned up
+                in it -- see main.py's note for build qp.
     2026-08-30  EVERY COURSE HE IS ACTUALLY IN (build qo). Jim, still reading the demo
                 student's page as a parent, on build qn: "I'm not sure if we're talking
                 geometry or algebra when I look at the strengthen next and the learning
@@ -635,8 +644,15 @@
     (function () {
       const btn = document.getElementById("howBtn"), card = document.getElementById("howCard");
       if (!btn) return;
+      // build qp -- Jim: "this should not say 'how are THEY doing, really?' It is just for
+      // a SINGLE CHILD." One page, one child, so the button asks about one child. A teacher
+      // has many students and is not their parent, so that door gets its own words.
       const parentish = isTeacher;
-      if (parentish) btn.textContent = "💬 How are they doing, really?";
+      if (parentish) {
+        btn.textContent = (VIEW === "teacher")
+          ? "💬 How is this student doing, really?"
+          : "💬 How is my child doing, really?";
+      }
       btn.addEventListener("click", async () => {
         btn.disabled = true;
         card.style.display = "block";

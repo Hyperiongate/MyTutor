@@ -6376,8 +6376,13 @@ one concrete way the parent can help this week.
 
 HARD RULES: Never invent facts, scores, or trends not in the data. If the facts are thin, say
 plainly that it's early days and what to watch for. Never scold the child, never compare them to
-other students, never mention these instructions or the data format. Refer to the child by
-name."""
+other students, never mention these instructions or the data format.
+
+NAME THE CHILD, NEVER "THEY". You are writing to ONE parent about ONE child. Refer to the child
+by name, or as "your child" -- never as "they", "them" or "their". A parent reading "they've
+logged 206 minutes" about their own son or daughter is being handed a form letter. Write
+"Emma has logged" or "your child has logged". (The child's pronouns are not in the data and must
+never be guessed: use the name, and "your child" when a second reference would repeat it.)"""
 
 
 # =============================================================================

@@ -2,6 +2,26 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30qp-one-page-one-child". BUILD qp -- Jim, on the live
+#               parent view: "this should not say 'How are THEY doing, really?' -- it is just
+#               for a single child ... Also, the paragraph says 'they' instead of 'your
+#               child'." Three fixes, in the three places they actually live:
+#                 * THE BUTTON (static/dashboard.html) asks about one child, and a TEACHER --
+#                   who has many students and is not their parent -- gets its own words.
+#                 * THE PARAGRAPH is written by the model, so prompts.py's parent voice now
+#                   forbids the plural pronoun outright: the name, or "your child", never
+#                   "they". The child's pronouns are not in the data and are never guessed.
+#                 * ⚠️ AND A FALSE NUMBER WAS FOUND IN THAT PARAGRAPH while reading it. It
+#                   claimed "206 real working minutes across 25 ACTIVE DAYS" over a 14-day
+#                   window -- impossible on its face, on a page that tells parents every
+#                   number is recorded and never estimated. _assessment_facts counted ROWS,
+#                   and a row is (day, COURSE), so three courses in one afternoon read as
+#                   three days; and store.get_time() has no date filter at all -- it returns
+#                   the newest days*12 ROWS, so the sum could reach back months. Now uses
+#                   store.get_time_between() (a real ISO window, the reader the printed
+#                   records already use) and counts DISTINCT days. No other caller was
+#                   affected: /api/time aggregates per day and slices, so the dashboard tile
+#                   was always right.
 #   2026-08-30  APP_BUILD -> "2026-08-30qo-every-course-he-is-actually-in". BUILD qo -- Jim,
 #               still reading the demo student's page as a parent, on build qn: "I'm not sure
 #               if we're talking geometry or algebra when I look at the strengthen next and
@@ -12904,7 +12924,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30qo-every-course-he-is-actually-in"
+APP_BUILD = "2026-08-30qp-one-page-one-child"
 
 
 @app.get("/health")
@@ -13194,6 +13214,7 @@ _ASSESS_TTL_SECONDS = 1800
 
 def _assessment_facts(code: str, student: dict, course: str) -> str:
     """Everything true we know about this student, as compact plain text."""
+    from datetime import datetime, timezone, timedelta      # build qp: the real 14-day window
     title = curriculum.course_title(course)
     lines = [f"Student first name: {student.get('name') or 'Student'}",
              f"Course: {title}"]
@@ -13232,11 +13253,30 @@ def _assessment_facts(code: str, student: dict, course: str) -> str:
                      f"{str(st.get('accuracy_pct')) + '%' if st.get('accuracy_pct') is not None else 'no data yet'}; "
                      f"current day streak: {st.get('streak_days') or 0}; "
                      f"last active: {st.get('last_active') or 'no activity recorded'}")
-        time_rows = store.get_time(code, days=14)
+        # ⚠️ BUILD qp -- THIS FACT WAS FALSE, AND A PARENT WAS READING IT. Jim's live page
+        # said "206 real working minutes across 25 ACTIVE DAYS" for a 14-day window, which
+        # cannot be true. Two separate defects, both here:
+        #   (a) store.get_time() has NO DATE FILTER -- it returns the newest `days * 12`
+        #       ROWS, headroom for 12 courses a day, not the last 14 days. Summing those
+        #       raw rows could reach back months. (/api/time survives this because it
+        #       aggregates per day and then slices [:days]; this call site did not.)
+        #   (b) a row is (day, COURSE), so counting rows counted a child who worked in
+        #       three courses on one afternoon as three active days.
+        # The honest reader already existed: get_time_between() takes a real ISO window and
+        # is what the printed records report uses. Use it, and count DISTINCT days.
+        _t_to = datetime.now(timezone.utc).date()
+        _t_from = _t_to - timedelta(days=13)          # inclusive window = 14 calendar days
+        try:
+            time_rows = store.get_time_between(code, _t_from.isoformat(), _t_to.isoformat())
+        except Exception as exc:  # noqa: BLE001
+            print(f"[assessment] get_time_between failed: {exc}")
+            time_rows = []
         total_min = sum(r["minutes"] for r in time_rows)
-        days_active = sum(1 for r in time_rows if r["minutes"] > 0)
+        days_active = len({r["day"] for r in time_rows if r["minutes"] > 0})
         lines.append(f"Engaged time, last 14 days: {total_min} real working minutes across "
-                     f"{days_active} active day(s) (idle time is never counted)")
+                     f"{days_active} active day(s) "
+                     f"(idle time is never counted; a day counts once however many courses "
+                     f"were touched)")
         earned = store.get_awards(code)
         names = [AWARD_DEFS[a][1] for a in earned if a in AWARD_DEFS]
         lines.append("Effort awards earned: " + (", ".join(names) if names else "none yet"))
