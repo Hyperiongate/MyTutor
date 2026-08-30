@@ -2,9 +2,14 @@
 # render.yaml  --  MyTutor  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD ql -- THE DEEPSEEK TRIAL ENDED. TUTOR_PROVIDER is back to anthropic.
+#               The seat machinery STAYS (it is env-gated and inert), and so does everything
+#               the trial bought: the failover in tutor.py, /api/admin/seat-check, and the
+#               night watch finally printing its failopen reasons. DEEPSEEK_API_KEY may stay
+#               in the dashboard; nothing reads it while TUTOR_PROVIDER is anthropic.
 #   2026-08-29  BUILD qg -- THE DEEPSEEK BRAIN. New env: DEEPSEEK_API_KEY (Jim set it in the
 #               dashboard), TUTOR_PROVIDER=deepseek, DEEPSEEK_REASONING_EFFORT=low. The
-#               teaching seat -- live turns AND scripted-lane interventions -- moves to
+#               teaching seat -- live turns AND scripted-lane interventions -- moved to
 #               DeepSeek (deepseek-v4-pro); Anthropic is the loud fallback when the seat
 #               is refused, and the critic seat unless LIVE_CRITIC says deepseek.
 #               ⚠️ Blueprint values only apply on a fresh blueprint deploy -- on the LIVE
@@ -108,11 +113,12 @@ services:
       - key: DEEPSEEK_API_KEY
         sync: false            # 2026-08-29 (build qg): the DeepSeek brain. Jim set it in the dashboard.
       - key: TUTOR_PROVIDER
-        value: deepseek        # 2026-08-29 (build qg), Jim: "DeepSeek instead of Opus, until I say
-                               # different". anthropic = the Claude brain (CLAUDE_MODEL above).
-      - key: DEEPSEEK_REASONING_EFFORT
-        value: low             # off | low | high | max -- thinking adds seconds per turn; Jim's pick
-                               # is low. DEEPSEEK_TUTOR_MODEL (default deepseek-v4-pro) also honored.
+        value: anthropic       # 2026-08-30 (build ql): the DeepSeek trial ENDED -- back to Claude
+                               # (CLAUDE_MODEL above). "deepseek" still works, but tutor.py refuses
+                               # it unless static/privacy.html names DeepSeek, which it no longer
+                               # does. Optional DeepSeek vars, honored only if that changes:
+                               # DEEPSEEK_TUTOR_MODEL (default deepseek-v4-pro),
+                               # DEEPSEEK_REASONING_EFFORT (off | low | high | max, default low).
       - key: DATA_DIR
         value: /var/data       # MUST match the disk mount below: voice cache + nightly DB snapshots
       - key: TTS_CACHE_MAX_MB

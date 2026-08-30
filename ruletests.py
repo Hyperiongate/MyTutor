@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD ql -- PART 3gk inverted: privacy.html names three processors again,
+#               so the DEFAULT state is the gate REFUSING DeepSeek (for the brain seat AND
+#               the critic seat), with the other direction proved by mutation. New pin:
+#               the gate reads what a PARENT sees -- a change note naming a vendor must
+#               never re-open it.
 #   2026-08-30  BUILD qk -- PART 3go: working is not usable. DeepSeek answered a REAL
 #               lesson prompt in 21.9s -- clearing the outage of every remaining suspect,
 #               and nearly doubling Sonnet's 12.3s teaching call. seat-check now reports
@@ -14385,56 +14390,72 @@ def part3gk_the_deepseek_seat():
             _hx.post = real_post
 
         # ---- the law, both directions ----
+        # (ql) THE TRIAL ENDED, SO THE DEFAULT STATE FLIPPED. privacy.html names three
+        # processors again, which means the gate must now REFUSE DeepSeek -- and that
+        # is the safety property working, not a regression: nobody can seat DeepSeek by
+        # setting an env var without first telling parents on the page.
         os.environ.pop("AUDIT_SYNTHETIC_STUDENTS", None)
-        check("⭐ the shipped privacy page names DeepSeek, so the seat is ALLOWED",
-              _t._deepseek_teaching_allowed() == "" and _t._privacy_page_names("DeepSeek"),
-              _t._deepseek_teaching_allowed())
         priv_path = os.path.join(here, "static", "privacy.html")
         priv = open(priv_path, encoding="utf-8").read()
-        check("  ...and says where the data goes, in plain words",
-              "People's Republic of China" in priv and "DeepSeek" in priv
-              and "Four service providers" in priv, "")
+        check("⭐ the shipped page does NOT name DeepSeek, so the seat is REFUSED",
+              not _t._privacy_page_names("DeepSeek")
+              and "privacy.html" in (_t._deepseek_teaching_allowed() or ""),
+              _t._deepseek_teaching_allowed())
+        check("  ...and it names the three processors it has always named",
+              all(w in priv for w in ("Anthropic", "ElevenLabs", "Render"))
+              and "Three service providers" in priv, "")
+        check("⭐ the gate reads what a PARENT sees -- HTML comments are stripped first",
+              "deepseek" in priv.lower()          # ql's change note explains the removal
+              and not _t._privacy_page_names("DeepSeek"),
+              "a change note that mentions a vendor must never re-open the gate")
         check("  ...while the OpenAI boundary's own pin still holds (no OpenAI on the page)",
               "openai" not in priv.lower(), "")
-        # mutate the page the gate reads: no DeepSeek -> refused, loudly
-        mutated = re.sub(r"(?i)deepseek", "Deep-Seek-Removed", priv)
-        with open(priv_path, "w", encoding="utf-8") as fh:
-            fh.write(mutated)
-        try:
-            refused = _t._deepseek_teaching_allowed()
-            os.environ["TUTOR_PROVIDER"] = "deepseek"; os.environ["DEEPSEEK_API_KEY"] = "sk-x"
-            ab = _t.active_brain()
-            os.environ["AUDIT_SYNTHETIC_STUDENTS"] = "1"
-            synth = _t._deepseek_teaching_allowed()
-        finally:
-            with open(priv_path, "w", encoding="utf-8") as fh:
-                fh.write(priv)
-            os.environ.pop("AUDIT_SYNTHETIC_STUDENTS", None)
-        check("⭐ a page that does not name DeepSeek REFUSES the seat (proved by mutation)",
-              bool(refused) and "privacy.html" in refused, refused)
-        check("  ...and /health would report the fallback and its reason",
-              ab["configured"] == "deepseek" and ab["provider"] == "anthropic"
-              and "privacy.html" in ab["gated"], ab)
+        os.environ["TUTOR_PROVIDER"] = "deepseek"; os.environ["DEEPSEEK_API_KEY"] = "sk-x"
+        ab_refused = _t.active_brain()
+        os.environ["AUDIT_SYNTHETIC_STUDENTS"] = "1"
+        synth = _t._deepseek_teaching_allowed()
+        os.environ.pop("AUDIT_SYNTHETIC_STUDENTS", None)
+        check("  ...and /health reports the fallback and its reason",
+              ab_refused["configured"] == "deepseek" and ab_refused["provider"] == "anthropic"
+              and "privacy.html" in ab_refused["gated"], ab_refused)
         check("  ...while the audit's synthetic students are allowed either way",
               synth == "", synth)
         check("  the pipeline falls back LOUDLY, with the privacy_gate event",
               'print(f"[tutor] TUTOR_PROVIDER=deepseek REFUSED: {_blocked}")' in tsrc
               and tsrc.count('_event("privacy_gate", "tutor_provider"') >= 2, "")
 
-        # ---- the live seat report and the critic seat ----
-        os.environ["TUTOR_PROVIDER"] = "deepseek"; os.environ["DEEPSEEK_API_KEY"] = "sk-x"
-        os.environ["DEEPSEEK_REASONING_EFFORT"] = "low"
-        ab = _t.active_brain()
-        check("⭐ with the page updated and the key present, the seat IS DeepSeek",
+        # ---- and the OTHER direction: a page that DOES name it opens the gate ----
+        # Proved by mutation, so the machinery stays honest while it sits dormant.
+        named = priv.replace("Three service providers make",
+                             "DeepSeek is one of the providers. Three service providers make")
+        with open(priv_path, "w", encoding="utf-8") as fh:
+            fh.write(named)
+        try:
+            allowed = _t._deepseek_teaching_allowed()
+            os.environ["DEEPSEEK_REASONING_EFFORT"] = "low"
+            ab = _t.active_brain()
+            os.environ["DEEPSEEK_TUTOR_MODEL"] = "deepseek-v4-flash"
+            ab_flash = _t.active_brain()
+            os.environ["LIVE_CRITIC"] = "deepseek"
+            os.environ.pop("LIVE_CRITIC_MODEL", None)
+            critic_named = _t._live_critic_seat()
+        finally:
+            with open(priv_path, "w", encoding="utf-8") as fh:
+                fh.write(priv)
+        check("⭐ a page that DOES name DeepSeek opens the gate (proved by mutation)",
+              allowed == "", allowed)
+        check("  ...and the seat then reports itself honestly",
               ab["provider"] == "deepseek" and ab["model"] == "deepseek-v4-pro"
               and ab["effort"] == "low" and not ab["gated"], ab)
-        os.environ["DEEPSEEK_TUTOR_MODEL"] = "deepseek-v4-flash"
-        check("  ...and the model is env-overridable", _t.active_brain()["model"] == "deepseek-v4-flash", "")
-        os.environ["LIVE_CRITIC"] = "deepseek"; os.environ.pop("LIVE_CRITIC_MODEL", None)
-        check("  the critic seat can sit on DeepSeek, defaulting to the flash model",
-              _t._live_critic_seat() == ("deepseek", "deepseek-v4-flash"), _t._live_critic_seat())
+        check("  ...and the model is env-overridable",
+              ab_flash["model"] == "deepseek-v4-flash", ab_flash)
+        check("  the critic seat can sit on DeepSeek too, defaulting to the flash model",
+              critic_named == ("deepseek", "deepseek-v4-flash"), critic_named)
         check("  ...with thinking OFF (a second opinion must be quick)",
               'deepseek_brain(key, effort="off") if provider == "deepseek"' in tsrc, "")
+        check("⭐ ...and the SAME law binds the critic: unnamed on the page, seat EMPTY",
+              _t._live_critic_seat() == (None, None),
+              "the critic reads the student's words too -- it cannot outrank the page")
         os.environ["TUTOR_PROVIDER"] = "anthropic"
         check("  DO NO HARM: TUTOR_PROVIDER unset/anthropic is the Anthropic path",
               _t.active_brain()["provider"] == "anthropic", "")
@@ -14538,6 +14559,12 @@ def part3gl_the_seat_hands_the_class_back():
         os.environ["TUTOR_PROVIDER"] = "deepseek"
         os.environ["DEEPSEEK_API_KEY"] = "sk-test"
         os.environ["ANTHROPIC_API_KEY"] = "sk-ant-test"
+        # (ql) the privacy gate now REFUSES DeepSeek (the page names three processors
+        # again), and it runs BEFORE the seat is ever tried -- so without this the
+        # pipeline would go straight to Anthropic and there would be no failure to fail
+        # over from. The synthetic-student lane is the documented way past the gate,
+        # and a stubbed-transport test is exactly that: no child's words exist here.
+        os.environ["AUDIT_SYNTHETIC_STUDENTS"] = "1"
         out = _run()
         check("⭐ THE CHILD GETS A REAL REPLY, not the apology, when the seat raises",
               "Four." in out and "having trouble thinking" not in out, out[:90])
@@ -14583,7 +14610,7 @@ def part3gl_the_seat_hands_the_class_back():
         _hx.post, _t.Anthropic = real_post, real_anthropic
         _mc.verify_reply, _t.prose_board_conflict, _t._live_critic_review, _t._event = saved
         _t._SEAT_DOWN.clear()
-        for _k in ("TUTOR_PROVIDER", "DEEPSEEK_API_KEY"):
+        for _k in ("TUTOR_PROVIDER", "DEEPSEEK_API_KEY", "AUDIT_SYNTHETIC_STUDENTS"):
             os.environ.pop(_k, None)
 
     # ---- the eyes ----
@@ -17805,7 +17832,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,547</b>" in page,
+          "<b>7,549</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")

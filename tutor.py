@@ -2,6 +2,14 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD ql -- THE DEEPSEEK TRIAL ENDED (Jim's call). Nothing about the seat
+#               machinery is removed -- it is env-gated and inert with TUTOR_PROVIDER
+#               unset -- but _privacy_page_names now STRIPS HTML COMMENTS before it
+#               reads the page. ql's own change note in privacy.html explains at length
+#               why DeepSeek was removed, and on a raw substring check that note would
+#               have RE-OPENED the gate it was written to close. A processor is "named"
+#               only where a parent can read it. (ruletests' code_only() exists for this
+#               exact trap; build ki says it fired five times in one evening.)
 #   2026-08-30  BUILD qi -- REACHED, OR REFUSED. Jim on the outage: "somehow the
 #               DeepSeek wasn't being called." A call that NEVER GOT THERE (DNS,
 #               egress, proxy, TLS) and a vendor that answered and refused (401 / 404 /
@@ -2295,13 +2303,22 @@ _DEEPSEEK_EFFORTS = ("off", "low", "high", "max")
 
 
 def _privacy_page_names(who: str) -> bool:
-    """True when the SHIPPED privacy page names this processor. Read from disk each
-    time (cheap, and a deploy that changes the page changes the answer). Fails
-    CLOSED: an unreadable page names nobody."""
+    """True when the SHIPPED privacy page names this processor TO A PARENT. Read from
+    disk each time (cheap, and a deploy that changes the page changes the answer).
+    Fails CLOSED: an unreadable page names nobody.
+
+    ⚠️ (ql) HTML COMMENTS ARE STRIPPED FIRST. The page carries its own change notes in
+    a comment block, and build ql's note explains at length why DeepSeek was removed --
+    which, on a raw substring check, would have re-opened the gate the note was written
+    to close. A processor is "named" only where a PARENT can read it. This is the same
+    trap ruletests' code_only() exists for (build ki: it fired five times in one
+    evening); it is not a hypothetical."""
     try:
         here = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(here, "static", "privacy.html"), encoding="utf-8") as fh:
-            return who.lower() in fh.read().lower()
+            page = fh.read()
+        visible = re.sub(r"<!--.*?-->", " ", page, flags=re.S)
+        return who.lower() in visible.lower()
     except Exception:  # noqa: BLE001 -- no page, no permission
         return False
 

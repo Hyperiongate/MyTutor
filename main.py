@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30ql-the-page-tells-the-truth". BUILD ql -- Jim ended
+#               the DeepSeek trial. privacy.html goes back to naming THREE processors (it
+#               named a fourth for one day, for a seat that never carried a single child's
+#               turn), landing.html says Claude again, and render.yaml's blueprint seat is
+#               anthropic. The seat machinery, the failover, seat-check and the watch's
+#               failopen reasons all STAY -- they are vendor-neutral and they were the
+#               real yield of the trial. No Python changed here except this stamp.
 #   2026-08-30  APP_BUILD -> "2026-08-30qk-working-is-not-usable". BUILD qk -- qj's
 #               real-size button answered in 21.9s: the DeepSeek seat WORKS on a full
 #               teaching turn (which clears the outage of every remaining suspect), and
@@ -12844,7 +12851,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30qk-working-is-not-usable"
+APP_BUILD = "2026-08-30ql-the-page-tells-the-truth"
 
 
 @app.get("/health")
