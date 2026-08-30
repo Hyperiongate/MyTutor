@@ -15464,6 +15464,87 @@ def part3gs_one_page_one_child():
           "<!-- I did no harm and this file is not truncated. -->"), "")
 
 
+def part3gt_the_site_says_what_the_button_says():
+    """PART 3gt (build qq, 2026-08-30) -- RENAMING A BUTTON LEAVES FICTION BEHIND.
+
+    Build qp renamed the parent's button on Jim's ruling ("it is just for a single child").
+    A button name is not only on the button: this site QUOTES it -- to prospective
+    customers on the landing page, to machines in llms.txt, and on the family page, which
+    has a second copy of the same button, one per child.
+
+    ⭐ THE FAMILY PAGE WAS THE WORST OF THE THREE, because it asked about "they" with the
+    child's name already rendered two inches to its left -- and it had `data-name` in hand
+    the whole time. One row, one child, so the link now says "💬 How is Maya doing?".
+    (Its assessment CALL was already right: it has resolved the child's most-worked course
+    from the overview since it shipped, which is exactly the fix build qn had to make on
+    the dashboard. The page that was quietly correct was the one nobody had looked at.)
+
+    ⚠️ TWO PAGES WERE CHECKED AND DELIBERATELY LEFT ALONE, which is worth writing down so
+    the next sweep does not "fix" them:
+      * static/demo.html is a hand-written, section-for-section mirror of all three
+        dashboards, and was ALREADY in the voice builds qn-qp introduced -- "How is she
+        doing, really?", "Her learning journey", "Her nine Pre-Algebra units" -- and has
+        no sprint card. The marketing mirror was right before the product was.
+      * static/teacher.html is the CLASS ROSTER, not a per-child dashboard. It links out to
+        /dashboard?...&view=teacher, so it inherited qn-qp with nothing to change. There is
+        no separate student or teacher dashboard FILE: one page, three views.
+
+    This PART is the guard that the quotes and the button cannot drift apart again.
+    """
+    print("\nPART 3gt — the site says what the button says (build qq)")
+    dash = open("static/dashboard.html", encoding="utf-8").read()
+    fam = open("static/family.html", encoding="utf-8").read()
+    land = open("static/landing.html", encoding="utf-8").read()
+    llms = open("static/llms.txt", encoding="utf-8").read()
+
+    BUTTON = "How is my child doing, really?"
+    check("⭐ the parent button is still the one build qp named",
+          ('"💬 ' + BUTTON + '"') in dash, "everything below quotes it")
+    for page, name in ((land, "landing.html"), (llms, "llms.txt")):
+        check("  %s quotes the CURRENT wording" % name, BUTTON in page, name)
+        check("    ...and no longer the old one",
+              "How are they doing, really?" not in code_only(page),
+              "a page that quotes a button by name becomes fiction when the button is "
+              "renamed")
+
+    check("⭐ the family page's per-child link NAMES that child",
+          ">💬 How is ' + esc(k.name) + ' doing?</a>'" in fam,
+          "it asked about 'they' with the child's name rendered two inches to the left, "
+          "and had data-name in hand the whole time")
+    check("  ...and the name is escaped, like every other use of it on that row",
+          fam.count("esc(k.name)") >= 2, "")
+    check("  ...the old wording is gone from the family page",
+          "How are they doing?" not in code_only(fam), "")
+    check("⭐ do no harm: the family page still resolves the child's most-worked course",
+          "if (s.code === code && s.top_course) top = s.top_course;" in fam
+          and 'api("/api/assessment/me?audience=parent"' in fam,
+          "this page was ALREADY doing what build qn had to fix on the dashboard -- it must "
+          "not be lost while editing the label above it")
+    check("  do no harm: the link still opens the per-child narrative in place",
+          "showAssessment(el)" in fam and 'box.classList.add("on")' in fam, "")
+
+    # ---- the two pages checked and deliberately NOT changed -------------------
+    demo = open("static/demo.html", encoding="utf-8").read()
+    check("  demo.html was ALREADY in this voice, so it was left alone",
+          "How is she doing, really?" in demo and "Her learning journey" in demo
+          and "Her nine Pre-Algebra units" in demo,
+          "the hand-written marketing mirror was right before the product was; do not "
+          "'fix' it toward the old wording")
+    check("  ...and has no sprint card to remove either",
+          "sprint" not in demo.lower(), "")
+    teach = open("static/teacher.html", encoding="utf-8").read()
+    check("  teacher.html is the class ROSTER and links out to the one dashboard",
+          "/dashboard?" in teach or "View progress" in teach,
+          "there is no separate student or teacher dashboard FILE: one page, three views")
+    check("  ...so it never carried a per-child assessment button of its own",
+          "How are they doing" not in teach, "")
+
+    for page, path in ((fam, "static/family.html"), (land, "static/landing.html")):
+        check("  %s is whole" % path,
+              page.rstrip().endswith("<!-- I did no harm and this file is not truncated. -->"),
+              path)
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -18391,7 +18472,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,678</b>" in page,
+          "<b>7,694</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -26904,6 +26985,7 @@ def main():
     part3gq_the_parent_reads_the_right_course()
     part3gr_every_course_he_is_actually_in()
     part3gs_one_page_one_child()
+    part3gt_the_site_says_what_the_button_says()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

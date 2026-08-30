@@ -18,7 +18,7 @@ Key facts:
   unit mastery is proven with a scored ten-question Unit Quiz at 90% or better,
   never assumed.
 - Parents get a read-only dashboard with honest time-on-task (idle minutes count as
-  zero), real mastery status, and a plain-language "How are they doing, really?"
+  zero), real mastery status, and a plain-language "How is my child doing, really?"
   narrative assessment.
 - Rewards system: merit badges per mastered unit, course trophies, and effort medals
   for streaks, practice, and comebacks.

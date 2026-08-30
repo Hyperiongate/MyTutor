@@ -2,6 +2,24 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30qq-the-site-says-what-the-button-says". BUILD qq --
+#               a sweep after qp, because renaming a button leaves fiction behind wherever
+#               the site QUOTES that button. Three places, no Python touched:
+#                 * static/family.html -- the parent's list of children had its own
+#                   "💬 How are they doing?" link, ONE PER CHILD ROW, with the child's name
+#                   already in data-name two inches to the left. Now "💬 How is Maya doing?".
+#                   (Its assessment call was already right: it has resolved the child's
+#                   most-worked course from the overview since it shipped, which is exactly
+#                   the fix build qn had to make on the dashboard.)
+#                 * static/landing.html -- the "Reports written for parents" card quoted the
+#                   old wording to prospective customers.
+#                 * static/llms.txt -- the machine-readable site summary quoted it too.
+#               ALSO CHECKED AND ALREADY CORRECT, so deliberately untouched: static/demo.html
+#               is a hand-written mirror of all three dashboards and was ALREADY in the voice
+#               qn-qp introduced ("How is she doing, really?", "Her learning journey", "Her
+#               nine Pre-Algebra units") and has no sprint card; static/teacher.html is the
+#               CLASS ROSTER, not a per-child dashboard -- it links out to
+#               /dashboard?...&view=teacher, so it inherited qn-qp with nothing to change.
 #   2026-08-30  APP_BUILD -> "2026-08-30qp-one-page-one-child". BUILD qp -- Jim, on the live
 #               parent view: "this should not say 'How are THEY doing, really?' -- it is just
 #               for a single child ... Also, the paragraph says 'they' instead of 'your
@@ -12924,7 +12942,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30qp-one-page-one-child"
+APP_BUILD = "2026-08-30qq-the-site-says-what-the-button-says"
 
 
 @app.get("/health")

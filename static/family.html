@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+    2026-08-30  NAME THE CHILD ON THE ROW (build qq). Jim, on the parent dashboard: "this
+                should not say 'How are THEY doing, really?' -- it is just for a single
+                child." The same is true here, and MORE so: this page lists a parent's
+                children ONE PER ROW, and the row already holds the name in data-name. So
+                the link says "💬 How is Maya doing?" rather than asking about "they" while
+                Maya's name sits two inches to the left. (The assessment call itself was
+                already right -- it has resolved the child's most-worked course from the
+                overview since it shipped, which is the fix build qn had to make on the
+                dashboard.)
   =============================================================================
   family.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
@@ -30,7 +39,7 @@
     parent-token-gated /api/parent/overview, loaded AFTER render so a slow call can
     never block the page), a "Records →" link (the printable homeschool report --
     the homeschool page's "one click from your parent view" promise is now true),
-    and a "💬 How are they doing?" button that shows Mr. Cadabra's honest narrative
+    and a "💬 How is <name> doing?" button that shows Mr. Cadabra's honest narrative
     right here (parent voice, most-worked course, one tap). Below the kids: the
     weekly-email TOGGLE (the only off-switch used to be the link inside the email)
     and quick links to the scope & sequence and pricing. All additive; sign-in,
@@ -425,7 +434,7 @@
         '<span class="links">' +
           '<a href="/dashboard?code=' + encodeURIComponent(k.code) + '&view=parent">Progress →</a>' +
           '<a href="/records?code=' + encodeURIComponent(k.code) + '">Records →</a>' +
-          '<a href="#" class="assessLink" data-code="' + esc(k.code) + '" data-name="' + esc(k.name) + '">💬 How are they doing?</a>' +
+          '<a href="#" class="assessLink" data-code="' + esc(k.code) + '" data-name="' + esc(k.name) + '">💬 How is ' + esc(k.name) + ' doing?</a>' +
           '<a href="#" class="manageLink" data-code="' + esc(k.code) + '">⚙ Manage</a>' +
         '</span>' +
         '<div class="kidstats" data-stats="' + esc(k.code) + '">Loading this week’s numbers…</div>' +
