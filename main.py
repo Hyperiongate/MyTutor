@@ -2,6 +2,27 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30qo-every-course-he-is-actually-in". BUILD qo -- Jim,
+#               still reading the demo student's page as a parent, on build qn: "I'm not sure
+#               if we're talking geometry or algebra when I look at the strengthen next and
+#               the learning journey. What course is that for? ... THE STUDENT IS WORKING ON
+#               A COUPLE OF DIFFERENT COURSES. So we would have to have a couple of courses
+#               here -- demo student's nine geometry units, here's where they are; demo
+#               student's nine algebra units, this is where we are at. Not for all of them,
+#               but just the ones he's been working on." And: "this sprint record takes up a
+#               huge amount of space for just a little data point."
+#               static/dashboard.html only (again NO endpoint changed):
+#                 * THE JOURNEY IS ONE TITLED BLOCK PER COURSE the child has really worked
+#                   in -- /api/courses/me names them, /api/topics is fetched per course, and
+#                   each block carries its own track and unit cards under a heading that says
+#                   whose and which. Courses never opened are not drawn.
+#                 * "STRENGTHEN NEXT" SPANS THOSE COURSES with the course named on every row,
+#                   taken round-robin so one course's untested units cannot fill the list and
+#                   hide the others -- the very thing being complained about.
+#                 * THE SPRINT CARD IS REMOVED from this page (Jim's ruling). Sprints still
+#                   record, still print on the records page, and are still offered inside the
+#                   lesson, which was always the main door; features.html and students.html
+#                   no longer tell people to start one "from your dashboard".
 #   2026-08-30  APP_BUILD -> "2026-08-30qn-the-parent-reads-the-right-course". BUILD qn --
 #               Jim read the demo student's progress page AS A PARENT and could not
 #               understand it: "how are they doing... only talks about the algebra course,
@@ -12883,7 +12904,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30qn-the-parent-reads-the-right-course"
+APP_BUILD = "2026-08-30qo-every-course-he-is-actually-in"
 
 
 @app.get("/health")

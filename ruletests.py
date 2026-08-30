@@ -5150,22 +5150,30 @@ def part3n_sprints():
           and "beat your" in sess.lower(),
           "the frame is the anxiety mitigation -- it is not decoration")
 
-    # ---- BUILD dm: the DISPLAY half of WWC g26 r6 -- "track AND SHOW progress" ------
+    # ---- BUILD dm's DISPLAY half -- ⚠️ INVERTED BY BUILD qo (2026-08-30, Jim's ruling) --
+    # Build dm answered WWC g26 r6 ("track fluency progress AND SHOW it") with a chart on
+    # the dashboard. Jim, reading that page as a parent: "this sprint record takes up a huge
+    # amount of space for just a little data point ... maybe we could get rid of the sprint
+    # record altogether." He is right about the trade: ~200px of SVG for one number a parent
+    # cannot act on, on the page whose whole job is now "see everything and understand
+    # everything". THE CARD IS GONE; the guide's requirement is met where the student
+    # actually meets it -- the lesson's own offer shows their personal best before the round,
+    # and the printed records still carry the history. So these checks now pin the REMOVAL
+    # and, more importantly, that nothing but the card went with it.
     dash = open(os.path.join(here, "static", "dashboard.html"), encoding="utf-8").read()
-    check("the sprint-record card exists and starts HIDDEN",
-          'id="sprintWrap" style="display:none;"' in dash,
-          "the card must never render before there is data")
-    check("  zero sprints -> the card never appears (no nagging)",
-          "if (!hist.length) return;" in dash,
-          "sprints never gate; an empty card is a nag")
-    check("  the card compares this student only with this student (rule 42)",
-          "racing only yourself" in dash and "personal best" in dash,
-          "any other comparison violates rule 42")
-    check("  the loader is a bonus that can never block the dashboard",
-          "loadSprints" in dash and "/api/sprints/" in dash
-          and "never block the dashboard" in dash.split("loadSprints")[1][:3600],
-          "the card must fail soft like every bonus section")   # window widened in ds
-          # (the Run-one-now button grew the loader; the guarded catch is unchanged)
+    _dcode = code_only(dash)          # the removal is explained in that file's change note
+    check("the sprint-record card is GONE from the dashboard (qo)",
+          'id="sprintWrap"' not in _dcode and "loadSprints" not in _dcode,
+          "Jim: 'a huge amount of space for just a little data point'")
+    check("  ...and the dashboard no longer calls the sprints endpoint at all",
+          "/api/sprints/" not in _dcode, "a removed card must not leave a live fetch behind")
+    check("  the personal best still reaches the student, before the round (WWC g26 r6)",
+          "Your best round here so far is" in sess,
+          "the guide asks that fluency progress be SHOWN; the lesson is where it lands now")
+    check("  the comparison is still this student with this student only (rule 42)",
+          "personal best is the only score that matters" in sess
+          and "beat your" in sess.lower(),
+          "any other comparison violates rule 42 -- removing the card must not soften this")
     mn2 = open(os.path.join(here, "main.py"), encoding="utf-8").read()
     check("GET /api/sprints/{code} exists and is student-gated",
           '@app.get("/api/sprints/{code}")' in mn2
@@ -6377,10 +6385,19 @@ def part3p_marketing_claims():
           'params.get("sprint") === "1"' in sess2
           and "startRequestedSprint" in sess2,
           "the dashboard button would land on a page that ignores it")
+    # ⚠️ INVERTED BY BUILD qo: the Run-one-now button lived on the sprint card, and the card
+    # is gone (Jim's ruling). The PROPERTY it existed for -- "a student who skipped the
+    # lesson offer had no way back" -- is what must survive, and it does: the &sprint=1 door
+    # above still opens, so every existing link and bookmark still starts a sprint, and the
+    # lesson still OFFERS one at the top of every session. What must NOT come back is a
+    # start button on the read-only parent/teacher view, so that stays pinned.
     dash2 = open(os.path.join(here, "static", "dashboard.html"), encoding="utf-8").read()
-    check("the dashboard sprint card offers Run-one-now to students only (ds)",
-          "&sprint=1" in dash2 and "!isTeacher && CODE" in dash2,
-          "either no way back to sprints, or the read-only view got a start button")
+    check("the dashboard no longer carries a sprint start button (qo)",
+          "&sprint=1" not in code_only(dash2),
+          "the card it lived on was removed; the &sprint=1 door itself still works")
+    check("  ...and a student still has a way INTO a sprint every session (ds's property)",
+          "async function maybeOfferSprint()" in sess2 and "Warm up first" in sess2,
+          "removing a card must never remove the capability behind it")
 
     # ...and the whole family flow proven LIVE: signup -> add child -> overview ->
     # toggle the Friday email off -> the flag lands where the digest pass reads it.
@@ -15107,10 +15124,11 @@ def part3gq_the_parent_reads_the_right_course():
     check("  ...it uses the child's NAME when the page knows it",
           'SNAME = String(data.name || "").trim();' in html and "possess(SNAME)" in html,
           "the title has always said \"Emma's Progress\"; now the rest of the page agrees")
+    # (build qo retired the single "unitsHead" heading: the unit cards now live inside a
+    # per-course block that writes its own heading -- checked in PART 3gr.)
     for ident, what in (("myCoursesHead", "My courses"),
                         ("journeyHead", "Your learning journey"),
                         ("breakdownHead", "How far you've gone"),
-                        ("unitsHead", "Your N <course> units"),
                         ("strengthsHead", "Strengths from your level check"),
                         ("strengthenHead", "Strengthen next")):
         check("  the '%s' heading is written by the voice helper" % what,
@@ -15118,8 +15136,11 @@ def part3gq_the_parent_reads_the_right_course():
     check("  ...a child's name reaching innerHTML is escaped",
           "e.innerHTML = esc(head) +" in html,
           "names come from the store; a heading is not a place to trust them raw")
-    check("⭐ the journey and the unit cards name the course AND the real unit count",
-          'set("unitsHead", Owner() + " " + n + inCourse + " units");' in html
+    # ⚠️ Build qo moved this: the heading is now written PER COURSE, from that course's own
+    # unit list, so the count is real for each of them rather than for one. The property is
+    # unchanged and stronger -- name the course, count the units, never a hardcoded 9.
+    check("⭐ the unit headings name the course AND that course's real unit count",
+          'esc(Owner() + " " + cu.length + " " + title + " units")' in html
           and "const n = (data.units || []).length || 9;" in html,
           "Jim: 'your nine basic math units -- this should say nine basic math units FOR "
           "algebra or geometry or whatever'; the 9 was hardcoded")
@@ -15176,8 +15197,9 @@ def part3gq_the_parent_reads_the_right_course():
           "Jim: 'if I've been in three courses, I should say three courses'")
 
     # ---- 9. nothing was stripped to get here -----------------------------------
+    # (the sprint record was REMOVED on Jim's ruling in build qo -- PART 3gr pins that the
+    # removal took the card and nothing else. It is deliberately not in this keep-list.)
     for keep, what in (('id="missWrap"', "the tricky-ones review card"),
-                       ('id="sprintWrap"', "the sprint record"),
                        ('id="trophyWrap"', "the trophy case"),
                        ("Retake the Unit Quiz", "the retake link (build du)"),
                        ("wireTroTips", "the trophy hover cards"),
@@ -15187,6 +15209,145 @@ def part3gq_the_parent_reads_the_right_course():
     check("  do no harm: switching course still keeps the visitor's own view",
           'isTeacher ? "&view=" + encodeURIComponent(VIEW || "teacher") : ""' in html,
           "a parent must never be quietly promoted into the teacher view")
+    check("  the file is whole", html.rstrip().endswith(
+          "<!-- I did no harm and this file is not truncated. -->"), "")
+
+
+def part3gr_every_course_he_is_actually_in():
+    """PART 3gr (build qo, 2026-08-30) -- ONE COURSE ON A PAGE ABOUT A CHILD IN THREE.
+
+    Jim, reading build qn's page as a parent: "I'm not sure if we're talking geometry or
+    algebra or any of this when I look at the strengthen next and the learning journey.
+    What course is that for? ... It does say geometry [on the journey]. On the foundations
+    and constructions, it doesn't say what it is. AND HERE'S THE DEAL: THE STUDENT IS
+    WORKING ON A COUPLE OF DIFFERENT COURSES. So we would have to have a couple of courses
+    here -- demo student's nine geometry units, here's where they are; demo student's nine
+    algebra units, this is where we are at. NOT FOR ALL OF THEM, but just the ones he's
+    been working on."
+
+    ⭐ BUILD qn FIXED WHICH COURSE AND NOT HOW MANY. qn taught the page to LAND on the
+    course the child had really been in -- a strict improvement, and still one course on a
+    page about a child working in three. The rest of the picture was a click away in the
+    "My courses" strip, which is not the same as being on the page. So the journey is now
+    one titled block PER COURSE WITH REAL ACTIVITY: /api/courses/me already names exactly
+    those, /api/topics is fetched for each, and every block carries its own track and its
+    own unit cards under a heading saying whose and which. A course never opened is not
+    drawn -- Jim's "not for all of them" is a requirement, not a nicety: nine empty ladders
+    would bury the two that matter.
+
+    ⚠️ AND SORTING ALONE WOULD HAVE RE-CREATED THE COMPLAINT. "Strengthen next" ranks a
+    unit with no scored Unit Quiz as the weakest evidence there is (unchanged, from build
+    dr). Pooled across courses and sorted flat, ONE course's untested units filled all four
+    rows and the other two courses vanished from the section -- the exact thing being
+    complained about, arrived at from the other direction. The list is taken ROUND-ROBIN
+    across the courses instead, so every course he is working in is visible, and each row
+    is stamped with its course so "what course is that for?" cannot be asked again.
+
+    ⚠️ THE SPRINT CARD WAS REMOVED ON JIM'S RULING -- "it takes up a huge amount of space
+    for just a little data point ... maybe we could get rid of the sprint record
+    altogether." ~200px of SVG for one number a parent could not act on. NOTHING WENT WITH
+    IT, and this PART pins that: /api/sprints and /api/sprint still answer, the sprints
+    still record, the printed records still show them, and the student is still offered a
+    sprint INSIDE THE LESSON on the welcome card -- which was always the main door; the
+    dashboard button (build ds) was the second one. Removing a card must never quietly
+    remove a capability, and a features page that still promised "straight from the
+    dashboard" would have been a small lie, so that copy moved too.
+    """
+    print("\nPART 3gr — every course he is actually in (build qo)")
+    html = open("static/dashboard.html", encoding="utf-8").read()
+
+    # ---- 1. one block per course with real activity ---------------------------
+    check("⭐ the journey renders a block PER COURSE, not one course",
+          "function renderCourseSections()" in html and "const blocks = order.map(cid =>" in html,
+          "Jim: 'we would have to have a couple of courses here -- demo student's nine "
+          "geometry units ... demo student's nine algebra units'")
+    check("  ...the courses come from real activity, so an unopened course is never drawn",
+          "const active = ((cdata && cdata.courses) || []).map(c => c.course);" in html,
+          "Jim: 'not for all of them, but just the ones he's been working on'")
+    check("  ...each block's heading says WHOSE and WHICH",
+          'esc(Owner() + " " + cu.length + " " + title + " units")' in html, "")
+    check("  ...and each block carries its own track AND its own unit cards",
+          '\'<div class="journey"><div class="track">\' + track + \'</div></div>\'' in html
+          and '\'<div class="units">\' + cards + \'</div></div>\'' in html, "")
+    check("  ...the course the visitor came for is drawn first",
+          "order.sort((a, b) => (a === COURSE ? -1 : b === COURSE ? 1 : 0));" in html, "")
+    check("  ...and is marked, but only when there is more than one to tell apart",
+          "cid === COURSE && order.length > 1" in html, "")
+    check("  ...the page's own course is never re-fetched",
+          "active.filter(c => c !== COURSE).map(async (cid)" in html,
+          "it is already in hand as `data`")
+    check("⭐ a slow or failed sibling course must never blank the dashboard",
+          "/* one slow course must never blank the page */" in html
+          and "if (r.ok) byCourse[cid] = await r.json();" in html, "")
+    check("  ...and a course whose units never arrived is simply left out",
+          "const order = active.filter(c => byCourse[c]);" in html, "")
+
+    # ---- 2. Strengthen next spans them, and says which is which ---------------
+    check("⭐ 'Strengthen next' pools every course the child is working in",
+          "order.forEach(cid => {" in html and "weak.push({ u: u, course: cid," in html,
+          "Jim: 'what course is that for?'")
+    check("⭐ every row is STAMPED with its course",
+          '<span class="crs">${esc(w.title)}</span>' in html,
+          "Jim: 'on the foundations and constructions, it doesn't say what it is'")
+    check("⭐ the list is taken ROUND-ROBIN so one course cannot fill it",
+          "const spread = [];" in html and "order.forEach(cid => { const q = byC[cid];" in html,
+          "sorted flat, one course's untested units filled all four rows and the other two "
+          "courses vanished -- the same complaint from the other direction")
+    check("  ...while the weakness rule itself is unchanged (untested = weakest)",
+          "const rank = (x) => (x.u.checks_taken ? x.u.best_pct : -1);" in html,
+          "build dr's rule; qo re-orders WHICH are shown, never what counts as weak")
+    check("  ...and the note says how many courses it just read",
+          '("all " + nCourses + " courses")' in html, "")
+    check("  ...a course-switching link on a row goes to THAT row's course",
+          '"code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(w.course)' in html,
+          "a cross-course list whose buttons all point at one course would be a trap")
+
+    # ---- 3. one writer for every heading note ---------------------------------
+    check("⭐ every heading note goes through ONE reNote(), which owns the span",
+          html.count("const reNote = (id, noteId, head, note) => {") == 1
+          and html.count('reNote("journeyHead"') == 2
+          and html.count('reNote("strengthenHead"') == 2,
+          "rewriting a heading REPLACES its note span; two mechanisms would leave a "
+          "cross-course count writing into a node that no longer exists")
+
+    # ---- 4. the sprint card is gone, and NOTHING went with it -----------------
+    code = code_only(html)      # the removal is explained in this file's own change note
+    for gone in ('id="sprintWrap"', 'id="sprintChart"', 'id="sprintNote"',
+                 "loadSprints", "/api/sprints/me"):
+        check("  the sprint card's %s is gone from the dashboard" % gone, gone not in code,
+              "Jim: 'this takes up a huge amount of space for just a little data point'")
+    sess = open("static/session.html", encoding="utf-8").read()
+    check("⭐ do no harm: a student can still RUN a sprint -- the lesson still offers one",
+          "async function maybeOfferSprint()" in sess and "Warm up first" in sess,
+          "the welcome-card offer was always the main door; the dashboard button was the "
+          "second one. Removing a card must not remove a capability.")
+    check("  do no harm: the &sprint=1 door still opens, so old links still work",
+          'params.get("sprint") === "1"' in sess and "startRequestedSprint();" in sess, "")
+    msrc = open("main.py", encoding="utf-8").read()
+    check("  do no harm: the sprint endpoints still answer",
+          '@app.get("/api/sprints/{code}")' in msrc and '@app.get("/api/sprint/{code}")' in msrc, "")
+    for page, claim in (("static/features.html", "straight from the dashboard"),
+                        ("static/students.html", "start one from your dashboard")):
+        p = open(page, encoding="utf-8").read()
+        check("  the public copy no longer promises a button that is gone (%s)" % page,
+              claim not in code_only(p),
+              "a features page that promises what the site no longer has is a lie, "
+              "however small")
+        check("    ...and still says sprints exist, because they do",
+              "sprint" in p.lower(), page)
+
+    # ---- 5. nothing else was lost in the restructure --------------------------
+    for keep, what in ('id="missWrap"', "the tricky-ones review card"), \
+                      ('id="trophyWrap"', "the trophy case"), \
+                      ('id="breakdownWrap"', "the status meter"), \
+                      ('id="strengthsWrap"', "the placement strengths"), \
+                      ("Retake the Unit Quiz", "the retake link (build du)"), \
+                      ("Print homeschool records", "the records link"), \
+                      ('class="heretag"', "the placed start-unit marker"), \
+                      ("Explore another subject", "the add-a-course tile"):
+        check("  do no harm: %s survives" % what, keep in html, keep)
+    check("  do no harm: build qn's resolved course still drives the page",
+          "const COURSE_READY" in html and 'params.get("course") || "algebra1"' not in code, "")
     check("  the file is whole", html.rstrip().endswith(
           "<!-- I did no harm and this file is not truncated. -->"), "")
 
@@ -18118,7 +18279,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,622</b>" in page,
+          "<b>7,659</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -26629,6 +26790,7 @@ def main():
     part3go_working_is_not_usable()
     part3gp_the_quiz_says_correct_every_time()
     part3gq_the_parent_reads_the_right_course()
+    part3gr_every_course_he_is_actually_in()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

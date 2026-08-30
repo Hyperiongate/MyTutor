@@ -1,5 +1,35 @@
 <!DOCTYPE html>
 <!--
+    2026-08-30  EVERY COURSE HE IS ACTUALLY IN (build qo). Jim, still reading the demo
+                student's page as a parent, on build qn: "I'm not sure if we're talking
+                geometry or algebra when I look at the strengthen next and the learning
+                journey. What course is that for? ... On the foundations and constructions,
+                it doesn't say what it is. And here's the deal: THE STUDENT IS WORKING ON A
+                COUPLE OF DIFFERENT COURSES. So we would have to have a couple of courses
+                here -- demo student's nine geometry units, here's where they are; demo
+                student's nine algebra units, this is where we are at. Not for all of them,
+                but just the ones he's been working on." And: "this sprint record takes up a
+                huge amount of space for just a little data point -- maybe we could get rid
+                of it altogether."
+                THREE changes:
+                (1) THE JOURNEY IS NOW ONE SECTION PER COURSE THEY HAVE ACTUALLY WORKED IN.
+                    Build qn taught the page to land on the RIGHT course; it still showed
+                    only ONE. /api/courses/me already names every course with real activity,
+                    so the page now fetches /api/topics for each of them and draws a titled
+                    block per course -- the track and the nine unit cards under a heading
+                    that says whose and which. Ladder order, the course at the top of the
+                    page marked. Courses never opened are not shown: Jim, "not for all of
+                    them, but just the ones he's been working on."
+                (2) "STRENGTHEN NEXT" SPANS THOSE COURSES, weakest first, with the course
+                    NAMED on every row. Jim's question -- "what course is that for?" -- had
+                    no answer before, and a parent asking "where do we help?" deserves one
+                    list, not one per tab.
+                (3) THE SPRINT RECORD IS GONE FROM THIS PAGE (Jim's ruling). ~200px of chart
+                    for one number. Nothing else was removed with it: sprints still record,
+                    still show on the printed records, and are still OFFERED INSIDE THE
+                    LESSON on the welcome card ("Warm up first -- a 1-minute sprint"), so no
+                    student loses the ability to run one. features.html no longer claims you
+                    start them "straight from the dashboard", because that would now be false.
     2026-08-30  THE PARENT READS THE RIGHT COURSE (build qn). Jim, reading the demo
                 student's page AS A PARENT: "how are they doing... only talks about the
                 algebra course, not the current course they're working on"; "it says my
@@ -429,6 +459,18 @@
        segment says "they are in here" without ever claiming mastery they have not earned. */
     .mc .bar u { display: block; height: 100%; border-radius: 5px; text-decoration: none;
       background: repeating-linear-gradient(135deg, #bfe6d6 0 5px, #d6efe4 5px 10px); }
+    /* build qo: one titled block per course the student has actually worked in. */
+    .csec { margin-top: 6px; }
+    .csec + .csec { margin-top: 26px; padding-top: 4px; border-top: 1px dashed var(--line, #ece8f6); }
+    .csec .chead { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+      font-weight: 800; font-size: 16px; margin: 18px 2px 10px; }
+    .csec .chead .here { font-size: 10px; font-weight: 800; color: var(--accent);
+      background: rgba(91,91,214,.12); border-radius: 999px; padding: 2px 7px; letter-spacing: .03em; }
+    .csec .chead .note { font-weight: 600; font-size: 13px; color: var(--muted); }
+    /* build qo: the course a weak unit belongs to, on the row itself. */
+    .weak .crs { font-size: 11px; font-weight: 800; letter-spacing: .03em; color: var(--accent);
+      background: rgba(91,91,214,.10); border-radius: 999px; padding: 2px 8px; margin-right: 7px;
+      white-space: nowrap; }
     .mc.add { display: flex; align-items: center; justify-content: center; text-align: center;
       color: var(--accent); font-weight: 700; font-size: 13px; border-style: dashed; box-shadow: none; }
   </style>
@@ -474,16 +516,14 @@
       <div class="trophycase" id="trophyCase"></div>
     </div>
 
-    <!-- FLUENCY SPRINT RECORD (2026-08-11, build dm). WWC guide 26 rec 6: track fluency
-         progress AND SHOW it -- the sprints table has recorded since build dd and nothing
-         displayed it. Two bars per sprint (round A pale, round B solid) so the story each
-         pair tells is "you beat yourself"; the ONLY comparison anywhere is this student
-         with this student (rule 42). Hidden until at least one sprint exists: sprints
-         never gate anything, so an empty card would only nag. -->
-    <div id="sprintWrap" style="display:none;">
-      <div class="section-h">⚡ Your sprint record <span class="note" id="sprintNote">— one-minute rounds, racing only yourself</span></div>
-      <div class="sprintcard"><div id="sprintChart"></div></div>
-    </div>
+    <!-- THE SPRINT RECORD CARD WAS REMOVED HERE (build qo, 2026-08-30, Jim's ruling):
+         "this takes up a huge amount of space for just a little data point -- maybe we
+         could get rid of the sprint record altogether." It was ~200px of chart carrying
+         one number a parent could not act on. NOTHING ELSE WENT WITH IT: /api/sprints and
+         /api/sprint still answer, sprints still record, the printed records still show
+         them, and a student is still OFFERED one inside the lesson on the welcome card
+         ("Warm up first -- a 1-minute sprint"), which was always the main door. The
+         /session?...&sprint=1 handler stays too, so any existing bookmark still works. -->
 
     <!-- 2026-08-11 (build dt, rule 55): the review card. Hidden until a quiz actually
          records a miss (an empty card is a nag); students only. These are the exact
@@ -505,11 +545,6 @@
       <div id="strengthen"></div>
     </div>
 
-    <div id="journeyWrap" style="display:none;">
-      <div class="section-h" id="journeyHead">Your learning journey <span class="note" id="journeyNote">— your path through the 9 Algebra I units</span></div>
-      <div class="journey"><div class="track" id="track"></div></div>
-    </div>
-
     <div id="breakdownWrap" style="display:none;">
       <div class="section-h" id="breakdownHead">How far you've gone <span class="note" id="deepestNote"></span></div>
       <div class="breakdown">
@@ -518,8 +553,15 @@
       </div>
     </div>
 
-    <div class="section-h" id="unitsHead">Your 9 Algebra units</div>
-    <div class="units" id="units"></div>
+    <!-- THE LEARNING JOURNEY, ONE BLOCK PER COURSE (build qo). Jim: "the student is
+         working on a couple of different courses... so we would have to have a couple of
+         courses here -- demo student's nine geometry units, here's where they are; demo
+         student's nine algebra units, this is where we are at. Not for all of them, but
+         just the ones he's been working on." Filled by renderCourseSections(). -->
+    <div id="journeyWrap" style="display:none;">
+      <div class="section-h" id="journeyHead">Your learning journey <span class="note" id="journeyNote">— your path through the 9 Algebra I units</span></div>
+      <div id="courseSections"></div>
+    </div>
 
     <div class="strengths" id="strengthsWrap" style="display:none;">
       <div class="section-h" id="strengthsHead" style="margin-top:0;">Strengths from your level check</div>
@@ -709,6 +751,14 @@
       if (!data.tracking) { el("offnote").style.display = "block"; }
 
       const units = data.units || [];
+      // Each heading owns a <span class="note">. Rewriting a heading replaces that span, so
+      // EVERY writer goes through this one function -- build qo's cross-course counts land
+      // in the same notes nameTheHeadings() first wrote, and cannot miss a renamed node.
+      const reNote = (id, noteId, head, note) => {
+        const e = el(id); if (!e) return;                   // esc: the child's NAME lands here
+        e.innerHTML = esc(head) + ' <span class="note" id="' + noteId + '">'
+                    + esc(note) + '</span>';
+      };
       // ===== EVERY HEADING, IN THIS COURSE AND THIS VOICE (build qn) ==============
       // Jim: "your learning journey -- it should say your CHILD'S learning journey, and it
       // should say what course they're in"; "how far have you gone -- it should be how far
@@ -724,23 +774,17 @@
                        + (courseName || "this course") + " — what is going well, and what "
                        + "needs help. Every number on this page is recorded, never estimated.");
         }
-        // Each heading owns a <span class="note"> that other code fills in later, so the
-        // heading is rebuilt as HTML with that span intact rather than textContent'd away.
-        const reNote = (id, noteId, head, note) => {
-          const e = el(id); if (!e) return;                 // esc: the child's NAME lands here
-          e.innerHTML = esc(head) + ' <span class="note" id="' + noteId + '">'
-                      + esc(note) + '</span>';
-        };
         reNote("myCoursesHead", "myCoursesNote", isTeacher ? (Owner() + " courses") : "My courses", "");
         reNote("strengthenHead", "strengthenNote", "Strengthen next",
                "— " + (isTeacher ? "units " + subj() + " has started" : "units you've started")
              + " but not mastered yet, weakest first: the fastest wins from here");
+        // build qo: the journey is no longer one course. The heading introduces the set;
+        // each course inside it carries its own name, count and "you are here" mark. The
+        // note is finished by renderCourseSections() once it knows how many there are.
         reNote("journeyHead", "journeyNote", Owner() + " learning journey",
-               isTeacher ? ("— the " + n + inCourse + " units, in order, and how far along each one is")
-                         : ("— your path through the " + n + inCourse + " units"));
+               "— every course " + subjHas() + " worked in, and how far into each");
         reNote("breakdownHead", "deepestNote",
                isTeacher ? ("How far has " + subj() + " gone") : "How far you've gone", "");
-        set("unitsHead", Owner() + " " + n + inCourse + " units");
         set("strengthsHead", isTeacher ? (Owner() + " strengths from the level check")
                                        : "Strengths from your level check");
         const ft = el("foot");
@@ -858,46 +902,92 @@
         }
       } catch (e) { /* trophy case stays hidden */ }
 
-      // ----- Strengthen next: units STARTED but NOT yet mastered (weakest first) -----
-      const weak = units.filter(u => u.status !== "not-started" && !u.mastered)
-        .sort((a, b) => (a.checks_taken ? a.best_pct : -1) - (b.checks_taken ? b.best_pct : -1));
-      const anyStarted = units.some(u => u.status !== "not-started");
+      // ===== EVERY COURSE THEY HAVE ACTUALLY WORKED IN (build qo) ==================
+      // Jim: "the student is working on a couple of different courses ... so we would have
+      // to have a couple of courses here -- demo student's nine geometry units, here's
+      // where they are; demo student's nine algebra units, this is where we are at. NOT
+      // FOR ALL OF THEM, but just the ones he's been working on."
+      // /api/courses/me already lists exactly those, so we fetch this course's siblings and
+      // draw a titled block each. The course at the top of the page is already in hand
+      // (`data`) and is never re-fetched. A sibling that fails to load is simply left out --
+      // a dashboard must never go blank because one extra course was slow.
+      const cdata = await COURSES_P;
+      const active = ((cdata && cdata.courses) || []).map(c => c.course);
+      if (active.indexOf(COURSE) < 0) active.push(COURSE);       // the page's own course counts
+      const byCourse = { [COURSE]: data };
+      await Promise.all(active.filter(c => c !== COURSE).map(async (cid) => {
+        try {
+          const r = await fetch("/api/topics/me?course=" + encodeURIComponent(cid),
+                                { headers: { "X-Student-Code": CODE } });
+          if (r.ok) byCourse[cid] = await r.json();
+        } catch (e) { /* one slow course must never blank the page */ }
+      }));
+      // Ladder order, exactly as /api/courses/me returns it, with the page's own course
+      // first so the block the visitor came for is the one they see without scrolling.
+      const order = active.filter(c => byCourse[c]);
+      order.sort((a, b) => (a === COURSE ? -1 : b === COURSE ? 1 : 0));
+
+      // ----- Strengthen next: units STARTED but NOT yet mastered, ACROSS those courses --
+      // Jim: "I'm not sure if we're talking geometry or algebra ... What course is that
+      // for?" It had no answer, because the list never said. Now every row is stamped with
+      // its course, and the list spans all of them -- a parent asking "where do we help?"
+      // gets ONE answer, not one per tab.
+      const weak = [];
+      let anyStarted = false;
+      order.forEach(cid => {
+        const cu = (byCourse[cid].units) || [];
+        if (cu.some(u => u.status !== "not-started")) anyStarted = true;
+        cu.filter(u => u.status !== "not-started" && !u.mastered)
+          .forEach(u => weak.push({ u: u, course: cid, title: COURSE_TITLES[cid] || cid }));
+      });
+      // Weakest first, exactly as before -- a unit with no scored Unit Quiz is treated as
+      // the weakest evidence there is, which is why it sorts ahead of a 71%.
+      const rank = (x) => (x.u.checks_taken ? x.u.best_pct : -1);
+      weak.sort((a, b) => rank(a) - rank(b));
+      // ...but then TAKE ONE COURSE AT A TIME. Sorted flat, one course's untested units
+      // fill the whole list and the other courses vanish -- which is the very thing Jim
+      // was complaining about. Round-robin keeps every course he is working in visible.
+      const byC = {};
+      weak.forEach(w => (byC[w.course] = byC[w.course] || []).push(w));
+      const spread = [];
+      for (let i = 0; spread.length < weak.length; i++) {
+        let moved = false;
+        order.forEach(cid => { const q = byC[cid]; if (q && q[i]) { spread.push(q[i]); moved = true; } });
+        if (!moved) break;
+      }
+      weak.length = 0; Array.prototype.push.apply(weak, spread);
       if (weak.length) {
         el("strengthenWrap").style.display = "block";
         el("strengthen").className = "weaks";
-        el("strengthen").innerHTML = weak.slice(0, 4).map(u => {
+        el("strengthen").innerHTML = weak.slice(0, 5).map(w => {
+          const u = w.u;
           const meta = u.checks_taken
-            ? ("Unit Quiz best: " + u.best_pct + "% · let's get it to 90%")
+            ? ("Unit Quiz best: " + u.best_pct + "% · " + (isTeacher ? "90% is mastery" : "let's get it to 90%"))
             : "No Unit Quiz yet — pass the topic quizzes, then take it";
+          const q = "code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(w.course);
           return `
             <div class="weak">
               <div class="n">${u.unit}</div>
-              <div class="body"><div class="nm">${esc(u.name)}</div><div class="meta">${meta}</div></div>
-              ${isTeacher ? '<span class="focustag">Focus area</span>' : `<a class="work" href="/session?code=${encodeURIComponent(CODE)}&course=${encodeURIComponent(COURSE)}&unit=${u.unit}">Work on it →</a>${u.checks_taken ? `<a class="work" style="margin-left:10px" href="/session?code=${encodeURIComponent(CODE)}&course=${encodeURIComponent(COURSE)}&unit=${u.unit}&quiz=1">📝 Retake the Unit Quiz →</a>` : ""}`}
+              <div class="body"><div class="nm"><span class="crs">${esc(w.title)}</span>${esc(u.name)}</div><div class="meta">${meta}</div></div>
+              ${isTeacher ? '<span class="focustag">Focus area</span>' : `<a class="work" href="/session?${q}&unit=${u.unit}">Work on it →</a>${u.checks_taken ? `<a class="work" style="margin-left:10px" href="/session?${q}&unit=${u.unit}&quiz=1">📝 Retake the Unit Quiz →</a>` : ""}`}
             </div>`;
         }).join("");
+        const nCourses = Object.keys(byC).length;
+        reNote("strengthenHead", "strengthenNote", "Strengthen next",
+               "— " + (isTeacher ? "units " + subj() + " has started" : "units you've started")
+             + " but not mastered yet, weakest first, across "
+             + (nCourses === 1 ? ("the " + (COURSE_TITLES[weak[0].course] || "course") + " units")
+                               : ("all " + nCourses + " courses"))
+             + ": the fastest wins from here");
       } else if (anyStarted && data.tracking) {
         el("strengthenWrap").style.display = "block";
         el("strengthen").className = "";
-        el("strengthen").innerHTML = `<div class="allgood">Nice — you've <b>mastered every unit you've started.</b> `
-          + `Ready to open up a new one? <a href="/session?code=${encodeURIComponent(CODE)}&course=${encodeURIComponent(COURSE)}">Keep going →</a></div>`;
+        el("strengthen").innerHTML = isTeacher
+          ? `<div class="allgood">Nothing outstanding — <b>${esc(subjHas())} mastered every unit ${esc(subj())} started.</b></div>`
+          : `<div class="allgood">Nice — you've <b>mastered every unit you've started.</b> `
+            + `Ready to open up a new one? <a href="/session?code=${encodeURIComponent(CODE)}&course=${encodeURIComponent(COURSE)}">Keep going →</a></div>`;
       }
 
-      // ----- Learning journey (real status per unit; placed start-unit marked) -----
-      if (units.length) {
-        el("journeyWrap").style.display = "block";
-        el("track").innerHTML = units.map(u => {
-          const st = STATUS[dstatus(u)] || STATUS["not-started"];
-          const here = startUnit && u.unit === startUnit;
-          return `
-            <div class="stop ${st.cls}${here ? " here" : ""}">
-              <div class="bar"></div>
-              <div class="node" title="${st.label}">${u.mastered ? "★" : u.unit}</div>
-              <div class="caption">${esc(u.name)}</div>
-              ${here ? '<div class="heretag">start</div>' : ""}
-            </div>`;
-        }).join("");
-      }
 
       // ----- Status breakdown meter (real counts across the 9 units) -----
       const counts = { "mastered": 0, "practiced": 0, "learning": 0, "explored": 0, "not-started": 0 };
@@ -934,27 +1024,71 @@
         });
       }
 
-      // ----- The 9 unit cards -----
-      el("units").innerHTML = units.map(u => {
-        const st = STATUS[dstatus(u)] || STATUS["not-started"];
-        const touched = u.status !== "not-started" || u.mastered;
-        let meta = "&nbsp;";
-        if (touched) {
-          const bits = [];
-          const qp = (u.quizzes || []).filter(q => q.passed).length;
-          if (qp) bits.push(qp + (qp === 1 ? " topic quiz" : " topic quizzes") + " passed");
-          if (u.checks_taken) bits.push("Unit Quiz best " + u.best_pct + "%");
-          bits.push(u.touches + (u.touches === 1 ? " visit" : " visits"));
-          if (u.last_touched) bits.push(fmtDate(u.last_touched));
-          meta = bits.join(" · ");
-        }
-        return `
-          <div class="unit ${touched ? "" : "untouched"}">
-            <div class="n">${u.unit}</div>
-            <div class="body"><div class="nm">${esc(u.name)}</div><div class="meta">${meta}</div></div>
-            <div class="pill ${st.cls}"><span class="ic">${st.ic}</span>${st.label}</div>
-          </div>`;
-      }).join("");
+
+      // ===== ONE TITLED BLOCK PER COURSE (build qo) ===============================
+      // Jim, on build qn's single-course journey: "on the foundations and constructions, it
+      // doesn't say what it is ... we would have to have a couple of courses here." So each
+      // block says WHOSE and WHICH, in the same voice as every other heading, and carries
+      // its own track and its own unit cards. A course the child has never opened is not
+      // drawn at all -- "not for all of them, but just the ones he's been working on."
+      (function renderCourseSections() {
+        const act = ((cdata && cdata.courses) || []).reduce((m, c) => (m[c.course] = c, m), {});
+        const blocks = order.map(cid => {
+          const cd = byCourse[cid] || {};
+          const cu = cd.units || [];
+          if (!cu.length) return "";
+          const title = COURSE_TITLES[cid] || cid;
+          const a = act[cid] || {};
+          const start = parseInt(((cd.placement || {}).start_unit), 10) || 0;
+          const done = cu.filter(u => u.mastered).length;
+          const open = cu.filter(u => u.status !== "not-started" && !u.mastered).length;
+          const bits = [done + " of " + cu.length + " mastered"];
+          if (open) bits.push(open + (open === 1 ? " unit" : " units") + " under way");
+          if (a.last_active) { const w = fmtDate(a.last_active); if (w) bits.push("last worked " + w); }
+          const track = cu.map(u => {
+            const st = STATUS[dstatus(u)] || STATUS["not-started"];
+            const here = start && u.unit === start;
+            return '<div class="stop ' + st.cls + (here ? " here" : "") + '">'
+                 + '<div class="bar"></div>'
+                 + '<div class="node" title="' + esc(st.label) + '">' + (u.mastered ? "★" : u.unit) + '</div>'
+                 + '<div class="caption">' + esc(u.name) + '</div>'
+                 + (here ? '<div class="heretag">start</div>' : "") + '</div>';
+          }).join("");
+          const cards = cu.map(u => {
+            const st = STATUS[dstatus(u)] || STATUS["not-started"];
+            const touched = u.status !== "not-started" || u.mastered;
+            let meta = "&nbsp;";
+            if (touched) {
+              const mb = [];
+              const qp = (u.quizzes || []).filter(q => q.passed).length;
+              if (qp) mb.push(qp + (qp === 1 ? " topic quiz" : " topic quizzes") + " passed");
+              if (u.checks_taken) mb.push("Unit Quiz best " + u.best_pct + "%");
+              mb.push(u.touches + (u.touches === 1 ? " visit" : " visits"));
+              if (u.last_touched) mb.push(fmtDate(u.last_touched));
+              meta = esc(mb.join(" · "));
+            }
+            return '<div class="unit ' + (touched ? "" : "untouched") + '">'
+                 + '<div class="n">' + u.unit + '</div>'
+                 + '<div class="body"><div class="nm">' + esc(u.name) + '</div>'
+                 + '<div class="meta">' + meta + '</div></div>'
+                 + '<div class="pill ' + st.cls + '"><span class="ic">' + st.ic + '</span>'
+                 + esc(st.label) + '</div></div>';
+          }).join("");
+          return '<div class="csec"><div class="chead">'
+               + esc(Owner() + " " + cu.length + " " + title + " units")
+               + (cid === COURSE && order.length > 1 ? '<span class="here">ON THIS PAGE</span>' : "")
+               + '<span class="note">— ' + esc(bits.join(" · ")) + '</span></div>'
+               + '<div class="journey"><div class="track">' + track + '</div></div>'
+               + '<div class="units">' + cards + '</div></div>';
+        }).filter(Boolean);
+        if (!blocks.length) return;
+        el("courseSections").innerHTML = blocks.join("");
+        el("journeyWrap").style.display = "block";
+        reNote("journeyHead", "journeyNote", Owner() + " learning journey",
+               "— " + (blocks.length === 1
+                 ? ("the " + (COURSE_TITLES[order[0]] || "course") + " units, in order, and how far into each")
+                 : ("all " + blocks.length + " courses " + subjHas() + " worked in, and how far into each")));
+      })();
 
       // ----- Strengths from the placement challenge (real) -----
       const str = placement.strengths || [];
@@ -1017,62 +1151,10 @@
     })();
 
 
-    // ----- SPRINT RECORD (2026-08-11, build dm) -----
-    // WWC guide 26 rec 6: track fluency progress AND SHOW it. Two bars per sprint --
-    // round A pale, round B solid -- so every pair tells the one story we celebrate:
-    // you beat yourself. The ONLY comparison on this card is this student with this
-    // student (rule 42). No sprints yet -> the card never appears (sprints never gate
-    // anything, so an empty card would only nag).
-    async function loadSprints() {
-      try {
-        await COURSE_READY;
-        const res = await fetch("/api/sprints/me?course=" + encodeURIComponent(COURSE),
-                                { headers: { "X-Student-Code": CODE } });
-        if (!res.ok) return;
-        const d = await res.json();
-        const hist = (d && d.history) || [];
-        if (!hist.length) return;
-        const last = hist.slice(-14);                  // the recent story fits one card
-        const W = 640, H = 150, pad = 26;
-        const slot = (W - 2 * pad) / last.length;
-        const bw = Math.max(6, Math.min(18, slot / 2.6));
-        const maxv = Math.max(10, ...last.map(s => Math.max(s.a, s.b)));
-        const y = v => H - 24 - (H - 52) * v / maxv;
-        let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg"'
-                + ' style="width:100%;height:auto;display:block">';
-        last.forEach((s, i) => {
-          const x0 = pad + i * slot + (slot - 2 * bw - 3) / 2;
-          svg += '<rect x="' + x0 + '" y="' + y(s.a) + '" width="' + bw + '" height="'
-               + (H - 24 - y(s.a)) + '" rx="3" fill="#c9c6ee"><title>' + esc(s.day)
-               + ' — round A: ' + s.a + '</title></rect>';
-          svg += '<rect x="' + (x0 + bw + 3) + '" y="' + y(s.b) + '" width="' + bw + '" height="'
-               + (H - 24 - y(s.b)) + '" rx="3" fill="#5b5bd6"><title>' + esc(s.day)
-               + ' — round B: ' + s.b + '</title></rect>';
-          if (s.b > s.a) {
-            svg += '<text x="' + (x0 + bw + 3 + bw / 2) + '" y="' + (y(s.b) - 5)
-                 + '" font-size="11" font-weight="800" fill="#0e9f6e" text-anchor="middle">+'
-                 + (s.b - s.a) + '</text>';
-          }
-        });
-        svg += '<line x1="' + pad + '" y1="' + (H - 24) + '" x2="' + (W - pad) + '" y2="'
-             + (H - 24) + '" stroke="#d9d6ea"/></svg>';
-        el("sprintChart").innerHTML = svg;
-        el("sprintNote").textContent = "— " + hist.length + " sprint"
-          + (hist.length === 1 ? "" : "s") + " · personal best " + (d.best_b || 0)
-          + " in a minute · pale bar = round A, solid = round B";
-        // 2026-08-11 (build ds): sprints used to be startable ONLY from the lesson-open
-        // offer -- a student who skipped it had no way back. Since this card only shows
-        // for students who already sprint, the button is an invitation, never a nag.
-        if (!isTeacher && CODE) {     // students only -- the parent/teacher view is read-only
-          el("sprintChart").insertAdjacentHTML("afterend",
-            '<p style="margin:10px 2px 0;font-size:14px"><a style="font-weight:800;color:var(--purple, #6d5ae6)" ' +
-            'href="/session?code=' + encodeURIComponent(CODE) + '&course=' + encodeURIComponent(COURSE) +
-            '&sprint=1">⚡ Run one now →</a> <span class="note">sixty seconds, racing only your own best</span></p>');
-        }
-        el("sprintWrap").style.display = "block";
-      } catch (e) { /* the card is a bonus -- never block the dashboard */ }
-    }
-    loadSprints();
+    // The sprint-record card was removed in build qo (see the note at the top of this
+    // file). loadSprints() went with it -- the page no longer calls /api/sprints at all.
+    // The endpoint, the recording, the printed records and the in-lesson sprint offer are
+    // all untouched; only this page's chart is gone.
 
     // ----- 2026-08-11 (build dt, rule 55): the missed-problems review card -----------
     async function loadMisses() {
