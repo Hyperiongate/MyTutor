@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qm -- PART 3gp: the quiz says correct, every time (the 65th referee)
+#               plus the progress panel Jim could not read. Both from one live Geometry
+#               session. PART 3fx's literal referee count moves 64 -> 65.
 #   2026-08-30  BUILD ql -- PART 3gk inverted: privacy.html names three processors again,
 #               so the DEFAULT state is the gate REFUSING DeepSeek (for the brain seat AND
 #               the critic seat), with the other direction proved by mutation. New pin:
@@ -14905,6 +14908,122 @@ def part3go_working_is_not_usable():
           "PART 3go and Build_qk's reasoning is WRONG and must be redone")
 
 
+def part3gp_the_quiz_says_correct_every_time():
+    """PART 3gp (build qm, 2026-08-30) -- THREE "CORRECT"S AND THEN SILENCE.
+
+    Jim, live in a Geometry quiz: "Question one, correct. Question two, correct.
+    Question three, correct. Question four, I answer it, and it goes right to question
+    five. So it doesn't tell me if I got it correct or if I got it incorrect ... we're
+    going to say correct after each one or incorrect after each one, we need to be
+    consistent."
+
+    ⭐ THE RULE WAS ALREADY WRITTEN AND WAS NOT KEPT. Rule 47(i): "A NO-HINTS QUIZ MEANS
+    NO TEACHING UNTIL IT ENDS. 'Correct' or 'not quite', next question." Held by prompt
+    words alone -- and on question four the model just moved on. Build ps wrote the
+    lesson and this is its third outing: a rule held by words alone is a wish.
+
+    ⚠️ THE INJURY IS THE INCONSISTENCY, NOT THE SILENCE. Three verdicts and then none
+    teaches a child that no news is bad news, and they spend the rest of the quiz
+    decoding a pattern instead of answering questions. Jim: "I'm left wondering until I
+    get a five out of five." So the referee's shape is exact -- the PREVIOUS turn asked
+    a numbered question, the student answered, and THIS reply asks the next numbered
+    question with no verdict anywhere before it -- and the nudge asks for one word
+    first, without caring which word.
+
+    A score line ("4 out of 5") and a [[mark]] both count as verdicts: the child has
+    been told. A verdict that lands AFTER the next question does not: by then they have
+    already read the new question wondering about the old one.
+
+    Canon swept: 0 of 2,109 cards, and 0 through the full stack with prev_tutor threaded.
+    """
+    print("\nPART 3gp — the quiz says correct, every time (build qm)")
+    import tutor as _t
+    F = _t.quiz_verdict_conflict
+    Q4 = 'Question 4. What is the midpoint of segment AB? [[step eq="A(2,3) B(8,7)"]]'
+
+    r = F('Question 5. Which segments are congruent? [[step eq="?"]]', Q4, "(5,5)")
+    check("⭐ FIRES on Jim's exact case: Q4 answered, straight to Q5, no verdict",
+          bool(r) and "47(i)" in r, r)
+    check("  ...and the nudge asks for ONE word, first, without dictating which",
+          '"Correct."' in r and '"Not quite."' in r and "Open this reply" in r, r[:200])
+    check("  ...and names the inconsistency as the injury",
+          "no news is bad news" in r, "")
+    for reply, label in (
+            ("Correct! Question 5. Which segments are congruent?", "a plain verdict"),
+            ("Not quite — the midpoint is (5,5). Question 5.", "a wrong-answer verdict"),
+            ("That's it. Question 5.", "an idiomatic verdict"),
+            ("Nice work — 4 out of 5 so far. Question 5.", "a running score is a verdict"),
+            ('[[mark correct="1"]] Question 5. Which one?', "a recorded mark is a verdict")):
+        check(f"  SILENT: {label}", not F(reply, Q4, "(5,5)"), (F(reply, Q4, "(5,5)") or "")[:80])
+    check("  SILENT: the student answered nothing", not F("Question 5. Go.", Q4, ""), "")
+    check("  SILENT: the FIRST question of a quiz has nothing to grade",
+          not F("Question 1. What is the midpoint?", "Let us look at midpoints.", "ok"), "")
+    check("  SILENT: the reply is not moving to another numbered question",
+          not F("Great. Now let us talk about angles.", "Question 3. What is 2+2?", "4"), "")
+    check("⭐ FIRES: a verdict that lands AFTER the next question is too late",
+          bool(F("Question 5 is a tricky one. Correct on 4, by the way.", Q4, "(5,5)")), "")
+    check("  SILENT when prev_tutor is None -- a referee that cannot know must not guess",
+          F("Question 5.", None, "(5,5)") == "", "")
+    check("  never raises", F(None, None, None) == "" and F(7, 7, 7) == "", "")
+
+    tsrc = open(_t.__file__, encoding="utf-8").read()
+    check("⭐ wired into the stack with its own fire event, fed the PREVIOUS turn",
+          "qverdict = quiz_verdict_conflict(reply, prev_tutor, student_message)" in tsrc
+          and '_event("referee_fire", "quizverdict", qverdict)' in tsrc, "")
+    check("  the prompt rule it enforces is still there to be enforced",
+          "A NO-HINTS QUIZ MEANS NO TEACHING UNTIL IT ENDS" in
+          open("prompts.py", encoding="utf-8").read(), "")
+
+    import foundations as FND
+    import lessonscripts as LS
+    hits, n = [], 0
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        prev = ""
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1
+                if F(t, prev, "an answer"):
+                    hits.append(("foundation", c, sc.get("term")))
+                prev = t
+    for les in LS.LESSONS:
+        prev = ""
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            t = (sp or "") + "\n" + (b or "")
+            if t.strip():
+                n += 1
+                if F(t, prev, "an answer"):
+                    hits.append(("teach", les["id"], i))
+                prev = t
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            t = (w[0] or "") + "\n" + (w[1] or "")
+            if t.strip():
+                n += 1
+                if F(t, prev, "an answer"):
+                    hits.append(("worked", les["id"], i))
+                prev = t
+    check("⭐ canon sweep: 0 authored cards fire (%d swept, prev_tutor threaded)" % n,
+          not hits, str(hits[:4]))
+    check("  the sweep covered the whole canon", n >= 1900, "%d" % n)
+
+    # ---- the progress panel (the same flag's other half) ----
+    html = open("static/session.html", encoding="utf-8").read()
+    check("⭐ the TODAY bar no longer competes with the two bars that measure facts",
+          '<div class="pbar" id="todayBar" hidden>' in html,
+          "Jim: 'no progress on today' -- it was the only bar depending on the tutor "
+          "remembering to emit [[todaydone]], and it taught him to distrust the others")
+    check("  ...and today leads in WORDS instead",
+          html.index('id="todayNow"') < html.index('id="unitBar"'), "")
+    check("  ...the chip says Progress, and carries the UNIT's count",
+          "📊 Progress" in html and 'ct.textContent = passed + "/" + topics.length' in html, "")
+    check("  ...the unit bar still names the unit the student is in",
+          'el("unitBarLabel").textContent = "Unit " + unit;' in html, "")
+    check("  ...and the tour no longer promises three bars",
+          "The top one is TODAY" not in html and "that's your map" in html, "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -15301,7 +15420,7 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ sixty-four referees now, counted from the code (62 + pz + qf)", n_ref == 64, n_ref)
+    check("⭐ sixty-five referees now, counted from the code (62 + pz + qf + qm)", n_ref == 65, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -17832,7 +17951,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,549</b>" in page,
+          "<b>7,572</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22818,8 +22937,11 @@ def part3cd_board_room():
     check("a closed panel still tells: chip reveal, pulse, and the n/m count",
           "revealChip(" in hsrc and "chipPulse(" in hsrc and "progChipCt" in hsrc,
           "a tick behind a closed panel becomes invisible progress")
+    # (qm) the chip is labelled "Progress" now (it carries the unit, not a today count),
+    # so the tour names that. The PROPERTY is unchanged: a panel that tucks itself away
+    # must tell the student where it went.
     check("the tour's bars line says where the bars live afterward",
-          "Today's Progress button" in hsrc,
+          "Progress button" in hsrc,
           "the bars vanish after the tour and the student was never told where")
     check("every tutor turn anchors at the visible top (ax's taller-than-window "
           "condition is gone; build ns lets the anchor FOLLOW once the turn "
@@ -26338,6 +26460,7 @@ def main():
     part3gm_reached_or_refused()
     part3gn_a_check_the_size_of_the_thing_it_checks()
     part3go_working_is_not_usable()
+    part3gp_the_quiz_says_correct_every_time()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

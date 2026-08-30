@@ -399,6 +399,13 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    (qm) 2026-08-30 -- THE PANEL SAYS WHAT IT MEANS. Jim, live in Geometry: three bars
+    (Today / Unit / Course) and "it's not clear to me what these mean ... maybe we just
+    have today's goal, and then progress on unit one and progress on the course." The
+    TODAY bar is hidden: alone among the three it measured something the tutor has to
+    remember to emit ([[todaydone]]), so it was the one that sat at zero and taught him
+    to distrust the other two. Today now leads in WORDS; the chip reads "📊 Progress"
+    and carries the UNIT's count.
   - 2026-08-26  BUILD od (Jim: "close the keyboard if I choose to do that").
     The answer bar gains a ⌨️✕ close button; the board takes its room back
     (board.js ResizeObserver). Reopen = the Type button where it exists, else a
@@ -1757,7 +1764,7 @@
            small chips now -- click to pop open, click again to tuck away. More board. -->
       <div class="chiprow" id="chipRow">
         <button class="chip" id="goalChip" type="button" hidden aria-expanded="false">🎯 Today's Goal <span class="chipcaret">▼</span></button>
-        <button class="chip" id="progChip" type="button" hidden aria-expanded="false">📊 Today's Progress <span class="chipct" id="progChipCt"></span> <span class="chipcaret">▼</span></button>
+        <button class="chip" id="progChip" type="button" hidden aria-expanded="false">📊 Progress <span class="chipct" id="progChipCt"></span> <span class="chipcaret">▼</span></button>
       </div>
 
       <div class="goalbar" id="goalBar"><span class="gi">🎯</span><span class="gl">Today's goal</span><b id="goalText"></b></div>
@@ -1766,10 +1773,20 @@
            ([[today]]/[[todaydone]]); UNIT shows the topic ladder with quiz markers and the
            Unit Quiz flag ([[unitplan]] + passed [[quiz]]s); COURSE shows the nine units,
            gold when mastered, ending at the 🎓 Final Exam. -->
+      <!-- (qm) 2026-08-30, Jim: "there's three bars. Today, unit one, the course. It looks
+           like I made progress on unit one, but no progress on today and no progress on the
+           unit course. So it's not clear to me what these mean ... maybe we just have
+           today's goal, and then progress on unit one and progress on the course."
+           ⭐ THE TODAY BAR IS GONE. Of the three it was the only one measuring something
+           the TUTOR has to remember to say ([[todaydone]]); the other two measure recorded
+           facts (topics passed, units mastered). So it was the one most likely to sit at
+           zero through a real lesson -- which is exactly what it did, and it taught Jim to
+           distrust the panel beside it. What today IS now leads, in words. #todayBar and
+           #todayText are KEPT (hidden): renderTodayBar and screencheck both read them, and
+           deleting them would be a bigger change than the complaint. -->
       <div class="pbars" id="pbars">
-        <div class="pbar" id="todayBar"><span class="pbl">Today</span><div class="pbtrack" id="todayTrack"></div><span class="pbt" id="todayText"></span></div>
-        <!-- build oy: today, in words. The segments show HOW FAR; this says WHAT. -->
         <div class="pbnow" id="todayNow"></div>
+        <div class="pbar" id="todayBar" hidden><span class="pbl">Today</span><div class="pbtrack" id="todayTrack"></div><span class="pbt" id="todayText"></span></div>
         <div class="pbar" id="unitBar"><span class="pbl" id="unitBarLabel">Unit</span><div class="pbtrack" id="unitTrack"></div><span class="pbt" id="unitText"></span></div>
         <div class="pbar" id="courseBar"><span class="pbl">Course</span><div class="pbtrack" id="courseTrack"></div><span class="pbt" id="courseText"></span></div>
       </div>
@@ -2898,8 +2915,10 @@
           }
         }
       } catch (e) {}
-      // build iq: the closed chip still tells the score at a glance.
-      el("progChipCt").textContent = done + "/" + TODAY_ITEMS.length;
+      // build iq: the closed chip told the score at a glance -- (qm) but that score was
+      // today's goal count, and a "0/4" that never moved is what taught Jim to distrust
+      // the panel. The chip now carries the UNIT's count, set by renderUnitPlan, because
+      // the unit is what the panel leads with.
       // build bj: this render REPLACES any tour-preview placeholder — drop the flag.
       const bar = el("todayBar"); delete bar.dataset.preview;
       showBars(); bar.classList.add("show");
@@ -2942,6 +2961,16 @@
             ? "All topic quizzes passed — the Unit Quiz is next!"
             : (topics.length - passed) + " topic" + (topics.length - passed === 1 ? "" : "s")
               + " to go — next quiz: " + topics[passed]);
+      // (qm) the closed chip carries the UNIT's count now -- "3/7 topics" -- because the
+      // panel behind it leads with the unit. Jim: "something should say I'm in unit one
+      // now, and here's the progress I've made."
+      try {
+        const ct = el("progChipCt");
+        if (ct) ct.textContent = passed + "/" + topics.length;
+        const pc = el("progChip");
+        if (pc) pc.title = "Unit " + unit + " — " + passed + " of " + topics.length
+                           + " topic quizzes passed";
+      } catch (e) {}
       // build bj: this render REPLACES any tour-preview placeholder — drop the flag.
       const bar = el("unitBar"); delete bar.dataset.preview;
       showBars(); bar.classList.add("show");
@@ -2986,8 +3015,8 @@
     // track and delete the preview flag), so a real bar can never be wiped by mistake.
     // Calling this again while a preview (or real bar) is up is a safe no-op per row.
     function showBarsPreview() {
-      [["todayBar", "todayTrack", "todayText", 3, "your goals for today will fill in here"],
-       ["unitBar", "unitTrack", "unitText", 4, "one piece per topic — 📝 marks each quiz"]]
+      // (qm) the today row is hidden now; only the unit gets a preview.
+      [["unitBar", "unitTrack", "unitText", 4, "one piece per topic — 📝 marks each quiz"]]
         .forEach(([barId, trackId, textId, n, label]) => {
           const bar = el(barId);
           if (bar.classList.contains("show")) return;      // real or preview bar already there
@@ -3449,7 +3478,7 @@
       { id: "library",
         text: "And see the Look-it-up button glowing? Any time you want to just READ about something — fractions, slope, anything — tap it, type the topic, and a page opens right on top. Your lesson waits for you, and closing it puts you right back here." },
       { id: "bars",
-        text: "Now look at those thin bars up top — they're your maps, and they never lie. The top one is TODAY: it fills in as you nail each of today's goals. The middle one is your UNIT: one piece for every topic, with a little quiz marker after each — so you can always see exactly how far away the next quiz is — and the flag at the end is the Unit Quiz. The bottom one is the whole COURSE: nine units that turn gold as you master them, marching straight toward that Final Exam. After our tour they tuck themselves away behind the little Today's Progress button, so the whole board is yours — tap it any time to peek at your maps." },
+        text: "Now look up top — that's your map, and it never lies. First it tells you in plain words what you're working on right now, and what's still to come today. Then your UNIT: one piece for every topic, with a little quiz marker after each — so you can always see exactly how far away the next quiz is — and the flag at the end is the Unit Quiz. Below that is the whole COURSE: nine units that turn gold as you master them, marching straight toward that Final Exam. After our tour it tucks itself away behind the little Progress button, so the whole board is yours — tap it any time to peek at your map." },
       { id: "tutor",
         text: "And that glowing face — that's me, Mr. Cadabra! The big whiteboard is mine too: that's where I'll draw every step as we go." },
       { id: "answer",

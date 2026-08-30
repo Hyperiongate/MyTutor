@@ -2,6 +2,15 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qm -- EVERY QUIZ ANSWER GETS A VERDICT (the SIXTY-FIFTH referee).
+#               Jim, live in a Geometry quiz: "Question one, correct. Two, correct.
+#               Three, correct. Question four, I answer it, and it goes right to question
+#               five ... we need to be consistent." Rule 47(i) already SAID it ("'Correct'
+#               or 'not quite', next question") and prompt words alone did not hold it.
+#               quiz_verdict_conflict: previous turn asked a numbered question, the
+#               student answered, this reply asks the next one with no verdict before it.
+#               A score line or a [[mark]] counts as a verdict; one that lands after the
+#               next question does not. Canon swept 0 of 2,109. PART 3gp.
 #   2026-08-30  BUILD ql -- THE DEEPSEEK TRIAL ENDED (Jim's call). Nothing about the seat
 #               machinery is removed -- it is env-gated and inert with TUTOR_PROVIDER
 #               unset -- but _privacy_page_names now STRIPS HTML COMMENTS before it
@@ -5970,6 +5979,75 @@ def board_two_thoughts_conflict(reply: str):
         _event("referee_crash", "twothoughts", str(exc))
         return ""
 
+
+# (qm) THE SIXTY-FIFTH REFEREE -- EVERY QUIZ ANSWER GETS A VERDICT. Jim, live in a
+# Geometry quiz, 2026-08-30: "Question one, correct. Question two, correct. Question
+# three, correct. Question four, I answer it, and it goes right to question five. So it
+# doesn't tell me if I got it correct or if I got it incorrect ... we're going to say
+# correct after each one or incorrect after each one, we need to be consistent."
+#
+# ⭐ THE RULE ALREADY EXISTED AND WAS NOT KEPT. Rule 47(i): "A NO-HINTS QUIZ MEANS NO
+# TEACHING UNTIL IT ENDS. 'Correct' or 'not quite', next question." Prompt words alone,
+# and on question four the model simply moved on -- which is build ps's lesson for the
+# third time: a rule held by words alone is a wish.
+#
+# ⚠️ INCONSISTENCY IS THE INJURY, NOT SILENCE. Three verdicts then none teaches the
+# child that no news is bad news; they sit through the rest of the quiz decoding a
+# pattern instead of answering. So the shape is precise: the PREVIOUS turn asked a
+# numbered quiz question, the student answered, and THIS reply asks the next numbered
+# question with no verdict word anywhere before it. The nudge asks for one word first,
+# and does not care which word.
+_QV_NUMBERED = re.compile(
+    r"\bquestion\s+(?:one|two|three|four|five|six|seven|eight|nine|ten|\d{1,2})\b"
+    r"|\bQ\s*\d{1,2}\s*[:.\)]", re.I)
+_QV_VERDICT = re.compile(
+    r"\b(?:correct|incorrect|right|wrong|exactly|nice|perfect|spot\s+on|well\s+done|"
+    r"you\s+got\s+it|got\s+it|that'?s\s+it|yes|yep|nope|not\s+quite|not\s+right|"
+    r"close|almost|good\s+work|nailed|bang\s+on|way\s+to\s+go)\b", re.I)
+
+
+def quiz_verdict_conflict(reply: str, prev_tutor=None, student_message: str = ""):
+    """Return a description of a quiz question answered and never graded, or "".
+    Silent when `prev_tutor` is None. Never raises (fail open)."""
+    try:
+        if prev_tutor is None:
+            return ""
+        if not str(student_message or "").strip():
+            return ""                       # nobody answered anything
+        prev = _spoken_only(str(prev_tutor or ""))
+        prev_q = _QV_NUMBERED.search(prev)
+        if not prev_q:
+            return ""                       # the last turn was not a numbered question
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        nxt = _QV_NUMBERED.search(prose)
+        if not nxt:
+            return ""                       # not moving on -- nothing skipped past
+        # A verdict must land BEFORE the next question is asked. Anything after it is
+        # about the new question, not the answer that just went by.
+        before = prose[:nxt.start()]
+        if _QV_VERDICT.search(before):
+            return ""                       # graded, in whatever words
+        # A score line ("4 out of 5", "[[mark]]") counts as a verdict too.
+        if re.search(r"\b\d+\s*(?:/|out\s+of)\s*\d+\b", before) \
+                or re.search(r"\[\[\s*(?:mark|nice)\b", text[:text.find(nxt.group(0))
+                                                            if nxt.group(0) in text
+                                                            else len(text)], re.I):
+            return ""
+        asked = " ".join(prev_q.group(0).split())[:30]
+        moving = " ".join(nxt.group(0).split())[:30]
+        return ('you asked "{a}", the student answered it, and this reply goes straight '
+                'to "{b}" without saying whether they were right. Rule 47(i): every quiz '
+                "answer gets a verdict, and the SAME kind of verdict every time -- three "
+                '"correct"s and then silence teaches a child that no news is bad news. '
+                "Open this reply with one word about THAT answer -- \"Correct.\" or "
+                "\"Not quite.\" -- and then ask {b}. Change nothing "
+                "else.").format(a=asked, b=moving)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[quizverdict] crashed (fail open): {exc}")
+        _event("referee_crash", "quizverdict", str(exc))
+        return ""
+
 # (oc) THE FORTY-EIGHTH REFEREE -- A RESULT YOU SPEAK IS A RESULT YOU DREW.
 # Jim's flag, 2026-08-26, a live algebra lesson: the student answered "+3 to each
 # side" (one step) and the very next reply said "We got X equals 5 -- nice work
@@ -8302,6 +8380,13 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if cram:
             _event("referee_fire", "boardcram", cram)
             return cram
+        # (qm) the sixty-fifth: a quiz answer that never got a verdict. Jim's live
+        # Geometry quiz -- three "correct"s, then question five with no word about
+        # question four. Needs the PREVIOUS turn, like rule 22's referee.
+        qverdict = quiz_verdict_conflict(reply, prev_tutor, student_message)
+        if qverdict:
+            _event("referee_fire", "quizverdict", qverdict)
+            return qverdict
         # (qf) the sixty-fourth: two thoughts on one line -- an equation finished
         # and another expression begun on the same board line. Jim's screenshot.
         two = board_two_thoughts_conflict(reply)

@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30qm-a-verdict-every-time". BUILD qm -- one live
+#               Geometry session, two flags. tutor.py: the 65th referee makes rule 47(i)
+#               real -- no quiz question moves to the next without grading the last.
+#               session.html: the Today progress bar is hidden (it was the only one that
+#               depended on the tutor remembering to emit [[todaydone]], and it read as
+#               broken), today leads in words, and the chip carries the unit's count.
+#               No Python changed here except this stamp.
 #   2026-08-30  APP_BUILD -> "2026-08-30ql-the-page-tells-the-truth". BUILD ql -- Jim ended
 #               the DeepSeek trial. privacy.html goes back to naming THREE processors (it
 #               named a fourth for one day, for a seat that never carried a single child's
@@ -12851,7 +12858,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30ql-the-page-tells-the-truth"
+APP_BUILD = "2026-08-30qm-a-verdict-every-time"
 
 
 @app.get("/health")
