@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30qi-reached-or-refused". BUILD qi -- /api/admin/
+#               seat-check grows ?provider=&model=&effort=, so DeepSeek can be tested
+#               while production keeps teaching on Anthropic, and reports `reached` --
+#               whether the request ever got to the vendor at all -- as its headline
+#               fact. admin.html gains the Brain seat card with a button per seat.
 #   2026-08-30  APP_BUILD -> "2026-08-30qh-hands-the-class-back". BUILD qh -- from the
 #               first night on the DeepSeek seat (120 apologies). tutor.py fails OVER to
 #               Anthropic instead of failing open; nightwatch.py finally prints the
@@ -9531,68 +9536,120 @@ def admin_events(key: str = "",
 
 
 @app.get("/api/admin/seat-check")
-def admin_seat_check(key: str = "",
+def admin_seat_check(provider: str = "", model: str = "", effort: str = "",
+                     key: str = "",
                      x_admin_key: str = Header(default="", alias="X-Admin-Key")):
-    """(qh) ONE cheap call to the brain seat that is configured RIGHT NOW, and the
-    vendor's own words back if it fails.
+    """(qh, widened in qi) ONE cheap call to a brain seat, and the vendor's own words
+    back if it fails.
 
     ⚠️ WHY THIS EXISTS. Build qg moved the teaching seat to DeepSeek and the first
     night on it produced 120 fail-opens -- every turn of every lesson an apology --
     because the seat raised on every call. Nothing anywhere could answer "does the
     configured seat actually work?" without spending a child's turn to find out.
-    This does, for the price of about twenty tokens, and it names the remedy.
+
+    ⭐ AND IT TESTS A SEAT THAT IS NOT LIVE. Jim, 2026-08-30: "the problem was somehow
+    the DeepSeek wasn't being called." That question is only answerable by TRYING
+    DeepSeek -- and after the outage the live seat is (rightly) back on Anthropic. So
+    ?provider=deepseek tests DeepSeek while production keeps teaching on Anthropic.
+    ?model= and ?effort= override the env for the test only; nothing here changes what
+    any child gets.
+
+    ⭐ REACHED vs REFUSED. The single most useful bit: `reached` is false when the call
+    NEVER GOT THERE (DNS, egress, TLS -- tutor.BrainUnreachable) and true when the
+    vendor answered and said no (401/404/400). Those are different problems with
+    different fixes, and the outage looked identical either way.
 
     Never raises: a broken seat returns ok=false WITH the reason, which is the whole
     point of the endpoint."""
     _require_admin(x_admin_key or key)
     seat = tutor.active_brain()
-    out = {"ok": False, "seat": seat, "reply": "", "error": "", "remedy": ""}
-    provider, model = seat.get("provider"), seat.get("model")
-    if seat.get("gated"):
-        out["error"] = f"the configured seat is not in use: {seat['gated']}"
-        out["remedy"] = ("this is the gate or a downed seat talking, not the vendor. "
-                         "Read the reason above; /health carries the same line.")
+    want = (provider or seat.get("provider") or "anthropic").strip().lower()
+    if want not in ("anthropic", "deepseek", "openai"):
+        return {"ok": False, "reached": False, "seat": seat, "tested": {},
+                "error": f"unknown provider {want!r}",
+                "verdict": "that is not a seat this app knows.",
+                "remedy": "provider must be anthropic, deepseek or openai."}
+    if want == "deepseek":
+        use_model = model or os.environ.get("DEEPSEEK_TUTOR_MODEL",
+                                            tutor.DEFAULT_DEEPSEEK_TUTOR_MODEL)
+        use_effort = (effort or tutor.deepseek_effort()).strip().lower()
+        api_key = os.environ.get("DEEPSEEK_API_KEY", "")
+        key_name = "DEEPSEEK_API_KEY"
+    elif want == "openai":
+        use_model = model or os.environ.get("OPENAI_TUTOR_MODEL",
+                                            tutor.DEFAULT_OPENAI_TUTOR_MODEL)
+        use_effort, api_key = "", os.environ.get("OPENAI_API_KEY", "")
+        key_name = "OPENAI_API_KEY"
+    else:
+        use_model = model or os.environ.get("CLAUDE_MODEL", tutor.DEFAULT_MODEL)
+        use_effort, api_key = "", os.environ.get("ANTHROPIC_API_KEY", "")
+        key_name = "ANTHROPIC_API_KEY"
+    out = {"ok": False, "reached": False, "seat": seat, "error": "",
+           "verdict": "", "remedy": "", "reply": "", "seconds": 0.0,
+           "tested": {"provider": want, "model": use_model, "effort": use_effort}}
+    if not api_key:
+        out["error"] = f"there is no {key_name} in this service's environment"
+        out["verdict"] = f"{want} has no key here, so nothing was sent."
+        out["remedy"] = f"add {key_name} in Render -> Environment."
         return out
+    t0 = time.time()
     try:
-        if provider == "deepseek":
-            client = tutor.deepseek_brain(os.environ.get("DEEPSEEK_API_KEY", ""))
-        elif provider == "openai":
-            client = tutor._OpenAIBrain(os.environ.get("OPENAI_API_KEY", ""))
+        if want == "deepseek":
+            client = tutor.deepseek_brain(api_key, effort=use_effort)
+        elif want == "openai":
+            client = tutor._OpenAIBrain(api_key)
         else:
-            client = tutor.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
+            client = tutor.Anthropic(api_key=api_key,
                                      timeout=tutor.ANTHROPIC_TIMEOUT_S, max_retries=0)
-        t0 = time.time()
         resp = client.messages.create(
-            model=model, max_tokens=64,
+            model=use_model, max_tokens=64,
             system="You are a maths tutor. Answer in one short sentence.",
             messages=[{"role": "user", "content": "What is 2 plus 2?"}])
         text = "".join(b.text for b in resp.content
                        if getattr(b, "type", None) == "text")
-        out.update(ok=bool(text.strip()), reply=text.strip()[:200],
+        out.update(reached=True, ok=bool(text.strip()), reply=text.strip()[:200],
                    seconds=round(time.time() - t0, 2))
-        if not out["ok"]:
+        if out["ok"]:
+            out["verdict"] = (f"{want}/{use_model} answered in {out['seconds']}s. "
+                              "This seat works.")
+        else:
             out["error"] = "the seat answered with EMPTY text"
-            out["remedy"] = ("the call succeeded but produced nothing -- for a thinking "
-                             "model this usually means the whole budget went to "
-                             "reasoning. Try DEEPSEEK_REASONING_EFFORT=off.")
+            out["verdict"] = f"{want}/{use_model} replied, but said nothing."
+            out["remedy"] = ("the call succeeded and produced no words -- for a "
+                             "thinking model that usually means the whole budget went "
+                             "to reasoning. Try effort=off.")
         return out
     except Exception as exc:  # noqa: BLE001 -- reporting the failure IS the job
         msg = " ".join(str(exc).split())[:400]
-        out["error"] = msg
         low = msg.lower()
-        if "not found" in low or "404" in low or "model" in low and "exist" in low:
-            out["remedy"] = (f"the vendor does not serve {model!r} on this key. Set "
-                             "DEEPSEEK_TUTOR_MODEL (or CLAUDE_MODEL / "
-                             "OPENAI_TUTOR_MODEL) to a name it does serve.")
-        elif "401" in low or "auth" in low or "invalid" in low and "key" in low:
-            out["remedy"] = ("the key was refused. Check DEEPSEEK_API_KEY in Render "
-                             "for stray spaces or a truncated paste.")
+        unreachable = isinstance(exc, tutor.BrainUnreachable) or any(
+            w in type(exc).__name__.lower() for w in ("connection", "timeout"))
+        out.update(error=msg, reached=not unreachable,
+                   seconds=round(time.time() - t0, 2))
+        if unreachable:
+            out["verdict"] = (f"the request NEVER REACHED {want} -- this service could "
+                              "not open the connection.")
+            out["remedy"] = ("this is the network, not the model name and not the key. "
+                             "Check that this service can make outbound calls to that "
+                             "host (a proxy, a firewall, a region block, or DNS), and "
+                             "whether the vendor is up.")
+        elif "not found" in low or "404" in low:
+            out["verdict"] = (f"{want} answered and does not serve {use_model!r} on "
+                              "this key.")
+            out["remedy"] = ("set the model env var to a name it does serve "
+                             "(DEEPSEEK_TUTOR_MODEL / CLAUDE_MODEL / "
+                             "OPENAI_TUTOR_MODEL), then test again.")
+        elif "401" in low or "403" in low or "auth" in low or "invalid" in low:
+            out["verdict"] = f"{want} answered and refused the key."
+            out["remedy"] = (f"check {key_name} in Render for a stray space, a "
+                             "truncated paste, or a key from the wrong account.")
         elif "400" in low:
-            out["remedy"] = ("the vendor refused the REQUEST. If it names thinking or "
-                             "reasoning_effort, set DEEPSEEK_REASONING_EFFORT=off and "
-                             "try again.")
+            out["verdict"] = f"{want} answered and refused the REQUEST itself."
+            out["remedy"] = ("read the message above -- if it names thinking or "
+                             "reasoning_effort, test again with effort=off.")
         else:
-            out["remedy"] = "the vendor's own words are above; start there."
+            out["verdict"] = f"{want} failed, and its own words are above."
+            out["remedy"] = "start with the message; it is the vendor's, not ours."
         return out
 
 
@@ -12711,7 +12768,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30qh-hands-the-class-back"
+APP_BUILD = "2026-08-30qi-reached-or-refused"
 
 
 @app.get("/health")

@@ -2,6 +2,13 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qi -- REACHED, OR REFUSED. Jim on the outage: "somehow the
+#               DeepSeek wasn't being called." A call that NEVER GOT THERE (DNS,
+#               egress, proxy, TLS) and a vendor that answered and refused (401 / 404 /
+#               400) look identical from the child's seat and have nothing in common as
+#               problems. NEW BrainUnreachable names the first, with the host and URL in
+#               its words, so /api/admin/seat-check can report `reached` from the TYPE
+#               instead of sniffing a string. PART 3gm.
 #   2026-08-30  BUILD qh -- THE SEAT THAT CANNOT TEACH HANDS THE CLASS BACK. The first
 #               night on qg's DeepSeek seat: 120 teaching-path fail-opens, every turn of
 #               every lesson, and the child got "(I'm having trouble thinking right
@@ -9234,6 +9241,14 @@ def _add_usage(tokens, response):
 # negotiation already listens for ("must end with a user message") -- the
 # existing machinery flips to the user-message nudge on its own. No new paths.
 # =============================================================================
+class BrainUnreachable(RuntimeError):
+    """(qi) The call NEVER GOT THERE -- DNS, egress, TLS, a dead socket. Distinct
+    from a vendor that answered and refused (a 401/404/400), because the two have
+    nothing in common as problems: one is the network, the other is the request.
+    The 2026-08-30 outage was reported as "somehow DeepSeek wasn't being called",
+    and the seat check can only answer that if the code keeps the two apart."""
+
+
 _OAI_URL = "https://api.openai.com/v1/chat/completions"
 _OAI_TOKEN_PARAM = "max_completion_tokens"   # learned from the API, like the audit's
 
@@ -9317,7 +9332,10 @@ class _OpenAIBrain:
                     print(f"[tutor] {self.vendor} transport error ({exc}); retrying once in 2s")
                     time.sleep(2)
         if last_exc is not None:
-            raise RuntimeError(f"could not reach {self.vendor} after a retry: {last_exc}")
+            # (qi) NAMED as unreachable, and the URL is in the words: a reader of the
+            # event should never have to wonder whether the vendor was even contacted.
+            raise BrainUnreachable(
+                f"never reached {self.vendor} at {self.url} (two attempts): {last_exc}")
         if r.status_code == 200:
             choice = r.json()["choices"][0]
             content = choice.get("message", {}).get("content") or ""

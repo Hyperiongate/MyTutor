@@ -298,6 +298,12 @@
   admin.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+      ① 2026-08-30 (build qi) NEW "Brain seat" card: one cheap call to any seat --
+         live, DeepSeek, DeepSeek with thinking off, or Anthropic -- reporting whether
+         the request REACHED the vendor at all, how long it took, and the vendor's own
+         refusal. Testing a seat here changes nothing a student gets. Written after the
+         08-30 outage, when the only way to learn whether DeepSeek answered was to point
+         children at it for a night.
   - 2026-08-26  BUILD ny (latency deep dive). The Second-opinion tile names the
     ACTUAL critic model from the payload's critic_seat instead of a hardcoded
     "Opus" -- so the fast-critic A/B can be read honestly.
@@ -717,6 +723,25 @@
       <b>crashes</b>, <b>client errors</b> and <b>pass-throughs</b> (a reply shipped WITH a known
       finding) should be zero &mdash; each one is a real event with its name and detail below.
       Rows age out after EVENTS_DAYS (default 90).</p>
+  </div></section>
+
+  <!-- Brain seat check (build qi) -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#129504; Brain seat &mdash; does it actually answer?</h2>
+      <span class="note">one cheap call (about twenty tokens). Testing a seat here does
+        NOT change what any student gets.</span></div>
+    <div style="margin:6px 0 10px">
+      <button class="btn" id="seatLive" type="button">Test the live seat</button>
+      <button class="btn" id="seatDS" type="button">Test DeepSeek</button>
+      <button class="btn" id="seatDSoff" type="button">Test DeepSeek (thinking off)</button>
+      <button class="btn" id="seatAnth" type="button">Test Anthropic</button>
+    </div>
+    <div class="note" id="seatLine">The live seat is shown on /health as <b>brain</b>.</div>
+    <div id="seatOut" style="margin-top:8px"></div>
+    <p class="note" style="margin-top:10px">The one line that matters is <b>reached</b>:
+      <i>never reached</i> means the request never got out of this service (network,
+      proxy, DNS, region) &mdash; the model name and the key are innocent. <i>Reached</i>
+      means the vendor answered and refused, and its own words say why.</p>
   </div></section>
 
   <!-- Corrections queue (build nq) -->
@@ -1569,6 +1594,38 @@
     $("fgDevNote").textContent = on ? "flags are ON for lessons opened in this browser"
                                     : "flags are OFF on this device";
   }
+  // ---- Brain seat check (build qi) ----
+  async function seatCheck(qs, label) {
+    $("seatLine").textContent = "asking " + label + "\u2026";
+    $("seatOut").innerHTML = "";
+    try {
+      var d = await api("/api/admin/seat-check" + (qs ? "?" + qs : ""));
+      var t = d.tested || {};
+      var head = (d.ok ? "\u2705 " : "\u274c ")
+        + esc(t.provider || "?") + "/" + esc(t.model || "?")
+        + (t.effort ? " (thinking " + esc(t.effort) + ")" : "");
+      var rows = ["<b>" + head + "</b>",
+                  "reached the vendor: <b>" + (d.reached ? "yes" : "NO") + "</b>"
+                    + (d.seconds ? " \u00b7 " + esc(String(d.seconds)) + "s" : "")];
+      if (d.verdict) rows.push(esc(d.verdict));
+      if (d.reply) rows.push("it said: \u201c" + esc(d.reply) + "\u201d");
+      if (d.error) rows.push("<code>" + esc(d.error) + "</code>");
+      if (d.remedy) rows.push("<i>" + esc(d.remedy) + "</i>");
+      $("seatOut").innerHTML = rows.map(function (r) {
+        return "<div style=\"margin:4px 0\">" + r + "</div>"; }).join("");
+      $("seatLine").textContent = d.ok ? "that seat works." : "that seat did not answer.";
+    } catch (e) {
+      $("seatLine").textContent = "seat check failed: " + (e && e.message ? e.message : e);
+    }
+  }
+  $("seatLive").addEventListener("click", function () { seatCheck("", "the live seat"); });
+  $("seatDS").addEventListener("click", function () {
+    seatCheck("provider=deepseek", "DeepSeek"); });
+  $("seatDSoff").addEventListener("click", function () {
+    seatCheck("provider=deepseek&effort=off", "DeepSeek with thinking off"); });
+  $("seatAnth").addEventListener("click", function () {
+    seatCheck("provider=anthropic", "Anthropic"); });
+
   $("fgDevice").addEventListener("click", function () {
     try {
       if (fgDeviceOn()) localStorage.removeItem("mt_owner_key");

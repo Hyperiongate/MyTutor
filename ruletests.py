@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qi -- PART 3gm: reached, or refused. Jim's question ("somehow the
+#               DeepSeek wasn't being called") is only answerable if the code keeps a
+#               call that never got there apart from a vendor that answered and said
+#               no. tutor.BrainUnreachable names the first; seat-check reports it, and
+#               can test a seat that is not the live one.
 #   2026-08-30  BUILD qh -- PART 3gl: the seat hands the class back. The first night on
 #               the DeepSeek seat was 120 apologies; the pipeline failed OPEN instead of
 #               OVER, and the report asked only for referee_crash reasons so the 120
@@ -14598,10 +14603,124 @@ def part3gl_the_seat_hands_the_class_back():
     check("⭐ /api/admin/seat-check exists, is admin-gated, and reports the vendor's words",
           '@app.get("/api/admin/seat-check")' in msrc
           and "_require_admin(x_admin_key or key)" in
-          msrc.split('@app.get("/api/admin/seat-check")')[1][:900]
+          msrc.split('@app.get("/api/admin/seat-check")')[1].split("@app.get(")[0]
           and '"remedy"' in msrc, "")
     check("  ...and it never raises -- a broken seat is the ANSWER, not an error page",
           "reporting the failure IS the job" in msrc, "")
+
+
+def part3gm_reached_or_refused():
+    """PART 3gm (build qi, 2026-08-30) -- "SOMEHOW THE DEEPSEEK WASN'T BEING CALLED".
+
+    Jim, the morning after the outage: "I reset the tutor provider to anthropic, but
+    yesterday I set it to deepseek ... the problem was somehow the DeepSeek wasn't
+    being called."
+
+    He is describing a real distinction that build qh could not answer for him. A seat
+    that is NEVER REACHED (DNS, egress, a proxy, TLS, a region block) and a seat that
+    is reached and REFUSES (401 on the key, 404 on the model, 400 on a parameter)
+    produce the identical symptom -- an exception, a fail-open, a child holding an
+    apology -- and they have nothing in common as problems. One is the network; the
+    other is the request. Guessing between them is how a wrong model name gets
+    "fixed" for two days while a firewall sits there.
+
+    So the code keeps them apart: tutor.BrainUnreachable names the case where the call
+    never got there, with the URL in its words, and /api/admin/seat-check reports
+    `reached` as its headline fact.
+
+    ⭐ AND IT TESTS A SEAT THAT IS NOT LIVE. After the outage the live seat is rightly
+    back on Anthropic -- so a check that could only test the CONFIGURED seat could
+    never answer Jim's question without pointing children at DeepSeek again.
+    ?provider=deepseek (with optional model= and effort=) tests it while production
+    keeps teaching, and nothing about the test reaches a student.
+    """
+    print("\nPART 3gm — reached, or refused (build qi)")
+    import tutor as _t
+    here = os.path.dirname(os.path.abspath(__file__))
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+
+    check("⭐ the unreachable case has its own NAME, not a string to sniff",
+          issubclass(_t.BrainUnreachable, RuntimeError), "")
+    import httpx as _hx
+    real_post = _hx.post
+
+    def _dead_post(url, json=None, **kw):
+        raise OSError("nodename nor servname provided (stub)")
+    try:
+        _hx.post = _dead_post
+        raised = None
+        try:
+            _t.deepseek_brain("sk-x").create(model="deepseek-v4-pro", max_tokens=8,
+                                             system="s",
+                                             messages=[{"role": "user", "content": "hi"}])
+        except Exception as exc:  # noqa: BLE001
+            raised = exc
+        check("⭐ a transport failure raises BrainUnreachable, naming host AND url",
+              isinstance(raised, _t.BrainUnreachable)
+              and "never reached DeepSeek" in str(raised)
+              and "api.deepseek.com" in str(raised), repr(raised))
+    finally:
+        _hx.post = real_post
+
+    class _R:
+        status_code = 404
+
+        def json(self):
+            return {"error": {"message": "Model Not Exist"}}
+
+    def _404_post(url, json=None, **kw):
+        return _R()
+    try:
+        _hx.post = _404_post
+        raised = None
+        try:
+            _t.deepseek_brain("sk-x").create(model="deepseek-v4-pro", max_tokens=8,
+                                             system="s",
+                                             messages=[{"role": "user", "content": "hi"}])
+        except Exception as exc:  # noqa: BLE001
+            raised = exc
+        check("  ...while a vendor that ANSWERS and refuses is NOT unreachable",
+              raised is not None and not isinstance(raised, _t.BrainUnreachable)
+              and "404" in str(raised), repr(raised))
+    finally:
+        _hx.post = real_post
+
+    # the endpoint's contract, read from the source (it needs a key to run for real)
+    # the WHOLE endpoint, bounded by the next route -- a fixed slice truncated it
+    ep = msrc.split('@app.get("/api/admin/seat-check")')[1]
+    ep = ep[:ep.index("@app.get(")] if "@app.get(" in ep else ep
+    check("⭐ seat-check can test a seat that is NOT the live one",
+          "def admin_seat_check(provider: str" in ep and 'want = (provider or seat.get' in ep,
+          "after the outage the live seat is Anthropic; a check that only tests the "
+          "live seat cannot answer whether DeepSeek works")
+    check("  ...with the model and the thinking effort overridable for the test only",
+          "model or os.environ.get" in ep and "effort or tutor.deepseek_effort()" in ep, "")
+    check("⭐ ...and `reached` is computed from the TYPE, not a string match",
+          "isinstance(exc, tutor.BrainUnreachable)" in ep, "")
+    check("  ...and the unreachable verdict says the network, not the model name",
+          "NEVER REACHED" in ep and "the model name and not the key" in ep, "")
+    check("  ...and each refusal class carries its own remedy",
+          ep.count('out["remedy"]') >= 5 and "DEEPSEEK_TUTOR_MODEL" in ep
+          and "truncated paste" in ep, "")
+    check("  a missing key is answered without spending a call",
+          "there is no {key_name} in this service" in ep or "no {key_name} in" in ep, "")
+    check("  an unknown provider is refused before any call",
+          'unknown provider' in ep, "")
+    check("  it is admin-gated, and it never raises",
+          "_require_admin(x_admin_key or key)" in ep
+          and "reporting the failure IS the job" in ep, "")
+
+    adm = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    check("⭐ the panel has a button for it -- Jim does not read JSON at a shell",
+          'id="seatDS"' in adm and 'id="seatLive"' in adm and 'id="seatAnth"' in adm
+          and "/api/admin/seat-check" in adm, "")
+    check("  ...including a thinking-off button, the commonest second question",
+          'provider=deepseek&effort=off' in adm, "")
+    check("  ...and the card says plainly that testing changes nothing for students",
+          "does NOT change what any student gets" in adm
+          or "changes nothing a student gets" in adm, "")
+    check("  ...and the key still travels in the header, never a URL (the dg rule)",
+          '"X-Admin-Key": KEY' in adm, "")
 
 
 def part3ga_a_different_problem_is_not_a_snapshot():
@@ -17531,7 +17650,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,509</b>" in page,
+          "<b>7,524</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -26034,6 +26153,7 @@ def main():
     part3gj_one_thought_per_line_in_the_boards()
     part3gk_the_deepseek_seat()
     part3gl_the_seat_hands_the_class_back()
+    part3gm_reached_or_refused()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
