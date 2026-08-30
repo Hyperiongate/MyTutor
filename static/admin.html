@@ -298,6 +298,10 @@
   admin.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+      ① 2026-08-30 (build qj) the Brain seat card gains REAL-LESSON-SIZE buttons. The
+         qi probe asked a fifteen-token question and reported "this seat works" while
+         every real turn had been failing; size=lesson sends the actual system prompt
+         (~185,000 characters) and the same 3000-token ceiling.
       ① 2026-08-30 (build qi) NEW "Brain seat" card: one cheap call to any seat --
          live, DeepSeek, DeepSeek with thinking off, or Anthropic -- reporting whether
          the request REACHED the vendor at all, how long it took, and the vendor's own
@@ -735,10 +739,18 @@
       <button class="btn" id="seatDS" type="button">Test DeepSeek</button>
       <button class="btn" id="seatDSoff" type="button">Test DeepSeek (thinking off)</button>
       <button class="btn" id="seatAnth" type="button">Test Anthropic</button>
+      <br>
+      <button class="btn" id="seatDSbig" type="button" style="margin-top:8px">&#9888;&#65039; Test DeepSeek at REAL lesson size</button>
+      <button class="btn" id="seatAnthBig" type="button" style="margin-top:8px">Test Anthropic at REAL lesson size</button>
     </div>
     <div class="note" id="seatLine">The live seat is shown on /health as <b>brain</b>.</div>
     <div id="seatOut" style="margin-top:8px"></div>
-    <p class="note" style="margin-top:10px">The one line that matters is <b>reached</b>:
+    <p class="note" style="margin-top:10px"><b>Test the REAL lesson size before trusting
+      a seat.</b> The small probe sends about fifteen tokens; a teaching turn sends the
+      whole ~46,000-token prompt. On 2026-08-30 the small probe said &ldquo;this seat
+      works&rdquo; on the morning after every real turn had failed all night &mdash; a
+      check that does not reproduce a real turn cannot vouch for one.<br><br>
+      The other line that matters is <b>reached</b>:
       <i>never reached</i> means the request never got out of this service (network,
       proxy, DNS, region) &mdash; the model name and the key are innocent. <i>Reached</i>
       means the vendor answered and refused, and its own words say why.</p>
@@ -1603,10 +1615,13 @@
       var t = d.tested || {};
       var head = (d.ok ? "\u2705 " : "\u274c ")
         + esc(t.provider || "?") + "/" + esc(t.model || "?")
-        + (t.effort ? " (thinking " + esc(t.effort) + ")" : "");
+        + (t.effort ? " (thinking " + esc(t.effort) + ")" : "")
+        + (d.size === "lesson" ? " \u2014 REAL lesson prompt" : " \u2014 tiny probe");
       var rows = ["<b>" + head + "</b>",
                   "reached the vendor: <b>" + (d.reached ? "yes" : "NO") + "</b>"
-                    + (d.seconds ? " \u00b7 " + esc(String(d.seconds)) + "s" : "")];
+                    + (d.seconds ? " \u00b7 " + esc(String(d.seconds)) + "s" : "")
+                    + (d.prompt_chars ? " \u00b7 prompt " + esc(String(d.prompt_chars))
+                                        + " chars" : "")];
       if (d.verdict) rows.push(esc(d.verdict));
       if (d.reply) rows.push("it said: \u201c" + esc(d.reply) + "\u201d");
       if (d.error) rows.push("<code>" + esc(d.error) + "</code>");
@@ -1625,6 +1640,12 @@
     seatCheck("provider=deepseek&effort=off", "DeepSeek with thinking off"); });
   $("seatAnth").addEventListener("click", function () {
     seatCheck("provider=anthropic", "Anthropic"); });
+  // (qj) the size that matters: the small probe said "this seat works" on the very
+  // morning after every real turn had failed all night.
+  $("seatDSbig").addEventListener("click", function () {
+    seatCheck("provider=deepseek&size=lesson", "DeepSeek with a REAL lesson prompt"); });
+  $("seatAnthBig").addEventListener("click", function () {
+    seatCheck("provider=anthropic&size=lesson", "Anthropic with a REAL lesson prompt"); });
 
   $("fgDevice").addEventListener("click", function () {
     try {

@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30qj-the-size-of-a-real-turn". BUILD qj -- qi's
+#               seat probe told Jim "this seat works" on the morning after 120 real
+#               turns had failed, because it sent a fifteen-token prompt where a lesson
+#               sends ~46,000. seat-check gains ?size=lesson: the actual
+#               build_system_prompt, the actual cached-block shape, the actual
+#               3000-token ceiling. A passing SMALL test now says outright that it
+#               proves nothing about a teaching turn. admin.html gets both buttons.
 #   2026-08-30  APP_BUILD -> "2026-08-30qi-reached-or-refused". BUILD qi -- /api/admin/
 #               seat-check grows ?provider=&model=&effort=, so DeepSeek can be tested
 #               while production keeps teaching on Anthropic, and reports `reached` --
@@ -9537,7 +9544,7 @@ def admin_events(key: str = "",
 
 @app.get("/api/admin/seat-check")
 def admin_seat_check(provider: str = "", model: str = "", effort: str = "",
-                     key: str = "",
+                     size: str = "", course: str = "", key: str = "",
                      x_admin_key: str = Header(default="", alias="X-Admin-Key")):
     """(qh, widened in qi) ONE cheap call to a brain seat, and the vendor's own words
     back if it fails.
@@ -9592,6 +9599,26 @@ def admin_seat_check(provider: str = "", model: str = "", effort: str = "",
         out["verdict"] = f"{want} has no key here, so nothing was sent."
         out["remedy"] = f"add {key_name} in Render -> Environment."
         return out
+    # (qj) ⭐ THE SIZE THE REAL LESSON SENDS. The qi button asked a fifteen-token
+    # question and reported "this seat works" -- while every REAL turn, which carries
+    # the ~46k-token cached teaching prompt, had been failing all night. A preflight
+    # that does not reproduce production conditions does not vouch for them; it
+    # gives false confidence, which is worse than no check at all. size=lesson builds
+    # the ACTUAL system prompt the tutor sends (build_system_prompt, the same call
+    # the pipeline makes) and the same 3000-token ceiling.
+    big = str(size or "").strip().lower() in ("lesson", "real", "full", "big")
+    if big:
+        try:
+            sys_text = tutor.build_system_prompt({"name": "Seat Check", "code": "SEATCHK"},
+                                                 course or "prealgebra")
+        except Exception as exc:  # noqa: BLE001 -- fall back to the small probe, loudly
+            sys_text = "You are a maths tutor. Answer in one short sentence."
+            out["error"] = f"(could not build a real lesson prompt: {exc}) "
+            big = False
+    else:
+        sys_text = "You are a maths tutor. Answer in one short sentence."
+    out["prompt_chars"] = len(sys_text)
+    out["size"] = "lesson" if big else "small"
     t0 = time.time()
     try:
         if want == "deepseek":
@@ -9602,16 +9629,21 @@ def admin_seat_check(provider: str = "", model: str = "", effort: str = "",
             client = tutor.Anthropic(api_key=api_key,
                                      timeout=tutor.ANTHROPIC_TIMEOUT_S, max_retries=0)
         resp = client.messages.create(
-            model=use_model, max_tokens=64,
-            system="You are a maths tutor. Answer in one short sentence.",
+            model=use_model, max_tokens=3000 if big else 64,
+            system=tutor._cacheable_system(sys_text) if big else sys_text,
             messages=[{"role": "user", "content": "What is 2 plus 2?"}])
         text = "".join(b.text for b in resp.content
                        if getattr(b, "type", None) == "text")
         out.update(reached=True, ok=bool(text.strip()), reply=text.strip()[:200],
                    seconds=round(time.time() - t0, 2))
         if out["ok"]:
-            out["verdict"] = (f"{want}/{use_model} answered in {out['seconds']}s. "
-                              "This seat works.")
+            out["verdict"] = (
+                f"{want}/{use_model} answered in {out['seconds']}s with a "
+                f"{out['size']} prompt ({out['prompt_chars']:,} characters). "
+                + ("This seat works on a REAL lesson-sized turn."
+                   if big else
+                   "⚠️ This was a TINY prompt. A real turn sends ~185,000 characters "
+                   "-- press the lesson-size test before trusting the seat."))
         else:
             out["error"] = "the seat answered with EMPTY text"
             out["verdict"] = f"{want}/{use_model} replied, but said nothing."
@@ -9624,7 +9656,7 @@ def admin_seat_check(provider: str = "", model: str = "", effort: str = "",
         low = msg.lower()
         unreachable = isinstance(exc, tutor.BrainUnreachable) or any(
             w in type(exc).__name__.lower() for w in ("connection", "timeout"))
-        out.update(error=msg, reached=not unreachable,
+        out.update(error=(out.get("error") or "") + msg, reached=not unreachable,
                    seconds=round(time.time() - t0, 2))
         if unreachable:
             out["verdict"] = (f"the request NEVER REACHED {want} -- this service could "
@@ -9650,6 +9682,13 @@ def admin_seat_check(provider: str = "", model: str = "", effort: str = "",
         else:
             out["verdict"] = f"{want} failed, and its own words are above."
             out["remedy"] = "start with the message; it is the vendor's, not ours."
+        if big:
+            out["remedy"] += (" ⚠️ This was the LESSON-SIZED prompt "
+                              f"({out['prompt_chars']:,} characters). If the small "
+                              "test passes and this one does not, the problem is the "
+                              "SIZE or duration of a real turn, not the seat's "
+                              "identity -- that is the shape of the 2026-08-30 "
+                              "outage.")
         return out
 
 
@@ -12768,7 +12807,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30qi-reached-or-refused"
+APP_BUILD = "2026-08-30qj-the-size-of-a-real-turn"
 
 
 @app.get("/health")

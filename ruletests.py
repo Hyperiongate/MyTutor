@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qj -- PART 3gn: a check the size of the thing it checks. qi's probe
+#               reported "this seat works" on the morning after 120 real turns had
+#               failed, because it sent fifteen tokens where a lesson sends ~46,000.
+#               seat-check gains size=lesson (the real build_system_prompt, the real
+#               3000-token ceiling); a passing small test now says it proves nothing.
 #   2026-08-30  BUILD qi -- PART 3gm: reached, or refused. Jim's question ("somehow the
 #               DeepSeek wasn't being called") is only answerable if the code keeps a
 #               call that never got there apart from a vendor that answered and said
@@ -14723,6 +14728,73 @@ def part3gm_reached_or_refused():
           '"X-Admin-Key": KEY' in adm, "")
 
 
+def part3gn_a_check_the_size_of_the_thing_it_checks():
+    """PART 3gn (build qj, 2026-08-30) -- THE PROBE THAT SAID "THIS SEAT WORKS".
+
+    The morning after 120 apologies, Jim pressed build qi's Test DeepSeek button:
+
+        ✅ deepseek/deepseek-v4-pro (thinking low)
+        reached the vendor: yes · 1.56s
+        it said: "2 plus 2 equals 4."
+
+    Right model, right key, right URL, thinking accepted, Render's network fine --
+    every guess about the outage wrong, and the check reporting SUCCESS on the
+    morning after every real turn had failed all night.
+
+    ⭐ BECAUSE IT WAS NOT THE SAME CALL. The probe sent a fifteen-token system prompt.
+    A teaching turn sends build_system_prompt's ~185,000 characters (~46k tokens) as a
+    cached block, with a 3000-token ceiling. Two calls with almost nothing in common,
+    and the small one was being used to vouch for the big one.
+
+    ⚠️ A PREFLIGHT THAT DOES NOT REPRODUCE PRODUCTION CONDITIONS DOES NOT VOUCH FOR
+    THEM -- it manufactures confidence, which is worse than having no check, because
+    a missing check is at least honest about what it does not know. The measurement
+    that mattered was available all along: a real turn through the real path, which
+    is what size=lesson now sends.
+
+    Both sizes are offered because the DIFFERENCE is the diagnosis: small passes and
+    lesson fails means the problem is the size or the duration of a real turn, not
+    the seat's identity -- and the remedy line says exactly that.
+    """
+    print("\nPART 3gn — a check the size of the thing it checks (build qj)")
+    import tutor as _t
+    here = os.path.dirname(os.path.abspath(__file__))
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    ep = msrc.split('@app.get("/api/admin/seat-check")')[1]
+    ep = ep[:ep.index("@app.get(")] if "@app.get(" in ep else ep
+
+    # the real prompt is ENORMOUS next to the probe -- that gap IS the finding
+    real = _t.build_system_prompt({"name": "Seat Check", "code": "SEATCHK"}, "prealgebra")
+    check("⭐ a real lesson prompt is over 100,000 characters (the probe sent ~50)",
+          len(real) > 100000, "%d chars" % len(real))
+    check("  ...so the small probe was never evidence about a teaching turn",
+          len(real) / 50.0 > 1000, "")
+
+    check("⭐ seat-check can send the REAL lesson prompt, built by the same function "
+          "the pipeline uses",
+          "size: str" in ep and "tutor.build_system_prompt(" in ep, "")
+    check("  ...with the real ceiling and the real cached-block shape",
+          "max_tokens=3000 if big else 64" in ep
+          and "tutor._cacheable_system(sys_text) if big else sys_text" in ep, "")
+    check("  ...and reports the size it actually sent, so the two can never be confused",
+          'out["prompt_chars"]' in ep and 'out["size"]' in ep, "")
+    check("⭐ a PASSING small test now warns that it proves nothing about a real turn",
+          "This was a TINY prompt" in ep and "185,000 characters" in ep, "")
+    check("  ...and a FAILING lesson-size test names the shape of the 08-30 outage",
+          "the problem is the" in ep and "SIZE or duration of a real turn" in ep, "")
+    check("  a prompt-builder crash falls back to the small probe rather than 500ing",
+          "could not build a real lesson prompt" in ep, "")
+
+    adm = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    check("⭐ the panel offers the real-size test for both seats",
+          'id="seatDSbig"' in adm and 'id="seatAnthBig"' in adm
+          and "provider=deepseek&size=lesson" in adm, "")
+    check("  ...and the result says WHICH size was tested, every time",
+          "REAL lesson prompt" in adm and "tiny probe" in adm, "")
+    check("  ...and the card tells the reader why the small one is not enough",
+          "cannot vouch for one" in adm, "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -17650,7 +17722,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,524</b>" in page,
+          "<b>7,535</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -26154,6 +26226,7 @@ def main():
     part3gk_the_deepseek_seat()
     part3gl_the_seat_hands_the_class_back()
     part3gm_reached_or_refused()
+    part3gn_a_check_the_size_of_the_thing_it_checks()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
