@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30qk-working-is-not-usable". BUILD qk -- qj's
+#               real-size button answered in 21.9s: the DeepSeek seat WORKS on a full
+#               teaching turn (which clears the outage of every remaining suspect), and
+#               is nearly double Sonnet's 12.3s teaching call, which a refereed turn can
+#               spend three times. seat-check now reports tokens (a second press shows
+#               whether the 46k prefix cached), and says outright when a seat that
+#               answers is still too slow to teach.
 #   2026-08-30  APP_BUILD -> "2026-08-30qj-the-size-of-a-real-turn". BUILD qj -- qi's
 #               seat probe told Jim "this seat works" on the morning after 120 real
 #               turns had failed, because it sent a fifteen-token prompt where a lesson
@@ -9634,8 +9641,19 @@ def admin_seat_check(provider: str = "", model: str = "", effort: str = "",
             messages=[{"role": "user", "content": "What is 2 plus 2?"}])
         text = "".join(b.text for b in resp.content
                        if getattr(b, "type", None) == "text")
+        # (qk) THE TOKENS, so a SECOND press proves whether the prefix cache is warm.
+        # 21.9s on the first real-size DeepSeek call is a COLD 46k prompt; if the
+        # cache works, the next identical call is far cheaper and faster, and that
+        # difference decides whether this seat can teach a child at all.
+        tk = {}
+        try:
+            tutor._add_usage(tk, resp)
+        except Exception:  # noqa: BLE001 -- counts are a bonus, never a failure
+            tk = {}
         out.update(reached=True, ok=bool(text.strip()), reply=text.strip()[:200],
-                   seconds=round(time.time() - t0, 2))
+                   seconds=round(time.time() - t0, 2),
+                   tokens_in=tk.get("in", 0), tokens_out=tk.get("out", 0),
+                   tokens_cached=tk.get("cr", 0))
         if out["ok"]:
             out["verdict"] = (
                 f"{want}/{use_model} answered in {out['seconds']}s with a "
@@ -9644,6 +9662,25 @@ def admin_seat_check(provider: str = "", model: str = "", effort: str = "",
                    if big else
                    "⚠️ This was a TINY prompt. A real turn sends ~185,000 characters "
                    "-- press the lesson-size test before trusting the seat."))
+            # (qk) ⭐ WORKING IS NOT THE SAME AS USABLE. Build ny measured a whole
+            # Sonnet turn at ~16s, of which 12.3s is the teaching call, and Jim
+            # already called that slow. A turn can spend this TWICE MORE
+            # (MATHCHECK_MAX_ATTEMPTS = 3) before a child sees a word, plus the
+            # critic seat if one is filled. So the seconds below are a floor, not
+            # an estimate -- and a seat that passes can still be unfit to teach.
+            if big and out["seconds"] > 12:
+                worst = round(out["seconds"] * tutor.MATHCHECK_MAX_ATTEMPTS, 1)
+                out["remedy"] = (
+                    f"⚠️ TOO SLOW TO TEACH AS IT STANDS. {out['seconds']}s is one "
+                    f"call; a refereed turn may make up to {tutor.MATHCHECK_MAX_ATTEMPTS} "
+                    f"(~{worst}s) before the child sees anything, and Sonnet's whole "
+                    "turn is ~16s. Press this button AGAIN -- if 'cached' jumps and "
+                    "the seconds fall, the first call was just a cold prefix. If it "
+                    "stays this slow, try thinking off, or the flash model.")
+            elif big:
+                out["remedy"] = (f"{out['seconds']}s for one call, against ~12.3s for "
+                                 "the Sonnet baseline. Press again to see the cached "
+                                 "figure.")
         else:
             out["error"] = "the seat answered with EMPTY text"
             out["verdict"] = f"{want}/{use_model} replied, but said nothing."
@@ -12807,7 +12844,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30qj-the-size-of-a-real-turn"
+APP_BUILD = "2026-08-30qk-working-is-not-usable"
 
 
 @app.get("/health")

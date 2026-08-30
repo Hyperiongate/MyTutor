@@ -298,6 +298,11 @@
   admin.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+      ① 2026-08-30 (build qk) the seat card reports TOKENS (in / cached / out) and two
+         more real-size buttons: thinking OFF, and the flash model. DeepSeek answered a
+         real lesson prompt in 21.9s -- it works, but that is nearly double Sonnet's
+         12.3s teaching call, and a refereed turn can spend it three times. Working is
+         not the same as usable, and the card now says so.
       ① 2026-08-30 (build qj) the Brain seat card gains REAL-LESSON-SIZE buttons. The
          qi probe asked a fifteen-token question and reported "this seat works" while
          every real turn had been failing; size=lesson sends the actual system prompt
@@ -742,6 +747,9 @@
       <br>
       <button class="btn" id="seatDSbig" type="button" style="margin-top:8px">&#9888;&#65039; Test DeepSeek at REAL lesson size</button>
       <button class="btn" id="seatAnthBig" type="button" style="margin-top:8px">Test Anthropic at REAL lesson size</button>
+      <br>
+      <button class="btn" id="seatDSbigOff" type="button" style="margin-top:8px">Test DeepSeek at REAL size, thinking OFF</button>
+      <button class="btn" id="seatDSflash" type="button" style="margin-top:8px">Test DeepSeek FLASH at REAL size</button>
     </div>
     <div class="note" id="seatLine">The live seat is shown on /health as <b>brain</b>.</div>
     <div id="seatOut" style="margin-top:8px"></div>
@@ -750,6 +758,11 @@
       whole ~46,000-token prompt. On 2026-08-30 the small probe said &ldquo;this seat
       works&rdquo; on the morning after every real turn had failed all night &mdash; a
       check that does not reproduce a real turn cannot vouch for one.<br><br>
+      <b>Press a real-size test TWICE.</b> The first call pays for a cold 46,000-token
+      prefix; the second should hit the vendor's cache &mdash; watch <i>cached</i> rise
+      and the seconds fall. A seat that answers slowly still cannot teach: a refereed
+      turn can spend that time up to three times before the student sees a word, and
+      the Sonnet baseline for a whole turn is about sixteen seconds.<br><br>
       The other line that matters is <b>reached</b>:
       <i>never reached</i> means the request never got out of this service (network,
       proxy, DNS, region) &mdash; the model name and the key are innocent. <i>Reached</i>
@@ -1621,7 +1634,10 @@
                   "reached the vendor: <b>" + (d.reached ? "yes" : "NO") + "</b>"
                     + (d.seconds ? " \u00b7 " + esc(String(d.seconds)) + "s" : "")
                     + (d.prompt_chars ? " \u00b7 prompt " + esc(String(d.prompt_chars))
-                                        + " chars" : "")];
+                                        + " chars" : "")
+                    + (d.tokens_in ? " \u00b7 in " + esc(String(d.tokens_in))
+                                     + " (cached " + esc(String(d.tokens_cached || 0))
+                                     + ")" : "")];
       if (d.verdict) rows.push(esc(d.verdict));
       if (d.reply) rows.push("it said: \u201c" + esc(d.reply) + "\u201d");
       if (d.error) rows.push("<code>" + esc(d.error) + "</code>");
@@ -1646,6 +1662,13 @@
     seatCheck("provider=deepseek&size=lesson", "DeepSeek with a REAL lesson prompt"); });
   $("seatAnthBig").addEventListener("click", function () {
     seatCheck("provider=anthropic&size=lesson", "Anthropic with a REAL lesson prompt"); });
+  // (qk) the two that decide whether DeepSeek can teach a child, not merely answer
+  $("seatDSbigOff").addEventListener("click", function () {
+    seatCheck("provider=deepseek&size=lesson&effort=off",
+              "DeepSeek, real prompt, thinking off"); });
+  $("seatDSflash").addEventListener("click", function () {
+    seatCheck("provider=deepseek&size=lesson&model=deepseek-v4-flash",
+              "DeepSeek Flash, real prompt"); });
 
   $("fgDevice").addEventListener("click", function () {
     try {

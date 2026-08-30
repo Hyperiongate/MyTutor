@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qk -- PART 3go: working is not usable. DeepSeek answered a REAL
+#               lesson prompt in 21.9s -- clearing the outage of every remaining suspect,
+#               and nearly doubling Sonnet's 12.3s teaching call. seat-check now reports
+#               tokens (so a second press shows the cache), warns when a real-size seat
+#               is too slow to teach, and the card gains thinking-off and flash buttons.
 #   2026-08-30  BUILD qj -- PART 3gn: a check the size of the thing it checks. qi's probe
 #               reported "this seat works" on the morning after 120 real turns had
 #               failed, because it sent fifteen tokens where a lesson sends ~46,000.
@@ -14795,6 +14800,84 @@ def part3gn_a_check_the_size_of_the_thing_it_checks():
           "cannot vouch for one" in adm, "")
 
 
+def part3go_working_is_not_usable():
+    """PART 3go (build qk, 2026-08-30) -- 21.9 SECONDS.
+
+    Build qj's real-size button, pressed:
+
+        ✅ deepseek/deepseek-v4-pro (thinking low) — REAL lesson prompt
+        reached the vendor: yes · 21.91s · prompt 185,259 chars
+        it said: "Welcome to Pre-Algebra, Seat Check! ..."
+
+    The seat WORKS on a real teaching turn. Two things follow, and they point in
+    opposite directions.
+
+    ⭐ (1) IT CLEARS THE OUTAGE OF EVERY REMAINING SUSPECT. Model name, key, URL,
+    thinking parameters, Render's network, the 190 KB body, the cached-block shape --
+    all fine, all proved at full size. And the arithmetic says the failures were not
+    slow: the watch runs its lessons SERIALLY (no pool anywhere in nightwatch.py), so
+    452.4s over 120 turns is 3.8s per failed turn, against 21.9s for a call that
+    succeeds. Those turns never made a 21.9-second call; they died almost at once.
+    Whatever happened on 2026-08-30 was fast and total, and its words are still in
+    system_events under kind="failopen".
+
+    ⚠️ (2) WORKING IS NOT USABLE. Build ny measured a whole Sonnet turn at ~16s, of
+    which 12.3s is the teaching call -- and Jim already called that slow. One DeepSeek
+    call at full size is 21.9s: nearly DOUBLE the teaching call it replaces. And a turn
+    is not one call. MATHCHECK_MAX_ATTEMPTS is 3, so a refereed turn may spend that
+    twice more before the child sees a word, plus the critic seat if one is filled.
+    A seat can pass every check in this file and still be unfit to sit in front of a
+    child, so the check now says so in the same breath as "it works".
+
+    The 21.9s may also be a COLD 46k prefix -- DeepSeek caches automatically, and the
+    second identical call should be far cheaper. That is why the tokens are reported
+    and why the card asks for a second press: it is the difference between "this seat
+    is too slow" and "this seat's first turn is slow", which are different products.
+    """
+    print("\nPART 3go — working is not usable (build qk)")
+    import tutor as _t
+    here = os.path.dirname(os.path.abspath(__file__))
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    ep = msrc.split('@app.get("/api/admin/seat-check")')[1]
+    ep = ep[:ep.index("@app.get(")] if "@app.get(" in ep else ep
+
+    check("⭐ a successful seat check reports the TOKENS, cached ones included",
+          'tokens_cached=tk.get("cr", 0)' in ep and "tutor._add_usage(tk, resp)" in ep,
+          "without the cached figure a second press proves nothing")
+    check("  ...and a token-count failure never fails the check",
+          "counts are a bonus, never a failure" in ep, "")
+    check("⭐ a real-size seat that answers SLOWLY is called out, not congratulated",
+          "TOO SLOW TO TEACH AS IT STANDS" in ep and 'out["seconds"] > 12' in ep, "")
+    check("  ...and the warning does the retry arithmetic from the REAL constant",
+          "tutor.MATHCHECK_MAX_ATTEMPTS" in ep and _t.MATHCHECK_MAX_ATTEMPTS == 3, "")
+    check("  ...and names the Sonnet baseline it is being measured against",
+          "12.3s" in ep and "~16s" in ep, "")
+    check("  ...and asks for the SECOND press, which is the cold-cache question",
+          "Press this button AGAIN" in ep and "cold prefix" in ep, "")
+    check("  a fast real-size seat is still told what it beat",
+          "against ~12.3s for" in ep, "")
+
+    adm = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    check("⭐ the two buttons that decide it: real size with thinking OFF, and flash",
+          'id="seatDSbigOff"' in adm and 'id="seatDSflash"' in adm
+          and "size=lesson&effort=off" in adm
+          and "size=lesson&model=deepseek-v4-flash" in adm, "")
+    check("  ...the card shows in/cached tokens on every result",
+          '" \\u00b7 in "' in adm and '"(cached "' in adm or "cached " in adm, "")
+    check("  ...and tells the reader to press twice, and why",
+          "Press a real-size test TWICE" in adm and "cold 46,000-token" in adm, "")
+    check("  ...and that answering is not the same as being able to teach",
+          "still cannot teach" in adm, "")
+
+    # the arithmetic that cleared the outage of the slow-call theory
+    nsrc = open(os.path.join(here, "nightwatch.py"), encoding="utf-8").read()
+    check("⭐ the watch runs its lessons SERIALLY -- so 452s/120 turns really is 3.8s each",
+          "ThreadPool" not in nsrc and "concurrent.futures" not in nsrc
+          and "executor" not in nsrc.lower(),
+          "if the watch ever runs lessons in parallel, the per-turn arithmetic in "
+          "PART 3go and Build_qk's reasoning is WRONG and must be redone")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -17722,7 +17805,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,535</b>" in page,
+          "<b>7,547</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -26227,6 +26310,7 @@ def main():
     part3gl_the_seat_hands_the_class_back()
     part3gm_reached_or_refused()
     part3gn_a_check_the_size_of_the_thing_it_checks()
+    part3go_working_is_not_usable()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
