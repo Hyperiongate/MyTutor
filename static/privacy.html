@@ -5,6 +5,15 @@
   privacy.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-29  A FOURTH PROCESSOR (build qg, Jim: "going forward from right now until I
+    say different, we're gonna use DeepSeek instead of Opus"). The processors paragraph now
+    names DeepSeek FIRST as the AI that generates the tutoring, says plainly that it is based
+    in China and processes and stores data in the People's Republic of China (its own
+    privacy policy's words), and keeps Anthropic as the switchable second provider and
+    reviewer. "Last updated" bumped to August 29, 2026. ⚖️ STILL DRAFT -- Jim is taking this
+    revision to counsel; the code gate in tutor.py (_deepseek_teaching_allowed) refuses to
+    send a real lesson to DeepSeek unless THIS page names it, so page and product cannot
+    disagree.
   - 2026-08-07  VOICE INPUT RESTORED (build ao, Jim). This page previously leaned on the
     mic-free design ("your child's microphone is never used"). Now the truth is: the student
     TALKS with the tutor; speech is sent to ElevenLabs for transcription, the text comes
@@ -72,7 +81,7 @@
       Questions in the meantime? Email <a href="mailto:support@mrcadabra.com">support@mrcadabra.com</a>.</div>
 
     <h1>Parents &amp; Privacy</h1>
-    <p class="sub">Plain language, because you're trusting us with your kid. Last updated August 7, 2026.</p>
+    <p class="sub">Plain language, because you're trusting us with your kid. Last updated August 29, 2026.</p>
 
     <h2>The short version</h2>
     <p>Mr. Cadabra's Classroom is a math tutor, not a data business. We collect the minimum needed to teach and to
@@ -99,8 +108,13 @@
     elementary courses answer by tapping buttons.</p>
 
     <h2>Who processes data on our behalf</h2>
-    <p>Three service providers make Mr. Cadabra's Classroom work, and each receives only what its job requires:
-    <b>Anthropic</b> (the AI that generates the tutoring — it receives the typed conversation),
+    <p>Four service providers make Mr. Cadabra's Classroom work, and each receives only what its job requires:
+    <b>DeepSeek</b> (the AI that generates the tutoring — it receives the conversation as text: the
+    student's first name as entered, what they said or typed, and the tutor's replies. DeepSeek is
+    based in China and, by its own policy, processes and stores the data it receives in the People's
+    Republic of China),
+    <b>Anthropic</b> (a second AI provider we can switch the tutoring to, and which reviews some
+    replies before a student sees them — it receives the same conversation text),
     <b>ElevenLabs</b> (turns the tutor's <i>own</i> reply text into speech, and transcribes your
     child's spoken answers to text — the audio is deleted right after transcription), and
     <b>Render</b> (hosts the app and its database). We do not send student data to anyone else,

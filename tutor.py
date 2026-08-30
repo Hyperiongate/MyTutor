@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qg -- THE DEEPSEEK BRAIN. Jim: "we're gonna use DeepSeek instead of
+#               Opus ... until I say different." TUTOR_PROVIDER=deepseek seats DeepSeek
+#               (deepseek-v4-pro; DEEPSEEK_REASONING_EFFORT off|low|high|max, default
+#               low) on _OpenAIBrain, now an OpenAI-COMPATIBLE adapter (url, extra body,
+#               vendor). The critic seat can sit there too (thinking off). Every referee,
+#               nudge and usage line is untouched. THE LAW: _deepseek_teaching_allowed
+#               reads static/privacy.html -- no DeepSeek named on the page, no DeepSeek
+#               seat (loud fallback, privacy_gate event), because DeepSeek stores data in
+#               the People's Republic of China and parents were promised a named list.
+#               active_brain() reports the live seat to /health and /admin. PART 3gk.
 #   2026-08-29  BUILD qf -- TWO THOUGHTS ON ONE LINE (the SIXTY-FOURTH referee). Jim's
 #               screenshot: "4x² + 3x² = 7x²   4x² + 7x stays as it is" -- "more than one
 #               idea on a line." board_two_thoughts_conflict: a board line that
@@ -2227,6 +2237,105 @@ def _openai_teaching_allowed() -> str:
     return ("the OpenAI seat is honored only inside the offline audit "
             "(synthetic students). Real lessons stay on the three processors "
             "privacy.html names -- see OpenAI_Data_Sharing_Decision_2026-08-17.")
+
+
+# =============================================================================
+# BUILD qg (2026-08-29) -- THE DEEPSEEK BRAIN. Jim's ruling: "We're spending a lot
+# of money on the brain in this app. And from what I'm getting from you, it's not
+# really the brain that's the problem. It's the rules. Going forward from right now
+# until I say different, we're gonna use DeepSeek instead of Opus."
+#
+# The seat machinery from build iu carries it: TUTOR_PROVIDER=deepseek puts the
+# same OpenAI-compatible adapter (_OpenAIBrain) on DeepSeek's endpoint, and every
+# referee, nudge, retry and usage line downstream is untouched -- they judge text,
+# not vendors. What is NEW is the thinking switch and the privacy gate.
+#
+#   TUTOR_PROVIDER=deepseek           the seat
+#   DEEPSEEK_API_KEY                  the key (Jim set it on Render 2026-08-29)
+#   DEEPSEEK_TUTOR_MODEL              default deepseek-v4-pro (the most capable)
+#   DEEPSEEK_REASONING_EFFORT         off | low | high | max -- default LOW (Jim's
+#                                     pick: the top model, faster turns). Thinking
+#                                     adds seconds per turn; dial it from Render.
+#   LIVE_CRITIC=deepseek              the second-opinion seat on DeepSeek too
+#                                     (LIVE_CRITIC_MODEL, default deepseek-v4-flash,
+#                                     thinking OFF -- a critic must be quick)
+#
+# ⚠️ THE PRIVACY GATE, same law as OpenAI's (build gq, PART 3al): a child's words
+# may only go to a processor static/privacy.html NAMES. DeepSeek's own policy says
+# it stores and processes personal data in the People's Republic of China and that
+# its services "are not aimed at children" -- so the page must say who and where
+# BEFORE a real lesson goes there. The gate reads the shipped page itself: if
+# privacy.html does not name DeepSeek, the seat falls back to Anthropic LOUDLY
+# (privacy_gate event), exactly as a mis-set OpenAI seat does. The audit's
+# synthetic students are allowed either way. Jim's decision, 2026-08-29: update
+# the page now, attorney re-read on his side (decision record: the 2026-08-17 doc).
+# =============================================================================
+DEFAULT_DEEPSEEK_TUTOR_MODEL = "deepseek-v4-pro"
+DEFAULT_DEEPSEEK_CRITIC_MODEL = "deepseek-v4-flash"
+DEEPSEEK_URL = "https://api.deepseek.com/chat/completions"
+_DEEPSEEK_EFFORTS = ("off", "low", "high", "max")
+
+
+def _privacy_page_names(who: str) -> bool:
+    """True when the SHIPPED privacy page names this processor. Read from disk each
+    time (cheap, and a deploy that changes the page changes the answer). Fails
+    CLOSED: an unreadable page names nobody."""
+    try:
+        here = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(here, "static", "privacy.html"), encoding="utf-8") as fh:
+            return who.lower() in fh.read().lower()
+    except Exception:  # noqa: BLE001 -- no page, no permission
+        return False
+
+
+def _deepseek_teaching_allowed() -> str:
+    """"" when the DeepSeek seat may teach, else the reason it may not."""
+    if os.environ.get("AUDIT_SYNTHETIC_STUDENTS") == "1":
+        return ""
+    if _privacy_page_names("DeepSeek"):
+        return ""
+    return ("the DeepSeek seat is honored only when static/privacy.html names DeepSeek "
+            "as a processor (it stores data in the People's Republic of China, and "
+            "parents were promised a named list). Update the page first.")
+
+
+def deepseek_effort() -> str:
+    """The configured thinking effort: off | low | high | max. Unknown -> low."""
+    e = (os.environ.get("DEEPSEEK_REASONING_EFFORT", "low") or "low").strip().lower()
+    return e if e in _DEEPSEEK_EFFORTS else "low"
+
+
+def deepseek_extra(effort: str) -> dict:
+    """The request-body fields that switch DeepSeek's thinking mode (their docs:
+    thinking.type enabled|disabled, reasoning_effort low|high|max). Thinking mode
+    rejects temperature/top_p, which this pipeline never sends."""
+    if effort == "off":
+        return {"thinking": {"type": "disabled"}}
+    return {"thinking": {"type": "enabled"}, "reasoning_effort": effort}
+
+
+def active_brain() -> dict:
+    """Who is teaching right now, for /health and /admin: provider, model, effort,
+    and -- when a configured seat is refused -- the reason it fell back."""
+    provider = (os.environ.get("TUTOR_PROVIDER", "anthropic") or "anthropic").strip().lower()
+    out = {"configured": provider, "provider": "anthropic",
+           "model": os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL), "effort": "", "gated": ""}
+    if provider == "deepseek":
+        blocked = _deepseek_teaching_allowed()
+        if blocked or not os.environ.get("DEEPSEEK_API_KEY"):
+            out["gated"] = blocked or "no DEEPSEEK_API_KEY"
+        else:
+            out.update(provider="deepseek",
+                       model=os.environ.get("DEEPSEEK_TUTOR_MODEL", DEFAULT_DEEPSEEK_TUTOR_MODEL),
+                       effort=deepseek_effort())
+    elif provider == "openai":
+        blocked = _openai_teaching_allowed()
+        if blocked or not os.environ.get("OPENAI_API_KEY"):
+            out["gated"] = blocked or "no OPENAI_API_KEY"
+        else:
+            out.update(provider="openai",
+                       model=os.environ.get("OPENAI_TUTOR_MODEL", DEFAULT_OPENAI_TUTOR_MODEL))
+    return out
 
 # BUILD ht (2026-08-18, Phase 5 -- review Class F): THE UPSTREAM CALL IS BOUNDED.
 # The SDK's default timeout is ~10 minutes, and a hung upstream used to freeze a
@@ -8428,7 +8537,7 @@ def _live_critic_seat():
     p = (os.environ.get("LIVE_CRITIC", "off") or "off").strip().lower()
     if p in ("", "off", "0", "none", "false"):
         return None, None
-    if p not in ("anthropic", "openai"):
+    if p not in ("anthropic", "openai", "deepseek"):
         print(f"[livecritic] unknown LIVE_CRITIC={p!r} -- the seat stays empty")
         return None, None
     if p == "openai":
@@ -8438,7 +8547,13 @@ def _live_critic_seat():
         if _blocked:
             print(f"[livecritic] LIVE_CRITIC=openai REFUSED: {_blocked}")
             return None, None
-    default = DEFAULT_MODEL if p == "anthropic" else DEFAULT_OPENAI_TUTOR_MODEL
+    if p == "deepseek":
+        _blocked = _deepseek_teaching_allowed()          # (qg) same law
+        if _blocked:
+            print(f"[livecritic] LIVE_CRITIC=deepseek REFUSED: {_blocked}")
+            return None, None
+    default = {"anthropic": DEFAULT_MODEL, "openai": DEFAULT_OPENAI_TUTOR_MODEL,
+               "deepseek": DEFAULT_DEEPSEEK_CRITIC_MODEL}[p]
     return p, (os.environ.get("LIVE_CRITIC_MODEL", "") or default)
 
 
@@ -8504,8 +8619,8 @@ def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None,
         # main model takes the seat so the second opinion NEVER silently empties.
         if _CRITIC_MODEL_FALLBACK["bad"] == model:
             model = DEFAULT_MODEL
-        key = os.environ.get("OPENAI_API_KEY" if provider == "openai"
-                             else "ANTHROPIC_API_KEY")
+        key = os.environ.get({"openai": "OPENAI_API_KEY", "deepseek": "DEEPSEEK_API_KEY"}
+                             .get(provider, "ANTHROPIC_API_KEY"))
         if not key:
             print(f"[livecritic]{log_prefix} seat is set but the {provider} key "
                   "is missing -- fail open")
@@ -8518,8 +8633,12 @@ def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None,
         user = (f"CONVERSATION (most recent turns):\n\n{convo}\n\n=====\n\n"
                 f"THE TUTOR'S DRAFT REPLY (the student has NOT seen it yet):\n\n{reply}")
         prefixed = False
-        if provider == "openai":
-            resp = _OpenAIBrain(key).create(
+        if provider in ("openai", "deepseek"):
+            # (qg) a DeepSeek critic thinks with the effort OFF: a second opinion
+            # must be quick, and the referees around it are the deliberation.
+            brain = (deepseek_brain(key, effort="off") if provider == "deepseek"
+                     else _OpenAIBrain(key))
+            resp = brain.create(
                 model=model, max_tokens=500, system=_CRITIC_SYSTEM,
                 messages=[{"role": "user", "content": user}])
         else:
@@ -9062,8 +9181,12 @@ class _OaiUsage:
         self.input_tokens = int(u.get("prompt_tokens", 0) or 0)
         self.output_tokens = int(u.get("completion_tokens", 0) or 0)
         det = u.get("prompt_tokens_details") or {}
-        self.cache_read_input_tokens = int(det.get("cached_tokens", 0) or 0)
-        self.cache_creation_input_tokens = 0   # OpenAI's prefix cache has no write step
+        # (qg) DeepSeek reports its prefix cache as prompt_cache_hit_tokens (top
+        # level); OpenAI as prompt_tokens_details.cached_tokens. Either counts as a
+        # cache read, so the /admin cached-in tile stays honest on both seats.
+        self.cache_read_input_tokens = int(det.get("cached_tokens", 0)
+                                           or u.get("prompt_cache_hit_tokens", 0) or 0)
+        self.cache_creation_input_tokens = 0   # neither prefix cache has a write step
 
 
 class _OaiBlock:
@@ -9082,10 +9205,18 @@ class _OaiResponse:
 
 
 class _OpenAIBrain:
-    """Duck-typed stand-in for the Anthropic client: brain.messages.create(...)."""
+    """Duck-typed stand-in for the Anthropic client: brain.messages.create(...).
 
-    def __init__(self, api_key):
+    (qg) Now an OpenAI-COMPATIBLE adapter: `url` is the chat-completions endpoint
+    (OpenAI's by default; DeepSeek's for the DeepSeek seat), `extra` is merged into
+    every request body (DeepSeek's thinking switch), and `vendor` names the far end
+    in log lines and errors so a DeepSeek failure never reads as an OpenAI one."""
+
+    def __init__(self, api_key, url=None, extra=None, vendor="OpenAI"):
         self.api_key = api_key
+        self.url = url or _OAI_URL
+        self.extra = dict(extra or {})
+        self.vendor = vendor
         self.messages = self          # so client.messages.create resolves here
 
     def create(self, model, max_tokens, system, messages, _retry=True):
@@ -9102,11 +9233,15 @@ class _OpenAIBrain:
         convo = [{"role": "system", "content": sys_text}] + [
             {"role": m.get("role", "user"), "content": str(m.get("content", ""))}
             for m in (messages or [])]
-        body = {"model": model, "messages": convo, _OAI_TOKEN_PARAM: max_tokens}
+        # (qg) DeepSeek speaks plain max_tokens; OpenAI's learned parameter name is
+        # for OpenAI. The vendor's own 400 still teaches the switch below.
+        tok_param = "max_tokens" if self.vendor != "OpenAI" else _OAI_TOKEN_PARAM
+        body = {"model": model, "messages": convo, tok_param: max_tokens}
+        body.update(self.extra)
         last_exc = None
         for _attempt in (1, 2):
             try:
-                r = httpx.post(_OAI_URL, json=body,
+                r = httpx.post(self.url, json=body,
                                timeout=httpx.Timeout(connect=15.0, read=120.0,
                                                      write=60.0, pool=15.0),
                                headers={"Authorization": f"Bearer {self.api_key}"})
@@ -9115,10 +9250,10 @@ class _OpenAIBrain:
             except Exception as exc:  # noqa: BLE001
                 last_exc = exc
                 if _attempt == 1:
-                    print(f"[tutor] openai transport error ({exc}); retrying once in 2s")
+                    print(f"[tutor] {self.vendor} transport error ({exc}); retrying once in 2s")
                     time.sleep(2)
         if last_exc is not None:
-            raise RuntimeError(f"could not reach OpenAI after a retry: {last_exc}")
+            raise RuntimeError(f"could not reach {self.vendor} after a retry: {last_exc}")
         if r.status_code == 200:
             choice = r.json()["choices"][0]
             content = choice.get("message", {}).get("content") or ""
@@ -9127,7 +9262,7 @@ class _OpenAIBrain:
             # finish_reason "length") -- give it room once, like the audit does.
             if _retry and not content.strip() and finish == "length":
                 roomy = max(max_tokens * 4, max_tokens + 3000)
-                print(f"[tutor] openai spent the budget reasoning; retrying with {roomy} tokens")
+                print(f"[tutor] {self.vendor} spent the budget reasoning; retrying with {roomy} tokens")
                 return self.create(model, roomy, system, messages, _retry=False)
             return _OaiResponse(content, finish, r.json().get("usage"))
         detail = ""
@@ -9152,7 +9287,15 @@ class _OpenAIBrain:
                 "ORGANISATION VERIFICATION -- platform.openai.com -> Settings -> "
                 "Organization -> Verify. Until then set OPENAI_TUTOR_MODEL to a "
                 "model this key reaches (the audit's dry run lists them).")
-        raise RuntimeError(f"OpenAI {r.status_code}: {detail}")
+        raise RuntimeError(f"{self.vendor} {r.status_code}: {detail}")
+
+
+def deepseek_brain(api_key, effort=None):
+    """The DeepSeek seat: the same adapter on DeepSeek's endpoint, thinking set by
+    DEEPSEEK_REASONING_EFFORT (or the effort given)."""
+    return _OpenAIBrain(api_key, url=DEEPSEEK_URL,
+                        extra=deepseek_extra(effort or deepseek_effort()),
+                        vendor="DeepSeek")
 
 
 _PREFILL_OK: dict = {}    # model name -> False once the API has refused prefill once
@@ -9551,6 +9694,14 @@ def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
             _event("privacy_gate", "tutor_provider", _blocked,
                    (meta or {}).get("code", ""), (meta or {}).get("course", ""))
             provider = "anthropic"
+    if provider == "deepseek":
+        # (qg) the same gate, the same loud fallback -- see _deepseek_teaching_allowed
+        _blocked = _deepseek_teaching_allowed()
+        if _blocked:
+            print(f"[tutor] TUTOR_PROVIDER=deepseek REFUSED: {_blocked}")
+            _event("privacy_gate", "tutor_provider", _blocked,
+                   (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+            provider = "anthropic"
     if provider == "openai":
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
@@ -9558,6 +9709,13 @@ def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
                     "OPENAI_API_KEY in the environment. Add it in Render, or "
                     "remove TUTOR_PROVIDER to use the Anthropic brain.)")
         model = os.environ.get("OPENAI_TUTOR_MODEL", DEFAULT_OPENAI_TUTOR_MODEL)
+    elif provider == "deepseek":
+        api_key = os.environ.get("DEEPSEEK_API_KEY")
+        if not api_key:
+            return ("(Setup needed: TUTOR_PROVIDER is 'deepseek' but there is no "
+                    "DEEPSEEK_API_KEY in the environment. Add it in Render, or "
+                    "remove TUTOR_PROVIDER to use the Anthropic brain.)")
+        model = os.environ.get("DEEPSEEK_TUTOR_MODEL", DEFAULT_DEEPSEEK_TUTOR_MODEL)
     else:
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
@@ -9572,6 +9730,7 @@ def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
 
     try:
         client = (_OpenAIBrain(api_key) if provider == "openai"
+                  else deepseek_brain(api_key) if provider == "deepseek"
                   else Anthropic(api_key=api_key, timeout=ANTHROPIC_TIMEOUT_S, max_retries=1))
         # MATH VERIFIER (2026-08-03): the reply is generated AND refereed in here --
         # see _create_verified above. Same model, same prompt, same max_tokens.

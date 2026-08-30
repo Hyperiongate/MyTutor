@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qg -- PART 3gk: the DeepSeek seat. TUTOR_PROVIDER=deepseek on the
+#               OpenAI-compatible adapter (url/extra/vendor), thinking effort from env
+#               (default low), the privacy gate proved BOTH ways by mutating the page
+#               it reads, the critic seat, and /health reporting the live seat.
 #   2026-08-29  BUILD qf -- PART 3gj: one thought per line, in the boards. The 64th
 #               referee (board_two_thoughts_conflict); its canon sweep found Jim's
 #               screenshot line in the algebra1 like-terms FOUNDATION card and three
@@ -14242,6 +14246,186 @@ def part3gj_one_thought_per_line_in_the_boards():
           '<span class="orr">' in b, "")
 
 
+def part3gk_the_deepseek_seat():
+    """PART 3gk (build qg, 2026-08-29) -- THE DEEPSEEK BRAIN, AND THE LAW IT SITS UNDER.
+
+    Jim: "We're spending a lot of money on the brain in this app. And from what I'm
+    getting from you, it's not really the brain that's the problem. It's the rules.
+    Going forward from right now until I say different, we're gonna use DeepSeek
+    instead of Opus." He had already put DEEPSEEK_API_KEY on Render.
+
+    ⭐ THE SEAT. build iu made the brain pluggable (TUTOR_PROVIDER, _OpenAIBrain);
+    build qg makes the adapter OpenAI-COMPATIBLE (url, extra body, vendor name) and
+    seats DeepSeek on it: model deepseek-v4-pro by default (the most capable), with
+    DeepSeek's thinking switch driven by DEEPSEEK_REASONING_EFFORT -- off | low |
+    high | max, default LOW (Jim's pick: top model, faster turns). Their docs: thinking
+    is enabled by body.thinking.type = "enabled" plus reasoning_effort, and thinking
+    mode rejects temperature/top_p (never sent). reasoning_content in the reply is
+    ignored (their docs: ignored without tools). Prefill is refused with the words
+    _create_full already negotiates on. Cache hits (prompt_cache_hit_tokens) count as
+    cache reads. The critic seat can sit on DeepSeek too, thinking OFF.
+
+    ⚠️ THE LAW. A child's words go only to a processor static/privacy.html NAMES
+    (build gq's boundary, PART 3al). DeepSeek's own policy: data is processed and
+    stored in the People's Republic of China; the service "is not aimed at children".
+    So _deepseek_teaching_allowed reads the SHIPPED page: no DeepSeek on the page, no
+    DeepSeek seat -- a loud fallback to Anthropic with a privacy_gate event, exactly
+    as a mis-set OpenAI seat does. The page was updated in this build (Jim's decision;
+    counsel re-read on his side, per the 2026-08-17 decision record), so page and
+    product cannot disagree. Proved in BOTH directions below by mutating the page
+    the gate reads.
+    """
+    print("\nPART 3gk — the DeepSeek seat (build qg)")
+    import tutor as _t
+    here = os.path.dirname(os.path.abspath(__file__))
+    tsrc = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+
+    # ---- defaults and the effort switch ----
+    check("⭐ the DeepSeek tutor model defaults to the most capable: deepseek-v4-pro",
+          _t.DEFAULT_DEEPSEEK_TUTOR_MODEL == "deepseek-v4-pro", _t.DEFAULT_DEEPSEEK_TUTOR_MODEL)
+    check("  the endpoint is DeepSeek's OpenAI-compatible chat completions",
+          _t.DEEPSEEK_URL == "https://api.deepseek.com/chat/completions", _t.DEEPSEEK_URL)
+    saved = {k: os.environ.get(k) for k in ("TUTOR_PROVIDER", "DEEPSEEK_API_KEY",
+                                            "DEEPSEEK_REASONING_EFFORT", "DEEPSEEK_TUTOR_MODEL",
+                                            "LIVE_CRITIC", "LIVE_CRITIC_MODEL",
+                                            "AUDIT_SYNTHETIC_STUDENTS")}
+    def _restore():
+        for k, v in saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+    try:
+        os.environ.pop("DEEPSEEK_REASONING_EFFORT", None)
+        check("⭐ thinking effort defaults to LOW (Jim's pick)", _t.deepseek_effort() == "low", "")
+        os.environ["DEEPSEEK_REASONING_EFFORT"] = "MAX"
+        check("  ...and reads the env, case-insensitively", _t.deepseek_effort() == "max", "")
+        os.environ["DEEPSEEK_REASONING_EFFORT"] = "banana"
+        check("  ...and an unknown effort falls back to low, never crashes",
+              _t.deepseek_effort() == "low", "")
+        check("  the body switch matches DeepSeek's documented shape",
+              _t.deepseek_extra("high") == {"thinking": {"type": "enabled"}, "reasoning_effort": "high"}
+              and _t.deepseek_extra("off") == {"thinking": {"type": "disabled"}}, "")
+
+        # ---- the adapter, with the transport stubbed ----
+        import httpx as _hx
+        sent = {}
+        class _R:
+            status_code = 200
+            def json(self):
+                return {"choices": [{"message": {"content": "Seven. [[step eq=\"3 + 4 = 7\"]]",
+                                                 "reasoning_content": "thinking..."},
+                                     "finish_reason": "stop"}],
+                        "usage": {"prompt_tokens": 120, "completion_tokens": 9,
+                                  "prompt_cache_hit_tokens": 100, "prompt_cache_miss_tokens": 20}}
+        real_post = _hx.post
+        def _fake_post(url, json=None, **kw):
+            sent["url"] = url; sent["body"] = json; sent["headers"] = kw.get("headers")
+            return _R()
+        _hx.post = _fake_post
+        try:
+            os.environ["DEEPSEEK_REASONING_EFFORT"] = "low"
+            b = _t.deepseek_brain("sk-test")
+            resp = b.create(model="deepseek-v4-pro", max_tokens=300, system="be kind",
+                            messages=[{"role": "user", "content": "what is 3 plus 4"}])
+            check("⭐ the request goes to DeepSeek, not OpenAI",
+                  sent.get("url") == _t.DEEPSEEK_URL, sent.get("url"))
+            body = sent.get("body") or {}
+            check("  ...with the thinking switch and effort in the body",
+                  body.get("thinking") == {"type": "enabled"} and body.get("reasoning_effort") == "low",
+                  body)
+            check("  ...plain max_tokens (DeepSeek's parameter), system first, then the turns",
+                  body.get("max_tokens") == 300 and body["messages"][0]["role"] == "system"
+                  and body["messages"][-1]["content"] == "what is 3 plus 4", body)
+            check("  ...and never temperature/top_p (thinking mode rejects them)",
+                  "temperature" not in body and "top_p" not in body, "")
+            check("  the bearer is the DeepSeek key",
+                  (sent.get("headers") or {}).get("Authorization") == "Bearer sk-test", "")
+            check("  the reply wears the Anthropic shape the pipeline reads; reasoning_content is dropped",
+                  resp.content[0].text.startswith("Seven.") and resp.stop_reason == "end_turn"
+                  and "thinking" not in resp.content[0].text, "")
+            tk = {}
+            _t._add_usage(tk, resp)
+            check("  DeepSeek's cache hits count as cache reads (the cached-in tile stays honest)",
+                  tk.get("in") == 120 and tk.get("out") == 9 and tk.get("cr") == 100, tk)
+            try:
+                b.create(model="deepseek-v4-pro", max_tokens=10, system="s",
+                         messages=[{"role": "user", "content": "a"},
+                                   {"role": "assistant", "content": "partial"}])
+                pre_ok = False
+            except Exception as exc:  # noqa: BLE001
+                pre_ok = _t._is_prefill_rejection(exc)
+            check("  prefill is refused with the words _create_full negotiates on", pre_ok, "")
+            # the OpenAI seat is untouched
+            _t._OpenAIBrain("k").create(model="gpt-5.6", max_tokens=5, system="s",
+                                        messages=[{"role": "user", "content": "a"}])
+            check("  DO NO HARM: the OpenAI seat still posts to OpenAI with its own token parameter",
+                  sent["url"] == _t._OAI_URL and "thinking" not in sent["body"]
+                  and (_t._OAI_TOKEN_PARAM in sent["body"]), sent["url"])
+        finally:
+            _hx.post = real_post
+
+        # ---- the law, both directions ----
+        os.environ.pop("AUDIT_SYNTHETIC_STUDENTS", None)
+        check("⭐ the shipped privacy page names DeepSeek, so the seat is ALLOWED",
+              _t._deepseek_teaching_allowed() == "" and _t._privacy_page_names("DeepSeek"),
+              _t._deepseek_teaching_allowed())
+        priv_path = os.path.join(here, "static", "privacy.html")
+        priv = open(priv_path, encoding="utf-8").read()
+        check("  ...and says where the data goes, in plain words",
+              "People's Republic of China" in priv and "DeepSeek" in priv
+              and "Four service providers" in priv, "")
+        check("  ...while the OpenAI boundary's own pin still holds (no OpenAI on the page)",
+              "openai" not in priv.lower(), "")
+        # mutate the page the gate reads: no DeepSeek -> refused, loudly
+        mutated = re.sub(r"(?i)deepseek", "Deep-Seek-Removed", priv)
+        with open(priv_path, "w", encoding="utf-8") as fh:
+            fh.write(mutated)
+        try:
+            refused = _t._deepseek_teaching_allowed()
+            os.environ["TUTOR_PROVIDER"] = "deepseek"; os.environ["DEEPSEEK_API_KEY"] = "sk-x"
+            ab = _t.active_brain()
+            os.environ["AUDIT_SYNTHETIC_STUDENTS"] = "1"
+            synth = _t._deepseek_teaching_allowed()
+        finally:
+            with open(priv_path, "w", encoding="utf-8") as fh:
+                fh.write(priv)
+            os.environ.pop("AUDIT_SYNTHETIC_STUDENTS", None)
+        check("⭐ a page that does not name DeepSeek REFUSES the seat (proved by mutation)",
+              bool(refused) and "privacy.html" in refused, refused)
+        check("  ...and /health would report the fallback and its reason",
+              ab["configured"] == "deepseek" and ab["provider"] == "anthropic"
+              and "privacy.html" in ab["gated"], ab)
+        check("  ...while the audit's synthetic students are allowed either way",
+              synth == "", synth)
+        check("  the pipeline falls back LOUDLY, with the privacy_gate event",
+              'print(f"[tutor] TUTOR_PROVIDER=deepseek REFUSED: {_blocked}")' in tsrc
+              and tsrc.count('_event("privacy_gate", "tutor_provider"') >= 2, "")
+
+        # ---- the live seat report and the critic seat ----
+        os.environ["TUTOR_PROVIDER"] = "deepseek"; os.environ["DEEPSEEK_API_KEY"] = "sk-x"
+        os.environ["DEEPSEEK_REASONING_EFFORT"] = "low"
+        ab = _t.active_brain()
+        check("⭐ with the page updated and the key present, the seat IS DeepSeek",
+              ab["provider"] == "deepseek" and ab["model"] == "deepseek-v4-pro"
+              and ab["effort"] == "low" and not ab["gated"], ab)
+        os.environ["DEEPSEEK_TUTOR_MODEL"] = "deepseek-v4-flash"
+        check("  ...and the model is env-overridable", _t.active_brain()["model"] == "deepseek-v4-flash", "")
+        os.environ["LIVE_CRITIC"] = "deepseek"; os.environ.pop("LIVE_CRITIC_MODEL", None)
+        check("  the critic seat can sit on DeepSeek, defaulting to the flash model",
+              _t._live_critic_seat() == ("deepseek", "deepseek-v4-flash"), _t._live_critic_seat())
+        check("  ...with thinking OFF (a second opinion must be quick)",
+              'deepseek_brain(key, effort="off") if provider == "deepseek"' in tsrc, "")
+        os.environ["TUTOR_PROVIDER"] = "anthropic"
+        check("  DO NO HARM: TUTOR_PROVIDER unset/anthropic is the Anthropic path",
+              _t.active_brain()["provider"] == "anthropic", "")
+    finally:
+        _restore()
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("  /health and /admin report the SEAT that is teaching, not the Anthropic default",
+          msrc.count('tutor.active_brain()["model"]') == 2 and '"brain": tutor.active_brain()' in msrc, "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -17169,7 +17353,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,463</b>" in page,
+          "<b>7,491</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25670,6 +25854,7 @@ def main():
     part3gh_the_bars_are_on_the_board()
     part3gi_the_intervention_teaches_the_problem_that_was_asked()
     part3gj_one_thought_per_line_in_the_boards()
+    part3gk_the_deepseek_seat()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

@@ -2,6 +2,13 @@
 # render.yaml  --  MyTutor  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  BUILD qg -- THE DEEPSEEK BRAIN. New env: DEEPSEEK_API_KEY (Jim set it in the
+#               dashboard), TUTOR_PROVIDER=deepseek, DEEPSEEK_REASONING_EFFORT=low. The
+#               teaching seat -- live turns AND scripted-lane interventions -- moves to
+#               DeepSeek (deepseek-v4-pro); Anthropic is the loud fallback when the seat
+#               is refused, and the critic seat unless LIVE_CRITIC says deepseek.
+#               ⚠️ Blueprint values only apply on a fresh blueprint deploy -- on the LIVE
+#               service Jim sets TUTOR_PROVIDER in the dashboard himself.
 #   2026-08-23  BUILD me -- THE DISK NOW MATCHES THE FINISHED COURSE. This file
 #               still said sizeGB: 1, which was true when it was written and has
 #               not been true for a while -- production runs 5 GB. That mattered
@@ -98,6 +105,14 @@ services:
         sync: false            # any long random string YOU invent; the /admin unlock key (rotated 2026-08-11)
       - key: OPENAI_API_KEY
         sync: false            # the lesson auditor's independent critic (build cw); optional but wanted
+      - key: DEEPSEEK_API_KEY
+        sync: false            # 2026-08-29 (build qg): the DeepSeek brain. Jim set it in the dashboard.
+      - key: TUTOR_PROVIDER
+        value: deepseek        # 2026-08-29 (build qg), Jim: "DeepSeek instead of Opus, until I say
+                               # different". anthropic = the Claude brain (CLAUDE_MODEL above).
+      - key: DEEPSEEK_REASONING_EFFORT
+        value: low             # off | low | high | max -- thinking adds seconds per turn; Jim's pick
+                               # is low. DEEPSEEK_TUTOR_MODEL (default deepseek-v4-pro) also honored.
       - key: DATA_DIR
         value: /var/data       # MUST match the disk mount below: voice cache + nightly DB snapshots
       - key: TTS_CACHE_MAX_MB

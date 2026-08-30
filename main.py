@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-29  APP_BUILD -> "2026-08-29qg-the-deepseek-brain". BUILD qg -- Jim's ruling:
+#               DeepSeek replaces the Anthropic brain (TUTOR_PROVIDER=deepseek on Render).
+#               tutor.py holds the seat and its privacy gate; static/privacy.html names
+#               DeepSeek (and where its data goes); render.yaml documents the env. Here:
+#               /health and /admin report tutor.active_brain() -- the seat actually
+#               teaching -- instead of the CLAUDE_MODEL default.
 #   2026-08-29  APP_BUILD -> "2026-08-29qf-one-thought-per-line". BUILD qf -- Jim's two
 #               Algebra I screenshots: (tutor.py) the 64th referee rejects a board line
 #               that finishes one equation and starts another; (foundations.py) four
@@ -9408,7 +9414,11 @@ def admin_stats_api(key: str = "",
     return {
         "ok": True,
         "build": APP_BUILD,
-        "model": os.environ.get("CLAUDE_MODEL", tutor.DEFAULT_MODEL),
+        # (qg) the brain SEAT, not the Anthropic default: /admin must say who is
+        # actually teaching -- provider, model, thinking effort, and the reason a
+        # configured seat fell back, if it did.
+        "model": tutor.active_brain()["model"],
+        "brain": tutor.active_brain(),
         # build ny (latency deep dive): the SEATS, visible. The critic tile used to
         # hardcode "Opus reads" -- if Jim A/Bs a faster critic model the panel must
         # tell the truth about which model is actually in the seat.
@@ -12629,7 +12639,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-29qf-one-thought-per-line"
+APP_BUILD = "2026-08-29qg-the-deepseek-brain"
 
 
 @app.get("/health")
@@ -12671,7 +12681,8 @@ def health():
         "status": "ok",
         "build": APP_BUILD,
         "students_loaded": len(STUDENTS),
-        "model": os.environ.get("CLAUDE_MODEL", tutor.DEFAULT_MODEL),
+        "model": tutor.active_brain()["model"],      # (qg) the seat that is teaching
+        "brain": tutor.active_brain(),
         "storage": store.status(),
         "subsystems": subsystems,
         "ops": ops,
