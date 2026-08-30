@@ -2,6 +2,31 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30qn-the-parent-reads-the-right-course". BUILD qn --
+#               Jim read the demo student's progress page AS A PARENT and could not
+#               understand it: "how are they doing... only talks about the algebra course,
+#               not the current course they're working on"; "it says my courses, and this is
+#               the parents"; "if I did a little bit of geometry... it should have some way
+#               of indicating that I'm there"; "the parents should be able to go to the site
+#               and see everything and understand everything."
+#               The whole fix is in static/dashboard.html -- NO ENDPOINT CHANGED, because
+#               every number needed was already in the payloads and was being thrown away:
+#                 * THE COURSE. The parent's door (/dashboard?code=..&view=parent) carries no
+#                   &course=, so the page's `params.get("course") || "algebra1"` pinned every
+#                   parent to Algebra I forever. /api/courses/me already returns last_active
+#                   per course; when no course is named the page now lands on the one the
+#                   child most recently worked in. An explicit ?course= still wins, so the
+#                   "My courses" switcher is untouched.
+#                 * THE VOICE. One owner()/subj() helper drives every heading, so "Your
+#                   learning journey" reads "Emma's learning journey" for a grown-up and the
+#                   two voices cannot drift apart again.
+#                 * A TOE IN THE WATER SHOWS. The course strip's bar was units_mastered only;
+#                   units_started (already in the payload) now draws a pale second segment so
+#                   a started-but-not-mastered course stops looking untouched.
+#                 * WHICH NUMBERS COUNT WHAT. store.get_mastery's own docstring calls its
+#                   stats "whole-student": streak, accuracy, problems practiced and minutes
+#                   span EVERY course while "Units mastered" spans one. Each tile now says
+#                   so. No number moved -- they were always this; nothing said it.
 #   2026-08-30  APP_BUILD -> "2026-08-30qm-a-verdict-every-time". BUILD qm -- one live
 #               Geometry session, two flags. tutor.py: the 65th referee makes rule 47(i)
 #               real -- no quiz question moves to the next without grading the last.
@@ -12858,7 +12883,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30qm-a-verdict-every-time"
+APP_BUILD = "2026-08-30qn-the-parent-reads-the-right-course"
 
 
 @app.get("/health")

@@ -1,5 +1,41 @@
 <!DOCTYPE html>
 <!--
+    2026-08-30  THE PARENT READS THE RIGHT COURSE (build qn). Jim, reading the demo
+                student's page AS A PARENT: "how are they doing... only talks about the
+                algebra course, not the current course they're working on"; "it says my
+                courses, and this is the parents -- it should say your child's courses";
+                "if I did a little bit of geometry, even if I haven't mastered a unit, it
+                should have some way of indicating that I'm there"; "your learning journey
+                should say your CHILD'S learning journey... and it should say what course
+                they're in"; "how far have you gone -- should be how far HAS YOUR CHILD
+                gone"; "the parents should be able to go to the site and see everything and
+                understand everything."
+                FOUR fixes, all in this file (no endpoint changed -- every number below was
+                already being returned and simply thrown away):
+                (1) THE COURSE. The parent's door is /dashboard?code=..&view=parent with NO
+                    &course=, so COURSE fell back to the literal "algebra1" and the whole
+                    page -- narrative, journey, units, strengthen-next -- described Algebra I
+                    no matter what the child had actually been doing. COURSE is now RESOLVED
+                    when ?course= is absent: /api/courses/me already returns last_active per
+                    course, so we land on the course they most recently worked in. An
+                    explicit ?course= still wins, so the "My courses" switcher is untouched.
+                (2) THE VOICE. One owner() helper feeds every heading, so the student voice
+                    ("your journey") and the grown-up voice ("Emma's journey", or "Your
+                    child's" when the name is unknown) can never drift apart again. The
+                    child's NAME is used wherever we know it -- the title has always said
+                    "Emma's Progress", and now the rest of the page agrees.
+                (3) A TOE IN THE WATER SHOWS. The "My courses" bar was units_mastered only,
+                    so a course the child had started but not mastered read as a flat empty
+                    bar -- indistinguishable from never opened. The bar is now TWO-TONE
+                    (mastered solid, started-but-not-mastered pale) and the caption says
+                    what is true: "1 of 9 mastered - 4 started - last worked Aug 29".
+                    units_started/units_checked/avg_best_pct/last_active were already in the
+                    payload; nothing new is computed and nothing is invented.
+                (4) WHICH NUMBERS ARE WHOLE-CHILD. store.get_mastery's own docstring says
+                    stats are "whole-student": day streak, accuracy, problems practiced and
+                    time this week count EVERY course, while "Units mastered" counts only
+                    this one. Sitting together under a course title, they read as one
+                    course's numbers. Each tile now says which it is. No number moved.
     2026-08-11  RETAKE + PARENT'S TRICKY LIST (build du). (1) Every started-not-mastered
                 unit that HAS a Unit Quiz score now offers "📝 Retake the Unit Quiz →"
                 beside "Work on it" (students only) -> /session?...&unit=N&quiz=1, which
@@ -384,9 +420,15 @@
     .mc .nm .here { font-size: 10px; font-weight: 800; color: var(--accent);
       background: rgba(91,91,214,.12); border-radius: 999px; padding: 2px 7px; letter-spacing: .03em; }
     .mc .cnt { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
-    .mc .bar { height: 7px; border-radius: 5px; background: #eef0f7; margin-top: 9px; overflow: hidden; }
+    .mc .bar { height: 7px; border-radius: 5px; background: #eef0f7; margin-top: 9px; overflow: hidden;
+      display: flex; }
     .mc .bar i { display: block; height: 100%; border-radius: 5px;
       background: linear-gradient(90deg, var(--st-mastered), #48c99a); }
+    /* build qn: STARTED but not yet mastered. A course the child has only dipped into used
+       to draw a flat empty bar -- the same picture as never having opened it. The pale
+       segment says "they are in here" without ever claiming mastery they have not earned. */
+    .mc .bar u { display: block; height: 100%; border-radius: 5px; text-decoration: none;
+      background: repeating-linear-gradient(135deg, #bfe6d6 0 5px, #d6efe4 5px 10px); }
     .mc.add { display: flex; align-items: center; justify-content: center; text-align: center;
       color: var(--accent); font-weight: 700; font-size: 13px; border-style: dashed; box-shadow: none; }
   </style>
@@ -400,7 +442,7 @@
       <div class="spacer"></div>
       <a id="homeLink" href="#">← Home</a>
     </div>
-    <p class="sub">Your real progress — it fills in as you learn, and shows exactly where to grow next.</p>
+    <p class="sub" id="subLine">Your real progress — it fills in as you learn, and shows exactly where to grow next.</p>
 
     <!-- HOW AM I DOING? (2026-08-01, Jim's vision): one warm, honest paragraph written by the
          tutor brain from REAL recorded facts. Student voice for students; on the parent/teacher
@@ -459,17 +501,17 @@
     <div class="tiles" id="tiles"></div>
 
     <div id="strengthenWrap" style="display:none;">
-      <div class="section-h">Strengthen next <span class="note">— your plan, built from your checks and practice so far: these are the fastest wins to level up</span></div>
+      <div class="section-h" id="strengthenHead">Strengthen next <span class="note" id="strengthenNote">— your plan, built from your checks and practice so far: these are the fastest wins to level up</span></div>
       <div id="strengthen"></div>
     </div>
 
     <div id="journeyWrap" style="display:none;">
-      <div class="section-h">Your learning journey <span class="note" id="journeyNote">— your path through the 9 Algebra I units</span></div>
+      <div class="section-h" id="journeyHead">Your learning journey <span class="note" id="journeyNote">— your path through the 9 Algebra I units</span></div>
       <div class="journey"><div class="track" id="track"></div></div>
     </div>
 
     <div id="breakdownWrap" style="display:none;">
-      <div class="section-h">How far you've gone <span class="note" id="deepestNote"></span></div>
+      <div class="section-h" id="breakdownHead">How far you've gone <span class="note" id="deepestNote"></span></div>
       <div class="breakdown">
         <div class="meter" id="meter"></div>
         <div class="mkey" id="mkey"></div>
@@ -480,7 +522,7 @@
     <div class="units" id="units"></div>
 
     <div class="strengths" id="strengthsWrap" style="display:none;">
-      <div class="section-h" style="margin-top:0;">Strengths from your level check</div>
+      <div class="section-h" id="strengthsHead" style="margin-top:0;">Strengths from your level check</div>
       <div class="chips" id="strengths"></div>
     </div>
 
@@ -495,11 +537,63 @@
     const params = new URLSearchParams(location.search);
     const CODE = (params.get("code") || "").trim();
     const VIEW = (params.get("view") || "").toLowerCase();
+    const isTeacher = (VIEW === "teacher" || VIEW === "parent");
+
+    // ===== WHICH COURSE IS THIS PAGE ABOUT? (build qn) ==========================
+    // The parent's door is /dashboard?code=..&view=parent -- no &course= on it -- so the
+    // old `params.get("course") || "algebra1"` meant a parent ALWAYS read Algebra I, even
+    // the evening their child spent an hour on Geometry. /api/courses/me already reports
+    // last_active per course, so when no course is named we land on the one they most
+    // recently worked in. An explicit ?course= still wins outright: the "My courses"
+    // switcher passes it, and switching must never be second-guessed.
+    // The fetch is hoisted so the strip at the bottom of this file reuses the SAME
+    // response -- resolving the course costs zero extra requests.
+    let COURSE = (params.get("course") || "").trim();
+    const COURSES_P = (async () => {
+      try {
+        const res = await fetch("/api/courses/me", { headers: { "X-Student-Code": CODE } });
+        if (!res.ok) return null;
+        return await res.json();
+      } catch (e) { return null; }
+    })();
+    const COURSE_READY = (async () => {
+      if (COURSE) return COURSE;                       // an explicit ?course= is the answer
+      const d = await COURSES_P;
+      const list = (d && d.courses) || [];
+      let best = null;
+      list.forEach(c => {
+        if (c.last_active && (!best || c.last_active > best.last_active)) best = c;
+      });
+      // No dates recorded anywhere: fall back to the furthest course in ladder order
+      // (list arrives in ladder order), and to Algebra I when there is nothing at all.
+      if (!best && list.length) best = list[list.length - 1];
+      COURSE = (best && best.course) || "algebra1";
+      return COURSE;
+    })();
+
+    // ===== WHOSE PAGE IS THIS? (build qn) =======================================
+    // Jim: "it says my courses there, and this is the parents. It should say your child's
+    // courses." The same markup is read by a student ("your journey") and by a grown-up
+    // reading ABOUT a child ("Emma's journey"). One helper feeds every heading so the two
+    // voices can never drift apart again. The child's NAME is used wherever we know it --
+    // the page title has always said "Emma's Progress" and now the rest of it agrees --
+    // and "Your child's" is the honest fallback before the name arrives.
+    let SNAME = "";                                     // set once /api/topics answers
+    const possess = (n) => n + (/s$/i.test(n) ? "'" : "'s");
+    // Capitalised possessive for a heading: "Emma's" / "Your child's" / "Your".
+    const Owner = () => isTeacher ? (SNAME ? possess(SNAME) : "Your child's") : "Your";
+    // Lower-case possessive mid-sentence: "Emma's" / "your child's" / "your".
+    const owner = () => isTeacher ? (SNAME ? possess(SNAME) : "your child's") : "your";
+    // The subject of a sentence: "Emma" / "your child" / "you".
+    const subj  = () => isTeacher ? (SNAME || "your child") : "you";
+    // "Emma has" / "your child has" / "you've" -- so a sentence reads either way.
+    const subjHas = () => isTeacher ? (subj() + " has") : "you've";
+
     // HOW AM I DOING? (2026-08-01)
     (function () {
       const btn = document.getElementById("howBtn"), card = document.getElementById("howCard");
       if (!btn) return;
-      const parentish = (VIEW === "parent" || VIEW === "teacher");
+      const parentish = isTeacher;
       if (parentish) btn.textContent = "💬 How are they doing, really?";
       btn.addEventListener("click", async () => {
         btn.disabled = true;
@@ -507,13 +601,17 @@
         card.innerHTML = '<div class="who">✍️ One moment…</div>Looking over the real progress and putting it into words.';
         try {
           const aud = parentish ? "parent" : "student";
-          const res = await fetch("/api/assessment/me?course="
-                                  + encodeURIComponent(params.get("course") || "algebra1")
+          // build qn: the RESOLVED course, not the literal "algebra1". This one line is why
+          // a parent whose child had just done Geometry was handed a paragraph about Algebra.
+          await COURSE_READY;
+          const res = await fetch("/api/assessment/me?course=" + encodeURIComponent(COURSE)
                                   + "&audience=" + aud,
-                                  { headers: { "X-Student-Code": params.get("code") || "" } });
+                                  { headers: { "X-Student-Code": CODE } });
           const data = await res.json();
           if (!res.ok) throw new Error(data.detail || "Couldn't fetch the assessment.");
-          const who = parentish ? "An honest read on their progress" : "Mr. Cadabra's honest read";
+          const who = parentish
+            ? ("An honest read on " + owner() + " progress in " + (COURSE_TITLES[COURSE] || "this course"))
+            : "Mr. Cadabra's honest read";
           const escd = String(data.text).replace(/&/g, "&amp;").replace(/</g, "&lt;");
           card.innerHTML = '<div class="who">' + who + '</div>' + escd +
             '<div class="fine">Written from real recorded progress — nothing invented. Refreshes as new work happens (about every half hour).</div>';
@@ -523,12 +621,19 @@
         btn.disabled = false;
       });
     })();
-    const isTeacher = (VIEW === "teacher" || VIEW === "parent");
-    const COURSE = (params.get("course") || "algebra1").trim(); // which course's progress to show
-    const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
+    // One list of course titles, shared by the header, the assessment card and the strip.
+    const COURSE_TITLES = { entry: "Entry-Level Math", basic: "Basic Math", prealgebra: "Pre-Algebra",
+      algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc",
+      calculus: "Calculus", diffeq: "Differential Equations", probstat: "Probability & Statistics" };
     if (!CODE) { location.href = "/login"; }
     if (isTeacher) { el("homeLink").href = "/login"; el("homeLink").textContent = "← Back"; }
-    else { el("homeLink").href = "/home" + cq; }
+    else {
+      // build qn: Home carries the RESOLVED course, so "← Home" lands where they left off.
+      COURSE_READY.then(() => {
+        el("homeLink").href = "/home?code=" + encodeURIComponent(CODE)
+                            + "&course=" + encodeURIComponent(COURSE);
+      });
+    }
 
     // Status meta: label + icon + css class. Status is NEVER color-alone (label + icon always).
     const STATUS = {
@@ -588,6 +693,7 @@
     }
 
     (async () => {
+      await COURSE_READY;                 // build qn: know the course before asking about it
       let data;
       try {
         const res = await fetch("/api/topics/me?course=" + encodeURIComponent(COURSE),
@@ -596,16 +702,54 @@
         data = await res.json();
       } catch (e) { el("offnote").style.display = "block"; return; }
 
-      const courseName = ({ entry: "Entry-Level Math", basic: "Basic Math", prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "Calculus", diffeq: "Differential Equations", probstat: "Probability & Statistics" })[COURSE] || "";
+      const courseName = COURSE_TITLES[COURSE] || "";
+      SNAME = String(data.name || "").trim();          // build qn: the voice knows the name now
       const who = data.name ? (data.name + "'s") : "My";
       el("title").textContent = "📊 " + who + " Progress" + (courseName ? " — " + courseName : "");
-      if (courseName) {
-        const jn = el("journeyNote"); if (jn) jn.textContent = "— your path through the 9 " + courseName + " units";
-        const uh = el("unitsHead"); if (uh) uh.textContent = "Your 9 " + courseName + " units";
-      }
       if (!data.tracking) { el("offnote").style.display = "block"; }
 
       const units = data.units || [];
+      // ===== EVERY HEADING, IN THIS COURSE AND THIS VOICE (build qn) ==============
+      // Jim: "your learning journey -- it should say your CHILD'S learning journey, and it
+      // should say what course they're in"; "how far have you gone -- it should be how far
+      // has your child gone"; "your nine basic math units -- this should say nine basic math
+      // units FOR ALGEBRA or geometry or whatever". The unit COUNT is the real one now
+      // (units.length), not a hardcoded 9 -- a course with a different shape used to lie.
+      (function nameTheHeadings() {
+        const n = (data.units || []).length || 9;
+        const inCourse = courseName ? (" " + courseName) : "";
+        const set = (id, txt) => { const e = el(id); if (e) e.textContent = txt; };
+        if (isTeacher) {
+          set("subLine", "A read-only view of " + owner() + " real progress in "
+                       + (courseName || "this course") + " — what is going well, and what "
+                       + "needs help. Every number on this page is recorded, never estimated.");
+        }
+        // Each heading owns a <span class="note"> that other code fills in later, so the
+        // heading is rebuilt as HTML with that span intact rather than textContent'd away.
+        const reNote = (id, noteId, head, note) => {
+          const e = el(id); if (!e) return;                 // esc: the child's NAME lands here
+          e.innerHTML = esc(head) + ' <span class="note" id="' + noteId + '">'
+                      + esc(note) + '</span>';
+        };
+        reNote("myCoursesHead", "myCoursesNote", isTeacher ? (Owner() + " courses") : "My courses", "");
+        reNote("strengthenHead", "strengthenNote", "Strengthen next",
+               "— " + (isTeacher ? "units " + subj() + " has started" : "units you've started")
+             + " but not mastered yet, weakest first: the fastest wins from here");
+        reNote("journeyHead", "journeyNote", Owner() + " learning journey",
+               isTeacher ? ("— the " + n + inCourse + " units, in order, and how far along each one is")
+                         : ("— your path through the " + n + inCourse + " units"));
+        reNote("breakdownHead", "deepestNote",
+               isTeacher ? ("How far has " + subj() + " gone") : "How far you've gone", "");
+        set("unitsHead", Owner() + " " + n + inCourse + " units");
+        set("strengthsHead", isTeacher ? (Owner() + " strengths from the level check")
+                                       : "Strengths from your level check");
+        const ft = el("foot");
+        if (ft && isTeacher) {
+          ft.innerHTML = "This page shows " + esc(owner()) + " <b>real</b> activity — nothing "
+            + "here is made up. It starts empty and fills in every time " + esc(subj())
+            + " takes a lesson, practices a problem, or passes a quiz.";
+        }
+      })();
       const s = data.summary || {};
       const stats = s.stats || {};
       const placement = data.placement || {};
@@ -646,13 +790,25 @@
         return h ? (h + "h" + (mm ? " " + mm + "m" : "")) : (mm + " min");
       };
 
+      // ===== WHICH NUMBER COUNTS WHAT (build qn) ==================================
+      // Only "Units mastered" belongs to the course named in the title. store.get_mastery's
+      // own docstring calls the rest "whole-student": the streak, the accuracy, the problems
+      // practised and the minutes count EVERY course this child has ever worked in. Sitting
+      // in one row under one course's name, they read as one course's numbers -- and Jim's
+      // whole ask was that a parent "see everything and understand everything". Nothing here
+      // moved a number; each tile now simply says what it is counting.
+      const ALL = "across all courses";
       const tiles = [
-        { lbl: "Units mastered", big: mastered + " / " + total, ring: pct },
-        { lbl: "Day streak", big: streak > 0 ? ("🔥 " + streak) : "0", small: streak === 1 ? "day in a row" : "days in a row" },
-        { lbl: "Accuracy", big: acc === null ? "—" : (acc + "%"), small: acc === null ? "take a quiz to see" : "on quizzes & practice" },
-        { lbl: "Problems practiced", big: String(practiced), small: "keep it climbing" },
+        { lbl: "Units mastered", big: mastered + " / " + total, ring: pct,
+          small: courseName ? ("in " + courseName) : "in this course" },
+        { lbl: "Day streak", big: streak > 0 ? ("🔥 " + streak) : "0",
+          small: (streak === 1 ? "day in a row" : "days in a row") + " · " + ALL },
+        { lbl: "Accuracy", big: acc === null ? "—" : (acc + "%"),
+          small: acc === null ? "take a quiz to see" : ("on quizzes & practice · " + ALL) },
+        { lbl: "Problems practiced", big: String(practiced), small: ALL },
         { lbl: "Time this week", big: timeWeek === null ? "—" : fmtMin(timeWeek),
-          small: timeWeek === null ? "turns on with tracking" : (fmtMin(timeToday) + " today · real work only") },
+          small: timeWeek === null ? "turns on with tracking"
+                                   : (fmtMin(timeToday) + " today · real work only · " + ALL) },
       ];
       el("tiles").innerHTML = tiles.map(t => `
         <div class="tile">
@@ -763,8 +919,19 @@
         const started = units.filter(u => u.status !== "not-started" || u.mastered);
         if (started.length) {
           const deepest = started.reduce((a, u) => (STATUS[dstatus(u)].rank > a.rank ? STATUS[dstatus(u)] : a), STATUS["explored"]);
-          el("deepestNote").textContent = "— deepest so far: " + deepest.label;
+          el("deepestNote").textContent = "— in " + (courseName || "this course")
+                                        + ", deepest so far: " + deepest.label;
         }
+        // build qn -- Jim: "if I've been in three courses, I should say three courses." This
+        // meter is ONE course's nine units; the line below says so, and says how many other
+        // courses exist, so the parent is never left thinking this is the whole picture.
+        COURSES_P.then(d => {
+          const list = (d && d.courses) || [];
+          if (list.length < 2) return;
+          const note = el("deepestNote"); if (!note) return;
+          note.textContent += " · " + subjHas() + " worked in " + list.length + " courses"
+                            + " (see " + (isTeacher ? owner() : "your") + " courses above)";
+        });
       }
 
       // ----- The 9 unit cards -----
@@ -798,8 +965,8 @@
 
       // ----- Parent/Teacher review view: a plain-language "how to help" summary -----
       if (isTeacher) {
-        document.querySelector(".sub").textContent =
-          "A read-only view of this student's real progress — where they're strong and where they need help.";
+        // build qn: the sub-line is written once, by nameTheHeadings() above, where it can
+        // name the child AND the course. Two places wrote it before and they disagreed.
         // Name the role the visitor actually came in as, now that parents and teachers have
         // separate doors. Anything else (an old ?view=teacher bookmark) keeps the original label.
         const badge = (VIEW === "parent") ? "Parent view"
@@ -812,11 +979,16 @@
         const str2 = placement.strengths || [];
         const box = el("teacherBox");
         box.style.display = "block";
+        // build qn: say WHICH course the mastery count belongs to, and that the streak,
+        // accuracy and practice totals are the whole child. A parent reading one row of
+        // numbers under one course's name will otherwise read all four as that course.
         box.innerHTML = "<h3>👪 How " + esc(data.name || "this student") + " is doing</h3>"
-          + "<div><b>" + (s.units_mastered || 0) + " of " + total + "</b> units mastered"
+          + "<div><b>" + (s.units_mastered || 0) + " of " + total + "</b> units mastered in "
+          + esc(courseName || "this course")
           + (stats.streak_days ? " · <b>" + stats.streak_days + "-day</b> streak" : "")
           + (acc === null ? "" : " · <b>" + acc + "%</b> accuracy")
-          + " · <b>" + (stats.problems_practiced || 0) + "</b> problems practiced.</div>"
+          + " · <b>" + (stats.problems_practiced || 0) + "</b> problems practiced"
+          + " <span style=\"opacity:.75\">(streak, accuracy and practice count every course)</span>.</div>"
           + "<div style=\"margin-top:6px\"><b>Where to help next:</b> " + esc(weakTxt) + ".</div>"
           + (str2.length ? "<div style=\"margin-top:6px\"><b>Strengths:</b> " + str2.map(esc).join(", ") + ".</div>" : "")
           + "<div style=\"margin-top:8px\">🖨 <a href=\"/records?code=" + encodeURIComponent(CODE)
@@ -853,6 +1025,7 @@
     // anything, so an empty card would only nag).
     async function loadSprints() {
       try {
+        await COURSE_READY;
         const res = await fetch("/api/sprints/me?course=" + encodeURIComponent(COURSE),
                                 { headers: { "X-Student-Code": CODE } });
         if (!res.ok) return;
@@ -904,6 +1077,7 @@
     // ----- 2026-08-11 (build dt, rule 55): the missed-problems review card -----------
     async function loadMisses() {
       try {
+        await COURSE_READY;
         const res = await fetch("/api/misses/me?course=" + encodeURIComponent(COURSE),
                                 { headers: { "X-Student-Code": CODE } });
         if (!res.ok) return;
@@ -929,18 +1103,45 @@
     // ----- MY COURSES strip: the student's whole picture, not just the course they walked in with -----
     async function loadMyCourses() {
       try {
-        const res = await fetch("/api/courses/me", { headers: { "X-Student-Code": CODE } });
-        if (!res.ok) return;
-        const d = await res.json();
+        await COURSE_READY;
+        const d = await COURSES_P;            // build qn: the SAME response the resolver used
+        if (!d) return;
         const list = (d && d.courses) || [];
         // Only worth showing once there's more than one course in play.
         if (!d.tracking || list.length < 2) return;
         const totalMastered = list.reduce((s, c) => s + c.units_mastered, 0);
-        el("myCoursesNote").textContent =
-          "— " + totalMastered + " unit" + (totalMastered === 1 ? "" : "s") +
-          " mastered across " + list.length + " courses";
+        const totalStarted  = list.reduce((s, c) => s + (c.units_started || 0), 0);
+        const nte = el("myCoursesNote");
+        if (nte) nte.textContent =
+          "— " + totalMastered + " unit" + (totalMastered === 1 ? "" : "s") + " mastered" +
+          (totalStarted > totalMastered
+             ? (", " + totalStarted + " started") : "") +
+          " across " + list.length + " courses";
         el("myCourses").innerHTML = list.map(c => {
-          const pct = c.units_total ? Math.round(100 * c.units_mastered / c.units_total) : 0;
+          // ===== A TOE IN THE WATER SHOWS (build qn) ============================
+          // Jim: "if I did a little bit of geometry, even if I haven't mastered a unit, it
+          // should have some way of indicating that I'm there, like at least a little bit
+          // of a bar in geometry." The bar used to be units_mastered ONLY, so a course the
+          // child had opened, worked in and quizzed -- but not yet mastered -- drew exactly
+          // the same flat empty bar as one they had never opened. units_started has been in
+          // this payload since the strip shipped; it was simply thrown away. Solid = proved
+          // on a scored check. Pale hatch = started, honestly NOT claimed as mastery.
+          const started = Math.max(c.units_started || 0, c.units_mastered);
+          const inProg  = Math.max(0, started - c.units_mastered);
+          const pct     = c.units_total ? Math.round(100 * c.units_mastered / c.units_total) : 0;
+          const pctIn   = c.units_total ? Math.round(100 * inProg / c.units_total) : 0;
+          // A course with real work but no whole unit yet still gets a visible sliver.
+          const pctInShown = (inProg > 0 && pctIn < 4) ? 4 : pctIn;
+          // Read it aloud both ways: a course with nothing mastered must not say "0 of 9
+          // mastered - 1 MORE started", which implies one was already finished.
+          const bits = [c.units_mastered + " of " + c.units_total + " units mastered"];
+          if (inProg > 0) bits.push(inProg + (c.units_mastered ? " more" : "")
+                                  + (inProg === 1 ? " unit started" : " units started"));
+          if (c.units_checked && !c.units_mastered && c.avg_best_pct !== null
+              && c.avg_best_pct !== undefined) {
+            bits.push("best quiz avg " + c.avg_best_pct + "%");
+          }
+          if (c.last_active) { const w = fmtDate(c.last_active); if (w) bits.push("last worked " + w); }
           const here = (c.course === COURSE);
           // Keep the SAME read-only view we arrived in (parent stays parent, teacher stays
           // teacher) so switching courses never quietly promotes a parent into the teacher view.
@@ -948,8 +1149,10 @@
                   + (isTeacher ? "&view=" + encodeURIComponent(VIEW || "teacher") : "");
           return '<a class="mc' + (here ? " current" : "") + '" href="/dashboard' + q + '">'
             + '<div class="nm">' + esc(c.title) + (here ? '<span class="here">HERE</span>' : "") + '</div>'
-            + '<div class="cnt">' + c.units_mastered + ' of ' + c.units_total + ' units mastered</div>'
-            + '<div class="bar"><i style="width:' + pct + '%"></i></div></a>';
+            + '<div class="cnt">' + esc(bits.join(" · ")) + '</div>'
+            + '<div class="bar"><i style="width:' + pct + '%"></i>'
+            + (pctInShown ? '<u style="width:' + pctInShown + '%"></u>' : "")
+            + '</div></a>';
         }).join("") + (isTeacher ? "" :
           '<a class="mc add" href="/home?code=' + encodeURIComponent(CODE) + '">+ Explore another subject</a>');
         el("myCoursesWrap").style.display = "block";

@@ -15024,6 +15024,173 @@ def part3gp_the_quiz_says_correct_every_time():
           "The top one is TODAY" not in html and "that's your map" in html, "")
 
 
+def part3gq_the_parent_reads_the_right_course():
+    """PART 3gq (build qn, 2026-08-30) -- THE PARENT WAS READING THE WRONG COURSE.
+
+    Jim, reading the demo student's progress page AS A PARENT: "how are they doing --
+    it did a very good job of spelling it out. However, the demo student kinda jumps
+    around from class to class, and we just finished working on some geometry, and it
+    appears that when it says how are they doing, it only talks about the ALGEBRA
+    course, not the current course that they're working on." And: "it says my courses
+    there, and this is the parents. It should say your child's courses." And: "if I did
+    a little bit of geometry, even if I haven't mastered a unit, it should have some way
+    of indicating that I'm there, like at least a little bit of a bar in geometry." And:
+    "your learning journey -- it should say your CHILD'S learning journey, and it should
+    say what course they're in." And, the whole ask in one sentence: "the parents should
+    be able to go to the site and see everything and understand everything."
+
+    ⭐ THE CAUSE IS ONE FALLBACK, AND IT IS NOT A MODEL PROBLEM. index.html sends a
+    parent to /dashboard?code=..&view=parent -- with NO &course= on it. dashboard.html
+    read `params.get("course") || "algebra1"`, so a parent was pinned to Algebra I
+    forever: the narrative, the journey, the unit cards and "Strengthen next" all
+    described a course their child might not have opened in a month. The child's real
+    Geometry evening was on the server the whole time; the page never asked for it.
+
+    ⚠️ EVERY NUMBER THIS BUILD NEEDED WAS ALREADY IN THE PAYLOAD AND WAS BEING THROWN
+    AWAY. /api/courses/me has returned units_started, units_checked, avg_best_pct and
+    last_active since the strip shipped; the page used units_mastered and ignored the
+    rest. So last_active can pick the course, and units_started can draw the "you are
+    in here" segment, with NO endpoint change at all -- which is why this PART checks
+    the CONTRACT in both directions: the page must read only fields main.py actually
+    sends, and main.py must keep sending them.
+
+    ⚠️ AND A HONESTY DEFECT FELL OUT OF READING IT AS A PARENT WOULD. store.get_mastery's
+    own docstring calls its stats "whole-student": the day streak, the accuracy, the
+    problems practiced and the minutes count EVERY course, while "Units mastered"
+    counts one. Five tiles in a row under a heading that names one course read as five
+    numbers about that course. Nothing moved -- each tile now says which it is.
+    """
+    print("\nPART 3gq — the parent reads the right course (build qn)")
+    html = open("static/dashboard.html", encoding="utf-8").read()
+    msrc = open("main.py", encoding="utf-8").read()
+
+    # ---- 1. the course is RESOLVED, not assumed -------------------------------
+    # ⚠️ The absence check reads code_only(): this file's OWN change note quotes the line
+    # being removed, and a raw `not in` would fail on the explanation of the fix. Exactly
+    # the trap build ki caught five times in one evening and build ql caught in the privacy
+    # gate. Presence checks stay on the raw text -- comments cannot fake code that IS there.
+    check("⭐ the page no longer pins a courseless visit to the literal algebra1",
+          'params.get("course") || "algebra1"' not in code_only(html),
+          "Jim: 'it only talks about the algebra course, not the current course they're "
+          "working on' -- the parent's door carries no &course= at all")
+    check("  ...COURSE starts EMPTY and is filled in by a resolver",
+          'let COURSE = (params.get("course") || "").trim();' in html, "")
+    check("  ...an explicit ?course= still wins outright (the switcher must keep working)",
+          "if (COURSE) return COURSE;" in html, "")
+    check("⭐ the resolver picks the course they MOST RECENTLY worked in",
+          "c.last_active > best.last_active" in html, "")
+    check("  ...and falls back to algebra1 only when there is nothing at all",
+          'COURSE = (best && best.course) || "algebra1";' in html, "")
+    check("  ...every course-scoped fetch waits for that answer",
+          html.count("await COURSE_READY;") >= 4,
+          "%d awaits" % html.count("await COURSE_READY;"))
+
+    # ---- 2. resolving costs ZERO extra requests --------------------------------
+    check("⭐ /api/courses/me is fetched exactly ONCE and shared",
+          html.count('fetch("/api/courses/me"') == 1,
+          "the resolver hoists it; the My-courses strip awaits the same promise")
+    check("  ...the strip consumes the hoisted promise rather than re-asking",
+          "const d = await COURSES_P;" in html, "")
+
+    # ---- 3. the narrative asks about the resolved course -----------------------
+    check("⭐ the 'How are they doing' card asks about the RESOLVED course",
+          'fetch("/api/assessment/me?course=" + encodeURIComponent(COURSE)' in html,
+          "this single line is why a parent whose child had just done Geometry was "
+          "handed a paragraph about Algebra")
+    check("  ...and the card says which course it just read",
+          'An honest read on " + owner() + " progress in "' in html, "")
+
+    # ---- 4. the voice -----------------------------------------------------------
+    check("⭐ one helper owns the voice, so the two can never drift apart",
+          'const Owner = () => isTeacher ? (SNAME ? possess(SNAME) : "Your child\'s") : "Your";'
+          in html, "Jim: 'it should say your child's courses instead of my courses'")
+    check("  ...it uses the child's NAME when the page knows it",
+          'SNAME = String(data.name || "").trim();' in html and "possess(SNAME)" in html,
+          "the title has always said \"Emma's Progress\"; now the rest of the page agrees")
+    for ident, what in (("myCoursesHead", "My courses"),
+                        ("journeyHead", "Your learning journey"),
+                        ("breakdownHead", "How far you've gone"),
+                        ("unitsHead", "Your N <course> units"),
+                        ("strengthsHead", "Strengths from your level check"),
+                        ("strengthenHead", "Strengthen next")):
+        check("  the '%s' heading is written by the voice helper" % what,
+              ('reNote("%s"' % ident) in html or ('set("%s"' % ident) in html, ident)
+    check("  ...a child's name reaching innerHTML is escaped",
+          "e.innerHTML = esc(head) +" in html,
+          "names come from the store; a heading is not a place to trust them raw")
+    check("⭐ the journey and the unit cards name the course AND the real unit count",
+          'set("unitsHead", Owner() + " " + n + inCourse + " units");' in html
+          and "const n = (data.units || []).length || 9;" in html,
+          "Jim: 'your nine basic math units -- this should say nine basic math units FOR "
+          "algebra or geometry or whatever'; the 9 was hardcoded")
+    check("  ...and only ONE place writes the sub-line now",
+          html.count('"A read-only view of ') == 1,
+          "two places wrote it and they disagreed")
+
+    # ---- 5. Strengthen next answers the question Jim actually asked -------------
+    check("⭐ 'Strengthen next' says what it is: STARTED but not yet mastered",
+          "but not mastered yet, weakest first" in html,
+          "Jim: 'I'm not quite sure what this means. Is that what I've DONE, or what I'm "
+          "working on NEXT?'")
+
+    # ---- 6. a toe in the water shows -------------------------------------------
+    check("⭐ the course bar draws STARTED as well as mastered",
+          "const inProg  = Math.max(0, started - c.units_mastered);" in html
+          and "<u style=\"width:' + pctInShown + '%\"></u>" in html,
+          "Jim: 'if I did a little bit of geometry... it should have at least a little "
+          "bit of a bar in geometry so the parent can look to see'")
+    check("  ...a course with real work but no whole unit still gets a visible sliver",
+          "const pctInShown = (inProg > 0 && pctIn < 4) ? 4 : pctIn;" in html, "")
+    check("  ...the pale segment is visually distinct from mastery, not a darker green",
+          ".mc .bar u {" in html and "repeating-linear-gradient" in html,
+          "started is not mastered and must never look like it")
+    check("  ...the caption never says '0 mastered, 1 MORE started'",
+          '(c.units_mastered ? " more" : "")' in html, "")
+    check("  ...and it says when they were last in there",
+          '"last worked " + w' in html, "")
+
+    # ---- 7. the page reads only what the endpoint really sends ------------------
+    ep = msrc.split('@app.get("/api/courses/{code}")', 1)[1]
+    ep = ep.split("@app.get(", 1)[0]
+    for field in ("units_total", "units_started", "units_mastered", "units_checked",
+                  "avg_best_pct", "last_active"):
+        check("  contract: /api/courses still sends %s (the page now reads it)" % field,
+              ('"%s"' % field) in ep, field)
+    for field in ("units_started", "avg_best_pct", "last_active", "units_checked"):
+        check("  contract: the page reads c.%s -- and it is real, not invented" % field,
+              ("c." + field) in html, field)
+
+    # ---- 8. which numbers count what -------------------------------------------
+    check("⭐ the whole-child tiles say so; the course tile says which course",
+          'const ALL = "across all courses";' in html
+          and 'small: courseName ? ("in " + courseName) : "in this course"' in html,
+          "store.get_mastery's own docstring: stats are 'whole-student'. Five tiles in a "
+          "row under one course's name read as one course's numbers.")
+    check("  ...the parent box says it too",
+          "(streak, accuracy and practice count every course)" in html, "")
+    check("  ...and no tile number was changed to say it",
+          'big: String(practiced)' in html and 'big: acc === null ? "—" : (acc + "%")' in html,
+          "the honest fix is a label, never a different number")
+    check("⭐ 'How far has your child gone' says how many courses there are",
+          'subjHas() + " worked in " + list.length + " courses"' in html,
+          "Jim: 'if I've been in three courses, I should say three courses'")
+
+    # ---- 9. nothing was stripped to get here -----------------------------------
+    for keep, what in (('id="missWrap"', "the tricky-ones review card"),
+                       ('id="sprintWrap"', "the sprint record"),
+                       ('id="trophyWrap"', "the trophy case"),
+                       ("Retake the Unit Quiz", "the retake link (build du)"),
+                       ("wireTroTips", "the trophy hover cards"),
+                       ("Print homeschool records", "the records link"),
+                       ("Explore another subject", "the add-a-course tile")):
+        check("  do no harm: %s survives" % what, keep in html, keep)
+    check("  do no harm: switching course still keeps the visitor's own view",
+          'isTeacher ? "&view=" + encodeURIComponent(VIEW || "teacher") : ""' in html,
+          "a parent must never be quietly promoted into the teacher view")
+    check("  the file is whole", html.rstrip().endswith(
+          "<!-- I did no harm and this file is not truncated. -->"), "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -17951,7 +18118,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,572</b>" in page,
+          "<b>7,622</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -26461,6 +26628,7 @@ def main():
     part3gn_a_check_the_size_of_the_thing_it_checks()
     part3go_working_is_not_usable()
     part3gp_the_quiz_says_correct_every_time()
+    part3gq_the_parent_reads_the_right_course()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
