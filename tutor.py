@@ -2,6 +2,17 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qh -- THE SEAT THAT CANNOT TEACH HANDS THE CLASS BACK. The first
+#               night on qg's DeepSeek seat: 120 teaching-path fail-opens, every turn of
+#               every lesson, and the child got "(I'm having trouble thinking right
+#               now)". The catch-all in _reply_pipeline was written for a ONE-BRAIN
+#               world; qg added a challenger seat and left it alone, so one wrong env
+#               value took the live lane down for a night. Now a non-Anthropic seat that
+#               raises hands THIS TURN to Anthropic and is marked down STICKY
+#               (_SEAT_DOWN / _seat_down / _seat_is_down) so the next child does not pay
+#               the same failed lookup; the failopen event carries provider/model; the
+#               apology survives for both-brains-down. active_brain reports a downed
+#               seat. PART 3gl.
 #   2026-08-29  BUILD qg -- THE DEEPSEEK BRAIN. Jim: "we're gonna use DeepSeek instead of
 #               Opus ... until I say different." TUTOR_PROVIDER=deepseek seats DeepSeek
 #               (deepseek-v4-pro; DEEPSEEK_REASONING_EFFORT off|low|high|max, default
@@ -2314,6 +2325,52 @@ def deepseek_extra(effort: str) -> dict:
     return {"thinking": {"type": "enabled"}, "reasoning_effort": effort}
 
 
+# =============================================================================
+# BUILD qh (2026-08-30) -- THE SEAT THAT CANNOT TEACH HANDS THE CLASS BACK.
+# -----------------------------------------------------------------------------
+# The 2026-08-30 night watch, the first on the DeepSeek seat: 120 teaching-path
+# fail-opens -- every turn of every lesson -- and 23 "findings" that were all one
+# sentence, "(I'm having trouble thinking right now)". The seat raised on every
+# call and _reply_pipeline did what it has always done: caught the exception and
+# handed the CHILD a calm apology.
+#
+# ⭐ THAT CATCH-ALL WAS WRITTEN FOR A DIFFERENT WORLD -- one brain, and if it is
+# down there is nothing else to try. With a challenger seat there IS something
+# else to try, and build of already wrote the lesson for the critic seat: "a
+# misconfigured name silently EMPTIED the seat ... this makes it survivable."
+# Build qg gave the BRAIN seat no such protection, and the blast radius was every
+# child on every live turn for a whole night. Same class of bug, worst possible
+# scope.
+#
+# So: a non-Anthropic seat that raises hands THIS TURN to Anthropic (the child
+# gets a real reply, one turn slower), and the seat is marked down STICKY for the
+# rest of the process so the next child does not pay for the same lookup. One
+# loud event carries the vendor's own words. The apology survives for the case it
+# was written for: both brains unreachable.
+# =============================================================================
+_SEAT_DOWN: dict = {}          # "provider/model" -> the vendor's own first words
+
+
+def _seat_key(provider: str, model: str) -> str:
+    return f"{provider}/{model}"
+
+
+def _seat_down(provider: str, model: str, exc) -> None:
+    """Mark a challenger seat unusable for the rest of this process, loudly, ONCE."""
+    key = _seat_key(provider, model)
+    if key in _SEAT_DOWN:
+        return
+    reason = " ".join(str(exc).split())[:300]
+    _SEAT_DOWN[key] = reason
+    print(f"[tutor] SEAT DOWN: {key} could not answer -- every turn now goes to "
+          f"anthropic until this is fixed. The vendor said: {reason}")
+    _event("seat_fallback", provider, f"{key} -> anthropic: {reason}")
+
+
+def _seat_is_down(provider: str, model: str) -> str:
+    return _SEAT_DOWN.get(_seat_key(provider, model), "")
+
+
 def active_brain() -> dict:
     """Who is teaching right now, for /health and /admin: provider, model, effort,
     and -- when a configured seat is refused -- the reason it fell back."""
@@ -2325,16 +2382,23 @@ def active_brain() -> dict:
         if blocked or not os.environ.get("DEEPSEEK_API_KEY"):
             out["gated"] = blocked or "no DEEPSEEK_API_KEY"
         else:
-            out.update(provider="deepseek",
-                       model=os.environ.get("DEEPSEEK_TUTOR_MODEL", DEFAULT_DEEPSEEK_TUTOR_MODEL),
-                       effort=deepseek_effort())
+            _m = os.environ.get("DEEPSEEK_TUTOR_MODEL", DEFAULT_DEEPSEEK_TUTOR_MODEL)
+            _down = _seat_is_down("deepseek", _m)          # (qh)
+            if _down:
+                out["gated"] = f"seat down: {_down}"
+            else:
+                out.update(provider="deepseek", model=_m, effort=deepseek_effort())
     elif provider == "openai":
         blocked = _openai_teaching_allowed()
         if blocked or not os.environ.get("OPENAI_API_KEY"):
             out["gated"] = blocked or "no OPENAI_API_KEY"
         else:
-            out.update(provider="openai",
-                       model=os.environ.get("OPENAI_TUTOR_MODEL", DEFAULT_OPENAI_TUTOR_MODEL))
+            _m = os.environ.get("OPENAI_TUTOR_MODEL", DEFAULT_OPENAI_TUTOR_MODEL)
+            _down = _seat_is_down("openai", _m)            # (qh)
+            if _down:
+                out["gated"] = f"seat down: {_down}"
+            else:
+                out.update(provider="openai", model=_m)
     return out
 
 # BUILD ht (2026-08-18, Phase 5 -- review Class F): THE UPSTREAM CALL IS BOUNDED.
@@ -9657,6 +9721,16 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     return _settle(drafts)
 
 
+def _brain_client(provider: str, api_key: str):
+    """(qh) The ONE place a teaching client is constructed -- see PART 3ax. The
+    pipeline walks its seat list through here; nothing else builds a brain."""
+    if provider == "openai":
+        return _OpenAIBrain(api_key)
+    if provider == "deepseek":
+        return deepseek_brain(api_key)
+    return Anthropic(api_key=api_key, timeout=ANTHROPIC_TIMEOUT_S, max_retries=1)
+
+
 def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
                     meta: dict, where: str, label: str,
                     turn_note: str = "", post=None) -> str:
@@ -9724,30 +9798,61 @@ def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
                     "this page.)")
         model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
 
+    # (qh) a seat already proved unusable this process is not asked again -- one
+    # child pays the failed lookup, not every child after them.
+    if provider != "anthropic":
+        _down = _seat_is_down(provider, model)
+        if _down:
+            house_key = os.environ.get("ANTHROPIC_API_KEY")
+            if house_key:
+                print(f"[tutor] {provider}/{model} is down this process -- teaching "
+                      f"on anthropic. It said: {_down}")
+                provider, api_key = "anthropic", house_key
+                model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
+
     messages = _trim_history(list(history or []))
     messages.append({"role": "user",
                      "content": (user_message + turn_note) if turn_note else user_message})
 
-    try:
-        client = (_OpenAIBrain(api_key) if provider == "openai"
-                  else deepseek_brain(api_key) if provider == "deepseek"
-                  else Anthropic(api_key=api_key, timeout=ANTHROPIC_TIMEOUT_S, max_retries=1))
-        # MATH VERIFIER (2026-08-03): the reply is generated AND refereed in here --
-        # see _create_verified above. Same model, same prompt, same max_tokens.
-        reply = _create_verified(
-            client, model,
-            _cacheable_system(prompt_fn()),
-            messages, log_tag, meta=meta,
-        ) or "(Sorry, I lost my train of thought. Could you say that again?)"
-        return post(reply) if post else reply
-    except Exception as exc:  # noqa: BLE001  -- we want a graceful UI message
-        # We deliberately never leak a raw stack trace to a student. We log it
-        # for the developer and show a calm message instead.
-        print(f"[{label}] brain API error ({provider}): {exc}")
-        _event("failopen", where, str(exc),
-               (meta or {}).get("code", ""), (meta or {}).get("course", ""))
-        return ("(I'm having trouble thinking right now -- give me a moment and "
-                "try again.)")
+    # (qh) THE SEAT ORDER. The configured seat first, then the house brain -- so a
+    # challenger that cannot answer hands the class back INSIDE this turn instead of
+    # handing the child an apology. ⚠️ ONE call site and ONE client construction, on
+    # purpose: PART 3ax's two pins (build hg) exist so no path can grow its own
+    # half-refereed copy of this sequence, and a failover written as a second call
+    # would have been exactly that. It is a LIST of seats, walked once.
+    seats = [(provider, model, api_key)]
+    _house_key = os.environ.get("ANTHROPIC_API_KEY")
+    if provider != "anthropic" and _house_key:
+        seats.append(("anthropic", os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL),
+                      _house_key))
+    system_blocks = None
+    for seat_provider, seat_model, seat_key in seats:
+        try:
+            # The prompt is built INSIDE the try (a prompt-builder crash must still
+            # yield the friendly message, never a raw 500), and once for the turn.
+            if system_blocks is None:
+                system_blocks = _cacheable_system(prompt_fn())
+            # MATH VERIFIER (2026-08-03): the reply is generated AND refereed in here
+            # -- see _create_verified above. Same prompt, same referees, either seat.
+            reply = _create_verified(
+                _brain_client(seat_provider, seat_key), seat_model, system_blocks,
+                messages, log_tag, meta=meta,
+            ) or "(Sorry, I lost my train of thought. Could you say that again?)"
+            if seat_provider != provider:
+                print(f"[{label}] {provider}/{model} could not answer -- this turn was "
+                      f"taught by {seat_provider}/{seat_model}")
+            return post(reply) if post else reply
+        except Exception as exc:  # noqa: BLE001  -- we want a graceful UI message
+            # We deliberately never leak a raw stack trace to a student. We log it
+            # for the developer and show a calm message instead.
+            print(f"[{label}] brain API error ({seat_provider}): {exc}")
+            _event("failopen", where, f"{seat_provider}/{seat_model}: {exc}",
+                   (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+            if seat_provider != "anthropic":
+                _seat_down(seat_provider, seat_model, exc)
+    # Every seat is unreachable -- which is the case this message was written for.
+    return ("(I'm having trouble thinking right now -- give me a moment and "
+            "try again.)")
 
 
 def get_tutor_reply(student: dict, history: list, user_message: str,

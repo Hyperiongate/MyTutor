@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30qh-hands-the-class-back". BUILD qh -- from the
+#               first night on the DeepSeek seat (120 apologies). tutor.py fails OVER to
+#               Anthropic instead of failing open; nightwatch.py finally prints the
+#               failopen reasons it was counting. Here: NEW /api/admin/seat-check, one
+#               cheap call to the configured seat that returns the vendor's own error
+#               and a remedy -- so a seat can be tested before a child pays for it.
 #   2026-08-29  APP_BUILD -> "2026-08-29qg-the-deepseek-brain". BUILD qg -- Jim's ruling:
 #               DeepSeek replaces the Anthropic brain (TUTOR_PROVIDER=deepseek on Render).
 #               tutor.py holds the seat and its privacy gate; static/privacy.html names
@@ -9524,6 +9530,72 @@ def admin_events(key: str = "",
     }
 
 
+@app.get("/api/admin/seat-check")
+def admin_seat_check(key: str = "",
+                     x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """(qh) ONE cheap call to the brain seat that is configured RIGHT NOW, and the
+    vendor's own words back if it fails.
+
+    ⚠️ WHY THIS EXISTS. Build qg moved the teaching seat to DeepSeek and the first
+    night on it produced 120 fail-opens -- every turn of every lesson an apology --
+    because the seat raised on every call. Nothing anywhere could answer "does the
+    configured seat actually work?" without spending a child's turn to find out.
+    This does, for the price of about twenty tokens, and it names the remedy.
+
+    Never raises: a broken seat returns ok=false WITH the reason, which is the whole
+    point of the endpoint."""
+    _require_admin(x_admin_key or key)
+    seat = tutor.active_brain()
+    out = {"ok": False, "seat": seat, "reply": "", "error": "", "remedy": ""}
+    provider, model = seat.get("provider"), seat.get("model")
+    if seat.get("gated"):
+        out["error"] = f"the configured seat is not in use: {seat['gated']}"
+        out["remedy"] = ("this is the gate or a downed seat talking, not the vendor. "
+                         "Read the reason above; /health carries the same line.")
+        return out
+    try:
+        if provider == "deepseek":
+            client = tutor.deepseek_brain(os.environ.get("DEEPSEEK_API_KEY", ""))
+        elif provider == "openai":
+            client = tutor._OpenAIBrain(os.environ.get("OPENAI_API_KEY", ""))
+        else:
+            client = tutor.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
+                                     timeout=tutor.ANTHROPIC_TIMEOUT_S, max_retries=0)
+        t0 = time.time()
+        resp = client.messages.create(
+            model=model, max_tokens=64,
+            system="You are a maths tutor. Answer in one short sentence.",
+            messages=[{"role": "user", "content": "What is 2 plus 2?"}])
+        text = "".join(b.text for b in resp.content
+                       if getattr(b, "type", None) == "text")
+        out.update(ok=bool(text.strip()), reply=text.strip()[:200],
+                   seconds=round(time.time() - t0, 2))
+        if not out["ok"]:
+            out["error"] = "the seat answered with EMPTY text"
+            out["remedy"] = ("the call succeeded but produced nothing -- for a thinking "
+                             "model this usually means the whole budget went to "
+                             "reasoning. Try DEEPSEEK_REASONING_EFFORT=off.")
+        return out
+    except Exception as exc:  # noqa: BLE001 -- reporting the failure IS the job
+        msg = " ".join(str(exc).split())[:400]
+        out["error"] = msg
+        low = msg.lower()
+        if "not found" in low or "404" in low or "model" in low and "exist" in low:
+            out["remedy"] = (f"the vendor does not serve {model!r} on this key. Set "
+                             "DEEPSEEK_TUTOR_MODEL (or CLAUDE_MODEL / "
+                             "OPENAI_TUTOR_MODEL) to a name it does serve.")
+        elif "401" in low or "auth" in low or "invalid" in low and "key" in low:
+            out["remedy"] = ("the key was refused. Check DEEPSEEK_API_KEY in Render "
+                             "for stray spaces or a truncated paste.")
+        elif "400" in low:
+            out["remedy"] = ("the vendor refused the REQUEST. If it names thinking or "
+                             "reasoning_effort, set DEEPSEEK_REASONING_EFFORT=off and "
+                             "try again.")
+        else:
+            out["remedy"] = "the vendor's own words are above; start there."
+        return out
+
+
 @app.get("/api/admin/nightwatch/status")
 def admin_nightwatch_status(key: str = "",
                             x_admin_key: str = Header(default="", alias="X-Admin-Key")):
@@ -12639,7 +12711,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-29qg-the-deepseek-brain"
+APP_BUILD = "2026-08-30qh-hands-the-class-back"
 
 
 @app.get("/health")

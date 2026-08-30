@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qh -- PART 3gl: the seat hands the class back. The first night on
+#               the DeepSeek seat was 120 apologies; the pipeline failed OPEN instead of
+#               OVER, and the report asked only for referee_crash reasons so the 120
+#               failopen messages were never printed. Both fixed, both directions.
 #   2026-08-29  BUILD qg -- PART 3gk: the DeepSeek seat. TUTOR_PROVIDER=deepseek on the
 #               OpenAI-compatible adapter (url/extra/vendor), thinking effort from env
 #               (default low), the privacy gate proved BOTH ways by mutating the page
@@ -14426,6 +14430,180 @@ def part3gk_the_deepseek_seat():
           msrc.count('tutor.active_brain()["model"]') == 2 and '"brain": tutor.active_brain()' in msrc, "")
 
 
+def part3gl_the_seat_hands_the_class_back():
+    """PART 3gl (build qh, 2026-08-30) -- 120 APOLOGIES IN ONE NIGHT.
+
+    The 2026-08-30 night watch, the FIRST on the DeepSeek seat build qg shipped:
+    "23 new confirmed" -- and every one of them quoted the same sentence,
+    "(I'm having trouble thinking right now -- give me a moment and try again.)".
+    Ten lessons, twelve fallback turns each, 120 teaching-path fail-opens where the
+    night before there were ZERO. The seat raised on every call and every child got
+    an apology.
+
+    THE CATCH-ALL WAS WRITTEN FOR A ONE-BRAIN WORLD. If the only brain is down there
+    is nothing to try, so the calm message is right. Build qg added a CHALLENGER seat
+    and left that logic untouched -- so a wrong model name, a bad key, or a refused
+    parameter took the whole live lane down for a night. Build of had already written
+    the lesson for the CRITIC seat ("a misconfigured name silently EMPTIED the seat
+    ... this makes it survivable"); qg failed to apply it where the blast radius was
+    every child. Now: a non-Anthropic seat that raises hands THIS TURN to Anthropic,
+    and is marked down STICKY so the next child does not pay for the same lookup. The
+    apology survives for the case it was written for -- both brains unreachable.
+
+    AND THE EYES WERE HALF SHUT. Every one of those 120 turns wrote its reason to
+    system_events under kind="failopen" -- and the report printed 2026-08-26's stale
+    critic 404s instead, because build pq's reason query asks only for
+    "referee_crash". The counter said 120 and the eyes said nothing. Fixed here, and a
+    night that is mostly apologies now LEADS with an outage banner instead of a
+    finding count, because "23 findings" taught the reader that the teaching got worse
+    when what happened is that the brain was down.
+    """
+    print("\nPART 3gl — the seat hands the class back (build qh)")
+    import tutor as _t
+    import mathcheck as _mc
+    import nightwatch as _nw
+
+    class _B:
+        pass
+
+    def _resp(text):
+        r, b = _B(), _B()
+        b.type, b.text = "text", text
+        r.content, r.stop_reason, r.usage = [b], "end_turn", None
+        return r
+
+    # ---- the sticky record ----
+    _t._SEAT_DOWN.clear()
+    events = []
+    saved_event = _t._event
+    _t._event = lambda k, n, d="", c="", co="": events.append((k, n, d))
+    try:
+        _t._seat_down("deepseek", "deepseek-v4-pro", RuntimeError("DeepSeek 404: no such model"))
+        _t._seat_down("deepseek", "deepseek-v4-pro", RuntimeError("again"))
+        check("⭐ a downed seat is recorded ONCE, with the vendor's own words",
+              len([e for e in events if e[0] == "seat_fallback"]) == 1
+              and "404" in _t._seat_is_down("deepseek", "deepseek-v4-pro"), events)
+        check("  ...and only for the seat that failed",
+              not _t._seat_is_down("deepseek", "deepseek-v4-flash")
+              and not _t._seat_is_down("anthropic", "claude-sonnet-5"), "")
+    finally:
+        _t._event = saved_event
+
+    # ---- the pipeline, end to end, with BOTH transports stubbed ----
+    import httpx as _hx
+    real_post, real_anthropic = _hx.post, _t.Anthropic
+    saved = (_mc.verify_reply, _t.prose_board_conflict, _t._live_critic_review, _t._event)
+    calls = {"deepseek": 0, "anthropic": 0}
+
+    class _FakeAnthropic:
+        def __init__(self, **kw):
+            self.messages = self
+
+        def create(self, **kw):
+            calls["anthropic"] += 1
+            return _resp('Four. [[step eq="2 + 2 = 4"]]')
+
+    def _raising_post(url, json=None, **kw):
+        calls["deepseek"] += 1
+        raise RuntimeError("connection refused (stub)")
+
+    def _run():
+        return _t._reply_pipeline(lambda: "SYSTEM", [], "what is 2 plus 2",
+                                  " [test]", {"code": "T", "course": "basic"},
+                                  where="get_tutor_reply", label="tutor")
+    try:
+        _mc.verify_reply = lambda r: ("ok", "")
+        _t.prose_board_conflict = lambda r, *a, **k: ""
+        _t._live_critic_review = lambda r, *a, **k: ""
+        events = []
+        _t._event = lambda k, n, d="", c="", co="": events.append((k, n, d))
+        _hx.post = _raising_post
+        _t.Anthropic = _FakeAnthropic
+        _t._SEAT_DOWN.clear()
+        os.environ["TUTOR_PROVIDER"] = "deepseek"
+        os.environ["DEEPSEEK_API_KEY"] = "sk-test"
+        os.environ["ANTHROPIC_API_KEY"] = "sk-ant-test"
+        out = _run()
+        check("⭐ THE CHILD GETS A REAL REPLY, not the apology, when the seat raises",
+              "Four." in out and "having trouble thinking" not in out, out[:90])
+        check("  ...and the failopen event names the SEAT and model that failed",
+              any(e[0] == "failopen" and "deepseek/deepseek-v4-pro" in e[2] for e in events),
+              [e for e in events if e[0] == "failopen"][:2])
+        check("  ...and the seat is marked down, once, loudly",
+              len([e for e in events if e[0] == "seat_fallback"]) == 1
+              and bool(_t._seat_is_down("deepseek", "deepseek-v4-pro")), events)
+        first_ds = calls["deepseek"]
+        out2 = _run()
+        check("⭐ the NEXT turn does not pay for the same lookup -- the seat is skipped",
+              "Four." in out2 and calls["deepseek"] == first_ds,
+              "deepseek calls %d (was %d)" % (calls["deepseek"], first_ds))
+        check("  ...and /health reports the seat as down, with the reason",
+              "seat down" in _t.active_brain()["gated"], _t.active_brain())
+
+        # both brains unreachable: the apology survives for the case it was written for
+        _t._SEAT_DOWN.clear()
+
+        class _DeadAnthropic:
+            def __init__(self, **kw):
+                self.messages = self
+
+            def create(self, **kw):
+                raise RuntimeError("anthropic is down too (stub)")
+        _t.Anthropic = _DeadAnthropic
+        out3 = _run()
+        check("⭐ BOTH brains down: the calm message appears, as designed",
+              "having trouble thinking" in out3, out3[:90])
+        check("  ...and BOTH failures are on the record",
+              len([e for e in events if e[0] == "failopen"]) >= 2, "")
+
+        # DO NO HARM: the plain Anthropic seat never touches any of this
+        _t.Anthropic = _FakeAnthropic
+        _t._SEAT_DOWN.clear()
+        os.environ["TUTOR_PROVIDER"] = "anthropic"
+        before = calls["anthropic"]
+        out4 = _run()
+        check("  DO NO HARM: TUTOR_PROVIDER=anthropic is one call, no failover path",
+              "Four." in out4 and calls["anthropic"] == before + 1 and not _t._SEAT_DOWN, "")
+    finally:
+        _hx.post, _t.Anthropic = real_post, real_anthropic
+        _mc.verify_reply, _t.prose_board_conflict, _t._live_critic_review, _t._event = saved
+        _t._SEAT_DOWN.clear()
+        for _k in ("TUTOR_PROVIDER", "DEEPSEEK_API_KEY"):
+            os.environ.pop(_k, None)
+
+    # ---- the eyes ----
+    nsrc = open(_nw.__file__, encoding="utf-8").read()
+    check("⭐ the report now ASKS for failopen reasons (it counted 120 and asked for none)",
+          '"failopen", "seat_fallback"' in nsrc, "the counter fires and the eyes stay shut")
+    check("  the fallback finding names the seat that is teaching, not 'Anthropic'",
+          "_seat_name()" in nsrc and "check the Anthropic call path" not in nsrc, "")
+    base = {"ok": True, "ran": 10, "new": [], "recurring": 0, "refuted": 0,
+            "refuted_list": [], "harness_gap": [], "errors": [], "seconds": 1.0,
+            "probes_run": [], "budget_stopped": False}
+    outage = dict(base, fallback_turns=120, turns_total=120)
+    md = _nw.report_markdown(outage, build="qh-selftest")
+    check("⭐ a night that was mostly apologies LEADS with the outage, not a finding count",
+          "THE BRAIN WAS DOWN" in md and "120 of 120 turns were apologies" in md, md[:400])
+    check("  ...and says plainly that the findings are one outage seen many ways",
+          "one outage seen many ways" in md and "Nothing here judges the rules" in md, "")
+    healthy = dict(base, fallback_turns=1, turns_total=120)
+    check("  ...and a healthy night carries no banner",
+          "THE BRAIN WAS DOWN" not in _nw.report_markdown(healthy, build="qh-selftest2"), "")
+    check("  an older result dict (no fallback tally) still renders",
+          "Night watch" in _nw.report_markdown(dict(base), build="qh-old"), "")
+
+    # ---- the preflight ----
+    msrc = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "main.py"),
+                encoding="utf-8").read()
+    check("⭐ /api/admin/seat-check exists, is admin-gated, and reports the vendor's words",
+          '@app.get("/api/admin/seat-check")' in msrc
+          and "_require_admin(x_admin_key or key)" in
+          msrc.split('@app.get("/api/admin/seat-check")')[1][:900]
+          and '"remedy"' in msrc, "")
+    check("  ...and it never raises -- a broken seat is the ANSWER, not an error page",
+          "reporting the failure IS the job" in msrc, "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -17353,7 +17531,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,491</b>" in page,
+          "<b>7,509</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25855,6 +26033,7 @@ def main():
     part3gi_the_intervention_teaches_the_problem_that_was_asked()
     part3gj_one_thought_per_line_in_the_boards()
     part3gk_the_deepseek_seat()
+    part3gl_the_seat_hands_the_class_back()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

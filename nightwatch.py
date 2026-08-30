@@ -2,6 +2,15 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qh -- THE EYES WERE HALF SHUT. The 2026-08-30 report counted 120
+#               teaching-path fail-opens and printed 2026-08-26's stale critic 404s as
+#               "what they actually said", because build pq's reason query asks only for
+#               referee_crash. Every one of those 120 turns had written its reason to
+#               system_events. The query now asks for failopen, seat_fallback and
+#               privacy_gate too; the fallback finding names the SEAT that is teaching
+#               (not "Anthropic", which qg made wrong); and a night that was mostly
+#               apologies LEADS with an outage banner, because "23 findings" reads as
+#               "the teaching got worse" when the brain was simply down. PART 3gl.
 #   2026-08-29  BUILD px -- THE REVIEWER'S LIST IS GENERATED, NOT HAND-KEPT. The
 #               2026-08-29 watch could not judge FIVE findings ("rule not in the
 #               reviewer's list": 28, 47, 61, 63) -- all four are real, enforced rules.
@@ -340,6 +349,17 @@ def render_verify_system():
 VERIFY_SYSTEM = render_verify_system()
 
 
+def _seat_name() -> str:
+    """(qh) Who is actually teaching -- "deepseek/deepseek-v4-pro" -- for the report's
+    remedy lines. Never raises: an unreadable seat is just "brain"."""
+    try:
+        import tutor as _tu
+        b = _tu.active_brain()
+        return f"{b.get('provider') or 'brain'}/{b.get('model') or ''}".rstrip("/")
+    except Exception:  # noqa: BLE001
+        return "brain"
+
+
 def verify_finding(openai_call, scenario, transcript, finding):
     """Hand one finding to an independent skeptic.
     Returns (is_real, why, error, rule_known).
@@ -393,6 +413,9 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
     out = {"ok": False, "ran": 0, "skipped": [], "new": [], "recurring": 0,
            "unverified": [], "refuted": 0, "refuted_list": [], "harness_gap": [],
            "errors": [], "seconds": 0.0,
+           # (qh) the OUTAGE tally: fallback turns against turns attempted. A night
+           # where every turn was an apology must not read as "23 findings".
+           "fallback_turns": 0, "turns_total": 0,
            "budget_stopped": False, "probes_run": sorted((probe_hooks or {}).keys())}
     try:
         import lessonaudit
@@ -425,6 +448,8 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
                 out["errors"].append(f"{sc['id']}: {err}")
                 continue
             out["ran"] += 1
+            out["turns_total"] += int(turns or 0)          # (qh)
+            out["fallback_turns"] += int(fallbacks or 0)   # (qh)
             if fallbacks:
                 # A graceful-failure turn is a RELIABILITY finding the critic cannot
                 # argue away (build dc's lesson: a critic marking content reads straight
@@ -434,7 +459,10 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
                     "what": f"the tutor lost its train of thought {fallbacks} time(s) in "
                             f"one lesson and apologised to the student",
                     "quote": "(fallback turn)", "why": "a child is left waiting mid-lesson",
-                    "fix": "check the Anthropic call path and the turn deadline"},
+                    # (qh) name the SEAT, not "Anthropic" -- build qg made the brain
+                    # pluggable and this line sent the 2026-08-30 reader to the wrong
+                    # call path while DeepSeek was the one raising.
+                    "fix": f"check the {_seat_name()} call path and the turn deadline"},
                     verified_note="counted by code, not judged")
 
             for name, hook in (probe_hooks or {}).items():
@@ -533,6 +561,23 @@ def report_markdown(result, build="") -> str:
          + (f" · ⚠️ **{len(result.get('harness_gap') or [])} unjudged "
             f"(rule not in the reviewer's list)**"
             if result.get("harness_gap") else ""), ""]
+    # (qh) ⭐ THE OUTAGE BANNER. 2026-08-30: the first night on the DeepSeek seat
+    # produced "23 new confirmed" -- and every one of them was the same sentence,
+    # "(I'm having trouble thinking right now)", because the seat raised on all 120
+    # turns. A report that leads with a finding count teaches the reader that the
+    # TEACHING got worse, when what happened is that the brain was down. When most
+    # turns were apologies, that is the headline and nothing else is.
+    _fb, _tt = int(result.get("fallback_turns") or 0), int(result.get("turns_total") or 0)
+    if _fb and _tt and _fb * 2 >= _tt:
+        L += [f"## 🚨 THE BRAIN WAS DOWN — {_fb} of {_tt} turns were apologies, not teaching",
+              "",
+              f"_The seat configured to teach ({_seat_name()}) raised on {_fb} of the "
+              f"{_tt} turns attempted, so the student got the fallback line instead of a "
+              f"reply. **The findings below are that one outage seen many ways — "
+              f"they are not {len(new)} separate teaching defects.** Read the "
+              "failopen reasons in the telemetry section first: they carry the "
+              "vendor's own words. Nothing here judges the rules._",
+              ""]
     if not result.get("ok"):
         L += ["**The watch did not complete.**", ""]
     if new:
@@ -623,8 +668,15 @@ def report_markdown(result, build="") -> str:
         # has carried the detail all along; the report simply never asked for it.
         # Distinct reasons only, newest first, so a repeated crash costs one line.
         try:
+            # (qh) failopen WAS NOT IN THIS LIST. On 2026-08-30 the teaching seat
+            # raised on all 120 turns, every one wrote its reason to system_events --
+            # and this report printed 08-26's stale critic 404s instead, because it
+            # only ever asked for referee_crash. The counter said 120 and the eyes
+            # said nothing. Every alarming kind is asked for now.
             rows = _store.recent_events(hours=24 * 7, limit=200,
-                                        kinds=["referee_crash", "clienterror"])
+                                        kinds=["referee_crash", "clienterror",
+                                               "failopen", "seat_fallback",
+                                               "privacy_gate"])
             seen, reasons = set(), []
             for r in rows:
                 d = " ".join(str(r.get("detail") or "").split())[:240] or "(no detail recorded)"
