@@ -2,6 +2,21 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qy -- THE CEILING WAS TOO LOW FOR THE ROOM. The 2026-08-31 watch ran
+#               8 of the rotation's 12 lesson slots and then the default 45-minute budget
+#               cut it off -- 2 scenarios were skipped outright, not just delayed. Jim, when
+#               asked whether to raise it: "Yes, raise it," with no ceiling named, and an
+#               earlier offer on record to "size it to fit all 10 scenarios with margin".
+#               45 min / 8 lessons measures ~5.6 min/lesson on that night; at that pace all
+#               12 rotation slots (the 10 scenarios, two of them landing twice on a 12-slot
+#               night) need ~68 minutes. NIGHTWATCH_MAX_MINUTES's default is raised
+#               45 -> 90: comfortable margin over the measured 68-minute need, enough to
+#               absorb a heavier finding night (more verify_finding calls, one per finding)
+#               without starting to skip scenarios again. LESSONS_PER_NIGHT stays 12 --
+#               the time budget was never the cost lever, the lesson count is, so nightly
+#               spend is unchanged by this build. Still overridable from Render with
+#               NIGHTWATCH_MAX_MINUTES=<n> and no deploy, exactly as before this change --
+#               PART 3ak now proves that override still works, not just the new default.
 #   2026-08-30  BUILD qh -- THE EYES WERE HALF SHUT. The 2026-08-30 report counted 120
 #               teaching-path fail-opens and printed 2026-08-26's stale critic 404s as
 #               "what they actually said", because build pq's reason query asks only for
@@ -165,9 +180,18 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # and one critic pass, plus a verification call per finding. lessonaudit prices a
 # teaching turn at ~$0.03 (mostly cached prompt), so a night lands in single dollars.
 # Every one of these is overridable in Render without a deploy.
+#
+# MAX_MINUTES is a SAFETY CAP, not the cost lever -- LESSONS_PER_NIGHT is. Raising this
+# does not raise what a night spends; it only lets the 12 lessons already budgeted
+# actually finish. (qy, 2026-08-31) The 45-minute default was too low for the room: the
+# 2026-08-31 watch measured ~5.6 min/lesson (45min / 8 lessons run) and was cut off with
+# 2 of the rotation's 12 slots unrun. All 12 slots at that pace need ~68 minutes. Raised
+# to 90 for margin over a heavier finding night (each finding costs one more
+# verify_finding call). Jim said "yes, raise it" without naming a ceiling; this sizes it
+# to cover the full rotation with room to spare, per the offer made when asking.
 LESSONS_PER_NIGHT = int(os.environ.get("NIGHTWATCH_LESSONS", "12") or 12)
 TURNS_PER_LESSON  = int(os.environ.get("NIGHTWATCH_TURNS", "6") or 6)
-MAX_MINUTES       = int(os.environ.get("NIGHTWATCH_MAX_MINUTES", "45") or 45)
+MAX_MINUTES       = int(os.environ.get("NIGHTWATCH_MAX_MINUTES", "90") or 90)
 RUN_HOUR_UTC      = int(os.environ.get("NIGHTWATCH_HOUR_UTC", "8") or 8)   # ~1am Pacific
 VERIFY_FINDINGS   = (os.environ.get("NIGHTWATCH_VERIFY", "on").strip().lower()
                      not in ("off", "0", "false", "no"))

@@ -2,6 +2,21 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qy -- PART 3ak extended: nightwatch.MAX_MINUTES's default moved
+#               45 -> 90 (Jim: "Yes, raise it" -- the 2026-08-31 watch was cut off with
+#               2 of the rotation's 12 slots unrun). One pin holds the new default
+#               literal, not with a >=, so a revert is caught exactly; two more prove the
+#               NIGHTWATCH_MAX_MINUTES Render override still works (set it, reload, read
+#               it back; clear it, reload, confirm the new default returns) -- the point
+#               of raising a number that is "overridable in Render without a deploy" is
+#               that it stays that way. Also: the historical-night near_ceiling check
+#               (38.5 min, pinned literal since build gp) was tied to the OLD 45-minute
+#               default -- 38.5/45 = 85%, near it; 38.5/90 = 43%, not near it at all, and
+#               the card is now correctly telling the truth about that. Rewired to assert
+#               the honest new answer (False) plus a SEPARATE positive case computed off
+#               nw.MAX_MINUTES itself (85% of whatever it currently is) so the "still
+#               warns when truly near ceiling" property survives future budget changes
+#               without another literal to go stale.
 #   2026-08-31  BUILD qx -- PART 3gz: the verb is the operator. R7 (rule 15's command-ask
 #               gate: "Simplify 8/12?" slipped in BOTH word and digit form; final-sentence
 #               scoped after the canon sweep caught a mid-turn teaching question; net new
@@ -19422,7 +19437,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,837</b>" in page,
+          "<b>7,841</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -20003,7 +20018,7 @@ def part3ak_night_watch():
     except Exception as exc:  # our own module missing is a broken repo, not a laptop
         bad("nightwatch imports", f"{type(exc).__name__}: {exc}")
         return
-    import json as _json, tempfile as _tmp, datetime as _dt
+    import json as _json, tempfile as _tmp, datetime as _dt, importlib
 
     # ---- the rotation: a small budget must still cover everything, in order ----
     sc = [{"id": f"s{i}"} for i in range(10)]
@@ -20155,9 +20170,17 @@ def part3ak_night_watch():
         su = nw.summary(d)
         check("night watch: the card reads last night's runtime",
               su.get("last_minutes") == 38.5, f"got {su.get('last_minutes')}")
-        check("night watch: and warns when a run is near its time ceiling",
-              su.get("near_ceiling") is True,
-              "a run that starts skipping lessons must say so, not lose coverage quietly")
+        # (qy, 2026-08-31) THIS HISTORICAL NIGHT IS NO LONGER NEAR THE CEILING, AND THAT
+        # IS CORRECT. 38.5 minutes was 85% of the OLD 45-minute default -- genuinely near
+        # it. Against the raised 90-minute default it is 43%, nowhere close, and the
+        # card should say so; a check pinned to "True" here would have been asserting a
+        # STALE relationship between one historical run and whatever MAX_MINUTES happens
+        # to be today, which is exactly the kind of literal-tied-to-a-default fuse this
+        # build's other fix (the PART 3ak override checks above) exists to avoid.
+        check("night watch: a run using less than its window is NOT flagged near ceiling",
+              su.get("near_ceiling") is False,
+              f"38.5 min against a {nw.MAX_MINUTES}-min budget should read comfortable, "
+              f"got {su.get('near_ceiling')}")
         check("night watch: the card computes the refuted share",
               (su.get("health") or {}).get("refuted_pct") == 73, str(su.get("health")))
         check("night watch: a report is readable back by its date",
@@ -20166,6 +20189,20 @@ def part3ak_night_watch():
               nw.read_report(d, "../../etc/passwd") == ""
               and nw.read_report(d, "2026-13-99") != "# nope",
               "the date is validated as a date")
+    # (qy, 2026-08-31) THE POSITIVE CASE, SIZED OFF THE LIVE BUDGET, NOT A LITERAL. The
+    # historical-night block above no longer exercises "near ceiling" now that the
+    # default is 90 minutes, so this proves the flag still fires -- computed from
+    # nw.MAX_MINUTES itself (85% of it) rather than a hardcoded minute count, so it
+    # cannot go stale the next time Jim asks for the ceiling raised again.
+    with _tmp.TemporaryDirectory() as d2:
+        res3 = dict(res, seconds=round(nw.MAX_MINUTES * 60 * 0.85, 1), ran=12)
+        nw.write_report(d2, res3, "b")
+        su3 = nw.summary(d2)
+        check("night watch: a run using 85% of the CURRENT budget IS flagged near ceiling",
+              su3.get("near_ceiling") is True,
+              f"{su3.get('last_minutes')} min against a {nw.MAX_MINUTES}-min budget "
+              f"should have warned, got {su3.get('near_ceiling')} -- coverage must "
+              "never be lost quietly")
     with open(os.path.join(root, "static", "admin.html"), "r", encoding="utf-8") as fh:
         adm = fh.read()
     check("night watch: /admin has a card that reads the reports",
@@ -20180,6 +20217,33 @@ def part3ak_night_watch():
     check("night watch: it can be switched off from Render without a deploy",
           "NIGHTWATCH" in m or "nightwatch.enabled()" in m,
           "a governor with no off switch is a liability")
+
+    # ---- the time budget (qy, 2026-08-31): raised, and still Render-overridable ----
+    # Jim's ruling, asked and answered this session: "Yes, raise it," with no ceiling
+    # named -- sized here to cover the full 12-slot rotation with margin (see nightwatch.py's
+    # own change note). Pinned as a literal, not a >=, so an accidental revert to the old
+    # 45 is caught exactly rather than slipping under a loose floor.
+    check("night watch: the default time budget was raised from 45 to fit the rotation",
+          nw.MAX_MINUTES == 90,
+          "the 2026-08-31 watch measured ~5.6 min/lesson and was cut off 2 scenarios "
+          "short of the 12-slot rotation; 90 covers the measured ~68-minute need with "
+          "margin for a heavier finding night")
+    _old_env = os.environ.get("NIGHTWATCH_MAX_MINUTES")
+    try:
+        os.environ["NIGHTWATCH_MAX_MINUTES"] = "20"
+        importlib.reload(nw)
+        check("night watch: the time budget is still overridable from Render, no deploy",
+              nw.MAX_MINUTES == 20,
+              "raising the default must not have hard-coded away Jim's own override knob")
+    finally:
+        if _old_env is None:
+            os.environ.pop("NIGHTWATCH_MAX_MINUTES", None)
+        else:
+            os.environ["NIGHTWATCH_MAX_MINUTES"] = _old_env
+        importlib.reload(nw)
+        check("night watch: reloading with the override cleared restores the new default",
+              nw.MAX_MINUTES == 90,
+              "the test harness must leave the module exactly as it found it")
 
 
 

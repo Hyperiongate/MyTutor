@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  APP_BUILD -> "2026-08-31qy-the-ceiling-was-too-low-for-the-room". BUILD qy
+#               -- NO PYTHON IN THIS FILE CHANGED besides this stamp; the fix is entirely
+#               in nightwatch.py. The 2026-08-31 night watch ran 8 of the rotation's 12
+#               lesson slots and was then cut off by the default 45-minute time budget,
+#               skipping 2 scenarios outright. Jim, asked whether to raise it: "Yes, raise
+#               it." nightwatch.NIGHTWATCH_MAX_MINUTES's default moves 45 -> 90 (45min /
+#               8 lessons measured ~5.6 min/lesson; all 12 slots need ~68 minutes at that
+#               pace, so 90 leaves margin for a heavier finding night). LESSONS_PER_NIGHT
+#               is unchanged at 12, so nightly spend does not move -- the time budget was
+#               never the cost lever. Still overridable from Render with
+#               NIGHTWATCH_MAX_MINUTES=<n> and no deploy; PART 3ak now proves the override
+#               still works, not just the new default.
 #   2026-08-31  APP_BUILD -> "2026-08-31qx-the-verb-is-the-operator". BUILD qx -- the
 #               08-29 review's last two items, all in tutor.py: R7 (rule 15's referee
 #               learns the COMMAND ASK -- "Simplify 8/12?" slipped in both word and
@@ -13032,7 +13044,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-31qx-the-verb-is-the-operator"
+APP_BUILD = "2026-08-31qy-the-ceiling-was-too-low-for-the-room"
 
 
 @app.get("/health")
