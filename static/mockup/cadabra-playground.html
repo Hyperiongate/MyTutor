@@ -1,0 +1,1387 @@
+<!doctype html>
+<!--
+  ============================================================================
+  static/mockup/cadabra-playground.html  -  "The Cadabra Motion Lab"
+  ANIMATION PLAYGROUND.  NOT PRODUCTION.  NOT LINKED FROM ANYWHERE.
+  ============================================================================
+
+  WHAT THIS IS
+    A tuning bench for Mr. Cadabra as a free-floating companion over a real
+    lesson, instead of a portrait sequestered in a box.  A stand-in
+    entry-level math lesson runs on the left; Mr. Cadabra floats above the
+    whole page in an overlay; the dark console on the right fires every
+    behaviour on demand and tunes the numbers behind it live.
+
+    Behaviours: idle float, park, blink, talk, point at any element, fly over
+    and UNDERLINE any element in his own graphite, three tiers of celebration,
+    a guided tour of the page, and an opening math joke.
+
+  CHANGE NOTES (newest first)
+    2026-08-31  Created.  Built on the character from
+                static/mockup/cadabra-pencil.html (28 Aug 2026) - same paths,
+                same palette, same No.2 yellow #F2BC1B and hat purple #6B44BE.
+                New in this file:
+                - the character is an OVERLAY, positioned in page pixels, with
+                  the sharpened TIP as his transform origin so he can write
+                - hands are detached and aim themselves: arms are redrawn each
+                  frame as a curve from shoulder to wherever the hand went
+                - three hand styles (thin mitts / gloves / big gloves) and an
+                  arms-off mode, switchable live
+                - underline follows a real SVG path with getPointAtLength, so
+                  his tip is genuinely on the line he is drawing
+                - the movement rule is enforced in code: he parks and goes
+                  still whenever the answer box has focus
+
+  THE ONE RULE THIS FILE EXISTS TO PROVE
+    He moves when the child is NOT working.  Movement is a reward or a
+    transition, never company for a child mid-problem.  Toggle
+    "Park while answering" off in the console to see why that rule is there.
+
+  SAFE TO DEPLOY, SAFE TO DELETE
+    - Self-contained.  No API calls, no build step, no server - double-click
+      opens it.  Only external request is Google Fonts, which falls back.
+    - Shares NO code with tutor-face.js, board.js, voice.js, session.html or
+      demo.html.  Nothing in the app imports it.  Nothing links to it.
+    - noindex, nofollow.  No APP_BUILD change and no ruletests PART needed,
+      exactly like static/demolab.html and static/mockup/cadabra-pencil.html.
+
+  KNOWN GAPS FOR WHOEVER BUILDS THIS FOR REAL
+    - tutor-face.js has still NOT been read.  #F2BC1B and #6B44BE remain
+      concept values and must be matched to the real palette first.
+    - The mouth here is driven by a synthetic loudness envelope.  In
+      production it reads the REAL amplitude of the playing ElevenLabs clip
+      once per frame from a Web Audio AnalyserNode on the existing <audio>
+      element - no new audio, no per-word work.
+    - The tour and the jokes are stand-in copy.  Production needs 50+ jokes
+      with no repeat inside a session.
+    - THEME NOTE: this page deliberately commits to one look - the lesson
+      stage is always light because it stands in for the child's page, and
+      the console is always dark because it is an instrument.  Every colour
+      is painted explicitly so it holds on any host background.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>The Cadabra Motion Lab</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='12' y='9' width='8' height='15' fill='%23F2BC1B'/%3E%3Crect x='12' y='7' width='8' height='2.5' fill='%23C8CAD4'/%3E%3Cpath d='M9 7 L23 7 L20 2 L12 2 Z' fill='%233A2C69'/%3E%3Cpath d='M12 24 L20 24 L16 30 Z' fill='%232F2C39'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+:root{
+  /* ---- the lesson stage: the child's page, always light ---- */
+  --paper:#F1F0F6; --card:#FFFFFF; --card-2:#F7F6FB;
+  --ink:#1B1926; --ink-2:#3D3850; --muted:#6A6480;
+  --line:#DEDAEA; --line-2:#EAE7F2;
+  --accent:#6B44BE; --accent-ink:#5B36AB; --accent-soft:#EFE9FB;
+  --good:#1E7A5F; --good-soft:#E2F3EC;
+
+  /* ---- the console: an instrument, always dark ---- */
+  --con:#16141F; --con-2:#211E2C; --con-3:#2B2739;
+  --con-line:#38324C; --con-ink:#EFECF8; --con-mute:#948CB0;
+  --con-accent:#A487E4; --con-amber:#E3A233;
+
+  /* ---- character paints, lifted verbatim from cadabra-pencil.html ---- */
+  --c-body:#F2BC1B; --c-body-dk:#C08F0C; --c-body-lt:#FBD96A;
+  --c-indigo:#3A2C69; --c-indigo-dk:#2B2050; --c-band:#6B44BE; --c-gold:#F2BC1B;
+  --c-graphite:#2F2C39; --c-wood:#DFC08A; --c-wood-dk:#C0A067;
+  --c-ferrule:#C8CAD4; --c-ferrule-dk:#9EA1B1; --c-eye:#FBFAFF; --c-mitt:#F5F0E5;
+  --c-glove:#FFFFFF;
+
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --sans:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+
+  --rail:334px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:17px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--display); margin:0; text-wrap:balance}
+p{margin:0}
+button{font:inherit; cursor:pointer}
+:focus-visible{outline:2.5px solid var(--accent); outline-offset:3px; border-radius:4px}
+
+/* ══════════════ layout ══════════════ */
+.lab{display:grid; grid-template-columns:1fr var(--rail); min-height:100%}
+
+/* ══════════════ the lesson stage ══════════════ */
+.stage{padding:clamp(24px,4vw,56px) clamp(20px,4vw,64px) 200px; background:var(--paper)}
+.sheet{width:min(660px,100%); margin-inline:auto; display:flex; flex-direction:column; gap:26px}
+
+.crumb{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted);
+  display:flex; align-items:center; gap:10px;
+}
+.crumb b{color:var(--accent-ink); font-weight:600}
+
+.lesson-title{font-size:clamp(1.75rem,3.4vw,2.3rem); font-weight:800; letter-spacing:-.02em; line-height:1.08}
+.lesson-sub{color:var(--ink-2); font-size:1.05rem; max-width:56ch}
+
+.panel{
+  background:var(--card); border:1px solid var(--line); border-radius:14px;
+  padding:22px 24px; display:flex; flex-direction:column; gap:14px;
+}
+.panel h3{
+  font-size:.74rem; font-family:var(--mono); font-weight:600;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--muted);
+}
+.worked{display:flex; flex-direction:column; gap:12px}
+.sum{
+  font-family:var(--mono); font-size:clamp(1.05rem,2.3vw,1.42rem); font-weight:500;
+  letter-spacing:.06em; color:var(--ink); font-variant-numeric:tabular-nums;
+}
+.numline{width:100%; height:78px; display:block}
+.hintline{color:var(--ink-2); font-size:.97rem}
+
+/* the question */
+.qcard{
+  background:var(--card); border:1px solid var(--line); border-radius:14px;
+  padding:24px; display:flex; flex-direction:column; gap:18px;
+  scroll-margin-top:24px;
+}
+.qhead{display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap}
+.qnum{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted);
+}
+.streak{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.1em;
+  color:var(--accent-ink); background:var(--accent-soft);
+  border-radius:999px; padding:4px 11px; text-transform:uppercase;
+}
+.qtext{font-family:var(--mono); font-size:clamp(1.7rem,4vw,2.4rem); font-weight:500; letter-spacing:.05em; font-variant-numeric:tabular-nums}
+.choices{display:grid; grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:12px}
+.choice{
+  background:var(--card-2); border:1.5px solid var(--line);
+  border-radius:12px; padding:16px 8px; color:var(--ink);
+  font-family:var(--mono); font-size:1.45rem; font-weight:500;
+  transition:transform .12s ease, border-color .12s ease, background .12s ease;
+  font-variant-numeric:tabular-nums;
+}
+.choice:hover:not(:disabled){transform:translateY(-2px); border-color:var(--accent); background:var(--accent-soft)}
+.choice:disabled{cursor:default; opacity:.45}
+.choice.is-right{background:var(--good-soft); border-color:var(--good); color:var(--good); opacity:1}
+.choice.is-wrong{background:#FBEEF0; border-color:#C4576B; color:#A3374C; opacity:1}
+
+.typerow{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+.typerow label{font-size:.95rem; color:var(--ink-2)}
+#answer{
+  font-family:var(--mono); font-size:1.3rem; width:120px; padding:11px 14px;
+  border:1.5px solid var(--line); border-radius:10px; background:var(--card-2);
+  color:var(--ink); text-align:center; font-variant-numeric:tabular-nums;
+}
+#answer:focus{border-color:var(--accent); background:var(--card); outline:none; box-shadow:0 0 0 4px var(--accent-soft)}
+.btn{
+  background:var(--accent); color:#fff; border:none; border-radius:10px;
+  padding:12px 22px; font-family:var(--mono); font-size:.78rem;
+  letter-spacing:.12em; text-transform:uppercase; font-weight:500;
+  transition:transform .12s ease, background .12s ease;
+}
+.btn:hover{background:var(--accent-ink); transform:translateY(-1px)}
+.btn.ghost{background:transparent; color:var(--accent-ink); border:1.5px solid var(--line)}
+.btn.ghost:hover{background:var(--accent-soft); border-color:var(--accent)}
+
+.verdict{font-size:1rem; min-height:1.6em; color:var(--ink-2)}
+.verdict b{color:var(--good)}
+
+.rulebox{
+  border-left:3px solid var(--accent); background:var(--accent-soft);
+  border-radius:0 12px 12px 0; padding:16px 20px; display:flex; flex-direction:column; gap:8px;
+}
+.rulebox p{font-size:.97rem; color:var(--ink-2)}
+.rulebox b{color:var(--accent-ink)}
+
+/* ══════════════ the console ══════════════ */
+.console{
+  background:var(--con); color:var(--con-ink); border-left:1px solid var(--con-line);
+  position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto;
+  display:flex; flex-direction:column;
+}
+.console::-webkit-scrollbar{width:9px}
+.console::-webkit-scrollbar-thumb{background:var(--con-3); border-radius:9px}
+.console::-webkit-scrollbar-track{background:var(--con)}
+
+.con-head{
+  padding:18px 20px 14px; border-bottom:1px solid var(--con-line);
+  display:flex; flex-direction:column; gap:5px; background:var(--con);
+  position:sticky; top:0; z-index:2;
+}
+.con-head h2{font-size:1.05rem; font-weight:800; letter-spacing:-.01em; color:var(--con-ink)}
+.con-head span{font-family:var(--mono); font-size:.63rem; letter-spacing:.16em; text-transform:uppercase; color:var(--con-mute)}
+
+.grp{padding:16px 20px; border-bottom:1px solid var(--con-line); display:flex; flex-direction:column; gap:11px}
+.grp > h4{
+  font-family:var(--mono); font-size:.62rem; letter-spacing:.17em; text-transform:uppercase;
+  color:var(--con-mute); font-weight:500; margin:0;
+}
+.bgrid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.bgrid.one{grid-template-columns:1fr}
+.cbtn{
+  background:var(--con-2); color:var(--con-ink); border:1px solid var(--con-line);
+  border-radius:8px; padding:9px 8px; font-family:var(--mono); font-size:.68rem;
+  letter-spacing:.06em; text-transform:uppercase; text-align:center;
+  transition:background .12s ease, border-color .12s ease, transform .12s ease;
+}
+.cbtn:hover{background:var(--con-3); border-color:var(--con-accent); transform:translateY(-1px)}
+.cbtn.hot{background:var(--con-accent); border-color:var(--con-accent); color:#17122A; font-weight:600}
+.cbtn.hot:hover{background:#B79BF0}
+.cbtn.amber{border-color:var(--con-amber); color:var(--con-amber)}
+.cbtn.amber:hover{background:#33291A}
+
+.field{display:flex; flex-direction:column; gap:6px}
+.field .lab-row{display:flex; justify-content:space-between; align-items:baseline; gap:8px}
+.field label{font-size:.82rem; color:var(--con-ink)}
+.field output{font-family:var(--mono); font-size:.72rem; color:var(--con-accent); font-variant-numeric:tabular-nums}
+input[type=range]{
+  -webkit-appearance:none; appearance:none; width:100%; height:4px;
+  background:var(--con-3); border-radius:4px; outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none; width:15px; height:15px; border-radius:50%;
+  background:var(--con-accent); cursor:pointer; border:2px solid var(--con);
+}
+input[type=range]::-moz-range-thumb{
+  width:15px; height:15px; border-radius:50%; background:var(--con-accent);
+  cursor:pointer; border:2px solid var(--con);
+}
+select{
+  width:100%; background:var(--con-2); color:var(--con-ink); border:1px solid var(--con-line);
+  border-radius:8px; padding:8px 10px; font-family:var(--mono); font-size:.72rem;
+}
+.tog{display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer}
+.tog span{font-size:.84rem; color:var(--con-ink)}
+.tog small{display:block; font-size:.72rem; color:var(--con-mute); line-height:1.35; margin-top:1px}
+.switch{
+  flex:0 0 auto; width:38px; height:21px; border-radius:999px; background:var(--con-3);
+  border:1px solid var(--con-line); position:relative; transition:background .16s ease;
+}
+.switch::after{
+  content:""; position:absolute; top:2px; left:2px; width:15px; height:15px;
+  border-radius:50%; background:var(--con-mute); transition:transform .16s ease, background .16s ease;
+}
+.tog input{position:absolute; opacity:0; width:0; height:0}
+.tog input:checked + .switch{background:var(--con-accent)}
+.tog input:checked + .switch::after{transform:translateX(17px); background:#17122A}
+.tog input:focus-visible + .switch{outline:2.5px solid var(--con-accent); outline-offset:2px}
+
+.readout{
+  margin-top:auto; padding:14px 20px 18px; border-top:1px solid var(--con-line);
+  font-family:var(--mono); font-size:.67rem; color:var(--con-mute);
+  display:flex; flex-direction:column; gap:4px; background:var(--con-2);
+}
+.readout .r{display:flex; justify-content:space-between; gap:10px}
+.readout b{color:var(--con-accent); font-weight:500}
+.readout .note{color:#6E6690; line-height:1.45; margin-top:6px; text-transform:none; letter-spacing:0}
+
+/* ══════════════ the overlay ══════════════ */
+#overlay{position:fixed; inset:0; pointer-events:none; z-index:60}
+#bubble{
+  position:fixed; z-index:61; pointer-events:none;
+  max-width:260px; background:var(--card); color:var(--ink);
+  border:2px solid var(--c-indigo); border-radius:14px;
+  padding:11px 15px; font-size:.97rem; line-height:1.42;
+  box-shadow:0 10px 26px rgba(27,25,38,.16);
+  opacity:0; transform:translate(-50%,-100%) scale(.9); transform-origin:50% 108%;
+  transition:opacity .18s ease, transform .18s cubic-bezier(.2,1.3,.4,1);
+}
+#bubble.on{opacity:1; transform:translate(-50%,-100%) scale(1)}
+#bubble::after{
+  content:""; position:absolute; left:50%; bottom:-9px; transform:translateX(-50%);
+  width:0; height:0; border:9px solid transparent; border-top-color:var(--c-indigo); border-bottom:0;
+}
+#bubble::before{
+  content:""; position:absolute; left:50%; bottom:-6px; transform:translateX(-50%); z-index:1;
+  width:0; height:0; border:7px solid transparent; border-top-color:var(--card); border-bottom:0;
+}
+
+/* ══════════════ narrow screens ══════════════ */
+@media (max-width:980px){
+  .lab{grid-template-columns:1fr}
+  .console{position:static; height:auto; border-left:none; border-top:1px solid var(--con-line)}
+  .con-head{position:static}
+  .stage{padding-bottom:60px}
+}
+@media (prefers-reduced-motion:reduce){
+  .choice,.btn,.cbtn{transition:none}
+  #bubble{transition:opacity .01s linear}
+}
+</style>
+</head>
+<body>
+
+<div class="lab">
+
+  <!-- ═════════════ THE STAND-IN LESSON ═════════════ -->
+  <main class="stage">
+    <div class="sheet">
+
+      <p class="crumb" data-cad="crumb">Mr. Cadabra&rsquo;s Classroom &middot; <b>Entry-Level Math</b> &middot; Lesson 4</p>
+
+      <div>
+        <h1 class="lesson-title" data-cad="title">Adding past ten</h1>
+        <p class="lesson-sub">When the ones add up past ten, you can break the second number into two pieces &mdash; the piece that fills the ten, and whatever is left over.</p>
+      </div>
+
+      <section class="panel" data-cad="worked">
+        <h3>Watch it once</h3>
+        <div class="worked">
+          <p class="sum">8 + 5&nbsp; &rarr; &nbsp;8 + <b style="color:#6B44BE">2</b> + <b style="color:#6B44BE">3</b> &nbsp;&rarr;&nbsp; 10 + 3 &nbsp;=&nbsp; <b style="color:#1E7A5F">13</b></p>
+          <svg class="numline" viewBox="0 0 620 78" role="img" aria-label="A number line from 6 to 16 showing a hop of 2 from 8 to 10, then a hop of 3 from 10 to 13">
+            <line x1="20" y1="52" x2="600" y2="52" stroke="#DEDAEA" stroke-width="2.5"/>
+            <g font-family="IBM Plex Mono, monospace" font-size="12" fill="#6A6480" text-anchor="middle">
+              <g stroke="#DEDAEA" stroke-width="2">
+                <line x1="20"  y1="45" x2="20"  y2="59"/><line x1="78"  y1="45" x2="78"  y2="59"/>
+                <line x1="136" y1="45" x2="136" y2="59"/><line x1="194" y1="45" x2="194" y2="59"/>
+                <line x1="252" y1="45" x2="252" y2="59"/><line x1="310" y1="45" x2="310" y2="59"/>
+                <line x1="368" y1="45" x2="368" y2="59"/><line x1="426" y1="45" x2="426" y2="59"/>
+                <line x1="484" y1="45" x2="484" y2="59"/><line x1="542" y1="45" x2="542" y2="59"/>
+                <line x1="600" y1="45" x2="600" y2="59"/>
+              </g>
+              <text x="20" y="74">6</text><text x="78" y="74">7</text><text x="136" y="74">8</text>
+              <text x="194" y="74">9</text><text x="252" y="74">10</text><text x="310" y="74">11</text>
+              <text x="368" y="74">12</text><text x="426" y="74">13</text><text x="484" y="74">14</text>
+              <text x="542" y="74">15</text><text x="600" y="74">16</text>
+            </g>
+            <path d="M136 44 Q194 8 252 44" fill="none" stroke="#6B44BE" stroke-width="3" stroke-linecap="round"/>
+            <path d="M252 44 Q339 4 426 44" fill="none" stroke="#6B44BE" stroke-width="3" stroke-linecap="round"/>
+            <text x="194" y="20" font-family="IBM Plex Mono, monospace" font-size="13" fill="#5B36AB" text-anchor="middle">+2</text>
+            <text x="339" y="16" font-family="IBM Plex Mono, monospace" font-size="13" fill="#5B36AB" text-anchor="middle">+3</text>
+            <circle cx="136" cy="52" r="5.5" fill="#2F2C39"/>
+            <circle cx="426" cy="52" r="6.5" fill="#1E7A5F"/>
+          </svg>
+          <p class="hintline">Two hops, never one. Fill the ten first, then land.</p>
+        </div>
+      </section>
+
+      <section class="qcard" id="qcard" data-cad="question">
+        <div class="qhead">
+          <span class="qnum">Question <span id="qn">1</span> of 4</span>
+          <span class="streak" data-cad="streak">Streak <span id="streakn">0</span></span>
+        </div>
+        <p class="qtext" id="qtext" data-cad="problem">7 + 6 = ?</p>
+        <div class="choices" id="choices" data-cad="choices"></div>
+        <div class="typerow">
+          <label for="answer">Or type it:</label>
+          <input id="answer" inputmode="numeric" autocomplete="off" aria-label="Type your answer">
+          <button class="btn" id="check">Check</button>
+        </div>
+        <p class="verdict" id="verdict" aria-live="polite"></p>
+      </section>
+
+      <div class="rulebox" data-cad="rule">
+        <p><b>The rule this page is testing.</b> He moves when the child is <i>not</i> working. Click into the answer box and watch him park and go still &mdash; only the blink survives. Turn <b>Park while answering</b> off in the console to feel why that rule exists.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ═════════════ THE CONSOLE ═════════════ -->
+  <aside class="console" aria-label="Animation console">
+
+    <div class="con-head">
+      <h2>Motion Lab</h2>
+      <span>Mr. Cadabra &middot; concept rig</span>
+    </div>
+
+    <div class="grp">
+      <h4>Behaviours</h4>
+      <div class="bgrid">
+        <button class="cbtn hot" data-do="joke">Tell a joke</button>
+        <button class="cbtn hot" data-do="say">Say a line</button>
+        <button class="cbtn" data-do="tour">Take the tour</button>
+        <button class="cbtn" data-do="wander">Wander</button>
+        <button class="cbtn" data-do="park">Park</button>
+        <button class="cbtn" data-do="stop">Stop / reset</button>
+      </div>
+    </div>
+
+    <div class="grp">
+      <h4>Celebration tiers</h4>
+      <div class="bgrid one">
+        <button class="cbtn" data-do="t1">1 &middot; Bob &amp; blink &nbsp;&mdash;&nbsp; every right answer</button>
+        <button class="cbtn" data-do="t2">2 &middot; Arms up &nbsp;&mdash;&nbsp; a streak of three</button>
+        <button class="cbtn amber" data-do="t3">3 &middot; Fly over and underline</button>
+      </div>
+    </div>
+
+    <div class="grp">
+      <h4>Aim him at something</h4>
+      <div class="field">
+        <select id="target" aria-label="Target element">
+          <option value="problem">The problem</option>
+          <option value="choices">The answer buttons</option>
+          <option value="worked">The worked example</option>
+          <option value="title">The lesson title</option>
+          <option value="streak">The streak pill</option>
+          <option value="rule">The rule box</option>
+        </select>
+      </div>
+      <div class="bgrid">
+        <button class="cbtn" data-do="point">Point at it</button>
+        <button class="cbtn amber" data-do="underline">Underline it</button>
+      </div>
+      <div class="bgrid one">
+        <button class="cbtn" data-do="clearink">Erase his marks</button>
+      </div>
+    </div>
+
+    <div class="grp">
+      <h4>Expression</h4>
+      <div class="field">
+        <select id="expr" aria-label="Expression">
+          <option value="neutral">Waiting</option>
+          <option value="teaching">Teaching</option>
+          <option value="pleased">Pleased</option>
+          <option value="thinking">Thinking</option>
+          <option value="listening">Listening</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grp">
+      <h4>Hands</h4>
+      <div class="field">
+        <select id="handstyle" aria-label="Hand style">
+          <option value="mitt">Thin mitts &mdash; as drawn 28 Aug</option>
+          <option value="glove" selected>Gloves &mdash; readable at 44px</option>
+          <option value="free">Detached gloves &mdash; no arms</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="lab-row"><label for="handsize">Hand size</label><output id="handsize-o">20</output></div>
+        <input type="range" id="handsize" min="8" max="34" step="1" value="20">
+      </div>
+    </div>
+
+    <div class="grp">
+      <h4>Motion</h4>
+      <div class="field">
+        <div class="lab-row"><label for="size">His height on screen</label><output id="size-o">130px</output></div>
+        <input type="range" id="size" min="60" max="240" step="2" value="130">
+      </div>
+      <div class="field">
+        <div class="lab-row"><label for="bob">Bob height</label><output id="bob-o">7px</output></div>
+        <input type="range" id="bob" min="0" max="22" step="1" value="7">
+      </div>
+      <div class="field">
+        <div class="lab-row"><label for="drift">Idle drift</label><output id="drift-o">10px</output></div>
+        <input type="range" id="drift" min="0" max="40" step="1" value="10">
+      </div>
+      <div class="field">
+        <div class="lab-row"><label for="speed">Float speed</label><output id="speed-o">1.00&times;</output></div>
+        <input type="range" id="speed" min="20" max="220" step="5" value="100">
+      </div>
+      <div class="field">
+        <div class="lab-row"><label for="flight">Flight speed</label><output id="flight-o">1.00&times;</output></div>
+        <input type="range" id="flight" min="20" max="260" step="5" value="100">
+      </div>
+      <div class="field">
+        <div class="lab-row"><label for="lean">Writing lean</label><output id="lean-o">-35&deg;</output></div>
+        <input type="range" id="lean" min="-60" max="0" step="1" value="-35">
+      </div>
+    </div>
+
+    <div class="grp">
+      <h4>Rules</h4>
+      <label class="tog">
+        <span>Park while answering<small>He goes still the moment the answer box has focus.</small></span>
+        <input type="checkbox" id="parkfocus" checked><i class="switch"></i>
+      </label>
+      <label class="tog">
+        <span>Stay in a margin lane<small>Off = he roams the whole page, which is the version you picked.</small></span>
+        <input type="checkbox" id="lane"><i class="switch"></i>
+      </label>
+      <label class="tog">
+        <span>Motion on<small>Off simulates a child whose device asks for reduced motion.</small></span>
+        <input type="checkbox" id="motion" checked><i class="switch"></i>
+      </label>
+      <label class="tog">
+        <span>Show his flight path<small>Debug overlay &mdash; where he is heading and what he is aiming at.</small></span>
+        <input type="checkbox" id="debug"><i class="switch"></i>
+      </label>
+    </div>
+
+    <div class="readout" aria-live="off">
+      <div class="r"><span>State</span><b id="ro-state">idle</b></div>
+      <div class="r"><span>Position</span><b id="ro-pos">&mdash;</b></div>
+      <div class="r"><span>Mouth</span><b id="ro-mouth">closed</b></div>
+      <div class="r"><span>Frame budget</span><b id="ro-fps">&mdash;</b></div>
+      <p class="note">Transform-only animation. Nothing here touches layout, so the lesson never reflows while he moves.</p>
+    </div>
+
+  </aside>
+</div>
+
+<svg id="overlay" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>
+<div id="bubble" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ══════════════════════════════════════════════════════════════════════
+   1.  PAINTS  -  read from CSS so the palette stays in one place
+   ══════════════════════════════════════════════════════════════════════ */
+var css = getComputedStyle(document.documentElement);
+function v(n){ return css.getPropertyValue(n).trim(); }
+var P = {
+  body:v('--c-body'), bodyDk:v('--c-body-dk'), bodyLt:v('--c-body-lt'),
+  indigo:v('--c-indigo'), indigoDk:v('--c-indigo-dk'), band:v('--c-band'), gold:v('--c-gold'),
+  graphite:v('--c-graphite'), wood:v('--c-wood'), woodDk:v('--c-wood-dk'),
+  ferrule:v('--c-ferrule'), ferruleDk:v('--c-ferrule-dk'),
+  eye:v('--c-eye'), mitt:v('--c-mitt'), glove:v('--c-glove')
+};
+var STAR = "M0 -10 L2.9 -3.5 L9.5 -3.1 L4.5 1.2 L6.1 7.6 L0 4 L-6.1 7.6 L-4.5 1.2 L-9.5 -3.1 L-2.9 -3.5 Z";
+
+/* Local drawing space is the same one used in cadabra-pencil.html:
+   barrel centred on x=110, hat top near y=11, sharpened TIP at (110, 374).
+   Everything below is expressed in those units and then translated so the
+   TIP sits at the group origin - which is what lets him write. */
+var TIP_X = 110, TIP_Y = 374;
+var LOCAL_TOP = 11;                       /* top of the hat            */
+var LOCAL_H  = TIP_Y - LOCAL_TOP;         /* 363 units, nose to toes   */
+var SHOULDER_L = {x:86,  y:202};
+var SHOULDER_R = {x:134, y:202};
+
+/* ══════════════════════════════════════════════════════════════════════
+   2.  THE CHARACTER  -  ported verbatim from the 28 Aug concept page
+   ══════════════════════════════════════════════════════════════════════ */
+function barrel(bottom){
+  var h = bottom - 114;
+  return '<rect x="82" y="114" width="56" height="'+h+'" fill="'+P.body+'"/>'
+    + '<rect x="82" y="114" width="15" height="'+h+'" fill="'+P.bodyLt+'" opacity=".33"/>'
+    + '<rect x="123" y="114" width="15" height="'+h+'" fill="'+P.bodyDk+'" opacity=".42"/>'
+    + '<path d="M97 114 V'+bottom+' M123 114 V'+bottom+'" stroke="'+P.bodyDk+'" stroke-width="1.2" opacity=".5"/>'
+    + '<rect x="82" y="114" width="56" height="'+h+'" fill="none" stroke="'+P.graphite+'" stroke-width="1.8" opacity=".7"/>';
+}
+function cone(top, flat, tip){
+  return '<path d="M82 '+top+' L138 '+top+' L117 '+flat+' L103 '+flat+' Z" fill="'+P.wood+'" stroke="'+P.graphite+'" stroke-width="1.6" stroke-linejoin="round"/>'
+    + '<path d="M126 '+top+' L138 '+top+' L117 '+flat+' L111 '+flat+' Z" fill="'+P.woodDk+'" opacity=".6"/>'
+    + '<path d="M103 '+flat+' L117 '+flat+' L110 '+tip+' Z" fill="'+P.graphite+'"/>';
+}
+function ferrule(){
+  return '<rect x="86" y="98" width="48" height="17" fill="'+P.ferrule+'"/>'
+    + '<path d="M86 103.5 H134 M86 109.5 H134" stroke="'+P.ferruleDk+'" stroke-width="1.5"/>';
+}
+function hat(){
+  return '<ellipse cx="110" cy="89" rx="50" ry="9.5" fill="'+P.indigoDk+'"/>'
+    + '<path d="M68 87 Q78 44 110 20 Q126 11 133 20 Q124 48 152 87 Q110 97 68 87 Z" fill="'+P.indigo+'"/>'
+    + '<path d="M112 21 Q124 48 152 87 Q136 93 124 94 Q128 56 112 21 Z" fill="'+P.indigoDk+'" opacity=".55"/>'
+    + '<path d="M70 79 Q110 90 150 79 L151 87 Q110 98 69 87 Z" fill="'+P.band+'"/>'
+    + '<path id="cad-star" transform="translate(118,50) scale(.78)" d="'+STAR+'" fill="'+P.gold+'"/>';
+}
+
+/* --- the face, with live ids so one rig serves every expression --- */
+function faceRig(){
+  var g = P.graphite;
+  return '<g transform="translate(0,8)">'
+    + '<path id="cad-browL" d="" fill="none" stroke="'+g+'" stroke-width="2.6" stroke-linecap="round"/>'
+    + '<path id="cad-browR" d="" fill="none" stroke="'+g+'" stroke-width="2.6" stroke-linecap="round"/>'
+    + '<ellipse id="cad-eyeL" cx="99"  cy="158" rx="8" ry="9" fill="'+P.eye+'" stroke="'+g+'" stroke-width="2.2"/>'
+    + '<ellipse id="cad-eyeR" cx="121" cy="158" rx="8" ry="9" fill="'+P.eye+'" stroke="'+g+'" stroke-width="2.2"/>'
+    + '<circle id="cad-pupL" cx="100" cy="159.5" r="3.4" fill="'+g+'"/>'
+    + '<circle id="cad-pupR" cx="122" cy="159.5" r="3.4" fill="'+g+'"/>'
+    + '<path    id="cad-lips"  d="" fill="none" stroke="'+g+'" stroke-width="2.7" stroke-linecap="round"/>'
+    + '<ellipse id="cad-mouth" cx="110" cy="186" rx="9" ry="0" fill="'+g+'"/>'
+    + '</g>';
+}
+
+/* Expression table. Eyes stay ellipses in every state so blink and talk can
+   modulate them without swapping artwork. */
+var EXPR = {
+  neutral:  {bl:'M90 143 Q99 138 108 142', br:'M112 142 Q121 138 130 143', lips:'M97 181 Q110 192 123 181', eye:9,   pup:0},
+  teaching: {bl:'M90 137 Q99 131 108 136', br:'M112 136 Q121 131 130 137', lips:'M99 183 Q110 190 121 183', eye:9,   pup:0},
+  pleased:  {bl:'M90 139 Q99 134 108 138', br:'M112 138 Q121 134 130 139', lips:'M94 177 Q110 197 126 177', eye:4.2, pup:0},
+  thinking: {bl:'M90 147 Q99 143 108 146', br:'M112 137 Q121 130 130 136', lips:'M99 185 Q105 180 111 184 Q117 188 124 183', eye:9, pup:-3},
+  listening:{bl:'M89 141 Q99 137 109 141', br:'M111 141 Q121 137 131 141', lips:'M101 183 Q110 187 119 183', eye:10, pup:0}
+};
+
+/* --- hands ---------------------------------------------------------------
+   Drawn twice: a fat graphite silhouette underneath, then a clean fill on
+   top.  That unions the palm, thumb and finger into one outlined shape
+   instead of showing the seams where they overlap. */
+function gloveShapes(R, pointing){
+  var s = '<circle cx="0" cy="0" r="'+R+'"/>'
+        + '<circle cx="'+(-R*0.30).toFixed(2)+'" cy="'+(-R*0.92).toFixed(2)+'" r="'+(R*0.42).toFixed(2)+'"/>';
+  if(pointing){
+    s += '<rect x="'+(R*0.35).toFixed(2)+'" y="'+(-R*0.30).toFixed(2)+'" width="'+(R*1.55).toFixed(2)
+       + '" height="'+(R*0.60).toFixed(2)+'" rx="'+(R*0.30).toFixed(2)+'"/>';
+  } else {
+    s += '<circle cx="'+(R*0.62).toFixed(2)+'" cy="'+(-R*0.42).toFixed(2)+'" r="'+(R*0.38).toFixed(2)+'"/>';
+  }
+  return s;
+}
+function handMarkup(id, style, R, pointing){
+  if(style === 'mitt'){
+    return '<g id="'+id+'"><circle cx="0" cy="0" r="'+(R*0.72).toFixed(2)+'" fill="'+P.mitt
+         + '" stroke="'+P.graphite+'" stroke-width="2.2"/></g>';
+  }
+  var sh = gloveShapes(R, pointing);
+  return '<g id="'+id+'">'
+    + '<g fill="'+P.graphite+'" stroke="'+P.graphite+'" stroke-width="4.4" stroke-linejoin="round">'+sh+'</g>'
+    + '<g fill="'+P.glove+'">'+sh+'</g>'
+    + '</g>';
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   3.  BUILD THE OVERLAY
+   ══════════════════════════════════════════════════════════════════════ */
+var overlay = document.getElementById('overlay');
+var bubbleEl = document.getElementById('bubble');
+
+overlay.innerHTML =
+    '<g id="ink"></g>'
+  + '<g id="dbg" style="display:none"></g>'
+  + '<g id="cad">'
+  +   '<g id="cad-inner" transform="translate('+(-TIP_X)+','+(-TIP_Y)+')">'
+  +     '<path id="cad-armL" d="" fill="none" stroke="'+P.graphite+'" stroke-width="4.6" stroke-linecap="round"/>'
+  +     '<path id="cad-armR" d="" fill="none" stroke="'+P.graphite+'" stroke-width="4.6" stroke-linecap="round"/>'
+  +     cone(292, 348, 374)
+  +     barrel(292)
+  +     ferrule()
+  +     hat()
+  +     faceRig()
+  +     '<g id="cad-handL-wrap"></g><g id="cad-handR-wrap"></g>'
+  +   '</g>'
+  + '</g>'
+  + '<g id="spark"></g>';
+
+var $ = function(id){ return document.getElementById(id); };
+var gCad = $('cad'), gInk = $('ink'), gDebug = $('dbg'), gSpark = $('spark');
+var elBrowL = $('cad-browL'), elBrowR = $('cad-browR');
+var elEyeL = $('cad-eyeL'), elEyeR = $('cad-eyeR');
+var elPupL = $('cad-pupL'), elPupR = $('cad-pupR');
+var elLips = $('cad-lips'), elMouth = $('cad-mouth');
+var elArmL = $('cad-armL'), elArmR = $('cad-armR');
+var wrapL = $('cad-handL-wrap'), wrapR = $('cad-handR-wrap');
+
+var W = 0, H = 0;
+function sizeOverlay(){
+  W = window.innerWidth; H = window.innerHeight;
+  overlay.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  overlay.setAttribute('width', W);
+  overlay.setAttribute('height', H);
+}
+sizeOverlay();
+window.addEventListener('resize', sizeOverlay);
+
+/* ══════════════════════════════════════════════════════════════════════
+   4.  STATE
+   ══════════════════════════════════════════════════════════════════════ */
+var S = {
+  x: 0, y: 0,          /* where the TIP is, in viewport pixels        */
+  tx: 0, ty: 0,        /* where the tip is heading                    */
+  ang: 0, tang: 0,     /* lean, degrees                               */
+  scale: 0.3,
+  expr: 'neutral',
+  mode: 'idle',        /* idle | fly | point | write | park | celebrate */
+  driven: false,       /* true while a routine owns the position       */
+  speaking: false,
+  talkAmp: 0,
+  blink: 1,
+  nextBlink: 0,
+  handL: {x:SHOULDER_L.x-24, y:250, rot:0, point:false},
+  handR: {x:SHOULDER_R.x+24, y:246, rot:0, point:false},
+  aimL: null, aimR: null,   /* page-space points a hand is aiming at   */
+  seq: 0                    /* cancels a running routine               */
+};
+
+var C = {
+  bob: 7, drift: 10, speed: 1, flight: 1, lean: -35,
+  handSize: 20, handStyle: 'glove',
+  parkFocus: true, lane: false, motion: true, debug: false,
+  height: 130
+};
+
+/* honour the OS setting on load; the console can override it */
+var mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+if(mq.matches){ C.motion = false; $('motion').checked = false; }
+
+function applyHeight(){ S.scale = C.height / LOCAL_H; }
+applyHeight();
+
+/* ══════════════════════════════════════════════════════════════════════
+   5.  GEOMETRY  -  page space <-> his local space
+   ══════════════════════════════════════════════════════════════════════ */
+function toLocal(px, py){
+  var dx = px - S.x, dy = py - S.y;
+  var r = -S.ang * Math.PI / 180, c = Math.cos(r), s = Math.sin(r);
+  var rx = dx * c - dy * s, ry = dx * s + dy * c;
+  return { x: rx / S.scale + TIP_X, y: ry / S.scale + TIP_Y };
+}
+function toPage(lx, ly){
+  var dx = (lx - TIP_X) * S.scale, dy = (ly - TIP_Y) * S.scale;
+  var r = S.ang * Math.PI / 180, c = Math.cos(r), s = Math.sin(r);
+  return { x: S.x + dx * c - dy * s, y: S.y + dx * s + dy * c };
+}
+function rectOf(name){
+  var el = document.querySelector('[data-cad="' + name + '"]');
+  return el ? el.getBoundingClientRect() : null;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   6.  DRAW  -  every frame, transforms only
+   ══════════════════════════════════════════════════════════════════════ */
+var lastHandKey = '';
+function rebuildHands(){
+  var key = C.handStyle + '|' + C.handSize + '|' + (S.handL.point?1:0) + (S.handR.point?1:0);
+  if(key === lastHandKey) return;
+  lastHandKey = key;
+  wrapL.innerHTML = handMarkup('cad-handL', C.handStyle, C.handSize, S.handL.point);
+  wrapR.innerHTML = handMarkup('cad-handR', C.handStyle, C.handSize, S.handR.point);
+}
+
+function armPath(sh, hand, side){
+  var mx = (sh.x + hand.x) / 2, my = (sh.y + hand.y) / 2;
+  /* the arm hangs in a curve at rest and straightens as it reaches, which is
+     what makes a point read as a point rather than a shrug */
+  var dist = Math.hypot(hand.x - sh.x, hand.y - sh.y);
+  var slack = Math.max(0, 1 - dist / 130);
+  var bow = side * 22 * slack;
+  return 'M ' + sh.x + ' ' + sh.y + ' Q ' + (mx + bow).toFixed(1) + ' ' + (my + 10 * slack).toFixed(1)
+       + ' ' + hand.x.toFixed(1) + ' ' + hand.y.toFixed(1);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   7.  THE FRAME LOOP
+   ══════════════════════════════════════════════════════════════════════ */
+var t0 = performance.now();
+var lastT = t0, fpsAcc = 0, fpsN = 0, fpsShown = 0;
+/* stand-in loudness envelope - production reads the real clip amplitude */
+var envelope = (function(){
+  var out = [], words = [7,4,9,5,11,3,6,8,4,10,6,3,9,5,7];
+  for(var i=0;i<words.length;i++){
+    for(var j=0;j<words[i];j++) out.push(0.45 + 0.55 * Math.abs(Math.sin(j*1.7 + i)));
+    var gap = (i % 4 === 3) ? 7 : 3;
+    for(var k=0;k<gap;k++) out.push(0);
+  }
+  return out;
+})();
+var envIdx = 0, envAcc = 0;
+
+function frame(now){
+  var dt = Math.min(64, now - lastT); lastT = now;
+  var t = (now - t0) / 1000;
+
+  fpsAcc += dt; fpsN++;
+  if(fpsAcc > 500){ fpsShown = Math.round(1000 / (fpsAcc / fpsN)); fpsAcc = 0; fpsN = 0; }
+
+  /* ---- position ---- */
+  if(!S.driven){
+    var k = 1 - Math.pow(0.0016, (dt/1000) * C.flight);
+    S.x += (S.tx - S.x) * k;
+    S.y += (S.ty - S.y) * k;
+  }
+  var ka = 1 - Math.pow(0.004, (dt/1000) * C.flight);
+  S.ang += (S.tang - S.ang) * ka;
+
+  /* ---- idle float: only when nothing else owns him, and only if he is
+     not parked. This is where the movement rule lives. ---- */
+  var bobY = 0, driftX = 0;
+  if(C.motion && S.mode !== 'park' && !S.driven){
+    bobY   = Math.sin(t * 1.55 * C.speed) * C.bob;
+    driftX = Math.sin(t * 0.62 * C.speed + 1.1) * C.drift;
+  }
+
+  gCad.setAttribute('transform',
+    'translate(' + (S.x + driftX).toFixed(2) + ',' + (S.y + bobY).toFixed(2) + ') '
+    + 'rotate(' + S.ang.toFixed(2) + ') scale(' + S.scale.toFixed(4) + ')');
+
+  /* ---- hands: aim at a page point if one is set, else drift home ---- */
+  aimHand(S.handL, S.aimL, SHOULDER_L, -1, t, 0);
+  aimHand(S.handR, S.aimR, SHOULDER_R,  1, t, 1.7);
+
+  /* ---- face ---- */
+  var e = EXPR[S.expr] || EXPR.neutral;
+  elBrowL.setAttribute('d', e.bl);
+  elBrowR.setAttribute('d', e.br);
+
+  if(C.motion){
+    if(now > S.nextBlink){ S.blink = 0.06; S.nextBlink = now + 2400 + Math.random()*3600; }
+    else S.blink += (1 - S.blink) * 0.30;
+  } else S.blink = 1;
+
+  var o = 0;
+  if(S.speaking && C.motion){
+    envAcc += dt;
+    if(envAcc > 55){ envAcc = 0; envIdx++; }
+    o = envelope[envIdx % envelope.length];
+  }
+  S.talkAmp += (o - S.talkAmp) * 0.5;
+
+  var talking = S.talkAmp > 0.03;
+  elLips.setAttribute('d', talking ? '' : e.lips);
+  elMouth.setAttribute('rx', (9 - 2.7 * S.talkAmp).toFixed(2));
+  elMouth.setAttribute('ry', (S.talkAmp * 8.6).toFixed(2));
+
+  var ry = e.eye * S.blink;
+  elEyeL.setAttribute('ry', ry.toFixed(2));
+  elEyeR.setAttribute('ry', ry.toFixed(2));
+  elPupL.setAttribute('cy', (159.5 + e.pup).toFixed(1));
+  elPupR.setAttribute('cy', (159.5 + e.pup).toFixed(1));
+  elPupL.setAttribute('r', (3.4 * Math.max(0.15, S.blink)).toFixed(2));
+  elPupR.setAttribute('r', (3.4 * Math.max(0.15, S.blink)).toFixed(2));
+  elBrowL.setAttribute('transform', 'translate(0,' + (-2.6 * S.talkAmp).toFixed(2) + ')');
+  elBrowR.setAttribute('transform', 'translate(0,' + (-2.6 * S.talkAmp).toFixed(2) + ')');
+
+  rebuildHands();
+
+  var showArms = C.handStyle !== 'free';
+  elArmL.setAttribute('d', showArms ? armPath(SHOULDER_L, S.handL, -1) : '');
+  elArmR.setAttribute('d', showArms ? armPath(SHOULDER_R, S.handR,  1) : '');
+  wrapL.setAttribute('transform', 'translate(' + S.handL.x.toFixed(1) + ',' + S.handL.y.toFixed(1) + ') rotate(' + S.handL.rot.toFixed(1) + ')');
+  wrapR.setAttribute('transform', 'translate(' + S.handR.x.toFixed(1) + ',' + S.handR.y.toFixed(1) + ') rotate(' + S.handR.rot.toFixed(1) + ')');
+
+  positionBubble(driftX, bobY);
+  if(C.debug) drawDebug();
+
+  /* ---- readout ---- */
+  roState.textContent = S.mode + (S.speaking ? ' + talking' : '');
+  roPos.textContent = Math.round(S.x) + ', ' + Math.round(S.y);
+  roMouth.textContent = talking ? Math.round(S.talkAmp * 100) + '% open' : 'closed';
+  roFps.textContent = fpsShown ? fpsShown + ' fps' : '--';
+
+  requestAnimationFrame(frame);
+}
+
+function aimHand(hand, aim, shoulder, side, t, phase){
+  var want;
+  if(aim){
+    var L = toLocal(aim.x, aim.y);
+    var dx = L.x - shoulder.x, dy = L.y - shoulder.y;
+    var len = Math.max(1, Math.hypot(dx, dy));
+    var reach = Math.min(len - 14, 150);
+    want = { x: shoulder.x + dx/len * reach, y: shoulder.y + dy/len * reach,
+             rot: Math.atan2(dy, dx) * 180 / Math.PI, point: true };
+  } else {
+    var sway = C.motion ? Math.sin(t * 1.4 * C.speed + phase) * 4 : 0;
+    want = { x: shoulder.x + side * 26, y: 248 + sway, rot: side * 18, point: false };
+  }
+  hand.x += (want.x - hand.x) * 0.16;
+  hand.y += (want.y - hand.y) * 0.16;
+  var dr = ((want.rot - hand.rot + 540) % 360) - 180;
+  hand.rot += dr * 0.16;
+  hand.point = want.point;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   8.  BUBBLE
+   ══════════════════════════════════════════════════════════════════════ */
+var bubbleTimer = null;
+function positionBubble(dx, dy){
+  if(!bubbleEl.classList.contains('on')) return;
+  var head = toPage(110, 130);
+  bubbleEl.style.left = (head.x + dx) + 'px';
+  bubbleEl.style.top  = (head.y + dy - 12) + 'px';
+}
+function say(text, ms, speak){
+  bubbleEl.textContent = text;
+  bubbleEl.classList.add('on');
+  positionBubble(0, 0);
+  if(speak !== false) S.speaking = true;
+  clearTimeout(bubbleTimer);
+  if(ms){
+    bubbleTimer = setTimeout(function(){
+      bubbleEl.classList.remove('on');
+      S.speaking = false;
+    }, ms);
+  }
+}
+function hush(){
+  clearTimeout(bubbleTimer);
+  bubbleEl.classList.remove('on');
+  S.speaking = false;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   9.  MOVEMENT PRIMITIVES
+   ══════════════════════════════════════════════════════════════════════ */
+function clampToLane(p){
+  if(!C.lane) return p;
+  var sheet = document.querySelector('.sheet');
+  var r = sheet.getBoundingClientRect();
+  var laneX = Math.min(W - 90, r.right + 74);
+  return { x: laneX, y: p.y };
+}
+function flyTo(px, py, ang){
+  var p = clampToLane({x:px, y:py});
+  S.tx = Math.max(60, Math.min(W - 60, p.x));
+  S.ty = Math.max(C.height * 0.9, Math.min(H - 30, p.y));
+  if(ang !== undefined) S.tang = ang;
+}
+function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+function settle(tol){
+  tol = tol || 6;
+  return new Promise(function(res){
+    var guard = 0;
+    (function check(){
+      guard++;
+      if(guard > 400 || (Math.hypot(S.tx - S.x, S.ty - S.y) < tol)) return res();
+      requestAnimationFrame(check);
+    })();
+  });
+}
+function newSeq(){ S.seq++; return S.seq; }
+function alive(id){ return S.seq === id; }
+
+/* the resting spot: just right of the sheet, level with the question */
+function homeSpot(){
+  var q = rectOf('question');
+  var sheet = document.querySelector('.sheet').getBoundingClientRect();
+  var x = Math.min(W - 80, sheet.right + 96);
+  var y = q ? q.top + 130 : H * 0.55;
+  return { x: x, y: Math.max(C.height, Math.min(H - 40, y)) };
+}
+function parkSpot(){
+  var sheet = document.querySelector('.sheet').getBoundingClientRect();
+  return { x: Math.min(W - 70, sheet.right + 78), y: H - 60 };
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   10.  BEHAVIOURS
+   ══════════════════════════════════════════════════════════════════════ */
+function goIdle(){
+  var id = newSeq();
+  S.driven = false; S.mode = 'idle';
+  S.aimL = S.aimR = null;
+  S.expr = 'neutral';
+  var h = homeSpot();
+  flyTo(h.x, h.y, 0);
+  return id;
+}
+function goPark(){
+  newSeq();
+  S.driven = false; S.mode = 'park';
+  S.aimL = S.aimR = null;
+  S.expr = 'listening';
+  S.tang = 0;
+  var p = parkSpot();
+  flyTo(p.x, p.y, 0);
+  hush();
+}
+
+/* --- point at a named element --- */
+async function pointAt(name, line, hold){
+  var id = newSeq();
+  var r = rectOf(name);
+  if(!r) return;
+  S.driven = false; S.mode = 'point'; S.expr = 'teaching';
+
+  /* stand off to whichever side has room, and aim at the edge nearest him -
+     pointing at the far middle of a wide panel reads as a vague wave */
+  var right = (W - r.right) > 240 || C.lane;
+  var aim = {
+    x: right ? Math.max(r.left + 12, r.right - 90) : Math.min(r.right - 12, r.left + 90),
+    y: r.top + r.height / 2
+  };
+  var stand = {
+    x: right ? Math.min(W - 64, r.right + 86) : Math.max(64, r.left - 86),
+    y: r.top + r.height / 2 + C.height * 0.40
+  };
+  flyTo(stand.x, stand.y, right ? -6 : 6);
+  await settle(14);
+  if(!alive(id)) return;
+
+  if(right) { S.aimL = aim; S.aimR = null; }
+  else      { S.aimR = aim; S.aimL = null; }
+
+  if(line) say(line, hold || 2600);
+  await wait(hold || 2600);
+  if(!alive(id)) return;
+  S.aimL = S.aimR = null;
+  S.speaking = false;
+}
+
+/* --- fly over and underline, tip genuinely on the line --- */
+async function underlineEl(name){
+  var id = newSeq();
+  var r = rectOf(name);
+  if(!r) return;
+
+  var y = Math.min(H - 14, r.bottom + 9);
+  var x1 = Math.max(8, r.left - 6), x2 = Math.min(W - 8, r.right + 6);
+  if(x2 - x1 < 24) return;
+
+  var d = 'M ' + x1 + ' ' + y + ' Q ' + ((x1 + x2) / 2) + ' ' + (y + 8) + ' ' + x2 + ' ' + (y - 2);
+  var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', d);
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke', P.graphite);
+  path.setAttribute('stroke-width', Math.max(3, C.height * 0.045).toFixed(1));
+  path.setAttribute('stroke-linecap', 'round');
+  path.setAttribute('opacity', '0.86');
+  gInk.appendChild(path);
+  var len = path.getTotalLength();
+  path.setAttribute('stroke-dasharray', len);
+  path.setAttribute('stroke-dashoffset', len);
+
+  /* approach the start of the stroke, already leaning to write */
+  S.mode = 'fly'; S.driven = false; S.expr = 'teaching';
+  S.aimL = S.aimR = null;
+  var p0 = path.getPointAtLength(0);
+  S.tx = p0.x; S.ty = p0.y; S.tang = C.lean;
+  await settle(10);
+  if(!alive(id)){ path.remove(); return; }
+
+  /* now HE drives the tip along the path */
+  S.mode = 'write'; S.driven = true;
+  var dur = C.motion ? Math.max(420, len * 3.1) / C.flight : 1;
+  var t0w = performance.now();
+  await new Promise(function(res){
+    (function step(now){
+      if(!alive(id)) return res();
+      var u = Math.min(1, (now - t0w) / dur);
+      var e = u < 0.5 ? 2*u*u : -1 + (4 - 2*u) * u;   /* easeInOutQuad */
+      var pt = path.getPointAtLength(e * len);
+      S.x = pt.x; S.y = pt.y;
+      path.setAttribute('stroke-dashoffset', (len * (1 - e)).toFixed(2));
+      if(u < 1) requestAnimationFrame(step); else res();
+    })(performance.now());
+  });
+  if(!alive(id)){ path.remove(); return; }
+
+  S.driven = false;
+  S.expr = 'pleased';
+  S.tang = 0;
+  var h = homeSpot();
+  flyTo(h.x, h.y, 0);
+  await wait(1100);
+  if(!alive(id)) return;
+  S.mode = 'idle'; S.expr = 'neutral';
+}
+
+/* --- celebration, three tiers --- */
+function sparkle(n){
+  if(!C.motion) return;
+  var head = toPage(110, 120);
+  for(var i=0;i<n;i++){
+    (function(i){
+      var g = document.createElementNS('http://www.w3.org/2000/svg','path');
+      var a = (-140 + i * (280 / Math.max(1,n-1))) * Math.PI / 180;
+      var dist = 42 + Math.random() * 34;
+      var sz = 0.5 + Math.random() * 0.5;
+      g.setAttribute('d', STAR);
+      g.setAttribute('fill', P.gold);
+      g.setAttribute('opacity', '0');
+      gSpark.appendChild(g);
+      var st = performance.now(), dur = 620 + Math.random() * 220;
+      (function step(now){
+        var u = Math.min(1, (now - st) / dur);
+        var rr = dist * (0.25 + 0.75 * u);
+        var x = head.x + Math.cos(a) * rr, y = head.y + Math.sin(a) * rr - u * 12;
+        g.setAttribute('transform', 'translate('+x.toFixed(1)+','+y.toFixed(1)+') scale('+(sz*(0.4+u*0.9)).toFixed(2)+') rotate('+(u*140).toFixed(0)+')');
+        g.setAttribute('opacity', (u < 0.25 ? u / 0.25 : 1 - (u - 0.25) / 0.75).toFixed(2));
+        if(u < 1) requestAnimationFrame(step); else g.remove();
+      })(st);
+    })(i);
+  }
+}
+
+async function celebrate(tier, targetName){
+  var id = newSeq();
+  S.mode = 'celebrate'; S.driven = false;
+
+  if(tier === 1){
+    S.expr = 'pleased';
+    var by = S.ty;
+    S.ty = by - 26;
+    await wait(150); if(!alive(id)) return;
+    S.ty = by;
+    await wait(900); if(!alive(id)) return;
+    S.expr = 'neutral'; S.mode = 'idle';
+    return;
+  }
+
+  if(tier === 2){
+    S.expr = 'pleased';
+    /* arms up: aim both hands at points above his own head */
+    var up = toPage(110, 40);
+    S.aimL = { x: up.x - 46, y: up.y - 18 };
+    S.aimR = { x: up.x + 46, y: up.y - 18 };
+    sparkle(5);
+    var by2 = S.ty;
+    for(var i=0;i<2;i++){
+      S.ty = by2 - 30; await wait(170); if(!alive(id)) return;
+      S.ty = by2;      await wait(210); if(!alive(id)) return;
+    }
+    await wait(600); if(!alive(id)) return;
+    S.aimL = S.aimR = null;
+    S.expr = 'neutral'; S.mode = 'idle';
+    return;
+  }
+
+  /* tier 3 - the one worth keeping */
+  S.expr = 'pleased';
+  sparkle(7);
+  await wait(260); if(!alive(id)) return;
+  S.seq--;                       /* hand the sequence to underlineEl */
+  await underlineEl(targetName || 'problem');
+}
+
+/* --- the tour --- */
+var TOUR = [
+  ['title',   'This is what we are learning today. Adding past ten.'],
+  ['worked',  'Watch me do one first. Two hops, never one.'],
+  ['problem', 'Then I give you one. This is the problem.'],
+  ['choices', 'Tap an answer here, or type it below. Either is fine.'],
+  ['streak',  'And this counts how many you got right in a row. No pressure.']
+];
+async function tour(){
+  var id = newSeq();
+  S.mode = 'point';
+  for(var i=0;i<TOUR.length;i++){
+    if(!alive(id)) return;
+    var el = document.querySelector('[data-cad="' + TOUR[i][0] + '"]');
+    if(el) el.scrollIntoView({behavior: C.motion ? 'smooth' : 'auto', block:'center'});
+    await wait(C.motion ? 380 : 40);
+    if(!alive(id)) return;
+    S.seq--;                     /* let pointAt run inside our sequence */
+    await pointAt(TOUR[i][0], TOUR[i][1], 3000);
+    if(!alive(id)) return;
+  }
+  hush();
+  goIdle();
+}
+
+/* --- wander: he drifts to a few spots with nothing to say --- */
+async function wander(){
+  var id = newSeq();
+  S.mode = 'idle'; S.expr = 'neutral'; S.driven = false;
+  for(var i=0;i<4;i++){
+    if(!alive(id)) return;
+    flyTo(90 + Math.random() * (W - 260), 140 + Math.random() * (H - 240), (Math.random()*16-8));
+    await wait(1500);
+  }
+  if(!alive(id)) return;
+  goIdle();
+}
+
+/* --- jokes.  Production needs 50+ with no repeat inside a session. --- */
+var JOKES = [
+  'Why was six afraid of seven? Because seven ate nine. …I did not write it, I just tell it.',
+  'What do you call a number that cannot sit still? A roamin’ numeral.',
+  'Why did the two fours skip lunch? They already eight.',
+  'I told a joke about a broken pencil. Never mind — it had no point.',
+  'What is a math teacher’s favourite dessert? Pi. Obviously.',
+  'Why was the equals sign so humble? It knew it was neither greater nor less than anyone.',
+  'What did the zero say to the eight? Nice belt.',
+  'Why did the student do multiplication on the floor? The teacher said not to use tables.'
+];
+var jokeBag = [];
+function nextJoke(){
+  if(!jokeBag.length){ jokeBag = JOKES.slice(); }
+  var i = Math.floor(Math.random() * jokeBag.length);
+  return jokeBag.splice(i, 1)[0];
+}
+async function tellJoke(){
+  var id = newSeq();
+  S.mode = 'idle'; S.expr = 'teaching'; S.driven = false;
+  var h = homeSpot();
+  flyTo(h.x, h.y - 40, 0);
+  say(nextJoke(), 5200);
+  await wait(5200);
+  if(!alive(id)) return;
+  S.expr = 'pleased';
+  await wait(700);
+  if(!alive(id)) return;
+  goIdle();
+}
+
+var LINES = [
+  'Fill the ten first. Then land on what is left.',
+  'Take your time. I am not going anywhere.',
+  'Say the two hops out loud — it helps more than you would think.',
+  'Look at the ones. How many more to reach ten?'
+];
+var lineIdx = 0;
+async function sayLine(){
+  var id = newSeq();
+  S.mode = 'idle'; S.expr = 'teaching'; S.driven = false;
+  say(LINES[lineIdx++ % LINES.length], 4200);
+  await wait(4200);
+  if(!alive(id)) return;
+  goIdle();
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   11.  DEBUG OVERLAY
+   ══════════════════════════════════════════════════════════════════════ */
+function drawDebug(){
+  var s = '<line x1="'+S.x.toFixed(0)+'" y1="'+S.y.toFixed(0)+'" x2="'+S.tx.toFixed(0)+'" y2="'+S.ty.toFixed(0)
+        + '" stroke="#A487E4" stroke-width="1.5" stroke-dasharray="5 4"/>'
+        + '<circle cx="'+S.tx.toFixed(0)+'" cy="'+S.ty.toFixed(0)+'" r="5" fill="none" stroke="#A487E4" stroke-width="1.5"/>'
+        + '<circle cx="'+S.x.toFixed(0)+'" cy="'+S.y.toFixed(0)+'" r="3" fill="#E3A233"/>';
+  if(S.aimL) s += '<circle cx="'+S.aimL.x.toFixed(0)+'" cy="'+S.aimL.y.toFixed(0)+'" r="7" fill="none" stroke="#E3A233" stroke-width="1.5"/>';
+  if(S.aimR) s += '<circle cx="'+S.aimR.x.toFixed(0)+'" cy="'+S.aimR.y.toFixed(0)+'" r="7" fill="none" stroke="#E3A233" stroke-width="1.5"/>';
+  gDebug.innerHTML = s;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   12.  THE STAND-IN LESSON
+   ══════════════════════════════════════════════════════════════════════ */
+var QUESTIONS = [
+  { text:'7 + 6 = ?',  answer:13, choices:[12,13,14,15], hint:'Seven needs three to reach ten. Three left over.' },
+  { text:'9 + 4 = ?',  answer:13, choices:[12,13,14,11], hint:'Nine only needs one. Then three more.' },
+  { text:'8 + 7 = ?',  answer:15, choices:[14,15,16,13], hint:'Eight needs two. Five left over.' },
+  { text:'6 + 8 = ?',  answer:14, choices:[13,14,15,12], hint:'Start from the eight if that is easier.' }
+];
+var qi = 0, streak = 0, answered = false;
+
+var elQText = $('qtext'), elChoices = $('choices'), elVerdict = $('verdict');
+var elAnswer = $('answer'), elQn = $('qn'), elStreakN = $('streakn');
+
+function renderQuestion(){
+  var q = QUESTIONS[qi];
+  answered = false;
+  elQText.textContent = q.text;
+  elQn.textContent = (qi + 1);
+  elVerdict.textContent = '';
+  elAnswer.value = '';
+  elChoices.innerHTML = '';
+  q.choices.forEach(function(c){
+    var b = document.createElement('button');
+    b.className = 'choice';
+    b.type = 'button';
+    b.textContent = c;
+    b.addEventListener('click', function(){ submit(c, b); });
+    elChoices.appendChild(b);
+  });
+}
+function submit(val, btn){
+  if(answered) return;
+  var q = QUESTIONS[qi];
+  var right = Number(val) === q.answer;
+  answered = true;
+
+  Array.prototype.forEach.call(elChoices.children, function(b){
+    b.disabled = true;
+    if(Number(b.textContent) === q.answer) b.classList.add('is-right');
+  });
+  if(btn && !right) btn.classList.add('is-wrong');
+
+  if(right){
+    streak++;
+    elStreakN.textContent = streak;
+    elVerdict.innerHTML = '<b>Yes.</b> ' + q.hint;
+    var tier = (qi === 2) ? 3 : (streak > 0 && streak % 3 === 0 ? 2 : 1);
+    celebrate(tier, 'problem');
+    if(tier === 1) say('Got it.', 1500);
+    else if(tier === 2) say('Three in a row!', 2200);
+    else say('That one was the hard one.', 2600);
+  } else {
+    streak = 0;
+    elStreakN.textContent = streak;
+    elVerdict.textContent = 'Not that one. ' + q.hint;
+    (async function(){
+      var id = newSeq();
+      S.expr = 'thinking';
+      say('Not that one — look at the ones first.', 3000);
+      await wait(3000);
+      if(!alive(id)) return;
+      goIdle();
+    })();
+  }
+
+  setTimeout(function(){
+    qi = (qi + 1) % QUESTIONS.length;
+    renderQuestion();
+  }, right ? 3400 : 3600);
+}
+renderQuestion();
+
+$('check').addEventListener('click', function(){
+  var val = elAnswer.value.trim();
+  if(val === '') { elVerdict.textContent = 'Type a number first, then press Check.'; return; }
+  submit(Number(val), null);
+});
+elAnswer.addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); $('check').click(); }
+});
+
+/* THE RULE: he parks while the child is working. */
+elAnswer.addEventListener('focus', function(){ if(C.parkFocus) goPark(); });
+elAnswer.addEventListener('blur',  function(){ if(C.parkFocus && S.mode === 'park') goIdle(); });
+
+/* ══════════════════════════════════════════════════════════════════════
+   13.  CONSOLE WIRING
+   ══════════════════════════════════════════════════════════════════════ */
+var roState = $('ro-state'), roPos = $('ro-pos'), roMouth = $('ro-mouth'), roFps = $('ro-fps');
+
+document.querySelectorAll('[data-do]').forEach(function(b){
+  b.addEventListener('click', function(){
+    var a = b.getAttribute('data-do');
+    var tgt = $('target').value;
+    if(a === 'joke')      tellJoke();
+    if(a === 'say')       sayLine();
+    if(a === 'tour')      tour();
+    if(a === 'wander')    wander();
+    if(a === 'park')      goPark();
+    if(a === 'stop')      { hush(); goIdle(); }
+    if(a === 't1')        celebrate(1);
+    if(a === 't2')        celebrate(2);
+    if(a === 't3')        celebrate(3, tgt);
+    if(a === 'point')     pointAt(tgt, null, 3200);
+    if(a === 'underline') underlineEl(tgt);
+    if(a === 'clearink')  gInk.innerHTML = '';
+  });
+});
+
+function slider(id, fmt, apply){
+  var el = $(id), out = $(id + '-o');
+  function upd(){
+    var n = Number(el.value);
+    apply(n);
+    out.textContent = fmt(n);
+  }
+  el.addEventListener('input', upd);
+  upd();
+}
+slider('handsize', function(n){ return n; },                  function(n){ C.handSize = n; lastHandKey = ''; });
+slider('size',     function(n){ return n + 'px'; },           function(n){ C.height = n; applyHeight(); });
+slider('bob',      function(n){ return n + 'px'; },           function(n){ C.bob = n; });
+slider('drift',    function(n){ return n + 'px'; },           function(n){ C.drift = n; });
+slider('speed',    function(n){ return (n/100).toFixed(2) + '×'; }, function(n){ C.speed = n/100; });
+slider('flight',   function(n){ return (n/100).toFixed(2) + '×'; }, function(n){ C.flight = n/100; });
+slider('lean',     function(n){ return n + '°'; },       function(n){ C.lean = n; });
+
+$('expr').addEventListener('change', function(){ S.expr = this.value; });
+$('handstyle').addEventListener('change', function(){ C.handStyle = this.value; lastHandKey = ''; });
+
+$('parkfocus').addEventListener('change', function(){
+  C.parkFocus = this.checked;
+  if(!C.parkFocus && S.mode === 'park') goIdle();
+});
+$('lane').addEventListener('change', function(){ C.lane = this.checked; goIdle(); });
+$('motion').addEventListener('change', function(){ C.motion = this.checked; });
+$('debug').addEventListener('change', function(){
+  C.debug = this.checked;
+  gDebug.style.display = C.debug ? '' : 'none';
+  if(!C.debug) gDebug.innerHTML = '';
+});
+
+/* ══════════════════════════════════════════════════════════════════════
+   14.  GO
+   ══════════════════════════════════════════════════════════════════════ */
+(function boot(){
+  var h = homeSpot();
+  S.x = h.x + 120; S.y = h.y - 60;
+  S.tx = h.x; S.ty = h.y;
+  requestAnimationFrame(frame);
+  setTimeout(function(){ tellJoke(); }, 900);
+})();
+
+})();
+</script>
+
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD rb -- PART 3hc: the chip says what it counts. Jim on the qz streak
+#               chips, live: "there's nothing that says what those are." The classroom
+#               pills explained themselves only in hover tooltips -- a child never hovers,
+#               a tablet can't. Each pill now carries a visible 9px label under its number,
+#               in the dashboard banner's OWN words ("days in a row" / "right in a row
+#               today"), pinned in both files so the two surfaces never teach two names for
+#               one number. Markup/CSS only; ids, render/bump wiring, tooltips and 3ha's
+#               pins untouched (node dry run drove the unchanged JS against the new
+#               structure first). Battery tile pins re-synced.
 #   2026-08-31  BUILD ra -- PART 3hb: the leftover gets its buttons. Jim, live on
 #               entry/basic the same evening qw deployed: "some of the times it's missing
 #               bubbles." Measured first: referee 58 FIRED on every shape he saw and qw's
@@ -10946,6 +10955,53 @@ def part3hb_the_leftover_gets_its_buttons():
           and '_event("pass_through", "elembuttons"' in tsrc, "")
 
 
+def part3hc_the_chip_says_what_it_counts():
+    """PART 3hc (build rb, 2026-08-31) -- THE CHIP SAYS WHAT IT COUNTS.
+
+    Jim, reading the qz streak chips live: "I see the icon for days in a row, the icon
+    for problems in a row, and I only know that's what they are because I told you to
+    put in there. There's nothing that says what those are."
+
+    ⭐ THE qz PILLS EXPLAINED THEMSELVES ONLY IN HOVER TOOLTIPS. A child never hovers
+    and a tablet can't hover -- a motivator nobody can decode is not a motivator. Each
+    classroom pill now carries a small VISIBLE label under its number.
+
+    ⭐ THE LABEL IS THE DASHBOARD BANNER'S OWN WORDS -- "days in a row" and "right in a
+    row today" -- pinned in BOTH files, because two surfaces teaching two names for one
+    number is the confusion this build exists to remove (build qq's law: the site says
+    what the button says).
+
+    ⚠️ MARKUP ONLY. The ids (scDaysNum/scTodayNum), the render/bump wiring, the
+    seed-from-server path and the tooltips are all untouched -- PART 3ha's pins keep
+    holding, and a node dry run drove the unchanged renderStreakChips() against the new
+    pill structure before this PART was written (seed, climb, no-change, reset).
+    """
+    print("\nPART 3hc — the chip says what it counts (build rb)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    sess = code_only(open(os.path.join(here, "static", "session.html"), encoding="utf-8").read())
+    dash = code_only(open(os.path.join(here, "static", "dashboard.html"), encoding="utf-8").read())
+
+    check("⭐ the days pill carries a VISIBLE label, not just a tooltip",
+          '<span class="sclab">days in a row</span>' in sess,
+          "a hover tooltip is invisible to a child on a tablet")
+    check("⭐ the today pill carries a VISIBLE label too",
+          '<span class="sclab">right in a row today</span>' in sess, "")
+    check("⭐ the labels are the dashboard banner's OWN words (one name per number, "
+          "both surfaces)", ">days in a row<" in dash and ">right in a row today<" in dash,
+          "two surfaces teaching two names for one number is the confusion itself")
+    check("  the number ids survive inside the new pill structure",
+          'id="scDaysNum"' in sess and 'id="scTodayNum"' in sess
+          and sess.count('class="scmain"') == 2, "")
+    check("  the tooltips are retained (a mouse user still gets the long form)",
+          'title="Days in a row you\'ve worked"' in sess
+          and 'title="Problems right in a row today"' in sess, "")
+    check("  the label line has its own compact style (the pill stays a pill -- "
+          "more board, less chrome)",
+          ".schip2 .sclab" in sess and "flex-direction: column" in sess, "")
+    check("  the chips are still hidden until the server confirms tracking",
+          'id="streakChips" hidden' in sess, "PART 3ha's own pin, re-affirmed here")
+
+
 def part3dn_every_verdict_is_counted():
     """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
 
@@ -19839,7 +19895,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,890</b>" in page,
+          "<b>7,897</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -28410,6 +28466,7 @@ def main():
     part3gz_the_verb_is_the_operator()
     part3ha_a_streak_a_child_can_see_today()
     part3hb_the_leftover_gets_its_buttons()
+    part3hc_the_chip_says_what_it_counts()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

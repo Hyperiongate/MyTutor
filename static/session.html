@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <!--
+    (rb) 2026-08-31 -- THE CHIP SAYS WHAT IT COUNTS. Jim, reading the qz chips live:
+    "I see the icon for days in a row, the icon for problems in a row, and I only know
+    that's what they are because I told you to put in there. There's nothing that says
+    what those are." The qz pills explained themselves only in hover tooltips -- a child
+    never hovers and a tablet can't. Each pill now carries a small visible label under
+    its number, in EXACTLY the dashboard banner's own words ("days in a row" / "right in
+    a row today") so the two surfaces never teach two names for one thing. The pills stay
+    compact (this page's more-board-less-chrome rule): the label rides INSIDE the
+    existing pill as a second 9px line, no new topbar row, ids and the render/bump
+    wiring untouched (PART 3ha's pins all still hold; PART 3hc pins the labels).
     (qz) 2026-08-31 -- A STREAK A CHILD CAN SEE TODAY. Jim: "something on the top that
     says how many days in a row they've worked and how many problems in a row they have
     gotten correct today... prominent, so easily visible... a motivator to keep coming
@@ -1424,15 +1434,23 @@
        here (see build iq's "more board" note on .chiprow just below). */
     .streakchips { display: flex; align-items: center; gap: 8px; margin-left: 14px; }
     .streakchips[hidden] { display: none; }
-    .schip2 { display: inline-flex; align-items: center; gap: 5px; font-size: 13px;
-      font-weight: 900; color: #fff; border-radius: 999px; padding: 5px 12px;
+    /* (rb) the pill grew a second, tiny line: its visible label. Column layout, the
+       number line unchanged on top, the label 9px underneath -- still one compact
+       pill, no new topbar row, the board loses nothing. */
+    .schip2 { display: inline-flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 13px;
+      font-weight: 900; color: #fff; border-radius: 999px; padding: 5px 12px 4px;
       line-height: 1; box-shadow: 0 3px 10px rgba(20,30,45,.14); white-space: nowrap; }
+    .schip2 .scmain { display: inline-flex; align-items: center; gap: 5px; }
+    .schip2 .sclab { font-size: 9px; font-weight: 800; letter-spacing: .02em; opacity: .95; }
     .schip2.days { background: linear-gradient(90deg, #f5730d, #ffb238); }
     .schip2.today { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
     .schip2 .se { font-size: 14px; }
     .schip2.bump { animation: schipbump .5s ease; }
     @keyframes schipbump { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
-    @media (max-width: 640px) { .streakchips { margin-left: 8px; } .schip2 { padding: 5px 9px; font-size: 12px; } }
+    @media (max-width: 640px) { .streakchips { margin-left: 8px; }
+      .schip2 { padding: 4px 9px 3px; font-size: 12px; }
+      .schip2 .sclab { font-size: 8px; } }
     .chiprow { display: flex; gap: 8px; margin: 4px 24px 2px; flex-wrap: wrap; }
     .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px;
       font-weight: 800; color: var(--ink); background: var(--panel);
@@ -1812,10 +1830,14 @@
         <!-- (qz, 2026-08-31) THE STREAK CHIPS -- see renderStreakChips(). Hidden until
              the server confirms tracking is on and reports real numbers. -->
         <div class="streakchips" id="streakChips" hidden aria-live="polite">
+          <!-- (rb) each pill carries its label VISIBLY -- the dashboard banner's exact
+               words -- because a tooltip is invisible to a child on a tablet. -->
           <span class="schip2 days" id="scDays" title="Days in a row you've worked">
-            <span class="se">🔥</span><span id="scDaysNum">0</span></span>
+            <span class="scmain"><span class="se">🔥</span><span id="scDaysNum">0</span></span>
+            <span class="sclab">days in a row</span></span>
           <span class="schip2 today" id="scToday" title="Problems right in a row today">
-            <span class="se">⭐</span><span id="scTodayNum">0</span></span>
+            <span class="scmain"><span class="se">⭐</span><span id="scTodayNum">0</span></span>
+            <span class="sclab">right in a row today</span></span>
         </div>
         <div class="spacer"></div>
         <a id="homeLink" href="#">☰ Menu</a>

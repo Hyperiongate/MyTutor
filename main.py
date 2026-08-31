@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  APP_BUILD -> "2026-08-31rb-the-chip-says-what-it-counts". BUILD rb -- Jim on
+#               the qz streak chips: "there's nothing that says what those are." The
+#               classroom pills' only explanation was a hover tooltip; each now carries a
+#               visible label in the dashboard banner's own words ("days in a row" / "right
+#               in a row today"). static/session.html markup/CSS only; PART 3hc pins the
+#               labels in both files. NO CODE IN THIS FILE CHANGED.
 #   2026-08-31  APP_BUILD -> "2026-08-31ra-the-leftover-gets-its-buttons". BUILD ra -- Jim,
 #               live on entry/basic the same evening qw deployed: "some of the times it's
 #               missing bubbles." qw's shipping-door repair only knew plain a-op-b
@@ -13073,7 +13079,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-31ra-the-leftover-gets-its-buttons"
+APP_BUILD = "2026-08-31rb-the-chip-says-what-it-counts"
 
 
 @app.get("/health")
