@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  APP_BUILD -> "2026-08-31qw-the-floor-under-the-floor". BUILD qw -- the
+#               buttons guarantee, in tutor.py: referee 58 could only nudge, so after
+#               three failed attempts a bubble-less question still shipped to an
+#               Entry-Level or Basic child who cannot type. CODE now repairs it at the
+#               moment of shipping, on every exit of _create_verified: compute the
+#               answer from the reply's own pending problem ("4 + 3 = ?", or "what is
+#               four plus three?"), append the scripted lane's exact choices row.
+#               COMPUTED, NEVER GUESSED -- what it cannot compute ships as before and
+#               is COUNTED (pass_through · elembuttons; repairs are code_repair ·
+#               elembuttons). NO CODE IN THIS FILE CHANGED.
 #   2026-08-31  APP_BUILD -> "2026-08-31qv-the-words-point-at-the-picture-drawn". BUILD qv --
 #               the night watch's three referee-shaped findings, measured first, closed
 #               as REFEREE 67 (fraction anatomy in top/bottom words over a slash-written
@@ -13010,7 +13020,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-31qv-the-words-point-at-the-picture-drawn"
+APP_BUILD = "2026-08-31qw-the-floor-under-the-floor"
 
 
 @app.get("/health")

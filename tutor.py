@@ -2,6 +2,24 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qw -- THE BUTTONS GUARANTEE. Referee 58 could only NUDGE: three
+#               failed attempts and _settle shipped the least-bad draft anyway, which in
+#               Entry-Level and Basic is a question a child who cannot type has no way
+#               to answer (the watch counted 84 replies/week shipped with a standing
+#               finding). NEW repair_missing_buttons() runs at the moment of shipping,
+#               on EVERY exit of _create_verified (the accepted draft, the settled
+#               pass-through, the degraded no-verifier path -- one _shipped() door): if
+#               referee 58's own test still fires, it reads the pending problem off the
+#               reply's OWN board ("4 + 3 = ?", or the spoken "what is four plus
+#               three?"), COMPUTES the answer, and appends the scripted lane's exact
+#               choices row (answer + neighbours, floored, per-problem rotation).
+#               ⚠️ COMPUTED, NEVER GUESSED (the build-pt law: the answer must be among
+#               the choices): plain + − × ÷ on small whole numbers only, division only
+#               when even, take-away only when non-negative. Anything else ships as
+#               today and logs pass_through · elembuttons so the night watch counts the
+#               leftover. Events: code_repair · elembuttons on every repair. The nudges
+#               still run first -- the model's child-slip distractors beat code's
+#               neighbours; this is the floor under the floor.
 #   2026-08-31  BUILD qv -- THE WATCH'S THREE REFEREE-SHAPED FINDINGS, measured first:
 #               ① REFEREE 67, fraction_orientation_conflict (rule 63): "the TOP number
 #               is the numerator" spoken over a board showing 1/4 with a SLASH -- the
@@ -7266,6 +7284,109 @@ def elementary_buttons_conflict(reply: str, course: str = ""):
         return ""
 
 
+# =============================================================================
+# BUILD qw (2026-08-31) -- THE BUTTONS GUARANTEE: CODE'S LAST-RESORT REPAIR.
+# -----------------------------------------------------------------------------
+# Referee 58 can only NUDGE. Three failed attempts and _settle ships the least-bad
+# draft anyway -- which for Entry-Level and Basic means a question a child who
+# cannot type has NO WAY TO ANSWER. The 2026-08-31 night watch put a number on the
+# class: 84 replies in one week shipped WITH a standing finding. This closes the
+# elembuttons slice of it in CODE, at the moment of shipping:
+#
+#   the reply still ends on a question with no [[choices]] (referee 58's own test,
+#   reused verbatim -- ONE definition of the shape, not two) -> read the pending
+#   equation off the reply's OWN board ("4 + 3 = ?", or the spoken "what is four
+#   plus three?"), COMPUTE the answer, and append the exact choices row the
+#   scripted lane has always built: answer and its two neighbours, deterministic
+#   per-problem rotation (lessonscripts.choices_for's shape, floor and all).
+#
+# ⚠️ COMPUTED, NEVER GUESSED. Build pt's disaster ("the answer is not among the
+# choices" -- a child marked wrong on a question they were never given a chance to
+# answer) is the one failure this repair must never recreate, so it builds a row
+# ONLY when it can compute the answer from the problem the reply itself asked:
+# plain + − × ÷ on small whole numbers, division only when it comes out even,
+# take-away only when nothing goes negative. Anything else -- a word question, a
+# comparison, a shape it cannot read -- ships exactly as today and logs
+# pass_through · elembuttons, so the night watch counts the leftover instead of
+# nobody counting it. A repair that guesses would be worse than the gap.
+#
+# ⚠️ AND IT NEVER TOUCHES A HEALTHY REPLY. The detector runs first; a reply with
+# buttons, a reply that asks nothing, an own-words ask, any other course: no-op.
+# The referees still get their three attempts first, because the model's
+# distractors (real child slips) are better than code's neighbours -- this is the
+# floor under the floor, not a replacement for the nudge.
+_RB_OPS = {"+": "+", "-": "-", "\u2212": "-", "\u00d7": "*", "x": "*", "*": "*",
+           "\u00f7": "/", "/": "/"}
+_RB_EQ_RE = re.compile(
+    r"^\s*(\d{1,3})\s*([+\-\u2212\u00d7x*\u00f7/])\s*(\d{1,3})\s*=\s*\?\s*$")
+_RB_PROSE_RE = re.compile(
+    r"\bwhat\s+is\s+(\d{1,3}|one|two|three|four|five|six|seven|eight|nine|ten|"
+    r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)"
+    r"\s+(plus|minus|times|divided\s+by)\s+"
+    r"(\d{1,3}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
+    r"thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\b", re.I)
+_RB_PROSE_OPS = {"plus": "+", "minus": "-", "times": "*", "divided by": "/"}
+
+
+def _rb_num(tok):
+    t = str(tok or "").strip().lower()
+    if t.isdigit():
+        return int(t)
+    return _NUMWORD.get(t)
+
+
+def repair_missing_buttons(reply: str, course: str = ""):
+    """(reply, status, detail): status is "" (nothing to do), "repaired" (a computed
+    choices row was appended) or "unrepairable" (the gap stands and must be counted).
+    Never raises (fail open: the reply ships untouched)."""
+    try:
+        text = str(reply or "")
+        if not elementary_buttons_conflict(text, course):
+            return text, "", ""            # referee 58's own test: ONE shape, not two
+        # ---- the problem the reply itself asked, board first ------------------
+        a = b = op = None
+        for attrs in _SUB_EQ_TAGS.findall(text):
+            for val in re.findall(r'"([^"]*)"', attrs):
+                m = _RB_EQ_RE.match(val)
+                if m:                       # the LAST pending equation is the ask
+                    a, op, b = int(m.group(1)), _RB_OPS.get(m.group(2)), int(m.group(3))
+        if a is None:
+            pm = None
+            for pm in _RB_PROSE_RE.finditer(_spoken_only(text)):
+                pass                        # the LAST spoken ask, same reasoning
+            if pm:
+                a, b = _rb_num(pm.group(1)), _rb_num(pm.group(3))
+                op = _RB_PROSE_OPS.get(" ".join(pm.group(2).lower().split()))
+        if a is None or b is None or op is None:
+            return text, "unrepairable", "no computable pending problem to build a row from"
+        # ---- computed, never guessed ------------------------------------------
+        if op == "+":
+            v = a + b
+        elif op == "-":
+            v = a - b
+            if v < 0:
+                return text, "unrepairable", "take-away goes negative: %d - %d" % (a, b)
+        elif op == "*":
+            v = a * b
+        else:
+            if b == 0 or a % b != 0:
+                return text, "unrepairable", "division is not whole: %d / %d" % (a, b)
+            v = a // b
+        if v > 9999:
+            return text, "unrepairable", "answer out of range: %d" % v
+        # the scripted lane's own row: answer and neighbours, floored, rotated
+        opts = [v - 1, v, v + 1] if v > 1 else [v, v + 1, v + 2]
+        k = (a * 3 + b) % 3
+        opts = opts[k:] + opts[:k]
+        row = '[[choices options="' + " | ".join(str(o) for o in opts) + '"]]'
+        return (text.rstrip() + "\n" + row, "repaired",
+                "computed %d %s %d = %d and appended %s" % (a, op, b, v, row))
+    except Exception as exc:  # noqa: BLE001 -- a repair must never cost a turn
+        print(f"[buttonrepair] crashed (fail open): {exc}")
+        _event("referee_crash", "buttonrepair", str(exc))
+        return str(reply or ""), "", ""
+
+
 def spoken_time_collision_conflict(reply: str):
     """Return a description of a question number colliding into a clock-time
     reading, or "". Never raises: fail open."""
@@ -9992,6 +10113,23 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     # attempts run out, the child gets the LEAST-BAD draft, not merely the LAST one.
     drafts = []
 
+    def _shipped(reply):
+        """(qw) THE ONE DOOR A REPLY LEAVES THROUGH. The buttons guarantee runs at
+        the moment of shipping, on every exit -- the accepted draft, the settled
+        pass-through, and the degraded no-verifier path -- because the guarantee is
+        about what reaches the CHILD, not about which referee approved it. A healthy
+        reply is a no-op here (the detector is referee 58's own test)."""
+        _course = (meta or {}).get("course", "")
+        _code = (meta or {}).get("code", "")
+        reply, _bst, _bdet = repair_missing_buttons(reply, _course)
+        if _bst == "repaired":
+            print(f"[buttonrepair]{log_prefix} REPAIRED: {_bdet}")
+            _event("code_repair", "elembuttons", _bdet, _code, _course)
+        elif _bst == "unrepairable":
+            print(f"[buttonrepair]{log_prefix} UNREPAIRABLE: {_bdet}")
+            _event("pass_through", "elembuttons", _bdet, _code, _course)
+        return reply
+
     def _settle(kept):
         """The attempts are spent and a finding still stands. Ship the least-bad
         draft, log WHICH attempt shipped and what it still carried, and return it
@@ -10011,7 +10149,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
         _measure_output(tokens, reply, meta)                    # build jq
         remember_phrasings(reply, meta)                         # build jr
         _log_brain_usage(meta, model, tokens, MATHCHECK_MAX_ATTEMPTS, status)
-        return mathcheck.strip_verify_tags(reply)
+        return _shipped(mathcheck.strip_verify_tags(reply))
 
     for attempt in range(1, MATHCHECK_MAX_ATTEMPTS + 1):
         # build jm: whatever rejected the previous draft -- mathcheck, the prose
@@ -10033,7 +10171,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             # Verifier missing on this deploy (defensive import failed): skip the
             # check, but STILL strip any [[verify]] tags so they never leak out.
             _log_brain_usage(meta, model, tokens, attempt, "")
-            return re.sub(r"\[\[\s*verify\b[^\]]*\]\]", "", reply).strip()
+            return _shipped(re.sub(r"\[\[\s*verify\b[^\]]*\]\]", "", reply).strip())
         try:
             verdict, detail = mathcheck.verify_reply(reply)
         except Exception as exc:  # noqa: BLE001 -- referee crash = fail open
@@ -10118,7 +10256,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             _measure_output(tokens, reply, meta)          # build jq
             remember_phrasings(reply, meta)               # build jr
             _log_brain_usage(meta, model, tokens, attempt, status)
-            return mathcheck.strip_verify_tags(reply)
+            return _shipped(mathcheck.strip_verify_tags(reply))
         print(f"[mathcheck]{log_prefix} WRONG on attempt {attempt}/{MATHCHECK_MAX_ATTEMPTS}: {detail}")
         drafts.append((attempt, reply, "mathcheck", str(detail)))
         if attempt < MATHCHECK_MAX_ATTEMPTS:

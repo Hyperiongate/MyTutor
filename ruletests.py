@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qw -- PART 3gy: the floor under the floor. Referee 58 could only
+#               nudge; after three failed attempts a bubble-less question still shipped to
+#               a child who cannot type (the watch's 84-replies-a-week number). CODE now
+#               repairs it at the moment of shipping, on every exit of _create_verified
+#               (one _shipped() door): compute the answer from the reply's own pending
+#               problem, append the scripted lane's exact row. The build-pt law is the
+#               whole design -- COMPUTED, NEVER GUESSED: word questions, uneven division
+#               and negative take-aways ship as before and are COUNTED
+#               (pass_through · elembuttons). 22 pins including a 507-case grid proving a
+#               built row always holds the true answer.
 #   2026-08-31  BUILD qv -- PART 3gx: referees 67 (a slash has no top -- fraction anatomy
 #               in top/bottom words over a board that shows 1/4 with a slash and no
 #               spoken bridge) and 68 (one board, one triangle -- a second DIFFERENT
@@ -16232,6 +16242,119 @@ def part3gx_the_words_point_at_the_picture_drawn():
           and "the 3 is the NUMERATOR: three of those pieces" in fsrc, "")
 
 
+def part3gy_the_floor_under_the_floor():
+    """PART 3gy (build qw, 2026-08-31) -- THE BUTTONS GUARANTEE.
+
+    Referee 58 (build ox) says the littlest courses answer by tapping -- and could only
+    NUDGE. Three failed attempts and _settle shipped the least-bad draft anyway, which
+    in Entry-Level and Basic is a question a child who cannot type has NO WAY to
+    answer. The 2026-08-31 night watch counted the class: 84 replies in one week
+    shipped WITH a standing finding. Twice offered, twice deferred for other work;
+    built now on Jim's pick.
+
+    ⭐ THE REPAIR IS CODE, AT THE MOMENT OF SHIPPING, ON EVERY EXIT. _create_verified
+    grew one door -- _shipped() -- through which the accepted draft, the settled
+    pass-through AND the degraded no-verifier path all leave. If referee 58's own test
+    still fires there (ONE definition of the shape, reused, never a second copy), the
+    repair reads the pending problem off the reply's OWN board ("4 + 3 = ?", or the
+    spoken "what is four plus three?"), COMPUTES the answer, and appends the scripted
+    lane's exact row: answer and its two neighbours, floored at 1, deterministic
+    per-problem rotation.
+
+    ⚠️ COMPUTED, NEVER GUESSED -- the build-pt law is the whole design. pt's disaster
+    was a choices row WITHOUT the answer in it: a child marked wrong on a question
+    they were never given a chance to answer. So this repair builds a row ONLY when it
+    can compute the answer from the problem the reply itself asked: plain + − × ÷ on
+    small whole numbers, division only when it comes out even, take-away only when
+    nothing goes negative. Everything else ships exactly as before and logs
+    pass_through · elembuttons -- the night watch now COUNTS the leftover instead of
+    nobody counting it. A repair that guesses would be worse than the gap.
+
+    ⚠️ AND THE NUDGES STILL RUN FIRST. The model's distractors are real child slips
+    (off by one, a carry missed, digits swapped); code's are neighbours. The repair is
+    the floor under the floor, not a replacement for the referee.
+    """
+    print("\nPART 3gy — the floor under the floor (build qw)")
+    import re as _re
+    import tutor as _tt
+    R = _tt.repair_missing_buttons
+
+    def opts(r):
+        m = _re.search(r'\[\[choices options="([^"]*)"\]\]', r)
+        return [x.strip() for x in m.group(1).split("|")] if m else None
+
+    # ---- it repairs, and the answer is in the row -----------------------------
+    r, st, det = R('[[objects emoji="⭐" groups="2" add="1"]][[step eq="2 + 1 = ?"]] '
+                   "What is 2 plus 1?", "entry")
+    check("⭐ the watch's own shape is repaired: a computed row is appended",
+          st == "repaired" and opts(r) is not None and "3" in opts(r),
+          (st, det))
+    check("  ...and referee 58 is SILENT on the repaired reply",
+          not _tt.elementary_buttons_conflict(r, "entry"),
+          "the repair must satisfy the very test that demanded it")
+    check("  ...and the choices-answer referee is silent too (the pt law, honoured)",
+          not _tt.unanswerable_choices_conflict(r), "")
+    r2, st2, _ = R("Now your turn. What is four plus three?", "basic")
+    check("  a spoken-words ask repairs too ('what is four plus three?')",
+          st2 == "repaired" and "7" in (opts(r2) or []), "")
+    r3, st3, _ = R('[[step eq="1 + 1 = 2"]][[step eq="2 + 1 = ?"]] What is 2 plus 1?',
+                   "entry")
+    check("  the LAST pending equation is the one repaired (a worked line above it "
+          "is the model, not the ask)", st3 == "repaired" and "3" in (opts(r3) or []), "")
+    for label, reply in (("take-away", '[[step eq="6 − 4 = ?"]] What is 6 minus 4?'),
+                         ("times", '[[step eq="6 × 4 = ?"]] What is 6 times 4?'),
+                         ("even division", '[[step eq="12 ÷ 3 = ?"]] What is 12 divided by 3?')):
+        _r, _s, _d = R(reply, "entry")
+        check("  %s repairs" % label, _s == "repaired", (_s, _d))
+
+    # ---- computed, never guessed: the refusals --------------------------------
+    for label, reply in (
+            ("a word question it cannot compute", "How many stars do you see?"),
+            ("uneven division", '[[step eq="7 ÷ 2 = ?"]] What is 7 divided by 2?'),
+            ("a take-away that goes negative", '[[step eq="4 − 6 = ?"]] What is 4 minus 6?')):
+        _r, _s, _d = R(reply, "entry")
+        check("⭐ REFUSES rather than guesses: %s" % label,
+              _s == "unrepairable" and _r == reply,
+              "a row without the true answer is build pt's disaster, recreated by us")
+
+    # ---- it never touches a healthy reply -------------------------------------
+    for label, reply, course in (
+            ("buttons already present",
+             '[[step eq="2 + 1 = ?"]] What is 2 plus 1? [[choices options="2 | 3 | 4"]]', "entry"),
+            ("another course entirely", '[[step eq="2 + 1 = ?"]] What is 2 plus 1?', "algebra1"),
+            ("no question asked", '[[step eq="2 + 1 = 3"]] Two plus one equals three!', "entry"),
+            ("an own-words ask, on purpose", "Tell me in your own words what adding means?", "entry")):
+        _r, _s, _d = R(reply, course)
+        check("  no-op: %s" % label, _s == "" and _r == reply, (_s, _d))
+    check("  never raises", R(None, "entry")[1] == "" and R(12345, "entry")[1] == "", "")
+
+    # ---- the property, over a grid --------------------------------------------
+    bad = 0
+    for a in range(0, 13):
+        for b in range(0, 13):
+            for op, v in (("+", a + b), ("−", a - b), ("×", a * b)):
+                _r, _s, _d = R('[[step eq="%d %s %d = ?"]] What is it?' % (a, op, b), "entry")
+                if _s == "repaired" and str(v) not in (opts(_r) or []):
+                    bad += 1
+    check("⭐ over the whole 0-12 grid, a built row ALWAYS holds the true answer",
+          bad == 0, "%d rows shipped without their answer" % bad)
+
+    # ---- wired at EVERY shipping exit, and counted ----------------------------
+    tsrc = open(_tt.__file__, encoding="utf-8").read()
+    check("⭐ one _shipped() door, and every exit of _create_verified goes through it",
+          tsrc.count("return _shipped(") == 3
+          and 'def _shipped(reply):' in tsrc,
+          "the guarantee is about what reaches the CHILD, not which referee approved it")
+    check("  ...a repair is counted (code_repair · elembuttons)",
+          '_event("code_repair", "elembuttons", _bdet, _code, _course)' in tsrc, "")
+    check("  ...and the leftover is counted (pass_through · elembuttons)",
+          '_event("pass_through", "elembuttons", _bdet, _code, _course)' in tsrc,
+          "the night watch must see what code could NOT fix")
+    check("  the detector is referee 58's own test, not a second copy of the shape",
+          "if not elementary_buttons_conflict(text, course):" in tsrc,
+          "two definitions of one shape is how they drift apart")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -19200,7 +19323,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,802</b>" in page,
+          "<b>7,823</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -27718,6 +27841,7 @@ def main():
     part3gv_count_out_loud_with_me()
     part3gw_the_counting_lessons_actually_count()
     part3gx_the_words_point_at_the_picture_drawn()
+    part3gy_the_floor_under_the_floor()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
