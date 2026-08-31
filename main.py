@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  APP_BUILD -> "2026-08-31qx-the-verb-is-the-operator". BUILD qx -- the
+#               08-29 review's last two items, all in tutor.py: R7 (rule 15's referee
+#               learns the COMMAND ASK -- "Simplify 8/12?" slipped in both word and
+#               digit form because a command carries one number and no operator word;
+#               the verb IS the operator; final-sentence scoped, net new canon hits
+#               zero) and R8 (rule 64's measurement-only probe: the child's own
+#               "3 + 2 x 4" silently worked as "2 + 3 x 4" now counts as
+#               probe · expressionswap, "reordered" vs "replaced", so the next watch's
+#               numbers decide whether a referee is worth its false-positive risk).
+#               Plus PART 3gz's qask PAIRING pin: /api/script/quiz/* is pilot.html's
+#               alone today and session.html's player has no qask beat -- the pin fails
+#               the day one arrives without the other. NO CODE IN THIS FILE CHANGED.
 #   2026-08-31  APP_BUILD -> "2026-08-31qw-the-floor-under-the-floor". BUILD qw -- the
 #               buttons guarantee, in tutor.py: referee 58 could only nudge, so after
 #               three failed attempts a bubble-less question still shipped to an
@@ -13020,7 +13032,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-31qw-the-floor-under-the-floor"
+APP_BUILD = "2026-08-31qx-the-verb-is-the-operator"
 
 
 @app.get("/health")

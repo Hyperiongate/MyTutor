@@ -2,6 +2,19 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qx -- THE 08-29 REVIEW'S LAST TWO ITEMS (R7, R8), plus the qask
+#               measurement pinned. ① R7: rule 15's referee learns the COMMAND ASK.
+#               Measured first: "Simplify eight twelfths?" AND "Simplify 8/12?" BOTH
+#               slipped (one number, no operator word -- the verb IS the operator). A
+#               closed verb list (simplify/reduce/convert/evaluate/solve/factor/expand/
+#               round/work out) plus one number now qualifies, FINAL SENTENCE ONLY --
+#               the canon sweep caught precalc's mid-turn "how many angles solve it?"
+#               (teaching, answered in the next breath) and the scope takes it out. Net
+#               new canon hits: 0. ② R8, measurement only: changed_expression_probe
+#               (rule 64 -- the child's "3 + 2 x 4" silently worked as "2 + 3 x 4").
+#               Fires probe · expressionswap with "reordered" vs "replaced" in the
+#               detail; the counts decide whether a referee is worth its false-positive
+#               risk, which is the design question R8 left open. No behaviour changes.
 #   2026-08-31  BUILD qw -- THE BUTTONS GUARANTEE. Referee 58 could only NUDGE: three
 #               failed attempts and _settle shipped the least-bad draft anyway, which in
 #               Entry-Level and Basic is a question a child who cannot type has no way
@@ -3342,6 +3355,22 @@ def _pq_numeric_tokens(sentence: str) -> int:
 
 # build gw: a demand for AN ANSWER, with no numbers in it. Deliberately not "what do you
 # think?" or "does that make sense?" -- those are invitations, not computations.
+# (qx) THE COMMAND ASK -- R7 from the 2026-08-29 review, measured before touching:
+# "Simplify eight twelfths?" AND "Simplify 8/12?" both slipped this referee, because
+# the gate needs two numbers, or one number plus an operator word -- and a command
+# question carries ONE number and no operator. The verb IS the operator. A command
+# verb plus at least one number (a digit, a slash fraction, or a number-word
+# fraction like "eight twelfths" -- ONE number, not two) is a computation handed to
+# the child, and rule 15 wants it on the board as a pending line. The verb list is
+# closed on purpose; "Can you simplify it?" (no number) never fires.
+_PQ_CMD_ASK = re.compile(
+    r"\b(?:simplify|reduce|convert|evaluate|solve|factor|expand|round|work\s+out)\b", re.I)
+_PQ_WORD_FRACTION = re.compile(
+    r"\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|\d+)\s+"
+    r"(?:half|halves|third|thirds|fourth|fourths|quarter|quarters|fifth|fifths|"
+    r"sixth|sixths|seventh|sevenths|eighth|eighths|ninth|ninths|tenth|tenths|"
+    r"eleventh|elevenths|twelfth|twelfths|hundredth|hundredths)\b", re.I)
+
 _PQ_BARE_DEMAND = re.compile(
     r"\bwhat (?:do|did) you get\b|\bwhat'?s the (?:answer|total|sum|result)\b|"
     r"\bwhat does (?:that|it) (?:come to|equal|make)\b|\bhow much (?:is )?(?:that|it)\b|"
@@ -3355,8 +3384,14 @@ def prose_pending_question_conflict(reply: str):
         text = str(reply or "")
         prose = _spoken_only(text)
         asks = []
-        for sent in _PQ_SENT_SPLIT.split(prose):
-            sent = sent.strip()
+        # (qx) the command gate below is FINAL-SENTENCE ONLY (the _CLAUSE_FORK_RE
+        # scope discipline): a real ask comes last (rule 39b); a mid-turn "how many
+        # angles solve it?" that the very next sentence answers is teaching. The
+        # canon sweep found exactly that shape (precalc's count-the-crossings) and
+        # the scope takes it out without contorting the card.
+        _sents = [x.strip() for x in _PQ_SENT_SPLIT.split(prose) if x.strip()]
+        _last_sent = _sents[-1] if _sents else ""
+        for sent in _sents:
             if not sent.endswith("?"):
                 continue
             if _pq_is_offer(sent):
@@ -3375,7 +3410,14 @@ def prose_pending_question_conflict(reply: str):
             nums = _pq_numeric_tokens(sent)
             if (nums >= 2
                     or (nums >= 1 and re.search(_PQ_OPERATOR, sent, re.I))
-                    or _PQ_SYMBOL_EXPR.search(sent)):
+                    or _PQ_SYMBOL_EXPR.search(sent)
+                    # (qx) the command ask: the VERB is the operator ("Simplify
+                    # eight twelfths?"). One number is enough here, a number-word
+                    # fraction counts as that number, and ONLY the reply's final
+                    # sentence qualifies -- a mid-turn command question that the
+                    # next sentence answers is teaching, not an ask.
+                    or (sent == _last_sent and _PQ_CMD_ASK.search(sent)
+                        and (nums >= 1 or _PQ_WORD_FRACTION.search(sent)))):
                 asks.append(sent)
         # BUILD gw (2026-08-17) -- THE BARE ANSWER-DEMAND, which walked past everything
         # above. From the day's decimal-alignment audit, twice:
@@ -10031,6 +10073,66 @@ def _board_attr_strings(text):
         return []
 
 
+# (qx) R8, MEASUREMENT ONLY -- THE STUDENT'S OWN EXPRESSION IS THE ONE WORKED
+# (rule 64). The 2026-08-29 watch caught the tutor turning a child's "3 + 2 x 4"
+# into "2 + 3 x 4" -- silently working a DIFFERENT problem, whose answer then
+# contradicts the child's own correct work. The 08-29 review (R8) asked for a
+# probe before any referee: the shape needs design (when is a changed expression a
+# swap, and when is it the tutor honestly choosing a new example?), and a probe
+# answers that with production counts instead of a guess. Fires an event, never
+# alters a reply, never costs a model call -- count_claim_probe's pattern exactly.
+#
+# THE SHAPE, narrow as R8 specified: the student's last message contains EXACTLY
+# ONE arithmetic expression (two or more numbers joined by operators), and the
+# reply's FIRST equation-carrying board value contains an expression with the SAME
+# operator sequence but DIFFERENT numbers. The detail says which kind:
+# "reordered" (same numbers, different order -- the watch's exact catch) or
+# "replaced" (different numbers -- possibly a legitimate new example; the counts
+# will say how often each happens, which is the design question).
+_CE_EXPR = re.compile(
+    r"-?\d+(?:\.\d+)?(?:\s*[+\-\u2212\u00d7x*\u00f7/]\s*-?\d+(?:\.\d+)?)+")
+_CE_OPS = {"\u2212": "-", "\u00d7": "*", "x": "*", "\u00f7": "/"}
+
+
+def _ce_parts(expr: str):
+    """(numbers, operators) of one flat arithmetic expression, operators normalized."""
+    nums = tuple(re.findall(r"-?\d+(?:\.\d+)?", expr))
+    ops = tuple(_CE_OPS.get(o, o) for o in
+                re.findall(r"[+\-\u2212\u00d7x*\u00f7/]", re.sub(r"-?\d+(?:\.\d+)?", "#", expr)))
+    return nums, ops
+
+
+def changed_expression_probe(reply: str, student_message: str) -> str:
+    """Return a description when the reply's first board expression shares the
+    student's operator sequence but not their numbers, or "". MEASUREMENT ONLY --
+    the caller logs it as a probe event. Never raises."""
+    try:
+        said = _CE_EXPR.findall(str(student_message or ""))
+        if len(said) != 1:
+            return ""                     # zero or several: the shape needs exactly one
+        s_nums, s_ops = _ce_parts(said[0])
+        if len(s_nums) < 2 or not s_ops:
+            return ""
+        for attrs in _STEP_TAG_RE.findall(str(reply or "")):
+            for val in re.findall(r'"([^"]*)"', attrs):
+                m = _CE_EXPR.search(val)
+                if not m:
+                    continue
+                r_nums, r_ops = _ce_parts(m.group(0))
+                if r_ops != s_ops:
+                    return ""             # a different operation is a different lesson
+                if r_nums[:len(s_nums)] == s_nums:
+                    return ""             # the child's own expression, worked -- rule 64 kept
+                kind = ("reordered" if sorted(r_nums[:len(s_nums)]) == sorted(s_nums)
+                        else "replaced")
+                return ("student wrote %s; the reply's first board expression is %s "
+                        "(%s)" % (said[0].strip()[:40], m.group(0).strip()[:40], kind))
+            break                          # FIRST equation-carrying tag only, by design
+        return ""
+    except Exception:  # noqa: BLE001 -- a probe must never cost a turn
+        return ""
+
+
 def missing_mark_probe(reply: str, messages) -> str:
     """Describe a turn that looks like a finished problem carrying no [[mark]] and no
     [[nice]], or "" when there is nothing to report. Never raises."""
@@ -10248,6 +10350,16 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                            (meta or {}).get("code", ""), (meta or {}).get("course", ""))
             except Exception as _exc:  # noqa: BLE001 -- a probe must never fail a turn
                 print(f"[markcheck]{log_prefix} probe crashed (ignored): {_exc}")
+            # (qx) R8's rule-64 probe: measurement only, on the accepted draft,
+            # exactly like the two probes above it.
+            try:
+                _swap = changed_expression_probe(reply, _last_user_text(msgs))
+                if _swap:
+                    print(f"[exprswap]{log_prefix} POSSIBLE CHANGED EXPRESSION: {_swap}")
+                    _event("probe", "expressionswap", _swap,
+                           (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+            except Exception as _exc:  # noqa: BLE001 -- a probe must never fail a turn
+                print(f"[exprswap]{log_prefix} probe crashed (ignored): {_exc}")
             status = verdict if verdict != "ok" else ("ok" if attempt == 1 else "fixed")
             if prose_detail:
                 status = "prose-unresolved"

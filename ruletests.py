@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qx -- PART 3gz: the verb is the operator. R7 (rule 15's command-ask
+#               gate: "Simplify 8/12?" slipped in BOTH word and digit form; final-sentence
+#               scoped after the canon sweep caught a mid-turn teaching question; net new
+#               canon hits zero), R8 (rule 64's measurement-only probe,
+#               probe · expressionswap, reordered vs replaced), and the qask PAIRING pin:
+#               session.html calls no quiz endpoint today and handles no qask beat -- the
+#               pin fails the day one arrives without the other, which is the trap the
+#               measurement found.
 #   2026-08-31  BUILD qw -- PART 3gy: the floor under the floor. Referee 58 could only
 #               nudge; after three failed attempts a bubble-less question still shipped to
 #               a child who cannot type (the watch's 84-replies-a-week number). CODE now
@@ -16355,6 +16363,97 @@ def part3gy_the_floor_under_the_floor():
           "two definitions of one shape is how they drift apart")
 
 
+def part3gz_the_verb_is_the_operator():
+    """PART 3gz (build qx, 2026-08-31) -- THE 08-29 REVIEW'S LAST TWO ITEMS, AND THE
+    qask MEASUREMENT PINNED.
+
+    ⭐ R7 -- RULE 15 LEARNS THE COMMAND ASK. Measured before touching: the 08-29 watch's
+    quiz finding ("Simplify eight twelfths…" with no board after [[clear]]) was filed as
+    a word-form gap, and the measurement said otherwise -- "Simplify 8/12?" slipped the
+    SAME way, because the referee's gate wants two numbers, or one number plus an
+    operator WORD, and a command question has one number and no operator. The verb IS
+    the operator. A closed verb list plus one number (a digit, a slash fraction, or a
+    number-word fraction counted as ONE number) now qualifies -- FINAL SENTENCE ONLY,
+    because the canon sweep caught precalc's mid-turn "how many angles solve it?", a
+    teaching question answered in the very next breath, and the _CLAUSE_FORK_RE scope
+    discipline takes it out without touching the card. Net new canon hits: ZERO
+    (basic-u5's hit predates this build -- the bare-demand branch fires it on the old
+    code too, proven against the pre-qx tutor before this PART was written).
+
+    ⭐ R8 -- RULE 64'S PROBE, MEASUREMENT ONLY. The tutor turned a child's "3 + 2 x 4"
+    into "2 + 3 x 4" and worked the wrong one. R8 said probe first: whether a changed
+    expression is a SWAP or an honestly-chosen new example is the design question, and
+    production counts answer it better than a guess. probe · expressionswap, with
+    "reordered" vs "replaced" in the detail. Never alters a reply.
+
+    ⭐ AND THE qask MEASUREMENT, PINNED SO IT CANNOT ROT. session.html's scripted player
+    handles no qask beat -- and that is currently FINE, because the quiz endpoints
+    (/api/script/quiz/*) are called by pilot.html alone; session.html's quizzes ride the
+    live lane's [[quiz]] tag instead. The trap is the FUTURE wiring change: hook the
+    quiz endpoints into session.html without teaching scrPlay the beat, and quiz
+    questions render as mute say-beats with no buttons and no grading. So the two facts
+    are pinned TOGETHER: the day session.html calls a quiz endpoint, this PART fails
+    until its player handles qask.
+    """
+    print("\nPART 3gz — the verb is the operator (build qx)")
+    import tutor as _tt
+    F = _tt.prose_pending_question_conflict
+
+    # ---- R7 -------------------------------------------------------------------
+    check("⭐ R7 FIRES: the word-form command ask, the watch's own finding",
+          bool(F("[[clear]] Question 1. Simplify eight twelfths to its simplest form?")),
+          "one number, no operator word -- the verb is the operator")
+    check("⭐ R7 FIRES: the DIGIT form slipped identically, which is the real finding",
+          bool(F("[[clear]] Question 1. Simplify 8/12 to its simplest form?")),
+          "this was filed as a word-form gap; the measurement said command-ask gap")
+    check("  R7 SILENT: the pending line is up (the fix itself)",
+          not F('Simplify eight twelfths. [[step eq="8/12 = ?"]] Go ahead?'), "")
+    check("  R7 SILENT: a command with no number at all",
+          not F("Can you simplify it?"), "")
+    check("  R7 SILENT: a mid-turn command question is teaching (final-sentence scope)",
+          not F("An equation like: the sine equals 0 — how many angles solve it? "
+                "Sweep the arrow one full turn, and count every moment."),
+          "precalc's count-the-crossings card -- answered in the next breath")
+    check("  R7 SILENT: offers and check-ins are untouched",
+          not F("Want to try one yourself now, or see one more worked example first?")
+          and not F("Does that make sense?"), "")
+
+    # ---- R8 -------------------------------------------------------------------
+    P = _tt.changed_expression_probe
+    check("⭐ R8 probes the watch's exact catch, and names it reordered",
+          "reordered" in P('[[step eq="2 + 3 × 4 = ?"]] Work it.', "What is 3 + 2 × 4?"),
+          "the child's own numbers, in a different order")
+    check("  R8 names a fresh problem 'replaced'",
+          "replaced" in P('[[step eq="5 + 1 × 2 = ?"]] Watch.', "can you do 3 + 2 × 4"), "")
+    check("  R8 SILENT: the child's own expression, worked (rule 64 kept)",
+          P('[[step eq="3 + 2 × 4 = ?"]] Here.', "What is 3 + 2 × 4?") == "", "")
+    check("  R8 SILENT: a different operation, no expression, two expressions",
+          P('[[step eq="3 × 2 × 4 = ?"]] ok.', "what about 3 + 2 × 4") == ""
+          and P('[[step eq="2 + 3 = ?"]] ok.', "I do not get it") == ""
+          and P('[[step eq="9 + 9 = ?"]] ok.', "is 1 + 2 like 3 + 4?") == "", "")
+    check("  R8 never raises", P(None, None) == "" and P(123, 456) == "", "")
+    tsrc = open(_tt.__file__, encoding="utf-8").read()
+    check("  R8 is wired as a PROBE on the accepted draft, like its two siblings",
+          '_event("probe", "expressionswap", _swap,' in tsrc,
+          "measurement only: an event, never a nudge, never a changed reply")
+
+    # ---- the qask pairing ----------------------------------------------------
+    sess = code_only(open("static/session.html", encoding="utf-8").read())
+    calls_quiz = "/api/script/quiz" in sess
+    handles_qask = 'step.kind === "qask"' in sess or '"qask"' in sess
+    check("⭐ session.html: quiz endpoints and the qask beat move TOGETHER",
+          (not calls_quiz) or handles_qask,
+          "session.html now calls /api/script/quiz but its player still has no qask "
+          "beat -- quiz questions there render as mute say-beats with no buttons and "
+          "no grading. Teach scrPlay the qask/qend beats (pilot.html is the model) "
+          "in the same build that wires the endpoint.")
+    check("  ...today that means: no quiz calls, and pilot.html still handles them",
+          not calls_quiz
+          and '"qask"' in code_only(open("static/pilot.html", encoding="utf-8").read()),
+          "the measurement this pin preserves: /api/script/quiz/* is pilot.html's "
+          "alone; session.html quizzes ride the live lane's [[quiz]] tag")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -19323,7 +19422,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,823</b>" in page,
+          "<b>7,837</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -27842,6 +27941,7 @@ def main():
     part3gw_the_counting_lessons_actually_count()
     part3gx_the_words_point_at_the_picture_drawn()
     part3gy_the_floor_under_the_floor()
+    part3gz_the_verb_is_the_operator()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
