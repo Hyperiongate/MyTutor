@@ -115,6 +115,13 @@ Assessment belongs to Abrabot, boxed. Mr. Cadabra is absent — not parked, abse
 He never covers live text, an input, or a control. If the only route to a target crosses
 one, he goes around or he stays put.
 
+**And a target that is covered is not a target.** Found the first time the layer ran on
+the real `session.html`: the welcome card was up and he underlined the board straight
+through it. A thing can be perfectly present in the page and still be *underneath*
+something — a modal, a sprint overlay, the keyboard tray. If the point at the middle of a
+target does not belong to that target, he does not act on it at all. Enforced generically
+in `cadabra.js`, so it covers every overlay on every page without naming any of them.
+
 ### 20. NOT WHEN THE DEVICE ASKS FOR CALM.
 `prefers-reduced-motion` reduces him to a still character in a fixed spot with a blink.
 Every behaviour still *happens* — the underline still appears, the celebration still

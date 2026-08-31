@@ -4,6 +4,12 @@
    MR. CADABRA, OUT OF THE BOX. The floating companion layer.
 
    CHANGE NOTES (keep newest at top):
+     2026-08-31  (stage 4 fix) HE WILL NOT ACT ON SOMETHING THAT IS COVERED. Found in
+                 the session.html dry run: the welcome card was up and he underlined the
+                 board straight through it. A target now fails to resolve at all if the
+                 point at its centre belongs to something else, or if it has scrolled out
+                 of the viewport -- which is rule 19 enforced generically, and covers
+                 every modal, tray and overlay on every page without naming any of them.
      2026-08-31  (stage 2) NEW, AND IT SHIPS DARK. Phase 1 is tutor-face.js -- the
                  silent CANVAS orb in the corner, which this file does not touch and
                  must not. Phase 2 is tutor-moments.js -- the talking clips. This is
@@ -406,11 +412,30 @@
     var r = S.ang * Math.PI / 180, c = Math.cos(r), s = Math.sin(r);
     return { x: S.x + dx * c - dy * s, y: S.y + dx * s + dy * c };
   }
+  /* RULE 19, the half that only shows up on a real page: a target can be perfectly
+     visible in the DOM and still be UNDERNEATH something -- a welcome modal, a sprint
+     overlay, the keyboard tray. Found in the session.html dry run, where he cheerfully
+     underlined the board through the welcome card. If the point at the middle of the
+     target does not belong to the target, something is on top of it and he does not
+     act on it at all. */
+  function covered(el, r) {
+    var cx = Math.max(1, Math.min(window.innerWidth  - 1, r.left + r.width  / 2));
+    var cy = Math.max(1, Math.min(window.innerHeight - 1, r.top  + r.height / 2));
+    var hit;
+    try { hit = document.elementFromPoint(cx, cy); } catch (e) { return false; }
+    if (!hit) return true;
+    if (hit === el) return false;
+    if (el.contains && el.contains(hit)) return false;
+    if (hit.contains && hit.contains(el)) return false;
+    return true;
+  }
   function target(name) {
     var el = document.querySelector('[data-cad="' + String(name).replace(/"/g, "") + '"]');
     if (!el) return null;
     var r = el.getBoundingClientRect();
     if (!r.width || !r.height) return null;
+    if (r.bottom < 0 || r.top > window.innerHeight) return null;   /* scrolled away */
+    if (covered(el, r)) return null;                               /* something is on top */
     return { el: el, r: r };
   }
 
