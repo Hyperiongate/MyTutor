@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  APP_BUILD -> "2026-08-31qz-a-streak-a-child-can-see-today". BUILD qz -- Jim
+#               wants a prominent bar on both the dashboard AND the classroom page showing
+#               the day streak (already tracked) and problems answered correctly IN A ROW
+#               TODAY, reset the instant one is missed -- a same-day motivator, not a
+#               running total. Two endpoints touched: POST /api/mark/{code} now returns the
+#               fresh today_streak/streak_days read back from the write it just made
+#               (COMPUTED, NEVER GUESSED -- the same reasoning /api/check's best_pct already
+#               uses, so the client shows the server's authoritative number, never an
+#               optimistic guess); GET /api/session/{code} (the classroom page's own load)
+#               now carries progress["stats"] = mastery.get("stats", {}) from the SAME
+#               get_mastery() call it already made for checks, so the classroom page's
+#               streak chips have a number the instant the page loads, before any mark is
+#               sent. All the actual streak math (schema, the atomic write, the day-gated
+#               read) lives in store.py; see its own change note for the full design.
 #   2026-08-31  APP_BUILD -> "2026-08-31qy-the-ceiling-was-too-low-for-the-room". BUILD qy
 #               -- NO PYTHON IN THIS FILE CHANGED besides this stamp; the fix is entirely
 #               in nightwatch.py. The 2026-08-31 night watch ran 8 of the rotation's 12
@@ -13013,14 +13027,21 @@ def get_misses_api(request: Request, code: str = Depends(_code_dep), course: str
 @app.post("/api/mark/{code}")
 def post_mark(body: MarkIn, code: str = Depends(_code_dep)):
     """PHASE A: count a practice problem the tutor marked right/wrong (problems practiced +
-    accuracy + streak). No-op when the DB is off; never raises to the caller."""
+    accuracy + streak). No-op when the DB is off; never raises to the caller.
+
+    (qz) Returns the fresh today_streak/streak_days read back from the write, so the
+    client can show the AUTHORITATIVE number on its prominent streak bar rather than
+    guessing from the mark it just sent -- the same reasoning /api/check already uses
+    for best_pct."""
     _student_or_404(code)
     code = code.strip()
     if not store.enabled():
         return {"ok": False, "tracking": False}
     try:
-        store.record_practice(code, int(body.correct), int(body.attempted))
-        return {"ok": True, "tracking": True}
+        fresh = store.record_practice(code, int(body.correct), int(body.attempted))
+        return {"ok": True, "tracking": True,
+               "today_streak": fresh.get("today_streak", 0),
+               "streak_days": fresh.get("streak_days", 0)}
     except Exception as exc:  # noqa: BLE001
         print(f"[mark] record_practice failed: {exc}")
         return {"ok": False, "tracking": True}
@@ -13044,7 +13065,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-31qy-the-ceiling-was-too-low-for-the-room"
+APP_BUILD = "2026-08-31qz-a-streak-a-child-can-see-today"
 
 
 @app.get("/health")
@@ -13215,12 +13236,17 @@ def session_state(request: Request, code: str = Depends(_code_dep), course: str 
     # button need, in the call the page already makes. Wrapped: a data hiccup never
     # blocks the lesson from loading.
     progress = {"mastered_units": [], "unit_quiz_best": {}, "topic_quizzes": {},
-                "today": {},
+                "today": {}, "stats": {},
                 "final": {"eligible": False, "mastered_count": 0,
                           "required": _units_required(course), "exam": {}}}
     if store.enabled():
         try:
-            checks = (store.get_mastery(code, course) or {}).get("checks", {})
+            mastery = store.get_mastery(code, course) or {}
+            # (qz) ONE call now feeds both checks and stats -- the day streak and
+            # today's correct-in-a-row streak the classroom page's new bar needs,
+            # without a second round trip to the database.
+            checks = mastery.get("checks", {})
+            progress["stats"] = mastery.get("stats", {})
             for u, c in checks.items():
                 best = int((c or {}).get("best_pct") or 0)
                 progress["unit_quiz_best"][int(u)] = best

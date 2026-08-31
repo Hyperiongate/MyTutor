@@ -2,6 +2,28 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qz -- A STREAK A CHILD CAN SEE TODAY. Jim: a prominent bar on the
+#               dashboard AND the classroom page showing (1) the day streak (already
+#               tracked) and (2) problems answered correctly IN A ROW TODAY -- a
+#               motivator to keep coming back, distinct from the day streak (which only
+#               counts showing up) and from lifetime accuracy (which barely moves in one
+#               sitting). `student_stats` gains `today_streak` / `today_streak_day`,
+#               migrated additively (existing rows read 0 until first touched). Lives on
+#               the SAME clock as the day streak (STREAK_TZ, California Pacific, build
+#               hn's ruling) so "today" means the same thing for both numbers. Driven
+#               ONLY by record_practice's per-problem [[mark]] events -- deliberately NOT
+#               folded into record_check's batch unit-check scores, because "4 of 6 on a
+#               check" is not a meaningful "in a row" event. One atomic upsert per mark,
+#               same CASE-over-stored-date shape _bump_stats already uses for the day
+#               streak: a clean mark (correct == attempted) on the same stored day adds
+#               to the streak; a clean mark on a NEW day restarts the streak at that
+#               mark's count (yesterday's number does not carry over); any mark with a
+#               miss (correct < attempted) resets it to 0, mid-lesson, immediately. Read
+#               back through get_mastery()'s stats dict, which already reaches both pages
+#               (dashboard.html via /api/topics, session.html via /api/session, newly
+#               widened here to carry stats too) -- so a value stored on an OLD day still
+#               reads back honestly as 0 without a write, the same way the day streak
+#               already had to be read-guarded for a student who has not visited today.
 #   2026-08-27  BUILD op -- THE AUTHORED LANE COUNTS ITSELF. usage_stats gains
 #               script_turns / ms_script_median (kind="script" rows -- scripted-
 #               lesson turns, no model on the clock) and script_ai_turns (brain
@@ -810,6 +832,13 @@ def init():
             Column("checks_taken", Integer, default=0),
             Column("streak_days", Integer, default=0),
             Column("last_active", String(10)),            # 'YYYY-MM-DD'
+            # (qz, 2026-08-31) TODAY'S correct-in-a-row streak, separate from streak_days
+            # (days shown up) and from correct_total/attempted_total (lifetime, never
+            # resets). today_streak_day is the stored day this count belongs to -- a row
+            # whose day is not TODAY reads back as 0 without needing a write (see
+            # get_mastery). Migrated additively; see _migrate_student_stats_today_streak.
+            Column("today_streak", Integer, default=0),
+            Column("today_streak_day", String(10)),        # 'YYYY-MM-DD', STREAK_TZ clock
             Column("updated_at", DateTime(timezone=True)),
         )
         # TEACHER ACCOUNTS (2026-08-13, build fa -- security finding F2). Deliberately a
@@ -1228,6 +1257,9 @@ def init():
         # Give the per-unit tables a `course` dimension if they predate the multi-course
         # work (additive; preserves all existing rows as 'algebra1'). No-ops once migrated.
         _migrate_course_columns()
+        # Give `student_stats` its `today_streak` / `today_streak_day` columns if it
+        # predates the prominent today streak (qz). No-ops once migrated.
+        _migrate_student_stats_today_streak()
         # Give the `classes` table its `teacher_code` column if it predates teacher sign-in
         # (additive + nullable; no key change). No-ops once migrated.
         _migrate_classes_teacher_code()
@@ -1338,6 +1370,33 @@ def _migrate_usage_log_timing():
         except Exception as exc:  # noqa: BLE001
             print(f"[store] usage_log timing migration for {name} failed "
                   f"(non-fatal, timing stays 0): {_redact(str(exc))}")
+
+
+def _migrate_student_stats_today_streak():
+    """(qz) One-time, ADDITIVE migration: give `student_stats` its `today_streak` /
+    `today_streak_day` columns so an existing deployment gets the prominent today
+    streak without losing anything already recorded. Both columns are NULLABLE-safe
+    (Integer default reads as NULL until first write, treated as 0 everywhere it is
+    read; String(10) starts NULL, which never equals a real date, so it reads back
+    as "not today" -- exactly the honest default for a student who has not answered
+    a problem yet). Same plain-ALTER-TABLE shape as _migrate_classes_teacher_code:
+    no primary key change, so it behaves identically on PostgreSQL and SQLite. Safe
+    on every startup -- no-ops once migrated, and no-ops when create_all just built
+    the table fresh (the columns are already in the definition above)."""
+    from sqlalchemy import inspect, text as _text
+    insp = inspect(_engine)
+    if "student_stats" not in set(insp.get_table_names()):
+        return  # create_all will build it new, already carrying both columns
+    cols = [c["name"] for c in insp.get_columns("student_stats")]
+    if "today_streak" in cols and "today_streak_day" in cols:
+        return  # already migrated
+    with _engine.begin() as conn:
+        if "today_streak" not in cols:
+            conn.execute(_text("ALTER TABLE student_stats ADD COLUMN today_streak INTEGER"))
+        if "today_streak_day" not in cols:
+            conn.execute(_text(
+                "ALTER TABLE student_stats ADD COLUMN today_streak_day VARCHAR(10)"))
+    print("[store] migrated student_stats: +today_streak, +today_streak_day columns.")
 
 
 def _migrate_classes_teacher_code():
@@ -2000,14 +2059,17 @@ def _get_stats_row(code: str) -> dict:
     with _engine.connect() as conn:
         r = conn.execute(select(
             t.c.problems_practiced, t.c.correct_total, t.c.attempted_total,
-            t.c.checks_taken, t.c.streak_days, t.c.last_active
+            t.c.checks_taken, t.c.streak_days, t.c.last_active,
+            t.c.today_streak, t.c.today_streak_day
         ).where(t.c.code == code)).first()
     if not r:
         return {"problems_practiced": 0, "correct_total": 0, "attempted_total": 0,
-                "checks_taken": 0, "streak_days": 0, "last_active": None}
+                "checks_taken": 0, "streak_days": 0, "last_active": None,
+                "today_streak": 0, "today_streak_day": None}
     return {"problems_practiced": r[0] or 0, "correct_total": r[1] or 0,
             "attempted_total": r[2] or 0, "checks_taken": r[3] or 0,
-            "streak_days": r[4] or 0, "last_active": r[5]}
+            "streak_days": r[4] or 0, "last_active": r[5],
+            "today_streak": r[6] or 0, "today_streak_day": r[7]}
 
 
 def _touch_streak(s: dict) -> None:
@@ -2025,7 +2087,8 @@ def _touch_streak(s: dict) -> None:
 
 
 def _bump_stats(code: str, problems: int = 0, correct: int = 0,
-                attempted: int = 0, checks: int = 0) -> None:
+                attempted: int = 0, checks: int = 0,
+                today_of: "tuple[int, int] | None" = None) -> None:
     """build hl (2026-08-17): ONE atomic write for the whole-student counters AND the
     day streak -- the piece build hi deliberately deferred. The counters are plain
     atomic adds; the STREAK's day arithmetic moves into the upsert as a CASE over the
@@ -2037,7 +2100,18 @@ def _bump_stats(code: str, problems: int = 0, correct: int = 0,
     Same semantics, no read-then-write window. build hn: the day-strings come from
     the STREAK'S clock (_streak_today, California Pacific by Jim's 2026-08-18 ruling)
     -- the SQL CASE arithmetic is untouched, only the calendar moved. See THE THREE
-    CLOCKS below."""
+    CLOCKS below.
+
+    (qz, 2026-08-31) `today_of=(correct, attempted)` folds the TODAY correct-in-a-row
+    streak into this SAME atomic write, same shape as the day streak above but keyed
+    on whether THIS mark was clean (no miss in it), not on which calendar day it is:
+        a clean mark, same stored day  -> today_streak += attempted
+        a clean mark, a NEW stored day -> today_streak restarts at attempted (a new
+                                          day's streak never inherits yesterday's number)
+        any mark with a miss           -> today_streak resets to 0, right now
+    Deliberately a parameter here rather than a second write: record_practice is the
+    only caller that passes it (a unit-check's batch score is not an 'in a row' event,
+    so record_check never does)."""
     today = _streak_today()
     yday = (_streak_now().date() - _dt.timedelta(days=1)).isoformat()
 
@@ -2052,8 +2126,22 @@ def _bump_stats(code: str, problems: int = 0, correct: int = 0,
                    ("attempted_total", attempted), ("checks_taken", checks)):
         if int(n or 0):
             exprs[col] = (int(n), _sql_counter(col, int(n)))
-    _upsert("student_stats", {"code": code},
-            {"last_active": today, "updated_at": _now()}, exprs=exprs)
+    values = {"last_active": today, "updated_at": _now()}
+    if today_of is not None:
+        t_correct, t_attempted = int(today_of[0] or 0), int(today_of[1] or 0)
+        clean = t_attempted > 0 and t_correct == t_attempted
+        values["today_streak_day"] = today
+
+        def _today_streak(cur, _x):
+            from sqlalchemy import case, func
+            if not clean:
+                return 0
+            return case((cur.today_streak_day == today,
+                        func.coalesce(cur.today_streak, 0) + t_attempted),
+                       else_=t_attempted)
+
+        exprs["today_streak"] = (t_attempted if clean else 0, _today_streak)
+    _upsert("student_stats", {"code": code}, values, exprs=exprs)
 
 
 # THE THREE CLOCKS, DOCUMENTED (build hl, review F9) -- AND THE STREAK'S CLOCK DECIDED
@@ -2400,12 +2488,27 @@ def get_final_exam(code: str, course: str = DEFAULT_COURSE) -> dict:
             "passed_at": r[3].isoformat() if r[3] else None}
 
 
-def record_practice(code: str, correct: int, attempted: int = 1) -> None:
+def record_practice(code: str, correct: int, attempted: int = 1) -> dict:
     """Count practice problems the tutor marked right/wrong (feeds 'problems practiced',
-    accuracy, and the day streak)."""
+    accuracy, the day streak, and (qz) TODAY's correct-in-a-row streak).
+
+    (qz) Returns the FRESH {today_streak, streak_days} read back out of the database
+    after the write -- same "authoritative values come back out of the write" pattern
+    record_check already uses -- so the caller (the /api/mark endpoint) can hand the
+    client the real number instead of it guessing client-side and drifting from a
+    second device or a server-side reset it didn't see."""
     correct = max(0, int(correct)); attempted = max(1, int(attempted))
     # build hl: one atomic write (counters + streak) -- see _bump_stats.
-    _bump_stats(code, problems=attempted, correct=correct, attempted=attempted)
+    # (qz) today_of rides the SAME atomic write: this is the one caller of _bump_stats
+    # where 'attempted' really is one finished problem (or a small clean batch), which
+    # is what makes it a meaningful 'in a row' event -- record_check's whole-check
+    # score is not, and does not pass this.
+    _bump_stats(code, problems=attempted, correct=correct, attempted=attempted,
+               today_of=(correct, attempted))
+    s = _get_stats_row(code)
+    today_streak = (s["today_streak"] if s.get("today_streak_day") == _streak_today()
+                    else 0)
+    return {"today_streak": today_streak, "streak_days": s["streak_days"]}
 
 
 def add_flag(page: str, course: str, code: str, quote: str, note: str = "") -> int:
@@ -2558,6 +2661,11 @@ def get_mastery(code: str, course: str = DEFAULT_COURSE) -> dict:
                      "correct": r[4], "attempted": r[5]} for r in rows}
     s = _get_stats_row(code)
     acc = round(100 * s["correct_total"] / s["attempted_total"]) if s["attempted_total"] else None
+    # (qz) A row whose today_streak_day is not TODAY is a stat from a PAST day sitting
+    # in the column until the next mark overwrites it -- read back as 0 rather than
+    # showing yesterday's number under today's label. Same clock as the day streak.
+    today_streak = (s["today_streak"] if s.get("today_streak_day") == _streak_today()
+                    else 0)
     return {
         "checks": checks,
         "stats": {
@@ -2566,6 +2674,7 @@ def get_mastery(code: str, course: str = DEFAULT_COURSE) -> dict:
             "checks_taken": s["checks_taken"],
             "streak_days": s["streak_days"],
             "last_active": s["last_active"],
+            "today_streak": today_streak,
         },
     }
 

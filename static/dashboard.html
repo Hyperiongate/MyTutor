@@ -1,5 +1,20 @@
 <!DOCTYPE html>
 <!--
+    2026-08-31  A STREAK A CHILD CAN SEE TODAY (build qz). Jim: "something on the top that
+                says how many days in a row they've worked and how many problems in a row
+                they have gotten correct today... prominent, so easily visible... a
+                motivator to keep coming back every day." Requested on both the dashboard
+                (this file) AND the classroom page (session.html).
+                A new streak bar (#streakBar), hidden until the load confirms tracking is
+                on, right under the page's greeting line: a fire chip showing the day
+                streak (already tracked elsewhere on this page, just made prominent here
+                too) and a star chip showing today's correct-in-a-row count -- a LIVE
+                number that resets to 0 the instant a problem is missed and restarts at 0
+                every new day, driven by store.py's today_streak/today_streak_day columns
+                (see store.py's own note for the full write/read design). Populated from
+                the same /api/topics/{code} call this page already makes (summary.stats),
+                so no new request. The existing "Day streak" KPI tile further down the
+                page's tiles grid is UNTOUCHED -- this is additive, not a replacement.
     2026-08-30  ONE PAGE, ONE CHILD (build qp). Jim, on the live parent view: "this should
                 not say 'How are they doing, really?' -- it is just for a single child, so
                 'How is my child doing, really?' Also, the paragraph says 'they' instead of
@@ -309,6 +324,20 @@
     #trotip .td { color: #d7d5e6; display: block; }
     #trotip .tw { color: #b9e6c9; display: block; margin-top: 6px; font-weight: 700; font-size: 12px; }
 
+    /* (qz, 2026-08-31) THE PROMINENT STREAK BAR -- top of page, easily visible, a
+       motivator to come back every day. Two chips: the day streak (also still a KPI
+       tile further down, unchanged -- this is additive, not a replacement) and
+       today's correct-in-a-row streak, which is new. */
+    .streakbar { display: flex; gap: 14px; margin: 2px 0 18px; }
+    .streakbar .schip { flex: 1; min-width: 150px; border-radius: 18px; padding: 16px 20px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2)); color: #fff;
+      display: flex; align-items: center; gap: 14px;
+      box-shadow: 0 10px 26px rgba(91,91,214,.28); }
+    .streakbar .semoji { font-size: 30px; line-height: 1; }
+    .streakbar .snum { font-size: 32px; font-weight: 900; line-height: 1; }
+    .streakbar .stext { font-size: 13px; font-weight: 700; opacity: .95; line-height: 1.25; }
+    @media (max-width: 560px) { .streakbar { flex-direction: column; } }
+
     /* KPI tiles */
     .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 12px; }
     /* build dm: the sprint record card -- pale round-A bar beside solid round-B bar */
@@ -494,6 +523,21 @@
       <a id="homeLink" href="#">← Home</a>
     </div>
     <p class="sub" id="subLine">Your real progress — it fills in as you learn, and shows exactly where to grow next.</p>
+
+    <!-- (qz, 2026-08-31) THE PROMINENT STREAK BAR. Jim: "something on the top that says
+         how many days in a row they've worked and how many problems in a row they have
+         gotten correct today... prominent, so easily visible... a motivator to keep
+         coming back every day." Hidden until /api/topics confirms tracking is on. -->
+    <div id="streakBar" class="streakbar" style="display:none;" role="status" aria-live="polite">
+      <div class="schip">
+        <span class="semoji">🔥</span>
+        <span><span class="snum" id="sbDays">0</span><br><span class="stext" id="sbDaysTxt">days in a row</span></span>
+      </div>
+      <div class="schip">
+        <span class="semoji">⭐</span>
+        <span><span class="snum" id="sbToday">0</span><br><span class="stext">right in a row today</span></span>
+      </div>
+    </div>
 
     <!-- HOW AM I DOING? (2026-08-01, Jim's vision): one warm, honest paragraph written by the
          tutor brain from REAL recorded facts. Student voice for students; on the parent/teacher
@@ -822,6 +866,20 @@
       const acc = (stats.accuracy_pct === null || stats.accuracy_pct === undefined) ? null : stats.accuracy_pct;
       const streak = stats.streak_days || 0;
       const practiced = stats.problems_practiced || 0;
+
+      // (qz, 2026-08-31) THE PROMINENT STREAK BAR. Jim: something at the TOP, easily
+      // visible, a motivator to come back every day -- the day streak (already a tile
+      // further down the page, kept there unchanged) and today's correct-in-a-row
+      // streak, which is new. Shown whenever tracking is on, even at 0/0 for a
+      // brand-new student -- a "0" here is an invitation, not a failure state; hidden
+      // entirely (with the rest of the page's tracking-on content) when it is off.
+      if (data.tracking) {
+        const todayStreak = stats.today_streak || 0;
+        el("sbDays").textContent = String(streak);
+        el("sbDaysTxt").textContent = (streak === 1 ? "day in a row" : "days in a row");
+        el("sbToday").textContent = String(todayStreak);
+        el("streakBar").style.display = "";
+      }
 
       // ENGAGED TIME (2026-07-30): honest minutes of real work (tab visible + student active),
       // recorded by time-tracker.js via /api/heartbeat. Computed against the STUDENT'S local

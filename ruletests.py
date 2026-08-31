@@ -2,6 +2,25 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qz -- PART 3ha: a streak a child can see today. Jim wants a prominent
+#               bar on BOTH the dashboard and the classroom page showing (1) the day streak
+#               (already tracked) and (2) problems answered correctly IN A ROW TODAY, reset
+#               to 0 the instant a problem is missed -- a live motivator, not a running
+#               total. New store.py columns student_stats.today_streak/today_streak_day,
+#               written atomically inside the SAME _bump_stats() upsert that already writes
+#               the day streak, driven ONLY by record_practice() (per-problem [[mark]]
+#               events) -- never by record_check() (a whole unit-check batch score is not an
+#               "in a row" event). Read side gates on the stored day == today's stored day,
+#               so a stale number from a past day reads back as 0 without needing a write.
+#               _QZ_STREAK drives /api/mark/1234 and /api/session/1234 through a real
+#               TestClient: builds a 3-in-a-row streak, proves a miss resets it to 0, proves
+#               a new stored day restarts (not inherits) the count, proves a stale stored
+#               day reads back as 0 with no write, and proves record_check leaves
+#               today_streak untouched. Also checks main.py's /api/mark response now
+#               carries the fresh today_streak/streak_days (COMPUTED, NEVER GUESSED -- the
+#               same reasoning /api/check's best_pct already uses), /api/session's
+#               progress.stats now carries stats for the classroom page, and both
+#               dashboard.html and session.html ship the new markup/CSS/JS.
 #   2026-08-31  BUILD qy -- PART 3ak extended: nightwatch.MAX_MINUTES's default moved
 #               45 -> 90 (Jim: "Yes, raise it" -- the 2026-08-31 watch was cut off with
 #               2 of the rotation's 12 slots unrun). One pin holds the new default
@@ -10544,6 +10563,224 @@ sys.exit(0 if ok else 1)
 """
 
 
+# (qz, 2026-08-31) THE STREAK CHIPS' LIVE DRIVE. Same shape as _MT_PRACTICE just above:
+# a real FastAPI TestClient against a throwaway sqlite DB, so this proves the ACTUAL
+# HTTP endpoints (/api/mark, /api/session) round-trip the streak correctly, not just
+# store.py in isolation.
+_QZ_STREAK = r"""import os, sys, datetime as _dtx
+d = sys.argv[1]
+os.environ["DATABASE_URL"] = "sqlite:///" + d + "/qz.db"
+os.environ["DATA_DIR"] = d
+os.environ["WEEKLY_EMAIL"] = "off"
+os.environ["NIGHTWATCH"] = "off"
+os.environ["FORUM_MOD_KEY"] = "TESTKEY"
+os.environ["ELEVENLABS_API_KEY"] = "pretend-there-is-a-key"
+sys.path.insert(0, sys.argv[2])
+import main, store
+from fastapi.testclient import TestClient
+
+c = TestClient(main.app)
+ok = True
+def chk(label, cond, extra=""):
+    global ok
+    print(("PASS " if cond else "FAIL ") + label, extra if not cond else "")
+    if not cond: ok = False
+
+CODE = "1234"   # Alex, a real persona in students.json
+
+# ---- /api/mark/{code}: correct marks build the streak, a miss resets it ----
+r1 = c.post("/api/mark/" + CODE, json={"correct": 1, "attempted": 1}).json()
+chk("first correct mark: today_streak is 1", r1.get("today_streak") == 1, r1)
+r2 = c.post("/api/mark/" + CODE, json={"correct": 1, "attempted": 1}).json()
+chk("second correct mark: today_streak is 2", r2.get("today_streak") == 2, r2)
+r3 = c.post("/api/mark/" + CODE, json={"correct": 0, "attempted": 1}).json()
+chk("a MISSED mark resets today_streak to 0, mid-lesson", r3.get("today_streak") == 0, r3)
+r4 = c.post("/api/mark/" + CODE, json={"correct": 1, "attempted": 1}).json()
+chk("it climbs again after the miss", r4.get("today_streak") == 1, r4)
+chk("the day streak (streak_days) is untouched by within-day marks",
+    r1.get("streak_days") == r4.get("streak_days") == 1, (r1, r4))
+chk("a mark ALWAYS reports tracking:true when the DB is on",
+    r4.get("ok") is True and r4.get("tracking") is True, r4)
+
+# ---- a batch mark with a miss inside it also resets (2 of 3 is not 'in a row') ----
+r5 = c.post("/api/mark/" + CODE, json={"correct": 2, "attempted": 3}).json()
+chk("a batch mark with ANY miss in it resets today_streak too", r5.get("today_streak") == 0, r5)
+
+# ---- /api/session/{code}: the classroom page's own load carries the same numbers ----
+sess = c.get("/api/session/" + CODE + "?course=algebra1").json()
+stats = (sess.get("progress") or {}).get("stats") or {}
+chk("⭐ /api/session/{code} now carries stats in progress (the classroom page's own load)",
+    "today_streak" in stats and "streak_days" in stats, stats)
+chk("  ...and it agrees exactly with what /api/mark just returned",
+    stats.get("today_streak") == r5.get("today_streak")
+    and stats.get("streak_days") == r5.get("streak_days"),
+    (stats, r5))
+
+# ---- a NEW day does not inherit yesterday's today_streak ----
+from sqlalchemy import update, select
+t = store._tables["student_stats"]
+yday = (store._streak_now().date() - _dtx.timedelta(days=1)).isoformat()
+with store._engine.begin() as conn:
+    conn.execute(update(t).where(t.c.code == CODE).values(
+        today_streak_day=yday, today_streak=99, last_active=yday, streak_days=5))
+r6 = c.post("/api/mark/" + CODE, json={"correct": 1, "attempted": 1}).json()
+chk("⭐ a NEW day's streak does NOT inherit yesterday's number (was 99)",
+    r6.get("today_streak") == 1, r6)
+chk("  ...but the DAY streak (showing up) correctly advances from a real gap",
+    r6.get("streak_days") == 6, r6)
+
+# ---- a student who has not touched anything TODAY reads 0, not a stale number ----
+CODE2 = "2345"   # Maya, a second real persona
+from sqlalchemy import insert
+with store._engine.begin() as conn:
+    conn.execute(insert(t).values(code=CODE2, today_streak=7, today_streak_day=yday,
+                                  streak_days=2, last_active=yday, updated_at=store._now()))
+m2 = store.get_mastery(CODE2, "algebra1")
+chk("⭐ a stale today_streak_day reads back as 0, never yesterday's leftover number",
+    m2["stats"]["today_streak"] == 0, m2["stats"])
+chk("  ...while streak_days (a real running count, not day-gated the same way) stands",
+    m2["stats"]["streak_days"] == 2, m2["stats"])
+
+# ---- record_check (a whole unit-check score) must NEVER touch today_streak ----
+before = store.get_mastery(CODE, "algebra1")["stats"]["today_streak"]
+store.record_check(CODE, unit=1, correct=3, total=6, course="algebra1")
+after = store.get_mastery(CODE, "algebra1")["stats"]["today_streak"]
+chk("⭐ a unit-check submission (4 of 6, say) is NOT an 'in a row' event -- untouched",
+    before == after, (before, after))
+
+print("ALL OK" if ok else "DONE")
+sys.exit(0 if ok else 1)
+"""
+
+
+def part3ha_a_streak_a_child_can_see_today():
+    """PART 3ha (build qz, 2026-08-31) -- A STREAK A CHILD CAN SEE TODAY.
+
+    Jim: "something on the top that says how many days in a row they've worked and
+    how many problems in a row they have gotten correct today... prominent, so
+    easily visible... a motivator to keep coming back every day." Requested on both
+    the dashboard AND the classroom page.
+
+    Two numbers, deliberately kept apart:
+      - the DAY STREAK (already tracked; just made prominent) -- counts SHOWING UP.
+      - TODAY's correct-in-a-row streak (new) -- resets to 0 the instant a problem
+        is missed, and restarts at 0 every new day; it does not accumulate like
+        lifetime accuracy, which is what makes it a same-day motivator rather than
+        a number that takes weeks to move.
+
+    Driven ONLY by record_practice's per-problem [[mark]] events -- deliberately NOT
+    folded into record_check's whole-unit-check score, because "4 of 6 on a check"
+    is not a meaningful "in a row" event (the last check below on record_check
+    proves this directly, not by absence).
+
+    ⚠️ SUBTLE HALF: a value written on a PAST day must read back as 0 without a
+    write -- the stored today_streak column is only ever touched by the NEXT mark,
+    so between visits it can sit holding a stale number until then. Both the write
+    side (a clean mark on a new day restarts rather than adds) and the read side
+    (get_mastery checks the stored day against today before trusting the number)
+    are pinned here, because getting only one of the two right still ships a bug:
+    write-only leaves a returning student's FIRST mark of the day silently add to
+    yesterday's number; read-only leaves the number frozen at yesterday's value
+    until they answer something."""
+    print("\nPART 3ha — a streak a child can see today (build qz)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    ssrc = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+
+    # ---- the schema and the migration exist ----
+    check("student_stats carries today_streak and today_streak_day",
+          '"today_streak"' in ssrc and '"today_streak_day"' in ssrc
+          and "Column(\"today_streak\", Integer" in ssrc
+          and "Column(\"today_streak_day\", String(10))" in ssrc, "")
+    check("⭐ a migration exists for a database that predates these columns",
+          "_migrate_student_stats_today_streak" in ssrc
+          and "ADD COLUMN today_streak" in ssrc
+          and "ADD COLUMN today_streak_day" in ssrc, "")
+    check("  ...and it actually runs on every startup, not just defined",
+          "_migrate_student_stats_today_streak()" in ssrc.split("def init()")[1].split("\ndef ")[0]
+          if "def init()" in ssrc else False,
+          "a migration nobody calls protects nobody's existing database")
+
+    # ---- the write path: today_of rides the SAME atomic write, not a second one ----
+    check("_bump_stats takes an optional today_of param (one atomic write, not two)",
+          "today_of:" in ssrc and "def _bump_stats(" in ssrc, "")
+    check("record_practice passes today_of, and record_check does NOT",
+          "today_of=(correct, attempted)" in ssrc, "")
+    rc_body = ssrc.split("def record_check(")[1].split("\ndef ")[0]
+    check("⭐ record_check's OWN body never mentions today_of -- a batch score is not "
+          "an 'in a row' event by construction, not by coincidence",
+          "today_of" not in rc_body, "")
+
+    # ---- the read path: a stale stored day must not leak into a fresh dashboard ----
+    check("get_mastery reads today_streak back through the SAME day-gate it wrote with",
+          's.get("today_streak_day") == _streak_today()' in ssrc, "")
+
+    # ---- main.py: both endpoints carry the number to the pages that show it ----
+    check("⭐ /api/mark/{code} returns the FRESH today_streak/streak_days, not just ok",
+          '"today_streak": fresh.get("today_streak"' in msrc
+          and '"streak_days": fresh.get("streak_days"' in msrc, "")
+    check("⭐ /api/session/{code} now carries stats in its progress payload",
+          '"today": {}, "stats": {}' in msrc
+          and 'progress["stats"] = mastery.get("stats", {})' in msrc, "")
+
+    # ---- the live drive: the real HTTP endpoints, a real (throwaway) database ----
+    try:
+        import sqlalchemy  # noqa: F401
+        import fastapi  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("streak chips live drive", "sqlalchemy/fastapi not installed here")
+    else:
+        import tempfile as _tf
+        with _tf.TemporaryDirectory() as td:
+            script = os.path.join(td, "qzstreak.py")
+            with open(script, "w", encoding="utf-8") as fh:
+                fh.write(_QZ_STREAK)
+            res = subprocess.run([sys.executable, script, td, here],
+                                 capture_output=True, text=True, timeout=600)
+            out = res.stdout or ""
+            for line in out.splitlines():
+                if line.startswith("FAIL"):
+                    bad("streak chips: " + line[5:140], "")
+            check("streak chips: the live drive ends ALL OK "
+                  f"({out.count('PASS ')} client-level checks)",
+                  res.returncode == 0 and "ALL OK" in out,
+                  (res.stderr or out)[-500:])
+
+    # ---- dashboard.html: the prominent bar exists, hidden until tracking confirms on ----
+    dash = code_only(open(os.path.join(here, "static", "dashboard.html"), encoding="utf-8").read())
+    check("⭐ dashboard.html has the prominent streak bar, hidden by default",
+          'id="streakBar" class="streakbar" style="display:none;"' in dash, "")
+    check("  ...with both chips: the day streak and today's correct-in-a-row",
+          'id="sbDays"' in dash and 'id="sbToday"' in dash, "")
+    check("  ...populated from stats.today_streak, and shown only when tracking is on",
+          "stats.today_streak" in dash and 'if (data.tracking) {' in dash, "")
+    check("  ...and the day streak KPI tile further down the page is UNTOUCHED "
+          "(additive, not a replacement)",
+          '{ lbl: "Day streak", big: streak > 0' in dash, "")
+
+    # ---- session.html: the compact topbar chips, live-updated from real /api/mark data ----
+    sess = code_only(open(os.path.join(here, "static", "session.html"), encoding="utf-8").read())
+    check("⭐ session.html has the streak chips in its topbar, hidden by default",
+          'id="streakChips" hidden' in sess, "")
+    check("  ...seeded from the server's progress.stats at page load",
+          "SRV_PROGRESS.stats" in sess and "renderStreakChips(SRV_PROGRESS.stats)" in sess, "")
+    check("  ...and kept live by every [[mark]] tag's OWN /api/mark response "
+          "(the authoritative number, never a client guess)",
+          'postJSON("/api/mark/me"' in sess
+          and ".then(function (r) { if (r) renderStreakChips(" in sess, "")
+    check("  ...postJSON now returns the parsed response for callers that want it",
+          "return fetch(url" in sess and ".then(function (r) { return r && r.ok ? r.json()"
+          in sess, "")
+    check("  ...a chip only bumps when its OWN number actually changed, not on every render",
+          "days !== _LAST_STREAK_DAYS" in sess and "today !== _LAST_TODAY_STREAK" in sess, "")
+
+    for fn in ("store.py", "main.py", "static/dashboard.html", "static/session.html"):
+        with open(os.path.join(here, fn), encoding="utf-8") as fh:
+            pass  # existence + readability already proven by the reads above
+    check("store.py is whole", ssrc.rstrip().endswith("I did no harm and this file is not truncated."))
+    check("main.py is whole", msrc.rstrip().endswith("I did no harm and this file is not truncated."))
+
+
 def part3dn_every_verdict_is_counted():
     """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
 
@@ -19437,7 +19674,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,841</b>" in page,
+          "<b>7,862</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -28006,6 +28243,7 @@ def main():
     part3gx_the_words_point_at_the_picture_drawn()
     part3gy_the_floor_under_the_floor()
     part3gz_the_verb_is_the_operator()
+    part3ha_a_streak_a_child_can_see_today()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
