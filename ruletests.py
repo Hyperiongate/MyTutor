@@ -2,6 +2,34 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qr -- PART 3gu: the authored question ships its buttons. The scripted
+#               player in static/session.html never read step.choices or step.tap_only, so
+#               every AUTHORED question in Entry-Level and Basic reached a child who cannot
+#               type with no way to answer, while an `ai` intervention had buttons because
+#               its tags ride inside step.board. 17 new pins, every one of them read through
+#               code_only() -- this build's change notes quote every string it checks, so a
+#               pin on the raw file would have passed on the documentation. The PART also
+#               WALKS both youngest courses (432 asks) and proves the server ships a tag,
+#               with the right answer among the options, for every one of them.
+#               ⚠️ TWO OLDER PINS IN PART 3fh WERE INVERTED, NOT DELETED: the bare
+#               `else showScrNext();` is now `else if (!boardTaps) showScrNext();`, and the
+#               unlock/speak ADJACENCY the flooring pin relied on is now a direct test that
+#               nothing is AWAITED in that gap -- a strictly stronger check than the string.
+#               Both properties they protected are re-proved, and the beat each one now
+#               excludes is pinned on its own line. Methodology tile 7,694 -> 7,724.
+#               ⚠️ AND ONE UNRELATED DEFECT THE SECOND BATTERY EXPOSED, fixed in the same
+#               sitting because it would otherwise have failed every run from here on:
+#               PART 3dm's practice drill posted its rows under the LITERAL day
+#               "2026-08-24" and asserted by_day carried it. store.drill_stats() reads a
+#               ROLLING seven-day window, so that assertion had a FUSE: it passed for one
+#               week after the build that wrote it and then failed for ever. It went red
+#               for the first time when the clock crossed midnight UTC between this
+#               build's second and third battery runs -- nothing about practice had
+#               changed, the calendar had. The day is now taken relative to the run (two
+#               days back: inside the window on any day, and never today), with a new chk
+#               proving the row still carries the day it was TOLD rather than the day of
+#               the run. A test whose result depends on how long ago it was written
+#               measures the calendar, not the code.
 #   2026-08-30  BUILD qm -- PART 3gp: the quiz says correct, every time (the 65th referee)
 #               plus the progress panel Jim could not read. Both from one live Geometry
 #               session. PART 3fx's literal referee count moves 64 -> 65.
@@ -10388,6 +10416,18 @@ def chk(label, cond, extra=""):
     if not cond: ok = False
 
 LID = "entry-u2-add-single-digit"
+# (qr) 2026-08-30 -- THIS DATE USED TO BE THE LITERAL "2026-08-24", AND IT HAD A FUSE
+# IN IT. store.drill_stats() reads a ROLLING window -- cut = now - (days - 1), seven
+# days by default -- so a hard-coded day drops out of by_day exactly one week after
+# the build that wrote it, and the check then fails on every run, for good. It went
+# red for the first time when the clock passed midnight UTC during build qr's second
+# battery: nothing about practice had changed, the calendar had. A test whose result
+# depends on how long ago it was written measures the calendar, not the code. The day
+# is now taken RELATIVE to the run, two days back -- inside the window on any day,
+# and still a day that is not today, which is the whole point of the check (it proves
+# by_day carries the day it was TOLD, not the day the row was written).
+import datetime as _dtx
+DAY = (_dtx.date.today() - _dtx.timedelta(days=2)).isoformat()
 c.post("/api/drill/start", json={"code": "1234", "lesson": LID})
 try:
     for i in range(9):
@@ -10395,14 +10435,17 @@ try:
         if not s or not s.get("pending"): break
         exp = s["pending"]["expected"]
         c.post("/api/drill/answer",
-               json={"code": "1234", "value": exp, "day": "2026-08-24"})
+               json={"code": "1234", "value": exp, "day": DAY})
 except Spent as e:
     chk("practice never reaches the renderer", False, str(e))
 
 st = store.drill_stats("1234")
 chk("practice is COUNTED and it persists", st["total_asked"] >= 5, str(st["total_asked"]))
 chk("and it is counted per DAY, so a week can be shown",
-    st["by_day"] and st["by_day"][0]["day"] == "2026-08-24", str(st["by_day"]))
+    st["by_day"] and st["by_day"][0]["day"] == DAY, str(st["by_day"]))
+chk("  ...and the day it carries is the one it was TOLD, not the day of the run",
+    DAY != _dtx.date.today().isoformat() and st["today_asked"] == 0,
+    (DAY, st["today_asked"]))
 chk("and per LESSON, so 'the multiplication tables' can be shown",
     any(r["lesson"] == LID for r in st["by_lesson"]), str(st["by_lesson"])[:120])
 
@@ -15545,6 +15588,140 @@ def part3gt_the_site_says_what_the_button_says():
               path)
 
 
+def part3gu_the_authored_question_ships_its_buttons():
+    """PART 3gu (build qr, 2026-08-30) -- THE ANSWER BUTTONS THE PLAYER NEVER DREW.
+
+    Jim, on a live Entry-Level lesson: "these are all supposed to be bubble answers,
+    not tap to talk ... it's in a couple of these, but it's not on all of them."
+
+    ⭐ THE SERVER WAS NEVER AT FAULT, AND THAT IS THE WHOLE FINDING. Reading down the
+    lane before touching anything: lessonscripts.choices_for() builds a [[choices]] tag
+    for EVERY scripted question with no condition on it at all; main.py's
+    _script_clean() sends it to the page as step.choices -- a field of its OWN, beside
+    step.board -- together with step.tap_only. And static/session.html's scrPlay()
+    rendered step.board and nothing else. The string "step.choices" did not appear in
+    that file. So every AUTHORED question in Entry-Level and Basic reached a child who
+    cannot type with no way to answer, while an `ai` intervention DID have buttons,
+    because its tags ride INSIDE board (split out of the model's reply by
+    _split_ai_reply). That is precisely the "couple of these" Jim saw: bubbles on the
+    AI re-teach, none on the lesson's own questions.
+
+    static/pilot.html -- the player build pb ported this one from -- has read
+    step.choices since build ou. The port dropped it, and dropped tap_only with it.
+
+    ⚠️ EVERY PIN ON THE PLAYER READS code_only(). This build's own change note quotes
+    every string below (that is what a change note is for), so a pin on the RAW file
+    would pass on the documentation and never see the code. Three earlier builds (ki,
+    ql, qn) were bitten by the mirror image of this -- an ABSENCE check defeated by the
+    note explaining the removal -- and the lesson is the same either way: scan code
+    with code_only(), scan documentation only when documentation is the point.
+
+    ⚠️ ONE SERVER BEHAVIOUR THE FIX DEPENDS ON: an unheard answer INSIDE an
+    intervention is answered with a `say` beat whose BOARD carries the redo's choices
+    tag (LINE_TAP, "Tap the answer you think is right"). Three consequences, all pinned
+    below -- the page must not draw a second row from step.choices, must not clear that
+    row as though it were stale, and must treat that beat as PENDING, because its
+    buttons ARE its question. The last of those is the identical defect build qd fixed
+    for the `ai` beat, one beat kind over: without it the child's tap goes to the LIVE
+    tutor instead of to /api/script/answer, where the server is waiting to grade it.
+    """
+    print("\nPART 3gu — the authored question ships its buttons (build qr)")
+    raw = open("static/session.html", encoding="utf-8").read()
+    sess = code_only(raw)
+
+    # ---- the player draws the buttons the server sent ------------------------
+    check("⭐ scrPlay renders the ask beat's OWN choices field, in CODE",
+          "if (!boardTaps && step.choices) handleTags(step.choices);" in sess,
+          "the server has always sent step.choices; this page never read it, so every "
+          "authored Entry-Level and Basic question reached the child with no buttons")
+    check("  ...and never draws the same row twice",
+          'const boardTaps = /\\[\\[\\s*choices\\b/i.test(step.board || "");' in sess,
+          "an `ai` beat's tags already include [[choices]]; so does main.py's LINE_TAP "
+          "say beat. A board that already carries the tag is left alone")
+    check("  ...and a row never outlives its question",
+          "if (!boardTaps && !step.choices) clearChoices();" in sess,
+          "a stale row from the last question must not be tappable into this one")
+    check("⭐ a beat whose buttons ARE its question is PENDING",
+          "SCR.pending = isAsk || boardTaps;" in sess,
+          "the LINE_TAP say beat after an unheard answer inside an intervention: "
+          "without this its taps go to the live tutor, not to /api/script/answer")
+    check("  ...and grows no second pacer under it",
+          "else if (!boardTaps) showScrNext();" in sess,
+          "two pacers on one beat is what clearScrNext() exists to prevent")
+
+    # ---- the OTHER field the port dropped ------------------------------------
+    check("⭐ tap_only is heard: the composer folds after two unread answers",
+          "if (step.tap_only) { try { hideComposer(); } catch (e) {} }" in sess,
+          "lessonscripts sets tap_only at unheard >= 2 -- the child's voice or typing "
+          "is not landing, so we stop asking them to use it")
+    check("  ...and the status line says what to do instead",
+          'step.tap_only ? "Tap your answer." : ""' in sess,
+          "pilot.html's wording, so a child meets one vocabulary")
+    check("  ...but it is a NUDGE, not a lock-out",
+          "hideComposer" in sess and "kbPill" in raw,
+          "hideComposer leaves the keyboard pill in place: a child who CAN type must "
+          "never be shut out of typing")
+
+    # ---- do no harm ----------------------------------------------------------
+    check("  do no harm: build qd's rule still stands (an ai beat is an ask)",
+          'const isAsk = (step.kind === "ask" || step.kind === "ai");' in sess, "")
+    check("  do no harm: the LIVE lane still parses its own [[choices]]",
+          'else if (name === "choices") showChoices(attrs);' in sess,
+          "the live tutor's tags are parsed out of the reply by this page itself")
+    check("  do no harm: session.html is whole",
+          raw.rstrip().endswith("<!-- I did no harm and this file is not truncated. -->"),
+          "static/session.html")
+
+    pil = code_only(open("static/pilot.html", encoding="utf-8").read())
+    check("  the player this was ported from still reads the same two fields",
+          "step.choices" in pil and "step.tap_only" in pil,
+          "pilot.html is the reference; the port is what lost them")
+
+    # ---- the server side, unchanged and now depended on -----------------------
+    msrc = open("main.py", encoding="utf-8").read()
+    check("⭐ _script_clean still ships choices AND tap_only on every ask",
+          'c["choices"] = s.get("choices", "")' in msrc
+          and 'c["tap_only"] = bool(s.get("tap_only"))' in msrc,
+          "the page now depends on both fields arriving")
+    check("  ...and the unheard branch still answers with LINE_TAP over the redo's tag",
+          '"spoken": lessonscripts.LINE_TAP, "board": redo["choices"]' in msrc,
+          "this is the one say beat whose board carries taps -- the page is written "
+          "around it, so a change here needs a change there")
+
+    # ---- and the tag really is built for EVERY authored question -------------
+    import lessonscripts as LS
+    import re as _re
+    lessons = [l for l in LS.LESSONS if l.get("course") in ("entry", "basic")]
+    check("  the two youngest courses have authored lessons to walk",
+          len(lessons) >= 2, len(lessons))
+    asks = bare = wrong = 0
+    for les in lessons:
+        st = LS.start(les)
+        out, st = LS.step(les, st, ("begin",))
+        guard = 0
+        while guard < 60:
+            guard += 1
+            pend = [o for o in out if o["kind"] == "ask"]
+            for o in pend:
+                asks += 1
+                tag = o.get("choices") or ""
+                opts = _re.findall(r"-?\d+", tag)
+                if not tag.startswith("[[choices options="):
+                    bare += 1
+                elif str(o["expected"]) not in opts:
+                    wrong += 1
+            if not pend or st.get("finished"):
+                break
+            out, st = LS.step(les, st, ("answer", pend[-1]["expected"]))
+    check("⭐ EVERY authored question in entry/basic carries a tap tag (%d asks walked)"
+          % asks, asks > 0 and bare == 0,
+          "%d asks shipped no [[choices]] -- choices_for() is unconditional, so a bare "
+          "one means the engine grew a path around it" % bare)
+    check("  ...and the true answer is always one of the options",
+          wrong == 0,
+          "%d asks offered options the correct answer was not among" % wrong)
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -17430,10 +17607,25 @@ def part3fh_let_the_lesson_breathe():
     check("⭐ THE BREATH between beats is real and named",
           "const SCR_BREATH = 650;" in ses and "await delay(SCR_BREATH); scrNext();" in ses,
           "one thought must land before the next begins")
+    # (qr) 2026-08-30 -- INVERTED, NOT DELETED. Build qr narrowed the bare
+    # `else showScrNext();` to `else if (!boardTaps) showScrNext();`, so the literal
+    # this pin matched is gone. WHAT IT EXISTED TO PROTECT: a beat whose audio never
+    # played must WAIT for the child instead of running on a timer -- pilot.html's
+    # law, and the third of the three protections build pb dropped. That property is
+    # unchanged for every beat that has no tap buttons of its own, which is every
+    # beat this pin was written about. The ONE beat qr excludes is main.py's LINE_TAP
+    # say beat, whose board carries the redo's [[choices]]: it waits HARDER than a
+    # Next button, because its buttons are the question and the lesson cannot advance
+    # at all until the child answers. Both halves are pinned, so neither can drift.
     check("⭐ SILENCE PACES ITSELF: no audio heard = the child taps, not a timer",
           "if (heard) { await delay(SCR_BREATH); scrNext(); }" in ses
-          and "else showScrNext();" in ses,
+          and "else if (!boardTaps) showScrNext();" in ses,
           "racing a reader is worse than stalling one -- pilot.html's law")
+    check("  ...(qr) and the one beat with no Next waits harder, not less",
+          "SCR.pending = isAsk || boardTaps;" in ses,
+          "the LINE_TAP beat's own tap buttons are its pacer AND its question -- "
+          "the lesson cannot move until the child answers, so a Next under it would "
+          "be a way past a question, which is exactly what build oc forbade")
     check("  the 'did it play' signal is voice.js's own, not a guess",
           'if (s === "speaking") voiceHeard = true;' in ses,
           "setState('speaking') fires from onPlaying and u.onstart -- real audio only")
@@ -17441,10 +17633,26 @@ def part3fh_let_the_lesson_breathe():
           "clearScrNext();" in ses and ses.count("function clearScrNext()") == 1,
           "a stale pacer under a new question would advance the wrong lesson")
 
+    # (qr) 2026-08-30 -- INVERTED, NOT DELETED. This pin proved the law by ADJACENCY:
+    # the unlock and the speech started on consecutive lines, so nothing could sit
+    # between them. Build qr put one line between them -- tap_only's hideComposer(),
+    # which is synchronous and touches only CSS classes. Adjacency is gone; THE LAW IS
+    # NOT. What the adjacency stood for is that nothing is AWAITED between opening the
+    # answer door and starting the voice, because an awaited floor is exactly what made
+    # the tap buttons look live and do nothing for 2.6 seconds. That is now checked
+    # directly, on the gap itself, which is a strictly stronger test than the string
+    # was: it fails for ANY await inserted there, in any wording.
+    _unlock = raw.split('busy = false; setPhase("ready");')[1]
+    _gap = _unlock.split("scrSay(words).then(")[0]
     check("⭐ AN ASK BEAT NEVER SERVES THE FLOOR -- build nb's law holds",
-          "busy = false; setPhase(\"ready\");\n        scrSay(words).then(" in raw,
+          "scrSay(words).then(" in _unlock and "await" not in _gap and len(_gap) < 900,
           "showChoices opens with `if (busy) return;` -- holding busy through the "
           "floor made the tap buttons look live and do nothing for 2.6 seconds")
+    check("  ...(qr) and the one line now standing in that gap cannot block",
+          "if (step.tap_only) { try { hideComposer(); } catch (e) {} }" in ses
+          and "async function hideComposer" not in ses,
+          "hideComposer only adds and removes classes -- it awaits nothing, and it "
+          "is wrapped so a missing element can never take the question down with it")
     check("  ...and a new line silences the one still playing under it",
           "stopAllSpeech();\n      voiceHeard = false;" in raw,
           "an ask beat unlocks while its own audio runs, so the next line must "
@@ -18472,7 +18680,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,694</b>" in page,
+          "<b>7,724</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -26986,6 +27194,7 @@ def main():
     part3gr_every_course_he_is_actually_in()
     part3gs_one_page_one_child()
     part3gt_the_site_says_what_the_button_says()
+    part3gu_the_authored_question_ships_its_buttons()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

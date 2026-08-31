@@ -2,6 +2,30 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30qr-the-authored-question-ships-its-buttons". BUILD qr
+#               -- Jim, on a live Entry-Level lesson: "these are all supposed to be bubble
+#               answers, not tap to talk ... it's in a couple of these, but it's not on all
+#               of them." NO PYTHON CHANGED. The server was never at fault, and the reading
+#               that proves it is worth keeping:
+#                 * lessonscripts.choices_for() builds a [[choices]] tag for EVERY scripted
+#                   question, with no condition on it at all;
+#                 * _script_clean() in THIS file sends it to the page as step.choices --
+#                   a field of its OWN, beside step.board -- along with step.tap_only;
+#                 * static/session.html's scrPlay() rendered step.board and nothing else.
+#                   The string "step.choices" did not appear in that file.
+#               So every AUTHORED question in Entry-Level and Basic reached the child with
+#               no buttons, while an `ai` intervention had them (its tags ride INSIDE board,
+#               split out of the model's reply by _split_ai_reply). That split is exactly
+#               the "couple of these" Jim saw. static/pilot.html, the player this one was
+#               ported from in build pb, has read step.choices since build ou; the port
+#               dropped it, and dropped tap_only with it.
+#               ⚠️ ONE SERVER BEHAVIOUR THE FIX NOW DEPENDS ON, so do not "tidy" it: the
+#               unheard branch inside an intervention answers with a `say` beat whose BOARD
+#               carries the redo's choices tag (LINE_TAP). The page renders that tag from
+#               the board, must not draw a second row from step.choices, and must treat that
+#               beat as pending -- its buttons ARE its question. All three handled in
+#               session.html; ruletests PART 3gu pins every one of them and walks the entry
+#               and basic lessons to prove the server ships a tag for every ask.
 #   2026-08-30  APP_BUILD -> "2026-08-30qq-the-site-says-what-the-button-says". BUILD qq --
 #               a sweep after qp, because renaming a button leaves fiction behind wherever
 #               the site QUOTES that button. Three places, no Python touched:
@@ -12942,7 +12966,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30qq-the-site-says-what-the-button-says"
+APP_BUILD = "2026-08-30qr-the-authored-question-ships-its-buttons"
 
 
 @app.get("/health")

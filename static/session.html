@@ -1,5 +1,24 @@
 <!DOCTYPE html>
 <!--
+    (qr) 2026-08-30 -- THE AUTHORED QUESTION SHIPS ITS BUTTONS. Jim, on a live
+    Entry-Level lesson: "these are all supposed to be bubble answers, not tap to
+    talk ... it's in a couple of these, but it's not on all of them." Measured
+    before anything was touched: the SERVER was never at fault. choices_for() in
+    lessonscripts.py builds a [[choices]] tag for EVERY scripted question with no
+    condition on it, and main.py's _script_clean() sends it here as step.choices --
+    a field of its OWN, beside step.board. scrPlay() rendered step.board and nothing
+    else, and the string "step.choices" did not appear in this file at all. So every
+    AUTHORED question in Entry-Level and Basic reached the child with no buttons,
+    while an `ai` intervention had them (its tags ride inside board). That split is
+    exactly the "couple of these" he saw. pilot.html has read step.choices since
+    build ou; the pb port into this page dropped it -- and dropped step.tap_only
+    with it, so the engine's "stop asking this child to talk" was never heard
+    either. Both restored. Three further consequences handled in the same edit: a
+    board that ALREADY carries a choices tag is never rendered twice; a beat with no
+    taps of its own clears any row still on screen; and the one `say` beat that
+    carries taps (LINE_TAP, after an unheard answer inside an intervention) now sets
+    SCR.pending, so its buttons reach /api/script/answer instead of the live tutor --
+    the same defect qd fixed one beat kind over. PART 3gu.
     (qd) 2026-08-29 -- AN AI INTERVENTION IS AN ASK. scrPlay set SCR.pending only for
     kind "ask"; an "ai" step (the Model-Lead-Test turn after a wrong answer) left it
     false, so the child's redo was sent to the live tutor with stale history. Now
@@ -3671,6 +3690,31 @@
       const words = step.spoken || "";
       addBubble("tutor", words); lastTutorText = words;
       handleTags(step.board || "");
+      // (qr) 2026-08-30 -- THE AUTHORED QUESTION SHIPS ITS BUTTONS. Jim, on a live
+      // Entry-Level lesson: "these are all supposed to be bubble answers, not tap to
+      // talk ... it's in a couple of these, but it's not on all of them."
+      // THE SERVER WAS NEVER AT FAULT. lessonscripts.choices_for() builds a
+      // [[choices]] tag for EVERY scripted question, unconditionally, and main.py's
+      // _script_clean() sends it to this page as step.choices -- a field of its OWN,
+      // beside step.board. This player only ever rendered step.board, so every
+      // AUTHORED question in Entry-Level and Basic reached the child with NO BUTTONS
+      // AT ALL, while an `ai` intervention -- whose tags ride inside board, split out
+      // of the model's reply by _split_ai_reply -- had them. That is precisely the
+      // "a couple of these" he saw: bubbles on the AI's re-teach, none on the
+      // lesson's own questions. pilot.html, the original player, has read
+      // step.choices since build ou; the pb port into this page dropped it, and
+      // dropped tap_only with it.
+      // ⚠️ NEVER RENDER THE SAME ROW TWICE. An `ai` beat's board ALREADY holds the
+      // tag, and so does the one `say` beat main.py builds by hand -- LINE_TAP,
+      // "Tap the answer you think is right", sent after an unheard answer inside an
+      // intervention. A board that already carries a choices tag is left alone.
+      const boardTaps = /\[\[\s*choices\b/i.test(step.board || "");
+      if (!boardTaps && step.choices) handleTags(step.choices);
+      // ⚠️ AND A ROW NEVER OUTLIVES ITS QUESTION. A beat that carries no taps of its
+      // own clears whatever is still on screen, so a stale row from the last question
+      // can never be tapped into this one. The LINE_TAP say beat is not a stale row --
+      // its buttons ARE its question -- and the test above is what tells them apart.
+      if (!boardTaps && !step.choices) clearChoices();
       // (qd) 2026-08-29 -- AN AI INTERVENTION IS AN ASK. pilot.html has treated
       // "ai" like "ask" since build ou; the pb port of the player into this page
       // did not, so after Mr. Cadabra's Model-Lead-Test turn ("now it's your
@@ -3680,7 +3724,14 @@
       // ready to move into absolute value equations." The redo now goes where the
       // server expects it: /api/script/answer, graded by code against the redo.
       const isAsk = (step.kind === "ask" || step.kind === "ai");
-      SCR.pending = isAsk;
+      // (qr) ...AND SO IS A BEAT WHOSE BUTTONS ARE ITS QUESTION. main.py answers an
+      // unheard answer INSIDE an intervention with a `say` beat carrying LINE_TAP and
+      // the redo's own choices tag. Under the old line that beat left SCR.pending
+      // false, so the child's tap went to the LIVE tutor instead of to
+      // /api/script/answer, where the server was waiting to grade it -- the identical
+      // defect qd fixed for the `ai` beat, one beat kind over. A beat that puts taps
+      // on the screen is asking, whatever its kind says.
+      SCR.pending = isAsk || boardTaps;
       statusEl.textContent = tutorName + " is talking…";
       if (isAsk) {
         // ⭐ AN ASK BEAT NEVER LOCKS THE CHILD OUT. Build nb settled this and wrote
@@ -3696,10 +3747,20 @@
         // happens" reintroduced by the fix for a different complaint. The door opens
         // the moment the question is on the board; his voice carries on underneath.
         busy = false; setPhase("ready");
+        // (qr) tap_only -- THE OTHER FIELD THE PORT DROPPED. The engine sets it after
+        // TWO answers in a row it could not read (lessonscripts _ask: unheard >= 2):
+        // the child's voice or typing is not landing, so we stop asking them to use
+        // it. pilot.html folds its answer bar away here; this page folds the composer,
+        // which leaves the ⌨️ pill in place -- a nudge toward the buttons, never a
+        // lock-out, because a child who CAN type must never be shut out of typing.
+        if (step.tap_only) { try { hideComposer(); } catch (e) {} }
         scrSay(words).then(() => {
           // Only tidy up if this is still the beat on stage -- the child may have
           // answered mid-question and moved the lesson on.
-          if (SCR.beat === myBeat) { statusEl.textContent = ""; setState("idle"); }
+          if (SCR.beat === myBeat) {
+            statusEl.textContent = step.tap_only ? "Tap your answer." : "";
+            setState("idle");
+          }
         });
         return;
       }
@@ -3708,7 +3769,10 @@
       const heard = await scrSay(words);
       statusEl.textContent = "";
       if (heard) { await delay(SCR_BREATH); scrNext(); }
-      else showScrNext();
+      // (qr) a beat whose buttons ARE its question never also grows a "Next ▶". Two
+      // pacers on one beat is the thing clearScrNext() exists to prevent; this is the
+      // same rule for the one say beat that now carries taps.
+      else if (!boardTaps) showScrNext();
     }
     function scrNext() {
       clearScrNext();
