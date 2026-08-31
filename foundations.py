@@ -2,6 +2,19 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qv -- THE TWO FRACTION CARDS SAY THE SLASH. The new fraction-
+#               orientation referee's canon sweep (rule 63: "the TOP number is the
+#               numerator" spoken over a board that shows 1/4 with a SLASH) found
+#               exactly two authored hits in 2,109 cards: basic/denominator and
+#               basic/numerator -- the very cards that TEACH the words. The build ps
+#               law applies: authored cards are read verbatim to every child with no
+#               referee in the way, so the standard is higher, not lower. Both cards
+#               now say the bridge in the same breath -- the number AFTER the slash is
+#               the bottom number when the fraction is written tall, the number BEFORE
+#               it the top -- so the child connects what they hear to the exact thing
+#               drawn. Boards untouched (their arrow captions already pointed at the
+#               right numbers). ⚠️ TWO SPOKEN LINES CHANGED = two TTS clips re-render
+#               on the next course-audio pass (pennies, the nj precedent).
 #   2026-08-30  BUILD qt -- THE COUNTING LESSONS ACTUALLY COUNT. Build qs taught the board
 #               to count along ([[objects ... count="1"]]: the things land one at a time,
 #               each taking its own ✓ and number, paced to his voice) and nothing in the
@@ -540,17 +553,20 @@ FOUNDATIONS = {
             "matching pieces, and then we talk about some of those pieces.",
          "board": ['[[pie parts="4" shaded="1" caption="one whole, cut into four equal parts — one of them is shaded"]]']},
         {"term": "denominator", "say":
-            "Every fraction is written with two numbers, and each one has a job. The bottom number is "
-            "called the **denominator**. It tells you how many equal pieces the whole was cut into. A "
-            "bigger denominator means the whole got cut into more pieces, so each piece is smaller. That "
-            "surprises a lot of people: one eighth is smaller than one fourth, even though eight is "
-            "bigger than four.",
+            "Every fraction is written with two numbers, and each one has a job. On this board the "
+            "fraction is written with a slash, so the two numbers sit side by side — the number after "
+            "the slash is the one people call the bottom number, because when a fraction is written "
+            "tall it really does sit on the bottom. That number is called the **denominator**. It tells "
+            "you how many equal pieces the whole was cut into. A bigger denominator means the whole got "
+            "cut into more pieces, so each piece is smaller. That surprises a lot of people: one eighth "
+            "is smaller than one fourth, even though eight is bigger than four.",
          "board": ['[[write text="1/4   ← the 4 is the DENOMINATOR: four equal pieces"]]']},
         {"term": "numerator", "say":
-            "The top number is called the **numerator**, and it tells you how many of those pieces we are "
-            "talking about. So in three fourths, the four says the whole was cut into four equal pieces, "
-            "and the three says we have three of them. Bottom number: how many pieces in all. Top number: "
-            "how many we are counting. That is the whole idea.",
+            "The number before the slash — the one that sits on top when the fraction is written tall — "
+            "is called the **numerator**, and it tells you how many of those pieces we are talking "
+            "about. So in three fourths, the four says the whole was cut into four equal pieces, and "
+            "the three says we have three of them. After the slash: how many pieces in all. Before the "
+            "slash: how many we are counting. That is the whole idea.",
          "board": ['[[write text="3/4   ← the 3 is the NUMERATOR: three of those pieces"]]',
                    '[[pie parts="4" shaded="3" caption="four equal pieces, and we have three of them"]]']},
         {"term": "decimal", "say":

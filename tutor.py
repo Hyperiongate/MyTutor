@@ -2,6 +2,28 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qv -- THE WATCH'S THREE REFEREE-SHAPED FINDINGS, measured first:
+#               ① REFEREE 67, fraction_orientation_conflict (rule 63): "the TOP number
+#               is the numerator" spoken over a board showing 1/4 with a SLASH -- the
+#               child sees left and right, not top and bottom. Fires only when the
+#               top/bottom sentence also says fraction/numerator/denominator (so column
+#               addition's honest "add the top number" never fires) and the prose never
+#               says "slash", the one word that bridges the notations. notation.py has
+#               carried that exact bridge since build dk; now it has teeth.
+#               ② REFEREE 68, second_triangle_conflict (rule 26): a second, DIFFERENT
+#               [[triangle]] drawn with no [[clear]] while the first still stands --
+#               every triangle is A,B,C/a,b,c, so the child sees two conflicting
+#               definitions of the same names. Referee 56 only fires on NUMBERED
+#               questions; the watch's unnumbered new problem slipped past it. The
+#               board's contents = the conversation since its last [[clear]], which is
+#               exactly how the board is designed to persist. Re-drawing the SAME
+#               triangle stays silent.
+#               ③ funcrule's NOT-NEW gate became NOT-YET-READ: the watch shipped
+#               g(x) = 3x - 2 written and never read, and the old gate makes that
+#               reachable in two turns (introduce without a question: silent; ask
+#               later: "not new", silent). A rule seen before now buys silence only if
+#               its READING ("g of x") was heard too. The existing silence for a rule
+#               both written AND read before is pinned and unchanged.
 #   2026-08-31  BUILD qu -- TWO ROWS FROM THE FIRST HEALTHY NIGHT WATCH. The 2026-08-31
 #               watch (the first on the Anthropic seat since the DeepSeek trial ended)
 #               confirmed two false wordings in live lessons, and both are exactly what
@@ -5862,7 +5884,17 @@ def func_rule_spoken_conflict(reply: str, heard=None):
                 continue
             f, var, rhs = m.group(1).lower(), m.group(2).lower(), m.group(3).strip()
             if re.sub(r"\s+", "", m.group(0)) in compact_heard:
-                continue                  # the rule is not new this conversation
+                # (qv) NOT-NEW became NOT-YET-READ. The 2026-08-31 watch shipped
+                # g(x) = 3x - 2 written and never read, and this gate is the hole
+                # that makes it possible in TWO turns: the introducing reply carries
+                # no question (silent above), the asking reply finds the rule already
+                # in heard (silent here) -- and the child never hears it in either.
+                # A rule seen before only buys silence if its READING was heard too;
+                # the name ("g of x") is the generous minimum, matching the bar the
+                # rest of this referee already uses.
+                if re.search(r"\b%s\s+of\s+%s\b" % (re.escape(f), re.escape(var)),
+                             str(heard), re.I):
+                    continue              # written before AND read before: truly old
             name_read = re.search(r"\b%s\s+of\s+%s\b" % (re.escape(f), re.escape(var)),
                                   readable, re.I)
             nums_read = (_pq_numeric_tokens(rhs) < 1
@@ -6247,7 +6279,128 @@ def counted_drawing_conflict(reply: str):
         return ""
 
 
+# (qv) THE SIXTY-SEVENTH REFEREE -- A SLASH HAS NO TOP. The 2026-08-31 night watch,
+# basic course, rule 63: the tutor said "the BOTTOM number is the denominator... the
+# TOP number is the numerator" over a board showing [[write text="1/4"]] -- and a
+# child looking at 1/4 sees the 1 on the LEFT and the 4 on the RIGHT. The words and
+# the picture are not the same figure. notation.py has carried the exact bridge since
+# build dk ("fraction-slash": the number AFTER the slash is the denominator), so the
+# knowledge existed; nothing enforced it.
+#
+# THE SHAPE: a sentence teaches fraction anatomy in top/bottom words (top|bottom
+# number, or number on top/on the bottom, in a sentence that also says fraction,
+# numerator or denominator -- the same-sentence context is what keeps column
+# addition's honest "add the top number" out of this), the reply's BOARD carries a
+# slash fraction, and the prose never says "slash" -- the one word that bridges the
+# two ways the same fraction is written. Say the bridge and the top/bottom words are
+# earned; skip it and the picture contradicts every word.
+_FTB_SENT_RE = _FU_SENTENCE
+_FTB_TOPBOT = re.compile(
+    r"\b(?:top|bottom)\s+number\b|\bnumber\s+on\s+(?:the\s+)?(?:top|bottom)\b|"
+    r"\bnumber\s+(?:up\s+)?(?:on\s+)?top\b|\bnumber\s+(?:down\s+)?(?:at|on)\s+the\s+bottom\b", re.I)
+_FTB_CONTEXT = re.compile(r"\bfraction|numerator|denominator", re.I)
+_FTB_SLASH_FRAC = re.compile(r"\d+\s*/\s*\d+")
+_FTB_BRIDGE = re.compile(r"\bslash\b|\bbefore\s+the\s+slash\b|\bafter\s+the\s+slash\b", re.I)
+_FTB_TAG_VALS = re.compile(r'\[\[[^\]]*?"([^"]*)"[^\]]*\]\]')
+
+
+def fraction_orientation_conflict(reply: str):
+    """Return a description of fraction anatomy taught in top/bottom words over a
+    board that shows the fraction with a slash, or "". Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        frac = None
+        for tag in re.findall(r"\[\[[^\]]*\]\]", text):
+            for val in re.findall(r'"([^"]*)"', tag):
+                m = _FTB_SLASH_FRAC.search(val)
+                if m:
+                    frac = m.group(0)
+                    break
+            if frac:
+                break
+        if not frac:
+            return ""                     # no slash fraction on this board
+        prose = _spoken_only(text)
+        if _FTB_BRIDGE.search(prose):
+            return ""                     # the bridge is said: top/bottom is earned
+        for sent in _FTB_SENT_RE.findall(prose):
+            if _FTB_TOPBOT.search(sent) and _FTB_CONTEXT.search(sent):
+                said = " ".join(sent.split())[:80]
+                a, b = [x.strip() for x in re.split(r"/", frac, 1)]
+                return ('you say "{s}" but the board shows the fraction as {fr} -- '
+                        "with a SLASH, so the child sees {a} on the LEFT and {b} on "
+                        "the RIGHT, and there is no top or bottom to point at (rule "
+                        "63: the words and the picture are the same figure). ADD the "
+                        "bridge sentence, in words like: \"written this way, the "
+                        "number BEFORE the slash, {a}, is the numerator, and the "
+                        "number AFTER the slash, {b}, is the denominator.\" Keep "
+                        "everything else the same.").format(s=said, fr=frac, a=a, b=b)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[fracslash] crashed (fail open): {exc}")
+        _event("referee_crash", "fracslash", str(exc))
+        return ""
+
+
+# (qv) THE SIXTY-EIGHTH REFEREE -- ONE BOARD, ONE TRIANGLE. The 2026-08-31 night
+# watch, geometry, rule 26: the tutor drew a second right triangle -- "hypotenuse 10,
+# one leg 6" -- with NO [[clear]], while the first (13-5-?) still stood on the board.
+# Every triangle here is labeled A, B, C with sides a, b, c, so the child sees TWO
+# conflicting definitions of the same six names. Referee 56 (staleboard) fires only
+# on a NUMBERED question ("Question 4."); an unnumbered new problem slipped past it.
+#
+# THE SHAPE: this reply draws a [[triangle]] with sides=, sends no [[clear]], and the
+# conversation SINCE ITS LAST [[clear]] already drew a [[triangle]] with a DIFFERENT
+# sides= value. The board persists until [[clear]] -- that is its design -- so "since
+# the last clear" IS the board's contents. Re-drawing the SAME triangle (identical
+# sides) is re-showing, not a second problem, and stays silent. Heard-gated like its
+# siblings: no conversation, no verdict.
+_TRI_TAG_RE = re.compile(r"\[\[\s*triangle\b([^\]]*)\]\]", re.I)
+_TRI_SIDES_RE = re.compile(r'sides\s*=\s*"([^"]*)"', re.I)
+
+
+def second_triangle_conflict(reply: str, heard=None):
+    """Return a description of a second, different triangle drawn over the first with
+    no [[clear]], or "". Silent when heard is None (fail open)."""
+    try:
+        if heard is None:
+            return ""
+        text = str(reply or "")
+        if _SB_CLEAR.search(text):
+            return ""                     # this reply wipes: a fresh board
+        mine = None
+        for attrs in _TRI_TAG_RE.findall(text):
+            sm = _TRI_SIDES_RE.search(attrs)
+            if sm:
+                mine = re.sub(r"\s+", "", sm.group(1)).lower()
+        if not mine:
+            return ""                     # no labeled triangle in this reply
+        # the board's contents = the conversation since its LAST [[clear]]
+        h = str(heard)
+        cuts = [m.end() for m in _SB_CLEAR.finditer(h)]
+        board = h[cuts[-1]:] if cuts else h
+        for attrs in _TRI_TAG_RE.findall(board):
+            sm = _TRI_SIDES_RE.search(attrs)
+            if not sm:
+                continue
+            old = re.sub(r"\s+", "", sm.group(1)).lower()
+            if old and old != mine:
+                return ("this reply draws a NEW triangle (sides {m}) with no "
+                        "[[clear]], and the board still holds the last one (sides "
+                        "{o}) -- both labeled A, B, C, so the child sees two "
+                        "conflicting definitions of the same names (rule 26: one "
+                        "problem on the board). ADD [[clear]] at the start of this "
+                        "reply, before the new drawing; change nothing else."
+                        ).format(m=mine[:40], o=old[:40])
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[secondtriangle] crashed (fail open): {exc}")
+        _event("referee_crash", "secondtriangle", str(exc))
+        return ""
+
+
 def board_count_conflict(reply: str):
+
     """Return a description of a spoken drawn-count claim the [[objects]] tag
     cannot support, or "". Never raises (fail open)."""
     try:
@@ -8495,6 +8648,19 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if cdraw:
             _event("referee_fire", "countedask", cdraw)
             return cdraw
+        # (qv) the sixty-seventh: fraction anatomy taught in top/bottom words over a
+        # slash the child is actually looking at (rule 63). Reply-only and objective.
+        fslash = fraction_orientation_conflict(reply)
+        if fslash:
+            _event("referee_fire", "fracslash", fslash)
+            return fslash
+        # (qv) the sixty-eighth: a second, different triangle drawn over the first
+        # with no [[clear]] (rule 26). Heard-gated -- the board's contents are the
+        # conversation since its last [[clear]], because that is how the board works.
+        tri2 = second_triangle_conflict(reply, heard)
+        if tri2:
+            _event("referee_fire", "secondtriangle", tri2)
+            return tri2
         # (oc) the forty-eighth: a result you speak is a result you drew.
         skipres = skipped_result_conflict(reply, heard)
         if skipres:

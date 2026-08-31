@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qv -- PART 3gx: referees 67 (a slash has no top -- fraction anatomy
+#               in top/bottom words over a board that shows 1/4 with a slash and no
+#               spoken bridge) and 68 (one board, one triangle -- a second DIFFERENT
+#               [[triangle]] with no [[clear]] while the first stands; referee 56 only
+#               knew NUMBERED questions), plus funcrule's NOT-NEW gate tightened to
+#               NOT-YET-READ (the two-turn hole the watch shipped g(x)=3x-2 through),
+#               pinned in funcrule's own PART beside its unchanged old silence.
+#               ⚠️ 67's canon sweep caught basic/denominator and basic/numerator -- the
+#               cards that TEACH the words -- fixed to the ps standard in foundations.py
+#               (two spoken lines changed, two TTS clips re-render). PART 3fx's referee
+#               count moves 66 -> 68.
 #   2026-08-31  BUILD qu -- TWO FALSEHOOD ROWS FROM THE FIRST HEALTHY NIGHT WATCH, riding
 #               PART 3ge exactly as its design demands (one row + a FIRES and a SILENT
 #               line; no new referee): division-always-makes-smaller and
@@ -16099,6 +16110,128 @@ def part3gw_the_counting_lessons_actually_count():
               src.rstrip().endswith("# I did no harm and this file is not truncated."), f)
 
 
+def part3gx_the_words_point_at_the_picture_drawn():
+    """PART 3gx (build qv, 2026-08-31) -- REFEREES 67 AND 68, AND FUNCRULE'S CLOSED GATE.
+
+    Three findings from the 2026-08-31 night watch, each measured before anything was
+    touched, each landing as the narrowest change that closes it:
+
+    ⭐ REFEREE 67 -- A SLASH HAS NO TOP (rule 63). "The bottom number is the denominator"
+    spoken over a board showing 1/4 -- the child sees LEFT and RIGHT. Fires only when the
+    top/bottom sentence also carries fraction/numerator/denominator (so column addition's
+    honest "add the top number" can never fire) and the prose never says "slash" -- the
+    bridge word notation.py has carried since build dk, which the nudge dictates.
+    ⚠️ THE CANON SWEEP FOUND TWO AUTHORED HITS -- basic/denominator and basic/numerator,
+    the very cards that TEACH the words -- and the build ps law applied (authored cards
+    are read verbatim, so the standard is HIGHER): both cards now say the bridge in the
+    same breath. Two spoken lines changed; two TTS clips re-render; the "one eighth is
+    smaller than one fourth" sentence another PART pins is untouched.
+
+    ⭐ REFEREE 68 -- ONE BOARD, ONE TRIANGLE (rule 26). A second, DIFFERENT [[triangle]]
+    drawn with no [[clear]] while the first still stands: every triangle is A,B,C/a,b,c,
+    so the child sees two conflicting definitions of the same six names. Referee 56 fires
+    only on NUMBERED questions; the watch's unnumbered new problem slipped past it. The
+    board's contents = the conversation since its last [[clear]], because persisting
+    until [[clear]] is exactly how the board is designed. Re-drawing the SAME triangle is
+    re-showing, not a second problem, and stays silent.
+
+    ⭐ FUNCRULE'S NOT-NEW GATE BECAME NOT-YET-READ. The watch shipped g(x) = 3x - 2
+    written and never read aloud, and the OLD gate makes that reachable in two turns:
+    the introducing reply carries no question (silent -- the "?" gate), the asking reply
+    finds the rule already in heard (silent -- "not new"), and the child hears it in
+    neither. A rule seen before now buys silence only when its READING ("g of x") was
+    heard too. The old silence -- written before AND read before -- is pinned unchanged
+    in funcrule's own PART, and the new case is pinned there beside it.
+    """
+    print("\nPART 3gx — the words point at the picture drawn (build qv)")
+    import tutor as _tt
+    F1, F2 = _tt.fraction_orientation_conflict, _tt.second_triangle_conflict
+
+    WATCH = ('[[write text="1/4"]] The bottom number is the **denominator** -- it tells '
+             "how many equal pieces the whole was cut into. The top number is the "
+             "**numerator** -- it tells how many of those pieces we have.")
+    check("⭐ 67 FIRES on the watch's own sentence", bool(F1(WATCH)),
+          "top and bottom spoken over a slash the child is looking at")
+    check("  ...and the nudge dictates the bridge, with THIS fraction's numbers",
+          "BEFORE the slash, 1" in (F1(WATCH) or "") and "AFTER the slash, 4" in (F1(WATCH) or ""),
+          (F1(WATCH) or "")[:120])
+    check("  67 SILENT: the bridge is said",
+          not F1('[[write text="1/4"]] Written with a slash, the number before the slash, '
+                 "1, is the numerator and the number after the slash, 4, is the denominator."),
+          "saying the bridge is what earns the top/bottom words")
+    check("  67 SILENT: column addition's honest top number",
+          not F1('[[column a="34" b="25"]] [[write text="3/4 done"]] Add the top number '
+                 "and the bottom number in the ones column first."),
+          "the same words about a COLUMN are true -- context lives in the sentence")
+    check("  67 SILENT: top/bottom talk with no slash fraction on the board",
+          not F1("The top number is the numerator and the bottom number is the denominator."), "")
+    check("  67 SILENT: slash fraction on the board, no anatomy talk",
+          not F1('[[write text="1/4"]] One fourth means one of four equal pieces.'), "")
+    check("  67 never raises", F1(None) == "" and F1(123) == "", "")
+
+    T1 = 'Here is your triangle. [[triangle v="A,B,C" sides="c = 10,a = 6,b = ?" right="C"]]'
+    H1 = 'Watch. [[triangle v="A,B,C" sides="c = 13,a = 5,b = ?" right="C"]] b is 12. Nice.'
+    check("⭐ 68 FIRES on the watch's second triangle over the first",
+          bool(F2(T1, heard=H1)), "two conflicting definitions of A, B, C, a, b, c")
+    check("  ...and the nudge is one move: [[clear]] first",
+          "ADD [[clear]]" in (F2(T1, heard=H1) or ""), "")
+    check("  68 SILENT: this reply clears first",
+          not F2("[[clear]] " + T1, heard=H1), "")
+    check("  68 SILENT: the old triangle was already cleared away",
+          not F2(T1, heard='[[triangle sides="c = 13,a = 5,b = ?"]] good. [[clear]] fresh.'),
+          "the board's contents are the conversation since its last [[clear]]")
+    check("  68 SILENT: re-drawing the SAME triangle",
+          not F2('Look again. [[triangle v="A,B,C" sides="c = 13,a = 5,b = ?" right="C"]]',
+                 heard='[[triangle v="A,B,C" sides="c = 13,a = 5,b = ?" right="C"]]'),
+          "re-showing is not a second problem")
+    check("  68 SILENT: the first triangle of the conversation",
+          not F2(T1, heard="hello there"), "")
+    check("  68 SILENT: heard is None (a referee that cannot know)",
+          not F2(T1, heard=None), "")
+    check("  68 never raises", F2(None, "x") == "" and F2(123, 456) == "", "")
+
+    # ---- both wired with their own fire events --------------------------------
+    tsrc = open(_tt.__file__, encoding="utf-8").read()
+    check("⭐ both are wired into the referee stack with their own fire events",
+          '_event("referee_fire", "fracslash", fslash)' in tsrc
+          and '_event("referee_fire", "secondtriangle", tri2)' in tsrc, "")
+
+    # ---- the canon, swept -----------------------------------------------------
+    import foundations as FND, lessonscripts as LS
+    cards = []
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            cards.append(("%s/%s" % (c, sc.get("term") or "?"),
+                          (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])))
+    for les in LS.LESSONS:
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            cards.append(("%s[t%d]" % (les["id"], i), (sp or "") + "\n" + (b or "")))
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            cards.append(("%s[w%d]" % (les["id"], i), (w[0] or "") + "\n" + (w[1] or "")))
+    h67 = [i for i, t in cards if F1(t)]
+    h68 = [i for i, t in cards if F2(t, heard="")]
+    check("⭐ canon sweep: 67 fires on 0 authored cards (%d swept)" % len(cards),
+          not h67, ", ".join(h67[:4]))
+    check("  canon sweep: 68 fires on 0 authored cards", not h68, ", ".join(h68[:4]))
+    check("  the sweep covered the whole canon", len(cards) >= 1900, len(cards))
+
+    # ---- the two cards the sweep CAUGHT, fixed to the higher standard ---------
+    fsrc = open(FND.__file__, encoding="utf-8").read()
+    check("⭐ the denominator card says the slash in the same breath",
+          "the number after " in fsrc and '"the slash is the one people call the bottom number' in fsrc,
+          "the card that TEACHES the word must connect it to the notation drawn")
+    check("  ...and the numerator card leads with it",
+          "The number before the slash" in fsrc, "")
+    check("  ...the sentence another PART pins is untouched",
+          "one eighth " in fsrc and "is smaller than one fourth, even though eight is" in fsrc,
+          "the student-compare referee's must-pass list quotes it")
+    check("  ...their boards' arrow captions are untouched",
+          "the 4 is the DENOMINATOR: four equal pieces" in fsrc
+          and "the 3 is the NUMERATOR: three of those pieces" in fsrc, "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -16495,8 +16628,8 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ sixty-six referees now, counted from the code (62 + pz + qf + qm + qs)",
-          n_ref == 66, n_ref)
+    check("⭐ sixty-eight referees now, counted from the code (62 + pz + qf + qm + qs + qv's two)",
+          n_ref == 68, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -18652,10 +18785,19 @@ def part3dt_the_referees_that_each_missed_one():
         (True,  "⭐ funcrule: the unread x^2 - 2 rule fires",
          TT.func_rule_spoken_conflict('New rule: [[step eq="f(x) = x^2 - 2"]] '
                                       '[[step eq="f(4) = ?"]] What is f of 4?', heard="")),
-        (False, "  funcrule silent: the conversation met this rule before",
+        (False, "  funcrule silent: the rule was written before AND read before",
          TT.func_rule_spoken_conflict('Back. [[step eq="f(x) = x^2 - 2"]] What is f of 5?',
                                       heard='[[step eq="f(x) = x^2 - 2"]] f of x equals '
                                             'x squared minus two')),
+        # (qv) the two-turn hole the 2026-08-31 watch shipped through: introduce the
+        # rule with no question (the "?" gate is silent), ask about it a turn later
+        # (the old NOT-NEW gate was silent), and the child hears it in NEITHER. A rule
+        # seen before now buys silence only when its READING was heard too.
+        (True,  "⭐ funcrule (qv): written before but never READ -- the two-turn hole closes",
+         TT.func_rule_spoken_conflict('Use the rule. [[step eq="g(x) = 3x - 2"]] '
+                                      '[[step eq="g(5) = ?"]] What is g of 5?',
+                                      heard='here is our new rule [[step eq="g(x) = 3x - 2"]] '
+                                            'let us look at it together')),
         (False, "  funcrule silent: no question rides on the rule",
          TT.func_rule_spoken_conflict('For next time. [[step eq="f(x) = x^2 - 2"]] Bye!', heard="")),
         (False, "  funcrule silent: no heard supplied (a referee that cannot know)",
@@ -19058,7 +19200,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,778</b>" in page,
+          "<b>7,802</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -27575,6 +27717,7 @@ def main():
     part3gu_the_authored_question_ships_its_buttons()
     part3gv_count_out_loud_with_me()
     part3gw_the_counting_lessons_actually_count()
+    part3gx_the_words_point_at_the_picture_drawn()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

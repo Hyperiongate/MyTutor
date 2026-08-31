@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  APP_BUILD -> "2026-08-31qv-the-words-point-at-the-picture-drawn". BUILD qv --
+#               the night watch's three referee-shaped findings, measured first, closed
+#               as REFEREE 67 (fraction anatomy in top/bottom words over a slash-written
+#               fraction with no spoken bridge -- rule 63; notation.py's build-dk bridge
+#               finally has teeth), REFEREE 68 (a second, different [[triangle]] with no
+#               [[clear]] while the first stands -- rule 26; referee 56 only knew
+#               numbered questions), and funcrule's NOT-NEW gate tightened to
+#               NOT-YET-READ (the two-turn hole g(x)=3x-2 shipped through). All in
+#               tutor.py. ⚠️ 67's canon sweep caught the basic/denominator and
+#               basic/numerator cards themselves; both fixed in foundations.py to the
+#               ps standard (two spoken lines changed -> two TTS clips re-render).
+#               NO CODE IN THIS FILE CHANGED.
 #   2026-08-31  APP_BUILD -> "2026-08-31qu-two-rows-from-the-night-watch". BUILD qu -- the
 #               first healthy Anthropic-seat night watch (2026-08-31 08:46 UTC, run on
 #               build qs -- which is also how we know qr and qs are LIVE) confirmed seven
@@ -12998,7 +13010,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-31qu-two-rows-from-the-night-watch"
+APP_BUILD = "2026-08-31qv-the-words-point-at-the-picture-drawn"
 
 
 @app.get("/health")
