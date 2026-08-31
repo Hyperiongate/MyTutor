@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30qt-the-counting-lessons-actually-count". BUILD qt --
+#               the canon uses what qs built. NO PYTHON CHANGED ANYWHERE: thirteen authored
+#               BOARD lines in foundations.py and lessonscripts.py gained count="1" -- the
+#               cards where Mr. Cadabra counts the drawing himself, out loud, while he
+#               models. Before this, only the AI intervention asked for the count-along, so
+#               a child who never answered wrongly would never once have seen it, and the
+#               COUNTING lessons of all lessons still drew every star in one instant.
+#               ⚠️ Not one spoken line changed, so no TTS clip re-renders. PART 3gw pins the
+#               thirteen, pins the ones deliberately left plain WITH their reasons, and --
+#               the pin that matters -- re-checks board.js's three refusals against every
+#               counted card, reading OBJ_COUNT_MAX out of board.js rather than restating
+#               it: a card asking for a count-along the renderer refuses still LOOKS right
+#               on screen, so that defect is invisible in a browser and permanent in source.
 #   2026-08-30  APP_BUILD -> "2026-08-30qs-count-out-loud-with-me". BUILD qs -- the board
 #               learns to count, and the 66th referee keeps the exception honest. NO PYTHON
 #               IN THIS FILE CHANGED: the work is in static/board.js (the [[objects]] tag
@@ -12974,7 +12987,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30qs-count-out-loud-with-me"
+APP_BUILD = "2026-08-30qt-the-counting-lessons-actually-count"
 
 
 @app.get("/health")

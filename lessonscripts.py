@@ -2,6 +2,29 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qt -- THE COUNTING LESSONS ACTUALLY COUNT. Build qs taught the board
+#               to count along ([[objects ... count="1"]]: the things land one at a time,
+#               each taking its own ✓ and number, paced to his voice) and nothing in the
+#               canon used it yet -- only the AI intervention asked for it. Every authored
+#               card that draws countable things was read (33 of them, by the battery's own
+#               walker) and 11 were counted here: the ones where Mr. Cadabra counts the
+#               drawing HIMSELF, out loud, while he models.
+#               ⚠️ THE ONES DELIBERATELY LEFT PLAIN, so the next pass does not "finish the
+#               job" and undo the thinking:
+#                 * every COUNT-ON card ("count on from seven: eight, nine...") -- ticking
+#                   every star from 1 teaches the exact habit counting-on exists to replace,
+#                   so the picture would be arguing with the lesson;
+#                 * every TAKE-AWAY card -- they carry take=, which the count-along refuses;
+#                   you do not count UP to a struck-out star;
+#                 * anything over a dozen things (counting-past-ten's 13, 14 and 16, and
+#                   add-past-ten's 13 and 15) -- the renderer refuses past OBJ_COUNT_MAX, and
+#                   a tag that asks for something the renderer will not do is a lie in the
+#                   source even though it draws correctly;
+#                 * the multiplication card (the apples are GROUPS, so 1..6 under them would
+#                   be counting the wrong thing), the geometry POINT card (its caption already
+#                   names them A, B and C) and the subtracting card (its picture is about what
+#                   is taken, not what is counted up).
+#               BOARD LINES ONLY -- not one spoken line changed, so NO TTS CLIP RE-RENDERS.
 #   2026-08-29  BUILD qc -- THE BARS ARE ON THE BOARD. Jim's screenshot of the Algebra
 #               II opener (alg2-u1-how-far-from-zero, teach[0]): the words say "here are
 #               two straight bars around a number" and the board showed only the number
@@ -1826,7 +1849,7 @@ LESSONS = [
             ("Here are three stars. And here are two more stars. Let's put the "
              "groups together and count every star: one, two, three, four, five. "
              "There are five stars in all.",
-             '[[objects emoji="⭐" groups="3" add="2" caption="count every star"]]'),
+             '[[objects emoji="⭐" groups="3" add="2" count="1" caption="count every star"]]'),
             ("Putting together has its very own sign. We write it like this, and "
              "we say it 'plus'. Three plus two.",
              '[[step eq="3 + 2"]]'),
@@ -1835,19 +1858,19 @@ LESSONS = [
              '[[step eq="3 + 2 = 5"]]'),
             ("Watch me do a whole one. Four stars, and one more star. I count "
              "every star: one, two, three, four, five. Four plus one equals five.",
-             '[[objects emoji="⭐" groups="4" add="1" caption="count every star"]]'
+             '[[objects emoji="⭐" groups="4" add="1" count="1" caption="count every star"]]'
              '[[step eq="4 + 1 = 5"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Two stars and two stars. "
                         "Count them all: one, two, three, four. Two plus two "
                         "equals four.",
-                        '[[objects emoji="⭐" groups="2" add="2" caption="count every star"]]'
+                        '[[objects emoji="⭐" groups="2" add="2" count="1" caption="count every star"]]'
                         '[[step eq="2 + 2 = 4"]]'),
              "ask": {"a": 2, "b": 3, "op": "+"}},
             {"worked": ("One more together. Five stars and one star. Count them "
                         "all — six. Five plus one equals six.",
-                        '[[objects emoji="⭐" groups="5" add="1" caption="count every star"]]'
+                        '[[objects emoji="⭐" groups="5" add="1" count="1" caption="count every star"]]'
                         '[[step eq="5 + 1 = 6"]]'),
              "ask": {"a": 4, "b": 2, "op": "+"}},
         ],
@@ -2854,10 +2877,10 @@ _MORE_LESSONS = [
              "comes eleven, twelve, thirteen, and it keeps going. Say each number "
              "as you touch each star.",
              '[[goal text="Counting past ten"]]'
-             '[[objects emoji="⭐" groups="12" caption="touch each one and count"]]'),
+             '[[objects emoji="⭐" groups="12" count="1" caption="touch each one and count"]]'),
             ("Watch me count these. One, two, three, four, five, six, seven, "
              "eight, nine, ten. Then keep going: eleven, twelve. Twelve stars.",
-             '[[objects emoji="⭐" groups="12" caption="ten, then eleven, twelve"]]'),
+             '[[objects emoji="⭐" groups="12" count="1" caption="ten, then eleven, twelve"]]'),
             ("Here is a faster way. Count the first ten, then count on from ten. "
              "Ten — eleven, twelve, thirteen, fourteen. Fourteen stars. The trap "
              "is starting again at one after ten. Keep going instead.",
@@ -2927,7 +2950,7 @@ _MORE_LESSONS = [
             ("Watch me. 6 plus 6. Count six, then six more: seven, eight, nine, "
              "ten, eleven, twelve. 6 plus 6 equals 12. Say it twice and you will "
              "remember it.",
-             '[[objects emoji="⭐" groups="12" caption="six and six more"]]'
+             '[[objects emoji="⭐" groups="12" count="1" caption="six and six more"]]'
              '[[step eq="6 + 6 = 12"]]'),
             ("Here is the trap. A double adds the SAME number again. It does not "
              "add one more. 7 plus 7 is 14, not 15. Look at the number you were "
@@ -3807,18 +3830,18 @@ _MORE_LESSONS = [
              "number for it: one, two, three.",
              '[[goal text="Counting to 10"]]'),
             ("Watch me count these stars. One, two, three. Three stars.",
-             '[[objects emoji="⭐" groups="3" caption="count them one at a time"]]'),
+             '[[objects emoji="⭐" groups="3" count="1" caption="count them one at a time"]]'),
             ("Watch me count again. One, two, three, four, five. Five stars.",
-             '[[objects emoji="⭐" groups="5" caption="count them one at a time"]]'),
+             '[[objects emoji="⭐" groups="5" count="1" caption="count them one at a time"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. One, two, three, four. "
                         "Four stars.",
-                        '[[objects emoji="⭐" groups="4" caption="count them one at a time"]]'),
+                        '[[objects emoji="⭐" groups="4" count="1" caption="count them one at a time"]]'),
              "ask": {"a": 2, "b": 0, "op": "cnt"}},
             {"worked": ("One more together. One, two, three, four, five, six. "
                         "Six stars.",
-                        '[[objects emoji="⭐" groups="6" caption="count them one at a time"]]'),
+                        '[[objects emoji="⭐" groups="6" count="1" caption="count them one at a time"]]'),
              "ask": {"a": 4, "b": 0, "op": "cnt"}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and "

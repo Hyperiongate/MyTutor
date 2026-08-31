@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qt -- PART 3gw: the counting lessons actually count. qs built the
+#               count-along and nothing in the canon asked for it, so a child who never
+#               answered wrongly (and so never met the AI intervention) would never have seen
+#               it. Thirteen authored drawings now count. ⭐ THE PIN THAT MATTERS: every
+#               counted card must be one board.js will ACTUALLY count -- it refuses over
+#               OBJ_COUNT_MAX things, over one row, or with take=, and falls through to the
+#               ordinary drawing, so a card asking for a count-along it cannot have LOOKS
+#               right on screen and is wrong in the source for ever. OBJ_COUNT_MAX is read
+#               OUT OF board.js rather than restated. The cards left plain are pinned too,
+#               with their reasons, because "finish the job" is the obvious next edit and it
+#               would be wrong.
 #   2026-08-30  BUILD qs -- PART 3gv: count out loud with me, and the 66th referee. The
 #               model invented a promise the board could not keep ("point to each one and
 #               count out loud with me" over a row of emoji drawn in one instant, as ONE
@@ -15915,6 +15926,152 @@ def part3gv_count_out_loud_with_me():
           and "⛔ Only THIS drawing is counted;\n   step 3 draws plain." in tsrc, "")
 
 
+def part3gw_the_counting_lessons_actually_count():
+    """PART 3gw (build qt, 2026-08-30) -- THE CANON USES THE THING BUILD qs BUILT.
+
+    qs taught the board to count along and NOTHING IN THE CANON ASKED FOR IT. Only the AI
+    intervention did -- so a child who never answered wrongly, and therefore never met the
+    intervention, would never once have seen it. The counting lessons, of all lessons, went
+    on drawing every star in the same instant.
+
+    All 33 authored cards that draw countable things were read. THIRTEEN now count: the ones
+    where Mr. Cadabra counts the drawing HIMSELF, out loud, while he models -- "Watch me
+    count these stars. One, two, three."
+
+    ⚠️ THE PIN THAT MATTERS IS NOT THE LIST, IT IS THIS: every counted drawing must be one
+    the renderer will ACTUALLY count. board.js refuses a count-along over OBJ_COUNT_MAX
+    things, over one row, or with take=, and falls through to the ordinary drawing -- which
+    means a card asking for a count-along it cannot have still LOOKS right on screen. The
+    defect would be invisible in a browser and permanent in the source. So this PART reads
+    OBJ_COUNT_MAX out of board.js and re-checks all three refusals against every counted
+    card, in Python. The number lives in ONE place and both sides read it.
+
+    ⚠️ AND THE ONES LEFT PLAIN ARE PINNED TOO, because "finish the job" is the obvious next
+    edit and it would be wrong:
+      * COUNT-ON cards ("count on from seven: eight, nine...") -- ticking every star from 1
+        teaches the exact habit counting-on exists to replace. The picture would be arguing
+        with the lesson.
+      * TAKE-AWAY cards -- they carry take=; you do not count UP to a struck-out star.
+      * Anything over a dozen -- counting-past-ten's 13, 14 and 16, add-past-ten's 13 and 15.
+      * The multiplication card (its apples are GROUPS, so 1..6 under them counts the wrong
+        thing), the geometry POINT card (its caption already names them A, B and C), and the
+        subtracting card (its picture is about what is taken, not what is counted up).
+
+    BOARD LINES ONLY. Not one spoken line changed, so no TTS clip re-renders -- and that is
+    checked here rather than asserted, because "no audio impact" is the kind of claim that
+    is cheap to make and expensive to be wrong about.
+    """
+    print("\nPART 3gw — the counting lessons actually count (build qt)")
+    import re as _re
+    import foundations as FND, lessonscripts as LS
+    import tutor as _tt
+
+    OBJ = _re.compile(r"\[\[\s*objects\b([^\]]*)\]\]", _re.I)
+    CNT = _re.compile(r'\bcount\s*=\s*"\s*(?:1|true|yes|on)\s*"', _re.I)
+    NUM = _re.compile(r"\d{1,2}")
+
+    # ⭐ THE LIMIT IS READ FROM board.js, never restated here: two files holding the same
+    # number is how a canon and a renderer drift apart without either being wrong.
+    bjs = open("static/board.js", encoding="utf-8").read()
+    m = _re.search(r"const OBJ_COUNT_MAX = (\d+);", bjs)
+    check("⭐ the count-along's limit is read out of board.js, not restated here",
+          m is not None, "board.js stopped naming OBJ_COUNT_MAX")
+    MAXN = int(m.group(1)) if m else 12
+
+    def refusals(attrs):
+        g = _re.search(r'groups\s*=\s*"([^"]*)"', attrs, _re.I)
+        rows = [int(n) for n in NUM.findall(g.group(1))] if g else []
+        a = _re.search(r'add\s*=\s*"([^"]*)"', attrs, _re.I)
+        add = int(a.group(1)) if a and a.group(1).strip().isdigit() else 0
+        total = sum(rows) + add
+        bad = []
+        if _re.search(r'take\s*=\s*"', attrs, _re.I):
+            bad.append("take=")
+        if len(rows) != 1:
+            bad.append("%d rows" % len(rows))
+        if not (0 < total <= MAXN):
+            bad.append("total %d" % total)
+        return bad, total
+
+    # ---- walk the canon the battery's own way ---------------------------------
+    cards, says = [], []
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            says.append(sc.get("say") or "")
+            cards.append(("%s/%s" % (c, sc.get("term") or "?"),
+                          (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or []),
+                          "\n".join(sc.get("board") or [])))
+    for les in LS.LESSONS:
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            says.append(sp or "")
+            cards.append(("%s[t%d]" % (les["id"], i), (sp or "") + "\n" + (b or ""), b or ""))
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            says.append(w[0] or "")
+            cards.append(("%s[w%d]" % (les["id"], i), (w[0] or "") + "\n" + (w[1] or ""), w[1] or ""))
+
+    counted, refused, fired = [], [], []
+    for ident, whole, board in cards:
+        for mm in OBJ.finditer(board):
+            if CNT.search(mm.group(1)):
+                bad, total = refusals(mm.group(1))
+                counted.append(ident)
+                if bad:
+                    refused.append((ident, ",".join(bad)))
+        if CNT.search(board) and _tt.counted_drawing_conflict(whole):
+            fired.append(ident)
+
+    check("⭐ EVERY counted card is one the renderer will ACTUALLY count",
+          not refused,
+          "these ask for a count-along board.js refuses, and still LOOK right on screen: "
+          + "; ".join("%s (%s)" % r for r in refused[:5]))
+    check("⭐ referee 66 is silent on every counted card",
+          not fired,
+          "an authored card put a counted drawing under its own question: "
+          + ", ".join(fired[:5]))
+    check("  the canon counts thirteen drawings (the tutor's own modelled counts)",
+          len(counted) == 13, "%d: %s" % (len(counted), ", ".join(sorted(counted))))
+
+    # ---- the lessons that had to have it --------------------------------------
+    ids = set(counted)
+    for want in ("entry-u1-counting-to-10[t1]", "entry-u1-counting-to-10[t2]",
+                 "entry-u2-add-single-digit[t1]", "entry/number"):
+        check("  counted: %s" % want, want in ids,
+              "a counting lesson that does not count along is the one card this build "
+              "existed for")
+
+    # ---- and the ones deliberately left plain ---------------------------------
+    plain = {ident: board for ident, whole, board in cards}
+    for ident, why in (
+            ("entry-u2-add-past-ten[t1]", "count-on: ticking from 1 teaches the habit "
+                                          "counting-on exists to replace"),
+            ("entry-u4-tens-and-ones[t1]", "count-on from ten, same reason"),
+            ("entry-u3-take-away-single-digit[t1]", "take= -- you do not count UP to a "
+                                                    "struck-out star"),
+            ("entry-u1-counting-past-ten[t2]", "fourteen stars, past the renderer's limit"),
+            ("entry-u1-counting-past-ten[w1]", "sixteen stars, past the limit")):
+        check("  left plain on purpose: %s" % ident,
+              ident in plain and not CNT.search(plain[ident]), why)
+    check("  ...and the multiplication card's apples are GROUPS, so they stay plain",
+          not CNT.search(plain.get("basic/multiplication", "")),
+          "1..6 under six apples would be counting the wrong thing")
+    check("  ...and the geometry points keep their letters, not numbers",
+          not CNT.search(plain.get("geometry/point", "")),
+          "its caption already names them A, B and C")
+
+    # ---- board lines only: nothing spoken changed, so no clip re-renders -------
+    check("⭐ not one SPOKEN line carries the attribute -- no TTS clip re-renders",
+          not any(CNT.search(t or "") for t in says),
+          "count= is a board attribute; a spoken line carrying it would both be read "
+          "aloud as gibberish and silently re-price the whole course's audio")
+
+    for f in ("foundations.py", "lessonscripts.py"):
+        src = open(f, encoding="utf-8").read()
+        check("  %s is whole" % f,
+              src.rstrip().endswith("# I did no harm and this file is not truncated."), f)
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -18874,7 +19031,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,752</b>" in page,
+          "<b>7,770</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -27390,6 +27547,7 @@ def main():
     part3gt_the_site_says_what_the_button_says()
     part3gu_the_authored_question_ships_its_buttons()
     part3gv_count_out_loud_with_me()
+    part3gw_the_counting_lessons_actually_count()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

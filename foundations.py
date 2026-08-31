@@ -2,6 +2,29 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qt -- THE COUNTING LESSONS ACTUALLY COUNT. Build qs taught the board
+#               to count along ([[objects ... count="1"]]: the things land one at a time,
+#               each taking its own ✓ and number, paced to his voice) and nothing in the
+#               canon used it yet -- only the AI intervention asked for it. Every authored
+#               card that draws countable things was read (33 of them, by the battery's own
+#               walker) and 2 were counted here: the ones where Mr. Cadabra counts the
+#               drawing HIMSELF, out loud, while he models.
+#               ⚠️ THE ONES DELIBERATELY LEFT PLAIN, so the next pass does not "finish the
+#               job" and undo the thinking:
+#                 * every COUNT-ON card ("count on from seven: eight, nine...") -- ticking
+#                   every star from 1 teaches the exact habit counting-on exists to replace,
+#                   so the picture would be arguing with the lesson;
+#                 * every TAKE-AWAY card -- they carry take=, which the count-along refuses;
+#                   you do not count UP to a struck-out star;
+#                 * anything over a dozen things (counting-past-ten's 13, 14 and 16, and
+#                   add-past-ten's 13 and 15) -- the renderer refuses past OBJ_COUNT_MAX, and
+#                   a tag that asks for something the renderer will not do is a lie in the
+#                   source even though it draws correctly;
+#                 * the multiplication card (the apples are GROUPS, so 1..6 under them would
+#                   be counting the wrong thing), the geometry POINT card (its caption already
+#                   names them A, B and C) and the subtracting card (its picture is about what
+#                   is taken, not what is counted up).
+#               BOARD LINES ONLY -- not one spoken line changed, so NO TTS CLIP RE-RENDERS.
 #   2026-08-29  BUILD qf -- ONE THOUGHT PER LINE, IN THE AUTHORED BOARDS TOO. Jim's
 #               screenshot of the Algebra I like-terms card: "4x² + 3x² = 7x²   4x² + 7x
 #               stays as it is" -- two ideas on one line, because the card used a run
@@ -326,13 +349,13 @@ FOUNDATIONS = {
             "many. When I say three, I am telling you how many things there are, not which ones or how "
             "big they are. Counting is just saying the numbers in order while you touch each thing "
             "exactly once, and the very last number you say is how many you have altogether.",
-         "board": ['[[objects emoji="⭐" groups="3" caption="count them one at a time — the last number you say is how many"]]']},
+         "board": ['[[objects emoji="⭐" groups="3" count="1" caption="count them one at a time — the last number you say is how many"]]']},
         {"term": "adding", "say":
             "**Adding** means putting groups together and finding out how many there are now. You start "
             "with what you have, then you count on for each new one. Two cookies, and then one more "
             "cookie, is three cookies altogether. Nothing disappears when we add — the pile only gets "
             "bigger.",
-         "board": ['[[objects emoji="🍪" groups="2" add="1" caption="the group you had, then the one you added — now count them all"]]']},
+         "board": ['[[objects emoji="🍪" groups="2" add="1" count="1" caption="the group you had, then the one you added — now count them all"]]']},
         {"term": "skip-counting", "say":
             "**Skip-counting** means counting in jumps instead of one at a time. When you count by twos "
             "you say two, four, six, eight. You are still counting the same things. You are just landing "
