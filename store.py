@@ -2,6 +2,15 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD rc -- THE STAR FALLS WHEN THE CHILD SLIPS. Jim's ruling: a miss is
+#               ANY WRONG TAP -- the first wrong answer resets the today-streak to 0 even
+#               if the child recovers on the re-ask. Until now only a FINISHED problem
+#               moved the streak ([[mark]] -> record_practice), so a wrong tap inside a
+#               still-going problem left the star standing. NEW reset_today_streak():
+#               one thin wrapper over the SAME atomic _bump_stats upsert (today_of=(0,1)
+#               is qz's own any-miss-resets arm), touching NO counters -- problems,
+#               accuracy and the day streak are untouched; only the today-streak falls.
+#               Returns the fresh pair read back from the write, record_practice-style.
 #   2026-08-31  BUILD qz -- A STREAK A CHILD CAN SEE TODAY. Jim: a prominent bar on the
 #               dashboard AND the classroom page showing (1) the day streak (already
 #               tracked) and (2) problems answered correctly IN A ROW TODAY -- a
@@ -2505,6 +2514,30 @@ def record_practice(code: str, correct: int, attempted: int = 1) -> dict:
     # score is not, and does not pass this.
     _bump_stats(code, problems=attempted, correct=correct, attempted=attempted,
                today_of=(correct, attempted))
+    s = _get_stats_row(code)
+    today_streak = (s["today_streak"] if s.get("today_streak_day") == _streak_today()
+                    else 0)
+    return {"today_streak": today_streak, "streak_days": s["streak_days"]}
+
+
+def reset_today_streak(code: str) -> dict:
+    """(rc, 2026-08-31) Jim's ruling: a miss is ANY WRONG TAP. The first wrong answer
+    resets TODAY's correct-in-a-row streak to 0, even when the problem keeps going and
+    the child recovers on the re-ask -- record_practice only hears about FINISHED
+    problems, so a mid-problem slip needs this door.
+
+    ⚠️ TOUCHES NO COUNTERS. problems_practiced, accuracy and the whole-problem record
+    are untouched -- a slip is not a finished problem, and blending it into the
+    finished-problem stats would change what 'accuracy' means without Jim asking.
+    The DAY streak still ticks (a child slipping is a child working today), which is
+    the same thing record_drill already decided for practice with no counters.
+
+    One thin wrapper over the SAME atomic upsert record_practice uses: qz built the
+    any-miss-resets arm into _bump_stats itself (today_of with a miss in it -> 0), so
+    this passes today_of=(0, 1) and adds NO second copy of the reset logic. Returns
+    the fresh pair read back from the write, exactly record_practice's shape, so the
+    /api caller hands the client the authoritative number, never a guess."""
+    _bump_stats(code, today_of=(0, 1))
     s = _get_stats_row(code)
     today_streak = (s["today_streak"] if s.get("today_streak_day") == _streak_today()
                     else 0)

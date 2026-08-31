@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+    (rc) 2026-08-31 -- THE STAR FALLS WHEN THE CHILD SLIPS. New [[miss]] tag handled
+    beside [[mark]]: the model reports a wrong tap on the still-going problem, the page
+    posts {miss:1} to /api/mark/me, and the server resets the today-streak (Jim's
+    ruling: a miss is ANY wrong tap). No counters move -- a slip is not a finished
+    problem. The code floor (server-side computed grading) lives in main.py/tutor.py.
     (os) 2026-08-27 -- THE BOARD READS ONE, TWO, THREE. Jim: "it clearly says this is
     one, then two, then three... and the student doesn't have to scroll around to find
     it." NEW [[stepcard n="1" title="..."]] tag dispatched here -- a labeled Step-N card
@@ -1122,6 +1127,7 @@
         else if (name === "check") showCheck(attrs);
         else if (name === "quiz") showQuiz(attrs);
         else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); sawMark = true; }   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
+        else if (name === "miss") { postJSON("/api/mark/me", { miss: 1 }); }   /* (rc) a wrong tap on the still-going problem resets the today-streak server-side (Jim's ruling: a miss is any wrong tap) */
         else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); }   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
         else if (["triangle","angle","circle","transversal","polygon","solid","segment"].indexOf(name) >= 0) showGeo(name, attrs);   /* build ot: +transversal/polygon/solid */
         else if (name === "choices") showChoices(attrs);

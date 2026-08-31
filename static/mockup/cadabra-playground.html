@@ -17,6 +17,18 @@
     a guided tour of the page, and an opening math joke.
 
   CHANGE NOTES (newest first)
+    2026-08-31  (same day, second pass) HANDS GET FINGERS, AND CAN LEAVE HIM.
+                - the glove is now a real four-finger cartoon glove with a
+                  thumb and a cuff seam, built from circles and round-capped
+                  capsules and drawn twice (fat graphite silhouette, then a
+                  clean white fill) so the parts union instead of showing
+                  their overlaps.  Two shapes: 'open' with the fingers fanned,
+                  and 'point' with the index out and the rest curled.
+                - DETACHED GLOVES NOW LIVE IN PAGE SPACE, outside his
+                  transform, which is what lets them race ahead of him.
+                  "Throw his gloves at it and chase them" sends them first and
+                  launches him 430ms later, so it reads as a chase instead of
+                  a formation flight.
     2026-08-31  Created.  Built on the character from
                 static/mockup/cadabra-pencil.html (28 Aug 2026) - same paths,
                 same palette, same No.2 yellow #F2BC1B and hat purple #6B44BE.
@@ -430,6 +442,9 @@ select{
         <button class="cbtn amber" data-do="underline">Underline it</button>
       </div>
       <div class="bgrid one">
+        <button class="cbtn hot" data-do="chase">Throw his gloves at it and chase them</button>
+      </div>
+      <div class="bgrid one">
         <button class="cbtn" data-do="clearink">Erase his marks</button>
       </div>
     </div>
@@ -452,8 +467,8 @@ select{
       <div class="field">
         <select id="handstyle" aria-label="Hand style">
           <option value="mitt">Thin mitts &mdash; as drawn 28 Aug</option>
-          <option value="glove" selected>Gloves &mdash; readable at 44px</option>
-          <option value="free">Detached gloves &mdash; no arms</option>
+          <option value="glove" selected>Four-finger gloves &mdash; on arms</option>
+          <option value="free">Detached gloves &mdash; no arms, can fly ahead</option>
         </select>
       </div>
       <div class="field">
@@ -606,29 +621,65 @@ var EXPR = {
 };
 
 /* --- hands ---------------------------------------------------------------
-   Drawn twice: a fat graphite silhouette underneath, then a clean fill on
-   top.  That unions the palm, thumb and finger into one outlined shape
-   instead of showing the seams where they overlap. */
-function gloveShapes(R, pointing){
-  var s = '<circle cx="0" cy="0" r="'+R+'"/>'
-        + '<circle cx="'+(-R*0.30).toFixed(2)+'" cy="'+(-R*0.92).toFixed(2)+'" r="'+(R*0.42).toFixed(2)+'"/>';
-  if(pointing){
-    s += '<rect x="'+(R*0.35).toFixed(2)+'" y="'+(-R*0.30).toFixed(2)+'" width="'+(R*1.55).toFixed(2)
-       + '" height="'+(R*0.60).toFixed(2)+'" rx="'+(R*0.30).toFixed(2)+'"/>';
+   A real four-finger glove.  Every part is a circle or a round-capped capsule,
+   and the whole set is drawn TWICE: a fat graphite silhouette underneath, then
+   a clean white fill on top.  That unions the palm, the thumb and all four
+   fingers into one outlined shape instead of showing the seams where they
+   overlap - which is the entire trick behind a cartoon glove.
+     mode 'open'  - fingers fanned, for resting, waving and celebrating
+     mode 'point' - index extended, the others curled into the palm
+   The hand's +X axis is the direction it faces, so aiming it is one rotate(). */
+function handShapes(R, mode){
+  var circles = [{cx:0, cy:0, r:R}], caps = [], D = Math.PI / 180;
+  function cap(deg, start, len, w){
+    var a = deg * D;
+    caps.push({ x1: Math.cos(a)*start*R,        y1: Math.sin(a)*start*R,
+                x2: Math.cos(a)*(start+len)*R,  y2: Math.sin(a)*(start+len)*R,
+                w: w * R });
+  }
+  if(mode === 'point'){
+    cap(   0, 0.45, 1.60, 0.46);                          /* index, extended  */
+    cap( -86, 0.34, 0.96, 0.50);                          /* thumb, upright   */
+    circles.push({cx: R*0.66, cy: R*0.60, r: R*0.36});    /* curled knuckles  */
+    circles.push({cx: R*0.14, cy: R*0.92, r: R*0.34});
   } else {
-    s += '<circle cx="'+(R*0.62).toFixed(2)+'" cy="'+(-R*0.42).toFixed(2)+'" r="'+(R*0.38).toFixed(2)+'"/>';
+    cap( -47, 0.58, 1.16, 0.42);                          /* four fingers,    */
+    cap( -16, 0.64, 1.34, 0.44);                          /* fanned open      */
+    cap(  16, 0.64, 1.30, 0.44);
+    cap(  45, 0.58, 1.10, 0.40);
+    cap(-104, 0.40, 1.00, 0.52);                          /* thumb            */
+  }
+  return { circles: circles, caps: caps };
+}
+function shapeMarkup(sh, paint, grow){
+  var s = '', i;
+  for(i = 0; i < sh.circles.length; i++){
+    var c = sh.circles[i];
+    s += '<circle cx="'+c.cx.toFixed(2)+'" cy="'+c.cy.toFixed(2)+'" r="'+(c.r + grow/2).toFixed(2)
+       + '" fill="'+paint+'"/>';
+  }
+  for(i = 0; i < sh.caps.length; i++){
+    var k = sh.caps[i];
+    s += '<line x1="'+k.x1.toFixed(2)+'" y1="'+k.y1.toFixed(2)+'" x2="'+k.x2.toFixed(2)+'" y2="'+k.y2.toFixed(2)
+       + '" stroke="'+paint+'" stroke-width="'+(k.w + grow).toFixed(2)+'" stroke-linecap="round"/>';
   }
   return s;
 }
-function handMarkup(id, style, R, pointing){
+function handMarkup(id, style, R, mode){
   if(style === 'mitt'){
-    return '<g id="'+id+'"><circle cx="0" cy="0" r="'+(R*0.72).toFixed(2)+'" fill="'+P.mitt
+    return '<g id="'+id+'"><circle cx="0" cy="0" r="'+(R*0.66).toFixed(2)+'" fill="'+P.mitt
          + '" stroke="'+P.graphite+'" stroke-width="2.2"/></g>';
   }
-  var sh = gloveShapes(R, pointing);
+  var sh = handShapes(R, mode);
+  /* the cuff seam on the back of the glove - the line that says "glove" */
+  var seam = '<path d="M '+(-R*0.88).toFixed(1)+' '+(-R*0.70).toFixed(1)
+           + ' Q '+(-R*0.50).toFixed(1)+' 0 '+(-R*0.88).toFixed(1)+' '+(R*0.70).toFixed(1)
+           + '" fill="none" stroke="'+P.graphite+'" stroke-width="'+(R*0.12).toFixed(2)
+           + '" stroke-linecap="round" opacity=".8"/>';
   return '<g id="'+id+'">'
-    + '<g fill="'+P.graphite+'" stroke="'+P.graphite+'" stroke-width="4.4" stroke-linejoin="round">'+sh+'</g>'
-    + '<g fill="'+P.glove+'">'+sh+'</g>'
+    + shapeMarkup(sh, P.graphite, 5.0)
+    + shapeMarkup(sh, P.glove, 0)
+    + seam
     + '</g>';
 }
 
@@ -653,6 +704,9 @@ overlay.innerHTML =
   +     '<g id="cad-handL-wrap"></g><g id="cad-handR-wrap"></g>'
   +   '</g>'
   + '</g>'
+  /* the detached gloves live OUTSIDE his transform, in page pixels, which is
+     the only way they can race ahead of him and wait to be caught up with */
+  + '<g id="fhL"></g><g id="fhR"></g>'
   + '<g id="spark"></g>';
 
 var $ = function(id){ return document.getElementById(id); };
@@ -663,6 +717,7 @@ var elPupL = $('cad-pupL'), elPupR = $('cad-pupR');
 var elLips = $('cad-lips'), elMouth = $('cad-mouth');
 var elArmL = $('cad-armL'), elArmR = $('cad-armR');
 var wrapL = $('cad-handL-wrap'), wrapR = $('cad-handR-wrap');
+var freeL = $('fhL'), freeR = $('fhR');
 
 var W = 0, H = 0;
 function sizeOverlay(){
@@ -689,8 +744,11 @@ var S = {
   talkAmp: 0,
   blink: 1,
   nextBlink: 0,
-  handL: {x:SHOULDER_L.x-24, y:250, rot:0, point:false},
-  handR: {x:SHOULDER_R.x+24, y:246, rot:0, point:false},
+  handL: {x:SHOULDER_L.x-24, y:250, rot:118, mode:'open'},
+  handR: {x:SHOULDER_R.x+24, y:246, rot: 62, mode:'open'},
+  freeL: {x:0, y:0, rot:118, mode:'open'}, /* detached gloves, PAGE pixels  */
+  freeR: {x:0, y:0, rot: 62, mode:'open'},
+  chase: null,              /* a page point the gloves are racing to    */
   aimL: null, aimR: null,   /* page-space points a hand is aiming at   */
   seq: 0                    /* cancels a running routine               */
 };
@@ -733,11 +791,30 @@ function rectOf(name){
    ══════════════════════════════════════════════════════════════════════ */
 var lastHandKey = '';
 function rebuildHands(){
-  var key = C.handStyle + '|' + C.handSize + '|' + (S.handL.point?1:0) + (S.handR.point?1:0);
+  var key = C.handStyle + '|' + C.handSize + '|' + S.handL.mode + S.handR.mode
+          + '|' + S.freeL.mode + S.freeR.mode;
   if(key === lastHandKey) return;
   lastHandKey = key;
-  wrapL.innerHTML = handMarkup('cad-handL', C.handStyle, C.handSize, S.handL.point);
-  wrapR.innerHTML = handMarkup('cad-handR', C.handStyle, C.handSize, S.handR.point);
+  if(C.handStyle === 'free'){
+    wrapL.innerHTML = ''; wrapR.innerHTML = '';
+    freeL.innerHTML = handMarkup('cad-fhL', 'glove', C.handSize, S.freeL.mode);
+    freeR.innerHTML = handMarkup('cad-fhR', 'glove', C.handSize, S.freeR.mode);
+  } else {
+    freeL.innerHTML = ''; freeR.innerHTML = '';
+    wrapL.innerHTML = handMarkup('cad-handL', C.handStyle, C.handSize, S.handL.mode);
+    wrapR.innerHTML = handMarkup('cad-handR', C.handStyle, C.handSize, S.handR.mode);
+  }
+}
+
+/* fingers pointing leftward means the glove is seen from the other side, so it
+   mirrors - otherwise the thumb hangs below the hand, which reads as broken */
+function handXf(hand, extra){
+  var r = ((hand.rot % 360) + 540) % 360 - 180;
+  var flip = (r > 90 || r < -90) ? -1 : 1;
+  return 'translate(' + hand.x.toFixed(1) + ',' + hand.y.toFixed(1) + ') '
+       + 'rotate(' + hand.rot.toFixed(1) + ') '
+       + (extra ? 'scale(' + extra.toFixed(4) + ',' + (extra * flip).toFixed(4) + ')'
+                : 'scale(1,' + flip + ')');
 }
 
 function armPath(sh, hand, side){
@@ -797,8 +874,13 @@ function frame(now){
     + 'rotate(' + S.ang.toFixed(2) + ') scale(' + S.scale.toFixed(4) + ')');
 
   /* ---- hands: aim at a page point if one is set, else drift home ---- */
-  aimHand(S.handL, S.aimL, SHOULDER_L, -1, t, 0);
-  aimHand(S.handR, S.aimR, SHOULDER_R,  1, t, 1.7);
+  if(C.handStyle === 'free'){
+    freeHandStep(S.freeL, SHOULDER_L, -1, S.aimL, t, 0);
+    freeHandStep(S.freeR, SHOULDER_R,  1, S.aimR, t, 1.7);
+  } else {
+    aimHand(S.handL, S.aimL, SHOULDER_L, -1, t, 0);
+    aimHand(S.handR, S.aimR, SHOULDER_R,  1, t, 1.7);
+  }
 
   /* ---- face ---- */
   var e = EXPR[S.expr] || EXPR.neutral;
@@ -835,11 +917,16 @@ function frame(now){
 
   rebuildHands();
 
-  var showArms = C.handStyle !== 'free';
-  elArmL.setAttribute('d', showArms ? armPath(SHOULDER_L, S.handL, -1) : '');
-  elArmR.setAttribute('d', showArms ? armPath(SHOULDER_R, S.handR,  1) : '');
-  wrapL.setAttribute('transform', 'translate(' + S.handL.x.toFixed(1) + ',' + S.handL.y.toFixed(1) + ') rotate(' + S.handL.rot.toFixed(1) + ')');
-  wrapR.setAttribute('transform', 'translate(' + S.handR.x.toFixed(1) + ',' + S.handR.y.toFixed(1) + ') rotate(' + S.handR.rot.toFixed(1) + ')');
+  if(C.handStyle === 'free'){
+    elArmL.setAttribute('d', ''); elArmR.setAttribute('d', '');
+    freeL.setAttribute('transform', handXf(S.freeL, S.scale));
+    freeR.setAttribute('transform', handXf(S.freeR, S.scale));
+  } else {
+    elArmL.setAttribute('d', armPath(SHOULDER_L, S.handL, -1));
+    elArmR.setAttribute('d', armPath(SHOULDER_R, S.handR,  1));
+    wrapL.setAttribute('transform', handXf(S.handL, 0));
+    wrapR.setAttribute('transform', handXf(S.handR, 0));
+  }
 
   positionBubble(driftX, bobY);
   if(C.debug) drawDebug();
@@ -861,16 +948,47 @@ function aimHand(hand, aim, shoulder, side, t, phase){
     var len = Math.max(1, Math.hypot(dx, dy));
     var reach = Math.min(len - 14, 150);
     want = { x: shoulder.x + dx/len * reach, y: shoulder.y + dy/len * reach,
-             rot: Math.atan2(dy, dx) * 180 / Math.PI, point: true };
+             rot: Math.atan2(dy, dx) * 180 / Math.PI, mode: 'point' };
   } else {
     var sway = C.motion ? Math.sin(t * 1.4 * C.speed + phase) * 4 : 0;
-    want = { x: shoulder.x + side * 26, y: 248 + sway, rot: side * 18, point: false };
+    want = { x: shoulder.x + side * 26, y: 248 + sway, rot: 90 - side * 28, mode: 'open' };
   }
   hand.x += (want.x - hand.x) * 0.16;
   hand.y += (want.y - hand.y) * 0.16;
   var dr = ((want.rot - hand.rot + 540) % 360) - 180;
   hand.rot += dr * 0.16;
-  hand.point = want.point;
+  hand.mode = want.mode;
+}
+
+/* The detached gloves. These live in PAGE pixels, not in his body, so they can
+   leave him behind entirely - shoot off to where he is going, arrive first, and
+   wait there while he catches up. That is the whole gag, and it only works
+   because they are not parented to his transform. */
+function freeHandStep(hand, shoulder, side, aim, t, phase){
+  var want, wr, k;
+  if(S.chase){
+    want = { x: S.chase.x + side * 34, y: S.chase.y - 16 };
+    wr   = Math.atan2(S.chase.y - hand.y, S.chase.x - hand.x) * 180 / Math.PI;
+    k    = 0.31;                       /* they are much FASTER than he is     */
+    hand.mode = 'point';
+  } else if(aim){
+    var from = toPage(110, 200);
+    var a = Math.atan2(aim.y - from.y, aim.x - from.x);
+    want = { x: aim.x - Math.cos(a) * 26, y: aim.y - Math.sin(a) * 26 };
+    wr   = a * 180 / Math.PI;
+    k    = 0.18;
+    hand.mode = 'point';
+  } else {
+    var sway = C.motion ? Math.sin(t * 1.4 * C.speed + phase) * 4 : 0;
+    want = toPage(shoulder.x + side * 34, 250 + sway);
+    wr   = S.ang + 90 - side * 28;
+    k    = 0.15;
+    hand.mode = 'open';
+  }
+  hand.x += (want.x - hand.x) * k;
+  hand.y += (want.y - hand.y) * k;
+  var dr = ((wr - hand.rot + 540) % 360) - 180;
+  hand.rot += dr * 0.18;
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -952,7 +1070,7 @@ function parkSpot(){
 function goIdle(){
   var id = newSeq();
   S.driven = false; S.mode = 'idle';
-  S.aimL = S.aimR = null;
+  S.aimL = S.aimR = null; S.chase = null;
   S.expr = 'neutral';
   var h = homeSpot();
   flyTo(h.x, h.y, 0);
@@ -961,7 +1079,7 @@ function goIdle(){
 function goPark(){
   newSeq();
   S.driven = false; S.mode = 'park';
-  S.aimL = S.aimR = null;
+  S.aimL = S.aimR = null; S.chase = null;
   S.expr = 'listening';
   S.tang = 0;
   var p = parkSpot();
@@ -1125,6 +1243,47 @@ async function celebrate(tier, targetName){
   await wait(260); if(!alive(id)) return;
   S.seq--;                       /* hand the sequence to underlineEl */
   await underlineEl(targetName || 'problem');
+}
+
+/* --- the gloves go first and he chases them ---
+   Only possible in detached mode: the gloves are in page space, so they can
+   arrive somewhere he has not reached yet. He leaves 320ms after they do,
+   which is what makes it read as a chase rather than a formation flight. */
+async function chaseTo(name){
+  var id = newSeq();
+  if(C.handStyle !== 'free'){
+    C.handStyle = 'free'; $('handstyle').value = 'free'; lastHandKey = '';
+  }
+  var r = rectOf(name);
+  if(!r) return;
+  var el = document.querySelector('[data-cad="' + name + '"]');
+  if(el) el.scrollIntoView({behavior: C.motion ? 'smooth' : 'auto', block:'center'});
+  await wait(C.motion ? 340 : 30);
+  if(!alive(id)) return;
+  r = rectOf(name);
+
+  var right = (W - r.right) > 240 || C.lane;
+  var dest = {
+    x: right ? Math.min(W - 64, r.right + 86) : Math.max(64, r.left - 86),
+    y: r.top + r.height / 2 + C.height * 0.40
+  };
+
+  S.mode = 'chase'; S.expr = 'teaching'; S.driven = false;
+  S.aimL = S.aimR = null;
+  S.chase = dest;                       /* the gloves leave now              */
+  await wait(C.motion ? 430 : 20);      /* ...and he only sets off after them */
+  if(!alive(id)){ S.chase = null; return; }
+
+  S.tang = right ? -7 : 7;              /* he leans into the run             */
+  flyTo(dest.x, dest.y);
+  await settle(16);
+  if(!alive(id)){ S.chase = null; return; }
+
+  await wait(220);
+  S.chase = null;                       /* caught them                       */
+  if(!alive(id)) return;
+  S.seq--;
+  await pointAt(name, null, 2400);
 }
 
 /* --- the tour --- */
@@ -1330,6 +1489,7 @@ document.querySelectorAll('[data-do]').forEach(function(b){
     if(a === 't2')        celebrate(2);
     if(a === 't3')        celebrate(3, tgt);
     if(a === 'point')     pointAt(tgt, null, 3200);
+    if(a === 'chase')     chaseTo(tgt);
     if(a === 'underline') underlineEl(tgt);
     if(a === 'clearink')  gInk.innerHTML = '';
   });
@@ -1375,6 +1535,8 @@ $('debug').addEventListener('change', function(){
   var h = homeSpot();
   S.x = h.x + 120; S.y = h.y - 60;
   S.tx = h.x; S.ty = h.y;
+  S.freeL.x = S.x - 40; S.freeL.y = S.y - C.height * 0.36;
+  S.freeR.x = S.x + 40; S.freeR.y = S.y - C.height * 0.36;
   requestAnimationFrame(frame);
   setTimeout(function(){ tellJoke(); }, 900);
 })();

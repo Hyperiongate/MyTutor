@@ -2,6 +2,18 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD rc -- THE STAR FALLS WHEN THE CHILD SLIPS: code's own grade. Jim's
+#               ruling: a miss is ANY WRONG TAP. The prompt's new [[miss]] tag asks the
+#               model to report a mid-problem slip, but a tag is a nudge, not a
+#               guarantee (the qw lesson), so NEW answer_slip()/expected_answer_for()/
+#               child_answer_token() are the code floor: when the previous tutor turn
+#               left a question whose answer CODE CAN COMPUTE (the same qw/ra parsers --
+#               one grammar, two consumers) and the child's message is a BARE answer
+#               that disagrees, main.py's chat handler resets the today-streak without
+#               waiting for the model. Cautious by design: sentences, uncomputable asks,
+#               non-comparative words, and same-direction synonyms ("bigger" for
+#               "greater") are never slips -- a wrongly fallen star is worse than a late
+#               one. Grading accepts negative truths the repair refuses to OFFER.
 #   2026-08-31  BUILD ra -- THE LEFTOVER GETS ITS BUTTONS. Jim, live on entry/basic the
 #               same evening qw deployed: "some of the times it's missing bubbles."
 #               Measured first: referee 58's detector FIRES on every shape he saw, and
@@ -7585,6 +7597,144 @@ def repair_missing_buttons(reply: str, course: str = ""):
         print(f"[buttonrepair] crashed (fail open): {exc}")
         _event("referee_crash", "buttonrepair", str(exc))
         return str(reply or ""), "", ""
+
+
+# =============================================================================
+# BUILD rc (2026-08-31) -- THE STAR FALLS WHEN THE CHILD SLIPS: CODE'S OWN GRADE.
+# -----------------------------------------------------------------------------
+# Jim's ruling: a miss is ANY WRONG TAP -- the first wrong answer resets today's
+# correct-in-a-row streak to 0, even when the problem keeps going and the child
+# recovers on the re-ask. The prompt's [[miss]] tag asks the MODEL to report the
+# slip, but a model tag is a nudge, not a guarantee (the whole qw lesson). This is
+# the code floor under it: the live lane's server holds the conversation, so when
+# the previous tutor turn left a question whose answer CODE CAN COMPUTE (the same
+# qw/ra parsers -- one grammar, two consumers) and the child's message is a BARE
+# answer that does not match, the slip is proven and the streak is reset without
+# waiting for the model to say so.
+#
+# ⚠️ COMPUTED, NEVER GUESSED -- in the cautious direction. A wrongly fallen star
+# punishes a child for a slip they did not make, so everything uncertain is NOT a
+# slip: a message that is a sentence rather than a bare answer; an ask whose
+# answer code cannot compute; a word answer that is not a comparative at all; two
+# comparatives that mean the same direction ("bigger" vs "greater"). The model's
+# [[miss]] covers what code cannot prove; code covers what the model forgets.
+_RC_BARE_RE = re.compile(r"^[\s\.\!\?]*([A-Za-z]+|-?\d{1,4})[\s\.\!\?]*$")
+_RC_BIG = {"bigger", "biggest", "larger", "largest", "greater", "greatest", "more"}
+_RC_SMALL = {"smaller", "smallest", "less", "least", "fewer"}
+
+
+def _rc_word_dir(w):
+    """A comparative word's direction: ">" or "<", or None for any other word."""
+    t = str(w or "").strip().lower()
+    return ">" if t in _RC_BIG else ("<" if t in _RC_SMALL else None)
+
+
+def child_answer_token(message):
+    """The child's message AS A BARE ANSWER: an int, a lowercase word, or None.
+    A sentence is a conversation, not a tap -- only a single token is graded."""
+    m = _RC_BARE_RE.match(str(message or ""))
+    if not m:
+        return None
+    t = m.group(1).strip().lower()
+    if re.fullmatch(r"-?\d{1,4}", t):
+        return int(t)
+    n = _rb_num2(t)
+    return n if n is not None else t
+
+
+def expected_answer_for(reply):
+    """The COMPUTED answer to the question `reply` left pending: an int for numeric
+    asks, a lowercase comparative word for either-or relation asks, or None when
+    code cannot know it. Reuses the qw/ra parsers verbatim -- ONE grammar. Never
+    raises (fail open: None)."""
+    try:
+        text = str(reply or "")
+        # 1. the last pending board equation (qw's own parse, grading flavour --
+        #    negatives are a fine TRUTH to grade against even though the repair
+        #    refuses to OFFER them; uneven division stays unknowable)
+        a = b = op = None
+        for attrs in _SUB_EQ_TAGS.findall(text):
+            for val in re.findall(r'"([^"]*)"', attrs):
+                m = _RB_EQ_RE.match(val)
+                if m:
+                    a, op, b = int(m.group(1)), _RB_OPS.get(m.group(2)), int(m.group(3))
+        if a is not None and b is not None and op is not None:
+            if op == "+":
+                return a + b
+            if op == "-":
+                return a - b
+            if op == "*":
+                return a * b
+            return a // b if b and a % b == 0 else None
+        # 2. the reply's FINAL spoken ask (ra's discipline: the pending question is
+        #    the one the reply ends on)
+        ask = _rb_final_ask(text)
+        if not ask:
+            return None
+        pm = None
+        for pm in _RB_PROSE_RE.finditer(ask):
+            pass
+        if pm:
+            x, y = _rb_num(pm.group(1)), _rb_num(pm.group(3))
+            o = _RB_PROSE_OPS.get(" ".join(pm.group(2).lower().split()))
+            if x is not None and y is not None and o:
+                if o == "+":
+                    return x + y
+                if o == "-":
+                    return x - y
+                if o == "*":
+                    return x * y
+                return x // y if y and x % y == 0 else None
+        m = _RB_ONE_RE.search(ask)
+        if m:
+            n = _rb_num2(m.group(2))
+            if n is not None:
+                return n + 1 if m.group(1).lower() == "more" else n - 1
+        m = _RB_SEQ_RE.search(ask)
+        if m:
+            n = _rb_num2(m.group(2))
+            if n is not None:
+                return n + 1 if m.group(1).lower() == "after" else n - 1
+        m = _RB_CMP_RE.search(ask)
+        if m:
+            x, y = _rb_num2(m.group(1)), _rb_num2(m.group(2))
+            w = re.search(_RB_CMP_WORDS, ask, re.I)
+            d = _rc_word_dir(w.group(0)) if w else None
+            if x is not None and y is not None and x != y and d:
+                return max(x, y) if d == ">" else min(x, y)
+        m = _RB_GL_RE.search(ask)
+        if m:
+            x, y = _rb_num2(m.group(1)), _rb_num2(m.group(4))
+            d1, d2 = _rc_word_dir(m.group(2)), _rc_word_dir(m.group(3))
+            if x is not None and y is not None and x != y and d1 and d2 and d1 != d2:
+                truth = ">" if x > y else "<"
+                return m.group(2).lower() if d1 == truth else m.group(3).lower()
+        return None
+    except Exception as exc:  # noqa: BLE001 -- grading must never cost a turn
+        print(f"[slipgrade] crashed (fail open): {exc}")
+        _event("referee_crash", "slipgrade", str(exc))
+        return None
+
+
+def answer_slip(prev_reply, message):
+    """True ONLY when code itself can PROVE the child's bare answer wrong: the
+    previous reply's pending ask has a computable answer, the message is a bare
+    answer of the same kind, and they disagree. Everything uncertain is False --
+    a wrongly fallen star is worse than a late one. Never raises."""
+    try:
+        exp = expected_answer_for(prev_reply)
+        if exp is None:
+            return False
+        got = child_answer_token(message)
+        if got is None:
+            return False
+        if isinstance(exp, int):
+            return isinstance(got, int) and got != exp
+        # a word answer: grade by DIRECTION, so "bigger" for "greater" never slips
+        gd = _rc_word_dir(got) if isinstance(got, str) else None
+        return gd is not None and gd != _rc_word_dir(exp)
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def spoken_time_collision_conflict(reply: str):

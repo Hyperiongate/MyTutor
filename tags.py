@@ -2,6 +2,11 @@
 # tags.py  --  THE TAG GRAMMAR, ONE COPY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD rc -- [[miss]] joins TAG_INLINE, attribute-free: the mirror of
+#               [[nice]]. The student answered the CURRENT problem wrong (it may keep
+#               going); the page posts it and the today-streak resets to 0 on the spot
+#               (Jim's 2026-08-31 ruling: a miss is ANY wrong tap). Never a replacement
+#               for [[mark]] -- a FINISHED missed problem stays [[mark correct="0"]].
 #   2026-08-27  BUILD ot -- THE FIGURE SHELF GROWS: six new figure tags join
 #               FIGURE_TAGS. geo-figures.js: transversal (parallel lines cut by
 #               a transversal -- the crossed-lines picture), polygon (regular
@@ -112,6 +117,12 @@ TAG_INLINE = {
     # build et: [[nice]] is attribute-free -- a correct answer along the way, no
     # tally, no server call, just the quiet ring.
     "nice": set(),
+    # build rc (2026-08-31): [[miss]] is attribute-free and draws NOTHING -- the
+    # mirror of [[nice]]. The student just answered the CURRENT problem wrong (the
+    # problem may keep going); the page tells the server, and the today-streak
+    # resets to 0 the moment they slip (Jim's ruling: a miss is ANY wrong tap).
+    # It never replaces [[mark]] -- a FINISHED missed problem is [[mark correct="0"]].
+    "miss": set(),
     # build ey: [[bye]] is attribute-free and draws NOTHING. It is the session's
     # wrap-up mark (rule 29a) -- the only mechanical end-of-session signal there has
     # ever been -- and its whole effect is to queue the goodbye moment clip.

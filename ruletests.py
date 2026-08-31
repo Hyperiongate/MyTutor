@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD rc -- PART 3hd: the star falls when the child slips. Jim's ruling: a
+#               miss is ANY WRONG TAP -- watched live, a deliberate miss carried no tag,
+#               nothing fired, and the streak climbed straight through. Three doors, each
+#               pinned: the prompt's new [[miss]] tag (mirror of [[nice]], REQUIRED, all
+#               copies); the pages post {miss:1} and /api/mark's new branch resets via
+#               store.reset_today_streak (today-streak ONLY -- counters and accuracy
+#               untouched, proven end-to-end in _RC_SLIP against real endpoints and a
+#               throwaway DB); and the CODE FLOOR, tutor.answer_slip in the chat handler,
+#               grading bare answers against computable pending asks (the qw/ra parsers,
+#               one grammar) -- cautious in the cautious direction: sentences,
+#               uncomputable asks and same-direction synonyms are never slips.
 #   2026-08-31  BUILD rb -- PART 3hc: the chip says what it counts. Jim on the qz streak
 #               chips, live: "there's nothing that says what those are." The classroom
 #               pills explained themselves only in hover tooltips -- a child never hovers,
@@ -11002,6 +11013,206 @@ def part3hc_the_chip_says_what_it_counts():
           'id="streakChips" hidden' in sess, "PART 3ha's own pin, re-affirmed here")
 
 
+_RC_SLIP = r"""import os, sys
+d = sys.argv[1]
+os.environ["DATABASE_URL"] = "sqlite:///" + d + "/rc.db"
+os.environ["DATA_DIR"] = d
+os.environ["WEEKLY_EMAIL"] = "off"
+os.environ["NIGHTWATCH"] = "off"
+os.environ["FORUM_MOD_KEY"] = "TESTKEY"
+os.environ["ELEVENLABS_API_KEY"] = "pretend-there-is-a-key"
+sys.path.insert(0, sys.argv[2])
+import main, store
+from fastapi.testclient import TestClient
+
+c = TestClient(main.app)
+ok = True
+def chk(label, cond, extra=""):
+    global ok
+    print(("PASS " if cond else "FAIL ") + label, extra if not cond else "")
+    if not cond: ok = False
+
+CODE = "1234"   # Alex, a real persona in students.json
+
+# ---- build a streak, then a MISS drops it to 0 through the real endpoint ----
+c.post("/api/mark/" + CODE, json={"correct": 1, "attempted": 1})
+r2 = c.post("/api/mark/" + CODE, json={"correct": 1, "attempted": 1}).json()
+chk("two corrects: today_streak is 2", r2.get("today_streak") == 2, r2)
+stats_before = store.get_mastery(CODE, "algebra1")["stats"]
+rm = c.post("/api/mark/" + CODE, json={"miss": 1}).json()
+chk("*** a {miss:1} POST resets today_streak to 0 on the spot", rm.get("today_streak") == 0, rm)
+chk("  ...and the day streak stands (a slipping child is a working child)",
+    rm.get("streak_days") == stats_before["streak_days"], rm)
+stats_after = store.get_mastery(CODE, "algebra1")["stats"]
+chk("*** the miss touches NO counters: problems_practiced unchanged",
+    stats_after["problems_practiced"] == stats_before["problems_practiced"],
+    (stats_before, stats_after))
+chk("  ...and accuracy unchanged (a slip is not a finished problem)",
+    stats_after["accuracy_pct"] == stats_before["accuracy_pct"],
+    (stats_before, stats_after))
+
+# ---- idempotent, and the next correct starts a NEW run at 1 ----
+rm2 = c.post("/api/mark/" + CODE, json={"miss": 1}).json()
+chk("a second miss is still 0 (idempotent, no error)", rm2.get("today_streak") == 0, rm2)
+r4 = c.post("/api/mark/" + CODE, json={"correct": 1, "attempted": 1}).json()
+chk("the next correct starts fresh at 1 (the slip cost the run, not the day)",
+    r4.get("today_streak") == 1, r4)
+
+# ---- the store wrapper's own return shape, direct ----
+f = store.reset_today_streak(CODE)
+chk("store.reset_today_streak returns the fresh pair, record_practice's shape",
+    f.get("today_streak") == 0 and "streak_days" in f, f)
+
+print("ALL OK" if ok else "DONE")
+sys.exit(0 if ok else 1)
+"""
+
+
+def part3hd_the_star_falls_when_the_child_slips():
+    """PART 3hd (build rc, 2026-08-31) -- THE STAR FALLS WHEN THE CHILD SLIPS.
+
+    Jim's ruling, 2026-08-31, made with the live finding in front of him: A MISS IS
+    ANY WRONG TAP. The first wrong answer resets today's correct-in-a-row streak to
+    0, even when the child recovers on the re-ask. Watched live the same evening:
+    a deliberate miss produced NO tag at all (under the old contract the problem was
+    "still going"), no /api/mark call fired, the DB stood at 4, and the next correct
+    climbed to 5 straight through the slip.
+
+    ⭐ THREE DOORS CLOSE IT, AND EACH IS PINNED:
+      1. The PROMPT's new [[miss]] tag -- the mirror of [[nice]], REQUIRED the
+         moment a reply says the answer was wrong -- in EVERY prompt copy.
+      2. The PAGES post it ({miss:1}) and /api/mark's new branch resets the streak
+         through store.reset_today_streak: today-streak ONLY, no counters, no
+         finished problem, accuracy untouched (proven end-to-end below against the
+         real endpoints and a throwaway database).
+      3. THE CODE FLOOR: the chat handler grades the child's BARE answer against
+         the previous turn's computable pending ask (tutor.answer_slip -- the qw/ra
+         parsers, ONE grammar) and resets without waiting for the model. A model
+         tag is a nudge, never a guarantee -- the qw lesson, applied to itself.
+
+    ⚠️ CAUTIOUS IN THE CAUTIOUS DIRECTION. A wrongly fallen star punishes a child
+    for a slip they did not make, so everything uncertain is NOT a slip: sentences,
+    uncomputable asks, non-comparative word answers, same-direction synonyms
+    ("bigger" for "greater"). Grading accepts negative TRUTHS (4 − 6 = −2) that the
+    ra repair rightly refuses to OFFER as buttons -- different jobs, different laws.
+    """
+    print("\nPART 3hd — the star falls when the child slips (build rc)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import tutor as _tt
+
+    # ---- the code floor: answer_slip grades what code can PROVE ---------------
+    A = _tt.answer_slip
+    check("⭐ a wrong bare answer to a computable board eq IS a slip",
+          A('[[step eq="4 + 3 = ?"]] What is four plus three?', "6") is True, "")
+    check("  ...and the right answer is not",
+          A('[[step eq="4 + 3 = ?"]] What is four plus three?', "7") is False, "")
+    check("⭐ the watch's own shape: 'one more than five' answered 4 is a slip",
+          A("We hop forward. What is one more than five?", "4") is True, "")
+    check("  a number WORD answer grades the same ('six' is 6)",
+          A("What is one more than five?", "six") is False
+          and A("What is one more than five?", "four") is True, "")
+    check("  a comparison ask graded by its own pair (7-or-4, tapped 4: slip)",
+          A("Which number is bigger, seven or four?", "4") is True
+          and A("Which number is bigger, seven or four?", "7") is False, "")
+    check("  an either-or relation ask graded by DIRECTION",
+          A("Is nine greater than or less than three?", "less") is True
+          and A("Is nine greater than or less than three?", "greater") is False, "")
+    check("⭐ a same-direction synonym is NEVER a slip ('bigger' for 'greater')",
+          A("Is nine greater than or less than three?", "bigger") is False,
+          "a wrongly fallen star punishes a child for a slip they did not make")
+    check("⭐ a sentence is a conversation, not a tap -- never a slip",
+          A('[[step eq="4 + 3 = ?"]] What is it?', "I don't know, can you help?") is False, "")
+    check("  an uncomputable ask is never a slip (code refuses to guess)",
+          A("How many stars do you see?", "5") is False, "")
+    check("  a negative TRUTH is graded even though no button row would offer it",
+          A('[[step eq="4 − 6 = ?"]] What is 4 minus 6?', "2") is True, "")
+    check("  a stray word against a word ask is not a slip",
+          A("Is nine greater than or less than three?", "banana") is False, "")
+    check("  never raises", A(None, None) is False and A(123, 456) is False, "")
+    T = _tt.child_answer_token
+    check("  child_answer_token: digits, words, comparatives; sentences are None",
+          T("4") == 4 and T(" six! ") == 6 and T("greater") == "greater"
+          and T("I think 4") is None and T("") is None, "")
+
+    # ---- the grammar: [[miss]] is registered, attribute-free ------------------
+    import tags as _tags
+    check("⭐ tags.py registers [[miss]] in TAG_INLINE, attribute-free (the one "
+          "grammar source)", _tags.TAG_INLINE.get("miss") == set(), "")
+
+    # ---- the prompt: REQUIRED, everywhere, and the intro counts three ---------
+    pr = open(os.path.join(here, "prompts.py"), encoding="utf-8").read()
+    check("⭐ every hidden-tags block teaches [[miss]] (all 10 copies)",
+          pr.count('[[miss]]               (they just answered') == 10,
+          pr.count('[[miss]]               (they just answered'))
+    check("  ...with its REQUIRED mirror-of-[[nice]] paragraph (all 9 copies)",
+          pr.count("[[miss]] is the mirror of [[nice]]") == 9, "")
+    check("  ...and the intro now counts THREE hidden tags, nowhere still two",
+          pr.count("Three hidden tags record") == 9
+          and "Two hidden tags record" not in pr, "")
+    check("  never with [[nice]], never on a finished problem",
+          pr.count("Never [[miss]] and [[nice]]") >= 9
+          and pr.count("a finished miss is") >= 9, "")
+
+    # ---- the pages: all three live-lane pages post the slip -------------------
+    for page in ("session.html", "topic.html", "practice.html"):
+        src = code_only(open(os.path.join(here, "static", page), encoding="utf-8").read())
+        check(f"⭐ {page} handles [[miss]] and posts miss: 1",
+              'name === "miss"' in src and "{ miss: 1 }" in src, "")
+    sess = code_only(open(os.path.join(here, "static", "session.html"), encoding="utf-8").read())
+    seg = sess.split('name === "miss"', 1)[1][:400]
+    check("  session.html feeds the SERVER's fresh numbers into the chips on a miss "
+          "(the child watches the star fall)", "renderStreakChips" in seg, "")
+
+    # ---- main.py: the miss branch and the code floor, wired -------------------
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("⭐ MarkIn carries the miss field", "miss: int = 0" in msrc, "")
+    mark_body = msrc.split("def post_mark(", 1)[1].split("\ndef ", 1)[0]
+    check("⭐ /api/mark's miss branch calls reset_today_streak, never record_practice",
+          "if int(body.miss or 0):" in mark_body
+          and "store.reset_today_streak(code)" in mark_body, "")
+    chat_body = msrc.split("def chat(", 1)[1].split("\ndef ", 1)[0]
+    i_hist = chat_body.find('history = session.get("history", [])')
+    i_slip = chat_body.find("tutor.answer_slip(")
+    i_reset = chat_body.find("store.reset_today_streak(code)")
+    check("⭐ the code floor sits in the chat handler, after the history read "
+          "(boundary-split source pin, the qz law)",
+          0 <= i_hist < i_slip and i_slip < i_reset, (i_hist, i_slip, i_reset))
+
+    # ---- store.py: the wrapper touches NO counters ----------------------------
+    ssrc = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    reset_body = ssrc.split("def reset_today_streak(", 1)[1].split("\ndef ", 1)[0]
+    check("⭐ reset_today_streak rides the SAME atomic upsert, today_of=(0, 1), and "
+          "passes no counter at all",
+          "_bump_stats(code, today_of=(0, 1))" in reset_body
+          and "problems=" not in reset_body and "correct=" not in reset_body
+          and "attempted=" not in reset_body,
+          "blending a slip into the finished-problem counters would change what "
+          "'accuracy' means without Jim asking")
+
+    # ---- the live drive: real endpoints, a real (throwaway) database ----------
+    try:
+        import sqlalchemy  # noqa: F401
+        import fastapi  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("the slip live drive", "sqlalchemy/fastapi not installed here")
+    else:
+        import tempfile as _tf
+        with _tf.TemporaryDirectory() as td:
+            script = os.path.join(td, "rcslip.py")
+            with open(script, "w", encoding="utf-8") as fh:
+                fh.write(_RC_SLIP)
+            res = subprocess.run([sys.executable, script, td, here],
+                                 capture_output=True, text=True, timeout=600)
+            out = res.stdout or ""
+            for line in out.splitlines():
+                if line.startswith("FAIL"):
+                    bad("the slip: " + line[5:140], "")
+            check("the slip live drive ends ALL OK "
+                  f"({out.count('PASS ')} client-level checks)",
+                  res.returncode == 0 and "ALL OK" in out,
+                  (res.stderr or out)[-500:])
+
+
 def part3dn_every_verdict_is_counted():
     """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
 
@@ -19895,7 +20106,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,897</b>" in page,
+          "<b>7,924</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -28467,6 +28678,7 @@ def main():
     part3ha_a_streak_a_child_can_see_today()
     part3hb_the_leftover_gets_its_buttons()
     part3hc_the_chip_says_what_it_counts()
+    part3hd_the_star_falls_when_the_child_slips()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

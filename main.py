@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  APP_BUILD -> "2026-08-31rc-the-star-falls-when-the-child-slips". BUILD rc --
+#               Jim's ruling: a miss is ANY WRONG TAP. Until now only a FINISHED problem
+#               moved the today-streak, so a wrong tap inside a still-going problem left
+#               the star standing (watched live on 2026-08-31: miss -> no tag -> streak
+#               climbed straight through). THREE doors close it: ① the prompt's new
+#               [[miss]] tag -> the page posts {miss:1} -> /api/mark's new miss branch ->
+#               store.reset_today_streak (today-streak only; NO counters, NO finished
+#               problem, accuracy untouched). ② the CODE FLOOR: the chat handler now
+#               grades the child's bare answer against the previous turn's computable
+#               pending ask (tutor.answer_slip -- the qw/ra parsers, one grammar) and
+#               resets without waiting for the model; cautious by design, anything
+#               uncertain is not a slip. ③ tags.py registers [[miss]] (attribute-free).
+#               Scripted-lane per-answer streaks are a SEPARATE measured gap (build rd
+#               candidate): /api/script/answer moves no streak at all, either direction.
 #   2026-08-31  APP_BUILD -> "2026-08-31rb-the-chip-says-what-it-counts". BUILD rb -- Jim on
 #               the qz streak chips: "there's nothing that says what those are." The
 #               classroom pills' only explanation was a hover tooltip; each now carries a
@@ -6853,6 +6867,9 @@ class MarkIn(BaseModel):
     attempted: int = 1         # how many problems this represents (usually 1)
     highest_tier: int = 0
     strengths: list = []
+    # (rc, 2026-08-31) 1 = a wrong tap on the CURRENT, still-going problem (the
+    # [[miss]] tag). Resets the today-streak only -- no counters, no finished problem.
+    miss: int = 0
 
 
 # ---- App -------------------------------------------------------------------
@@ -13052,7 +13069,12 @@ def post_mark(body: MarkIn, code: str = Depends(_code_dep)):
     if not store.enabled():
         return {"ok": False, "tracking": False}
     try:
-        fresh = store.record_practice(code, int(body.correct), int(body.attempted))
+        # (rc) a [[miss]] is a wrong tap on a STILL-GOING problem: the today-streak
+        # falls, nothing else moves -- no finished problem, no counters, no accuracy.
+        if int(body.miss or 0):
+            fresh = store.reset_today_streak(code)
+        else:
+            fresh = store.record_practice(code, int(body.correct), int(body.attempted))
         return {"ok": True, "tracking": True,
                "today_streak": fresh.get("today_streak", 0),
                "streak_days": fresh.get("streak_days", 0)}
@@ -13079,7 +13101,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-31rb-the-chip-says-what-it-counts"
+APP_BUILD = "2026-08-31rc-the-star-falls-when-the-child-slips"
 
 
 @app.get("/health")
@@ -14046,6 +14068,25 @@ def chat(req: ChatRequest):
 
     session = get_session(code, req.course)
     history = session.get("history", [])
+
+    # (rc, 2026-08-31) THE STAR FALLS WHEN THE CHILD SLIPS -- code's own grade, the
+    # floor under the prompt's [[miss]] tag (a model tag is a nudge, never a
+    # guarantee -- the qw lesson). The server holds this conversation, so when the
+    # previous tutor turn left a question whose answer code can COMPUTE (the qw/ra
+    # parsers, one grammar) and the child's message is a BARE answer that disagrees,
+    # the today-streak resets right here, whether or not the model remembers to say
+    # [[miss]]. Cautious on purpose: anything uncertain is not a slip (see
+    # tutor.answer_slip), because a wrongly fallen star is worse than a late one.
+    # A reset is idempotent, so code and the model both reporting one slip is free.
+    try:
+        if store.enabled():
+            _prev = next((m.get("content", "") for m in reversed(history)
+                          if isinstance(m, dict) and m.get("role") == "assistant"), "")
+            if _prev and tutor.answer_slip(_prev, message):
+                store.reset_today_streak(code)
+                print("[slip] a computable ask answered wrong -- today-streak reset")
+    except Exception as exc:  # noqa: BLE001 -- the guard must never cost a turn
+        print(f"[slip] guard failed open: {exc}")
 
     # Give the tutor the student's remembered progress plus the live history.
     student_context = dict(student)

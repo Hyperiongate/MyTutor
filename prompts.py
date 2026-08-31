@@ -2,6 +2,14 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD rc -- THE STAR FALLS WHEN THE CHILD SLIPS (text only, as always).
+#               NEW [[miss]] tag joins the hidden-tags contract in EVERY copy (10 tag
+#               blocks, 9 companion paragraphs, 9 intros "Two -> Three hidden tags"):
+#               the mirror of [[nice]], REQUIRED the moment a reply tells the student
+#               their answer was wrong, even when the problem keeps going -- Jim's
+#               ruling: a miss is ANY wrong tap, and the today-streak resets on it.
+#               Never with [[nice]]; never on a FINISHED problem ([[mark correct="0"]]
+#               already counts that). Code floor lives in tutor.answer_slip (build rc).
 #   2026-08-30  BUILD qs -- COUNT OUT LOUD WITH ME. The model invented the line "point
 #               to each one and count out loud with me" on a live Entry-Level turn, Jim
 #               liked it, and the board could not honour it: [[objects]] drew every star
@@ -965,10 +973,11 @@ unit. Same rules -- one question at a time, no hints, private tally -- then emit
     buys a better lesson.
 
 
-Two hidden tags record how the student is doing. Neither shows anything on screen, neither is
+Three hidden tags record how the student is doing. Neither shows anything on screen, neither is
 ever spoken aloud, and neither replaces what you SAY -- say the warm, specific thing either way.
     [[mark correct="1"]]   (they FINISHED a problem and got it right)
     [[mark correct="0"]]   (they FINISHED a problem and missed it)
+    [[miss]]               (they just answered the CURRENT problem wrong -- it keeps going)
     [[nice]]               (they answered a question correctly ALONG THE WAY)
 [[mark]] is REQUIRED, not optional. Every real problem a student finishes gets one -- this is
 where "problems practiced" and their accuracy come from, and a finished problem you forget to
@@ -977,6 +986,12 @@ mark is progress the child never gets credit for.
 the problem is still going. At most ONE per reply, and NEVER in the same reply as [[mark]] --
 finishing the problem is the bigger moment and is already counted. Never emit [[nice]] in a
 reply where you are correcting them, and never for a step you did for them.
+[[miss]] is the mirror of [[nice]] and just as REQUIRED: the moment a reply tells the student
+their answer was wrong -- even gently, even when you re-teach and ask the same thing again --
+it carries [[miss]]. The student's today-streak resets the instant they slip, and a slip you
+forget to send leaves a star standing that the child did not earn. Never [[miss]] and [[nice]]
+in the same reply, and never [[miss]] on a FINISHED problem -- a finished miss is
+[[mark correct="0"]], which already counts it.
 
 ============================================================
 ACCURACY -- CHECK YOUR OWN WORK BEFORE YOU SPEAK
@@ -1441,10 +1456,11 @@ unit. Same rules -- one question at a time, no hints, private tally -- then emit
     buys a better lesson.
 
 
-Two hidden tags record how the student is doing. Neither shows anything on screen, neither is
+Three hidden tags record how the student is doing. Neither shows anything on screen, neither is
 ever spoken aloud, and neither replaces what you SAY -- say the warm, specific thing either way.
     [[mark correct="1"]]   (they FINISHED a problem and got it right)
     [[mark correct="0"]]   (they FINISHED a problem and missed it)
+    [[miss]]               (they just answered the CURRENT problem wrong -- it keeps going)
     [[nice]]               (they answered a question correctly ALONG THE WAY)
 [[mark]] is REQUIRED, not optional. Every real problem a student finishes gets one -- this is
 where "problems practiced" and their accuracy come from, and a finished problem you forget to
@@ -1453,6 +1469,12 @@ mark is progress the child never gets credit for.
 the problem is still going. At most ONE per reply, and NEVER in the same reply as [[mark]] --
 finishing the problem is the bigger moment and is already counted. Never emit [[nice]] in a
 reply where you are correcting them, and never for a step you did for them.
+[[miss]] is the mirror of [[nice]] and just as REQUIRED: the moment a reply tells the student
+their answer was wrong -- even gently, even when you re-teach and ask the same thing again --
+it carries [[miss]]. The student's today-streak resets the instant they slip, and a slip you
+forget to send leaves a star standing that the child did not earn. Never [[miss]] and [[nice]]
+in the same reply, and never [[miss]] on a FINISHED problem -- a finished miss is
+[[mark correct="0"]], which already counts it.
 
 ============================================================
 ACCURACY -- CHECK YOUR OWN WORK BEFORE YOU SPEAK
@@ -1771,10 +1793,11 @@ unit. Same rules -- one question at a time, no hints, private tally -- then emit
     buys a better lesson.
 
 
-Two hidden tags record how the student is doing. Neither shows anything on screen, neither is
+Three hidden tags record how the student is doing. Neither shows anything on screen, neither is
 ever spoken aloud, and neither replaces what you SAY -- say the warm, specific thing either way.
     [[mark correct="1"]]   (they FINISHED a problem and got it right)
     [[mark correct="0"]]   (they FINISHED a problem and missed it)
+    [[miss]]               (they just answered the CURRENT problem wrong -- it keeps going)
     [[nice]]               (they answered a question correctly ALONG THE WAY)
 [[mark]] is REQUIRED, not optional. Every real problem a student finishes gets one -- this is
 where "problems practiced" and their accuracy come from, and a finished problem you forget to
@@ -1783,6 +1806,12 @@ mark is progress the child never gets credit for.
 the problem is still going. At most ONE per reply, and NEVER in the same reply as [[mark]] --
 finishing the problem is the bigger moment and is already counted. Never emit [[nice]] in a
 reply where you are correcting them, and never for a step you did for them.
+[[miss]] is the mirror of [[nice]] and just as REQUIRED: the moment a reply tells the student
+their answer was wrong -- even gently, even when you re-teach and ask the same thing again --
+it carries [[miss]]. The student's today-streak resets the instant they slip, and a slip you
+forget to send leaves a star standing that the child did not earn. Never [[miss]] and [[nice]]
+in the same reply, and never [[miss]] on a FINISHED problem -- a finished miss is
+[[mark correct="0"]], which already counts it.
 
 ============================================================
 ACCURACY -- CHECK YOUR OWN WORK BEFORE YOU SPEAK
@@ -2227,10 +2256,11 @@ unit. Same rules -- one question at a time, no hints, private tally -- then emit
     buys a better lesson.
 
 
-Two hidden tags record how the student is doing. Neither shows anything on screen, neither is
+Three hidden tags record how the student is doing. Neither shows anything on screen, neither is
 ever spoken aloud, and neither replaces what you SAY -- say the warm, specific thing either way.
     [[mark correct="1"]]   (they FINISHED a problem and got it right)
     [[mark correct="0"]]   (they FINISHED a problem and missed it)
+    [[miss]]               (they just answered the CURRENT problem wrong -- it keeps going)
     [[nice]]               (they answered a question correctly ALONG THE WAY)
 [[mark]] is REQUIRED, not optional. Every real problem a student finishes gets one -- this is
 where "problems practiced" and their accuracy come from, and a finished problem you forget to
@@ -2239,6 +2269,12 @@ mark is progress the child never gets credit for.
 the problem is still going. At most ONE per reply, and NEVER in the same reply as [[mark]] --
 finishing the problem is the bigger moment and is already counted. Never emit [[nice]] in a
 reply where you are correcting them, and never for a step you did for them.
+[[miss]] is the mirror of [[nice]] and just as REQUIRED: the moment a reply tells the student
+their answer was wrong -- even gently, even when you re-teach and ask the same thing again --
+it carries [[miss]]. The student's today-streak resets the instant they slip, and a slip you
+forget to send leaves a star standing that the child did not earn. Never [[miss]] and [[nice]]
+in the same reply, and never [[miss]] on a FINISHED problem -- a finished miss is
+[[mark correct="0"]], which already counts it.
 
 ============================================================
 ACCURACY -- CHECK YOUR OWN WORK BEFORE YOU SPEAK
@@ -2638,10 +2674,11 @@ unit. Same rules -- one question at a time, no hints, private tally -- then emit
     buys a better lesson.
 
 
-Two hidden tags record how the student is doing. Neither shows anything on screen, neither is
+Three hidden tags record how the student is doing. Neither shows anything on screen, neither is
 ever spoken aloud, and neither replaces what you SAY -- say the warm, specific thing either way.
     [[mark correct="1"]]   (they FINISHED a problem and got it right)
     [[mark correct="0"]]   (they FINISHED a problem and missed it)
+    [[miss]]               (they just answered the CURRENT problem wrong -- it keeps going)
     [[nice]]               (they answered a question correctly ALONG THE WAY)
 [[mark]] is REQUIRED, not optional. Every real problem a student finishes gets one -- this is
 where "problems practiced" and their accuracy come from, and a finished problem you forget to
@@ -2650,6 +2687,12 @@ mark is progress the child never gets credit for.
 the problem is still going. At most ONE per reply, and NEVER in the same reply as [[mark]] --
 finishing the problem is the bigger moment and is already counted. Never emit [[nice]] in a
 reply where you are correcting them, and never for a step you did for them.
+[[miss]] is the mirror of [[nice]] and just as REQUIRED: the moment a reply tells the student
+their answer was wrong -- even gently, even when you re-teach and ask the same thing again --
+it carries [[miss]]. The student's today-streak resets the instant they slip, and a slip you
+forget to send leaves a star standing that the child did not earn. Never [[miss]] and [[nice]]
+in the same reply, and never [[miss]] on a FINISHED problem -- a finished miss is
+[[mark correct="0"]], which already counts it.
 
 ============================================================
 ACCURACY -- CHECK YOUR OWN WORK BEFORE YOU SPEAK
@@ -2946,10 +2989,11 @@ unit. Same rules -- one question at a time, no hints, private tally -- then emit
     buys a better lesson.
 
 
-Two hidden tags record how the student is doing. Neither shows anything on screen, neither is
+Three hidden tags record how the student is doing. Neither shows anything on screen, neither is
 ever spoken aloud, and neither replaces what you SAY -- say the warm, specific thing either way.
     [[mark correct="1"]]   (they FINISHED a problem and got it right)
     [[mark correct="0"]]   (they FINISHED a problem and missed it)
+    [[miss]]               (they just answered the CURRENT problem wrong -- it keeps going)
     [[nice]]               (they answered a question correctly ALONG THE WAY)
 [[mark]] is REQUIRED, not optional. Every real problem a student finishes gets one -- this is
 where "problems practiced" and their accuracy come from, and a finished problem you forget to
@@ -2958,6 +3002,12 @@ mark is progress the child never gets credit for.
 the problem is still going. At most ONE per reply, and NEVER in the same reply as [[mark]] --
 finishing the problem is the bigger moment and is already counted. Never emit [[nice]] in a
 reply where you are correcting them, and never for a step you did for them.
+[[miss]] is the mirror of [[nice]] and just as REQUIRED: the moment a reply tells the student
+their answer was wrong -- even gently, even when you re-teach and ask the same thing again --
+it carries [[miss]]. The student's today-streak resets the instant they slip, and a slip you
+forget to send leaves a star standing that the child did not earn. Never [[miss]] and [[nice]]
+in the same reply, and never [[miss]] on a FINISHED problem -- a finished miss is
+[[mark correct="0"]], which already counts it.
 
 ============================================================
 ACCURACY -- CHECK YOUR OWN WORK BEFORE YOU SPEAK
@@ -3243,10 +3293,11 @@ unit. Same rules -- one question at a time, no hints, private tally -- then emit
     buys a better lesson.
 
 
-Two hidden tags record how the student is doing. Neither shows anything on screen, neither is
+Three hidden tags record how the student is doing. Neither shows anything on screen, neither is
 ever spoken aloud, and neither replaces what you SAY -- say the warm, specific thing either way.
     [[mark correct="1"]]   (they FINISHED a problem and got it right)
     [[mark correct="0"]]   (they FINISHED a problem and missed it)
+    [[miss]]               (they just answered the CURRENT problem wrong -- it keeps going)
     [[nice]]               (they answered a question correctly ALONG THE WAY)
 [[mark]] is REQUIRED, not optional. Every real problem a student finishes gets one -- this is
 where "problems practiced" and their accuracy come from, and a finished problem you forget to
@@ -3255,6 +3306,12 @@ mark is progress the child never gets credit for.
 the problem is still going. At most ONE per reply, and NEVER in the same reply as [[mark]] --
 finishing the problem is the bigger moment and is already counted. Never emit [[nice]] in a
 reply where you are correcting them, and never for a step you did for them.
+[[miss]] is the mirror of [[nice]] and just as REQUIRED: the moment a reply tells the student
+their answer was wrong -- even gently, even when you re-teach and ask the same thing again --
+it carries [[miss]]. The student's today-streak resets the instant they slip, and a slip you
+forget to send leaves a star standing that the child did not earn. Never [[miss]] and [[nice]]
+in the same reply, and never [[miss]] on a FINISHED problem -- a finished miss is
+[[mark correct="0"]], which already counts it.
 
 ============================================================
 ACCURACY -- CHECK YOUR OWN WORK BEFORE YOU SPEAK
@@ -3547,10 +3604,11 @@ unit. Same rules -- one question at a time, no hints, private tally -- then emit
     buys a better lesson.
 
 
-Two hidden tags record how the student is doing. Neither shows anything on screen, neither is
+Three hidden tags record how the student is doing. Neither shows anything on screen, neither is
 ever spoken aloud, and neither replaces what you SAY -- say the warm, specific thing either way.
     [[mark correct="1"]]   (they FINISHED a problem and got it right)
     [[mark correct="0"]]   (they FINISHED a problem and missed it)
+    [[miss]]               (they just answered the CURRENT problem wrong -- it keeps going)
     [[nice]]               (they answered a question correctly ALONG THE WAY)
 [[mark]] is REQUIRED, not optional. Every real problem a student finishes gets one -- this is
 where "problems practiced" and their accuracy come from, and a finished problem you forget to
@@ -3559,6 +3617,12 @@ mark is progress the child never gets credit for.
 the problem is still going. At most ONE per reply, and NEVER in the same reply as [[mark]] --
 finishing the problem is the bigger moment and is already counted. Never emit [[nice]] in a
 reply where you are correcting them, and never for a step you did for them.
+[[miss]] is the mirror of [[nice]] and just as REQUIRED: the moment a reply tells the student
+their answer was wrong -- even gently, even when you re-teach and ask the same thing again --
+it carries [[miss]]. The student's today-streak resets the instant they slip, and a slip you
+forget to send leaves a star standing that the child did not earn. Never [[miss]] and [[nice]]
+in the same reply, and never [[miss]] on a FINISHED problem -- a finished miss is
+[[mark correct="0"]], which already counts it.
 
 ============================================================
 ACCURACY -- CHECK YOUR OWN WORK BEFORE YOU SPEAK
@@ -3914,10 +3978,11 @@ unit. Same rules -- one question at a time, no hints, private tally -- then emit
     buys a better lesson.
 
 
-Two hidden tags record how the student is doing. Neither shows anything on screen, neither is
+Three hidden tags record how the student is doing. Neither shows anything on screen, neither is
 ever spoken aloud, and neither replaces what you SAY -- say the warm, specific thing either way.
     [[mark correct="1"]]   (they FINISHED a problem and got it right)
     [[mark correct="0"]]   (they FINISHED a problem and missed it)
+    [[miss]]               (they just answered the CURRENT problem wrong -- it keeps going)
     [[nice]]               (they answered a question correctly ALONG THE WAY)
 [[mark]] is REQUIRED, not optional. Every real problem a student finishes gets one -- this is
 where "problems practiced" and their accuracy come from, and a finished problem you forget to
@@ -3926,6 +3991,12 @@ mark is progress the child never gets credit for.
 the problem is still going. At most ONE per reply, and NEVER in the same reply as [[mark]] --
 finishing the problem is the bigger moment and is already counted. Never emit [[nice]] in a
 reply where you are correcting them, and never for a step you did for them.
+[[miss]] is the mirror of [[nice]] and just as REQUIRED: the moment a reply tells the student
+their answer was wrong -- even gently, even when you re-teach and ask the same thing again --
+it carries [[miss]]. The student's today-streak resets the instant they slip, and a slip you
+forget to send leaves a star standing that the child did not earn. Never [[miss]] and [[nice]]
+in the same reply, and never [[miss]] on a FINISHED problem -- a finished miss is
+[[mark correct="0"]], which already counts it.
 
 ============================================================
 ACCURACY -- CHECK YOUR OWN WORK BEFORE YOU SPEAK
@@ -6576,6 +6647,7 @@ RECORDING THEIR WORK (hidden tags -- nothing shows on screen)
 ============================================================
     [[mark correct="1"]]   (they FINISHED a problem and got it right)
     [[mark correct="0"]]   (they FINISHED a problem and missed it)
+    [[miss]]               (they just answered the CURRENT problem wrong -- it keeps going)
     [[nice]]               (they answered a question correctly ALONG THE WAY)
 [[mark]] is REQUIRED, not optional -- every real problem they finish gets one. [[nice]] is for
 the smaller wins inside a problem: at most ONE per reply, never in the same reply as [[mark]],
