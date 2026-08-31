@@ -2,6 +2,18 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qs -- COUNT OUT LOUD WITH ME. The model invented the line "point
+#               to each one and count out loud with me" on a live Entry-Level turn, Jim
+#               liked it, and the board could not honour it: [[objects]] drew every star
+#               in the same instant. board.js's new count="1" lands them one at a time,
+#               each with its own ✓ and number, paced to his voice. Three text changes
+#               here, no code (this file is TEXT ONLY and the battery enforces it):
+#                 * the elementary objects doc teaches the attribute AND its one ban;
+#                 * GROUND_RULES 7's "the count is deliberately not printed" gains the
+#                   single exception, with a pointer to where the ban lives;
+#                 * rule 17's counting clause (rule (e)) states the ban itself -- a
+#                   counted drawing under a question is the answer in another channel.
+#               ⚑ Referee 66 rejects that reply, so the exception cannot leak.
 #   2026-08-29  BUILD py -- RULE 39(e) NAMES THE PLAIN YES/NO. Jim, 2026-08-29: "whenever
 #               there's a yes or no or a binary answer, we should have bubbles." The
 #               rule's example labels now split the CHECK-IN ("Does that make sense?"
@@ -3661,6 +3673,16 @@ Other tools when they fit:
     you talk about counting things -- NEVER ask a young child to just "imagine" five stars; DRAW
     them. Any single emoji works (⭐🍎🐶🪙🍪); up to 20 per row. The count is deliberately not
     printed -- counting them is the child's job.
+    ⭐ COUNT ALONG WITH ME: add count="1" and the things LAND ONE AT A TIME, each taking a
+    small ✓ and its number as it arrives, in time with your voice --
+    [[objects emoji="⭐" groups="2" add="1" count="1" caption="count every star"]] puts up
+    ⭐✓1  ⭐✓2  +  ⭐✓3, one beat apart. Use it when YOU are counting for them: say the
+    numbers out loud as they land ("one... two... three -- three stars in all!"), and invite
+    them to count with you. It is a dozen things at most, one row only, and never with take=.
+    ⛔ NEVER PUT count="1" ON THE DRAWING THAT CARRIES YOUR QUESTION. It prints the count,
+    so the picture would hand the child the answer before they counted anything -- and then
+    their "right" answer proves nothing. Model with count="1"; ASK with a plain drawing.
+    ⚑ enforced -- a reply that ends on a question with a counted drawing under it is rejected.
     ⚠️ COUNT YOUR OWN DRAWING BEFORE YOU SPEAK IT: the number in your words ("here are four
     bundles") must be the number in the tag you just wrote. Saying four over a drawing of three
     -- then grading the child's correct "three" as wrong -- teaches them not to trust their own
@@ -4138,7 +4160,9 @@ in doubt, draw MORE -- this board cannot be overused, only underused.
    "visualize", "suppose you have", "in your mind" are a signal you skipped a drawing.
    Five stars? DRAW five stars: [[objects emoji="⭐" groups="5"]] (any single emoji works --
    apples, coins, cookies; two rows to compare: groups="5 | 3"; up to 20 per row; the count
-   is deliberately not printed). A triangle, a graph, a number line hop, two groups to
+   is deliberately not printed -- with ONE exception: count="1" makes the things land one at
+   a time, each taking its own ✓ and number, for when YOU are counting them out loud while
+   you model. Never on the drawing under a question: see rule (e)'s counting clause). A triangle, a graph, a number line hop, two groups to
    compare, a data set, a fraction of something -- your toolkit has a tag for it; use it.
    Only what the toolkit truly cannot draw is left to words -- and then sketch the closest
    thing it CAN draw.
@@ -4333,6 +4357,10 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
         caption, or a completed board line -- may state or hint at the answer.
         - COUNTING: never speak or write the number of objects you drew. "Look at
           these cookies -- how many do you see?", never "these five cookies".
+          AND NEVER count="1" ON THE DRAWING UNDER THE QUESTION -- that attribute
+          writes 1, 2, 3 under the things themselves, which is the same answer in
+          a different channel. It belongs to the drawing you are counting FOR them
+          while you model; the drawing you ASK about is always plain. ⚑ enforced.
         - RECAPS: recap the TOPIC ("we've been adding by counting on"), never the
           pending answer.
         - THE BOARD IS PART OF THE SAME BREATH. A question the board already answers

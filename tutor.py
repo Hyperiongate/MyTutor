@@ -2,6 +2,25 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qs -- COUNT OUT LOUD WITH ME, AND THE REFEREE THAT KEEPS IT HONEST.
+#               Jim, on the Entry-Level turn he read on 2026-08-30: Mr. Cadabra had said
+#               "point to each one and count out loud with me" -- a line nobody asked him
+#               for -- over a board that had drawn every star in the same instant. "I
+#               liked it... maybe he could have said one star with a check over, two stars
+#               with a check over, three stars with a check over."
+#               board.js's [[objects]] tag now takes count="1": the things land ONE AT A
+#               TIME, each with its own ✓ and number, paced to voice.js's new
+#               "mt:speaking" event -- his real voice, not a timer racing it.
+#               ⚠️ THAT PRINTS THE COUNT, and this board otherwise never does ("counting
+#               them is the child's job"). So THE SIXTY-SIXTH REFEREE, counted_drawing_
+#               conflict: a reply whose last spoken thing is a QUESTION and whose LAST
+#               [[objects]] tag carries count= is rejected, because the picture answers
+#               the question before the child counts anything (rule 17). The LAST tag is
+#               the one deliberately: an earlier counted drawing in the same reply is the
+#               MODEL, which is exactly where the attribute belongs -- so the
+#               Model-Lead-Test turn this was built for passes untouched.
+#               _SCRIPT_INTERVENE_SYSTEM's MODEL step now asks for count="1" and says in
+#               so many words that step 3 draws plain. Canon swept clean.
 #   2026-08-30  BUILD qm -- EVERY QUIZ ANSWER GETS A VERDICT (the SIXTY-FIFTH referee).
 #               Jim, live in a Geometry quiz: "Question one, correct. Two, correct.
 #               Three, correct. Question four, I answer it, and it goes right to question
@@ -6129,6 +6148,56 @@ _DRAWN_COUNT_CLAIM_RE = re.compile(
     r"cookies?|coins?|hearts?|balls?|dots?)\b", re.I)
 
 
+# (qs) THE SIXTY-SIXTH REFEREE -- A COUNTED DRAWING NEVER SITS UNDER THE QUESTION.
+# Build qs gave [[objects]] a count="1" attribute: the things land one at a time, each
+# taking a small ✓ and its NUMBER as it arrives, so Mr. Cadabra can honestly say "count
+# out loud with me" -- the line he invented himself on the Entry-Level turn Jim read on
+# 2026-08-30, over a board that drew all the stars at once and could not count anything.
+#
+# ⚠️ THAT ATTRIBUTE PRINTS THE COUNT, AND THIS BOARD OTHERWISE NEVER DOES. "The count is
+# deliberately not printed -- counting them is the child's job" has been the elementary
+# board's law since the tag existed, and rule 17's counting clause says the same thing
+# from the other side: nothing in the reply that asks may state or hint at the answer.
+# A drawing with 1, 2, 3 written under the stars, sitting beneath "what is 2 plus 1?",
+# is the answer in a second channel -- and the child's "3" then proves nothing at all.
+#
+# THE SHAPE, and it is narrow on purpose: the reply's last spoken thing is a QUESTION
+# (rule 39(b) already puts the ask last, so "ends with a question" IS "asks the child
+# something"), and the LAST [[objects]] tag in the reply carries count=. The LAST one is
+# the drawing the question is asked over; an earlier counted drawing in the same reply is
+# the MODEL, which is exactly where the attribute belongs -- so the Model-Lead-Test turn
+# this feature was built for passes cleanly, and only the ask itself is policed.
+#
+# Canon-swept over every authored card in both files before it was allowed to enforce.
+_OBJ_COUNTED_RE = re.compile(r'\bcount\s*=\s*"\s*(?:1|true|yes|on)\s*"', re.I)
+
+
+def counted_drawing_conflict(reply: str):
+    """Return a description of a counted drawing sitting under the question it is
+    supposed to make the child answer, or "". Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        tags = list(_OBJ_TAG_ATTR_RE.finditer(text))
+        if not tags:
+            return ""                       # no drawing in THIS reply -- out of scope
+        if not _OBJ_COUNTED_RE.search(tags[-1].group(1) or ""):
+            return ""                       # the asked-over drawing is plain: correct
+        prose = _spoken_only(text).strip()
+        if not prose.endswith("?"):
+            return ""                       # nothing left open for the child
+        return ("your last [[objects]] drawing carries count=\"1\", so the board writes "
+                "1, 2, 3 under the things themselves -- and your reply ends by asking the "
+                "child a question over that drawing. The picture answers it before they "
+                "count anything, and an answer they were handed proves nothing (rule 17). "
+                "count=\"1\" is for the drawing YOU count while you model. REMOVE count "
+                "from this last drawing and leave everything else exactly as it is; if you "
+                "counted one for them earlier in this reply, that one keeps it.")
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[countedask] crashed (fail open): {exc}")
+        _event("referee_crash", "countedask", str(exc))
+        return ""
+
+
 def board_count_conflict(reply: str):
     """Return a description of a spoken drawn-count claim the [[objects]] tag
     cannot support, or "". Never raises (fail open)."""
@@ -8370,6 +8439,13 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if bcount:
             _event("referee_fire", "boardcount", bcount)
             return bcount
+        # (qs) the sixty-sixth: a counted drawing under the question it is meant to
+        # make the child answer (rule 17's counting clause). Reply-only and objective;
+        # rides beside its sibling, the referee that reads the same tag for truth.
+        cdraw = counted_drawing_conflict(reply)
+        if cdraw:
+            _event("referee_fire", "countedask", cdraw)
+            return cdraw
         # (oc) the forty-eighth: a result you speak is a result you drew.
         skipres = skipped_result_conflict(reply, heard)
         if skipres:
@@ -8985,8 +9061,11 @@ Teach it in one short turn, Model-Lead-Test:
    gives you, then add [[step eq="..."]] lines that show the work, ending in the
    correct answer. If the note explains the idea, teach that idea in those words.
    ONLY for plain ADDING (+) of two single-digit numbers: draw the star groups with
-   [[objects emoji="⭐" groups="A" add="B" caption="count every star"]] and count
-   every star out loud. ONLY for plain TAKING AWAY (−) of small whole numbers: draw
+   [[objects emoji="⭐" groups="A" add="B" count="1" caption="count every star"]] --
+   count="1" lands them ONE AT A TIME, each with its own ✓ and number -- and count
+   out loud with them ("one... two... three!"). ⛔ Only THIS drawing is counted;
+   step 3 draws plain. ⚑ enforced.
+   ONLY for plain TAKING AWAY (−) of small whole numbers: draw
    [[objects emoji="⭐" groups="A" caption="start with A — take B away"]] and count
    back out loud. Two-digit adding: no stars -- ones first, "write X, carry 1" only
    if the ones add up to over nine, then the tens, each as its own [[step]] line.

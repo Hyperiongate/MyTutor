@@ -2,6 +2,22 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-30 (qs) COUNT OUT LOUD WITH ME -- [[objects ... count="1"]]. Jim liked a
+       line the model invented on a live Entry-Level turn ("point to each one and
+       count out loud with me") and saw at once that the board could not honour it:
+       showObjects drew every star in the same instant, as one string of emoji, and
+       there was nothing to count. Now the things land ONE AT A TIME, each taking a
+       small ✓ and its number as it arrives, paced to voice.js's new "mt:speaking"
+       event -- his real voice, not a timer racing it.
+       ⚠️ IT PRINTS THE COUNT, WHICH THIS BOARD OTHERWISE NEVER DOES, so it is fenced
+       on both sides: it refuses more than a dozen things, more than one row, and
+       anything with take= (falling through to the old drawing in each case), and
+       tutor.py's referee 66 rejects any reply that puts a counted drawing under a
+       question -- where the picture would answer it. And it ALWAYS finishes: a
+       fallback timer, a long stop, and a catch that reveals everything, because the
+       stars are built VISIBLE and only hidden by the script that is about to show
+       them. A child shown two stars where four were drawn has been taught something
+       false, and that must not be reachable from here.
    2026-08-29  BUILD qf -- THE OP IS SHOWN ONCE FOR AN EXPRESSION. Jim: "why are we
                showing substitute x=3 twice?" opRow drew the operation under the
                left side AND the right side; "2x + 5" has one side. When the line
@@ -499,8 +515,121 @@ function ensureObjectsCSS() {
     ".objgone::after{content:'';position:absolute;left:-3px;width:40px;top:46%;" +
     "height:5px;border-radius:3px;background:#c0392b;" +
     "transform:rotate(-20deg);transform-origin:center;pointer-events:none}" +
-    ".objcap{font-size:13px;color:#5b6079;margin-top:4px;font-weight:600}";
+    ".objcap{font-size:13px;color:#5b6079;margin-top:4px;font-weight:600}" +
+    // (qs) COUNT-ALONG. The row stops being a string of emoji and becomes a row of
+    // countable THINGS, each with room under it for its own tick. letter-spacing is
+    // reset to 0 here on purpose: .objline's 9px is what spaces a plain string, and
+    // it would push these apart twice.
+    ".objcount{letter-spacing:0;display:flex;flex-wrap:wrap;justify-content:center;" +
+    "align-items:flex-start;gap:8px;line-height:1.2}" +
+    ".objone{display:inline-flex;flex-direction:column;align-items:center}" +
+    ".objemj{font-size:36px;line-height:1.1}" +
+    ".objplus{font-size:30px;font-weight:800;color:#5b6079;align-self:center;padding:0 2px}" +
+    // the tick a child can read at a glance: green, round, and the number is the
+    // point -- "✓1", "✓2", "✓3" is the counting itself, written down.
+    ".objtick{margin-top:3px;font-size:14px;font-weight:800;color:#1e7f4f;" +
+    "background:#e8f7ee;border:1.5px solid #b7e3c9;border-radius:999px;" +
+    "padding:1px 8px;white-space:nowrap}" +
+    // ⚠️ HIDDEN IS A STATE THE SCRIPT PUTS THEM IN, never the state they are BUILT
+    // in. If the reveal never runs -- an exception, a browser we did not foresee --
+    // the stars must already be on the board. A child shown two stars where four
+    // were drawn has been taught something false.
+    ".objstep{opacity:0;transform:translateY(-8px);" +
+    "transition:opacity .28s ease, transform .28s ease}" +
+    ".objstep.on{opacity:1;transform:none}";
   document.head.appendChild(st);
+}
+
+
+// ---------- (qs) COUNTING ALONG, ONE STAR AT A TIME -------------------------
+// Jim, 2026-08-30, reading a live Entry-Level turn: Mr. Cadabra had said "point to
+// each one and count out loud with me" -- a line nobody asked him for and everybody
+// liked -- over a board that had drawn all the stars at once and could not count
+// anything. "Maybe he could have said one star with a check over, two stars with a
+// check over, three stars with a check over. Count out loud with me. I liked it."
+//
+// count="1" draws the same stars, but they LAND ONE AT A TIME, each taking a small
+// ✓ and its number as it arrives, in time with his voice.
+//
+// ⚠️ THIS PRINTS THE COUNT, WHICH THIS BOARD OTHERWISE NEVER DOES. "The count is
+// deliberately not printed -- counting them is the child's job" is a standing law of
+// the elementary board (GROUND_RULES 7, and rule 17's counting clause). This is the
+// ONE exception, and it is scoped to the one case where the law does not apply: Mr.
+// Cadabra counting HIS OWN drawing while he models. It must never sit under a
+// question, because then the picture answers it -- tutor.py's referee 66 rejects
+// exactly that reply, so the exception cannot leak out of the place it belongs.
+//
+// THREE THINGS IT REFUSES, on purpose. In every one the tag renders exactly as it
+// did before this build:
+//   * more than OBJ_COUNT_MAX things -- past a dozen this is not counting along, it
+//     is a progress bar;
+//   * more than one row -- two rows are a COMPARISON, not a count;
+//   * anything with take= -- a strike-through is not something you count up to.
+//
+// ⚠️ AND IT ALWAYS FINISHES. It starts on voice.js's "mt:speaking" (the real moment
+// sound begins) or on a fallback timer, whichever comes first, and a long-stop
+// reveals everything regardless. A page with no audio, a blocked autoplay, a browser
+// with no voice at all, or a listener that throws still gets every star: build pd's
+// law -- "with no audio at all the lesson must still be readable" -- applies to a
+// picture exactly as it applies to a line of prose.
+const OBJ_COUNT_MAX = 12;         // above this it is a progress bar, not a count
+const OBJ_COUNT_STEP_MS = 750;    // a child's counting pace, out loud
+const OBJ_COUNT_WAIT_MS = 1200;   // ...and it begins anyway if no sound ever comes
+
+function objCountOne(emoji, n) {
+  const one = document.createElement("span");
+  one.className = "objone objstep";
+  const img = document.createElement("span");
+  img.className = "objemj"; img.textContent = emoji;
+  const tick = document.createElement("span");
+  tick.className = "objtick"; tick.textContent = "✓" + n;
+  one.appendChild(img); one.appendChild(tick);
+  return one;
+}
+
+function runCountAlong(box) {
+  const items = Array.prototype.slice.call(box.querySelectorAll(".objstep"));
+  if (!items.length) return;
+  const showAll = () => Array.prototype.forEach.call(items,
+      (el) => el.classList.add("on"));
+  try {
+    // A child (or a parent) who has asked their machine to stop animating things
+    // gets the finished picture, ticks and all -- not a slower one.
+    const reduce = window.matchMedia
+      && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { showAll(); return; }
+
+    let i = 0, timer = null, started = false;
+    const tick = () => {
+      if (i >= items.length) {
+        if (timer) { clearInterval(timer); timer = null; }
+        return;
+      }
+      items[i].classList.add("on");
+      const wasPlus = items[i].classList.contains("objplus");
+      i++;
+      // the "+" is punctuation, not a thing you count: it arrives with the star
+      // after it, so the numbers stay 1, 2, 3 and the pace stays even.
+      if (wasPlus) tick();
+    };
+    const begin = () => {
+      if (started) return;
+      started = true;
+      clearTimeout(waiter);
+      try { document.removeEventListener("mt:speaking", begin); } catch (e) {}
+      tick();                                    // the first one lands with his voice
+      timer = setInterval(tick, OBJ_COUNT_STEP_MS);
+    };
+    const waiter = setTimeout(begin, OBJ_COUNT_WAIT_MS);
+    try { document.addEventListener("mt:speaking", begin); } catch (e) { begin(); }
+    // THE LONG STOP. Whatever happens above -- a cleared interval, a listener that
+    // never fires, a tab that was backgrounded -- the whole drawing is on the board
+    // by the time a child could reasonably have counted it.
+    setTimeout(showAll,
+               OBJ_COUNT_WAIT_MS + (items.length + 2) * OBJ_COUNT_STEP_MS);
+  } catch (e) {
+    showAll();               // any surprise at all: the picture, whole, right now
+  }
 }
 
 function showObjects(a) {
@@ -514,11 +643,32 @@ function showObjects(a) {
   // row itself: you cannot take four stars from three, and a board that tried would
   // be teaching a child something false.
   const takeN = Math.min(Math.max(parseInt(a.take, 10) || 0, 0), groups[0] || 0);
+  // (qs) count="1" -- the stars land one at a time, each taking its own ✓ and number,
+  // paced to his voice. See the block above ensureObjectsCSS for what it refuses and
+  // why. Anything it refuses falls straight through to the drawing this tag has
+  // always made, so a tag that asks for more than the count-along can honestly do
+  // still draws the right picture.
+  const drawnTotal = groups.reduce((x, y) => x + y, 0) + addN;
+  const counting = /^(1|true|yes|on)$/i.test(String(a.count || "").trim())
+    && !takeN && groups.length === 1
+    && drawnTotal > 0 && drawnTotal <= OBJ_COUNT_MAX;
   const stage = feedBlock();
   const box = document.createElement("div"); box.className = "objwrap pop";
   groups.forEach((g, gi) => {
-    const row = document.createElement("div"); row.className = "objline";
-    if (gi === 0 && takeN) {
+    const row = document.createElement("div");
+    row.className = "objline" + (counting ? " objcount" : "");
+    if (counting) {
+      // ONE ELEMENT PER THING, because a string of emoji cannot be counted one at a
+      // time and cannot carry a number underneath any of them.
+      let n = 0;
+      for (let k = 0; k < Math.min(g, 20); k++) row.appendChild(objCountOne(emoji, ++n));
+      if (addN) {
+        const plus = document.createElement("span");
+        plus.className = "objplus objstep"; plus.textContent = "+";
+        row.appendChild(plus);
+        for (let k = 0; k < addN; k++) row.appendChild(objCountOne(emoji, ++n));
+      }
+    } else if (gi === 0 && takeN) {
       // THE ONES THAT STAY, then THE ONES BEING TAKEN, struck through. Two spans
       // rather than one string, because the strike has to land on some of the
       // stars and not the others -- which is the entire point of the picture.
@@ -551,6 +701,10 @@ function showObjects(a) {
   });
   if (a.caption) { const c = document.createElement("div"); c.className = "objcap"; c.textContent = a.caption; box.appendChild(c); }
   stage.appendChild(box);
+  // ⚠️ AFTER IT IS ON THE PAGE, NEVER BEFORE. runCountAlong hides what it is about to
+  // reveal, so it must run on a board the child is already looking at -- and only
+  // when this tag actually asked to be counted.
+  if (counting) runCountAlong(box);
 }
 
 // The summary line's equation, read from the FIRST board row of the folded problem.

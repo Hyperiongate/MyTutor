@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  APP_BUILD -> "2026-08-30qs-count-out-loud-with-me". BUILD qs -- the board
+#               learns to count, and the 66th referee keeps the exception honest. NO PYTHON
+#               IN THIS FILE CHANGED: the work is in static/board.js (the [[objects]] tag
+#               takes count="1" and lands the things one at a time, each with its own ✓ and
+#               number), static/voice.js (it announces "mt:speaking" so the shared board
+#               layer can pace to his real voice without any page being touched), tutor.py
+#               (referee 66 + the intervention's MODEL step) and prompts.py (the attribute,
+#               its one ban, and the exception written into the law it excepts).
 #   2026-08-30  APP_BUILD -> "2026-08-30qr-the-authored-question-ships-its-buttons". BUILD qr
 #               -- Jim, on a live Entry-Level lesson: "these are all supposed to be bubble
 #               answers, not tap to talk ... it's in a couple of these, but it's not on all
@@ -12966,7 +12974,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30qr-the-authored-question-ships-its-buttons"
+APP_BUILD = "2026-08-30qs-count-out-loud-with-me"
 
 
 @app.get("/health")

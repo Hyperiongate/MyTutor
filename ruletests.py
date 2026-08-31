@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-30  BUILD qs -- PART 3gv: count out loud with me, and the 66th referee. The
+#               model invented a promise the board could not keep ("point to each one and
+#               count out loud with me" over a row of emoji drawn in one instant, as ONE
+#               STRING). [[objects ... count="1"]] now lands the things one at a time with
+#               a ✓ and a number each, paced to voice.js's new "mt:speaking" event. 28
+#               pins, including the three belts that make it ALWAYS FINISH (a fallback, a
+#               long stop, and a catch -- the stars are built VISIBLE and only hidden by
+#               the script about to reveal them), the three refusals, and the referee that
+#               fences the exception: a counted drawing may never sit under the question
+#               it is meant to make the child answer. Canon swept 0 of 2,109 cards. The
+#               referee count literal in PART 3fx moves 65 -> 66.
 #   2026-08-30  BUILD qr -- PART 3gu: the authored question ships its buttons. The scripted
 #               player in static/session.html never read step.choices or step.tap_only, so
 #               every AUTHORED question in Entry-Level and Basic reached a child who cannot
@@ -15722,6 +15733,188 @@ def part3gu_the_authored_question_ships_its_buttons():
           "%d asks offered options the correct answer was not among" % wrong)
 
 
+def part3gv_count_out_loud_with_me():
+    """PART 3gv (build qs, 2026-08-30) -- THE BOARD LEARNS TO COUNT, AND THE 66TH REFEREE.
+
+    Jim, reading a live Entry-Level turn on 2026-08-30: Mr. Cadabra had written "point
+    to each one and count out loud with me" -- a line NOBODY ASKED HIM FOR -- over a
+    board that had drawn every star in the same instant.
+
+        "I really kind of like the idea of count out loud with me. I never asked for
+         that, but there it was. And when it showed the stars and the problem, there was
+         no counting out loud... maybe he could have said one star with a check over,
+         two stars with a check over, three stars with a check over. I liked it."
+
+    ⭐ THE MODEL PROMISED SOMETHING THE BOARD COULD NOT DO. showObjects() drew a row of
+    emoji as ONE STRING -- `emoji.repeat(n)` -- so there was nothing to count, nothing to
+    tick, and no order to count them in. [[objects ... count="1"]] now builds one element
+    per thing, each with a ✓ and its number underneath, and lands them ONE AT A TIME.
+
+    ⭐ PACED TO HIS VOICE, NOT TO A TIMER RACING IT. voice.js is the only file that knows
+    when real sound begins -- setState("speaking") fires from u.onstart and from onPlaying
+    and nowhere else -- and board.js cannot see setState, which each PAGE declares for
+    itself. So voice.js now announces "mt:speaking" on the document and board.js listens.
+    One shared file to one shared file, no page touched, and no page that lacks a listener
+    behaves any differently.
+
+    ⚠️ AND IT ALWAYS FINISHES, which is the part that had to be built like a seatbelt.
+    The stars are BUILT VISIBLE and only hidden by the script that is about to reveal
+    them; there is a fallback timer for a page with no audio, a long stop for a listener
+    that never fires, and a catch that reveals everything on any surprise at all. Build
+    pd's law -- "with no audio at all the lesson must still be readable" -- applies to a
+    picture exactly as it applies to a line of prose. A child shown two stars where four
+    were drawn has been taught something false, and that must not be reachable.
+
+    ⚠️ THE ATTRIBUTE PRINTS THE COUNT, WHICH THIS BOARD OTHERWISE NEVER DOES. "The count
+    is deliberately not printed -- counting them is the child's job" is the elementary
+    board's standing law, and rule 17's counting clause says it from the other side:
+    nothing in the reply that asks may state or hint at the answer. So the exception is
+    fenced by a referee rather than by a sentence in a prompt -- THE SIXTY-SIXTH,
+    counted_drawing_conflict: the reply's last spoken thing is a QUESTION and its LAST
+    [[objects]] tag carries count=. The LAST one, deliberately: an earlier counted drawing
+    in the same reply is the MODEL, which is exactly where the attribute belongs, so the
+    Model-Lead-Test turn this feature was built for passes untouched and only the ask is
+    policed.
+
+    DRIVEN UNDER NODE BEFORE THESE PINS -- 21 assertions against a fake DOM, a fake
+    matchMedia and a fake clock: the ticks read ✓1 ✓2 ✓3, nothing shows before the voice,
+    the "+" arrives WITH the star after it rather than taking a number of its own, the
+    silent fallback starts it at 1.2s, the long stop completes it with every listener
+    gone, reduced motion gets the finished picture at once, all three refusals fall
+    through to the drawing this tag has always made, and a tag with no count= is
+    byte-for-byte what it was.
+    """
+    print("\nPART 3gv — count out loud with me (build qs)")
+    import re as _re
+    bjs = open("static/board.js", encoding="utf-8").read()
+    board = code_only(bjs)
+    vjs = code_only(open("static/voice.js", encoding="utf-8").read())
+
+    # ---- the renderer ---------------------------------------------------------
+    check("⭐ count=\"1\" builds ONE ELEMENT PER THING, not one string of emoji",
+          "function objCountOne(" in board and 'one.className = "objone objstep"' in board,
+          "emoji.repeat(n) cannot be counted one at a time and cannot carry a number "
+          "under any of them -- that is why the promise could not be kept")
+    check("  ...each carrying its own ✓ and its number",
+          'tick.textContent = "✓" + n' in board, "")
+    check("⭐ the reveal is paced to his VOICE, not to a timer racing it",
+          'document.addEventListener("mt:speaking", begin)' in board, "")
+    check("  ...and voice.js announces it from the only place that knows",
+          "function announceSpeaking()" in vjs
+          and vjs.count("announceSpeaking()") >= 3
+          and 'document.dispatchEvent(new CustomEvent("mt:speaking"))' in vjs,
+          "setState(\"speaking\") fires from u.onstart and onPlaying and nowhere else; "
+          "board.js cannot see setState, which each PAGE declares for itself")
+    check("  ...announced inside a guard, so a listener that throws cannot silence him",
+          _re.search(r"function announceSpeaking\(\)\s*\{\s*try\s*\{", vjs) is not None, "")
+
+    # ---- it always finishes: three independent belts ---------------------------
+    check("⭐ THE STARS ARE BUILT VISIBLE and only hidden by the script that reveals them",
+          "if (counting) runCountAlong(box);" in board
+          and board.index("stage.appendChild(box);") < board.index("if (counting) runCountAlong(box);"),
+          "if the reveal never runs, the drawing must already be on the board")
+    check("  ...a fallback starts it when no sound ever comes",
+          "const waiter = setTimeout(begin, OBJ_COUNT_WAIT_MS);" in board,
+          "build pd's law: with no audio at all the lesson must still be readable")
+    check("  ...a long stop completes it whatever happened",
+          "setTimeout(showAll," in board, "")
+    check("  ...and any surprise at all shows the whole picture",
+          _re.search(r"\}\s*catch\s*\(e\)\s*\{\s*\n?\s*showAll\(\);", board) is not None,
+          "a child shown two stars where four were drawn has been taught something false")
+    check("  ...and a reader who asked for no animation gets the finished picture",
+          "prefers-reduced-motion" in board and "if (reduce) { showAll(); return; }" in board, "")
+
+    # ---- the three refusals, each falling through to the old drawing -----------
+    check("⭐ it refuses what it cannot honestly do -- and draws the old picture instead",
+          "&& !takeN && groups.length === 1" in board
+          and "drawnTotal <= OBJ_COUNT_MAX" in board,
+          "more than a dozen is a progress bar, two rows are a COMPARISON, and a "
+          "strike-through is not something you count up to")
+    check("  ...and the dozen is named, not a magic number",
+          "const OBJ_COUNT_MAX = 12;" in board, "")
+
+    # ---- do no harm to the tag as it was --------------------------------------
+    check("  do no harm: without count= the row is still the old single string",
+          'row.textContent = emoji.repeat(Math.min(g, 20))' in board, "")
+    check("  do no harm: take= still strikes one star at a time",
+          'gone.className = "objgone"' in board and "for (let k = 0; k < Math.min(takeN, 20); k++)" in board, "")
+    check("  do no harm: board.js and voice.js are whole",
+          bjs.rstrip().endswith("/* I did no harm and this file is not truncated. */")
+          and open("static/voice.js", encoding="utf-8").read().rstrip().endswith(
+              "/* I did no harm and this file is not truncated. */"), "")
+
+    # ---- THE SIXTY-SIXTH REFEREE ----------------------------------------------
+    import tutor as _tt
+    F = _tt.counted_drawing_conflict
+    MODEL = '[[objects emoji="⭐" groups="1" add="1" count="1"]]'
+    ASKPLAIN = '[[objects emoji="⭐" groups="2" add="1" caption="count every star"]]'
+    check("⭐ FIRES: a counted drawing under the question it is meant to make them answer",
+          bool(F('Watch. ' + MODEL.replace('groups="1" add="1"', 'groups="2" add="1"')
+                 + ' What is 2 plus 1?')),
+          "1, 2, 3 written under the stars IS the answer, in a second channel")
+    check("⭐ SILENT: the MODEL is counted and the ASK is plain -- the whole point",
+          not F('Count with me: one, two -- two stars! ' + MODEL
+                + ' Now your turn. ' + ASKPLAIN + ' [[step eq="2 + 1 = ?"]] What is 2 plus 1?'),
+          "the LAST tag is the one asked over; an earlier counted drawing is the model, "
+          "which is exactly where the attribute belongs")
+    check("  SILENT: a counted drawing that asks nothing",
+          not F('Here they come. [[objects emoji="⭐" groups="3" count="1"]] Three in all!'), "")
+    check("  SILENT: a question over a PLAIN drawing -- every turn shipped before today",
+          not F(ASKPLAIN + " How many stars do you see?"), "")
+    check("  SILENT: no drawing in the reply at all",
+          not F('[[step eq="2 + 1 = ?"]] What is 2 plus 1?'), "")
+    check("  count=\"0\" is not a counted drawing; count=\"true\" is",
+          not F('[[objects emoji="⭐" groups="3" count="0"]] How many?')
+          and bool(F('[[objects emoji="⭐" groups="3" count="true"]] How many?')), "")
+    check("  it fails open on anything at all",
+          F(None) == "" and F(12345) == "", "a referee that raises takes a lesson with it")
+
+    # ---- the canon sweep, with the battery's own walker ------------------------
+    import foundations as FND, lessonscripts as LS
+    hits, n = [], 0
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1
+                if F(t):
+                    hits.append(("foundation", "%s/%s" % (c, sc.get("term") or "?")))
+    for les in LS.LESSONS:
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            t = (sp or "") + "\n" + (b or "")
+            if t.strip():
+                n += 1
+                if F(t):
+                    hits.append(("teach", "%s[t%d]" % (les["id"], i)))
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            t = (w[0] or "") + "\n" + (w[1] or "")
+            if t.strip():
+                n += 1
+                if F(t):
+                    hits.append(("worked", "%s[w%d]" % (les["id"], i)))
+    check("⭐ canon sweep: the shape fires on 0 authored cards (%d swept)" % n,
+          not hits, "; ".join("%s %s" % h for h in hits[:4]))
+    check("  the sweep covered the whole canon", n >= 1900, "%d cards" % n)
+
+    # ---- the rules the model reads agree with the referee ----------------------
+    import prompts as _p
+    psrc = open(_p.__file__, encoding="utf-8").read()
+    check("⭐ the elementary board doc teaches the attribute AND its one ban",
+          'count="1" caption="count every star"' in psrc
+          and "NEVER PUT count=\"1\" ON THE DRAWING THAT CARRIES YOUR QUESTION" in psrc, "")
+    check("  ...GROUND_RULES' 'the count is not printed' names the single exception",
+          "with ONE exception: count=\"1\"" in psrc,
+          "a law with an undocumented exception is a law the model will break honestly")
+    check("  ...and rule 17's counting clause states the ban itself",
+          "the same answer in\n          a different channel" in psrc, "")
+    tsrc = open(_tt.__file__, encoding="utf-8").read()
+    check("  ...and the intervention's MODEL step asks for it, with step 3 kept plain",
+          'add="B" count="1" caption="count every star"' in tsrc
+          and "⛔ Only THIS drawing is counted;\n   step 3 draws plain." in tsrc, "")
+
+
 def part3ga_a_different_problem_is_not_a_snapshot():
     """PART 3ga (build pw, 2026-08-28) -- THE COMPARISON THE FUNCTION IS NAMED FOR.
 
@@ -16118,7 +16311,8 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ sixty-five referees now, counted from the code (62 + pz + qf + qm)", n_ref == 65, n_ref)
+    check("⭐ sixty-six referees now, counted from the code (62 + pz + qf + qm + qs)",
+          n_ref == 66, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -18680,7 +18874,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,724</b>" in page,
+          "<b>7,752</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -27195,6 +27389,7 @@ def main():
     part3gs_one_page_one_child()
     part3gt_the_site_says_what_the_button_says()
     part3gu_the_authored_question_ships_its_buttons()
+    part3gv_count_out_loud_with_me()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

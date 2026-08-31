@@ -2,7 +2,21 @@
    voice.js  --  THE TUTOR'S VOICE, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
-     2026-08-23  BUILD mj -- ONE FILE, TWO CHARACTERS, AND A LANE THAT CANNOT SPEND.
+     2026-08-30  BUILD qs -- ONE EVENT, SO THE BOARD CAN COUNT ALONG WITH HIM. This
+                 file is the ONLY place that knows the moment real sound begins:
+                 setState("speaking") fires from u.onstart (browser voice) and from
+                 onPlaying (a clip), and nowhere else. board.js's new count-along
+                 needs exactly that moment -- the stars land one at a time WITH his
+                 voice, not on a timer that races it -- and board.js cannot see
+                 setState, which each page declares for itself. So both call sites
+                 now also announce it on the document as "mt:speaking".
+                 ⚠️ ADDITIVE AND DELIBERATELY DEAF TO ITS OWN LISTENERS: the
+                 announcement is wrapped, so a listener that throws can never take
+                 down the voice, and nothing in this file reads the event back. A
+                 page with no listener behaves exactly as it did before. And every
+                 listener must still have its own fallback -- this file is not
+                 always loaded, browsers block autoplay, and a silent lesson must
+                 still finish drawing (build pd's reading floor, same law). -- ONE FILE, TWO CHARACTERS, AND A LANE THAT CANNOT SPEND.
                  Phase 4 of Abrabot: when a child is stuck, Abrabot fetches Mr.
                  Cadabra, who re-teaches IN HIS OWN REAL VOICE. Three additions, all
                  with the pre-mj behaviour as the default:
@@ -253,6 +267,17 @@ function pickVoice() {
   }
 }
 
+// (qs) THE ONE PLACE THAT KNOWS SOUND HAS STARTED, said out loud for anyone who
+// needs it. setState("speaking") is declared by each PAGE, so a shared library such
+// as board.js cannot see it; a document event can be heard from anywhere without
+// either file importing the other. Wrapped, because a listener that throws must
+// never be able to silence the tutor.
+function announceSpeaking() {
+  try {
+    document.dispatchEvent(new CustomEvent("mt:speaking"));
+  } catch (e) {}
+}
+
 // (mj) profOverride lets ONE utterance be spoken by a different character without
 // disturbing the page's own voiceProfile. Pass undefined (or omit) for the page's
 // own speaker -- which is what every caller before this build did.
@@ -271,7 +296,7 @@ function browserSpeak(text, done, profOverride) {
     if (_v) u.voice = _v;
     u.rate = (_prof && _prof.rate) || 1.0;
     u.pitch = (_prof && _prof.pitch) || 0.9;
-    u.onstart = () => { usingAnalyser = false; setState("speaking"); };
+    u.onstart = () => { usingAnalyser = false; setState("speaking"); announceSpeaking(); };
     u.onend = finish;
     u.onerror = finish;
     speechSynthesis.speak(u);
@@ -360,7 +385,8 @@ function speak(text, opts) {
     // ctx is what we started into.
     const ctxAtRequest = audioCtx ? audioCtx.state : "none";
     const onPlaying = () => {
-      started = true; usingAnalyser = !!analyser; setState("speaking"); lastProgress = Date.now();
+      started = true; usingAnalyser = !!analyser; setState("speaking"); announceSpeaking();
+      lastProgress = Date.now();
       try {
         console.log("[voicehead] started after " + (Date.now() - clipAskedAt) + "ms" +
                     " | lead=" + clipLead +
