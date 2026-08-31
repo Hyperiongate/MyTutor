@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  APP_BUILD -> "2026-08-31ra-the-leftover-gets-its-buttons". BUILD ra -- Jim,
+#               live on entry/basic the same evening qw deployed: "some of the times it's
+#               missing bubbles." qw's shipping-door repair only knew plain a-op-b
+#               arithmetic, so the youngest courses' comparison / either-or / one-more /
+#               comes-after asks shipped bubble-less as counted pass_through residue.
+#               tutor.py's new _rb_counting_shapes() closes those four classes, still
+#               computed-never-guessed, final spoken ask only; PART 3hb proves each class
+#               failable and re-proves the build-pt grid law. NO CODE IN THIS FILE CHANGED.
 #   2026-08-31  APP_BUILD -> "2026-08-31qz-a-streak-a-child-can-see-today". BUILD qz -- Jim
 #               wants a prominent bar on both the dashboard AND the classroom page showing
 #               the day streak (already tracked) and problems answered correctly IN A ROW
@@ -13065,7 +13073,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-31qz-a-streak-a-child-can-see-today"
+APP_BUILD = "2026-08-31ra-the-leftover-gets-its-buttons"
 
 
 @app.get("/health")

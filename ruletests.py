@@ -2,6 +2,21 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD ra -- PART 3hb: the leftover gets its buttons. Jim, live on
+#               entry/basic the same evening qw deployed: "some of the times it's missing
+#               bubbles." Measured first: referee 58 FIRED on every shape he saw and qw's
+#               repair refused them all -- it only knew plain a-op-b arithmetic, so
+#               comparison asks, either-or relation asks, one-more/one-less and
+#               comes-after/before all shipped bubble-less as counted residue. tutor.py's
+#               NEW _rb_counting_shapes() closes those four classes, still
+#               computed-never-guessed (a comparison offers the question's OWN pair, so
+#               the true answer is present by construction; N±1 is computed; X == Y,
+#               below-zero and every word problem still refuse), FINAL SPOKEN ASK ONLY.
+#               The PART proves each class repairs, each refusal refuses, the arithmetic
+#               branch is untouched and consulted first (a boundary-split source pin, per
+#               the qz law), the pt grid law holds over 0-20 for all four shapes, and
+#               referee 58 + the choices-answer referee go silent on every repaired reply.
+#               Battery tile pins re-synced.
 #   2026-08-31  BUILD qz -- PART 3ha: a streak a child can see today. Jim wants a prominent
 #               bar on BOTH the dashboard and the classroom page showing (1) the day streak
 #               (already tracked) and (2) problems answered correctly IN A ROW TODAY, reset
@@ -10781,6 +10796,156 @@ def part3ha_a_streak_a_child_can_see_today():
     check("main.py is whole", msrc.rstrip().endswith("I did no harm and this file is not truncated."))
 
 
+def part3hb_the_leftover_gets_its_buttons():
+    """PART 3hb (build ra, 2026-08-31) -- THE LEFTOVER GETS ITS BUTTONS.
+
+    Jim, live on entry/basic the SAME EVENING build qw deployed: "some of the times
+    it's missing bubbles for the multiple choice, even though this is entry level
+    math." Measured before anything was touched: referee 58's detector FIRED on every
+    shape he described, and repair_missing_buttons answered "unrepairable" to all of
+    them -- qw's repair only knew plain a-op-b arithmetic, so a comparison ask, an
+    either-or relation ask, a one-more/one-less ask and a comes-after/before ask all
+    shipped bubble-less, counted as pass_through residue and fixed by nobody. Those
+    shapes are the bread and butter of the two youngest courses.
+
+    ⭐ FOUR NEW CLASSES, STILL COMPUTED, NEVER GUESSED (the build-pt law):
+      A. "which ... is bigger, X or Y?" -> the question CLOSES its own answer space;
+         the repair offers exactly its pair, so the true answer is present BY
+         CONSTRUCTION. X == Y refuses -- there is no true answer to guarantee.
+      B. "is X greater than or less than Y?" -> the question's own two relation
+         words. Same X == Y refusal.
+      C. "what is one more/less than N?" -> N±1 computed into the arithmetic
+         repair's exact row shape. One less than zero refuses (nothing negative).
+      D. "what (number) comes after/before N?" -> N±1, same laws.
+
+    ⭐ FINAL SPOKEN ASK ONLY -- a modelled example earlier in the reply ("One more
+    than eight is nine.") can never be the one repaired; referee 58's own complaint
+    is about the question the reply ENDS on, and that is the one the row answers.
+
+    ⚠️ THE ARITHMETIC BRANCH IS UNTOUCHED. It still runs first, its refusals still
+    refuse (negative take-away, uneven division -- they PARSED and failed a law,
+    which is the law working), and the new classes are consulted only when no
+    arithmetic problem could be parsed at all. Word problems still refuse: a repair
+    that reads stories is a repair that guesses.
+    """
+    print("\nPART 3hb — the leftover gets its buttons (build ra)")
+    import re as _re
+    import tutor as _tt
+    R = _tt.repair_missing_buttons
+
+    def opts(r):
+        m = _re.search(r'\[\[choices options="([^"]*)"\]\]', r)
+        return [x.strip() for x in m.group(1).split("|")] if m else None
+
+    # ---- A: the comparison ask offers its own pair ----------------------------
+    r, st, det = R('[[numberline min="0" max="10" points="7,4"]][[step eq="7 ? 4"]] '
+                   "Which number is bigger, seven or four?", "basic")
+    check("⭐ Jim's shape repairs: a comparison ask gets its own pair as the row",
+          st == "repaired" and opts(r) == ["7", "4"], (st, det))
+    check("  ...and referee 58 is SILENT on the repaired reply",
+          not _tt.elementary_buttons_conflict(r, "basic"),
+          "the repair must satisfy the very test that demanded it")
+    check("  ...and the choices-answer referee is silent too (the pt law, honoured)",
+          not _tt.unanswerable_choices_conflict(r), "")
+    r2, st2, _ = R("Which is more — 12 or 21?", "entry")
+    check("  digits and a dash repair the same way", st2 == "repaired"
+          and opts(r2) == ["12", "21"], "")
+    _r, _s, _d = R("Which number is bigger, four or four?", "entry")
+    check("⭐ REFUSES rather than guesses: X == Y offers no true answer",
+          _s == "unrepairable" and _r == "Which number is bigger, four or four?",
+          "a two-button row where both buttons are the same number teaches nothing")
+
+    # ---- B: the either-or relation ask offers its own two words ---------------
+    r, st, det = R('[[step eq="9 ? 3"]] Is nine greater than or less than three?', "entry")
+    check("⭐ the either-or relation ask repairs with its own two words",
+          st == "repaired" and opts(r) == ["greater", "less"], (st, det))
+    check("  ...referee 58 silent there too",
+          not _tt.elementary_buttons_conflict(r, "entry"), "")
+
+    # ---- C and D: one more/less and comes after/before, computed --------------
+    r, st, det = R("Let us try one! What is one more than five?", "entry")
+    check("⭐ 'one more than five' computes 6 into the row",
+          st == "repaired" and "6" in (opts(r) or []), (st, det))
+    r, st, det = R("Now the other way. What is one less than nine?", "entry")
+    check("  'one less than nine' computes 8 into the row",
+          st == "repaired" and "8" in (opts(r) or []), (st, det))
+    r, st, det = R("Count with me. What number comes right after six?", "entry")
+    check("  'comes right after six' computes 7 into the row",
+          st == "repaired" and "7" in (opts(r) or []), (st, det))
+    r, st, det = R("What number comes just before ten?", "entry")
+    check("  'comes just before ten' computes 9 into the row",
+          st == "repaired" and "9" in (opts(r) or []), (st, det))
+    _r, _s, _d = R("Tricky! What is one less than zero?", "entry")
+    check("⭐ REFUSES: one less than zero (nothing goes negative -- the take-away law)",
+          _s == "unrepairable", (_s, _d))
+
+    # ---- the final-ask discipline ---------------------------------------------
+    r, st, det = R("One more than eight is nine. What is one more than five?", "entry")
+    check("⭐ FINAL ASK ONLY: the modelled example above the ask is never the one "
+          "repaired", st == "repaired" and "6" in (opts(r) or [])
+          and "9" not in (opts(r) or []), (st, det))
+
+    # ---- the residue that stays a residue -------------------------------------
+    for label, reply in (
+            ("a word problem (a repair that reads stories is a repair that guesses)",
+             "Maya has three apples and gets two more. How many apples does she have now?"),
+            ("a how-many-do-you-see ask", "How many stars do you see?")):
+        _r, _s, _d = R(reply, "entry")
+        check("⭐ still REFUSES: %s" % label,
+              _s == "unrepairable" and _r == reply, (_s, _d))
+
+    # ---- do no harm: the arithmetic branch is untouched -----------------------
+    r, st, det = R('[[step eq="4 + 3 = ?"]] What is four plus three?', "entry")
+    check("  the arithmetic branch still repairs first, same row shape",
+          st == "repaired" and opts(r) == ["6", "7", "8"], (st, det))
+    _r, _s, _d = R('[[step eq="4 − 6 = ?"]] What is 4 minus 6?', "entry")
+    check("  the arithmetic branch's own refusals still refuse (parsed, failed the "
+          "law)", _s == "unrepairable" and "negative" in _d, (_s, _d))
+    for label, reply, course in (
+            ("buttons already present",
+             'Which is bigger, seven or four? [[choices options="7 | 4"]]', "entry"),
+            ("another course entirely", "Which number is bigger, seven or four?", "algebra1"),
+            ("an own-words ask, on purpose", "Tell me in your own words what adding means?", "entry")):
+        _r, _s, _d = R(reply, course)
+        check("  no-op: %s" % label, _s == "" and _r == reply, (_s, _d))
+    check("  never raises", R(None, "entry")[1] == "" and R(12345, "entry")[1] == "", "")
+
+    # ---- the pt grid law, re-proved over the NEW numeric classes --------------
+    bad = 0
+    for n in range(0, 21):
+        for shape, v in (("What is one more than %d?" % n, n + 1),
+                         ("What is one less than %d?" % n, n - 1),
+                         ("What number comes right after %d?" % n, n + 1),
+                         ("What number comes just before %d?" % n, n - 1)):
+            _r, _s, _d = R(shape, "entry")
+            if v < 0:
+                if _s == "repaired":
+                    bad += 1
+            elif _s != "repaired" or str(v) not in (opts(_r) or []):
+                bad += 1
+    check("⭐ over 0-20 and all four shapes, a built row ALWAYS holds the true "
+          "answer (and below-zero always refuses)", bad == 0,
+          "%d shapes broke the build-pt law" % bad)
+
+    # ---- wiring: consulted only in the could-not-parse branch -----------------
+    here = os.path.dirname(os.path.abspath(__file__))
+    tsrc = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    body = tsrc.split("def repair_missing_buttons", 1)[1].split("\ndef ", 1)[0]
+    i_none = body.find("if a is None or b is None or op is None:")
+    i_call = body.find("_rb_counting_shapes(text)")
+    i_unrep = body.find('"no computable pending problem to build a row from"')
+    check("⭐ the new classes sit INSIDE the could-not-parse branch, before the "
+          "unrepairable verdict (the arithmetic branch runs first, untouched)",
+          0 <= i_none < i_call < i_unrep,
+          "order in repair_missing_buttons: parse-fail check, then the residue "
+          "classes, then the standing verdict -- an arithmetic refusal must never "
+          "detour through them")
+    check("  events unchanged: the repair still ships through the one _shipped() "
+          "door qw built (its own PART pins the count)",
+          '_event("code_repair", "elembuttons"' in tsrc
+          and '_event("pass_through", "elembuttons"' in tsrc, "")
+
+
 def part3dn_every_verdict_is_counted():
     """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
 
@@ -19674,7 +19839,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,862</b>" in page,
+          "<b>7,890</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -28244,6 +28409,7 @@ def main():
     part3gy_the_floor_under_the_floor()
     part3gz_the_verb_is_the_operator()
     part3ha_a_streak_a_child_can_see_today()
+    part3hb_the_leftover_gets_its_buttons()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

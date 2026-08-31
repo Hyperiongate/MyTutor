@@ -2,6 +2,24 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD ra -- THE LEFTOVER GETS ITS BUTTONS. Jim, live on entry/basic the
+#               same evening qw deployed: "some of the times it's missing bubbles."
+#               Measured first: referee 58's detector FIRES on every shape he saw, and
+#               repair_missing_buttons answered "unrepairable" to all of them -- it only
+#               knew plain a-op-b arithmetic, so the youngest courses' bread-and-butter
+#               asks (comparisons, one-more/one-less, comes-after/before) shipped
+#               bubble-less as counted pass_through residue. NEW _rb_counting_shapes():
+#               four classes, still computed-never-guessed (the build-pt law), FINAL
+#               SPOKEN ASK ONLY -- (A) "which is bigger, X or Y?" offers the question's
+#               own pair, the true answer present BY CONSTRUCTION; (B) "is X greater or
+#               less than Y?" offers its own two relation words; (C) one more/less than
+#               N and (D) comes after/before N compute N±1 into the arithmetic repair's
+#               exact row shape (floored, rotated). Refusals: X == Y, one-less-than-zero,
+#               before-zero, and every word problem -- a repair that reads stories is a
+#               repair that guesses. The arithmetic branch is BYTE-UNTOUCHED and still
+#               runs first; its own refusals still refuse. Events unchanged
+#               (code_repair / pass_through · elembuttons). PART 3hb proves each class
+#               failable and re-proves the pt grid law over the new rows.
 #   2026-08-31  BUILD qx -- THE 08-29 REVIEW'S LAST TWO ITEMS (R7, R8), plus the qask
 #               measurement pinned. ① R7: rule 15's referee learns the COMMAND ASK.
 #               Measured first: "Simplify eight twelfths?" AND "Simplify 8/12?" BOTH
@@ -7377,6 +7395,140 @@ def _rb_num(tok):
     return _NUMWORD.get(t)
 
 
+# =============================================================================
+# BUILD ra (2026-08-31) -- THE LEFTOVER GETS ITS BUTTONS.
+# -----------------------------------------------------------------------------
+# Jim, the same evening qw's guarantee went live, on entry/basic lessons: "some of
+# the times it's missing bubbles for the multiple choice, even though this is
+# entry level math." Measured against this very file before anything was touched:
+# the detector FIRES on every shape he saw, and the repair above answers
+# "unrepairable" to all of them -- it only knows plain a-op-b arithmetic, so a
+# comparison ask ("which number is bigger, seven or four?"), an either-or relation
+# ask ("is nine greater than or less than three?"), a one-more/one-less ask
+# ("what is one more than five?") and a comes-after/before ask ("what number
+# comes right after six?") all shipped bubble-less, counted as pass_through and
+# fixed by nobody. Those are the bread and butter of the two youngest courses --
+# the residue the design accepted was the residue the children actually get.
+#
+# Four new classes, each still COMPUTED, NEVER GUESSED (the build-pt law):
+#   A. "which ... is bigger/smaller/more/less, X or Y?"  -> the question itself
+#      closes the answer space: offer exactly its own pair, [[choices options="X | Y"]].
+#      The true answer is among them BY CONSTRUCTION. X == Y refuses (no true answer).
+#   B. "is X greater/less ... or greater/less ... Y?"    -> offer the question's own
+#      two relation words ("greater | less"). X == Y refuses, same reason.
+#   C. "what is one more/less than N?"                    -> N±1, computed; one less
+#      than zero refuses (nothing goes negative, the take-away law).
+#   D. "what (number) comes (right/just/next) after/before N?" -> N±1, same law.
+# Numeric rows reuse the arithmetic repair's exact shape: answer + neighbours,
+# floored, deterministic per-problem rotation.
+#
+# ⚠️ FINAL ASK ONLY. These patterns run against the reply's LAST spoken sentence --
+# the question referee 58 says is unanswered -- so a modelled example earlier in
+# the reply ("One more than eight is nine.") can never be the one repaired.
+# ⚠️ THE ARITHMETIC BRANCH ABOVE IS UNTOUCHED and still runs first (board eq, then
+# spoken "what is X plus Y"); these classes are consulted only when it found no
+# problem to parse. Its own refusals (negative take-away, uneven division) still
+# refuse -- they parsed fine and failed the law, which is the law working.
+# ⚠️ EVERYTHING ELSE still ships as before and logs pass_through · elembuttons.
+# A word problem ("Maya has three apples...") stays refused: computing it means
+# reading a story, and a repair that reads stories is a repair that guesses.
+_RB_WORDNUM = (r"\d{1,3}|zero|one|two|three|four|five|six|seven|eight|nine|ten|"
+               r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|"
+               r"eighteen|nineteen|twenty")
+_RB_CMP_WORDS = r"bigger|biggest|larger|largest|greater|greatest|more|smaller|smallest|less|least|fewer"
+_RB_CMP_RE = re.compile(
+    r"\bwhich(?:\s+(?:number|one))?\s+is\s+(?:the\s+)?(?:" + _RB_CMP_WORDS + r")\b"
+    r"[^?]*?(" + _RB_WORDNUM + r")\s+or\s+(" + _RB_WORDNUM + r")\s*\?$", re.I)
+_RB_GL_RE = re.compile(
+    r"\bis\s+(" + _RB_WORDNUM + r")\s+(" + _RB_CMP_WORDS + r")(?:\s+than)?\s+or\s+"
+    r"(" + _RB_CMP_WORDS + r")(?:\s+than)?\s+(" + _RB_WORDNUM + r")\s*\?$", re.I)
+_RB_ONE_RE = re.compile(
+    r"\bwhat(?:\s+number)?\s+is\s+one\s+(more|less)\s+than\s+(" + _RB_WORDNUM + r")\s*\?$",
+    re.I)
+_RB_SEQ_RE = re.compile(
+    r"\bwhat(?:\s+number)?\s+comes\s+(?:right\s+|just\s+|next\s+)?(after|before)\s+"
+    r"(" + _RB_WORDNUM + r")\s*\?$", re.I)
+
+
+def _rb_num2(tok):
+    """_rb_num plus 'zero' -- the counting shapes may name it; _NUMWORD never did."""
+    t = str(tok or "").strip().lower()
+    if t == "zero":
+        return 0
+    return _rb_num(t)
+
+
+def _rb_final_ask(text: str) -> str:
+    """The reply's FINAL spoken question -- the one referee 58 says is unanswered.
+    Returns "" when the prose does not end on a question."""
+    prose = _spoken_only(text).strip()
+    if not prose.endswith("?"):
+        return ""
+    body = prose[:-1]
+    cut = max(body.rfind("."), body.rfind("!"), body.rfind("?"))
+    return (body[cut + 1:].strip() + "?") if cut >= 0 else prose
+
+
+def _rb_number_row(v: int, salt: int) -> str:
+    """The arithmetic repair's exact row shape for a computed numeric answer:
+    answer and its two neighbours, floored at zero, deterministic rotation."""
+    opts = [v - 1, v, v + 1] if v > 1 else [v, v + 1, v + 2]
+    k = salt % 3
+    opts = opts[k:] + opts[:k]
+    return '[[choices options="' + " | ".join(str(o) for o in opts) + '"]]'
+
+
+def _rb_counting_shapes(text: str):
+    """(build ra) The four residue classes. Returns (fixed, "repaired", detail)
+    or None -- None means the caller's unrepairable verdict stands."""
+    ask = _rb_final_ask(text)
+    if not ask:
+        return None
+    m = _RB_ONE_RE.search(ask)                       # C: one more / one less than N
+    if m:
+        n = _rb_num2(m.group(2))
+        if n is not None:
+            v = n + 1 if m.group(1).lower() == "more" else n - 1
+            if v >= 0 and v <= 9999:
+                row = _rb_number_row(v, n * 3 + v)
+                return (text.rstrip() + "\n" + row, "repaired",
+                        "computed one %s than %d = %d and appended %s"
+                        % (m.group(1).lower(), n, v, row))
+            return None                              # one less than zero: refuse
+    m = _RB_SEQ_RE.search(ask)                       # D: comes after / before N
+    if m:
+        n = _rb_num2(m.group(2))
+        if n is not None:
+            v = n + 1 if m.group(1).lower() == "after" else n - 1
+            if v >= 0 and v <= 9999:
+                row = _rb_number_row(v, n * 3 + v)
+                return (text.rstrip() + "\n" + row, "repaired",
+                        "computed comes %s %d = %d and appended %s"
+                        % (m.group(1).lower(), n, v, row))
+            return None                              # before zero: refuse
+    m = _RB_CMP_RE.search(ask)                       # A: which is bigger, X or Y
+    if m:
+        x, y = _rb_num2(m.group(1)), _rb_num2(m.group(2))
+        if x is not None and y is not None and x != y:
+            row = '[[choices options="%d | %d"]]' % (x, y)
+            return (text.rstrip() + "\n" + row, "repaired",
+                    "comparison ask closes its own answer space (%d or %d) and "
+                    "appended %s" % (x, y, row))
+        return None                                  # X == Y: no true answer to offer
+    m = _RB_GL_RE.search(ask)                        # B: is X greater or less than Y
+    if m:
+        x, y = _rb_num2(m.group(1)), _rb_num2(m.group(4))
+        w1 = m.group(2).lower()
+        w2 = m.group(3).lower()
+        if x is not None and y is not None and x != y and w1 != w2:
+            row = '[[choices options="%s | %s"]]' % (w1, w2)
+            return (text.rstrip() + "\n" + row, "repaired",
+                    "either-or relation ask offers its own two words and appended %s"
+                    % row)
+        return None                                  # X == Y or one word twice: refuse
+    return None
+
+
 def repair_missing_buttons(reply: str, course: str = ""):
     """(reply, status, detail): status is "" (nothing to do), "repaired" (a computed
     choices row was appended) or "unrepairable" (the gap stands and must be counted).
@@ -7400,6 +7552,12 @@ def repair_missing_buttons(reply: str, course: str = ""):
                 a, b = _rb_num(pm.group(1)), _rb_num(pm.group(3))
                 op = _RB_PROSE_OPS.get(" ".join(pm.group(2).lower().split()))
         if a is None or b is None or op is None:
+            # (ra) the residue classes: comparison / either-or / one-more / comes-after,
+            # consulted ONLY when no arithmetic problem could be parsed at all --
+            # an arithmetic ask that parsed and then failed a law still refuses below.
+            fixed = _rb_counting_shapes(text)
+            if fixed:
+                return fixed
             return text, "unrepairable", "no computable pending problem to build a row from"
         # ---- computed, never guessed ------------------------------------------
         if op == "+":
