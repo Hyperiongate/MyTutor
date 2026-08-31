@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qu -- TWO FALSEHOOD ROWS FROM THE FIRST HEALTHY NIGHT WATCH, riding
+#               PART 3ge exactly as its design demands (one row + a FIRES and a SILENT
+#               line; no new referee): division-always-makes-smaller and
+#               symbol-read-as-expression. Four FIRES lines (both watch sentences
+#               verbatim, plus each shape's second form), four SILENT lines (each row's
+#               escape, the authored remainder card whose word order must stay quiet, and
+#               the one-sentence both-readings form). The table floor moves 11 -> 13. The
+#               existing canon sweep covers the new rows with no new code.
 #   2026-08-30  BUILD qt -- PART 3gw: the counting lessons actually count. qs built the
 #               count-along and nothing in the canon asked for it, so a child who never
 #               answered wrongly (and so never met the AI intervention) would never have seen
@@ -13790,6 +13798,15 @@ def part3ge_the_named_list_of_falsehoods():
          "3w: parentheses mean function notation"),
         ("Getting 0/0 means the expression has a hidden common factor.",
          "3w: 0/0 means a common factor"),
+        # (qu) the 2026-08-31 night watch's two confirmed wordings, verbatim
+        ("Division — that's when we split a group of things into equal smaller groups.",
+         "qu: division always makes smaller (the watch's own sentence)"),
+        ("Remember, dividing always makes the number smaller.",
+         "qu: the 'always makes smaller' form"),
+        ('that little "÷" is the **division sign**, read "two divided by two."',
+         "qu: the ÷ symbol read as a whole expression (the watch's own sentence)"),
+        ('The + symbol is read "three plus four."',
+         "qu: the same shape on a different sign"),
     ]
     for reply, label in LIVE:
         r = F(reply)
@@ -13816,6 +13833,16 @@ def part3ge_the_named_list_of_falsehoods():
         ("The square-root symbol gives one non-negative value.", "symbol named"),
         ("Multiply and divide before you add and subtract, every time.",
          "the 37th referee's sentence -- NOT this table's"),
+        # (qu) each new row's escape, plus the near-misses that must stay quiet
+        ("Division splits a group into equal groups — and when we split into more than "
+         "one group, each group is smaller than the whole.",
+         "qu: the division condition is said"),
+        ("A remainder is always smaller than the number you divided by.",
+         "qu: the authored remainder card (smaller BEFORE divided -- word order matters)"),
+        ('The ÷ sign is read "divided by," so 2 ÷ 2 is read "two divided by two."',
+         "qu: BOTH readings taught correctly in one sentence"),
+        ('The expression 2 ÷ 2 is read "two divided by two."',
+         "qu: the EXPRESSION read, no sign misnamed"),
         ("So 3 + 4 = 7. [[step eq=\"3 + 4 = 7\"]] Does that make sense?", "ordinary teaching"),
         ("", "empty"),
     ]
@@ -13826,7 +13853,7 @@ def part3ge_the_named_list_of_falsehoods():
           "the 37th referee owns them")
     check("  every entry carries a true form and an escape",
           all(len(e) == 4 and e[3] and e[2] for e in _t.KNOWN_FALSEHOODS)
-          and len(_t.KNOWN_FALSEHOODS) >= 11, "")
+          and len(_t.KNOWN_FALSEHOODS) >= 13, "")
     check("  never raises", F(None) == "" and F(12345) == "", "")
 
     # ---- wired, counted, and swept ----
@@ -19031,7 +19058,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,770</b>" in page,
+          "<b>7,778</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")

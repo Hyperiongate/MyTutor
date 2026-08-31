@@ -2,6 +2,23 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD qu -- TWO ROWS FROM THE FIRST HEALTHY NIGHT WATCH. The 2026-08-31
+#               watch (the first on the Anthropic seat since the DeepSeek trial ended)
+#               confirmed two false wordings in live lessons, and both are exactly what
+#               KNOWN_FALSEHOODS was built for -- no new referee, one row each:
+#                 * division-always-makes-smaller ("division -- that's when we split a
+#                   group of things into equal smaller groups", basic course, rule 61).
+#                   Dividing by 1 leaves the group the same size; the condition -- MORE
+#                   THAN ONE group -- is the escape, and the true form carries it.
+#                 * symbol-read-as-expression ('that little "÷" is the division sign,
+#                   read "two divided by two"', prealgebra, rule 48/61). A symbol's
+#                   name never holds a number: the sign is read "divided by", the
+#                   EXPRESSION 2 ÷ 2 is read "two divided by two". The escape is the
+#                   correct short reading appearing anywhere in the reply, which the
+#                   right sentence always carries -- so teaching both readings in one
+#                   sentence stays silent.
+#               FIRES + SILENT lines ride PART 3ge as its design demands; the table's
+#               canon sweep covers the new rows automatically (0 hits).
 #   2026-08-30  BUILD qs -- COUNT OUT LOUD WITH ME, AND THE REFEREE THAT KEEPS IT HONEST.
 #               Jim, on the Entry-Level turn he read on 2026-08-30: Mr. Cadabra had said
 #               "point to each one and count out loud with me" -- a line nobody asked him
@@ -5264,6 +5281,38 @@ KNOWN_FALSEHOODS = [
      re.compile(r"candidate|check\s+(?:both|each)|satisf|original\s+equation", re.I),
      "plus-or-minus gives two CANDIDATES; they are two answers only when both satisfy "
      "the original equation -- check each"),
+    # ---- (qu) the 2026-08-31 night watch's two confirmed wordings ----
+    # "division -- that's when we split a group of things into equal smaller groups."
+    # False as written: dividing by 1 leaves the group the same size, and splitting
+    # into ONE group is still division. The reviewer's own challenge stood: the
+    # sentence teaches the classic false rule that division always makes smaller.
+    ("division-always-makes-smaller",
+     re.compile(r"\bdivi(?:sion|de|ding)\b[^.!?]{0,70}\b(?:split|shar|break)\w*"
+                r"[^.!?]{0,60}\bsmaller\b"
+                r"|\bdivi(?:sion|de|ding)\b[^.!?]{0,60}\balways\s+makes?\b"
+                r"[^.!?]{0,30}\bsmaller\b", re.I),
+     re.compile(r"more\s+than\s+one\s+(?:equal\s+)?group|smaller\s+than\s+the\s+whole|"
+                r"divid\w*\s+by\s+(?:1|one)\b|(?:the\s+)?same\s+size|"
+                r"not\s+always\s+smaller|"
+                r"for\s+(?:these|today'?s|our)\s+(?:first\s+)?problems|in\s+these\s+problems", re.I),
+     "division splits a group into equal groups -- and when we split into more than "
+     "one group, each group is smaller than the whole"),
+    # 'that little "÷" is the division sign, read "two divided by two."' The SYMBOL
+    # is read "divided by"; it is the whole EXPRESSION 2 ÷ 2 that is read "two
+    # divided by two". The false shape: a sign or symbol whose stated READING holds
+    # an operand -- a symbol's name never contains a number. The escape is the
+    # correct short reading appearing anywhere in the reply (read "divided by"),
+    # which the right sentence always carries -- so teaching both readings in one
+    # sentence stays silent.
+    ("symbol-read-as-expression",
+     re.compile("\\b(?:sign|symbol)\\b[^.!?]{0,50}\\bread\\b[^.!?]{0,15}[\"\u201c\u2018']"
+                "(?=[^\"\u201d.!?]{0,40}\\b(?:divided\\s+by|plus|minus|times|equals)\\b)"
+                "[^\"\u201d.!?]{0,40}?\\b(?:zero|one|two|three|four|five|six|seven|eight|"
+                "nine|ten|eleven|twelve|\\d+)\\b", re.I),
+     re.compile("\\bread\\b\\s+[\"\u201c\u2018']?\\s*(?:divided\\s+by|plus|minus|times|equals)"
+                "\\s*[,.;\"\u201d\u2019']", re.I),
+     'the sign\'s own name is short -- \u00f7 is read "divided by"; it is the whole '
+     'expression, like 2 \u00f7 2, that is read "two divided by two"'),
 ]
 
 

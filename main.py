@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  APP_BUILD -> "2026-08-31qu-two-rows-from-the-night-watch". BUILD qu -- the
+#               first healthy Anthropic-seat night watch (2026-08-31 08:46 UTC, run on
+#               build qs -- which is also how we know qr and qs are LIVE) confirmed seven
+#               findings; the two that are pure false WORDINGS land here as
+#               KNOWN_FALSEHOODS rows in tutor.py: division described as splitting into
+#               "smaller" groups with no condition, and the ÷ SIGN said to be read "two
+#               divided by two" (the sign is read "divided by"; the EXPRESSION is read
+#               with its numbers). No other file changed. The watch's remaining findings
+#               are queued in the handoff: fractions top/bottom over an inline 1/4, the
+#               unread g(x) rule, the missing [[clear]], answer-the-question-first, and
+#               Jim's ruling that a unit-plan PREVIEW is exempt from first-use definitions.
 #   2026-08-30  APP_BUILD -> "2026-08-30qt-the-counting-lessons-actually-count". BUILD qt --
 #               the canon uses what qs built. NO PYTHON CHANGED ANYWHERE: thirteen authored
 #               BOARD lines in foundations.py and lessonscripts.py gained count="1" -- the
@@ -12987,7 +12998,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-30qt-the-counting-lessons-actually-count"
+APP_BUILD = "2026-08-31qu-two-rows-from-the-night-watch"
 
 
 @app.get("/health")
