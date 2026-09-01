@@ -450,8 +450,22 @@
   @keyframes abrabob{0%,100%{transform:translateY(0) rotate(-2.5deg)}
     50%{transform:translateY(-13px) rotate(2.5deg)}}
   @media(max-width:900px){#abraBig{width:140px;height:140px;right:8px;top:6px}}
+  /* (rk) the streak chips, matching session.html's pair */
+  .streakchips{display:flex;align-items:center;gap:8px;margin-left:12px}
+  .schip2{display:inline-flex;flex-direction:column;align-items:center;gap:1px;
+    border:1px solid var(--line);background:#fff;border-radius:12px;padding:3px 11px 4px}
+  .schip2 .scmain{display:flex;align-items:center;gap:5px;font-weight:700;font-size:1rem;
+    font-variant-numeric:tabular-nums}
+  .schip2 .sclab{font-size:.58rem;letter-spacing:.02em;color:#6A6480}
+  .schip2.days .scmain{color:#B4560E}
+  .schip2.today .scmain{color:#4a4ac9}
+  @media (max-width:760px){ .streakchips{display:none} }
+  /* (rk) the orb canvas keeps drawing (Abrabot's big face shares that loop) but is no
+     longer SEEN -- the pencil sits in its place. Deleting the canvas would throw inside
+     the shared try/catch and take Abrabot's face down with it. */
+  .orbwrap .cadbust{width:100%;height:100%;display:block}
   .orbwrap{width:76px;height:76px;flex:0 0 auto;border-radius:50%}
-  .orbwrap canvas{width:100%;height:100%;display:block}
+  .orbwrap canvas{width:100%;height:100%;display:none}   /* (rk) still drawn, no longer seen */
   .orbwrap.speaking{box-shadow:0 0 18px 6px rgba(47,227,200,.40)}
   .tutor-name{font-weight:850;font-size:15.5px}
   .status{font-size:11.5px;color:var(--muted);min-height:15px}
@@ -766,9 +780,13 @@
 </style>
   <script src="/static/analytics.js"></script>
 </head>
-<body class="intro">
+<body class="intro" data-cadabra-page="demo">
 <script src="/static/tutor-face.js"></script>
 <script src="/static/tutor-moments.js"></script>   <!-- build eu: his talking clips (dark until they exist) -->
+<!-- (rk) HIS FLOATING LAYER. Not deferred: window.Cadabra must exist before the page
+     script below runs. Dark without /static/cadabra-script.json, in which case every
+     call is a no-op and this demo behaves exactly as it did. -->
+<script src="/static/cadabra.js"></script>
 
 <!-- ===== FRONT DOOR ===== -->
 <div class="wrap" id="intro">
@@ -789,7 +807,7 @@
 <div class="app" id="app">
   <aside class="side">
     <div class="tutor-head" id="tutorPanel">
-      <div class="orbwrap" id="orb"><canvas id="orbFace" width="200" height="200"></canvas></div>
+      <div class="orbwrap" id="orb"><canvas id="orbFace" width="200" height="200"></canvas><span class="cadbust"><svg viewBox="64 8 92 196" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mr. Cadabra"><rect x="82" y="114" width="56" height="98" fill="#F2BC1B"/><rect x="82" y="114" width="15" height="98" fill="#FBD96A" opacity=".33"/><rect x="123" y="114" width="15" height="98" fill="#C08F0C" opacity=".42"/><path d="M97 114 V212 M123 114 V212" stroke="#C08F0C" stroke-width="1.2" opacity=".5"/><rect x="82" y="114" width="56" height="98" fill="none" stroke="#2F2C39" stroke-width="1.8" opacity=".7"/><rect x="86" y="98" width="48" height="17" fill="#C8CAD4"/><path d="M86 103.5 H134 M86 109.5 H134" stroke="#9EA1B1" stroke-width="1.5"/><ellipse cx="110" cy="89" rx="50" ry="9.5" fill="#221F4C"/><path d="M68 87 Q78 44 110 20 Q126 11 133 20 Q124 48 152 87 Q110 97 68 87 Z" fill="#2E2A63"/><path d="M112 21 Q124 48 152 87 Q136 93 124 94 Q128 56 112 21 Z" fill="#221F4C" opacity=".55"/><path d="M70 79 Q110 90 150 79 L151 87 Q110 98 69 87 Z" fill="#4a4ac9"/><path transform="translate(118,50) scale(.78)" d="M0 -10 L2.9 -3.5 L9.5 -3.1 L4.5 1.2 L6.1 7.6 L0 4 L-6.1 7.6 L-4.5 1.2 L-9.5 -3.1 L-2.9 -3.5 Z" fill="#F2BC1B"/><g transform="translate(0,8)"><path d="M90 143 Q99 138 108 142" fill="none" stroke="#2F2C39" stroke-width="2.6" stroke-linecap="round"/><path d="M112 142 Q121 138 130 143" fill="none" stroke="#2F2C39" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="99" cy="158" rx="8" ry="9" fill="#FBFAFF" stroke="#2F2C39" stroke-width="2.2"/><ellipse cx="121" cy="158" rx="8" ry="9" fill="#FBFAFF" stroke="#2F2C39" stroke-width="2.2"/><circle cx="100" cy="159.5" r="3.4" fill="#2F2C39"/><circle cx="122" cy="159.5" r="3.4" fill="#2F2C39"/><path d="M97 181 Q110 192 123 181" fill="none" stroke="#2F2C39" stroke-width="2.7" stroke-linecap="round"/></g></svg></span></div>
       <div>
         <div class="tutor-name">Mr. Cadabra</div>
         <div class="status" id="status">&nbsp;</div>
@@ -820,6 +838,18 @@
       <img src="/static/brand-mark.svg" alt="" style="height:22px;width:auto">
       <div class="title" id="courseTitle">Mr. Cadabra's Classroom</div>
       <span class="demo-badge">DEMO</span>
+      <!-- (rk) THE STREAK CHIPS. session.html has carried these since build qz/rb and the
+           demo's replica topbar never got them -- the demo must look like the product it
+           is selling. Same two numbers, same visible labels, same words as the dashboard
+           banner: a tooltip is invisible to a child on a tablet. -->
+      <div class="streakchips" id="streakChips">
+        <span class="schip2 days" title="Days in a row you've worked">
+          <span class="scmain"><span class="se">&#128293;</span><span id="scDaysNum">4</span></span>
+          <span class="sclab">days in a row</span></span>
+        <span class="schip2 today" title="Problems right in a row today">
+          <span class="scmain"><span class="se">&#11088;</span><span id="scTodayNum">3</span></span>
+          <span class="sclab">right in a row today</span></span>
+      </div>
       <div class="spacer"></div>
       <button class="replay" id="restart" type="button" style="display:none">↩ Start over</button>
     </div>
@@ -1287,7 +1317,10 @@
         // he never left the room. Each face's mouth moves only for its OWN lines.
         var cadTalking=sp&&!lastRobot, botTalking=sp&&lastRobot;
         var cadLevel=cadTalking?level:0.10+0.05*Math.sin(faceT*0.035);
-        TutorFace.draw(orbFace.getContext('2d'),200,200,{level:cadLevel,t:faceT,
+        /* (rk) presence:false -- the video presence layer is footage of a REAL PERSON,
+           and Mr. Cadabra is the pencil now. Two of him on one screen is a rendering bug
+           to an adult and a different character to a child. One word, fully reversible. */
+        TutorFace.draw(orbFace.getContext('2d'),200,200,{level:cadLevel,t:faceT,presence:false,
           mood:(Date.now()<faceHappyUntil?'happy':(cadTalking?'speaking':'idle')),persona:'cadabra'});
         var big=document.getElementById('abraBigFace');
         if(big){
@@ -2784,6 +2817,7 @@
     {t:'finalLink',     line:"And the Final Exam — the top of the mountain. It unlocks only after all nine units are mastered, and passing it makes them a Course Champion."},
     {t:'libraryLink',   line:"Last one on the left: Look it up. Any time they just want to READ about something, they tap it, type the topic, and a page opens right on top of the lesson. Their place is waiting when they close it."},
     {t:'board',         line:"This big space is my whiteboard. Every step of every problem gets drawn right here — the board leads, and my voice follows. Nothing ever happens only in words."},
+    {t:'streakChips',  line:"And these two bubbles at the top are the streak. The flame counts days in a row your student has worked; the star counts problems right in a row today. Small, honest numbers — and children watch them like a scoreboard."},
     {t:'dbars',         line:"See the bars up top? That's your student's map — today's goals, the current unit with a marker for every quiz, and the whole course marching gold toward the Final Exam. They always know exactly where they are."},
     {t:'tutorPanel',    line:"And this is me, Mr. Cadabra! In the real classroom we simply talk — your student says their answer out loud and we go back and forth like a real teacher and student. Here in the demo, you'll type or tap your answers instead."}
   ];
@@ -2791,9 +2825,35 @@
   var PICK_LINE="That's the classroom! Ready to try a real problem? Pick your student's level — anywhere from counting stars to differential equations — and I'll teach you the exact way I teach them.";
   var tourCancelled=false, tourOpenedCurriculum=false;
 
+  /* ============================================================
+     (rk) MR. CADABRA POINTS AT THE STOP HE IS TALKING ABOUT.
+     The tour above is unchanged -- same stops, same order, same lines, same glow,
+     same 👀 tag. This only adds the floating pencil on top of it, which is the
+     one thing the demo could never do: show you who is talking while he talks.
+     He finds his targets by data-cad NAME (never by coordinate), so the tags are
+     stamped on from the TOUR table itself -- no markup to keep in sync.
+     Entirely dark without /static/cadabra-script.json: cadPoint() is then a no-op
+     and the tour runs exactly as it does today.
+     ============================================================ */
+  (function stampTourTargets(){
+    try {
+      for (var i = 0; i < TOUR.length; i++) {
+        var t = el(TOUR[i].t);
+        if (t && !t.getAttribute('data-cad')) t.setAttribute('data-cad', TOUR[i].t);
+      }
+      var bd = el('board');   if (bd && !bd.getAttribute('data-cad')) bd.setAttribute('data-cad','board');
+      var an = el('answer');  if (an && !an.getAttribute('data-cad')) an.setAttribute('data-cad','answer');
+    } catch (e) {}
+  })();
+  function cadMount(){ try { if (window.Cadabra) Cadabra.mount({ page: 'demo' }); } catch (e) {} }
+  function cadPoint(id){ try { if (window.Cadabra) Cadabra.point(id); } catch (e) {} }
+  function cadRelease(){ try { if (window.Cadabra) Cadabra.release(); } catch (e) {} }
+  cadMount();
+
   function clearGlow(){
     document.querySelectorAll('.demoGlow').forEach(function(n){ n.classList.remove('demoGlow'); });
     tourTag.style.display='none';
+    cadRelease();                     /* (rk) and he drifts back to his corner */
     if(tourOpenedCurriculum){                      // build bi behaviour: close it again
       tourOpenedCurriculum=false;
       el('curriculumList').classList.remove('show');
@@ -2804,6 +2864,7 @@
     clearGlow();
     var t=el(id); if(!t) return;
     t.classList.add('demoGlow');
+    cadPoint(id);                     /* (rk) and he flies over to it */
     if(id==='curriculumBtn'){                      // open the list so there's something to see
       el('curriculumList').classList.add('show');
       el('curriculumBtn').classList.add('open');
@@ -2860,14 +2921,12 @@
       if (justWelcomed) sessionStorage.removeItem('cadabra_welcomed');
     } catch(e){}
     if (justWelcomed) { afterHello(); return; }
-    if (window.TutorMoments && TutorMoments.available('demo_welcome')) {
-      TutorMoments.play('demo_welcome').then(function(how){
-        if (how === 'played' || how === 'skipped') afterHello();
-        else sayThen(WELCOME_LINE, afterHello);      // clip failed to load -- speak it
-      });
-    } else {
-      sayThen(WELCOME_LINE, afterHello);
-    }
+    /* (rk) THE HUMAN WELCOME CLIP IS RETIRED. demo_welcome is footage of a real
+       person introducing himself as Mr. Cadabra, and Mr. Cadabra is the pencil now.
+       His own voice still speaks the identical WELCOME_LINE, so nothing is lost --
+       and the line is now said BY the character who then gives the tour.
+       The clip and its manifest entry stay on disk; restoring it is undoing this. */
+    sayThen(WELCOME_LINE, afterHello);
   }
   el('startBtn').onclick=startDemo;
   el('restart').onclick=function(){ location.reload(); };
