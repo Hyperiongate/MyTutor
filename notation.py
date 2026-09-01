@@ -2,6 +2,16 @@
 # notation.py  --  THE NOTATION REGISTRY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rl -- THE LIMIT JOINS THE REGISTRY (the 09-01 night watch's
+#               first-use cluster, rule 48): "lim (x→2)" reached a student before
+#               anyone ever said "the limit as x approaches" -- and lim was not
+#               registered AT ALL, so rule 48's HOW-TO-SAY table had no reading to
+#               hand the tutor and PART 3f had nothing to enforce. One new row,
+#               precalc/calculus/diffeq; `wrote` is a guarded \blim\b (no match
+#               inside "limb"/"climbing" -- \b does that); `heard` accepts any
+#               spoken "limit". The runtime half (the rule-48 referee's own list in
+#               tutor.py) gained its matching entry the same build, plus the
+#               superscript widening for x² -- see tutor.py's rl note.
 #   2026-08-12  BUILD en -- TWO REGISTRY GAPS CLOSED, both from the 2026-08-12 audits.
 #               (1) BARE < and > were not in this registry at all -- only ≤/≥, and not
 #               for the elementary courses -- so when a Basic Math lesson wrote
@@ -171,6 +181,15 @@ NOTATIONS = [
     {"id": "integral", "shown": "∫", "spoken": "the integral of", "never": "a long S",
      "courses": ("calculus", "diffeq"), "wrote": r"∫",
      "heard": r"integral", "note": "the dx at the end says which variable you are adding along"},
+
+    # (rl, 2026-09-01) the 09-01 night watch: "lim (x→2)" written before "the limit
+    # as x approaches" was ever said -- lim was not registered at all.
+    {"id": "limit", "shown": "lim (x→2) f(x)",
+     "spoken": "the limit of f of x as x approaches two", "never": "lim",
+     "courses": ("precalc", "calculus", "diffeq"), "wrote": r"\blim\b",
+     "heard": r"\blimit\b",
+     "note": "the value f(x) closes in on as x slides toward the target -- "
+             "approached, not necessarily reached"},
 
     {"id": "differential", "shown": "dy/dx", "spoken": "d y d x", "never": "d times y over d times x",
      "courses": ("calculus", "diffeq"), "wrote": r"\bd\s*[a-z]\s*/\s*d\s*[a-z]\b",

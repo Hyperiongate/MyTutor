@@ -2,6 +2,25 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rl -- THE FIRST-USE LIST LEARNS lim AND x² (the 09-01 watch's
+#               cluster B, rule 48 x2 -- a gate WIDENING of referee 31's own list,
+#               notation_intro_conflict; NOT a new referee, the count stays 71).
+#               The watch: "lim (x→2)" written before "the limit as x approaches"
+#               was ever said, and "a² + b² = c²" on a card before "a squared" was
+#               said. Two holes in _NOTATIONS: no limit entry at all, and the
+#               exponent entry matched only the CARET (^) while real boards draw
+#               true superscripts. Widened: exponent wrote-pattern gains [²³];
+#               new "the limit" entry (\blim\b -- no match inside limb/climbing,
+#               the word boundary does that; heard = any spoken "limit").
+#               THE DELTA, measured against the authored canon before shipping:
+#               137 authored cards draw superscripts (44 without the reading on
+#               that same card), 0 draw lim -- but the gate's own limiters bound
+#               runtime exposure to a LIVE reply introducing the symbol for the
+#               FIRST time in a conversation with no reading in the same reply
+#               (history carries board text, so any prior ² silences it; scripted
+#               cards never pass through the referee loop). notation.py gained the
+#               matching registry row (limit, precalc/calculus/diffeq) so rule
+#               48's HOW-TO-SAY table finally hands the tutor the reading.
 #   2026-09-01  BUILD rg -- THE WORDS POINT WHERE THE COLUMN PUT IT. The watch (rule 63,
 #               prealgebra): "the six ended up under the five" said AND captioned over
 #               [[column terms="2.6 | 0.35"]] -- which draws 2.6 on TOP, so the six is
@@ -4851,7 +4870,10 @@ _NOTATIONS = (
     ("pi", re.compile(r"π"), re.compile(r"\bpi\b", re.I),
      'That symbol is the Greek letter pi -- we say "pie" -- and it stands for '
      "about 3.14, the number a circle keeps."),
-    ("an exponent", re.compile(r"\^"),
+    # (rl, 2026-09-01) the caret alone missed every REAL superscript the boards
+    # draw -- the watch's "a² + b² = c²" card shipped unread. [²³] joins the
+    # pattern; the reading regex was already right.
+    ("an exponent", re.compile(r"\^|[²³]"),
      re.compile(r"\bsquared\b|\bcubed\b|\bpower\b|\bexponent\b|\braised\s+to\b", re.I),
      'That small raised number is an EXPONENT -- "s squared" means s times s.'),
     # build iz (2026-08-19, THE PHANTOM FOUND -- by build iy's own line-naming,
@@ -4938,6 +4960,16 @@ _NOTATIONS = (
      re.compile(r"\bsub\b|\b[a-z]\s+(?:one|two|zero)\b|\bfirst\b.{0,24}\bsecond\b", re.I),
      'Those small low numbers are SUBSCRIPTS -- labels, not arithmetic: we read '
      'r₁ and r₂ as "r one" and "r two", the names of the first and second roots.'),
+    # (rl, 2026-09-01) THE 09-01 WATCH'S OTHER FIRST-USE HOLE: "lim (x→2)" written
+    # before "the limit as x approaches" was ever said -- lim was on no list at
+    # all (this one OR notation.py's registry; both gained it this build). The
+    # word boundary keeps "limb"/"climbing" safe; any spoken "limit" counts as
+    # the reading (a broad heard errs cautious -- the cautious-grader law).
+    ("the limit", re.compile(r"\blim\b", re.I),
+     re.compile(r"\blimit\b", re.I),
+     'That is the LIMIT sign -- we read lim as "the limit of f of x as x '
+     "approaches two\": the value the function closes in on as x slides toward "
+     "the target."),
 )
 _NOTE_TAG_RE = re.compile(r"\[\[([^\]]*)\]\]")
 _NOTE_VAL_RE = re.compile(r'"([^"]*)"')

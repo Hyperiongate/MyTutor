@@ -2,6 +2,18 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rl -- PART 3hm: the first-use list learns lim and x². The 09-01
+#               watch's cluster B (rule 48 x2): "lim (x→2)" written before "the limit
+#               as x approaches" was said (lim on NO list), and "a² + b² = c²" on a
+#               card before "a squared" was said (the exponent entry matched only the
+#               caret, never real superscripts). A GATE WIDENING of referee 31
+#               (notation_intro_conflict) -- count stays 71 and the PART pins that.
+#               notation.py gains the limit registry row (precalc/calculus/diffeq);
+#               tutor.py's _NOTATIONS gains [²³] on exponent and "the limit" entry.
+#               Delta measured before shipping: 137 authored superscript cards / 44
+#               without a same-card reading / 0 lim cards; runtime exposure bounded to
+#               live first-use. Fire AND silence exercised both ways, limb-phantom
+#               guarded.
 #   2026-09-01  BUILD rk -- PART 3hl: the course remembers which lessons are done. Jim:
 #               "I keep logging in as student zero zero zero zero, and it keeps starting
 #               over from the beginning." Double root: scriptPick read quiz fields the
@@ -12262,6 +12274,98 @@ def part3hl_the_course_remembers_which_lessons_are_done():
           "`|| pool[0]` is the line that restarted lesson one every login")
 
 
+def part3hm_the_first_use_list_learns_lim_and_squared():
+    """PART 3hm (build rl, 2026-09-01) -- THE FIRST-USE LIST LEARNS lim AND x².
+
+    THE FINDING (the 09-01 night watch, cluster B -- rule 48 twice): "lim (x→2)"
+    was written before "the limit as x approaches" was ever said, and
+    "a² + b² = c²" shipped on a card before "a squared" was said. Rule 48's law
+    is old and simple -- if it is drawn, it is read -- and referee 31
+    (notation_intro_conflict) exists to enforce it. Both findings walked through
+    two HOLES in its list: no limit entry existed AT ALL (in the referee's
+    _NOTATIONS or in notation.py's registry), and the exponent entry matched
+    only the CARET (^) while real boards draw true superscripts (²³).
+
+    THE FIX IS A GATE WIDENING, NOT A NEW REFEREE (the count stays 71): the
+    exponent wrote-pattern gains [²³], and "the limit" joins both lists
+    (\\blim\\b -- the word boundary keeps limb/climbing safe; heard = any spoken
+    "limit", broad on purpose per the cautious-grader law). notation.py's new
+    registry row (precalc/calculus/diffeq) also puts the reading in rule 48's
+    HOW-TO-SAY table, so the tutor is finally TOLD the canonical words.
+
+    THE DELTA, measured against the authored canon before shipping: 137 authored
+    cards draw superscripts (44 without the reading on the same card), 0 draw
+    lim. Runtime exposure stays bounded by the gate's own limiters: it fires
+    only on a LIVE reply whose board introduces the symbol for the FIRST time in
+    the conversation with no reading in the same reply -- history carries board
+    text, so any prior ² silences it, and scripted cards never pass through the
+    referee loop at all.
+    """
+    print("\nPART 3hm — the first-use list learns lim and x² (build rl)")
+    import notation as N
+    import tutor as T
+
+    # ---- 1. the registry row ------------------------------------------------
+    row = N.by_id("limit")
+    check("⭐ the registry knows the limit (precalc/calculus/diffeq)",
+          bool(row) and set(row.get("courses", ())) ==
+          {"precalc", "calculus", "diffeq"},
+          "lim was on NO list -- rule 48's table had no reading to hand the tutor")
+    check("  written_in sees lim; the word boundary spares limb and climbing",
+          "limit" in N.written_in("lim (x→2) f(x)")
+          and "limit" not in N.written_in("a healthy limb, climbing high"),
+          "a false positive here fails a build for nothing (this file's own law)")
+    check("  spoken_in hears the reading",
+          "limit" in N.spoken_in("the limit of f of x as x approaches two"), "")
+    check("  the calculus HOW-TO-SAY table now carries it",
+          "limit" in N.prompt_block("calculus").lower(),
+          "the tutor cannot follow rule 48 for a symbol nobody gave him words for")
+
+    # ---- 2. the referee's widened gate, exercised both ways -----------------
+    # (heard="" = a brand-new conversation; heard=None would silence the referee)
+    fire = T.notation_intro_conflict(
+        'Look at this triangle. [[step eq="a² + b² = c²"]]', heard="")
+    check("⭐ a first-use SUPERSCRIPT with no reading now fires (the watch's card)",
+          "exponent" in fire.lower(),
+          "the caret-only pattern is exactly how a² + b² = c² shipped unread")
+    check("  ...and saying 'a squared plus b squared' silences it",
+          T.notation_intro_conflict(
+              'This says a squared plus b squared equals c squared. '
+              '[[step eq="a² + b² = c²"]]', heard="") == "", "")
+    check("  ...and a conversation that has already met ² stays silent",
+          T.notation_intro_conflict(
+              'Look at this triangle. [[step eq="a² + b² = c²"]]',
+              heard='earlier board: [[step eq="x² = 9"]]') == "",
+          "first use only -- rule 14's whole point")
+    fire2 = T.notation_intro_conflict(
+        'Watch the board now. [[step eq="lim, x to 2, gives 3"]]', heard="")
+    check("⭐ a first-use lim with no reading now fires (the watch's lesson)",
+          "limit" in fire2.lower(),
+          "lim (x→2) reached a student before anyone said 'the limit as x "
+          "approaches'")
+    check("  ...and any spoken 'limit' silences it (broad heard, cautious)",
+          T.notation_intro_conflict(
+              'The limit as x approaches two is three. '
+              '[[step eq="lim, x to 2, gives 3"]]', heard="") == "", "")
+    check("  the old caret behavior survives the widening",
+          "exponent" in T.notation_intro_conflict(
+              'Try this one. [[step eq="x^2 = 9"]]', heard="").lower(),
+          "widening must never narrow -- ^ has been on the list since this "
+          "referee shipped")
+    check("  a board saying 'limb' never fires the limit entry",
+          T.notation_intro_conflict(
+              'Count the branches. [[card title="limb count" items="4"]]',
+              heard="") == "",
+          "the iz phantom law: a pattern that can accuse an innocent board "
+          "fails a child for nothing")
+
+    # ---- 3. the referee count did NOT move (a widening, not a new referee) --
+    n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
+    check("  the referee count is unchanged -- this build widened a gate",
+          n_ref == 71,
+          f"{n_ref} *_conflict functions -- rl must not have added or lost one")
+
+
 def part3dn_every_verdict_is_counted():
     """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
 
@@ -21160,7 +21264,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,045</b>" in page,
+          "<b>8,060</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -29789,6 +29893,7 @@ def main():
     part3hj_three_in_a_row_means_move_on()
     part3hk_the_orb_retires_and_the_seam_is_announced()
     part3hl_the_course_remembers_which_lessons_are_done()
+    part3hm_the_first_use_list_learns_lim_and_squared()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

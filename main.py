@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  APP_BUILD -> "2026-09-01rl-the-first-use-list-learns-lim-and-squared".
+#               BUILD rl -- the 09-01 watch's cluster B (rule 48 x2): lim written
+#               before "the limit as x approaches" was said, and a²+b²=c² before
+#               "a squared" was said. Referee 31's gate WIDENED (exponent pattern
+#               gains real superscripts; new limit entry) and notation.py gains the
+#               limit registry row -- see tutor.py/notation.py rl notes.
+#               NO CODE IN THIS FILE CHANGED.
 #   2026-09-01  APP_BUILD -> "2026-09-01rk-the-course-remembers-which-lessons-are-done".
 #               BUILD rk -- Jim: "I keep logging in as student zero zero zero zero, and
 #               it keeps starting over from the beginning." Root cause: no per-LESSON
@@ -13239,7 +13246,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-01rk-the-course-remembers-which-lessons-are-done"
+APP_BUILD = "2026-09-01rl-the-first-use-list-learns-lim-and-squared"
 
 
 @app.get("/health")

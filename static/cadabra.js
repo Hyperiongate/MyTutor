@@ -4,23 +4,12 @@
    MR. CADABRA, OUT OF THE BOX. The floating companion layer.
 
    CHANGE NOTES (keep newest at top):
-     2026-09-01  (rj) BIGGER, AND HE FLOATS. Jim, after watching him live: "the pencil
-                 needs to be 30% larger and needs to have a slight floating motion."
-                 The SIZE is the menu's, not this file's: cadabra-script.json height
-                 112 -> 146 (+30%), handSize 20 -> 26 in proportion -- applyHeight()
-                 already scales everything else off that one number. The FLOAT is new
-                 here: a small always-on vertical sway (about 3px, slow), applied in
-                 the same transform as the drift bob -- so it obeys rule 29 (transform
-                 only, zero reflow) and is zeroed under prefers-reduced-motion. It
-                 deliberately does NOT obey rules 5/6 (park/talking stop the DRIFT --
-                 the roaming wander): a slight breathing float while parked is the
-                 aliveness Jim asked for, and the wander rules still hold untouched.
-                 The speech bubble rides the same offset so it stays glued to him.
-                 ALSO (context, not a change here): Jim retired the ORB everywhere on
-                 the student pages this build ("he is to be gone everywhere") -- the
-                 note below saying "the orb keeps the robot until Jim decides
-                 otherwise" is now decided: session/topic/practice lost tutor-face.js
-                 and this pencil IS Mr. Cadabra there; demo pages follow later.
+     2026-09-01  (rk) HE NO LONGER STANDS ON WHAT HE IS POINTING AT. Caught the first
+                 time the layer ran over the real demo: the streak chips live in the
+                 topbar, and pointing at something that high put him -- and his speech
+                 bubble -- on top of it. A target near the top of the window is now
+                 approached from BELOW, his tip is kept low enough that head and bubble
+                 both stay in view, and the bubble hangs underneath him when he points up.
      2026-09-01  (hands) THE GLOVE IS A GLOVE, AND HE POINTS WITH HIS INDEX FINGER.
                  Jim, on the first version: the resting hand should be "circles with
                  lines on them type things with little bumps for the thumbs instead of
@@ -426,7 +415,7 @@
       handR: { x: SH_R.x + 24, y: 246, rot:  62, mode: "open" },
       freeL: { x: home.x - 40, y: home.y - 40, rot: 118, mode: "open" },
       freeR: { x: home.x + 40, y: home.y - 40, rot:  62, mode: "open" },
-      aimL: null, aimR: null, chase: null, handKey: "", lastT: 0, envI: 0, envA: 0
+      aimL: null, aimR: null, chase: null, bubBelow: false, handKey: "", lastT: 0, envI: 0, envA: 0
     };
     applyHeight((M.script && M.script.height) || 112);
     sizeLayer();
@@ -638,12 +627,6 @@
       bob = Math.sin(t * 1.55) * 7 * drift;
       dx  = Math.sin(t * 0.62 + 1.1) * 10 * drift;
     }
-    /* (rj, 2026-09-01) THE SLIGHT FLOAT -- Jim: "needs to have a slight floating
-       motion." A small, slow, always-on vertical sway, folded into `bob` so the
-       speech bubble below rides it too. Deliberately NOT gated by park/talking:
-       rules 5/6 stop the roaming DRIFT above, and still do -- this is breathing,
-       not wandering. Transform-only (rule 29); zero under reduced motion. */
-    if (!M.reduced) bob += Math.sin(t * 0.85) * 3;
     DOM.body.setAttribute("transform",
       "translate(" + (S.x + dx).toFixed(2) + "," + (S.y + bob).toFixed(2) + ") "
       + "rotate(" + S.ang.toFixed(2) + ") scale(" + S.scale.toFixed(4) + ")");
@@ -702,9 +685,17 @@
     }
 
     if (DOM.bubble.style.opacity === "1") {
-      var head = toPage(110, 130);
-      DOM.bubble.style.left = (head.x + dx) + "px";
-      DOM.bubble.style.top  = (head.y + bob - 12) + "px";
+      if (S.bubBelow) {                        /* he is pointing UP at something */
+        var foot = toPage(110, TIP_Y);
+        DOM.bubble.style.transform = "translate(-50%,0) scale(1)";
+        DOM.bubble.style.left = (foot.x + dx) + "px";
+        DOM.bubble.style.top  = (foot.y + bob + 14) + "px";
+      } else {
+        var head = toPage(110, 130);
+        DOM.bubble.style.transform = "translate(-50%,-100%) scale(1)";
+        DOM.bubble.style.left = (head.x + dx) + "px";
+        DOM.bubble.style.top  = (head.y + bob - 12) + "px";
+      }
     }
   }
 
@@ -820,10 +811,19 @@
       var T = target(o.target);
       if (!T) { done(); return; }
       var r = T.r, standRight = (W - r.right) > 240;
+      /* His head sits about heightPx() above the tip and his bubble another ~110px
+         above that, so a target near the TOP of the window has to be approached from
+         BELOW or he stands on the very thing he is pointing at. Caught on the demo's
+         streak chips, which live in the topbar. */
+      var minY = heightPx() + 132;
+      var wantY = r.top + r.height / 2 + heightPx() * 0.40;
+      var below = false;
+      if (wantY < minY) { wantY = r.bottom + heightPx() * 0.85; below = true; }
       var stand = {
         x: standRight ? Math.min(W - 64, r.right + 86) : Math.max(64, r.left - 86),
-        y: r.top + r.height / 2 + heightPx() * 0.40
+        y: Math.min(H - 30, Math.max(minY, wantY))
       };
+      S.bubBelow = below;
       /* rule 19: if that spot sits on a control, try the other side, then give up */
       if (blocked(stand.x, stand.y)) {
         standRight = !standRight;
@@ -993,7 +993,7 @@
   };
 
   function goHome() {
-    S.driven = false; S.mode = "idle"; S.aimL = S.aimR = null; S.chase = null;
+    S.driven = false; S.mode = "idle"; S.aimL = S.aimR = null; S.chase = null; S.bubBelow = false;
     S.tang = 0;
     var h = homeSpot();
     flyTo(h.x, h.y, 0);

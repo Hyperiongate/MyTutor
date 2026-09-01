@@ -442,6 +442,28 @@
     animation:abrafly .95s cubic-bezier(.22,1.35,.36,1) both}
   #abraBig.bob{animation:abrafly .95s cubic-bezier(.22,1.35,.36,1) both,
     abrabob 2.1s ease-in-out 1.1s infinite}
+  /* (rl) THE WAVE. A legless robot waves by rocking -- TutorFace draws his arms but
+     does not animate them, so the honest cheap version is a two-beat rock after he
+     lands. Higher specificity than .bob so it replaces the idle bob for those beats,
+     while keeping the same abrafly entrance. */
+  @keyframes abrawave{0%,100%{transform:rotate(0)}22%{transform:rotate(-12deg)}
+    58%{transform:rotate(10deg)}80%{transform:rotate(-5deg)}}
+  #abraBig.bob.wave{animation:abrafly .95s cubic-bezier(.22,1.35,.36,1) both,
+    abrawave 1.15s ease-in-out .95s 2}
+  /* (rl) the dashboard PEEK -- "show some, talk about all of it". The real dashboard
+     is a full-screen overlay and would bury the classroom mid-tour, so the tour shows
+     a corner of it instead and his line names everything that is inside. */
+  #dashPeek{position:absolute;right:14px;top:12px;width:min(310px,46%);z-index:6;
+    pointer-events:none;background:#fff;border:1px solid var(--line);border-radius:16px;
+    padding:14px 16px;box-shadow:0 14px 34px rgba(31,41,80,.18);
+    animation:peekin .42s cubic-bezier(.2,1.2,.4,1) both}
+  @keyframes peekin{from{opacity:0;transform:translateY(-10px) scale(.96)}to{opacity:1;transform:none}}
+  #dashPeek h4{font-size:13px;margin:0 0 9px;color:#5b5b78;letter-spacing:.04em;text-transform:uppercase}
+  #dashPeek .pk{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-size:14px;padding:5px 0;border-bottom:1px dashed var(--line)}
+  #dashPeek .pk:last-of-type{border-bottom:none}
+  #dashPeek .pk b{font-variant-numeric:tabular-nums}
+  #dashPeek .more{margin-top:9px;font-size:12.5px;color:#6A6480;font-style:italic}
   #abraBig canvas{width:100%;height:100%;display:block}
   @keyframes abrafly{0%{transform:translate(260px,-240px) rotate(24deg) scale(.25);opacity:0}
     55%{transform:translate(-16px,14px) rotate(-7deg) scale(1.08);opacity:1}
@@ -2386,6 +2408,42 @@
   }
   function hideAbraBig(){ var d=el('abraBig'); if(d) d.remove(); }
 
+  /* (rl) ---- the two tour beats Jim asked for on 2026-09-01 ---- */
+  function showDashPeek(){
+    if(el('dashPeek')) return;
+    var d=document.createElement('div'); d.id='dashPeek';
+    d.innerHTML='<h4>Progress dashboard</h4>'
+      +'<div class="pk"><span>Units mastered</span><b>2 of 9</b></div>'
+      +'<div class="pk"><span>Accuracy this week</span><b>86%</b></div>'
+      +'<div class="pk"><span>&#128293; Days in a row</span><b>3</b></div>'
+      +'<div class="pk"><span>&#11088; Right in a row today</span><b>28</b></div>'
+      +'<div class="pk"><span>&#127942; Awards earned</span><b>4</b></div>'
+      +'<p class="more">&hellip;and the rest inside</p>';
+    board.appendChild(d);
+  }
+  function hideDashPeek(){ var d=el('dashPeek'); if(d) d.remove(); }
+
+  /* Abrabot introduces HIMSELF, in his own voice, with his own mouth moving --
+     abraSay sets lastRobot, which routes the speaking level to his face and away
+     from Mr. Cadabra's. Jim: "have abrabot show up and wave and explain that he is
+     a teaching assistant for the extra practice." */
+  var ABRA_TOUR_LINE = "Beep! Hello there \u2014 I am Abrabot, Mr. Cadabra's teaching "
+    + "assistant. Extra practice is my job. My problem box is virtually unlimited, so "
+    + "your student can practise the same skill as many times as they like, and I never "
+    + "run out. It is always free, and it never changes their score. "
+    + "Back to you, Mr. Cadabra!";
+  function abrabotCameo(next){
+    showAbraBig();
+    var d=el('abraBig');
+    setTimeout(function(){ if(el('abraBig')) el('abraBig').classList.add('wave'); }, 1010);
+    setTimeout(function(){
+      if(tourCancelled){ hideAbraBig(); next(); return; }
+      abraSay(ABRA_TOUR_LINE, function(){
+        setTimeout(function(){ hideAbraBig(); next(); }, 520);
+      });
+    }, 1320);
+  }
+
   function abraSay(text, done){
     lastSaid=text; lastRobot=true; bubble.textContent=text; replay.style.display="inline-block";
     var finished=false;
@@ -2810,9 +2868,11 @@
   var TOUR=[
     {t:'curriculumBtn', line:"Over here on the left is your Curriculum — everything in the course, laid out in nine units. Your student can open any unit and see exactly what's inside it, so the whole year is never a mystery."},
     {t:'assessLink',    line:"Right below it, the Course Assessment. Whenever they're ready, it finds their strengths and builds a recommended path just for them. It's completely optional, and it's always waiting right there."},
-    {t:'dashLink',      line:"Next, the Progress dashboard. That's where they watch themselves win — units mastered, accuracy, streaks, and a trophy case for every award they earn."},
+    {t:'dashLink',      before:showDashPeek, done:hideDashPeek,
+     line:"Next, the Progress dashboard \u2014 here is a corner of it. Inside there is every unit and how far they have got, their accuracy, how long they have worked, the streaks you can see up top, a trophy case for every award they earn, and the very same plain-words report their parent and their teacher get. All of it in one place, and none of it a spreadsheet."},
     {t:'practiceLink',  line:"Then Practice a problem. When your student is stuck on one specific problem — homework, a worksheet, anything — they bring it here and we work through it together."},
-    {t:'drillLink',     line:"And see Extra practice — the one with the robot? That's Abrabot, my practice helper. Practice a problem is for a problem your student brings me; Abrabot is the other way round — he hands out more problems on lessons already done, as many as they want, always free, and he keeps count so your student can show you how hard they've worked. Stay to the end of the lesson and you'll meet him yourself — or tap his button any time."},
+    {t:'drillLink',     after:abrabotCameo,
+     line:"And see Extra practice \u2014 the one with the robot? That one is not mine at all. Let me introduce you."},
     {t:'topicLink',     line:"Right under it, Explore a topic. Curious about just one thing, like fractions or slope? They open it, name the topic, and we dig into exactly that."},
     {t:'finalLink',     line:"And the Final Exam — the top of the mountain. It unlocks only after all nine units are mastered, and passing it makes them a Course Champion."},
     {t:'libraryLink',   line:"Last one on the left: Look it up. Any time they just want to READ about something, they tap it, type the topic, and a page opens right on top of the lesson. Their place is waiting when they close it."},
@@ -2879,14 +2939,30 @@
       tourTag.style.display='block';
     }, 380);
   }
+  /* (rl) A stop may now do something as well as be pointed at:
+       before()      runs as the stop opens (show a peek, open a list)
+       after(next)   runs after his line and must call next() exactly once
+       done()        tidies up as the stop ends
+     Stops without them behave exactly as they always have. */
   function runTour(k){
     if(tourCancelled) return;
     if(k>=TOUR.length){ clearGlow(); showPicker(true); return; }
-    glow(TOUR[k].t);
-    sayThen(TOUR[k].line, function(){ setTimeout(function(){ runTour(k+1); }, 420); });
+    var st=TOUR[k];
+    glow(st.t);
+    if(st.before){ try{ st.before(); }catch(e){} }
+    sayThen(st.line, function(){
+      var went=false;
+      function go(){
+        if(went) return; went=true;
+        if(st.done){ try{ st.done(); }catch(e){} }
+        setTimeout(function(){ runTour(k+1); }, 420);
+      }
+      if(st.after){ try{ st.after(go); }catch(e){ go(); } } else { go(); }
+    });
   }
   function skipTour(){
     tourCancelled=true; lineDone=null;
+    try{ hideDashPeek(); hideAbraBig(); }catch(e){}
     try{ demoAudio.pause(); }catch(e){}
     try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
     setSpeaking(false); clearGlow(); showPicker(true);
