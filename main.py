@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  APP_BUILD -> "2026-09-01re-the-factors-are-checked-by-expanding-them".
+#               BUILD re -- the watch's HIGH: a spoken factor pair contradicting the
+#               board's quadratic. KNOWN_FALSEHOODS row 14 + REFEREE 69 (tutor.py,
+#               factor_claim_conflict -- expand the pair, compare to the reply's one
+#               quadratic, computed never guessed). NO CODE IN THIS FILE CHANGED.
 #   2026-08-31  APP_BUILD -> "2026-08-31rd-the-main-road-moves-the-star". BUILD rd -- the
 #               scripted lane (the main road) graded every tap in code and told the streak
 #               NOTHING: today_streak moved neither up nor down there (measured in code,
@@ -13162,7 +13167,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-31rd-the-main-road-moves-the-star"
+APP_BUILD = "2026-09-01re-the-factors-are-checked-by-expanding-them"
 
 
 @app.get("/health")

@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD re -- PART 3hf: the factors are checked by expanding them. The
+#               first watch on rd confirmed a HIGH (algebra2, rule 13): "the factors
+#               should be (x + 2) and (x + 3)" spoken beside x² - 5x + 6 -- the claim
+#               expands to the WRONG quadratic and mathcheck never saw it (prose, not an
+#               eq tag). Two doors, each proved with the watch's own sentence: KNOWN_
+#               FALSEHOODS row 14 (negative-numbers-make-plus-factors; escapes = the
+#               signed form "(x + (-2))" and the explicit negation) and REFEREE 69,
+#               factor_claim_conflict (expand the pair in integer arithmetic, compare to
+#               the reply's ONE quadratic; negated mentions and multi-quadratic replies
+#               buy silence). Canon swept both doors: 0 of 2,109. Referee literal in
+#               PART 3fx moves 68 -> 69; methodology tiles synced.
 #   2026-08-31  BUILD rd -- PART 3he: the main road moves the star. The scripted lane
 #               grades every tap in code and never emits [[mark]], so today_streak moved
 #               neither up nor down there (measured, then watched live: a wrong tap fired
@@ -11384,6 +11395,121 @@ def part3he_the_main_road_moves_the_star():
                   (res.stderr or out)[-500:])
 
 
+def part3hf_the_factors_are_checked_by_expanding_them():
+    """PART 3hf (build re, 2026-09-01) -- THE FACTORS ARE CHECKED BY EXPANDING THEM.
+
+    The first night watch on rd, algebra2, HIGH (rule 13): "Since the two numbers
+    are negative two and negative three, the factors should be (x + 2) and
+    (x + 3), not (x - 2) and (x - 3)" -- spoken beside x² - 5x + 6. The claim
+    expands to x² + 5x + 6 and teaches the OPPOSITE sign rule, and mathcheck
+    never saw it because it lived in PROSE, not in an eq tag. Two siblings from
+    the same lesson (the mixed-convention blanks, the "go inside as subtraction"
+    explanation) share this root: the sign rule spoken instead of computed.
+
+    ⭐ TWO DOORS, EACH PROVED WITH THE WATCH'S OWN SENTENCE (the qu law):
+      1. KNOWN_FALSEHOODS row 14, negative-numbers-make-plus-factors -- a sentence
+         reasoning FROM negative numbers TO plus-form factors. Escapes: the signed
+         teaching form "(x + (-2))" and the explicit negation "not (x + 2)..."
+         (which is the CORRECTED sentence saying it right).
+      2. REFEREE 69, factor_claim_conflict -- finds a factor pair (adjacent, or
+         joined by "and"/comma, the way a tutor SAYS it), expands it in plain
+         integer arithmetic, and compares against the reply's ONE quadratic.
+         COMPUTED, never pattern-matched-for-truth.
+
+    ⚠️ CAUTIOUS THREE WAYS: zero or several quadratics in the reply = silence
+    (pairing a claim to the wrong quadratic would fire on correct teaching);
+    negated mentions are the fix and are skipped; word-form pairs are the
+    falsehood row's job. Canon swept BOTH doors: 0 of 2,109 cards.
+    """
+    print("\nPART 3hf — the factors are checked by expanding them (build re)")
+    import tutor as _tt
+    F = _tt.factor_claim_conflict
+    K = _tt.known_falsehood_conflict
+
+    watch = ("Since the two numbers are negative two and negative three, the "
+             "factors should be (x + 2) and (x + 3), not (x - 2) and (x - 3).")
+
+    # ---- door 1: the falsehood row, on the watch's own sentence ---------------
+    check("⭐ ROW 14 FIRES on the watch's own sentence (the qu law, honoured)",
+          "negative numbers make plus factors" in (K(watch) or ""), K(watch)[:80])
+    check("  row 14 SILENT on the signed teaching form",
+          not K("The numbers are negative two and negative three, so the factors "
+                "are (x + (-2)) and (x + (-3)), which simplify."), "")
+    check("  row 14 SILENT on the corrected mirror sentence",
+          not K("The numbers are negative two and negative three, so the factors "
+                "are (x - 2) and (x - 3), not (x + 2) and (x + 3)."), "")
+    check("  the falsehood list holds 14 well-formed rows",
+          len(_tt.KNOWN_FALSEHOODS) >= 14
+          and all(len(e) == 4 and e[2] and e[3] for e in _tt.KNOWN_FALSEHOODS), "")
+
+    # ---- door 2: the referee, computed --------------------------------------
+    check("⭐ REFEREE 69 FIRES on the watch's reply shape (quad on the board, the "
+          "pair in prose, 'and'-joined)",
+          bool(F('[[step eq="x^2 - 5x + 6 = 0"]]\n' + watch)), "")
+    check("  ...and on the adjacent-pair board claim",
+          bool(F('[[step eq="x^2 - 5x + 6 = (x + 2)(x + 3)"]] Watch this.')), "")
+    check("  ...and through a unicode minus",
+          bool(F('[[step eq="x² − 5x + 6 = 0"]] The factors are (x + 2), (x + 3).')), "")
+    check("⭐ SILENT on the CORRECT pair (computed, so truth buys silence)",
+          not F('[[step eq="x^2 - 5x + 6 = 0"]] The factors are (x - 2) and (x - 3).'),
+          "")
+    check("  silent on a correct plus-form example",
+          not F("x^2 + 5x + 6 factors as (x + 2)(x + 3)."), "")
+    check("  silent when the only mention is NEGATED (that is the fixed sentence)",
+          not F("x^2 - 5x + 6 = 0. Remember, not (x + 2)(x + 3)."), "")
+    check("⭐ silent with TWO quadratics in the reply (cautious: never pair a claim "
+          "to the wrong one)",
+          not F("Earlier: x^2 + 5x + 6 = (x + 2)(x + 3). Now try x^2 - 5x + 6."), "")
+    check("  silent with no quadratic at all",
+          not F("The factors are (x + 2) and (x + 3)."), "")
+    check("  never raises", F(None) == "" and F(12345) == "", "")
+
+    # ---- wired, counted -------------------------------------------------------
+    tsrc = open(_tt.__file__, encoding="utf-8").read()
+    check("⭐ wired into the referee stack with its own fire event",
+          "fclaim = factor_claim_conflict(reply)" in tsrc
+          and '_event("referee_fire", "factorclaim", fclaim)' in tsrc, "")
+
+    # ---- the canon sweep: BOTH doors, 0 hits ----------------------------------
+    import foundations as FND
+    import lessonscripts as LS
+    row = [r for r in _tt.KNOWN_FALSEHOODS
+           if r[0] == "negative-numbers-make-plus-factors"][0]
+
+    def row_fires(t):
+        prose = _tt._spoken_only(t)
+        if row[2].search(prose):
+            return False
+        return any(row[1].search(s) for s in _tt._KF_SENTENCE.findall(prose))
+
+    hits, n = [], 0
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1
+                if F(t) or row_fires(t):
+                    hits.append(("foundation", c, sc.get("term")))
+    for les in LS.LESSONS:
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            t = (sp or "") + "\n" + (b or "")
+            if t.strip():
+                n += 1
+                if F(t) or row_fires(t):
+                    hits.append(("teach", les["id"], i))
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            t = (w[0] or "") + "\n" + (w[1] or "")
+            if t.strip():
+                n += 1
+                if F(t) or row_fires(t):
+                    hits.append(("worked", les["id"], i))
+    check("⭐ canon sweep, both doors: 0 authored cards fire (%d swept)" % n,
+          not hits, str(hits[:4]))
+    check("  the sweep covered the whole canon", n >= 1900, "%d" % n)
+
+
 def part3dn_every_verdict_is_counted():
     """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
 
@@ -17705,8 +17831,9 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ sixty-eight referees now, counted from the code (62 + pz + qf + qm + qs + qv's two)",
-          n_ref == 68, n_ref)
+    check("⭐ sixty-nine referees now, counted from the code (62 + pz + qf + qm + qs + "
+          "qv's two + re's factorclaim)",
+          n_ref == 69, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -20277,7 +20404,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,934</b>" in page,
+          "<b>7,950</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -28851,6 +28978,7 @@ def main():
     part3hc_the_chip_says_what_it_counts()
     part3hd_the_star_falls_when_the_child_slips()
     part3he_the_main_road_moves_the_star()
+    part3hf_the_factors_are_checked_by_expanding_them()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

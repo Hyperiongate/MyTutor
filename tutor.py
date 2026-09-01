@@ -2,6 +2,21 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD re -- THE FACTORS ARE CHECKED BY EXPANDING THEM. The first night
+#               watch on rd confirmed a HIGH (algebra2, rule 13): "the factors should be
+#               (x + 2) and (x + 3)" spoken beside x² - 5x + 6 -- the claim expands to
+#               x² + 5x + 6 and teaches the OPPOSITE sign rule; mathcheck never saw it
+#               because it lived in prose, not an eq tag. Two doors: ① KNOWN_FALSEHOODS
+#               row 14 (negative-numbers-make-plus-factors), proved with the watch's own
+#               sentence; escapes are the signed teaching form "(x + (-2))" and the
+#               explicit negation "not (x + 2)..." (the corrected sentence). ② REFEREE
+#               69, factor_claim_conflict: finds a factor pair (adjacent, or joined by
+#               "and"/comma the way a tutor SAYS it), expands it in plain integer
+#               arithmetic, compares against the reply's ONE quadratic; fires only on a
+#               real contradiction. Cautious three ways: several/zero quadratics =
+#               silence, negated mentions are the fix and are skipped, word-form pairs
+#               are the falsehood row's job. Canon swept. Events: referee_fire ·
+#               factorclaim.
 #   2026-08-31  BUILD rc -- THE STAR FALLS WHEN THE CHILD SLIPS: code's own grade. Jim's
 #               ruling: a miss is ANY WRONG TAP. The prompt's new [[miss]] tag asks the
 #               model to report a mid-problem slip, but a tag is a nudge, not a
@@ -5425,6 +5440,21 @@ KNOWN_FALSEHOODS = [
                 "\\s*[,.;\"\u201d\u2019']", re.I),
      'the sign\'s own name is short -- \u00f7 is read "divided by"; it is the whole '
      'expression, like 2 \u00f7 2, that is read "two divided by two"'),
+    # ---- (re) the 2026-09-01 night watch's confirmed HIGH, algebra2 ----
+    # "Since the two numbers are negative two and negative three, the factors should
+    # be (x + 2) and (x + 3), not (x - 2) and (x - 3)." False as written -- and
+    # worse, it teaches the OPPOSITE sign rule: the factor holds the SIGNED number,
+    # x + (-2) IS x - 2, so negative numbers make MINUS factors. The false shape: a
+    # sentence that reasons FROM negative numbers TO plus-form factors. The escapes
+    # are the correct signed teaching ("(x + (-2))", which carries "(x + (" not
+    # "(x + 2") and the explicit negation of the plus form ("not (x + 2)...", which
+    # is the CORRECTED sentence saying it right).
+    ("negative-numbers-make-plus-factors",
+     re.compile(r"\bnegative\b[^.!?]{0,80}\bfactors?\b[^.!?]{0,60}\(\s*x\s*\+\s*\d", re.I),
+     re.compile(r"\(\s*x\s*\+\s*\(|(?:\bnot\b|instead\s+of|rather\s+than)\s*"
+                r"\(\s*x\s*\+\s*\d", re.I),
+     "the factor holds the SIGNED number: x plus negative two IS x minus two, so "
+     "negative two and negative three give (x - 2)(x - 3)"),
 ]
 
 
@@ -6486,6 +6516,80 @@ def second_triangle_conflict(reply: str, heard=None):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[secondtriangle] crashed (fail open): {exc}")
         _event("referee_crash", "secondtriangle", str(exc))
+        return ""
+
+
+# =============================================================================
+# REFEREE 69 -- A FACTOR PAIR IS CHECKED BY EXPANDING IT  (build re, 2026-09-01)
+# -----------------------------------------------------------------------------
+# The 2026-09-01 night watch, algebra2, HIGH (rule 13): "the factors should be
+# (x + 2) and (x + 3)" -- spoken beside x² - 5x + 6 on the board. (x+2)(x+3)
+# expands to x² + 5x + 6: the claim taught the OPPOSITE sign rule, and mathcheck
+# never saw it because the false claim lived in PROSE, not in an eq tag.
+#
+# ⭐ COMPUTED, NEVER PATTERN-MATCHED-FOR-TRUTH: the referee finds a factor pair
+# (x ± a)(x ± b) -- adjacent, or joined by "and"/a comma, the way a tutor SAYS
+# it -- expands it in plain integer arithmetic (sum and product of the signed
+# numbers), and compares against the quadratic x² + bx + c present in the reply.
+# Fires only on a real contradiction.
+#
+# ⚠️ CAUTIOUS ON PURPOSE, three ways: exactly ONE distinct quadratic in the reply
+# (zero or several = silence -- pairing a claim to the wrong quadratic would fire
+# on correct teaching); a NEGATED mention is correct teaching and is skipped
+# ("not (x + 2)(x + 3)", "instead of (x + 2)...") -- that is the fixed sentence
+# saying it right; and word-form pairs ("x minus two times x minus three") are
+# left to the falsehood row -- symbols only here, because symbols are what the
+# child sees.
+_FC_QUAD_RE = re.compile(
+    r"x\s*(?:\^\s*2|²)\s*([+\-−])\s*(\d{1,3})\s*x\s*([+\-−])\s*(\d{1,3})\b")
+_FC_PAIR_RE = re.compile(
+    r"\(\s*x\s*([+\-−])\s*(\d{1,3})\s*\)\s*(?:and\s+|,\s*)?"
+    r"\(\s*x\s*([+\-−])\s*(\d{1,3})\s*\)")
+_FC_NEG_RE = re.compile(r"\b(?:not|instead\s+of|rather\s+than|never)\b[^()!.?]{0,30}$",
+                        re.I)
+
+
+def _fc_sgn(ch):
+    return -1 if ch in "-−" else 1
+
+
+def factor_claim_conflict(reply: str):
+    """Return a description of a factor pair whose expansion contradicts the reply's
+    one quadratic, or "". Never raises: fail open."""
+    try:
+        text = str(reply or "")
+        quads = {(_fc_sgn(m.group(1)) * int(m.group(2)),
+                  _fc_sgn(m.group(3)) * int(m.group(4)))
+                 for m in _FC_QUAD_RE.finditer(text)}
+        if len(quads) != 1:
+            return ""                     # zero or several quadratics: stay silent
+        b, c = next(iter(quads))
+        for m in _FC_PAIR_RE.finditer(text):
+            lead = text[max(0, m.start() - 30):m.start()]
+            if _FC_NEG_RE.search(lead):
+                continue                  # "not (x + 2)..." is the CORRECT sentence
+            p = _fc_sgn(m.group(1)) * int(m.group(2))
+            q = _fc_sgn(m.group(3)) * int(m.group(4))
+            if (p + q, p * q) != (b, c):
+                sb = "+" if b >= 0 else "-"
+                sc = "+" if c >= 0 else "-"
+                return ("you present the pair {pair} beside x² {sb} {ab}x {sc} "
+                        "{ac} -- but that pair expands to x² {se} {ae}x {sf} "
+                        "{af}, a DIFFERENT quadratic. Rule 13: CHECK a factoring by "
+                        "expanding it before you show it. The factor holds the "
+                        "SIGNED number (x plus negative two IS x minus two): the "
+                        "right pair's numbers ADD to {b} and MULTIPLY to {c}. Fix "
+                        "the pair or the quadratic so they agree; keep everything "
+                        "else the same.").format(
+                            pair=" ".join(m.group(0).split()),
+                            sb=sb, ab=abs(b), sc=sc, ac=abs(c),
+                            se="+" if (p + q) >= 0 else "-", ae=abs(p + q),
+                            sf="+" if (p * q) >= 0 else "-", af=abs(p * q),
+                            b=b, c=c)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[factorclaim] crashed (fail open): {exc}")
+        _event("referee_crash", "factorclaim", str(exc))
         return ""
 
 
@@ -9132,6 +9236,13 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if tri2:
             _event("referee_fire", "secondtriangle", tri2)
             return tri2
+        # (re) the sixty-ninth: a factor pair is checked by expanding it (rule 13).
+        # Reply-only and computed -- plain integer arithmetic on the signed numbers,
+        # compared against the reply's one quadratic; cautious three ways (see def).
+        fclaim = factor_claim_conflict(reply)
+        if fclaim:
+            _event("referee_fire", "factorclaim", fclaim)
+            return fclaim
         # (oc) the forty-eighth: a result you speak is a result you drew.
         skipres = skipped_result_conflict(reply, heard)
         if skipres:
