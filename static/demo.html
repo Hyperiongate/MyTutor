@@ -1348,7 +1348,8 @@
         if(big){
           var botLevel=botTalking?level:0.12+0.06*Math.sin(faceT*0.045);
           TutorFace.draw(big.getContext('2d'),220,220,{level:botLevel,t:faceT,
-            mood:(Date.now()<faceHappyUntil?'happy':(botTalking?'speaking':'idle')),persona:'abrabot'});
+            mood:(Date.now()<faceHappyUntil?'happy':(botTalking?'speaking':'idle')),persona:'abrabot',
+            presence:false});   /* (ro) the presence layer mounted the HUMAN onto the robot -- Jim saw it */
         }
       }catch(e){}
       faceT++; requestAnimationFrame(faceLoop);
@@ -1681,16 +1682,16 @@
     "And you can open any student for their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. What happens with all of it is your call: I gather the picture, you make the teaching decisions. Adding a student is one box — their student code.",
     "And that's the teacher's side of the classroom. Notice what it doesn't do: it doesn't plan your lessons, grade your judgment, or run your room — it hands you what you can't get any other way, a patient assistant for every single student and an honest picture of exactly who needs you and who's ready to run ahead. If you'd like to see what your students would experience, I can teach you a lesson right now, at any level you choose."
 ,
-  "Before we finish, meet my favourite helper — Abrabot, the practice robot! After every lesson, my students can practice with him as much as they like. It is always free, it never changes their scores, and parents can see every problem they worked. Abrabot — they are all yours!"
+  "Before we finish — Abrabot, they are all yours. A couple of practice problems, and I will be right here."
   ,
   "And see Extra practice — the one with the robot? That's Abrabot, my practice helper. Practice a problem is for a problem your student brings me; Abrabot is the other way round — he hands out more problems on lessons already done, as many as they want, always free, and he keeps count so your student can show you how hard they've worked. Stay to the end of the lesson and you'll meet him yourself — or tap his button any time.",
-    "Next, the Progress dashboard — here is a corner of it. Inside there is every unit and how far they have got, their accuracy, how long they have worked, the streaks you can see up top, a trophy case for every award they earn, and the very same plain-words report their parent and their teacher get. All of it in one place, and none of it a spreadsheet.",
+    "Next, the Progress dashboard — here is a corner of it. We will spend proper time in there after the lesson, when you can open all three views and click through them yourself.",
     "And see Extra practice — the one with the robot? That one is not mine at all. Let me introduce you.",
     "And these two bubbles at the top are the streak. The flame counts days in a row your student has worked; the star counts problems right in a row today. Small, honest numbers — and children watch them like a scoreboard.",
-    "One more thing before you go. See Extra practice on the left? That is Abrabot — my teaching assistant. He is a robot, and proud of it. Any time you want more of a skill you already know, he has a box of problems that never runs out. It is always free, and it never changes your score. He is the one to practise with; I am the one to learn with.",
-    "And one thing that is not on this screen, because it never needs to be: the drilling. Extra practice belongs to Abrabot, my teaching assistant — a robot with a virtually unlimited box of problems on skills already taught. He handles the repetition, always free, so your class time with me goes to the teaching, and yours goes to the five children who need you.",
-    "Last thing. Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills your child has already learned. It is always free, it never changes their score, and there is no such thing as running out. Which means \"can I do more?\" is always a yes.",
-    "Last thing, and it matters for a homeschool week: Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills already taught. Always free, never changes the score, never runs out. So the repetition your child needs is there whenever you have a spare ten minutes, without you writing a single worksheet."
+    "One more thing before you go. See Extra practice on the left? That is Abrabot — my teaching assistant. He is a robot, and proud of it. Any time you want more of a skill you already know, he has a box of problems that never runs out. He is the one to practise with; I am the one to learn with.",
+    "And one thing that is not on this screen, because it never needs to be: the drilling. Extra practice belongs to Abrabot, my teaching assistant — a robot with a virtually unlimited box of problems on skills already taught. He handles the repetition, so your class time with me goes to the teaching, and yours goes to the five children who need you.",
+    "Last thing. Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills your child has already learned. There is no such thing as running out. Which means \"can I do more?\" is always a yes.",
+    "Last thing, and it matters for a homeschool week: Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills already taught. It never runs out. So the repetition your child needs is there whenever you have a spare ten minutes, without you writing a single worksheet."
   ];
   // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
   // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
@@ -2396,15 +2397,14 @@
   // Abrabot's own lines -- browser voice, HIS register, zero cost. The personality is
   // the REAL drill's personality (main.py's _ABRA_* lines), because the demo's job is
   // to show the product, not a nicer cousin of it.
-  var ABRA_HELLO="Beep! I am Abrabot, Mr. Cadabra's practice helper. Problems are my favourite thing. Here are two of my favourites — tap your answer!";
+  var ABRA_HELLO="Beep! Abrabot here. Problems are my favourite thing. Here are two of mine — tap your answer!";   /* (ro) introduced on the tour; here he just says who is talking */
   var ABRA_YES=["Correct! My circuits are pleased.","Yes! I knew you had that one.","Nice work. Filing that one under easy."];
   var ABRA_RETRY="Hmm! My circuits say not quite. Have one more try — I have all day, I am a robot.";
   var ABRA_NOTSURE="No problem! Look at the board, take your time. I will wait — robots are very good at waiting.";
   function abraTell(v){ return "The answer was "+v+". Now you know it, and so do I. Onwards!"; }
   function abraOutro(right){
     return "Beep! That is "+right+" out of 2. In the real classroom my problem box holds "
-      +"thousands more — practice with me is always free, and it never changes your score. "
-      +"Back to you, Mr. Cadabra!";
+      +"thousands more. Back to you, Mr. Cadabra!";
   }
 
   function showAbraBig(){
@@ -2439,8 +2439,7 @@
   var ABRA_TOUR_LINE = "Beep! Hello there \u2014 I am Abrabot, Mr. Cadabra's teaching "
     + "assistant. Extra practice is my job. My problem box is virtually unlimited, so "
     + "your student can practise the same skill as many times as they like, and I never "
-    + "run out. It is always free, and it never changes their score. "
-    + "Back to you, Mr. Cadabra!";
+    + "run out. Back to you, Mr. Cadabra!";
   function abrabotCameo(next){
     showAbraBig();
     var d=el('abraBig');
@@ -2506,7 +2505,7 @@
     // (nh) Abrabot FLIES IN while Mr. Cadabra is still introducing him -- the
     // entrance is the punchline of the sentence.
     showAbraBig();
-    sayThen(lineStarting("Before we finish, meet my favourite helper"), function(){
+    sayThen(lineStarting("Before we finish — Abrabot, they are all yours"), function(){
       if(finished) return;
       abraMode=true;
       abraSay(ABRA_HELLO, function(){ ask(0); });
@@ -2524,7 +2523,7 @@
       clearAnswer();
       var wrap=document.createElement('div');
       var hint=document.createElement('div'); hint.className='prompt';
-      hint.textContent='Tap your answer — practice is free and never changes a score.';
+      hint.textContent='Tap your answer.';
       var grid=document.createElement('div'); grid.className='choices';
       var fb=document.createElement('div'); fb.className='fb';
       // (nh) advance AFTER the line, never under it -- Jim: "when I answered his
@@ -2881,7 +2880,7 @@
     {t:'curriculumBtn', line:"Over here on the left is your Curriculum — everything in the course, laid out in nine units. Your student can open any unit and see exactly what's inside it, so the whole year is never a mystery."},
     {t:'assessLink',    line:"Right below it, the Course Assessment. Whenever they're ready, it finds their strengths and builds a recommended path just for them. It's completely optional, and it's always waiting right there."},
     {t:'dashLink',      before:showDashPeek, done:hideDashPeek,
-     line:"Next, the Progress dashboard — here is a corner of it. Inside there is every unit and how far they have got, their accuracy, how long they have worked, the streaks you can see up top, a trophy case for every award they earn, and the very same plain-words report their parent and their teacher get. All of it in one place, and none of it a spreadsheet."},
+     line:"Next, the Progress dashboard — here is a corner of it. We will spend proper time in there after the lesson, when you can open all three views and click through them yourself."},
     {t:'practiceLink',  line:"Then Practice a problem. When your student is stuck on one specific problem — homework, a worksheet, anything — they bring it here and we work through it together."},
     {t:'drillLink',     after:abrabotCameo,
      line:"And see Extra practice — the one with the robot? That one is not mine at all. Let me introduce you."},

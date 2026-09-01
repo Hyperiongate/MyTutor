@@ -15427,13 +15427,7 @@ DEMO_VOICE_LINES = [
     "Let's look at it a different way — I've put the whole move on the board. Follow it through, then type your answer!",
     "Let's look at it a different way — I've put the whole move on the board. Follow it through, then tap your answer!",
     "No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!",
-    # 2026-08-05 (build aj): the landing hero's "Hear him teach" button plays this line.
-    # APPENDED (never reorder -- cached audio indices must stay valid; keep identical to
-    # demo.html's VOICE_LINES).
     "Hi, I'm Mr. Cadabra! Here's how I teach: I talk you through it in my own voice, the board shows every step, and you do the thinking — I never just hand over the answer. Come try a free lesson, and I'll meet your student right at their level.",
-    # APPENDED 2026-08-09 (build bt, classroom-demo redesign): welcome + 3 tour stops +
-    # picker invite + 10 course intros + congratulations. NEVER reorder; keep identical
-    # to demo.html's VOICE_LINES.
     "Welcome to the demo! This is Mr. Cadabra's Classroom — the very screen your student will learn on. Before we solve anything, let me show you around.",
     "This big space is my whiteboard. Every step of every problem gets drawn right here — the board leads, and my voice follows. Nothing ever happens only in words.",
     "See the bars up top? That's your student's map — today's goals, the current unit with a marker for every quiz, and the whole course marching gold toward the Final Exam. They always know exactly where they are.",
@@ -15450,8 +15444,6 @@ DEMO_VOICE_LINES = [
     "Calculus — the mathematics of change itself. Let's take your very first derivative together.",
     "Differential Equations — the equations that run the physical world. Let's classify one like a pro.",
     "Congratulations — you just worked a real problem, step by step, exactly the way your student will! In the full classroom we talk back and forth by voice, quizzes unlock new topics, and medals land in the trophy case. Come meet me for a free lesson — I'll start right at your student's level.",
-    # APPENDED 2026-08-09 (build bv, full-page demo): the seven SIDEBAR tour stops,
-    # so the demo walks the screen exactly like a new student's tour.
     "Over here on the left is your Curriculum — everything in the course, laid out in nine units. Your student can open any unit and see exactly what's inside it, so the whole year is never a mystery.",
     "Right below it, the Course Assessment. Whenever they're ready, it finds their strengths and builds a recommended path just for them. It's completely optional, and it's always waiting right there.",
     "Next, the Progress dashboard. That's where they watch themselves win — units mastered, accuracy, streaks, and a trophy case for every award they earn.",
@@ -15459,8 +15451,6 @@ DEMO_VOICE_LINES = [
     "Right under it, Explore a topic. Curious about just one thing, like fractions or slope? They open it, name the topic, and we dig into exactly that.",
     "And the Final Exam — the top of the mountain. It unlocks only after all nine units are mastered, and passing it makes them a Course Champion.",
     "Last one on the left: Look it up. Any time they just want to READ about something, they tap it, type the topic, and a page opens right on top of the lesson. Their place is waiting when they close it.",
-    # APPENDED 2026-08-09 (build bw): the per-course TEACH step (95-104), the
-    # dashboard chooser (105), and the three dashboard tours (106-114).
     "Before we count anything, here's the trick: we touch each one and say the numbers in order. Watch me count these three stars — one… two… three. The last number you say is how many there are. Now you try with a new group!",
     "A fraction is just a number cut into equal pieces. Look at the bar on the board: it's cut into four equal pieces, so each piece is one fourth. Shade two of them and you have two fourths — which is exactly the same amount as one half. Now let's use that.",
     "Here's a number line. Zero sits in the middle, positive numbers run to the right, and negative numbers run to the left. Adding moves you to the right; subtracting moves you left. Watch: start at negative two, climb three steps right, and you land on positive one. Your turn next.",
@@ -15481,8 +15471,6 @@ DEMO_VOICE_LINES = [
     "This is the parent's view, and it answers the only question that really matters: how is my child actually doing? No jargon, no scores to decode — just an honest read in plain English.",
     "Here's the week at a glance — time spent, what they mastered, and what they struggled with. If your child had a rough day, you'll see it here, because a dashboard that only shows good news isn't worth having.",
     "And this button prints the whole record — every unit, every quiz, every hour — for a homeschool portfolio or a school district's file. It's your data; you can take it with you any time.",
-    # APPENDED 2026-08-09 (build bx): every lesson rebuilt for VOICE answering and
-    # for figures that actually appear (115-134).
     "Your turn. The board shows negative three plus five, and there's your number line right underneath it. Start three steps below zero, climb five steps to the right, and tell me where you land. Tap the microphone and say it out loud.",
     "Not quite — let's walk it together. Put your finger on negative three, then count five hops to the right: negative two, negative one, zero, one… and one more. Tap the mic and say where you land.",
     "Now a real one — it's on the board: two x plus three equals eleven. Our whole goal is to get x all by itself, so the first move is undoing that plus three. What should we do to BOTH sides? Tap the microphone and say your move.",
@@ -15503,8 +15491,6 @@ DEMO_VOICE_LINES = [
     "Just the second half of the rule: the old power is three, and we drop it by one. Tap the mic and say what that leaves.",
     "Now you classify one. The board shows y double-prime plus y equals zero. The order is simply the highest derivative in sight — count the tick marks on the busiest y. Tap the microphone and say that number.",
     "Look right at the y carrying the most tick marks — two of them means the SECOND derivative. Tap the mic and say that order as a number.",
-    # APPENDED 2026-08-09 (build bx): the three FULL dashboard tours, six stops
-    # each (135-152), walking a complete invented student's record.
     "This is Maya's own dashboard — the screen your student opens to watch themselves win. Right at the top, the numbers that matter: four units mastered, ninety-one percent accuracy, three hundred twelve problems worked, and an eleven-day streak she is very proud of.",
     "Here's her whole course, all nine units. The gold ones are mastered — she's finished Numbers, Fractions, Ratios and Percents. Unit five is where she's working right now, and the four ahead are still waiting. At the end sits the Final Exam, locked until every unit is gold.",
     "Open the unit she's in and you see the ladder inside it: every topic, every quiz, and the score she earned. Comparing decimals, eighty-eight percent. Adding and subtracting, ninety-two. Multiplying is where she is today, and the Unit Quiz waits at the top.",
@@ -15524,9 +15510,6 @@ DEMO_VOICE_LINES = [
     "And this is the part I'd read first: what's hard for her right now, and what we are doing about it. Lining up decimal points when the numbers have different lengths. My plan is smaller numbers and money problems until it feels ordinary — and I'll tell you here when it does.",
     "Finally, the record. Every unit, every quiz, every hour, printable in one click for a homeschool portfolio or a school district file. It's your data and your child's work — you can take it with you any time, and you never have to ask us for it.",
     "Look at the board — two fourths plus one more fourth. Count the shaded pieces and tap again!",
-    # APPENDED 2026-08-09 (build bz): the demo drops the microphone -- these are the
-    # TYPED versions of the lesson lines (154-173). 115-134 (the mic wording) are
-    # now unused but stay in place: indices must never move.
     "Your turn. The board shows negative three plus five, and there's your number line right underneath it. Start three steps below zero, climb five steps to the right, and type where you land.",
     "Not quite — let's walk it together. Put your finger on negative three, then count five hops to the right: negative two, negative one, zero, one… and one more. Type where you land.",
     "Now a real one — it's on the board: two x plus three equals eleven. Our whole goal is to get x all by itself, so the first move is undoing that plus three. What should we do to BOTH sides? Type your move.",
@@ -15547,9 +15530,6 @@ DEMO_VOICE_LINES = [
     "Just the second half of the rule: the old power is three, and we drop it by one. Type what that leaves.",
     "Now you classify one. The board shows y double-prime plus y equals zero. The order is simply the highest derivative in sight — count the tick marks on the busiest y, and type that number.",
     "Look right at the y carrying the most tick marks — two of them means the SECOND derivative. Type that order as a number.",
-    # APPENDED 2026-08-09 (build bz): dashboard tours rewritten to describe the REAL
-    # product screens (174-187). The earlier tours (135-152) described sections the
-    # product does not have and are now unused; indices never move.
     "This is Maya's own dashboard — the real screen your student opens. These five numbers are exactly the ones the product tracks: units mastered, accuracy, problems practiced, time this week, and the day streak she's protecting.",
     "Below it, her course — all nine units. The gold ones are mastered, and mastered here means ninety percent or better on the Unit Quiz with no hints. Unit five is where she's working now, and the Final Exam at the end stays locked until every unit is gold.",
     "Open a unit and you see the quiz results inside it — every topic quiz, the score, and the date. This is the same detail a parent or a teacher sees, because there's only one set of numbers and everybody gets the truth.",
@@ -15564,34 +15544,19 @@ DEMO_VOICE_LINES = [
     "Underneath are the same five numbers her teacher and I see. One record, one set of facts, no separate parent version that quietly rounds things up.",
     "Strengthen next tells you exactly where she is wobbling right now — and because it comes from her actual lessons, it's specific enough to help with at the kitchen table.",
     "And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your child's work, and you can take it with you any time.",
-    # 2026-08-10 (build cp): the four AUDIENCE INTROS for /demo?view=... -- the
-    # "view the demo" button on the parents, teachers, homeschool and students pages.
-    # APPENDED, never reordered: clips are addressed by INDEX, so an insert anywhere
-    # above would silently shift every cached clip after it. Must stay byte-identical
-    # to demo.html's VOICE_LINES.
     "Welcome — this is the parent's view of Mr. Cadabra's Classroom, using a made-up student so no real child's record is ever on display. In a moment I'll walk you through the dashboard you'd open: what your child has actually mastered, what they're working on right now, what's hard this week, and the printable record you can take with you. Everything you'll see comes from real work — we never invent a number to make a week look better than it was.",
     "Welcome — this is the teacher's view of Mr. Cadabra's Classroom, built from a made-up class so no real student is ever on display. I'll walk you through the roster, who needs you this week and why, the mastery picture across the whole class, and the time each student actually spent. Every number is earned: mastery means ninety percent or better on a unit quiz with no hints from me.",
     "Welcome — this is the homeschool view of Mr. Cadabra's Classroom, using a made-up student so no real child's record is ever on display. I'll show you the dashboard you'd open each week, and the part homeschool families ask about first: the printable record. Every unit, every quiz, every hour, dated and ready for a portfolio or a district file. It's your child's work and you can take it with you any time.",
     "Hi! This is your dashboard — the screen you'd open every time you come back. I'm using a made-up student called Maya so nobody's real work is on show. I'll walk you through your five numbers, your course map with the gold units you've mastered, what you're working on next, and the trophies you've earned. Everything here is stuff you actually did.",
-    # 2026-08-10 (build cq): the HOMESCHOOL stop lines for /demo?view=homeschool.
-    # Same screen as the parent view, different audience: a homeschool parent IS the
-    # teacher. APPENDED; must stay byte-identical to demo.html's VOICE_LINES.
     "This is the dashboard you'd open on a Monday morning. You are the teacher here, so it leads with the thing you actually need to know before you plan the week: how is this child really doing, in plain English, not a score out of ten.",
     "That's the honest read. It names what she has genuinely got, what she is stuck on, and what Mr. Cadabra is doing about it. If she had a rough week it will say so plainly — a record that only ever says 'great job' is no use to a parent who is also the teacher.",
     "These five numbers are the ones a homeschool week turns on: units mastered, accuracy, problems practised, time on task this week, and the day streak. The hours are measured engaged time, not a timer left running, because in most states the hours are the part you have to be able to stand behind.",
     "Strengthen next is your lesson plan for the week, already written. It comes from her actual work, so it is specific enough to sit down at the kitchen table with — not 'review fractions', but the exact step that is wobbling.",
     "And this is the one homeschool families ask about first. It prints the whole record — every unit, every quiz, every hour, dated — ready for a portfolio, an end-of-year review, or a district file. It is your child's work, and you can take it with you any time, whether or not you stay with us.",
-    # 2026-08-10 (build cr): the four AUDIENCE CLOSING lines. Identical to
-    # demo.html's VOICE_LINES, APPENDED, never reordered -- clips are served BY
-    # INDEX, so an insert above these would play the wrong audio under the right
-    # words and nothing would error.
     "And that's the parent's view. Every number on it was earned by a real piece of work — nothing on that screen is a guess, and nothing is rounded up to make a week look better than it was. If you'd like to see what your child actually does in a lesson, I can teach you one right now, at any level from counting to calculus.",
     "And that's the teacher's view. One room, every student, and no guessing about who needs you this week — the flags come from the work itself, not from a survey or a self-report. If you'd like to see what a lesson looks like from the student's side, I can teach you one right now, at any level you choose.",
     "And that's the homeschool view. The week in front of you and the record behind you, both ready whenever you need them, and both built from work your child actually did. If you'd like to see what a lesson looks like, I can teach you one right now, at any level from counting to calculus.",
     "And that's your dashboard! Every gold unit, every trophy, every number on it — you earned all of that yourself. Want to see what a real lesson is like? Pick any level you want and I'll teach you one right now, exactly the way I'd teach you for real.",
-    # 2026-08-10 (build cs): FIVE parent stops and FIVE homeschool stops for the
-    # rebuilt parent dashboard. The parent tour went from five stops to ten and
-    # homeschool overrides all ten BY INDEX. Identical to demo.html, APPENDED.
     "If you only have a minute, this box is the whole dashboard in four lines: what she has mastered, her streak, how accurate she is, and how many problems she has actually done. Underneath it, where to help next — and the link that prints her records.",
     "Here are her nine units. The gold ones are mastered, and every gold unit carries the date she proved it and the score she proved it with. Mastered means ninety percent or better on the Unit Quiz with no hints from me — so a gold unit is evidence, not encouragement.",
     "This is the same nine units drawn as a path, so you can see the shape of her year at a glance: four behind her, decimals under her feet right now, four still ahead. Beside it, the same thing counted up, with the hours she has actually put in since September.",
@@ -15602,8 +15567,6 @@ DEMO_VOICE_LINES = [
     "The same nine units as a path, so you can see the whole year at a glance and plan against it. Beside it, the hours — measured engaged time since September, not a timer left running, because in most states the hours are the part you have to be able to stand behind.",
     "The trophy case does a job in a homeschool that is easy to underrate: it is the part your child can show somebody. A medal for finishing a whole course, a badge for every unit mastered, and one for effort — earned the week percents nearly beat her.",
     "And her courses. One subscription covers all ten, so a child who is ahead in one subject and behind in another is not a billing problem — she moves on when she is ready. Beside it, what her placement check found on the very first day.",
-    # 2026-08-10 (build ct): five teacher stops, four student stops, and the
-    # student door's own second-person script. Identical to demo.html, APPENDED.
     "Three numbers first, and the third one is really a question. Six students, eighteen units mastered between them — and then the unit the class as a whole is struggling with. Here that's Unit 2, fractions, at a seventy-eight percent class average.",
     "This is the heatmap: every student down the side, every unit across the top, and the real score in each box. Read down a column and you find the wall — Unit 2, where Aiden and Ben both stopped. Read across a row and you get one student's whole story in a second.",
     "And this is my honest read on the class. Aiden isn't lazy — he's missing an idea underneath, he's treating a fraction as two separate whole numbers. Ben isn't stuck, he's stopped. And one you didn't ask about: Sofia is being under-served. She's ready for Algebra One now, and keeping her in step with the class is costing her a term.",
@@ -15618,11 +15581,8 @@ DEMO_VOICE_LINES = [
     "Open a unit and you can see every quiz inside it — the score and the date. Your parents and your teacher see exactly this same page, because there is only one set of numbers and everybody gets the truth.",
     "Strengthen next is my short list for you: the specific things that went wrong in your lessons this week. Not a level, not a percentile — the two things I would fix first.",
     "And your trophy case. Explored, practiced, learning, mastered, the effort medal, and the Course Champion medal you earned for finishing Basic Math. Every one of them came from real work — none of them are participation stickers.",
-    # 2026-08-10 (build ct): the two habit charts. Identical to demo.html, APPENDED.
     "Two charts here, and they are her habits. On the left, accuracy week by week — the dip is week eight, the week percents beat her, and the climb after it is four days of coming anyway. On the right, minutes a day this week, including the two days she did nothing. Honest pictures, both of them: a dashboard that only ever shows good news isn't worth having.",
     "These two charts are your habits. On the left, how accurate you were week by week — that dip is the week percents beat you, and the climb right after it is you coming back four days running. On the right, your minutes a day this week, days off included. I'd rather show you the truth than a flattering picture.",
-    # 2026-08-12 (build eg): SEVEN parent-door lines -- the conference rewrite
-    # (intro, stops 1/2/4/5/8, outro). Identical to demo.html, APPENDED.
     "Hello, and come on in — this is the parent's side of Mr. Cadabra's Classroom, shown with a made-up student named Maya so no real child's record is ever on display. Parents bring me the same two questions everywhere: is my child actually learning, and will she actually want to do this? Every panel on this screen answers one of those two — and every number on it comes from real work, because we never invent a good week.",
     "This is the dashboard you'd open at home, and it leads with the question you'd ask me at a parent-teacher conference: how is my child really doing? Not a score out of ten, not a percentile — an answer in plain English, written from the work she actually did.",
     "That's my honest read. It names what she's genuinely got, what she's stuck on, and what I'm doing about it — because I teach: out loud, one step at a time, and I never just hand her the answer. When this paragraph says she owns something, she earned it. And when she has a hard week, it says that too, plainly.",
@@ -15630,21 +15590,24 @@ DEMO_VOICE_LINES = [
     "Strengthen next tells you exactly where she's wobbling right now — specific enough to sit down with at the kitchen table. And a problem she misses doesn't just vanish into a percentage: a few days later I bring back a fresh one just like it, so a miss becomes a second chance instead of a quiet gap.",
     "Her trophy case — and this panel is my answer to the question 'will she actually use it?' The badges are earned, never given: a Course Champion medal for finishing Basic Math, a badge for every unit she's mastered, and an effort medal for coming back four days running the week percents beat her. This is why a child opens the classroom without being asked.",
     "And that's the parent's window. One more thing, because careful parents always ask: in a lesson your child talks with me out loud, her speech becomes text, and the audio is deleted right away — never stored — while I stay warmly on the math and nothing else. If you'd like to see how I actually teach, I can give you a real lesson right now, at any level from counting to calculus.",
-    # 2026-08-12 (build eh): FOUR student-door lines -- the kid-and-parent rewrite
-    # (intro, stop 1, the trophy stop, outro). Identical to demo.html, APPENDED.
     "Hi there! I'm Mr. Cadabra — and yes, I really talk, and I really listen. In a real lesson you just say your answer out loud, I hear you, and we work it out together on my whiteboard, step by step, at your speed. This is your dashboard — I'm using a made-up student called Maya so nobody's real work is on show — and I'll show you your five numbers, your course map with its gold units, and the trophy case you're going to fill. Everything on this screen is stuff you actually did.",
     "This is the part you can just ask me for, out loud, any time: how am I doing? And I'll tell you straight, in plain words — what you're good at, what's hard right now, and what we're going to do about it together. No mystery numbers, no report-card code: you always know exactly where you stand.",
     "And here it is — the trophy case. A badge for every unit you turn gold, an effort medal for the week you refused to give up, and the big one: a Course Champion medal for finishing a whole course. Nobody can give you these — not me, not anyone. The only way a trophy gets into this case is that you earned it, and that's exactly why it feels so good to open this page.",
     "And that's your dashboard, top to bottom! Every gold unit and every trophy on it, you'd earn yourself — I can't hand those out, and I wouldn't want to. Two promises before you go: I only ever talk about math — ask me about anything else and I'll smile and steer us straight back — and I never just give you the answer, because you getting it yourself is the whole fun. Want to see? Pick any level you like and I'll teach you a real lesson right now.",
-    # 2026-08-12 (build ei): FIVE teacher-door lines -- assistant, not replacement
-    # (intro, stops 1/5/9, outro). Identical to demo.html, APPENDED.
     "Welcome! And let me say the most important thing first: I am not here to replace you. I'm a teaching assistant — the kind that gives every one of your students patient, one-on-one practice at their own pace, and then reports back to you. This is the teacher's view, built from a made-up class so no real student is ever on display, and every number in it is earned: mastery means ninety percent or better on a unit quiz with no hints from me. Your class stays yours — let me show you what I hand back.",
     "Now the teacher's side — and here is the right way to think of me: I'm the assistant who does what no teacher has thirty hours a day for, the patient one-on-one practice, while you do the teaching. A teacher opens a class with its class code — this is Room Twelve — and every class they run sits in one place.",
     "This column — needs attention — is me doing your triage: a student who has stalled, or whose scores are sliding, gets flagged before they get lost in the middle of a class. And the students pulling ahead surface too, in my honest read below — because no class learns at one speed, and with an assistant watching every student every day, you never have to teach as if it does.",
     "And you can open any student for their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. What happens with all of it is your call: I gather the picture, you make the teaching decisions. Adding a student is one box — their student code.",
     "And that's the teacher's side of the classroom. Notice what it doesn't do: it doesn't plan your lessons, grade your judgment, or run your room — it hands you what you can't get any other way, a patient assistant for every single student and an honest picture of exactly who needs you and who's ready to run ahead. If you'd like to see what your students would experience, I can teach you a lesson right now, at any level you choose.",
-    "Before we finish, meet my favourite helper — Abrabot, the practice robot! After every lesson, my students can practice with him as much as they like. It is always free, it never changes their scores, and parents can see every problem they worked. Abrabot — they are all yours!",
+    "Before we finish — Abrabot, they are all yours. A couple of practice problems, and I will be right here.",
     "And see Extra practice — the one with the robot? That's Abrabot, my practice helper. Practice a problem is for a problem your student brings me; Abrabot is the other way round — he hands out more problems on lessons already done, as many as they want, always free, and he keeps count so your student can show you how hard they've worked. Stay to the end of the lesson and you'll meet him yourself — or tap his button any time.",
+    "Next, the Progress dashboard — here is a corner of it. We will spend proper time in there after the lesson, when you can open all three views and click through them yourself.",
+    "And see Extra practice — the one with the robot? That one is not mine at all. Let me introduce you.",
+    "And these two bubbles at the top are the streak. The flame counts days in a row your student has worked; the star counts problems right in a row today. Small, honest numbers — and children watch them like a scoreboard.",
+    "One more thing before you go. See Extra practice on the left? That is Abrabot — my teaching assistant. He is a robot, and proud of it. Any time you want more of a skill you already know, he has a box of problems that never runs out. He is the one to practise with; I am the one to learn with.",
+    "And one thing that is not on this screen, because it never needs to be: the drilling. Extra practice belongs to Abrabot, my teaching assistant — a robot with a virtually unlimited box of problems on skills already taught. He handles the repetition, so your class time with me goes to the teaching, and yours goes to the five children who need you.",
+    "Last thing. Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills your child has already learned. There is no such thing as running out. Which means \"can I do more?\" is always a yes.",
+    "Last thing, and it matters for a homeschool week: Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills already taught. It never runs out. So the repetition your child needs is there whenever you have a spare ten minutes, without you writing a single worksheet.",
 ]
 
 
