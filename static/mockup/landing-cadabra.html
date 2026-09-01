@@ -118,6 +118,8 @@ button{font:inherit;cursor:pointer}
 .door:hover{transform:translateY(-2px);border-color:var(--accent)}
 .door.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .door.primary:hover{background:var(--accent-ink)}
+.guestline{margin-top:14px;font-size:.95rem;color:var(--muted)}
+.guestline b{color:var(--ink-2)}
 .hostrow{margin-top:22px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
 .hostbtn{display:inline-flex;align-items:center;gap:11px;border:1.5px solid var(--line);
   background:var(--card);border-radius:999px;padding:9px 20px 9px 10px;font-weight:600;
@@ -137,6 +139,14 @@ section.blk:nth-child(even){background:var(--card-2)}
 .three{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px}
 .three h3{font-size:1.02rem;font-weight:700;margin-bottom:6px}
 .three p{color:var(--ink-2);font-size:.98rem}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.pane{border:1px solid var(--line);border-radius:14px;padding:20px 22px;background:var(--card)}
+.pane h3{font-size:1.02rem;font-weight:700;margin-bottom:7px}
+.pane p{color:var(--ink-2);font-size:.97rem}
+.motive{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+.chipdemo{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:9px;
+  border:1px solid var(--line);border-radius:14px;padding:20px 24px;background:var(--card)}
+.chipcap{font-size:.8rem;color:var(--muted);max-width:16ch;text-align:center;margin-top:4px}
 .courses{display:flex;flex-wrap:wrap;gap:9px}
 .cpill{border:1px solid var(--line);background:var(--card);border-radius:999px;
        padding:8px 15px;font-size:.92rem;color:var(--ink-2)}
@@ -276,27 +286,26 @@ body.notes .foldmark{display:block}
 <div class="hero"><div class="wrap">
   <div>
     <h1>A math tutor who teaches out loud, one step at a time.</h1>
-    <p class="sub">He talks, he writes on the board, and he waits for your child to
-      answer &mdash; the way a good tutor sitting beside them would.</p>
+    <p class="sub">He teaches the whole course &mdash; not just tonight&rsquo;s homework.
+      He builds the plan around your child, encourages them through it, and keeps track
+      of every step so you can see how it is going.</p>
 
     <div class="doors">
-      <button class="door primary" type="button">Try a lesson free</button>
+      <button class="door primary" type="button">Try a lesson</button>
       <button class="door" type="button" id="tourDoor">Take the tour</button>
       <button class="door" type="button">Log in</button>
+      <button class="door" type="button">Guest login</button>
     </div>
+    <p class="guestline">Guests get <b>five lessons a day, free</b> &mdash; no card, no account.</p>
 
-    <div class="hostrow">
-      <button class="hostbtn" type="button" id="hostBtn">
-        <span class="mini" id="miniCad"></span>
-        <span>Let him show you around
-          <small>60 seconds &middot; he gives the tour himself</small></span>
-      </button>
-    </div>
-
-    <div class="note"><b>What changed.</b> One sentence instead of three. One character
-      instead of a stock photo. Three doors, and the middle one is the demo he hosts.
-      The old top-nav links moved to the footer, where crawlers still read them and a
-      visitor is not asked to choose between nine things before they know what this is.</div>
+    <div class="note"><b>What changed.</b> One sentence instead of three, and one
+      character instead of a stock photo. <b>Take the tour</b> is now the only way in to
+      the demo &mdash; the separate "let him show you around" button is gone. The old
+      top-nav links moved to the footer, where crawlers still read them and a visitor is
+      not asked to choose between nine things before they know what this is.</div>
+    <div class="note"><b>The four doors are the open question.</b> <i>Try a lesson</i> and
+      <i>Guest login</i> may be the same door wearing two hats. If they are, three doors
+      and the guest line underneath is the stronger page.</div>
     <div class="note"><b>No price above the fold, and no testimonials.</b> Pricing waits
       on the real serve-cost number, and we have no customers to quote yet. Inventing
       either is the fastest way to lose a school district's trust.</div>
@@ -312,43 +321,79 @@ body.notes .foldmark{display:block}
 
 <section class="blk"><div class="wrap">
   <p class="eyebrow">What he actually does</p>
-  <h2>Not a homework-answer machine.</h2>
+  <h2>He teaches the course. He does not hand over answers.</h2>
   <div class="three">
     <div><h3>He asks before he tells</h3><p>Every step is a question your child answers.
       When they are stuck he makes the step smaller &mdash; he never just fills it in.</p></div>
     <div><h3>He writes it down</h3><p>Nothing is left to imagine. If he says it, it
       appears on the board, in order, and a wrong line never stays up.</p></div>
-    <div><h3>He plans the course</h3><p>He knows what your child has mastered and what
-      comes next, and he tells you both in plain words.</p></div>
+    <div><h3>He plans it around your child</h3><p>He knows what they have mastered and
+      what comes next, and he builds the lesson plan from that &mdash; not from a
+      fixed syllabus everyone gets.</p></div>
+    <div><h3>He teaches the whole course</h3><p>Not tonight&rsquo;s homework. The unit,
+      the course, and the one after it &mdash; start to finish, in order.</p></div>
   </div>
-  <div class="note"><b>Three, not six.</b> The live page carries six selling sections
-    above the footer. A visitor who reads three remembers three.</div>
+  <div class="note"><b>Four, not six.</b> The live page carries six selling sections above
+    the footer. A visitor who reads four remembers four.</div>
+</div></section>
+
+<section class="blk"><div class="wrap">
+  <p class="eyebrow">Why children keep going</p>
+  <h2>Built to make them want the next lesson.</h2>
+  <div class="motive">
+    <div class="three" style="flex:1">
+      <div><h3>He encourages, every step</h3><p>Getting it right is noticed. Getting it
+        wrong gets curiosity, never disappointment &mdash; he asks them to look again
+        at one specific thing.</p></div>
+      <div><h3>Progress they can see</h3><p>Days in a row, and problems right in a row
+        today. Small, honest numbers a child can watch move.</p></div>
+      <div><h3>Never too easy, never too hard</h3><p>Difficulty moves one notch at a
+        time, off what they actually did &mdash; so the work stays just hard enough to
+        be worth finishing.</p></div>
+    </div>
+    <div class="chipdemo" aria-hidden="true">
+      <span class="chip2 days"><span class="m">&#128293;4</span><span class="l">days in a row</span></span>
+      <span class="chip2 today"><span class="m">&#11088;5</span><span class="l">right in a row today</span></span>
+      <span class="chipcap">What your child sees at the top of the lesson.</span>
+    </div>
+  </div>
+  <div class="note"><b>This replaced the four-step how-it-works block.</b> Jim: the steps
+    are not the thing worth saying. Motivation, tracking and customisation are.</div>
+</div></section>
+
+<section class="blk"><div class="wrap">
+  <p class="eyebrow">You can see how it is going</p>
+  <h2>In plain words, to whoever is responsible.</h2>
+  <div class="two">
+    <div class="pane">
+      <h3>Parents</h3>
+      <p>What your child worked on, what they have mastered, what is next, and where they
+        are stuck &mdash; written as a paragraph, not a dashboard you have to decode.
+        Every word of every lesson is yours to read.</p>
+    </div>
+    <div class="pane">
+      <h3>Teachers</h3>
+      <p>The same picture for a whole class: who is moving, who is stuck, and on which
+        skill &mdash; so a thirty-minute period goes to the five children who need it
+        rather than to finding out who they are.</p>
+    </div>
+  </div>
 </div></section>
 
 <section class="blk"><div class="wrap">
   <p class="eyebrow">Courses</p>
-  <h2>First grade through calculus.</h2>
+  <h2>First grade through differential equations.</h2>
   <div class="courses">
     <span class="cpill">Entry-Level Math</span><span class="cpill">Basic Math</span>
-    <span class="cpill">Pre-Algebra</span><span class="cpill">Algebra 1</span>
-    <span class="cpill">Geometry</span><span class="cpill">Algebra 2</span>
-    <span class="cpill">Pre-Calculus</span><span class="cpill">Calculus</span>
+    <span class="cpill">Pre-Algebra</span><span class="cpill">Algebra I</span>
+    <span class="cpill">Geometry</span><span class="cpill">Algebra II</span>
+    <span class="cpill">Trig / Pre-Calc</span><span class="cpill">Calculus</span>
+    <span class="cpill">Differential Equations</span><span class="cpill">Probability &amp; Statistics</span>
   </div>
-</div></section>
-
-<section class="blk"><div class="wrap">
-  <p class="eyebrow">How it works</p>
-  <h2>Four steps.</h2>
-  <div class="steps">
-    <div class="step"><b>Pick a course</b><p>Or let him place your child with a short,
-      unmarked check.</p></div>
-    <div class="step"><b>Turn the sound on</b><p>He teaches out loud. Your child talks
-      back, taps, or types.</p></div>
-    <div class="step"><b>Work a lesson</b><p>Twenty minutes is a good day. He stops
-      before they are tired.</p></div>
-    <div class="step"><b>Read the report</b><p>You get what was learned and what is
-      next, in a paragraph.</p></div>
-  </div>
+  <div class="note"><b>All ten, with the names the app uses.</b> Read out of
+    <span style="font-family:var(--mono);font-size:.9em">curriculum.py</span>
+    &mdash; the first draft of this page was missing Differential Equations and
+    Probability &amp; Statistics, and had three of the other titles wrong.</div>
 </div></section>
 
 <section class="blk"><div class="wrap">
@@ -543,10 +588,6 @@ var REDUCED = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduc
       requestAnimationFrame(loop);
     })(t0);
   }
-  /* the little one on the button */
-  document.getElementById('miniCad').innerHTML =
-    '<svg viewBox="60 60 100 240" width="34" height="34" aria-hidden="true">'
-    + cone(292,348,374) + barrel(292) + ferrule() + hat() + '</svg>';
 })();
 
 /* ══════════ 2. DESIGN NOTES ══════════ */
@@ -843,7 +884,6 @@ function closeDemo(){
 }
 function onKey(e){ if(e.key==='Escape') closeDemo(); }
 
-$('hostBtn').addEventListener('click', openDemo);
 $('tourDoor').addEventListener('click', openDemo);
 skipBtn.addEventListener('click', closeDemo);
 doneBtn.addEventListener('click', closeDemo);
