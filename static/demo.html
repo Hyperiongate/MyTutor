@@ -1686,7 +1686,11 @@
   "And see Extra practice — the one with the robot? That's Abrabot, my practice helper. Practice a problem is for a problem your student brings me; Abrabot is the other way round — he hands out more problems on lessons already done, as many as they want, always free, and he keeps count so your student can show you how hard they've worked. Stay to the end of the lesson and you'll meet him yourself — or tap his button any time.",
     "Next, the Progress dashboard — here is a corner of it. Inside there is every unit and how far they have got, their accuracy, how long they have worked, the streaks you can see up top, a trophy case for every award they earn, and the very same plain-words report their parent and their teacher get. All of it in one place, and none of it a spreadsheet.",
     "And see Extra practice — the one with the robot? That one is not mine at all. Let me introduce you.",
-    "And these two bubbles at the top are the streak. The flame counts days in a row your student has worked; the star counts problems right in a row today. Small, honest numbers — and children watch them like a scoreboard."
+    "And these two bubbles at the top are the streak. The flame counts days in a row your student has worked; the star counts problems right in a row today. Small, honest numbers — and children watch them like a scoreboard.",
+    "One more thing before you go. See Extra practice on the left? That is Abrabot — my teaching assistant. He is a robot, and proud of it. Any time you want more of a skill you already know, he has a box of problems that never runs out. It is always free, and it never changes your score. He is the one to practise with; I am the one to learn with.",
+    "And one thing that is not on this screen, because it never needs to be: the drilling. Extra practice belongs to Abrabot, my teaching assistant — a robot with a virtually unlimited box of problems on skills already taught. He handles the repetition, always free, so your class time with me goes to the teaching, and yours goes to the five children who need you.",
+    "Last thing. Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills your child has already learned. It is always free, it never changes their score, and there is no such thing as running out. Which means \"can I do more?\" is always a yes.",
+    "Last thing, and it matters for a homeschool week: Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills already taught. Always free, never changes the score, never runs out. So the repetition your child needs is there whenever you have a spare ten minutes, without you writing a single worksheet."
   ];
   // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
   // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
@@ -1771,7 +1775,8 @@
     lineStarting("The same nine units as a path"),
     lineStarting("The trophy case does a job in a homeschool"),
     lineStarting("And her courses. One subscription covers all ten"),
-    lineStarting("And this is the one homeschool families ask about first")
+    lineStarting("And this is the one homeschool families ask about first"),
+    lineStarting("Last thing, and it matters for a homeschool week")
   ];
   // The closing line for each door (build cr). Spoken when that walkthrough ends, in
   // place of the three-view invitation -- which a visitor who came through one door is
@@ -1801,7 +1806,8 @@
     lineStarting("Your nine units drawn as a path"),
     lineStarting("And your next three sessions, already planned."),
     lineStarting("And here it is — the trophy case."),
-    lineStarting("Your courses. You finished Basic Math and moved up")
+    lineStarting("Your courses. You finished Basic Math and moved up"),
+    lineStarting("One more thing before you go. See Extra practice")
   ];
   function say(text){
     lastSaid=text; lastRobot=false; bubble.textContent=text; replay.style.display="inline-block";
@@ -2606,7 +2612,8 @@
       {t:'sdJourney',    line:lineStarting("Your nine units drawn as a path")},
       {t:'sdNext',       line:lineStarting("And your next three sessions, already planned.")},
       {t:'sdTrophies',   line:"And the trophy case. Explored, practiced, learning, mastered, the effort medal, and the Course Champion medal she earned for finishing Basic Math. Every one of them comes from real work; none of them are participation stickers."},
-      {t:'sdCourses',    line:lineStarting("Your courses. You finished Basic Math and moved up")}]},
+      {t:'sdCourses',    line:lineStarting("Your courses. You finished Basic Math and moved up")},
+      {t:'sdCourses',    line:lineStarting("One more thing before you go. See Extra practice")}]},
     // build ct: nine stops, one per panel of the real teacher page. The old tdAttention
     // CARD is gone -- its content lives in the flags, the honest read and the per-student
     // strengthen list now -- so its line moved onto the roster, where the column it
@@ -2621,7 +2628,8 @@
       {t:'tdRead',        line:lineStarting("And this is my honest read on the class. Aiden")},
       {t:'tdStrengthen',  line:lineStarting("Strengthen next, one line per student")},
       {t:'tdTime',        line:lineStarting("And time on task — engaged time")},
-      {t:'tdOpenStudent', line:lineStarting("And you can open any student for their full dashboard")}]},
+      {t:'tdOpenStudent', line:lineStarting("And you can open any student for their full dashboard")},
+      {t:'tdOpenStudent', line:lineStarting("And one thing that is not on this screen")}]},
     // 2026-08-10 (build cs, Jim: "the parent is our number one customer... I want a fully
     // fleshed out parent dashboard, and I want you to give me a tour of that dashboard").
     // TEN stops now, one per panel of the real parent view, in the order the real page
@@ -2637,7 +2645,8 @@
       {t:'pdJourney',    line:lineStarting("This is the same nine units drawn as a path")},
       {t:'pdTrophies',   line:lineStarting("Her trophy case — and this panel")},
       {t:'pdCourses',    line:lineStarting("And her courses. She finished Basic Math")},
-      {t:'pdRecords',    line:"And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your child's work, and you can take it with you any time."}]}
+      {t:'pdRecords',    line:"And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your child's work, and you can take it with you any time."},
+      {t:'pdRecords',    line:lineStarting("Last thing. Extra practice is not me")}]}
   };
   var dashTourCancelled=false;
 
@@ -2905,6 +2914,17 @@
         if (t && !t.getAttribute('data-cad')) t.setAttribute('data-cad', TOUR[i].t);
       }
       var bd = el('board');   if (bd && !bd.getAttribute('data-cad')) bd.setAttribute('data-cad','board');
+      /* (rm) and every stop of the three dashboard walkthroughs -- students, teachers,
+         parents and homeschool all run through the same glow(), so stamping these is
+         all it takes for him to point in every audience demo. */
+      try {
+        Object.keys(DASHES).forEach(function(k){
+          (DASHES[k].stops || []).forEach(function(st){
+            var e = el(st.t);
+            if (e && !e.getAttribute('data-cad')) e.setAttribute('data-cad', st.t);
+          });
+        });
+      } catch (e2) {}
       var an = el('answer');  if (an && !an.getAttribute('data-cad')) an.setAttribute('data-cad','answer');
     } catch (e) {}
   })();

@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    (rm) 2026-09-01 -- THE PENCIL IS MR. CADABRA ON THE HOME PAGE. Three additive
+    changes, all reversible: the hero orb shows the pencil (the canvas still draws,
+    unseen -- deleting it would throw in boot()); presence:false on the hero draw so
+    the video presence layer never mounts here; and wireDemoWelcome() is a no-op --
+    the site_welcome clip is footage of a real person and is retired. Nothing else
+    on the page moved. Rules in PRESENCE_RULES.md.
     2026-08-30  (build qq) The parent button was renamed in build qp -- Jim: "it is just
                 for a single child" -- so this card quotes the words the button actually
                 says now. Copy-only; a page that quotes a button by name has to be edited
@@ -292,6 +298,11 @@
   .mock-body{display:grid;grid-template-columns:1fr 1.3fr;min-height:250px}
   .mock-tutor{padding:18px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center}
   .orb-lg{width:74px;height:74px}
+  /* (rm) the pencil is Mr. Cadabra. The canvas still draws (its loop is shared and
+     harmless) but is no longer seen; deleting it would throw inside boot(). */
+  #heroOrb canvas{display:none}
+  #heroOrb .cadbust{position:absolute;inset:0;display:block}
+  #heroOrb .cadbust svg{width:100%;height:100%;display:block}
   .bubble{background:#f6f3ff;border:1px solid var(--line);border-radius:14px;padding:10px 13px;font-size:13.5px;color:var(--ink)}
   .board{padding:20px;background:
      linear-gradient(0deg,transparent 23px,rgba(109,90,230,.06) 24px),
@@ -571,7 +582,7 @@
       <button class="hearbtn" id="hearBtn" type="button" aria-label="Play a sample of Mr. Cadabra's real teaching voice">🔊 Hear him teach</button></div>
     <div class="mock-body">
       <div class="mock-tutor">
-        <span class="orb orb-lg" id="heroOrb"><canvas id="heroFace" width="176" height="176"></canvas></span>
+        <span class="orb orb-lg" id="heroOrb"><canvas id="heroFace" width="176" height="176"></canvas><span class="cadbust"><svg viewBox="64 8 92 196" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mr. Cadabra"><rect x="82" y="114" width="56" height="98" fill="#F2BC1B"/><rect x="82" y="114" width="15" height="98" fill="#FBD96A" opacity=".33"/><rect x="123" y="114" width="15" height="98" fill="#C08F0C" opacity=".42"/><path d="M97 114 V212 M123 114 V212" stroke="#C08F0C" stroke-width="1.2" opacity=".5"/><rect x="82" y="114" width="56" height="98" fill="none" stroke="#2F2C39" stroke-width="1.8" opacity=".7"/><rect x="86" y="98" width="48" height="17" fill="#C8CAD4"/><path d="M86 103.5 H134 M86 109.5 H134" stroke="#9EA1B1" stroke-width="1.5"/><ellipse cx="110" cy="89" rx="50" ry="9.5" fill="#221F4C"/><path d="M68 87 Q78 44 110 20 Q126 11 133 20 Q124 48 152 87 Q110 97 68 87 Z" fill="#2E2A63"/><path d="M112 21 Q124 48 152 87 Q136 93 124 94 Q128 56 112 21 Z" fill="#221F4C" opacity=".55"/><path d="M70 79 Q110 90 150 79 L151 87 Q110 98 69 87 Z" fill="#4a4ac9"/><path transform="translate(118,50) scale(.78)" d="M0 -10 L2.9 -3.5 L9.5 -3.1 L4.5 1.2 L6.1 7.6 L0 4 L-6.1 7.6 L-4.5 1.2 L-9.5 -3.1 L-2.9 -3.5 Z" fill="#F2BC1B"/><g transform="translate(0,8)"><path d="M90 143 Q99 138 108 142" fill="none" stroke="#2F2C39" stroke-width="2.6" stroke-linecap="round"/><path d="M112 142 Q121 138 130 143" fill="none" stroke="#2F2C39" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="99" cy="158" rx="8" ry="9" fill="#FBFAFF" stroke="#2F2C39" stroke-width="2.2"/><ellipse cx="121" cy="158" rx="8" ry="9" fill="#FBFAFF" stroke="#2F2C39" stroke-width="2.2"/><circle cx="100" cy="159.5" r="3.4" fill="#2F2C39"/><circle cx="122" cy="159.5" r="3.4" fill="#2F2C39"/><path d="M97 181 Q110 192 123 181" fill="none" stroke="#2F2C39" stroke-width="2.7" stroke-linecap="round"/></g></svg></span></span>
         <div class="bubble" id="heroBubble">"Okay — what do we do to <b>both sides</b> to get <span style="color:#d1345b;font-weight:800">X</span> by itself?"</div>
         <div class="reply" id="heroReply" aria-hidden="true"></div>
       </div>
@@ -761,7 +772,8 @@
         var m = (mood === 'happy') ? 'happy' : (speaking ? 'speaking' : 'idle');
         var level = speaking ? 0.45 + 0.30 * Math.abs(Math.sin(t * 0.05))
                              : 0.10 + 0.05 * Math.sin(t * 0.035);
-        try { TutorFace.draw(ctx, 176, 176, { level: level, t: t, mood: m }); } catch(e) {}
+        /* (rm) presence:false -- footage of a real person is a different character now */
+        try { TutorFace.draw(ctx, 176, 176, { level: level, t: t, mood: m, presence:false }); } catch(e) {}
         t++; requestAnimationFrame(loop);
       })();
     }
@@ -892,27 +904,16 @@
     // still gets the demo's own welcome, which is the line written for them.
     // Fails open in every direction: no clip, a dead codec, a refused autoplay, or no
     // sessionStorage at all and the click is an ordinary link again.
-    function wireDemoWelcome(){
-      var links = document.querySelectorAll('a[href="/demo"], a[href^="/demo?"]');
-      Array.prototype.forEach.call(links, function(a){
-        a.addEventListener('click', function(ev){
-          if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;  // new tab: leave it alone
-          if (!(window.TutorMoments && TutorMoments.available('site_welcome'))) return;
-          ev.preventDefault();
-          var href = a.getAttribute('href');
-          var go = function(){
-            try { sessionStorage.setItem('cadabra_welcomed', '1'); } catch(e){}
-            window.location.href = href;
-          };
-          var moved = false;
-          var once = function(){ if (moved) return; moved = true; go(); };
-          try { TutorMoments.play('site_welcome').then(once, once); }
-          catch(e){ once(); }
-          // A clip that never settles must never trap a visitor on the front page.
-          setTimeout(once, 30000);
-        });
-      });
-    }
+    /* (rm, 2026-09-01) THE SITE WELCOME CLIP IS RETIRED, AND SO IS THIS HANDLER'S JOB.
+       Until today every /demo link on this page hijacked its own click to play
+       site_welcome -- footage of a real person introducing himself as Mr. Cadabra --
+       and only then navigated, leaving a one-shot marker so the demo would not say
+       hello twice. Mr. Cadabra is the pencil now, so that clip is a different
+       character; the demo greets in his own voice on arrival; and a link to /demo is
+       simply a link again. Kept as a named no-op so the wiring below and the pins
+       in ruletests.py have one place to point at. The clip and its manifest entry
+       stay on disk: restoring the old behaviour is undoing one commit. */
+    function wireDemoWelcome(){ /* nothing to wire: the demo link is a plain link */ }
     if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', wireDemoWelcome);
     else wireDemoWelcome();
   })();

@@ -15640,6 +15640,10 @@ DEMO_VOICE_LINES = [
     "Next, the Progress dashboard — here is a corner of it. Inside there is every unit and how far they have got, their accuracy, how long they have worked, the streaks you can see up top, a trophy case for every award they earn, and the very same plain-words report their parent and their teacher get. All of it in one place, and none of it a spreadsheet.",
     "And see Extra practice — the one with the robot? That one is not mine at all. Let me introduce you.",
     "And these two bubbles at the top are the streak. The flame counts days in a row your student has worked; the star counts problems right in a row today. Small, honest numbers — and children watch them like a scoreboard.",
+    "One more thing before you go. See Extra practice on the left? That is Abrabot — my teaching assistant. He is a robot, and proud of it. Any time you want more of a skill you already know, he has a box of problems that never runs out. It is always free, and it never changes your score. He is the one to practise with; I am the one to learn with.",
+    "And one thing that is not on this screen, because it never needs to be: the drilling. Extra practice belongs to Abrabot, my teaching assistant — a robot with a virtually unlimited box of problems on skills already taught. He handles the repetition, always free, so your class time with me goes to the teaching, and yours goes to the five children who need you.",
+    "Last thing. Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills your child has already learned. It is always free, it never changes their score, and there is no such thing as running out. Which means \"can I do more?\" is always a yes.",
+    "Last thing, and it matters for a homeschool week: Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills already taught. Always free, never changes the score, never runs out. So the repetition your child needs is there whenever you have a spare ten minutes, without you writing a single worksheet.",
 ]
 
 

@@ -7728,22 +7728,25 @@ def part3u2_talking_moments():
     # "hear him teach" must hear him TEACH -- so the clip moved to the demo CTA, and both
     # checks are re-pointed at where the behaviour actually lives now. PART 3ad owns the
     # button's side of it (no clip in that handler, no greeting label).
-    check("the landing hero offers to introduce him ON THE WAY INTO THE DEMO",
-          "tutor-moments.js" in lp and "TutorMoments.play('site_welcome')" in lp
-          and "wireDemoWelcome" in lp,
-          "he greets a visitor who is heading into the demo -- never by eating the "
-          "teach button (build ez)")
+    # ⚠️ INVERTED, NOT DELETED (build rm, 2026-09-01). The site_welcome clip is footage
+    # of a real person introducing himself as Mr. Cadabra, and Mr. Cadabra is the pencil
+    # now -- so the home page no longer plays it on the way into the demo. What this
+    # block still guarantees is unchanged: the teach button teaches, a modified click is
+    # left alone, and nobody is ever trapped on the front page.
+    check("the landing page no longer plays the human site-welcome clip",
+          "TutorMoments.play('site_welcome')" not in lp
+          and "function wireDemoWelcome(){ /* nothing to wire" in lp,
+          "the pencil is Mr. Cadabra; a photoreal man saying 'I am Mr. Cadabra' is a "
+          "different character. The demo greets in his own voice on arrival instead.")
     check("  the teach button still has its audio sample, untouched",
           "/api/demo-audio/71" in lp,
           "with or without a clip on the server, that button plays him TEACHING")
-    check("  an unplayable clip never traps a visitor on the front page",
-          re.search(r"TutorMoments\.play\('site_welcome'\)\.then\(once, once\)", lp)
-          is not None and "setTimeout(once, 30000)" in lp,
-          "the navigation must happen whether the clip plays, fails, or never settles -- "
-          "both promise arms AND a backstop (the ev codec lesson, moved to its new home)")
-    check("  a modified click (new tab) is left alone",
-          "ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button" in lp,
-          "hijacking a cmd-click to play a video steals a behaviour the visitor owns")
+    _wdw = lp[lp.index("function wireDemoWelcome"):] if "function wireDemoWelcome" in lp else ""
+    _wdw = _wdw[:_wdw.index("\n")] if "\n" in _wdw else _wdw          # the one-line no-op
+    check("  nothing on the front page can trap a visitor on the way to the demo",
+          _wdw and "preventDefault" not in _wdw and "TutorMoments" not in _wdw,
+          "with no clip to wait for there is no hijacked click, no promise to settle and "
+          "no backstop to need -- a /demo link is a plain link (build rm)")
     with open(os.path.join(here, "static", "demo.html"), encoding="utf-8") as fh:
         dp = fh.read()
     # ⚠️ INVERTED, NOT DELETED (build rk, 2026-09-01). See PART 3ad. The demo's welcome
@@ -8914,12 +8917,16 @@ def part3ad_clip_never_eats():
 
     # 2. THE WELCOME NEVER DOUBLES UP. The home page hands off a one-shot marker and
     #    the demo page reads AND CLEARS it before its own opener can run.
-    check("the demo CTA plays the site welcome on the way in",
-          "wireDemoWelcome" in la and "TutorMoments.play('site_welcome')" in la,
-          "Jim: 'it starts the welcome clip, and then the demo starts'")
-    check("the home page leaves the one-shot marker before navigating",
-          "sessionStorage.setItem('cadabra_welcomed', '1')" in la,
-          "without the marker the demo page cannot know he has just said hello")
+    # ⚠️ INVERTED, NOT DELETED (build rm, 2026-09-01) -- see the block above and the
+    # rk note below. With no clip on either page there is no second welcome to double
+    # up with; the demo's own marker handling is kept so a marker from an old tab still
+    # does the right thing.
+    check("the home page no longer plays the site welcome on the way in",
+          "TutorMoments.play('site_welcome')" not in la,
+          "one character, one voice: the pencil greets in the demo, in his own voice")
+    check("the home page no longer needs to leave a marker",
+          "sessionStorage.setItem('cadabra_welcomed', '1')" not in la,
+          "there is no clip left for the marker to guard against")
     # ⚠️ INVERTED, NOT DELETED (build rk, 2026-09-01). Jim's ruling: Mr. Cadabra is the
     # PENCIL now, so demo_welcome -- footage of a real person introducing himself as Mr.
     # Cadabra -- cannot stay. The guarantee this pin protects (nobody hears two welcomes

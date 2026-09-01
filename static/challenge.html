@@ -1084,7 +1084,10 @@
       const w = orb.width, h = orb.height;
       const lv = orbLevel(); smooth += (lv - smooth) * 0.22;
       if (window.TutorFace) {
-        TutorFace.draw(octx, w, h, { level: smooth, t: t, mood: TutorFace.moodFrom(orbState) });
+        /* (rm, 2026-09-01) presence:false -- the video presence layer is footage of a real
+           person, and Mr. Cadabra is the pencil now. One word, fully reversible; the robot
+           canvas is unchanged. This was the last page still mounting him. */
+        TutorFace.draw(octx, w, h, { level: smooth, t: t, mood: TutorFace.moodFrom(orbState), presence:false });
       } else {                                  // fallback so the tutor is never blank
         octx.clearRect(0, 0, w, h);
         octx.fillStyle = "#5b5bd6";
