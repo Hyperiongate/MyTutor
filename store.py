@@ -2,6 +2,23 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rk -- THE COURSE REMEMBERS WHICH LESSONS ARE DONE. Jim: "I keep
+#               logging in as student zero zero zero zero, and it keeps starting over
+#               from the beginning." Root cause, measured: NOTHING recorded which
+#               scripted LESSON a student finished -- topic_progress is one row per
+#               UNIT (record_topic upserts by unit and upgrades status), and the
+#               picker's other signal, topic quizzes, never fires on the main road
+#               (session.html hands a mastered lesson to the live tutor; the quiz door
+#               lives only on pilot.html) -- AND the picker read fields the payload
+#               does not even carry (best_pct/topic_name vs the real passed/name), so
+#               its done-set was ALWAYS empty and pool[0] repeated forever. NEW TABLE
+#               script_done (code+course+lesson_id pk; mastered via _sql_best so a
+#               later 'learning' run never un-masters; runs counter; last_at), NEW
+#               record_script_done()/get_script_done(). Joins _STUDENT_CODE_TABLES on
+#               day one (standing rule): a reset student starts the course over, and
+#               the record follows a regenerated code. main.py writes it at
+#               _script_finish and ships mastered ids in /api/session's progress;
+#               session.html's scriptPick reads them (and the REAL quiz fields).
 #   2026-08-31  BUILD rd -- THE MAIN ROAD MOVES THE STAR. The scripted lane grades in
 #               code and never emits [[mark]], so today_streak moved neither up nor down
 #               there (measured, then watched live). NEW bump_today_streak(): the mirror
@@ -1093,6 +1110,24 @@ def init():
             Column("tgroup", String(16), primary_key=True),   # "elem" | "typing"
             Column("seen_at", DateTime(timezone=True)),
         )
+        # SCRIPTED LESSONS DONE (2026-09-01, build rk -- Jim: "it keeps starting over
+        # from the beginning"). One row per scripted lesson a student has FINISHED:
+        # the durable per-LESSON record that topic_progress (one row per UNIT) and
+        # topic_quizzes (only written by pilot.html's quiz door) never provided, so
+        # the session page's picker had nothing true to resume from. `mastered` is
+        # kept by _sql_best -- a later run that ends "still learning" never
+        # un-masters a lesson (same never-regress law as unit checks). Brand-new
+        # table -> create_all builds it; no migration. JOINS _STUDENT_CODE_TABLES on
+        # day one (standing rule).
+        _tables["script_done"] = Table(
+            "script_done", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("course", String(32), primary_key=True),
+            Column("lesson_id", String(80), primary_key=True),
+            Column("mastered", Integer, default=0),           # 0/1, never regresses
+            Column("runs", Integer, default=0),               # finishes, either way
+            Column("last_at", DateTime(timezone=True)),
+        )
         _tables["sprints"] = Table(
             "sprints", _meta,
             Column("id", Integer, primary_key=True, autoincrement=True),
@@ -1780,6 +1815,36 @@ def get_topics(code: str, course: str = DEFAULT_COURSE) -> list:
     return [
         {"unit": r[0], "unit_name": r[1], "status": r[2], "touches": r[3],
          "last_touched": r[4].isoformat() if r[4] else None}
+        for r in rows
+    ]
+
+
+# ---- scripted lessons done (2026-09-01, build rk) ---------------------------
+def record_script_done(code: str, course: str, lesson_id: str,
+                       mastered: bool) -> None:
+    """Record that a scripted lesson FINISHED for this student. `mastered` never
+    regresses (_sql_best): once the three-in-a-row is earned, a later shaky run
+    ending 'still learning' does not put the lesson back on the must-redo list --
+    the same never-regress law unit checks follow. Atomic; safe under workers."""
+    _upsert("script_done", {"code": code, "course": course,
+                            "lesson_id": lesson_id},
+            {"last_at": _now()},
+            exprs={"runs": (1, _sql_counter("runs", 1)),
+                   "mastered": (1 if mastered else 0,
+                                _sql_best("mastered", 1 if mastered else 0))})
+
+
+def get_script_done(code: str, course: str = DEFAULT_COURSE) -> list:
+    """This student's finished scripted lessons for a course, mastered flag and all."""
+    from sqlalchemy import select
+    t = _tables["script_done"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(
+            t.c.lesson_id, t.c.mastered, t.c.runs, t.c.last_at
+        ).where((t.c.code == code) & (t.c.course == course))).all()
+    return [
+        {"lesson_id": r[0], "mastered": bool(r[1]), "runs": r[2],
+         "last_at": r[3].isoformat() if r[3] else None}
         for r in rows
     ]
 
@@ -3335,6 +3400,10 @@ _STUDENT_CODE_TABLES = [
     # child to a regenerated login code, which it does by being in this list (dy's
     # change_student_code walks the same table registry).
     ("steers", "code"),
+    # 2026-09-01 (build rk): scripted lessons done, same rule -- a reset student
+    # starts the course from lesson one on purpose, and the record follows a
+    # regenerated code.
+    ("script_done", "code"),
 ]
 _PARENT_KEYED_TABLES = [
     ("parent_tokens", "parent_id"), ("parent_resets", "parent_id"),

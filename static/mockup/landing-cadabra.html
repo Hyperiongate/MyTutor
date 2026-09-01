@@ -187,8 +187,48 @@ body.notes .foldmark{display:block}
 .side.shut{margin-left:-236px}
 .side h4{font-family:var(--mono);font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;
          color:var(--muted);margin:0}
-.planitem{font-size:.92rem;color:var(--ink-2);padding:7px 10px;border-radius:8px;background:var(--card-2)}
+.planitem{font-size:.9rem;color:var(--ink-2);padding:6px 10px;border-radius:8px;background:var(--card-2)}
 .planitem.now{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+.side{gap:12px}
+.whoami{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.whoami .wmini{width:34px;height:44px;flex:0 0 auto}
+.whoami b{display:block;font-family:var(--display);font-size:.98rem}
+.whoami small{display:block;font-size:.78rem;color:var(--muted)}
+.leftnav{display:flex;flex-direction:column;gap:3px}
+.navbtn{text-align:left;background:transparent;border:none;border-radius:8px;padding:7px 9px;
+  font-size:.9rem;color:var(--ink-2);transition:background .12s ease,color .12s ease}
+.navbtn:hover{background:var(--accent-soft);color:var(--accent-ink)}
+.navbtn.on{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+
+.panel{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:20px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.panel[hidden]{display:none}
+.ptop{display:flex;align-items:baseline;gap:14px}
+.ptop b{font-family:var(--display);font-size:1.06rem;flex:1}
+.pback{background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 13px;
+  font-family:var(--mono);font-size:.64rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.pback:hover{border-color:var(--accent);color:var(--accent-ink)}
+.units{list-style:none;counter-reset:u;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.units li{counter-increment:u;display:flex;align-items:center;gap:12px;padding:9px 13px;
+  border:1px solid var(--line);border-radius:10px;font-size:.95rem}
+.units li::before{content:counter(u);font-family:var(--mono);font-size:.72rem;color:var(--muted);
+  width:18px;flex:0 0 auto}
+.units li span{flex:1}
+.units li em{font-style:normal;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted)}
+.units li em.done{color:var(--good)}
+.units li.cur{border-color:var(--accent);background:var(--accent-soft)}
+.units li.cur em{color:var(--accent-ink)}
+.dashsay{font-size:1rem;color:var(--ink-2);max-width:62ch}
+.dashsay b{color:var(--ink)}
+.bars{display:flex;flex-direction:column;gap:9px;max-width:560px}
+.bar{display:grid;grid-template-columns:1fr 190px 46px;align-items:center;gap:12px;font-size:.92rem}
+.bar i{display:block;height:9px;border-radius:9px;background:var(--line-2);position:relative}
+.bar i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);border-radius:9px;
+  background:var(--accent)}
+.bar b{font-family:var(--mono);font-size:.8rem;color:var(--muted);text-align:right}
+.dashfoot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:6px;border-top:1px solid var(--line)}
+.dashnote{font-size:.86rem;color:var(--muted);max-width:34ch}
 #sbTab{position:absolute;left:0;top:50%;transform:translateY(-50%) ;z-index:5;
   background:var(--card);border:1px solid var(--line);border-left:none;
   border-radius:0 10px 10px 0;padding:14px 7px;font-family:var(--mono);font-size:.62rem;
@@ -212,6 +252,7 @@ body.notes .foldmark{display:block}
 .chip2.today .m{color:var(--accent-ink)}
 
 .boardwrap{flex:1;padding:22px;min-height:0;display:flex}
+.board[hidden]{display:none}
 .board{flex:1;background:var(--board);border-radius:14px;padding:26px 30px;color:#EFECF8;
        font-family:var(--mono);display:flex;flex-direction:column;gap:16px;overflow:hidden}
 .board .bl{font-size:clamp(1.1rem,2.4vw,1.7rem);letter-spacing:.05em;opacity:0;
@@ -291,8 +332,7 @@ body.notes .foldmark{display:block}
       of every step so you can see how it is going.</p>
 
     <div class="doors">
-      <button class="door primary" type="button">Try a lesson</button>
-      <button class="door" type="button" id="tourDoor">Take the tour</button>
+      <button class="door primary" type="button" id="tourDoor">Take the tour</button>
       <button class="door" type="button">Log in</button>
       <button class="door" type="button">Guest login</button>
     </div>
@@ -303,9 +343,10 @@ body.notes .foldmark{display:block}
       the demo &mdash; the separate "let him show you around" button is gone. The old
       top-nav links moved to the footer, where crawlers still read them and a visitor is
       not asked to choose between nine things before they know what this is.</div>
-    <div class="note"><b>The four doors are the open question.</b> <i>Try a lesson</i> and
-      <i>Guest login</i> may be the same door wearing two hats. If they are, three doors
-      and the guest line underneath is the stronger page.</div>
+    <div class="note"><b>Three doors, settled.</b> "Try a lesson" and "Guest login" were
+      the same door wearing two hats, so the hat came off. A visitor with no account
+      takes the tour or logs in as a guest &mdash; and the guest line says what that
+      costs, which is nothing.</div>
     <div class="note"><b>No price above the fold, and no testimonials.</b> Pricing waits
       on the real serve-cost number, and we have no customers to quote yet. Inventing
       either is the fastest way to lose a school district's trust.</div>
@@ -422,12 +463,25 @@ body.notes .foldmark{display:block}
 <div id="demo" role="dialog" aria-modal="true" aria-label="Mr. Cadabra shows you around">
   <div class="room">
     <aside class="side" id="side" data-cad="plan">
+      <div class="whoami">
+        <span class="wmini" id="sideCad"></span>
+        <span><b>Mr. Cadabra</b><small>Entry-Level Math</small></span>
+      </div>
+
+      <nav class="leftnav" data-cad="nav">
+        <button class="navbtn" type="button" data-panel="curriculum" data-cad="curriculum">&#128218; Curriculum</button>
+        <button class="navbtn" type="button" data-panel="assess">&#128203; Course assessment</button>
+        <button class="navbtn" type="button" data-panel="dash" data-cad="dash">&#128202; Progress dashboard</button>
+        <button class="navbtn" type="button" data-panel="practice">&#9999;&#65039; Practice a problem</button>
+        <button class="navbtn" type="button" data-panel="topic">&#128269; Explore a topic</button>
+        <button class="navbtn" type="button" data-panel="final">&#127891; Final exam</button>
+        <button class="navbtn" type="button" data-panel="lookup">&#128214; Look it up</button>
+      </nav>
+
       <h4>Today&rsquo;s plan</h4>
       <div class="planitem now">1 &middot; Adding past ten</div>
       <div class="planitem">2 &middot; Two-digit sums</div>
       <div class="planitem">3 &middot; A quick check</div>
-      <h4 style="margin-top:8px">Course</h4>
-      <div class="planitem">Entry-Level Math</div>
     </aside>
 
     <div class="centercol">
@@ -443,12 +497,57 @@ body.notes .foldmark{display:block}
         <span class="menu">&#9776; Menu</span>
       </div>
 
-      <div class="boardwrap"><div class="board" data-cad="board" id="board">
+      <div class="boardwrap">
+        <div class="panel" id="pCurriculum" hidden>
+          <div class="ptop"><b>Curriculum &mdash; Entry-Level Math</b>
+            <button class="pback" type="button" data-panel="lesson">&larr; Back to the lesson</button></div>
+          <ol class="units">
+            <li><span>Counting &amp; Number Sense</span><em class="done">mastered</em></li>
+            <li class="cur"><span>Addition to 20</span><em>in progress</em></li>
+            <li><span>Subtraction to 20</span><em></em></li>
+            <li><span>Place Value to 1,000</span><em></em></li>
+            <li><span>Two- &amp; Three-Digit Addition</span><em></em></li>
+            <li><span>Two- &amp; Three-Digit Subtraction</span><em></em></li>
+            <li><span>Money &mdash; Coins, Bills &amp; Making Change</span><em></em></li>
+            <li><span>Time, Calendar &amp; Measurement</span><em></em></li>
+            <li><span>Shapes, Patterns &amp; Groups</span><em></em></li>
+          </ol>
+        </div>
+
+        <div class="panel" id="pDash" hidden>
+          <div class="ptop"><b>Progress dashboard</b>
+            <button class="pback" type="button" data-panel="lesson">&larr; Back to the lesson</button></div>
+          <p class="dashsay">Maya has finished Counting &amp; Number Sense and is most of the way
+            through Addition to 20. Adding past ten is the piece she is working on now &mdash;
+            she has it when she takes two hops, and slips when she tries one.
+            <b>Next:</b> two-digit sums, once past-ten is steady.</p>
+          <div class="bars">
+            <div class="bar"><span>Counting &amp; Number Sense</span><i style="--w:100%"></i><b>100%</b></div>
+            <div class="bar"><span>Addition to 20</span><i style="--w:72%"></i><b>72%</b></div>
+            <div class="bar"><span>Subtraction to 20</span><i style="--w:18%"></i><b>18%</b></div>
+            <div class="bar"><span>Place Value to 1,000</span><i style="--w:0%"></i><b>&mdash;</b></div>
+          </div>
+          <div class="dashfoot">
+            <span class="chip2 days"><span class="m">&#128293;4</span><span class="l">days in a row</span></span>
+            <span class="chip2 today"><span class="m">&#11088;5</span><span class="l">right in a row today</span></span>
+            <span class="dashnote">This is the same page a parent gets, and the same one a teacher
+              sees for every child in the class.</span>
+          </div>
+        </div>
+
+        <div class="panel" id="pStub" hidden>
+          <div class="ptop"><b id="stubName">&nbsp;</b>
+            <button class="pback" type="button" data-panel="lesson">&larr; Back to the lesson</button></div>
+          <p class="dashsay" id="stubBody">&nbsp;</p>
+        </div>
+
+        <div class="board" data-cad="board" id="board">
         <div class="bl" id="b1">Let&rsquo;s add <span class="hi">8 + 5</span></div>
         <div class="bl" id="b2">8 needs <span class="hi">2</span> to make ten</div>
         <div class="bl" id="b3">8 + 2 + 3&nbsp; &rarr; &nbsp;10 + 3</div>
         <div class="bl" id="b4">8 + 5 = <span class="gd">13</span></div>
-      </div></div>
+        </div>
+      </div>
 
       <div class="answerbar" data-cad="answer">
         <span class="ab mic">&#127908; Talk to him</span>
@@ -590,6 +689,20 @@ var REDUCED = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduc
   }
 })();
 
+/* the little Mr. Cadabra at the top of the sidebar, where the orb used to be */
+document.getElementById('sideCad').innerHTML =
+  '<svg viewBox="66 6 88 190" width="34" height="44" aria-hidden="true">'
+  + barrel(212) + '<rect x="86" y="98" width="48" height="17" fill="'+P.ferrule+'"/>'
+  + '<path d="M86 103.5 H134 M86 109.5 H134" stroke="'+P.ferruleDk+'" stroke-width="1.5"/>'
+  + hat() + '<g transform="translate(0,8)">'
+  + '<path d="'+EXPR.neutral.bl+'" fill="none" stroke="'+P.graphite+'" stroke-width="2.6" stroke-linecap="round"/>'
+  + '<path d="'+EXPR.neutral.br+'" fill="none" stroke="'+P.graphite+'" stroke-width="2.6" stroke-linecap="round"/>'
+  + '<ellipse cx="99" cy="158" rx="8" ry="9" fill="'+P.eye+'" stroke="'+P.graphite+'" stroke-width="2.2"/>'
+  + '<ellipse cx="121" cy="158" rx="8" ry="9" fill="'+P.eye+'" stroke="'+P.graphite+'" stroke-width="2.2"/>'
+  + '<circle cx="100" cy="159.5" r="3.4" fill="'+P.graphite+'"/><circle cx="122" cy="159.5" r="3.4" fill="'+P.graphite+'"/>'
+  + '<path d="'+EXPR.neutral.li+'" fill="none" stroke="'+P.graphite+'" stroke-width="2.7" stroke-linecap="round"/>'
+  + '</g></svg>';
+
 /* ══════════ 2. DESIGN NOTES ══════════ */
 var nb = document.getElementById('notesBtn');
 nb.addEventListener('click', function(){
@@ -707,7 +820,7 @@ function say(text,ms,id,fn){
   cap.textContent=text; bub.textContent=text;
   bub.classList.toggle('below', !!S.bubBelow);
   bub.classList.add('on');
-  prog.textContent = CUR + ' / 6';
+  prog.textContent = CUR + ' / 8';
   S.speaking=true; S.expr='teaching';
   wait(ms,id,function(){
     S.speaking=false;
@@ -772,6 +885,12 @@ function underlineBoard(id,fn){
   });
 }
 
+/* when he opens something, he gets out of its way -- rule 19's spirit: he never
+   stands on the thing the visitor is being asked to read */
+function stepAside(){
+  S.aimL=S.aimR=null; S.bubBelow=false;
+  flyTo(W-92, H*0.34, 0);
+}
 function showLine(n){ var el=$('b'+n); if(el) el.classList.add('show'); }
 function setProg(i){ CUR = i; }   /* the counter moves when he SPEAKS, not when he sets off */
 
@@ -802,26 +921,42 @@ var STOPS = [
       wait(1600,id,next);
     });
   },
-  /* 4 — THE SIDEBAR TAB (Jim) — he closes it, rather than describing it */
+  /* 4 — WHAT IS IN THE SIDEBAR (Jim) */
   function(id,next){
     setProg(4);
-    pointAt('sbtab','And this tab hides the lesson plan on the left. Watch —',3000,id,function(){
+    pointAt('nav','Everything else lives down the left. The curriculum, a course check, practice, the final exam — and the progress dashboard.',5000,id,function(){
+      showPanel('curriculum'); stepAside();
+      wait(2000,id,function(){ showPanel('lesson'); next(); });
+    });
+  },
+  /* 5 — THE DASHBOARD, opened (Jim) */
+  function(id,next){
+    setProg(5);
+    pointAt('dash','This one is worth a look. It is the same page a parent gets — and the one a teacher sees for a whole class.',4600,id,function(){
+      showPanel('dash'); stepAside();
+      wait(3600,id,function(){ showPanel('lesson'); next(); });
+    });
+  },
+  /* 6 — THE SIDEBAR TAB (Jim) — he closes it, rather than describing it */
+  function(id,next){
+    setProg(6);
+    pointAt('sbtab','And this tab tucks the whole lot away. Watch —',2800,id,function(){
       setSidebar(false);
       wait(700,id,function(){
-        say('— more room for the board. Press it again whenever you want the plan back.',3800,id,function(){
+        say('— more room for the board. Press it again whenever you want it back.',3600,id,function(){
           setSidebar(true); wait(600,id,next);
         });
       });
     });
   },
-  /* 5 — the answer bar */
+  /* 7 — the answer bar */
   function(id,next){
-    setProg(5);
+    setProg(7);
     pointAt('answer','Your child answers down here — talk to me, tap a button, or type. All three work, every time.',4400,id,next);
   },
-  /* 6 — he writes, and hands over */
+  /* 8 — he writes, and hands over */
   function(id,next){
-    setProg(6);
+    setProg(8);
     S.bubBelow=false;
     say('And when your child gets there, I finish the line myself. Watch.',3000,id,function(){
       showLine(3);
@@ -848,6 +983,30 @@ function setSidebar(open){
 }
 sbTab.addEventListener('click', function(){ setSidebar(side.classList.contains('shut')); });
 
+/* The sidebar items OPEN things -- Jim wants a visitor able to click through to a
+   dashboard and a curriculum, not just be told they exist. */
+var STUBS = {
+  assess:   ['Course assessment','A short, unmarked check that finds where your child actually is — so he starts them at the right place instead of the first page.'],
+  practice: ['Practice a problem','Bring him your own homework question and he teaches it, one step at a time, the same way he teaches a lesson.'],
+  topic:    ['Explore a topic','Ask about anything in the course and he will teach that, out of order, without losing your place in the plan.'],
+  final:    ['Final exam','Unlocks once every unit is mastered. He will tell you plainly when your child is ready, and not before.'],
+  lookup:   ['Look it up','A plain-words dictionary of every term he has used with your child, in the order they met them.']
+};
+function showPanel(which){
+  var board=$('board'), pc=$('pCurriculum'), pd=$('pDash'), ps=$('pStub');
+  board.hidden = (which!=='lesson'); pc.hidden=true; pd.hidden=true; ps.hidden=true;
+  if(which==='curriculum') pc.hidden=false;
+  else if(which==='dash')  pd.hidden=false;
+  else if(STUBS[which]){ ps.hidden=false; $('stubName').textContent=STUBS[which][0];
+                         $('stubBody').textContent=STUBS[which][1]; }
+  [].forEach.call(document.querySelectorAll('.navbtn'), function(b){
+    b.classList.toggle('on', b.getAttribute('data-panel')===which);
+  });
+}
+[].forEach.call(document.querySelectorAll('[data-panel]'), function(b){
+  b.addEventListener('click', function(){ showPanel(b.getAttribute('data-panel')); });
+});
+
 function runTour(){
   var id=nseq(), i=0;
   doneBtn.hidden=true; skipBtn.hidden=false; skipBtn.textContent='Skip';
@@ -868,7 +1027,7 @@ var lastFocus=null;
 function openDemo(){
   lastFocus=document.activeElement;
   ['b1','b2','b3','b4'].forEach(function(n){ $(n).classList.remove('show'); });
-  gInk.innerHTML=''; setSidebar(true); $('nToday').textContent='3';
+  gInk.innerHTML=''; setSidebar(true); $('nToday').textContent='3'; showPanel('lesson');
   demo.classList.add('on'); S.hidden=false;
   requestAnimationFrame(function(){ demo.classList.add('in'); });
   size();

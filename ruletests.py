@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rk -- PART 3hl: the course remembers which lessons are done. Jim:
+#               "I keep logging in as student zero zero zero zero, and it keeps starting
+#               over from the beginning." Double root: scriptPick read quiz fields the
+#               payload never carried (best_pct/topic_name vs passed/name -- done-set
+#               always empty, `|| pool[0]` restarted lesson one), and no per-LESSON
+#               ledger existed at all (topic_progress is per UNIT; quizzes only fire on
+#               pilot.html). New store table script_done + record/get, shipped as
+#               progress.script_done, read by the rewritten scriptPick (null when the
+#               course is finished -> live opener). The lane driver walks it live:
+#               record by id -> a 'learning' rerun never un-masters -> /api/session
+#               carries the id.
 #   2026-09-01  BUILD rj -- PART 3hk: the orb retires and the seam is announced. Jim's
 #               three rulings after watching ri live: (1) the mastered-lesson handoff is
 #               ANNOUNCED (LINE_NEW_TOPIC spoken by the page; main.py's __script_done
@@ -12171,6 +12182,86 @@ def part3hk_the_orb_retires_and_the_seam_is_announced():
               "silently skipped act")
 
 
+def part3hl_the_course_remembers_which_lessons_are_done():
+    """PART 3hl (build rk, 2026-09-01) -- THE COURSE REMEMBERS WHICH LESSONS ARE DONE.
+
+    THE FINDING (Jim, live, twice): "I keep logging in as student zero zero zero
+    zero, and it keeps starting over from the beginning." First seen at the rj
+    verify (0000 re-offered the counting lesson ri's watch had mastered) and
+    logged as demo-code churn; Jim confirmed it is EVERY login. It would hit every
+    real student identically.
+
+    THE ROOT, measured, was DOUBLE. (1) scriptPick() built its done-set from
+    r.best_pct and r.topic_name -- fields /api/session's quiz rows have NEVER
+    carried (they carry `passed` and `name`; srvTopicPasses on the same page
+    always read them right) -- so the set was ALWAYS empty and `|| pool[0]`
+    restarted lesson one forever. (2) Even with the fields fixed, there was no
+    true ledger to read: topic_progress is one row per UNIT (record_topic upserts
+    by unit), and topic quizzes only fire on pilot.html's quiz door -- the main
+    road hands a mastered lesson to the live tutor and writes NOTHING per-lesson.
+
+    THE FIX: a real record. store.script_done (code+course+lesson_id pk; mastered
+    kept by _sql_best so a later 'learning' run never un-masters; runs counter;
+    in _STUDENT_CODE_TABLES from day one), written by _script_finish beside the
+    unit record, shipped by /api/session as progress.script_done (mastered ids),
+    and read by scriptPick -- which now also reads the REAL quiz fields, and
+    returns null when the whole course is done so kickoff() hands the class to
+    the live opener (the designed no-script fallback) instead of lesson one.
+    The functional walk (record -> no-downgrade -> payload) runs in the scripted
+    lane's live drive (_JT_SERVER); these pins hold the shape.
+    """
+    print("\nPART 3hl — the course remembers which lessons are done (build rk)")
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    with open(os.path.join(here, "store.py"), encoding="utf-8") as fh:
+        ssrc = fh.read()
+    check("⭐ the script_done table exists, keyed code+course+lesson_id",
+          '_tables["script_done"] = Table(' in ssrc
+          and 'Column("lesson_id", String(80), primary_key=True)' in ssrc,
+          "without a per-LESSON key the course cannot remember a lesson")
+    check("  ...mastered never regresses (_sql_best), runs is a real counter",
+          '_sql_best("mastered"' in ssrc and '_sql_counter("runs", 1)' in ssrc,
+          "a shaky later run must not put a mastered lesson back on the redo list")
+    check("  ...and a reset/recode student's rows follow the standing rule",
+          '("script_done", "code"),' in ssrc,
+          "_STUDENT_CODE_TABLES membership on day one -- a reset restarts the "
+          "course ON PURPOSE, and the record follows a regenerated code")
+    check("  record_script_done and get_script_done both exist",
+          "def record_script_done(" in ssrc and "def get_script_done(" in ssrc, "")
+
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    check("⭐ _script_finish writes the per-lesson record beside the unit record",
+          "store.record_script_done(code, sess[\"lesson\"][\"course\"]," in msrc,
+          "a finish that is not recorded is the exact amnesia Jim hit")
+    check("  ...and /api/session ships the mastered ids the picker resumes from",
+          'progress["script_done"] = [' in msrc
+          and 'if r.get("mastered")]' in msrc,
+          "the record is useless if the page never receives it")
+
+    with open(os.path.join(here, "static", "session.html"),
+              encoding="utf-8") as fh:
+        page = fh.read()
+    pick = page.split("async function scriptPick()", 1)[1]
+    pick = pick.split("async function", 1)[0]      # just this function's body
+    # the CODE, not the comments -- the dated note inside scriptPick NAMES the dead
+    # fields and the old `|| pool[0]` (a pin that punishes documenting a defect
+    # would teach us to stop writing it down; same law as the pilot-page pins)
+    pick_code = re.sub(r"//[^\n]*", "", pick)
+    check("⭐ scriptPick resumes from the server's mastered lesson IDS",
+          "SRV_PROGRESS.script_done" in pick_code and "doneIds.has(l.id)" in pick_code,
+          "ids exactly, no name matching -- the record the server actually keeps")
+    check("⭐ the DEAD quiz fields are gone; the real ones are read",
+          "best_pct" not in pick_code and "topic_name" not in pick_code
+          and "r.passed" in pick_code and "r.name" in pick_code,
+          "r.best_pct/r.topic_name do not exist in this payload (passed/name do; "
+          "srvTopicPasses proves it) -- reading them made the done-set ALWAYS empty")
+    check("⭐ a fully-finished course returns null -- the live opener takes over",
+          "|| list.find(fresh) || null;" in pick_code
+          and "|| pool[0]" not in pick_code,
+          "`|| pool[0]` is the line that restarted lesson one every login")
+
+
 def part3dn_every_verdict_is_counted():
     """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
 
@@ -21069,7 +21160,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,036</b>" in page,
+          "<b>8,045</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -28978,6 +29069,25 @@ chk("the seam note is waiting for the live tutor (topic + mastered)",
     (main._SCRIPT_DONE_NOTES.get("KID1") or {}).get("mastered") is True
     and bool((main._SCRIPT_DONE_NOTES.get("KID1") or {}).get("topic")),
     str(main._SCRIPT_DONE_NOTES.get("KID1")))
+# (rk) THE PER-LESSON RECORD -- Jim: "it keeps starting over from the beginning"
+sd = store.get_script_done("KID1", "entry")
+chk("script_done: the mastered lesson is recorded BY ID",
+    any(r["lesson_id"] == "entry-u2-add-single-digit" and r["mastered"] for r in sd),
+    str(sd))
+store.record_script_done("KID1", "entry", "entry-u2-add-single-digit", False)
+sd = store.get_script_done("KID1", "entry")
+chk("script_done: a later 'learning' run never un-masters (and runs counted)",
+    any(r["lesson_id"] == "entry-u2-add-single-digit" and r["mastered"]
+        and r["runs"] >= 2 for r in sd), str(sd))
+# the session route 404s unknown codes (_student_or_404), so this walk uses a
+# REAL persona code from students.json -- the record, not the login, is under test
+store.record_script_done("0000", "entry", "entry-u2-add-single-digit", True)
+r = c.get("/api/session/0000?course=entry")
+j = r.json()
+chk("the /api/session payload ships the mastered ids the picker resumes from",
+    r.status_code == 200
+    and "entry-u2-add-single-digit" in (j.get("progress", {}).get("script_done") or []),
+    f"status={r.status_code} script_done=" + str((j.get("progress", {}) or {}).get("script_done")))
 
 # usage rows kind=script with times
 from sqlalchemy import select
@@ -29678,6 +29788,7 @@ def main():
     part3hi_the_pencil_wakes_up()
     part3hj_three_in_a_row_means_move_on()
     part3hk_the_orb_retires_and_the_seam_is_announced()
+    part3hl_the_course_remembers_which_lessons_are_done()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+    (rk) 2026-09-01 -- THE PICKER FINALLY HAS A MEMORY. Jim: "I keep logging in as
+    student zero zero zero zero, and it keeps starting over from the beginning."
+    scriptPick() read quiz fields the payload never carried (best_pct/topic_name
+    vs the real passed/name) so its done-set was ALWAYS empty, and no per-lesson
+    record existed anyway (units and quizzes were the only ledgers). It now reads
+    progress.script_done -- mastered scripted lesson IDS, recorded server-side at
+    every finish (store.script_done, new in rk) -- plus quiz passes by their real
+    fields, and returns NULL when the whole course is done (live opener takes
+    over) instead of restarting lesson one. One function changed on this page.
     (rj) 2026-09-01 -- THE ORB RETIRES AND THE SEAM IS ANNOUNCED. Jim, after
     watching the pencil live: "we can get rid of the Mr Cadabra circle in the
     lower left. He is to be gone everywhere." The pencil IS Mr. Cadabra now, so
@@ -3735,17 +3744,33 @@
     // they are in, first lesson of it that their record does not already call
     // mastered -- the same order the curriculum teaches.
     async function scriptPick() {
+      // (rk, 2026-09-01) THE PICKER FINALLY HAS A MEMORY. Jim: "I keep logging in
+      // as student zero zero zero zero, and it keeps starting over from the
+      // beginning." Two defects lived here. (1) This function read r.best_pct and
+      // r.topic_name -- fields /api/session's quiz rows do NOT carry (they carry
+      // `passed` and `name`; srvTopicPasses above always read them right) -- so
+      // `done` was ALWAYS empty. (2) Even fixed, quizzes were the wrong ledger:
+      // the main road never runs the quiz door (that lives on pilot.html), and
+      // mastering a scripted lesson recorded only a per-UNIT status. rk gives the
+      // course a real per-lesson record: store.script_done, shipped by
+      // /api/session as progress.script_done (mastered lesson IDS -- exact, no
+      // name matching). Quiz passes still count as proof, by their REAL fields.
+      // And when EVERY lesson is done, this returns null -- scriptStart() reports
+      // false and kickoff() hands the class to the live opener, the designed
+      // fallback -- instead of the old `|| pool[0]`, which restarted lesson one.
       const list = await scriptLessons();
       if (!list.length) return null;
       const unit = (FOCUS_UNIT >= 1 && FOCUS_UNIT <= 9) ? FOCUS_UNIT : (currentUnit || 1);
       const inUnit = list.filter(l => l.unit === unit);
       const pool = inUnit.length ? inUnit : list;
+      const doneIds = new Set((SRV_PROGRESS && SRV_PROGRESS.script_done) || []);
       const done = new Set();
       try {
         ((SRV_PROGRESS && SRV_PROGRESS.topic_quizzes) ? Object.values(SRV_PROGRESS.topic_quizzes) : [])
-          .forEach(rows => (rows || []).forEach(r => { if (r.best_pct >= 80) done.add((r.topic_name || "").toLowerCase()); }));
+          .forEach(rows => (rows || []).forEach(r => { if (r.passed) done.add((r.name || "").toLowerCase()); }));
       } catch (e) {}
-      return pool.find(l => !done.has((l.topic || "").toLowerCase())) || pool[0];
+      const fresh = l => !doneIds.has(l.id) && !done.has((l.topic || "").toLowerCase());
+      return pool.find(fresh) || list.find(fresh) || null;
     }
 
     // Play one authored beat through the room's OWN rendering.

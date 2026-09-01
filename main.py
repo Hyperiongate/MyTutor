@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  APP_BUILD -> "2026-09-01rk-the-course-remembers-which-lessons-are-done".
+#               BUILD rk -- Jim: "I keep logging in as student zero zero zero zero, and
+#               it keeps starting over from the beginning." Root cause: no per-LESSON
+#               record existed (topic_progress is per UNIT; topic quizzes only fire on
+#               pilot.html) and scriptPick read payload fields that do not exist
+#               (best_pct/topic_name vs the real passed/name), so its done-set was
+#               always empty and pool[0] repeated forever. THIS FILE: _script_finish
+#               now writes store.record_script_done(code, course, lesson id, mastered)
+#               beside the unit record, and /api/session's progress ships
+#               "script_done" (the mastered lesson ids) for the picker to resume from.
+#               The picker fix itself is session.html's.
 #   2026-09-01  APP_BUILD -> "2026-09-01rj-the-orb-retires-and-the-seam-is-announced".
 #               BUILD rj -- Jim watched ri live and ruled three things: (1) THE SEAM IS
 #               ANNOUNCED ("acted as if we had been working on subtraction. This is
@@ -10301,6 +10312,16 @@ def _script_finish(code: str, sess, end_step):
                            lesson["course"])
     except Exception as exc:  # noqa: BLE001
         print(f"[script] outcome record failed (non-fatal): {exc}")
+    # (rk, 2026-09-01) THE PER-LESSON RECORD. Jim: "it keeps starting over from the
+    # beginning" -- record_topic above is one row per UNIT and cannot say WHICH
+    # lesson finished, so the picker restarted lesson one every login. This is the
+    # durable answer the picker resumes from (/api/session ships the mastered ids).
+    try:
+        store.record_script_done(code, sess["lesson"]["course"],
+                                 sess["lesson"]["id"],
+                                 bool(end_step.get("mastered")))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[script] script_done record failed (non-fatal): {exc}")
     # (rj) leave the seam note for the __script_done__ turn that follows -- see
     # _SCRIPT_DONE_NOTES above. Fail-open: a missing note just means a plainer
     # announcement.
@@ -13218,7 +13239,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-01rj-the-orb-retires-and-the-seam-is-announced"
+APP_BUILD = "2026-09-01rk-the-course-remembers-which-lessons-are-done"
 
 
 @app.get("/health")
@@ -13410,6 +13431,12 @@ def session_state(request: Request, code: str = Depends(_code_dep), course: str 
                 progress["topic_quizzes"].setdefault(q["unit"], []).append(
                     {"idx": q["topic_idx"], "name": q["topic_name"],
                      "passed": q["best_pct"] >= store.QUIZ_PASS_PCT})
+            # (rk, 2026-09-01) the scripted lessons this student has MASTERED, by
+            # lesson id -- what scriptPick resumes from. Jim: "it keeps starting
+            # over from the beginning"; the picker had no true record to read.
+            progress["script_done"] = [
+                r["lesson_id"] for r in (store.get_script_done(code, course) or [])
+                if r.get("mastered")]
             # build cg: today's goal bar, so a reload/resume shows all THREE bars.
             progress["today"] = store.get_today_goals(code, course) or {}
             # build gs: THE UNIT THE LESSON IS ACTUALLY IN, for the rail. The most recently
