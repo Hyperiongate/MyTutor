@@ -4,6 +4,18 @@
    MR. CADABRA, OUT OF THE BOX. The floating companion layer.
 
    CHANGE NOTES (keep newest at top):
+     2026-09-01  (hands) THE GLOVE IS A GLOVE, AND HE POINTS WITH HIS INDEX FINGER.
+                 Jim, on the first version: the resting hand should be "circles with
+                 lines on them type things with little bumps for the thumbs instead of
+                 fingers pointing out" - and, far more seriously, the pointing hand
+                 read as the MIDDLE finger.
+                   REST  - a palm ball, one closed-finger mass, a thumb bump, and three
+                           seams standing in for four fingers.
+                   POINT - a FIST with the index along the TOP edge, the curled fingers
+                           plainly below it and the thumb bumping up behind.
+                 ⚠️ A single digit out of the centre of a palm reads as an obscene
+                 gesture to anyone who looks at it. The extended finger must be the
+                 TOPMOST one. This is not a style preference; do not simplify it back.
      2026-08-31  (stage 4 fix) HE WILL NOT ACT ON SOMETHING THAT IS COVERED. Found in
                  the session.html dry run: the welcome card was up and he underlined the
                  board straight through it. A target now fails to resolve at all if the
@@ -259,26 +271,37 @@
      outlined shape instead of showing every overlap. That double pass is the
      entire trick behind a cartoon glove. */
   function handShapes(R, mode) {
-    var circles = [{ cx:0, cy:0, r:R }], caps = [], D = Math.PI / 180;
-    function cap(deg, start, len, w) {
-      var a = deg * D;
-      caps.push({ x1: Math.cos(a) * start * R,         y1: Math.sin(a) * start * R,
-                  x2: Math.cos(a) * (start + len) * R, y2: Math.sin(a) * (start + len) * R,
-                  w: w * R });
-    }
+    var circles = [], caps = [], seams = [];
+    function C(x, y, r)             { circles.push({ cx:x*R, cy:y*R, r:r*R }); }
+    function K(x1, y1, x2, y2, w)   { caps.push({ x1:x1*R, y1:y1*R, x2:x2*R, y2:y2*R, w:w*R }); }
+    function M(x1, y1, x2, y2)      { seams.push({ x1:x1*R, y1:y1*R, x2:x2*R, y2:y2*R }); }
+
     if (mode === "point") {
-      cap(   0, 0.45, 1.60, 0.46);
-      cap( -86, 0.34, 0.96, 0.50);
-      circles.push({ cx: R * 0.66, cy: R * 0.60, r: R * 0.36 });
-      circles.push({ cx: R * 0.14, cy: R * 0.92, r: R * 0.34 });
+      /* A FIST WITH THE INDEX FINGER OUT - and the index has to be unmistakably the
+         TOP digit, with the curled fingers below it and the thumb bumping up behind.
+         Drawn the obvious way, one finger straight out of the middle of the palm, it
+         reads as the MIDDLE finger. Jim caught exactly that in the first version. It
+         is not a gesture a children's tutor makes, and avoiding it is the entire
+         reason this shape is built the way it is. Do not "simplify" it back. */
+      C(-0.10, 0.18, 1.00);                   /* the fist                          */
+      K(0.25, -0.52, 2.00, -0.60, 0.44);      /* INDEX, along the top edge          */
+      K(-0.45, -0.20, 0.10, -0.92, 0.46);     /* thumb, a bump up behind it         */
+      C(0.70, 0.42, 0.36);                    /* curled fingers, clearly BELOW      */
+      C(0.42, 0.86, 0.32);
+      M(0.52, 0.06, 0.96, 0.28);              /* the creases between them           */
+      M(0.26, 0.54, 0.66, 0.74);
     } else {
-      cap( -47, 0.58, 1.16, 0.42);
-      cap( -16, 0.64, 1.34, 0.44);
-      cap(  16, 0.64, 1.30, 0.44);
-      cap(  45, 0.58, 1.10, 0.40);
-      cap(-104, 0.40, 1.00, 0.52);
+      /* AT REST: a rounded glove, not a splayed hand. A ball with a thumb bump and
+         three seams standing in for four fingers - what a cartoon glove has always
+         been, and it still reads at eight pixels wide. */
+      C(0, 0, 1.00);                          /* the palm                           */
+      K(0.45, 0, 0.75, 0, 1.30);              /* the closed fingers, as one mass    */
+      K(-0.28, -0.52, 0.14, -0.95, 0.50);     /* thumb bump                         */
+      M(0.70, -0.38, 1.16, -0.38);            /* three seams = four fingers         */
+      M(0.70,  0.00, 1.34,  0.00);
+      M(0.70,  0.38, 1.16,  0.38);
     }
-    return { circles: circles, caps: caps };
+    return { circles: circles, caps: caps, seams: seams };
   }
   function shapeMarkup(sh, paint, grow) {
     var s = "", i;
@@ -296,13 +319,26 @@
     }
     return s;
   }
+  function seamMarkup(sh, R) {
+    var s = "", i;
+    for (i = 0; i < sh.seams.length; i++) {
+      var m = sh.seams[i];
+      s += '<line x1="' + m.x1.toFixed(2) + '" y1="' + m.y1.toFixed(2)
+         + '" x2="' + m.x2.toFixed(2) + '" y2="' + m.y2.toFixed(2)
+         + '" stroke="' + PAINT.graphite + '" stroke-width="' + (R * 0.115).toFixed(2)
+         + '" stroke-linecap="round" opacity=".85"/>';
+    }
+    return s;
+  }
   function handMarkup(R, mode) {
     var sh = handShapes(R, mode);
-    var seam = '<path d="M ' + (-R * 0.88).toFixed(1) + " " + (-R * 0.70).toFixed(1)
-             + " Q " + (-R * 0.50).toFixed(1) + " 0 " + (-R * 0.88).toFixed(1) + " "
-             + (R * 0.70).toFixed(1) + '" fill="none" stroke="' + PAINT.graphite
+    /* the cuff arc at the wrist - the line that says "glove" rather than "hand" */
+    var cuff = '<path d="M ' + (-R * 0.86).toFixed(1) + " " + (-R * 0.62).toFixed(1)
+             + " Q " + (-R * 0.46).toFixed(1) + " 0 " + (-R * 0.86).toFixed(1) + " "
+             + (R * 0.62).toFixed(1) + '" fill="none" stroke="' + PAINT.graphite
              + '" stroke-width="' + (R * 0.12).toFixed(2) + '" stroke-linecap="round" opacity=".8"/>';
-    return shapeMarkup(sh, PAINT.graphite, 5.0) + shapeMarkup(sh, PAINT.glove, 0) + seam;
+    return shapeMarkup(sh, PAINT.graphite, 5.0) + shapeMarkup(sh, PAINT.glove, 0)
+         + seamMarkup(sh, R) + cuff;
   }
 
   /* ==========================================================================
