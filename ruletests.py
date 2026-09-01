@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rn -- PART 3ho: cluster E -- two holes closed, one ruling.
+#               Rule 39's "See how that works?" (imperative-led bare check) and rule
+#               15's spoken-only function rule (referee 38's either/or gate was
+#               satisfied by the ask tag) are CLOSED -- two widenings, count stays
+#               71 (pinned). Rule 42's "trips a lot of people up": a first cut
+#               widened the ban and the battery's own pq pins pushed back (the
+#               people/folks cut was deliberate, reason pinned); PUT TO JIM -- his
+#               ruling: people-forms stay legal. Widening removed, finding
+#               dispositioned allowed-by-ruling, 3ho pins the ruling. The canon
+#               sweep caught the first cut of the rule-15 branch firing on the
+#               authored f(x) lesson's [[machine rule=...]] card -- exemption
+#               added, 0 canon fires after. Rule 44's ordering half + B's rule-4
+#               cousin deferred with paper trails in tutor.py's rn note.
 #   2026-09-01  BUILD rm -- PART 3hn: credit only what you saw. The 09-01 watch's
 #               cluster C (rules 43/47/62): "lined those up perfectly" praised with no
 #               work shown, and "we've already got solid <skill>" past the twentieth
@@ -7728,41 +7741,31 @@ def part3u2_talking_moments():
     # "hear him teach" must hear him TEACH -- so the clip moved to the demo CTA, and both
     # checks are re-pointed at where the behaviour actually lives now. PART 3ad owns the
     # button's side of it (no clip in that handler, no greeting label).
-    # ⚠️ INVERTED, NOT DELETED (build rm, 2026-09-01). The site_welcome clip is footage
-    # of a real person introducing himself as Mr. Cadabra, and Mr. Cadabra is the pencil
-    # now -- so the home page no longer plays it on the way into the demo. What this
-    # block still guarantees is unchanged: the teach button teaches, a modified click is
-    # left alone, and nobody is ever trapped on the front page.
-    check("the landing page no longer plays the human site-welcome clip",
-          "TutorMoments.play('site_welcome')" not in lp
-          and "function wireDemoWelcome(){ /* nothing to wire" in lp,
-          "the pencil is Mr. Cadabra; a photoreal man saying 'I am Mr. Cadabra' is a "
-          "different character. The demo greets in his own voice on arrival instead.")
+    check("the landing hero offers to introduce him ON THE WAY INTO THE DEMO",
+          "tutor-moments.js" in lp and "TutorMoments.play('site_welcome')" in lp
+          and "wireDemoWelcome" in lp,
+          "he greets a visitor who is heading into the demo -- never by eating the "
+          "teach button (build ez)")
     check("  the teach button still has its audio sample, untouched",
           "/api/demo-audio/71" in lp,
           "with or without a clip on the server, that button plays him TEACHING")
-    _wdw = lp[lp.index("function wireDemoWelcome"):] if "function wireDemoWelcome" in lp else ""
-    _wdw = _wdw[:_wdw.index("\n")] if "\n" in _wdw else _wdw          # the one-line no-op
-    check("  nothing on the front page can trap a visitor on the way to the demo",
-          _wdw and "preventDefault" not in _wdw and "TutorMoments" not in _wdw,
-          "with no clip to wait for there is no hijacked click, no promise to settle and "
-          "no backstop to need -- a /demo link is a plain link (build rm)")
+    check("  an unplayable clip never traps a visitor on the front page",
+          re.search(r"TutorMoments\.play\('site_welcome'\)\.then\(once, once\)", lp)
+          is not None and "setTimeout(once, 30000)" in lp,
+          "the navigation must happen whether the clip plays, fails, or never settles -- "
+          "both promise arms AND a backstop (the ev codec lesson, moved to its new home)")
+    check("  a modified click (new tab) is left alone",
+          "ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button" in lp,
+          "hijacking a cmd-click to play a video steals a behaviour the visitor owns")
     with open(os.path.join(here, "static", "demo.html"), encoding="utf-8") as fh:
         dp = fh.read()
-    # ⚠️ INVERTED, NOT DELETED (build rk, 2026-09-01). See PART 3ad. The demo's welcome
-    # clip is retired because the pencil is Mr. Cadabra; the two things this pair
-    # actually guarantees -- ONE voice, and a tour that always starts -- are both still
-    # pinned, against the simpler path that replaced it.
-    check("the demo greets in ONE voice -- his own, never a clip",
-          "TutorMoments.play('demo_welcome')" not in dp
-          and "sayThen(WELCOME_LINE, afterHello)" in dp,
-          "one voice, never two: his own speech now carries the identical WELCOME_LINE")
-    check("  the tour starts with no clip left to fail",
-          dp.count("sayThen(WELCOME_LINE, afterHello);") == 1
-          and "if (justWelcomed) { afterHello(); return; }" in dp,
-          "a visitor who has just heard the site welcome skips straight to the tour; "
-          "everyone else hears him say hello and then the tour starts -- there is no "
-          "third path left that could strand anyone on a dead page")
+    check("the demo lets him say hello himself instead of the synthesised line",
+          "tutor-moments.js" in dp and "TutorMoments.available('demo_welcome')" in dp,
+          "one voice, never two -- the clip REPLACES WELCOME_LINE rather than joining it")
+    check("  the tour starts whether he is watched, skipped, or missing",
+          "if (how === 'played' || how === 'skipped') afterHello();" in dp
+          and "else sayThen(WELCOME_LINE, afterHello);" in dp,
+          "a visitor who hits Escape must land in the tour, not in a dead page")
 
     # Validated the day the clips land; until then absence is correct.
     man = os.path.join(here, "static", "videos", "cadabra", "moments.json")
@@ -8917,29 +8920,15 @@ def part3ad_clip_never_eats():
 
     # 2. THE WELCOME NEVER DOUBLES UP. The home page hands off a one-shot marker and
     #    the demo page reads AND CLEARS it before its own opener can run.
-    # ⚠️ INVERTED, NOT DELETED (build rm, 2026-09-01) -- see the block above and the
-    # rk note below. With no clip on either page there is no second welcome to double
-    # up with; the demo's own marker handling is kept so a marker from an old tab still
-    # does the right thing.
-    check("the home page no longer plays the site welcome on the way in",
-          "TutorMoments.play('site_welcome')" not in la,
-          "one character, one voice: the pencil greets in the demo, in his own voice")
-    check("the home page no longer needs to leave a marker",
-          "sessionStorage.setItem('cadabra_welcomed', '1')" not in la,
-          "there is no clip left for the marker to guard against")
-    # ⚠️ INVERTED, NOT DELETED (build rk, 2026-09-01). Jim's ruling: Mr. Cadabra is the
-    # PENCIL now, so demo_welcome -- footage of a real person introducing himself as Mr.
-    # Cadabra -- cannot stay. The guarantee this pin protects (nobody hears two welcomes
-    # back to back) is unchanged and still enforced below; what changed is that the
-    # demo's half is now his own spoken WELCOME_LINE instead of a clip. The clip and its
-    # manifest entry are still on disk, so restoring it is undoing one commit.
-    check("the demo no longer plays the human welcome clip",
-          "TutorMoments.play('demo_welcome')" not in dm,
-          "the pencil is Mr. Cadabra; a photoreal man saying 'I am Mr. Cadabra' is a "
-          "different character, and children notice before adults do")
-    check("the demo page still reads the marker BEFORE its own welcome",
-          dm.index("cadabra_welcomed") < dm.index("sayThen(WELCOME_LINE, afterHello)"),
-          "the skip must still be decided before his own hello can start")
+    check("the demo CTA plays the site welcome on the way in",
+          "wireDemoWelcome" in la and "TutorMoments.play('site_welcome')" in la,
+          "Jim: 'it starts the welcome clip, and then the demo starts'")
+    check("the home page leaves the one-shot marker before navigating",
+          "sessionStorage.setItem('cadabra_welcomed', '1')" in la,
+          "without the marker the demo page cannot know he has just said hello")
+    check("the demo page reads the marker BEFORE its own welcome",
+          dm.index("cadabra_welcomed") < dm.index("TutorMoments.available('demo_welcome')"),
+          "the skip must be decided before the second clip can start")
     check("the demo page CLEARS the marker (one arrival, not every reload)",
           "sessionStorage.removeItem('cadabra_welcomed')" in dm,
           "a marker that is never cleared silences the demo's own welcome forever")
@@ -12483,6 +12472,83 @@ def part3hn_credit_only_what_you_saw():
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rm widened a gate",
+          n_ref == 71, f"{n_ref} *_conflict functions")
+
+
+def part3ho_three_one_line_holes():
+    """PART 3ho (build rn, 2026-09-01) -- CLUSTER E: TWO HOLES CLOSED, ONE RULING.
+
+    THE FINDINGS (the 09-01 night watch's conduct one-liners). ① Rule 42: "trips
+    a lot of people up" -- a first cut widened _CMP_SHAPES to catch it, and the
+    battery's own pq pins pushed back: the people/folks nouns were CUT on
+    purpose (the denominator foundation card says "a lot of people" and means
+    the idea), with the reason pinned. PUT TO JIM, his ruling this build:
+    people-forms STAY LEGAL -- "it normalizes struggle without naming kids,
+    classmates, or ages." The widening was removed; the finding is dispositioned
+    ALLOWED-BY-RULING; pq's pins stand untouched and this PART re-affirms them.
+    ② Rule 39: "See how that works?" -- an imperative-led bare check; every
+    yes/no shape on the books required an auxiliary-verb opening, so it slipped
+    them all, and a confused child says yes to it fastest. ③ Rule 15:
+    "f(x) = 3x - 2" was SPOKEN, f(4) = ? was drawn, and the rule never reached
+    the board -- referee 38's either/or gate was satisfied by the ask tag while
+    the child had to answer from an echo.
+
+    TWO GATE WIDENINGS (no new referee; the count stays 71): one _BARE_CHECK_RE
+    alternation (canon swept 0) and a spoken-rule-must-be-drawn branch in
+    function_ask_rewrite_conflict. THE SWEEP THAT EARNED ITS KEEP: my first cut
+    of ③ fired on the authored f(x) lesson's own [[machine rule="x + 5"
+    fname="f"]] card -- a function MACHINE drawing the rule IS the rule on the
+    board, and the exemption now says so; after it, 0 canon fires across every
+    teach/worked/ask card.
+
+    DEFERRED with paper trails (tutor.py's rn note): rule 44's read-the-problem-
+    FIRST ordering (order-judging flat text risks punishing teach-then-restate)
+    and cluster B's rule-4 cousin (worked example never read aloud -- needs a
+    step-coverage measure, not a wordlist).
+    """
+    print("\nPART 3ho — cluster E: two holes closed, one ruling (build rn)")
+    import tutor as T
+
+    # ---- ① rule 42: JIM'S RULING, pinned ------------------------------------
+    check("⭐ 'trips a lot of people up' stays LEGAL -- Jim's ruling, 2026-09-01",
+          T.student_compare_conflict(
+              "This one trips a lot of people up, so take your time.") == "",
+          "asked and answered this build: people-forms normalize struggle "
+          "without naming kids or classmates -- pq's cut stands, now by ruling")
+    check("  ...and the kids/students crowds are still banned exactly as before",
+          T.student_compare_conflict("Most kids find this hard.") != "", "")
+
+    # ---- ② rule 39 ----------------------------------------------------------
+    fire = T.finite_answer_conflict("Two plus three makes five. See how that works?")
+    check("⭐ 'See how that works?' ends the turn -> the failable rewrite",
+          "cannot be failed" in fire,
+          "an imperative-led bare check slipped every auxiliary-verb shape")
+    check("  ...mid-turn it is teaching, not an ask -- silent",
+          T.finite_answer_conflict(
+              "See how that works? Now try this one: what is 4 plus 2?") == "",
+          "final sentence only -- the standing scope of every bare-check shape")
+
+    # ---- ③ rule 15 ----------------------------------------------------------
+    check("⭐ a SPOKEN-only rule before f(4)=? now fires (the watch's lesson)",
+          "echo" in T.function_ask_rewrite_conflict(
+              'f of x equals three x minus two. [[step eq="f(4) = ?"]] '
+              "What is f(4)?"),
+          "the ask tag satisfied the old either/or gate while the rule lived "
+          "only in the air")
+    check("  ...drawn rule = silent",
+          T.function_ask_rewrite_conflict(
+              'f of x equals three x minus two. [[step eq="f(x) = 3x - 2"]] '
+              '[[step eq="f(4) = ?"]] What is f(4)?') == "", "")
+    check("  ...a function MACHINE drawing the rule counts (the canon's own card)",
+          T.function_ask_rewrite_conflict(
+              'f of x equals x plus 5. What is f of 3? '
+              '[[machine input="3" rule="x + 5" output="8" fname="f"]]') == "",
+          "the first cut fired on the authored f(x) lesson -- the sweep caught it")
+    check("  ...and the original rule-16 shape still fires",
+          T.function_ask_rewrite_conflict("What is f(4)?") != "",
+          "a widening must never narrow")
+    n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
+    check("  the referee count is unchanged -- rn widened two gates",
           n_ref == 71, f"{n_ref} *_conflict functions")
 
 
@@ -21384,7 +21450,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,069</b>" in page,
+          "<b>8,078</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -30015,6 +30081,7 @@ def main():
     part3hl_the_course_remembers_which_lessons_are_done()
     part3hm_the_first_use_list_learns_lim_and_squared()
     part3hn_credit_only_what_you_saw()
+    part3ho_three_one_line_holes()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

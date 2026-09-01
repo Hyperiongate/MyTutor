@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  APP_BUILD -> "2026-09-01rn-two-holes-closed-one-ruling-taken". BUILD
+#               rn -- the watch's cluster E one-liners: rule 39's "See how that
+#               works?" and rule 15's spoken-only function rule CLOSED (two
+#               widenings in tutor.py, referees stay 71). Rule 42's "trips a lot of
+#               people up": put to Jim against pq's pinned people/folks cut -- his
+#               ruling: people-forms stay legal; dispositioned allowed-by-ruling.
+#               Rule 44's ordering half + cluster B's rule-4 cousin deferred with
+#               paper trails. NO CODE IN THIS FILE CHANGED.
 #   2026-09-01  APP_BUILD -> "2026-09-01rm-credit-only-what-you-saw". BUILD rm -- the
 #               09-01 watch's cluster C (rules 43/47/62): invented praise ("lined
 #               those up perfectly", no work shown) and unverifiable skill-mastery
@@ -13253,7 +13261,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-01rm-credit-only-what-you-saw"
+APP_BUILD = "2026-09-01rn-two-holes-closed-one-ruling-taken"
 
 
 @app.get("/health")
@@ -15637,13 +15645,6 @@ DEMO_VOICE_LINES = [
     "And that's the teacher's side of the classroom. Notice what it doesn't do: it doesn't plan your lessons, grade your judgment, or run your room — it hands you what you can't get any other way, a patient assistant for every single student and an honest picture of exactly who needs you and who's ready to run ahead. If you'd like to see what your students would experience, I can teach you a lesson right now, at any level you choose.",
     "Before we finish, meet my favourite helper — Abrabot, the practice robot! After every lesson, my students can practice with him as much as they like. It is always free, it never changes their scores, and parents can see every problem they worked. Abrabot — they are all yours!",
     "And see Extra practice — the one with the robot? That's Abrabot, my practice helper. Practice a problem is for a problem your student brings me; Abrabot is the other way round — he hands out more problems on lessons already done, as many as they want, always free, and he keeps count so your student can show you how hard they've worked. Stay to the end of the lesson and you'll meet him yourself — or tap his button any time.",
-    "Next, the Progress dashboard — here is a corner of it. Inside there is every unit and how far they have got, their accuracy, how long they have worked, the streaks you can see up top, a trophy case for every award they earn, and the very same plain-words report their parent and their teacher get. All of it in one place, and none of it a spreadsheet.",
-    "And see Extra practice — the one with the robot? That one is not mine at all. Let me introduce you.",
-    "And these two bubbles at the top are the streak. The flame counts days in a row your student has worked; the star counts problems right in a row today. Small, honest numbers — and children watch them like a scoreboard.",
-    "One more thing before you go. See Extra practice on the left? That is Abrabot — my teaching assistant. He is a robot, and proud of it. Any time you want more of a skill you already know, he has a box of problems that never runs out. It is always free, and it never changes your score. He is the one to practise with; I am the one to learn with.",
-    "And one thing that is not on this screen, because it never needs to be: the drilling. Extra practice belongs to Abrabot, my teaching assistant — a robot with a virtually unlimited box of problems on skills already taught. He handles the repetition, always free, so your class time with me goes to the teaching, and yours goes to the five children who need you.",
-    "Last thing. Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills your child has already learned. It is always free, it never changes their score, and there is no such thing as running out. Which means \"can I do more?\" is always a yes.",
-    "Last thing, and it matters for a homeschool week: Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills already taught. Always free, never changes the score, never runs out. So the repetition your child needs is there whenever you have a spare ten minutes, without you writing a single worksheet.",
 ]
 
 

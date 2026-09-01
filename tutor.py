@@ -2,6 +2,29 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rn -- CLUSTER E: TWO HOLES CLOSED, ONE RULING TAKEN (rules
+#               42, 39, 15 -- two gate WIDENINGS, no new referee, count stays 71).
+#               ① Rule 42: "trips a lot of people up" -- a first cut widened
+#               _CMP_SHAPES to catch it; the battery's own pq pins pushed back
+#               (people/folks were CUT on purpose -- the denominator card says "a
+#               lot of people" about the idea). PUT TO JIM, his ruling: people-
+#               forms STAY LEGAL (they normalize struggle without naming kids or
+#               classmates). Widening removed; finding dispositioned allowed-by-
+#               ruling; see the note above _CMP_SHAPES. ② Rule 39: "See how
+#               that works?" -- an imperative-led bare check no yes/no shape saw;
+#               joined _BARE_CHECK_RE, canon swept 0. ③ Rule 15: "f(x) = 3x - 2"
+#               SPOKEN, f(4) = ? drawn, the rule never on the board -- referee 38's
+#               either/or gate was satisfied by the ask tag; now a reply that
+#               INTRODUCES the rule in its spoken words must also draw it. The
+#               canon sweep caught my own first cut firing on the authored f(x)
+#               lesson's [[machine rule=...]] card -- a machine tag with a rule IS
+#               the rule drawn, and the exemption now says so. DEFERRED with paper
+#               trail: rule 44's read-the-problem-FIRST ordering (judging spoken
+#               ORDER inside a reply from flat text risks punishing legitimate
+#               teach-then-restate shapes; the existing rule-44 referee already
+#               guarantees the problem is spoken SOMEWHERE in the reply) and
+#               cluster B's rule-4 cousin (a worked example written, never read
+#               aloud -- needs a step-coverage measure, not a wordlist).
 #   2026-09-01  BUILD rm -- CREDIT ONLY WHAT YOU SAW (the 09-01 watch's cluster C,
 #               rules 43/47/62 -- a gate WIDENING of referee 32, back_reference_
 #               conflict; NOT a new referee, the count stays 71). The watch: "lined
@@ -6068,6 +6091,16 @@ _CMP_SHAPES = re.compile(
     r"|\bpercentile\b"
     r"|\bgrade\s+(?:level|equivalent)\b"
     r"|\beveryone\s+else\s+(?:in|at)\s+(?:your|the)\b", re.I)
+# (rn, 2026-09-01) THE PEOPLE-FORMS STAY LEGAL -- JIM'S RULING, asked and answered
+# this build. The 09-01 watch flagged "trips a lot of people up" under rule 42; a
+# first cut here widened the shapes to catch it (verb-anchored, canon-swept 0) --
+# and the battery's own pq pins pushed back: build pq already CUT the people/folks
+# nouns on purpose (the denominator foundation card says "a lot of people" and
+# means the idea), and pinned the cut with its reason. Put to Jim: "'Trips up a
+# lot of people' stays legal -- it normalizes struggle without naming kids,
+# classmates, or ages." The widening was REMOVED, pq's pins stand, and the watch
+# finding is dispositioned ALLOWED-BY-RULING, not fixed. Kids/students/children/
+# learners crowds remain banned exactly as before.
 
 
 def student_compare_conflict(reply: str, course: str = ""):
@@ -6228,10 +6261,44 @@ def function_ask_rewrite_conflict(reply: str):
             return ""
         letter, num = ask.group(1).lower(), ask.group(2)
         same = re.compile(r"\b%s\s*\(\s*%s\s*\)" % (re.escape(letter), re.escape(num)))
+        ask_on_board = rule_on_board = False
         for attrs in _SUB_EQ_TAGS.findall(text):
             for val in re.findall(r'"([^"]*)"', attrs):
-                if same.search(val) or _FN_RULE.search(val):
-                    return ""          # the ask, or its rule, IS on this board
+                if same.search(val):
+                    ask_on_board = True
+                if _FN_RULE.search(val):
+                    rule_on_board = True
+        # (rn) a FUNCTION MACHINE draws the rule too: [[machine ... rule="x + 5"
+        # fname="f"]] is the rule on the board in the picture form the canon's
+        # own f(x) lesson uses -- caught by this build's canon sweep, which fired
+        # on exactly that authored card before this branch existed.
+        for mattrs in re.findall(r"\[\[\s*machine\b([^\]]*)\]\]", text, re.I):
+            if re.search(r'\brule\s*=\s*"[^"]+"', mattrs, re.I) and (
+                    re.search(r'\bfname\s*=\s*"%s"' % re.escape(letter),
+                              mattrs, re.I)
+                    or not re.search(r'\bfname\s*=', mattrs, re.I)):
+                rule_on_board = True
+        # (rn, 2026-09-01) THE 09-01 WATCH'S RULE-15 SHAPE: "f(x) = 3x - 2" was
+        # SPOKEN, f(4) = ? was drawn, and the rule itself never reached the board
+        # -- so the old either/or gate below was satisfied by the ask tag while
+        # the child had to answer from an ECHO. When THIS reply introduces the
+        # rule in its spoken words, the rule must also be DRAWN. Both spoken
+        # spellings count as an introduction ("f(x) = ..." in prose, or the voice
+        # form "f of x equals/is ...").
+        spoke_rule = re.search(
+            r"\b%s\s*\(\s*[a-z]\s*\)\s*(?:=|equals|is)\s*\S" % re.escape(letter),
+            prose, re.I) or re.search(
+            r"\b%s\s+of\s+[a-z]\b[^.?!]{0,20}?\b(?:equals|is)\b" % re.escape(letter),
+            prose, re.I)
+        if spoke_rule and not rule_on_board:
+            return ('your spoken words define the rule for {f} but this reply\'s '
+                    "board never draws it -- the student must answer {f}({n}) "
+                    "from an echo. Rule 15: what a question NEEDS must be visible "
+                    "when it is asked. ADD ONE BOARD LINE before the ask: "
+                    '[[step eq="{f}(x) = <the rule you spoke>"]]. Keep everything '
+                    "else the same.").format(f=letter, n=num)
+        if ask_on_board or rule_on_board:
+            return ""          # the ask, or its rule, IS on this board
         said = " ".join(ask.group(0).split())[:50]
         return ('you ask "{s}?" but this reply\'s board shows neither {f}({n}) nor '
                 "the rule {f}(x) = ... -- the student must recall the rule from "
@@ -7180,7 +7247,12 @@ _BARE_CHECK_RE = re.compile(
     r"(?:(?:all\s+)?make\s+sense|click|help|clear|okay|ok)(?:\s+(?:so\s+far|now|to\s+you))?"
     r"|(?:are\s+you\s+)?(?:still\s+)?with\s+me(?:\s+so\s+far)?"
     r"|got\s+it|(?:do\s+you\s+)?(?:follow|understand)(?:\s+(?:that|me|so\s+far))?"
-    r"|(?:is\s+)?(?:that|everything)\s+clear(?:\s+so\s+far)?)"
+    r"|(?:is\s+)?(?:that|everything)\s+clear(?:\s+so\s+far)?"
+    # (rn, 2026-09-01) the 09-01 watch's rule-39 shape: "See how that works?" --
+    # an imperative-led bare check that opens with no auxiliary verb, so
+    # _PLAIN_YESNO_RE never saw it and this pattern's old alternations did not
+    # either. A confused child says yes to it fastest of all. Canon swept: 0.
+    r"|(?:you\s+)?see\s+(?:how|why)\s+(?:that|this|it)\s+works?)"
     r"\s*\?\s*$", re.I)
 _CHECKIN_WORDS_RE = re.compile(
     r"\b(?:makes?\s+sense|ready|got\s+it|clear|with\s+me|follow|remember|want|like|"
