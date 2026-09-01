@@ -2,6 +2,29 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rg -- THE WORDS POINT WHERE THE COLUMN PUT IT. The watch (rule 63,
+#               prealgebra): "the six ended up under the five" said AND captioned over
+#               [[column terms="2.6 | 0.35"]] -- which draws 2.6 on TOP, so the six is
+#               ABOVE the five; the alignment correction pointed the child at the wrong
+#               feature of the very picture meant to fix their mistake. NEW REFEREE 71,
+#               column_words_conflict (fracslash's sibling): reads every under/above
+#               claim (digits or number words) from the spoken prose AND the column
+#               captions, resolves each named digit to the ONE term containing it, and
+#               fires only when the claim contradicts the tag's own term order (first
+#               term = top). Cautious four ways: one column tag only, unique digit
+#               resolution, same-term claims and non-digit claims never match. Canon
+#               swept 0 of 2,109. Event: referee_fire · columnwords.
+#   2026-09-01  BUILD rf -- THE ASKED-FOR PICTURE IS DRAWN NOW. The watch's other HIGH
+#               (geometry, rule 65): the student asked to be SHOWN the hypotenuse; the
+#               tutor drew only a right angle and ended "want me to show a triangle with
+#               it marked?" -- postponing the requested drawing into an offer. Rule 65's
+#               two sibling referees stayed rightly silent (something WAS drawn, nothing
+#               was handed back); NEW REFEREE 70, postponed_show_conflict, closes the
+#               third shape: asked-to-see (REUSING prose_asked_to_see/_RD_ASKS -- one
+#               grammar) + the reply's FINAL ask offers to show/draw. Offers of MORE
+#               ("another", "one more", "different") are good teaching and stay silent.
+#               Canon swept 0 of 2,109 even with every card paired against a synthetic
+#               show-me message. Event: referee_fire · postponedshow.
 #   2026-09-01  BUILD re -- THE FACTORS ARE CHECKED BY EXPANDING THEM. The first night
 #               watch on rd confirmed a HIGH (algebra2, rule 13): "the factors should be
 #               (x + 2) and (x + 3)" spoken beside x² - 5x + 6 -- the claim expands to
@@ -3950,6 +3973,138 @@ def refused_demonstration_conflict(reply: str, student_message: str = ""):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[refusedshow] crashed (fail open): {exc}")
         _event("referee_crash", "refusedshow", str(exc))
+        return ""
+
+
+# =============================================================================
+# REFEREE 70 -- THE ASKED-FOR PICTURE IS DRAWN NOW  (build rf, 2026-09-01)
+# -----------------------------------------------------------------------------
+# The 2026-09-01 night watch, geometry, HIGH (rule 65): the student explicitly
+# asked to be SHOWN how to identify the hypotenuse; the tutor drew only a right
+# angle and ended: "Does that make sense so far, or want me to show a triangle
+# with it marked?" Two siblings already police this rule -- prose_visual fires
+# when NOTHING lands on the board, refused_demonstration when the job is handed
+# back -- and both stayed silent here because SOMETHING was drawn and nothing was
+# handed back. The third shape: the reply draws something else and ENDS BY
+# OFFERING the very drawing that was requested. "Want me to show it?" re-asks a
+# question the student already answered in the plainest words they have.
+#
+# ⚠️ ONE GRAMMAR: the did-they-ask gate REUSES prose_asked_to_see (_VIS_ASKED)
+# and _RD_ASKS -- never a third copy of "show me". The offer test runs on the
+# reply's FINAL spoken ask only (the ra discipline: the ending is what stands).
+# ⚠️ OFFERS OF *MORE* ARE GOOD TEACHING AND STAY SILENT: "want to see another
+# one?", "one more?", "a different way?" -- the requested thing was delivered and
+# these offer seconds. Only the plain offer of A show/draw fires.
+_PS_OFFER_RE = re.compile(
+    r"\b(?:want|like)\s+(?:me\s+)?to\s+(?:show|draw|sketch|see)\b"
+    r"|\bshould\s+i\s+(?:show|draw|sketch)\b"
+    r"|\bwant\s+to\s+see\b", re.I)
+_PS_MORE_RE = re.compile(
+    r"\b(?:another|one\s+more|more|again|different|next)\b", re.I)
+
+
+def postponed_show_conflict(reply: str, student_message: str = ""):
+    """Return a description of a requested drawing postponed into an offer, or "".
+    Silent without a student message (gated). Never raises: fail open."""
+    try:
+        said = " ".join(str(student_message or "").split())
+        if not said:
+            return ""
+        if not (prose_asked_to_see(said) or _RD_ASKS.search(said)):
+            return ""
+        ask = _rb_final_ask(str(reply or ""))
+        if not ask or not _PS_OFFER_RE.search(ask):
+            return ""
+        if _PS_MORE_RE.search(ask):
+            return ""                     # offering seconds, not postponing firsts
+        return ('the student asked to be SHOWN -- "{s}" -- and this reply ends by '
+                'OFFERING that drawing ("{a}") instead of making it. Rule 65: they '
+                "already answered that question when they asked. Draw the thing "
+                "they asked for IN THIS REPLY, with its parts marked, and then ask "
+                "your question about it; keep everything else the same.").format(
+                    s=said[:60], a=" ".join(ask.split())[:70])
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[postponedshow] crashed (fail open): {exc}")
+        _event("referee_crash", "postponedshow", str(exc))
+        return ""
+
+
+# =============================================================================
+# REFEREE 71 -- THE WORDS POINT WHERE THE COLUMN PUT IT  (build rg, 2026-09-01)
+# -----------------------------------------------------------------------------
+# The 2026-09-01 night watch, prealgebra, rule 63: [[column terms="2.6 | 0.35"]]
+# draws 2.6 on TOP -- and the tutor said, and captioned, "the six ended up under
+# the five." The six is ABOVE the five. The correction was about place-value
+# alignment, so reversing the spatial relationship points the child at the wrong
+# feature of the very picture meant to fix their mistake. Referee 67 (fracslash)
+# is this referee's sibling: words teaching a spatial fact the drawn picture
+# contradicts.
+#
+# ⭐ COMPUTED FROM THE TAG'S OWN ORDER: the column tag's first term is drawn on
+# top -- that is how the renderer works -- so "X under Y" is TRUE exactly when
+# X's term sits below Y's. The referee reads every under/above claim (digits or
+# number words) from the SPOKEN prose and the column CAPTIONS, resolves each
+# named digit to the ONE term that contains it, and fires only on a real
+# contradiction.
+#
+# ⚠️ CAUTIOUS FOUR WAYS: exactly ONE column tag in the reply (several = silence);
+# a digit that appears in several terms, or none, resolves nothing (silence); the
+# two named digits in the SAME term claim nothing vertical (silence); and claims
+# not about single digits ("the tenths column") are never matched at all.
+_CW_TAG_RE = re.compile(r"\[\[\s*column\b([^\]]*)\]\]", re.I)
+_CW_ATTR_RE = re.compile(r'(\w+)\s*=\s*"([^"]*)"')
+_CW_DIGWORD = {"zero": "0", "one": "1", "two": "2", "three": "3", "four": "4",
+               "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9"}
+_CW_NUM = r"(?:zero|one|two|three|four|five|six|seven|eight|nine|\d)"
+_CW_CLAIM_RE = re.compile(
+    r"\b(" + _CW_NUM + r")\b[^.!?]{0,40}?"
+    r"\b(under(?:neath)?|below|beneath|above|over|on\s+top\s+of)\b[^.!?]{0,40}?"
+    r"\b(" + _CW_NUM + r")\b", re.I)
+
+
+def _cw_digit(tok):
+    t = str(tok or "").strip().lower()
+    return _CW_DIGWORD.get(t, t if t.isdigit() and len(t) == 1 else None)
+
+
+def column_words_conflict(reply: str):
+    """Return a description of an under/above claim the column's own term order
+    contradicts, or "". Never raises: fail open."""
+    try:
+        text = str(reply or "")
+        tags = _CW_TAG_RE.findall(text)
+        if len(tags) != 1:
+            return ""                     # zero or several columns: stay silent
+        attrs = dict(_CW_ATTR_RE.findall(tags[0]))
+        terms = [t.strip() for t in (attrs.get("terms") or "").split("|") if t.strip()]
+        if len(terms) < 2:
+            return ""
+        claims_text = _spoken_only(text) + "\n" + (attrs.get("caption") or "")
+        for m in _CW_CLAIM_RE.finditer(claims_text):
+            x, rel, y = _cw_digit(m.group(1)), m.group(2).lower(), _cw_digit(m.group(3))
+            if x is None or y is None or x == y:
+                continue
+            xi = [i for i, t in enumerate(terms) if x in t]
+            yi = [i for i, t in enumerate(terms) if y in t]
+            if len(xi) != 1 or len(yi) != 1 or xi[0] == yi[0]:
+                continue                  # ambiguous or same row: claim nothing
+            below = xi[0] > yi[0]         # first term is drawn on TOP
+            says_below = rel.startswith(("under", "below", "beneath"))
+            if says_below != below:
+                truth = "BELOW" if below else "ABOVE"
+                return ('you say "{c}" -- but the column draws {t1} on top of {t2}, '
+                        "so the {x} is {truth} the {y}. Rule 63: words about a "
+                        "picture point at the picture actually drawn. Either say "
+                        "the true relationship ({x} {truth_l} {y}) or reorder the "
+                        "column's terms so the words come true; keep everything "
+                        "else the same.").format(
+                            c=" ".join(m.group(0).split())[:70],
+                            t1=terms[0], t2=terms[1], x=x, y=y, truth=truth,
+                            truth_l=truth.lower())
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[columnwords] crashed (fail open): {exc}")
+        _event("referee_crash", "columnwords", str(exc))
         return ""
 
 
@@ -9243,6 +9398,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if fclaim:
             _event("referee_fire", "factorclaim", fclaim)
             return fclaim
+        # (rg) the seventy-first: the words point where the column put it (rule 63).
+        # Reply-only and computed from the tag's own term order; fracslash's sibling.
+        cwords = column_words_conflict(reply)
+        if cwords:
+            _event("referee_fire", "columnwords", cwords)
+            return cwords
         # (oc) the forty-eighth: a result you speak is a result you drew.
         skipres = skipped_result_conflict(reply, heard)
         if skipres:
@@ -9421,6 +9582,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if refused:
             _event("referee_fire", "refusedshow", refused)
             return refused
+        # (rf) the seventieth: the asked-for picture is drawn NOW, not offered for
+        # next turn (rule 65's third shape -- its two siblings ride just above).
+        postponed = postponed_show_conflict(reply, student_message)
+        if postponed:
+            _event("referee_fire", "postponedshow", postponed)
+            return postponed
         # build gu: SIXTEENTH -- rule 47(d), whose founding sentence reappeared verbatim
         # six days after the rule was written from it.
         coldquiz = cold_quiz_conflict(reply)

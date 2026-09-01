@@ -2,6 +2,25 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rg -- PART 3hh: the words point where the column put it. The watch
+#               (rule 63, prealgebra): "the six ended up under the five" said AND
+#               captioned over [[column terms="2.6 | 0.35"]], which draws 2.6 on top --
+#               the six is ABOVE the five. REFEREE 71, column_words_conflict (fracslash's
+#               sibling): every under/above claim, prose and captions, digits or number
+#               words, resolved to the ONE term containing each digit, fired only on a
+#               real contradiction of the tag's own term order. Cautious four ways (one
+#               column tag; unique resolution; same-term and non-digit claims never
+#               match). Canon swept 0 of 2,109. 3fx literal 70 -> 71; tiles synced.
+#   2026-09-01  BUILD rf -- PART 3hg: the asked-for picture is drawn now. The watch's
+#               other HIGH (geometry, rule 65): asked to be shown the hypotenuse, the
+#               tutor drew only a right angle and ENDED BY OFFERING the triangle ("want
+#               me to show a triangle with it marked?"). Rule 65's two siblings stayed
+#               rightly silent (something was drawn; nothing was handed back); REFEREE
+#               70, postponed_show_conflict, closes the third shape: asked-to-see gate
+#               REUSES prose_asked_to_see/_RD_ASKS (one grammar), the offer test runs on
+#               the reply's FINAL ask (_rb_final_ask, its fourth consumer), and offers of
+#               MORE ("another", "one more", "different") stay silent. Adversarial canon
+#               sweep (every card + a show-me message): 0 of 2,109. 3fx literal 69 -> 70.
 #   2026-09-01  BUILD re -- PART 3hf: the factors are checked by expanding them. The
 #               first watch on rd confirmed a HIGH (algebra2, rule 13): "the factors
 #               should be (x + 2) and (x + 3)" spoken beside x² - 5x + 6 -- the claim
@@ -11510,6 +11529,205 @@ def part3hf_the_factors_are_checked_by_expanding_them():
     check("  the sweep covered the whole canon", n >= 1900, "%d" % n)
 
 
+def part3hg_the_asked_for_picture_is_drawn_now():
+    """PART 3hg (build rf, 2026-09-01) -- THE ASKED-FOR PICTURE IS DRAWN NOW.
+
+    The first watch on rd, geometry, HIGH (rule 65): the student explicitly asked
+    to be shown how to identify the hypotenuse; the tutor drew only a right angle
+    and ended "Does that make sense so far, or want me to show a triangle with it
+    marked?" -- the requested drawing postponed into an offer.
+
+    ⭐ THE THIRD SHAPE OF RULE 65. Its two siblings stayed RIGHTLY silent here:
+    prose_visual fires when nothing lands on the board (something did), and
+    refused_demonstration fires when the job is handed back (it was not). NEW
+    REFEREE 70, postponed_show_conflict: the student asked to see + the reply's
+    FINAL spoken ask OFFERS to show/draw. "Want me to show it?" re-asks a question
+    the student already answered in the plainest words they have.
+
+    ⭐ ONE GRAMMAR: the did-they-ask gate REUSES prose_asked_to_see (_VIS_ASKED)
+    and _RD_ASKS -- never a third copy of "show me". The final-ask discipline
+    reuses _rb_final_ask (the ra helper -- a fourth consumer of the one grammar).
+
+    ⚠️ OFFERS OF MORE ARE GOOD TEACHING: "another one?", "one more?", "a different
+    way?" mean the requested thing was delivered and seconds are on offer -- all
+    silent. Message-gated: no student message, no fire. Canon swept 0 of 2,109
+    even with EVERY card paired against a synthetic show-me message.
+    """
+    print("\nPART 3hg — the asked-for picture is drawn now (build rf)")
+    import tutor as _tt
+    P = _tt.postponed_show_conflict
+
+    ask = "Can you show me how to identify the hypotenuse?"
+    watch = ('[[angle deg="90"]] The little square marks the right angle. Does '
+             "that make sense so far, or want me to show a triangle with it "
+             "marked?")
+    check("⭐ FIRES on the watch's own shape (asked to see; final ask offers the "
+          "drawing)", bool(P(watch, ask)), "")
+    check("  ...and on 'should I draw it for you?'",
+          bool(P("The right angle is here. Should I draw the triangle for you?",
+                 "show me the hypotenuse please")), "")
+    check("  ...and on 'want to see it marked?'",
+          bool(P("So that is the idea. Want to see it marked on a triangle?",
+                 "can you draw it?")), "")
+    check("⭐ SILENT when the reply just draws the thing and asks about it",
+          not P('[[triangle sides="3,4,5"]] The longest side, c, is the '
+                "hypotenuse. Which side is longest?", ask), "")
+    for label, reply in (
+            ("an offer of ANOTHER one",
+             '[[triangle sides="3,4,5"]] Here it is, marked. Want to see another one?'),
+            ("'one more'", "Here you go. Want me to draw one more?"),
+            ("'a different way'", "Done! Want me to show it a different way?")):
+        check("⭐ SILENT on %s (seconds, not postponed firsts)" % label,
+              not P(reply, ask), "")
+    check("  silent when the student asked nothing visual",
+          not P(watch, "I don't get it"), "")
+    check("  message-gated: silent with no student message",
+          not P(watch, ""), "")
+    check("  never raises", P(None, None) == "" and P(123, 456) == "", "")
+
+    # ---- one grammar, reused -- never a third copy of "show me" ---------------
+    import inspect as _insp
+    src = _insp.getsource(_tt.postponed_show_conflict)
+    check("⭐ the gate reuses prose_asked_to_see and _RD_ASKS (one grammar)",
+          "prose_asked_to_see(said)" in src and "_RD_ASKS.search(said)" in src, "")
+    check("  the final-ask discipline reuses _rb_final_ask (the ra helper)",
+          "_rb_final_ask(" in src, "")
+
+    # ---- wired, counted -------------------------------------------------------
+    tsrc = open(_tt.__file__, encoding="utf-8").read()
+    check("⭐ wired into the referee stack with its own fire event, beside its two "
+          "rule-65 siblings",
+          "postponed = postponed_show_conflict(reply, student_message)" in tsrc
+          and '_event("referee_fire", "postponedshow", postponed)' in tsrc, "")
+
+    # ---- the adversarial canon sweep ------------------------------------------
+    import foundations as FND
+    import lessonscripts as LS
+    msg = "can you show me?"
+    hits, n = [], 0
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1
+                if P(t, msg):
+                    hits.append(("foundation", c, sc.get("term")))
+    for les in LS.LESSONS:
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            t = (sp or "") + "\n" + (b or "")
+            if t.strip():
+                n += 1
+                if P(t, msg):
+                    hits.append(("teach", les["id"], i))
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            t = (w[0] or "") + "\n" + (w[1] or "")
+            if t.strip():
+                n += 1
+                if P(t, msg):
+                    hits.append(("worked", les["id"], i))
+    check("⭐ canon sweep with EVERY card paired against a show-me message: 0 fire "
+          "(%d swept)" % n, not hits, str(hits[:4]))
+    check("  the sweep covered the whole canon", n >= 1900, "%d" % n)
+
+
+def part3hh_the_words_point_where_the_column_put_it():
+    """PART 3hh (build rg, 2026-09-01) -- THE WORDS POINT WHERE THE COLUMN PUT IT.
+
+    The first watch on rd, prealgebra, rule 63: "the six ended up under the five"
+    -- said in the prose AND written in the caption -- over [[column terms=
+    "2.6 | 0.35"]], which draws 2.6 on TOP. The six is ABOVE the five. The
+    correction was about place-value alignment, so reversing the spatial
+    relationship pointed the child at the wrong feature of the very picture meant
+    to fix their mistake.
+
+    ⭐ COMPUTED FROM THE TAG'S OWN ORDER (fracslash's sibling): the first term is
+    drawn on top -- that is how the renderer works -- so "X under Y" is TRUE
+    exactly when X's term sits below Y's. REFEREE 71, column_words_conflict, reads
+    every under/above claim (digits or number words) from the spoken prose AND the
+    column captions, resolves each named digit to the ONE term containing it, and
+    fires only on a real contradiction.
+
+    ⚠️ CAUTIOUS FOUR WAYS: one column tag only; a digit in several terms or none
+    resolves nothing; same-term digits claim nothing vertical; non-digit claims
+    ("the tenths column") are never matched. Canon swept 0 of 2,109.
+    """
+    print("\nPART 3hh — the words point where the column put it (build rg)")
+    import tutor as _tt
+    C = _tt.column_words_conflict
+
+    watch = ('the six ended up under the five instead of under another tenths '
+             'digit.\n[[column op="+" terms="2.6 | 0.35" align="last" '
+             'caption="the 6 landed under the 5 -- tenths and hundredths sharing '
+             'a column"]]')
+    check("⭐ FIRES on the watch's own reply (prose and caption both claim under)",
+          bool(C(watch)), "")
+    check("  ...and on a caption-only false claim",
+          bool(C('[[column op="+" terms="2.6 | 0.35" caption="see the 6 under '
+                 'the 5"]]')), "")
+    check("  ...and in word form, and for over/on-top",
+          bool(C('six sits below five in our setup.\n[[column terms="2.6 | 0.35"]]'))
+          and bool(C('the five sits on top of the six.\n'
+                     '[[column terms="2.6 | 0.35"]]')), "")
+    check("⭐ SILENT when the words say ABOVE -- the truth buys silence",
+          not C('the six ended up above the five.\n'
+                '[[column op="+" terms="2.6 | 0.35"]]'), "")
+    check("  silent when the claim is TRUE (0.35 drawn on top)",
+          not C('the six is under the five here.\n'
+                '[[column op="+" terms="0.35 | 2.6"]]'), "")
+    check("⭐ silent when a digit appears in several terms (ambiguous resolution)",
+          not C('the five is under the six.\n[[column op="+" terms="5.6 | 0.55"]]'),
+          "")
+    check("  silent when a named digit is in no term",
+          not C('the nine is under the five.\n[[column op="+" terms="2.6 | 0.35"]]'),
+          "")
+    check("⭐ silent with TWO column tags (never pair a claim to the wrong column)",
+          not C('the six is under the five.\n[[column terms="2.6 | 0.35"]]'
+                '[[column terms="0.35 | 2.6"]]'), "")
+    check("  silent with no column tag at all",
+          not C("the six is under the five."), "")
+    check("  silent when both digits share a term (nothing vertical is claimed)",
+          not C('the two is under the six.\n[[column terms="2.6 | 0.35"]]'), "")
+    check("  never raises", C(None) == "" and C(123) == "", "")
+
+    # ---- wired, counted -------------------------------------------------------
+    tsrc = open(_tt.__file__, encoding="utf-8").read()
+    check("⭐ wired into the referee stack with its own fire event",
+          "cwords = column_words_conflict(reply)" in tsrc
+          and '_event("referee_fire", "columnwords", cwords)' in tsrc, "")
+
+    # ---- the canon sweep ------------------------------------------------------
+    import foundations as FND
+    import lessonscripts as LS
+    hits, n = [], 0
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1
+                if C(t):
+                    hits.append(("foundation", c, sc.get("term")))
+    for les in LS.LESSONS:
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            t = (sp or "") + "\n" + (b or "")
+            if t.strip():
+                n += 1
+                if C(t):
+                    hits.append(("teach", les["id"], i))
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            t = (w[0] or "") + "\n" + (w[1] or "")
+            if t.strip():
+                n += 1
+                if C(t):
+                    hits.append(("worked", les["id"], i))
+    check("⭐ canon sweep: 0 authored cards fire (%d swept)" % n, not hits,
+          str(hits[:4]))
+    check("  the sweep covered the whole canon", n >= 1900, "%d" % n)
+
+
 def part3dn_every_verdict_is_counted():
     """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
 
@@ -17831,9 +18049,9 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ sixty-nine referees now, counted from the code (62 + pz + qf + qm + qs + "
-          "qv's two + re's factorclaim)",
-          n_ref == 69, n_ref)
+    check("⭐ seventy-one referees now, counted from the code (62 + pz + qf + qm + qs + "
+          "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords)",
+          n_ref == 71, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -20404,7 +20622,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,950</b>" in page,
+          "<b>7,979</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -28979,6 +29197,8 @@ def main():
     part3hd_the_star_falls_when_the_child_slips()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
+    part3hg_the_asked_for_picture_is_drawn_now()
+    part3hh_the_words_point_where_the_column_put_it()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

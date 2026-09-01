@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  APP_BUILD -> "2026-09-01rg-the-words-point-where-the-column-put-it".
+#               BUILD rg -- the watch's rule-63 finding: "the 6 under the 5" over a
+#               column that draws it above. REFEREE 71, column_words_conflict
+#               (tutor.py), computed from the tag's own term order. NO CODE IN THIS
+#               FILE CHANGED.
+#   2026-09-01  APP_BUILD -> "2026-09-01rf-the-asked-for-picture-is-drawn-now". BUILD rf
+#               -- the watch's other HIGH (geometry, rule 65): the requested drawing
+#               postponed into an offer. REFEREE 70, postponed_show_conflict (tutor.py):
+#               asked-to-see + the final ask offers to show/draw; offers of MORE stay
+#               silent. NO CODE IN THIS FILE CHANGED.
 #   2026-09-01  APP_BUILD -> "2026-09-01re-the-factors-are-checked-by-expanding-them".
 #               BUILD re -- the watch's HIGH: a spoken factor pair contradicting the
 #               board's quadratic. KNOWN_FALSEHOODS row 14 + REFEREE 69 (tutor.py,
@@ -13167,7 +13177,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-01re-the-factors-are-checked-by-expanding-them"
+APP_BUILD = "2026-09-01rg-the-words-point-where-the-column-put-it"
 
 
 @app.get("/health")
