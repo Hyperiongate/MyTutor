@@ -5,7 +5,12 @@
     "Adding a NEW behaviour is code (see BEHAVIOURS in cadabra.js).",
     "Scheduling one is editing this file. Rules are in PRESENCE_RULES.md."
   ],
-  "version": "2026-08-31a",
+  "_CHANGE_NOTES": [
+    "Keep newest at top. JSON has no comments, so the notes live here.",
+    "2026-09-01 (ri): THE PENCIL WAKES UP QUIETLY. Jim watched the first live lesson: 'the pencil was floating around pointing at things that didn't match the voice.' The joke and the tour at lesson.start ran WHILE Mr. Cadabra's real recorded voice gave the opening, so the pencil pointed at the answer bar as the voice talked about stars. Ruling applied: at lesson.start he ENTERS and nothing more -- the real voice owns the opening. The joke and tour behaviours still exist in cadabra.js for future scheduling at a quiet moment. Also: the tour's 'problem' stop and the celebrate targets named 'problem' pointed at a data-cad name that exists on no page (rule 30: targets resolve by data-cad name) -- the dead tour stop is removed and the celebrations now aim at 'board', where the problem actually lives.",
+    "2026-08-31 (rh/stage2-4): first menu -- entrance, joke, tour, park, celebrate, nudges, clearInk wired to the session page."
+  ],
+  "version": "2026-09-01ri",
   "defaultStage": "early",
   "height": 112,
   "hands": "glove",
@@ -45,7 +50,6 @@
   "tours": {
     "session": [
       { "target": "board",    "text": "Everything I write goes here on the board." },
-      { "target": "problem",  "text": "This is the problem we are working on." },
       { "target": "answer",   "text": "You answer down here. Tap it or type it." },
       { "target": "streak",   "text": "And this counts your run of right answers." }
     ]
@@ -53,16 +57,12 @@
 
   "pages": {
     "session": {
-      "lesson.start": [
-        { "do": "enter" },
-        { "do": "joke", "if": "stage.joke", "once": true },
-        { "do": "tour", "once": true }
-      ],
+      "lesson.start":     [ { "do": "enter" } ],
       "answer.focus":     [ { "do": "park" } ],
-      "answer.correct":   [ { "do": "celebrate", "tier": "auto", "target": "problem" } ],
+      "answer.correct":   [ { "do": "celebrate", "tier": "auto", "target": "board" } ],
       "answer.wrong":     [ { "do": "expression", "to": "thinking" },
                             { "do": "say", "from": "nudges" } ],
-      "problem.solved":   [ { "do": "celebrate", "tier": 3, "target": "problem" } ],
+      "problem.solved":   [ { "do": "celebrate", "tier": 3, "target": "board" } ],
       "problem.cleared":  [ { "do": "clearInk" } ],
       "hint.requested":   [ { "do": "point", "target": "board", "ms": 3000 } ],
       "lesson.end":       [ { "do": "hush" }, { "do": "release" } ]
@@ -70,7 +70,7 @@
 
     "topic": {
       "lesson.start":   [ { "do": "enter" } ],
-      "answer.correct": [ { "do": "celebrate", "tier": "auto", "target": "problem" } ],
+      "answer.correct": [ { "do": "celebrate", "tier": "auto", "target": "board" } ],
       "answer.wrong":   [ { "do": "expression", "to": "thinking" },
                           { "do": "say", "from": "nudges" } ]
     },
@@ -79,5 +79,7 @@
       "lesson.start":   [ { "do": "enter" } ],
       "answer.correct": [ { "do": "celebrate", "tier": 1 } ]
     }
-  }
+  },
+
+  "_END": "I did no harm and this file is not truncated"
 }

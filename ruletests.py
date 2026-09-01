@@ -2,6 +2,18 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD ri -- PART 3hj: three in a row means move on. Jim's live catch:
+#               "I gave three correct answers and it gave me a 4th question" (the gate
+#               demanded done >= MIN_PROBLEMS=4 on top of the promised 3-in-a-row) and
+#               "the pencil was floating around pointing at things that didn't match
+#               the voice" (the menu ran a joke + tour at lesson.start, over the real
+#               recorded opening; one tour stop targeted a data-cad name on no page).
+#               Jim's ruling made the promise the gate: streak >= ADVANCE_STREAK alone;
+#               MIN_PROBLEMS removed from lessonscripts.py. Menu lesson.start -> enter
+#               only, dead 'problem' targets -> 'board'. Three older pins updated to
+#               the ruling's intent, each with a dated note: the settings tuple (now
+#               also proves the floor STAYS gone), and both perfect-child pins
+#               (== ADVANCE_STREAK, was MIN_PROBLEMS).
 #   2026-09-01  BUILD rh -- PART 3hi: the pencil wakes up. Jim: "activate the pencil icon
 #               as Mr Cadabra." The Cadabra companion layer (cadabra.js, built in a
 #               parallel session, shipped dark) is wired into session.html -- the stage-4
@@ -11836,6 +11848,140 @@ def part3hi_the_pencil_wakes_up():
           "matching")
 
 
+def part3hj_three_in_a_row_means_move_on():
+    """PART 3hj (build ri, 2026-09-01) -- THREE IN A ROW MEANS MOVE ON.
+
+    THE FINDING (Jim, live, 2026-09-01 14:58, session, 'Count the stars'): "I
+    gave three correct answers and it gave me a 4th question. Also, when the
+    lesson started, the pencil was floating around pointing at things that
+    didn't match the voice." Two defects, one build.
+
+    THE FIRST: every scripted lesson PROMISES "Three right answers in a row and
+    we're done" (practice_intro), but the advance gate also required
+    done >= MIN_PROBLEMS (4) -- the 2026-08-20 research ruling's DI-firming
+    floor -- so a perfect child got a fourth question the words never warned
+    about. Jim's ruling: "The three in a row is what it specifically states to
+    demonstrate that we're ready to move on to the next stage. It doesn't mean
+    it's the end of the lesson." The CODE changed, not the words: the gate is
+    now streak >= ADVANCE_STREAK alone and MIN_PROBLEMS is gone. A child who
+    misses still does more than three (the miss resets the streak) and
+    MAX_PROBLEMS still caps every path -- the ruling opened the front door, not
+    the fire escape.
+
+    THE SECOND: the Cadabra menu ran a joke and a four-stop tour at
+    lesson.start, WHILE the real recorded voice gave the opening -- so the
+    pencil pointed at the answer bar as the voice talked about stars. And the
+    tour's second stop targeted data-cad="problem", a name that exists on no
+    page (rule 30 finds targets by data-cad name), as did the celebrate
+    targets. Now: at lesson.start he ENTERS and nothing more -- the real voice
+    owns the opening -- and every session-page target in the menu resolves to a
+    data-cad name actually present in session.html.
+    """
+    print("\nPART 3hj — three in a row means move on (build ri)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import json as _json
+    import lessonscripts as L
+
+    # ---- 1. the floor is gone, the promise is the gate ----------------------
+    check("⭐ MIN_PROBLEMS no longer exists (Jim's ruling supersedes the "
+          "research floor)",
+          not hasattr(L, "MIN_PROBLEMS"),
+          "the fourth-question floor must not creep back without a new ruling")
+    check("  the promise itself did not change -- no TTS re-renders",
+          "Three right answers in a row and" in
+          L.LESSON_BY_ID["entry-u2-add-single-digit"]["practice_intro"],
+          "the fix was the CODE keeping the words' promise, never new words")
+
+    _WALK = L.LESSON_BY_ID["entry-u2-add-single-digit"]
+
+    def _ans(st):
+        return ("answer", L.ans(st["pending"]["problem"]))
+
+    # ---- 2. the perfect child: three answers, no fourth question ------------
+    st = L.start(_WALK)
+    L.step(_WALK, st, ("begin",))
+    L.step(_WALK, st, _ans(st))            # guided pair 0 -- does not count
+    L.step(_WALK, st, _ans(st))            # guided pair 1 -- does not count
+    check("  guided pair answers still do not count toward the three",
+          st["done"] == 0 and st["streak"] == 0,
+          f"done={st['done']} streak={st['streak']} -- the promise counts only "
+          "real practice")
+    L.step(_WALK, st, _ans(st))            # practice 1
+    outs2, _ = L.step(_WALK, st, _ans(st))  # practice 2
+    check("  after two right answers he is still asked (three means three, "
+          "not two)",
+          any(o["kind"] == "ask" for o in outs2) and not st["finished"], "")
+    outs3, _ = L.step(_WALK, st, _ans(st))  # practice 3 -- the promised third
+    ended = next((o for o in outs3 if o["kind"] == "end"), None)
+    check("⭐ the third right answer in a row ENDS it, mastered -- Jim's exact "
+          "case, no 4th question",
+          ended is not None and ended["mastered"] and st["done"] == 3
+          and not any(o["kind"] == "ask" for o in outs3),
+          f"outs={[o['kind'] for o in outs3]} done={st['done']} -- 'I gave "
+          "three correct answers and it gave me a 4th question' must never "
+          "happen again")
+    check("  and the end speaks the advance line (the words already there)",
+          ended is not None and ended["spoken"] == _WALK["advance_line"], "")
+
+    # ---- 3. the ruling opened the front door, not the fire escape -----------
+    st = L.start(_WALK)
+    L.step(_WALK, st, ("begin",))
+    L.step(_WALK, st, _ans(st))
+    L.step(_WALK, st, _ans(st))
+    L.step(_WALK, st, _ans(st))            # practice 1 right
+    outs, _ = L.step(_WALK, st, ("answer", 99))   # practice 2 WRONG
+    if any(o["kind"] == "intervene" for o in outs):
+        L.step(_WALK, st, ("resume",))
+    ended = None
+    for _ in range(20):
+        outs, _ = L.step(_WALK, st, _ans(st))
+        ended = next((o for o in outs if o["kind"] == "end"), ended)
+        if ended:
+            break
+    check("  one miss still costs extra problems (the streak resets, so only "
+          "a PERFECT child finishes in three)",
+          ended is not None and ended["mastered"]
+          and st["done"] > L.ADVANCE_STREAK,
+          f"done={st['done']} -- mastery after a miss must take more than three")
+    check("  and MAX_PROBLEMS still stands in the settings",
+          L.MAX_PROBLEMS == 10,
+          "removing the floor must not have touched the ceiling")
+
+    # ---- 4. the pencil enters quietly: the menu, both copies ----------------
+    menu_p = os.path.join(here, "static", "cadabra-script.json")
+    ex_p = os.path.join(here, "static", "cadabra-script.example.json")
+    menu = _json.load(open(menu_p, encoding="utf-8"))
+    ex = _json.load(open(ex_p, encoding="utf-8"))
+    check("⭐ session lesson.start is ENTER ONLY -- the real voice owns the "
+          "opening",
+          menu["pages"]["session"]["lesson.start"] == [{"do": "enter"}],
+          "Jim: 'the pencil was floating around pointing at things that "
+          "didn't match the voice' -- no joke, no tour, while the voice speaks")
+    check("  the example copy says the same (the off/on cycle must not bring "
+          "the old opening back)",
+          ex == menu, "the two menu files drifted apart")
+    check("  the menu is versioned to this build",
+          menu.get("version") == "2026-09-01ri", str(menu.get("version")))
+
+    # ---- 5. rule 30: every session-page target resolves to a real name ------
+    page = open(os.path.join(here, "static", "session.html"),
+                encoding="utf-8").read()
+    names = set(re.findall(r'data-cad="([a-z]+)"', page))
+    wanted = set()
+    for stop in (menu.get("tours") or {}).get("session", []):
+        wanted.add(stop["target"])
+    for steps in (menu.get("pages") or {}).get("session", {}).values():
+        for s in steps:
+            if s.get("target"):
+                wanted.add(s["target"])
+    check("⭐ every tour stop and every targeted behaviour on the session page "
+          "names a data-cad that EXISTS there",
+          wanted and wanted <= names,
+          f"dead targets: {sorted(wanted - names)} -- rule 30 finds targets by "
+          "data-cad name, so a dead name is a silently skipped act (the 'problem' "
+          "stop was exactly that)")
+
+
 def part3dn_every_verdict_is_counted():
     """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
 
@@ -20734,7 +20880,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,999</b>" in page,
+          "<b>8,011</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -27493,10 +27639,18 @@ def part3cv_scripted_engine():
           "dropping a struggling child to counting 37 stars one at a time is not help")
 
     # ---- 2. the settings are the ruling's, verbatim ----
-    check("settings: advance on 3-in-a-row, min 4, cap 10, drop after 2",
-          (L.ADVANCE_STREAK, L.MIN_PROBLEMS, L.MAX_PROBLEMS,
-           L.DROP_AFTER_INTERVENTIONS) == (3, 4, 10, 2),
-          "the research ruling's numbers changed without a new ruling")
+    # (ri, 2026-09-01) MIN_PROBLEMS left the tuple BY a new ruling -- Jim's:
+    # "The three in a row is what it specifically states to demonstrate that
+    # we're ready to move on to the next stage." The words promise three-in-a-row
+    # and the code now keeps that promise; this pin's job is unchanged (the
+    # numbers must not drift without a ruling), and it also proves the old
+    # floor stays gone.
+    check("settings: advance on 3-in-a-row, cap 10, drop after 2 -- and NO minimum floor",
+          (L.ADVANCE_STREAK, L.MAX_PROBLEMS,
+           L.DROP_AFTER_INTERVENTIONS) == (3, 10, 2)
+          and not hasattr(L, "MIN_PROBLEMS"),
+          "the ruling's numbers changed without a new ruling (ri removed the "
+          "MIN_PROBLEMS floor; it must not creep back)")
     check("settings: the drop path is abstract -> pictorial -> concrete",
           L.LEVELS == ("abstract", "pictorial", "concrete"), str(L.LEVELS))
 
@@ -27533,10 +27687,15 @@ def part3cv_scripted_engine():
         ended = next((o for o in outs if o["kind"] == "end"), ended)
         if ended:
             break
-    check("perfect child: mastered in exactly MIN_PROBLEMS with ZERO AI calls",
-          ended and ended["mastered"] and st["done"] == L.MIN_PROBLEMS
+    # (ri, 2026-09-01) was "exactly MIN_PROBLEMS" (4). Jim's live catch: "I gave
+    # three correct answers and it gave me a 4th question." His ruling made the
+    # promise the gate, so a perfect child now finishes in exactly ADVANCE_STREAK.
+    check("perfect child: mastered in exactly ADVANCE_STREAK (the promised three) "
+          "with ZERO AI calls -- never a 4th question",
+          ended and ended["mastered"] and st["done"] == L.ADVANCE_STREAK
           and n_int == 0,
-          f"done={st['done']} int={n_int} -- the happy path must never wake the model")
+          f"done={st['done']} int={n_int} -- the happy path must never wake the model, "
+          "and 'three right answers in a row and we're done' must mean THREE")
 
     # ---- 4. one miss: ONE intervention, engine-chosen retest, still masterable ----
     st = L.start(_WALK)
@@ -27658,9 +27817,11 @@ def part3cv_scripted_engine():
             if _ended:
                 break
         _miss = [s for s in _heard2 if s and s not in _cl]
-        check(f"{_les['id']}: a perfect child masters in {L.MIN_PROBLEMS}, "
+        # (ri, 2026-09-01) was MIN_PROBLEMS (4); Jim's ruling -- three in a row
+        # means move on, in EVERY lesson of the course, not just the deep-walked one.
+        check(f"{_les['id']}: a perfect child masters in {L.ADVANCE_STREAK}, "
               f"inside its own closure",
-              _ended and _ended["mastered"] and _st["done"] == L.MIN_PROBLEMS
+              _ended and _ended["mastered"] and _st["done"] == L.ADVANCE_STREAK
               and not _miss, str(_miss[:2]))
         est2 = L.audio_cost_estimate(_les)
         # ---- THE PER-LESSON AUDIO CEILING, and its ledger --------------------
@@ -28604,13 +28765,20 @@ chk("NO answer leaks: no 'expected' or 'problem' in any payload",
 # 3. perfect walk to mastery
 def answer(v): return c.post("/api/script/answer", json={"code": "KID1", "value": v}).json()
 # pair asks: 2+3=5, 4+2=6 then bank in order 2+1,1+3,2+2,3+2...
-seq = [5, 6, 3, 4, 4, 5]
+# (ri, 2026-09-01) was [5, 6, 3, 4, 4, 5] -- six answers, because the old gate
+# demanded done >= MIN_PROBLEMS (4). Jim's ruling: three in a row IS the gate,
+# so the perfect walk is two guided pairs + the promised THREE, and the lesson
+# ends on the fifth post. The loop also breaks on end now, so a future gate
+# change fails a chk instead of KeyError-ing on a post after the lesson closed.
+seq = [5, 6, 3, 4, 4]
 ended = None
 for v in seq:
     j = answer(v)
     for s in j["steps"]:
         if s["kind"] == "end": ended = s
-chk("perfect child masters with ZERO AI calls", ended and ended["mastered"] and calls["n"] == 0,
+    if ended: break
+chk("perfect child masters with ZERO AI calls -- in the promised three",
+    ended and ended["mastered"] and calls["n"] == 0 and v == seq[-1],
     str(ended))
 # kc: the default lesson is now ENTRY-LEVEL MATH (the re-cut moved single-digit
 # adding there), so its mastery lands under course "entry"
@@ -28622,7 +28790,9 @@ from sqlalchemy import select
 U = store._tables["usage_log"]
 with store._engine.connect() as conn:
     srows = conn.execute(select(U.c.kind, U.c.ms_total).where(U.c.kind == "script")).fetchall()
-chk("every script turn logged with wall time, zero model", len(srows) >= 7 and all(r0[1] >= 0 for r0 in srows), str(len(srows)))
+# (ri, 2026-09-01) was >= 7: the old perfect walk took six answers. It takes
+# five now (three-in-a-row is the gate), so start + five answers = six rows.
+chk("every script turn logged with wall time, zero model", len(srows) >= 6 and all(r0[1] >= 0 for r0 in srows), str(len(srows)))
 
 # 4. wrong answer path: AI stub, code-graded redo, resume
 c.post("/api/script/start", json={"code": "KID2", "lesson": "entry-u2-add-single-digit"})
@@ -29312,6 +29482,7 @@ def main():
     part3hg_the_asked_for_picture_is_drawn_now()
     part3hh_the_words_point_where_the_column_put_it()
     part3hi_the_pencil_wakes_up()
+    part3hj_three_in_a_row_means_move_on()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

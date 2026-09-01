@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  APP_BUILD -> "2026-09-01ri-three-in-a-row-means-move-on". BUILD ri --
+#               Jim's live catch: "I gave three correct answers and it gave me a 4th
+#               question." His ruling: the promised three-in-a-row IS the advance gate.
+#               lessonscripts.py: gate is streak >= ADVANCE_STREAK alone, MIN_PROBLEMS
+#               removed. Also the pencil now ENTERS ONLY at lesson.start (the menu ran
+#               a joke + tour over the real recorded opening) and every menu target
+#               resolves to a real data-cad name. NO CODE IN THIS FILE CHANGED.
 #   2026-09-01  APP_BUILD -> "2026-09-01rh-the-pencil-wakes-up". BUILD rh -- Jim: "activate
 #               the pencil icon as Mr Cadabra." session.html wired to the Cadabra companion
 #               layer (twelve additive edits, re-applied onto the current page) and the
@@ -13182,7 +13189,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-01rh-the-pencil-wakes-up"
+APP_BUILD = "2026-09-01ri-three-in-a-row-means-move-on"
 
 
 @app.get("/health")

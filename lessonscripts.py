@@ -2,6 +2,19 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD ri -- THREE IN A ROW MEANS MOVE ON. Jim's live catch (session,
+#               'Count the stars'): "I gave three correct answers and it gave me a
+#               4th question." Every lesson PROMISES "Three right answers in a row
+#               and we're done" (practice_intro, 49 copies) but the advance gate
+#               also demanded done >= MIN_PROBLEMS (4), so a perfect child was
+#               asked a 4th problem the words never warned about. Jim's ruling:
+#               "The three in a row is what it specifically states to demonstrate
+#               that we're ready to move on to the next stage." So the CODE now
+#               matches the WORDS: the gate is streak >= ADVANCE_STREAK alone, and
+#               MIN_PROBLEMS (the 2026-08-20 research ruling's DI-firming floor)
+#               is REMOVED -- Jim's ruling supersedes it. A child who misses still
+#               does more than three (the miss resets the streak), and MAX_PROBLEMS
+#               still caps every path. No spoken line changed -- NO TTS RE-RENDERS.
 #   2026-08-30  BUILD qt -- THE COUNTING LESSONS ACTUALLY COUNT. Build qs taught the board
 #               to count along ([[objects ... count="1"]]: the things land one at a time,
 #               each taking its own ✓ and number, paced to his voice) and nothing in the
@@ -1716,7 +1729,11 @@ import numwords as _numw
 
 # ---- THE SETTINGS (from the 2026-08-20 research ruling; change THERE first) -------
 ADVANCE_STREAK = 3        # advance on 3 consecutive unaided correct (EDM 2015)
-MIN_PROBLEMS = 4          # even a perfect child does at least 4 (DI "firming")
+# (ri, 2026-09-01) MIN_PROBLEMS = 4 removed by Jim's ruling: "The three in a row
+# is what it specifically states to demonstrate that we're ready to move on to
+# the next stage." The words promise three-in-a-row; the code stops demanding a
+# fourth. A miss still costs extra problems (the streak resets), so only a
+# PERFECT child finishes in exactly three.
 MAX_PROBLEMS = 10         # past 10 without a streak, stop -- see drop/end rules
 DROP_AFTER_INTERVENTIONS = 2   # 2nd AI intervention on a skill -> easier representation
 LEVELS = ("abstract", "pictorial", "concrete")   # drop direction, left to right
@@ -25565,7 +25582,9 @@ def step(lesson, state, event):
             out.append(_ask(state, _next_bank_problem(lesson, state)))
             return (out, state)
         # practice
-        if state["done"] >= MIN_PROBLEMS and state["streak"] >= ADVANCE_STREAK:
+        # (ri, 2026-09-01) the gate is the PROMISE: "Three right answers in a row
+        # and we're done." Jim's ruling -- no fourth problem for a perfect child.
+        if state["streak"] >= ADVANCE_STREAK:
             out.append({"kind": "end", "spoken": lesson["advance_line"],
                         "graceful": True, "mastered": True,
                         "problems_done": state["done"]})
