@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  APP_BUILD -> "2026-09-01rh-the-pencil-wakes-up". BUILD rh -- Jim: "activate
+#               the pencil icon as Mr Cadabra." session.html wired to the Cadabra companion
+#               layer (twelve additive edits, re-applied onto the current page) and the
+#               switch created: static/cadabra-script.json (delete it to turn him off).
+#               NO CODE IN THIS FILE CHANGED.
 #   2026-09-01  APP_BUILD -> "2026-09-01rg-the-words-point-where-the-column-put-it".
 #               BUILD rg -- the watch's rule-63 finding: "the 6 under the 5" over a
 #               column that draws it above. REFEREE 71, column_words_conflict
@@ -13177,7 +13182,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-01rg-the-words-point-where-the-column-put-it"
+APP_BUILD = "2026-09-01rh-the-pencil-wakes-up"
 
 
 @app.get("/health")

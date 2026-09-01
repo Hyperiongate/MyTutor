@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rh -- PART 3hi: the pencil wakes up. Jim: "activate the pencil icon
+#               as Mr Cadabra." The Cadabra companion layer (cadabra.js, built in a
+#               parallel session, shipped dark) is wired into session.html -- the stage-4
+#               twelve-edit set RE-APPLIED onto the current page (the original wiring was
+#               written against an older copy and never landed on disk) -- and switched ON
+#               by creating static/cadabra-script.json from the example. The PART pins the
+#               switch (exists, parses, names the session page; the example survives), the
+#               layer (whole; carries the rule-19 fix), and the wiring (script order and
+#               not-deferred; four data-cad targets exactly once; ONE guarded cadFire door;
+#               doorbells ring AFTER their real work; guarded mount; 3ha's streak-chip
+#               literal untouched).
 #   2026-09-01  BUILD rg -- PART 3hh: the words point where the column put it. The watch
 #               (rule 63, prealgebra): "the six ended up under the five" said AND
 #               captioned over [[column terms="2.6 | 0.35"]], which draws 2.6 on top --
@@ -11728,6 +11739,103 @@ def part3hh_the_words_point_where_the_column_put_it():
     check("  the sweep covered the whole canon", n >= 1900, "%d" % n)
 
 
+def part3hi_the_pencil_wakes_up():
+    """PART 3hi (build rh, 2026-09-01) -- THE PENCIL WAKES UP.
+
+    Jim: "activate the pencil icon as Mr Cadabra." The Cadabra companion layer
+    (static/cadabra.js + PRESENCE_RULES.md, built in a parallel session, shipped
+    DARK) is now wired into session.html and switched ON. The original stage-4
+    wiring was written against an older copy of session.html and never landed on
+    disk -- the streak builds and that session overlapped, and the streak lineage
+    held the file -- so the twelve-edit set was RE-APPLIED onto the current page,
+    each anchor asserted unique, and the switch file created.
+
+    ⭐ THE SWITCH IS ONE FILE: static/cadabra-script.json. Its absence is the off
+    state (available() false, no overlay, every method a no-op); deleting it turns
+    him off with no page change. This PART pins that the file exists, parses, and
+    names the session page -- and that the EXAMPLE it was copied from still exists
+    for the day it must be recreated.
+
+    ⭐ EVERYTHING SURVIVES THE LAYER FAILING: one guarded door (cadFire -- checks
+    window.Cadabra AND try/catches), a guarded mount, and the doorbells ring the
+    Cadabra bell AFTER their real work (/api/mark first, always). A missing,
+    broken, or dark cadabra.js costs the page nothing -- the parallel session's
+    own 44-check dry run proved the dark path; this PART pins the wiring shape.
+    """
+    print("\nPART 3hi — the pencil wakes up (build rh)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import json as _json
+
+    # ---- the switch -----------------------------------------------------------
+    menu_path = os.path.join(here, "static", "cadabra-script.json")
+    check("⭐ the switch exists: static/cadabra-script.json",
+          os.path.exists(menu_path), "")
+    menu = None
+    if os.path.exists(menu_path):
+        try:
+            menu = _json.load(open(menu_path, encoding="utf-8"))
+        except Exception as exc:  # noqa: BLE001
+            bad("the menu does not parse as JSON", str(exc))
+    if menu is not None:
+        check("  ...it parses, is versioned, and names the session page",
+              bool(menu.get("version")) and "session" in (menu.get("pages") or {}), "")
+        check("  ...and carries the stage table (rule 24's budget lives in data)",
+              "early" in (menu.get("stages") or {}), "")
+    check("  the example it was copied from still exists (the off/on cycle needs it)",
+          os.path.exists(os.path.join(here, "static",
+                                      "cadabra-script.example.json")), "")
+
+    # ---- the layer and its rulebook ------------------------------------------
+    cad = open(os.path.join(here, "static", "cadabra.js"), encoding="utf-8").read()
+    check("⭐ cadabra.js is present and whole",
+          "I did no harm and this file is not truncated." in cad[-120:],
+          "its closing statement rides inside a /* */ comment -- look at the tail")
+    check("  ...and carries the rule-19 centre-point fix (the stage-4 dry run's bug)",
+          "elementFromPoint" in cad, "")
+    check("  PRESENCE_RULES.md stands at the repo root",
+          os.path.exists(os.path.join(here, "PRESENCE_RULES.md")), "")
+
+    # ---- the wiring, on the current page --------------------------------------
+    sess = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    code = sess[sess.index("<body"):]
+    check("⭐ the body names its page for the layer",
+          '<body data-cadabra-page="session">' in sess, "")
+    i_mom = code.find('src="/static/tutor-moments.js"')
+    i_cad = code.find('src="/static/cadabra.js"')
+    i_use = code.find("function cadFire(")
+    check("⭐ cadabra.js loads after tutor-moments.js, before the inline script, "
+          "NOT deferred (window.Cadabra must exist first)",
+          0 <= i_mom < i_cad < i_use
+          and not re.search(r'src="/static/cadabra\.js"[^>]*defer', code), "")
+    for t in ('data-cad="board"', 'data-cad="answer"', 'data-cad="streak"',
+              'data-cad="tutor"'):
+        check("  target %s present exactly once (rule 30: by name)" % t,
+              code.count(t) == 1, code.count(t))
+    check("⭐ one guarded door: cadFire checks window.Cadabra AND try/catches",
+          "function cadFire(ev, opts) { try { if (window.Cadabra) "
+          "Cadabra.fire(ev, opts); } catch (e) {} }" in code, "")
+    check("  the three doorbells ring it: mark(correct)->hard celebrate, "
+          "miss->answer.wrong, nice->answer.correct",
+          'cadFire("answer.correct", { hard: true })' in code
+          and 'cadFire("answer.wrong")' in code
+          and code.count('cadFire("answer.correct")') == 1, "")
+    check("  ...and each rings AFTER its real work (/api/mark first, always)",
+          code.find('postJSON("/api/mark/me", { miss: 1 })')
+          < code.find('cadFire("answer.wrong")'), "")
+    check("  lesson.start fires from the welcome button (rule 8: a lesson "
+          "starting, not a page loading)",
+          'cadFire("lesson.start"); begin();' in code, "")
+    check("  clearStage clears his ink too (rule 15), guarded",
+          "Cadabra.clearInk()" in code, "")
+    check("⭐ the mount is guarded twice (window.Cadabra + try/catch)",
+          'try { if (window.Cadabra) Cadabra.mount({ page: "session" }); } '
+          "catch (e) {}" in code, "")
+    check("  the streak-chip pin 3ha relies on is untouched",
+          'id="streakChips" hidden' in code,
+          "the data-cad attribute must sit BEFORE the id so 3ha's literal keeps "
+          "matching")
+
+
 def part3dn_every_verdict_is_counted():
     """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
 
@@ -14505,7 +14613,11 @@ def part3fd_the_day_you_can_feel():
           in sfull,
           "do no harm: the done/worked/gold looks from il and bj are untouched")
     check("⭐ the two signals the tutor ALREADY sends drive it",
-          "bumpTodayProgress(1); }" in ssrc and "bumpTodayProgress(2);" in ssrc,
+          # (rh) the literal was "bumpTodayProgress(1); }" -- the nice handler's
+          # LAST statement. Build rh rang the Cadabra doorbell after it, so the
+          # brace adjacency broke while the intent (nice bumps 1, mark bumps 2)
+          # stayed true. The pin now tests the intent, not the adjacency.
+          "bumpTodayProgress(1);" in ssrc and "bumpTodayProgress(2);" in ssrc,
           "[[nice]] and [[mark]] ride every piece of real work -- nothing new has "
           "to be emitted for the bar to move")
     check("⭐ today is stated in WORDS, not just colour",
@@ -20622,7 +20734,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,979</b>" in page,
+          "<b>7,999</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -29199,6 +29311,7 @@ def main():
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
     part3hh_the_words_point_where_the_column_put_it()
+    part3hi_the_pencil_wakes_up()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
