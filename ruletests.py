@@ -7746,13 +7746,20 @@ def part3u2_talking_moments():
           "hijacking a cmd-click to play a video steals a behaviour the visitor owns")
     with open(os.path.join(here, "static", "demo.html"), encoding="utf-8") as fh:
         dp = fh.read()
-    check("the demo lets him say hello himself instead of the synthesised line",
-          "tutor-moments.js" in dp and "TutorMoments.available('demo_welcome')" in dp,
-          "one voice, never two -- the clip REPLACES WELCOME_LINE rather than joining it")
-    check("  the tour starts whether he is watched, skipped, or missing",
-          "if (how === 'played' || how === 'skipped') afterHello();" in dp
-          and "else sayThen(WELCOME_LINE, afterHello);" in dp,
-          "a visitor who hits Escape must land in the tour, not in a dead page")
+    # ⚠️ INVERTED, NOT DELETED (build rk, 2026-09-01). See PART 3ad. The demo's welcome
+    # clip is retired because the pencil is Mr. Cadabra; the two things this pair
+    # actually guarantees -- ONE voice, and a tour that always starts -- are both still
+    # pinned, against the simpler path that replaced it.
+    check("the demo greets in ONE voice -- his own, never a clip",
+          "TutorMoments.play('demo_welcome')" not in dp
+          and "sayThen(WELCOME_LINE, afterHello)" in dp,
+          "one voice, never two: his own speech now carries the identical WELCOME_LINE")
+    check("  the tour starts with no clip left to fail",
+          dp.count("sayThen(WELCOME_LINE, afterHello);") == 1
+          and "if (justWelcomed) { afterHello(); return; }" in dp,
+          "a visitor who has just heard the site welcome skips straight to the tour; "
+          "everyone else hears him say hello and then the tour starts -- there is no "
+          "third path left that could strand anyone on a dead page")
 
     # Validated the day the clips land; until then absence is correct.
     man = os.path.join(here, "static", "videos", "cadabra", "moments.json")
@@ -8913,9 +8920,19 @@ def part3ad_clip_never_eats():
     check("the home page leaves the one-shot marker before navigating",
           "sessionStorage.setItem('cadabra_welcomed', '1')" in la,
           "without the marker the demo page cannot know he has just said hello")
-    check("the demo page reads the marker BEFORE its own welcome",
-          dm.index("cadabra_welcomed") < dm.index("TutorMoments.available('demo_welcome')"),
-          "the skip must be decided before the second clip can start")
+    # ⚠️ INVERTED, NOT DELETED (build rk, 2026-09-01). Jim's ruling: Mr. Cadabra is the
+    # PENCIL now, so demo_welcome -- footage of a real person introducing himself as Mr.
+    # Cadabra -- cannot stay. The guarantee this pin protects (nobody hears two welcomes
+    # back to back) is unchanged and still enforced below; what changed is that the
+    # demo's half is now his own spoken WELCOME_LINE instead of a clip. The clip and its
+    # manifest entry are still on disk, so restoring it is undoing one commit.
+    check("the demo no longer plays the human welcome clip",
+          "TutorMoments.play('demo_welcome')" not in dm,
+          "the pencil is Mr. Cadabra; a photoreal man saying 'I am Mr. Cadabra' is a "
+          "different character, and children notice before adults do")
+    check("the demo page still reads the marker BEFORE its own welcome",
+          dm.index("cadabra_welcomed") < dm.index("sayThen(WELCOME_LINE, afterHello)"),
+          "the skip must still be decided before his own hello can start")
     check("the demo page CLEARS the marker (one arrival, not every reload)",
           "sessionStorage.removeItem('cadabra_welcomed')" in dm,
           "a marker that is never cleared silences the demo's own welcome forever")
