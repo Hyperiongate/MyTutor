@@ -1,0 +1,856 @@
+<!doctype html>
+<!--
+  ============================================================================
+  mockup/landing-cadabra.html  -  "The Front Door, Hosted"
+  LANDING + DEMO CONCEPT PAGE.  NOT PRODUCTION.  NOT LINKED FROM ANYWHERE.
+  ============================================================================
+
+  WHAT THIS IS
+    Two things Jim asked for on 2026-09-01, in one openable file:
+
+      1. A SIMPLER FRONT DOOR, with a picture of Mr. Cadabra as the pencil.
+         One sentence, one character, three doors, and everything we sell with
+         below the fold.  Successor to mockup/landing-quiet.html (28 Aug).
+
+      2. A PRODUCT DEMONSTRATION HE ACTUALLY HOSTS.  Press "Let him show you
+         around" and the pencil flies into a stand-in classroom and gives the
+         tour himself -- pointing at the board, the streak bubbles, the sidebar
+         tab (which he CLOSES, to show what it does), and the answer bar, then
+         writing on the board and handing over.  No video, no narrator, no
+         per-view cost.  It is the layer already built in static/cadabra.js.
+
+    THE HUMAN AVATAR IS GONE.  Jim's ruling, same day: if the pencil is Mr.
+    Cadabra then a photoreal man in the orb is a DIFFERENT CHARACTER, and
+    children notice that before adults do.  Nothing here mounts the presence
+    layer or plays a moments clip.  See the note at the bottom of this comment
+    for what that means for the real pages.
+
+  CHANGE NOTES (newest first)
+    2026-09-01  Created.  Character, hands and motion lifted from
+                static/mockup/cadabra-playground.html and static/cadabra.js
+                (same paths, same rules), so what you see here is what the
+                real layer would do.
+                - the hat band is #4a4ac9, the REAL brand purple out of
+                  TutorFace.PALETTES.cadabra.shellLo -- not the #6B44BE the
+                  August concept pages guessed at
+                - the tour obeys PRESENCE_RULES.md: transform-only, pointer
+                  transparent, reduced-motion honoured, and he never stands
+                  on a control
+
+  WHAT THIS WOULD MEAN FOR THE REAL PAGES (not done here)
+    static/videos/cadabra/presence.json exists today, so silent loops of a real
+    man play inside the round orb on SIX pages -- session, topic, practice,
+    challenge, landing and demo.  Only drill.html opts out, via the
+    presence:false flag that tutor-face.js has supported since build mi.
+    moments.json adds two TALKING clips: site_welcome on the landing page and
+    demo_welcome on the demo.
+    Closing the video path is therefore three small, reversible moves:
+      a) pass presence:false at the five remaining TutorFace.draw call sites
+      b) stop calling TutorMoments.play for site_welcome and demo_welcome
+      c) leave both manifests and all the .mp4 files exactly where they are
+    Nothing is deleted and every step is a one-line revert.
+
+  SAFE TO DEPLOY, SAFE TO DELETE
+    Self-contained.  No API calls, no build step, no server - double-click
+    opens it.  Shares no code with the app.  Nothing imports it, nothing links
+    to it, noindex.  No APP_BUILD change and no ruletests PART needed.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>The Front Door, Hosted</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='12' y='9' width='8' height='15' fill='%23F2BC1B'/%3E%3Crect x='12' y='7' width='8' height='2.5' fill='%23C8CAD4'/%3E%3Cpath d='M9 7 L23 7 L20 2 L12 2 Z' fill='%232E2A63'/%3E%3Cpath d='M12 24 L20 24 L16 30 Z' fill='%232F2C39'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+:root{
+  --paper:#F1F0F6; --card:#FFFFFF; --card-2:#F7F6FB;
+  --ink:#1B1926; --ink-2:#3D3850; --muted:#6A6480;
+  --line:#DEDAEA; --line-2:#EAE7F2;
+  --accent:#4a4ac9; --accent-ink:#3a3aa8; --accent-lt:#8f8ff7; --accent-soft:#ECECFA;
+  --good:#1E7A5F; --good-soft:#E2F3EC;
+  --board:#221F33;
+
+  --c-body:#F2BC1B; --c-body-dk:#C08F0C; --c-body-lt:#FBD96A;
+  --c-hat:#2E2A63; --c-hat-dk:#221F4C; --c-band:#4a4ac9; --c-gold:#F2BC1B;
+  --c-graphite:#2F2C39; --c-wood:#DFC08A; --c-wood-dk:#C0A067;
+  --c-ferrule:#C8CAD4; --c-ferrule-dk:#9EA1B1; --c-eye:#FBFAFF; --c-glove:#FFFFFF;
+
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --sans:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+     font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+p{margin:0}
+a{color:var(--accent-ink)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:3px;border-radius:6px}
+.wrap{width:min(1080px,92vw);margin-inline:auto}
+
+/* ═══════════ top bar ═══════════ */
+.top{border-bottom:1px solid var(--line);background:var(--card)}
+.top .wrap{display:flex;align-items:center;gap:16px;padding:14px 0}
+.brand{font-family:var(--display);font-weight:800;font-size:1.06rem;letter-spacing:-.01em;
+       display:flex;align-items:center;gap:9px}
+.brand svg{display:block}
+.top .sp{flex:1}
+.notesbtn{background:transparent;border:1px solid var(--line);border-radius:999px;
+  padding:7px 14px;font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted)}
+.notesbtn:hover{border-color:var(--accent);color:var(--accent-ink)}
+.notesbtn[aria-pressed=true]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+
+/* ═══════════ the fold ═══════════ */
+.hero{padding:clamp(38px,6vw,74px) 0 clamp(30px,5vw,52px)}
+.hero .wrap{display:grid;grid-template-columns:1fr 280px;gap:clamp(24px,5vw,58px);align-items:center}
+.hero h1{font-size:clamp(2.05rem,4.5vw,3.15rem);font-weight:800;letter-spacing:-.028em;line-height:1.06}
+.hero .sub{font-size:clamp(1.04rem,1.7vw,1.18rem);color:var(--ink-2);max-width:46ch;margin-top:16px}
+.doors{display:flex;flex-wrap:wrap;gap:11px;margin-top:26px}
+.door{border-radius:12px;padding:14px 22px;border:1.5px solid var(--line);background:var(--card);
+      color:var(--ink);font-weight:600;font-size:1rem;transition:transform .13s ease,border-color .13s ease}
+.door:hover{transform:translateY(-2px);border-color:var(--accent)}
+.door.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.door.primary:hover{background:var(--accent-ink)}
+.hostrow{margin-top:22px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+.hostbtn{display:inline-flex;align-items:center;gap:11px;border:1.5px solid var(--line);
+  background:var(--card);border-radius:999px;padding:9px 20px 9px 10px;font-weight:600;
+  transition:transform .13s ease,border-color .13s ease}
+.hostbtn:hover{transform:translateY(-2px);border-color:var(--accent)}
+.hostbtn .mini{width:34px;height:34px;flex:0 0 auto}
+.hostbtn small{display:block;font-weight:400;font-size:.8rem;color:var(--muted);line-height:1.25}
+.portrait{display:flex;justify-content:center}
+.portrait svg{width:100%;max-width:250px;height:auto;filter:drop-shadow(0 18px 30px rgba(27,25,38,.13))}
+
+/* ═══════════ below the fold ═══════════ */
+.fold{border-top:1px solid var(--line);background:var(--card)}
+section.blk{padding:clamp(38px,5vw,62px) 0;border-bottom:1px solid var(--line);background:var(--card)}
+section.blk:nth-child(even){background:var(--card-2)}
+.eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.blk h2{font-size:clamp(1.4rem,2.4vw,1.85rem);font-weight:700;letter-spacing:-.015em;margin:8px 0 22px}
+.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px}
+.three h3{font-size:1.02rem;font-weight:700;margin-bottom:6px}
+.three p{color:var(--ink-2);font-size:.98rem}
+.courses{display:flex;flex-wrap:wrap;gap:9px}
+.cpill{border:1px solid var(--line);background:var(--card);border-radius:999px;
+       padding:8px 15px;font-size:.92rem;color:var(--ink-2)}
+.steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:20px}
+.step{position:relative;padding-left:38px}
+.step::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:1px;
+  width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);
+  font-family:var(--mono);font-size:.76rem;display:grid;place-items:center;font-weight:500}
+.step b{display:block;margin-bottom:4px}
+.step p{color:var(--ink-2);font-size:.95rem}
+footer{padding:32px 0 46px;background:var(--paper);color:var(--muted);font-size:.9rem}
+footer .links{display:flex;flex-wrap:wrap;gap:8px 20px;margin-bottom:14px}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--accent-ink);text-decoration:underline}
+
+/* ═══════════ design notes ═══════════ */
+.note{display:none;border-left:3px solid var(--accent);background:var(--accent-soft);
+      border-radius:0 10px 10px 0;padding:13px 17px;margin:16px 0;font-size:.94rem;color:var(--ink-2)}
+.note b{color:var(--accent-ink)}
+body.notes .note{display:block}
+.foldmark{display:none;position:relative;height:0}
+body.notes .foldmark{display:block}
+.foldmark span{position:absolute;left:0;right:0;top:0;border-top:2px dashed var(--accent);
+  font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent-ink);padding-top:5px}
+
+/* ═══════════ the hosted demo ═══════════ */
+#demo{position:fixed;inset:0;z-index:400;background:var(--paper);display:none;
+      flex-direction:column;opacity:0;transition:opacity .3s ease}
+#demo.on{display:flex}
+#demo.in{opacity:1}
+.room{flex:1;display:flex;min-height:0}
+
+/* the left sidebar, and the tab that closes it */
+.side{width:236px;flex:0 0 236px;background:var(--card);border-right:1px solid var(--line);
+      padding:18px 16px;display:flex;flex-direction:column;gap:16px;overflow:hidden;
+      transition:margin-left .32s cubic-bezier(.3,.8,.3,1)}
+.side.shut{margin-left:-236px}
+.side h4{font-family:var(--mono);font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;
+         color:var(--muted);margin:0}
+.planitem{font-size:.92rem;color:var(--ink-2);padding:7px 10px;border-radius:8px;background:var(--card-2)}
+.planitem.now{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+#sbTab{position:absolute;left:0;top:50%;transform:translateY(-50%) ;z-index:5;
+  background:var(--card);border:1px solid var(--line);border-left:none;
+  border-radius:0 10px 10px 0;padding:14px 7px;font-family:var(--mono);font-size:.62rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);writing-mode:vertical-rl}
+#sbTab:hover{color:var(--accent-ink);border-color:var(--accent)}
+
+.centercol{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+.roomtop{display:flex;align-items:center;gap:14px;padding:11px 20px;background:var(--card);
+         border-bottom:1px solid var(--line)}
+.roomtop .t{font-family:var(--display);font-weight:700;font-size:1rem}
+.roomtop .sp{flex:1}
+.roomtop .menu{font-size:.88rem;color:var(--muted)}
+
+/* the streak bubbles -- the same two pills session.html renders */
+.chips{display:flex;align-items:center;gap:8px}
+.chip2{display:inline-flex;flex-direction:column;align-items:center;gap:1px;
+  border:1px solid var(--line);background:var(--card-2);border-radius:12px;padding:4px 12px 5px}
+.chip2 .m{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:1rem;font-weight:500}
+.chip2 .l{font-size:.6rem;letter-spacing:.03em;color:var(--muted);text-transform:lowercase}
+.chip2.days .m{color:#B4560E}
+.chip2.today .m{color:var(--accent-ink)}
+
+.boardwrap{flex:1;padding:22px;min-height:0;display:flex}
+.board{flex:1;background:var(--board);border-radius:14px;padding:26px 30px;color:#EFECF8;
+       font-family:var(--mono);display:flex;flex-direction:column;gap:16px;overflow:hidden}
+.board .bl{font-size:clamp(1.1rem,2.4vw,1.7rem);letter-spacing:.05em;opacity:0;
+           transform:translateY(6px);transition:opacity .4s ease,transform .4s ease}
+.board .bl.show{opacity:1;transform:none}
+.board .bl .hi{color:#FBD96A}
+.board .bl .gd{color:#7FE3C0}
+.answerbar{display:flex;align-items:center;gap:11px;padding:13px 20px;background:var(--card);
+           border-top:1px solid var(--line)}
+.answerbar .ab{border:1.5px solid var(--line);background:var(--card-2);border-radius:10px;
+  padding:9px 15px;font-size:.94rem;color:var(--ink-2)}
+.answerbar .ab.mic{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.answerbar .say{margin-left:auto;font-size:.88rem;color:var(--muted)}
+
+/* the caption bar + skip */
+.demobar{display:flex;align-items:center;gap:16px;padding:13px 22px;background:var(--card);
+         border-top:1px solid var(--line)}
+.demobar .cap{flex:1;font-size:1rem;color:var(--ink);min-height:1.5em}
+.demobar .prog{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.skip{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:8px 18px;
+      font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.skip:hover{border-color:var(--accent);color:var(--accent-ink)}
+.skip.go{background:var(--accent);border-color:var(--accent);color:#fff}
+
+#cadlayer{position:fixed;inset:0;pointer-events:none;z-index:420}
+#bub{position:fixed;z-index:421;pointer-events:none;max-width:250px;background:var(--card);
+  color:var(--ink);border:2px solid var(--c-hat);border-radius:14px;padding:10px 14px;
+  font-size:.96rem;line-height:1.4;box-shadow:0 10px 26px rgba(27,25,38,.18);opacity:0;
+  transform:translate(-50%,-100%) scale(.9);transform-origin:50% 108%;
+  transition:opacity .18s ease,transform .18s cubic-bezier(.2,1.3,.4,1)}
+#bub.on{opacity:1;transform:translate(-50%,-100%) scale(1)}
+#bub::after{content:"";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);
+  width:0;height:0;border:9px solid transparent;border-top-color:var(--c-hat);border-bottom:0}
+#bub::before{content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);z-index:1;
+  width:0;height:0;border:7px solid transparent;border-top-color:var(--card);border-bottom:0}
+/* When he is standing UNDER what he is pointing at, the bubble has to hang below
+   him or it covers the very thing he is explaining. */
+#bub.below{transform:translate(-50%,0) scale(.9);transform-origin:50% -8%}
+#bub.below.on{transform:translate(-50%,0) scale(1)}
+#bub.below::after{bottom:auto;top:-9px;border-top-color:transparent;border-bottom-color:var(--c-hat);border-top:0;border-bottom-width:9px}
+#bub.below::before{bottom:auto;top:-6px;border-top-color:transparent;border-bottom-color:var(--card);border-top:0;border-bottom-width:7px}
+
+@media (max-width:860px){
+  .hero .wrap{grid-template-columns:1fr}
+  .portrait{order:-1}
+  .portrait svg{max-width:170px}
+  .side{position:absolute;inset:0 auto 0 0;z-index:4}
+}
+@media (prefers-reduced-motion:reduce){
+  .door,.hostbtn,.side,#bub,.board .bl{transition:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ TOP ═══════════════ -->
+<div class="top"><div class="wrap">
+  <span class="brand">
+    <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="12" y="9" width="8" height="15" fill="#F2BC1B"/>
+      <rect x="12" y="7" width="8" height="2.5" fill="#C8CAD4"/>
+      <path d="M9 7 L23 7 L20 2 L12 2 Z" fill="#2E2A63"/>
+      <path d="M12 24 L20 24 L16 30 Z" fill="#2F2C39"/>
+    </svg>
+    Mr. Cadabra&rsquo;s Classroom
+  </span>
+  <span class="sp"></span>
+  <button class="notesbtn" id="notesBtn" type="button" aria-pressed="false">Show design notes</button>
+</div></div>
+
+<!-- ═══════════════ THE FOLD ═══════════════ -->
+<div class="hero"><div class="wrap">
+  <div>
+    <h1>A math tutor who teaches out loud, one step at a time.</h1>
+    <p class="sub">He talks, he writes on the board, and he waits for your child to
+      answer &mdash; the way a good tutor sitting beside them would.</p>
+
+    <div class="doors">
+      <button class="door primary" type="button">Try a lesson free</button>
+      <button class="door" type="button" id="tourDoor">Take the tour</button>
+      <button class="door" type="button">Log in</button>
+    </div>
+
+    <div class="hostrow">
+      <button class="hostbtn" type="button" id="hostBtn">
+        <span class="mini" id="miniCad"></span>
+        <span>Let him show you around
+          <small>60 seconds &middot; he gives the tour himself</small></span>
+      </button>
+    </div>
+
+    <div class="note"><b>What changed.</b> One sentence instead of three. One character
+      instead of a stock photo. Three doors, and the middle one is the demo he hosts.
+      The old top-nav links moved to the footer, where crawlers still read them and a
+      visitor is not asked to choose between nine things before they know what this is.</div>
+    <div class="note"><b>No price above the fold, and no testimonials.</b> Pricing waits
+      on the real serve-cost number, and we have no customers to quote yet. Inventing
+      either is the fastest way to lose a school district's trust.</div>
+  </div>
+
+  <div class="portrait" id="portrait"></div>
+</div></div>
+
+<div class="wrap foldmark"><span>The fold, at 1280&times;800</span></div>
+
+<!-- ═══════════════ BELOW THE FOLD ═══════════════ -->
+<div class="fold">
+
+<section class="blk"><div class="wrap">
+  <p class="eyebrow">What he actually does</p>
+  <h2>Not a homework-answer machine.</h2>
+  <div class="three">
+    <div><h3>He asks before he tells</h3><p>Every step is a question your child answers.
+      When they are stuck he makes the step smaller &mdash; he never just fills it in.</p></div>
+    <div><h3>He writes it down</h3><p>Nothing is left to imagine. If he says it, it
+      appears on the board, in order, and a wrong line never stays up.</p></div>
+    <div><h3>He plans the course</h3><p>He knows what your child has mastered and what
+      comes next, and he tells you both in plain words.</p></div>
+  </div>
+  <div class="note"><b>Three, not six.</b> The live page carries six selling sections
+    above the footer. A visitor who reads three remembers three.</div>
+</div></section>
+
+<section class="blk"><div class="wrap">
+  <p class="eyebrow">Courses</p>
+  <h2>First grade through calculus.</h2>
+  <div class="courses">
+    <span class="cpill">Entry-Level Math</span><span class="cpill">Basic Math</span>
+    <span class="cpill">Pre-Algebra</span><span class="cpill">Algebra 1</span>
+    <span class="cpill">Geometry</span><span class="cpill">Algebra 2</span>
+    <span class="cpill">Pre-Calculus</span><span class="cpill">Calculus</span>
+  </div>
+</div></section>
+
+<section class="blk"><div class="wrap">
+  <p class="eyebrow">How it works</p>
+  <h2>Four steps.</h2>
+  <div class="steps">
+    <div class="step"><b>Pick a course</b><p>Or let him place your child with a short,
+      unmarked check.</p></div>
+    <div class="step"><b>Turn the sound on</b><p>He teaches out loud. Your child talks
+      back, taps, or types.</p></div>
+    <div class="step"><b>Work a lesson</b><p>Twenty minutes is a good day. He stops
+      before they are tired.</p></div>
+    <div class="step"><b>Read the report</b><p>You get what was learned and what is
+      next, in a paragraph.</p></div>
+  </div>
+</div></section>
+
+<section class="blk"><div class="wrap">
+  <p class="eyebrow">Safety</p>
+  <h2>Built kid-safe from day one.</h2>
+  <div class="three">
+    <div><h3>No ads, ever</h3><p>Nobody pays us to put anything in front of your child.</p></div>
+    <div><h3>No child data sold</h3><p>Not to anyone, for any reason, at any price.</p></div>
+    <div><h3>You can read everything</h3><p>Every word of every lesson is yours to
+      review, whenever you want.</p></div>
+  </div>
+</div></section>
+
+</div>
+
+<footer><div class="wrap">
+  <div class="links">
+    <a href="#">Courses</a><a href="#">For parents</a><a href="#">For teachers</a>
+    <a href="#">Homeschool</a><a href="#">Pricing</a><a href="#">Privacy</a>
+    <a href="#">Terms</a><a href="#">Help</a><a href="#">Contact</a>
+  </div>
+  <p>Mr. Cadabra&rsquo;s Classroom &middot; Hyperion Shift LLC &middot; concept page, 1 September 2026.</p>
+</div></footer>
+
+<!-- ═══════════════ THE DEMO HE HOSTS ═══════════════ -->
+<div id="demo" role="dialog" aria-modal="true" aria-label="Mr. Cadabra shows you around">
+  <div class="room">
+    <aside class="side" id="side" data-cad="plan">
+      <h4>Today&rsquo;s plan</h4>
+      <div class="planitem now">1 &middot; Adding past ten</div>
+      <div class="planitem">2 &middot; Two-digit sums</div>
+      <div class="planitem">3 &middot; A quick check</div>
+      <h4 style="margin-top:8px">Course</h4>
+      <div class="planitem">Entry-Level Math</div>
+    </aside>
+
+    <div class="centercol">
+      <button id="sbTab" type="button" data-cad="sbtab" aria-controls="side" aria-expanded="true">Close the sidebar</button>
+
+      <div class="roomtop">
+        <span class="t">Mr. Cadabra&rsquo;s Classroom</span>
+        <div class="chips" data-cad="streak">
+          <span class="chip2 days"><span class="m">&#128293;<span id="nDays">4</span></span><span class="l">days in a row</span></span>
+          <span class="chip2 today"><span class="m">&#11088;<span id="nToday">3</span></span><span class="l">right in a row today</span></span>
+        </div>
+        <span class="sp"></span>
+        <span class="menu">&#9776; Menu</span>
+      </div>
+
+      <div class="boardwrap"><div class="board" data-cad="board" id="board">
+        <div class="bl" id="b1">Let&rsquo;s add <span class="hi">8 + 5</span></div>
+        <div class="bl" id="b2">8 needs <span class="hi">2</span> to make ten</div>
+        <div class="bl" id="b3">8 + 2 + 3&nbsp; &rarr; &nbsp;10 + 3</div>
+        <div class="bl" id="b4">8 + 5 = <span class="gd">13</span></div>
+      </div></div>
+
+      <div class="answerbar" data-cad="answer">
+        <span class="ab mic">&#127908; Talk to him</span>
+        <span class="ab">Type my answer</span>
+        <span class="ab">I&rsquo;m not sure</span>
+        <span class="say">Your turn &mdash; how many more to reach ten?</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="demobar">
+    <span class="prog" id="prog">1 / 6</span>
+    <p class="cap" id="cap">&nbsp;</p>
+    <button class="skip" id="skipBtn" type="button">Skip</button>
+    <button class="skip go" id="doneBtn" type="button" hidden>Try a lesson free</button>
+  </div>
+</div>
+
+<svg id="cadlayer" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>
+<div id="bub" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+var css = getComputedStyle(document.documentElement);
+function v(n){ return css.getPropertyValue(n).trim(); }
+var P = {
+  body:v('--c-body'), bodyDk:v('--c-body-dk'), bodyLt:v('--c-body-lt'),
+  hat:v('--c-hat'), hatDk:v('--c-hat-dk'), band:v('--c-band'), gold:v('--c-gold'),
+  graphite:v('--c-graphite'), wood:v('--c-wood'), woodDk:v('--c-wood-dk'),
+  ferrule:v('--c-ferrule'), ferruleDk:v('--c-ferrule-dk'), eye:v('--c-eye'), glove:v('--c-glove')
+};
+var STAR = "M0 -10 L2.9 -3.5 L9.5 -3.1 L4.5 1.2 L6.1 7.6 L0 4 L-6.1 7.6 L-4.5 1.2 L-9.5 -3.1 L-2.9 -3.5 Z";
+var TIP_X=110, TIP_Y=374, LOCAL_H=363, SH_L={x:86,y:202}, SH_R={x:134,y:202};
+
+/* ── the character, exactly as drawn in cadabra.js ─────────────────────── */
+function barrel(b){var h=b-114;return '<rect x="82" y="114" width="56" height="'+h+'" fill="'+P.body+'"/>'
+ +'<rect x="82" y="114" width="15" height="'+h+'" fill="'+P.bodyLt+'" opacity=".33"/>'
+ +'<rect x="123" y="114" width="15" height="'+h+'" fill="'+P.bodyDk+'" opacity=".42"/>'
+ +'<path d="M97 114 V'+b+' M123 114 V'+b+'" stroke="'+P.bodyDk+'" stroke-width="1.2" opacity=".5"/>'
+ +'<rect x="82" y="114" width="56" height="'+h+'" fill="none" stroke="'+P.graphite+'" stroke-width="1.8" opacity=".7"/>';}
+function cone(t,f,tip){return '<path d="M82 '+t+' L138 '+t+' L117 '+f+' L103 '+f+' Z" fill="'+P.wood+'" stroke="'+P.graphite+'" stroke-width="1.6" stroke-linejoin="round"/>'
+ +'<path d="M126 '+t+' L138 '+t+' L117 '+f+' L111 '+f+' Z" fill="'+P.woodDk+'" opacity=".6"/>'
+ +'<path d="M103 '+f+' L117 '+f+' L110 '+tip+' Z" fill="'+P.graphite+'"/>';}
+function ferrule(){return '<rect x="86" y="98" width="48" height="17" fill="'+P.ferrule+'"/>'
+ +'<path d="M86 103.5 H134 M86 109.5 H134" stroke="'+P.ferruleDk+'" stroke-width="1.5"/>';}
+function hat(){return '<ellipse cx="110" cy="89" rx="50" ry="9.5" fill="'+P.hatDk+'"/>'
+ +'<path d="M68 87 Q78 44 110 20 Q126 11 133 20 Q124 48 152 87 Q110 97 68 87 Z" fill="'+P.hat+'"/>'
+ +'<path d="M112 21 Q124 48 152 87 Q136 93 124 94 Q128 56 112 21 Z" fill="'+P.hatDk+'" opacity=".55"/>'
+ +'<path d="M70 79 Q110 90 150 79 L151 87 Q110 98 69 87 Z" fill="'+P.band+'"/>'
+ +'<path transform="translate(118,50) scale(.78)" d="'+STAR+'" fill="'+P.gold+'"/>';}
+function faceRig(pre){var g=P.graphite;return '<g transform="translate(0,8)">'
+ +'<path id="'+pre+'bL" d="" fill="none" stroke="'+g+'" stroke-width="2.6" stroke-linecap="round"/>'
+ +'<path id="'+pre+'bR" d="" fill="none" stroke="'+g+'" stroke-width="2.6" stroke-linecap="round"/>'
+ +'<ellipse id="'+pre+'eL" cx="99" cy="158" rx="8" ry="9" fill="'+P.eye+'" stroke="'+g+'" stroke-width="2.2"/>'
+ +'<ellipse id="'+pre+'eR" cx="121" cy="158" rx="8" ry="9" fill="'+P.eye+'" stroke="'+g+'" stroke-width="2.2"/>'
+ +'<circle id="'+pre+'pL" cx="100" cy="159.5" r="3.4" fill="'+g+'"/>'
+ +'<circle id="'+pre+'pR" cx="122" cy="159.5" r="3.4" fill="'+g+'"/>'
+ +'<path id="'+pre+'li" d="" fill="none" stroke="'+g+'" stroke-width="2.7" stroke-linecap="round"/>'
+ +'<ellipse id="'+pre+'mo" cx="110" cy="186" rx="9" ry="0" fill="'+g+'"/></g>';}
+var EXPR={
+ neutral:{bl:"M90 143 Q99 138 108 142",br:"M112 142 Q121 138 130 143",li:"M97 181 Q110 192 123 181",eye:9,pup:0},
+ teaching:{bl:"M90 137 Q99 131 108 136",br:"M112 136 Q121 131 130 137",li:"M99 183 Q110 190 121 183",eye:9,pup:0},
+ pleased:{bl:"M90 139 Q99 134 108 138",br:"M112 138 Q121 134 130 139",li:"M94 177 Q110 197 126 177",eye:4.2,pup:0},
+ thinking:{bl:"M90 147 Q99 143 108 146",br:"M112 137 Q121 130 130 136",li:"M99 185 Q105 180 111 184 Q117 188 124 183",eye:9,pup:-3},
+ listening:{bl:"M89 141 Q99 137 109 141",br:"M111 141 Q121 137 131 141",li:"M101 183 Q110 187 119 183",eye:10,pup:0}};
+
+/* the glove: rest = a rounded mitt with seams and a thumb bump;
+   point = a FIST with the INDEX along the top edge (never a digit from the
+   middle of the palm, which reads as the middle finger) */
+function handShapes(R,mode){
+  var ci=[],ca=[],se=[];
+  function C(x,y,r){ci.push({cx:x*R,cy:y*R,r:r*R});}
+  function K(a,b,c,d,w){ca.push({x1:a*R,y1:b*R,x2:c*R,y2:d*R,w:w*R});}
+  function M(a,b,c,d){se.push({x1:a*R,y1:b*R,x2:c*R,y2:d*R});}
+  if(mode==='point'){
+    C(-0.10,0.18,1.00); K(0.25,-0.52,2.00,-0.60,0.44); K(-0.45,-0.20,0.10,-0.92,0.46);
+    C(0.70,0.42,0.36); C(0.42,0.86,0.32); M(0.52,0.06,0.96,0.28); M(0.26,0.54,0.66,0.74);
+  } else {
+    C(0,0,1.00); K(0.45,0,0.75,0,1.30); K(-0.28,-0.52,0.14,-0.95,0.50);
+    M(0.70,-0.38,1.16,-0.38); M(0.70,0,1.34,0); M(0.70,0.38,1.16,0.38);
+  }
+  return {c:ci,k:ca,s:se};
+}
+function shp(sh,paint,grow){var s='',i;
+  for(i=0;i<sh.c.length;i++){var c=sh.c[i];
+    s+='<circle cx="'+c.cx.toFixed(2)+'" cy="'+c.cy.toFixed(2)+'" r="'+(c.r+grow/2).toFixed(2)+'" fill="'+paint+'"/>';}
+  for(i=0;i<sh.k.length;i++){var k=sh.k[i];
+    s+='<line x1="'+k.x1.toFixed(2)+'" y1="'+k.y1.toFixed(2)+'" x2="'+k.x2.toFixed(2)+'" y2="'+k.y2.toFixed(2)
+      +'" stroke="'+paint+'" stroke-width="'+(k.w+grow).toFixed(2)+'" stroke-linecap="round"/>';}
+  return s;}
+function handMarkup(R,mode){var sh=handShapes(R,mode),s='',i;
+  for(i=0;i<sh.s.length;i++){var m=sh.s[i];
+    s+='<line x1="'+m.x1.toFixed(2)+'" y1="'+m.y1.toFixed(2)+'" x2="'+m.x2.toFixed(2)+'" y2="'+m.y2.toFixed(2)
+      +'" stroke="'+P.graphite+'" stroke-width="'+(R*0.115).toFixed(2)+'" stroke-linecap="round" opacity=".85"/>';}
+  var cuff='<path d="M '+(-R*0.86).toFixed(1)+' '+(-R*0.62).toFixed(1)+' Q '+(-R*0.46).toFixed(1)+' 0 '
+    +(-R*0.86).toFixed(1)+' '+(R*0.62).toFixed(1)+'" fill="none" stroke="'+P.graphite
+    +'" stroke-width="'+(R*0.12).toFixed(2)+'" stroke-linecap="round" opacity=".8"/>';
+  return shp(sh,P.graphite,5.0)+shp(sh,P.glove,0)+s+cuff;}
+
+var REDUCED = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+/* ══════════ 1. THE HERO PORTRAIT  ══════════
+   A still, confident picture of him -- the "picture of the pencil" Jim asked
+   for. He blinks and breathes; he does nothing else, because the front door is
+   not the place to perform. */
+(function portrait(){
+  var host = document.getElementById('portrait');
+  host.innerHTML = '<svg viewBox="30 0 160 400" role="img" aria-label="Mr. Cadabra, drawn as a yellow No.2 pencil wearing a wizard hat">'
+    + '<g id="pf">'
+    + '<ellipse cx="110" cy="386" rx="42" ry="7" fill="'+P.graphite+'" opacity=".13"/>'
+    + '<path id="pfArmL" d="" fill="none" stroke="'+P.graphite+'" stroke-width="4.6" stroke-linecap="round"/>'
+    + '<path id="pfArmR" d="" fill="none" stroke="'+P.graphite+'" stroke-width="4.6" stroke-linecap="round"/>'
+    + cone(292,348,374) + barrel(292) + ferrule() + hat() + faceRig('pf')
+    + '<g id="pfHL"></g><g id="pfHR"></g>'
+    + '</g></svg>';
+  document.getElementById('pfHL').innerHTML = handMarkup(21,'rest');
+  document.getElementById('pfHR').innerHTML = handMarkup(21,'rest');
+  document.getElementById('pfHL').setAttribute('transform','translate(60,250) rotate(118) scale(1,-1)');
+  document.getElementById('pfHR').setAttribute('transform','translate(160,246) rotate(62)');
+  document.getElementById('pfArmL').setAttribute('d','M 86 202 Q 62 226 60 250');
+  document.getElementById('pfArmR').setAttribute('d','M 134 202 Q 158 224 160 246');
+  var e=EXPR.pleased, g=document.getElementById('pf');
+  document.getElementById('pfbL').setAttribute('d',e.bl);
+  document.getElementById('pfbR').setAttribute('d',e.br);
+  document.getElementById('pfli').setAttribute('d',e.li);
+  var eL=document.getElementById('pfeL'), eR=document.getElementById('pfeR'), t0=performance.now();
+  eL.setAttribute('ry',e.eye); eR.setAttribute('ry',e.eye);
+  if(!REDUCED){
+    var nb=0;
+    (function loop(now){
+      var s=Math.sin((now-t0)/1000*0.8)*3;
+      g.setAttribute('transform','translate(0,'+s.toFixed(2)+')');
+      if(now>nb){ nb=now+2600+Math.random()*3200;
+        eL.setAttribute('ry','0.7'); eR.setAttribute('ry','0.7');
+        setTimeout(function(){ eL.setAttribute('ry',e.eye); eR.setAttribute('ry',e.eye); },130); }
+      requestAnimationFrame(loop);
+    })(t0);
+  }
+  /* the little one on the button */
+  document.getElementById('miniCad').innerHTML =
+    '<svg viewBox="60 60 100 240" width="34" height="34" aria-hidden="true">'
+    + cone(292,348,374) + barrel(292) + ferrule() + hat() + '</svg>';
+})();
+
+/* ══════════ 2. DESIGN NOTES ══════════ */
+var nb = document.getElementById('notesBtn');
+nb.addEventListener('click', function(){
+  var on = document.body.classList.toggle('notes');
+  nb.setAttribute('aria-pressed', on ? 'true' : 'false');
+  nb.textContent = on ? 'Hide design notes' : 'Show design notes';
+});
+
+/* ══════════ 3. THE HOST RIG ══════════ */
+var layer = document.getElementById('cadlayer'), bub = document.getElementById('bub');
+layer.innerHTML =
+   '<g id="ink"></g>'
+ + '<g id="cbody"><g transform="translate('+(-TIP_X)+','+(-TIP_Y)+')">'
+ +   '<path id="armL" d="" fill="none" stroke="'+P.graphite+'" stroke-width="4.6" stroke-linecap="round"/>'
+ +   '<path id="armR" d="" fill="none" stroke="'+P.graphite+'" stroke-width="4.6" stroke-linecap="round"/>'
+ +   cone(292,348,374) + barrel(292) + ferrule() + hat() + faceRig('c')
+ +   '<g id="hL"></g><g id="hR"></g>'
+ + '</g></g>';
+var $=function(i){return document.getElementById(i);};
+var gB=$('cbody'), gInk=$('ink'), armL=$('armL'), armR=$('armR'), hL=$('hL'), hR=$('hR');
+var W=0,H=0;
+function size(){ W=innerWidth; H=innerHeight; layer.setAttribute('viewBox','0 0 '+W+' '+H); }
+size(); addEventListener('resize', size);
+
+var S={x:0,y:0,tx:0,ty:0,ang:0,tang:0,scale:0.355,expr:'neutral',driven:false,
+       speaking:false,amp:0,blink:1,nb:0,
+       hl:{x:62,y:250,rot:118,m:'rest'}, hr:{x:158,y:246,rot:62,m:'rest'},
+       aimL:null,aimR:null,key:'',env:0,acc:0,last:0,hidden:true,bubBelow:false};
+var HS = 22;
+function hpx(){ return S.scale*LOCAL_H; }
+function toPage(lx,ly){var dx=(lx-TIP_X)*S.scale,dy=(ly-TIP_Y)*S.scale,r=S.ang*Math.PI/180,
+  c=Math.cos(r),s=Math.sin(r);return {x:S.x+dx*c-dy*s,y:S.y+dx*s+dy*c};}
+function toLocal(px,py){var dx=px-S.x,dy=py-S.y,r=-S.ang*Math.PI/180,c=Math.cos(r),s=Math.sin(r);
+  return {x:(dx*c-dy*s)/S.scale+TIP_X,y:(dx*s+dy*c)/S.scale+TIP_Y};}
+function rectOf(n){var el=document.querySelector('[data-cad="'+n+'"]');if(!el)return null;
+  var r=el.getBoundingClientRect();return (r.width&&r.height)?r:null;}
+
+var ENV=(function(){var o=[],w=[7,4,9,5,11,3,6,8,4,10,6,3,9,5,7],i,j,k;
+  for(i=0;i<w.length;i++){for(j=0;j<w[i];j++)o.push(0.45+0.55*Math.abs(Math.sin(j*1.7+i)));
+  for(k=0;k<((i%4===3)?7:3);k++)o.push(0);}return o;})();
+
+function handXf(h,sc){var r=((h.rot%360)+540)%360-180,f=(r>90||r<-90)?-1:1;
+  return 'translate('+h.x.toFixed(1)+','+h.y.toFixed(1)+') rotate('+h.rot.toFixed(1)+') '
+    +(sc?'scale('+sc+','+(sc*f)+')':'scale(1,'+f+')');}
+function armPath(sh,h,side){var mx=(sh.x+h.x)/2,my=(sh.y+h.y)/2,
+  sl=Math.max(0,1-Math.hypot(h.x-sh.x,h.y-sh.y)/130);
+  return 'M '+sh.x+' '+sh.y+' Q '+(mx+side*22*sl).toFixed(1)+' '+(my+10*sl).toFixed(1)
+    +' '+h.x.toFixed(1)+' '+h.y.toFixed(1);}
+function aim(h,a,sh,side,t,ph){var want;
+  if(a){var L=toLocal(a.x,a.y),dx=L.x-sh.x,dy=L.y-sh.y,len=Math.max(1,Math.hypot(dx,dy)),
+    re=Math.min(len-14,150);
+    want={x:sh.x+dx/len*re,y:sh.y+dy/len*re,rot:Math.atan2(dy,dx)*180/Math.PI,m:'point'};}
+  else{var sw=REDUCED?0:Math.sin(t*1.4+ph)*4;
+    want={x:sh.x+side*26,y:248+sw,rot:90-side*28,m:'rest'};}
+  h.x+=(want.x-h.x)*0.16; h.y+=(want.y-h.y)*0.16;
+  h.rot+=((((want.rot-h.rot)+540)%360)-180)*0.16; h.m=want.m;}
+function rebuild(){var k=HS+'|'+S.hl.m+S.hr.m; if(k===S.key)return; S.key=k;
+  hL.innerHTML=handMarkup(HS,S.hl.m); hR.innerHTML=handMarkup(HS,S.hr.m);}
+
+function frame(now){
+  requestAnimationFrame(frame);
+  if(S.hidden){ return; }
+  var dt=S.last?Math.min(64,now-S.last):16; S.last=now; var t=now/1000;
+  if(!S.driven){var k=1-Math.pow(0.0016,dt/1000); S.x+=(S.tx-S.x)*k; S.y+=(S.ty-S.y)*k;}
+  S.ang+=(S.tang-S.ang)*(1-Math.pow(0.004,dt/1000));
+  var bob=0,dx=0;
+  if(!REDUCED && !S.driven && !S.speaking){ bob=Math.sin(t*1.55)*6; dx=Math.sin(t*0.62+1.1)*8; }
+  gB.setAttribute('transform','translate('+(S.x+dx).toFixed(2)+','+(S.y+bob).toFixed(2)+') rotate('
+    +S.ang.toFixed(2)+') scale('+S.scale.toFixed(4)+')');
+  aim(S.hl,S.aimL,SH_L,-1,t,0); aim(S.hr,S.aimR,SH_R,1,t,1.7);
+  var e=EXPR[S.expr]||EXPR.neutral;
+  $('cbL').setAttribute('d',e.bl); $('cbR').setAttribute('d',e.br);
+  if(REDUCED)S.blink=1;
+  else if(now>S.nb){S.blink=0.06;S.nb=now+2400+Math.random()*3400;}
+  else S.blink+=(1-S.blink)*0.30;
+  var o=0;
+  if(S.speaking && !REDUCED){ S.acc+=dt; if(S.acc>55){S.acc=0;S.env++;} o=ENV[S.env%ENV.length]; }
+  S.amp+=(o-S.amp)*0.5;
+  $('cli').setAttribute('d', S.amp>0.03?'':e.li);
+  $('cmo').setAttribute('rx',(9-2.7*S.amp).toFixed(2));
+  $('cmo').setAttribute('ry',(S.amp*8.6).toFixed(2));
+  var ry=e.eye*S.blink;
+  $('ceL').setAttribute('ry',ry.toFixed(2)); $('ceR').setAttribute('ry',ry.toFixed(2));
+  $('cpL').setAttribute('cy',(159.5+e.pup).toFixed(1)); $('cpR').setAttribute('cy',(159.5+e.pup).toFixed(1));
+  $('cbL').setAttribute('transform','translate(0,'+(-2.6*S.amp).toFixed(2)+')');
+  $('cbR').setAttribute('transform','translate(0,'+(-2.6*S.amp).toFixed(2)+')');
+  rebuild();
+  armL.setAttribute('d',armPath(SH_L,S.hl,-1)); armR.setAttribute('d',armPath(SH_R,S.hr,1));
+  hL.setAttribute('transform',handXf(S.hl,0)); hR.setAttribute('transform',handXf(S.hr,0));
+  if(bub.classList.contains('on')){
+    if(S.bubBelow){ var ft=toPage(110,TIP_Y);
+      bub.style.left=(ft.x+dx)+'px'; bub.style.top=(ft.y+bob+14)+'px'; }
+    else { var hd=toPage(110,130);
+      bub.style.left=(hd.x+dx)+'px'; bub.style.top=(hd.y+bob-12)+'px'; }
+  }
+}
+requestAnimationFrame(frame);
+
+/* ══════════ 4. THE TOUR HE GIVES ══════════
+   Six stops. Two of them are Jim's: the streak bubbles at the top, and the
+   sidebar tab -- which he does not merely point at, he CLOSES it, because a
+   control is explained by watching it work. */
+var SEQ=0, demo=$('demo'), cap=$('cap'), prog=$('prog'),
+    side=$('side'), sbTab=$('sbTab'), skipBtn=$('skipBtn'), doneBtn=$('doneBtn');
+
+function nseq(){ SEQ++; return SEQ; }
+function alive(id){ return id===SEQ; }
+function wait(ms,id,fn){ setTimeout(function(){ if(alive(id)) fn(); }, REDUCED?Math.min(ms,60):ms); }
+function flyTo(x,y,a){ S.tx=Math.max(70,Math.min(W-70,x)); S.ty=Math.max(hpx(),Math.min(H-40,y));
+  if(a!==undefined) S.tang=a; }
+function settle(id,fn){var g=0;(function c(){ if(!alive(id))return; g++;
+  if(g>420||Math.hypot(S.tx-S.x,S.ty-S.y)<14){fn();return;} requestAnimationFrame(c);})();}
+var CUR = 1;
+function say(text,ms,id,fn){
+  cap.textContent=text; bub.textContent=text;
+  bub.classList.toggle('below', !!S.bubBelow);
+  bub.classList.add('on');
+  prog.textContent = CUR + ' / 6';
+  S.speaking=true; S.expr='teaching';
+  wait(ms,id,function(){
+    S.speaking=false;
+    bub.classList.remove('on');          /* he stopped talking, so the bubble goes */
+    if(fn)fn();
+  });
+}
+function hush(){ bub.classList.remove('on'); S.speaking=false; }
+
+/* stand beside a thing and put the index finger on its nearest edge */
+function pointAt(name,text,ms,id,fn){
+  var r=rectOf(name);
+  if(!r){ if(fn)fn(); return; }
+  var right=(W-r.right)>250;
+  /* his head sits about hpx() above the tip and the bubble another ~110px above
+     that, so a target near the top of the window has to be approached from
+     BELOW or he covers the very thing he is pointing at - which is exactly what
+     happened to the streak bubbles the first time this ran. */
+  var minY = hpx() + 132;
+  var wantY = r.top + r.height/2 + hpx()*0.38;
+  var below = false;
+  if (wantY < minY) { wantY = r.bottom + hpx()*0.85; below = true; }
+  var st={x: right?Math.min(W-70,r.right+92):Math.max(70,r.left-92),
+          y: Math.min(H-30, Math.max(minY, wantY))};
+  var am={x: right?Math.max(r.left+12,r.right-80):Math.min(r.right-12,r.left+80),
+          y: r.top+r.height/2};
+  S.bubBelow = below;
+  flyTo(st.x,st.y, right?-6:6);
+  settle(id,function(){
+    if(right){S.aimL=am;S.aimR=null;} else {S.aimR=am;S.aimL=null;}
+    say(text,ms,id,function(){ S.aimL=S.aimR=null; if(fn)fn(); });
+  });
+}
+
+/* he writes the answer line himself, tip on the stroke */
+function underlineBoard(id,fn){
+  var r=rectOf('board'); if(!r){ if(fn)fn(); return; }
+  var el=$('b4'), br=el.getBoundingClientRect();
+  var y=Math.min(H-16,br.bottom+7), x1=br.left, x2=Math.min(W-10,br.left+br.width*0.92);
+  var pth=document.createElementNS('http://www.w3.org/2000/svg','path');
+  pth.setAttribute('d','M '+x1+' '+y+' Q '+((x1+x2)/2)+' '+(y+7)+' '+x2+' '+(y-2));
+  pth.setAttribute('fill','none'); pth.setAttribute('stroke','#FBD96A');
+  pth.setAttribute('stroke-width',Math.max(3,hpx()*0.042).toFixed(1));
+  pth.setAttribute('stroke-linecap','round');
+  gInk.appendChild(pth);
+  var len=pth.getTotalLength();
+  pth.setAttribute('stroke-dasharray',len); pth.setAttribute('stroke-dashoffset',len);
+  if(REDUCED){ pth.setAttribute('stroke-dashoffset',0); if(fn)fn(); return; }
+  var p0=pth.getPointAtLength(0);
+  S.aimL=S.aimR=null; S.expr='teaching'; S.tx=p0.x; S.ty=p0.y; S.tang=-35;
+  settle(id,function(){
+    S.driven=true;
+    var t0=performance.now(), dur=Math.max(500,len*3.4);
+    (function step(now){
+      if(!alive(id)){S.driven=false;return;}
+      var u=Math.min(1,(now-t0)/dur), e=u<0.5?2*u*u:-1+(4-2*u)*u;
+      var pt=pth.getPointAtLength(e*len); S.x=pt.x; S.y=pt.y;
+      pth.setAttribute('stroke-dashoffset',(len*(1-e)).toFixed(2));
+      if(u<1){requestAnimationFrame(step);return;}
+      S.driven=false; S.expr='pleased'; S.tang=0; if(fn)fn();
+    })(performance.now());
+  });
+}
+
+function showLine(n){ var el=$('b'+n); if(el) el.classList.add('show'); }
+function setProg(i){ CUR = i; }   /* the counter moves when he SPEAKS, not when he sets off */
+
+var STOPS = [
+  /* 1 */ function(id,next){
+    setProg(1);
+    var h={x:W*0.55,y:H*0.46};
+    S.x=h.x+180; S.y=-120; S.expr='pleased';
+    flyTo(h.x,h.y,0);
+    settle(id,function(){
+      S.bubBelow=false;
+      say('Hello! I am Mr. Cadabra. Let me show you round the classroom — it takes about a minute.',3600,id,next);
+    });
+  },
+  /* 2 — the board */
+  function(id,next){
+    setProg(2);
+    pointAt('board','This is the board. Everything I say out loud gets written here, in order — nothing is left for your child to imagine.',4200,id,function(){
+      showLine(1); wait(500,id,function(){ showLine(2); wait(600,id,next); });
+    });
+  },
+  /* 3 — THE STREAK BUBBLES (Jim) */
+  function(id,next){
+    setProg(3);
+    pointAt('streak','These two bubbles are the streak. The flame counts days in a row; the star counts problems right in a row today.',4600,id,function(){
+      var n=$('nToday'), c=3;
+      var bump=setInterval(function(){ if(!alive(id)||c>=5){clearInterval(bump);return;} c++; n.textContent=c; },700);
+      wait(1600,id,next);
+    });
+  },
+  /* 4 — THE SIDEBAR TAB (Jim) — he closes it, rather than describing it */
+  function(id,next){
+    setProg(4);
+    pointAt('sbtab','And this tab hides the lesson plan on the left. Watch —',3000,id,function(){
+      setSidebar(false);
+      wait(700,id,function(){
+        say('— more room for the board. Press it again whenever you want the plan back.',3800,id,function(){
+          setSidebar(true); wait(600,id,next);
+        });
+      });
+    });
+  },
+  /* 5 — the answer bar */
+  function(id,next){
+    setProg(5);
+    pointAt('answer','Your child answers down here — talk to me, tap a button, or type. All three work, every time.',4400,id,next);
+  },
+  /* 6 — he writes, and hands over */
+  function(id,next){
+    setProg(6);
+    S.bubBelow=false;
+    say('And when your child gets there, I finish the line myself. Watch.',3000,id,function(){
+      showLine(3);
+      wait(600,id,function(){
+        showLine(4);
+        wait(500,id,function(){
+          underlineBoard(id,function(){
+            flyTo(W*0.55,H*0.42,0);
+            S.bubBelow=false;
+            say('That is the whole idea. Come and try a real lesson with me — any level you like.',4200,id,function(){
+              hush(); next();
+            });
+          });
+        });
+      });
+    });
+  }
+];
+
+function setSidebar(open){
+  side.classList.toggle('shut', !open);
+  sbTab.textContent = open ? 'Close the sidebar' : 'Open the sidebar';
+  sbTab.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+sbTab.addEventListener('click', function(){ setSidebar(side.classList.contains('shut')); });
+
+function runTour(){
+  var id=nseq(), i=0;
+  doneBtn.hidden=true; skipBtn.hidden=false; skipBtn.textContent='Skip';
+  (function next(){
+    if(!alive(id)) return;
+    if(i>=STOPS.length){ endTour(); return; }
+    STOPS[i++](id,next);
+  })();
+}
+function endTour(){
+  hush(); S.expr='pleased';
+  cap.textContent='That is the tour. Ready when you are.';
+  skipBtn.hidden=true; doneBtn.hidden=false;
+  try{ doneBtn.focus(); }catch(e){}
+}
+
+var lastFocus=null;
+function openDemo(){
+  lastFocus=document.activeElement;
+  ['b1','b2','b3','b4'].forEach(function(n){ $(n).classList.remove('show'); });
+  gInk.innerHTML=''; setSidebar(true); $('nToday').textContent='3';
+  demo.classList.add('on'); S.hidden=false;
+  requestAnimationFrame(function(){ demo.classList.add('in'); });
+  size();
+  setTimeout(runTour, 340);
+  document.addEventListener('keydown', onKey, true);
+}
+function closeDemo(){
+  nseq(); hush(); S.hidden=true;
+  demo.classList.remove('in');
+  setTimeout(function(){ demo.classList.remove('on'); }, 300);
+  document.removeEventListener('keydown', onKey, true);
+  try{ if(lastFocus&&lastFocus.focus) lastFocus.focus(); }catch(e){}
+}
+function onKey(e){ if(e.key==='Escape') closeDemo(); }
+
+$('hostBtn').addEventListener('click', openDemo);
+$('tourDoor').addEventListener('click', openDemo);
+skipBtn.addEventListener('click', closeDemo);
+doneBtn.addEventListener('click', closeDemo);
+
+})();
+</script>
+
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

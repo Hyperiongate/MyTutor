@@ -4,6 +4,23 @@
    MR. CADABRA, OUT OF THE BOX. The floating companion layer.
 
    CHANGE NOTES (keep newest at top):
+     2026-09-01  (rj) BIGGER, AND HE FLOATS. Jim, after watching him live: "the pencil
+                 needs to be 30% larger and needs to have a slight floating motion."
+                 The SIZE is the menu's, not this file's: cadabra-script.json height
+                 112 -> 146 (+30%), handSize 20 -> 26 in proportion -- applyHeight()
+                 already scales everything else off that one number. The FLOAT is new
+                 here: a small always-on vertical sway (about 3px, slow), applied in
+                 the same transform as the drift bob -- so it obeys rule 29 (transform
+                 only, zero reflow) and is zeroed under prefers-reduced-motion. It
+                 deliberately does NOT obey rules 5/6 (park/talking stop the DRIFT --
+                 the roaming wander): a slight breathing float while parked is the
+                 aliveness Jim asked for, and the wander rules still hold untouched.
+                 The speech bubble rides the same offset so it stays glued to him.
+                 ALSO (context, not a change here): Jim retired the ORB everywhere on
+                 the student pages this build ("he is to be gone everywhere") -- the
+                 note below saying "the orb keeps the robot until Jim decides
+                 otherwise" is now decided: session/topic/practice lost tutor-face.js
+                 and this pencil IS Mr. Cadabra there; demo pages follow later.
      2026-09-01  (hands) THE GLOVE IS A GLOVE, AND HE POINTS WITH HIS INDEX FINGER.
                  Jim, on the first version: the resting hand should be "circles with
                  lines on them type things with little bumps for the thumbs instead of
@@ -621,6 +638,12 @@
       bob = Math.sin(t * 1.55) * 7 * drift;
       dx  = Math.sin(t * 0.62 + 1.1) * 10 * drift;
     }
+    /* (rj, 2026-09-01) THE SLIGHT FLOAT -- Jim: "needs to have a slight floating
+       motion." A small, slow, always-on vertical sway, folded into `bob` so the
+       speech bubble below rides it too. Deliberately NOT gated by park/talking:
+       rules 5/6 stop the roaming DRIFT above, and still do -- this is breathing,
+       not wandering. Transform-only (rule 29); zero under reduced motion. */
+    if (!M.reduced) bob += Math.sin(t * 0.85) * 3;
     DOM.body.setAttribute("transform",
       "translate(" + (S.x + dx).toFixed(2) + "," + (S.y + bob).toFixed(2) + ") "
       + "rotate(" + S.ang.toFixed(2) + ") scale(" + S.scale.toFixed(4) + ")");

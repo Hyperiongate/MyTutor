@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  APP_BUILD -> "2026-09-01rj-the-orb-retires-and-the-seam-is-announced".
+#               BUILD rj -- Jim watched ri live and ruled three things: (1) THE SEAM IS
+#               ANNOUNCED ("acted as if we had been working on subtraction. This is
+#               strange"): _SCRIPT_DONE_NOTES remembers the finished lesson at
+#               _script_finish, and the chat route turns __script_done__ /
+#               __script_done_mastered__ into a turn note making the live tutor NAME
+#               the new topic first (the page speaks lessonscripts.LINE_NEW_TOPIC
+#               before handing off). (2) The pencil is 30% larger with a slight float
+#               (menu + cadabra.js). (3) The ORB RETIRES from session/topic/practice
+#               ("he is to be gone everywhere"; demos later) -- the pencil layer is now
+#               wired on all three student pages.
 #   2026-09-01  APP_BUILD -> "2026-09-01ri-three-in-a-row-means-move-on". BUILD ri --
 #               Jim's live catch: "I gave three correct answers and it gave me a 4th
 #               question." His ruling: the promised three-in-a-row IS the advance gate.
@@ -10205,6 +10216,13 @@ def admin_course_trial(body: CourseTrialIn):
 SCRIPT_AI_TURNS = int(os.environ.get("SCRIPT_AI_TURNS", "3") or 3)
 _SCRIPT_SESSIONS: dict = {}
 _SCRIPT_TTL_S = 2 * 3600
+# (rj, 2026-09-01) THE SEAM'S MEMORY. When a scripted lesson ends, _script_finish
+# leaves a one-entry note here so the very next __script_done__ chat turn can tell
+# the live tutor WHICH lesson just ended and whether it was mastered -- Jim watched
+# the unannounced handoff ("acted as if we had been working on subtraction") and
+# ruled: announce it, then continue. Read-and-popped by the chat route; in-memory
+# like the sessions themselves (a deploy loses at most one announcement).
+_SCRIPT_DONE_NOTES: dict = {}
 
 
 def _script_intervene(code, course, context, history):
@@ -10283,6 +10301,17 @@ def _script_finish(code: str, sess, end_step):
                            lesson["course"])
     except Exception as exc:  # noqa: BLE001
         print(f"[script] outcome record failed (non-fatal): {exc}")
+    # (rj) leave the seam note for the __script_done__ turn that follows -- see
+    # _SCRIPT_DONE_NOTES above. Fail-open: a missing note just means a plainer
+    # announcement.
+    try:
+        _SCRIPT_DONE_NOTES[code] = {
+            "topic": sess["lesson"].get("topic", ""),
+            "course": sess["lesson"].get("course", ""),
+            "mastered": bool(end_step.get("mastered")),
+        }
+    except Exception as exc:  # noqa: BLE001
+        print(f"[script] seam note failed (non-fatal): {exc}")
     _SCRIPT_SESSIONS.pop(code, None)
 
 
@@ -13189,7 +13218,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-01ri-three-in-a-row-means-move-on"
+APP_BUILD = "2026-09-01rj-the-orb-retires-and-the-seam-is-announced"
 
 
 @app.get("/health")
@@ -14326,6 +14355,32 @@ def chat(req: ChatRequest):
         turn_note += tutor.phrasing_note(code, req.course)
     except Exception as _pexc:  # noqa: BLE001 -- a memory must never cost a lesson
         print(f"[phrasing] note skipped (non-fatal): {_pexc}")
+
+    # (rj, 2026-09-01) THE ANNOUNCED SEAM. A mastered scripted lesson hands the class
+    # here via "__script_done__" (or "__script_done_mastered__"), and Jim watched the
+    # unannounced result: "it stopped after 3 in a row then thought for a bit and
+    # then acted as if we had been working on subtraction. This is strange." His
+    # ruling (asked): ANNOUNCE IT, THEN CONTINUE. The page already spoke the fixed
+    # bridge line (lessonscripts.LINE_NEW_TOPIC, pre-rendered); this note makes the
+    # live tutor's first sentence NAME what changed. Fail-open on a missing note.
+    if message.startswith("__script_done"):
+        try:
+            _sd = _SCRIPT_DONE_NOTES.pop(code, None) or {}
+            _sd_topic = str(_sd.get("topic", "")).replace('"', "'")
+            _sd_mastered = bool(_sd.get("mastered")) or message == "__script_done_mastered__"
+            turn_note += (
+                "\n(SYSTEM: The SCRIPTED lesson"
+                + (f' on "{_sd_topic}"' if _sd_topic else "")
+                + (" was just MASTERED — three right answers in a row"
+                   if _sd_mastered else " just ended (saved as still learning)")
+                + ". The app already told the student something new is coming and to "
+                "watch the board. Your FIRST sentence must NAME the new topic in plain "
+                "words, and your first board tag must put that name up — never slide "
+                "into new material as if it were the old topic. Then teach it from the "
+                "beginning: introduce the idea before asking anything. Do NOT re-greet "
+                "and do NOT re-teach the lesson that just finished.)")
+        except Exception as _sdexc:  # noqa: BLE001 -- a note must never cost a lesson
+            print(f"[script] seam turn note failed (ignored): {_sdexc}")
 
     # FOUNDATION MEMORY (2026-08-09, build ce): which canonical introductions this
     # student has already sat through, so rule 40 can ASK instead of replaying one.

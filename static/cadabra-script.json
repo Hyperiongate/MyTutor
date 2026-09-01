@@ -7,14 +7,15 @@
   ],
   "_CHANGE_NOTES": [
     "Keep newest at top. JSON has no comments, so the notes live here.",
+    "2026-09-01 (rj): BIGGER, AND EVERYWHERE. Jim: 'the pencil needs to be 30% larger and needs to have a slight floating motion.' height 112 -> 146 (+30%), handSize 20 -> 26 in proportion; the float itself is code (cadabra.js, same build). And with the orb retired from the student pages ('he is to be gone everywhere'), the topic and practice entries below are no longer aspirational -- rj wired both pages to this layer, so this menu now runs on all three.",
     "2026-09-01 (ri): THE PENCIL WAKES UP QUIETLY. Jim watched the first live lesson: 'the pencil was floating around pointing at things that didn't match the voice.' The joke and the tour at lesson.start ran WHILE Mr. Cadabra's real recorded voice gave the opening, so the pencil pointed at the answer bar as the voice talked about stars. Ruling applied: at lesson.start he ENTERS and nothing more -- the real voice owns the opening. The joke and tour behaviours still exist in cadabra.js for future scheduling at a quiet moment. Also: the tour's 'problem' stop and the celebrate targets named 'problem' pointed at a data-cad name that exists on no page (rule 30: targets resolve by data-cad name) -- the dead tour stop is removed and the celebrations now aim at 'board', where the problem actually lives.",
     "2026-08-31 (rh/stage2-4): first menu -- entrance, joke, tour, park, celebrate, nudges, clearInk wired to the session page."
   ],
-  "version": "2026-09-01ri",
+  "version": "2026-09-01rj",
   "defaultStage": "early",
-  "height": 112,
+  "height": 146,
   "hands": "glove",
-  "handSize": 20,
+  "handSize": 26,
 
   "stages": {
     "early":  { "entrance": "full",   "joke": true,  "tour": "first", "drift": 1.0, "tier3": "free" },

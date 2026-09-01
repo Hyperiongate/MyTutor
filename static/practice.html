@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+    (rj) 2026-09-01 -- THE ORB RETIRES, THE PENCIL ARRIVES. Jim: "get rid of the
+    Mr Cadabra circle... He is to be gone everywhere." Same edit set as topic.html
+    this build: the orb (markup, CSS with busyglow + tourpulse keyframes, drawOrb +
+    level(), tutor-face.js tag, TutorFace.celebrate calls) removed; the Cadabra
+    pencil layer wired in (body data-cadabra-page="practice", non-deferred
+    cadabra.js tag, one guarded cadFire() door, doorbells AFTER their real work,
+    lesson.start from startPractice, clearInk beside clearStage, guarded mount).
+    The menu gives practice a tier-1 celebrate -- a modest hop, fitting the room.
+    The red thinking flag and the status line keep the busy cue.
     (rc) 2026-08-31 -- THE STAR FALLS WHEN THE CHILD SLIPS. New [[miss]] tag handled
     beside [[mark]]: the model reports a wrong tap on the still-going problem, the page
     posts {miss:1} to /api/mark/me, and the server resets the today-streak (Jim's
@@ -402,8 +411,6 @@
       border-right: 1px solid var(--line); background: rgba(255,255,255,.55); }
     .side.left .tutor-head { display: flex; align-items: center; gap: 12px; padding: 2px 2px 12px;
       border-bottom: 1px solid var(--line); }
-    .side.left .orbwrap { width: 72px; height: 72px; flex: 0 0 auto; }
-    .side.left .orbwrap canvas { width: 72px; height: 72px; }
     .side.left .controls { margin-top: auto; display: flex; flex-direction: column; align-items: stretch;
       gap: 9px; padding-top: 12px; border-top: 1px solid var(--line); }
     .side.left .talkbtn { width: 100%; justify-content: center; padding: 13px 16px; font-size: 16px; }
@@ -529,16 +536,8 @@
 
     .tutor-head { display: flex; align-items: center; gap: 18px; padding: 4px 22px 16px; }
     .tutor-id { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; }
-    .orbwrap { width: 96px; height: 96px; flex: 0 0 auto; }
-    .orbwrap canvas { width: 100%; height: 100%; display: block; }
-    /* BUSY GLOW (2026-08-03, Jim): the SAME pulsing ring the session-page tour uses, wrapped
-       around Mr. Cadabra whenever he is thinking or talking -- so a quiet "thinking" moment
-       is visibly him working, not the app sitting dead. Toggled by setState(). */
-    .orbwrap.busyglow { border-radius: 50%;
-      box-shadow: 0 0 0 3px var(--accent), 0 0 0 8px rgba(91,91,214,.22);
-      animation: tourpulse 1.3s ease-in-out infinite; }
-    @keyframes tourpulse { 0%,100% { box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px rgba(91,91,214,.14); }
-      50% { box-shadow: 0 0 0 3px var(--accent), 0 0 0 12px rgba(91,91,214,.28); } }
+    /* (rj, 2026-09-01) the orb (.orbwrap), its busyglow and the tourpulse keyframes are
+       GONE -- the pencil is the character; the thinking flag + status keep the busy cue. */
     .tutor-name { font-weight: 800; font-size: 18px; }
     .status { font-size: 13px; color: var(--accent); min-height: 18px; margin-top: 2px; font-weight: 600; }
     .convo { flex: 1; align-self: stretch; max-height: 150px; overflow-y: auto; display: flex;
@@ -860,7 +859,6 @@
         box-shadow: 0 -10px 26px rgba(20,30,45,.10);
         padding: 8px 12px 10px; gap: 6px; overflow: visible; }
       .side.left .tutor-head { padding: 0 0 4px; border-bottom: none; }
-      .side.left .orbwrap, .side.left .orbwrap canvas { width: 44px; height: 44px; }
       .side.left .leftnav { flex-direction: row; overflow-x: auto; gap: 8px;
         padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
       .side.left .leftnav .navbtn { white-space: nowrap; flex: 0 0 auto; }
@@ -871,11 +869,11 @@
   <!-- Privacy-friendly analytics by Plausible (shared include) -->
   <script src="/static/analytics.js"></script>
 </head>
-<body>
+<body data-cadabra-page="practice">
   <div class="app">
     <aside class="side left">
       <div class="tutor-head">
-        <div class="orbwrap"><canvas id="orb" width="300" height="300" aria-hidden="true"></canvas></div>
+        <!-- (rj, 2026-09-01) the orb canvas retired -- the pencil is Mr. Cadabra now -->
         <div class="tutor-meta">
           <div class="tutor-name">Mr. Cadabra</div>
           <div class="status" id="status">&nbsp;</div>
@@ -910,7 +908,7 @@
         <a id="lessonLink" href="#">← Home</a>
       </div>
       <div class="probbar" id="probBar"><span class="pi">📝</span><span class="pl">Your problem</span><b id="probText"></b></div>
-      <div class="feed" id="feed"><div class="stage-hint" id="stageHint">Your work will appear here.</div></div>
+      <div class="feed" id="feed" data-cad="board"><div class="stage-hint" id="stageHint">Your work will appear here.</div></div>
       <div class="feedbar">
         <input id="chatInput" placeholder="Type your answer here…  (press Enter to send)" autocomplete="off" />
         <button id="chatSend">Send</button>
@@ -934,7 +932,10 @@
 
   <script src="/static/geo-figures.js"></script>
   <script src="/static/math-figures.js"></script>
-  <script src="/static/tutor-face.js"></script>
+  <!-- (rj, 2026-09-01) tutor-face.js retired with the orb; the Cadabra pencil layer
+       arrives instead. Deliberately NOT deferred (same reasoning as session.html):
+       window.Cadabra must exist by the time the page script mounts him. -->
+  <script src="/static/cadabra.js"></script>
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(window.location.search);
@@ -995,11 +996,8 @@
     let state = "idle";            // idle | listening | thinking | speaking
     function setState(s) {
       state = s;
-      // BUSY GLOW (2026-08-03): wrap Mr. Cadabra in the tour's pulsing ring while he is
-      // thinking or talking, so the student SEES he's working even when it's quiet.
-      const orbEl = document.getElementById("orb");
-      const ow = orbEl ? orbEl.parentElement : null;
-      if (ow) ow.classList.toggle("busyglow", s === "thinking" || s === "speaking");
+      // (rj, 2026-09-01) the BUSY GLOW went with the orb it hugged -- the thinking
+      // flag below and the status line are the busy cues now.
       // THINKING FLAG (2026-08-08, build bl, Jim): a red pulsing badge in the middle of
       // the whiteboard while he thinks; ANY other state (speaking/listening/idle) hides
       // it — so it vanishes the instant his voice actually starts (the "playing" event).
@@ -1043,33 +1041,11 @@
     });
 
 
-    // ---------- The living voice orb ----------
-    const orb = el("orb"), octx = orb.getContext("2d");
-    let t = 0, smooth = 0, hue = 20;
-    function level() {
-      if (state === "speaking" && usingAnalyser && analyser) {
-        analyser.getByteTimeDomainData(timeData);
-        let sum = 0; for (let i = 0; i < timeData.length; i++) { const v = (timeData[i] - 128) / 128; sum += v * v; }
-        return Math.min(1, Math.sqrt(sum / timeData.length) * 3.4);
-      }
-      if (state === "speaking") return 0.45 + 0.30 * Math.abs(Math.sin(t * 0.05));
-      if (state === "thinking") return 0.30 + 0.16 * Math.sin(t * 0.10);
-      if (state === "listening") return 0.16 + 0.07 * Math.sin(t * 0.05);
-      return 0.10 + 0.05 * Math.sin(t * 0.035);
-    }
-    function drawOrb() {
-      const w = orb.width, h = orb.height;
-      const lv = level(); smooth += (lv - smooth) * 0.22;
-      if (window.TutorFace) {
-        TutorFace.draw(octx, w, h, { level: smooth, t: t, mood: TutorFace.moodFrom(state) });
-      } else {                                  // fallback so the tutor is never blank
-        octx.clearRect(0, 0, w, h);
-        octx.fillStyle = "#5b5bd6";
-        octx.beginPath(); octx.arc(w / 2, h / 2, w * 0.26 * (1 + smooth * 0.25), 0, 7); octx.fill();
-      }
-      t += 1; requestAnimationFrame(drawOrb);
-    }
-    drawOrb();
+    // (rj, 2026-09-01) The orb RETIRED (drawOrb + level() + the rAF loop) -- the
+    // pencil is the character now. One guarded door to the Cadabra layer (rh's
+    // pattern): safe when cadabra.js is absent, broken, or switched off.
+    function cadFire(ev, opts) { try { if (window.Cadabra) Cadabra.fire(ev, opts); } catch (e) {} }
+    try { if (window.Cadabra) Cadabra.mount({ page: "practice" }); } catch (e) {}
 
 
     if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
@@ -1126,9 +1102,9 @@
         else if (name === "solve") showSolve(attrs);
         else if (name === "check") showCheck(attrs);
         else if (name === "quiz") showQuiz(attrs);
-        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); sawMark = true; }   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
-        else if (name === "miss") { postJSON("/api/mark/me", { miss: 1 }); }   /* (rc) a wrong tap on the still-going problem resets the today-streak server-side (Jim's ruling: a miss is any wrong tap) */
-        else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); }   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
+        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0) cadFire("answer.correct", { hard: true }); sawMark = true; }   /* (rj) the gold ring retired with the orb -- the PENCIL celebrates now, doorbell AFTER the real work */
+        else if (name === "miss") { postJSON("/api/mark/me", { miss: 1 }); cadFire("answer.wrong"); }   /* (rc) a wrong tap resets the today-streak server-side; (rj) then the pencil goes thoughtful */
+        else if (name === "nice") { cadFire("answer.correct"); }   /* (rj) the small ring retired with the orb -- the quiet celebration is the pencil's */
         else if (["triangle","angle","circle","transversal","polygon","solid","segment"].indexOf(name) >= 0) showGeo(name, attrs);   /* build ot: +transversal/polygon/solid */
         else if (name === "choices") showChoices(attrs);
         else if (name === "objects") showObjects(attrs);
@@ -1147,7 +1123,7 @@
       if (sawMark) PROBLEM_CLOSED = true;
       return stripTags(text);
     }
-    function clearStage() { feed.innerHTML = '<div class="stage-hint" id="stageHint">Your work will appear here.</div>'; }
+    function clearStage() { feed.innerHTML = '<div class="stage-hint" id="stageHint">Your work will appear here.</div>'; try { if (window.Cadabra) Cadabra.clearInk(); } catch (e) {} }   /* (rj) rule 15: his marks die with the problem */
     // [[clear]] = "new problem." The transcript RETAINS history, so we drop a divider instead of erasing.
     // -------------------------------------------------------------------------------
     // [[clear]] = "this problem is finished."  (2026-08-13, build fx -- Jim's design note
@@ -1543,6 +1519,7 @@
       // can't record (the persistent type bar under the board is always there as a fallback).
       if (!canRecord) showComposer();
       busy = true; setPhase("busy");
+      cadFire("lesson.start");   /* (rj) rule 8: a problem beginning, not a page loading */
       addBubble("student", p);
       history.push({ role: "user", content: p });
       await runTutor(p);   // coach opens by engaging with the problem

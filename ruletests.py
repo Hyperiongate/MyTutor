@@ -2,6 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rj -- PART 3hk: the orb retires and the seam is announced. Jim's
+#               three rulings after watching ri live: (1) the mastered-lesson handoff is
+#               ANNOUNCED (LINE_NEW_TOPIC spoken by the page; main.py's __script_done
+#               turn note makes the live tutor name the new topic first) -- his catch:
+#               "acted as if we had been working on subtraction. This is strange."
+#               (2) the pencil is 30% larger (menu height 146, handSize 26) with a
+#               slight always-on float (cadabra.js, reduced-motion-safe). (3) the ORB
+#               is GONE from session/topic/practice ("he is to be gone everywhere");
+#               the pencil layer is wired on topic+practice (rh's pattern), and the
+#               demo pages keep tutor-face.js until Jim retires the demos. Old pins
+#               repaired to intent with dated notes: 3u's six-page include loop split
+#               (demos must include, student pages must NOT), er's mark/nice ring pins
+#               now require the PENCIL's doorbells instead. The lane driver checks the
+#               seam note is left for the live tutor.
 #   2026-09-01  BUILD ri -- PART 3hj: three in a row means move on. Jim's live catch:
 #               "I gave three correct answers and it gave me a 4th question" (the gate
 #               demanded done >= MIN_PROBLEMS=4 on top of the promised 3-in-a-row) and
@@ -7460,11 +7474,24 @@ def part3u_video_presence():
     check('"speaking" deliberately maps to the idle loop (no fake lip-sync)',
           '"idle";                                    // idle AND speaking' in tf,
           "the design's honest heart: his voice talks, the face never fakes a mouth")
-    for page in ("session.html", "practice.html", "topic.html",
-                 "demo.html", "challenge.html", "landing.html"):
+    # (rj, 2026-09-01) REPAIRED TO INTENT. This loop covered six pages; Jim retired
+    # the orb from the three STUDENT pages ("get rid of the Mr Cadabra circle... He
+    # is to be gone everywhere") -- the pencil (cadabra.js) is Mr. Cadabra there now.
+    # The demo-facing pages keep him until Jim retires the demos ("we'll remove him
+    # from the demos soon"), so the include pin still guards those -- and the student
+    # pages are pinned the OTHER way, so the orb cannot quietly creep back.
+    for page in ("demo.html", "challenge.html", "landing.html"):
         with open(os.path.join(here, "static", page), encoding="utf-8") as fh:
             check(f"{page} still includes tutor-face.js", "tutor-face.js" in fh.read(),
-                  "the page would lose both faces at once")
+                  "the page would lose both faces at once (demos keep the orb until "
+                  "Jim retires them)")
+    for page in ("session.html", "practice.html", "topic.html"):
+        with open(os.path.join(here, "static", page), encoding="utf-8") as fh:
+            _src = code_only(fh.read())
+        check(f"{page} no longer LOADS tutor-face.js (the orb retired, rj)",
+              'src="/static/tutor-face.js"' not in _src,
+              "Jim: 'he is to be gone everywhere' -- the pencil is the character on "
+              "the student pages now")
 
     # BUILD er: THE THUMBS-UP MUST HAVE A DOORBELL. It was generated, shipped, listed in
     # the manifest -- and unreachable, because the pages' setState only ever holds
@@ -7477,13 +7504,22 @@ def part3u_video_presence():
           "presenceShow(\"happy\", true)" in tf,
           "hijacking `state` would disturb the busy glow, the thinking flag and the "
           "level meter, which all read it")
+    # (rj, 2026-09-01) REPAIRED TO INTENT. er's law was "a right answer must be
+    # VISIBLY celebrated"; the face that celebrates changed. The orb (and its gold
+    # ring) retired from the student pages with Jim's ruling, and the PENCIL's
+    # doorbell -- cadFire("answer.correct", { hard: true }), rh's rule-11 tiered
+    # celebration -- is the visible celebration now. The pin keeps er's intent by
+    # requiring the NEW bell on the same [[mark]] doorway, and adds the inverse so
+    # the retired ring cannot creep back.
     for page in ("session.html", "practice.html", "topic.html"):
         with open(os.path.join(here, "static", page), encoding="utf-8") as fh:
             src = fh.read()
-        check(f"  {page} rings it when a correct answer is marked",
-              "TutorFace.celebrate()" in src and 'name === "mark"' in src,
-              "a right answer is the moment the thumbs-up is FOR; without this call the "
-              "clip can never play in a real lesson")
+        check(f"  {page} celebrates a marked correct answer (the pencil's bell now)",
+              'cadFire("answer.correct", { hard: true })' in src
+              and 'name === "mark"' in src
+              and "TutorFace.celebrate" not in code_only(src),
+              "a right answer is the moment the celebration is FOR; the orb's ring "
+              "retired (rj) and the pencil's doorbell must ring in its place")
 
     # BUILD es: THE CELEBRATION MUST NOT DEPEND ON THE AVATAR. The clip we shipped as
     # "thumbs_up" contains no thumbs -- the HeyGen presenter never raises a hand, at any
@@ -7535,12 +7571,15 @@ def part3u_video_presence():
           "if (!small && P.state ===" in tf,
           "a clip change on every sub-step would thrash the network and flatten the "
           "finished-problem moment")
+    # (rj, 2026-09-01) REPAIRED TO INTENT -- same repair as the mark pin above: the
+    # quiet ring was the orb's; the quiet celebration is the pencil's tier now.
     for page in ("session.html", "practice.html", "topic.html"):
         with open(os.path.join(here, "static", page), encoding="utf-8") as fh:
             src = fh.read()
-        check(f"  {page} draws the quiet ring on [[nice]]",
-              'name === "nice"' in src and "TutorFace.celebrate({ small: true })" in src,
-              "without this the new tag is inert and we are back where es was")
+        check(f"  {page} still celebrates [[nice]] quietly (the pencil's, rj)",
+              'name === "nice"' in src
+              and 'cadFire("answer.correct")' in src.split('name === "nice"')[1][:200],
+              "without this the tag is inert and we are back where es was")
         check(f"  {page}'s [[nice]] never touches the tally",
               'name === "nice"' in src
               and "/api/mark/" not in src.split('name === "nice"')[1].split("}")[0],
@@ -11960,8 +11999,11 @@ def part3hj_three_in_a_row_means_move_on():
     check("  the example copy says the same (the off/on cycle must not bring "
           "the old opening back)",
           ex == menu, "the two menu files drifted apart")
-    check("  the menu is versioned to this build",
-          menu.get("version") == "2026-09-01ri", str(menu.get("version")))
+    # (rj, 2026-09-01) was == "2026-09-01ri"; the menu is a living file and rj bumped
+    # it the same day. Repaired to INTENT: the menu must be versioned AT ri or later,
+    # so ri's fixes can never ship under a pre-ri menu.
+    check("  the menu is versioned at ri or later",
+          str(menu.get("version", "")) >= "2026-09-01ri", str(menu.get("version")))
 
     # ---- 5. rule 30: every session-page target resolves to a real name ------
     page = open(os.path.join(here, "static", "session.html"),
@@ -11980,6 +12022,153 @@ def part3hj_three_in_a_row_means_move_on():
           f"dead targets: {sorted(wanted - names)} -- rule 30 finds targets by "
           "data-cad name, so a dead name is a silently skipped act (the 'problem' "
           "stop was exactly that)")
+
+
+def part3hk_the_orb_retires_and_the_seam_is_announced():
+    """PART 3hk (build rj, 2026-09-01) -- THE ORB RETIRES AND THE SEAM IS ANNOUNCED.
+
+    THE FINDINGS (Jim, after watching ri live). (1) "It stopped after 3 in a row
+    then thought for a bit and then acted as if we had been working on subtraction.
+    This is strange." Diagnosis: a mastered scripted lesson hands the class to the
+    LIVE tutor (__script_done__ -> /api/chat), which picked the next topic with no
+    announcement -- the 'thought for a bit' was the model call. His ruling (asked):
+    ANNOUNCE IT, THEN CONTINUE. (2) "the pencil needs to be 30% larger and needs to
+    have a slight floating motion." (3) "we can get rid of the Mr Cadabra circle in
+    the lower left. He is to be gone everywhere. We'll remove him from the demos
+    soon."
+
+    THE BUILD. The seam: LINE_NEW_TOPIC joins STANDALONE_LINES (pre-rendered;
+    PART 3di holds it to the canon), session.html speaks the byte-identical copy on
+    a MASTERED end and sends __script_done_mastered__, and main.py turns the
+    sentinel into a turn note (fed by _SCRIPT_DONE_NOTES, written at
+    _script_finish) that makes the live tutor NAME the new topic first. The size is
+    the MENU's number (height 146 = 112 + 30%, handSize 26 in proportion); the
+    float is cadabra.js's -- a small always-on sway that deliberately does NOT obey
+    rules 5/6 (those stop the roaming DRIFT; this is breathing, not wandering) and
+    is zero under reduced motion. The orb: gone from all three student pages
+    (markup, CSS, drawOrb+level, tutor-face.js tag, TutorFace.celebrate), with the
+    pencil layer wired onto topic and practice the way rh wired session -- so er's
+    law ('a right answer is visibly celebrated') keeps a face on every page. The
+    demo-facing pages keep tutor-face.js until Jim retires the demos.
+    """
+    print("\nPART 3hk — the orb retires and the seam is announced (build rj)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import json as _json
+    import lessonscripts as L
+
+    # ---- 1. the seam line is real, owned, and pre-renderable -----------------
+    check("⭐ LINE_NEW_TOPIC exists and rides STANDALONE_LINES into the closure",
+          hasattr(L, "LINE_NEW_TOPIC") and L.LINE_NEW_TOPIC in L.STANDALONE_LINES
+          and L.LINE_NEW_TOPIC in L.course_audio_lines(),
+          "a seam line outside the closure reaches a child as browser voice")
+    with open(os.path.join(here, "static", "session.html"), encoding="utf-8") as fh:
+        page = fh.read()
+    check("⭐ session.html speaks the SAME bytes (the voice cache is keyed by text)",
+          '"' + L.LINE_NEW_TOPIC + '"' in page,
+          "one character of drift = a cache miss = the seam announced in the wrong "
+          "voice -- the exact seam mj/mn closed for the handoff lines")
+    _endb = page.split('if (step.kind === "end")', 1)[1][:1800]
+    check("  ...only on a MASTERED end, before the live tutor is called",
+          "if (step.mastered)" in _endb
+          and _endb.index("if (step.mastered)") < _endb.index("runTutor(")
+          and '"__script_done_mastered__" : "__script_done__"' in _endb,
+          "a graceful unmastered end keeps the old quiet handoff -- nothing new is "
+          "coming that deserves fanfare")
+
+    # ---- 2. the server side of the announcement ------------------------------
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    check("⭐ main.py remembers WHICH lesson ended (_SCRIPT_DONE_NOTES at "
+          "_script_finish)",
+          "_SCRIPT_DONE_NOTES: dict = {}" in msrc
+          and "_SCRIPT_DONE_NOTES[code] = {" in msrc,
+          "without the memory the announcement cannot name anything")
+    check("  ...and the chat route turns the sentinel into marching orders",
+          'if message.startswith("__script_done")' in msrc
+          and "Your FIRST sentence must NAME the new topic" in msrc
+          and "_SCRIPT_DONE_NOTES.pop(code, None)" in msrc,
+          "Jim: 'acted as if we had been working on subtraction' -- the live tutor "
+          "must announce the change, not slide into it")
+
+    # ---- 3. bigger, and he floats --------------------------------------------
+    menu = _json.load(open(os.path.join(here, "static", "cadabra-script.json"),
+                           encoding="utf-8"))
+    ex = _json.load(open(os.path.join(here, "static",
+                                      "cadabra-script.example.json"),
+                         encoding="utf-8"))
+    check("⭐ the pencil is 30% larger, in the menu where size lives",
+          menu.get("height") == 146 and menu.get("handSize") == 26
+          and menu.get("version") == "2026-09-01rj" and ex == menu,
+          f"height={menu.get('height')} handSize={menu.get('handSize')} -- 112+30% "
+          "is 146 (145.6 rounded), hands scaled in proportion")
+    with open(os.path.join(here, "static", "cadabra.js"), encoding="utf-8") as fh:
+        cad = fh.read()
+    check("⭐ the slight float exists, transform-only, off under reduced motion",
+          "if (!M.reduced) bob += Math.sin(t * 0.85) * 3;" in cad,
+          "Jim: 'needs to have a slight floating motion' -- and rule 29 means it "
+          "must ride the same transform as the drift bob")
+    check("  ...and rules 5/6 still gate the roaming DRIFT exactly as before",
+          'S.mode !== "park" && !S.driven && !S.speaking' in cad,
+          "the float is breathing, not wandering -- the wander rules must survive it")
+    check("  cadabra.js is still whole",
+          "I did no harm and this file is not truncated" in cad[-160:], "")
+
+    # ---- 4. the orb is GONE from every student page --------------------------
+    for pg in ("session.html", "topic.html", "practice.html"):
+        with open(os.path.join(here, "static", pg), encoding="utf-8") as fh:
+            src = fh.read()
+        body = src.split("-->", 1)[-1]     # the header comment may NAME the orb
+        check(f"⭐ {pg}: the orb is gone (markup, loop, glow, tutor-face tag)",
+              'class="orbwrap"' not in body and 'id="orb"' not in body
+              and "function drawOrb" not in body
+              and 'getElementById("orb")' not in body
+              and '"busyglow"' not in body
+              and 'src="/static/tutor-face.js"' not in body,
+              "Jim: 'get rid of the Mr Cadabra circle... He is to be gone "
+              "everywhere' -- any of these literals back means he crept back")
+        check(f"  {pg}: the thinking flag survives as the busy cue",
+              "thinkFlagEl()" in body and 'classList.add("show")' in body,
+              "removing the glow must not remove the only visible 'he is working'")
+
+    # ---- 5. the pencil layer is wired on topic and practice (rh's pattern) ---
+    for pg, start_fn in (("topic.html", "startTopic"),
+                         ("practice.html", "startPractice")):
+        with open(os.path.join(here, "static", pg), encoding="utf-8") as fh:
+            src = fh.read()
+        body = src.split("-->", 1)[-1]
+        pgname = pg.split(".")[0]
+        check(f"⭐ {pg}: the pencil layer is wired (page attr, tag, door, mount)",
+              ('data-cadabra-page="' + pgname + '"') in body
+              and 'src="/static/cadabra.js"' in body
+              and "function cadFire(ev, opts) { try { if (window.Cadabra) "
+                  "Cadabra.fire(ev, opts); } catch (e) {} }" in body
+              and ('Cadabra.mount({ page: "' + pgname + '" })') in body,
+              "the menu has named this page since rh -- the wiring is what was "
+              "missing, and every piece is guarded so a dark layer costs nothing")
+        check(f"  {pg}: the doorbells ring AFTER their real work",
+              body.find('postJSON("/api/mark/me", { miss: 1 })')
+              < body.find('cadFire("answer.wrong")')
+              and 'cadFire("answer.correct", { hard: true })' in body
+              and body.count('cadFire("answer.correct")') == 1,
+              "/api/mark first, always -- rh's law, now on three pages")
+        check(f"  {pg}: lesson.start fires when the work begins, not on page load",
+              ('cadFire("lesson.start")' in
+               body.split("function " + start_fn, 1)[1][:900]),
+              "rule 8 -- the entrance belongs to a lesson starting")
+        check(f"  {pg}: his ink dies with the stage (rule 15), guarded",
+              "Cadabra.clearInk()" in body, "")
+        # rule 30 -- 3hj swept the session menu; the same law now covers this page
+        names = set(re.findall(r'data-cad="([a-z]+)"', body))
+        wanted = set()
+        for steps in (menu.get("pages") or {}).get(pgname, {}).values():
+            for s in steps:
+                if s.get("target"):
+                    wanted.add(s["target"])
+        check(f"  {pg}: every menu target for this page resolves to a real "
+              f"data-cad",
+              wanted <= names,
+              f"dead targets: {sorted(wanted - names)} -- a dead name is a "
+              "silently skipped act")
 
 
 def part3dn_every_verdict_is_counted():
@@ -20880,7 +21069,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,011</b>" in page,
+          "<b>8,036</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -28784,6 +28973,11 @@ chk("perfect child masters with ZERO AI calls -- in the promised three",
 # adding there), so its mastery lands under course "entry"
 rows = store.get_topics("KID1", "entry")
 chk("mastery recorded through the real store", any(r0.get("status") == "mastered" for r0 in rows), str(rows))
+# (rj) the seam's memory: the finished lesson is waiting for the __script_done__ turn
+chk("the seam note is waiting for the live tutor (topic + mastered)",
+    (main._SCRIPT_DONE_NOTES.get("KID1") or {}).get("mastered") is True
+    and bool((main._SCRIPT_DONE_NOTES.get("KID1") or {}).get("topic")),
+    str(main._SCRIPT_DONE_NOTES.get("KID1")))
 
 # usage rows kind=script with times
 from sqlalchemy import select
@@ -29483,6 +29677,7 @@ def main():
     part3hh_the_words_point_where_the_column_put_it()
     part3hi_the_pencil_wakes_up()
     part3hj_three_in_a_row_means_move_on()
+    part3hk_the_orb_retires_and_the_seam_is_announced()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

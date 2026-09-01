@@ -2,6 +2,18 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rj -- THE SEAM IS ANNOUNCED. Jim, after watching ri live: the class
+#               "stopped after 3 in a row then thought for a bit and then acted as if we
+#               had been working on subtraction. This is strange." What he saw: a mastered
+#               scripted lesson hands the class to the LIVE tutor (__script_done__), which
+#               picked the next topic (one-less -- reads as subtraction) with no
+#               announcement; the "thought for a bit" was the model call. His ruling
+#               (asked): ANNOUNCE IT, THEN CONTINUE. One new course-level line,
+#               LINE_NEW_TOPIC, joins STANDALONE_LINES (pre-rendered like Abrabot's
+#               introduction; held to the same canon by PART 3di): session.html speaks it
+#               after a MASTERED end, and main.py now turns __script_done__ into a system
+#               note telling the live tutor to NAME the new topic first and put it on the
+#               board. Words only in this file -- one new spoken line, one prewarm render.
 #   2026-09-01  BUILD ri -- THREE IN A ROW MEANS MOVE ON. Jim's live catch (session,
 #               'Count the stars'): "I gave three correct answers and it gave me a
 #               4th question." Every lesson PROMISES "Three right answers in a row
@@ -25797,9 +25809,21 @@ ABRABOT_INTRO = (
 CADABRA_HANDOFF_HELLO = "Let's look at this one together."
 CADABRA_HANDOFF_BYE = "You have got this. Back to you, Abrabot."
 
+# (rj, 2026-09-01) THE SEAM LINE. Jim watched a mastered lesson hand the class to the
+# live tutor with no warning ("acted as if we had been working on subtraction. This is
+# strange") and ruled: announce it, then continue. session.html speaks this AFTER the
+# advance line on a MASTERED end, before the live tutor takes over; the live tutor is
+# separately told (main.py's __script_done__ note) to NAME the new topic in its first
+# sentence and put the name on the board. The page carries this string byte-for-byte
+# (the voice cache is keyed by exact text) -- the battery pins the two copies equal.
+LINE_NEW_TOPIC = ("That lesson is finished — well done! Something new is coming "
+                  "next. Watch the board.")
+
 # Everything above, plus anything else that is spoken outside a lesson later.
 STANDALONE_LINES = (tuple(ABRABOT_INTRO)
                     + (CADABRA_HANDOFF_HELLO, CADABRA_HANDOFF_BYE)
+                    # (rj) the seam line belongs to the course, not to any lesson
+                    + (LINE_NEW_TOPIC,)
                     # build ou: the free-answer lines belong to no lesson
                     + (LINE_WHOLE, LINE_UNSURE))
 
