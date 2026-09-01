@@ -2,6 +2,15 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-01  (build rp) THE BOARD IS A WHITEBOARD OR A BLACKBOARD. Every colour
+                 literal in this file, math-figures.js and geo-figures.js became a CSS
+                 token named after it (var(--bd-<hex>)), defined in board-theme.css --
+                 which this file now loads once. The white board resolves every token to
+                 its old value, so it is pixel-identical by construction. The dark board
+                 (Jim's navy, #221F33) redefines them, scoped to the board element only.
+                 One localStorage key, mt_board, remembers the student's pick; every page
+                 with a .feed honours it; session.html adds the toggle chip. Zero layout
+                 changes; nothing here can affect a lesson except its colours.
      2026-08-30 (qs) COUNT OUT LOUD WITH ME -- [[objects ... count="1"]]. Jim liked a
        line the model invented on a live Entry-Level turn ("point to each one and
        count out loud with me") and saw at once that the board could not honour it:
@@ -203,8 +212,64 @@
                  PROVED: the full-tag corpus rendered before and after in a real
                  browser -- bubble and board HTML byte-identical on every page.
    ============================================================================= */
+// ---------- THE BOARD IS A WHITEBOARD OR A BLACKBOARD (build rp, 2026-09-01) ----------
+// Every colour this file and math-figures.js / geo-figures.js paint is a CSS token
+// (var(--bd-<hex>)) defined in /static/board-theme.css. Loading that file here means
+// every page that draws a board gets both palettes without a per-page include. The
+// student's choice lives in ONE localStorage key, mt_board = "white" | "dark", and is
+// applied as data-board on the board element; a page may pass a default (the demo
+// asks for dark). Rules: the white board is pixel-identical to before this build; the
+// dark board is Jim's navy from the mockup; nothing here touches layout.
+(function boardThemeOnce(){
+  try {
+    if (!document.getElementById("board-theme-css")) {
+      const l = document.createElement("link");
+      l.id = "board-theme-css"; l.rel = "stylesheet"; l.href = "/static/board-theme.css";
+      (document.head || document.documentElement).appendChild(l);
+    }
+  } catch (e) {}
+})();
+const BOARD_KEY = "mt_board";
+function boardChoice(defaultChoice) {
+  try { const v = localStorage.getItem(BOARD_KEY); if (v === "white" || v === "dark") return v; } catch (e) {}
+  return defaultChoice === "dark" ? "dark" : "white";
+}
+function applyBoard(choice, el) {
+  const board = el || document.querySelector(".feed") || document.getElementById("board");
+  if (!board) return;
+  if (choice === "dark") board.setAttribute("data-board", "dark");
+  else board.removeAttribute("data-board");          // white = the default, no attribute at all
+  document.querySelectorAll("[data-board-toggle]").forEach(b => {
+    b.setAttribute("aria-pressed", choice === "dark" ? "true" : "false");
+    b.textContent = choice === "dark" ? "⬜ White board" : "🟦 Dark board";
+    b.title = choice === "dark" ? "Switch to the whiteboard" : "Switch to the dark board";
+  });
+}
+function setBoard(choice, el) {
+  try { localStorage.setItem(BOARD_KEY, choice === "dark" ? "dark" : "white"); } catch (e) {}
+  applyBoard(choice, el);
+}
+function wireBoardToggle(defaultChoice, el) {
+  applyBoard(boardChoice(defaultChoice), el);
+  document.querySelectorAll("[data-board-toggle]").forEach(b => {
+    if (b.__wired) return; b.__wired = true;
+    b.addEventListener("click", () => {
+      const cur = (el || document.querySelector(".feed") || document.getElementById("board"));
+      setBoard(cur && cur.getAttribute("data-board") === "dark" ? "white" : "dark", el);
+    });
+  });
+}
+window.MTBoard = { choice: boardChoice, apply: applyBoard, set: setBoard, wire: wireBoardToggle };
+// Every board page honours the saved choice, toggle or no toggle -- a student who
+// picks the dark board in a lesson gets it on the topic and practice pages too.
+(function honourSavedBoard(){
+  function go(){ try { if (document.querySelector(".feed")) applyBoard(boardChoice("white")); } catch (e) {} }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go);
+  else go();
+})();
+
 // ---------- THE BOARD'S OWN STATE + CONSTANTS (moved from the pages, build he) ----------
-const GRAPH_COLORS = ["#5b5bd6", "#14b8a6", "#ff7a59", "#9333ea"];
+const GRAPH_COLORS = ["var(--bd-5b5bd6)", "var(--bd-14b8a6)", "var(--bd-ff7a59)", "var(--bd-9333ea)"];
 
 // ---------- BOARD SPOTLIGHT (build ee, rule 60 / signaling) ----------
 // [[highlight id="line"]] glows the newest line of board work; [[highlight
@@ -279,13 +344,13 @@ function ensureStepGridCSS() {
   st.textContent =
     ".steprow{display:flex;flex-wrap:wrap;gap:12px;width:100%;align-self:stretch;" +
     "align-items:stretch;padding:4px 0}" +
-    ".stepcell{flex:1 1 280px;min-width:250px;max-width:100%;border:2px solid #d9d7ee;" +
-    "border-radius:16px;background:#fcfcff;padding:10px 12px 12px;" +
+    ".stepcell{flex:1 1 280px;min-width:250px;max-width:100%;border:2px solid var(--bd-d9d7ee);" +
+    "border-radius:16px;background:var(--bd-fcfcff);padding:10px 12px 12px;" +
     "box-shadow:0 4px 14px rgba(60,40,120,.06)}" +
     ".stephead{display:flex;align-items:center;gap:8px;margin-bottom:6px}" +
-    ".stepnum{background:linear-gradient(90deg,#5b5bd6,#14b8a6);color:#fff;font-weight:800;" +
+    ".stepnum{background:linear-gradient(90deg,var(--bd-5b5bd6),var(--bd-14b8a6));color:var(--bd-fff-text);font-weight:800;" +
     "font-size:13px;border-radius:999px;padding:4px 12px;flex:0 0 auto;white-space:nowrap}" +
-    ".steptitle{font-weight:700;font-size:14px;color:#26263a;line-height:1.25}" +
+    ".steptitle{font-weight:700;font-size:14px;color:var(--bd-26263a);line-height:1.25}" +
     ".stepbody{display:flex;flex-direction:column;gap:8px;align-items:center}" +
     ".stepbody .mblock{width:100%;padding:2px 0}" +
     "@media (max-width:560px){.stepcell{min-width:100%}}";
@@ -454,11 +519,11 @@ function ensureChoicesCSS() {
   st.textContent =
     ".choicerow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0 4px}" +
     ".choicebtn{font-size:20px;font-weight:800;padding:14px 24px;min-width:64px;min-height:52px;border-radius:16px;" +
-    "border:2.5px solid #c9beff;background:#fff;color:#20233a;cursor:pointer;box-shadow:0 4px 12px rgba(60,40,120,.10);" +
+    "border:2.5px solid var(--bd-c9beff);background:var(--bd-ffffff);color:var(--bd-20233a);cursor:pointer;box-shadow:0 4px 12px rgba(60,40,120,.10);" +
     "transition:transform .1s ease;font-family:inherit}" +
-    ".choicebtn:hover{transform:translateY(-2px);border-color:#6d5ae6;color:#6d5ae6}" +
+    ".choicebtn:hover{transform:translateY(-2px);border-color:var(--bd-6d5ae6);color:var(--bd-6d5ae6)}" +
     ".choicebtn:disabled{opacity:.45;cursor:default;transform:none}" +
-    ".choicebtn.notsure{font-size:15px;border-style:dashed;color:#5b6079}";
+    ".choicebtn.notsure{font-size:15px;border-style:dashed;color:var(--bd-5b6079)}";
   document.head.appendChild(st);
 }
 
@@ -513,9 +578,9 @@ function ensureObjectsCSS() {
     ".objgone{position:relative;display:inline-block}" +
     ".objgoneimg{opacity:.30;filter:grayscale(1)}" +
     ".objgone::after{content:'';position:absolute;left:-3px;width:40px;top:46%;" +
-    "height:5px;border-radius:3px;background:#c0392b;" +
+    "height:5px;border-radius:3px;background:var(--bd-c0392b);" +
     "transform:rotate(-20deg);transform-origin:center;pointer-events:none}" +
-    ".objcap{font-size:13px;color:#5b6079;margin-top:4px;font-weight:600}" +
+    ".objcap{font-size:13px;color:var(--bd-5b6079);margin-top:4px;font-weight:600}" +
     // (qs) COUNT-ALONG. The row stops being a string of emoji and becomes a row of
     // countable THINGS, each with room under it for its own tick. letter-spacing is
     // reset to 0 here on purpose: .objline's 9px is what spaces a plain string, and
@@ -524,11 +589,11 @@ function ensureObjectsCSS() {
     "align-items:flex-start;gap:8px;line-height:1.2}" +
     ".objone{display:inline-flex;flex-direction:column;align-items:center}" +
     ".objemj{font-size:36px;line-height:1.1}" +
-    ".objplus{font-size:30px;font-weight:800;color:#5b6079;align-self:center;padding:0 2px}" +
+    ".objplus{font-size:30px;font-weight:800;color:var(--bd-5b6079);align-self:center;padding:0 2px}" +
     // the tick a child can read at a glance: green, round, and the number is the
     // point -- "✓1", "✓2", "✓3" is the counting itself, written down.
-    ".objtick{margin-top:3px;font-size:14px;font-weight:800;color:#1e7f4f;" +
-    "background:#e8f7ee;border:1.5px solid #b7e3c9;border-radius:999px;" +
+    ".objtick{margin-top:3px;font-size:14px;font-weight:800;color:var(--bd-1e7f4f);" +
+    "background:var(--bd-e8f7ee);border:1.5px solid var(--bd-b7e3c9);border-radius:999px;" +
     "padding:1px 8px;white-space:nowrap}" +
     // ⚠️ HIDDEN IS A STATE THE SCRIPT PUTS THEM IN, never the state they are BUILT
     // in. If the reveal never runs -- an exception, a browser we did not foresee --
@@ -802,20 +867,20 @@ function showGraph(a) {
   const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   let svg = '<svg viewBox="0 0 ' + S + ' ' + S + '" class="grapher" xmlns="http://www.w3.org/2000/svg">';
   svg += '<defs><clipPath id="gclip"><rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '"/></clipPath></defs>';
-  svg += '<rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '" fill="#fbfbff" stroke="#e7e6f2"/>';
+  svg += '<rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '" fill="var(--bd-fbfbff)" stroke="var(--bd-e7e6f2)"/>';
   // grid + tick labels
   for (let x = xmin; x <= xmax; x++) {
     const px = mapX(x);
-    svg += '<line x1="' + px + '" y1="' + PAD + '" x2="' + px + '" y2="' + (S - PAD) + '" stroke="' + (x === 0 ? "#9aa7b6" : "#eef0f7") + '" stroke-width="' + (x === 0 ? 1.5 : 1) + '"/>';
-    if (x !== 0 && x % 2 === 0) svg += '<text x="' + px + '" y="' + (mapY(0) + 13) + '" font-size="10" fill="#8890a0" text-anchor="middle">' + x + '</text>';
+    svg += '<line x1="' + px + '" y1="' + PAD + '" x2="' + px + '" y2="' + (S - PAD) + '" stroke="' + (x === 0 ? "var(--bd-9aa7b6)" : "var(--bd-eef0f7)") + '" stroke-width="' + (x === 0 ? 1.5 : 1) + '"/>';
+    if (x !== 0 && x % 2 === 0) svg += '<text x="' + px + '" y="' + (mapY(0) + 13) + '" font-size="10" fill="var(--bd-8890a0)" text-anchor="middle">' + x + '</text>';
   }
   for (let y = ymin; y <= ymax; y++) {
     const py = mapY(y);
-    svg += '<line x1="' + PAD + '" y1="' + py + '" x2="' + (S - PAD) + '" y2="' + py + '" stroke="' + (y === 0 ? "#9aa7b6" : "#eef0f7") + '" stroke-width="' + (y === 0 ? 1.5 : 1) + '"/>';
-    if (y !== 0 && y % 2 === 0) svg += '<text x="' + (mapX(0) - 6) + '" y="' + (py + 3) + '" font-size="10" fill="#8890a0" text-anchor="end">' + y + '</text>';
+    svg += '<line x1="' + PAD + '" y1="' + py + '" x2="' + (S - PAD) + '" y2="' + py + '" stroke="' + (y === 0 ? "var(--bd-9aa7b6)" : "var(--bd-eef0f7)") + '" stroke-width="' + (y === 0 ? 1.5 : 1) + '"/>';
+    if (y !== 0 && y % 2 === 0) svg += '<text x="' + (mapX(0) - 6) + '" y="' + (py + 3) + '" font-size="10" fill="var(--bd-8890a0)" text-anchor="end">' + y + '</text>';
   }
-  svg += '<text x="' + (S - PAD + 2) + '" y="' + (mapY(0) + 3) + '" font-size="11" fill="#6b6f82">x</text>';
-  svg += '<text x="' + (mapX(0) + 4) + '" y="' + (PAD - 2) + '" font-size="11" fill="#6b6f82">y</text>';
+  svg += '<text x="' + (S - PAD + 2) + '" y="' + (mapY(0) + 3) + '" font-size="11" fill="var(--bd-6b6f82)">x</text>';
+  svg += '<text x="' + (mapX(0) + 4) + '" y="' + (PAD - 2) + '" font-size="11" fill="var(--bd-6b6f82)">y</text>';
   // lines
   const lines = String(a.lines || "").split(/[;|]/).map(s => s.trim()).filter(Boolean);
   const parsedLines = [];
@@ -843,14 +908,14 @@ function showGraph(a) {
     const ix = (parsedLines[1].b - parsedLines[0].b) / (parsedLines[0].m - parsedLines[1].m);
     const iy = parsedLines[0].m * ix + parsedLines[0].b;
     if (ix >= xmin && ix <= xmax && iy >= ymin && iy <= ymax) {
-      svg += '<circle cx="' + mapX(ix) + '" cy="' + mapY(iy) + '" r="5.5" fill="#fff" stroke="#e0392b" stroke-width="2.5"/>';
-      svg += '<text x="' + (mapX(ix) + 9) + '" y="' + (mapY(iy) - 7) + '" font-size="11" font-weight="700" fill="#c0392b">(' + (+ix.toFixed(2)) + ", " + (+iy.toFixed(2)) + ')</text>';
+      svg += '<circle cx="' + mapX(ix) + '" cy="' + mapY(iy) + '" r="5.5" fill="var(--bd-ffffff)" stroke="var(--bd-e0392b)" stroke-width="2.5"/>';
+      svg += '<text x="' + (mapX(ix) + 9) + '" y="' + (mapY(iy) - 7) + '" font-size="11" font-weight="700" fill="var(--bd-c0392b)">(' + (+ix.toFixed(2)) + ", " + (+iy.toFixed(2)) + ')</text>';
     }
   }
   // points
   parsePts(a.points).forEach(([x, y]) => {
-    svg += '<circle cx="' + mapX(x) + '" cy="' + mapY(y) + '" r="4.5" fill="#5b5bd6"/>';
-    svg += '<text x="' + (mapX(x) + 8) + '" y="' + (mapY(y) - 6) + '" font-size="10.5" fill="#26263a">(' + x + ", " + y + ')</text>';
+    svg += '<circle cx="' + mapX(x) + '" cy="' + mapY(y) + '" r="4.5" fill="var(--bd-5b5bd6)"/>';
+    svg += '<text x="' + (mapX(x) + 8) + '" y="' + (mapY(y) - 6) + '" font-size="10.5" fill="var(--bd-26263a)">(' + x + ", " + y + ')</text>';
   });
   svg += '</g></svg>';
   // legend of the equations shown
@@ -964,10 +1029,10 @@ function supersedeCss() {
   st.textContent =
     ".mblock.superseded{display:none}" +
     ".feed.show-earlier .mblock.superseded{display:flex}" +
-    ".supchip{align-self:center;background:#f4f5fb;border:1px solid #e7e6f2;" +
+    ".supchip{align-self:center;background:var(--bd-f4f5fb);border:1px solid var(--bd-e7e6f2);" +
     "border-radius:999px;padding:3px 12px;font:inherit;font-size:12px;font-weight:700;" +
-    "color:#8288a0;cursor:pointer;margin-bottom:6px}" +
-    ".supchip:hover{background:#eceefa;color:#5b5bd6}";
+    "color:var(--bd-8288a0);cursor:pointer;margin-bottom:6px}" +
+    ".supchip:hover{background:var(--bd-eceefa);color:var(--bd-5b5bd6)}";
   document.head.appendChild(st);
 }
 
@@ -1126,7 +1191,7 @@ function checkHTML(text) {
   // page that never loaded the sheet.
   return parts.map(function (p, i) {
     return '<span style="display:inline-block;margin:0 18px;'
-      + (i ? "padding-left:34px;border-left:2px dashed #b6e0c9;" : "")
+      + (i ? "padding-left:34px;border-left:2px dashed var(--bd-b6e0c9);" : "")
       + '">' + styleVars(p) + "</span>";
   }).join("");
 }

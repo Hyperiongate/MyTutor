@@ -59,7 +59,7 @@
 (function () {
   "use strict";
   var NS = "http://www.w3.org/2000/svg";
-  var INK = "#26263a", ACC = "#5b5bd6", TEAL = "#0d9488", FILL = "rgba(91,91,214,.06)";
+  var INK = "var(--bd-26263a)", ACC = "var(--bd-5b5bd6)", TEAL = "var(--bd-0d9488)", FILL = "rgba(91,91,214,.06)";
 
   function esc(t) {
     return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -202,7 +202,7 @@
     // but the figure showed no ray): OPTIONAL split="60" draws an interior ray from the
     // vertex, splitting the angle into a labeled piece and the remainder (labeled "?");
     // split="60,30" labels both pieces.
-    var RED = "#d1345b";
+    var RED = "var(--bd-d1345b)";
     var sp = String(a.split || "").trim();
     if (sp) {
       var parts = sp.split(",").map(function (x) { return x.trim(); });
@@ -295,7 +295,7 @@
     // the transversal, extended past both lines
     var ext = 34 / Math.max(0.35, dy);
     s += line([P1[0] - ext * dx, P1[1] - ext * dy], [P2[0] + ext * dx, P2[1] + ext * dy], INK, 2.5);
-    var RED = "#d1345b";
+    var RED = "var(--bd-d1345b)";
     // an arc from screen-angle a1 to a2 (degrees, y-down clockwise) around P
     function arcAt(P, a1, a2, r, col) {
       var s1 = a1 * Math.PI / 180, s2 = a2 * Math.PI / 180;
@@ -365,7 +365,7 @@
            q2[0] + ' ' + q2[1] + '" fill="none" stroke="' + TEAL + '" stroke-width="2"/>';
       s += txt(v0[0], v0[1] + 34, String(a.angle).replace(/deg|°/i, "") + "°", TEAL, 13, 700);
     }
-    if (a.name) s += txt(C[0], H - 14, a.name, "#6b6f82", 14, 700);
+    if (a.name) s += txt(C[0], H - 14, a.name, "var(--bd-6b6f82)", 14, 700);
     return s + "</svg>";
   }
 

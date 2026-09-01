@@ -2,6 +2,27 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rq -- PART 3hp widened: the pages' own CSS paints the board too.
+#               ALSO IN rq -- THE MENU ROSTER RESTORED. cadabra-script.json had been
+#               overwritten at 11:40 (rk, the demo build, from a parallel chat) with a
+#               demo-only menu at height 118: the pencil was OFF in session/topic/
+#               practice from then on. The menu is rj's again (all three lesson pages,
+#               146/26, jokes, nudges, tour) plus rk's demo block; the example copy is
+#               identical; 3hk's exact-version pin reads 'rj or later' with a dated
+#               note, and a new pin holds the four-page roster.
+#               rp's white/dark board tokenised the DRAWING files, and the battery's
+#               sweep stopped there; the first real dark render showed a tutor bubble
+#               as a light box with near-white text (session.html's <style>: #f2f4ff).
+#               Every board-content <style> rule on session/topic/practice/demo is a
+#               var(--bd-<hex>) token now (34+29+29+4 rules; the inline medal colour
+#               too), board-theme.css gained 31 identity+dark pairs, the identity block
+#               sits on :root, board-theme.css is linked in each head. The PART sweeps
+#               those rules by selector (class list collected from the rendered board),
+#               proves the sweep saw them, and pins the two dark-board readability
+#               rules (accent-as-text lifted; cream chips are light islands). Proof:
+#               board-only screenshot diff, pre-rp vs now, white board = 0 pixels.
+#               Housekeeping: rp's PART was numbered 3he, which rd already owned; it is
+#               3hp now (no test changed by the rename).
 #   2026-09-01  BUILD rn -- PART 3ho: cluster E -- two holes closed, one ruling.
 #               Rule 39's "See how that works?" (imperative-led bare check) and rule
 #               15's spoken-only function rule (referee 38's either/or gate was
@@ -7119,8 +7140,8 @@ const out = [];
 function t(name, cond) { out.push([name, !!cond]); }
 // the audit's jump, drawn right: open circle at (2,3), closed dot at (2,6), no bridge
 const svg = MF.graph({ func: "x+1 for x<2; x+4 for x>=2", range: "0..4", yrange: "0..8" });
-t("the strict bound gets an OPEN circle at (2,3)", svg.includes('cy="267.5" r="5" fill="#fbfbff"'));
-t("the inclusive bound gets a CLOSED dot at (2,6)", /cy="125" r="5" fill="#[0-9a-f]{6}" stroke="#ffffff"/.test(svg));
+t("the strict bound gets an OPEN circle at (2,3)", svg.includes('cy="267.5" r="5" fill="var(--bd-fbfbff)"'));
+t("the inclusive bound gets a CLOSED dot at (2,6)", /cy="125" r="5" fill="var\(--bd-[0-9a-f]{6}\)" stroke="var\(--bd-ffffff\)"/.test(svg));
 const polys = [...svg.matchAll(/<polyline points="([^"]+)"/g)].map(m => m[1].split(" ").map(p => parseFloat(p.split(",")[0])));
 t("two pieces, each clipped to its own side of x=2",
   polys.length === 2 && Math.max(...polys[0]) <= 220.01 && Math.min(...polys[1]) >= 219.99);
@@ -7128,7 +7149,7 @@ t("the legend names the domains", svg.includes("for x&lt;2") && svg.includes("fo
 const s2 = MF.graph({ func: "x^2 for -1<=x<3", range: "-4..4" });
 t("a double-ended domain marks both endpoints", (s2.match(/r="5"/g) || []).length === 2);
 const s3 = MF.graph({ func: "x+1 for x≥2", range: "0..4" });
-t("unicode bounds are accepted", /stroke="#ffffff"/.test(s3));
+t("unicode bounds are accepted", /stroke="var\(--bd-ffffff\)"/.test(s3));
 const s4 = MF.graph({ func: "x+1 for banana", range: "0..4" });
 t("an unparseable domain fails OPEN -- the curve still draws",
   [...s4.matchAll(/<polyline/g)].length === 1);
@@ -8075,14 +8096,14 @@ def part3x_fraction_pie():
       var r = {};
       var p43 = MathFigures.pie({parts:"4", shaded:"3"});
       r.wedges43   = count(p43, /<path /g);
-      r.filled43   = count(p43, /fill="#5b5bd6"/g);
-      r.pale43     = count(p43, /fill="#eef0f7"/g);
+      r.filled43   = count(p43, /fill="var\(--bd-5b5bd6\)"/g);
+      r.pale43     = count(p43, /fill="var\(--bd-eef0f7\)"/g);
       r.hasText43  = /<text/.test(p43);
-      r.separated  = count(p43, /stroke="#ffffff"/g);
+      r.separated  = count(p43, /stroke="var\(--bd-ffffff\)"/g);
       var p61 = MathFigures.pie({parts:"6", shaded:"1"});
-      r.wedges61 = count(p61, /<path /g); r.filled61 = count(p61, /fill="#5b5bd6"/g);
+      r.wedges61 = count(p61, /<path /g); r.filled61 = count(p61, /fill="var\(--bd-5b5bd6\)"/g);
       var huge = MathFigures.pie({parts:"400", shaded:"1"});
-      r.hugeFellBack = !/stroke="#ffffff" stroke-width="2.5"/.test(huge);
+      r.hugeFellBack = !/stroke="var\(--bd-ffffff\)" stroke-width="2.5"/.test(huge);
       var legacy = MathFigures.pie({data:"Red:3 | Blue:2 | Green:1"});
       r.legacyWedges = count(legacy, /<path |<circle /g);
       console.log(JSON.stringify(r));
@@ -12162,11 +12183,21 @@ def part3hk_the_orb_retires_and_the_seam_is_announced():
     ex = _json.load(open(os.path.join(here, "static",
                                       "cadabra-script.example.json"),
                          encoding="utf-8"))
+    # (rq, 2026-09-01) was == "2026-09-01rj"; rq re-merged the roster after a two-chat
+    # clobber and bumped the version. Repaired to INTENT, the way rj repaired ri's pin:
+    # the size ruling must hold under any menu versioned AT rj or later.
     check("⭐ the pencil is 30% larger, in the menu where size lives",
           menu.get("height") == 146 and menu.get("handSize") == 26
-          and menu.get("version") == "2026-09-01rj" and ex == menu,
+          and str(menu.get("version", "")) >= "2026-09-01rj" and ex == menu,
           f"height={menu.get('height')} handSize={menu.get('handSize')} -- 112+30% "
           "is 146 (145.6 rounded), hands scaled in proportion")
+    # (rq, 2026-09-01) THE ROSTER. rk's demo build overwrote this file with a demo-only
+    # menu, and for a working day the pencil was silently OFF in every real lesson.
+    # Rule 18 makes the pages block the whole roster, so the roster is pinned.
+    check("⭐ the menu names EVERY page the pencil is wired on: session, topic, practice AND the demo",
+          {"session", "topic", "practice", "demo"} <= set(menu.get("pages") or {}),
+          f"pages={sorted((menu.get('pages') or {}).keys())} -- a page missing here is a page "
+          "where he never mounts (rule 18); two chats editing this file is how it happened")
     with open(os.path.join(here, "static", "cadabra.js"), encoding="utf-8") as fh:
         cad = fh.read()
     check("⭐ the slight float exists, transform-only, off under reduced motion",
@@ -22029,6 +22060,130 @@ def part3ai_deploy_stamp():
           f"It went nine builds stale once already; that is what this check exists to stop.")
 
 
+
+# =============================================================================
+# PART 3hp -- NO COLOUR LITERAL MAY EVER RETURN TO THE BOARD (build rp; widened in rq)
+# =============================================================================
+# The board is a whiteboard or a blackboard now. Every colour those files paint is a
+# token from board-theme.css, so BOTH palettes can define it. A literal "#5b5bd6" added
+# next month would be invisible on one board and nobody would know until a child said
+# so. This is the guard that turns that risk into a build failure.
+# (rq) the classes that appear INSIDE the board after a maximal lesson on session/topic/practice
+# (collected from the rendered DOM) plus the ones board.js adds for choices, objects, glows and captions.
+_RQ_BOARD_CLASSES = frozenset(["beam", "beamwrap", "box", "bubble", "cap", "ccap", "ccarry", "cfp", "checkcard", "choicebtn", "choicerow", "choices", "cip", "ck-badge", "ck-score", "ck-top", "cnew", "colmath", "cop", "cres", "crule", "dig", "eq", "fc-badge", "fc-link", "fc-score", "fc-top", "feedPad", "finalcard", "gi", "gl", "glegend", "glg", "grapher", "graphwrap", "keep", "label", "latest", "left", "machine", "marrow", "mblock", "mbox", "mboxlabel", "mcap", "mfig", "mflow", "mfx", "min", "mnode", "mnum", "mout", "mrow", "mrule", "mval", "mvar", "mwork", "objcap", "objemj", "objgone", "objgoneimg", "objline", "objone", "objplus", "objstep", "objtick", "objwrap", "oe", "ol", "orr", "pan", "pass", "pivot", "pop", "probbody", "probcar", "probdone", "probeq", "probhint", "problab", "probsum", "probtick", "qcap", "qcard", "qtitle", "right", "rope", "sarrow", "scale", "sline", "solo", "solveboard", "sop", "spot", "stage-hint", "start", "stepbody", "stepcell", "stepglow", "stephead", "stepnum", "steprow", "steptitle", "student", "supchip", "superseded", "tray", "tutor", "wcap", "wcheck", "wcol", "we", "wl", "worklist", "worow", "wr", "wrow"])
+def part3hp_no_colour_literals_on_the_board():
+    print("\nPART 3hp — every board colour is a token, never a literal (build rp; page CSS too since rq)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    hexre = re.compile(r"(?<![\w#])#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![\w])")
+    for fn in ("board.js", "math-figures.js", "geo-figures.js"):
+        src = open(os.path.join(here, "static", fn), encoding="utf-8").read()
+        body = re.sub(r"/\*.*?\*/", "", src, flags=re.S)          # the header note may quote one
+        body = re.sub(r"^\s*//.*$", "", body, flags=re.M)
+        lits = [m.group(0) for m in hexre.finditer(body) if m.group(0).lower() != "#feed"]
+        check(f"{fn} paints with tokens only", not lits,
+              f"colour literal(s) {sorted(set(lits))[:4]} -- use var(--bd-<hex>) and define it in "
+              f"board-theme.css for BOTH boards")
+    css = open(os.path.join(here, "static", "board-theme.css"), encoding="utf-8").read()
+    light = css[css.index(":root, .feed, [data-board] {"):css.index("}", css.index(":root, .feed, [data-board] {"))]   # (rq) identity sits on :root too
+    dark = css[css.index('[data-board="dark"] {'):css.index("}", css.index('[data-board="dark"] {'))]
+    lt = dict(re.findall(r"--bd-([0-9a-f]{3,6}): #([0-9a-f]{3,6});", light))
+    dk = dict(re.findall(r"--bd-([0-9a-f]{3,6}): #([0-9a-f]{3,6});", dark))
+    check("the white board is IDENTITY: every token resolves to the literal it replaced",
+          all(k == v or (len(v) == 6 and v == "".join(c * 2 for c in k)) for k, v in lt.items()),
+          f"a white-board token that is not its own value would change today's board: "
+          f"{[k for k, v in lt.items() if k != v][:4]}")
+    check("every token the white board defines, the dark board defines too",
+          set(lt) <= set(dk), f"missing on dark: {sorted(set(lt) - set(dk))[:6]}")
+    used = set()
+    for fn in ("board.js", "math-figures.js", "geo-figures.js", "demo.html", "session.html", "topic.html", "practice.html"):   # (rq) + the pages
+        used |= set(re.findall(r"var\(--bd-([0-9a-f]{3,6})\)",
+                               open(os.path.join(here, "static", fn), encoding="utf-8").read()))
+    check("every token a drawing file uses is defined", used <= set(lt) | {"panel", "fff-text"},
+          f"undefined: {sorted(used - set(lt) - {'panel','fff-text'})[:6]}")
+    bjs = open(os.path.join(here, "static", "board.js"), encoding="utf-8").read()
+    check("board.js loads board-theme.css once and honours the saved choice",
+          'href = "/static/board-theme.css"' in bjs and 'localStorage.getItem(BOARD_KEY)' in bjs
+          and 'applyBoard(boardChoice("white"))' in bjs,
+          "a board page without the palettes would paint every token as 'inherit'")
+    sess = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    check("the lesson page offers the toggle, whiteboard by default",
+          'data-board-toggle' in sess and 'MTBoard.wire("white"' in sess,
+          "Jim: the student chooses; nothing changes for a child who never touches it")
+    demo = open(os.path.join(here, "static", "demo.html"), encoding="utf-8").read()
+    check("the demo opens on the dark board", "return 'dark'; }" in demo and 'data-board-toggle' in demo,
+          "Jim: 'make sure the demos use the dark board because I personally prefer that'")
+
+    # ---- (rq, 2026-09-01) THE PAGES' OWN CSS PAINTS THE BOARD TOO ----
+    # rp tokenised the drawing files; the first dark-board render showed a tutor bubble
+    # as a light box with near-white text -- session.html's <style> still said #f2f4ff.
+    # Every <style> rule on the four board pages whose selector names board content
+    # (the classes that appear INSIDE the feed after a maximal lesson, or .feed/#board
+    # itself) must paint with tokens. rgba() shadows/glows and 'transparent' are fine.
+    def _board_rules(html):
+        html = re.sub(r"<!--.*?-->", lambda m: " " * len(m.group(0)), html, flags=re.S)
+        out = []
+        for m in re.finditer(r"<style[^>]*>(.*?)</style>", html, re.S):
+            css_ = re.sub(r"/\*.*?\*/", lambda mm: " " * len(mm.group(0)), m.group(1), flags=re.S)
+            css_ = re.sub(r"@media[^{]*\{", " ", css_)          # flatten @media: its rules are rules
+            for r in re.finditer(r"([^{}]+)\{([^{}]*)\}", css_):
+                out.append((r.group(1).strip(), r.group(2)))
+        return out
+    def _is_board(sel, demo_page):
+        if demo_page:
+            return sel in {".wrow", ".wrow.op", ".figcap", ".stage-hint"}
+        if re.match(r"^\s*\.side\b", sel) or ".feedbar" in sel: return False
+        if re.search(r"\.feed(?![\w-])|#feed\b|#board\b|\[data-board", sel): return True
+        return any(c in _RQ_BOARD_CLASSES for c in re.findall(r"\.([A-Za-z_][\w-]*)", sel))
+    hex_in_body = re.compile(r"#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b")
+    for fn in ("session.html", "topic.html", "practice.html", "demo.html"):
+        html = open(os.path.join(here, "static", fn), encoding="utf-8").read()
+        offenders = [(sel[:40], hex_in_body.findall(body)) for sel, body in _board_rules(html)
+                     if _is_board(sel, fn == "demo.html") and hex_in_body.search(body)]
+        check(f"{fn}: every board-content CSS rule paints with tokens", not offenders,
+              f"literal(s) in {offenders[:3]} -- var(--bd-<hex>) + both palettes in board-theme.css")
+        check(f"{fn}: board-theme.css is linked in the head (first paint has the palettes)",
+              'href="/static/board-theme.css"' in html,
+              "board.js injects it a beat later; the explicit link is what the first paint sees")
+        n_rules = sum(1 for sel, _ in _board_rules(html) if _is_board(sel, fn == "demo.html"))
+        check(f"{fn}: the sweep actually saw the board's rules ({n_rules})", n_rules >= (4 if fn == "demo.html" else 60),
+              "a sweep that matched nothing would pass while checking nothing")
+    check("the medal line of the final-exam card uses the token, not the literal",
+          'color:var(--bd-7a5c00)">🏅 The <b>Course Champion</b>' in sess and 'color:#7a5c00">🏅' not in sess,
+          "an inline style is board content too")
+    check("dark board: --accent used as TEXT inside the board is lifted (worow/cop/marrow/probcar/probhint)",
+          '.feed[data-board="dark"] .worklist .worow' in css and '.feed[data-board="dark"] .probdone .probhint { color: var(--bd-5b5bd6); }' in css,
+          "#5b5bd6 on navy is a 2.4:1 read")
+    check("dark board: the cream chips are light islands (white-board colours re-apply inside them)",
+          '.feed[data-board="dark"] .machine .mbox {' in css and "--bd-e0392b: #e0392b;" in css,
+          "the lifted red on a cream chip was a 1.6:1 read")
+
+    # ---- (rq) THE BENCH: static/cadabra-lab.html designs him on the REAL layer ----
+    # The motion-lab mockup carried its own copy of the pencil and drifted from the
+    # shipped one. The permanent tool drives cadabra.js through four additive doors.
+    lab_p = os.path.join(here, "static", "cadabra-lab.html")
+    check("the bench exists and is whole", os.path.exists(lab_p) and
+          "I did no harm and this file is not truncated" in open(lab_p, encoding="utf-8").read()[-160:], "")
+    if os.path.exists(lab_p):
+        lab = open(lab_p, encoding="utf-8").read()
+        check("  ...noindex, names its page 'lab', loads the real layer (not deferred) and the palettes",
+              'content="noindex, nofollow"' in lab and '<body data-cadabra-page="lab">' in lab
+              and '<script src="/static/cadabra.js"></script>' in lab and 'href="/static/board-theme.css"' in lab, "")
+        check("  ...carries the four real targets exactly once each",
+              all(lab.count('data-cad="%s"' % n) == 1 for n in ("board", "answer", "streak", "tutor")), "")
+        check("  ...and drives him only through public doors (no reach into the layer's internals)",
+              "Cadabra.expression(" in lab and "Cadabra.expressions" in lab and "Cadabra.size(" in lab
+              and "#cadabra-layer" not in lab.split("<script>", 1)[-1], "")
+    cad = open(os.path.join(here, "static", "cadabra.js"), encoding="utf-8").read()
+    check("cadabra.js offers the bench's doors: expression / expressions / joke / size",
+          all(k in cad for k in ('expression:  direct("expression")', "expressions: function () { return Object.keys(EXPR); }",
+                                 'joke:        direct("joke")', "size:        function (px)")), "")
+    check("  ...and a bare string given to expression() is a NAME, not a target",
+          '(name === "expression") ? { to: a }' in cad, "")
+    import json as _json
+    menu_rq = _json.load(open(os.path.join(here, "static", "cadabra-script.json"), encoding="utf-8"))
+    check("the menu names the bench (rule 18) and gives it the three-stop tour",
+          "lab" in (menu_rq.get("pages") or {}) and len((menu_rq.get("tours") or {}).get("lab", [])) == 3, "")
+
 # =============================================================================
 # PART 3ak -- THE NIGHT WATCH (build go)
 # =============================================================================
@@ -30090,6 +30245,7 @@ def main():
     part3hb_the_leftover_gets_its_buttons()
     part3hc_the_chip_says_what_it_counts()
     part3hd_the_star_falls_when_the_child_slips()
+    part3hp_no_colour_literals_on_the_board()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

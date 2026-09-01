@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+    (rq) 2026-09-01 -- THE DARK BOARD'S OTHER HALF. The demo opens on the dark board
+    (rp), but its own work rows (.wrow #2a2450), operator rows and figure captions
+    were literal near-navy text -- invisible on navy the moment a level put an
+    equation on the board. Those four rules are var(--bd-<hex>) tokens now, with
+    light counterparts in board-theme.css; the white board is unchanged.
+    (rp) 2026-09-01 -- WHITEBOARD OR BLACKBOARD. The demo links board-theme.css, opens
+    on the DARK board (Jim's preference) with a toggle, and every colour its own
+    board-drawing script paints is a var(--bd-<hex>) token.
     (nh) 2026-08-25 -- THE SEAMS JIM HEARD, WATCHING THE WHOLE DEMO. "Very good. Just
     a couple of small things." Three of them, all shipped:
     ① ⚠️ FEEDBACK WAS BEING CUT OFF MID-WORD. Four sites advanced on FIXED TIMERS
@@ -530,18 +538,18 @@
     font-size:15px;line-height:1.5;min-height:44px}
   .replay{border:1px solid var(--keyline);background:#fff;color:var(--purple);font-weight:700;
     font-size:12px;border-radius:9px;padding:6px 10px;cursor:pointer;flex:0 0 auto}
-  .feed{position:relative;flex:1 1 auto;margin:10px 20px;border-radius:18px;background:#fff;border:1px solid var(--line);
+  .feed{position:relative;flex:1 1 auto;margin:10px 20px;border-radius:18px;background:var(--bd-panel);border:1px solid var(--line);
     box-shadow:0 12px 36px rgba(20,30,45,.07);padding:16px 18px;overflow-y:auto;min-height:180px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     background-image:linear-gradient(0deg,transparent 27px,rgba(109,90,230,.05) 28px),
       linear-gradient(90deg,transparent 27px,rgba(31,182,176,.045) 28px);background-size:28px 28px}
-  .wrow{font-size:30px;color:#2a2450;padding:3px 6px;opacity:0;transform:translateY(6px);
+  .wrow{font-size:30px;color:var(--bd-2a2450);padding:3px 6px;opacity:0;transform:translateY(6px);
     animation:stepin .45s forwards;white-space:pre;font-family:"Courier New",monospace;font-weight:700}
   .wrow .v{color:var(--red);font-weight:800}
-  .wrow.op{color:#8a86a6;font-size:22px}
+  .wrow.op{color:var(--bd-8a86a6);font-size:22px}
   .wrow.big{font-size:34px;letter-spacing:6px}
   @keyframes stepin{to{opacity:1;transform:none}}
-  .stage-hint{color:#a7a2bd;font-size:14px}
+  .stage-hint{color:var(--bd-a7a2bd);font-size:14px}
   /* build ct: 47vh let the answer widget take nearly half the window. 32vh plus the
      board's own floor keeps the whiteboard the biggest thing on the screen, which is the
      one thing this page exists to show. It still scrolls, so nothing is ever unreachable. */
@@ -563,7 +571,7 @@
      collapses to almost nothing. Figures now claim a real width and a minimum height. */
   .fig{margin:10px 0;opacity:0;animation:stepin .5s forwards;width:100%;max-width:660px;align-self:center}
   .fig svg{display:block;width:100%;height:auto;min-height:150px;margin:0 auto}
-  .figcap{text-align:center;font-size:15px;font-weight:700;color:#3b3660;margin-top:8px;font-family:-apple-system,sans-serif}
+  .figcap{text-align:center;font-size:15px;font-weight:700;color:var(--bd-3b3660);margin-top:8px;font-family:-apple-system,sans-serif}
   .talkwrap{display:flex;flex-direction:column;align-items:center;gap:8px}
   @keyframes pulse{50%{transform:scale(1.04)}}
   /* the three dashboard balloons — a CENTERED overlay (2026-08-09 build by, Jim:
@@ -809,6 +817,8 @@
      script below runs. Dark without /static/cadabra-script.json, in which case every
      call is a no-op and this demo behaves exactly as it did. -->
 <script src="/static/cadabra.js"></script>
+<!-- (rp) the board palettes; the demo draws its own board so it links this itself -->
+<link rel="stylesheet" href="/static/board-theme.css">
 
 <!-- ===== FRONT DOOR ===== -->
 <div class="wrap" id="intro">
@@ -860,6 +870,9 @@
       <img src="/static/brand-mark.svg" alt="" style="height:22px;width:auto">
       <div class="title" id="courseTitle">Mr. Cadabra's Classroom</div>
       <span class="demo-badge">DEMO</span>
+      <!-- (rp) the board choice. The demo opens on the DARK board (Jim's preference);
+           one tap switches, and the choice is remembered on this device. -->
+      <button class="replay" id="boardChip" type="button" data-board-toggle aria-pressed="true" style="display:inline-block">⬜ White board</button>
       <!-- (rk) THE STREAK CHIPS. session.html has carried these since build qz/rb and the
            demo's replica topbar never got them -- the demo must look like the product it
            is selling. Same two numbers, same visible labels, same words as the dashboard
@@ -1872,51 +1885,51 @@
     if(f.k==='numberline'){
       var a=-6,b=6,W=560,pad=28,step=(W-pad*2)/(b-a), x=function(n){return pad+(n-a)*step;};
       s='<svg viewBox="0 0 '+W+' 108" role="img" aria-label="number line from -6 to 6">';
-      s+='<line x1="'+pad+'" y1="58" x2="'+(W-pad)+'" y2="58" stroke="#8a86a6" stroke-width="2"/>';
+      s+='<line x1="'+pad+'" y1="58" x2="'+(W-pad)+'" y2="58" stroke="var(--bd-8a86a6)" stroke-width="2"/>';
       for(var n=a;n<=b;n++){
-        s+='<line x1="'+x(n)+'" y1="51" x2="'+x(n)+'" y2="65" stroke="'+(n===0?'#20233a':'#c3bfd4')+'" stroke-width="'+(n===0?3:2)+'"/>';
-        s+='<text x="'+x(n)+'" y="84" text-anchor="middle" font-size="13" fill="'+(n<0?'#d1345b':'#5b6079')+'" font-weight="'+(n===0?800:600)+'">'+n+'</text>';
+        s+='<line x1="'+x(n)+'" y1="51" x2="'+x(n)+'" y2="65" stroke="'+(n===0?'var(--bd-20233a)':'var(--bd-c3bfd4)')+'" stroke-width="'+(n===0?3:2)+'"/>';
+        s+='<text x="'+x(n)+'" y="84" text-anchor="middle" font-size="13" fill="'+(n<0?'var(--bd-d1345b)':'var(--bd-5b6079)')+'" font-weight="'+(n===0?800:600)+'">'+n+'</text>';
       }
-      s+='<text x="'+x(-4)+'" y="102" text-anchor="middle" font-size="11" fill="#d1345b">← negative</text>';
-      s+='<text x="'+x(4)+'" y="102" text-anchor="middle" font-size="11" fill="#1fa971">positive →</text>';
+      s+='<text x="'+x(-4)+'" y="102" text-anchor="middle" font-size="11" fill="var(--bd-d1345b)">← negative</text>';
+      s+='<text x="'+x(4)+'" y="102" text-anchor="middle" font-size="11" fill="var(--bd-1fa971)">positive →</text>';
       if(typeof f.from==='number' && typeof f.to==='number'){
         var x1=x(f.from), x2=x(f.to), mid=(x1+x2)/2;
-        s+='<defs><marker id="ah'+(f.to)+'" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#6d5ae6"/></marker></defs>';
-        s+='<path d="M '+x1+' 44 Q '+mid+' 8 '+x2+' 44" fill="none" stroke="#6d5ae6" stroke-width="3" marker-end="url(#ah'+(f.to)+')"/>';
-        s+='<circle cx="'+x1+'" cy="58" r="5.5" fill="#d1345b"/><circle cx="'+x2+'" cy="58" r="5.5" fill="#1fa971"/>';
+        s+='<defs><marker id="ah'+(f.to)+'" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--bd-6d5ae6)"/></marker></defs>';
+        s+='<path d="M '+x1+' 44 Q '+mid+' 8 '+x2+' 44" fill="none" stroke="var(--bd-6d5ae6)" stroke-width="3" marker-end="url(#ah'+(f.to)+')"/>';
+        s+='<circle cx="'+x1+'" cy="58" r="5.5" fill="var(--bd-d1345b)"/><circle cx="'+x2+'" cy="58" r="5.5" fill="var(--bd-1fa971)"/>';
       } else if(typeof f.start==='number'){
-        s+='<circle cx="'+x(f.start)+'" cy="58" r="5.5" fill="#d1345b"/>';
-        s+='<text x="'+x(f.start)+'" y="38" text-anchor="middle" font-size="12" font-weight="800" fill="#d1345b">start</text>';
+        s+='<circle cx="'+x(f.start)+'" cy="58" r="5.5" fill="var(--bd-d1345b)"/>';
+        s+='<text x="'+x(f.start)+'" y="38" text-anchor="middle" font-size="12" font-weight="800" fill="var(--bd-d1345b)">start</text>';
       }
       s+='</svg>';
     } else if(f.k==='fracbar'){
       var P=f.parts||4, SH=f.shaded||0, EX=f.extra||0, BW=460, BH=58, cw=BW/P;
       s='<svg viewBox="0 0 '+(BW+10)+' '+(BH*(EX?2:1)+(EX?36:14))+'" role="img" aria-label="fraction bar">';
       for(var i2=0;i2<P;i2++){
-        s+='<rect x="'+(5+i2*cw)+'" y="4" width="'+(cw-3)+'" height="'+BH+'" rx="7" fill="'+(i2<SH?'#8f7bff':'#fff')+'" stroke="#b9b5cc" stroke-width="2"/>';
-        s+='<text x="'+(5+i2*cw+cw/2)+'" y="'+(4+BH/2+6)+'" text-anchor="middle" font-size="15" font-weight="800" fill="'+(i2<SH?'#fff':'#a7a2bd')+'">1/'+P+'</text>';
+        s+='<rect x="'+(5+i2*cw)+'" y="4" width="'+(cw-3)+'" height="'+BH+'" rx="7" fill="'+(i2<SH?'var(--bd-8f7bff)':'var(--bd-ffffff)')+'" stroke="var(--bd-b9b5cc)" stroke-width="2"/>';
+        s+='<text x="'+(5+i2*cw+cw/2)+'" y="'+(4+BH/2+6)+'" text-anchor="middle" font-size="15" font-weight="800" fill="'+(i2<SH?'var(--bd-fff-text)':'var(--bd-a7a2bd)')+'">1/'+P+'</text>';
       }
       if(EX){
         for(var i3=0;i3<P;i3++){
           var on = i3<EX;
-          s+='<rect x="'+(5+i3*cw)+'" y="'+(BH+12)+'" width="'+(cw-3)+'" height="'+BH+'" rx="7" fill="'+(on?'#1fb6b0':'#fff')+'" stroke="#b9b5cc" stroke-width="2"/>';
-          s+='<text x="'+(5+i3*cw+cw/2)+'" y="'+(BH+12+BH/2+6)+'" text-anchor="middle" font-size="15" font-weight="800" fill="'+(on?'#fff':'#a7a2bd')+'">1/'+P+'</text>';
+          s+='<rect x="'+(5+i3*cw)+'" y="'+(BH+12)+'" width="'+(cw-3)+'" height="'+BH+'" rx="7" fill="'+(on?'var(--bd-1fb6b0)':'var(--bd-ffffff)')+'" stroke="var(--bd-b9b5cc)" stroke-width="2"/>';
+          s+='<text x="'+(5+i3*cw+cw/2)+'" y="'+(BH+12+BH/2+6)+'" text-anchor="middle" font-size="15" font-weight="800" fill="'+(on?'var(--bd-fff-text)':'var(--bd-a7a2bd)')+'">1/'+P+'</text>';
         }
       }
       s+='</svg>';
     } else if(f.k==='triangle'){
       s='<svg viewBox="0 0 400 216" role="img" aria-label="triangle with labelled angles">';
       if(f.right){
-        s+='<polygon points="60,180 340,180 60,40" fill="#f6f3ff" stroke="#6d5ae6" stroke-width="3"/>';
-        s+='<rect x="60" y="158" width="22" height="22" fill="none" stroke="#6d5ae6" stroke-width="2.5"/>';
-        s+='<text x="92" y="174" font-size="16" font-weight="800" fill="#20233a">'+(f.a||'')+'</text>';
-        s+='<text x="296" y="172" font-size="16" font-weight="800" fill="#20233a">'+(f.b||'')+'</text>';
-        s+='<text x="72" y="66" font-size="18" font-weight="800" fill="#d1345b">'+(f.c||'')+'</text>';
+        s+='<polygon points="60,180 340,180 60,40" fill="var(--bd-f6f3ff)" stroke="var(--bd-6d5ae6)" stroke-width="3"/>';
+        s+='<rect x="60" y="158" width="22" height="22" fill="none" stroke="var(--bd-6d5ae6)" stroke-width="2.5"/>';
+        s+='<text x="92" y="174" font-size="16" font-weight="800" fill="var(--bd-20233a)">'+(f.a||'')+'</text>';
+        s+='<text x="296" y="172" font-size="16" font-weight="800" fill="var(--bd-20233a)">'+(f.b||'')+'</text>';
+        s+='<text x="72" y="66" font-size="18" font-weight="800" fill="var(--bd-d1345b)">'+(f.c||'')+'</text>';
       } else {
-        s+='<polygon points="50,180 350,180 200,34" fill="#f6f3ff" stroke="#6d5ae6" stroke-width="3"/>';
-        s+='<text x="84" y="170" font-size="16" font-weight="800" fill="#20233a">'+(f.a||'')+'</text>';
-        s+='<text x="292" y="170" font-size="16" font-weight="800" fill="#20233a">'+(f.b||'')+'</text>';
-        s+='<text x="200" y="70" text-anchor="middle" font-size="16" font-weight="800" fill="#20233a">'+(f.c||'')+'</text>';
+        s+='<polygon points="50,180 350,180 200,34" fill="var(--bd-f6f3ff)" stroke="var(--bd-6d5ae6)" stroke-width="3"/>';
+        s+='<text x="84" y="170" font-size="16" font-weight="800" fill="var(--bd-20233a)">'+(f.a||'')+'</text>';
+        s+='<text x="292" y="170" font-size="16" font-weight="800" fill="var(--bd-20233a)">'+(f.b||'')+'</text>';
+        s+='<text x="200" y="70" text-anchor="middle" font-size="16" font-weight="800" fill="var(--bd-20233a)">'+(f.c||'')+'</text>';
       }
       s+='</svg>';
     } else if(f.k==='unitcircle'){
@@ -1924,18 +1937,18 @@
       var rad=(-sw)*Math.PI/180, ex=CX+R*Math.cos(rad), ey=CY+R*Math.sin(rad);
       var large = sw>180 ? 1 : 0;
       s='<svg viewBox="0 0 430 214" role="img" aria-label="unit circle">';
-      s+='<circle cx="'+CX+'" cy="'+CY+'" r="'+R+'" fill="#fff" stroke="#b9b5cc" stroke-width="2.5"/>';
-      s+='<line x1="'+(CX-R-14)+'" y1="'+CY+'" x2="'+(CX+R+14)+'" y2="'+CY+'" stroke="#d8d4e6" stroke-width="2"/>';
-      s+='<line x1="'+CX+'" y1="'+(CY-R-14)+'" x2="'+CX+'" y2="'+(CY+R+14)+'" stroke="#d8d4e6" stroke-width="2"/>';
-      s+='<defs><marker id="uc'+sw+'" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6d5ae6"/></marker></defs>';
+      s+='<circle cx="'+CX+'" cy="'+CY+'" r="'+R+'" fill="var(--bd-ffffff)" stroke="var(--bd-b9b5cc)" stroke-width="2.5"/>';
+      s+='<line x1="'+(CX-R-14)+'" y1="'+CY+'" x2="'+(CX+R+14)+'" y2="'+CY+'" stroke="var(--bd-d8d4e6)" stroke-width="2"/>';
+      s+='<line x1="'+CX+'" y1="'+(CY-R-14)+'" x2="'+CX+'" y2="'+(CY+R+14)+'" stroke="var(--bd-d8d4e6)" stroke-width="2"/>';
+      s+='<defs><marker id="uc'+sw+'" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--bd-6d5ae6)"/></marker></defs>';
       s+='<path d="M '+(CX+R*0.62)+' '+CY+' A '+(R*0.62)+' '+(R*0.62)+' 0 '+large+' 0 '+
-          (CX+R*0.62*Math.cos(rad))+' '+(CY+R*0.62*Math.sin(rad))+'" fill="none" stroke="#6d5ae6" stroke-width="3.5" marker-end="url(#uc'+sw+')"/>';
-      s+='<line x1="'+CX+'" y1="'+CY+'" x2="'+ex+'" y2="'+ey+'" stroke="#6d5ae6" stroke-width="2.5" stroke-dasharray="5 4"/>';
-      s+='<circle cx="'+(CX+R)+'" cy="'+CY+'" r="5" fill="#1fa971"/>';
-      s+='<circle cx="'+ex+'" cy="'+ey+'" r="5" fill="#d1345b"/>';
-      s+='<text x="'+(CX+R+8)+'" y="'+(CY+20)+'" font-size="12" fill="#5b6079">start (0°)</text>';
-      s+='<text x="252" y="'+(CY-8)+'" font-size="20" font-weight="800" fill="#20233a">'+(f.label||'')+'</text>';
-      s+='<text x="252" y="'+(CY+18)+'" font-size="12.5" fill="#5b6079">a full circle is 360°</text>';
+          (CX+R*0.62*Math.cos(rad))+' '+(CY+R*0.62*Math.sin(rad))+'" fill="none" stroke="var(--bd-6d5ae6)" stroke-width="3.5" marker-end="url(#uc'+sw+')"/>';
+      s+='<line x1="'+CX+'" y1="'+CY+'" x2="'+ex+'" y2="'+ey+'" stroke="var(--bd-6d5ae6)" stroke-width="2.5" stroke-dasharray="5 4"/>';
+      s+='<circle cx="'+(CX+R)+'" cy="'+CY+'" r="5" fill="var(--bd-1fa971)"/>';
+      s+='<circle cx="'+ex+'" cy="'+ey+'" r="5" fill="var(--bd-d1345b)"/>';
+      s+='<text x="'+(CX+R+8)+'" y="'+(CY+20)+'" font-size="12" fill="var(--bd-5b6079)">start (0°)</text>';
+      s+='<text x="252" y="'+(CY-8)+'" font-size="20" font-weight="800" fill="var(--bd-20233a)">'+(f.label||'')+'</text>';
+      s+='<text x="252" y="'+(CY+18)+'" font-size="12.5" fill="var(--bd-5b6079)">a full circle is 360°</text>';
       s+='</svg>';
     } else if(f.k==='bars'){
       var data=f.data||[], BWv=92, GAP=26, H=132, maxv=Math.max.apply(null,data.map(function(d){return d[1];}))||1;
@@ -1943,14 +1956,14 @@
       s='<svg viewBox="0 0 '+Wv+' '+(H+56)+'" role="img" aria-label="bar chart of the scores">';
       data.forEach(function(d,i4){
         var h=Math.max(10, (d[1]/maxv)*H), xx=GAP+i4*(BWv+GAP), yy=H-h+14;
-        s+='<rect x="'+xx+'" y="'+yy+'" width="'+BWv+'" height="'+h+'" rx="8" fill="#8f7bff"/>';
-        s+='<text x="'+(xx+BWv/2)+'" y="'+(yy-7)+'" text-anchor="middle" font-size="17" font-weight="800" fill="#20233a">'+d[0]+'</text>';
-        s+='<text x="'+(xx+BWv/2)+'" y="'+(H+38)+'" text-anchor="middle" font-size="12.5" fill="#5b6079">score</text>';
+        s+='<rect x="'+xx+'" y="'+yy+'" width="'+BWv+'" height="'+h+'" rx="8" fill="var(--bd-8f7bff)"/>';
+        s+='<text x="'+(xx+BWv/2)+'" y="'+(yy-7)+'" text-anchor="middle" font-size="17" font-weight="800" fill="var(--bd-20233a)">'+d[0]+'</text>';
+        s+='<text x="'+(xx+BWv/2)+'" y="'+(H+38)+'" text-anchor="middle" font-size="12.5" fill="var(--bd-5b6079)">score</text>';
       });
       if(f.line){
         var ly=H+14-((f.line/maxv)*H);
-        s+='<line x1="'+(GAP-8)+'" y1="'+ly+'" x2="'+(GAP+data.length*(BWv+GAP)-GAP+8)+'" y2="'+ly+'" stroke="#1fa971" stroke-width="3" stroke-dasharray="7 5"/>';
-        s+='<text x="'+(GAP+data.length*(BWv+GAP)+2)+'" y="'+(ly+5)+'" font-size="13" font-weight="800" fill="#1fa971">fair share = '+f.line+'</text>';
+        s+='<line x1="'+(GAP-8)+'" y1="'+ly+'" x2="'+(GAP+data.length*(BWv+GAP)-GAP+8)+'" y2="'+ly+'" stroke="var(--bd-1fa971)" stroke-width="3" stroke-dasharray="7 5"/>';
+        s+='<text x="'+(GAP+data.length*(BWv+GAP)+2)+'" y="'+(ly+5)+'" font-size="13" font-weight="800" fill="var(--bd-1fa971)">fair share = '+f.line+'</text>';
       }
       s+='</svg>';
     } else { return; }
@@ -2424,9 +2437,9 @@
     d.innerHTML='<h4>Progress dashboard</h4>'
       +'<div class="pk"><span>Units mastered</span><b>2 of 9</b></div>'
       +'<div class="pk"><span>Accuracy this week</span><b>86%</b></div>'
-      +'<div class="pk"><span>&#128293; Days in a row</span><b>3</b></div>'
+      +'<div class="pk"><span>&var(--bd-128293); Days in a row</span><b>3</b></div>'
       +'<div class="pk"><span>&#11088; Right in a row today</span><b>28</b></div>'
-      +'<div class="pk"><span>&#127942; Awards earned</span><b>4</b></div>'
+      +'<div class="pk"><span>&var(--bd-127942); Awards earned</span><b>4</b></div>'
       +'<p class="more">&hellip;and the rest inside</p>';
     board.appendChild(d);
   }
@@ -2926,6 +2939,17 @@
       } catch (e2) {}
       var an = el('answer');  if (an && !an.getAttribute('data-cad')) an.setAttribute('data-cad','answer');
     } catch (e) {}
+  })();
+  /* (rp) the board choice, DARK by default here. Same key and same attribute as
+     board.js's MTBoard so a student who switches in a lesson sees it here too. */
+  (function(){
+    var KEY='mt_board', bd=el('board'), btn=el('boardChip');
+    function choice(){ try{ var v=localStorage.getItem(KEY); if(v==='white'||v==='dark') return v; }catch(e){} return 'dark'; }
+    function apply(c){ if(!bd) return; if(c==='dark') bd.setAttribute('data-board','dark'); else bd.removeAttribute('data-board');
+      if(btn){ btn.setAttribute('aria-pressed', c==='dark'?'true':'false'); btn.textContent = c==='dark'?'⬜ White board':'🟦 Dark board'; } }
+    apply(choice());
+    if(btn) btn.onclick=function(){ var c=(bd&&bd.getAttribute('data-board')==='dark')?'white':'dark';
+      try{ localStorage.setItem(KEY,c); }catch(e){} apply(c); };
   })();
   function cadMount(){ try { if (window.Cadabra) Cadabra.mount({ page: 'demo' }); } catch (e) {} }
   function cadPoint(id){ try { if (window.Cadabra) Cadabra.point(id); } catch (e) {} }

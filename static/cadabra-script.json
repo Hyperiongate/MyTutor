@@ -1,36 +1,206 @@
 {
   "_README": [
-    "THE LIVE MENU. Its presence is the ON switch for Mr. Cadabra's floating layer.",
-    "Delete this file and he is off everywhere, with no page change and no flag.",
-    "",
-    "SCOPE, ON PURPOSE: only 'demo' is listed below. cadabra.js refuses to mount on a",
-    "page the menu does not name (PRESENCE_RULES.md rule 18), so session.html stays",
-    "completely dark even though it is wired -- add a 'session' block here when you",
-    "are ready to watch him in a real lesson, and not before.",
-    "",
-    "Adding a NEW behaviour is code (see BEHAVIOURS in cadabra.js).",
-    "Scheduling one is editing this file."
+    "THE MENU. This file, copied to static/cadabra-script.json, is the ON switch for Mr. Cadabra's floating layer.",
+    "Delete that copy and he is off everywhere, with no page change and no flag. The two files are kept IDENTICAL (ruletests pins it).",
+    "cadabra.js refuses to mount on a page this file does not name (PRESENCE_RULES.md rule 18): the pages block below is the whole roster.",
+    "Adding a NEW behaviour is code (see BEHAVIOURS in cadabra.js). Scheduling one is editing this file."
   ],
-  "version": "2026-09-01a",
+  "_CHANGE_NOTES": [
+    "Keep newest at top. JSON has no comments, so the notes live here.",
+    "2026-09-01 (rq, same build): the LAB. pages.lab lets him mount on static/cadabra-lab.html, the owner's expression/behaviour bench (it drives the real layer through Cadabra.* directly, so nothing is scheduled here); tours.lab is the three-stop tour that page's Tour button plays.",
+    "2026-09-01 (rq): THE ROSTER IS WHOLE AGAIN. Two chats edited this file the same morning: rk (the demo build, 11:40) wrote a demo-only menu at height 118 over rj's (10:50) session/topic/practice menu at height 146 -- so from 11:40 the pencil was OFF in every real lesson and only the demo had him. This file is rj's menu (Jim's 30% ruling, all three lesson pages, the jokes, nudges and tour) PLUS the demo block rk added. Nothing else changed. Version bumped; the battery's version pins now read 'rj or later'.",
+    "2026-09-01 (rk): the demo. The demo drives him itself via Cadabra.point() from its own tour, so its block is empty -- it exists so he may mount there at all.",
+    "2026-09-01 (rj): BIGGER, AND EVERYWHERE. Jim: 'the pencil needs to be 30% larger and needs to have a slight floating motion.' height 112 -> 146 (+30%), handSize 20 -> 26 in proportion; the float itself is code (cadabra.js, same build). And with the orb retired from the student pages ('he is to be gone everywhere'), the topic and practice entries below are no longer aspirational -- rj wired both pages to this layer, so this menu now runs on all three.",
+    "2026-09-01 (ri): THE PENCIL WAKES UP QUIETLY. Jim watched the first live lesson: 'the pencil was floating around pointing at things that didn't match the voice.' The joke and the tour at lesson.start ran WHILE Mr. Cadabra's real recorded voice gave the opening, so the pencil pointed at the answer bar as the voice talked about stars. Ruling applied: at lesson.start he ENTERS and nothing more -- the real voice owns the opening. The joke and tour behaviours still exist in cadabra.js for future scheduling at a quiet moment. Also: the tour's 'problem' stop and the celebrate targets named 'problem' pointed at a data-cad name that exists on no page (rule 30: targets resolve by data-cad name) -- the dead tour stop is removed and the celebrations now aim at 'board', where the problem actually lives.",
+    "2026-08-31 (rh/stage2-4): first menu -- entrance, joke, tour, park, celebrate, nudges, clearInk wired to the session page."
+  ],
+  "version": "2026-09-01rq",
   "defaultStage": "early",
-  "height": 118,
+  "height": 146,
   "hands": "glove",
-  "handSize": 20,
-
+  "handSize": 26,
   "stages": {
-    "early":  { "entrance": "full",   "joke": true,  "tour": "first", "drift": 1.0, "tier3": "free" },
-    "upper":  { "entrance": "full",   "joke": true,  "tour": "ask",   "drift": 0.6, "tier3": "earned" },
-    "middle": { "entrance": "brief",  "joke": false, "tour": "ask",   "drift": 0.3, "tier3": "rare" },
-    "high":   { "entrance": "corner", "joke": false, "tour": "never", "drift": 0.0, "tier3": "never" }
+    "early": {
+      "entrance": "full",
+      "joke": true,
+      "tour": "first",
+      "drift": 1.0,
+      "tier3": "free"
+    },
+    "upper": {
+      "entrance": "full",
+      "joke": true,
+      "tour": "ask",
+      "drift": 0.6,
+      "tier3": "earned"
+    },
+    "middle": {
+      "entrance": "brief",
+      "joke": false,
+      "tour": "ask",
+      "drift": 0.3,
+      "tier3": "rare"
+    },
+    "high": {
+      "entrance": "corner",
+      "joke": false,
+      "tour": "never",
+      "drift": 0.0,
+      "tier3": "never"
+    }
   },
-
-  "jokes": [],
-  "lines": {},
-  "tours": {},
-
+  "jokes": [
+    "Why was six afraid of seven? Because seven ate nine. I did not write it. I just tell it.",
+    "What do you call a number that cannot sit still? A roamin' numeral.",
+    "Why did the two fours skip lunch? They already eight.",
+    "I told a joke about a broken pencil once. Never mind. It had no point.",
+    "What did the zero say to the eight? Nice belt.",
+    "Why was the equals sign so humble? It knew it was neither greater nor less than anyone.",
+    "Why did the student do multiplication on the floor? The teacher said not to use tables.",
+    "What is a math teacher's favourite dessert? Pi. Obviously."
+  ],
+  "lines": {
+    "nudges": [
+      "Take your time. I am not going anywhere.",
+      "Have another look at the first step.",
+      "Say it out loud. It helps more than you would think.",
+      "What is the very next thing you know for certain?"
+    ],
+    "welcome": [
+      "Right then. Let us have a look at this one.",
+      "Good to see you. Ready when you are."
+    ]
+  },
+  "tours": {
+    "session": [
+      {
+        "target": "board",
+        "text": "Everything I write goes here on the board."
+      },
+      {
+        "target": "answer",
+        "text": "You answer down here. Tap it or type it."
+      },
+      {
+        "target": "streak",
+        "text": "And this counts your run of right answers."
+      }
+    ],
+    "lab": [
+      {
+        "target": "board",
+        "text": "Everything I write goes here on the board."
+      },
+      {
+        "target": "answer",
+        "text": "You answer down here. Tap it or type it."
+      },
+      {
+        "target": "streak",
+        "text": "And this counts your run of right answers."
+      }
+    ]
+  },
   "pages": {
+    "session": {
+      "lesson.start": [
+        {
+          "do": "enter"
+        }
+      ],
+      "answer.focus": [
+        {
+          "do": "park"
+        }
+      ],
+      "answer.correct": [
+        {
+          "do": "celebrate",
+          "tier": "auto",
+          "target": "board"
+        }
+      ],
+      "answer.wrong": [
+        {
+          "do": "expression",
+          "to": "thinking"
+        },
+        {
+          "do": "say",
+          "from": "nudges"
+        }
+      ],
+      "problem.solved": [
+        {
+          "do": "celebrate",
+          "tier": 3,
+          "target": "board"
+        }
+      ],
+      "problem.cleared": [
+        {
+          "do": "clearInk"
+        }
+      ],
+      "hint.requested": [
+        {
+          "do": "point",
+          "target": "board",
+          "ms": 3000
+        }
+      ],
+      "lesson.end": [
+        {
+          "do": "hush"
+        },
+        {
+          "do": "release"
+        }
+      ]
+    },
+    "topic": {
+      "lesson.start": [
+        {
+          "do": "enter"
+        }
+      ],
+      "answer.correct": [
+        {
+          "do": "celebrate",
+          "tier": "auto",
+          "target": "board"
+        }
+      ],
+      "answer.wrong": [
+        {
+          "do": "expression",
+          "to": "thinking"
+        },
+        {
+          "do": "say",
+          "from": "nudges"
+        }
+      ]
+    },
+    "practice": {
+      "lesson.start": [
+        {
+          "do": "enter"
+        }
+      ],
+      "answer.correct": [
+        {
+          "do": "celebrate",
+          "tier": 1
+        }
+      ]
+    },
     "demo": {
       "_note": "The demo drives him directly from its own eleven-stop tour via Cadabra.point(), so there are no scheduled moments here. This block exists so he is allowed to mount on the demo at all."
+    },
+    "lab": {
+      "_note": "The owner's bench. Every button on that page calls Cadabra.* directly; this block exists so he may mount there (rule 18)."
     }
-  }
+  },
+  "_END": "I did no harm and this file is not truncated"
 }

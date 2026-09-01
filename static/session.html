@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 <!--
+    (rq) 2026-09-01 -- THE DARK BOARD'S OTHER HALF. rp gave the student a whiteboard/
+    blackboard toggle and tokenised the drawing FILES; this page's own <style> still
+    painted board content with literals (tutor bubbles, the folded-problem row, the
+    balance tray, the machine nodes, the check and final cards, the column colours),
+    so on the dark board a tutor bubble was a light box with near-white text in it.
+    Every board-content rule here is a var(--bd-<hex>) token now -- identical on
+    the white board by construction (board-only screenshot diff: 0 pixels), a
+    readable counterpart on navy (board-theme.css). board-theme.css is linked in the
+    head explicitly so the first paint has it. ruletests 3hp sweeps these rules.
+    (rp) 2026-09-01 -- WHITEBOARD OR BLACKBOARD. #boardChip toggle in the chip row,
+    MTBoard.wire("white", feed) at the end of the script; choice saved in localStorage
+    mt_board and applied as data-board on the feed. White stays the default.
     (rk) 2026-09-01 -- THE PICKER FINALLY HAS A MEMORY. Jim: "I keep logging in as
     student zero zero zero zero, and it keeps starting over from the beginning."
     scriptPick() read quiz fields the payload never carried (best_pct/topic_name
@@ -1053,6 +1065,7 @@
   <script src="/static/speech-text.js"></script>  <!-- build hc: ONE copy of the spoken-text transforms -->
   <script src="/static/board-text.js"></script>   <!-- build hc: ONE copy of the board/variable renderer -->
   <script src="/static/voice.js"></script>        <!-- build hd: ONE copy of the voice pipeline + its state -->
+  <link rel="stylesheet" href="/static/board-theme.css" id="board-theme-css">   <!-- build rq: the board palettes, linked here so the first paint already has them (board.js would inject it, one beat later) -->
   <script src="/static/board.js"></script>        <!-- build he: ONE copy of the whiteboard display + its state -->
   <script src="/static/mic.js"></script>          <!-- build hf: ONE copy of the microphone + its state -->
   <meta charset="utf-8" />
@@ -1239,21 +1252,21 @@
     .scale .beamwrap { position: relative; height: 190px; }
     .scale .pivot { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
       width: 0; height: 0; border-left: 30px solid transparent; border-right: 30px solid transparent;
-      border-bottom: 104px solid #9aa7b6; }
+      border-bottom: 104px solid var(--bd-9aa7b6); }
     .scale .beam { position: absolute; left: 9%; right: 9%; top: 42px; height: 10px;
       background: var(--wood); border-radius: 6px; transform-origin: 50% 50%;
       transition: transform .7s cubic-bezier(.34,1.2,.5,1); }
     .scale .pan { position: absolute; top: 38px; width: 168px; transform: translateX(-50%); text-align: center; }
     .scale .pan.left { left: 12%; } .scale .pan.right { left: 88%; }
-    .scale .tray { min-height: 58px; border: 2px solid #c9d2dd; border-top: none;
-      border-radius: 0 0 78px 78px; background: #f7fafc; padding: 8px 8px 12px;
+    .scale .tray { min-height: 58px; border: 2px solid var(--bd-c9d2dd); border-top: none;
+      border-radius: 0 0 78px 78px; background: var(--bd-f7fafc); padding: 8px 8px 12px;
       display: flex; flex-wrap: wrap; gap: 3px; align-items: center; justify-content: center;
       font-size: 28px; line-height: 1; }
-    .scale .rope { height: 30px; width: 2px; background: #c9d2dd; margin: 0 auto; }
+    .scale .rope { height: 30px; width: 2px; background: var(--bd-c9d2dd); margin: 0 auto; }
     .scale .label { margin-top: 10px; font-weight: 700; font-size: 22px; }
     .scale .box { display: inline-flex; align-items: center; justify-content: center;
-      min-width: 40px; height: 40px; padding: 0 8px; border-radius: 8px; background: #ffe6b0;
-      border: 2px solid var(--wood); font-size: 19px; font-weight: 700; color: #6b4c15; }
+      min-width: 40px; height: 40px; padding: 0 8px; border-radius: 8px; background: var(--bd-ffe6b0);
+      border: 2px solid var(--wood); font-size: 19px; font-weight: 700; color: var(--bd-6b4c15); }
     .scale .eq { text-align: center; margin-top: 12px; font-size: 17px; color: var(--muted); }
     .scale .cap { text-align: center; margin-top: 8px; font-size: 15px; }
     .pop { animation: pop .4s ease; }
@@ -1261,7 +1274,7 @@
     .qcard { width: 100%; max-width: 480px; text-align: left; }
     .qcard .qtitle { font-weight: 700; font-size: 17px; margin-bottom: 12px; text-align: center; }
     .qcard ul { list-style: none; margin: 0; padding: 0; }
-    .qcard li { background: #f2f6fc; border: 1px solid var(--line); border-left: 4px solid var(--accent);
+    .qcard li { background: var(--bd-f2f6fc); border: 1px solid var(--line); border-left: 4px solid var(--accent);
       border-radius: 10px; padding: 10px 13px; margin-bottom: 9px; font-size: 15px; line-height: 1.35; }
     .qcard .qcap { text-align: center; margin-top: 4px; font-size: 14px; color: var(--muted); }
 
@@ -1274,7 +1287,7 @@
 
     /* Variable styling: every algebra variable shows BOLD, CAPITAL, and RED --
        here in the visuals AND in the chat bubbles (styleVars() does the wrapping). */
-    .mvar { color:#e0392b; font-weight:800; }
+    .mvar { color:var(--bd-e0392b); font-weight:800; }
     .kterm { font-weight: 800; color: #d1345b; }
 
     /* "Write on the whiteboard" -- the catch-all for showing the current equation/
@@ -1317,7 +1330,7 @@
     .worklist .worow { display:grid; grid-template-columns:1fr auto 1fr; column-gap:14px; width:100%; max-width:520px;
       font-size:18px; font-weight:800; color:var(--accent); margin:0 0 2px; opacity:0; animation: stepin .4s ease forwards; }
     .worklist .worow .ol { text-align:right; } .worklist .worow .orr { text-align:left; }
-    .worklist .wcheck { font-size:25px; font-weight:800; color:#0e9f6e; margin-top:12px; text-align:center;
+    .worklist .wcheck { font-size:25px; font-weight:800; color:var(--bd-0e9f6e); margin-top:12px; text-align:center;
       opacity:0; animation: stepin .45s ease forwards; }
     .worklist .wcap { margin-top:12px; font-size:15px; color:var(--muted); text-align:center; }
     @media (max-width:560px){ .worklist .wrow { font-size:24px; } .worklist .wcheck { font-size:19px; } }
@@ -1326,28 +1339,28 @@
        so every decimal point lines up in one vertical line -- exactly what "line up the points" means. */
     .colmath { display:grid; grid-template-columns:auto auto auto; column-gap:6px; justify-content:center;
       font-variant-numeric:tabular-nums; font-weight:800; font-size:40px; color:var(--ink); line-height:1.18; margin:6px 0; }
-    .colmath .cop { text-align:center; color:var(--accent,#5b5bd6); padding-right:6px;
+    .colmath .cop { text-align:center; color:var(--accent,var(--bd-5b5bd6)); padding-right:6px;
       opacity:0; animation: stepin .4s ease forwards; }
     .colmath .cip { text-align:right; opacity:0; animation: stepin .4s ease forwards; }
     .colmath .cfp { text-align:left; opacity:0; animation: stepin .4s ease forwards; }
-    .colmath .cres { color:#0e9f6e; }
+    .colmath .cres { color:var(--bd-0e9f6e); }
     /* build jc (2026-08-19): the carry row above the columns, the answer digits as
        they get written, and the RED that marks whatever is new THIS step. .dig keeps
        the PARENT font-size on purpose, so 1ch is a true digit width and a carry sits
        exactly over its column; the inner <i> is what renders small. */
     .colmath .dig { display:inline-block; width:1ch; text-align:center; }
     .colmath .dig > i { font-style:normal; }
-    .colmath .ccarry { line-height:0.62; height:0.62em; color:#6b7280; }
+    .colmath .ccarry { line-height:0.62; height:0.62em; color:var(--bd-6b7280); }
     .colmath .ccarry .dig > i { font-size:0.42em; }
-    .colmath .cpart { color:#0e9f6e; }
-    .colmath .cnew > i { color:#e0392b; }
+    .colmath .cpart { color:var(--bd-0e9f6e); }
+    .colmath .cnew > i { color:var(--bd-e0392b); }
     .colmath .crule { grid-column:1 / -1; border-top:3px solid var(--ink); height:0; margin:6px 0 4px; }
     .colmath .ccap { grid-column:1 / -1; text-align:center; font-size:15px; font-weight:600; color:var(--muted); margin-top:10px; }
     /* build di (audit S-9): the DELIBERATELY-WRONG last-digit lineup -- amber, dashed
        rule, and a badge, so the wrong way can never be mistaken for the taught way. */
-    .colmath.colwrong .cip, .colmath.colwrong .cfp, .colmath.colwrong .cop { color:#b45309; }
-    .colmath.colwrong .crule { border-top-color:#b45309; border-top-style:dashed; }
-    .colmath .cwarn { grid-column:1 / -1; text-align:center; font-size:14px; font-weight:800; color:#b45309; margin-top:8px; }
+    .colmath.colwrong .cip, .colmath.colwrong .cfp, .colmath.colwrong .cop { color:var(--bd-b45309); }
+    .colmath.colwrong .crule { border-top-color:var(--bd-b45309); border-top-style:dashed; }
+    .colmath .cwarn { grid-column:1 / -1; text-align:center; font-size:14px; font-weight:800; color:var(--bd-b45309); margin-top:8px; }
     @media (max-width:560px){ .colmath { font-size:30px; } }
 
     /* Function machine (input -> rule -> output). The RIGHT picture for evaluating a
@@ -1355,15 +1368,15 @@
        functions instead of the balance scale (which stays for equations). */
     .machine { width:100%; max-width:560px; text-align:center; }
     .machine .mflow { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
-    .machine .mnode { min-width:96px; padding:12px 14px; border-radius:14px; background:#eef2ff; border:2px solid #c9d2f5; }
-    .machine .mnode.mout { background:#eafaf3; border-color:#bfe6cd; }
+    .machine .mnode { min-width:96px; padding:12px 14px; border-radius:14px; background:var(--bd-eef2ff); border:2px solid var(--bd-c9d2f5); }
+    .machine .mnode.mout { background:var(--bd-eafaf3); border-color:var(--bd-bfe6cd); }
     .machine .mcap { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:700; }
     .machine .mval { font-size:34px; font-weight:800; line-height:1.1; margin-top:2px; color:var(--ink); }
     .machine .marrow { font-size:30px; color:var(--accent); flex:0 0 auto; }
-    .machine .mbox { min-width:120px; padding:16px 18px; border-radius:16px; background:#fff7e6;
+    .machine .mbox { min-width:120px; padding:16px 18px; border-radius:16px; background:var(--bd-fff7e6);
       border:2px solid var(--wood); box-shadow:0 8px 20px rgba(185,133,47,.18); }
-    .machine .mboxlabel { font-size:14px; color:#6b4c15; font-weight:700; margin-bottom:4px; }
-    .machine .mrule { font-size:26px; font-weight:800; color:#6b4c15; }
+    .machine .mboxlabel { font-size:14px; color:var(--bd-6b4c15); font-weight:700; margin-bottom:4px; }
+    .machine .mrule { font-size:26px; font-weight:800; color:var(--bd-6b4c15); }
     .machine .mwork { margin-top:16px; font-size:20px; font-weight:700; color:var(--ink); }
     .machine .mfx { margin-top:6px; font-size:16px; color:var(--muted); font-weight:700; }
     .machine .cap { margin-top:8px; font-size:15px; color:var(--ink); }
@@ -1590,13 +1603,13 @@
       border-radius: 12px; font-size: 13.5px; font-weight: 700; background: #fdf4d7;
       border: 1px solid #ecd48a; color: #7a5c00; }
     .finalcard { border-radius: 18px; padding: 22px 20px; text-align: center; margin: 4px auto;
-      max-width: 480px; border: 2px solid #ecd48a; background: linear-gradient(180deg, #fffdf4, #fdf4d7); }
-    .finalcard.pass { border-color: #b7a14f; }
-    .finalcard .fc-top { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8a7a35; }
+      max-width: 480px; border: 2px solid var(--bd-ecd48a); background: linear-gradient(180deg, var(--bd-fffdf4), var(--bd-fdf4d7)); }
+    .finalcard.pass { border-color: var(--bd-b7a14f); }
+    .finalcard .fc-top { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--bd-8a7a35); }
     .finalcard .fc-score { font-size: 40px; font-weight: 900; color: var(--ink); margin: 6px 0; }
-    .finalcard .fc-badge { font-size: 15.5px; font-weight: 700; color: #7a5c00; }
+    .finalcard .fc-badge { font-size: 15.5px; font-weight: 700; color: var(--bd-7a5c00); }
     .finalcard a.fc-link { display: inline-block; margin-top: 12px; padding: 11px 20px; border-radius: 12px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2)); color: var(--bd-fff-text); font-weight: 800;
       text-decoration: none; }
 
     @media (max-width: 900px) {
@@ -1631,10 +1644,10 @@
        content is still in the DOM inside .probbody and comes straight back on click. */
     .feed .probdone { align-self: stretch; width: 100%; }
     .feed .probdone .probsum { display: flex; align-items: baseline; gap: 8px; width: 100%;
-      background: #f7f8fc; border: 1px solid var(--line); border-radius: 12px;
+      background: var(--bd-f7f8fc); border: 1px solid var(--line); border-radius: 12px;
       padding: 9px 13px; cursor: pointer; font: inherit; font-size: 13px;
       color: var(--muted); text-align: left; }
-    .feed .probdone .probsum:hover { background: #eef0f8; }
+    .feed .probdone .probsum:hover { background: var(--bd-eef0f8); }
     .feed .probdone .probsum:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .feed .probdone .probcar { font-size: 10px; color: var(--accent); }
     .feed .probdone .probeq { font-weight: 700; color: var(--ink); }
@@ -1649,12 +1662,12 @@
     }
     .feed sup { font-size: 0.62em; }
     .feed .checkcard { text-align:center; padding:16px 24px; border-radius:16px; min-width:230px; }
-    .feed .checkcard.pass { background:#e9f9f0; border:1px solid #b6e6cd; }
-    .feed .checkcard.keep { background:#fff6e6; border:1px solid #f2d59a; }
+    .feed .checkcard.pass { background:var(--bd-e9f9f0); border:1px solid var(--bd-b6e6cd); }
+    .feed .checkcard.keep { background:var(--bd-fff6e6); border:1px solid var(--bd-f2d59a); }
     .feed .checkcard .ck-top { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; }
     .feed .checkcard .ck-score { font-size:42px; font-weight:800; color:var(--ink); margin:2px 0 4px; }
-    .feed .checkcard.pass .ck-badge { color:#0e9f6e; font-weight:800; }
-    .feed .checkcard.keep .ck-badge { color:#a5741a; font-weight:800; }
+    .feed .checkcard.pass .ck-badge { color:var(--bd-0e9f6e); font-weight:800; }
+    .feed .checkcard.keep .ck-badge { color:var(--bd-a5741a); font-weight:800; }
     .feed .bubble { max-width: 96%; padding: 10px 14px; border-radius: 14px; font-size: 16px; line-height: 1.5; }   /* build oj: 80% wasted a fifth of the board (Jim) */
 
     /* ===== build oz (2026-08-27): HIS WORDS LEFT, HIS WORK RIGHT =================
@@ -1684,11 +1697,11 @@
       .feed > .bubble.student { justify-self: end; }
       .feed > .bubble.system { justify-self: center; }
     }
-    .feed .bubble.tutor { align-self: flex-start; background: #f2f4ff; border: 1px solid #e2e5fb;
+    .feed .bubble.tutor { align-self: flex-start; background: var(--bd-f2f4ff); border: 1px solid var(--bd-e2e5fb);
       color: var(--ink); border-bottom-left-radius: 5px; }
-    .feed .bubble.student { align-self: flex-end; background: var(--accent); color: #fff;
+    .feed .bubble.student { align-self: flex-end; background: var(--accent); color: var(--bd-fff-text);
       border-bottom-right-radius: 5px; }
-    .feed .bubble.student .mvar { color: #ffe08a; }
+    .feed .bubble.student .mvar { color: var(--bd-ffe08a); }
     .feed .bubble.system { align-self: center; background: transparent; border: none; color: var(--muted);
       font-size: 13px; padding: 2px; }
     .feed .mblock { align-self: center; width: 100%; display: flex; flex-direction: column;
@@ -1887,6 +1900,10 @@
            small chips now -- click to pop open, click again to tuck away. More board. -->
       <div class="chiprow" id="chipRow">
         <button class="chip" id="goalChip" type="button" hidden aria-expanded="false">🎯 Today's Goal <span class="chipcaret">▼</span></button>
+        <!-- (rp, 2026-09-01) THE STUDENT PICKS THE BOARD. One chip; the choice is remembered
+             on this device (mt_board). Default is the whiteboard, so nothing changes for a
+             child who never touches it. -->
+        <button class="chip" id="boardChip" type="button" data-board-toggle aria-pressed="false">🟦 Dark board</button>
         <button class="chip" id="progChip" type="button" hidden aria-expanded="false">📊 Progress <span class="chipct" id="progChipCt"></span> <span class="chipcaret">▼</span></button>
       </div>
 
@@ -3246,7 +3263,7 @@
         + '<div class="fc-badge">' + (passed
             ? "★ PASSED — you've completed the whole course!"
             : "Not this time — and that's okay. Let's shore up the shaky spots and take a fresh one.") + '</div>'
-        + (passed ? '<div style="margin-top:10px;font-size:14.5px;font-weight:700;color:#7a5c00">🏅 The <b>Course Champion</b> medal just landed in your trophy case!</div>'
+        + (passed ? '<div style="margin-top:10px;font-size:14.5px;font-weight:700;color:var(--bd-7a5c00)">🏅 The <b>Course Champion</b> medal just landed in your trophy case!</div>'
                     + '<a class="fc-link" href="/dashboard?code=' + encodeURIComponent(CODE) + '&course=' + encodeURIComponent(COURSE) + '">🏆 See my trophy case</a>' : '')
         + '</div>';
       scrollFeed();
@@ -4458,6 +4475,9 @@
       welcome.classList.add("show");
       el("welcomeGo").click();              // the normal lesson start, unchanged
     });
+
+    /* (rp) the board choice: whiteboard by default, remembered per device */
+    try { if (window.MTBoard) MTBoard.wire("white", el("feed")); } catch (e) {}
 
     // Debug hook (harmless): lets us drive the orb state for testing/screenshots.
     window.__setState = setState;

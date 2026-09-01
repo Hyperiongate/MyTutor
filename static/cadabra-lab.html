@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!--
+    cadabra-lab.html  --  Math Tutor MVP  --  Hyperion Shift LLC
+    -------------------------------------------------------------------------
+    MR. CADABRA'S BENCH. The owner's page for designing his expressions and trying
+    every behaviour on the REAL floating layer (cadabra.js) -- not on a copy of it.
+
+    CHANGE NOTES (keep newest at top):
+    (rq) 2026-09-01 -- NEW, AND PERMANENT. Jim: "I don't want any of this pencil
+    stuff to be mock up anymore... When I come back, I wanna work on some of the
+    expressions that the pencil actually makes." The motion-lab mockup
+    (static/mockup/cadabra-playground.html) carried its OWN pencil rig -- a second
+    copy of the character that drifted from the shipped one (the glove fix, the
+    index-finger fix and the float all landed in cadabra.js, not there). This page
+    replaces it as the tool: a stand-in lesson with the four real data-cad targets
+    (board, answer, streak, tutor), the white/dark board from board-theme.css, and a
+    console that calls the public Cadabra.* doors -- expressions by name (rq added
+    Cadabra.expression / expressions / joke / size), say, point, underline, three
+    celebration tiers, chase, the tour (menu tours.lab), park, release, clearInk,
+    the child's mode dial, the stage table, his size. The state readout on the
+    right is Cadabra.state(), live. Rule 18: he mounts here because the menu names
+    "lab". noindex: an owner tool, never a page a search engine should find.
+    Nothing here changes what a child sees; the layer's rules (park while typing,
+    covered targets refused, reduced motion) apply on this page exactly as they do
+    in a lesson -- which is the point of testing on the real thing.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Mr. Cadabra — the bench</title>
+<link rel="stylesheet" href="/static/board-theme.css">
+<style>
+  :root { --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --panel:#ffffff; --bg:#f4f3fb; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: var(--ink); background: var(--bg); }
+  .app { display: grid; grid-template-columns: 1fr 340px; height: 100vh; }
+  .stage { display: flex; flex-direction: column; min-width: 0; padding: 14px 18px; gap: 10px; }
+  .topbar { display: flex; align-items: center; gap: 10px; }
+  .topbar h1 { font-size: 18px; margin: 0; }
+  .badge { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8a5a00; background: #fff3d6; border: 1px solid #f0c674; border-radius: 999px; padding: 3px 9px; }
+  .chips { margin-left: auto; display: flex; gap: 8px; }
+  .chip { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 700; }
+  .chip small { display: block; font-weight: 500; color: var(--muted); font-size: 11px; }
+  .tutor { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; }
+  .tutor b { font-size: 15px; }
+  .tutor span { color: var(--muted); font-size: 13px; }
+  .feed { flex: 1; min-height: 0; overflow: auto; background: var(--bd-panel); border: 1px solid var(--line); border-radius: 18px;
+          padding: 22px 26px; display: flex; flex-direction: column; gap: 10px; font-size: 24px; }
+  .feed .goal { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 800; }
+  .feed .bubble { align-self: flex-start; max-width: 70%; font-size: 16px; line-height: 1.45; padding: 10px 14px; border-radius: 14px;
+                  background: var(--bd-f2f4ff); border: 1px solid var(--bd-e2e5fb); }
+  .feed .row { font-weight: 800; letter-spacing: 1px; text-align: center; }
+  .feed .row .v { color: var(--bd-e0392b); }
+  .feed .row.op { color: var(--bd-5b5bd6); font-size: 18px; }
+  .feed .ok { color: var(--bd-0e9f6e); font-weight: 800; text-align: center; }
+  .answer { display: flex; gap: 10px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+  .answer input { flex: 1; font-size: 17px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; outline: none; }
+  .answer input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(91,91,214,.14); }
+  .answer button { font-size: 15px; font-weight: 700; padding: 10px 16px; border: 0; border-radius: 10px; color: #fff; background: var(--accent); cursor: pointer; }
+  .hint { font-size: 12px; color: var(--muted); }
+
+  .console { background: #1b1926; color: #efecf8; padding: 14px 14px 30px; overflow: auto; font-size: 13px; }
+  .console h2 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #b8b3cc; margin: 16px 0 8px; }
+  .console h2:first-child { margin-top: 0; }
+  .grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .console button, .console select, .console input[type=text] { font: inherit; border-radius: 9px; border: 1px solid #3a3552; background: #2b2740; color: #efecf8; padding: 7px 10px; cursor: pointer; }
+  .console button:hover { background: #3a3552; }
+  .console button.on { background: #F2BC1B; color: #1b1926; border-color: #F2BC1B; font-weight: 800; }
+  .console input[type=text] { width: 100%; cursor: text; }
+  .console input[type=range] { width: 100%; }
+  .console label { display: block; color: #b8b3cc; margin: 6px 0 3px; }
+  .console .row2 { display: flex; gap: 6px; align-items: center; }
+  .console .row2 > * { flex: 1; }
+  pre#state { background: #120f1c; border-radius: 10px; padding: 10px; font-size: 11.5px; line-height: 1.4; white-space: pre-wrap; color: #cfc9e6; margin: 0; }
+  .off { background: #3b1d1d; border: 1px solid #7a2e2e; border-radius: 10px; padding: 10px; line-height: 1.4; }
+  .off code { color: #ffd0d0; }
+</style>
+<!-- the layer: not deferred, window.Cadabra must exist before the console below runs -->
+<script src="/static/cadabra.js"></script>
+</head>
+<body data-cadabra-page="lab">
+<div class="app">
+  <div class="stage">
+    <div class="topbar">
+      <h1>Mr. Cadabra — the bench</h1>
+      <span class="badge">owner tool</span>
+      <div class="chips" data-cad="streak">
+        <div class="chip">🔥 4<small>days in a row</small></div>
+        <div class="chip">⭐ 3<small>right in a row today</small></div>
+      </div>
+    </div>
+    <div class="tutor" data-cad="tutor"><b>Mr. Cadabra</b><span>— a stand-in lesson. Every button on the right drives the real layer.</span></div>
+    <div class="feed" id="feed" data-cad="board">
+      <div class="goal">Today's goal · solve a two-step equation</div>
+      <div class="bubble">Let's find <b>x</b>. First we get the <b>2x</b> on its own.</div>
+      <div class="row">2<span class="v">x</span> + 1 = 25</div>
+      <div class="row op">− 1</div>
+      <div class="row">2<span class="v">x</span> = 24</div>
+      <div class="row op">÷ 2</div>
+      <div class="row"><span class="v">x</span> = 12</div>
+      <div class="ok">✓ 2 × 12 + 1 = 25</div>
+    </div>
+    <div class="answer" data-cad="answer">
+      <input id="ans" type="text" placeholder="Type an answer — he parks while you type (rule 5)">
+      <button type="button" id="send">Send</button>
+    </div>
+    <div class="hint">Rule 19 in action: cover a target with anything and he refuses to draw on it. Rule 29: nothing on this page ever reflows because of him.</div>
+  </div>
+
+  <div class="console">
+    <div id="offNote" class="off" hidden>He is <b>off</b> on this page. <code>Cadabra.state()</code> says: <span id="offWhy"></span>.
+      The menu (<code>/static/cadabra-script.json</code>) must exist and name <code>"lab"</code> under <code>pages</code>.</div>
+
+    <h2>Expressions</h2>
+    <div class="grid" id="exprs"></div>
+    <label><input type="checkbox" id="hold" checked> hold it (re-apply after each behaviour resets him to neutral)</label>
+
+    <h2>Board</h2>
+    <div class="row2"><button type="button" id="boardWhite" class="on">⬜ White</button><button type="button" id="boardDark">🟦 Dark</button></div>
+
+    <h2>Say</h2>
+    <input type="text" id="sayText" value="Twelve. Nicely done — the x was hiding behind a two.">
+    <div class="row2"><button type="button" data-act="say">💬 Say it</button><button type="button" data-act="joke">😄 A joke</button></div>
+
+    <h2>Point &amp; write</h2>
+    <label>target</label>
+    <select id="target"><option>board</option><option>answer</option><option>streak</option><option>tutor</option></select>
+    <div class="grid">
+      <button type="button" data-act="point">👉 Point</button>
+      <button type="button" data-act="underline">✏️ Underline</button>
+      <button type="button" data-act="clearInk">🧽 Clear ink</button>
+    </div>
+
+    <h2>Celebrate</h2>
+    <div class="grid">
+      <button type="button" data-act="c1">tier 1</button>
+      <button type="button" data-act="c2">tier 2</button>
+      <button type="button" data-act="c3">tier 3</button>
+      <button type="button" data-act="chase">🧤 Glove chase</button>
+    </div>
+
+    <h2>Move</h2>
+    <div class="grid">
+      <button type="button" data-act="tour">🗺 Tour</button>
+      <button type="button" data-act="park">🅿 Park</button>
+      <button type="button" data-act="release">🏠 Release</button>
+    </div>
+
+    <h2>Dials</h2>
+    <label>size (px) <span id="sizeVal"></span></label>
+    <input type="range" id="size" min="80" max="320" step="2">
+    <div class="row2">
+      <div><label>stage</label><select id="stage"><option>early</option><option>upper</option><option>middle</option><option>high</option></select></div>
+      <div><label>child's dial</label><select id="mode"><option>full</option><option>quiet</option><option>off</option></select></div>
+    </div>
+
+    <h2>State</h2>
+    <pre id="state">…</pre>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var held = null;
+
+  function paintState() {
+    try { $("state").textContent = JSON.stringify(Cadabra.state(), null, 1); } catch (e) { $("state").textContent = String(e); }
+  }
+  function reapply() {
+    if (held && $("hold").checked) setTimeout(function () { Cadabra.expression(held); }, 60);
+  }
+  function act(name) {
+    var t = $("target").value, s = $("sayText").value;
+    switch (name) {
+      case "say":       Cadabra.say(s); break;
+      case "joke":      Cadabra.joke(); break;
+      case "point":     Cadabra.point(t); break;
+      case "underline": Cadabra.underline(t); break;
+      case "clearInk":  Cadabra.clearInk(); break;
+      case "c1":        Cadabra.celebrate({ tier: 1, target: t, forced: true }); break;
+      case "c2":        Cadabra.celebrate({ tier: 2, target: t, forced: true }); break;
+      case "c3":        Cadabra.celebrate({ tier: 3, target: t, forced: true }); break;
+      case "chase":     Cadabra.chase(); break;
+      case "tour":      Cadabra.tour({ forced: true }); break;
+      case "park":      Cadabra.park(); break;
+      case "release":   Cadabra.release(); break;
+    }
+    reapply();
+  }
+
+  function build() {
+    var names = Cadabra.expressions ? Cadabra.expressions() : [];
+    var box = $("exprs"); box.innerHTML = "";
+    names.forEach(function (n) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = n;
+      b.addEventListener("click", function () {
+        held = n; Cadabra.expression(n);
+        Array.prototype.forEach.call(box.children, function (c) { c.classList.toggle("on", c === b); });
+      });
+      box.appendChild(b);
+    });
+    document.querySelectorAll("[data-act]").forEach(function (b) {
+      b.addEventListener("click", function () { act(b.getAttribute("data-act")); });
+    });
+    $("boardWhite").addEventListener("click", function () { $("feed").removeAttribute("data-board"); $("boardWhite").classList.add("on"); $("boardDark").classList.remove("on"); });
+    $("boardDark").addEventListener("click", function () { $("feed").setAttribute("data-board", "dark"); $("boardDark").classList.add("on"); $("boardWhite").classList.remove("on"); });
+    var sz = $("size"); sz.value = Math.round(Cadabra.size()); $("sizeVal").textContent = sz.value;
+    sz.addEventListener("input", function () { $("sizeVal").textContent = Cadabra.size(+sz.value).toFixed(0); });
+    $("stage").value = Cadabra.stage();
+    $("stage").addEventListener("change", function () { Cadabra.stage($("stage").value); paintState(); });
+    $("mode").value = Cadabra.mode();
+    $("mode").addEventListener("change", function () { Cadabra.mode($("mode").value); paintState(); });
+    $("send").addEventListener("click", function () { $("ans").value = ""; $("ans").blur(); Cadabra.fire("answer.correct", { hard: true }); reapply(); });
+    setInterval(paintState, 500);
+  }
+
+  Cadabra.mount().then(function () {
+    var st = Cadabra.state();
+    if (!Cadabra.available() || !st.mounted || !st.visible) {
+      $("offNote").hidden = false;
+      $("offWhy").textContent = JSON.stringify(st);
+    }
+    build(); paintState();
+  });
+})();
+</script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

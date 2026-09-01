@@ -2,12 +2,12 @@
 
 Concept pages for review. **Nothing here is production.**
 
-Last updated 1 September 2026.
+Last updated 1 September 2026 (build rq: the playground is superseded by `/static/cadabra-lab.html`; the pencil itself is no longer a mockup — it ships in cadabra.js on every lesson page and the demo).
 
 | File | What it is |
 |---|---|
 | `cadabra-pencil.html` | **Mr. Cadabra, Sharpened** — Mr. Cadabra redrawn as a No.2 yellow pencil. Full character, size tests in the face orb, five expressions, a talking mouth (press "Say a line"), and the trade-offs behind each decision. |
-| `cadabra-playground.html` | **The Cadabra Motion Lab** *(added 31 Aug 2026)* — the same character, but free of the box: he floats over a stand-in entry-level math lesson and the dark console on the right fires every behaviour live. Point, underline, three celebration tiers, a page tour, an opening joke, three hand styles, and sliders for size, bob, drift and flight speed. |
+| `cadabra-playground.html` | **The Cadabra Motion Lab** *(added 31 Aug 2026; superseded 1 Sep by the permanent bench, `/static/cadabra-lab.html`, which drives the REAL shipped layer — this file keeps its own older copy of the pencil and is kept only as the design record)* — the same character, but free of the box: he floats over a stand-in entry-level math lesson and the dark console on the right fires every behaviour live. Point, underline, three celebration tiers, a page tour, an opening joke, three hand styles, and sliders for size, bob, drift and flight speed. |
 | `landing-cadabra.html` | **The Front Door, Hosted** *(added 1 Sep 2026)* — the simpler home page, with the pencil as the hero picture, and a product demonstration **he gives himself**: press "Let him show you around" and he flies into a stand-in classroom, points at the board, the streak bubbles and the sidebar tab (which he closes, to show what it does), writes the answer line, and hands over. No video, no narrator, no per-view cost. Supersedes `landing-quiet.html`. |
 | `landing-quiet.html` | **The Quiet Front Door** *(superseded 1 Sep)* — a calmer home page. Three doors above the fold, everything we sell with below it. Press **Show design notes** in the top bar for the reasoning inline. |
 

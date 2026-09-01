@@ -133,11 +133,11 @@
 (function () {
   "use strict";
   var NS = "http://www.w3.org/2000/svg";
-  var COLORS = ["#5b5bd6", "#0d9488", "#e0392b", "#d97706", "#7c3aed", "#2563eb"];
+  var COLORS = ["var(--bd-5b5bd6)", "var(--bd-0d9488)", "var(--bd-e0392b)", "var(--bd-d97706)", "var(--bd-7c3aed)", "var(--bd-2563eb)"];
   // Shared attribute string for the x / y AXIS LETTER LABELS (2026-08-06, Jim: every
   // coordinate figure must clearly label its axes). Bold italic, dark, white halo.
-  var AXIS_LBL = 'font-size="15" font-weight="800" font-style="italic" fill="#26263a" ' +
-    'stroke="#ffffff" stroke-width="3" paint-order="stroke" font-family="Georgia,Times,serif"';
+  var AXIS_LBL = 'font-size="15" font-weight="800" font-style="italic" fill="var(--bd-26263a)" ' +
+    'stroke="var(--bd-ffffff)" stroke-width="3" paint-order="stroke" font-family="Georgia,Times,serif"';
 
   function esc(t) {
     return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -306,7 +306,7 @@
     var svg = '<svg viewBox="0 0 ' + S + ' ' + S + '" xmlns="' + NS +
       '" style="width:100%;max-width:430px;height:auto;display:block;margin:6px auto;">';
     svg += '<defs><clipPath id="gclip"><rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '"/></clipPath></defs>';
-    svg += '<rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '" fill="#fbfbff" stroke="#e7e6f2"/>';
+    svg += '<rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '" fill="var(--bd-fbfbff)" stroke="var(--bd-e7e6f2)"/>';
 
     // grid + labels with a "nice" tick step per axis
     function step(range) {
@@ -316,13 +316,13 @@
     var xstep = step(xmax - xmin), ystep = step(ymax - ymin);
     for (var gx = Math.ceil(xmin / xstep) * xstep; gx <= xmax + 1e-9; gx += xstep) {
       var px = mapX(gx), zx = Math.abs(gx) < 1e-9;
-      svg += '<line x1="' + px + '" y1="' + PAD + '" x2="' + px + '" y2="' + (S - PAD) + '" stroke="' + (zx ? "#9aa7b6" : "#eef0f7") + '" stroke-width="' + (zx ? 1.5 : 1) + '"/>';
-      if (!zx) svg += '<text x="' + px + '" y="' + (mapY(0) + 13) + '" font-size="10" fill="#8890a0" text-anchor="middle">' + trimnum(gx) + '</text>';
+      svg += '<line x1="' + px + '" y1="' + PAD + '" x2="' + px + '" y2="' + (S - PAD) + '" stroke="' + (zx ? "var(--bd-9aa7b6)" : "var(--bd-eef0f7)") + '" stroke-width="' + (zx ? 1.5 : 1) + '"/>';
+      if (!zx) svg += '<text x="' + px + '" y="' + (mapY(0) + 13) + '" font-size="10" fill="var(--bd-8890a0)" text-anchor="middle">' + trimnum(gx) + '</text>';
     }
     for (var gy = Math.ceil(ymin / ystep) * ystep; gy <= ymax + 1e-9; gy += ystep) {
       var py = mapY(gy), zy = Math.abs(gy) < 1e-9;
-      svg += '<line x1="' + PAD + '" y1="' + py + '" x2="' + (S - PAD) + '" y2="' + py + '" stroke="' + (zy ? "#9aa7b6" : "#eef0f7") + '" stroke-width="' + (zy ? 1.5 : 1) + '"/>';
-      if (!zy) svg += '<text x="' + (mapX(0) - 6) + '" y="' + (py + 3) + '" font-size="10" fill="#8890a0" text-anchor="end">' + trimnum(gy) + '</text>';
+      svg += '<line x1="' + PAD + '" y1="' + py + '" x2="' + (S - PAD) + '" y2="' + py + '" stroke="' + (zy ? "var(--bd-9aa7b6)" : "var(--bd-eef0f7)") + '" stroke-width="' + (zy ? 1.5 : 1) + '"/>';
+      if (!zy) svg += '<text x="' + (mapX(0) - 6) + '" y="' + (py + 3) + '" font-size="10" fill="var(--bd-8890a0)" text-anchor="end">' + trimnum(gy) + '</text>';
     }
     // AXIS LABELS (2026-08-06, Jim: the axes must ALWAYS be clearly labeled x and y):
     // big, bold, dark, on a white halo so they read over the grid -- and CLAMPED into the
@@ -360,8 +360,8 @@
       var ix = (parsedLines[1].b - parsedLines[0].b) / (parsedLines[0].m - parsedLines[1].m);
       var iy = parsedLines[0].m * ix + parsedLines[0].b;
       if (ix >= xmin && ix <= xmax && iy >= ymin && iy <= ymax) {
-        svg += '<circle cx="' + mapX(ix) + '" cy="' + mapY(iy) + '" r="5.5" fill="#fff" stroke="#e0392b" stroke-width="2.5"/>';
-        svg += '<text x="' + (mapX(ix) + 9) + '" y="' + (mapY(iy) - 7) + '" font-size="11" font-weight="700" fill="#c0392b">(' + trimnum(ix) + ", " + trimnum(iy) + ')</text>';
+        svg += '<circle cx="' + mapX(ix) + '" cy="' + mapY(iy) + '" r="5.5" fill="var(--bd-ffffff)" stroke="var(--bd-e0392b)" stroke-width="2.5"/>';
+        svg += '<text x="' + (mapX(ix) + 9) + '" y="' + (mapY(iy) - 7) + '" font-size="11" font-weight="700" fill="var(--bd-c0392b)">(' + trimnum(ix) + ", " + trimnum(iy) + ')</text>';
       }
     }
     // BUILD dk (audit re-run finding 8): a point must never be drawn AT a declared
@@ -378,8 +378,8 @@
       for (var hi = 0; hi < holeXs.length; hi++) {
         if (Math.abs(p[0] - holeXs[hi]) < 1e-9) return;   // the hole owns that x
       }
-      svg += '<circle cx="' + mapX(p[0]) + '" cy="' + mapY(p[1]) + '" r="4.5" fill="#5b5bd6"/>';
-      svg += '<text x="' + (mapX(p[0]) + 8) + '" y="' + (mapY(p[1]) - 6) + '" font-size="10.5" fill="#26263a">(' + trimnum(p[0]) + ", " + trimnum(p[1]) + ')</text>';
+      svg += '<circle cx="' + mapX(p[0]) + '" cy="' + mapY(p[1]) + '" r="4.5" fill="var(--bd-5b5bd6)"/>';
+      svg += '<text x="' + (mapX(p[0]) + 8) + '" y="' + (mapY(p[1]) - 6) + '" font-size="10.5" fill="var(--bd-26263a)">(' + trimnum(p[0]) + ", " + trimnum(p[1]) + ')</text>';
     });
     // HOLES (2026-08-07, Jim's live catch: the tutor SAID "I've punched a hole out at
     // x = 2" over an unbroken curve). hole="2" (or hole="2; 5") draws an OPEN circle on
@@ -408,8 +408,8 @@
             && Math.abs(hyl - hyr) <= Math.max(1, Math.abs(hyl)) * 0.05) hy = (hyl + hyr) / 2;
       }
       if (!isFinite(hy) || hx < xmin || hx > xmax || hy < ymin || hy > ymax) return;
-      svg += '<circle cx="' + mapX(hx) + '" cy="' + mapY(hy) + '" r="5.5" fill="#fbfbff" stroke="#e0392b" stroke-width="2.5"/>';
-      svg += '<text x="' + (mapX(hx) + 9) + '" y="' + (mapY(hy) - 8) + '" font-size="10.5" font-weight="700" fill="#c0392b">hole</text>';
+      svg += '<circle cx="' + mapX(hx) + '" cy="' + mapY(hy) + '" r="5.5" fill="var(--bd-fbfbff)" stroke="var(--bd-e0392b)" stroke-width="2.5"/>';
+      svg += '<text x="' + (mapX(hx) + 9) + '" y="' + (mapY(hy) - 8) + '" font-size="10.5" font-weight="700" fill="var(--bd-c0392b)">hole</text>';
     });
     // PIECEWISE ENDPOINTS (build di, audit finding S-4): a domain-clipped piece marks
     // its own boundary -- an OPEN circle for a strict bound (the value does not belong
@@ -425,8 +425,8 @@
         if (bx == null || !isFinite(bx) || bx < xmin || bx > xmax) return;
         var by; try { by = c.fn(bx); } catch (e) { return; }
         if (!isFinite(by) || by < ymin || by > ymax) return;
-        if (bp[1]) svg += '<circle cx="' + mapX(bx) + '" cy="' + mapY(by) + '" r="5" fill="' + col + '" stroke="#ffffff" stroke-width="1.5"/>';
-        else svg += '<circle cx="' + mapX(bx) + '" cy="' + mapY(by) + '" r="5" fill="#fbfbff" stroke="' + col + '" stroke-width="2.5"/>';
+        if (bp[1]) svg += '<circle cx="' + mapX(bx) + '" cy="' + mapY(by) + '" r="5" fill="' + col + '" stroke="var(--bd-ffffff)" stroke-width="1.5"/>';
+        else svg += '<circle cx="' + mapX(bx) + '" cy="' + mapY(by) + '" r="5" fill="var(--bd-fbfbff)" stroke="' + col + '" stroke-width="2.5"/>';
       });
     });
     svg += "</g>";
@@ -522,7 +522,7 @@
     return '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="' + NS + '" style="width:100%;max-width:' + figCap(w, h, maxw) + 'px;height:auto;display:block;margin:6px auto;">';
   }
   function tspan(x, y, s, fill, size, weight, anchor) {
-    return '<text x="' + x + '" y="' + y + '" fill="' + (fill || "#26263a") + '" font-size="' + (size || 12) +
+    return '<text x="' + x + '" y="' + y + '" fill="' + (fill || "var(--bd-26263a)") + '" font-size="' + (size || 12) +
       '" font-weight="' + (weight || 600) + '" text-anchor="' + (anchor || "middle") +
       '" font-family="system-ui,Segoe UI,Arial,sans-serif">' + esc(s) + '</text>';
   }
@@ -553,14 +553,14 @@
     var W = 400, H = 250, left = 36, right = W - 12, top = 22, base = H - 40, plotW = right - left, plotH = base - top;
     var max = Math.max.apply(null, d.map(function (o) { return o.value; }).concat([1]));
     var s = svgOpen(W, H, 720);
-    for (var i = 0; i <= 4; i++) { var v = max * i / 4, y = base - plotH * i / 4; s += '<line x1="' + left + '" y1="' + y + '" x2="' + right + '" y2="' + y + '" stroke="#eef0f7"/>'; s += tspan(left - 5, y + 3, String(trimnum(v)), "#8890a0", 9, 500, "end"); }
-    s += '<line x1="' + left + '" y1="' + base + '" x2="' + right + '" y2="' + base + '" stroke="#9aa7b6" stroke-width="1.5"/>';
+    for (var i = 0; i <= 4; i++) { var v = max * i / 4, y = base - plotH * i / 4; s += '<line x1="' + left + '" y1="' + y + '" x2="' + right + '" y2="' + y + '" stroke="var(--bd-eef0f7)"/>'; s += tspan(left - 5, y + 3, String(trimnum(v)), "var(--bd-8890a0)", 9, 500, "end"); }
+    s += '<line x1="' + left + '" y1="' + base + '" x2="' + right + '" y2="' + base + '" stroke="var(--bd-9aa7b6)" stroke-width="1.5"/>';
     var bw = plotW / d.length, bar = bw * 0.62;
     d.forEach(function (o, i) {
       var x = left + bw * i + (bw - bar) / 2, h = plotH * o.value / max, y = base - h, col = COLORS[i % COLORS.length];
       s += '<rect x="' + x + '" y="' + y + '" width="' + bar + '" height="' + h + '" rx="3" fill="' + col + '"/>';
-      s += tspan(x + bar / 2, y - 5, String(trimnum(o.value)), "#26263a", 11, 700);
-      s += tspan(x + bar / 2, base + 15, o.label, "#556", 11, 600);
+      s += tspan(x + bar / 2, y - 5, String(trimnum(o.value)), "var(--bd-26263a)", 11, 700);
+      s += tspan(x + bar / 2, base + 15, o.label, "var(--bd-555566)", 11, 600);
     });
     return s + "</svg>";
   }
@@ -575,11 +575,11 @@
     var maxc = Math.max.apply(null, counts.concat([1]));
     var W = 420, H = 260, left = 34, right = W - 12, top = 20, base = H - 42, plotW = right - left, plotH = base - top;
     var s = svgOpen(W, H, 420);
-    for (var i = 0; i <= 4; i++) { var y = base - plotH * i / 4; s += '<line x1="' + left + '" y1="' + y + '" x2="' + right + '" y2="' + y + '" stroke="#eef0f7"/>'; s += tspan(left - 5, y + 3, String(Math.round(maxc * i / 4)), "#8890a0", 9, 500, "end"); }
-    s += '<line x1="' + left + '" y1="' + base + '" x2="' + right + '" y2="' + base + '" stroke="#9aa7b6" stroke-width="1.5"/>';
+    for (var i = 0; i <= 4; i++) { var y = base - plotH * i / 4; s += '<line x1="' + left + '" y1="' + y + '" x2="' + right + '" y2="' + y + '" stroke="var(--bd-eef0f7)"/>'; s += tspan(left - 5, y + 3, String(Math.round(maxc * i / 4)), "var(--bd-8890a0)", 9, 500, "end"); }
+    s += '<line x1="' + left + '" y1="' + base + '" x2="' + right + '" y2="' + base + '" stroke="var(--bd-9aa7b6)" stroke-width="1.5"/>';
     var cw = plotW / bins;
-    counts.forEach(function (c, i) { var x = left + cw * i, h = plotH * c / maxc, y = base - h; s += '<rect x="' + (x + 1) + '" y="' + y + '" width="' + (cw - 2) + '" height="' + h + '" fill="' + COLORS[0] + '" fill-opacity="0.85" stroke="#fff"/>'; if (c) s += tspan(x + cw / 2, y - 4, String(c), "#26263a", 10, 700); });
-    for (var e = 0; e <= bins; e++) { if (bins > 8 && (e % 2)) continue; var xe = left + cw * e; s += tspan(xe, base + 15, String(trimnum(min + bw * e)), "#8890a0", 9, 500); }
+    counts.forEach(function (c, i) { var x = left + cw * i, h = plotH * c / maxc, y = base - h; s += '<rect x="' + (x + 1) + '" y="' + y + '" width="' + (cw - 2) + '" height="' + h + '" fill="' + COLORS[0] + '" fill-opacity="0.85" stroke="var(--bd-ffffff)"/>'; if (c) s += tspan(x + cw / 2, y - 4, String(c), "var(--bd-26263a)", 10, 700); });
+    for (var e = 0; e <= bins; e++) { if (bins > 8 && (e % 2)) continue; var xe = left + cw * e; s += tspan(xe, base + 15, String(trimnum(min + bw * e)), "var(--bd-8890a0)", 9, 500); }
     return s + "</svg>";
   }
 
@@ -598,7 +598,7 @@
     var W = 680, left = 30, right = W - 30, axisY = H - 38, plotW = right - left;
     var mapX = function (v) { return left + (v - min) / (max - min) * plotW; };
     var s = svgOpen(W, H, 680);
-    s += '<line x1="' + left + '" y1="' + axisY + '" x2="' + right + '" y2="' + axisY + '" stroke="#9aa7b6" stroke-width="1.5"/>';
+    s += '<line x1="' + left + '" y1="' + axisY + '" x2="' + right + '" y2="' + axisY + '" stroke="var(--bd-9aa7b6)" stroke-width="1.5"/>';
     var step = fitStep(min, max, plotW, 13, allWhole(vals));
     // unlabelled minor ticks, but only while they stay far enough apart to read as
     // a ruler instead of a grey band
@@ -606,13 +606,13 @@
     if (minorPx >= 5) {
       for (var mt = firstTick(min, minor); mt <= max + 1e-9; mt += minor) {
         var mx = mapX(mt);
-        s += '<line x1="' + mx + '" y1="' + axisY + '" x2="' + mx + '" y2="' + (axisY + 4) + '" stroke="#c8d0da"/>';
+        s += '<line x1="' + mx + '" y1="' + axisY + '" x2="' + mx + '" y2="' + (axisY + 4) + '" stroke="var(--bd-c8d0da)"/>';
       }
     }
     for (var t = firstTick(min, step); t <= max + 1e-9; t += step) {
       var x = mapX(t);
-      s += '<line x1="' + x + '" y1="' + axisY + '" x2="' + x + '" y2="' + (axisY + 8) + '" stroke="#9aa7b6" stroke-width="1.5"/>';
-      s += tspan(x, axisY + 24, String(trimnum(t)), "#66707e", 13, 600);
+      s += '<line x1="' + x + '" y1="' + axisY + '" x2="' + x + '" y2="' + (axisY + 8) + '" stroke="var(--bd-9aa7b6)" stroke-width="1.5"/>';
+      s += tspan(x, axisY + 24, String(trimnum(t)), "var(--bd-66707e)", 13, 600);
     }
     var counts = {};
     vals.slice().sort(function (p, q) { return p - q; }).forEach(function (v) { var n = counts[v] || 0; counts[v] = n + 1; s += '<circle cx="' + mapX(v) + '" cy="' + (axisY - 11 - n * 14) + '" r="5.5" fill="' + COLORS[0] + '"/>'; });
@@ -629,13 +629,13 @@
     var W = 420, H = 160, left = 24, right = W - 24, cy = 64, plotW = right - left, axisY = H - 34;
     var mapX = function (v) { return left + (v - amin) / (amax - amin) * plotW; };
     var s = svgOpen(W, H, 420);
-    s += '<line x1="' + mapX(five[0]) + '" y1="' + cy + '" x2="' + mapX(five[1]) + '" y2="' + cy + '" stroke="#5b5bd6" stroke-width="2"/>';
-    s += '<line x1="' + mapX(five[3]) + '" y1="' + cy + '" x2="' + mapX(five[4]) + '" y2="' + cy + '" stroke="#5b5bd6" stroke-width="2"/>';
-    [0, 4].forEach(function (k) { s += '<line x1="' + mapX(five[k]) + '" y1="' + (cy - 12) + '" x2="' + mapX(five[k]) + '" y2="' + (cy + 12) + '" stroke="#5b5bd6" stroke-width="2"/>'; });
-    s += '<rect x="' + mapX(five[1]) + '" y="' + (cy - 20) + '" width="' + (mapX(five[3]) - mapX(five[1])) + '" height="40" fill="rgba(91,91,214,.12)" stroke="#5b5bd6" stroke-width="2"/>';
-    s += '<line x1="' + mapX(five[2]) + '" y1="' + (cy - 20) + '" x2="' + mapX(five[2]) + '" y2="' + (cy + 20) + '" stroke="#e0392b" stroke-width="2.5"/>';
-    s += '<line x1="' + left + '" y1="' + axisY + '" x2="' + right + '" y2="' + axisY + '" stroke="#9aa7b6"/>';
-    ["", "", "", "", ""].forEach(function (_, k) { var x = mapX(five[k]); s += '<line x1="' + x + '" y1="' + axisY + '" x2="' + x + '" y2="' + (axisY + 5) + '" stroke="#9aa7b6"/>'; s += tspan(x, axisY + 16, String(trimnum(five[k])), "#556", 10, 600); });
+    s += '<line x1="' + mapX(five[0]) + '" y1="' + cy + '" x2="' + mapX(five[1]) + '" y2="' + cy + '" stroke="var(--bd-5b5bd6)" stroke-width="2"/>';
+    s += '<line x1="' + mapX(five[3]) + '" y1="' + cy + '" x2="' + mapX(five[4]) + '" y2="' + cy + '" stroke="var(--bd-5b5bd6)" stroke-width="2"/>';
+    [0, 4].forEach(function (k) { s += '<line x1="' + mapX(five[k]) + '" y1="' + (cy - 12) + '" x2="' + mapX(five[k]) + '" y2="' + (cy + 12) + '" stroke="var(--bd-5b5bd6)" stroke-width="2"/>'; });
+    s += '<rect x="' + mapX(five[1]) + '" y="' + (cy - 20) + '" width="' + (mapX(five[3]) - mapX(five[1])) + '" height="40" fill="rgba(91,91,214,.12)" stroke="var(--bd-5b5bd6)" stroke-width="2"/>';
+    s += '<line x1="' + mapX(five[2]) + '" y1="' + (cy - 20) + '" x2="' + mapX(five[2]) + '" y2="' + (cy + 20) + '" stroke="var(--bd-e0392b)" stroke-width="2.5"/>';
+    s += '<line x1="' + left + '" y1="' + axisY + '" x2="' + right + '" y2="' + axisY + '" stroke="var(--bd-9aa7b6)"/>';
+    ["", "", "", "", ""].forEach(function (_, k) { var x = mapX(five[k]); s += '<line x1="' + x + '" y1="' + axisY + '" x2="' + x + '" y2="' + (axisY + 5) + '" stroke="var(--bd-9aa7b6)"/>'; s += tspan(x, axisY + 16, String(trimnum(five[k])), "var(--bd-555566)", 10, 600); });
     return s + "</svg>";
   }
 
@@ -649,13 +649,13 @@
     var mapX = function (x) { return PAD + (x - xmin) / (xmax - xmin) * plot; };
     var mapY = function (y) { return PAD + (ymax - y) / (ymax - ymin) * plotH; };
     var s = svgOpen(W, H, 400);
-    s += '<rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plotH + '" fill="#fbfbff" stroke="#e7e6f2"/>';
+    s += '<rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plotH + '" fill="var(--bd-fbfbff)" stroke="var(--bd-e7e6f2)"/>';
     for (var i = 0; i <= 4; i++) {
       var gx = PAD + plot * i / 4, gy = PAD + plotH * i / 4;
-      s += '<line x1="' + gx + '" y1="' + PAD + '" x2="' + gx + '" y2="' + (PAD + plotH) + '" stroke="#eef0f7"/>';
-      s += '<line x1="' + PAD + '" y1="' + gy + '" x2="' + (PAD + plot) + '" y2="' + gy + '" stroke="#eef0f7"/>';
-      s += tspan(gx, PAD + plotH + 14, String(trimnum(xmin + (xmax - xmin) * i / 4)), "#8890a0", 9, 500);
-      s += tspan(PAD - 6, PAD + plotH - plotH * i / 4 + 3, String(trimnum(ymin + (ymax - ymin) * i / 4)), "#8890a0", 9, 500, "end");
+      s += '<line x1="' + gx + '" y1="' + PAD + '" x2="' + gx + '" y2="' + (PAD + plotH) + '" stroke="var(--bd-eef0f7)"/>';
+      s += '<line x1="' + PAD + '" y1="' + gy + '" x2="' + (PAD + plot) + '" y2="' + gy + '" stroke="var(--bd-eef0f7)"/>';
+      s += tspan(gx, PAD + plotH + 14, String(trimnum(xmin + (xmax - xmin) * i / 4)), "var(--bd-8890a0)", 9, 500);
+      s += tspan(PAD - 6, PAD + plotH - plotH * i / 4 + 3, String(trimnum(ymin + (ymax - ymin) * i / 4)), "var(--bd-8890a0)", 9, 500, "end");
     }
     // x / y axis letter labels (2026-08-06, Jim: axes always clearly labeled).
     s += '<text x="' + (W - 6) + '" y="' + (PAD + plotH + 14) + '" text-anchor="end" ' + AXIS_LBL + '>x</text>';
@@ -667,10 +667,10 @@
       m = (n * sxy - sx * sy) / (n * sxx - sx * sx); b = (sy - m * sx) / n;
     } else if (a.line) { var L = parseLinear(a.line); if (L && !L.vertical) { m = L.m; b = L.b; } }
     if (m !== undefined && isFinite(m)) {
-      s += '<line x1="' + mapX(xmin) + '" y1="' + mapY(m * xmin + b) + '" x2="' + mapX(xmax) + '" y2="' + mapY(m * xmax + b) + '" stroke="#e0392b" stroke-width="2.5"/>';
-      s += tspan(PAD + plot - 4, PAD + 13, "y = " + trimnum(m) + "x + " + trimnum(b), "#c0392b", 11, 700, "end");
+      s += '<line x1="' + mapX(xmin) + '" y1="' + mapY(m * xmin + b) + '" x2="' + mapX(xmax) + '" y2="' + mapY(m * xmax + b) + '" stroke="var(--bd-e0392b)" stroke-width="2.5"/>';
+      s += tspan(PAD + plot - 4, PAD + 13, "y = " + trimnum(m) + "x + " + trimnum(b), "var(--bd-c0392b)", 11, 700, "end");
     }
-    pts.forEach(function (p) { s += '<circle cx="' + mapX(p[0]) + '" cy="' + mapY(p[1]) + '" r="4" fill="#5b5bd6" fill-opacity="0.85"/>'; });
+    pts.forEach(function (p) { s += '<circle cx="' + mapX(p[0]) + '" cy="' + mapY(p[1]) + '" r="4" fill="var(--bd-5b5bd6)" fill-opacity="0.85"/>'; });
     return s + "</svg>";
   }
 
@@ -693,10 +693,10 @@
       s += '<polygon points="' + poly.join(" ") + '" fill="rgba(91,91,214,.22)"/>';
     }
     var cp = []; for (var x2 = xmin; x2 <= xmax + 1e-9; x2 += (xmax - xmin) / 120) cp.push(mapX(x2) + "," + mapY(f(x2)));
-    s += '<polyline points="' + cp.join(" ") + '" fill="none" stroke="#5b5bd6" stroke-width="2.5"/>';
-    s += '<line x1="' + left + '" y1="' + base + '" x2="' + right + '" y2="' + base + '" stroke="#9aa7b6"/>';
-    for (var k = -3; k <= 3; k++) { var xk = mean + k * sd, xp = mapX(xk); s += '<line x1="' + xp + '" y1="' + base + '" x2="' + xp + '" y2="' + (base + 5) + '" stroke="#9aa7b6"/>'; s += tspan(xp, base + 16, String(trimnum(xk)), "#8890a0", 10, 500); }
-    s += '<line x1="' + mapX(mean) + '" y1="' + mapY(1) + '" x2="' + mapX(mean) + '" y2="' + base + '" stroke="#0d9488" stroke-width="1.5" stroke-dasharray="4 3"/>';
+    s += '<polyline points="' + cp.join(" ") + '" fill="none" stroke="var(--bd-5b5bd6)" stroke-width="2.5"/>';
+    s += '<line x1="' + left + '" y1="' + base + '" x2="' + right + '" y2="' + base + '" stroke="var(--bd-9aa7b6)"/>';
+    for (var k = -3; k <= 3; k++) { var xk = mean + k * sd, xp = mapX(xk); s += '<line x1="' + xp + '" y1="' + base + '" x2="' + xp + '" y2="' + (base + 5) + '" stroke="var(--bd-9aa7b6)"/>'; s += tspan(xp, base + 16, String(trimnum(xk)), "var(--bd-8890a0)", 10, 500); }
+    s += '<line x1="' + mapX(mean) + '" y1="' + mapY(1) + '" x2="' + mapX(mean) + '" y2="' + base + '" stroke="var(--bd-0d9488)" stroke-width="1.5" stroke-dasharray="4 3"/>';
     return s + "</svg>";
   }
 
@@ -707,9 +707,9 @@
     var dataRows = String(a.data || "").split("|").map(function (r) { return r.split(",").map(function (x) { return parseFloat(x.trim()); }); });
     if (!rows.length || !cols.length || !dataRows.length) return "";
     var colTot = cols.map(function () { return 0; }), grand = 0;
-    var td = 'style="border:1px solid #d8d8ec;padding:6px 12px;text-align:center;font-family:system-ui,Arial,sans-serif;font-size:13px;"';
-    var tot = 'style="border:1px solid #d8d8ec;padding:6px 12px;text-align:center;font-family:system-ui,Arial,sans-serif;font-size:13px;background:#f3f3fb;"';
-    var html = '<table style="border-collapse:collapse;margin:8px auto;background:#fff;box-shadow:0 4px 14px rgba(20,30,45,.06);">';
+    var td = 'style="border:1px solid var(--bd-d8d8ec);padding:6px 12px;text-align:center;font-family:system-ui,Arial,sans-serif;font-size:13px;"';
+    var tot = 'style="border:1px solid var(--bd-d8d8ec);padding:6px 12px;text-align:center;font-family:system-ui,Arial,sans-serif;font-size:13px;background:var(--bd-f3f3fb);"';
+    var html = '<table style="border-collapse:collapse;margin:8px auto;background:var(--bd-ffffff);box-shadow:0 4px 14px rgba(20,30,45,.06);">';
     html += '<tr><td ' + td + '></td>';
     cols.forEach(function (c) { html += '<td ' + td + '><b>' + esc(c) + '</b></td>'; });
     html += '<td ' + tot + '><b>Total</b></td></tr>';
@@ -731,19 +731,19 @@
     var W = 430, H = 40 + first.length * 92, x0 = 26, x1 = 150, x2 = 288;
     var s = svgOpen(W, H, 430);
     var rootY = H / 2, gap = (H - 30) / first.length;
-    s += '<circle cx="' + x0 + '" cy="' + rootY + '" r="4" fill="#26263a"/>';
+    s += '<circle cx="' + x0 + '" cy="' + rootY + '" r="4" fill="var(--bd-26263a)"/>';
     first.forEach(function (f1, i) {
       var y1 = 20 + gap * (i + 0.5);
-      s += '<line x1="' + x0 + '" y1="' + rootY + '" x2="' + x1 + '" y2="' + y1 + '" stroke="#5b5bd6" stroke-width="2"/>';
-      s += tspan((x0 + x1) / 2, (rootY + y1) / 2 - 6, f1.label + " (" + trimnum(f1.value) + ")", "#26263a", 11, 700);
-      s += '<circle cx="' + x1 + '" cy="' + y1 + '" r="3.5" fill="#26263a"/>';
+      s += '<line x1="' + x0 + '" y1="' + rootY + '" x2="' + x1 + '" y2="' + y1 + '" stroke="var(--bd-5b5bd6)" stroke-width="2"/>';
+      s += tspan((x0 + x1) / 2, (rootY + y1) / 2 - 6, f1.label + " (" + trimnum(f1.value) + ")", "var(--bd-26263a)", 11, 700);
+      s += '<circle cx="' + x1 + '" cy="' + y1 + '" r="3.5" fill="var(--bd-26263a)"/>';
       var sec = (groups[i] && groups[i].length) ? groups[i] : (groups[0] || []);
       var sgap = 42;
       sec.forEach(function (f2, j) {
         var y2 = y1 - ((sec.length - 1) * sgap) / 2 + j * sgap;
-        s += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#0d9488" stroke-width="2"/>';
-        s += tspan((x1 + x2) / 2, (y1 + y2) / 2 - 6, f2.label + " (" + trimnum(f2.value) + ")", "#0d9488", 11, 700);
-        s += tspan(x2 + 8, y2 + 4, f1.label + f2.label + " = " + trimnum(f1.value * f2.value), "#556", 11, 700, "start");
+        s += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="var(--bd-0d9488)" stroke-width="2"/>';
+        s += tspan((x1 + x2) / 2, (y1 + y2) / 2 - 6, f2.label + " (" + trimnum(f2.value) + ")", "var(--bd-0d9488)", 11, 700);
+        s += tspan(x2 + 8, y2 + 4, f1.label + f2.label + " = " + trimnum(f1.value * f2.value), "var(--bd-555566)", 11, 700, "start");
       });
     });
     return s + "</svg>";
@@ -775,11 +775,11 @@
         var big = step > Math.PI ? 1 : 0;
         out += '<path d="M ' + pcx + ' ' + pcy + ' L ' + px1 + ' ' + py1 + ' A ' + PR +
                ' ' + PR + ' 0 ' + big + ' 1 ' + px2 + ' ' + py2 + ' Z" fill="' +
-               (k < shaded ? "#5b5bd6" : "#eef0f7") +
-               '" stroke="#ffffff" stroke-width="2.5"/>';
+               (k < shaded ? "var(--bd-5b5bd6)" : "var(--bd-eef0f7)") +
+               '" stroke="var(--bd-ffffff)" stroke-width="2.5"/>';
       }
       out += '<circle cx="' + pcx + '" cy="' + pcy + '" r="' + PR +
-             '" fill="none" stroke="#c9c6e0" stroke-width="1.5"/>';
+             '" fill="none" stroke="var(--bd-c9c6e0)" stroke-width="1.5"/>';
       return out + "</svg>";
     }
     var d = parseData(a.data || a.sectors); if (!d.length) return "";
@@ -789,10 +789,10 @@
       var frac = o.value / total, a2 = ang + frac * 2 * Math.PI;
       var x1 = cx + R * Math.cos(ang), y1 = cy + R * Math.sin(ang), x2 = cx + R * Math.cos(a2), y2 = cy + R * Math.sin(a2), large = frac > 0.5 ? 1 : 0;
       if (frac >= 0.999) s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="' + COLORS[i % COLORS.length] + '"/>';
-      else s += '<path d="M ' + cx + ' ' + cy + ' L ' + x1 + ' ' + y1 + ' A ' + R + ' ' + R + ' 0 ' + large + ' 1 ' + x2 + ' ' + y2 + ' Z" fill="' + COLORS[i % COLORS.length] + '" stroke="#fff" stroke-width="2"/>';
+      else s += '<path d="M ' + cx + ' ' + cy + ' L ' + x1 + ' ' + y1 + ' A ' + R + ' ' + R + ' 0 ' + large + ' 1 ' + x2 + ' ' + y2 + ' Z" fill="' + COLORS[i % COLORS.length] + '" stroke="var(--bd-ffffff)" stroke-width="2"/>';
       var ly = 44 + i * 24;
       s += '<rect x="248" y="' + (ly - 11) + '" width="13" height="13" rx="2" fill="' + COLORS[i % COLORS.length] + '"/>';
-      s += tspan(268, ly, o.label + "  " + Math.round(frac * 100) + "%", "#26263a", 12, 600, "start");
+      s += tspan(268, ly, o.label + "  " + Math.round(frac * 100) + "%", "var(--bd-26263a)", 12, 600, "start");
       ang = a2;
     });
     return s + "</svg>";
@@ -811,9 +811,9 @@
     var plotW = W - 2 * PAD, plotH = H - 2 * PAD;
     var mapX = function (x) { return PAD + (x - xmin) / (xmax - xmin) * plotW; };
     var mapY = function (y) { return PAD + (ymax - y) / (ymax - ymin) * plotH; };
-    var s = '<rect x="' + PAD + '" y="' + PAD + '" width="' + plotW + '" height="' + plotH + '" fill="#fbfbff" stroke="#e7e6f2"/>';
-    for (var x = Math.ceil(xmin); x <= xmax; x++) { var px = mapX(x), z = x === 0; s += '<line x1="' + px + '" y1="' + PAD + '" x2="' + px + '" y2="' + (H - PAD) + '" stroke="' + (z ? "#9aa7b6" : "#eef0f7") + '" stroke-width="' + (z ? 1.4 : 1) + '"/>'; }
-    for (var y = Math.ceil(ymin); y <= ymax; y++) { var py = mapY(y), z2 = y === 0; s += '<line x1="' + PAD + '" y1="' + py + '" x2="' + (W - PAD) + '" y2="' + py + '" stroke="' + (z2 ? "#9aa7b6" : "#eef0f7") + '" stroke-width="' + (z2 ? 1.4 : 1) + '"/>'; }
+    var s = '<rect x="' + PAD + '" y="' + PAD + '" width="' + plotW + '" height="' + plotH + '" fill="var(--bd-fbfbff)" stroke="var(--bd-e7e6f2)"/>';
+    for (var x = Math.ceil(xmin); x <= xmax; x++) { var px = mapX(x), z = x === 0; s += '<line x1="' + px + '" y1="' + PAD + '" x2="' + px + '" y2="' + (H - PAD) + '" stroke="' + (z ? "var(--bd-9aa7b6)" : "var(--bd-eef0f7)") + '" stroke-width="' + (z ? 1.4 : 1) + '"/>'; }
+    for (var y = Math.ceil(ymin); y <= ymax; y++) { var py = mapY(y), z2 = y === 0; s += '<line x1="' + PAD + '" y1="' + py + '" x2="' + (W - PAD) + '" y2="' + py + '" stroke="' + (z2 ? "var(--bd-9aa7b6)" : "var(--bd-eef0f7)") + '" stroke-width="' + (z2 ? 1.4 : 1) + '"/>'; }
     // x / y axis letter labels (2026-08-06) -- clamped into the frame like the main grapher's.
     var axLblY = Math.max(PAD + 13, Math.min(H - PAD - 4, mapY(0) + 4));
     var ayLblX = Math.max(PAD + 6, Math.min(W - PAD - 12, mapX(0) + 6));
@@ -834,23 +834,23 @@
     var rad = deg * Math.PI / 180;
     var W = 360, H = 340, cx = 168, cy = 168, R = 122;
     var s = svgOpen(W, H, 360);
-    s += '<line x1="' + (cx - R - 18) + '" y1="' + cy + '" x2="' + (cx + R + 18) + '" y2="' + cy + '" stroke="#9aa7b6"/>';
-    s += '<line x1="' + cx + '" y1="' + (cy + R + 18) + '" x2="' + cx + '" y2="' + (cy - R - 18) + '" stroke="#9aa7b6"/>';
-    s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="rgba(91,91,214,.04)" stroke="#5b5bd6" stroke-width="2"/>';
+    s += '<line x1="' + (cx - R - 18) + '" y1="' + cy + '" x2="' + (cx + R + 18) + '" y2="' + cy + '" stroke="var(--bd-9aa7b6)"/>';
+    s += '<line x1="' + cx + '" y1="' + (cy + R + 18) + '" x2="' + cx + '" y2="' + (cy - R - 18) + '" stroke="var(--bd-9aa7b6)"/>';
+    s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="rgba(91,91,214,.04)" stroke="var(--bd-5b5bd6)" stroke-width="2"/>';
     var px = cx + R * Math.cos(rad), py = cy - R * Math.sin(rad);
-    s += '<line x1="' + px + '" y1="' + py + '" x2="' + px + '" y2="' + cy + '" stroke="#0d9488" stroke-width="1.5" stroke-dasharray="4 3"/>';
-    s += '<line x1="' + px + '" y1="' + py + '" x2="' + cx + '" y2="' + py + '" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4 3"/>';
-    s += arrow(cx, cy, px, py, "#5b5bd6", 2.5);
+    s += '<line x1="' + px + '" y1="' + py + '" x2="' + px + '" y2="' + cy + '" stroke="var(--bd-0d9488)" stroke-width="1.5" stroke-dasharray="4 3"/>';
+    s += '<line x1="' + px + '" y1="' + py + '" x2="' + cx + '" y2="' + py + '" stroke="var(--bd-d97706)" stroke-width="1.5" stroke-dasharray="4 3"/>';
+    s += arrow(cx, cy, px, py, "var(--bd-5b5bd6)", 2.5);
     var ar = 30;
-    s += '<path d="M ' + (cx + ar) + ' ' + cy + ' A ' + ar + ' ' + ar + ' 0 ' + (d360 > 180 ? 1 : 0) + ' 0 ' + (cx + ar * Math.cos(rad)) + ' ' + (cy - ar * Math.sin(rad)) + '" fill="none" stroke="#e0392b" stroke-width="2"/>';
-    s += '<circle cx="' + px + '" cy="' + py + '" r="4.5" fill="#5b5bd6"/>';
+    s += '<path d="M ' + (cx + ar) + ' ' + cy + ' A ' + ar + ' ' + ar + ' 0 ' + (d360 > 180 ? 1 : 0) + ' 0 ' + (cx + ar * Math.cos(rad)) + ' ' + (cy - ar * Math.sin(rad)) + '" fill="none" stroke="var(--bd-e0392b)" stroke-width="2"/>';
+    s += '<circle cx="' + px + '" cy="' + py + '" r="4.5" fill="var(--bd-5b5bd6)"/>';
     var exact = UC[d360], cosS, sinS, radS;
     if (exact) { cosS = exact[0]; sinS = exact[1]; radS = exact[2]; }
     else { cosS = String(trimnum(Math.cos(rad))); sinS = String(trimnum(Math.sin(rad))); radS = String(trimnum(rad)); }
     var _tr = Math.cos(rad) >= 0;
-    s += tspan(px + (_tr ? -10 : 10), py - 10, "(" + cosS + ", " + sinS + ")", "#26263a", 11, 700, _tr ? "end" : "start");
-    s += tspan(cx + ar + 8, cy - 8, trimnum(deg) + "°", "#e0392b", 12, 700, "start");
-    s += tspan(W / 2, H - 14, trimnum(deg) + "°  =  " + radS + " rad     cos = " + cosS + "     sin = " + sinS, "#334", 12, 700);
+    s += tspan(px + (_tr ? -10 : 10), py - 10, "(" + cosS + ", " + sinS + ")", "var(--bd-26263a)", 11, 700, _tr ? "end" : "start");
+    s += tspan(cx + ar + 8, cy - 8, trimnum(deg) + "°", "var(--bd-e0392b)", 12, 700, "start");
+    s += tspan(W / 2, H - 14, trimnum(deg) + "°  =  " + radS + " rad     cos = " + cosS + "     sin = " + sinS, "var(--bd-333344)", 12, 700);
     return s + "</svg>";
   }
 
@@ -862,13 +862,13 @@
     var sc = Math.min(maxw / Math.max(adj, 0.1), maxh / Math.max(opp, 0.1));
     var BR = [x0 + adj * sc, y0], TR = [x0 + adj * sc, y0 - opp * sc], BL = [x0, y0];
     var s = svgOpen(W, H, 340);
-    s += '<polygon points="' + BL.join(",") + " " + BR.join(",") + " " + TR.join(",") + '" fill="rgba(91,91,214,.06)" stroke="#5b5bd6" stroke-width="2.5" stroke-linejoin="round"/>';
-    var d = 14; s += '<polyline points="' + (BR[0] - d) + "," + BR[1] + " " + (BR[0] - d) + "," + (BR[1] - d) + " " + BR[0] + "," + (BR[1] - d) + '" fill="none" stroke="#5b5bd6" stroke-width="2"/>';
-    var ar = 30; s += '<path d="M ' + (BL[0] + ar) + ' ' + BL[1] + ' A ' + ar + ' ' + ar + ' 0 0 0 ' + (BL[0] + ar * adj / hyp) + ' ' + (BL[1] - ar * opp / hyp) + '" fill="none" stroke="#e0392b" stroke-width="2"/>';
-    s += tspan(BL[0] + 38, BL[1] - 12, String(a.theta || "θ"), "#e0392b", 14, 800, "start");
-    s += tspan((BL[0] + BR[0]) / 2, y0 + 20, "adjacent = " + trimnum(adj), "#d97706", 12, 700);
-    s += tspan(BR[0] + 8, (BR[1] + TR[1]) / 2, "opposite = " + trimnum(opp), "#0d9488", 12, 700, "start");
-    s += tspan((BL[0] + TR[0]) / 2 - 12, (BL[1] + TR[1]) / 2 - 10, "hyp = " + trimnum(hyp), "#5b5bd6", 12, 700, "end");
+    s += '<polygon points="' + BL.join(",") + " " + BR.join(",") + " " + TR.join(",") + '" fill="rgba(91,91,214,.06)" stroke="var(--bd-5b5bd6)" stroke-width="2.5" stroke-linejoin="round"/>';
+    var d = 14; s += '<polyline points="' + (BR[0] - d) + "," + BR[1] + " " + (BR[0] - d) + "," + (BR[1] - d) + " " + BR[0] + "," + (BR[1] - d) + '" fill="none" stroke="var(--bd-5b5bd6)" stroke-width="2"/>';
+    var ar = 30; s += '<path d="M ' + (BL[0] + ar) + ' ' + BL[1] + ' A ' + ar + ' ' + ar + ' 0 0 0 ' + (BL[0] + ar * adj / hyp) + ' ' + (BL[1] - ar * opp / hyp) + '" fill="none" stroke="var(--bd-e0392b)" stroke-width="2"/>';
+    s += tspan(BL[0] + 38, BL[1] - 12, String(a.theta || "θ"), "var(--bd-e0392b)", 14, 800, "start");
+    s += tspan((BL[0] + BR[0]) / 2, y0 + 20, "adjacent = " + trimnum(adj), "var(--bd-d97706)", 12, 700);
+    s += tspan(BR[0] + 8, (BR[1] + TR[1]) / 2, "opposite = " + trimnum(opp), "var(--bd-0d9488)", 12, 700, "start");
+    s += tspan((BL[0] + TR[0]) / 2 - 12, (BL[1] + TR[1]) / 2 - 10, "hyp = " + trimnum(hyp), "var(--bd-5b5bd6)", 12, 700, "end");
     return s + "</svg>";
   }
 
@@ -879,23 +879,23 @@
     if (type === "circle") { A = B = num(a.r, 3); }
     var reach = Math.max(A, B) + 2, xmin = cx0 - reach, xmax = cx0 + reach, ymin = cy0 - reach, ymax = cy0 + reach;
     var W = 360, H = 360, PAD = 28, g = axesGrid(PAD, W, H, xmin, xmax, ymin, ymax);
-    var s = svgOpen(W, H, 360) + g.svg, mapX = g.mapX, mapY = g.mapY, pts, t, col = "#5b5bd6";
+    var s = svgOpen(W, H, 360) + g.svg, mapX = g.mapX, mapY = g.mapY, pts, t, col = "var(--bd-5b5bd6)";
     if (type === "hyperbola") {
-      col = "#5b5bd6";
+      col = "var(--bd-5b5bd6)";
       [1, -1].forEach(function (sgn) {
         pts = [];
         for (t = -2.2; t <= 2.2 + 1e-9; t += 0.05) pts.push(mapX(cx0 + sgn * A * Math.cosh(t)) + "," + mapY(cy0 + B * Math.sinh(t)));
         s += '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + col + '" stroke-width="2.5"/>';
       });
       // asymptotes
-      [1, -1].forEach(function (m) { s += '<line x1="' + mapX(xmin) + '" y1="' + mapY(cy0 + m * (B / A) * (xmin - cx0)) + '" x2="' + mapX(xmax) + '" y2="' + mapY(cy0 + m * (B / A) * (xmax - cx0)) + '" stroke="#d97706" stroke-width="1.2" stroke-dasharray="5 4"/>'; });
+      [1, -1].forEach(function (m) { s += '<line x1="' + mapX(xmin) + '" y1="' + mapY(cy0 + m * (B / A) * (xmin - cx0)) + '" x2="' + mapX(xmax) + '" y2="' + mapY(cy0 + m * (B / A) * (xmax - cx0)) + '" stroke="var(--bd-d97706)" stroke-width="1.2" stroke-dasharray="5 4"/>'; });
     } else {
       pts = [];
       for (t = 0; t <= 2 * Math.PI + 1e-9; t += Math.PI / 90) pts.push(mapX(cx0 + A * Math.cos(t)) + "," + mapY(cy0 + B * Math.sin(t)));
       s += '<polygon points="' + pts.join(" ") + '" fill="rgba(91,91,214,.06)" stroke="' + col + '" stroke-width="2.5"/>';
     }
-    s += '<circle cx="' + mapX(cx0) + '" cy="' + mapY(cy0) + '" r="3" fill="#26263a"/>';
-    s += tspan(W / 2, H - 8, type + (a.caption ? "" : ""), "#556", 12, 700);
+    s += '<circle cx="' + mapX(cx0) + '" cy="' + mapY(cy0) + '" r="3" fill="var(--bd-26263a)"/>';
+    s += tspan(W / 2, H - 8, type + (a.caption ? "" : ""), "var(--bd-555566)", 12, 700);
     return s + "</svg>";
   }
 
@@ -921,12 +921,12 @@
     if (ineq) {
       var op = ineq[1], val = parseFloat(ineq[2]), right2 = (op === ">" || op === ">="), closed = (op === ">=" || op === "<=");
       var xv = mapX(val), end = right2 ? right : left;
-      s += '<line x1="' + xv + '" y1="' + axisY + '" x2="' + end + '" y2="' + axisY + '" stroke="#5b5bd6" stroke-width="5" opacity="0.35"/>';
-      s += arrow(xv, axisY, end, axisY, "#5b5bd6", 2);
-      s += '<circle cx="' + xv + '" cy="' + axisY + '" r="6" fill="' + (closed ? "#5b5bd6" : "#fff") + '" stroke="#5b5bd6" stroke-width="2.5"/>';
-      s += tspan(xv, axisY - 14, "x " + op + " " + trimnum(val), "#5b5bd6", 12, 700);
+      s += '<line x1="' + xv + '" y1="' + axisY + '" x2="' + end + '" y2="' + axisY + '" stroke="var(--bd-5b5bd6)" stroke-width="5" opacity="0.35"/>';
+      s += arrow(xv, axisY, end, axisY, "var(--bd-5b5bd6)", 2);
+      s += '<circle cx="' + xv + '" cy="' + axisY + '" r="6" fill="' + (closed ? "var(--bd-5b5bd6)" : "var(--bd-ffffff)") + '" stroke="var(--bd-5b5bd6)" stroke-width="2.5"/>';
+      s += tspan(xv, axisY - 14, "x " + op + " " + trimnum(val), "var(--bd-5b5bd6)", 12, 700);
     }
-    s += '<line x1="' + left + '" y1="' + axisY + '" x2="' + right + '" y2="' + axisY + '" stroke="#26263a" stroke-width="1.6"/>';
+    s += '<line x1="' + left + '" y1="' + axisY + '" x2="' + right + '" y2="' + axisY + '" stroke="var(--bd-26263a)" stroke-width="1.6"/>';
     // build je: label at a readable spacing -- every integer while they fit (the
     // common -10..10 line is unchanged), thinning to 2s / 5s / 10s as the range grows.
     var nstep = fitStep(min, max, plotW, 12,
@@ -935,35 +935,35 @@
     if (nminorPx >= 6 && nminor < nstep) {
       for (var nmt = firstTick(min, nminor); nmt <= max + 1e-9; nmt += nminor) {
         var nmx = mapX(nmt);
-        s += '<line x1="' + nmx + '" y1="' + (axisY - 3) + '" x2="' + nmx + '" y2="' + (axisY + 3) + '" stroke="#c8d0da"/>';
+        s += '<line x1="' + nmx + '" y1="' + (axisY - 3) + '" x2="' + nmx + '" y2="' + (axisY + 3) + '" stroke="var(--bd-c8d0da)"/>';
       }
     }
     for (var t = firstTick(min, nstep); t <= max + 1e-9; t += nstep) {
       var x = mapX(t);
-      s += '<line x1="' + x + '" y1="' + (axisY - 5) + '" x2="' + x + '" y2="' + (axisY + 5) + '" stroke="#9aa7b6"/>';
-      s += tspan(x, axisY + 21, String(trimnum(t)), "#66707e", 15, 700);
+      s += '<line x1="' + x + '" y1="' + (axisY - 5) + '" x2="' + x + '" y2="' + (axisY + 5) + '" stroke="var(--bd-9aa7b6)"/>';
+      s += tspan(x, axisY + 21, String(trimnum(t)), "var(--bd-66707e)", 15, 700);
     }
-    parseNums(a.points).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="7.5" fill="#e0392b"/>'; });
-    parseNums(a.open).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="7.5" fill="#fff" stroke="#e0392b" stroke-width="2.5"/>'; });
+    parseNums(a.points).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="7.5" fill="var(--bd-e0392b)"/>'; });
+    parseNums(a.open).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="7.5" fill="var(--bd-ffffff)" stroke="var(--bd-e0392b)" stroke-width="2.5"/>'; });
     // (ot, 2026-08-27) hops="2,5,8,11": COUNTING ARCS between consecutive landing
     // points, each labeled with its own jump (+3, -2). The child SEES the skip-count
     // or the count-back happen instead of imagining it. Landing points get dots too.
     var hops = parseNums(a.hops);
     if (hops.length >= 2) {
       hops.forEach(function (v) {
-        if (v >= min && v <= max) s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="4" fill="#e0392b"/>';
+        if (v >= min && v <= max) s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="4" fill="var(--bd-e0392b)"/>';
       });
       for (var hi = 0; hi + 1 < hops.length; hi++) {
         var hx1 = mapX(hops[hi]), hx2 = mapX(hops[hi + 1]);
         if (!isFinite(hx1) || !isFinite(hx2) || Math.abs(hx2 - hx1) < 3) continue;
         var hmx = (hx1 + hx2) / 2, lift = Math.min(34, 14 + Math.abs(hx2 - hx1) * 0.16);
         s += '<path d="M ' + hx1 + ' ' + (axisY - 7) + ' Q ' + hmx + ' ' + (axisY - 7 - lift) +
-             ' ' + hx2 + ' ' + (axisY - 7) + '" fill="none" stroke="#e0392b" stroke-width="2.2"/>';
+             ' ' + hx2 + ' ' + (axisY - 7) + '" fill="none" stroke="var(--bd-e0392b)" stroke-width="2.2"/>';
         var hd = hx2 > hx1 ? 1 : -1;
         s += '<path d="M ' + hx2 + ' ' + (axisY - 6) + ' l ' + (-8 * hd) + ' -6 l ' + (3 * hd) +
-             ' 8 z" fill="#e0392b"/>';
+             ' 8 z" fill="var(--bd-e0392b)"/>';
         var jump = trimnum(hops[hi + 1] - hops[hi]);
-        s += tspan(hmx, axisY - 13 - lift, (jump >= 0 ? "+" : "") + jump, "#e0392b", 14, 800);
+        s += tspan(hmx, axisY - 13 - lift, (jump >= 0 ? "+" : "") + jump, "var(--bd-e0392b)", 14, 800);
       }
     }
     return s + "</svg>";
@@ -979,17 +979,17 @@
     var B = String(a.b || a.right_items || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 6);
     var BOTH = String(a.both || a.overlap || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 6);
     var s = svgOpen(W, H, 480);
-    s += '<circle cx="' + LC[0] + '" cy="' + LC[1] + '" r="' + R + '" fill="rgba(91,91,214,.10)" stroke="#5b5bd6" stroke-width="2.5"/>';
-    s += '<circle cx="' + RC[0] + '" cy="' + RC[1] + '" r="' + R + '" fill="rgba(13,148,136,.10)" stroke="#0d9488" stroke-width="2.5"/>';
-    if (a.left) s += tspan(LC[0] - 34, 32, a.left, "#5b5bd6", 14, 800);
-    if (a.right) s += tspan(RC[0] + 34, 32, a.right, "#0d9488", 14, 800);
+    s += '<circle cx="' + LC[0] + '" cy="' + LC[1] + '" r="' + R + '" fill="rgba(91,91,214,.10)" stroke="var(--bd-5b5bd6)" stroke-width="2.5"/>';
+    s += '<circle cx="' + RC[0] + '" cy="' + RC[1] + '" r="' + R + '" fill="rgba(13,148,136,.10)" stroke="var(--bd-0d9488)" stroke-width="2.5"/>';
+    if (a.left) s += tspan(LC[0] - 34, 32, a.left, "var(--bd-5b5bd6)", 14, 800);
+    if (a.right) s += tspan(RC[0] + 34, 32, a.right, "var(--bd-0d9488)", 14, 800);
     function stack(items, cx, col) {
       var y0 = 150 - (items.length - 1) * 11;
       items.forEach(function (it, i) { s += tspan(cx, y0 + i * 22, it, col, 14, 700); });
     }
-    stack(A, LC[0] - 44, "#26263a");
-    stack(BOTH, (LC[0] + RC[0]) / 2, "#26263a");
-    stack(B, RC[0] + 44, "#26263a");
+    stack(A, LC[0] - 44, "var(--bd-26263a)");
+    stack(BOTH, (LC[0] + RC[0]) / 2, "var(--bd-26263a)");
+    stack(B, RC[0] + 44, "var(--bd-26263a)");
     return s + "</svg>";
   }
 
@@ -1016,17 +1016,17 @@
     var s = svgOpen(W, H, 640), xx = x0;
     parts.forEach(function (p, i) {
       s += '<rect x="' + xx + '" y="' + y0 + '" width="' + widths[i] + '" height="' + bh +
-           '" fill="' + fills[i % fills.length] + '" stroke="#5b5bd6" stroke-width="1.8"/>';
-      s += tspan(xx + widths[i] / 2, y0 + bh / 2 + 6, p, "#26263a", 18, 800);
+           '" fill="' + fills[i % fills.length] + '" stroke="var(--bd-5b5bd6)" stroke-width="1.8"/>';
+      s += tspan(xx + widths[i] / 2, y0 + bh / 2 + 6, p, "var(--bd-26263a)", 18, 800);
       xx += widths[i];
     });
     if (a.total) {   // the whole, bracketed above the bar
       var by = y0 - 14;
       s += '<path d="M ' + x0 + ' ' + (by + 8) + ' L ' + x0 + ' ' + by + ' L ' + (x0 + bw) + ' ' + by +
-           ' L ' + (x0 + bw) + ' ' + (by + 8) + '" fill="none" stroke="#e0392b" stroke-width="2"/>';
-      s += tspan(x0 + bw / 2, by - 8, String(a.total), "#e0392b", 15, 800);
+           ' L ' + (x0 + bw) + ' ' + (by + 8) + '" fill="none" stroke="var(--bd-e0392b)" stroke-width="2"/>';
+      s += tspan(x0 + bw / 2, by - 8, String(a.total), "var(--bd-e0392b)", 15, 800);
     }
-    if (a.label) s += tspan(x0 + bw / 2, y0 + bh + 26, a.label, "#556", 13, 700);
+    if (a.label) s += tspan(x0 + bw / 2, y0 + bh + 26, a.label, "var(--bd-555566)", 13, 700);
     return s + "</svg>";
   }
 
@@ -1040,24 +1040,24 @@
     var mm = m ? Math.min(59, parseInt(m[2], 10)) : Math.min(59, num(a.m, 0));
     var W = 270, H = 270, C = [135, 135], R = 112;
     var s = svgOpen(W, H, 300);
-    s += '<circle cx="' + C[0] + '" cy="' + C[1] + '" r="' + R + '" fill="#fbfbff" stroke="#5b5bd6" stroke-width="3"/>';
+    s += '<circle cx="' + C[0] + '" cy="' + C[1] + '" r="' + R + '" fill="var(--bd-fbfbff)" stroke="var(--bd-5b5bd6)" stroke-width="3"/>';
     for (var i = 0; i < 60; i++) {
       var big = i % 5 === 0, th = i * 6 * Math.PI / 180;
       var r1 = R - (big ? 10 : 5), r2 = R - 2;
       s += '<line x1="' + (C[0] + r1 * Math.sin(th)) + '" y1="' + (C[1] - r1 * Math.cos(th)) +
            '" x2="' + (C[0] + r2 * Math.sin(th)) + '" y2="' + (C[1] - r2 * Math.cos(th)) +
-           '" stroke="' + (big ? "#5b5bd6" : "#c8d0da") + '" stroke-width="' + (big ? 2.4 : 1.2) + '"/>';
+           '" stroke="' + (big ? "var(--bd-5b5bd6)" : "var(--bd-c8d0da)") + '" stroke-width="' + (big ? 2.4 : 1.2) + '"/>';
     }
     for (var k = 1; k <= 12; k++) {
       var tk = k * 30 * Math.PI / 180, rr = R - 26;
-      s += tspan(C[0] + rr * Math.sin(tk), C[1] - rr * Math.cos(tk) + 6, String(k), "#26263a", 17, 800);
+      s += tspan(C[0] + rr * Math.sin(tk), C[1] - rr * Math.cos(tk) + 6, String(k), "var(--bd-26263a)", 17, 800);
     }
     var ha = (hh * 30 + mm * 0.5) * Math.PI / 180, ma = mm * 6 * Math.PI / 180;
     s += '<line x1="' + C[0] + '" y1="' + C[1] + '" x2="' + (C[0] + 52 * Math.sin(ha)) +
-         '" y2="' + (C[1] - 52 * Math.cos(ha)) + '" stroke="#26263a" stroke-width="6.5" stroke-linecap="round"/>';
+         '" y2="' + (C[1] - 52 * Math.cos(ha)) + '" stroke="var(--bd-26263a)" stroke-width="6.5" stroke-linecap="round"/>';
     s += '<line x1="' + C[0] + '" y1="' + C[1] + '" x2="' + (C[0] + 82 * Math.sin(ma)) +
-         '" y2="' + (C[1] - 82 * Math.cos(ma)) + '" stroke="#e0392b" stroke-width="4" stroke-linecap="round"/>';
-    s += '<circle cx="' + C[0] + '" cy="' + C[1] + '" r="5" fill="#26263a"/>';
+         '" y2="' + (C[1] - 82 * Math.cos(ma)) + '" stroke="var(--bd-e0392b)" stroke-width="4" stroke-linecap="round"/>';
+    s += '<circle cx="' + C[0] + '" cy="' + C[1] + '" r="5" fill="var(--bd-26263a)"/>';
     return s + "</svg>";
   }
 
@@ -1087,12 +1087,12 @@
     var yy = y0;
     rt.forEach(function (r, i) {
       var xx = x0, ch = rw[i] * sy;
-      s += tspan(x0 - 12, yy + ch / 2 + 4, termLabel(r.coef, r.pow), "#556", 13, 800, "end");
+      s += tspan(x0 - 12, yy + ch / 2 + 4, termLabel(r.coef, r.pow), "var(--bd-555566)", 13, 800, "end");
       ct.forEach(function (c, j) {
         var cwid = cw[j] * sx, coef = r.coef * c.coef, pow = r.pow + c.pow;
-        s += '<rect x="' + xx + '" y="' + yy + '" width="' + cwid + '" height="' + ch + '" fill="' + cellColors[(i + j) % cellColors.length] + '" stroke="#5b5bd6" stroke-width="1.3"/>';
-        s += tspan(xx + cwid / 2, yy + ch / 2 + 5, termLabel(coef, pow), "#26263a", 14, 700);
-        if (i === 0) s += tspan(xx + cwid / 2, y0 - 12, termLabel(c.coef, c.pow), "#556", 13, 800);
+        s += '<rect x="' + xx + '" y="' + yy + '" width="' + cwid + '" height="' + ch + '" fill="' + cellColors[(i + j) % cellColors.length] + '" stroke="var(--bd-5b5bd6)" stroke-width="1.3"/>';
+        s += tspan(xx + cwid / 2, yy + ch / 2 + 5, termLabel(coef, pow), "var(--bd-26263a)", 14, 700);
+        if (i === 0) s += tspan(xx + cwid / 2, y0 - 12, termLabel(c.coef, c.pow), "var(--bd-555566)", 13, 800);
         xx += cwid;
       });
       yy += ch;
@@ -1102,7 +1102,7 @@
     rt.forEach(function (r) { ct.forEach(function (c) { var p = r.pow + c.pow; sum[p] = (sum[p] || 0) + r.coef * c.coef; }); });
     var parts = [2, 1, 0].filter(function (p) { return sum[p]; }).map(function (p) { return termLabel(sum[p], p); });
     var eq = parts.join(" + ").replace(/\+ -/g, "- ");
-    s += tspan(W / 2, H - 10, "= " + eq, "#26263a", 14, 800);
+    s += tspan(W / 2, H - 10, "= " + eq, "var(--bd-26263a)", 14, 800);
     return s + "</svg>";
   }
 
@@ -1121,8 +1121,8 @@
     if (doSum) {
       var tail = [0, 0];
       vs.forEach(function (v, i) { s += arrow(mapX(tail[0]), mapY(tail[1]), mapX(tail[0] + v[0]), mapY(tail[1] + v[1]), COLORS[i % COLORS.length], 2); tail = [tail[0] + v[0], tail[1] + v[1]]; legend.push([COLORS[i % COLORS.length], "(" + trimnum(v[0]) + ", " + trimnum(v[1]) + ")"]); });
-      s += arrow(mapX(0), mapY(0), mapX(sumv[0]), mapY(sumv[1]), "#e0392b", 3);
-      legend.push(["#e0392b", "sum = (" + trimnum(sumv[0]) + ", " + trimnum(sumv[1]) + ")"]);
+      s += arrow(mapX(0), mapY(0), mapX(sumv[0]), mapY(sumv[1]), "var(--bd-e0392b)", 3);
+      legend.push(["var(--bd-e0392b)", "sum = (" + trimnum(sumv[0]) + ", " + trimnum(sumv[1]) + ")"]);
     } else {
       vs.forEach(function (v, i) {
         var col = COLORS[i % COLORS.length];

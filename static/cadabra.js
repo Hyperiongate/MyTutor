@@ -4,12 +4,40 @@
    MR. CADABRA, OUT OF THE BOX. The floating companion layer.
 
    CHANGE NOTES (keep newest at top):
+     2026-09-01  (rq) THE LAB'S DOORS. Four additive public methods so a permanent
+                 owner page (static/cadabra-lab.html) can design his expressions on
+                 the real layer: expression(name), expressions(), joke(), size(px).
+                 Nothing existing changes; direct() learned that a bare string given
+                 to "expression" is a name, not a target.
+     2026-09-01  (rq) MERGE. Two chats edited this file the same morning. rj (10:50)
+                 added the slight float below; rk (11:59 commit) was written against
+                 the pre-rj copy and its commit replaced rj's file, so the float was
+                 lost for a working day. Re-applied here, byte for byte from rj's
+                 commit (3b12a9c); rk's and rp's own changes are untouched. The battery
+                 pin for the float (3hk) is what caught it.
      2026-09-01  (rk) HE NO LONGER STANDS ON WHAT HE IS POINTING AT. Caught the first
                  time the layer ran over the real demo: the streak chips live in the
                  topbar, and pointing at something that high put him -- and his speech
                  bubble -- on top of it. A target near the top of the window is now
                  approached from BELOW, his tip is kept low enough that head and bubble
                  both stay in view, and the bubble hangs underneath him when he points up.
+     2026-09-01  (rj) BIGGER, AND HE FLOATS. Jim, after watching him live: "the pencil
+                 needs to be 30% larger and needs to have a slight floating motion."
+                 The SIZE is the menu's, not this file's: cadabra-script.json height
+                 112 -> 146 (+30%), handSize 20 -> 26 in proportion -- applyHeight()
+                 already scales everything else off that one number. The FLOAT is new
+                 here: a small always-on vertical sway (about 3px, slow), applied in
+                 the same transform as the drift bob -- so it obeys rule 29 (transform
+                 only, zero reflow) and is zeroed under prefers-reduced-motion. It
+                 deliberately does NOT obey rules 5/6 (park/talking stop the DRIFT --
+                 the roaming wander): a slight breathing float while parked is the
+                 aliveness Jim asked for, and the wander rules still hold untouched.
+                 The speech bubble rides the same offset so it stays glued to him.
+                 ALSO (context, not a change here): Jim retired the ORB everywhere on
+                 the student pages this build ("he is to be gone everywhere") -- the
+                 note below saying "the orb keeps the robot until Jim decides
+                 otherwise" is now decided: session/topic/practice lost tutor-face.js
+                 and this pencil IS Mr. Cadabra there; demo pages follow later.
      2026-09-01  (hands) THE GLOVE IS A GLOVE, AND HE POINTS WITH HIS INDEX FINGER.
                  Jim, on the first version: the resting hand should be "circles with
                  lines on them type things with little bumps for the thumbs instead of
@@ -627,6 +655,12 @@
       bob = Math.sin(t * 1.55) * 7 * drift;
       dx  = Math.sin(t * 0.62 + 1.1) * 10 * drift;
     }
+    /* (rj, 2026-09-01) THE SLIGHT FLOAT -- Jim: "needs to have a slight floating
+       motion." A small, slow, always-on vertical sway, folded into `bob` so the
+       speech bubble below rides it too. Deliberately NOT gated by park/talking:
+       rules 5/6 stop the roaming DRIFT above, and still do -- this is breathing,
+       not wandering. Transform-only (rule 29); zero under reduced motion. */
+    if (!M.reduced) bob += Math.sin(t * 0.85) * 3;
     DOM.body.setAttribute("transform",
       "translate(" + (S.x + dx).toFixed(2) + "," + (S.y + bob).toFixed(2) + ") "
       + "rotate(" + S.ang.toFixed(2) + ") scale(" + S.scale.toFixed(4) + ")");
@@ -858,7 +892,10 @@
       path.setAttribute("d", "M " + x1 + " " + y + " Q " + ((x1 + x2) / 2) + " " + (y + 8)
                              + " " + x2 + " " + (y - 2));
       path.setAttribute("fill", "none");
-      path.setAttribute("stroke", PAINT.graphite);
+      /* (rp) graphite on a whiteboard, his own yellow on the blackboard -- the pairing from
+         the mockup Jim chose, and the one place his colour belongs on a board */
+      var onDark = !!(T.el.closest && T.el.closest('[data-board="dark"]'));
+      path.setAttribute("stroke", onDark ? PAINT.gold : PAINT.graphite);
       path.setAttribute("stroke-width", Math.max(3, heightPx() * 0.045).toFixed(1));
       path.setAttribute("stroke-linecap", "round");
       path.setAttribute("opacity", "0.86");
@@ -1139,7 +1176,9 @@
     return function (a, b) {
       if (!live()) return false;
       var o = (typeof a === "object" && a !== null) ? a : {};
-      if (typeof a === "string") { o = (name === "say") ? { text: a, ms: b } : { target: a }; }
+      if (typeof a === "string") {
+        o = (name === "say") ? { text: a, ms: b } : (name === "expression") ? { to: a } : { target: a };   /* (rq) expression by name */
+      }
       if (typeof a === "number" && name === "celebrate") o = { tier: a };
       run([{ "do": name, text: o.text, ms: o.ms, target: o.target, tier: o.tier,
              to: o.to, asked: true, forced: o.forced }]);
@@ -1157,6 +1196,14 @@
     celebrate: direct("celebrate"),
     chase:     direct("chase"),
     tour:      direct("tour"),
+    /* (rq) THE LAB'S DOORS -- static/cadabra-lab.html designs his expressions on the
+       REAL layer instead of a copy of it. An expression by name (the menu's
+       "expression" behaviour, direct), the list of names, a joke on demand, and his
+       size in page pixels -- the same number the menu's "height" sets at mount. */
+    expression:  direct("expression"),
+    expressions: function () { return Object.keys(EXPR); },
+    joke:        direct("joke"),
+    size:        function (px) { if (live() && px > 0) applyHeight(px); return heightPx(); },
     park:      function () { if (live()) BEHAVIOURS.park({}, function () {}); },
     release:   function () { if (live()) goHome(); },
     clearInk:  function (t) { clearInk(t); },

@@ -1,0 +1,228 @@
+/* =============================================================================
+   board-theme.css  --  Math Tutor MVP  --  Hyperion Shift LLC
+   -----------------------------------------------------------------------------
+   CHANGE NOTES (keep newest at top):
+     2026-09-01  (build rq) THE OTHER HALF OF THE DARK BOARD. rp tokenised the DRAWING files
+                 but the pages' own <style> blocks still painted board content with literals
+                 (tutor bubbles #f2f4ff, the folded-problem row, the balance tray, the
+                 machine nodes, the check/final cards, the demo's work rows...) -- so on
+                 the dark board a tutor bubble was a light box with near-white text in it.
+                 Every board-content rule in session/topic/practice/demo is a token now
+                 (ruletests 3hp sweeps those rules), the identity block also sits on :root
+                 so a class used inside AND outside the board resolves everywhere, and the
+                 dark block gained a counterpart for each new token. The white board is
+                 still pixel-identical (board-only screenshot diff, 0 pixels).
+     2026-09-01  (build rp) NEW. THE BOARD CAN BE A WHITEBOARD OR A BLACKBOARD.
+                 Every colour that board.js, math-figures.js, geo-figures.js and the
+                 demo's own board painted as a literal is now a token named after the
+                 literal it replaced: --bd-5b5bd6 is what "#5b5bd6" used to be. On the
+                 default (white) board every token resolves to EXACTLY its old value, so
+                 the white board is pixel-identical to before this file existed -- by
+                 construction, not by care. The dark board (Jim's pick: the deep navy from
+                 the mockup, #221F33) redefines the same tokens, scoped to the board only,
+                 so the rest of the page never changes.
+                 ⚠️ RULE: no colour literal may ever appear in those drawing files again.
+                 ruletests PART 3he fails the build if one does -- the whole point is that
+                 a colour someone adds next month cannot be invisible on one board.
+                 Names are mechanical on purpose (hex, not "ink"): a mistake of naming is
+                 not possible, and renaming to roles is a later, optional tidy.
+   ============================================================================= */
+
+/* ---- the WHITE board: identity. Nothing here changes a single pixel. ---- */
+:root, .feed, [data-board] {
+  --bd-panel: #ffffff;
+  --bd-fff-text: #ffffff;        /* white that is TEXT on a coloured shape: stays white on both */
+  --bd-0d9488: #0d9488;
+  --bd-0e9f6e: #0e9f6e;
+  --bd-127942: #127942;
+  --bd-128293: #128293;
+  --bd-14b8a6: #14b8a6;
+  --bd-1e7f4f: #1e7f4f;
+  --bd-1fa971: #1fa971;
+  --bd-1fb6b0: #1fb6b0;
+  --bd-20233a: #20233a;
+  --bd-2563eb: #2563eb;
+  --bd-26263a: #26263a;
+  --bd-2a2450: #2a2450;
+  --bd-333344: #333344;
+  --bd-3b3660: #3b3660;
+  --bd-555566: #555566;
+  --bd-5b5bd6: #5b5bd6;
+  --bd-5b6079: #5b6079;
+  --bd-66707e: #66707e;
+  --bd-6b4c15: #6b4c15;
+  --bd-6b6f82: #6b6f82;
+  --bd-6b7280: #6b7280;
+  --bd-6d5ae6: #6d5ae6;
+  --bd-7a5c00: #7a5c00;
+  --bd-7c3aed: #7c3aed;
+  --bd-8288a0: #8288a0;
+  --bd-8890a0: #8890a0;
+  --bd-8a7a35: #8a7a35;
+  --bd-8a86a6: #8a86a6;
+  --bd-8f7bff: #8f7bff;
+  --bd-9333ea: #9333ea;
+  --bd-9aa7b6: #9aa7b6;
+  --bd-a5741a: #a5741a;
+  --bd-a7a2bd: #a7a2bd;
+  --bd-b45309: #b45309;
+  --bd-b6e0c9: #b6e0c9;
+  --bd-b6e6cd: #b6e6cd;
+  --bd-b7a14f: #b7a14f;
+  --bd-b7e3c9: #b7e3c9;
+  --bd-b9b5cc: #b9b5cc;
+  --bd-bfe6cd: #bfe6cd;
+  --bd-c0392b: #c0392b;
+  --bd-c3bfd4: #c3bfd4;
+  --bd-c8d0da: #c8d0da;
+  --bd-c9beff: #c9beff;
+  --bd-c9c6e0: #c9c6e0;
+  --bd-c9d2dd: #c9d2dd;
+  --bd-c9d2f5: #c9d2f5;
+  --bd-d1345b: #d1345b;
+  --bd-d8d4e6: #d8d4e6;
+  --bd-d8d8ec: #d8d8ec;
+  --bd-d97706: #d97706;
+  --bd-d9d7ee: #d9d7ee;
+  --bd-e0392b: #e0392b;
+  --bd-e2e5fb: #e2e5fb;
+  --bd-e7e6f2: #e7e6f2;
+  --bd-e8f7ee: #e8f7ee;
+  --bd-e9f9f0: #e9f9f0;
+  --bd-eafaf3: #eafaf3;
+  --bd-ecd48a: #ecd48a;
+  --bd-eceefa: #eceefa;
+  --bd-eef0f7: #eef0f7;
+  --bd-eef0f8: #eef0f8;
+  --bd-eef2ff: #eef2ff;
+  --bd-f2d59a: #f2d59a;
+  --bd-f2f4ff: #f2f4ff;
+  --bd-f2f6fc: #f2f6fc;
+  --bd-f3f3fb: #f3f3fb;
+  --bd-f4f5fb: #f4f5fb;
+  --bd-f6f3ff: #f6f3ff;
+  --bd-f7f8fc: #f7f8fc;
+  --bd-f7fafc: #f7fafc;
+  --bd-fbfbff: #fbfbff;
+  --bd-fcfcff: #fcfcff;
+  --bd-fdf4d7: #fdf4d7;
+  --bd-ff7a59: #ff7a59;
+  --bd-ffe08a: #ffe08a;
+  --bd-ffe6b0: #ffe6b0;
+  --bd-fff6e6: #fff6e6;
+  --bd-fff7e6: #fff7e6;
+  --bd-fffdf4: #fffdf4;
+  --bd-ffffff: #ffffff;
+}
+
+/* ---- the DARK board: the deep navy from the mockup, tokens scoped to the board ---- */
+[data-board="dark"] {
+  --bd-panel: #221f33;
+  --bd-fff-text: #ffffff;
+  --bd-0d9488: #46cdb9;
+  --bd-0e9f6e: #4fd9a0;
+  --bd-127942: #5fd99f;
+  --bd-128293: #46cdb9;
+  --bd-14b8a6: #4fd9c8;
+  --bd-1e7f4f: #86dfb3;
+  --bd-1fa971: #5fd99f;
+  --bd-1fb6b0: #4fd9c8;
+  --bd-20233a: #efecf8;
+  --bd-2563eb: #769cef;
+  --bd-26263a: #efecf8;
+  --bd-2a2450: #efecf8;
+  --bd-333344: #efecf8;
+  --bd-3b3660: #d8d4e6;
+  --bd-555566: #b8b3cc;
+  --bd-5b5bd6: #a5a0f5;
+  --bd-5b6079: #b8b3cc;
+  --bd-66707e: #b6bcc4;
+  --bd-6b4c15: #6b4c15;
+  --bd-6b6f82: #b6b9c3;
+  --bd-6b7280: #b6b9c3;
+  --bd-6d5ae6: #b4a6f7;
+  --bd-7a5c00: #f2c14e;
+  --bd-7c3aed: #a376ef;
+  --bd-8288a0: #b4b7c6;
+  --bd-8890a0: #b5bac4;
+  --bd-8a7a35: #e8cf86;
+  --bd-8a86a6: #a9a3c0;
+  --bd-8f7bff: #b9aeff;
+  --bd-9333ea: #c98cf7;
+  --bd-9aa7b6: #b2bcc7;
+  --bd-a5741a: #f2c14e;
+  --bd-a7a2bd: #9a93b4;
+  --bd-b45309: #f5a742;
+  --bd-b6e0c9: #b7dfc9;
+  --bd-b6e6cd: #3f6a52;
+  --bd-b7a14f: #b7a14f;
+  --bd-b7e3c9: #3a3552;
+  --bd-b9b5cc: #a9a3c0;
+  --bd-bfe6cd: #3f6a52;
+  --bd-c0392b: #ff7a6e;
+  --bd-c3bfd4: #b8b3cc;
+  --bd-c8d0da: #3a3552;
+  --bd-c9beff: #5d5590;
+  --bd-c9c6e0: #3a3552;
+  --bd-c9d2dd: #6f6a8e;
+  --bd-c9d2f5: #4a4470;
+  --bd-d1345b: #ff7f98;
+  --bd-d8d4e6: #3a3552;
+  --bd-d8d8ec: #3a3552;
+  --bd-d97706: #fbbf4a;
+  --bd-d9d7ee: #3a3552;
+  --bd-e0392b: #ff7a6e;
+  --bd-e2e5fb: #3a3552;
+  --bd-e7e6f2: #3a3552;
+  --bd-e8f7ee: #2b2740;
+  --bd-e9f9f0: #24382f;
+  --bd-eafaf3: #24382f;
+  --bd-ecd48a: #8a7a35;
+  --bd-eceefa: #2b2740;
+  --bd-eef0f7: #3a3552;
+  --bd-eef0f8: #332e4a;
+  --bd-eef2ff: #2f2a46;
+  --bd-f2d59a: #8a7a35;
+  --bd-f2f4ff: #2f2a46;
+  --bd-f2f6fc: #2b2740;
+  --bd-f3f3fb: #2b2740;
+  --bd-f4f5fb: #2b2740;
+  --bd-f6f3ff: #2b2740;
+  --bd-f7f8fc: #2b2740;
+  --bd-f7fafc: #2b2740;
+  --bd-fbfbff: #2b2740;
+  --bd-fcfcff: #2b2740;
+  --bd-fdf4d7: #453b22;
+  --bd-ff7a59: #ff9a7e;
+  --bd-ffe08a: #ffe08a;
+  --bd-ffe6b0: #ffe6b0;
+  --bd-fff6e6: #3b3320;
+  --bd-fff7e6: #fff7e6;
+  --bd-fffdf4: #3b3320;
+  --bd-ffffff: #2b2740;
+  /* the page's own tokens, re-pointed INSIDE the board only, so bubbles, step text
+     and folded-problem rows drawn from them stay readable on navy */
+  --ink: #efecf8; --muted: #b8b3cc; --line: #3a3552;
+  --panel: #221f33; --tutor: #2f2a46; --student: #24382f;
+  --card: #2b2740; --card-2: #2f2a46;
+  background: #221f33;
+  color: #efecf8;
+}
+[data-board="dark"] .stage-hint { color: #9a93b4; }
+/* (rq) the page's --accent used as TEXT inside the board is lifted the way --bd-5b5bd6 is;
+   as a SURFACE (the student bubble, answer buttons) it stays the brand purple under white text */
+.feed[data-board="dark"] .worklist .worow,
+.feed[data-board="dark"] .colmath:not(.colwrong) .cop,
+.feed[data-board="dark"] .machine .marrow,
+.feed[data-board="dark"] .probdone .probcar,
+.feed[data-board="dark"] .probdone .probhint { color: var(--bd-5b5bd6); }
+/* (rq) the two cream chips -- the weight on the balance pan and the machine's f(x) box --
+   stay light on the dark board (they are objects, not board), so INSIDE them the
+   white-board colours apply again: a light island */
+.feed[data-board="dark"] .scale .box,
+.feed[data-board="dark"] .machine .mbox {
+  --bd-e0392b: #e0392b; --bd-5b5bd6: #5b5bd6; --bd-0e9f6e: #0e9f6e;
+  --ink: #26263a; --muted: #6b6f82;
+}
+
+/* I did no harm and this file is not truncated. */
