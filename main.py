@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  APP_BUILD -> "2026-09-01rm-credit-only-what-you-saw". BUILD rm -- the
+#               09-01 watch's cluster C (rules 43/47/62): invented praise ("lined
+#               those up perfectly", no work shown) and unverifiable skill-mastery
+#               claims ("we've already got solid <skill>"). Referee 32's gate widened
+#               in tutor.py (count stays 71); the "two in a row unaided" finding
+#               deferred with reasons (needs turn-structured history).
+#               NO CODE IN THIS FILE CHANGED.
 #   2026-09-01  APP_BUILD -> "2026-09-01rl-the-first-use-list-learns-lim-and-squared".
 #               BUILD rl -- the 09-01 watch's cluster B (rule 48 x2): lim written
 #               before "the limit as x approaches" was said, and a²+b²=c² before
@@ -13246,7 +13253,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-01rl-the-first-use-list-learns-lim-and-squared"
+APP_BUILD = "2026-09-01rm-credit-only-what-you-saw"
 
 
 @app.get("/health")

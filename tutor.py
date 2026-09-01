@@ -2,6 +2,26 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rm -- CREDIT ONLY WHAT YOU SAW (the 09-01 watch's cluster C,
+#               rules 43/47/62 -- a gate WIDENING of referee 32, back_reference_
+#               conflict; NOT a new referee, the count stays 71). The watch: "lined
+#               those up perfectly" praised with no work shown, and "we've already
+#               got solid <skill>" with no record evidence (the twentieth referee's
+#               unit-state gate covers only "Unit N", never named skills). Two new
+#               claim shapes on rule 62's gate: ① alignment praise ("you lined
+#               those up") -- this classroom cannot even RECEIVE alignment work
+#               (tap/type/voice only), exempt when the conversation mentions
+#               lining up at all (the canon teaches "line up the tens" in 42
+#               places); ② "already got solid / already nailed <named skill>"
+#               where the stemmed term appears nowhere in the conversation
+#               (idioms like "solid start/grasp/foundation" exempt by list).
+#               Phantom sweep before shipping: 0 canon spoken lines match either
+#               pattern. DEFERRED, with reasons: the watch's third finding ("two
+#               in a row unaided" when one was aided) needs TURN-STRUCTURED
+#               history to judge "since the last miss" -- the flat `heard` string
+#               cannot say what was aided when, and a wrong-punishing streak
+#               referee would fire on every honest "three in a row!" (the cautious
+#               -grader law prefers silence until the harness carries structure).
 #   2026-09-01  BUILD rl -- THE FIRST-USE LIST LEARNS lim AND x² (the 09-01 watch's
 #               cluster B, rule 48 x2 -- a gate WIDENING of referee 31's own list,
 #               notation_intro_conflict; NOT a new referee, the count stays 71).
@@ -5123,6 +5143,46 @@ _BR_GENERIC = {"problem", "problems", "work", "one", "ones", "math", "practice",
                "example", "examples", "warmup", "lesson", "steps", "step",
                "thing", "things", "it", "them"}
 
+# (rm, 2026-09-01) THE CREDITING WIDENING -- the 09-01 watch's cluster C, same
+# disease as the back-references above: the tutor ASSERTING things it did not
+# see. Two new claim shapes join this referee (rule 62's "you may only point at
+# work that happened"; a widening, NOT a new referee):
+#   ① "you lined those up perfectly" -- praise for visual alignment work this
+#      classroom cannot even receive (answers arrive by tap, type or voice; there
+#      is no student drawing surface). EXEMPT when the conversation mentions
+#      lining up at all (the canon TEACHES "line up the tens" in 42 places, and a
+#      praise line after such a lesson describes the joint work) -- the fire is
+#      the COLD case the watch caught: no lining-up anywhere, praise from nowhere.
+#   ② "we've already got solid <skill>" / "you've already nailed <skill>" -- a
+#      standing-mastery claim about a NAMED skill the conversation never held
+#      (the twentieth referee's unit-state gate covers only "Unit N"). The
+#      claimed term is stemmed (factoring -> factor) and searched in the
+#      conversation; idioms ("solid start", "solid grasp", "solid foundation")
+#      are exempt by list. Phantom sweep before shipping: 0 canon lines match
+#      either pattern.
+_BR_LINED = re.compile(r"\byou\s+lined\s+(?:\w+\s+){0,3}?up\b", re.I)
+_BR_LINE_ANY = re.compile(r"\blin(?:e|ed|ing)\s+(?:\w+\s+){0,2}?up\b", re.I)
+_BR_SOLID = (
+    re.compile(r"\b(?:you|we)(?:'ve|\s+have)\s+(?:already\s+)?got\s+(?:a\s+)?solid\s+"
+               r"([\w-]+(?:\s+[\w-]+)?)", re.I),
+    re.compile(r"\b(?:you|we)(?:'ve|\s+have)\s+already\s+(?:nailed|mastered)\s+"
+               r"([\w-]+(?:\s+[\w-]+)?)", re.I),
+)
+_BR_SOLID_IDIOM = {"start", "grasp", "understanding", "foundation", "footing",
+                   "handle", "base", "plan", "beginning", "feel", "sense",
+                   "habit", "routine", "rhythm", "streak", "pace", "grip",
+                   "hold", "day", "effort", "try", "attempt", "answer", "unit"}
+
+
+def _br_stem(word: str) -> str:
+    """factoring -> factor, fractions -> fraction, added -> add -- a prefix stem
+    for searching the conversation. Short words pass through untouched."""
+    w = str(word or "").lower()
+    for suf in ("ing", "ed", "es", "s"):
+        if len(w) > len(suf) + 3 and w.endswith(suf):
+            return w[:-len(suf)]
+    return w
+
 
 def back_reference_conflict(reply: str, heard=None):
     """Return a description of a pointed back-reference to work the conversation
@@ -5149,6 +5209,35 @@ def back_reference_conflict(reply: str, heard=None):
                         "the connection is worth making, make the work real first, "
                         "or introduce the idea plainly as something new."
                         ).format(s=said, t=tok)
+        # (rm) ① praise for alignment work this classroom cannot receive. Cold
+        # only: any mention of lining up anywhere in the conversation exempts.
+        prose_l = prose  # the reply's own spoken words
+        m = _BR_LINED.search(prose_l)
+        if m and not _BR_LINE_ANY.search(base):
+            said = " ".join(m.group(0).split())[:60]
+            return ('your reply praises "{s}" -- but this classroom has no way for '
+                    "a student to line anything up: answers arrive by tap, typing "
+                    "or voice, and nothing about lining up has come up in this "
+                    "conversation. Rules 43/62: praise only work you actually saw. "
+                    "Praise the ANSWER, or the step the student actually described "
+                    "-- never a method you invented for them.").format(s=said)
+        # (rm) ② standing mastery claimed for a NAMED skill the conversation
+        # never held. Idioms exempt; the claimed term is stemmed and searched.
+        for rx in _BR_SOLID:
+            for m in rx.finditer(prose_l):
+                words = [w for w in re.split(r"[\s-]+", m.group(1).lower()) if w]
+                if not words or words[0] in _BR_SOLID_IDIOM:
+                    continue
+                if any(re.search(r"\b" + re.escape(_br_stem(w)), base)
+                       for w in words if w not in _BR_GENERIC):
+                    continue               # the skill is real in this room
+                said = " ".join(m.group(0).split())[:70]
+                return ('your reply claims "{s}" -- standing mastery of a skill '
+                        "this conversation has never touched, and the record "
+                        "referee cannot verify skills by name. Rules 47/62: never "
+                        "assert past accomplishment you did not see. If they truly "
+                        "have it, let them SHOW it with one quick problem; "
+                        "otherwise teach it as new.").format(s=said)
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[backref] crashed (fail open): {exc}")

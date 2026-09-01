@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-01  BUILD rm -- PART 3hn: credit only what you saw. The 09-01 watch's
+#               cluster C (rules 43/47/62): "lined those up perfectly" praised with no
+#               work shown, and "we've already got solid <skill>" past the twentieth
+#               referee (its unit-state gate covers only "Unit N"). Referee 32's gate
+#               (back_reference_conflict) WIDENED -- count stays 71, pinned: ①
+#               alignment praise fires cold only (the classroom cannot receive
+#               alignment work; a conversation that taught "line up" exempts -- the
+#               canon does so in 42 places); ② "already got solid / already nailed
+#               <named skill>" fires when the stemmed term is nowhere in the
+#               conversation (idioms exempt). Phantom sweep: 0 canon lines match.
+#               The "two in a row unaided" finding is DEFERRED with reasons (needs
+#               turn-structured history; a flat-string streak referee would punish
+#               honest praise -- cautious-grader law).
 #   2026-09-01  BUILD rl -- PART 3hm: the first-use list learns lim and x². The 09-01
 #               watch's cluster B (rule 48 x2): "lim (x→2)" written before "the limit
 #               as x approaches" was said (lim on NO list), and "a² + b² = c²" on a
@@ -12366,6 +12379,89 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
+def part3hn_credit_only_what_you_saw():
+    """PART 3hn (build rm, 2026-09-01) -- CREDIT ONLY WHAT YOU SAW.
+
+    THE FINDINGS (the 09-01 night watch, cluster C -- rules 43/47/62, "the tutor
+    asserting things it did not see"): "lined those up perfectly" praised with no
+    work shown, and "we've already got solid <skill>" with no record evidence --
+    it slipped the twentieth referee because its unit-state gate covers only
+    "Unit N", never a named skill.
+
+    THE FIX IS A GATE WIDENING of referee 32 (back_reference_conflict, rule 62's
+    "you may only point at work that happened"; the count stays 71). Two new
+    claim shapes: ① alignment praise ("you lined those up") -- this classroom
+    cannot RECEIVE alignment work (answers arrive by tap, typing or voice; there
+    is no student drawing surface), so the praise is structurally invented;
+    EXEMPT whenever the conversation mentions lining up at all, because the canon
+    teaches "line up the tens" in 42 places and praise after such a lesson
+    describes the joint work -- the fire is the watch's COLD case only.
+    ② "already got solid / already nailed <named skill>" where the claimed
+    term, stemmed (factoring -> factor), appears nowhere in the conversation;
+    idioms ("solid start/grasp/understanding/foundation...") exempt by list.
+    Phantom sweep before shipping: 0 of the canon's spoken lines match either
+    pattern.
+
+    DEFERRED, ON PURPOSE (the cautious-grader law): the watch's third finding --
+    "two in a row unaided" when one was aided -- needs TURN-STRUCTURED history to
+    judge what was aided since the last miss; the flat `heard` string cannot, and
+    a wrong streak referee would fire on every honest "three in a row!". Queued
+    until the referee harness carries structure, not built badly today.
+    """
+    print("\nPART 3hn — credit only what you saw (build rm)")
+    import tutor as T
+
+    # ---- ① the alignment praise ---------------------------------------------
+    fire = T.back_reference_conflict(
+        "You lined those up perfectly! Great job.", heard="student: 61")
+    check("⭐ cold alignment praise fires (the watch's 'lined those up')",
+          "lined" in fire.lower() and "praise" in fire.lower(),
+          "no student can line anything up in this classroom -- the praise "
+          "described work that cannot exist")
+    check("  ...but a conversation that TAUGHT lining up is exempt",
+          T.back_reference_conflict(
+              "You lined those up perfectly! Great job.",
+              heard="tutor: now we line up the tens under the tens. student: ok "
+                    "tutor: 26 over 35, lined up. student: 61") == "",
+          "the canon teaches 'line up' in 42 places -- praise after that lesson "
+          "describes the joint work and must not be punished")
+    # ---- ② the already-solid skill claim ------------------------------------
+    fire2 = T.back_reference_conflict(
+        "We've already got solid factoring, so let's move on.", heard="student: hi")
+    check("⭐ 'already got solid <skill>' with no such work fires",
+          "solid factoring" in fire2.lower() or "mastery" in fire2.lower(),
+          "the twentieth referee's gate covers only 'Unit N' -- named skills "
+          "walked straight past it")
+    check("  ...silent when the conversation actually held the skill (stemmed)",
+          T.back_reference_conflict(
+              "We've already got solid factoring, so let's move on.",
+              heard="tutor: let's factor x squared minus nine. student: (x-3)(x+3)")
+          == "",
+          "factoring -> factor must match the real work -- a referee that "
+          "punishes true praise is worse than none")
+    check("  ...and the idioms never fire",
+          T.back_reference_conflict(
+              "We've got a solid start here. And you have a solid grasp already.",
+              heard="student: hi") == "",
+          "'solid start/grasp' is encouragement, not a skill claim")
+    check("  ...and 'already nailed <skill>' fires cold too",
+          T.back_reference_conflict(
+              "You've already nailed slope, so this will be quick.",
+              heard="student: hi") != "", "")
+    # ---- the old gate is untouched ------------------------------------------
+    check("  the original false-memory shape still fires",
+          T.back_reference_conflict(
+              "Just like the factoring we did a minute ago.",
+              heard="student: hi") != "",
+          "a widening must never narrow")
+    check("  ...and heard=None still means silence (the referee cannot know)",
+          T.back_reference_conflict("You lined those up perfectly!", heard=None)
+          == "", "")
+    n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
+    check("  the referee count is unchanged -- rm widened a gate",
+          n_ref == 71, f"{n_ref} *_conflict functions")
+
+
 def part3dn_every_verdict_is_counted():
     """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
 
@@ -21264,7 +21360,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,060</b>" in page,
+          "<b>8,069</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -29894,6 +29990,7 @@ def main():
     part3hk_the_orb_retires_and_the_seam_is_announced()
     part3hl_the_course_remembers_which_lessons_are_done()
     part3hm_the_first_use_list_learns_lim_and_squared()
+    part3hn_credit_only_what_you_saw()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
