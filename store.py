@@ -2,6 +2,14 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD rd -- THE MAIN ROAD MOVES THE STAR. The scripted lane grades in
+#               code and never emits [[mark]], so today_streak moved neither up nor down
+#               there (measured, then watched live). NEW bump_today_streak(): the mirror
+#               of rc's reset_today_streak -- same atomic _bump_stats upsert, qz's own
+#               today_of=(1,1) clean-mark arm, NO counters touched (scripted problems
+#               stay out of problems_practiced/accuracy, per record_drill's standing
+#               reasoning). main.py's /api/script/answer calls bump/reset from the
+#               engine's own verdict and carries the fresh pair in its response.
 #   2026-08-31  BUILD rc -- THE STAR FALLS WHEN THE CHILD SLIPS. Jim's ruling: a miss is
 #               ANY WRONG TAP -- the first wrong answer resets the today-streak to 0 even
 #               if the child recovers on the re-ask. Until now only a FINISHED problem
@@ -2538,6 +2546,25 @@ def reset_today_streak(code: str) -> dict:
     the fresh pair read back from the write, exactly record_practice's shape, so the
     /api caller hands the client the authoritative number, never a guess."""
     _bump_stats(code, today_of=(0, 1))
+    s = _get_stats_row(code)
+    today_streak = (s["today_streak"] if s.get("today_streak_day") == _streak_today()
+                    else 0)
+    return {"today_streak": today_streak, "streak_days": s["streak_days"]}
+
+
+def bump_today_streak(code: str) -> dict:
+    """(rd, 2026-08-31) One correct answer on the SCRIPTED lane climbs today's
+    correct-in-a-row streak by one. The scripted lane grades in code and never emits
+    a [[mark]] (its problems are deliberately NOT blended into the finished-problem
+    counters -- see record_drill's reasoning), so until this build the main road
+    moved the star neither up nor down.
+
+    ⚠️ TOUCHES NO COUNTERS, exactly like reset_today_streak above: problems_practiced
+    and accuracy stay the live lane's finished-problem record. The DAY streak still
+    ticks (a child practicing is a child working today). Same atomic upsert,
+    today_of=(1, 1) -- qz's clean-mark arm -- so there is no second copy of the
+    day-boundary logic either. Returns the fresh pair, record_practice's shape."""
+    _bump_stats(code, today_of=(1, 1))
     s = _get_stats_row(code)
     today_streak = (s["today_streak"] if s.get("today_streak_day") == _streak_today()
                     else 0)

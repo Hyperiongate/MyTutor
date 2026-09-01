@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  BUILD rd -- PART 3he: the main road moves the star. The scripted lane
+#               grades every tap in code and never emits [[mark]], so today_streak moved
+#               neither up nor down there (measured, then watched live: a wrong tap fired
+#               the intervention and the chips sat still). main._script_streak() bumps on
+#               a correct answer (store.bump_today_streak, new -- today_of=(1,1), NO
+#               counters) and resets on any wrong tap, graded at the ENGINE'S OWN LINE
+#               (pending ans() vs the tapped value, before step() consumes it; redos where
+#               code already grades them; unheard moves nothing). The fresh pair rides
+#               every /api/script/answer response as "streak"; session.html feeds it to
+#               the chips. Quiz lane deliberately EXCLUDED (assessment, qz's own ruling).
+#               _RD_STREAK drives it end-to-end against real endpoints and a throwaway DB.
 #   2026-08-31  BUILD rc -- PART 3hd: the star falls when the child slips. Jim's ruling: a
 #               miss is ANY WRONG TAP -- watched live, a deliberate miss carried no tag,
 #               nothing fired, and the streak climbed straight through. Three doors, each
@@ -11213,6 +11224,166 @@ def part3hd_the_star_falls_when_the_child_slips():
                   (res.stderr or out)[-500:])
 
 
+_RD_STREAK = r"""import os, sys
+d = sys.argv[1]
+os.environ["DATABASE_URL"] = "sqlite:///" + d + "/rd.db"
+os.environ["DATA_DIR"] = d
+os.environ["WEEKLY_EMAIL"] = "off"
+os.environ["NIGHTWATCH"] = "off"
+os.environ["FORUM_MOD_KEY"] = "TESTKEY"
+os.environ["ELEVENLABS_API_KEY"] = "pretend-there-is-a-key"
+sys.path.insert(0, sys.argv[2])
+import main, store, lessonscripts
+from fastapi.testclient import TestClient
+
+c = TestClient(main.app)
+ok = True
+def chk(label, cond, extra=""):
+    global ok
+    print(("PASS " if cond else "FAIL ") + label, extra if not cond else "")
+    if not cond: ok = False
+
+CODE = "1234"
+les = next(l for l in c.get("/api/script/lessons").json()["lessons"]
+           if l["course"] == "entry")
+r0 = c.post("/api/script/start",
+            json={"code": CODE, "course": "entry", "lesson": les["id"]}).json()
+chk("a scripted lesson starts", r0.get("ok"), r0)
+
+def expected():
+    sess = main._script_session(CODE)
+    if sess["mode"] == "intervene":
+        return sess["redo"]["expected"]
+    return lessonscripts.ans(sess["state"]["pending"]["problem"])
+
+# ---- a right tap climbs, through the real endpoint, fresh pair in the response ----
+r1 = c.post("/api/script/answer", json={"code": CODE, "value": expected()}).json()
+chk("*** a right tap on the main road climbs the star (streak rides the response)",
+    (r1.get("streak") or {}).get("today_streak") == 1, r1.get("streak"))
+
+# ---- a wrong tap resets, same turn, same response ----
+r2 = c.post("/api/script/answer", json={"code": CODE, "value": expected() + 1}).json()
+chk("*** a wrong tap resets it to 0 on the spot",
+    (r2.get("streak") or {}).get("today_streak") == 0, r2.get("streak"))
+
+# ---- the recovery answer starts a fresh run at 1 (redo or retest, whichever) ----
+r3 = c.post("/api/script/answer", json={"code": CODE, "value": expected()}).json()
+chk("the answer after the slip starts fresh at 1",
+    (r3.get("streak") or {}).get("today_streak") == 1, r3.get("streak"))
+
+# ---- unheard is not an answer: no field, no movement ----
+r4 = c.post("/api/script/answer", json={"code": CODE, "unheard": True}).json()
+chk("unheard carries no streak field and moves nothing", "streak" not in r4, r4)
+
+# ---- NO counters: scripted problems stay out of the finished-problem record ----
+stats = store.get_mastery(CODE, "algebra1")["stats"]
+chk("*** problems_practiced untouched by the whole scripted exchange",
+    stats["problems_practiced"] == 0, stats)
+chk("  ...and the store's streak agrees with the last response",
+    stats["today_streak"] == 1, stats)
+
+print("ALL OK" if ok else "DONE")
+sys.exit(0 if ok else 1)
+"""
+
+
+def part3he_the_main_road_moves_the_star():
+    """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
+
+    Measured while scoping rc, then WATCHED live the same evening: the scripted lane
+    (Jim's chosen main road) grades every tap in code and never emits a [[mark]], so
+    today's correct-in-a-row streak moved neither up nor down there -- a wrong tap on
+    the live counting card fired the AI intervention and the qz chips sat still.
+
+    ⭐ THE ENGINE'S OWN VERDICT, NOT A SECOND GRADER. Ordinary turns are graded at
+    the engine's own line -- the pending problem's ans() against the tapped value,
+    computed BEFORE step() consumes the pending state; intervention redos are graded
+    exactly where code already grades them (redo["expected"]). A correct answer
+    bumps (store.bump_today_streak, new -- qz's today_of=(1,1) clean-mark arm), any
+    wrong tap resets (rc's reset_today_streak), and the fresh pair rides every
+    /api/script/answer response as "streak" into session.html's chips.
+
+    ⚠️ NO COUNTERS. Scripted problems stay OUT of problems_practiced/accuracy --
+    record_drill's standing reasoning, re-applied. ⚠️ UNHEARD IS NOT AN ANSWER.
+    ⚠️ GUIDED ASKS COUNT BOTH WAYS (a wrong tap is a wrong tap -- Jim's ruling).
+    ⚠️ THE QUIZ LANE IS DELIBERATELY EXCLUDED: a quiz is assessment, and qz already
+    ruled assessment events (record_check) out of the streak. If Jim wants quizzes
+    to count, that is HIS call to make, not a default to drift into.
+    """
+    print("\nPART 3he — the main road moves the star (build rd)")
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    # ---- store: the bump wrapper touches NO counters ---------------------------
+    ssrc = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    bump_body = ssrc.split("def bump_today_streak(", 1)[1].split("\ndef ", 1)[0]
+    check("⭐ bump_today_streak rides the SAME atomic upsert, today_of=(1, 1), no "
+          "counter at all",
+          "_bump_stats(code, today_of=(1, 1))" in bump_body
+          and "problems=" not in bump_body and "correct=" not in bump_body
+          and "attempted=" not in bump_body,
+          "scripted problems must stay out of the finished-problem record")
+
+    # ---- main: graded at the engine's own line, before step() consumes it ------
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    ans_body = msrc.split("def script_answer(", 1)[1].split("\n@app.", 1)[0]
+    i_guard = ans_body.find("lessonscripts.ans(_pend)")
+    i_step = ans_body.find("steps, state = lessonscripts.step(lesson, state, event)")
+    check("⭐ the ordinary-turn verdict reads the pending problem's ans() BEFORE "
+          "step() consumes the pending state (boundary-split pin, the qz law)",
+          0 <= i_guard < i_step, (i_guard, i_step))
+    check("  unheard is not an answer (the guard requires a real tapped value)",
+          "if (not body.unheard) and body.value is not None:" in ans_body, "")
+    check("⭐ a right intervention redo bumps where code already grades it",
+          "_script_streak(code, True)" in ans_body, "")
+    check("⭐ a wrong redo resets BEFORE the branch, so both exits carry it",
+          "_script_streak(code, False)" in ans_body
+          and ans_body.find("_script_streak(code, False)")
+          < ans_body.find('if sess["ai_turns"] < SCRIPT_AI_TURNS:'), "")
+    check("  every scripted-answer exit can carry the fresh pair",
+          ans_body.count('resp["streak"] = _streak') >= 4,
+          ans_body.count('resp["streak"] = _streak'))
+    check("  the helper fails OPEN -- a streak write must never cost a turn",
+          "def _script_streak(" in msrc
+          and "failed open" in msrc.split("def _script_streak(", 1)[1]
+                                   .split("\n@app.", 1)[0], "")
+
+    # ---- the quiz lane is deliberately OUT ------------------------------------
+    quiz_body = msrc.split('"/api/script/quiz/answer"', 1)[1].split("\n@app.", 1)[0]
+    check("⭐ the quiz lane moves NO streak (assessment stays out, qz's own ruling)",
+          "_script_streak" not in quiz_body and "today_streak" not in quiz_body,
+          "a quiz is record_check's family; Jim decides if it ever joins")
+
+    # ---- the page: the response feeds the chips -------------------------------
+    sess = code_only(open(os.path.join(here, "static", "session.html"),
+                          encoding="utf-8").read())
+    check("⭐ session.html feeds j.streak into renderStreakChips on every scripted "
+          "answer", "if (j.streak) renderStreakChips({ streak_days: "
+          "j.streak.streak_days, today_streak: j.streak.today_streak });" in sess, "")
+
+    # ---- the live drive: real endpoints, a real (throwaway) database ----------
+    try:
+        import sqlalchemy  # noqa: F401
+        import fastapi  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("the main-road live drive", "sqlalchemy/fastapi not installed here")
+    else:
+        import tempfile as _tf
+        with _tf.TemporaryDirectory() as td:
+            script = os.path.join(td, "rdstreak.py")
+            with open(script, "w", encoding="utf-8") as fh:
+                fh.write(_RD_STREAK)
+            res = subprocess.run([sys.executable, script, td, here],
+                                 capture_output=True, text=True, timeout=600)
+            out = res.stdout or ""
+            for line in out.splitlines():
+                if line.startswith("FAIL"):
+                    bad("the main road: " + line[5:140], "")
+            check("the main-road live drive ends ALL OK "
+                  f"({out.count('PASS ')} client-level checks)",
+                  res.returncode == 0 and "ALL OK" in out,
+                  (res.stderr or out)[-500:])
+
+
 def part3dn_every_verdict_is_counted():
     """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
 
@@ -20106,7 +20277,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,924</b>" in page,
+          "<b>7,934</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -28679,6 +28850,7 @@ def main():
     part3hb_the_leftover_gets_its_buttons()
     part3hc_the_chip_says_what_it_counts()
     part3hd_the_star_falls_when_the_child_slips()
+    part3he_the_main_road_moves_the_star()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

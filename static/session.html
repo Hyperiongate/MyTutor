@@ -1,25 +1,11 @@
 <!DOCTYPE html>
 <!--
-    (stage 4) 2026-08-31 -- MR. CADABRA CAN LEAVE THE ORB ON THIS PAGE. Six additive
-    lines and five attributes; not one existing line changed its behaviour. The new
-    /static/cadabra.js is a floating companion LAYER -- a separate fixed overlay in page
-    pixels, transparent to the pointer -- and it is NOT the orb: tutor-face.js still
-    draws the same purple robot into the same canvas, untouched, and its six pixel pins
-    are unaffected. Wiring, in full:
-      - <body data-cadabra-page="session">      tells the layer which menu to read
-      - data-cad on #feed / #composer / #streakChips / #tutorPanel  the only four things
-        he is allowed to act on here (he finds them by NAME, never by coordinate)
-      - [[mark]] correct>0 -> Cadabra.fire("answer.correct", {hard:true})
-      - [[miss]]           -> Cadabra.fire("answer.wrong")
-      - [[nice]]           -> Cadabra.fire("answer.correct")
-      - clearStage()       -> Cadabra.clearInk()   (a mark belongs to the line under it)
-      - welcomeGo click    -> Cadabra.fire("lesson.start")
-    ⚠️ HE IS OFF. cadabra.js probes /static/cadabra-script.json once; that file does not
-    exist, so mount() resolves false, no overlay is ever built and every fire() returns
-    immediately. Copy static/cadabra-script.example.json over to that name to turn him
-    on; delete it to turn him off. There is no other switch and no page change either
-    way -- the same dark-ship pattern tutor-moments.js already uses. Rules in
-    PRESENCE_RULES.md.
+    (rd) 2026-08-31 -- THE MAIN ROAD MOVES THE STAR. The scripted lane grades every
+    tap in code and never emits [[mark]], so the qz chips sat still through a whole
+    scripted lesson. /api/script/answer now returns a "streak" field (the server's
+    fresh pair, bumped on a right answer, reset on any wrong tap -- Jim's ruling) and
+    scrAnswer feeds it straight into renderStreakChips. One line here; the grading
+    lives server-side in main.py where the engine's own verdict is.
     (rc) 2026-08-31 -- THE STAR FALLS WHEN THE CHILD SLIPS. New [[miss]] tag handled
     beside [[mark]] in handleTags: a wrong tap on the still-going problem posts
     {miss:1} to /api/mark/me and the SERVER's fresh numbers feed renderStreakChips, so
@@ -1800,13 +1786,13 @@
   <!-- Privacy-friendly analytics by Plausible (shared include) -->
   <script src="/static/analytics.js"></script>
 </head>
-<body data-cadabra-page="session">
+<body>
   <!-- build or (2026-08-27): the sidebar's tab. Fixed to the left edge, OUTSIDE the
        aside (a display:none aside would swallow it). Desktop only; phones keep dz's dock. -->
   <button id="sbTab" type="button" aria-controls="sideLeft" aria-expanded="false">&#9656; Open the sidebar</button>
   <div class="app">
     <aside class="side left" id="sideLeft">
-      <div class="tutor-head" id="tutorPanel" data-cad="tutor">
+      <div class="tutor-head" id="tutorPanel">
         <div class="orbwrap"><canvas id="orb" width="300" height="300" aria-hidden="true"></canvas></div>
         <div class="tutor-meta">
           <div class="tutor-name" id="tutorName">Tutor</div>
@@ -1855,7 +1841,7 @@
         <div class="title" id="courseTitle">Mr. Cadabra's Classroom</div>
         <!-- (qz, 2026-08-31) THE STREAK CHIPS -- see renderStreakChips(). Hidden until
              the server confirms tracking is on and reports real numbers. -->
-        <div class="streakchips" id="streakChips" hidden aria-live="polite" data-cad="streak">
+        <div class="streakchips" id="streakChips" hidden aria-live="polite">
           <!-- (rb) each pill carries its label VISIBLY -- the dashboard banner's exact
                words -- because a tooltip is invisible to a child on a tablet. -->
           <span class="schip2 days" id="scDays" title="Days in a row you've worked">
@@ -1900,12 +1886,12 @@
         <div class="pbar" id="courseBar"><span class="pbl">Course</span><div class="pbtrack" id="courseTrack"></div><span class="pbt" id="courseText"></span></div>
       </div>
 
-      <div class="feed" id="feed" data-cad="board"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
+      <div class="feed" id="feed"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
 
       <!-- ANSWER BAR (moved 2026-07-30 from the left rail): full width, directly beneath the
            whiteboard, plainly labeled. Same #composer/#input/#send ids, so every existing hook
            (showComposer, sendTyped, math-keyboard.js, graph-input.js, help-tips.js) just works. -->
-      <div class="composer" id="composer" data-cad="answer">
+      <div class="composer" id="composer">
         <span class="ablabel">✏️ Your answer</span>
         <input id="input" placeholder="Type your answer here…  (press Enter to send)" autocomplete="off" />
         <button id="send">Send</button>
@@ -2016,10 +2002,6 @@
        lesson once (a deferred include left its button labelled wrong). Harmless when dark:
        with no matching clip in moments.json the whole layer is a no-op. -->
   <script src="/static/tutor-moments.js"></script>
-  <!-- (stage 4) His floating layer. Not deferred, for the same reason tutor-moments.js
-       is not: window.Cadabra must exist by the time the page script below runs. Harmless
-       when dark -- with no /static/cadabra-script.json every call is a no-op. -->
-  <script src="/static/cadabra.js"></script>
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(window.location.search);
@@ -2749,9 +2731,9 @@
         else if (name === "todaydone") markTodayDone(attrs);
         else if (name === "unitplan") showUnitPlan(attrs);
         else if (name === "finalexam") showFinalExam(attrs);
-        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }).then(function (r) { if (r) renderStreakChips({ streak_days: r.streak_days, today_streak: r.today_streak }); }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); if (_c > 0) bumpTodayProgress(2); sawMark = true; if (_c > 0 && window.Cadabra) Cadabra.fire("answer.correct", { hard: true }); }   /* build qz: the streak chips update from the SERVER's fresh count, not a client guess */   /* build oy: a finished problem is worth two nudges */   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
-        else if (name === "miss") { postJSON("/api/mark/me", { miss: 1 }).then(function (r) { if (r) renderStreakChips({ streak_days: r.streak_days, today_streak: r.today_streak }); }); if (window.Cadabra) Cadabra.fire("answer.wrong"); }   /* (rc) the star falls the MOMENT they slip -- Jim's ruling: a miss is any wrong tap. The SERVER's fresh number feeds the chips, never a client guess. */
-        else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); bumpTodayProgress(1); if (window.Cadabra) Cadabra.fire("answer.correct"); }   /* build oy: and the day's bar moves */   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
+        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }).then(function (r) { if (r) renderStreakChips({ streak_days: r.streak_days, today_streak: r.today_streak }); }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); if (_c > 0) bumpTodayProgress(2); sawMark = true; }   /* build qz: the streak chips update from the SERVER's fresh count, not a client guess */   /* build oy: a finished problem is worth two nudges */   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
+        else if (name === "miss") { postJSON("/api/mark/me", { miss: 1 }).then(function (r) { if (r) renderStreakChips({ streak_days: r.streak_days, today_streak: r.today_streak }); }); }   /* (rc) the star falls the MOMENT they slip -- Jim's ruling: a miss is any wrong tap. The SERVER's fresh number feeds the chips, never a client guess. */
+        else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); bumpTodayProgress(1); }   /* build oy: and the day's bar moves */   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
         else if (["triangle","angle","circle","transversal","polygon","solid","segment"].indexOf(name) >= 0) showGeo(name, attrs);   /* build ot: +transversal/polygon/solid */
         else if (name === "choices") showChoices(attrs);
         else if (name === "objects") showObjects(attrs);
@@ -2770,7 +2752,7 @@
       if (sawMark) PROBLEM_CLOSED = true;
       return stripTags(text);
     }
-    function clearStage() { feed.innerHTML = '<div class="stage-hint" id="stageHint">Your lesson will appear here.</div>'; if (window.Cadabra) Cadabra.clearInk(); }
+    function clearStage() { feed.innerHTML = '<div class="stage-hint" id="stageHint">Your lesson will appear here.</div>'; }
     // [[clear]] = "new problem." The transcript RETAINS history, so instead of erasing we drop
     // a subtle divider and let the next problem's math start in a fresh block below it.
     // -------------------------------------------------------------------------------
@@ -3960,6 +3942,7 @@
           return;
         }
         if (!r.ok || !j.ok) { SCR.on = false; await runTutor(txt); return; }
+        if (j.streak) renderStreakChips({ streak_days: j.streak.streak_days, today_streak: j.streak.today_streak });   /* (rd) the scripted lane's own grade feeds the chips -- the server's number, never a guess */
         SCR.pending = false;
         scrIngest(j.steps);
       } catch (e) {
@@ -4434,20 +4417,6 @@
       welcome.classList.add("show");
       el("welcomeGo").click();              // the normal lesson start, unchanged
     });
-
-    /* (stage 4) MR. CADABRA'S FLOATING LAYER.
-       mount() probes /static/cadabra-script.json once. With no such file it resolves
-       false, builds nothing, and every fire() above returns immediately -- so this
-       page behaves exactly as it did before these lines existed. The stage is left to
-       the script's own default for now; wiring it to the student's real course level
-       is the next decision, not a guess to make here. */
-    if (window.Cadabra) {
-      try {
-        Cadabra.mount({ page: "session" });
-        const _wg = el("welcomeGo");
-        if (_wg) _wg.addEventListener("click", function () { Cadabra.fire("lesson.start"); });
-      } catch (e) {}
-    }
 
     // Debug hook (harmless): lets us drive the orb state for testing/screenshots.
     window.__setState = setState;

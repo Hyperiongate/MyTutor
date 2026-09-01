@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-31  APP_BUILD -> "2026-08-31rd-the-main-road-moves-the-star". BUILD rd -- the
+#               scripted lane (the main road) graded every tap in code and told the streak
+#               NOTHING: today_streak moved neither up nor down there (measured in code,
+#               then watched live -- a wrong tap on the counting card fired the
+#               intervention and the chips sat still). NEW _script_streak() in
+#               /api/script/answer: a correct answer bumps (store.bump_today_streak, new),
+#               any wrong tap resets (rc's reset_today_streak) -- ordinary turns graded at
+#               the engine's own line (pending problem's ans() vs the tapped value, before
+#               step() consumes the pending state; unheard moves nothing; guided asks
+#               count both ways), intervention redos graded where code already grades
+#               them. The fresh pair rides the response as "streak" and session.html's
+#               scrAnswer feeds it to the chips. NO counters move -- scripted problems
+#               stay OUT of problems_practiced/accuracy (record_drill's standing
+#               reasoning). THE QUIZ LANE IS DELIBERATELY EXCLUDED: a quiz is assessment,
+#               and qz already ruled assessment events (record_check) out of the streak --
+#               flag for Jim if he wants quizzes to count.
 #   2026-08-31  APP_BUILD -> "2026-08-31rc-the-star-falls-when-the-child-slips". BUILD rc --
 #               Jim's ruling: a miss is ANY WRONG TAP. Until now only a FINISHED problem
 #               moved the today-streak, so a wrong tap inside a still-going problem left
@@ -10360,6 +10376,26 @@ def script_lessons():
                                     for les in lessonscripts.LESSONS]}
 
 
+def _script_streak(code: str, correct: bool):
+    """(rd, 2026-08-31) THE MAIN ROAD MOVES THE STAR. The scripted lane grades every
+    tap in code and never emits a [[mark]], so until this build today's
+    correct-in-a-row streak moved neither up nor down here -- the qz chips sat still
+    through a whole scripted lesson (measured in code, then watched live). One door:
+    a correct answer bumps, a wrong tap resets (Jim's ruling: a miss is ANY wrong
+    tap, guided asks included), and the fresh pair rides the /api/script/answer
+    response into the chips. NO counters move -- scripted problems stay out of
+    problems_practiced/accuracy, exactly like rc's slips. Returns the fresh
+    {today_streak, streak_days} or None (fail open: never costs a turn)."""
+    try:
+        if not store.enabled():
+            return None
+        return (store.bump_today_streak(code) if correct
+                else store.reset_today_streak(code))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[scriptstreak] failed open: {exc}")
+        return None
+
+
 @app.post("/api/script/answer")
 def script_answer(body: ScriptAnswerIn):
     t0 = _time.monotonic()
@@ -10402,6 +10438,7 @@ def script_answer(body: ScriptAnswerIn):
             return {"ok": True, "steps": pre + [{"kind": "say",
                     "spoken": lessonscripts.LINE_TAP, "board": redo["choices"]}]}
         if body.value is not None and int(body.value) == redo["expected"]:
+            _streak = _script_streak(code, True)   # (rd) a right redo climbs the star
             praise = lessonscripts.praise_for(redo["problem"], state["done"])
             steps, state = lessonscripts.step(lesson, state, ("resume",))
             sess.update(state=state, mode="script", ai_turns=0,
@@ -10411,7 +10448,13 @@ def script_answer(body: ScriptAnswerIn):
                 if s["kind"] == "end":
                     _script_finish(code, sess, s)
             _script_log(code, lesson["course"], t0)
-            return {"ok": True, "steps": out}
+            resp = {"ok": True, "steps": out}
+            if _streak:
+                resp["streak"] = _streak
+            return resp
+        # (rd) a wrong redo is still a wrong tap: the star falls NOW, whichever of
+        # the two exits below this turn leaves through.
+        _streak = _script_streak(code, False)
         # wrong again: another bounded AI turn, or fall back to the scripted retest
         if sess["ai_turns"] < SCRIPT_AI_TURNS:
             sess["history"].append({"role": "user",
@@ -10423,18 +10466,33 @@ def script_answer(body: ScriptAnswerIn):
                 sess["history"].append({"role": "assistant", "content": reply})
                 _script_log(code, lesson["course"], t0)
                 _say, _brd = _split_ai_reply(reply)
-                return {"ok": True, "steps": [{"kind": "ai", "spoken": _say,
+                resp = {"ok": True, "steps": [{"kind": "ai", "spoken": _say,
                                                "board": _brd}]}
+                if _streak:
+                    resp["streak"] = _streak
+                return resp
         steps, state = lessonscripts.step(lesson, state, ("resume",))
         sess.update(state=state, mode="script", ai_turns=0, history=[], redo=None)
         for s in steps:
             if s["kind"] == "end":
                 _script_finish(code, sess, s)
         _script_log(code, lesson["course"], t0)
-        return {"ok": True, "steps": _script_clean(steps)}
+        resp = {"ok": True, "steps": _script_clean(steps)}
+        if _streak:
+            resp["streak"] = _streak
+        return resp
 
     # ---- ordinary scripted turn ----
     event = ("unheard",) if body.unheard else ("answer", int(body.value or 0))
+    # (rd) the engine's own verdict, taken at the engine's own line -- the pending
+    # problem's ans() against the tapped value, computed BEFORE step() consumes the
+    # pending state. Unheard is not an answer and moves nothing; guided asks count
+    # both ways (a wrong tap is a wrong tap, Jim's ruling).
+    _streak = None
+    if (not body.unheard) and body.value is not None:
+        _pend = (state.get("pending") or {}).get("problem")
+        if _pend is not None:
+            _streak = _script_streak(code, int(body.value) == lessonscripts.ans(_pend))
     steps, state = lessonscripts.step(lesson, state, event)
     sess["state"] = state
     out = list(pre)          # build ou: the authored refusal line leads, then the re-ask
@@ -10463,7 +10521,10 @@ def script_answer(body: ScriptAnswerIn):
             if s["kind"] == "end":
                 _script_finish(code, sess, s)
     _script_log(code, lesson["course"], t0)
-    return {"ok": True, "steps": out}
+    resp = {"ok": True, "steps": out}
+    if _streak:
+        resp["streak"] = _streak
+    return resp
 
 # =============================================================================
 # THE TOPIC QUIZ, THROUGH THE AUTHORED SPINE  (build ov, 2026-08-27)
@@ -13101,7 +13162,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-31rc-the-star-falls-when-the-child-slips"
+APP_BUILD = "2026-08-31rd-the-main-road-moves-the-star"
 
 
 @app.get("/health")
