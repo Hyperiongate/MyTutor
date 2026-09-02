@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD rt -- his lips stopped mid-sentence (3hq, three pins). Jim, in the
+#               demo: after an expression with stars, the lips stopped while the voice
+#               went on. The bubble's end had been clearing the one speaking flag under
+#               a live voice; the quiet watchdog read a pause as the end. cadabra.js
+#               now keeps voiceOn and bubbleOn apart (OR-ed per frame) and retires
+#               both watchdogs once a page has announced mt:silent. Proved on the
+#               bench: voice on -> party -> bubble ends -> still speaking; 27 s into
+#               a line -> still speaking; mt:silent -> stops.
 #   2026-09-02  BUILD rs -- the demo, three things Jim saw (and one more): Abrabot's
 #               lines keep the pencil's mouth still (lastRobot -> mt:silent); the
 #               corner panel is gone (3hq pins it, statusEl guarded); the lesson no
@@ -22313,11 +22321,24 @@ def part3hq_the_pencil_has_feelings_about_your_work():
           "function announceSilent()" in vjs and vjs.count("announceSilent();") == 2
           and re.search(r"function announceSilent\(\)\s*\{\s*try\s*\{", vjs) is not None,
           "the mirror of qs's mt:speaking; wrapped, additive, read back by nothing here")
-    check("  cadabra.js clears a real voice line on it, and keeps two watchdogs",
+    check("  cadabra.js clears a real voice line on it, and keeps two watchdogs for a page that never announces",
           'document.addEventListener("mt:silent",   onSilent,   false);' in cad
-          and "if (S.quietMs > 1600) S.speaking = false;" in cad and "if (now - S.speakT > 25000) S.speaking = false;" in cad,
+          and "if (S.quietMs > 1600) S.voiceOn = false;" in cad and "if (now - S.speakT > 25000) S.voiceOn = false;" in cad
+          and "if (S.voiceOn && !S.silentSeen) {" in cad,
           "before rr nothing ever cleared S.speaking after a real line: the drift froze, and on "
           "the browser-voice path the mouth ran on the synthetic envelope for ever")
+    # (rt, 2026-09-02) Jim: "his lips stop moving... after he makes an expression... while
+    # the voice is still going." The bubble's end (party, comfort, tour, hush) had been
+    # clearing the ONE speaking flag under a live voice; the quiet watchdog also read a
+    # natural pause as the end of a line.
+    check("⭐ (rt) the VOICE and his BUBBLE are two flags, OR-ed every frame -- a bubble ending never closes his mouth under the voice",
+          "S.speaking = S.voiceOn || S.bubbleOn;" in cad and "S.bubbleOn = false;   /* (rt)" in cad
+          and "S.voiceOn = false; S.silentSeen = true; S.speaking = S.bubbleOn;" in cad
+          and "speakSrc" not in cad, "")
+    check("  (rt) once a page has announced mt:silent, the watchdogs retire (a pause or a long line cannot stop his lips)",
+          "if (S.voiceOn && !S.silentSeen) {" in cad and "S.silentSeen = true" in cad, "")
+    check("  (rt) a bubble-only line never reads a silent analyser as a closed mouth",
+          "var real = S.voiceOn ? voiceLevel() : -1;" in cad, "")
 
     # ---- 4. the menu -----------------------------------------------------------
     menu = _json.load(open(os.path.join(here, "static", "cadabra-script.json"), encoding="utf-8"))

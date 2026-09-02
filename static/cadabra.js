@@ -4,6 +4,17 @@
    MR. CADABRA, OUT OF THE BOX. The floating companion layer.
 
    CHANGE NOTES (keep newest at top):
+     2026-09-02  (rt) HIS LIPS STOPPED MID-SENTENCE. Jim, in the demo: "every now and
+                 then his lips stop moving, and it seems to be after he makes an
+                 expression... stars go off around him, then his lips stop while the
+                 voice is still going -- two or three sentences." Two causes, both in
+                 the one flag S.speaking: (1) a bubble line ending (say -> bubbleOff,
+                 which the party, comfort, the tour and hush all use) cleared the flag
+                 while the REAL voice was still playing; (2) the quiet-analyser
+                 watchdog treated a natural pause as the end of the line, and the 25 s
+                 ceiling cut a long explanation. Now the voice (mt:speaking..mt:silent)
+                 and the bubble are two flags OR-ed every frame, and both watchdogs
+                 retire the moment a page proves it announces mt:silent. Nothing else.
      2026-09-02  (rr) HE FINDS THE WORD, AND HE HAS FEELINGS ABOUT YOUR WORK. Jim's
                  behaviour list, built on the real layer:
                  ① INK ON A WORD. findText() asks the page where a run of text is
@@ -167,7 +178,7 @@
 (function () {
   "use strict";
 
-  var VERSION    = "2026-09-02rr";
+  var VERSION    = "2026-09-02rt";
   var SCRIPT_URL = "/static/cadabra-script.json";
   var MODE_KEY   = "mt_cadabra_mode";        /* full | quiet | off  (rule 27) */
 
@@ -484,7 +495,7 @@
     S = {
       x: home.x, y: home.y, tx: home.x, ty: home.y,
       ang: 0, tang: 0, scale: 0.30, expr: "neutral", mode: "idle",
-      driven: false, speaking: false, speakSrc: "", speakT: 0, quietMs: 0, chin: false, waving: false,
+      driven: false, speaking: false, voiceOn: false, bubbleOn: false, silentSeen: false, speakT: 0, quietMs: 0, chin: false, waving: false,
       amp: 0, blink: 1, nextBlink: 0,
       handStyle: (M.script && M.script.hands) || "glove",
       handSize: (M.script && M.script.handSize) || 20,
@@ -849,13 +860,19 @@
     if (!M.reduced) bob += Math.sin(t * 0.85) * 3;
     /* (rr) the chin pose: the right hand rests by his mouth while he thinks */
     if (S.chin && !S.driven) { S.aimR = toPage(131, 189); }
-    /* (rr) SPEAKING ENDS. A real voice line is cleared by mt:silent; if the page's
-       voice never announces, a quiet analyser (1.6 s) or a 25 s ceiling clears it. */
-    if (S.speaking && S.speakSrc === "voice") {
+    /* (rr) SPEAKING ENDS. A real voice line is cleared by mt:silent. (rt) TWO SEPARATE
+       FACTS, ONE MOUTH: the VOICE (mt:speaking .. mt:silent) and his own BUBBLE line
+       are tracked apart and OR-ed here every frame, so a bubble that ends -- or a
+       hush -- can never close his mouth while the real voice is still going. The
+       watchdogs below (a quiet analyser at 1.6 s, a 25 s ceiling) exist only for a
+       page whose voice has NEVER announced mt:silent; once one arrives, the events
+       are trusted and a long explanation or a natural pause cannot stop his lips. */
+    if (S.voiceOn && !S.silentSeen) {
       var lv = voiceLevel();
-      if (lv >= 0) { S.quietMs = (lv < 0.02) ? S.quietMs + dt : 0; if (S.quietMs > 1600) S.speaking = false; }
-      if (now - S.speakT > 25000) S.speaking = false;
+      if (lv >= 0) { S.quietMs = (lv < 0.02) ? S.quietMs + dt : 0; if (S.quietMs > 1600) S.voiceOn = false; }
+      if (now - S.speakT > 25000) S.voiceOn = false;
     }
+    S.speaking = S.voiceOn || S.bubbleOn;
     followAnchors();
     DOM.body.setAttribute("transform",
       "translate(" + (S.x + dx).toFixed(2) + "," + (S.y + bob).toFixed(2) + ") "
@@ -879,7 +896,7 @@
 
     var o = 0;
     if (S.speaking) {
-      var real = voiceLevel();
+      var real = S.voiceOn ? voiceLevel() : -1;   /* (rt) a bubble-only line never reads a silent analyser as a closed mouth */
       if (real >= 0) { o = real; }
       else {
         S.envA += dt;
@@ -993,7 +1010,7 @@
   function bubbleOff() {
     DOM.bubble.style.opacity = "0";
     DOM.bubble.style.transform = "translate(-50%,-100%) scale(.9)";
-    S.speaking = false; S.speakSrc = "";
+    S.bubbleOn = false;   /* (rt) the bubble's end is the bubble's alone -- the voice keeps his mouth */
   }
 
   /* (rr) INK STAYS ON THE WORD. Each mark remembers the element it was drawn on and
@@ -1197,7 +1214,7 @@
       if (!text) { done(); return; }
       var ms = o.ms || Math.max(1800, Math.min(7000, text.length * 62));
       S.expr = o.expression || "teaching";
-      S.speaking = true; S.speakSrc = "bubble";
+      S.bubbleOn = true; S.speaking = true;
       bubbleOn(text);
       after(ms, id, function () { bubbleOff(); S.expr = "neutral"; done(); });
     },
@@ -1590,9 +1607,10 @@
       if (S.mode === "park") { S.mode = "idle"; S.expr = "neutral"; goHome(); }
     }, 120);
   }
-  function onSpeaking() { if (live()) { S.speaking = true; S.speakSrc = "voice"; S.speakT = performance.now(); S.quietMs = 0; } }
-  /* (rr) the voice stopped (voice.js announces it; a bubble line is cleared by bubbleOff) */
-  function onSilent()   { if (live() && S.speakSrc === "voice") { S.speaking = false; S.speakSrc = ""; } }
+  function onSpeaking() { if (live()) { S.voiceOn = true; S.speaking = true; S.speakT = performance.now(); S.quietMs = 0; } }
+  /* (rr) the voice stopped (voice.js announces it; a bubble line is cleared by bubbleOff).
+     (rt) the first mt:silent on a page proves the page announces: the watchdogs retire. */
+  function onSilent()   { if (live()) { S.voiceOn = false; S.silentSeen = true; S.speaking = S.bubbleOn; } }
 
   /* ==========================================================================
      14.  PUBLIC API
