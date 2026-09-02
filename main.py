@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  APP_BUILD -> "2026-09-02rw-the-hole-is-drawn-open-and-the-op-tells-
+#               the-truth". BUILDS rv + rw, the 09-02 watch's two HIGHs, delivered
+#               together: mathcheck gains check_graph_claims (a filled point where
+#               the curve provably has no value -> "wrong", nudging hole=) and
+#               check_step_ops (a numeric both-sides op label is APPLIED to the
+#               previous step and compared per side -- the lying "+ 9 to both
+#               sides" fires), and tutor.py gains KNOWN_FALSEHOODS row 15 ("turn
+#               ANY quadratic into a perfect square"). PARTs 3hs + 3ht pin all of
+#               it. NO CODE IN THIS FILE CHANGED -- stamp only, per the stamp law
+#               below.
 #   2026-09-02  APP_BUILD -> "2026-09-02ru-a-comma-makes-a-tuple-not-an-expression".
 #               BUILD ru -- the 09-02 watch's newest crash: mathcheck died on any
 #               comma-bearing board text (parse_expr returns a plain tuple; see
@@ -13284,7 +13294,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-02ru-a-comma-makes-a-tuple-not-an-expression"
+APP_BUILD = "2026-09-02rw-the-hole-is-drawn-open-and-the-op-tells-the-truth"
 
 
 @app.get("/health")

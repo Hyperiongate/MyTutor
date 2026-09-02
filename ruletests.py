@@ -2,6 +2,26 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILDS rv + rw -- PARTs 3hs + 3ht: the 09-02 watch's two HIGHs, the
+#               same lane (false math on the board), delivered together.
+#               3hs (rv) THE HOLE IS DRAWN OPEN: the calculus limits lesson drew its
+#               own hole as a FILLED point ([[graph ... points="(2,4)"]] on a curve
+#               undefined at 2). mathcheck.check_graph_claims judges numeric points
+#               on single-piece func= curves: a point where substitution provably
+#               yields no value is "wrong", nudging hole= (the renderer has drawn it
+#               right since av). Cautious everywhere else -- declared holes, multi-
+#               piece, "for" domains, non-x funcs, and merely-off-curve points are
+#               never judged. Standing sweep in the PART: every authored graph tag
+#               (160 on ship day), zero false alarms.
+#               3ht (rw) THE OP TELLS THE TRUTH: op="+ 9 to both sides" over a line
+#               that silently also subtracted 5 -- equivalent equations, lying
+#               label. mathcheck.check_step_ops applies a closed-grammar numeric op
+#               to the previous step's sides and compares PER SIDE, either
+#               orientation; everything outside the grammar fails open. Plus
+#               KNOWN_FALSEHOODS row 15 ("turn ANY quadratic into a perfect
+#               square"), proven with the watch's own sentence; both row-count pins
+#               were already floors. Battery total rises 8,198 -> 8,235; the
+#               methodology tile and its pin are synced to 8,235.
 #   2026-09-02  BUILD ru -- PART 3hr: a comma makes a tuple, not an expression. The
 #               09-02 watch's newest crash reason (referee_crash · mathcheck,
 #               'tuple' object has no attribute 'free_symbols' ×4): parse_expr on
@@ -21560,7 +21580,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,198</b>" in page,
+          "<b>8,235</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22257,6 +22277,221 @@ def part3hp_no_colour_literals_on_the_board():
 # the page measures a DOM Range, exact to the pixel. Proof outside this battery:
 # fifty circles on fifty named words in a real session board, every one within
 # 3 px of the word's own box and enclosing it (build doc, rr).
+def part3hs_the_hole_is_drawn_open():
+    """PART 3hs (build rv, 2026-09-02) -- THE HOLE IS DRAWN OPEN.
+
+    THE FINDING (the 09-02 night watch, HIGH A, rule 51, calculus limits): the
+    lesson ABOUT the hole at x = 2 drew that hole as a FILLED point --
+    [[graph ... points="(2,4)"]] on a curve with no value at 2. The board has
+    drawn holes correctly since build av (hole="2" -> an open circle at the
+    limit height, colliding filled points dropped) and the prompt documents it;
+    the live model simply plotted a point instead. A filled dot at a missing x
+    teaches a child the function exists where it does not -- in the one lesson
+    whose entire subject is that it does not.
+
+    THE FIX: mathcheck.check_graph_claims(), wired inside verify_reply beside
+    the board check. For a graph whose func= is ONE plain piece in x, every
+    numeric plotted point is substituted into the curve; a point at an x where
+    substitution provably yields NO value (0/0 or division by zero) is "wrong",
+    with a prescriptive nudge to drop the point and declare hole= instead.
+    THE CAUTIOUS-GRADER LAW holds everywhere else: declared holes are the
+    renderer's (it drops the collision itself), multi-piece / "for"-domain /
+    non-x funcs are never judged, and a DEFINED point merely off the curve is
+    never judged (plotting a point beside a line to ask "is it on the line?"
+    is legitimate teaching -- the canon does it).
+
+    THE SWEEP RUNS HERE, EVERY BUILD: every authored [[graph]] tag in
+    lessonscripts + foundations + prompts + tutor + the demo through the
+    checker -- zero false alarms is the bar it shipped with (160 tags,
+    5 points judged, 0 fires on 2026-09-02).
+    """
+    print("\nPART 3hs — the hole is drawn open (build rv)")
+    import mathcheck as MC
+
+    check("⭐ the watch's finding fires: a filled point at the curve's own hole",
+          MC.verify_reply('[[graph func="(x^2-4)/(x-2)" points="(2,4)" '
+                          'range="-1..5"]]')[0] == "wrong",
+          "rule 51's HIGH: the hole drawn as a filled dot must never reach a "
+          "child in the lesson about the hole")
+    v, d = MC.verify_reply('[[graph func="(x^2-4)/(x-2)" points="(2,4)"]]')
+    check("  ...and the correction PRESCRIBES the fix the renderer already has",
+          'hole="2"' in d and "open circle" in d,
+          "the nudge must name hole= -- the model is re-asked with this text, "
+          "and av built the marker precisely so it CAN comply")
+    check("  the prescribed authoring passes",
+          MC.verify_reply('[[graph func="(x^2-4)/(x-2)" hole="2" '
+                          'range="-1..5"]]')[0] == "none",
+          "the fix the finding demands must not itself be rejected")
+    check("  a declared hole absorbs a colliding point (the renderer drops it)",
+          MC.verify_reply('[[graph func="(x^2-4)/(x-2)" hole="2" '
+                          'points="(2,4)"]]')[0] == "none",
+          "av's collision-drop makes this harmless on screen; judging it would "
+          "punish a reply the child sees drawn correctly")
+    check("  a point at a POLE fires too (no value is no value)",
+          MC.verify_reply('[[graph func="1/(x-2)" points="(2,3)"]]')[0]
+          == "wrong", "")
+    for label, frag in (
+            ("a DEFINED point off the curve is never judged (is-it-on-the-line "
+             "teaching)", '[[graph func="x^2" points="(3,4)"]]'),
+            ("canon tangent shape passes",
+             '[[graph func="x^2" lines="y=2x-1" points="(1,1)"]]'),
+            ("canon inflection shape passes",
+             '[[graph func="x^3" range="-3..3" yrange="-10..10" '
+             'points="(0,0)"]]')):
+        check(f"  {label}", MC.verify_reply(frag)[0] == "ok",
+              "the cautious-grader law: only a PROVABLY missing value fires")
+    for label, frag in (
+            ("multi-piece plots are never judged",
+             '[[graph func="sin(x); 2^x; 1/(x-2)" points="(2,4)"]]'),
+            ("piecewise 'for' domains are never judged",
+             '[[graph func="x+1 for x<2; x+4 for x>=2" points="(2,6)"]]'),
+            ("lines= without func= is never judged",
+             '[[graph lines="y=2x+1" points="(3,4)"]]'),
+            ("rule 56's game is exempt",
+             'find the error! [[graph func="1/(x-2)" points="(2,3)"]]')):
+        check(f"  silent: {label}", MC.verify_reply(frag)[0] == "none", frag)
+
+    # ⭐ the standing sweep: every authored graph tag, judged alone
+    here = os.path.dirname(os.path.abspath(__file__))
+    fa = 0; tags = 0; judged = 0
+    for fn in ("lessonscripts.py", "foundations.py", "prompts.py", "tutor.py",
+               os.path.join("static", "demo.html")):
+        src = open(os.path.join(here, fn), encoding="utf-8").read()
+        for t in re.findall(r"\[\[\s*graph\b[^\]]*\]\]", src):
+            tags += 1
+            w, c = MC.check_graph_claims(t)
+            fa += len(w); judged += c
+    check(f"⭐ zero false alarms across every authored graph tag "
+          f"({tags} tags, {judged} points judged)",
+          fa == 0 and tags >= 150,
+          f"{fa} authored graphs rejected -- every false alarm is a paid retry")
+
+
+def part3ht_the_op_tells_the_truth():
+    """PART 3ht (build rw, 2026-09-02) -- THE OP TELLS THE TRUTH.
+
+    THE FINDING (the 09-02 night watch, HIGH B, rule 13, algebra2 completing
+    the square): [[step op="+ 9 to both sides"]] over a line that ALSO silently
+    subtracted 5 from both sides. The old and new lines are mathematically
+    EQUIVALENT, so no equality check can see it -- the lie lives in the LABEL,
+    and the label is exactly what the child is told the move was (the prompt's
+    own promise: "the board shows it under BOTH sides, so the student SEES it
+    done to both"). Finding F, from the SAME lesson: "turn ANY quadratic into
+    a perfect square" -- rule 61's classic, now KNOWN_FALSEHOODS row 15.
+
+    THE FIX, two doors:
+    ① mathcheck.check_step_ops(), wired inside verify_reply beside the board
+      check: for consecutive [[step]] tags where the later one carries a
+      numeric both-sides op (closed grammar: sign + number, optional
+      to/from-both-sides tail), the op is APPLIED to the previous line's sides
+      and compared PER SIDE structurally, either orientation -- equation-level
+      equivalence would pass the very lie this catches. Everything outside the
+      grammar (bare "+", "sqrt", "* dx", word verbs, ".."), chains,
+      placeholders, relations, column layouts, and any undecidable or slow
+      simplify: never judged (the cautious-grader law + the fail-open law).
+    ② KNOWN_FALSEHOODS row 15, proven with the watch's own sentence per the
+      standing law; both battery row-count pins are floors (>= 13, >= 14), so
+      the count moving 14 -> 15 breaks nothing.
+    """
+    print("\nPART 3ht — the op tells the truth (build rw)")
+    import mathcheck as MC
+    import tutor as _tt
+
+    watch = ('Now watch. [[step eq="X^2 + 6X + 5 = 0"]] '
+             '[[step op="+ 9 to both sides" eq="X^2 + 6X + 9 = -5 + 9"]]')
+    v, d = MC.verify_reply(watch)
+    check("⭐ the watch's lying op fires: '+ 9' cannot also mean 'and - 5'",
+          v == "wrong" and "op=" in d and "one move" in d.lower(),
+          f"got {v}: the completing-the-square label lie shipped on 2026-09-02")
+    check("  the honest two-step version passes",
+          MC.verify_reply('First. [[step eq="X^2 + 6X + 5 = 0"]] '
+                          '[[step op="- 5" eq="X^2 + 6X = -5"]] '
+                          '[[step op="+ 9" eq="X^2 + 6X + 9 = -5 + 9"]]')[0]
+          == "ok",
+          "the fix the finding prescribes -- each move its own labeled step -- "
+          "must not itself be rejected")
+    for label, frag in (
+            ("the prompt's own example chain passes",
+             '[[step eq="2X + 1 = 25"]] [[step op="- 1" eq="2X = 24"]] '
+             '[[step op="/ 2" eq="X = 12"]]'),
+            ("trig: '/ 2' on '2 sin X = 1' passes",
+             '[[step eq="2 sin X = 1"]] [[step op="/ 2" eq="sin X = 1/2"]]'),
+            ("sides swapped between lines still pass",
+             '[[step eq="25 = 2X + 1"]] [[step op="- 1" eq="2X = 24"]]'),
+            ("a verbose true 'from both sides' passes",
+             '[[step eq="X + 9 = 14"]] '
+             '[[step op="- 9 from both sides" eq="X = 5"]]'),
+            ("a fraction operand works",
+             '[[step eq="x/2 = 5"]] [[step op="* 2" eq="x = 10"]]')):
+        check(f"  {label}", MC.verify_reply(frag)[0] == "ok",
+              "a true op judged false is a paid retry on good teaching")
+    check("  a lying minus fires (the shape, not just the watch's instance)",
+          MC.verify_reply('[[step eq="2X + 3 = 11"]] '
+                          '[[step op="- 3" eq="2X = 11"]]')[0] == "wrong",
+          "op says subtract 3, the right side never moved")
+    for label, frag in (
+            ("bare '+' (9 canon uses) is outside the grammar",
+             '[[step eq="2X = 24"]] [[step op="+" eq="2X + 5 = 29"]]'),
+            ("'sqrt' is outside the grammar",
+             '[[step eq="X^2 = 16"]] [[step op="sqrt" eq="X = 4"]]'),
+            ("word verbs are outside the grammar",
+             '[[step eq="2X = 24"]] [[step op="add 9" eq="2X + 9 = 33"]]'),
+            ("'* dx' and friends are outside the grammar",
+             '[[step eq="y = x^2"]] [[step op="* dx" eq="dy = 2x"]]'),
+            ("dividing by zero is never judged",
+             '[[step eq="2X = 24"]] [[step op="/ 0" eq="X = 12"]]'),
+            ("a placeholder line is a pending question",
+             '[[step eq="2X + 3 = 11"]] [[step op="- 3" eq="2X = ?"]]'),
+            ("a chain line is not one equation",
+             '[[step eq="2X + 3 = 11"]] '
+             '[[step op="- 3" eq="2X = 11 - 3 = 8"]]'),
+            ("rule 56's game is exempt",
+             'spot my error! [[step eq="2X + 3 = 11"]] '
+             '[[step op="- 3" eq="2X = 11"]]')):
+        check(f"  silent: {label}", MC.verify_reply(frag)[0] == "none", frag)
+
+    # ⭐ the standing sweep: real authored replies hold zero op pairs to judge,
+    # and MUST hold zero false alarms if that ever changes
+    import foundations as FND
+    fa = 0
+    for course, scripts in FND.FOUNDATIONS.items():
+        items = scripts.values() if isinstance(scripts, dict) else scripts
+        for sc in items:
+            text = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            w, _c = MC.check_step_ops(text)
+            fa += len(w)
+    check("⭐ zero false alarms across all canonical scripts' step sequences",
+          fa == 0, f"{fa} authored sequences rejected")
+
+    # ② row 15, both ways, with the watch's own sentence (the standing law)
+    check("⭐ row 15 fires on the watch's own sentence",
+          bool(_tt.known_falsehood_conflict(
+              "Completing the square is a way to turn any quadratic into a "
+              "perfect square.")),
+          "rule 61: a generalization carries its condition")
+    check("  ...naming the row and prescribing the true form",
+          "one side becomes a perfect square" in _tt.known_falsehood_conflict(
+              "Completing the square is a way to turn any quadratic into a "
+              "perfect square."), "")
+    for label, s in (
+            ("the corrected sentence stays silent",
+             "Completing the square rewrites the equation so one side becomes "
+             "a perfect square."),
+            ("the leftover-constant teaching stays silent",
+             "We turn any quadratic into a perfect square plus or minus a "
+             "constant."),
+            ("'not every' stays silent",
+             "Not every quadratic is a perfect square -- that is why we "
+             "complete it."),
+            ("a true perfect-square statement stays silent",
+             "x^2 + 6x + 9 is a perfect square.")):
+        check(f"  {label}", not _tt.known_falsehood_conflict(s), s[:60])
+    check("  the row count is 15 and every row is whole",
+          len(_tt.KNOWN_FALSEHOODS) >= 15
+          and all(len(e) == 4 and e[2] and e[3] for e in _tt.KNOWN_FALSEHOODS),
+          "")
+
+
 def part3hr_a_comma_makes_a_tuple_not_an_expression():
     """PART 3hr (build ru, 2026-09-02) -- A COMMA MAKES A TUPLE, NOT AN EXPRESSION.
 
@@ -30576,6 +30811,8 @@ def main():
     part3hp_no_colour_literals_on_the_board()
     part3hq_the_pencil_has_feelings_about_your_work()
     part3hr_a_comma_makes_a_tuple_not_an_expression()
+    part3hs_the_hole_is_drawn_open()
+    part3ht_the_op_tells_the_truth()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -2,6 +2,39 @@
 # mathcheck.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD rw -- THE OP TELLS THE TRUTH. The 09-02 night watch's HIGH
+#               (rule 13, algebra2 completing-the-square): a board step labeled
+#               op="+ 9 to both sides" whose eq line ALSO silently absorbed a
+#               "- 5 from both sides" that was never said or shown. The new line
+#               was mathematically EQUIVALENT to the old one, so no equality
+#               check could catch it -- the lie was in the LABEL. New
+#               check_step_ops(): for consecutive [[step]] tags where the later
+#               one carries a numeric both-sides op ("- 5", "/ 2",
+#               "+ 9 to both sides"), the op is APPLIED to the previous line's
+#               sides and compared per-side structurally (either orientation).
+#               Closed grammar -- sign + number, optional to/from-both-sides
+#               tail; word verbs, "sqrt", "* dx", bare "+" and ".." are never
+#               judged. Wired inside verify_reply beside the board check; canon
+#               swept (foundations + demo hold zero authored op pairs -- the
+#               shape is live-model-only). PART 3ht holds it.
+#   2026-09-02  BUILD rv -- THE HOLE IS DRAWN OPEN. The 09-02 night watch's other
+#               HIGH (rule 51, calculus limits): the lesson ABOUT the hole at
+#               x = 2 drew the hole as a FILLED point -- [[graph ...
+#               points="(2,4)"]] on a curve undefined at 2. The renderer has had
+#               hole= (open circle at the limit height) since build av and the
+#               prompt documents it; the model just didn't use it. New
+#               check_graph_claims(): for a graph whose func= is ONE plain piece
+#               in x, every plotted point is substituted into the curve; a point
+#               at an x where the curve provably has NO value (0/0 or division
+#               by zero on direct substitution) is "wrong", with a nudge to drop
+#               the point and declare hole= instead. Points at declared holes
+#               are the renderer's business (it drops them itself); multi-piece,
+#               "for"-domain, and non-x funcs are never judged; off-curve but
+#               DEFINED points are never judged either (plotting a point beside
+#               a curve to ask "is it on the line?" is legitimate teaching).
+#               Canon swept: 0 false fires across every authored graph tag in
+#               lessonscripts + foundations + prompts + tutor + the demo. PART
+#               3hs holds it.
 #   2026-09-02  BUILD ru -- A COMMA MAKES A TUPLE, NOT AN EXPRESSION. The 09-02
 #               night watch's newest crash reason: referee_crash · mathcheck --
 #               'tuple' object has no attribute 'free_symbols' ×4 this week.
@@ -599,6 +632,227 @@ def check_board_equations(reply: str):
     return wrongs, checked
 
 
+# --------------------------------------------------------------------------- #
+# (rv) THE HOLE IS DRAWN OPEN.
+# --------------------------------------------------------------------------- #
+# 2026-09-02: the night watch caught the calculus lesson ABOUT the hole at x = 2
+# drawing that hole as a FILLED point -- [[graph ... points="(2,4)"]] on a curve
+# with no value at 2. The board has been able to draw it right since build av
+# (hole="2" -> an open circle at the limit height, colliding filled points
+# dropped), and the prompt says so; the model simply plotted a point instead.
+# A filled dot at a missing x teaches a child the function exists where it does
+# not -- in the one lesson whose entire subject is that it does not.
+#
+# ⚠️ DELIBERATELY CONSERVATIVE (the cautious-grader law), in this exact order:
+#   * only graphs whose func= is ONE plain piece: no ";"/"|" multi-plots, no
+#     " for " domain clauses (the renderer's piecewise turf), and after "y ="/
+#     "f(x) =" prefixes are stripped it must pass the verify-tag parse gate and
+#     be a function of x ALONE (or a constant);
+#   * only NUMERIC plotted points "(a,b)" -- symbolic coordinates are skipped;
+#   * a point whose x is already DECLARED in hole= is the renderer's business
+#     (it drops the collision itself, build av) -- never judged here;
+#   * only a point at an x where direct substitution provably yields NO value
+#     (0/0 -> nan, division by zero -> zoo) is "wrong". A point that is merely
+#     OFF the curve is never judged: plotting a point beside a curve to ask
+#     "is this on the line?" is legitimate teaching, and the canon does it.
+#   * the find-the-error game exemption (rule 56) applies, same as the board's.
+_GRAPH_TAG_RE = re.compile(r"\[\[\s*graph\b([^\]]*)\]\]", re.IGNORECASE)
+_POINT_RE = re.compile(r"\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)")
+_NUM_ONLY_RE = re.compile(r"^-?\d+(?:\.\d+)?$")
+
+
+def _graph_func_expr(func_text: str):
+    """The func= attribute as ONE SymPy expression of x alone, or None when the
+    plot is anything this check must not judge (multi-piece, piecewise domain,
+    unparseable, or not a function of x)."""
+    s = (func_text or "").strip()
+    if not s or ";" in s or "|" in s:
+        return None                      # several curves: judged never, drawn fine
+    if re.search(r"\bfor\b", s, re.IGNORECASE):
+        return None                      # piecewise domain clause: renderer's turf
+    s = re.sub(r"^\s*(?:y|f\s*\(\s*x\s*\))\s*=\s*", "", s, flags=re.IGNORECASE)
+    s2 = _normalize(_desuperscript(s))
+    if _reject_reason(s2):
+        return None
+    try:
+        expr = _parse(s2)
+    except Exception:  # noqa: BLE001 -- unparseable: not judged, by design
+        return None
+    if {str(v) for v in expr.free_symbols} - {"x"}:
+        return None                      # not a function of x alone
+    return expr
+
+
+def check_graph_claims(reply: str):
+    """Every numeric point plotted ON a single-curve graph must exist on that
+    curve's domain. Returns (wrongs, checked) like check_board_equations."""
+    if not reply or _GAME_RE.search(reply):
+        return [], 0
+    wrongs, checked = [], 0
+    for m in _GRAPH_TAG_RE.finditer(reply):
+        attrs = dict(_ATTR_RE.findall(m.group(1)))
+        pts_text = attrs.get("points") or ""
+        func_text = (attrs.get("func") or attrs.get("fn") or "").strip()
+        if not pts_text or not func_text:
+            continue
+        expr = _graph_func_expr(func_text)
+        if expr is None:
+            continue
+        holes = set()
+        for h in re.split(r"[;,]", attrs.get("hole") or ""):
+            h = h.strip()
+            if _NUM_ONLY_RE.match(h):
+                holes.add(float(h))
+        x = sympy.Symbol("x")
+        for pm in _POINT_RE.finditer(pts_text):
+            px_text = pm.group(1)
+            if any(abs(float(px_text) - h) < 1e-9 for h in holes):
+                continue                 # declared hole: the renderer drops it
+            try:
+                val = expr.subs(x, sympy.Rational(px_text))
+            except Exception:  # noqa: BLE001 -- substitution failed: not judged
+                continue
+            checked += 1
+            if val.has(sympy.zoo, sympy.nan):
+                wrongs.append(
+                    f'the graph plots a filled point at x = {px_text}, but the '
+                    f'curve "{func_text}" has NO value there (substituting '
+                    f'x = {px_text} gives division by zero) -- a filled dot at '
+                    f'a missing x teaches that the function exists where it '
+                    f'does not. Remove that point from points=; to SHOW the '
+                    f'gap, add hole="{px_text}" to the same graph tag instead '
+                    f'-- the board draws the open circle at the correct height '
+                    f'by itself.')
+    return wrongs, checked
+
+
+# --------------------------------------------------------------------------- #
+# (rw) THE OP TELLS THE TRUTH.
+# --------------------------------------------------------------------------- #
+# 2026-09-02: the night watch's completing-the-square HIGH. The board showed
+#     [[step eq="X^2 + 6X + 5 = 0"]]
+#     [[step op="+ 9 to both sides" eq="X^2 + 6X + 9 = -5 + 9"]]
+# -- the op label says ONE move, but the line also silently subtracted 5 from
+# both sides. The two lines are mathematically EQUIVALENT, so no equality check
+# can see it: the lie lives in the LABEL, and the label is precisely what the
+# child is told the move was ("the board shows it under BOTH sides, so the
+# student SEES it done to both" -- the prompt's own promise).
+#
+# ⚠️ DELIBERATELY CONSERVATIVE (the cautious-grader law), in this exact order:
+#   * only CONSECUTIVE [[step]] tags where the LATER one carries an op matching
+#     the closed grammar: a sign (+ - * / and the × ÷ spellings) followed by a
+#     number (integer, decimal, or simple fraction), with an optional
+#     "to both sides"/"from both sides" tail and optional final period. Bare
+#     "+", "..", "sqrt", "* dx", "- angle A", word verbs ("add 9") -- never
+#     judged;
+#   * both lines must be ONE plain two-sided equation each (no chains, no
+#     placeholders, no relations, no wide-space column layouts), passing the
+#     same parse gate everything else in this file uses;
+#   * dividing by zero as the op: never judged (the op itself is nonsense, but
+#     proving intent is not this module's job);
+#   * the op is APPLIED to the previous line's sides and compared PER SIDE
+#     structurally (simplify(new - expected) == 0), accepting either side
+#     order -- equation-level equivalence would pass the very lie this exists
+#     to catch. Any side simplify cannot decide, or a timeout: not judged;
+#   * the find-the-error game exemption (rule 56) applies, same as the board's.
+_STEP_TAG_RE = re.compile(r"\[\[\s*step\b([^\]]*)\]\]", re.IGNORECASE)
+_OP_RE = re.compile(
+    r"^\s*([+\-*/])\s*(\d+(?:\.\d+)?(?:\s*/\s*\d+(?:\.\d+)?)?)"
+    r"\s*(?:(?:to|from)\s+both\s+sides)?\s*\.?\s*$", re.IGNORECASE)
+_OP_VERB = {"+": "adding", "-": "subtracting",
+            "*": "multiplying by", "/": "dividing by"}
+
+
+def _eq_sides(line: str):
+    """A board equation's two parsed sides, or None when it is not ONE plain
+    two-sided equation this module may read."""
+    raw = (line or "").strip()
+    if not raw or "=" not in raw or _PLACEHOLDER_RE.search(raw):
+        return None
+    if _REL_RE.search(raw) or "≠" in raw or "≤" in raw or "≥" in raw:
+        return None
+    if re.search(r"\s{4,}", raw):
+        return None                      # column layout (ni's lesson): ambiguous
+    s2 = _normalize(_desuperscript(raw))
+    parts = [p.strip() for p in _EQ_SPLIT_RE.split(s2)]
+    if len(parts) != 2 or any(not p for p in parts):
+        return None
+    if any(_reject_reason(p) for p in parts):
+        return None
+    try:
+        return _parse(parts[0]), _parse(parts[1])
+    except Exception:  # noqa: BLE001 -- unparseable board line: not judged
+        return None
+
+
+def check_step_ops(reply: str):
+    """Every numeric both-sides op label on the board must be the move that was
+    actually made. Returns (wrongs, checked) like check_board_equations."""
+    if not reply or _GAME_RE.search(reply):
+        return [], 0
+    steps = []
+    for m in _STEP_TAG_RE.finditer(reply):
+        attrs = dict(_ATTR_RE.findall(m.group(1)))
+        steps.append((attrs.get("op") or "", attrs.get("eq") or ""))
+    wrongs, checked = [], 0
+    for i in range(1, len(steps)):
+        op_text = steps[i][0].strip()
+        if not op_text:
+            continue
+        om = _OP_RE.match(_normalize(op_text))
+        if not om:
+            continue                     # outside the closed grammar: not judged
+        prev, new = _eq_sides(steps[i - 1][1]), _eq_sides(steps[i][1])
+        if not prev or not new:
+            continue
+        sign = om.group(1)
+        operand_text = om.group(2).replace(" ", "")
+        try:
+            n = sympy.Rational(operand_text)
+        except Exception:  # noqa: BLE001
+            continue
+        if sign == "/" and n == 0:
+            continue
+        apply_op = {"+": lambda s: s + n, "-": lambda s: s - n,
+                    "*": lambda s: s * n, "/": lambda s: s / n}[sign]
+        exp_l, exp_r = apply_op(prev[0]), apply_op(prev[1])
+
+        def _same(a, b):
+            try:
+                return sympy.simplify(a - b) == 0
+            except Exception:  # noqa: BLE001
+                return None
+
+        def _judge():
+            d0, d1 = _same(new[0], exp_l), _same(new[1], exp_r)
+            if d0 and d1:
+                return True
+            s0, s1 = _same(new[0], exp_r), _same(new[1], exp_l)
+            if s0 and s1:
+                return True              # sides swapped between lines: still true
+            if None in (d0, d1, s0, s1):
+                return None              # undecidable somewhere: not judged
+            return False
+
+        try:
+            verdict = _EXECUTOR.submit(_judge).result(timeout=CHECK_TIMEOUT_SECONDS)
+        except Exception:  # noqa: BLE001 -- timeout or worker error: fail open
+            continue
+        if verdict is None:
+            continue
+        checked += 1
+        if not verdict:
+            wrongs.append(
+                f'the board step labeled op="{op_text}" does not match its own '
+                f'line: {_OP_VERB[sign]} {operand_text} on both sides of '
+                f'"{steps[i - 1][1].strip()}" does not give '
+                f'"{steps[i][1].strip()}" -- the label under the board must be '
+                f'the ONE move actually made, with nothing else folded in '
+                f'silently. Either write the true result of that single move, '
+                f'or show every move as its own labeled step.')
+    return wrongs, checked
+
+
 def verify_reply(reply: str):
     """
     Check every [[verify]] tag in a tutor reply.
@@ -615,11 +869,17 @@ def verify_reply(reply: str):
         return ("unverifiable", "sympy not installed") if tags else ("none", "")
     # (ni) the board is checked EVEN WHEN no verify tag exists -- the night-watch
     # line that motivated this had no tag at all, which is precisely how it hid.
+    # (rv/rw) the graph's plotted points and the step-op labels are claims of the
+    # same kind, and hide the same way -- checked here beside the board.
     board_wrongs, board_checked = check_board_equations(reply)
-    if board_wrongs:
-        return "wrong", " AND ".join(board_wrongs)
+    graph_wrongs, graph_checked = check_graph_claims(reply)
+    op_wrongs, op_checked = check_step_ops(reply)
+    all_wrongs = board_wrongs + graph_wrongs + op_wrongs
+    if all_wrongs:
+        return "wrong", " AND ".join(all_wrongs)
     if not tags:
-        return ("ok", "") if board_checked else ("none", "")
+        return (("ok", "") if (board_checked or graph_checked or op_checked)
+                else ("none", ""))
     if len(tags) > MAX_TAGS_PER_REPLY:
         print(f"[mathcheck] {len(tags)} tags in one reply; checking first {MAX_TAGS_PER_REPLY}")
         tags = tags[:MAX_TAGS_PER_REPLY]

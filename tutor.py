@@ -2,6 +2,22 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD rw -- KNOWN_FALSEHOODS ROW 15 (the 09-02 watch's finding F,
+#               rule 61, from the same completing-the-square lesson as the lying
+#               op label mathcheck now catches). The sentence: "turn ANY
+#               quadratic into a perfect square." False as written -- completing
+#               the square rewrites the EQUATION so one side becomes a perfect
+#               square (you add the constant that makes it one); the quadratic
+#               itself is usually NOT a perfect square, or there would be
+#               nothing to complete. False shape: turn/make/rewrite +
+#               any/every/all quadratic + into a perfect square (either order).
+#               Escapes: the corrective adjacency ("one side ... perfect
+#               square"), the leftover-constant teaching (plus/minus a
+#               number/constant, "left over"), an explicit "not every/always",
+#               or the discriminant caveat. Proven with the watch's own
+#               sentence per the standing law; row count 14 -> 15 (both battery
+#               pins are floors: >= 13 and >= 14). PART 3ht holds it. No other
+#               change in this file -- referee count stays 71.
 #   2026-09-02  BUILD rr -- PROMPT_CEILING 205,000 -> 207,000 (dated ledger note at the
 #               constant). The only change in this file: prompts.py's new [[ink]]
 #               paragraph put the all-heard algebra2 prompt 621 chars over.
@@ -5764,6 +5780,33 @@ KNOWN_FALSEHOODS = [
                 r"\(\s*x\s*\+\s*\d", re.I),
      "the factor holds the SIGNED number: x plus negative two IS x minus two, so "
      "negative two and negative three give (x - 2)(x - 3)"),
+    # ---- (rw) the 2026-09-02 night watch's finding F, algebra2, rule 61 ----
+    # "Completing the square is a way to turn any quadratic into a perfect
+    # square." False as written: completing the square rewrites the EQUATION so
+    # one SIDE becomes a perfect square -- you add the constant that makes it
+    # one. The quadratic itself is usually NOT a perfect square (only a zero
+    # discriminant makes it one), or there would be nothing to complete. The
+    # false shape: turn/make/rewrite + any/every/all quadratic + into a perfect
+    # square, either order. The escapes are the corrective teachings: "one
+    # side" said NEXT TO "perfect square" (the right sentence's spine -- kept
+    # adjacent so a false lesson that merely says "move it to one side"
+    # elsewhere buys nothing), the leftover-constant teaching (plus/minus a
+    # number or constant, "left over"), an explicit "not every/not always", or
+    # the discriminant caveat.
+    ("any-quadratic-becomes-a-perfect-square",
+     re.compile(r"\b(?:turn|make|rewrit|chang)\w*\b[^.!?]{0,40}\b(?:any|every|all)"
+                r"\s+quadratics?\b[^.!?]{0,50}\binto\s+a\s+perfect\s+square"
+                r"|\b(?:any|every|all)\s+quadratics?\b[^.!?]{0,60}"
+                r"\b(?:becomes?|turns?\s+into|can\s+be\s+(?:turned|made|rewritten)"
+                r"\s+into)\s+[^.!?]{0,15}\bperfect\s+square", re.I),
+     re.compile(r"one\s+side\b[^.!?]{0,40}\bperfect\s+square"
+                r"|perfect\s+square\b[^.!?]{0,40}\bone\s+side"
+                r"|plus\s+(?:or\s+minus\s+)?(?:a\s+)?(?:number|constant)"
+                r"|minus\s+(?:a\s+)?(?:number|constant)|left\s*over"
+                r"|not\s+(?:every|all|always)|discriminant", re.I),
+     "completing the square rewrites the EQUATION so one side becomes a perfect "
+     "square -- you add the constant that makes it one; the quadratic you "
+     "started with is usually not a perfect square itself"),
 ]
 
 
