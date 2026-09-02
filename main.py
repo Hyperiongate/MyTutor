@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  APP_BUILD -> "2026-09-02se-five-flags-from-jims-queue". BUILD se,
+#               Jim's five live flags, one build: ① the entry count-on line drops
+#               its "trap" sentence (lessonscripts); ② rounding is taught
+#               LINE-FIRST (pedagogy -- his flagged reply, canonized); ③ rule 19(d)
+#               forbids handing over past an un-narrated example (prompts);
+#               ④ "8,516" is spoken in WORDS (speech-text.js -- comma numbers only,
+#               so hundreds of fine cached clips keep their keys) and rule 19(f)
+#               keeps the voice from reading a read-it-yourself number at all;
+#               ⑤ THE SEVENTY-THIRD REFEREE, board_flood_conflict (tutor.py):
+#               seven+ drawing tags in one reply = several beats wearing one
+#               turn's clothes -- split, never shrink the font. NO CODE IN THIS
+#               FILE CHANGED -- stamp only. PART 3ib.
 #   2026-09-02  APP_BUILD -> "2026-09-02sd-the-student-is-a-student". BUILD sd,
 #               Jim's wording ruling: the student is "the student / your student",
 #               never "the child" -- 344 visible occurrences across 22 pages +
@@ -13505,7 +13517,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-02sd-the-student-is-a-student"
+APP_BUILD = "2026-09-02se-five-flags-from-jims-queue"
 
 
 @app.get("/health")

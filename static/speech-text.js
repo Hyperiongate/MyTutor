@@ -2,6 +2,19 @@
    speech-text.js  --  WHAT THE TUTOR SAYS OUT LOUD  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-02  A COMMA NUMBER IS SPOKEN IN WORDS (build se, Jim's live flag: "say
+                 this number out loud: 8,516" came out "8 5 1 scenes"). The old rule
+                 dropped the comma and handed the engine "8516" -- and the engine
+                 improvised, digit-spelling it (the ip primes lesson, third verse:
+                 ambiguous input means the engine guesses differently every time).
+                 Comma-grouped numbers are now expanded to WORDS before any voice
+                 hears them -- "8,516" -> "eight thousand five hundred sixteen" --
+                 so neither ElevenLabs nor the browser voice can improvise. BARE
+                 digit runs ("1000", "1024") are deliberately untouched: hundreds of
+                 already-rendered scripted clips speak them fine, and re-keying them
+                 would re-bill the course for clips that were never wrong. Only two
+                 authored lines contain comma numbers (measured); everything else
+                 this touches is live-model text, whose clips render per line anyway.
      2026-08-29  SAY THE COURSE NAME (build qe, Jim: "Algebra I is being pronounced
                  Algebra Eye"). Roman numerals in course names are spoken as words --
                  "Algebra I" -> "Algebra One", "Algebra II" -> "Algebra Two" -- and
@@ -73,6 +86,34 @@ function moneyWords(_, d, c) {
   return parts.join(" and ");
 }
 
+// (se) 0..999,999,999 in spoken words -- for comma-grouped numbers only (see the
+// 2026-09-02 note). Pure and total: anything out of range returns null and the
+// caller leaves the text alone (fail open, the house law).
+var ONES_W = ["zero","one","two","three","four","five","six","seven","eight","nine",
+  "ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen",
+  "eighteen","nineteen"];
+var TENS_W = ["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+function threeWords(n) {                       // 0..999, no leading "zero"
+  var out = [];
+  if (n >= 100) { out.push(ONES_W[Math.floor(n / 100)], "hundred"); n %= 100; }
+  if (n >= 20) { out.push(TENS_W[Math.floor(n / 10)]); n %= 10; }
+  if (n > 0) out.push(ONES_W[n]);
+  return out.join(" ");
+}
+function intWords(n) {
+  if (!isFinite(n) || n < 0 || n > 999999999 || Math.floor(n) !== n) return null;
+  if (n === 0) return "zero";
+  var parts = [], m = Math.floor(n / 1000000), t = Math.floor((n % 1000000) / 1000), r = n % 1000;
+  if (m) parts.push(threeWords(m), "million");
+  if (t) parts.push(threeWords(t), "thousand");
+  if (r) parts.push(threeWords(r));
+  return parts.join(" ");
+}
+function commaNumberWords(m) {
+  var w = intWords(parseInt(m.replace(/,/g, ""), 10));
+  return w === null ? m.replace(/,/g, "") : w;   // out of range: the old comma-drop
+}
+
 function forSpeech(text) {
   return String(text)
     // build qe (2026-08-29, Jim: "Algebra I is being pronounced Algebra Eye"). The
@@ -106,8 +147,10 @@ function forSpeech(text) {
     .replace(/(^|[^A-Za-z0-9"“'‘’])([A-Za-z])(?:'''|’’’)(?!['’A-Za-z])/g, "$1$2 triple prime")
     .replace(/(^|[^A-Za-z0-9"“'‘’])([A-Za-z])(?:''|’’|["”])(?!['’A-Za-z])/g, "$1$2 double prime")
     .replace(/(^|[^A-Za-z0-9"“'‘’])([A-Za-z])['’](?!['’A-Za-z])/g, "$1$2 prime")
+    .replace(/\$(\s*)(\d{1,3}(?:,\d{3})+)/g, function (m, s, n) { return "$" + s + n.replace(/,/g, ""); })   // (se) $1,850 -> $1850 (money was "1 dollar,850" before -- pre-existing, found on this build's own dry run)
     .replace(/\$\s*(\d+)(?:\.(\d{1,2}))?/g, moneyWords)
-    .replace(/(\d),(\d{3})\b/g, "$1$2")                            // 1,234 -> read whole
+    .replace(/\b\d{1,3}(?:,\d{3})+\b(?!\.\d)/g, commaNumberWords)   // (se) 8,516 -> "eight thousand five hundred sixteen"
+    .replace(/(\d),(\d{3})\b/g, "$1$2")                            // (se) leftovers (decimal-adjacent, >billion): the old comma-drop
     .replace(/(^|[(=+\u00d7\u00f7*])\s*[-\u2212](\d)/g, "$1 negative $2")   // VALUE negatives
     .replace(/(\d+)\s+(\d+)\s*\/\s*(\d+)\b/g, mixedWords)         // 2 1/2 -> two and one half
     .replace(/\b(\d+)\s*\/\s*(\d+)\b/g, fracWords)                // 1/2 -> one half

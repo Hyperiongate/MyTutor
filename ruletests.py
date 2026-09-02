@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD se -- PART 3ib: five live flags from Jim's queue. The entry
+#               trap sentence cut (other courses' pattern untouched); rounding
+#               taught line-first (his KEEP flag, canonized in pedagogy); rule 19
+#               gains (d)'s never-past-an-un-narrated-example clause and the new
+#               (f) read-it-yourself clause; comma numbers spoken in WORDS
+#               (speech-text.js, node-proven in the PART; bare digits untouched so
+#               cached clips keep their keys; the money-comma bug found on the dry
+#               run fixed too); THE SEVENTY-THIRD REFEREE board_flood_conflict
+#               (7+ drawing tags = several beats in one turn's clothes; canon
+#               ceiling 5, measured first). Count pins 72 -> 73; both methodology
+#               tiles move.
 #   2026-09-02  BUILD sd -- PART 3ia: the student is a student. Jim's wording ruling
 #               ("refer to the student as the student or your student"), scope his
 #               call: ALL BUT LEGAL. 344 visible occurrences across 22 pages +
@@ -3381,7 +3392,10 @@ SPEECH_CASES = [
     ("the ratio 3:2", "3 to 2", None),
     ("1/2 + 1/4", "one half", "1 over 2"),
     ("2 1/2 cups", "2 and one half", None),
-    ("1,234 students", "1234", "1,234"),
+    # (se, 2026-09-02) CASE MOVED WITH THE RULE: build bu dropped the comma so the
+    # engine read the number whole; Jim's flag proved the engine still improvises
+    # on bare digits ("8,516" -> "8 5 1 scenes"), so comma numbers are now WORDS.
+    ("1,234 students", "one thousand two hundred thirty four students", "1,234"),
     ("f(x) = 2x + 3", "f of x", None),
     # build ip (2026-08-19, Jim in Differential Equations: y″ spoken as "yuh", y′
     # sometimes "y" -- inconsistently wrong because forSpeech had NO prime rule and
@@ -3412,8 +3426,13 @@ const fs=require("fs");
 function grab(js,n){const i=js.indexOf("function "+n);if(i<0)throw new Error("missing "+n);
  let d=0,j=js.indexOf("{",i);for(let k=j;k<js.length;k++){if(js[k]==="{")d++;else if(js[k]==="}"){d--;if(!d)return js.slice(i,k+1);}}}
 const js=fs.readFileSync(process.argv[2],"utf8");
-const pre=(js.match(/var FRAC_WORDS = \{[\s\S]*?\};/)||[""])[0];
-const fn=new Function(pre+"\n"+["fracWords","mixedWords","moneyWords","forSpeech"].map(n=>grab(js,n)).join("\n")+"\nreturn forSpeech;")();
+/* (se, 2026-09-02) HARNESS REPAIRED TO INTENT: forSpeech gained the comma-number
+   word expansion, which lives in three new helpers and two word tables -- the
+   harness now grabs them too, or the module it exists to test cannot even load. */
+const pre=(js.match(/var FRAC_WORDS = \{[\s\S]*?\};/)||[""])[0]
+  +"\n"+((js.match(/var ONES_W = \[[\s\S]*?\];/)||[""])[0])
+  +"\n"+((js.match(/var TENS_W = \[[\s\S]*?\];/)||[""])[0]);
+const fn=new Function(pre+"\n"+["fracWords","mixedWords","moneyWords","threeWords","intWords","commaNumberWords","forSpeech"].map(n=>grab(js,n)).join("\n")+"\nreturn forSpeech;")();
 const cases=JSON.parse(process.argv[3]); const out=[];
 for(const [inp,must,mustNot] of cases){const r=fn(inp);out.push([inp,r,r.includes(must)&&!(mustNot&&r.includes(mustNot))]);}
 console.log(JSON.stringify(out));
@@ -12581,7 +12600,7 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- this build widened a gate",
-          n_ref == 72,
+          n_ref == 73,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -12665,7 +12684,7 @@ def part3hn_credit_only_what_you_saw():
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rm widened a gate",
-          n_ref == 72, f"{n_ref} *_conflict functions")
+          n_ref == 73, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -12742,7 +12761,7 @@ def part3ho_three_one_line_holes():
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rn widened two gates",
-          n_ref == 72, f"{n_ref} *_conflict functions")
+          n_ref == 73, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -19074,9 +19093,9 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ seventy-two referees now, counted from the code (62 + pz + qf + qm + qs + "
-          "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase)",
-          n_ref == 72, n_ref)
+    check("⭐ seventy-three referees now, counted from the code (62 + pz + qf + qm + qs + "
+          "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + se's boardflood)",
+          n_ref == 73, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -21653,7 +21672,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,324</b>" in page,
+          "<b>8,341</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22350,6 +22369,133 @@ def part3hp_no_colour_literals_on_the_board():
 # the page measures a DOM Range, exact to the pixel. Proof outside this battery:
 # fifty circles on fifty named words in a real session board, every one within
 # 3 px of the word's own box and enclosing it (build doc, rr).
+def part3ib_five_flags_from_jims_queue():
+    """PART 3ib (build se, 2026-09-02) -- FIVE LIVE FLAGS FROM JIM'S QUEUE, ONE
+    BUILD. His device flags, 2026-09-02 evening, each in his own words:
+
+    ① entry/count-on: "Drop the term 'trap' and everything after it."
+    ② prealgebra/rounding: "keep this as a way to start teaching rounding" (the
+      number-line-closer-to framing, digit check second -- a KEEP flag).
+    ③ prealgebra: "skipped the example it just showed on the board."
+    ④ prealgebra: the voice read "8,516" as "8 5 1 scenes" (the ip primes lesson,
+      third verse: ambiguous input, the engine improvises).
+    ⑤ algebra2: a whole elimination in one turn "took up more than what the board
+      could hold so it needs to be either broken up or smaller font" -- broken up
+      is the fix (rule 19c's one-beat law, applied to the board), and THE
+      SEVENTY-THIRD REFEREE enforces it."""
+    print("\nPART 3ib — five flags from Jim's queue (build se)")
+    import tutor as _t
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    # ① the trap sentence is gone; the count survives whole
+    import lessonscripts as LS
+    lsrc = open(os.path.join(here, "lessonscripts.py"), encoding="utf-8").read()
+    check("⭐ ① the entry count-on line ends on the count -- no 'trap' sentence",
+          '"Ten — eleven, twelve, thirteen, fourteen. Fourteen stars.",' in lsrc
+          and "The trap is starting again at one after ten" not in lsrc,
+          "Jim: drop the term 'trap' and everything after it")
+    check("  ...the other courses' 'Here is the trap' lines are untouched",
+          lsrc.count("Here is the trap") >= 20,   # 27 on ship day
+          "his flag was ONE line; a wider ruling is his to make, not mine")
+
+    # ② rounding is taught line-first
+    psed = open(os.path.join(here, "pedagogy.py"), encoding="utf-8").read()
+    check("⭐ ② prealgebra's playbook teaches rounding LINE-FIRST",
+          "ROUNDING IS TAUGHT LINE-FIRST" in psed
+          and "TRULY CLOSER to" in psed
+          and "fast shortcut for the same idea" in psed,
+          "Jim flagged the live reply KEEP -- the playbook now leads with it")
+    import foundations as FND
+    fsrc = open(FND.__file__, encoding="utf-8").read()
+    check("  ...and the foundations rounding card still draws the number line",
+          "which ten the number sits closest to" in fsrc
+          and 'numberline min="30" max="40" points="37"' in fsrc,
+          "the card taught this shape already -- it must keep doing so")
+
+    # ③ + ④(prompt half): the two rule-19 clauses
+    prm = open(os.path.join(here, "prompts.py"), encoding="utf-8").read()
+    check("⭐ ③ rule 19(d): never hand over past an un-narrated example",
+          "NEVER HAND OVER PAST AN UN-NARRATED EXAMPLE" in prm
+          and "Drawing it is not teaching" in prm, "")
+    check("⭐ ④ rule 19(f): a read-it-yourself number is never spoken by the voice",
+          "READ-IT-YOURSELF EXERCISES" in prm
+          and "WITHOUT speaking it yourself" in prm, "")
+
+    # ④(speech half): comma numbers are spoken in words
+    sj = open(os.path.join(here, "static", "speech-text.js"), encoding="utf-8").read()
+    check("⭐ ④ speech: comma numbers become WORDS before any voice hears them",
+          "function commaNumberWords(" in sj and "function intWords(" in sj
+          and "commaNumberWords)" in sj,
+          'the flagged "8,516" came out "8 5 1 scenes"')
+    check("  ...bare digit runs stay untouched (cached clips keep their keys)",
+          "deliberately untouched" in sj, "re-keying fine clips re-bills the course")
+    check("  ...the money-with-commas bug found on the dry run is fixed too",
+          'n.replace(/,/g, "")' in sj, '"$1,850" used to speak as "1 dollar,850"')
+    if module_present("subprocess"):
+        import subprocess as _sp, re as _re
+        body = sj[sj.index("var FRAC_WORDS"):]
+        drill = ("%s\n"
+                 "const out = forSpeech('say this number out loud: 8,516');\n"
+                 "if (out !== 'say this number out loud: eight thousand five hundred sixteen') { console.error(out); process.exit(1); }\n"
+                 "if (forSpeech('the 7,000 end') !== 'the seven thousand end') process.exit(1);\n"
+                 "if (forSpeech('1000 stays') !== '1000 stays') process.exit(1);\n"
+                 "console.log('SPEECH-OK');\n") % body
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as fh:
+            fh.write(drill); path = fh.name
+        try:
+            r = _sp.run(["node", path], capture_output=True, text=True, timeout=30)
+            check("⭐ ④ the transform runs: 8,516 -> words; 7,000 -> words; 1000 stays",
+                  r.returncode == 0 and "SPEECH-OK" in r.stdout,
+                  (r.stdout + r.stderr)[-160:])
+        except FileNotFoundError:
+            skip("④ the transform runs (node)", "node is not installed here")
+        finally:
+            os.unlink(path)
+
+    # ⑤ the seventy-third referee
+    flood = ('Watch. ' + '[[step eq="1 + 1 = 2"]] ' * 8
+             + 'Ready? [[choices options="Yes | Show me again"]]')
+    d = _t.board_flood_conflict(flood)
+    check("⭐ ⑤ eight drawing tags in one reply fire the flood gate",
+          bool(d) and "one beat" in d and "KEEP EVERY LINE" in d,
+          "split, never shrink the font -- and never drop a line")
+    check("  the canon's own ceiling stays legal (5 tags silent; 6 too)",
+          not _t.board_flood_conflict('x ' + '[[step eq="1=1"]] ' * 5)
+          and not _t.board_flood_conflict('x ' + '[[step eq="1=1"]] ' * 6),
+          "the densest authored reply lands 5 -- authored teaching can never trip it")
+    check("  choices/goal/highlight are not drawing tags",
+          not _t.board_flood_conflict(
+              'x [[goal text="g"]] [[choices options="1|2"]] '
+              '[[highlight target="x"]] ' + '[[step eq="1=1"]] ' * 6), "")
+    check("  never raises",
+          _t.board_flood_conflict(None) == "" and _t.board_flood_conflict(9) == "", "")
+    check("  wired with its own fire event",
+          'flood = board_flood_conflict(reply)' in
+          open(_t.__file__, encoding="utf-8").read()
+          and '_event("referee_fire", "boardflood", flood)' in
+          open(_t.__file__, encoding="utf-8").read(), "")
+    check("  the sweep itself returns it",
+          "one beat" in (_t.prose_board_conflict(flood) or ""), "")
+
+    # ⭐ the standing sweep: the canon can never trip the flood gate
+    fires = 0; n = 0
+    for course, scripts in FND.FOUNDATIONS.items():
+        items = scripts.values() if isinstance(scripts, dict) else scripts
+        for sc in items:
+            n += 1
+            text = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if _t.board_flood_conflict(text):
+                fires += 1
+    for les in LS.LESSONS:
+        for sp, b in les.get("teach") or []:
+            n += 1
+            if _t.board_flood_conflict((sp or "") + (b or "")):
+                fires += 1
+    check(f"⭐ zero flood fires across {n} authored replies",
+          fires == 0 and n >= 1300, f"{fires} authored replies rejected")   # 1,389 on ship day
+
+
 def part3ia_the_student_is_a_student():
     """PART 3ia (build sd, 2026-09-02) -- THE STUDENT IS A STUDENT, EVERYWHERE
     A VISITOR CAN SEE.
@@ -22751,7 +22897,7 @@ def part3hx_the_question_mark_is_a_blank_said_so():
           and n >= 1900 and m >= 3000,
           str(hits[:4]))
     check("  the referee count is unchanged -- sa is a registry row on referee 31",
-          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 72, "")
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 73, "")
 
 
 def part3hw_a_variables_letter_keeps_its_case():
@@ -22900,7 +23046,7 @@ def part3hu_the_accepted_offer_is_honored():
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
     check("  the referee count is unchanged -- rx widened a gate",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 72, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 73, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -23021,7 +23167,7 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
     check("  the referee count is unchanged -- ry widened a gate and added a floor",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 72, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 73, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -31585,6 +31731,7 @@ def main():
     part3hy_the_practice_goal()
     part3hz_the_demo_holds_still_and_shows_its_boards()
     part3ia_the_student_is_a_student()
+    part3ib_five_flags_from_jims_queue()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

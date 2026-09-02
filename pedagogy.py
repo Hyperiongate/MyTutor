@@ -2,6 +2,12 @@
 # pedagogy.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD se -- ROUNDING IS TAUGHT LINE-FIRST (Jim flagged a live reply
+#               KEEP: "rounding IS an estimate: finding which friendly number
+#               something is truly closer to"). Prealgebra unit 1's how_to_teach now
+#               says so: number line first, the five-or-more digit check second, as
+#               the shortcut for the same idea. The foundations rounding card
+#               already taught this shape; the playbook now agrees with it.
 #   2026-08-11  BUILD de -- DIFFEQ pedagogy restructured to the CUPM mainstream syllabus:
 #               names + all nine unit briefs. Units 3 (qualitative), 4 (numerical), 8
 #               (linear systems) and 9 (nonlinear) are new; 2 and 6 are merges of old
@@ -435,7 +441,13 @@ _PREALGEBRA_UNIT_PEDAGOGY = {
         ),
         "how_to_teach": (
             "PEMDAS as rules everyone AGREES on so we all get the same answer. Underline the piece "
-            "to do FIRST at each step; estimate first to sanity-check the result."
+            "to do FIRST at each step; estimate first to sanity-check the result. "
+            "ROUNDING IS TAUGHT LINE-FIRST (Jim's 2026-09-02 ruling, from a live lesson he "
+            "flagged KEEP): open with the number line -- rounding IS an estimate, finding which "
+            "friendly number the value is TRULY CLOSER to; draw it and let the student SEE which "
+            "end it sits nearer. Only then teach the 'five or more' digit check, introduced as "
+            "the fast shortcut for the same idea -- the digit tells you which half of the line "
+            "you are on without drawing it every time."
         ),
         "progression": "3 + 2 x 4  ->  (3 + 2) x 4  ->  12 - 4 / 2  ->  2 x (5 + 3^2)",
     },

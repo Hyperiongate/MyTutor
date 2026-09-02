@@ -2,6 +2,12 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD se -- JIM'S FLAG on the entry count-on lesson: "Drop the term
+#               'trap' and everything after it." The teach line now ends on the
+#               count ("...Fourteen stars."). Its clip re-renders from the new text
+#               on first play. The 40-odd "Here is the trap" lines in OTHER courses
+#               are the house pattern and are deliberately untouched -- a wider
+#               ruling is Jim's to make.
 #   2026-09-01  BUILD rj -- THE SEAM IS ANNOUNCED. Jim, after watching ri live: the class
 #               "stopped after 3 in a row then thought for a bit and then acted as if we
 #               had been working on subtraction. This is strange." What he saw: a mastered
@@ -2910,9 +2916,13 @@ _MORE_LESSONS = [
             ("Watch me count these. One, two, three, four, five, six, seven, "
              "eight, nine, ten. Then keep going: eleven, twelve. Twelve stars.",
              '[[objects emoji="⭐" groups="12" count="1" caption="ten, then eleven, twelve"]]'),
+            # (se, 2026-09-02) JIM'S FLAG: "Drop the term 'trap' and everything
+            # after it." The warning sentence is gone; the line now ends on the
+            # count itself. (The 40-odd "Here is the trap" lines in OTHER courses
+            # are the house pattern and are deliberately untouched -- his flag was
+            # this entry-course line; a wider ruling is his to make.)
             ("Here is a faster way. Count the first ten, then count on from ten. "
-             "Ten — eleven, twelve, thirteen, fourteen. Fourteen stars. The trap "
-             "is starting again at one after ten. Keep going instead.",
+             "Ten — eleven, twelve, thirteen, fourteen. Fourteen stars.",
              '[[objects emoji="⭐" groups="14" caption="ten, then count on: 11, 12, 13, 14"]]'),
         ],
         "pairs": [

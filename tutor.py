@@ -2,6 +2,15 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD se -- THE BOARD HOLDS ONE BEAT (Jim's live flag: a whole
+#               elimination worked in ONE turn "took up more than what the board
+#               could hold... either broken up or smaller font" -- broken up is the
+#               fix, rule 19(c)'s own law applied to the BOARD). THE SEVENTY-THIRD
+#               REFEREE: board_flood_conflict -- seven or more drawing tags in one
+#               reply fires (canon ceiling measured first: the densest authored
+#               reply lands 5, banks 3; choices/goal/highlight/progress tags never
+#               counted). Count 72 -> 73; methodology's reply-checks tile moves
+#               with it. PART 3ib holds it, with the rest of the flag queue.
 #   2026-09-02  BUILD sa -- THE QUESTION MARK IN A FRACTION IS A BLANK, SAID SO
 #               (the 09-02 watch's finding G, rule 14, prealgebra quiz-eighty --
 #               the LAST buildable finding of that watch: [[step eq="1/2 = ?/10,
@@ -4374,6 +4383,51 @@ def variable_case_conflict(reply: str):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[varcase] crashed (fail open): {exc}")
         _event("referee_crash", "varcase", str(exc))
+        return ""
+
+
+# =============================================================================
+# REFEREE 73 -- THE BOARD HOLDS ONE BEAT  (build se, 2026-09-02)
+# -----------------------------------------------------------------------------
+# Jim's live flag, 2026-09-02 (algebra2, a whole elimination worked in ONE turn --
+# both equations, the add, X, the plug-back, Y, and the check): "This took up more
+# than what the board could hold so it needs to be either broken up or smaller
+# font." Broken up is the fix -- it is rule 19(c)'s own law ("ONE BEAT IS ONE
+# TURN") applied to the BOARD: the beat referee caps the SPOKEN words, but a turn
+# can stay under 110 words while it dumps eight board lines, and that is several
+# beats wearing one turn's clothes.
+#
+# ⚠️ COMPUTED FROM THE CANON: the densest authored reply in the whole canon lands
+# 5 drawing tags (the entry fact-family card; generated bank boards top out at 3).
+# The gate fires at SEVEN or more -- a full step above anything the course itself
+# ever draws, so authored teaching can never trip it. Choices rows, highlights,
+# goal banners and the progress-machinery tags are NOT drawing tags and are never
+# counted. Reply-only and objective; the find-the-error game needs no exemption
+# (a game still lands one beat at a time).
+_BF_COUNTED = tuple(sorted(set(_tagreg.BOARD_TAGS)
+                           - {"choices", "highlight", "goal", "today",
+                              "unitplan", "finalexam"}))
+_BF_TAG_RE = re.compile(r"\[\[\s*(?:" + "|".join(_BF_COUNTED) + r")\b")
+_BF_MAX = 6                    # canon max is 5; seven or more is a flood
+
+
+def board_flood_conflict(reply: str):
+    """Return a description of a reply that draws more board lines than one beat
+    can hold, or "". Never raises: fail open."""
+    try:
+        n = len(_BF_TAG_RE.findall(str(reply or "")))
+        if n <= _BF_MAX:
+            return ""
+        return ("this ONE reply draws {n} board lines -- more than the board "
+                "shows in one look, and more than one beat of teaching can "
+                "carry (the densest authored lesson in the whole course lands "
+                "5). Rule 19(c): one beat is one turn. KEEP EVERY LINE, but "
+                "spread the work across turns -- land one or two lines with the "
+                "words that teach them, end with a short continue-check, and "
+                "let the next turn carry the next step.").format(n=n)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[boardflood] crashed (fail open): {exc}")
+        _event("referee_crash", "boardflood", str(exc))
         return ""
 
 
@@ -9956,6 +10010,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if vcase:
             _event("referee_fire", "varcase", vcase)
             return vcase
+        # (se) the seventy-third: the board holds one beat (rule 19c, Jim's flag).
+        # Reply-only and computed from the canon's own density ceiling.
+        flood = board_flood_conflict(reply)
+        if flood:
+            _event("referee_fire", "boardflood", flood)
+            return flood
         # (oc) the forty-eighth: a result you speak is a result you drew.
         skipres = skipped_result_conflict(reply, heard)
         if skipres:
