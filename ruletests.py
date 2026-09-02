@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD ru -- PART 3hr: a comma makes a tuple, not an expression. The
+#               09-02 watch's newest crash reason (referee_crash · mathcheck,
+#               'tuple' object has no attribute 'free_symbols' ×4): parse_expr on
+#               comma-bearing text returns a plain PYTHON tuple and the board sweep
+#               touched .free_symbols outside its parse-guard -- the checker crashed
+#               and failed open, unjudging the reply. mathcheck._parse (the one
+#               owner) now raises on a result without free_symbols; the PART proves
+#               the crash shape fails open, ni's false chain still reads "wrong",
+#               verify tags and system answers unchanged.
 #   2026-09-02  BUILD rt -- his lips stopped mid-sentence (3hq, three pins). Jim, in the
 #               demo: after an expression with stars, the lips stopped while the voice
 #               went on. The bubble's end had been clearing the one speaking flag under
@@ -11569,9 +11578,16 @@ def part3he_the_main_road_moves_the_star():
     # ---- the page: the response feeds the chips -------------------------------
     sess = code_only(open(os.path.join(here, "static", "session.html"),
                           encoding="utf-8").read())
+    # (ru, 2026-09-02) REPAIRED TO INTENT. rd's literal was a one-line
+    # `if (j.streak) renderStreakChips(...)`; build rr grew that block (it now
+    # also compares the previous streak to fire the pencil's milestone party)
+    # and the one-liner broke while the INTENT -- the server's fresh pair feeds
+    # the chips on every scripted answer -- stayed true. The rr chats' battery
+    # stalled before this PART, so the break surfaced on ru's full run.
     check("⭐ session.html feeds j.streak into renderStreakChips on every scripted "
-          "answer", "if (j.streak) renderStreakChips({ streak_days: "
-          "j.streak.streak_days, today_streak: j.streak.today_streak });" in sess, "")
+          "answer", "if (j.streak) {" in sess
+          and "renderStreakChips({ streak_days: j.streak.streak_days, "
+          "today_streak: j.streak.today_streak });" in sess, "")
 
     # ---- the live drive: real endpoints, a real (throwaway) database ----------
     try:
@@ -21544,7 +21560,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,078</b>" in page,
+          "<b>8,198</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22241,6 +22257,54 @@ def part3hp_no_colour_literals_on_the_board():
 # the page measures a DOM Range, exact to the pixel. Proof outside this battery:
 # fifty circles on fifty named words in a real session board, every one within
 # 3 px of the word's own box and enclosing it (build doc, rr).
+def part3hr_a_comma_makes_a_tuple_not_an_expression():
+    """PART 3hr (build ru, 2026-09-02) -- A COMMA MAKES A TUPLE, NOT AN EXPRESSION.
+
+    THE FINDING (the 09-02 night watch's telemetry, its NEWEST crash reason):
+    referee_crash · mathcheck -- 'tuple' object has no attribute 'free_symbols',
+    four times in the week. sympy's parse_expr on any comma-bearing text ("5, 6",
+    a coordinate pair, two equations on one line) returns a plain PYTHON tuple --
+    not even a sympy Tuple -- and check_board_equations touched .free_symbols on
+    it OUTSIDE its parse-guard. The whole checker then crashed and failed open
+    for that reply: false board math beside a comma went unjudged, which is
+    precisely the class the same watch caught shipping (the completing-the-
+    square chain).
+
+    THE FIX, at the ONE owner: _parse() raises when its result has no
+    free_symbols, so every caller's EXISTING unparseable path handles a comma as
+    fail-open by design instead of crash-by-accident (the file's own law:
+    a checker that bricks on its parse gaps does more harm than good).
+    """
+    print("\nPART 3hr — a comma makes a tuple, not an expression (build ru)")
+    import mathcheck as MC
+
+    check("⭐ the watch's crash shape now fails OPEN, not loudly",
+          MC.verify_reply('Watch. [[step eq="2 + 3 = 5, 6"]]')[0] == "none",
+          "'tuple' object has no attribute 'free_symbols' -- this exact reply "
+          "crashed the whole checker before ru")
+    check("  the guard lives at the ONE owner (_parse), not at a call site",
+          'if not hasattr(out, "free_symbols"):' in
+          open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "mathcheck.py"), encoding="utf-8").read(),
+          "a call-site patch would leave the other three .free_symbols readers "
+          "one comma away from the same crash")
+    check("  ni's false chain is still caught -- the fix must not blunt the blade",
+          MC.verify_reply('Look. [[step eq="3/4 - 1/2 = 2/4 - 1/2 = 1/4"]]')[0]
+          == "wrong", "the board-claim check this file exists for")
+    check("  a true chain still passes",
+          MC.verify_reply('Look. [[step eq="2 + 3 = 5"]]')[0] == "ok", "")
+    check("  verify tags still verify, both verdicts",
+          MC.verify_reply('[[verify expr="2*x + 1 = 11" answer="x = 5"]]')[0]
+          == "ok"
+          and MC.verify_reply('[[verify expr="2*x + 1 = 11" answer="x = 4"]]')[0]
+          == "wrong", "")
+    check("  a SYSTEM answer's own commas still work (their splitter runs "
+          "before _parse)",
+          MC.verify_reply('[[verify expr="x + y = 3; x - y = 1" '
+                          'answer="x = 2, y = 1"]]')[0] == "ok",
+          "the guard must reject only what reaches _parse whole")
+
+
 def part3hq_the_pencil_has_feelings_about_your_work():
     print("\nPART 3hq — the pencil has feelings about your work (build rr)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -30511,6 +30575,7 @@ def main():
     part3hd_the_star_falls_when_the_child_slips()
     part3hp_no_colour_literals_on_the_board()
     part3hq_the_pencil_has_feelings_about_your_work()
+    part3hr_a_comma_makes_a_tuple_not_an_expression()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -2,6 +2,20 @@
 # mathcheck.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD ru -- A COMMA MAKES A TUPLE, NOT AN EXPRESSION. The 09-02
+#               night watch's newest crash reason: referee_crash · mathcheck --
+#               'tuple' object has no attribute 'free_symbols' ×4 this week.
+#               parse_expr on any comma-bearing text ("5, 6", a coordinate pair,
+#               two equations on one line) returns a plain PYTHON tuple, and
+#               check_board_equations touched .free_symbols on it OUTSIDE its
+#               parse-guard -- the whole checker crashed and FAILED OPEN for that
+#               reply, which is how false board math slips by unjudged. _parse
+#               (the ONE owner every path uses) now raises on a result without
+#               free_symbols, so every existing unparseable path treats a comma
+#               as fail-open by design instead of crash-by-accident. Verified:
+#               the crash case returns "none"; the ni false chain still returns
+#               "wrong"; verify tags (system answers' own comma splitter
+#               included) unchanged. PART 3hr pins all of it.
 #   2026-08-25  BUILD ni -- THE BOARD ITSELF IS A CLAIM. The night watch confirmed a
 #               shipped [[step eq="3/4 - 1/2 = 2/4 - 1/2 = 1/4"]] -- a false chain,
 #               drawn for a child, invisible here because verify_reply read only
@@ -199,8 +213,19 @@ def _parse(s: str):
     # imaginary unit) -- the calculus/Algebra II convention wins here.
     local = {c: sympy.Symbol(c) for c in "abcdfghjklmnopqrstuvwxyz"}
     local.update({"e": sympy.E, "i": sympy.I, "theta": sympy.Symbol("theta")})
-    return parse_expr(s, local_dict=local, global_dict=_global_dict(),
-                      transformations=transformations, evaluate=True)
+    out = parse_expr(s, local_dict=local, global_dict=_global_dict(),
+                     transformations=transformations, evaluate=True)
+    # (ru, 2026-09-02) A COMMA MAKES A TUPLE, NOT AN EXPRESSION. The 09-02 night
+    # watch logged referee_crash · mathcheck: 'tuple' object has no attribute
+    # 'free_symbols' ×4 -- parse_expr("5, 6") returns a plain PYTHON tuple (not
+    # even a sympy Tuple), which has no free_symbols and no evalf, and the board
+    # sweep touched it outside its parse-guard. Raising HERE makes every caller's
+    # existing unparseable path handle a comma the way this file's own design law
+    # demands: FAIL OPEN, never crash -- a checker that dies on a coordinate pair
+    # or a two-equation line is a checker that misses the false chain beside it.
+    if not hasattr(out, "free_symbols"):
+        raise ValueError(f"not a single expression (comma?): {s!r}")
+    return out
 
 
 _EQ_SPLIT_RE = re.compile(r"(?<![<>!=])=(?!=)")  # a bare '=', not <=,>=,!=,==

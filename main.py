@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  APP_BUILD -> "2026-09-02ru-a-comma-makes-a-tuple-not-an-expression".
+#               BUILD ru -- the 09-02 watch's newest crash: mathcheck died on any
+#               comma-bearing board text (parse_expr returns a plain tuple; see
+#               mathcheck.py's ru note) and failed open, unjudging the reply. Fixed
+#               at mathcheck._parse, PART 3hr pins it. NO CODE IN THIS FILE CHANGED.
+#               ⚠️ STAMP NOTE: build rt (cadabra.js lip-sync, 2026-09-02) shipped
+#               WITHOUT bumping this stamp -- /health said "rs" while rt was live.
+#               This bump moves the stamp past rt; the law stands: EVERY build that
+#               touches ANY shipped file bumps APP_BUILD, one-file pencil builds
+#               included -- the stamp exists so Jim never has to wonder.
 #   2026-09-02  APP_BUILD -> "2026-09-02rs-the-demo-three-things-jim-saw". BUILD rs --
 #               ONE line APPENDED to DEMO_VOICE_LINES (252 -> 253), byte-identical to
 #               demo.html's VOICE_LINES: the miniature-dashboard tour line. The old
@@ -13274,7 +13284,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-02rs-the-demo-three-things-jim-saw"
+APP_BUILD = "2026-09-02ru-a-comma-makes-a-tuple-not-an-expression"
 
 
 @app.get("/health")
