@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD sa -- PART 3hx: the question mark in a fraction is a blank,
+#               said so (the 09-02 watch's finding G, rule 14 -- its LAST buildable
+#               item). A first-use registry row on referee 31: ?/5 or 5/? (the hug)
+#               fires unread; bare "= ?" and spaced separators never match (iz law);
+#               readings are the canon's own spoken forms + the definitional words.
+#               Standing sweep in the PART: 2,109 cards + 3,699 bank boards WITH
+#               their spoken lines (a board-only bank sweep is vacuous -- tags-only
+#               fragments are ignored by design) + the demo, 0 fires. Count stays 72.
 #   2026-09-02  BUILD rz -- PART 3hw: a variable's letter keeps its case (the 09-02
 #               watch's finding E, rule 28, algebra2 -- words said "x squared minus
 #               five x", board wrote X^2 - 5X + 6 = 0). THE SEVENTY-SECOND REFEREE
@@ -21609,7 +21617,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,281</b>" in page,
+          "<b>8,292</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22306,6 +22314,114 @@ def part3hp_no_colour_literals_on_the_board():
 # the page measures a DOM Range, exact to the pixel. Proof outside this battery:
 # fifty circles on fifty named words in a real session board, every one within
 # 3 px of the word's own box and enclosing it (build doc, rr).
+def part3hx_the_question_mark_is_a_blank_said_so():
+    """PART 3hx (build sa, 2026-09-02) -- THE QUESTION MARK IN A FRACTION IS A
+    BLANK, AND THE VOICE SAYS SO.
+
+    THE FINDING (the 09-02 night watch, LOW G, rule 14, prealgebra quiz-eighty
+    -- the watch's LAST buildable item): [[step eq="1/2 = ?/10, 2/5 = ?/10"]]
+    shipped and the tutor only asked which fraction is bigger -- nobody said
+    the question marks are blanks to fill in. The student sees ?/10 as
+    notation, and rule 14 says every notation is defined on first use.
+
+    THE FIX: a first-use registry row on referee 31 (notation_intro_conflict --
+    a gate widening, the count stays 72). DELIBERATELY TIGHT, the iz law both
+    ways: the symbol is a ? HUGGING a fraction slash (?/5 or 5/?) -- the bare
+    "= ?" pending-answer mark, which the ENTIRE canon uses and rule 15's
+    machinery owns, never matches, and a spaced "? / 5" (a separator, not
+    notation) never matches either. The readings are the canon's own spoken
+    forms ("3 over 4 equals WHAT over 8", "HOW MANY hundredths", "what
+    percent") plus the definitional words (blank, missing, fill in, question
+    mark) -- a broad reading list errs cautious, the cautious-grader law."""
+    print("\nPART 3hx — the question mark is a blank, said so (build sa)")
+    import tutor as _t
+
+    watch = ('Which fraction is bigger? Look at the board and think about '
+             'tenths. [[step eq="1/2 = ?/10, 2/5 = ?/10"]] Which one wins?')
+    d = _t.notation_intro_conflict(watch, heard="one half tenths fractions")
+    check("⭐ the watch's board fires: ?/10 drawn, never explained",
+          bool(d) and "question-mark blank" in d,
+          "rule 14: the student sees ?/10 as notation nobody defined")
+    check("  ...and the nudge quotes a ready sentence with the reading",
+          "what over" in d, "the retry only has to include it")
+    check("  the reviewer's own fix stays silent",
+          not _t.notation_intro_conflict(
+              'The question mark is a blank. We are rewriting one-half as '
+              'blank-over-ten. [[step eq="1/2 = ?/10"]] Go.',
+              heard="over tenths"),
+          "a referee that cannot be satisfied is the iz phantom")
+    for label, reply, heard in (
+            ("the canon's 'what over 8' reading",
+             '3 over 4 equals what over 8. Look at the bottoms. '
+             '[[step eq="3/4 = ?/8"]] Go.', "over fractions"),
+            ("the canon's 'how many hundredths' reading",
+             'How many hundredths is cosine squared? '
+             '[[step eq="cos² = ?/100"]]', "squared hundredths over exponent"),
+            ("the canon's 'what percent' reading",
+             '15 out of 20 -- what percent is that? '
+             '[[step eq="15/20 = ?/100"]]', "out of over percent"),
+            ("the bare '= ?' the whole canon uses",
+             'What is seven times eight? [[step eq="7 × 8 = ?"]]', "times"),
+            ("a spaced '? / 5' separator (the iz law)",
+             'Break time! [[card title="Ready? / 5 minutes left"]] Stretch.',
+             "x"),
+            ("a second appearance (heard-gated, first use only; heard also "
+             "carries 1/2 so the slash entry, rightly separate, stays out of "
+             "this pin's way)",
+             'Which is bigger? [[step eq="1/2 = ?/10"]] Pick.',
+             "the board wrote ?/10 and 1/2 last turn")):
+        check(f"  silent: {label}",
+              not _t.notation_intro_conflict(reply, heard=heard), label)
+
+    # ⭐ the standing sweep: authored cards + generated bank boards WITH their
+    # spoken lines (a board-only bank sweep is vacuous here -- the referee
+    # ignores tags-only fragments by design)
+    import foundations as FND, lessonscripts as LS
+    hits = []; n = 0; m = 0
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1
+                dd = _t.notation_intro_conflict(t, heard="")
+                if dd and "question-mark blank" in dd:
+                    hits.append(("foundation", c))
+    for les in LS.LESSONS:
+        for i, (sp, b) in enumerate(les.get("teach") or []):
+            t = (sp or "") + "\n" + (b or "")
+            if t.strip():
+                n += 1
+                dd = _t.notation_intro_conflict(t, heard="")
+                if dd and "question-mark blank" in dd:
+                    hits.append(("teach", les["id"], i))
+        for i, pr in enumerate(les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            t = (w[0] or "") + "\n" + (w[1] or "")
+            if t.strip():
+                n += 1
+                dd = _t.notation_intro_conflict(t, heard="")
+                if dd and "question-mark blank" in dd:
+                    hits.append(("worked", les["id"], i))
+        for p in les.get("bank") or []:
+            for lv in les.get("levels", LS.LEVELS):
+                m += 1
+                t = (LS.spoken_for(p, lv) or "") + "\n" + (LS.board_for(p, lv) or "")
+                dd = _t.notation_intro_conflict(t, heard="")
+                if dd and "question-mark blank" in dd:
+                    hits.append(("bank", les["id"], str(p)[:40]))
+    here = os.path.dirname(os.path.abspath(__file__))
+    dsrc = open(os.path.join(here, "static", "demo.html"), encoding="utf-8").read()
+    dd = _t.notation_intro_conflict(dsrc, heard="")
+    check(f"⭐ zero false alarms: {n} authored cards + {m} generated bank boards "
+          f"(spoken lines included) + the demo",
+          not hits and not (dd and "question-mark blank" in dd)
+          and n >= 1900 and m >= 3000,
+          str(hits[:4]))
+    check("  the referee count is unchanged -- sa is a registry row on referee 31",
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 72, "")
+
+
 def part3hw_a_variables_letter_keeps_its_case():
     """PART 3hw (build rz, 2026-09-02) -- A VARIABLE'S LETTER KEEPS ITS CASE.
 
@@ -31133,6 +31249,7 @@ def main():
     part3hu_the_accepted_offer_is_honored()
     part3hv_the_verdict_is_proven()
     part3hw_a_variables_letter_keeps_its_case()
+    part3hx_the_question_mark_is_a_blank_said_so()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

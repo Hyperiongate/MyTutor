@@ -2,6 +2,20 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD sa -- THE QUESTION MARK IN A FRACTION IS A BLANK, SAID SO
+#               (the 09-02 watch's finding G, rule 14, prealgebra quiz-eighty --
+#               the LAST buildable finding of that watch: [[step eq="1/2 = ?/10,
+#               2/5 = ?/10"]] shipped with nobody saying what the question marks
+#               mean). A first-use registry row on referee 31 (notation_intro_
+#               conflict -- a gate widening, the count stays 72): symbol = a ?
+#               HUGGING a fraction slash only (?/5 or 5/?; the bare "= ?" the
+#               entire canon uses never matches -- the iz law, notation hugs);
+#               readings = the canon's own spoken forms ("what over 8", "how
+#               many hundredths", "what percent") plus the definitional words
+#               (blank, missing, fill in, question mark). Swept: 0 fires over
+#               2,109 authored cards + 3,699 generated bank boards (spoken lines
+#               included) + the demo. PART 3hx holds it. This closes the 09-02
+#               watch: every finding is now built or dispositioned.
 #   2026-09-02  BUILD rz -- A VARIABLE'S LETTER KEEPS ITS CASE (the 09-02 watch's
 #               finding E, rule 28, algebra2: words said "solve x squared minus
 #               five x plus six" while the board wrote X^2 - 5X + 6 = 0 -- with
@@ -5206,6 +5220,22 @@ _NOTATIONS = (
      'That is the LIMIT sign -- we read lim as "the limit of f of x as x '
      "approaches two\": the value the function closes in on as x slides toward "
      "the target."),
+    # (sa, 2026-09-02) THE 09-02 WATCH'S LOW, rule 14 (quiz-eighty, prealgebra):
+    # [[step eq="1/2 = ?/10, 2/5 = ?/10"]] shipped with nobody saying what the
+    # question marks mean -- the student sees ?/10 as notation. The entry is
+    # DELIBERATELY TIGHT: only a ? hugging a fraction slash (?/5 or 5/?) -- the
+    # bare "= ?" pending-answer mark, which the ENTIRE canon uses and rule 15's
+    # machinery owns, never matches (the iz law: real notation hugs, and this
+    # shape is the hug). The readings are how the canon itself already speaks
+    # these blanks ("3 over 4 equals WHAT over 8", "HOW MANY hundredths", "what
+    # percent") plus the definitional words -- broad heard errs cautious.
+    ("a question-mark blank in a fraction", re.compile(r"\?/\d|\d/\?"),
+     re.compile(r"\bblank\b|\bmissing\b|\bfill\s+in\b|\bmystery\b|"
+                r"\bquestion\s+mark\b|\bwhat\s+(?:over|out\s+of|number|percent)\b|"
+                r"\bhow\s+many\b|\bwhat\s+goes\s+on\s+top\b", re.I),
+     'That question mark is a BLANK -- we read ?/10 out loud as "what over '
+     'ten": it holds the spot for the missing top number we are about to '
+     "find together."),
 )
 _NOTE_TAG_RE = re.compile(r"\[\[([^\]]*)\]\]")
 _NOTE_VAL_RE = re.compile(r'"([^"]*)"')
