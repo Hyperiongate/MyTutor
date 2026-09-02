@@ -2,6 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILDS rx + ry -- PARTs 3hu + 3hv: the 09-02 watch's T3 findings C
+#               and D, delivered together.
+#               3hu (rx) THE ACCEPTED OFFER IS HONORED: offer to show -> "yes!" ->
+#               nothing drawn. Referee 70 gains the acceptance-turn branch
+#               (prev_tutor-gated, closed acceptance grammar, any board tag buys
+#               silence); count stays 71. Standing sweep: 296 canon pairs, 0 fires.
+#               3hv (ry) THE VERDICT IS PROVEN: quiz_verdict_conflict's numbered-
+#               question gate now reads board tag values both turns (the watch's
+#               Q1-in-a-write-tag hole), and -- Jim's ruling "Retry + code floor" --
+#               repair_missing_verdict at the shipping door speaks a PROVEN
+#               "Correct." + [[mark]] via mathcheck's new constant_equal /
+#               is_canonical_constant; never "Not quite", never unproven, never
+#               into a reply carrying mark/nice. Standing sweep: 0 fires, 0 floor
+#               touches across the canon pairs.
 #   2026-09-02  BUILDS rv + rw -- PARTs 3hs + 3ht: the 09-02 watch's two HIGHs, the
 #               same lane (false math on the board), delivered together.
 #               3hs (rv) THE HOLE IS DRAWN OPEN: the calculus limits lesson drew its
@@ -11814,9 +11828,14 @@ def part3hg_the_asked_for_picture_is_drawn_now():
 
     # ---- wired, counted -------------------------------------------------------
     tsrc = open(_tt.__file__, encoding="utf-8").read()
+    # (rx, 2026-09-02) PIN REPAIRED TO INTENT: build rx widened this referee with
+    # the acceptance-turn branch, so the call site now also passes prev_tutor --
+    # the old literal "(reply, student_message)" broke by design. The INTENT is
+    # unchanged: wired into the stack, with its own fire event.
     check("⭐ wired into the referee stack with its own fire event, beside its two "
           "rule-65 siblings",
-          "postponed = postponed_show_conflict(reply, student_message)" in tsrc
+          "postponed = postponed_show_conflict(reply, student_message, prev_tutor)"
+          in tsrc
           and '_event("referee_fire", "postponedshow", postponed)' in tsrc, "")
 
     # ---- the adversarial canon sweep ------------------------------------------
@@ -21580,7 +21599,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,235</b>" in page,
+          "<b>8,265</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22277,6 +22296,206 @@ def part3hp_no_colour_literals_on_the_board():
 # the page measures a DOM Range, exact to the pixel. Proof outside this battery:
 # fifty circles on fifty named words in a real session board, every one within
 # 3 px of the word's own box and enclosing it (build doc, rr).
+def part3hu_the_accepted_offer_is_honored():
+    """PART 3hu (build rx, 2026-09-02) -- THE ACCEPTED OFFER IS HONORED.
+
+    THE FINDING (the 09-02 night watch, MEDIUM C, rule 19, basic/cookies): the
+    tutor offered to show how the six cookies get split, the student said
+    "yes!", and the next reply skipped the demonstration and asked "Ready to
+    try one yourself with a new number of cookies?". Referee 70 (rf) gates the
+    OFFERING reply -- a requested drawing postponed into an offer; nothing
+    gated the turn AFTER the offer was accepted.
+
+    THE FIX: a gate WIDENING of referee 70 (count stays 71). postponed_show_
+    conflict gains prev_tutor and a second branch: the previous reply's FINAL
+    ask was a show-offer (the same _PS_OFFER_RE -- one grammar, the ra ending
+    discipline), the student's whole message is a short bare acceptance (closed
+    grammar, length-capped), and the reply draws NOTHING. Any board tag buys
+    silence -- drawing the WRONG thing is referee 70's original branch on the
+    next ask; judging which drawing honors an offer would guess. Canon swept:
+    0 fires over 296 consecutive-script pairs, and 0 canon scripts even end in
+    a show-offer (the shape is live-model-only)."""
+    print("\nPART 3hu — the accepted offer is honored (build rx)")
+    import tutor as _t
+
+    offer = ('Six cookies, right there. Want me to show you how the cookies '
+             'get split? [[objects kind="cookie" count="6"]]')
+    bare = "Awesome! Ready to try one yourself with a new number of cookies?"
+    drawn = ('Watch. [[tape parts="3 | 3" total="6" caption="six cookies split '
+             'equally"]] Each friend gets 3. Ready to try one?')
+    d = _t.postponed_show_conflict(bare, "yes!", offer)
+    check("⭐ the watch's shape fires: offer -> yes! -> nothing drawn",
+          bool(d) and "promise" in d,
+          "rule 19: an accepted offer to show is a promise")
+    check("  honoring the offer with a drawing stays silent",
+          not _t.postponed_show_conflict(drawn, "yes!", offer),
+          "the fix the finding prescribes must not itself be rejected")
+    check("  every closed-grammar acceptance fires",
+          all(bool(_t.postponed_show_conflict(bare, s, offer)) for s in
+              ("yes", "Yes!", "yeah", "yep", "sure", "ok", "okay",
+               "yes please", "sure thing.", "go ahead", "show me")),
+          "the acceptance grammar must cover how children actually say yes")
+    for label, said, prev in (
+            ("a sentence is a conversation, not an acceptance",
+             "yes but can we do subtraction instead", offer),
+            ("no prior offer", "yes!", "Great work! What is 3 + 4?"),
+            ("the offer was not the FINAL ask (the ra ending discipline)",
+             "yes!", "Want me to show you? Actually first: what is 3 + 4?"),
+            ("an empty student message", "", offer)):
+        check(f"  silent: {label}",
+              not _t.postponed_show_conflict(bare, said, prev), label)
+    check("  silent: no prev_tutor (the old signature's behavior)",
+          not _t.postponed_show_conflict(bare, "yes!"),
+          "history-gated referees stay silent without their history")
+    check("  branch one (rf) is unchanged: the ask-turn offer still fires",
+          bool(_t.postponed_show_conflict(
+              'Here is a right angle. [[angle deg="90"]] Want me to show a '
+              'triangle with it marked?',
+              "can you show me how to find the hypotenuse?")),
+          "the widening must not blunt the original blade")
+    check("  the referee count is unchanged -- rx widened a gate",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 71, "")
+
+    # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
+    import foundations as FND
+    fires = 0; pairs = 0
+    for course, scripts in FND.FOUNDATIONS.items():
+        items = list(scripts.values() if isinstance(scripts, dict) else scripts)
+        texts = [(sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+                 for sc in items]
+        for i in range(1, len(texts)):
+            pairs += 1
+            if _t.postponed_show_conflict(texts[i], "yes!", texts[i - 1]):
+                fires += 1
+    check(f"⭐ zero false alarms across {pairs} canon script pairs",
+          fires == 0 and pairs >= 250,
+          f"{fires} authored sequences rejected -- every false alarm is a paid retry")
+
+
+def part3hv_the_verdict_is_proven():
+    """PART 3hv (build ry, 2026-09-02) -- EVERY QUIZ ANSWER GETS ITS VERDICT,
+    AND THE CODE CAN PROVE ONE.
+
+    THE FINDING (the 09-02 night watch, MEDIUM D, rule 18, prealgebra): the
+    student answered '2/3' for Question 1 ("simplify 8/12") and the reply went
+    [[clear]] -> "Question 2." -- no verdict, no [[mark]]. quiz_verdict_conflict
+    (qm) existed and its canonical shape STILL fires -- the investigation found
+    its gate read only the SPOKEN words, so any turn whose numbering lived in a
+    [[write]] tag slipped it entirely.
+
+    THE FIX, per JIM'S RULING 2026-09-02 ("Retry + code floor"):
+    ① the numbered-question gate reads the board's tag values too, both turns
+      (_qv_tag_text): a question the child SEES is a question asked. When the
+      next question lives only on the board there is no spoken position to cut
+      at, so a verdict anywhere in the spoken words buys silence -- cautious.
+    ② repair_missing_verdict at the shipping door (beside qw's buttons floor
+      and rc's falling-star grade): when the verdict gap STILL stands and code
+      can PROVE the answer correct -- exactly ONE candidate constant expression
+      in the question, the answer constant and equal within its own decimal
+      tolerance, AND already canonical ("2/3", never "4/6") -- the server
+      speaks "Correct." and records [[mark correct='1']]. Code NEVER says
+      "Not quite": unprovable ships untouched and is counted pass_through.
+      mathcheck's two new public proofs (constant_equal, is_canonical_constant)
+      carry the math; referee count stays 71."""
+    print("\nPART 3hv — the verdict is proven (build ry)")
+    import tutor as _t
+    import mathcheck as MC
+
+    prev_spoken = "Question 1. Simplify eight twelfths as far as it will go."
+    prev_board = ('Here we go. First one: simplify this fraction. '
+                  '[[write text="Q1: simplify 8/12"]]')
+    reply_prose = ('[[clear]]\n\nQuestion 2. Which is greater: three fifths or '
+                   'five eighths?')
+    reply_board = '[[clear]] Next one. [[write text="Q2: 3/5 vs 5/8"]]'
+
+    # ① the widened gate
+    check("⭐ the qm shape still fires (spoken numbering both turns)",
+          bool(_t.quiz_verdict_conflict(reply_prose, prev_spoken, "2/3")),
+          "the original blade first")
+    check("⭐ board-only numbering in the PREVIOUS turn now fires",
+          bool(_t.quiz_verdict_conflict(reply_prose, prev_board, "2/3")),
+          "the watch's exact hole: Q1 lived in a [[write]] tag")
+    check("  board-only numbering in the REPLY now fires too",
+          bool(_t.quiz_verdict_conflict(reply_board, prev_board, "2/3")),
+          "moving on silently via the board is still moving on silently")
+    for label, rep in (
+            ("a verdict word buys silence", "Correct! " + reply_board),
+            ("a mark tag buys silence", '[[mark correct="1"]] ' + reply_board),
+            ("a nice tag buys silence", '[[nice praise="Nailed it"]] ' + reply_board)):
+        check(f"  silent: {label}",
+              not _t.quiz_verdict_conflict(rep, prev_board, "2/3"), label)
+    check("  silent: no numbered question anywhere",
+          not _t.quiz_verdict_conflict(reply_board, "What is 3 + 4?", "7"), "")
+    check("  silent: nobody answered anything",
+          not _t.quiz_verdict_conflict(reply_board, prev_board, ""), "")
+
+    # ② the floor -- Jim's ruling, provable-correct only
+    fixed, st, det = _t.repair_missing_verdict(reply_prose, prev_board, "2/3")
+    check("⭐ the floor repairs the watch case: proven correct, spoken, marked",
+          st == "repaired" and fixed.startswith('Correct. [[mark correct="1"]]')
+          and "proved" in det,
+          "Jim's ruling 2026-09-02: retry + code floor, where code KNOWS")
+    check('  ...and the repaired reply passes the referee it repaired',
+          not _t.quiz_verdict_conflict(fixed, prev_board, "2/3"),
+          "a floor that does not satisfy its own referee repaired nothing")
+    for label, prev, ans, want_sub in (
+            ("equal but unsimplified (4/6) is never blessed",
+             prev_board, "4/6", "simplest"),
+            ("a wrong answer is never graded by code -- no 'Not quite'",
+             prev_board, "3/4", "provably"),
+            ("two candidate expressions: code cannot pick",
+             'Question 1. Which is greater: 3/5 or 5/8? '
+             '[[write text="Q1: 3/5 vs 5/8"]]', "5/8", "candidate")):
+        _f, _s, _d = _t.repair_missing_verdict(reply_prose, prev, ans)
+        check(f"  unrepairable: {label}",
+              _s == "unrepairable" and want_sub in _d, _d[:80])
+    _f, _s, _d = _t.repair_missing_verdict("Correct! " + reply_board,
+                                           prev_board, "2/3")
+    check("  no gap -> untouched (the referee's own test is the gate)",
+          _s == "" and _f == "Correct! " + reply_board, "")
+    check("  the floor rides the ONE shipping door beside the buttons floor",
+          'repair_missing_verdict(\n            reply, prev_tutor, '
+          '_last_user_text(messages))' in open(os.path.join(
+              os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+              encoding="utf-8").read(),
+          "qw's law: the guarantee is about what reaches the child, on EVERY exit")
+
+    # the two public proofs, both directions
+    check("⭐ mathcheck.constant_equal: proves, refutes, and abstains",
+          MC.constant_equal("8/12", "2/3") is True
+          and MC.constant_equal("4 + 4", "8") is True
+          and MC.constant_equal("2/3", "0.67") is True
+          and MC.constant_equal("8/12", "3/4") is False
+          and MC.constant_equal("2x", "8") is None
+          and MC.constant_equal("cat", "8") is None,
+          "True/False only on decidable constants; None everywhere else")
+    check("  mathcheck.is_canonical_constant holds the simplest-form line",
+          MC.is_canonical_constant("2/3") is True
+          and MC.is_canonical_constant("0.5") is True
+          and MC.is_canonical_constant("4/6") is False
+          and MC.is_canonical_constant("x/2") is None, "")
+    check("  the referee count is unchanged -- ry widened a gate and added a floor",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 71, "")
+
+    # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
+    import foundations as FND
+    fires = touches = 0; pairs = 0
+    for course, scripts in FND.FOUNDATIONS.items():
+        items = list(scripts.values() if isinstance(scripts, dict) else scripts)
+        texts = [(sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+                 for sc in items]
+        for i in range(1, len(texts)):
+            pairs += 1
+            if _t.quiz_verdict_conflict(texts[i], texts[i - 1], "2/3"):
+                fires += 1
+            if _t.repair_missing_verdict(texts[i], texts[i - 1], "2/3")[1] == "repaired":
+                touches += 1
+    check(f"⭐ zero false alarms and zero floor touches across {pairs} canon pairs",
+          fires == 0 and touches == 0 and pairs >= 250,
+          f"{fires} fires / {touches} touches -- the floor must never speak "
+          f"into authored teaching")
+
+
 def part3hs_the_hole_is_drawn_open():
     """PART 3hs (build rv, 2026-09-02) -- THE HOLE IS DRAWN OPEN.
 
@@ -30813,6 +31032,8 @@ def main():
     part3hr_a_comma_makes_a_tuple_not_an_expression()
     part3hs_the_hole_is_drawn_open()
     part3ht_the_op_tells_the_truth()
+    part3hu_the_accepted_offer_is_honored()
+    part3hv_the_verdict_is_proven()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

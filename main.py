@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  APP_BUILD -> "2026-09-02ry-the-accepted-offer-is-honored-and-the-
+#               verdict-is-proven". BUILDS rx + ry, the 09-02 watch's T3 findings
+#               C and D, delivered together: referee 70 gains the acceptance-turn
+#               branch (offer to show + "yes!" + nothing drawn -> fire), the
+#               quiz-verdict referee reads board numbering too, and -- Jim's
+#               ruling, "Retry + code floor" -- repair_missing_verdict at the
+#               shipping door speaks a PROVEN "Correct." + [[mark]] when the
+#               model skipped the verdict (never "Not quite", never unproven).
+#               PARTs 3hu + 3hv pin it. NO CODE IN THIS FILE CHANGED -- stamp
+#               only, per the stamp law below.
 #   2026-09-02  APP_BUILD -> "2026-09-02rw-the-hole-is-drawn-open-and-the-op-tells-
 #               the-truth". BUILDS rv + rw, the 09-02 watch's two HIGHs, delivered
 #               together: mathcheck gains check_graph_claims (a filled point where
@@ -13294,7 +13304,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-02rw-the-hole-is-drawn-open-and-the-op-tells-the-truth"
+APP_BUILD = "2026-09-02ry-the-accepted-offer-is-honored-and-the-verdict-is-proven"
 
 
 @app.get("/health")

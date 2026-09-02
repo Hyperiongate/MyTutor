@@ -2,6 +2,40 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD ry -- EVERY QUIZ ANSWER GETS ITS VERDICT, AND THE CODE CAN
+#               PROVE ONE (the 09-02 watch's finding D, rule 18, prealgebra: the
+#               student answered '2/3' for "simplify 8/12" and the reply went
+#               [[clear]] -> Question 2 -- no verdict, no mark). Two doors, per
+#               Jim's same-day ruling "Retry + code floor": ① quiz_verdict_
+#               conflict's numbered-question gate now reads the BOARD's tag
+#               values as well as the spoken words, both turns (_qv_tag_text) --
+#               the watch's shape slipped it whenever "Q1:" lived only in a
+#               [[write]] tag; a question the child SEES is a question asked.
+#               ② repair_missing_verdict, the floor at _shipped beside the
+#               buttons floor (qw) and the falling-star grade (rc): when the
+#               verdict gap STILL stands at shipping and the code can PROVE the
+#               answer correct (exactly one candidate constant expression in the
+#               question, answer constant, equal within its own decimal
+#               tolerance, AND already in canonical written form -- never
+#               "Correct." to "4/6"), the server speaks "Correct." and records
+#               [[mark correct="1"]]. Code NEVER says "Not quite" -- unprovable
+#               is untouched, counted pass_through. mathcheck gained the two
+#               public proofs (constant_equal, is_canonical_constant). Referee
+#               count stays 71. PART 3hv holds it.
+#   2026-09-02  BUILD rx -- THE ACCEPTED OFFER IS HONORED (the 09-02 watch's
+#               finding C, rule 19, basic/cookies: the tutor offered to show how
+#               the cookies split, the student said "yes!", and the next reply
+#               skipped the demonstration and asked "Ready to try one
+#               yourself?"). A gate WIDENING of referee 70 (postponed_show_
+#               conflict -- count stays 71): a new prev_tutor-gated branch fires
+#               when the PREVIOUS reply's final ask was a show-offer (same
+#               _PS_OFFER_RE, one grammar), the student's whole message is a
+#               short bare acceptance (closed grammar, length-capped -- "yes,
+#               but first..." is a conversation, not an acceptance), and the
+#               reply draws NOTHING (any board tag buys silence; drawing the
+#               wrong thing stays referee 70's problem on the next ask). Canon
+#               swept: 0 fires over 296 consecutive-script pairs; 0 canon
+#               scripts even end in a show-offer. PART 3hu holds it.
 #   2026-09-02  BUILD rw -- KNOWN_FALSEHOODS ROW 15 (the 09-02 watch's finding F,
 #               rule 61, from the same completing-the-square lesson as the lying
 #               op label mathcheck now catches). The sentence: "turn ANY
@@ -4089,15 +4123,48 @@ _PS_OFFER_RE = re.compile(
     r"|\bwant\s+to\s+see\b", re.I)
 _PS_MORE_RE = re.compile(
     r"\b(?:another|one\s+more|more|again|different|next)\b", re.I)
+# (rx) THE ACCEPTANCE TURN. The 09-02 night watch (basic, rule 19): the tutor
+# offered to show how the cookies are split, the student said "yes!", and the
+# next reply skipped the demonstration and asked "Ready to try one yourself?".
+# Referee 70 gates the OFFERING reply; this branch gates the turn AFTER it: the
+# offer was made, the student accepted in the plainest words there are, and the
+# reply draws NOTHING. An accepted offer to show is a promise; rule 19 says the
+# teaching lands before the asking does.
+# ⚠️ CAUTIOUS: the acceptance must be a SHORT bare yes (a closed grammar, whole-
+# message match, length-capped) -- "yes, but first can we..." is a conversation,
+# not an acceptance, and stays silent; the previous reply's FINAL ask must be a
+# show-offer (the ra discipline: the ending is what stands; same _PS_OFFER_RE,
+# never a second grammar); and ANY board content tag in the reply buys silence
+# (drawing the wrong thing is referee 70's problem on the next ask -- judging
+# WHICH drawing honors the offer would guess).
+_PS_ACCEPT_RE = re.compile(
+    r"^\s*(?:y(?:es|eah|ep|up)?|sure(?:\s+thing)?|ok(?:ay)?|please|"
+    r"yes,?\s*please|yeah,?\s*sure|go\s+ahead|do\s+it|show\s+me|"
+    r"let'?s\s+see(?:\s+it)?)[\s!.]*$", re.I)
 
 
-def postponed_show_conflict(reply: str, student_message: str = ""):
-    """Return a description of a requested drawing postponed into an offer, or "".
+def postponed_show_conflict(reply: str, student_message: str = "", prev_tutor=None):
+    """Return a description of a requested drawing postponed into an offer -- or
+    of an ACCEPTED offer honored with no drawing at all (rx) -- or "".
     Silent without a student message (gated). Never raises: fail open."""
     try:
         said = " ".join(str(student_message or "").split())
         if not said:
             return ""
+        # ---- (rx) branch two: the offer was accepted last turn ----------------
+        if prev_tutor and len(said) <= 30 and _PS_ACCEPT_RE.match(said):
+            prev_ask = _rb_final_ask(str(prev_tutor or ""))
+            if prev_ask and _PS_OFFER_RE.search(prev_ask) \
+                    and not _tags_present(str(reply or ""), _BOARD_TAGS):
+                return ('last turn you offered -- "{o}" -- and the student said '
+                        '"{s}". This reply draws NOTHING. Rule 19: an accepted '
+                        "offer to show is a promise; the student answered yes so "
+                        "the demonstration comes NOW, on the board, before any "
+                        "new question. Draw the thing you offered in this reply, "
+                        "narrate it, and then ask what you were going to "
+                        "ask.").format(o=" ".join(prev_ask.split())[:70],
+                                       s=said[:20])
+        # ---- branch one (rf): the ask turn, postponed into an offer -----------
         if not (prose_asked_to_see(said) or _RD_ASKS.search(said)):
             return ""
         ask = _rb_final_ask(str(reply or ""))
@@ -6622,6 +6689,15 @@ _QV_VERDICT = re.compile(
     r"close|almost|good\s+work|nailed|bang\s+on|way\s+to\s+go)\b", re.I)
 
 
+def _qv_tag_text(text: str) -> str:
+    """(ry) Every quoted attribute value in the reply's tags, joined -- the board's
+    own words. The 09-02 watch's ungraded Question 1 slipped this referee whenever
+    the numbering lived only in a [[write]] tag: the question a child SEES on the
+    board is a question asked, whether or not the voice numbered it."""
+    return "\n".join(v for tag in re.findall(r"\[\[[^\]]*\]\]", str(text or ""))
+                     for v in re.findall(r'"([^"]*)"', tag))
+
+
 def quiz_verdict_conflict(reply: str, prev_tutor=None, student_message: str = ""):
     """Return a description of a quiz question answered and never graded, or "".
     Silent when `prev_tutor` is None. Never raises (fail open)."""
@@ -6630,26 +6706,37 @@ def quiz_verdict_conflict(reply: str, prev_tutor=None, student_message: str = ""
             return ""
         if not str(student_message or "").strip():
             return ""                       # nobody answered anything
+        # (ry) the numbered-question gate reads the SPOKEN words AND the board's
+        # tag values, both turns: "Q2:" written on the board is a question asked.
         prev = _spoken_only(str(prev_tutor or ""))
-        prev_q = _QV_NUMBERED.search(prev)
+        prev_q = _QV_NUMBERED.search(prev) \
+            or _QV_NUMBERED.search(_qv_tag_text(prev_tutor))
         if not prev_q:
             return ""                       # the last turn was not a numbered question
         text = str(reply or "")
         prose = _spoken_only(text)
         nxt = _QV_NUMBERED.search(prose)
+        board_nxt = None
         if not nxt:
-            return ""                       # not moving on -- nothing skipped past
+            board_nxt = _QV_NUMBERED.search(_qv_tag_text(text))
+            if not board_nxt:
+                return ""                   # not moving on -- nothing skipped past
         # A verdict must land BEFORE the next question is asked. Anything after it is
-        # about the new question, not the answer that just went by.
-        before = prose[:nxt.start()]
+        # about the new question, not the answer that just went by. When the next
+        # question lives only on the BOARD (ry), there is no spoken position to cut
+        # at -- a verdict anywhere in the spoken words then buys silence.
+        before = prose[:nxt.start()] if nxt else prose
         if _QV_VERDICT.search(before):
             return ""                       # graded, in whatever words
         # A score line ("4 out of 5", "[[mark]]") counts as a verdict too.
+        mark_scope = text
+        if nxt and nxt.group(0) in text:
+            mark_scope = text[:text.find(nxt.group(0))]
         if re.search(r"\b\d+\s*(?:/|out\s+of)\s*\d+\b", before) \
-                or re.search(r"\[\[\s*(?:mark|nice)\b", text[:text.find(nxt.group(0))
-                                                            if nxt.group(0) in text
-                                                            else len(text)], re.I):
+                or re.search(r"\[\[\s*(?:mark|nice)\b", mark_scope, re.I):
             return ""
+        if board_nxt is not None:
+            nxt = board_nxt                 # for the message's own words below
         asked = " ".join(prev_q.group(0).split())[:30]
         moving = " ".join(nxt.group(0).split())[:30]
         return ('you asked "{a}", the student answered it, and this reply goes straight '
@@ -8101,6 +8188,88 @@ def repair_missing_buttons(reply: str, course: str = ""):
     except Exception as exc:  # noqa: BLE001 -- a repair must never cost a turn
         print(f"[buttonrepair] crashed (fail open): {exc}")
         _event("referee_crash", "buttonrepair", str(exc))
+        return str(reply or ""), "", ""
+
+
+# =============================================================================
+# BUILD ry (2026-09-02) -- THE QUIZ VERDICT FLOOR: A VERDICT THE CODE CAN PROVE.
+# -----------------------------------------------------------------------------
+# JIM'S RULING, 2026-09-02: "Retry + code floor." The 09-02 watch (prealgebra,
+# rule 18): the student answered '2/3' for Question 1 ("simplify 8/12"), and the
+# reply went [[clear]] -> Question 2 -- no verdict, no [[mark]]. The referee now
+# catches this shape even when the numbering lives on the board (ry widened its
+# gate), and retries it; but after the attempts are spent the least-bad draft
+# still ships. This is the floor under that: at the moment of shipping, when the
+# verdict gap STILL stands and the code can PROVE the answer correct, the server
+# itself says "Correct." and records the mark -- the same pattern as the buttons
+# floor (qw) and the falling-star grade (rc): the model's tag is a nudge, the
+# code's floor is the guarantee.
+#
+# ⚠️ PROVABLE-CORRECT ONLY, in the cautious direction (rc's own law):
+#   * the question must contain exactly ONE candidate constant expression (an
+#     operator or fraction in it -- "8/12", "4 + 4"; "which is greater: 3/5 or
+#     5/8" has two and is never graded by code);
+#   * the student's answer must be a single constant, EQUAL to it (their own
+#     decimal tolerance applies), AND already in canonical form -- code never
+#     says "Correct." to "4/6" when the question asked to simplify (sympy would
+#     print it "2/3"; mathcheck.is_canonical_constant holds this line);
+#   * code NEVER says "Not quite": a non-matching answer proves nothing about
+#     rounding asks, part-naming asks, or forms the parser cannot see -- a wrong
+#     "Not quite." from code would be the very injury rule 18 exists to stop;
+#   * a reply already carrying [[mark]] or [[nice]] is never touched (at most
+#     one mark per reply -- the prompt's own law).
+_RV_CAND_RE = re.compile(r"[\d(][\d\s.()+\-*/^×÷·⁰¹²³⁴⁵⁶⁷⁸⁹]*[\d)⁰¹²³⁴⁵⁶⁷⁸⁹]")
+_RV_HAS_OP_RE = re.compile(r"[+\-*/^×÷·]|[⁰¹²³⁴⁵⁶⁷⁸⁹]")
+
+
+def repair_missing_verdict(reply: str, prev_tutor=None, student_message: str = ""):
+    """(reply, status, detail): status is "" (no verdict gap stands), "repaired"
+    (code proved the answer correct, spoke the verdict, recorded the mark) or
+    "unrepairable" (the gap stands and must be counted). Never raises (fail
+    open: the reply ships untouched)."""
+    try:
+        text = str(reply or "")
+        if mathcheck is None:
+            return text, "", ""
+        gap = quiz_verdict_conflict(text, prev_tutor, student_message)
+        if not gap:
+            return text, "", ""            # the referee's own test: ONE shape
+        if re.search(r"\[\[\s*(?:mark|nice)\b", text, re.I):
+            return text, "unrepairable", "a mark/nice tag already rides this reply"
+        # the question body: everything after the LAST numbered-question token,
+        # spoken words and board tag values both (the ry gate's own view).
+        prev_all = _spoken_only(str(prev_tutor or "")) + "\n" + _qv_tag_text(prev_tutor)
+        last = None
+        for last in _QV_NUMBERED.finditer(prev_all):
+            pass
+        if last is None:
+            return text, "unrepairable", "no numbered question to grade against"
+        body = prev_all[last.end():]
+        cands = []
+        for tok in _RV_CAND_RE.findall(body):
+            tok = " ".join(tok.split())
+            if _RV_HAS_OP_RE.search(tok) and tok not in cands:
+                cands.append(tok)
+        if len(cands) != 1:
+            return (text, "unrepairable",
+                    "%d candidate expressions in the question -- code cannot "
+                    "pick one to grade against" % len(cands))
+        ans = " ".join(str(student_message or "").split())
+        if mathcheck.constant_equal(cands[0], ans) is not True:
+            return (text, "unrepairable",
+                    "not provably correct: %r vs %r -- code never guesses a "
+                    "verdict" % (cands[0][:30], ans[:30]))
+        if mathcheck.is_canonical_constant(ans) is not True:
+            return (text, "unrepairable",
+                    "answer %r equals %r but is not in simplest written form -- "
+                    "code will not bless it" % (ans[:30], cands[0][:30]))
+        fixed = 'Correct. [[mark correct="1"]] ' + text.lstrip()
+        return (fixed, "repaired",
+                'proved %s = %s; spoke "Correct." and recorded the mark'
+                % (cands[0][:30], ans[:30]))
+    except Exception as exc:  # noqa: BLE001 -- a repair must never cost a turn
+        print(f"[verdictrepair] crashed (fail open): {exc}")
+        _event("referee_crash", "verdictrepair", str(exc))
         return str(reply or ""), "", ""
 
 
@@ -9830,7 +9999,9 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
             return refused
         # (rf) the seventieth: the asked-for picture is drawn NOW, not offered for
         # next turn (rule 65's third shape -- its two siblings ride just above).
-        postponed = postponed_show_conflict(reply, student_message)
+        # (rx) branch two rides inside: an offer ACCEPTED last turn is honored
+        # with a drawing in this one -- needs the previous turn, like rule 22's.
+        postponed = postponed_show_conflict(reply, student_message, prev_tutor)
         if postponed:
             _event("referee_fire", "postponedshow", postponed)
             return postponed
@@ -11062,6 +11233,18 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
         elif _bst == "unrepairable":
             print(f"[buttonrepair]{log_prefix} UNREPAIRABLE: {_bdet}")
             _event("pass_through", "elembuttons", _bdet, _code, _course)
+        # (ry) the quiz-verdict floor, Jim's 2026-09-02 ruling: a shipped reply
+        # that still skips the verdict on a provably correct answer gets the
+        # verdict from CODE. Same door as the buttons floor, for the same
+        # reason: the guarantee is about what reaches the child.
+        reply, _vst, _vdet = repair_missing_verdict(
+            reply, prev_tutor, _last_user_text(messages))
+        if _vst == "repaired":
+            print(f"[verdictrepair]{log_prefix} REPAIRED: {_vdet}")
+            _event("code_repair", "quizverdict", _vdet, _code, _course)
+        elif _vst == "unrepairable":
+            print(f"[verdictrepair]{log_prefix} UNREPAIRABLE: {_vdet}")
+            _event("pass_through", "quizverdict", _vdet, _code, _course)
         return reply
 
     def _settle(kept):

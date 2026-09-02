@@ -2,6 +2,17 @@
 # mathcheck.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD ry -- TWO PUBLIC PROOFS FOR THE QUIZ-VERDICT FLOOR (Jim's
+#               same-day ruling: "Retry + code floor"). constant_equal(a, b):
+#               True/False only when both texts are single all-constant
+#               expressions and equality is decidable (the stated answer's own
+#               decimal tolerance applies); None otherwise -- symbolic,
+#               unparseable, comma-shaped all stay undecided, and the floor in
+#               tutor.py must not touch the reply. is_canonical_constant(text):
+#               True when a constant is already written the way sympy would
+#               print it ("2/3" yes, "4/6" no) so code never says "Correct." to
+#               an unsimplified form. Same parse gate as everything else here --
+#               one grammar. No behavior change to any existing check.
 #   2026-09-02  BUILD rw -- THE OP TELLS THE TRUTH. The 09-02 night watch's HIGH
 #               (rule 13, algebra2 completing-the-square): a board step labeled
 #               op="+ 9 to both sides" whose eq line ALSO silently absorbed a
@@ -896,6 +907,60 @@ def verify_reply(reply: str):
     if undecided:
         return "unverifiable", "; ".join(undecided)
     return "ok", ""
+
+
+# --------------------------------------------------------------------------- #
+# (ry) A VERDICT THE CODE CAN PROVE.
+# --------------------------------------------------------------------------- #
+# Jim's 2026-09-02 ruling on the quiz-verdict floor: when the model ships a quiz
+# turn that never graded the previous answer, the CODE may speak the verdict --
+# but only where it can PROVE one. This is the proof: both texts are single
+# all-constant expressions and they are equal (or provably not) within the
+# stated answer's own decimal tolerance. Anything symbolic, unparseable, or
+# comma-shaped returns None -- undecided, and the floor above must not touch
+# the reply. The same parse gate as everything else in this file; one grammar.
+def constant_equal(a_text: str, b_text: str):
+    """True/False when both texts are single ALL-CONSTANT expressions whose
+    equality is decidable (decimal tolerance from the second text applies);
+    None when either is symbolic, unparseable, or otherwise unjudgeable."""
+    if not _SYMPY_OK:
+        return None
+    try:
+        vals = []
+        for raw in (a_text, b_text):
+            s = _normalize(_desuperscript(str(raw or "").strip()))
+            if not s or _reject_reason(s):
+                return None
+            expr = _parse(s)
+            if expr.free_symbols:
+                return None                # symbolic: never the code's verdict
+            vals.append(complex(expr.evalf(chop=True)))
+        tol = _decimal_tolerance(str(b_text or ""))
+        return abs(vals[0] - vals[1]) <= max(tol, tol * abs(vals[0]), BASE_TOL)
+    except Exception:  # noqa: BLE001 -- undecided, never a guess
+        return None
+
+
+def is_canonical_constant(text: str):
+    """(ry) True when `text` is a single constant already written in canonical
+    form -- a plain number, or a fraction/expression sympy would print back the
+    same way ("2/3" yes, "4/6" no: it prints as "2/3"). None when symbolic or
+    unparseable. The quiz-verdict floor needs this so code never says "Correct."
+    to "4/6" when the question asked for the fully simplified form."""
+    if not _SYMPY_OK:
+        return None
+    try:
+        s = _normalize(_desuperscript(str(text or "").strip()))
+        if not s or _reject_reason(s):
+            return None
+        if re.fullmatch(r"-?\d+(?:\.\d+)?", s):
+            return True                    # a plain number is canonical as written
+        expr = _parse(s)
+        if expr.free_symbols:
+            return None
+        return str(expr).replace(" ", "") == s.replace(" ", "")
+    except Exception:  # noqa: BLE001 -- undecided, never a guess
+        return None
 
 
 def strip_verify_tags(reply: str) -> str:
