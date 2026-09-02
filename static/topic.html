@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+    (rr) 2026-09-02 -- THE PENCIL HAS FEELINGS ABOUT YOUR WORK. Same page-half as
+    session.html this build: [[ink]] -> cadInk, board.written after handleTags,
+    student.stuck (two misses, or 60 s of silence on the child's turn), milestone
+    on a passed quiz / mastered unit, mic.on/off, tutor.thinking/done. Guarded doors.
     (rq) 2026-09-01 -- THE DARK BOARD'S OTHER HALF. A student who picks the dark board
     in a lesson gets it here too (board.js honours the saved choice), so this page's
     board-content CSS -- the same rules as session.html -- is tokenised the same way
@@ -998,7 +1002,11 @@
     let busy = false;
     let phase = "idle";
     let state = "idle";
+    var _cadThinking = false;
     function setState(s) {
+      /* (rr) the pencil's chin pose while the tutor thinks, and back when anything else happens */
+      if (s === "thinking" && !_cadThinking) { _cadThinking = true; cadFire("tutor.thinking"); }
+      else if (s !== "thinking" && _cadThinking) { _cadThinking = false; cadFire("tutor.done"); }
       state = s;
       // (rj, 2026-09-01) the BUSY GLOW went with the orb it hugged -- the thinking
       // flag below and the status line are the busy cues now.
@@ -1117,6 +1125,26 @@
     // pencil is the character now. One guarded door to the Cadabra layer (rh's
     // pattern): safe when cadabra.js is absent, broken, or switched off.
     function cadFire(ev, opts) { try { if (window.Cadabra) Cadabra.fire(ev, opts); } catch (e) {} }
+    /* (rr) [[ink]]: the tutor asks for a mark on a word. Guarded like cadFire. */
+    function cadInk(a) { try { if (window.Cadabra && Cadabra.ink) Cadabra.ink({ circle: a.circle, underline: a.underline, bang: a.bang, kind: a.kind }); } catch (e) {} }
+    /* (rr) STUCK, THE PAGE'S HALF. Two misses in a row is stuck; so is a long silence
+       after the tutor hands the turn over (see setPhase). Either rings student.stuck
+       ONCE per stretch; a right answer clears it. The pencil's empathy is the menu's. */
+    var _cadMisses = 0, _cadStuckSaid = false, _cadSilence = null;
+    function cadSlip(kind) {
+      if (kind === "right") { _cadMisses = 0; _cadStuckSaid = false; return; }
+      _cadMisses++;
+      if (_cadMisses >= 2 && !_cadStuckSaid) { _cadStuckSaid = true; cadFire("student.stuck"); }
+    }
+    function cadSilenceArm() {
+      cadSilenceDisarm();
+      _cadSilence = setTimeout(function () { _cadSilence = null; if (!_cadStuckSaid) { _cadStuckSaid = true; cadFire("student.stuck"); } }, 60000);
+    }
+    function cadSilenceDisarm() { if (_cadSilence) { clearTimeout(_cadSilence); _cadSilence = null; } }
+    document.addEventListener("keydown", cadSilenceDisarm, true);
+    document.addEventListener("pointerdown", cadSilenceDisarm, true);
+    /* (rr) milestones: one door, the kind names the party line */
+    function cadMilestone(kind) { cadFire("milestone", { kind: kind }); }
     try { if (window.Cadabra) Cadabra.mount({ page: "topic" }); } catch (e) {}
 
 
@@ -1158,6 +1186,7 @@
       clearBeside();                             // build oj: a dangling [[beside]] never leaks into a new turn
       clearStepGrid();                           // build os: an open step card never captures the next turn
       curWork = null;                            // this turn's [[step]]s start a fresh worklist block
+      const _cadBoardBefore = feed.querySelectorAll("*").length;   /* (rr) for board.written, below */
       const tagRe = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g; let m;
       while ((m = tagRe.exec(text)) !== null) {
         const name = m[1].toLowerCase(), attrs = parseAttrs(m[2]);
@@ -1173,16 +1202,21 @@
         else if (name === "solve") showSolve(attrs);
         else if (name === "check") showCheck(attrs);
         else if (name === "quiz") showQuiz(attrs);
-        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0) cadFire("answer.correct", { hard: true }); sawMark = true; }   /* (rj) the gold ring retired with the orb -- the PENCIL celebrates now, doorbell AFTER the real work */
-        else if (name === "miss") { postJSON("/api/mark/me", { miss: 1 }); cadFire("answer.wrong"); }   /* (rc) a wrong tap resets the today-streak server-side; (rj) then the pencil goes thoughtful */
-        else if (name === "nice") { cadFire("answer.correct"); }   /* (rj) the small ring retired with the orb -- the quiet celebration is the pencil's */
+        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0) cadFire("answer.correct", { hard: true }); cadSlip(_c > 0 ? "right" : "wrong"); sawMark = true; }   /* (rj) the gold ring retired with the orb -- the PENCIL celebrates now, doorbell AFTER the real work */
+        else if (name === "miss") { postJSON("/api/mark/me", { miss: 1 }); cadFire("answer.wrong"); cadSlip("wrong"); }   /* (rc) a wrong tap resets the today-streak server-side; (rj) then the pencil goes thoughtful */
+        else if (name === "nice") { cadSlip("right"); cadFire("answer.correct"); }   /* (rj) the small ring retired with the orb -- the quiet celebration is the pencil's */
         else if (["triangle","angle","circle","transversal","polygon","solid","segment"].indexOf(name) >= 0) showGeo(name, attrs);   /* build ot: +transversal/polygon/solid */
         else if (name === "choices") showChoices(attrs);
         else if (name === "objects") showObjects(attrs);
         else if (name === "beside") armBeside();   /* build oj: the NEXT block joins the previous one side by side */
         else if (name === "stepcard") { curWork = null; openStepCard(attrs); }   /* build os: a labeled Step-N card; following blocks land inside it */
         else if (name === "clear") wipeBoard();
+        else if (name === "ink") cadInk(attrs);   /* (rr) [[ink circle="..."|underline="..."|bang="..."]] -- the pencil marks a word on the board */
       }
+      /* (rr) THE BOARD GREW THIS TURN. Rung after the loop, once, so the pencil's
+         glance can notice the NEWEST thing; cadabra.js decides whether to look
+         (only after the voice stops, never while the child is typing, and not often). */
+      if (feed.querySelectorAll("*").length > _cadBoardBefore) cadFire("board.written");
       // build fy -- THE END-OF-PROBLEM SIGNAL WE CAN ACTUALLY TRUST.
       // [[clear]] is taught in the prompts but nothing enforces it, and a tutor turn that
       // forgets it left the finished problem on screen for ever. [[mark]] is different: it
@@ -1397,6 +1431,7 @@
         + '<div class="ck-top">Quiz' + (safe ? " — " + safe : "") + '</div>'
         + '<div class="ck-score">' + correct + ' / ' + total + '</div>'
         + '<div class="ck-badge">' + (passed ? "★ Passed — next topic unlocked!" : "So close — let's patch it up and try again") + '</div></div>';
+      if (passed) cadMilestone("quiz");   /* (rr) the pencil's party, after the card is on the board */
     }
 
     function showCheck(a) {
@@ -1410,6 +1445,7 @@
         + '<div class="ck-top">Unit Quiz</div>'
         + '<div class="ck-score">' + correct + ' / ' + total + '</div>'
         + '<div class="ck-badge">' + (passed ? "★ Unit mastered!" : "Nice progress — let's shore up a couple spots") + '</div></div>';
+      if (passed) cadMilestone("unit");   /* (rr) */
     }
 
     // ---------- Pause / resume (RESTORED 2026-08-07 build aw, Jim: "when Mr. Cadabra's
@@ -1446,7 +1482,13 @@
 
     el("newTopic").addEventListener("click", () => { if (!busy) resetToEntry(); });
 
+    var _cadPhase = "";
     function setPhase(p) {
+      /* (rr) the listening face while the mic is live; the silence timer runs while it is the child's turn */
+      if (p === "recording" && _cadPhase !== "recording") cadFire("mic.on");
+      else if (p !== "recording" && _cadPhase === "recording") cadFire("mic.off");
+      if (p === "ready" && /\?/.test(String(typeof lastTutorText !== "undefined" ? lastTutorText : "").slice(-200))) cadSilenceArm(); else cadSilenceDisarm();   /* only when he actually asked something */
+      _cadPhase = p;
       phase = p;
       talkBtn.classList.remove("ready", "recording");
       if (p === "ready") {

@@ -6,6 +6,11 @@
     every behaviour on the REAL floating layer (cadabra.js) -- not on a copy of it.
 
     CHANGE NOTES (keep newest at top):
+    (rr) 2026-09-02 -- INK ON A WORD, AND THE FEELINGS. New console sections: type a
+    word that is on the stand-in board and circle / underline / bang it, or ask
+    "where is it?" (Cadabra.find -- the finder's answer, to the pixel); wave,
+    comfort (the stuck response), glance, the think pose, and the milestone party
+    by kind. Everything still goes through public Cadabra.* doors.
     (rq) 2026-09-01 -- NEW, AND PERMANENT. Jim: "I don't want any of this pencil
     stuff to be mock up anymore... When I come back, I wanna work on some of the
     expressions that the pencil actually makes." The motion-lab mockup
@@ -125,6 +130,29 @@
     <input type="text" id="sayText" value="Twelve. Nicely done — the x was hiding behind a two.">
     <div class="row2"><button type="button" data-act="say">💬 Say it</button><button type="button" data-act="joke">😄 A joke</button></div>
 
+    <h2>Ink on a word</h2>
+    <input type="text" id="inkText" value="2x = 24">
+    <div class="grid">
+      <button type="button" data-act="circleText">⭕ Circle it</button>
+      <button type="button" data-act="underlineText">✏️ Underline it</button>
+      <button type="button" data-act="bangText">❗ Bang beside it</button>
+      <button type="button" data-act="findText">🔍 Where is it?</button>
+    </div>
+    <div id="findOut" class="hint" style="color:#b8b3cc;margin-top:4px"></div>
+
+    <h2>Feelings</h2>
+    <div class="grid">
+      <button type="button" data-act="wave">👋 Wave</button>
+      <button type="button" data-act="comfort">🫂 Comfort (stuck)</button>
+      <button type="button" data-act="glance">👀 Glance at the board</button>
+      <button type="button" data-act="thinkOn">🤔 Think</button>
+      <button type="button" data-act="thinkOff">😌 Done thinking</button>
+    </div>
+    <div class="row2" style="margin-top:6px">
+      <select id="kind"><option value="streak">streak</option><option value="lesson">lesson</option><option value="quiz">quiz</option><option value="unit">unit</option><option value="course">course</option></select>
+      <button type="button" data-act="party">🎉 Party (milestone)</button>
+    </div>
+
     <h2>Point &amp; write</h2>
     <label>target</label>
     <select id="target"><option>board</option><option>answer</option><option>streak</option><option>tutor</option></select>
@@ -182,6 +210,16 @@
       case "point":     Cadabra.point(t); break;
       case "underline": Cadabra.underline(t); break;
       case "clearInk":  Cadabra.clearInk(); break;
+      case "circleText":    Cadabra.circle($("inkText").value); break;
+      case "underlineText": Cadabra.underline({ text: $("inkText").value, forced: true }); break;
+      case "bangText":      Cadabra.bang($("inkText").value); break;
+      case "findText":      { var f = Cadabra.find($("inkText").value); $("findOut").textContent = f ? ("found: " + Math.round(f.left) + "," + Math.round(f.top) + " " + Math.round(f.width) + "×" + Math.round(f.height) + " (" + f.lines + " line" + (f.lines === 1 ? "" : "s") + ", " + f.kind + ")") : "not on the board (or covered / off-screen)"; break; }
+      case "wave":      Cadabra.wave({ center: true }); break;
+      case "comfort":   Cadabra.comfort(); break;
+      case "glance":    Cadabra.glance({ forced: true }); break;
+      case "thinkOn":   Cadabra.think(true); break;
+      case "thinkOff":  Cadabra.think(false); break;
+      case "party":     Cadabra.party({ kind: $("kind").value }); break;
       case "c1":        Cadabra.celebrate({ tier: 1, target: t, forced: true }); break;
       case "c2":        Cadabra.celebrate({ tier: 2, target: t, forced: true }); break;
       case "c3":        Cadabra.celebrate({ tier: 3, target: t, forced: true }); break;

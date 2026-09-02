@@ -4,8 +4,9 @@ Companion to `RULES.md`. That file governs what he **says**. This one governs wh
 **appears**, what he **does**, and when he must do nothing at all.
 
 Written 31 August 2026, from the character study in `static/mockup/cadabra-pencil.html`
-and the motion rig in `static/mockup/cadabra-playground.html`. Nothing here is deployed
-yet. These are the rules the deployment must obey.
+and the motion rig in `static/mockup/cadabra-playground.html`. Deployed since build rh
+(1 September); section G added 2 September (build rr) for Jim's behaviour list. The
+bench for trying any of it on the real layer is `/static/cadabra-lab.html`.
 
 The whole document exists to protect one thing: **a child in the middle of a problem.**
 Every rule below is downstream of that.
@@ -200,6 +201,49 @@ the manifest lands, he appears. Any page can opt out by not carrying the attribu
 The video presence layer is footage of a real person and no drawn character may wear it.
 Whatever happens to the orb, the floating layer and the presence layer are never the same
 character at the same time.
+
+## G. HOW HE FEELS ABOUT THE WORK (added 2 September 2026, build rr — Jim's list)
+
+### 34. HE MARKS A WORD BY ASKING THE PAGE WHERE IT IS.
+A circle, an underline or an exclamation mark lands on a word, a number or a label
+because the page measured that text (a DOM Range; SVG labels by their box), newest
+board block first, forgiving of the board's own spacing and operator glyphs. He never
+estimates a position. Rule 19 applies inside the finder: a covered or off-screen
+occurrence is skipped, and if no visible one exists he draws nothing. Proof standard: a
+mark encloses its word and its centre sits within a few pixels of the word's centre —
+measured, not eyeballed (fifty words, 2026-09-02).
+
+### 35. INK BELONGS TO THE THING IT WAS DRAWN ON.
+A mark remembers its element and moves with it — a scrolling board carries its circles,
+an element that leaves the page takes its mark along (rule 15 by construction), and ink
+drawn on the board is clipped to the board's box so it can never sit over the page's
+header. A mark he was interrupted in the middle of drawing is wiped, never left half
+invisible. The tutor asks for a mark with `[[ink circle="…"]]`, `underline=` or `bang=`
+— at most one per reply, most replies none, never while correcting.
+
+### 36. THE GLANCE IS A REWARD, NEVER COMPANY.
+When the board grows he may drift over and point at the newest thing — only after the
+voice has stopped, only if nobody is typing, not more often than the menu allows, and
+on a dice roll. It never interrupts something he is already doing. In quiet mode it does
+not happen at all.
+
+### 37. STUCK GETS COMPANY, NOT CORRECTION.
+Two misses in a row, or a long silence after he actually asked something, and he comes
+close to the answer box, listens, says one short warm line, and stays beside the child
+until the next answer. No disappointed face exists to make (rule 16); the words in the
+empathy bag never begin with "no", "wrong" or "not".
+
+### 38. A MILESTONE GETS THE BIGGEST PARTY HE HAS, AND A NAMED ONE.
+Three in a row, a mastered lesson, a passed quiz, a mastered unit, the Course Champion
+medal: stars, arms up, an exclamation mark on the newest board line, and a line written
+for that kind of milestone. Ordinary right answers keep the tiered celebration of rule 11
+— a party that happens every turn is not a party.
+
+### 39. HE STOPS TALKING WHEN THE VOICE DOES.
+His mouth and his stillness follow the real voice: `mt:speaking` starts them,
+`mt:silent` (voice.js, and the demo's own player) ends them, and two watchdogs — a quiet
+analyser, a 25-second ceiling — cover a page whose voice never announces. Waving hello at
+the start of a lesson is silent; the real voice owns the opening.
 
 ---
 

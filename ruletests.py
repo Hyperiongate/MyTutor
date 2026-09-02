@@ -2,6 +2,21 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD rr -- PART 3hq: the pencil has feelings about your work. Jim's
+#               behaviour list on the real layer: the word finder (a DOM Range, exact
+#               to the pixel; loose on the board's spacing/operators; rule 19 inside),
+#               three ink moves on one drive (underline by text, hand-drawn circle,
+#               bang), ink ANCHORED to its element and CLIPPED to the board; glance
+#               (silence-gated, cooldown, dice, never interrupts), comfort (listen,
+#               one warm line, STAY), party (kind-named lines), wave, think; voice.js
+#               mt:silent (the drift-freeze bug fixed); the pages' doorbells (stuck =
+#               two misses or 60 s after a question; milestones; mic; thinking;
+#               goodbye; the scripted lane rings at last); [[ink]] in tags.py and the
+#               prompts (x9); the demo's orb circle gone, its mouth wired. ri's exact
+#               lesson.start pin repaired to intent (enter + a SILENT wave; dated).
+#               Proof outside the battery: 50 circles on 50 named words in a real
+#               session board -- 50/50 found, enclosing, worst centre offset 2.9 px.
+#               Methodology tile NOT re-synced (needs a full run with keys).
 #   2026-09-01  BUILD rq -- PART 3hp widened: the pages' own CSS paints the board too.
 #               ALSO IN rq -- THE MENU ROSTER RESTORED. cadabra-script.json had been
 #               overwritten at 11:40 (rk, the demo build, from a parallel chat) with a
@@ -9116,8 +9131,11 @@ def part3ac_voice_sequencing():
         check(f"  {key} fires from {fn}()",
               bool(body) and f'queueMoment("{key}")' in body.group(0),
               "the moment must be queued where the event actually happens")
+    # (rr, 2026-09-02) the [[bye]] branch grew a second call (the pencil's goodbye
+    # wave rides beside the moment), so the branch is a braced block now. Repaired to
+    # INTENT: the goodbye moment is queued from the tag's own branch, braces or not.
     check("  goodbye fires from the [[bye]] tag, not from sniffing his words",
-          re.search(r'name === "bye"\)\s*queueMoment\("goodbye"\)', se) is not None,
+          re.search(r'name === "bye"\)\s*\{?\s*queueMoment\("goodbye"\)', se) is not None,
           "detecting a farewell by reading prose would misfire on 'see you next Tuesday'")
     check("  the arrival moments fire from the welcome click (a real user gesture)",
           re.search(r'queueMoment\(firstTime \? "first_meeting"', se) is not None
@@ -12078,11 +12096,17 @@ def part3hj_three_in_a_row_means_move_on():
     ex_p = os.path.join(here, "static", "cadabra-script.example.json")
     menu = _json.load(open(menu_p, encoding="utf-8"))
     ex = _json.load(open(ex_p, encoding="utf-8"))
-    check("⭐ session lesson.start is ENTER ONLY -- the real voice owns the "
-          "opening",
-          menu["pages"]["session"]["lesson.start"] == [{"do": "enter"}],
+    # (rr, 2026-09-02) was == [{"do": "enter"}]. Jim's behaviour list adds a SILENT
+    # hello wave after the entrance. Repaired to INTENT: the opening belongs to the
+    # real voice, so nothing at lesson.start may SPEAK, joke, tour or point -- the
+    # entrance comes first and anything after it is a wave with no words.
+    _ls = menu["pages"]["session"]["lesson.start"]
+    check("⭐ session lesson.start is the ENTRANCE (plus a silent wave) -- the real voice "
+          "owns the opening",
+          _ls and _ls[0] == {"do": "enter"}
+          and all(st.get("do") == "wave" and not st.get("text") for st in _ls[1:]),
           "Jim: 'the pencil was floating around pointing at things that "
-          "didn't match the voice' -- no joke, no tour, while the voice speaks")
+          "didn't match the voice' -- no joke, no tour, no words, while the voice speaks")
     check("  the example copy says the same (the off/on cycle must not bring "
           "the old opening back)",
           ex == menu, "the two menu files drifted apart")
@@ -22185,6 +22209,197 @@ def part3hp_no_colour_literals_on_the_board():
           "lab" in (menu_rq.get("pages") or {}) and len((menu_rq.get("tours") or {}).get("lab", [])) == 3, "")
 
 # =============================================================================
+# PART 3hq -- THE PENCIL HAS FEELINGS ABOUT YOUR WORK (build rr, 2026-09-02)
+# =============================================================================
+# Jim's behaviour list for Mr. Cadabra, built on the real layer: "Get rid of the
+# circle with him in it. Mouth moves when words are spoken. Shows happiness when
+# problems are right. Shows great happiness when a milestone is hit. Points from
+# time to time when something is on the board. Shows empathy, somehow, when a
+# student gets stuck." And the one he called really cool: "underline, circle
+# something that was important or put an exclamation point if a good job was done"
+# -- with his worry that the pencil could not FIND a word on the board. It can:
+# the page measures a DOM Range, exact to the pixel. Proof outside this battery:
+# fifty circles on fifty named words in a real session board, every one within
+# 3 px of the word's own box and enclosing it (build doc, rr).
+def part3hq_the_pencil_has_feelings_about_your_work():
+    print("\nPART 3hq — the pencil has feelings about your work (build rr)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import json as _json
+    def rd(*parts):
+        return open(os.path.join(here, *parts), encoding="utf-8").read()
+    cad = rd("static", "cadabra.js")
+
+    # ---- 1. the word finder and the three ink moves ----------------------------
+    check("⭐ cadabra.js finds a word by TEXT: a DOM Range, newest block first, SVG labels too",
+          "function findText(" in cad and "createTreeWalker(" in cad and "getClientRects()" in cad
+          and "function svgLabel(" in cad and "function latestBlock(" in cad,
+          "Jim: 'I'm not sure that he can find that word accurately on the board' -- the browser can")
+    check("  ...boxes on one line are merged (one underline per wrapped line, never a stack)",
+          "function mergeLines(" in cad and "rects = mergeLines(rects);" in cad, "")
+    check("  ...and the match forgives what the board does to spacing and operators",
+          "function looseRe(" in cad and '"[x×*]"' in cad and '"[-−–]"' in cad,
+          "the board writes '2x + 1=25' for the tutor's '2x + 1 = 25' and × for x")
+    check("  ...rule 19 survives inside the finder: a hidden or covered occurrence is skipped, "
+          "and only a visible one is returned",
+          "continue;         /* scrolled away: try another occurrence */" in cad
+          and "continue;                                  /* something on top: likewise */" in cad, "")
+    check("⭐ three marks ride one drive: underline (text= or target=), a hand-drawn CIRCLE, a BANG",
+          "function draw(path, id, done, opts)" in cad and "function loopPath(r)" in cad
+          and "function bangPath(r)" in cad and "function underlinePath(T)" in cad
+          and "    circle: function (o, done, id) {" in cad and "    bang: function (o, done, id) {" in cad, "")
+    _lp = cad.split("function loopPath(r)")[1][:1200] if "function loopPath(r)" in cad else ""
+    check("  the loop is hand-drawn, not a compass ellipse (jittered anchors, overlapping close)",
+          "jit" in _lp and "n + 1; i++" in _lp, "")
+    check("  a mark is measured on the INK of a block, never the row's full-width box",
+          "function tightRect(el)" in cad and "inkTarget(o, true)" in cad, "")
+    check("⭐ ink is ANCHORED: it follows the element it was drawn on, and leaves with it",
+          "function followAnchors()" in cad and "path.__anchor = { el: anchorEl" in cad
+          and "if (!document.body.contains(a.el)) { group.removeChild(pth); continue; }" in cad, "")
+    check("  ...board ink is CLIPPED to the board's box, on a group without a transform",
+          '<g class="cd-inkb" clip-path="url(#cd-board-clip)"></g>' in cad
+          and 'clipPath id="cd-board-clip"' in cad and "DOM.inkb : DOM.ink).appendChild(path)" in cad,
+          "a clip on the translated path itself scrolls with it and clips nothing (found in the fifty-circle run)")
+    check("  a mark he is cut off from drawing is wiped, never left half-invisible",
+          "S.inkInFlight" in cad and 'parseFloat(q.getAttribute("stroke-dashoffset") || "0") > 0.5) q.parentNode.removeChild(q);' in cad, "")
+    check("  the [[ink]] tag's door and the public ones exist",
+          "    ink: function (o, done, id) {" in cad and 'ink:         direct("ink")' in cad
+          and 'circle:      direct("circle")' in cad and 'bang:        direct("bang")' in cad
+          and "find:        function (text, scope)" in cad, "")
+
+    # ---- 2. the feelings -------------------------------------------------------
+    _api = cad.split("window.Cadabra = {")[1] if "window.Cadabra = {" in cad else ""
+    for name in ("wave", "glance", "comfort", "party", "think"):
+        check(f"  behaviour {name} exists and has a public door",
+              f"    {name}: function (o, done" in cad and f'{name}:' in _api, "")
+    check("⭐ the GLANCE is a reward, not company: waits for silence, never while typing, cooldown, dice",
+          "if (S.speaking && waited < waitMax)" in cad and "isWorkField(document.activeElement)) { done(); return; }" in cad
+          and "M.lastGlance" in cad and "o.chance === undefined ? 0.5 : o.chance" in cad, "")
+    check("  ...and a glance never interrupts what he is doing (board.written is a LOW moment)",
+          'var LOW = { "board.written": true };' in cad and "if (LOW[moment] && M.running && M.running === M.seq) return false;" in cad,
+          "the first session run: the glance cancelled the circle the tutor had just asked for")
+    check("⭐ COMFORT comes close, listens, says one warm line, and STAYS until the next answer",
+          'S.mode = "stay"; S.driven = false; S.expr = "listening";' in cad
+          and 'if (S && S.mode === "stay" && /^answer\./.test(moment)) { S.mode = "idle"; }' in cad
+          and 'if (S.mode !== "park" && S.mode !== "stay") goHome();' in cad, "")
+    check("  rule 16 stands: the expression table has no disappointed face",
+          set(re.findall(r"^\s{4}(\w+):\s*\{ bl:", cad, re.M)) == {"neutral", "teaching", "pleased", "thinking", "listening"},
+          "a sad face is the one expression he must never make")
+    check("⭐ the PARTY: stars, arms up, a bang on the newest line, a line for the KIND of milestone",
+          "sparkle(9);" in cad and 'fresh("milestone." + kind, lines["milestone." + kind])' in cad
+          and "BEHAVIOURS.bang({ target: T, forced: true }, finish, id)" in cad, "")
+    check("  waving and cheering use an OPEN glove, not the pointing fist",
+          'mode: S.waving ? "open" : "point"' in cad, "")
+    check("  light steps (a face, the chin, hush) never cancel a running sequence",
+          "var LIGHT = { expression: true, think: true, hush: true };" in cad
+          and "if (light) {" in cad, "mic.off rings on every phase change")
+    check("  run() rolls the dice on any step that carries chance=",
+          'if (st.chance !== undefined && !st.forced && Math.random() > st.chance) { next(); return; }' in cad, "")
+
+    # ---- 3. speaking ENDS ------------------------------------------------------
+    vjs = rd("static", "voice.js")
+    check("⭐ voice.js announces mt:silent from BOTH finish paths (clip and browser voice)",
+          "function announceSilent()" in vjs and vjs.count("announceSilent();") == 2
+          and re.search(r"function announceSilent\(\)\s*\{\s*try\s*\{", vjs) is not None,
+          "the mirror of qs's mt:speaking; wrapped, additive, read back by nothing here")
+    check("  cadabra.js clears a real voice line on it, and keeps two watchdogs",
+          'document.addEventListener("mt:silent",   onSilent,   false);' in cad
+          and "if (S.quietMs > 1600) S.speaking = false;" in cad and "if (now - S.speakT > 25000) S.speaking = false;" in cad,
+          "before rr nothing ever cleared S.speaking after a real line: the drift froze, and on "
+          "the browser-voice path the mouth ran on the synthetic envelope for ever")
+
+    # ---- 4. the menu -----------------------------------------------------------
+    menu = _json.load(open(os.path.join(here, "static", "cadabra-script.json"), encoding="utf-8"))
+    ex = _json.load(open(os.path.join(here, "static", "cadabra-script.example.json"), encoding="utf-8"))
+    for pg in ("session", "topic", "practice"):
+        for k in ("student.stuck", "milestone", "lesson.end"):
+            menu["pages"].setdefault(pg, {}).setdefault(k, [])       # an old menu must FAIL the pins, not crash them
+    check("the two menu copies are identical and versioned at rr or later",
+          menu == ex and str(menu.get("version", "")) >= "2026-09-02rr", str(menu.get("version")))
+    for pg in ("session", "topic", "practice"):
+        P = menu["pages"][pg]
+        check(f"⭐ {pg}: every new moment is scheduled (glance, stuck, milestone, mic, thinking, goodbye)",
+              {"board.written", "student.stuck", "milestone", "mic.on", "mic.off", "tutor.thinking", "tutor.done", "lesson.end"} <= set(P),
+              f"missing: {sorted({'board.written','student.stuck','milestone','mic.on','mic.off','tutor.thinking','tutor.done','lesson.end'} - set(P))}")
+        gl = [st for st in P.get("board.written", []) if st.get("do") == "glance"]
+        check(f"  {pg}: the glance is throttled in DATA (chance <= 0.5, every >= 30 s)",
+              gl and gl[0].get("chance", 1) <= 0.5 and gl[0].get("every", 0) >= 30000, str(gl))
+        check(f"  {pg}: stuck -> comfort from the empathy bag; milestone -> party",
+              [st.get("do") for st in P["student.stuck"]] == ["comfort"] and P["student.stuck"][0].get("from") == "empathy"
+              and [st.get("do") for st in P["milestone"]] == ["party"], "")
+        check(f"  {pg}: lesson.end waves goodbye and lets go",
+              [st.get("do") for st in P["lesson.end"]] == ["wave", "hush", "release"], "")
+    L = menu.get("lines") or {}
+    check("⭐ the line bags exist: empathy, milestone, and one per milestone kind",
+          len(L.get("empathy", [])) >= 3 and len(L.get("milestone", [])) >= 1
+          and all(len(L.get("milestone." + k, [])) >= 1 for k in ("streak", "lesson", "quiz", "unit", "course")), "")
+    check("  no empathy line scolds (rule 16 in words: no 'wrong', 'no', 'not' at the front)",
+          all(not re.match(r"^(no|wrong|not)\b", t.strip(), re.I) for t in L.get("empathy", [])), "")
+
+    # ---- 5. the pages ----------------------------------------------------------
+    for pg in ("session", "topic", "practice"):
+        src = rd("static", pg + ".html"); code = code_only(src)
+        ht = code[code.index("function handleTags("):] if "function handleTags(" in code else ""
+        ht = ht[:ht.index("\n    function ")] if "\n    function " in ht else ht
+        check(f"⭐ {pg}: handleTags dispatches [[ink]] to the pencil and rings board.written AFTER the loop",
+              'name === "ink") cadInk(attrs)' in ht and 'cadFire("board.written")' in ht
+              and ht.index('cadFire("board.written")') > ht.rindex('name === "ink"'), "")
+        check(f"  {pg}: the stuck detector -- two misses, or 60 s of silence after a QUESTION",
+              "function cadSlip(kind)" in code and "_cadMisses >= 2 && !_cadStuckSaid" in code
+              and "function cadSilenceArm()" in code and "}, 60000);" in code
+              and 'if (p === "ready" && /\\?/.test(' in code, "")
+        check(f"  {pg}: a right answer clears it; the misses and marks feed it",
+              'if (kind === "right") { _cadMisses = 0; _cadStuckSaid = false; return; }' in code
+              and 'cadSlip(_c > 0 ? "right" : "wrong")' in code and 'cadFire("answer.wrong"); cadSlip("wrong");' in code, "")
+        check(f"  {pg}: mic.on/off from setPhase, tutor.thinking/done from setState -- each edge once",
+              'cadFire("mic.on")' in code and 'cadFire("mic.off")' in code
+              and 'cadFire("tutor.thinking")' in code and 'cadFire("tutor.done")' in code and "_cadThinking" in code, "")
+        check(f"  {pg}: a passed quiz and a mastered unit are milestones, rung AFTER the card is drawn",
+              'if (passed) cadMilestone("quiz");' in code and 'if (passed) cadMilestone("unit");' in code, "")
+    sess = code_only(rd("static", "session.html"))
+    check("⭐ session: the 3-streak, the mastered lesson, the medal and the goodbye ring the pencil",
+          'cadMilestone("streak")' in sess and 'cadMilestone("lesson")' in sess and 'cadMilestone("course")' in sess
+          and 'queueMoment("goodbye"); cadFire("lesson.end");' in sess, "")
+    check("  session: the SCRIPTED lane finally rings answer.correct / answer.wrong, off the server's streak",
+          "const _prev = _LAST_TODAY_STREAK, _now = parseInt(j.streak.today_streak, 10) || 0;" in sess
+          and 'if (_now > _prev) { cadFire("answer.correct", { hard: true }); cadSlip("right"); }' in sess,
+          "a scripted problem celebrated nothing before rr")
+
+    # ---- 6. the grammar and the prompt -----------------------------------------
+    import tags as _tags
+    check("⭐ tags.py registers [[ink]] with circle / underline / bang / kind, and NOT as a board tag",
+          _tags.TAG_INLINE.get("ink") == {"circle", "underline", "bang", "kind"} and "ink" not in _tags.BOARD_TAGS, "")
+    pr = rd("prompts.py")
+    check("⭐ every lesson prompt teaches [[ink]] once, beside the hidden-tags block (9 copies)",
+          pr.count('[[ink circle="common bottom"]]') == 9 and pr.count("At most\nONE [[ink]] per reply") == 9,
+          pr.count('[[ink circle="common bottom"]]'))
+    check("  ...and the three-hidden-tags intro is untouched (still 9, never two)",
+          pr.count("Three hidden tags record") == 9 and "Two hidden tags record" not in pr, "")
+
+    # ---- 7. the demo: the circle is gone, and he talks for real ----------------
+    demo = rd("static", "demo.html"); dcode = demo.split("<body", 1)[-1]
+    check("⭐ the demo's orb circle is GONE (no orbwrap, no cadbust, no orb canvas)",
+          "orbwrap" not in dcode and "cadbust" not in dcode and 'id="orbFace"' not in dcode, "Jim: 'get rid of the circle with him in it'")
+    check("  ...setSpeaking announces mt:speaking / mt:silent so the floating pencil's mouth moves",
+          'document.dispatchEvent(new CustomEvent(on ? "mt:speaking" : "mt:silent"))' in dcode, "")
+    check("  ...the face loop survives without the orb canvas (guarded, Abrabot's big face still drawn)",
+          "if(orbFace) TutorFace.draw(orbFace" in dcode and "var sp=speakingNow;" in dcode, "")
+    check("  ...and 'this is me' on the tour is a WAVE, not a point at a circle that is gone",
+          "if (id === 'tutorPanel' && Cadabra.wave) Cadabra.wave({ center: true })" in dcode, "")
+
+    # ---- 8. the bench and the stamp --------------------------------------------
+    lab = rd("static", "cadabra-lab.html")
+    check("the bench drives every new door (ink by text, find, wave, comfort, glance, think, party)",
+          all(k in lab for k in ('Cadabra.circle($("inkText").value)', "Cadabra.find(", "Cadabra.wave({ center: true })",
+                                 "Cadabra.comfort()", "Cadabra.glance({ forced: true })", "Cadabra.think(true)", 'Cadabra.party({ kind: $("kind").value })')), "")
+    main_src = rd("main.py")
+    check("APP_BUILD is stamped rr", 'APP_BUILD = "2026-09-02rr-' in main_src, "")
+    traw = rd("tutor.py")
+    check("⭐ the thirteenth ceiling raise carries its dated note (the [[ink]] paragraph x9 cost 621 chars)",
+          "2026-09-02 (build rr): RAISED 205,000 -> 207,000" in traw and "PROMPT_CEILING = 207_000" in traw,
+          "an undated raise is how the ledger's discipline dies")
+
+
+# =============================================================================
 # PART 3ak -- THE NIGHT WATCH (build go)
 # =============================================================================
 # 2026-08-16. Jim: "only AI is gonna be capable of governing AI... depending on me to fix
@@ -30246,6 +30461,7 @@ def main():
     part3hc_the_chip_says_what_it_counts()
     part3hd_the_star_falls_when_the_child_slips()
     part3hp_no_colour_literals_on_the_board()
+    part3hq_the_pencil_has_feelings_about_your_work()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -4,6 +4,51 @@
    MR. CADABRA, OUT OF THE BOX. The floating companion layer.
 
    CHANGE NOTES (keep newest at top):
+     2026-09-02  (rr) HE FINDS THE WORD, AND HE HAS FEELINGS ABOUT YOUR WORK. Jim's
+                 behaviour list, built on the real layer:
+                 ① INK ON A WORD. findText() asks the page where a run of text is
+                    (a DOM Range's client rects -- exact to the pixel, wrapped lines
+                    included, SVG labels too), newest board block first. Three
+                    moves ride it: underline (text= as well as target=), CIRCLE (a
+                    hand-drawn loop, jittered so it is his and not a compass's), and
+                    BANG (an exclamation mark beside the thing). One drive routine
+                    (draw()) moves him along any path. Every mark is ANCHORED to the
+                    element it was drawn on: the frame re-measures the anchor and
+                    translates the ink with it, so a board that scrolls carries the
+                    ink along; an anchor that leaves the DOM takes its ink with it
+                    (rule 15 by construction). Rule 19 still refuses a covered or
+                    off-screen word. The tag [[ink circle="..."]] / underline= /
+                    bang reaches this through the page's handleTags.
+                 ② GLANCE. board.written (the page rings it when a tutor turn added
+                    board content): once the voice has stopped (mt:silent, new in
+                    voice.js this build; watchdogs cover a missing event), if the
+                    child is not typing, and not more often than the menu's `every`,
+                    with the menu's `chance`, he drifts over and points at the NEWEST
+                    board block, then goes home. A reward, never company (rule 5/6).
+                 ③ COMFORT (empathy). student.stuck (two misses in a row, or a long
+                    silence after a question -- the page decides): he comes close to
+                    the answer box, listening face, one warm short line from the
+                    menu's `empathy` bag, and STAYS beside them (S.mode "stay") until
+                    the next answer or park. Rule 16 stands: no disappointed face.
+                 ④ PARTY (milestone). Stars, arms up, a bang on the newest board
+                    line, and a line from lines["milestone.<kind>"] (falls back to
+                    lines.milestone). The page rings milestone for a 3-streak, a
+                    mastered lesson, a passed quiz, a mastered unit, the medal.
+                 ⑤ WAVE. Arms up alternately -- hello at lesson.start (silent, so
+                    the real voice keeps the opening: ri's ruling), goodbye at
+                    lesson.end, and "this is me" on the demo tour now that the orb
+                    circle is gone.
+                 ⑥ THINK. The chin pose (hand to the mouth, thinking face) while the
+                    tutor is thinking; mic.on/mic.off use the plain expression
+                    behaviour for the listening face.
+                 ⑦ SPEAKING ENDS. onSpeaking set S.speaking and nothing ever cleared
+                    it after a REAL voice line (bubbleOff only clears bubble talk):
+                    the drift stayed frozen and, on the browser-voice path, the mouth
+                    ran on the synthetic envelope for ever. mt:silent clears it; a
+                    quiet-analyser watchdog (1.6 s) and a 25 s ceiling cover a page
+                    whose voice.js never announces.
+                 run() learned `chance` (0..1) on any step. Public doors: ink, circle,
+                 bang, find, wave, comfort, party, think. VERSION 2026-09-02rr.
      2026-09-01  (rq) THE LAB'S DOORS. Four additive public methods so a permanent
                  owner page (static/cadabra-lab.html) can design his expressions on
                  the real layer: expression(name), expressions(), joke(), size(px).
@@ -122,7 +167,7 @@
 (function () {
   "use strict";
 
-  var VERSION    = "2026-08-31a";
+  var VERSION    = "2026-09-02rr";
   var SCRIPT_URL = "/static/cadabra-script.json";
   var MODE_KEY   = "mt_cadabra_mode";        /* full | quiet | off  (rule 27) */
 
@@ -392,7 +437,8 @@
     svg.style.cssText = "position:fixed;inset:0;left:0;top:0;width:100%;height:100%;"
                       + "pointer-events:none;z-index:2147483000;";
     svg.innerHTML =
-        '<g class="cd-ink"></g>'
+        '<defs><clipPath id="cd-board-clip"><rect class="cd-clip" x="0" y="0" width="0" height="0"/></clipPath></defs>'
+      + '<g class="cd-ink"></g><g class="cd-inkb" clip-path="url(#cd-board-clip)"></g>'
       + '<g class="cd-body">'
       +   '<g transform="translate(' + (-TIP_X) + ',' + (-TIP_Y) + ')">'
       +     '<path class="cd-armL" d="" fill="none" stroke="' + PAINT.graphite + '" stroke-width="4.6" stroke-linecap="round"/>'
@@ -421,6 +467,8 @@
     DOM = {
       svg: svg, bubble: bub,
       ink:   svg.querySelector(".cd-ink"),
+      inkb:  svg.querySelector(".cd-inkb"),   /* (rr) ink drawn ON the board lives here, clipped to the board's box */
+      clip:  svg.querySelector(".cd-clip"),
       body:  svg.querySelector(".cd-body"),
       spark: svg.querySelector(".cd-spark"),
       armL:  svg.querySelector(".cd-armL"),  armR:  svg.querySelector(".cd-armR"),
@@ -436,7 +484,8 @@
     S = {
       x: home.x, y: home.y, tx: home.x, ty: home.y,
       ang: 0, tang: 0, scale: 0.30, expr: "neutral", mode: "idle",
-      driven: false, speaking: false, amp: 0, blink: 1, nextBlink: 0,
+      driven: false, speaking: false, speakSrc: "", speakT: 0, quietMs: 0, chin: false, waving: false,
+      amp: 0, blink: 1, nextBlink: 0,
       handStyle: (M.script && M.script.hands) || "glove",
       handSize: (M.script && M.script.handSize) || 20,
       handL: { x: SH_L.x - 24, y: 250, rot: 118, mode: "open" },
@@ -499,14 +548,151 @@
     if (hit.contains && hit.contains(el)) return false;
     return true;
   }
+  /* (rr) the NEWEST thing on the board: the last element child of the board target
+     that is not a speech bubble. What the glance points at and the party bangs on. */
+  function latestBlock() {
+    var b = document.querySelector('[data-cad="board"]');
+    if (!b) return null;
+    var kids = b.children, i;
+    for (i = kids.length - 1; i >= 0; i--) {
+      var k = kids[i];
+      if (!k.getBoundingClientRect) continue;
+      if (/\bbubble\b|\bstage-hint\b|\bprobdone\b/.test(k.className || "")) continue;
+      if (!String(k.textContent || "").trim() && !(k.querySelector && k.querySelector("svg,canvas,img"))) continue;   /* a spacer is not a block */
+      var r = k.getBoundingClientRect();
+      if (r.width > 8 && r.height > 8) return k;
+    }
+    return null;
+  }
   function target(name) {
-    var el = document.querySelector('[data-cad="' + String(name).replace(/"/g, "") + '"]');
+    if (name && typeof name === "object" && name.r) return name;        /* (rr) prebuilt */
+    var el = (name === "board.latest") ? latestBlock()
+           : document.querySelector('[data-cad="' + String(name).replace(/"/g, "") + '"]');
     if (!el) return null;
     var r = el.getBoundingClientRect();
     if (!r.width || !r.height) return null;
     if (r.bottom < 0 || r.top > window.innerHeight) return null;   /* scrolled away */
     if (covered(el, r)) return null;                               /* something is on top */
     return { el: el, r: r };
+  }
+
+  /* ==========================================================================
+     8b. (rr) THE WORD FINDER  --  "where is 'common bottom' on the board?"
+     --------------------------------------------------------------------------
+     The page already knows: a DOM Range around the matched characters reports its
+     client rects, one per wrapped line, exact to the pixel. Newest board block
+     first (that is what the tutor is talking about), then the whole board; SVG
+     text labels count too. Returns a target-shaped object {el, r, rects, kind} or
+     null. Rule 19 applies: off-screen or covered means null, never a guess.
+     ========================================================================== */
+  function normText(t) { return String(t || "").replace(/\s+/g, " ").trim().toLowerCase(); }
+  function rangeIn(root, needle) {
+    /* one Range over the first occurrence of `needle` in root's visible text */
+    if (!root || !needle) return null;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+    var nodes = [], text = "", n;
+    while ((n = walker.nextNode())) {
+      var pe = n.parentElement;
+      if (!pe || pe.closest("script,style,svg,.stage-hint")) continue;
+      if (pe.closest("[hidden]")) continue;
+      nodes.push({ node: n, start: text.length });
+      text += n.nodeValue;
+    }
+    var hay = text.toLowerCase(), i = -1, ne = needle.toLowerCase();
+    /* the literal first; then a forgiving match -- the board writes "2x + 1=25" for
+       the tutor's "2x + 1 = 25" (its sides are separate spans), "7 × 4" for "7 x 4",
+       and a minus may be a real minus sign. Spaces are optional, operators have
+       their look-alikes. */
+    i = hay.indexOf(ne);
+    if (i < 0) {
+      var m = looseRe(needle).exec(text);
+      if (!m) return null;
+      i = m.index; ne = m[0];
+    }
+    var j = i + ne.length, range = document.createRange(), k;
+    for (k = 0; k < nodes.length; k++) {
+      var a = nodes[k].start, b = a + nodes[k].node.nodeValue.length;
+      if (i >= a && i < b) range.setStart(nodes[k].node, i - a);
+      if (j > a && j <= b) { range.setEnd(nodes[k].node, j - a); break; }
+    }
+    return range;
+  }
+  /* a phrase made of several inline boxes ("2<span>x</span> = 24") reports one rect
+     per box; boxes on the same line are merged so an underline is ONE stroke per
+     wrapped line, never a stack of overlapping ones */
+  function mergeLines(rects) {
+    var out = [], i;
+    for (i = 0; i < rects.length; i++) {
+      var r = rects[i], last = out[out.length - 1];
+      if (last && Math.abs(r.top - last.top) < 6 && Math.abs(r.bottom - last.bottom) < 8) {
+        last.left = Math.min(last.left, r.left); last.right = Math.max(last.right, r.right);
+        last.top = Math.min(last.top, r.top); last.bottom = Math.max(last.bottom, r.bottom);
+        last.width = last.right - last.left; last.height = last.bottom - last.top;
+      } else {
+        out.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height });
+      }
+    }
+    return out;
+  }
+  function looseRe(needle) {
+    var out = "", i, c;
+    for (i = 0; i < needle.length; i++) {
+      c = needle.charAt(i);
+      if (/\s/.test(c)) { if (!/\\s\*$/.test(out)) out += "\\s*"; }
+      else if (c === "x" || c === "×" || c === "*") out += "[x×*]";
+      else if (c === "-" || c === "−" || c === "–") out += "[-−–]";
+      else if (c === "/" || c === "÷") out += "[/÷]";
+      else if (c === "=" || c === "+") out += "\\s*\\" + c + "\\s*";
+      else out += c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+    return new RegExp(out, "i");
+  }
+  function svgLabel(root, needle) {
+    var texts = root.querySelectorAll ? root.querySelectorAll("svg text") : [], i;
+    for (i = 0; i < texts.length; i++) {
+      if (normText(texts[i].textContent) === normText(needle)) return texts[i];
+    }
+    for (i = 0; i < texts.length; i++) {
+      if (normText(texts[i].textContent).indexOf(normText(needle)) >= 0) return texts[i];
+    }
+    return null;
+  }
+  function findText(needle, scopeName) {
+    needle = String(needle || "").trim();
+    if (!needle) return null;
+    var board = document.querySelector('[data-cad="' + String(scopeName || "board").replace(/"/g, "") + '"]');
+    if (!board) return null;
+    var scopes = [], latest = latestBlock(), i;
+    if (latest) scopes.push(latest);
+    /* the last few blocks, newest first, then the whole board */
+    var kids = board.children, c = 0;
+    for (i = kids.length - 1; i >= 0 && c < 6; i--) { if (kids[i] !== latest) { scopes.push(kids[i]); c++; } }
+    scopes.push(board);
+    for (i = 0; i < scopes.length; i++) {
+      var range = rangeIn(scopes[i], needle), rects = [], el = null, kind = "text";
+      if (range) {
+        var list = range.getClientRects(), q;
+        for (q = 0; q < list.length; q++) if (list[q].width > 1 && list[q].height > 1) rects.push(list[q]);
+        rects = mergeLines(rects);
+        el = range.commonAncestorContainer;
+        if (el && el.nodeType === 3) el = el.parentElement;
+      } else {
+        var t = svgLabel(scopes[i], needle);
+        if (t) { rects = [t.getBoundingClientRect()]; el = t; kind = "label"; }
+      }
+      if (!rects.length || !el) continue;
+      var r = { left: 1e9, top: 1e9, right: -1e9, bottom: -1e9 };
+      for (q = 0; q < rects.length; q++) {
+        r.left = Math.min(r.left, rects[q].left); r.top = Math.min(r.top, rects[q].top);
+        r.right = Math.max(r.right, rects[q].right); r.bottom = Math.max(r.bottom, rects[q].bottom);
+      }
+      r.width = r.right - r.left; r.height = r.bottom - r.top;
+      if (r.bottom < 0 || r.top > window.innerHeight) continue;         /* scrolled away: try another occurrence */
+      var block = el.closest ? (el.closest('[data-cad="board"] > *') || el) : el;
+      if (covered(block, r)) continue;                                  /* something on top: likewise */
+      return { el: el, anchor: block, r: r, rects: rects, kind: kind, text: needle };
+    }
+    return null;
   }
 
   /* RULE 19: he never stands over an input or a control. A candidate spot is
@@ -603,7 +789,7 @@
       var L = toLocal(aim.x, aim.y), dx = L.x - sh.x, dy = L.y - sh.y;
       var len = Math.max(1, Math.hypot(dx, dy)), reach = Math.min(len - 14, 150);
       want = { x: sh.x + dx / len * reach, y: sh.y + dy / len * reach,
-               rot: Math.atan2(dy, dx) * 180 / Math.PI, mode: "point" };
+               rot: Math.atan2(dy, dx) * 180 / Math.PI, mode: S.waving ? "open" : "point" };   /* (rr) an open glove when he waves or cheers */
     } else {
       var sway = M.reduced ? 0 : Math.sin(t * 1.4 + phase) * 4;
       want = { x: sh.x + side * 26, y: 248 + sway, rot: 90 - side * 28, mode: "open" };
@@ -661,6 +847,16 @@
        rules 5/6 stop the roaming DRIFT above, and still do -- this is breathing,
        not wandering. Transform-only (rule 29); zero under reduced motion. */
     if (!M.reduced) bob += Math.sin(t * 0.85) * 3;
+    /* (rr) the chin pose: the right hand rests by his mouth while he thinks */
+    if (S.chin && !S.driven) { S.aimR = toPage(131, 189); }
+    /* (rr) SPEAKING ENDS. A real voice line is cleared by mt:silent; if the page's
+       voice never announces, a quiet analyser (1.6 s) or a 25 s ceiling clears it. */
+    if (S.speaking && S.speakSrc === "voice") {
+      var lv = voiceLevel();
+      if (lv >= 0) { S.quietMs = (lv < 0.02) ? S.quietMs + dt : 0; if (S.quietMs > 1600) S.speaking = false; }
+      if (now - S.speakT > 25000) S.speaking = false;
+    }
+    followAnchors();
     DOM.body.setAttribute("transform",
       "translate(" + (S.x + dx).toFixed(2) + "," + (S.y + bob).toFixed(2) + ") "
       + "rotate(" + S.ang.toFixed(2) + ") scale(" + S.scale.toFixed(4) + ")");
@@ -741,7 +937,15 @@
      new sequence bumps M.seq and every in-flight step checks it before acting, so
      a child who answers fast can never be chased by the last answer's animation.
      ========================================================================== */
-  function newSeq() { M.seq++; return M.seq; }
+  function newSeq() {
+    M.seq++;
+    /* (rr) a mark he was cut off from drawing is wiped, never left half-invisible */
+    if (S && S.inkInFlight) {
+      var q = S.inkInFlight; S.inkInFlight = null;
+      if (q.parentNode && parseFloat(q.getAttribute("stroke-dashoffset") || "0") > 0.5) q.parentNode.removeChild(q);
+    }
+    return M.seq;
+  }
   function alive(id) { return id === M.seq && !!DOM; }
 
   function after(ms, id, fn) {
@@ -789,7 +993,177 @@
   function bubbleOff() {
     DOM.bubble.style.opacity = "0";
     DOM.bubble.style.transform = "translate(-50%,-100%) scale(.9)";
-    S.speaking = false;
+    S.speaking = false; S.speakSrc = "";
+  }
+
+  /* (rr) INK STAYS ON THE WORD. Each mark remembers the element it was drawn on and
+     where that element was. Every frame the anchor is re-measured and the mark is
+     translated by the difference -- so a scrolling board carries its ink, a reflow
+     keeps the circle on the circled word, and an anchor that left the DOM takes its
+     mark with it. Transform only (rule 29). */
+  function followAnchors() {
+    if (!DOM) return;
+    /* (rr) ink drawn ON THE BOARD is clipped to the board's box: a board that scrolls
+       carries its marks up and out of sight, never over the page's header */
+    var board = document.querySelector('[data-cad="board"]');
+    if (board && DOM.clip) {
+      var br = board.getBoundingClientRect();
+      DOM.clip.setAttribute("x", br.left.toFixed(1)); DOM.clip.setAttribute("y", br.top.toFixed(1));
+      DOM.clip.setAttribute("width", Math.max(0, br.width).toFixed(1)); DOM.clip.setAttribute("height", Math.max(0, br.height).toFixed(1));
+    }
+    var groups = [DOM.ink, DOM.inkb], g;
+    for (g = 0; g < groups.length; g++) followIn(groups[g]);
+  }
+  function followIn(group) {
+    var kids = group.childNodes, i;
+    for (i = kids.length - 1; i >= 0; i--) {
+      var pth = kids[i], a = pth.__anchor;
+      if (!a) continue;
+      if (!document.body.contains(a.el)) { group.removeChild(pth); continue; }
+      var r = a.el.getBoundingClientRect();
+      if (!r.width && !r.height) { pth.setAttribute("opacity", "0"); continue; }
+      var ddx = r.left - a.left, ddy = r.top - a.top;
+      if (Math.abs(ddx) > 0.5 || Math.abs(ddy) > 0.5) pth.setAttribute("transform", "translate(" + ddx.toFixed(1) + "," + ddy.toFixed(1) + ")");
+      else pth.removeAttribute("transform");
+      var offscreen = (r.bottom < 0 || r.top > window.innerHeight);
+      pth.setAttribute("opacity", offscreen ? "0" : (pth.__opacity || "0.86"));
+    }
+  }
+  function inkPath(d, T, forName) {
+    var path = document.createElementNS(NS, "path");
+    path.setAttribute("d", d);
+    path.setAttribute("fill", "none");
+    /* (rp) graphite on a whiteboard, his own yellow on the blackboard -- the pairing from
+       the mockup Jim chose, and the one place his colour belongs on a board */
+    var onDark = !!(T.el.closest && T.el.closest('[data-board="dark"]'));
+    path.setAttribute("stroke", onDark ? PAINT.gold : PAINT.graphite);
+    path.setAttribute("stroke-width", Math.max(3, heightPx() * 0.045).toFixed(1));
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("stroke-linejoin", "round");
+    path.setAttribute("opacity", "0.86");
+    path.__opacity = "0.86";
+    if (forName && typeof forName === "string") path.setAttribute("data-for", forName);
+    var anchorEl = T.anchor || T.el, ar = anchorEl.getBoundingClientRect();
+    path.__anchor = { el: anchorEl, left: ar.left, top: ar.top };
+    var board = document.querySelector('[data-cad="board"]');
+    /* the clip must sit on a group WITHOUT a transform: a clip-path on the translated
+       path itself would scroll along with it and clip nothing */
+    ((board && board.contains(anchorEl)) ? DOM.inkb : DOM.ink).appendChild(path);
+    return path;
+  }
+  /* one drive for every mark: he flies to the start of the path, then his tip
+     traces it while the stroke reveals under him. Rule 20: reduced motion gets the
+     finished mark at once. */
+  function draw(path, id, done, opts) {
+    opts = opts || {};
+    var len = path.getTotalLength();
+    path.setAttribute("stroke-dasharray", len);
+    path.setAttribute("stroke-dashoffset", len);
+    if (M.reduced) {
+      path.setAttribute("stroke-dashoffset", 0);
+      S.expr = "pleased";
+      setTimeout(function () { if (alive(id)) { S.expr = "neutral"; done(); } }, 40);
+      return;
+    }
+    var p0 = path.getPointAtLength(0);
+    S.mode = "write"; S.driven = false; S.expr = "teaching"; S.aimL = S.aimR = null; S.chin = false;
+    S.inkInFlight = path;
+    S.tx = p0.x; S.ty = p0.y; S.tang = -35;
+    settle(id, 10, function () {
+      S.driven = true;
+      var t0 = performance.now(), dur = Math.max(420, len * (opts.speed || 3.1));
+      (function step(now) {
+        if (!alive(id)) { S.driven = false; return; }
+        var u = Math.min(1, (now - t0) / dur);
+        var e = u < 0.5 ? 2 * u * u : -1 + (4 - 2 * u) * u;
+        var pt = path.getPointAtLength(e * len);
+        S.x = pt.x; S.y = pt.y;
+        path.setAttribute("stroke-dashoffset", (len * (1 - e)).toFixed(2));
+        if (u < 1) { requestAnimationFrame(step); return; }
+        S.inkInFlight = null;
+        S.driven = false; S.expr = "pleased"; S.tang = 0;
+        if (!opts.stay) goHome();
+        after(opts.rest || 1000, id, function () { S.expr = "neutral"; done(); });
+      })(performance.now());
+    });
+  }
+  /* a hand-drawn loop around a box: eight anchor points on an ellipse, each nudged
+     a little, joined by smooth curves, overlapping itself at the end the way a real
+     pen circle does. Never a compass ellipse -- that would not be him. */
+  function loopPath(r) {
+    var pad = Math.max(6, heightPx() * 0.05);
+    var cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2;
+    /* tight on the line above and below (a loop that crosses the neighbouring row
+       reads as circling that too), roomier at the ends where the pen turns */
+    var rx = r.width / 2 + pad * 1.5 + 4, ry = r.height / 2 + pad * 0.85;
+    var n = 8, pts = [], i, jit = Math.max(1.5, Math.min(4, rx * 0.04));
+    for (i = 0; i <= n + 1; i++) {                     /* n+2: one extra point overlaps */
+      var a = -Math.PI + (i / n) * Math.PI * 2 - 0.35;
+      var jx = (Math.random() - 0.5) * 2 * jit, jy = (Math.random() - 0.5) * 2 * jit;
+      pts.push({ x: cx + Math.cos(a) * (rx + jx), y: cy + Math.sin(a) * (ry + jy) });
+    }
+    var d = "M " + pts[0].x.toFixed(1) + " " + pts[0].y.toFixed(1);
+    for (i = 1; i < pts.length; i++) {
+      var p = pts[i - 1], q = pts[i], mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2;
+      /* pull the control point outward so the loop stays round between anchors */
+      var ox = mx - cx, oy = my - cy, ol = Math.hypot(ox, oy) || 1;
+      var k = 1.09;
+      d += " Q " + (cx + ox / ol * ol * k).toFixed(1) + " " + (cy + oy / ol * ol * k).toFixed(1)
+         + " " + q.x.toFixed(1) + " " + q.y.toFixed(1);
+    }
+    return d;
+  }
+  /* the exclamation mark: a tapered stroke and a dot, standing just right of the box */
+  function bangPath(r) {
+    var h = Math.max(26, Math.min(r.height * 1.25, heightPx() * 0.5));
+    var x = Math.min(W - 12, r.right + Math.max(14, h * 0.4));
+    var top = r.top + r.height / 2 - h * 0.55, bottom = top + h * 0.62;
+    return "M " + x.toFixed(1) + " " + top.toFixed(1)
+         + " Q " + (x + 1.5).toFixed(1) + " " + ((top + bottom) / 2).toFixed(1) + " " + x.toFixed(1) + " " + bottom.toFixed(1)
+         + " M " + x.toFixed(1) + " " + (bottom + h * 0.26).toFixed(1)
+         + " l 0.6 0.6";
+  }
+  /* an underline that follows every wrapped line of a phrase */
+  function underlinePath(T) {
+    var rects = T.rects || [T.r], d = "", i;
+    for (i = 0; i < rects.length; i++) {
+      var r = rects[i];
+      var y  = Math.min(H - 14, r.bottom + 6);
+      var x1 = Math.max(8, r.left - 4), x2 = Math.min(W - 8, r.right + 4);
+      if (x2 - x1 < 12) continue;
+      d += (d ? " " : "") + "M " + x1.toFixed(1) + " " + y.toFixed(1) + " Q " + ((x1 + x2) / 2).toFixed(1) + " "
+         + (y + 6).toFixed(1) + " " + x2.toFixed(1) + " " + (y - 1.5).toFixed(1);
+    }
+    return d;
+  }
+  /* the INK of a block, not its box: a board row is as wide as the board, but the
+     writing on it is a few hundred pixels in the middle. The union of every text
+     node's rects (and any SVG's box) inside the element is where a mark belongs. */
+  function tightRect(el) {
+    var r = { left: 1e9, top: 1e9, right: -1e9, bottom: -1e9 }, any = false;
+    function add(b) { if (!b || b.width < 1 || b.height < 1) return; any = true;
+      r.left = Math.min(r.left, b.left); r.top = Math.min(r.top, b.top); r.right = Math.max(r.right, b.right); r.bottom = Math.max(r.bottom, b.bottom); }
+    try {
+      var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false), n;
+      while ((n = walker.nextNode())) {
+        if (!n.nodeValue.trim() || (n.parentElement && n.parentElement.closest("svg"))) continue;
+        var rg = document.createRange(); rg.selectNodeContents(n);
+        var list = rg.getClientRects(), q; for (q = 0; q < list.length; q++) add(list[q]);
+      }
+      var svgs = el.querySelectorAll ? el.querySelectorAll("svg") : [], i;
+      for (i = 0; i < svgs.length; i++) add(svgs[i].getBoundingClientRect());
+    } catch (e) {}
+    if (!any) return el.getBoundingClientRect();
+    r.width = r.right - r.left; r.height = r.bottom - r.top;
+    return r;
+  }
+  /* text= wins over target=; both go through rule 19. An element target is tightened
+     to its ink for circle and bang (an underline keeps the old whole-target shape). */
+  function inkTarget(o, tight) {
+    if (o.text) return findText(o.text, o.scope);
+    var T = target(o.target || "board.latest");
+    if (T && tight && !T.rects) T = { el: T.el, anchor: T.anchor || T.el, r: tightRect(T.el), kind: "block" };
+    return T;
   }
 
   var BEHAVIOURS = {
@@ -807,7 +1181,7 @@
     /* --- rule 5. the whole document exists for this one --- */
     park: function (o, done) {
       newSeq();
-      S.mode = "park"; S.driven = false; S.expr = "listening";
+      S.mode = "park"; S.driven = false; S.expr = "listening"; S.chin = false;
       S.aimL = S.aimR = null; S.chase = null; S.tang = 0;
       bubbleOff();
       var p = parkSpot();
@@ -823,7 +1197,7 @@
       if (!text) { done(); return; }
       var ms = o.ms || Math.max(1800, Math.min(7000, text.length * 62));
       S.expr = o.expression || "teaching";
-      S.speaking = true;
+      S.speaking = true; S.speakSrc = "bubble";
       bubbleOn(text);
       after(ms, id, function () { bubbleOff(); S.expr = "neutral"; done(); });
     },
@@ -879,60 +1253,144 @@
     },
 
     /* --- rule 12 and 14. the only behaviour that carries information. --- */
+    /* (rr) underline accepts text= (a word or phrase, found on the board) as well as
+       target=; a wrapped phrase gets one stroke per line. Drawn by draw(), shared
+       with circle and bang. The whole-target form is byte-for-byte the old shape. */
     underline: function (o, done, id) {
       if (effective().tier3 === "never" && !o.forced) { done(); return; }
-      var T = target(o.target);
+      var T = inkTarget(o);
       if (!T) { done(); return; }
-      var r = T.r;
-      var y  = Math.min(H - 14, r.bottom + 9);
-      var x1 = Math.max(8, r.left - 6), x2 = Math.min(W - 8, r.right + 6);
-      if (x2 - x1 < 24) { done(); return; }
-
-      var path = document.createElementNS(NS, "path");
-      path.setAttribute("d", "M " + x1 + " " + y + " Q " + ((x1 + x2) / 2) + " " + (y + 8)
-                             + " " + x2 + " " + (y - 2));
-      path.setAttribute("fill", "none");
-      /* (rp) graphite on a whiteboard, his own yellow on the blackboard -- the pairing from
-         the mockup Jim chose, and the one place his colour belongs on a board */
-      var onDark = !!(T.el.closest && T.el.closest('[data-board="dark"]'));
-      path.setAttribute("stroke", onDark ? PAINT.gold : PAINT.graphite);
-      path.setAttribute("stroke-width", Math.max(3, heightPx() * 0.045).toFixed(1));
-      path.setAttribute("stroke-linecap", "round");
-      path.setAttribute("opacity", "0.86");
-      if (o.target) path.setAttribute("data-for", String(o.target));
-      DOM.ink.appendChild(path);
-
-      var len = path.getTotalLength();
-      path.setAttribute("stroke-dasharray", len);
-      path.setAttribute("stroke-dashoffset", len);
-
-      /* rule 20: reduced motion still gets the mark, it just does not travel */
-      if (M.reduced) {
-        path.setAttribute("stroke-dashoffset", 0);
-        S.expr = "pleased";
-        setTimeout(function () { if (alive(id)) { S.expr = "neutral"; done(); } }, 40);
-        return;
+      var d;
+      if (o.text) { d = underlinePath(T); }
+      else {
+        var r = T.r;
+        var y  = Math.min(H - 14, r.bottom + 9);
+        var x1 = Math.max(8, r.left - 6), x2 = Math.min(W - 8, r.right + 6);
+        if (x2 - x1 < 24) { done(); return; }
+        d = "M " + x1 + " " + y + " Q " + ((x1 + x2) / 2) + " " + (y + 8) + " " + x2 + " " + (y - 2);
       }
+      if (!d) { done(); return; }
+      draw(inkPath(d, T, o.target), id, done);
+    },
 
-      var p0 = path.getPointAtLength(0);
-      S.mode = "write"; S.driven = false; S.expr = "teaching"; S.aimL = S.aimR = null;
-      S.tx = p0.x; S.ty = p0.y; S.tang = -35;
-      settle(id, 10, function () {
-        S.driven = true;
-        var t0 = performance.now(), dur = Math.max(420, len * 3.1);
-        (function step(now) {
-          if (!alive(id)) { S.driven = false; return; }
-          var u = Math.min(1, (now - t0) / dur);
-          var e = u < 0.5 ? 2 * u * u : -1 + (4 - 2 * u) * u;
-          var pt = path.getPointAtLength(e * len);
-          S.x = pt.x; S.y = pt.y;
-          path.setAttribute("stroke-dashoffset", (len * (1 - e)).toFixed(2));
-          if (u < 1) { requestAnimationFrame(step); return; }
-          S.driven = false; S.expr = "pleased"; S.tang = 0;
-          goHome();
-          after(1000, id, function () { S.expr = "neutral"; done(); });
-        })(performance.now());
+    /* --- (rr) a hand-drawn loop around a word, a number, a label --- */
+    circle: function (o, done, id) {
+      if (effective().tier3 === "never" && !o.forced) { done(); return; }
+      var T = inkTarget(o, true);
+      if (!T || T.r.width > W * 0.8) { done(); return; }
+      draw(inkPath(loopPath(T.r), T, o.target), id, done, { speed: 2.6 });
+    },
+
+    /* --- (rr) an exclamation mark beside a good thing --- */
+    bang: function (o, done, id) {
+      var T = inkTarget(o, true);
+      if (!T) { done(); return; }
+      var path = inkPath(bangPath(T.r), T, o.target);
+      path.setAttribute("stroke-width", (Math.max(3, heightPx() * 0.045) * 1.35).toFixed(1));
+      draw(path, id, function () { sparkle(3); done(); }, { speed: 4.5, rest: 700 });
+    },
+
+    /* --- (rr) the tag's door: [[ink circle="..."]] / underline= / bang --- */
+    ink: function (o, done, id) {
+      var kind = o.kind || (o.circle ? "circle" : o.underline ? "underline" : "bang");
+      var text = o.text || o.circle || o.underline || o.bang || "";
+      var fn = BEHAVIOURS[kind === "underline" ? "underline" : kind === "circle" ? "circle" : "bang"];
+      fn({ text: text || undefined, target: text ? undefined : (o.target || "board.latest"), forced: true }, done, id);
+    },
+
+    /* --- (rr) arms up, alternately: hello, goodbye, "this is me" --- */
+    wave: function (o, done, id) {
+      var h = homeSpot();
+      S.mode = "wave"; S.driven = false; S.expr = "pleased"; S.chin = false; S.waving = true;
+      if (o.center) flyTo(W / 2, Math.max(heightPx() + 60, H * 0.5), 0); else flyTo(h.x, h.y, 0);
+      var n = 0, up = true;
+      settle(id, 20, function () {
+        if (o.text) BEHAVIOURS.say({ text: o.text, ms: o.ms || 2200, expression: "pleased" }, function () {}, id);
+        (function beat() {
+          if (!alive(id)) return;
+          var hd = toPage(110, 40);
+          if (up) { S.aimR = { x: hd.x + 52, y: hd.y - 20 }; S.aimL = null; }
+          else    { S.aimR = { x: hd.x + 60, y: hd.y + 30 }; S.aimL = null; }
+          up = !up; n++;
+          if (n < 6) { after(M.reduced ? 40 : 260, id, beat); return; }
+          S.aimL = S.aimR = null; S.waving = false;
+          after(500, id, function () { S.expr = "neutral"; S.mode = "idle"; done(); });
+        })();
       });
+    },
+
+    /* --- (rr) the glance: he notices what just went on the board --- */
+    glance: function (o, done, id) {
+      if (M.mode === "quiet" && !o.forced) { done(); return; }
+      if (S.mode === "park" || S.mode === "stay") { done(); return; }
+      var every = o.every || 45000;
+      if (!o.forced && M.lastGlance && (performance.now() - M.lastGlance) < every) { done(); return; }
+      if (!o.forced && Math.random() > (o.chance === undefined ? 0.5 : o.chance)) { done(); return; }
+      var waited = 0, waitMax = o.waitMs || 9000;
+      (function whenQuiet() {
+        if (!alive(id)) return;
+        if (S.speaking && waited < waitMax) { waited += 120; after(120, id, whenQuiet); return; }
+        if (S.mode === "park" || isWorkField(document.activeElement)) { done(); return; }
+        var T = target(o.target || "board.latest");
+        if (!T) { done(); return; }
+        M.lastGlance = performance.now();
+        BEHAVIOURS.point({ target: T, ms: o.ms || 2200 }, function () { goHome(); done(); }, id);
+      })();
+    },
+
+    /* --- (rr) empathy: come close, listen, say one warm thing, and stay --- */
+    comfort: function (o, done, id) {
+      var T = target(o.target || "answer");
+      if (!T) { T = target("board"); }
+      if (!T) { done(); return; }
+      var r = T.r, standRight = (W - r.right) > 240;
+      var stand = { x: standRight ? Math.min(W - 64, r.right + 70) : Math.max(64, r.left - 70),
+                    y: Math.min(H - 30, Math.max(heightPx() + 132, r.top + r.height / 2 + heightPx() * 0.30)) };
+      if (blocked(stand.x, stand.y)) { standRight = !standRight; stand.x = standRight ? Math.min(W - 64, r.right + 70) : Math.max(64, r.left - 70); }
+      if (blocked(stand.x, stand.y)) { stand = homeSpot(); }
+      S.mode = "stay"; S.driven = false; S.expr = "listening"; S.chin = false; S.aimL = S.aimR = null;
+      S.bubBelow = false;
+      flyTo(stand.x, stand.y, standRight ? -4 : 4);
+      settle(id, 16, function () {
+        var text = o.text || fresh(o.from || "empathy", (M.script.lines || {})[o.from || "empathy"]);
+        if (!text) { done(); return; }
+        BEHAVIOURS.say({ text: text, ms: o.ms || 3600, expression: "listening" }, function () {
+          if (S.mode === "stay") S.expr = "listening";   /* still beside them, unless an answer already ended it */
+          done();
+        }, id);
+      });
+    },
+
+    /* --- (rr) a milestone: the biggest party he has --- */
+    party: function (o, done, id) {
+      var kind = o.kind || "milestone";
+      S.mode = "celebrate"; S.driven = false; S.expr = "pleased"; S.chin = false; S.waving = true;
+      sparkle(9);
+      var up = toPage(110, 40);
+      S.aimL = { x: up.x - 46, y: up.y - 18 }; S.aimR = { x: up.x + 46, y: up.y - 18 };
+      var by = S.ty; S.ty = by - 34;
+      after(200, id, function () {
+        S.ty = by;
+        after(260, id, function () {
+          S.aimL = S.aimR = null; S.waving = false;
+          var lines = M.script.lines || {};
+          var text = o.text || fresh("milestone." + kind, lines["milestone." + kind]) || fresh("milestone", lines.milestone);
+          var T = target(o.target || "board.latest");
+          function finish() {
+            if (text) BEHAVIOURS.say({ text: text, ms: o.ms || 3200, expression: "pleased" }, function () { S.mode = "idle"; done(); }, id);
+            else { S.mode = "idle"; done(); }
+          }
+          if (T) BEHAVIOURS.bang({ target: T, forced: true }, finish, id); else finish();
+        });
+      });
+    },
+
+    /* --- (rr) the chin pose while the tutor thinks --- */
+    think: function (o, done) {
+      var on = (o.on === undefined) ? true : !!o.on;
+      S.chin = on; S.expr = on ? "thinking" : "neutral";
+      if (!on) S.aimR = null;
+      done();
     },
 
     /* --- rule 11. three tiers, and the top one does not drift downward --- */
@@ -1030,7 +1488,7 @@
   };
 
   function goHome() {
-    S.driven = false; S.mode = "idle"; S.aimL = S.aimR = null; S.chase = null; S.bubBelow = false;
+    S.driven = false; S.mode = "idle"; S.aimL = S.aimR = null; S.chase = null; S.bubBelow = false; S.chin = false; S.waving = false;
     S.tang = 0;
     var h = homeSpot();
     flyTo(h.x, h.y, 0);
@@ -1065,11 +1523,14 @@
   /* rule 15: a mark belongs to the line underneath it */
   function clearInk(forTarget) {
     if (!DOM) return;
-    if (!forTarget) { DOM.ink.innerHTML = ""; return; }
-    var kids = DOM.ink.childNodes, i;
-    for (i = kids.length - 1; i >= 0; i--) {
-      if (kids[i].getAttribute && kids[i].getAttribute("data-for") === String(forTarget)) {
-        DOM.ink.removeChild(kids[i]);
+    var groups = [DOM.ink, DOM.inkb], g;
+    for (g = 0; g < groups.length; g++) {
+      if (!forTarget) { groups[g].innerHTML = ""; continue; }
+      var kids = groups[g].childNodes, i;
+      for (i = kids.length - 1; i >= 0; i--) {
+        if (kids[i].getAttribute && kids[i].getAttribute("data-for") === String(forTarget)) {
+          groups[g].removeChild(kids[i]);
+        }
       }
     }
   }
@@ -1095,11 +1556,13 @@
 
   function run(steps) {
     var id = newSeq(), i = 0;
+    M.running = id;
     (function next() {
       if (!alive(id)) return;
-      if (i >= steps.length) { if (S.mode !== "park") goHome(); return; }
+      if (i >= steps.length) { M.running = 0; if (S.mode !== "park" && S.mode !== "stay") goHome(); return; }
       var st = steps[i++] || {};
       if (st["if"] === "stage.joke" && !effective().joke) { next(); return; }
+      if (st.chance !== undefined && !st.forced && Math.random() > st.chance) { next(); return; }   /* (rr) a dice roll on any step */
       if (st.once) {
         var key = "step:" + (st["do"] || "") + ":" + (st.target || "") + ":" + (st.once === true ? "1" : st.once);
         if (M.spent[key]) { next(); return; }
@@ -1127,7 +1590,9 @@
       if (S.mode === "park") { S.mode = "idle"; S.expr = "neutral"; goHome(); }
     }, 120);
   }
-  function onSpeaking() { if (live()) S.speaking = true; }
+  function onSpeaking() { if (live()) { S.speaking = true; S.speakSrc = "voice"; S.speakT = performance.now(); S.quietMs = 0; } }
+  /* (rr) the voice stopped (voice.js announces it; a bubble line is cleared by bubbleOff) */
+  function onSilent()   { if (live() && S.speakSrc === "voice") { S.speaking = false; S.speakSrc = ""; } }
 
   /* ==========================================================================
      14.  PUBLIC API
@@ -1156,6 +1621,7 @@
       document.addEventListener("focusin",  onFocusIn,  true);
       document.addEventListener("focusout", onFocusOut, true);
       document.addEventListener("mt:speaking", onSpeaking, false);
+      document.addEventListener("mt:silent",   onSilent,   false);
       return true;
     })["catch"](function () { return false; });
   }
@@ -1165,23 +1631,43 @@
     data = data || {};
     if (moment === "answer.correct") { streak++; if (data.hard) solvedHard = true; }
     if (moment === "answer.wrong")   { streak = 0; }
+    if (S && S.mode === "stay" && /^answer\./.test(moment)) { S.mode = "idle"; }   /* (rr) comfort ends with the next answer */
+    /* (rr) a LOW moment never interrupts what he is doing: a glance while he is still
+       circling the word the tutor asked for would cancel the circle */
+    if (LOW[moment] && M.running && M.running === M.seq) return false;
     if (moment === "problem.cleared") { clearInk(data.target); }
     var steps = stepsFor(moment);
     if (!steps) return false;
+    /* (rr) LIGHT steps -- a face, the chin, hushing the bubble -- never cancel what he
+       is in the middle of. mic.off rings on every phase change; a celebration must
+       not be cut short by it. Anything that moves him still runs as a sequence. */
+    var light = true, i;
+    for (i = 0; i < steps.length; i++) if (!LIGHT[steps[i]["do"]]) { light = false; break; }
+    if (light) {
+      for (i = 0; i < steps.length; i++) {
+        try { BEHAVIOURS[steps[i]["do"]](steps[i], function () {}, M.seq); } catch (e) {}
+      }
+      return true;
+    }
     run(steps);
     return true;
   }
+  var LIGHT = { expression: true, think: true, hush: true };
+  var LOW = { "board.written": true };
 
   function direct(name) {
     return function (a, b) {
       if (!live()) return false;
       var o = (typeof a === "object" && a !== null) ? a : {};
       if (typeof a === "string") {
-        o = (name === "say") ? { text: a, ms: b } : (name === "expression") ? { to: a } : { target: a };   /* (rq) expression by name */
+        o = (name === "say") ? { text: a, ms: b } : (name === "expression") ? { to: a }
+          : (name === "circle" || name === "bang") ? { text: a } : { target: a };   /* (rq) expression by name; (rr) circle/bang take a word */
       }
       if (typeof a === "number" && name === "celebrate") o = { tier: a };
       run([{ "do": name, text: o.text, ms: o.ms, target: o.target, tier: o.tier,
-             to: o.to, asked: true, forced: o.forced }]);
+             to: o.to, asked: true, forced: o.forced,
+             kind: o.kind, circle: o.circle, underline: o.underline, bang: o.bang, from: o.from,
+             on: o.on, center: o.center, chance: o.chance, every: o.every, scope: o.scope }]);
       return true;
     };
   }
@@ -1201,6 +1687,16 @@
        "expression" behaviour, direct), the list of names, a joke on demand, and his
        size in page pixels -- the same number the menu's "height" sets at mount. */
     expression:  direct("expression"),
+    /* (rr) ink on a word, and the feelings */
+    ink:         direct("ink"),          /* {kind:"circle"|"underline"|"bang", text} */
+    circle:      direct("circle"),       /* Cadabra.circle("common bottom") */
+    bang:        direct("bang"),
+    wave:        direct("wave"),
+    comfort:     direct("comfort"),
+    party:       direct("party"),
+    think:       direct("think"),
+    glance:      direct("glance"),
+    find:        function (text, scope) { if (!DOM) return null; var T = findText(text, scope); return T ? { left: T.r.left, top: T.r.top, width: T.r.width, height: T.r.height, lines: T.rects.length, kind: T.kind } : null; },
     expressions: function () { return Object.keys(EXPR); },
     joke:        direct("joke"),
     size:        function (px) { if (live() && px > 0) applyHeight(px); return heightPx(); },
@@ -1218,7 +1714,8 @@
     state:     function () {
       return { state: M.state, mounted: M.mounted, suspended: M.suspended, page: M.page,
                stage: M.stage, mode: M.mode, reduced: M.reduced, streak: streak,
-               pose: S ? S.mode : null, visible: !!DOM };
+               pose: S ? S.mode : null, visible: !!DOM,
+               speaking: !!(S && S.speaking), expr: S ? S.expr : null, ink: DOM ? DOM.ink.childNodes.length + DOM.inkb.childNodes.length : 0 };   /* (rr) the bench reads these */
     },
     PAINT: PAINT
   };

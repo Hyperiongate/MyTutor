@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <!--
+    (rr) 2026-09-02 -- THE CIRCLE IS GONE, AND HE TALKS FOR REAL. Jim: "get rid of the
+    circle with him in it." The sidebar orb (a static pencil picture in a 76px
+    circle, with a hidden canvas behind it) is removed from the markup and CSS; the
+    faceLoop keeps drawing Abrabot's big face and simply skips the orb canvas that
+    is no longer there; the "speaking" flag it read off the orb's class is a plain
+    variable now. setSpeaking() announces mt:speaking / mt:silent on the document
+    (the demo plays its own clips, so it says so itself) -- the floating pencil's
+    mouth moves with every line and stops when it ends. The tour's "And this is me"
+    stop makes him fly to the middle and WAVE (Cadabra.wave) instead of pointing at
+    a circle. Nothing else on the page changed.
     (rq) 2026-09-01 -- THE DARK BOARD'S OTHER HALF. The demo opens on the dark board
     (rp), but its own work rows (.wrow #2a2450), operator rows and figure captions
     were literal near-navy text -- invisible on navy the moment a level put an
@@ -490,13 +500,9 @@
   .schip2.days .scmain{color:#B4560E}
   .schip2.today .scmain{color:#4a4ac9}
   @media (max-width:760px){ .streakchips{display:none} }
-  /* (rk) the orb canvas keeps drawing (Abrabot's big face shares that loop) but is no
-     longer SEEN -- the pencil sits in its place. Deleting the canvas would throw inside
-     the shared try/catch and take Abrabot's face down with it. */
-  .orbwrap .cadbust{width:100%;height:100%;display:block}
-  .orbwrap{width:76px;height:76px;flex:0 0 auto;border-radius:50%}
-  .orbwrap canvas{width:100%;height:100%;display:none}   /* (rk) still drawn, no longer seen */
-  .orbwrap.speaking{box-shadow:0 0 18px 6px rgba(47,227,200,.40)}
+  /* (rr) the sidebar orb -- the circle with the pencil picture in it -- is GONE (Jim:
+     "get rid of the circle with him in it"). The floating pencil is the only Mr.
+     Cadabra here; Abrabot's big face keeps its own canvas (#abraBigFace). */
   .tutor-name{font-weight:850;font-size:15.5px}
   .status{font-size:11.5px;color:var(--muted);min-height:15px}
   .leftnav{display:flex;flex-direction:column;gap:6px}
@@ -839,7 +845,7 @@
 <div class="app" id="app">
   <aside class="side">
     <div class="tutor-head" id="tutorPanel">
-      <div class="orbwrap" id="orb"><canvas id="orbFace" width="200" height="200"></canvas><span class="cadbust"><svg viewBox="64 8 92 196" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mr. Cadabra"><rect x="82" y="114" width="56" height="98" fill="#F2BC1B"/><rect x="82" y="114" width="15" height="98" fill="#FBD96A" opacity=".33"/><rect x="123" y="114" width="15" height="98" fill="#C08F0C" opacity=".42"/><path d="M97 114 V212 M123 114 V212" stroke="#C08F0C" stroke-width="1.2" opacity=".5"/><rect x="82" y="114" width="56" height="98" fill="none" stroke="#2F2C39" stroke-width="1.8" opacity=".7"/><rect x="86" y="98" width="48" height="17" fill="#C8CAD4"/><path d="M86 103.5 H134 M86 109.5 H134" stroke="#9EA1B1" stroke-width="1.5"/><ellipse cx="110" cy="89" rx="50" ry="9.5" fill="#221F4C"/><path d="M68 87 Q78 44 110 20 Q126 11 133 20 Q124 48 152 87 Q110 97 68 87 Z" fill="#2E2A63"/><path d="M112 21 Q124 48 152 87 Q136 93 124 94 Q128 56 112 21 Z" fill="#221F4C" opacity=".55"/><path d="M70 79 Q110 90 150 79 L151 87 Q110 98 69 87 Z" fill="#4a4ac9"/><path transform="translate(118,50) scale(.78)" d="M0 -10 L2.9 -3.5 L9.5 -3.1 L4.5 1.2 L6.1 7.6 L0 4 L-6.1 7.6 L-4.5 1.2 L-9.5 -3.1 L-2.9 -3.5 Z" fill="#F2BC1B"/><g transform="translate(0,8)"><path d="M90 143 Q99 138 108 142" fill="none" stroke="#2F2C39" stroke-width="2.6" stroke-linecap="round"/><path d="M112 142 Q121 138 130 143" fill="none" stroke="#2F2C39" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="99" cy="158" rx="8" ry="9" fill="#FBFAFF" stroke="#2F2C39" stroke-width="2.2"/><ellipse cx="121" cy="158" rx="8" ry="9" fill="#FBFAFF" stroke="#2F2C39" stroke-width="2.2"/><circle cx="100" cy="159.5" r="3.4" fill="#2F2C39"/><circle cx="122" cy="159.5" r="3.4" fill="#2F2C39"/><path d="M97 181 Q110 192 123 181" fill="none" stroke="#2F2C39" stroke-width="2.7" stroke-linecap="round"/></g></svg></span></div>
+      <!-- (rr) the orb circle is gone: the floating pencil is the only Mr. Cadabra on this page -->
       <div>
         <div class="tutor-name">Mr. Cadabra</div>
         <div class="status" id="status">&nbsp;</div>
@@ -1338,12 +1344,12 @@
 (function(){
   var el=function(id){return document.getElementById(id);};
   // ---- MR. CADABRA'S FACE: the same robot as the classroom pages ----
-  var orbFace=el('orbFace'), orb=el('orb');
-  var faceT=0, faceHappyUntil=0;
+  var orbFace=el('orbFace'), orb=el('orb');   /* (rr) both null now -- the orb circle is gone; guarded below */
+  var faceT=0, faceHappyUntil=0, speakingNow=false;
   if(window.TutorFace){
     (function faceLoop(){
       try{
-        var sp=orb.classList.contains('speaking');
+        var sp=speakingNow;
         var mood=Date.now()<faceHappyUntil?'happy':(sp?'speaking':'idle');
         var level=sp?0.45+0.30*Math.abs(Math.sin(faceT*0.05)):0.10+0.05*Math.sin(faceT*0.035);
         // (nh) TWO FACES, ONE CHARACTER EACH. nf swapped the little orb to the robot;
@@ -1355,8 +1361,8 @@
         /* (rk) presence:false -- the video presence layer is footage of a REAL PERSON,
            and Mr. Cadabra is the pencil now. Two of him on one screen is a rendering bug
            to an adult and a different character to a child. One word, fully reversible. */
-        TutorFace.draw(orbFace.getContext('2d'),200,200,{level:cadLevel,t:faceT,presence:false,
-          mood:(Date.now()<faceHappyUntil?'happy':(cadTalking?'speaking':'idle')),persona:'cadabra'});
+        if(orbFace) TutorFace.draw(orbFace.getContext('2d'),200,200,{level:cadLevel,t:faceT,presence:false,
+          mood:(Date.now()<faceHappyUntil?'happy':(cadTalking?'speaking':'idle')),persona:'cadabra'});   /* (rr) no orb canvas any more */
         var big=document.getElementById('abraBigFace');
         if(big){
           var botLevel=botTalking?level:0.12+0.06*Math.sin(faceT*0.045);
@@ -1734,8 +1740,12 @@
   var lineDone=null;
   function fireLineDone(){ if(lineDone){ var f=lineDone; lineDone=null; try{f();}catch(e){} } }
   function setSpeaking(on){
-    orb.classList.toggle('speaking', !!on);
+    speakingNow=!!on;
+    if(orb) orb.classList.toggle('speaking', !!on);
     statusEl.textContent = on ? "Mr. Cadabra is talking…" : "";
+    /* (rr) the pencil's mouth runs on these -- the same two events voice.js announces
+       in a lesson. The demo plays its own clips, so it announces them itself. */
+    try { document.dispatchEvent(new CustomEvent(on ? "mt:speaking" : "mt:silent")); } catch(e){}
   }
   function browserSay(text, robot){
     if(!voiceOn||!('speechSynthesis' in window)){ fireLineDone(); return; }
@@ -2952,7 +2962,7 @@
       try{ localStorage.setItem(KEY,c); }catch(e){} apply(c); };
   })();
   function cadMount(){ try { if (window.Cadabra) Cadabra.mount({ page: 'demo' }); } catch (e) {} }
-  function cadPoint(id){ try { if (window.Cadabra) Cadabra.point(id); } catch (e) {} }
+  function cadPoint(id){ try { if (window.Cadabra) { if (id === 'tutorPanel' && Cadabra.wave) Cadabra.wave({ center: true }); else Cadabra.point(id); } } catch (e) {} }   /* (rr) "this is me" is a wave now that the orb is gone */
   function cadRelease(){ try { if (window.Cadabra) Cadabra.release(); } catch (e) {} }
   cadMount();
 

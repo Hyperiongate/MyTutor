@@ -2,6 +2,9 @@
 # tags.py  --  THE TAG GRAMMAR, ONE COPY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD rr -- [[ink]] joins TAG_INLINE: circle= / underline= / bang=
+#               name a word or number already on the board for the pencil to mark
+#               (kind= is the bare form). Not a BOARD_TAG: it draws on what is there.
 #   2026-08-31  BUILD rc -- [[miss]] joins TAG_INLINE, attribute-free: the mirror of
 #               [[nice]]. The student answered the CURRENT problem wrong (it may keep
 #               going); the page posts it and the today-streak resets to 0 on the spot
@@ -135,6 +138,12 @@ TAG_INLINE = {
     # (rule 58e: a numbered multi-step demonstration fills the whole board);
     # following blocks land inside the card. Rendered by board.js openStepCard.
     "stepcard": {"n", "title"},
+    # build rr (2026-09-02): [[ink circle="..."]] / [[ink underline="..."]] /
+    # [[ink bang="..."]] -- Mr. Cadabra, the pencil, marks a word or a number that
+    # is ALREADY on the board (cadabra.js finds it by text; rule 19 refuses a covered
+    # or off-screen one). Draws nothing itself and is NOT a board tag: a reply with
+    # only [[ink]] has put nothing on the board. At most one per reply.
+    "ink": {"circle", "underline", "bang", "kind"},
 }
 
 # ---- UNITPLAN: the one pattern for reading the declared unit out of the tag ------

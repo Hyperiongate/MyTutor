@@ -2,6 +2,11 @@
    voice.js  --  THE TUTOR'S VOICE, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-02  BUILD rr -- ONE MORE EVENT: "mt:silent", when a line ENDS. The mirror
+                 of qs's mt:speaking, announced from both finish() paths (clip and
+                 browser voice), wrapped and additive exactly like its sibling. Read
+                 by cadabra.js (his drift and mouth stop when the voice does; the
+                 glance waits for it). Nothing else in this file changed.
      2026-08-30  BUILD qs -- ONE EVENT, SO THE BOARD CAN COUNT ALONG WITH HIM. This
                  file is the ONLY place that knows the moment real sound begins:
                  setState("speaking") fires from u.onstart (browser voice) and from
@@ -277,6 +282,15 @@ function announceSpeaking() {
     document.dispatchEvent(new CustomEvent("mt:speaking"));
   } catch (e) {}
 }
+// (rr) AND THE MOMENT IT STOPS, said the same way. cadabra.js froze his drift after
+// every real line because nothing ever told it the voice had ended; the glance
+// behaviour needs the quiet moment too. Same contract as announceSpeaking: wrapped,
+// additive, read back by nothing in this file, and every listener keeps a fallback.
+function announceSilent() {
+  try {
+    document.dispatchEvent(new CustomEvent("mt:silent"));
+  } catch (e) {}
+}
 
 // (mj) profOverride lets ONE utterance be spoken by a different character without
 // disturbing the page's own voiceProfile. Pass undefined (or omit) for the page's
@@ -284,7 +298,7 @@ function announceSpeaking() {
 function browserSpeak(text, done, profOverride) {
   if (!window.speechSynthesis) { if (done) done(); return; }
   let called = false;
-  const finish = () => { if (called) return; called = true; if (done) done(); };
+  const finish = () => { if (called) return; called = true; announceSilent(); if (done) done(); };
   try {
     speechSynthesis.cancel();
     const spoken = forSpeech(text);
@@ -368,7 +382,7 @@ function speak(text, opts) {
     if (!useEleven) { browserSpeak(text, resolve, prof); return; }
     ensureAudioGraph();
     let started = false, doneCalled = false, lastProgress = Date.now(), watchdog = null;
-    const finish = () => { if (doneCalled) return; doneCalled = true; cleanup(); resolve(); };
+    const finish = () => { if (doneCalled) return; doneCalled = true; cleanup(); announceSilent(); resolve(); };
     // build gn -- THE HEAD-OF-CLIP PROBE. Three separate builds have now tried to stop
     // the first word being swallowed (bl: lead silence; cb: the keep-alive loop; gn:
     // the resume race), and each was reasoned rather than measured. This says, in the

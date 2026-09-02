@@ -7,6 +7,7 @@
   ],
   "_CHANGE_NOTES": [
     "Keep newest at top. JSON has no comments, so the notes live here.",
+    "2026-09-02 (rr): HE HAS FEELINGS ABOUT YOUR WORK. Jim's behaviour list. New moments on the lesson pages: board.written -> glance (chance 0.5, not more than every 45 s, only after the voice stops and only if nobody is typing); student.stuck -> comfort (listening face, one line from `empathy`, and he STAYS beside the answer box); milestone -> party (stars, arms, a bang on the newest board line, a line from milestone.<kind>); mic.on/off -> the listening face; tutor.thinking/tutor.done -> the chin pose; lesson.start gains a SILENT wave after enter (ri's ruling stands: no joke, no tour, no words while the real voice opens); lesson.end -> a goodbye wave. answer.correct on session also points at the streak star about a third of the time. New line bags: empathy, milestone, milestone.streak/lesson/quiz/unit/course. The [[ink]] tag reaches cadabra.js through the pages, not through this file.",
     "2026-09-01 (rq, same build): the LAB. pages.lab lets him mount on static/cadabra-lab.html, the owner's expression/behaviour bench (it drives the real layer through Cadabra.* directly, so nothing is scheduled here); tours.lab is the three-stop tour that page's Tour button plays.",
     "2026-09-01 (rq): THE ROSTER IS WHOLE AGAIN. Two chats edited this file the same morning: rk (the demo build, 11:40) wrote a demo-only menu at height 118 over rj's (10:50) session/topic/practice menu at height 146 -- so from 11:40 the pencil was OFF in every real lesson and only the demo had him. This file is rj's menu (Jim's 30% ruling, all three lesson pages, the jokes, nudges and tour) PLUS the demo block rk added. Nothing else changed. Version bumped; the battery's version pins now read 'rj or later'.",
     "2026-09-01 (rk): the demo. The demo drives him itself via Cadabra.point() from its own tour, so its block is empty -- it exists so he may mount there at all.",
@@ -14,7 +15,7 @@
     "2026-09-01 (ri): THE PENCIL WAKES UP QUIETLY. Jim watched the first live lesson: 'the pencil was floating around pointing at things that didn't match the voice.' The joke and the tour at lesson.start ran WHILE Mr. Cadabra's real recorded voice gave the opening, so the pencil pointed at the answer bar as the voice talked about stars. Ruling applied: at lesson.start he ENTERS and nothing more -- the real voice owns the opening. The joke and tour behaviours still exist in cadabra.js for future scheduling at a quiet moment. Also: the tour's 'problem' stop and the celebrate targets named 'problem' pointed at a data-cad name that exists on no page (rule 30: targets resolve by data-cad name) -- the dead tour stop is removed and the celebrations now aim at 'board', where the problem actually lives.",
     "2026-08-31 (rh/stage2-4): first menu -- entrance, joke, tour, park, celebrate, nudges, clearInk wired to the session page."
   ],
-  "version": "2026-09-01rq",
+  "version": "2026-09-02rr",
   "defaultStage": "early",
   "height": 146,
   "hands": "glove",
@@ -69,6 +70,36 @@
     "welcome": [
       "Right then. Let us have a look at this one.",
       "Good to see you. Ready when you are."
+    ],
+    "empathy": [
+      "This one is tricky. Let's do it together.",
+      "Take a breath. We will get there, one small step at a time.",
+      "Getting stuck is part of learning. I am right here.",
+      "Hard ones are how brains grow. Let's look at it again, slowly."
+    ],
+    "milestone": [
+      "Now THAT is worth celebrating!",
+      "Look at you go!"
+    ],
+    "milestone.streak": [
+      "Three in a row! You are on a roll.",
+      "That's a streak! Keep it going."
+    ],
+    "milestone.lesson": [
+      "A whole lesson, finished. Well done!",
+      "Lesson complete. I am proud of you."
+    ],
+    "milestone.quiz": [
+      "Quiz passed! That is real progress.",
+      "You passed! I knew you could."
+    ],
+    "milestone.unit": [
+      "A whole unit mastered. That is a big deal!",
+      "Unit mastered! Take a bow."
+    ],
+    "milestone.course": [
+      "Course Champion! The whole course. I am so proud of you.",
+      "You did it. The entire course. Champion!"
     ]
   },
   "tours": {
@@ -106,6 +137,9 @@
       "lesson.start": [
         {
           "do": "enter"
+        },
+        {
+          "do": "wave"
         }
       ],
       "answer.focus": [
@@ -118,6 +152,12 @@
           "do": "celebrate",
           "tier": "auto",
           "target": "board"
+        },
+        {
+          "do": "point",
+          "target": "streak",
+          "ms": 1300,
+          "chance": 0.35
         }
       ],
       "answer.wrong": [
@@ -151,10 +191,56 @@
       ],
       "lesson.end": [
         {
+          "do": "wave",
+          "text": "See you next time!"
+        },
+        {
           "do": "hush"
         },
         {
           "do": "release"
+        }
+      ],
+      "board.written": [
+        {
+          "do": "glance",
+          "chance": 0.5,
+          "every": 45000
+        }
+      ],
+      "student.stuck": [
+        {
+          "do": "comfort",
+          "from": "empathy"
+        }
+      ],
+      "milestone": [
+        {
+          "do": "party"
+        }
+      ],
+      "mic.on": [
+        {
+          "do": "expression",
+          "to": "listening"
+        }
+      ],
+      "mic.off": [
+        {
+          "do": "expression",
+          "to": "neutral"
+        }
+      ],
+      "tutor.thinking": [
+        {
+          "do": "think",
+          "on": true
+        }
+      ],
+      "tutor.done": [
+        {
+          "do": "think",
+          "on": false
         }
       ]
     },
@@ -162,6 +248,9 @@
       "lesson.start": [
         {
           "do": "enter"
+        },
+        {
+          "do": "wave"
         }
       ],
       "answer.correct": [
@@ -180,18 +269,129 @@
           "do": "say",
           "from": "nudges"
         }
+      ],
+      "board.written": [
+        {
+          "do": "glance",
+          "chance": 0.5,
+          "every": 45000
+        }
+      ],
+      "student.stuck": [
+        {
+          "do": "comfort",
+          "from": "empathy"
+        }
+      ],
+      "milestone": [
+        {
+          "do": "party"
+        }
+      ],
+      "mic.on": [
+        {
+          "do": "expression",
+          "to": "listening"
+        }
+      ],
+      "mic.off": [
+        {
+          "do": "expression",
+          "to": "neutral"
+        }
+      ],
+      "tutor.thinking": [
+        {
+          "do": "think",
+          "on": true
+        }
+      ],
+      "tutor.done": [
+        {
+          "do": "think",
+          "on": false
+        }
+      ],
+      "lesson.end": [
+        {
+          "do": "wave",
+          "text": "See you next time!"
+        },
+        {
+          "do": "hush"
+        },
+        {
+          "do": "release"
+        }
       ]
     },
     "practice": {
       "lesson.start": [
         {
           "do": "enter"
+        },
+        {
+          "do": "wave"
         }
       ],
       "answer.correct": [
         {
           "do": "celebrate",
           "tier": 1
+        }
+      ],
+      "board.written": [
+        {
+          "do": "glance",
+          "chance": 0.5,
+          "every": 45000
+        }
+      ],
+      "student.stuck": [
+        {
+          "do": "comfort",
+          "from": "empathy"
+        }
+      ],
+      "milestone": [
+        {
+          "do": "party"
+        }
+      ],
+      "mic.on": [
+        {
+          "do": "expression",
+          "to": "listening"
+        }
+      ],
+      "mic.off": [
+        {
+          "do": "expression",
+          "to": "neutral"
+        }
+      ],
+      "tutor.thinking": [
+        {
+          "do": "think",
+          "on": true
+        }
+      ],
+      "tutor.done": [
+        {
+          "do": "think",
+          "on": false
+        }
+      ],
+      "lesson.end": [
+        {
+          "do": "wave",
+          "text": "See you next time!"
+        },
+        {
+          "do": "hush"
+        },
+        {
+          "do": "release"
         }
       ]
     },

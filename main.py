@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  APP_BUILD -> "2026-09-02rr-the-pencil-has-feelings-about-your-work".
+#               BUILD rr -- Jim's behaviour list for the pencil, all front-end plus
+#               the tag grammar: [[ink circle=|underline=|bang=]] registered in
+#               tags.py and taught in prompts.py (one paragraph x9); cadabra.js
+#               finds the word by text and marks it, glances at new board work,
+#               comforts a stuck child, throws a party at milestones, waves, and
+#               stops talking when the voice does (voice.js announces mt:silent);
+#               the pages ring the new doorbells; the demo loses the orb circle.
+#               NOTHING in this file changed but the stamp.
 #   2026-09-01  APP_BUILD -> "2026-09-01rn-two-holes-closed-one-ruling-taken". BUILD
 #               rn -- the watch's cluster E one-liners: rule 39's "See how that
 #               works?" and rule 15's spoken-only function rule CLOSED (two
@@ -13261,7 +13270,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-01rn-two-holes-closed-one-ruling-taken"
+APP_BUILD = "2026-09-02rr-the-pencil-has-feelings-about-your-work"
 
 
 @app.get("/health")

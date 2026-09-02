@@ -1,5 +1,18 @@
 <!DOCTYPE html>
 <!--
+    (rr) 2026-09-02 -- THE PENCIL HAS FEELINGS ABOUT YOUR WORK. Jim's behaviour list,
+    the page's half (the behaviours themselves live in cadabra.js; the schedule in
+    cadabra-script.json). New doorbells, every one AFTER its real work: [[ink]] ->
+    cadInk (circle/underline/bang a word on the board); board.written at the end of
+    handleTags when the board grew (the glance); student.stuck from cadSlip (two
+    misses in a row) or the 60 s silence timer armed on setPhase("ready") and
+    disarmed by any key or tap; milestone for a 3-streak (renderStreakChips, upward
+    crossings of a multiple of 3), a mastered scripted lesson (the seam), a passed
+    quiz, a mastered unit and the Course Champion medal; mic.on/off from setPhase;
+    tutor.thinking/done from setState; lesson.end beside [[bye]]. The scripted lane
+    finally rings the pencil too: the server's streak in /api/script/answer says
+    whether the tap was right (up) or wrong (reset), so a scripted problem
+    celebrates and consoles like a live one. No layout change; every door guarded.
     (rq) 2026-09-01 -- THE DARK BOARD'S OTHER HALF. rp gave the student a whiteboard/
     blackboard toggle and tokenised the drawing FILES; this page's own <style> still
     painted board content with literals (tutor bubbles, the folded-problem row, the
@@ -2187,7 +2200,11 @@
     // the lesson may pace itself or must wait for the child. pilot.html uses the same
     // signal for the same decision.
     let voiceHeard = false;
+    var _cadThinking = false;
     function setState(s) {
+      /* (rr) the pencil's chin pose while the tutor thinks, and back when anything else happens */
+      if (s === "thinking" && !_cadThinking) { _cadThinking = true; cadFire("tutor.thinking"); }
+      else if (s !== "thinking" && _cadThinking) { _cadThinking = false; cadFire("tutor.done"); }
       if (s === "speaking") voiceHeard = true;
       state = s;
       // (rj, 2026-09-01) the BUSY GLOW went with the orb it hugged -- the thinking
@@ -2729,6 +2746,7 @@
       clearBeside();                             // build oj: a dangling [[beside]] never leaks into a new turn
       clearStepGrid();                           // build os: an open step card never captures the next turn
       curWork = null;                            // this turn's [[step]]s start a fresh worklist block
+      const _cadBoardBefore = feed.querySelectorAll("*").length;   /* (rr) for board.written, below */
       const tagRe = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g; let m;
       while ((m = tagRe.exec(text)) !== null) {
         const name = m[1].toLowerCase(), attrs = parseAttrs(m[2]);
@@ -2749,21 +2767,26 @@
         // existed solely as prose, and detecting one meant sniffing his words for
         // "see you" -- which would misfire on "see you next Tuesday we'll do fractions".
         // The tutor now marks its own wrap-up turn (rule 29a); the tag draws nothing.
-        else if (name === "bye") queueMoment("goodbye");
+        else if (name === "bye") { queueMoment("goodbye"); cadFire("lesson.end"); }   /* (rr) the goodbye wave */
         else if (name === "today") showToday(attrs);
         else if (name === "todaydone") markTodayDone(attrs);
         else if (name === "unitplan") showUnitPlan(attrs);
         else if (name === "finalexam") showFinalExam(attrs);
-        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }).then(function (r) { if (r) renderStreakChips({ streak_days: r.streak_days, today_streak: r.today_streak }); }); if (_c > 0) bumpTodayProgress(2); if (_c > 0) cadFire("answer.correct", { hard: true }); sawMark = true; }   /* (rj) the gold ring retired with the orb -- the PENCIL celebrates now */   /* (rh) the doorbell rings twice -- rule 11's tiered celebration */   /* build qz: the streak chips update from the SERVER's fresh count, not a client guess */   /* build oy: a finished problem is worth two nudges */   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
-        else if (name === "miss") { postJSON("/api/mark/me", { miss: 1 }).then(function (r) { if (r) renderStreakChips({ streak_days: r.streak_days, today_streak: r.today_streak }); }); cadFire("answer.wrong"); }   /* (rc) the star falls the MOMENT they slip -- Jim's ruling: a miss is any wrong tap. The SERVER's fresh number feeds the chips, never a client guess. */
-        else if (name === "nice") { bumpTodayProgress(1); cadFire("answer.correct"); }   /* (rj) the small ring retired with the orb */   /* build oy: and the day's bar moves */   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
+        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }).then(function (r) { if (r) renderStreakChips({ streak_days: r.streak_days, today_streak: r.today_streak }); }); if (_c > 0) bumpTodayProgress(2); if (_c > 0) cadFire("answer.correct", { hard: true }); cadSlip(_c > 0 ? "right" : "wrong"); sawMark = true; }   /* (rj) the gold ring retired with the orb -- the PENCIL celebrates now */   /* (rh) the doorbell rings twice -- rule 11's tiered celebration */   /* build qz: the streak chips update from the SERVER's fresh count, not a client guess */   /* build oy: a finished problem is worth two nudges */   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
+        else if (name === "miss") { postJSON("/api/mark/me", { miss: 1 }).then(function (r) { if (r) renderStreakChips({ streak_days: r.streak_days, today_streak: r.today_streak }); }); cadFire("answer.wrong"); cadSlip("wrong"); }   /* (rc) the star falls the MOMENT they slip -- Jim's ruling: a miss is any wrong tap. The SERVER's fresh number feeds the chips, never a client guess. */
+        else if (name === "nice") { cadSlip("right"); bumpTodayProgress(1); cadFire("answer.correct"); }   /* (rj) the small ring retired with the orb */   /* build oy: and the day's bar moves */   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
         else if (["triangle","angle","circle","transversal","polygon","solid","segment"].indexOf(name) >= 0) showGeo(name, attrs);   /* build ot: +transversal/polygon/solid */
         else if (name === "choices") showChoices(attrs);
         else if (name === "objects") showObjects(attrs);
         else if (name === "beside") armBeside();   /* build oj: the NEXT block joins the previous one side by side */
         else if (name === "stepcard") { curWork = null; openStepCard(attrs); }   /* build os: a labeled Step-N card; following blocks land inside it */
         else if (name === "clear") wipeBoard();
+        else if (name === "ink") cadInk(attrs);   /* (rr) [[ink circle="..."|underline="..."|bang="..."]] -- the pencil marks a word on the board */
       }
+      /* (rr) THE BOARD GREW THIS TURN. Rung after the loop, once, so the pencil's
+         glance can notice the NEWEST thing; cadabra.js decides whether to look
+         (only after the voice stops, never while the child is typing, and not often). */
+      if (feed.querySelectorAll("*").length > _cadBoardBefore) cadFire("board.written");
       // build fy -- THE END-OF-PROBLEM SIGNAL WE CAN ACTUALLY TRUST.
       // [[clear]] is taught in the prompts but nothing enforces it, and a tutor turn that
       // forgets it left the finished problem on screen for ever. [[mark]] is different: it
@@ -2778,6 +2801,26 @@
     /* (rh) one guarded door to the Cadabra layer: safe when cadabra.js is absent,
        failed, or dark (its own methods are no-ops without the menu). */
     function cadFire(ev, opts) { try { if (window.Cadabra) Cadabra.fire(ev, opts); } catch (e) {} }
+    /* (rr) [[ink]]: the tutor asks for a mark on a word. Guarded like cadFire. */
+    function cadInk(a) { try { if (window.Cadabra && Cadabra.ink) Cadabra.ink({ circle: a.circle, underline: a.underline, bang: a.bang, kind: a.kind }); } catch (e) {} }
+    /* (rr) STUCK, THE PAGE'S HALF. Two misses in a row is stuck; so is a long silence
+       after the tutor hands the turn over (see setPhase). Either rings student.stuck
+       ONCE per stretch; a right answer clears it. The pencil's empathy is the menu's. */
+    var _cadMisses = 0, _cadStuckSaid = false, _cadSilence = null;
+    function cadSlip(kind) {
+      if (kind === "right") { _cadMisses = 0; _cadStuckSaid = false; return; }
+      _cadMisses++;
+      if (_cadMisses >= 2 && !_cadStuckSaid) { _cadStuckSaid = true; cadFire("student.stuck"); }
+    }
+    function cadSilenceArm() {
+      cadSilenceDisarm();
+      _cadSilence = setTimeout(function () { _cadSilence = null; if (!_cadStuckSaid) { _cadStuckSaid = true; cadFire("student.stuck"); } }, 60000);
+    }
+    function cadSilenceDisarm() { if (_cadSilence) { clearTimeout(_cadSilence); _cadSilence = null; } }
+    document.addEventListener("keydown", cadSilenceDisarm, true);
+    document.addEventListener("pointerdown", cadSilenceDisarm, true);
+    /* (rr) milestones: one door, the kind names the party line */
+    function cadMilestone(kind) { cadFire("milestone", { kind: kind }); }
     function clearStage() { feed.innerHTML = '<div class="stage-hint" id="stageHint">Your lesson will appear here.</div>'; try { if (window.Cadabra) Cadabra.clearInk(); } catch (e) {} }   /* (rh) rule 15: his marks die with the problem */
     // [[clear]] = "new problem." The transcript RETAINS history, so instead of erasing we drop
     // a subtle divider and let the next problem's math start in a fresh block below it.
@@ -3011,6 +3054,8 @@
       if (tEl) {
         tEl.textContent = String(today);
         if (_LAST_TODAY_STREAK !== null && today !== _LAST_TODAY_STREAK) bumpChip("scToday");
+        /* (rr) three in a row is a milestone -- every upward crossing of a multiple of 3 */
+        if (_LAST_TODAY_STREAK !== null && today > _LAST_TODAY_STREAK && today >= 3 && today % 3 === 0) cadMilestone("streak");
       }
       _LAST_STREAK_DAYS = days; _LAST_TODAY_STREAK = today;
     }
@@ -3256,6 +3301,7 @@
       const pct = Math.round(100 * correct / total);
       const passed = pct >= 90;
       if (passed) queueMoment("course_champion");   // build ey -- the biggest moment in the app
+      if (passed) cadMilestone("course");            /* (rr) and the pencil's biggest party */
       const host = feedBlock();
       host.innerHTML = '<div class="finalcard ' + (passed ? "pass" : "") + '">'
         + '<div class="fc-top">🎓 Final Exam — ' + COURSE_TITLE + '</div>'
@@ -3448,6 +3494,7 @@
         + '<div class="ck-top">Quiz' + (safe ? " — " + safe : "") + '</div>'
         + '<div class="ck-score">' + correct + ' / ' + total + '</div>'
         + '<div class="ck-badge">' + (passed ? "★ Passed — next topic unlocked!" : "So close — let's patch it up and try again") + '</div></div>';
+      if (passed) cadMilestone("quiz");   /* (rr) the pencil's party, after the card is on the board */
     }
 
     function showCheck(a) {
@@ -3474,6 +3521,7 @@
         + '<div class="ck-top">Unit Quiz</div>'
         + '<div class="ck-score">' + correct + ' / ' + total + '</div>'
         + '<div class="ck-badge">' + (passed ? "★ Unit mastered!" : "Nice progress — let's shore up a couple spots") + '</div></div>';
+      if (passed) cadMilestone("unit");   /* (rr) */
     }
 
     // ---------- Pause / resume (RESTORED 2026-08-07 build aw, Jim: "when Mr. Cadabra's
@@ -3515,7 +3563,13 @@
       && (typeof MediaRecorder !== "undefined");
 
     // ---------- Turn / button state ----------
+    var _cadPhase = "";
     function setPhase(p) {
+      /* (rr) the listening face while the mic is live; the silence timer runs while it is the child's turn */
+      if (p === "recording" && _cadPhase !== "recording") cadFire("mic.on");
+      else if (p !== "recording" && _cadPhase === "recording") cadFire("mic.off");
+      if (p === "ready" && /\?/.test(String(typeof lastTutorText !== "undefined" ? lastTutorText : "").slice(-200))) cadSilenceArm(); else cadSilenceDisarm();   /* only when he actually asked something */
+      _cadPhase = p;
       phase = p;
       talkBtn.classList.remove("ready", "recording");
       if (p === "ready") {
@@ -3854,6 +3908,7 @@
         // (main.py's __script_done note) makes the tutor's first sentence NAME
         // the new topic and put it on the board.
         if (step.mastered) {
+          cadMilestone("lesson");   /* (rr) the party first; the seam line plays over it */
           const SEAM_LINE = "That lesson is finished — well done! Something new is coming next. Watch the board.";
           addBubble("tutor", SEAM_LINE); lastTutorText = SEAM_LINE;
           await scrSay(SEAM_LINE);
@@ -4000,7 +4055,16 @@
           return;
         }
         if (!r.ok || !j.ok) { SCR.on = false; await runTutor(txt); return; }
-        if (j.streak) renderStreakChips({ streak_days: j.streak.streak_days, today_streak: j.streak.today_streak });   /* (rd) the scripted lane's own grade feeds the chips -- the server's number, never a guess */
+        if (j.streak) {
+          /* (rr) the scripted lane's grade, read off the server's streak: up = right, reset = wrong.
+             Rung BEFORE the chips re-render so the comparison sees the previous count. */
+          const _prev = _LAST_TODAY_STREAK, _now = parseInt(j.streak.today_streak, 10) || 0;
+          if (_prev !== null) {
+            if (_now > _prev) { cadFire("answer.correct", { hard: true }); cadSlip("right"); }
+            else { cadFire("answer.wrong"); cadSlip("wrong"); }   /* a graded tap either bumps or resets; a reset from 0 is still a miss */
+          }
+          renderStreakChips({ streak_days: j.streak.streak_days, today_streak: j.streak.today_streak });
+        }   /* (rd) the scripted lane's own grade feeds the chips -- the server's number, never a guess */
         SCR.pending = false;
         scrIngest(j.steps);
       } catch (e) {

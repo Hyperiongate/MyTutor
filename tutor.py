@@ -2,6 +2,9 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD rr -- PROMPT_CEILING 205,000 -> 207,000 (dated ledger note at the
+#               constant). The only change in this file: prompts.py's new [[ink]]
+#               paragraph put the all-heard algebra2 prompt 621 chars over.
 #   2026-09-01  BUILD rn -- CLUSTER E: TWO HOLES CLOSED, ONE RULING TAKEN (rules
 #               42, 39, 15 -- two gate WIDENINGS, no new referee, count stays 71).
 #               ① Rule 42: "trips a lot of people up" -- a first cut widened
@@ -2864,7 +2867,14 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # Twelfth verse, same discipline: teaching is never trimmed to duck a tripwire;
 # the raise is deliberate and this is its dated note. The two-prompt-sizes LARGE
 # result remains the evidence that should set this number.
-PROMPT_CEILING = 205_000
+# 2026-09-02 (build rr): RAISED 205,000 -> 207,000. The pencil learned to mark a word
+# on the board, and every lesson prompt gained the one paragraph that teaches the
+# [[ink circle= | underline= | bang=]] tag (nine copies, ~700 chars each, beside the
+# hidden-tags block). The all-heard algebra2 deferred prompt measured 205,621 --
+# 621 over. Thirteenth verse, same discipline: teaching is never trimmed to duck a
+# tripwire; the raise is deliberate and this is its dated note. The two-prompt-
+# sizes LARGE result remains the evidence that should set this number.
+PROMPT_CEILING = 207_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
