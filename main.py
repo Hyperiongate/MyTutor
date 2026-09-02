@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  APP_BUILD -> "2026-09-02rz-a-variables-letter-keeps-its-case". BUILD
+#               rz, the 09-02 watch's finding E (rule 28): the seventy-second referee
+#               -- a variable written X on the board while the words say x is two
+#               names for one thing; clean case splits fire, a/e/i/o never judged.
+#               prompts.py rule 28 carries the case clause; methodology's tiles moved
+#               (72 reply checks, battery count). PART 3hw pins it. NO CODE IN THIS
+#               FILE CHANGED -- stamp only, per the stamp law below.
 #   2026-09-02  APP_BUILD -> "2026-09-02ry-the-accepted-offer-is-honored-and-the-
 #               verdict-is-proven". BUILDS rx + ry, the 09-02 watch's T3 findings
 #               C and D, delivered together: referee 70 gains the acceptance-turn
@@ -13304,7 +13311,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-02ry-the-accepted-offer-is-honored-and-the-verdict-is-proven"
+APP_BUILD = "2026-09-02rz-a-variables-letter-keeps-its-case"
 
 
 @app.get("/health")

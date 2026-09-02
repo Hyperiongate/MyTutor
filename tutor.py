@@ -2,6 +2,24 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD rz -- A VARIABLE'S LETTER KEEPS ITS CASE (the 09-02 watch's
+#               finding E, rule 28, algebra2: words said "solve x squared minus
+#               five x plus six" while the board wrote X^2 - 5X + 6 = 0 -- with
+#               case visible, two different names for one thing). THE SEVENTY-
+#               SECOND REFEREE: variable_case_conflict, reply-only and objective
+#               -- the board's isolated single letters (step/write/solve/machine
+#               math values) against the prose's variable-context letters (a
+#               closed grammar: "<letter> squared/equals/plus...", "solve for",
+#               "<number> <letter>", "to the"); fires ONLY on a clean split
+#               (every board use one case, every prose use the other). a/e/i/o
+#               are never judged (article, Euler, imaginary/pronoun,
+#               interjection -- E and e really are different things). Canon
+#               measured first: 153 lowercase-x board uses to 1 uppercase -- the
+#               habit is the live model's; prompts.py rule 28 now says the case
+#               law out loud (the ps discipline: prompt teaches, referee
+#               enforces). Swept: 0 fires over 306 scripts + the demo. Count
+#               71 -> 72; methodology's reply-checks tile moves with it. PART
+#               3hw holds it.
 #   2026-09-02  BUILD ry -- EVERY QUIZ ANSWER GETS ITS VERDICT, AND THE CODE CAN
 #               PROVE ONE (the 09-02 watch's finding D, rule 18, prealgebra: the
 #               student answered '2/3' for "simplify 8/12" and the reply went
@@ -4260,6 +4278,88 @@ def column_words_conflict(reply: str):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[columnwords] crashed (fail open): {exc}")
         _event("referee_crash", "columnwords", str(exc))
+        return ""
+
+
+# =============================================================================
+# REFEREE 72 -- A VARIABLE'S LETTER KEEPS ITS CASE  (build rz, 2026-09-02)
+# -----------------------------------------------------------------------------
+# The 2026-09-02 night watch, algebra2, rule 28: the words said "solve x squared
+# minus five x plus six equals zero" while the board wrote X^2 - 5X + 6 = 0.
+# With case visible, x and X are two different names -- the student sees one
+# problem on the board and a different variable in the wording. Rule 28's
+# one-name-per-thing promise covers the variable's LETTER too. (The canon's own
+# convention is nearly unanimous: 153 lowercase-x board uses to 1 uppercase --
+# the uppercase habit comes from the live model, and the prompt's rule 28 now
+# says so out loud; this referee is the enforcement under it, the ps law.)
+#
+# ⚠️ CAUTIOUS FOUR WAYS, because opposite cases CAN be two legitimate things:
+#   * a, e, i, o are never judged (the article, Euler's number, the imaginary
+#     unit / the pronoun, the interjection -- E and e really are different
+#     things in math, and prose "a" is usually English, not algebra);
+#   * the board side counts only ISOLATED single letters inside step/write/
+#     solve/machine math values (eq=, text=, rule=) -- "cm", "sin", function
+#     names never match;
+#   * the prose side counts a letter ONLY in variable context (a closed grammar:
+#     "<letter> squared/cubed/equals/plus/minus/times/over", "solve for
+#     <letter>", "<number> <letter>", "<letter> to the") -- never a bare letter
+#     in a sentence;
+#   * it fires ONLY on a clean split: every board use one case, every prose
+#     variable-use the opposite case, both present. A reply already mixing
+#     cases on one side is ambiguous and stays silent.
+_VC_BOARD_TAG_RE = re.compile(r"\[\[\s*(?:step|write|solve|machine)\b([^\]]*)\]\]")
+_VC_ISOLETTER_RE = re.compile(r"(?<![A-Za-z])([A-Za-z])(?![A-Za-z])")
+_VC_NUMWORD = (r"(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|"
+               r"twelve|twenty|thirty|forty|fifty|hundred|\d+)")
+_VC_PROSE_PATS = tuple(re.compile(p) for p in (
+    r"(?<![A-Za-z])([A-Za-z])(?![A-Za-z])\s+(?:squared|cubed|equals|plus|minus|"
+    r"times|over)\b",
+    r"\bsolve\s+for\s+(?<![A-Za-z])([A-Za-z])(?![A-Za-z])",
+    r"\b" + _VC_NUMWORD + r"\s+(?<![A-Za-z])([A-Za-z])(?![A-Za-z])",
+    r"(?<![A-Za-z])([A-Za-z])(?![A-Za-z])\s+to\s+the\b"))
+_VC_NEVER = {"a", "e", "i", "o"}
+
+
+def variable_case_conflict(reply: str):
+    """Return a description of a variable written in one case on the board and
+    spoken in the other, or "". Reply-only and objective. Never raises: fail
+    open."""
+    try:
+        text = str(reply or "")
+        board_cases = {}                  # letter-key -> set of cases on the board
+        for attrs in _VC_BOARD_TAG_RE.findall(text):
+            for name, val in _CW_ATTR_RE.findall(attrs):
+                if name not in ("eq", "text", "rule"):
+                    continue
+                for m in _VC_ISOLETTER_RE.finditer(val):
+                    board_cases.setdefault(m.group(1).lower(), set()).add(m.group(1))
+        if not board_cases:
+            return ""
+        prose = _spoken_only(text)
+        prose_cases = {}                  # letter-key -> set of variable-use cases
+        for pat in _VC_PROSE_PATS:
+            for m in pat.finditer(prose):
+                prose_cases.setdefault(m.group(1).lower(), set()).add(m.group(1))
+        for key, bset in board_cases.items():
+            if key in _VC_NEVER or len(bset) != 1:
+                continue                  # mixed on the board already: ambiguous
+            pset = prose_cases.get(key)
+            if not pset or len(pset) != 1:
+                continue                  # absent or mixed in the words: ambiguous
+            bcase, pcase = next(iter(bset)), next(iter(pset))
+            if bcase != pcase:
+                return ('the board writes the variable as "{b}" while your words '
+                        'call it "{p}" -- with case visible those are two '
+                        "different names for one thing, and the student sees one "
+                        "problem drawn and another spoken. Rule 28: one name per "
+                        'thing, the letter\'s case included. Use ONE case in both '
+                        'places -- prefer lowercase "{lo}", the canon\'s own '
+                        "convention -- and change nothing else.").format(
+                            b=bcase, p=pcase, lo=key)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[varcase] crashed (fail open): {exc}")
+        _event("referee_crash", "varcase", str(exc))
         return ""
 
 
@@ -9819,6 +9919,13 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if cwords:
             _event("referee_fire", "columnwords", cwords)
             return cwords
+        # (rz) the seventy-second: a variable's letter keeps its case (rule 28).
+        # Reply-only and objective -- the board's isolated letters against the
+        # prose's variable-context letters, clean splits only.
+        vcase = variable_case_conflict(reply)
+        if vcase:
+            _event("referee_fire", "varcase", vcase)
+            return vcase
         # (oc) the forty-eighth: a result you speak is a result you drew.
         skipres = skipped_result_conflict(reply, heard)
         if skipres:

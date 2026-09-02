@@ -2,6 +2,12 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD rz -- rule 28 gains the letter-case clause: A VARIABLE'S LETTER
+#               KEEPS ITS CASE (the 09-02 watch, algebra2: words said "x squared minus
+#               five x", board wrote X^2 - 5X + 6 = 0 -- with case visible, two
+#               different names). Prefer lowercase x; identical in words and on every
+#               board line. Enforced by the new referee 72 (variable_case_conflict,
+#               tutor.py). Nothing else in this file changed.
 #   2026-09-02  BUILD rr -- THE PENCIL MARKS A WORD (text only, as always). One
 #               paragraph after each of the 9 [[miss]] companion paragraphs teaches
 #               the optional [[ink circle= | underline= | bang=]] tag: name ONE word,
@@ -4759,6 +4765,11 @@ before you build on it. These say what to DO with what you find.
     the lesson. To a student who is still building the idea, every synonym you sprinkle
     in ("the pennies spot", "the ones column", "the cents place") is a brand-new thing
     to learn. Consistency is not dullness; it is kindness.
+    A VARIABLE'S LETTER KEEPS ITS CASE (2026-09-02, from a live algebra2 lesson: the
+    words said "solve x squared minus five x plus six" while the board wrote
+    X^2 - 5X + 6 = 0). With case visible, x and X are two DIFFERENT names. Pick one
+    case for each variable letter -- prefer lowercase x -- and keep it identical in
+    your spoken words and on every board line, all lesson. ⚑ enforced.
 
 
 ============================================================

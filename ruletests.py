@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD rz -- PART 3hw: a variable's letter keeps its case (the 09-02
+#               watch's finding E, rule 28, algebra2 -- words said "x squared minus
+#               five x", board wrote X^2 - 5X + 6 = 0). THE SEVENTY-SECOND REFEREE
+#               (variable_case_conflict): clean case split between board letters and
+#               prose variable-context letters -> fire; a/e/i/o never judged; mixed
+#               sides ambiguous and silent. prompts.py rule 28 gains the case clause
+#               (ps discipline). Canon measured 153 lowercase-x boards to 1 before
+#               building; swept 0 fires over 306 scripts + demo. Count pins 71 -> 72
+#               everywhere (the historical "unchanged" pins move with the tally, per
+#               the rf/rg precedent); methodology's reply-checks tile 71 -> 72.
 #   2026-09-02  BUILDS rx + ry -- PARTs 3hu + 3hv: the 09-02 watch's T3 findings C
 #               and D, delivered together.
 #               3hu (rx) THE ACCEPTED OFFER IS HONORED: offer to show -> "yes!" ->
@@ -12531,7 +12541,7 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- this build widened a gate",
-          n_ref == 71,
+          n_ref == 72,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -12615,7 +12625,7 @@ def part3hn_credit_only_what_you_saw():
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rm widened a gate",
-          n_ref == 71, f"{n_ref} *_conflict functions")
+          n_ref == 72, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -12692,7 +12702,7 @@ def part3ho_three_one_line_holes():
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rn widened two gates",
-          n_ref == 71, f"{n_ref} *_conflict functions")
+          n_ref == 72, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -19020,9 +19030,9 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ seventy-one referees now, counted from the code (62 + pz + qf + qm + qs + "
-          "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords)",
-          n_ref == 71, n_ref)
+    check("⭐ seventy-two referees now, counted from the code (62 + pz + qf + qm + qs + "
+          "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase)",
+          n_ref == 72, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -21599,7 +21609,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,265</b>" in page,
+          "<b>8,281</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22296,6 +22306,94 @@ def part3hp_no_colour_literals_on_the_board():
 # the page measures a DOM Range, exact to the pixel. Proof outside this battery:
 # fifty circles on fifty named words in a real session board, every one within
 # 3 px of the word's own box and enclosing it (build doc, rr).
+def part3hw_a_variables_letter_keeps_its_case():
+    """PART 3hw (build rz, 2026-09-02) -- A VARIABLE'S LETTER KEEPS ITS CASE.
+
+    THE FINDING (the 09-02 night watch, MEDIUM E, rule 28, algebra2): the words
+    said "solve x squared minus five x plus six equals zero" while the board
+    wrote X^2 - 5X + 6 = 0. With case visible, x and X are two different names
+    -- the student sees one problem drawn and a different variable in the
+    wording, breaking rule 28's one-name-per-thing promise.
+
+    MEASURED BEFORE BUILDING: the canon's boards use lowercase x 153 times and
+    uppercase X once -- the uppercase habit is the LIVE MODEL's, so the fix is
+    the ps discipline both ways: prompts.py rule 28 now carries the letter-case
+    clause out loud, and THE SEVENTY-SECOND REFEREE (variable_case_conflict)
+    enforces it. Reply-only and objective: the board's isolated single letters
+    against the prose's variable-context letters (closed grammar), firing ONLY
+    on a clean split -- every board use one case, every prose variable-use the
+    opposite. a/e/i/o are never judged (the article, Euler's number, the
+    imaginary unit / the pronoun, the interjection -- E and e really are two
+    different things in math; the triage note said exactly this, and the one
+    canon near-miss was an amplitude "a"/"A" pair the exclusion covers)."""
+    print("\nPART 3hw — a variable's letter keeps its case (build rz)")
+    import tutor as _t
+
+    watch = ('Now, solve x squared minus five x plus six equals zero by '
+             'factoring. [[step eq="X^2 - 5X + 6 = 0"]] '
+             '[[step eq="(X - ?)(X - ?) = 0"]] '
+             'What two numbers multiply to six and add to negative five?')
+    d = _t.variable_case_conflict(watch)
+    check("⭐ the watch's shape fires: prose x, board X",
+          bool(d) and "Rule 28" in d and '"x"' in d and '"X"' in d,
+          "one name per thing -- the letter's case included")
+    check('  ...and the nudge prescribes lowercase, the canon\'s own convention',
+          'lowercase "x"' in d, "153 lowercase-x boards to 1: measured, not guessed")
+    check("  the reverse direction fires too (board x, prose X)",
+          bool(_t.variable_case_conflict(
+              'Five X plus one is eleven. [[step eq="5x + 1 = 11"]]')), "")
+    for label, frag in (
+            ("matched lowercase is silent",
+             'Solve x squared minus five x plus six. '
+             '[[step eq="x^2 - 5x + 6 = 0"]] Go.'),
+            ("matched uppercase is silent",
+             'Solve for X now. Five X equals ten. [[step eq="5X = 10"]]'),
+            ("mixed case on the BOARD is ambiguous",
+             'x squared today. [[step eq="X^2 + x = 2"]]'),
+            ("mixed case in the WORDS is ambiguous",
+             'x squared, and five X too. [[step eq="X^2 - 5X = 0"]]'),
+            ("'a' is the article, never judged",
+             'Pick a squared number, like nine. [[step eq="A = 9"]]'),
+            ("'e' is Euler, never judged",
+             'e to the x grows fast. [[step eq="E = 5"]]'),
+            ("a bare prose letter without variable context claims nothing",
+             'Section x is done. [[step eq="X^2 = 4"]]'),
+            ("no board tags, nothing to disagree with", 'x squared is fun.')):
+        check(f"  silent: {label}",
+              not _t.variable_case_conflict(frag), frag[:60])
+    check("  never raises",
+          _t.variable_case_conflict(None) == "" and
+          _t.variable_case_conflict(12345) == "", "")
+    tsrc = open(_t.__file__, encoding="utf-8").read()
+    check("⭐ wired into the referee stack with its own fire event",
+          'vcase = variable_case_conflict(reply)' in tsrc
+          and '_event("referee_fire", "varcase", vcase)' in tsrc, "")
+    check("  the sweep itself returns the finding on the watch shape",
+          "case" in (_t.prose_board_conflict(watch) or "").lower(),
+          "a referee defined but not reached protects nobody")
+    here = os.path.dirname(os.path.abspath(__file__))
+    psrc = open(os.path.join(here, "prompts.py"), encoding="utf-8").read()
+    check("⭐ rule 28 carries the letter-case clause (the ps discipline: prompt "
+          "teaches, referee enforces)",
+          "A VARIABLE'S LETTER KEEPS ITS CASE" in psrc
+          and "prefer lowercase x" in psrc, "")
+
+    # ⭐ the standing sweep
+    import foundations as FND
+    fires = 0; n = 0
+    for course, scripts in FND.FOUNDATIONS.items():
+        items = scripts.values() if isinstance(scripts, dict) else scripts
+        for sc in items:
+            n += 1
+            text = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if _t.variable_case_conflict(text):
+                fires += 1
+    dsrc = open(os.path.join(here, "static", "demo.html"), encoding="utf-8").read()
+    check(f"⭐ zero false alarms across all {n} canon scripts and the demo",
+          fires == 0 and not _t.variable_case_conflict(dsrc) and n >= 300,
+          f"{fires} authored scripts rejected -- every false alarm is a paid retry")
+
+
 def part3hu_the_accepted_offer_is_honored():
     """PART 3hu (build rx, 2026-09-02) -- THE ACCEPTED OFFER IS HONORED.
 
@@ -22354,7 +22452,7 @@ def part3hu_the_accepted_offer_is_honored():
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
     check("  the referee count is unchanged -- rx widened a gate",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 71, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 72, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -22475,7 +22573,7 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
     check("  the referee count is unchanged -- ry widened a gate and added a floor",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 71, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 72, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -31034,6 +31132,7 @@ def main():
     part3ht_the_op_tells_the_truth()
     part3hu_the_accepted_offer_is_honored()
     part3hv_the_verdict_is_proven()
+    part3hw_a_variables_letter_keeps_its_case()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
