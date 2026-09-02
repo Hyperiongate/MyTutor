@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  APP_BUILD -> "2026-09-02rs-the-demo-three-things-jim-saw". BUILD rs --
+#               ONE line APPENDED to DEMO_VOICE_LINES (252 -> 253), byte-identical to
+#               demo.html's VOICE_LINES: the miniature-dashboard tour line. The old
+#               "here is a corner of it" line stays (append-only). Nothing else.
 #   2026-09-02  APP_BUILD -> "2026-09-02rr-the-pencil-has-feelings-about-your-work".
 #               BUILD rr -- Jim's behaviour list for the pencil, all front-end plus
 #               the tag grammar: [[ink circle=|underline=|bang=]] registered in
@@ -13270,7 +13274,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-02rr-the-pencil-has-feelings-about-your-work"
+APP_BUILD = "2026-09-02rs-the-demo-three-things-jim-saw"
 
 
 @app.get("/health")
@@ -15617,6 +15621,7 @@ DEMO_VOICE_LINES = [
     "And one thing that is not on this screen, because it never needs to be: the drilling. Extra practice belongs to Abrabot, my teaching assistant — a robot with a virtually unlimited box of problems on skills already taught. He handles the repetition, so your class time with me goes to the teaching, and yours goes to the five children who need you.",
     "Last thing. Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills your child has already learned. There is no such thing as running out. Which means \"can I do more?\" is always a yes.",
     "Last thing, and it matters for a homeschool week: Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills already taught. It never runs out. So the repetition your child needs is there whenever you have a spare ten minutes, without you writing a single worksheet.",
+    "Next, the Progress dashboard. Here is a small look at it — how your student is doing, the streaks, the awards, the trophy case, all of it. We will come back and go through it properly after the lesson, when you can open all three views yourself."   # (rs) the miniature dashboard line, APPENDED
 ]
 
 

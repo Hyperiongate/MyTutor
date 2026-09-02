@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD rs -- the demo, three things Jim saw (and one more): Abrabot's
+#               lines keep the pencil's mouth still (lastRobot -> mt:silent); the
+#               corner panel is gone (3hq pins it, statusEl guarded); the lesson no
+#               longer flows into an Abrabot section (nf's flow pin INVERTED with
+#               Jim's ruling; the standalone button stays pinned); the dashboard peek
+#               is a 75% MINIATURE of the real student dashboard with an APPENDED
+#               voice line (old line kept in the lists, no longer a stop). Found and fixed on
+#               the way: a stray </div> from the panel cut closed the sidebar early.
 #   2026-09-02  BUILD rr -- PART 3hq: the pencil has feelings about your work. Jim's
 #               behaviour list on the real layer: the word finder (a DOM Range, exact
 #               to the pixel; loose on the board's spacing/operators; rule 19 inside),
@@ -21356,9 +21364,13 @@ def part3dr_the_demo_practices_too():
           not wrongs, "; ".join(wrongs)[:400])
 
     dcode = code_only(dsrc)
-    check("the lesson flows INTO practice (one hook, not ten edits)",
-          "runAbraPractice(showEnd)" in dcode and "practiceRan=false" in dcode,
-          "the hook in next() is gone -- lessons end without practice again")
+    # (rs, 2026-09-02) INVERTED, not deleted. Jim: "Abrabot does get introduced early on
+    # in the demo, so we don't need to have a section for Abrabot later on." The
+    # lesson ends at showEnd; practice is the Extra practice button's alone.
+    check("the lesson does NOT flow into an Abrabot section any more (rs) -- practice is the button's",
+          "runAbraPractice(showEnd)" not in dcode and "showEnd(); return;" in dcode
+          and "runAbraPractice(function(){ showPicker(true); }, true)" in dcode,
+          "Jim's 09-02 ruling: he was introduced on the tour; no second Abrabot section")
     check("⚠️ Abrabot's demo voice is the FREE one",
           "browserSay(text, true)" in dcode
           and "playServerClip" not in dcode.split("function abraSay")[1].split("function runAbraPractice")[0],
@@ -22376,15 +22388,30 @@ def part3hq_the_pencil_has_feelings_about_your_work():
           pr.count("Three hidden tags record") == 9 and "Two hidden tags record" not in pr, "")
 
     # ---- 7. the demo: the circle is gone, and he talks for real ----------------
-    demo = rd("static", "demo.html"); dcode = demo.split("<body", 1)[-1]
+    demo = rd("static", "demo.html"); dcode = demo.split("<body", 1)[-1]; dsrc = demo; main_src = rd("main.py")
     check("⭐ the demo's orb circle is GONE (no orbwrap, no cadbust, no orb canvas)",
           "orbwrap" not in dcode and "cadbust" not in dcode and 'id="orbFace"' not in dcode, "Jim: 'get rid of the circle with him in it'")
-    check("  ...setSpeaking announces mt:speaking / mt:silent so the floating pencil's mouth moves",
-          'document.dispatchEvent(new CustomEvent(on ? "mt:speaking" : "mt:silent"))' in dcode, "")
+    check("  ...setSpeaking announces mt:speaking / mt:silent so the floating pencil's mouth moves -- "
+          "and (rs) only for HIS lines: a robot line announces silence",
+          'document.dispatchEvent(new CustomEvent((on && !lastRobot) ? "mt:speaking" : "mt:silent"))' in dcode,
+          "Jim: 'when Abrabot is talking, Mr. Cadabra's mouth should not move'")
     check("  ...the face loop survives without the orb canvas (guarded, Abrabot's big face still drawn)",
           "if(orbFace) TutorFace.draw(orbFace" in dcode and "var sp=speakingNow;" in dcode, "")
-    check("  ...and 'this is me' on the tour is a WAVE, not a point at a circle that is gone",
-          "if (id === 'tutorPanel' && Cadabra.wave) Cadabra.wave({ center: true })" in dcode, "")
+    check("  ...and 'this is me' on the tour is a WAVE from the stop itself (rs: nothing left to glow)",
+          "{t:'bubble',        before:cadWave" in dcode and "function cadWave()" in dcode and "Cadabra.wave({ center: true })" in dcode, "")
+    # ---- (rs) three more things Jim saw in the demo -------------------------------
+    check("⭐ (rs) the corner panel is gone: no tutor-head, no status line, and the writes to it are guarded",
+          'class="tutor-head"' not in dcode and 'id="status"' not in dcode and "if(statusEl) statusEl.textContent" in dcode,
+          "Jim: 'that little corner could be gone'")
+    check("⭐ (rs) the dashboard peek is a MINIATURE of the real student dashboard, 75% of the window, untouchable",
+          "function showDashMini()" in dcode and "window.innerWidth*0.75" in dcode and "window.innerHeight*0.75" in dcode
+          and "before:showDashMini, done:hideDashMini" in dcode and "pointer-events:none" in dsrc.split("<style")[1].split("</style>")[0].split(".dash.mini{")[1][:400],
+          "Jim: 'open up one kind of a miniature view that takes up maybe seventy five percent of the screen'")
+    _MINI = "Next, the Progress dashboard. Here is a small look at it"
+    check("  ...its line is APPENDED to both voice lists, and the old corner line stays (append-only)",
+          _MINI in dsrc and _MINI in main_src and "here is a corner of it" in dsrc and "here is a corner of it" in main_src, "")
+    check("  ...and the corner line is no longer a tour stop (every stop must name a real element)",
+          "here is a corner of it" not in dcode.split("var TOUR=[")[1].split("];")[0], "")
 
     # ---- 8. the bench and the stamp --------------------------------------------
     lab = rd("static", "cadabra-lab.html")
@@ -22392,7 +22419,8 @@ def part3hq_the_pencil_has_feelings_about_your_work():
           all(k in lab for k in ('Cadabra.circle($("inkText").value)', "Cadabra.find(", "Cadabra.wave({ center: true })",
                                  "Cadabra.comfort()", "Cadabra.glance({ forced: true })", "Cadabra.think(true)", 'Cadabra.party({ kind: $("kind").value })')), "")
     main_src = rd("main.py")
-    check("APP_BUILD is stamped rr", 'APP_BUILD = "2026-09-02rr-' in main_src, "")
+    _stamp = re.search(r'^APP_BUILD = "([^"]+)"', main_src, re.M)
+    check("APP_BUILD is stamped rr or later", bool(_stamp) and _stamp.group(1) >= "2026-09-02rr", _stamp and _stamp.group(1))
     traw = rd("tutor.py")
     check("⭐ the thirteenth ceiling raise carries its dated note (the [[ink]] paragraph x9 cost 621 chars)",
           "2026-09-02 (build rr): RAISED 205,000 -> 207,000" in traw and "PROMPT_CEILING = 207_000" in traw,

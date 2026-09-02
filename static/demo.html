@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <!--
+    (rs) 2026-09-02 -- THREE THINGS JIM SAW IN THE DEMO, AND ONE MORE. ① Abrabot's
+    lines announce mt:silent to the pencil (lastRobot), so Mr. Cadabra's mouth is
+    still while the robot talks. ② The corner panel (name + "is talking...") is
+    removed from markup and CSS; its status writes are guarded; the tour's "this is
+    me" stop waves from its own `before` (nothing left to glow). ③ The lesson no
+    longer flows into an Abrabot practice section -- he was introduced on the tour;
+    the standalone practice stays behind the Extra practice button. ④ The dashboard
+    peek is a MINIATURE of the real student dashboard (75% of the window, inside the
+    board column, untouchable, contents zoomed to .72) with a new APPENDED line
+    ("Here is a small look at it..."); rl's corner line stays in both voice lists
+    (append-only) but is no longer a tour stop.
     (rr) 2026-09-02 -- THE CIRCLE IS GONE, AND HE TALKS FOR REAL. Jim: "get rid of the
     circle with him in it." The sidebar orb (a static pencil picture in a 76px
     circle, with a hidden canvas behind it) is removed from the markup and CSS; the
@@ -448,7 +459,7 @@
   body.classroom .app{display:grid}
   .side{padding:16px 14px;overflow-y:auto;background:rgba(255,255,255,.6);
     border-right:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
-  .tutor-head{display:flex;align-items:center;gap:12px}
+  /* (rs) .tutor-head is gone -- the sidebar starts at the Curriculum button now */
   /* (nh) ABRABOT'S ENTRANCE. Jim: "maybe he flies in from someplace or he bounces
      around like he's excited, and he should take up a little bit more space in the
      white space because he's just a little guy." So: a 220px robot FLIES onto the
@@ -610,6 +621,12 @@
   .dash{position:fixed;inset:0;z-index:80;background:linear-gradient(180deg,#fbf7ff,#f2fbfa);
     overflow-y:auto;padding:22px 20px 30px;display:none}
   .dash.show{display:block}
+  /* (rs) the miniature: the same dashboard, boxed inside the board column, shown but
+     not touchable, its contents shrunk so the whole page reads at a glance */
+  .dash.mini{inset:auto;border-radius:20px;border:2px solid var(--line);box-shadow:0 30px 80px rgba(28,24,54,.38);
+    pointer-events:none;overflow:hidden;padding:14px 16px 18px;z-index:70}
+  .dash.mini > *{zoom:.72}
+  .dash.mini .dashback{display:none}   /* nothing to press in a picture */
   .dash .dhead{display:flex;align-items:center;gap:10px;max-width:940px;margin:0 auto 14px}
   .dash .dhead h2{font-size:21px}
   .dash .dwrap{max-width:940px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
@@ -844,13 +861,7 @@
 <!-- ===== THE FULL-PAGE CLASSROOM ===== -->
 <div class="app" id="app">
   <aside class="side">
-    <div class="tutor-head" id="tutorPanel">
-      <!-- (rr) the orb circle is gone: the floating pencil is the only Mr. Cadabra on this page -->
-      <div>
-        <div class="tutor-name">Mr. Cadabra</div>
-        <div class="status" id="status">&nbsp;</div>
-      </div>
-    </div>
+    <!-- (rs) the corner panel (name + "Mr. Cadabra is talking...") is gone: the floating pencil is the whole of him -->
     <nav class="leftnav">
       <button class="navbtn" id="curriculumBtn" type="button">📚 Curriculum <span class="chev">▸</span></button>
       <div class="curriculum" id="curriculumList"></div>
@@ -1711,6 +1722,9 @@
     "And one thing that is not on this screen, because it never needs to be: the drilling. Extra practice belongs to Abrabot, my teaching assistant — a robot with a virtually unlimited box of problems on skills already taught. He handles the repetition, so your class time with me goes to the teaching, and yours goes to the five children who need you.",
     "Last thing. Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills your child has already learned. There is no such thing as running out. Which means \"can I do more?\" is always a yes.",
     "Last thing, and it matters for a homeschool week: Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills already taught. It never runs out. So the repetition your child needs is there whenever you have a spare ten minutes, without you writing a single worksheet."
+    ,
+    "Next, the Progress dashboard. Here is a small look at it — how your student is doing, the streaks, the awards, the trophy case, all of it. We will come back and go through it properly after the lesson, when you can open all three views yourself."
+    // (rs) ^ the miniature dashboard line, APPENDED (the reader above strips // comments only)
   ];
   // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
   // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
@@ -1742,10 +1756,13 @@
   function setSpeaking(on){
     speakingNow=!!on;
     if(orb) orb.classList.toggle('speaking', !!on);
-    statusEl.textContent = on ? "Mr. Cadabra is talking…" : "";
+    if(statusEl) statusEl.textContent = on ? "Mr. Cadabra is talking…" : "";   /* (rs) the status line is gone; guarded */
     /* (rr) the pencil's mouth runs on these -- the same two events voice.js announces
-       in a lesson. The demo plays its own clips, so it announces them itself. */
-    try { document.dispatchEvent(new CustomEvent(on ? "mt:speaking" : "mt:silent")); } catch(e){}
+       in a lesson. The demo plays its own clips, so it announces them itself.
+       (rs) ONLY FOR HIS OWN LINES. Jim: "when Abrabot is talking, Mr. Cadabra's mouth
+       should not move." lastRobot is set by abraSay before the robot speaks, so a
+       robot line announces silence to the pencil instead. */
+    try { document.dispatchEvent(new CustomEvent((on && !lastRobot) ? "mt:speaking" : "mt:silent")); } catch(e){}
   }
   function browserSay(text, robot){
     if(!voiceOn||!('speechSynthesis' in window)){ fireLineDone(); return; }
@@ -2187,7 +2204,10 @@
     // teach -> problem -> Abrabot practice -> congratulations, and a Skip door keeps
     // the impatient visitor in charge of their own time.
     if(s.end){
-      if(!practiceRan && ABRA_BANK[curId]){ practiceRan=true; runAbraPractice(showEnd); return; }
+      // (rs, 2026-09-02) Jim: "Abrabot does get introduced early on in the demo, so we
+      // don't need to have a section for Abrabot later on." The lesson ends at the
+      // congratulations; Abrabot's practice stays one tap away on the Extra practice
+      // button (the standalone door), and nowhere else.
       showEnd(); return;
     }
     if(s.board) s.board.forEach(function(r){ addRow(r[0], r[1]); });
@@ -2441,6 +2461,25 @@
   function hideAbraBig(){ var d=el('abraBig'); if(d) d.remove(); }
 
   /* (rl) ---- the two tour beats Jim asked for on 2026-09-01 ---- */
+  /* (rs) THE MINIATURE. Jim: "instead of saying here's a corner, open one kind of a
+     miniature view that takes up maybe seventy five percent of the screen... this is
+     how you can find out how you're doing and your trophy cases and all that. We will
+     cover that later on in this demo, and then close it down." The REAL student
+     dashboard (#dashStudent) opens inside the board column at 75% of the window, shown
+     but not touchable, for the length of the line; the sidebar stays clear so the
+     pencil can still point at the Progress dashboard button. */
+  function showDashMini(){
+    var d=el('dashStudent'); if(!d) return;
+    var c=document.querySelector('.center'), r=c ? c.getBoundingClientRect() : {left:0};
+    var w=Math.round(window.innerWidth*0.75), h=Math.round(window.innerHeight*0.75);
+    var left=Math.max(r.left+8, Math.round((window.innerWidth-w)/2)); if(left+w>window.innerWidth-8) w=window.innerWidth-8-left;
+    d.style.left=left+'px'; d.style.top=Math.round((window.innerHeight-h)/2)+'px'; d.style.width=w+'px'; d.style.height=h+'px';
+    d.classList.add('mini','show'); d.scrollTop=0;
+  }
+  function hideDashMini(){
+    var d=el('dashStudent'); if(!d) return;
+    d.classList.remove('mini','show'); d.style.left=d.style.top=d.style.width=d.style.height='';
+  }
   function showDashPeek(){
     if(el('dashPeek')) return;
     var d=document.createElement('div'); d.id='dashPeek';
@@ -2902,8 +2941,8 @@
   var TOUR=[
     {t:'curriculumBtn', line:"Over here on the left is your Curriculum — everything in the course, laid out in nine units. Your student can open any unit and see exactly what's inside it, so the whole year is never a mystery."},
     {t:'assessLink',    line:"Right below it, the Course Assessment. Whenever they're ready, it finds their strengths and builds a recommended path just for them. It's completely optional, and it's always waiting right there."},
-    {t:'dashLink',      before:showDashPeek, done:hideDashPeek,
-     line:"Next, the Progress dashboard — here is a corner of it. We will spend proper time in there after the lesson, when you can open all three views and click through them yourself."},
+    {t:'dashLink',      before:showDashMini, done:hideDashMini,   /* (rs) the miniature, not the corner card */
+     line:"Next, the Progress dashboard. Here is a small look at it — how your student is doing, the streaks, the awards, the trophy case, all of it. We will come back and go through it properly after the lesson, when you can open all three views yourself."},
     {t:'practiceLink',  line:"Then Practice a problem. When your student is stuck on one specific problem — homework, a worksheet, anything — they bring it here and we work through it together."},
     {t:'drillLink',     after:abrabotCameo,
      line:"And see Extra practice — the one with the robot? That one is not mine at all. Let me introduce you."},
@@ -2913,7 +2952,8 @@
     {t:'board',         line:"This big space is my whiteboard. Every step of every problem gets drawn right here — the board leads, and my voice follows. Nothing ever happens only in words."},
     {t:'streakChips',  line:"And these two bubbles at the top are the streak. The flame counts days in a row your student has worked; the star counts problems right in a row today. Small, honest numbers — and children watch them like a scoreboard."},
     {t:'dbars',         line:"See the bars up top? That's your student's map — today's goals, the current unit with a marker for every quiz, and the whole course marching gold toward the Final Exam. They always know exactly where they are."},
-    {t:'tutorPanel',    line:"And this is me, Mr. Cadabra! In the real classroom we simply talk — your student says their answer out loud and we go back and forth like a real teacher and student. Here in the demo, you'll type or tap your answers instead."}
+    {t:'bubble',        before:cadWave,   /* (rs) the corner is gone: his WORDS glow, and he waves from the middle of the board */
+     line:"And this is me, Mr. Cadabra! In the real classroom we simply talk — your student says their answer out loud and we go back and forth like a real teacher and student. Here in the demo, you'll type or tap your answers instead."}
   ];
   var WELCOME_LINE="Welcome to the demo! This is Mr. Cadabra's Classroom — the very screen your student will learn on. Before we solve anything, let me show you around.";
   var PICK_LINE="That's the classroom! Ready to try a real problem? Pick your student's level — anywhere from counting stars to differential equations — and I'll teach you the exact way I teach them.";
@@ -2962,7 +3002,8 @@
       try{ localStorage.setItem(KEY,c); }catch(e){} apply(c); };
   })();
   function cadMount(){ try { if (window.Cadabra) Cadabra.mount({ page: 'demo' }); } catch (e) {} }
-  function cadPoint(id){ try { if (window.Cadabra) { if (id === 'tutorPanel' && Cadabra.wave) Cadabra.wave({ center: true }); else Cadabra.point(id); } } catch (e) {} }   /* (rr) "this is me" is a wave now that the orb is gone */
+  function cadPoint(id){ try { if (window.Cadabra) Cadabra.point(id); } catch (e) {} }
+  function cadWave(){ try { if (window.Cadabra && Cadabra.wave) Cadabra.wave({ center: true }); } catch (e) {} }   /* (rr/rs) "this is me" is a wave, from the tour stop itself */
   function cadRelease(){ try { if (window.Cadabra) Cadabra.release(); } catch (e) {} }
   cadMount();
 
