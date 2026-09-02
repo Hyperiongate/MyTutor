@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  APP_BUILD -> "2026-09-02sb-the-practice-goal". BUILD sb, Jim's
+#               2026-09-02 design: a parent (/family) or teacher (/teacher) may set
+#               a DAILY practice goal -- minutes in the adult's hands, a problem
+#               ring in the child's, only ever skills the record has earned. NEW:
+#               POST /api/parent/student-goal (parent door, _own_student gate) ·
+#               POST /api/class/{code}/goal (teacher door, _own_class +
+#               _resolve_member, same validation via ONE _set_goal_checked) · GET
+#               /api/goal/{code} (the child's read: target/done/kind + a
+#               newest-mastered suggestion for kind=latest; the child never sees
+#               who set it -- Jim: never adversarial). /api/mark responses carry
+#               {goal:{target,done}} when a goal is set so the ring moves on the
+#               answer that earned it; /api/parent/overview and the class roster/
+#               summary rows carry the goal for the adult's view. PART 3hy.
 #   2026-09-02  APP_BUILD -> "2026-09-02sa-the-question-mark-is-a-blank-said-so".
 #               BUILD sa, the 09-02 watch's finding G (rule 14) and its LAST
 #               buildable item: a ? hugging a fraction slash (?/10) is first-use
@@ -7888,6 +7901,14 @@ def topics_state(request: Request, code: str = Depends(_code_dep), course: str =
 # the next handler to use it -- the same reasoning that retired challenge.html's postJSON.
 
 
+def _safe_goal(code: str):
+    """(sb) get_practice_goal that never raises -- roster rows are best-effort."""
+    try:
+        return store.get_practice_goal(code)
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def _class_student_row(code: str, course: str, class_code: str = "") -> dict:
     """One student's snapshot for the classroom view: per-unit best scores + a small summary.
     Mirrors what /api/topics reports, but trimmed to what a roster grid needs. Never raises --
@@ -7936,6 +7957,11 @@ def _class_student_row(code: str, course: str, class_code: str = "") -> dict:
         "units": units,
         "units_mastered": len([u for u in units if u["mastered"]]),
         "units_started": len(started),
+        # (sb) the standing practice goal, for the roster row's control -- minutes,
+        # kind and today's ring only, never anything that identifies the code.
+        "goal": (lambda g: {"minutes": g["minutes"], "kind": g["kind"],
+                            "target": g["target"], "today_done": g["today_done"]}
+                 if g else None)(_safe_goal(code)),
         "weakest": [{"unit": u["unit"], "name": u["name"], "best_pct": u["best_pct"]}
                     for u in weak[:3]],
         "last_active": (max(last) if last else None),
@@ -8043,11 +8069,23 @@ def _class_public(cls: dict) -> dict:
         # created showed here as an "unknown code" with no name. Found by the
         # full-journey trial.
         stu = _lookup_student(c) or {}
+        # (sb) the standing practice goal, visible on the roster row -- minutes,
+        # kind and today's ring only; never the child's code, same as everything
+        # else in this shape.
+        goal = None
+        try:
+            g = store.get_practice_goal(c)
+            if g:
+                goal = {"minutes": g["minutes"], "kind": g["kind"],
+                        "target": g["target"], "today_done": g["today_done"]}
+        except Exception:  # noqa: BLE001
+            pass
         roster.append({
             "ref": _member_ref(cls.get("class_code", ""), c),
             "name": stu.get("name") or _mask_code(c),
             "code_masked": _mask_code(c),
             "known": bool(stu),
+            "goal": goal,
         })
     return {"class_code": cls.get("class_code", ""), "name": cls.get("name") or "",
             "owner_name": cls.get("owner_name") or "", "roster": roster}
@@ -8296,6 +8334,32 @@ def delete_class_student(class_code: str, ref: str,
         raise HTTPException(status_code=404, detail="That student isn't in this class.")
     store.remove_student(class_code, code)
     return {"ok": True, "tracking": True}
+
+
+class ClassGoalIn(BaseModel):
+    ref: str = ""              # the roster ref (a raw code still resolves)
+    minutes: int = 0           # 5-60 sets the goal; 0 clears it
+    kind: str = "general"      # "general" | "latest"
+
+
+@app.post("/api/class/{class_code}/goal")
+def post_class_goal(class_code: str, body: ClassGoalIn,
+                    x_teacher_token: str = Header(default="", alias="X-Teacher-Token")):
+    """Set or clear ONE student's daily practice goal -- OWNER ONLY (build sb,
+    the teacher door of Jim's 2026-09-02 design; /api/parent/student-goal is the
+    parent door, and both run the same _set_goal_checked validation so the two
+    portals cannot drift). Takes the roster ref; _resolve_member confirms the
+    student is in THIS class first, exactly like remove."""
+    teacher = _require_teacher(x_teacher_token)
+    cls = _own_class(teacher, class_code)
+    code = _resolve_member(cls, body.ref)
+    if not code:
+        raise HTTPException(status_code=404, detail="That student isn't in this class.")
+    _set_goal_checked(code, body.minutes, body.kind, "class:" + (class_code or "").strip())
+    g = store.get_practice_goal(code)
+    return {"ok": True, "goal": ({"minutes": g["minutes"], "kind": g["kind"],
+                                  "target": g["target"],
+                                  "today_done": g["today_done"]} if g else None)}
 
 
 @app.get("/api/class/{class_code}/summary")
@@ -9463,10 +9527,19 @@ def parent_overview(request: Request):
                          "unit_name": curriculum.unit_name(s["course"], s["unit"])}
         except Exception:  # noqa: BLE001
             pass
+        goal = None
+        try:
+            g = store.get_practice_goal(code)
+            if g:
+                goal = {"minutes": g["minutes"], "kind": g["kind"],
+                        "target": g["target"], "today_done": g["today_done"]}
+        except Exception:  # noqa: BLE001
+            pass
         kids.append({"code": code, "minutes_week": minutes,
                      "active_days_week": len(days_set), "units_mastered": mastered,
                      "last_active": last_active, "top_course": top,
-                     "top_course_title": titles.get(top, ""), "steer": steer})
+                     "top_course_title": titles.get(top, ""), "steer": steer,
+                     "goal": goal})
     state = store.ensure_digest_state(parent["id"])
     return {"ok": True, "students": kids,
             "weekly_email_on": not int(state.get("optout") or 0)}
@@ -9541,6 +9614,46 @@ def parent_student_steer(body: ParentSteerIn, request: Request):
         except Exception:  # noqa: BLE001
             course = "algebra1"
     store.set_steer(code, course, unit)
+    return _parent_payload(store.get_parent(parent["id"]))
+
+
+class ParentGoalIn(BaseModel):
+    token: str = ""
+    code: str = ""
+    minutes: int = 0           # 5-60 sets the goal; 0 clears it
+    kind: str = "general"      # "general" | "latest"
+
+
+def _set_goal_checked(code: str, minutes: int, kind: str, set_by: str):
+    """Shared validation for the parent and teacher goal doors (build sb). One
+    place, so the two portals cannot drift on what a legal goal is."""
+    minutes = int(minutes or 0)
+    if minutes == 0:
+        store.clear_practice_goal(code)
+        return
+    if not (5 <= minutes <= 60):
+        raise HTTPException(status_code=400,
+                            detail="Pick 5 to 60 minutes (or clear the goal).")
+    kind = (kind or "general").strip().lower()
+    if kind not in ("general", "latest"):
+        raise HTTPException(status_code=400,
+                            detail="The goal kind is 'general' or 'latest'.")
+    store.set_practice_goal(code, minutes, kind, set_by)
+
+
+@app.post("/api/parent/student-goal")
+def parent_student_goal(body: ParentGoalIn, request: Request):
+    """The daily practice goal (build sb, Jim's design 2026-09-02): "fifteen
+    minutes of practice", stored as minutes but measured in problems so it
+    cannot be idled through. kind='general' is a friendly mix; kind='latest'
+    nudges toward the newest MASTERED skills -- by design nothing untaught can
+    ever be assigned, because the goal never names content at all: it only asks
+    for practice, and practice serves what the child's own record has earned.
+    minutes=0 clears it. Same ownership gate as every parent door."""
+    parent = _require_parent(body.token or request.headers.get("x-parent-token", ""))
+    code = _own_student(parent, body.code)
+    _set_goal_checked(code, body.minutes, body.kind,
+                      "family:" + str(parent.get("email") or parent.get("id") or ""))
     return _parent_payload(store.get_parent(parent["id"]))
 
 
@@ -13271,6 +13384,50 @@ def get_misses_api(request: Request, code: str = Depends(_code_dep), course: str
     return {"ok": True, "tracking": True, "misses": rows}
 
 
+def _goal_suggest(code: str) -> str:
+    """(sb) For a kind='latest' goal: the child's most recently touched MASTERED
+    unit name in their most-worked course -- 'a great one to practice today'.
+    Falls back to the most recently touched unit at all, then to "". Never
+    raises: the suggestion is a bonus."""
+    try:
+        act = store.get_course_activity(code)
+        course = (max(act, key=lambda c: act[c].get("last_active") or "")
+                  if act else "algebra1")
+        rows = store.get_topics(code, course)
+        best = None
+        for r in rows:
+            if r.get("status") == "mastered" and (
+                    best is None or (r.get("last_touched") or "") >
+                    (best.get("last_touched") or "")):
+                best = r
+        if best is None:
+            for r in rows:
+                if best is None or (r.get("last_touched") or "") > \
+                        (best.get("last_touched") or ""):
+                    best = r
+        return str((best or {}).get("unit_name") or "")[:60]
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+@app.get("/api/goal/{code}")
+def get_goal(request: Request, code: str = Depends(_code_dep)):
+    """(sb) Today's practice goal, for the child's own page: {} when no goal is
+    set, else {minutes, kind, target, done, suggest}. The child's page shows a
+    ring, never who set it -- Mr. Cadabra owns the goal in the child's eyes
+    (Jim: it must never feel adversarial)."""
+    _read_guard(request, code)
+    _student_or_404(code)
+    g = store.get_practice_goal(code.strip())
+    if not g:
+        return {}
+    out = {"minutes": g["minutes"], "kind": g["kind"],
+           "target": g["target"], "done": g["today_done"]}
+    if g["kind"] == "latest":
+        out["suggest"] = _goal_suggest(code.strip())
+    return out
+
+
 @app.post("/api/mark/{code}")
 def post_mark(body: MarkIn, code: str = Depends(_code_dep)):
     """PHASE A: count a practice problem the tutor marked right/wrong (problems practiced +
@@ -13291,9 +13448,19 @@ def post_mark(body: MarkIn, code: str = Depends(_code_dep)):
             fresh = store.reset_today_streak(code)
         else:
             fresh = store.record_practice(code, int(body.correct), int(body.attempted))
-        return {"ok": True, "tracking": True,
+        out = {"ok": True, "tracking": True,
                "today_streak": fresh.get("today_streak", 0),
                "streak_days": fresh.get("streak_days", 0)}
+        # (sb) the practice-goal ring rides the mark response, so the page can
+        # move the ring on the answer that earned it -- no extra call, and a
+        # reply with no goal set carries no goal key at all.
+        try:
+            g = store.get_practice_goal(code)
+            if g:
+                out["goal"] = {"target": g["target"], "done": g["today_done"]}
+        except Exception:  # noqa: BLE001 -- the bonus never breaks the mark
+            pass
+        return out
     except Exception as exc:  # noqa: BLE001
         print(f"[mark] record_practice failed: {exc}")
         return {"ok": False, "tracking": True}
@@ -13317,7 +13484,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-02sa-the-question-mark-is-a-blank-said-so"
+APP_BUILD = "2026-09-02sb-the-practice-goal"
 
 
 @app.get("/health")

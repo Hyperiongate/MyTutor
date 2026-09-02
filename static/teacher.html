@@ -32,6 +32,14 @@
   teacher.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-09-02  THE DAILY PRACTICE GOAL (build sb, Jim's design this day). Each
+                roster row gains a goal line + control: pick 10-30 min/day and
+                "Friendly mix" or "Newest skills" -> POST /api/class/{code}/goal by
+                the student's opaque ref (owner-gated + _resolve_member, exactly like
+                remove); Clear ends it. The row shows the standing goal and today's
+                ring (the summary carries them). Only ever mastered material -- the
+                goal never names content, it asks for practice on what the record
+                has earned.
   - 2026-08-04  MASTERY = 90% (Jim): every visible "80%" mastery caption on this page is now
     90%, matching the raised store.PASS_PCT bar.
   - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
@@ -643,7 +651,24 @@
           '<div class="acts">' +
           '<button class="view" data-go="' + esc(s.ref) + '" style="border:none;background:none;cursor:pointer;font:inherit">View progress →</button>' +
           '<button class="rm" data-show="' + esc(s.ref) + '">Show code</button>' +
-          '<button class="rm" data-ref="' + esc(s.ref) + '">Remove</button></div>';
+          '<button class="rm" data-ref="' + esc(s.ref) + '">Remove</button></div>' +
+          /* (sb, 2026-09-02) the daily practice goal: minutes in the teacher's hands,
+             a problem ring in the child's. Only ever mastered material -- the goal
+             never names content, it asks for practice on what the record has earned. */
+          '<div class="meta" data-goalline="' + esc(s.ref) + '">' +
+            (s.goal
+              ? '📝 Practice goal: <b>' + s.goal.minutes + ' min/day</b> (' +
+                (s.goal.kind === "latest" ? "newest skills" : "friendly mix") + ') — today ' +
+                s.goal.today_done + ' of ' + s.goal.target + (s.goal.today_done >= s.goal.target ? ' ✓' : '')
+              : '📝 No practice goal set') + '</div>' +
+          '<div class="acts">' +
+            '<select data-goalmin="' + esc(s.ref) + '"><option value="">Goal…</option>' +
+              [10,15,20,30].map(m => '<option value="' + m + '">' + m + ' min/day</option>').join("") + '</select>' +
+            '<select data-goalkind="' + esc(s.ref) + '">' +
+              '<option value="general">Friendly mix</option>' +
+              '<option value="latest">Newest skills</option></select>' +
+            '<button class="rm" data-setgoal="' + esc(s.ref) + '">Set goal</button>' +
+            '<button class="rm" data-cleargoal="' + esc(s.ref) + '">Clear</button></div>';
         box.appendChild(d);
       });
       box.querySelectorAll("button[data-show]").forEach(b => {
@@ -667,6 +692,30 @@
             load();
           } catch (e) { b.disabled = false; }
         };
+      });
+      // (sb) set / clear one student's daily practice goal, then reload the grid
+      async function goalCall(ref, minutes, kind, btn) {
+        btn.disabled = true;
+        try {
+          const r = await api("/api/class/" + encodeURIComponent(CLASS) + "/goal", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ref: ref, minutes: minutes, kind: kind || "general" }) });
+          if (!r.ok) throw new Error("goal call failed");
+          load();
+        } catch (e) { btn.disabled = false; }
+      }
+      box.querySelectorAll("button[data-setgoal]").forEach(b => {
+        b.onclick = () => {
+          const m = box.querySelector('select[data-goalmin="' + b.dataset.setgoal + '"]');
+          const k = box.querySelector('select[data-goalkind="' + b.dataset.setgoal + '"]');
+          const minutes = parseInt(m && m.value, 10) || 0;
+          if (!minutes) { m && m.focus(); return; }
+          goalCall(b.dataset.setgoal, minutes, k && k.value, b);
+        };
+      });
+      box.querySelectorAll("button[data-cleargoal]").forEach(b => {
+        b.onclick = () => goalCall(b.dataset.cleargoal, 0, "general", b);
       });
     }
 

@@ -227,6 +227,16 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-09-02  THE PRACTICE-GOAL RING (build sb). When a grown-up set a daily goal
+                on /family or /teacher, the topbar shows "⭐ Today's practice goal ·
+                3 of 10" -- fetched once from /api/goal/me at boot, moved forward by
+                the /api/mark responses (the server sends the fresh ring back with
+                every mark, so it advances on the very answer that earned it; new
+                markJSON reads the response, postJSON stays fire-and-forget for
+                everything else). At the target it flips to a one-time celebration.
+                kind=latest also puts a friendly by-name nudge on the problem-entry
+                card (the newest MASTERED topic -- never anything new). The child
+                never sees who set the goal.
   - 2026-08-26  BUILD od (Jim: "close the keyboard if I choose to do that").
     The answer bar gains a ⌨️✕ close button; the board takes its room back
     (board.js ResizeObserver). Reopen = the Type button where it exists, else a
@@ -914,6 +924,12 @@
     <div class="center">
       <div class="topbar">
         <div class="title">✏️ Practice with Mr. Cadabra</div>
+        <!-- (sb, 2026-09-02) today's practice-goal ring: shown only when a goal is
+             set from /family or /teacher. The child sees a goal from Mr. Cadabra,
+             never who set it (Jim: it must never feel adversarial). -->
+        <span id="goalChip" hidden style="margin-left:14px;font-size:13px;font-weight:800;
+          background:var(--card,#fff);border:1.5px solid var(--line,#ddd);border-radius:999px;
+          padding:4px 12px"></span>
         <div class="spacer"></div>
         <a id="lessonLink" href="#">← Home</a>
       </div>
@@ -962,6 +978,8 @@
     el("courseLink").href = "/session" + cq;
     el("topicLink").href = "/topic" + cq;
     el("dashLink").href = "/dashboard" + cq;
+    // (sb) today's practice goal, if a grown-up set one -- defined below, hoisted.
+    loadGoal();
 
     const feed = el("feed"), statusEl = el("status");
     const pauseBtn = el("pauseBtn");
@@ -1137,7 +1155,7 @@
         else if (name === "solve") showSolve(attrs);
         else if (name === "check") showCheck(attrs);
         else if (name === "quiz") showQuiz(attrs);
-        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0) cadFire("answer.correct", { hard: true }); cadSlip(_c > 0 ? "right" : "wrong"); sawMark = true; }   /* (rj) the gold ring retired with the orb -- the PENCIL celebrates now, doorbell AFTER the real work */
+        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); markJSON({ correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0) cadFire("answer.correct", { hard: true }); cadSlip(_c > 0 ? "right" : "wrong"); sawMark = true; }   /* (rj) the gold ring retired with the orb -- the PENCIL celebrates now, doorbell AFTER the real work */
         else if (name === "miss") { postJSON("/api/mark/me", { miss: 1 }); cadFire("answer.wrong"); cadSlip("wrong"); }   /* (rc) a wrong tap resets the today-streak server-side; (rj) then the pencil goes thoughtful */
         else if (name === "nice") { cadSlip("right"); cadFire("answer.correct"); }   /* (rj) the small ring retired with the orb -- the quiet celebration is the pencil's */
         else if (["triangle","angle","circle","transversal","polygon","solid","segment"].indexOf(name) >= 0) showGeo(name, attrs);   /* build ot: +transversal/polygon/solid */
@@ -1343,10 +1361,59 @@
       const b = document.createElement("div"); b.className = "mblock"; mountBlock(b); scrollFeed(); return b;   // build oj: the one door
     }
 
+    // ---- (sb) today's practice goal: the ring on the topbar ----------------
+    // Fetched once at boot; moved forward by the /api/mark responses (the server
+    // sends {goal:{target,done}} back with every mark when a goal is set), so the
+    // ring advances on the very answer that earned it -- no polling.
+    let goalState = null;      // {target, done} or null
+    let goalCelebrated = false;
+    function renderGoal() {
+      const chip = el("goalChip");
+      if (!chip) return;
+      if (!goalState || !goalState.target) { chip.hidden = true; return; }
+      chip.hidden = false;
+      const done = Math.min(goalState.done || 0, goalState.target);
+      if (done >= goalState.target) {
+        chip.textContent = "🎉 Practice goal done — nice work!";
+        chip.style.borderColor = "#0f766e"; chip.style.color = "#0f766e";
+        if (!goalCelebrated) { goalCelebrated = true; try { cadFire("answer.correct", { hard: true }); } catch (e) {} }   /* the goal ring closing is a big win: the pencil's hard party, same as a hard problem (rh's one-door law: the plain doorbell stays unique) */
+      } else {
+        chip.textContent = "⭐ Today's practice goal · " + done + " of " + goalState.target;
+      }
+    }
+    function goalTick(g) { if (g && g.target) { goalState = g; renderGoal(); } }
+    async function loadGoal() {
+      try {
+        const r = await fetch("/api/goal/me", { headers: { "X-Student-Code": CODE } });
+        if (!r.ok) return;
+        const g = await r.json();
+        if (g && g.target) {
+          goalState = { target: g.target, done: g.done || 0 };
+          goalCelebrated = (goalState.done >= goalState.target);
+          renderGoal();
+          // kind=latest: a friendly nudge on the problem-entry card, by name --
+          // always something the record says is already MASTERED, never new.
+          if (g.kind === "latest" && g.suggest) {
+            const note = el("entryNote");
+            if (note) note.textContent = "A great one to practice today: " + g.suggest + ".";
+          }
+        }
+      } catch (e) {}
+    }
+
     // ---- Quick-check result + silent progress marks (Phase A2) ----
     function postJSON(url, body) {
       // build hs (Phase 5): the credential rides the X-Student-Code header; URLs say /me.
       try { fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "X-Student-Code": CODE }, body: JSON.stringify(body) }); } catch (e) {}
+    }
+    // (sb) like postJSON, but for /api/mark: reads the response so the goal ring
+    // moves on the answer that earned it. Fire-and-forget on any failure.
+    function markJSON(body) {
+      try {
+        fetch("/api/mark/me", { method: "POST", headers: { "Content-Type": "application/json", "X-Student-Code": CODE }, body: JSON.stringify(body) })
+          .then((r) => r.ok ? r.json() : null).then((d) => { if (d && d.goal) goalTick(d.goal); })
+          .catch(() => {});
+      } catch (e) {}
     }
 
     // [[quiz unit="2" topic="3" name="Make-a-ten" correct="3" total="4"]] (2026-08-04) --

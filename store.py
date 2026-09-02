@@ -2,6 +2,19 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD sb -- THE PRACTICE GOAL (Jim's design, this day: "assign
+#               something such as fifteen minutes of practice ... general practice
+#               or practice on the latest lessons that have been mastered"). New
+#               practice_goals table (one standing DAILY goal per student; joins
+#               _STUDENT_CODE_TABLES day one) + set/get/clear/bump. Minutes in the
+#               adult's hands, PROBLEMS underneath (goal_target = ~minutes/1.5,
+#               floor 3 -- problems cannot be idled through). Progress rolls daily
+#               on the STREAK's clock; a miss never docks the ring; a re-set keeps
+#               today's progress. Ticked from record_practice (attempted) and
+#               record_drill (asked) -- drill stays apart from problems_practiced,
+#               Jim's mt ruling stands; the ring is its own counter. bump is a
+#               plain UPDATE by design: no goal row, no goal, never created by a
+#               tick. PART 3hy holds all of it.
 #   2026-09-01  BUILD rk -- THE COURSE REMEMBERS WHICH LESSONS ARE DONE. Jim: "I keep
 #               logging in as student zero zero zero zero, and it keeps starting over
 #               from the beginning." Root cause, measured: NOTHING recorded which
@@ -1178,6 +1191,32 @@ def init():
             Column("course", String(32)),
             Column("unit", Integer, default=0),
             Column("set_at", DateTime(timezone=True)),
+        )
+        # PRACTICE GOAL (2026-09-02, build sb -- Jim's design, this day: "assign
+        # something such as fifteen minutes of practice ... general practice or
+        # practice on the latest lessons that have been mastered ... nothing over
+        # the child's head"). ONE standing DAILY goal per student, set from /family
+        # (parent) or /teacher (class view). The GOAL IS MINUTES in the adult's
+        # hands but PROBLEMS underneath (target = ~minutes/1.5, floor 3): problems
+        # cannot be idled through, so the ring is honest. Progress counts FINISHED
+        # problems anywhere the child works (tutor-marked problems via
+        # record_practice, Abrabot drills via record_drill) -- a child who did a
+        # whole lesson has practiced; an empty ring after real work would read as
+        # adversarial, the one thing Jim said this must never be. kind is
+        # "general" (a friendly mix) or "latest" (nudge toward the newest mastered
+        # skills -- never anything untaught). progress_day/progress_count roll
+        # daily on the STREAK's clock (California, Jim's hn ruling) so "today's
+        # goal" and "today's streak" agree on what today means. Joins
+        # _STUDENT_CODE_TABLES day one (standing rule).
+        _tables["practice_goals"] = Table(
+            "practice_goals", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("minutes", Integer, default=0),
+            Column("kind", String(12), default="general"),
+            Column("set_by", String(120)),            # "family:<email>" | "class:<code>"
+            Column("set_at", DateTime(timezone=True)),
+            Column("progress_day", String(10)),       # streak-clock ISO date
+            Column("progress_count", Integer, default=0),
         )
         # BETA PASSES (2026-07-31): shareable trial codes. Each sign-in consumes one
         # of `uses_allowed` and opens a `window_hours` window of full access.
@@ -2587,6 +2626,10 @@ def record_practice(code: str, correct: int, attempted: int = 1) -> dict:
     # score is not, and does not pass this.
     _bump_stats(code, problems=attempted, correct=correct, attempted=attempted,
                today_of=(correct, attempted))
+    # (sb) a finished problem fills today's practice-goal ring too -- right or
+    # wrong: the goal measures practice done, not accuracy (effort is the goal's
+    # whole point, and docking the ring for a miss would make it adversarial).
+    bump_practice_goal(code, attempted)
     s = _get_stats_row(code)
     today_streak = (s["today_streak"] if s.get("today_streak_day") == _streak_today()
                     else 0)
@@ -2723,6 +2766,11 @@ def record_drill(code: str, lesson: str, right: int, asked: int = 1,
                 exprs={"asked": (asked, _sql_counter("asked", asked)),
                        "right_count": (right, _sql_counter("right_count", right))})
         _bump_stats(code)          # streak + last_active ONLY -- see the note above
+        # (sb) drill answers fill the practice-goal ring too: a drill with
+        # Abrabot is exactly the practice the goal asks for. This does NOT
+        # blend drill into problems_practiced -- Jim's apart-from-the-course
+        # ruling above stands; the goal ring is its own counter.
+        bump_practice_goal(code, asked)
     except Exception as exc:  # noqa: BLE001
         print(f"[drill] record_drill failed: {_redact(str(exc))}")
 
@@ -3404,6 +3452,9 @@ _STUDENT_CODE_TABLES = [
     # starts the course from lesson one on purpose, and the record follows a
     # regenerated code.
     ("script_done", "code"),
+    # 2026-09-02 (build sb): the practice goal, same rule -- it follows a
+    # regenerated login code and dies with a reset or removed student.
+    ("practice_goals", "code"),
 ]
 _PARENT_KEYED_TABLES = [
     ("parent_tokens", "parent_id"), ("parent_resets", "parent_id"),
@@ -3688,6 +3739,77 @@ def clear_steer(code: str) -> None:
     t = _tables["steers"]
     with _engine.begin() as conn:
         conn.execute(delete(t).where(t.c.code == (code or "").strip()))
+
+
+# ---- the practice goal (2026-09-02, build sb) -------------------------------
+# Jim's design, in his own words: "assign something such as fifteen minutes of
+# practice ... general practice or practice on the latest lessons that have been
+# mastered" -- never homework over the child's head, never adversarial. The adult
+# picks MINUTES; the ring underneath counts PROBLEMS (target = ~minutes/1.5,
+# floor 3), because problems cannot be idled through. Progress rolls daily on
+# the STREAK's clock so "today" means the same thing everywhere.
+def goal_target(minutes: int) -> int:
+    """Minutes -> problem target (~90 seconds a problem, floor 3)."""
+    return max(3, round(int(minutes or 0) / 1.5))
+
+
+def set_practice_goal(code: str, minutes: int, kind: str, set_by: str) -> None:
+    """One standing daily goal per student. Setting a new goal keeps today's
+    progress (a child mid-ring must not lose problems already done because a
+    parent nudged the minutes)."""
+    kind = kind if kind in ("general", "latest") else "general"
+    _upsert("practice_goals", {"code": (code or "").strip()},
+            {"minutes": int(minutes or 0), "kind": kind,
+             "set_by": (set_by or "").strip()[:120], "set_at": _now()})
+
+
+def clear_practice_goal(code: str) -> None:
+    from sqlalchemy import delete
+    t = _tables["practice_goals"]
+    with _engine.begin() as conn:
+        conn.execute(delete(t).where(t.c.code == (code or "").strip()))
+
+
+def get_practice_goal(code: str):
+    """{minutes, kind, target, today_done, set_by, set_at} or None. today_done is
+    0 whenever the stored progress day is not the streak-clock's today -- the
+    ring starts fresh each morning without any nightly job."""
+    from sqlalchemy import select
+    t = _tables["practice_goals"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.minutes, t.c.kind, t.c.set_by, t.c.set_at,
+                                t.c.progress_day, t.c.progress_count)
+                         .where(t.c.code == (code or "").strip())).first()
+    if not r or not int(r[0] or 0):
+        return None
+    today_done = int(r[5] or 0) if (r[4] or "") == _streak_today() else 0
+    return {"minutes": int(r[0]), "kind": r[1] or "general",
+            "target": goal_target(int(r[0])), "today_done": today_done,
+            "set_by": r[2] or "", "set_at": r[3].isoformat() if r[3] else None}
+
+
+def bump_practice_goal(code: str, n: int) -> None:
+    """Add n finished problems to today's ring. A plain UPDATE on purpose: no
+    goal row means no goal, and this must never create one. The day CASE is the
+    same shape _bump_stats uses for the streak -- same stored day adds, a new
+    day restarts at n. Never raises: the goal is a bonus, and a broken bonus
+    must never break the mark that carried it."""
+    try:
+        n = int(n or 0)
+        if n <= 0 or not code:
+            return
+        from sqlalchemy import update, case, func
+        t = _tables["practice_goals"]
+        today = _streak_today()
+        with _engine.begin() as conn:
+            conn.execute(update(t).where(t.c.code == code.strip()).values(
+                progress_count=case(
+                    (t.c.progress_day == today,
+                     func.coalesce(t.c.progress_count, 0) + n),
+                    else_=n),
+                progress_day=today))
+    except Exception as exc:  # noqa: BLE001 -- the bonus never breaks the mark
+        print(f"[goal] bump failed (ignored) for {code}: {exc}")
 
 
 # ---- beta passes (2026-07-31: Jim's beta-tester program) --------------------

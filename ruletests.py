@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD sb -- PART 3hy: the practice goal. Jim's design this day: a
+#               parent (/family) or teacher (/teacher) asks for minutes of daily
+#               practice; the child fills an honest problem ring (server-derived,
+#               un-idle-able), only ever with mastered material, never seeing who
+#               set it. The PART re-runs the store contract on a scratch DB (ticks
+#               from record_practice/record_drill, day roll, miss-never-docks,
+#               re-set keeps progress, code-move) and pins the one-validation two-
+#               door wiring, the ownership gates, the mark-response ring, and all
+#               three pages' halves. The live end-to-end ran 20/20 pre-PART.
 #   2026-09-02  BUILD sa -- PART 3hx: the question mark in a fraction is a blank,
 #               said so (the 09-02 watch's finding G, rule 14 -- its LAST buildable
 #               item). A first-use registry row on referee 31: ?/5 or 5/? (the hug)
@@ -21617,7 +21626,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,292</b>" in page,
+          "<b>8,306</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22314,6 +22323,134 @@ def part3hp_no_colour_literals_on_the_board():
 # the page measures a DOM Range, exact to the pixel. Proof outside this battery:
 # fifty circles on fifty named words in a real session board, every one within
 # 3 px of the word's own box and enclosing it (build doc, rr).
+def part3hy_the_practice_goal():
+    """PART 3hy (build sb, 2026-09-02) -- THE PRACTICE GOAL: A GROWN-UP ASKS FOR
+    MINUTES, THE CHILD FILLS A RING, NOTHING IS EVER OVER THEIR HEAD.
+
+    JIM'S DESIGN, this day, his own words: "assign something such as fifteen
+    minutes of practice ... general practice or practice on the latest lessons
+    that have been mastered ... I'm not a big fan of homework, and I don't want
+    the child to see this as an adversarial thing." So, by construction:
+    * the goal NEVER names content -- it asks for practice, and practice serves
+      what the child's own record has earned (kind=latest merely nudges toward
+      the newest MASTERED topic, by name, on the entry card);
+    * minutes in the adult's hands, PROBLEMS underneath (target = ~minutes/1.5,
+      floor 3): problems cannot be idled through, so the ring is honest;
+    * a miss never docks the ring, a re-set keeps today's progress, and the
+      child's page shows a goal from Mr. Cadabra -- never who set it;
+    * two doors, ONE validation (_set_goal_checked): /api/parent/student-goal
+      behind _own_student, /api/class/{code}/goal behind _own_class +
+      _resolve_member -- the same ownership gates every other parent/teacher
+      action already passes through.
+    THE LIVE END-TO-END (parent signup -> child -> goal -> marks -> ring ->
+    teacher door by ref) ran green 20/20 on a scratch DB before this PART was
+    written; the DB half re-runs here behind the same dep_gate the sprint drill
+    uses."""
+    print("\nPART 3hy — the practice goal (build sb)")
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    # ---- the store contract, on a real scratch database -----------------------
+    if dep_gate("practice-goal store round-trip (scratch sqlite)", "sqlalchemy",
+                "the goal records to a real database"):
+        import tempfile, subprocess as _sp
+        with tempfile.TemporaryDirectory() as tmp:
+            drill = os.path.join(tmp, "goal_drill.py")
+            open(drill, "w", encoding="utf-8").write(
+                "import store\n"
+                "store.init()\n"
+                "assert store.enabled(), store._INIT_ERROR\n"
+                "c = 'GOALKID1'\n"
+                "assert store.get_practice_goal(c) is None\n"
+                "store.bump_practice_goal(c, 3)\n"
+                "assert store.get_practice_goal(c) is None, 'a tick must never create a goal'\n"
+                "store.set_practice_goal(c, 15, 'general', 'family:x')\n"
+                "g = store.get_practice_goal(c)\n"
+                "assert g['target'] == 10 and g['today_done'] == 0, g\n"
+                "assert [store.goal_target(m) for m in (5,15,20,30,60)] == [3,10,13,20,40]\n"
+                "store.record_practice(c, 1, 1)\n"
+                "assert store.get_practice_goal(c)['today_done'] == 1, 'a finished problem fills the ring'\n"
+                "store.reset_today_streak(c)\n"
+                "assert store.get_practice_goal(c)['today_done'] == 1, 'a miss must never dock the ring'\n"
+                "store.record_drill(c, 'count', 1, 1, 'basic')\n"
+                "assert store.get_practice_goal(c)['today_done'] == 2, 'drill answers count too'\n"
+                "from sqlalchemy import update\n"
+                "t = store._tables['practice_goals']\n"
+                "with store._engine.begin() as conn:\n"
+                "    conn.execute(update(t).where(t.c.code == c).values(progress_day='2020-01-01'))\n"
+                "assert store.get_practice_goal(c)['today_done'] == 0, 'a new day reads 0, no nightly job'\n"
+                "store.set_practice_goal(c, 20, 'latest', 'class:X')\n"
+                "g = store.get_practice_goal(c)\n"
+                "assert g['kind'] == 'latest' and g['target'] == 13, g\n"
+                "store.set_practice_goal(c, 10, 'sneaky', 'x')\n"
+                "assert store.get_practice_goal(c)['kind'] == 'general', 'unknown kinds coerce'\n"
+                "store.clear_practice_goal(c)\n"
+                "assert store.get_practice_goal(c) is None\n"
+                "store.set_practice_goal(c, 15, 'general', 'x')\n"
+                "r = store.change_student_code(c, 'GOALKID2')\n"
+                "assert r.get('ok') and store.get_practice_goal('GOALKID2') and not store.get_practice_goal(c), 'the goal follows a new code'\n"
+                "print('GOAL-STORE-OK')\n")
+            env = dict(os.environ, DATABASE_URL="sqlite:///" + os.path.join(tmp, "g.db"),
+                       DATA_DIR=os.path.join(tmp, "data"), PYTHONPATH=here)
+            r = _sp.run([sys.executable, drill], cwd=here, env=env,
+                        capture_output=True, text=True)
+            check("⭐ the store contract holds end to end (ticks, day roll, re-set, "
+                  "clear, code-move; a miss never docks; a tick never creates)",
+                  r.returncode == 0 and "GOAL-STORE-OK" in r.stdout,
+                  (r.stdout + r.stderr)[-260:])
+
+    # ---- the wiring, pinned at the source ------------------------------------
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    ssrc = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    check("⭐ ONE validation behind both doors (parent and teacher cannot drift)",
+          msrc.count("_set_goal_checked(") >= 3      # def + two call sites
+          and '"/api/parent/student-goal"' in msrc
+          and '"/api/class/{class_code}/goal"' in msrc, "")
+    check("  the parent door stands behind the ownership gate",
+          "code = _own_student(parent, body.code)\n    _set_goal_checked(" in msrc,
+          "a goal for another family's child must 404 like every parent action")
+    check("  the teacher door resolves the roster ref first, like remove",
+          "code = _resolve_member(cls, body.ref)" in msrc, "")
+    check("  the child's read never says who set the goal",
+          '"target": g["target"], "done": g["today_done"]}' in msrc
+          and '"set_by"' not in msrc.split("def get_goal", 1)[1][:1600],
+          "Jim: the child must never see this as adversarial")
+    check("  marks carry the fresh ring back (the page moves it on the answer "
+          "that earned it)",
+          'out["goal"] = {"target": g["target"], "done": g["today_done"]}' in msrc, "")
+    check("  the ticks ride the store's own record doors, wrapped fail-open",
+          "bump_practice_goal(code, attempted)" in ssrc
+          and "bump_practice_goal(code, asked)" in ssrc
+          and ssrc.count("the bonus never breaks the mark") >= 1, "")
+    check("  the goal follows a regenerated code and dies with a reset "
+          "(the standing table rule)",
+          '("practice_goals", "code"),' in ssrc, "")
+
+    # ---- the three pages carry their halves ----------------------------------
+    fsrc = open(os.path.join(here, "static", "family.html"), encoding="utf-8").read()
+    tsrc2 = open(os.path.join(here, "static", "teacher.html"), encoding="utf-8").read()
+    psrc2 = open(os.path.join(here, "static", "practice.html"), encoding="utf-8").read()
+    check("⭐ /family: the goal control beside the steer, minutes + kind + clear",
+          'data-dogoal=' in fsrc and 'data-cleargoal=' in fsrc
+          and '"/api/parent/student-goal"' in fsrc
+          and "Their newest skills" in fsrc, "")
+    check("  ...and the row shows the standing goal and today's ring",
+          'data-goal="' in fsrc and "practice today:" in fsrc, "")
+    check("⭐ /teacher: the per-row control posts by the opaque ref",
+          'data-setgoal=' in tsrc2 and '"/goal"' in tsrc2
+          and "ref: ref, minutes: minutes" in tsrc2, "")
+    check("⭐ /practice: the ring boots from /api/goal/me and moves on mark "
+          "responses",
+          '"/api/goal/me"' in psrc2 and "function markJSON(" in psrc2
+          and "goalTick(d.goal)" in psrc2
+          and "Today's practice goal" in psrc2, "")
+    check("  ...celebrates once at the target, and never names the grown-up",
+          "Practice goal done" in psrc2
+          and "goalCelebrated" in psrc2
+          and "who set it" in psrc2, "")
+    check("  ...kind=latest nudges by MASTERED-topic name on the entry card",
+          "A great one to practice today:" in psrc2, "")
+
+
 def part3hx_the_question_mark_is_a_blank_said_so():
     """PART 3hx (build sa, 2026-09-02) -- THE QUESTION MARK IN A FRACTION IS A
     BLANK, AND THE VOICE SAYS SO.
@@ -31250,6 +31387,7 @@ def main():
     part3hv_the_verdict_is_proven()
     part3hw_a_variables_letter_keeps_its_case()
     part3hx_the_question_mark_is_a_blank_said_so()
+    part3hy_the_practice_goal()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
