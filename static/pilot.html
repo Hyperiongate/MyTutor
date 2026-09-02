@@ -548,7 +548,7 @@
   }
 
   var queue = [];          // steps not yet played
-  var current = null;      // the step awaiting the child's tap
+  var current = null;      // the step awaiting the student's tap
   var busy = false;
 
   // ---------- the renderer: DELEGATED to script-board.js (mh) ----------
@@ -586,7 +586,7 @@
       if (DEV) devline("clip done in " + Math.round(performance.now() - t0)
                        + "ms, audible=" + __voiceSpoke);
       // AUDIBLE, not merely resolved. voice.js resolves on a browser-voice fallback
-      // and on a dead clip too; auto-advancing on silence would race a child who is
+      // and on a dead clip too; auto-advancing on silence would race a student who is
       // reading rather than listening, which is the defect ke fixed.
       finish(__voiceSpoke);
     }, function () { finish(false); });
@@ -603,7 +603,7 @@
   function playStep(step, quiet) {
     if (step && step.kind !== "ask" && step.kind !== "ai") hideAnswerBar();   // (ou)
     // (kj) draw into a CLEARED board. A praise beat carries no board of its own, so the
-    // previous picture stays up rather than blinking out -- the child keeps looking at
+    // previous picture stays up rather than blinking out -- the student keeps looking at
     // the thing being praised. Same rule as before; the drawing is just real now.
     var markup = step.board || step.spoken || "";
     var f = boardEl();
@@ -645,8 +645,8 @@
       // (ov) ...but not inside a quiz. The drive caught this: the guard had been
       // put on the QUESTION beats only, so the ✋ was still sitting there during
       // the quiz's own say beats -- the intro, and every "Right." between
-      // questions. A child could have asked for help in the middle of a score.
-      if (!QUIZ_ON) askDoor(ctl);   // (oq) a child can raise a hand while he talks
+      // questions. A student could have asked for help in the middle of a score.
+      if (!QUIZ_ON) askDoor(ctl);   // (oq) a student can raise a hand while he talks
       $("status").textContent = "";
       return;
     }
@@ -660,7 +660,7 @@
         ctl.appendChild(ob);
       });
       // (ou) the free-answer bar opens with the question -- unless the engine has
-      // asked for taps only (two unheard answers in a row: the child's voice or
+      // asked for taps only (two unheard answers in a row: the student's voice or
       // typing is not landing, so we stop asking them to use it).
       if (step.tap_only) hideAnswerBar(); else showAnswerBar(step);
       var enable = function () {
@@ -680,7 +680,7 @@
     // A quiz beat looks like an ask and behaves like nothing else on this page:
     // no ✋ (a raised hand is a teaching door and this is not teaching), no AI,
     // no second try. The answer bar and the tap buttons work exactly as they do
-    // in a lesson, because a child should not have to learn a new way to answer
+    // in a lesson, because a student should not have to learn a new way to answer
     // in the one place it counts.
     if (step.kind === "qask") {
       current = step;
@@ -709,7 +709,7 @@
         + styleTerms(step.spoken || "");
       flagBubble();
       // THE SCORE IS DRAWN, NOT SPOKEN -- which is why the audio closure needs
-      // seven quiz lines instead of one per possible score, and why the child can
+      // seven quiz lines instead of one per possible score, and why the student can
       // look at the number twice.
       var f = boardEl();
       if (f) {
@@ -749,7 +749,7 @@
   // endings can never drift apart. THE QUIZ DOOR APPEARS when there is a quiz
   // still worth taking: after the lesson (take it), and after a FAILED quiz
   // (retake it, and the status line has just said so). After a PASS it must not
-  // appear -- the drive caught this the wrong way round, offering a child who had
+  // appear -- the drive caught this the wrong way round, offering a student who had
   // just scored 3/3 the same quiz again.
   function endDoors(ctl, offerQuiz, retake) {
     if (offerQuiz && CURRENT_ID) {
@@ -779,7 +779,7 @@
     home.className = "opt"; home.textContent = "\u{1F3EB} Back to my classroom";
     home.onclick = function () {
       // (pa) back to THIS course's hub, not the subject picker -- the lessons
-      // door is the main road now, so its exit must land where the child was.
+      // door is the main road now, so its exit must land where the student was.
       location.href = "/home?code=" + encodeURIComponent(CODE)
         + (window.COURSE ? "&course=" + encodeURIComponent(window.COURSE) : "");
     };
@@ -908,7 +908,7 @@
   function sendSaid() {
     var t = ($("sayInput").value || "").trim();
     if (!t || busy) return;
-    live.textContent = t;                    // the child sees what we heard
+    live.textContent = t;                    // the student sees what we heard
     answerSaid(t);
   }
   function answerSaid(text) {

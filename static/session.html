@@ -1575,7 +1575,7 @@
     /* build oy (2026-08-27, Jim): "as we go through lesson by lesson by lesson, we
        should see progress being attained, not just in big chunks... so I feel like
        I'm getting something done." A goal segment is no longer all-or-nothing: it
-       FILLS as the work inside it happens. The fill is a child of the segment so
+       FILLS as the work inside it happens. The fill is a student of the segment so
        the done/worked/gold rules above are untouched -- an empty fill is invisible
        and a finished segment is painted by its own class exactly as before. */
     .pbar .pbseg { position: relative; overflow: hidden; }
@@ -1720,7 +1720,7 @@
     .feed .mblock { align-self: center; width: 100%; display: flex; flex-direction: column;
       align-items: center; padding: 6px 0; }
     /* ⚠️ (pc) THE FIGURE FILLS THE BOARD -- read the header note before touching this.
-       .mblock centers its children, which means each child is sized by its CONTENT.
+       .mblock centers its students, which means each student is sized by its CONTENT.
        A .mfig's only content is an <svg> sized in PERCENT, and a percentage cannot
        size a shrink-to-fit box, so the figure collapsed to the 300px replaced-element
        default and every display cap in math-figures.js / geo-figures.js was dead
@@ -1871,7 +1871,7 @@
         <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
         <!-- (mu) ⚠️ TWO DIFFERENT THINGS WERE BOTH CALLED "PRACTICE". The line above
              is bring-me-YOUR-problem (homework help). This one is Abrabot handing
-             out MORE problems on a lesson already done. A child cannot be expected
+             out MORE problems on a lesson already done. A student cannot be expected
              to hold that difference from one word and one pencil icon, so Abrabot
              gets his own robot face on the button and the word EXTRA. -->
         <a class="navbtn" id="drillLink" href="#">🤖 Extra practice</a>
@@ -1897,7 +1897,7 @@
              the server confirms tracking is on and reports real numbers. -->
         <div class="streakchips" data-cad="streak" id="streakChips" hidden aria-live="polite">
           <!-- (rb) each pill carries its label VISIBLY -- the dashboard banner's exact
-               words -- because a tooltip is invisible to a child on a tablet. -->
+               words -- because a tooltip is invisible to a student on a tablet. -->
           <span class="schip2 days" id="scDays" title="Days in a row you've worked">
             <span class="scmain"><span class="se">🔥</span><span id="scDaysNum">0</span></span>
             <span class="sclab">days in a row</span></span>
@@ -1915,7 +1915,7 @@
         <button class="chip" id="goalChip" type="button" hidden aria-expanded="false">🎯 Today's Goal <span class="chipcaret">▼</span></button>
         <!-- (rp, 2026-09-01) THE STUDENT PICKS THE BOARD. One chip; the choice is remembered
              on this device (mt_board). Default is the whiteboard, so nothing changes for a
-             child who never touches it. -->
+             student who never touches it. -->
         <button class="chip" id="boardChip" type="button" data-board-toggle aria-pressed="false">🟦 Dark board</button>
         <button class="chip" id="progChip" type="button" hidden aria-expanded="false">📊 Progress <span class="chipct" id="progChipCt"></span> <span class="chipcaret">▼</span></button>
       </div>
@@ -2197,7 +2197,7 @@
     // onPlaying (a real clip) and from u.onstart (browser speech) -- the moment audio
     // GENUINELY begins, which is a better signal than anything this page could
     // measure for itself. The scripted player latches it per beat to decide whether
-    // the lesson may pace itself or must wait for the child. pilot.html uses the same
+    // the lesson may pace itself or must wait for the student. pilot.html uses the same
     // signal for the same decision.
     let voiceHeard = false;
     var _cadThinking = false;
@@ -2537,7 +2537,7 @@
     //   A CANNED CLIP AND HIS LIVE VOICE MUST NEVER TALK AT ONCE, AND A CLIP NEVER
     //   REPLACES THE PERSONALISED LINE.
     //
-    // Video cannot say a child's name. The live voice can, and that is the half worth
+    // Video cannot say a student's name. The live voice can, and that is the half worth
     // protecting -- so a clip is an ARRIVAL, never a substitute. Everything below is in
     // service of that: a moment is QUEUED while a reply renders, and played at exactly one
     // gate, with his live speech on the other side of an await.
@@ -2587,7 +2587,7 @@
     }
 
     // Queue a moment for THIS turn. The biggest one wins: a reply that passes a topic quiz
-    // AND masters the unit is a unit-gold moment, not a quiz moment -- the child should get
+    // AND masters the unit is a unit-gold moment, not a quiz moment -- the student should get
     // the bigger celebration, and never two videos back to back.
     function queueMoment(key) {
       const cfg = MOMENTS[key];
@@ -2785,7 +2785,7 @@
       }
       /* (rr) THE BOARD GREW THIS TURN. Rung after the loop, once, so the pencil's
          glance can notice the NEWEST thing; cadabra.js decides whether to look
-         (only after the voice stops, never while the child is typing, and not often). */
+         (only after the voice stops, never while the student is typing, and not often). */
       if (feed.querySelectorAll("*").length > _cadBoardBefore) cadFire("board.written");
       // build fy -- THE END-OF-PROBLEM SIGNAL WE CAN ACTUALLY TRUST.
       // [[clear]] is taught in the prompts but nothing enforces it, and a tutor turn that
@@ -2886,7 +2886,7 @@
     function wipeBoard(labelOverride) {
       curWork = null;
       PROBLEM_CLOSED = false;   // build fy: an explicit [[clear]] consumes the armed signal
-      const kids = Array.from(feed.children);
+      const kids = Array.from(feed.students);
       // Fold everything since the last folded problem...
       let start = 0;
       for (let i = kids.length - 1; i >= 0; i--) {
@@ -3565,7 +3565,7 @@
     // ---------- Turn / button state ----------
     var _cadPhase = "";
     function setPhase(p) {
-      /* (rr) the listening face while the mic is live; the silence timer runs while it is the child's turn */
+      /* (rr) the listening face while the mic is live; the silence timer runs while it is the student's turn */
       if (p === "recording" && _cadPhase !== "recording") cadFire("mic.on");
       else if (p !== "recording" && _cadPhase === "recording") cadFire("mic.off");
       if (p === "ready" && /\?/.test(String(typeof lastTutorText !== "undefined" ? lastTutorText : "").slice(-200))) cadSilenceArm(); else cadSilenceDisarm();   /* only when he actually asked something */
@@ -3685,7 +3685,7 @@
       // have a button. Here's your practice button. If you wanna go practice,
       // Abrabot will show up, and he'll work with you on this."
       // ⚠️ IT COMES RIGHT AFTER "Practice a problem" ON PURPOSE -- the two stops sit
-      // together so the child hears the difference stated once, plainly, instead of
+      // together so the student hears the difference stated once, plainly, instead of
       // meeting two buttons that say practice and guessing.
       { id: "drill",
         // ⚠️ NO LAYOUT WORDS. The first draft said "right under it" -- which is one
@@ -3791,11 +3791,11 @@
     // the same handleTags board, the same choices row, the same voice, the same
     // sidebar and progress bars. Nothing about the room changes. What changes is
     // that a scripted beat costs ZERO model calls, so the next thing he says is
-    // already made and starts the moment the child answers.
+    // already made and starts the moment the student answers.
     //
     // ⭐ THE MODEL IS STILL THERE, behind the script, exactly where it was: an
     // off-script question goes to the raised-hand door, and when the script runs
-    // out the lesson hands back to the live tutor mid-session without the child
+    // out the lesson hands back to the live tutor mid-session without the student
     // noticing a seam.
     // =====================================================================
     const SCR = { on: false, id: "", lesson: "", pending: false, queue: [], all: null,
@@ -3851,13 +3851,13 @@
     const SCR_BREATH = 650;
 
     // (pd) SPEAK A SCRIPTED LINE THE WAY THE TOUR DOES. Promise.all means the beat
-    // ends when the audio finishes OR when a child could have read the line --
+    // ends when the audio finishes OR when a student could have read the line --
     // WHICHEVER IS LATER. Build pb awaited speak() alone, so a missing clip resolved
     // in milliseconds and the whole lesson landed at once. Returns whether the voice
     // was GENUINELY heard, which is what decides who paces the next beat.
     async function scrSay(words) {
       // An ask beat unlocks while its own audio is still playing (see scrPlay), so a
-      // child can answer before the question finishes -- which means the NEXT line
+      // student can answer before the question finishes -- which means the NEXT line
       // could start over the top of it. speak() does not supersede a running clip on
       // its own, so the new line silences the old one first. A no-op when nothing is
       // playing, which is every other beat.
@@ -3914,7 +3914,7 @@
           await scrSay(SEAM_LINE);
         }
         // The script for this topic is finished. The LIVE tutor takes it from
-        // here, in the same session, so the child simply carries on.
+        // here, in the same session, so the student simply carries on.
         busy = true; setPhase("busy");
         await runTutor(step.mastered ? "__script_done_mastered__" : "__script_done__");
         return;
@@ -3930,7 +3930,7 @@
       // [[choices]] tag for EVERY scripted question, unconditionally, and main.py's
       // _script_clean() sends it to this page as step.choices -- a field of its OWN,
       // beside step.board. This player only ever rendered step.board, so every
-      // AUTHORED question in Entry-Level and Basic reached the child with NO BUTTONS
+      // AUTHORED question in Entry-Level and Basic reached the student with NO BUTTONS
       // AT ALL, while an `ai` intervention -- whose tags ride inside board, split out
       // of the model's reply by _split_ai_reply -- had them. That is precisely the
       // "a couple of these" he saw: bubbles on the AI's re-teach, none on the
@@ -3951,7 +3951,7 @@
       // (qd) 2026-08-29 -- AN AI INTERVENTION IS AN ASK. pilot.html has treated
       // "ai" like "ask" since build ou; the pb port of the player into this page
       // did not, so after Mr. Cadabra's Model-Lead-Test turn ("now it's your
-      // turn") SCR.pending stayed false and the child's redo went to the LIVE
+      // turn") SCR.pending stayed false and the student's redo went to the LIVE
       // tutor -- with the live lane's OLD history. Jim's screenshot: "15" answered
       // with "I'm not quite sure what 15 is answering -- I'd just asked if you're
       // ready to move into absolute value equations." The redo now goes where the
@@ -3960,19 +3960,19 @@
       // (qr) ...AND SO IS A BEAT WHOSE BUTTONS ARE ITS QUESTION. main.py answers an
       // unheard answer INSIDE an intervention with a `say` beat carrying LINE_TAP and
       // the redo's own choices tag. Under the old line that beat left SCR.pending
-      // false, so the child's tap went to the LIVE tutor instead of to
+      // false, so the student's tap went to the LIVE tutor instead of to
       // /api/script/answer, where the server was waiting to grade it -- the identical
       // defect qd fixed for the `ai` beat, one beat kind over. A beat that puts taps
       // on the screen is asking, whatever its kind says.
       SCR.pending = isAsk || boardTaps;
       statusEl.textContent = tutorName + " is talking…";
       if (isAsk) {
-        // ⭐ AN ASK BEAT NEVER LOCKS THE CHILD OUT. Build nb settled this and wrote
-        // the rule down: "a child who can hear the question must never be locked out
+        // ⭐ AN ASK BEAT NEVER LOCKS THE STUDENT OUT. Build nb settled this and wrote
+        // the rule down: "a student who can hear the question must never be locked out
         // of answering while it finishes." The reading floor exists to stop the
         // lesson RUNNING ON past a line nobody has read -- and an ask beat never runs
         // on, it waits for an answer. Serving the floor here buys nothing and costs
-        // the child the only thing they wanted to do.
+        // the student the only thing they wanted to do.
         // ⚠️ THE FIRST CUT OF pd AWAITED THE FLOOR HERE TOO, and the pb drive caught
         // it within the hour: the tap buttons sat on screen looking live and did
         // NOTHING for 2.6 seconds, because showChoices's handler opens with
@@ -3982,13 +3982,13 @@
         busy = false; setPhase("ready");
         // (qr) tap_only -- THE OTHER FIELD THE PORT DROPPED. The engine sets it after
         // TWO answers in a row it could not read (lessonscripts _ask: unheard >= 2):
-        // the child's voice or typing is not landing, so we stop asking them to use
+        // the student's voice or typing is not landing, so we stop asking them to use
         // it. pilot.html folds its answer bar away here; this page folds the composer,
         // which leaves the ⌨️ pill in place -- a nudge toward the buttons, never a
-        // lock-out, because a child who CAN type must never be shut out of typing.
+        // lock-out, because a student who CAN type must never be shut out of typing.
         if (step.tap_only) { try { hideComposer(); } catch (e) {} }
         scrSay(words).then(() => {
-          // Only tidy up if this is still the beat on stage -- the child may have
+          // Only tidy up if this is still the beat on stage -- the student may have
           // answered mid-question and moved the lesson on.
           if (SCR.beat === myBeat) {
             statusEl.textContent = step.tap_only ? "Tap your answer." : "";
@@ -3998,7 +3998,7 @@
         return;
       }
       // A beat that GENUINELY SPOKE moves itself along after a breath. A beat that
-      // said nothing hands the pace to the child rather than racing a reader.
+      // said nothing hands the pace to the student rather than racing a reader.
       const heard = await scrSay(words);
       statusEl.textContent = "";
       if (heard) { await delay(SCR_BREATH); scrNext(); }
@@ -4031,7 +4031,7 @@
       } catch (e) { return false; }
     }
 
-    // The child answered (typed, spoken, or tapped -- one door, as always).
+    // The student answered (typed, spoken, or tapped -- one door, as always).
     async function scrAnswer(message) {
       const txt = String(message || "").trim();
       // A question is a QUESTION, not an answer: it goes to the raised-hand door,
@@ -4049,7 +4049,7 @@
           const a = (j && j.answer) || "";
           addBubble("tutor", a); lastTutorText = a;
           // (pd) the same reading floor, through the SAME function -- a hand-raise
-          // answer with no audio used to flash past before the child had read a word.
+          // answer with no audio used to flash past before the student had read a word.
           await scrSay(a);
           busy = false; setPhase("ready"); setState("idle");   // the same question still stands
           return;
@@ -4116,7 +4116,7 @@
       setState("thinking"); statusEl.textContent = tutorName + " is thinking…";
       // build ht (Phase 5): THE TURN CANNOT HANG. A stuck upstream used to freeze
       // this page for the SDK's ~10-minute default; the server now times out at
-      // ~60s and this 90s abort is the outer guarantee -- the child gets a warm
+      // ~60s and this 90s abort is the outer guarantee -- the student gets a warm
       // try-again bubble and a live input, never a frozen "thinking".
       const ctl = new AbortController();
       const abortTimer = setTimeout(() => { try { ctl.abort(); } catch (e) {} }, 90000);

@@ -124,7 +124,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Your family — Mr. Cadabra's Classroom</title>
-<meta name="description" content="Manage your Mr. Cadabra's Classroom family: your children's login codes, their progress, and your plan." />
+<meta name="description" content="Manage your Mr. Cadabra's Classroom family: your students' login codes, their progress, and your plan." />
 <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <style>
   :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
@@ -184,11 +184,11 @@
   .tabs button.on{border-color:var(--purple);color:var(--purple);background:#f6f3ff}
   .kid{display:flex;align-items:center;gap:16px;flex-wrap:wrap;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px;background:#fff}
   .kid .nm{font-weight:800;font-size:17px;min-width:110px}
-  /* 2026-08-11 (dq): the per-child mission-control lines */
+  /* 2026-08-11 (dq): the per-student mission-control lines */
   .kidstats{flex-basis:100%;font-size:13.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;margin-top:2px}
   .kidstats b{color:var(--ink)}
   .kidassess{flex-basis:100%;display:none;background:#f8f7fc;border-radius:10px;padding:12px 14px;font-size:14.5px;line-height:1.55}
-  /* 2026-08-11 (dy): the per-child management panel */
+  /* 2026-08-11 (dy): the per-student management panel */
   .kidmanage{flex-basis:100%;display:none;background:#fbfaff;border:1px dashed var(--line);border-radius:10px;padding:12px 14px}
   .kidmanage.on{display:block}
   .mrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:7px 0;border-bottom:1px dashed #efecfa;font-size:14px}
@@ -253,7 +253,7 @@
 <header class="page wrap">
   <span class="eyebrow">Your family</span>
   <h1>One account. <span class="grad-text">Every kid covered.</span></h1>
-  <p class="sub" id="subline">Create your free parent account, add your children, and each one gets their
+  <p class="sub" id="subline">Create your free parent account, add your students, and each one gets their
   own login code, tutor, and dashboard.</p>
   <div class="banner" id="banner"></div>
 </header>
@@ -281,7 +281,7 @@
         style="color:var(--purple);font-weight:700;font-size:14px">Forgot your password?</a></p>
       <div class="msg" id="authMsg"></div>
       <button class="btn btn-primary" id="authGo" style="width:100%;margin-top:16px" type="submit">Create my free account</button>
-      <p class="cap" style="margin-top:12px">Free plan, no card needed. You'll add your children (first
+      <p class="cap" style="margin-top:12px">Free plan, no card needed. You'll add your students (first
       names only) on the next screen. By continuing you agree to the
       <a href="/terms" style="color:var(--purple);font-weight:700">terms</a> and
       <a href="/privacy" style="color:var(--purple);font-weight:700">privacy promise</a>.</p>
@@ -326,15 +326,15 @@
       <p class="cap" id="whoami" style="margin:2px 0 16px"></p>
       <div id="kids"></div>
       <form id="addForm" style="border-top:1px solid var(--line);padding-top:14px;margin-top:6px">
-        <label for="kidName">Add a child — first name or nickname</label>
+        <label for="kidName">Add a student — first name or nickname</label>
         <div style="display:flex;gap:10px">
           <input id="kidName" maxlength="40" autocomplete="off" placeholder="e.g. Ana" style="flex:1" />
           <button class="btn btn-primary" id="addGo" type="submit">Add</button>
         </div>
         <div class="msg" id="addMsg"></div>
         <p class="cap" style="margin-top:10px">It doesn't need to be their real name — a nickname or
-        anything your child likes to be called works great, and Mr. Cadabra will use it. No last
-        names, ever. Each child gets their own <b>login code</b> (not a password — it's the only
+        anything your student likes to be called works great, and Mr. Cadabra will use it. No last
+        names, ever. Each student gets their own <b>login code</b> (not a password — it's the only
         thing they sign in with, at mrcadabra.com → Student sign in), takes the placement, and
         Mr. Cadabra meets them at their level.</p>
         <!-- dy 2026-08-11: claim a code that existed before this account did -->
@@ -364,7 +364,7 @@
       <div>
         <h2 style="font-size:20px;font-weight:820">📬 Weekly report email</h2>
         <p class="cap" id="mailCap" style="margin-top:4px">Every Friday: real minutes, mastery progress, and a
-        short note from Mr. Cadabra about each child.</p>
+        short note from Mr. Cadabra about each student.</p>
       </div>
       <button class="togglebtn" id="mailToggle" type="button" style="display:none">…</button>
     </div>
@@ -372,7 +372,7 @@
       Handy links: <a href="/courses" style="color:var(--purple);font-weight:700">📖 Every course's plan (printable)</a>
       &nbsp;·&nbsp; <a href="/pricing" style="color:var(--purple);font-weight:700">💳 Pricing</a>
       &nbsp;·&nbsp; <a href="/privacy" style="color:var(--purple);font-weight:700">🔒 Parents &amp; privacy</a>
-      &nbsp;·&nbsp; Each child's <b>Records</b> link above is the printable report homeschool
+      &nbsp;·&nbsp; Each student's <b>Records</b> link above is the printable report homeschool
       families file with their state (hours log + mastery evidence).</p>
   </div>
 </section>
@@ -418,16 +418,16 @@
     $("authView").style.display = (view === "auth") ? "" : "none";
     $("famView").style.display = (view === "fam") ? "" : "none";
     $("subline").textContent = (view === "fam")
-      ? "Your children's codes and progress, and your plan — all in one place."
-      : "Create your free parent account, add your children, and each one gets their own login code, tutor, and dashboard.";
+      ? "Your students' codes and progress, and your plan — all in one place."
+      : "Create your free parent account, add your students, and each one gets their own login code, tutor, and dashboard.";
   }
 
   function renderKids(me) {
     var box = $("kids");
     if (!me.students.length) {
       box.innerHTML = '<div style="border:1px dashed var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px">' +
-        '<p style="font-weight:800;margin:0 0 8px">Three steps and your child is learning:</p>' +
-        '<p class="cap" style="margin:0">1. Add your child below (a nickname is fine).&nbsp;&nbsp;' +
+        '<p style="font-weight:800;margin:0 0 8px">Three steps and your student is learning:</p>' +
+        '<p class="cap" style="margin:0">1. Add your student below (a nickname is fine).&nbsp;&nbsp;' +
         '2. They get a <b>login code</b> — that code is the only thing they sign in with.&nbsp;&nbsp;' +
         '3. They go to mrcadabra.com, tap <b>Student sign in</b>, and type the code. Done — placement first, then lessons.</p></div>';
       return;
@@ -449,7 +449,7 @@
         '<div class="kidmanage" data-manage="' + esc(k.code) + '">' +
           '<div class="mrow"><b>Rename</b> <input class="mIn" data-rename="' + esc(k.code) + '" maxlength="40" value="' + esc(k.name) + '" />' +
             '<button class="mbtn" data-dorename="' + esc(k.code) + '" type="button">Save name</button></div>' +
-          '<div class="mrow"><b>Steer their lessons</b> <span class="cap">Ask Mr. Cadabra to center the next sessions on one unit — your child can still choose otherwise in the moment.</span>' +
+          '<div class="mrow"><b>Steer their lessons</b> <span class="cap">Ask Mr. Cadabra to center the next sessions on one unit — your student can still choose otherwise in the moment.</span>' +
             '<span class="steernow" data-steer="' + esc(k.code) + '"></span>' +
             '<select class="mIn" data-steerunit="' + esc(k.code) + '" style="flex-basis:120px">' +
               '<option value="">Unit…</option>' +
@@ -457,7 +457,7 @@
             '</select>' +
             '<button class="mbtn" data-dosteer="' + esc(k.code) + '" type="button">Set the plan</button>' +
             '<button class="mbtn" data-clearsteer="' + esc(k.code) + '" type="button">Clear</button></div>' +
-          '<div class="mrow"><b>Daily practice goal</b> <span class="cap">A little practice each day helps things stick. Pick the minutes; Mr. Cadabra turns it into a friendly problem ring your child fills — only ever with skills they\'ve already earned, never anything new.</span>' +
+          '<div class="mrow"><b>Daily practice goal</b> <span class="cap">A little practice each day helps things stick. Pick the minutes; Mr. Cadabra turns it into a friendly problem ring your student fills — only ever with skills they\'ve already earned, never anything new.</span>' +
             '<span class="steernow" data-goal="' + esc(k.code) + '"></span>' +
             '<select class="mIn" data-goalmin="' + esc(k.code) + '" style="flex-basis:130px">' +
               '<option value="">Minutes…</option>' +
@@ -490,7 +490,7 @@
     Array.prototype.forEach.call(box.querySelectorAll(".assessLink"), function (el) {
       el.addEventListener("click", function (ev) { ev.preventDefault(); showAssessment(el); });
     });
-    // 2026-08-11 (dy): child management -- rename / new code / remove, per child
+    // 2026-08-11 (dy): student management -- rename / new code / remove, per student
     Array.prototype.forEach.call(box.querySelectorAll(".manageLink"), function (el) {
       el.addEventListener("click", function (ev) {
         ev.preventDefault();
@@ -513,7 +513,7 @@
     Array.prototype.forEach.call(box.querySelectorAll("[data-clearsteer]"), function (b) {
       b.addEventListener("click", function () { doSteer(b.getAttribute("data-clearsteer"), true); });
     });
-    // 2026-09-02 (sb): the daily practice goal -- set or clear, per child
+    // 2026-09-02 (sb): the daily practice goal -- set or clear, per student
     Array.prototype.forEach.call(box.querySelectorAll("[data-dogoal]"), function (b) {
       b.addEventListener("click", function () { doGoal(b.getAttribute("data-dogoal"), false); });
     });
@@ -538,8 +538,8 @@
     state.busy = false;
   }
 
-  // 2026-09-02 (sb): the daily practice goal -- set or clear, per child. Minutes in
-  // the parent's hands, problems underneath (the server derives the ring); the child
+  // 2026-09-02 (sb): the daily practice goal -- set or clear, per student. Minutes in
+  // the parent's hands, problems underneath (the server derives the ring); the student
   // sees a goal ring from Mr. Cadabra, never who set it.
   async function doGoal(code, clear) {
     if (state.busy) return; state.busy = true;
@@ -558,7 +558,7 @@
     state.busy = false;
   }
 
-  // ---------- child management (2026-08-11, dy) ----------
+  // ---------- student management (2026-08-11, dy) ----------
   function mmsg(code, text, kind) {
     var el2 = document.querySelector('.msg[data-mmsg="' + code + '"]');
     if (el2) { el2.className = "msg" + (text ? " " + (kind || "err") : ""); el2.textContent = text || ""; }
@@ -587,7 +587,7 @@
       var out = await api("/api/parent/student-newcode", { method: "POST",
         body: JSON.stringify({ token: token(), code: code }) });
       state.me = out; render();
-      banner("✅ New login code: " + out.new_code + " — all progress moved over. The old code no longer works; give your child the new one.", "ok");
+      banner("✅ New login code: " + out.new_code + " — all progress moved over. The old code no longer works; give your student the new one.", "ok");
     } catch (e) { mmsg(code, e.message, "err"); }
     state.busy = false;
   }
@@ -680,8 +680,8 @@
         body: JSON.stringify({ token: token(), on: want }) });
       setMailButton(want);
       $("mailCap").textContent = want
-        ? "Every Friday: real minutes, mastery progress, and a short note from Mr. Cadabra about each child."
-        : "The weekly email is off. Your children's tutoring is unaffected, and these numbers stay right here.";
+        ? "Every Friday: real minutes, mastery progress, and a short note from Mr. Cadabra about each student."
+        : "The weekly email is off. Your students' tutoring is unaffected, and these numbers stay right here.";
     } catch (e) {}
     state.busy = false;
   });
@@ -695,7 +695,7 @@
     var top = "";
     if (overview) (overview.students || []).forEach(function (s) { if (s.code === code && s.top_course) top = s.top_course; });
     try {
-      // build hs (Phase 5): the child's code rides the X-Student-Code header, never the URL.
+      // build hs (Phase 5): the student's code rides the X-Student-Code header, never the URL.
       var out = await api("/api/assessment/me?audience=parent"
                           + (top ? "&course=" + encodeURIComponent(top) : ""),
                           { headers: { "X-Student-Code": code } });
@@ -715,20 +715,20 @@
 
   function renderPlan(me) {
     var s = me.subscription, n = me.students.length, body = $("planBody"), html = "";
-    var childWord = function (x) { return x === 1 ? "1 child" : x + " children"; };
+    var childWord = function (x) { return x === 1 ? "1 student" : x + " students"; };
     var seatsFor = function (x) { return Math.max(0, Math.ceil(Math.max(0, x) / 2)); };
-    // Covered children come straight from the server's per-child "covered" flag
-    // (one plan covers up to two children), so this display can never drift from
-    // the real access a child has.
+    // Covered students come straight from the server's per-student "covered" flag
+    // (one plan covers up to two students), so this display can never drift from
+    // the real access a student has.
     var coveredCount = me.students.filter(function (k) { return k.covered; }).length;
     if (s.status === "active") {
       var planName = s.plan === "annual" ? "$24/mo per plan, billed annually" : "$29/mo per plan";
       html += '<div class="plan-line"><b>Full access</b><span class="tag full">Active</span></div>' +
-        '<p>' + childWord(coveredCount) + ' covered · one plan covers up to 2 children · ' + esc(planName) + (s.period_end ? ' · renews ' + esc(planDate(s.period_end)) : '') + '</p>';
+        '<p>' + childWord(coveredCount) + ' covered · one plan covers up to 2 students · ' + esc(planName) + (s.period_end ? ' · renews ' + esc(planDate(s.period_end)) : '') + '</p>';
       if (n > coveredCount) {
         var extra = n - coveredCount;
         html += '<div class="msg warn" style="display:block;background:#fff7ea;color:#8a5a12;border:1px solid #f3ddb5;margin-top:12px">' +
-          'You’ve added more children than your plan covers — the newest ' + (extra === 1 ? "child is" : "children are") +
+          'You’ve added more students than your plan covers — the newest ' + (extra === 1 ? "student is" : "students are") +
           ' on the Free plan.</div>' +
           '<div class="rowbtns"><button class="btn btn-primary" id="coverBtn" type="button">Cover ' +
           (extra === 1 ? "them" : "all " + n) + ' — prorated fairly</button></div>';
@@ -742,8 +742,8 @@
     } else {
       var canceled = (s.status === "canceled");
       html += '<div class="plan-line"><b>Free plan</b>' + (canceled ? '<span class="tag free">Subscription ended</span>' : '') + '</div>' +
-        '<p>' + (canceled ? 'Welcome back any time — resubscribe below and your ' + (n === 1 ? "child picks" : "kids pick") + ' up right where they left off.'
-                          : 'Each child gets the placement, a first unit with Mr. Cadabra, and unlimited Practice & topic help — free.') + '</p>' +
+        '<p>' + (canceled ? 'Welcome back any time — resubscribe below and your ' + (n === 1 ? "student picks" : "kids pick") + ' up right where they left off.'
+                          : 'Each student gets the placement, a first unit with Mr. Cadabra, and unlimited Practice & topic help — free.') + '</p>' +
         '<p style="margin-top:10px"><b>Full access</b> unlocks every course, placement to mastery:</p>';
       if (me.billing_ready) {
         var q = Math.max(1, n);
@@ -751,10 +751,10 @@
         html += '<div class="rowbtns">' +
           '<button class="btn btn-primary" id="buyMonthly" type="button">Subscribe — $' + (seats * 29) + '/mo</button>' +
           '<button class="btn btn-ghost" id="buyAnnual" type="button">$' + (seats * 24) + '/mo billed annually</button></div>' +
-          '<p class="cap" style="margin-top:12px">One plan covers up to 2 children' +
+          '<p class="cap" style="margin-top:12px">One plan covers up to 2 students' +
           (seats > 1 ? ' — ' + seats + ' plans cover your ' + childWord(q) : '') + '. ' +
           'Checkout is hosted by Stripe — cards, Apple Pay, Google Pay. Cancel anytime.' +
-          (n === 0 ? " Add your child first — one plan covers up to two children." : "") + '</p>';
+          (n === 0 ? " Add your student first — one plan covers up to two students." : "") + '</p>';
       } else {
         html += '<div class="msg warn" style="display:block;background:#fff7ea;color:#8a5a12;border:1px solid #f3ddb5;margin-top:12px">' +
           '🧪 <b>We’re in beta and not taking payments yet.</b> Prices shown are what launch will look like. ' +
@@ -904,7 +904,7 @@
     ev.preventDefault();
     if (state.busy) return;
     var name = $("kidName").value.trim();
-    if (!name) { msg("addMsg", "Please enter your child's first name."); return; }
+    if (!name) { msg("addMsg", "Please enter your student's first name."); return; }
     state.busy = true; $("addGo").disabled = true; msg("addMsg", "");
     try {
       state.me = await api("/api/parent/students", { method: "POST", body: JSON.stringify({ token: token(), name: name }) });
@@ -941,7 +941,7 @@
     try {
       state.me = await api("/api/billing/cover", { method: "POST", body: JSON.stringify({ token: token() }) });
       render();
-      msg("planMsg", "Done — every child is covered. Stripe prorates the difference on your next invoice.", "ok");
+      msg("planMsg", "Done — every student is covered. Stripe prorates the difference on your next invoice.", "ok");
     } catch (e) { msg("planMsg", e.message, "err"); }
     state.busy = false;
   }

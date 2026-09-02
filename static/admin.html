@@ -517,7 +517,7 @@
   <!-- Start fresh — full reset of ONE test parent account (2026-08-05) -->
   <section class="wrap"><div class="card" style="border-color:#f3ddb5;background:linear-gradient(180deg,#fffdf8,#fff)">
     <div class="sechead"><h2>🧹 Start fresh — reset a test account</h2>
-      <span class="note">Deletes ONE parent account by email — its children &amp; data too — so you can sign up again as a brand-new parent. Your admin key and every other account are untouched.</span></div>
+      <span class="note">Deletes ONE parent account by email — its students &amp; data too — so you can sign up again as a brand-new parent. Your admin key and every other account are untouched.</span></div>
     <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
       <div style="flex:2;min-width:240px"><label for="frEmail">Parent email to reset</label>
         <input class="f" id="frEmail" type="email" autocomplete="off" placeholder="e.g. jim@shift-work.com" /></div>
@@ -633,7 +633,7 @@
     <div class="sechead"><h2>&#128296; Voice cache repair</h2>
       <span class="note">Finds cached voice clips that are damaged &mdash; truncated, or two
         renders spliced together by the old cache bug &mdash; and removes them so they
-        re-render clean. A child hears a damaged clip as slurring or nonsense. Checking is
+        re-render clean. A student hears a damaged clip as slurring or nonsense. Checking is
         free and deletes nothing; run &#9313; only after &#9312; shows you the count.</span></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <button class="btn btn-ghost" id="vrCheck" type="button">&#9312; Check it (free)</button>
@@ -928,9 +928,9 @@
         'Check /health and the DATABASE_URL env var. (' + esc(st.reason || "no reason given") + ')</div>';
     }
 
-    html += section("👪 Signups", "Real parent accounts and the children they've added.", tiles([
+    html += section("👪 Signups", "Real parent accounts and the students they've added.", tiles([
       { l: "Parent accounts", v: num(s.parents_total) },
-      { l: "Children added", v: num(s.students_family) },
+      { l: "Students added", v: num(s.students_family) },
       { l: "On the Free plan", v: num(s.parents_free) },
       { l: "All student codes", v: num(s.students_total), s: "includes pilots & beta" }
     ]));
@@ -938,7 +938,7 @@
     html += section("💳 Subscriptions", "Live billing — active plans only. Revenue is an estimate from paid seats.", tiles([
       { l: "Active plans", v: num(s.parents_active), cls: s.parents_active ? "good" : "" },
       { l: "Paid seats", v: num(s.seats_paid), s: "1 seat covers up to 2 kids" },
-      { l: "Children covered", v: num(s.children_covered_capacity), s: "capacity at current seats" },
+      { l: "Students covered", v: num(s.children_covered_capacity), s: "capacity at current seats" },
       { l: "Est. monthly", v: money(s.est_monthly_usd), cls: "good", s: "monthly $29 + annual $24/seat" },
       { l: "Payment issues", v: num(s.parents_past_due), cls: s.parents_past_due ? "warn" : "" },
       { l: "Canceled", v: num(s.parents_canceled) }
@@ -972,7 +972,7 @@
     var shippedCritic7 = (u7["verify_critic-unresolved"] || 0);
     // (mz) ⚠️ AND MATHCHECK'S OWN PASS-THROUGH BELONGS HERE TOO. verify_unresolved is
     // set when mathcheck judged three drafts wrong in a row and shipped the last one
-    // anyway. That is a reply sent to a child WITH a known finding by any honest
+    // anyway. That is a reply sent to a student WITH a known finding by any honest
     // reading, and it was sitting in "Errors caught & fixed" instead -- so the
     // reassuring tile was counting the un-fixed ones.
     var shippedMath7 = (u7.verify_unresolved || 0);
@@ -992,7 +992,7 @@
     // reads 0% during a render week and 100% during a quiet one, because a render
     // pass is a miss BY DEFINITION -- I once told Jim that 0% was a live money leak
     // and had to retract it. THIS one asks only about teaching: of the characters a
-    // CHILD caused, how many were already on disk? That is the number that should be
+    // STUDENT caused, how many were already on disk? That is the number that should be
     // ~100%, and if it is not, something really is leaking.
     var ttsServe7 = (u7.tts_chars_serve || 0) + (u7.tts_chars_cached_serve || 0);
     var ttsServeFreePct = ttsServe7
@@ -1021,8 +1021,8 @@
     // Amber at 10%, red at 25% -- Lever 1 of the responsiveness proposal, in colour.
     // build jp: the second opinion is a whole extra model call on every accepted
     // draft. Amber at 15% of turn time, red at 30% -- at that point it is the single
-    // largest thing standing between a child's answer and the tutor's reply.
-    // build jq: when most of what the model writes is never heard, the child is
+    // largest thing standing between a student's answer and the tutor's reply.
+    // build jq: when most of what the model writes is never heard, the student is
     // waiting on structure. Amber below a quarter spoken.
     var writeCls = !u7.sized_turns ? ""
                    : (Number(u7.out_spoken_share || 0) < 25 ? "warn" : "good");
@@ -1082,7 +1082,7 @@
            + big(u7.tts_chars_serve || 0) + " teaching · 30d: " + big(u30.tts_chars_generated) },
       // (na) ⚠️ THE TILE THAT WAS BLENDING CAPITAL INTO MARGINAL COST. "Est. voice
       // cost" used to be one number, and during a render week it was ~99% course
-      // CONSTRUCTION -- money already spent, that no future child will ever cost
+      // CONSTRUCTION -- money already spent, that no future student will ever cost
       // again. Two tiles now, and they never trade places.
       { l: "Course build cost", v: usd(u7.tts_build_usd),
         cls: "",
@@ -1095,11 +1095,11 @@
         s: (u7.tts_serve_usd === null || u7.tts_serve_usd === undefined)
              ? "set ELEVEN_USD_PER_1K_CHARS"
              : (ttsServeFreePct === null
-                  ? "no child asked for audio this week"
-                  : ttsServeFreePct + "% of what children heard came free from cache") },
+                  ? "no student asked for audio this week"
+                  : ttsServeFreePct + "% of what students heard came free from cache") },
       { l: "Cost / student (7d)", v: perStudent, s: num(u7.brain_students) + " students used the brain" },
       // (na) ⭐ THE HEADLINE, AND IT NOW ANSWERS THE QUESTION IT ASKS. This read
-      // "$610.76" on 2026-08-24 -- one week of children divided into a course build.
+      // "$610.76" on 2026-08-24 -- one week of students divided into a course build.
       // usd_per_student_hour is serve-only from build na onward; see main.py.
       { l: "Teaching cost / student-hour", v: perHour(u7),
         cls: (u7.usd_per_student_hour !== null && u7.usd_per_student_hour !== undefined) ? "good" : "",
@@ -1110,7 +1110,7 @@
               : ((100 * (u7.verify_ok || 0) / checked7) >= 60 ? "warn" : "bad")),
         s: num(u7.verify_ok || 0) + " of " + num(checked7) + " needed no retry" },
       { l: "Caught & actually fixed", v: num(fixed7), cls: fixed7 ? "warn" : "good",
-        s: "a retry repaired the draft before the child saw it" },
+        s: "a retry repaired the draft before the student saw it" },
       { l: "Shipped unresolved", v: num(shipped7), cls: shipped7 ? "bad" : "good",
         s: shipped7 ? ("replies sent WITH a known finding (7d) — " + num(shippedMath7)
                        + " math, " + num(shippedProse7) + " prose, " + num(shippedCritic7)
@@ -1390,7 +1390,7 @@
       var b = $("frGo");
       b.textContent = "Click again to permanently delete " + email;
       b.style.background = "#fdf0ee"; b.style.color = "#b3402e"; b.style.borderColor = "#f5cfc8";
-      frMsg("This permanently deletes the account for " + email + " and its children. Click the red button once more to confirm — or change the email to cancel.", "err");
+      frMsg("This permanently deletes the account for " + email + " and its students. Click the red button once more to confirm — or change the email to cancel.", "err");
       return;
     }
     $("frGo").disabled = true; frMsg("");
@@ -1399,7 +1399,7 @@
         body: JSON.stringify({ key: graverKey("reset", "FAMILY_RESET_KEY"), email: email }) });
       try { localStorage.removeItem("mt_parent_token"); } catch (e) {}   // sign this browser out too
       var kids = out.children_removed || 0;
-      frMsg("Done — " + out.email + " is a clean slate (" + kids + " child" + (kids === 1 ? "" : "ren") +
+      frMsg("Done — " + out.email + " is a clean slate (" + kids + " student" + (kids === 1 ? "" : "ren") +
         " removed), and this browser has been signed out. Open the Family portal and create the account fresh.", "ok");
       $("frEmail").value = "";
     } catch (e) {
@@ -1662,7 +1662,7 @@
     seatCheck("provider=deepseek&size=lesson", "DeepSeek with a REAL lesson prompt"); });
   $("seatAnthBig").addEventListener("click", function () {
     seatCheck("provider=anthropic&size=lesson", "Anthropic with a REAL lesson prompt"); });
-  // (qk) the two that decide whether DeepSeek can teach a child, not merely answer
+  // (qk) the two that decide whether DeepSeek can teach a student, not merely answer
   $("seatDSbigOff").addEventListener("click", function () {
     seatCheck("provider=deepseek&size=lesson&effort=off",
               "DeepSeek, real prompt, thinking off"); });

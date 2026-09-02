@@ -265,7 +265,7 @@
 
     <!-- STAGE 0 (build fa): SIGN IN. Before this, the only "sign-in" was a teacher code in
          the URL -- a convenience key this file's own comments called "a door, not a lock".
-         A roster of children needs a lock. -->
+         A roster of students needs a lock. -->
     <div id="stage0" style="display:none;">
       <div class="panel">
         <h2 id="authTitle">Teacher sign-in</h2>
@@ -425,7 +425,7 @@
     let COURSE = (params.get("course") || "algebra1").trim();
     // ---------- build fa: REAL SIGN-IN ----------------------------------------------
     // The old `?teacher=MRSBAKER` URL param is GONE. It was a short, guessable,
-    // unthrottled key that opened a roster of children, and this file used to say so
+    // unthrottled key that opened a roster of students, and this file used to say so
     // itself. A 30-day token now rides in the X-Teacher-Token header on every call,
     // exactly as the parent surface has always done. ME holds the signed-in teacher.
     const TOKEN_KEY = "mt_teacher_token";
@@ -633,9 +633,9 @@
       if (!studs.length) { box.innerHTML = '<div class="empty">Add your first student by their student code.</div>'; return; }
       box.innerHTML = "";
       // build fa: a row is identified by an opaque `ref`, and the login code shows
-      // MASKED. Thirty children's logins no longer sit on a projected screen at once;
+      // MASKED. Thirty students' logins no longer sit on a projected screen at once;
       // "Show code" fetches ONE, on purpose, when a teacher actually needs to hand it
-      // back to a child. "View progress" needs the real code, so it is revealed on
+      // back to a student. "View progress" needs the real code, so it is revealed on
       // demand too rather than sitting in every link on the page.
       studs.forEach(s => {
         const d = document.createElement("div"); d.className = "stud";
@@ -653,7 +653,7 @@
           '<button class="rm" data-show="' + esc(s.ref) + '">Show code</button>' +
           '<button class="rm" data-ref="' + esc(s.ref) + '">Remove</button></div>' +
           /* (sb, 2026-09-02) the daily practice goal: minutes in the teacher's hands,
-             a problem ring in the child's. Only ever mastered material -- the goal
+             a problem ring in the student's. Only ever mastered material -- the goal
              never names content, it asks for practice on what the record has earned. */
           '<div class="meta" data-goalline="' + esc(s.ref) + '">' +
             (s.goal

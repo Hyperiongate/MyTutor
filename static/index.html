@@ -209,11 +209,11 @@
       <div class="door parent">
         <div class="ic">👪</div>
         <h2>I'm a parent</h2>
-        <p class="who">Follow one child. You'll see their progress, what they've mastered, and
+        <p class="who">Follow one student. You'll see their progress, what they've mastered, and
           where to help next — read-only, so nothing you do can change their work.</p>
-        <label for="pcode">Your child's student code</label>
+        <label for="pcode">Your student's student code</label>
         <input id="pcode" autocomplete="off" placeholder="••••" maxlength="20" />
-        <button id="pgo" class="btn teal">See my child's progress →</button>
+        <button id="pgo" class="btn teal">See my student's progress →</button>
         <div id="pmsg" class="msg"></div>
         <div class="foot-note">Have a family account (or want one)?
           <a href="/family">Open the Family page →</a></div>
@@ -243,7 +243,7 @@
 
     <div class="strip">
       <b>A note while we're still building.</b> These three doors decide what you <i>see</i> — a
-      student sees only their own work, a parent sees only their child, a teacher sees only the
+      student sees only their own work, a parent sees only their student, a teacher sees only the
       classes under their teacher code. They are not yet security: there are no passwords, so
       anyone holding a code can open that door. Please don't treat a code as private until real
       accounts are in place.
@@ -256,7 +256,7 @@
     // ------------------------------------------------------------------
     // Three doors, three destinations:
     //   STUDENT -> /home?code=...                      (their own hub)
-    //   PARENT  -> /dashboard?code=...&view=parent     (read-only, one child)
+    //   PARENT  -> /dashboard?code=...&view=parent     (read-only, one student)
     //   TEACHER -> /teacher?teacher=...                (every class they run)
     // Student and parent codes are validated with /api/login first, so a typo is caught here.
     // A teacher code needs no lookup: an unrecognised one simply has no classes yet, and the
@@ -315,16 +315,16 @@
     el("code").addEventListener("keydown", (e) => { if (e.key === "Enter") studentLogin(); });
 
     // ---------------- PARENT ----------------
-    // The child's own code, on purpose: a homeschool or at-home parent already has it, and it
-    // keeps the parent bound to exactly one child. The dashboard treats view=parent as read-only.
+    // The student's own code, on purpose: a homeschool or at-home parent already has it, and it
+    // keeps the parent bound to exactly one student. The dashboard treats view=parent as read-only.
     async function parentLogin() {
       const code = (el("pcode").value || "").trim();
-      if (!code) { setMsg("pmsg", "Enter your child's student code.", true); return; }
+      if (!code) { setMsg("pmsg", "Enter your student's student code.", true); return; }
       el("pgo").disabled = true;
       setMsg("pmsg", "Checking…", false);
       try {
         if (!(await verifyStudent(code))) {
-          setMsg("pmsg", lastLoginError || "That code wasn't recognized. Check it with your child.", true);
+          setMsg("pmsg", lastLoginError || "That code wasn't recognized. Check it with your student.", true);
           el("pgo").disabled = false; return;
         }
         window.location.href = "/dashboard?code=" + encodeURIComponent(code) + "&view=parent";

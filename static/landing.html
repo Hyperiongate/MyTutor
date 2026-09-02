@@ -310,9 +310,9 @@
      background-size:24px 24px;font-family:"Courier New",monospace;color:#2a2450}
   .board .v{color:#d1345b;font-weight:800}
   .board .step{opacity:0;animation:stepin .5s forwards}
-  .board .step:nth-child(1){animation-delay:.3s}
-  .board .step:nth-child(2){animation-delay:1.0s}
-  .board .step:nth-child(3){animation-delay:1.8s}
+  .board .step:nth-student(1){animation-delay:.3s}
+  .board .step:nth-student(2){animation-delay:1.0s}
+  .board .step:nth-student(3){animation-delay:1.8s}
   @keyframes stepin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   /* LIVE HERO LESSON (2026-08-05): steps the script adds animate individually, and the
      student's typed answer shows as a reply pill under the tutor bubble. */
@@ -472,10 +472,10 @@
     },
     {
      "@type": "Question",
-     "name": "Does my child need a microphone?",
+     "name": "Does my student need a microphone?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "A microphone makes it best — your student simply talks with Mr. Cadabra, back and forth, like a real tutoring session. Their speech is turned into text and the audio is deleted immediately — we never store or keep recordings of your child's voice. No mic, or need it quiet? They can type instead any time, and elementary students (grades 1–6) answer by tapping big answer buttons."
+      "text": "A microphone makes it best — your student simply talks with Mr. Cadabra, back and forth, like a real tutoring session. Their speech is turned into text and the audio is deleted immediately — we never store or keep recordings of your student's voice. No mic, or need it quiet? They can type instead any time, and elementary students (grades 1–6) answer by tapping big answer buttons."
      }
     },
     {
@@ -491,15 +491,15 @@
      "name": "Will it chat about things besides math?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "No. Mr. Cadabra is a math tutor and only a math tutor — ask him about video games, other homework, or anything off-topic and he'll kindly steer straight back to the math. Those guardrails are permanent and can't be talked around, which is exactly how a tutor for children should behave."
+      "text": "No. Mr. Cadabra is a math tutor and only a math tutor — ask him about video games, other homework, or anything off-topic and he'll kindly steer straight back to the math. Those guardrails are permanent and can't be talked around, which is exactly how a tutor for students should behave."
      }
     },
     {
      "@type": "Question",
-     "name": "How do you handle my child's data?",
+     "name": "How do you handle my student's data?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Parents create and control the account, and we ask for as little as possible — a first name or even just a nickname is all a child needs. We never sell student data or use it for advertising; when your child talks with the tutor their voice is transcribed to text and the audio is deleted immediately — recordings are never stored — and you can request deletion of your data at any time. See the Parents & Privacy page for specifics."
+      "text": "Parents create and control the account, and we ask for as little as possible — a first name or even just a nickname is all a student needs. We never sell student data or use it for advertising; when your student talks with the tutor their voice is transcribed to text and the audio is deleted immediately — recordings are never stored — and you can request deletion of your data at any time. See the Parents & Privacy page for specifics."
      }
     },
     {
@@ -507,7 +507,7 @@
      "name": "What does it cost?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "There's a free plan (no card needed): the placement check, a full first unit with Mr. Cadabra, and unlimited practice and topic help. Full access — every course, placement to mastery — is $29/month, and one plan covers up to two children ($24/month billed annually). Cancel anytime. See the Pricing page for details."
+      "text": "There's a free plan (no card needed): the placement check, a full first unit with Mr. Cadabra, and unlimited practice and topic help. Full access — every course, placement to mastery — is $29/month, and one plan covers up to two students ($24/month billed annually). Cancel anytime. See the Pricing page for details."
      }
     },
     {
@@ -515,15 +515,15 @@
      "name": "What devices does it work on?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Any modern browser — Windows, Mac, Chromebook, iPad, or Android tablet. Nothing to install, and a child's login is just their code. Turn the sound on: his voice is half the charm."
+      "text": "Any modern browser — Windows, Mac, Chromebook, iPad, or Android tablet. Nothing to install, and a student's login is just their code. Turn the sound on: his voice is half the charm."
      }
     },
     {
      "@type": "Question",
-     "name": "Can I use this for more than one child, or a co-op?",
+     "name": "Can I use this for more than one student, or a co-op?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Yes. One family plan covers up to two children — the second child is free — and each child gets their own login code, tutor, and dashboard. For classrooms, microschools, and co-ops, the teacher dashboard adds a roster and a class mastery heatmap; free pilots are running this term."
+      "text": "Yes. One family plan covers up to two students — the second student is free — and each student gets their own login code, tutor, and dashboard. For classrooms, microschools, and co-ops, the teacher dashboard adds a roster and a class mastery heatmap; free pilots are running this term."
      }
     }
    ]
@@ -575,7 +575,7 @@
       <a class="btn btn-primary" href="/demo">▶ Try a lesson free</a>
       <a class="btn btn-ghost" href="#how">See how it works</a>
     </div>
-    <p class="hero-note">No credit card · Voice audio never stored · Parent-controlled accounts · We never sell your child's data</p>
+    <p class="hero-note">No credit card · Voice audio never stored · Parent-controlled accounts · We never sell your student's data</p>
   </div>
   <div class="mock">
     <div class="mock-top"><i></i><i></i><i></i>
@@ -616,7 +616,7 @@
   <div class="grid g4" style="margin-top:34px">
     <div class="card"><div class="ic">🗺</div><h3>A plan built around your student</h3><p>Placement finds their true level; the tutor builds a foundation-first path from it and re-plans after every scored check. The dashboard always shows the plan — what to strengthen next, and why.</p></div>
     <div class="card"><div class="ic">💬</div><h3>Feedback at every step</h3><p>Encouragement in the moment, hints before answers, misconceptions caught as they happen — plus badges and trophies for real effort. Students can even ask <em>"How am I doing?"</em> and get a warm, honest answer.</p></div>
-    <div class="card"><div class="ic">✉</div><h3>Reports written for parents</h3><p>On your dashboard, <em>"How is my child doing, really?"</em> answers in plain English — real progress and honest engagement, not vanity numbers. A weekly progress email with the same analytical summary lands every Friday.</p></div>
+    <div class="card"><div class="ic">✉</div><h3>Reports written for parents</h3><p>On your dashboard, <em>"How is my student doing, really?"</em> answers in plain English — real progress and honest engagement, not vanity numbers. A weekly progress email with the same analytical summary lands every Friday.</p></div>
     <div class="card"><div class="ic">🗣</div><h3>You shape what's next</h3><p>Our family <a href="/community" style="text-decoration:underline">community forum</a> drives the roadmap — what's working, what to improve, and which courses we build next. Founding families get heard first.</p></div>
   </div>
 </section>
@@ -680,9 +680,9 @@
       <h3>Mr. Cadabra's Classroom</h3>
       <p class="who">The whole thing — every course, the warm voice</p>
       <div class="price" data-m="29" data-a="24">$29<small>/mo</small></div>
-      <div class="per" data-permo="covers up to 2 children · billed monthly" data-peran="covers up to 2 children · billed annually">covers up to 2 children · billed monthly</div>
+      <div class="per" data-permo="covers up to 2 students · billed monthly" data-peran="covers up to 2 students · billed annually">covers up to 2 students · billed monthly</div>
       <ul class="feat-list">
-        <li><span class="chk">✓</span> One plan covers up to 2 children — a 2nd child is free</li>
+        <li><span class="chk">✓</span> One plan covers up to 2 students — a 2nd student is free</li>
         <li><span class="chk">✓</span> All 10 courses, placement → mastery</li>
         <li><span class="chk">✓</span> Mr. Cadabra's warm, natural voice on every lesson</li>
         <li><span class="chk">✓</span> Talk your answers out loud — or type them, your choice</li>
@@ -693,7 +693,7 @@
     </div>
   </div>
   <div class="grid g3" style="margin-top:26px;text-align:left">
-    <div class="card"><h3>👪 Family plan</h3><p>One plan covers up to two children — the second child is free. Each child gets their own login code, tutor, and dashboard. <a href="/family" style="color:var(--purple);font-weight:700">Open your Family page →</a></p></div>
+    <div class="card"><h3>👪 Family plan</h3><p>One plan covers up to two students — the second student is free. Each student gets their own login code, tutor, and dashboard. <a href="/family" style="color:var(--purple);font-weight:700">Open your Family page →</a></p></div>
     <div class="card"><h3>🍎 Classrooms &amp; co-ops</h3><p>Teacher dashboard with a class roster and mastery heatmap. Custom pricing for schools, microschools, and co-ops. <a href="/teachers" style="color:var(--purple);font-weight:700">For teachers →</a></p></div>
     <div class="card"><h3>🎓 Free pilots</h3><p>We're partnering with a limited number of classrooms this term for feedback. If that's you, let's talk.</p></div>
   </div>
@@ -732,13 +732,13 @@
   <div class="center" style="max-width:70ch;margin-bottom:24px"><span class="eyebrow">Questions</span><h2>Frequently asked</h2></div>
   <details open><summary>Is this just ChatGPT that solves the homework?</summary><p>No. Mr. Cadabra's Classroom is built to <em>teach</em>, not to hand over answers. It runs on Anthropic's Claude — a high-end reasoning model (currently Claude Sonnet 5) — but the difference is everything built around it: a foundation-first approach that teaches each idea and its vocabulary before asking about it, a whiteboard that draws each step and never runs ahead of your student, and complete placement-to-mastery courses. The goal is understanding, not a copied answer.</p></details>
   <details><summary>How do I know the math is actually right?</summary><p>Every problem and answer Mr. Cadabra states is double-checked by a separate math engine — real symbolic math software, not another AI — before your student ever sees it. If a check fails, the reply is silently corrected first. Progress numbers work the same way: dashboards only ever show real, scored work.</p></details>
-  <details><summary>Does my child need a microphone?</summary><p>A microphone makes it best — your student simply <em>talks</em> with Mr. Cadabra, back and forth, like a real tutoring session. Their speech is turned into text and the audio is <em>deleted immediately</em> — we never store or keep recordings of your child's voice. No mic, or need it quiet? They can <em>type</em> instead any time, and elementary students (grades 1–6) answer by <em>tapping</em> big answer buttons.</p></details>
+  <details><summary>Does my student need a microphone?</summary><p>A microphone makes it best — your student simply <em>talks</em> with Mr. Cadabra, back and forth, like a real tutoring session. Their speech is turned into text and the audio is <em>deleted immediately</em> — we never store or keep recordings of your student's voice. No mic, or need it quiet? They can <em>type</em> instead any time, and elementary students (grades 1–6) answer by <em>tapping</em> big answer buttons.</p></details>
   <details><summary>What ages and levels is it for?</summary><p>Ten complete courses, from a first-grader's first numbers to college math: Entry-Level Math (grades 1–3), Basic Math (grades 4–6), Pre-Algebra, Algebra I, Geometry, Algebra II, Trig / Pre-Calculus, Probability &amp; Statistics, Calculus, and Differential Equations. A placement check puts each student exactly where they belong, and they can move between courses anytime.</p></details>
-  <details><summary>Will it chat about things besides math?</summary><p>No. Mr. Cadabra is a math tutor and only a math tutor — ask him about video games, other homework, or anything off-topic and he'll kindly steer straight back to the math. Those guardrails are permanent and can't be talked around, which is exactly how a tutor for children should behave.</p></details>
-  <details><summary>How do you handle my child's data?</summary><p>Parents create and control the account, and we ask for as little as possible — a first name or even just a nickname is all a child needs. We never sell student data or use it for advertising; when your child talks with the tutor their voice is transcribed to text and the audio is deleted immediately — recordings are never stored — and you can request deletion of your data at any time. See the Parents &amp; Privacy page for specifics.</p></details>
-  <details><summary>What does it cost?</summary><p>There's a free plan (no card needed): the placement check, a full first unit with Mr. Cadabra, and unlimited practice and topic help. Full access — every course, placement to mastery — is $29/month, and one plan covers up to two children ($24/month billed annually). Cancel anytime. See the Pricing page for details.</p></details>
-  <details><summary>What devices does it work on?</summary><p>Any modern browser — Windows, Mac, Chromebook, iPad, or Android tablet. Nothing to install, and a child's login is just their code. Turn the sound on: his voice is half the charm.</p></details>
-  <details><summary>Can I use this for more than one child, or a co-op?</summary><p>Yes. One family plan covers up to two children — the second child is free — and each child gets their own login code, tutor, and dashboard. For classrooms, microschools, and co-ops, the teacher dashboard adds a roster and a class mastery heatmap; free pilots are running this term.</p></details>
+  <details><summary>Will it chat about things besides math?</summary><p>No. Mr. Cadabra is a math tutor and only a math tutor — ask him about video games, other homework, or anything off-topic and he'll kindly steer straight back to the math. Those guardrails are permanent and can't be talked around, which is exactly how a tutor for students should behave.</p></details>
+  <details><summary>How do you handle my student's data?</summary><p>Parents create and control the account, and we ask for as little as possible — a first name or even just a nickname is all a student needs. We never sell student data or use it for advertising; when your student talks with the tutor their voice is transcribed to text and the audio is deleted immediately — recordings are never stored — and you can request deletion of your data at any time. See the Parents &amp; Privacy page for specifics.</p></details>
+  <details><summary>What does it cost?</summary><p>There's a free plan (no card needed): the placement check, a full first unit with Mr. Cadabra, and unlimited practice and topic help. Full access — every course, placement to mastery — is $29/month, and one plan covers up to two students ($24/month billed annually). Cancel anytime. See the Pricing page for details.</p></details>
+  <details><summary>What devices does it work on?</summary><p>Any modern browser — Windows, Mac, Chromebook, iPad, or Android tablet. Nothing to install, and a student's login is just their code. Turn the sound on: his voice is half the charm.</p></details>
+  <details><summary>Can I use this for more than one student, or a co-op?</summary><p>Yes. One family plan covers up to two students — the second student is free — and each student gets their own login code, tutor, and dashboard. For classrooms, microschools, and co-ops, the teacher dashboard adds a roster and a class mastery heatmap; free pilots are running this term.</p></details>
 </section>
 <!-- FINAL CTA -->
 <section class="wrap center">

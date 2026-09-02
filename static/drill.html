@@ -198,7 +198,7 @@
   .who .whoname{transition:opacity .3s ease}
   /* (mj) THE FLY-OUT / FLY-IN. One character is always mid-air; the other is home.
      Deliberately a TRANSFORM, not a layout change, so nothing on the board reflows
-     while a child is looking at it. */
+     while a student is looking at it. */
   .who.away .faceslot{transform:translateX(-150%) rotate(-18deg);opacity:0}
   .who.away .whoname{opacity:0}
   .who.arriving .faceslot{transform:translateX(150%) rotate(18deg);opacity:0}
@@ -208,7 +208,7 @@
   }
   .whoname{font-size:12px;font-weight:800;color:var(--bot);letter-spacing:.02em}
   .said{display:flex;gap:16px;align-items:flex-start}
-  .said > div:last-child{flex:1 1 auto;min-width:0}
+  .said > div:last-student{flex:1 1 auto;min-width:0}
   @media (max-width:520px){ .who .faceslot{width:64px;height:64px} }
   h1{font-size:20px;font-weight:800}
   .pill{margin-left:auto;font-size:12px;font-weight:700;color:var(--muted);
@@ -262,8 +262,8 @@
   <header class="topbar"><canvas class="bot" id="botMark" width="160" height="160" aria-hidden="true"></canvas>
     <h1>Abrabot</h1><span class="pill">extra practice</span></header>
 
-  <!-- (mt) WHAT THE CHILD CAN SHOW. Jim, 2026-08-24: a parent says "practice your
-       multiplication tables twenty minutes a day this week", and the child needs to
+  <!-- (mt) WHAT THE STUDENT CAN SHOW. Jim, 2026-08-24: a parent says "practice your
+       multiplication tables twenty minutes a day this week", and the student needs to
        be able to prove they did. Hidden until the numbers arrive, so a first-time
        visitor is not met with a wall of zeros. -->
   <div class="card hide" id="pracCard">
@@ -325,7 +325,7 @@
      canvas is drawn with its own persona's palette, and the presence layer -- Mr.
      Cadabra's real face -- is granted to his persona alone. -->
 <script src="/static/tutor-face.js"></script>
-<!-- (mt) THE WAY BACK OUT. This page had no navigation at all: a child who reached
+<!-- (mt) THE WAY BACK OUT. This page had no navigation at all: a student who reached
      it could only use the browser's back button. -->
 <script src="/static/app-nav.js"></script>
 
@@ -461,7 +461,7 @@
   // ---------- (mj) THE HANDOFF: one flies out, the other flies in ----------
   // Jim: "Can we have it fly in and replace mr cadabra when it enters the game."
   // The slot holds both; CSS transforms do the travelling so the board never reflows
-  // under a child who is reading it.
+  // under a student who is reading it.
   var FLY_MS = 420;
   function showWho(who) {
     if (who === WHO) return;
@@ -651,7 +651,7 @@
   // refusal or an unrendered line falls to the browser voice with no retry.
   // (nb) `patient` -- TRUE means "never interrupt a clip that is audibly playing".
   // ⚠️ IT IS NOT THE DEFAULT, AND THAT IS ON PURPOSE. The `ask` beat passes its
-  // onWaiting to UNLOCK THE ANSWER BUTTONS, and a child who can hear the question
+  // onWaiting to UNLOCK THE ANSWER BUTTONS, and a student who can hear the question
   // must never be locked out of answering it while it finishes -- being early is
   // right there and wrong under a `say`. One timer, two honest meanings, named.
   function speak(text, onDone, onWaiting, step, patient) {
@@ -742,7 +742,7 @@
       // button underneath each one that says next. You never need to push the
       // button. So why is the button even there?" He was right: when the words
       // actually play, the page advances itself and the button is furniture a
-      // child is invited to press for nothing. It still EXISTS, because when the
+      // student is invited to press for nothing. It still EXISTS, because when the
       // speech is silent -- no engine, blocked autoplay, a muted tab -- a reader
       // is pacing themselves and the button is the only way on. So it appears
       // exactly then: when speaking finished without a sound, or when it is
@@ -892,7 +892,7 @@
   }
   function answer(value, ctl) {
     ctl.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
-    // (mt) THE CHILD'S OWN DAY travels with the answer, the same way the hours tiles
+    // (mt) THE STUDENT'S OWN DAY travels with the answer, the same way the hours tiles
     // send it. A kid practising at 8pm is practising today, not tomorrow.
     post("/api/drill/answer", { code: CODE, value: value, day: localDay() },
          function (j) {
@@ -902,7 +902,7 @@
     });
   }
 
-  // ---------- (mt) WHAT THE CHILD CAN SHOW ----------
+  // ---------- (mt) WHAT THE STUDENT CAN SHOW ----------
   function localDay() {
     var d = new Date();
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0")
@@ -920,7 +920,7 @@
         $("pToday").textContent = j.today_asked;
         $("pWeek").textContent = week;
         $("pAll").textContent = j.total_asked;
-        // ⚠️ NO PERCENTAGE UNTIL THERE IS ENOUGH OF ONE TO BE FAIR. A child who
+        // ⚠️ NO PERCENTAGE UNTIL THERE IS ENOUGH OF ONE TO BE FAIR. A student who
         // has just met a hard idea and missed the first two would otherwise be
         // shown "0% you got right" in 26px type, which is a billboard telling a
         // seven-year-old they are bad at this. Ten problems in, the number means

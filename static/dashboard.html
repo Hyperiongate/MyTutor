@@ -385,7 +385,7 @@
     .track { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding-bottom: 6px; }
     .stop { flex: 1 1 0; min-width: 74px; display: flex; flex-direction: column; align-items: center; position: relative; }
     .stop .bar { position: absolute; top: 21px; left: -50%; width: 100%; height: 4px; background: var(--line); z-index: 0; }
-    .stop:first-child .bar { display: none; }
+    .stop:first-student .bar { display: none; }
     .stop .node { position: relative; z-index: 1; width: 44px; height: 44px; border-radius: 50%; display: grid;
       place-items: center; font-weight: 800; font-size: 15px; color: #fff; border: 3px solid #fff;
       box-shadow: 0 3px 10px rgba(20,30,45,.16); }
@@ -492,7 +492,7 @@
       display: flex; }
     .mc .bar i { display: block; height: 100%; border-radius: 5px;
       background: linear-gradient(90deg, var(--st-mastered), #48c99a); }
-    /* build qn: STARTED but not yet mastered. A course the child has only dipped into used
+    /* build qn: STARTED but not yet mastered. A course the student has only dipped into used
        to draw a flat empty bar -- the same picture as never having opened it. The pale
        segment says "they are in here" without ever claiming mastery they have not earned. */
     .mc .bar u { display: block; height: 100%; border-radius: 5px; text-decoration: none;
@@ -637,7 +637,7 @@
     // ===== WHICH COURSE IS THIS PAGE ABOUT? (build qn) ==========================
     // The parent's door is /dashboard?code=..&view=parent -- no &course= on it -- so the
     // old `params.get("course") || "algebra1"` meant a parent ALWAYS read Algebra I, even
-    // the evening their child spent an hour on Geometry. /api/courses/me already reports
+    // the evening their student spent an hour on Geometry. /api/courses/me already reports
     // last_active per course, so when no course is named we land on the one they most
     // recently worked in. An explicit ?course= still wins outright: the "My courses"
     // switcher passes it, and switching must never be second-guessed.
@@ -667,21 +667,21 @@
     })();
 
     // ===== WHOSE PAGE IS THIS? (build qn) =======================================
-    // Jim: "it says my courses there, and this is the parents. It should say your child's
+    // Jim: "it says my courses there, and this is the parents. It should say your student's
     // courses." The same markup is read by a student ("your journey") and by a grown-up
-    // reading ABOUT a child ("Emma's journey"). One helper feeds every heading so the two
-    // voices can never drift apart again. The child's NAME is used wherever we know it --
+    // reading ABOUT a student ("Emma's journey"). One helper feeds every heading so the two
+    // voices can never drift apart again. The student's NAME is used wherever we know it --
     // the page title has always said "Emma's Progress" and now the rest of it agrees --
-    // and "Your child's" is the honest fallback before the name arrives.
+    // and "Your student's" is the honest fallback before the name arrives.
     let SNAME = "";                                     // set once /api/topics answers
     const possess = (n) => n + (/s$/i.test(n) ? "'" : "'s");
-    // Capitalised possessive for a heading: "Emma's" / "Your child's" / "Your".
-    const Owner = () => isTeacher ? (SNAME ? possess(SNAME) : "Your child's") : "Your";
-    // Lower-case possessive mid-sentence: "Emma's" / "your child's" / "your".
-    const owner = () => isTeacher ? (SNAME ? possess(SNAME) : "your child's") : "your";
-    // The subject of a sentence: "Emma" / "your child" / "you".
-    const subj  = () => isTeacher ? (SNAME || "your child") : "you";
-    // "Emma has" / "your child has" / "you've" -- so a sentence reads either way.
+    // Capitalised possessive for a heading: "Emma's" / "Your student's" / "Your".
+    const Owner = () => isTeacher ? (SNAME ? possess(SNAME) : "Your student's") : "Your";
+    // Lower-case possessive mid-sentence: "Emma's" / "your student's" / "your".
+    const owner = () => isTeacher ? (SNAME ? possess(SNAME) : "your student's") : "your";
+    // The subject of a sentence: "Emma" / "your student" / "you".
+    const subj  = () => isTeacher ? (SNAME || "your student") : "you";
+    // "Emma has" / "your student has" / "you've" -- so a sentence reads either way.
     const subjHas = () => isTeacher ? (subj() + " has") : "you've";
 
     // HOW AM I DOING? (2026-08-01)
@@ -689,13 +689,13 @@
       const btn = document.getElementById("howBtn"), card = document.getElementById("howCard");
       if (!btn) return;
       // build qp -- Jim: "this should not say 'how are THEY doing, really?' It is just for
-      // a SINGLE CHILD." One page, one child, so the button asks about one child. A teacher
+      // a SINGLE STUDENT." One page, one student, so the button asks about one student. A teacher
       // has many students and is not their parent, so that door gets its own words.
       const parentish = isTeacher;
       if (parentish) {
         btn.textContent = (VIEW === "teacher")
           ? "💬 How is this student doing, really?"
-          : "💬 How is my child doing, really?";
+          : "💬 How is my student doing, really?";
       }
       btn.addEventListener("click", async () => {
         btn.disabled = true;
@@ -704,7 +704,7 @@
         try {
           const aud = parentish ? "parent" : "student";
           // build qn: the RESOLVED course, not the literal "algebra1". This one line is why
-          // a parent whose child had just done Geometry was handed a paragraph about Algebra.
+          // a parent whose student had just done Geometry was handed a paragraph about Algebra.
           await COURSE_READY;
           const res = await fetch("/api/assessment/me?course=" + encodeURIComponent(COURSE)
                                   + "&audience=" + aud,
@@ -815,14 +815,14 @@
       // EVERY writer goes through this one function -- build qo's cross-course counts land
       // in the same notes nameTheHeadings() first wrote, and cannot miss a renamed node.
       const reNote = (id, noteId, head, note) => {
-        const e = el(id); if (!e) return;                   // esc: the child's NAME lands here
+        const e = el(id); if (!e) return;                   // esc: the student's NAME lands here
         e.innerHTML = esc(head) + ' <span class="note" id="' + noteId + '">'
                     + esc(note) + '</span>';
       };
       // ===== EVERY HEADING, IN THIS COURSE AND THIS VOICE (build qn) ==============
-      // Jim: "your learning journey -- it should say your CHILD'S learning journey, and it
+      // Jim: "your learning journey -- it should say your STUDENT'S learning journey, and it
       // should say what course they're in"; "how far have you gone -- it should be how far
-      // has your child gone"; "your nine basic math units -- this should say nine basic math
+      // has your student gone"; "your nine basic math units -- this should say nine basic math
       // units FOR ALGEBRA or geometry or whatever". The unit COUNT is the real one now
       // (units.length), not a hardcoded 9 -- a course with a different shape used to lie.
       (function nameTheHeadings() {
@@ -911,7 +911,7 @@
       // ===== WHICH NUMBER COUNTS WHAT (build qn) ==================================
       // Only "Units mastered" belongs to the course named in the title. store.get_mastery's
       // own docstring calls the rest "whole-student": the streak, the accuracy, the problems
-      // practised and the minutes count EVERY course this child has ever worked in. Sitting
+      // practised and the minutes count EVERY course this student has ever worked in. Sitting
       // in one row under one course's name, they read as one course's numbers -- and Jim's
       // whole ask was that a parent "see everything and understand everything". Nothing here
       // moved a number; each tile now simply says what it is counting.
@@ -1103,7 +1103,7 @@
       // Jim, on build qn's single-course journey: "on the foundations and constructions, it
       // doesn't say what it is ... we would have to have a couple of courses here." So each
       // block says WHOSE and WHICH, in the same voice as every other heading, and carries
-      // its own track and its own unit cards. A course the child has never opened is not
+      // its own track and its own unit cards. A course the student has never opened is not
       // drawn at all -- "not for all of them, but just the ones he's been working on."
       (function renderCourseSections() {
         const act = ((cdata && cdata.courses) || []).reduce((m, c) => (m[c.course] = c, m), {});
@@ -1174,7 +1174,7 @@
       // ----- Parent/Teacher review view: a plain-language "how to help" summary -----
       if (isTeacher) {
         // build qn: the sub-line is written once, by nameTheHeadings() above, where it can
-        // name the child AND the course. Two places wrote it before and they disagreed.
+        // name the student AND the course. Two places wrote it before and they disagreed.
         // Name the role the visitor actually came in as, now that parents and teachers have
         // separate doors. Anything else (an old ?view=teacher bookmark) keeps the original label.
         const badge = (VIEW === "parent") ? "Parent view"
@@ -1188,7 +1188,7 @@
         const box = el("teacherBox");
         box.style.display = "block";
         // build qn: say WHICH course the mastery count belongs to, and that the streak,
-        // accuracy and practice totals are the whole child. A parent reading one row of
+        // accuracy and practice totals are the whole student. A parent reading one row of
         // numbers under one course's name will otherwise read all four as that course.
         box.innerHTML = "<h3>👪 How " + esc(data.name || "this student") + " is doing</h3>"
           + "<div><b>" + (s.units_mastered || 0) + " of " + total + "</b> units mastered in "
@@ -1278,7 +1278,7 @@
           // Jim: "if I did a little bit of geometry, even if I haven't mastered a unit, it
           // should have some way of indicating that I'm there, like at least a little bit
           // of a bar in geometry." The bar used to be units_mastered ONLY, so a course the
-          // child had opened, worked in and quizzed -- but not yet mastered -- drew exactly
+          // student had opened, worked in and quizzed -- but not yet mastered -- drew exactly
           // the same flat empty bar as one they had never opened. units_started has been in
           // this payload since the strip shipped; it was simply thrown away. Solid = proved
           // on a scored check. Pale hatch = started, honestly NOT claimed as mastery.

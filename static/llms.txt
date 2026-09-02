@@ -18,7 +18,7 @@ Key facts:
   unit mastery is proven with a scored ten-question Unit Quiz at 90% or better,
   never assumed.
 - Parents get a read-only dashboard with honest time-on-task (idle minutes count as
-  zero), real mastery status, and a plain-language "How is my child doing, really?"
+  zero), real mastery status, and a plain-language "How is my student doing, really?"
   narrative assessment.
 - Rewards system: merit badges per mastered unit, course trophies, and effort medals
   for streaks, practice, and comebacks.
@@ -36,7 +36,7 @@ Key facts:
 - [Home](https://mrcadabra.com/): what Mr. Cadabra's Classroom is, how a lesson works, FAQ
 - [Courses](https://mrcadabra.com/courses): all ten courses with printable scope & sequence
 - [Homeschool](https://mrcadabra.com/homeschool): the homeschool experience - teaching, records, honest hours
-- [Parents](https://mrcadabra.com/parents): what your child experiences and what you can see
+- [Parents](https://mrcadabra.com/parents): what your student experiences and what you can see
 - [Students](https://mrcadabra.com/students): how lessons, tools, and rewards work
 - [Teachers](https://mrcadabra.com/teachers): class roster and mastery heatmap for classrooms and co-ops
 - [Pricing](https://mrcadabra.com/pricing): free plan and full-access plan

@@ -2,6 +2,27 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  APP_BUILD -> "2026-09-02sd-the-student-is-a-student". BUILD sd,
+#               Jim's wording ruling: the student is "the student / your student",
+#               never "the child" -- 344 visible occurrences across 22 pages +
+#               llms.txt + THIS file's demo voice lines (byte-identical twin) and
+#               its parent-visible email/API strings. Scope his call: ALL BUT LEGAL
+#               (privacy/terms keep the word the law is written in); historical
+#               header notes stay verbatim. PART 3ia holds the whole boundary.
+#   2026-09-02  APP_BUILD -> "2026-09-02sc-the-demo-holds-still-and-shows-its-boards".
+#               BUILD sc, four demo rulings from Jim, this day: ① no page scrolling
+#               in the classroom (a scrolled page moves the target out from under the
+#               pencil); ② he says "board", never "whiteboard" (two DEMO_VOICE_LINES
+#               reworded IDENTICALLY in both lists -- clips regenerate from text on
+#               first play); ③ a new tour stop points at the board-choice chip and
+#               flips white -> back to dark (one line APPENDED to both lists, 253 ->
+#               254); ④ the Abrabot end-stops are gone from all four dashboard tours
+#               (he is introduced once on the main tour and never brought back; his
+#               standalone button stays). Plus the demo's mouth now reads the REAL
+#               audio (the page declares the analyser globals cadabra.js has read
+#               since rt -- it never had them, so the mouth ran on the synthetic
+#               flap). Voice-list edits in THIS file are the byte-identical twin of
+#               demo.html's, per the standing pin. PART 3hz holds it.
 #   2026-09-02  APP_BUILD -> "2026-09-02sb-the-practice-goal". BUILD sb, Jim's
 #               2026-09-02 design: a parent (/family) or teacher (/teacher) may set
 #               a DAILY practice goal -- minutes in the adult's hands, a problem
@@ -8832,7 +8853,7 @@ def parent_forgot(body: ParentForgotIn, request: Request):
             f"{link}\n\n"
             "The link works once and expires in 45 minutes.\n\n"
             "If you didn't ask for this, you can safely ignore this email — your password "
-            "is unchanged and your children's learning is unaffected.\n\n"
+            "is unchanged and your students' learning is unaffected.\n\n"
             "— Mr. Cadabra's Classroom\nsupport@mrcadabra.com")
         if send_err:
             print(f"[email] forgot: send FAILED for a real account: {send_err}")
@@ -9050,7 +9071,7 @@ def weekly_email_unsubscribe(request: Request, token: str = "", resub: str = "")
     store.set_digest_optout(pid, True)
     return Response(page_top + "<h1>You're unsubscribed</h1>"
                     "<p>No more weekly report emails. Your account and your "
-                    "children's tutoring are completely unaffected, and the same "
+                    "students' tutoring are completely unaffected, and the same "
                     "numbers are always on your parent dashboard.</p>"
                     f"<p>Changed your mind? <a href='/api/parent/weekly-email/"
                     f"unsubscribe?token={token}&resub=1'>Turn it back on</a>.</p>"
@@ -9075,7 +9096,7 @@ def admin_digest_test(key: str = "", email: str = "", to: str = "",
         return {"ok": False, "error": "No parent account with that email."}
     subject, body = _build_weekly_digest(parent)
     if not subject:
-        return {"ok": False, "error": "That parent has no children yet -- nothing to send."}
+        return {"ok": False, "error": "That parent has no students yet -- nothing to send."}
     sent_to, err = None, None
     to = (to or "").strip()
     if to:
@@ -9467,7 +9488,7 @@ def parent_add_student(body: ParentStudentIn):
     parent = _require_parent(body.token)
     name = (body.name or "").strip()[:40]
     if not name:
-        raise HTTPException(status_code=400, detail="Please enter your child's first name.")
+        raise HTTPException(status_code=400, detail="Please enter your student's first name.")
     existing = store.list_students_for_parent(parent["id"])
     if len(existing) >= 8:
         raise HTTPException(status_code=400, detail=(
@@ -12481,7 +12502,7 @@ def billing_checkout(body: CheckoutIn):
     students = store.list_students_for_parent(parent["id"])
     if not students:
         raise HTTPException(status_code=400, detail=(
-            "Add your child first — the subscription covers each student you add."))
+            "Add your student first — the subscription covers each student you add."))
     stripe = _stripe()
     try:
         session = stripe.checkout.Session.create(
@@ -13484,7 +13505,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-02sb-the-practice-goal"
+APP_BUILD = "2026-09-02sd-the-student-is-a-student"
 
 
 @app.get("/health")
@@ -15652,7 +15673,7 @@ DEMO_VOICE_LINES = [
     "No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!",
     "Hi, I'm Mr. Cadabra! Here's how I teach: I talk you through it in my own voice, the board shows every step, and you do the thinking — I never just hand over the answer. Come try a free lesson, and I'll meet your student right at their level.",
     "Welcome to the demo! This is Mr. Cadabra's Classroom — the very screen your student will learn on. Before we solve anything, let me show you around.",
-    "This big space is my whiteboard. Every step of every problem gets drawn right here — the board leads, and my voice follows. Nothing ever happens only in words.",
+    "This big space is my board. Every step of every problem gets drawn right here — the board leads, and my voice follows. Nothing ever happens only in words.",
     "See the bars up top? That's your student's map — today's goals, the current unit with a marker for every quiz, and the whole course marching gold toward the Final Exam. They always know exactly where they are.",
     "And this is me, Mr. Cadabra! In the real classroom we simply talk — your student says their answer out loud and we go back and forth like a real teacher and student. Here in the demo, you'll type or tap your answers instead.",
     "That's the classroom! Ready to try a real problem? Pick your student's level — anywhere from counting stars to differential equations — and I'll teach you the exact way I teach them.",
@@ -15691,8 +15712,8 @@ DEMO_VOICE_LINES = [
     "This is the teacher's view — the whole class on one screen. Each student's current unit, their accuracy, when they last worked, and a flag when someone needs a hand today.",
     "This column is the one teachers tell us they use most: what to strengthen next, for each student, in plain words. It comes from what actually went wrong in their lessons, not from a generic level number.",
     "And down here is my honest read on the class — where the group is solid, where several students are wobbling on the same idea, and what I'd teach next. A teacher can use it or overrule it; it's a colleague's opinion, not a verdict.",
-    "This is the parent's view, and it answers the only question that really matters: how is my child actually doing? No jargon, no scores to decode — just an honest read in plain English.",
-    "Here's the week at a glance — time spent, what they mastered, and what they struggled with. If your child had a rough day, you'll see it here, because a dashboard that only shows good news isn't worth having.",
+    "This is the parent's view, and it answers the only question that really matters: how is my student actually doing? No jargon, no scores to decode — just an honest read in plain English.",
+    "Here's the week at a glance — time spent, what they mastered, and what they struggled with. If your student had a rough day, you'll see it here, because a dashboard that only shows good news isn't worth having.",
     "And this button prints the whole record — every unit, every quiz, every hour — for a homeschool portfolio or a school district's file. It's your data; you can take it with you any time.",
     "Your turn. The board shows negative three plus five, and there's your number line right underneath it. Start three steps below zero, climb five steps to the right, and tell me where you land. Tap the microphone and say it out loud.",
     "Not quite — let's walk it together. Put your finger on negative three, then count five hops to the right: negative two, negative one, zero, one… and one more. Tap the mic and say where you land.",
@@ -15726,12 +15747,12 @@ DEMO_VOICE_LINES = [
     "Then, in plain words, what to strengthen next for each student — and WHY. Not a level number, not a percentile. Ben is stalling on borrowing across a zero. Aiden can't find a common denominator yet. That's what actually went wrong in their lessons this week.",
     "And this is my honest read on the class. Where they're solid, where several of them are wobbling on the very same idea, and what I would teach next if it were my room. A teacher can take it or overrule it — it's a colleague's opinion, never a verdict.",
     "Down at the bottom: what's coming. Who has a Unit Quiz this week, who is close to their Final Exam, and the class time chart so a teacher can see who is quietly doing nothing.",
-    "And now the view most parents care about. It opens with the only question that really matters — how is my child actually doing? — answered in plain English, with no jargon and no scores to decode.",
-    "Here's her week: four days in, two hours and fifteen minutes, one unit mastered, and the thing she struggled with. We put the hard part right next to the good part on purpose. If your child had a rough week, this page will tell you so.",
+    "And now the view most parents care about. It opens with the only question that really matters — how is my student actually doing? — answered in plain English, with no jargon and no scores to decode.",
+    "Here's her week: four days in, two hours and fifteen minutes, one unit mastered, and the thing she struggled with. We put the hard part right next to the good part on purpose. If your student had a rough week, this page will tell you so.",
     "This is the longer arc — every week since she started in September. Hours, accuracy, units mastered. You can watch her get better, and you can see exactly which week percents nearly beat her.",
-    "Everything she has mastered, with the date and the quiz score that proved it. This is the list you'd want if anyone ever asks what your child has actually learned this year.",
+    "Everything she has mastered, with the date and the quiz score that proved it. This is the list you'd want if anyone ever asks what your student has actually learned this year.",
     "And this is the part I'd read first: what's hard for her right now, and what we are doing about it. Lining up decimal points when the numbers have different lengths. My plan is smaller numbers and money problems until it feels ordinary — and I'll tell you here when it does.",
-    "Finally, the record. Every unit, every quiz, every hour, printable in one click for a homeschool portfolio or a school district file. It's your data and your child's work — you can take it with you any time, and you never have to ask us for it.",
+    "Finally, the record. Every unit, every quiz, every hour, printable in one click for a homeschool portfolio or a school district file. It's your data and your student's work — you can take it with you any time, and you never have to ask us for it.",
     "Look at the board — two fourths plus one more fourth. Count the shaded pieces and tap again!",
     "Your turn. The board shows negative three plus five, and there's your number line right underneath it. Start three steps below zero, climb five steps to the right, and type where you land.",
     "Not quite — let's walk it together. Put your finger on negative three, then count five hops to the right: negative two, negative one, zero, one… and one more. Type where you land.",
@@ -15762,23 +15783,23 @@ DEMO_VOICE_LINES = [
     "Here's the class. One row per student, showing how many of the nine units they've mastered, how many they've started, and a star when a unit is finished. Nothing here is guessed; it's the same mastery record the student sees.",
     "The column that matters most is this one: needs attention. A student who has stalled, or whose scores are sliding, gets flagged here so they're the first thing a teacher sees instead of the last thing they find out.",
     "And a teacher can open any student to see their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. Adding a student is one box: their student code.",
-    "And this is the parent's view. It's the same dashboard, opened with a parent's link — but it leads with the question a parent actually has: how is my child really doing, in plain English.",
-    "That's my honest read. It names what she's good at, what she's stuck on, and what I'm doing about it. If your child had a hard week, this paragraph will say so — a report that only ever says 'great job' isn't worth reading.",
+    "And this is the parent's view. It's the same dashboard, opened with a parent's link — but it leads with the question a parent actually has: how is my student really doing, in plain English.",
+    "That's my honest read. It names what she's good at, what she's stuck on, and what I'm doing about it. If your student had a hard week, this paragraph will say so — a report that only ever says 'great job' isn't worth reading.",
     "Underneath are the same five numbers her teacher and I see. One record, one set of facts, no separate parent version that quietly rounds things up.",
     "Strengthen next tells you exactly where she is wobbling right now — and because it comes from her actual lessons, it's specific enough to help with at the kitchen table.",
-    "And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your child's work, and you can take it with you any time.",
-    "Welcome — this is the parent's view of Mr. Cadabra's Classroom, using a made-up student so no real child's record is ever on display. In a moment I'll walk you through the dashboard you'd open: what your child has actually mastered, what they're working on right now, what's hard this week, and the printable record you can take with you. Everything you'll see comes from real work — we never invent a number to make a week look better than it was.",
+    "And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your student's work, and you can take it with you any time.",
+    "Welcome — this is the parent's view of Mr. Cadabra's Classroom, using a made-up student so no real student's record is ever on display. In a moment I'll walk you through the dashboard you'd open: what your student has actually mastered, what they're working on right now, what's hard this week, and the printable record you can take with you. Everything you'll see comes from real work — we never invent a number to make a week look better than it was.",
     "Welcome — this is the teacher's view of Mr. Cadabra's Classroom, built from a made-up class so no real student is ever on display. I'll walk you through the roster, who needs you this week and why, the mastery picture across the whole class, and the time each student actually spent. Every number is earned: mastery means ninety percent or better on a unit quiz with no hints from me.",
-    "Welcome — this is the homeschool view of Mr. Cadabra's Classroom, using a made-up student so no real child's record is ever on display. I'll show you the dashboard you'd open each week, and the part homeschool families ask about first: the printable record. Every unit, every quiz, every hour, dated and ready for a portfolio or a district file. It's your child's work and you can take it with you any time.",
+    "Welcome — this is the homeschool view of Mr. Cadabra's Classroom, using a made-up student so no real student's record is ever on display. I'll show you the dashboard you'd open each week, and the part homeschool families ask about first: the printable record. Every unit, every quiz, every hour, dated and ready for a portfolio or a district file. It's your student's work and you can take it with you any time.",
     "Hi! This is your dashboard — the screen you'd open every time you come back. I'm using a made-up student called Maya so nobody's real work is on show. I'll walk you through your five numbers, your course map with the gold units you've mastered, what you're working on next, and the trophies you've earned. Everything here is stuff you actually did.",
-    "This is the dashboard you'd open on a Monday morning. You are the teacher here, so it leads with the thing you actually need to know before you plan the week: how is this child really doing, in plain English, not a score out of ten.",
+    "This is the dashboard you'd open on a Monday morning. You are the teacher here, so it leads with the thing you actually need to know before you plan the week: how is this student really doing, in plain English, not a score out of ten.",
     "That's the honest read. It names what she has genuinely got, what she is stuck on, and what Mr. Cadabra is doing about it. If she had a rough week it will say so plainly — a record that only ever says 'great job' is no use to a parent who is also the teacher.",
     "These five numbers are the ones a homeschool week turns on: units mastered, accuracy, problems practised, time on task this week, and the day streak. The hours are measured engaged time, not a timer left running, because in most states the hours are the part you have to be able to stand behind.",
     "Strengthen next is your lesson plan for the week, already written. It comes from her actual work, so it is specific enough to sit down at the kitchen table with — not 'review fractions', but the exact step that is wobbling.",
-    "And this is the one homeschool families ask about first. It prints the whole record — every unit, every quiz, every hour, dated — ready for a portfolio, an end-of-year review, or a district file. It is your child's work, and you can take it with you any time, whether or not you stay with us.",
-    "And that's the parent's view. Every number on it was earned by a real piece of work — nothing on that screen is a guess, and nothing is rounded up to make a week look better than it was. If you'd like to see what your child actually does in a lesson, I can teach you one right now, at any level from counting to calculus.",
+    "And this is the one homeschool families ask about first. It prints the whole record — every unit, every quiz, every hour, dated — ready for a portfolio, an end-of-year review, or a district file. It is your student's work, and you can take it with you any time, whether or not you stay with us.",
+    "And that's the parent's view. Every number on it was earned by a real piece of work — nothing on that screen is a guess, and nothing is rounded up to make a week look better than it was. If you'd like to see what your student actually does in a lesson, I can teach you one right now, at any level from counting to calculus.",
     "And that's the teacher's view. One room, every student, and no guessing about who needs you this week — the flags come from the work itself, not from a survey or a self-report. If you'd like to see what a lesson looks like from the student's side, I can teach you one right now, at any level you choose.",
-    "And that's the homeschool view. The week in front of you and the record behind you, both ready whenever you need them, and both built from work your child actually did. If you'd like to see what a lesson looks like, I can teach you one right now, at any level from counting to calculus.",
+    "And that's the homeschool view. The week in front of you and the record behind you, both ready whenever you need them, and both built from work your student actually did. If you'd like to see what a lesson looks like, I can teach you one right now, at any level from counting to calculus.",
     "And that's your dashboard! Every gold unit, every trophy, every number on it — you earned all of that yourself. Want to see what a real lesson is like? Pick any level you want and I'll teach you one right now, exactly the way I'd teach you for real.",
     "If you only have a minute, this box is the whole dashboard in four lines: what she has mastered, her streak, how accurate she is, and how many problems she has actually done. Underneath it, where to help next — and the link that prints her records.",
     "Here are her nine units. The gold ones are mastered, and every gold unit carries the date she proved it and the score she proved it with. Mastered means ninety percent or better on the Unit Quiz with no hints from me — so a gold unit is evidence, not encouragement.",
@@ -15788,8 +15809,8 @@ DEMO_VOICE_LINES = [
     "If Monday is busy, this box is your whole week in four lines — mastered, streak, accuracy, problems done — and then where to help next. The records link underneath it is the one that matters at filing time.",
     "Here are the nine units, and every mastered one carries a date and a score. That pairing is what turns a checkbox into evidence, which is exactly what an end-of-year review or a portfolio asks you for.",
     "The same nine units as a path, so you can see the whole year at a glance and plan against it. Beside it, the hours — measured engaged time since September, not a timer left running, because in most states the hours are the part you have to be able to stand behind.",
-    "The trophy case does a job in a homeschool that is easy to underrate: it is the part your child can show somebody. A medal for finishing a whole course, a badge for every unit mastered, and one for effort — earned the week percents nearly beat her.",
-    "And her courses. One subscription covers all ten, so a child who is ahead in one subject and behind in another is not a billing problem — she moves on when she is ready. Beside it, what her placement check found on the very first day.",
+    "The trophy case does a job in a homeschool that is easy to underrate: it is the part your student can show somebody. A medal for finishing a whole course, a badge for every unit mastered, and one for effort — earned the week percents nearly beat her.",
+    "And her courses. One subscription covers all ten, so a student who is ahead in one subject and behind in another is not a billing problem — she moves on when she is ready. Beside it, what her placement check found on the very first day.",
     "Three numbers first, and the third one is really a question. Six students, eighteen units mastered between them — and then the unit the class as a whole is struggling with. Here that's Unit 2, fractions, at a seventy-eight percent class average.",
     "This is the heatmap: every student down the side, every unit across the top, and the real score in each box. Read down a column and you find the wall — Unit 2, where Aiden and Ben both stopped. Read across a row and you get one student's whole story in a second.",
     "And this is my honest read on the class. Aiden isn't lazy — he's missing an idea underneath, he's treating a fraction as two separate whole numbers. Ben isn't stuck, he's stopped. And one you didn't ask about: Sofia is being under-served. She's ready for Algebra One now, and keeping her in step with the class is costing her a term.",
@@ -15806,14 +15827,14 @@ DEMO_VOICE_LINES = [
     "And your trophy case. Explored, practiced, learning, mastered, the effort medal, and the Course Champion medal you earned for finishing Basic Math. Every one of them came from real work — none of them are participation stickers.",
     "Two charts here, and they are her habits. On the left, accuracy week by week — the dip is week eight, the week percents beat her, and the climb after it is four days of coming anyway. On the right, minutes a day this week, including the two days she did nothing. Honest pictures, both of them: a dashboard that only ever shows good news isn't worth having.",
     "These two charts are your habits. On the left, how accurate you were week by week — that dip is the week percents beat you, and the climb right after it is you coming back four days running. On the right, your minutes a day this week, days off included. I'd rather show you the truth than a flattering picture.",
-    "Hello, and come on in — this is the parent's side of Mr. Cadabra's Classroom, shown with a made-up student named Maya so no real child's record is ever on display. Parents bring me the same two questions everywhere: is my child actually learning, and will she actually want to do this? Every panel on this screen answers one of those two — and every number on it comes from real work, because we never invent a good week.",
-    "This is the dashboard you'd open at home, and it leads with the question you'd ask me at a parent-teacher conference: how is my child really doing? Not a score out of ten, not a percentile — an answer in plain English, written from the work she actually did.",
+    "Hello, and come on in — this is the parent's side of Mr. Cadabra's Classroom, shown with a made-up student named Maya so no real student's record is ever on display. Parents bring me the same two questions everywhere: is my student actually learning, and will she actually want to do this? Every panel on this screen answers one of those two — and every number on it comes from real work, because we never invent a good week.",
+    "This is the dashboard you'd open at home, and it leads with the question you'd ask me at a parent-teacher conference: how is my student really doing? Not a score out of ten, not a percentile — an answer in plain English, written from the work she actually did.",
     "That's my honest read. It names what she's genuinely got, what she's stuck on, and what I'm doing about it — because I teach: out loud, one step at a time, and I never just hand her the answer. When this paragraph says she owns something, she earned it. And when she has a hard week, it says that too, plainly.",
-    "These five numbers are the same five her teacher and I see — one record, one set of facts, nothing rounded up. And the day streak is my favorite of the five, because nobody can assign a streak: it only grows on days she opens the classroom herself, and a child protects a streak she built.",
+    "These five numbers are the same five her teacher and I see — one record, one set of facts, nothing rounded up. And the day streak is my favorite of the five, because nobody can assign a streak: it only grows on days she opens the classroom herself, and a student protects a streak she built.",
     "Strengthen next tells you exactly where she's wobbling right now — specific enough to sit down with at the kitchen table. And a problem she misses doesn't just vanish into a percentage: a few days later I bring back a fresh one just like it, so a miss becomes a second chance instead of a quiet gap.",
-    "Her trophy case — and this panel is my answer to the question 'will she actually use it?' The badges are earned, never given: a Course Champion medal for finishing Basic Math, a badge for every unit she's mastered, and an effort medal for coming back four days running the week percents beat her. This is why a child opens the classroom without being asked.",
-    "And that's the parent's window. One more thing, because careful parents always ask: in a lesson your child talks with me out loud, her speech becomes text, and the audio is deleted right away — never stored — while I stay warmly on the math and nothing else. If you'd like to see how I actually teach, I can give you a real lesson right now, at any level from counting to calculus.",
-    "Hi there! I'm Mr. Cadabra — and yes, I really talk, and I really listen. In a real lesson you just say your answer out loud, I hear you, and we work it out together on my whiteboard, step by step, at your speed. This is your dashboard — I'm using a made-up student called Maya so nobody's real work is on show — and I'll show you your five numbers, your course map with its gold units, and the trophy case you're going to fill. Everything on this screen is stuff you actually did.",
+    "Her trophy case — and this panel is my answer to the question 'will she actually use it?' The badges are earned, never given: a Course Champion medal for finishing Basic Math, a badge for every unit she's mastered, and an effort medal for coming back four days running the week percents beat her. This is why a student opens the classroom without being asked.",
+    "And that's the parent's window. One more thing, because careful parents always ask: in a lesson your student talks with me out loud, her speech becomes text, and the audio is deleted right away — never stored — while I stay warmly on the math and nothing else. If you'd like to see how I actually teach, I can give you a real lesson right now, at any level from counting to calculus.",
+    "Hi there! I'm Mr. Cadabra — and yes, I really talk, and I really listen. In a real lesson you just say your answer out loud, I hear you, and we work it out together on my board, step by step, at your speed. This is your dashboard — I'm using a made-up student called Maya so nobody's real work is on show — and I'll show you your five numbers, your course map with its gold units, and the trophy case you're going to fill. Everything on this screen is stuff you actually did.",
     "This is the part you can just ask me for, out loud, any time: how am I doing? And I'll tell you straight, in plain words — what you're good at, what's hard right now, and what we're going to do about it together. No mystery numbers, no report-card code: you always know exactly where you stand.",
     "And here it is — the trophy case. A badge for every unit you turn gold, an effort medal for the week you refused to give up, and the big one: a Course Champion medal for finishing a whole course. Nobody can give you these — not me, not anyone. The only way a trophy gets into this case is that you earned it, and that's exactly why it feels so good to open this page.",
     "And that's your dashboard, top to bottom! Every gold unit and every trophy on it, you'd earn yourself — I can't hand those out, and I wouldn't want to. Two promises before you go: I only ever talk about math — ask me about anything else and I'll smile and steer us straight back — and I never just give you the answer, because you getting it yourself is the whole fun. Want to see? Pick any level you like and I'll teach you a real lesson right now.",
@@ -15826,12 +15847,15 @@ DEMO_VOICE_LINES = [
     "And see Extra practice — the one with the robot? That's Abrabot, my practice helper. Practice a problem is for a problem your student brings me; Abrabot is the other way round — he hands out more problems on lessons already done, as many as they want, always free, and he keeps count so your student can show you how hard they've worked. Stay to the end of the lesson and you'll meet him yourself — or tap his button any time.",
     "Next, the Progress dashboard — here is a corner of it. We will spend proper time in there after the lesson, when you can open all three views and click through them yourself.",
     "And see Extra practice — the one with the robot? That one is not mine at all. Let me introduce you.",
-    "And these two bubbles at the top are the streak. The flame counts days in a row your student has worked; the star counts problems right in a row today. Small, honest numbers — and children watch them like a scoreboard.",
+    "And these two bubbles at the top are the streak. The flame counts days in a row your student has worked; the star counts problems right in a row today. Small, honest numbers — and students watch them like a scoreboard.",
     "One more thing before you go. See Extra practice on the left? That is Abrabot — my teaching assistant. He is a robot, and proud of it. Any time you want more of a skill you already know, he has a box of problems that never runs out. He is the one to practise with; I am the one to learn with.",
-    "And one thing that is not on this screen, because it never needs to be: the drilling. Extra practice belongs to Abrabot, my teaching assistant — a robot with a virtually unlimited box of problems on skills already taught. He handles the repetition, so your class time with me goes to the teaching, and yours goes to the five children who need you.",
-    "Last thing. Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills your child has already learned. There is no such thing as running out. Which means \"can I do more?\" is always a yes.",
-    "Last thing, and it matters for a homeschool week: Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills already taught. It never runs out. So the repetition your child needs is there whenever you have a spare ten minutes, without you writing a single worksheet.",
+    "And one thing that is not on this screen, because it never needs to be: the drilling. Extra practice belongs to Abrabot, my teaching assistant — a robot with a virtually unlimited box of problems on skills already taught. He handles the repetition, so your class time with me goes to the teaching, and yours goes to the five students who need you.",
+    "Last thing. Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills your student has already learned. There is no such thing as running out. Which means \"can I do more?\" is always a yes.",
+    "Last thing, and it matters for a homeschool week: Extra practice is not me — it is Abrabot, my teaching assistant, a robot with a virtually unlimited box of problems on skills already taught. It never runs out. So the repetition your student needs is there whenever you have a spare ten minutes, without you writing a single worksheet.",
     "Next, the Progress dashboard. Here is a small look at it — how your student is doing, the streaks, the awards, the trophy case, all of it. We will come back and go through it properly after the lesson, when you can open all three views yourself."   # (rs) the miniature dashboard line, APPENDED
+    ,
+    "One more trick before we pick a problem. My board can be a white board or a dark one — this button right here. Watch: white... and back to dark. Choose whichever is easier on your eyes; I teach exactly the same on both."
+    # (sc) ^ the board-choice line, APPENDED -- identical to demo.html
 ]
 
 

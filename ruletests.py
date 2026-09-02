@@ -2,6 +2,25 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD sd -- PART 3ia: the student is a student. Jim's wording ruling
+#               ("refer to the student as the student or your student"), scope his
+#               call: ALL BUT LEGAL. 344 visible occurrences across 22 pages +
+#               llms.txt + main.py's voice twin and parent-visible strings;
+#               word-boundary sweeps (childhood survived); privacy/terms keep the
+#               legal word; historical header notes verbatim. Four pins repaired to
+#               intent with dated notes (the parents-door needle, the dashboard
+#               Owner helper, the parent button and its BUTTON const).
+#   2026-09-02  BUILD sc -- PART 3hz: the demo holds still and shows its boards.
+#               Jim's four demo rulings: page-scroll lock in the classroom (html+body,
+#               overscroll); "board" never "whiteboard" in the spoken lines; a new
+#               tour stop flips the board white and back (themePeek -- never writes
+#               storage, safety-timed); the four dashboard-tour Abrabot end-stops
+#               dropped (introduced once on the main tour, standalone button stays;
+#               the by-index HS/student-door overrides shrank in step). Plus the
+#               root-caused mouth fix: the demo page now declares the analyser trio
+#               cadabra.js's amplitude mouth has read since rt -- it never had them,
+#               so every demo line ran on the synthetic flap. Voice lists still
+#               byte-identical at 254 (theme line appended to both).
 #   2026-09-02  BUILD sb -- PART 3hy: the practice goal. Jim's design this day: a
 #               parent (/family) or teacher (/teacher) asks for minutes of daily
 #               practice; the child fills an honest problem ring (server-derived,
@@ -5960,9 +5979,13 @@ def part3j_walkthroughs():
         # Build eg (2026-08-12): the parents door must SPEAK to the two questions a
         # parent actually brings to a conference table -- and must speak the NEW
         # lines, not the old ones (both stay in the lists forever; append-only).
+        # (sd, 2026-09-02) PIN REPAIRED TO INTENT: Jim's wording ruling -- "refer to
+        # the student as the student or your student" -- reworded this spoken line
+        # (the clip regenerates from text). The INTENT is unchanged: the two parent
+        # questions, named up front.
         for label, needle in (
             ("the two parent questions, named up front",
-             "is my child actually learning, and will she actually want to do this?"),
+             "is my student actually learning, and will she actually want to do this?"),
             ("the teaching promise -- never just hands her the answer",
              "I never just hand her the answer"),
             ("a missed problem comes back fresh (rule 55, in parent words)",
@@ -17436,9 +17459,10 @@ def part3gq_the_parent_reads_the_right_course():
           'An honest read on " + owner() + " progress in "' in html, "")
 
     # ---- 4. the voice -----------------------------------------------------------
+    # (sd, 2026-09-02) literal moved with Jim's wording ruling: child -> student.
     check("⭐ one helper owns the voice, so the two can never drift apart",
-          'const Owner = () => isTeacher ? (SNAME ? possess(SNAME) : "Your child\'s") : "Your";'
-          in html, "Jim: 'it should say your child's courses instead of my courses'")
+          'const Owner = () => isTeacher ? (SNAME ? possess(SNAME) : "Your student\'s") : "Your";'
+          in html, "Jim: one helper, one voice (his qn ask, in today's words)")
     check("  ...it uses the child's NAME when the page knows it",
           'SNAME = String(data.name || "").trim();' in html and "possess(SNAME)" in html,
           "the title has always said \"Emma's Progress\"; now the rest of the page agrees")
@@ -17712,8 +17736,9 @@ def part3gs_one_page_one_child():
     check("⭐ the button no longer asks how 'they' are doing",
           "How are they doing, really?" not in code_only(html),
           "Jim: 'it is just for a single child'")
-    check("⭐ the parent's door asks about their child",
-          '"💬 How is my child doing, really?"' in html, "")
+    # (sd, 2026-09-02) child -> student, Jim's wording ruling; intent unchanged.
+    check("⭐ the parent's door asks about their student",
+          '"💬 How is my student doing, really?"' in html, "")
     check("⭐ the teacher's door does NOT say 'my child'",
           '"💬 How is this student doing, really?"' in html
           and 'btn.textContent = (VIEW === "teacher")' in html,
@@ -17815,7 +17840,9 @@ def part3gt_the_site_says_what_the_button_says():
     land = open("static/landing.html", encoding="utf-8").read()
     llms = open("static/llms.txt", encoding="utf-8").read()
 
-    BUTTON = "How is my child doing, really?"
+    # (sd, 2026-09-02) the button was renamed by Jim's wording ruling; every page
+    # that quotes it moved in the same build, which is exactly what this pin is for.
+    BUTTON = "How is my student doing, really?"
     check("⭐ the parent button is still the one build qp named",
           ('"💬 ' + BUTTON + '"') in dash, "everything below quotes it")
     for page, name in ((land, "landing.html"), (llms, "llms.txt")):
@@ -21626,7 +21653,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,306</b>" in page,
+          "<b>8,324</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22323,6 +22350,174 @@ def part3hp_no_colour_literals_on_the_board():
 # the page measures a DOM Range, exact to the pixel. Proof outside this battery:
 # fifty circles on fifty named words in a real session board, every one within
 # 3 px of the word's own box and enclosing it (build doc, rr).
+def part3ia_the_student_is_a_student():
+    """PART 3ia (build sd, 2026-09-02) -- THE STUDENT IS A STUDENT, EVERYWHERE
+    A VISITOR CAN SEE.
+
+    JIM'S RULING, this day: "I don't think we should refer to the student as a
+    child. We should refer to the student as the student or your student."
+    Scope, his call: ALL BUT LEGAL -- the privacy and terms pages keep
+    "children" (children's-privacy law is written in that word), and the
+    historical header notes in every file stay verbatim (they are the record).
+    344 visible occurrences moved across 22 pages, plus llms.txt, plus main.py's
+    demo voice lines (byte-identical twin) and its parent-visible email/API
+    strings. Word-boundary sweeps only -- "childhood of progress" survived."""
+    print("\nPART 3ia — the student is a student (build sd)")
+    import re as _re
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    def body_of(path):
+        s = open(path, encoding="utf-8").read()
+        if s.lstrip().startswith("<!DOCTYPE") and "<!--" in s[:400]:
+            return s[s.index("-->", s.index("<!--")) + 3:]
+        return s
+
+    # ① no visible child/children outside the legal pages (headers exempt)
+    leftovers = []
+    for fn in sorted(os.listdir(os.path.join(here, "static"))):
+        if not fn.endswith(".html") or fn in ("privacy.html", "terms.html"):
+            continue
+        b = body_of(os.path.join(here, "static", fn))
+        n = len(_re.findall(r"\bchild(?:ren)?\b", b, _re.I))
+        if n:
+            leftovers.append((fn, n))
+    check("⭐ zero visible child/children outside the legal pages",
+          not leftovers, str(leftovers[:4]))
+    check("  llms.txt (what the AI crawlers read) moved too",
+          not _re.search(r"\bchild(?:ren)?\b",
+                         open(os.path.join(here, "static", "llms.txt"),
+                              encoding="utf-8").read(), _re.I), "")
+
+    # ② the legal pages deliberately KEEP the legal word
+    for fn in ("privacy.html", "terms.html"):
+        s = open(os.path.join(here, "static", fn), encoding="utf-8").read()
+        check(f"  {fn} keeps 'children' (the word the law is written in)",
+              _re.search(r"\bchild(?:ren)?\b", s, _re.I) is not None,
+              "Jim's scope ruling: all but legal")
+
+    # ③ the renamed fixtures every other pin now quotes
+    dash = open(os.path.join(here, "static", "dashboard.html"), encoding="utf-8").read()
+    check("⭐ the parent button asks about their STUDENT",
+          '"💬 How is my student doing, really?"' in dash
+          and "How is my child doing" not in dash.split("-->", 1)[-1], "")
+    fam = body_of(os.path.join(here, "static", "family.html"))
+    check("  /family adds and manages STUDENTS",
+          "add your students" in fam and "your student" in fam.lower(), "")
+
+    # ④ main.py's visible strings moved; the voice lists still match
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("  the parent-visible email and API strings moved",
+          "Please enter your student's first name." in msrc
+          and "That parent has no students yet" in msrc, "")
+    main_lines = _voice_lines_from(os.path.join(here, "main.py"), "DEMO_VOICE_LINES")
+    demo_lines = _voice_lines_from(os.path.join(here, "static", "demo.html"),
+                                   "VOICE_LINES")
+    check("⭐ the demo voice lists moved TOGETHER and are still identical",
+          main_lines == demo_lines and main_lines
+          and not any(_re.search(r"\bchild(?:ren)?\b", ln, _re.I)
+                      for ln in main_lines),
+          "clips are served by index; a one-sided rewording plays the wrong audio")
+
+    # ⑤ the sweep never mangled a word (the childhood guard)
+    check("  word boundaries held: no studenthood, no an-student",
+          all("studenthood" not in body_of(os.path.join(here, "static", f)).lower()
+              and "an student" not in body_of(os.path.join(here, "static", f)).lower()
+              for f in os.listdir(os.path.join(here, "static"))
+              if f.endswith(".html")), "")
+
+
+def part3hz_the_demo_holds_still_and_shows_its_boards():
+    """PART 3hz (build sc, 2026-09-02) -- FOUR DEMO RULINGS FROM JIM, ONE BUILD.
+
+    HIS WORDS, this day: ① "on the demo, we should disable scrolling ... Mr.
+    Cadabra knows where he's pointing if he knows where the screen's at"; ② "He
+    refers to the board as the whiteboard. I think we need to refer to it as the
+    board because it can be either dark or it can be white"; ③ "he needs to be
+    added to the demo where he goes up and points that you can choose white or
+    dark ... it clicks briefly to white ... and it goes back to the dark";
+    ④ "drop the Abrabot at the end. He gets introduced, and he talks a little,
+    and then we don't bring him back up again during the demo." Plus the mouth:
+    "still isn't quite matching at some places ... maybe we can do better" --
+    root cause found: cadabra.js's amplitude mouth (rt) reads analyser globals
+    the demo page never declared, so voiceLevel() returned -1 and every demo
+    line ran on the synthetic flap."""
+    print("\nPART 3hz — the demo holds still and shows its boards (build sc)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    d = open(os.path.join(here, "static", "demo.html"), encoding="utf-8").read()
+    body = d.split("-->", 1)[-1]
+
+    # ① the page holds still
+    check("⭐ the classroom locks BOTH scrollers (html + body), overscroll too",
+          "html.no-scroll{overflow:hidden" in body
+          and "body.classroom{padding:0;overflow:hidden;height:100vh" in body
+          and body.count("overscroll-behavior:none") >= 2
+          and "classList.add('no-scroll')" in body,
+          "a scrolled page moves the target out from under the pencil")
+    check("  ...and the inner scrollers survive (side rail, board, answers)",
+          "overflow-y:auto" in body, "content must stay reachable, the page must not move")
+
+    # ② board, never whiteboard, in the SPOKEN lines
+    import re as _re
+    spoken_wb = [m.group(0)[:60] for m in
+                 _re.finditer(r'"[^"]*whiteboard[^"]*"', body)]
+    check('⭐ no SPOKEN line says "whiteboard" any more',
+          "This big space is my board." in body
+          and "together on my board, step by step" in body
+          and not any("This big space" in s or "step by step" in s for s in spoken_wb),
+          str(spoken_wb[:2]))
+
+    # ③ the board-choice stop
+    check("⭐ the tour points at the board choice, right after the board stop",
+          "{t:'boardChip',     after:themePeek," in body
+          and "My board can be a white board or a dark one" in body, "")
+    check("  themePeek flips to the OTHER board and lands on the stored choice",
+          "function themePeek(go)" in body
+          and "setD(!wasDark);" in body
+          and "setD(stored==='dark');" in body, "")
+    check("  ...never writes storage, never stalls the tour",
+          "localStorage.getItem('mt_board')" in body
+          and "localStorage.setItem" not in body.split("function themePeek", 1)[1][:1200]
+          and "setTimeout(done, 4000);" in body,
+          "a peek is not a decision, and a safety timer guards the advance")
+
+    # ④ Abrabot: introduced once, never brought back
+    check("⭐ the four dashboard-tour Abrabot end-stops are gone",
+          'line:lineStarting("One more thing before you go. See Extra practice")' not in body
+          and 'line:lineStarting("And one thing that is not on this screen")' not in body
+          and 'line:lineStarting("Last thing. Extra practice is not me")' not in body
+          and 'lineStarting("Last thing, and it matters for a homeschool week")' not in body,
+          "Jim: introduced once, and we don't bring him back up again")
+    check("  ...his cameo on the main tour STAYS (the introduction)",
+          "after:abrabotCameo" in body
+          and "That one is not mine at all. Let me introduce you." in body, "")
+    check("  ...and his standalone button stays wired",
+          "runAbraPractice(function(){ showPicker(true); }, true);" in body,
+          "the visitor may still meet him by choice, any time")
+    check("  the by-index overrides shrank WITH their tours (HS + student door)",
+          body.count("Abrabot ender") >= 2, "HS_STOPS/STU_STOPS override by index -- "
+          "unequal lengths speak the wrong line over the wrong panel")
+
+    # ⑤ the mouth reads the real audio
+    check("⭐ the demo declares the analyser trio cadabra.js has read since rt",
+          "var audioCtx=null, analyser=null, timeData=null, usingAnalyser=false;" in body
+          and "createMediaElementSource(demoAudio)" in body
+          and "analyser.fftSize=512" in body, "")
+    check("  built inside the first user gesture, resumed on every play",
+          "ensureDemoAnalyser();" in body
+          and 'audioCtx.state==="suspended") audioCtx.resume()' in body
+          and "usingAnalyser=!!analyser;" in body, "")
+    check("  browser-voice lines keep the flap (no stream to read)",
+          "u.onstart=function(){usingAnalyser=false;" in body, "")
+
+    # the voice lists: still identical, and the theme line rode BOTH
+    main_lines = _voice_lines_from(os.path.join(here, "main.py"), "DEMO_VOICE_LINES")
+    demo_lines = _voice_lines_from(os.path.join(here, "static", "demo.html"), "VOICE_LINES")
+    check("⭐ the two voice lists are STILL identical, theme line included",
+          main_lines == demo_lines and main_lines
+          and any("white board or a dark one" in ln for ln in main_lines),
+          "clips are served by index -- a drift plays the wrong audio")
+
+
 def part3hy_the_practice_goal():
     """PART 3hy (build sb, 2026-09-02) -- THE PRACTICE GOAL: A GROWN-UP ASKS FOR
     MINUTES, THE CHILD FILLS A RING, NOTHING IS EVER OVER THEIR HEAD.
@@ -31388,6 +31583,8 @@ def main():
     part3hw_a_variables_letter_keeps_its_case()
     part3hx_the_question_mark_is_a_blank_said_so()
     part3hy_the_practice_goal()
+    part3hz_the_demo_holds_still_and_shows_its_boards()
+    part3ia_the_student_is_a_student()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

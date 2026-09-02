@@ -1214,7 +1214,7 @@
     function answer(i, q, u, node) {
       if (locked) return; locked = true;
       const correct = (i === q.a);
-      const nodes = el("choices").children;
+      const nodes = el("choices").students;
       for (const n of nodes) n.classList.add("dim");
       node.classList.remove("dim");
       if (correct) {
