@@ -2,6 +2,22 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD sf -- SPOKEN MATH IS WRITTEN MATH. Jim, live in algebra1,
+#               on a worked chain ("3 times 4 equals 12... 12 plus 2 equals 14")
+#               delivered over an EMPTY board: "why aren't we using the board for
+#               the equation. The rule should be that if we can write our a
+#               problem... we do." THE SEVENTY-FOURTH REFEREE:
+#               spoken_math_unwritten_conflict -- a spoken chain of 2+ digit
+#               computations with zero drawing tags fires; cautious four ways
+#               (single equation = mention, the missing-factors intro's shape;
+#               any drawing tag = silence; standing-board recap via heard's tags
+#               = silence; heard=None = silence). Its correction demands BOTH
+#               halves of rule 19: the [[step]] lines AND a continue-check --
+#               Jim's "froze" screenshot was a dead-end TURN ("Nothing to do,
+#               page alive"), and a dead-end referee is infeasible (canon teach
+#               cards end statement-flat by design), so the demand rides here.
+#               Count 73 -> 74. Canon swept: 0 fires across 9,395 authored
+#               replies (scripted spoken+board pairs joined, the sa lesson).
 #   2026-09-02  BUILD se -- THE BOARD HOLDS ONE BEAT (Jim's live flag: a whole
 #               elimination worked in ONE turn "took up more than what the board
 #               could hold... either broken up or smaller font" -- broken up is the
@@ -4428,6 +4444,83 @@ def board_flood_conflict(reply: str):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[boardflood] crashed (fail open): {exc}")
         _event("referee_crash", "boardflood", str(exc))
+        return ""
+
+
+# =============================================================================
+# REFEREE 74 -- SPOKEN MATH IS WRITTEN MATH  (build sf, 2026-09-02)
+# -----------------------------------------------------------------------------
+# Jim, live on 2026-09-02 (algebra1, code 0000): the reply "What is 3x plus 2?
+# The times comes first: 3 times 4 equals 12. Then the add: 12 plus 2 equals 14."
+# arrived over an EMPTY board. His ruling, verbatim: "why aren't we using the
+# board for the equation. The rule should be that if we can write out a
+# problem... we do." The prompt has commanded this since day one (USE THE
+# WHITEBOARD -- ALWAYS SHOW THE MATH); a rule held by words alone is a wish
+# (the ps law), so this is its referee. The same flagged reply then went
+# nowhere -- a self-answered beat with no continue-check -- so the correction
+# demands BOTH halves of rule 19: the lines on the board, and a question to
+# end the beat.
+#
+# ⚠️ CAUTIOUS FOUR WAYS:
+#   * the trigger is an explicit spoken COMPUTATION in digit form ("3 times 4
+#     equals 12") -- prose that merely mentions numbers never fires;
+#   * TWO OR MORE computations are required (a worked CHAIN). One equation in a
+#     sentence can be a definition -- the canon's missing-factors intro says
+#     "In 3 times 4 equals 12, the factors are 3 and 4" over a goal chip, and
+#     that is a mention, not work. Jim's flagged reply worked two steps aloud
+#     ("3 times 4 equals 12" then "12 plus 2 equals 14"); a chain over an
+#     empty board is unmistakably teaching in speech alone;
+#   * ANY drawing tag in the reply buys silence (drawing the wrong thing is
+#     other referees' turf; this one only polices the empty board);
+#   * heard-gated escape: the board KEEPS its picture across turns, so a reply
+#     that discusses a computation whose result already sits in an EARLIER
+#     turn's tags (heard carries them -- the second_triangle precedent) is a
+#     legitimate recap of a standing board, and stays silent. heard=None means
+#     the caller cannot know -- silent, like every heard-gated referee.
+# Canon swept before shipping: 0 zero-board computation replies in the whole
+# canon -- authored teaching always draws what it works.
+_SM_COMP_RE = re.compile(
+    r"\b\d+(?:\.\d+)?\s+(?:times|plus|minus|divided\s+by|over)\s+"
+    r"\d+(?:\.\d+)?\s+(?:equals|is|makes)\s+(-?\d+(?:\.\d+)?)", re.I)
+_SM_DRAW_RE = re.compile(
+    r"\[\[\s*(?:step|write|solve|card|column|balance|tape|numberline|graph|"
+    r"objects|machine|angle|triangle|circle|polygon|segment|clock|venn|tree|pie|"
+    r"bars|histogram|dotplot|boxplot|scatter|normal|twoway|unitcircle|"
+    r"righttriangle|conic|areamodel|vector|transversal|solid|stepcard|check|"
+    r"quiz)\b")
+
+
+def spoken_math_unwritten_conflict(reply: str, heard=None):
+    """Return a description of a computation worked ONLY in the spoken words over
+    an empty board, or "". Silent when `heard` is None. Never raises: fail open."""
+    try:
+        if heard is None:
+            return ""
+        text = str(reply or "")
+        if _SM_DRAW_RE.search(text):
+            return ""                     # something is drawn: not this referee's call
+        prose = _spoken_only(text)
+        hits = list(_SM_COMP_RE.finditer(prose))
+        if len(hits) < 2:
+            return ""                     # one equation can be a mention; a CHAIN is work
+        # the standing-board escape: a result already living in an earlier tag
+        # means this is a recap of a standing board -- any hit buys silence
+        for m in hits:
+            result = m.group(1)
+            for tag in re.findall(r"\[\[[^\]]*\]\]", str(heard)):
+                for val in re.findall(r'"([^"]*)"', tag):
+                    if re.search(r"(?<![\d.])" + re.escape(result) + r"(?![\d.])", val):
+                        return ""         # a recap of math the board already shows
+        said = " ".join(hits[0].group(0).split())[:60]
+        return ('your words work the math -- "{s}" -- and the board shows NOTHING. '
+                "Jim's rule: if we can write out a problem, we do. Put the problem "
+                "AND each worked line on the board as [[step]] lines while you say "
+                "them (rule 19b), and END the beat with a short continue-check "
+                '("with me so far?") so the student knows the next move is theirs '
+                "(rule 19c). Keep your words; add the board.").format(s=said)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[spokenmath] crashed (fail open): {exc}")
+        _event("referee_crash", "spokenmath", str(exc))
         return ""
 
 
@@ -10016,6 +10109,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if flood:
             _event("referee_fire", "boardflood", flood)
             return flood
+        # (sf) the seventy-fourth: spoken math is written math (Jim's rule, live,
+        # 2026-09-02). Heard-gated: the standing board buys silence.
+        smath = spoken_math_unwritten_conflict(reply, heard)
+        if smath:
+            _event("referee_fire", "spokenmath", smath)
+            return smath
         # (oc) the forty-eighth: a result you speak is a result you drew.
         skipres = skipped_result_conflict(reply, heard)
         if skipres:

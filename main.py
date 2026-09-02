@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  APP_BUILD -> "2026-09-02sf-spoken-math-is-written-math". BUILD sf:
+#               THE SEVENTY-FOURTH REFEREE (tutor.py's spoken_math_unwritten_
+#               conflict) -- Jim's live rule, verbatim: "if we can write our a
+#               problem... we do." A spoken chain of computations over an empty
+#               board is sent back demanding [[step]] lines AND a continue-check
+#               (his "froze" screenshot was a dead-end turn -- "Nothing to do,
+#               page alive"). No main.py logic change: the bump is the build
+#               stamp, tile 73 -> 74 lives in methodology.html, the PART is 3ic.
 #   2026-09-02  APP_BUILD -> "2026-09-02se-five-flags-from-jims-queue". BUILD se,
 #               Jim's five live flags, one build: ① the entry count-on line drops
 #               its "trap" sentence (lessonscripts); ② rounding is taught
@@ -13517,7 +13525,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-02se-five-flags-from-jims-queue"
+APP_BUILD = "2026-09-02sf-spoken-math-is-written-math"
 
 
 @app.get("/health")

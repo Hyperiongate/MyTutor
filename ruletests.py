@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD sf -- PART 3ic: spoken math is written math. THE
+#               SEVENTY-FOURTH REFEREE spoken_math_unwritten_conflict, born from
+#               Jim's live algebra1 flag (a worked chain spoken over an empty
+#               board): fires on his exact reply, silent on a single-equation
+#               mention / any drawing tag / a standing-board recap / heard=None;
+#               sweep-wired (his exact text trips rule 15 FIRST -- first-match-
+#               wins, pinned as such); canon-swept clean across 9,000+ authored
+#               replies with scripted spoken+board pairs JOINED (the sa vacuous-
+#               sweep lesson, run in reverse). Count pins 73 -> 74 (seven sites)
+#               and the seat-count label gains sf's spokenmath.
 #   2026-09-02  BUILD se -- PART 3ib: five live flags from Jim's queue. The entry
 #               trap sentence cut (other courses' pattern untouched); rounding
 #               taught line-first (his KEEP flag, canonized in pedagogy); rule 19
@@ -12600,7 +12610,7 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- this build widened a gate",
-          n_ref == 73,
+          n_ref == 74,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -12684,7 +12694,7 @@ def part3hn_credit_only_what_you_saw():
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rm widened a gate",
-          n_ref == 73, f"{n_ref} *_conflict functions")
+          n_ref == 74, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -12761,7 +12771,7 @@ def part3ho_three_one_line_holes():
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rn widened two gates",
-          n_ref == 73, f"{n_ref} *_conflict functions")
+          n_ref == 74, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -19093,9 +19103,10 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ seventy-three referees now, counted from the code (62 + pz + qf + qm + qs + "
-          "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + se's boardflood)",
-          n_ref == 73, n_ref)
+    check("⭐ seventy-four referees now, counted from the code (62 + pz + qf + qm + qs + "
+          "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + "
+          "se's boardflood + sf's spokenmath)",
+          n_ref == 74, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -21672,7 +21683,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,341</b>" in page,
+          "<b>8,351</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22496,6 +22507,125 @@ def part3ib_five_flags_from_jims_queue():
           fires == 0 and n >= 1300, f"{fires} authored replies rejected")   # 1,389 on ship day
 
 
+def part3ic_spoken_math_is_written_math():
+    """PART 3ic (build sf, 2026-09-02) -- SPOKEN MATH IS WRITTEN MATH: THE
+    SEVENTY-FOURTH REFEREE.
+
+    THE FINDING. Jim, live in algebra1 (code 0000), screenshotted the reply
+    "Say x is holding 4. What is 3x plus 2? The times comes first: 3 times 4
+    equals 12. Then the add: 12 plus 2 equals 14." sitting over an EMPTY board,
+    and ruled, verbatim: "why aren't we using the board for the equation. The
+    rule should be that if we can write our a problem... we do." The prompt has
+    commanded USE THE WHITEBOARD since day one; a rule held by words alone is a
+    wish (the ps law), so build sf gives it a referee.
+
+    THE REASONING. spoken_math_unwritten_conflict fires when the SPOKEN words
+    work a CHAIN of two or more digit computations ("3 times 4 equals 12 ...
+    12 plus 2 equals 14") while the reply draws NOTHING. Cautious four ways:
+    one equation alone can be a definition (the canon's missing-factors intro
+    says "In 3 times 4 equals 12, the factors are 3 and 4" over a goal chip --
+    a mention, not work); any drawing tag buys silence (a wrong board is other
+    referees' turf); a result already sitting in an earlier turn's tags means
+    a recap of a standing board (heard carries them -- the second_triangle
+    precedent) and stays silent; heard=None means the caller cannot know, so
+    silent, like every heard-gated referee. The correction demands BOTH halves
+    of rule 19 -- the [[step]] lines AND a closing continue-check -- because
+    the same flagged reply also self-answered and stopped dead. Jim's word on
+    the freeze itself: "Nothing to do, page alive" -- a dead-end TURN, not a
+    hang; a dead-end referee was weighed and ruled INFEASIBLE (canon teach
+    cards legitimately end statement-flat -- the scripted lane auto-advances),
+    so the dead-end shape stays a watch item and referee 74 carries the
+    continue-check demand in its correction text instead."""
+    print("\nPART 3ic — spoken math is written math (build sf)")
+    import tutor as _t
+    import lessonscripts as LS
+    import foundations as FND
+
+    flag = ("Say x is holding 4. What is 3x plus 2? The times comes first: "
+            "3 times 4 equals 12. Then the add: 12 plus 2 equals 14.")
+
+    # ⭐ fires on Jim's exact flagged reply, and the message carries his rule
+    hit = _t.spoken_math_unwritten_conflict(flag, heard="hello")
+    check("⭐ fires on Jim's exact flagged reply (empty board, worked chain)",
+          "write out a problem" in hit, hit[:80])
+    check("  ...and the correction demands the board AND the continue-check",
+          "[[step]]" in hit and "continue-check" in hit,
+          "both halves of rule 19: the lines, then a question")
+
+    # the four cautions, each proven silent
+    check("  a drawing tag buys silence (a wrong board is other referees' turf)",
+          _t.spoken_math_unwritten_conflict(
+              flag + ' [[step eq="3x + 2 = ?"]]', heard="hello") == "", "")
+    check("  one equation is a mention, not work (the missing-factors shape)",
+          _t.spoken_math_unwritten_conflict(
+              "In 3 times 4 equals 12, the factors are 3 and 4.",
+              heard="hello") == "", "the canon's own intro line must stay legal")
+    check("  a standing-board recap stays silent (result lives in heard's tags)",
+          _t.spoken_math_unwritten_conflict(
+              "So 3 times 4 equals 12, and 12 plus 2 equals 14, like the board shows.",
+              heard='earlier [[step eq="3(4) = 12"]] turn') == "", "")
+    check("  heard=None means the caller cannot know -- silent",
+          _t.spoken_math_unwritten_conflict(flag, heard=None) == "", "")
+
+    # ⭐ the sweep wiring: a statement-only chain comes back through the sweep;
+    # Jim's exact text trips rule 15's pending-line referee FIRST, which is the
+    # sweep working as designed (first-match-wins) -- his reply broke two rules.
+    crafted = ("Nice work on that last one. Remember the order: 3 times 4 "
+               "equals 12, and then 12 plus 2 equals 14.")
+    check("⭐ the sweep returns it (statement-only chain, no earlier shapes)",
+          "write out a problem" in (_t.prose_board_conflict(crafted, heard="hello") or ""), "")
+    check("  Jim's exact text trips rule 15 first in the sweep -- also a catch",
+          "pending line" in (_t.prose_board_conflict(flag, heard="hello") or ""),
+          "first-match-wins: the un-boarded QUESTION outranks the un-boarded chain")
+
+    # never raises, whatever arrives
+    try:
+        _t.spoken_math_unwritten_conflict(None, heard=None)
+        _t.spoken_math_unwritten_conflict("", heard="")
+        _t.spoken_math_unwritten_conflict(12345, heard=[])
+        check("  never raises (fail open)", True, "")
+    except Exception as exc:  # noqa: BLE001
+        check("  never raises (fail open)", False, str(exc))
+
+    # ⭐ the standing sweep: the authored canon never trips it. Scripted pairs
+    # ship spoken+board as ONE reply, so a string-list carrying a board half is
+    # joined before the sweep -- splitting it would test a reply that never
+    # exists (the sa vacuous-sweep lesson, run in reverse).
+    fires = 0
+    seen = 0
+
+    def _sweep(text):
+        nonlocal fires, seen
+        seen += 1
+        if _t.spoken_math_unwritten_conflict(text, heard="prior turn, no tags"):
+            fires += 1
+
+    def _walk(obj):
+        if isinstance(obj, (tuple, list)) and obj and all(isinstance(x, str) for x in obj):
+            if any("[[" in x for x in obj):
+                _sweep(" ".join(obj))
+            else:
+                for x in obj:
+                    _sweep(x)
+        elif isinstance(obj, str):
+            _sweep(obj)
+        elif isinstance(obj, (list, tuple)):
+            for x in obj:
+                _walk(x)
+        elif isinstance(obj, dict):
+            for v in obj.values():
+                _walk(v)
+
+    for _les in LS.LESSONS:
+        _walk(_les)
+    for _course, _scripts in FND.FOUNDATIONS.items():
+        _items = _scripts.values() if isinstance(_scripts, dict) else _scripts
+        for _sc in _items:
+            _sweep((_sc.get("say") or "") + "\n" + "\n".join(_sc.get("board") or []))
+    check(f"⭐ zero spoken-math fires across {seen} authored replies",
+          fires == 0 and seen >= 9000, f"{fires} authored replies rejected")   # 9,000+ on ship day
+
+
 def part3ia_the_student_is_a_student():
     """PART 3ia (build sd, 2026-09-02) -- THE STUDENT IS A STUDENT, EVERYWHERE
     A VISITOR CAN SEE.
@@ -22897,7 +23027,7 @@ def part3hx_the_question_mark_is_a_blank_said_so():
           and n >= 1900 and m >= 3000,
           str(hits[:4]))
     check("  the referee count is unchanged -- sa is a registry row on referee 31",
-          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 73, "")
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 74, "")
 
 
 def part3hw_a_variables_letter_keeps_its_case():
@@ -23046,7 +23176,7 @@ def part3hu_the_accepted_offer_is_honored():
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
     check("  the referee count is unchanged -- rx widened a gate",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 73, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 74, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -23167,7 +23297,7 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
     check("  the referee count is unchanged -- ry widened a gate and added a floor",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 73, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 74, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -31732,6 +31862,7 @@ def main():
     part3hz_the_demo_holds_still_and_shows_its_boards()
     part3ia_the_student_is_a_student()
     part3ib_five_flags_from_jims_queue()
+    part3ic_spoken_math_is_written_math()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
