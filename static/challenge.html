@@ -4,6 +4,9 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    (sg) 2026-09-02 -- THE SWEEP HIT THE CODE: answer()'s el("choices").children
+    had become .students (the sd child->student sweep, meant for visible copy, also rewrote code identifiers), so grading a tapped answer threw before it could
+    dim the other choices. Restored. PART 3id pins it.
     2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: say() uses the
                 speak-prep ticket (line + code out of the URL) and the placement
                 POST sends X-Student-Code with an /me path. Plausible no longer
@@ -1214,7 +1217,7 @@
     function answer(i, q, u, node) {
       if (locked) return; locked = true;
       const correct = (i === q.a);
-      const nodes = el("choices").students;
+      const nodes = el("choices").children;
       for (const n of nodes) n.classList.add("dim");
       node.classList.remove("dim");
       if (correct) {

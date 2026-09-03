@@ -521,6 +521,14 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    (sg) 2026-09-02 -- THE SWEEP HIT THE CODE. Jim live: "This opened and nothing
+    happened. NO voice" -- the sd child->student sweep, meant for visible copy, also rewrote code identifiers: wipeBoard's Array.from(feed.children) had become
+    feed.students, so the scripted opener's first board tag crashed handleTags,
+    the async rejection was swallowed, and busy=true froze the classroom.
+    Restored to feed.children. AND THE NET: scrNext now catches a crashed beat,
+    rethrows asynchronously (client-log telemetry unchanged) and moves to the
+    next beat, so no future scrPlay crash can ever freeze a lesson. PART 3id
+    pins both; PART 3ia's sweep check repaired to mask the platform's words.
     (qm) 2026-08-30 -- THE PANEL SAYS WHAT IT MEANS. Jim, live in Geometry: three bars
     (Today / Unit / Course) and "it's not clear to me what these mean ... maybe we just
     have today's goal, and then progress on unit one and progress on the course." The
@@ -2886,7 +2894,7 @@
     function wipeBoard(labelOverride) {
       curWork = null;
       PROBLEM_CLOSED = false;   // build fy: an explicit [[clear]] consumes the armed signal
-      const kids = Array.from(feed.students);
+      const kids = Array.from(feed.children);
       // Fold everything since the last folded problem...
       let start = 0;
       for (let i = kids.length - 1; i >= 0; i--) {
@@ -4010,7 +4018,20 @@
     function scrNext() {
       clearScrNext();
       if (!SCR.queue.length) { busy = false; setPhase("ready"); setState("idle"); return; }
-      scrPlay(SCR.queue.shift());
+      // (sg) 2026-09-02, Jim live on /session probstat: "This opened and nothing
+      // happened. NO voice". scrPlay is async, so a throw inside it (that day: the
+      // sd sweep had renamed feed.children to feed.students in wipeBoard, and the
+      // opener's board tag crashed handleTags) became an UNHANDLED REJECTION --
+      // reported to /api/client-error and then swallowed, leaving busy=true and a
+      // frozen classroom. A crash in one beat now skips to the NEXT beat instead of
+      // freezing the lesson: the queue is finite, so this can never loop, and an
+      // emptied queue lands in the ready state above where the student can still
+      // talk (the live lane takes over -- scrAnswer's own fallback precedent). The
+      // async rethrow keeps client-log.js's telemetry exactly as loud as before.
+      Promise.resolve(scrPlay(SCR.queue.shift())).catch(function (e) {
+        setTimeout(function () { throw e; }, 0);   // still reaches /api/client-error
+        setTimeout(scrNext, 0);                    // the lesson goes on
+      });
     }
     function scrIngest(steps) { SCR.queue = SCR.queue.concat(steps || []); scrNext(); }
 

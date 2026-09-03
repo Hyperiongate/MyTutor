@@ -2,6 +2,18 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  BUILD sg -- PART 3id: the sweep stays out of the code. Jim live:
+#               "This opened and nothing happened. NO voice" -- the sd sweep had
+#               renamed feed.children to feed.students (3 pages), .children on
+#               /challenge and the lab, and 8 CSS :nth/:first/:last-child pseudo-
+#               classes across 6 pages. All 13 restored, each pinned byte-for-byte;
+#               a static-wide scan proves no swept identifier survives (comment
+#               lines quoting the defect as history are skipped -- the record law);
+#               scrNext's new crash net pinned (a crashed beat skips forward,
+#               rethrown async so telemetry stays loud). PART 3ia's own sweep
+#               check repaired to intent: it counted \bchild\b over whole bodies
+#               -- the same blindness that shipped the defect -- and now masks
+#               the platform's words (:first-child, .children, childNodes...).
 #   2026-09-02  BUILD sf -- PART 3ic: spoken math is written math. THE
 #               SEVENTY-FOURTH REFEREE spoken_math_unwritten_conflict, born from
 #               Jim's live algebra1 flag (a worked chain spoken over an empty
@@ -21683,7 +21695,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,351</b>" in page,
+          "<b>8,368</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22626,6 +22638,101 @@ def part3ic_spoken_math_is_written_math():
           fires == 0 and seen >= 9000, f"{fires} authored replies rejected")   # 9,000+ on ship day
 
 
+def part3id_the_sweep_stays_out_of_the_code():
+    """PART 3id (build sg, 2026-09-02) -- THE SWEEP STAYS OUT OF THE CODE.
+
+    THE FINDING. Jim, live: "This opened and nothing happened. NO voice..." --
+    /session?course=probstat, welcome bubble up, then a frozen classroom. The
+    console (read live over the Chrome bridge) showed the crash: TypeError at
+    wipeBoard -> Array.from(feed.students). Build sd's child->student sweep,
+    meant for VISIBLE COPY, had also rewritten code identifiers: feed.children
+    became feed.students on THREE pages (session, topic, practice -- every
+    board wipe crashed), el("choices").children on /challenge, box.children on
+    the lab page, and eight CSS pseudo-classes (:nth-child/:first-child/
+    :last-child) across landing, demo, drill, dashboard, methodology and the
+    lab. PART 3ia's own sweep check shared the blindness -- it counted
+    \bchild\b over whole file bodies, so restoring the identifiers required
+    repairing that check to intent (API forms masked) in the same build.
+
+    THE LAW, written down: a wording sweep touches what a PERSON reads --
+    never what the BROWSER reads. Code identifiers are the platform's words.
+
+    AND THE NET. scrPlay is async: a throw inside it becomes an unhandled
+    rejection -- reported, then swallowed, leaving busy=true forever. That is
+    the freeze Jim saw. scrNext now catches a crashed beat, rethrows
+    asynchronously (telemetry stays as loud as before), and moves to the next
+    beat -- the queue is finite, so it can never loop, and an emptied queue
+    lands in the ready state where the live lane takes over."""
+    print("\nPART 3id — the sweep stays out of the code (build sg)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+
+    # ⭐ the JS identifiers, byte-for-byte, one per casualty
+    for fn, needle in (
+            ("static/session.html",  "const kids = Array.from(feed.children);"),
+            ("static/topic.html",    "const kids = Array.from(feed.children);"),
+            ("static/practice.html", "const kids = Array.from(feed.children);"),
+            ("static/challenge.html", '''const nodes = el("choices").children;'''),
+            ("static/cadabra-lab.html", "Array.prototype.forEach.call(box.children,")):
+        check(f"⭐ {fn} reads the DOM's children, not 'students'",
+              needle in rd(fn) and ".students;" not in rd(fn).replace("data.students;", ""),
+              "the sd sweep renamed a platform identifier; sg restored it")
+
+    # ⭐ the CSS pseudo-classes, per page
+    for fn, needle in (
+            ("static/landing.html",     ".board .step:nth-child(1)"),
+            ("static/demo.html",        ".weekrow:first-child"),
+            ("static/demo.html",        ".track .stop:first-child .bar"),
+            ("static/demo.html",        ".nextrow:first-child"),
+            ("static/drill.html",       ".said > div:last-child"),
+            ("static/dashboard.html",   ".stop:first-child .bar"),
+            ("static/methodology.html", ".plain p:last-child"),
+            ("static/cadabra-lab.html", ".console h2:first-child")):
+        check(f"  {fn} keeps {needle.split(':')[-1].split('{')[0].strip()} on {needle.split(':')[0].strip()}",
+              needle in rd(fn), "")
+
+    # ⭐ no -student pseudo-class or DOM .students survives ANYWHERE in static
+    import re as _re
+    bad = []
+    for fn in sorted(os.listdir(os.path.join(here, "static"))):
+        if not (fn.endswith(".html") or fn.endswith(".js") or fn.endswith(".css")):
+            continue
+        src = rd(os.path.join("static", fn))
+        # the header notes QUOTE the defect as history (the record law) -- an HTML
+        # comment is not live code, so comments are stripped before the scan.
+        src = _re.sub(r"<!--.*?-->", "", src, flags=_re.S)
+        if _re.search(r":(?:nth(?:-last)?|first|last|only)-student\b", src):
+            bad.append((fn, "pseudo-class"))
+        for m in _re.finditer(r"(\w+)\.students\b", src):
+            # server data reads (data.students, me.students, c.students...) are the
+            # app's OWN field name and stay; a DOM element variable is the defect.
+            # A COMMENT naming the old defect is the RECORD, not a recurrence --
+            # sg's own scrNext note quotes "feed.students" as history (the header-
+            # notes-verbatim law), so a match with // earlier on its line is skipped.
+            line_start = src.rfind("\n", 0, m.start()) + 1
+            if "//" in src[line_start:m.start()]:
+                continue
+            if m.group(1) in ("feed", "box", "el", "node", "nodes", "kids"):
+                bad.append((fn, m.group(0)))
+        if ''').students;''' in src and "choices" in src[max(0, src.find(".students;") - 60):src.find(".students;")]:
+            bad.append((fn, "choices.students"))
+    check("⭐ no swept identifier survives anywhere in static/",
+          not bad, str(bad[:6]))
+
+    # ⭐ the net: a crashed beat skips forward instead of freezing the lesson
+    ses = rd("static/session.html")
+    check("⭐ scrNext catches a crashed beat and moves the lesson on",
+          "Promise.resolve(scrPlay(SCR.queue.shift())).catch" in ses
+          and "the lesson goes on" in ses, "")
+    check("  ...and the rethrow keeps client-log's telemetry loud",
+          "setTimeout(function () { throw e; }, 0)" in ses, "")
+
+    # the repaired 3ia check masks API forms (the check that shared the blindness)
+    check("  3ia's sweep check now masks the platform's words",
+          "_api_child" in rd("ruletests.py"),
+          "a check that reads code as copy re-ships this class of defect")
+
+
 def part3ia_the_student_is_a_student():
     """PART 3ia (build sd, 2026-09-02) -- THE STUDENT IS A STUDENT, EVERYWHERE
     A VISITOR CAN SEE.
@@ -22648,16 +22755,30 @@ def part3ia_the_student_is_a_student():
             return s[s.index("-->", s.index("<!--")) + 3:]
         return s
 
-    # ① no visible child/children outside the legal pages (headers exempt)
+    # ① no visible child/children outside the legal pages (headers exempt).
+    # (sg, 2026-09-02) REPAIRED TO INTENT after the sweep's own defect: this check
+    # counted \bchild\b over the WHOLE body -- CSS and JS included -- which is the
+    # same blindness that let the sd sweep rename feed.children to feed.students
+    # and :nth-child to :nth-student, freezing Jim's probstat session live. Code
+    # identifiers are the PLATFORM'S words, not ours; the sweep law is VISIBLE
+    # COPY ONLY, so the API forms are masked before counting. PART 3id pins each
+    # restored identifier byte-for-byte.
+    _api_child = _re.compile(
+        r"(?::(?:first|last|only)-child\b|:nth(?:-last)?-child\(|\.children\b|"
+        r"childNodes|firstChild|lastChild|firstElementChild|lastElementChild|"
+        r"child_process)")
     leftovers = []
     for fn in sorted(os.listdir(os.path.join(here, "static"))):
         if not fn.endswith(".html") or fn in ("privacy.html", "terms.html"):
             continue
-        b = body_of(os.path.join(here, "static", fn))
+        b = _api_child.sub("", body_of(os.path.join(here, "static", fn)))
+        # (sg) a comment is not VISIBLE copy: sg's own dated notes quote the sweep
+        # defect ("child->student") as history, and the record law keeps them verbatim.
+        b = _re.sub(r"<!--.*?-->", "", b, flags=_re.S)
         n = len(_re.findall(r"\bchild(?:ren)?\b", b, _re.I))
         if n:
             leftovers.append((fn, n))
-    check("⭐ zero visible child/children outside the legal pages",
+    check("⭐ zero visible child/children outside the legal pages (code identifiers masked)",
           not leftovers, str(leftovers[:4]))
     check("  llms.txt (what the AI crawlers read) moved too",
           not _re.search(r"\bchild(?:ren)?\b",
@@ -31863,6 +31984,7 @@ def main():
     part3ia_the_student_is_a_student()
     part3ib_five_flags_from_jims_queue()
     part3ic_spoken_math_is_written_math()
+    part3id_the_sweep_stays_out_of_the_code()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+    (sg) 2026-09-02 -- THE SWEEP HIT THE CODE: .weekrow/.nextrow:first-child and
+    .track .stop:first-child had become :first-student (the sd child->student
+    sweep, meant for visible copy, also rewrote code identifiers) -- dead
+    selectors: stray top borders and a bar on the first track stop. Restored.
+    PART 3id pins them.
     (sc) 2026-09-02 -- FOUR RULINGS FROM JIM, one build. ① THE PAGE HOLDS STILL:
     html+body both locked in classroom mode (overscroll too) -- "Mr. Cadabra knows
     where he's pointing if he knows where the screen's at"; the side rail, board and
@@ -675,7 +680,7 @@
   table.roster .good{color:var(--ok);font-weight:800}
   .readbox{background:#f6f3ff;border:1px solid #e2e5fb;border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.6}
   .weekrow{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}
-  .weekrow:first-student{border-top:0}
+  .weekrow:first-child{border-top:0}
   .weekrow .muted,.muted{color:#8a86a6;font-size:12.5px}
   .weekrow .good,.good{color:var(--ok);font-weight:800}
   .dsub{font-size:12.5px;color:var(--muted);margin-top:2px}
@@ -757,7 +762,7 @@
   .track{display:flex;gap:0;min-width:560px}
   .track .stop{flex:1;text-align:center;position:relative;padding-top:14px}
   .track .stop .bar{position:absolute;top:22px;left:-50%;width:100%;height:4px;background:#e9e5fb;z-index:0}
-  .track .stop:first-student .bar{display:none}
+  .track .stop:first-child .bar{display:none}
   .track .stop .node{position:relative;z-index:1;width:30px;height:30px;margin:0 auto;border-radius:50%;
     background:#fff;border:2px solid #ddd8f2;color:#8a86a6;font-size:13px;font-weight:800;
     display:flex;align-items:center;justify-content:center}
@@ -802,7 +807,7 @@
   .cx{display:flex;gap:5px;margin-top:5px}
   .cx i{flex:1;text-align:center;font-style:normal;font-size:9.5px;color:var(--muted)}
   .nextrow{display:flex;align-items:center;gap:11px;padding:9px 0;border-top:1px solid var(--line)}
-  .nextrow:first-student{border-top:0}
+  .nextrow:first-child{border-top:0}
   .nextrow .stepn{flex:0 0 26px;height:26px;border-radius:8px;background:#f1eef9;color:var(--purple);
     font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
   .nextrow .t{font-size:13.5px;font-weight:700}

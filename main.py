@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-02  APP_BUILD -> "2026-09-02sg-the-sweep-stays-out-of-the-code". BUILD
+#               sg: the sd child->student sweep had rewritten CODE identifiers --
+#               feed.children -> feed.students froze Jim's probstat session at the
+#               opener (crash in wipeBoard, swallowed as an unhandled rejection).
+#               13 identifiers restored across 10 static pages; scrNext gains a
+#               crash net (a broken beat skips forward instead of freezing); PART
+#               3id pins it all. No main.py logic change -- the bump is the stamp.
 #   2026-09-02  APP_BUILD -> "2026-09-02sf-spoken-math-is-written-math". BUILD sf:
 #               THE SEVENTY-FOURTH REFEREE (tutor.py's spoken_math_unwritten_
 #               conflict) -- Jim's live rule, verbatim: "if we can write our a
@@ -13525,7 +13532,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-02sf-spoken-math-is-written-math"
+APP_BUILD = "2026-09-02sg-the-sweep-stays-out-of-the-code"
 
 
 @app.get("/health")

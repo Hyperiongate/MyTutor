@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+    (sg) 2026-09-02 -- THE SWEEP HIT THE CODE: the three .board .step:nth-child
+    delays had become :nth-student (the sd child->student sweep, meant for visible
+    copy, also rewrote code identifiers) -- dead selectors, so the hero board's
+    steps all animated at once. Restored. PART 3id pins them.
     (rm) 2026-09-01 -- THE PENCIL IS MR. CADABRA ON THE HOME PAGE. Three additive
     changes, all reversible: the hero orb shows the pencil (the canvas still draws,
     unseen -- deleting it would throw in boot()); presence:false on the hero draw so
@@ -310,9 +314,9 @@
      background-size:24px 24px;font-family:"Courier New",monospace;color:#2a2450}
   .board .v{color:#d1345b;font-weight:800}
   .board .step{opacity:0;animation:stepin .5s forwards}
-  .board .step:nth-student(1){animation-delay:.3s}
-  .board .step:nth-student(2){animation-delay:1.0s}
-  .board .step:nth-student(3){animation-delay:1.8s}
+  .board .step:nth-child(1){animation-delay:.3s}
+  .board .step:nth-child(2){animation-delay:1.0s}
+  .board .step:nth-child(3){animation-delay:1.8s}
   @keyframes stepin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   /* LIVE HERO LESSON (2026-08-05): steps the script adds animate individually, and the
      student's typed answer shows as a reply pill under the tutor bubble. */

@@ -121,6 +121,9 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    (sg) 2026-09-02 -- THE SWEEP HIT THE CODE: .stop:first-child had become
+    :first-student (the sd child->student sweep, meant for visible copy, also rewrote code identifiers) -- a dead selector, so the first track stop drew a bar
+    it should hide. Restored. PART 3id pins it.
     2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: every API call
                 (topics/time/awards/misses/sprints/courses/assessment) sends
                 X-Student-Code with /me paths. Page-nav links (?code=) unchanged --
@@ -385,7 +388,7 @@
     .track { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding-bottom: 6px; }
     .stop { flex: 1 1 0; min-width: 74px; display: flex; flex-direction: column; align-items: center; position: relative; }
     .stop .bar { position: absolute; top: 21px; left: -50%; width: 100%; height: 4px; background: var(--line); z-index: 0; }
-    .stop:first-student .bar { display: none; }
+    .stop:first-child .bar { display: none; }
     .stop .node { position: relative; z-index: 1; width: 44px; height: 44px; border-radius: 50%; display: grid;
       place-items: center; font-weight: 800; font-size: 15px; color: #fff; border: 3px solid #fff;
       box-shadow: 0 3px 10px rgba(20,30,45,.16); }

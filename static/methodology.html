@@ -4,6 +4,11 @@
   methodology.html  --  HOW WE TEACH, AND WHAT IT IS BUILT ON  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-09-02  (sg) THE SWEEP HIT THE CODE: .plain p:last-child had become
+                :last-student (the sd child->student sweep, meant for visible copy,
+                also rewrote code identifiers) -- a dead selector. Restored; PART 3id
+                pins it and its nine sibling casualties across the site. Battery
+                8,351 -> 8,368 with PART 3id.
   - 2026-09-02  Reply-checks tile 73 -> 74 with build sf (spoken math is written
                 math: a reply that works a chain of computations aloud over an
                 empty board is sent back -- Jim's rule, verbatim: "if we can
@@ -526,7 +531,7 @@
   .plain{background:#fffdf4;border:1px solid #f0e3b8;border-radius:18px;padding:28px}
   .plain h2{color:#7a5c12}
   .plain p{color:#5b5029;font-size:16px;margin-bottom:12px}
-  .plain p:last-student{margin-bottom:0}
+  .plain p:last-child{margin-bottom:0}
   .foot-note{color:var(--muted);font-size:13.5px;text-align:center;max-width:70ch;margin:14px auto 0}
 </style>
 <script src="/static/analytics.js"></script>
@@ -571,7 +576,7 @@
     <div class="num"><b>10</b><span>full courses</span></div>
     <div class="num"><b>25,376</b><span>practice problems</span></div>
     <div class="num"><b>74</b><span>checks on every single reply</span></div>
-    <div class="num"><b>8,351</b><span>automated checks per release</span></div>
+    <div class="num"><b>8,368</b><span>automated checks per release</span></div>
   </div>
   <p class="foot-note">Counted, not claimed — figures as of August 2026. Every number above is
     machine-counted from the app itself, by the same test run that has to pass before anything

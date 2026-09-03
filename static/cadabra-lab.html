@@ -6,6 +6,9 @@
     every behaviour on the REAL floating layer (cadabra.js) -- not on a copy of it.
 
     CHANGE NOTES (keep newest at top):
+    (sg) 2026-09-02 -- THE SWEEP HIT THE CODE: box.children had become
+    box.students and .console h2:first-child had become :first-student (the sd child->student sweep, meant for visible copy, also rewrote code identifiers).
+    Both restored. PART 3id pins them.
     (rr) 2026-09-02 -- INK ON A WORD, AND THE FEELINGS. New console sections: type a
     word that is on the stand-in board and circle / underline / bang it, or ask
     "where is it?" (Cadabra.find -- the finder's answer, to the pixel); wave,
@@ -69,7 +72,7 @@
 
   .console { background: #1b1926; color: #efecf8; padding: 14px 14px 30px; overflow: auto; font-size: 13px; }
   .console h2 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #b8b3cc; margin: 16px 0 8px; }
-  .console h2:first-student { margin-top: 0; }
+  .console h2:first-child { margin-top: 0; }
   .grid { display: flex; flex-wrap: wrap; gap: 6px; }
   .console button, .console select, .console input[type=text] { font: inherit; border-radius: 9px; border: 1px solid #3a3552; background: #2b2740; color: #efecf8; padding: 7px 10px; cursor: pointer; }
   .console button:hover { background: #3a3552; }
@@ -238,7 +241,7 @@
       var b = document.createElement("button"); b.type = "button"; b.textContent = n;
       b.addEventListener("click", function () {
         held = n; Cadabra.expression(n);
-        Array.prototype.forEach.call(box.students, function (c) { c.classList.toggle("on", c === b); });
+        Array.prototype.forEach.call(box.children, function (c) { c.classList.toggle("on", c === b); });
       });
       box.appendChild(b);
     });

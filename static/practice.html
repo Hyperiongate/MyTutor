@@ -227,6 +227,9 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    (sg) 2026-09-02 -- THE SWEEP HIT THE CODE: wipeBoard's feed.children had
+    become feed.students (the sd child->student sweep, meant for visible copy, also rewrote code identifiers), so every board wipe on this page threw. Restored.
+    PART 3id pins it; the crash Jim actually hit was /session's twin of this line.
     2026-09-02  THE PRACTICE-GOAL RING (build sb). When a grown-up set a daily goal
                 on /family or /teacher, the topbar shows "⭐ Today's practice goal ·
                 3 of 10" -- fetched once from /api/goal/me at boot, moved forward by
@@ -1222,7 +1225,7 @@
     function wipeBoard() {
       curWork = null;
       PROBLEM_CLOSED = false;   // build fy: an explicit [[clear]] consumes the armed signal
-      const kids = Array.from(feed.students);
+      const kids = Array.from(feed.children);
       // Fold everything since the last folded problem...
       let start = 0;
       for (let i = kids.length - 1; i >= 0; i--) {
