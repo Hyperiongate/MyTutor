@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-03  APP_BUILD -> "2026-09-03sh-the-watch-says-what-it-was-told-to-do".
+#               BUILD sh is nightwatch.py ONLY -- this file changes for the STAMP, so
+#               /health can prove the report improvements are the ones running. Four
+#               holes in the morning report, each named by a triage that then had to
+#               give up on it: the 10-vs-12 question (three watches running; the report
+#               printed only what HAPPENED, never what it was TOLD to do, so a shrunken
+#               rotation, skipped slots and a changed constant were indistinguishable);
+#               507 referee fires with no names; crash reasons with no clock, so a ghost
+#               and a live regression read alike; and a reviewer never told about Jim's
+#               09-01 rule-42 ruling, which had it re-confirming a settled shape. No
+#               behaviour in this file changes. PART 3ie.
 #   2026-09-02  APP_BUILD -> "2026-09-02sg-the-sweep-stays-out-of-the-code". BUILD
 #               sg: the sd child->student sweep had rewritten CODE identifiers --
 #               feed.children -> feed.students froze Jim's probstat session at the
@@ -13532,7 +13543,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-02sg-the-sweep-stays-out-of-the-code"
+APP_BUILD = "2026-09-03sh-the-watch-says-what-it-was-told-to-do"
 
 
 @app.get("/health")

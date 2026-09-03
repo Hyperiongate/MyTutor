@@ -2,6 +2,54 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-03  BUILD sh -- THE WATCH SAYS WHAT IT WAS TOLD TO DO. Four report holes,
+#               every one of them named by a triage that then had to give up on it.
+#               (1) THE 10-vs-12 QUESTION, ASKED THREE WATCHES RUNNING AND NEVER ONCE
+#               ANSWERABLE. 08-31, 09-01 and 09-02 all reported "10 lessons" against a
+#               file that says LESSONS_PER_NIGHT = 12, and the 09-02 triage wrote "STILL
+#               10 -- still unexplained. Third watch in a row." It was unanswerable
+#               because the report printed only what HAPPENED. A shrunken rotation, two
+#               skipped slots and a changed constant produce the identical number and
+#               want three different fixes. The report now prints the BUDGET it was
+#               given ("told to run 12 x 6 from 10 scenarios"), shouts when the
+#               ENVIRONMENT has moved one of this file's defaults (a Render knob leaves
+#               no other trace anywhere -- no deploy, no commit, no log line), and NAMES
+#               THE ROTATION: every slot picked, in order, with its own outcome -- ran,
+#               skipped, errored, crashed, never reached -- and repeat slots marked as
+#               repeats. That last part closes the 08-20 watch's F2, open since August:
+#               the report printed sc["id"] with no duplicate marker, so a skipped
+#               DUPLICATE read as a missing scenario. The budget is recorded BEFORE
+#               preflight on purpose: a night that cannot start is exactly the night you
+#               want it. (2) 507 REFEREE FIRES, NO NAMES. This counter has been on the
+#               report since build ha and has never once been actionable -- it says the
+#               machine is awake, not which rule is breaking, and it cannot score a new
+#               referee against the class it was built for. Two triages asked for the
+#               split by name. event_stats has grouped by name all along; this one kind
+#               threw the names away. (3) A REASON WITH NO CLOCK IS INDISTINGUISHABLE
+#               FROM ITS OWN GHOST. pq gave this report the crash REASON and never gave
+#               it a date, so 09-01 had to hold every line -- haiku-4.5 404s, "Extra
+#               data" parses, the ended DeepSeek trial's 402s -- with "the window has
+#               not yet rolled past them", and 09-02 held them again. Each distinct
+#               reason now carries count, newest sighting, oldest sighting and an age,
+#               and one printed sentence gives the reader the test: an old newest is
+#               draining out, a fresh one is a live regression. `at` has been on every
+#               row since ha. (4) THE REVIEWER WAS NEVER TOLD ABOUT THE RULINGS. The
+#               09-02 watch CONFIRMED "Everybody feels stuck before they learn something
+#               new" as a rule-42 defect. It is not one: pq cut the bare people-words
+#               from the referee after a canon sweep found them in 21 authored teaching
+#               cards, and rn put it to Jim, who ruled them legal -- "it normalizes
+#               struggle without naming kids, classmates, or ages." Nobody told the
+#               reviewer, so it re-opened a question settled two builds earlier. NEW
+#               SECTION (C) of VERIFY_SYSTEM, generated from a new RULED_ALLOWED list.
+#               ⚠️ IT IS DATA, NOT PROSE, and for the reason px already paid for: the
+#               conduct list was hand-maintained and drifted three times (jk, ni, pq)
+#               before px generated it. A ruling list buried in a 3,000-character prompt
+#               would drift the same way. ⚠️ EVERY ENTRY SILENCES A CLASS OF FINDING, so
+#               every entry carries a BOUNDARY that is still fully enforced -- here, the
+#               CHILD-nouns ("most kids", "a lot of students", ages, grades,
+#               percentiles) are untouched and still confirmed on sight. The report
+#               names each standing ruling every night, because a ruling that silences
+#               findings must never do it quietly. PART 3ie pins all four.
 #   2026-08-31  BUILD qy -- THE CEILING WAS TOO LOW FOR THE ROOM. The 2026-08-31 watch ran
 #               8 of the rotation's 12 lesson slots and then the default 45-minute budget
 #               cut it off -- 2 scenarios were skipped outright, not just delayed. Jim, when
@@ -189,10 +237,21 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # to 90 for margin over a heavier finding night (each finding costs one more
 # verify_finding call). Jim said "yes, raise it" without naming a ceiling; this sizes it
 # to cover the full rotation with room to spare, per the offer made when asking.
-LESSONS_PER_NIGHT = int(os.environ.get("NIGHTWATCH_LESSONS", "12") or 12)
-TURNS_PER_LESSON  = int(os.environ.get("NIGHTWATCH_TURNS", "6") or 6)
-MAX_MINUTES       = int(os.environ.get("NIGHTWATCH_MAX_MINUTES", "90") or 90)
-RUN_HOUR_UTC      = int(os.environ.get("NIGHTWATCH_HOUR_UTC", "8") or 8)   # ~1am Pacific
+# (sh, 2026-09-03) THE FILE'S OWN DEFAULTS, as named constants, so the report can say
+# when the ENVIRONMENT has moved one of them. Three watches in a row (08-31, 09-01,
+# 09-02) reported "10 lessons" while this file said 12, and the report could not answer
+# the question it raised -- shrunken rotation? skipped slots? changed constant? -- because
+# it never printed what it was TOLD to do, only what happened. env_overrides() below is
+# that missing half, and a knob moved in Render now leaves a trace in the morning report.
+_DEFAULT_LESSONS     = 12
+_DEFAULT_TURNS       = 6
+_DEFAULT_MAX_MINUTES = 90
+_DEFAULT_HOUR_UTC    = 8   # ~1am Pacific
+
+LESSONS_PER_NIGHT = int(os.environ.get("NIGHTWATCH_LESSONS", "") or _DEFAULT_LESSONS)
+TURNS_PER_LESSON  = int(os.environ.get("NIGHTWATCH_TURNS", "") or _DEFAULT_TURNS)
+MAX_MINUTES       = int(os.environ.get("NIGHTWATCH_MAX_MINUTES", "") or _DEFAULT_MAX_MINUTES)
+RUN_HOUR_UTC      = int(os.environ.get("NIGHTWATCH_HOUR_UTC", "") or _DEFAULT_HOUR_UTC)
 VERIFY_FINDINGS   = (os.environ.get("NIGHTWATCH_VERIFY", "on").strip().lower()
                      not in ("off", "0", "false", "no"))
 LEDGER_NAME       = "nightwatch_ledger.json"
@@ -202,6 +261,78 @@ KEEP_REPORTS      = int(os.environ.get("NIGHTWATCH_KEEP", "30") or 30)
 
 def enabled() -> bool:
     return os.environ.get("NIGHTWATCH", "on").strip().lower() not in ("off", "0", "false", "no")
+
+
+def env_overrides() -> list:
+    """(sh) Which of this file's budget defaults the ENVIRONMENT has moved, one readable
+    line each. A knob changed in Render leaves NO other trace -- there is no deploy, no
+    commit and no log line -- so "why did it run 10 and not 12?" cost three watches to
+    not-answer. The report prints these; a quiet night prints nothing extra."""
+    pairs = (("NIGHTWATCH_LESSONS", LESSONS_PER_NIGHT, _DEFAULT_LESSONS),
+             ("NIGHTWATCH_TURNS", TURNS_PER_LESSON, _DEFAULT_TURNS),
+             ("NIGHTWATCH_MAX_MINUTES", MAX_MINUTES, _DEFAULT_MAX_MINUTES),
+             ("NIGHTWATCH_HOUR_UTC", RUN_HOUR_UTC, _DEFAULT_HOUR_UTC))
+    out = [f"{nm} = {cur} (this file's default is {dflt})"
+           for nm, cur, dflt in pairs if cur != dflt]
+    if not VERIFY_FINDINGS:
+        out.append("NIGHTWATCH_VERIFY = off (findings ship unjudged)")
+    return out
+
+
+# =============================================================================
+# THE CLOCK ON AN EVENT (sh, 2026-09-03)
+# =============================================================================
+# A distinct crash reason with no timestamp cannot be told apart from its own ghost. The
+# 09-01 triage had to HOLD every telemetry line it read -- the haiku-4.5 404s, the "Extra
+# data" JSON parses, the DeepSeek 402s -- with the note "the window has not yet rolled
+# past them", because the report showed a 7-day COUNT and no dates. recent_events has
+# carried `at` since build ha; the report simply never asked for it.
+_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+
+def _parse_at(raw):
+    """An event's ISO timestamp as an aware UTC datetime, or None. Never raises: a row
+    whose clock is unreadable still gets to print its reason."""
+    try:
+        s = str(raw or "").strip()
+        if not s:
+            return None
+        if s.endswith("Z"):
+            s = s[:-1] + "+00:00"
+        dt = datetime.fromisoformat(s)
+        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _ago(dt, now=None) -> str:
+    """How stale one sighting is, in words a tired reader can take at a glance."""
+    if not dt:
+        return ""
+    secs = ((now or datetime.now(timezone.utc)) - dt).total_seconds()
+    if secs < 0:
+        return "just now"
+    if secs < 3600:
+        return f"{int(secs // 60)}m ago"
+    if secs < 86400:
+        return f"{int(secs // 3600)}h ago"
+    return f"{int(secs // 86400)}d ago"
+
+
+def _age_line(newest, oldest, n, now=None) -> str:
+    """THE GHOST TEST, on one line: how many, how recently, over what span. A reason
+    whose NEWEST sighting is days old is draining out of the 7-day window and needs no
+    action. One with a fresh newest is LIVE, and that is today's problem."""
+    now = now or datetime.now(timezone.utc)
+    if not newest:
+        return f"_{n}x - no timestamps on these rows_"
+    fresh = (now - newest).total_seconds() < 86400
+    bits = [f"{n}x",
+            ("⚠️ **LIVE** - newest " if fresh else "last seen ")
+            + newest.strftime("%Y-%m-%d %H:%M UTC") + f" ({_ago(newest, now)})"]
+    if oldest and oldest != newest:
+        bits.append(f"first {oldest.strftime('%Y-%m-%d %H:%M UTC')} ({_ago(oldest, now)})")
+    return "_" + " · ".join(bits) + "_"
 
 
 # =============================================================================
@@ -314,7 +445,16 @@ THIS TUTOR IS JUDGED ON TWO THINGS, NOT ONE.
     CONDUCT finding under (B):
 {RULE_INDEX}
 
+(C) RULINGS ALREADY TAKEN. The shapes below were put to the person who owns this
+    product and were RULED ALLOWED. They are not defects, however well they match the
+    wording of the rule they sit under, and re-confirming one costs a real morning. A
+    finding that describes one of them is REFUTED -- say "ruled allowed" and name the
+    date. Each ruling carries its own BOUNDARY, and the boundary is still fully
+    enforced: a finding that crosses it is judged normally under (A) and (B).
+{RULED_ALLOWED}
+
 REFUTE the finding if ANY of these hold:
+- the finding describes a shape from (C) above and stays inside that ruling's boundary
 - the quoted words are not actually in the transcript, or are quoted misleadingly
 - the maths is correct under standard conventions, however surprising it looks
 - the "problem" is a decided design of this product: the check-in wording
@@ -350,6 +490,68 @@ Return STRICT JSON only:
 """
 
 
+# =============================================================================
+# THE RULED-ALLOWED LIST (sh, 2026-09-03)
+# =============================================================================
+# WHY THIS EXISTS. The 2026-09-02 watch confirmed "Everybody feels stuck before they
+# learn something new" as a rule-42 defect. It is not one. Build pq had already cut the
+# bare people-words from the referee's wordlist after finding them in 21 authored
+# teaching cards, with the reason pinned and the instruction "do not add it back"; build
+# rn put the question to Jim directly and he RULED them legal. The reviewer was never
+# told, so it re-confirmed a shape that had been settled two builds earlier -- and a
+# governor that reports a closed question as a new finding spends exactly the attention
+# it was built to save.
+#
+# THE DISCIPLINE THAT MADE THIS A LIST AND NOT A SENTENCE. VERIFY_SYSTEM's conduct list
+# was hand-maintained for four builds and drifted three times (jk, ni, pq) before px
+# generated it from the registry. A ruling list will drift the same way if it is prose
+# buried in a prompt. It is DATA here: one entry per ruling, each with the date, the
+# ruling in the owner's own words where they exist, and the boundary that is still
+# enforced. The battery pins it (PART 3ie), the report names it, and adding the next
+# ruling is one dict -- not an edit to a 3,000-character prompt nobody re-reads.
+#
+# ⚠️ THE BOUNDARY IS THE WHOLE SAFETY OF THIS MECHANISM. Every entry here SILENCES a
+# class of finding. An entry written one word too wide silences real defects and nothing
+# will ever tell us. Write the boundary before the shape.
+RULED_ALLOWED = [
+    {
+        "rule": 42,
+        "date": "2026-09-01",
+        "shape": 'the PEOPLE-forms -- "a lot of people", "most people", "everyone", '
+                 '"everybody", "folks", "beginners" -- used to normalise a struggle or '
+                 "to say how hard an IDEA is",
+        "ruling": "Jim, 2026-09-01, asked directly and answering directly: it "
+                  '"normalizes struggle without naming kids, classmates, or ages." '
+                  "Build pq had already cut these words from the rule-42 referee after "
+                  "a canon sweep found them in 21 authored teaching cards doing honest "
+                  'work -- the "denominator" foundation says "that surprises a lot of '
+                  'people" and means the fraction, not the child.',
+        "boundary": "THE CHILD-NOUNS ARE NOT COVERED and remain real rule-42 defects, "
+                    'caught by a live referee every time: "most kids", "a lot of '
+                    'students", "other children", "learners", and every age, grade, '
+                    "percentile or class average. The test is what the sentence "
+                    "MEASURES. If it measures this student against a room of CHILDREN, "
+                    "confirm it -- the ruling does not reach it.",
+    },
+]
+
+
+def _ruled_allowed_lines():
+    """The (C) block, rendered from RULED_ALLOWED. A ruling with no boundary would be a
+    blank cheque, so an entry missing one is rendered with a loud placeholder rather
+    than quietly silencing more than it was given."""
+    if not RULED_ALLOWED:
+        return "      (no standing rulings -- judge every finding on (A) and (B))"
+    out = []
+    for r in RULED_ALLOWED:
+        out.append(f"      - RULE {r.get('rule')} · RULED ALLOWED {r.get('date')} · "
+                   f"{r.get('shape')}")
+        out.append(f"          the ruling: {r.get('ruling')}")
+        out.append(f"          the boundary (still enforced): "
+                   f"{r.get('boundary') or '⚠️ NONE RECORDED -- judge this one normally'}")
+    return "\n".join(out)
+
+
 def _rule_index_lines():
     """The (B) index: one line per numbered rule, read from the tutor's own registry
     (tutor.rule_titles -- the same extraction that generates RULES.md). Fails open
@@ -365,9 +567,13 @@ def _rule_index_lines():
 
 
 def render_verify_system():
-    """VERIFY_SYSTEM with the (B) index filled from the registry. Rendered once at
-    import (the constant below) and callable again so a test can see it fresh."""
-    return _VERIFY_TEMPLATE.replace("{RULE_INDEX}", _rule_index_lines())
+    """VERIFY_SYSTEM with the (B) index filled from the registry and the (C) rulings
+    filled from RULED_ALLOWED. Rendered once at import (the constant below) and callable
+    again so a test can see it fresh. .replace and not .format on purpose: the template
+    ends with a literal JSON object, and str.format would choke on its braces."""
+    return (_VERIFY_TEMPLATE
+            .replace("{RULE_INDEX}", _rule_index_lines())
+            .replace("{RULED_ALLOWED}", _ruled_allowed_lines()))
 
 
 VERIFY_SYSTEM = render_verify_system()
@@ -440,7 +646,13 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
            # (qh) the OUTAGE tally: fallback turns against turns attempted. A night
            # where every turn was an apology must not read as "23 findings".
            "fallback_turns": 0, "turns_total": 0,
-           "budget_stopped": False, "probes_run": sorted((probe_hooks or {}).keys())}
+           "budget_stopped": False, "probes_run": sorted((probe_hooks or {}).keys()),
+           # (sh) WHAT WE WERE TOLD TO DO, beside what we did. "ran: 10" is a number;
+           # the roster is the answer. Every slot the rotation picked, in order, with
+           # its own outcome -- so "12 picked, 10 ran" carries the two names that
+           # explain it instead of costing a fourth watch to guess at.
+           "roster": [], "picked": [], "repeats": 0, "scenarios_available": 0,
+           "lessons_requested": 0, "turns_requested": 0}
     try:
         import lessonaudit
     except Exception as exc:  # noqa: BLE001
@@ -449,6 +661,12 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
 
     lessons = int(lessons or LESSONS_PER_NIGHT)
     turns = int(turns or TURNS_PER_LESSON)
+    # (sh) RECORDED BEFORE PREFLIGHT, DELIBERATELY. A night that cannot start is exactly
+    # the night you want the budget line for -- "told to run 12 x 6, ran none, preflight
+    # said no key" is a diagnosis; "the watch did not complete" is a shrug.
+    out["lessons_requested"] = lessons
+    out["turns_requested"] = turns
+    out["scenarios_available"] = len(getattr(lessonaudit, "SCENARIOS", None) or [])
     ok, note = lessonaudit.preflight()
     if not ok:
         out["errors"].append(f"preflight failed, nothing was run: {note}")
@@ -458,10 +676,25 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
     picked = pick_tonight(lessonaudit.SCENARIOS, lessons, day_index(now))
     deadline = started + MAX_MINUTES * 60
 
+    # (sh) THE ROSTER, built BEFORE the first lesson runs, so a night that dies halfway
+    # still says what it meant to do. A slot that is never reached stays "not reached" --
+    # which is itself a finding, and one the old report could not express at all.
+    out["picked"] = [sc.get("id") for sc in picked]
+    _times_seen = {}
     for sc in picked:
+        _k = sc.get("id")
+        _times_seen[_k] = _times_seen.get(_k, 0) + 1
+        out["roster"].append({"id": _k, "course": sc.get("course"),
+                              "repeat": _times_seen[_k] > 1,
+                              "outcome": "not reached", "note": ""})
+    out["repeats"] = sum(1 for r in out["roster"] if r["repeat"])
+
+    for _slot, sc in enumerate(picked):
         if time.time() > deadline:
             out["budget_stopped"] = True
             out["skipped"].append(f"{sc['id']} (time budget of {MAX_MINUTES} min reached)")
+            out["roster"][_slot]["outcome"] = "skipped"
+            out["roster"][_slot]["note"] = f"time budget of {MAX_MINUTES} min reached"
             continue
         try:
             # build hq: run_scenario now also returns the measured prompt size
@@ -470,8 +703,11 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
             transcript, err, fallbacks, _pchars = lessonaudit.run_scenario(sc, turns)
             if err:
                 out["errors"].append(f"{sc['id']}: {err}")
+                out["roster"][_slot]["outcome"] = "error"
+                out["roster"][_slot]["note"] = str(err)[:200]
                 continue
             out["ran"] += 1
+            out["roster"][_slot]["outcome"] = "ran"
             out["turns_total"] += int(turns or 0)          # (qh)
             out["fallback_turns"] += int(fallbacks or 0)   # (qh)
             if fallbacks:
@@ -498,6 +734,9 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
             findings, cerr = lessonaudit.critique(sc, transcript)
             if cerr:
                 out["errors"].append(f"{sc['id']} critic: {cerr}")
+                # The LESSON ran; the CRITIC did not. Both facts are true and the
+                # roster says both, because "ran" alone would imply it was judged.
+                out["roster"][_slot]["note"] = f"taught, but not judged -- critic: {str(cerr)[:160]}"
                 continue
             for f in (findings or {}).get("findings", []) or []:
                 if not VERIFY_FINDINGS:
@@ -538,6 +777,9 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
                                                 "reviewer": why})
         except Exception as exc:  # noqa: BLE001 -- one bad lesson never ends the night
             out["errors"].append(f"{sc['id']}: {type(exc).__name__}: {exc}")
+            if out["roster"][_slot]["outcome"] != "ran":
+                out["roster"][_slot]["outcome"] = "crashed"
+            out["roster"][_slot]["note"] = f"{type(exc).__name__}: {exc}"[:200]
             print(f"[nightwatch] {sc['id']} crashed: {traceback.format_exc()[:800]}")
 
     save_ledger(data_dir, ledger)
@@ -575,7 +817,8 @@ _SEV = {"high": 0, "medium": 1, "low": 2}
 def report_markdown(result, build="") -> str:
     new = sorted(result.get("new", []),
                  key=lambda f: _SEV.get(str(f.get("severity")).lower(), 3))
-    stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    nowdt = datetime.now(timezone.utc)
+    stamp = nowdt.strftime("%Y-%m-%d %H:%M UTC")
     L = [f"# Night watch — {stamp}" + (f"  (build {build})" if build else ""), "",
          f"{result.get('ran', 0)} lessons run · **{len(new)} new confirmed** · "
          f"{result.get('recurring', 0)} already known · {result.get('refuted', 0)} refuted "
@@ -585,6 +828,29 @@ def report_markdown(result, build="") -> str:
          + (f" · ⚠️ **{len(result.get('harness_gap') or [])} unjudged "
             f"(rule not in the reviewer's list)**"
             if result.get("harness_gap") else ""), ""]
+
+    # (sh) ⭐ WHAT THIS WATCH WAS TOLD TO DO. Three watches in a row (08-31, 09-01,
+    # 09-02) reported "10 lessons" against a file that says twelve, and each triage had
+    # to write the same sentence: "still unexplained". The report could not settle it
+    # because it printed only what HAPPENED. Shrunken rotation, skipped slots and a
+    # changed constant all look identical in a bare count -- and they are three
+    # different problems with three different fixes. The budget line and the roster
+    # below make the question answer itself, every night, for good.
+    _req, _avail = int(result.get("lessons_requested") or 0), int(result.get("scenarios_available") or 0)
+    if _req or _avail:
+        L += ["_Told to run **{r}** lesson(s) x {t} turns, drawn from **{a}** scenario(s)"
+              "{rep} · ceiling {m} min · adversarial verify {v}._".format(
+                  r=_req, t=int(result.get("turns_requested") or 0), a=_avail,
+                  rep=(f"; {result['repeats']} slot(s) are repeats because the rotation "
+                       f"is wider than the list" if result.get("repeats") else ""),
+                  m=MAX_MINUTES, v=("on" if VERIFY_FINDINGS else "**OFF**")), ""]
+    _ov = env_overrides()
+    if _ov:
+        L += ["> ⚠️ **The environment has moved this watch's budget.** These are set in "
+              "Render, not in the code, so nothing else anywhere records them:"]
+        L += [f"> - `{o}`" for o in _ov]
+        L += ["", ""]
+
     # (qh) ⭐ THE OUTAGE BANNER. 2026-08-30: the first night on the DeepSeek seat
     # produced "23 new confirmed" -- and every one of them was the same sentence,
     # "(I'm having trouble thinking right now)", because the seat raised on all 120
@@ -675,14 +941,37 @@ def report_markdown(result, build="") -> str:
               f"- replies shipped WITH a known finding: **{passed}**"
               + (" ← should be zero" if passed else ""),
               f"- teaching-path fail-opens (friendly-message turns): **{fails}**",
-              f"- referee fires: {_tot('referee_fire')} · probe observations: "
+              f"- referee fires: **{_tot('referee_fire')}** · probe observations: "
               f"{_tot('probe')} · prompt-size events: {_tot('promptsize')}", ""]
+
         alarm = []
         for kind in ("referee_crash", "clienterror", "pass_through"):
             for nm, n in sorted((counts.get(kind) or {}).items(), key=lambda kv: -kv[1])[:5]:
                 alarm.append(f"  - {kind} · {nm}: {n}×")
         if alarm:
             L += ["  The named offenders:"] + alarm + [""]
+
+        # (sh) ⭐ WHICH REFEREES FIRED. This count has been on the report since build ha
+        # and has never once been actionable. "507 referee fires" says the machine is
+        # awake; it does not say which rule is being broken, and it cannot score a new
+        # referee against the class it was built for. The 09-01 and 09-02 triages both
+        # asked for this split BY NAME and both had to give up on it -- the fracslash /
+        # secondtriangle / countedask / knownfalse scoreboard was unreadable from the
+        # report. event_stats has grouped by name all along (the "named offenders" block
+        # right above uses exactly that); this one kind simply threw the names away.
+        fires = sorted(((nm, n) for nm, n in (counts.get("referee_fire") or {}).items()),
+                       key=lambda kv: (-kv[1], kv[0]))
+        if fires:
+            L += [f"  Which referees fired ({len(fires)} distinct, most-fired first):"]
+            L += [f"  - **{nm or '(unnamed)'}**: {n}x" for nm, n in fires[:25]]
+            if len(fires) > 25:
+                L += [f"  - ...and {len(fires) - 25} more referee(s), "
+                      f"{sum(n for _, n in fires[25:])} fires between them"]
+            L += [""]
+        elif _tot("referee_fire"):
+            L += ["  ⚠️ Referee fires were counted but not one carried a NAME, so the "
+                  "split cannot be read. That is a hole in the eyes, not a quiet week.",
+                  ""]
 
         # (pq) AND WHAT THEY ACTUALLY SAID. event_stats groups by (kind, name) and
         # DROPS the detail column, so for weeks this report could say
@@ -701,17 +990,42 @@ def report_markdown(result, build="") -> str:
                                         kinds=["referee_crash", "clienterror",
                                                "failopen", "seat_fallback",
                                                "privacy_gate"])
-            seen, reasons = set(), []
+            # (sh) ⭐ AND WHEN THEY SAID IT. pq gave this block the reason; it never
+            # gave it a CLOCK, and without one a reason cannot be told apart from its
+            # own ghost. The 09-01 triage had to HOLD every line it read here -- the
+            # haiku-4.5 404s, the "Extra data" JSON parses, the ended DeepSeek trial's
+            # 402s -- with the note "the window has not yet rolled past them", and then
+            # the 09-02 triage had to hold them again. Each distinct reason now carries
+            # how many times, how recently, and over what span. The rule is one line and
+            # a reader can apply it in a second: an old newest is draining out; a fresh
+            # newest is a live regression. `at` has been on every row since build ha.
+            agg = {}
             for r in rows:
                 d = " ".join(str(r.get("detail") or "").split())[:240] or "(no detail recorded)"
                 k = (r.get("kind"), r.get("name"), d)
-                if k in seen:
-                    continue
-                seen.add(k)
-                reasons.append(f"  - `{r.get('kind')}` · **{r.get('name')}** — {d}")
+                at = _parse_at(r.get("at"))
+                a = agg.setdefault(k, {"n": 0, "newest": None, "oldest": None})
+                a["n"] += 1
+                if at:
+                    if not a["newest"] or at > a["newest"]:
+                        a["newest"] = at
+                    if not a["oldest"] or at < a["oldest"]:
+                        a["oldest"] = at
+            reasons = []
+            for (kind, nm, d), a in sorted(agg.items(),
+                                           key=lambda kv: (kv[1]["newest"] or _EPOCH),
+                                           reverse=True):
+                reasons.append([f"  - `{kind}` · **{nm}** — {d}",
+                                "    " + _age_line(a["newest"], a["oldest"], a["n"], nowdt)])
             if reasons:
-                L += ["  What they actually said (distinct reasons, newest first):"]
-                L += reasons[:12]
+                L += ["  What they actually said, and WHEN (distinct reasons, newest "
+                      "sighting first):",
+                      "  _A reason whose newest sighting is days old is draining out of "
+                      "the 7-day window — a ghost, already fixed or already ended. A "
+                      "reason marked LIVE was seen in the last 24 hours and is today's "
+                      "problem._"]
+                for pair in reasons[:12]:
+                    L += pair
                 if len(reasons) > 12:
                     L += [f"  - ...and {len(reasons) - 12} more distinct reason(s)"]
                 L += [""]
@@ -724,6 +1038,29 @@ def report_markdown(result, build="") -> str:
     except Exception as _exc:  # noqa: BLE001
         L += ["## The week's telemetry", "", f"- (unavailable: {_exc})", ""]
 
+    # (sh) THE ROTATION, NAMED. The 08-20 watch filed this as F2 and it was never
+    # closed: the report prints sc["id"] with no course and no duplicate marker, so a
+    # SKIPPED DUPLICATE reads as a missing scenario, and "order-of-operations" once
+    # appeared in the skip list while also producing the night's only finding. Naming
+    # every slot with its outcome makes a repeat readable AS a repeat.
+    roster = result.get("roster") or []
+    if roster:
+        _n = lambda kind: sum(1 for r in roster if r.get("outcome") == kind)
+        L += ["## The rotation tonight", "",
+              f"_{len(roster)} slot(s) picked · {_n('ran')} ran · {_n('skipped')} skipped "
+              f"· {_n('error')} errored · {_n('crashed')} crashed · "
+              f"{_n('not reached')} never reached._", ""]
+        _mark = {"ran": "✅", "skipped": "⏭️", "error": "❌", "crashed": "💥",
+                 "not reached": "⬜"}
+        for r in roster:
+            oc = r.get("outcome") or "?"
+            L += ["- " + _mark.get(oc, "·") + f" **{r.get('id')}**"
+                  + (f" ({r.get('course')})" if r.get("course") else "")
+                  + (" — _repeat slot_" if r.get("repeat") else "")
+                  + ("" if oc == "ran" else f" — **{oc}**")
+                  + (f" — {r.get('note')}" if r.get("note") else "")]
+        L += [""]
+
     # WHAT WE DID NOT DO. A silent cap reads as "all clear".
     L += ["## What this run did not cover", ""]
     probes = result.get("probes_run") or []
@@ -732,6 +1069,14 @@ def report_markdown(result, build="") -> str:
           "harness calls the tutor directly",
           "- the rendered SCREEN is not judged here (that is screencheck.py, which runs "
           "in ruletests on every push)"]
+    # (sh) A RULING THAT SILENCES FINDINGS MUST STAY VISIBLE. The reviewer refuses to
+    # confirm these shapes because a person ruled on them, not because it judged them --
+    # so the report says so out loud every night. If one of these ever turns out to be
+    # wrong, this line is where it gets caught.
+    for _r in RULED_ALLOWED:
+        L += [f"- rule {_r.get('rule')}'s ruled-allowed shape ({_r.get('date')}) is "
+              f"REFUTED on sight by the reviewer, by ruling and not by judgment — "
+              f"{_r.get('shape')}"]
     for s in result.get("skipped", []):
         L += [f"- SKIPPED: {s}"]
     if result.get("budget_stopped"):

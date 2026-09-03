@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-03  BUILD sh -- PART 3ie: the watch says what it was told to do. Four
+#               report holes, each named by a triage that then gave up on it: the
+#               10-vs-12 question (asked three watches running -- the report printed
+#               only what HAPPENED, so a shrunken rotation, skipped slots and a changed
+#               constant all looked identical); 507 referee fires with no names; crash
+#               reasons with no clock, so a ghost and a live regression read the same;
+#               and a reviewer never told about Jim's 09-01 rule-42 ruling, which
+#               re-confirmed a shape settled two builds earlier. The ruling checks pin
+#               the BOUNDARY as hard as the ruling -- an entry here silences a class of
+#               finding, and nothing else would ever tell us it was written too wide.
 #   2026-09-02  BUILD sg -- PART 3id: the sweep stays out of the code. Jim live:
 #               "This opened and nothing happened. NO voice" -- the sd sweep had
 #               renamed feed.children to feed.students (3 pages), .children on
@@ -21695,10 +21705,217 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,368</b>" in page,
+          "<b>8,394</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
+
+
+def part3ie_the_watch_says_what_it_was_told_to_do():
+    """PART 3ie (build sh, 2026-09-03) -- THE WATCH SAYS WHAT IT WAS TOLD TO DO.
+
+    FOUR REPORT HOLES, each one named by a triage that then had to give up on it.
+
+    ① THE 10-vs-12 QUESTION, ASKED THREE WATCHES RUNNING. 08-31, 09-01 and 09-02
+    all reported "10 lessons" against LESSONS_PER_NIGHT = 12; the 09-02 triage
+    wrote "STILL 10 -- still unexplained. Third watch in a row." Unanswerable,
+    because the report printed only what HAPPENED: a shrunken rotation, two
+    skipped slots and a changed constant give the identical number and want three
+    different fixes. The report now prints the budget it was GIVEN, banners any
+    env var that has moved one of the file's defaults (a Render knob leaves no
+    other trace -- no deploy, no commit, no log line), and NAMES the rotation
+    slot by slot with each outcome. That closes the 08-20 watch's F2, open since
+    August: sc["id"] printed with no duplicate marker, so a skipped DUPLICATE read
+    as a missing scenario.
+
+    ② 507 REFEREE FIRES, NO NAMES -- a counter on the report since build ha that
+    has never once been actionable. Split by name now, most-fired first.
+
+    ③ A REASON WITH NO CLOCK IS ITS OWN GHOST. pq gave the report the crash
+    reason and no date, so 09-01 held every line ("the window has not yet rolled
+    past them") and 09-02 held them again. Count, newest, oldest and an age now,
+    with the ghost test printed in one sentence.
+
+    ④ THE REVIEWER WAS NEVER TOLD ABOUT THE RULINGS, so the 09-02 watch CONFIRMED
+    "Everybody feels stuck before they learn something new" -- a shape pq cut from
+    the referee after finding it in 21 authored cards, and rn put to Jim, who
+    ruled it legal. New VERIFY_SYSTEM section (C), generated from RULED_ALLOWED.
+    ⚠️ DATA, NOT PROSE, for the reason px paid for (the conduct list drifted three
+    times while hand-maintained). ⚠️ EVERY ENTRY SILENCES A CLASS OF FINDING, so
+    the checks below pin the BOUNDARY as hard as the ruling: the child-nouns must
+    still be judged, and the live referee must still fire on them."""
+    print("\nPART 3ie — the watch says what it was told to do (build sh)")
+    import importlib
+    import datetime as _dt
+    import nightwatch as NW
+
+    # ---- ① the budget, the overrides, and the roster -------------------------
+    res = {"ok": True, "ran": 10, "new": [], "recurring": 0, "refuted": 0,
+           "seconds": 1.0, "lessons_requested": 12, "turns_requested": 6,
+           "scenarios_available": 10, "repeats": 2,
+           "roster": [{"id": "alpha", "course": "basic", "repeat": False,
+                       "outcome": "ran", "note": ""},
+                      {"id": "bravo", "course": "prealgebra", "repeat": False,
+                       "outcome": "error", "note": "the model timed out"},
+                      {"id": "alpha", "course": "basic", "repeat": True,
+                       "outcome": "skipped", "note": "time budget reached"}]}
+    rep_md = NW.report_markdown(res, build="sh-test")
+    check("⭐ the report says what it was TOLD to do, not just what happened",
+          "Told to run **12** lesson(s)" in rep_md
+          and "drawn from **10** scenario(s)" in rep_md,
+          "three watches in a row reported 10 against a file that said 12 and no "
+          "reader could tell which of the three causes it was")
+    check("  ...and it says the rotation is wider than the scenario list",
+          "2 slot(s) are repeats" in rep_md,
+          "the repeat is the whole reason 12 slots cover 10 scenarios")
+    check("⭐ the rotation is NAMED, slot by slot, with each outcome",
+          "## The rotation tonight" in rep_md and "**alpha**" in rep_md
+          and "**bravo**" in rep_md and "**error**" in rep_md,
+          "'ran: 10' is a number; the roster is the answer")
+    check("  ...and a REPEAT slot is readable as a repeat (the 08-20 F2)",
+          "_repeat slot_" in rep_md,
+          "a skipped duplicate used to read as a missing scenario")
+    check("  ...and the slot tally is printed, not left to be counted by hand",
+          "3 slot(s) picked" in rep_md and "1 ran" in rep_md, "")
+
+    # a night that could not START must still print its budget -- that is when it matters
+    dead = {"ok": False, "ran": 0, "new": [], "seconds": 0.0,
+            "lessons_requested": 12, "turns_requested": 6,
+            "scenarios_available": 10, "repeats": 0, "roster": [],
+            "errors": ["preflight failed, nothing was run: no key"]}
+    check("⭐ a watch that could not START still says what it was told to do",
+          "Told to run **12** lesson(s)" in NW.report_markdown(dead),
+          "'the watch did not complete' is a shrug; the budget line is a diagnosis")
+
+    # the env banner: the knob that leaves no other trace anywhere
+    _saved = os.environ.get("NIGHTWATCH_LESSONS")
+    try:
+        os.environ["NIGHTWATCH_LESSONS"] = "10"
+        importlib.reload(NW)
+        check("⭐ an env var that moves a budget default is BANNERED in the report",
+              any("NIGHTWATCH_LESSONS = 10" in o for o in NW.env_overrides()),
+              "a Render knob leaves no deploy, no commit and no log line -- if the "
+              "report does not say it, nothing does")
+        check("  ...and the file's own defaults are stated beside it",
+              any("default is 12" in o for o in NW.env_overrides()), "")
+    finally:
+        if _saved is None:
+            os.environ.pop("NIGHTWATCH_LESSONS", None)
+        else:
+            os.environ["NIGHTWATCH_LESSONS"] = _saved
+        importlib.reload(NW)
+    check("  ...and a watch running on the file's own defaults banners NOTHING",
+          NW.env_overrides() == [],
+          "an unconditional banner is noise, and noise is how a report gets ignored")
+
+    # ---- ② the per-referee split --------------------------------------------
+    import types as _types
+    _real_store = sys.modules.get("store")
+    _fake = _types.ModuleType("store")
+    _fake.event_stats = lambda days=7: {"days": days, "total": 0, "counts": {
+        "referee_fire": {"fracslash": 121, "knownfalse": 98, "spokenmath": 31},
+        "referee_crash": {"livecritic": 2}}}
+    _now = _dt.datetime.now(_dt.timezone.utc)
+    _fake.recent_events = lambda **k: [
+        {"kind": "referee_crash", "name": "livecritic", "detail": "model not found",
+         "at": (_now - _dt.timedelta(days=6)).isoformat()},
+        {"kind": "referee_crash", "name": "livecritic", "detail": "model not found",
+         "at": (_now - _dt.timedelta(days=6, hours=3)).isoformat()},
+        {"kind": "referee_crash", "name": "mathcheck", "detail": "tuple has no free_symbols",
+         "at": (_now - _dt.timedelta(hours=2)).isoformat()}]
+    sys.modules["store"] = _fake
+    try:
+        tel = NW.report_markdown(res, build="sh-test")
+    finally:
+        if _real_store is None:
+            sys.modules.pop("store", None)
+        else:
+            sys.modules["store"] = _real_store
+
+    check("⭐ referee fires are split BY NAME, most-fired first",
+          "Which referees fired (3 distinct" in tel
+          and tel.index("**fracslash**: 121x") < tel.index("**knownfalse**: 98x")
+          < tel.index("**spokenmath**: 31x"),
+          "'507 referee fires' says the machine is awake, not which rule is breaking")
+    check("  ...and the bare total is still there for the trend",
+          "referee fires: **250**" in tel, "121 + 98 + 31")
+
+    # ---- ③ the ghost test ----------------------------------------------------
+    check("⭐ a reason seen in the last 24h is marked LIVE",
+          "**LIVE**" in tel and "tuple has no free_symbols" in tel,
+          "a fresh reason is a regression and must not read like a ghost")
+    check("  ...and a reason last seen days ago carries its age, not a bare count",
+          "6d ago" in tel and "last seen" in tel,
+          "09-01 and 09-02 both had to hold every telemetry line for want of a date")
+    check("  ...and a repeated reason is counted, not repeated",
+          "2x · " in tel and tel.count("model not found") == 1,
+          "distinct reasons only -- one line per reason, with its span")
+    check("  ...and the reader is given the test in one sentence",
+          "draining out of the 7-day window" in tel, "")
+
+    # ---- ④ the ruled-allowed list, and its boundary --------------------------
+    check("⭐ RULED_ALLOWED is DATA, not prose buried in a prompt",
+          isinstance(NW.RULED_ALLOWED, list) and len(NW.RULED_ALLOWED) >= 1
+          and all(isinstance(r, dict) for r in NW.RULED_ALLOWED),
+          "the conduct list drifted three times (jk, ni, pq) while hand-maintained; "
+          "px generated it, and a ruling list must not repeat the mistake")
+    check("  ...and EVERY entry carries a boundary — an entry without one is a "
+          "blank cheque",
+          all((r.get("boundary") or "").strip() and (r.get("date") or "").strip()
+              and r.get("rule") is not None for r in NW.RULED_ALLOWED),
+          "every entry here SILENCES a class of finding; the boundary is the only "
+          "thing keeping it narrow, and nothing would ever tell us it was too wide")
+    vs = NW.render_verify_system()
+    check("⭐ the reviewer is TOLD the rule-42 people-forms were ruled allowed",
+          "RULINGS ALREADY TAKEN" in vs and "RULE 42" in vs
+          and "2026-09-01" in vs and "a lot of people" in vs,
+          "the 09-02 watch confirmed 'Everybody feels stuck...' -- a shape pq cut "
+          "and Jim ruled legal two builds earlier")
+    check("  ...in Jim's own words, so the ruling cannot drift in paraphrase",
+          "normalizes struggle without naming kids, classmates, or ages" in vs,
+          "his ruling, verbatim, 2026-09-01")
+    check("⭐ ...and the BOUNDARY rides with it: the child-nouns are NOT allowed",
+          "CHILD-NOUNS ARE NOT COVERED" in vs and "most kids" in vs
+          and "a lot of students" in vs and "percentile" in vs,
+          "a ruling one word too wide silences real defects silently -- this is the "
+          "one check that would catch it")
+    check("  ...and the reviewer is told to refute only INSIDE that boundary",
+          "stays inside that ruling's boundary" in vs, "")
+    check("  ...and no placeholder survives into the prompt the reviewer sees",
+          "{RULED_ALLOWED}" not in vs and "{RULE_INDEX}" not in vs,
+          "an unrendered placeholder would ship the word '{RULED_ALLOWED}' to the "
+          "model as if it were an instruction")
+    check("⭐ a ruling that silences findings is NAMED in the report every night",
+          "REFUTED on sight by the reviewer, by ruling and not by judgment" in rep_md
+          and "rule 42's ruled-allowed shape (2026-09-01)" in rep_md,
+          "a silence nobody can see is how a wrong ruling survives forever")
+
+    # ---- the standing guarantee: none of this may break /admin ---------------
+    import tempfile as _tf
+    _d = _tf.mkdtemp()
+    NW.write_report(_d, res, build="sh-test")
+    _s = NW.summary(_d)
+    check("⭐ summary() still parses the report it is handed (the /admin metric)",
+          _s.get("last_minutes") == 0.0 and _s.get("health") == {
+              "new": 0, "refuted": 0, "refuted_pct": None},
+          "the health metric is parsed back OUT of the report rather than stored "
+          "twice -- every new line in the report is a chance to break it")
+    res2 = dict(res, seconds=2040.0, new=[{"severity": "high", "scenario": "a",
+                                           "course": "b", "what": "c", "quote": "d",
+                                           "why": "e", "fix": "f"}], refuted=2)
+    NW.write_report(_d, res2, build="sh-test")
+    _s2 = NW.summary(_d)
+    check("  ...with real numbers in it: 2040s -> 34.0 min, 1 new vs 2 refuted",
+          _s2.get("last_minutes") == 34.0
+          and _s2.get("health") == {"new": 1, "refuted": 2, "refuted_pct": 67}, "")
+
+    # ---- and the file's own law ---------------------------------------------
+    _nw = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "nightwatch.py"), encoding="utf-8").read()
+    check("  nightwatch.py is dated today and ends with the closing line",
+          "2026-09-03  BUILD sh" in _nw
+          and _nw.rstrip().endswith("I did no harm and this file is not truncated."),
+          "Jim's rules 8 and 9")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -31985,6 +32202,7 @@ def main():
     part3ib_five_flags_from_jims_queue()
     part3ic_spoken_math_is_written_math()
     part3id_the_sweep_stays_out_of_the_code()
+    part3ie_the_watch_says_what_it_was_told_to_do()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
