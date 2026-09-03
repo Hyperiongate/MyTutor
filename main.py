@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-03  APP_BUILD -> "2026-09-03si-the-law-wore-a-different-costume". BUILD
+#               si is tutor.py ONLY -- this file changes for the STAMP. Both rule-61
+#               findings from the 09-03 night watch, neither needing a new referee:
+#               the order-of-operations law found TWICE fourteen days apart in the
+#               same lesson (the 37th referee was NOT dead -- measured -- it was one
+#               missing alternation, "no matter WHICH order"), and the HIGH, "two
+#               solutions because it's a squared equation", as KNOWN_FALSEHOODS row
+#               16. Referees stay 74; falsehoods 15 -> 16. No behaviour in this file
+#               changes. PART 3if.
 #   2026-09-03  APP_BUILD -> "2026-09-03sh-the-watch-says-what-it-was-told-to-do".
 #               BUILD sh is nightwatch.py ONLY -- this file changes for the STAMP, so
 #               /health can prove the report improvements are the ones running. Four
@@ -13543,7 +13552,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-03sh-the-watch-says-what-it-was-told-to-do"
+APP_BUILD = "2026-09-03si-the-law-wore-a-different-costume"
 
 
 @app.get("/health")

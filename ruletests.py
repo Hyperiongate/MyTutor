@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-03  BUILD si -- PART 3if: the law wore a different costume. Both rule-61
+#               findings from the 09-03 watch, no new referee. The precedence law was
+#               found TWICE, fourteen days apart, in the same lesson -- and the first
+#               thing this PART pins is that the 37th referee was NOT dead (the 08-20
+#               sentence still fires), because assuming a miss is a dead referee is how
+#               pq nearly made three wrong fixes. The hole was one alternation. The HIGH
+#               becomes KNOWN_FALSEHOODS row 16, and the double-starred check is the
+#               BOUNDARY: the same claim said truthfully must stay silent, or the row
+#               burns three attempts on a correct reply (build iz's phantom).
 #   2026-09-03  BUILD sh -- PART 3ie: the watch says what it was told to do. Four
 #               report holes, each named by a triage that then gave up on it: the
 #               10-vs-12 question (asked three watches running -- the report printed
@@ -21705,7 +21714,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,394</b>" in page,
+          "<b>8,414</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -21916,6 +21925,147 @@ def part3ie_the_watch_says_what_it_was_told_to_do():
           "2026-09-03  BUILD sh" in _nw
           and _nw.rstrip().endswith("I did no harm and this file is not truncated."),
           "Jim's rules 8 and 9")
+
+
+def part3if_the_law_wore_a_different_costume():
+    """PART 3if (build si, 2026-09-03) -- BOTH RULE-61 FINDINGS, NO NEW REFEREE.
+
+    ① THE PRECEDENCE LAW, FOUND TWICE, FOURTEEN DAYS APART, IN THE SAME LESSON.
+    2026-08-20: "Multiplying and dividing ALWAYS happen before adding and
+    subtracting." 2026-09-03: "multiplication actually has to happen before
+    addition, NO MATTER WHICH ORDER they're written in." The 37th referee exists
+    for exactly this and did not fire, so the FIRST question was whether it had
+    died -- and the pq lesson says measure before assuming (three assumed misses
+    would have been three wrong fixes). IT HAD NOT DIED: the 08-20 sentence still
+    fires today, and this PART pins that in the same breath as the new catch. The
+    hole was one alternation: _PL_UNIVERSAL held "no matter what" and nothing else
+    in that family, so "no matter WHICH order" walked past clause (b) while (a) and
+    (c) both held.
+
+    ② THE HIGH: "Two solutions -- that makes sense since it's a squared equation."
+    Squaredness does not deliver two solutions -- x^2-4x+4=0 has one repeated root,
+    x^2+1=0 has none real -- and this was the REASON handed to a child for the shape
+    of the answer. KNOWN_FALSEHOODS row 16, which is what that table is for.
+
+    ⚠️ THE BOUNDARY IS THE POINT OF THE ROW. The same sentence said TRUTHFULLY --
+    "this one has two solutions because both factors give different x-values" -- is
+    correct teaching and must stay silent. A row that cannot tell those apart would
+    burn all three attempts on a right answer, which is build iz's phantom exactly.
+
+    NO NEW REFEREE: the count stays 74. Falsehoods 15 -> 16. Canon measured BEFORE
+    enforcing, both changes together: 15,490 authored strings, zero false alarms."""
+    print("\nPART 3if — the law wore a different costume (build si)")
+    import tutor as T
+    import lessonscripts as _LS
+    import foundations as _FND
+
+    # ---- ① the referee was NOT dead — the older sentence still fires -----------
+    old_one = "Multiplying and dividing always happen before adding and subtracting."
+    check("⭐ the 08-20 sentence STILL fires — the referee was never dead",
+          "spoken as a LAW" in T.overgeneralized_precedence_conflict(old_one),
+          "if this ever goes silent the widening broke the thing it was widening; "
+          "measuring this FIRST is what stopped si becoming a wrong fix")
+
+    new_one = ("multiplication actually has to happen before addition, "
+               "no matter which order they're written in.")
+    fire = T.overgeneralized_precedence_conflict(new_one)
+    check("⭐ ...and the 09-03 costume now fires too (the one-alternation hole)",
+          "spoken as a LAW" in fire,
+          "_PL_UNIVERSAL held 'no matter what' and nothing else in that family")
+    check("  ...and the nudge dictates the whole true sentence, verbatim",
+          "when there are no grouping symbols like parentheses" in fire,
+          "a referee whose fix is not spelled out burns three attempts (build iz)")
+
+    # ⚠️ EACH COSTUME MUST STILL BE THE WHOLE LAW SHAPE. My first draft of this
+    # check used "multiplication comes first no matter how you write them" and the
+    # battery failed it -- correctly: that sentence never names addition, so clause
+    # (a) rejects it and it is not the precedence law at all. The test was wrong,
+    # not the referee. Every costume below carries mul + before + add + a universal.
+    for costume in ("multiplication comes before addition no matter how you write them",
+                    "division goes before subtraction regardless of the order"):
+        check(f"  ...and so does: '{costume[:44]}...'",
+              bool(T.overgeneralized_precedence_conflict(costume + ".")), "")
+
+    # the escapes that must still buy silence
+    check("⭐ 'Here we multiply before we add' is TEACHING, not a law — silent",
+          T.overgeneralized_precedence_conflict("Here we multiply before we add.") == "",
+          "clause (b): no universality marker, so it is a description of THIS "
+          "expression and always was allowed")
+    check("  ...and ONE mention of a grouping symbol anywhere buys silence",
+          T.overgeneralized_precedence_conflict(
+              "In this expression, because there are no parentheses, multiplication "
+              "always happens before addition.") == "",
+          "clause (c), deliberately generous: a missed overgeneralization costs one "
+          "sentence, a false fire costs an entire extra model call")
+    check("  ...and a board tag is not a spoken law",
+          T.overgeneralized_precedence_conflict(
+              '[[step eq="3 + 2 x 4"]] What do we do first?') == "", "")
+
+    # ---- ② the falsehood row, both directions ---------------------------------
+    high = "Two solutions - that makes sense since it's a squared equation."
+    kf = T.known_falsehood_conflict(high)
+    check("⭐ the HIGH fires — squaredness does not deliver two solutions",
+          "FALSE as written" in kf and "squared means two solutions" in kf,
+          "x^2-4x+4=0 has one repeated root; x^2+1=0 has none real")
+    check("  ...and the nudge dictates the true form verbatim",
+          "AT MOST two real solutions" in kf and "one repeated" in kf, "")
+
+    check("⭐⭐ THE BOUNDARY: the same claim said TRUTHFULLY stays SILENT",
+          T.known_falsehood_conflict(
+              "This one has two solutions because both factors give different "
+              "x-values.") == "",
+          "a row that cannot tell the true sentence from the false one burns all "
+          "three attempts on a correct reply -- build iz's phantom, exactly")
+    for ok_line in (
+            "A quadratic can have up to two real solutions.",
+            "A quadratic can have two solutions, one repeated solution, or no real solutions.",
+            "Because the discriminant is positive, this one has two solutions.",
+            "A squared equation does not always have two solutions.",
+            "We found two solutions, so let's check them both."):
+        check(f"  ...silent: '{ok_line[:52]}...'",
+              T.known_falsehood_conflict(ok_line) == "", "")
+
+    # ---- the table's own shape ------------------------------------------------
+    check("  falsehoods 15 -> 16, and every row still carries escape AND true form",
+          len(T.KNOWN_FALSEHOODS) >= 16
+          and all(len(e) == 4 and e[2] and e[3] for e in T.KNOWN_FALSEHOODS),
+          "a row without an escape fires on the corrected sentence too")
+    check("  ...and the new row is named, so its fires are readable in the split",
+          any(n == "squared-means-two-solutions" for n, *_ in T.KNOWN_FALSEHOODS),
+          "sh made referee fires readable by name; an unnamed row wastes that")
+
+    # ---- ⚠️ THE CANON SWEEP: measured before enforcing ------------------------
+    seen = fires = 0
+    def _sweep(text):
+        nonlocal seen, fires
+        t = str(text or "")
+        if not t.strip():
+            return
+        seen += 1
+        if T.overgeneralized_precedence_conflict(t) or T.known_falsehood_conflict(t):
+            fires += 1
+    def _walk(o):
+        if isinstance(o, str):
+            _sweep(o)
+        elif isinstance(o, dict):
+            for v in o.values():
+                _walk(v)
+        elif isinstance(o, (list, tuple)):
+            for v in o:
+                _walk(v)
+    _walk(_LS.LESSONS)
+    for _course, _scripts in _FND.FOUNDATIONS.items():
+        _walk(_scripts)
+    check(f"⭐ zero false alarms across {seen} authored strings (both changes)",
+          fires == 0 and seen >= 9000,
+          f"{fires} authored strings rejected -- the canon is measured BEFORE "
+          f"enforcing, every time")
+
+    # ---- the file's own law ---------------------------------------------------
+    _t = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "tutor.py"), encoding="utf-8").read(200000)
+    check("  tutor.py carries a dated si note",
+          "2026-09-03  BUILD si" in _t, "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -32203,6 +32353,7 @@ def main():
     part3ic_spoken_math_is_written_math()
     part3id_the_sweep_stays_out_of_the_code()
     part3ie_the_watch_says_what_it_was_told_to_do()
+    part3if_the_law_wore_a_different_costume()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

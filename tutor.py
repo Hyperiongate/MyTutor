@@ -2,6 +2,34 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-03  BUILD si -- THE LAW WORE A DIFFERENT COSTUME. Both rule-61 findings
+#               from the 2026-09-03 night watch, and NEITHER needed a new referee.
+#               ① THE PRECEDENCE LAW, FOUND TWICE, FOURTEEN DAYS APART, IN THE SAME
+#               LESSON. 08-20: "Multiplying and dividing ALWAYS happen before adding
+#               and subtracting." 09-03: "multiplication actually has to happen
+#               before addition, NO MATTER WHICH ORDER they're written in." The 37th
+#               referee exists precisely for this and did not fire -- so the first
+#               question was whether it had died. IT HAD NOT: the 08-20 sentence
+#               still fires today, measured both ways before anything was touched
+#               (the pq lesson: assuming a miss is a dead referee is how you make
+#               three wrong fixes). The hole was one alternation -- _PL_UNIVERSAL
+#               carried "no matter what" and nothing else in that family, so "no
+#               matter WHICH order" walked past clause (b) while clauses (a) and (c)
+#               both held. Added: no matter which/how/when/where · no matter the ·
+#               regardless of. ② THE HIGH: "Two solutions -- that makes sense since
+#               it's a squared equation." Squaredness does not deliver two solutions
+#               (x^2-4x+4=0 has one; x^2+1=0 has none real), and this was the REASON
+#               given to a child for the shape of the answer. KNOWN_FALSEHOODS row
+#               16, which is exactly what that table is for -- the false sentence,
+#               its escape condition, and the true form dictated verbatim so the fix
+#               is always reachable. ⚠️ THE ROW MUST NOT CATCH THE TRUE VERSION:
+#               "this one has two solutions because both factors give different
+#               x-values" is correct teaching and stays silent, which is why the
+#               false shape requires a CAUSAL word binding the count to squaredness.
+#               ⚠️ CANON MEASURED FIRST, both changes together: 15,490 authored
+#               strings across lessonscripts, foundations, misconceptions, quizsets,
+#               prompts and the demo -- ZERO false alarms. NO NEW REFEREE: the count
+#               stays 74; falsehoods 15 -> 16. PART 3if pins both, in both directions.
 #   2026-09-02  BUILD sf -- SPOKEN MATH IS WRITTEN MATH. Jim, live in algebra1,
 #               on a worked chain ("3 times 4 equals 12... 12 plus 2 equals 14")
 #               delivered over an EMPTY board: "why aren't we using the board for
@@ -5730,9 +5758,21 @@ _PL_BEFORE = (r"(?:before|first|ahead of|outrank\w*|"
               r"come[s]? first|happen[s]? before|go(?:es)? before)")
 _PL_LAW = re.compile(_PL_MUL + r"[^.!?]{0,80}?" + _PL_BEFORE + r"[^.!?]{0,80}?" + _PL_ADD,
                      re.I)
+# (si, 2026-09-03) THE LAW WORE A DIFFERENT COSTUME. The 2026-09-03 night watch
+# confirmed, in the SAME prealgebra lesson the 08-20 watch found: "multiplication
+# actually has to happen before addition, NO MATTER WHICH ORDER they're written in."
+# The referee did not fire, and it was NOT dead -- the 08-20 sentence still fires
+# today (measured, both ways, in PART 3if). It was this list: it held "no matter
+# what" and nothing else in that family, so "no matter WHICH order" walked straight
+# past clause (b). ⚠️ MEASURED BEFORE WIDENING, the standing law: the whole referee
+# swept over 15,490 authored strings (lessonscripts, foundations, misconceptions,
+# quizsets, prompts and the demo) -- ZERO false alarms with these alternations added,
+# and the one prompts.py shape is rule 61's own NOT/BUT pair quoting the false form
+# on purpose, which already matched under "every time" before this build.
 _PL_UNIVERSAL = re.compile(
     r"\b(?:always|every time|all the time|never|whenever|no matter what|"
-    r"in every case|in all cases)\b", re.I)
+    r"in every case|in all cases|"
+    r"no matter (?:which|how|when|where)|no matter the|regardless of)\b", re.I)
 _PL_GROUPING = re.compile(r"parenthes|paren\b|parens|bracket|grouping", re.I)
 _PL_SENTENCE = re.compile(r"[^.!?\n]+[.!?]?")
 
@@ -6151,6 +6191,34 @@ KNOWN_FALSEHOODS = [
      "completing the square rewrites the EQUATION so one side becomes a perfect "
      "square -- you add the constant that makes it one; the quadratic you "
      "started with is usually not a perfect square itself"),
+    # ---- (si) the 2026-09-03 night watch's HIGH, algebra2, rule 61 ----
+    # "Two solutions -- that makes sense since it's a squared equation." FALSE as a
+    # rule, and it is the reason given to a child for why the answer looks the way
+    # it does. Squaredness does not deliver two solutions: x^2 - 4x + 4 = 0 has ONE
+    # (a repeated root) and x^2 + 1 = 0 has NO real solutions. A child who believes
+    # this expects two every time, and then mistrusts the correct single answer.
+    # ⚠️ THE TRAP THIS ROW MUST NOT CATCH is the same sentence said TRUTHFULLY --
+    # "this one has two solutions because both factors give different x-values" is
+    # right and must stay silent -- so the false shape needs a CAUSAL word tying the
+    # count to squaredness, and the escapes are the corrective teachings: any
+    # hedge ("up to two", "at most two", "can/could/may have"), the repeated-root
+    # case, the no-real-solutions case, the discriminant, or an explicit "not
+    # always". Swept with the widening above: 0 fires across 15,490 authored strings.
+    ("squared-means-two-solutions",
+     re.compile(r"\btwo\s+(?:real\s+)?(?:solutions?|roots?|answers?)\b[^.!?]{0,60}"
+                r"\b(?:because|since|makes\s+sense|expected|of\s+course|naturally)\b"
+                r"[^.!?]{0,40}\b(?:squared|square\s+equation|quadratic)\b"
+                r"|\b(?:squared|quadratic)\b[^.!?]{0,50}"
+                r"\b(?:always\s+(?:has|have|gives?)|will\s+(?:have|give)|has|have|"
+                r"gives?)\b[^.!?]{0,25}"
+                r"\btwo\s+(?:real\s+)?(?:solutions?|roots?|answers?)\b", re.I),
+     re.compile(r"up\s+to\s+two|at\s+most\s+two|can\s+have|could\s+have|"
+                r"may\s+have|repeated\s+root|double\s+root|one\s+repeated|"
+                r"same\s+solution\s+twice|no\s+real\s+(?:solutions?|roots?)|"
+                r"discriminant|not\s+(?:always|every|all)|sometimes|depends", re.I),
+     "a quadratic has AT MOST two real solutions -- it can have two, one repeated, "
+     "or none at all; this one has two because the two factors give different "
+     "values of x"),
 ]
 
 
