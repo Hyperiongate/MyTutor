@@ -2,6 +2,14 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-03  BUILD sj -- THE REPORT SEES THE FLOOR. tutor.py's new `floor` event
+#               (a draft every attempt of which carried a TRUTH-class finding was
+#               withheld; the child got the fallback line) gets its own telemetry
+#               line, joins the named offenders, and joins the dated reasons list so
+#               each withheld falsehood is readable with its referee and its clock.
+#               A floor is a false statement that did NOT reach a child: the count
+#               measures the referees working, and it is kept separate from the
+#               pass-through count, which is conduct shipping least-bad as before.
 #   2026-09-03  BUILD sh -- THE WATCH SAYS WHAT IT WAS TOLD TO DO. Four report holes,
 #               every one of them named by a triage that then had to give up on it.
 #               (1) THE 10-vs-12 QUESTION, ASKED THREE WATCHES RUNNING AND NEVER ONCE
@@ -941,11 +949,18 @@ def report_markdown(result, build="") -> str:
               f"- replies shipped WITH a known finding: **{passed}**"
               + (" ← should be zero" if passed else ""),
               f"- teaching-path fail-opens (friendly-message turns): **{fails}**",
+              # (sj) THE FLOOR: a draft every attempt of which carried a TRUTH-class
+              # finding was WITHHELD and the child got the fallback line instead.
+              # Each one is a false statement that did NOT reach a child -- the
+              # count is a measure of the referees working, not of the tutor
+              # failing, and it is NOT a pass-through (those are conduct, above).
+              f"- truth floors (a false draft withheld; the child got the fallback "
+              f"line): **{_tot('floor')}**",
               f"- referee fires: **{_tot('referee_fire')}** · probe observations: "
               f"{_tot('probe')} · prompt-size events: {_tot('promptsize')}", ""]
 
         alarm = []
-        for kind in ("referee_crash", "clienterror", "pass_through"):
+        for kind in ("referee_crash", "clienterror", "pass_through", "floor"):
             for nm, n in sorted((counts.get(kind) or {}).items(), key=lambda kv: -kv[1])[:5]:
                 alarm.append(f"  - {kind} · {nm}: {n}×")
         if alarm:
@@ -989,7 +1004,7 @@ def report_markdown(result, build="") -> str:
             rows = _store.recent_events(hours=24 * 7, limit=200,
                                         kinds=["referee_crash", "clienterror",
                                                "failopen", "seat_fallback",
-                                               "privacy_gate"])
+                                               "privacy_gate", "floor"])
             # (sh) ⭐ AND WHEN THEY SAID IT. pq gave this block the reason; it never
             # gave it a CLOCK, and without one a reason cannot be told apart from its
             # own ghost. The 09-01 triage had to HOLD every line it read here -- the

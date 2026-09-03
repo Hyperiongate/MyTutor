@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-03  BUILD sj -- PART 3ig: the floor. A draft every attempt of which carried
+#               a TRUTH-class finding no longer ships; the child gets the fallback line
+#               and a `floor` event names the referee. ONE px pin moves, deliberately
+#               and with the reasoning in place (3gb: three mathcheck-wrong drafts now
+#               ship nothing); every other px pin is re-asserted untouched. The truth
+#               class is data (tutor.TRUTH_REFEREES), each name checked against the
+#               dispatcher, and the name reaches the loop through a thread-local that
+#               the real _event sets -- pinned end to end, including the fail-OPEN case.
 #   2026-09-03  BUILD si -- PART 3if: the law wore a different costume. Both rule-61
 #               findings from the 09-03 watch, no new referee. The precedence law was
 #               found TWICE, fourteen days apart, in the same lesson -- and the first
@@ -15828,13 +15836,19 @@ def part3gb_ship_the_best_draft():
         check("  three prose findings: the LAST draft ships (unchanged behaviour)",
               out == "D3" and pt and pt[0][1] == "prosecheck" and "attempt 3 of 3" in pt[0][2],
               f"out={out!r} {pt}")
-        # mathcheck wrong three times: the last ships (the checker mis-read, fail open)
+        # mathcheck wrong three times. (px) the last shipped -- "the checker mis-read,
+        # fail open". (sj) RE-PINNED, deliberately: mathcheck is TRUTH-class, so when
+        # no draft passed the arithmetic NOTHING ships -- the child gets the fallback
+        # line and a `floor` event names the referee. The trade and its cost are
+        # written above tutor._best_draft; the path fired about once a week.
         out, stub = _run(["D1", "D2", "D3"],
                          {"D1": ("wrong", "x"), "D2": ("wrong", "y"), "D3": ("wrong", "z")},
                          {}, {})
+        fl = [e for e in events if e[0] == "floor"]
         pt = [e for e in events if e[0] == "pass_through"]
-        check("  three mathcheck-wrong drafts: the LAST ships (unchanged behaviour)",
-              out == "D3" and pt and pt[0][1] == "mathcheck", f"out={out!r} {pt}")
+        check("  three mathcheck-wrong drafts: NOTHING ships -- the floor (sj re-pin of px)",
+              out == "" and fl and fl[0][1] == "mathcheck" and not pt,
+              f"out={out!r} floor={fl} pass_through={pt}")
         # mathcheck wrong on 1 and 3, critic-only on 2: draft 2 ships
         out, stub = _run(["D1", "D2", "D3"],
                          {"D1": ("wrong", "x"), "D3": ("wrong", "z")}, {}, {"D2": "c"})
@@ -21714,7 +21728,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,414</b>" in page,
+          "<b>8,439</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22066,6 +22080,183 @@ def part3if_the_law_wore_a_different_costume():
                            "tutor.py"), encoding="utf-8").read(200000)
     check("  tutor.py carries a dated si note",
           "2026-09-03  BUILD si" in _t, "Jim's rule 8")
+
+
+def part3ig_the_floor():
+    """PART 3ig (build sj, 2026-09-03) -- THE FLOOR: A FALSE DRAFT DOES NOT REACH A CHILD.
+
+    The 09-03 watch counted 148 replies in a week shipped WITH a known finding, up
+    from 106 -- and it rose the week the live critic's model was fixed: the critic
+    woke and the pipeline kept shipping over it. px's _settle ships the least-bad
+    draft whatever it carries. Right for CONDUCT; never right for TRUTH.
+
+    THE RULE. When every kept draft carries a finding and the best is TRUTH-class,
+    nothing ships: the child gets the fallback line, the event is `floor`, the
+    lesson continues next turn. A conduct-only draft ALWAYS outranks a truth draft.
+    The truth class is DATA (tutor.TRUTH_REFEREES) and grows only by ruling.
+
+    THE PINS THAT MUST NOT MOVE are px's: a critic-only draft outranks prose, the
+    newest wins a tie, three conduct findings still ship the last. The pin that
+    MOVES is one: three mathcheck-wrong drafts now ship nothing (re-pinned in 3gb,
+    with the reasoning). Everything below drives the real _create_verified with
+    scripted referees, the way 3gb does."""
+    print("\nPART 3ig — the floor: a false draft does not reach a child (build sj)")
+    import tutor as _t
+    import mathcheck as _mc
+
+    # ---- the truth class is data, narrow, and every name is a real referee -----
+    check("⭐ TRUTH_REFEREES is data, and every entry carries its reason",
+          isinstance(_t.TRUTH_REFEREES, dict) and len(_t.TRUTH_REFEREES) >= 7
+          and all(isinstance(v, str) and len(v) > 20 for v in _t.TRUTH_REFEREES.values()),
+          "a name with no reason is a name the next reader will re-argue")
+    _dispatch = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  "tutor.py"), encoding="utf-8").read()
+    for nm in _t.TRUTH_REFEREES:
+        if nm == "mathcheck":
+            continue
+        check(f"  ...{nm} is a referee the dispatcher actually fires",
+              f'_event("referee_fire", "{nm}"' in _dispatch,
+              "a truth name that no referee raises is a dead entry")
+    check("  ...and conduct referees are NOT in it (compare, shownanswer, elembuttons)",
+          not ({"compare", "shownanswer", "elembuttons", "livecritic"} & set(_t.TRUTH_REFEREES)),
+          "rule 42, rule 17 and the buttons are conduct: they ship least-bad, as px designed")
+    check("  mathcheck is truth by kind; an unknown name is conduct (fail OPEN)",
+          _t._is_truth_finding("mathcheck") and _t._is_truth_finding("prose", "knownfalse")
+          and not _t._is_truth_finding("prose", "") and not _t._is_truth_finding("prose", "??"),
+          "the floor must fail open to px's behaviour, never closed")
+
+    # ---- the name travels: real dispatcher, real _event, real thread-local --------
+    _t._note_fire("")
+    _t.prose_board_conflict("Two solutions - that makes sense since it is a squared "
+                            "equation.", "what next")
+    check("⭐ the fired referee's NAME reaches the loop through the real _event",
+          _t._fired_name() == "knownfalse",
+          "prose_board_conflict returns only the nudge text; the name rides a "
+          "thread-local that _event sets on every referee_fire")
+    _t._note_fire("")
+    _t.prose_board_conflict("Most kids find this hard, so take your time.", "what next")
+    check("  ...and a conduct referee's name reads as conduct",
+          _t._fired_name() == "compare" and not _t._is_truth_finding("prose", "compare"), "")
+    _t._note_fire("")
+    check("  ...and the note is reset before every dispatch (no stale name leaks)",
+          _t._fired_name() == "", "")
+
+    # ---- the ranking: conduct ALWAYS outranks truth, whichever attempt ------------
+    check("⭐ a conduct draft outranks a truth draft even when the truth draft is newer",
+          _t._best_draft([(1, "A", "prose", "p", "compare"),
+                          (2, "B", "prose", "p", "knownfalse"),
+                          (3, "C", "prose", "p", "precedencelaw")])[1] == "A", "")
+    check("  ...and px's pins stand: critic < prose < mathcheck, newest wins a tie",
+          _t._best_draft([(1, "A", "critic", "c"), (2, "B", "prose", "p")])[1] == "A"
+          and _t._best_draft([(1, "A", "mathcheck", "m"), (2, "B", "prose", "p")])[1] == "B"
+          and _t._best_draft([(1, "A", "prose", "p"), (2, "B", "prose", "p")])[1] == "B"
+          and _t._best_draft([(1, "A", "??", ""), (2, "B", "critic", "c")])[1] == "B", "")
+    check("  ...and four-member tuples (older callers) still rank as conduct",
+          _t._best_draft([(1, "A", "prose", "p"), (2, "B", "mathcheck", "m", "mathcheck")])[1] == "A", "")
+
+    # ---- the loop, end to end, scripted (3gb's harness) ---------------------------
+    class _B:
+        pass
+
+    def _resp(text):
+        r, b = _B(), _B()
+        b.type, b.text = "text", text
+        r.content, r.stop_reason, r.usage = [b], "end_turn", None
+        return r
+
+    class _Stub:
+        def __init__(self, script):
+            self.script, self.calls, self.messages = list(script), [], self
+
+        def create(self, **kw):
+            self.calls.append(kw)
+            return _resp(self.script.pop(0))
+
+    saved = (_mc.verify_reply, _t.prose_board_conflict, _t._live_critic_review, _t._event)
+    events = []
+
+    def _run(drafts, verdicts, prose, critic):
+        _mc.verify_reply = lambda r: verdicts.get(r, ("ok", ""))
+
+        def _prose(r, *a, **k):
+            name, det = prose.get(r, ("", ""))
+            if det:
+                _t._note_fire(name)          # exactly what the real _event does
+            return det
+        _t.prose_board_conflict = _prose
+        _t._live_critic_review = lambda r, *a, **k: critic.get(r, "")
+        _t._event = lambda kind, name, detail="", code="", course="": events.append(
+            (kind, name, detail))
+        events.clear()
+        stub = _Stub(drafts)
+        out = _t._create_verified(stub, "sj-stub", None,
+                                  [{"role": "user", "content": "what is 3 plus 4"}],
+                                  " [test]", {"code": "T", "course": "basic"})
+        return out, stub
+
+    try:
+        out, stub = _run(["Seven."], {}, {}, {})
+        check("⭐ DO NO HARM: a clean draft ships unchanged, one call, no event",
+              out == "Seven." and len(stub.calls) == 1
+              and not [e for e in events if e[0] in ("pass_through", "floor")],
+              f"out={out!r} events={events}")
+
+        out, _ = _run(["D1", "D2", "D3"], {},
+                      {"D1": ("compare", "a"), "D2": ("compare", "b"), "D3": ("compare", "c")}, {})
+        pt = [e for e in events if e[0] == "pass_through"]
+        check("⭐ three CONDUCT findings: the last still ships (px, untouched)",
+              out == "D3" and pt and pt[0][1] == "prosecheck"
+              and not [e for e in events if e[0] == "floor"], f"out={out!r} {pt}")
+
+        out, _ = _run(["D1", "D2", "D3"], {},
+                      {"D1": ("knownfalse", "a"), "D2": ("knownfalse", "b"),
+                       "D3": ("precedencelaw", "c")}, {})
+        fl = [e for e in events if e[0] == "floor"]
+        check("⭐⭐ THE FLOOR: three TRUTH findings -> NOTHING ships, the child gets the fallback",
+              out == "" and len(fl) == 1 and fl[0][1] == "precedencelaw"
+              and "withheld attempt 3 of 3" in fl[0][2]
+              and not [e for e in events if e[0] == "pass_through"],
+              f"out={out!r} floor={fl}")
+
+        out, _ = _run(["D1", "D2", "D3"], {},
+                      {"D1": ("knownfalse", "a"), "D2": ("knownfalse", "b"),
+                       "D3": ("compare", "c")}, {})
+        check("⭐ truth, truth, then a conduct draft: the conduct draft ships",
+              out == "D3" and not [e for e in events if e[0] == "floor"], f"out={out!r}")
+
+        out, _ = _run(["D1", "D2", "D3"], {},
+                      {"D1": ("compare", "a"), "D2": ("knownfalse", "b"),
+                       "D3": ("knownfalse", "c")}, {})
+        pt = [e for e in events if e[0] == "pass_through"]
+        check("⭐ conduct FIRST, then two truth: the first draft ships, not the newest",
+              out == "D1" and pt and "attempt 1 of 3" in pt[0][2], f"out={out!r} {pt}")
+
+        out, _ = _run(["D1", "D2", "D3"],
+                      {"D1": ("wrong", "x"), "D3": ("wrong", "z")}, {}, {"D2": "c"})
+        check("  wrong, critic-only, wrong: the critic-only draft ships (px, untouched)",
+              out == "D2", f"out={out!r}")
+
+        out, _ = _run(["D1", "D2", "D3"], {}, {}, {"D1": "a", "D2": "b", "D3": "c"})
+        check("  three critic objections: the newest ships (px, untouched)",
+              out == "D3", f"out={out!r}")
+
+        out, _ = _run(["D1", "D2", "D3"], {},
+                      {"D1": ("", "a"), "D2": ("", "b"), "D3": ("", "c")}, {})
+        check("⭐ no name captured at all: treated as conduct, ships (the floor fails OPEN)",
+              out == "D3" and not [e for e in events if e[0] == "floor"], f"out={out!r}")
+    finally:
+        _mc.verify_reply, _t.prose_board_conflict, _t._live_critic_review, _t._event = saved
+
+    # ---- the watch sees it --------------------------------------------------------
+    _nw = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "nightwatch.py"), encoding="utf-8").read()
+    check("  the night watch reports truth floors on their own line, dated, and named",
+          "truth floors" in _nw and '"privacy_gate", "floor"' in _nw
+          and '"pass_through", "floor")' in _nw,
+          "a floor nobody can see is a floor nobody can audit")
+    check("  tutor.py and nightwatch.py carry dated sj notes",
+          "2026-09-03  BUILD sj" in _dispatch[:200000] and "2026-09-03  BUILD sj" in _nw,
+          "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -32354,6 +32545,7 @@ def main():
     part3id_the_sweep_stays_out_of_the_code()
     part3ie_the_watch_says_what_it_was_told_to_do()
     part3if_the_law_wore_a_different_costume()
+    part3ig_the_floor()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

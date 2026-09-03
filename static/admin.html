@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <!--
+    (sj) 2026-09-03 -- THE FLOOR TILE. "Withheld by the floor": turns where every
+    draft carried a TRUTH-class finding, so nothing shipped and the student got the
+    fallback line (verify_floored). Counted as checked, never as shipped. Amber.
     (op) 2026-08-27 -- THE SCRIPTED-LANE TILE. The Phase-3 pilot serves
     Pre-Algebra Unit 1 from the authored lane; this card now shows that lane's
     median turn beside the live one ("Scripted lane": median authored turn,
@@ -298,6 +301,10 @@
   admin.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-09-03  (sj) "Withheld by the floor" tile: turns where every draft carried
+                a TRUTH-class finding shipped nothing (verify_floored). Counted in
+                checked7, NOT in shipped7. shipped7 / fixed7 / checked7 keep their
+                names (PART 3dn reads them as text).
       ① 2026-08-30 (build qk) the seat card reports TOKENS (in / cached / out) and two
          more real-size buttons: thinking OFF, and the flash model. DeepSeek answered a
          real lesson prompt in 21.9s -- it works, but that is nearly double Sonnet's
@@ -977,10 +984,14 @@
     // reassuring tile was counting the un-fixed ones.
     var shippedMath7 = (u7.verify_unresolved || 0);
     var shipped7 = shippedProse7 + shippedCritic7 + shippedMath7;
+    // (sj) THE FLOOR. A turn whose every draft carried a TRUTH-class finding shipped
+    // NOTHING -- the student got the fallback line. It was checked (so it belongs in
+    // checked7) and no false reply reached a student (so it is NOT in shipped7).
+    var floored7 = (u7.verify_floored || 0);
     var unknown7 = (u7.verify_unknown || 0);
     // (mw) shipped7 now carries the critic's unresolved rows too, so they finally
     // count as turns that WERE checked instead of vanishing from the denominator.
-    var checked7 = (u7.verify_ok || 0) + (u7.verify_fixed || 0) + (u7.verify_unverifiable || 0) + shipped7;
+    var checked7 = (u7.verify_ok || 0) + (u7.verify_fixed || 0) + (u7.verify_unverifiable || 0) + shipped7 + floored7;
     // (mz) ⚠️ "CAUGHT AND FIXED" NOW MEANS CAUGHT AND FIXED. It used to add every
     // pass-through to this number, so a card reading "Errors caught & fixed: 40"
     // could be 11 fixed and 29 shipped with the defect still in them -- the most
@@ -1117,6 +1128,13 @@
                        + " live critic — read the [mathcheck], [prosecheck] and "
                        + "[livecritic] log lines")
                     : "no reply shipped with a known finding (7d)" },
+      // (sj) the floor: false drafts that were STOPPED. Amber, not red -- each one
+      // is a falsehood a student did not hear, at the price of one "lost my train of
+      // thought" turn. Read the [floor] log lines to see which referee held it.
+      { l: "Withheld by the floor", v: num(floored7), cls: floored7 ? "warn" : "good",
+        s: floored7 ? ("turns where every draft carried a TRUTH finding, so nothing "
+                       + "shipped and the student got the fallback line (7d)")
+                    : "no false draft needed withholding (7d)" },
       // (mw) A STATUS WITH NO COUNTER IS A MEASUREMENT GAP. It used to be added to
       // verify_none and read as "unchecked", which is the opposite of the truth.
       { l: "Uncounted verdicts", v: num(unknown7), cls: unknown7 ? "bad" : "good",

@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-03  APP_BUILD -> "2026-09-03sj-the-floor". BUILD sj is tutor.py +
+#               nightwatch.py; this file changes for the STAMP. THE FLOOR: a draft
+#               every attempt of which carried a TRUTH-class finding (false board
+#               math, a false law, a named falsehood, a choice list with no right
+#               answer) no longer ships -- the child gets the fallback line, a `floor`
+#               event names the referee, the lesson continues next turn. Conduct
+#               findings ship least-bad exactly as px designed. The 09-03 watch's 148
+#               pass-throughs/week can now only fall. Referees stay 74. PART 3ig.
 #   2026-09-03  APP_BUILD -> "2026-09-03si-the-law-wore-a-different-costume". BUILD
 #               si is tutor.py ONLY -- this file changes for the STAMP. Both rule-61
 #               findings from the 09-03 night watch, neither needing a new referee:
@@ -13552,7 +13560,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-03si-the-law-wore-a-different-costume"
+APP_BUILD = "2026-09-03sj-the-floor"
 
 
 @app.get("/health")

@@ -2,6 +2,30 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-03  BUILD sj -- THE FLOOR: A FALSE DRAFT DOES NOT REACH A CHILD. The 09-03
+#               watch counted 148 replies in a week shipped WITH a known finding, up
+#               from 106 -- and the week it rose was the week LIVE_CRITIC_MODEL was
+#               fixed: the critic woke up and the pipeline kept shipping over it.
+#               px's _settle ships the least-bad draft whatever it carries. Right for
+#               CONDUCT (a stiff reply beats "I lost my train of thought"); never right
+#               for TRUTH. Now: when EVERY kept draft carries a finding and the best of
+#               them is truth-class, the draft is WITHHELD -- the child gets the
+#               fallback line (the same "" door an empty model reply has always used),
+#               the event is `floor · <referee>`, and the lesson continues next turn.
+#               A conduct-only draft ALWAYS outranks a truth draft, so the floor only
+#               ever fires when there was nothing safe to ship. THE TRUTH CLASS IS
+#               DATA (TRUTH_REFEREES, seven names, each one's whole purpose a false
+#               statement or a wronged child) and grows only by ruling; everything
+#               else is conduct and ships exactly as px designed. HOW THE NAME
+#               TRAVELS: prose_board_conflict returns only the nudge text, so _event
+#               now notes each referee_fire on a thread-local the attempt loop reads
+#               back the instant the dispatcher returns (reset before every dispatch;
+#               unknown name = conduct = fail open). ⚠️ ONE PINNED BEHAVIOUR CHANGES,
+#               deliberately and with its cost written down: px's "three mathcheck-
+#               wrong drafts: the LAST ships" is re-pinned as "nothing ships". That
+#               path fired about once a week; a lost turn is recoverable, a false
+#               equation spoken aloud is not. Referees stay 74. PART 3ig pins the
+#               floor both ways and the px pins that must NOT move.
 #   2026-09-03  BUILD si -- THE LAW WORE A DIFFERENT COSTUME. Both rule-61 findings
 #               from the 2026-09-03 night watch, and NEITHER needed a new referee.
 #               ① THE PRECEDENCE LAW, FOUND TWICE, FOURTEEN DAYS APART, IN THE SAME
@@ -2447,6 +2471,7 @@
 
 import os
 import re
+import threading   # (sj) the fired-referee note rides the request's thread
 import time   # build jm: the turn clock
 
 from anthropic import Anthropic
@@ -2500,12 +2525,39 @@ def subsystems() -> dict:
             "misconceptions_playbook": misconceptions is not None}
 
 
+# (sj, 2026-09-03) WHICH REFEREE FIRED, for the draft that is about to be kept.
+# prose_board_conflict dispatches seventy-odd referees and returns only the nudge
+# TEXT; the referee's NAME goes to _event and nowhere else. The floor below needs the
+# name to know whether a standing finding is about TRUTH or about CONDUCT, so the
+# name is noted here, on the request's own thread, and read back by the attempt loop
+# the instant the dispatcher returns. Thread-local because the chat handlers run in
+# a pool: two children's turns must never see each other's referee. Reset before
+# every dispatch so a stale name from an earlier attempt can never leak forward.
+_FIRE_LOCAL = threading.local()
+
+
+def _note_fire(name: str) -> None:
+    try:
+        _FIRE_LOCAL.name = str(name or "")
+    except Exception:  # noqa: BLE001 -- a note that fails is an empty note
+        pass
+
+
+def _fired_name() -> str:
+    try:
+        return str(getattr(_FIRE_LOCAL, "name", "") or "")
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 def _event(kind: str, name: str, detail: str = "", code: str = "", course: str = "") -> None:
     """Count one health event (build ha -- EYES). The 2026-08-17 review's meta-finding:
     ~19 fail-open handlers reported crashes to stdout only, so a dead referee and a
     healthy one looked identical. Every referee FIRE, every referee CRASH, every
     pass-through and probe observation now writes one row to store.system_events.
     Never raises, never slows a turn, no-ops when the store is off."""
+    if kind == "referee_fire":
+        _note_fire(name)                      # (sj) the floor reads this back
     try:
         if store is not None:
             store.record_event(kind, name, str(detail or "")[:300], code, course)
@@ -11538,17 +11590,91 @@ def missing_mark_probe(reply: str, messages) -> str:
 # "known critic-only" beats "known prose contradiction" every time.
 _DRAFT_RANK = {"critic": 1, "prose": 2, "mathcheck": 3}
 
+# =============================================================================
+# THE FLOOR (sj, 2026-09-03) -- A FALSE DRAFT DOES NOT REACH A CHILD
+# =============================================================================
+# The 2026-09-03 night watch counted 148 replies in one week that shipped WITH a
+# known finding (up from 106): the attempts ran out and _settle shipped the least-bad
+# draft anyway, whatever it carried. That was the right call for CONDUCT -- a reply
+# that is a little stiff, or compares a child to "most kids", is worse than a good
+# reply but better than "I lost my train of thought". It was never the right call
+# for TRUTH. A board line the checker calls wrong, a law spoken false, a choice
+# list with no right answer in it: shipping that is not the lesser evil, it is the
+# one thing this product promises never to do. The count went UP the week the live
+# critic's model was fixed -- the critic woke and started objecting, and the pipeline
+# kept shipping over it. Fixing the critic made bad replies countable, not fewer.
+#
+# THE RULE. When every draft carries a finding and the best of them is a TRUTH-class
+# finding, the draft is WITHHELD: the child gets the friendly fallback line and the
+# lesson goes on with the next turn. Any draft carrying only conduct findings still
+# ships as the least-bad draft, exactly as px designed. A conduct-only draft
+# ALWAYS outranks a truth draft, whichever attempt produced it.
+#
+# ⚠️ WHAT THIS COSTS, HONESTLY. px's note on the mathcheck path said "three drafts
+# judged wrong with the correction in hand almost always means the CHECKER mis-read
+# an unusual claim -- so pass a draft through rather than brick the lesson." That
+# trade is re-decided here, deliberately. The path fired about ONCE A WEEK in the
+# telemetry. When the checker was right, a child was shown false arithmetic; when
+# the checker was wrong, a child now loses one turn and asks again. A lost turn is
+# recoverable in the next breath. A false equation, spoken aloud, is not. Nothing
+# is bricked: "" is the same door an empty model reply has always used.
+#
+# THE TRUTH CLASS IS DATA, deliberately narrow, and grows only by a ruling. Each
+# name is a referee whose ENTIRE purpose is a false statement or a wronged child.
+# Everything not named here is conduct and ships least-bad, as before.
+TRUTH_REFEREES = {
+    "mathcheck":     "the board's own arithmetic does not hold (verify_reply: wrong)",
+    "knownfalse":    "a named false general statement, from the falsehood table",
+    "falseuniversal": "a hole/cancelling law spoken without its condition (rule 61)",
+    "precedencelaw": "an order-of-operations rule spoken as an unconditional law (rule 61)",
+    "frac61":        "the like-denominator rule spoken as a universal (rule 61)",
+    "factorclaim":   "a factor pair that does not expand to the quadratic it claims (rule 13)",
+    "choicesanswer": "the correct answer is missing from the choices -- the child cannot be right",
+}
+# Considered and NOT included, so the next reader does not re-argue them from scratch:
+#   boardcount (a drawing miscounted -- real, but a board/words disagreement the child
+#   can SEE; ruled conduct until Jim says otherwise) · recordclaim (false about the
+#   record, rule 62 family, not about maths) · shownanswer/selfanswer (rule 17: the
+#   answer was visible, not false) · compare (rule 42, conduct by definition).
+
+
+def _is_truth_finding(kind: str, name: str = "") -> bool:
+    """True when a standing finding means a CHILD WOULD LEARN SOMETHING FALSE. The
+    mathcheck kind is truth by definition; a prose finding is truth only when the
+    referee that raised it is in TRUTH_REFEREES. An unknown or empty name is
+    conduct -- the floor fails OPEN to px's least-bad behaviour, never closed."""
+    try:
+        if kind == "mathcheck":
+            return True
+        return str(name or "") in TRUTH_REFEREES
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _draft_rank(d) -> int:
+    """(sj) px's rank, with one law on top: a conduct-only draft ALWAYS outranks a
+    truth draft. Unknown kinds rank as the worst, as px's pin says."""
+    try:
+        base = _DRAFT_RANK.get(d[2])
+        if base is None:
+            return 13
+        name = d[4] if len(d) > 4 else ""
+        return base + (10 if _is_truth_finding(d[2], name) else 0)
+    except Exception:  # noqa: BLE001
+        return 13
+
 
 def _best_draft(drafts):
-    """drafts: [(attempt, reply, kind, detail)] in order. Returns the tuple to ship:
-    lowest rank, newest on ties. Never raises; an empty list yields an empty reply."""
+    """drafts: [(attempt, reply, kind, detail[, referee])] in order. Returns the tuple
+    to ship: lowest rank, newest on ties. (sj) A fifth member, the referee's name,
+    lets the rank tell truth from conduct; four-member tuples still rank as conduct.
+    Never raises; an empty list yields an empty reply."""
     try:
         if not drafts:
             return (0, "", "mathcheck", "")
         best = None
         for d in drafts:
-            r = _DRAFT_RANK.get(d[2], 3)
-            if best is None or r <= _DRAFT_RANK.get(best[2], 3):
+            if best is None or _draft_rank(d) <= _draft_rank(best):
                 best = d
         return best
     except Exception:  # noqa: BLE001 -- the choice must never cost a turn
@@ -11614,9 +11740,28 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     def _settle(kept):
         """The attempts are spent and a finding still stands. Ship the least-bad
         draft, log WHICH attempt shipped and what it still carried, and return it
-        stripped -- the one exit for every unresolved pass-through."""
-        b_attempt, reply, b_kind, b_detail = _best_draft(kept)
+        stripped -- the one exit for every unresolved pass-through.
+        (sj) ...unless the least-bad draft is a TRUTH finding, in which case NOTHING
+        ships: the child gets the fallback line, the event is `floor`, and the
+        lesson continues next turn. See THE FLOOR above _best_draft."""
+        _d = _best_draft(kept)
+        b_attempt, reply, b_kind, b_detail = _d[:4]
+        b_name = (_d[4] if len(_d) > 4 else "") or {
+            "critic": "livecritic", "prose": "prosecheck"}.get(b_kind, "mathcheck")
         referee = {"critic": "livecritic", "prose": "prosecheck"}.get(b_kind, "mathcheck")
+        if _is_truth_finding(b_kind, b_name):
+            # THE FLOOR. Every kept draft carries a truth-class finding (a conduct-only
+            # draft would have outranked this one), so the best we have would teach
+            # a child something false. It does not ship. "" is the same door an empty
+            # model reply has always used: the caller shows the friendly line.
+            print(f"[floor]{log_prefix} WITHHELD -- every draft carries a TRUTH finding; "
+                  f"best was attempt {b_attempt}/{MATHCHECK_MAX_ATTEMPTS} ({b_name}): "
+                  f"{b_detail}")
+            _event("floor", b_name,
+                   f"withheld attempt {b_attempt} of {MATHCHECK_MAX_ATTEMPTS}: {b_detail}",
+                   (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+            _log_brain_usage(meta, model, tokens, MATHCHECK_MAX_ATTEMPTS, "floored")
+            return ""
         status = {"critic": "critic-unresolved", "prose": "prose-unresolved"}.get(
             b_kind, "unresolved")
         print(f"[{referee}]{log_prefix} UNRESOLVED -- shipping attempt "
@@ -11666,6 +11811,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             # THE PROSE REFEREE (2026-08-09): the tags are sound -- now check that the
             # SPOKEN words agree with them (see prose_board_conflict above). Same
             # treatment as a failed math check: the student never saw this draft.
+            _note_fire("")                       # (sj) no stale name can leak forward
             prose_detail = prose_board_conflict(reply, _last_user_text(msgs),
                                                 expected_unit=(meta or {}).get("unit"),
                                                 allowed_units=(meta or {}).get("allowed_units"),
@@ -11679,14 +11825,14 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             if prose_detail and attempt < MATHCHECK_MAX_ATTEMPTS:
                 print(f"[prosecheck]{log_prefix} CONTRADICTION on attempt "
                       f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {prose_detail}")
-                drafts.append((attempt, reply, "prose", prose_detail))
+                drafts.append((attempt, reply, "prose", prose_detail, _fired_name()))
                 msgs = msgs + [{"role": "assistant", "content": reply},
                                {"role": "user", "content": _PROSE_NUDGE.format(detail=prose_detail)}]
                 continue
             if prose_detail:
                 # (px) the attempts are spent: ship the LEAST-BAD draft, not this one
                 # by default -- a critic-only draft outranks a prose contradiction.
-                drafts.append((attempt, reply, "prose", prose_detail))
+                drafts.append((attempt, reply, "prose", prose_detail, _fired_name()))
                 return _settle(drafts)
             # build iv: THE LIVE CRITIC SEAT (empty by default -- see _CRITIC_SYSTEM
             # above). A second model reads the draft the regex referees just passed;
@@ -11701,7 +11847,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                           f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {critic_detail}")
                     _event("referee_fire", "livecritic", critic_detail,
                            (meta or {}).get("code", ""), (meta or {}).get("course", ""))
-                    drafts.append((attempt, reply, "critic", critic_detail))
+                    drafts.append((attempt, reply, "critic", critic_detail, "livecritic"))
                     msgs = msgs + [{"role": "assistant", "content": reply},
                                    {"role": "user",
                                     "content": _CRITIC_NUDGE.format(detail=critic_detail)}]
@@ -11710,7 +11856,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                     # (px) attempts spent with a critic objection standing: every kept
                     # draft is critic-only at worst, so the newest wins the tie -- the
                     # same reply as before, now logged with WHICH attempt shipped.
-                    drafts.append((attempt, reply, "critic", critic_detail))
+                    drafts.append((attempt, reply, "critic", critic_detail, "livecritic"))
                     return _settle(drafts)
             # build gv: MEASUREMENT ONLY -- claims about what has already happened.
             try:
@@ -11749,18 +11895,18 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             _log_brain_usage(meta, model, tokens, attempt, status)
             return _shipped(mathcheck.strip_verify_tags(reply))
         print(f"[mathcheck]{log_prefix} WRONG on attempt {attempt}/{MATHCHECK_MAX_ATTEMPTS}: {detail}")
-        drafts.append((attempt, reply, "mathcheck", str(detail)))
+        drafts.append((attempt, reply, "mathcheck", str(detail), "mathcheck"))
         if attempt < MATHCHECK_MAX_ATTEMPTS:
             msgs = msgs + [{"role": "assistant", "content": reply},
                            {"role": "user", "content": _MATHCHECK_NUDGE.format(detail=detail)}]
-    # Three drafts in a row judged wrong, WITH the correction in hand, almost always
-    # means the CHECKER mis-read an unusual claim -- so pass a draft through (fail
-    # open) rather than brick the lesson, and log loudly for the developer.
-    # (px) WHICH draft: the least-bad one. Three mathcheck-wrong drafts tie, and the
-    # newest wins the tie -- the last draft, exactly as before. But when an EARLIER
-    # draft passed the arithmetic and fell only to the prose referee or the critic,
-    # that draft ships instead of one the checker calls wrong.
-    print(f"[mathcheck]{log_prefix} UNRESOLVED after {MATHCHECK_MAX_ATTEMPTS} attempts -- passing through")
+    # Three drafts in a row judged wrong, WITH the correction in hand. (px) WHICH
+    # draft: the least-bad one -- when an EARLIER draft passed the arithmetic and fell
+    # only to a conduct referee or the critic, that draft ships. (sj) When NO draft
+    # passed the arithmetic, nothing ships: the old "pass a draft through (fail
+    # open) rather than brick the lesson" is re-decided as fail SAFE -- see THE FLOOR
+    # above _best_draft for the trade and its cost. Nothing is bricked; the child
+    # gets the fallback line and the lesson continues next turn.
+    print(f"[mathcheck]{log_prefix} UNRESOLVED after {MATHCHECK_MAX_ATTEMPTS} attempts -- settling")
     return _settle(drafts)
 
 

@@ -2,6 +2,12 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-03  BUILD sj -- "verify_floored" gets its counter. tutor.py's new floor
+#               withholds a draft whose every attempt carried a TRUTH-class finding
+#               (status "floored"); without a key here it would land in verify_unknown,
+#               which PART 3dn fails the build for -- correctly, and it did. A floored
+#               turn was CHECKED (denominator) and nothing false SHIPPED (not in the
+#               shipped count). Read-side only; no migration.
 #   2026-09-02  BUILD sb -- THE PRACTICE GOAL (Jim's design, this day: "assign
 #               something such as fifteen minutes of practice ... general practice
 #               or practice on the latest lessons that have been mastered"). New
@@ -4577,6 +4583,12 @@ def usage_stats(days: int = 7, since=None) -> dict:
            # answer the student just gave", so the replies it objects to and cannot
            # fix are exactly the ones Jim met: he answered 13 and was never told.
            "verify_critic-unresolved": 0,
+           # (sj) THE FLOOR. tutor.py sets status="floored" when every draft carried a
+           # TRUTH-class finding and NOTHING shipped -- the child got the fallback line.
+           # A check ran (it belongs in the denominator) and no false reply reached a
+           # child (it does NOT belong in shipped). Seven characters: well inside the
+           # 16-character trap (ol) that swallowed "critic-unresolved".
+           "verify_floored": 0,
            # (mw) anything tutor.py starts emitting that nothing here counts. It is
            # NOT merged into verify_none any more -- a status with no home is a
            # measurement gap, and silently calling it "unchecked" is how this bug
