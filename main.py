@@ -2,6 +2,26 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  BUILD sl -- THE SEAM READS THE COURSE ORDER. Jim's ruling: a MASTERED
+#               lesson advances on its own (no student choice); a "still learning" end
+#               does NOT advance. New _next_lesson_id() reads lessonscripts.COURSE_ORDER --
+#               the authored 360-lesson sequence nothing at this seam had ever read -- and
+#               _script_clean now puts next_id/next_topic on a MASTERED `end` step. That is
+#               the half the page needs to advance INSIDE the scripted lane instead of
+#               asking the live tutor to guess what comes next (the 09-01 "one-less reads
+#               as subtraction" bug: rj made the model announce its guess, this removes the
+#               guess). SERVER ONLY and purely additive -- next_id is "" on a non-mastered
+#               end and at a course boundary, and until session.html reads it NOTHING
+#               changes for a child. The page change is Jim's to approve.
+#               (later, 2026-09-04) APPROVED AND WRITTEN: session.html's seam now
+#               starts next_id inside the scripted lane. APP_BUILD ->
+#               "2026-09-04sl-the-seam-reads-the-course-order" (the sk default-10
+#               change in nightwatch.py rides under this stamp too; it carried none).
+#               Jim's same-day rulings for what this build deliberately leaves to
+#               the live tutor: a STILL-LEARNING end gets a warm choice (go on /
+#               review) and a COURSE END gets a celebration and a certificate --
+#               both their own builds. PART 3ih pins the server half both ways and
+#               the page half's two edits.
 #   2026-09-03  APP_BUILD -> "2026-09-03sj-the-floor". BUILD sj is tutor.py +
 #               nightwatch.py; this file changes for the STAMP. THE FLOOR: a draft
 #               every attempt of which carried a TRUTH-class finding (false board
@@ -10545,8 +10565,43 @@ def _split_ai_reply(reply: str):
         return reply, ""
 
 
-def _script_clean(steps):
-    """The client payload: never the expected answer, never the raw problem."""
+# (sl, 2026-09-04) THE NEXT LESSON IS ALREADY WRITTEN DOWN. Jim's ruling: a MASTERED
+# lesson advances on its own, no student choice; a "still learning" end does NOT advance.
+# COURSE_ORDER (lessonscripts) is the authored sequence -- 360 lessons, 36 per course, and
+# its own note records that it exists because an earlier build "had accidentally placed
+# carrying before two-digit-no-carry". Until now nothing read it at the seam: _script_finish
+# popped the session and the LIVE tutor was asked to NAME "the new topic" without ever being
+# told WHICH -- which is exactly the 09-01 bug Jim watched ("one-less reads as subtraction").
+# Build rj made the model announce its guess; this makes the guess unnecessary.
+# Returns (id, topic) for the next lesson IN THE SAME COURSE, or (None, "") at a course
+# boundary or the end of the order -- a course ending is a bigger moment than a lesson
+# ending, so it still falls through to the live tutor until Jim rules on it.
+def _next_lesson_id(current_id: str):
+    """The next authored lesson after `current_id`, within the same course."""
+    try:
+        order = lessonscripts.COURSE_ORDER
+        i = order.index(str(current_id or ""))
+    except (ValueError, AttributeError):
+        return (None, "")
+    if i + 1 >= len(order):
+        return (None, "")
+    nxt = order[i + 1]
+    cur_lesson = lessonscripts.LESSON_BY_ID.get(order[i]) or {}
+    nxt_lesson = lessonscripts.LESSON_BY_ID.get(nxt) or {}
+    if not nxt_lesson:
+        return (None, "")
+    if nxt_lesson.get("course") != cur_lesson.get("course"):
+        return (None, "")          # course boundary: not this ruling's business
+    return (nxt, nxt_lesson.get("topic", ""))
+
+
+def _script_clean(steps, lesson_id: str = ""):
+    """The client payload: never the expected answer, never the raw problem.
+    (sl) An `end` step also carries WHERE THE COURSE GOES NEXT, so the page can
+    advance inside the scripted lane instead of handing the seam to the model.
+    next_id is "" on a non-mastered end (Jim's ruling: still learning does not
+    advance) and at a course boundary. Purely additive -- a caller that passes no
+    lesson_id gets byte-identical output to before."""
     out = []
     for s in steps:
         c = {"kind": s["kind"], "spoken": s.get("spoken", ""),
@@ -10558,6 +10613,10 @@ def _script_clean(steps):
         if s["kind"] == "end":
             c["mastered"] = bool(s.get("mastered"))
             c["graceful"] = bool(s.get("graceful"))
+            c["next_id"], c["next_topic"] = "", ""
+            if c["mastered"] and lesson_id:
+                _nid, _ntopic = _next_lesson_id(lesson_id)
+                c["next_id"], c["next_topic"] = (_nid or ""), (_ntopic or "")
         out.append(c)
     return out
 
@@ -10651,7 +10710,7 @@ def script_start(body: ScriptStartIn):
     # kd: the id rides along so the pilot page can offer "Next lesson" from the
     # course order without guessing which lesson this session is in.
     return {"ok": True, "lesson": lesson["topic"], "id": lesson["id"],
-            "steps": _script_clean(steps)}
+            "steps": _script_clean(steps, lesson["id"])}
 
 
 # (oq) THE RAISED HAND -- Jim's expansion order after approving Unit 1. Bounds:
@@ -10787,7 +10846,7 @@ def script_answer(body: ScriptAnswerIn):
             steps, state = lessonscripts.step(lesson, state, ("resume",))
             sess.update(state=state, mode="script", ai_turns=0,
                         history=[], redo=None)
-            out = [{"kind": "say", "spoken": praise, "board": ""}]                 + _script_clean(steps)
+            out = [{"kind": "say", "spoken": praise, "board": ""}]                 + _script_clean(steps, lesson["id"])
             for s in steps:
                 if s["kind"] == "end":
                     _script_finish(code, sess, s)
@@ -10821,7 +10880,7 @@ def script_answer(body: ScriptAnswerIn):
             if s["kind"] == "end":
                 _script_finish(code, sess, s)
         _script_log(code, lesson["course"], t0)
-        resp = {"ok": True, "steps": _script_clean(steps)}
+        resp = {"ok": True, "steps": _script_clean(steps, lesson["id"])}
         if _streak:
             resp["streak"] = _streak
         return resp
@@ -10859,9 +10918,9 @@ def script_answer(body: ScriptAnswerIn):
                 # it -- straight to the engine's retest, no dead air, no error page
                 steps2, state = lessonscripts.step(lesson, state, ("resume",))
                 sess["state"] = state
-                out.extend(_script_clean(steps2))
+                out.extend(_script_clean(steps2, lesson["id"]))
         else:
-            out.extend(_script_clean([s]))
+            out.extend(_script_clean([s], lesson["id"]))
             if s["kind"] == "end":
                 _script_finish(code, sess, s)
     _script_log(code, lesson["course"], t0)
@@ -13560,7 +13619,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-03sj-the-floor"
+APP_BUILD = "2026-09-04sl-the-seam-reads-the-course-order"
 
 
 @app.get("/health")

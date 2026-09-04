@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <!--
+    (sl) 2026-09-04 -- THE SEAM READS THE COURSE ORDER (the page half; main.py
+    holds the server half). A MASTERED lesson's end step now carries next_id from
+    lessonscripts.COURSE_ORDER, and after the bridge line this page starts THAT
+    lesson inside the scripted lane -- scriptStart(forcedId) -- instead of handing
+    the seam to the live tutor to guess the topic (the 09-01 "one-less reads as
+    subtraction" bug, root cause). Jim's rulings 2026-09-04: mastery auto-advances;
+    the new topic is announced, scripted (the next lesson's own opener names it).
+    A still-learning end and a course boundary carry no next_id and fall through
+    to the live tutor exactly as before -- the warm choice and the course-end
+    celebration are their own builds, ruled the same day. A flawless student now
+    runs a whole course without a single model call.
     (rr) 2026-09-02 -- THE PENCIL HAS FEELINGS ABOUT YOUR WORK. Jim's behaviour list,
     the page's half (the behaviours themselves live in cadabra.js; the schedule in
     cadabra-script.json). New doorbells, every one AFTER its real work: [[ink]] ->
@@ -3920,6 +3931,18 @@
           const SEAM_LINE = "That lesson is finished — well done! Something new is coming next. Watch the board.";
           addBubble("tutor", SEAM_LINE); lastTutorText = SEAM_LINE;
           await scrSay(SEAM_LINE);
+          // (sl, 2026-09-04) THE SEAM READS THE COURSE ORDER. Jim's ruling: a
+          // mastered lesson advances on its own, and the next topic is the one
+          // lessonscripts.COURSE_ORDER says comes next -- the server put it on this
+          // end step as next_id (main.py _script_clean). The next lesson's own
+          // first line names its topic ("Today we count past ten"), which is
+          // ruling #3, announced and scripted. Until this line the live tutor
+          // was asked to GUESS what came next -- the 09-01 "one-less reads as
+          // subtraction" bug; rj made it announce the guess, this removes it.
+          // FAIL OPEN, the lane's standing law: an empty next_id (a still-
+          // learning end, a course boundary, the end of the order) or a failed
+          // start falls through to the live tutor exactly as before this build.
+          if (step.next_id && await scriptStart(step.next_id)) return;
         }
         // The script for this topic is finished. The LIVE tutor takes it from
         // here, in the same session, so the student simply carries on.
@@ -4035,8 +4058,12 @@
     }
     function scrIngest(steps) { SCR.queue = SCR.queue.concat(steps || []); scrNext(); }
 
-    async function scriptStart() {
-      const les = await scriptPick();
+    // (sl, 2026-09-04) scriptStart can be TOLD which lesson to start. The seam
+    // passes the server's next_id straight in, so the pick is skipped and the
+    // student moves to the next AUTHORED lesson -- COURSE_ORDER's, not a guess.
+    // With no argument it behaves exactly as before: the picker chooses.
+    async function scriptStart(forcedId) {
+      const les = forcedId ? { id: forcedId, topic: "" } : await scriptPick();
       if (!les) return false;
       try {
         const r = await fetch("/api/script/start", {

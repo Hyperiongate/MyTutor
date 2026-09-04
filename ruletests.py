@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  BUILD sl -- PART 3ih: the seam reads the course order. The 09-01
+#               "one-less reads as subtraction" bug's root cause: nothing at the
+#               scripted->live seam ever read lessonscripts.COURSE_ORDER, so the live
+#               tutor guessed the next topic. Server: _next_lesson_id + next_id on a
+#               MASTERED end step only (still-learning and a course boundary carry
+#               none -- Jim's rulings). Page: scriptStart(forcedId) and one line at
+#               the seam, fail-open to the live tutor. Pinned both ways, plus the
+#               scripted-first invariant that no answer ever reaches the client.
 #   2026-09-04  BUILD sk -- PART 3ie's env banner RE-PINNED OFF THE NEW DEFAULT.
 #               nightwatch's _DEFAULT_LESSONS is now 10, so a check that set
 #               NIGHTWATCH_LESSONS=10 was asserting a banner for a value that no longer
@@ -12374,7 +12382,10 @@ def part3hk_the_orb_retires_and_the_seam_is_announced():
           '"' + L.LINE_NEW_TOPIC + '"' in page,
           "one character of drift = a cache miss = the seam announced in the wrong "
           "voice -- the exact seam mj/mn closed for the handoff lines")
-    _endb = page.split('if (step.kind === "end")', 1)[1][:1800]
+    # (sl, 2026-09-04) window 1800 -> 3200: sl's seam comment sits inside the mastered
+    # branch and pushed runTutor( past the old cut. The intent -- mastered branch first,
+    # live-tutor handoff after -- is unchanged, and PART 3ih pins it by position.
+    _endb = page.split('if (step.kind === "end")', 1)[1][:3200]
     check("  ...only on a MASTERED end, before the live tutor is called",
           "if (step.mastered)" in _endb
           and _endb.index("if (step.mastered)") < _endb.index("runTutor(")
@@ -21735,7 +21746,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,439</b>" in page,
+          "<b>8,455</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22263,6 +22274,109 @@ def part3ig_the_floor():
           "a floor nobody can see is a floor nobody can audit")
     check("  tutor.py and nightwatch.py carry dated sj notes",
           "2026-09-03  BUILD sj" in _dispatch[:200000] and "2026-09-03  BUILD sj" in _nw,
+          "Jim's rule 8")
+
+
+def part3ih_the_seam_reads_the_course_order():
+    """PART 3ih (build sl, 2026-09-04) -- THE SEAM READS THE COURSE ORDER.
+
+    THE ROOT CAUSE of the 09-01 bug Jim watched ("one-less reads as subtraction"):
+    lessonscripts.COURSE_ORDER is the authored 360-lesson sequence, and NOTHING at
+    the scripted->live seam ever read it. The system note told the live tutor "your
+    FIRST sentence must NAME the new topic" -- but never which. The model picked.
+    Build rj made the model announce its guess; it did not remove the guess.
+
+    JIM'S RULINGS, 2026-09-04: mastery auto-advances, no student choice; the new
+    topic is announced, scripted; still-learning does NOT auto-advance (it gets a
+    warm choice -- its own build); a course end gets a celebration -- its own build.
+
+    THE BUILD. Server: _next_lesson_id reads COURSE_ORDER and returns the next
+    lesson IN THE SAME COURSE, nothing at a boundary or the end; _script_clean puts
+    next_id/next_topic on a MASTERED end step only. Page: scriptStart(forcedId)
+    starts a named lesson, and the seam starts step.next_id after the bridge line,
+    falling through to the live tutor on any failure -- the lane's standing law.
+    A flawless student now runs a whole course with zero model calls."""
+    print("\nPART 3ih — the seam reads the course order (build sl)")
+    import main as M
+    import lessonscripts as LS
+
+    # ---- the server half, both directions ----------------------------------------
+    order = list(LS.COURSE_ORDER)
+    first = order[0]
+    nid, ntopic = M._next_lesson_id(first)
+    check("⭐ mid-course: the next lesson is COURSE_ORDER's next, in the same course",
+          nid == order[1] and LS.LESSON_BY_ID[nid]["course"] == LS.LESSON_BY_ID[first]["course"]
+          and ntopic == LS.LESSON_BY_ID[nid]["topic"],
+          "the authored sequence, not the model's guess")
+    # the last lesson of the first course -> nothing (a course boundary)
+    c0 = LS.LESSON_BY_ID[first]["course"]
+    last_in_c0 = [i for i in order if LS.LESSON_BY_ID[i]["course"] == c0][-1]
+    check("⭐ a course boundary returns NOTHING (the celebration is its own build)",
+          M._next_lesson_id(last_in_c0) == (None, ""),
+          "finishing a course must not silently roll into the next one")
+    check("  the end of the whole order returns nothing",
+          M._next_lesson_id(order[-1]) == (None, ""), "")
+    check("  an unknown id returns nothing, never raises",
+          M._next_lesson_id("no-such-lesson") == (None, "")
+          and M._next_lesson_id("") == (None, "") and M._next_lesson_id(None) == (None, ""), "")
+
+    end_m = M._script_clean([{"kind": "end", "spoken": "x", "board": "", "mastered": True}], first)[0]
+    end_l = M._script_clean([{"kind": "end", "spoken": "x", "board": "", "mastered": False}], first)[0]
+    check("⭐ a MASTERED end step carries next_id and next_topic",
+          end_m.get("next_id") == order[1] and end_m.get("next_topic"), f"{end_m}")
+    check("⭐ a STILL-LEARNING end step carries NO next_id (does not auto-advance)",
+          end_l.get("next_id") == "" and end_l.get("next_topic") == "",
+          "Jim's ruling: still learning gets a warm choice, not an automatic advance")
+    check("  an end step at a course boundary carries no next_id even when mastered",
+          M._script_clean([{"kind": "end", "spoken": "x", "board": "", "mastered": True}],
+                          last_in_c0)[0].get("next_id") == "", "")
+    check("  a caller that passes no lesson_id gets the old shape (purely additive)",
+          M._script_clean([{"kind": "end", "spoken": "x", "board": "", "mastered": True}])[0]
+          .get("next_id") == "", "")
+    check("  the expected answer never rides an end step or an ask step",
+          all("answer" not in c and "expected" not in c for c in M._script_clean(
+              [{"kind": "ask", "spoken": "q", "board": "", "choices": "1|2", "answer": "1",
+                "expected": "1"},
+               {"kind": "end", "spoken": "x", "board": "", "mastered": True}], first)),
+          "the scripted-first invariant: no answer ever reaches the client")
+    check("  /api/script/start hands _script_clean the lesson id (all call sites)",
+          open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "main.py"),
+               encoding="utf-8").read().count("_script_clean(steps, lesson") >= 1
+          and "_script_clean(steps)" not in open(os.path.join(
+              os.path.dirname(os.path.abspath(__file__)), "main.py"), encoding="utf-8").read(),
+          "a call site that drops the id gets a next_id-less end step")
+
+    # ---- the next lesson announces ITSELF, scripted (ruling #3) ------------------
+    les = LS.LESSON_BY_ID[nid]
+    steps, _ = LS.step(les, LS.start(les), ("begin",))
+    opener = " ".join(s.get("spoken", "") for s in steps[:2]).lower()
+    check("⭐ the next lesson's own opener names its topic (announced, scripted)",
+          bool(opener) and any(w in opener for w in ntopic.lower().split()[:2]),
+          f"opener={opener[:80]!r} topic={ntopic!r}")
+
+    # ---- the page half ----------------------------------------------------------
+    page = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "static", "session.html"), encoding="utf-8").read()
+    check("⭐ scriptStart can be TOLD which lesson to start",
+          "async function scriptStart(forcedId)" in page
+          and "forcedId ? { id: forcedId, topic: \"\" } : await scriptPick()" in page,
+          "the seam must be able to skip the picker")
+    check("⭐ the seam starts next_id after the bridge line, and falls through on failure",
+          "if (step.next_id && await scriptStart(step.next_id)) return;" in page,
+          "fail open: an empty next_id or a failed start goes to the live tutor as before")
+    # find(), not index(): a missing line is a named FAIL, never a crashed battery
+    # (the sl failability revert taught this -- a raised ValueError aborted the run).
+    seam = page.find("if (step.next_id && await scriptStart(step.next_id)) return;")
+    check("  ...INSIDE the mastered branch, AFTER the seam line plays",
+          seam > 0
+          and page.rfind("if (step.mastered) {", 0, seam) > page.rfind("async function scrPlay", 0, seam)
+          and page.rfind("await scrSay(SEAM_LINE);", 0, seam) > page.rfind("if (step.mastered) {", 0, seam),
+          "a still-learning end must never advance; the bridge line must play first")
+    check("  ...and the live-tutor handoff is still there beneath it (the fallback)",
+          'await runTutor(step.mastered ? "__script_done_mastered__" : "__script_done__");' in page, "")
+    check("  session.html and main.py carry dated sl notes",
+          "(sl) 2026-09-04" in page[:6000] and "2026-09-04  BUILD sl" in open(os.path.join(
+              os.path.dirname(os.path.abspath(__file__)), "main.py"), encoding="utf-8").read(200000),
           "Jim's rule 8")
 
 
@@ -32553,6 +32667,7 @@ def main():
     part3ie_the_watch_says_what_it_was_told_to_do()
     part3if_the_law_wore_a_different_costume()
     part3ig_the_floor()
+    part3ih_the_seam_reads_the_course_order()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
