@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+    (sn) 2026-09-04 -- THE WARM CHOICE. Jim's ruling ③: a still-learning lesson end
+    asks the student -- "go on to the next lesson, or review this a bit more?" -- with
+    two buttons that START a lesson inside the scripted lane (next, or this one again
+    from the top), instead of handing the seam to the live tutor. showSeamChoice is
+    the page's own choice row whose taps navigate; board.js's showChoices, whose taps
+    send a message, is untouched. The line is lessonscripts.LINE_STILL_LEARNING_CHOICE
+    byte-for-byte (pre-rendered). Fail open to the live tutor on any failure.
     (sl) 2026-09-04 -- THE SEAM READS THE COURSE ORDER (the page half; main.py
     holds the server half). A MASTERED lesson's end step now carries next_id from
     lessonscripts.COURSE_ORDER, and after the bridge line this page starts THAT
@@ -3944,6 +3951,33 @@
           // start falls through to the live tutor exactly as before this build.
           if (step.next_id && await scriptStart(step.next_id)) return;
         }
+        // (sn, 2026-09-04) THE WARM CHOICE. Jim's ruling ③: a still-learning end
+        // does not block and does not silently repeat -- the student picks. The
+        // server set step.choice only when there IS a next lesson (main.py
+        // _script_clean); the line is lessonscripts.LINE_STILL_LEARNING_CHOICE,
+        // byte-identical here so its pre-rendered clip is a cache hit. "Go on"
+        // starts the next authored lesson; "Review" starts THIS lesson again from
+        // its first step (ruling #4: resume at a lesson boundary, never mid-
+        // problem). No model call either way. FAIL OPEN: a start that fails, or a
+        // student who types instead of tapping, reaches the live tutor as before.
+        if (!step.mastered && step.choice && step.next_id) {
+          const cur = SCR.id;
+          const CHOICE_LINE = "You're doing great — would you like to go on to the next lesson, or review this a bit more to get it solid?";
+          addBubble("tutor", CHOICE_LINE); lastTutorText = CHOICE_LINE;
+          await scrSay(CHOICE_LINE);
+          showSeamChoice([
+            ["Go on to the next lesson", async () => {
+              if (await scriptStart(step.next_id)) return;
+              busy = true; setPhase("busy"); await runTutor("__script_done__");
+            }],
+            ["Review this a bit more", async () => {
+              if (cur && await scriptStart(cur)) return;
+              busy = true; setPhase("busy"); await runTutor("__script_done__");
+            }],
+          ]);
+          busy = false; setPhase("ready"); setState("idle");
+          return;
+        }
         // The script for this topic is finished. The LIVE tutor takes it from
         // here, in the same session, so the student simply carries on.
         busy = true; setPhase("busy");
@@ -4062,6 +4096,30 @@
     // passes the server's next_id straight in, so the pick is skipped and the
     // student moves to the next AUTHORED lesson -- COURSE_ORDER's, not a guess.
     // With no argument it behaves exactly as before: the picker chooses.
+    // (sn, 2026-09-04) A CHOICE ROW WHOSE TAPS NAVIGATE. board.js's showChoices sends
+    // the tapped label to the tutor as a MESSAGE -- right for an answer, wrong here,
+    // where a tap must start a lesson. Same buttons, same CSS, same disable-on-tap
+    // discipline; each option carries its own action. Page-local on purpose: board.js
+    // is the ONE copy of the display functions (PART 3aw) and this is not one of them.
+    function showSeamChoice(options) {
+      ensureChoicesCSS(); clearChoices();
+      const row = document.createElement("div"); row.className = "choicerow"; choicesRow = row;
+      for (const [label, act] of options) {
+        const b = document.createElement("button"); b.type = "button";
+        b.className = "choicebtn"; b.textContent = label;
+        b.addEventListener("click", async () => {
+          if (busy) return;
+          Array.prototype.forEach.call(row.querySelectorAll("button"), (x) => { x.disabled = true; });
+          ensureAudioGraph(); clearChoices();
+          try { await act(); }
+          catch (e) { busy = false; setPhase("ready"); setState("idle"); }
+        });
+        row.appendChild(b);
+      }
+      composer.parentNode.insertBefore(row, composer);
+      scrollFeed();
+    }
+
     async function scriptStart(forcedId) {
       const les = forcedId ? { id: forcedId, topic: "" } : await scriptPick();
       if (!les) return false;

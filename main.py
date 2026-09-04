@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  APP_BUILD -> "2026-09-04sn-the-warm-choice". BUILD sn -- Jim's ruling ③:
+#               a still-learning lesson end offers the student a CHOICE -- go on to the
+#               next lesson, or review this one -- instead of handing the seam to the
+#               live tutor. This supersedes sl's "still learning does not advance",
+#               which Jim softened the same day. Server half here: _script_clean now
+#               puts next_id on EVERY end step that has a next lesson, and `choice`:
+#               True on a still-learning one. lessonscripts owns the spoken line;
+#               session.html renders the two buttons and starts the chosen lesson
+#               inside the scripted lane (review = the same lesson from the start --
+#               ruling #4, resume at a lesson boundary). No model call either way.
+#               A course boundary still falls through to the live tutor until ④.
 #   2026-09-04  APP_BUILD -> "2026-09-04sm-the-board-answers-the-question-asked". BUILD
 #               sm is tutor.py ONLY; this file changes for the STAMP. Jim's ruling ①:
 #               board/words disagreement is truth-class -- boardcount joins the floor's
@@ -10605,9 +10616,12 @@ def _script_clean(steps, lesson_id: str = ""):
     """The client payload: never the expected answer, never the raw problem.
     (sl) An `end` step also carries WHERE THE COURSE GOES NEXT, so the page can
     advance inside the scripted lane instead of handing the seam to the model.
-    next_id is "" on a non-mastered end (Jim's ruling: still learning does not
-    advance) and at a course boundary. Purely additive -- a caller that passes no
-    lesson_id gets byte-identical output to before."""
+    (sn) Jim's ruling ③ supersedes sl's "still learning does not advance": a
+    still-learning end ALSO carries next_id -- and `choice`: True -- so the page can
+    offer the WARM CHOICE (go on, or review). A mastered end carries next_id and no
+    choice (it auto-advances, ruling #1). Both are "" / False at a course boundary,
+    where the live tutor still takes over until ruling ④ lands. Purely additive --
+    a caller that passes no lesson_id gets byte-identical output to before sl."""
     out = []
     for s in steps:
         c = {"kind": s["kind"], "spoken": s.get("spoken", ""),
@@ -10619,10 +10633,12 @@ def _script_clean(steps, lesson_id: str = ""):
         if s["kind"] == "end":
             c["mastered"] = bool(s.get("mastered"))
             c["graceful"] = bool(s.get("graceful"))
-            c["next_id"], c["next_topic"] = "", ""
-            if c["mastered"] and lesson_id:
+            c["next_id"], c["next_topic"], c["choice"] = "", "", False
+            if lesson_id:
                 _nid, _ntopic = _next_lesson_id(lesson_id)
                 c["next_id"], c["next_topic"] = (_nid or ""), (_ntopic or "")
+                # (sn) the warm choice: still learning, and there IS a next lesson
+                c["choice"] = bool(_nid) and not c["mastered"]
         out.append(c)
     return out
 
@@ -13625,7 +13641,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-04sm-the-board-answers-the-question-asked"
+APP_BUILD = "2026-09-04sn-the-warm-choice"
 
 
 @app.get("/health")

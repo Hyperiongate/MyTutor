@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  BUILD sn -- PART 3ij: the warm choice. Jim's ruling ③: a still-
+#               learning end offers "go on, or review?" with two buttons that start a
+#               lesson inside the scripted lane. The line is pre-rendered and byte-
+#               identical on the page; the server sets choice only when a next lesson
+#               exists; a course boundary still falls through (④). One sl pin re-pinned
+#               under the ruling: a still-learning end now CARRIES next_id, and choice
+#               is what stops it auto-advancing.
 #   2026-09-04  BUILD sm -- PART 3ii: the board tells the truth about which question
 #               it answers. Jim's ruling ①: board/words disagreement is truth-class.
 #               boardcount joins the truth class; the SEVENTY-FIFTH referee
@@ -12390,13 +12397,16 @@ def part3hk_the_orb_retires_and_the_seam_is_announced():
           '"' + L.LINE_NEW_TOPIC + '"' in page,
           "one character of drift = a cache miss = the seam announced in the wrong "
           "voice -- the exact seam mj/mn closed for the handoff lines")
-    # (sl, 2026-09-04) window 1800 -> 3200: sl's seam comment sits inside the mastered
-    # branch and pushed runTutor( past the old cut. The intent -- mastered branch first,
-    # live-tutor handoff after -- is unchanged, and PART 3ih pins it by position.
-    _endb = page.split('if (step.kind === "end")', 1)[1][:3200]
+    # (sl, then sn, 2026-09-04) THIS PIN USED TO SLICE A CHARACTER WINDOW (1800, then
+    # 3200) after the end handler and .index() inside it -- and each build that grew
+    # the mastered branch (sl's seam, sn's warm choice) pushed runTutor( past the cut
+    # and CRASHED the battery with a ValueError instead of failing by name. The
+    # intent was always structural: the mastered branch comes first, the live-tutor
+    # handoff after. Pinned as structure now, with find(), and no window at all.
+    _endb = page.split('if (step.kind === "end")', 1)[1]
+    _m, _r = _endb.find("if (step.mastered)"), _endb.find("runTutor(")
     check("  ...only on a MASTERED end, before the live tutor is called",
-          "if (step.mastered)" in _endb
-          and _endb.index("if (step.mastered)") < _endb.index("runTutor(")
+          0 <= _m < _r
           and '"__script_done_mastered__" : "__script_done__"' in _endb,
           "a graceful unmastered end keeps the old quiet handoff -- nothing new is "
           "coming that deserves fanfare")
@@ -20701,10 +20711,16 @@ def part3fh_let_the_lesson_breathe():
     # the tap buttons look live and do nothing for 2.6 seconds. That is now checked
     # directly, on the gap itself, which is a strictly stronger test than the string
     # was: it fails for ANY await inserted there, in any wording.
-    _unlock = raw.split('busy = false; setPhase("ready");')[1]
-    _gap = _unlock.split("scrSay(words).then(")[0]
+    # (sn, 2026-09-04) ANCHORED ON THE ASK BEAT'S OWN UNLOCK. This used to take the
+    # FIRST 'busy = false; setPhase("ready");' in the file and assumed it was the ask
+    # beat's; sn's warm choice put one earlier (the end handler), and the "gap" became
+    # half the player. The intent is the gap between the ASK beat's unlock and its
+    # speech: take the speech marker first, then the LAST unlock before it.
+    _before = raw.split("scrSay(words).then(", 1)[0]
+    _u = _before.rfind('busy = false; setPhase("ready");')
+    _gap = _before[_u + len('busy = false; setPhase("ready");'):] if _u >= 0 else "AWAIT-MISSING"
     check("⭐ AN ASK BEAT NEVER SERVES THE FLOOR -- build nb's law holds",
-          "scrSay(words).then(" in _unlock and "await" not in _gap and len(_gap) < 900,
+          "scrSay(words).then(" in raw and _u >= 0 and "await" not in _gap and len(_gap) < 900,
           "showChoices opens with `if (busy) return;` -- holding busy through the "
           "floor made the tap buttons look live and do nothing for 2.6 seconds")
     check("  ...(qr) and the one line now standing in that gap cannot block",
@@ -21754,7 +21770,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,479</b>" in page,
+          "<b>8,493</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22332,9 +22348,14 @@ def part3ih_the_seam_reads_the_course_order():
     end_l = M._script_clean([{"kind": "end", "spoken": "x", "board": "", "mastered": False}], first)[0]
     check("⭐ a MASTERED end step carries next_id and next_topic",
           end_m.get("next_id") == order[1] and end_m.get("next_topic"), f"{end_m}")
-    check("⭐ a STILL-LEARNING end step carries NO next_id (does not auto-advance)",
-          end_l.get("next_id") == "" and end_l.get("next_topic") == "",
-          "Jim's ruling: still learning gets a warm choice, not an automatic advance")
+    # (sn) RE-PINNED under Jim's ruling ③, the same day: a still-learning end DOES
+    # carry next_id -- so the "go on" button can start it -- and carries choice: True,
+    # which is what keeps it from auto-advancing. The mastered end carries no choice.
+    check("⭐ a STILL-LEARNING end step carries next_id AND choice (the warm choice, sn)",
+          end_l.get("next_id") == order[1] and end_l.get("choice") is True
+          and end_m.get("choice") is False,
+          "Jim's ruling ③: still learning gets a warm choice, not an automatic advance "
+          "and not a block")
     check("  an end step at a course boundary carries no next_id even when mastered",
           M._script_clean([{"kind": "end", "spoken": "x", "board": "", "mastered": True}],
                           last_in_c0)[0].get("next_id") == "", "")
@@ -22518,6 +22539,97 @@ def part3ii_the_board_tells_the_truth_about_which_question():
     check("  tutor.py carries a dated sm note",
           "2026-09-04  BUILD sm" in open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                      "tutor.py"), encoding="utf-8").read(200000), "")
+
+
+def part3ij_the_warm_choice():
+    """PART 3ij (build sn, 2026-09-04) -- JIM'S RULING ③: THE WARM CHOICE.
+
+    "You're doing great — would you like to go on to the next lesson, or review
+    this a bit more to get it solid?" A still-learning lesson end no longer hands
+    the seam to the live tutor and no longer silently repeats: the student picks,
+    with two buttons that START a lesson inside the scripted lane -- the next
+    authored one, or this one again from its first step (ruling #4: resume at a
+    lesson boundary, never mid-problem). No model call either way.
+
+    THREE HALVES, each pinned: lessonscripts owns the line and pre-renders it
+    (STANDALONE_LINES, like rj's seam line); main.py's _script_clean sets choice
+    only on a still-learning end that HAS a next lesson; session.html speaks the
+    same bytes and renders a page-local choice row whose taps navigate (board.js's
+    showChoices, whose taps send a message, is untouched -- PART 3aw's one copy).
+    Fail open: a failed start or a typed reply reaches the live tutor as before."""
+    print("\nPART 3ij — the warm choice (build sn)")
+    import main as M
+    import lessonscripts as L
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    # ---- the line, owned and pre-renderable ----------------------------------
+    check("⭐ LINE_STILL_LEARNING_CHOICE exists, in Jim's words, and rides the closure",
+          hasattr(L, "LINE_STILL_LEARNING_CHOICE")
+          and "go on to the next lesson" in L.LINE_STILL_LEARNING_CHOICE
+          and "review this a bit more" in L.LINE_STILL_LEARNING_CHOICE
+          and L.LINE_STILL_LEARNING_CHOICE in L.STANDALONE_LINES
+          and L.LINE_STILL_LEARNING_CHOICE in L.course_audio_lines(),
+          "a seam line outside the closure reaches a child as browser voice")
+    check("  ...under the beat cap and clean of the banned vocabulary",
+          len(L.LINE_STILL_LEARNING_CHOICE.split()) <= L.BEAT_WORD_CAP
+          and not any(t in L.LINE_STILL_LEARNING_CHOICE.lower()
+                      for b in L.VOCABULARY.values() for t in b), "")
+    page = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    check("⭐ session.html speaks the SAME bytes (the voice cache is keyed by text)",
+          '"' + L.LINE_STILL_LEARNING_CHOICE + '"' in page,
+          "one character of drift = a cache miss = the choice asked in the wrong voice")
+
+    # ---- the server half, both ways ------------------------------------------
+    order = list(L.COURSE_ORDER)
+    first = order[0]
+    c0 = L.LESSON_BY_ID[first]["course"]
+    last_in_c0 = [i for i in order if L.LESSON_BY_ID[i]["course"] == c0][-1]
+    def _end(mastered, lid):
+        return M._script_clean([{"kind": "end", "spoken": "x", "board": "",
+                                 "mastered": mastered}], lid)[0]
+    check("⭐ a still-learning end with a next lesson: choice True, next_id set",
+          _end(False, first)["choice"] is True and _end(False, first)["next_id"] == order[1], "")
+    check("⭐ a MASTERED end: next_id set, choice False (it auto-advances -- ruling #1)",
+          _end(True, first)["choice"] is False and _end(True, first)["next_id"] == order[1], "")
+    check("⭐ a still-learning end at a COURSE BOUNDARY: no choice, no next_id (④ is its own build)",
+          _end(False, last_in_c0)["choice"] is False and _end(False, last_in_c0)["next_id"] == "", "")
+    check("  no lesson id: no choice, no pointer (purely additive)",
+          M._script_clean([{"kind": "end", "spoken": "x", "board": "", "mastered": False}])[0]
+          .get("choice") is False, "")
+    check("  an ask step never grows a choice field or an answer",
+          "choice" not in M._script_clean([{"kind": "ask", "spoken": "q", "board": "",
+                                            "choices": "1|2", "answer": "1"}], first)[0]
+          and "answer" not in M._script_clean([{"kind": "ask", "spoken": "q", "board": "",
+                                                "choices": "1|2", "answer": "1"}], first)[0], "")
+
+    # ---- the page half ----------------------------------------------------------
+    check("⭐ the page renders the choice only on a still-learning end that has a next lesson",
+          "if (!step.mastered && step.choice && step.next_id) {" in page, "")
+    check("⭐ 'Go on' starts the NEXT lesson; 'Review' starts THIS lesson again",
+          '["Go on to the next lesson", async () => {' in page
+          and "if (await scriptStart(step.next_id)) return;" in page
+          and '["Review this a bit more", async () => {' in page
+          and "if (cur && await scriptStart(cur)) return;" in page,
+          "review = the same lesson from its first step (ruling #4)")
+    check("  ...and each falls through to the live tutor if the start fails",
+          page.count('await runTutor("__script_done__");') >= 2, "fail open, the lane's law")
+    check("  the choice row is the page's own; board.js's showChoices is untouched",
+          "function showSeamChoice(options)" in page
+          and "function showSeamChoice" not in open(os.path.join(here, "static", "board.js"),
+                                                     encoding="utf-8").read()
+          and "function showChoices(a)" in open(os.path.join(here, "static", "board.js"),
+                                                 encoding="utf-8").read(), "PART 3aw's one copy")
+    _sl = page.find("if (step.next_id && await scriptStart(step.next_id)) return;")
+    _sn = page.find("if (!step.mastered && step.choice && step.next_id) {")
+    _rt = page.find('await runTutor(step.mastered ? "__script_done_mastered__" : "__script_done__");')
+    check("  ...ordered: mastered auto-advance, then the choice, then the live-tutor fallback",
+          0 < _sl < _sn < _rt, f"sl@{_sl} sn@{_sn} runTutor@{_rt}")
+    check("  the three files carry dated sn notes",
+          "(sn) 2026-09-04" in page[:8000]
+          and "2026-09-04  BUILD sn" in open(os.path.join(here, "lessonscripts.py"),
+                                              encoding="utf-8").read(20000)
+          and "BUILD sn" in open(os.path.join(here, "main.py"), encoding="utf-8").read(200000),
+          "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -32809,6 +32921,7 @@ def main():
     part3ig_the_floor()
     part3ih_the_seam_reads_the_course_order()
     part3ii_the_board_tells_the_truth_about_which_question()
+    part3ij_the_warm_choice()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

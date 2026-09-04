@@ -2,6 +2,13 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  BUILD sn -- THE WARM CHOICE. Jim's ruling ③ (2026-09-04): at a still-
+#               learning lesson end the student picks -- "go on to the next lesson, or
+#               review this a bit more to get it solid?" -- instead of the page handing
+#               the seam to the live tutor. LINE_STILL_LEARNING_CHOICE, his words
+#               verbatim, joins STANDALONE_LINES beside rj's LINE_NEW_TOPIC so it is
+#               pre-rendered. The engine's end steps are untouched: main.py's
+#               _script_clean adds the pointer, session.html renders the two buttons.
 #   2026-09-02  BUILD se -- JIM'S FLAG on the entry count-on lesson: "Drop the term
 #               'trap' and everything after it." The teach line now ends on the
 #               count ("...Fourteen stars."). Its clip re-renders from the new text
@@ -25829,11 +25836,21 @@ CADABRA_HANDOFF_BYE = "You have got this. Back to you, Abrabot."
 LINE_NEW_TOPIC = ("That lesson is finished — well done! Something new is coming "
                   "next. Watch the board.")
 
+# (sn, 2026-09-04) THE WARM CHOICE. Jim's ruling ③: a still-learning lesson end does
+# not block and does not silently repeat -- the student PICKS. His words, verbatim.
+# Standalone for the same reason as LINE_NEW_TOPIC: it belongs to the course, not to
+# any lesson, and the page speaks it byte-for-byte so the pre-rendered clip is a
+# cache hit, never browser voice (the battery pins the two copies equal).
+LINE_STILL_LEARNING_CHOICE = ("You're doing great — would you like to go on to the "
+                              "next lesson, or review this a bit more to get it solid?")
+
 # Everything above, plus anything else that is spoken outside a lesson later.
 STANDALONE_LINES = (tuple(ABRABOT_INTRO)
                     + (CADABRA_HANDOFF_HELLO, CADABRA_HANDOFF_BYE)
                     # (rj) the seam line belongs to the course, not to any lesson
                     + (LINE_NEW_TOPIC,)
+                    # (sn) and so does the still-learning choice
+                    + (LINE_STILL_LEARNING_CHOICE,)
                     # build ou: the free-answer lines belong to no lesson
                     + (LINE_WHOLE, LINE_UNSURE))
 
