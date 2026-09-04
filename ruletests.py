@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  BUILD sm -- PART 3ii: the board tells the truth about which question
+#               it answers. Jim's ruling ①: board/words disagreement is truth-class.
+#               boardcount joins the truth class; the SEVENTY-FIFTH referee
+#               expression_swap_conflict promotes qx's probe (the 09-04 HIGH: board
+#               2 + 3 x 4 = 14, voice "three plus two times four" = 11). The double-
+#               starred checks are the BOUNDARY: same order, a value-keeping commute, a
+#               new example, a different operation, a comparison and an announced
+#               contrast all stay silent. Count pins 74 -> 75 (seven sites + label).
 #   2026-09-04  BUILD sl -- PART 3ih: the seam reads the course order. The 09-01
 #               "one-less reads as subtraction" bug's root cause: nothing at the
 #               scripted->live seam ever read lessonscripts.COURSE_ORDER, so the live
@@ -12667,7 +12675,7 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- this build widened a gate",
-          n_ref == 74,
+          n_ref == 75,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -12751,7 +12759,7 @@ def part3hn_credit_only_what_you_saw():
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rm widened a gate",
-          n_ref == 74, f"{n_ref} *_conflict functions")
+          n_ref == 75, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -12828,7 +12836,7 @@ def part3ho_three_one_line_holes():
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rn widened two gates",
-          n_ref == 74, f"{n_ref} *_conflict functions")
+          n_ref == 75, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -19166,10 +19174,10 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ seventy-four referees now, counted from the code (62 + pz + qf + qm + qs + "
+    check("⭐ seventy-five referees now, counted from the code (62 + pz + qf + qm + qs + "
           "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + "
-          "se's boardflood + sf's spokenmath)",
-          n_ref == 74, n_ref)
+          "se's boardflood + sf's spokenmath + sm's exprswap)",
+          n_ref == 75, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -21746,7 +21754,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,455</b>" in page,
+          "<b>8,479</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -21873,10 +21881,10 @@ def part3ie_the_watch_says_what_it_was_told_to_do():
         else:
             sys.modules["store"] = _real_store
 
+    _f, _k, _s = (tel.find("**fracslash**: 121x"), tel.find("**knownfalse**: 98x"),
+                  tel.find("**spokenmath**: 31x"))
     check("⭐ referee fires are split BY NAME, most-fired first",
-          "Which referees fired (3 distinct" in tel
-          and tel.index("**fracslash**: 121x") < tel.index("**knownfalse**: 98x")
-          < tel.index("**spokenmath**: 31x"),
+          "Which referees fired (3 distinct" in tel and 0 < _f < _k < _s,
           "'507 referee fires' says the machine is awake, not which rule is breaking")
     check("  ...and the bare total is still there for the trend",
           "referee fires: **250**" in tel, "121 + 98 + 31")
@@ -22378,6 +22386,138 @@ def part3ih_the_seam_reads_the_course_order():
           "(sl) 2026-09-04" in page[:6000] and "2026-09-04  BUILD sl" in open(os.path.join(
               os.path.dirname(os.path.abspath(__file__)), "main.py"), encoding="utf-8").read(200000),
           "Jim's rule 8")
+
+
+def part3ii_the_board_tells_the_truth_about_which_question():
+    """PART 3ii (build sm, 2026-09-04) -- JIM'S RULING ①: BOARD/WORDS DISAGREEMENT IS
+    TRUTH-CLASS. Two moves, both pinned both ways.
+
+    (1) boardcount joins TRUTH_REFEREES. It sat on sj's "ruled conduct until Jim says
+    otherwise" list; he said otherwise on 2026-09-04.
+
+    (2) THE SEVENTY-FIFTH REFEREE, expression_swap_conflict -- the qx probe promoted.
+    The 09-04 watch's only HIGH: the board worked "2 + 3 x 4 = 2 + 12 = 14" while the
+    voice worked "three plus two times four" and said eleven. Every board character
+    true; mathcheck silent; a child leaving with 14. The probe's own two kinds are the
+    design the 08-29 review asked for: REORDERED (same numbers, different order) is
+    never an honest new example and fires when the reorder changes the value;
+    REPLACED (different numbers) may be a new example and stays a probe.
+
+    THE BOUNDARY IS THE POINT, as with every truth referee: the same expression in
+    the same order, a commute that keeps the value (2 + 3 -> 3 + 2), a genuinely new
+    example, a different operation, two expressions (a comparison), and an ANNOUNCED
+    contrast all stay silent -- a truth referee that fires on right teaching burns
+    three attempts and floors a correct reply (build iz's phantom, now with a floor
+    under it). Canon measured before enforcing: 15,945 strings, zero false alarms."""
+    print("\nPART 3ii — the board tells the truth about which question it answers (build sm)")
+    import tutor as T
+    import lessonscripts as _LS
+    import foundations as _FND
+
+    # ---- (1) boardcount is truth now, by ruling -----------------------------------
+    check("⭐ boardcount is in the truth class (Jim's ruling ①, 2026-09-04)",
+          "boardcount" in T.TRUTH_REFEREES and T._is_truth_finding("prose", "boardcount"),
+          "sj left it as 'conduct until Jim says otherwise'; he said otherwise")
+    check("  ...and the 'considered and NOT included' note no longer lists it as excluded",
+          "boardcount WAS on this list under sj" in open(os.path.join(
+              os.path.dirname(os.path.abspath(__file__)), "tutor.py"), encoding="utf-8").read(),
+          "a ruling that changed must not leave the old reasoning standing beside it")
+
+    # ---- (2) the seventy-fifth referee: the HIGH fires, both shapes ----------------
+    high = ('Let\'s work three plus two times four. [[step eq="2 + 3 × 4 = 2 + 12 = 14"]] '
+            "So the answer is 11.")
+    fire = T.expression_swap_conflict(high, "")
+    check("⭐ the 09-04 HIGH fires: spoken 'three plus two times four', board 2 + 3 × 4",
+          "SAME numbers in a DIFFERENT order" in fire and "14 on the board" in fire
+          and "11 for the expression actually asked" in fire,
+          "number-words in the spoken source are read by numwords")
+    check("  ...and the nudge dictates the fix verbatim (write the asked expression, in order)",
+          'Write and work "three plus two times four" exactly as given, in that order' in fire,
+          "a referee whose fix is not spelled out burns three attempts (build iz)")
+    fire2 = T.expression_swap_conflict('Good question. [[step eq="2 + 3 x 4 = 14"]] Multiply first.',
+                                       "what is 3 + 2 x 4")
+    check("⭐ the 08-29 catch fires: the STUDENT wrote 3 + 2 x 4, the board worked 2 + 3 x 4",
+          "the student wrote" in fire2 and "14 on the board" in fire2, "rule 64's own case")
+    check("  ...and a student who writes in words is read too",
+          "the student wrote" in T.expression_swap_conflict('Sure. [[step eq="2 - 5 = -3"]]',
+                                                            "five minus two"), "")
+    T._note_fire("")
+    T.prose_board_conflict(high, "")
+    check("⭐ ...through the real dispatcher, named exprswap, classified TRUTH",
+          T._fired_name() == "exprswap" and T._is_truth_finding("prose", "exprswap"),
+          "the floor withholds it -- Jim's ruling ①")
+    # find(), never index(): a missing line is a named FAIL, not a crashed battery.
+    _tsrc = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+                 encoding="utf-8").read()
+    _kf, _sw = (_tsrc.find('_event("referee_fire", "knownfalse"'),
+                _tsrc.find('_event("referee_fire", "exprswap"'))
+    check("  ...and it sits in the truth cluster, after knownfalse (first-match-wins)",
+          _kf > 0 and _sw > _kf, f"knownfalse@{_kf} exprswap@{_sw}")
+
+    # ---- THE BOUNDARY: right teaching stays silent ---------------------------------
+    for lbl, reply, said in (
+            ("the same expression, same order",
+             'Multiply first. [[step eq="3 + 2 × 4 = 3 + 8 = 11"]]', "3 + 2 × 4"),
+            ("the same expression, spoken in words, same order",
+             'Three plus two times four. [[step eq="3 + 2 × 4 = 11"]]', ""),
+            ("a harmless commute (2 + 3 -> 3 + 2, same value)",
+             'Add them. [[step eq="3 + 2 = 5"]]', "2 + 3"),
+            ("a commutative multiply (3 × 4 -> 4 × 3)",
+             'Same thing. [[step eq="4 × 3 = 12"]]', "3 × 4"),
+            ("a genuinely NEW example (replaced numbers) -- stays a probe",
+             'Try a simpler one. [[step eq="2 + 3 × 4 = 14"]]', "7 + 5 × 6"),
+            ("a different operation is a different lesson",
+             'Now multiply. [[step eq="3 × 2 = 6"]]', "3 + 2"),
+            ("two source expressions is a comparison, not a claim",
+             'Both. [[step eq="2 + 3 × 4 = 14"]]', "3 + 2 × 4 and 4 + 1 × 2"),
+            ("an ANNOUNCED contrast is teaching that order matters",
+             'Now notice how different this is from three plus two times four. '
+             '[[step eq="2 + 3 × 4 = 14"]]', ""),
+            ("no board expression at all",
+             "Three plus two times four is eleven.", "3 + 2 × 4"),
+            ("number-words that are not arithmetic",
+             'You have one more turn, then two. [[step eq="5 + 1 = 6"]]', "")):
+        check(f"⭐⭐ silent: {lbl}", T.expression_swap_conflict(reply, said) == "",
+              "a truth referee that fires on right teaching floors a correct reply")
+    check("  fail open: None / junk input never raises",
+          T.expression_swap_conflict(None, None) == "" and
+          T.expression_swap_conflict("[[step eq=\"\"]]", "1 +") == "", "")
+
+    # ---- the canon, measured before enforcing --------------------------------------
+    seen = fires = 0
+    def _sweep(t):
+        nonlocal seen, fires
+        t = str(t or "")
+        if not t.strip():
+            return
+        seen += 1
+        if T.expression_swap_conflict(t, ""):
+            fires += 1
+    def _walk(o):
+        if isinstance(o, str):
+            _sweep(o)
+        elif isinstance(o, dict):
+            say = o.get("say") or o.get("spoken") or ""
+            b = o.get("board") or ""
+            if say or b:
+                _sweep(str(say) + "\n" + ("\n".join(b) if isinstance(b, list) else str(b)))
+            for v in o.values():
+                _walk(v)
+        elif isinstance(o, (list, tuple)):
+            for v in o:
+                _walk(v)
+    _walk(_LS.LESSONS)
+    for _c, _s in _FND.FOUNDATIONS.items():
+        _walk(_s)
+    check(f"⭐ zero false alarms across {seen} authored strings, spoken+board joined",
+          fires == 0 and seen >= 9000, f"{fires} authored replies rejected")
+
+    # ---- the count moved, and everything that pins it moved with it ----------------
+    check("  seventy-five *_conflict referees",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 75, "")
+    check("  tutor.py carries a dated sm note",
+          "2026-09-04  BUILD sm" in open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                     "tutor.py"), encoding="utf-8").read(200000), "")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -23827,7 +23967,7 @@ def part3hx_the_question_mark_is_a_blank_said_so():
           and n >= 1900 and m >= 3000,
           str(hits[:4]))
     check("  the referee count is unchanged -- sa is a registry row on referee 31",
-          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 74, "")
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 75, "")
 
 
 def part3hw_a_variables_letter_keeps_its_case():
@@ -23976,7 +24116,7 @@ def part3hu_the_accepted_offer_is_honored():
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
     check("  the referee count is unchanged -- rx widened a gate",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 74, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 75, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -24097,7 +24237,7 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
     check("  the referee count is unchanged -- ry widened a gate and added a floor",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 74, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 75, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -32668,6 +32808,7 @@ def main():
     part3if_the_law_wore_a_different_costume()
     part3ig_the_floor()
     part3ih_the_seam_reads_the_course_order()
+    part3ii_the_board_tells_the_truth_about_which_question()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

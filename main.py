@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  APP_BUILD -> "2026-09-04sm-the-board-answers-the-question-asked". BUILD
+#               sm is tutor.py ONLY; this file changes for the STAMP. Jim's ruling ①:
+#               board/words disagreement is truth-class -- boardcount joins the floor's
+#               truth list and the SEVENTY-FIFTH referee (exprswap, qx's probe promoted)
+#               catches the 09-04 HIGH: a board working 2 + 3 x 4 = 14 while the voice
+#               works 3 + 2 x 4 = 11. Referees 74 -> 75. No behaviour here changes.
 #   2026-09-04  BUILD sl -- THE SEAM READS THE COURSE ORDER. Jim's ruling: a MASTERED
 #               lesson advances on its own (no student choice); a "still learning" end
 #               does NOT advance. New _next_lesson_id() reads lessonscripts.COURSE_ORDER --
@@ -13619,7 +13625,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-04sl-the-seam-reads-the-course-order"
+APP_BUILD = "2026-09-04sm-the-board-answers-the-question-asked"
 
 
 @app.get("/health")

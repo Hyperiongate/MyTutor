@@ -2,6 +2,24 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  BUILD sm -- THE BOARD TELLS THE TRUTH ABOUT WHICH QUESTION IT ANSWERS.
+#               Jim's ruling ①, 2026-09-04: board/words disagreement is TRUTH-class.
+#               Two moves. (1) boardcount joins TRUTH_REFEREES -- it was on sj's
+#               "ruled conduct until Jim says otherwise" list; he said otherwise.
+#               (2) THE SEVENTY-FIFTH REFEREE, expression_swap_conflict: the 09-04
+#               watch's only HIGH was a board working 2 + 3 x 4 = 14 while the voice
+#               worked 3 + 2 x 4 and said 11 -- every board character true, mathcheck
+#               silent, a child leaving with 14. The 08-29 watch caught the same move
+#               from the student's side, and qx built a PROBE because the shape needed
+#               a design. The probe's own two kinds are that design: "reordered" is
+#               never an honest new example; "replaced" might be and stays a probe.
+#               Five conditions, all required (first board expression · exactly one
+#               source expression, student message OR the reply's spoken words with
+#               number-words read by numwords · same operators · same numbers
+#               reordered · the reorder CHANGES THE VALUE, so 2 + 3 -> 3 + 2 is
+#               silent), one escape (an announced contrast), the fix dictated verbatim.
+#               Canon: 15,945 authored strings, spoken+board joined, ZERO false alarms.
+#               Count pins 74 -> 75 (seven sites + the label + the tile). PART 3ii.
 #   2026-09-03  BUILD sj -- THE FLOOR: A FALSE DRAFT DOES NOT REACH A CHILD. The 09-03
 #               watch counted 148 replies in a week shipped WITH a known finding, up
 #               from 106 -- and the week it rose was the week LIVE_CRITIC_MODEL was
@@ -10370,6 +10388,14 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if knownfalse:
             _event("referee_fire", "knownfalse", knownfalse)
             return knownfalse
+        # build sm: SEVENTY-FIFTH -- the board works the asked expression with its
+        # numbers REORDERED so the answer changes (the 09-04 watch's HIGH; the 08-29
+        # probe, promoted under Jim's ruling that board/words disagreement is
+        # truth-class). Reads the student's message AND the reply's spoken words.
+        swap = expression_swap_conflict(reply, student_message)
+        if swap:
+            _event("referee_fire", "exprswap", swap)
+            return swap
         # build pt: SIXTIETH -- the child cannot be right. From Jim's flag queue,
         # "1 + 2 = ?" offered as 9 | 4 | 7. Highest severity in the file: it turns a
         # correct child into a wrong answer in their own record.
@@ -11552,6 +11578,154 @@ def changed_expression_probe(reply: str, student_message: str) -> str:
         return ""
 
 
+# =============================================================================
+# BUILD sm (2026-09-04) -- RULE 64 / RULE 13, THE EXPRESSION-SWAP CHECK
+# (the SEVENTY-FIFTH referee) -- the probe above, promoted.
+# =============================================================================
+# THE FINDING. The 2026-09-04 night watch's only HIGH: the board wrote
+# "2 + 3 x 4 = 2 + 12 = 14" while the tutor SPOKE "three plus two times four" and
+# said eleven. Every character on the board is arithmetically true, so mathcheck
+# passed it. It is the right answer to a DIFFERENT question, beside the spoken
+# answer to the real one, and a child leaves believing the answer is 14. The
+# 2026-08-29 watch had caught the same move from the other side -- the child wrote
+# "3 + 2 x 4" and the board silently worked "2 + 3 x 4" -- and the 08-29 review
+# asked for a PROBE first, because the shape needed a design: when is a changed
+# expression a swap, and when is it the tutor honestly choosing a new example?
+#
+# JIM'S RULING, 2026-09-04: the board/words disagreement is TRUTH-class -- the
+# floor withholds it. So the probe's own two kinds answer the design question it
+# was built to ask: "REPLACED" (different numbers) can be an honest new example and
+# stays a probe; "REORDERED" (the same numbers, a different order) is never one --
+# and it is exactly the shape both watches caught.
+#
+# NARROW, on purpose -- five conditions, ALL required, so a fire means a child was
+# about to be told the wrong answer to their own question:
+#   (a) the reply's FIRST equation-carrying board expression (the probe's own rule);
+#   (b) a SOURCE expression -- the student's last message, or this reply's own
+#       SPOKEN words (numbers may be words: "three plus two times four" -- numwords
+#       reads them, the same vocabulary rule 44's referees use) -- and exactly ONE
+#       expression in that source, because two is a comparison, not a claim;
+#   (c) the SAME operator sequence (a different operation is a different lesson);
+#   (d) the SAME numbers in a DIFFERENT order -- "replaced" numbers stay a probe;
+#   (e) the reorder CHANGES THE VALUE. "2 + 3" -> "3 + 2" is a harmless commute and
+#       stays silent; "3 + 2 x 4" -> "2 + 3 x 4" is 11 -> 14 and fires.
+# ONE ESCAPE: an ANNOUNCED contrast -- "notice how DIFFERENT this is", "let's try
+# ANOTHER", "what if we SWITCH the order" -- is teaching that order matters, which is
+# stage one of the very rule this protects, and buys silence.
+# The nudge dictates the fix verbatim (write and work the source expression, in its
+# order), so this referee is ALWAYS SATISFIABLE -- the property build iz's phantom
+# lacked. Canon measured BEFORE enforcing: 15,945 authored strings across
+# lessonscripts, foundations, misconceptions and quizsets, spoken+board joined as
+# one reply -- ZERO false alarms. Fails open everywhere.
+_SW_NUMWORD = "|".join(sorted(list(_numw.ONES) + list(_numw.TENS) + ["hundred"],
+                              key=len, reverse=True))
+_SW_NUM = (r"(?:-?\d+(?:\.\d+)?|(?:(?:" + _SW_NUMWORD + r")(?:[\s-]+(?:"
+           + _SW_NUMWORD + r"))*))")
+_SW_OP = r"(?:plus|minus|times|multiplied\s+by|divided\s+by|over|[+\-−×x*÷/])"
+_SW_CHAIN = re.compile(r"\b" + _SW_NUM + r"(?:\s*" + _SW_OP + r"\s*" + _SW_NUM + r")+\b", re.I)
+_SW_SPLIT = re.compile(r"\s*(" + _SW_OP + r")\s*", re.I)
+_SW_OPMAP = {"plus": "+", "minus": "-", "times": "*", "over": "/", "−": "-",
+             "×": "*", "x": "*", "÷": "/"}
+_SW_ESCAPE = re.compile(
+    r"\b(?:different|instead|compare|contrast|notice|new\s+(?:one|problem|example)|"
+    r"another|other\s+way|switch|swap|order\s+matters|what\s+if)\b", re.I)
+_SW_SAFE = re.compile(r"^[\d\s.+\-*/()]+$")
+
+
+def _sw_parts(chain: str):
+    """(numbers, operators) of one spoken or written chain, numbers as digit strings
+    (number-words read by numwords), operators normalized to + - * /."""
+    toks = _SW_SPLIT.split(str(chain or "").strip())
+    nums, ops = [], []
+    for i, t in enumerate(toks):
+        t = t.strip()
+        if not t:
+            continue
+        if i % 2 == 0:
+            if re.fullmatch(r"-?\d+(?:\.\d+)?", t):
+                nums.append(t)
+            else:
+                v = _numw.word_value(t)
+                if v is None:
+                    return (), ()
+                nums.append(str(v))
+        else:
+            o = t.lower()
+            o = ("*" if o.startswith("multiplied") else
+                 "/" if o.startswith("divided") else _SW_OPMAP.get(o, o))
+            ops.append(o)
+    return tuple(nums), tuple(ops)
+
+
+def _sw_value(nums, ops):
+    """The value of a flat chain under ordinary precedence, or None. The string is
+    whitelisted to digits and the four operators before it is evaluated."""
+    try:
+        expr = str(nums[0])
+        for o, n in zip(ops, nums[1:]):
+            expr += (" %s (%s)" % (o, n)) if str(n).startswith("-") else (" %s %s" % (o, n))
+        if not _SW_SAFE.match(expr):
+            return None
+        return round(eval(expr, {"__builtins__": {}}, {}), 9)  # noqa: S307 -- whitelisted
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def expression_swap_conflict(reply: str, student_message: str = ""):
+    """Return a description of a board that works the student's (or the reply's
+    own spoken) expression with its numbers REORDERED so the answer changes, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        board = None
+        for attrs in _STEP_TAG_RE.findall(text):
+            for val in re.findall(r'"([^"]*)"', attrs):
+                m = _CE_EXPR.search(val)
+                if m:
+                    board = m.group(0)
+                    break
+            break                          # FIRST equation-carrying tag only (a)
+        if not board:
+            return ""
+        b_nums, b_ops = _ce_parts(board)
+        if len(b_nums) < 2 or not b_ops:
+            return ""
+        spoken = _spoken_only(text)
+        if _SW_ESCAPE.search(spoken):
+            return ""                      # an announced contrast is teaching
+        sources = []
+        s_chains = _SW_CHAIN.findall(str(student_message or ""))
+        if len(s_chains) == 1:
+            sources.append(("the student wrote", s_chains[0]))
+        p_chains = _SW_CHAIN.findall(spoken)
+        if len(p_chains) == 1:
+            sources.append(("you SAY", p_chains[0]))
+        for who, srcx in sources:
+            s_nums, s_ops = _sw_parts(srcx)
+            if len(s_nums) < 2 or s_ops != b_ops:                    # (b) (c)
+                continue
+            if b_nums[:len(s_nums)] == s_nums:
+                continue                                              # the same expression
+            if sorted(b_nums[:len(s_nums)]) != sorted(s_nums):
+                continue                                              # replaced: a probe (d)
+            sv, bv = _sw_value(s_nums, s_ops), _sw_value(b_nums[:len(s_nums)], b_ops)
+            if sv is None or bv is None or sv == bv:
+                continue                                              # a harmless commute (e)
+            srcq = " ".join(srcx.split())[:40]
+            return ('{w} "{s}" but the board works "{b}" -- the SAME numbers in a '
+                    "DIFFERENT order, and the order changes the answer ({bv:g} on the "
+                    "board, {sv:g} for the expression actually asked). Rule 64: the "
+                    "student's own expression is the one worked, and rule 13: the "
+                    'board tells the truth. Write and work "{s}" exactly as given, in '
+                    "that order, and change nothing else about your reply."
+                    ).format(w=who, s=srcq, b=" ".join(board.split())[:40], bv=bv, sv=sv)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[exprswap] crashed (fail open): {exc}")
+        _event("referee_crash", "exprswap", str(exc))
+        return ""
+
+
 def missing_mark_probe(reply: str, messages) -> str:
     """Describe a turn that looks like a finished problem carrying no [[mark]] and no
     [[nice]], or "" when there is nothing to report. Never raises."""
@@ -11630,12 +11804,17 @@ TRUTH_REFEREES = {
     "frac61":        "the like-denominator rule spoken as a universal (rule 61)",
     "factorclaim":   "a factor pair that does not expand to the quadratic it claims (rule 13)",
     "choicesanswer": "the correct answer is missing from the choices -- the child cannot be right",
+    # (sm) JIM'S RULING, 2026-09-04: the board/words DISAGREEMENT class is truth. The
+    # 09-04 HIGH -- the board worked 2 + 3 x 4 = 14 while the voice worked 3 + 2 x 4
+    # and said 11 -- would have shipped as conduct under the sj list; it does not now.
+    "boardcount":    "the spoken count of a drawing is not what the drawing shows (nz)",
+    "exprswap":      "the board works the asked expression with its numbers reordered so the answer changes (sm)",
 }
 # Considered and NOT included, so the next reader does not re-argue them from scratch:
-#   boardcount (a drawing miscounted -- real, but a board/words disagreement the child
-#   can SEE; ruled conduct until Jim says otherwise) · recordclaim (false about the
-#   record, rule 62 family, not about maths) · shownanswer/selfanswer (rule 17: the
-#   answer was visible, not false) · compare (rule 42, conduct by definition).
+#   recordclaim (false about the record, rule 62 family, not about maths) ·
+#   shownanswer/selfanswer (rule 17: the answer was visible, not false) · compare
+#   (rule 42, conduct by definition). boardcount WAS on this list under sj ("ruled
+#   conduct until Jim says otherwise"); Jim said otherwise on 2026-09-04.
 
 
 def _is_truth_finding(kind: str, name: str = "") -> bool:
