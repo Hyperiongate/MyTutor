@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  BUILD sk -- PART 3ie's env banner RE-PINNED OFF THE NEW DEFAULT.
+#               nightwatch's _DEFAULT_LESSONS is now 10, so a check that set
+#               NIGHTWATCH_LESSONS=10 was asserting a banner for a value that no longer
+#               overrides anything -- it would have started failing tonight, and it
+#               should have. The knob moves to 7 and the asserted default to 10. What is
+#               PINNED is unchanged: an env var that MOVES a budget default is bannered,
+#               and a watch running on the file's own defaults banners nothing.
 #   2026-09-03  BUILD sj -- PART 3ig: the floor. A draft every attempt of which carried
 #               a TRUTH-class finding no longer ships; the child gets the fallback line
 #               and a `floor` event names the referee. ONE px pin moves, deliberately
@@ -21813,14 +21820,14 @@ def part3ie_the_watch_says_what_it_was_told_to_do():
     # the env banner: the knob that leaves no other trace anywhere
     _saved = os.environ.get("NIGHTWATCH_LESSONS")
     try:
-        os.environ["NIGHTWATCH_LESSONS"] = "10"
+        os.environ["NIGHTWATCH_LESSONS"] = "7"
         importlib.reload(NW)
         check("⭐ an env var that moves a budget default is BANNERED in the report",
-              any("NIGHTWATCH_LESSONS = 10" in o for o in NW.env_overrides()),
+              any("NIGHTWATCH_LESSONS = 7" in o for o in NW.env_overrides()),
               "a Render knob leaves no deploy, no commit and no log line -- if the "
               "report does not say it, nothing does")
         check("  ...and the file's own defaults are stated beside it",
-              any("default is 12" in o for o in NW.env_overrides()), "")
+              any("default is 10" in o for o in NW.env_overrides()), "")
     finally:
         if _saved is None:
             os.environ.pop("NIGHTWATCH_LESSONS", None)

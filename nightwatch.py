@@ -2,6 +2,15 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  BUILD sk -- THE FILE AGREES WITH RENDER. _DEFAULT_LESSONS 12 -> 10.
+#               Render has said NIGHTWATCH_LESSONS=10 since 08-31, and that IS the
+#               intended budget -- so sh's env banner was firing every single night to
+#               report a setting nobody intends to change back. A banner that fires
+#               nightly is not a banner; it is the noise sh was written to prevent. The
+#               override machinery is untouched and still shouts the moment the
+#               environment moves a default -- there is simply nothing to shout about
+#               while Render and this file agree. (Jim, 2026-09-04: "make our software
+#               also say ten, so that doesn't get flagged either.")
 #   2026-09-03  BUILD sj -- THE REPORT SEES THE FLOOR. tutor.py's new `floor` event
 #               (a draft every attempt of which carried a TRUTH-class finding was
 #               withheld; the child got the fallback line) gets its own telemetry
@@ -251,7 +260,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # the question it raised -- shrunken rotation? skipped slots? changed constant? -- because
 # it never printed what it was TOLD to do, only what happened. env_overrides() below is
 # that missing half, and a knob moved in Render now leaves a trace in the morning report.
-_DEFAULT_LESSONS     = 12
+_DEFAULT_LESSONS     = 10   # (sk, 2026-09-04) matches Render; see change note
 _DEFAULT_TURNS       = 6
 _DEFAULT_MAX_MINUTES = 90
 _DEFAULT_HOUR_UTC    = 8   # ~1am Pacific
