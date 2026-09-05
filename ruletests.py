@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD ta -- PART 3iw: the tutor sees the board. The rule-7 referee's
+#               named-picture check (positive, negative, standing, cleared, imagined,
+#               fail-open), the canon sweep (0 hits), the intervene step's board, the
+#               note tutor.script_intervention writes (pipeline stubbed), the fallback.
 #   2026-09-05  BUILD sz -- PART 3iv: the times table is a pass, not a streak (rulings
 #               ⑥ ⑦). The real engine driven through a clean pass, a slip, five slips,
 #               an unheard answer in the pass, and the real API; neighbouring-fact
@@ -21824,7 +21828,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,887</b>" in page,
+          "<b>8,911</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24084,6 +24088,155 @@ def part3iv_the_times_table_is_a_pass():
           "2026-09-05  BUILD sz" in src[:20000] and "BUILD sz" in m[:200000]
           and "2026-09-05  BUILD sz" in rd("ruletests.py")[:8000]
           and "2026-09-05" in rd("static/methodology.html")[:6000], "Jim's rule 8")
+
+
+def part3iw_the_tutor_sees_the_board():
+    """PART 3iw (build ta, 2026-09-05) -- THE INTERVENTION IS TOLD THE BOARD, AND THE
+    PICTURE YOU NAME IS THE PICTURE THAT IS DRAWN.
+
+    Jim's flag 22:31, a scripted rounding lesson: "It started to help me and acted
+    like there was a number line when there wasn't." Two halves: the engine's
+    intervene step now carries the ask's board and the model is told it is exactly
+    what the child is looking at; and rule 7's referee learns the shape's pictures by
+    name -- a sentence that POINTS at a number line (an array, the chart...) must have
+    that tag in the reply or standing on the board. Swept clean over the canon."""
+    print("\nPART 3iw — the tutor sees the board (build ta)")
+    import tutor as T
+    import lessonscripts as L
+    import foundations as FND
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    NP = getattr(T, "named_picture_finding", None) or (lambda r, heard=None: "")
+
+    # ---- 1. the check itself: pointing at a picture that is not there ---------------
+    STEP = '[[step eq="58 rounds to 60"]][[choices options="50 | 60 | 70"]]'
+    check("⭐ \"on the number line, 58 sits between 50 and 60\" over a bare step fires (Jim's exact class)",
+          "number line" in NP("Not quite. On the number line, 58 sits between 50 and 60. " + STEP, heard=""),
+          NP("Not quite. On the number line, 58 sits between 50 and 60. " + STEP, heard="")[:80])
+    check("  \"look at the number line\" over a PIE fires -- any figure is no longer enough, the NAMED one must be there",
+          bool(NP('Look at the number line: 58 is closer to 60. [[pie parts="4" shaded="1"]]', heard="")), "")
+    check("  the same words over a real [[numberline]] in the reply are silent",
+          not NP('Look at the number line: 58 is closer to 60. [[numberline min="50" max="60" points="58" caption="x"]]', heard=""), "")
+    check("⭐ ...and silent when the number line is STANDING on the board (the scripted note carries the ask's own board)",
+          not NP("Look at the number line: 58 is closer to 60. " + STEP,
+                 heard='(system: the lesson asked "what is 58 rounded?" its board was: [[numberline min="50" max="60" points="58"]] ...)'),
+          "the intervention over a rounding ask drawn on the line must not be re-rolled")
+    check("  a [[clear]] ends the standing: the same reply after the line was wiped fires",
+          bool(NP("On the number line, 58 sits near 60.", heard='[[numberline min="50" max="60"]] then [[clear]] [[step eq="x"]]'))
+          and not NP("On the number line, 58 sits near 60.", heard='[[numberline min="50" max="60"]] [[step eq="x"]]'), "")
+    check("  \"count this array\" over a bare step fires; over an [[array]] it is silent",
+          bool(NP('Count this array: 3 rows of 4. [[step eq="3 × 4 = ?"]]', heard=""))
+          and not NP('Count this array: 3 rows of 4. [[array rows="3" cols="4"]]', heard=""), "")
+    check("  naming the IDEA is not pointing: a definition, a home on the number line, a line with no gaps",
+          not NP("An array is objects lined up in equal rows.", heard="")
+          and not NP("Every number has a home on the number line.", heard="")
+          and not NP("Histogram bars touch, because the number line has no gaps.", heard=""), "")
+    check("  imagination and recollection are not claims",
+          not NP("Imagine a number line from 50 to 60. 58 is near 60. " + STEP, heard="")
+          and not NP("Remember the number line we drew? 58 was near 60.", heard=""), "")
+    check("  never raises: None, a number, garbage",
+          NP(None, heard=None) == "" and NP(12345, heard=7) == "" and NP("[[", heard="[[") == "", "")
+
+    # ---- 2. it rides rule 7's referee, under the same name, fed the conversation -------
+    tsrc = rd("tutor.py")
+    check("⭐ the rule-7 referee runs the named-picture check and prose_board_conflict feeds it `heard`",
+          "named = named_picture_finding(text, heard)" in tsrc
+          and "visual = prose_visual_conflict(reply, student_message, heard)" in tsrc
+          and "def prose_visual_conflict(reply: str, student_message: str = \"\", heard=None):" in tsrc, "")
+    full = T.prose_board_conflict("Not quite. On the number line, 58 sits between 50 and 60. " + STEP,
+                                  heard="", course="basic")
+    check("  through the whole sweep the finding is rule 7's, worded to name the missing tag",
+          "number line" in full and "[[numberline]]" in full, full[:120])
+    check("  and the sweep is silent for the same reply over the standing line",
+          not T.prose_board_conflict("Not quite. On the number line, 58 sits between 50 and 60. " + STEP,
+                                     heard='its board was: [[numberline min="50" max="60" points="58"]]', course="basic"), "")
+    check("  no new referee number: the roster count is untouched (vischeck grew)",
+          "prose_visual_conflict" in tsrc and tsrc.count('_event("referee_fire", "vischeck"') == 1, "")
+
+    # ---- 3. the canon sweep: every authored card and lesson beat, 0 hits --------------
+    hits, n = [], 0
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1
+                if NP(t, heard=""):
+                    hits.append(("foundation", c, sc.get("term")))
+    for les in L.LESSONS:
+        beats = []
+        for f in ("why", "picture", "teach", "recap"):
+            beats += [(f, sp, b) for sp, b in (les.get(f) or [])]
+        beats += [("worked", pr["worked"][0], pr["worked"][1]) for pr in les.get("pairs") or []]
+        ex = les.get("explain") or {}
+        if ex:
+            beats.append(("explain", ex.get("spoken", ""), ex.get("board", "")))
+        for p in list(les["bank"]) + [pr["ask"] for pr in les["pairs"]]:
+            for lv in les.get("levels", L.LEVELS):
+                beats.append(("ask", L.spoken_for(p, lv), L.board_for(p, lv)))
+            w = L._worked_for(p) if les.get("show_work_on_correct") else None
+            if w:
+                beats.append(("walkback", w[0], w[1]))
+        for kind, sp, b in beats:
+            t = (sp or "") + "\n" + (b or "")
+            if t.strip():
+                n += 1
+                if NP(t, heard=""):
+                    hits.append((kind, les["id"], sp[:40]))
+    check("⭐ canon sweep: 0 authored cards or lesson beats point at a picture they do not draw (%d swept)" % n,
+          not hits, str(hits[:4]))
+    check("  the sweep covered the whole canon and the shape", n >= 7000, "%d" % n)
+    check("  the one line the sweep caught was reworded, not exempted (times-by-ten's why)",
+          "once you know the move you can do it for any number" in
+          L.LESSON_BY_ID["basic-u2-times-by-ten"]["why"][0][0], "")
+
+    # ---- 4. the engine hands the model the board the child is looking at --------------
+    les = L.LESSON_BY_ID["basic-u1-rounding-tens"]
+    st = L.start(les, seed=1)
+    L.step(les, st, ("begin",))
+    pend_board = (st["pending"] or {}).get("board", "")
+    outs, st = L.step(les, st, ("answer", 999))
+    iv = next((o for o in outs if o["kind"] == "intervene"), {})
+    check("⭐ the intervene step carries the ask's board, exactly as it was drawn (a number line, for rounding)",
+          iv.get("board") and iv["board"] == pend_board and "[[numberline" in iv["board"], str(iv.get("board", ""))[:80])
+
+    # ---- 5. tutor.script_intervention tells the model, in the note -------------------
+    captured = {}
+    _orig = T._reply_pipeline
+    def _fake(prompt_fn, history, user_message, log_tag, meta, where, label, turn_note="", post=None):
+        captured["note"] = user_message
+        captured["system"] = prompt_fn()
+        return "Look at the number line: 74 is closer to 70. [[numberline min=\"70\" max=\"80\" points=\"74\" caption=\"x\"]][[choices options=\"70 | 80 | 90\"]]"
+    T._reply_pipeline = _fake
+    try:
+        ctx = dict(iv)
+        ctx["choices"] = L.choices_for(iv.get("problem") or {"a": 74, "b": 0, "op": "r10"})
+        out = T.script_intervention("TA-3IW", "basic", ctx, [])
+        note = captured.get("note", "")
+        check("⭐ the note carries the board from the intervene step verbatim and says it is exactly what the child sees",
+              iv.get("board", "x") in note and "EXACTLY WHAT THE CHILD IS LOOKING AT RIGHT NOW" in note
+              and "draw it first, then talk about it" in note, note[:160])
+        check("  the intervention still returns the model's reply", out.startswith("Look at the number line"), out[:60])
+        ctx2 = dict(ctx)
+        ctx2.pop("board", None)
+        T.script_intervention("TA-3IW", "basic", ctx2, [])
+        check("  a caller that carries no board gets board_for's (the fallback), never an empty board",
+              L.board_for(ctx["problem"], "abstract") in captured.get("note", ""), captured.get("note", "")[:120])
+        check("  the system prompt did not grow (the board rule rides the per-turn note)",
+              len(captured.get("system", "")) < 2500, str(len(captured.get("system", ""))))
+    finally:
+        T._reply_pipeline = _orig
+
+    # ---- 6. main.py hands the whole step across; the stamp; the notes ----------------
+    m = rd("main.py")
+    check("  main.py hands the engine's whole intervene step to the model as context (board included)",
+          "context = dict(s)" in m and "reply = _script_intervene(code, lesson[\"course\"], context, [])" in m, "")
+    check("  tutor reads the board from the context first, board_for second",
+          'board = str(context.get("board") or "") or _ls.board_for(p, level)' in tsrc, "")
+    check("  the changed files carry dated ta notes",
+          "2026-09-05  BUILD ta" in tsrc[:6000] and "2026-09-05  BUILD ta" in rd("lessonscripts.py")[:20000]
+          and "BUILD ta" in m[:200000] and "2026-09-05  BUILD ta" in rd("ruletests.py")[:8000]
+          and "(ta)" in rd("static/methodology.html")[:6000], "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -34398,6 +34551,7 @@ def main():
     part3it_basic_unit_eight_to_the_shape()
     part3iu_basic_unit_nine_to_the_shape()
     part3iv_the_times_table_is_a_pass()
+    part3iw_the_tutor_sees_the_board()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -2,6 +2,22 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD ta -- THE INTERVENTION IS TOLD THE BOARD, AND THE PICTURE YOU NAME
+#               IS THE PICTURE THAT IS DRAWN (Jim's flag 22:31: "acted like there was a
+#               number line when there wasn't"). (1) script_intervention reads the ask's
+#               board from the engine's intervene step (context["board"], board_for as
+#               the fallback) and its note now says the board is exactly what the child
+#               sees and no other picture may be spoken of. (2) The rule-7 referee grows
+#               named_picture_finding: a sentence naming a number line / array /
+#               place-value chart / hundred grid / tape diagram / area model / Venn /
+#               balance scale / unit circle must have THAT tag in the reply or standing
+#               on the board (the conversation since its last [[clear]], via `heard` --
+#               prose_visual_conflict now takes it). Imagination and recollection are
+#               exempt. Swept over every authored card and lesson beat: 0 hits. No new
+#               referee number: this is rule 7's own referee learning the shape's
+#               pictures, and it fires under the same "vischeck" name (the helper is
+#               named *_finding, not *_conflict, because the battery counts referees
+#               by that suffix and this is not a seventy-sixth).
 #   2026-09-05  BUILD sy -- _SM_DRAW_RE learns [[rectangle]] (a rectangle on a grid).
 #   2026-09-05  BUILD sw -- _SM_DRAW_RE learns [[hundredgrid]] (the hundredths square).
 #   2026-09-05  BUILD sr -- _SM_DRAW_RE learns [[array]] (Basic Unit 2's picture).
@@ -3507,6 +3523,92 @@ def _vis_sentences(prose: str):
     return [s.strip() for s in re.split(r"(?<=[.!?])\s+|\n+", str(prose or "")) if s.strip()]
 
 
+# (ta, 2026-09-05) THE PICTURE YOU NAME IS THE PICTURE THAT IS DRAWN. Jim's flag 22:31,
+# inside a scripted rounding lesson: "It started to help me and acted like there was a
+# number line when there wasn't." The intervention said "on the number line" over a
+# board that held one written line and no picture. The cue-and-noun check above could
+# not see it: "on the number line" carries none of the cues ("look at", "here is") --
+# and had it drawn ANY figure, a pie say, the check would have been satisfied.
+# So, by name: each picture a tutor can speak of is paired with the tag that draws it,
+# and a sentence that POINTS AT one must have that tag in the reply -- or STANDING on
+# the board, which is the conversation since its last [[clear]] (the scripted lane's
+# note carries the ask's own board, so a rounding intervention over a real number line
+# is silent). Pointing is: a present-tense cue ("look at the", "here is", "on the
+# board"), a demonstrative ("this number line", "these dots"), or a place preposition
+# with a concrete number in the same sentence ("on the number line, 58 sits between
+# 50 and 60"). Naming the idea is NOT pointing -- "an array is objects lined up in
+# equal rows", "every number has a home on the number line", "the number line has no
+# gaps" -- and the first sweep found twelve such sentences in the canon, every one a
+# definition. Imagination and recollection are not claims either ("imagine a number
+# line", "the number line we drew"). Swept clean over every authored card and every
+# lesson beat before it was allowed to enforce.
+_VIS_NAMED_NOUNS = (
+    (r"(?:number ?lines?|fraction lines?)", ("numberline",)),
+    (r"(?:arrays?|rows of dots)", ("array",)),
+    (r"place[- ]value charts?", ("placevalue",)),
+    (r"(?:hundreds? grids?|hundredths? (?:grid|square)s?)", ("hundredgrid",)),
+    (r"tape diagrams?", ("tape",)),
+    (r"area models?", ("areamodel",)),
+    (r"(?:venn diagrams?|venn)", ("venn",)),
+    (r"balance scales?", ("balance",)),
+    (r"unit circles?", ("unitcircle",)),
+)
+_VIS_NAMED = tuple(
+    (re.compile(r"\b" + noun + r"\b", re.I),
+     # a demonstrative right before the noun, or a place preposition before it
+     re.compile(r"\b(?:this|these|that|those|our|your|my)\s+" + noun + r"\b", re.I),
+     re.compile(r"\b(?:on|along|in|at|from|onto|across|using|use|with)\s+(?:the|this)\s+"
+                + noun + r"\b", re.I),
+     tags)
+    for noun, tags in _VIS_NAMED_NOUNS)
+_VIS_CUE_RE = re.compile(_VIS_CUE, re.I)
+_VIS_IMAGINE = re.compile(
+    r"\b(?:imagine|picture (?:a|an|the)|think of|think about|in your head|pretend|"
+    r"like a|as if)\b", re.I)
+
+
+def _standing_tags(heard) -> set:
+    """The tags on the board right now, as the conversation knows it: everything
+    since the last [[clear]]. Empty when the caller cannot say."""
+    try:
+        text = str(heard or "")
+        if not text:
+            return set()
+        tail = re.split(r"\[\[\s*clear\b[^\]]*\]\]", text, flags=re.I)[-1]
+        return {m.lower() for m in re.findall(r"\[\[\s*([\w-]+)", tail)}
+    except Exception:  # noqa: BLE001
+        return set()
+
+
+def named_picture_finding(reply: str, heard=None) -> str:
+    """A sentence POINTS AT a picture (a number line, an array, the place-value
+    chart...) that this reply does not draw and that is not standing on the board.
+    Returns the finding, or "". Part of the rule-7 referee; never raises."""
+    try:
+        text = str(reply or "")
+        drawn = {m.lower() for m in re.findall(r"\[\[\s*([\w-]+)", text)} | _standing_tags(heard)
+        for sent in _vis_sentences(_spoken_only(text)):
+            if _VIS_DEFER.search(sent) or _VIS_IMAGINE.search(sent):
+                continue
+            has_number = bool(re.search(r"\d", sent))
+            cued = bool(_VIS_CUE_RE.search(sent))
+            for rx, demo_rx, place_rx, tags in _VIS_NAMED:
+                m = rx.search(sent)
+                if not m or (drawn & set(tags)):
+                    continue
+                if cued or demo_rx.search(sent) or (has_number and place_rx.search(sent)):
+                    return ('you point at "{n}" but no {n} is on the board -- this reply '
+                            'draws none and none is standing. Rule 7: the picture you name '
+                            'is the picture that is drawn; put it up with its [[{t}]] tag '
+                            'before you talk about it, or talk about what IS drawn.'
+                            ).format(n=m.group(0).lower(), t=tags[0])
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[viscHeck] named-picture crashed (fail open): {exc}")
+        _event("referee_crash", "viscHeck", str(exc))
+        return ""
+
+
 def _spoken_only(text: str) -> str:
     """The words the student actually HEARS: control tags removed, including a
     dangling one from a reply that was cut off mid-tag."""
@@ -3541,13 +3643,15 @@ def prose_asked_to_see(student_message: str) -> bool:
         return False
 
 
-def prose_visual_conflict(reply: str, student_message: str = ""):
+def prose_visual_conflict(reply: str, student_message: str = "", heard=None):
     """Return a description of a picture that was promised and never drawn, or "".
 
     `student_message` (build co) lets this also enforce rules 2 and 8: if the student
     ASKED to see something, this reply must draw something, full stop -- re-drawing is
     free and always right, so there is no legitimate reason to answer "show me" with a
     board that gains nothing.
+    `heard` (ta, 2026-09-05) is the conversation so far, so a picture NAMED in the
+    prose can be checked against what is standing on the board (named_picture_finding).
     Never raises: any unexpected input yields "" (fail open)."""
     try:
         text = str(reply or "")
@@ -3558,6 +3662,12 @@ def prose_visual_conflict(reply: str, student_message: str = ""):
                     'means your reply MUST include the figure or board tag, even if '
                     'something similar is already up -- re-drawing is free and always '
                     'right.')
+        # (ta) the picture you name is the picture that is drawn -- before the cue
+        # checks below, because it is the exact finding and they would report it
+        # more vaguely (or, given any other figure, not at all)
+        named = named_picture_finding(text, heard)
+        if named:
+            return named
         if not _tags_present(text, _BOARD_TAGS):
             # Same guard as the rest of this referee: "next time I'll draw you one" is a
             # promise about later, not a claim about now. (Caught by the battery the
@@ -10079,7 +10189,8 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if narrated:
             _event("referee_fire", "narrated", narrated)
             return narrated
-        visual = prose_visual_conflict(reply, student_message)
+        # (ta) fed `heard` so a NAMED picture can be checked against the standing board
+        visual = prose_visual_conflict(reply, student_message, heard)
         if visual:
             _event("referee_fire", "vischeck", visual)
             return visual
@@ -11008,7 +11119,14 @@ def script_intervention(code: str, course: str, context: dict, history=None) -> 
         # so the intervention teaches the problem the lesson asked, in its words.
         import lessonscripts as _ls
         spoken = _ls.spoken_for(p, level)
-        board = _ls.board_for(p, level)
+        # (ta, 2026-09-05) THE BOARD THE STUDENT IS LOOKING AT, from the engine's own
+        # intervene step (the ask's board as it was drawn -- which since sz can differ
+        # from board_for: the table pass writes its counter on the step). board_for is
+        # the fallback for a caller that did not carry it. Jim's flag 22:31: the model
+        # "acted like there was a number line when there wasn't" -- so the note now
+        # says what is drawn and that nothing else may be spoken of, and the rule-7
+        # referee (named_picture_finding) holds the reply to it.
+        board = str(context.get("board") or "") or _ls.board_for(p, level)
         right = _ls.ans(p)
         explain = ""
         ext = _ls.OP_EXT.get(p.get("op", "+"), {})
@@ -11021,7 +11139,12 @@ def script_intervention(code: str, course: str, context: dict, history=None) -> 
                 f"Its board was: {board} The correct answer is {right}. The child "
                 f"answered {context.get('got')!r}. "
                 + (f"How the lesson explains it: \"{explain}\" " if explain else "")
-                + f"The child is working at the {level} level. Teach Model-Lead-Test "
+                + f"The child is working at the {level} level. "
+                f"THE BOARD ABOVE IS EXACTLY WHAT THE CHILD IS LOOKING AT RIGHT NOW: "
+                f"speak only of what is drawn there or what you draw in this reply. "
+                f"Never say \"the number line\", \"the array\", \"the chart\" or any "
+                f"other picture unless its tag is on the board or in your reply -- "
+                f"draw it first, then talk about it. Teach Model-Lead-Test "
                 f"on THIS problem now -- say it the way the lesson says it, draw the "
                 f"same kind of board, and end with exactly this tag: "
                 f"{context.get('choices', '')} )")

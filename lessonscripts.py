@@ -2,6 +2,10 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD ta -- the `intervene` step carries "board": the ask's board as it
+#               was drawn (pending["board"], board_for as the fallback), so the model
+#               that steps in is told exactly what the student is looking at (flag
+#               22:31). Nothing else in the engine changed.
 #   2026-09-05  BUILD sz -- THE TIMES TABLE IS A PASS, NOT A STREAK. Jim's flag 22:40 and
 #               his rulings ⑥ ⑦: 1-9 times 1-9, complete on ONE clean pass, a slip
 #               restarts it. ENGINE: "mastery": "table" (TABLE_MAX / TABLE_SIZE /
@@ -2407,8 +2411,10 @@ _MORE_LESSONS = [
         "why": [
             ("Why is times ten special? Because our whole number system is built "
              "on ten — ten ones are a ten, ten tens are a hundred. So timesing by "
+             # (ta) "once you see the move" read as pointing at a chart the goal
+             # line does not draw; the chart comes on the next beat. "know" is truer.
              "ten is not a fact to memorize. It is a move on the place-value "
-             "chart, and once you see the move you can do it for any number.",
+             "chart, and once you know the move you can do it for any number.",
              '[[goal text="Times by ten and a hundred"]]'),
         ],
         "picture": [
@@ -28163,7 +28169,9 @@ def step(lesson, state, event):
     out.append({"kind": "intervene", "reason": "wrong_answer", "problem": p,
                 "expected": ans(p), "got": event[1],
                 "vocabulary": {k: k for k in VOCABULARY},
-                "level": state["level"], "retest": retest})
+                "level": state["level"], "retest": retest,
+                # (ta) the board the student is looking at -- the ask's own, as drawn
+                "board": (pend or {}).get("board") or board_for(p, state["level"])})
     return (out, state)
 
 
