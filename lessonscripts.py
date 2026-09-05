@@ -2,6 +2,34 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sp -- THE LESSON LEARNS TO TEACH. Jim, after a live run through
+#               Entry and Basic: "there is not so much emphasis on teaching as there is
+#               on giving problems ... just saying something once doesn't mean that it
+#               has been learned ... are we really in the business here of teaching, or
+#               are we just trying to create a teaching app?" His choice: shape first,
+#               prototype on rounding. THE SHAPE (claude/Design_What_A_Lesson_Is): seven
+#               beats -- Why, Picture, Teach, Show, Try (with the WALK-BACK after a right
+#               answer), Say it (a REASON question, graded in code), Come back (the
+#               RECAP). Every one is an OPTIONAL lesson field, so the other 359 lessons
+#               play byte-for-byte as before:
+#                 "why"      [(spoken, board)...]  what the skill is FOR, before any rule
+#                 "picture"  [(spoken, board)...]  the representation, drawn BEFORE the rule;
+#                                                  replayed when the reason question misses
+#                 "show_work_on_correct": True     after every right answer the board shows
+#                                                  the work (OP_EXT[op]["worked"]) -- ruling ⑤
+#                 "explain"  {spoken, choices, answer, board}  asked ONCE, after the streak;
+#                                                  right -> mastered; a miss replays the
+#                                                  picture and asks again; two misses end
+#                                                  warmly as still-learning (the warm choice)
+#                 "recap"    [(spoken, board)...]  the rule and the why, said again before
+#                                                  EVERY end line
+#               The reason ask is an `ask` with reason=True, problem=None, tap_only=True
+#               and TEXT choices; main.py grades the tapped label in code (never the
+#               model). OP_EXT r10 gains "worked" (the number line with the hop) and its
+#               ask board now draws the number line -- Jim: "a number line anytime we talk
+#               about rounding". basic-u1-rounding-tens is rewritten to the shape (the
+#               prototype he will run). validate() and audio_lines() cover every new
+#               field, so the closure and the canon hold. PART 3il pins it both ways.
 #   2026-09-04  BUILD sn -- THE WARM CHOICE. Jim's ruling ③ (2026-09-04): at a still-
 #               learning lesson end the student picks -- "go on to the next lesson, or
 #               review this a bit more to get it solid?" -- instead of the page handing
@@ -1852,6 +1880,15 @@ LINE_WHOLE = "That one wants a whole number. Have another go."
 LINE_UNSURE = ("Saying you are not sure is a good move. Tap the hand and ask me "
                "anything — or take a guess, and I will help either way.")
 
+# (sp, 2026-09-05) THE REASON QUESTION'S TWO VERDICTS. "Say it" is beat six of the
+# shape: after the streak, one question that asks not WHAT the answer was but WHY --
+# a student who can pick the reason has learned the idea; one who cannot has learned
+# the trick. A miss never fetches the model (there is nothing to re-teach that the
+# picture does not say better), so both verdicts are authored and pre-rendered.
+LINE_REASON_RIGHT = "That is the reason. Now you really have it."
+LINE_REASON_WRONG = "Not that one. Let's look at the picture again."
+REASON_TRIES = 2          # the picture replays once; a second miss ends warmly
+
 
 def ans(p):
     """The one place an answer is computed. Problems are DATA (a, b, op) -- a wrong
@@ -3618,37 +3655,94 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (sp, 2026-09-05) THE PROTOTYPE OF THE SHAPE -- Jim's own example. Rebuilt
+        # end to end to the seven beats (claude/Design_What_A_Lesson_Is): WHY before
+        # any rule, the PICTURE (a number line, on every beat) before the rule, the
+        # rule as a summary of what the picture showed, two worked examples drawn on
+        # the picture, the walk-back after every right answer, the REASON question
+        # after the streak, and the RECAP before the end line. He runs this one and
+        # reacts; the rest of the course follows the shape he corrects.
         "id": "basic-u1-rounding-tens", "course": "basic", "unit": 1,
         "topic": "Rounding to the nearest ten",
         "op": "r10", "max_value": 110,
         "levels": ("abstract",),
         "symbols": ("round", "nearest"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You can round to the nearest ten."),
-        "teach": [
-            ("Rounding gives a number a simpler neighbour. To round to the "
-             "nearest ten, look at the ones digit: if it is 4 or smaller, round "
-             "down. If it is 5 or bigger, round up.",
+        # 1 · WHY -- what rounding is FOR, in the student's world
+        "why": [
+            ("Rounding is for when the exact number is more than you need. If a "
+             "jar has 47 marbles and a friend asks how many, saying about 50 is "
+             "easier to say, easier to remember, and close enough.",
              '[[goal text="Rounding to the nearest ten"]]'),
-            ("Watch me round 47. The ones digit is 7 — that is 5 or bigger, so "
-             "we round up. 47 rounds to 50.",
-             '[[step eq="47 → nearest ten = 50"]]'),
-            ("One more, watch. Round 32. The ones digit is 2 — 4 or smaller, so "
-             "we round down. 32 rounds to 30.",
-             '[[step eq="32 → nearest ten = 30"]]'),
+            ("People round all day long. Shops, sports scores, how far away a "
+             "place is — about is often all you need. Today we learn to round "
+             "to the nearest ten.",
+             '[[step eq="47 marbles → about 50"]]'),
+        ],
+        # 2 · PICTURE -- the number line, before the rule (replayed on a missed reason)
+        "picture": [
+            ("Here is 47 on a number line, between 40 and 50. Halfway between "
+             "them is 45. Look where 47 sits — past the halfway mark, closer "
+             "to 50.",
+             '[[numberline min="40" max="50" mid="45" points="47" '
+             'caption="47 sits past halfway, closer to 50"]]'),
+        ],
+        # 3 · TEACH -- the idea read off the picture, then the quick rule
+        "teach": [
+            ("Every number lives between two tens. Rounding just means: hop to "
+             "the ten you are closer to. 47 is closer to 50, so 47 rounds to 50.",
+             '[[numberline min="40" max="50" mid="45" points="47" hops="47,50" '
+             'caption="47 rounds to 50"]]'),
+            ("Here is the quick way to tell, in your head. Look at the ones "
+             "digit. 4 or smaller, you are below halfway — hop down. 5 or "
+             "bigger, you are at halfway or past it — hop up.",
+             '[[step eq="ones 0–4 → hop down · ones 5–9 → hop up"]]'),
+            # 4 · SHOW -- worked on the picture
+            ("Watch me round 32. It sits between 30 and 40. The ones digit is "
+             "2 — below halfway — so it hops down. 32 rounds to 30.",
+             '[[numberline min="30" max="40" mid="35" points="32" hops="32,30" '
+             'caption="32 rounds to 30"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. Round 85. The ones "
-                        "digit is 5 — 5 or bigger rounds up. 85 rounds to 90.",
-                        '[[step eq="85 → nearest ten = 90"]]'),
+            {"worked": ("Here is one more, done for you. Round 85. It sits "
+                        "between 80 and 90, and the ones digit is 5 — right at "
+                        "halfway. At halfway we hop up. 85 rounds to 90.",
+                        '[[numberline min="80" max="90" mid="85" points="85" '
+                        'hops="85,90" caption="85 rounds to 90"]]'),
              "ask": {"a": 74, "op": "r10", "b": 0}},
-            {"worked": ("One more together. Round 61 — the ones digit is 1, so "
-                        "round down to 60.",
-                        '[[step eq="61 → nearest ten = 60"]]'),
+            {"worked": ("One more together. Round 61. It sits between 60 and 70, "
+                        "and the ones digit is 1 — below halfway — so it hops "
+                        "down. 61 rounds to 60.",
+                        '[[numberline min="60" max="70" mid="65" points="61" '
+                        'hops="61,60" caption="61 rounds to 60"]]'),
              "ask": {"a": 58, "op": "r10", "b": 0}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and "
                            "we're done — here comes the first one."),
+        # 5 · TRY -- after every right answer, the walk-back on the number line
+        "show_work_on_correct": True,
+        # 6 · SAY IT -- not the answer, the reason (graded in code, never the model)
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 58 rounded "
+                       "up to 60. Tap the reason why."),
+            "choices": ("because 8 is 5 or bigger | because 58 is a big number | "
+                        "because 60 comes after 50"),
+            "answer": "because 8 is 5 or bigger",
+            "board": ('[[numberline min="50" max="60" mid="55" points="58" '
+                      'hops="58,60" caption="58 rounds to 60"]]'),
+        },
+        # 7 · COME BACK -- the rule and the why, said again before the end line
+        "recap": [
+            ("So, here it is again. Every number sits between two tens, and "
+             "rounding hops to the closer one. Ones digit 4 or smaller hops "
+             "down; 5 or bigger hops up.",
+             '[[step eq="ones 0–4 → hop down · ones 5–9 → hop up"]]'),
+            ("And rounding is for when about is good enough — like about 50 "
+             "marbles in the jar.",
+             '[[numberline min="40" max="50" mid="45" points="47" hops="47,50" '
+             'caption="47 → about 50"]]'),
+        ],
         "bank": [
             {"a": 12, "op": "r10", "b": 0}, {"a": 17, "op": "r10", "b": 0},
             {"a": 23, "op": "r10", "b": 0}, {"a": 35, "op": "r10", "b": 0},
@@ -16577,6 +16671,35 @@ def _fw(n, bottom):
     return f"{n} {_FRACWORD[bottom][0 if n == 1 else 1]}"
 
 
+# (sp, 2026-09-05) ROUNDING'S PICTURE. One number line per beat: the number sits
+# between its two tens, the halfway mark is dashed, and -- once the answer is known --
+# the hop to the nearer ten is drawn. The words on every rounding beat are READ OFF
+# this picture ("past the halfway mark, closer to 50"); the ones-digit rule is the
+# quick way to tell, stated after the picture has shown it, never instead of it.
+def _r10_line(a, hop):
+    lo = a // 10 * 10
+    hi = lo + 10
+    near = (a + 5) // 10 * 10
+    tag = (f'[[numberline min="{lo}" max="{hi}" mid="{lo + 5}" points="{a}"')
+    if hop:
+        tag += f' hops="{a},{near}" caption="{a} rounds to {near}"'
+    else:
+        tag += f' caption="{a} sits between {lo} and {hi}"'
+    return tag + "]]"
+
+
+def _r10_walkback(a):
+    lo = a // 10 * 10
+    hi = lo + 10
+    d = a % 10
+    near = (a + 5) // 10 * 10
+    where = ("below halfway" if d < 5 else
+             "right at halfway" if d == 5 else "past halfway")
+    way = "down" if d < 5 else "up"
+    return (f"Look what you did: {a} sits between {lo} and {hi}. The ones digit "
+            f"is {d} — {where} — so it hops {way} to {near}.")
+
+
 OP_EXT = {
     # ============ (ph, 2026-08-28) THE LAST EIGHT -- THE COURSE IS WHOLE ==========
     # Basic was short seven lessons and Pre-Algebra one. With these, every one of the
@@ -17045,8 +17168,15 @@ OP_EXT = {
     "r10": {   # round a to the nearest ten
         "ans": lambda p: (p["a"] + 5) // 10 * 10,
         "spoken": lambda p: f"Round {p['a']} to the nearest ten.",
-        "board": lambda p: f'[[step eq="{p["a"]} → nearest ten = ?"]]',
+        # (sp, 2026-09-05) Jim: "we should have a number line anytime we talk about
+        # rounding." The ask draws the number between its two tens with the halfway
+        # mark -- the point and no hop, so the picture is the TOOL, not the answer.
+        "board": lambda p: (_r10_line(p["a"], hop=False)
+                            + f'[[step eq="{p["a"]} → nearest ten = ?"]]'),
         "praise": lambda p: (f"{p['a']} rounds to {(p['a'] + 5) // 10 * 10}."),
+        # (sp) THE WALK-BACK, ruling ⑤: after a right answer the board shows what the
+        # student just did -- the hop on the number line -- and the words read it off.
+        "worked": lambda p: (_r10_walkback(p["a"]), _r10_line(p["a"], hop=True)),
         "key": lambda p: p["a"],
         "check": lambda p: (10 <= p["a"] <= 99 and p["a"] % 10 != 0,
                             "a multiple of ten leaves nothing to round"),
@@ -25517,7 +25647,112 @@ def start(lesson):
             "level": lesson.get("levels", LEVELS)[0],
             "bank_i": 0, "done": 0, "streak": 0,
             "interventions": 0, "unheard": 0, "pending": None,
-            "retest": None, "finished": False}
+            "retest": None, "finished": False,
+            # (sp) the reason question: how many times it has been missed
+            "reason_tries": 0}
+
+
+# =============================================================================
+# (sp, 2026-09-05) THE SHAPE'S HELPERS. Each reads an OPTIONAL lesson field and
+# returns nothing for a lesson that does not carry it, so the 359 lessons authored
+# before the shape play exactly as they did.
+# =============================================================================
+def _beats(lesson, field):
+    """The `say` beats of an authored section (why / picture / recap), or []."""
+    return [{"kind": "say", "spoken": spoken, "board": board}
+            for spoken, board in (lesson.get(field) or [])]
+
+
+def _worked_for(p):
+    """The walk-back for a solved problem: (spoken, board), or None if the op has
+    no worked picture yet. The board is the same picture the worked examples use,
+    filled in for THIS problem."""
+    ext = OP_EXT.get(p.get("op", "+"), {})
+    fn = ext.get("worked")
+    if fn is None:
+        return None
+    spoken, board = fn(p)
+    return (spoken, board)
+
+
+def _correct_beats(lesson, p, idx):
+    """What a right answer earns: the praise line, then -- ruling ⑤, in a lesson that
+    says so -- the walk-back: "Look what you did..." over the worked board."""
+    out = [{"kind": "say", "spoken": praise_for(p, idx), "board": ""}]
+    if lesson.get("show_work_on_correct"):
+        w = _worked_for(p)
+        if w:
+            out.append({"kind": "say", "spoken": w[0], "board": w[1]})
+    return out
+
+
+def _reason_options(lesson):
+    """The reason question's options in the order the buttons show them: rotated by
+    a FIXED per-lesson turn (like choices_for), so the right reason is not always
+    first and a replay renders identically."""
+    ex = lesson.get("explain") or {}
+    opts = [o.strip() for o in str(ex.get("choices", "")).split("|") if o.strip()]
+    if not opts:
+        return []
+    k = len(str(ex.get("spoken", ""))) % len(opts)
+    return opts[k:] + opts[:k]
+
+
+def reason_choices_for(lesson):
+    """The [[choices]] tag for the reason question -- text options, same tag, same
+    buttons on every page."""
+    return "[[choices options=\"" + " | ".join(_reason_options(lesson)) + "\"]]"
+
+
+def _reason_norm(s):
+    return re.sub(r"\s+", " ", str(s or "").strip().lower()).rstrip(".!?")
+
+
+def reason_right(lesson, said):
+    """Is this tapped (or typed) label the authored reason? Pure; never raises."""
+    try:
+        ex = lesson.get("explain") or {}
+        return _reason_norm(said) == _reason_norm(ex.get("answer", "")) and \
+            bool(_reason_norm(said))
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def reason_option_for(lesson, said):
+    """Which option a free-typed answer names, if any (exact label, case-blind), so a
+    student who types the reason instead of tapping it is graded the same. Returns
+    the option text or ""."""
+    try:
+        want = _reason_norm(said)
+        for o in _reason_options(lesson):
+            if _reason_norm(o) == want:
+                return o
+    except Exception:  # noqa: BLE001
+        pass
+    return ""
+
+
+def _ask_reason(state, lesson, spoken=None):
+    """Beat six. An `ask` with reason=True: no problem, text choices, tap only."""
+    ex = lesson["explain"]
+    out = {"kind": "ask", "spoken": (spoken if spoken is not None else ex["spoken"]),
+           "board": ex.get("board", ""), "choices": reason_choices_for(lesson),
+           "expected": ex["answer"], "guided": False, "problem": None,
+           "reason": True, "tap_only": True}
+    state["pending"] = {"problem": None, "guided": False, "reason": True,
+                        "expected": ex["answer"]}
+    return out
+
+
+def _end(lesson, state, spoken, mastered):
+    """Beat seven's first half: the recap, then the end line. EVERY end of a lesson
+    passes through here, so a lesson that carries a recap says it whether the student
+    mastered the idea or is still learning it -- the still-learning student needs to
+    hear the rule again more, not less."""
+    state["finished"] = True
+    return _beats(lesson, "recap") + [
+        {"kind": "end", "spoken": spoken, "graceful": True, "mastered": mastered,
+         "problems_done": state["done"]}]
 
 
 def _problem_key(p):
@@ -25551,6 +25786,11 @@ def step(lesson, state, event):
                   "mastered": False, "problems_done": state["done"]}], state)
 
     if kind == "begin":
+        # (sp) the shape: WHY the skill exists, then the PICTURE, then the rule --
+        # in that order, so the rule summarises what the picture already showed.
+        # A lesson without the two new fields opens on its teach beats as before.
+        out.extend(_beats(lesson, "why"))
+        out.extend(_beats(lesson, "picture"))
         for spoken, board in lesson["teach"]:
             out.append({"kind": "say", "spoken": spoken, "board": board})
         pair = lesson["pairs"][0]
@@ -25562,6 +25802,11 @@ def step(lesson, state, event):
 
     if kind == "unheard":
         state["unheard"] += 1
+        # (sp) the reason question re-asks itself the same two ways a problem does
+        if (state["pending"] or {}).get("reason"):
+            re_spoken = LINE_TAP if state["unheard"] >= 2 else (
+                LINE_REASK + " " + lesson["explain"]["spoken"])
+            return ([_ask_reason(state, lesson, spoken=re_spoken)], state)
         p = state["pending"]["problem"]
         guided = state["pending"]["guided"]
         re_spoken = LINE_TAP if state["unheard"] >= 2 else (
@@ -25577,9 +25822,7 @@ def step(lesson, state, event):
         p = state["retest"]
         state["retest"] = None
         if p is None:
-            state["finished"] = True
-            return ([{"kind": "end", "spoken": LINE_END_GRACEFUL, "graceful": True,
-                      "mastered": False, "problems_done": state["done"]}], state)
+            return (_end(lesson, state, LINE_END_GRACEFUL, mastered=False), state)
         return ([_ask(state, p, guided=False)], state)
 
     if kind != "answer":
@@ -25587,12 +25830,33 @@ def step(lesson, state, event):
 
     state["unheard"] = 0
     pend = state["pending"]
+
+    # ---- (sp) beat six: THE REASON QUESTION, graded in code ----------------------
+    # Right: the lesson is mastered -- the student can say WHY, not only what. A miss
+    # replays the PICTURE (never a lecture, never the model) and asks once more; a
+    # second miss ends warmly as still-learning, where the warm choice (sn) lets the
+    # student review or go on. The star moves on the tap exactly as on a problem
+    # (main.py grades the label against the same answer before calling here).
+    if (pend or {}).get("reason"):
+        if reason_right(lesson, event[1]):
+            out.append({"kind": "say", "spoken": LINE_REASON_RIGHT, "board": ""})
+            out.extend(_end(lesson, state, lesson["advance_line"], mastered=True))
+            return (out, state)
+        state["reason_tries"] = state.get("reason_tries", 0) + 1
+        out.append({"kind": "say", "spoken": LINE_REASON_WRONG, "board": ""})
+        out.extend(_beats(lesson, "picture"))
+        if state["reason_tries"] < REASON_TRIES:
+            out.append(_ask_reason(state, lesson))
+            return (out, state)
+        out.extend(_end(lesson, state, LINE_END_GRACEFUL, mastered=False))
+        return (out, state)
+
     p, guided = pend["problem"], pend["guided"]
     correct = (event[1] == ans(p))
 
     if correct:
         idx = state["done"]
-        out.append({"kind": "say", "spoken": praise_for(p, idx), "board": ""})
+        out.extend(_correct_beats(lesson, p, idx))      # (sp) praise, then the walk-back
         if not guided:
             state["done"] += 1
             state["streak"] += 1
@@ -25614,16 +25878,17 @@ def step(lesson, state, event):
         # (ri, 2026-09-01) the gate is the PROMISE: "Three right answers in a row
         # and we're done." Jim's ruling -- no fourth problem for a perfect child.
         if state["streak"] >= ADVANCE_STREAK:
-            out.append({"kind": "end", "spoken": lesson["advance_line"],
-                        "graceful": True, "mastered": True,
-                        "problems_done": state["done"]})
-            state["finished"] = True
+            # (sp) a lesson that carries a reason question asks it HERE, between the
+            # streak and the end line: three right answers earn the question, and the
+            # reason earns the lesson.
+            if lesson.get("explain"):
+                state["phase"] = "explain"
+                out.append(_ask_reason(state, lesson))
+                return (out, state)
+            out.extend(_end(lesson, state, lesson["advance_line"], mastered=True))
             return (out, state)
         if state["done"] >= MAX_PROBLEMS:
-            out.append({"kind": "end", "spoken": LINE_END_GRACEFUL,
-                        "graceful": True, "mastered": False,
-                        "problems_done": state["done"]})
-            state["finished"] = True
+            out.extend(_end(lesson, state, LINE_END_GRACEFUL, mastered=False))
             return (out, state)
         out.append(_ask(state, _next_bank_problem(lesson, state)))
         return (out, state)
@@ -25642,10 +25907,7 @@ def step(lesson, state, event):
         else:
             # already at concrete and still failing: end warmly, mark "learning"
             out.append({"kind": "say", "spoken": LINE_WRONG, "board": ""})
-            out.append({"kind": "end", "spoken": LINE_END_GRACEFUL,
-                        "graceful": True, "mastered": False,
-                        "problems_done": state["done"]})
-            state["finished"] = True
+            out.extend(_end(lesson, state, LINE_END_GRACEFUL, mastered=False))
             return (out, state)
     # AT THE CAP, THE ERROR IS STILL CORRECTED BUT NO RETEST FOLLOWS: the AI's
     # Model-Lead-Test runs (never leave a child with an uncorrected error), and
@@ -25749,6 +26011,10 @@ def audio_lines(lesson):
     lines = set()
     for spoken, _board in lesson["teach"]:
         lines.add(spoken)
+    # (sp) the shape's authored beats: why, picture, recap
+    for field in ("why", "picture", "recap"):
+        for spoken, _board in (lesson.get(field) or []):
+            lines.add(spoken)
     for pair in lesson["pairs"]:
         lines.add(pair["worked"][0])
     lines.add(lesson["practice_intro"])
@@ -25759,8 +26025,18 @@ def audio_lines(lesson):
             lines.add(LINE_REASK + " " + spoken_for(p, level))
         for i in range(len(PRAISE_PREFIXES)):
             lines.add(praise_for(p, i))
+        # (sp) the walk-back after a right answer, one per problem
+        if lesson.get("show_work_on_correct"):
+            w = _worked_for(p)
+            if w:
+                lines.add(w[0])
     lines.update([LINE_WRONG, LINE_TAP, LINE_END_GRACEFUL,
                   lesson["advance_line"]])
+    # (sp) the reason question: asked, re-asked, and its two verdicts
+    if lesson.get("explain"):
+        lines.add(lesson["explain"]["spoken"])
+        lines.add(LINE_REASK + " " + lesson["explain"]["spoken"])
+        lines.update([LINE_REASON_RIGHT, LINE_REASON_WRONG])
     # build ov: the TOPIC QUIZ's own sentences.
     # ⚠️ READ THE PINNED TABLE, NEVER drillpool. The first draft called
     # drillpool.quiz_problems() here, and the profiler caught what that meant:
@@ -26004,10 +26280,19 @@ def validate(lesson, board_tag_names=None):
            f"{lid}: the bank is a ramp (difficulty never falls by more than 1)",
            str(keys))
 
+    # (sp, 2026-09-05) THE SHAPE'S BEATS ARE HELD TO EVERY RULE THE OLD BEATS ARE.
+    # A why, a picture or a recap line is spoken exactly like a teach line, so it
+    # takes the word caps, the punctuation rule and the tag registry below.
+    _shape_beats = [(s, b) for f in ("why", "picture", "recap")
+                    for s, b in (lesson.get(f) or [])]
+    _explain = lesson.get("explain") or {}
+
     # 4. every beat respects the spoken cap
     for spoken in [s for s, _b in lesson["teach"]] + \
                   [pr["worked"][0] for pr in lesson["pairs"]] + \
-                  [lesson["practice_intro"]]:
+                  [lesson["practice_intro"]] + \
+                  [s for s, _b in _shape_beats] + \
+                  ([_explain["spoken"]] if _explain else []):
         ck(len(spoken.split()) <= BEAT_WORD_CAP,
            f"{lid}: beat under {BEAT_WORD_CAP} words: \"{spoken[:36]}...\"",
            f"{len(spoken.split())} words")
@@ -26023,7 +26308,9 @@ def validate(lesson, board_tag_names=None):
     # never the problem: a word followed by a comma is still the word. The check now
     # matches on WORD BOUNDARIES, so "terms," "terms." and "terms" all count, and an
     # author never has to bend a sentence around a test again.
-    teach_text = " ".join(s for s, _b in lesson["teach"]).lower()
+    # (sp) a name may be introduced on the why or the picture beat -- they come first
+    teach_text = " ".join(s for s, _b in lesson["teach"]).lower() + " " + \
+        " ".join(s for s, _b in _shape_beats).lower()
     for sym in lesson["symbols"]:
         _sym_re = re.compile(r"(?<![a-z])" + re.escape(sym.lower()) + r"(?![a-z])")
         ck(bool(_sym_re.search(teach_text)),
@@ -26048,7 +26335,9 @@ def validate(lesson, board_tag_names=None):
     # Everything else about the writing is reviewed by a person, on purpose.
     for _line in [s for s, _b in lesson["teach"]] + \
                  [pr["worked"][0] for pr in lesson["pairs"]] + \
-                 [lesson.get("advance_line") or "", lesson.get("practice_intro") or ""]:
+                 [lesson.get("advance_line") or "", lesson.get("practice_intro") or ""] + \
+                 [s for s, _b in _shape_beats] + \
+                 [_explain.get("spoken", "")]:
         if not _line:
             continue
         ck(not re.search(r"\s+[,.;:?!]", _line),
@@ -26084,7 +26373,11 @@ def validate(lesson, board_tag_names=None):
                  [pr["worked"][1] for pr in lesson["pairs"]] + \
                  [board_for(p, lv) for p in problems
                   for lv in lesson.get("levels", LEVELS)] + \
-                 [choices_for(p) for p in problems]
+                 [choices_for(p) for p in problems] + \
+                 [b for _s, b in _shape_beats] + \
+                 [_explain.get("board", "")] + \
+                 [(_worked_for(p) or ("", ""))[1] for p in problems
+                  if lesson.get("show_work_on_correct")]
         for b in boards:
             for name in _TAG_RE.findall(b):
                 ck(name in board_tag_names,
@@ -26092,6 +26385,55 @@ def validate(lesson, board_tag_names=None):
 
     # 9. praise pool sanity
     ck(len(PRAISE_PREFIXES) >= 3, "at least 3 praise variants", "")
+
+    # 10. (sp, 2026-09-05) THE SHAPE'S OWN PROMISES.
+    # (a) show_work_on_correct is a promise the engine has to be able to keep: every
+    #     problem's op needs a worked picture, or the walk-back silently never comes.
+    if lesson.get("show_work_on_correct"):
+        _no_work = [p for p in problems if _worked_for(p) is None]
+        ck(not _no_work,
+           f"{lid}: every problem's op has a worked picture (show_work_on_correct)",
+           str(_no_work[:3]))
+        for p in problems:
+            w = _worked_for(p)
+            if w:
+                ck(str(ans(p)) in w[0],
+                   f"{lid}: the walk-back for {p['a']} names the answer", w[0])
+    # (b) the reason question: 2-4 options, the answer among them exactly once, and
+    #     no option that the page would read as a QUESTION (session.html routes a
+    #     message ending in "?" or opening "what/why/how/can you" to the raised-hand
+    #     door, not the answer door -- an option shaped like that could never be
+    #     graded). A wrong reason is a real reason a student might give, so the
+    #     options are held to the same word cap as a spoken sentence.
+    if _explain:
+        _opts = _reason_options(lesson)
+        ck(2 <= len(_opts) <= 4,
+           f"{lid}: the reason question offers two to four reasons", str(_opts))
+        ck(sum(1 for o in _opts if _reason_norm(o) == _reason_norm(_explain.get("answer", ""))) == 1,
+           f"{lid}: the authored reason is among the options exactly once",
+           str(_opts))
+        for o in _opts:
+            ck(not re.search(r"\?\s*$", o)
+               and not re.match(r"^(what|why|how|can you|i don'?t (get|understand))\b", o, re.I),
+               f"{lid}: reason option is not shaped like a question: \"{o[:30]}\"",
+               "the page would send it to the raised-hand door")
+            ck(len(o.split()) <= 12,
+               f"{lid}: reason option is short enough for a button: \"{o[:30]}\"",
+               f"{len(o.split())} words")
+        ck(bool(_explain.get("spoken")) and bool(_explain.get("answer")),
+           f"{lid}: the reason question has a spoken line and an answer", "")
+    # (c) a lesson that teaches the shape teaches it whole: why, picture and recap come
+    #     together (a why without a recap is "taught once" again), and a reason question
+    #     needs a picture to replay on a miss. The reason question itself is optional --
+    #     a counting or comparing lesson has nothing to walk back (the design page).
+    if lesson.get("why") or lesson.get("picture") or lesson.get("recap"):
+        ck(bool(lesson.get("why")) and bool(lesson.get("picture"))
+           and bool(lesson.get("recap")),
+           f"{lid}: the shape is whole -- why, picture and recap together",
+           str({f: bool(lesson.get(f)) for f in ("why", "picture", "recap")}))
+    if _explain:
+        ck(bool(lesson.get("picture")),
+           f"{lid}: a reason question has a picture to replay on a miss", "")
     return checks
 
 

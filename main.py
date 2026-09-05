@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  APP_BUILD -> "2026-09-05sp-the-lesson-learns-to-teach".
+#               BUILD sp -- THE LESSON LEARNS TO TEACH (Jim: "are we really in the
+#               business here of teaching, or are we just trying to create a teaching
+#               app?"). lessonscripts grows the seven-beat shape as optional lesson
+#               fields and a REASON question (beat six, "Say it"): an ask with
+#               reason=True and TEXT options. THIS FILE: _script_clean ships `reason`
+#               on every ask, and /api/script/answer grades a reason tap BY ITS LABEL
+#               in code before read_answer can scan it for a digit -- exact option
+#               match answers, "not sure" gets LINE_UNSURE, anything else is unheard.
+#               No model on that path. The rounding-to-tens lesson is the prototype.
 #   2026-09-04  APP_BUILD -> "2026-09-04so-the-mark-goes-away-and-the-voice-is-counted".
 #               BUILD so -- Jim's live flags, the page-and-eyes cluster. Pages: the
 #               pencil's [[ink]] marks clear at the start of every turn (his "black
@@ -10644,6 +10654,8 @@ def _script_clean(steps, lesson_id: str = ""):
             c["choices"] = s.get("choices", "")
             c["tap_only"] = bool(s.get("tap_only"))
             c["guided"] = bool(s.get("guided"))
+            # (sp) the reason question: TEXT options, graded by label below
+            c["reason"] = bool(s.get("reason"))
         if s["kind"] == "end":
             c["mastered"] = bool(s.get("mastered"))
             c["graceful"] = bool(s.get("graceful"))
@@ -10856,6 +10868,38 @@ def script_answer(body: ScriptAnswerIn):
     #   unsure    -> "saying you are not sure is a good move" + the ✋ is right
     #                there, then the same re-ask. Never graded wrong for it.
     pre = []
+
+    # ---- (sp, 2026-09-05) THE REASON QUESTION IS GRADED BY ITS LABEL -------------
+    # Beat six of the shape ("Say it"): the engine asked WHY, with text options, and
+    # the tapped (or typed) label comes back in `said`. read_answer would scan it for
+    # a number -- "because 8 is 5 or bigger" reads as 5 -- so this door runs FIRST and
+    # in code: an exact option match is the answer (the star moves on it like any tap,
+    # rd's ruling: a wrong tap is a wrong tap); "I'm not sure" gets its authored line
+    # and the re-ask; anything else is the unheard path, which ends in "Tap it".
+    # No model call exists on this path.
+    if sess["mode"] == "script" and (state.get("pending") or {}).get("reason"):
+        label = lessonscripts.reason_option_for(lesson, body.said or "")
+        if body.unheard or not label:
+            got = lessonscripts.read_answer(body.said or "")
+            if got["kind"] == "unsure":
+                pre.append({"kind": "say", "spoken": lessonscripts.LINE_UNSURE,
+                            "board": ""})
+            steps, state = lessonscripts.step(lesson, state, ("unheard",))
+            sess["state"] = state
+            _script_log(code, lesson["course"], t0)
+            return {"ok": True, "steps": pre + _script_clean(steps, lesson["id"])}
+        _streak = _script_streak(code, lessonscripts.reason_right(lesson, label))
+        steps, state = lessonscripts.step(lesson, state, ("answer", label))
+        sess["state"] = state
+        for s in steps:
+            if s["kind"] == "end":
+                _script_finish(code, sess, s)
+        _script_log(code, lesson["course"], t0)
+        resp = {"ok": True, "steps": _script_clean(steps, lesson["id"])}
+        if _streak:
+            resp["streak"] = _streak
+        return resp
+
     if body.value is None and (body.said or "").strip():
         got = lessonscripts.read_answer(body.said)
         if got["kind"] == "value":
@@ -11328,7 +11372,9 @@ def _drill_teach_steps(lesson, depth: int) -> list:
     """
     out = []
     if depth >= 2:
-        for spoken, board in lesson.get("teach", []):
+        # (sp) the full teach sequence now opens on the PICTURE when the lesson has
+        # one -- the representation is the re-teach, the rule is its summary
+        for spoken, board in list(lesson.get("picture") or []) + list(lesson.get("teach", [])):
             out.append({"kind": "teach", "who": "cadabra",
                         "spoken": spoken, "board": board})
     pairs = lesson.get("pairs") or []
@@ -13655,7 +13701,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-04so-the-mark-goes-away-and-the-voice-is-counted"
+APP_BUILD = "2026-09-05sp-the-lesson-learns-to-teach"
 
 
 @app.get("/health")

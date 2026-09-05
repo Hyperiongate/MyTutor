@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sp -- PART 3il: the lesson learns to teach. The seven-beat shape
+#               (why / picture / teach / show / try + walk-back / say it / recap) as
+#               optional lesson fields, pinned BOTH ways: the rounding prototype plays
+#               every beat on the right, wrong and unheard paths inside its closure; a
+#               pre-shape lesson plays byte-for-byte as before. The reason question is
+#               graded by label through the real endpoint. The two all-lesson walks
+#               (3gu, 8b) learned to answer a reason ask.
 #   2026-09-04  BUILD so -- PART 3ik: the mark goes away and the voice is counted. Four
 #               of Jim's live flags: [[ink]] marks clear with the clean page on all three
 #               inking pages; the scripted answer door shows the thinking state around
@@ -18124,7 +18131,9 @@ def part3gu_the_authored_question_ships_its_buttons():
             for o in pend:
                 asks += 1
                 tag = o.get("choices") or ""
-                opts = _re.findall(r"-?\d+", tag)
+                # (sp) a REASON ask's options are text; its own pin is in PART 3il
+                opts = (_re.findall(r"-?\d+", tag) if not o.get("reason")
+                        else [x.strip() for x in tag[len("[[choices options=\""):-3].split("|")])
                 if not tag.startswith("[[choices options="):
                     bare += 1
                 elif str(o["expected"]) not in opts:
@@ -21777,7 +21786,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,514</b>" in page,
+          "<b>8,553</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22745,6 +22754,243 @@ def part3ik_the_mark_goes_away_and_the_voice_is_counted():
               for f in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "BUILD so" in cl[:2500] and "BUILD so" in vo[:3000]
           and "BUILD so" in m[:200000] and "BUILD so" in nw[:20000], "Jim's rule 8")
+
+
+def part3il_the_lesson_learns_to_teach():
+    """PART 3il (build sp, 2026-09-05) -- THE LESSON LEARNS TO TEACH.
+
+    Jim, after a live run through Entry and Basic: "there is not so much emphasis on
+    teaching as there is on giving problems ... just saying something once doesn't mean
+    that it has been learned ... are we really in the business here of teaching, or are
+    we just trying to create a teaching app?" His choice: shape first, prototype on
+    rounding. The shape is seven beats (claude/Design_What_A_Lesson_Is): Why, Picture,
+    Teach, Show, Try with the walk-back (ruling ⑤), Say it (a REASON question graded in
+    code), Come back (the recap). Every beat is an OPTIONAL lesson field, so this PART
+    pins BOTH ways: the prototype plays the whole shape, and a lesson without the fields
+    plays byte-for-byte as it did before sp."""
+    print("\nPART 3il — the lesson learns to teach (build sp)")
+    import lessonscripts as L
+    import tags as _tags
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    les = L.LESSON_BY_ID.get("basic-u1-rounding-tens")
+    check("⭐ the prototype lesson carries every field of the shape",
+          bool(les) and all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain"))
+          and les.get("show_work_on_correct") is True, str(sorted(les or {})))
+
+    # ---- 1. the opening order: why -> picture -> teach -> show -> the first ask ----
+    st = L.start(les)
+    outs, st = L.step(les, st, ("begin",))
+    spoken = [o["spoken"] for o in outs]
+    _why = spoken.index(les["why"][0][0])
+    _pic = spoken.index(les["picture"][0][0])
+    _tch = spoken.index(les["teach"][0][0])
+    _wrk = spoken.index(les["pairs"][0]["worked"][0])
+    check("⭐ the lesson opens WHY, then the PICTURE, then the rule, then the worked example",
+          _why == 0 and _why < _pic < _tch < _wrk and outs[-1]["kind"] == "ask",
+          f"why@{_why} picture@{_pic} teach@{_tch} worked@{_wrk}")
+    check("  no rule is spoken before the picture (the rule summarises what the picture showed)",
+          "ones digit" not in " ".join(spoken[:_pic + 1]).lower(), "")
+    check("  every rounding beat that names a number draws a number line",
+          all("[[numberline" in o["board"] for o in outs
+              if o["kind"] == "say" and "[[step" not in o["board"] and "[[goal" not in o["board"]),
+          str([o["board"][:40] for o in outs if o["kind"] == "say"]))
+    check("  the ask draws the number line with the halfway mark and NO hop (the picture is the tool, not the answer)",
+          '[[numberline' in outs[-1]["board"] and 'mid="75"' in outs[-1]["board"]
+          and "hops=" not in outs[-1]["board"], outs[-1]["board"])
+
+    # ---- 2. the walk-back after every right answer ------------------------------
+    heard = list(spoken)
+    walkbacks = 0
+    for _ in range(2 + L.ADVANCE_STREAK):        # two guided asks, then the streak
+        p = st["pending"]["problem"]
+        outs, st = L.step(les, st, ("answer", L.ans(p)))
+        heard.extend(o["spoken"] for o in outs)
+        wb = [o for o in outs if o["kind"] == "say" and o["spoken"].startswith("Look what you did:")]
+        if wb and (f'hops="{p["a"]},{L.ans(p)}"' in wb[0]["board"]
+                   and str(L.ans(p)) in wb[0]["spoken"] and str(p["a"]) in wb[0]["spoken"]):
+            walkbacks += 1
+    check("⭐ EVERY right answer is walked back on the number line, with the hop drawn and the answer named",
+          walkbacks == 2 + L.ADVANCE_STREAK, f"{walkbacks} of {2 + L.ADVANCE_STREAK}")
+
+    # ---- 3. three in a row earns the REASON question, not yet the end -------------
+    ask = outs[-1]
+    check("⭐ after the streak the next beat is the reason question (an ask with reason=True, no problem, tap only)",
+          ask["kind"] == "ask" and ask.get("reason") is True and ask.get("problem") is None
+          and ask.get("tap_only") is True and st["phase"] == "explain"
+          and not any(o["kind"] == "end" for o in outs), str(ask)[:200])
+    opts = (ask.get("choices") or "")[len('[[choices options="'):-3].split(" | ")
+    check("  its options are the three authored reasons, the right one not first",
+          sorted(opts) == sorted(o.strip() for o in les["explain"]["choices"].split("|"))
+          and opts[0] != les["explain"]["answer"], str(opts))
+    check("  the answer never leaves the engine's own step (expected is the text, never in choices twice)",
+          ask.get("expected") == les["explain"]["answer"] and opts.count(les["explain"]["answer"]) == 1, "")
+
+    # ---- 4. a wrong reason replays the PICTURE and asks again; a second miss ends warmly ----
+    import copy
+    st_wrong = copy.deepcopy(st)
+    o1, st_wrong = L.step(les, st_wrong, ("answer", "because 58 is a big number"))
+    heard.extend(o["spoken"] for o in o1)
+    check("⭐ a wrong reason: the verdict line, the picture again, the question again -- never the model",
+          o1[0]["spoken"] == L.LINE_REASON_WRONG
+          and [o["spoken"] for o in o1[1:1 + len(les["picture"])]] == [s for s, _b in les["picture"]]
+          and o1[-1]["kind"] == "ask" and o1[-1].get("reason") is True
+          and not any(o["kind"] == "intervene" for o in o1), str([o["kind"] for o in o1]))
+    o2, st_wrong = L.step(les, st_wrong, ("answer", "because 60 comes after 50"))
+    heard.extend(o["spoken"] for o in o2)
+    check("  a second miss: picture, RECAP, then a still-learning end (the warm choice's door)",
+          o2[-1]["kind"] == "end" and o2[-1]["mastered"] is False and o2[-1]["graceful"] is True
+          and [o["spoken"] for o in o2[-1 - len(les["recap"]):-1]] == [s for s, _b in les["recap"]]
+          and st_wrong["finished"], str([o["kind"] for o in o2]))
+
+    # ---- 5. unheard on the reason question: re-ask, then "tap it" -----------------
+    st_un = copy.deepcopy(st)
+    u1, st_un = L.step(les, st_un, ("unheard",))
+    u2, st_un = L.step(les, st_un, ("unheard",))
+    heard.extend(o["spoken"] for o in u1 + u2)
+    check("  unheard: 'let me say that again' + the question, then LINE_TAP -- same two steps a problem takes",
+          u1[0]["spoken"] == L.LINE_REASK + " " + les["explain"]["spoken"] and u1[0].get("reason")
+          and u2[0]["spoken"] == L.LINE_TAP and u2[0].get("reason"), "")
+
+    # ---- 6. the right reason: verdict, RECAP, mastered end ------------------------
+    o3, st = L.step(les, st, ("answer", "  Because 8 IS 5 or bigger. "))
+    heard.extend(o["spoken"] for o in o3)
+    check("⭐ the right reason (graded case-, space- and punctuation-blind): verdict, recap, mastered end",
+          o3[0]["spoken"] == L.LINE_REASON_RIGHT
+          and [o["spoken"] for o in o3[1:1 + len(les["recap"])]] == [s for s, _b in les["recap"]]
+          and o3[-1]["kind"] == "end" and o3[-1]["mastered"] is True
+          and o3[-1]["spoken"] == les["advance_line"] and st["done"] == L.ADVANCE_STREAK,
+          str([o["kind"] for o in o3]))
+    check("  reason_right never raises and never guesses",
+          L.reason_right(les, None) is False and L.reason_right(les, 7) is False
+          and L.reason_right(les, "") is False and L.reason_right({}, "x") is False, "")
+    check("  reason_option_for maps a typed reason to its option, or to nothing",
+          L.reason_option_for(les, "because 60 comes after 50.") == "because 60 comes after 50"
+          and L.reason_option_for(les, "60") == "" and L.reason_option_for(les, None) == "", "")
+
+    # ---- 7. the closure holds: every line heard on every path is pre-rendered -----
+    cl = set(L.audio_lines(les))
+    miss = [s for s in heard if s and s not in cl]
+    check("⭐ every line spoken on the shape's paths (right, wrong, unheard) is in the lesson's closure",
+          not miss, str(miss[:3]))
+    check("  the closure carries the reason verdicts, the re-ask and every walk-back",
+          L.LINE_REASON_RIGHT in cl and L.LINE_REASON_WRONG in cl
+          and (L.LINE_REASK + " " + les["explain"]["spoken"]) in cl
+          and all(L.OP_EXT["r10"]["worked"](p)[0] in cl for p in les["bank"]), "")
+    check("  the prototype passes the real validator with the real tag registry",
+          all(ok for ok, _l, _d in L.validate(les, set(_tags.BOARD_TAGS))),
+          str([l for ok, l, _d in L.validate(les, set(_tags.BOARD_TAGS)) if not ok][:3]))
+
+    # ---- 8. the validator refuses the shape done wrong --------------------------
+    def fails(mod, needle):
+        bad = dict(les)
+        bad.update(mod)
+        return any((not ok) and needle in l for ok, l, _d in L.validate(bad, set(_tags.BOARD_TAGS)))
+    check("  validate: an answer that is not among the reasons",
+          fails({"explain": dict(les["explain"], answer="because")}, "exactly once"), "")
+    check("  validate: an option shaped like a question (the page would route it to the raised hand)",
+          fails({"explain": dict(les["explain"], choices="what is a ten | because 8 is 5 or bigger",
+                                  answer="because 8 is 5 or bigger")}, "shaped like a question"), "")
+    check("  validate: a why without a recap is 'taught once' again",
+          fails({"recap": []}, "shape is whole"), "")
+    check("  validate: show_work_on_correct on an op with no worked picture",
+          fails({"bank": [dict(p, op="r100", a=p["a"] * 10 + 3) for p in les["bank"]],
+                 "pairs": [dict(pr, ask=dict(pr["ask"], op="r100", a=pr["ask"]["a"] * 10 + 3))
+                           for pr in les["pairs"]], "max_value": 1000},
+                "worked picture"), "")
+
+    # ---- 9. DO NO HARM: a lesson without the fields plays exactly as before -------
+    old = L.LESSON_BY_ID.get("entry-u2-add-single-digit") or L.LESSONS[0]
+    check("  the control lesson carries none of the new fields",
+          not any(old.get(f) for f in ("why", "picture", "recap", "explain", "show_work_on_correct")), "")
+    st0 = L.start(old)
+    o0, st0 = L.step(old, st0, ("begin",))
+    check("⭐ a pre-shape lesson still opens on its first teach line and ends with no recap",
+          o0[0]["spoken"] == old["teach"][0][0] and o0[-1]["kind"] == "ask", "")
+    ended = None
+    for _ in range(12):
+        p = st0["pending"]["problem"]
+        o0, st0 = L.step(old, st0, ("answer", L.ans(p)))
+        e = [o for o in o0 if o["kind"] == "end"]
+        if e:
+            ended = o0
+            break
+    check("  ...a perfect walk: praise then end, no walk-back, no reason question, no recap",
+          ended is not None and [o["kind"] for o in ended] == ["say", "end"]
+          and ended[-1]["mastered"] is True and st0["done"] == L.ADVANCE_STREAK,
+          str([o["kind"] for o in (ended or [])]))
+    check("  every lesson in the course still validates (the new checks are gated on the new fields)",
+          all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
+
+    # ---- 10. the server grades the reason by its LABEL, in code -------------------
+    import main
+    from fastapi.testclient import TestClient
+    c = TestClient(main.app)
+    CODE = "SP-3IL"
+    main._SCRIPT_SESSIONS.pop(CODE, None)
+    r = c.post("/api/script/start", json={"code": CODE, "course": "basic",
+                                          "lesson": "basic-u1-rounding-tens"}).json()
+    check("  /api/script/start ships the shape's opening and `reason` on every ask",
+          r.get("ok") and r["steps"][-1]["kind"] == "ask" and r["steps"][-1].get("reason") is False
+          and r["steps"][0]["spoken"] == les["why"][0][0], str(r)[:200])
+    last = r["steps"]
+    for _ in range(2 + L.ADVANCE_STREAK):
+        _sess = main._script_session(CODE)
+        if not _sess:            # a reverted engine ends early -- fail by name below, never crash
+            break
+        pend = _sess["state"]["pending"]["problem"]
+        last = c.post("/api/script/answer", json={"code": CODE, "value": L.ans(pend)}).json()["steps"]
+    def _post(said):
+        j = c.post("/api/script/answer", json={"code": CODE, "said": said}).json()
+        return j.get("steps") or [{"kind": "none", "spoken": ""}]
+    check("⭐ after the streak the reason question reaches the client with reason=True and text choices",
+          last[-1]["kind"] == "ask" and last[-1].get("reason") is True and last[-1].get("tap_only") is True
+          and "because" in last[-1].get("choices", "") and "expected" not in last[-1], str(last[-1])[:200])
+    r_ns = _post("I'm not sure")
+    check("  'I'm not sure' on the reason: the authored unsure line, then the question again",
+          r_ns[0]["spoken"] == L.LINE_UNSURE and r_ns[-1].get("reason") is True
+          and r_ns[-1]["spoken"].startswith(L.LINE_REASK), str([s["spoken"][:30] for s in r_ns]))
+    r_w = _post("because 58 is a big number")
+    check("  a wrong label: the wrong verdict, the picture, the question -- and no `ai` step",
+          r_w[0]["spoken"] == L.LINE_REASON_WRONG and r_w[-1].get("reason") is True
+          and not any(s["kind"] == "ai" for s in r_w), str([s["kind"] for s in r_w]))
+    r_r = _post("Because 8 is 5 or bigger")
+    check("⭐ the right label (typed with a capital): verdict, recap, mastered end, next_id on the end step",
+          r_r[0]["spoken"] == L.LINE_REASON_RIGHT and r_r[-1]["kind"] == "end"
+          and r_r[-1].get("mastered") is True and r_r[-1].get("next_id") == "basic-u1-rounding-hundreds",
+          str(r_r[-1]))
+    check("  the session is closed after the end",
+          main._script_session(CODE) is None, "")
+    m = rd("main.py")
+    _door = m.find('if sess["mode"] == "script" and (state.get("pending") or {}).get("reason"):')
+    _read = m.find("got = lessonscripts.read_answer(body.said)\n")
+    check("  the reason door runs BEFORE read_answer can scan the label for a digit",
+          0 < _door < _read, f"door@{_door} read_answer@{_read}")
+    check("  _script_clean ships `reason` on every ask",
+          'c["reason"] = bool(s.get("reason"))' in m, "")
+    check("  the Abrabot handoff's full re-teach opens on the picture",
+          'list(lesson.get("picture") or []) + list(lesson.get("teach", []))' in m, "")
+
+    # ---- 11. the pages ----------------------------------------------------------
+    mf = rd("static/math-figures.js")
+    _mid = mf.find('var midv = (a.mid !== undefined && a.mid !== "") ? parseFloat(a.mid) : NaN;')
+    _pts = mf.find("parseNums(a.points).forEach(function (v) { s += '<circle cx=\"' + mapX(v)")
+    check("⭐ [[numberline]] draws mid= as a dashed halfway mark, labelled, before the points",
+          0 < _mid < _pts and 'stroke-dasharray="5,4"' in mf[_mid:_pts]
+          and '"halfway"' in mf[_mid:_pts], f"mid@{_mid} points@{_pts}")
+    pil = rd("static/pilot.html")
+    check("  pilot.html sends a reason tap as `said` (parseInt would send NaN)",
+          "if (step.reason) ob.onclick = function () { answerSaid(v); };" in pil, "")
+    ses = rd("static/session.html")
+    check("  session.html's answer door still routes only questions to the raised hand "
+          "(the validator's option-shape rule depends on this exact test)",
+          "const asking = /\\?\\s*$/.test(txt) || /^(what|why|how|can you|i don'?t (get|understand))\\b/i.test(txt);" in ses,
+          "")
+    check("  the five files carry dated sp notes",
+          "2026-09-05  BUILD sp" in rd("lessonscripts.py")[:20000]
+          and "BUILD sp" in m[:200000] and "2026-09-05  BUILD sp" in mf[:3000]
+          and "(sp) 2026-09-05" in pil[:3000]
+          and "2026-09-05  BUILD sp" in rd("ruletests.py")[:6000], "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -31326,7 +31572,10 @@ def part3cv_scripted_engine():
         _ended = None
         for _ in range(30):
             _p = _st["pending"]["problem"]
-            _outs, _ = L.step(_les, _st, ("answer", L.ans(_p)))
+            # (sp) a perfect student also names the REASON when the lesson asks it
+            _ev = (("answer", _st["pending"]["expected"]) if _st["pending"].get("reason")
+                   else ("answer", L.ans(_p)))
+            _outs, _ = L.step(_les, _st, _ev)
             _heard2.extend(o["spoken"] for o in _outs if o.get("spoken"))
             _ended = next((o for o in _outs if o["kind"] == "end"), _ended)
             if _ended:
@@ -33038,6 +33287,7 @@ def main():
     part3ii_the_board_tells_the_truth_about_which_question()
     part3ij_the_warm_choice()
     part3ik_the_mark_goes_away_and_the_voice_is_counted()
+    part3il_the_lesson_learns_to_teach()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

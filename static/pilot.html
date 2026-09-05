@@ -2,6 +2,9 @@
 <!--
     pilot.html  --  THE SCRIPTED LESSON PILOT PAGE  --  Hyperion Shift LLC
     =========================================================================
+    (sp) 2026-09-05 -- THE REASON QUESTION TAPS TEXT. A reason ask (step.reason,
+    build sp) carries text options; its buttons send the label as `said` instead of
+    parseInt'ing it to NaN. One branch, nothing else touched.
     (oq) 2026-08-27 -- THE RAISED HAND, AND THE WHOLE COURSE. Jim, after Unit 1:
     "I'm satisfied. Start expanding this." Two additions: (1) a small ✋ during
     say and ask beats -- tapping swaps the controls for a question box, ONE
@@ -656,7 +659,11 @@
       opts.forEach(function (v) {
         var ob = document.createElement("button");
         ob.className = "opt"; ob.textContent = v; ob.disabled = true;
-        ob.onclick = function () { answer(parseInt(v, 10), ctl); };
+        // (sp, 2026-09-05) THE REASON QUESTION's options are TEXT ("because 8 is 5
+        // or bigger"): parseInt would send NaN. The label goes back as `said`, the
+        // same field a typed answer uses, and main.py grades it by label in code.
+        if (step.reason) ob.onclick = function () { answerSaid(v); };
+        else ob.onclick = function () { answer(parseInt(v, 10), ctl); };
         ctl.appendChild(ob);
       });
       // (ou) the free-answer bar opens with the question -- unless the engine has

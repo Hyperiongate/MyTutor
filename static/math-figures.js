@@ -2,6 +2,11 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-05  BUILD sp -- THE HALFWAY MARK. [[numberline]] takes mid="45": a
+                 dashed vertical mark labelled "halfway" between the two tens, so a
+                 rounding beat SHOWS which side of halfway a number sits on instead of
+                 only saying so. Drawn before the points so a point at halfway sits on
+                 top of it. Every other attribute and every coordinate is untouched.
      2026-08-27  BUILD pc -- THE FIGURE FILLS THE BOARD. session.html's .mfig was a
                  shrink-to-fit box, so every display cap set in this file was dead
                  letter: each figure rendered at the 300px replaced-element default
@@ -942,6 +947,18 @@
       var x = mapX(t);
       s += '<line x1="' + x + '" y1="' + (axisY - 5) + '" x2="' + x + '" y2="' + (axisY + 5) + '" stroke="var(--bd-9aa7b6)"/>';
       s += tspan(x, axisY + 21, String(trimnum(t)), "var(--bd-66707e)", 15, 700);
+    }
+    // (sp, 2026-09-05) mid="45": THE HALFWAY MARK, dashed, labelled "halfway". Jim:
+    // "we should have a number line anytime we talk about rounding" -- and rounding
+    // is a question about which side of halfway a number sits, so the line has to
+    // show halfway or the words are doing the picture's job. Drawn before the points
+    // so a point AT halfway (85 between 80 and 90) sits on top of the mark.
+    var midv = (a.mid !== undefined && a.mid !== "") ? parseFloat(a.mid) : NaN;
+    if (isFinite(midv) && midv > min && midv < max) {
+      var mx = mapX(midv);
+      s += '<line x1="' + mx + '" y1="' + (axisY - 30) + '" x2="' + mx + '" y2="' + (axisY + 8) +
+           '" stroke="var(--bd-5b5bd6)" stroke-width="2" stroke-dasharray="5,4"/>';
+      s += tspan(mx, axisY - 36, "halfway", "var(--bd-5b5bd6)", 12, 700);
     }
     parseNums(a.points).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="7.5" fill="var(--bd-e0392b)"/>'; });
     parseNums(a.open).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="7.5" fill="var(--bd-ffffff)" stroke="var(--bd-e0392b)" stroke-width="2.5"/>'; });
