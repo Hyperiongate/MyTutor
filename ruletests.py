@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sz -- PART 3iv: the times table is a pass, not a streak (rulings
+#               ⑥ ⑦). The real engine driven through a clean pass, a slip, five slips,
+#               an unheard answer in the pass, and the real API; neighbouring-fact
+#               buttons; the seed. RE-PINNED WITH NOTES: 3cv's perfect walk and 3in's
+#               Unit 2 walk now expect the table lesson to master in 81, not 3.
 #   2026-09-05  BUILD sy -- PART 3iu: Basic Unit 9 to the shape, and the pin that EVERY
 #               Basic lesson (36) is on it. [[rectangle]] drawn, exported and
 #               registered. kj's export pin reads the whole MathFigures block now.
@@ -21819,7 +21824,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,851</b>" in page,
+          "<b>8,887</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23205,7 +23210,14 @@ def part3in_basic_unit_two_to_the_shape():
         outs, st = L.step(les, st, ("begin",))
         heard = [o["spoken"] for o in outs]
         wb = 0
-        for _ in range(2 + L.ADVANCE_STREAK):
+        # (sz, 2026-09-05) the times-table lesson practices as a PASS (rulings ⑥ ⑦):
+        # after the two pairs it asks all 81 facts, and inside the pass a right fact
+        # earns praise and the next fact, not a walk-back -- so its walk is 83 answers
+        # and its walk-backs are the two pairs'. PART 3iv drives the pass in full.
+        _table = les.get("mastery") == "table"
+        _n = 2 + (getattr(L, "TABLE_SIZE", 81) if _table else L.ADVANCE_STREAK)
+        _want_wb = 2 if _table else _n
+        for _ in range(_n):
             p = st["pending"]["problem"]
             outs, st = L.step(les, st, ("answer", L.ans(p)))
             heard.extend(o["spoken"] for o in outs)
@@ -23214,7 +23226,7 @@ def part3in_basic_unit_two_to_the_shape():
                 wb += 1
         ask = outs[-1]
         check(f"⭐ {lid}: every right answer is walked back on the picture, then the reason is asked",
-              wb == 2 + L.ADVANCE_STREAK and ask.get("reason") is True, f"walk-backs {wb}, last={ask.get('kind')}")
+              wb == _want_wb and ask.get("reason") is True, f"walk-backs {wb} of {_want_wb}, last={ask.get('kind')}")
         o3, st = L.step(les, st, ("answer", les["explain"]["answer"]))
         heard.extend(o["spoken"] for o in o3)
         cl = set(L.audio_lines(les))
@@ -23852,6 +23864,226 @@ def part3iu_basic_unit_nine_to_the_shape():
           and "2026-09-05 (sy)" in rd("static/script-board.js")[:3000]
           and all("(sy) 2026-09-05" in rd(pg)[:1000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "2026-09-05  BUILD sy" in rd("ruletests.py")[:8000], "Jim's rule 8")
+
+
+def part3iv_the_times_table_is_a_pass():
+    """PART 3iv (build sz, 2026-09-05) -- THE TIMES TABLE IS A PASS, NOT A STREAK.
+
+    Jim's flag 22:40: "being able to complete a times table is mandatory to move on
+    ... not just 3 in a row." Rulings ⑥ ⑦: 1-9 times 1-9, complete on ONE clean pass,
+    any miss restarts it. This part drives the real engine through a clean pass, a
+    slip, five slips, an unheard answer inside the pass, and the server's own door --
+    and pins that nothing inside a pass reaches the model."""
+    print("\nPART 3iv — the times table is a pass, not a streak (build sz)")
+    import lessonscripts as L
+    import tags as _tags
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    LID = "basic-u2-times-tables"
+    les = L.LESSON_BY_ID[LID]
+    SIZE = getattr(L, "TABLE_SIZE", 0)
+
+    # ---- 1. the settings are the rulings', verbatim ---------------------------------
+    check("⭐ the table is 1-9 times 1-9: 81 facts, five slips a sitting (rulings ⑥ ⑦)",
+          getattr(L, "TABLE_MAX", None) == 9 and SIZE == 81 and getattr(L, "TABLE_MAX_MISSES", None) == 5,
+          str((getattr(L, "TABLE_MAX", None), SIZE, getattr(L, "TABLE_MAX_MISSES", None))))
+    facts = L.table_facts() if hasattr(L, "table_facts") else []
+    check("  table_facts() deals every fact once, both factors 1 through 9",
+          len(facts) == 81 and len({(p["a"], p["b"]) for p in facts}) == 81
+          and {p["a"] for p in facts} == set(range(1, 10)) and {p["b"] for p in facts} == set(range(1, 10))
+          and all(p["op"] == "*" for p in facts), str(facts[:2]))
+    check("  the rest line names the number of slips it closes on (words and setting pinned together)",
+          str(getattr(L, "TABLE_MAX_MISSES", "")) in getattr(L, "LINE_TABLE_REST", "")
+          and "start again from the beginning" in getattr(L, "LINE_TABLE_RESTART", ""), "")
+
+    # ---- 2. the lesson says so, and still carries the whole shape --------------------
+    check("⭐ basic-u2-times-tables is mastered by a table pass",
+          les.get("mastery") == "table", str(les.get("mastery")))
+    check("  it still carries the shape (why, picture, explain, recap, the walk-back flag)",
+          all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain"))
+          and les.get("show_work_on_correct") is True, "")
+    check("  it passes the real validator with the real registry",
+          all(ok for ok, _l, _d in L.validate(les, set(_tags.BOARD_TAGS))),
+          str([l for ok, l, _d in L.validate(les, set(_tags.BOARD_TAGS)) if not ok][:3]))
+    _words = (les["practice_intro"] + " " + les["advance_line"]).lower()
+    check("  its words promise the pass, never three in a row",
+          not re.search(r"\bthree\b|\bin a row\b", _words) and "81" in les["practice_intro"]
+          and "pass" in les["advance_line"], _words[:100])
+    check("  the validator itself refuses a table lesson that still says three in a row",
+          any(not ok and "three in a row" in l
+              for ok, l, _d in L.validate(dict(les, practice_intro="Three right answers in a row and we're done."))),
+          "validate #11 must hold the words to the gate")
+    check("  the validator refuses a mastery mode the engine does not have",
+          any(not ok and "names a mode" in l for ok, l, _d in L.validate(dict(les, mastery="streak5"))), "")
+
+    # ---- 3. the perfect student: two pairs, 81 facts, the reason, the end ------------
+    def _ans(st):
+        pend = st["pending"]
+        return ("answer", pend["expected"]) if pend.get("reason") else ("answer", L.ans(pend["problem"]))
+    st = L.start(les, seed=7)
+    outs, st = L.step(les, st, ("begin",))
+    heard = [o["spoken"] for o in outs if o.get("spoken")]
+    asked, caps, wbs, ints, n, ended = [], [], 0, 0, 0, None
+    for _ in range(120):
+        pend = st["pending"]
+        if pend and pend.get("problem") is not None and st.get("phase") == "table":
+            asked.append((pend["problem"]["a"], pend["problem"]["b"]))
+            caps.append(re.search(r'caption="([^"]*)"', pend.get("board", "") or "").group(1)
+                        if 'caption="' in (pend.get("board", "") or "") else "")
+        outs, st = L.step(les, st, _ans(st))
+        n += 1
+        heard.extend(o["spoken"] for o in outs if o.get("spoken"))
+        wbs += sum(1 for o in outs if o["spoken"].startswith("Look what you did:"))
+        ints += sum(1 for o in outs if o["kind"] == "intervene")
+        ended = next((o for o in outs if o["kind"] == "end"), None)
+        if ended:
+            break
+    check("⭐ a perfect student masters in 2 pairs + 81 facts + the reason: never in three",
+          ended is not None and ended["mastered"] is True and n == 2 + SIZE + 1 and st["done"] == SIZE,
+          f"answers={n} done={st['done']} ended={bool(ended)}")
+    check("  every one of the 81 facts was asked exactly once in the pass, in a shuffled order",
+          len(asked) == 81 and len(set(asked)) == 81 and asked != [(p["a"], p["b"]) for p in facts],
+          f"{len(asked)} asked, {len(set(asked))} distinct")
+    check("  the counter rides the step's caption: fact 1 of 81 ... fact 81 of 81",
+          caps[:1] == ["fact 1 of 81"] and caps[-1:] == ["fact 81 of 81"] and len(set(caps)) == 81, str(caps[:3]))
+    check("  the walk-back drew on the two worked pairs only -- inside the pass a right fact earns praise and the next fact",
+          wbs == 2, f"walk-backs {wbs}")
+    check("  no model call anywhere in a clean pass", ints == 0, "")
+    check("  the reason question comes AFTER the pass, and the end speaks the advance line over the recap",
+          st.get("phase") == "explain" and ended["spoken"] == les["advance_line"], str(ended)[:100])
+    cl = set(L.audio_lines(les))
+    miss = [h for h in heard if h and h not in cl]
+    check("⭐ every line of the clean pass is in the closure (81 asks, 81 praises, the intro)",
+          not miss, str(miss[:3]))
+    est = L.audio_cost_estimate(les)
+    check("  the table lesson's closure stays under the 22,000-character tripwire without raising it",
+          0 < est["chars"] < 22000 and est["lines"] >= 2 * 81 + 81 + 81, str(est))
+
+    # ---- 4. a slip: the fact's picture, the restart line, a fresh shuffle ------------
+    st = L.start(les, seed=7)
+    L.step(les, st, ("begin",))
+    L.step(les, st, _ans(st))
+    L.step(les, st, _ans(st))
+    order1 = list(st.get("table_order") or [])
+    for _ in range(10):
+        L.step(les, st, _ans(st))
+    p = st["pending"]["problem"]
+    outs, st = L.step(les, st, ("answer", 999))
+    kinds = [o["kind"] for o in outs]
+    check("⭐ a slip draws THAT fact's array counted down the rows, names it, says the restart line, then asks fact 1 again",
+          kinds == ["say", "say", "ask"]
+          and f'[[array rows="{p["a"]}" cols="{p["b"]}" caption="{p["a"]} × {p["b"]} = {p["a"] * p["b"]}"]]' == outs[0]["board"]
+          and f"{p['a']} times {p['b']} equals {p['a'] * p['b']}" in outs[0]["spoken"]
+          and "count by" in outs[0]["spoken"]
+          and outs[1]["spoken"] == getattr(L, "LINE_TABLE_RESTART", None)
+          and 'caption="try 2 · fact 1 of 81"' in outs[2]["board"], str(outs)[:300])
+    check("  the restart is a fresh shuffle, the pass counter is 2, the level never dropped, no model",
+          st.get("table_pass") == 2 and st.get("table_i") == 0 and st.get("table_order") != order1
+          and st["level"] == "abstract" and "intervene" not in kinds and st.get("retest") is None, str(kinds))
+    check("  the slip's lines are in the closure", all(o["spoken"] in cl for o in outs if o.get("spoken")), "")
+    check("  the slip counted as a problem done and reset the streak", st["done"] == 11 and st["streak"] == 0, f"done={st['done']}")
+
+    # ---- 5. an unheard answer inside the pass keeps the counter, then tap-only ---------
+    o1, st = L.step(les, st, ("unheard",))
+    o2, st = L.step(les, st, ("unheard",))
+    check("  a re-ask inside the pass keeps the same fact AND the same counter; the second goes tap-only",
+          o1[0]["kind"] == "ask" and o1[0]["spoken"].startswith(L.LINE_REASK)
+          and 'caption="try 2 · fact 1 of 81"' in o1[0]["board"]
+          and o2[0]["spoken"] == L.LINE_TAP and o2[0]["tap_only"] is True
+          and 'caption="try 2 · fact 1 of 81"' in o2[0]["board"], str(o1[0])[:160])
+
+    # ---- 6. five slips in a sitting: the rest line, the recap, the warm end ----------
+    st = L.start(les, seed=3)
+    L.step(les, st, ("begin",))
+    L.step(les, st, _ans(st))
+    L.step(les, st, _ans(st))
+    ended, slips, kinds = None, 0, []
+    for _ in range(10):
+        outs, st = L.step(les, st, ("answer", 999))
+        slips += 1
+        kinds = [o["kind"] for o in outs]
+        ended = next((o for o in outs if o["kind"] == "end"), None)
+        if ended:
+            break
+    check("⭐ the fifth slip ends the sitting warmly: the rest line, the recap, still learning -- no sixth restart",
+          ended is not None and slips == 5 and ended["mastered"] is False and ended["graceful"] is True
+          and outs[1]["spoken"] == getattr(L, "LINE_TABLE_REST", None)
+          and outs[2]["spoken"] == les["recap"][0][0] and "ask" not in kinds and st["finished"] is True,
+          f"slips={slips} kinds={kinds}")
+    o_after, _ = L.step(les, st, ("answer", 1))
+    check("  and the lesson is closed after it", o_after[0]["kind"] == "end" and o_after[0]["spoken"] == "", "")
+
+    # ---- 7. chance enters once: the seed --------------------------------------------
+    def _order(seed):
+        s = L.start(les, seed=seed)
+        L.step(les, s, ("begin",)); L.step(les, s, _ans(s)); L.step(les, s, _ans(s))
+        return list(s.get("table_order") or [])
+    check("  the same seed deals the same pass (a replay is a replay); a different seed deals another",
+          _order(11) == _order(11) and _order(11) != _order(12) and len(_order(11)) == 81, "")
+    check("  a lesson without a table never reads the seed (its state is byte-identical either way)",
+          L.start(L.LESSON_BY_ID["entry-u2-add-single-digit"], seed=5)["table_order"] == []
+          and L.start(L.LESSON_BY_ID["entry-u2-add-single-digit"]).get("table_seed") == 0, "")
+
+    # ---- 8. the times buttons offer neighbouring FACTS ------------------------------
+    _opts = lambda p: sorted(int(x) for x in re.findall(r"-?\d+", L.choices_for(p)))
+    check("⭐ 6 × 7 offers 36 | 42 | 48 -- the facts either side, not 41 | 42 | 43",
+          _opts({"a": 6, "b": 7, "op": "*"}) == [36, 42, 48], str(_opts({"a": 6, "b": 7, "op": "*"})))
+    check("  a first factor of 1 offers the two facts above it; 9 × 9 offers 72 | 81 | 90",
+          _opts({"a": 4, "b": 1, "op": "*"}) == [4, 8, 12] and _opts({"a": 9, "b": 9, "op": "*"}) == [72, 81, 90], "")
+    check("  every fact's buttons hold its answer exactly once",
+          all(_opts(p).count(L.ans(p)) == 1 for p in facts), "")
+    check("  do no harm: adding and taking away keep their neighbouring-number options",
+          _opts({"a": 3, "b": 4, "op": "+"}) == [6, 7, 8] and _opts({"a": 9, "b": 4, "op": "-"}) == [4, 5, 6], "")
+
+    # ---- 9. the server's door: the seed is drawn in main.py, the pass reaches the client --
+    import main
+    from fastapi.testclient import TestClient
+    c = TestClient(main.app)
+    CODE = "SZ-3IV"
+    main._SCRIPT_SESSIONS.pop(CODE, None)
+    r = c.post("/api/script/start", json={"code": CODE, "course": "basic", "lesson": LID}).json()
+    check("  /api/script/start opens the table lesson on the shape",
+          r.get("ok") and r["steps"][0]["spoken"] == les["why"][0][0] and r["steps"][-1]["kind"] == "ask", str(r)[:120])
+    last, n_api, ai_steps = r["steps"], 0, 0
+    for _ in range(2 + SIZE + 1):
+        _sess = main._script_session(CODE)
+        if not _sess:            # a reverted engine ends early -- fail by name below, never crash
+            break
+        pend = _sess["state"]["pending"]
+        body = ({"code": CODE, "said": pend["expected"]} if pend.get("reason")
+                else {"code": CODE, "value": L.ans(pend["problem"])})
+        last = c.post("/api/script/answer", json=body).json().get("steps") or [{"kind": "none", "spoken": ""}]
+        n_api += 1
+        ai_steps += sum(1 for s in last if s["kind"] == "ai")
+        if last[-1]["kind"] == "end":
+            break
+    check("⭐ through the real API: 84 answers, the pass counter on the client's boards, mastered, no `ai` step, session closed",
+          n_api == 2 + SIZE + 1 and last[-1]["kind"] == "end" and last[-1].get("mastered") is True
+          and ai_steps == 0 and main._script_session(CODE) is None, f"n={n_api} last={last[-1]}")
+    _sess_seed = None
+    main._SCRIPT_SESSIONS.pop(CODE, None)
+    r2 = c.post("/api/script/start", json={"code": CODE, "course": "basic", "lesson": LID}).json()
+    _sess_seed = (main._script_session(CODE) or {}).get("state", {}).get("table_seed")
+    main._SCRIPT_SESSIONS.pop(CODE, None)
+    m = rd("main.py")
+    check("  main.py draws the seed with secrets and hands it to start(); a live session carries a non-zero seed",
+          "state = lessonscripts.start(lesson, seed=secrets.randbits(30))" in m and bool(_sess_seed), str(_sess_seed))
+    check("  the pass caption reaches the client untouched (a [[step]] with the counter)",
+          any('caption="fact 1 of 81"' in s.get("board", "") for s in
+              (c.post("/api/script/start", json={"code": CODE, "course": "basic", "lesson": LID}).json()["steps"]
+               + [s for _ in range(2) for s in c.post("/api/script/answer", json={
+                   "code": CODE, "value": L.ans(main._script_session(CODE)["state"]["pending"]["problem"])}).json()["steps"]])),
+          "")
+    main._SCRIPT_SESSIONS.pop(CODE, None)
+
+    # ---- 10. the audit, the source and the notes --------------------------------------
+    src = rd("lessonscripts.py")
+    check("  the slip never enters the AI doorway (its branch sits above it in step)",
+          0 < src.find('if state["phase"] == "table":\n        state["streak"] = 0') < src.find("# ---- wrong answer: the ONE doorway to the AI ----"), "")
+    check("  the changed files carry dated sz notes",
+          "2026-09-05  BUILD sz" in src[:20000] and "BUILD sz" in m[:200000]
+          and "2026-09-05  BUILD sz" in rd("ruletests.py")[:8000]
+          and "2026-09-05" in rd("static/methodology.html")[:6000], "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -32431,7 +32663,11 @@ def part3cv_scripted_engine():
         _outs, _ = L.step(_les, _st, ("begin",))
         _heard2 = [o["spoken"] for o in _outs if o.get("spoken")]
         _ended = None
-        for _ in range(30):
+        # (sz, 2026-09-05) a TABLE lesson masters on one clean pass of 81 facts
+        # (rulings ⑥ ⑦), so its perfect walk is 84 answers long, not 6
+        _table = _les.get("mastery") == "table"
+        _want_done = getattr(L, "TABLE_SIZE", 81) if _table else L.ADVANCE_STREAK
+        for _ in range(120 if _table else 30):
             _p = _st["pending"]["problem"]
             # (sp) a perfect student also names the REASON when the lesson asks it
             _ev = (("answer", _st["pending"]["expected"]) if _st["pending"].get("reason")
@@ -32444,9 +32680,9 @@ def part3cv_scripted_engine():
         _miss = [s for s in _heard2 if s and s not in _cl]
         # (ri, 2026-09-01) was MIN_PROBLEMS (4); Jim's ruling -- three in a row
         # means move on, in EVERY lesson of the course, not just the deep-walked one.
-        check(f"{_les['id']}: a perfect child masters in {L.ADVANCE_STREAK}, "
+        check(f"{_les['id']}: a perfect child masters in {_want_done}, "
               f"inside its own closure",
-              _ended and _ended["mastered"] and _st["done"] == L.ADVANCE_STREAK
+              _ended and _ended["mastered"] and _st["done"] == _want_done
               and not _miss, str(_miss[:2]))
         est2 = L.audio_cost_estimate(_les)
         # ---- THE PER-LESSON AUDIO CEILING, and its ledger --------------------
@@ -34161,6 +34397,7 @@ def main():
     part3is_basic_unit_seven_to_the_shape()
     part3it_basic_unit_eight_to_the_shape()
     part3iu_basic_unit_nine_to_the_shape()
+    part3iv_the_times_table_is_a_pass()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -2,6 +2,22 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sz -- THE TIMES TABLE IS A PASS, NOT A STREAK. Jim's flag 22:40 and
+#               his rulings ⑥ ⑦: 1-9 times 1-9, complete on ONE clean pass, a slip
+#               restarts it. ENGINE: "mastery": "table" (TABLE_MAX / TABLE_SIZE /
+#               TABLE_MAX_MISSES settings); start(lesson, seed=None) seeds the shuffle;
+#               table_facts(), _table_order/_board/_miss/_begin/_ask/_praise_index;
+#               step(): pair-1 -> phase "table", a right fact earns praise and the
+#               next fact (no walk-back inside the pass), the 81st earns the reason
+#               question; a slip draws the fact's array counted down the rows, says
+#               LINE_TABLE_RESTART and deals a fresh shuffle; the fifth slip in a
+#               sitting says LINE_TABLE_REST and ends warmly. _ask() takes a board
+#               override and REMEMBERS the board in pending (a re-ask keeps the
+#               counter). "*" gains _mul_choices (neighbouring FACTS as distractors).
+#               audio_lines: the 81 facts asked/re-asked, one praise each, the slip
+#               lines, the two standing lines. validate #11: the table lesson's
+#               promises. LESSON: basic-u2-times-tables says "mastery": "table"; its
+#               practice intro and advance line say the pass, never "three in a row".
 #   2026-09-05  BUILD sy -- BASIC UNIT 9 TO THE SHAPE (measuring) -- AND WITH IT THE WHOLE
 #               BASIC COURSE, 36 LESSONS. THIS FILE: perimeter and area on the new
 #               RECTANGLE on a unit grid (the walk around traced; the squares inside
@@ -1881,6 +1897,20 @@ ADVANCE_STREAK = 3        # advance on 3 consecutive unaided correct (EDM 2015)
 MAX_PROBLEMS = 10         # past 10 without a streak, stop -- see drop/end rules
 DROP_AFTER_INTERVENTIONS = 2   # 2nd AI intervention on a skill -> easier representation
 LEVELS = ("abstract", "pictorial", "concrete")   # drop direction, left to right
+# (sz, 2026-09-05) THE TIMES TABLE IS A PASS, NOT A STREAK. Jim, flag 22:40: "being
+# able to complete a times table is mandatory to move on ... not just 3 in a row."
+# His rulings ⑥ and ⑦ (2026-09-04): ONE through NINE times ONE through NINE -- 81
+# facts, ten and above are place value -- and the table is complete on ONE FULL PASS
+# WITH NO MISSES, any miss restarting the pass. A lesson that says "mastery": "table"
+# practices this way: ADVANCE_STREAK and MAX_PROBLEMS do not apply inside its pass.
+# A sitting still has to end: after TABLE_MAX_MISSES slips the student is released
+# warmly (still learning, the warm choice), never ground through a sixth restart.
+# ⚠️ If the watch shows students stalling here, the fallback Jim named is "every fact
+# right once, saved across sessions" -- a small change to _table_* below, not a
+# rewrite. Propose it then; do not soften this without a ruling.
+TABLE_MAX = 9
+TABLE_SIZE = TABLE_MAX * TABLE_MAX     # 81 facts in a pass
+TABLE_MAX_MISSES = 5                   # slips in one sitting before the warm end
 def _gcd(a, b):
     while b:
         a, b = b, a % b
@@ -1979,6 +2009,18 @@ LINE_UNSURE = ("Saying you are not sure is a good move. Tap the hand and ask me 
 LINE_REASON_RIGHT = "That is the reason. Now you really have it."
 LINE_REASON_WRONG = "Not that one. Let's look at the picture again."
 REASON_TRIES = 2          # the picture replays once; a second miss ends warmly
+
+# (sz, 2026-09-05) THE TIMES-TABLE PASS'S TWO LINES. A slip inside the pass draws the
+# fact's picture (authored per fact, _table_miss) and then says this -- warmly, and
+# with the rule in it, so the restart is never a surprise. The rest line closes a
+# sitting that has slipped TABLE_MAX_MISSES times; it names the number so the words
+# and the setting cannot drift apart (the battery pins them equal).
+LINE_TABLE_RESTART = ("The table has to be right all the way through, so we start "
+                      "again from the beginning. Every fact, one after another — "
+                      "here we go.")
+LINE_TABLE_REST = (f"{TABLE_MAX_MISSES} facts have slipped today, and that is enough "
+                   "for one sitting. The ones we looked at are the ones to practice. "
+                   "We will run the table again next time.")
 
 
 def ans(p):
@@ -3514,14 +3556,19 @@ _MORE_LESSONS = [
     {
         # (sr, 2026-09-05) TO THE SHAPE on the ARRAY. The ask is bare on purpose (a
         # times table is recall); every worked beat and every walk-back draws the array.
-        # Ruling ⑦'s one-clean-pass mastery ("mastery": "table") is a later build.
+        # (sz, 2026-09-05) MASTERED BY A PASS, NOT A STREAK -- rulings ⑥ ⑦: after the
+        # two worked pairs the student runs all 81 facts (1-9 times 1-9) in a shuffled
+        # order; a slip draws that fact's array and restarts the pass; one clean pass
+        # earns the reason question and the lesson. The bank below still feeds the
+        # topic quiz and Abrabot's drill; the pass does not read it.
         "id": 'basic-u2-times-tables',
         "course": "basic", "unit": 2,
         "topic": 'Times tables',
         "op": '*', "max_value": 81,
+        "mastery": "table",
         "levels": ("abstract",),
         "symbols": ('times', 'equals'),
-        "advance_line": "Three in a row, and you can say why — you've got it! Your times tables are getting strong.",
+        "advance_line": "Every fact right in one pass, and you can say why — the times tables are yours!",
         "why": [
             ("Why learn the times tables by heart? Because you use them constantly "
              "— sharing out, working out a bill, every bigger sum you will ever do. "
@@ -3556,9 +3603,10 @@ _MORE_LESSONS = [
                         '[[array rows="9" cols="7" caption="9 × 7 = 63"]]'),
              "ask": {'a': 9, 'b': 6, 'op': '*'}},
         ],
-        "practice_intro": ("Now it's your turn. Say the fact, and I will show you its "
-                           "picture. Three right answers in a row and we're done — "
-                           "here comes the first one."),
+        "practice_intro": ("Now the whole table — all 81 facts, one after another, in "
+                           "any order. Get every one right and the table is yours. If "
+                           "one slips, we look at its picture together, then start "
+                           "again from the beginning. Here comes the first fact."),
         "show_work_on_correct": True,
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. 6 times 7 and 7 "
@@ -18121,6 +18169,20 @@ def _mul_worked(p):
     return (spoken, board)
 
 
+def _mul_choices(p):
+    """(sz, 2026-09-05) A TIMES QUESTION'S WRONG OPTIONS ARE NEIGHBOURING FACTS, not
+    neighbouring numbers. The default distractors are the answer plus and minus one,
+    which for 6 times 7 offers 41 | 42 | 43 -- no student who has ever seen a times
+    table thinks 6 times 7 is 41, so the buttons tested nothing. The slips a student
+    really makes are the facts either side: 6 times 6 is 36, 6 times 8 is 48. Those
+    are the options now, for every times question in the course. A first factor of 1
+    has no fact below it, so it offers the two above instead."""
+    a, b = p["a"], p["b"]
+    if b >= 2:
+        return [a * (b - 1), a * b, a * (b + 1)]
+    return [a * b, a * (b + 1), a * (b + 2)]
+
+
 def _mtz_worked(p):
     a, b = p["a"], p["b"]
     tens, ones = a // 10, a % 10
@@ -19021,6 +19083,7 @@ OP_EXT = {
         "spoken": lambda p: f"What is {p['a']} times {p['b']}?",
         "board": _mul_board,          # (sr) the array while the lesson is about meaning
         "worked": _mul_worked,        # (sr) array, or the area model split into tens and ones
+        "choices": _mul_choices,      # (sz) the neighbouring FACTS, not the neighbouring numbers
         "praise": lambda p: f"{p['a']} times {p['b']} equals {p['a'] * p['b']}.",
         "key": lambda p: p["a"] * p["b"],
         "check": lambda p: (p["a"] >= 1 and p["b"] >= 1, "factors must be at least 1"),
@@ -27698,14 +27761,22 @@ def praise_for(p, index):
 #              the retest problem, so the RETURN to script is code's decision.
 #   end        {spoken, graceful, mastered, problems_done}
 # =============================================================================
-def start(lesson):
+def start(lesson, seed=None):
+    """The opening state. `seed` (sz) is the ONE place chance enters the engine: it
+    shuffles a times-table pass so two students do not meet the facts in the same
+    order. main.py draws it; the battery passes a fixed one, so every walk replays
+    byte for byte. A lesson without a table never reads it."""
     return {"phase": "teach", "i": 0,
             "level": lesson.get("levels", LEVELS)[0],
             "bank_i": 0, "done": 0, "streak": 0,
             "interventions": 0, "unheard": 0, "pending": None,
             "retest": None, "finished": False,
             # (sp) the reason question: how many times it has been missed
-            "reason_tries": 0}
+            "reason_tries": 0,
+            # (sz) the times-table pass: the shuffle seed, which pass this is, the
+            # dealt order, the fact the student is on, and the sitting's slips
+            "table_seed": int(seed or 0), "table_pass": 0, "table_order": [],
+            "table_i": 0, "table_misses": 0}
 
 
 # =============================================================================
@@ -27824,12 +27895,79 @@ def _next_bank_problem(lesson, state):
     return p
 
 
-def _ask(state, p, guided=False):
+# =============================================================================
+# (sz, 2026-09-05) THE TIMES-TABLE PASS. Rulings ⑥ ⑦ (see the settings above).
+# The pass is dealt from a seeded shuffle and STORED in the state, so a replay of
+# the same seed is the same pass and the engine stays a pure function of its state.
+# Nothing in the pass reaches the model: a slip draws the fact's own picture (the
+# array, count-by spoken down the rows), says the restart line, and deals a fresh
+# shuffle. The pass counter rides the ask's board as the step's caption -- "fact 12
+# of 81" -- so every page that draws a [[step]] shows it with no page change.
+# =============================================================================
+_BY_WORDS = {1: "ones", 2: "twos", 3: "threes", 4: "fours", 5: "fives",
+             6: "sixes", 7: "sevens", 8: "eights", 9: "nines"}
+
+
+def table_facts():
+    """The 81 facts, in table order (1 × 1 first, 9 × 9 last). Public: the battery
+    and the validator enumerate the pass from here, never from a copy."""
+    return [{"a": a, "b": b, "op": "*"}
+            for a in range(1, TABLE_MAX + 1) for b in range(1, TABLE_MAX + 1)]
+
+
+def _table_order(seed, pass_n):
+    """One pass's order: the 81 facts shuffled by the seed AND the pass number, so a
+    restart deals a different order from the same seed."""
+    import random
+    facts = table_facts()
+    random.Random(int(seed) * 1009 + int(pass_n)).shuffle(facts)
+    return facts
+
+
+def _table_praise_index(p):
+    """One praise line per fact (not five): the pass is 81 facts long, and five
+    variants of each would put 405 lines in the closure for the same warmth."""
+    return (p["a"] * 3 + p["b"]) % len(PRAISE_PREFIXES)
+
+
+def _table_board(p, pass_n, n):
+    cap = (f"fact {n} of {TABLE_SIZE}" if pass_n <= 1
+           else f"try {pass_n} · fact {n} of {TABLE_SIZE}")
+    return f'[[step eq="{p["a"]} × {p["b"]} = ?" caption="{cap}"]]'
+
+
+def _table_miss(p):
+    """What a slipped fact earns: its picture, counted down the rows, and the fact
+    said whole. Never "Look what you did" -- the student did not."""
+    a, b = p["a"], p["b"]
+    counts = ", ".join(str(b * i) for i in range(1, a + 1))
+    return (f"Not that one. {_plural(a, 'row')} of {b} — count by {_BY_WORDS[b]}: "
+            f"{counts}. {a} times {b} equals {a * b}.",
+            f'[[array rows="{a}" cols="{b}" caption="{a} × {b} = {a * b}"]]')
+
+
+def _table_begin(state):
+    """Deal a pass: the first, or a fresh shuffle after a slip."""
+    state["table_pass"] = state.get("table_pass", 0) + 1
+    state["table_order"] = _table_order(state.get("table_seed", 0), state["table_pass"])
+    state["table_i"] = 0
+
+
+def _table_ask(state):
+    p = state["table_order"][state["table_i"]]
+    return _ask(state, p, board=_table_board(p, state["table_pass"], state["table_i"] + 1))
+
+
+def _ask(state, p, guided=False, board=None):
+    """An ask. `board` (sz) overrides board_for -- the table pass writes its counter
+    on the step -- and the board is REMEMBERED in pending so a re-ask after an
+    unheard answer draws the same one."""
     out = {"kind": "ask", "spoken": spoken_for(p, state["level"]),
-           "board": board_for(p, state["level"]), "choices": choices_for(p),
+           "board": (board if board is not None else board_for(p, state["level"])),
+           "choices": choices_for(p),
            "expected": ans(p), "guided": guided, "problem": p,
            "tap_only": state["unheard"] >= 2}
-    state["pending"] = {"problem": p, "guided": guided}
+    state["pending"] = {"problem": p, "guided": guided, "board": out["board"]}
     return out
 
 
@@ -27868,7 +28006,8 @@ def step(lesson, state, event):
         guided = state["pending"]["guided"]
         re_spoken = LINE_TAP if state["unheard"] >= 2 else (
             LINE_REASK + " " + spoken_for(p, state["level"]))
-        asked = _ask(state, p, guided=guided)
+        # (sz) the same board as the first ask (the pass counter survives a re-ask)
+        asked = _ask(state, p, guided=guided, board=state["pending"].get("board"))
         asked["spoken"] = re_spoken
         return ([asked], state)
 
@@ -27913,7 +28052,13 @@ def step(lesson, state, event):
 
     if correct:
         idx = state["done"]
-        out.extend(_correct_beats(lesson, p, idx))      # (sp) praise, then the walk-back
+        if state["phase"] == "table":
+            # (sz) inside the pass a right answer earns the praise and the next fact --
+            # no walk-back: the pass is recall, and 81 pictures would make it an hour
+            out.append({"kind": "say", "spoken": praise_for(p, _table_praise_index(p)),
+                        "board": ""})
+        else:
+            out.extend(_correct_beats(lesson, p, idx))  # (sp) praise, then the walk-back
         if not guided:
             state["done"] += 1
             state["streak"] += 1
@@ -27928,8 +28073,27 @@ def step(lesson, state, event):
         if state["phase"] == "pair-1":
             out.append({"kind": "say", "spoken": lesson["practice_intro"],
                         "board": ""})
+            if lesson.get("mastery") == "table":
+                # (sz) the table lesson practices as a PASS, not a streak
+                state["phase"] = "table"
+                _table_begin(state)
+                out.append(_table_ask(state))
+                return (out, state)
             state["phase"] = "practice"
             out.append(_ask(state, _next_bank_problem(lesson, state)))
+            return (out, state)
+        if state["phase"] == "table":
+            # (sz) THE PASS. The next fact, or -- all 81 right in one go -- the reason
+            # question and the mastered end, exactly as a streak earns them.
+            state["table_i"] += 1
+            if state["table_i"] < TABLE_SIZE:
+                out.append(_table_ask(state))
+                return (out, state)
+            if lesson.get("explain"):
+                state["phase"] = "explain"
+                out.append(_ask_reason(state, lesson))
+                return (out, state)
+            out.extend(_end(lesson, state, lesson["advance_line"], mastered=True))
             return (out, state)
         # practice
         # (ri, 2026-09-01) the gate is the PROMISE: "Three right answers in a row
@@ -27948,6 +28112,26 @@ def step(lesson, state, event):
             out.extend(_end(lesson, state, LINE_END_GRACEFUL, mastered=False))
             return (out, state)
         out.append(_ask(state, _next_bank_problem(lesson, state)))
+        return (out, state)
+
+    # ---- (sz) a slip inside the times-table pass: NOT a doorway to the AI ----
+    # Ruling ⑦: the fact's working is shown, then the pass restarts on a fresh
+    # shuffle. The picture is authored per fact (_table_miss), so nothing here needs
+    # the model, and the level never drops -- a table is recall, asked bare. After
+    # TABLE_MAX_MISSES slips in one sitting the student is released warmly.
+    if state["phase"] == "table":
+        state["streak"] = 0
+        state["done"] += 1
+        state["table_misses"] = state.get("table_misses", 0) + 1
+        spoken, board = _table_miss(p)
+        out.append({"kind": "say", "spoken": spoken, "board": board})
+        if state["table_misses"] >= TABLE_MAX_MISSES:
+            out.append({"kind": "say", "spoken": LINE_TABLE_REST, "board": ""})
+            out.extend(_end(lesson, state, LINE_END_GRACEFUL, mastered=False))
+            return (out, state)
+        out.append({"kind": "say", "spoken": LINE_TABLE_RESTART, "board": ""})
+        _table_begin(state)
+        out.append(_table_ask(state))
         return (out, state)
 
     # ---- wrong answer: the ONE doorway to the AI ----
@@ -28089,6 +28273,16 @@ def audio_lines(lesson):
                 lines.add(w[0])
     lines.update([LINE_WRONG, LINE_TAP, LINE_END_GRACEFUL,
                   lesson["advance_line"]])
+    # (sz) the times-table pass: every one of the 81 facts asked and re-asked, its one
+    # praise line, its slip picture's words, and the pass's two standing lines
+    if lesson.get("mastery") == "table":
+        for p in table_facts():
+            for level in lesson.get("levels", LEVELS):
+                lines.add(spoken_for(p, level))
+                lines.add(LINE_REASK + " " + spoken_for(p, level))
+            lines.add(praise_for(p, _table_praise_index(p)))
+            lines.add(_table_miss(p)[0])
+        lines.update([LINE_TABLE_RESTART, LINE_TABLE_REST])
     # (sp) the reason question: asked, re-asked, and its two verdicts
     if lesson.get("explain"):
         lines.add(lesson["explain"]["spoken"])
@@ -28321,7 +28515,8 @@ def validate(lesson, board_tag_names=None):
         # THE FLOOR ONLY, deliberately. An upper bound here was tried in km and was
         # WRONG: the default distractor set is the answer's neighbours, so a lesson
         # whose top answer equals its max_value legitimately offers max_value + 1 --
-        # Counting to 10 shows 9 | 10 | 11, times tables show 80 | 81 | 82. Six shipped
+        # Counting to 10 shows 9 | 10 | 11, times tables show 72 | 81 | 90 (sz: the
+        # neighbouring facts; before sz it was 80 | 81 | 82). Six shipped
         # lessons said so at once, and they were right. max_value describes the
         # PROBLEMS; a neighbour one step past it is a normal wrong answer, not a defect.
         ck(all(int(o) >= floor for o in opts),
@@ -28435,6 +28630,11 @@ def validate(lesson, board_tag_names=None):
                  [_explain.get("board", "")] + \
                  [(_worked_for(p) or ("", ""))[1] for p in problems
                   if lesson.get("show_work_on_correct")]
+        if lesson.get("mastery") == "table":
+            # (sz) the pass's boards: the counter on the step, and every slip picture
+            boards += [_table_board(table_facts()[0], 1, 1),
+                       _table_board(table_facts()[-1], 2, TABLE_SIZE)]
+            boards += [_table_miss(p)[1] for p in table_facts()]
         for b in boards:
             for name in _TAG_RE.findall(b):
                 ck(name in board_tag_names,
@@ -28491,6 +28691,55 @@ def validate(lesson, board_tag_names=None):
     if _explain:
         ck(bool(lesson.get("picture")),
            f"{lid}: a reason question has a picture to replay on a miss", "")
+
+    # 11. (sz, 2026-09-05) A TABLE LESSON'S PROMISES. "mastery": "table" hands the
+    # practice to the 81-fact pass, so the pass is held to the same rules the bank is:
+    # every fact inside the bound, every fact's options honest, every fact spoken with
+    # its numbers, every slip picture naming the fact -- and the WORDS match the gate.
+    # A table lesson that still said "three right answers in a row" would promise a
+    # gate the engine no longer keeps (ri's lesson, the other way round).
+    if lesson.get("mastery") is not None:
+        ck(lesson.get("mastery") == "table",
+           f"{lid}: mastery names a mode the engine has (table)",
+           str(lesson.get("mastery")))
+    if lesson.get("mastery") == "table":
+        _facts = table_facts()
+        ck(lesson.get("op") == "*" and all(p["op"] == "*" for p in problems),
+           f"{lid}: a table lesson multiplies, bank and pairs alike", "")
+        ck(tuple(lesson.get("levels", LEVELS)) == ("abstract",),
+           f"{lid}: a table is recall, asked bare -- no level to drop to inside a pass",
+           str(lesson.get("levels")))
+        ck(all(floor <= ans(p) <= bound for p in _facts),
+           f"{lid}: every fact of the table stays within {floor} to {bound}",
+           str([p for p in _facts if not floor <= ans(p) <= bound][:3]))
+        _bad_opts = []
+        for p in _facts:
+            _o = re.findall(r"-?\d+", choices_for(p))
+            if _o.count(str(ans(p))) != 1 or not all(int(x) >= floor for x in _o):
+                _bad_opts.append((p["a"], p["b"], _o))
+        ck(not _bad_opts,
+           f"{lid}: every fact's options hold the answer once, all at least {floor}",
+           str(_bad_opts[:3]))
+        _unspoken = [p for p in _facts for lv in lesson.get("levels", LEVELS)
+                     if not (str(p["a"]) in spoken_for(p, lv) and str(p["b"]) in spoken_for(p, lv))]
+        ck(not _unspoken, f"{lid}: every fact's ask speaks its numbers (rule 44)",
+           str(_unspoken[:3]))
+        _unnamed = [p for p in _facts if str(ans(p)) not in _table_miss(p)[0]
+                    or f'rows="{p["a"]}" cols="{p["b"]}"' not in _table_miss(p)[1]]
+        ck(not _unnamed,
+           f"{lid}: every slip picture draws the fact's array and names its answer",
+           str(_unnamed[:3]))
+        _words = (lesson.get("practice_intro", "") + " " + lesson.get("advance_line", "")).lower()
+        ck(not re.search(r"\bthree\b|\bin a row\b", _words),
+           f"{lid}: the words never promise three in a row -- the gate is the clean pass",
+           _words[:80])
+        ck(str(TABLE_SIZE) in lesson.get("practice_intro", ""),
+           f"{lid}: the practice intro tells the student the pass is {TABLE_SIZE} facts", "")
+        ck(len(LINE_TABLE_RESTART.split()) <= BEAT_WORD_CAP
+           and len(LINE_TABLE_REST.split()) <= BEAT_WORD_CAP
+           and str(TABLE_MAX_MISSES) in LINE_TABLE_REST,
+           f"{lid}: the pass's standing lines fit a beat and the rest line names "
+           f"{TABLE_MAX_MISSES}", "")
     return checks
 
 

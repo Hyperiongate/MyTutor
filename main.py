@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  APP_BUILD -> "2026-09-05sz-the-times-table-is-a-pass".
+#               BUILD sz -- Jim's flag 22:40 and rulings ⑥ ⑦: the times-table lesson is
+#               mastered by ONE clean pass of all 81 facts, not three in a row. THIS
+#               FILE: script_start draws the pass's shuffle seed (secrets) and hands it
+#               to lessonscripts.start -- the one place chance enters the scripted lane;
+#               the engine does the rest and no path here changed. The slip inside a
+#               pass never reaches _script_intervene (the engine emits no intervene
+#               step for it), so the AI-turn accounting is untouched.
 #   2026-09-05  APP_BUILD -> "2026-09-05sy-basic-unit-nine-to-the-shape".
 #               BUILD sy -- Basic Unit 9 (measuring) rewritten to the shape on the new
 #               rectangle figure, the circle and the box. The whole Basic course -- 36
@@ -10782,7 +10790,9 @@ def script_start(body: ScriptStartIn):
     if lesson is None:
         raise HTTPException(status_code=404, detail=(
             "Unknown lesson id -- GET /api/script/lessons lists them."))
-    state = lessonscripts.start(lesson)
+    # (sz) the pass's shuffle seed: drawn here, once, so two students do not meet
+    # the times table in the same order; a lesson without a table never reads it
+    state = lessonscripts.start(lesson, seed=secrets.randbits(30))
     steps, state = lessonscripts.step(lesson, state, ("begin",))
     _SCRIPT_SESSIONS[code] = {"state": state, "lesson": lesson, "mode": "script",
                               "ai_turns": 0, "history": [], "redo": None,
@@ -13734,7 +13744,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-05sy-basic-unit-nine-to-the-shape"
+APP_BUILD = "2026-09-05sz-the-times-table-is-a-pass"
 
 
 @app.get("/health")
