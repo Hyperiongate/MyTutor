@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  APP_BUILD -> "2026-09-05sq-basic-unit-one-to-the-shape".
+#               BUILD sq -- Basic Unit 1 rewritten to the seven-beat shape (Jim's ruling
+#               after running sp: every lesson, taught this way, with a graphic). Stamp
+#               only in this file; the work is in lessonscripts.py, board.js (borrows=),
+#               math-figures.js ([[placevalue]]), tags.py, tutor.py's draw regex, the
+#               three pages' figure lists and script-board.js.
 #   2026-09-05  APP_BUILD -> "2026-09-05sp-the-lesson-learns-to-teach".
 #               BUILD sp -- THE LESSON LEARNS TO TEACH (Jim: "are we really in the
 #               business here of teaching, or are we just trying to create a teaching
@@ -13701,7 +13707,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-05sp-the-lesson-learns-to-teach"
+APP_BUILD = "2026-09-05sq-basic-unit-one-to-the-shape"
 
 
 @app.get("/health")

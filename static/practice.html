@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <!--
+    (sq) 2026-09-05 -- handleTags dispatches [[placevalue]] to showFig: the place-value
+    chart with base-ten blocks (math-figures.js), one name added to the figure list.
     (so) 2026-09-04 -- the pencil's [[ink]] marks clear at the start of every turn with
     the rest of the clean page (Jim's flag on /session; the same handleTags opener here).
     (rr) 2026-09-02 -- THE PENCIL HAS FEELINGS ABOUT YOUR WORK. Same page-half as
@@ -1153,7 +1155,7 @@
         if (name === "balance") showBalance(attrs);
         else if (name === "card") showCard(attrs);
         else if (name === "graph") showFig("graph", attrs);
-        else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector","venn","tape","clock"].indexOf(name) >= 0) showFig(name, attrs);
+        else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector","venn","tape","clock","placevalue"].indexOf(name) >= 0) showFig(name, attrs);   /* (sq) +placevalue */
         else if (name === "machine") showMachine(attrs);
         else if (name === "step") showStep(attrs);
         else if (name === "highlight" && attrs.id) spotlightBoard(attrs.id);   // build ee: board spotlight (rule 60)

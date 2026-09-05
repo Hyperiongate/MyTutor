@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sq -- PART 3im: Basic Unit 1 to the shape. The three remaining
+#               Unit 1 lessons carry every beat and walk clean; the place-value chart
+#               ([[placevalue]]) is drawn, exported and registered on every page; two-
+#               digit sums are asked on the column; borrows= draws the regrouping.
 #   2026-09-05  BUILD sp -- PART 3il: the lesson learns to teach. The seven-beat shape
 #               (why / picture / teach / show / try + walk-back / say it / recap) as
 #               optional lesson fields, pinned BOTH ways: the rounding prototype plays
@@ -21786,7 +21790,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,553</b>" in page,
+          "<b>8,594</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22894,9 +22898,9 @@ def part3il_the_lesson_learns_to_teach():
     check("  validate: a why without a recap is 'taught once' again",
           fails({"recap": []}, "shape is whole"), "")
     check("  validate: show_work_on_correct on an op with no worked picture",
-          fails({"bank": [dict(p, op="r100", a=p["a"] * 10 + 3) for p in les["bank"]],
-                 "pairs": [dict(pr, ask=dict(pr["ask"], op="r100", a=pr["ask"]["a"] * 10 + 3))
-                           for pr in les["pairs"]], "max_value": 1000},
+          # (sq gave r100 a worked picture; an unregistered op has none by definition)
+          fails({"bank": [dict(p, op="zz") for p in les["bank"]],
+                 "pairs": [dict(pr, ask=dict(pr["ask"], op="zz")) for pr in les["pairs"]]},
                 "worked picture"), "")
 
     # ---- 9. DO NO HARM: a lesson without the fields plays exactly as before -------
@@ -22991,6 +22995,146 @@ def part3il_the_lesson_learns_to_teach():
           and "BUILD sp" in m[:200000] and "2026-09-05  BUILD sp" in mf[:3000]
           and "(sp) 2026-09-05" in pil[:3000]
           and "2026-09-05  BUILD sp" in rd("ruletests.py")[:6000], "Jim's rule 8")
+
+
+def part3im_basic_unit_one_to_the_shape():
+    """PART 3im (build sq, 2026-09-05) -- BASIC UNIT 1 TO THE SHAPE.
+
+    Jim, after running sp's rounding prototype: "This is exactly what I want. I would
+    like all lessons to be taught this clearly and demonstrated this way using
+    graphic." His rollout: Basic Unit 1 first. Three lessons rewritten to the seven
+    beats, each on its own picture -- the place-value chart (new [[placevalue]]
+    figure), the number line one place over, and the stacked column with the carry
+    above and the regrouping drawn over the struck digits (new borrows=). The base
+    ops gained walk-back pictures (BASE_WORKED), and two-digit adding and taking away
+    are now ASKED on the column."""
+    print("\nPART 3im — Basic Unit 1 to the shape (build sq)")
+    import lessonscripts as L
+    import tags as _tags
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    U1 = ["basic-u1-place-value-to-1000", "basic-u1-rounding-tens",
+          "basic-u1-rounding-hundreds", "basic-u1-multi-digit-review"]
+
+    # ---- 1. every Basic Unit 1 lesson carries the whole shape and validates -------
+    for lid in U1:
+        les = L.LESSON_BY_ID.get(lid) or {}
+        check(f"⭐ {lid}: why, picture, teach, explain, recap and the walk-back flag",
+              all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain"))
+              and les.get("show_work_on_correct") is True, str(sorted(les)))
+        check(f"  {lid}: passes the real validator with the real registry",
+              bool(les) and all(ok for ok, _l, _d in L.validate(les, set(_tags.BOARD_TAGS))),
+              str([l for ok, l, _d in L.validate(les, set(_tags.BOARD_TAGS)) if not ok][:3]) if les else "missing")
+        # every beat that names a number draws a picture, not only a [[step]] line
+        beats = list(les.get("why") or []) + list(les.get("picture") or []) + list(les.get("teach") or []) \
+            + [pr["worked"] for pr in les.get("pairs") or []] + list(les.get("recap") or [])
+        drawn = sum(1 for _s, b in beats if re.search(r"\[\[(numberline|placevalue|column|objects)\b", b))
+        check(f"  {lid}: most beats draw a picture ({drawn} of {len(beats)})",
+              beats and drawn >= len(beats) * 0.6, f"{drawn}/{len(beats)} -- a rule on a flat line is not the shape")
+
+    # ---- 2. a perfect walk through each: walk-back on every right answer, then the reason ----
+    for lid in U1:
+        les = L.LESSON_BY_ID[lid]
+        st = L.start(les)
+        outs, st = L.step(les, st, ("begin",))
+        heard = [o["spoken"] for o in outs]
+        wb = 0
+        for _ in range(2 + L.ADVANCE_STREAK):
+            p = st["pending"]["problem"]
+            outs, st = L.step(les, st, ("answer", L.ans(p)))
+            heard.extend(o["spoken"] for o in outs)
+            w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
+            if w and str(L.ans(p)) in w[0]["spoken"] and re.search(r"\[\[(numberline|placevalue|column)\b", w[0]["board"]):
+                wb += 1
+        ask = outs[-1]
+        check(f"⭐ {lid}: every right answer is walked back on the picture, then the reason is asked",
+              wb == 2 + L.ADVANCE_STREAK and ask.get("reason") is True, f"walk-backs {wb}, last={ask.get('kind')}")
+        o3, st = L.step(les, st, ("answer", les["explain"]["answer"]))
+        heard.extend(o["spoken"] for o in o3)
+        cl = set(L.audio_lines(les))
+        miss = [x for x in heard if x and x not in cl]
+        check(f"  {lid}: mastered on the reason, every line inside the closure",
+              o3[-1]["kind"] == "end" and o3[-1].get("mastered") is True and not miss, str(miss[:2]))
+
+    # ---- 3. the pictures: chart, number line, column ----------------------------
+    _W = lambda p: L._worked_for(p) or ("", "")        # a reverted op fails by name, never crashes
+    pv = {"a": 3, "b": 4, "c": 2, "op": "pv"}
+    check("⭐ a place-value ask draws the chart with the digits HIDDEN; the walk-back shows them and the sum",
+          'ask="1"' in L.board_for(pv, "abstract") and "[[placevalue" in L.board_for(pv, "abstract")
+          and 'placevalue h="3" t="4" o="2"' in _W(pv)[1] and "342" in _W(pv)[0]
+          and "300 + 40 + 2 = 342" in _W(pv)[1], _W(pv)[1])
+    r = {"a": 470, "b": 0, "op": "r100"}
+    check("  a rounding-to-hundreds ask draws the line between its hundreds with mid= and no hop",
+          'min="400" max="500" mid="450"' in L.board_for(r, "abstract") and "hops=" not in L.board_for(r, "abstract")
+          and 'hops="470,500"' in _W(r)[1] and "tens digit is 7" in _W(r)[0], "")
+    add = {"a": 38, "b": 24, "op": "+"}
+    sub = {"a": 53, "b": 28, "op": "-"}
+    check("⭐ two two-digit numbers are ASKED on the column, at every level",
+          all('[[column terms="38|24" op="+"' in L.board_for(add, lv) for lv in L.LEVELS)
+          and all('[[column terms="53|28" op="−"' in L.board_for(sub, lv) for lv in L.LEVELS)
+          and "[[objects" not in L.board_for(add, "concrete"), L.board_for(add, "concrete"))
+    check("  a single-digit sum still gets its stars (do no harm)",
+          "[[objects" in L.board_for({"a": 3, "b": 4, "op": "+"}, "pictorial")
+          and L.board_for({"a": 3, "b": 4, "op": "+"}, "abstract") == '[[step eq="3 + 4 = ?"]]', "")
+    wa, wsb = _W(add), _W(sub)
+    check("⭐ the adding walk-back draws the carry and narrates ones then tens",
+          'carries="1_"' in wa[1] and 'result="62"' in wa[1] and "carried one ten" in wa[0]
+          and "38 plus 24 equals 62" in wa[0], wa[0])
+    check("⭐ the taking-away walk-back draws the regrouping (borrows=) and says one ten became ten ones",
+          'borrows="4|13"' in wsb[1] and 'result="25"' in wsb[1] and "one ten became ten ones" in wsb[0]
+          and "13 take away 8 equals 5" in wsb[0], wsb[0])
+    nc = _W({"a": 42, "b": 31, "op": "+"})
+    check("  a no-carry sum draws the column with no carry row",
+          "carries=" not in nc[1] and 'result="73"' in nc[1], nc[1])
+    to = _W({"a": 3, "b": 4, "op": "t"})
+    check("  tens-and-ones walks back on the two-column chart",
+          '[[placevalue t="3" o="4"' in to[1] and "34" in to[0], to[1])
+    check("  every walk-back the four affected lessons can emit names its answer",
+          all(str(L.ans(p)) in _W(p)[0]
+              for lid in ("basic-u1-multi-digit-review", "entry-u5-add-with-carrying",
+                          "entry-u6-take-away-with-regrouping", "entry-u5-add-two-digit-no-carry")
+              for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]), "")
+
+    # ---- 4. the figure is registered everywhere a figure has to be ----------------
+    mf = rd("static/math-figures.js")
+    check("⭐ math-figures.js draws [[placevalue]] and exports it",
+          "function placevalue(a) {" in mf and "placevalue: placevalue," in mf
+          and '"Hundreds"' in mf and "parts.join(\" + \") + \" = \" + total" in mf, "")
+    check("  the chart hides its digits and its sum when ask=\"1\"",
+          'ask ? "?" : String(c[1])' in mf and "if (!ask) {" in mf, "")
+    check("  tags.py registers placevalue as a figure, a pending-board tag and a content tag",
+          "placevalue" in _tags.FIGURE_TAGS and "placevalue" in _tags.PENDING_BOARD_TAGS
+          and "placevalue" in _tags.CONTENT_ATTRS, "")
+    for pg in ("static/session.html", "static/topic.html", "static/practice.html"):
+        check(f"  {pg} dispatches placevalue to showFig",
+              '"tape","clock","placevalue"].indexOf(name) >= 0) showFig(name, attrs);' in rd(pg), "")
+    check("  script-board.js lists placevalue among FIGURE_KINDS",
+          '"placevalue"];' in rd("static/script-board.js"), "")
+    import tutor as _tu
+    check("  tutor's draw regex knows the chart (a reply teaching on it is not 'no board')",
+          bool(_tu._SM_DRAW_RE.search('[[placevalue n="342" caption="x"]]')), "")
+
+    # ---- 5. borrows= in board.js --------------------------------------------------
+    bj = rd("static/board.js")
+    col = bj[bj.find("function showColumn(a)"):bj.find("function showWrite(a)")]
+    check("⭐ showColumn reads borrows= and writes the regrouped digits small and red above the top number",
+          'const borrows = String(a.borrows || a.regroup || "");' in col
+          and 'mid.className = "cip ccarry cborrow";' in col and 'sp.classList.add("cnew");' in col
+          and "struck.add(i2);" in col, "")
+    check("  ...and strikes the digits they replace, on the FIRST term only",
+          'sp.style.textDecoration = "line-through";' in col
+          and "i === 0 ? struck : null" in col, "")
+    check("  ...and without borrows= the old row path is byte-identical (cip.textContent = parts.ip)",
+          "} else cip.textContent = parts.ip;" in col, "")
+
+    # ---- 6. dated notes -------------------------------------------------------------
+    check("  the changed files carry dated sq notes",
+          "2026-09-05  BUILD sq" in rd("lessonscripts.py")[:20000]
+          and "BUILD sq" in rd("main.py")[:200000] and "(build sq)" in bj[:3000]
+          and "2026-09-05  BUILD sq" in mf[:3000] and "BUILD sq" in rd("tags.py")[:3000]
+          and "BUILD sq" in rd("tutor.py")[:3000] and "2026-09-05 (sq)" in rd("static/script-board.js")[:3000]
+          and all("(sq) 2026-09-05" in rd(pg)[:800] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
+          and "2026-09-05  BUILD sq" in rd("ruletests.py")[:8000], "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -33288,6 +33432,7 @@ def main():
     part3ij_the_warm_choice()
     part3ik_the_mark_goes_away_and_the_voice_is_counted()
     part3il_the_lesson_learns_to_teach()
+    part3im_basic_unit_one_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

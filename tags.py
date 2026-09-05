@@ -2,6 +2,9 @@
 # tags.py  --  THE TAG GRAMMAR, ONE COPY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sq -- [[placevalue]] joins FIGURE_TAGS (the place-value chart with
+#               base-ten blocks, math-figures.js), PENDING_BOARD_TAGS (it can carry the
+#               worked line) and CONTENT_ATTRS (n/number/h/t/o -- bare, it draws empty).
 #   2026-09-02  BUILD rr -- [[ink]] joins TAG_INLINE: circle= / underline= / bang=
 #               name a word or number already on the board for the pencil to mark
 #               (kind= is the bare form). Not a BOARD_TAG: it draws on what is there.
@@ -75,6 +78,9 @@ FIGURE_TAGS = (
     # build ox (2026-08-27): the segment -- a labeled line with midpoint
     # ticks, from Jim's live flag on midpoint questions asked with no picture.
     "segment",
+    # build sq (2026-09-05): the place-value chart with base-ten blocks -- Jim's
+    # ruling that every lesson is taught with a picture; place value's is this one.
+    "placevalue",
 )
 
 # ---- WRITING: tags that put words/equations on the board -------------------------
@@ -101,7 +107,8 @@ BOARD_TAGS = FIGURE_TAGS + ("write", "step", "solve", "column", "card", "check",
 # areamodel were missing, so teaching with either read as "no board").
 PENDING_BOARD_TAGS = ("step", "write", "solve", "column", "card", "graph",
                       "numberline", "objects", "balance", "machine", "areamodel",
-                      "choices")
+                      "choices",
+                      "placevalue")   # (sq) a place-value chart can carry the worked line
 
 # ---- RENDERER MAP: tag -> the show* function that draws it -----------------------
 # (Figure tags route through showFig/showGeo and are not listed one-by-one.)
@@ -169,6 +176,8 @@ CONTENT_ATTRS = {
     # figures (transversal/polygon/solid/clock) draw sensible defaults bare.
     "venn": {"a", "b", "both", "left", "right"},
     "tape": {"parts", "segments", "total"},
+    # build sq: a place-value chart with no number draws an empty chart
+    "placevalue": {"n", "number", "h", "t", "o"},
 }
 
 # I did no harm and this file is not truncated.

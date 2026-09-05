@@ -2,6 +2,12 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-05  BUILD sq -- THE PLACE-VALUE CHART. New figure [[placevalue n="342"]]
+                 (or h= t= o=): Hundreds | Tens | Ones, the digit over each column,
+                 the base-ten blocks below (flats, rods, cubes) and the expanded form
+                 "300 + 40 + 2 = 342" underneath; ask="1" hides digits and sum so the
+                 student reads the number off the blocks. Registered in tags.py, the
+                 three pages' showFig lists, script-board.js and tutor's draw regex.
      2026-09-05  BUILD sp -- THE HALFWAY MARK. [[numberline]] takes mid="45": a
                  dashed vertical mark labelled "halfway" between the two tens, so a
                  rounding beat SHOWS which side of halfway a number sits on instead of
@@ -1047,6 +1053,73 @@
     return s + "</svg>";
   }
 
+  // ---- [[placevalue n="342"]] : the place-value chart with base-ten blocks (sq, 2026-09-05) ----
+  // Jim's ruling: every lesson taught with a picture. Place value's picture is the
+  // chart every classroom has: Hundreds | Tens | Ones, the digit above its column and
+  // the blocks it stands for below -- flats (a 10-by-10 square), rods (ten in a
+  // stick) and unit cubes -- with the expanded form underneath. h= t= o= name the
+  // places directly (n= is read into them); ask="1" hides the digits and the sum so
+  // the student READS the number off the blocks, which is the whole skill.
+  function placevalue(a) {
+    var nstr = String(a.n || a.number || "").replace(/[^0-9]/g, "");
+    var h = num(a.h, NaN), t = num(a.t, NaN), o = num(a.o, NaN);
+    if (nstr) {
+      var v = parseInt(nstr, 10) % 1000;
+      if (isNaN(h)) h = Math.floor(v / 100);
+      if (isNaN(t)) t = Math.floor(v / 10) % 10;
+      if (isNaN(o)) o = v % 10;
+    }
+    h = isNaN(h) ? 0 : Math.max(0, Math.min(9, Math.floor(h)));
+    t = isNaN(t) ? 0 : Math.max(0, Math.min(9, Math.floor(t)));
+    o = isNaN(o) ? 0 : Math.max(0, Math.min(9, Math.floor(o)));
+    var ask = String(a.ask || "") === "1" || String(a.ask || "").toLowerCase() === "true";
+    // three columns when there are hundreds to show, or the author asked (h= or
+    // places="3"); a tens-and-ones number gets the two-column chart Entry teaches from
+    var showH = h > 0 || !isNaN(num(a.h, NaN)) || String(a.places || "") === "3";
+    var cols = showH ? [["Hundreds", h, "var(--bd-5b5bd6)"], ["Tens", t, "var(--bd-0d9488)"], ["Ones", o, "var(--bd-e0392b)"]]
+                     : [["Tens", t, "var(--bd-0d9488)"], ["Ones", o, "var(--bd-e0392b)"]];
+    var W = 660, H = ask ? 186 : 214, cw = (W - 40) / cols.length, x0 = 20;
+    var s = svgOpen(W, H, 900);
+    cols.forEach(function (c, i) {
+      var cx = x0 + cw * i, mid = cx + cw / 2;
+      // the column, its heading and its digit
+      s += '<rect x="' + (cx + 4) + '" y="8" width="' + (cw - 8) + '" height="' + (H - (ask ? 14 : 42)) + '" rx="10" fill="rgba(91,91,214,.05)" stroke="var(--bd-c8d0da)" stroke-width="1.4"/>';
+      s += tspan(mid, 30, c[0], c[2], 15, 800);
+      s += tspan(mid, 68, ask ? "?" : String(c[1]), ask ? "var(--bd-9aa7b6)" : "var(--bd-26263a)", 34, 800);
+      // the blocks: flats / rods / cubes, at most 9, left to right in rows
+      var n = c[1], by = 84;
+      if (c[0] === "Hundreds") {
+        for (var k = 0; k < n; k++) {
+          var fx = cx + 12 + (k % 5) * 40, fy = by + Math.floor(k / 5) * 42;
+          s += '<rect x="' + fx + '" y="' + fy + '" width="36" height="36" fill="rgba(91,91,214,.22)" stroke="' + c[2] + '" stroke-width="1.6"/>';
+          for (var g = 1; g < 10; g++) {
+            s += '<line x1="' + (fx + g * 3.6) + '" y1="' + fy + '" x2="' + (fx + g * 3.6) + '" y2="' + (fy + 36) + '" stroke="' + c[2] + '" stroke-width="0.4" opacity="0.6"/>';
+            s += '<line x1="' + fx + '" y1="' + (fy + g * 3.6) + '" x2="' + (fx + 36) + '" y2="' + (fy + g * 3.6) + '" stroke="' + c[2] + '" stroke-width="0.4" opacity="0.6"/>';
+          }
+        }
+      } else if (c[0] === "Tens") {
+        for (var r = 0; r < n; r++) {
+          var rx = cx + 14 + r * 20;
+          s += '<rect x="' + rx + '" y="' + by + '" width="10" height="72" fill="rgba(13,148,136,.22)" stroke="' + c[2] + '" stroke-width="1.6"/>';
+          for (var q = 1; q < 10; q++) s += '<line x1="' + rx + '" y1="' + (by + q * 7.2) + '" x2="' + (rx + 10) + '" y2="' + (by + q * 7.2) + '" stroke="' + c[2] + '" stroke-width="0.5" opacity="0.7"/>';
+        }
+      } else {
+        for (var u = 0; u < n; u++) {
+          var ux = cx + 14 + (u % 5) * 22, uy = by + 8 + Math.floor(u / 5) * 24;
+          s += '<rect x="' + ux + '" y="' + uy + '" width="14" height="14" fill="rgba(224,57,43,.22)" stroke="' + c[2] + '" stroke-width="1.6"/>';
+        }
+      }
+    });
+    if (!ask) {   // the expanded form: 300 + 40 + 2 = 342
+      var parts = [];
+      if (showH) parts.push(String(h * 100));
+      parts.push(String(t * 10)); parts.push(String(o));
+      var total = (showH ? h * 100 : 0) + t * 10 + o;
+      s += tspan(W / 2, H - 10, parts.join(" + ") + " = " + total, "var(--bd-5b5bd6)", 18, 800);
+    }
+    return s + "</svg>";
+  }
+
   // ---- [[clock time="3:30"]] : an analog clock face (ot, 2026-08-27) ----
   // The time-telling picture the Entry course teaches from: numbered face, a short
   // hour hand and a long minute hand, both placed honestly (the hour hand advances
@@ -1158,6 +1231,7 @@
     unitcircle: unitcircle, righttriangle: righttriangle, conic: conic,
     numberline: numberline, areamodel: areamodel, vector: vector,
     venn: venn, tape: tape, clock: clock,
+    placevalue: placevalue,   // (sq) the place-value chart with base-ten blocks
     _compile: compile,
     svg: function (kind, a) {
       try { return this[kind] ? this[kind](a || {}) : ""; } catch (e) { return ""; }

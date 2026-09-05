@@ -2,6 +2,8 @@
    script-board.js  --  THE SCRIPTED LANE'S BOARD LAYER  --  Hyperion Shift LLC
    -------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-05 (sq) FIGURE_KINDS gains placevalue -- the place-value chart the
+       Basic place-value lesson now teaches from (math-figures.js).
      2026-08-27 (os) THE BOARD READS ONE, TWO, THREE, scripted lane. drawBoard
        dispatches the new [[stepcard n="1" title="..."]] tag (board.js's
        openStepCard -- labeled Step-N cards side by side); feedBlock hosts new
@@ -133,7 +135,8 @@ function styleTerms(s) {          // **term** -> bold (matches the app's habit)
 var FIGURE_KINDS = ["bars", "histogram", "dotplot", "boxplot", "scatter", "normal",
                     "twoway", "tree", "pie", "unitcircle", "righttriangle", "conic",
                     "numberline", "areamodel", "vector",
-                    "venn", "tape", "clock"];   // (ot) the shelf grows
+                    "venn", "tape", "clock",   // (ot) the shelf grows
+                    "placevalue"];             // (sq) the place-value chart
 function drawBoard(text) {
   if (!boardEl()) return false;
   var re = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g, m, drew = false;

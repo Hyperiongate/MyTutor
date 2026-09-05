@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <!--
+    (sq) 2026-09-05 -- handleTags dispatches [[placevalue]] to showFig: the place-value
+    chart with base-ten blocks (math-figures.js), one name added to the figure list.
     (so) 2026-09-04 -- TWO OF JIM'S LIVE FLAGS. (1) The pencil's [[ink]] marks now clear
     at the start of every turn with the rest of the clean page (his "black line ... still
     there" / the unreadable yellow line on the dark board): rr's marks cleared only on a
@@ -2787,7 +2789,7 @@
         if (name === "balance") showBalance(attrs);
         else if (name === "card") showCard(attrs);
         else if (name === "graph") showFig("graph", attrs);
-        else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector","venn","tape","clock"].indexOf(name) >= 0) showFig(name, attrs);
+        else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector","venn","tape","clock","placevalue"].indexOf(name) >= 0) showFig(name, attrs);   /* (sq) +placevalue */
         else if (name === "machine") showMachine(attrs);
         else if (name === "highlight" && attrs.id) { if (!spotlightBoard(attrs.id)) highlightEl(attrs.id); }   // build ee: board keys first, tour ids unchanged
         else if (name === "step") showStep(attrs);

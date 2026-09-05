@@ -2,6 +2,25 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sq -- BASIC UNIT 1 TO THE SHAPE. Jim, after running sp's rounding
+#               prototype: "This is exactly what I want. I would like all lessons to be
+#               taught this clearly and demonstrated this way using graphic." His
+#               rollout choice: Basic Unit 1, then the rest of Basic. THIS FILE:
+#                 * basic-u1-place-value-to-1000 rewritten to the shape on the new
+#                   [[placevalue]] chart (flats / rods / cubes, math-figures.js);
+#                 * basic-u1-rounding-hundreds rewritten on the number line, one
+#                   place over (_r100_line / _r100_walkback);
+#                 * basic-u1-multi-digit-review rewritten on the stacked COLUMN, the
+#                   carry drawn above (carries=) and the regrouping drawn over the
+#                   struck digits (borrows=, new in board.js); the old "terrible" teach
+#                   line is gone -- the rule is read off the two columns.
+#               ENGINE: BASE_WORKED gives the base ops (+, -, t) walk-back pictures --
+#               _col_add / _col_sub narrate the column from the ones up; tens-and-ones
+#               draws the chart -- and _worked_for consults it after OP_EXT. OP_EXT pv
+#               and r100 gain "worked"; their ask boards draw the chart (digits hidden)
+#               and the number line (no hop). board_for: a problem with TWO two-digit
+#               numbers is asked on [[column]] at every level (Jim's 22:35/22:36 flags:
+#               carrying and regrouping were taught over a flat line) -- four lessons.
 #   2026-09-05  BUILD sp -- THE LESSON LEARNS TO TEACH. Jim, after a live run through
 #               Entry and Basic: "there is not so much emphasis on teaching as there is
 #               on giving problems ... just saying something once doesn't mean that it
@@ -3615,37 +3634,71 @@ _MORE_LESSONS = [
         "bank": [{'a': 5, 'b': 2, 'op': 'area'}, {'a': 4, 'b': 3, 'op': 'area'}, {'a': 6, 'b': 3, 'op': 'area'}, {'a': 7, 'b': 3, 'op': 'area'}, {'a': 6, 'b': 4, 'op': 'area'}, {'a': 8, 'b': 4, 'op': 'area'}, {'a': 9, 'b': 5, 'op': 'area'}, {'a': 8, 'b': 6, 'op': 'area'}, {'a': 9, 'b': 7, 'op': 'area'}, {'a': 12, 'b': 8, 'op': 'area'}],
     },
     {
+        # (sq, 2026-09-05) TO THE SHAPE, with the place-value chart ([[placevalue]]):
+        # why places exist, the chart before the rule, every example on the chart.
         "id": "basic-u1-place-value-to-1000", "course": "basic", "unit": 1,
         "topic": "Place value to 1,000",
         "op": "pv", "max_value": 999,
         "levels": ("abstract",),
         "symbols": ("hundreds", "ones"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You can read hundreds, tens and ones."),
-        "teach": [
-            ("You know tens and ones. Today we add one more place: hundreds. Ten "
-             "tens, put together, equal one hundred. A three-digit number counts "
-             "hundreds, then tens, then ones.",
+        "why": [
+            ("Why do we have places at all? Because counting one at a time stops "
+             "working. If a school has 342 students, nobody counts them one by "
+             "one. We count in hundreds, then tens, then ones — three digits do "
+             "the job of three hundred and forty-two tally marks.",
              '[[goal text="Place value to 1,000"]]'),
-            ("Watch me read 342. The 3 counts hundreds — three hundred. The 4 "
-             "counts tens — forty. The 2 counts ones. 3 hundreds, 4 tens and 2 "
-             "ones equals 342.",
-             '[[step eq="342 = 3 hundreds + 4 tens + 2 ones"]]'),
-            ("One more, watch. 5 hundreds, 1 ten and 7 ones. Five hundred, ten, "
-             "seven — 517.",
-             '[[step eq="5 hundreds + 1 ten + 7 ones = 517"]]'),
+        ],
+        "picture": [
+            ("Here is the place-value chart. Three columns: hundreds, tens and "
+             "ones. Each column holds its own kind of block. A flat is one "
+             "hundred, a rod is one ten, a cube is one. This is 342: three "
+             "flats, four rods, two cubes.",
+             '[[placevalue n="342" caption="3 flats, 4 rods, 2 cubes — 342"]]'),
+        ],
+        "teach": [
+            ("So a digit means different things in different columns. The 3 in "
+             "the hundreds column is three hundred. The 4 in the tens column is "
+             "forty. The 2 in the ones column is just two. Read the columns left "
+             "to right and you have read the number.",
+             '[[step eq="342 = 300 + 40 + 2"]]'),
+            ("One more, watch. 5 hundreds, 1 ten and 7 ones. Five flats, one rod, "
+             "seven cubes. Five hundred, ten, seven — 517.",
+             '[[placevalue n="517" caption="5 hundreds + 1 ten + 7 ones = 517"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 2 hundreds, 6 tens and 3 "
-                        "ones. Two hundred sixty-three — 263.",
-                        '[[step eq="2 hundreds + 6 tens + 3 ones = 263"]]'),
+                        "ones. Two flats, six rods, three cubes. Two hundred "
+                        "sixty-three — 263.",
+                        '[[placevalue n="263" caption="2 hundreds + 6 tens + 3 ones = 263"]]'),
              "ask": {"a": 2, "b": 3, "c": 4, "op": "pv"}},
-            {"worked": ("One more together. 7 hundreds, 2 tens and 9 ones — 729.",
-                        '[[step eq="7 hundreds + 2 tens + 9 ones = 729"]]'),
+            {"worked": ("One more together. 7 hundreds, 2 tens and 9 ones. Count "
+                        "the blocks in each column — 729.",
+                        '[[placevalue n="729" caption="7 hundreds + 2 tens + 9 ones = 729"]]'),
              "ask": {"a": 6, "b": 1, "c": 5, "op": "pv"}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Read the blocks in each column. Three "
+                           "right answers in a row and we're done — here comes the "
+                           "first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. In 342, the 4 "
+                       "means forty, not four. Tap the reason why."),
+            "choices": ("because it sits in the tens column | because 4 is bigger "
+                        "than 2 | because it comes second"),
+            "answer": "because it sits in the tens column",
+            "board": '[[placevalue n="342" caption="the 4 sits in the tens column"]]',
+        },
+        "recap": [
+            ("So, here it is again. A three-digit number has three columns — "
+             "hundreds, tens, ones — and a digit means what its column says: the "
+             "3 is three hundred, the 4 is forty, the 2 is two.",
+             '[[placevalue n="342" caption="300 + 40 + 2 = 342"]]'),
+            ("And places are for when one-at-a-time stops working — three digits "
+             "instead of three hundred and forty-two tally marks.",
+             '[[step eq="342 = 300 + 40 + 2"]]'),
+        ],
         "bank": [
             {"a": 1, "b": 1, "c": 2, "op": "pv"}, {"a": 1, "b": 4, "c": 3, "op": "pv"},
             {"a": 2, "b": 2, "c": 5, "op": "pv"}, {"a": 3, "b": 1, "c": 6, "op": "pv"},
@@ -3752,37 +3805,79 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (sq, 2026-09-05) TO THE SHAPE: the same number line as the tens lesson,
+        # one place over. Every beat draws it.
         "id": "basic-u1-rounding-hundreds", "course": "basic", "unit": 1,
         "topic": "Rounding to the nearest hundred",
         "op": "r100", "max_value": 1000,
         "levels": ("abstract",),
         "symbols": ("round", "nearest"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You can round to the nearest hundred."),
-        "teach": [
-            ("Rounding to the nearest hundred works the same way — but now the "
-             "TENS digit decides. 4 or smaller rounds down; 5 or bigger rounds "
-             "up.",
+        "why": [
+            ("Last time we rounded to the nearest ten. Sometimes even that is more "
+             "than you need. If a stadium holds 470 people, saying about 500 is "
+             "quicker and close enough. Big numbers get rounded to the nearest "
+             "hundred.",
              '[[goal text="Rounding to the nearest hundred"]]'),
-            ("Watch me round 470. The tens digit is 7 — 5 or bigger, round up. "
-             "470 rounds to 500.",
-             '[[step eq="470 → nearest hundred = 500"]]'),
-            ("One more, watch. Round 320. The tens digit is 2 — round down. 320 "
-             "rounds to 300.",
-             '[[step eq="320 → nearest hundred = 300"]]'),
+        ],
+        "picture": [
+            ("Same number line, bigger steps. Here is 470, between 400 and 500. "
+             "Halfway between them is 450. Look where 470 sits — past halfway, "
+             "closer to 500.",
+             '[[numberline min="400" max="500" mid="450" points="470" '
+             'caption="470 sits past halfway, closer to 500"]]'),
+        ],
+        "teach": [
+            ("Every number lives between two hundreds, and rounding hops to the "
+             "closer one. 470 is closer to 500, so 470 rounds to 500.",
+             '[[numberline min="400" max="500" mid="450" points="470" hops="470,500" '
+             'caption="470 rounds to 500"]]'),
+            ("The quick way to tell: now the tens digit decides. 4 or smaller, "
+             "you are below halfway — hop down. 5 or bigger, at halfway or past "
+             "it — hop up.",
+             '[[step eq="tens 0–4 → hop down · tens 5–9 → hop up"]]'),
+            ("Watch me round 320. It sits between 300 and 400. The tens digit is "
+             "2 — below halfway — so it hops down. 320 rounds to 300.",
+             '[[numberline min="300" max="400" mid="350" points="320" hops="320,300" '
+             'caption="320 rounds to 300"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. Round 149. The tens "
-                        "digit is 4 — round down. 149 rounds to 100.",
-                        '[[step eq="149 → nearest hundred = 100"]]'),
+            {"worked": ("Here is one more, done for you. Round 149. Between 100 "
+                        "and 200, and the tens digit is 4 — below halfway. It hops "
+                        "down. 149 rounds to 100.",
+                        '[[numberline min="100" max="200" mid="150" points="149" '
+                        'hops="149,100" caption="149 rounds to 100"]]'),
              "ask": {"a": 253, "op": "r100", "b": 0}},
-            {"worked": ("One more together. Round 662 — the tens digit is 6, "
-                        "round up to 700.",
-                        '[[step eq="662 → nearest hundred = 700"]]'),
+            {"worked": ("One more together. Round 662. Between 600 and 700; the "
+                        "tens digit is 6 — past halfway — so it hops up. 662 rounds "
+                        "to 700.",
+                        '[[numberline min="600" max="700" mid="650" points="662" '
+                        'hops="662,700" caption="662 rounds to 700"]]'),
              "ask": {"a": 578, "op": "r100", "b": 0}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and "
                            "we're done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 253 rounded "
+                       "up to 300. Tap the reason why."),
+            "choices": ("because the tens digit is 5 or bigger | because 253 is a "
+                        "big number | because 300 comes after 200"),
+            "answer": "because the tens digit is 5 or bigger",
+            "board": ('[[numberline min="200" max="300" mid="250" points="253" '
+                      'hops="253,300" caption="253 rounds to 300"]]'),
+        },
+        "recap": [
+            ("So, here it is again. Every number sits between two hundreds, and "
+             "rounding hops to the closer one. Tens digit 4 or smaller hops "
+             "down; 5 or bigger hops up.",
+             '[[step eq="tens 0–4 → hop down · tens 5–9 → hop up"]]'),
+            ("And it is for when about is good enough — about 500 people in the "
+             "stadium.",
+             '[[numberline min="400" max="500" mid="450" points="470" hops="470,500" '
+             'caption="470 → about 500"]]'),
+        ],
         "bank": [
             {"a": 120, "op": "r100", "b": 0}, {"a": 180, "op": "r100", "b": 0},
             {"a": 240, "op": "r100", "b": 0}, {"a": 350, "op": "r100", "b": 0},
@@ -3792,36 +3887,86 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (sq, 2026-09-05) TO THE SHAPE, on the COLUMN. Jim's flags 22:35/22:36: the
+        # carry and the regrouping were described over a flat line; now every example
+        # is a stacked column with the carry above (carries=) or the regrouped digits
+        # written over the struck ones (borrows=, new in board.js). The "terrible"
+        # teach line is gone; the rule is read off the two columns instead.
         "id": "basic-u1-multi-digit-review", "course": "basic", "unit": 1,
         "topic": "Adding and taking away — review",
         "op": "+", "max_value": 99, "mixed_review": True,
         "levels": ("abstract",),
         "symbols": ("carry", "regroup"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "Your adding and taking away are ready for bigger things."),
-        "teach": [
-            ("You learned carrying and regrouping in Entry-Level Math. Before we "
-             "multiply and divide, let's warm those up — a quick mix of both.",
+        "why": [
+            ("Before we multiply and divide, we warm up adding and taking away "
+             "with two-digit numbers. Everything bigger is built on these two "
+             "moves — a shop bill, a score, change from a twenty. Get them "
+             "quick and the rest comes easy.",
              '[[goal text="Adding and taking away — review"]]'),
-            ("Remember: when the ones add up to over nine, write the ones digit "
-             "and carry one ten. When the top ones digit is too small, regroup — "
-             "one ten becomes ten ones.",
+        ],
+        "picture": [
+            ("Here is how the work is set up: the numbers stacked, ones over "
+             "ones, tens over tens. 38 plus 24. Ones first: 8 plus 4 equals 12 "
+             "— over nine — so the 2 is written and the one ten is carried, up "
+             "here, in red. Then the tens: 3 plus 2 plus that 1 equals 6. 62.",
+             '[[column terms="38|24" op="+" carries="1_" result="62" '
+             'caption="8 + 4 = 12: write 2, carry one ten"]]'),
+        ],
+        "teach": [
+            ("Two moves, and the column shows both. Adding: when the ones add up "
+             "to over nine, write the ones digit and carry one ten. Taking away: "
+             "when the top ones digit is too small, regroup — one ten becomes ten "
+             "ones.",
              '[[step eq="carry: ones over nine"]][[step eq="regroup: ones too small"]]'),
+            ("Watch the regrouping. 53 take away 28. 3 is too small to take 8 "
+             "away, so one ten comes across: the 5 becomes 4 and the 3 becomes "
+             "13 — see them written above, in red. 13 take away 8 equals 5; 4 "
+             "take away 2 equals 2. 25.",
+             '[[column terms="53|28" op="−" borrows="4|13" result="25" '
+             'caption="3 is too small: one ten becomes ten ones"]]'),
         ],
         "pairs": [
-            {"worked": ("One quick worked one. 38 plus 24: ones 8 plus 4 equals "
-                        "12 — over nine, write 2, carry 1. Tens: 3 plus 2 plus 1 "
-                        "equals 6. 62.",
-                        '[[step eq="38 + 24 = 62"]]'),
+            {"worked": ("One more adding, done for you. 46 plus 37. Ones: 6 plus 7 "
+                        "equals 13 — over nine — write 3, carry one ten. Tens: 4 "
+                        "plus 3 plus 1 equals 8. 83.",
+                        '[[column terms="46|37" op="+" carries="1_" result="83" '
+                        'caption="6 + 7 = 13: write 3, carry one ten"]]'),
              "ask": {"a": 27, "b": 15, "op": "+"}},
-            {"worked": ("And one taking away. 53 take away 28: 3 is too small — "
-                        "regroup. 13 take away 8 equals 5; 4 take away 2 equals "
-                        "2. 25.",
-                        '[[step eq="53 − 28 = 25"]]'),
+            {"worked": ("And one taking away, together. 62 take away 35. 2 is too "
+                        "small — regroup: 6 becomes 5, 2 becomes 12. 12 take away 5 "
+                        "equals 7; 5 take away 3 equals 2. 27.",
+                        '[[column terms="62|35" op="−" borrows="5|12" result="27" '
+                        'caption="2 is too small: one ten becomes ten ones"]]'),
              "ask": {"a": 42, "b": 17, "op": "-"}},
         ],
-        "practice_intro": ("Now it's your turn — adds and take-aways, mixed. "
-                           "Three right answers in a row and we're done."),
+        "practice_intro": ("Now it's your turn — adds and take-aways, mixed, each one "
+                           "on the column. Three right answers in a row and we're "
+                           "done."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. In 53 take "
+                       "away 28, the 3 became 13. Tap the reason why."),
+            # the third wrong reason is THE classic slip -- flipping the digits
+            "choices": ("because one ten was regrouped into ten ones | because 13 "
+                        "is bigger than 8 | because you take the smaller digit from "
+                        "the bigger one"),
+            "answer": "because one ten was regrouped into ten ones",
+            "board": ('[[column terms="53|28" op="−" borrows="4|13" result="25" '
+                      'caption="one ten became ten ones"]]'),
+        },
+        "recap": [
+            ("So, here it is again. Stack the numbers, ones over ones. Adding: "
+             "ones over nine, write the digit, carry one ten. Taking away: top "
+             "ones too small, regroup one ten into ten ones. The column shows "
+             "every move.",
+             '[[column terms="38|24" op="+" carries="1_" result="62" '
+             'caption="carry"]][[column terms="53|28" op="−" borrows="4|13" result="25" '
+             'caption="regroup"]]'),
+            ("And these two moves are what every bigger sum is built on.",
+             '[[step eq="carry: ones over nine"]][[step eq="regroup: ones too small"]]'),
+        ],
         "bank": [
             {"a": 26, "b": 15, "op": "+"}, {"a": 31, "b": 14, "op": "-"},
             {"a": 35, "b": 17, "op": "+"}, {"a": 44, "b": 26, "op": "-"},
@@ -16688,6 +16833,93 @@ def _r10_line(a, hop):
     return tag + "]]"
 
 
+def _r100_line(a, hop):
+    lo = a // 100 * 100
+    hi = lo + 100
+    near = (a + 50) // 100 * 100
+    tag = (f'[[numberline min="{lo}" max="{hi}" mid="{lo + 50}" points="{a}"')
+    if hop:
+        tag += f' hops="{a},{near}" caption="{a} rounds to {near}"'
+    else:
+        tag += f' caption="{a} sits between {lo} and {hi}"'
+    return tag + "]]"
+
+
+def _r100_walkback(a):
+    lo = a // 100 * 100
+    hi = lo + 100
+    d = (a // 10) % 10
+    near = (a + 50) // 100 * 100
+    where = ("below halfway" if d < 5 else
+             "right at halfway" if d == 5 else "past halfway")
+    way = "down" if d < 5 else "up"
+    return (f"Look what you did: {a} sits between {lo} and {hi}. The tens digit "
+            f"is {d} — {where} — so it hops {way} to {near}.")
+
+
+# (sq) THE COLUMN, DRAWN AND READ BACK. The walk-back for adding and taking away
+# two-digit numbers: the stacked column with the carry (or the regrouping) shown,
+# and the words reading the column from the ones up, the way it is worked on paper.
+def _col_add(a, b):
+    total = a + b
+    ones = a % 10 + b % 10
+    if a >= 10 and b >= 10:
+        if ones > 9:
+            board = (f'[[column terms="{a}|{b}" op="+" carries="1_" result="{total}" '
+                     f'caption="{a % 10} + {b % 10} = {ones}: write {ones % 10}, carry one ten"]]')
+            spoken = (f"Look what you did: ones first — {a % 10} plus {b % 10} equals "
+                      f"{ones}, over nine, so you wrote {ones % 10} and carried one ten. "
+                      f"Tens: {a // 10} plus {b // 10} plus the 1 equals {total // 10}. "
+                      f"{a} plus {b} equals {total}.")
+        else:
+            board = (f'[[column terms="{a}|{b}" op="+" result="{total}" '
+                     f'caption="ones {a % 10} + {b % 10}, tens {a // 10} + {b // 10}"]]')
+            spoken = (f"Look what you did: ones first — {a % 10} plus {b % 10} equals "
+                      f"{ones}. Tens: {a // 10} plus {b // 10} equals {total // 10}. "
+                      f"{a} plus {b} equals {total}.")
+        return (spoken, board)
+    board = (f'[[objects emoji="⭐" groups="{a}" add="{b}" caption="{a} + {b} = {total}"]]'
+             f'[[step eq="{a} + {b} = {total}"]]')
+    return (f"Look what you did: {a} and {b} more — {a} plus {b} equals {total}.", board)
+
+
+def _col_sub(a, b):
+    left = a - b
+    if a >= 10 and b >= 10:
+        if a % 10 < b % 10:
+            board = (f'[[column terms="{a}|{b}" op="−" borrows="{a // 10 - 1}|{a % 10 + 10}" '
+                     f'result="{left}" caption="{a % 10} is too small: regroup one ten into ten ones"]]')
+            spoken = (f"Look what you did: {a % 10} is too small to take {b % 10} away, so "
+                      f"you regrouped — one ten became ten ones. {a % 10 + 10} take away "
+                      f"{b % 10} equals {a % 10 + 10 - b % 10}; {a // 10 - 1} take away "
+                      f"{b // 10} equals {left // 10}. {a} take away {b} equals {left}.")
+        else:
+            board = (f'[[column terms="{a}|{b}" op="−" result="{left}" '
+                     f'caption="ones {a % 10} − {b % 10}, tens {a // 10} − {b // 10}"]]')
+            spoken = (f"Look what you did: ones first — {a % 10} take away {b % 10} equals "
+                      f"{a % 10 - b % 10}. Tens: {a // 10} take away {b // 10} equals "
+                      f"{left // 10}. {a} take away {b} equals {left}.")
+        return (spoken, board)
+    board = (f'[[objects emoji="⭐" groups="{a}" take="{b}" caption="{a} − {b} = {left}"]]'
+             f'[[step eq="{a} − {b} = {left}"]]')
+    return (f"Look what you did: {a}, take {b} away — {left} are left.", board)
+
+
+def _tens_ones_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: {_plural(a, 'ten')} and {_plural(b, 'one')} — that is "
+            f"{10 * a + b}.",
+            f'[[placevalue t="{a}" o="{b}" caption="{a} tens and {b} ones = {10 * a + b}"]]')
+
+
+# The base ops have no OP_EXT entry; their walk-back pictures live here.
+BASE_WORKED = {
+    "+": lambda p: _col_add(p["a"], p["b"]),
+    "-": lambda p: _col_sub(p["a"], p["b"]),
+    "t": _tens_ones_worked,
+}
+
+
 def _r10_walkback(a):
     lo = a // 10 * 10
     hi = lo + 10
@@ -17155,8 +17387,19 @@ OP_EXT = {
         "spoken": lambda p: (f"What number is {_plural(p['a'], 'hundred')}, "
                              f"{_plural(p['b'], 'ten')} and "
                              f"{_plural(p['c'], 'one')}?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} hundreds + {p["b"]} tens + '
+        # (sq, 2026-09-05) the place-value chart, digits hidden: the student reads
+        # the blocks. The walk-back shows the same chart with the digits and the sum.
+        "board": lambda p: (f'[[placevalue h="{p["a"]}" t="{p["b"]}" o="{p["c"]}" ask="1" '
+                            f'caption="count the blocks in each place"]]'
+                            f'[[step eq="{p["a"]} hundreds + {p["b"]} tens + '
                             f'{p["c"]} ones = ?"]]'),
+        "worked": lambda p: (f"Look what you did: {_plural(p['a'], 'hundred')} is "
+                             f"{100 * p['a']}, {_plural(p['b'], 'ten')} is {10 * p['b']}, "
+                             f"and {_plural(p['c'], 'one')} is {p['c']}. Put together: "
+                             f"{100 * p['a'] + 10 * p['b'] + p['c']}.",
+                             f'[[placevalue h="{p["a"]}" t="{p["b"]}" o="{p["c"]}" '
+                             f'caption="{100 * p["a"]} + {10 * p["b"]} + {p["c"]} = '
+                             f'{100 * p["a"] + 10 * p["b"] + p["c"]}"]]'),
         "praise": lambda p: (f"{_plural(p['a'], 'hundred')}, "
                              f"{_plural(p['b'], 'ten')} and {_plural(p['c'], 'one')}"
                              f" — that is {100 * p['a'] + 10 * p['b'] + p['c']}."),
@@ -17196,7 +17439,10 @@ OP_EXT = {
     "r100": {  # round a to the nearest hundred
         "ans": lambda p: (p["a"] + 50) // 100 * 100,
         "spoken": lambda p: f"Round {p['a']} to the nearest hundred.",
-        "board": lambda p: f'[[step eq="{p["a"]} → nearest hundred = ?"]]',
+        # (sq) the number line between the two hundreds, halfway marked, no hop
+        "board": lambda p: (_r100_line(p["a"], hop=False)
+                            + f'[[step eq="{p["a"]} → nearest hundred = ?"]]'),
+        "worked": lambda p: (_r100_walkback(p["a"]), _r100_line(p["a"], hop=True)),
         "praise": lambda p: (f"{p['a']} rounds to {(p['a'] + 50) // 100 * 100}."),
         "key": lambda p: p["a"],
         "check": lambda p: (100 <= p["a"] <= 999 and p["a"] % 100 != 0,
@@ -25458,6 +25704,14 @@ def board_for(p, level):
         stars = (f'[[objects emoji="⭐" groups="10" add="{b}" '
                  f'caption="one ten and {b} ones"]]')
         return stars + step
+    # (sq, 2026-09-05) TWO-DIGIT NUMBERS ARE ASKED ON THE COLUMN. Jim's flags
+    # 22:35/22:36: carrying and regrouping were taught over a flat line. A problem
+    # with two two-digit numbers now draws [[column]] at every level -- sixty stars
+    # was never a picture of 38 + 24, and the column is exactly how it is worked.
+    if p.get("op") in ("+", "-") and a >= 10 and b >= 10:
+        sym = "−" if p.get("op") == "-" else "+"
+        return (f'[[column terms="{a}|{b}" op="{sym}" caption="line up the ones"]]'
+                f'[[step eq="{a} {sym} {b} = ?"]]')
     if p.get("op") == "-":
         step = f'[[step eq="{a} − {b} = ?"]]'
         if level == "abstract":
@@ -25667,8 +25921,9 @@ def _worked_for(p):
     """The walk-back for a solved problem: (spoken, board), or None if the op has
     no worked picture yet. The board is the same picture the worked examples use,
     filled in for THIS problem."""
-    ext = OP_EXT.get(p.get("op", "+"), {})
-    fn = ext.get("worked")
+    op = p.get("op", "+")
+    ext = OP_EXT.get(op, {})
+    fn = ext.get("worked") or BASE_WORKED.get(op)   # (sq) base ops draw too
     if fn is None:
         return None
     spoken, board = fn(p)

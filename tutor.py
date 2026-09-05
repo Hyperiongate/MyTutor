@@ -2,6 +2,13 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sq -- (1) _SM_DRAW_RE learns [[placevalue]] (the new figure), so a
+#               reply that teaches place value on the chart is not read as computing
+#               with no board. (2) notation_intro_conflict gates each notation PER
+#               ATTRIBUTE VALUE, not on the joined string: the canon sweep caught
+#               terms="53|28" op="−" borrows="4|13" joining to |28 − 4| -- build iz's
+#               phantom absolute-value bars, back across an attribute boundary. The
+#               culprit loop always looked per value; the gate now matches it.
 #   2026-09-04  BUILD sm -- THE BOARD TELLS THE TRUTH ABOUT WHICH QUESTION IT ANSWERS.
 #               Jim's ruling ①, 2026-09-04: board/words disagreement is TRUTH-class.
 #               Two moves. (1) boardcount joins TRUTH_REFEREES -- it was on sj's
@@ -4585,7 +4592,7 @@ _SM_DRAW_RE = re.compile(
     r"objects|machine|angle|triangle|circle|polygon|segment|clock|venn|tree|pie|"
     r"bars|histogram|dotplot|boxplot|scatter|normal|twoway|unitcircle|"
     r"righttriangle|conic|areamodel|vector|transversal|solid|stepcard|check|"
-    r"quiz)\b")
+    r"quiz|placevalue)\b")
 
 
 def spoken_math_unwritten_conflict(reply: str, heard=None):
@@ -5508,7 +5515,8 @@ def notation_intro_conflict(reply: str, heard=None):
         if heard is None:
             return ""
         text = str(reply or "")
-        vals = " ".join(_note_tag_vals(text))
+        val_list = _note_tag_vals(text)
+        vals = " ".join(val_list)
         if not vals:
             return ""
         prose = _spoken_only(text)
@@ -5516,7 +5524,14 @@ def notation_intro_conflict(reply: str, heard=None):
             return ""    # a tags-only FRAGMENT (foundation strings) is not a reply
         base = str(heard)
         for name, sym, spoken, fix in _NOTATIONS:
-            if not sym.search(vals):
+            # (sq, 2026-09-05) ONE VALUE AT A TIME. The joined string put the end
+            # of one attribute beside the start of the next, and build iz's phantom
+            # came back wearing a different costume: terms="53|28" op="−"
+            # borrows="4|13" joined to "53|28 − 4|13", and |28 − 4| read as
+            # absolute-value bars that no board ever drew. A notation lives inside
+            # one attribute value; nothing real spans two. The culprit loop below
+            # always looked per value -- the gate now does too.
+            if not any(sym.search(v) for v in val_list):
                 continue                    # this notation isn't on the board
             if sym.search(base):
                 continue                    # the student has met it before
@@ -5538,10 +5553,10 @@ def notation_intro_conflict(reply: str, heard=None):
                 # ...and ANSWER OPTIONS are not board notation: a [[choices]] row
                 # of "3/4 | 2/4 | 4/8" is a set of tappable answers (build iz's
                 # phantom class). These two entries judge only NON-choices tags.
-                nvals = " ".join(v for t in _NOTE_TAG_RE.findall(str(reply or ""))
-                                 if not t.strip().lower().startswith("choices")
-                                 for v in _NOTE_VAL_RE.findall(t))
-                if not sym.search(nvals):
+                nvals = [v for t in _NOTE_TAG_RE.findall(str(reply or ""))
+                         if not t.strip().lower().startswith("choices")
+                         for v in _NOTE_VAL_RE.findall(t)]
+                if not any(sym.search(v) for v in nvals):
                     continue
             # build it: PRESCRIPTIVE. Five straight unresolved retries proved
             # that describing the defect is not enough -- quote the exact kind

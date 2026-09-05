@@ -2,6 +2,10 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-05  (build sq) REGROUPING IS DRAWN. [[column]] takes borrows="4|13": one
+                 cell per column of the top number, written small and red above it, the
+                 replaced digits struck through -- the take-away picture Jim asked for.
+                 No borrows= and nothing here runs; every other attribute is untouched.
      2026-09-01  (build rp) THE BOARD IS A WHITEBOARD OR A BLACKBOARD. Every colour
                  literal in this file, math-figures.js and geo-figures.js became a CSS
                  token named after it (var(--bd-<hex>)), defined in board-theme.css --
@@ -1281,16 +1285,57 @@ function showColumn(a) {
 
   if (carries && !wrongAlign) addDigitRow("ccarry", carries, prev.carries);
 
-  const addRow = (num, showOp, resClass) => {
+  // (sq, 2026-09-05) borrows="4|13": REGROUPING, DRAWN. Jim's flag (22:35, 09-04):
+  // the take-away lessons said "regroup -- one ten becomes ten ones" over a board
+  // that never showed it. One cell per column of the TOP number, right-aligned,
+  // "|"-separated ("_" leaves a column alone): the regrouped digits are written
+  // small and red ABOVE the top number and the digits they replace are struck
+  // through, exactly as a teacher does it on paper. 53 - 28 is
+  //   [[column terms="53|28" op="-" borrows="4|13" result="25"]]
+  // Additive: no borrows= and this block, and the strike-through, never run.
+  const borrows = String(a.borrows || a.regroup || "");
+  let borrowCells = [], struck = new Set();
+  if (borrows && !wrongAlign) {
+    borrowCells = borrows.split("|").map(x => x.trim());
+    const topDigits = splitNum(terms[0]).ip.split("");
+    const off = topDigits.length - borrowCells.length;
+    const cop = document.createElement("div"); cop.className = "cop";
+    const mid = document.createElement("div"); mid.className = "cip ccarry cborrow";
+    topDigits.forEach((d, i2) => {
+      const sp = document.createElement("span"); sp.className = "dig";
+      const k = i2 - off;
+      const cell = (k >= 0 && k < borrowCells.length) ? borrowCells[k] : "";
+      if (cell && cell !== "_") {
+        sp.classList.add("cnew");
+        const inner = document.createElement("i"); inner.textContent = cell;
+        sp.appendChild(inner);
+        struck.add(i2);
+      }
+      mid.appendChild(sp);
+    });
+    const cfp = document.createElement("div"); cfp.className = "cfp";
+    box.appendChild(cop); box.appendChild(mid); box.appendChild(cfp);
+  }
+
+  const addRow = (num, showOp, resClass, strike) => {
     const rc = resClass ? " cres" : "";
     const parts = wrongAlign ? { ip: String(num), fp: "" } : splitNum(num);
     const cop = document.createElement("div"); cop.className = "cop" + rc; cop.textContent = showOp ? op : "";
-    const cip = document.createElement("div"); cip.className = "cip" + rc; cip.textContent = parts.ip;
+    const cip = document.createElement("div"); cip.className = "cip" + rc;
+    if (strike && strike.size) {
+      // (sq) the regrouped digits are struck, one span per digit (1ch each, so
+      // the columns above and below still line up); untouched digits stay plain
+      parts.ip.split("").forEach((d, i2) => {
+        const sp = document.createElement("span"); sp.className = "dig"; sp.textContent = d;
+        if (strike.has(i2)) { sp.style.textDecoration = "line-through"; sp.style.opacity = "0.45"; }
+        cip.appendChild(sp);
+      });
+    } else cip.textContent = parts.ip;
     const cfp = document.createElement("div"); cfp.className = "cfp" + rc; cfp.textContent = parts.fp;
     box.appendChild(cop); box.appendChild(cip); box.appendChild(cfp);
   };
   // Operator sits on the LAST addend (like on paper). One addend => no operator shown.
-  terms.forEach((t, i) => addRow(t, terms.length > 1 && i === terms.length - 1, false));
+  terms.forEach((t, i) => addRow(t, terms.length > 1 && i === terms.length - 1, false, i === 0 ? struck : null));
   const rule = document.createElement("div"); rule.className = "crule"; box.appendChild(rule);
   const res = String(a.result || a.sum || a.answer || a.total || "").trim();
   if (res && !wrongAlign) addRow(res, false, true);   // never complete the wrong layout
