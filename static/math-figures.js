@@ -2,6 +2,16 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-05  BUILD sy -- THE RECTANGLE ON A GRID. New figure [[rectangle w="5"
+                 h="3" show="perimeter|area"]]: unit squares, the sides labelled,
+                 the walk around traced (perimeter) or the squares filled (area),
+                 the sum or product underneath (ask="1" writes "?"). Basic Unit 9.
+     2026-09-05  BUILD sx -- the array's sharing boxes shrink to fit when there are
+                 ten of them (10 percent of 40 shares into ten). Nothing else changed.
+     2026-09-05  BUILD sw -- THE HUNDREDTHS SQUARE. New figure [[hundredgrid
+                 shaded="25" plus="13"]]: ten by ten, the first cells in one colour,
+                 the next in a second, the sum underneath (eq= verbatim, ask="1"
+                 writes "?", unit="percent" says %). Basic Unit 7 and 8's picture.
      2026-09-05  BUILD su -- THE FRACTION LINE. [[numberline]] takes denom="4": ticks
                  at every fourth, labelled 1/4, 2/4, 3/4 (whole numbers stay whole),
                  hops labelled +1/4. Basic Unit 5's picture. Without denom= nothing
@@ -1188,7 +1198,8 @@
     var total = Math.max(0, Math.min(60, Math.floor(num(a.total, 0))));
     if (total > 0 && ask) {
       var perLine = 12, lines = Math.ceil(total / perLine);
-      var W2 = 660, bw = 120, bh = 48, bgap = 14;
+      var W2 = 660, bh = 48, bgap = 14;
+      var bw = Math.max(40, Math.min(120, Math.floor((W2 - 40) / rows) - bgap));   // (sx) ten boxes still fit
       var boxesW = rows * (bw + bgap) - bgap, bx0 = (W2 - boxesW) / 2;
       var H2 = y0 + lines * (d + 4) + 26 + bh + 40;
       var s2 = svgOpen(W2, H2, 760);
@@ -1232,6 +1243,84 @@
     s += tspan(x0 - 40, y0 + rows * (d + gap) / 2, rows + " rows", "var(--bd-555566)", 12, 700, "middle");
     var eq = eqText || (rows + " × " + cols + (extra ? " + " + extra : "") + " = " + (ask ? "?" : String(rows * cols + extra)));
     s += tspan(W / 2, H - 10, eq, "var(--bd-5b5bd6)", 18, 800);
+    return s + "</svg>";
+  }
+
+  // ---- [[hundredgrid shaded="25" plus="13"]] : the hundredths square (sw, 2026-09-05) ----
+  // Ten by ten, one hundred cells: the picture for hundredths and for percent.
+  // shaded= cells fill in the first colour (row by row, so ten cells are a full
+  // row -- one tenth), plus= cells continue in a second colour, and the line
+  // underneath reads "25 + 13 = 38 hundredths" (or eq="..." verbatim; ask="1"
+  // writes "?" for the total). unit="percent" says "%" instead of "hundredths".
+  function hundredgrid(a) {
+    var shaded = Math.max(0, Math.min(100, Math.floor(num(a.shaded, 0))));
+    var plus = Math.max(0, Math.min(100 - shaded, Math.floor(num(a.plus, 0))));
+    var ask = String(a.ask || "") === "1" || String(a.ask || "").toLowerCase() === "true";
+    var unit = String(a.unit || "").toLowerCase() === "percent" ? "%" : " hundredths";
+    var cell = 24, x0 = 40, y0 = 22, W = x0 * 2 + cell * 10, H = y0 + cell * 10 + 44;
+    var s = svgOpen(W, H, 520);
+    for (var i = 0; i < 100; i++) {
+      var r = Math.floor(i / 10), c = i % 10;
+      var fill = i < shaded ? "rgba(91,91,214,.55)" : (i < shaded + plus ? "rgba(224,57,43,.50)" : "var(--bd-ffffff)");
+      s += '<rect x="' + (x0 + c * cell) + '" y="' + (y0 + r * cell) + '" width="' + cell + '" height="' + cell +
+           '" fill="' + fill + '" stroke="var(--bd-9aa7b6)" stroke-width="0.8"/>';
+    }
+    // the tenths lines, heavier, so a full row reads as one tenth
+    for (var t = 0; t <= 10; t++) {
+      s += '<line x1="' + x0 + '" y1="' + (y0 + t * cell) + '" x2="' + (x0 + cell * 10) + '" y2="' + (y0 + t * cell) + '" stroke="var(--bd-26263a)" stroke-width="' + (t % 5 === 0 ? 1.8 : 0.6) + '"/>';
+    }
+    s += '<rect x="' + x0 + '" y="' + y0 + '" width="' + (cell * 10) + '" height="' + (cell * 10) + '" fill="none" stroke="var(--bd-26263a)" stroke-width="2"/>';
+    s += tspan(x0 - 8, y0 + cell * 5 + 4, "100", "var(--bd-555566)", 12, 700, "end");
+    var eq = String(a.eq || "");
+    if (!eq) {
+      if (plus) eq = shaded + " + " + plus + " = " + (ask ? "?" : String(shaded + plus)) + unit;
+      else eq = (ask ? "?" : String(shaded)) + unit + (unit === "%" ? "" : " = 0." + String(shaded).padStart(2, "0"));
+    }
+    s += tspan(W / 2, H - 10, eq, "var(--bd-5b5bd6)", 18, 800);
+    return s + "</svg>";
+  }
+
+  // ---- [[rectangle w="5" h="3" show="area"]] : a rectangle on a unit grid (sy, 2026-09-05) ----
+  // Basic Unit 9's picture. w= long, h= wide, drawn to scale on unit squares.
+  // show="perimeter": the sides labelled and the walk around them traced, with
+  // "5 + 3 + 5 + 3 = 16" underneath. show="area" (the default): the unit squares
+  // filled and counted, "5 × 3 = 15 squares" underneath. ask="1" writes "?".
+  function rectangle(a) {
+    var w = Math.max(1, Math.min(12, Math.floor(num(a.w, 5))));
+    var h = Math.max(1, Math.min(8, Math.floor(num(a.h, 3))));
+    var mode = String(a.show || "area").toLowerCase();
+    var ask = String(a.ask || "") === "1" || String(a.ask || "").toLowerCase() === "true";
+    var cell = 30, x0 = 60, y0 = 40, W = x0 + w * cell + 60, H = y0 + h * cell + 60;
+    var s = svgOpen(W, H, 660);
+    for (var r = 0; r < h; r++) {
+      for (var c = 0; c < w; c++) {
+        s += '<rect x="' + (x0 + c * cell) + '" y="' + (y0 + r * cell) + '" width="' + cell + '" height="' + cell +
+             '" fill="' + (mode === "area" ? "rgba(91,91,214,.22)" : "rgba(91,91,214,.05)") + '" stroke="var(--bd-c8d0da)" stroke-width="0.8"/>';
+      }
+    }
+    var col = mode === "perimeter" ? "var(--bd-e0392b)" : "var(--bd-5b5bd6)";
+    s += '<rect x="' + x0 + '" y="' + y0 + '" width="' + (w * cell) + '" height="' + (h * cell) + '" fill="none" stroke="' + col + '" stroke-width="3"/>';
+    // the side lengths: long on top and bottom, wide on the left and right
+    s += tspan(x0 + w * cell / 2, y0 - 12, String(w), "var(--bd-26263a)", 16, 800);
+    s += tspan(x0 - 16, y0 + h * cell / 2 + 6, String(h), "var(--bd-26263a)", 16, 800, "end");
+    if (mode === "perimeter") {
+      s += tspan(x0 + w * cell / 2, y0 + h * cell + 22, String(w), "var(--bd-26263a)", 16, 800);
+      s += tspan(x0 + w * cell + 16, y0 + h * cell / 2 + 6, String(h), "var(--bd-26263a)", 16, 800, "start");
+      // the walk: arrows along each side in turn
+      var pts = [[x0, y0], [x0 + w * cell, y0], [x0 + w * cell, y0 + h * cell], [x0, y0 + h * cell], [x0, y0]];
+      for (var i = 0; i + 1 < pts.length; i++) {
+        var mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+        var dx = Math.sign(pts[i + 1][0] - pts[i][0]) * 7, dy = Math.sign(pts[i + 1][1] - pts[i][1]) * 7;
+        s += '<path d="M ' + (mx - dx - dy * 0.7) + ' ' + (my - dy + dx * 0.7) + ' L ' + (mx + dx) + ' ' + (my + dy) + ' L ' + (mx - dx + dy * 0.7) + ' ' + (my - dy - dx * 0.7) + ' z" fill="' + col + '"/>';
+      }
+    }
+    var eq = String(a.eq || "");
+    if (!eq) {
+      eq = (mode === "perimeter")
+        ? (w + " + " + h + " + " + w + " + " + h + " = " + (ask ? "?" : String(2 * (w + h))))
+        : (w + " × " + h + " = " + (ask ? "?" : String(w * h)) + " squares");
+    }
+    s += tspan(W / 2, H - 12, eq, col, 18, 800);
     return s + "</svg>";
   }
 
@@ -1341,12 +1430,12 @@
   }
 
   window.MathFigures = {
+    placevalue: placevalue, array: array, hundredgrid: hundredgrid, rectangle: rectangle,
     graph: graph, bars: bars, histogram: histogram, dotplot: dotplot, boxplot: boxplot,
     scatter: scatter, normal: normal, twoway: twoway, tree: tree, pie: pie,
     unitcircle: unitcircle, righttriangle: righttriangle, conic: conic,
     numberline: numberline, areamodel: areamodel, vector: vector,
     venn: venn, tape: tape, clock: clock,
-    placevalue: placevalue, array: array,   // (sq) the chart, (sr) the array
     _compile: compile,
     svg: function (kind, a) {
       try { return this[kind] ? this[kind](a || {}) : ""; } catch (e) { return ""; }

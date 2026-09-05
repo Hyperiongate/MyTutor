@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <!--
+    (sy) 2026-09-05 -- handleTags dispatches [[rectangle]] to showFig (a rectangle on a grid).
+    (sw) 2026-09-05 -- handleTags dispatches [[hundredgrid]] to showFig (the hundredths square).
     (sr) 2026-09-05 -- handleTags dispatches [[array]] to showFig (the multiplication array).
     (sq) 2026-09-05 -- handleTags dispatches [[placevalue]] to showFig: the place-value
     chart with base-ten blocks (math-figures.js), one name added to the figure list.
@@ -2790,7 +2792,7 @@
         if (name === "balance") showBalance(attrs);
         else if (name === "card") showCard(attrs);
         else if (name === "graph") showFig("graph", attrs);
-        else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector","venn","tape","clock","placevalue","array"].indexOf(name) >= 0) showFig(name, attrs);   /* (sq) +placevalue (sr) +array */
+        else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector","venn","tape","clock","placevalue","array","hundredgrid","rectangle"].indexOf(name) >= 0) showFig(name, attrs);   /* (sq) +placevalue (sr) +array (sw) +hundredgrid (sy) +rectangle */
         else if (name === "machine") showMachine(attrs);
         else if (name === "highlight" && attrs.id) { if (!spotlightBoard(attrs.id)) highlightEl(attrs.id); }   // build ee: board keys first, tour ids unchanged
         else if (name === "step") showStep(attrs);

@@ -2,6 +2,32 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sy -- BASIC UNIT 9 TO THE SHAPE (measuring) -- AND WITH IT THE WHOLE
+#               BASIC COURSE, 36 LESSONS. THIS FILE: perimeter and area on the new
+#               RECTANGLE on a unit grid (the walk around traced; the squares inside
+#               filled); quarter turns on the CIRCLE cut into four; volume as one
+#               layer (an array) times the layers, beside the box ([[solid]]). ENGINE:
+#               OP_EXT peri / area / ang / angq / vol gain boards and "worked".
+#   2026-09-05  BUILD sx -- BASIC UNIT 8 TO THE SHAPE (percent). THIS FILE: what-percent
+#               on the HUNDREDTHS SQUARE in percent mode (the part asked as a pie or a
+#               bar); percent-of as the SHARING picture (50 percent is one of two equal
+#               parts); percent-off on the TAPE (the discount and what you pay, side by
+#               side under the price); what-one-costs as the dollars shared over the
+#               apples. Both trap lines kept. ENGINE: OP_EXT wpc / pc / poff / rate gain
+#               boards and "worked".
+#   2026-09-05  BUILD sw -- BASIC UNIT 7 TO THE SHAPE (decimals and money). THIS FILE:
+#               tenths on the 0-to-1 line (it already speaks in tenths); hundredths and
+#               tenths-meeting-hundredths on the new HUNDREDTHS SQUARE ([[hundredgrid]]
+#               -- a tenth is a full row); dimes and pennies on the PLACE-VALUE CHART
+#               (dimes are tens). The tenths-and-hundredths trap line kept. ENGINE:
+#               OP_EXT dt / dh / m / t2h gain boards and "worked".
+#   2026-09-05  BUILD sv -- BASIC UNIT 6 TO THE SHAPE (adding and taking away fractions).
+#               THIS FILE: all four lessons on the FRACTION LINE -- same bottom: start at
+#               the first fraction and hop by the second (back, for taking away);
+#               different bottoms: the first fraction found on the FINER line, then the
+#               hop. The unlike-bottoms trap line kept. ENGINE: OP_EXT fa / fs / fu / fus
+#               gain boards (the line with the start marked, the hop withheld) and
+#               "worked" (the hops drawn); _fl helper.
 #   2026-09-05  BUILD su -- BASIC UNIT 5 TO THE SHAPE (fractions). THIS FILE:
 #                 * fractions-on-the-number-line on the FRACTION LINE ([[numberline
 #                   denom=]] -- ticks and hops labelled in fourths), the hops drawn;
@@ -2526,22 +2552,30 @@ _MORE_LESSONS = [
         "bank": [{"a": 2, "b": 4, "op": "simp"}, {"a": 5, "b": 10, "op": "simp"}, {"a": 2, "b": 14, "op": "simp"}, {"a": 10, "b": 15, "op": "simp"}, {"a": 4, "b": 18, "op": "simp"}, {"a": 4, "b": 20, "op": "simp"}, {"a": 6, "b": 21, "op": "simp"}, {"a": 10, "b": 22, "op": "simp"}, {"a": 6, "b": 24, "op": "simp"}, {"a": 22, "b": 24, "op": "simp"}],
     },
     {
+        # (sv, 2026-09-05) TO THE SHAPE on the FRACTION LINE cut the finer way, hopping
+        # back. The trap line kept.
         "id": "basic-u6-take-away-unlike-bottoms", "course": "basic", "unit": 6,
         "topic": "Taking away fractions with different bottoms", "op": "fus",
         "max_value": 12,
         "levels": ("abstract",), "symbols": ("bottom", "take away"),
-        "advance_line": "Three in a row — you've got it! Match the bottoms, then take away.",
-        "teach": [
+        "advance_line": "Three in a row, and you can say why — you've got it! Match the bottoms, then take away.",
+        "why": [
             ("Adding fractions with different bottoms meant renaming one of them "
              "first. Taking away works the very same way. You cannot take eighths "
-             "from a half until the half is written in eighths.",
-             '[[goal text="Different bottoms, take away"]]'
-             '[[step eq="1/2 − 1/8 = ?"]]'),
-            ("Watch me. One half take away one eighth. A half is 4 eighths, "
-             "because 8 divided by 2 is 4. Now both are eighths: 4 eighths take "
-             "away 1 eighth leaves 3 eighths.",
-             '[[step eq="1/2 = 4/8"]]'
-             '[[step eq="4/8 − 1/8 = 3/8"]]'),
+             "from a half until the half is written in eighths — and once it is, "
+             "it is just counting back.",
+             '[[goal text="Different bottoms, take away"]]'),
+        ],
+        "picture": [
+            ("Here is a line cut into eighths. One half sits at four eighths — "
+             "same spot, new name. Now hop back one eighth. Three eighths.",
+             '[[numberline min="0" max="1" denom="8" hops="0.5,0.375" points="0.375" caption="1/2 = 4/8, then − 1/8 = 3/8"]]'),
+        ],
+        "teach": [
+            ("Watch me. One half take away one eighth. A half is 4 eighths, because "
+             "8 divided by 2 is 4. Now both are eighths: 4 eighths take away 1 "
+             "eighth leaves 3 eighths.",
+             '[[step eq="1/2 = 4/8"]][[numberline min="0" max="1" denom="8" hops="0.5,0.375" points="0.375" caption="4/8 − 1/8 = 3/8"]]'),
             ("Here is the trap. Once both bottoms MATCH, the bottom stops "
              "changing: eighths take away eighths leaves eighths, and only the top "
              "numbers do the taking away. That holds only after they match, which "
@@ -2550,35 +2584,62 @@ _MORE_LESSONS = [
              '[[step eq="3/7 ✗ the bottoms were taken away from as well"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. One half take away 2 "
-                        "sixths. A half is 3 sixths, and 3 take away 2 leaves 1 "
+            {"worked": ("Here is one more, done for you. One half take away 2 sixths. "
+                        "On a line of sixths, a half sits at 3 sixths. Hop back 2: 1 "
                         "sixth.",
-                        '[[step eq="3/6 − 2/6 = 1/6"]]'),
+                        '[[numberline min="0" max="1" denom="6" hops="0.5,0.1667" points="0.1667" caption="1/2 = 3/6, then − 2/6 = 1/6"]]'),
              "ask": {"a": 1, "b": 2, "c": 6, "op": "fus"}},
-            {"worked": ("One more together. One fourth take away 1 eighth. A "
-                        "fourth is 2 eighths, so that leaves 1 eighth.",
-                        '[[step eq="2/8 − 1/8 = 1/8"]]'),
+            {"worked": ("One more together. One fourth take away 1 eighth. On a line "
+                        "of eighths, a fourth sits at 2 eighths. Hop back 1: 1 eighth.",
+                        '[[numberline min="0" max="1" denom="8" hops="0.25,0.125" points="0.125" caption="1/4 = 2/8, then − 1/8 = 1/8"]]'),
              "ask": {"a": 3, "b": 2, "c": 8, "op": "fus"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": "Now it's your turn. Find the first fraction on the finer line, then hop back. Three right answers in a row and we're done — here comes the first one.",
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Four eighths "
+                       "take away one eighth is three eighths, not three sevenths. "
+                       "Tap the reason why."),
+            "choices": ("because once the bottoms match, only the tops are taken away "
+                        "| because 8 take away 1 is 7 | because sevenths do not exist"),
+            "answer": "because once the bottoms match, only the tops are taken away",
+            "board": '[[numberline min="0" max="1" denom="8" hops="0.5,0.375" points="0.375" caption="the bottom stays 8"]]',
+        },
+        "recap": [
+            ("So, here it is again. Rename one fraction until the bottoms match, "
+             "then take away the tops and keep the bottom. On the line: find the "
+             "first fraction on the finer line, then hop back.",
+             '[[numberline min="0" max="1" denom="8" hops="0.5,0.375" points="0.375" caption="1/2 − 1/8 = 3/8"]]'),
+            ("And it is the same move adding used — match first, then count.",
+             '[[step eq="1/2 − 1/8 = 4/8 − 1/8 = 3/8"]]'),
+        ],
         "bank": [{"a": 1, "b": 2, "c": 4, "op": "fus"}, {"a": 1, "b": 3, "c": 6, "op": "fus"}, {"a": 2, "b": 2, "c": 8, "op": "fus"}, {"a": 1, "b": 2, "c": 10, "op": "fus"}, {"a": 3, "b": 2, "c": 10, "op": "fus"}, {"a": 1, "b": 2, "c": 12, "op": "fus"}, {"a": 3, "b": 2, "c": 12, "op": "fus"}, {"a": 1, "b": 3, "c": 12, "op": "fus"}, {"a": 3, "b": 3, "c": 12, "op": "fus"}, {"a": 1, "b": 6, "c": 12, "op": "fus"}],
     },
     {
+        # (sw, 2026-09-05) TO THE SHAPE on the HUNDREDTHS SQUARE: a tenth is a full row.
+        # The trap line kept.
         "id": "basic-u7-tenths-and-hundredths", "course": "basic", "unit": 7,
         "topic": "Tenths and hundredths together", "op": "t2h", "max_value": 99,
         "levels": ("abstract",), "symbols": ("tenths", "hundredths"),
-        "advance_line": "Three in a row — you've got it! A tenth is ten hundredths.",
-        "teach": [
+        "advance_line": "Three in a row, and you can say why — you've got it! A tenth is ten hundredths.",
+        "why": [
             ("You have met tenths, and you have met hundredths. Today they meet "
-             "each other. The rule that joins them is small and it is the whole "
+             "each other — because real numbers mix them: 0.43 is 4 tenths and 3 "
+             "hundredths. The rule that joins them is small and it is the whole "
              "lesson: one tenth is ten hundredths.",
-             '[[goal text="Tenths and hundredths"]]'
-             '[[step eq="1 tenth = 10 hundredths"]]'),
+             '[[goal text="Tenths and hundredths"]]'),
+        ],
+        "picture": [
+            ("Here is the hundredths square. One full row is ten cells — ten "
+             "hundredths — and that is exactly one tenth. So 4 tenths is 4 full "
+             "rows, 40 cells. Add 3 more cells in red: 43 hundredths.",
+             '[[hundredgrid shaded="40" plus="3" caption="4 tenths = 4 rows = 40, + 3 = 43 hundredths"]]'),
+        ],
+        "teach": [
             ("Watch me. 4 tenths plus 3 hundredths. You cannot add them as they "
              "stand, so change the tenths first: 4 tenths is 40 hundredths. Now "
              "both are hundredths. 40 plus 3 is 43 hundredths.",
-             '[[step eq="4 tenths = 40 hundredths"]]'
-             '[[step eq="40 + 3 = 43 hundredths"]]'),
+             '[[step eq="4 tenths = 40 hundredths"]][[hundredgrid shaded="40" plus="3" caption="40 + 3 = 43 hundredths"]]'),
             ("Here is the trap, and it is the same one place value always sets. Do "
              "not add the digits as though they were the same size. 4 tenths plus "
              "3 hundredths is not 7 of anything. A tenth is ten times the bigger "
@@ -2587,35 +2648,64 @@ _MORE_LESSONS = [
              '[[step eq="7 ✗ the two digits added as if they matched"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 2 tenths plus 5 "
-                        "hundredths. 2 tenths is 20 hundredths, and 20 plus 5 is "
+            {"worked": ("Here is one more, done for you. 2 tenths plus 5 hundredths. "
+                        "2 tenths is 2 full rows — 20 hundredths — and 20 plus 5 is "
                         "25 hundredths.",
-                        '[[step eq="20 + 5 = 25 hundredths"]]'),
+                        '[[hundredgrid shaded="20" plus="5" caption="2 tenths = 20, + 5 = 25 hundredths"]]'),
              "ask": {"a": 3, "b": 4, "op": "t2h"}},
-            {"worked": ("One more together. 7 tenths plus 6 hundredths is 70 plus "
-                        "6, which is 76 hundredths.",
-                        '[[step eq="70 + 6 = 76 hundredths"]]'),
+            {"worked": ("One more together. 7 tenths plus 6 hundredths. 7 full rows is "
+                        "70 hundredths, plus 6 is 76 hundredths.",
+                        '[[hundredgrid shaded="70" plus="6" caption="7 tenths = 70, + 6 = 76 hundredths"]]'),
              "ask": {"a": 8, "b": 2, "op": "t2h"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": "Now it's your turn. Tenths are full rows; count the rows, then the cells. Three right answers in a row and we're done — here comes the first one.",
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 4 tenths plus 3 "
+                       "hundredths is 43 hundredths, not 7. Tap the reason why."),
+            "choices": ("because a tenth is a whole row of ten cells, not one | "
+                        "because 43 is the bigger answer | because you always put "
+                        "the digits side by side"),
+            "answer": "because a tenth is a whole row of ten cells, not one",
+            "board": '[[hundredgrid shaded="40" plus="3" caption="a tenth is a whole row"]]',
+        },
+        "recap": [
+            ("So, here it is again. One tenth is ten hundredths — a whole row of "
+             "the square. To add tenths and hundredths, turn the tenths into "
+             "hundredths first, then count.",
+             '[[hundredgrid shaded="40" plus="3" caption="4 tenths + 3 hundredths = 43 hundredths"]]'),
+            ("And that is how a number like 0.43 is built — tenths and hundredths, "
+             "each in its own place.",
+             '[[step eq="4 tenths + 3 hundredths = 43 hundredths"]]'),
+        ],
         "bank": [{"a": 1, "b": 1, "op": "t2h"}, {"a": 2, "b": 1, "op": "t2h"}, {"a": 3, "b": 1, "op": "t2h"}, {"a": 4, "b": 1, "op": "t2h"}, {"a": 5, "b": 1, "op": "t2h"}, {"a": 5, "b": 9, "op": "t2h"}, {"a": 6, "b": 9, "op": "t2h"}, {"a": 7, "b": 9, "op": "t2h"}, {"a": 8, "b": 9, "op": "t2h"}, {"a": 9, "b": 9, "op": "t2h"}],
     },
     {
+        # (sx, 2026-09-05) TO THE SHAPE on the HUNDREDTHS SQUARE in percent mode: the
+        # part as a pie, then the same part out of a hundred. The trap line kept.
         "id": "basic-u8-what-percent-is-it", "course": "basic", "unit": 8,
         "topic": "What percent is it", "op": "wpc", "max_value": 100,
         "levels": ("abstract",), "symbols": ("percent", "out of"),
-        "advance_line": "Three in a row — you've got it! You can say any part as a percent.",
+        "advance_line": "Three in a row, and you can say why — you've got it! You can say any part as a percent.",
+        "why": [
+            ("Percent means out of a hundred, and the world talks in it: 75 percent "
+             "on a test, 20 percent off, a phone at 40 percent. It is one way to "
+             "say any part so that every part can be compared. Turning a part into "
+             "a percent is one job only: rewrite it as something out of a hundred.",
+             '[[goal text="What percent is it"]]'),
+        ],
+        "picture": [
+            ("Here is 3 out of 4 as a pie — three of four pieces. And here is the "
+             "same amount on the hundred square: 75 of the 100 cells. 3 out of 4 "
+             "is 75 out of 100 — 75 percent.",
+             '[[pie parts="4" shaded="3" caption="3 out of 4"]][[hundredgrid shaded="75" unit="percent" caption="the same amount: 75 out of 100"]]'),
+        ],
         "teach": [
-            ("Percent means out of a hundred. So turning a part into a percent is "
-             "one job only: rewrite it as something out of a hundred, and the top "
-             "number is your answer.",
-             '[[goal text="What percent is it"]]'
-             '[[step eq="percent = out of 100"]]'),
-            ("Watch me. 3 out of 4 as a percent. Ask what turns 4 into 100: "
-             "timesing by 25. Do the same to the top: 3 times 25 is 75. So 3 out "
-             "of 4 is 75 percent.",
-             '[[step eq="4 × 25 = 100"]]'
-             '[[step eq="3 × 25 = 75, so 75 percent"]]'),
+            ("Here is the quick way. Ask what turns the bottom into 100: 4 times 25. "
+             "Do the same to the top: 3 times 25 is 75. So 3 out of 4 is 75 "
+             "percent.",
+             '[[step eq="4 × 25 = 100"]][[step eq="3 × 25 = 75, so 75 percent"]]'
+             '[[hundredgrid shaded="75" unit="percent" caption="75 out of 100"]]'),
             ("Here is the trap. Do not read the top number as the percent. 3 out "
              "of 4 is not 3 percent — 3 percent would be almost nothing, and 3 out "
              "of 4 is most of it. Change the bottom to a hundred first, every "
@@ -2625,33 +2715,61 @@ _MORE_LESSONS = [
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 2 out of 5. Five times 20 "
-                        "is a hundred, so 2 times 20 is 40. That is 40 percent.",
-                        '[[step eq="2/5 → 40 percent"]]'),
+                        "is a hundred, so 2 times 20 is 40. That is 40 percent — 40 "
+                        "of the hundred cells.",
+                        '[[hundredgrid shaded="40" unit="percent" caption="2 out of 5 = 40 out of 100 = 40%"]]'),
              "ask": {"a": 7, "b": 10, "op": "wpc"}},
             {"worked": ("One more together. 13 out of 20. Twenty times 5 is a "
-                        "hundred, so 13 times 5 is 65 percent.",
-                        '[[step eq="13/20 → 65 percent"]]'),
+                        "hundred, so 13 times 5 is 65. 65 percent.",
+                        '[[hundredgrid shaded="65" unit="percent" caption="13 out of 20 = 65 out of 100 = 65%"]]'),
              "ask": {"a": 9, "b": 25, "op": "wpc"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": "Now it's your turn. Turn the bottom into a hundred, and do the same to the top. Three right answers in a row and we're done — here comes the first one.",
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 out of 4 is 75 "
+                       "percent, not 3 percent. Tap the reason why."),
+            "choices": ("because out of a hundred, 3 out of 4 is 75 | because 75 "
+                        "is a bigger number | because 3 percent is a small number"),
+            "answer": "because out of a hundred, 3 out of 4 is 75",
+            "board": '[[hundredgrid shaded="75" unit="percent" caption="3 out of 4 = 75 out of 100"]]',
+        },
+        "recap": [
+            ("So, here it is again. Percent means out of a hundred. To say a part "
+             "as a percent, turn the bottom into 100 and do the same to the top — "
+             "that top is your percent.",
+             '[[hundredgrid shaded="75" unit="percent" caption="3 out of 4 = 75%"]]'),
+            ("And percent is how the world compares parts — scores, sales, "
+             "batteries.",
+             '[[step eq="3 out of 4 = 75 percent"]]'),
+        ],
         "bank": [{"a": 1, "b": 100, "op": "wpc"}, {"a": 12, "b": 100, "op": "wpc"}, {"a": 6, "b": 25, "op": "wpc"}, {"a": 34, "b": 100, "op": "wpc"}, {"a": 9, "b": 20, "op": "wpc"}, {"a": 55, "b": 100, "op": "wpc"}, {"a": 33, "b": 50, "op": "wpc"}, {"a": 76, "b": 100, "op": "wpc"}, {"a": 22, "b": 25, "op": "wpc"}, {"a": 99, "b": 100, "op": "wpc"}],
     },
     {
+        # (sx, 2026-09-05) TO THE SHAPE on the TAPE: the price as a bar, the discount
+        # and what you pay as its two parts. The trap line kept.
         "id": "basic-u8-percent-off", "course": "basic", "unit": 8,
         "topic": "Percent off a price", "op": "poff", "max_value": 200,
         "levels": ("abstract",), "symbols": ("percent off", "pay"),
-        "advance_line": "Three in a row — you've got it! Work out the discount, then take it away.",
-        "teach": [
+        "advance_line": "Three in a row, and you can say why — you've got it! Work out the discount, then take it away.",
+        "why": [
             ("A sign in a shop window says 25 percent off. That is a percent of "
-             "the price, and it is the part you do NOT pay. Two steps: find the "
-             "discount, then take it away from the price.",
-             '[[goal text="Percent off a price"]]'
-             '[[step eq="price − discount = what you pay"]]'),
-            ("Watch me. A coat costs 60 dollars with 25 percent off. First the "
-             "discount: 25 percent of 60 is 15. Then take it away: 60 take away 15 "
-             "is 45. You pay 45 dollars.",
-             '[[step eq="25% of 60 = 15"]]'
-             '[[step eq="60 − 15 = 45"]]'),
+             "the price, and it is the part you do NOT pay. Knowing what you "
+             "actually pay — not what you save — is the difference between a "
+             "bargain and a surprise at the till.",
+             '[[goal text="Percent off a price"]]'),
+        ],
+        "picture": [
+            ("Here is the price as a bar: 60 dollars. 25 percent off cuts it into "
+             "two parts — the discount, 15, and what you pay, 45. The discount is "
+             "the small piece that comes off; you pay the rest.",
+             '[[tape parts="15 | 45" total="60" caption="60 dollars: discount 15, you pay 45"]]'),
+        ],
+        "teach": [
+            ("So it is two steps: find the discount, then take it away from the "
+             "price. A coat costs 60 dollars with 25 percent off. 25 percent of 60 "
+             "is 15. 60 take away 15 is 45. You pay 45 dollars.",
+             '[[step eq="25% of 60 = 15"]][[step eq="60 − 15 = 45"]][[tape parts="15 | 45" total="60" caption="discount 15 — you pay 45"]]'),
             ("Here is the trap, and shops rely on it. The discount is not the "
              "answer. 15 is what you SAVE. The question asks what you pay, so the "
              "second step is the one that matters, and your answer is always "
@@ -2660,16 +2778,36 @@ _MORE_LESSONS = [
              '[[step eq="15 ✗ that is the saving, not the price"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 40 dollars with 10 "
-                        "percent off. The discount is 4 dollars, so you pay 36.",
-                        '[[step eq="40 − 4 = 36"]]'),
+            {"worked": ("Here is one more, done for you. 40 dollars with 10 percent "
+                        "off. The discount is 10 percent of 40 — 4 dollars. 40 take "
+                        "away 4 is 36. You pay 36.",
+                        '[[tape parts="4 | 36" total="40" caption="discount 4 — you pay 36"]]'),
              "ask": {"a": 80, "b": 25, "op": "poff"}},
             {"worked": ("One more together. 50 dollars with 20 percent off. The "
-                        "discount is 10, so you pay 40.",
-                        '[[step eq="50 − 10 = 40"]]'),
+                        "discount is 20 percent of 50 — 10. 50 take away 10 is 40. "
+                        "You pay 40.",
+                        '[[tape parts="10 | 40" total="50" caption="discount 10 — you pay 40"]]'),
              "ask": {"a": 140, "b": 25, "op": "poff"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": "Now it's your turn. Discount first, then take it off the price. Three right answers in a row and we're done — here comes the first one.",
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 60 dollars with "
+                       "25 percent off: you pay 45, not 15. Tap the reason why."),
+            "choices": ("because 15 comes off, and you pay the rest | because 45 is "
+                        "the bigger number | because shops never give 15 dollars off"),
+            "answer": "because 15 comes off, and you pay the rest",
+            "board": '[[tape parts="15 | 45" total="60" caption="15 comes off — 45 is what you pay"]]',
+        },
+        "recap": [
+            ("So, here it is again. Percent off is two steps: find the discount — a "
+             "percent of the price — then take it away. The bar shows both parts; "
+             "you pay the big one.",
+             '[[tape parts="15 | 45" total="60" caption="price 60 = discount 15 + you pay 45"]]'),
+            ("And knowing what you pay, not what you save, is what keeps the till "
+             "from surprising you.",
+             '[[step eq="60 − 15 = 45"]]'),
+        ],
         "bank": [{"a": 10, "b": 20, "op": "poff"}, {"a": 30, "b": 20, "op": "poff"}, {"a": 55, "b": 20, "op": "poff"}, {"a": 70, "b": 10, "op": "poff"}, {"a": 104, "b": 25, "op": "poff"}, {"a": 120, "b": 20, "op": "poff"}, {"a": 148, "b": 25, "op": "poff"}, {"a": 168, "b": 25, "op": "poff"}, {"a": 180, "b": 20, "op": "poff"}, {"a": 200, "b": 10, "op": "poff"}],
     },
     {
@@ -3847,234 +3985,518 @@ _MORE_LESSONS = [
         "bank": [{'a': 1, 'b': 2, 'c': 4, 'op': 'eqf'}, {'a': 1, 'b': 3, 'c': 6, 'op': 'eqf'}, {'a': 1, 'b': 2, 'c': 6, 'op': 'eqf'}, {'a': 1, 'b': 4, 'c': 8, 'op': 'eqf'}, {'a': 1, 'b': 5, 'c': 10, 'op': 'eqf'}, {'a': 1, 'b': 6, 'c': 12, 'op': 'eqf'}, {'a': 1, 'b': 4, 'c': 12, 'op': 'eqf'}, {'a': 1, 'b': 3, 'c': 12, 'op': 'eqf'}, {'a': 1, 'b': 2, 'c': 12, 'op': 'eqf'}],
     },
     {
+        # (sv, 2026-09-05) TO THE SHAPE on the FRACTION LINE: start at the first
+        # fraction, hop by the second, read where you land.
         "id": 'basic-u6-add-fractions-same-bottom',
         "course": "basic", "unit": 6,
         "topic": 'Adding fractions',
         "op": 'fa', "max_value": 12,
         "levels": ("abstract",),
         "symbols": ('bottom', 'plus'),
-        "advance_line": "Three in a row — you've got it! You can add fractions with the same bottom.",
-        "teach": [
-            ('When two fractions have the SAME bottom number, the pieces are the same size — so we can just count them. Today we add fractions with the same bottom.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You can add fractions with the same bottom.",
+        "why": [
+            ("Fractions get added all the time — two eighths of a pizza now and three "
+             "eighths later, how much did you eat? When the two fractions have the "
+             "SAME bottom, the pieces are the same size, and adding is just "
+             "counting pieces.",
              '[[goal text="Adding fractions"]]'),
-            ('Watch me. Two eighths plus three eighths. The pieces are all eighths, so count them: 2 plus 3 equals 5. Two eighths plus three eighths equals five eighths.',
-             '[[step eq="2/8 + 3/8 = 5/8"]]'),
-            ('One more, watch. One fourth plus two fourths equals three fourths. The bottom stays the same — only the count changes.',
-             '[[step eq="1/4 + 2/4 = 3/4"]]'),
+        ],
+        "picture": [
+            ("Here is a line from 0 to 1 cut into eighths. Start at two eighths. "
+             "Hop three more eighths — one, two, three. You land on five eighths.",
+             '[[numberline min="0" max="1" denom="8" hops="0,0.25,0.625" points="0.625" caption="2/8 + 3/8 = 5/8"]]'),
+        ],
+        "teach": [
+            ("So when the bottoms are the same, count the pieces: 2 plus 3 equals 5. "
+             "Two eighths plus three eighths equals five eighths. The bottom stays "
+             "the same — only the count changes.",
+             '[[numberline min="0" max="1" denom="8" hops="0,0.25,0.625" points="0.625" caption="count the pieces: 2 + 3 = 5 eighths"]]'),
+            ("One more, watch. One fourth plus two fourths. Start at one fourth, hop "
+             "two more. Three fourths.",
+             '[[numberline min="0" max="1" denom="4" hops="0,0.25,0.75" points="0.75" caption="1/4 + 2/4 = 3/4"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. Two sixths plus three sixths equals five sixths.',
-                        '[[step eq="2/6 + 3/6 = 5/6"]]'),
+            {"worked": ("Here is one more, done for you. Two sixths plus three sixths. "
+                        "Start at two sixths, hop three more: 2 plus 3 equals 5. Five "
+                        "sixths.",
+                        '[[numberline min="0" max="1" denom="6" hops="0,0.3333,0.8333" points="0.8333" caption="2/6 + 3/6 = 5/6"]]'),
              "ask": {'a': 1, 'b': 3, 'c': 6, 'op': 'fa'}},
-            {"worked": ('One more together. Three tenths plus four tenths equals seven tenths.',
-                        '[[step eq="3/10 + 4/10 = 7/10"]]'),
+            {"worked": ("One more together. Three tenths plus four tenths. Start at "
+                        "three tenths, hop four more: 3 plus 4 equals 7. Seven tenths.",
+                        '[[numberline min="0" max="1" denom="10" hops="0,0.3,0.7" points="0.7" caption="3/10 + 4/10 = 7/10"]]'),
              "ask": {'a': 2, 'b': 5, 'c': 10, 'op': 'fa'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Start at the first fraction and hop. "
+                           "Three right answers in a row and we're done — here comes "
+                           "the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Two eighths plus "
+                       "three eighths is five eighths, not five sixteenths. Tap the "
+                       "reason why."),
+            "choices": ("because the pieces stay eighths — only the count changes | "
+                        "because 8 plus 8 is 16 | because sixteenths are too small"),
+            "answer": "because the pieces stay eighths — only the count changes",
+            "board": '[[numberline min="0" max="1" denom="8" hops="0,0.25,0.625" points="0.625" caption="the bottom stays 8"]]',
+        },
+        "recap": [
+            ("So, here it is again. Same bottom means same-size pieces: add the "
+             "tops, keep the bottom. On the line, start at the first fraction and "
+             "hop by the second.",
+             '[[numberline min="0" max="1" denom="8" hops="0,0.25,0.625" points="0.625" caption="2/8 + 3/8 = 5/8"]]'),
+            ("And it is for adding up pieces of the same whole — pizza, an hour, a "
+             "mile.",
+             '[[step eq="2/8 + 3/8 = 5/8"]]'),
+        ],
         "bank": [{'a': 1, 'b': 1, 'c': 4, 'op': 'fa'}, {'a': 1, 'b': 2, 'c': 5, 'op': 'fa'}, {'a': 2, 'b': 2, 'c': 6, 'op': 'fa'}, {'a': 1, 'b': 4, 'c': 6, 'op': 'fa'}, {'a': 2, 'b': 3, 'c': 8, 'op': 'fa'}, {'a': 3, 'b': 3, 'c': 8, 'op': 'fa'}, {'a': 2, 'b': 5, 'c': 8, 'op': 'fa'}, {'a': 4, 'b': 3, 'c': 10, 'op': 'fa'}, {'a': 3, 'b': 5, 'c': 10, 'op': 'fa'}, {'a': 5, 'b': 4, 'c': 12, 'op': 'fa'}],
     },
     {
+        # (sv, 2026-09-05) TO THE SHAPE on the FRACTION LINE: start at the first
+        # fraction, hop BACK by the second.
         "id": 'basic-u6-take-away-fractions-same-bottom',
         "course": "basic", "unit": 6,
         "topic": 'Taking away fractions',
         "op": 'fs', "max_value": 12,
         "levels": ("abstract",),
         "symbols": ('bottom', 'take'),
-        "advance_line": "Three in a row — you've got it! You can take away fractions with the same bottom.",
-        "teach": [
-            ('Taking away fractions with the same bottom works the same way — the pieces are the same size, so we just count what is left.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You can take away fractions with the same bottom.",
+        "why": [
+            ("Five eighths of a pizza is left and someone eats two eighths — how "
+             "much is left now? Taking away fractions with the same bottom works "
+             "like adding did: the pieces are the same size, so you just count "
+             "what is left.",
              '[[goal text="Taking away fractions"]]'),
-            ('Watch me. Five eighths take away two eighths. Count: 5 take away 2 equals 3. Five eighths take away two eighths equals three eighths.',
-             '[[step eq="5/8 − 2/8 = 3/8"]]'),
-            ('One more, watch. Three fourths take away one fourth equals two fourths.',
-             '[[step eq="3/4 − 1/4 = 2/4"]]'),
+        ],
+        "picture": [
+            ("Here is the line cut into eighths. Start at five eighths. Hop back "
+             "two eighths — one, two. You land on three eighths.",
+             '[[numberline min="0" max="1" denom="8" hops="0.625,0.375" points="0.375" caption="5/8 − 2/8 = 3/8"]]'),
+        ],
+        "teach": [
+            ("So when the bottoms are the same, count what is left: 5 take away 2 "
+             "equals 3. Five eighths take away two eighths equals three eighths. The "
+             "bottom stays the same.",
+             '[[numberline min="0" max="1" denom="8" hops="0.625,0.375" points="0.375" caption="count back: 5 − 2 = 3 eighths"]]'),
+            ("One more, watch. Three fourths take away one fourth. Start at three "
+             "fourths, hop back one. Two fourths.",
+             '[[numberline min="0" max="1" denom="4" hops="0.75,0.5" points="0.5" caption="3/4 − 1/4 = 2/4"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. Four sixths take away one sixth equals three sixths.',
-                        '[[step eq="4/6 − 1/6 = 3/6"]]'),
+            {"worked": ("Here is one more, done for you. Four sixths take away one "
+                        "sixth. Start at four sixths, hop back one: 4 take away 1 "
+                        "equals 3. Three sixths.",
+                        '[[numberline min="0" max="1" denom="6" hops="0.6667,0.5" points="0.5" caption="4/6 − 1/6 = 3/6"]]'),
              "ask": {'a': 5, 'b': 2, 'c': 6, 'op': 'fs'}},
-            {"worked": ('One more together. Seven tenths take away three tenths equals four tenths.',
-                        '[[step eq="7/10 − 3/10 = 4/10"]]'),
+            {"worked": ("One more together. Seven tenths take away three tenths. "
+                        "Start at seven tenths, hop back three: 7 take away 3 equals "
+                        "4. Four tenths.",
+                        '[[numberline min="0" max="1" denom="10" hops="0.7,0.4" points="0.4" caption="7/10 − 3/10 = 4/10"]]'),
              "ask": {'a': 8, 'b': 5, 'c': 10, 'op': 'fs'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Start at the first fraction and hop "
+                           "back. Three right answers in a row and we're done — here "
+                           "comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Five eighths take "
+                       "away two eighths is three eighths, and the bottom stayed 8. "
+                       "Tap the reason why."),
+            "choices": ("because the pieces are still eighths — only the count "
+                        "changed | because 8 take away 8 is 0 | because eighths "
+                        "cannot change"),
+            "answer": "because the pieces are still eighths — only the count changed",
+            "board": '[[numberline min="0" max="1" denom="8" hops="0.625,0.375" points="0.375" caption="the bottom stays 8"]]',
+        },
+        "recap": [
+            ("So, here it is again. Same bottom means same-size pieces: take away "
+             "the tops, keep the bottom. On the line, start at the first fraction "
+             "and hop back by the second.",
+             '[[numberline min="0" max="1" denom="8" hops="0.625,0.375" points="0.375" caption="5/8 − 2/8 = 3/8"]]'),
+            ("And it is for finding what is left of a whole — the pizza, the hour, "
+             "the tank of gas.",
+             '[[step eq="5/8 − 2/8 = 3/8"]]'),
+        ],
         "bank": [{'a': 3, 'b': 1, 'c': 4, 'op': 'fs'}, {'a': 4, 'b': 2, 'c': 5, 'op': 'fs'}, {'a': 5, 'b': 1, 'c': 6, 'op': 'fs'}, {'a': 5, 'b': 3, 'c': 6, 'op': 'fs'}, {'a': 6, 'b': 2, 'c': 8, 'op': 'fs'}, {'a': 7, 'b': 3, 'c': 8, 'op': 'fs'}, {'a': 7, 'b': 5, 'c': 8, 'op': 'fs'}, {'a': 8, 'b': 3, 'c': 10, 'op': 'fs'}, {'a': 9, 'b': 4, 'c': 10, 'op': 'fs'}, {'a': 11, 'b': 5, 'c': 12, 'op': 'fs'}],
     },
     {
+        # (sw, 2026-09-05) TO THE SHAPE on the 0-to-1 line, which speaks in tenths.
         "id": 'basic-u7-tenths',
         "course": "basic", "unit": 7,
         "topic": 'Tenths',
         "op": 'dt', "max_value": 9,
         "levels": ("abstract",),
         "symbols": ('tenth', 'point'),
-        "advance_line": "Three in a row — you've got it! You know your tenths.",
-        "teach": [
-            ('Today we meet decimals. Split one whole into ten equal parts — each part is one tenth. We write one tenth with a point: 0.1.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You know your tenths.",
+        "why": [
+            ("Today we meet decimals — the way money, rulers and race times write "
+             "parts of a whole. Split one whole into ten equal parts and each part "
+             "is one tenth. We write one tenth with a point: 0.1. It is a fraction "
+             "in a new coat.",
              '[[goal text="Tenths"]]'),
-            ('Watch me. 0.3 is three tenths. 0.4 is four tenths. Three tenths plus four tenths equals seven tenths — 0.7.',
-             '[[step eq="0.3 + 0.4 = 0.7"]]'),
-            ('The point keeps the tenths in their own place, just like tens and ones have places. Count the tenths, and the point stays put.',
-             '[[step eq="0.2 + 0.5 = 0.7"]]'),
+        ],
+        "picture": [
+            ("Here is the line from 0 to 1 cut into ten equal hops: 0.1, 0.2, 0.3 "
+             "and so on. Start at 0.3 — three tenths. Hop four more tenths. You "
+             "land on 0.7.",
+             '[[numberline min="0" max="1" hops="0,0.3,0.7" points="0.7" caption="0.3 + 0.4 = 0.7"]]'),
+        ],
+        "teach": [
+            ("So 0.3 is three tenths and 0.4 is four tenths, and adding them is "
+             "counting tenths: 3 plus 4 equals 7. Three tenths plus four tenths "
+             "equals seven tenths — 0.7. The point stays put; only the count "
+             "changes.",
+             '[[numberline min="0" max="1" hops="0,0.3,0.7" points="0.7" caption="count the tenths: 3 + 4 = 7"]]'),
+            ("The point keeps the tenths in their own place, just like tens and "
+             "ones have places. One more: 0.2 plus 0.5. Start at 0.2, hop five. "
+             "0.7.",
+             '[[numberline min="0" max="1" hops="0,0.2,0.7" points="0.7" caption="0.2 + 0.5 = 0.7"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. Two tenths plus six tenths equals eight tenths — 0.8.',
-                        '[[step eq="0.2 + 0.6 = 0.8"]]'),
+            {"worked": ("Here is one more, done for you. Two tenths plus six tenths. "
+                        "Start at 0.2, hop six more: 2 plus 6 equals 8. Eight tenths "
+                        "— 0.8.",
+                        '[[numberline min="0" max="1" hops="0,0.2,0.8" points="0.8" caption="0.2 + 0.6 = 0.8"]]'),
              "ask": {'a': 1, 'b': 3, 'op': 'dt'}},
-            {"worked": ('One more together. Five tenths plus four tenths equals nine tenths.',
-                        '[[step eq="0.5 + 0.4 = 0.9"]]'),
+            {"worked": ("One more together. Five tenths plus four tenths. Start at "
+                        "0.5, hop four more: 5 plus 4 equals 9. Nine tenths — 0.9.",
+                        '[[numberline min="0" max="1" hops="0,0.5,0.9" points="0.9" caption="0.5 + 0.4 = 0.9"]]'),
              "ask": {'a': 2, 'b': 4, 'op': 'dt'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Start at the first number and hop. "
+                           "Three right answers in a row and we're done — here comes "
+                           "the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 0.3 plus 0.4 is "
+                       "0.7, and the point did not move. Tap the reason why."),
+            "choices": ("because we counted tenths, and tenths stay in the tenths "
+                        "place | because the point is just decoration | because 3 "
+                        "plus 4 is less than 10"),
+            "answer": "because we counted tenths, and tenths stay in the tenths place",
+            "board": '[[numberline min="0" max="1" hops="0,0.3,0.7" points="0.7" caption="the point stays put"]]',
+        },
+        "recap": [
+            ("So, here it is again. A tenth is one of ten equal parts of a whole, "
+             "written after the point. Adding tenths is counting tenths — hop along "
+             "the line — and the point stays put.",
+             '[[numberline min="0" max="1" hops="0,0.3,0.7" points="0.7" caption="0.3 + 0.4 = 0.7"]]'),
+            ("And decimals are how money, rulers and race times write parts of a "
+             "whole.",
+             '[[step eq="0.3 + 0.4 = 0.7"]]'),
+        ],
         "bank": [{'a': 1, 'b': 2, 'op': 'dt'}, {'a': 2, 'b': 2, 'op': 'dt'}, {'a': 1, 'b': 4, 'op': 'dt'}, {'a': 3, 'b': 3, 'op': 'dt'}, {'a': 2, 'b': 5, 'op': 'dt'}, {'a': 4, 'b': 4, 'op': 'dt'}, {'a': 3, 'b': 5, 'op': 'dt'}, {'a': 6, 'b': 3, 'op': 'dt'}, {'a': 4, 'b': 5, 'op': 'dt'}, {'a': 7, 'b': 2, 'op': 'dt'}],
     },
     {
+        # (sw, 2026-09-05) TO THE SHAPE on the PLACE-VALUE CHART: dimes are tens,
+        # pennies are ones -- rods and cubes.
         "id": 'basic-u7-dimes-and-pennies',
         "course": "basic", "unit": 7,
         "topic": 'Dimes and pennies',
         "op": 'm', "max_value": 99,
         "levels": ("abstract",),
         "symbols": ('dime', 'penny'),
-        "advance_line": "Three in a row — you've got it! You can count money like a shopkeeper.",
-        "teach": [
-            ('Money uses tens and ones too. A dime is worth ten cents. A penny is worth one cent. Dimes are the tens, pennies are the ones.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You can count money like a shopkeeper.",
+        "why": [
+            ("Money is the place-value chart you carry in your pocket. A dime is "
+             "worth ten cents and a penny is worth one cent — so dimes are the "
+             "tens and pennies are the ones. Count them the way you read a "
+             "two-digit number, and you can count money like a shopkeeper.",
              '[[goal text="Dimes and pennies"]]'),
-            ('Watch me. 3 dimes and 4 pennies. The dimes bring 30 cents, the pennies bring 4 more. 30 plus 4 equals 34 cents.',
-             '[[step eq="3 dimes = 30 cents"]][[step eq="30 + 4 = 34"]][[step eq="3 dimes + 4 pennies = 34 cents"]]'),
-            ('One more, watch. 5 dimes and 2 pennies. 50 plus 2 equals 52 cents.',
-             '[[step eq="5 dimes + 2 pennies = 52 cents"]]'),
+        ],
+        "picture": [
+            ("Here is the chart with 3 dimes in the tens column and 4 pennies in "
+             "the ones column. Three rods — thirty. Four cubes — four. 34 cents.",
+             '[[placevalue t="3" o="4" caption="3 dimes + 4 pennies = 34 cents"]]'),
+        ],
+        "teach": [
+            ("So: the dimes bring the tens, the pennies bring the ones. 3 dimes "
+             "bring 30 cents, 4 pennies bring 4 more. 30 plus 4 equals 34 cents.",
+             '[[placevalue t="3" o="4" caption="30 + 4 = 34 cents"]]'),
+            ("One more, watch. 5 dimes and 2 pennies. Five rods, two cubes. 50 plus "
+             "2 equals 52 cents.",
+             '[[placevalue t="5" o="2" caption="5 dimes + 2 pennies = 52 cents"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. 2 dimes and 7 pennies. 20 plus 7 equals 27 cents.',
-                        '[[step eq="2 dimes + 7 pennies = 27 cents"]]'),
+            {"worked": ("Here is one more, done for you. 2 dimes and 7 pennies. The "
+                        "dimes bring 20 cents, the pennies bring 7 more. 20 plus 7 "
+                        "equals 27 cents.",
+                        '[[placevalue t="2" o="7" caption="2 dimes + 7 pennies = 27 cents"]]'),
              "ask": {'a': 2, 'b': 5, 'op': 'm'}},
-            {"worked": ('One more together. 4 dimes and 6 pennies. The dimes bring 40 '
-                        'cents, the pennies bring 6 more. 40 plus 6 equals 46 '
-                        'cents.',
-                        '[[step eq="4 dimes + 6 pennies = 46 cents"]]'),
+            {"worked": ("One more together. 4 dimes and 6 pennies. The dimes bring 40 "
+                        "cents, the pennies bring 6 more. 40 plus 6 equals 46 cents.",
+                        '[[placevalue t="4" o="6" caption="4 dimes + 6 pennies = 46 cents"]]'),
              "ask": {'a': 4, 'b': 3, 'op': 'm'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Dimes in the tens column, pennies in "
+                           "the ones. Three right answers in a row and we're done — "
+                           "here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 dimes and 4 "
+                       "pennies is 34 cents, not 7 cents. Tap the reason why."),
+            "choices": ("because a dime is ten cents, so dimes are the tens column | "
+                        "because dimes are bigger coins than pennies | because 34 is "
+                        "bigger than 7"),
+            "answer": "because a dime is ten cents, so dimes are the tens column",
+            "board": '[[placevalue t="3" o="4" caption="dimes are tens, pennies are ones"]]',
+        },
+        "recap": [
+            ("So, here it is again. Dimes are tens, pennies are ones. Read the "
+             "coins like a two-digit number — dimes first, then pennies — and you "
+             "have the cents.",
+             '[[placevalue t="3" o="4" caption="3 dimes + 4 pennies = 34 cents"]]'),
+            ("And it is the place-value chart in your pocket.",
+             '[[step eq="3 dimes + 4 pennies = 34 cents"]]'),
+        ],
         "bank": [{'a': 1, 'b': 2, 'op': 'm'}, {'a': 1, 'b': 5, 'op': 'm'}, {'a': 2, 'b': 3, 'op': 'm'}, {'a': 3, 'b': 1, 'op': 'm'}, {'a': 3, 'b': 6, 'op': 'm'}, {'a': 5, 'b': 4, 'op': 'm'}, {'a': 6, 'b': 2, 'op': 'm'}, {'a': 7, 'b': 5, 'op': 'm'}, {'a': 8, 'b': 8, 'op': 'm'}, {'a': 9, 'b': 9, 'op': 'm'}],
     },
     {
+        # (sx, 2026-09-05) TO THE SHAPE: a percent of a number is the sharing picture
+        # -- 50 percent is one of two equal parts, 25 one of four, 10 one of ten.
         "id": 'basic-u8-percent-of',
         "course": "basic", "unit": 8,
         "topic": 'Percent',
         "op": 'pc', "max_value": 100,
         "levels": ("abstract",),
         "symbols": ('percent', 'hundred'),
-        "advance_line": "Three in a row — you've got it! You can take a percent of a number.",
-        "teach": [
-            ('Percent means out of one hundred. Fifty percent means fifty out of a hundred — one half. Twenty-five percent is one fourth. Ten percent is one tenth.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You can take a percent of a number.",
+        "why": [
+            ("Percent means out of one hundred. Fifty percent is fifty out of a "
+             "hundred — one half. Twenty-five percent is one fourth. Ten percent is "
+             "one tenth. Taking a percent OF a number is how you work out a tip, a "
+             "tax, or how much battery is left.",
              '[[goal text="Percent"]]'),
-            ('Watch me find 50 percent of 8. Fifty percent is one half, and one half of 8 equals 4. So 50 percent of 8 equals 4.',
-             '[[step eq="50% of 8 = 4"]]'),
-            ('One more, watch. 10 percent of 40. Ten percent is one tenth, and one tenth of 40 equals 4. So 10 percent of 40 equals 4.',
-             '[[step eq="10% of 40 = 4"]]'),
+        ],
+        "picture": [
+            ("Here is 50 percent of 8. Fifty percent is one half — one of two equal "
+             "parts. Share 8 into 2 parts, take one: 4. Fifty percent of 8 is 4.",
+             '[[hundredgrid shaded="50" unit="percent" caption="50% is one half of the square"]]'
+             '[[array rows="2" cols="4" view="groups" eq="50% of 8 = 4" caption="one of 2 equal parts of 8"]]'),
+        ],
+        "teach": [
+            ("So a percent of a number is a share: turn the percent into its "
+             "fraction, share into that many equal parts, take one. 50 percent is "
+             "one half, and one half of 8 equals 4.",
+             '[[array rows="2" cols="4" view="groups" eq="50% of 8 = 4" caption="50% = one half"]]'),
+            ("One more, watch. 10 percent of 40. Ten percent is one tenth — one of "
+             "ten equal parts. Share 40 into 10 parts, take one: 4. So 10 percent "
+             "of 40 equals 4.",
+             '[[array rows="10" cols="4" view="groups" eq="10% of 40 = 4" caption="10% = one tenth"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. 25 percent of 8. Twenty-five percent is one fourth, and one fourth of 8 equals 2.',
-                        '[[step eq="25% of 8 = 2"]]'),
+            {"worked": ("Here is one more, done for you. 25 percent of 8. Twenty-five "
+                        "percent is one fourth. Share 8 into 4 parts, take one: 2.",
+                        '[[array rows="4" cols="2" view="groups" eq="25% of 8 = 2" caption="25% = one fourth"]]'),
              "ask": {'a': 25, 'b': 12, 'op': 'pc'}},
-            {"worked": ('One more together. 50 percent of 12. Fifty percent is one '
-                        'half, and one half of 12 equals 6.',
-                        '[[step eq="50% of 12 = 6"]]'),
+            {"worked": ("One more together. 50 percent of 12. Fifty percent is one "
+                        "half. Share 12 into 2 parts, take one: 6.",
+                        '[[array rows="2" cols="6" view="groups" eq="50% of 12 = 6" caption="50% = one half"]]'),
              "ask": {'a': 50, 'b': 14, 'op': 'pc'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Turn the percent into its share. Three "
+                           "right answers in a row and we're done — here comes the "
+                           "first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 50 percent of 8 "
+                       "is 4. Tap the reason why."),
+            "choices": ("because 50 percent is one half, and half of 8 is 4 | because "
+                        "50 take away 8 is 42 | because 4 is half of 50"),
+            "answer": "because 50 percent is one half, and half of 8 is 4",
+            "board": '[[array rows="2" cols="4" view="groups" eq="50% of 8 = 4" caption="50% = one half"]]',
+        },
+        "recap": [
+            ("So, here it is again. Percent means out of a hundred: 50 percent is a "
+             "half, 25 a fourth, 10 a tenth. A percent of a number is that share of "
+             "it — split into equal parts and take one.",
+             '[[hundredgrid shaded="25" unit="percent" caption="25% is one fourth of the square"]]'),
+            ("And it is how you work out a tip, a tax, or the battery left.",
+             '[[step eq="50% of 8 = 4 · 25% of 8 = 2 · 10% of 40 = 4"]]'),
+        ],
         "bank": [{'a': 50, 'b': 2, 'op': 'pc'}, {'a': 50, 'b': 4, 'op': 'pc'}, {'a': 25, 'b': 4, 'op': 'pc'}, {'a': 50, 'b': 6, 'op': 'pc'}, {'a': 50, 'b': 10, 'op': 'pc'}, {'a': 25, 'b': 16, 'op': 'pc'}, {'a': 50, 'b': 18, 'op': 'pc'}, {'a': 10, 'b': 20, 'op': 'pc'}, {'a': 10, 'b': 30, 'op': 'pc'}, {'a': 10, 'b': 50, 'op': 'pc'}],
     },
     {
+        # (sx, 2026-09-05) TO THE SHAPE on the ARRAY: the dollars shared over the apples.
         "id": 'basic-u8-one-costs',
         "course": "basic", "unit": 8,
         "topic": 'What one costs',
         "op": 'rate', "max_value": 40,
         "levels": ("abstract",),
         "symbols": ('cost', 'divided'),
-        "advance_line": "Three in a row — you've got it! You can find what one costs.",
-        "teach": [
-            ('Prices often come in bunches: six apples for twelve dollars. To compare prices, we find what ONE costs. That is dividing.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You can find what one costs.",
+        "why": [
+            ("Prices often come in bunches: six apples for twelve dollars, three "
+             "pens for nine. To compare two prices, you need what ONE costs — and "
+             "that is sharing the dollars over the things, which is dividing.",
              '[[goal text="What one costs"]]'),
-            ('Watch me. 6 apples cost 12 dollars. 12 divided by 6 equals 2 — one apple costs 2 dollars.',
-             '[[step eq="12 ÷ 6 = 2"]]'),
-            ('One more, watch. 4 apples cost 20 dollars. 20 divided by 4 equals 5 — one apple costs 5 dollars.',
-             '[[step eq="20 ÷ 4 = 5"]]'),
+        ],
+        "picture": [
+            ("Here are 12 dollars shared over 6 apples — one box for each apple. "
+             "Deal the dollars out: every apple gets 2. One apple costs 2 dollars.",
+             '[[array rows="6" cols="2" view="groups" eq="12 ÷ 6 = 2" caption="12 dollars over 6 apples: 2 each"]]'),
+        ],
+        "teach": [
+            ("So what one costs is the whole price divided by how many. 6 apples cost 12 "
+             "dollars: 12 divided by 6 equals 2 — one apple costs 2 dollars.",
+             '[[array rows="6" cols="2" view="groups" eq="12 ÷ 6 = 2" caption="one apple costs 2 dollars"]]'),
+            ("One more, watch. 4 apples cost 20 dollars. 20 divided by 4 equals 5 "
+             "— one apple costs 5 dollars.",
+             '[[array rows="4" cols="5" view="groups" eq="20 ÷ 4 = 5" caption="one apple costs 5 dollars"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. 3 apples cost 9 dollars. 9 divided by 3 equals 3 — one costs 3 dollars.',
-                        '[[step eq="9 ÷ 3 = 3"]]'),
+            {"worked": ("Here is one more, done for you. 3 apples cost 9 dollars. 9 "
+                        "divided by 3 equals 3 — one costs 3 dollars.",
+                        '[[array rows="3" cols="3" view="groups" eq="9 ÷ 3 = 3" caption="one apple costs 3 dollars"]]'),
              "ask": {'a': 8, 'b': 4, 'op': 'rate'}},
-            {"worked": ('One more together. 5 apples cost 15 dollars. 15 divided by 5 '
-                        'equals 3 — one apple costs 3 dollars.',
-                        '[[step eq="15 ÷ 5 = 3"]]'),
+            {"worked": ("One more together. 5 apples cost 15 dollars. 15 divided by 5 "
+                        "equals 3 — one apple costs 3 dollars.",
+                        '[[array rows="5" cols="3" view="groups" eq="15 ÷ 5 = 3" caption="one apple costs 3 dollars"]]'),
              "ask": {'a': 12, 'b': 3, 'op': 'rate'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Share the dollars over the apples. "
+                           "Three right answers in a row and we're done — here comes "
+                           "the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 6 apples for 12 "
+                       "dollars means one apple costs 2. Tap the reason why."),
+            "choices": ("because 12 dollars shared over 6 apples is 2 each | because "
+                        "12 take away 6 is 6 | because apples usually cost 2 dollars"),
+            "answer": "because 12 dollars shared over 6 apples is 2 each",
+            "board": '[[array rows="6" cols="2" view="groups" eq="12 ÷ 6 = 2" caption="2 dollars each"]]',
+        },
+        "recap": [
+            ("So, here it is again. What one costs is the whole price shared over "
+             "how many — divide. Six apples for twelve dollars is two dollars each.",
+             '[[array rows="6" cols="2" view="groups" eq="12 ÷ 6 = 2" caption="12 ÷ 6 = 2 dollars each"]]'),
+            ("And it is how you compare two prices honestly.",
+             '[[step eq="12 ÷ 6 = 2"]]'),
+        ],
         "bank": [{'a': 6, 'b': 2, 'op': 'rate'}, {'a': 10, 'b': 2, 'op': 'rate'}, {'a': 12, 'b': 4, 'op': 'rate'}, {'a': 15, 'b': 3, 'op': 'rate'}, {'a': 16, 'b': 4, 'op': 'rate'}, {'a': 20, 'b': 5, 'op': 'rate'}, {'a': 24, 'b': 6, 'op': 'rate'}, {'a': 28, 'b': 7, 'op': 'rate'}, {'a': 32, 'b': 8, 'op': 'rate'}, {'a': 36, 'b': 9, 'op': 'rate'}],
     },
     {
+        # (sy, 2026-09-05) TO THE SHAPE on the RECTANGLE ([[rectangle show="perimeter"]]):
+        # the walk around the outside, traced.
         "id": 'basic-u9-perimeter',
         "course": "basic", "unit": 9,
         "topic": 'Perimeter',
         "op": 'peri', "max_value": 60,
         "levels": ("abstract",),
         "symbols": ('perimeter', 'around'),
-        "advance_line": "Three in a row — you've got it! You can walk the whole way around.",
-        "teach": [
-            ('Perimeter is the distance all the way around a shape. For a rectangle, walk all four sides: long, wide, long, wide.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You can walk the whole way around.",
+        "why": [
+            ("How much fence goes around a garden? How much ribbon around a box? "
+             "That is perimeter — the distance all the way around a shape — and "
+             "it is one of the most-asked questions in building anything.",
              '[[goal text="Perimeter"]]'),
-            ('Watch me. A rectangle 5 long and 3 wide. Walk around: 5 plus 3 plus 5 plus 3 equals 16. The perimeter equals 16.',
-             '[[step eq="5 + 3 + 5 + 3 = 16"]]'),
-            ('One more, watch. 6 long and 2 wide: 6 plus 2 plus 6 plus 2 equals 16.',
-             '[[step eq="6 + 2 + 6 + 2 = 16"]]'),
+        ],
+        "picture": [
+            ("Here is a rectangle 5 long and 3 wide. Walk around it: along the top, "
+             "5. Down the side, 3. Along the bottom, 5. Up the side, 3. The whole "
+             "walk is 5 plus 3 plus 5 plus 3 — 16.",
+             '[[rectangle w="5" h="3" show="perimeter" caption="5 + 3 + 5 + 3 = 16"]]'),
+        ],
+        "teach": [
+            ("So for a rectangle, walk all four sides: long, wide, long, wide. Add "
+             "them up and that is the perimeter. 5 plus 3 plus 5 plus 3 equals 16.",
+             '[[rectangle w="5" h="3" show="perimeter" caption="long, wide, long, wide"]]'),
+            ("One more, watch. 6 long and 2 wide: 6 plus 2 plus 6 plus 2 equals 16.",
+             '[[rectangle w="6" h="2" show="perimeter" caption="6 + 2 + 6 + 2 = 16"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. 4 long and 2 wide: 4 plus 2 plus 4 plus 2 equals 12.',
-                        '[[step eq="4 + 2 + 4 + 2 = 12"]]'),
+            {"worked": ("Here is one more, done for you. 4 long and 2 wide. Walk "
+                        "around: 4 plus 2 plus 4 plus 2 equals 12.",
+                        '[[rectangle w="4" h="2" show="perimeter" caption="4 + 2 + 4 + 2 = 12"]]'),
              "ask": {'a': 5, 'b': 2, 'op': 'peri'}},
-            {"worked": ('One more together. 7 long and 3 wide. Walk around: 7 plus 3 '
-                        'plus 7 plus 3 equals 20. The perimeter equals 20.',
-                        '[[step eq="7 + 3 + 7 + 3 = 20"]]'),
+            {"worked": ("One more together. 7 long and 3 wide. Walk around: 7 plus 3 "
+                        "plus 7 plus 3 equals 20. The perimeter equals 20.",
+                        '[[rectangle w="7" h="3" show="perimeter" caption="7 + 3 + 7 + 3 = 20"]]'),
              "ask": {'a': 6, 'b': 4, 'op': 'peri'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Walk the four sides. Three right "
+                           "answers in a row and we're done — here comes the first "
+                           "one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A rectangle 5 "
+                       "long and 3 wide has a perimeter of 16, not 8. Tap the reason "
+                       "why."),
+            "choices": ("because the walk around has four sides, not two | because "
+                        "16 is twice 8 | because 5 and 3 are odd numbers"),
+            "answer": "because the walk around has four sides, not two",
+            "board": '[[rectangle w="5" h="3" show="perimeter" caption="four sides: 5, 3, 5, 3"]]',
+        },
+        "recap": [
+            ("So, here it is again. Perimeter is the distance all the way around. "
+             "For a rectangle, add all four sides — long, wide, long, wide.",
+             '[[rectangle w="5" h="3" show="perimeter" caption="5 + 3 + 5 + 3 = 16"]]'),
+            ("And it is the fence around the garden, the ribbon around the box.",
+             '[[step eq="5 + 3 + 5 + 3 = 16"]]'),
+        ],
         "bank": [{'a': 3, 'b': 1, 'op': 'peri'}, {'a': 3, 'b': 2, 'op': 'peri'}, {'a': 4, 'b': 3, 'op': 'peri'}, {'a': 7, 'b': 1, 'op': 'peri'}, {'a': 6, 'b': 3, 'op': 'peri'}, {'a': 7, 'b': 4, 'op': 'peri'}, {'a': 8, 'b': 5, 'op': 'peri'}, {'a': 9, 'b': 6, 'op': 'peri'}, {'a': 10, 'b': 7, 'op': 'peri'}, {'a': 12, 'b': 8, 'op': 'peri'}],
     },
     {
+        # (sy, 2026-09-05) TO THE SHAPE on the RECTANGLE ([[rectangle show="area"]]):
+        # the squares inside, counted in rows.
         "id": 'basic-u9-area',
         "course": "basic", "unit": 9,
         "topic": 'Area',
         "op": 'area', "max_value": 96,
         "levels": ("abstract",),
         "symbols": ('area', 'inside'),
-        "advance_line": "Three in a row — you've got it! You can count the space inside.",
-        "teach": [
-            ('Area is the space INSIDE a shape, counted in squares. For a rectangle, area is the long side times the wide side.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You can count the space inside.",
+        "why": [
+            ("How much carpet covers a floor? How much paint covers a wall? That "
+             "is area — the space INSIDE a shape — and we count it in squares, "
+             "because squares tile a flat space with no gaps.",
              '[[goal text="Area"]]'),
-            ('Watch me. A rectangle 5 long and 3 wide holds 3 rows of 5 squares: 5 times 3 equals 15. The area equals 15 squares.',
-             '[[step eq="5 × 3 = 15"]]'),
-            ('One more, watch. 4 long and 2 wide: 4 times 2 equals 8 squares.',
-             '[[step eq="4 × 2 = 8"]]'),
+        ],
+        "picture": [
+            ("Here is a rectangle 5 long and 3 wide, filled with unit squares. "
+             "Count them by rows: 3 rows, 5 squares in each — 5, 10, 15. The area "
+             "is 15 squares.",
+             '[[rectangle w="5" h="3" show="area" caption="3 rows of 5 = 15 squares"]]'),
+        ],
+        "teach": [
+            ("So for a rectangle, area is the long side times the wide side — the "
+             "rows times the squares in a row. 5 times 3 equals 15. The area "
+             "equals 15 squares.",
+             '[[rectangle w="5" h="3" show="area" caption="5 × 3 = 15 squares"]]'),
+            ("One more, watch. 4 long and 2 wide: 2 rows of 4. 4 times 2 equals 8 "
+             "squares.",
+             '[[rectangle w="4" h="2" show="area" caption="4 × 2 = 8 squares"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. 6 long and 2 wide: 6 times 2 equals 12 squares.',
-                        '[[step eq="6 × 2 = 12"]]'),
+            {"worked": ("Here is one more, done for you. 6 long and 2 wide: 2 rows of "
+                        "6. 6 times 2 equals 12 squares.",
+                        '[[rectangle w="6" h="2" show="area" caption="6 × 2 = 12 squares"]]'),
              "ask": {'a': 3, 'b': 2, 'op': 'area'}},
-            {"worked": ('One more together. 7 long and 4 wide. That is 4 rows of 7 '
-                        'squares: 7 times 4 equals 28. The area equals 28 '
-                        'squares.',
-                        '[[step eq="7 × 4 = 28"]]'),
+            {"worked": ("One more together. 7 long and 4 wide. That is 4 rows of 7 "
+                        "squares: 7 times 4 equals 28. The area equals 28 squares.",
+                        '[[rectangle w="7" h="4" show="area" caption="7 × 4 = 28 squares"]]'),
              "ask": {'a': 5, 'b': 4, 'op': 'area'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Rows times squares in a row. Three "
+                           "right answers in a row and we're done — here comes the "
+                           "first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Area is long "
+                       "times wide, not long plus wide. Tap the reason why."),
+            "choices": ("because the inside is rows of squares, and times counts them "
+                        "| because times gives a bigger answer | because plus is for "
+                        "perimeter only"),
+            "answer": "because the inside is rows of squares, and times counts them",
+            "board": '[[rectangle w="5" h="3" show="area" caption="3 rows of 5 squares"]]',
+        },
+        "recap": [
+            ("So, here it is again. Area is the space inside, counted in squares: "
+             "for a rectangle, long times wide — the rows times the squares in "
+             "each row.",
+             '[[rectangle w="5" h="3" show="area" caption="5 × 3 = 15 squares"]]'),
+            ("And it is the carpet on the floor, the paint on the wall.",
+             '[[step eq="5 × 3 = 15 squares"]]'),
+        ],
         "bank": [{'a': 5, 'b': 2, 'op': 'area'}, {'a': 4, 'b': 3, 'op': 'area'}, {'a': 6, 'b': 3, 'op': 'area'}, {'a': 7, 'b': 3, 'op': 'area'}, {'a': 6, 'b': 4, 'op': 'area'}, {'a': 8, 'b': 4, 'op': 'area'}, {'a': 9, 'b': 5, 'op': 'area'}, {'a': 8, 'b': 6, 'op': 'area'}, {'a': 9, 'b': 7, 'op': 'area'}, {'a': 12, 'b': 8, 'op': 'area'}],
     },
     {
@@ -5233,8 +5655,8 @@ _MORE_LESSONS = [
              '[[goal text="Story problems — multiplying and dividing"]]'),
         ],
         "picture": [
-            ("Here are the two pictures. Equal groups put together: 3 boxes, 4 "
-             "crayons in each — that is times. A pile shared into equal groups: 12 "
+            ("Here are the two pictures. Equal groups put together: 4 crayons in "
+             "each of 3 boxes — that is times. A pile shared into equal groups: 12 "
              "cookies into 3 bags — that is divided by. Same dots; the story "
              "decides which way you read them.",
              '[[array rows="3" cols="4" view="groups" caption="3 boxes of 4 — times"]]'
@@ -5404,41 +5826,73 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (sv, 2026-09-05) TO THE SHAPE on the FRACTION LINE cut the FINER way: one
+        # half found on a line of fourths, then the hop.
         "id": "basic-u6-add-fractions-different-bottoms", "course": "basic",
         "unit": 6,
         "topic": "Adding fractions with different bottoms",
         "op": "fu", "max_value": 12,
         "levels": ("abstract",),
         "symbols": ("bottoms", "plus"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You can add fractions with different bottoms."),
-        "teach": [
-            ("Today we add fractions with different bottoms. The trick: change "
-             "one fraction so both bottoms match, then add the tops.",
+        "why": [
+            ("Half a pizza plus a fourth of a pizza — how much pizza? You cannot "
+             "count halves and fourths together; they are different-sized pieces. "
+             "So first you rename one fraction until both bottoms match. Then it is "
+             "the same counting as before.",
              '[[goal text="Adding fractions with different bottoms"]]'),
-            ("Watch me. One half plus one fourth. One half equals two fourths. "
-             "Two fourths plus one fourth equals three fourths.",
-             '[[step eq="1/2 + 1/4"]][[step eq="1/2 = 2/4"]]'
-             '[[step eq="2/4 + 1/4 = 3/4"]]'),
-            ("One more, watch. One third plus two sixths. One third equals two "
-             "sixths. Two sixths plus two sixths equals four sixths.",
-             '[[step eq="1/3 + 2/6"]][[step eq="1/3 = 2/6"]]'
-             '[[step eq="2/6 + 2/6 = 4/6"]]'),
+        ],
+        "picture": [
+            ("Here is a line cut into fourths. Where does one half sit on it? At "
+             "two fourths — the same spot, with a new name. Now hop one more "
+             "fourth. Three fourths.",
+             '[[numberline min="0" max="1" denom="4" hops="0,0.5,0.75" points="0.75" caption="1/2 = 2/4, then + 1/4 = 3/4"]]'),
+        ],
+        "teach": [
+            ("So the trick is: change one fraction so both bottoms match, then add "
+             "the tops. One half equals two fourths. Two fourths plus one fourth "
+             "equals three fourths.",
+             '[[step eq="1/2 = 2/4"]][[numberline min="0" max="1" denom="4" hops="0,0.5,0.75" points="0.75" caption="2/4 + 1/4 = 3/4"]]'),
+            ("One more, watch. One third plus two sixths. On a line of sixths, one "
+             "third sits at two sixths. Hop two more: four sixths.",
+             '[[numberline min="0" max="1" denom="6" hops="0,0.3333,0.6667" points="0.6667" caption="1/3 = 2/6, then + 2/6 = 4/6"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. One half plus one "
-                        "sixth. One half equals three sixths. Three sixths plus "
-                        "one sixth equals four sixths.",
-                        '[[step eq="1/2 = 3/6"]][[step eq="3/6 + 1/6 = 4/6"]]'),
+            {"worked": ("Here is one more, done for you. One half plus one sixth. On "
+                        "a line of sixths, one half sits at three sixths. Hop one "
+                        "more: four sixths.",
+                        '[[numberline min="0" max="1" denom="6" hops="0,0.5,0.6667" points="0.6667" caption="1/2 = 3/6, then + 1/6 = 4/6"]]'),
              "ask": {"a": 1, "b": 2, "c": 4, "op": "fu"}},
-            {"worked": ("One more together. One fourth plus one eighth. One "
-                        "fourth equals two eighths. Two eighths plus one eighth "
-                        "equals three eighths.",
-                        '[[step eq="1/4 = 2/8"]][[step eq="2/8 + 1/8 = 3/8"]]'),
+            {"worked": ("One more together. One fourth plus one eighth. On a line of "
+                        "eighths, one fourth sits at two eighths. Hop one more: "
+                        "three eighths.",
+                        '[[numberline min="0" max="1" denom="8" hops="0,0.25,0.375" points="0.375" caption="1/4 = 2/8, then + 1/8 = 3/8"]]'),
              "ask": {"a": 1, "b": 3, "c": 6, "op": "fu"}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Find the first fraction on the finer "
+                           "line, then hop. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. To add one half "
+                       "and one fourth, we first write one half as two fourths. Tap "
+                       "the reason why."),
+            "choices": ("because you can only count pieces that are the same size | "
+                        "because fourths are smaller than halves | because 2 plus 4 "
+                        "makes 6"),
+            "answer": "because you can only count pieces that are the same size",
+            "board": '[[numberline min="0" max="1" denom="4" hops="0,0.5,0.75" points="0.75" caption="both in fourths first"]]',
+        },
+        "recap": [
+            ("So, here it is again. Different bottoms mean different-sized pieces: "
+             "rename one fraction until the bottoms match, then add the tops. On "
+             "the line, find the first fraction on the finer line, then hop.",
+             '[[numberline min="0" max="1" denom="4" hops="0,0.5,0.75" points="0.75" caption="1/2 + 1/4 = 3/4"]]'),
+            ("And it is for every time the pieces do not match — which is most of "
+             "the time.",
+             '[[step eq="1/2 + 1/4 = 2/4 + 1/4 = 3/4"]]'),
+        ],
         "bank": [
             {"a": 1, "b": 2, "c": 6, "op": "fu"},
             {"a": 2, "b": 3, "c": 6, "op": "fu"},
@@ -5455,37 +5909,68 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (sw, 2026-09-05) TO THE SHAPE on the HUNDREDTHS SQUARE ([[hundredgrid]]).
         "id": "basic-u7-hundredths", "course": "basic", "unit": 7,
         "topic": "Hundredths",
         "op": "dh", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("hundredths", "plus"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You know your hundredths."),
+        "why": [
+            ("Tenths are not always fine enough. A price is 3 dollars and 25 cents "
+             "— that 25 is hundredths of a dollar. A hundredth is one out of one "
+             "hundred equal pieces, and we write hundredths after the point: 0.25 "
+             "is 25 hundredths.",
+             '[[goal text="Hundredths"]]'),
+        ],
+        "picture": [
+            ("Here is a whole cut into a hundred equal cells — ten rows of ten. "
+             "Shade 25 of them: two full rows and five more. That is 25 "
+             "hundredths, 0.25.",
+             '[[hundredgrid shaded="25" caption="25 hundredths = 0.25"]]'),
+        ],
         "teach": [
-            ("A hundredth is one out of one hundred equal pieces. We write "
-             "hundredths after the point — 0.25 is 25 hundredths.",
-             '[[goal text="Hundredths"]]'
-             '[[step eq="0.25 = 25 hundredths"]]'),
-            ("Adding hundredths works like adding whole numbers. Watch me. 25 "
-             "hundredths plus 13 hundredths equals 38 hundredths — 0.38.",
-             '[[step eq="0.25 + 0.13 = 0.38"]]'),
-            ("One more, watch. 40 hundredths plus 22 hundredths equals 62 "
-             "hundredths. 0.62.",
-             '[[step eq="0.40 + 0.22 = 0.62"]]'),
+            ("Adding hundredths is counting cells. 25 hundredths, then 13 more in "
+             "red: 25 plus 13 equals 38. 25 hundredths plus 13 hundredths equals 38 "
+             "hundredths — 0.38.",
+             '[[hundredgrid shaded="25" plus="13" caption="0.25 + 0.13 = 0.38"]]'),
+            ("One more, watch. 40 hundredths — four full rows — plus 22 hundredths. "
+             "40 plus 22 equals 62. 0.62.",
+             '[[hundredgrid shaded="40" plus="22" caption="0.40 + 0.22 = 0.62"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 31 hundredths plus 24 "
-                        "hundredths equals 55 hundredths — 0.55.",
-                        '[[step eq="0.31 + 0.24 = 0.55"]]'),
+                        "hundredths. Count the cells: 31 plus 24 equals 55. 55 "
+                        "hundredths — 0.55.",
+                        '[[hundredgrid shaded="31" plus="24" caption="0.31 + 0.24 = 0.55"]]'),
              "ask": {"a": 11, "b": 12, "op": "dh"}},
-            {"worked": ("One more together. 26 hundredths plus 32 hundredths "
-                        "equals 58 hundredths.",
-                        '[[step eq="0.26 + 0.32 = 0.58"]]'),
+            {"worked": ("One more together. 26 hundredths plus 32 hundredths. 26 plus "
+                        "32 equals 58. 58 hundredths — 0.58.",
+                        '[[hundredgrid shaded="26" plus="32" caption="0.26 + 0.32 = 0.58"]]'),
              "ask": {"a": 22, "b": 15, "op": "dh"}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Count the cells if you need to. "
+                           "Three right answers in a row and we're done — here comes "
+                           "the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 0.25 plus 0.13 "
+                       "is 0.38, added like whole numbers. Tap the reason why."),
+            "choices": ("because both are counts of the same-sized cell, a hundredth "
+                        "| because the point does not matter | because 25 and 13 "
+                        "are both small"),
+            "answer": "because both are counts of the same-sized cell, a hundredth",
+            "board": '[[hundredgrid shaded="25" plus="13" caption="same-sized cells, so just count"]]',
+        },
+        "recap": [
+            ("So, here it is again. A hundredth is one cell of a hundred, written "
+             "two places after the point. Adding hundredths is counting cells — "
+             "add the counts, and the point stays put.",
+             '[[hundredgrid shaded="25" plus="13" caption="0.25 + 0.13 = 0.38"]]'),
+            ("And hundredths are how money writes its cents.",
+             '[[step eq="0.25 + 0.13 = 0.38"]]'),
+        ],
         "bank": [
             {"a": 12, "b": 13, "op": "dh"}, {"a": 21, "b": 14, "op": "dh"},
             {"a": 23, "b": 22, "op": "dh"}, {"a": 30, "b": 25, "op": "dh"},
@@ -5495,38 +5980,69 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (sy, 2026-09-05) TO THE SHAPE on the CIRCLE cut into four ([[pie parts="4"]]):
+        # the turned quarters shaded, 90 degrees each.
         "id": "basic-u9-quarter-turns", "course": "basic", "unit": 9,
         "topic": "Quarter turns and degrees",
         "op": "ang", "max_value": 360,
         "levels": ("abstract",),
         "symbols": ("degrees", "turn"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You know your quarter turns."),
-        "teach": [
-            ("We measure turning in degrees. There are 90 degrees in one "
-             "quarter turn of a circle, and four quarter turns go all the way "
-             "around.",
+        "why": [
+            ("Turn to face the door. Turn all the way around. How do you say how "
+             "much you turned? We measure turning in degrees, and the whole idea "
+             "rests on one picture: a circle cut into four quarters, 90 degrees "
+             "each.",
              '[[goal text="Quarter turns and degrees"]]'),
-            ("Watch me. 2 quarter turns. 2 times 90 equals 180 — so 2 quarter "
+        ],
+        "picture": [
+            ("Here is the circle cut into four quarters. One quarter turn is 90 "
+             "degrees. Two quarters shaded — two quarter turns — is 180 degrees, "
+             "half the way around. Four quarters is all the way round: 360.",
+             '[[pie parts="4" shaded="2" caption="2 quarter turns = 180°"]]'),
+        ],
+        "teach": [
+            ("So there are 90 degrees in one quarter turn, and you count by 90 for "
+             "each quarter. 2 quarter turns: 2 times 90 equals 180 — so 2 quarter "
              "turns equals 180 degrees.",
-             '[[step eq="2 × 90° = 180°"]]'),
-            ("And backwards, watch. 270 degrees. How many quarter turns? Count "
-             "by 90: 90, 180, 270 — three counts. 270 degrees equals 3 quarter "
-             "turns.",
-             '[[step eq="270° = 3 × 90°"]]'),
+             '[[pie parts="4" shaded="2" caption="2 × 90° = 180°"]]'),
+            ("And backwards, watch. 270 degrees. How many quarter turns? Count by "
+             "90: 90, 180, 270 — three counts. 270 degrees equals 3 quarter turns.",
+             '[[pie parts="4" shaded="3" caption="270° = 3 quarter turns"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 3 quarter turns. 3 "
-                        "times 90 equals 270 degrees.",
-                        '[[step eq="3 × 90° = 270°"]]'),
+            {"worked": ("Here is one more, done for you. 3 quarter turns. Three "
+                        "quarters of the circle: 3 times 90 equals 270 degrees.",
+                        '[[pie parts="4" shaded="3" caption="3 × 90° = 270°"]]'),
              "ask": {"a": 4, "b": 0, "op": "ang"}},
-            {"worked": ("One more together. 180 degrees. Count by 90: 90, 180 — "
-                        "two counts. 180 degrees equals 2 quarter turns.",
-                        '[[step eq="180° = 2 × 90°"]]'),
+            {"worked": ("One more together. 180 degrees. Count by 90: 90, 180 — two "
+                        "counts. 180 degrees equals 2 quarter turns — half the "
+                        "circle.",
+                        '[[pie parts="4" shaded="2" caption="180° = 2 quarter turns"]]'),
              "ask": {"a": 360, "b": 0, "op": "angq"}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Count the quarters, 90 each. Three "
+                           "right answers in a row and we're done — here comes the "
+                           "first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Two quarter "
+                       "turns is 180 degrees. Tap the reason why."),
+            "choices": ("because each quarter is 90 degrees, and two of them make 180 "
+                        "| because 180 is half of 360 | because two turns is always 180"),
+            "answer": "because each quarter is 90 degrees, and two of them make 180",
+            "board": '[[pie parts="4" shaded="2" caption="90° + 90° = 180°"]]',
+        },
+        "recap": [
+            ("So, here it is again. A circle is four quarter turns of 90 degrees "
+             "each: count by 90 to go from turns to degrees, and count by 90 to go "
+             "back.",
+             '[[pie parts="4" shaded="4" caption="4 × 90° = 360° — all the way round"]]'),
+            ("And it is how we say how far anything has turned — a door, a dial, "
+             "you.",
+             '[[step eq="1 quarter turn = 90°"]]'),
+        ],
         "bank": [
             {"a": 1, "b": 0, "op": "ang"}, {"a": 90, "b": 0, "op": "angq"},
             {"a": 2, "b": 0, "op": "ang"}, {"a": 180, "b": 0, "op": "angq"},
@@ -5534,37 +6050,69 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (sy, 2026-09-05) TO THE SHAPE: the box ([[solid kind="prism"]]) and one layer
+        # of it as an array, times the layers.
         "id": "basic-u9-volume", "course": "basic", "unit": 9,
         "topic": "Volume — counting cubes",
         "op": "vol", "max_value": 96,
         "levels": ("abstract",),
         "symbols": ("times", "cubes"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You can count the cubes that fill a box."),
-        "teach": [
-            ("Volume is how many cubes fill a box. Count the cubes in one "
-             "layer, then count the layers.",
+        "why": [
+            ("How much fits in a box? How much water fills a tank? That is "
+             "volume — the space inside something solid — and we count it in "
+             "cubes, the way area was counted in squares.",
              '[[goal text="Volume — counting cubes"]]'),
-            ("Watch me. A box 3 cubes long, 2 cubes wide, 2 cubes tall. One "
-             "layer holds 3 times 2 equals 6 cubes. There are 2 layers. 6 "
+        ],
+        "picture": [
+            ("Here is a box 3 cubes long, 2 cubes wide and 2 cubes tall. Look at "
+             "the bottom layer on its own: 2 rows of 3 cubes — 6 cubes. The box "
+             "holds 2 such layers. 6 and 6: 12 cubes.",
+             '[[array rows="2" cols="3" caption="one layer: 3 × 2 = 6 cubes"]][[solid kind="prism" w="3" d="2" h="2" caption="2 layers: 6 × 2 = 12 cubes"]]'),
+        ],
+        "teach": [
+            ("So volume is: count the cubes in one layer, then count the layers. "
+             "One layer holds 3 times 2 equals 6 cubes. There are 2 layers. 6 "
              "times 2 equals 12 cubes.",
-             '[[step eq="3 × 2 = 6"]][[step eq="6 × 2 = 12 cubes"]]'),
-            ("One more, watch. 4 cubes long, 2 wide, 2 tall. 4 times 2 equals "
-             "8 in a layer. 8 times 2 equals 16 cubes.",
-             '[[step eq="4 × 2 = 8"]][[step eq="8 × 2 = 16 cubes"]]'),
+             '[[step eq="3 × 2 = 6"]][[step eq="6 × 2 = 12 cubes"]][[solid kind="prism" w="3" d="2" h="2" caption="3 × 2 × 2 = 12 cubes"]]'),
+            ("One more, watch. 4 cubes long, 2 wide, 2 tall. 4 times 2 equals 8 in "
+             "a layer. 8 times 2 equals 16 cubes.",
+             '[[array rows="2" cols="4" caption="one layer: 4 × 2 = 8 cubes"]][[solid kind="prism" w="4" d="2" h="2" caption="2 layers: 8 × 2 = 16 cubes"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 2 long, 2 wide, 3 "
-                        "tall. 2 times 2 equals 4. 4 times 3 equals 12 cubes.",
-                        '[[step eq="2 × 2 = 4"]][[step eq="4 × 3 = 12 cubes"]]'),
+            {"worked": ("Here is one more, done for you. 2 long, 2 wide, 3 tall. One "
+                        "layer: 2 times 2 equals 4. Three layers: 4 times 3 equals 12 "
+                        "cubes.",
+                        '[[array rows="2" cols="2" caption="one layer: 2 × 2 = 4 cubes"]][[solid kind="prism" w="2" d="2" h="3" caption="3 layers: 4 × 3 = 12 cubes"]]'),
              "ask": {"a": 3, "b": 3, "c": 1, "op": "vol"}},
-            {"worked": ("One more together. 5 long, 2 wide, 2 tall. 5 times 2 "
-                        "equals 10. 10 times 2 equals 20 cubes.",
-                        '[[step eq="5 × 2 = 10"]][[step eq="10 × 2 = 20 cubes"]]'),
+            {"worked": ("One more together. 5 long, 2 wide, 2 tall. One layer: 5 "
+                        "times 2 equals 10. Two layers: 10 times 2 equals 20 cubes.",
+                        '[[array rows="2" cols="5" caption="one layer: 5 × 2 = 10 cubes"]][[solid kind="prism" w="5" d="2" h="2" caption="2 layers: 10 × 2 = 20 cubes"]]'),
              "ask": {"a": 2, "b": 3, "c": 1, "op": "vol"}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. One layer first, then count the "
+                           "layers. Three right answers in a row and we're done — "
+                           "here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. To find the "
+                       "cubes in a box, we count one layer and then the layers. Tap "
+                       "the reason why."),
+            "choices": ("because every layer holds the same number of cubes | "
+                        "because the top layer is the biggest | because boxes always "
+                        "have two layers"),
+            "answer": "because every layer holds the same number of cubes",
+            "board": '[[solid kind="prism" w="3" d="2" h="2" caption="2 layers of 6 cubes"]]',
+        },
+        "recap": [
+            ("So, here it is again. Volume is the cubes that fill a box: cubes in "
+             "one layer — long times wide — then times the number of layers.",
+             '[[solid kind="prism" w="3" d="2" h="2" caption="3 × 2 × 2 = 12 cubes"]]'),
+            ("And it is how much fits in a box, or fills a tank — space counted in "
+             "cubes, as area was counted in squares.",
+             '[[step eq="3 × 2 × 2 = 12 cubes"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "c": 1, "op": "vol"},
             {"a": 3, "b": 2, "c": 1, "op": "vol"},
@@ -17842,6 +18390,302 @@ def _simp_worked(p):
             board)
 
 
+# (sv, 2026-09-05) ADDING AND TAKING AWAY FRACTIONS' PICTURE: the fraction line.
+# Same bottom: hop from the first fraction by the second and read where you land.
+# Different bottoms: the first fraction is found on the FINER line (one half is
+# four eighths on a line cut into eighths), then the hop. The ask shows the line
+# with the starting fraction marked and the hop withheld.
+def _fl(c, hops=None, points=None, caption=""):
+    tag = f'[[numberline min="0" max="1" denom="{c}"'
+    if hops:
+        tag += ' hops="' + ",".join(str(round(h / c, 4)) for h in hops) + '"'
+    if points:
+        tag += ' points="' + ",".join(str(round(pt / c, 4)) for pt in points) + '"'
+    return tag + f' caption="{caption}"]]'
+
+
+def _fa_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (_fl(c, points=[a], caption=f"start at {a}/{c} — hop {b} more {_FRACWORD[c][1]}")
+            + f'[[step eq="{a}/{c} + {b}/{c} = ?/{c}"]]')
+
+
+def _fa_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: the pieces are all {_FRACWORD[c][1]}, so you just "
+            f"counted. Start at {_fw(a, c)}, hop {b} more — {a} plus {b} equals {a + b}. "
+            f"{_fw(a, c)} plus {_fw(b, c)} equals {_fw(a + b, c)}.",
+            _fl(c, hops=[0, a, a + b], points=[a + b],
+                caption=f"{a}/{c} + {b}/{c} = {a + b}/{c}"))
+
+
+def _fs_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (_fl(c, points=[a], caption=f"start at {a}/{c} — hop back {b} {_FRACWORD[c][1]}")
+            + f'[[step eq="{a}/{c} − {b}/{c} = ?/{c}"]]')
+
+
+def _fs_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: the pieces are all {_FRACWORD[c][1]}, so you just "
+            f"counted back. Start at {_fw(a, c)}, hop back {b} — {a} take away {b} "
+            f"equals {a - b}. {_fw(a, c)} take away {_fw(b, c)} equals {_fw(a - b, c)}.",
+            _fl(c, hops=[a, a - b], points=[a - b],
+                caption=f"{a}/{c} − {b}/{c} = {a - b}/{c}"))
+
+
+def _fu_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (_fl(c, points=[c // b], caption=f"one {_FRACWORD[b][0]} on a line cut into "
+                                            f"{_FRACWORD[c][1]} — then hop {a} more")
+            + f'[[step eq="1/{b} + {a}/{c} = ?/{c}"]]')
+
+
+def _fu_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    k = c // b
+    return (f"Look what you did: on a line cut into {_FRACWORD[c][1]}, one "
+            f"{_FRACWORD[b][0]} sits at {_fw(k, c)}. Now both are {_FRACWORD[c][1]}: hop "
+            f"{a} more — {k} plus {a} equals {k + a}. One {_FRACWORD[b][0]} plus "
+            f"{_fw(a, c)} equals {_fw(k + a, c)}.",
+            _fl(c, hops=[0, k, k + a], points=[k + a],
+                caption=f"1/{b} = {k}/{c}, then + {a}/{c} = {k + a}/{c}"))
+
+
+def _fus_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (_fl(c, points=[c // b], caption=f"one {_FRACWORD[b][0]} on a line cut into "
+                                            f"{_FRACWORD[c][1]} — then hop back {a}")
+            + f'[[step eq="1/{b} − {a}/{c} = ?/{c}"]]')
+
+
+def _fus_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    k = c // b
+    return (f"Look what you did: on a line cut into {_FRACWORD[c][1]}, one "
+            f"{_FRACWORD[b][0]} sits at {_fw(k, c)}. Now both are {_FRACWORD[c][1]}: hop "
+            f"back {a} — {k} take away {a} equals {k - a}. One {_FRACWORD[b][0]} take "
+            f"away {_fw(a, c)} equals {_fw(k - a, c)}.",
+            _fl(c, hops=[k, k - a], points=[k - a],
+                caption=f"1/{b} = {k}/{c}, then − {a}/{c} = {k - a}/{c}"))
+
+
+# (sw, 2026-09-05) DECIMALS AND MONEY'S PICTURES. Tenths are hops on the 0-to-1 line
+# (which already speaks in tenths); hundredths, and tenths meeting hundredths, are the
+# HUNDREDTHS SQUARE; dimes and pennies are the place-value chart -- dimes are tens,
+# pennies are ones, which is the whole lesson.
+def _dt_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[numberline min="0" max="1" points="{a / 10}" '
+            f'caption="start at 0.{a} — hop {_fw(b, 10)} more"]][[step eq="0.{a} + 0.{b} = 0.?"]]')
+
+
+def _dt_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: tenths are tenths, so you counted them. Start at "
+            f"0.{a}, hop {b} more tenths — {a} plus {b} equals {a + b}. {_fw(a, 10)} plus "
+            f"{_fw(b, 10)} equals {_fw(a + b, 10)}, written 0.{a + b}.",
+            f'[[numberline min="0" max="1" hops="0,{a / 10},{(a + b) / 10}" points="{(a + b) / 10}" '
+            f'caption="0.{a} + 0.{b} = 0.{a + b}"]]')
+
+
+def _dh_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[hundredgrid shaded="{a}" plus="{b}" ask="1" '
+            f'caption="{a} hundredths, then {b} more"]][[step eq="0.{a:02d} + 0.{b:02d} = 0.?"]]')
+
+
+def _dh_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: hundredths are hundredths, so you counted the cells. "
+            f"{a} shaded, then {b} more — {a} plus {b} equals {a + b}. {a} hundredths "
+            f"plus {b} hundredths equals {a + b} hundredths, written 0.{a + b:02d}.",
+            f'[[hundredgrid shaded="{a}" plus="{b}" caption="0.{a:02d} + 0.{b:02d} = 0.{a + b:02d}"]]')
+
+
+def _m_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[placevalue t="{a}" o="{b}" ask="1" caption="dimes are tens, pennies are ones"]]'
+            f'[[step eq="{a} dimes + {b} pennies = ? cents"]]')
+
+
+def _m_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: dimes are tens and pennies are ones. {_plural(a, 'dime')} "
+            f"bring {10 * a} cents, {_irr(b, 'penny', 'pennies')} bring {b} more. {10 * a} "
+            f"plus {b} equals {10 * a + b} cents.",
+            f'[[placevalue t="{a}" o="{b}" caption="{a} dimes + {b} pennies = {10 * a + b} cents"]]')
+
+
+def _t2h_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[hundredgrid shaded="{10 * a}" plus="{b}" ask="1" '
+            f'caption="{_plural(a, "tenth")} — full rows — then {_plural(b, "hundredth")}"]]'
+            f'[[step eq="{_plural(a, "tenth")} + {_plural(b, "hundredth")} = ? hundredths"]]')
+
+
+def _t2h_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: a tenth is a full row of ten hundredths, so "
+            f"{_plural(a, 'tenth')} is {10 * a} hundredths — {a} full rows. Then {b} "
+            f"more. {10 * a} plus {b} equals {10 * a + b} hundredths.",
+            f'[[hundredgrid shaded="{10 * a}" plus="{b}" '
+            f'caption="{_plural(a, "tenth")} = {10 * a} hundredths, + {b} = {10 * a + b}"]]')
+
+
+# (sx, 2026-09-05) PERCENT'S PICTURES. "What percent" lands on the HUNDREDTHS SQUARE
+# in percent mode (the part, asked as a pie or a bar). A percent OF a number is the
+# sharing picture -- 50 percent is one of two equal parts, 25 one of four, 10 one of
+# ten. Percent off is a TAPE: the discount and what you pay, side by side, under the
+# price. What one costs is the sharing picture again.
+def _wpc_board(p):
+    a, b = p["a"], p["b"]
+    if b <= 10:
+        pic = f'[[pie parts="{b}" shaded="{a}" caption="{a} out of {b}"]]'
+    else:
+        pic = f'[[tape parts="{a} | {b - a}" total="{b}" caption="{a} out of {b}"]]'
+    return pic + f'[[step eq="{a} out of {b} = ? percent"]]'
+
+
+def _wpc_worked(p):
+    a, b = p["a"], p["b"]
+    k = 100 // b
+    pct = 100 * a // b
+    return (f"Look what you did: percent means out of a hundred. {b} times {k} is a "
+            f"hundred, so do the same to the top — {a} times {k} is {pct}. {a} out of "
+            f"{b} is {pct} percent.",
+            f'[[hundredgrid shaded="{pct}" unit="percent" caption="{a} out of {b} = {pct} out of 100 = {pct}%"]]')
+
+
+def _pc_board(p):
+    a, b = p["a"], p["b"]
+    parts = 100 // a
+    return (f'[[array total="{b}" rows="{parts}" ask="1" eq="{a}% of {b} = ?" '
+            f'label="{a}% is one of {parts} equal parts" caption="share {b} into {parts} equal parts"]]'
+            f'[[step eq="{a}% of {b} = ?"]]')
+
+
+def _pc_worked(p):
+    a, b = p["a"], p["b"]
+    parts = 100 // a
+    q = a * b // 100
+    name = {2: "one half", 4: "one fourth", 10: "one tenth"}.get(parts, f"one of {parts}")
+    return (f"Look what you did: {a} percent is {name}. Share {b} into {parts} equal parts "
+            f"and take one — {q}. {a} percent of {b} equals {q}.",
+            f'[[array rows="{parts}" cols="{q}" view="groups" eq="{a}% of {b} = {q}" '
+            f'caption="{a}% = {name} — one of the {parts} parts is {q}"]]')
+
+
+def _poff_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="{b}% off | you pay" total="{a}" '
+            f'caption="the price is {a} — the discount is the part you do not pay"]]'
+            f'[[step eq="{a} − {b}% of {a} = ?"]]')
+
+
+def _poff_worked(p):
+    a, b = p["a"], p["b"]
+    d = a * b // 100
+    pay = a - d
+    return (f"Look what you did: two steps. The discount first — {b} percent of {a} is "
+            f"{d}. Then take it away: {a} take away {d} is {pay}. You pay {pay} dollars; "
+            f"the {d} is what you saved.",
+            f'[[tape parts="{d} | {pay}" total="{a}" caption="discount {d} — you pay {pay}"]]')
+
+
+def _rate_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[array total="{a}" rows="{b}" ask="1" eq="{a} ÷ {b} = ?" '
+            f'label="{b} apples" caption="{a} dollars shared over {b} apples"]]'
+            f'[[step eq="{a} ÷ {b} = ?"]]')
+
+
+def _rate_worked(p):
+    a, b = p["a"], p["b"]
+    q = a // b
+    return (f"Look what you did: {a} dollars shared over {b} apples — {q} each. {a} "
+            f"divided by {b} equals {q}. One apple costs {q} dollars.",
+            f'[[array rows="{b}" cols="{q}" view="groups" eq="{a} ÷ {b} = {q}" '
+            f'caption="each apple costs {q} dollars"]]')
+
+
+# (sy, 2026-09-05) MEASURING'S PICTURES. Perimeter and area are a RECTANGLE on a unit
+# grid -- the walk around it, or the squares inside it. Quarter turns are a circle cut
+# into four, the turned quarters shaded. Volume is the box (solid) and one layer as an
+# array, times the layers.
+def _peri_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[rectangle w="{a}" h="{b}" show="perimeter" ask="1" caption="walk all the way around"]]'
+            f'[[step eq="{a} + {b} + {a} + {b} = ?"]]')
+
+
+def _peri_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: you walked all four sides — long, wide, long, wide. "
+            f"{a} plus {b} plus {a} plus {b} equals {2 * (a + b)}. The perimeter is "
+            f"{2 * (a + b)}.",
+            f'[[rectangle w="{a}" h="{b}" show="perimeter" caption="around the outside: {2 * (a + b)}"]]')
+
+
+def _area_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[rectangle w="{a}" h="{b}" show="area" ask="1" caption="count the squares inside"]]'
+            f'[[step eq="{a} × {b} = ?"]]')
+
+
+def _area_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the inside is {_plural(b, 'row')} of {_plural(a, 'square')}. "
+            f"{a} times {b} equals {a * b}. The area is {a * b} squares.",
+            f'[[rectangle w="{a}" h="{b}" show="area" caption="{b} rows of {a} = {a * b} squares"]]')
+
+
+def _ang_board(p):
+    a = p["a"]
+    return (f'[[pie parts="4" shaded="{a}" caption="{a} quarter turn{"" if a == 1 else "s"} of the circle"]]'
+            f'[[step eq="{a} × 90° = ?"]]')
+
+
+def _ang_worked(p):
+    a = p["a"]
+    return (f"Look what you did: each quarter of the circle is 90 degrees, and you "
+            f"counted {a} of them — {a} times 90 equals {90 * a}. {a} quarter "
+            f"turn{'' if a == 1 else 's'} is {90 * a} degrees.",
+            f'[[pie parts="4" shaded="{a}" caption="{a} × 90° = {90 * a}°"]]')
+
+
+def _angq_board(p):
+    a = p["a"]
+    return (f'[[pie parts="4" shaded="0" caption="each quarter is 90° — how many make {a}°?"]]'
+            f'[[step eq="{a}° = ? × 90°"]]')
+
+
+def _angq_worked(p):
+    a = p["a"]
+    q = a // 90
+    counts = ", ".join(str(90 * k) for k in range(1, q + 1))
+    return (f"Look what you did: count by 90 — {counts} — that is {q} "
+            f"count{'' if q == 1 else 's'}. {a} degrees is {q} quarter "
+            f"turn{'' if q == 1 else 's'}.",
+            f'[[pie parts="4" shaded="{q}" caption="{a}° = {q} quarter turn{"" if q == 1 else "s"}"]]')
+
+
+def _vol_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[solid kind="prism" w="{a}" d="{b}" h="{c}" caption="{a} long, {b} wide, {c} tall"]]'
+            f'[[step eq="{a} × {b} × {c} = ?"]]')
+
+
+def _vol_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    layer = a * b
+    return (f"Look what you did: one layer is {a} times {b} — {_plural(layer, 'cube')}. "
+            f"There {'is' if c == 1 else 'are'} {_plural(c, 'layer')}. {layer} times {c} "
+            f"equals {layer * c} cubes.",
+            f'[[array rows="{b}" cols="{a}" caption="one layer: {a} × {b} = {layer} cubes"]]'
+            f'[[solid kind="prism" w="{a}" d="{b}" h="{c}" caption="{_plural(c, "layer")}: {layer} × {c} = {layer * c} cubes"]]')
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -17920,8 +18764,8 @@ OP_EXT = {
         "spoken": lambda p: (f"How many {_FRACWORD[p['c']][1]} is one "
                              f"{_FRACWORD[p['b']][0]} take away "
                              f"{_plural(p['a'], _FRACWORD[p['c']][0])}?"),
-        "board": lambda p: (f'[[step eq="1/{p["b"]} − {p["a"]}/{p["c"]} '
-                            f'= ?/{p["c"]}"]]'),
+        "board": _fus_board,          # (sv) the finer line, the first fraction found on it
+        "worked": _fus_worked,
         "praise": lambda p: (f"One {_FRACWORD[p['b']][0]} is "
                              f"{p['c'] // p['b']} {_FRACWORD[p['c']][1]}, so taking "
                              f"{_plural(p['a'], _FRACWORD[p['c']][0])} away leaves "
@@ -17938,8 +18782,8 @@ OP_EXT = {
         "spoken": lambda p: (f"How many hundredths is "
                              f"{_plural(p['a'], 'tenth')} plus "
                              f"{_plural(p['b'], 'hundredth')}?"),
-        "board": lambda p: (f'[[step eq="{_plural(p["a"], "tenth")} + '
-                            f'{_plural(p["b"], "hundredth")} = ? hundredths"]]'),
+        "board": _t2h_board,          # (sw) the hundredths square: tenths are full rows
+        "worked": _t2h_worked,
         "praise": lambda p: (f"{_plural(p['a'], 'tenth')} is "
                              f"{_plural(10 * p['a'], 'hundredth')}, and {p['b']} "
                              f"more equals {10 * p['a'] + p['b']}."),
@@ -17955,7 +18799,8 @@ OP_EXT = {
     "wpc": {   # a out of b, said as a percent
         "ans": lambda p: 100 * p["a"] // p["b"],
         "spoken": lambda p: f"What is {p['a']} out of {p['b']} as a percent?",
-        "board": lambda p: f'[[step eq="{p["a"]} out of {p["b"]} = ? percent"]]',
+        "board": _wpc_board,          # (sx) the part as a pie or a bar; the square on the walk-back
+        "worked": _wpc_worked,
         "praise": lambda p: (f"{p['a']} out of {p['b']} is "
                              f"{100 * p['a'] // p['b']} percent."),
         "key": lambda p: 100 * p["a"] // p["b"],
@@ -17968,7 +18813,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] - p["a"] * p["b"] // 100,
         "spoken": lambda p: (f"A coat costs {p['a']} dollars, and there is "
                              f"{p['b']} percent off. What do you pay?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} − {p["b"]}% of {p["a"]} = ?"]]'),
+        "board": _poff_board,         # (sx) the tape: the discount and what you pay
+        "worked": _poff_worked,
         "praise": lambda p: (f"{p['b']} percent of {p['a']} is "
                              f"{p['a'] * p['b'] // 100}, so you pay "
                              f"{p['a'] - p['a'] * p['b'] // 100}."),
@@ -18256,7 +19102,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] + p["b"],
         "spoken": lambda p: (f"How many {_FRACWORD[p['c']][1]} is "
                              f"{_fw(p['a'], p['c'])} plus {_fw(p['b'], p['c'])}?"),
-        "board": lambda p: f'[[step eq="{p["a"]}/{p["c"]} + {p["b"]}/{p["c"]} = ?/{p["c"]}"]]',
+        "board": _fa_board,           # (sv) the fraction line, start marked, hop withheld
+        "worked": _fa_worked,
         "praise": lambda p: (f"{_fw(p['a'], p['c'])} plus {_fw(p['b'], p['c'])} "
                              f"equals {_fw(p['a'] + p['b'], p['c'])}."),
         "key": lambda p: p["a"] + p["b"],
@@ -18268,7 +19115,8 @@ OP_EXT = {
         "spoken": lambda p: (f"How many {_FRACWORD[p['c']][1]} is "
                              f"{_fw(p['a'], p['c'])} take away "
                              f"{_fw(p['b'], p['c'])}?"),
-        "board": lambda p: f'[[step eq="{p["a"]}/{p["c"]} − {p["b"]}/{p["c"]} = ?/{p["c"]}"]]',
+        "board": _fs_board,           # (sv) the fraction line, start marked, hop withheld
+        "worked": _fs_worked,
         "praise": lambda p: (f"{_fw(p['a'], p['c'])} take away "
                              f"{_fw(p['b'], p['c'])} equals "
                              f"{_fw(p['a'] - p['b'], p['c'])}."),
@@ -18281,7 +19129,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] + p["b"],
         "spoken": lambda p: (f"How many tenths is {_fw(p['a'], 10)} plus "
                              f"{_fw(p['b'], 10)}?"),
-        "board": lambda p: f'[[step eq="0.{p["a"]} + 0.{p["b"]} = 0.?"]]',
+        "board": _dt_board,           # (sw) the tenths line, start marked, hop withheld
+        "worked": _dt_worked,
         "praise": lambda p: (f"{_fw(p['a'], 10)} plus {_fw(p['b'], 10)} equals "
                              f"{_fw(p['a'] + p['b'], 10)}."),
         "key": lambda p: p["a"] + p["b"],
@@ -18293,7 +19142,8 @@ OP_EXT = {
         "ans": lambda p: 10 * p["a"] + p["b"],
         "spoken": lambda p: (f"How many cents is {_plural(p['a'], 'dime')} and "
                              f"{_irr(p['b'], 'penny', 'pennies')}?"),
-        "board": lambda p: f'[[step eq="{p["a"]} dimes + {p["b"]} pennies = ? cents"]]',
+        "board": _m_board,            # (sw) the place-value chart: dimes are tens
+        "worked": _m_worked,
         "praise": lambda p: (f"{_plural(p['a'], 'dime')} and "
                              f"{_irr(p['b'], 'penny', 'pennies')} equals "
                              f"{10 * p['a'] + p['b']} cents."),
@@ -18304,7 +19154,8 @@ OP_EXT = {
     "pc": {   # a% of b
         "ans": lambda p: p["a"] * p["b"] // 100,
         "spoken": lambda p: f"What is {p['a']} percent of {p['b']}?",
-        "board": lambda p: f'[[step eq="{p["a"]}% of {p["b"]} = ?"]]',
+        "board": _pc_board,           # (sx) the sharing picture: a percent is one of the parts
+        "worked": _pc_worked,
         "praise": lambda p: (f"{p['a']} percent of {p['b']} equals "
                              f"{p['a'] * p['b'] // 100}."),
         "key": lambda p: p["b"],
@@ -18316,7 +19167,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] // p["b"],
         "spoken": lambda p: (f"{p['b']} apples cost {p['a']} dollars. What does "
                              f"one apple cost, in dollars?"),
-        "board": lambda p: f'[[step eq="{p["a"]} ÷ {p["b"]} = ?"]]',
+        "board": _rate_board,         # (sx) the dollars shared over the apples
+        "worked": _rate_worked,
         "praise": lambda p: (f"{p['a']} divided by {p['b']} equals "
                              f"{p['a'] // p['b']} — one costs "
                              f"{p['a'] // p['b']} dollars."),
@@ -18635,7 +19487,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] + p["b"],
         "spoken": lambda p: (f"How many hundredths is {p['a']} hundredths plus "
                              f"{p['b']} hundredths?"),
-        "board": lambda p: f'[[step eq="0.{p["a"]} + 0.{p["b"]} = 0.?"]]',
+        "board": _dh_board,           # (sw) the hundredths square, total withheld
+        "worked": _dh_worked,
         "praise": lambda p: (f"{p['a']} hundredths plus {p['b']} hundredths "
                              f"equals {p['a'] + p['b']} hundredths."),
         "key": lambda p: p["a"] + p["b"],
@@ -18648,8 +19501,8 @@ OP_EXT = {
         "spoken": lambda p: (f"How many {_FRACWORD[p['c']][1]} is one "
                              f"{_FRACWORD[p['b']][0]} plus "
                              f"{_fw(p['a'], p['c'])}?"),
-        "board": lambda p: (f'[[step eq="1/{p["b"]} + {p["a"]}/{p["c"]} = '
-                            f'?/{p["c"]}"]]'),
+        "board": _fu_board,           # (sv) the finer line, the first fraction found on it
+        "worked": _fu_worked,
         "praise": lambda p: (f"One {_FRACWORD[p['b']][0]} is "
                              f"{_fw(p['c'] // p['b'], p['c'])} — plus "
                              f"{p['a']} more equals "
@@ -18683,7 +19536,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A quarter turn is 90 degrees. How many degrees "
                              f"is {p['a']} quarter "
                              f"turn{'' if p['a'] == 1 else 's'}?"),
-        "board": lambda p: f'[[step eq="{p["a"]} × 90° = ?"]]',
+        "board": _ang_board,          # (sy) the circle cut into four, the turned quarters shaded
+        "worked": _ang_worked,
         "praise": lambda p: (f"{p['a']} quarter "
                              f"turn{'' if p['a'] == 1 else 's'} equals "
                              f"{90 * p['a']} degrees."),
@@ -18697,7 +19551,8 @@ OP_EXT = {
     "angq": {  # the reverse of ang: how many quarter turns is a degrees?
         "ans": lambda p: p["a"] // 90,
         "spoken": lambda p: f"How many quarter turns is {p['a']} degrees?",
-        "board": lambda p: f'[[step eq="{p["a"]}\u00b0 = ? \u00d7 90\u00b0"]]',
+        "board": _angq_board,         # (sy) the empty quarters -- how many make the degrees?
+        "worked": _angq_worked,
         "praise": lambda p: (f"{p['a']} degrees equals {p['a'] // 90} quarter "
                              f"turn{'' if p['a'] // 90 == 1 else 's'}."),
         "key": lambda p: p["a"] // 90,
@@ -18711,7 +19566,8 @@ OP_EXT = {
                              f"{_plural(p['b'], 'cube')} wide and "
                              f"{_plural(p['c'], 'cube')} tall. How many cubes "
                              f"fill it?"),
-        "board": lambda p: f'[[step eq="{p["a"]} × {p["b"]} × {p["c"]} = ?"]]',
+        "board": _vol_board,          # (sy) the box with its three sides
+        "worked": _vol_worked,        # (sy) one layer as an array, times the layers
         "praise": lambda p: (f"{p['a']} times {p['b']} times {p['c']} equals "
                              f"{_plural(p['a'] * p['b'] * p['c'], 'cube')}."),
         "key": lambda p: p["a"] * p["b"] * p["c"],
@@ -18723,8 +19579,8 @@ OP_EXT = {
         "ans": lambda p: 2 * (p["a"] + p["b"]),
         "spoken": lambda p: (f"A rectangle is {p['a']} long and {p['b']} wide. "
                              f"What is its perimeter?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} + {p["b"]} + {p["a"]} + '
-                            f'{p["b"]} = ?"]]'),
+        "board": _peri_board,         # (sy) the rectangle, the walk traced, the sum withheld
+        "worked": _peri_worked,
         "praise": lambda p: (f"{p['a']} plus {p['b']} plus {p['a']} plus "
                              f"{p['b']} equals {2 * (p['a'] + p['b'])}."),
         "key": lambda p: p["a"] + p["b"],
@@ -18735,7 +19591,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] * p["b"],
         "spoken": lambda p: (f"A rectangle is {p['a']} long and {p['b']} wide. "
                              f"What is its area?"),
-        "board": lambda p: f'[[step eq="{p["a"]} × {p["b"]} = ?"]]',
+        "board": _area_board,         # (sy) the rectangle on its grid, the count withheld
+        "worked": _area_worked,
         "praise": lambda p: (f"{p['a']} times {p['b']} equals "
                              f"{p['a'] * p['b']} squares."),
         "key": lambda p: p["a"] * p["b"],

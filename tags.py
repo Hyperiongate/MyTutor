@@ -2,6 +2,10 @@
 # tags.py  --  THE TAG GRAMMAR, ONE COPY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sy -- [[rectangle]] joins FIGURE_TAGS, PENDING_BOARD_TAGS and
+#               CONTENT_ATTRS (w/h): a rectangle on a unit grid.
+#   2026-09-05  BUILD sw -- [[hundredgrid]] joins FIGURE_TAGS, PENDING_BOARD_TAGS and
+#               CONTENT_ATTRS (shaded/plus): the hundredths square.
 #   2026-09-05  BUILD sr -- [[array]] joins FIGURE_TAGS, PENDING_BOARD_TAGS and CONTENT_ATTRS
 #               (rows/cols); placevalue's content attrs gain th= (the thousands column).
 #   2026-09-05  BUILD sq -- [[placevalue]] joins FIGURE_TAGS (the place-value chart with
@@ -85,6 +89,10 @@ FIGURE_TAGS = (
     "placevalue",
     # build sr (2026-09-05): the multiplication array / equal groups -- Basic Unit 2's picture.
     "array",
+    # build sw (2026-09-05): the hundredths square -- Basic Unit 7 (decimals) and 8 (percent).
+    "hundredgrid",
+    # build sy (2026-09-05): a rectangle on a unit grid -- perimeter and area, Basic Unit 9.
+    "rectangle",
 )
 
 # ---- WRITING: tags that put words/equations on the board -------------------------
@@ -113,7 +121,9 @@ PENDING_BOARD_TAGS = ("step", "write", "solve", "column", "card", "graph",
                       "numberline", "objects", "balance", "machine", "areamodel",
                       "choices",
                       "placevalue",   # (sq) a place-value chart can carry the worked line
-                      "array")        # (sr) so can the array
+                      "array",        # (sr) so can the array
+                      "hundredgrid",  # (sw) and the hundredths square
+                      "rectangle")    # (sy) and the rectangle on its grid
 
 # ---- RENDERER MAP: tag -> the show* function that draws it -----------------------
 # (Figure tags route through showFig/showGeo and are not listed one-by-one.)
@@ -185,6 +195,10 @@ CONTENT_ATTRS = {
     "placevalue": {"n", "number", "h", "t", "o", "th"},
     # build sr: an array with no rows/cols draws the default 3 by 4 -- content is the counts
     "array": {"rows", "cols"},
+    # build sw: a bare hundredths square is an empty grid -- content is the shading
+    "hundredgrid": {"shaded", "plus"},
+    # build sy: a rectangle with no sides draws the default 5 by 3 -- content is the sides
+    "rectangle": {"w", "h"},
 }
 
 # I did no harm and this file is not truncated.

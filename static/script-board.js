@@ -2,6 +2,8 @@
    script-board.js  --  THE SCRIPTED LANE'S BOARD LAYER  --  Hyperion Shift LLC
    -------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-05 (sy) FIGURE_KINDS gains rectangle -- perimeter and area on a grid.
+     2026-09-05 (sw) FIGURE_KINDS gains hundredgrid -- the hundredths square.
      2026-09-05 (sr) FIGURE_KINDS gains array -- the multiplication array (math-figures.js).
      2026-09-05 (sq) FIGURE_KINDS gains placevalue -- the place-value chart the
        Basic place-value lesson now teaches from (math-figures.js).
@@ -138,7 +140,9 @@ var FIGURE_KINDS = ["bars", "histogram", "dotplot", "boxplot", "scatter", "norma
                     "numberline", "areamodel", "vector",
                     "venn", "tape", "clock",   // (ot) the shelf grows
                     "placevalue",              // (sq) the place-value chart
-                    "array"];                  // (sr) the multiplication array
+                    "array",                   // (sr) the multiplication array
+                    "hundredgrid",             // (sw) the hundredths square
+                    "rectangle"];              // (sy) the rectangle on its grid
 function drawBoard(text) {
   if (!boardEl()) return false;
   var re = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g, m, drew = false;

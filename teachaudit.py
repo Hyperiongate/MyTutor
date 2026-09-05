@@ -2,6 +2,9 @@
 # teachaudit.py  --  THE TEACH-BEAT GIVEAWAY AUDIT  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sy -- the sweep reads EVERY pre-ask beat: why and picture (the
+#               shape's new sections, build sp) before teach. A demonstration in the
+#               picture beat gives an answer away exactly as one in a teach beat does.
 #   2026-08-24  NEW (build mr). The other half of workedaudit.py, and it exists
 #               because the same defect was caught BY HAND twice in one day --
 #               once in Entry-Level Unit 8's clock lesson and once in Unit 9's
@@ -58,11 +61,20 @@ def _tuple_for(p):
     return out
 
 
+def _pre_ask_beats(les):
+    """(sy, 2026-09-05) EVERY beat a student hears before the first ask. The shape
+    (build sp) put two authored sections in front of the teach beats -- why and
+    picture -- and a demonstration there gives an answer away exactly as one in
+    a teach beat does. Swept in the order they are heard."""
+    return (list(les.get("why") or []) + list(les.get("picture") or [])
+            + list(les["teach"]))
+
+
 def direct_hits(les):
     """Teach beats that work a problem this lesson also ASKS -- same direction."""
     hits = []
     problems = list(les["bank"]) + [pair["ask"] for pair in les["pairs"]]
-    for i, (spoken, _board) in enumerate(les["teach"]):
+    for i, (spoken, _board) in enumerate(_pre_ask_beats(les)):
         said = _numbers(spoken)
         if not said:
             continue
@@ -88,7 +100,7 @@ def reverse_hits(les):
     if len(ops) < 2:
         return []
     hits = []
-    for i, (spoken, _board) in enumerate(les["teach"]):
+    for i, (spoken, _board) in enumerate(_pre_ask_beats(les)):
         said = _numbers(spoken)
         if not said:
             continue

@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sy -- PART 3iu: Basic Unit 9 to the shape, and the pin that EVERY
+#               Basic lesson (36) is on it. [[rectangle]] drawn, exported and
+#               registered. kj's export pin reads the whole MathFigures block now.
+#   2026-09-05  BUILD sx -- PART 3it: Basic Unit 8 (percent) to the shape.
+#   2026-09-05  BUILD sw -- PART 3is: Basic Unit 7 to the shape; [[hundredgrid]] drawn,
+#               exported and registered everywhere. The short-second-example list is
+#               empty now (every Basic second example works its problem).
+#   2026-09-05  BUILD sv -- PART 3ir: Basic Unit 6 to the shape, on the fraction line.
+#               _shape_unit_checks: the unit-to-the-shape checks written once.
 #   2026-09-05  BUILD su -- PART 3iq: Basic Unit 5 to the shape. Fractions on the
 #               fraction line (denom=), the shared array and two pies; every lesson
 #               walks clean; no pie ever asks for more than twelve parts.
@@ -14927,8 +14936,12 @@ def part3ev_the_giveaway_audits_join_the_battery():
           "(outside the documented allowlist)",
           not strays,
           "; ".join("%s (beat/worked %s)" % (h[0], h[1]) for h in strays[:5]))
-    check("  the allowlist holds exactly its documented size (7 teach + 4 worked)",
-          len(th) == 7 and len(wh) == 4,
+    # (sy, 2026-09-05) 7 teach hits became 5: the quarter-turns rewrite demonstrates
+    # two facts in its teach beats where the old one demonstrated four. And the audit
+    # now sweeps why and picture beats too (teachaudit._pre_ask_beats) -- the sweep
+    # grew, the hits shrank, and the allowlist did not.
+    check("  the allowlist holds exactly its documented size (5 teach + 4 worked)",
+          len(th) == 5 and len(wh) == 4,
           "teach %d worked %d -- growth inside the allowlist is still growth"
           % (len(th), len(wh)))
     check("  only the two tiny recall domains have worked-example hits",
@@ -20284,21 +20297,21 @@ def part3fm_the_second_example_teaches_too():
     # than the check being loosened: a lesson may ship a short second example only
     # when the fact IS the working.
     # (sr, 2026-09-05) times-tables left this list: its second example now counts the
-    # rows of the array out loud, so it is worked, not recalled. Three remain.
-    SHORT_ON_PURPOSE = {
-        "basic-u6-add-fractions-same-bottom",  # the count is visible in the numbers
-        "basic-u7-tenths",
-        "basic-u7-hundredths",
-    }
+    # rows of the array out loud, so it is worked, not recalled. (sv) the same-bottom
+    # fraction lesson left it too: its second example now hops along the line. Two
+    # remain, until Unit 7 is rewritten to the shape.
+    # (sw) Unit 7 was rewritten to the shape; every second example in Basic now works
+    # its problem out loud. The list is empty, and the check below says so.
+    SHORT_ON_PURPOSE = set()
     thin = [l["id"] for l in _ls.LESSONS if l["course"] == "basic"
             and len(l["pairs"]) > 1
             and len(l["pairs"][1]["worked"][0].split()) < 12
             and l["id"] not in SHORT_ON_PURPOSE]
     check("  no other Basic second example is a one-line answer", not thin, thin)
-    check("  ...and the three exceptions are still exactly three (four until sr worked the times-tables one)",
+    check("  ...and the exceptions are exactly the listed ones (four before sr, three before sv)",
           len([l for l in _ls.LESSONS if l["course"] == "basic"
                and len(l["pairs"]) > 1
-               and len(l["pairs"][1]["worked"][0].split()) < 12]) == 3,
+               and len(l["pairs"][1]["worked"][0].split()) < 12]) == len(SHORT_ON_PURPOSE),
           "growth in the exception list is still growth")
 
     check("  the recall and same-bottom lessons were deliberately NOT churned",
@@ -21806,7 +21819,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,725</b>" in page,
+          "<b>8,851</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23123,8 +23136,8 @@ def part3im_basic_unit_one_to_the_shape():
           and "placevalue" in _tags.CONTENT_ATTRS, "")
     for pg in ("static/session.html", "static/topic.html", "static/practice.html"):
         check(f"  {pg} dispatches placevalue to showFig",
-              '"tape","clock","placevalue","array"].indexOf(name) >= 0) showFig(name, attrs);' in rd(pg),
-              "(sr extended the same list with array)")
+              '"tape","clock","placevalue","array","hundredgrid","rectangle"].indexOf(name) >= 0) showFig(name, attrs);' in rd(pg),
+              "(sr, sw and sy extended the same list)")
     check("  script-board.js lists placevalue among FIGURE_KINDS",
           '"placevalue",' in rd("static/script-board.js").split("FIGURE_KINDS = [")[1].split("]")[0], "")
     import tutor as _tu
@@ -23251,9 +23264,10 @@ def part3in_basic_unit_two_to_the_shape():
           and "array" in _tags.CONTENT_ATTRS and "th" in _tags.CONTENT_ATTRS.get("placevalue", set()), "")
     for pg in ("static/session.html", "static/topic.html", "static/practice.html"):
         check(f"  {pg} dispatches array to showFig",
-              '"tape","clock","placevalue","array"].indexOf(name) >= 0) showFig(name, attrs);' in rd(pg), "")
+              '"tape","clock","placevalue","array","hundredgrid","rectangle"].indexOf(name) >= 0) showFig(name, attrs);' in rd(pg),
+              "(sw and sy extended the same list)")
     check("  script-board.js lists array among FIGURE_KINDS",
-          '"array"];' in rd("static/script-board.js"), "")
+          '"array",' in rd("static/script-board.js").split("FIGURE_KINDS = [")[1].split("]")[0], "")
     import tutor as _tu
     check("  tutor's draw regex knows the array",
           bool(_tu._SM_DRAW_RE.search('[[array rows="3" cols="4" caption="x"]]')), "")
@@ -23570,6 +23584,274 @@ def part3iq_basic_unit_five_to_the_shape():
           "2026-09-05  BUILD su" in rd("lessonscripts.py")[:20000]
           and "BUILD su" in rd("main.py")[:200000] and "2026-09-05  BUILD su" in mf[:3000]
           and "2026-09-05  BUILD su" in rd("ruletests.py")[:8000], "Jim's rule 8")
+
+
+def _shape_unit_checks(unit_ids, pic_regex):
+    """(sv, 2026-09-05) THE CHECKS EVERY UNIT-TO-THE-SHAPE BUILD RUNS. Written once
+    here after five PARTs had each carried a copy: every lesson carries the whole
+    shape and validates with the real registry; most beats draw its picture; a
+    perfect walk is walked back on the picture after every right answer, earns the
+    reason question, masters on it, and every line heard is in the closure."""
+    import lessonscripts as L
+    import tags as _tags
+    for lid in unit_ids:
+        les = L.LESSON_BY_ID.get(lid) or {}
+        check(f"⭐ {lid}: why, picture, teach, explain, recap and the walk-back flag",
+              all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain"))
+              and les.get("show_work_on_correct") is True, str(sorted(les)))
+        check(f"  {lid}: passes the real validator with the real registry",
+              bool(les) and all(ok for ok, _l, _d in L.validate(les, set(_tags.BOARD_TAGS))),
+              str([l for ok, l, _d in L.validate(les, set(_tags.BOARD_TAGS)) if not ok][:3]) if les else "missing")
+        beats = list(les.get("why") or []) + list(les.get("picture") or []) + list(les.get("teach") or []) \
+            + [pr["worked"] for pr in les.get("pairs") or []] + list(les.get("recap") or [])
+        drawn = sum(1 for _s, b in beats if re.search(pic_regex, b))
+        check(f"  {lid}: most beats draw a picture ({drawn} of {len(beats)})",
+              beats and drawn >= len(beats) * 0.6, f"{drawn}/{len(beats)}")
+    for lid in unit_ids:
+        les = L.LESSON_BY_ID.get(lid)
+        if not les:
+            continue
+        st = L.start(les)
+        outs, st = L.step(les, st, ("begin",))
+        heard = [o["spoken"] for o in outs]
+        wb = 0
+        for _ in range(2 + L.ADVANCE_STREAK):
+            pend = st.get("pending") or {}
+            p = pend.get("problem")
+            if p is None:
+                break
+            outs, st = L.step(les, st, ("answer", L.ans(p)))
+            heard.extend(o["spoken"] for o in outs)
+            w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
+            if w and str(L.ans(p)) in w[0]["spoken"] and re.search(pic_regex, w[0]["board"]):
+                wb += 1
+        ask = outs[-1]
+        check(f"⭐ {lid}: every right answer is walked back on the picture, then the reason is asked",
+              wb == 2 + L.ADVANCE_STREAK and ask.get("reason") is True, f"walk-backs {wb}, last={ask.get('kind')}")
+        o3, st = L.step(les, st, ("answer", (les.get("explain") or {}).get("answer", "")))
+        heard.extend(o["spoken"] for o in o3)
+        cl = set(L.audio_lines(les))
+        miss = [x for x in heard if x and x not in cl]
+        check(f"  {lid}: mastered on the reason, every line inside the closure",
+              o3[-1]["kind"] == "end" and o3[-1].get("mastered") is True and not miss, str(miss[:2]))
+    _W = lambda p: L._worked_for(p) or ("", "")
+    check("  every walk-back the unit can emit names its answer",
+          all(str(L.ans(p)) in _W(p)[0] for lid in unit_ids if lid in L.LESSON_BY_ID
+              for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]), "")
+    check("  every lesson in the course still validates",
+          all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
+
+
+def part3ir_basic_unit_six_to_the_shape():
+    """PART 3ir (build sv, 2026-09-05) -- BASIC UNIT 6 TO THE SHAPE.
+
+    Adding and taking away fractions, all four lessons on the fraction line: same
+    bottom hops from the first fraction by the second; different bottoms find the
+    first fraction on the finer line, then hop."""
+    print("\nPART 3ir — Basic Unit 6 to the shape (build sv)")
+    import lessonscripts as L
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    U6 = ["basic-u6-add-fractions-same-bottom", "basic-u6-take-away-fractions-same-bottom",
+          "basic-u6-add-fractions-different-bottoms", "basic-u6-take-away-unlike-bottoms"]
+    _shape_unit_checks(U6, r"\[\[numberline\b[^\]]*denom=")
+    fa = {"a": 2, "b": 3, "c": 8, "op": "fa"}
+    check("⭐ same-bottom adding is asked with the start marked and the hop withheld, walked back as two hops",
+          'denom="8" points="0.25"' in L.board_for(fa, "abstract") and "hops=" not in L.board_for(fa, "abstract")
+          and 'hops="0.0,0.25,0.625" points="0.625"' in _W(fa)[1] and "2 plus 3 equals 5" in _W(fa)[0], _W(fa)[1])
+    fs = {"a": 5, "b": 2, "c": 8, "op": "fs"}
+    check("  same-bottom taking away hops BACK",
+          'hops="0.625,0.375" points="0.375"' in _W(fs)[1] and "hop back 2" in _W(fs)[0], _W(fs)[1])
+    fu = {"a": 1, "b": 2, "c": 4, "op": "fu"}
+    check("⭐ different bottoms: the first fraction is found on the finer line, then the hop",
+          'denom="4" points="0.5"' in L.board_for(fu, "abstract")
+          and 'hops="0.0,0.5,0.75" points="0.75"' in _W(fu)[1] and "one half sits at 2 fourths" in _W(fu)[0], _W(fu)[0])
+    fus = {"a": 1, "b": 2, "c": 8, "op": "fus"}
+    check("  ...and taking away hops back from it",
+          'hops="0.5,0.375" points="0.375"' in _W(fus)[1] and "one half sits at 4 eighths" in _W(fus)[0], _W(fus)[0])
+    check("  the changed files carry dated sv notes",
+          "2026-09-05  BUILD sv" in rd("lessonscripts.py")[:20000]
+          and "BUILD sv" in rd("main.py")[:200000]
+          and "2026-09-05  BUILD sv" in rd("ruletests.py")[:8000], "Jim's rule 8")
+
+
+def part3is_basic_unit_seven_to_the_shape():
+    """PART 3is (build sw, 2026-09-05) -- BASIC UNIT 7 TO THE SHAPE.
+
+    Decimals and money: tenths on the 0-to-1 line, hundredths and tenths-meeting-
+    hundredths on the new hundredths square, dimes and pennies on the place-value
+    chart."""
+    print("\nPART 3is — Basic Unit 7 to the shape (build sw)")
+    import lessonscripts as L
+    import tags as _tags
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    U7 = ["basic-u7-tenths", "basic-u7-dimes-and-pennies", "basic-u7-hundredths",
+          "basic-u7-tenths-and-hundredths"]
+    _shape_unit_checks(U7, r"\[\[(numberline|hundredgrid|placevalue)\b")
+    dt = {"a": 3, "b": 4, "op": "dt"}
+    check("⭐ tenths are asked on the 0-to-1 line with the start marked, walked back with the hops and the decimal named",
+          'points="0.3"' in L.board_for(dt, "abstract") and "hops=" not in L.board_for(dt, "abstract")
+          and 'hops="0,0.3,0.7" points="0.7"' in _W(dt)[1] and "written 0.7" in _W(dt)[0], _W(dt)[0])
+    dh = {"a": 25, "b": 13, "op": "dh"}
+    check("⭐ hundredths are asked on the square with the total withheld, walked back with both colours and the decimal",
+          '[[hundredgrid shaded="25" plus="13" ask="1"' in L.board_for(dh, "abstract")
+          and '[[hundredgrid shaded="25" plus="13" caption="0.25 + 0.13 = 0.38"]]' == _W(dh)[1]
+          and "written 0.38" in _W(dh)[0], _W(dh)[0])
+    m = {"a": 3, "b": 4, "op": "m"}
+    check("⭐ dimes and pennies sit on the place-value chart: dimes are tens",
+          '[[placevalue t="3" o="4" ask="1"' in L.board_for(m, "abstract")
+          and '[[placevalue t="3" o="4" caption="3 dimes + 4 pennies = 34 cents"]]' == _W(m)[1]
+          and "dimes are tens and pennies are ones" in _W(m)[0], _W(m)[0])
+    t2h = {"a": 4, "b": 3, "op": "t2h"}
+    check("⭐ a tenth is a full row of the square: 4 tenths + 3 hundredths shades 40 then 3",
+          '[[hundredgrid shaded="40" plus="3" ask="1"' in L.board_for(t2h, "abstract")
+          and 'shaded="40" plus="3"' in _W(t2h)[1] and "4 full rows" in _W(t2h)[0] and "43 hundredths" in _W(t2h)[0], _W(t2h)[0])
+    mf = rd("static/math-figures.js")
+    check("⭐ math-figures.js draws [[hundredgrid]] and exports it",
+          "function hundredgrid(a) {" in mf and "hundredgrid: " in mf.split("window.MathFigures = {")[1].split("_compile")[0]
+          and 'var fill = i < shaded ? "rgba(91,91,214,.55)" : (i < shaded + plus ? "rgba(224,57,43,.50)"' in mf, "")
+    check("  tags.py registers hundredgrid as a figure, a pending-board tag and a content tag",
+          "hundredgrid" in _tags.FIGURE_TAGS and "hundredgrid" in _tags.PENDING_BOARD_TAGS
+          and "hundredgrid" in _tags.CONTENT_ATTRS, "")
+    for pg in ("static/session.html", "static/topic.html", "static/practice.html"):
+        check(f"  {pg} dispatches hundredgrid to showFig",
+              '"tape","clock","placevalue","array","hundredgrid","rectangle"].indexOf(name) >= 0) showFig(name, attrs);' in rd(pg),
+              "(sy extended the same list)")
+    check("  script-board.js lists hundredgrid among FIGURE_KINDS",
+          '"hundredgrid"' in rd("static/script-board.js").split("FIGURE_KINDS = [")[1].split("]")[0], "")
+    import tutor as _tu
+    check("  tutor's draw regex knows the square",
+          bool(_tu._SM_DRAW_RE.search('[[hundredgrid shaded="25" caption="x"]]')), "")
+    check("  the changed files carry dated sw notes",
+          "2026-09-05  BUILD sw" in rd("lessonscripts.py")[:20000]
+          and "BUILD sw" in rd("main.py")[:200000] and "2026-09-05  BUILD sw" in mf[:3000]
+          and "BUILD sw" in rd("tags.py")[:3000] and "BUILD sw" in rd("tutor.py")[:3000]
+          and "2026-09-05 (sw)" in rd("static/script-board.js")[:3000]
+          and all("(sw) 2026-09-05" in rd(pg)[:900] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
+          and "2026-09-05  BUILD sw" in rd("ruletests.py")[:8000], "Jim's rule 8")
+
+
+def part3it_basic_unit_eight_to_the_shape():
+    """PART 3it (build sx, 2026-09-05) -- BASIC UNIT 8 TO THE SHAPE.
+
+    Percent: the hundredths square in percent mode, the sharing picture for a
+    percent of a number, the tape for percent off, the array for what one costs."""
+    print("\nPART 3it — Basic Unit 8 to the shape (build sx)")
+    import lessonscripts as L
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    U8 = ["basic-u8-what-percent-is-it", "basic-u8-percent-of", "basic-u8-percent-off",
+          "basic-u8-one-costs"]
+    _shape_unit_checks(U8, r"\[\[(hundredgrid|array|tape|pie)\b")
+    w1, w2 = {"a": 3, "b": 4, "op": "wpc"}, {"a": 9, "b": 20, "op": "wpc"}
+    check("⭐ what-percent is asked as a pie (or a bar when the bottom is past 10) and walked back on the square in percent mode",
+          '[[pie parts="4" shaded="3"' in L.board_for(w1, "abstract") and '[[tape parts="9 | 11" total="20"' in L.board_for(w2, "abstract")
+          and '[[hundredgrid shaded="75" unit="percent"' in _W(w1)[1] and "3 times 25 is 75" in _W(w1)[0]
+          and '[[hundredgrid shaded="45" unit="percent"' in _W(w2)[1], _W(w1)[1])
+    pc = {"a": 10, "b": 40, "op": "pc"}
+    check("⭐ a percent of a number is the sharing picture: 10 percent shares into ten parts, one taken",
+          '[[array total="40" rows="10" ask="1" eq="10% of 40 = ?"' in L.board_for(pc, "abstract")
+          and '[[array rows="10" cols="4" view="groups" eq="10% of 40 = 4"' in _W(pc)[1] and "one tenth" in _W(pc)[0], _W(pc)[0])
+    po = {"a": 60, "b": 25, "op": "poff"}
+    check("⭐ percent off is the tape: the discount and what you pay under the price, and the words name the saving",
+          '[[tape parts="25% off | you pay" total="60"' in L.board_for(po, "abstract")
+          and '[[tape parts="15 | 45" total="60"' in _W(po)[1] and "You pay 45 dollars; the 15 is what you saved" in _W(po)[0], _W(po)[0])
+    rt = {"a": 12, "b": 6, "op": "rate"}
+    check("  what one costs is the dollars shared over the apples",
+          '[[array total="12" rows="6" ask="1"' in L.board_for(rt, "abstract")
+          and '[[array rows="6" cols="2" view="groups" eq="12 ÷ 6 = 2"' in _W(rt)[1] and "One apple costs 2 dollars" in _W(rt)[0], _W(rt)[0])
+    mf = rd("static/math-figures.js")
+    check("  the array's sharing boxes shrink to fit ten groups",
+          "var bw = Math.max(40, Math.min(120, Math.floor((W2 - 40) / rows) - bgap));" in mf, "")
+    check("  the changed files carry dated sx notes",
+          "2026-09-05  BUILD sx" in rd("lessonscripts.py")[:20000]
+          and "BUILD sx" in rd("main.py")[:200000] and "2026-09-05  BUILD sx" in mf[:3000]
+          and "2026-09-05  BUILD sx" in rd("ruletests.py")[:8000], "Jim's rule 8")
+
+
+def part3iu_basic_unit_nine_to_the_shape():
+    """PART 3iu (build sy, 2026-09-05) -- BASIC UNIT 9 TO THE SHAPE, AND THE WHOLE COURSE.
+
+    Measuring: perimeter and area on the new rectangle-on-a-grid figure, quarter
+    turns on the circle cut into four, volume as a layer times the layers. With
+    this unit every one of Basic's 36 lessons carries the shape -- pinned here."""
+    print("\nPART 3iu — Basic Unit 9 to the shape, and the whole course (build sy)")
+    import lessonscripts as L
+    import tags as _tags
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    U9 = ["basic-u9-perimeter", "basic-u9-area", "basic-u9-quarter-turns", "basic-u9-volume"]
+    _shape_unit_checks(U9, r"\[\[(rectangle|pie|solid|array)\b")
+    pe = {"a": 5, "b": 3, "op": "peri"}
+    check("⭐ perimeter is asked on the rectangle with the walk traced and the sum withheld, walked back with all four sides",
+          '[[rectangle w="5" h="3" show="perimeter" ask="1"' in L.board_for(pe, "abstract")
+          and '[[rectangle w="5" h="3" show="perimeter" caption="around the outside: 16"]]' == _W(pe)[1]
+          and "5 plus 3 plus 5 plus 3 equals 16" in _W(pe)[0], _W(pe)[0])
+    ar = {"a": 5, "b": 3, "op": "area"}
+    check("⭐ area is asked on the rectangle's squares with the count withheld, walked back as rows of squares",
+          '[[rectangle w="5" h="3" show="area" ask="1"' in L.board_for(ar, "abstract")
+          and "3 rows of 5 squares" in _W(ar)[0] and "The area is 15 squares" in _W(ar)[0], _W(ar)[0])
+    an, aq = {"a": 2, "b": 0, "op": "ang"}, {"a": 270, "b": 0, "op": "angq"}
+    check("⭐ quarter turns are the circle cut into four: the turned quarters shaded, the reverse asked on the empty circle",
+          '[[pie parts="4" shaded="2"' in L.board_for(an, "abstract") and '[[pie parts="4" shaded="0"' in L.board_for(aq, "abstract")
+          and "2 times 90 equals 180" in _W(an)[0] and '[[pie parts="4" shaded="3"' in _W(aq)[1]
+          and "90, 180, 270" in _W(aq)[0], _W(aq)[0])
+    vo = {"a": 3, "b": 2, "c": 2, "op": "vol"}
+    check("⭐ volume is the box, walked back as one layer (an array) times the layers",
+          '[[solid kind="prism" w="3" d="2" h="2"' in L.board_for(vo, "abstract")
+          and '[[array rows="2" cols="3" caption="one layer: 3 × 2 = 6 cubes"]]' in _W(vo)[1]
+          and "6 times 2 equals 12 cubes" in _W(vo)[0], _W(vo)[0])
+    mf = rd("static/math-figures.js")
+    _exports = mf.split("window.MathFigures = {")[1].split("_compile")[0]
+    check("⭐ math-figures.js draws [[rectangle]] and exports it",
+          "function rectangle(a) {" in mf and "rectangle: " in _exports
+          and 'var mode = String(a.show || "area").toLowerCase();' in mf
+          and '(w + " + " + h + " + " + w + " + " + h + " = " + (ask ? "?" : String(2 * (w + h))))' in mf, "")
+    check("  tags.py registers rectangle as a figure, a pending-board tag and a content tag",
+          "rectangle" in _tags.FIGURE_TAGS and "rectangle" in _tags.PENDING_BOARD_TAGS
+          and "rectangle" in _tags.CONTENT_ATTRS, "")
+    for pg in ("static/session.html", "static/topic.html", "static/practice.html"):
+        check(f"  {pg} dispatches rectangle to showFig",
+              '"tape","clock","placevalue","array","hundredgrid","rectangle"].indexOf(name) >= 0) showFig(name, attrs);' in rd(pg), "")
+    check("  script-board.js lists rectangle among FIGURE_KINDS",
+          '"rectangle"' in rd("static/script-board.js").split("FIGURE_KINDS = [")[1].split("]")[0], "")
+    import tutor as _tu
+    check("  tutor's draw regex knows the rectangle",
+          bool(_tu._SM_DRAW_RE.search('[[rectangle w="5" h="3" caption="x"]]')), "")
+
+    # ---- the giveaway audit reads the shape's new beats ----------------------------
+    import teachaudit as _TA
+    _les = dict(L.LESSON_BY_ID["basic-u9-area"])
+    _les["picture"] = [("Watch me. 5 long and 2 wide: 5 times 2 equals 10 squares.", "")]   # 5x2 IS asked
+    check("⭐ teachaudit sweeps the why and picture beats: a demonstration there of an asked problem is a hit",
+          any(h[3].get("a") == 5 and h[3].get("b") == 2 for h in _TA.direct_hits(_les))
+          and not any(h[3].get("a") == 5 and h[3].get("b") == 2 for h in _TA.direct_hits(L.LESSON_BY_ID["basic-u9-area"])),
+          "the shape put two sections in front of teach; a giveaway there is still a giveaway")
+
+    # ---- THE WHOLE COURSE ---------------------------------------------------------
+    basic = [l for l in L.LESSONS if l.get("course") == "basic"]
+    on_shape = [l["id"] for l in basic if all(l.get(f) for f in ("why", "picture", "recap", "explain"))
+                and l.get("show_work_on_correct") is True]
+    check(f"⭐ EVERY Basic lesson is on the shape ({len(on_shape)} of {len(basic)})",
+          len(basic) == 36 and len(on_shape) == len(basic),
+          "missing: " + str(sorted(set(l["id"] for l in basic) - set(on_shape))[:6]))
+    check("  every Basic ask draws a picture or is a bare fact by design (times tables, the split two-digit ones)",
+          all(re.search(r"\[\[(numberline|placevalue|column|array|areamodel|venn|pie|tape|hundredgrid|rectangle|solid)\b",
+                        L.board_for(p, "abstract"))
+              or p.get("op") in ("*", "/", "fpr", "mf", "simp", "gcf", "lcm")
+              for l in basic for p in list(l["bank"]) + [pr["ask"] for pr in l["pairs"]]), "")
+    check("  the changed files carry dated sy notes",
+          "2026-09-05  BUILD sy" in rd("lessonscripts.py")[:20000]
+          and "BUILD sy" in rd("main.py")[:200000] and "2026-09-05  BUILD sy" in mf[:3000]
+          and "BUILD sy" in rd("tags.py")[:3000] and "BUILD sy" in rd("tutor.py")[:3000]
+          and "2026-09-05 (sy)" in rd("static/script-board.js")[:3000]
+          and all("(sy) 2026-09-05" in rd(pg)[:1000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
+          and "2026-09-05  BUILD sy" in rd("ruletests.py")[:8000], "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -33028,9 +33310,12 @@ def part3db_scripted_board():
     check("⭐ build kj: every tag the page draws is in the tags.py registry",
           drawable <= registered | {"vector", "twoway", "unitcircle"},
           f"invented tags: {sorted(drawable - registered)}")
+    # (sy, 2026-09-05) the window was the first 400 characters of the block; four
+    # figures added today pushed the old names past it. The block is now read to its
+    # _compile line -- the whole export list, however long it grows.
+    _exports = mf.split("window.MathFigures = {")[1].split("_compile")[0]
     check("⭐ build kj: the figure list matches what MathFigures actually exports",
-          all(f"{k}: " in mf.split("window.MathFigures = {")[1][:400] or f"{k}," in
-              mf.split("window.MathFigures = {")[1][:400] for k in sorted(figs)),
+          all(f"{k}: " in _exports or f"{k}," in _exports for k in sorted(figs)),
           f"a kind listed here but missing there renders nothing, silently: {sorted(figs)}")
     check("build kj: the scripted lane draws MORE than the four tags it used to",
           len(drawable) >= 20, f"{len(drawable)} tags: {sorted(drawable)}")
@@ -33872,6 +34157,10 @@ def main():
     part3io_basic_unit_three_to_the_shape()
     part3ip_basic_unit_four_to_the_shape()
     part3iq_basic_unit_five_to_the_shape()
+    part3ir_basic_unit_six_to_the_shape()
+    part3is_basic_unit_seven_to_the_shape()
+    part3it_basic_unit_eight_to_the_shape()
+    part3iu_basic_unit_nine_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

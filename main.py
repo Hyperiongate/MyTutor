@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  APP_BUILD -> "2026-09-05sy-basic-unit-nine-to-the-shape".
+#               BUILD sy -- Basic Unit 9 (measuring) rewritten to the shape on the new
+#               rectangle figure, the circle and the box. The whole Basic course -- 36
+#               lessons -- is on the shape. Stamp only.
+#   2026-09-05  APP_BUILD -> "2026-09-05sx-basic-unit-eight-to-the-shape".
+#               BUILD sx -- Basic Unit 8 (percent) rewritten to the shape on the
+#               hundredths square, the sharing picture and the tape. Stamp only.
+#   2026-09-05  APP_BUILD -> "2026-09-05sw-basic-unit-seven-to-the-shape".
+#               BUILD sw -- Basic Unit 7 (decimals and money) rewritten to the shape on
+#               the tenths line, the new hundredths square and the place-value chart.
+#   2026-09-05  APP_BUILD -> "2026-09-05sv-basic-unit-six-to-the-shape".
+#               BUILD sv -- Basic Unit 6 (adding and taking away fractions) rewritten to
+#               the shape on the fraction line. Stamp only.
 #   2026-09-05  APP_BUILD -> "2026-09-05su-basic-unit-five-to-the-shape".
 #               BUILD su -- Basic Unit 5 (fractions) rewritten to the shape on the
 #               fraction line, the shared array and two pies. Stamp only.
@@ -13721,7 +13734,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-05su-basic-unit-five-to-the-shape"
+APP_BUILD = "2026-09-05sy-basic-unit-nine-to-the-shape"
 
 
 @app.get("/health")
