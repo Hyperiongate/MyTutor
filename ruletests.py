@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sr -- PART 3in: Basic Unit 2 to the shape. The four multiplying
+#               lessons carry every beat and walk clean on the array, the area model
+#               and the chart; [[array]] is drawn, exported and registered everywhere;
+#               the chart's Thousands column; "*" and "mtz" boards and walk-backs.
 #   2026-09-05  BUILD sq -- PART 3im: Basic Unit 1 to the shape. The three remaining
 #               Unit 1 lessons carry every beat and walk clean; the place-value chart
 #               ([[placevalue]]) is drawn, exported and registered on every page; two-
@@ -20268,8 +20272,9 @@ def part3fm_the_second_example_teaches_too():
     # read past. The other four are the DOCUMENTED exceptions, named here rather
     # than the check being loosened: a lesson may ship a short second example only
     # when the fact IS the working.
+    # (sr, 2026-09-05) times-tables left this list: its second example now counts the
+    # rows of the array out loud, so it is worked, not recalled. Three remain.
     SHORT_ON_PURPOSE = {
-        "basic-u2-times-tables",              # recall: "nine times seven equals 63"
         "basic-u6-add-fractions-same-bottom",  # the count is visible in the numbers
         "basic-u7-tenths",
         "basic-u7-hundredths",
@@ -20279,10 +20284,10 @@ def part3fm_the_second_example_teaches_too():
             and len(l["pairs"][1]["worked"][0].split()) < 12
             and l["id"] not in SHORT_ON_PURPOSE]
     check("  no other Basic second example is a one-line answer", not thin, thin)
-    check("  ...and the four exceptions are still exactly four",
+    check("  ...and the three exceptions are still exactly three (four until sr worked the times-tables one)",
           len([l for l in _ls.LESSONS if l["course"] == "basic"
                and len(l["pairs"]) > 1
-               and len(l["pairs"][1]["worked"][0].split()) < 12]) == 4,
+               and len(l["pairs"][1]["worked"][0].split()) < 12]) == 3,
           "growth in the exception list is still growth")
 
     check("  the recall and same-bottom lessons were deliberately NOT churned",
@@ -21790,7 +21795,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,594</b>" in page,
+          "<b>8,632</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23107,9 +23112,10 @@ def part3im_basic_unit_one_to_the_shape():
           and "placevalue" in _tags.CONTENT_ATTRS, "")
     for pg in ("static/session.html", "static/topic.html", "static/practice.html"):
         check(f"  {pg} dispatches placevalue to showFig",
-              '"tape","clock","placevalue"].indexOf(name) >= 0) showFig(name, attrs);' in rd(pg), "")
+              '"tape","clock","placevalue","array"].indexOf(name) >= 0) showFig(name, attrs);' in rd(pg),
+              "(sr extended the same list with array)")
     check("  script-board.js lists placevalue among FIGURE_KINDS",
-          '"placevalue"];' in rd("static/script-board.js"), "")
+          '"placevalue",' in rd("static/script-board.js").split("FIGURE_KINDS = [")[1].split("]")[0], "")
     import tutor as _tu
     check("  tutor's draw regex knows the chart (a reply teaching on it is not 'no board')",
           bool(_tu._SM_DRAW_RE.search('[[placevalue n="342" caption="x"]]')), "")
@@ -23135,6 +23141,123 @@ def part3im_basic_unit_one_to_the_shape():
           and "BUILD sq" in rd("tutor.py")[:3000] and "2026-09-05 (sq)" in rd("static/script-board.js")[:3000]
           and all("(sq) 2026-09-05" in rd(pg)[:800] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "2026-09-05  BUILD sq" in rd("ruletests.py")[:8000], "Jim's rule 8")
+
+
+def part3in_basic_unit_two_to_the_shape():
+    """PART 3in (build sr, 2026-09-05) -- BASIC UNIT 2 TO THE SHAPE.
+
+    The multiplying unit, on its pictures: the ARRAY (new [[array]] figure -- equal
+    groups, then the times table read off it), the AREA MODEL split into tens and
+    ones, and the PLACE-VALUE CHART with a new Thousands column for times-by-a-
+    hundred. The "*" op gained a board and a walk-back; "mtz" gained both."""
+    print("\nPART 3in — Basic Unit 2 to the shape (build sr)")
+    import lessonscripts as L
+    import tags as _tags
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")        # a reverted op fails by name, never crashes
+    U2 = ["basic-u2-what-multiplying-means", "basic-u2-times-tables",
+          "basic-u2-multiply-two-digit", "basic-u2-times-by-ten"]
+
+    # ---- 1. every Unit 2 lesson carries the whole shape, validates, and draws ------
+    for lid in U2:
+        les = L.LESSON_BY_ID.get(lid) or {}
+        check(f"⭐ {lid}: why, picture, teach, explain, recap and the walk-back flag",
+              all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain"))
+              and les.get("show_work_on_correct") is True, str(sorted(les)))
+        check(f"  {lid}: passes the real validator with the real registry",
+              bool(les) and all(ok for ok, _l, _d in L.validate(les, set(_tags.BOARD_TAGS))),
+              str([l for ok, l, _d in L.validate(les, set(_tags.BOARD_TAGS)) if not ok][:3]) if les else "missing")
+        beats = list(les.get("why") or []) + list(les.get("picture") or []) + list(les.get("teach") or []) \
+            + [pr["worked"] for pr in les.get("pairs") or []] + list(les.get("recap") or [])
+        drawn = sum(1 for _s, b in beats if re.search(r"\[\[(array|areamodel|placevalue)\b", b))
+        check(f"  {lid}: most beats draw a picture ({drawn} of {len(beats)})",
+              beats and drawn >= len(beats) * 0.6, f"{drawn}/{len(beats)}")
+
+    # ---- 2. a perfect walk: walk-back on every right answer, the reason, the closure ----
+    for lid in U2:
+        les = L.LESSON_BY_ID[lid]
+        st = L.start(les)
+        outs, st = L.step(les, st, ("begin",))
+        heard = [o["spoken"] for o in outs]
+        wb = 0
+        for _ in range(2 + L.ADVANCE_STREAK):
+            p = st["pending"]["problem"]
+            outs, st = L.step(les, st, ("answer", L.ans(p)))
+            heard.extend(o["spoken"] for o in outs)
+            w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
+            if w and str(L.ans(p)) in w[0]["spoken"] and re.search(r"\[\[(array|areamodel|placevalue)\b", w[0]["board"]):
+                wb += 1
+        ask = outs[-1]
+        check(f"⭐ {lid}: every right answer is walked back on the picture, then the reason is asked",
+              wb == 2 + L.ADVANCE_STREAK and ask.get("reason") is True, f"walk-backs {wb}, last={ask.get('kind')}")
+        o3, st = L.step(les, st, ("answer", les["explain"]["answer"]))
+        heard.extend(o["spoken"] for o in o3)
+        cl = set(L.audio_lines(les))
+        miss = [x for x in heard if x and x not in cl]
+        check(f"  {lid}: mastered on the reason, every line inside the closure",
+              o3[-1]["kind"] == "end" and o3[-1].get("mastered") is True and not miss, str(miss[:2]))
+
+    # ---- 3. the pictures ------------------------------------------------------------
+    small = {"a": 3, "b": 4, "op": "*"}
+    fact = {"a": 6, "b": 7, "op": "*"}
+    big = {"a": 34, "b": 2, "op": "*"}
+    check("⭐ a meaning-sized fact (both numbers 5 or under) is asked on the array in groups view, product hidden",
+          '[[array rows="3" cols="4" view="groups" ask="1"' in L.board_for(small, "abstract"), L.board_for(small, "abstract"))
+    check("  a times-table fact is asked BARE (recall, not counting) and walked back on the array",
+          L.board_for(fact, "abstract") == '[[step eq="6 × 7 = ?"]]'
+          and '[[array rows="6" cols="7"' in _W(fact)[1] and "42" in _W(fact)[0], _W(fact)[1])
+    check("  the small walk-back spells the repeated addition",
+          "4 plus 4 plus 4 equals 12" in _W(small)[0] and '[[array rows="3" cols="4"' in _W(small)[1], _W(small)[0])
+    check("⭐ a two-digit number times a digit is walked back on the area model, split into tens and ones",
+          '[[areamodel rows="2" cols="30,4"' in _W(big)[1] and "30 times 2 equals 60" in _W(big)[0]
+          and "60 plus 8 equals 68" in _W(big)[0], _W(big)[0])
+    m10 = {"a": 46, "b": 10, "op": "mtz"}
+    m100 = {"a": 53, "b": 100, "op": "mtz"}
+    check("⭐ times-by-ten is asked on the chart BEFORE the move and walked back on the chart AFTER it",
+          '[[placevalue n="46"' in L.board_for(m10, "abstract")
+          and '[[placevalue n="460"' in _W(m10)[1] and "4 tens became 4 hundreds" in _W(m10)[0]
+          and "a zero holds the ones" in _W(m10)[0], _W(m10)[0])
+    check("  times-by-a-hundred lands its digits in the thousands, two zeros",
+          '[[placevalue n="5300"' in _W(m100)[1] and "5 tens became 5 thousands" in _W(m100)[0]
+          and "two zeros" in _W(m100)[0], _W(m100)[0])
+    check("  every walk-back Unit 2 can emit names its answer",
+          all(str(L.ans(p)) in _W(p)[0] for lid in U2
+              for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]), "")
+
+    # ---- 4. the array figure and the thousands column, registered everywhere -------
+    mf = rd("static/math-figures.js")
+    check("⭐ math-figures.js draws [[array]] and exports it",
+          "function array(a) {" in mf and "array: array," in mf
+          and 'String(a.view || "").toLowerCase() === "groups"' in mf
+          and 'var eq = rows + " × " + cols + " = " + (ask ? "?" : String(rows * cols));' in mf, "")
+    check("  [[placevalue]] grew a Thousands column (th= or a four-digit n=)",
+          'if (th > 0) cols.unshift(["Thousands", th, "var(--bd-7c3aed)"]);' in mf
+          and "var v = parseInt(nstr, 10) % 10000;" in mf and 'if (th > 0) parts.push(String(th * 1000));' in mf, "")
+    check("  tags.py registers array as a figure, a pending-board tag and a content tag; placevalue reads th=",
+          "array" in _tags.FIGURE_TAGS and "array" in _tags.PENDING_BOARD_TAGS
+          and "array" in _tags.CONTENT_ATTRS and "th" in _tags.CONTENT_ATTRS.get("placevalue", set()), "")
+    for pg in ("static/session.html", "static/topic.html", "static/practice.html"):
+        check(f"  {pg} dispatches array to showFig",
+              '"tape","clock","placevalue","array"].indexOf(name) >= 0) showFig(name, attrs);' in rd(pg), "")
+    check("  script-board.js lists array among FIGURE_KINDS",
+          '"array"];' in rd("static/script-board.js"), "")
+    import tutor as _tu
+    check("  tutor's draw regex knows the array",
+          bool(_tu._SM_DRAW_RE.search('[[array rows="3" cols="4" caption="x"]]')), "")
+
+    # ---- 5. do no harm: the other lessons' * asks are unchanged ---------------------
+    check("  a * ask outside the meaning range is byte-identical to before sr",
+          L.board_for({"a": 8, "b": 5, "op": "*"}, "abstract") == '[[step eq="8 × 5 = ?"]]', "")
+    check("  every lesson in the course still validates",
+          all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
+    check("  the changed files carry dated sr notes",
+          "2026-09-05  BUILD sr" in rd("lessonscripts.py")[:20000]
+          and "BUILD sr" in rd("main.py")[:200000] and "2026-09-05  BUILD sr" in mf[:3000]
+          and "BUILD sr" in rd("tags.py")[:3000] and "BUILD sr" in rd("tutor.py")[:3000]
+          and "2026-09-05 (sr)" in rd("static/script-board.js")[:3000]
+          and all("(sr) 2026-09-05" in rd(pg)[:800] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
+          and "2026-09-05  BUILD sr" in rd("ruletests.py")[:8000], "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -33433,6 +33556,7 @@ def main():
     part3ik_the_mark_goes_away_and_the_voice_is_counted()
     part3il_the_lesson_learns_to_teach()
     part3im_basic_unit_one_to_the_shape()
+    part3in_basic_unit_two_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

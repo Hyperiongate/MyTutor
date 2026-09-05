@@ -2,6 +2,18 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sr -- BASIC UNIT 2 TO THE SHAPE (the multiplying unit). THIS FILE:
+#                 * what-multiplying-means on the ARRAY in equal-groups view;
+#                 * times-tables on the array (the ask stays bare -- recall, not
+#                   counting; every worked beat and walk-back draws it);
+#                 * multiply-two-digit on the AREA MODEL split into tens and ones;
+#                 * times-by-ten on the PLACE-VALUE CHART (which grew a Thousands
+#                   column) -- the digits are seen moving up a column.
+#               ENGINE: OP_EXT "*" gains _mul_board (the array on the ask only while
+#               both numbers are 5 or under -- the meaning lesson) and _mul_worked
+#               (array, or the area model for a two-digit number); "mtz" gains a chart
+#               ask board and _mtz_worked. The "Here is the trap" line in times-by-ten
+#               is kept verbatim (se: a wider ruling is Jim's).
 #   2026-09-05  BUILD sq -- BASIC UNIT 1 TO THE SHAPE. Jim, after running sp's rounding
 #               prototype: "This is exactly what I want. I would like all lessons to be
 #               taught this clearly and demonstrated this way using graphic." His
@@ -2284,22 +2296,32 @@ _MORE_LESSONS = [
     # courses is nine units of four, and there is no topic anywhere in the
     # curriculum that drops a child onto the live lane for want of a script.
     {
+        # (sr, 2026-09-05) TO THE SHAPE on the PLACE-VALUE CHART: the digits are
+        # SEEN moving up a column (the chart grew a Thousands column for it).
         "id": "basic-u2-times-by-ten", "course": "basic", "unit": 2,
         "topic": "Times by ten and a hundred", "op": "mtz", "max_value": 9900,
         "levels": ("abstract",), "symbols": ("times", "place"),
-        "advance_line": "Three in a row — you've got it! Times by ten moves every digit up one place.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Times by ten moves every digit up one place.",
+        "why": [
+            ("Why is times ten special? Because our whole number system is built "
+             "on ten — ten ones are a ten, ten tens are a hundred. So timesing by "
+             "ten is not a fact to memorize. It is a move on the place-value "
+             "chart, and once you see the move you can do it for any number.",
+             '[[goal text="Times by ten and a hundred"]]'),
+        ],
+        "picture": [
+            ("Here is 46 on the chart: 4 tens, 6 ones. Now times it by ten. Every "
+             "digit slides up one column — the 4 tens become 4 hundreds, the 6 "
+             "ones become 6 tens — and the ones column is empty, so a zero holds "
+             "it open. 460.",
+             '[[placevalue n="460" caption="46 × 10 = 460: every digit up one place"]]'),
+        ],
         "teach": [
-            ("Timesing by ten is not a times table fact to learn. It is a move. "
-             "Every digit shifts up one place, and a zero drops in behind to hold "
-             "the ones column open.",
-             '[[goal text="Times by ten and a hundred"]]'
-             '[[step eq="7 × 10 = 70"]]'),
-            ("Watch me. 46 times 10. The 4 tens become 4 hundreds and the 6 ones "
-             "become 6 tens. Nothing is left in the ones, so a zero goes there. "
-             "460. Timesing by a hundred moves everything up two places instead of "
-             "one: 46 times 100 is 4,600.",
-             '[[step eq="46 × 10 = 460"]]'
-             '[[step eq="46 × 100 = 4600"]]'),
+            ("That is the move: times ten, every digit up one place, a zero in the "
+             "ones. Times a hundred is the same move twice — every digit up two "
+             "places, and two zeros hold the tens and the ones. 46 times 100 is "
+             "4,600.",
+             '[[placevalue n="4600" caption="46 × 100 = 4600: every digit up two places"]]'),
             ("Here is the trap. Count your zeros against the number you timesed "
              "by. Ten has one zero, so one zero is added. A hundred has two zeros, "
              "so two are added. An extra zero leaves the answer ten times too big.",
@@ -2307,16 +2329,37 @@ _MORE_LESSONS = [
              '[[step eq="46000 ✗ three zeros — that is times a thousand"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 38 times 10. Each digit "
-                        "moves up one place and a zero fills the ones. 380.",
-                        '[[step eq="38 × 10 = 380"]]'),
+            {"worked": ("Here is one more, done for you. 38 times 10. The 3 tens "
+                        "become 3 hundreds, the 8 ones become 8 tens, and a zero "
+                        "fills the ones. 380.",
+                        '[[placevalue n="380" caption="38 × 10 = 380: every digit up one place"]]'),
              "ask": {"a": 27, "b": 10, "op": "mtz"}},
-            {"worked": ("One more together. 53 times 100. Two zeros this time, so "
-                        "5,300.",
-                        '[[step eq="53 × 100 = 5300"]]'),
+            {"worked": ("One more together. 53 times 100. Two places this time: 5 "
+                        "tens become 5 thousands, 3 ones become 3 hundreds, and two "
+                        "zeros hold the tens and the ones. 5,300.",
+                        '[[placevalue n="5300" caption="53 × 100 = 5300: every digit up two places"]]'),
              "ask": {"a": 64, "b": 100, "op": "mtz"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": "Now it's your turn. Watch the digits move on the chart. Three right answers in a row and we're done — here comes the first one.",
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 46 times 10 is "
+                       "460, and it ends in a zero. Tap the reason why."),
+            "choices": ("because every digit moved up a place and left the ones "
+                        "empty | because ten ends in a zero, so you copy it | "
+                        "because 460 is a round number"),
+            "answer": "because every digit moved up a place and left the ones empty",
+            "board": '[[placevalue n="460" caption="the ones column is empty — a zero holds it"]]',
+        },
+        "recap": [
+            ("So, here it is again. Times ten: every digit up one place, a zero in "
+             "the ones. Times a hundred: up two places, two zeros. Count your "
+             "zeros against the number you timesed by.",
+             '[[placevalue n="4600" caption="46 × 100 = 4600"]]'),
+            ("And it works for every number, because the whole system is built on "
+             "ten.",
+             '[[step eq="46 × 10 = 460 · 46 × 100 = 4600"]]'),
+        ],
         "bank": [{"a": 2, "b": 10, "op": "mtz"}, {"a": 23, "b": 10, "op": "mtz"}, {"a": 42, "b": 10, "op": "mtz"}, {"a": 62, "b": 10, "op": "mtz"}, {"a": 82, "b": 10, "op": "mtz"}, {"a": 12, "b": 100, "op": "mtz"}, {"a": 34, "b": 100, "op": "mtz"}, {"a": 56, "b": 100, "op": "mtz"}, {"a": 77, "b": 100, "op": "mtz"}, {"a": 99, "b": 100, "op": "mtz"}],
     },
     {
@@ -3171,59 +3214,139 @@ _MORE_LESSONS = [
         "bank": [{'a': 21, 'b': 13, 'op': '-'}, {'a': 32, 'b': 15, 'op': '-'}, {'a': 34, 'b': 16, 'op': '-'}, {'a': 43, 'b': 17, 'op': '-'}, {'a': 45, 'b': 28, 'op': '-'}, {'a': 52, 'b': 24, 'op': '-'}, {'a': 56, 'b': 38, 'op': '-'}, {'a': 63, 'b': 26, 'op': '-'}, {'a': 71, 'b': 44, 'op': '-'}, {'a': 75, 'b': 47, 'op': '-'}, {'a': 82, 'b': 55, 'op': '-'}, {'a': 91, 'b': 63, 'op': '-'}],
     },
     {
+        # (sr, 2026-09-05) TO THE SHAPE on the ARRAY ([[array view="groups"]]): equal
+        # groups drawn as rows of dots, the times sign as the short way to write them.
         "id": 'basic-u2-what-multiplying-means',
         "course": "basic", "unit": 2,
         "topic": 'What multiplying means',
         "op": '*', "max_value": 30,
         "levels": ("abstract",),
         "symbols": ('times', 'equals'),
-        "advance_line": "Three in a row — you've got it! You know what multiplying means.",
-        "teach": [
-            ('Today we are learning to multiply. Multiplying means putting together equal groups. Three times four means three groups of four.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You know what multiplying means.",
+        "why": [
+            ("Why multiply? Because adding the same number again and again is slow. "
+             "Three packs of four pencils: 4 plus 4 plus 4. Fine for three packs — "
+             "but for twenty packs you would be adding all day. Multiplying is the "
+             "short way to add equal groups.",
              '[[goal text="What multiplying means"]]'),
-            ('Watch me. Three times four is three groups of four: 4 plus 4 plus 4 equals 12. We write it with the times sign. Three times four equals 12.',
-             '[[step eq="3 × 4"]][[step eq="4 + 4 + 4 = 12"]][[step eq="3 × 4 = 12"]]'),
-            ('One more, watch. Two times five is two groups of five: 5 plus 5 equals 10. Two times five equals ten.',
-             '[[step eq="2 × 5"]][[step eq="5 + 5 = 10"]][[step eq="2 × 5 = 10"]]'),
+        ],
+        "picture": [
+            ("Here are three groups of four. Three rows, four dots in each row. "
+             "Count them: 4, 8, 12. Three groups of four is twelve.",
+             '[[array rows="3" cols="4" view="groups" caption="3 groups of 4 = 12"]]'),
+        ],
+        "teach": [
+            ("That is what multiplying means: putting together equal groups. We "
+             "write it with the times sign. Three times four means three groups of "
+             "four, and it equals 12 — the same 12 as 4 plus 4 plus 4, written the "
+             "short way.",
+             '[[array rows="3" cols="4" caption="3 × 4 = 12"]][[step eq="4 + 4 + 4 = 12"]]'),
+            ("One more, watch. Two times five is two groups of five: 5 plus 5 equals "
+             "10. Two times five equals ten.",
+             '[[array rows="2" cols="5" view="groups" caption="2 groups of 5 = 10"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. Four times two is four groups of two: 2 plus 2 plus 2 plus 2 equals 8. Four times two equals eight.',
-                        '[[step eq="4 × 2"]][[step eq="2 + 2 + 2 + 2 = 8"]][[step eq="4 × 2 = 8"]]'),
+            {"worked": ("Here is one more, done for you. Four times two is four groups "
+                        "of two: 2 plus 2 plus 2 plus 2 equals 8. Four times two equals "
+                        "eight.",
+                        '[[array rows="4" cols="2" view="groups" caption="4 groups of 2 = 8"]]'),
              "ask": {'a': 3, 'b': 2, 'op': '*'}},
-            {"worked": ('One more together. Five times three is five groups of three — fifteen. Five times three equals fifteen.',
-                        '[[step eq="5 × 3"]][[step eq="3 + 3 + 3 + 3 + 3 = 15"]][[step eq="5 × 3 = 15"]]'),
+            {"worked": ("One more together. Five times three is five groups of three. "
+                        "Count the rows: 3, 6, 9, 12, 15. Five times three equals "
+                        "fifteen.",
+                        '[[array rows="5" cols="3" view="groups" caption="5 groups of 3 = 15"]]'),
              "ask": {'a': 4, 'b': 3, 'op': '*'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Count the groups if you need to. Three "
+                           "right answers in a row and we're done — here comes the "
+                           "first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 times 4 equals "
+                       "12. Tap the reason why."),
+            # the second wrong reason is the classic confusion -- adding instead
+            "choices": ("because it is 3 groups of 4 put together | because 3 and 4 "
+                        "add up to 12 | because 12 is the biggest number"),
+            "answer": "because it is 3 groups of 4 put together",
+            "board": '[[array rows="3" cols="4" view="groups" caption="3 groups of 4 = 12"]]',
+        },
+        "recap": [
+            ("So, here it is again. Multiplying means putting together equal groups. "
+             "Three times four is three groups of four — 4 plus 4 plus 4 — and that "
+             "equals 12.",
+             '[[array rows="3" cols="4" caption="3 × 4 = 12"]]'),
+            ("And it is the short way to add the same number many times — the more "
+             "groups, the more it saves.",
+             '[[step eq="4 + 4 + 4 = 3 × 4 = 12"]]'),
+        ],
         "bank": [{'a': 2, 'b': 2, 'op': '*'}, {'a': 2, 'b': 3, 'op': '*'}, {'a': 3, 'b': 3, 'op': '*'}, {'a': 2, 'b': 5, 'op': '*'}, {'a': 4, 'b': 4, 'op': '*'}, {'a': 3, 'b': 5, 'op': '*'}, {'a': 4, 'b': 5, 'op': '*'}, {'a': 5, 'b': 5, 'op': '*'}],
     },
     {
+        # (sr, 2026-09-05) TO THE SHAPE on the ARRAY. The ask is bare on purpose (a
+        # times table is recall); every worked beat and every walk-back draws the array.
+        # Ruling ⑦'s one-clean-pass mastery ("mastery": "table") is a later build.
         "id": 'basic-u2-times-tables',
         "course": "basic", "unit": 2,
         "topic": 'Times tables',
         "op": '*', "max_value": 81,
         "levels": ("abstract",),
         "symbols": ('times', 'equals'),
-        "advance_line": "Three in a row — you've got it! Your times tables are getting strong.",
-        "teach": [
-            ('You already know what multiplying means. Today we practice the times tables — bigger groups, up to nine times nine.',
+        "advance_line": "Three in a row, and you can say why — you've got it! Your times tables are getting strong.",
+        "why": [
+            ("Why learn the times tables by heart? Because you use them constantly "
+             "— sharing out, working out a bill, every bigger sum you will ever do. "
+             "Knowing 6 times 7 the way you know your own name means the hard part "
+             "of a problem never has to wait for the easy part.",
              '[[goal text="Times tables"]]'),
-            ('Watch me. Six times seven. Six groups of seven equals 42. Six times seven equals 42.',
-             '[[step eq="6 × 7 = 42"]]'),
-            ('A helpful trick: turn the problem around. Seven times six equals the same 42 — the order does not change the answer.',
-             '[[step eq="7 × 6 = 42"]]'),
+        ],
+        "picture": [
+            ("Every times table fact is a picture. Six times seven: six rows, seven "
+             "dots in each. Count by sevens down the rows — 7, 14, 21, 28, 35, 42. "
+             "Forty-two dots.",
+             '[[array rows="6" cols="7" caption="6 rows of 7 = 42"]]'),
+        ],
+        "teach": [
+            ("So six times seven equals 42. The times tables are these pictures, "
+             "learned so well you no longer need to count them — up to nine times "
+             "nine.",
+             '[[array rows="6" cols="7" caption="6 × 7 = 42"]]'),
+            ("A helpful trick: turn the picture on its side. Seven rows of six is "
+             "the same dots, so seven times six is the same 42. The order does not "
+             "change the answer — one fact learned is two facts known.",
+             '[[array rows="7" cols="6" caption="7 × 6 = 42, the same dots"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. Eight times six equals 48.',
-                        '[[step eq="8 × 6 = 48"]]'),
+            {"worked": ("Here is one more, done for you. Eight times six. Eight rows of "
+                        "six — count by sixes: 6, 12, 18, 24, 30, 36, 42, 48. Eight "
+                        "times six equals 48.",
+                        '[[array rows="8" cols="6" caption="8 × 6 = 48"]]'),
              "ask": {'a': 8, 'b': 5, 'op': '*'}},
-            {"worked": ('One more together. Nine times seven equals 63.',
-                        '[[step eq="9 × 7 = 63"]]'),
+            {"worked": ("One more together. Nine times seven. Nine rows of seven is "
+                        "63. Nine times seven equals 63.",
+                        '[[array rows="9" cols="7" caption="9 × 7 = 63"]]'),
              "ask": {'a': 9, 'b': 6, 'op': '*'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Say the fact, and I will show you its "
+                           "picture. Three right answers in a row and we're done — "
+                           "here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 6 times 7 and 7 "
+                       "times 6 both equal 42. Tap the reason why."),
+            "choices": ("because turning the rows on their side keeps the same dots | "
+                        "because 6 and 7 are next to each other | because 42 is an "
+                        "even number"),
+            "answer": "because turning the rows on their side keeps the same dots",
+            "board": '[[array rows="7" cols="6" caption="7 × 6 = 42, the same dots as 6 × 7"]]',
+        },
+        "recap": [
+            ("So, here it is again. Every times table fact is rows of dots, and "
+             "turning the rows on their side gives the same answer — one fact "
+             "learned is two facts known.",
+             '[[array rows="6" cols="7" caption="6 × 7 = 42"]]'),
+            ("And knowing them by heart is what lets every bigger sum go quickly.",
+             '[[step eq="6 × 7 = 42 · 7 × 6 = 42"]]'),
+        ],
         "bank": [{'a': 3, 'b': 6, 'op': '*'}, {'a': 4, 'b': 6, 'op': '*'}, {'a': 5, 'b': 6, 'op': '*'}, {'a': 6, 'b': 6, 'op': '*'}, {'a': 6, 'b': 7, 'op': '*'}, {'a': 7, 'b': 7, 'op': '*'}, {'a': 8, 'b': 7, 'op': '*'}, {'a': 8, 'b': 8, 'op': '*'}, {'a': 9, 'b': 8, 'op': '*'}, {'a': 9, 'b': 9, 'op': '*'}],
     },
     {
@@ -3976,39 +4099,70 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (sr, 2026-09-05) TO THE SHAPE on the AREA MODEL ([[areamodel]]): the two-digit
+        # number split into tens and ones, each piece its own box, the boxes added.
         "id": "basic-u2-multiply-two-digit", "course": "basic", "unit": 2,
         "topic": "Multiplying bigger numbers",
         "op": "*", "max_value": 300,
         "levels": ("abstract",),
         "symbols": ("times", "tens"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You can multiply bigger numbers."),
-        "teach": [
-            ("Today we multiply a two-digit number. The trick: split it into "
-             "tens and ones, multiply each piece, then put the pieces together.",
+        "why": [
+            ("The times tables stop at nine. But the world does not: 34 tickets at "
+             "2 dollars each, 23 rows of 3 chairs. Today we multiply a two-digit "
+             "number — and the whole trick is that you already know how, in "
+             "pieces.",
              '[[goal text="Multiplying bigger numbers"]]'),
-            ("Watch me. 34 times 2. Split 34 into 30 and 4. 30 times 2 equals "
+        ],
+        "picture": [
+            ("Here is 34 times 2 as a picture: a box 34 wide and 2 tall. Cut the 34 "
+             "into 30 and 4, and the box splits into two smaller boxes — one 30 by "
+             "2, one 4 by 2. The big box is the two small ones put together.",
+             '[[areamodel rows="2" cols="30,4" caption="34 × 2 = 30 × 2 + 4 × 2"]]'),
+        ],
+        "teach": [
+            ("So the trick is: split the two-digit number into tens and ones, "
+             "multiply each piece, then put the pieces together. 30 times 2 equals "
              "60. 4 times 2 equals 8. 60 plus 8 equals 68.",
-             '[[step eq="34 × 2"]][[step eq="30 × 2 = 60"]][[step eq="4 × 2 = 8"]]'
-             '[[step eq="60 + 8 = 68"]]'),
-            ("One more, watch. 23 times 3. 20 times 3 equals 60; 3 times 3 "
-             "equals 9. 60 plus 9 equals 69.",
-             '[[step eq="23 × 3"]][[step eq="20 × 3 = 60"]][[step eq="3 × 3 = 9"]]'
-             '[[step eq="23 × 3 = 69"]]'),
+             '[[areamodel rows="2" cols="30,4" caption="60 + 8 = 68"]]'
+             '[[step eq="34 × 2 = 68"]]'),
+            ("One more, watch. 23 times 3. Split 23 into 20 and 3. 20 times 3 "
+             "equals 60; 3 times 3 equals 9. 60 plus 9 equals 69.",
+             '[[areamodel rows="3" cols="20,3" caption="23 × 3 = 60 + 9 = 69"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 42 times 2. 40 times 2 "
-                        "equals 80; 2 times 2 equals 4. 84.",
-                        '[[step eq="42 × 2 = 84"]]'),
+            {"worked": ("Here is one more, done for you. 42 times 2. Split 42 into 40 "
+                        "and 2. 40 times 2 equals 80; 2 times 2 equals 4. 80 plus 4 "
+                        "equals 84.",
+                        '[[areamodel rows="2" cols="40,2" caption="42 × 2 = 80 + 4 = 84"]]'),
              "ask": {"a": 43, "b": 2, "op": "*"}},
             {"worked": ("One more together. 31 times 3. Split 31 into 30 and 1. "
                         "30 times 3 equals 90; 1 times 3 equals 3. "
                         "90 plus 3 equals 93.",
-                        '[[step eq="31 × 3 = 93"]]'),
+                        '[[areamodel rows="3" cols="30,1" caption="31 × 3 = 90 + 3 = 93"]]'),
              "ask": {"a": 32, "b": 3, "op": "*"}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Split it, multiply the pieces, put "
+                           "them together. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. To find 34 "
+                       "times 2, we split 34 into 30 and 4. Tap the reason why."),
+            "choices": ("because we know how to multiply each piece | because 30 "
+                        "is a rounder number | because 34 is too big to write"),
+            "answer": "because we know how to multiply each piece",
+            "board": '[[areamodel rows="2" cols="30,4" caption="34 × 2 = 60 + 8 = 68"]]',
+        },
+        "recap": [
+            ("So, here it is again. A two-digit number times a digit: split it into "
+             "tens and ones, multiply each piece — those are times table facts you "
+             "know — then put the pieces together.",
+             '[[areamodel rows="2" cols="30,4" caption="34 × 2 = 60 + 8 = 68"]]'),
+            ("And that is how the times tables reach past nine — in pieces.",
+             '[[step eq="34 × 2 = 30 × 2 + 4 × 2 = 68"]]'),
+        ],
         "bank": [
             {"a": 12, "b": 2, "op": "*"}, {"a": 13, "b": 3, "op": "*"},
             {"a": 24, "b": 2, "op": "*"}, {"a": 21, "b": 3, "op": "*"},
@@ -16912,6 +17066,61 @@ def _tens_ones_worked(p):
             f'[[placevalue t="{a}" o="{b}" caption="{a} tens and {b} ones = {10 * a + b}"]]')
 
 
+# (sr, 2026-09-05) MULTIPLYING'S PICTURES. Small facts are an ARRAY (rows of dots
+# -- the equal-groups meaning, then the times table read off it); a two-digit
+# number times a digit is the AREA MODEL split into tens and ones. The ask draws
+# the array only while the lesson is about MEANING (both numbers up to 5, the
+# what-multiplying-means bank); a times-table fact is asked bare, because a 9-by-9
+# dot grid on the question turns recall into counting. The walk-back always draws.
+def _mul_board(p):
+    a, b = p["a"], p["b"]
+    if a <= 5 and b <= 5:
+        return (f'[[array rows="{a}" cols="{b}" view="groups" ask="1" '
+                f'caption="{a} groups of {b}"]][[step eq="{a} × {b} = ?"]]')
+    return f'[[step eq="{a} × {b} = ?"]]'
+
+
+def _mul_worked(p):
+    a, b = p["a"], p["b"]
+    if a >= 10 and b <= 9:
+        tens, ones = a // 10 * 10, a % 10
+        board = (f'[[areamodel rows="{b}" cols="{tens},{ones}" '
+                 f'caption="{a} × {b}: {tens} × {b} = {tens * b}, {ones} × {b} = {ones * b}"]]')
+        spoken = (f"Look what you did: split {a} into {tens} and {ones}. {tens} times "
+                  f"{b} equals {tens * b}; {ones} times {b} equals {ones * b}. "
+                  f"{tens * b} plus {ones * b} equals {a * b}.")
+        return (spoken, board)
+    board = f'[[array rows="{a}" cols="{b}" caption="{a} rows of {b} = {a * b}"]]'
+    if a <= 5:
+        chain = " plus ".join([str(b)] * a)
+        spoken = (f"Look what you did: {a} groups of {b} — {chain} equals {a * b}. "
+                  f"{a} times {b} equals {a * b}.")
+    else:
+        spoken = (f"Look what you did: {a} rows of {b} is {a * b}. {a} times {b} "
+                  f"equals {a * b}.")
+    return (spoken, board)
+
+
+def _mtz_worked(p):
+    a, b = p["a"], p["b"]
+    tens, ones = a // 10, a % 10
+    if b == 10:
+        moved = (f"the {_plural(ones, 'one')} became {_plural(ones, 'ten')}" if a < 10 else
+                 f"the {_plural(tens, 'ten')} became {_plural(tens, 'hundred')} and the "
+                 f"{_plural(ones, 'one')} became {_plural(ones, 'ten')}")
+        spoken = (f"Look what you did: every digit moved up one place — {moved} — and "
+                  f"a zero holds the ones. {a} times 10 equals {a * 10}.")
+        cap = f"{a} × 10 = {a * 10}: every digit up one place"
+    else:
+        moved = (f"the {_plural(ones, 'one')} became {_plural(ones, 'hundred')}" if a < 10 else
+                 f"the {_plural(tens, 'ten')} became {_plural(tens, 'thousand')} and the "
+                 f"{_plural(ones, 'one')} became {_plural(ones, 'hundred')}")
+        spoken = (f"Look what you did: every digit moved up two places — {moved} — and "
+                  f"two zeros hold the tens and the ones. {a} times 100 equals {a * 100}.")
+        cap = f"{a} × 100 = {a * 100}: every digit up two places"
+    return (spoken, f'[[placevalue n="{a * b}" caption="{cap}"]]')
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -16939,7 +17148,10 @@ OP_EXT = {
     "mtz": {   # a times ten or a hundred -- the place-shift, not a times table
         "ans": lambda p: p["a"] * p["b"],
         "spoken": lambda p: f"What is {p['a']} times {p['b']}?",
-        "board": lambda p: f'[[step eq="{p["a"]} × {p["b"]} = ?"]]',
+        # (sr) the chart shows the number BEFORE the move; the walk-back shows it after
+        "board": lambda p: (f'[[placevalue n="{p["a"]}" caption="{p["a"]} — now move every '
+                            f'digit up"]][[step eq="{p["a"]} × {p["b"]} = ?"]]'),
+        "worked": _mtz_worked,
         "praise": lambda p: (f"{p['a']} times {p['b']} is {p['a'] * p['b']} — every "
                              f"digit moved up, and the gap was filled with zeros."),
         "key": lambda p: p["a"] * p["b"],
@@ -17238,7 +17450,8 @@ OP_EXT = {
     "*": {
         "ans": lambda p: p["a"] * p["b"],
         "spoken": lambda p: f"What is {p['a']} times {p['b']}?",
-        "board": lambda p: f'[[step eq="{p["a"]} × {p["b"]} = ?"]]',
+        "board": _mul_board,          # (sr) the array while the lesson is about meaning
+        "worked": _mul_worked,        # (sr) array, or the area model split into tens and ones
         "praise": lambda p: f"{p['a']} times {p['b']} equals {p['a'] * p['b']}.",
         "key": lambda p: p["a"] * p["b"],
         "check": lambda p: (p["a"] >= 1 and p["b"] >= 1, "factors must be at least 1"),

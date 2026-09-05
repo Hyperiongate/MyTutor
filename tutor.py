@@ -2,6 +2,7 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sr -- _SM_DRAW_RE learns [[array]] (Basic Unit 2's picture).
 #   2026-09-05  BUILD sq -- (1) _SM_DRAW_RE learns [[placevalue]] (the new figure), so a
 #               reply that teaches place value on the chart is not read as computing
 #               with no board. (2) notation_intro_conflict gates each notation PER
@@ -4592,7 +4593,7 @@ _SM_DRAW_RE = re.compile(
     r"objects|machine|angle|triangle|circle|polygon|segment|clock|venn|tree|pie|"
     r"bars|histogram|dotplot|boxplot|scatter|normal|twoway|unitcircle|"
     r"righttriangle|conic|areamodel|vector|transversal|solid|stepcard|check|"
-    r"quiz|placevalue)\b")
+    r"quiz|placevalue|array)\b")
 
 
 def spoken_math_unwritten_conflict(reply: str, heard=None):

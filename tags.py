@@ -2,6 +2,8 @@
 # tags.py  --  THE TAG GRAMMAR, ONE COPY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD sr -- [[array]] joins FIGURE_TAGS, PENDING_BOARD_TAGS and CONTENT_ATTRS
+#               (rows/cols); placevalue's content attrs gain th= (the thousands column).
 #   2026-09-05  BUILD sq -- [[placevalue]] joins FIGURE_TAGS (the place-value chart with
 #               base-ten blocks, math-figures.js), PENDING_BOARD_TAGS (it can carry the
 #               worked line) and CONTENT_ATTRS (n/number/h/t/o -- bare, it draws empty).
@@ -81,6 +83,8 @@ FIGURE_TAGS = (
     # build sq (2026-09-05): the place-value chart with base-ten blocks -- Jim's
     # ruling that every lesson is taught with a picture; place value's is this one.
     "placevalue",
+    # build sr (2026-09-05): the multiplication array / equal groups -- Basic Unit 2's picture.
+    "array",
 )
 
 # ---- WRITING: tags that put words/equations on the board -------------------------
@@ -108,7 +112,8 @@ BOARD_TAGS = FIGURE_TAGS + ("write", "step", "solve", "column", "card", "check",
 PENDING_BOARD_TAGS = ("step", "write", "solve", "column", "card", "graph",
                       "numberline", "objects", "balance", "machine", "areamodel",
                       "choices",
-                      "placevalue")   # (sq) a place-value chart can carry the worked line
+                      "placevalue",   # (sq) a place-value chart can carry the worked line
+                      "array")        # (sr) so can the array
 
 # ---- RENDERER MAP: tag -> the show* function that draws it -----------------------
 # (Figure tags route through showFig/showGeo and are not listed one-by-one.)
@@ -177,7 +182,9 @@ CONTENT_ATTRS = {
     "venn": {"a", "b", "both", "left", "right"},
     "tape": {"parts", "segments", "total"},
     # build sq: a place-value chart with no number draws an empty chart
-    "placevalue": {"n", "number", "h", "t", "o"},
+    "placevalue": {"n", "number", "h", "t", "o", "th"},
+    # build sr: an array with no rows/cols draws the default 3 by 4 -- content is the counts
+    "array": {"rows", "cols"},
 }
 
 # I did no harm and this file is not truncated.

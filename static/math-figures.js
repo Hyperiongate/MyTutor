@@ -2,6 +2,12 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-05  BUILD sr -- THE ARRAY, AND A THOUSANDS COLUMN. New figure
+                 [[array rows="3" cols="4"]]: rows of dots, each row labelled, the
+                 product underneath (ask="1" writes "?"); view="groups" spaces and
+                 boxes the rows for the equal-groups meaning. [[placevalue]] grows a
+                 Thousands column (th= or a four-digit n=) so times-by-a-hundred can
+                 show its digits landing there. Basic Unit 2's pictures.
      2026-09-05  BUILD sq -- THE PLACE-VALUE CHART. New figure [[placevalue n="342"]]
                  (or h= t= o=): Hundreds | Tens | Ones, the digit over each column,
                  the base-ten blocks below (flats, rods, cubes) and the expanded form
@@ -1062,22 +1068,27 @@
   // the student READS the number off the blocks, which is the whole skill.
   function placevalue(a) {
     var nstr = String(a.n || a.number || "").replace(/[^0-9]/g, "");
-    var h = num(a.h, NaN), t = num(a.t, NaN), o = num(a.o, NaN);
+    var th = num(a.th, NaN), h = num(a.h, NaN), t = num(a.t, NaN), o = num(a.o, NaN);
     if (nstr) {
-      var v = parseInt(nstr, 10) % 1000;
-      if (isNaN(h)) h = Math.floor(v / 100);
+      var v = parseInt(nstr, 10) % 10000;
+      if (isNaN(th)) th = Math.floor(v / 1000);
+      if (isNaN(h)) h = Math.floor(v / 100) % 10;
       if (isNaN(t)) t = Math.floor(v / 10) % 10;
       if (isNaN(o)) o = v % 10;
     }
+    // (sr) a fourth column, Thousands, when there are any -- times-by-a-hundred
+    // reaches 9,900 and the chart has to show the digits landing there
+    th = isNaN(th) ? 0 : Math.max(0, Math.min(9, Math.floor(th)));
     h = isNaN(h) ? 0 : Math.max(0, Math.min(9, Math.floor(h)));
     t = isNaN(t) ? 0 : Math.max(0, Math.min(9, Math.floor(t)));
     o = isNaN(o) ? 0 : Math.max(0, Math.min(9, Math.floor(o)));
     var ask = String(a.ask || "") === "1" || String(a.ask || "").toLowerCase() === "true";
     // three columns when there are hundreds to show, or the author asked (h= or
     // places="3"); a tens-and-ones number gets the two-column chart Entry teaches from
-    var showH = h > 0 || !isNaN(num(a.h, NaN)) || String(a.places || "") === "3";
+    var showH = h > 0 || th > 0 || !isNaN(num(a.h, NaN)) || String(a.places || "") === "3";
     var cols = showH ? [["Hundreds", h, "var(--bd-5b5bd6)"], ["Tens", t, "var(--bd-0d9488)"], ["Ones", o, "var(--bd-e0392b)"]]
                      : [["Tens", t, "var(--bd-0d9488)"], ["Ones", o, "var(--bd-e0392b)"]];
+    if (th > 0) cols.unshift(["Thousands", th, "var(--bd-7c3aed)"]);
     var W = 660, H = ask ? 186 : 214, cw = (W - 40) / cols.length, x0 = 20;
     var s = svgOpen(W, H, 900);
     cols.forEach(function (c, i) {
@@ -1088,7 +1099,16 @@
       s += tspan(mid, 68, ask ? "?" : String(c[1]), ask ? "var(--bd-9aa7b6)" : "var(--bd-26263a)", 34, 800);
       // the blocks: flats / rods / cubes, at most 9, left to right in rows
       var n = c[1], by = 84;
-      if (c[0] === "Hundreds") {
+      if (c[0] === "Thousands") {
+        // a thousand is ten flats stacked: drawn as a flat with two more peeking
+        // out behind it, so it reads as "a block of flats" and not as a hundred
+        for (var kk = 0; kk < n; kk++) {
+          var tx = cx + 12 + (kk % 5) * 40, ty = by + Math.floor(kk / 5) * 42;
+          s += '<rect x="' + (tx + 6) + '" y="' + (ty - 6) + '" width="30" height="30" fill="rgba(124,58,237,.10)" stroke="' + c[2] + '" stroke-width="1.2"/>';
+          s += '<rect x="' + (tx + 3) + '" y="' + (ty - 3) + '" width="30" height="30" fill="rgba(124,58,237,.14)" stroke="' + c[2] + '" stroke-width="1.2"/>';
+          s += '<rect x="' + tx + '" y="' + ty + '" width="30" height="30" fill="rgba(124,58,237,.26)" stroke="' + c[2] + '" stroke-width="1.6"/>';
+        }
+      } else if (c[0] === "Hundreds") {
         for (var k = 0; k < n; k++) {
           var fx = cx + 12 + (k % 5) * 40, fy = by + Math.floor(k / 5) * 42;
           s += '<rect x="' + fx + '" y="' + fy + '" width="36" height="36" fill="rgba(91,91,214,.22)" stroke="' + c[2] + '" stroke-width="1.6"/>';
@@ -1112,11 +1132,44 @@
     });
     if (!ask) {   // the expanded form: 300 + 40 + 2 = 342
       var parts = [];
+      if (th > 0) parts.push(String(th * 1000));
       if (showH) parts.push(String(h * 100));
       parts.push(String(t * 10)); parts.push(String(o));
-      var total = (showH ? h * 100 : 0) + t * 10 + o;
+      var total = th * 1000 + (showH ? h * 100 : 0) + t * 10 + o;
       s += tspan(W / 2, H - 10, parts.join(" + ") + " = " + total, "var(--bd-5b5bd6)", 18, 800);
     }
+    return s + "</svg>";
+  }
+
+  // ---- [[array rows="3" cols="4"]] : the multiplication array (sr, 2026-09-05) ----
+  // Basic Unit 2's picture. rows groups of cols dots, each row labelled with its
+  // count, "3 × 4 = 12" underneath. view="groups" spaces the rows apart and
+  // brackets each one ("a group of 4") -- the equal-groups meaning; the default
+  // is the tight array. ask="1" writes "?" for the product so the student says it.
+  function array(a) {
+    var rows = Math.max(1, Math.min(10, Math.floor(num(a.rows, 3))));
+    var cols = Math.max(1, Math.min(12, Math.floor(num(a.cols, 4))));
+    var groups = String(a.view || "").toLowerCase() === "groups";
+    var ask = String(a.ask || "") === "1" || String(a.ask || "").toLowerCase() === "true";
+    var d = 22, gap = groups ? 14 : 4, x0 = 70, y0 = 30;
+    var W = Math.max(360, x0 + cols * (d + 4) + 60), H = y0 + rows * (d + gap) + 44;
+    var s = svgOpen(W, H, 760);
+    var cellFill = ["var(--bd-5b5bd6)", "var(--bd-0d9488)", "var(--bd-e0392b)", "var(--bd-d97706)", "var(--bd-7c3aed)"];
+    for (var r = 0; r < rows; r++) {
+      var yy = y0 + r * (d + gap) + d / 2, col = groups ? cellFill[r % cellFill.length] : "var(--bd-5b5bd6)";
+      if (groups) {
+        s += '<rect x="' + (x0 - 8) + '" y="' + (yy - d / 2 - 4) + '" width="' + (cols * (d + 4) + 8) + '" height="' + (d + 8) + '" rx="9" fill="rgba(91,91,214,.06)" stroke="var(--bd-c8d0da)" stroke-width="1.2"/>';
+      }
+      for (var c = 0; c < cols; c++) {
+        s += '<circle cx="' + (x0 + c * (d + 4) + d / 2) + '" cy="' + yy + '" r="' + (d / 2 - 2) + '" fill="' + col + '" opacity="0.85"/>';
+      }
+      s += tspan(x0 - 16, yy + 5, String(cols), "var(--bd-555566)", 13, 800, "end");
+    }
+    // the column count along the top, the row count down the side
+    s += tspan(x0 + cols * (d + 4) / 2, y0 - 12, cols + " in each row", "var(--bd-555566)", 12, 700);
+    s += tspan(x0 - 40, y0 + rows * (d + gap) / 2, rows + " rows", "var(--bd-555566)", 12, 700, "middle");
+    var eq = rows + " × " + cols + " = " + (ask ? "?" : String(rows * cols));
+    s += tspan(W / 2, H - 10, eq, "var(--bd-5b5bd6)", 18, 800);
     return s + "</svg>";
   }
 
@@ -1231,7 +1284,7 @@
     unitcircle: unitcircle, righttriangle: righttriangle, conic: conic,
     numberline: numberline, areamodel: areamodel, vector: vector,
     venn: venn, tape: tape, clock: clock,
-    placevalue: placevalue,   // (sq) the place-value chart with base-ten blocks
+    placevalue: placevalue, array: array,   // (sq) the chart, (sr) the array
     _compile: compile,
     svg: function (kind, a) {
       try { return this[kind] ? this[kind](a || {}) : ""; } catch (e) { return ""; }
