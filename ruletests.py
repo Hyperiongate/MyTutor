@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD tc -- PART 3iy: Prealgebra Units 1-3 to the shape (12 lessons on
+#               the ladder, the rectangle and the number line with hops); the integer
+#               asks mark the start, never the landing point.
 #   2026-09-05  BUILD tb -- PART 3ix: Entry Unit 1 to the shape. _entry_unit_checks: the
 #               unit checks for a course whose lessons may keep the quick praise
 #               (ruling ⑤) and carry no reason question (pre-readers).
@@ -21843,7 +21846,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,941</b>" in page,
+          "<b>9,026</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23625,6 +23628,9 @@ def _shape_unit_checks(unit_ids, pic_regex):
     reason question, masters on it, and every line heard is in the closure."""
     import lessonscripts as L
     import tags as _tags
+    # (tc, 2026-09-05) a negative answer is SAID "negative 4" -- the digits alone would
+    # be read as a hyphen by the voice -- so either form names it (validate agrees)
+    _names = lambda v, s: str(v) in s or (v < 0 and f"negative {-v}" in s)
     for lid in unit_ids:
         les = L.LESSON_BY_ID.get(lid) or {}
         check(f"⭐ {lid}: why, picture, teach, explain, recap and the walk-back flag",
@@ -23654,7 +23660,7 @@ def _shape_unit_checks(unit_ids, pic_regex):
             outs, st = L.step(les, st, ("answer", L.ans(p)))
             heard.extend(o["spoken"] for o in outs)
             w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
-            if w and str(L.ans(p)) in w[0]["spoken"] and re.search(pic_regex, w[0]["board"]):
+            if w and _names(L.ans(p), w[0]["spoken"]) and re.search(pic_regex, w[0]["board"]):
                 wb += 1
         ask = outs[-1]
         check(f"⭐ {lid}: every right answer is walked back on the picture, then the reason is asked",
@@ -23667,7 +23673,7 @@ def _shape_unit_checks(unit_ids, pic_regex):
               o3[-1]["kind"] == "end" and o3[-1].get("mastered") is True and not miss, str(miss[:2]))
     _W = lambda p: L._worked_for(p) or ("", "")
     check("  every walk-back the unit can emit names its answer",
-          all(str(L.ans(p)) in _W(p)[0] for lid in unit_ids if lid in L.LESSON_BY_ID
+          all(_names(L.ans(p), _W(p)[0]) for lid in unit_ids if lid in L.LESSON_BY_ID
               for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]), "")
     check("  every lesson in the course still validates",
           all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
@@ -24351,6 +24357,102 @@ def part3ix_entry_unit_one_to_the_shape():
     check("  the changed files carry dated tb notes",
           "2026-09-05  BUILD tb" in rd("lessonscripts.py")[:20000] and "BUILD tb" in rd("main.py")[:200000]
           and "2026-09-05  BUILD tb" in rd("ruletests.py")[:8000] and "(tb)" in rd("static/methodology.html")[:6000],
+          "Jim's rule 8")
+
+
+def part3iy_prealgebra_units_one_to_three_to_the_shape():
+    """PART 3iy (build tc, 2026-09-05) -- PREALGEBRA UNITS 1-3 TO THE SHAPE.
+
+    Jim: "leave basic aside from now and go to prealgebra. Start on the first three
+    units." Order of operations on the ladder ([[solve]] marching the moves down), a
+    square as a square and a cube as a block of cubes; factors as rectangles, the
+    smallest-factor hunt written in order, primes on the ladder; integers on the
+    number line with the move drawn as hops -- and the asks that used to draw the
+    landing point now draw the start."""
+    print("\nPART 3iy — Prealgebra Units 1-3 to the shape (build tc)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    U1 = ["pre-u1-times-before-add", "pre-u1-parentheses-first",
+          "pre-u1-exponents-are-repeated-times", "pre-u1-power-then-times-then-add"]
+    U2 = ["pre-u2-how-many-factors", "pre-u2-the-smallest-factor",
+          "pre-u2-breaking-into-primes", "pre-u2-the-biggest-factor"]
+    U3 = ["pre-u3-counting-back-past-zero", "pre-u3-adding-a-negative",
+          "pre-u3-taking-away-a-negative", "pre-u3-times-with-a-negative"]
+    _shape_unit_checks(U1, r"\[\[(solve|areamodel|solid)\b")
+    _shape_unit_checks(U2, r"\[\[(write|array|areamodel|solve|step)\b")
+    _shape_unit_checks(U3, r"\[\[(numberline)\b")
+
+    # ---- Unit 1: the order marches down; a cube is a cube ------------------------------
+    tba = {"a": 2, "b": 3, "c": 4, "op": "tba"}
+    check("⭐ times-before-add is walked back on the ladder: the times first, then the add",
+          '[[solve start="2 + 3 × 4" steps="times first : 2 + 12 | then add : 14"' in _W(tba)[1]
+          and "3 times 4 equals 12" in _W(tba)[0] and "2 plus 12 equals 14" in _W(tba)[0], _W(tba)[1])
+    parf = {"a": 2, "b": 3, "c": 4, "op": "parf"}
+    check("  parentheses-first walks back inside first, then the times",
+          'steps="inside first : 5 × 4 | then times : 20"' in _W(parf)[1] and "inside the parentheses first" in _W(parf)[0], "")
+    check("⭐ a square is the area model and a cube is a BLOCK OF CUBES",
+          '[[areamodel rows="4" cols="4"' in _W({"a": 4, "b": 2, "op": "expn"})[1]
+          and '[[solid kind="prism" w="3" d="3" h="3"' in _W({"a": 3, "b": 3, "op": "expn"})[1]
+          and "27" in _W({"a": 3, "b": 3, "op": "expn"})[0], "")
+    exo = {"a": 3, "b": 2, "c": 4, "op": "exo"}
+    check("  power-then-times-then-add walks back three rungs",
+          'steps="power first : 9 + 2 × 4 | times next : 9 + 8 | add last : 17"' in _W(exo)[1], _W(exo)[1])
+    check("  the Unit 1 asks stay bare (the order is the thing being tested)",
+          L.board_for(tba, "abstract") == '[[step eq="2 + 3 × 4 = ?"]]' and L.board_for(exo, "abstract") == '[[step eq="3² + 2 × 4 = ?"]]', "")
+
+    # ---- Unit 2: rectangles, the hunt, the ladder -------------------------------------
+    nf = {"a": 12, "b": 6, "op": "nfac"}
+    check("⭐ how-many-factors walks back the pairs written and one drawn, saying the pairs in words",
+          '[[write lines="1 × 12 | 2 × 6 | 3 × 4"' in _W(nf)[1] and '[[array rows="2" cols="6"' in _W(nf)[1]
+          and "1 and 12, 2 and 6, 3 and 4" in _W(nf)[0] and "6 factors" in _W(nf)[0], _W(nf)[0])
+    sp = {"a": 91, "b": 7, "op": "spf"}
+    check("  the smallest-factor hunt writes every try in order and ticks the first fit; a wide pair is the area model",
+          '91 ÷ 2 leaves 1 ✗ | 91 ÷ 3 leaves 1 ✗ | 91 ÷ 5 leaves 1 ✗ | 91 ÷ 7 = 13 ✓' in _W(sp)[1]
+          and '[[areamodel rows="7" cols="13"' in _W(sp)[1], _W(sp)[1])
+    np_ = {"a": 12, "b": 3, "op": "npf"}
+    check("⭐ breaking into primes walks back the ladder, pulling out the smallest factor each rung",
+          'steps="pull out 2 : 2 × 6 | pull out 2 : 2 × 2 × 3"' in _W(np_)[1] and "3 primes" in _W(np_)[0], _W(np_)[1])
+    bf = {"a": 45, "b": 0, "op": "bfac"}
+    check("  the biggest factor is drawn as the smallest one's partner",
+          '[[step eq="45 = 3 × 15"]]' in _W(bf)[1] and '[[areamodel rows="3" cols="15"' in _W(bf)[1] and "15" in _W(bf)[0], "")
+    check("  the factor-pairs helper and the ladder are pure and right",
+          L._factor_pairs(36) == [(1, 36), (2, 18), (3, 12), (4, 9), (6, 6)]
+          and L._npf_ladder(60)[1] == [2, 2, 3, 5] and L._npf_ladder(7) == ([], [7]), "")
+
+    # ---- Unit 3: the start marked, the hop withheld; the walk-back hops ---------------
+    cb = {"a": 3, "b": 7, "op": "cbz"}
+    check("⭐ a count-back ask marks the START, never the landing point (the old board drew the answer)",
+          'points="3"' in L.board_for(cb, "abstract") and "hops=" not in L.board_for(cb, "abstract")
+          and 'points="-4"' not in L.board_for(cb, "abstract") and '[[step eq="3 − 7 = ?"]]' in L.board_for(cb, "abstract"),
+          L.board_for(cb, "abstract"))
+    check("  and its walk-back hops from 3 to −4 with a real minus sign, saying negative 4",
+          'points="3" hops="3,-4" caption="3 − 7 = −4"' in _W(cb)[1] and "negative 4" in _W(cb)[0], _W(cb)[1])
+    an = {"a": 5, "b": 7, "op": "addneg"}
+    check("  adding a negative: the start marked, the walk-back hops left past zero",
+          'points="5"' in L.board_for(an, "abstract") and "hops=" not in L.board_for(an, "abstract")
+          and 'hops="5,-2"' in _W(an)[1] and "hop of 7 to the left" in _W(an)[0], "")
+    sn = {"a": 3, "b": 2, "op": "subneg"}
+    check("  taking away a negative: the start on the line, the walk-back hops RIGHT",
+          'points="3"' in L.board_for(sn, "abstract") and 'hops="3,5"' in _W(sn)[1] and "RIGHT" in _W(sn)[0], "")
+    mn = {"a": 3, "b": 4, "op": "mulneg"}
+    check("⭐ times with a negative walks back as b hops of a to the left from zero",
+          'hops="0,-3,-6,-9,-12" caption="(−3) × 4 = −12"' in _W(mn)[1] and "4 hops of 3 to the left" in _W(mn)[0], _W(mn)[1])
+    check("  the validator accepts a walk-back that names a negative answer as 'negative N'",
+          all(ok for ok, l, _d in L.validate(L.LESSON_BY_ID["pre-u3-counting-back-past-zero"]) if "names the answer" in l)
+          and any("names the answer" in l for ok, l, _d in L.validate(L.LESSON_BY_ID["pre-u3-counting-back-past-zero"])), "")
+    check("  every negative caption on the walk-backs uses the minus sign, never a hyphen",
+          all("-" not in _W(p)[1].split("caption=")[-1]
+              for lid in U3 for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]), "")
+
+    # ---- the giveaway audit, the notes --------------------------------------------------
+    check("  nothing the twelve lessons demonstrate is later asked (the old lessons demonstrated 7, 35, 12 and 20 -- all bank problems)",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in U1 + U2 + U3), "")
+    check("  the changed files carry dated tc notes",
+          "2026-09-05  BUILD tc" in rd("lessonscripts.py")[:20000] and "BUILD tc" in rd("main.py")[:200000]
+          and "2026-09-05  BUILD tc" in rd("ruletests.py")[:8000] and "(tc)" in rd("static/methodology.html")[:6000],
           "Jim's rule 8")
 
 
@@ -34668,6 +34770,7 @@ def main():
     part3iv_the_times_table_is_a_pass()
     part3iw_the_tutor_sees_the_board()
     part3ix_entry_unit_one_to_the_shape()
+    part3iy_prealgebra_units_one_to_three_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

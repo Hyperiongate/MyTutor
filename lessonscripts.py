@@ -2,6 +2,25 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD tc -- PREALGEBRA UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "leave
+#               basic aside from now and go to prealgebra." THIS FILE:
+#                 * Unit 1 (order of operations) on the LADDER -- [[solve]] marching the
+#                   moves down the board ("times first", "then add"); a square number on
+#                   the area model, a cube as a BLOCK OF CUBES ([[solid]]) -- the course's
+#                   first honest picture of a to-the-power-3;
+#                 * Unit 2 (factors) on RECTANGLES -- the factor pairs written and one
+#                   drawn (array, or the area model when wide); the smallest-factor hunt
+#                   as the tries in order, the first fit ticked; primes on the ladder
+#                   ("pull out 2"); the biggest factor as the smallest one's partner;
+#                 * Unit 3 (integers) on the NUMBER LINE with the move drawn as HOPS.
+#                   ⚠️ the cbz/addneg asks used to mark the LANDING POINT -- the answer
+#                   drawn on the question; they mark the START now (subneg too), and
+#                   the walk-back hops. Times with a negative is b hops of a from zero.
+#               Every lesson: why, picture, teach, pairs, walk-back, reason, recap; the
+#               trap line kept (bfac). ENGINE: OP_EXT tba/parf/expn/exo/nfac/spf/npf/bfac/
+#               mulneg gain "worked"; cbz/addneg/subneg gain boards and "worked"
+#               (_tba_worked ... _mulneg_worked; _factor_pairs, _pair_board, _npf_ladder,
+#               _int_range, _neg). validate: a negative answer may be named "negative 4".
 #   2026-09-05  BUILD tb -- ENTRY UNIT 1 TO THE SHAPE (the youngest students). Counting
 #               to 10 and past ten on the STARS counted one at a time; before-and-after
 #               and which-is-bigger on the NUMBER LINE (one hop up / back; the later
@@ -2871,38 +2890,64 @@ _MORE_LESSONS = [
         "id": "pre-u2-the-biggest-factor", "course": "prealgebra", "unit": 2,
         "topic": "The biggest factor below the number", "op": "bfac", "max_value": 99,
         "levels": ("abstract",), "symbols": ("factor", "prime"),
-        "advance_line": "Three in a row — you've got it! Divide by the smallest factor to find the biggest.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Divide by the smallest factor to find the biggest.",
+        "why": [
+            ("Why the biggest factor? Because it is the other end of the same "
+             "question. Forty-five people into the fewest equal groups gave you 3 "
+             "groups — and the biggest group you could make is what is left when you "
+             "divide. Smallest and biggest are a pair, and one hands you the other.",
+             '[[goal text="The biggest factor below the number"]]'),
+        ],
+        "picture": [
+            ("Here is 45 as a rectangle. Its smallest factor above 1 is 3, and 45 "
+             "divided by 3 is 15 — so the rectangle is 3 rows of 15. The two sides "
+             "are a factor pair: the smallest factor, 3, is paired with the biggest "
+             "one below 45, which is 15.",
+             '[[step eq="45 = 3 × 15"]][[areamodel rows="3" cols="15" caption="smallest 3, biggest 15"]]'),
+        ],
         "teach": [
-            ("You found the smallest factor above 1. Now the other end: the "
-             "biggest factor a number has, not counting itself. These two "
-             "questions are the same question, and one answer hands you the other.",
-             '[[goal text="The biggest factor below the number"]]'
-             '[[step eq="45 → biggest factor below 45 = ?"]]'),
-            ("Watch me. Take 45. Its smallest factor above 1 is 3. Divide: 45 "
-             "divided by 3 is 15. That is the biggest factor below 45, because "
-             "factors come in pairs and the smallest one is always partnered with "
-             "the biggest.",
-             '[[step eq="45 = 3 × 15"]]'
-             '[[step eq="smallest factor 3 → biggest factor 15"]]'),
+            ("That is the method. Factors come in pairs, and the smallest one is "
+             "always partnered with the biggest. So find the smallest factor above "
+             "1, divide by it, and the biggest factor below the number arrives in "
+             "one step.",
+             '[[step eq="45 = 3 × 15"]][[step eq="smallest factor 3 → biggest factor 15"]]'),
             ("Here is the trap. Do not hand back the number just below. For 45 the "
              "answer is not 44, and it is not 9 either — 9 divides 45, but 15 is "
              "bigger. Find the smallest factor, divide by it, and the biggest one "
-             "arrives in a single step. A prime number has no factor below it at "
-             "all except 1, so these questions never hand you one.",
-             '[[step eq="45 → 15 ✓"]]'
-             '[[step eq="44 ✗ close to 45, but it does not divide it at all"]]'),
+             "arrives in a single step. A prime number has no factor below it at all "
+             "except 1, so these questions never hand you one.",
+             '[[step eq="45 → 15 ✓"]][[step eq="44 ✗ close to 45, but it does not divide it at all"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 26. Its smallest factor "
-                        "is 2, and 26 divided by 2 is 13.",
-                        '[[step eq="26 = 2 × 13"]]'),
-             "ask": {"a": 51, "b": 0, "op": "bfac"}},
+            {"worked": ("Here is one more, done for you. 26. Its smallest factor is 2, "
+                        "and 26 divided by 2 is 13 — 2 rows of 13.",
+                        '[[step eq="26 = 2 × 13"]][[areamodel rows="2" cols="13" caption="smallest 2, biggest 13"]]'),
+             "ask": {'a': 51, 'b': 0, 'op': 'bfac'}},
             {"worked": ("One more together. 63. Its smallest factor is 3, and 63 "
-                        "divided by 3 is 21.",
-                        '[[step eq="63 = 3 × 21"]]'),
-             "ask": {"a": 85, "b": 0, "op": "bfac"}},
+                        "divided by 3 is 21 — 3 rows of 21.",
+                        '[[step eq="63 = 3 × 21"]][[areamodel rows="3" cols="21" caption="smallest 3, biggest 21"]]'),
+             "ask": {'a': 85, 'b': 0, 'op': 'bfac'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The biggest "
+                       "factor of 45 below 45 is 15. Tap the reason why."),
+            "choices": ("because 45 divided by its smallest factor, 3, gives 15 | "
+                        "because the biggest factor is always the number just below | "
+                        "because 9 divides 45, so 9 is the biggest"),
+            "answer": "because 45 divided by its smallest factor, 3, gives 15",
+            "board": '[[step eq="45 = 3 × 15"]][[areamodel rows="3" cols="15" caption="smallest 3, biggest 15"]]',
+        },
+        "recap": [
+            ("So, here it is again. The smallest factor and the biggest are a pair — "
+             "the two sides of one rectangle. Find the smallest, divide by it, and "
+             "you are holding the biggest.",
+             '[[areamodel rows="3" cols="15" caption="3 × 15 = 45"]]'),
+            ("And never the number just below — that one almost never divides at all.",
+             '[[step eq="45 = 3 × 15"]]'),
+        ],
         "bank": [{"a": 4, "b": 0, "op": "bfac"}, {"a": 14, "b": 0, "op": "bfac"}, {"a": 22, "b": 0, "op": "bfac"}, {"a": 91, "b": 0, "op": "bfac"}, {"a": 36, "b": 0, "op": "bfac"}, {"a": 46, "b": 0, "op": "bfac"}, {"a": 56, "b": 0, "op": "bfac"}, {"a": 99, "b": 0, "op": "bfac"}, {"a": 82, "b": 0, "op": "bfac"}, {"a": 98, "b": 0, "op": "bfac"}],
     },
     {
@@ -6308,24 +6353,60 @@ _PREALGEBRA_U1 = [
         "op": "tba", "max_value": 90,
         "levels": ("abstract",),
         "symbols": ("times", "plus", "equals"),
-        "advance_line": "Three in a row — you've got it! You do the times first, every time.",
+        "advance_line": "Three in a row, and you can say why — you've got it! You do the times first, every time.",
+        "why": [
+            ("Why does the order matter? Because a line of math can hold two jobs at "
+             "once, and doing them in the wrong order gives a wrong answer. A shop "
+             "receipt says 2 dollars, plus 3 packs at 4 dollars each. Nobody pays 20 "
+             "dollars for that. The times has to happen before the plus.",
+             '[[goal text="Times before add"]]'),
+        ],
+        "picture": [
+            ("Here is 2 plus 3 times 4, worked down the board. First move: the times "
+             "— 3 times 4 equals 12. Second move: the add — 2 plus 12 equals 14. "
+             "Watch the order: the times went first.",
+             '[[solve start="2 + 3 × 4" steps="times first : 2 + 12 | then add : 14" caption="2 + 3 × 4 = 14"]]'),
+        ],
         "teach": [
-            ["Today a problem has two steps in it, not one. You will see a plus and a times in the same line. There is a rule for which one goes first, and it is not left to right. The times goes first. Always.",
-             '[[goal text="Times before add"]]'],
-            ["Watch me do 2 plus 3 times 4. Times first: 3 times 4 equals 12. Now the adding: 2 plus 12 equals 14. If you had gone left to right you would have said 20, and 20 is wrong.",
-             '[[step eq="2 + 3 × 4"]][[step eq="3 × 4 = 12"]][[step eq="2 + 12 = 14"]]'],
-            ["One more. 5 plus 2 times 6. Find the times: 2 times 6 equals 12. Then add: 5 plus 12 equals 17.",
-             '[[step eq="5 + 2 × 6"]][[step eq="2 × 6 = 12"]][[step eq="5 + 12 = 17"]]'],
+            ("That is the rule. When a plus and a times share one line, the times "
+             "goes first. Always — and it is not left to right. If you had gone left "
+             "to right on that line you would have said 20, and 20 is wrong.",
+             '[[solve start="2 + 3 × 4" steps="times first : 2 + 12 | then add : 14" caption="the times first, then the add"]]'),
+            ("One more. 5 plus 2 times 6. Find the times: 2 times 6 equals 12. Then "
+             "add: 5 plus 12 equals 17.",
+             '[[solve start="5 + 2 × 6" steps="times first : 5 + 12 | then add : 17" caption="5 + 2 × 6 = 17"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 4 plus 3 times 3. Times first: 3 times 3 equals 9. Then 4 plus 9 equals 13.",
-                        '[[step eq="4 + 3 × 3"]][[step eq="4 + 9 = 13"]]'],
-             "ask": {"a": 3, "b": 2, "c": 5, "op": "tba"}},
-            {"worked": ["One more together. 6 plus 4 times 2. The times gives 8. Then 6 plus 8 equals 14.",
-                        '[[step eq="6 + 4 × 2"]][[step eq="6 + 8 = 14"]]'],
-             "ask": {"a": 2, "b": 3, "c": 6, "op": "tba"}},
+            {"worked": ("Here is one more, done for you. 4 plus 3 times 3. Times "
+                        "first: 3 times 3 equals 9. Then 4 plus 9 equals 13.",
+                        '[[solve start="4 + 3 × 3" steps="times first : 4 + 9 | then add : 13" caption="4 + 3 × 3 = 13"]]'),
+             "ask": {'a': 3, 'b': 2, 'c': 5, 'op': 'tba'}},
+            {"worked": ("One more together. 6 plus 4 times 2. The times gives 8. Then "
+                        "6 plus 8 equals 14.",
+                        '[[solve start="6 + 4 × 2" steps="times first : 6 + 8 | then add : 14" caption="6 + 4 × 2 = 14"]]'),
+             "ask": {'a': 2, 'b': 3, 'c': 6, 'op': 'tba'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 2 plus 3 times 4 "
+                       "equals 14. Tap the reason why."),
+            # (tc) "always work from left to right" tripped the order-of-operations-
+            # as-law referee on the joined options; the slip reads the same without it
+            "choices": ("because the times is done before the add | because you work "
+                        "it left to right | because the add is done before the times"),
+            "answer": "because the times is done before the add",
+            "board": '[[solve start="2 + 3 × 4" steps="times first : 2 + 12 | then add : 14" caption="2 + 3 × 4 = 14"]]',
+        },
+        "recap": [
+            ("So, here it is again. When a plus and a times share a line, the times "
+             "goes first, then the add. Never left to right.",
+             '[[solve start="2 + 3 × 4" steps="times first : 2 + 12 | then add : 14" caption="times first, then add"]]'),
+            ("And that is why the receipt comes out right — 3 packs at 4 dollars, then "
+             "the 2 dollars on top.",
+             '[[step eq="2 + 12 = 14"]]'),
+        ],
         "bank": [
             {"a": 1, "b": 2, "c": 3, "op": "tba"},
             {"a": 2, "b": 2, "c": 4, "op": "tba"},
@@ -6346,24 +6427,58 @@ _PREALGEBRA_U1 = [
         "op": "parf", "max_value": 150,
         "levels": ("abstract",),
         "symbols": ("parentheses", "times", "plus", "equals"),
-        "advance_line": "Three in a row — you've got it! What is inside the parentheses goes first.",
+        "advance_line": "Three in a row, and you can say why — you've got it! What is inside the parentheses goes first.",
+        "why": [
+            ("Why parentheses? Because sometimes you need the add to go first, and "
+             "the rule says the times wins. Three friends each get 2 cookies and 1 "
+             "candy — that is 2 plus 1, three times over. Parentheses are how you "
+             "tell the math: this part first.",
+             '[[goal text="Parentheses first"]]'),
+        ],
+        "picture": [
+            ("Here is 2 plus 3, in parentheses, times 4. The parentheses are the two "
+             "curved marks around 2 plus 3. First move: inside them — 2 plus 3 equals "
+             "5. Second move: the times — 5 times 4 equals 20.",
+             '[[solve start="(2 + 3) × 4" steps="inside first : 5 × 4 | then times : 20" caption="(2 + 3) × 4 = 20"]]'),
+        ],
         "teach": [
-            ["Last time you learned the times goes before the add. Today you meet the one thing that beats it. Two curved marks around part of a problem are called parentheses, and whatever sits inside them goes first — even an add.",
-             '[[goal text="Parentheses first"]]'],
-            ["Watch me do 2 plus 3, in parentheses, times 4. Inside first: 2 plus 3 equals 5. Now the times: 5 times 4 equals 20. Without the parentheses this same line would be 14, so the marks change the answer.",
-             '[[step eq="(2 + 3) × 4"]][[step eq="2 + 3 = 5"]][[step eq="5 × 4 = 20"]]'],
-            ["One more. 1 plus 6, in parentheses, times 3. Inside: 1 plus 6 equals 7. Then 7 times 3 equals 21.",
-             '[[step eq="(1 + 6) × 3"]][[step eq="1 + 6 = 7"]][[step eq="7 × 3 = 21"]]'],
+            ("That is the rule. Whatever sits inside parentheses goes first — even an "
+             "add, even when a times is waiting. Without the parentheses that same "
+             "line would be 14, so the marks change the answer.",
+             '[[solve start="(2 + 3) × 4" steps="inside first : 5 × 4 | then times : 20" caption="inside first, then the times"]]'),
+            ("One more. 1 plus 6, in parentheses, times 3. Inside: 1 plus 6 equals 7. "
+             "Then 7 times 3 equals 21.",
+             '[[solve start="(1 + 6) × 3" steps="inside first : 7 × 3 | then times : 21" caption="(1 + 6) × 3 = 21"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 4 plus 2, in parentheses, times 5. Inside gives 6. Then 6 times 5 equals 30.",
-                        '[[step eq="(4 + 2) × 5"]][[step eq="6 × 5 = 30"]]'],
-             "ask": {"a": 3, "b": 3, "c": 4, "op": "parf"}},
-            {"worked": ["One more together. 5 plus 1, in parentheses, times 7. Inside gives 6. Then 6 times 7 equals 42.",
-                        '[[step eq="(5 + 1) × 7"]][[step eq="6 × 7 = 42"]]'],
-             "ask": {"a": 2, "b": 5, "c": 3, "op": "parf"}},
+            {"worked": ("Here is one more, done for you. 4 plus 2, in parentheses, "
+                        "times 5. Inside gives 6. Then 6 times 5 equals 30.",
+                        '[[solve start="(4 + 2) × 5" steps="inside first : 6 × 5 | then times : 30" caption="(4 + 2) × 5 = 30"]]'),
+             "ask": {'a': 3, 'b': 3, 'c': 4, 'op': 'parf'}},
+            {"worked": ("One more together. 5 plus 1, in parentheses, times 7. Inside "
+                        "gives 6. Then 6 times 7 equals 42.",
+                        '[[solve start="(5 + 1) × 7" steps="inside first : 6 × 7 | then times : 42" caption="(5 + 1) × 7 = 42"]]'),
+             "ask": {'a': 2, 'b': 5, 'c': 3, 'op': 'parf'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 2 plus 3, in "
+                       "parentheses, times 4 equals 20. Tap the reason why."),
+            "choices": ("because what is inside the parentheses goes first | because "
+                        "the times always goes first | because parentheses mean times "
+                        "two"),
+            "answer": "because what is inside the parentheses goes first",
+            "board": '[[solve start="(2 + 3) × 4" steps="inside first : 5 × 4 | then times : 20" caption="(2 + 3) × 4 = 20"]]',
+        },
+        "recap": [
+            ("So, here it is again. Parentheses beat everything: whatever is inside "
+             "them goes first, then the rest of the line follows the usual order.",
+             '[[solve start="(2 + 3) × 4" steps="inside first : 5 × 4 | then times : 20" caption="inside first"]]'),
+            ("And they are how you tell the math which part to do first.",
+             '[[step eq="(2 + 3) × 4 = 20"]]'),
+        ],
         "bank": [
             {"a": 1, "b": 2, "c": 2, "op": "parf"},
             {"a": 2, "b": 3, "c": 2, "op": "parf"},
@@ -6384,24 +6499,61 @@ _PREALGEBRA_U1 = [
         "op": "expn", "max_value": 216,
         "levels": ("abstract",),
         "symbols": ("squared", "power", "times", "equals"),
-        "advance_line": "Three in a row — you've got it! A small high number counts how many to multiply.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A small high number counts how many to multiply.",
+        "why": [
+            ("Why exponents? Because multiplying the same number again and again is "
+             "slow to write. A square floor 3 tiles by 3 tiles; a box 2 cubes wide, 2 "
+             "deep, 2 high. The exponent is the short way to say: multiply this "
+             "number by itself, this many times.",
+             '[[goal text="Exponents are repeated times"]]'),
+        ],
+        "picture": [
+            ("Here is 3 squared. Three rows of three make a square — count the boxes "
+             "and there are 9. The small 2 up high says: two 3s multiplied. 3 times 3 "
+             "equals 9.",
+             '[[areamodel rows="3" cols="3" caption="3² = 3 × 3 = 9"]]'),
+        ],
         "teach": [
-            ["A small number written high up after another number is an exponent. It is not a times. It counts how many copies to multiply. 3 with a small 2 means two 3s multiplied: 3 times 3. Say it as three squared.",
-             '[[goal text="Exponents are repeated times"]]'],
-            ["Three squared equals 9. Here is why the word squared fits — three rows of three really do make a square, and counting the little boxes gives 9.",
-             '[[areamodel rows="3" cols="3" caption="three rows of three"]][[step eq="3² = 3 × 3 = 9"]]'],
-            ["A small 3 means three copies, and we say it as to the power 3. 2 with a small 3 is 2 times 2 times 2, which equals 8. Careful — it is not 2 times 3. That would be 6, and 6 is wrong.",
-             '[[step eq="2³ = 2 × 2 × 2 = 8"]]'],
+            ("That small high number is an exponent. It is not a times. It counts how "
+             "many copies of the number to multiply. 3 with a small 2 means two 3s "
+             "multiplied, and we say it as three squared — because it draws a square.",
+             '[[areamodel rows="3" cols="3" caption="three rows of three"]][[step eq="3² = 3 × 3 = 9"]]'),
+            ("A small 3 means three copies, and we say it as to the power 3. 2 with a "
+             "small 3 is 2 times 2 times 2, which equals 8 — a block of cubes 2 wide, "
+             "2 deep, 2 high. Careful — it is not 2 times 3. That would be 6, and 6 "
+             "is wrong.",
+             '[[solid kind="prism" w="2" d="2" h="2" caption="2³ = 2 × 2 × 2 = 8"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 4 squared is two 4s multiplied — 4 times 4, which equals 16.",
-                        '[[areamodel rows="4" cols="4" caption="four rows of four"]][[step eq="4² = 16"]]'],
-             "ask": {"a": 6, "b": 2, "op": "expn"}},
-            {"worked": ["One more together. 3 with a small 3 means three 3s multiplied: 3 times 3 times 3, which equals 27.",
-                        '[[step eq="3³ = 3 × 3 × 3 = 27"]]'],
-             "ask": {"a": 7, "b": 2, "op": "expn"}},
+            {"worked": ("Here is one more, done for you. 4 squared is two 4s "
+                        "multiplied — 4 times 4, which equals 16.",
+                        '[[areamodel rows="4" cols="4" caption="4² = 4 × 4 = 16"]]'),
+             "ask": {'a': 6, 'b': 2, 'op': 'expn'}},
+            {"worked": ("One more together. 3 with a small 3 means three 3s "
+                        "multiplied: 3 times 3 times 3, which equals 27.",
+                        '[[solid kind="prism" w="3" d="3" h="3" caption="3³ = 3 × 3 × 3 = 27"]]'),
+             "ask": {'a': 7, 'b': 2, 'op': 'expn'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 squared equals "
+                       "9. Tap the reason why."),
+            "choices": ("because the small 2 means two 3s multiplied | because the "
+                        "small 2 means times 2 | because squared means the number "
+                        "twice, added"),
+            "answer": "because the small 2 means two 3s multiplied",
+            "board": '[[areamodel rows="3" cols="3" caption="3² = 3 × 3 = 9"]]',
+        },
+        "recap": [
+            ("So, here it is again. An exponent counts how many copies to multiply: "
+             "a small 2 is two copies, a square; a small 3 is three copies, a cube. "
+             "It is never a times.",
+             '[[areamodel rows="3" cols="3" caption="3² = 9"]][[step eq="2³ = 2 × 2 × 2 = 8"]]'),
+            ("And it is the short way to write multiplying a number by itself.",
+             '[[step eq="3 × 3 = 3²"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "expn"},
             {"a": 3, "b": 2, "op": "expn"},
@@ -6421,24 +6573,58 @@ _PREALGEBRA_U1 = [
         "op": "exo", "max_value": 130,
         "levels": ("abstract",),
         "symbols": ("squared", "times", "plus", "equals"),
-        "advance_line": "Three in a row — you've got it! Power first, then times, then add.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Power first, then times, then add.",
+        "why": [
+            ("Why one order for everything? Because a real formula mixes all three "
+             "jobs at once. Take a square garden 3 by 3, plus 2 flower beds of 4 "
+             "each. That is a power, a times and an add on one line — and there is "
+             "only one right way through it.",
+             '[[goal text="Power, then times, then add"]]'),
+        ],
+        "picture": [
+            ("Here is 3 squared plus 2 times 4, worked down the board. First move: "
+             "the power — 3 squared equals 9. Second move: the times — 2 times 4 "
+             "equals 8. Last move: the add — 9 plus 8 equals 17.",
+             '[[solve start="3² + 2 × 4" steps="power first : 9 + 2 × 4 | times next : 9 + 8 | add last : 17" caption="3² + 2 × 4 = 17"]]'),
+        ],
         "teach": [
-            ["You know two rules now: the times goes before the add, and parentheses go before everything. Today a third step joins them — the exponent — and it goes first of all. Power first, then times, then add.",
-             '[[goal text="Power, then times, then add"]]'],
-            ["Watch me do 3 squared plus 2 times 4. Power first: 3 squared equals 9. Times next: 2 times 4 equals 8. Add last: 9 plus 8 equals 17.",
-             '[[step eq="3² + 2 × 4"]][[step eq="9 + 8"]][[step eq="= 17"]]'],
-            ["One more. 2 squared plus 5 times 3. The power gives 4. The times gives 15. 4 plus 15 equals 19.",
-             '[[step eq="2² + 5 × 3"]][[step eq="4 + 15 = 19"]]'],
+            ("That is the whole order. You know two rules: the times goes before the "
+             "add, and parentheses go before everything. The exponent joins them, and "
+             "it goes first of all. Power first, then times, then add.",
+             '[[solve start="3² + 2 × 4" steps="power first : 9 + 2 × 4 | times next : 9 + 8 | add last : 17" caption="power, then times, then add"]]'),
+            ("One more. 2 squared plus 5 times 3. The power gives 4. The times gives "
+             "15. 4 plus 15 equals 19.",
+             '[[solve start="2² + 5 × 3" steps="power first : 4 + 5 × 3 | times next : 4 + 15 | add last : 19" caption="2² + 5 × 3 = 19"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 4 squared plus 3 times 2. Power: 16. Times: 6. 16 plus 6 equals 22.",
-                        '[[step eq="4² + 3 × 2"]][[step eq="16 + 6 = 22"]]'],
-             "ask": {"a": 3, "b": 4, "c": 2, "op": "exo"}},
-            {"worked": ["One more together. 5 squared plus 2 times 6. Power: 25. Times: 12. 25 plus 12 equals 37.",
-                        '[[step eq="5² + 2 × 6"]][[step eq="25 + 12 = 37"]]'],
-             "ask": {"a": 4, "b": 5, "c": 2, "op": "exo"}},
+            {"worked": ("Here is one more, done for you. 4 squared plus 3 times 2. "
+                        "Power: 16. Times: 6. 16 plus 6 equals 22.",
+                        '[[solve start="4² + 3 × 2" steps="power first : 16 + 3 × 2 | times next : 16 + 6 | add last : 22" caption="4² + 3 × 2 = 22"]]'),
+             "ask": {'a': 3, 'b': 4, 'c': 2, 'op': 'exo'}},
+            {"worked": ("One more together. 5 squared plus 2 times 6. Power: 25. "
+                        "Times: 12. 25 plus 12 equals 37.",
+                        '[[solve start="5² + 2 × 6" steps="power first : 25 + 2 × 6 | times next : 25 + 12 | add last : 37" caption="5² + 2 × 6 = 37"]]'),
+             "ask": {'a': 4, 'b': 5, 'c': 2, 'op': 'exo'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 squared plus 2 "
+                       "times 4 equals 17. Tap the reason why."),
+            "choices": ("because the power comes first, then the times, then the add | "
+                        "because you work from left to right | because the add comes "
+                        "before the times"),
+            "answer": "because the power comes first, then the times, then the add",
+            "board": '[[solve start="3² + 2 × 4" steps="power first : 9 + 2 × 4 | times next : 9 + 8 | add last : 17" caption="3² + 2 × 4 = 17"]]',
+        },
+        "recap": [
+            ("So, here it is again. One order for the whole line: parentheses, then "
+             "the power, then the times, then the add.",
+             '[[solve start="3² + 2 × 4" steps="power first : 9 + 2 × 4 | times next : 9 + 8 | add last : 17" caption="power, times, add"]]'),
+            ("And it is the one right way through any formula that mixes them.",
+             '[[step eq="3² + 2 × 4 = 17"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "c": 2, "op": "exo"},
             {"a": 3, "b": 3, "c": 2, "op": "exo"},
@@ -6475,24 +6661,60 @@ _PREALGEBRA_U23 = [
         "op": "nfac", "max_value": 60,
         "levels": ("abstract",),
         "symbols": ("factor", "divides"),
-        "advance_line": "Three in a row — you've got it! You can count a number's factors.",
+        "advance_line": "Three in a row, and you can say why — you've got it! You can count a number's factors.",
+        "why": [
+            ("Why count factors? Because factors are the ways a number can be split "
+             "into equal rows. Twelve chairs can stand in 1 row of 12, 2 rows of 6, "
+             "or 3 rows of 4 — and knowing every way is what lets you share, arrange "
+             "and simplify without guessing.",
+             '[[goal text="How many factors a number has"]]'),
+        ],
+        "picture": [
+            ("Here are the ways to arrange 6 in equal rows: 1 row of 6, and 2 rows of "
+             "3. Those two rectangles hold every factor of 6 — 1, 2, 3 and 6. Four "
+             "factors.",
+             '[[write lines="1 × 6 | 2 × 3" caption="the factors of 6: 1, 2, 3, 6 — four"]][[array rows="2" cols="3" caption="2 rows of 3 = 6"]]'),
+        ],
         "teach": [
-            ["A factor is a number that divides another one exactly, with nothing left over. 1 and the number itself are always factors. Today you count how many a number has in all.",
-             '[[goal text="How many factors a number has"]]'],
-            ["Take 6. Does 1 divide it? Yes. Does 2? Yes, 6 is two 3s. Does 3? Yes. Does 4? No, there is something left over. Does 5? No. Does 6? Yes. So 6 has four factors: 1, 2, 3 and 6.",
-             '[[step eq="factors of 6: 1, 2, 3, 6 → four"]]'],
-            ["Now 7. Only 1 and 7 divide it exactly. Nothing else fits. So 7 has just two factors. Numbers with exactly two are special, and they have a name you will meet next lesson.",
-             '[[step eq="factors of 7: 1, 7 → two"]]'],
+            ("That is what a factor is: a number that divides another one exactly, "
+             "with nothing left over — one side of a rectangle that holds it. 1 and "
+             "the number itself are always factors. To count them, find every pair "
+             "and write each number once.",
+             '[[write lines="1 × 6 | 2 × 3" caption="every pair, each number written once"]]'),
+            ("Now 11. Only 1 row of 11 works — nothing else fits. So 11 has just two "
+             "factors. Numbers with exactly two are special, and they have a name "
+             "you will meet next lesson.",
+             '[[write lines="1 × 11" caption="the factors of 11: 1, 11 — two"]][[array rows="1" cols="11" caption="1 row of 11"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 8. 1 divides it, 2 divides it, 4 divides it, 8 divides it. 3, 5, 6 and 7 do not. So 8 has four factors.",
-                        '[[step eq="factors of 8: 1, 2, 4, 8 → four"]]'],
-             "ask": {"a": 14, "b": 4, "op": "nfac"}},
-            {"worked": ["One more together. 9. 1 divides it, 3 divides it, 9 divides it. So 9 has three factors.",
-                        '[[step eq="factors of 9: 1, 3, 9 → three"]]'],
-             "ask": {"a": 25, "b": 3, "op": "nfac"}},
+            {"worked": ("Here is one more, done for you. 8. The pairs are 1 and 8, "
+                        "and 2 and 4 — 3, 5, 6 and 7 do not fit. So 8 has four factors.",
+                        '[[write lines="1 × 8 | 2 × 4" caption="the factors of 8: 1, 2, 4, 8 — four"]][[array rows="2" cols="4" caption="2 rows of 4 = 8"]]'),
+             "ask": {'a': 14, 'b': 4, 'op': 'nfac'}},
+            {"worked": ("One more together. 4. The pairs are 1 and 4, and 2 and 2 — "
+                        "the same number twice counts once. So 4 has three factors.",
+                        '[[write lines="1 × 4 | 2 × 2" caption="the factors of 4: 1, 2, 4 — three"]][[array rows="2" cols="2" caption="2 rows of 2 = 4"]]'),
+             "ask": {'a': 25, 'b': 3, 'op': 'nfac'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 6 has four "
+                       "factors. Tap the reason why."),
+            "choices": ("because four different numbers divide 6 exactly | because 6 "
+                        "is an even number | because 6 is bigger than 4"),
+            "answer": "because four different numbers divide 6 exactly",
+            "board": '[[write lines="1 × 6 | 2 × 3" caption="the factors of 6: 1, 2, 3, 6"]]',
+        },
+        "recap": [
+            ("So, here it is again. A factor divides a number exactly — it is one "
+             "side of a rectangle that holds it. Find every pair, write each number "
+             "once, and count.",
+             '[[write lines="1 × 6 | 2 × 3" caption="1, 2, 3, 6 — four factors"]]'),
+            ("And the factors are every way to arrange that many in equal rows.",
+             '[[array rows="2" cols="3" caption="2 rows of 3"]]'),
+        ],
         "bank": [
             {"a": 7, "b": 2, "op": "nfac"},
             {"a": 9, "b": 3, "op": "nfac"},
@@ -6513,24 +6735,60 @@ _PREALGEBRA_U23 = [
         "op": "spf", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("factor", "prime"),
-        "advance_line": "Three in a row — you've got it! You can find a number's smallest factor.",
+        "advance_line": "Three in a row, and you can say why — you've got it! You can find a number's smallest factor.",
+        "why": [
+            ("Why hunt for the smallest factor? Because it is the first way in. Fifteen "
+             "candies to share equally among the fewest friends possible — that is "
+             "asking for the smallest number above 1 that divides 15. And it is the "
+             "first step of breaking any number into primes, next lesson.",
+             '[[goal text="The smallest factor above 1"]]'),
+        ],
+        "picture": [
+            ("Here is the hunt for 27. Try 2 — 27 divided by 2 leaves 1 over, so no. "
+             "Try 3 — 27 divided by 3 is 9 exactly, yes. Three rows of nine. The "
+             "smallest factor of 27 above 1 is 3.",
+             '[[write lines="27 ÷ 2 leaves 1 ✗ | 27 ÷ 3 = 9 ✓" caption="the first one that fits is 3"]][[array rows="3" cols="9" caption="3 × 9 = 27"]]'),
+        ],
         "teach": [
-            ["A number with exactly two factors — just 1 and itself — is a prime number. 2, 3, 5 and 7 are primes. Every other number can be divided by something smaller, and today you hunt for the smallest one.",
-             '[[goal text="The smallest factor above 1"]]'],
-            ["Take 15. Try 2 — no, 15 is odd. Try 3 — yes, 15 is three 5s. So 3 is the smallest factor of 15 above 1. You go up in order and stop at the first one that fits.",
-             '[[step eq="15 ÷ 2 leaves 1 · 15 ÷ 3 = 5 ✓"]]'],
-            ["Take 35. Try 2 — no. Try 3 — no. Try 5 — yes, 35 is five 7s. The smallest factor of 35 above 1 is 5.",
-             '[[step eq="35 ÷ 5 = 7 ✓"]]'],
+            ("That is the method. Go up in order — 2, then 3, then 5, then 7 — and "
+             "stop at the first one that divides exactly. A number with exactly two "
+             "factors, just 1 and itself, is a prime number: 2, 3, 5 and 7 are primes. "
+             "Every other number has a smaller factor to find.",
+             '[[write lines="try 2, then 3, then 5, then 7" caption="stop at the first one that fits"]]'),
+            ("Take 85. Try 2 — no. Try 3 — no. Try 5 — yes, 85 is five 17s. The "
+             "smallest factor of 85 above 1 is 5.",
+             '[[write lines="85 ÷ 2 ✗ | 85 ÷ 3 ✗ | 85 ÷ 5 = 17 ✓" caption="the first one that fits is 5"]][[areamodel rows="5" cols="17" caption="5 × 17 = 85"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 27. 2 does not fit. 3 does — 27 is three 9s. So the answer is 3.",
-                        '[[step eq="27 ÷ 3 = 9 ✓"]]'],
-             "ask": {"a": 51, "b": 3, "op": "spf"}},
-            {"worked": ["One more together. 91. 2 no, 3 no, 5 no. 7 fits — 91 is seven 13s. The answer is 7.",
-                        '[[step eq="91 ÷ 7 = 13 ✓"]]'],
-             "ask": {"a": 65, "b": 5, "op": "spf"}},
+            {"worked": ("Here is one more, done for you. 45. 2 does not fit. 3 does — "
+                        "45 is three 15s. So the answer is 3.",
+                        '[[write lines="45 ÷ 2 ✗ | 45 ÷ 3 = 15 ✓" caption="the first one that fits is 3"]][[areamodel rows="3" cols="15" caption="3 × 15 = 45"]]'),
+             "ask": {'a': 51, 'b': 3, 'op': 'spf'}},
+            {"worked": ("One more together. 91. 2 no, 3 no, 5 no. 7 fits — 91 is seven "
+                        "13s. The answer is 7.",
+                        '[[write lines="91 ÷ 2 ✗ | 91 ÷ 3 ✗ | 91 ÷ 5 ✗ | 91 ÷ 7 = 13 ✓" caption="the first one that fits is 7"]][[areamodel rows="7" cols="13" caption="7 × 13 = 91"]]'),
+             "ask": {'a': 65, 'b': 5, 'op': 'spf'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 is the smallest "
+                       "factor of 27 above 1. Tap the reason why."),
+            "choices": ("because 2 does not divide 27 and 3 does | because 3 is the "
+                        "smallest number after 1 | because 27 is odd, so 3 must "
+                        "divide it"),
+            "answer": "because 2 does not divide 27 and 3 does",
+            "board": '[[write lines="27 ÷ 2 leaves 1 ✗ | 27 ÷ 3 = 9 ✓" caption="the first one that fits is 3"]]',
+        },
+        "recap": [
+            ("So, here it is again. To find the smallest factor above 1, try 2, then "
+             "3, then 5, then 7, and stop at the first one that divides exactly. A "
+             "prime has none — only 1 and itself.",
+             '[[write lines="try 2, then 3, then 5, then 7" caption="stop at the first one that fits"]]'),
+            ("And that first way in is the first step of breaking a number down.",
+             '[[array rows="3" cols="9" caption="3 × 9 = 27"]]'),
+        ],
         "bank": [
             {"a": 9, "b": 3, "op": "spf"},
             {"a": 15, "b": 3, "op": "spf"},
@@ -6551,24 +6809,60 @@ _PREALGEBRA_U23 = [
         "op": "npf", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("prime", "factor"),
-        "advance_line": "Three in a row — you've got it! Every number breaks down into primes.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Every number breaks down into primes.",
+        "why": [
+            ("Why break a number into primes? Because primes are the building blocks "
+             "— every whole number is primes multiplied, and there is only one way "
+             "to do it. Once you can see the blocks, sharing fractions, finding what "
+             "two numbers have in common and simplifying all get easier.",
+             '[[goal text="Breaking a number into primes"]]'),
+        ],
+        "picture": [
+            ("Here is 24, broken down the ladder. Pull out the smallest factor, 2: "
+             "24 is 2 times 12. The 12 is not prime, so pull out 2 again: 2 times 2 "
+             "times 6. And again: 2 times 2 times 2 times 3. Now every number on the "
+             "rung is prime — four primes.",
+             '[[solve start="24" steps="pull out 2 : 2 × 12 | pull out 2 : 2 × 2 × 6 | pull out 2 : 2 × 2 × 2 × 3" caption="24 = 2 × 2 × 2 × 3: 4 primes"]]'),
+        ],
         "teach": [
-            ["Every number that is not prime can be written as primes multiplied. Keep pulling out the smallest factor until only primes are left. Today you count how many primes it takes.",
-             '[[goal text="Breaking a number into primes"]]'],
-            ["Take 12. The smallest factor is 2, and 12 is two 6s. Now break the 6: that is two 3s. Nothing is left but primes. 12 equals 2 times 2 times 3 — three primes.",
-             '[[step eq="12 = 2 × 6"]][[step eq="6 = 2 × 3"]][[step eq="12 = 2 × 2 × 3"]] [[step eq="three prime factors"]]'],
-            ["Take 20. Smallest factor 2, so 20 is two 10s. Break the 10: two 5s. 20 equals 2 times 2 times 5 — three primes again.",
-             '[[step eq="20 = 2 × 2 × 5"]] [[step eq="three prime factors"]]'],
+            ("That is the method. Keep pulling out the smallest factor until only "
+             "primes are left, then count them. A prime that appears more than once "
+             "counts every time — 24 needed three 2s.",
+             '[[solve start="24" steps="pull out 2 : 2 × 12 | pull out 2 : 2 × 2 × 6 | pull out 2 : 2 × 2 × 2 × 3" caption="stop when every number is prime"]]'),
+            ("Take 42. Smallest factor 2, so 42 is 2 times 21. Break the 21: 3 times "
+             "7. 42 equals 2 times 3 times 7 — three primes.",
+             '[[solve start="42" steps="pull out 2 : 2 × 21 | pull out 3 : 2 × 3 × 7" caption="42 = 2 × 3 × 7: 3 primes"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 8. Two 4s, and the 4 is two 2s. 8 equals 2 times 2 times 2 — three primes.",
-                        '[[step eq="8 = 2 × 2 × 2"]] [[step eq="three prime factors"]]'],
-             "ask": {"a": 15, "b": 2, "op": "npf"}},
-            {"worked": ["One more together. 30. Two 15s, and 15 is three 5s. 30 equals 2 times 3 times 5 — three primes.",
-                        '[[step eq="30 = 2 × 3 × 5"]] [[step eq="three prime factors"]]'],
-             "ask": {"a": 16, "b": 4, "op": "npf"}},
+            {"worked": ("Here is one more, done for you. 8. Two 4s, and the 4 is two "
+                        "2s. 8 equals 2 times 2 times 2 — three primes.",
+                        '[[solve start="8" steps="pull out 2 : 2 × 4 | pull out 2 : 2 × 2 × 2" caption="8 = 2 × 2 × 2: 3 primes"]]'),
+             "ask": {'a': 15, 'b': 2, 'op': 'npf'}},
+            {"worked": ("One more together. 30. Two 15s, and 15 is three 5s. 30 equals "
+                        "2 times 3 times 5 — three primes.",
+                        '[[solve start="30" steps="pull out 2 : 2 × 15 | pull out 3 : 2 × 3 × 5" caption="30 = 2 × 3 × 5: 3 primes"]]'),
+             "ask": {'a': 16, 'b': 4, 'op': 'npf'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 24 breaks into 2 "
+                       "times 2 times 2 times 3 — four primes. Tap the reason why it is four."),
+            "choices": ("because you pull out the smallest factor until only primes "
+                        "are left | because every number breaks into exactly four "
+                        "primes | because 24 is 4 times 6 and both are primes"),
+            "answer": "because you pull out the smallest factor until only primes are left",
+            "board": '[[solve start="24" steps="pull out 2 : 2 × 12 | pull out 2 : 2 × 2 × 6 | pull out 2 : 2 × 2 × 2 × 3" caption="24 = 2 × 2 × 2 × 3"]]',
+        },
+        "recap": [
+            ("So, here it is again. Pull out the smallest factor, and again, and "
+             "again, until every number on the rung is prime. Then count the primes, "
+             "repeats included.",
+             '[[solve start="24" steps="pull out 2 : 2 × 12 | pull out 2 : 2 × 2 × 6 | pull out 2 : 2 × 2 × 2 × 3" caption="24 = 2 × 2 × 2 × 3"]]'),
+            ("And those primes are the blocks every number is built from.",
+             '[[step eq="24 = 2 × 2 × 2 × 3"]]'),
+        ],
         "bank": [
             {"a": 6, "b": 2, "op": "npf"},
             {"a": 10, "b": 2, "op": "npf"},
@@ -6589,24 +6883,62 @@ _PREALGEBRA_U23 = [
         "op": "cbz", "max_value": 25, "min_value": -20,
         "levels": ("abstract",),
         "symbols": ("negative", "zero", "number line"),
-        "advance_line": "Three in a row — you've got it! You can count straight past zero.",
+        "advance_line": "Three in a row, and you can say why — you've got it! You can count straight past zero.",
+        "why": [
+            ("Why numbers below zero? Because the world has them. A winter morning "
+             "at 3 degrees that drops 7 degrees. A lift that goes two floors below "
+             "the ground floor. Owing money. Zero is not a wall — the numbers keep "
+             "going on the other side, and you need to be able to count there.",
+             '[[goal text="Counting back past zero"]]'),
+        ],
+        "picture": [
+            ("Here is the number line with zero in the middle. Start at 3 and hop 7 "
+             "to the left. Three steps take you to zero — and you still have four to "
+             "go, so you keep going and land on negative 4. Those places left of "
+             "zero are the negative numbers, and they are real places on the line.",
+             '''[[numberline min="-10" max="10" points="3" hops="3,-4" caption="3 − 7 = −4"]]'''),
+        ],
         "teach": [
-            ["Numbers keep going to the left of zero. Those are the negative numbers, and they are real places on the number line — not mistakes. One step left of zero is negative 1. Two steps is negative 2.",
-             '[[goal text="Counting back past zero"]][[numberline min="-10" max="10" points="-3" caption="find -3 on the line"]]'],
-            ["Start at 3 and count back 7. Three steps take you to zero. You still have four to go, so you carry on to the left and land on negative 4.",
-             '[[numberline min="-10" max="10" points="-4" caption="find -4 on the line"]][[step eq="3 − 7 = −4"]]'],
-            ["Start at 2 and count back 9. Two steps reach zero, seven more keep going left. You land on negative 7.",
-             '[[numberline min="-10" max="10" points="-7" caption="find -7 on the line"]][[step eq="2 − 9 = −7"]]'],
+            ("That is the whole idea. Counting back is hopping left, and the line "
+             "does not stop at zero. One step left of zero is negative 1, two steps "
+             "is negative 2. Count to zero, then keep counting — the rest of the "
+             "hops tell you how far past zero you land.",
+             '''[[numberline min="-10" max="10" points="-3" caption="one, two, three steps left of zero: −3"]][[step eq="3 − 7 = −4"]]'''),
+            ("Start at 2 and count back 9. Two steps reach zero, seven more keep "
+             "going left. You land on negative 7.",
+             '''[[numberline min="-10" max="10" points="2" hops="2,-7" caption="2 − 9 = −7"]][[step eq="2 − 9 = −7"]]'''),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Start at 4, count back 6. Four steps to zero, two more to the left — negative 2.",
-                        '[[numberline min="-10" max="10" points="-2" caption="find -2 on the line"]][[step eq="4 − 6 = −2"]]'],
-             "ask": {"a": 6, "b": 10, "op": "cbz"}},
-            {"worked": ["One more together. Start at 1, count back 8. One step to zero, seven more left — negative 7.",
-                        '[[numberline min="-10" max="10" points="-7" caption="find -7 on the line"]][[step eq="1 − 8 = −7"]]'],
-             "ask": {"a": 4, "b": 15, "op": "cbz"}},
+            {"worked": ("Here is one more, done for you. Start at 4, count back 6. Four "
+                        "steps to zero, two more to the left — negative 2.",
+                        '''[[numberline min="-10" max="10" points="4" hops="4,-2" caption="4 − 6 = −2"]][[step eq="4 − 6 = −2"]]'''),
+             "ask": {'a': 6, 'b': 10, 'op': 'cbz'}},
+            {"worked": ("One more together. Start at 1, count back 8. One step to "
+                        "zero, seven more left — negative 7.",
+                        '''[[numberline min="-10" max="10" points="1" hops="1,-7" caption="1 − 8 = −7"]][[step eq="1 − 8 = −7"]]'''),
+             "ask": {'a': 4, 'b': 15, 'op': 'cbz'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Start at 3, count "
+                       "back 7, and you land on negative 4. Tap the reason why."),
+            "choices": ("because 3 steps reach zero and 4 more go past it | because 7 "
+                        "take away 3 is 4, so the answer is 4 | because you cannot "
+                        "count back past zero"),
+            "answer": "because 3 steps reach zero and 4 more go past it",
+            "board": '''[[numberline min="-10" max="10" points="3" hops="3,-4" caption="3 − 7 = −4"]]''',
+        },
+        "recap": [
+            ("So, here it is again. Counting back is hopping left, and the line "
+             "keeps going past zero. Count to zero, then count the rest of the hops "
+             "— that is how far below zero you land, and the answer is negative.",
+             '''[[numberline min="-10" max="10" points="3" hops="3,-4" caption="3 − 7 = −4"]]'''),
+            ("And below zero is a real place — a cold morning, a floor under the "
+             "ground, money owed.",
+             '[[step eq="3 − 7 = −4"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 7, "op": "cbz"},
             {"a": 2, "b": 6, "op": "cbz"},
@@ -6627,24 +6959,61 @@ _PREALGEBRA_U23 = [
         "op": "addneg", "max_value": 30, "min_value": -20,
         "levels": ("abstract",),
         "symbols": ("negative", "plus"),
-        "advance_line": "Three in a row — you've got it! Adding a negative moves you left.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Adding a negative moves you left.",
+        "why": [
+            ("Why add a negative? Because a score can gain a penalty. You have 5 "
+             "points and the next card says negative 7 — you add it, and you end up "
+             "below zero. Adding a negative is how the math writes: something was "
+             "taken off.",
+             '[[goal text="Adding a negative number"]]'),
+        ],
+        "picture": [
+            ("Here is 5 plus negative 7 on the line. Adding usually hops right — "
+             "but this is adding a negative, so the hop goes left. Start at 5, hop "
+             "7 to the left: five steps reach zero, two more pass it, and you land "
+             "on negative 2.",
+             '''[[numberline min="-10" max="10" points="5" hops="5,-2" caption="5 + (−7) = −2"]]'''),
+        ],
         "teach": [
-            ["Adding usually moves you right along the line. But adding a NEGATIVE number moves you the other way — to the left. Adding negative 3 does exactly what counting back 3 does.",
-             '[[goal text="Adding a negative number"]]'],
-            ["Watch: 5 plus negative 7. Start at 5, move 7 to the left. Five steps reach zero, two more keep going, and you land on negative 2. So 5 plus negative 7 equals negative 2.",
-             '[[numberline min="-10" max="10" points="-2" caption="find -2 on the line"]][[step eq="5 + (−7) = −2"]]'],
-            ["Another: 3 plus negative 6. Start at 3, move 6 left. You land on negative 3. The plus sign did not stop you going left — the negative did that.",
-             '[[numberline min="-10" max="10" points="-3" caption="find -3 on the line"]][[step eq="3 + (−6) = −3"]]'],
+            ("That is the rule. Adding a negative number moves you LEFT along the "
+             "line — exactly what counting back does. Adding negative 3 does what "
+             "counting back 3 does. The plus sign does not stop you going left; the "
+             "negative decides the direction.",
+             '''[[numberline min="-10" max="10" points="5" hops="5,-2" caption="plus a negative: hop left"]][[step eq="5 + (−7) = −2"]]'''),
+            ("Another: 3 plus negative 6. Start at 3, hop 6 left. Three steps reach "
+             "zero, three more pass it. You land on negative 3.",
+             '''[[numberline min="-10" max="10" points="3" hops="3,-3" caption="3 + (−6) = −3"]][[step eq="3 + (−6) = −3"]]'''),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 4 plus negative 9. Start at 4, move 9 to the left, land on negative 5.",
-                        '[[numberline min="-10" max="10" points="-5" caption="find -5 on the line"]][[step eq="4 + (−9) = −5"]]'],
-             "ask": {"a": 6, "b": 13, "op": "addneg"}},
-            {"worked": ["One more together. 2 plus negative 8. Start at 2, move 8 to the left, and land on negative 6.",
-                        '[[numberline min="-10" max="10" points="-6" caption="find -6 on the line"]][[step eq="2 + (−8) = −6"]]'],
-             "ask": {"a": 8, "b": 12, "op": "addneg"}},
+            {"worked": ("Here is one more, done for you. 4 plus negative 9. Start at 4, "
+                        "hop 9 to the left, land on negative 5.",
+                        '''[[numberline min="-10" max="10" points="4" hops="4,-5" caption="4 + (−9) = −5"]][[step eq="4 + (−9) = −5"]]'''),
+             "ask": {'a': 6, 'b': 13, 'op': 'addneg'}},
+            {"worked": ("One more together. 2 plus negative 8. Start at 2, hop 8 to "
+                        "the left, and land on negative 6.",
+                        '''[[numberline min="-10" max="10" points="2" hops="2,-6" caption="2 + (−8) = −6"]][[step eq="2 + (−8) = −6"]]'''),
+             "ask": {'a': 8, 'b': 12, 'op': 'addneg'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 5 plus negative 7 "
+                       "equals negative 2. Tap the reason why."),
+            "choices": ("because adding a negative moves you to the left | because "
+                        "plus always moves you to the right | because 5 plus 7 is 12 "
+                        "and you keep the sign"),
+            "answer": "because adding a negative moves you to the left",
+            "board": '''[[numberline min="-10" max="10" points="5" hops="5,-2" caption="5 + (−7) = −2"]]''',
+        },
+        "recap": [
+            ("So, here it is again. Adding a negative number is a hop to the LEFT "
+             "— the same move as counting back. The negative sets the direction, "
+             "not the plus.",
+             '''[[numberline min="-10" max="10" points="5" hops="5,-2" caption="5 + (−7) = −2"]]'''),
+            ("And that is how a penalty on the score gets written down.",
+             '[[step eq="5 + (−7) = −2"]]'),
+        ],
         "bank": [
             {"a": 5, "b": 7, "op": "addneg"},
             {"a": 3, "b": 6, "op": "addneg"},
@@ -6670,24 +7039,62 @@ _PREALGEBRA_U23 = [
         "op": "subneg", "max_value": 30, "min_value": -20,
         "levels": ("abstract",),
         "symbols": ("negative", "take away"),
-        "advance_line": "Three in a row — you've got it! Taking away a negative moves you right.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Taking away a negative moves you right.",
+        "why": [
+            ("Why would you take away a negative? Because a penalty can be cancelled. "
+             "You are on 3, a negative 2 card sits against you, and then the referee "
+             "takes it away. Taking away a thing that pulled you down pushes you up. "
+             "The math has to say that, and it does.",
+             '[[goal text="Taking away a negative number"]]'),
+        ],
+        "picture": [
+            ("Here is 3 take away negative 2 on the line. Taking away usually hops "
+             "left — but this is taking away a negative, a move-left being taken "
+             "away, and that is a hop RIGHT. Start at 3, hop 2 to the right, and land on "
+             "5.",
+             '''[[numberline min="-10" max="10" points="3" hops="3,5" caption="3 − (−2) = 5"]]'''),
+        ],
         "teach": [
-            ["Here is the surprising one. Taking away usually moves you left. But taking away a NEGATIVE moves you RIGHT — the two negatives cancel each other and the answer grows.",
-             '[[goal text="Taking away a negative number"]]'],
-            ["Watch: 3 take away negative 2. Taking away a move-left is a move-right, so you go 2 to the right of 3 and land on 5. 3 take away negative 2 equals 5.",
-             '[[step eq="3 − (−2) = 3 + 2 = 5"]]'],
-            ["Another: 5 take away negative 3 equals 8. Whenever a take away meets a negative, swap the pair for a plus.",
-             '[[step eq="5 − (−3) = 5 + 3 = 8"]]'],
+            ("That is the surprising rule. Taking away a NEGATIVE moves you RIGHT: "
+             "the two negatives cancel each other and the answer grows. Whenever a "
+             "take away meets a negative, swap the pair for a plus.",
+             '''[[numberline min="-10" max="10" points="3" hops="3,5" caption="take away a negative: hop right"]][[step eq="3 − (−2) = 3 + 2 = 5"]]'''),
+            ("Another: 5 take away negative 3. Swap the pair for a plus: 5 plus 3 "
+             "equals 8. On the line, start at 5 and hop 3 right.",
+             '''[[numberline min="-10" max="10" points="5" hops="5,8" caption="5 − (−3) = 8"]][[step eq="5 − (−3) = 5 + 3 = 8"]]'''),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 6 take away negative 4. The two negatives become a plus: 6 plus 4 equals 10.",
-                        '[[step eq="6 − (−4) = 6 + 4 = 10"]]'],
-             "ask": {"a": 7, "b": 6, "op": "subneg"}},
-            {"worked": ["One more together. 2 take away negative 9 equals 2 plus 9, which equals 11.",
-                        '[[step eq="2 − (−9) = 11"]]'],
-             "ask": {"a": 4, "b": 13, "op": "subneg"}},
+            {"worked": ("Here is one more, done for you. 6 take away negative 4. The "
+                        "two negatives become a plus: 6 plus 4 equals 10. Start at 6, "
+                        "hop 4 right.",
+                        '''[[numberline min="-10" max="10" points="6" hops="6,10" caption="6 − (−4) = 10"]][[step eq="6 − (−4) = 6 + 4 = 10"]]'''),
+             "ask": {'a': 7, 'b': 6, 'op': 'subneg'}},
+            {"worked": ("One more together. 2 take away negative 9 equals 2 plus 9, "
+                        "which equals 11. Start at 2, hop 9 right.",
+                        '[[numberline min="-5" max="15" points="2" hops="2,11" caption="2 − (−9) = 11"]][[step eq="2 − (−9) = 11"]]'),
+             "ask": {'a': 4, 'b': 13, 'op': 'subneg'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 take away "
+                       "negative 2 equals 5. Tap the reason why."),
+            "choices": ("because taking away a negative moves you to the right | "
+                        "because take away always moves you to the left | because 3 "
+                        "take away 2 is 1 and you flip the sign"),
+            "answer": "because taking away a negative moves you to the right",
+            "board": '''[[numberline min="-10" max="10" points="3" hops="3,5" caption="3 − (−2) = 5"]]''',
+        },
+        "recap": [
+            ("So, here it is again. Taking away a negative is a hop to the RIGHT — "
+             "the two negatives cancel, and the answer grows. Swap the pair for a "
+             "plus.",
+             '''[[numberline min="-10" max="10" points="3" hops="3,5" caption="3 − (−2) = 5"]]'''),
+            ("And that is a penalty being cancelled — taking away what pulled you down "
+             "pushes you up.",
+             '[[step eq="3 − (−2) = 3 + 2 = 5"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "subneg"},
             {"a": 6, "b": 2, "op": "subneg"},
@@ -6708,24 +7115,60 @@ _PREALGEBRA_U23 = [
         "op": "mulneg", "max_value": 90, "min_value": -95,
         "levels": ("abstract",),
         "symbols": ("negative", "times"),
-        "advance_line": "Three in a row — you've got it! One negative turns the answer negative.",
+        "advance_line": "Three in a row, and you can say why — you've got it! One negative turns the answer negative.",
+        "why": [
+            ("Why times with a negative? Because losses repeat. Lose 3 dollars a day "
+             "for 4 days — that is negative 3, four times over. Times is still the "
+             "short way to add the same thing again and again; only the sign is new.",
+             '[[goal text="Times with a negative number"]]'),
+        ],
+        "picture": [
+            ("Here is negative 3 times 4 on the line. It means four lots of negative "
+             "3 — four hops of 3 to the left, one after another, starting at zero. "
+             "Watch them land: negative 3, negative 6, negative 9, negative 12.",
+             '[[numberline min="-17" max="5" hops="0,-3,-6,-9,-12" caption="(−3) × 4 = −12"]]'),
+        ],
         "teach": [
-            ["Times works the same as it always did — only the sign is new. Negative 3 times 4 means four lots of negative 3. Four moves of 3 to the left lands on negative 12.",
-             '[[goal text="Times with a negative number"]]'],
-            ["So do the times first and ignore the sign: 3 times 4 equals 12. Then look at the signs. One of them is negative, so the answer is negative. Negative 3 times 4 equals negative 12.",
-             '[[numberline min="-20" max="10" points="-12" caption="find -12 on the line"]][[step eq="(−3) × 4 = −12"]]'],
-            ["Another: negative 5 times 3. Five 3s equal 15, and one negative sign turns it negative 15.",
-             '[[step eq="(−5) × 3 = −15"]]'],
+            ("That is the rule. Do the times first and ignore the sign: 3 times 4 "
+             "equals 12. Then look at the signs. One of them is negative, so every "
+             "hop went left, and the answer is negative. Negative 3 times 4 equals "
+             "negative 12.",
+             '[[numberline min="-17" max="5" hops="0,-3,-6,-9,-12" caption="four hops of 3 to the left"]][[step eq="(−3) × 4 = −12"]]'),
+            ("Another: negative 5 times 3. Five 3s equal 15 — three hops of 5 to "
+             "the left — and one negative sign turns it negative 15.",
+             '[[numberline min="-20" max="5" hops="0,-5,-10,-15" caption="(−5) × 3 = −15"]][[step eq="(−5) × 3 = −15"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Negative 2 times 7. Two 7s equal 14, and one negative turns it negative 14.",
-                        '[[step eq="(−2) × 7 = −14"]]'],
-             "ask": {"a": 4, "b": 6, "op": "mulneg"}},
-            {"worked": ["One more together. Negative 6 times 4. Six 4s equal 24, so the answer is negative 24.",
-                        '[[step eq="(−6) × 4 = −24"]]'],
-             "ask": {"a": 8, "b": 5, "op": "mulneg"}},
+            {"worked": ("Here is one more, done for you. Negative 2 times 7. Two 7s "
+                        "equal 14 — seven hops of 2 to the left — and one negative "
+                        "turns it negative 14.",
+                        '[[numberline min="-19" max="5" hops="0,-2,-4,-6,-8,-10,-12,-14" caption="(−2) × 7 = −14"]][[step eq="(−2) × 7 = −14"]]'),
+             "ask": {'a': 4, 'b': 6, 'op': 'mulneg'}},
+            {"worked": ("One more together. Negative 6 times 4. Six 4s equal 24 — four "
+                        "hops of 6 to the left — so the answer is negative 24.",
+                        '[[numberline min="-29" max="5" hops="0,-6,-12,-18,-24" caption="(−6) × 4 = −24"]][[step eq="(−6) × 4 = −24"]]'),
+             "ask": {'a': 8, 'b': 5, 'op': 'mulneg'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Negative 3 times 4 "
+                       "equals negative 12. Tap the reason why."),
+            "choices": ("because four hops of 3 to the left land on negative 12 | "
+                        "because two negatives make a positive | because the negative "
+                        "sign goes away when you multiply"),
+            "answer": "because four hops of 3 to the left land on negative 12",
+            "board": '[[numberline min="-17" max="5" hops="0,-3,-6,-9,-12" caption="(−3) × 4 = −12"]]',
+        },
+        "recap": [
+            ("So, here it is again. Times with a negative is the same times, hopped "
+             "to the left. Multiply the numbers, then look at the signs: one negative "
+             "turns the answer negative.",
+             '[[numberline min="-17" max="5" hops="0,-3,-6,-9,-12" caption="(−3) × 4 = −12"]]'),
+            ("And that is a loss repeated — the short way to add it again and again.",
+             '[[step eq="(−3) × 4 = −12"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "mulneg"},
             {"a": 3, "b": 3, "op": "mulneg"},
@@ -18853,6 +19296,191 @@ def _vol_worked(p):
             f'[[solid kind="prism" w="{a}" d="{b}" h="{c}" caption="{_plural(c, "layer")}: {layer} × {c} = {layer * c} cubes"]]')
 
 
+# (tc, 2026-09-05) PREALGEBRA UNIT 1'S PICTURE: THE ORDER OF OPERATIONS MARCHES DOWN THE
+# BOARD. [[solve]] draws the starting line and then each move as "what you did" over
+# the line it produces -- "times first" over 2 + 12, "then add" over 14 -- so the
+# student sees the ORDER as a picture of steps, not a rule in words. A square number is
+# a square (the area model); a cube is a cube (the solid), which is the first honest
+# picture of a to-the-power-3 the course has had.
+def _tba_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: the times first — {b} times {c} equals {b * c}. Then the "
+            f"add — {a} plus {b * c} equals {a + b * c}.",
+            f'[[solve start="{a} + {b} × {c}" steps="times first : {a} + {b * c} | '
+            f'then add : {a + b * c}" caption="{a} + {b} × {c} = {a + b * c}"]]')
+
+
+def _parf_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    s = a + b
+    return (f"Look what you did: inside the parentheses first — {a} plus {b} equals {s}. "
+            f"Then the times — {s} times {c} equals {s * c}.",
+            f'[[solve start="({a} + {b}) × {c}" steps="inside first : {s} × {c} | '
+            f'then times : {s * c}" caption="({a} + {b}) × {c} = {s * c}"]]')
+
+
+def _expn_worked(p):
+    a, b = p["a"], p["b"]
+    if b == 2:
+        return (f"Look what you did: {a} squared is two {a}s multiplied — {a} times {a} "
+                f"equals {a * a}. {a} rows of {a} really do make a square.",
+                f'[[areamodel rows="{a}" cols="{a}" caption="{a}² = {a} × {a} = {a * a}"]]')
+    return (f"Look what you did: {a} to the power 3 is three {a}s multiplied — {a} times "
+            f"{a} times {a} equals {a ** 3}. A {a} by {a} by {a} block of cubes holds "
+            f"{a ** 3}.",
+            f'[[solid kind="prism" w="{a}" d="{a}" h="{a}" caption="{a}³ = {a} × {a} × {a} = {a ** 3}"]]')
+
+
+def _exo_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    sq, pr = a * a, b * c
+    return (f"Look what you did: the power first — {a} squared equals {sq}. The times next "
+            f"— {b} times {c} equals {pr}. The add last — {sq} plus {pr} equals {sq + pr}.",
+            f'[[solve start="{a}² + {b} × {c}" steps="power first : {sq} + {b} × {c} | '
+            f'times next : {sq} + {pr} | add last : {sq + pr}" caption="{a}² + {b} × {c} = {sq + pr}"]]')
+
+
+# (tc, 2026-09-05) PREALGEBRA UNIT 2'S PICTURES: a factor pair is a RECTANGLE (the array,
+# or the area model when it is wide), the factors of a number are its pairs written out,
+# the hunt for the smallest factor is the tries written in order with the one that fits
+# ticked, and breaking into primes is the LADDER -- the number split, then split again,
+# marching down until only primes are left.
+def _factor_pairs(n):
+    return [(d, n // d) for d in range(1, int(n ** 0.5) + 1) if n % d == 0]
+
+
+def _pair_board(a, b, caption):
+    """A rectangle for the factor pair a × b: dots when it fits, the area model when wide."""
+    if a <= 10 and b <= 12:
+        return f'[[array rows="{a}" cols="{b}" caption="{caption}"]]'
+    return f'[[areamodel rows="{a}" cols="{b}" caption="{caption}"]]'
+
+
+def _nfac_worked(p):
+    n = p["a"]
+    pairs = _factor_pairs(n)
+    facs = sorted({x for pr in pairs for x in pr})
+    lines = " | ".join(f"{d} × {q}" for d, q in pairs)
+    said = ", ".join(f"{d} and {q}" for d, q in pairs)
+    j = ", ".join(str(x) for x in facs)
+    ex = pairs[len(pairs) // 2]
+    return (f"Look what you did: the factor pairs of {n} are {said}. Write every number "
+            f"in them once — {j} — and that is {len(facs)} factors.",
+            f'[[write lines="{lines}" caption="the factors of {n}: {j} — {len(facs)} of them"]]'
+            + _pair_board(ex[0], ex[1], f"{ex[0]} × {ex[1]} = {n}"))
+
+
+def _spf_worked(p):
+    n = p["a"]
+    d = _spf(n)
+    tries = [t for t in (2, 3, 5, 7) if t < d]
+    lines = " | ".join(f"{n} ÷ {t} leaves {n % t} ✗" for t in tries) + (" | " if tries else "") + f"{n} ÷ {d} = {n // d} ✓"
+    said = ("" if not tries else " and ".join(f"{t} leaves {n % t} over" for t in tries) + ", so no. ")
+    return (f"Look what you did: try the small numbers in order. {said}{d} divides {n} "
+            f"exactly — {n} is {d} rows of {n // d}. The smallest factor above 1 is {d}.",
+            f'[[write lines="{lines}" caption="the first one that fits is {d}"]]'
+            + _pair_board(d, n // d, f"{d} × {n // d} = {n}"))
+
+
+def _npf_ladder(n):
+    """The ladder: each rung pulls out the smallest factor. Returns (rung notes, primes)."""
+    rungs, rest, done = [], n, []
+    while _spf(rest) != rest:
+        d = _spf(rest)
+        rest //= d
+        done.append(d)
+        rungs.append(f"pull out {d} : " + " × ".join(str(x) for x in done + [rest]))
+    return rungs, done + [rest]
+
+
+def _npf_worked(p):
+    n = p["a"]
+    rungs, primes = _npf_ladder(n)
+    chain = " × ".join(str(x) for x in primes)
+    return (f"Look what you did: pull out the smallest factor and keep going until only "
+            f"primes are left. {n} equals {chain} — {_plural(len(primes), 'prime')}.",
+            f'[[solve start="{n}" steps="{" | ".join(rungs)}" caption="{n} = {chain}: {len(primes)} primes"]]')
+
+
+def _bfac_worked(p):
+    n = p["a"]
+    d = _spf(n)
+    q = n // d
+    return (f"Look what you did: the smallest factor of {n} above 1 is {d}. Divide — {n} "
+            f"divided by {d} equals {q} — and {q} is the biggest factor below {n}, because "
+            f"the smallest factor is always paired with the biggest.",
+            f'[[step eq="{n} = {d} × {q}"]]' + _pair_board(d, q, f"smallest {d}, biggest {q}"))
+
+
+# (tc, 2026-09-05) PREALGEBRA UNIT 3'S PICTURE: THE NUMBER LINE WITH THE MOVE DRAWN AS
+# HOPS. The ask marks only where you START (the old boards marked the landing point --
+# the answer, drawn on the question); the walk-back draws the hop. Counting back and
+# adding a negative hop LEFT past zero; taking away a negative hops RIGHT; times with a
+# negative is b hops of a to the left, one after another.
+def _int_range(lo, hi):
+    lo, hi = min(lo, -5), max(hi, 5)
+    return f'min="{lo}" max="{hi}"'
+
+
+def _neg(n):
+    """A negative number the way the board writes it: a real minus sign, never a hyphen."""
+    return f"−{-n}" if n < 0 else str(n)
+
+
+def _cbz_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[numberline {_int_range(a - b - 3, a + 3)} points="{a}" caption="start at {a}"]]'
+            f'[[step eq="{a} − {b} = ?"]]')
+
+
+def _cbz_worked(p):
+    a, b = p["a"], p["b"]
+    r = a - b
+    return (f"Look what you did: start at {a} and hop {b} to the left. {a} steps reach "
+            f"zero, and {b - a} more carry on past it. You land on negative {b - a}.",
+            f'[[numberline {_int_range(r - 3, a + 3)} points="{a}" hops="{a},{r}" caption="{a} − {b} = {_neg(r)}"]]')
+
+
+def _addneg_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[numberline {_int_range(a - b - 3, a + 3)} points="{a}" caption="start at {a}"]]'
+            f'[[step eq="{a} + (−{b}) = ?"]]')
+
+
+def _addneg_worked(p):
+    a, b = p["a"], p["b"]
+    r = a - b
+    return (f"Look what you did: adding negative {b} is a hop of {b} to the left. Start at "
+            f"{a}, hop {b} left — {a} steps reach zero, {b - a} more pass it — and you land "
+            f"on negative {b - a}.",
+            f'[[numberline {_int_range(r - 3, a + 3)} points="{a}" hops="{a},{r}" caption="{a} + (−{b}) = {_neg(r)}"]]')
+
+
+def _subneg_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[numberline {_int_range(-5, a + b + 3)} points="{a}" caption="start at {a}"]]'
+            f'[[step eq="{a} − (−{b}) = ?"]]')
+
+
+def _subneg_worked(p):
+    a, b = p["a"], p["b"]
+    r = a + b
+    return (f"Look what you did: taking away negative {b} is a hop of {b} to the RIGHT. "
+            f"Start at {a}, hop {b} right, and you land on {r}. {a} take away negative {b} "
+            f"equals {a} plus {b}.",
+            f'[[numberline {_int_range(-5, r + 3)} points="{a}" hops="{a},{r}" caption="{a} − (−{b}) = {r}"]]')
+
+
+def _mulneg_worked(p):
+    a, b = p["a"], p["b"]
+    r = -(a * b)
+    hops = ",".join(str(-a * i) for i in range(0, b + 1))
+    return (f"Look what you did: negative {a} times {b} is {b} hops of {a} to the left, "
+            f"one after another, starting at zero. {a} times {b} equals {a * b}, and every "
+            f"hop went left — so you land on negative {a * b}.",
+            f'[[numberline {_int_range(r - 5, 5)} hops="{hops}" caption="(−{a}) × {b} = {_neg(r)}"]]')
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -19000,6 +19628,7 @@ OP_EXT = {
         "spoken": lambda p: (f"What is the biggest number that divides {p['a']} "
                              f"exactly, apart from {p['a']} itself?"),
         "board": lambda p: f'[[step eq="{p["a"]} → biggest factor below it = ?"]]',
+        "worked": _bfac_worked,       # (tc) the pair drawn: smallest with biggest
         "praise": lambda p: (f"Dividing {p['a']} by its smallest factor "
                              f"{_spf(p['a'])} gives {p['a'] // _spf(p['a'])} — the "
                              f"biggest one there is."),
@@ -19783,6 +20412,7 @@ OP_EXT = {
         "ans": lambda p: p["a"] + p["b"] * p["c"],
         "spoken": lambda p: f"What is {p['a']} plus {p['b']} times {p['c']}?",
         "board": lambda p: f'[[step eq="{p["a"]} + {p["b"]} × {p["c"]} = ?"]]',
+        "worked": _tba_worked,        # (tc) the order marches down the board
         "praise": lambda p: (f"{p['b']} times {p['c']} equals {p['b'] * p['c']}, "
                              f"and {p['a']} plus {p['b'] * p['c']} equals "
                              f"{p['a'] + p['b'] * p['c']}."),
@@ -19799,6 +20429,7 @@ OP_EXT = {
         "spoken": lambda p: (f"What is {p['a']} plus {p['b']}, in parentheses, "
                              f"times {p['c']}?"),
         "board": lambda p: f'[[step eq="({p["a"]} + {p["b"]}) × {p["c"]} = ?"]]',
+        "worked": _parf_worked,       # (tc) inside first, then the times, marching down
         "praise": lambda p: (f"Inside first: {p['a']} plus {p['b']} equals "
                              f"{p['a'] + p['b']}. Then {p['a'] + p['b']} times "
                              f"{p['c']} equals {(p['a'] + p['b']) * p['c']}."),
@@ -19828,6 +20459,7 @@ OP_EXT = {
                             if p["b"] == 2 else
                             f'[[step eq="{p["a"]}³ = {p["a"]} × {p["a"]} × '
                             f'{p["a"]} = ?"]]'),
+        "worked": _expn_worked,       # (tc) a square is a square; a cube is a cube
         "praise": lambda p: (f"{p['a']} to the power {p['b']} equals "
                              f"{p['a'] ** p['b']} — that is {p['b']} {p['a']}s "
                              f"multiplied."),
@@ -19844,6 +20476,7 @@ OP_EXT = {
         "spoken": lambda p: (f"What is {p['a']} squared plus {p['b']} times "
                              f"{p['c']}?"),
         "board": lambda p: f'[[step eq="{p["a"]}² + {p["b"]} × {p["c"]} = ?"]]',
+        "worked": _exo_worked,        # (tc) power, times, add -- three rungs down
         "praise": lambda p: (f"{p['a']} squared equals {p['a'] * p['a']}, "
                              f"{p['b']} times {p['c']} equals {p['b'] * p['c']}, "
                              f"and those put together equal "
@@ -19871,6 +20504,7 @@ OP_EXT = {
         "spoken": lambda p: (f"How many different numbers divide {p['a']} exactly, "
                              f"with nothing left over?"),
         "board": lambda p: f'[[step eq="factors of {p["a"]} = ?"]]',
+        "worked": _nfac_worked,       # (tc) the factor pairs written, one drawn
         "praise": lambda p: (f"{p['a']} has "
                              f"{sum(1 for d in range(1, p['a'] + 1) if p['a'] % d == 0)}"
                              f" factors."),
@@ -19885,6 +20519,7 @@ OP_EXT = {
         "spoken": lambda p: (f"What is the smallest number, bigger than 1, that "
                              f"divides {p['a']} exactly?"),
         "board": lambda p: f'[[step eq="{p["a"]} ÷ ? leaves nothing over"]]',
+        "worked": _spf_worked,        # (tc) the tries in order, the first fit ticked and drawn
         "praise": lambda p: (f"{next(d for d in range(2, p['a'] + 1) if p['a'] % d == 0)}"
                              f" is the smallest one that divides {p['a']}."),
         "key": lambda p: p["a"],
@@ -19900,6 +20535,7 @@ OP_EXT = {
         "spoken": lambda p: (f"Break {p['a']} down into primes multiplied. How many "
                              f"primes does it take?"),
         "board": lambda p: f'[[step eq="{p["a"]} = ? primes multiplied"]]',
+        "worked": _npf_worked,        # (tc) the ladder down to primes
         "praise": lambda p: (f"{p['a']} equals "
                              f"{' × '.join(str(x) for x in _prime_factors(p['a']))} — "
                              f"{len(_prime_factors(p['a']))} primes."),
@@ -19924,9 +20560,10 @@ OP_EXT = {
         # THE PICTURE THIS UNIT EXISTS FOR (build kj gave us the renderer): below zero
         # is a PLACE, and a child who sees it on the line stops thinking of a negative
         # as a broken sum.
-        "board": lambda p: (f'[[numberline min="-20" max="10" '
-                            f'points="{p["a"] - p["b"]}"]]'
-                            f'[[step eq="{p["a"]} − {p["b"]} = ?"]]'),
+        # (tc) the ask marks the START; the old board marked the landing point,
+        # which is the answer drawn on the question. The walk-back hops.
+        "board": _cbz_board,
+        "worked": _cbz_worked,
         "praise": lambda p: (f"You land on negative {p['b'] - p['a']} — "
                              f"{p['b'] - p['a']} steps to the left of zero."),
         "key": lambda p: p["b"] - p["a"],
@@ -19937,9 +20574,8 @@ OP_EXT = {
     "addneg": {  # a + (-b)
         "ans": lambda p: p["a"] - p["b"],
         "spoken": lambda p: (f"What is {p['a']} plus negative {p['b']}?"),
-        "board": lambda p: (f'[[numberline min="-20" max="10" '
-                            f'points="{p["a"] - p["b"]}"]]'
-                            f'[[step eq="{p["a"]} + (−{p["b"]}) = ?"]]'),
+        "board": _addneg_board,       # (tc) the start marked, the hop withheld
+        "worked": _addneg_worked,     # (tc) the hop left, past zero
         "praise": lambda p: (f"Adding negative {p['b']} moves {p['b']} to the left, "
                              f"so you land on negative {p['b'] - p['a']}."),
         "key": lambda p: p["b"] - p["a"],
@@ -19950,7 +20586,8 @@ OP_EXT = {
     "subneg": {  # a - (-b) -- the surprise: it goes UP
         "ans": lambda p: p["a"] + p["b"],
         "spoken": lambda p: (f"What is {p['a']} take away negative {p['b']}?"),
-        "board": lambda p: f'[[step eq="{p["a"]} − (−{p["b"]}) = ?"]]',
+        "board": _subneg_board,       # (tc) the start marked on the line
+        "worked": _subneg_worked,     # (tc) the hop RIGHT
         "praise": lambda p: (f"Taking away negative {p['b']} moves {p['b']} to the "
                              f"RIGHT, so {p['a']} take away negative {p['b']} equals "
                              f"{p['a'] + p['b']}."),
@@ -19964,6 +20601,7 @@ OP_EXT = {
         "ans": lambda p: -(p["a"] * p["b"]),
         "spoken": lambda p: f"What is negative {p['a']} times {p['b']}?",
         "board": lambda p: f'[[step eq="(−{p["a"]}) × {p["b"]} = ?"]]',
+        "worked": _mulneg_worked,     # (tc) b hops of a to the left, from zero
         "praise": lambda p: (f"{p['a']} times {p['b']} equals {p['a'] * p['b']}, and "
                              f"one negative turns the answer negative — negative "
                              f"{p['a'] * p['b']}."),
@@ -28766,7 +29404,9 @@ def validate(lesson, board_tag_names=None):
         for p in problems:
             w = _worked_for(p)
             if w:
-                ck(str(ans(p)) in w[0],
+                # (tc) a negative answer is SAID "negative 4" -- the digits alone would
+                # be read as a hyphen by the voice -- so either form names it
+                ck(str(ans(p)) in w[0] or (ans(p) < 0 and f"negative {-ans(p)}" in w[0]),
                    f"{lid}: the walk-back for {p['a']} names the answer", w[0])
     # (b) the reason question: 2-4 options, the answer among them exactly once, and
     #     no option that the page would read as a QUESTION (session.html routes a
