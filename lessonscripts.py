@@ -2,6 +2,16 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD su -- BASIC UNIT 5 TO THE SHAPE (fractions). THIS FILE:
+#                 * fractions-on-the-number-line on the FRACTION LINE ([[numberline
+#                   denom=]] -- ticks and hops labelled in fourths), the hops drawn;
+#                 * fraction-of-a-group on the ARRAY shared into equal parts;
+#                 * equivalent-fractions and simplest-form on TWO PIES holding the same
+#                   amount cut two ways; the simplest-form trap line kept.
+#               ENGINE: OP_EXT nl / nlw / of / eqf / simp gain boards and "worked"
+#               (_nl_*, _nlw_*, _of_*, _eqf_*, _simp_*; _frac_line helper). A pie
+#               holds at most 12 parts, so simplest-form asks with a bigger bottom
+#               are bare and their walk-back draws the simplified pie only.
 #   2026-09-05  BUILD st -- BASIC UNIT 4 TO THE SHAPE (factors and multiples). THIS FILE:
 #                 * missing-factors on the ARRAY: b boxes, a dots -- the sharing question
 #                   in disguise -- then the boxes filled;
@@ -2452,20 +2462,30 @@ _MORE_LESSONS = [
         "bank": [{"a": 12, "b": 2, "op": "fpr"}, {"a": 27, "b": 3, "op": "fpr"}, {"a": 38, "b": 19, "op": "fpr"}, {"a": 48, "b": 12, "op": "fpr"}, {"a": 58, "b": 29, "op": "fpr"}, {"a": 68, "b": 2, "op": "fpr"}, {"a": 76, "b": 19, "op": "fpr"}, {"a": 84, "b": 28, "op": "fpr"}, {"a": 92, "b": 46, "op": "fpr"}, {"a": 100, "b": 50, "op": "fpr"}],
     },
     {
+        # (su, 2026-09-05) TO THE SHAPE on TWO PIES: the fraction as given and its
+        # shortest name, the same amount. The trap line kept.
         "id": "basic-u5-simplest-form", "course": "basic", "unit": 5,
         "topic": "Simplest form", "op": "simp", "max_value": 24,
         "levels": ("abstract",), "symbols": ("simplest", "share"),
-        "advance_line": "Three in a row — you've got it! You can put a fraction in its simplest form.",
+        "advance_line": "Three in a row, and you can say why — you've got it! You can put a fraction in its simplest form.",
+        "why": [
+            ("Different fractions can name the same amount — 4 out of 8, 2 out of "
+             "4, 1 out of 2. Of all the names for one amount, one is the shortest. "
+             "That one is its simplest form, and it is the one we write, because "
+             "it is the easiest to read, compare and say.",
+             '[[goal text="Simplest form"]]'),
+        ],
+        "picture": [
+            ("Here is 9 out of 12, and next to it the same pie cut into just 4 "
+             "pieces — 3 out of 4 shaded. Look: the shaded amount is the same. 3 "
+             "out of 4 is the shortest name for it.",
+             '[[pie parts="12" shaded="9" caption="9 out of 12"]][[pie parts="4" shaded="3" caption="3 out of 4 — the same amount"]]'),
+        ],
         "teach": [
-            ("You know that different fractions can name the same amount. Of all "
-             "the names for one amount, one is the shortest. That one is called "
-             "its simplest form, and it is the one we write.",
-             '[[goal text="Simplest form"]]'
-             '[[step eq="4/8 = 2/4 = 1/2 — three names, one amount"]]'),
-            ("Watch me. 9 out of 12. Both numbers share 3, so divide both by 3: 9 "
-             "becomes 3 and 12 becomes 4. 9 out of 12 is 3 out of 4. Nothing "
-             "divides 3 and 4 together, so that is as short as it goes.",
-             '[[step eq="9/12 ÷ 3 → 3/4"]]'),
+            ("Here is how to find the shortest name. 9 and 12 both share 3, so "
+             "divide both by 3: 9 becomes 3 and 12 becomes 4. Nothing divides 3 "
+             "and 4 together, so 3 out of 4 is as short as it goes.",
+             '[[pie parts="12" shaded="9" caption="9/12"]][[pie parts="4" shaded="3" caption="÷ 3 top and bottom → 3/4"]]'),
             ("Here is the trap. Whatever you do to the top, do to the bottom. "
              "Halving only the top turns the fraction into a different amount "
              "entirely. Simplest form renames the fraction. It never changes how "
@@ -2474,16 +2494,35 @@ _MORE_LESSONS = [
              '[[step eq="only the top divided ✗ that is a different fraction"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 8 out of 12. Both share "
-                        "4, so divide both by 4. That is 2 out of 3.",
-                        '[[step eq="8/12 → 2/3"]]'),
+            {"worked": ("Here is one more, done for you. 8 out of 12. Both share 4, "
+                        "so divide both by 4. That is 2 out of 3 — the same amount.",
+                        '[[pie parts="12" shaded="8" caption="8/12"]][[pie parts="3" shaded="2" caption="2/3 — the same amount"]]'),
              "ask": {"a": 3, "b": 9, "op": "simp"}},
-            {"worked": ("One more together. 10 out of 16. Both share 2, so that is "
-                        "5 out of 8.",
-                        '[[step eq="10/16 → 5/8"]]'),
+            {"worked": ("One more together. 10 out of 16. Both share 2, so divide "
+                        "both by 2. That is 5 out of 8.",
+                        '[[step eq="10/16 ÷ 2 → 5/8"]][[pie parts="8" shaded="5" caption="5/8 — the same amount, simplest form"]]'),
              "ask": {"a": 14, "b": 21, "op": "simp"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": "Now it's your turn. Find what the top and bottom share, and divide both. Three right answers in a row and we're done — here comes the first one.",
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 9 out of 12 and "
+                       "3 out of 4 are the same amount. Tap the reason why."),
+            "choices": ("because both top and bottom were divided by the same 3 | "
+                        "because 9 take away 6 is 3 | because 3 out of 4 sounds "
+                        "smaller"),
+            "answer": "because both top and bottom were divided by the same 3",
+            "board": '[[pie parts="12" shaded="9" caption="9/12"]][[pie parts="4" shaded="3" caption="3/4"]]',
+        },
+        "recap": [
+            ("So, here it is again. Find what the top and the bottom share, divide "
+             "both by it, and you have the shortest name for the same amount. Do "
+             "it to both, never to one.",
+             '[[pie parts="12" shaded="9" caption="9/12"]][[pie parts="4" shaded="3" caption="3/4 — the same amount"]]'),
+            ("And the shortest name is the one we write, because it is the easiest "
+             "to read and compare.",
+             '[[step eq="9/12 = 3/4"]]'),
+        ],
         "bank": [{"a": 2, "b": 4, "op": "simp"}, {"a": 5, "b": 10, "op": "simp"}, {"a": 2, "b": 14, "op": "simp"}, {"a": 10, "b": 15, "op": "simp"}, {"a": 4, "b": 18, "op": "simp"}, {"a": 4, "b": 20, "op": "simp"}, {"a": 6, "b": 21, "op": "simp"}, {"a": 10, "b": 22, "op": "simp"}, {"a": 6, "b": 24, "op": "simp"}, {"a": 22, "b": 24, "op": "simp"}],
     },
     {
@@ -3675,61 +3714,136 @@ _MORE_LESSONS = [
         "bank": [{'a': 4, 'b': 6, 'op': 'gcf'}, {'a': 6, 'b': 10, 'op': 'gcf'}, {'a': 8, 'b': 12, 'op': 'gcf'}, {'a': 9, 'b': 12, 'op': 'gcf'}, {'a': 14, 'b': 21, 'op': 'gcf'}, {'a': 18, 'b': 24, 'op': 'gcf'}, {'a': 10, 'b': 25, 'op': 'gcf'}, {'a': 20, 'b': 30, 'op': 'gcf'}, {'a': 24, 'b': 36, 'op': 'gcf'}, {'a': 32, 'b': 48, 'op': 'gcf'}],
     },
     {
+        # (su, 2026-09-05) TO THE SHAPE on the ARRAY shared into equal parts: one part
+        # is the fraction.
         "id": 'basic-u5-fraction-of-a-group',
         "course": "basic", "unit": 5,
         "topic": 'A fraction of a group',
         "op": 'of', "max_value": 24,
         "levels": ("abstract",),
         "symbols": ('share', 'equal'),
-        "advance_line": "Three in a row — you've got it! You can find a fraction of a group.",
-        "teach": [
-            ('A fraction names equal shares. One half means one of two equal shares. One fourth means one of four equal shares. Today we take a fraction OF a group.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You can find a fraction of a group.",
+        "why": [
+            ("A fraction names equal shares — one half is one of two equal shares, "
+             "one fourth is one of four. But shares of WHAT? Usually a group of "
+             "things: half the class, a third of the cookies. Taking a fraction of "
+             "a group is how fractions show up in real life.",
              '[[goal text="A fraction of a group"]]'),
-            ('Watch me find one half of 8. Share 8 into 2 equal groups — each group gets 4. One half of 8 equals 4.',
-             '[[step eq="1/2 of 8 = 4"]]'),
-            ('One more, watch. One third of 12. Share 12 into 3 equal groups — each gets 4. One third of 12 equals 4.',
-             '[[step eq="1/3 of 12 = 4"]]'),
+        ],
+        "picture": [
+            ("Here are 8 dots and 2 boxes. One half of 8 means: share 8 into 2 "
+             "equal parts and take one part. Each part gets 4. One half of 8 is "
+             "4.",
+             '[[array rows="2" cols="4" view="groups" eq="1/2 of 8 = 4" caption="8 shared into 2 equal parts — one part is 4"]]'),
+        ],
+        "teach": [
+            ("So the bottom of the fraction says how many equal parts to share the "
+             "group into, and one part is the answer. One half of 8: share into 2, "
+             "one part is 4. One half of 8 equals 4.",
+             '[[array rows="2" cols="4" view="groups" eq="1/2 of 8 = 4" caption="the bottom says how many parts"]]'),
+            ("One more, watch. One third of 12. Share 12 into 3 equal parts — each "
+             "gets 4. One part is one third. One third of 12 equals 4.",
+             '[[array rows="3" cols="4" view="groups" eq="1/3 of 12 = 4" caption="12 shared into 3 equal parts — one part is 4"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. One fourth of 12. Share 12 into 4 equal groups — each gets 3. One fourth of 12 equals 3.',
-                        '[[step eq="1/4 of 12 = 3"]]'),
+            {"worked": ("Here is one more, done for you. One fourth of 12. Share 12 "
+                        "into 4 equal parts — each gets 3. One fourth of 12 equals 3.",
+                        '[[array rows="4" cols="3" view="groups" eq="1/4 of 12 = 3" caption="12 shared into 4 equal parts — one part is 3"]]'),
              "ask": {'a': 8, 'b': 4, 'op': 'of'}},
-            {"worked": ('One more together. One fifth of 10. Share 10 into 5 equal '
-                        'groups — each gets 2. One fifth of 10 equals 2.',
-                        '[[step eq="1/5 of 10 = 2"]]'),
+            {"worked": ("One more together. One fifth of 10. Share 10 into 5 equal "
+                        "parts — each gets 2. One fifth of 10 equals 2.",
+                        '[[array rows="5" cols="2" view="groups" eq="1/5 of 10 = 2" caption="10 shared into 5 equal parts — one part is 2"]]'),
              "ask": {'a': 15, 'b': 5, 'op': 'of'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Share the dots into the parts if you "
+                           "need to. Three right answers in a row and we're done — "
+                           "here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. One third of 12 "
+                       "is 4. Tap the reason why."),
+            # the wrong reasons: the classic slip (a fraction as taking away), and noise
+            "choices": ("because 12 shared into 3 equal parts gives 4 in each part | "
+                        "because one third means take 3 away | because 4 is bigger "
+                        "than 3"),
+            "answer": "because 12 shared into 3 equal parts gives 4 in each part",
+            "board": '[[array rows="3" cols="4" view="groups" eq="1/3 of 12 = 4" caption="one of the 3 equal parts"]]',
+        },
+        "recap": [
+            ("So, here it is again. A fraction of a group: the bottom says how "
+             "many equal parts to share into, and one part is the answer. One "
+             "third of 12 is 4.",
+             '[[array rows="3" cols="4" view="groups" eq="1/3 of 12 = 4" caption="share into 3, take one part"]]'),
+            ("And that is how fractions show up in real life — a fraction of a "
+             "group of things.",
+             '[[step eq="1/3 of 12 = 12 ÷ 3 = 4"]]'),
+        ],
         "bank": [{'a': 4, 'b': 2, 'op': 'of'}, {'a': 6, 'b': 2, 'op': 'of'}, {'a': 6, 'b': 3, 'op': 'of'}, {'a': 10, 'b': 2, 'op': 'of'}, {'a': 9, 'b': 3, 'op': 'of'}, {'a': 12, 'b': 2, 'op': 'of'}, {'a': 12, 'b': 3, 'op': 'of'}, {'a': 16, 'b': 4, 'op': 'of'}, {'a': 20, 'b': 5, 'op': 'of'}, {'a': 24, 'b': 6, 'op': 'of'}],
     },
     {
+        # (su, 2026-09-05) TO THE SHAPE on TWO PIES: the same amount, cut two ways.
         "id": 'basic-u5-equivalent-fractions',
         "course": "basic", "unit": 5,
         "topic": 'Equivalent fractions',
         "op": 'eqf', "max_value": 12,
         "levels": ("abstract",),
         "symbols": ('equal', 'same'),
-        "advance_line": "Three in a row — you've got it! You can spot equal fractions.",
-        "teach": [
-            ('Two fractions can name the SAME amount. One half of a pizza and two fourths of a pizza are the same amount of pizza. We call them equal fractions.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You can spot equal fractions.",
+        "why": [
+            ("Two fractions can name the SAME amount. Half a pizza and two fourths "
+             "of a pizza are the same pizza — one is just cut smaller. Knowing "
+             "which fractions are secretly equal is what lets you compare them and "
+             "add them later.",
              '[[goal text="Equivalent fractions"]]'),
-            ('Watch me. One half equals how many fourths? Cut every half into two — two halves become four fourths, and ONE half becomes TWO fourths. One half equals two fourths.',
-             '[[step eq="1/2 = 2/4"]]'),
-            ('One more, watch. One third equals how many sixths? Cut every third in two — one third becomes two sixths.',
-             '[[step eq="1/3 = 2/6"]]'),
+        ],
+        "picture": [
+            ("Here are two pies. The first is cut into 2, and one half is shaded. "
+             "The second is the same pie cut into 4 — every half cut in two — and "
+             "two fourths are shaded. Look: the shaded amount is exactly the same.",
+             '[[pie parts="2" shaded="1" caption="one half"]][[pie parts="4" shaded="2" caption="two fourths — the same amount"]]'),
+        ],
+        "teach": [
+            ("So: one half equals how many fourths? Cut every half into two — two "
+             "halves become four fourths, and ONE half becomes TWO fourths. One "
+             "half equals two fourths. Same amount, smaller pieces.",
+             '[[pie parts="2" shaded="1" caption="1/2"]][[pie parts="4" shaded="2" caption="2/4 — equal fractions"]]'),
+            ("One more, watch. One third equals how many sixths? Cut every third in "
+             "two — one third becomes two sixths.",
+             '[[pie parts="3" shaded="1" caption="one third"]][[pie parts="6" shaded="2" caption="two sixths — the same amount"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. One half equals how many sixths? Cut every half into three — one half equals three sixths.',
-                        '[[step eq="1/2 = 3/6"]]'),
+            {"worked": ("Here is one more, done for you. One half equals how many "
+                        "sixths? Cut every half into three — one half equals three "
+                        "sixths.",
+                        '[[pie parts="2" shaded="1" caption="one half"]][[pie parts="6" shaded="3" caption="three sixths — the same amount"]]'),
              "ask": {'a': 1, 'b': 2, 'c': 8, 'op': 'eqf'}},
-            {"worked": ('One more together. One fourth equals how many eighths? Cut '
-                        'every fourth in two — one fourth equals two eighths.',
-                        '[[step eq="1/4 = 2/8"]]'),
+            {"worked": ("One more together. One fourth equals how many eighths? Cut "
+                        "every fourth in two — one fourth equals two eighths.",
+                        '[[pie parts="4" shaded="1" caption="one fourth"]][[pie parts="8" shaded="2" caption="two eighths — the same amount"]]'),
              "ask": {'a': 1, 'b': 2, 'c': 10, 'op': 'eqf'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Look at the two pies. Three right "
+                           "answers in a row and we're done — here comes the first "
+                           "one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. One half equals "
+                       "two fourths. Tap the reason why."),
+            "choices": ("because cutting each half in two keeps the same amount | "
+                        "because 2 plus 2 makes 4 | because fourths are bigger than "
+                        "halves"),
+            "answer": "because cutting each half in two keeps the same amount",
+            "board": '[[pie parts="2" shaded="1" caption="1/2"]][[pie parts="4" shaded="2" caption="2/4 — the same amount"]]',
+        },
+        "recap": [
+            ("So, here it is again. Equal fractions name the same amount cut into "
+             "different pieces. Cut every piece the same way and the shaded amount "
+             "never changes — one half is two fourths is three sixths.",
+             '[[pie parts="2" shaded="1" caption="1/2"]][[pie parts="4" shaded="2" caption="2/4"]][[pie parts="6" shaded="3" caption="3/6"]]'),
+            ("And spotting equal fractions is what lets you compare and add them "
+             "later.",
+             '[[step eq="1/2 = 2/4 = 3/6"]]'),
+        ],
         "bank": [{'a': 1, 'b': 2, 'c': 4, 'op': 'eqf'}, {'a': 1, 'b': 3, 'c': 6, 'op': 'eqf'}, {'a': 1, 'b': 2, 'c': 6, 'op': 'eqf'}, {'a': 1, 'b': 4, 'c': 8, 'op': 'eqf'}, {'a': 1, 'b': 5, 'c': 10, 'op': 'eqf'}, {'a': 1, 'b': 6, 'c': 12, 'op': 'eqf'}, {'a': 1, 'b': 4, 'c': 12, 'op': 'eqf'}, {'a': 1, 'b': 3, 'c': 12, 'op': 'eqf'}, {'a': 1, 'b': 2, 'c': 12, 'op': 'eqf'}],
     },
     {
@@ -4453,38 +4567,69 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (su, 2026-09-05) TO THE SHAPE on the FRACTION LINE ([[numberline denom=]]):
+        # the line from 0 to 1 cut into equal hops, labelled in fourths, the hops drawn.
         "id": "basic-u5-fractions-on-the-number-line", "course": "basic", "unit": 5,
         "topic": "Fractions live on the number line",
         "op": "nl", "max_value": 12,
         "levels": ("abstract",),
         "symbols": ("hop", "line"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "A fraction is a number with its own home on the line."),
-        "teach": [
-            ("A fraction is not just a piece of pizza — a fraction is a NUMBER, "
-             "and every number has a home on the number line. Today we find "
-             "where fractions live.",
+        "why": [
+            ("A fraction is not just a piece of pizza. A fraction is a NUMBER — it "
+             "can be bigger or smaller than another, it has a place in order, and "
+             "every number has a home on the number line. Once you can see where a "
+             "fraction lives, comparing and adding fractions stop being a mystery.",
              '[[goal text="Fractions live on the number line"]]'),
-            ("Watch me. Cut the line from 0 to 1 into 4 equal hops. Each hop is "
-             "one fourth. Hop once — you stand on 1 out of 4. Hop three times — "
-             "you stand on 3 out of 4.",
-             '[[step eq="0 —(4 hops)— 1"]][[step eq="3 hops → 3/4"]]'),
-            ("And if you take ALL 4 hops, you reach 1 whole. Four fourths "
-             "equals one.",
-             '[[step eq="4 hops → 4/4 = 1"]]'),
+        ],
+        "picture": [
+            ("Here is the line from 0 to 1, cut into 4 equal hops. Each hop is one "
+             "fourth. Hop once from 0 and you stand on 1 out of 4. Hop three times "
+             "and you stand on 3 out of 4 — there it is, with its own home.",
+             '[[numberline min="0" max="1" denom="4" hops="0,0.25,0.5,0.75" points="0.75" caption="3 hops land on 3/4"]]'),
+        ],
+        "teach": [
+            ("So the bottom number says how many equal hops the line from 0 to 1 "
+             "is cut into, and the top number says how many hops to take. 3 out "
+             "of 4: four hops to a whole, take three.",
+             '[[numberline min="0" max="1" denom="4" hops="0,0.25,0.5,0.75" points="0.75" caption="bottom: 4 hops to 1 · top: take 3"]]'),
+            ("And if you take ALL 4 hops, you reach 1 whole. Four fourths equals "
+             "one — the top and bottom the same means the whole line.",
+             '[[numberline min="0" max="1" denom="4" hops="0,0.25,0.5,0.75,1" points="1" caption="4 hops → 4/4 = 1"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. Cut the line into 3 "
-                        "hops. 2 hops from 0 lands on 2 out of 3.",
-                        '[[step eq="0 —(3 hops)— 1 · 2 hops → 2/3"]]'),
+            {"worked": ("Here is one more, done for you. Cut the line into 3 equal "
+                        "hops. 2 hops from 0 land on 2 out of 3.",
+                        '[[numberline min="0" max="1" denom="3" hops="0,0.3333,0.6667" points="0.6667" caption="2 hops land on 2/3"]]'),
              "ask": {"a": 2, "b": 5, "op": "nl"}},
-            {"worked": ("One more together. Cut the line into 6 hops — reaching "
-                        "1 whole takes all 6 hops.",
-                        '[[step eq="0 —(6 hops)— 1 · 1 whole = 6 hops"]]'),
+            {"worked": ("One more together. Cut the line into 6 equal hops. Reaching "
+                        "1 whole takes all 6 hops — six sixths equals one.",
+                        '[[numberline min="0" max="1" denom="6" hops="0,0.1667,0.3333,0.5,0.6667,0.8333,1" points="1" caption="all 6 hops reach 1"]]'),
              "ask": {"a": 1, "b": 8, "op": "nlw"}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Count the hops on the line. Three "
+                           "right answers in a row and we're done — here comes the "
+                           "first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 out of 4 "
+                       "lives 3 hops from 0 on a line cut into 4. Tap the reason why."),
+            "choices": ("because the bottom cuts the line into 4, the top takes 3 "
+                        "| because 3 is smaller than 4 | because 3 out of 4 is nearly "
+                        "a whole"),
+            "answer": "because the bottom cuts the line into 4, the top takes 3",
+            "board": '[[numberline min="0" max="1" denom="4" hops="0,0.25,0.5,0.75" points="0.75" caption="4 hops to 1, take 3"]]',
+        },
+        "recap": [
+            ("So, here it is again. A fraction is a number on the line: the bottom "
+             "cuts 0 to 1 into equal hops, the top says how many hops to take, and "
+             "top equals bottom means the whole line.",
+             '[[numberline min="0" max="1" denom="4" hops="0,0.25,0.5,0.75,1" points="0.75,1" caption="3/4 and 4/4 = 1"]]'),
+            ("And once you can see where a fraction lives, comparing and adding "
+             "fractions stop being a mystery.",
+             '[[step eq="3/4 → 3 hops of 1/4"]]'),
+        ],
         "bank": [
             {"a": 1, "b": 2, "op": "nl"}, {"a": 1, "b": 3, "op": "nl"},
             {"a": 2, "b": 3, "op": "nl"}, {"a": 1, "b": 3, "op": "nlw"},
@@ -17601,6 +17746,102 @@ def _lcm_worked(p):
             _lcm_lines(a, b, hops=True))
 
 
+# (su, 2026-09-05) FRACTIONS' PICTURES. A fraction on the NUMBER LINE (denom= makes
+# the line speak in fourths); a fraction OF a group is the array shared and one
+# group taken; equal fractions and simplest form are two PIES holding the same
+# amount cut two ways.
+def _frac_line(b, hops_to=None, point=None):
+    tag = f'[[numberline min="0" max="1" denom="{b}"'
+    if hops_to is not None:
+        tag += ' hops="' + ",".join(str(round(k / b, 4)) for k in range(0, hops_to + 1)) + '"'
+    if point is not None:
+        tag += f' points="{round(point / b, 4)}"'
+    return tag
+
+
+def _nl_board(p):
+    a, b = p["a"], p["b"]
+    return (_frac_line(b) + f' caption="0 to 1 in {b} equal hops — where is {a}/{b}?"]]'
+            f'[[step eq="land on {a}/{b} = ? hops"]]')
+
+
+def _nl_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the line from 0 to 1 is cut into {b} equal hops, so "
+            f"each hop is one {_FRACWORD.get(b, (str(b) + 'th',))[0]}. {_plural(a, 'hop')} "
+            f"from 0 land on {a} out of {b}.",
+            _frac_line(b, hops_to=a, point=a) + f' caption="{_plural(a, "hop")} land on {a}/{b}"]]')
+
+
+def _nlw_board(p):
+    b = p["b"]
+    return (_frac_line(b) + f' caption="0 to 1 in {b} equal hops — how many reach 1?"]]'
+            f'[[step eq="reach 1 = ? hops"]]')
+
+
+def _nlw_worked(p):
+    b = p["b"]
+    return (f"Look what you did: {b} hops of one {_FRACWORD.get(b, (str(b) + 'th',))[0]} "
+            f"each — all {b} together — reach 1 whole. {b} out of {b} equals 1.",
+            _frac_line(b, hops_to=b, point=b) + f' caption="all {b} hops reach 1 whole"]]')
+
+
+def _of_board(p):
+    a, b = p["a"], p["b"]
+    w = _FRACWORD[b][0]
+    return (f'[[array total="{a}" rows="{b}" ask="1" eq="1/{b} of {a} = ?" '
+            f'label="{b} equal parts — one part is one {w}" '
+            f'caption="share {a} into {b} equal parts"]][[step eq="1/{b} of {a} = ?"]]')
+
+
+def _of_worked(p):
+    a, b = p["a"], p["b"]
+    q = a // b
+    w = _FRACWORD[b][0]
+    return (f"Look what you did: one {w} of {a} — share {a} into {b} equal parts, {q} "
+            f"in each part. One part is one {w}. One {w} of {a} equals {q}.",
+            f'[[array rows="{b}" cols="{q}" view="groups" eq="1/{b} of {a} = {q}" '
+            f'caption="{b} equal parts of {a} — one part is {q}"]]')
+
+
+def _eqf_board(p):
+    b, c = p["b"], p["c"]
+    return (f'[[pie parts="{b}" shaded="1" caption="one {_FRACWORD[b][0]}"]]'
+            f'[[pie parts="{c}" shaded="0" caption="cut into {c}: how many {_FRACWORD[c][1]} '
+            f'is the same amount?"]][[step eq="1/{b} = ?/{c}"]]')
+
+
+def _eqf_worked(p):
+    b, c = p["b"], p["c"]
+    k = c // b
+    return (f"Look what you did: cut every {_FRACWORD[b][0]} into {_NUMWORD[k]} pieces "
+            f"and the whole is in {_FRACWORD[c][1]}. One {_FRACWORD[b][0]} became "
+            f"{_NUMWORD[k]} {_FRACWORD[c][1]} — {k} out of {c} — the same amount, cut smaller.",
+            f'[[pie parts="{b}" shaded="1" caption="one {_FRACWORD[b][0]}"]]'
+            f'[[pie parts="{c}" shaded="{k}" caption="{_NUMWORD[k]} {_FRACWORD[c][1]} — the same amount"]]')
+
+
+def _simp_board(p):
+    a, b = p["a"], p["b"]
+    if b <= 12:
+        return (f'[[pie parts="{b}" shaded="{a}" caption="{a} out of {b}"]]'
+                f'[[step eq="{a}/{b} → ?/…"]]')
+    return f'[[step eq="{a}/{b} → ?/…"]]'
+
+
+def _simp_worked(p):
+    a, b = p["a"], p["b"]
+    g = _gcd(a, b)
+    na, nb = a // g, b // g
+    board = ""
+    if b <= 12:
+        board += f'[[pie parts="{b}" shaded="{a}" caption="{a} out of {b}"]]'
+    board += f'[[pie parts="{nb}" shaded="{na}" caption="{na} out of {nb} — the same amount, simplest form"]]'
+    return (f"Look what you did: {a} and {b} both share {g}, so divide both by {g}. "
+            f"{a} out of {b} is {na} out of {nb} — the same amount, in its simplest form.",
+            board)
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -17660,7 +17901,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] // _gcd(p["a"], p["b"]),
         "spoken": lambda p: (f"Write {p['a']} out of {p['b']} in its simplest form. "
                              f"What is the new top number?"),
-        "board": lambda p: f'[[step eq="{p["a"]}/{p["b"]} → ?/…"]]',
+        "board": _simp_board,         # (su) the pie as given (when it has 12 parts or fewer)
+        "worked": _simp_worked,       # (su) the same amount, cut two ways
         "praise": lambda p: (f"Both numbers share {_gcd(p['a'], p['b'])}, so "
                              f"{p['a']} out of {p['b']} is "
                              f"{p['a'] // _gcd(p['a'], p['b'])} out of "
@@ -17985,7 +18227,8 @@ OP_EXT = {
     "of": {   # one unit-fraction of a group: 1/b of a
         "ans": lambda p: p["a"] // p["b"],
         "spoken": lambda p: (f"What is one {_FRACWORD[p['b']][0]} of {p['a']}?"),
-        "board": lambda p: f'[[step eq="1/{p["b"]} of {p["a"]} = ?"]]',
+        "board": _of_board,           # (su) the array shared into b equal parts
+        "worked": _of_worked,
         "praise": lambda p: (f"One {_FRACWORD[p['b']][0]} of {p['a']} equals "
                              f"{p['a'] // p['b']}."),
         "key": lambda p: p["a"],
@@ -17997,7 +18240,8 @@ OP_EXT = {
         "ans": lambda p: p["c"] // p["b"],
         "spoken": lambda p: (f"One {_FRACWORD[p['b']][0]} equals how many "
                              f"{_FRACWORD[p['c']][1]}?"),
-        "board": lambda p: f'[[step eq="1/{p["b"]} = ?/{p["c"]}"]]',
+        "board": _eqf_board,          # (su) two pies: one shaded, the other cut finer and empty
+        "worked": _eqf_worked,
         "praise": lambda p: (f"One {_FRACWORD[p['b']][0]} equals "
                              f"{_NUMWORD[p['c'] // p['b']]} {_FRACWORD[p['c']][1]}."),
         "key": lambda p: p["c"],
@@ -18159,7 +18403,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A number line from 0 to 1 is cut into {p['b']} "
                              f"equal hops. How many hops from 0 reach {p['a']} "
                              f"out of {p['b']}?"),
-        "board": lambda p: f'[[step eq="0 —({p["b"]} hops)— 1 · land on {p["a"]}/{p["b"]} = ? hops"]]',
+        "board": _nl_board,           # (su) the fraction line, hops withheld
+        "worked": _nl_worked,
         "praise": lambda p: (f"{_plural(p['a'], 'hop')} — {p['a']} out of "
                              f"{p['b']} lives {_plural(p['a'], 'hop')} from 0."),
         "key": lambda p: p["b"],
@@ -18170,7 +18415,8 @@ OP_EXT = {
         "ans": lambda p: p["b"],
         "spoken": lambda p: (f"A number line from 0 to 1 is cut into {p['b']} "
                              f"equal hops. How many hops from 0 reach 1 whole?"),
-        "board": lambda p: f'[[step eq="0 —({p["b"]} hops)— 1 · reach 1 = ? hops"]]',
+        "board": _nlw_board,          # (su) the fraction line, hops withheld
+        "worked": _nlw_worked,
         "praise": lambda p: (f"{p['b']} hops — all {p['b']} hops together equal "
                              f"1 whole."),
         "key": lambda p: p["b"],

@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD su -- PART 3iq: Basic Unit 5 to the shape. Fractions on the
+#               fraction line (denom=), the shared array and two pies; every lesson
+#               walks clean; no pie ever asks for more than twelve parts.
 #   2026-09-05  BUILD st -- PART 3ip: Basic Unit 4 to the shape. Factors and multiples
 #               on the array, the rectangle, the Venn and two number lines; every
 #               lesson walks clean; the Venn never overflows.
@@ -20256,7 +20259,8 @@ def part3fm_the_second_example_teaches_too():
         "basic-u3-divide-two-digit": "Split 96 into 90 and 6",
         "basic-u3-left-overs": "Three groups of four equals 12",
         "basic-u4-greatest-common-factor": "Factors of 10:",
-        "basic-u5-fraction-of-a-group": "Share 10 into 5 equal groups",
+        # (su, 2026-09-05) the lesson now says "equal parts" -- one part IS the fraction
+        "basic-u5-fraction-of-a-group": "Share 10 into 5 equal parts",
         "basic-u5-equivalent-fractions": "Cut every fourth in two",
         "basic-u7-dimes-and-pennies": "The dimes bring 40 cents",
         "basic-u8-percent-of": "Fifty percent is one half",
@@ -21802,7 +21806,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,695</b>" in page,
+          "<b>8,725</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23468,6 +23472,104 @@ def part3ip_basic_unit_four_to_the_shape():
           "2026-09-05  BUILD st" in rd("lessonscripts.py")[:20000]
           and "BUILD st" in rd("main.py")[:200000]
           and "2026-09-05  BUILD st" in rd("ruletests.py")[:8000], "Jim's rule 8")
+
+
+def part3iq_basic_unit_five_to_the_shape():
+    """PART 3iq (build su, 2026-09-05) -- BASIC UNIT 5 TO THE SHAPE.
+
+    Fractions, on their pictures: the fraction line (denom= makes the number line
+    speak in fourths), the array shared into equal parts, and two pies holding the
+    same amount cut two ways."""
+    print("\nPART 3iq — Basic Unit 5 to the shape (build su)")
+    import lessonscripts as L
+    import tags as _tags
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")        # a reverted op fails by name, never crashes
+    U5 = ["basic-u5-fractions-on-the-number-line", "basic-u5-fraction-of-a-group",
+          "basic-u5-equivalent-fractions", "basic-u5-simplest-form"]
+    PIC = r"\[\[(array|numberline|pie)\b"
+
+    for lid in U5:
+        les = L.LESSON_BY_ID.get(lid) or {}
+        check(f"⭐ {lid}: why, picture, teach, explain, recap and the walk-back flag",
+              all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain"))
+              and les.get("show_work_on_correct") is True, str(sorted(les)))
+        check(f"  {lid}: passes the real validator with the real registry",
+              bool(les) and all(ok for ok, _l, _d in L.validate(les, set(_tags.BOARD_TAGS))),
+              str([l for ok, l, _d in L.validate(les, set(_tags.BOARD_TAGS)) if not ok][:3]) if les else "missing")
+        beats = list(les.get("why") or []) + list(les.get("picture") or []) + list(les.get("teach") or []) \
+            + [pr["worked"] for pr in les.get("pairs") or []] + list(les.get("recap") or [])
+        drawn = sum(1 for _s, b in beats if re.search(PIC, b))
+        check(f"  {lid}: most beats draw a picture ({drawn} of {len(beats)})",
+              beats and drawn >= len(beats) * 0.6, f"{drawn}/{len(beats)}")
+
+    for lid in U5:
+        les = L.LESSON_BY_ID[lid]
+        st = L.start(les)
+        outs, st = L.step(les, st, ("begin",))
+        heard = [o["spoken"] for o in outs]
+        wb = 0
+        for _ in range(2 + L.ADVANCE_STREAK):
+            p = st["pending"]["problem"]
+            outs, st = L.step(les, st, ("answer", L.ans(p)))
+            heard.extend(o["spoken"] for o in outs)
+            w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
+            if w and str(L.ans(p)) in w[0]["spoken"] and re.search(PIC, w[0]["board"]):
+                wb += 1
+        ask = outs[-1]
+        check(f"⭐ {lid}: every right answer is walked back on the picture, then the reason is asked",
+              wb == 2 + L.ADVANCE_STREAK and ask.get("reason") is True, f"walk-backs {wb}, last={ask.get('kind')}")
+        o3, st = L.step(les, st, ("answer", les["explain"]["answer"]))
+        heard.extend(o["spoken"] for o in o3)
+        cl = set(L.audio_lines(les))
+        miss = [x for x in heard if x and x not in cl]
+        check(f"  {lid}: mastered on the reason, every line inside the closure",
+              o3[-1]["kind"] == "end" and o3[-1].get("mastered") is True and not miss, str(miss[:2]))
+
+    nl = {"a": 3, "b": 4, "op": "nl"}
+    check("⭐ a fraction on the line is asked on the fraction line with the hops withheld, and walked back with the hops drawn",
+          '[[numberline min="0" max="1" denom="4"' in L.board_for(nl, "abstract") and "hops=" not in L.board_for(nl, "abstract")
+          and 'hops="0.0,0.25,0.5,0.75" points="0.75"' in _W(nl)[1] and "3 hops from 0 land on 3 out of 4" in _W(nl)[0], _W(nl)[1])
+    nlw = {"a": 1, "b": 8, "op": "nlw"}
+    check("  the whole-line question walks back with all the hops reaching 1",
+          'points="1.0"' in _W(nlw)[1] and "reach 1 whole" in _W(nlw)[0] and "8 out of 8 equals 1" in _W(nlw)[0], _W(nlw)[0])
+    of = {"a": 12, "b": 3, "op": "of"}
+    check("⭐ a fraction of a group is asked as the dots and the equal parts, walked back as one part taken",
+          '[[array total="12" rows="3" ask="1" eq="1/3 of 12 = ?"' in L.board_for(of, "abstract")
+          and '[[array rows="3" cols="4" view="groups" eq="1/3 of 12 = 4"' in _W(of)[1]
+          and "One third of 12 equals 4" in _W(of)[0], _W(of)[0])
+    eq = {"a": 1, "b": 2, "c": 4, "op": "eqf"}
+    check("⭐ an equal fraction is asked as two pies -- one shaded, the finer one empty -- and walked back with both shaded",
+          '[[pie parts="2" shaded="1"' in L.board_for(eq, "abstract") and '[[pie parts="4" shaded="0"' in L.board_for(eq, "abstract")
+          and '[[pie parts="4" shaded="2"' in _W(eq)[1] and "2 out of 4" in _W(eq)[0], _W(eq)[0])
+    sm, sb = {"a": 9, "b": 12, "op": "simp"}, {"a": 22, "b": 24, "op": "simp"}
+    check("⭐ simplest form is two pies holding the same amount; a bottom past 12 is asked bare and walked back on the simplified pie only",
+          '[[pie parts="12" shaded="9"' in L.board_for(sm, "abstract")
+          and '[[pie parts="4" shaded="3"' in _W(sm)[1] and "divide both by 3" in _W(sm)[0]
+          and L.board_for(sb, "abstract") == '[[step eq="22/24 → ?/…"]]'
+          and _W(sb)[1] == '[[pie parts="12" shaded="11" caption="11 out of 12 — the same amount, simplest form"]]', _W(sb)[1])
+    check("  no pie in Unit 5 asks for more than 12 parts (the figure's cap)",
+          all(int(m.group(1)) <= 12
+              for lid in U5 for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]
+              for m in re.finditer(r'\[\[pie parts="(\d+)"', L.board_for(p, "abstract") + _W(p)[1])), "")
+    check("  every walk-back Unit 5 can emit names its answer",
+          all(str(L.ans(p)) in _W(p)[0] for lid in U5
+              for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]), "")
+
+    mf = rd("static/math-figures.js")
+    nlsrc = mf[mf.find("  function numberline(a) {"):mf.find("  // ---- [[venn")]
+    check("⭐ [[numberline denom=]] labels ticks and hops as fractions, and without it nothing changes",
+          'var denom = Math.floor(num(a.denom, 0));' in nlsrc and 'return n + "/" + denom;' in nlsrc
+          and 'var nstep = (denom >= 2) ? 1 / denom : fitStep(' in nlsrc
+          and 's += tspan(x, axisY + 21, fracLabel(t), "var(--bd-66707e)", 15, 700);' in nlsrc
+          and 'var jumpLabel = (denom >= 2) ?' in nlsrc, "")
+    check("  every lesson in the course still validates",
+          all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
+    check("  the changed files carry dated su notes",
+          "2026-09-05  BUILD su" in rd("lessonscripts.py")[:20000]
+          and "BUILD su" in rd("main.py")[:200000] and "2026-09-05  BUILD su" in mf[:3000]
+          and "2026-09-05  BUILD su" in rd("ruletests.py")[:8000], "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -33769,6 +33871,7 @@ def main():
     part3in_basic_unit_two_to_the_shape()
     part3io_basic_unit_three_to_the_shape()
     part3ip_basic_unit_four_to_the_shape()
+    part3iq_basic_unit_five_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

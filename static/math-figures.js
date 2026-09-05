@@ -2,6 +2,10 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-05  BUILD su -- THE FRACTION LINE. [[numberline]] takes denom="4": ticks
+                 at every fourth, labelled 1/4, 2/4, 3/4 (whole numbers stay whole),
+                 hops labelled +1/4. Basic Unit 5's picture. Without denom= nothing
+                 changes.
      2026-09-05  BUILD ss -- THE ARRAY LEARNS TO SHARE. [[array]] gains extra="1"
                  (left-over dots after the full rows, red, labelled), eq="..." (the
                  line underneath, for reading the picture as a division), and the
@@ -952,7 +956,19 @@
     s += '<line x1="' + left + '" y1="' + axisY + '" x2="' + right + '" y2="' + axisY + '" stroke="var(--bd-26263a)" stroke-width="1.6"/>';
     // build je: label at a readable spacing -- every integer while they fit (the
     // common -10..10 line is unchanged), thinning to 2s / 5s / 10s as the range grows.
-    var nstep = fitStep(min, max, plotW, 12,
+    // (su, 2026-09-05) denom="4": A FRACTION LINE. Every tick is a k/4 and is
+    // labelled as one ("1/4", "2/4", "3/4"; whole numbers stay whole), and a hop
+    // is labelled "+1/4", not "+0.25" -- Basic Unit 5's "fractions live on the
+    // number line" needs the line to speak in fourths. Without denom= nothing here
+    // changes.
+    var denom = Math.floor(num(a.denom, 0));
+    var fracLabel = function (v) {
+      if (!(denom >= 2)) return String(trimnum(v));
+      var n = Math.round(v * denom);
+      if (n % denom === 0) return String(n / denom);
+      return n + "/" + denom;
+    };
+    var nstep = (denom >= 2) ? 1 / denom : fitStep(min, max, plotW, 12,
                         allWhole([min, max]) && (max - min) >= 2);
     var nminor = nstep / (nstep >= 2 ? 2 : 1), nminorPx = nminor / (max - min) * plotW;
     if (nminorPx >= 6 && nminor < nstep) {
@@ -964,7 +980,7 @@
     for (var t = firstTick(min, nstep); t <= max + 1e-9; t += nstep) {
       var x = mapX(t);
       s += '<line x1="' + x + '" y1="' + (axisY - 5) + '" x2="' + x + '" y2="' + (axisY + 5) + '" stroke="var(--bd-9aa7b6)"/>';
-      s += tspan(x, axisY + 21, String(trimnum(t)), "var(--bd-66707e)", 15, 700);
+      s += tspan(x, axisY + 21, fracLabel(t), "var(--bd-66707e)", 15, 700);
     }
     // (sp, 2026-09-05) mid="45": THE HALFWAY MARK, dashed, labelled "halfway". Jim:
     // "we should have a number line anytime we talk about rounding" -- and rounding
@@ -998,7 +1014,9 @@
         s += '<path d="M ' + hx2 + ' ' + (axisY - 6) + ' l ' + (-8 * hd) + ' -6 l ' + (3 * hd) +
              ' 8 z" fill="var(--bd-e0392b)"/>';
         var jump = trimnum(hops[hi + 1] - hops[hi]);
-        s += tspan(hmx, axisY - 13 - lift, (jump >= 0 ? "+" : "") + jump, "var(--bd-e0392b)", 14, 800);
+        var jumpLabel = (denom >= 2) ? ((jump >= 0 ? "+" : "−") + fracLabel(Math.abs(jump)))
+                                     : ((jump >= 0 ? "+" : "") + jump);
+        s += tspan(hmx, axisY - 13 - lift, jumpLabel, "var(--bd-e0392b)", 14, 800);
       }
     }
     return s + "</svg>";
