@@ -2,6 +2,13 @@
    voice.js  --  THE TUTOR'S VOICE, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-04  BUILD so -- THE BROWSER-VOICE FALLBACK IS COUNTED. fallToBrowser now
+                 files a voice_fallback event (reason, first-clip flag, audio-context
+                 state, line length, the first 40 chars of the TUTOR's line) through
+                 client-log.js's MyTutorReport, so the night watch can count how often
+                 a student hears the mechanical voice and see why. Jim heard it twice
+                 on 09-04 on lines that are in the closure; the likely cause is an
+                 unrendered closure line generated on demand inside the 5 s watchdog.
      2026-09-02  BUILD rr -- ONE MORE EVENT: "mt:silent", when a line ENDS. The mirror
                  of qs's mt:speaking, announced from both finish() paths (clip and
                  browser voice), wrapped and additive exactly like its sibling. Read
@@ -425,9 +432,27 @@ function speak(text, opts) {
     // an authoritative no, not a transient failure -- retrying it would just add
     // latency to every clip of a voiceless deploy).
     let retryLeft = 1;
-    const fallToBrowser = () => { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve, prof); };
+    // (so, 2026-09-04) THE FALLBACK IS COUNTED. Jim, on Entry: "using browser voice" --
+    // twice, on the first two beats of a lesson whose lines ARE in the pre-rendered
+    // closure. Until now this moment reached the console and nothing else, so nobody
+    // could say how often a student hears the mechanical voice or why. The reason
+    // (element error / watchdog), whether it was the session's first clip (the
+    // autoplay-policy shape), and the start of the tutor's line (his authored words,
+    // never the student's) go to system_events as voice_fallback; the watch reads it.
+    const fallToBrowser = () => {
+      cleanup(); try { ttsAudio.pause(); } catch (e) {}
+      try {
+        if (window.MyTutorReport) window.MyTutorReport("voice_fallback",
+          (lastFailWhy || "unknown") + " | first=" + firstClipOfSession +
+          " | ctx=" + (audioCtx ? audioCtx.state : "none") +
+          " | len=" + String(text || "").length + " | " + String(text || "").slice(0, 40));
+      } catch (e) {}
+      browserSpeak(text, resolve, prof);
+    };
+    let lastFailWhy = "";
     const failedClip = (why) => {
       if (started || doneCalled) return;
+      lastFailWhy = String(why || "");
       if (retryLeft > 0) {
         retryLeft -= 1;
         try { console.warn("[voice] clip failed (" + why + ") -- asking once more before the browser voice"); } catch (e) {}

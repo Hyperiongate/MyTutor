@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  BUILD so -- PART 3ik: the mark goes away and the voice is counted. Four
+#               of Jim's live flags: [[ink]] marks clear with the clean page on all three
+#               inking pages; the scripted answer door shows the thinking state around
+#               its fetch; the browser-voice fallback is filed as voice_fallback (voice.js
+#               -> MyTutorReport -> /api/client-error, whitelisted) and the watch counts,
+#               names and dates it; main.py counts unrendered closure lines and the watch
+#               says "run the prewarm" beside the number.
 #   2026-09-04  BUILD sn -- PART 3ij: the warm choice. Jim's ruling ③: a still-
 #               learning end offers "go on, or review?" with two buttons that start a
 #               lesson inside the scripted lane. The line is pre-rendered and byte-
@@ -21770,7 +21777,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,493</b>" in page,
+          "<b>8,514</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22294,7 +22301,7 @@ def part3ig_the_floor():
                             "nightwatch.py"), encoding="utf-8").read()
     check("  the night watch reports truth floors on their own line, dated, and named",
           "truth floors" in _nw and '"privacy_gate", "floor"' in _nw
-          and '"pass_through", "floor")' in _nw,
+          and '"pass_through", "floor"' in _nw,     # (so) the tuple grew; the membership is the pin
           "a floor nobody can see is a floor nobody can audit")
     check("  tutor.py and nightwatch.py carry dated sj notes",
           "2026-09-03  BUILD sj" in _dispatch[:200000] and "2026-09-03  BUILD sj" in _nw,
@@ -22630,6 +22637,114 @@ def part3ij_the_warm_choice():
                                               encoding="utf-8").read(20000)
           and "BUILD sn" in open(os.path.join(here, "main.py"), encoding="utf-8").read(200000),
           "Jim's rule 8")
+
+
+def part3ik_the_mark_goes_away_and_the_voice_is_counted():
+    """PART 3ik (build so, 2026-09-04) -- FOUR OF JIM'S LIVE FLAGS, the page-and-eyes cluster.
+
+    (1) "Mr Cadabra drew a black line a few moves ago and the line is still there and
+    it obscures the bottom of the board" (and its yellow twin on the dark board): rr's
+    [[ink]] marks cleared only on a problem.cleared moment no page ever rang.
+    handleTags opens every turn with a clean page; the ink now joins that list, on
+    all three pages that handle the tag. A mark drawn by THIS turn lands after the
+    clear and survives.
+    (2) "he didn't show himself thinking ... so it looked frozen": the scripted answer
+    door ran its fetch with no thinking state -- pb assumed instant, and a WRONG answer
+    buys a model intervention. The state is set before the fetch and cleared after.
+    (3) "using browser voice", twice, on closure lines: the fallback confessed on the
+    console only. voice.js now files voice_fallback (reason, first-clip, ctx, length,
+    the tutor's first 40 chars) through client-log.js's new MyTutorReport; the server
+    whitelists named kinds; the watch prints, names and dates them.
+    (4) The cause behind (3): the prewarm is MANUAL, and every closure line added since
+    it last ran is generated on demand inside the 5 s watchdog. main.py now counts
+    closure lines not in the TTS cache and lends it to the watch, which prints "run the
+    script-prewarm" beside a non-zero number."""
+    print("\nPART 3ik — the mark goes away and the voice is counted (build so)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+
+    # ---- (1) the ink clears with the clean page, on every page that inks ----------
+    for fn in ("static/session.html", "static/topic.html", "static/practice.html"):
+        page = rd(fn)
+        h = page.find("function handleTags(text)")
+        opener = page[h:h + 1200] if h >= 0 else ""
+        check(f"⭐ {fn}: ink clears at the START of every turn, with the clean page",
+              "cadClearInk();" in opener and opener.find("cadClearInk();") < opener.find("const tagRe"),
+              "a mark that survives into the next turn obscures the board (Jim, live)")
+        check(f"  {fn}: the helper reaches Cadabra.clearInk and never throws",
+              "function cadClearInk() { try { if (window.Cadabra && Cadabra.clearInk) Cadabra.clearInk(); } catch (e) {} }" in page, "")
+    check("  Cadabra.clearInk is exposed, and clearing with no target clears ALL ink",
+          "clearInk:  function (t) { clearInk(t); }" in rd("static/cadabra.js")
+          and 'if (!forTarget) { groups[g].innerHTML = ""; continue; }' in rd("static/cadabra.js"), "")
+
+    # ---- (2) the scripted answer door shows him thinking ---------------------------
+    ses = rd("static/session.html")
+    a = ses.find("async function scrAnswer(message)")
+    body = ses[a:a + 2600]
+    _think = body.find('setState("thinking"); statusEl.textContent = tutorName + " is thinking…";')
+    _fetch = body.find("const r = await fetch(url,")
+    _clear = body.find('if (state === "thinking") setState("idle");')
+    check("⭐ scrAnswer sets the thinking state BEFORE its fetch and clears it after",
+          0 < _think < _fetch < _clear,
+          "a wrong answer's model intervention used to pass with no face and no status")
+
+    # ---- (3) the fallback is counted, end to end -----------------------------------
+    cl = rd("static/client-log.js")
+    check("⭐ client-log.js exposes MyTutorReport(kind, message) with its own cap and dedupe",
+          "window.MyTutorReport = function (kind, message)" in cl
+          and "MAX_EVENTS = 10" in cl and "seenEvents[key]" in cl
+          and "kind: String(kind ||" in cl, "")
+    vo = rd("static/voice.js")
+    fb = vo[vo.find("const fallToBrowser = () => {"):vo.find("let lastFailWhy")]
+    check("⭐ voice.js files voice_fallback from fallToBrowser, with the reason and the first-clip flag",
+          'window.MyTutorReport("voice_fallback"' in fb and "lastFailWhy" in fb
+          and "first=\" + firstClipOfSession" in fb and "slice(0, 40)" in fb,
+          "the console was the only witness to the mechanical voice")
+    check("  ...and the reason is captured where the clip fails",
+          'lastFailWhy = String(why || "");' in vo, "")
+    m = rd("main.py")
+    check("⭐ /api/client-error files a whitelisted named kind, anything else as clienterror",
+          '_CLIENT_EVENT_KINDS = {"voice_fallback"}' in m
+          and 'kind = kind if kind in _CLIENT_EVENT_KINDS else "clienterror"' in m
+          and "kind: str = \"\"" in m[m.find("class ClientErrorIn"):m.find("class ClientErrorIn") + 400],
+          "an unknown kind from the wild must never invent a counter")
+    nw = rd("nightwatch.py")
+    check("  the watch prints, names and dates voice fallbacks",
+          "browser-voice fallbacks" in nw
+          and '"floor",\n                     "voice_fallback")' in nw
+          and '"voice_fallback"])' in nw, "")
+
+    # ---- (4) the closure's render state reaches the report -------------------------
+    import main as M
+    st = M._closure_render_status()
+    check("⭐ _closure_render_status counts closure lines not in the TTS cache, never raises",
+          isinstance(st, dict) and st.get("total", -2) >= -1 and st.get("unrendered", -2) >= -1
+          and (st["total"] < 0 or st["unrendered"] <= st["total"]), f"{st}")
+    check("  ...and main.py lends it to the watch as extras={closure}",
+          'extras={"closure": _closure_render_status()}' in m, "")
+    import nightwatch as NW
+    base = {"ok": True, "ran": 1, "new": [], "seconds": 1.0, "roster": []}
+    r_some = NW.report_markdown(dict(base, extras={"closure": {"total": 100, "unrendered": 7}}))
+    r_none = NW.report_markdown(dict(base, extras={"closure": {"total": 100, "unrendered": 0}}))
+    r_unk = NW.report_markdown(dict(base, extras={"closure": {"total": -1, "unrendered": -1}}))
+    r_abs = NW.report_markdown(dict(base))
+    check("⭐ the report says RUN THE PREWARM when closure lines are unrendered",
+          "**7 of 100** closure lines are not in the TTS cache" in r_some
+          and "Run the script-prewarm from /admin" in r_some, "")
+    check("  ...says every line is rendered when none are missing",
+          "every one of the 100 closure lines is rendered and cached" in r_none, "")
+    check("  ...says unknown when the cache could not be read, never a comforting zero",
+          "could not be read" in r_unk, "")
+    check("  ...and prints nothing when main.py did not lend the number",
+          "voice closure" not in r_abs, "")
+    check("  run_night accepts extras= and carries it into the result",
+          "def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None, extras=None):" in nw
+          and '"extras": dict(extras or {})' in nw, "")
+    check("  the six files carry dated so notes",
+          all("2026-09-04" in rd(f)[:6000] and "(so)" in rd(f)[:6000]
+              for f in ("static/session.html", "static/topic.html", "static/practice.html"))
+          and "BUILD so" in cl[:2500] and "BUILD so" in vo[:3000]
+          and "BUILD so" in m[:200000] and "BUILD so" in nw[:20000], "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -32922,6 +33037,7 @@ def main():
     part3ih_the_seam_reads_the_course_order()
     part3ii_the_board_tells_the_truth_about_which_question()
     part3ij_the_warm_choice()
+    part3ik_the_mark_goes_away_and_the_voice_is_counted()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

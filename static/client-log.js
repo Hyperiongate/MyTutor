@@ -2,6 +2,10 @@
    client-log.js -- the browser stops being a black box -- Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-04  BUILD so -- window.MyTutorReport(kind, message): a NAMED client
+                 event through the same beacon, so voice.js can file a
+                 voice_fallback the night watch can count. Own cap (10/page), own
+                 dedupe; the server whitelists kinds. Errors are untouched.
      2026-08-17  NEW FILE (build ha -- EYES, Phase 1 of the full-app review). The
                  review found ~70 empty catch blocks across the pages and ZERO
                  client->server error reporting -- so two JavaScript defects
@@ -54,6 +58,26 @@
       });
     } catch (e) { /* never throw */ }
   }
+
+  // (so, 2026-09-04) A NAMED EVENT, NOT AN ERROR. voice.js falls back to the browser
+  // voice when a clip will not start -- and until now said so on the console only, so
+  // the night watch could not count how often a student heard the mechanical voice
+  // instead of Mr. Cadabra. Same beacon, same route, one extra field (kind); the
+  // server whitelists the kinds it will file. Its own cap and its own dedupe, so a
+  // bad voice night can never crowd out a real error report.
+  var MAX_EVENTS = 10, sentEvents = 0, seenEvents = {};
+  window.MyTutorReport = function (kind, message) {
+    try {
+      if (sentEvents >= MAX_EVENTS) return;
+      var key = String(kind) + "|" + String(message).slice(0, 120);
+      if (seenEvents[key]) return;
+      seenEvents[key] = true;
+      sentEvents++;
+      beacon({ kind: String(kind || "").slice(0, 24),
+               page: (location.pathname || "").slice(0, 80),
+               message: String(message || "").slice(0, 300) });
+    } catch (e) { /* never throw */ }
+  };
 
   window.addEventListener("error", function (ev) {
     try {

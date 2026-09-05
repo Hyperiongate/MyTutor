@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  APP_BUILD -> "2026-09-04so-the-mark-goes-away-and-the-voice-is-counted".
+#               BUILD so -- Jim's live flags, the page-and-eyes cluster. Pages: the
+#               pencil's [[ink]] marks clear at the start of every turn (his "black
+#               line ... still there"); the scripted answer door shows the thinking
+#               state (a wrong answer's model intervention "looked frozen"). Eyes:
+#               voice.js files a voice_fallback event through client-log.js's new
+#               MyTutorReport, and /api/client-error files whitelisted named kinds;
+#               new _closure_render_status() counts closure lines not yet in the TTS
+#               cache and lends the number to the night watch, which prints it beside
+#               "run the prewarm" -- the prewarm is manual, and Jim heard the browser
+#               voice on two closure lines that were simply not rendered yet.
 #   2026-09-04  APP_BUILD -> "2026-09-04sn-the-warm-choice". BUILD sn -- Jim's ruling ③:
 #               a still-learning lesson end offers the student a CHOICE -- go on to the
 #               next lesson, or review this one -- instead of handing the seam to the
@@ -9348,7 +9359,10 @@ def _nightwatch_pass() -> None:
         # The server-side probes live here, not in tutor.py, so the watch would be blind
         # to them unless we lend them across. Anything omitted simply does not run, and
         # the report names what it did not cover.
-        probe_hooks={"termgap": _nightwatch_termgap})
+        probe_hooks={"termgap": _nightwatch_termgap},
+        # (so) lent across like the probes: the closure's rendered-vs-not count, so
+        # the report can say "run the prewarm" on the morning it matters.
+        extras={"closure": _closure_render_status()})
     path = nightwatch.write_report(DATA_DIR, result, APP_BUILD)
     print(f"[nightwatch] {result.get('ran', 0)} lessons \u00b7 "
           f"{len(result.get('new', []))} new \u00b7 {result.get('recurring', 0)} known \u00b7 "
@@ -13641,7 +13655,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-04sn-the-warm-choice"
+APP_BUILD = "2026-09-04so-the-mark-goes-away-and-the-voice-is-counted"
 
 
 @app.get("/health")
@@ -13696,6 +13710,12 @@ class ClientErrorIn(BaseModel):
     message: str = ""
     stack: str = ""
     url: str = ""
+    kind: str = ""       # (so) a NAMED client event; whitelisted below, else "clienterror"
+
+
+# (so, 2026-09-04) the named client events this route will file. Anything else from the
+# wild is filed as a plain clienterror, so an unknown kind can never invent a counter.
+_CLIENT_EVENT_KINDS = {"voice_fallback"}
 
 
 @app.post("/api/client-error")
@@ -13718,8 +13738,10 @@ def client_error(body: ClientErrorIn, request: Request):
     msg = " ".join(str(body.message or "").split())[:300]
     stack = " ".join(str(body.stack or "").split())[:400]
     url = str(body.url or "")[:120]
-    print(f"[clienterror] {page or url}: {msg}")
-    store.record_event("clienterror", page or url or "unknown",
+    kind = str(body.kind or "").strip().lower()
+    kind = kind if kind in _CLIENT_EVENT_KINDS else "clienterror"
+    print(f"[{kind}] {page or url}: {msg}")
+    store.record_event(kind, page or url or "unknown",
                        msg + ((" | " + stack) if stack else ""))
     return {"ok": True}
 
@@ -16032,6 +16054,24 @@ def _script_closure_chars() -> dict:
             out = {}
         _SCRIPT_CLOSURE_CHARS = out
     return _SCRIPT_CLOSURE_CHARS
+
+
+def _closure_render_status() -> dict:
+    """(so, 2026-09-04) HOW MUCH OF THE CLOSURE IS ACTUALLY RENDERED. The prewarm is a
+    manual /admin job, so every line added to the closure since it last ran -- qs's
+    count-along lines, rj's seam line, sn's choice line -- is silence-or-browser-voice
+    in production until Jim presses the button, and nothing said so. Jim heard exactly
+    that on 09-04. This is the number the morning report prints beside a nudge to run
+    the prewarm. Same closure, same cache path, as the prewarm itself uses. Never
+    raises; an unreadable cache reports -1 rather than a comforting zero."""
+    try:
+        want = _script_closure_paths()
+        have = {p.name for p in _TTS_CACHE_DIR.iterdir()} if _TTS_CACHE_DIR.exists() else set()
+        missing = [n for n in want if n not in have]
+        return {"total": len(want), "unrendered": len(missing)}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[closure] render status failed: {exc}")
+        return {"total": -1, "unrendered": -1}
 
 
 def _script_closure_paths() -> set:

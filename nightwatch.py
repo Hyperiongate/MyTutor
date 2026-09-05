@@ -2,6 +2,14 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-04  BUILD so -- TWO MORE THINGS THE EYES CAN SEE. (1) voice_fallback: the
+#               browser-voice fallback voice.js used to confess on the console only,
+#               now an event with its reason -- a telemetry line, a named offender, a
+#               dated reason. (2) THE CLOSURE'S RENDER STATE: main.py lends the count of
+#               closure lines not yet in the TTS cache (run_night's new extras=), and
+#               the report prints it with "run the script-prewarm" when it is non-zero.
+#               The prewarm is manual; a closure line nobody rendered is the mechanical
+#               voice in production, and on 09-04 Jim heard it before any report did.
 #   2026-09-04  BUILD sk -- THE FILE AGREES WITH RENDER. _DEFAULT_LESSONS 12 -> 10.
 #               Render has said NIGHTWATCH_LESSONS=10 since 08-31, and that IS the
 #               intended budget -- so sh's env banner was firing every single night to
@@ -649,7 +657,7 @@ def verify_finding(openai_call, scenario, transcript, finding):
 # =============================================================================
 # PART 4 -- THE NIGHT
 # =============================================================================
-def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
+def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None, extras=None):
     """Run one night's governance pass. Returns a result dict; never raises.
 
     probe_hooks -- optional {name: callable(scenario, transcript)} lent by main.py, so
@@ -669,7 +677,11 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
            # its own outcome -- so "12 picked, 10 ran" carries the two names that
            # explain it instead of costing a fourth watch to guess at.
            "roster": [], "picked": [], "repeats": 0, "scenarios_available": 0,
-           "lessons_requested": 0, "turns_requested": 0}
+           "lessons_requested": 0, "turns_requested": 0,
+           # (so) facts main.py lends across that this harness cannot see on its own
+           # (the TTS cache lives behind main's closure functions). Printed, never
+           # judged; absent means main.py did not lend them.
+           "extras": dict(extras or {})}
     try:
         import lessonaudit
     except Exception as exc:  # noqa: BLE001
@@ -965,11 +977,18 @@ def report_markdown(result, build="") -> str:
               # failing, and it is NOT a pass-through (those are conduct, above).
               f"- truth floors (a false draft withheld; the child got the fallback "
               f"line): **{_tot('floor')}**",
+              # (so) THE MECHANICAL VOICE, COUNTED. Jim heard it twice on 09-04 on lines
+              # that are in the closure; until this line the fallback reached the
+              # console and nothing else. Each event carries its reason.
+              f"- browser-voice fallbacks (the student heard the mechanical voice): "
+              f"**{_tot('voice_fallback')}**"
+              + (" ← read the reasons below" if _tot('voice_fallback') else ""),
               f"- referee fires: **{_tot('referee_fire')}** · probe observations: "
               f"{_tot('probe')} · prompt-size events: {_tot('promptsize')}", ""]
 
         alarm = []
-        for kind in ("referee_crash", "clienterror", "pass_through", "floor"):
+        for kind in ("referee_crash", "clienterror", "pass_through", "floor",
+                     "voice_fallback"):
             for nm, n in sorted((counts.get(kind) or {}).items(), key=lambda kv: -kv[1])[:5]:
                 alarm.append(f"  - {kind} · {nm}: {n}×")
         if alarm:
@@ -1013,7 +1032,8 @@ def report_markdown(result, build="") -> str:
             rows = _store.recent_events(hours=24 * 7, limit=200,
                                         kinds=["referee_crash", "clienterror",
                                                "failopen", "seat_fallback",
-                                               "privacy_gate", "floor"])
+                                               "privacy_gate", "floor",
+                                               "voice_fallback"])
             # (sh) ⭐ AND WHEN THEY SAID IT. pq gave this block the reason; it never
             # gave it a CLOCK, and without one a reason cannot be told apart from its
             # own ghost. The 09-01 triage had to HOLD every line it read here -- the
@@ -1084,6 +1104,25 @@ def report_markdown(result, build="") -> str:
                   + ("" if oc == "ran" else f" — **{oc}**")
                   + (f" — {r.get('note')}" if r.get("note") else "")]
         L += [""]
+
+    # (so) THE CLOSURE'S RENDER STATE. The prewarm is a manual /admin job; a line added
+    # to the closure and never rendered is browser voice in production, and nothing
+    # said so until a student heard it. main.py lends the count; a nudge rides with it.
+    _cl = (result.get("extras") or {}).get("closure") or {}
+    if _cl:
+        _un, _tot_cl = int(_cl.get("unrendered", -1)), int(_cl.get("total", -1))
+        if _un < 0 or _tot_cl < 0:
+            L += ["## The voice closure", "", "- ⚠️ the TTS cache could not be read -- "
+                  "rendered-vs-not is unknown tonight", ""]
+        elif _un:
+            L += ["## ⚠️ The voice closure has unrendered lines", "",
+                  f"- **{_un} of {_tot_cl}** closure lines are not in the TTS cache. Each "
+                  "one is generated on demand the first time a student reaches it -- "
+                  "inside the page's 5-second watchdog -- or falls to the browser voice. "
+                  "**Run the script-prewarm from /admin.**", ""]
+        else:
+            L += ["## The voice closure", "",
+                  f"- every one of the {_tot_cl} closure lines is rendered and cached", ""]
 
     # WHAT WE DID NOT DO. A silent cap reads as "all clear".
     L += ["## What this run did not cover", ""]

@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+    (so) 2026-09-04 -- TWO OF JIM'S LIVE FLAGS. (1) The pencil's [[ink]] marks now clear
+    at the start of every turn with the rest of the clean page (his "black line ... still
+    there" / the unreadable yellow line on the dark board): rr's marks cleared only on a
+    moment nothing rang. (2) The scripted answer door shows the thinking state around
+    its fetch: a wrong answer buys a server-side model intervention and those seconds
+    looked frozen. Page half only; voice.js and client-log.js carry the voice-fallback
+    telemetry, nightwatch.py the two new report lines.
     (sn) 2026-09-04 -- THE WARM CHOICE. Jim's ruling ③: a still-learning lesson end
     asks the student -- "go on to the next lesson, or review this a bit more?" -- with
     two buttons that START a lesson inside the scripted lane (next, or this one again
@@ -2767,6 +2774,7 @@
     function handleTags(text) {
       let sawMark = false;                       // build fy -- see the note at the end of this function
       clearHighlight();                          // each turn starts with a clean page
+      cadClearInk();                             // (so) the pencil's marks never survive a new turn -- Jim's flag: "this line should go away as soon as something new is added to the board"
       clearChoices();                            // stale answer buttons never survive a new turn
       clearScrNext();                            // build pd: a scripted Next never survives a new turn
       clearBeside();                             // build oj: a dangling [[beside]] never leaks into a new turn
@@ -2829,6 +2837,14 @@
     function cadFire(ev, opts) { try { if (window.Cadabra) Cadabra.fire(ev, opts); } catch (e) {} }
     /* (rr) [[ink]]: the tutor asks for a mark on a word. Guarded like cadFire. */
     function cadInk(a) { try { if (window.Cadabra && Cadabra.ink) Cadabra.ink({ circle: a.circle, underline: a.underline, bang: a.bang, kind: a.kind }); } catch (e) {} }
+    // (so, 2026-09-04) THE MARK GOES AWAY WHEN THE BOARD MOVES ON. Jim, live on Entry:
+    // "Mr Cadabra drew a black line a few moves ago and the line is still there and it
+    // obscures the bottom of the board" -- and on the dark board the same mark was a
+    // yellow line nobody could read. rr's [[ink]] marks cleared only on a
+    // problem.cleared moment that no page ever rang. handleTags already opens every
+    // turn with a clean page (highlight, choices, step cards); the ink joins that list.
+    // A mark drawn by THIS turn's [[ink]] tag lands after the clear, so it survives.
+    function cadClearInk() { try { if (window.Cadabra && Cadabra.clearInk) Cadabra.clearInk(); } catch (e) {} }
     /* (rr) STUCK, THE PAGE'S HALF. Two misses in a row is stuck; so is a long silence
        after the tutor hands the turn over (see setPhase). Either rings student.stuck
        ONCE per stretch; a right answer clears it. The pencil's empathy is the menu's. */
@@ -4147,10 +4163,19 @@
       const url = asking ? "/api/script/ask" : "/api/script/answer";
       const body = asking ? { code: CODE, question: txt, heard: lastTutorText }
                           : { code: CODE, said: txt };
+      // (so, 2026-09-04) HE SHOWS HIMSELF THINKING. Jim, on a wrong answer: "he didn't
+      // show himself thinking and it didn't say he was thinking so it looked frozen."
+      // pb's note above says a scripted answer "arrives instantly" -- true for a RIGHT
+      // answer, graded by code. A WRONG one buys a model intervention on the server,
+      // and those seconds passed with no face and no status line. The live lane's
+      // runTutor has always set this state; the scripted door now does too, and clears
+      // it the moment the reply lands (scrIngest's beats set their own state after).
+      setState("thinking"); statusEl.textContent = tutorName + " is thinking…";
       try {
         const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" },
                                      body: JSON.stringify(body) });
         const j = await r.json();
+        if (state === "thinking") setState("idle");
         if (asking) {
           const a = (j && j.answer) || "";
           addBubble("tutor", a); lastTutorText = a;

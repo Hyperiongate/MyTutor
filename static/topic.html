@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <!--
+    (so) 2026-09-04 -- the pencil's [[ink]] marks clear at the start of every turn with
+    the rest of the clean page (Jim's flag on /session; the same handleTags opener here).
     (rr) 2026-09-02 -- THE PENCIL HAS FEELINGS ABOUT YOUR WORK. Same page-half as
     session.html this build: [[ink]] -> cadInk, board.written after handleTags,
     student.stuck (two misses, or 60 s of silence on the child's turn), milestone
@@ -1130,6 +1132,7 @@
     function cadFire(ev, opts) { try { if (window.Cadabra) Cadabra.fire(ev, opts); } catch (e) {} }
     /* (rr) [[ink]]: the tutor asks for a mark on a word. Guarded like cadFire. */
     function cadInk(a) { try { if (window.Cadabra && Cadabra.ink) Cadabra.ink({ circle: a.circle, underline: a.underline, bang: a.bang, kind: a.kind }); } catch (e) {} }
+    function cadClearInk() { try { if (window.Cadabra && Cadabra.clearInk) Cadabra.clearInk(); } catch (e) {} }   /* (so) see session.html */
     /* (rr) STUCK, THE PAGE'S HALF. Two misses in a row is stuck; so is a long silence
        after the tutor hands the turn over (see setPhase). Either rings student.stuck
        ONCE per stretch; a right answer clears it. The pencil's empathy is the menu's. */
@@ -1184,6 +1187,7 @@
 
     function handleTags(text) {
       let sawMark = false;                       // build fy -- see the note at the end of this function
+      cadClearInk();                             // (so) the pencil's marks never survive a new turn (Jim's flag; see session.html)
       clearChoices();                            // stale answer buttons never survive a new turn
       clearSpot();                               // build ee: a stale board spotlight never survives a new turn either
       clearBeside();                             // build oj: a dangling [[beside]] never leaks into a new turn
