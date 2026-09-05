@@ -2,6 +2,15 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD tb -- ENTRY UNIT 1 TO THE SHAPE (the youngest students). Counting
+#               to 10 and past ten on the STARS counted one at a time; before-and-after
+#               and which-is-bigger on the NUMBER LINE (one hop up / back; the later
+#               number is bigger). Each lesson: why, picture, teach, pairs, recap.
+#               Ruling ⑤ keeps the quick praise for counting and comparing (no
+#               walk-back); NO reason question in this unit -- its options are text a
+#               student learning to count cannot read yet (open ruling). ENGINE: "big"
+#               asks draw the two numbers on the line (the comparing method IS the
+#               picture). Nothing else changed.
 #   2026-09-05  BUILD ta -- the `intervene` step carries "board": the ask's board as it
 #               was drawn (pending["board"], board_for as the fallback), so the model
 #               that steps in is told exactly what the student is looking at (flag
@@ -3287,19 +3296,30 @@ _MORE_LESSONS = [
         "bank": [{"a": 10, "b": 90, "op": "c2h"}, {"a": 49, "b": 57, "op": "c2h"}, {"a": 61, "b": 51, "op": "c2h"}, {"a": 20, "b": 99, "op": "c2h"}, {"a": 28, "b": 98, "op": "c2h"}, {"a": 84, "b": 49, "op": "c2h"}, {"a": 75, "b": 67, "op": "c2h"}, {"a": 54, "b": 99, "op": "c2h"}, {"a": 87, "b": 79, "op": "c2h"}, {"a": 99, "b": 99, "op": "c2h"}],
     },
     {
+        # (tb, 2026-09-05) TO THE SHAPE: a why, the stars counted past ten as the
+        # picture (the count-on trick shown, not told), the rule, a recap. Ruling ⑤:
+        # quick praise for counting; no reason question for pre-readers (open ruling).
         "id": "entry-u1-counting-past-ten", "course": "entry", "unit": 1,
         "topic": "Counting past ten", "op": "c20", "max_value": 20,
         "levels": ("concrete",), "symbols": ("count",),
         "advance_line": "Three in a row — you've got it! You can count past ten.",
-        "teach": [
-            ("Today we count past ten. Counting does not stop at ten. After ten "
-             "comes eleven, twelve, thirteen, and it keeps going. Say each number "
-             "as you touch each star.",
-             '[[goal text="Counting past ten"]]'
-             '[[objects emoji="⭐" groups="12" count="1" caption="touch each one and count"]]'),
-            ("Watch me count these. One, two, three, four, five, six, seven, "
-             "eight, nine, ten. Then keep going: eleven, twelve. Twelve stars.",
+        "why": [
+            ("Why count past ten? Because most things come in more than ten. "
+             "The crayons in a box, the steps to your door, the days until a "
+             "birthday. Ten fingers run out fast, and the numbers keep going.",
+             '[[goal text="Counting past ten"]]'),
+        ],
+        "picture": [
+            ("Here are more than ten stars. Watch them light up. One, two, three, "
+             "four, five, six, seven, eight, nine, ten — and counting does not "
+             "stop. Eleven, twelve. Twelve stars.",
              '[[objects emoji="⭐" groups="12" count="1" caption="ten, then eleven, twelve"]]'),
+        ],
+        "teach": [
+            ("That is counting past ten. After ten comes eleven, twelve, "
+             "thirteen, and it keeps going. Say each number as you touch each "
+             "star, and the last number you say is how many.",
+             '[[objects emoji="⭐" groups="12" caption="touch each one and count"]]'),
             # (se, 2026-09-02) JIM'S FLAG: "Drop the term 'trap' and everything
             # after it." The warning sentence is gone; the line now ends on the
             # count itself. (The 40-odd "Here is the trap" lines in OTHER courses
@@ -3320,25 +3340,46 @@ _MORE_LESSONS = [
              "ask": {"a": 20, "b": 0, "op": "c20"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "recap": [
+            ("So, here it is again. Counting does not stop at ten — eleven, "
+             "twelve, thirteen, and on it goes. Count the first ten, then count "
+             "on, and the last number you say is how many.",
+             '[[objects emoji="⭐" groups="13" caption="ten, then count on: 11, 12, 13"]]'),
+            ("And that is how you count anything that comes in more than ten.",
+             '[[goal text="Counting past ten"]]'),
+        ],
         # the whole pool is eleven to twenty, so the two worked pairs take the
         # last two and the bank takes the rest -- a problem may never be both.
         "bank": [{"a": 11, "b": 0, "op": "c20"}, {"a": 12, "b": 0, "op": "c20"}, {"a": 13, "b": 0, "op": "c20"}, {"a": 14, "b": 0, "op": "c20"}, {"a": 15, "b": 0, "op": "c20"}, {"a": 16, "b": 0, "op": "c20"}, {"a": 17, "b": 0, "op": "c20"}, {"a": 18, "b": 0, "op": "c20"}],
     },
     {
+        # (tb, 2026-09-05) TO THE SHAPE on the NUMBER LINE: the two numbers as dots,
+        # the later one is the bigger one. The ask now draws the line too (the
+        # picture IS the comparing method, like the array is for equal groups); the
+        # trap line is kept. Ruling ⑤: quick praise for comparing; no reason question
+        # for pre-readers (open ruling).
         "id": "entry-u1-which-is-bigger", "course": "entry", "unit": 1,
         "topic": "Which number is bigger", "op": "big", "max_value": 20,
         "levels": ("abstract",), "symbols": ("bigger",),
         "advance_line": "Three in a row — you've got it! You can tell which number is bigger.",
+        "why": [
+            ("Why tell which number is bigger? Because you compare all day. Who "
+             "has more stickers, which pile of blocks is taller, who is older. "
+             "Two numbers, and you want to know which one is more.",
+             '[[goal text="Which number is bigger"]]'),
+        ],
+        "picture": [
+            ("Here are the numbers in their line, with 3 and 8 marked. Count "
+             "along from one. You reach 3 first — and you have to keep counting "
+             "to reach 8. The number you reach later is the bigger one. 8 is "
+             "bigger than 3.",
+             '[[numberline min="1" max="10" points="3,8" caption="you reach 8 later — 8 is bigger"]]'),
+        ],
         "teach": [
-            ("Numbers stand in a line, and the further along a number stands, the "
-             "bigger it is. So the bigger number is the one you reach later when "
-             "you count.",
-             '[[goal text="Which number is bigger"]]'
-             '[[numberline min="1" max="10" points="3,8" caption="8 comes later than 3"]]'),
-            ("Watch me. Which is bigger, 3 or 8? Count along: one, two, three — "
-             "there is 3. Keep counting to eight. You reach 8 later, so 8 is "
-             "bigger.",
-             '[[numberline min="1" max="10" points="3,8" caption="3 first, then 8"]]'
+            ("That is the rule. Numbers stand in a line, and the further along a "
+             "number stands, the bigger it is. So the bigger number is the one "
+             "you reach later when you count.",
+             '[[numberline min="1" max="10" points="3,8" caption="8 comes later than 3"]]'
              '[[step eq="8 is bigger than 3"]]'),
             ("Here is the trap. Do not add the two numbers. The question is not "
              "how many in all. It only asks which one is bigger, so your "
@@ -3353,10 +3394,19 @@ _MORE_LESSONS = [
              "ask": {"a": 6, "b": 13, "op": "big"}},
             {"worked": ("One more together. Which is bigger, 12 or 7? You reach 12 "
                         "later, so 12 is bigger.",
+                        '[[numberline min="1" max="20" points="7,12" caption="12 comes later"]]'
                         '[[step eq="12 or 7 → 12"]]'),
              "ask": {"a": 17, "b": 9, "op": "big"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "recap": [
+            ("So, here it is again. Numbers stand in a line, and the bigger "
+             "number is the one you reach later when you count. Not the two "
+             "added up — just the one that comes later.",
+             '[[numberline min="1" max="10" points="3,8" caption="you reach 8 later — 8 is bigger"]]'),
+            ("And that is how you tell who has more.",
+             '[[step eq="3 or 8 → 8"]]'),
+        ],
         "bank": [{"a": 1, "b": 2, "op": "big"}, {"a": 3, "b": 6, "op": "big"}, {"a": 5, "b": 10, "op": "big"}, {"a": 7, "b": 14, "op": "big"}, {"a": 9, "b": 18, "op": "big"}, {"a": 12, "b": 3, "op": "big"}, {"a": 14, "b": 7, "op": "big"}, {"a": 16, "b": 11, "op": "big"}, {"a": 18, "b": 15, "op": "big"}, {"a": 20, "b": 19, "op": "big"}],
     },
     {
@@ -5116,6 +5166,11 @@ _MORE_LESSONS = [
     },
     # ------------------------- BUILD kd: the content sweep -------------------------
     {
+        # (tb, 2026-09-05) TO THE SHAPE, for the youngest students: a why in their
+        # world, the stars counted one at a time as the picture, the rule read off
+        # it, a recap. No walk-back and no reason question -- ruling ⑤ keeps the
+        # quick praise for counting, and a reason question's options are text a
+        # student who is learning to count to ten cannot yet read (open ruling).
         "id": "entry-u1-counting-to-10", "course": "entry", "unit": 1,
         "topic": "Counting to 10",
         "op": "cnt", "max_value": 10,
@@ -5124,14 +5179,26 @@ _MORE_LESSONS = [
         "symbols": ("count",),
         "advance_line": ("Three in a row — you've got it! "
                          "You can count to ten."),
-        "teach": [
-            ("Today we learn to count stars. Point to each star and say one "
-             "number for it: one, two, three.",
+        "why": [
+            ("Why count? Because counting tells you how many. How many cookies "
+             "are left, how many friends are coming, how many fingers you are "
+             "holding up. When you can count, you always know how many.",
              '[[goal text="Counting to 10"]]'),
-            ("Watch me count these stars. One, two, three. Three stars.",
-             '[[objects emoji="⭐" groups="3" count="1" caption="count them one at a time"]]'),
-            ("Watch me count again. One, two, three, four, five. Five stars.",
-             '[[objects emoji="⭐" groups="5" count="1" caption="count them one at a time"]]'),
+        ],
+        "picture": [
+            ("Here are some stars. Watch them light up one at a time, and say a "
+             "number for each one. One, two, three, four, five. The last number "
+             "you say tells you how many. Five stars.",
+             '[[objects emoji="⭐" groups="5" count="1" caption="one number for each star — five stars"]]'),
+        ],
+        "teach": [
+            ("That is how counting works. Point to each star and say one number "
+             "for it: one, two, three. Never skip a star, and never count one "
+             "twice. The last number you say is how many there are.",
+             '[[objects emoji="⭐" groups="3" count="1" caption="one, two, three — three stars"]]'),
+            ("Watch me count again, a bigger group this time. One, two, three, "
+             "four, five, six, seven. Seven stars.",
+             '[[objects emoji="⭐" groups="7" count="1" caption="count them one at a time"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. One, two, three, four. "
@@ -5145,6 +5212,14 @@ _MORE_LESSONS = [
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and "
                            "we're done — here comes the first one."),
+        "recap": [
+            ("So, here it is again. To count, point to each star and say one "
+             "number for it, and the last number you say is how many. One, two, "
+             "three, four. Four stars.",
+             '[[objects emoji="⭐" groups="4" count="1" caption="the last number you say is how many"]]'),
+            ("And counting is how you always know how many there are.",
+             '[[goal text="Counting to 10"]]'),
+        ],
         "bank": [
             {"a": 1, "b": 0, "op": "cnt"}, {"a": 3, "b": 0, "op": "cnt"},
             {"a": 5, "b": 0, "op": "cnt"}, {"a": 6, "b": 0, "op": "cnt"},
@@ -5153,6 +5228,10 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (tb, 2026-09-05) TO THE SHAPE on the NUMBER LINE: numbers stand in a line,
+        # and "right after" is one hop up, "right before" one hop back. The asks
+        # stay bare (a labelled line would read the answer off); ruling ⑤ keeps the
+        # quick praise for a one-hop fact; no reason question (pre-readers, open ruling).
         "id": "entry-u1-numbers-before-and-after", "course": "entry", "unit": 1,
         "topic": "Numbers before and after",
         "op": "aft", "max_value": 20,
@@ -5160,28 +5239,48 @@ _MORE_LESSONS = [
         "symbols": ("after", "before"),
         "advance_line": ("Three in a row — you've got it! "
                          "You can find the number before and the number after."),
-        "teach": [
-            ("Numbers stand in a line, always in the same order: 1, 2, 3, 4, 5. "
-             "Today we find the number right after a number, and the number "
-             "right before it.",
+        "why": [
+            ("Why learn what comes before and after? Because numbers always stand "
+             "in the same order, like friends in a line. If you know who stands "
+             "next to who, you can count on from any number instead of starting "
+             "at one every time.",
              '[[goal text="Numbers before and after"]]'),
-            ("Watch me. What comes right after 5? Count up one: 6. "
-             "6 comes right after 5.",
-             '[[step eq="5, 6"]]'),
-            ("Watch me. What comes right before 8? Count back one: 7. "
-             "7 comes right before 8.",
-             '[[step eq="7, 8"]]'),
+        ],
+        "picture": [
+            ("Here are the numbers standing in their line. Find 5. Take one hop "
+             "up the line and you land on 6 — so 6 comes right after 5. Now find "
+             "6 and take one hop back: you land on 5 — so 5 comes right before 6.",
+             '[[numberline min="1" max="10" points="5" hops="5,6" caption="one hop up: 6 comes right after 5"]]'),
+        ],
+        "teach": [
+            ("That is the whole idea. The number right after is one hop up the "
+             "line — count up one. The number right before is one hop back — "
+             "count back one.",
+             '[[numberline min="1" max="10" points="6" hops="6,5" caption="one hop back: 5 comes right before 6"]]'),
+            ("Watch me. What comes right after 9? Find 9, hop up one, and you "
+             "land on 10. 10 comes right after 9.",
+             '[[numberline min="1" max="10" points="9" hops="9,10" caption="9, then 10"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. Right after 6 comes 7.",
-                        '[[step eq="6, 7"]]'),
+            {"worked": ("Here is one more, done for you. Right after 6 comes 7 — "
+                        "one hop up.",
+                        '[[numberline min="1" max="10" points="6" hops="6,7" caption="6, 7"]]'),
              "ask": {"a": 4, "b": 0, "op": "aft"}},
-            {"worked": ("One more together. Right before 10 comes 9.",
-                        '[[step eq="9, 10"]]'),
+            {"worked": ("One more together. Right before 10 comes 9 — one hop back.",
+                        '[[numberline min="1" max="10" points="10" hops="10,9" caption="9, 10"]]'),
              "ask": {"a": 7, "b": 0, "op": "bef"}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and "
                            "we're done — here comes the first one."),
+        "recap": [
+            ("So, here it is again. Numbers stand in a line in the same order "
+             "every time. The number right after is one hop up; the number right "
+             "before is one hop back.",
+             '[[numberline min="1" max="10" points="5" hops="5,6" caption="one hop up: right after"]]'),
+            ("And knowing who stands next to who lets you count on from any "
+             "number.",
+             '[[step eq="4, 5, 6"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 0, "op": "aft"}, {"a": 3, "b": 0, "op": "bef"},
             {"a": 3, "b": 0, "op": "aft"}, {"a": 5, "b": 0, "op": "bef"},
@@ -18918,7 +19017,12 @@ OP_EXT = {
     "big": {   # which of two numbers is bigger
         "ans": lambda p: max(p["a"], p["b"]),
         "spoken": lambda p: f"Which number is bigger, {p['a']} or {p['b']}?",
-        "board": lambda p: f'[[step eq="{p["a"]} or {p["b"]} — which is bigger?"]]',
+        # (tb) the ask draws the two numbers on the line -- the picture IS the
+        # comparing method (reach it later = bigger), the way the array is the
+        # equal-groups method; the caption names neither as bigger
+        "board": lambda p: (f'[[numberline min="1" max="{10 if max(p["a"], p["b"]) <= 10 else 20}" '
+                            f'points="{min(p["a"], p["b"])},{max(p["a"], p["b"])}" '
+                            f'caption="{p["a"]} or {p["b"]} — which do you reach later?"]]'),
         "praise": lambda p: (f"{max(p['a'], p['b'])} is bigger than "
                              f"{min(p['a'], p['b'])}."),
         "key": lambda p: 100 * p["a"] + p["b"],

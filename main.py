@@ -2,6 +2,9 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  APP_BUILD -> "2026-09-05tb-entry-unit-one-to-the-shape".
+#               BUILD tb -- Entry Unit 1 rewritten to the shape (stars counted one at a
+#               time; the number line for before/after and bigger). Stamp only.
 #   2026-09-05  APP_BUILD -> "2026-09-05ta-the-tutor-sees-the-board".
 #               BUILD ta -- Jim's flag 22:31 ("acted like there was a number line when
 #               there wasn't"): the engine's intervene step now carries the ask's board
@@ -13751,7 +13754,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-05ta-the-tutor-sees-the-board"
+APP_BUILD = "2026-09-05tb-entry-unit-one-to-the-shape"
 
 
 @app.get("/health")

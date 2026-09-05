@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD tb -- PART 3ix: Entry Unit 1 to the shape. _entry_unit_checks: the
+#               unit checks for a course whose lessons may keep the quick praise
+#               (ruling ⑤) and carry no reason question (pre-readers).
 #   2026-09-05  BUILD ta -- PART 3iw: the tutor sees the board. The rule-7 referee's
 #               named-picture check (positive, negative, standing, cleared, imagined,
 #               fail-open), the canon sweep (0 hits), the intervene step's board, the
@@ -18456,6 +18459,12 @@ def part3gw_the_counting_lessons_actually_count():
             w = pr.get("worked") or ("", "")
             says.append(w[0] or "")
             cards.append(("%s[w%d]" % (les["id"], i), (w[0] or "") + "\n" + (w[1] or ""), w[1] or ""))
+        # (tb, 2026-09-05) the shape's beats are cards too: a picture beat that counts
+        # the stars along is held to the renderer's limits like a teach beat
+        for f, tag in (("why", "y"), ("picture", "p"), ("recap", "r")):
+            for i, (sp, b) in enumerate(les.get(f) or []):
+                says.append(sp or "")
+                cards.append(("%s[%s%d]" % (les["id"], tag, i), (sp or "") + "\n" + (b or ""), b or ""))
 
     counted, refused, fired = [], [], []
     for ident, whole, board in cards:
@@ -18476,12 +18485,18 @@ def part3gw_the_counting_lessons_actually_count():
           not fired,
           "an authored card put a counted drawing under its own question: "
           + ", ".join(fired[:5]))
-    check("  the canon counts thirteen drawings (the tutor's own modelled counts)",
-          len(counted) == 13, "%d: %s" % (len(counted), ", ".join(sorted(counted))))
+    # (tb, 2026-09-05) was thirteen. Entry Unit 1 went to the shape: counting-to-10's
+    # two counted teach beats are t0/t1 now (the goal line moved into the why), its
+    # picture and recap beats count along too, and counting-past-ten's counted
+    # twelve moved from teach to its picture beat. The sweep reads the shape's
+    # beats now (above), so every counted drawing is still held to the renderer.
+    check("  the canon counts fourteen drawings (the tutor's own modelled counts)",
+          len(counted) == 14, "%d: %s" % (len(counted), ", ".join(sorted(counted))))
 
     # ---- the lessons that had to have it --------------------------------------
     ids = set(counted)
-    for want in ("entry-u1-counting-to-10[t1]", "entry-u1-counting-to-10[t2]",
+    for want in ("entry-u1-counting-to-10[t0]", "entry-u1-counting-to-10[t1]",
+                 "entry-u1-counting-to-10[p0]", "entry-u1-counting-past-ten[p0]",
                  "entry-u2-add-single-digit[t1]", "entry/number"):
         check("  counted: %s" % want, want in ids,
               "a counting lesson that does not count along is the one card this build "
@@ -18495,7 +18510,7 @@ def part3gw_the_counting_lessons_actually_count():
             ("entry-u4-tens-and-ones[t1]", "count-on from ten, same reason"),
             ("entry-u3-take-away-single-digit[t1]", "take= -- you do not count UP to a "
                                                     "struck-out star"),
-            ("entry-u1-counting-past-ten[t2]", "fourteen stars, past the renderer's limit"),
+            ("entry-u1-counting-past-ten[t1]", "fourteen stars, past the renderer's limit (tb: was t2)"),
             ("entry-u1-counting-past-ten[w1]", "sixteen stars, past the limit")):
         check("  left plain on purpose: %s" % ident,
               ident in plain and not CNT.search(plain[ident]), why)
@@ -21828,7 +21843,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,911</b>" in page,
+          "<b>8,941</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23658,6 +23673,67 @@ def _shape_unit_checks(unit_ids, pic_regex):
           all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
 
 
+def _entry_unit_checks(unit_ids, pic_regex, explain_ids=()):
+    """(tb, 2026-09-05) THE CHECKS AN ENTRY UNIT-TO-THE-SHAPE BUILD RUNS. Entry's
+    students are the youngest, and ruling ⑤ keeps the quick praise for counting and
+    comparing, so a lesson here carries why, picture, teach and recap always, and the
+    walk-back and the reason question only where the lesson is multi-step (named in
+    `explain_ids`). Every lesson: the whole shape it promises, the real validator, most
+    beats drawing its picture; a perfect walk that opens why -> picture -> teach,
+    masters, speaks the recap before the end line, and stays inside its closure."""
+    import lessonscripts as L
+    import tags as _tags
+    for lid in unit_ids:
+        les = L.LESSON_BY_ID.get(lid) or {}
+        wants_reason = lid in explain_ids
+        check(f"⭐ {lid}: why, picture, teach and recap" + (", explain and the walk-back flag" if wants_reason else " (quick praise, ruling ⑤)"),
+              all(les.get(f) for f in ("why", "picture", "teach", "recap"))
+              and (not wants_reason or (les.get("explain") and les.get("show_work_on_correct") is True)),
+              str(sorted(les)))
+        check(f"  {lid}: passes the real validator with the real registry",
+              bool(les) and all(ok for ok, _l, _d in L.validate(les, set(_tags.BOARD_TAGS))),
+              str([l for ok, l, _d in L.validate(les, set(_tags.BOARD_TAGS)) if not ok][:3]) if les else "missing")
+        beats = list(les.get("why") or []) + list(les.get("picture") or []) + list(les.get("teach") or []) \
+            + [pr["worked"] for pr in les.get("pairs") or []] + list(les.get("recap") or [])
+        drawn = sum(1 for _s, b in beats if re.search(pic_regex, b))
+        check(f"  {lid}: most beats draw a picture ({drawn} of {len(beats)})",
+              beats and drawn >= len(beats) * 0.6, f"{drawn}/{len(beats)}")
+    for lid in unit_ids:
+        les = L.LESSON_BY_ID.get(lid)
+        if not les:
+            continue
+        st = L.start(les, seed=1)
+        outs, st = L.step(les, st, ("begin",))
+        heard = [o["spoken"] for o in outs]
+        check(f"  {lid}: the lesson opens on its why, then its picture, then the teach",
+              len(outs) >= 3 and outs[0]["spoken"] == (les.get("why") or [("",)])[0][0]
+              and outs[1]["spoken"] == (les.get("picture") or [("",)])[0][0]
+              and outs[2]["spoken"] == les["teach"][0][0], str([o["spoken"][:30] for o in outs[:3]]))
+        ended = None
+        for _ in range(40):
+            pend = st.get("pending") or {}
+            if pend.get("reason"):
+                ev = ("answer", pend.get("expected", ""))
+            elif pend.get("problem") is not None:
+                ev = ("answer", L.ans(pend["problem"]))
+            else:
+                break
+            outs, st = L.step(les, st, ev)
+            heard.extend(o["spoken"] for o in outs)
+            ended = next((o for o in outs if o["kind"] == "end"), None)
+            if ended:
+                break
+        cl = set(L.audio_lines(les))
+        miss = [x for x in heard if x and x not in cl]
+        recap_first = (les.get("recap") or [("",)])[0][0]
+        check(f"⭐ {lid}: a perfect walk masters in {L.ADVANCE_STREAK}, speaks the recap before the end line, inside its closure",
+              ended is not None and ended.get("mastered") is True and st["done"] == L.ADVANCE_STREAK
+              and recap_first in heard and heard.index(recap_first) < len(heard) - 1 and not miss,
+              f"ended={bool(ended)} done={st['done']} miss={miss[:2]}")
+    check("  every lesson in the course still validates",
+          all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
+
+
 def part3ir_basic_unit_six_to_the_shape():
     """PART 3ir (build sv, 2026-09-05) -- BASIC UNIT 6 TO THE SHAPE.
 
@@ -24237,6 +24313,45 @@ def part3iw_the_tutor_sees_the_board():
           "2026-09-05  BUILD ta" in tsrc[:6000] and "2026-09-05  BUILD ta" in rd("lessonscripts.py")[:20000]
           and "BUILD ta" in m[:200000] and "2026-09-05  BUILD ta" in rd("ruletests.py")[:8000]
           and "(ta)" in rd("static/methodology.html")[:6000], "Jim's rule 8")
+
+
+def part3ix_entry_unit_one_to_the_shape():
+    """PART 3ix (build tb, 2026-09-05) -- ENTRY UNIT 1 TO THE SHAPE.
+
+    The youngest students' first four lessons: counting to 10 and past ten on the
+    stars counted one at a time; before-and-after and which-is-bigger on the number
+    line. Why, picture, teach, recap on every lesson; the quick praise kept (ruling
+    ⑤); no reason question -- its options are text a student learning to count
+    cannot read yet (an open ruling, recorded here so it is a decision, not a gap)."""
+    print("\nPART 3ix — Entry Unit 1 to the shape (build tb)")
+    import lessonscripts as L
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    U1 = ["entry-u1-counting-to-10", "entry-u1-counting-past-ten",
+          "entry-u1-numbers-before-and-after", "entry-u1-which-is-bigger"]
+    _entry_unit_checks(U1, r"\[\[(objects|numberline)\b")
+    check("  no Unit 1 lesson asks a text-option reason question (pre-readers; the open ruling)",
+          not any(L.LESSON_BY_ID[l].get("explain") for l in U1), "")
+    check("⭐ the counting pictures count the stars ONE AT A TIME (count=\"1\") and say the last number is how many",
+          all('count="1"' in L.LESSON_BY_ID[l]["picture"][0][1] for l in U1[:2])
+          and "last number you say" in L.LESSON_BY_ID["entry-u1-counting-to-10"]["picture"][0][0], "")
+    b = L.board_for({"a": 3, "b": 8, "op": "big"}, "abstract")
+    check("⭐ a which-is-bigger ask draws both numbers on the line, the caption asking which is reached later, naming neither as bigger",
+          '[[numberline min="1" max="10" points="3,8"' in b and "which do you reach later?" in b
+          and "8 is bigger" not in b and "[[step" not in b, b)
+    check("  a pair past ten stretches the line to 20",
+          '[[numberline min="1" max="20" points="7,12"' in L.board_for({"a": 12, "b": 7, "op": "big"}, "abstract"), "")
+    check("  before-and-after asks stay bare (a labelled line would read the answer off); the pictures hop",
+          L.board_for({"a": 4, "b": 0, "op": "aft"}, "abstract") == '[[step eq="4, ?"]]'
+          and L.board_for({"a": 7, "b": 0, "op": "bef"}, "abstract") == '[[step eq="?, 7"]]'
+          and all('hops="' in bd for _s, bd in L.LESSON_BY_ID["entry-u1-numbers-before-and-after"]["picture"]), "")
+    import teachaudit as _TA
+    check("  nothing the Unit 1 pictures demonstrate is later asked",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in U1), "")
+    check("  the changed files carry dated tb notes",
+          "2026-09-05  BUILD tb" in rd("lessonscripts.py")[:20000] and "BUILD tb" in rd("main.py")[:200000]
+          and "2026-09-05  BUILD tb" in rd("ruletests.py")[:8000] and "(tb)" in rd("static/methodology.html")[:6000],
+          "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -34552,6 +34667,7 @@ def main():
     part3iu_basic_unit_nine_to_the_shape()
     part3iv_the_times_table_is_a_pass()
     part3iw_the_tutor_sees_the_board()
+    part3ix_entry_unit_one_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
