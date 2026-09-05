@@ -2,6 +2,18 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD st -- BASIC UNIT 4 TO THE SHAPE (factors and multiples). THIS FILE:
+#                 * missing-factors on the ARRAY: b boxes, a dots -- the sharing question
+#                   in disguise -- then the boxes filled;
+#                 * factor-pairs as a RECTANGLE (rows of dots when small, the area model's
+#                   one cell with its sides labelled when big); the trap line kept;
+#                 * greatest-common-factor on the VENN: the two factor lists, the overlap
+#                   holding what they share;
+#                 * least-common-multiple on TWO NUMBER LINES: count-by hops on each, the
+#                   first shared landing marked.
+#               ENGINE: OP_EXT mf / fpr gain a board and a "worked" (_mf_*, _fpr_*); gcf
+#               gains _gcf_worked (the Venn); lcm gains _lcm_board (two bare count-by
+#               lines) and _lcm_worked (the hops). _factors(n) helper.
 #   2026-09-05  BUILD ss -- BASIC UNIT 3 TO THE SHAPE (the dividing unit). THIS FILE:
 #                 * what-dividing-means on the ARRAY read the other way -- the dots to
 #                   share and the empty boxes (the sharing question as a picture), then
@@ -2375,21 +2387,31 @@ _MORE_LESSONS = [
         "bank": [{"a": 2, "b": 10, "op": "mtz"}, {"a": 23, "b": 10, "op": "mtz"}, {"a": 42, "b": 10, "op": "mtz"}, {"a": 62, "b": 10, "op": "mtz"}, {"a": 82, "b": 10, "op": "mtz"}, {"a": 12, "b": 100, "op": "mtz"}, {"a": 34, "b": 100, "op": "mtz"}, {"a": 56, "b": 100, "op": "mtz"}, {"a": 77, "b": 100, "op": "mtz"}, {"a": 99, "b": 100, "op": "mtz"}],
     },
     {
+        # (st, 2026-09-05) TO THE SHAPE: a factor pair is a RECTANGLE -- the number
+        # laid out as rows, its two sides the pair. Small ones are groups of dots; big
+        # ones are the area model's one cell with its sides labelled.
         "id": "basic-u4-factor-pairs", "course": "basic", "unit": 4,
         "topic": "Factor pairs", "op": "fpr", "max_value": 100,
         "levels": ("abstract",), "symbols": ("factor", "pair"),
-        "advance_line": "Three in a row — you've got it! Factors come in pairs.",
-        "teach": [
+        "advance_line": "Three in a row, and you can say why — you've got it! Factors come in pairs.",
+        "why": [
             ("Factors never arrive alone. Every time you find one factor of a "
              "number, you have found a second one for free, because the two of "
-             "them times each other make the number.",
-             '[[goal text="Factor pairs"]]'
-             '[[step eq="18 = 2 × 9"]]'),
-            ("Watch me. 18 is 2 times what? Count up in twos, or just divide: 18 "
-             "shared into 2 groups is 9. So 2 and 9 are a factor pair of 18, and "
-             "finding one handed me the other.",
-             '[[step eq="18 ÷ 2 = 9"]]'
-             '[[step eq="2 and 9 are a pair"]]'),
+             "them times each other make the number. That is why it is worth "
+             "seeing what a pair looks like — you will use pairs to simplify "
+             "fractions and to share things out for years.",
+             '[[goal text="Factor pairs"]]'),
+        ],
+        "picture": [
+            ("Here is 18 laid out in 2 rows: 9 in each. A rectangle, 2 by 9, "
+             "holding 18. The two sides of the rectangle are a factor pair — 2 and "
+             "9 — and every factor pair of 18 is a rectangle like this one.",
+             '[[array rows="2" cols="9" view="groups" eq="2 × 9 = 18" caption="a 2 by 9 rectangle holds 18"]]'),
+        ],
+        "teach": [
+            ("So: 18 is 2 times what? Share 18 into 2 rows — 9 in each. 2 and 9 "
+             "are a factor pair of 18, and finding one handed me the other.",
+             '[[array rows="2" cols="9" view="groups" eq="18 ÷ 2 = 9" caption="2 and 9 are a pair"]]'),
             ("Here is the trap. The partner is what you DIVIDE by to get there, "
              "not what you take away. For 18 and 2 the partner is 9, not 16. "
              "Check yourself every time: your answer times the factor should come "
@@ -2398,16 +2420,35 @@ _MORE_LESSONS = [
              '[[step eq="16 ✗ that is 18 − 2, and 2 × 16 is nowhere near 18"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 30 is 5 times what? 30 "
-                        "shared into 5 groups is 6. So 5 and 6 are a pair.",
-                        '[[step eq="30 = 5 × 6"]]'),
+            {"worked": ("Here is one more, done for you. 30 is 5 times what? 30 laid "
+                        "out in 5 rows is 6 in each. So 5 and 6 are a pair — and 5 "
+                        "times 6 comes straight back to 30.",
+                        '[[array rows="5" cols="6" view="groups" eq="5 × 6 = 30" caption="5 and 6 are a factor pair of 30"]]'),
              "ask": {"a": 40, "b": 8, "op": "fpr"}},
-            {"worked": ("One more together. 63 is 7 times what? 63 shared into 7 "
-                        "is 9, so 7 and 9 are a pair.",
-                        '[[step eq="63 = 7 × 9"]]'),
+            {"worked": ("One more together. 63 is 7 times what? 63 in 7 rows is 9 in "
+                        "each, so 7 and 9 are a pair. Check: 7 times 9 equals 63.",
+                        '[[array rows="7" cols="9" view="groups" eq="7 × 9 = 63" caption="7 and 9 are a factor pair of 63"]]'),
              "ask": {"a": 54, "b": 6, "op": "fpr"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": "Now it's your turn. Divide to find the partner, then check with times. Three right answers in a row and we're done — here comes the first one.",
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. For 18 and 2, "
+                       "the partner is 9 and not 16. Tap the reason why."),
+            "choices": ("because 2 times 9 comes straight back to 18 | because 16 "
+                        "is too big to be a factor | because 9 is half of 18"),
+            "answer": "because 2 times 9 comes straight back to 18",
+            "board": '[[array rows="2" cols="9" view="groups" eq="2 × 9 = 18" caption="2 and 9 are a pair"]]',
+        },
+        "recap": [
+            ("So, here it is again. A factor pair is two numbers that times each "
+             "other make the number — the two sides of a rectangle that holds it. "
+             "Divide to find the partner, and check with times.",
+             '[[array rows="2" cols="9" view="groups" eq="2 × 9 = 18" caption="the sides of the rectangle are the pair"]]'),
+            ("And pairs are what you will reach for to simplify fractions and share "
+             "things out.",
+             '[[step eq="18 = 2 × 9 = 3 × 6 = 1 × 18"]]'),
+        ],
         "bank": [{"a": 12, "b": 2, "op": "fpr"}, {"a": 27, "b": 3, "op": "fpr"}, {"a": 38, "b": 19, "op": "fpr"}, {"a": 48, "b": 12, "op": "fpr"}, {"a": 58, "b": 29, "op": "fpr"}, {"a": 68, "b": 2, "op": "fpr"}, {"a": 76, "b": 19, "op": "fpr"}, {"a": 84, "b": 28, "op": "fpr"}, {"a": 92, "b": 46, "op": "fpr"}, {"a": 100, "b": 50, "op": "fpr"}],
     },
     {
@@ -3497,61 +3538,140 @@ _MORE_LESSONS = [
         "bank": [{'a': 7, 'b': 2, 'op': 'rem'}, {'a': 9, 'b': 4, 'op': 'rem'}, {'a': 11, 'b': 4, 'op': 'rem'}, {'a': 14, 'b': 3, 'op': 'rem'}, {'a': 17, 'b': 4, 'op': 'rem'}, {'a': 19, 'b': 5, 'op': 'rem'}, {'a': 23, 'b': 5, 'op': 'rem'}, {'a': 26, 'b': 6, 'op': 'rem'}, {'a': 31, 'b': 7, 'op': 'rem'}, {'a': 38, 'b': 8, 'op': 'rem'}],
     },
     {
+        # (st, 2026-09-05) TO THE SHAPE on the ARRAY: a missing factor is the sharing
+        # question -- b boxes, a dots, how many in each? -- and the answer is the boxes
+        # filled.
         "id": 'basic-u4-missing-factors',
         "course": "basic", "unit": 4,
         "topic": 'Missing factors',
         "op": 'mf', "max_value": 72,
         "levels": ("abstract",),
         "symbols": ('times', 'factor'),
-        "advance_line": "Three in a row — you've got it! You can find the missing factor.",
-        "teach": [
-            ('A factor is a number you multiply. In 3 times 4 equals 12, the factors are 3 and 4. Today one factor is hiding, and we find it.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You can find the missing factor.",
+        "why": [
+            ("A factor is a number you multiply: in 3 times 4 equals 12, the factors "
+             "are 3 and 4. Real questions often hand you the answer and hide a "
+             "factor — twelve cookies, three bags, how many in each? Finding the "
+             "hidden factor is what today is for.",
              '[[goal text="Missing factors"]]'),
-            ('Watch me. 3 times what equals 12? I think: three groups of WHAT reach 12? Three times four equals 12 — the missing factor is 4.',
-             '[[step eq="3 × ? = 12"]][[step eq="3 × 4 = 12"]]'),
-            ('One more, watch. 5 times what equals 30? Five times six equals 30 — the missing factor is 6.',
-             '[[step eq="5 × ? = 30"]][[step eq="5 × 6 = 30"]]'),
+        ],
+        "picture": [
+            ("Here is 3 times what equals 12, as a picture: 12 dots and 3 empty "
+             "boxes. Three groups of WHAT reach 12? Share the dots out — every box "
+             "gets 4. The hidden factor is 4.",
+             '[[array total="12" rows="3" ask="1" eq="3 × ? = 12" caption="3 groups of what reach 12?"]]'),
+        ],
+        "teach": [
+            ("So a missing factor is a sharing question in disguise. 3 times what "
+             "equals 12 asks: 12 shared into 3 groups, how many in each? Four. "
+             "Three times four equals 12 — and that times fact is the check.",
+             '[[array rows="3" cols="4" view="groups" eq="3 × 4 = 12" caption="3 groups of 4 reach 12"]]'),
+            ("One more, watch. 5 times what equals 30? Share 30 into 5 groups — 6 "
+             "in each. Five times six equals 30. The missing factor is 6.",
+             '[[array rows="5" cols="6" view="groups" eq="5 × 6 = 30" caption="5 groups of 6 reach 30"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. 4 times what equals 20? Four times five equals 20 — the missing factor is 5.',
-                        '[[step eq="4 × ? = 20"]][[step eq="4 × 5 = 20"]]'),
+            {"worked": ("Here is one more, done for you. 4 times what equals 20? Share "
+                        "20 into 4 groups — 5 in each. Four times five equals 20. The "
+                        "missing factor is 5.",
+                        '[[array rows="4" cols="5" view="groups" eq="4 × 5 = 20" caption="4 groups of 5 reach 20"]]'),
              "ask": {'a': 16, 'b': 4, 'op': 'mf'}},
-            {"worked": ('One more together. 6 times what equals 42? Six times seven equals 42.',
-                        '[[step eq="6 × ? = 42"]][[step eq="6 × 7 = 42"]]'),
+            {"worked": ("One more together. 6 times what equals 42? Share 42 into 6 "
+                        "groups — 7 in each. Six times seven equals 42.",
+                        '[[array rows="6" cols="7" view="groups" eq="6 × 7 = 42" caption="6 groups of 7 reach 42"]]'),
              "ask": {'a': 36, 'b': 6, 'op': 'mf'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Share the dots into the boxes if you "
+                           "need to. Three right answers in a row and we're done — "
+                           "here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. In 3 times what "
+                       "equals 12, the missing factor is 4. Tap the reason why."),
+            "choices": ("because 12 shared into 3 groups puts 4 in each | because "
+                        "12 take away 3 leaves 9 | because 4 comes after 3"),
+            "answer": "because 12 shared into 3 groups puts 4 in each",
+            "board": '[[array rows="3" cols="4" view="groups" eq="3 × 4 = 12" caption="3 groups of 4 reach 12"]]',
+        },
+        "recap": [
+            ("So, here it is again. A missing factor is a sharing question: share "
+             "the answer into the groups you know, and what each group gets is the "
+             "hidden factor. Then the times fact checks it.",
+             '[[array rows="3" cols="4" view="groups" eq="3 × 4 = 12" caption="3 groups of 4 reach 12"]]'),
+            ("And it is for the questions that hand you the answer and hide a "
+             "factor — which is most of them.",
+             '[[step eq="3 × ? = 12"]][[step eq="12 ÷ 3 = 4"]]'),
+        ],
         "bank": [{'a': 6, 'b': 2, 'op': 'mf'}, {'a': 12, 'b': 3, 'op': 'mf'}, {'a': 15, 'b': 3, 'op': 'mf'}, {'a': 24, 'b': 4, 'op': 'mf'}, {'a': 30, 'b': 5, 'op': 'mf'}, {'a': 35, 'b': 5, 'op': 'mf'}, {'a': 48, 'b': 6, 'op': 'mf'}, {'a': 56, 'b': 7, 'op': 'mf'}, {'a': 63, 'b': 9, 'op': 'mf'}, {'a': 72, 'b': 8, 'op': 'mf'}],
     },
     {
+        # (st, 2026-09-05) TO THE SHAPE on the VENN: the two factor lists, the
+        # overlap holding what they share, the greatest of the overlap circled by
+        # the caption.
         "id": 'basic-u4-greatest-common-factor',
         "course": "basic", "unit": 4,
         "topic": 'The greatest common factor',
         "op": 'gcf', "max_value": 48,
         "levels": ("abstract",),
         "symbols": ('factor', 'greatest'),
-        "advance_line": "Three in a row — you've got it! You can find the greatest common factor.",
-        "teach": [
-            ('A common factor divides two numbers evenly. Today we hunt for the GREATEST one — the biggest number that divides both.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You can find the greatest common factor.",
+        "why": [
+            ("Two numbers can share factors. 12 and 18 are both made of 2s and 3s. "
+             "Knowing the biggest thing two numbers share is how you cut a "
+             "fraction down to its simplest form, and how you split two piles "
+             "into the biggest equal groups possible. Today we find it.",
              '[[goal text="The greatest common factor"]]'),
-            ('Watch me find the greatest common factor of 12 and 18. Factors of 12: 1, 2, 3, 4, 6, 12. Factors of 18: 1, 2, 3, 6, 9, 18. The greatest one they share is 6.',
+        ],
+        "picture": [
+            ("Here are the factors of 12 and the factors of 18 in two circles. "
+             "Where the circles overlap sit the factors they share: 1, 2, 3 and "
+             "6. The greatest one in the overlap is 6.",
+             '[[venn left="Factors of 12" right="Factors of 18" a="4, 12" both="1, 2, 3, 6" b="9, 18" caption="they share 1, 2, 3, 6 — the greatest is 6"]]'),
+        ],
+        "teach": [
+            ("So a common factor divides both numbers evenly, and the greatest "
+             "common factor is the biggest one in the overlap. List the factors "
+             "of each, find what they share, take the greatest. For 12 and 18, "
+             "that is 6.",
              '[[step eq="12: 1, 2, 3, 4, 6, 12"]][[step eq="18: 1, 2, 3, 6, 9, 18"]][[step eq="GCF of 12 and 18 = 6"]]'),
-            ('One more, watch. 8 and 20. Factors of 8: 1, 2, 4, 8. Factors of 20: 1, 2, 4, 5, 10, 20. The greatest common factor equals 4.',
-             '[[step eq="GCF of 8 and 20 = 4"]]'),
+            ("One more, watch. 8 and 20. Factors of 8: 1, 2, 4, 8. Factors of 20: "
+             "1, 2, 4, 5, 10, 20. The overlap is 1, 2 and 4 — the greatest common "
+             "factor equals 4.",
+             '[[venn left="Factors of 8" right="Factors of 20" a="8" both="1, 2, 4" b="5, 10, 20" caption="they share 1, 2, 4 — the greatest is 4"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. 6 and 9. Factors of 6: 1, 2, 3, 6. Factors of 9: 1, 3, 9. The greatest common factor equals 3.',
-                        '[[step eq="GCF of 6 and 9 = 3"]]'),
+            {"worked": ("Here is one more, done for you. 6 and 9. Factors of 6: 1, 2, "
+                        "3, 6. Factors of 9: 1, 3, 9. The overlap is 1 and 3 — the "
+                        "greatest common factor equals 3.",
+                        '[[venn left="Factors of 6" right="Factors of 9" a="2, 6" both="1, 3" b="9" caption="they share 1, 3 — the greatest is 3"]]'),
              "ask": {'a': 6, 'b': 8, 'op': 'gcf'}},
-            {"worked": ('One more together. 10 and 15. Factors of 10: 1, 2, 5, 10. '
-                        'Factors of 15: 1, 3, 5, 15. The greatest one they '
-                        'share equals 5.',
-                        '[[step eq="GCF of 10 and 15 = 5"]]'),
+            {"worked": ("One more together. 10 and 15. Factors of 10: 1, 2, 5, 10. "
+                        "Factors of 15: 1, 3, 5, 15. The overlap is 1 and 5 — the "
+                        "greatest one they share equals 5.",
+                        '[[venn left="Factors of 10" right="Factors of 15" a="2, 10" both="1, 5" b="3, 15" caption="they share 1, 5 — the greatest is 5"]]'),
              "ask": {'a': 12, 'b': 16, 'op': 'gcf'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+        "practice_intro": ("Now it's your turn. List the factors, find the overlap, "
+                           "take the greatest. Three right answers in a row and "
                            "we're done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The greatest "
+                       "common factor of 12 and 18 is 6, not 12. Tap the reason why."),
+            "choices": ("because 12 is not a factor of 18 | because 6 is half of 12 "
+                        "| because 18 take away 12 is 6"),
+            "answer": "because 12 is not a factor of 18",
+            "board": '[[venn left="Factors of 12" right="Factors of 18" a="4, 12" both="1, 2, 3, 6" b="9, 18" caption="12 sits outside the overlap"]]',
+        },
+        "recap": [
+            ("So, here it is again. List the factors of each number, look at what "
+             "they share, and take the greatest — the biggest number in the "
+             "overlap.",
+             '[[venn left="Factors of 12" right="Factors of 18" a="4, 12" both="1, 2, 3, 6" b="9, 18" caption="the greatest in the overlap is 6"]]'),
+            ("And it is the number you will use to simplify fractions and to make "
+             "the biggest equal groups.",
+             '[[step eq="GCF of 12 and 18 = 6"]]'),
+        ],
         "bank": [{'a': 4, 'b': 6, 'op': 'gcf'}, {'a': 6, 'b': 10, 'op': 'gcf'}, {'a': 8, 'b': 12, 'op': 'gcf'}, {'a': 9, 'b': 12, 'op': 'gcf'}, {'a': 14, 'b': 21, 'op': 'gcf'}, {'a': 18, 'b': 24, 'op': 'gcf'}, {'a': 10, 'b': 25, 'op': 'gcf'}, {'a': 20, 'b': 30, 'op': 'gcf'}, {'a': 24, 'b': 36, 'op': 'gcf'}, {'a': 32, 'b': 48, 'op': 'gcf'}],
     },
     {
@@ -5058,41 +5178,77 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (st, 2026-09-05) TO THE SHAPE on TWO NUMBER LINES: count-by hops on each,
+        # the first landing they share marked.
         "id": "basic-u4-least-common-multiple", "course": "basic", "unit": 4,
         "topic": "Least common multiple",
         "op": "lcm", "max_value": 60,
         "levels": ("abstract",),
         "symbols": ("multiple", "least"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You can find the least common multiple."),
-        "teach": [
-            ("A multiple of a number is what you land on when you count by it. "
-             "The multiples of 3 are 3, 6, 9, 12, and so on.",
+        "why": [
+            ("A multiple of a number is what you land on when you count by it — "
+             "the multiples of 3 are 3, 6, 9, 12, and so on. Two numbers sometimes "
+             "land on the same spot. One bus every 2 minutes, another every 3: "
+             "when do they arrive together? That question is today's lesson.",
              '[[goal text="Least common multiple"]]'),
-            ("The least common multiple of two numbers is the smallest number "
-             "in BOTH count-by lists. Watch me find it for 2 and 3. Count by 2: "
-             "2, 4, 6. Count by 3: 3, 6. The first match is 6.",
+        ],
+        "picture": [
+            ("Here are two number lines. On the top one, hop by 2: 2, 4, 6. On the "
+             "bottom one, hop by 3: 3, 6. Look where both hops land on the same "
+             "number for the first time — 6.",
+             '[[numberline min="0" max="6" hops="0,2,4,6" points="6" caption="count by 2 — lands on 6"]]'
+             '[[numberline min="0" max="6" hops="0,3,6" points="6" caption="count by 3 — lands on 6"]]'),
+        ],
+        "teach": [
+            ("That is the least common multiple: the smallest number in BOTH "
+             "count-by lists — the first spot both sets of hops land on. For 2 "
+             "and 3, it is 6.",
              '[[step eq="2: 2, 4, 6"]][[step eq="3: 3, 6"]]'
              '[[step eq="LCM of 2 and 3 = 6"]]'),
-            ("One more, watch. 4 and 6. Count by 4: 4, 8, 12. Count by 6: 6, "
-             "12. The first match is 12. The least common multiple of 4 and 6 "
+            ("One more, watch. 4 and 6. Hop by 4: 4, 8, 12. Hop by 6: 6, 12. The "
+             "first shared landing is 12. The least common multiple of 4 and 6 "
              "equals 12.",
-             '[[step eq="4: 4, 8, 12"]][[step eq="6: 6, 12"]]'
-             '[[step eq="LCM of 4 and 6 = 12"]]'),
+             '[[numberline min="0" max="12" hops="0,4,8,12" points="12" caption="count by 4 — lands on 12"]]'
+             '[[numberline min="0" max="12" hops="0,6,12" points="12" caption="count by 6 — lands on 12"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 3 and 6. Count by 3: "
-                        "3, 6. Count by 6: 6. The first match is 6 — the least "
-                        "common multiple of 3 and 6 equals 6.",
-                        '[[step eq="LCM of 3 and 6 = 6"]]'),
+            {"worked": ("Here is one more, done for you. 3 and 6. Hop by 3: 3, 6. Hop "
+                        "by 6: 6. The first shared landing is 6 — the least common "
+                        "multiple of 3 and 6 equals 6.",
+                        '[[numberline min="0" max="6" hops="0,3,6" points="6" caption="count by 3 — lands on 6"]]'
+                        '[[numberline min="0" max="6" hops="0,6" points="6" caption="count by 6 — lands on 6"]]'),
              "ask": {"a": 2, "b": 6, "op": "lcm"}},
-            {"worked": ("One more together. 2 and 5. Count by 2: 2, 4, 6, 8, "
-                        "10. Count by 5: 5, 10. The first match is 10.",
-                        '[[step eq="LCM of 2 and 5 = 10"]]'),
+            {"worked": ("One more together. 2 and 5. Hop by 2: 2, 4, 6, 8, 10. Hop "
+                        "by 5: 5, 10. The first shared landing is 10.",
+                        '[[numberline min="0" max="10" hops="0,2,4,6,8,10" points="10" caption="count by 2 — lands on 10"]]'
+                        '[[numberline min="0" max="10" hops="0,5,10" points="10" caption="count by 5 — lands on 10"]]'),
              "ask": {"a": 4, "b": 5, "op": "lcm"}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Count by each number until they "
+                           "meet. Three right answers in a row and we're done — "
+                           "here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The least "
+                       "common multiple of 2 and 3 is 6, not 12. Tap the reason why."),
+            "choices": ("because 6 is the first number both counts land on | "
+                        "because 12 is too big | because 2 and 3 and 1 add up to 6"),
+            "answer": "because 6 is the first number both counts land on",
+            "board": ('[[numberline min="0" max="12" hops="0,2,4,6,8,10,12" points="6,12" caption="count by 2 lands on 6 and on 12"]]'
+                      '[[numberline min="0" max="12" hops="0,3,6,9,12" points="6,12" caption="count by 3 lands on 6 first"]]'),
+        },
+        "recap": [
+            ("So, here it is again. Count by each number — hop along the line — "
+             "and the least common multiple is the first spot both sets of hops "
+             "land on.",
+             '[[numberline min="0" max="6" hops="0,2,4,6" points="6" caption="count by 2"]]'
+             '[[numberline min="0" max="6" hops="0,3,6" points="6" caption="count by 3 — they meet at 6"]]'),
+            ("And it is for anything that repeats on two different beats — finding "
+             "the moment they line up.",
+             '[[step eq="LCM of 2 and 3 = 6"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 4, "op": "lcm"}, {"a": 3, "b": 2, "op": "lcm"},
             {"a": 6, "b": 6, "op": "lcm"}, {"a": 2, "b": 10, "op": "lcm"},
@@ -17349,6 +17505,102 @@ def _rem_worked(p):
     return (spoken, board)
 
 
+# (st, 2026-09-05) FACTORS AND MULTIPLES' PICTURES. A missing factor is the sharing
+# question (b boxes, a dots: b groups of WHAT reach a?) and its walk-back the boxes
+# filled. A factor pair is a RECTANGLE: b by q with area a (the area model's one
+# cell), or the groups when small. The greatest common factor is the two factor
+# lists on a VENN, the overlap holding what they share. The least common multiple
+# is two NUMBER LINES, count-by hops on each, the first landing they share marked.
+def _factors(n):
+    return [d for d in range(1, n + 1) if n % d == 0]
+
+
+def _mf_board(p):
+    a, b = p["a"], p["b"]
+    if a <= 60 and b <= 10:
+        return (f'[[array total="{a}" rows="{b}" ask="1" eq="{b} × ? = {a}" '
+                f'caption="{b} groups of what reach {a}?"]][[step eq="{b} × ? = {a}"]]')
+    return f'[[step eq="{b} × ? = {a}"]]'
+
+
+def _mf_worked(p):
+    a, b = p["a"], p["b"]
+    q = a // b
+    if b <= 10 and q <= 12:
+        board = (f'[[array rows="{b}" cols="{q}" view="groups" eq="{b} × {q} = {a}" '
+                 f'caption="{b} groups of {q} reach {a}"]]')
+    else:
+        board = f'[[areamodel rows="{b}" cols="{q}" caption="{b} × {q} = {a}"]]'
+    return (f"Look what you did: {b} groups of what reach {a}? Share {a} into {b} "
+            f"groups — {q} in each. {b} times {q} equals {a}, so the missing factor is {q}.",
+            board)
+
+
+def _fpr_board(p):
+    a, b = p["a"], p["b"]
+    if a <= 60 and b <= 10:
+        return (f'[[array total="{a}" rows="{b}" ask="1" eq="{a} = {b} × ?" '
+                f'caption="{a} shared into {b} equal groups"]][[step eq="{a} = {b} × ?"]]')
+    return f'[[step eq="{a} = {b} × ?"]]'
+
+
+def _fpr_worked(p):
+    a, b = p["a"], p["b"]
+    q = a // b
+    if b <= 10 and q <= 12:
+        board = (f'[[array rows="{b}" cols="{q}" view="groups" eq="{b} × {q} = {a}" '
+                 f'caption="{b} and {q} are a factor pair of {a}"]]')
+    else:
+        board = f'[[areamodel rows="{b}" cols="{q}" caption="a {b} by {q} rectangle holds {a}"]]'
+    return (f"Look what you did: {a} shared into {b} groups is {q}, and {b} times {q} "
+            f"comes straight back to {a}. So {b} and {q} are a factor pair of {a}.",
+            board)
+
+
+def _gcf_worked(p):
+    a, b = p["a"], p["b"]
+    fa, fb = _factors(a), _factors(b)
+    both = [d for d in fa if d in fb]
+    only_a = [d for d in fa if d not in fb]
+    only_b = [d for d in fb if d not in fa]
+    g = both[-1]
+    j = lambda xs: ", ".join(str(x) for x in xs)
+    board = (f'[[venn left="Factors of {a}" right="Factors of {b}" a="{j(only_a)}" '
+             f'both="{j(both)}" b="{j(only_b)}" caption="they share {j(both)} — the greatest is {g}"]]')
+    return (f"Look what you did: factors of {a}: {j(fa)}. Factors of {b}: {j(fb)}. "
+            f"They share {j(both)}, and the greatest of those is {g}.", board)
+
+
+def _lcm_lines(a, b, hops):
+    m = a * b // _gcd(a, b)
+    top = m if hops else max(a, b) * 4
+    out = ""
+    for n in (a, b):
+        tag = f'[[numberline min="0" max="{top}"'
+        if hops:
+            tag += f' hops="{",".join(str(k * n) for k in range(0, m // n + 1))}" points="{m}"'
+            tag += f' caption="count by {n} — lands on {m}"]]'
+        else:
+            tag += f' caption="count by {n}"]]'
+        out += tag
+    return out
+
+
+def _lcm_board(p):
+    a, b = p["a"], p["b"]
+    return _lcm_lines(a, b, hops=False) + f'[[step eq="LCM of {a} and {b} = ?"]]'
+
+
+def _lcm_worked(p):
+    a, b = p["a"], p["b"]
+    m = a * b // _gcd(a, b)
+    ca = ", ".join(str(k * a) for k in range(1, m // a + 1))
+    cb = ", ".join(str(k * b) for k in range(1, m // b + 1))
+    return (f"Look what you did: count by {a}: {ca}. Count by {b}: {cb}. The first "
+            f"number on both lists is {m} — the least common multiple.",
+            _lcm_lines(a, b, hops=True))
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -17394,7 +17646,8 @@ OP_EXT = {
     "fpr": {   # a is b times WHAT? -- the partner in a factor pair
         "ans": lambda p: p["a"] // p["b"],
         "spoken": lambda p: f"{p['a']} is {p['b']} times what number?",
-        "board": lambda p: f'[[step eq="{p["a"]} = {p["b"]} × ?"]]',
+        "board": _fpr_board,          # (st) the sharing picture while small
+        "worked": _fpr_worked,        # (st) the groups, or the rectangle with its sides
         "praise": lambda p: (f"{p['b']} times {p['a'] // p['b']} is {p['a']}, so "
                              f"{p['b']} and {p['a'] // p['b']} are a factor pair."),
         "key": lambda p: p["a"],
@@ -17710,7 +17963,8 @@ OP_EXT = {
     "mf": {   # missing factor: b × ? = a
         "ans": lambda p: p["a"] // p["b"],
         "spoken": lambda p: f"{p['b']} times what equals {p['a']}?",
-        "board": lambda p: f'[[step eq="{p["b"]} × ? = {p["a"]}"]]',
+        "board": _mf_board,           # (st) b boxes, a dots: b groups of WHAT reach a?
+        "worked": _mf_worked,
         "praise": lambda p: f"{p['b']} times {p['a'] // p['b']} equals {p['a']}.",
         "key": lambda p: p["a"],
         "check": lambda p: (p["a"] % p["b"] == 0 and p["b"] >= 2,
@@ -17721,6 +17975,7 @@ OP_EXT = {
         "spoken": lambda p: (f"What is the greatest common factor of {p['a']} "
                              f"and {p['b']}?"),
         "board": lambda p: f'[[step eq="GCF of {p["a"]} and {p["b"]} = ?"]]',
+        "worked": _gcf_worked,        # (st) the two factor lists on a Venn
         "praise": lambda p: (f"The greatest common factor of {p['a']} and "
                              f"{p['b']} equals {_gcd(p['a'], p['b'])}."),
         "key": lambda p: max(p["a"], p["b"]),
@@ -18167,7 +18422,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] * p["b"] // _gcd(p["a"], p["b"]),
         "spoken": lambda p: (f"What is the least common multiple of {p['a']} "
                              f"and {p['b']}?"),
-        "board": lambda p: f'[[step eq="LCM of {p["a"]} and {p["b"]} = ?"]]',
+        "board": _lcm_board,          # (st) two count-by number lines, no hops yet
+        "worked": _lcm_worked,        # (st) the hops drawn, the first shared landing marked
         "praise": lambda p: (f"The least common multiple of {p['a']} and "
                              f"{p['b']} equals "
                              f"{p['a'] * p['b'] // _gcd(p['a'], p['b'])}."),

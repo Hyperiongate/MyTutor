@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD st -- PART 3ip: Basic Unit 4 to the shape. Factors and multiples
+#               on the array, the rectangle, the Venn and two number lines; every
+#               lesson walks clean; the Venn never overflows.
 #   2026-09-05  BUILD ss -- PART 3io: Basic Unit 3 to the shape. The four dividing
 #               lessons carry every beat and walk clean; the sharing question, the
 #               filled groups, the red left-overs and the area model backwards; a
@@ -21799,7 +21802,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,666</b>" in page,
+          "<b>8,695</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23374,6 +23377,97 @@ def part3io_basic_unit_three_to_the_shape():
           "2026-09-05  BUILD ss" in rd("lessonscripts.py")[:20000]
           and "BUILD ss" in rd("main.py")[:200000] and "2026-09-05  BUILD ss" in mf[:3000]
           and "2026-09-05  BUILD ss" in rd("ruletests.py")[:8000], "Jim's rule 8")
+
+
+def part3ip_basic_unit_four_to_the_shape():
+    """PART 3ip (build st, 2026-09-05) -- BASIC UNIT 4 TO THE SHAPE.
+
+    Factors and multiples, on their pictures: the sharing question for a missing
+    factor, the rectangle for a factor pair, the Venn for the greatest common factor,
+    two count-by number lines for the least common multiple."""
+    print("\nPART 3ip — Basic Unit 4 to the shape (build st)")
+    import lessonscripts as L
+    import tags as _tags
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")        # a reverted op fails by name, never crashes
+    U4 = ["basic-u4-missing-factors", "basic-u4-factor-pairs",
+          "basic-u4-greatest-common-factor", "basic-u4-least-common-multiple"]
+    PIC = r"\[\[(array|areamodel|venn|numberline)\b"
+
+    for lid in U4:
+        les = L.LESSON_BY_ID.get(lid) or {}
+        check(f"⭐ {lid}: why, picture, teach, explain, recap and the walk-back flag",
+              all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain"))
+              and les.get("show_work_on_correct") is True, str(sorted(les)))
+        check(f"  {lid}: passes the real validator with the real registry",
+              bool(les) and all(ok for ok, _l, _d in L.validate(les, set(_tags.BOARD_TAGS))),
+              str([l for ok, l, _d in L.validate(les, set(_tags.BOARD_TAGS)) if not ok][:3]) if les else "missing")
+        beats = list(les.get("why") or []) + list(les.get("picture") or []) + list(les.get("teach") or []) \
+            + [pr["worked"] for pr in les.get("pairs") or []] + list(les.get("recap") or [])
+        drawn = sum(1 for _s, b in beats if re.search(PIC, b))
+        check(f"  {lid}: most beats draw a picture ({drawn} of {len(beats)})",
+              beats and drawn >= len(beats) * 0.6, f"{drawn}/{len(beats)}")
+
+    for lid in U4:
+        les = L.LESSON_BY_ID[lid]
+        st = L.start(les)
+        outs, st = L.step(les, st, ("begin",))
+        heard = [o["spoken"] for o in outs]
+        wb = 0
+        for _ in range(2 + L.ADVANCE_STREAK):
+            p = st["pending"]["problem"]
+            outs, st = L.step(les, st, ("answer", L.ans(p)))
+            heard.extend(o["spoken"] for o in outs)
+            w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
+            if w and str(L.ans(p)) in w[0]["spoken"] and re.search(PIC, w[0]["board"]):
+                wb += 1
+        ask = outs[-1]
+        check(f"⭐ {lid}: every right answer is walked back on the picture, then the reason is asked",
+              wb == 2 + L.ADVANCE_STREAK and ask.get("reason") is True, f"walk-backs {wb}, last={ask.get('kind')}")
+        o3, st = L.step(les, st, ("answer", les["explain"]["answer"]))
+        heard.extend(o["spoken"] for o in o3)
+        cl = set(L.audio_lines(les))
+        miss = [x for x in heard if x and x not in cl]
+        check(f"  {lid}: mastered on the reason, every line inside the closure",
+              o3[-1]["kind"] == "end" and o3[-1].get("mastered") is True and not miss, str(miss[:2]))
+
+    mf = {"a": 12, "b": 3, "op": "mf"}
+    check("⭐ a missing factor is asked as the sharing question (b boxes, a dots) and walked back as the boxes filled",
+          '[[array total="12" rows="3" ask="1" eq="3 × ? = 12"' in L.board_for(mf, "abstract")
+          and '[[array rows="3" cols="4" view="groups" eq="3 × 4 = 12"' in _W(mf)[1]
+          and "the missing factor is 4" in _W(mf)[0], _W(mf)[0])
+    fp_small, fp_big = {"a": 12, "b": 2, "op": "fpr"}, {"a": 92, "b": 46, "op": "fpr"}
+    check("⭐ a factor pair is a rectangle: rows of dots when small, the area model's one cell with its sides when big",
+          '[[array rows="2" cols="6" view="groups"' in _W(fp_small)[1]
+          and '[[areamodel rows="46" cols="2"' in _W(fp_big)[1] and "46 and 2 are a factor pair of 92" in _W(fp_big)[0]
+          and L.board_for(fp_big, "abstract") == '[[step eq="92 = 46 × ?"]]', _W(fp_big)[1])
+    g = {"a": 12, "b": 18, "op": "gcf"}
+    check("⭐ the greatest common factor is walked back on the Venn, the overlap holding the shared factors",
+          '[[venn left="Factors of 12" right="Factors of 18" a="4, 12" both="1, 2, 3, 6" b="9, 18"' in _W(g)[1]
+          and "the greatest of those is 6" in _W(g)[0], _W(g)[1])
+    check("  every GCF the lesson can ask fits the Venn (at most six per region)",
+          all(len(L._factors(p["a"])) - len([d for d in L._factors(p["a"]) if p["b"] % d == 0]) <= 6
+              and len([d for d in L._factors(p["a"]) if p["b"] % d == 0]) <= 6
+              and len(L._factors(p["b"])) - len([d for d in L._factors(p["b"]) if p["a"] % d == 0]) <= 6
+              for p in list(L.LESSON_BY_ID["basic-u4-greatest-common-factor"]["bank"])
+              + [pr["ask"] for pr in L.LESSON_BY_ID["basic-u4-greatest-common-factor"]["pairs"]]), "")
+    m = {"a": 4, "b": 10, "op": "lcm"}
+    check("⭐ the least common multiple is asked on two bare count-by lines and walked back with the hops and the shared landing",
+          L.board_for(m, "abstract").count("[[numberline") == 2 and "hops=" not in L.board_for(m, "abstract")
+          and 'hops="0,4,8,12,16,20" points="20"' in _W(m)[1] and 'hops="0,10,20" points="20"' in _W(m)[1]
+          and "The first number on both lists is 20" in _W(m)[0], _W(m)[1])
+    check("  every walk-back Unit 4 can emit names its answer",
+          all(str(L.ans(p)) in _W(p)[0] for lid in U4
+              for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]), "")
+    check("  _factors is right",
+          L._factors(12) == [1, 2, 3, 4, 6, 12] and L._factors(1) == [1], "")
+    check("  every lesson in the course still validates",
+          all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
+    check("  the changed files carry dated st notes",
+          "2026-09-05  BUILD st" in rd("lessonscripts.py")[:20000]
+          and "BUILD st" in rd("main.py")[:200000]
+          and "2026-09-05  BUILD st" in rd("ruletests.py")[:8000], "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -33674,6 +33768,7 @@ def main():
     part3im_basic_unit_one_to_the_shape()
     part3in_basic_unit_two_to_the_shape()
     part3io_basic_unit_three_to_the_shape()
+    part3ip_basic_unit_four_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
