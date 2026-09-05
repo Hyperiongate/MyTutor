@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD ss -- PART 3io: Basic Unit 3 to the shape. The four dividing
+#               lessons carry every beat and walk clean; the sharing question, the
+#               filled groups, the red left-overs and the area model backwards; a
+#               story problem's picture reads the story.
 #   2026-09-05  BUILD sr -- PART 3in: Basic Unit 2 to the shape. The four multiplying
 #               lessons carry every beat and walk clean on the array, the area model
 #               and the chart; [[array]] is drawn, exported and registered everywhere;
@@ -21795,7 +21799,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>8,632</b>" in page,
+          "<b>8,666</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23230,7 +23234,8 @@ def part3in_basic_unit_two_to_the_shape():
     check("⭐ math-figures.js draws [[array]] and exports it",
           "function array(a) {" in mf and "array: array," in mf
           and 'String(a.view || "").toLowerCase() === "groups"' in mf
-          and 'var eq = rows + " × " + cols + " = " + (ask ? "?" : String(rows * cols));' in mf, "")
+          and 'var eq = eqText || (rows + " × " + cols + (extra ? " + " + extra : "") + " = " + (ask ? "?" : String(rows * cols + extra)));' in mf,
+          "(ss extended the line with extra= and eq=)")
     check("  [[placevalue]] grew a Thousands column (th= or a four-digit n=)",
           'if (th > 0) cols.unshift(["Thousands", th, "var(--bd-7c3aed)"]);' in mf
           and "var v = parseInt(nstr, 10) % 10000;" in mf and 'if (th > 0) parts.push(String(th * 1000));' in mf, "")
@@ -23258,6 +23263,117 @@ def part3in_basic_unit_two_to_the_shape():
           and "2026-09-05 (sr)" in rd("static/script-board.js")[:3000]
           and all("(sr) 2026-09-05" in rd(pg)[:800] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "2026-09-05  BUILD sr" in rd("ruletests.py")[:8000], "Jim's rule 8")
+
+
+def part3io_basic_unit_three_to_the_shape():
+    """PART 3io (build ss, 2026-09-05) -- BASIC UNIT 3 TO THE SHAPE.
+
+    The dividing unit, on the array read the other way: the sharing question drawn as
+    the dots to share and the empty boxes (answer withheld), the groups filled on the
+    walk-back, the red left-overs (extra=), and the area model backwards for a
+    two-digit number. A story problem's picture reads the story."""
+    print("\nPART 3io — Basic Unit 3 to the shape (build ss)")
+    import lessonscripts as L
+    import tags as _tags
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")        # a reverted op fails by name, never crashes
+    U3 = ["basic-u3-what-dividing-means", "basic-u3-left-overs",
+          "basic-u3-divide-two-digit", "basic-u3-story-problems"]
+
+    # ---- 1. every Unit 3 lesson carries the whole shape, validates, and draws ------
+    for lid in U3:
+        les = L.LESSON_BY_ID.get(lid) or {}
+        check(f"⭐ {lid}: why, picture, teach, explain, recap and the walk-back flag",
+              all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain"))
+              and les.get("show_work_on_correct") is True, str(sorted(les)))
+        check(f"  {lid}: passes the real validator with the real registry",
+              bool(les) and all(ok for ok, _l, _d in L.validate(les, set(_tags.BOARD_TAGS))),
+              str([l for ok, l, _d in L.validate(les, set(_tags.BOARD_TAGS)) if not ok][:3]) if les else "missing")
+        beats = list(les.get("why") or []) + list(les.get("picture") or []) + list(les.get("teach") or []) \
+            + [pr["worked"] for pr in les.get("pairs") or []] + list(les.get("recap") or [])
+        drawn = sum(1 for _s, b in beats if re.search(r"\[\[(array|areamodel)\b", b))
+        check(f"  {lid}: most beats draw a picture ({drawn} of {len(beats)})",
+              beats and drawn >= len(beats) * 0.6, f"{drawn}/{len(beats)}")
+
+    # ---- 2. a perfect walk: walk-back on every right answer, the reason, the closure ----
+    for lid in U3:
+        les = L.LESSON_BY_ID[lid]
+        st = L.start(les)
+        outs, st = L.step(les, st, ("begin",))
+        heard = [o["spoken"] for o in outs]
+        wb = 0
+        for _ in range(2 + L.ADVANCE_STREAK):
+            p = st["pending"]["problem"]
+            outs, st = L.step(les, st, ("answer", L.ans(p)))
+            heard.extend(o["spoken"] for o in outs)
+            w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
+            if w and str(L.ans(p)) in w[0]["spoken"] and re.search(r"\[\[(array|areamodel)\b", w[0]["board"]):
+                wb += 1
+        ask = outs[-1]
+        check(f"⭐ {lid}: every right answer is walked back on the picture, then the reason is asked",
+              wb == 2 + L.ADVANCE_STREAK and ask.get("reason") is True, f"walk-backs {wb}, last={ask.get('kind')}")
+        o3, st = L.step(les, st, ("answer", les["explain"]["answer"]))
+        heard.extend(o["spoken"] for o in o3)
+        cl = set(L.audio_lines(les))
+        miss = [x for x in heard if x and x not in cl]
+        check(f"  {lid}: mastered on the reason, every line inside the closure",
+              o3[-1]["kind"] == "end" and o3[-1].get("mastered") is True and not miss, str(miss[:2]))
+
+    # ---- 3. the pictures ------------------------------------------------------------
+    small = {"a": 12, "b": 3, "op": "/"}
+    big = {"a": 84, "b": 4, "op": "/"}
+    rem = {"a": 13, "b": 4, "op": "rem"}
+    check("⭐ a small sharing question is asked as the dots to share and the empty boxes -- answer withheld",
+          '[[array total="12" rows="3" ask="1"' in L.board_for(small, "abstract")
+          and 'cols=' not in L.board_for(small, "abstract"), L.board_for(small, "abstract"))
+    check("  ...and walked back as the boxes filled, read as a division",
+          '[[array rows="3" cols="4" view="groups" eq="12 ÷ 3 = 4"' in _W(small)[1]
+          and "4 in each" in _W(small)[0] and "12 divided by 3 equals 4" in _W(small)[0], _W(small)[0])
+    check("⭐ a two-digit number divided by a digit is asked bare and walked back on the area model backwards",
+          L.board_for(big, "abstract") == '[[step eq="84 ÷ 4 = ?"]]'
+          and '[[areamodel rows="4" cols="20,1"' in _W(big)[1] and "80 divided by 4 equals 20" in _W(big)[0]
+          and "20 plus 1 equals 21" in _W(big)[0], _W(big)[0])
+    check("⭐ left-overs: asked on the dots and the full-group boxes, walked back with the red extra dots",
+          '[[array total="13" rows="3" ask="1" label="groups of 4"' in L.board_for(rem, "abstract")
+          and '[[array rows="3" cols="4" extra="1" eq="13 ÷ 4 = 3 left over 1"' in _W(rem)[1]
+          and "3 times 4 equals 12" in _W(rem)[0] and "So 1 is left over" in _W(rem)[0], _W(rem)[0])
+    check("  the plural is right when more than one is left over",
+          "So 6 are left over" in _W({"a": 38, "b": 8, "op": "rem"})[0], "")
+    story = {"a": 5, "b": 3, "op": "*", "story": "Each row has 5 chairs. There are 3 rows. How many chairs in all?"}
+    check("⭐ a story problem's picture reads the story: 3 rows of 5, not 5 rows of 3",
+          '[[array rows="3" cols="5" view="groups" ask="1"' in L.board_for(story, "abstract")
+          and "3 groups of 5 — 5 plus 5 plus 5 equals 15" in _W(story)[0], _W(story)[0])
+    check("  a bare fact is unchanged: 5 rows of 3",
+          '[[array rows="5" cols="3"' in L.board_for({"a": 5, "b": 3, "op": "*"}, "abstract"), "")
+    check("  every walk-back Unit 3 can emit names its answer",
+          all(str(L.ans(p)) in _W(p)[0] for lid in U3
+              for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]), "")
+    check("  no walk-back in the course asks the array for more than it draws (rows <= 10, cols <= 12)",
+          all(int(m.group(1)) <= 10 and int(m.group(2)) <= 12
+              for _les in L.LESSONS if _les.get("show_work_on_correct")
+              for p in list(_les["bank"]) + [pr["ask"] for pr in _les["pairs"]]
+              for m in re.finditer(r'\[\[array rows="(\d+)" cols="(\d+)"', _W(p)[1])), "")
+
+    # ---- 4. the array learned to share (math-figures.js) ------------------------------
+    mf = rd("static/math-figures.js")
+    arr = mf[mf.find("  function array(a) {"):mf.find("  // ---- [[clock time=")]
+    check("⭐ [[array total= ask=]] draws the dots to share and dashed empty boxes, product withheld",
+          "if (total > 0 && ask) {" in arr and 'stroke-dasharray="6,4"' in arr
+          and 'total + " ÷ " + rows + " = ?"' in arr, "")
+    check("  extra= draws red left-over dots with their label; eq= overrides the line underneath",
+          'var extra = Math.max(0, Math.min(11, Math.floor(num(a.extra, 0))));' in arr
+          and '"left over"' in arr and 'var eq = eqText || (rows + " × " + cols' in arr, "")
+    check("  label= names the boxes (groups of 8, not 4 equal groups)",
+          'String(a.label || (rows + " equal groups"))' in arr, "")
+
+    # ---- 5. do no harm and the notes ----------------------------------------------
+    check("  every lesson in the course still validates",
+          all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
+    check("  the changed files carry dated ss notes",
+          "2026-09-05  BUILD ss" in rd("lessonscripts.py")[:20000]
+          and "BUILD ss" in rd("main.py")[:200000] and "2026-09-05  BUILD ss" in mf[:3000]
+          and "2026-09-05  BUILD ss" in rd("ruletests.py")[:8000], "Jim's rule 8")
 
 
 def part3dp_no_button_under_a_talking_teacher():
@@ -33557,6 +33673,7 @@ def main():
     part3il_the_lesson_learns_to_teach()
     part3im_basic_unit_one_to_the_shape()
     part3in_basic_unit_two_to_the_shape()
+    part3io_basic_unit_three_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

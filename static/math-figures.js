@@ -2,6 +2,12 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-05  BUILD ss -- THE ARRAY LEARNS TO SHARE. [[array]] gains extra="1"
+                 (left-over dots after the full rows, red, labelled), eq="..." (the
+                 line underneath, for reading the picture as a division), and the
+                 SHARING QUESTION: total="12" rows="3" ask="1" draws the dots to be
+                 shared and three empty dashed boxes -- the question as a picture,
+                 answer withheld. Basic Unit 3's pictures. Nothing existing changed.
      2026-09-05  BUILD sr -- THE ARRAY, AND A THOUSANDS COLUMN. New figure
                  [[array rows="3" cols="4"]]: rows of dots, each row labelled, the
                  product underneath (ask="1" writes "?"); view="groups" spaces and
@@ -1151,10 +1157,41 @@
     var cols = Math.max(1, Math.min(12, Math.floor(num(a.cols, 4))));
     var groups = String(a.view || "").toLowerCase() === "groups";
     var ask = String(a.ask || "") === "1" || String(a.ask || "").toLowerCase() === "true";
+    // (ss) extra="1": LEFT-OVER dots after the full rows, red, labelled -- dividing
+    // with left-overs. eq="13 ÷ 4 = 3 left over 1": the line underneath, when the
+    // picture is being read as a division rather than as rows times columns.
+    var extra = Math.max(0, Math.min(11, Math.floor(num(a.extra, 0))));
+    var eqText = String(a.eq || "");
     var d = 22, gap = groups ? 14 : 4, x0 = 70, y0 = 30;
-    var W = Math.max(360, x0 + cols * (d + 4) + 60), H = y0 + rows * (d + gap) + 44;
-    var s = svgOpen(W, H, 760);
     var cellFill = ["var(--bd-5b5bd6)", "var(--bd-0d9488)", "var(--bd-e0392b)", "var(--bd-d97706)", "var(--bd-7c3aed)"];
+    // (ss) total="12" with ask="1": THE SHARING QUESTION as a picture -- the dots to
+    // be shared in a line, and `rows` empty boxes waiting for them. Nothing here
+    // gives the answer away; the student does the sharing.
+    var total = Math.max(0, Math.min(60, Math.floor(num(a.total, 0))));
+    if (total > 0 && ask) {
+      var perLine = 12, lines = Math.ceil(total / perLine);
+      var W2 = 660, bw = 120, bh = 48, bgap = 14;
+      var boxesW = rows * (bw + bgap) - bgap, bx0 = (W2 - boxesW) / 2;
+      var H2 = y0 + lines * (d + 4) + 26 + bh + 40;
+      var s2 = svgOpen(W2, H2, 760);
+      s2 += tspan(W2 / 2, y0 - 12, total + " to share", "var(--bd-555566)", 12, 700);
+      for (var i2 = 0; i2 < total; i2++) {
+        var lx = (W2 - Math.min(total, perLine) * (d + 4)) / 2 + (i2 % perLine) * (d + 4) + d / 2;
+        var ly = y0 + Math.floor(i2 / perLine) * (d + 4) + d / 2;
+        s2 += '<circle cx="' + lx + '" cy="' + ly + '" r="' + (d / 2 - 2) + '" fill="var(--bd-5b5bd6)" opacity="0.85"/>';
+      }
+      var by0 = y0 + lines * (d + 4) + 22;
+      for (var b2 = 0; b2 < rows; b2++) {
+        var bx = bx0 + b2 * (bw + bgap);
+        s2 += '<rect x="' + bx + '" y="' + by0 + '" width="' + bw + '" height="' + bh + '" rx="10" fill="rgba(91,91,214,.05)" stroke="var(--bd-9aa7b6)" stroke-width="1.6" stroke-dasharray="6,4"/>';
+        s2 += tspan(bx + bw / 2, by0 + bh / 2 + 7, "?", "var(--bd-9aa7b6)", 20, 800);
+      }
+      s2 += tspan(W2 / 2, by0 + bh + 18, String(a.label || (rows + " equal groups")), "var(--bd-555566)", 12, 700);
+      s2 += tspan(W2 / 2, H2 - 8, eqText || (total + " ÷ " + rows + " = ?"), "var(--bd-5b5bd6)", 18, 800);
+      return s2 + "</svg>";
+    }
+    var W = Math.max(360, x0 + cols * (d + 4) + 60), H = y0 + rows * (d + gap) + (extra ? d + gap : 0) + 44;
+    var s = svgOpen(W, H, 760);
     for (var r = 0; r < rows; r++) {
       var yy = y0 + r * (d + gap) + d / 2, col = groups ? cellFill[r % cellFill.length] : "var(--bd-5b5bd6)";
       if (groups) {
@@ -1165,10 +1202,17 @@
       }
       s += tspan(x0 - 16, yy + 5, String(cols), "var(--bd-555566)", 13, 800, "end");
     }
+    if (extra) {
+      var ey = y0 + rows * (d + gap) + d / 2;
+      for (var e = 0; e < extra; e++) {
+        s += '<circle cx="' + (x0 + e * (d + 4) + d / 2) + '" cy="' + ey + '" r="' + (d / 2 - 2) + '" fill="var(--bd-e0392b)" opacity="0.9"/>';
+      }
+      s += tspan(x0 + extra * (d + 4) + 8, ey + 5, "left over", "var(--bd-e0392b)", 12, 800, "start");
+    }
     // the column count along the top, the row count down the side
     s += tspan(x0 + cols * (d + 4) / 2, y0 - 12, cols + " in each row", "var(--bd-555566)", 12, 700);
     s += tspan(x0 - 40, y0 + rows * (d + gap) / 2, rows + " rows", "var(--bd-555566)", 12, 700, "middle");
-    var eq = rows + " × " + cols + " = " + (ask ? "?" : String(rows * cols));
+    var eq = eqText || (rows + " × " + cols + (extra ? " + " + extra : "") + " = " + (ask ? "?" : String(rows * cols + extra)));
     s += tspan(W / 2, H - 10, eq, "var(--bd-5b5bd6)", 18, 800);
     return s + "</svg>";
   }

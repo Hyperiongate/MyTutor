@@ -2,6 +2,18 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-05  BUILD ss -- BASIC UNIT 3 TO THE SHAPE (the dividing unit). THIS FILE:
+#                 * what-dividing-means on the ARRAY read the other way -- the dots to
+#                   share and the empty boxes (the sharing question as a picture), then
+#                   the boxes filled;
+#                 * left-overs on the array with extra= (the red dots that did not fit);
+#                 * divide-two-digit on the AREA MODEL backwards (tens and ones shared);
+#                 * story-problems with BOTH pictures side by side -- groups put
+#                   together (times) and a pile shared out (divided by).
+#               ENGINE: OP_EXT "/" gains _div_board / _div_worked (sharing picture while
+#               small -- a <= 45, quotient <= 9; the area model for a split two-digit
+#               number); "rem" gains _rem_board / _rem_worked; a STORY problem's array
+#               reads the story (b groups of a) -- _mul_rows_cols.
 #   2026-09-05  BUILD sr -- BASIC UNIT 2 TO THE SHAPE (the multiplying unit). THIS FILE:
 #                 * what-multiplying-means on the ARRAY in equal-groups view;
 #                 * times-tables on the array (the ask stays bare -- recall, not
@@ -3350,63 +3362,138 @@ _MORE_LESSONS = [
         "bank": [{'a': 3, 'b': 6, 'op': '*'}, {'a': 4, 'b': 6, 'op': '*'}, {'a': 5, 'b': 6, 'op': '*'}, {'a': 6, 'b': 6, 'op': '*'}, {'a': 6, 'b': 7, 'op': '*'}, {'a': 7, 'b': 7, 'op': '*'}, {'a': 8, 'b': 7, 'op': '*'}, {'a': 8, 'b': 8, 'op': '*'}, {'a': 9, 'b': 8, 'op': '*'}, {'a': 9, 'b': 9, 'op': '*'}],
     },
     {
+        # (ss, 2026-09-05) TO THE SHAPE on the ARRAY read the other way: the dots to
+        # share and the empty boxes, then the boxes filled.
         "id": 'basic-u3-what-dividing-means',
         "course": "basic", "unit": 3,
         "topic": 'What dividing means',
         "op": '/', "max_value": 45,
         "levels": ("abstract",),
         "symbols": ('divided', 'equals'),
-        "advance_line": "Three in a row — you've got it! You know what dividing means.",
-        "teach": [
-            ('Today we are learning to divide. Dividing means sharing into equal groups. Twelve divided by three asks: share 12 into 3 equal groups — how many in each group?',
+        "advance_line": "Three in a row, and you can say why — you've got it! You know what dividing means.",
+        "why": [
+            ("Why divide? Because sharing fairly is one of the first things anyone "
+             "needs to do with numbers. Twelve cookies, three friends — how many "
+             "each? You could deal them out one at a time. Dividing is the quick "
+             "way to know the answer before you start dealing.",
              '[[goal text="What dividing means"]]'),
-            ('Watch me. Twelve divided by three. Share 12 into 3 equal groups: each group gets 4. Twelve divided by three equals four.',
-             '[[step eq="12 ÷ 3 = 4"]]'),
-            ('Dividing undoes multiplying. Three times four equals 12, so twelve divided by three equals four.',
-             '[[step eq="3 × 4 = 12"]][[step eq="12 ÷ 3 = 4"]]'),
+        ],
+        "picture": [
+            ("Here are 12 dots to share, and 3 empty boxes. Deal them out: one to "
+             "each box, then another, then another, until they are gone. Every box "
+             "ends up with 4.",
+             '[[array total="12" rows="3" ask="1" caption="12 to share, 3 equal groups"]]'),
+        ],
+        "teach": [
+            ("That is what dividing means: sharing into equal groups. Twelve "
+             "divided by three asks: share 12 into 3 equal groups — how many in "
+             "each? Four. Twelve divided by three equals four.",
+             '[[array rows="3" cols="4" view="groups" eq="12 ÷ 3 = 4" caption="12 shared into 3 groups: 4 in each"]]'),
+            ("And look — it is the multiplying picture turned around. Three groups "
+             "of four is 12, so twelve divided by three is four. Dividing undoes "
+             "multiplying.",
+             '[[array rows="3" cols="4" caption="3 × 4 = 12, so 12 ÷ 3 = 4"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. Ten divided by two. Share 10 into 2 equal groups: each gets 5. Ten divided by two equals five.',
-                        '[[step eq="10 ÷ 2 = 5"]]'),
+            {"worked": ("Here is one more, done for you. Ten divided by two. Share 10 "
+                        "into 2 equal groups: each gets 5. Ten divided by two equals "
+                        "five.",
+                        '[[array rows="2" cols="5" view="groups" eq="10 ÷ 2 = 5" caption="10 shared into 2 groups: 5 in each"]]'),
              "ask": {'a': 8, 'b': 2, 'op': '/'}},
-            {"worked": ('One more together. Fifteen divided by five. Share 15 into 5 '
-                        'equal groups — each gets 3. Fifteen divided by five '
-                        'equals three.',
-                        '[[step eq="15 ÷ 5 = 3"]]'),
+            {"worked": ("One more together. Fifteen divided by five. Share 15 into 5 "
+                        "equal groups — each gets 3. Fifteen divided by five equals "
+                        "three.",
+                        '[[array rows="5" cols="3" view="groups" eq="15 ÷ 5 = 3" caption="15 shared into 5 groups: 3 in each"]]'),
              "ask": {'a': 20, 'b': 5, 'op': '/'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Share the dots into the boxes if you "
+                           "need to. Three right answers in a row and we're done — "
+                           "here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 12 divided by 3 "
+                       "equals 4. Tap the reason why."),
+            "choices": ("because 12 shared into 3 equal groups puts 4 in each | "
+                        "because 12 take away 3 leaves 9 | because 4 is smaller "
+                        "than 12"),
+            "answer": "because 12 shared into 3 equal groups puts 4 in each",
+            "board": '[[array rows="3" cols="4" view="groups" eq="12 ÷ 3 = 4" caption="12 shared into 3 groups: 4 in each"]]',
+        },
+        "recap": [
+            ("So, here it is again. Dividing means sharing into equal groups — "
+             "twelve divided by three is 12 shared into 3 groups, 4 in each. And "
+             "it is multiplying turned around: 3 groups of 4 is 12.",
+             '[[array rows="3" cols="4" view="groups" eq="12 ÷ 3 = 4" caption="12 ÷ 3 = 4 · 3 × 4 = 12"]]'),
+            ("And it is for sharing fairly — knowing the answer before you deal a "
+             "single cookie.",
+             '[[step eq="12 ÷ 3 = 4"]]'),
+        ],
         "bank": [{'a': 6, 'b': 2, 'op': '/'}, {'a': 9, 'b': 3, 'op': '/'}, {'a': 12, 'b': 4, 'op': '/'}, {'a': 16, 'b': 4, 'op': '/'}, {'a': 18, 'b': 3, 'op': '/'}, {'a': 24, 'b': 6, 'op': '/'}, {'a': 28, 'b': 4, 'op': '/'}, {'a': 35, 'b': 7, 'op': '/'}, {'a': 36, 'b': 6, 'op': '/'}, {'a': 45, 'b': 9, 'op': '/'}],
     },
     {
+        # (ss, 2026-09-05) TO THE SHAPE on the ARRAY with extra= -- the full groups and
+        # the red dots that did not fit.
         "id": 'basic-u3-left-overs',
         "course": "basic", "unit": 3,
         "topic": 'Dividing with left-overs',
         "op": 'rem', "max_value": 50,
         "levels": ("abstract",),
         "symbols": ('shared', 'left'),
-        "advance_line": "Three in a row — you've got it! You can handle the left-overs.",
-        "teach": [
-            ('Sometimes sharing does not come out even. Share 13 into groups of 4: you fill 3 groups, and 1 is left over. Today we find what is left over.',
+        "advance_line": "Three in a row, and you can say why — you've got it! You can handle the left-overs.",
+        "why": [
+            ("Sharing does not always come out even. Thirteen stickers, packs of "
+             "four: you can fill three packs, and one sticker has no pack. Real "
+             "life is full of left-overs — the last slice, the odd sock — so we "
+             "need a way to say exactly how many are left.",
              '[[goal text="Dividing with left-overs"]]'),
-            ('Watch me. 13 shared into groups of 4. Three groups of four equals 12, and 13 take away 12 equals 1. So 1 is left over.',
-             '[[step eq="13 ÷ 4"]][[step eq="3 × 4 = 12"]][[step eq="13 − 12 = 1"]][[step eq="left over = 1"]]'),
-            ('One more, watch. 17 shared into groups of 5. Three groups of five equals 15, and 17 take away 15 equals 2. So 2 are left over.',
-             '[[step eq="17 ÷ 5"]][[step eq="3 × 5 = 15"]][[step eq="left over = 2"]]'),
+        ],
+        "picture": [
+            ("Here are 13 dots shared into groups of 4. Three full groups — that "
+             "is 12 dots — and one dot, in red, that did not fit. That one is the "
+             "left-over.",
+             '[[array rows="3" cols="4" extra="1" eq="13 ÷ 4 = 3 left over 1" caption="3 groups of 4, 1 left over"]]'),
+        ],
+        "teach": [
+            ("Here is how to find it without drawing. 13 shared into groups of 4: "
+             "three groups of four equals 12 — as many as fit — and 13 take away "
+             "12 equals 1. So 1 is left over.",
+             '[[array rows="3" cols="4" extra="1" eq="13 ÷ 4 = 3 left over 1" caption="3 × 4 = 12, 13 − 12 = 1"]]'),
+            ("One more, watch. 17 shared into groups of 5. Three groups of five "
+             "equals 15, and 17 take away 15 equals 2. So 2 are left over.",
+             '[[array rows="3" cols="5" extra="2" eq="17 ÷ 5 = 3 left over 2" caption="3 groups of 5, 2 left over"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. 11 shared into groups of 3. Three groups of three equals 9, and 11 take away 9 equals 2 left over.',
-                        '[[step eq="11 ÷ 3"]][[step eq="left over = 2"]]'),
+            {"worked": ("Here is one more, done for you. 11 shared into groups of 3. "
+                        "Three groups of three equals 9, and 11 take away 9 equals "
+                        "2. So 2 are left over.",
+                        '[[array rows="3" cols="3" extra="2" eq="11 ÷ 3 = 3 left over 2" caption="3 groups of 3, 2 left over"]]'),
              "ask": {'a': 10, 'b': 3, 'op': 'rem'}},
-            {"worked": ('One more together. 14 shared into groups of 4. Three groups of '
-                        'four equals 12, and 14 take away 12 equals 2. So 2 '
-                        'are left over.',
-                        '[[step eq="14 ÷ 4"]][[step eq="left over = 2"]]'),
+            {"worked": ("One more together. 14 shared into groups of 4. Three groups "
+                        "of four equals 12, and 14 take away 12 equals 2. So 2 are "
+                        "left over.",
+                        '[[array rows="3" cols="4" extra="2" eq="14 ÷ 4 = 3 left over 2" caption="3 groups of 4, 2 left over"]]'),
              "ask": {'a': 13, 'b': 5, 'op': 'rem'}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Fill the groups, then count what did "
+                           "not fit. Three right answers in a row and we're done — "
+                           "here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 13 shared into "
+                       "groups of 4 leaves 1 over. Tap the reason why."),
+            "choices": ("because 3 groups of 4 is 12 and 13 is one more | because "
+                        "13 is an odd number | because 4 does not go into 13"),
+            "answer": "because 3 groups of 4 is 12 and 13 is one more",
+            "board": '[[array rows="3" cols="4" extra="1" eq="13 ÷ 4 = 3 left over 1" caption="3 groups of 4, 1 left over"]]',
+        },
+        "recap": [
+            ("So, here it is again. Fill as many equal groups as you can, then take "
+             "that away from what you started with. What is left is the "
+             "left-over — always smaller than a group.",
+             '[[array rows="3" cols="4" extra="1" eq="13 ÷ 4 = 3 left over 1" caption="the red dot is the left-over"]]'),
+            ("And it is for real life, where sharing rarely comes out even.",
+             '[[step eq="13 ÷ 4 = 3 left over 1"]]'),
+        ],
         "bank": [{'a': 7, 'b': 2, 'op': 'rem'}, {'a': 9, 'b': 4, 'op': 'rem'}, {'a': 11, 'b': 4, 'op': 'rem'}, {'a': 14, 'b': 3, 'op': 'rem'}, {'a': 17, 'b': 4, 'op': 'rem'}, {'a': 19, 'b': 5, 'op': 'rem'}, {'a': 23, 'b': 5, 'op': 'rem'}, {'a': 26, 'b': 6, 'op': 'rem'}, {'a': 31, 'b': 7, 'op': 'rem'}, {'a': 38, 'b': 8, 'op': 'rem'}],
     },
     {
@@ -4172,39 +4259,71 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (ss, 2026-09-05) TO THE SHAPE on the AREA MODEL backwards: the two-digit
+        # number split into tens and ones, each piece shared out.
         "id": "basic-u3-divide-two-digit", "course": "basic", "unit": 3,
         "topic": "Dividing bigger numbers",
         "op": "/", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("divided", "split"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You can divide bigger numbers."),
-        "teach": [
-            ("Today we divide a two-digit number. The trick is the same one "
-             "multiplying used: split the number into friendly pieces, divide "
-             "each piece, then put the answers together.",
+        "why": [
+            ("Sharing 12 into 3 is a times table fact turned around. But 84 into 4? "
+             "No times table goes that far. Today we divide a two-digit number — "
+             "and the trick is the one multiplying used: you already know how, in "
+             "pieces.",
              '[[goal text="Dividing bigger numbers"]]'),
-            ("Watch me. 84 divided by 4. Split 84 into 80 and 4. 80 divided by "
-             "4 equals 20. 4 divided by 4 equals 1. 20 plus 1 equals 21.",
-             '[[step eq="84 ÷ 4"]][[step eq="80 ÷ 4 = 20"]][[step eq="4 ÷ 4 = 1"]]'
+        ],
+        "picture": [
+            ("Here is 84 divided by 4 as a picture. A box 4 tall holding 84. Cut "
+             "the 84 into 80 and 4, and the box splits in two: 80 shared by 4 is "
+             "20 across, and 4 shared by 4 is 1 across. Side by side, 21.",
+             '[[areamodel rows="4" cols="20,1" caption="84 ÷ 4: 80 ÷ 4 = 20, 4 ÷ 4 = 1"]]'),
+        ],
+        "teach": [
+            ("So the trick is: split the number into friendly pieces — tens and "
+             "ones — divide each piece, then put the answers together. 80 divided "
+             "by 4 equals 20. 4 divided by 4 equals 1. 20 plus 1 equals 21.",
+             '[[areamodel rows="4" cols="20,1" caption="84 ÷ 4 = 20 + 1 = 21"]]'
              '[[step eq="84 ÷ 4 = 21"]]'),
-            ("One more, watch. 69 divided by 3. 60 divided by 3 equals 20; 9 "
-             "divided by 3 equals 3. 23.",
-             '[[step eq="69 ÷ 3 = 23"]]'),
+            ("One more, watch. 69 divided by 3. Split 69 into 60 and 9. 60 divided "
+             "by 3 equals 20; 9 divided by 3 equals 3. 20 plus 3 equals 23.",
+             '[[areamodel rows="3" cols="20,3" caption="69 ÷ 3 = 20 + 3 = 23"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 48 divided by 2. 40 "
-                        "divided by 2 equals 20; 8 divided by 2 equals 4. 24.",
-                        '[[step eq="48 ÷ 2 = 24"]]'),
+            {"worked": ("Here is one more, done for you. 48 divided by 2. Split 48 "
+                        "into 40 and 8. 40 divided by 2 equals 20; 8 divided by 2 "
+                        "equals 4. 20 plus 4 equals 24.",
+                        '[[areamodel rows="2" cols="20,4" caption="48 ÷ 2 = 20 + 4 = 24"]]'),
              "ask": {"a": 46, "b": 2, "op": "/"}},
             {"worked": ("One more together. 96 divided by 3. Split 96 into 90 and 6. "
                         "90 divided by 3 equals 30; 6 divided by 3 equals 2. "
                         "30 plus 2 equals 32.",
-                        '[[step eq="96 ÷ 3 = 32"]]'),
+                        '[[areamodel rows="3" cols="30,2" caption="96 ÷ 3 = 30 + 2 = 32"]]'),
              "ask": {"a": 93, "b": 3, "op": "/"}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
-                           "we're done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Split it, divide the pieces, put them "
+                           "together. Three right answers in a row and we're done — "
+                           "here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. To find 84 "
+                       "divided by 4, we split 84 into 80 and 4. Tap the reason why."),
+            "choices": ("because we know how to divide each piece | because 80 is "
+                        "a rounder number | because 84 is too big to share"),
+            "answer": "because we know how to divide each piece",
+            "board": '[[areamodel rows="4" cols="20,1" caption="84 ÷ 4 = 20 + 1 = 21"]]',
+        },
+        "recap": [
+            ("So, here it is again. A two-digit number divided by a digit: split it "
+             "into tens and ones, divide each piece — those are facts you know — "
+             "then put the answers together.",
+             '[[areamodel rows="4" cols="20,1" caption="84 ÷ 4 = 20 + 1 = 21"]]'),
+            ("And that is how dividing reaches past the times tables — in pieces, "
+             "the same way multiplying did.",
+             '[[step eq="84 ÷ 4 = 80 ÷ 4 + 4 ÷ 4 = 21"]]'),
+        ],
         "bank": [
             {"a": 22, "b": 2, "op": "/"}, {"a": 26, "b": 2, "op": "/"},
             {"a": 33, "b": 3, "op": "/"}, {"a": 39, "b": 3, "op": "/"},
@@ -4830,44 +4949,81 @@ _MORE_LESSONS = [
         ],
     },
     {
+        # (ss, 2026-09-05) TO THE SHAPE: the two pictures side by side -- groups put
+        # together (times) and a total shared out (divided by). The picture is how a
+        # student tells which one the story is asking for.
         "id": "basic-u3-story-problems", "course": "basic", "unit": 3,
         "topic": "Story problems — multiplying and dividing",
         "op": "*", "max_value": 40, "mixed_review": True,
         "levels": ("abstract",),
         "symbols": ("times", "divided"),
-        "advance_line": ("Three in a row — you've got it! "
+        "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You can solve multiplying and dividing story problems."),
-        "teach": [
-            ("Story problems can hide times and divided by too. Equal groups of "
-             "the same size mean times. Sharing into equal groups means divided "
-             "by.",
+        "why": [
+            ("Nobody hands you a times sign in real life. They hand you a story: "
+             "three boxes of crayons, twelve cookies for three friends. The skill "
+             "is hearing which picture the story is — groups put together, or a "
+             "pile shared out — and that tells you whether it is times or "
+             "divided by.",
              '[[goal text="Story problems — multiplying and dividing"]]'),
-            ("Listen. Each box holds 4 crayons. There are 3 boxes. Equal boxes — "
-             "that is times. Four times three equals twelve crayons in all.",
-             '[[step eq="4 × 3 = 12"]]'),
-            ("Listen. 12 cookies are shared into 3 equal bags. Sharing — that is "
-             "divided by. Twelve divided by three equals four cookies in each "
-             "bag.",
-             '[[step eq="12 ÷ 3 = 4"]]'),
+        ],
+        "picture": [
+            ("Here are the two pictures. Equal groups put together: 3 boxes, 4 "
+             "crayons in each — that is times. A pile shared into equal groups: 12 "
+             "cookies into 3 bags — that is divided by. Same dots; the story "
+             "decides which way you read them.",
+             '[[array rows="3" cols="4" view="groups" caption="3 boxes of 4 — times"]]'
+             '[[array total="12" rows="3" ask="1" caption="12 shared into 3 bags — divided by"]]'),
+        ],
+        "teach": [
+            ("Listen. Each box holds 4 crayons. There are 3 boxes. Equal boxes put "
+             "together — that is times. Four times three equals twelve crayons in "
+             "all.",
+             '[[array rows="3" cols="4" view="groups" caption="3 boxes of 4 = 12 crayons"]]'),
+            ("Listen. 12 cookies are shared into 3 equal bags. A pile shared out — "
+             "that is divided by. Twelve divided by three equals four cookies in "
+             "each bag.",
+             '[[array rows="3" cols="4" view="groups" eq="12 ÷ 3 = 4" caption="12 cookies into 3 bags: 4 each"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. Each pack holds 5 "
-                        "pencils. There are 2 packs. Five times two equals ten "
-                        "pencils in all.",
-                        '[[step eq="5 × 2 = 10"]]'),
+            {"worked": ("Here is one more, done for you. Each pack holds 5 pencils. "
+                        "There are 2 packs. Groups put together — times. Five times "
+                        "two equals ten pencils in all.",
+                        '[[array rows="2" cols="5" view="groups" caption="2 packs of 5 = 10 pencils"]]'),
              "ask": {"a": 2, "b": 5, "op": "*",
                      "story": ("Each jar holds 2 marbles. There are 5 jars. How "
                                "many marbles in all?")}},
             {"worked": ("One more together. 10 apples are shared into 2 equal "
-                        "baskets. Ten divided by two equals five apples in each "
-                        "basket.",
-                        '[[step eq="10 ÷ 2 = 5"]]'),
+                        "baskets. A pile shared out — divided by. Ten divided by two "
+                        "equals five apples in each basket.",
+                        '[[array rows="2" cols="5" view="groups" eq="10 ÷ 2 = 5" caption="10 apples into 2 baskets: 5 each"]]'),
              "ask": {"a": 12, "b": 4, "op": "/",
                      "story": ("12 grapes are shared into 4 equal bowls. How "
                                "many grapes go in each bowl?")}},
         ],
-        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+        "practice_intro": ("Now it's your turn. Ask yourself: groups put together, or "
+                           "a pile shared out? Three right answers in a row and "
                            "we're done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Twelve cookies "
+                       "shared into 3 bags is divided by, not times. Tap the reason "
+                       "why."),
+            "choices": ("because a pile is being shared out into equal groups | "
+                        "because 12 is bigger than 3 | because cookies are always "
+                        "divided"),
+            "answer": "because a pile is being shared out into equal groups",
+            "board": '[[array total="12" rows="3" ask="1" caption="a pile shared out — divided by"]]',
+        },
+        "recap": [
+            ("So, here it is again. Equal groups put together — times. A pile "
+             "shared into equal groups — divided by. Hear which picture the story "
+             "is, and the sign follows.",
+             '[[array rows="3" cols="4" view="groups" caption="groups put together — times"]]'
+             '[[array total="12" rows="3" ask="1" caption="a pile shared out — divided by"]]'),
+            ("And that is the skill real life actually asks for.",
+             '[[step eq="4 × 3 = 12 · 12 ÷ 3 = 4"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "*",
              "story": ("Each cup holds 2 straws. There are 3 cups. How many "
@@ -17072,16 +17228,31 @@ def _tens_ones_worked(p):
 # the array only while the lesson is about MEANING (both numbers up to 5, the
 # what-multiplying-means bank); a times-table fact is asked bare, because a 9-by-9
 # dot grid on the question turns recall into counting. The walk-back always draws.
+def _mul_rows_cols(p):
+    """(ss) A STORY problem reads "each X holds a; there are b of them" -- b groups
+    of a -- so its picture is b rows of a. A bare fact is a rows of b."""
+    if p.get("story"):
+        return p["b"], p["a"]
+    return p["a"], p["b"]
+
+
 def _mul_board(p):
     a, b = p["a"], p["b"]
     if a <= 5 and b <= 5:
-        return (f'[[array rows="{a}" cols="{b}" view="groups" ask="1" '
-                f'caption="{a} groups of {b}"]][[step eq="{a} × {b} = ?"]]')
+        rows, cols = _mul_rows_cols(p)
+        return (f'[[array rows="{rows}" cols="{cols}" view="groups" ask="1" '
+                f'caption="{rows} groups of {cols}"]][[step eq="{a} × {b} = ?"]]')
     return f'[[step eq="{a} × {b} = ?"]]'
 
 
 def _mul_worked(p):
     a, b = p["a"], p["b"]
+    if p.get("story") and a <= 9 and b <= 9:
+        rows, cols = _mul_rows_cols(p)
+        chain = " plus ".join([str(cols)] * rows)
+        return (f"Look what you did: {rows} groups of {cols} — {chain} equals {a * b}. "
+                f"{a} times {b} equals {a * b}.",
+                f'[[array rows="{rows}" cols="{cols}" view="groups" caption="{rows} groups of {cols} = {a * b}"]]')
     if a >= 10 and b <= 9:
         tens, ones = a // 10 * 10, a % 10
         board = (f'[[areamodel rows="{b}" cols="{tens},{ones}" '
@@ -17119,6 +17290,63 @@ def _mtz_worked(p):
                   f"two zeros hold the tens and the ones. {a} times 100 equals {a * 100}.")
         cap = f"{a} × 100 = {a * 100}: every digit up two places"
     return (spoken, f'[[placevalue n="{a * b}" caption="{cap}"]]')
+
+
+# (ss, 2026-09-05) DIVIDING'S PICTURES -- the array read the other way. A small
+# sharing question is ASKED as the dots to share and the empty boxes (total= ask=);
+# its walk-back is the groups filled. A two-digit number divided by a digit is the
+# AREA MODEL backwards -- split into tens and ones, each piece divided. Left-overs
+# draw the full groups and the red dots that did not fit.
+def _div_small(a, b):
+    return a <= 45 and 2 <= b <= 9 and a // b <= 9
+
+
+def _div_board(p):
+    a, b = p["a"], p["b"]
+    if _div_small(a, b):
+        return (f'[[array total="{a}" rows="{b}" ask="1" '
+                f'caption="share {a} into {b} equal groups"]][[step eq="{a} ÷ {b} = ?"]]')
+    return f'[[step eq="{a} ÷ {b} = ?"]]'
+
+
+def _div_worked(p):
+    a, b = p["a"], p["b"]
+    q = a // b
+    tens, ones = a // 10 * 10, a % 10
+    if a >= 20 and not _div_small(a, b) and tens % b == 0 and ones % b == 0 and b <= 9:
+        board = (f'[[areamodel rows="{b}" cols="{tens // b},{ones // b}" '
+                 f'caption="{a} ÷ {b}: {tens} ÷ {b} = {tens // b}, {ones} ÷ {b} = {ones // b}"]]')
+        spoken = (f"Look what you did: split {a} into {tens} and {ones}. {tens} divided by "
+                  f"{b} equals {tens // b}; {ones} divided by {b} equals {ones // b}. "
+                  f"{tens // b} plus {ones // b} equals {q}.")
+        return (spoken, board)
+    if b <= 10 and q <= 12:
+        board = (f'[[array rows="{b}" cols="{q}" view="groups" eq="{a} ÷ {b} = {q}" '
+                 f'caption="{a} shared into {b} equal groups: {q} in each"]]')
+        spoken = (f"Look what you did: share {a} into {b} equal groups — {q} in each. "
+                  f"{a} divided by {b} equals {q}.")
+        return (spoken, board)
+    return (f"Look what you did: {a} divided by {b} equals {q}.",
+            f'[[step eq="{a} ÷ {b} = {q}"]]')
+
+
+def _rem_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[array total="{a}" rows="{a // b}" ask="1" label="groups of {b}" '
+            f'eq="{a} ÷ {b} → left over = ?" '
+            f'caption="{a} shared into groups of {b} — what is left over?"]]'
+            f'[[step eq="{a} ÷ {b} → left over = ?"]]')
+
+
+def _rem_worked(p):
+    a, b = p["a"], p["b"]
+    q, r = a // b, a % b
+    board = (f'[[array rows="{q}" cols="{b}" extra="{r}" eq="{a} ÷ {b} = {q} left over {r}" '
+             f'caption="{_plural(q, "group")} of {b}, {r} left over"]]')
+    spoken = (f"Look what you did: {a} shared into groups of {b} fills "
+              f"{_plural(q, 'group')} — {q} times {b} equals {q * b} — and "
+              f"{a} take away {q * b} leaves {r}. So {r} {'is' if r == 1 else 'are'} left over.")
+    return (spoken, board)
 
 
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
@@ -17459,7 +17687,8 @@ OP_EXT = {
     "/": {
         "ans": lambda p: p["a"] // p["b"],
         "spoken": lambda p: f"What is {p['a']} divided by {p['b']}?",
-        "board": lambda p: f'[[step eq="{p["a"]} ÷ {p["b"]} = ?"]]',
+        "board": _div_board,          # (ss) the sharing question as a picture, when small
+        "worked": _div_worked,        # (ss) the groups filled, or the area model backwards
         "praise": lambda p: f"{p['a']} divided by {p['b']} equals {p['a'] // p['b']}.",
         "key": lambda p: p["a"],
         "check": lambda p: (p["a"] % p["b"] == 0 and p["b"] >= 2,
@@ -17469,7 +17698,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] % p["b"],
         "spoken": lambda p: (f"What is left over when {p['a']} is shared into "
                              f"groups of {p['b']}?"),
-        "board": lambda p: f'[[step eq="{p["a"]} ÷ {p["b"]} → left over = ?"]]',
+        "board": _rem_board,          # (ss) the dots to share and the full-group boxes
+        "worked": _rem_worked,        # (ss) the full groups and the red left-overs
         "praise": lambda p: (f"Sharing {p['a']} into groups of {p['b']} leaves "
                              f"{p['a'] % p['b']} left over."),
         "key": lambda p: p["a"],
