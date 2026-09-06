@@ -2,6 +2,32 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tq -- PRECALC UNITS 7-9 TO THE SHAPE (12 lessons). Jim: "go".
+#               PRECALC IS 36/36. THIS FILE:
+#                 * Unit 7 (conics, parametrics): the circle with its radius marked "?"
+#                   ([[circle r="?"]]) and the circle with its middle unnamed
+#                   ([[circle center="?"]]) on the asks -- the [[conic]] grid would let
+#                   the answer be counted, so it draws the walk-backs (cx= cy= at the
+#                   true middle); the ellipse's two reaches as a tape, both blank; the
+#                   ball's path with its t = 1 point, walked back as the vector at time t;
+#                 * Unit 8 (series): the pattern's machine on the ask (writing the terms
+#                   would do the adding), the terms as bars in the walk-back; the sigma
+#                   recipe machine, its terms as bars; the crowd as a one-row array,
+#                   line-ups beside teams as bars; the first three bounces as bars, walked
+#                   back as hops that each cover half of what is left. The sigma pending
+#                   line reads "k from 1 to 7" (the old "k = 1 → 7" was an arrow after an
+#                   equals, 12 asks, live);
+#                 * Unit 9 (limits): the line that never breaks; the machine that jams at
+#                   the hole on the ask (the curve's hole sits at the answer), the line
+#                   with its hole (hole=) in the walk-back; the step with its two shelves
+#                   (piecewise func=), the pending line "x < 6: y = 11 · x ≥ 6: y = 19"
+#                   (the old arrows after equals, 12 asks, live); the window on the curve
+#                   (lines="x=2; x=10"), walked back as the line through the two ends.
+#               Trap lines kept in every lesson. ENGINE: OP_EXT crad/cctr/elax/parm/gsum/
+#               sigm/pasc/gser/lsub/lhol/lsid/avgr gain "worked" (_crad_* ... _avgr_*)
+#               and boards. Demonstrated numbers kept out of the banks and pairs: every
+#               radius 2..12 and every center 2..12 is an ask, so the radius teach un-
+#               squares 225 (15) and the center teach and worked pairs sit at 15, 14, 13.
 #   2026-09-06  BUILD tp -- PRECALC UNITS 4-6 TO THE SHAPE (12 lessons). Jim: "go".
 #               THIS FILE:
 #                 * Unit 4 (trig functions): a half turn beside the angle as bars, walked
@@ -20160,24 +20186,64 @@ _PRECALC_U7 = [
         "op": "crad", "max_value": 12,
         "levels": ("abstract",),
         "symbols": ("radius", "circle"),
-        "advance_line": "Three in a row — you've got it! Un-square the right-hand number.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Un-square the right-hand number.",
+        "why": [
+            ("Why un-square? Unit Seven reads shapes straight off their equations. A "
+             "circle can be written: x take away 2, squared, plus y take away 9, "
+             "squared, equals 225 — every point sitting one fixed distance from the "
+             "middle. That 225 is not the radius, though.",
+             '[[goal text="Un-square the radius"]][[step eq="(x − 2)² + (y − 9)² = 225"]]'),
+        ],
+        "picture": [
+            ("Here is the circle with its radius drawn from the middle to the edge, "
+             "and a question mark on it. The equation's right-hand number is 225, and "
+             "no circle on this board reaches 225 across — that number is hiding the "
+             "radius inside a square.",
+             '[[circle center="O" r="?" caption="the radius, middle to edge — the equation says 225, and 225 is not it"]]'),
+        ],
         "teach": [
-            ["Unit Seven reads shapes straight off their equations. A circle can be written: x take away 2, squared, plus y take away 9, squared, equals 49 — every point sitting one fixed distance from the middle. That 49 is not the radius, though.",
-             '[[goal text="Un-square the radius"]][[conic type="circle" r="7" caption="the circle"]]'],
-            ["It is the radius SQUARED. Un-square 49 and the radius is 7 — the circle reaches 7 in every direction from its middle. The distance formula built this equation, and distances arrive squared; un-squaring is how you get them back.",
-             '[[step eq="(x − 2)² + (y − 9)² = 49"]][[step eq="un-square 49 → radius 7"]]'],
-            ["Two grabs to resist: answering 49, which is still squared; and answering 2 or 9, which say WHERE the circle sits and nothing about its size. Un-square the right-hand number — that is the radius, every time.",
-             '[[step eq="7 ✓"]][[step eq="49 ✗ still squared · 2 ✗ the center"]]'],
+            ("That is the method: the right-hand number is the radius SQUARED. "
+             "Un-square 225 and the radius is 15 — the circle reaches 15 in every "
+             "direction from its middle. The distance formula built this equation, and "
+             "distances arrive squared; un-squaring gets them back.",
+             '[[conic type="circle" r="15" cx="2" cy="9" caption="the circle reaches 15 every way — radius 15"]][[step eq="un-square 225 = 15"]][[step eq="radius = 15"]]'),
+            ("Two grabs to resist: answering 225, which is still squared; and "
+             "answering 2 or 9, which say WHERE the circle sits and nothing about its "
+             "size. Un-square the right-hand number — that is the radius, every time.",
+             '[[step eq="15 ✓"]][[step eq="225 ✗ still squared · 2 ✗ the center"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x take away 5, squared, plus y take away 5, squared, equals 169: un-square 169 — the radius is 13.",
-                        '[[step eq="= 169"]] [[step eq="radius = 13"]]'],
-             "ask": {"a": 8, "b": 3, "c": 12, "op": "crad"}},
-            {"worked": ["One more together. That same shape ending in 196: un-square 196 — the radius is 14.",
-                        '[[step eq="= 196"]] [[step eq="radius = 14"]]'],
-             "ask": {"a": 6, "b": 11, "c": 10, "op": "crad"}},
+            {"worked": ("Here is one more, done for you. x take away 5, squared, plus y "
+                        "take away 5, squared, equals 169: un-square 169 — the radius is "
+                        "13.",
+                        '[[conic type="circle" r="13" cx="5" cy="5" caption="un-square 169 — radius 13"]][[step eq="= 169"]] [[step eq="radius = 13"]]'),
+             "ask": {'a': 8, 'b': 3, 'c': 12, 'op': 'crad'}},
+            {"worked": ("One more together. That same shape ending in 196: un-square 196 "
+                        "— the radius is 14.",
+                        '[[circle center="O" r="14" caption="un-square 196 — radius 14"]][[step eq="= 196"]] [[step eq="radius = 14"]]'),
+             "ask": {'a': 6, 'b': 11, 'c': 10, 'op': 'crad'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The circle written "
+                       "with 225 on the right has a radius of 15. Tap the reason why."),
+            "choices": ("because the right-hand number is the radius squared | because the "
+                        "right-hand number is the radius itself | because the radius is "
+                        "the number inside the parentheses"),
+            "answer": "because the right-hand number is the radius squared",
+            "board": '[[conic type="circle" r="15" cx="2" cy="9" caption="radius 15"]]',
+        },
+        "recap": [
+            ("So, here it is again. A circle's equation ends in the radius SQUARED, "
+             "because distances arrive squared. Un-square the right-hand number and "
+             "that is the radius. Never hand back the squared number, and never grab "
+             "a center number.",
+             '[[circle center="O" r="15" caption="un-square the right-hand number"]]'),
+            ("And that is a shape read straight off its equation.",
+             '[[step eq="(x − 2)² + (y − 9)² = 225"]][[step eq="radius = 15"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 5, "c": 2, "op": "crad"},
             {"a": 5, "b": 2, "c": 3, "op": "crad"},
@@ -20198,24 +20264,65 @@ _PRECALC_U7 = [
         "op": "cctr", "max_value": 12, "min_value": -12,
         "levels": ("abstract",),
         "symbols": ("center", "opposite"),
-        "advance_line": "Three in a row — you've got it! Take away 6 means the center sits at positive 6.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Take away 15 means the center sits at positive 15.",
+        "why": [
+            ("Why does the sign flip? Same equation, a different question: where is "
+             "the middle? Write a circle as: x take away 15, squared, plus y take away "
+             "2, squared, equals 25. The center hides inside the two take-aways — and "
+             "it hides with its sign flipped.",
+             '[[goal text="Where the circle sits"]][[step eq="(x − 15)² + (y − 2)² = 25"]]'),
+        ],
+        "picture": [
+            ("Here is the circle with its middle marked by a question mark. The "
+             "equation names that middle, but not the way your eye reads it: the "
+             "number after each take-away is where the circle sits, once you flip the "
+             "sign the equation shows.",
+             '[[circle center="?" caption="the middle — the take-aways know where it sits, with the sign flipped"]]'),
+        ],
         "teach": [
-            ["Same equation, a different question: where is the middle? Write a circle as: x take away 6, squared, plus y take away 2, squared, equals 25. The center hides inside the two take-aways — and it hides with its sign flipped.",
-             '[[goal text="Where the circle sits"]][[step eq="(x − 6)² + (y − 2)² = 25"]]'],
-            ["x take away 6 goes quiet at x equals 6, and the middle sits exactly where those squared pieces go quiet. So the center's x is 6 — positive 6, even though a minus sign is what your eye reads on the page.",
-             '[[step eq="x − 6 = 0 at x = 6"]] [[step eq="center x = 6"]]'],
-            ["Inside the parentheses, a sign always points opposite — the rule the parabola's turn obeyed, and the doorway before that. Take away 6 means positive 6, never negative 6. And the 2 is the OTHER coordinate: answer the one you were asked for.",
-             '[[step eq="6 ✓"]][[step eq="−6 ✗ the flip · 2 ✗ the y"]]'],
+            ("That is the method. x take away 15 goes quiet at x equals 15, and the "
+             "middle sits exactly where those squared pieces go quiet. So the center's "
+             "x is 15 — positive 15, even though a minus sign is what your eye reads "
+             "on the page.",
+             '[[conic type="circle" r="5" cx="15" cy="2" caption="the middle sits at (15, 2) — center x = 15"]][[step eq="x − 15 = 0 at x = 15"]] [[step eq="center x = 15"]]'),
+            ("Inside the parentheses, a sign always points opposite — the rule the "
+             "parabola\'s turn obeyed, and the doorway before that. Take away 15 "
+             "means positive 15, never negative 15. And the 2 is the OTHER "
+             "coordinate: answer the one you were asked for.",
+             '[[step eq="15 ✓"]][[step eq="−15 ✗ the flip · 2 ✗ the y"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x take away 9, squared, plus y take away 1, squared, equals 16: the center's x is 9.",
-                        '[[step eq="(x − 9)² … → center x = 9"]]'],
-             "ask": {"a": 12, "b": 7, "c": 5, "op": "cctr"}},
-            {"worked": ["One more together. x take away 4, squared, plus y take away 6, squared: the center's x is 4.",
-                        '[[step eq="(x − 4)² … → center x = 4"]]'],
-             "ask": {"a": 7, "b": 11, "c": 8, "op": "cctr"}},
+            {"worked": ("Here is one more, done for you. x take away 14, squared, plus y "
+                        "take away 1, squared, equals 16: the center\'s x is 14.",
+                        '[[conic type="circle" r="4" cx="14" cy="1" caption="the middle sits at (14, 1)"]][[step eq="(x − 14)² · center x = 14"]]'),
+             "ask": {'a': 12, 'b': 7, 'c': 5, 'op': 'cctr'}},
+            {"worked": ("One more together. x take away 13, squared, plus y take away 6, "
+                        "squared: the center\'s x is 13.",
+                        '[[conic type="circle" r="4" cx="13" cy="6" caption="the middle sits at (13, 6)"]][[step eq="(x − 13)² · center x = 13"]]'),
+             "ask": {'a': 7, 'b': 11, 'c': 8, 'op': 'cctr'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The circle written "
+                       "with x take away 15 has its center at x equals 15. Tap the reason "
+                       "why."),
+            "choices": ("because x take away 15 goes quiet exactly at 15 | because the "
+                        "minus sign means the center is negative | because the center is "
+                        "the number on the right"),
+            "answer": "because x take away 15 goes quiet exactly at 15",
+            "board": '[[conic type="circle" r="5" cx="15" cy="2" caption="center x = 15"]]',
+        },
+        "recap": [
+            ("So, here it is again. The center hides in the take-aways with its sign "
+             "flipped: x take away 15 means the middle sits at positive 15, where that "
+             "squared piece goes quiet. Never flip it the wrong way, and never answer "
+             "the other coordinate.",
+             '[[circle center="?" caption="the sign inside points opposite"]]'),
+            ("And that is where the circle sits.",
+             '[[step eq="(x − 15)² + (y − 2)² = 25"]][[step eq="center x = 15"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 5, "c": 3, "op": "cctr"},
             {"a": 3, "b": 7, "c": 4, "op": "cctr"},
@@ -20236,24 +20343,63 @@ _PRECALC_U7 = [
         "op": "elax", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("ellipse", "edge"),
-        "advance_line": "Three in a row — you've got it! Un-square, then double.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Un-square, then double.",
+        "why": [
+            ("Why double? Stretch a circle and you have an ellipse: x squared over "
+             "144, plus y squared over 25, equals 1. Those two bottom numbers are "
+             "squares as well — and un-squaring them says how far the shape reaches "
+             "in each direction from its middle, not edge to edge.",
+             '[[goal text="Edge to edge"]][[step eq="x²/144 + y²/25 = 1"]]'),
+        ],
+        "picture": [
+            ("Here is the ellipse on the grid, wider than it is tall. Its middle "
+             "splits the width into two equal reaches, one to the left and one to the "
+             "right. The number under x squared is ONE reach, squared — so the whole "
+             "width is two of them.",
+             '[[conic type="ellipse" a="12" b="5" caption="the middle splits the width into two equal reaches"]]'),
+        ],
         "teach": [
-            ["Stretch a circle and you have an ellipse: x squared over 144, plus y squared over 25, equals 1. Those two bottom numbers are squares as well — and un-squaring them says how far the shape reaches in each direction.",
-             '[[goal text="Edge to edge"]][[conic type="ellipse" a="12" b="5" caption="the ellipse"]]'],
-            ["Un-square 144: the ellipse reaches 12 to the left and 12 to the right of its middle. From the left edge to the right edge is double that — 24 across. The 25 does the same work upward: 5 each way, so 10 tall.",
-             '[[step eq="un-square 144 → 12 each way → 24 across"]][[step eq="un-square 25 → 5 each way → 10 tall"]]'],
-            ["Two half-answers wait here. 12 is the reach ONE way, not the full width; and 144 is the printed number, still squared. Un-square, then double — and the answer is always the widest measurement the shape has.",
-             '[[step eq="24 ✓"]][[step eq="12 ✗ half of it · 144 ✗ still squared"]]'],
+            ("That is the method: un-square, then double. Un-square 144: the ellipse "
+             "reaches 12 to the left and 12 to the right of its middle. From the left "
+             "edge to the right edge is double that — 24 across. The 25 does the same "
+             "work upward: 5 each way, so 10 tall.",
+             '[[tape parts="12|12" total="24" caption="two reaches of 12 — 24 across"]][[step eq="un-square 144 = 12 each way"]][[step eq="12 + 12 = 24 across"]]'),
+            ("Two half-answers wait here. 12 is the reach ONE way, not the full "
+             "width; and 144 is the printed number, still squared. Un-square, then "
+             "double — and the answer is always the widest measurement the shape has.",
+             '[[step eq="24 ✓"]][[step eq="12 ✗ half of it · 144 ✗ still squared"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x squared over 121, plus y squared over 16: un-square 121 — 11 each way, so 22 across.",
-                        '[[step eq="121 → 11 each way → 22 across"]]'],
-             "ask": {"a": 7, "b": 5, "op": "elax"}},
-            {"worked": ["One more together. x squared over 196: 14 each way, so 28 across.",
-                        '[[step eq="196 → 14 each way → 28 across"]]'],
-             "ask": {"a": 9, "b": 8, "op": "elax"}},
+            {"worked": ("Here is one more, done for you. x squared over 121, plus y "
+                        "squared over 16: un-square 121 — 11 each way, so 22 across.",
+                        '[[tape parts="11|11" total="22" caption="121 → 11 each way → 22 across"]][[step eq="un-square 121 = 11 each way"]][[step eq="22 across"]]'),
+             "ask": {'a': 7, 'b': 5, 'op': 'elax'}},
+            {"worked": ("One more together. x squared over 196: 14 each way, so 28 "
+                        "across.",
+                        '[[conic type="ellipse" a="14" b="6" caption="14 each way — 28 across"]][[step eq="un-square 196 = 14 each way"]][[step eq="28 across"]]'),
+             "ask": {'a': 9, 'b': 8, 'op': 'elax'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The ellipse with 144 "
+                       "under x squared is 24 across. Tap the reason why."),
+            "choices": ("because 144 un-squares to one reach of 12, and there are two | "
+                        "because 144 un-squares to the whole width | because the width "
+                        "is the printed number itself"),
+            "answer": "because 144 un-squares to one reach of 12, and there are two",
+            "board": '[[tape parts="12|12" total="24" caption="un-square, then double"]]',
+        },
+        "recap": [
+            ("So, here it is again. The number under x squared is one reach, "
+             "squared: un-square it for the reach from the middle, then double it for "
+             "edge to edge. Never stop at one reach, and never hand back the printed "
+             "square.",
+             '[[conic type="ellipse" a="12" b="5" caption="un-square, then double"]]'),
+            ("And that is a stretched circle, measured.",
+             '[[step eq="un-square 144 = 12 each way"]][[step eq="24 across"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "op": "elax"},
             {"a": 4, "b": 3, "op": "elax"},
@@ -20274,24 +20420,62 @@ _PRECALC_U7 = [
         "op": "parm", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("time", "path"),
-        "advance_line": "Three in a row — you've got it! Plug the time in first, then measure straight.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Plug the time in first, then measure straight.",
+        "why": [
+            ("Why tie a curve to time? The unit ends in motion. Instead of tying y to "
+             "x, tie BOTH of them to time: x equals 3 times t, y equals 4 times t. Hand "
+             "it a moment and it hands back a position, so the curve becomes a path "
+             "something travels.",
+             '[[goal text="Where you are at time t"]][[step eq="x = 3t · y = 4t"]]'),
+        ],
+        "picture": [
+            ("Here is the path on the grid: a straight line out of the corner. At t "
+             "equals 1 second the ball sits at 3 across and 4 up — the point marked. "
+             "Every second after that, it slides farther along the same line, the "
+             "same distance again.",
+             '[[graph lines="y=1.33333x" names="the path" points="(3,4)" range="0..12" caption="the path — at t = 1 the ball is at (3, 4)"]]'),
+        ],
         "teach": [
-            ["The unit ends in motion. Instead of tying y to x, tie BOTH of them to time: x equals 3 times t, y equals 4 times t. Hand it a moment and it hands back a position, so the curve becomes a path something travels.",
-             '[[goal text="Where you are at time t"]][[step eq="x = 3t · y = 4t"]]'],
-            ["At t equals 1 second the ball sits 3 right and 4 up — 5 away from its start, by Pythagoras. At t equals 10 seconds it is at 30 and 40, which is 50 away. Every second adds another 5 of distance.",
-             '[[step eq="t = 1: point (3, 4), 5 away"]][[step eq="t = 10: point (30, 40), 50 away"]]'],
-            ["So two answers tempt at 10 seconds. 5 is one second's worth — that is the speed, not the trip. And 30 plus 40 walks the corner instead of cutting across. Plug the time in first, then measure straight.",
-             '[[step eq="50 ✓"]][[step eq="5 ✗ one second · 70 ✗ walked the corner"]]'],
+            ("That is the method. At t equals 1 second the ball sits 3 right and 4 up "
+             "— 5 away from its start, by Pythagoras. At t equals 10 seconds it is at "
+             "30 and 40, which is 50 away. Every second adds another 5 of distance.",
+             '[[vector v="30,40" caption="t = 10: (30, 40) — 50 from the start"]][[step eq="t = 1: point (3, 4), 5 away"]][[step eq="t = 10: point (30, 40), 50 away"]]'),
+            ("So two answers tempt at 10 seconds. 5 is one second\'s worth — that is "
+             "the speed, not the trip. And 30 plus 40 walks the corner instead of "
+             "cutting across. Plug the time in first, then measure straight.",
+             '[[step eq="50 ✓"]][[step eq="5 ✗ one second · 70 ✗ walked the corner"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x equals 20 t, y equals 21 t. At 2 seconds: 40 and 42, and the straight distance is 58.",
-                        '[[step eq="t = 2: point (40, 42), 58"]]'],
-             "ask": {"a": 5, "b": 12, "c": 3, "op": "parm"}},
-            {"worked": ["One more together. x equals 7 t, y equals 24 t. At 2 seconds: 14 and 48 — 50 away.",
-                        '[[step eq="t = 2: point (14, 48), 50"]]'],
-             "ask": {"a": 6, "b": 8, "c": 4, "op": "parm"}},
+            {"worked": ("Here is one more, done for you. x equals 20 t, y equals 21 t. At 2 "
+                        "seconds: 40 and 42, and the straight distance is 58.",
+                        '[[vector v="40,42" caption="t = 2: (40, 42) — 58 from the start"]][[step eq="t = 2: point (40, 42), 58"]]'),
+             "ask": {'a': 5, 'b': 12, 'c': 3, 'op': 'parm'}},
+            {"worked": ("One more together. x equals 7 t, y equals 24 t. At 2 seconds: 14 "
+                        "and 48 — 50 away.",
+                        '[[vector v="14,48" caption="t = 2: (14, 48) — 50 from the start"]][[step eq="t = 2: point (14, 48), 50"]]'),
+             "ask": {'a': 6, 'b': 8, 'c': 4, 'op': 'parm'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. On the path x equals "
+                       "3 t, y equals 4 t, the ball is 50 away at 10 seconds. Tap the "
+                       "reason why."),
+            "choices": ("because legs of 30 and 40 give an arrow of 50 | because the ball "
+                        "moves 5 in all | because 30 and 40 added is the distance"),
+            "answer": "because legs of 30 and 40 give an arrow of 50",
+            "board": '[[vector v="30,40" caption="plug the time in, then measure straight"]]',
+        },
+        "recap": [
+            ("So, here it is again. A path tied to time hands back a position for "
+             "every moment: plug the time into both rules for the two legs, then "
+             "measure straight across with Pythagoras. Never stop at one second\'s "
+             "worth, and never walk the corner.",
+             '[[graph lines="y=1.33333x" names="the path" points="(3,4)" range="0..12" caption="plug the time in first, then measure straight"]]'),
+            ("And that is a curve something travels.",
+             '[[step eq="t = 10: (30, 40)"]][[step eq="√(30² + 40²) = 50"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 4, "c": 2, "op": "parm"},
             {"a": 3, "b": 4, "c": 3, "op": "parm"},
@@ -20322,24 +20506,63 @@ _PRECALC_U8 = [
         "op": "gsum", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("sum", "terms"),
-        "advance_line": "Three in a row — you've got it! The sum is the whole run, not the last term.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The sum is the whole run, not the last term.",
+        "why": [
+            ("Why add the whole run? Algebra Two rode a pattern to its nth term. Unit "
+             "Eight adds the whole run up instead. A pattern starting at 1 and "
+             "doubling gives 1, 2, 4, 8 — and their sum is 15, a number no single term "
+             "ever equals.",
+             '[[goal text="Add the whole run"]][[step eq="1 + 2 + 4 + 8 = 15"]]'),
+        ],
+        "picture": [
+            ("Here are the terms as bars: 1, 2, 4, 8, each one double the last. The "
+             "sum is not the tallest bar — it is every bar stacked together. Look at "
+             "how much the whole pile outweighs the biggest single piece.",
+             '[[bars data="term 1:1 | term 2:2 | term 3:4 | term 4:8" caption="1 + 2 + 4 + 8 = 15 — the whole run, not the last term"]]'),
+        ],
         "teach": [
-            ["Algebra Two rode a pattern to its nth term. Unit Eight adds the whole run up instead. A pattern starting at 1 and doubling gives 1, 2, 4, 8 — and their sum is 15, a number no single term ever equals.",
-             '[[goal text="Add the whole run"]][[step eq="1 + 2 + 4 + 8 = 15"]]'],
-            ["Look at what happened: 15 is one short of 16, the NEXT double. Doubling sums always land one short of the next term — 1, 2, 4, 8, 16 sums to 31. So the whole run adds up to a little less than double its biggest piece.",
-             '[[step eq="1+2+4+8+16 = 31 — one short of 32"]]'],
-            ["Two traps. The last term alone — 8 in that first run — is the biggest piece, never the sum. And counting the start over and over, four 1s for 4, is what a pattern that never grew would give. Add the terms as they actually stand.",
-             '[[step eq="15 ✓"]][[step eq="8 ✗ the last term · 4 ✗ never grew"]]'],
+            ("That is the method: write the terms out as they stand, then add. Look "
+             "at what happened: 15 is one short of 16, the NEXT double. Doubling sums "
+             "always land one short of the next term — 1, 2, 4, 8, 16 sums to 31. The "
+             "whole run adds up to a little less than double its biggest piece.",
+             '[[bars data="1:1 | 2:2 | 4:4 | 8:8 | 16:16" caption="1 + 2 + 4 + 8 + 16 = 31 — one short of 32"]][[step eq="1+2+4+8+16 = 31 — one short of 32"]]'),
+            ("Two traps. The last term alone — 8 in that first run — is the biggest "
+             "piece, never the sum. And counting the start over and over, four 1s for "
+             "4, is what a pattern that never grew would give. Add the terms as they "
+             "actually stand.",
+             '[[step eq="15 ✓"]][[step eq="8 ✗ the last term · 4 ✗ never grew"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Start at 4, doubling, four terms: 4, 8, 16, 32 — put together, 60.",
-                        '[[step eq="4 + 8 + 16 + 32 = 60"]]'],
-             "ask": {"a": 2, "b": 2, "c": 5, "op": "gsum"}},
-            {"worked": ["One more together. Start at 2, times 3 each step, four terms: 2, 6, 18, 54 — 80 in all.",
-                        '[[step eq="2 + 6 + 18 + 54 = 80"]]'],
-             "ask": {"a": 5, "b": 2, "c": 4, "op": "gsum"}},
+            {"worked": ("Here is one more, done for you. Start at 4, doubling, four terms: "
+                        "4, 8, 16, 32 — put together, 60.",
+                        '[[bars data="term 1:4 | term 2:8 | term 3:16 | term 4:32" caption="4 + 8 + 16 + 32 = 60"]][[step eq="4 + 8 + 16 + 32 = 60"]]'),
+             "ask": {'a': 2, 'b': 2, 'c': 5, 'op': 'gsum'}},
+            {"worked": ("One more together. Start at 2, times 3 each step, four terms: 2, "
+                        "6, 18, 54 — 80 in all.",
+                        '[[bars data="term 1:2 | term 2:6 | term 3:18 | term 4:54" caption="2 + 6 + 18 + 54 = 80"]][[step eq="2 + 6 + 18 + 54 = 80"]]'),
+             "ask": {'a': 5, 'b': 2, 'c': 4, 'op': 'gsum'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Starting at 1 and "
+                       "doubling, four terms sum to 15. Tap the reason why."),
+            "choices": ("because the sum is every term stacked together, not the last one "
+                        "| because the sum is the biggest term | because the start counted "
+                        "four times is the sum"),
+            "answer": "because the sum is every term stacked together, not the last one",
+            "board": '[[bars data="term 1:1 | term 2:2 | term 3:4 | term 4:8" caption="every term stacked together"]]',
+        },
+        "recap": [
+            ("So, here it is again. To sum a pattern, write the terms out as they "
+             "stand and add every one — the whole run, which is more than the last "
+             "term and far more than the start repeated. A doubling run lands one "
+             "short of the next double.",
+             '[[bars data="term 1:1 | term 2:2 | term 3:4 | term 4:8" caption="add the whole run"]]'),
+            ("And that is a pattern, added up.",
+             '[[step eq="1 + 2 + 4 + 8 = 15"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "c": 3, "op": "gsum"},
             {"a": 3, "b": 2, "c": 3, "op": "gsum"},
@@ -20360,24 +20583,62 @@ _PRECALC_U8 = [
         "op": "sigm", "max_value": 200,
         "levels": ("abstract",),
         "symbols": ("sigma", "instruction"),
-        "advance_line": "Three in a row — you've got it! Pull the multiplier out, then sum 1 up to n.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Pull the multiplier out, then sum 1 up to n.",
+        "why": [
+            ("Why a big Greek S? Mathematics writes long sums in shorthand: sigma, with "
+             "a start below it and a stop above. It is not a new idea, only an "
+             "instruction: run k from the bottom number to the top one, work out the "
+             "recipe each time, and put every result together.",
+             '[[goal text="The instruction called sigma"]][[step eq="Σ (k from 1 to 5) of k = 1+2+3+4+5 = 15"]]'),
+        ],
+        "picture": [
+            ("Here is the recipe as a machine: k goes in, 10 times k comes out. Run "
+             "it five times, once for each k from 1 to 5, and the outputs are 10, 20, "
+             "30, 40, 50 — those five bars. Sigma says: put all of them together.",
+             '[[machine input="k" rule="10k" output="?" caption="the recipe — k goes in, 10 times k comes out, five times over"]][[bars data="k=1:10 | k=2:20 | k=3:30 | k=4:40 | k=5:50" caption="the five outputs — sigma adds them all"]]'),
+        ],
         "teach": [
-            ["Mathematics writes long sums in shorthand: a big Greek S — sigma — with a start below it and a stop above. It is not a new idea, only an instruction: run k from the bottom number to the top one, work out the recipe each time, and put every result together.",
-             '[[goal text="The instruction called sigma"]][[step eq="Σ (k = 1 to 5) of k = 1+2+3+4+5 = 15"]]'],
-            ["Now a recipe with a multiplier: the sum, for k from 1 to 5, of 10 times k. That is 10, 20, 30, 40, 50 — and every term carries the 10, so pull it out front: 1 up to 5 sums to 15, and 10 times 15 is 150.",
-             '[[step eq="Σ (k = 1 to 5) of 10k = 10 × 15 = 150"]]'],
-            ["The two slips are opposite. Dropping the multiplier answers 15 — Gauss's bare sum, the right shape but the wrong size. And answering 50 gives the LAST term only, the biggest single piece. Sum first, then times the multiplier.",
-             '[[step eq="150 ✓"]][[step eq="15 ✗ multiplier dropped · 50 ✗ last term"]]'],
+            ("That is the method. The sum, for k from 1 to 5, of 10 times k: that is "
+             "10, 20, 30, 40, 50 — and every term carries the 10, so pull it out front. "
+             "1 up to 5 sums to 15, and 10 times 15 is 150.",
+             '[[bars data="k=1:10 | k=2:20 | k=3:30 | k=4:40 | k=5:50" caption="10 × (1 + 2 + 3 + 4 + 5) = 10 × 15 = 150"]][[step eq="1 + 2 + 3 + 4 + 5 = 15"]][[step eq="10 × 15 = 150"]]'),
+            ("The two slips are opposite. Dropping the multiplier answers 15 — "
+             "Gauss\'s bare sum, the right shape but the wrong size. And answering 50 "
+             "gives the LAST term only, the biggest single piece. Sum first, then times "
+             "the multiplier.",
+             '[[step eq="150 ✓"]][[step eq="15 ✗ multiplier dropped · 50 ✗ last term"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The sum, k from 1 to 11, of 2 times k: 1 up to 11 is 66, and 2 times 66 is 132.",
-                        '[[step eq="2 × 66 = 132"]]'],
-             "ask": {"a": 6, "b": 7, "op": "sigm"}},
-            {"worked": ["One more together. k from 1 to 4, of 9 times k: 10 times 9 — 90.",
-                        '[[step eq="9 × 10 = 90"]]'],
-             "ask": {"a": 5, "b": 8, "op": "sigm"}},
+            {"worked": ("Here is one more, done for you. The sum, k from 1 to 11, of 2 "
+                        "times k: 1 up to 11 is 66, and 2 times 66 is 132.",
+                        '[[bars data="k=1:2 | k=2:4 | k=3:6 | k=4:8 | k=5:10 | k=6:12 | k=7:14 | k=8:16 | k=9:18 | k=10:20 | k=11:22" caption="2 × 66 = 132"]][[step eq="1 + 2 + … + 11 = 66"]][[step eq="2 × 66 = 132"]]'),
+             "ask": {'a': 6, 'b': 7, 'op': 'sigm'}},
+            {"worked": ("One more together. k from 1 to 4, of 9 times k: 1 up to 4 is 10, "
+                        "and 9 times 10 is 90.",
+                        '[[bars data="k=1:9 | k=2:18 | k=3:27 | k=4:36" caption="9 × 10 = 90"]][[step eq="1 + 2 + 3 + 4 = 10"]][[step eq="9 × 10 = 90"]]'),
+             "ask": {'a': 5, 'b': 8, 'op': 'sigm'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The sum, for k from 1 "
+                       "to 5, of 10 times k is 150. Tap the reason why."),
+            "choices": ("because every term carries the 10, so it multiplies the bare sum "
+                        "| because sigma means take the last term | because the multiplier "
+                        "is added on at the end"),
+            "answer": "because every term carries the 10, so it multiplies the bare sum",
+            "board": '[[bars data="k=1:10 | k=2:20 | k=3:30 | k=4:40 | k=5:50" caption="10 × 15 = 150"]]',
+        },
+        "recap": [
+            ("So, here it is again. Sigma is an instruction: run k from the bottom to "
+             "the top, work the recipe each time, add every result. When every term "
+             "carries the same multiplier, pull it out front and times the bare sum. "
+             "Never drop it, and never stop at the last term.",
+             '[[machine input="k" rule="10k" output="?" caption="the instruction called sigma"]]'),
+            ("And that is a long sum, written short.",
+             '[[step eq="Σ (k from 1 to 5) of 10k = 10 × 15 = 150"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 4, "op": "sigm"},
             {"a": 2, "b": 5, "op": "sigm"},
@@ -20398,24 +20659,64 @@ _PRECALC_U8 = [
         "op": "pasc", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("order", "teams"),
-        "advance_line": "Three in a row — you've got it! Count the line-ups, then divide the orders away.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Count the line-ups, then divide the orders away.",
+        "why": [
+            ("Why divide the orders away? Algebra Two counted outfits by timesing the "
+             "slots — and there, order mattered: shirt, then pants, then hat. Choosing "
+             "a team is different. Ana and Ben is the same team as Ben and Ana, so "
+             "counting line-ups counts every team more than once.",
+             '[[goal text="When order does not matter"]][[step eq="Ana & Ben = Ben & Ana — one team"]]'),
+        ],
+        "picture": [
+            ("Here are 3 people in a row, and we choose 2 of them. Count the "
+             "line-ups first — 3 choices for the first pick, 2 left for the second. "
+             "Then look at the bars: 6 line-ups, but only 3 teams, because every team "
+             "was counted once per order.",
+             '[[array rows="1" cols="3" caption="3 people — choose 2"]][[bars data="line-ups:6 | teams:3" caption="6 line-ups ÷ 2 orders = 3 teams"]]'),
+        ],
         "teach": [
-            ["Algebra Two counted outfits by timesing the slots — and there, order mattered: shirt, then pants, then hat. Choosing a team is different. Ana and Ben is the same team as Ben and Ana, so counting line-ups counts every team more than once.",
-             '[[goal text="When order does not matter"]][[step eq="Ana & Ben = Ben & Ana — one team"]]'],
-            ["Choose 2 from 3 people. Line-ups: 3 choices, then 2 left — 6. But each team of 2 appears twice in that list, once per order. Divide by 2: three teams. Count the line-ups, then divide the orders away.",
-             '[[step eq="3 × 2 = 6 line-ups ÷ 2 orders = 3 teams"]]'],
-            ["Teams of 3 hide more repeats: 3 people can stand in 6 different orders, so divide by 6. Choosing 3 from 10 gives 10 times 9 times 8 — 720 line-ups — and 720 divided by 6 is 120 teams. The bigger the team, the more orders to divide away.",
-             '[[step eq="10 × 9 × 8 = 720 ÷ 6 = 120 teams"]]'],
+            ("That is the method. Choose 2 from 3 people. Line-ups: 3 choices, then 2 "
+             "left — 6. But each team of 2 appears twice in that list, once per order. "
+             "Divide by 2: three teams. Count the line-ups, then divide the orders "
+             "away.",
+             '[[bars data="line-ups:6 | teams:3" caption="3 × 2 = 6 line-ups ÷ 2 = 3 teams"]][[step eq="3 × 2 = 6 line-ups"]][[step eq="6 ÷ 2 orders = 3 teams"]]'),
+            ("Teams of 3 hide more repeats: 3 people can stand in 6 different orders, "
+             "so divide by 6. Choosing 3 from 10 gives 10 times 9 times 8 — 720 "
+             "line-ups — and 720 divided by 6 is 120 teams. The bigger the team, the "
+             "more orders to divide away.",
+             '[[bars data="line-ups:720 | teams:120" caption="720 ÷ 6 = 120 teams"]][[step eq="10 × 9 × 8 = 720"]][[step eq="720 ÷ 6 = 120 teams"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Choose 2 from 11: 11 times 10 is 110 line-ups, halved — 55 teams.",
-                        '[[step eq="110 ÷ 2 = 55 teams"]]'],
-             "ask": {"a": 8, "b": 3, "op": "pasc"}},
-            {"worked": ["One more together. Choose 3 from 11: 990 line-ups, divided by 6 — 165 teams.",
-                        '[[step eq="990 ÷ 6 = 165 teams"]]'],
-             "ask": {"a": 9, "b": 3, "op": "pasc"}},
+            {"worked": ("Here is one more, done for you. Choose 2 from 11: 11 times 10 is "
+                        "110 line-ups, halved — 55 teams.",
+                        '[[bars data="line-ups:110 | teams:55" caption="110 ÷ 2 = 55 teams"]][[step eq="110 ÷ 2 = 55 teams"]]'),
+             "ask": {'a': 8, 'b': 3, 'op': 'pasc'}},
+            {"worked": ("One more together. Choose 3 from 11: 990 line-ups, divided by 6 — "
+                        "165 teams.",
+                        '[[bars data="line-ups:990 | teams:165" caption="990 ÷ 6 = 165 teams"]][[step eq="990 ÷ 6 = 165 teams"]]'),
+             "ask": {'a': 9, 'b': 3, 'op': 'pasc'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Choosing 2 from 3 "
+                       "people gives 3 teams, not 6. Tap the reason why."),
+            "choices": ("because every team was counted once per order, so divide them "
+                        "away | because a team is the same as a line-up | because the "
+                        "number of teams is the number of people"),
+            "answer": "because every team was counted once per order, so divide them away",
+            "board": '[[bars data="line-ups:6 | teams:3" caption="6 ÷ 2 = 3 teams"]]',
+        },
+        "recap": [
+            ("So, here it is again. When order does not matter, count the line-ups "
+             "first, then divide by the number of orders a team can stand in — 2 for "
+             "a pair, 6 for a trio. Never hand back the line-ups, and never hand back "
+             "the crowd.",
+             '[[array rows="1" cols="3" caption="count the line-ups, then divide the orders away"]]'),
+            ("And that is choosing, not lining up.",
+             '[[step eq="6 line-ups ÷ 2 orders = 3 teams"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 2, "op": "pasc"},
             {"a": 5, "b": 2, "op": "pasc"},
@@ -20436,24 +20737,63 @@ _PRECALC_U8 = [
         "op": "gser", "max_value": 120,
         "levels": ("abstract",),
         "symbols": ("forever", "settles"),
-        "advance_line": "Three in a row — you've got it! Halving forever settles at twice the first piece.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Halving forever settles at twice the first piece.",
+        "why": [
+            ("Why can a sum that never ends have an answer? Here is the strangest true "
+             "thing in Unit Eight. Add 1, then a half, then a quarter, then an eighth "
+             "— forever, with no last term. The running total climbs to 1, then one "
+             "and a half, then one and three quarters, and never once passes 2.",
+             '[[goal text="The sum that never ends"]][[step eq="1 + ½ + ¼ + ⅛ + … → 2"]]'),
+        ],
+        "picture": [
+            ("Here is the journey on a number line, heading for 2. The first hop is "
+             "1; the second hop is a half; the third a quarter. Each hop covers half of "
+             "what is left to the 2, so there is always a little gap — and the gap "
+             "always shrinks.",
+             '[[numberline min="0" max="2" hops="0,1,1.5,1.75,1.875" points="2" caption="each hop covers half of what is left — the whole trip settles on 2"]]'),
+        ],
         "teach": [
-            ["Here is the strangest true thing in Unit Eight. Add 1, then a half, then a quarter, then an eighth — forever, with no last term. The running total climbs to 1, then one and a half, then one and three quarters, and it never once passes 2.",
-             '[[goal text="The sum that never ends"]][[step eq="1 + ½ + ¼ + ⅛ + … → 2"]]'],
-            ["Each new piece covers half of what is left over, so there is always a little gap and the gap always shrinks. The sum settles on 2 without ever arriving — a first taste of the idea Unit Nine is built from.",
-             '[[step eq="gap halves every step · total → 2"]]'],
-            ["Halving from any start does the same: begin at 64 and the endless sum settles on 128 — twice the first piece. So 64 alone is the first piece, 32 is the second, and only 128 is the whole endless journey.",
-             '[[step eq="64 + 32 + 16 + … → 128"]][[step eq="64 ✗ first piece · 32 ✗ second"]]'],
+            ("That is the method: halving forever settles on twice the first piece. "
+             "Begin at 64 and the endless sum settles on 128: 64, then 32, then 16, on "
+             "and on. The whole trip closes in on 128 without ever arriving — a first "
+             "taste of the idea Unit Nine is built from.",
+             '[[numberline min="0" max="128" hops="0,64,96,112,120" points="128" caption="64 + 32 + 16 + … settles on 128 — twice the first piece"]][[step eq="64 + 32 + 16 + … → 128"]]'),
+            ("So 64 alone is the first piece, 32 is the second, and only 128 is the "
+             "whole endless journey. Never answer a single piece when the question "
+             "asked for the whole trip.",
+             '[[step eq="128 ✓"]][[step eq="64 ✗ first piece · 32 ✗ second"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A first bounce of 52 feet, halving forever: the whole trip is twice 52 — 104 feet.",
-                        '[[step eq="52 + 26 + 13 + … → 104"]]'],
-             "ask": {"a": 48, "b": 0, "op": "gser"}},
-            {"worked": ["One more together. A first bounce of 60 feet, halving forever: twice 60 — 120 feet in all.",
-                        '[[step eq="60 + 30 + 15 + … → 120"]]'],
-             "ask": {"a": 56, "b": 0, "op": "gser"}},
+            {"worked": ("Here is one more, done for you. A first bounce of 52 feet, halving "
+                        "forever: the whole trip is twice 52 — 104 feet.",
+                        '[[numberline min="0" max="104" hops="0,52,78,91,97.5" points="104" caption="52 + 26 + 13 + … settles on 104"]][[step eq="52 + 26 + 13 + … → 104"]]'),
+             "ask": {'a': 48, 'b': 0, 'op': 'gser'}},
+            {"worked": ("One more together. A first bounce of 60 feet, halving forever: "
+                        "twice 60 — 120 feet in all.",
+                        '[[bars data="1st bounce:60 | 2nd:30 | 3rd:15" caption="60 + 30 + 15 + … settles on 120"]][[step eq="60 + 30 + 15 + … → 120"]]'),
+             "ask": {'a': 56, 'b': 0, 'op': 'gser'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Halving forever from "
+                       "64 settles on 128. Tap the reason why."),
+            "choices": ("because each hop covers half of what is left | because the sum "
+                        "stops at the first piece | because adding forever grows without "
+                        "end"),
+            "answer": "because each hop covers half of what is left",
+            "board": '[[numberline min="0" max="128" hops="0,64,96,112,120" points="128" caption="settles on 128"]]',
+        },
+        "recap": [
+            ("So, here it is again. An endless halving sum still settles: each hop "
+             "covers half of what is left, the gap shrinks forever, and the whole "
+             "trip closes in on twice the first piece. Never answer the first piece or the "
+             "second — the question asked for the whole trip.",
+             '[[numberline min="0" max="2" hops="0,1,1.5,1.75,1.875" points="2" caption="halving forever settles at twice the first piece"]]'),
+            ("And that is a sum with no last term and one answer.",
+             '[[step eq="64 + 32 + 16 + … → 128"]]'),
+        ],
         "bank": [
             {"a": 8, "b": 0, "op": "gser"},
             {"a": 12, "b": 0, "op": "gser"},
@@ -20487,24 +20827,63 @@ _PRECALC_U9 = [
         "op": "lsub", "max_value": 90,
         "levels": ("abstract",),
         "symbols": ("limit", "creeps"),
-        "advance_line": "Three in a row — you've got it! Nothing breaks, so walk the value in.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Nothing breaks, so walk the value in.",
+        "why": [
+            ("Why ask where a curve was headed? The last unit of Pre-Calculus asks "
+             "one question: where was it HEADED? Follow a curve toward some x without "
+             "ever landing on it, and the value it approaches is called the limit. You "
+             "have met one already — the settling number of an endless sum.",
+             '[[goal text="Walk the value in"]][[step eq="x → some number · y → ?"]]'),
+        ],
+        "picture": [
+            ("Here is the line y equals 5 x plus 2 on the grid. Run your eye along it "
+             "toward x equals 4 from either side: nothing breaks, nothing jumps, no "
+             "hole. The line is simply there, so the value it heads for is the value "
+             "it has.",
+             '[[graph lines="y=5x+2" range="0..7" caption="y = 5x + 2 — a line that never breaks"]]'),
+        ],
         "teach": [
-            ["The last unit of Pre-Calculus asks one question: where was it HEADED? Follow a curve toward some x without ever landing on it, and the value it approaches is called the limit. You have met one already — the settling number of an endless sum.",
-             '[[goal text="Walk the value in"]][[step eq="x → some number · y → ?"]]'],
-            ["When nothing breaks, the answer is the plainest possible. As x creeps toward 4, 5 x plus 2 creeps toward 5 times 4 plus 2 — 22. Walk x in, and the value walks in beside it. No limit needed, strictly speaking; the function is simply there.",
-             '[[step eq="y = 5x + 2 · x: 4 · y: 22"]]'],
-            ["Two slips. Handing back the 4 answers where x went, not where y went. And 5 plus 2 reads the times as a plus. Do the arithmetic the formula actually asks for — the limit of a well-behaved line is just its value.",
-             '[[step eq="22 ✓"]][[step eq="4 ✗ that is x · 7 ✗ added instead"]]'],
+            ("That is the method: when nothing breaks, walk the value in. As x creeps "
+             "toward 4, 5 x plus 2 creeps toward 5 times 4 plus 2 — 22. Walk x in, and "
+             "the value walks in beside it. No limit needed, strictly speaking; the "
+             "function is simply there.",
+             '[[graph lines="y=5x+2" points="(4,22)" range="0..7" caption="walk x in to 4 — y walks in to 22"]][[step eq="y = 5x + 2 · x: 4 · y: 22"]]'),
+            ("Two slips. Handing back the 4 answers where x went, not where y went. "
+             "And 5 plus 2 reads the times as a plus. Do the arithmetic the formula "
+             "actually asks for — the limit of a well-behaved line is just its value.",
+             '[[step eq="22 ✓"]][[step eq="4 ✗ that is x · 7 ✗ added instead"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. As x creeps toward 6, 7 x plus 2 creeps toward 44.",
-                        '[[step eq="7 × 6 + 2 = 44"]]'],
-             "ask": {"a": 8, "b": 6, "c": 3, "op": "lsub"}},
-            {"worked": ["One more together. As x creeps toward 8, 4 x plus 6 creeps toward 4 times 8 plus 6 — 38.",
-                        '[[step eq="4 × 8 + 6 = 38"]]'],
-             "ask": {"a": 9, "b": 7, "c": 5, "op": "lsub"}},
+            {"worked": ("Here is one more, done for you. As x creeps toward 6, 7 x plus 2 "
+                        "creeps toward 44.",
+                        '[[graph lines="y=7x+2" points="(6,44)" range="0..9" caption="x → 6, y → 44"]][[step eq="7 × 6 + 2 = 44"]]'),
+             "ask": {'a': 8, 'b': 6, 'c': 3, 'op': 'lsub'}},
+            {"worked": ("One more together. As x creeps toward 8, 4 x plus 6 creeps toward "
+                        "4 times 8 plus 6 — 38.",
+                        '[[graph lines="y=4x+6" points="(8,38)" range="0..11" caption="x → 8, y → 38"]][[step eq="4 × 8 + 6 = 38"]]'),
+             "ask": {'a': 9, 'b': 7, 'c': 5, 'op': 'lsub'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. As x creeps toward 4, "
+                       "5 x plus 2 creeps toward 22. Tap the reason why."),
+            "choices": ("because nothing breaks, so the value walks in with x | because "
+                        "the limit is the x you creep toward | because the limit adds the "
+                        "two numbers in the rule"),
+            "answer": "because nothing breaks, so the value walks in with x",
+            "board": '[[graph lines="y=5x+2" points="(4,22)" range="0..7" caption="walk the value in"]]',
+        },
+        "recap": [
+            ("So, here it is again. A limit asks where a curve was headed. When "
+             "nothing breaks — a plain line — walk x in and the value walks in beside "
+             "it: the limit is simply the value there. Never hand back the x, and "
+             "never read a times as a plus.",
+             '[[graph lines="y=5x+2" range="0..7" caption="nothing breaks, so walk the value in"]]'),
+            ("And that is the first limit, the easy kind.",
+             '[[step eq="x → 4 · 5x + 2 → 22"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "c": 1, "op": "lsub"},
             {"a": 3, "b": 2, "c": 4, "op": "lsub"},
@@ -20525,24 +20904,66 @@ _PRECALC_U9 = [
         "op": "lhol", "max_value": 40, "min_value": 0,
         "levels": ("abstract",),
         "symbols": ("hole", "undefined"),
-        "advance_line": "Three in a row — you've got it! The hole has no value, but it has a heading.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The hole has no value, but it has a heading.",
+        "why": [
+            ("Why were limits invented? For this case. Take y equals: x squared take "
+             "away 25, all divided by x take away 5. At x equals 5 the bottom is zero, "
+             "so the function is undefined there — a hole in the curve, one point "
+             "missing.",
+             '[[goal text="The hole in the curve"]][[step eq="y = (x² − 25) ÷ (x − 5) · x = 5 forbidden"]]'),
+        ],
+        "picture": [
+            ("Here is the machine with 5 fed in: the bottom turns to zero and the "
+             "machine jams — no output at all. And here is the curve: a straight line "
+             "with one open circle punched out of it at x equals 5. Look at where "
+             "the line was heading on both sides of that hole.",
+             '[[machine input="5" rule="(x² − 25) ÷ (x − 5)" output="jammed" caption="at x = 5 the bottom is zero — jammed"]][[graph func="(x^2-25)/(x-5)" hole="5" range="2..8" yrange="4..16" caption="a straight line with a hole at x = 5"]]'),
+        ],
         "teach": [
-            ["Now the case limits were invented for. Take y equals: x squared take away 25, all divided by x take away 5. At x equals 5 the bottom is zero, so the function is undefined there — a hole in the curve, one point missing.",
-             '[[goal text="The hole in the curve"]][[step eq="y = (x² − 25) ÷ (x − 5) · x = 5 forbidden"]]'],
-            ["Everywhere else, though, the top factors into: x take away 5, times x plus 5 — and the take-aways cancel. So away from the hole this curve IS x plus 5. As x creeps toward 5, y creeps toward 10, calmly, from both sides.",
-             '[[step eq="(x−5)(x+5) ÷ (x−5) = x + 5"]][[step eq="x → 5 · y → 10"]]'],
-            ["That is the whole point of a limit: it reports where the curve was HEADED, and never asks what happens at the point itself. The function truly has no value at 5. It still has a heading — 10 — and 5 is only where the hole sits.",
-             '[[step eq="10 ✓ the heading"]][[step eq="5 ✗ that is the hole · 0 ✗ undefined is not zero"]]'],
+            ("That is the method. Everywhere else, the top factors into: x take away "
+             "5, times x plus 5 — and the take-aways cancel. So away from the hole "
+             "this curve IS x plus 5. As x creeps toward 5, y creeps toward 10, "
+             "calmly, from both sides.",
+             '[[graph func="(x^2-25)/(x-5)" hole="5" range="2..8" yrange="4..16" caption="headed for 10 from both sides — the hole sits right there"]][[step eq="(x−5)(x+5) ÷ (x−5) = x + 5"]][[step eq="x → 5 · y → 10"]]'),
+            ("That is the whole point of a limit: it reports where the curve was "
+             "HEADED, and never asks what happens at the point itself. The function "
+             "truly has no value at 5. It still has a heading — 10 — and 5 is only "
+             "where the hole sits.",
+             '[[step eq="10 ✓ the heading"]][[step eq="5 ✗ that is the hole · 0 ✗ undefined is not zero"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x squared take away 100, over x take away 10: away from the hole it is x plus 10, so the heading is 20.",
-                        '[[step eq="x → 10 · y → 20"]]'],
-             "ask": {"a": 14, "b": 0, "op": "lhol"}},
-            {"worked": ["One more together. x squared take away 169, over x take away 13: away from the hole it is x plus 13, so the heading is 26.",
-                        '[[step eq="x → 13 · y → 26"]]'],
-             "ask": {"a": 16, "b": 0, "op": "lhol"}},
+            {"worked": ("Here is one more, done for you. x squared take away 100, over x "
+                        "take away 10: away from the hole it is x plus 10, so the heading "
+                        "is 20.",
+                        '[[graph func="(x^2-100)/(x-10)" hole="10" range="7..13" yrange="14..26" caption="a hole at 10 — headed for 20"]][[step eq="x → 10 · y → 20"]]'),
+             "ask": {'a': 14, 'b': 0, 'op': 'lhol'}},
+            {"worked": ("One more together. x squared take away 169, over x take away 13: "
+                        "away from the hole it is x plus 13, so the heading is 26.",
+                        '[[graph func="(x^2-169)/(x-13)" hole="13" range="10..16" yrange="20..32" caption="a hole at 13 — headed for 26"]][[step eq="x → 13 · y → 26"]]'),
+             "ask": {'a': 16, 'b': 0, 'op': 'lhol'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x squared take away "
+                       "25, over x take away 5, is undefined at 5 but heads for 10. Tap "
+                       "the reason why."),
+            "choices": ("because away from the hole the curve is x plus 5 | because "
+                        "undefined means the limit is zero | because the limit is the x "
+                        "where the hole sits"),
+            "answer": "because away from the hole the curve is x plus 5",
+            "board": '[[graph func="(x^2-25)/(x-5)" hole="5" range="2..8" yrange="4..16" caption="the hole has no value, but it has a heading"]]',
+        },
+        "recap": [
+            ("So, here it is again. At a hole the function has no value, and the "
+             "limit does not mind: it reports only where the curve was headed. "
+             "Cancel the take-aways, and the heading is plain. Do not answer the x "
+             "where the curve is missing, and undefined is not zero.",
+             '[[machine input="5" rule="(x² − 25) ÷ (x − 5)" output="jammed" caption="no value at the hole — a heading all the same"]]'),
+            ("And that is what limits were invented for.",
+             '[[step eq="x → 5 · y → 10"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 0, "op": "lhol"},
             {"a": 3, "b": 0, "op": "lhol"},
@@ -20563,24 +20984,65 @@ _PRECALC_U9 = [
         "op": "lsid", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("side", "approach"),
-        "advance_line": "Three in a row — you've got it! Read the side you were asked to come from.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Read the side you were asked to come from.",
+        "why": [
+            ("Why can the two sides disagree? Unit One built functions in pieces. "
+             "Watch what limits do to one. Say y is 3 when x is below 6, and 9 when x "
+             "is 6 or more — a step. Creep up on 6 and the answer depends entirely on "
+             "which side you approach from.",
+             '[[goal text="The two sides disagree"]][[step eq="x < 6: y = 3 · x ≥ 6: y = 9"]]'),
+        ],
+        "picture": [
+            ("Here is the step on the grid: a low shelf at 3 for every x below 6, and "
+             "a high shelf at 9 from 6 onward. Look at the jump at x equals 6 — the "
+             "open circle on the low shelf, the filled dot on the high one. Coming in "
+             "from the left you ride the low shelf; from the right, the high one.",
+             '[[graph func="3 for x<6; 9 for x>=6" range="0..12" yrange="0..13" caption="a step at 6 — two shelves, two headings"]]'),
+        ],
         "teach": [
-            ["Unit One built functions in pieces. Watch what limits do to one. Say y is 3 when x is below 6, and 9 when x is 6 or more — a step. Creep up on 6 and the answer depends entirely on which side you approach from.",
-             '[[goal text="The two sides disagree"]][[step eq="x < 6: y = 3 · x ≥ 6: y = 9"]]'],
-            ["From the left, every x you pass is below 6, so y reads 3 the whole way in — the limit from that side is 3. From the right, every x is 6 or more, so y reads 9 all the way in. Two sides, two different headings.",
-             '[[step eq="from the left → 3"]][[step eq="from the right → 9"]]'],
-            ["When the sides disagree the curve has no single limit there — and the answer is never the middle. 6 is not the heading from either side; nobody approaching that step ever sees 6. Read which side you were asked for, and report what that side sees.",
-             '[[step eq="3 ✓ from the left"]][[step eq="9 ✗ other side · 6 ✗ split the difference"]]'],
+            ("That is the method: read the side you were asked to come from. From the "
+             "left, every x you pass is below 6, so y reads 3 the whole way in — the "
+             "limit from that side is 3. From the right, every x is 6 or more, so y "
+             "reads 9 all the way in. Two sides, two different headings.",
+             '[[graph func="3 for x<6; 9 for x>=6" points="(4,3),(5,3),(7,9),(8,9)" range="0..12" yrange="0..13" caption="from the left y reads 3 all the way; from the right, 9"]][[step eq="from the left → 3"]][[step eq="from the right → 9"]]'),
+            ("When the sides disagree the curve has no single limit there — and the "
+             "answer is never the middle. 6 is not the heading from either side; "
+             "nobody approaching that step ever sees 6. Read which side you were "
+             "asked for, and report what that side sees.",
+             '[[step eq="3 ✓ from the left"]][[step eq="9 ✗ other side · 6 ✗ split the difference"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y is 20 below 6 and 28 at 6 or more. Coming from the RIGHT, y reads 28.",
-                        '[[step eq="from the right → 28"]]'],
-             "ask": {"a": 11, "b": 19, "c": 1, "op": "lsid"}},
-            {"worked": ["One more together. y is 9 below 6 and 17 at 6 or more. From the LEFT, y reads 9.",
-                        '[[step eq="from the left → 9"]]'],
-             "ask": {"a": 13, "b": 21, "c": 0, "op": "lsid"}},
+            {"worked": ("Here is one more, done for you. y is 20 below 6 and 28 at 6 or "
+                        "more. Coming from the RIGHT, y reads 28.",
+                        '[[graph func="20 for x<6; 28 for x>=6" points="(9,28),(8,28),(7,28)" range="0..12" yrange="0..32" caption="from the right, y reads 28 all the way"]][[step eq="from the right → 28"]]'),
+             "ask": {'a': 11, 'b': 19, 'c': 1, 'op': 'lsid'}},
+            {"worked": ("One more together. y is 9 below 6 and 17 at 6 or more. From the "
+                        "LEFT, y reads 9.",
+                        '[[graph func="9 for x<6; 17 for x>=6" points="(3,9),(4,9),(5,9)" range="0..12" yrange="0..21" caption="from the left, y reads 9 all the way"]][[step eq="from the left → 9"]]'),
+             "ask": {'a': 13, 'b': 21, 'c': 0, 'op': 'lsid'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. On the step that is 3 "
+                       "below 6 and 9 from 6 on, the limit from the left is 3. Tap the "
+                       "reason why."),
+            "choices": ("because every x on the left side sits on the low shelf | because "
+                        "the limit at a step is halfway between the shelves | because the "
+                        "limit is always the higher shelf"),
+            "answer": "because every x on the left side sits on the low shelf",
+            "board": '[[graph func="3 for x<6; 9 for x>=6" points="(4,3),(5,3)" range="0..12" yrange="0..13" caption="from the left → 3"]]',
+        },
+        "recap": [
+            ("So, here it is again. At a step, the two sides can disagree: coming in "
+             "from the left you ride one shelf, from the right the other, and each "
+             "side reports what it sees. Never answer the other side, and never split "
+             "the difference.",
+             '[[graph func="3 for x<6; 9 for x>=6" range="0..12" yrange="0..13" caption="read the side you were asked to come from"]]'),
+            ("And that is a limit with a side.",
+             '[[step eq="from the left → 3 · from the right → 9"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 10, "c": 0, "op": "lsid"},
             {"a": 5, "b": 11, "c": 0, "op": "lsid"},
@@ -20601,24 +21063,64 @@ _PRECALC_U9 = [
         "op": "avgr", "max_value": 24,
         "levels": ("abstract",),
         "symbols": ("rise", "window"),
-        "advance_line": "Three in a row — you've got it! Rise divided by run — and on this curve, it is the two x's put together.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Rise divided by run — and on this curve, it is the two x's put together.",
+        "why": [
+            ("Why shrink the window? Pre-Calculus ends by handing Calculus its first "
+             "question. On y equals x squared, move x from 2 to 6. y climbs from 4 to "
+             "36 — a rise of 32 — while x moves 4. So y rose 8 for each step of x, on "
+             "average across that window.",
+             '[[goal text="The shrinking window"]][[step eq="rise 32 ÷ run 4 = 8 per step"]]'),
+        ],
+        "picture": [
+            ("Here is the curve y equals x squared with a window on it, from x equals "
+             "2 to x equals 6. Between those two walls the curve climbs — and the "
+             "straight line joining the two ends is the average climb across the "
+             "window. Its steepness is the number we want.",
+             '[[graph func="x^2" lines="x=2; x=6" range="0..7" yrange="0..50" caption="y = x² — the window from x = 2 to x = 6"]]'),
+        ],
         "teach": [
-            ["Pre-Calculus ends by handing Calculus its first question. On y equals x squared, move x from 2 to 6. y climbs from 4 to 36 — a rise of 32 — while x moves 4. So y rose 8 for each step of x, on average across that window.",
-             '[[goal text="The shrinking window"]][[step eq="rise 32 ÷ run 4 = 8 per step"]]'],
-            ["And 8 is simply 2 plus 6. On this curve the average rate is always the two x's put together — try 3 to 5: rise 16, run 2, and 8 again, which is 3 plus 5. A tidy shortcut, and it is about to do something remarkable.",
-             '[[step eq="2 to 6 → 8 · 3 to 5 → 8"]]'],
-            ["Shrink the window toward a single point. From 4 to 5 the rate is 9; from 4 to 4 point 1, about 8 point 1; closer still, 8 point 0 1. The rates creep toward 8 — twice the 4. That limit is called the derivative, and Calculus starts exactly there.",
-             '[[step eq="4→5: 9 · 4→4.1: 8.1 · 4→4.01: 8.01"]][[step eq="the limit → 8 = 2 × 4"]]'],
+            ("That is the method: rise divided by run. And 8 is simply 2 plus 6. On "
+             "this curve the average rate is always the two x\'s put together — try 3 "
+             "to 5: rise 16, run 2, and 8 again, which is 3 plus 5. A tidy shortcut, "
+             "and it is about to do something remarkable.",
+             '[[graph func="x^2" lines="y=8x-12" points="(2,4),(6,36)" range="0..7" yrange="0..50" caption="the line through the two ends climbs 8 per step — 2 + 6"]][[step eq="rise 32 ÷ run 4 = 8"]][[step eq="2 + 6 = 8 · 3 + 5 = 8"]]'),
+            ("Shrink the window toward a single point. From 4 to 5 the rate is 9; "
+             "from 4 to 4 point 1, about 8 point 1; closer still, 8 point 0 1. The "
+             "rates creep toward 8 — twice the 4. That limit is called the "
+             "derivative, and Calculus starts exactly there.",
+             '[[step eq="4→5: 9 · 4→4.1: 8.1 · 4→4.01: 8.01"]][[step eq="the limit → 8 = 2 × 4"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. On y equals x squared, from 1 to 7: rise 48, run 6 — 8 per step, which is 1 plus 7.",
-                        '[[step eq="48 ÷ 6 = 8 = 1 + 7"]]'],
-             "ask": {"a": 2, "b": 10, "op": "avgr"}},
-            {"worked": ["One more together. From 7 to 11: rise 72, run 4 — 18 per step, and 7 plus 11 is 18.",
-                        '[[step eq="72 ÷ 4 = 18 = 7 + 11"]]'],
-             "ask": {"a": 5, "b": 12, "op": "avgr"}},
+            {"worked": ("Here is one more, done for you. On y equals x squared, from 1 to "
+                        "7: rise 48, run 6 — 8 per step, which is 1 plus 7.",
+                        '[[graph func="x^2" lines="y=8x-7" points="(1,1),(7,49)" range="0..8" yrange="0..60" caption="48 ÷ 6 = 8 = 1 + 7"]][[step eq="48 ÷ 6 = 8 = 1 + 7"]]'),
+             "ask": {'a': 2, 'b': 10, 'op': 'avgr'}},
+            {"worked": ("One more together. From 7 to 11: rise 72, run 4 — 18 per step, "
+                        "and 7 plus 11 is 18.",
+                        '[[graph func="x^2" lines="y=18x-77" points="(7,49),(11,121)" range="0..12" yrange="0..130" caption="72 ÷ 4 = 18 = 7 + 11"]][[step eq="72 ÷ 4 = 18 = 7 + 11"]]'),
+             "ask": {'a': 5, 'b': 12, 'op': 'avgr'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. On y equals x squared, "
+                       "from 2 to 6 the average rise per step is 8. Tap the reason why."),
+            "choices": ("because the rise of 32 is shared across a run of 4 | because the "
+                        "average rise is the rise alone | because the average rise is the "
+                        "run alone"),
+            "answer": "because the rise of 32 is shared across a run of 4",
+            "board": '[[graph func="x^2" lines="y=8x-12" points="(2,4),(6,36)" range="0..7" yrange="0..50" caption="rise 32 ÷ run 4 = 8"]]',
+        },
+        "recap": [
+            ("So, here it is again. The average rate across a window is rise divided "
+             "by run — and on y equals x squared it is the two x\'s put together. "
+             "Shrink the window and the rates creep toward a limit: the derivative, "
+             "where Calculus begins. Never answer the rise or the run alone.",
+             '[[graph func="x^2" lines="x=2; x=6" range="0..7" yrange="0..50" caption="the shrinking window"]]'),
+            ("And that is Pre-Calculus, handing its question forward.",
+             '[[step eq="rise 32 ÷ run 4 = 8 = 2 + 6"]]'),
+        ],
         "bank": [
             {"a": 1, "b": 3, "op": "avgr"},
             {"a": 2, "b": 4, "op": "avgr"},
@@ -28743,6 +29245,230 @@ def _vmag_worked(p):
 
 
 
+# ---- (tq, 2026-09-06) PRECALC UNITS 7-9: the circle with its radius marked "?", the
+# circle with its middle unnamed, the two reaches of an ellipse as a tape, the ball's
+# path at t = 1, the doubling machine, the sigma recipe machine, the crowd as an
+# array, the bounces as bars, the line that never breaks, the machine that jams at
+# the hole, the step with its two heights, the window on the curve. Every ask draws
+# its question with the answer withheld; every walk-back draws it filled in.
+def _crad_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[circle center="O" r="?" caption="the circle — how far from its middle to its edge? the equation says {c * c}, and {c * c} is not it"]]'
+            f'[[step eq="(x − {a})² + (y − {b})² = {c * c}"]]'
+            f'[[step eq="radius = ?"]]')
+
+
+def _crad_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: the number on the right is the radius SQUARED. Un-square "
+            f"{c * c} and the radius is {c} — the circle reaches {c} in every direction "
+            f"from its middle. The {a} and the {b} say where it sits, never how big it is.",
+            f'[[conic type="circle" r="{c}" cx="{a}" cy="{b}" caption="middle ({a}, {b}) — the circle reaches {c} every way: radius {c}"]]'
+            f'[[step eq="un-square {c * c} = {c}"]][[step eq="radius = {c}"]]')
+
+
+def _cctr_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[circle center="?" caption="the circle — where does its middle sit? the take-aways know, with the sign flipped"]]'
+            f'[[step eq="(x − {a})² + (y − {b})² = {c * c}"]]'
+            f'[[step eq="center x = ?"]]')
+
+
+def _cctr_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: x take away {a} is zero exactly at x equals {a}, and the "
+            f"middle sits where the squared pieces go quiet — the center's x is {a}. The "
+            f"minus points opposite: take away {a} means positive {a}. The {b} is the y.",
+            f'[[conic type="circle" r="{c}" cx="{a}" cy="{b}" caption="the middle sits at ({a}, {b}) — center x = {a}"]]'
+            f'[[step eq="x − {a} = 0 at x = {a}"]][[step eq="center x = {a}"]]')
+
+
+def _elax_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="?|?" total="left edge to right edge = ?" caption="the middle splits the width into two equal reaches — un-square {a * a} for one of them"]]'
+            f'[[step eq="x²/{a * a} + y²/{b * b} = 1"]]'
+            f'[[step eq="left edge to right edge = ?"]]')
+
+
+def _elax_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the number under x squared is the half-width SQUARED. "
+            f"Un-square {a * a} and the ellipse reaches {a} each way from the middle; edge "
+            f"to edge is double that — {2 * a}. The {b * b} does the same work upward: "
+            f"{b} each way.",
+            f'[[conic type="ellipse" a="{a}" b="{b}" caption="{a} each way across, {b} each way up"]]'
+            f'[[tape parts="{a}|{a}" total="{2 * a}" caption="two reaches of {a} — {2 * a} across"]]'
+            f'[[step eq="un-square {a * a} = {a} each way"]][[step eq="{a} + {a} = {2 * a} across"]]')
+
+
+def _parm_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    slope = b / a
+    sl = f"{slope:g}"
+    return (f'[[graph lines="y={sl}x" names="the path" points="({a},{b})" range="0..{max(a, b) + 2}" caption="the path — at t = 1 the ball sits at ({a}, {b}); at t = {c} it is farther along the same line"]]'
+            f'[[step eq="x = {a}t · y = {b}t"]]'
+            f'[[step eq="at t = {c} · distance from the start = ?"]]')
+
+
+def _parm_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    h = round((a * a + b * b) ** 0.5)
+    return (f"Look what you did: at {c} seconds x is {a * c} and y is {b * c} — the two legs. "
+            f"The straight distance is the hypotenuse: {h * c}. Each second covers {h}, so "
+            f"{h} alone is one second's worth, and {(a + b) * c} walks the corner.",
+            f'[[vector v="{a * c},{b * c}" caption="at t = {c}: ({a * c}, {b * c}) — {h * c} from the start"]]'
+            f'[[step eq="t = {c}: x = {a * c} · y = {b * c}"]][[step eq="√({a * c}² + {b * c}²) = {h * c}"]]')
+
+
+def _gsum_terms(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return [a * b ** i for i in range(c)]
+
+
+def _gsum_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[machine input="{a}" rule="× {b}" output="?" caption="the pattern\'s machine: each term goes in, {b} times it comes out — {c} terms, then add them all"]]'
+            f'[[step eq="start {a} · times {b} each step · {c} terms"]]'
+            f'[[step eq="sum = ?"]]')
+
+
+def _gsum_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    t = _gsum_terms(p); tot = sum(t)
+    bars = " | ".join(f"term {i + 1}:{v}" for i, v in enumerate(t))
+    return (f"Look what you did: the terms are {', '.join(str(v) for v in t)} — put together, "
+            f"{tot}. The last term alone is only {t[-1]}, and a pattern that never grew "
+            f"would have stopped at {a * c}.",
+            f'[[bars data="{bars}" caption="{" + ".join(str(v) for v in t)} = {tot}"]]'
+            f'[[step eq="{" + ".join(str(v) for v in t)} = {tot}"]]')
+
+
+def _sigm_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[machine input="k" rule="{a}k" output="?" caption="the recipe: k goes in, {a} times k comes out — run k from 1 to {b}, then put every result together"]]'
+            f'[[step eq="Σ (k from 1 to {b}) of {a}k = ?"]]')
+
+
+def _sigm_worked(p):
+    a, b = p["a"], p["b"]
+    bare = b * (b + 1) // 2; tot = a * bare
+    bars = " | ".join(f"k={k}:{a * k}" for k in range(1, b + 1))
+    return (f"Look what you did: every term carries the {a}, so pull it out front. 1 up to "
+            f"{b} sums to {bare}, and {a} times {bare} equals {tot}. The bare sum {bare} "
+            f"forgot the {a}, and {a * b} is only the last term.",
+            f'[[bars data="{bars}" caption="{b} terms, each {a} times its k — {a} × {bare} = {tot}"]]'
+            f'[[step eq="1 + 2 + … + {b} = {bare}"]][[step eq="{a} × {bare} = {tot}"]]')
+
+
+def _pasc_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[array rows="1" cols="{a}" caption="{a} people in a row — choose {b}; the order they are picked in does not matter"]]'
+            f'[[step eq="choose {b} from {a} · order does not matter"]]'
+            f'[[step eq="teams = ?"]]')
+
+
+def _pasc_worked(p):
+    a, b = p["a"], p["b"]
+    npr, f, ncr = _npr(a, b), _fact(b), _ncr(a, b)
+    return (f"Look what you did: picking in order would give {npr} line-ups, but every "
+            f"team of {b} shows up {f} times in that list — once per order. Divide: {npr} "
+            f"divided by {f} equals {ncr} teams.",
+            f'[[bars data="line-ups:{npr} | teams:{ncr}" caption="{npr} line-ups ÷ {f} orders = {ncr} teams"]]'
+            f'[[step eq="{npr} ÷ {f} = {ncr} teams"]]')
+
+
+def _gser_board(p):
+    a = p["a"]
+    return (f'[[bars data="1st bounce:{a} | 2nd:{a // 2} | 3rd:{a // 4}" caption="the bounces halve forever — how far in all?"]]'
+            f'[[step eq="{a} + {a // 2} + {a // 4} + … forever"]]'
+            f'[[step eq="in all = ?"]]')
+
+
+def _gser_worked(p):
+    a = p["a"]
+    hops = ",".join(f"{v:g}" for v in (0, a, a * 1.5, a * 1.75, a * 1.875))
+    return (f"Look what you did: add forever and it still settles. {a} plus {a // 2} plus "
+            f"{a // 4}, on and on, closes in on {2 * a} — twice the first bounce, and never "
+            f"a foot more. Each hop covers half of what is left.",
+            f'[[numberline min="0" max="{2 * a}" hops="{hops}" points="{2 * a}" caption="each hop covers half of what is left — in all, {2 * a}"]]'
+            f'[[step eq="{a} + {a // 2} + {a // 4} + … → {2 * a}"]]')
+
+
+def _lsub_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[graph lines="y={b}x+{c}" range="0..{a + 3}" caption="y = {b}x + {c} — a line that never breaks; creep toward x = {a}"]]'
+            f'[[step eq="y = {b}x + {c}"]]'
+            f'[[step eq="x → {a} · y → ?"]]')
+
+
+def _lsub_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; v = a * b + c
+    return (f"Look what you did: nothing breaks at x equals {a}, so the value walks in with "
+            f"x — {b} times {a} is {a * b}, plus {c} is {v}. For a line, the limit is "
+            f"simply where the line already is.",
+            f'[[graph lines="y={b}x+{c}" points="({a},{v})" range="0..{a + 3}" caption="walk x in to {a} — y walks in to {v}"]]'
+            f'[[step eq="{b} × {a} + {c} = {v}"]]')
+
+
+def _lhol_board(p):
+    a = p["a"]
+    return (f'[[machine input="{a}" rule="(x² − {a * a}) ÷ (x − {a})" output="jammed" caption="at x = {a} the bottom is zero — the machine jams; where was y headed?"]]'
+            f'[[step eq="y = (x² − {a * a}) ÷ (x − {a})"]]'
+            f'[[step eq="x → {a} · y → ?"]]')
+
+
+def _lhol_worked(p):
+    a = p["a"]
+    return (f"Look what you did: everywhere except {a}, that fraction quietly equals x plus "
+            f"{a} — a straight line with one hole. As x creeps toward {a}, y creeps toward "
+            f"{2 * a}. The function never reaches it; the limit says where it was headed.",
+            f'[[graph func="(x^2-{a * a})/(x-{a})" hole="{a}" range="{a - 3}..{a + 3}" yrange="{2 * a - 6}..{2 * a + 6}" caption="a straight line with a hole at x = {a} — headed for {2 * a}"]]'
+            f'[[step eq="(x − {a})(x + {a}) ÷ (x − {a}) = x + {a}"]][[step eq="x → {a} · y → {2 * a}"]]')
+
+
+def _lsid_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    side = "left" if c == 0 else "right"
+    return (f'[[graph func="{a} for x<6; {b} for x>=6" range="0..12" yrange="0..{max(a, b) + 4}" caption="a step at 6 — come in from the {side}"]]'
+            f'[[step eq="x < 6: y = {a} · x ≥ 6: y = {b}"]]'
+            f'[[step eq="from the {side} · y → ?"]]')
+
+
+def _lsid_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    if c == 0:
+        spoken = (f"Look what you did: from the left, every x you pass is below 6, so y "
+                  f"reads {a} the whole way in — the limit from that side is {a}. The other "
+                  f"side would say {b}, and the two do not have to agree.")
+        pts, v, side = f"(3,{a}),(4,{a}),(5,{a})", a, "left"
+    else:
+        spoken = (f"Look what you did: from the right, every x you pass is 6 or more, so y "
+                  f"reads {b} the whole way in — the limit from that side is {b}. The other "
+                  f"side would say {a}, and the two do not have to agree.")
+        pts, v, side = f"(9,{b}),(8,{b}),(7,{b})", b, "right"
+    return (spoken,
+            f'[[graph func="{a} for x<6; {b} for x>=6" points="{pts}" range="0..12" yrange="0..{max(a, b) + 4}" caption="coming in from the {side}, y reads {v} all the way"]]'
+            f'[[step eq="from the {side} → {v}"]]')
+
+
+def _avgr_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph func="x^2" lines="x={a}; x={b}" range="0..{b + 1}" yrange="0..{b * b + 10}" caption="y = x² — the window from x = {a} to x = {b}"]]'
+            f'[[step eq="y = x² · x from {a} to {b}"]]'
+            f'[[step eq="rise per step of x = ?"]]')
+
+
+def _avgr_worked(p):
+    a, b = p["a"], p["b"]
+    rise, run, r = b * b - a * a, b - a, a + b
+    return (f"Look what you did: y climbs from {a * a} to {b * b} — a rise of {rise} — while "
+            f"x moves {run}. Divide: {r} per step, which is simply {a} plus {b}. The rise "
+            f"alone and the run alone are only halves of the story.",
+            f'[[graph func="x^2" lines="y={r}x-{a * b}" points="({a},{a * a}),({b},{b * b})" range="0..{b + 1}" yrange="0..{b * b + 10}" caption="the straight line through the two points climbs {r} per step"]]'
+            f'[[step eq="rise {rise} ÷ run {run} = {r}"]][[step eq="{a} + {b} = {r}"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -33861,9 +34587,8 @@ OP_EXT = {
                              f"squared, plus y take away {p['b']}, "
                              f"squared, equals {p['c'] * p['c']}. What is "
                              f"the circle's radius?"),
-        "board": lambda p: (f'[[step eq="(x − {p["a"]})² + (y − '
-                            f'{p["b"]})² = {p["c"] * p["c"]}"]]'
-                            f'[[step eq="radius = ?"]]'),
+        "board": _crad_board,         # (tq) the circle with its radius marked "?"
+        "worked": _crad_worked,       # (tq) the circle on the grid, reaching its radius
         "praise": lambda p: (f"The number on the right is the radius "
                              f"SQUARED: un-square {p['c'] * p['c']} and "
                              f"the radius is {p['c']}. The {p['a']} and "
@@ -33885,9 +34610,8 @@ OP_EXT = {
                              f"squared, plus y take away {p['b']}, "
                              f"squared, equals {p['c'] * p['c']}. What is "
                              f"the x of its center?"),
-        "board": lambda p: (f'[[step eq="(x − {p["a"]})² + (y − '
-                            f'{p["b"]})² = {p["c"] * p["c"]}"]]'
-                            f'[[step eq="center x = ?"]]'),
+        "board": _cctr_board,         # (tq) the circle with its middle unnamed
+        "worked": _cctr_worked,       # (tq) the circle on the grid at its middle
         "praise": lambda p: (f"x take away {p['a']} is zero exactly at x "
                              f"equals {p['a']}, and that is where the "
                              f"middle sits: the center's x is {p['a']}. "
@@ -33910,9 +34634,8 @@ OP_EXT = {
                              f"{p['a'] * p['a']}, plus y squared over "
                              f"{p['b'] * p['b']}, equals 1. How wide is it "
                              f"from its left edge to its right edge?"),
-        "board": lambda p: (f'[[step eq="x²/{p["a"] * p["a"]} + '
-                            f'y²/{p["b"] * p["b"]} = 1"]]'
-                            f'[[step eq="left edge to right edge = ?"]]'),
+        "board": _elax_board,         # (tq) the two reaches as a tape, both blank
+        "worked": _elax_worked,       # (tq) the ellipse on the grid and the tape filled
         "praise": lambda p: (f"The number under x squared is the "
                              f"half-width SQUARED: un-square "
                              f"{p['a'] * p['a']} and the ellipse reaches "
@@ -33938,9 +34661,8 @@ OP_EXT = {
                              f"and y equals {p['b']} times t, with t in "
                              f"seconds. At t equals {p['c']} seconds, how "
                              f"far is the ball from its start?"),
-        "board": lambda p: (f'[[step eq="x = {p["a"]}t · y = {p["b"]}t"]]'
-                            f'[[step eq="at t = {p["c"]} · distance from '
-                            f'the start = ?"]]'),
+        "board": _parm_board,         # (tq) the path with the t = 1 point
+        "worked": _parm_worked,       # (tq) the vector at time t (it prints the length)
         "praise": lambda p: (lambda h:
                              f"At {p['c']} seconds x is {p['a'] * p['c']} "
                              f"and y is {p['b'] * p['c']} — those two are "
@@ -33978,9 +34700,8 @@ OP_EXT = {
                              f"sum?"),
         # Raw givens: start, ratio, how many. Writing the terms out would do
         # the adding for them.
-        "board": lambda p: (f'[[step eq="start {p["a"]} · times {p["b"]} '
-                            f'each step · {p["c"]} terms"]]'
-                            f'[[step eq="sum = ?"]]'),
+        "board": _gsum_board,         # (tq) the pattern's machine (writing the terms would do the adding)
+        "worked": _gsum_worked,       # (tq) the terms as bars, added
         "praise": lambda p: (f"The terms are "
                              + ", ".join(str(p["a"] * p["b"] ** i)
                                          for i in range(p["c"]))
@@ -34015,8 +34736,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Read this instruction: the sum, for k going "
                              f"from 1 up to {p['b']}, of {p['a']} times k. "
                              f"What is the sum?"),
-        "board": lambda p: (f'[[step eq="Σ (k = 1 → {p["b"]}) of '
-                            f'{p["a"]}k = ?"]]'),
+        "board": _sigm_board,         # (tq) the recipe machine
+        "worked": _sigm_worked,       # (tq) the terms as bars
         "praise": lambda p: (f"Every term carries the {p['a']}, so pull it "
                              f"out front: 1 up to {p['b']} sums to "
                              f"{p['b'] * (p['b'] + 1) // 2}, and {p['a']} "
@@ -34045,9 +34766,8 @@ OP_EXT = {
                              f"people, and the order they are picked in "
                              f"does not matter. How many different teams "
                              f"are possible?"),
-        "board": lambda p: (f'[[step eq="choose {p["b"]} from {p["a"]} · '
-                            f'order does not matter"]]'
-                            f'[[step eq="teams = ?"]]'),
+        "board": _pasc_board,         # (tq) the crowd as an array
+        "worked": _pasc_worked,       # (tq) line-ups beside teams
         "praise": lambda p: (f"Picking in order would give "
                              f"{_npr(p['a'], p['b'])} line-ups, but every "
                              f"team of {p['b']} shows up "
@@ -34075,9 +34795,8 @@ OP_EXT = {
                              f"feet, and every bounce after that carries it "
                              f"half as far — forever. How far does it "
                              f"travel in all?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} + {p["a"] // 2} + '
-                            f'{p["a"] // 4} + … forever"]]'
-                            f'[[step eq="in all = ?"]]'),
+        "board": _gser_board,         # (tq) the first three bounces as bars
+        "worked": _gser_worked,       # (tq) the hops that each cover half of what is left
         "praise": lambda p: (f"Add forever and it still settles: {p['a']} "
                              f"plus {p['a'] // 2} plus {p['a'] // 4}, on "
                              f"and on, closes in on {2 * p['a']} — twice "
@@ -34099,8 +34818,8 @@ OP_EXT = {
         "spoken": lambda p: (f"As x creeps closer and closer to {p['a']}, "
                              f"what number does {p['b']} x plus {p['c']} "
                              f"creep toward?"),
-        "board": lambda p: (f'[[step eq="y = {p["b"]}x + {p["c"]}"]]'
-                            f'[[step eq="x → {p["a"]} · y → ?"]]'),
+        "board": _lsub_board,         # (tq) the line that never breaks
+        "worked": _lsub_worked,       # (tq) the point walked in
         "praise": lambda p: (f"Nothing breaks at x equals {p['a']}, so the "
                              f"value walks in with x: {p['b']} times "
                              f"{p['a']} is {p['a'] * p['b']}, plus "
@@ -34128,9 +34847,8 @@ OP_EXT = {
                              f"away {p['a']}. At x equals {p['a']} it is "
                              f"undefined. As x creeps toward {p['a']}, what "
                              f"number does y creep toward?"),
-        "board": lambda p: (f'[[step eq="y = (x² − {p["a"] * p["a"]}) ÷ '
-                            f'(x − {p["a"]})"]]'
-                            f'[[step eq="x → {p["a"]} · y → ?"]]'),
+        "board": _lhol_board,         # (tq) the machine that jams at the hole (the curve's hole sits at the answer -- walk-back only)
+        "worked": _lhol_worked,       # (tq) the line with its hole
         "praise": lambda p: (f"Everywhere except {p['a']}, that fraction "
                              f"quietly equals x plus {p['a']} — so as x "
                              f"creeps toward {p['a']}, y creeps toward "
@@ -34153,11 +34871,8 @@ OP_EXT = {
                              f"6 from the "
                              + ("LEFT" if p["c"] == 0 else "RIGHT")
                              + ", what value does y creep toward?"),
-        "board": lambda p: (f'[[step eq="x < 6 → y = {p["a"]} · x ≥ 6 → '
-                            f'y = {p["b"]}"]]'
-                            + '[[step eq="from the '
-                            + ("left" if p["c"] == 0 else "right")
-                            + ' · y → ?"]]'),
+        "board": _lsid_board,         # (tq) the step with its two heights
+        "worked": _lsid_worked,       # (tq) the approach marked
         "praise": lambda p: ((f"From the left, every x is below 6, so y is "
                               f"{p['a']} the whole way in — the limit from "
                               f"that side is {p['a']}. The other side would "
@@ -34190,9 +34905,8 @@ OP_EXT = {
         "spoken": lambda p: (f"On the curve y equals x squared, x moves "
                              f"from {p['a']} to {p['b']}. For each step of "
                              f"x, how much does y rise on average?"),
-        "board": lambda p: (f'[[step eq="y = x² · x from {p["a"]} to '
-                            f'{p["b"]}"]]'
-                            f'[[step eq="rise per step of x = ?"]]'),
+        "board": _avgr_board,         # (tq) the window on the curve
+        "worked": _avgr_worked,       # (tq) the line through the two points
         "praise": lambda p: (f"y climbs from {p['a'] * p['a']} to "
                              f"{p['b'] * p['b']} — a rise of "
                              f"{p['b'] * p['b'] - p['a'] * p['a']} — while "

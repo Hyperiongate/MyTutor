@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tq -- PART 3jm: Precalc Units 7-9 to the shape (12 lessons on the
+#               circle with its radius marked "?", the circle with its middle unnamed, the
+#               ellipse's two reaches as a tape, the path and the vector, the pattern's
+#               machine and the terms as bars, the sigma recipe, the crowd as an array,
+#               the bounces and the hops, the line that never breaks, the machine that
+#               jams at the hole and the line with its hole, the step with two shelves,
+#               the window on the curve); the course is 36/36; every figure an ask draws
+#               captioned; the sigma and step pending lines no longer put an arrow after
+#               an equals. THE CANON SWEEPS READ THE SHAPE: thirteen referee sweeps
+#               iterated les["teach"] only, so every why, picture, reason and recap beat
+#               written since sp went unswept by them -- _authored_beats(les) feeds them
+#               all five kinds now (the 1,900-card floor fired at 1,892 and said so);
+#               the strict function-notation ledger is 16 (four shape beats named).
 #   2026-09-06  BUILD tp -- PART 3jl: Precalc Units 4-6 to the shape (12 lessons on the
 #               bars, the unit circle wound backwards, the flat line split at the arrow,
 #               the wave on an axis in degrees, the hundred square, the right triangle's
@@ -2727,6 +2740,30 @@ def dep_gate(name, module, why=""):
         return True
     skip(name, f"{module} is not installed here" + (f" -- {why}" if why else ""))
     return False
+
+
+def _authored_beats(les):
+    """(tq, 2026-09-06) EVERY authored beat a lesson speaks over a board, in the order
+    it is heard: why, picture, teach, the reason question, recap. Thirteen canon
+    sweeps below read `les.get("teach")` only (the tb counted-drawing sweep already
+    labelled the shape's beats itself and keeps its own loop) -- the three teach beats every lesson
+    had when they were written. Since sp (2026-09-05) a lesson on the shape carries
+    why and picture beats BEFORE its teach and a reason question and recap AFTER, and
+    those beats were never swept by the canon referees here (the per-build presweep
+    read them; these PARTs did not). tq: the count of authored cards fell to 1,892 as
+    the last Precalc units went from three teach beats to two, the 1,900 floor fired,
+    and the honest repair was to sweep what the student actually hears. Lists and
+    tuples both appear in the source; every beat comes back as (spoken, board)."""
+    out = []
+    for key in ("why", "picture", "teach"):
+        for beat in (les.get(key) or []):
+            out.append((beat[0], beat[1]))
+    ex = les.get("explain")
+    if isinstance(ex, dict) and (ex.get("spoken") or ex.get("board")):
+        out.append((ex.get("spoken") or "", ex.get("board") or ""))
+    for beat in (les.get("recap") or []):
+        out.append((beat[0], beat[1]))
+    return out
 
 
 def check(name, condition, detail=""):
@@ -12018,7 +12055,7 @@ def part3hf_the_factors_are_checked_by_expanding_them():
                 if F(t) or row_fires(t):
                     hits.append(("foundation", c, sc.get("term")))
     for les in LS.LESSONS:
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(_authored_beats(les)):
             t = (sp or "") + "\n" + (b or "")
             if t.strip():
                 n += 1
@@ -12126,7 +12163,7 @@ def part3hg_the_asked_for_picture_is_drawn_now():
                 if P(t, msg):
                     hits.append(("foundation", c, sc.get("term")))
     for les in LS.LESSONS:
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(_authored_beats(les)):
             t = (sp or "") + "\n" + (b or "")
             if t.strip():
                 n += 1
@@ -12222,7 +12259,7 @@ def part3hh_the_words_point_where_the_column_put_it():
                 if C(t):
                     hits.append(("foundation", c, sc.get("term")))
     for les in LS.LESSONS:
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(_authored_beats(les)):
             t = (sp or "") + "\n" + (b or "")
             if t.strip():
                 n += 1
@@ -14917,7 +14954,7 @@ def part3eu_the_canon_held_to_its_own_standard():
                 n += 1
                 probe("foundation", c, sc.get("term") or "?", t)
     for les in LS.LESSONS:
-        for i, (s, b) in enumerate(les.get("teach") or []):
+        for i, (s, b) in enumerate(_authored_beats(les)):
             t = (s or "") + "\n" + (b or "")
             if t.strip():
                 n += 1
@@ -16208,7 +16245,7 @@ def part3gd_the_plain_yes_no_gets_its_buttons():
                 n += 1
                 probe("foundation", "%s/%s" % (c, sc.get("term") or "?"), t)
     for les in LS.LESSONS:
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(_authored_beats(les)):
             t = (sp or "") + "\n" + (b or "")
             if t.strip():
                 n += 1
@@ -16360,7 +16397,7 @@ def part3ge_the_named_list_of_falsehoods():
                 if F(t):
                     hits.append(("foundation", c, sc.get("term")))
     for les in LS.LESSONS:
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(_authored_beats(les)):
             t = (sp or "") + "\n" + (b or "")
             if t.strip():
                 n += 1
@@ -16448,7 +16485,7 @@ def part3gf_one_entry_per_function_letter():
             if t.strip():
                 probe(t)
     for les in LS.LESSONS:
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(_authored_beats(les)):
             t = (sp or "") + "\n" + (b or "")
             if t.strip():
                 probe(t)
@@ -16459,8 +16496,14 @@ def part3gf_one_entry_per_function_letter():
                 probe(t)
     check("⭐ canon sweep with the conversation as heard: 0 fires (%d swept)" % n,
           lenient == 0, "%d" % lenient)
-    check("  strict first-turn sweep: at most the 12 recorded cards (%d)" % strict,
-          strict <= 12, "the shape started fighting real teaching -- re-read the twelve")
+    # (tq, 2026-09-06) was 12. The canon sweeps read the shape's why, picture, reason
+    # and recap beats now (_authored_beats), and four of those write function notation
+    # on a strict first turn exactly as their teach beats do: f-of-x[r1],
+    # which-input[r0], machines-in-a-row[p0] and [r1] -- recaps and a picture beat in
+    # the three lessons that TEACH the reading, silent as heard (the lenient sweep
+    # above is the law; this count is the ledger).
+    check("  strict first-turn sweep: at most the 16 recorded cards (%d)" % strict,
+          strict <= 16, "the shape started fighting real teaching -- re-read the sixteen")
     check("  the sweep covered the whole canon", n >= 1900, "%d" % n)
     tsrc = open(_t.__file__, encoding="utf-8").read()
     check("  three entries, one per letter, and the shared class is gone",
@@ -16558,7 +16601,7 @@ def part3gg_the_check_that_can_be_failed():
             if t.strip():
                 probe(t)
     for les in LS.LESSONS:
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(_authored_beats(les)):
             t = (sp or "") + "\n" + (b or "")
             if t.strip():
                 probe(t)
@@ -16845,7 +16888,7 @@ def part3gj_one_thought_per_line_in_the_boards():
                 if F(t):
                     hits.append(("foundation", c, sc.get("term")))
     for les in LS.LESSONS:
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(_authored_beats(les)):
             t = (sp or "") + "\n" + (b or "")
             if t.strip():
                 n += 1
@@ -17594,7 +17637,7 @@ def part3gp_the_quiz_says_correct_every_time():
                 prev = t
     for les in LS.LESSONS:
         prev = ""
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(_authored_beats(les)):
             t = (sp or "") + "\n" + (b or "")
             if t.strip():
                 n += 1
@@ -18421,7 +18464,7 @@ def part3gv_count_out_loud_with_me():
                 if F(t):
                     hits.append(("foundation", "%s/%s" % (c, sc.get("term") or "?")))
     for les in LS.LESSONS:
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(_authored_beats(les)):
             t = (sp or "") + "\n" + (b or "")
             if t.strip():
                 n += 1
@@ -18532,7 +18575,7 @@ def part3gw_the_counting_lessons_actually_count():
                           (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or []),
                           "\n".join(sc.get("board") or [])))
     for les in LS.LESSONS:
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(les.get("teach") or []):   # (tq) this sweep labels the shape's beats itself, below
             says.append(sp or "")
             cards.append(("%s[t%d]" % (les["id"], i), (sp or "") + "\n" + (b or ""), b or ""))
         for i, pr in enumerate(les.get("pairs") or []):
@@ -18708,7 +18751,7 @@ def part3gx_the_words_point_at_the_picture_drawn():
             cards.append(("%s/%s" % (c, sc.get("term") or "?"),
                           (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])))
     for les in LS.LESSONS:
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(_authored_beats(les)):
             cards.append(("%s[t%d]" % (les["id"], i), (sp or "") + "\n" + (b or "")))
         for i, pr in enumerate(les.get("pairs") or []):
             w = pr.get("worked") or ("", "")
@@ -21923,7 +21966,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,141</b>" in page,
+          "<b>10,227</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -26160,6 +26203,138 @@ def part3jl_precalc_units_four_to_six_to_the_shape():
           "Jim's rule 8")
 
 
+def part3jm_precalc_units_seven_to_nine_to_the_shape():
+    """PART 3jm (build tq, 2026-09-06) -- PRECALC UNITS 7-9 TO THE SHAPE; THE COURSE IS 36/36.
+
+    The circle with its radius marked "?" and the circle with its middle unnamed on the
+    asks (the conic grid, where the answer could be counted, draws the walk-backs); the
+    ellipse's two reaches as a tape, both blank; the ball's path at t = 1, walked back
+    as the vector at time t; the pattern's machine, the terms as bars; the sigma recipe
+    machine; the crowd as a one-row array, line-ups beside teams; the bounces as bars,
+    the hops that each cover half of what is left; the line that never breaks; the
+    machine that jams at the hole, the line with its hole; the step with two shelves;
+    the window on the curve, the line through its two ends. Every figure an ask draws
+    carries a caption."""
+    print("\nPART 3jm — Precalc Units 7-9 to the shape (build tq)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    P7 = ["pc-u7-un-square-the-radius", "pc-u7-where-the-circle-sits",
+          "pc-u7-edge-to-edge", "pc-u7-where-you-are-at-time-t"]
+    P8 = ["pc-u8-add-the-whole-run", "pc-u8-the-instruction-called-sigma",
+          "pc-u8-when-order-does-not-matter", "pc-u8-the-sum-that-never-ends"]
+    P9 = ["pc-u9-walk-the-value-in", "pc-u9-the-hole-in-the-curve",
+          "pc-u9-the-two-sides-disagree", "pc-u9-the-shrinking-window"]
+    _shape_unit_checks(P7, r"\[\[(circle|conic|tape|graph|vector)\b")
+    _shape_unit_checks(P8, r"\[\[(bars|machine|array|numberline)\b")
+    _shape_unit_checks(P9, r"\[\[(graph|machine)\b")
+    check("⭐ Precalc is 36/36 on the shape",
+          all(all(k in L.LESSON_BY_ID[l] for k in ("why", "picture", "explain", "recap"))
+              for l in L.LESSON_BY_ID if l.startswith("pc-u")), "")
+
+    # ---- Unit 7 ------------------------------------------------------------------------
+    crad = {"a": 8, "b": 3, "c": 12, "op": "crad"}
+    check("⭐ un-square the radius: the circle with its radius marked ? on the ask; the circle on the grid, reaching its radius, in the walk-back",
+          '[[circle center="O" r="?" caption=' in L.board_for(crad, "abstract") and "[[conic" not in L.board_for(crad, "abstract")
+          and '[[conic type="circle" r="12" cx="8" cy="3" caption=' in _W(crad)[1] and "the radius is 12" in _W(crad)[0], "")
+    cctr = {"a": 12, "b": 7, "c": 5, "op": "cctr"}
+    check("⭐ where the circle sits: the circle with its middle unnamed on the ask; at its middle on the grid in the walk-back; the teach and worked pairs sit past every asked center",
+          '[[circle center="?" caption=' in L.board_for(cctr, "abstract")
+          and '[[conic type="circle" r="5" cx="12" cy="7" caption=' in _W(cctr)[1] and "the center\'s x is 12" in _W(cctr)[0]
+          and "x take away 15" in L.LESSON_BY_ID["pc-u7-where-the-circle-sits"]["why"][0][0]
+          and "(x − 14)²" in L.LESSON_BY_ID["pc-u7-where-the-circle-sits"]["pairs"][0]["worked"][1], "")
+    elax = {"a": 7, "b": 5, "op": "elax"}
+    check("⭐ edge to edge: the two reaches as a tape, both blank, on the ask; the ellipse and the tape filled in the walk-back",
+          '[[tape parts="?|?" total="left edge to right edge = ?" caption=' in L.board_for(elax, "abstract")
+          and '[[conic type="ellipse" a="7" b="5" caption=' in _W(elax)[1] and '[[tape parts="7|7" total="14"' in _W(elax)[1]
+          and "edge to edge is double that — 14" in _W(elax)[0], "")
+    parm = {"a": 5, "b": 12, "c": 3, "op": "parm"}
+    check("  where you are at time t: the path with its t = 1 point (names=) on the ask; the vector at time t in the walk-back",
+          '[[graph lines="y=2.4x" names="the path" points="(5,12)" range="0..14" caption=' in L.board_for(parm, "abstract")
+          and '[[vector v="15,36" caption="at t = 3: (15, 36) — 39 from the start"]]' in _W(parm)[1]
+          and "51 walks the corner" in _W(parm)[0], "")
+
+    # ---- Unit 8 ------------------------------------------------------------------------
+    gsum = {"a": 2, "b": 2, "c": 5, "op": "gsum"}
+    check("⭐ add the whole run: the pattern's machine on the ask (no terms written); the terms as bars, added, in the walk-back",
+          '[[machine input="2" rule="× 2" output="?" caption=' in L.board_for(gsum, "abstract") and "[[bars" not in L.board_for(gsum, "abstract")
+          and '[[bars data="term 1:2 | term 2:4 | term 3:8 | term 4:16 | term 5:32" caption="2 + 4 + 8 + 16 + 32 = 62"]]' in _W(gsum)[1]
+          and "put together, 62" in _W(gsum)[0], "")
+    sigm = {"a": 6, "b": 7, "op": "sigm"}
+    check("⭐ the instruction called sigma: the recipe machine on the ask and a pending line with no arrow after an equals (12 asks had one); the terms as bars in the walk-back",
+          '[[machine input="k" rule="6k" output="?" caption=' in L.board_for(sigm, "abstract")
+          and '[[step eq="Σ (k from 1 to 7) of 6k = ?"]]' in L.board_for(sigm, "abstract")
+          and '[[bars data="k=1:6 | k=2:12 | k=3:18 | k=4:24 | k=5:30 | k=6:36 | k=7:42" caption=' in _W(sigm)[1]
+          and "6 times 28 equals 168" in _W(sigm)[0], "")
+    pasc = {"a": 8, "b": 3, "op": "pasc"}
+    check("  when order does not matter: the crowd as a one-row array on the ask; line-ups beside teams in the walk-back",
+          '[[array rows="1" cols="8" caption=' in L.board_for(pasc, "abstract")
+          and '[[bars data="line-ups:336 | teams:56" caption="336 line-ups ÷ 6 orders = 56 teams"]]' in _W(pasc)[1]
+          and "336 divided by 6 equals 56 teams" in _W(pasc)[0], "")
+    gser = {"a": 48, "b": 0, "op": "gser"}
+    check("⭐ the sum that never ends: the first three bounces as bars on the ask; the hops that each cover half of what is left in the walk-back",
+          '[[bars data="1st bounce:48 | 2nd:24 | 3rd:12" caption=' in L.board_for(gser, "abstract")
+          and '[[numberline min="0" max="96" hops="0,48,72,84,90" points="96" caption=' in _W(gser)[1]
+          and 'hops="0,12,18,21,22.5"' in _W({"a": 12, "b": 0, "op": "gser"})[1]
+          and "closes in on 96" in _W(gser)[0], "")
+
+    # ---- Unit 9 ------------------------------------------------------------------------
+    lsub = {"a": 8, "b": 6, "c": 3, "op": "lsub"}
+    check("  walk the value in: the line that never breaks on the ask (no point marked); the point walked in in the walk-back",
+          '[[graph lines="y=6x+3" range="0..11" caption=' in L.board_for(lsub, "abstract") and "points=" not in L.board_for(lsub, "abstract")
+          and '[[graph lines="y=6x+3" points="(8,51)" range="0..11" caption=' in _W(lsub)[1] and "plus 3 is 51" in _W(lsub)[0], "")
+    lhol = {"a": 14, "b": 0, "op": "lhol"}
+    check("⭐ the hole in the curve: the machine that jams on the ask (the curve's hole sits at the answer); the line with its hole (hole=) in the walk-back",
+          '[[machine input="14" rule="(x² − 196) ÷ (x − 14)" output="jammed" caption=' in L.board_for(lhol, "abstract")
+          and "[[graph" not in L.board_for(lhol, "abstract")
+          and '[[graph func="(x^2-196)/(x-14)" hole="14" range="11..17" yrange="22..34" caption=' in _W(lhol)[1]
+          and "y creeps toward 28" in _W(lhol)[0], "")
+    lsid = {"a": 11, "b": 19, "c": 1, "op": "lsid"}
+    check("⭐ the two sides disagree: the step with two shelves on the ask and a pending line with no arrow after an equals (12 asks had two); the approach marked in the walk-back",
+          '[[graph func="11 for x<6; 19 for x>=6" range="0..12" yrange="0..23" caption=' in L.board_for(lsid, "abstract")
+          and '[[step eq="x < 6: y = 11 · x ≥ 6: y = 19"]]' in L.board_for(lsid, "abstract")
+          and 'points="(9,19),(8,19),(7,19)"' in _W(lsid)[1]
+          and 'points="(3,13),(4,13),(5,13)"' in _W({"a": 13, "b": 21, "c": 0, "op": "lsid"})[1]
+          and "the limit from that side is 19" in _W(lsid)[0], "")
+    avgr = {"a": 2, "b": 10, "op": "avgr"}
+    check("  the shrinking window: the window on the curve (two walls, no points) on the ask; the line through the two ends in the walk-back",
+          '[[graph func="x^2" lines="x=2; x=10" range="0..11" yrange="0..110" caption=' in L.board_for(avgr, "abstract")
+          and "points=" not in L.board_for(avgr, "abstract")
+          and '[[graph func="x^2" lines="y=12x-20" points="(2,4),(10,100)" range="0..11" yrange="0..110" caption=' in _W(avgr)[1]
+          and "12 per step, which is simply 2 plus 10" in _W(avgr)[0], "")
+
+    # ---- the giveaway audit, captions, spoken pending lines, the notes ----------------
+    check("  nothing the twelve lessons demonstrate is later asked",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in P7 + P8 + P9), "")
+    check("  every figure an ask draws carries a caption (rule 41)",
+          all("caption=" in tag for l in P7 + P8 + P9
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:circle|conic|tape|graph|vector|bars|machine|array|numberline)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in P7 + P8 + P9:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  no ask in the three units puts an arrow after an equals sign or a question inside a step",
+          not any(re.search(r"=[^\"]*→", m) or re.search(r"[A-Za-z]\?", m) for l in P7 + P8 + P9
+                  for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+                  for m in re.findall(r'\[\[step eq="([^"]*)"', L.board_for(p, "abstract"))), "")
+    check("  no reason option works the arithmetic aloud (the spoken-math referee sweeps the joined options)",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in P7 + P8 + P9), "")
+    check("  no walk-back in the three units states a false law about holes (referee 61)",
+          not any(tutor.false_universal_conflict(_W(p)[0]) for l in P7 + P8 + P9
+                  for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
+    check("  the changed files carry dated tq notes",
+          "2026-09-06  BUILD tq" in rd("lessonscripts.py")[:60000] and "BUILD tq" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD tq" in rd("ruletests.py")[:8000] and "(tq)" in rd("static/methodology.html")[:12000],
+          "Jim's rule 8")
+
+
 def part3dp_no_button_under_a_talking_teacher():
     """PART 3dp (build nb) -- NOTHING APPEARS UNDER A TEACHER WHO IS STILL TALKING.
 
@@ -27580,7 +27755,7 @@ def part3hx_the_question_mark_is_a_blank_said_so():
                 if dd and "question-mark blank" in dd:
                     hits.append(("foundation", c))
     for les in LS.LESSONS:
-        for i, (sp, b) in enumerate(les.get("teach") or []):
+        for i, (sp, b) in enumerate(_authored_beats(les)):
             t = (sp or "") + "\n" + (b or "")
             if t.strip():
                 n += 1
@@ -36501,6 +36676,7 @@ def main():
     part3jj_algebra_two_units_seven_to_nine_to_the_shape()
     part3jk_precalc_units_one_to_three_to_the_shape()
     part3jl_precalc_units_four_to_six_to_the_shape()
+    part3jm_precalc_units_seven_to_nine_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
