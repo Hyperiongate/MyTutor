@@ -2,6 +2,9 @@
    geo-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-06  BUILD ti -- [[circle d="10"]] draws the diameter edge to edge through
+                 the middle, labelled -- Geometry Unit 1's radius-and-diameter walk-back
+                 shows two radiuses end to end. Without d= nothing changed.
      2026-08-27  BUILD pc -- THE FIGURE FILLS THE BOARD. Every geometry figure was
                  capped at 340px, and until pc that cap did not even apply: .mfig was
                  a shrink-to-fit box and the SVG's percentage width collapsed to the
@@ -256,6 +259,15 @@
       var end = [C[0] + R, C[1]];
       s += line(C, end, TEAL, 2);
       s += txt((C[0] + end[0]) / 2, C[1] - 12, a.r, INK, 14, 600);
+    }
+    // (ti, 2026-09-06) d="10": the DIAMETER drawn edge to edge through the middle,
+    // labelled below the line -- two radiuses end to end, seen. With r= as well,
+    // the radius sits on the right half of it and the two labels stack.
+    if (a.d) {
+      var L0 = [C[0] - R, C[1]], R0 = [C[0] + R, C[1]];
+      s += line(L0, R0, "var(--bd-e0392b)", 2.2);
+      s += dot(L0, 2.6); s += dot(R0, 2.6);
+      s += txt(C[0], C[1] + 22, "diameter " + String(a.d), "var(--bd-c0392b)", 13, 700);
     }
     if (a.inscribed) {
       var arc = Math.max(10, Math.min(300, num(a.inscribed, 80))), half = arc / 2 * Math.PI / 180;

@@ -2,6 +2,31 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD ti -- GEOMETRY UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "start in
+#               on the geometry." THIS FILE:
+#                 * Unit 1 (angles, the circle, the midpoint): the square corner split and
+#                   walked back with both pieces labelled; two lines crossed as the X with
+#                   the twin labelled ([[angle cross=]]) and walked back on the straight
+#                   line the neighbours share; the circle with its radius, walked back with
+#                   the DIAMETER drawn edge to edge ([[circle d=]], new this build in
+#                   geo-figures.js); the midpoint on the number line with the halfway mark;
+#                 * Unit 2 (the three moves) on the GRID: the point captioned, then the
+#                   point and where it landed (a slide, a flip across the mirror on x = 0,
+#                   a half turn to the opposite spot); turn symmetry on the pie (past
+#                   twelve parts, a written line);
+#                 * Unit 3 (triangles): ABC beside its copy DEF (congruent); the ticked
+#                   triangle with its base angles and the top blank, then all three; two
+#                   angles with the third corner opened out; the apex with the base angles
+#                   blank. Trap lines kept in every lesson.
+#               ⚠️ every figure ask in the three units drew with no caption (rule 41, 138
+#               asks: triangle, graph, angle, numberline, circle, pie). The geometry
+#               vocabulary referee: an angle is never a "piece". Every lesson: why,
+#               picture, teach, pairs, walk-back, reason, recap. ENGINE: OP_EXT comp/vert/
+#               circ/mid/tran/refl/htrn/rota/cong/isos/extr/chas gain boards and "worked"
+#               (_comp_* ... _chas_*). Demonstrated numbers kept out of the banks (the old
+#               rota teach used 4 and 5 parts and the old isos teach 50 -- all asks; rota's
+#               twelve divisors of 360 leave only 6 and 12 free, so the lesson teaches on
+#               those two).
 #   2026-09-06  BUILD th -- ALGEBRA 1 UNITS 7-9 TO THE SHAPE (12 lessons). THE COURSE IS
 #               36/36. THIS FILE:
 #                 * Unit 7 (the four rooms) on the AREA MODEL with two new ask modes
@@ -12186,24 +12211,63 @@ _GEOMETRY_U1 = [
         "op": "comp", "max_value": 90,
         "levels": ("abstract",),
         "symbols": ("right angle", "degrees"),
-        "advance_line": "Three in a row — you've got it! A right angle is 90, so the pair adds to 90.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A right angle is 90, so the pair adds to 90.",
+        "why": [
+            ("Welcome to geometry. Why start with a corner? Because you already know "
+             "two totals: a right angle is 90 degrees, and a straight line is 180. "
+             "Today\'s angles share the smaller one — two angles that together make a "
+             "right angle, a perfect square corner — and corners are everywhere: "
+             "walls, pages, the frame of a door.",
+             '[[goal text="Two angles make a right angle"]]'),
+        ],
+        "picture": [
+            ("Here is a right angle with a ray drawn inside it, splitting it into two "
+             "angles. One angle is 30 degrees. The two fill the square corner, so "
+             "together they are 90 — and the other angle is 90 take away 30, which "
+             "is 60. Both labelled, they add back to the corner.",
+             '[[angle deg="90" split="30,60" caption="a square corner split — 30° + 60° = 90°"]]'),
+        ],
         "teach": [
-            ["Welcome to geometry. You already know two totals: a right angle is 90 degrees, and a straight line is 180. Today's angles share the smaller one — two angles that together make a right angle, a perfect square corner.",
-             '[[goal text="Two angles make a right angle"]][[angle deg="90" split="30" caption="a square corner split — 30° and the rest"]]'],
-            ["Here is a right angle with a ray drawn inside it, splitting it in two. One angle is 30 degrees. The two angles fill the corner, so together they make 90 — and the other piece is 90 take away 30, which equals 60.",
-             '[[angle deg="90" split="30" caption="a square corner split — 30° and the rest"]][[step eq="90° − 30° = 60°"]]'],
-            ["Angles that pair up to 90 have a name: complementary. And here is the trap — you met 180 first, in the straight-line lesson, and 180 sticks. Look at the picture and ask which corner you are inside. A square corner is 90.",
-             '[[angle deg="90" split="30" caption="a 30° angle inside a square corner — the rest is 60°"]][[step eq="90 − 30 = 60 ✓"]][[step eq="180 − 30 = 150 ✗ — that is a straight line, not a corner"]]'],
+            ("That is the method. The two angles fill the corner, so together they "
+             "make 90. One of them is 30, so the other is 90 take away 30, which "
+             "equals 60.",
+             '[[angle deg="90" split="30" caption="a square corner split — 30° and the rest"]][[step eq="90° − 30° = 60°"]]'),
+            ("Angles that pair up to 90 have a name: complementary. And here is the "
+             "trap — you met 180 first, in the straight-line lesson, and 180 sticks. "
+             "Ask which corner you are inside. A square corner is 90.",
+             '[[angle deg="90" split="30" caption="inside a square corner"]][[step eq="90 − 30 = 60 ✓"]][[step eq="180 − 30 = 150 ✗ — that is a straight line, not a corner"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A right angle split in two, one angle 40 degrees. The other is 90 take away 40 — 50 degrees.",
-                        '[[angle deg="90" split="40" caption="a square corner split — 40° and the rest"]][[step eq="90° − 40° = 50°"]]'],
-             "ask": {"a": 50, "b": 0, "op": "comp"}},
-            {"worked": ["One more together. One angle is 70, so the other is 90 take away 70, which equals 20 degrees.",
-                        '[[step eq="90° − 70° = 20°"]]'],
-             "ask": {"a": 29, "b": 0, "op": "comp"}},
+            {"worked": ("Here is one more, done for you. A right angle split in two, one "
+                        "angle 40 degrees. The other is 90 take away 40 — 50 degrees.",
+                        '[[angle deg="90" split="40,50" caption="40° + 50° = 90°"]][[step eq="90° − 40° = 50°"]]'),
+             "ask": {'a': 50, 'b': 0, 'op': 'comp'}},
+            {"worked": ("One more together. One angle is 70, so the other is 90 take "
+                        "away 70, which equals 20 degrees.",
+                        '[[angle deg="90" split="70,20" caption="70° + 20° = 90°"]][[step eq="90° − 70° = 20°"]]'),
+             "ask": {'a': 29, 'b': 0, 'op': 'comp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Two angles make a "
+                       "right angle, one is 30 degrees, and the other is 60. Tap the "
+                       "reason why."),
+            "choices": ("because the two fill a square corner, which is 90 | "
+                        "because the two sit on a straight line, which is 180 | because "
+                        "the other angle is always twice the first"),
+            "answer": "because the two fill a square corner, which is 90",
+            "board": '[[angle deg="90" split="30,60" caption="30° + 60° = 90°"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two angles that make a right angle add to 90 — "
+             "they are complementary. Take the one you know from 90, not from 180, "
+             "and the other is what is left.",
+             '[[angle deg="90" split="30,60" caption="90° − 30° = 60°"]]'),
+            ("And that is a corner, split and put back together.",
+             '[[step eq="90° − 30° = 60°"]]'),
+        ],
         "bank": [
             {"a": 80, "b": 0, "op": "comp"},
             {"a": 69, "b": 0, "op": "comp"},
@@ -12224,24 +12288,63 @@ _GEOMETRY_U1 = [
         "op": "vert", "max_value": 180,
         "levels": ("abstract",),
         "symbols": ("cross", "degrees"),
-        "advance_line": "Three in a row — you've got it! Neighbours make 180; opposites are equal.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Neighbours make 180; opposites are equal.",
+        "why": [
+            ("Why an X? Because two straight lines can cross, and where they cross "
+             "they make an X with four angles in it. They are not four separate "
+             "mysteries — they come in two pairs, and knowing ONE of the four tells "
+             "you all the others.",
+             '[[goal text="When two lines cross"]]'),
+        ],
+        "picture": [
+            ("Here are two lines crossing, with one angle marked 50 degrees. Straight "
+             "across from it, the opposite angle is 50 too — opposite angles are "
+             "twins. And the angle NEXT to the 50 sits with it on one straight line, "
+             "so the two make 180: it is 130.",
+             '[[angle deg="50" cross="50" caption="two lines cross — the 50° angle and its twin opposite"]][[angle deg="180" split="50,130" caption="next to it, on one straight line: 50° + 130° = 180°"]]'),
+        ],
         "teach": [
-            ["Two straight lines can cross, and where they cross they make an X with four angles in it. They are not four separate mysteries — they come in two pairs, and knowing ONE of the four tells you all the others.",
-             '[[goal text="When two lines cross"]][[angle deg="180" split="50" caption="a straight line split — 50° and the rest"]]'],
-            ["Say one angle measures 50 degrees, and remember a straight line is 180. The angle NEXT to it sits with it on that straight line, so the two make 180: it is 180 take away 50, which equals 130. And the angle straight OPPOSITE the 50 is 50 again — opposite angles are always equal.",
-             '[[angle deg="180" split="50" caption="a straight line split — 50° and the rest"]][[step eq="next to it: 180° − 50° = 130°"]][[step eq="opposite: 50° again"]]'],
-            ["So read the question carefully: NEXT to, or OPPOSITE? Next-door angles add to 180. Opposite angles are twins. Both facts are true at once, and answering with the wrong one is the whole danger of an X.",
-             '[[step eq="next to 50° → 130° ✓"]][[step eq="opposite 50° → 50° (true, but not what was asked)"]]'],
+            ("That is the method. Say one angle measures 50 degrees, and remember a "
+             "straight line is 180. The angle NEXT to it sits with it on that "
+             "straight line, so the two make 180: it is 180 take away 50, which "
+             "equals 130. And the angle straight OPPOSITE the 50 is 50 again.",
+             '[[angle deg="180" split="50" caption="a straight line split — 50° and the rest"]][[step eq="next to it: 180° − 50° = 130°"]][[step eq="opposite: 50° again"]]'),
+            ("So read the question carefully: NEXT to, or OPPOSITE? Next-door angles "
+             "add to 180. Opposite angles are twins. Both facts are true at once, and "
+             "answering with the wrong one is the whole danger of an X.",
+             '[[step eq="next to 50° → 130° ✓"]][[step eq="opposite 50° → 50° (true, but not what was asked)"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. One angle is 60 degrees. Its neighbour is 180 take away 60 — 120 degrees.",
-                        '[[angle deg="180" split="60" caption="a straight line split — 60° and the rest"]][[step eq="180° − 60° = 120°"]]'],
-             "ask": {"a": 68, "b": 0, "op": "vert"}},
-            {"worked": ["One more together. One angle is 35, so the angle beside it is 180 take away 35, which equals 145 degrees.",
-                        '[[step eq="180° − 35° = 145°"]]'],
-             "ask": {"a": 22, "b": 0, "op": "vert"}},
+            {"worked": ("Here is one more, done for you. One angle is 60 degrees. Its "
+                        "neighbour is 180 take away 60 — 120 degrees.",
+                        '[[angle deg="180" split="60,120" caption="on one straight line: 60° + 120° = 180°"]][[step eq="180° − 60° = 120°"]]'),
+             "ask": {'a': 68, 'b': 0, 'op': 'vert'}},
+            {"worked": ("One more together. One angle is 35, so the angle beside it is "
+                        "180 take away 35, which equals 145 degrees.",
+                        '[[angle deg="180" split="35,145" caption="on one straight line: 35° + 145° = 180°"]][[step eq="180° − 35° = 145°"]]'),
+             "ask": {'a': 22, 'b': 0, 'op': 'vert'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Two lines cross, "
+                       "one angle is 50 degrees, and the angle next to it is 130. Tap "
+                       "the reason why."),
+            "choices": ("because the two neighbours share a straight line, which is 180 | "
+                        "because opposite angles are twins, so it is 50 | because the "
+                        "four angles share 360, so it is 310"),
+            "answer": "because the two neighbours share a straight line, which is 180",
+            "board": '[[angle deg="180" split="50,130" caption="50° + 130° = 180°"]]',
+        },
+        "recap": [
+            ("So, here it is again. Where two lines cross, neighbours make 180 and "
+             "opposites are equal. Read which one the question asks for, then use "
+             "the right fact.",
+             '[[angle deg="50" cross="50" caption="opposites are twins · neighbours make 180°"]]'),
+            ("And that is one angle telling you all four.",
+             '[[step eq="180° − 50° = 130°"]]'),
+        ],
         "bank": [
             {"a": 70, "b": 0, "op": "vert"},
             {"a": 65, "b": 0, "op": "vert"},
@@ -12262,24 +12365,61 @@ _GEOMETRY_U1 = [
         "op": "circ", "max_value": 90,
         "levels": ("abstract",),
         "symbols": ("radius", "diameter"),
-        "advance_line": "Three in a row — you've got it! The diameter is two radiuses.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The diameter is two radiuses.",
+        "why": [
+            ("Why the circle? Because a circle is every point the same distance from "
+             "one middle point. That distance — middle to edge — is the radius. Draw "
+             "it and you have the circle\'s one measurement; everything else about "
+             "the circle follows from it, starting with the trip all the way across.",
+             '[[goal text="Radius and diameter"]]'),
+        ],
+        "picture": [
+            ("Here is a circle with its radius drawn: middle to edge, 5. Now go all "
+             "the way across, edge to edge, through the middle — that is the "
+             "diameter, drawn in red. It is simply two radiuses laid end to end: 5 "
+             "and 5, so the diameter is 10.",
+             '[[circle center="O" r="5" d="10" caption="radius 5, middle to edge — diameter 10, all the way across"]]'),
+        ],
         "teach": [
-            ["A circle is every point the same distance from one middle point. That distance — middle to edge — is the radius. Draw it and you have the circle's one measurement; everything else about the circle follows from it.",
-             '[[goal text="Radius and diameter"]][[circle center="O" r="5" caption="middle to edge: the radius is 5"]]'],
-            ["Now go all the way across, edge to edge, through the middle. That is the diameter — and it is simply two radiuses laid end to end. If the radius is 5, the diameter is 2 times 5, which equals 10.",
-             '[[circle center="O" r="5" caption="middle to edge: the radius is 5"]][[step eq="diameter = 2 × 5 = 10"]]'],
-            ["Two words, one relationship, and the danger is which way round. The diameter is the BIG one — all the way across. The radius is the small one — halfway. Doubling goes radius to diameter; halving comes back.",
-             '[[step eq="radius 5 → diameter 10 ✓"]][[step eq="radius 5 → 2 or 3 ✗ — that is going the wrong way"]]'],
+            ("That is the method. The diameter is two radiuses end to end. If the "
+             "radius is 5, the diameter is 2 times 5, which equals 10.",
+             '[[circle center="O" r="5" d="10" caption="2 × 5 = 10"]][[step eq="diameter = 2 × 5 = 10"]]'),
+            ("Two words, one relationship, and the danger is which way round. The "
+             "diameter is the BIG one — all the way across. The radius is the small "
+             "one — halfway. Doubling goes radius to diameter; halving comes back.",
+             '[[step eq="radius 5 → diameter 10 ✓"]][[step eq="radius 5 → 2 or 3 ✗ — that is going the wrong way"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A radius of 9 gives a diameter of 2 times 9 — 18.",
-                        '[[circle center="O" r="9" caption="middle to edge: the radius is 9"]][[step eq="2 × 9 = 18"]]'],
-             "ask": {"a": 14, "b": 0, "op": "circ"}},
-            {"worked": ["One more together. A radius of 11: the diameter is 2 times 11, which equals 22.",
-                        '[[step eq="2 × 11 = 22"]]'],
-             "ask": {"a": 22, "b": 0, "op": "circ"}},
+            {"worked": ("Here is one more, done for you. A radius of 9 gives a diameter "
+                        "of 2 times 9 — 18.",
+                        '[[circle center="O" r="9" d="18" caption="2 × 9 = 18"]][[step eq="2 × 9 = 18"]]'),
+             "ask": {'a': 14, 'b': 0, 'op': 'circ'}},
+            {"worked": ("One more together. A radius of 11: the diameter is 2 times 11, "
+                        "which equals 22.",
+                        '[[circle center="O" r="11" d="22" caption="2 × 11 = 22"]][[step eq="2 × 11 = 22"]]'),
+             "ask": {'a': 22, 'b': 0, 'op': 'circ'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A circle with a "
+                       "radius of 5 has a diameter of 10. Tap the reason why."),
+            "choices": ("because the diameter is two radiuses laid end to end | because "
+                        "the diameter is half the radius | because the diameter is the "
+                        "radius plus 5, whatever the radius"),
+            "answer": "because the diameter is two radiuses laid end to end",
+            "board": '[[circle center="O" r="5" d="10" caption="two radiuses end to end: 2 × 5 = 10"]]',
+        },
+        "recap": [
+            ("So, here it is again. The radius runs middle to edge; the diameter runs "
+             "all the way across through the middle, and it is two radiuses. Double "
+             "to go out, halve to come back.",
+             '[[circle center="O" r="5" d="10" caption="diameter = 2 × radius"]]'),
+            ("And that is the circle\'s one measurement, and the first thing built "
+             "from it.",
+             '[[step eq="diameter = 2 × 5 = 10"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 0, "op": "circ"},
             {"a": 6, "b": 0, "op": "circ"},
@@ -12300,24 +12440,62 @@ _GEOMETRY_U1 = [
         "op": "mid", "max_value": 60,
         "levels": ("abstract",),
         "symbols": ("midpoint", "halfway"),
-        "advance_line": "Three in a row — you've got it! Add the two ends and share by two.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Add the two ends and share by two.",
+        "why": [
+            ("Why the midpoint? Because every line has an exact middle — the point "
+             "halfway along, the same distance from both ends. Finding it is the "
+             "first real construction in geometry, and every shape you will ever "
+             "cut in half starts there.",
+             '[[goal text="The midpoint"]]'),
+        ],
+        "picture": [
+            ("Here is a line on the number line, running from 2 to 10, with the "
+             "halfway mark drawn. It falls on 6 — and look: 6 is 4 away from 2, and "
+             "4 away from 10. Equal both ways. That point is the midpoint.",
+             '[[numberline min="1" max="11" points="2,6,10" mid="6" caption="ends 2 and 10 — the middle is 6, 4 each way"]]'),
+        ],
         "teach": [
-            ["Every line has an exact middle — the point halfway along, the same distance from both ends. It is called the midpoint, and finding it is the first real construction in geometry.",
-             '[[goal text="The midpoint"]][[numberline min="1" max="11" points="2,10" caption="the ends, 2 and 10 — where is the middle?"]]'],
-            ["A line runs from 2 to 10. Add the two ends: 2 plus 10 equals 12. Share by two: 6. And check it — 6 is 4 away from 2, and 4 away from 10. Equal both ways, so 6 is the midpoint.",
-             '[[numberline min="1" max="11" points="2,6,10" caption="ends 2 and 10, middle 6"]][[step eq="(2 + 10) ÷ 2 = 6"]]'],
-            ["Both ends go in. Halving the far end alone gives 5, and 5 is not the middle of this line — it only would be if the line started at zero. And do not answer with the LENGTH: the line is 8 long, but it is 6 that sits halfway.",
-             '[[step eq="midpoint = 6 ✓"]][[step eq="10 ÷ 2 = 5 ✗ · length 8 ✗"]]'],
+            ("That is the method. Add the two ends: 2 plus 10 equals 12. Share by "
+             "two: 6. And check it — 6 is 4 away from 2, and 4 away from 10. Equal "
+             "both ways, so 6 is the midpoint.",
+             '[[numberline min="1" max="11" points="2,6,10" mid="6" caption="ends 2 and 10, middle 6"]][[step eq="(2 + 10) ÷ 2 = 6"]]'),
+            ("Both ends go in. Halving the far end alone gives 5, and 5 is not the "
+             "middle of this line — it only would be if the line started at zero. "
+             "And do not answer with the LENGTH: the line is 8 long, but it is 6 "
+             "that sits halfway.",
+             '[[step eq="midpoint = 6 ✓"]][[step eq="10 ÷ 2 = 5 ✗ · length 8 ✗"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. From 3 to 13. Add: 16. Share by two: the midpoint is 8.",
-                        '[[numberline min="2" max="14" points="3,8,13" caption="ends 3 and 13, middle 8"]][[step eq="(3 + 13) ÷ 2 = 8"]]'],
-             "ask": {"a": 2, "b": 18, "op": "mid"}},
-            {"worked": ["One more together. From 6 to 22: 6 plus 22 equals 28, shared by two is 14.",
-                        '[[step eq="(6 + 22) ÷ 2 = 14"]]'],
-             "ask": {"a": 10, "b": 32, "op": "mid"}},
+            {"worked": ("Here is one more, done for you. From 3 to 13. Add: 16. Share by "
+                        "two: the midpoint is 8.",
+                        '[[numberline min="2" max="14" points="3,8,13" mid="8" caption="ends 3 and 13, middle 8"]][[step eq="(3 + 13) ÷ 2 = 8"]]'),
+             "ask": {'a': 2, 'b': 18, 'op': 'mid'}},
+            {"worked": ("One more together. From 6 to 22: 6 plus 22 equals 28, shared "
+                        "by two is 14.",
+                        '[[numberline min="5" max="23" points="6,14,22" mid="14" caption="ends 6 and 22, middle 14"]][[step eq="(6 + 22) ÷ 2 = 14"]]'),
+             "ask": {'a': 10, 'b': 32, 'op': 'mid'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A line runs from 2 "
+                       "to 10, and its midpoint is 6. Tap the reason why."),
+            "choices": ("because 6 is the same distance from both ends | because half "
+                        "of 10 is 5, near enough to 6 | because the line is 8 long, so "
+                        "the middle is 8"),
+            "answer": "because 6 is the same distance from both ends",
+            "board": '[[numberline min="1" max="11" points="2,6,10" mid="6" caption="ends 2 and 10, middle 6"]]',
+        },
+        "recap": [
+            ("So, here it is again. The midpoint is the same distance from both "
+             "ends: add the two ends and share by two. Both ends go in, and the "
+             "answer is a place, not a length.",
+             '[[numberline min="1" max="11" points="2,6,10" mid="6" caption="(2 + 10) ÷ 2 = 6"]]'),
+            ("And that is the first construction in geometry: a line, cut exactly in "
+             "half.",
+             '[[step eq="(2 + 10) ÷ 2 = 6"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 8, "op": "mid"},
             {"a": 2, "b": 14, "op": "mid"},
@@ -12352,24 +12530,63 @@ _GEOMETRY_U2 = [
         "op": "tran", "max_value": 14,
         "levels": ("abstract",),
         "symbols": ("slide", "coordinates"),
-        "advance_line": "Three in a row — you've got it! A slide right changes only x.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A slide right changes only x.",
+        "why": [
+            ("Why move a shape? Because geometry can. The first move is a slide — "
+             "every point travels the same distance in the same direction, and the "
+             "shape never turns or flips. Mathematicians call a slide a translation. "
+             "On the grid, a point\'s address is its two coordinates: x across, then "
+             "y up.",
+             '[[goal text="Slide it over"]]'),
+        ],
+        "picture": [
+            ("Here is the point at 3 across and 5 up. Slide it 4 to the right and it "
+             "lands at 7 across, 5 up — the second dot. Only the ACROSS number "
+             "changed: 3 became 7. The height, 5, is exactly where it was.",
+             '[[graph points="(3,5),(7,5)" range="0..14" yrange="0..10" caption="from (3, 5) to (7, 5) — right 4, same height"]]'),
+        ],
         "teach": [
-            ["Geometry can MOVE a shape. The first move is a slide — every point travels the same distance in the same direction, and the shape never turns or flips. Mathematicians call a slide a translation. On the grid, a point's address is its two coordinates: x across, then y up.",
-             '[[goal text="Slide it over"]][[graph points="(3,5)" range="0..14" yrange="0..10" caption="the point (3,5)"]]'],
-            ["Take the point at 3 across and 5 up. Slide it 4 to the right. Only the ACROSS number changes: x goes from 3 to 3 plus 4, which equals 7. The point lands at 7 across, 5 up.",
-             '[[graph points="(3,5),(7,5)" range="0..14" yrange="0..10" caption="from (3,5) to (7,5)"]][[step eq="x: 3 + 4 = 7 · y stays 5"]]'],
-            ["Here is the trap: a slide to the RIGHT touches only x. The y number never hears about it. Adding the slide to y — or sliding x the wrong way — puts the point in the wrong place. Say the move out loud first: right means x grows.",
-             '[[step eq="right 4: x + 4 ✓"]][[step eq="y + 4 ✗ — y never moved"]]'],
+            ("That is the method. Take the point at 3 across and 5 up. Slide it 4 to "
+             "the right. Only the ACROSS number changes: x goes from 3 to 3 plus 4, "
+             "which equals 7. The point lands at 7 across, 5 up.",
+             '[[graph points="(3,5),(7,5)" range="0..14" yrange="0..10" caption="from (3, 5) to (7, 5)"]][[step eq="x: 3 + 4 = 7 · y stays 5"]]'),
+            ("Here is the trap: a slide to the RIGHT touches only x. The y number "
+             "never hears about it. Adding the slide to y — or sliding x the wrong "
+             "way — puts the point in the wrong place. Say the move out loud first: "
+             "right means x grows.",
+             '[[step eq="right 4: x + 4 ✓"]][[step eq="y + 4 ✗ — y never moved"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The point (2, 6) slides 3 to the right. New x: 2 plus 3 equals 5. It lands at (5, 6).",
-                        '[[graph points="(2,6),(5,6)" range="0..14" yrange="0..10" caption="from (2,6) to (5,6)"]][[step eq="x: 2 + 3 = 5"]]'],
-             "ask": {"a": 4, "b": 6, "c": 2, "op": "tran"}},
-            {"worked": ["One more together. (6, 4) slides 2 to the right: x is 6 plus 2, which equals 8 — the point lands at (8, 4).",
-                        '[[step eq="x: 6 + 2 = 8"]]'],
-             "ask": {"a": 7, "b": 3, "c": 4, "op": "tran"}},
+            {"worked": ("Here is one more, done for you. The point (2, 6) slides 3 to the "
+                        "right. New x: 2 plus 3 equals 5. It lands at (5, 6).",
+                        '[[graph points="(2,6),(5,6)" range="0..14" yrange="0..10" caption="from (2, 6) to (5, 6) — right 3"]][[step eq="x: 2 + 3 = 5"]]'),
+             "ask": {'a': 4, 'b': 6, 'c': 2, 'op': 'tran'}},
+            {"worked": ("One more together. (6, 4) slides 2 to the right: x is 6 plus 2, "
+                        "which equals 8 — the point lands at (8, 4).",
+                        '[[graph points="(6,4),(8,4)" range="0..14" yrange="0..10" caption="from (6, 4) to (8, 4) — right 2"]][[step eq="x: 6 + 2 = 8"]]'),
+             "ask": {'a': 7, 'b': 3, 'c': 4, 'op': 'tran'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The point 3 comma "
+                       "5 slides 4 to the right, and its new x is 7. Tap the reason "
+                       "why."),
+            "choices": ("because a slide right adds to x only: 3 plus 4 | "
+                        "because a slide right adds 4 to both numbers | because a "
+                        "slide right takes 4 off x"),
+            "answer": "because a slide right adds to x only: 3 plus 4",
+            "board": '[[graph points="(3,5),(7,5)" range="0..14" yrange="0..10" caption="from (3, 5) to (7, 5)"]]',
+        },
+        "recap": [
+            ("So, here it is again. A slide moves every point the same way. A slide "
+             "to the right adds to x and leaves y alone — say the direction first, "
+             "then change only the number that direction touches.",
+             '[[graph points="(3,5),(7,5)" range="0..14" yrange="0..10" caption="x: 3 + 4 = 7 · y stays 5"]]'),
+            ("And that is the first of the three moves, a translation.",
+             '[[step eq="(3, 5) → (7, 5)"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 6, "c": 2, "op": "tran"},
             {"a": 4, "b": 7, "c": 2, "op": "tran"},
@@ -12390,24 +12607,65 @@ _GEOMETRY_U2 = [
         "op": "refl", "max_value": 9, "min_value": -9,
         "levels": ("abstract",),
         "symbols": ("flip", "mirror"),
-        "advance_line": "Three in a row — you've got it! A flip across the y line changes only the sign of x.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A flip across the y line changes only the sign of x.",
+        "why": [
+            ("Why a flip? Because the second move is a mirror. Stand a mirror "
+             "upright on the y line — the line where x is zero — and every point "
+             "jumps to the other side, the same distance away. A flip is also "
+             "called a reflection, and it is how a left hand becomes a right hand.",
+             '[[goal text="Flip it across"]]'),
+        ],
+        "picture": [
+            ("Here is the mirror, the line x equals 0, with the point 4 across, 6 up "
+             "on its right. Its reflection is the dot on the left: the same height, "
+             "6, the same distance from the mirror, 4 — just on the other side. Its "
+             "x is negative 4.",
+             '[[graph lines="x=0" points="(4,6),(-4,6)" range="-9..9" yrange="0..10" caption="the mirror on x = 0 — (4, 6) and its reflection (−4, 6)"]]'),
+        ],
         "teach": [
-            ["The second move is a flip. Stand a mirror upright on the y line — the line where x is zero — and every point jumps to the other side, the same distance away. A flip is also called a reflection.",
-             '[[goal text="Flip it across"]][[graph lines="x=0" points="(4,6)" range="-9..9" yrange="0..10" caption="x=0 — the point (4,6)"]]'],
-            ["Take the point at 4 across, 6 up. Flip it across the y line. Its height does not change, and its distance from the mirror does not change — only the SIDE changes. New x: the sign flips, and 4 becomes negative 4. The point lands at negative 4 across, 6 up.",
-             '[[graph lines="x=0" points="(4,6),(-4,6)" range="-9..9" yrange="0..10" caption="x=0 — the point (4,6)"]][[step eq="x: 4 → −4 · y stays 6"]]'],
-            ["The trap is flipping the wrong number. Across the y line it is x that crosses over — y is the height, and a mirror standing on the floor does not change heights. Ask yourself: which side am I on now? After the flip, the other one.",
-             '[[step eq="x changes sign ✓"]][[step eq="y changes sign ✗ — the mirror does not change heights"]]'],
+            ("That is the method. Take the point at 4 across, 6 up. Flip it across "
+             "the y line. Its height does not change, and its distance from the "
+             "mirror does not change — only the SIDE changes. New x: the sign flips, "
+             "and 4 becomes negative 4. The point lands at negative 4 across, 6 up.",
+             '[[graph lines="x=0" points="(4,6),(-4,6)" range="-9..9" yrange="0..10" caption="from (4, 6) to (−4, 6)"]][[step eq="x: 4 → −4 · y stays 6"]]'),
+            ("The trap is flipping the wrong number. Across the y line it is x that "
+             "crosses over — y is the height, and a mirror standing on the floor "
+             "does not change heights. Ask yourself: which side am I on now? After "
+             "the flip, the other one.",
+             '[[step eq="x changes sign ✓"]][[step eq="y changes sign ✗ — the mirror does not change heights"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The point (5, 2) flips across the y line: x goes from 5 to negative 5, and y stays 2. It lands at (−5, 2).",
-                        '[[graph lines="x=0" points="(5,2),(-5,2)" range="-9..9" yrange="0..8" caption="x=0 — the point (5,2)"]][[step eq="x: 5 → −5"]]'],
-             "ask": {"a": 3, "b": 8, "op": "refl"}},
-            {"worked": ["One more together. (8, 3) flips across the y line — the new x is negative 8, and y is still 3.",
-                        '[[step eq="x: 8 → −8"]]'],
-             "ask": {"a": 6, "b": 9, "op": "refl"}},
+            {"worked": ("Here is one more, done for you. The point (5, 2) flips across "
+                        "the y line: x goes from 5 to negative 5, and y stays 2. It "
+                        "lands at (−5, 2).",
+                        '[[graph lines="x=0" points="(5,2),(-5,2)" range="-9..9" yrange="0..8" caption="from (5, 2) to (−5, 2)"]][[step eq="x: 5 → −5"]]'),
+             "ask": {'a': 3, 'b': 8, 'op': 'refl'}},
+            {"worked": ("One more together. (8, 3) flips across the y line — the new x "
+                        "is negative 8, and y is still 3.",
+                        '[[graph lines="x=0" points="(8,3),(-8,3)" range="-9..9" yrange="0..8" caption="from (8, 3) to (−8, 3)"]][[step eq="x: 8 → −8"]]'),
+             "ask": {'a': 6, 'b': 9, 'op': 'refl'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The point 4 comma "
+                       "6 flips across the y line, and its new x is negative 4. Tap "
+                       "the reason why."),
+            "choices": ("because the point crosses to the other side of the mirror | "
+                        "because a flip changes the height, so y becomes negative | "
+                        "because a flip slides the point 4 to the left"),
+            "answer": "because the point crosses to the other side of the mirror",
+            "board": '[[graph lines="x=0" points="(4,6),(-4,6)" range="-9..9" yrange="0..10" caption="from (4, 6) to (−4, 6)"]]',
+        },
+        "recap": [
+            ("So, here it is again. A flip across the y line sends every point to "
+             "the other side of the mirror, the same height and the same distance "
+             "away. Only the sign of x changes; y never hears about it.",
+             '[[graph lines="x=0" points="(4,6),(-4,6)" range="-9..9" yrange="0..10" caption="x: 4 → −4 · y stays 6"]]'),
+            ("And that is the second move, a reflection.",
+             '[[step eq="(4, 6) → (−4, 6)"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 7, "op": "refl"},
             {"a": 3, "b": 5, "op": "refl"},
@@ -12428,24 +12686,65 @@ _GEOMETRY_U2 = [
         "op": "htrn", "max_value": 9, "min_value": -9,
         "levels": ("abstract",),
         "symbols": ("half turn", "opposite"),
-        "advance_line": "Three in a row — you've got it! A half turn changes both signs.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A half turn changes both signs.",
+        "why": [
+            ("Why a turn? Because the third move spins the grid. Today\'s turn is "
+             "the simplest and the strongest: a half turn — spin the grid half way "
+             "around the middle point (0, 0), like turning a page upside down. Every "
+             "point travels to the exact opposite spot.",
+             '[[goal text="The half turn"]]'),
+        ],
+        "picture": [
+            ("Here is the point 4 across, 3 up, and the middle of the grid at (0, "
+             "0). Turn the whole grid half way around that middle, and the point "
+             "lands at the second dot: 4 the OTHER way across and 3 the OTHER way "
+             "up — negative 4, negative 3. The exact opposite spot.",
+             '[[graph points="(4,3),(-4,-3)" range="-9..9" yrange="-9..9" caption="from (4, 3) to (−4, −3) — a half turn around (0, 0)"]]'),
+        ],
         "teach": [
-            ["The third move is a turn. Today's turn is the simplest and the strongest: a half turn — spin the grid half way around the middle point (0, 0), like turning a page upside down. Every point travels to the exact opposite spot.",
-             '[[goal text="The half turn"]][[graph points="(4,3)" range="-9..9" yrange="-9..9" caption="the point (4,3)"]]'],
-            ["Take the point 4 across, 3 up. A half turn around (0, 0) sends it 4 the OTHER way across and 3 the OTHER way up: both numbers keep their size and change their sign. It lands at negative 4 across, negative 3 up.",
-             '[[graph points="(4,3),(-4,-3)" range="-9..9" yrange="-9..9" caption="from (4,3) to (-4,-3)"]][[step eq="(4, 3) → (−4, −3)"]]'],
-            ["Compare the moves you know. A slide changes one number by adding. A flip changes ONE sign. The half turn changes BOTH signs — x and y each cross to the other side. Changing only one sign is a flip, not a turn — that is the trap.",
-             '[[step eq="half turn: both signs change ✓"]][[step eq="only one sign ✗ — that is a flip"]]'],
+            ("That is the method. Take the point 4 across, 3 up. A half turn around "
+             "(0, 0) sends it 4 the OTHER way across and 3 the OTHER way up: both "
+             "numbers keep their size and change their sign. It lands at negative 4 "
+             "across, negative 3 up.",
+             '[[graph points="(4,3),(-4,-3)" range="-9..9" yrange="-9..9" caption="from (4, 3) to (−4, −3)"]][[step eq="(4, 3) → (−4, −3)"]]'),
+            ("Compare the moves you know. A slide changes one number by adding. A "
+             "flip changes ONE sign. The half turn changes BOTH signs — x and y each "
+             "cross to the other side. Changing only one sign is a flip, not a turn "
+             "— that is the trap.",
+             '[[step eq="half turn: both signs change ✓"]][[step eq="only one sign ✗ — that is a flip"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. (2, 5) turns half way around (0, 0): both signs change, so it lands at (−2, −5). The new y is negative 5.",
-                        '[[graph points="(2,5),(-2,-5)" range="-9..9" yrange="-9..9" caption="from (2,5) to (-2,-5)"]][[step eq="(2, 5) → (−2, −5)"]]'],
-             "ask": {"a": 6, "b": 3, "op": "htrn"}},
-            {"worked": ["One more together. (7, 4) turns half way around (0, 0) and lands at (−7, −4) — the new y is negative 4.",
-                        '[[step eq="(7, 4) → (−7, −4)"]]'],
-             "ask": {"a": 4, "b": 8, "op": "htrn"}},
+            {"worked": ("Here is one more, done for you. (2, 5) turns half way around "
+                        "(0, 0): both signs change, so it lands at (−2, −5). The new y "
+                        "is negative 5.",
+                        '[[graph points="(2,5),(-2,-5)" range="-9..9" yrange="-9..9" caption="from (2, 5) to (−2, −5)"]][[step eq="(2, 5) → (−2, −5)"]]'),
+             "ask": {'a': 6, 'b': 3, 'op': 'htrn'}},
+            {"worked": ("One more together. (7, 4) turns half way around (0, 0) and "
+                        "lands at (−7, −4) — the new y is negative 4.",
+                        '[[graph points="(7,4),(-7,-4)" range="-9..9" yrange="-9..9" caption="from (7, 4) to (−7, −4)"]][[step eq="(7, 4) → (−7, −4)"]]'),
+             "ask": {'a': 4, 'b': 8, 'op': 'htrn'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The point 4 comma "
+                       "3 turns half way around 0 comma 0, and its new y is negative "
+                       "3. Tap the reason why."),
+            "choices": ("because a half turn lands on the opposite spot: both signs change | "
+                        "because a half turn is a flip, so only x changes | because "
+                        "a half turn adds 3 to each number"),
+            "answer": "because a half turn lands on the opposite spot: both signs change",
+            "board": '[[graph points="(4,3),(-4,-3)" range="-9..9" yrange="-9..9" caption="from (4, 3) to (−4, −3)"]]',
+        },
+        "recap": [
+            ("So, here it is again. A half turn around (0, 0) carries every point to "
+             "the exact opposite spot: both numbers keep their size and change their "
+             "sign. One sign is a flip; both signs is the half turn.",
+             '[[graph points="(4,3),(-4,-3)" range="-9..9" yrange="-9..9" caption="(4, 3) → (−4, −3)"]]'),
+            ("And that is the third move, a rotation.",
+             '[[step eq="(4, 3) → (−4, −3)"]]'),
+        ],
         "bank": [
             {"a": 5, "b": 2, "op": "htrn"},
             {"a": 7, "b": 3, "op": "htrn"},
@@ -12466,24 +12765,64 @@ _GEOMETRY_U2 = [
         "op": "rota", "max_value": 120,
         "levels": ("abstract",),
         "symbols": ("turn", "degrees"),
-        "advance_line": "Three in a row — you've got it! Equal parts share the full 360.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Equal parts share the full 360.",
+        "why": [
+            ("Why do some shapes come back? Because turn a square a quarter of the "
+             "way around and it lands exactly on itself — you cannot tell it ever "
+             "moved. That is called turn symmetry, and the question is always the "
+             "same one: how many degrees is the smallest turn that works?",
+             '[[goal text="It turns onto itself"]]'),
+        ],
+        "picture": [
+            ("Here is a wheel cut into 6 equal parts, all alike. One full turn — all "
+             "the way around — is 360 degrees, and the wheel lands on itself 6 times "
+             "in that full turn, once for every part. So each part is 360 divided "
+             "by 6: 60 degrees, and a 60 degree turn is the smallest that works.",
+             '[[pie parts="6" caption="6 equal parts — each is 60° of the full 360°"]]'),
+        ],
         "teach": [
-            ["Some shapes come back. Turn a square a quarter of the way around and it lands exactly on itself — you cannot tell it ever moved. That is called turn symmetry, and the question is always the same one: how many degrees is the smallest turn that works?",
-             '[[goal text="It turns onto itself"]][[pie parts="4" caption="4 equal parts"]]'],
-            ["One full turn — all the way around — is 360 degrees. A wheel cut into 4 equal parts lands on itself 4 times in one full turn, so the smallest working turn is 360 divided by 4, which equals 90 degrees.",
-             '[[pie parts="4" caption="4 equal parts"]][[step eq="360° ÷ 4 = 90°"]]'],
-            ["Two traps. Half a turn, 180, feels safe — but a wheel with 5 equal parts does NOT land on itself at 180; only the sharing rule works. And the number of parts is a COUNT, not an angle — 5 parts is an answer in pieces, not in degrees.",
-             '[[pie parts="5" caption="5 equal parts"]][[step eq="360° ÷ 5 = 72° ✓ · 180° ✗ · 5 ✗"]]'],
+            ("That is the method. One full turn is 360 degrees. A wheel cut into 6 "
+             "equal parts lands on itself 6 times in one full turn, so the smallest "
+             "working turn is 360 divided by 6, which equals 60 degrees.",
+             '[[pie parts="6" caption="6 equal parts"]][[step eq="360° ÷ 6 = 60°"]]'),
+            ("Two traps. Half a turn, 180, feels safe — but a wheel with 12 equal "
+             "parts lands on itself long before 180; only the sharing rule finds the "
+             "smallest turn, 30. And the number of parts is a COUNT, not an angle — "
+             "12 parts is an answer in pieces, not in degrees.",
+             '[[pie parts="12" caption="12 equal parts"]][[step eq="360° ÷ 12 = 30° ✓ · 180° ✗ · 12 ✗"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A wheel with 6 equal parts: 360 divided by 6 equals 60, so a 60 degree turn lands it on itself.",
-                        '[[pie parts="6" caption="6 equal parts"]][[step eq="360° ÷ 6 = 60°"]]'],
-             "ask": {"a": 4, "b": 0, "op": "rota"}},
-            {"worked": ["One more together. 12 equal parts: 360 divided by 12 equals 30 degrees.",
-                        '[[pie parts="12" caption="12 equal parts"]][[step eq="360° ÷ 12 = 30°"]]'],
-             "ask": {"a": 3, "b": 0, "op": "rota"}},
+            {"worked": ("Here is one more, done for you. A wheel with 12 equal parts: "
+                        "360 divided by 12 equals 30, so a 30 degree turn lands it on "
+                        "itself.",
+                        '[[pie parts="12" caption="12 equal parts — 30° each"]][[step eq="360° ÷ 12 = 30°"]]'),
+             "ask": {'a': 4, 'b': 0, 'op': 'rota'}},
+            {"worked": ("One more together. 6 equal parts: 360 divided by 6 equals 60 "
+                        "degrees.",
+                        '[[pie parts="6" caption="6 equal parts — 60° each"]][[step eq="360° ÷ 6 = 60°"]]'),
+             "ask": {'a': 3, 'b': 0, 'op': 'rota'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A wheel with 6 "
+                       "equal parts first lands on itself after a 60 degree turn. Tap "
+                       "the reason why."),
+            "choices": ("because 6 equal parts share the full turn of 360 | because "
+                        "every wheel lands on itself at a half turn, 180 | because the "
+                        "answer is the number of parts, 6"),
+            "answer": "because 6 equal parts share the full turn of 360",
+            "board": '[[pie parts="6" caption="360° ÷ 6 = 60°"]]',
+        },
+        "recap": [
+            ("So, here it is again. A wheel of equal parts lands on itself once per "
+             "part, so the smallest turn is the full 360 shared between the parts. "
+             "Not 180 by habit, and not the count of parts — degrees.",
+             '[[pie parts="6" caption="360° ÷ 6 = 60°"]]'),
+            ("And that is turn symmetry: a shape that comes back.",
+             '[[step eq="360° ÷ 6 = 60°"]]'),
+        ],
         "bank": [
             {"a": 5, "b": 0, "op": "rota"},
                         {"a": 8, "b": 0, "op": "rota"},
@@ -12516,24 +12855,66 @@ _GEOMETRY_U3 = [
         "op": "cong", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("congruent", "matching"),
-        "advance_line": "Three in a row — you've got it! The letters name the matching parts.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The letters name the matching parts.",
+        "why": [
+            ("Why congruent? Because two shapes are congruent when one is an exact "
+             "copy of the other — every side the same length, every angle the same "
+             "size. The word does real work in proofs: say two triangles are "
+             "congruent and you have said six things at once, three sides and three "
+             "angles, all matching.",
+             '[[goal text="Matching parts"]]'),
+        ],
+        "picture": [
+            ("Here is triangle ABC with its sides — 4, 7 and 5 — and beside it its "
+             "copy, triangle DEF, with the same three sides. The LETTERS say which "
+             "side matches which: A matches D, B matches E, C matches F. So side CA, "
+             "which is 5, matches side FD — and FD is 5.",
+             '[[triangle v="A,B,C" sides="4,7,5" caption="ABC — sides 4, 7, 5"]][[triangle v="D,E,F" sides="4,7,5" caption="DEF — its copy: A↔D, B↔E, C↔F"]]'),
+        ],
         "teach": [
-            ["Two shapes are congruent when one is an exact copy of the other — every side the same length, every angle the same size. The word does real work in proofs: say two triangles are congruent and you have said six things at once, three sides and three angles, all matching.",
-             '[[goal text="Matching parts"]][[triangle v="A,B,C" sides="4,7,5" caption="sides 4, 7, 5"]]'],
-            ["Which side matches which? The LETTERS tell you. Triangle ABC congruent to triangle DEF means A matches D, B matches E, and C matches F — in that exact order. So side AB matches side DE, side BC matches side EF, and side CA matches side FD.",
-             '[[step eq="A↔D · B↔E · C↔F"]][[step eq="AB↔DE · BC↔EF · CA↔FD"]]'],
-            ["The trap is matching by eye. The copy may be turned or flipped on the page — Unit 2 taught you exactly those moves — so the side that LOOKS right is often wrong. Trust the letters, never the picture: spell the side you want, then swap each letter for its partner.",
-             '[[step eq="FD → swap F for C, D for A → CA ✓"]][[step eq="by eye ✗ — the copy may be turned"]]'],
+            ("That is the method. Triangle ABC congruent to triangle DEF means A "
+             "matches D, B matches E, and C matches F — in that exact order. So side "
+             "AB matches side DE, side BC matches side EF, and side CA matches side "
+             "FD.",
+             '[[triangle v="A,B,C" sides="4,7,5" caption="ABC"]][[step eq="A↔D · B↔E · C↔F"]][[step eq="AB↔DE · BC↔EF · CA↔FD"]]'),
+            ("The trap is matching by eye. The copy may be turned or flipped on the "
+             "page — Unit 2 taught you exactly those moves — so the side that LOOKS "
+             "right is often wrong. Trust the letters, never the picture: spell the "
+             "side you want, then swap each letter for its partner.",
+             '[[step eq="FD → swap F for C, D for A → CA ✓"]][[step eq="by eye ✗ — the copy may be turned"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Triangles ABC and DEF are congruent. CA is 4, so side FD — swap F for C and D for A — is 4 as well.",
-                        '[[triangle v="A,B,C" sides="3,5,4" caption="sides 3, 5, 4"]][[step eq="FD ↔ CA = 4"]]'],
-             "ask": {"a": 5, "b": 7, "c": 6, "op": "cong"}},
-            {"worked": ["One more together. BC is 10, and B matches E, C matches F — so side EF is 10.",
-                        '[[step eq="EF ↔ BC = 10"]]'],
-             "ask": {"a": 12, "b": 9, "c": 11, "op": "cong"}},
+            {"worked": ("Here is one more, done for you. Triangles ABC and DEF are "
+                        "congruent. CA is 4, so side FD — swap F for C and D for A — is "
+                        "4 as well.",
+                        '[[triangle v="A,B,C" sides="3,5,4" caption="ABC — CA is 4"]][[triangle v="D,E,F" sides="3,5,4" caption="DEF — FD is 4"]][[step eq="FD ↔ CA = 4"]]'),
+             "ask": {'a': 5, 'b': 7, 'c': 6, 'op': 'cong'}},
+            {"worked": ("One more together. AB is 8, BC is 10 and CA is 7. F matches C "
+                        "and D matches A, so side FD is 7.",
+                        '[[triangle v="A,B,C" sides="8,10,7" caption="ABC — CA is 7"]][[triangle v="D,E,F" sides="8,10,7" caption="DEF — FD is 7"]][[step eq="FD ↔ CA = 7"]]'),
+             "ask": {'a': 12, 'b': 9, 'c': 11, 'op': 'cong'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Triangles ABC and "
+                       "DEF are congruent, CA is 5, and so FD is 5. Tap the reason "
+                       "why."),
+            "choices": ("because F matches C and D matches A, so FD matches CA | "
+                        "because FD is the side that looks the same on the page | "
+                        "because FD is the last side named, so it is the longest"),
+            "answer": "because F matches C and D matches A, so FD matches CA",
+            "board": '[[triangle v="A,B,C" sides="4,7,5" caption="ABC — CA is 5"]][[triangle v="D,E,F" sides="4,7,5" caption="DEF — FD is 5"]]',
+        },
+        "recap": [
+            ("So, here it is again. Congruent means an exact copy, and the letters "
+             "name the matching parts in order. Spell the side you want, swap each "
+             "letter for its partner, and read the length — never match by eye.",
+             '[[triangle v="A,B,C" sides="4,7,5" caption="A↔D · B↔E · C↔F"]]'),
+            ("And that is six facts said in one word.",
+             '[[step eq="FD ↔ CA = 5"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 6, "c": 3, "op": "cong"},
             {"a": 7, "b": 5, "c": 4, "op": "cong"},
@@ -12554,24 +12935,65 @@ _GEOMETRY_U3 = [
         "op": "isos", "max_value": 180,
         "levels": ("abstract",),
         "symbols": ("isosceles", "base angles"),
-        "advance_line": "Three in a row — you've got it! Both base angles go in before the top comes out.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Both base angles go in before the top comes out.",
+        "why": [
+            ("Why the ticks? Because some triangles carry a secret pair. When two "
+             "sides are the same length, we mark them with little ticks. That "
+             "triangle is called isosceles. Its two base angles, the pair down at "
+             "the bottom, are equal to each other. Equal sides face equal angles: "
+             "that is the whole secret.",
+             '[[goal text="Two equal sides"]]'),
+        ],
+        "picture": [
+            ("Here is an isosceles triangle, the two equal sides ticked, with base "
+             "angles of 52 and 52. Every triangle\'s three angles come to 180, so the "
+             "top gets what the pair leaves: 52 and 52 use 104, and 180 take away "
+             "104 is 76. The top angle is 76.",
+             '[[triangle v="A,B,C" ticks="BC,CA" angles="52,52,76" caption="base angles 52° and 52° — the top is 76°"]]'),
+        ],
         "teach": [
-            ["Some triangles carry a secret pair. When two sides are the same length, we mark them with little ticks. That triangle is called isosceles. Its two base angles, the pair down at the bottom, are equal to each other. Equal sides face equal angles: that is the whole secret.",
-             '[[goal text="Two equal sides"]][[triangle v="A,B,C" ticks="BC,CA" caption="the tick marks show two equal sides"]]'],
-            ["Every triangle's three angles put together are 180 degrees — you proved that back in prealgebra. So if each base angle is 50, the two of them use 100, and the top angle gets what is left over: 180 take away 100 equals 80 degrees.",
-             '[[triangle v="A,B,C" ticks="BC,CA" angles="50,50," caption="base angles 50° — the top is waiting"]][[step eq="50° + 50° + ? = 180°"]][[step eq="180° − 100° = 80°"]]'],
-            ["The trap is forgetting there are TWO base angles. Take away only one 50 and you get 130 — too big, because its twin is still sitting inside the triangle. Both base angles go in before the top angle comes out.",
-             '[[step eq="180 − 50 − 50 = 80 ✓"]][[step eq="180 − 50 = 130 ✗ — the twin is still inside"]]'],
+            ("That is the method. Every triangle\'s three angles put together are 180 "
+             "degrees — you proved that back in prealgebra. So if each base angle is "
+             "52, the two of them use 104, and the top angle gets what is left over: "
+             "180 take away 104 equals 76 degrees.",
+             '[[triangle v="A,B,C" ticks="BC,CA" angles="52,52," caption="base angles 52° — the top is waiting"]][[step eq="52° + 52° + ? = 180°"]][[step eq="180° − 104° = 76°"]]'),
+            ("The trap is forgetting there are TWO base angles. Take away only one 52 "
+             "and you get 128 — too big, because its twin is still sitting inside "
+             "the triangle. Both base angles go in before the top angle comes out.",
+             '[[step eq="180 − 52 − 52 = 76 ✓"]][[step eq="180 − 52 = 128 ✗ — the twin is still inside"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Each base angle is 30. The two use 60 put together, and the top angle is 180 take away 60 — 120 degrees.",
-                        '[[triangle v="A,B,C" ticks="BC,CA" angles="30,30," caption="base angles 30° — the top is waiting"]][[step eq="180° − 60° = 120°"]]'],
-             "ask": {"a": 20, "b": 0, "op": "isos"}},
-            {"worked": ["One more together. Base angles of 45 each: 90 put together, so the top is 180 take away 90 — 90 degrees, a right angle.",
-                        '[[step eq="180° − 90° = 90°"]]'],
-             "ask": {"a": 72, "b": 0, "op": "isos"}},
+            {"worked": ("Here is one more, done for you. Each base angle is 30. The two "
+                        "use 60 put together, and the top angle is 180 take away 60 — "
+                        "120 degrees.",
+                        '[[triangle v="A,B,C" ticks="BC,CA" angles="30,30,120" caption="30° + 30° + 120° = 180°"]][[step eq="180° − 60° = 120°"]]'),
+             "ask": {'a': 20, 'b': 0, 'op': 'isos'}},
+            {"worked": ("One more together. Base angles of 45 each: 90 put together, so "
+                        "the top is 180 take away 90 — 90 degrees, a right angle.",
+                        '[[triangle v="A,B,C" ticks="BC,CA" right="C" angles="45,45,90" caption="45° + 45° + 90° = 180°"]][[step eq="180° − 90° = 90°"]]'),
+             "ask": {'a': 72, 'b': 0, 'op': 'isos'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. An isosceles "
+                       "triangle has base angles of 52 each, and its top angle is 76. "
+                       "Tap the reason why."),
+            "choices": ("because both base angles come out of 180 before the top | "
+                        "because only one base angle comes out of 180 | because the "
+                        "top angle is always the same as a base angle"),
+            "answer": "because both base angles come out of 180 before the top",
+            "board": '[[triangle v="A,B,C" ticks="BC,CA" angles="52,52,76" caption="52° + 52° + 76° = 180°"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two equal sides face two equal base angles. Both "
+             "base angles come out of the 180 first — the pair, not one — and the "
+             "top angle is what is left.",
+             '[[triangle v="A,B,C" ticks="BC,CA" angles="52,52,76" caption="180° − 52° − 52° = 76°"]]'),
+            ("And that is the secret pair, read from the ticks.",
+             '[[step eq="180° − 104° = 76°"]]'),
+        ],
         "bank": [
             {"a": 25, "b": 0, "op": "isos"},
             {"a": 29, "b": 0, "op": "isos"},
@@ -12592,24 +13014,66 @@ _GEOMETRY_U3 = [
         "op": "extr", "max_value": 180,
         "levels": ("abstract",),
         "symbols": ("exterior", "straight line"),
-        "advance_line": "Three in a row — you've got it! The exterior angle equals the two far angles put together.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The exterior angle equals the two far angles put together.",
+        "why": [
+            ("Why open a door? Because take any triangle and stretch one side out "
+             "past the corner, like opening a door, and the new angle outside the "
+             "triangle is called the exterior angle. It comes with the first little "
+             "proof of this course — and you already own both facts it needs: a "
+             "straight line is 180, and so are the three angles inside a triangle.",
+             '[[goal text="The outside angle"]]'),
+        ],
+        "picture": [
+            ("Here is a triangle with angles of 40, 60 and 80 — the 80 is the inside "
+             "corner where the door opens. The exterior angle sits with that 80 on "
+             "one straight line, so it is 180 take away 80: 100. And look — 100 is "
+             "exactly 40 plus 60, the two far angles put together.",
+             '[[triangle v="A,B,C" angles="40,60,80" caption="inside corner 80° — the exterior is 180° − 80° = 100° = 40° + 60°"]]'),
+        ],
         "teach": [
-            ["Take any triangle and stretch one side out past the corner, like opening a door. The new angle outside the triangle is called the exterior angle. It comes with the first little proof of this course. You already own both facts it needs: a straight line is 180, and so are the three angles inside a triangle.",
-             '[[goal text="The outside angle"]][[triangle v="A,B,C" angles="40,60," caption="angles 40° and 60° — the third is forced"]]'],
-            ["Watch the proof. Angles of 40 and 60 leave the inside corner at 180 take away 100 — 80 degrees. The inside corner and the exterior angle sit together on one straight line, so the exterior is 180 take away 80 — 100 degrees. And look: 100 is exactly 40 plus 60.",
-             '[[triangle v="A,B,C" angles="40,60," caption="angles 40° and 60° — the third is forced"]][[step eq="inside: 180 − 40 − 60 = 80"]][[step eq="exterior: 180 − 80 = 100 = 40 + 60"]]'],
-            ["That is the shortcut, proved once and yours forever: the exterior angle equals the two FAR angles put together. The trap is answering with the inside corner instead — 80 sits inside the triangle, and the question points outside.",
-             '[[step eq="exterior = the two far angles put together"]][[step eq="the inside corner ✗ — that is the exterior\'s neighbour"]]'],
+            ("That is the proof. Angles of 40 and 60 leave the inside corner at 180 "
+             "take away 100 — 80 degrees. The inside corner and the exterior angle "
+             "sit together on one straight line, so the exterior is 180 take away "
+             "80 — 100 degrees. And 100 is exactly 40 plus 60.",
+             '[[triangle v="A,B,C" angles="40,60," caption="angles 40° and 60° — the third corner opened out"]][[step eq="inside: 180 − 40 − 60 = 80"]][[step eq="exterior: 180 − 80 = 100 = 40 + 60"]]'),
+            ("That is the shortcut, proved once and yours forever: the exterior "
+             "angle equals the two FAR angles put together. The trap is answering "
+             "with the inside corner instead — 80 sits inside the triangle, and the "
+             "question points outside.",
+             '[[step eq="exterior = the two far angles put together"]][[step eq="the inside corner ✗ — that is the exterior\'s neighbour"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Far angles of 30 and 50: the exterior angle is 30 plus 50, which equals 80 degrees.",
-                        '[[triangle v="A,B,C" angles="30,50," caption="angles 30° and 50° — the third is forced"]][[step eq="exterior = 30° + 50° = 80°"]]'],
-             "ask": {"a": 35, "b": 35, "op": "extr"}},
-            {"worked": ["One more together. 45 and 60: the exterior angle is 45 plus 60, which equals 105 degrees.",
-                        '[[step eq="exterior = 45° + 60° = 105°"]]'],
-             "ask": {"a": 75, "b": 50, "op": "extr"}},
+            {"worked": ("Here is one more, done for you. Far angles of 30 and 50: the "
+                        "exterior angle is 30 plus 50, which equals 80 degrees.",
+                        '[[triangle v="A,B,C" angles="30,50,100" caption="inside corner 100° — exterior 80° = 30° + 50°"]][[step eq="exterior = 30° + 50° = 80°"]]'),
+             "ask": {'a': 35, 'b': 35, 'op': 'extr'}},
+            {"worked": ("One more together. 45 and 60: the exterior angle is 45 plus 60, "
+                        "which equals 105 degrees.",
+                        '[[triangle v="A,B,C" angles="45,60,75" caption="inside corner 75° — exterior 105° = 45° + 60°"]][[step eq="exterior = 45° + 60° = 105°"]]'),
+             "ask": {'a': 75, 'b': 50, 'op': 'extr'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A triangle has "
+                       "angles of 40 and 60, and its exterior angle is 100. Tap the "
+                       "reason why."),
+            "choices": ("because the exterior equals the two far angles put together | "
+                        "because the exterior equals the inside corner, 80 | because "
+                        "the exterior is 180 take away the bigger far angle"),
+            "answer": "because the exterior equals the two far angles put together",
+            "board": '[[triangle v="A,B,C" angles="40,60,80" caption="exterior 100° = 40° + 60°"]]',
+        },
+        "recap": [
+            ("So, here it is again. The exterior angle and the inside corner share "
+             "a straight line, and the three inside angles share 180 — so the "
+             "exterior equals the two far angles put together. Proved once, yours "
+             "forever.",
+             '[[triangle v="A,B,C" angles="40,60,80" caption="exterior = 40° + 60° = 100°"]]'),
+            ("And that is the first little proof of the course.",
+             '[[step eq="exterior = 40° + 60° = 100°"]]'),
+        ],
         "bank": [
             {"a": 25, "b": 40, "op": "extr"},
             {"a": 30, "b": 45, "op": "extr"},
@@ -12630,24 +13094,66 @@ _GEOMETRY_U3 = [
         "op": "chas", "max_value": 180,
         "levels": ("abstract",),
         "symbols": ("apex", "base angles"),
-        "advance_line": "Three in a row — you've got it! Take the apex out first, then share the rest.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Take the apex out first, then share the rest.",
+        "why": [
+            ("Why the other direction? Because yesterday\'s triangle ran base to top. "
+             "Today runs top to base — given the apex, the single angle up where the "
+             "two equal sides meet, find the pair of equal base angles below. Same "
+             "triangle, same 180, read the other way.",
+             '[[goal text="Share the rest"]]'),
+        ],
+        "picture": [
+            ("Here is the isosceles triangle with its apex marked 40 and the base "
+             "angles waiting. The three angles come to 180, so the apex leaves 140 "
+             "for the pair. They are equal, so each takes half: 70 and 70. All "
+             "three labelled, they add back to 180.",
+             '[[triangle v="A,B,C" ticks="BC,CA" angles="70,70,40" caption="apex 40° — the base angles share 140°: 70° each"]]'),
+        ],
         "teach": [
-            ["Yesterday's triangle ran base to top. Today runs top to base — given the apex, the single angle up where the two equal sides meet, find the pair of equal base angles below. Same triangle, same 180, read in the other direction.",
-             '[[goal text="Share the rest"]][[triangle v="A,B,C" ticks="BC,CA" angles=",,40" caption="apex 40° — the base angles share the rest"]]'],
-            ["Say the apex is 40. The three angles put together are 180, so the two base angles share what the apex leaves behind: 180 take away 40 is 140. They are equal, so they split it evenly — 140 divided by 2 equals 70 degrees each.",
-             '[[triangle v="A,B,C" ticks="BC,CA" angles=",,40" caption="apex 40° — the base angles share the rest"]][[step eq="180° − 40° = 140°"]][[step eq="140° ÷ 2 = 70°"]]'],
-            ["Two traps, and both are about order. Stop at 140 and you have the PAIR's share, not one angle — it still belongs to two corners. And halving 180 first gives 90 take away 40 — 50 — which shares the triangle out before the apex took its part. Take the apex out first, then share.",
-             '[[step eq="(180 − 40) ÷ 2 = 70 ✓"]][[step eq="140 ✗ belongs to two corners · 90 − 40 = 50 ✗ shared too soon"]]'],
+            ("That is the method. Say the apex is 40. The three angles put together "
+             "are 180, so the two base angles share what the apex leaves behind: 180 "
+             "take away 40 is 140. They are equal, so they split it evenly — 140 "
+             "divided by 2 equals 70 degrees each.",
+             '[[triangle v="A,B,C" ticks="BC,CA" angles=",,40" caption="apex 40° — the base angles share the rest"]][[step eq="180° − 40° = 140°"]][[step eq="140° ÷ 2 = 70°"]]'),
+            ("Two traps, and both are about order. Stop at 140 and you have the "
+             "PAIR\'s share, not one angle — it still belongs to two corners. And "
+             "halving 180 first gives 90 take away 40 — 50 — which shares the "
+             "triangle out before the apex took its part. Take the apex out first, "
+             "then share.",
+             '[[step eq="(180 − 40) ÷ 2 = 70 ✓"]][[step eq="140 ✗ belongs to two corners · 90 − 40 = 50 ✗ shared too soon"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Apex 36: 180 take away 36 is 144, and 144 divided by 2 equals 72 — each base angle is 72 degrees.",
-                        '[[triangle v="A,B,C" ticks="BC,CA" angles=",,36" caption="apex 36° — the base angles share the rest"]][[step eq="(180° − 36°) ÷ 2 = 72°"]]'],
-             "ask": {"a": 24, "b": 0, "op": "chas"}},
-            {"worked": ["One more together. Apex 48: 180 take away 48 is 132, shared by two is 66 degrees.",
-                        '[[step eq="(180° − 48°) ÷ 2 = 66°"]]'],
-             "ask": {"a": 56, "b": 0, "op": "chas"}},
+            {"worked": ("Here is one more, done for you. Apex 36: 180 take away 36 is "
+                        "144, and 144 divided by 2 equals 72 — each base angle is 72 "
+                        "degrees.",
+                        '[[triangle v="A,B,C" ticks="BC,CA" angles="72,72,36" caption="72° + 72° + 36° = 180°"]][[step eq="(180° − 36°) ÷ 2 = 72°"]]'),
+             "ask": {'a': 24, 'b': 0, 'op': 'chas'}},
+            {"worked": ("One more together. Apex 48: 180 take away 48 is 132, shared by "
+                        "two is 66 degrees.",
+                        '[[triangle v="A,B,C" ticks="BC,CA" angles="66,66,48" caption="66° + 66° + 48° = 180°"]][[step eq="(180° − 48°) ÷ 2 = 66°"]]'),
+             "ask": {'a': 56, 'b': 0, 'op': 'chas'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. An isosceles "
+                       "triangle has its apex at 40, and each base angle is 70. Tap "
+                       "the reason why."),
+            "choices": ("because the apex leaves 140, shared equally by two angles | "
+                        "because 140 is what is left, so each base angle is 140 | "
+                        "because you halve 180 first, then take the apex away"),
+            "answer": "because the apex leaves 140, shared equally by two angles",
+            "board": '[[triangle v="A,B,C" ticks="BC,CA" angles="70,70,40" caption="(180° − 40°) ÷ 2 = 70°"]]',
+        },
+        "recap": [
+            ("So, here it is again. Given the apex, take it out of 180 first, then "
+             "share what is left equally between the two base angles. Apex out, "
+             "then share — never the other way round.",
+             '[[triangle v="A,B,C" ticks="BC,CA" angles="70,70,40" caption="(180° − 40°) ÷ 2 = 70°"]]'),
+            ("And that is the same triangle, read top to base.",
+             '[[step eq="(180° − 40°) ÷ 2 = 70°"]]'),
+        ],
         "bank": [
             {"a": 22, "b": 0, "op": "chas"},
             {"a": 28, "b": 0, "op": "chas"},
@@ -23089,6 +23595,205 @@ def _outl_worked(p):
 
 
 
+# ---- (ti, 2026-09-06) GEOMETRY UNITS 1-3: angles split, lines crossed, the circle, the
+# midpoint, the three moves on the grid, the triangle's letters and angles. Every ask
+# draws its question with the answer withheld; every walk-back draws it filled in.
+def _comp_board(p):
+    a = p["a"]
+    return (f'[[angle deg="90" split="{a}" caption="a square corner split — {a}° and the rest"]]'
+            f'[[step eq="90° − {a}° = ?"]]')
+
+
+def _comp_worked(p):
+    a = p["a"]
+    return (f"Look what you did: the two angles fill a square corner, and a square corner is "
+            f"90 degrees — not 180. 90 take away {a} equals {90 - a}, and {a} plus {90 - a} "
+            f"puts the corner back together.",
+            f'[[angle deg="90" split="{a},{90 - a}" caption="{a}° + {90 - a}° = 90°"]]')
+
+
+def _vert_board(p):
+    a = p["a"]
+    return (f'[[angle deg="{a}" cross="{a}" caption="two lines cross — the {a}° angle and its twin opposite; the angle NEXT to it is the question"]]'
+            f'[[step eq="the two sit on one straight line"]]'
+            f'[[step eq="180° − {a}° = ?"]]')
+
+
+def _vert_worked(p):
+    a = p["a"]
+    return (f"Look what you did: the angle next to {a} sits with it on one straight line, "
+            f"and a straight line is 180. 180 take away {a} equals {180 - a}. The angle "
+            f"opposite is {a} again — the twin — but next to was what was asked.",
+            f'[[angle deg="180" split="{a},{180 - a}" caption="on one straight line: {a}° + {180 - a}° = 180°"]]')
+
+
+def _circ_board(p):
+    a = p["a"]
+    return (f'[[circle center="O" r="{a}" caption="middle to edge: the radius is {a} — how far all the way across?"]]'
+            f'[[step eq="diameter = 2 × {a} = ?"]]')
+
+
+def _circ_worked(p):
+    a = p["a"]
+    return (f"Look what you did: the diameter goes all the way across through the middle — "
+            f"two radiuses laid end to end. 2 times {a} equals {2 * a}. Doubling goes radius "
+            f"to diameter; halving would have gone the wrong way.",
+            f'[[circle center="O" r="{a}" d="{2 * a}" caption="two radiuses end to end: 2 × {a} = {2 * a}"]]')
+
+
+def _mid_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[numberline min="{a - 1}" max="{b + 1}" points="{a},{b}" '
+            f'caption="the ends, {a} and {b} — where is the middle?"]]'
+            f'[[step eq="({a} + {b}) ÷ 2 = ?"]]')
+
+
+def _mid_worked(p):
+    a, b = p["a"], p["b"]
+    m = (a + b) // 2
+    return (f"Look what you did: both ends go in. {a} plus {b} equals {a + b}, shared by two "
+            f"is {m}. Check it: {m} is {m - a} away from {a} and {b - m} away from {b} — the "
+            f"same both ways, so {m} is the midpoint.",
+            f'[[numberline min="{a - 1}" max="{b + 1}" points="{a},{m},{b}" mid="{m}" '
+            f'caption="ends {a} and {b}, middle {m} — {m - a} each way"]]')
+
+
+def _tran_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[graph points="({a},{b})" range="0..14" yrange="0..10" '
+            f'caption="the point ({a}, {b}) — slide it {c} to the right"]]'
+            f'[[step eq="slide right {c}: {a} + {c} = ?"]]')
+
+
+def _tran_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: a slide to the right touches only x. {a} plus {c} equals "
+            f"{a + c}, and y stayed at {b} — it never heard about the move. The point landed "
+            f"at {a + c} across, {b} up.",
+            f'[[graph points="({a},{b}),({a + c},{b})" range="0..14" yrange="0..10" '
+            f'caption="from ({a}, {b}) to ({a + c}, {b}) — right {c}"]]')
+
+
+def _refl_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph lines="x=0" points="({a},{b})" range="-9..9" yrange="0..10" '
+            f'caption="the mirror stands on x = 0 — the point ({a}, {b}) flips across it"]]'
+            f'[[step eq="x was {a} — new x = ?"]]')
+
+
+def _refl_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: across the y line the point keeps its height and its "
+            f"distance from the mirror — only the side changes. x goes from {a} to negative "
+            f"{a}, and y stays {b}.",
+            f'[[graph lines="x=0" points="({a},{b}),(-{a},{b})" range="-9..9" yrange="0..10" '
+            f'caption="from ({a}, {b}) to (−{a}, {b}) — the same height, the other side"]]')
+
+
+def _htrn_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph points="({a},{b})" range="-9..9" yrange="-9..9" '
+            f'caption="the point ({a}, {b}) — turn it half way around (0, 0)"]]'
+            f'[[step eq="y was {b} — new y = ?"]]')
+
+
+def _htrn_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: a half turn around the middle carries the point to the "
+            f"exact opposite spot — both signs change. x goes from {a} to negative {a}, and "
+            f"y goes from {b} to negative {b}. One sign alone would have been a flip.",
+            f'[[graph points="({a},{b}),(-{a},-{b})" range="-9..9" yrange="-9..9" '
+            f'caption="from ({a}, {b}) to (−{a}, −{b}) — the opposite spot"]]')
+
+
+def _rota_board(p):
+    a = p["a"]
+    pic = (f'[[pie parts="{a}" caption="a wheel cut into {a} equal parts — the smallest turn that lands it on itself?"]]'
+           if a <= 12 else "")
+    return (pic + f'[[step eq="{a} equal parts share one full turn"]]'
+            f'[[step eq="360° ÷ {a} = ?"]]')
+
+
+def _rota_worked(p):
+    a = p["a"]
+    d = 360 // a
+    pic = (f'[[pie parts="{a}" caption="{a} equal parts — each is {d}° of the full turn"]]'
+           if a <= 12 else
+           f'[[write lines="one full turn = 360° | {a} equal parts | 360° ÷ {a} = {d}°"]]')
+    return (f"Look what you did: one full turn is 360 degrees, and {a} equal parts share it "
+            f"— 360 divided by {a} equals {d}. Turn the wheel {d} degrees and every part lands "
+            f"on the next one; the wheel looks untouched.",
+            pic + f'[[step eq="360° ÷ {a} = {d}°"]]')
+
+
+def _cong_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[triangle v="A,B,C" sides="{a},{b},{c}" caption="ABC — sides {a}, {b}, {c}; DEF is its copy"]]'
+            f'[[step eq="match the letters in order: A↔D · B↔E · C↔F"]]')
+
+
+def _cong_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: the letters name the matching parts. F matches C and D "
+            f"matches A, so side FD matches side CA — {c}. Not the side that looks right on "
+            f"the page; the copy may be turned.",
+            f'[[triangle v="A,B,C" sides="{a},{b},{c}" caption="ABC — CA is {c}"]]'
+            f'[[triangle v="D,E,F" sides="{a},{b},{c}" caption="DEF — the same three sides: FD is {c}"]]')
+
+
+def _isos_board(p):
+    a = p["a"]
+    return (f'[[triangle v="A,B,C" ticks="BC,CA" angles="{a},{a}," '
+            f'caption="two equal sides — base angles {a}° and {a}°; the top is the question"]]'
+            f'[[step eq="{a}° + {a}° + ? = 180°"]]')
+
+
+def _isos_worked(p):
+    a = p["a"]
+    return (f"Look what you did: both base angles go in before the top comes out. {a} and "
+            f"{a} use {2 * a} of the 180, so the top is 180 take away {2 * a}, which is "
+            f"{180 - 2 * a}. Take away only one and the twin is still sitting inside.",
+            f'[[triangle v="A,B,C" ticks="BC,CA" angles="{a},{a},{180 - 2 * a}" '
+            f'caption="{a}° + {a}° + {180 - 2 * a}° = 180°"]]')
+
+
+def _extr_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[triangle v="A,B,C" angles="{a},{b}," '
+            f'caption="angles {a}° and {b}° — the third corner is opened out: how big is the outside angle?"]]'
+            f'[[step eq="inside corner + exterior = 180°"]]'
+            f'[[step eq="exterior = {a}° + {b}° = ?"]]')
+
+
+def _extr_worked(p):
+    a, b = p["a"], p["b"]
+    c = 180 - a - b
+    return (f"Look what you did: the inside corner is 180 take away {a} and {b}, which is "
+            f"{c}. The exterior angle sits with it on a straight line, so it is 180 take away "
+            f"{c} — {a + b}. And {a + b} is exactly the two far angles put together.",
+            f'[[triangle v="A,B,C" angles="{a},{b},{c}" '
+            f'caption="inside corner {c}° — exterior 180° − {c}° = {a + b}° = {a}° + {b}°"]]')
+
+
+def _chas_board(p):
+    a = p["a"]
+    return (f'[[triangle v="A,B,C" ticks="BC,CA" angles=",,{a}" '
+            f'caption="apex {a}° — the two equal base angles share the rest"]]'
+            f'[[step eq="(180° − {a}°) ÷ 2 = ?"]]')
+
+
+def _chas_worked(p):
+    a = p["a"]
+    r = 180 - a
+    e = r // 2
+    return (f"Look what you did: take the apex out first — 180 take away {a} leaves {r} for "
+            f"the two base angles. They are equal, so they share it evenly: {r} divided by 2 "
+            f"equals {e} each.",
+            f'[[triangle v="A,B,C" ticks="BC,CA" angles="{e},{e},{a}" '
+            f'caption="{e}° + {e}° + {a}° = 180°"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -25627,8 +26332,8 @@ OP_EXT = {
         "ans": lambda p: 90 - p["a"],
         "spoken": lambda p: (f"Two angles together make a right angle. One of them "
                              f"is {p['a']} degrees. How big is the other?"),
-        "board": lambda p: (f'[[angle deg="90" split="{p["a"]}"]]'
-                            f'[[step eq="90° − {p["a"]}° = ?"]]'),
+        "board": _comp_board,         # (ti) the square corner split, captioned
+        "worked": _comp_worked,       # (ti) both pieces labelled
         "praise": lambda p: (f"A right angle is 90 degrees, so the other is 90 take "
                              f"away {p['a']} — {90 - p['a']} degrees. The two are "
                              f"called complementary."),
@@ -25645,9 +26350,8 @@ OP_EXT = {
         "ans": lambda p: 180 - p["a"],
         "spoken": lambda p: (f"Two straight lines cross. One of the four angles is "
                              f"{p['a']} degrees. How big is the angle NEXT to it?"),
-        "board": lambda p: (f'[[angle deg="180" split="{p["a"]}"]]'
-                            f'[[step eq="the two sit on one straight line"]]'
-                            f'[[step eq="180° − {p["a"]}° = ?"]]'),
+        "board": _vert_board,         # (ti) the X with the twin labelled, the neighbour asked
+        "worked": _vert_worked,       # (ti) the straight line the two share
         "praise": lambda p: (f"The angle next to it shares a straight line with it, "
                              f"so the two make 180: the answer is "
                              f"{180 - p['a']} degrees. (The angle OPPOSITE is "
@@ -25667,8 +26371,8 @@ OP_EXT = {
         "ans": lambda p: 2 * p["a"],
         "spoken": lambda p: (f"A circle has a radius of {p['a']}. "
                              f"What is its diameter?"),
-        "board": lambda p: (f'[[circle center="O" r="{p["a"]}"]]'
-                            f'[[step eq="diameter = 2 × {p["a"]} = ?"]]'),
+        "board": _circ_board,         # (ti) the radius drawn, the diameter asked
+        "worked": _circ_worked,       # (ti) the diameter drawn edge to edge
         "praise": lambda p: (f"The diameter crosses the whole circle, so it is two "
                              f"radiuses: 2 times {p['a']} equals {2 * p['a']}."),
         "key": lambda p: 2 * p["a"],
@@ -25686,9 +26390,8 @@ OP_EXT = {
         "ans": lambda p: (p["a"] + p["b"]) // 2,
         "spoken": lambda p: (f"A line runs from {p['a']} to {p['b']}. "
                              f"What number is exactly halfway along it?"),
-        "board": lambda p: (f'[[numberline min="{p["a"] - 1}" max="{p["b"] + 1}" '
-                            f'points="{p["a"]},{p["b"]}"]]'
-                            f'[[step eq="({p["a"]} + {p["b"]}) ÷ 2 = ?"]]'),
+        "board": _mid_board,          # (ti) the two ends, captioned
+        "worked": _mid_worked,        # (ti) the middle marked with the halfway line
         "praise": lambda p: (f"Halfway between {p['a']} and {p['b']} is "
                              f"{(p['a'] + p['b']) // 2} — the same distance from "
                              f"each end. That point is called the midpoint."),
@@ -25713,10 +26416,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] + p["c"],
         "spoken": lambda p: (f"The point ({p['a']}, {p['b']}) slides {p['c']} to the "
                              f"right. What is the new x coordinate?"),
-        "board": lambda p: (f'[[graph points="({p["a"]},{p["b"]})" range="0..14" '
-                            f'yrange="0..10"]]'
-                            f'[[step eq="slide right {p["c"]}: '
-                            f'{p["a"]} + {p["c"]} = ?"]]'),
+        "board": _tran_board,         # (ti) the point, captioned
+        "worked": _tran_worked,       # (ti) the point and where it landed
         "praise": lambda p: (f"Sliding right {p['c']} moves x from {p['a']} to "
                              f"{p['a'] + p['c']} — and y stayed at {p['b']}."),
         "key": lambda p: p["a"] + p["c"],
@@ -25737,11 +26438,8 @@ OP_EXT = {
         "ans": lambda p: -p["a"],
         "spoken": lambda p: (f"The point ({p['a']}, {p['b']}) flips across the "
                              f"y line. What is the new x coordinate?"),
-        "board": lambda p: (f'[[graph lines="x=0" points="({p["a"]},{p["b"]})" '
-                            f'range="-9..9" yrange="0..10"]]'
-                            f'[[step eq="x was {p["a"]} — new x = ?"]]'),
-        # Negatives are SPOKEN as words ("negative 3", never "-3") -- the pre-u3
-        # integer ops set that convention and the voice reads praise aloud.
+        "board": _refl_board,         # (ti) the mirror and the point
+        "worked": _refl_worked,       # (ti) both sides of the mirror
         "praise": lambda p: (f"Across the y line the point keeps its height and its "
                              f"distance — it only crosses over: x goes from "
                              f"{p['a']} to negative {p['a']}, and y stays "
@@ -25760,10 +26458,8 @@ OP_EXT = {
         "ans": lambda p: -p["b"],
         "spoken": lambda p: (f"The point ({p['a']}, {p['b']}) turns half way around "
                              f"the point (0, 0). What is the new y coordinate?"),
-        "board": lambda p: (f'[[graph points="({p["a"]},{p["b"]})" range="-9..9" '
-                            f'yrange="-9..9"]]'
-                            f'[[step eq="y was {p["b"]} — new y = ?"]]'),
-        # Spoken negatives as words here too (the pre-u3 convention).
+        "board": _htrn_board,         # (ti) the point, captioned
+        "worked": _htrn_worked,       # (ti) the opposite spot
         "praise": lambda p: (f"A half turn around (0, 0) carries the point to the "
                              f"exact opposite spot — both signs change, and y goes "
                              f"from {p['b']} to negative {p['b']}."),
@@ -25784,10 +26480,8 @@ OP_EXT = {
                              f"degrees does it first land exactly on itself?"),
         # The pie renderer counts wedges only up to 12; past that the steps carry
         # the picture's job (a 15-part wheel drawn tiny teaches nothing anyway).
-        "board": lambda p: ((f'[[pie parts="{p["a"]}"]]' if p["a"] <= 12 else "")
-                            + f'[[step eq="{p["a"]} equal parts share one full '
-                              f'turn"]]'
-                            + f'[[step eq="360° ÷ {p["a"]} = ?"]]'),
+        "board": _rota_board,         # (ti) the wheel, captioned
+        "worked": _rota_worked,       # (ti) the parts as degrees
         "praise": lambda p: (f"One full turn is 360 degrees, and {p['a']} equal "
                              f"parts share it: 360 divided by {p['a']} equals "
                              f"{360 // p['a']} degrees — the first turn that lands "
@@ -25818,10 +26512,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Triangle ABC and triangle DEF are congruent. Side AB "
                              f"is {p['a']}, side BC is {p['b']}, and side CA is "
                              f"{p['c']}. How long is side FD?"),
-        "board": lambda p: (f'[[triangle v="A,B,C" '
-                            f'sides="{p["a"]},{p["b"]},{p["c"]}"]]'
-                            f'[[step eq="match the letters in order: '
-                            f'A↔D · B↔E · C↔F"]]'),
+        "board": _cong_board,         # (ti) ABC with its sides, captioned
+        "worked": _cong_worked,       # (ti) ABC beside its copy DEF
         "praise": lambda p: (f"F matches C and D matches A, so side FD matches "
                              f"side CA — {p['c']}."),
         "key": lambda p: p["c"],
@@ -25848,9 +26540,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A triangle has two equal sides, marked with ticks. "
                              f"Each base angle is {p['a']} degrees. How big is the "
                              f"angle at the top?"),
-        "board": lambda p: (f'[[triangle v="A,B,C" ticks="BC,CA" '
-                            f'angles="{p["a"]},{p["a"]},"]]'
-                            f'[[step eq="{p["a"]}° + {p["a"]}° + ? = 180°"]]'),
+        "board": _isos_board,         # (ti) the base angles, the top blank
+        "worked": _isos_worked,       # (ti) all three
         "praise": lambda p: (f"The three angles put together are 180: {p['a']} and "
                              f"{p['a']} use {2 * p['a']}, so the top angle is 180 "
                              f"take away {2 * p['a']} — {180 - 2 * p['a']} "
@@ -25872,9 +26563,8 @@ OP_EXT = {
                              f"degrees and {p['b']} degrees. One side of the third "
                              f"corner is stretched out, and that opens an exterior "
                              f"angle. How big is the exterior angle?"),
-        "board": lambda p: (f'[[triangle v="A,B,C" angles="{p["a"]},{p["b"]},"]]'
-                            f'[[step eq="inside corner + exterior = 180°"]]'
-                            f'[[step eq="exterior = {p["a"]}° + {p["b"]}° = ?"]]'),
+        "board": _extr_board,         # (ti) two angles, the third corner opened
+        "worked": _extr_worked,       # (ti) the inside corner and the exterior
         "praise": lambda p: (f"The exterior angle equals the two far inside angles "
                              f"put together: {p['a']} plus {p['b']} equals "
                              f"{p['a'] + p['b']} degrees."),
@@ -25898,9 +26588,8 @@ OP_EXT = {
         # per-ask gloss of apex -- the teach beats own the vocabulary.
         "spoken": lambda p: (f"An isosceles triangle has its apex at {p['a']} "
                              f"degrees. How big is each base angle?"),
-        "board": lambda p: (f'[[triangle v="A,B,C" ticks="BC,CA" '
-                            f'angles=",,{p["a"]}"]]'
-                            f'[[step eq="(180° − {p["a"]}°) ÷ 2 = ?"]]'),
+        "board": _chas_board,         # (ti) the apex, the base angles blank
+        "worked": _chas_worked,       # (ti) all three
         "praise": lambda p: (f"180 take away {p['a']} leaves {180 - p['a']} for the "
                              f"two base angles — shared equally, each one is "
                              f"{(180 - p['a']) // 2} degrees."),

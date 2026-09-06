@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD ti -- PART 3je: Geometry Units 1-3 to the shape (12 lessons on the
+#               angle, the circle with its diameter, the number line, the grid, the pie and
+#               the triangle); every figure an ask draws captioned.
 #   2026-09-06  BUILD th -- PART 3jd: Algebra 1 Units 7-9 to the shape (12 lessons on the
 #               area model with its new ask modes, the grid, the tape, the dotplot and the
 #               number line); the course is 36/36; every figure an ask draws captioned.
@@ -21867,7 +21870,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>9,450</b>" in page,
+          "<b>9,533</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25034,6 +25037,109 @@ def part3jd_algebra_one_units_seven_to_nine_to_the_shape():
           "2026-09-06  BUILD th" in rd("lessonscripts.py")[:20000] and "BUILD th" in rd("main.py")[:200000]
           and "2026-09-06  BUILD th" in rd("ruletests.py")[:8000] and "(th)" in rd("static/methodology.html")[:6000]
           and "2026-09-06  BUILD th" in mf[:3000],
+          "Jim's rule 8")
+
+
+def part3je_geometry_units_one_to_three_to_the_shape():
+    """PART 3je (build ti, 2026-09-06) -- GEOMETRY UNITS 1-3 TO THE SHAPE.
+
+    The square corner split and put back; the X with its twin labelled and the
+    straight line the neighbours share; the circle with its radius and then its
+    diameter drawn across (circle d=); the midpoint with the halfway mark; the three
+    moves on the grid, the point and where it landed; turn symmetry on the pie; ABC
+    beside its copy DEF; the ticked triangle with one angle blank and then all three.
+    Every figure an ask draws carries a caption."""
+    print("\nPART 3je — Geometry Units 1-3 to the shape (build ti)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    G1 = ["geo-u1-two-make-a-corner", "geo-u1-when-lines-cross",
+          "geo-u1-across-the-circle", "geo-u1-halfway-along"]
+    G2 = ["geo-u2-slide-it-over", "geo-u2-flip-it-across",
+          "geo-u2-half-turn", "geo-u2-turns-onto-itself"]
+    G3 = ["geo-u3-matching-parts", "geo-u3-two-equal-sides",
+          "geo-u3-the-outside-angle", "geo-u3-share-the-rest"]
+    _shape_unit_checks(G1, r"\[\[(angle|circle|numberline)\b")
+    _shape_unit_checks(G2, r"\[\[(graph|pie)\b")
+    _shape_unit_checks(G3, r"\[\[triangle\b")
+
+    # ---- Unit 1 ------------------------------------------------------------------------
+    comp = {"a": 30, "b": 0, "op": "comp"}
+    check("⭐ two make a corner: the square corner split on the ask, both pieces labelled in the walk-back",
+          '[[angle deg="90" split="30" caption="a square corner split — 30° and the rest"]]' in L.board_for(comp, "abstract")
+          and '[[angle deg="90" split="30,60" caption="30° + 60° = 90°"]]' == _W(comp)[1] and "not 180" in _W(comp)[0], "")
+    vert = {"a": 50, "b": 0, "op": "vert"}
+    check("⭐ when lines cross: the X with the twin labelled and the neighbour asked; the straight line the two share in the walk-back",
+          '[[angle deg="50" cross="50" caption=' in L.board_for(vert, "abstract")
+          and '[[angle deg="180" split="50,130"' in _W(vert)[1] and "next to was what was asked" in _W(vert)[0], "")
+    circ = {"a": 6, "b": 0, "op": "circ"}
+    check("⭐ across the circle: the radius on the ask, the diameter drawn edge to edge in the walk-back",
+          '[[circle center="O" r="6" caption=' in L.board_for(circ, "abstract") and 'd=' not in L.board_for(circ, "abstract")
+          and '[[circle center="O" r="6" d="12" caption="two radiuses end to end: 2 × 6 = 12"]]' == _W(circ)[1], "")
+    gf = rd("static/geo-figures.js")
+    check("  geo-figures.js draws the diameter under d=, labelled, and nothing without it",
+          'if (a.d) {' in gf and '"diameter " + String(a.d)' in gf and "2026-09-06  BUILD ti" in gf[:3000], "")
+    mid = {"a": 2, "b": 10, "op": "mid"}
+    check("  halfway along: the two ends on the ask, the middle marked with the halfway line in the walk-back",
+          'points="2,10" caption="the ends, 2 and 10 — where is the middle?"' in L.board_for(mid, "abstract")
+          and 'points="2,6,10" mid="6"' in _W(mid)[1] and "the same both ways" in _W(mid)[0], "")
+
+    # ---- Unit 2 ------------------------------------------------------------------------
+    tran = {"a": 3, "b": 5, "c": 4, "op": "tran"}
+    check("⭐ slide it over: the point captioned on the ask, the point and where it landed in the walk-back",
+          '[[graph points="(3,5)" range="0..14" yrange="0..10" caption="the point (3, 5) — slide it 4 to the right"]]' in L.board_for(tran, "abstract")
+          and 'points="(3,5),(7,5)"' in _W(tran)[1] and "it never heard about the move" in _W(tran)[0], "")
+    refl = {"a": 4, "b": 6, "op": "refl"}
+    check("  flip it across: the mirror on x = 0 and the point; both sides in the walk-back",
+          'lines="x=0" points="(4,6)"' in L.board_for(refl, "abstract") and 'points="(4,6),(-4,6)"' in _W(refl)[1]
+          and "negative 4" in _W(refl)[0], "")
+    htrn = {"a": 4, "b": 3, "op": "htrn"}
+    check("  the half turn: the point; the opposite spot in the walk-back",
+          'points="(4,3)"' in L.board_for(htrn, "abstract") and 'points="(4,3),(-4,-3)"' in _W(htrn)[1]
+          and "One sign alone would have been a flip" in _W(htrn)[0], "")
+    rota = {"a": 5, "b": 0, "op": "rota"}
+    check("  turns onto itself: the pie captioned; past twelve parts a written line",
+          '[[pie parts="5" caption=' in L.board_for(rota, "abstract") and 'caption="5 equal parts — each is 72° of the full turn"' in _W(rota)[1]
+          and '[[write lines="one full turn = 360° | 15 equal parts | 360° ÷ 15 = 24°"]]' in _W({"a": 15, "b": 0, "op": "rota"})[1], "")
+
+    # ---- Unit 3 ------------------------------------------------------------------------
+    cong = {"a": 4, "b": 7, "c": 5, "op": "cong"}
+    check("⭐ matching parts: ABC captioned on the ask, ABC beside its copy DEF in the walk-back",
+          '[[triangle v="A,B,C" sides="4,7,5" caption="ABC — sides 4, 7, 5; DEF is its copy"]]' in L.board_for(cong, "abstract")
+          and '[[triangle v="D,E,F" sides="4,7,5" caption="DEF — the same three sides: FD is 5"]]' in _W(cong)[1]
+          and "the copy may be turned" in _W(cong)[0], "")
+    isos = {"a": 50, "b": 0, "op": "isos"}
+    check("⭐ two equal sides: the base angles with the top blank, all three in the walk-back",
+          'angles="50,50," caption=' in L.board_for(isos, "abstract") and 'angles="50,50,80"' in _W(isos)[1]
+          and "the twin is still sitting inside" in _W(isos)[0], "")
+    extr = {"a": 40, "b": 60, "op": "extr"}
+    check("  the outside angle: two angles with the third corner opened out; the inside corner and the exterior in the walk-back",
+          'angles="40,60," caption=' in L.board_for(extr, "abstract") and 'angles="40,60,80"' in _W(extr)[1]
+          and "exactly the two far angles put together" in _W(extr)[0], "")
+    chas = {"a": 40, "b": 0, "op": "chas"}
+    check("  share the rest: the apex with the base angles blank; all three in the walk-back",
+          'angles=",,40" caption=' in L.board_for(chas, "abstract") and 'angles="70,70,40"' in _W(chas)[1]
+          and "take the apex out first" in _W(chas)[0], "")
+
+    # ---- the giveaway audit, captions, spoken pending lines, the notes ----------------
+    check("  nothing the twelve lessons demonstrate is later asked",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in G1 + G2 + G3), "")
+    check("  every figure an ask draws carries a caption (rule 41) -- 138 asks did not before ti",
+          all("caption=" in tag for l in G1 + G2 + G3
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:graph|angle|circle|numberline|pie|triangle)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in G1 + G2 + G3:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  the changed files carry dated ti notes",
+          "2026-09-06  BUILD ti" in rd("lessonscripts.py")[:20000] and "BUILD ti" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD ti" in rd("ruletests.py")[:8000] and "(ti)" in rd("static/methodology.html")[:6000],
           "Jim's rule 8")
 
 
@@ -35361,6 +35467,7 @@ def main():
     part3jb_algebra_one_units_one_to_three_to_the_shape()
     part3jc_algebra_one_units_four_to_six_to_the_shape()
     part3jd_algebra_one_units_seven_to_nine_to_the_shape()
+    part3je_geometry_units_one_to_three_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
