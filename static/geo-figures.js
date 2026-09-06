@@ -2,6 +2,13 @@
    geo-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-06  BUILD tp -- [[triangle sas="10,4,150"]] draws an HONEST triangle from
+                 two sides and the angle between them: the first vertex is the corner,
+                 the first side runs along the base, the second leaves at the true angle,
+                 scaled to the frame; a 90-degree corner gets the square. Precalc Unit
+                 6's area-from-two-sides asks get a figure at last (the schematic layout
+                 drew 150 degrees looking sharp, so they had none). Without sas= nothing
+                 changed.
      2026-09-06  BUILD tk -- [[polygon kind="parallelogram" base= slant= height=]] draws
                  the pushed-over rectangle with its base and leaning side labelled and
                  the TRUE HEIGHT as a dashed line straight down inside it -- Geometry
@@ -105,9 +112,32 @@
     var V = String(a.v || "A,B,C").split(",").map(function (s) { return s.trim(); });
     var L = [V[0] || "A", V[1] || "B", V[2] || "C"];
     var right = String(a.right || "").trim().toUpperCase();
+    // (tp, 2026-09-06) sas="10,4,150": an HONEST triangle from two sides and the
+    // angle between them -- the first vertex is the angle's corner, the first side
+    // runs along the base, the second side leaves the corner at the true angle, and
+    // the whole shape is scaled to the frame. Precalc Unit 6's "two sides and the
+    // angle": a 150-degree corner must LOOK wide (the schematic layout below draws
+    // every triangle with the same three corners, which is why that lesson had no
+    // figure on its asks). A 90-degree sas corner gets the right-angle square.
+    // Without sas= nothing changed.
+    var sasN = String(a.sas || "").split(",").map(function (x) { return parseFloat(x); });
+    var sasOK = sasN.length === 3 && sasN.every(function (n) { return isFinite(n); })
+      && sasN[0] > 0 && sasN[1] > 0 && sasN[2] > 0 && sasN[2] < 180;
+    if (sasOK && Math.abs(sasN[2] - 90) < 0.5) right = L[0].toUpperCase();
     var hasRight = right && L.map(function (x) { return x.toUpperCase(); }).indexOf(right) >= 0;
     var pos = {};
-    if (hasRight) {
+    if (sasOK) {
+      var Cr = sasN[2] * Math.PI / 180;
+      var raw = [[0, 0], [sasN[0], 0], [sasN[1] * Math.cos(Cr), -sasN[1] * Math.sin(Cr)]];
+      var xs = raw.map(function (p) { return p[0]; }), ys = raw.map(function (p) { return p[1]; });
+      var minx = Math.min.apply(null, xs), maxx = Math.max.apply(null, xs);
+      var miny = Math.min.apply(null, ys), maxy = Math.max.apply(null, ys);
+      var padX = 62, padT = 44, padB = 48, boxW = W - 2 * padX, boxH = H - padT - padB;
+      var spanX = Math.max(maxx - minx, 1e-6), spanY = Math.max(maxy - miny, 1e-6);
+      var sc = Math.min(boxW / spanX, boxH / spanY);
+      var ox = padX + (boxW - spanX * sc) / 2 - minx * sc, oy = padT + (boxH - spanY * sc) / 2 - miny * sc;
+      raw.forEach(function (p, i) { pos[L[i]] = [ox + p[0] * sc, oy + p[1] * sc]; });
+    } else if (hasRight) {
       var rL = L.filter(function (x) { return x.toUpperCase() === right; })[0];
       var others = L.filter(function (x) { return x !== rL; });
       pos[rL] = [74, 194]; pos[others[0]] = [268, 194]; pos[others[1]] = [74, 52];

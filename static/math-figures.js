@@ -2,6 +2,19 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-06  BUILD tp -- three attributes for Precalc Units 4-6, none changing a
+                 tag that does not use them. [[unitcircle bearing="350" turn="40"]]
+                 is THE COMPASS: the circle read clockwise from north with N/E/S/W, the
+                 arrow at the bearing, its arc labelled, no (cos, sin), and a dashed
+                 "turn 40°" arc from the arrow's tip with nothing at its far end (the
+                 new bearing is the answer). [[unitcircle angle="-70"]] now sweeps its
+                 arc CLOCKWISE through 70 (the backwards spin, drawn backwards; before,
+                 every arc ran counter-clockwise to the coterminal spot -- no canon tag
+                 carried a negative angle). [[graph names="sin x; sin 20x"]] names the
+                 legend entries in order in place of the raw expressions (a wave plotted
+                 as sin(20*x*pi/180) so the axis reads in degrees keeps its lesson name).
+                 Also: [[numberline hops=]] shrinks the jump labels when the hops are
+                 narrower than 52px (fourteen hops of 180 ran together); wide hops as before.
      2026-09-06  BUILD tn -- [[unitcircle values="0"]] draws the arrow and its angle
                  with no (cos, sin) at the tip and no legend -- the spin lesson's
                  picture (same arrow after a full turn) without the two coordinates
@@ -502,11 +515,16 @@
     svg += "</g>";
 
     // legend inside the SVG (each curve's equation in its colour)
+    // (tp, 2026-09-06) names="sin x; sin 20x": the legend says THESE, in order, in
+    // place of the raw expressions -- a wave plotted as sin(20*x*pi/180) so the
+    // x-axis reads in degrees should be named the way the lesson names it. A curve
+    // with no name keeps its expression. Without names= nothing changed.
+    var names = String(a.names || "").split(/[;|]/).map(function (n) { return n.trim(); });
     var lx = PAD + 2, ly = S - 8, li = 0;
     curves.forEach(function (c) {
-      var col = COLORS[li % COLORS.length]; li++;
-      svg += '<text x="' + lx + '" y="' + ly + '" font-size="12" font-weight="700" fill="' + col + '" font-family="system-ui,Segoe UI,Arial,sans-serif">' + esc(c.label) + '</text>';
-      lx += Math.min(160, 24 + esc(c.label).length * 8.2);
+      var col = COLORS[li % COLORS.length]; var shown = names[li] || c.label; li++;
+      svg += '<text x="' + lx + '" y="' + ly + '" font-size="12" font-weight="700" fill="' + col + '" font-family="system-ui,Segoe UI,Arial,sans-serif">' + esc(shown) + '</text>';
+      lx += Math.min(160, 24 + esc(shown).length * 8.2);
       if (lx > S - 90) { lx = PAD + 2; ly += 15; }
     });
     return svg + "</svg>";
@@ -900,6 +918,14 @@
     270: ["0", "-1", "3π/2"], 300: ["1/2", "-√3/2", "5π/3"], 315: ["√2/2", "-√2/2", "7π/4"], 330: ["√3/2", "-1/2", "11π/6"]
   };
   function unitcircle(a) {
+    // (tp, 2026-09-06) bearing="350" [turn="40"]: THE COMPASS. The same circle read the
+    // sailor's way -- degrees clockwise from NORTH -- with N, E, S, W at the four
+    // points, the arrow at the bearing, the red arc swept clockwise from north and
+    // labelled, and no (cos, sin) anywhere (a bearing has none). turn="40" adds a
+    // dashed arc of that many degrees clockwise from the arrow's tip, labelled
+    // "turn 40°", with nothing at its far end -- the new bearing is the lesson's
+    // answer. Precalc Unit 6's "past the full turn". Without bearing= nothing changed.
+    if (a.bearing != null && isFinite(parseFloat(a.bearing))) return compassRose(a);
     var deg = num(a.angle != null ? a.angle : a.deg, 45); var d360 = ((deg % 360) + 360) % 360;
     var rad = deg * Math.PI / 180;
     var W = 360, H = 340, cx = 168, cy = 168, R = 122;
@@ -912,7 +938,12 @@
     s += '<line x1="' + px + '" y1="' + py + '" x2="' + cx + '" y2="' + py + '" stroke="var(--bd-d97706)" stroke-width="1.5" stroke-dasharray="4 3"/>';
     s += arrow(cx, cy, px, py, "var(--bd-5b5bd6)", 2.5);
     var ar = 30;
-    s += '<path d="M ' + (cx + ar) + ' ' + cy + ' A ' + ar + ' ' + ar + ' 0 ' + (d360 > 180 ? 1 : 0) + ' 0 ' + (cx + ar * Math.cos(rad)) + ' ' + (cy - ar * Math.sin(rad)) + '" fill="none" stroke="var(--bd-e0392b)" stroke-width="2"/>';
+    // (tp, 2026-09-06) a NEGATIVE angle winds the other way: its arc is swept clockwise
+    // from flat right through |deg| (the backwards spin, drawn backwards), where before
+    // every arc ran counter-clockwise to the coterminal spot. No canon tag carried a
+    // negative angle before tp (Precalc Unit 4's backwards-spin lesson is the first).
+    var neg = deg < 0, mag = ((-deg) % 360 + 360) % 360;
+    s += '<path d="M ' + (cx + ar) + ' ' + cy + ' A ' + ar + ' ' + ar + ' 0 ' + (neg ? (mag > 180 ? 1 : 0) : (d360 > 180 ? 1 : 0)) + ' ' + (neg ? 1 : 0) + ' ' + (cx + ar * Math.cos(rad)) + ' ' + (cy - ar * Math.sin(rad)) + '" fill="none" stroke="var(--bd-e0392b)" stroke-width="2"/>';
     s += '<circle cx="' + px + '" cy="' + py + '" r="4.5" fill="var(--bd-5b5bd6)"/>';
     var exact = UC[d360], cosS, sinS, radS;
     if (exact) { cosS = exact[0]; sinS = exact[1]; radS = exact[2]; }
@@ -926,6 +957,45 @@
     if (showVals) s += tspan(px + (_tr ? -10 : 10), py - 10, "(" + cosS + ", " + sinS + ")", "var(--bd-26263a)", 11, 700, _tr ? "end" : "start");
     s += tspan(cx + ar + 8, cy - 8, trimnum(deg) + "°", "var(--bd-e0392b)", 12, 700, "start");
     if (showVals) s += tspan(W / 2, H - 14, trimnum(deg) + "°  =  " + radS + " rad     cos = " + cosS + "     sin = " + sinS, "var(--bd-333344)", 12, 700);
+    return s + "</svg>";
+  }
+
+  // ---- [[unitcircle bearing="350" turn="40"]] : the compass rose (tp, 2026-09-06) ----
+  function compassRose(a) {
+    var brg = ((num(a.bearing, 0) % 360) + 360) % 360;
+    var turn = a.turn != null && isFinite(parseFloat(a.turn)) ? Math.max(0, Math.min(359, num(a.turn, 0))) : null;
+    var W = 360, H = 352, cx = 180, cy = 180, R = 118;
+    var toXY = function (b, r) { var t = b * Math.PI / 180; return [cx + r * Math.sin(t), cy - r * Math.cos(t)]; };
+    var s = svgOpen(W, H, 360);
+    s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="rgba(91,91,214,.04)" stroke="var(--bd-5b5bd6)" stroke-width="2"/>';
+    for (var t = 0; t < 360; t += 10) {
+      var big = t % 90 === 0, p1 = toXY(t, R), p2 = toXY(t, R - (big ? 14 : 7));
+      s += '<line x1="' + p1[0] + '" y1="' + p1[1] + '" x2="' + p2[0] + '" y2="' + p2[1] + '" stroke="var(--bd-9aa7b6)" stroke-width="' + (big ? 2 : 1) + '"/>';
+    }
+    // the four points, north on top -- 0° and 360° are the same mark
+    [["N", 0], ["E", 90], ["S", 180], ["W", 270]].forEach(function (pt) {
+      var q = toXY(pt[1], R + 20);
+      s += tspan(q[0], q[1] + 5, pt[0], "var(--bd-26263a)", 15, 800);
+    });
+    // the red arc: clockwise from north to the bearing (sweep-flag 1 is clockwise on screen)
+    var ar = 34, a0 = toXY(0, ar), a1 = toXY(brg, ar);
+    if (brg > 0) s += '<path d="M ' + a0[0] + ' ' + a0[1] + ' A ' + ar + ' ' + ar + ' 0 ' + (brg > 180 ? 1 : 0) + ' 1 ' + a1[0] + ' ' + a1[1] + '" fill="none" stroke="var(--bd-e0392b)" stroke-width="2"/>';
+    var tip = toXY(brg, R);
+    s += arrow(cx, cy, tip[0], tip[1], "var(--bd-5b5bd6)", 2.5);
+    s += '<circle cx="' + tip[0] + '" cy="' + tip[1] + '" r="4.5" fill="var(--bd-5b5bd6)"/>';
+    var lab = toXY(brg / 2, ar + 16);
+    s += tspan(lab[0], lab[1] + 4, trimnum(brg) + "°", "var(--bd-e0392b)", 12, 700);
+    if (turn != null && turn > 0) {
+      // the dashed arc stops three degrees short and the head finishes the turn
+      var tr = R + 8, t0 = toXY(brg, tr), t1 = toXY(brg + Math.max(turn - 3, 0), tr);
+      s += '<path d="M ' + t0[0] + ' ' + t0[1] + ' A ' + tr + ' ' + tr + ' 0 ' + (turn > 183 ? 1 : 0) + ' 1 ' + t1[0] + ' ' + t1[1] + '" fill="none" stroke="var(--bd-d97706)" stroke-width="2.2" stroke-dasharray="6 5"/>';
+      var tipP = toXY(brg + turn, tr), rdir = (brg + turn - 3) * Math.PI / 180;
+      var b1 = [t1[0] + 6 * Math.sin(rdir), t1[1] - 6 * Math.cos(rdir)], b2 = [t1[0] - 6 * Math.sin(rdir), t1[1] + 6 * Math.cos(rdir)];
+      s += '<polygon points="' + tipP[0] + ',' + tipP[1] + ' ' + b1[0] + ',' + b1[1] + ' ' + b2[0] + ',' + b2[1] + '" fill="var(--bd-d97706)"/>';
+      var tl = toXY(brg + turn / 2, tr + 32);   // outside the N/E/S/W ring
+      s += tspan(tl[0], tl[1] + 4, "turn " + trimnum(turn) + "°", "var(--bd-d97706)", 12, 700);
+    }
+    s += tspan(W / 2, H - 10, "clockwise from north · N is 0° and 360°", "var(--bd-333344)", 11, 600);
     return s + "</svg>";
   }
 
@@ -1064,7 +1134,9 @@
         var jump = trimnum(hops[hi + 1] - hops[hi]);
         var jumpLabel = (denom >= 2) ? ((jump >= 0 ? "+" : "−") + fracLabel(Math.abs(jump)))
                                      : ((jump >= 0 ? "+" : "") + jump);
-        s += tspan(hmx, axisY - 13 - lift, jumpLabel, "var(--bd-e0392b)", 14, 800);
+        // (tp, 2026-09-06) crowded hops -- fourteen hops of 180 across 2520 -- shrink
+        // the jump label so neighbours stop running together; wide hops are unchanged.
+        s += tspan(hmx, axisY - 13 - lift, jumpLabel, "var(--bd-e0392b)", Math.abs(hx2 - hx1) < 52 ? 11 : 14, 800);
       }
     }
     return s + "</svg>";

@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tp -- PART 3jl: Precalc Units 4-6 to the shape (12 lessons on the
+#               bars, the unit circle wound backwards, the flat line split at the arrow,
+#               the wave on an axis in degrees, the hundred square, the right triangle's
+#               two sharp corners, the wave crossing its level line, the honest SAS
+#               triangle, the ramp, the compass and the vector); three renderer
+#               attributes pinned (triangle sas=, unitcircle bearing=/turn=, graph
+#               names=); every figure an ask draws captioned; the hundredths ask reads
+#               its 100 aloud; the crossings pending line is a statement. The per-lesson
+#               audio ceiling is raised in writing, 22,000 -> 24,000 chars and $5.00 ->
+#               $5.50 (the shape's walk-backs joined the closure; two Unit 6 lessons
+#               passed the old bar -- see the ledger beside the check).
 #   2026-09-06  BUILD to -- PART 3jk: Precalc Units 1-3 to the shape (12 lessons on two
 #               machines in a row, the grid, the number line, the minus parade on the
 #               array, the four rooms with the corner blank, the curve flying off, the
@@ -21912,7 +21923,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,041</b>" in page,
+          "<b>10,141</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25949,6 +25960,203 @@ def part3jk_precalc_units_one_to_three_to_the_shape():
     check("  the changed files carry dated to notes",
           "2026-09-06  BUILD to" in rd("lessonscripts.py")[:60000] and "BUILD to" in rd("main.py")[:200000]
           and "2026-09-06  BUILD to" in rd("ruletests.py")[:8000] and "(to)" in rd("static/methodology.html")[:12000],
+          "Jim's rule 8")
+
+
+_TP_RENDER_HARNESS = r"""
+global.window = {};
+require(process.argv[2]); require(process.argv[3]);
+var M = window.MathFigures, G = window.GeoFigures, out = [];
+function has(s, t) { return s.indexOf(t) >= 0; }
+var c = M.svg("unitcircle", {bearing: "290", turn: "125"});
+out.push(["compass: N, E, S, W and the bearing label", has(c, ">N<") && has(c, ">E<") && has(c, ">S<") && has(c, ">W<") && has(c, "290°")]);
+out.push(["compass: the dashed turn arc, labelled, no (cos, sin)", has(c, "turn 125°") && has(c, 'stroke-dasharray="6 5"') && !has(c, "cos =")]);
+var w = M.svg("unitcircle", {bearing: "55"});
+out.push(["compass walk-back: the new bearing, no turn arc", has(w, "55°") && !has(w, "turn ")]);
+var plain = M.svg("unitcircle", {angle: "45"});
+out.push(["plain unit circle unchanged: values and radian legend", has(plain, "cos = √2/2") && has(plain, "45°")]);
+var neg = M.svg("unitcircle", {angle: "-70", values: "0"});
+out.push(["a negative angle sweeps its arc clockwise (sweep-flag 1)", has(neg, "-70°") && has(neg, " 0 0 1 ") && !has(neg, "cos =")]);
+var pos = M.svg("unitcircle", {angle: "290", values: "0"});
+out.push(["a positive angle still sweeps counter-clockwise", has(pos, "290°") && has(pos, " 1 0 ")]);
+var g = M.svg("graph", {func: "sin(x*pi/180); sin(20*x*pi/180)", names: "sin x; sin 20x", range: "0..360", yrange: "-1.5..1.5"});
+out.push(["graph names=: the legend says sin x and sin 20x, never pi/180", has(g, ">sin x<") && has(g, ">sin 20x<") && !has(g, "pi/180")]);
+var g0 = M.svg("graph", {func: "sin(x)", range: "-7..7"});
+out.push(["graph without names= unchanged", has(g0, ">y=sin(x)<")]);
+var t = G.svg("triangle", {v: "A,B,C", sas: "10,4,150", sides: "10,,4", angles: "150,,"});
+var pts = (t.match(/<polygon points="([^"]+)"/) || [0, ""])[1].split(" ").map(function (p) { return p.split(",").map(Number); });
+var ang = -1, ratio = -1;
+if (pts.length === 3) {
+  var v1 = [pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]], v2 = [pts[2][0] - pts[0][0], pts[2][1] - pts[0][1]];
+  var l1 = Math.hypot(v1[0], v1[1]), l2 = Math.hypot(v2[0], v2[1]);
+  ang = Math.acos((v1[0] * v2[0] + v1[1] * v2[1]) / (l1 * l2)) * 180 / Math.PI; ratio = l1 / l2;
+}
+out.push(["triangle sas=: the 150-degree corner is drawn at 150 and the sides in ratio 10:4", Math.abs(ang - 150) < 0.5 && Math.abs(ratio - 2.5) < 0.02 && has(t, "150°")]);
+var t90 = G.svg("triangle", {v: "A,B,C", sas: "6,10,90", sides: "6,,10", angles: "90,,"});
+out.push(["triangle sas= with 90 gets the right-angle square", has(t90, "<polyline") && has(t90, "90°")]);
+var t30 = G.svg("triangle", {v: "A,B,C", sas: "10,4,30"});
+out.push(["triangle sas= with 30 gets no square", !has(t30, "<polyline")]);
+var old = G.svg("triangle", {v: "A,B,C", right: "B", sides: ",?,22", angles: "30,,"});
+out.push(["the schematic triangle without sas= unchanged", has(old, "<polyline") && has(old, ">?<") && has(old, ">22<")]);
+var nl = M.svg("numberline", {min: "0", max: "2520", hops: "0,180,360,540,720,900,1080,1260,1440,1620,1800,1980,2160,2340,2520"});
+out.push(["crowded hops shrink their labels", (nl.match(/font-size="11"[^>]*>\+180/g) || []).length === 14]);
+var nl2 = M.svg("numberline", {min: "0", max: "10", hops: "2,5,8"});
+out.push(["wide hops keep the 14px label", (nl2.match(/font-size="14"[^>]*>\+3/g) || []).length === 2]);
+console.log(JSON.stringify(out));
+"""
+
+
+def part3jl_precalc_units_four_to_six_to_the_shape():
+    """PART 3jl (build tp, 2026-09-06) -- PRECALC UNITS 4-6 TO THE SHAPE.
+
+    The half turn beside the angle as bars, walked back as the half turns laid end to
+    end; the arrow wound backwards with its values hidden, walked back named forwards;
+    the flat line split at the arrow with the gap blank; the plain sine beside the fast
+    one on an axis in degrees; the hundred square with sine squared shaded (and the
+    ask reading its 100 aloud); the right triangle's second sharp corner blank; the
+    mirror walked back on the circle (the ask stays picture-free); the wave through
+    its turns with the level line, the touches marked in the walk-back; the honest
+    SAS triangle; the ramp; the compass with the turn arc's far end unnamed; the
+    arrow's two steps, walked back as the vector. Three renderer attributes proven
+    under node. Every figure an ask draws carries a caption."""
+    print("\nPART 3jl — Precalc Units 4-6 to the shape (build tp)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    P4 = ["pc-u4-the-half-turn-language", "pc-u4-the-backwards-spin",
+          "pc-u4-hug-the-flat-line", "pc-u4-the-faster-wave"]
+    P5 = ["pc-u5-one-whole-between-them", "pc-u5-partners-across-ninety",
+          "pc-u5-the-mirror-knows", "pc-u5-count-the-crossings"]
+    P6 = ["pc-u6-two-sides-and-the-angle", "pc-u6-the-thirty-degree-ramp",
+          "pc-u6-past-the-full-turn", "pc-u6-the-arrow-and-its-steps"]
+    _shape_unit_checks(P4, r"\[\[(bars|tape|numberline|unitcircle|angle|graph)\b")
+    _shape_unit_checks(P5, r"\[\[(hundredgrid|triangle|unitcircle|graph)\b")
+    _shape_unit_checks(P6, r"\[\[(triangle|unitcircle|vector)\b")
+
+    # ---- Unit 4 ------------------------------------------------------------------------
+    rad1 = {"a": 12, "b": 0, "op": "rad1"}
+    check("⭐ the half-turn language: a half turn beside the angle as bars on the ask; the half turns laid end to end in the walk-back (tape to ten, hops past it)",
+          '[[bars data="a half turn:180 | 2160°:2160" caption=' in L.board_for(rad1, "abstract")
+          and 'hops="0,180,360,540,720,900,1080,1260,1440,1620,1800,1980,2160"' in _W(rad1)[1]
+          and '[[tape parts="180|180|180|180|180" total="900°"' in _W({"a": 5, "b": 0, "op": "rad1"})[1]
+          and "12 pi radians" in _W(rad1)[0], "")
+    nspn = {"a": 70, "b": 0, "op": "nspn"}
+    check("⭐ the backwards spin: the arrow wound backwards with its values hidden on the ask; the same arrow named forwards in the walk-back",
+          '[[unitcircle angle="-70" values="0" caption=' in L.board_for(nspn, "abstract")
+          and '[[unitcircle angle="290" values="0" caption="the same arrow' in _W(nspn)[1]
+          and "negative 70 plus 360 equals 290" in _W(nspn)[0], "")
+    refq = {"a": 125, "b": 0, "op": "refq"}
+    check("⭐ hug the flat line: the flat line split at the arrow with the gap blank on the ask; both pieces labelled in the walk-back",
+          '[[angle deg="180" split="125" caption=' in L.board_for(refq, "abstract")
+          and '[[angle deg="180" split="125,55" caption=' in _W(refq)[1]
+          and "hugs the FLAT line" in _W(refq)[0], "")
+    wper = {"a": 20, "b": 0, "op": "wper"}
+    check("⭐ the faster wave: the plain sine beside the fast one on an axis in degrees (names=) on the ask; the first repeat marked in the walk-back",
+          '[[graph func="sin(x*pi/180); sin(20*x*pi/180)" names="sin x; sin 20x" range="0..360"' in L.board_for(wper, "abstract")
+          and 'names="sin 20x" lines="x=18"' in _W(wper)[1] and "Faster means SOONER" in _W(wper)[0], "")
+
+    # ---- Unit 5 ------------------------------------------------------------------------
+    pyid = {"a": 30, "b": 0, "op": "pyid"}
+    check("⭐ one whole between them: the hundred square with sine squared shaded on the ask, and the ask SAYS its 100 (rule 44 -- 12 asks never did); the split named in the walk-back",
+          '[[hundredgrid shaded="30" eq="sin² = 30 of 100" caption=' in L.board_for(pyid, "abstract")
+          and "of the 100" in L.spoken_for(pyid, "abstract")
+          and '[[hundredgrid shaded="30" eq="30 + 70 = 100" caption=' in _W(pyid)[1]
+          and "cosine squared is 70 hundredths" in _W(pyid)[0], "")
+    cofn = {"a": 25, "b": 0, "op": "cofn"}
+    check("  partners across ninety: the right triangle with its second sharp corner blank on the ask; both corners in the walk-back",
+          '[[triangle v="A,B,C" right="B" angles="25,90,?" caption=' in L.board_for(cofn, "abstract")
+          and 'angles="25,90,65"' in _W(cofn)[1] and "25 plus 65 equals 90" in _W(cofn)[0], "")
+    negf = {"a": 810, "b": 0, "c": 1, "op": "negf"}
+    _mb = L.LESSON_BY_ID["pc-u5-the-mirror-knows"]["bank"]
+    check("⭐ the mirror knows: no picture on the ask (the pointed arrow is the answer); the arrow wound backwards with its values in the walk-back; the teach's own demonstrations moved out of the bank",
+          "[[unitcircle" not in L.board_for(negf, "abstract")
+          and '[[unitcircle angle="-810" caption=' in _W(negf)[1] and "height is negative 1" in _W(negf)[0]
+          and '[[unitcircle angle="-720" caption=' in _W({"a": 720, "b": 0, "c": 0, "op": "negf"})[1]
+          and {"a": 90, "b": 0, "c": 1, "op": "negf"} not in _mb and {"a": 180, "b": 0, "c": 0, "op": "negf"} not in _mb
+          and {"a": 360, "b": 0, "c": 1, "op": "negf"} in _mb and {"a": 630, "b": 0, "c": 0, "op": "negf"} in _mb, "")
+    sols = {"a": -1, "b": 2, "c": 0, "op": "sols"}
+    check("⭐ count the crossings: the wave through its turns with the level line on the ask, the pending line a statement (12 asks had a question inside a step); the touches marked in the walk-back",
+          '[[graph func="sin(x*pi/180)" names="sine" lines="y=-1" range="0..720"' in L.board_for(sols, "abstract")
+          and '[[step eq="2 turns · sin = −1 · count = ?"]]' in L.board_for(sols, "abstract")
+          and 'points="(270,-1),(630,-1)"' in _W(sols)[1]
+          and 'points="(90,0),(270,0)"' in _W({"a": 0, "b": 1, "c": 1, "op": "sols"})[1]
+          and "2 turns, 1 each: 2" in _W(sols)[0], "")
+
+    # ---- Unit 6 ------------------------------------------------------------------------
+    arsn = {"a": 12, "b": 6, "c": 150, "op": "arsn"}
+    check("⭐ two sides and the angle: the honest SAS triangle on the ask (sas= -- the old ask had words only); the same triangle with its area in the walk-back",
+          '[[triangle v="A,B,C" sas="12,6,150" sides="12,,6" angles="150,," caption=' in L.board_for(arsn, "abstract")
+          and 'caption="area = ½ · 12 · 6 · sin 150° = 18"' in _W(arsn)[1] and "150 shares its sine with 30" in _W(arsn)[0]
+          and '[[step eq="½ · 6 · 10 · 1 = 30"]]' in _W({"a": 6, "b": 10, "c": 90, "op": "arsn"})[1], "")
+    ramp = {"a": 32, "b": 0, "op": "ramp"}
+    check("  the thirty-degree ramp: the ramp triangle captioned on the ask (it had no caption); the height filled in the walk-back",
+          '[[triangle v="A,B,C" right="B" sides=",?,32" angles="30,," caption=' in L.board_for(ramp, "abstract")
+          and 'sides=",16,32"' in _W(ramp)[1] and "half of 32 is 16 feet" in _W(ramp)[0], "")
+    brng = {"a": 290, "b": 125, "op": "brng"}
+    check("⭐ past the full turn: the compass with the turn arc on the ask, its far end unnamed; the compass at the new bearing in the walk-back",
+          '[[unitcircle bearing="290" turn="125" caption=' in L.board_for(brng, "abstract")
+          and '[[unitcircle bearing="55" caption=' in _W(brng)[1] and "take away 360: the new bearing is 55" in _W(brng)[0], "")
+    vmag = {"a": 12, "b": 35, "c": 37, "op": "vmag"}
+    check("  the arrow and its steps: the two steps captioned on the ask (it had no caption); the vector with its length in the walk-back",
+          '[[triangle v="A,B,C" right="B" sides="12,35,?" caption=' in L.board_for(vmag, "abstract")
+          and '[[vector v="12,35" caption=' in _W(vmag)[1] and "The arrow is 37" in _W(vmag)[0], "")
+
+    # ---- the renderers: pinned in the source, then driven under node ---------------
+    _mf, _gf = rd("static/math-figures.js"), rd("static/geo-figures.js")
+    check("  math-figures.js carries the compass (bearing=/turn=), the clockwise negative arc, graph names= and the crowded-hop labels",
+          "function compassRose(a)" in _mf and "a.bearing != null" in _mf and "neg ? 1 : 0" in _mf
+          and 'String(a.names || "")' in _mf and "Math.abs(hx2 - hx1) < 52 ? 11 : 14" in _mf, "")
+    check("  geo-figures.js carries the honest SAS triangle (sas=)", "var sasN = String(a.sas || \"\")" in _gf and "if (sasOK) {" in _gf, "")
+    try:
+        subprocess.run(["node", "--version"], capture_output=True, check=True)
+        _node = True
+    except Exception:  # noqa: BLE001
+        _node = False
+    if _node:
+        import json as _json
+        import tempfile as _tf
+        with _tf.TemporaryDirectory() as tmp:
+            hpath = os.path.join(tmp, "tp.js")
+            with open(hpath, "w") as fh:
+                fh.write(_TP_RENDER_HARNESS)
+            res = subprocess.run(["node", hpath, os.path.join(here, "static", "math-figures.js"),
+                                  os.path.join(here, "static", "geo-figures.js")],
+                                 capture_output=True, text=True)
+            if res.returncode != 0:
+                bad("tp render harness", res.stderr.strip()[:200])
+            else:
+                for name, okk in _json.loads(res.stdout):
+                    check(f"  render: {name}", okk, "see math-figures.js / geo-figures.js")
+    else:
+        skip("tp render checks", "node not available")
+
+    # ---- the giveaway audit, captions, spoken pending lines, the notes ----------------
+    check("  nothing the twelve lessons demonstrate is later asked",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in P4 + P5 + P6), "")
+    check("  every figure an ask draws carries a caption (rule 41 -- the ramp and the arrow drew 24 without one)",
+          all("caption=" in tag for l in P4 + P5 + P6
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:bars|unitcircle|angle|graph|hundredgrid|triangle|vector|tape|numberline)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in P4 + P5 + P6:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  no ask in the three units puts an arrow after an equals sign or a question inside a step",
+          not any(re.search(r"=[^\"]*→", m) or re.search(r"[A-Za-z]\?", m) for l in P4 + P5 + P6
+                  for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+                  for m in re.findall(r'\[\[step eq="([^"]*)"', L.board_for(p, "abstract"))), "")
+    check("  no reason option works the arithmetic aloud (the spoken-math referee sweeps the joined options)",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in P4 + P5 + P6), "")
+    check("  the changed files carry dated tp notes",
+          "2026-09-06  BUILD tp" in rd("lessonscripts.py")[:60000] and "BUILD tp" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD tp" in rd("ruletests.py")[:8000] and "(tp)" in rd("static/methodology.html")[:12000]
+          and "BUILD tp" in _mf[:3000] and "BUILD tp" in _gf[:3000],
           "Jim's rule 8")
 
 
@@ -34567,8 +34775,17 @@ def part3cv_scripted_engine():
         #   probstat, calculus and diffeq lessons -- from ~19.9k to ~20.4k. The
         #   DOLLAR bar did not move and did not need to: the worst lesson is
         #   $4.59 against the same $5.00 it always had. Measured, not guessed.
+        #   2026-09-06 (build tp): 22,000 -> 24,000 and $5.00 -> $5.50. THE SHAPE
+        #   joined the closure: since sp every right answer is walked back on the
+        #   picture in the lesson's own words (a "worked" line per ask, twelve
+        #   asks a lesson), and the why, picture, recap and reason beats speak too.
+        #   Three hundred lessons fit under the old bar; Precalc Unit 6's ramp
+        #   (22,182 chars, $4.88) and arrow (23,473 chars, $5.16) did not -- their
+        #   walk-backs name both steps, both squares, the sum and the two bounds,
+        #   which is the lesson. The next-largest lesson in the canon is 21,212.
+        #   Measured, not guessed; the bar is raised, the lessons are not cut.
         check(f"{_les['id']}: the closure is priceable and small",
-              0 < est2["chars"] < 22000 and est2["usd"] < 5.0, str(est2))
+              0 < est2["chars"] < 24000 and est2["usd"] < 5.5, str(est2))
 
     # ---- 9. ⭐ THE CLOSURE: everything ever spoken is pre-renderable ----
     missing = sorted({s for s in heard if s and s not in closure})
@@ -36283,6 +36500,7 @@ def main():
     part3ji_algebra_two_units_four_to_six_to_the_shape()
     part3jj_algebra_two_units_seven_to_nine_to_the_shape()
     part3jk_precalc_units_one_to_three_to_the_shape()
+    part3jl_precalc_units_four_to_six_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

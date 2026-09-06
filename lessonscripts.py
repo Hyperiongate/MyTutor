@@ -2,6 +2,39 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tp -- PRECALC UNITS 4-6 TO THE SHAPE (12 lessons). Jim: "go".
+#               THIS FILE:
+#                 * Unit 4 (trig functions): a half turn beside the angle as bars, walked
+#                   back as the half turns laid end to end (tape to ten, number-line hops
+#                   past it); the arrow wound backwards on the circle with its values
+#                   hidden, walked back as the same arrow named forwards; the flat line
+#                   split at the arrow with the gap blank ([[angle deg="180" split=]]),
+#                   walked back with both pieces; the plain sine beside the fast one on
+#                   an axis in DEGREES ([[graph names=]]), walked back with the first
+#                   repeat marked (lines="x=");
+#                 * Unit 5 (identities): the hundred square with sine squared shaded
+#                   ([[hundredgrid eq=]]) -- and the ask now SAYS "of the 100" (the old
+#                   "cos² = ?/100" was a board problem the spoken words never read, rule
+#                   44, 12 asks, live); the right triangle with its second sharp corner
+#                   blank; the mirror stays picture-free on the ask (the pointed arrow is
+#                   the answer) and walks back with the arrow and its values; the wave
+#                   through its turns with the level line, the pending line a statement
+#                   (the old "how many times?" was a question inside a step, 12 asks,
+#                   live), walked back with the touches marked (points=);
+#                 * Unit 6 (applications): the HONEST SAS triangle ([[triangle sas=]],
+#                   new in geo-figures.js -- the schematic layout drew 150 looking sharp,
+#                   which is why the old ask had words only); the ramp and the arrow's
+#                   triangle captioned (rule 41: 24 asks drew a figure with no caption);
+#                   THE COMPASS ([[unitcircle bearing= turn=]], new in math-figures.js)
+#                   with the turn arc's far end unnamed, walked back at the new bearing;
+#                   the arrow walked back as [[vector]] (it prints the length).
+#               Trap lines kept in every lesson. ENGINE: OP_EXT rad1/nspn/refq/wper/
+#               pyid/cofn/negf/sols/arsn/ramp/brng/vmag gain "worked" (_rad1_* ...
+#               _vmag_*) and, where a picture withholds the answer, boards. Demonstrated
+#               numbers kept out of the banks and pairs: the mirror lesson's bank asks
+#               (90, sine) and (180, cosine) were the teach's own demonstrations -- they
+#               are (360, sine) and (630, cosine) now; the crossings teach counts three
+#               turns (every one- and two-turn combination is an ask).
 #   2026-09-06  BUILD to -- PRECALC UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "go".
 #               THIS FILE:
 #                 * Unit 1 (functions): two MACHINES in a row on the ask, g first with
@@ -19162,24 +19195,64 @@ _PRECALC_U4 = [
         "op": "rad1", "max_value": 13,
         "levels": ("abstract",),
         "symbols": ("radians", "pi"),
-        "advance_line": "Three in a row — you've got it! Count the half turns — that is the pi's.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Count the half turns — that is the pi's.",
+        "why": [
+            ("Why a second language for the circle? Unit Four hands the circle a new "
+             "way to measure. Degrees chop a turn into 360 thin slices; mathematicians "
+             "also measure in radians, and the dictionary has one entry: a half turn — "
+             "180 degrees — is exactly pi radians. Pi, the circle number, near 3.14.",
+             '[[goal text="The half-turn language"]][[step eq="180° = π rad"]]'),
+        ],
+        "picture": [
+            ("Here is a half turn beside a whole angle, as bars. The short bar is 180 — "
+             "one half turn, one pi. The tall bar is 3600. The question radians ask is "
+             "how many of the short bar fit inside the tall one — that count is the "
+             "number of pi's.",
+             '[[bars data="a half turn:180 | 3600°:3600" caption="how many half turns of 180 fit in 3600°?"]]'),
+        ],
         "teach": [
-            ["Unit Four hands the circle a second language. Degrees chop a turn into 360 thin slices; mathematicians also measure in radians, and the dictionary has one entry: a half turn — 180 degrees — is exactly pi radians. Pi, the circle number, near 3.14.",
-             '[[goal text="The half-turn language"]][[step eq="180° = π rad"]]'],
-            ["Count half turns to translate. 3600 degrees is twenty half turns — 20 pi radians. And 180 itself is one half turn: 1 pi. The number of pi's IS the number of half turns; nothing else to it.",
-             '[[step eq="3600° = 20 half turns = 20π"]]'],
-            ["Two traps. Counting QUARTER turns says twice too many pi's — 90 degrees is not one pi, it is half of one. And handing the degrees back unchanged is no translation at all. Divide by 180; the count of half turns is the answer.",
-             '[[step eq="÷ 180 → the count of half turns"]][[step eq="quarter-turn count ✗ · degrees copied ✗"]]'],
+            ("That is the method: count half turns to translate. 3600 divided by 180 "
+             "equals 20 — twenty half turns, so 3600 degrees is 20 pi radians. And 180 "
+             "itself is one half turn: 1 pi. The number of pi's IS the number of half "
+             "turns; nothing else to it.",
+             '[[bars data="a half turn:180 | 3600°:3600" caption="20 half turns of 180 fit — 3600° = 20π rad"]][[step eq="3600 ÷ 180 = 20"]][[step eq="3600° = 20π rad"]]'),
+            ("Two traps. Counting QUARTER turns says twice too many pi's — 90 degrees "
+             "is not one pi, it is half of one. And handing the degrees back unchanged "
+             "is no translation at all. Divide by 180; the count of half turns is the "
+             "answer.",
+             '[[step eq="÷ 180 → the count of half turns"]][[step eq="quarter-turn count ✗ · degrees copied ✗"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 2520 degrees: 2520 divided by 180 equals 14 — 14 pi radians.",
-                        '[[step eq="2520 ÷ 180 = 14"]] [[step eq="so 14π"]]'],
-             "ask": {"a": 12, "b": 0, "op": "rad1"}},
-            {"worked": ["One more together. 2700 degrees: 2700 divided by 180 equals 15 — 15 pi radians.",
-                        '[[step eq="2700 ÷ 180 = 15"]] [[step eq="so 15π"]]'],
-             "ask": {"a": 13, "b": 0, "op": "rad1"}},
+            {"worked": ("Here is one more, done for you. 2520 degrees: 2520 divided by 180 "
+                        "equals 14 — 14 pi radians.",
+                        '[[numberline min="0" max="2520" hops="0,180,360,540,720,900,1080,1260,1440,1620,1800,1980,2160,2340,2520" caption="14 half turns — 14π"]][[step eq="2520 ÷ 180 = 14"]][[step eq="so 14π"]]'),
+             "ask": {'a': 12, 'b': 0, 'op': 'rad1'}},
+            {"worked": ("One more together. 2700 degrees: 2700 divided by 180 equals 15 — "
+                        "15 pi radians.",
+                        '[[bars data="a half turn:180 | 2700°:2700" caption="15 half turns of 180 fit — 15π"]][[step eq="2700 ÷ 180 = 15"]][[step eq="so 15π"]]'),
+             "ask": {'a': 13, 'b': 0, 'op': 'rad1'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3600 degrees is 20 pi "
+                       "radians. Tap the reason why."),
+            "choices": ("because 180 is one pi and twenty half turns fit | because a "
+                        "quarter turn of 90 is one pi | because the degrees are the pi's "
+                        "already"),
+            "answer": "because 180 is one pi and twenty half turns fit",
+            "board": '[[bars data="a half turn:180 | 3600°:3600" caption="20 half turns — 20π"]]',
+        },
+        "recap": [
+            ("So, here it is again. Radians measure in half turns: a half turn of 180 "
+             "degrees is one pi, so divide the degrees by 180 and the count of half "
+             "turns is the number of pi's. Never count quarter turns, and never hand "
+             "the degrees back.",
+             '[[bars data="a half turn:180 | 3600°:3600" caption="count the half turns"]]'),
+            ("And that is the circle's second language.",
+             '[[step eq="180° = π rad"]][[step eq="3600° = 20π rad"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 0, "op": "rad1"},
             {"a": 3, "b": 0, "op": "rad1"},
@@ -19200,24 +19273,62 @@ _PRECALC_U4 = [
         "op": "nspn", "max_value": 340,
         "levels": ("abstract",),
         "symbols": ("negative", "turn"),
-        "advance_line": "Three in a row — you've got it! Add a full turn — 360 — to name it forwards.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Add a full turn — 360 — to name it forwards.",
+        "why": [
+            ("Why can an angle be negative? Because the arrow can spin backwards too. A "
+             "negative angle winds the other way: negative 45 means swing 45 degrees "
+             "DOWN from flat right instead of up. Same circle, opposite turn — and "
+             "every backwards angle has a forwards name.",
+             '[[goal text="The backwards spin"]][[step eq="−45° · wound the other way"]]'),
+        ],
+        "picture": [
+            ("Here is the circle with the arrow wound 45 degrees backwards — it hangs "
+             "below flat right, and the red arc runs the other way round. Look at where "
+             "the arrow points: some forwards angle lands in exactly that spot. That "
+             "forwards angle is the name we want.",
+             '[[unitcircle angle="-45" values="0" caption="−45° — the arrow hangs 45 below flat right; a forwards angle lands here too"]]'),
+        ],
         "teach": [
-            ["The arrow can spin backwards too. A negative angle winds the other way: negative 45 means swing 45 degrees DOWN from flat right instead of up. Same circle, opposite turn — and every backwards angle has a forwards name.",
-             '[[goal text="The backwards spin"]][[step eq="−45° · wound the other way"]]'],
-            ["To find it, add one full turn: negative 45 plus 360 equals 315. Check with your arms: 45 down from flat right, or 315 the long way around — the SAME arrow. One direction, two names, and the positive name is 360 take away the backwards one.",
-             '[[step eq="−45° + 360° = 315°"]]'],
-            ["Two traps. Dropping the minus says 45 — the mirror image, above the line when the arrow hangs below. And adding only a half turn — 135 here — parks the arrow on the wrong side entirely. A full turn, 360, always.",
-             '[[step eq="315° ✓"]][[step eq="45 ✗ mirror · 135 ✗ half turn"]]'],
+            ("That is the method: to find it, add one full turn. Negative 45 plus 360 "
+             "equals 315. Check with your arms: 45 down from flat right, or 315 the long "
+             "way around — the SAME arrow. One direction, two names, and the positive "
+             "name is 360 take away the backwards one.",
+             '[[unitcircle angle="315" values="0" caption="315° — the same arrow, named forwards"]][[step eq="−45° + 360° = 315°"]]'),
+            ("Two traps. Dropping the minus says 45 — the mirror image, above the line "
+             "when the arrow hangs below. And adding only a half turn — 135 here — parks "
+             "the arrow on the wrong side entirely. A full turn, 360, always.",
+             '[[step eq="315° ✓"]][[step eq="45 ✗ mirror · 135 ✗ half turn"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Negative 25: add 360 — 335.",
-                        '[[step eq="−25° + 360° = 335°"]]'],
-             "ask": {"a": 70, "b": 0, "op": "nspn"}},
-            {"worked": ["One more together. Negative 155: add a full turn — negative 155 plus 360 is 205.",
-                        '[[step eq="−155° + 360° = 205°"]]'],
-             "ask": {"a": 110, "b": 0, "op": "nspn"}},
+            {"worked": ("Here is one more, done for you. Negative 25: add 360 — 335.",
+                        '[[unitcircle angle="335" values="0" caption="−25° is 335° forwards"]][[step eq="−25° + 360° = 335°"]]'),
+             "ask": {'a': 70, 'b': 0, 'op': 'nspn'}},
+            {"worked": ("One more together. Negative 155: add a full turn — negative 155 "
+                        "plus 360 is 205.",
+                        '[[unitcircle angle="205" values="0" caption="−155° is 205° forwards"]][[step eq="−155° + 360° = 205°"]]'),
+             "ask": {'a': 110, 'b': 0, 'op': 'nspn'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Negative 45 degrees "
+                       "and 315 degrees name the same arrow. Tap the reason why."),
+            "choices": ("because a full turn of 360 lands on the same spot | because "
+                        "dropping the minus sign changes nothing | because a half turn of "
+                        "180 brings it back"),
+            "answer": "because a full turn of 360 lands on the same spot",
+            "board": '[[unitcircle angle="315" values="0" caption="−45° + 360° = 315°"]]',
+        },
+        "recap": [
+            ("So, here it is again. A negative angle winds backwards, and every "
+             "backwards angle has a forwards name: add one full turn of 360. Never "
+             "drop the minus — that is the mirror image — and never add only a half "
+             "turn.",
+             '[[unitcircle angle="-45" values="0" caption="wound backwards — add a full turn to name it forwards"]]'),
+            ("And that is one arrow with two names.",
+             '[[step eq="−45° + 360° = 315°"]]'),
+        ],
         "bank": [
             {"a": 20, "b": 0, "op": "nspn"},
             {"a": 30, "b": 0, "op": "nspn"},
@@ -19238,24 +19349,64 @@ _PRECALC_U4 = [
         "op": "refq", "max_value": 170,
         "levels": ("abstract",),
         "symbols": ("reference", "gap"),
-        "advance_line": "Three in a row — you've got it! The gap to the flat line — that is the reference.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The gap to the flat line — that is the reference.",
+        "why": [
+            ("Why hug the flat line? Every arrow, wherever it lands, has a reference "
+             "angle: the small gap between the arrow and the flat line through the "
+             "circle's middle. This lesson lives in the second quarter — past straight "
+             "up, short of flat left — where that gap is measured to 180.",
+             '[[goal text="Hug the flat line"]][[step eq="reference = the gap to the flat line"]]'),
+        ],
+        "picture": [
+            ("Here is the flat line, 180 degrees edge to edge, with an arrow at 175. "
+             "The arrow leans almost all the way over to flat left, and the gap between "
+             "them is tiny — that little gap, marked with the question mark, is the "
+             "reference angle.",
+             '[[angle deg="180" split="175" caption="the arrow at 175° — the small gap to flat left is the reference"]]'),
+        ],
         "teach": [
-            ["Every arrow, wherever it lands, has a reference angle: the small gap between the arrow and the flat line through the circle's middle. This lesson lives in the second quarter — past straight up, short of flat left — where that gap is measured to 180.",
-             '[[goal text="Hug the flat line"]][[step eq="reference = the gap to the flat line"]]'],
-            ["Take 175 degrees: the arrow sits 5 short of flat left, so its reference angle is 180 take away 175 — 5 degrees. The reference angle is why the trig values at 175 echo the ones at 5: the circle reuses its first quarter, everywhere.",
-             '[[step eq="175° → 180 − 175 = 5°"]]'],
-            ["Now 135: the gap to flat left is 45. The trap is measuring from straight up — that says 45 too here, by coincidence, but at 135 only! Measure from straight up at 145 and you get 55; the true reference is 35. Hug the FLAT line, never the top.",
-             '[[step eq="135° → 45 ✓"]][[step eq="145°: from the top 55 ✗ · reference 35 ✓"]]'],
+            ("That is the method. Take 175 degrees: the arrow sits 5 short of flat "
+             "left, so its reference angle is 180 take away 175 — 5 degrees. The "
+             "reference angle is why the trig values at 175 echo the ones at 5: the "
+             "circle reuses its first quarter, everywhere.",
+             '[[angle deg="180" split="175,5" caption="180 − 175 = 5° — the gap to flat left"]][[step eq="175° → 180 − 175 = 5°"]]'),
+            ("Now 135: the gap to flat left is 45. The trap is measuring from straight "
+             "up — that says 45 too here, by coincidence, but at 135 only! Measure from "
+             "straight up at 145 and you get 55; the true reference is 35. Hug the FLAT "
+             "line, never the top.",
+             '[[step eq="135° → 45 ✓"]][[step eq="145°: from the top 55 ✗ · reference 35 ✓"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 155 degrees: 180 take away 155 — the reference angle is 25.",
-                        '[[step eq="155° → 180 − 155 = 25°"]]'],
-             "ask": {"a": 125, "b": 0, "op": "refq"}},
-            {"worked": ["One more together. 112 degrees: 180 take away 112 — the reference angle is 68.",
-                        '[[step eq="112° → 180 − 112 = 68°"]]'],
-             "ask": {"a": 165, "b": 0, "op": "refq"}},
+            {"worked": ("Here is one more, done for you. 155 degrees: 180 take away 155 — "
+                        "the reference angle is 25.",
+                        '[[angle deg="180" split="155,25" caption="180 − 155 = 25°"]][[step eq="155° → 180 − 155 = 25°"]]'),
+             "ask": {'a': 125, 'b': 0, 'op': 'refq'}},
+            {"worked": ("One more together. 112 degrees: 180 take away 112 — the reference "
+                        "angle is 68.",
+                        '[[angle deg="180" split="112,68" caption="180 − 112 = 68°"]][[step eq="112° → 180 − 112 = 68°"]]'),
+             "ask": {'a': 165, 'b': 0, 'op': 'refq'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The reference angle of "
+                       "175 degrees is 5 degrees. Tap the reason why."),
+            "choices": ("because the gap to flat left is 180 take away 175 | because the "
+                        "reference is measured from straight up | because the reference "
+                        "angle is the angle itself"),
+            "answer": "because the gap to flat left is 180 take away 175",
+            "board": '[[angle deg="180" split="175,5" caption="the gap to flat left: 5°"]]',
+        },
+        "recap": [
+            ("So, here it is again. The reference angle is the small gap between the "
+             "arrow and the flat line — in the second quarter, 180 take away the "
+             "angle. Never measure from straight up, and never hand back the angle "
+             "itself.",
+             '[[angle deg="180" split="175,5" caption="hug the flat line"]]'),
+            ("And that is why the circle reuses its first quarter everywhere.",
+             '[[step eq="175° → 180 − 175 = 5°"]]'),
+        ],
         "bank": [
             {"a": 100, "b": 0, "op": "refq"},
             {"a": 105, "b": 0, "op": "refq"},
@@ -19276,24 +19427,63 @@ _PRECALC_U4 = [
         "op": "wper", "max_value": 120,
         "levels": ("abstract",),
         "symbols": ("period", "repeats"),
-        "advance_line": "Three in a row — you've got it! Divide 360 by the multiplier.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Divide 360 by the multiplier.",
+        "why": [
+            ("Why does a wave get faster? The plain sine wave repeats its whole story "
+             "every 360 degrees — its period. Write y equals the sine of 2 x and the "
+             "wave wiggles twice as fast: the story that took 360 degrees now fits in "
+             "180. Faster wiggle, shorter period.",
+             '[[goal text="The faster wave"]][[step eq="sin 2x: the story fits in 180°"]]'),
+        ],
+        "picture": [
+            ("Here are two waves on one grid, the axis in degrees. The slow one is the "
+             "plain sine — one rise and one fall across the whole 360. The fast one is "
+             "the sine of 2 x, and it tells that same story twice in the same room: "
+             "up, down, up, down.",
+             '[[graph func="sin(x*pi/180); sin(2*x*pi/180)" names="sin x; sin 2x" range="0..360" yrange="-1.5..1.5" caption="the plain sine and the sine of 2x — the fast one repeats by 180°"]]'),
+        ],
         "teach": [
-            ["The plain sine wave repeats its whole story every 360 degrees — its period. Write y equals the sine of 2 x and the wave wiggles twice as fast: the story that took 360 degrees now fits in 180. Faster wiggle, shorter period.",
-             '[[goal text="The faster wave"]][[graph func="sin(2*x)" range="-7..7" caption="sin(2*x) on the grid"]][[step eq="sin 2x: the story fits in 180°"]]'],
-            ["The rule: divide 360 by the multiplier. y equals the sine of 30 x races thirty times faster, so it repeats every 360 divided by 30 — 12 degrees. The whole rise-and-fall, squeezed into 12.",
-             '[[step eq="period = 360 ÷ 30 = 12°"]]'],
-            ["Two traps. Faster does NOT stretch the wave: 360 times the multiplier points the wrong way — a faster wave repeats SOONER. And 360 unchanged is the plain sine's habit; the multiplier is standing right there. Divide, always.",
-             '[[step eq="÷ ✓ shorter"]][[step eq="× 360 ✗ longer · 360 ✗ the plain habit"]]'],
+            ("That is the method: divide 360 by the multiplier. y equals the sine of "
+             "30 x races thirty times faster, so it repeats every 360 divided by 30 — "
+             "12 degrees. The whole rise-and-fall, squeezed into 12.",
+             '[[graph func="sin(30*x*pi/180)" names="sin 30x" lines="x=12" range="0..360" yrange="-1.5..1.5" caption="the sine of 30x — one full story by x = 12°"]][[step eq="period = 360 ÷ 30 = 12°"]]'),
+            ("Two traps. Faster does NOT stretch the wave: 360 times the multiplier "
+             "points the wrong way — a faster wave repeats SOONER. And 360 unchanged "
+             "is the plain sine's habit; the multiplier is standing right there. "
+             "Divide, always.",
+             '[[step eq="÷ ✓ shorter"]][[step eq="× 360 ✗ longer · 360 ✗ the plain habit"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The sine of 36 x: 360 divided by 36 — the period is 10 degrees.",
-                        '[[step eq="360 ÷ 36 = 10°"]]'],
-             "ask": {"a": 20, "b": 0, "op": "wper"}},
-            {"worked": ["One more together. The sine of 40 x: 360 divided by 40 — the period is 9 degrees.",
-                        '[[step eq="360 ÷ 40 = 9°"]]'],
-             "ask": {"a": 24, "b": 0, "op": "wper"}},
+            {"worked": ("Here is one more, done for you. The sine of 36 x: 360 divided by "
+                        "36 — the period is 10 degrees.",
+                        '[[graph func="sin(36*x*pi/180)" names="sin 36x" lines="x=10" range="0..360" yrange="-1.5..1.5" caption="360 ÷ 36 = 10°"]][[step eq="360 ÷ 36 = 10°"]]'),
+             "ask": {'a': 20, 'b': 0, 'op': 'wper'}},
+            {"worked": ("One more together. The sine of 40 x: 360 divided by 40 — the "
+                        "period is 9 degrees.",
+                        '[[graph func="sin(40*x*pi/180)" names="sin 40x" lines="x=9" range="0..360" yrange="-1.5..1.5" caption="360 ÷ 40 = 9°"]][[step eq="360 ÷ 40 = 9°"]]'),
+             "ask": {'a': 24, 'b': 0, 'op': 'wper'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The sine of 30 x "
+                       "repeats every 12 degrees. Tap the reason why."),
+            "choices": ("because the faster wave repeats every 360 divided by 30 | because "
+                        "a faster wave stretches to 360 times the multiplier | because "
+                        "every sine wave repeats every 360"),
+            "answer": "because the faster wave repeats every 360 divided by 30",
+            "board": '[[graph func="sin(30*x*pi/180)" names="sin 30x" lines="x=12" range="0..360" yrange="-1.5..1.5" caption="360 ÷ 30 = 12°"]]',
+        },
+        "recap": [
+            ("So, here it is again. The plain sine repeats every 360 degrees; a "
+             "multiplier on x speeds the wave up, and faster means sooner — the "
+             "period is 360 divided by the multiplier. Never times it, and never keep "
+             "the plain 360.",
+             '[[graph func="sin(x*pi/180); sin(2*x*pi/180)" names="sin x; sin 2x" range="0..360" yrange="-1.5..1.5" caption="divide 360 by the multiplier"]]'),
+            ("And that is a wave that bends to its multiplier.",
+             '[[step eq="period = 360 ÷ 30 = 12°"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 0, "op": "wper"},
             {"a": 4, "b": 0, "op": "wper"},
@@ -19325,24 +19515,65 @@ _PRECALC_U5 = [
         "op": "pyid", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("squared", "hundredths"),
-        "advance_line": "Three in a row — you've got it! The pair splits one whole — take the share from 100.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The pair splits one whole — take the share from 100.",
+        "why": [
+            ("Why is there one whole between them? Unit Five is about what is ALWAYS "
+             "true, and here is trigonometry's most famous always: for every angle, sine "
+             "squared plus cosine squared equals exactly 1. Height squared plus across "
+             "squared — one whole, every single time. It is Pythagoras, living on the "
+             "circle.",
+             '[[goal text="One whole between them"]][[step eq="sin² + cos² = 1 — always"]]'),
+        ],
+        "picture": [
+            ("Here is the whole as a hundred square — 1 is 100 hundredths. Sine "
+             "squared has taken 20 of the little squares, shaded. Everything left "
+             "white belongs to cosine squared: the pair splits the one whole between "
+             "them, and neither gets more than the square holds.",
+             '[[hundredgrid shaded="20" eq="sin² = 20 of 100" caption="sine squared shaded — the rest of the whole is cosine squared"]]'),
+        ],
         "teach": [
-            ["Unit Five is about what is ALWAYS true. Here is trigonometry's most famous always: for every angle, sine squared plus cosine squared equals exactly 1. Height squared plus across squared — one whole, every single time. It is Pythagoras, living on the circle.",
-             '[[goal text="One whole between them"]][[step eq="sin² + cos² = 1 — always"]]'],
-            ["Split the whole into hundredths: 1 is 100 hundredths. If sine squared takes 20 of them, cosine squared holds the rest — 100 take away 20 is 80. The pair splits one whole between them, wherever the arrow points.",
-             '[[step eq="sin² = 20/100"]] [[step eq="cos² = 80/100"]]'],
-            ["Two traps. Copying sine's share hands back the number you were given — the question asked for the PARTNER. And answering 100 forgets that sine already claimed its part. Take the given share away from 100; what is left is cosine's.",
-             '[[step eq="100 − given ✓"]][[step eq="copied ✗ · 100 ✗ the whole"]]'],
+            ("That is the method: split the whole into hundredths and take the share "
+             "from 100. If sine squared takes 20 of them, cosine squared holds the rest "
+             "— 100 take away 20 is 80. The pair splits one whole between them, "
+             "wherever the arrow points.",
+             '[[hundredgrid shaded="20" eq="20 + 80 = 100" caption="sin² 20 shaded, cos² 80 left"]][[step eq="sin² = 20/100"]] [[step eq="cos² = 80/100"]]'),
+            ("Two traps. Copying sine's share hands back the number you were given — "
+             "the question asked for the PARTNER. And answering 100 forgets that sine "
+             "already claimed its part. Take the given share away from 100; what is "
+             "left is cosine's.",
+             '[[step eq="100 − given ✓"]][[step eq="copied ✗ · 100 ✗ the whole"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Sine squared equals 70 hundredths: 100 take away 70 — cosine squared is 30 hundredths.",
-                        '[[step eq="sin² = 70/100"]] [[step eq="cos² = 30/100"]]'],
-             "ask": {"a": 30, "b": 0, "op": "pyid"}},
-            {"worked": ["One more together. Sine squared 45 hundredths: 100 take away 45 — cosine squared is 55 hundredths.",
-                        '[[step eq="sin² = 45/100"]] [[step eq="cos² = 55/100"]]'],
-             "ask": {"a": 55, "b": 0, "op": "pyid"}},
+            {"worked": ("Here is one more, done for you. Sine squared equals 70 hundredths: "
+                        "100 take away 70 — cosine squared is 30 hundredths.",
+                        '[[hundredgrid shaded="70" eq="70 + 30 = 100" caption="70 shaded, 30 left"]][[step eq="sin² = 70/100"]] [[step eq="cos² = 30/100"]]'),
+             "ask": {'a': 30, 'b': 0, 'op': 'pyid'}},
+            {"worked": ("One more together. Sine squared 45 hundredths: 100 take away 45 — "
+                        "cosine squared is 55 hundredths.",
+                        '[[hundredgrid shaded="45" eq="45 + 55 = 100" caption="45 shaded, 55 left"]][[step eq="sin² = 45/100"]] [[step eq="cos² = 55/100"]]'),
+             "ask": {'a': 55, 'b': 0, 'op': 'pyid'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Sine squared is 20 "
+                       "hundredths, so cosine squared is 80 hundredths. Tap the reason why."),
+            "choices": ("because sine squared and cosine squared always add up to one whole "
+                        "| because cosine squared always equals sine squared | because "
+                        "cosine squared is always the whole 100"),
+            "answer": "because sine squared and cosine squared always add up to one whole",
+            "board": '[[hundredgrid shaded="20" eq="20 + 80 = 100" caption="one whole between them"]]',
+        },
+        "recap": [
+            ("So, here it is again. Sine squared plus cosine squared equals 1, always — "
+             "one whole split between the pair. Given sine's share of the hundred, "
+             "take it away from 100 and the rest is cosine's. Never copy the share, "
+             "and never answer the whole.",
+             '[[hundredgrid shaded="20" eq="20 + 80 = 100" caption="the pair splits one whole"]]'),
+            ("And that is Pythagoras, living on the circle.",
+             '[[step eq="sin² + cos² = 1"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 0, "op": "pyid"},
             {"a": 10, "b": 0, "op": "pyid"},
@@ -19363,24 +19594,62 @@ _PRECALC_U5 = [
         "op": "cofn", "max_value": 80,
         "levels": ("abstract",),
         "symbols": ("cosine", "partners"),
-        "advance_line": "Three in a row — you've got it! Partners finish 90 together.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Partners finish 90 together.",
+        "why": [
+            ("Why are sine and cosine partners? The CO in cosine says so. Take any "
+             "angle and its partner across 90: the two sharp corners of one right "
+             "triangle. The sine of one equals the cosine of the other, exactly, every "
+             "time.",
+             '[[goal text="Partners across ninety"]][[step eq="sin a = cos (90 − a)"]]'),
+        ],
+        "picture": [
+            ("Here is one right triangle with its two sharp corners: 35 degrees at one, "
+             "and a question mark at the other. A triangle's corners add up to 180, the "
+             "square corner is 90, so the two sharp ones share the other 90 between "
+             "them. That is the partnership.",
+             '[[triangle v="A,B,C" right="B" angles="35,90,?" caption="the square corner takes 90 — the two sharp corners share the other 90"]]'),
+        ],
         "teach": [
-            ["Sine and cosine are partners — the CO in cosine says so. Take any angle and its partner across 90: the two sharp corners of one right triangle. The sine of one equals the cosine of the other, exactly, every time.",
-             '[[goal text="Partners across ninety"]][[step eq="sin a = cos (90 − a)"]]'],
-            ["Watch: the sine of 35 equals the cosine of 55, because 35 plus 55 equals 90. One triangle, two sharp corners; what one corner calls height, the other calls across. Swap the name, swap the angle — across 90.",
-             '[[step eq="sin 35° = cos 55° · 35 + 55 = 90"]]'],
-            ["Two traps. Keeping the SAME angle — the sine of 35 does not equal the cosine of 35. And adding 90 overshoots: the partner of 35 is 55, never 125. Partners share the 90; together they finish it.",
-             '[[step eq="35 → partner 55 ✓"]][[step eq="35 ✗ same angle · 125 ✗ added 90"]]'],
+            ("That is the method: partners finish 90 together. The sine of 35 equals "
+             "the cosine of 55, because 35 plus 55 equals 90. One triangle, two sharp "
+             "corners; what one corner calls height, the other calls across. Swap the "
+             "name, swap the angle — across 90.",
+             '[[triangle v="A,B,C" right="B" angles="35,90,55" caption="35 + 55 = 90 — sin 35° = cos 55°"]][[step eq="sin 35° = cos 55° · 35 + 55 = 90"]]'),
+            ("Two traps. Keeping the SAME angle — the sine of 35 does not equal the "
+             "cosine of 35. And adding 90 overshoots: the partner of 35 is 55, never "
+             "125. Partners share the 90; together they finish it.",
+             '[[step eq="35 → partner 55 ✓"]][[step eq="35 ✗ same angle · 125 ✗ added 90"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The sine of 85 equals the cosine of 5 — together they finish 90.",
-                        '[[step eq="sin 85° = cos 5°"]]'],
-             "ask": {"a": 25, "b": 0, "op": "cofn"}},
-            {"worked": ["One more together. The sine of 42 equals the cosine of 48, because 42 plus 48 equals 90.",
-                        '[[step eq="sin 42° = cos 48°"]]'],
-             "ask": {"a": 75, "b": 0, "op": "cofn"}},
+            {"worked": ("Here is one more, done for you. The sine of 85 equals the cosine "
+                        "of 5 — together they finish 90.",
+                        '[[triangle v="A,B,C" right="B" angles="85,90,5" caption="85 + 5 = 90"]][[step eq="sin 85° = cos 5°"]]'),
+             "ask": {'a': 25, 'b': 0, 'op': 'cofn'}},
+            {"worked": ("One more together. The sine of 42 equals the cosine of 48, "
+                        "because 42 plus 48 equals 90.",
+                        '[[triangle v="A,B,C" right="B" angles="42,90,48" caption="42 + 48 = 90"]][[step eq="sin 42° = cos 48°"]]'),
+             "ask": {'a': 75, 'b': 0, 'op': 'cofn'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The sine of 35 "
+                       "degrees equals the cosine of 55 degrees. Tap the reason why."),
+            "choices": ("because the two sharp corners of a right triangle finish 90 "
+                        "together | because the sine and the cosine of one angle are "
+                        "equal | because the partner is the angle plus 90"),
+            "answer": "because the two sharp corners of a right triangle finish 90 together",
+            "board": '[[triangle v="A,B,C" right="B" angles="35,90,55" caption="partners across ninety"]]',
+        },
+        "recap": [
+            ("So, here it is again. Sine and cosine are partners: the sine of an angle "
+             "equals the cosine of 90 take away that angle — the two sharp corners of "
+             "one right triangle. Never keep the same angle, and never add 90.",
+             '[[triangle v="A,B,C" right="B" angles="35,90,55" caption="partners finish 90 together"]]'),
+            ("And that is what the CO in cosine means.",
+             '[[step eq="sin a = cos (90 − a)"]]'),
+        ],
         "bank": [
             {"a": 10, "b": 0, "op": "cofn"},
             {"a": 15, "b": 0, "op": "cofn"},
@@ -19401,35 +19670,76 @@ _PRECALC_U5 = [
         "op": "negf", "max_value": 810, "min_value": -1,
         "levels": ("abstract",),
         "symbols": ("mirror", "flips"),
-        "advance_line": "Three in a row — you've got it! The mirror flips height, never across.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The mirror flips height, never across.",
+        "why": [
+            ("Why does the mirror know? Feed a negative angle into cosine and sine and "
+             "watch. The backwards spin is the forwards spin's mirror image — flipped "
+             "across the flat line. The mirror flips HEIGHT: what was up hangs down. "
+             "It never flips ACROSS: left stays left, right stays right.",
+             '[[goal text="The mirror knows"]][[step eq="−a is a\'s mirror · height flips, across holds"]]'),
+        ],
+        "picture": [
+            ("Here is the arrow at 45 degrees, and here it is wound 45 degrees "
+             "backwards. Look at the two: the tips sit the same distance to the right — "
+             "the across held. One tip is up and the other is down — the height "
+             "flipped. That is the whole lesson in one picture.",
+             '[[unitcircle angle="45" values="0" caption="45° — up and to the right"]][[unitcircle angle="-45" values="0" caption="−45° — DOWN and to the right: the mirror"]]'),
+        ],
         "teach": [
-            ["Feed a negative angle into cosine and sine and watch. The backwards spin is the forwards spin's mirror image — flipped across the flat line. The mirror flips HEIGHT: what was up hangs down. It never flips ACROSS: left stays left, right stays right.",
-             '[[goal text="The mirror knows"]][[step eq="−a is a\'s mirror · height flips, across holds"]]'],
-            ["So cosine — the across — ignores the minus completely: the cosine of negative 180 equals the cosine of 180, flat left, negative 1. Cosine is called an even function, like the even powers of the minus parade: the minus vanishes.",
-             '[[step eq="cos(−180°) = cos(180°) = −1"]][[step eq="even: the minus vanishes"]]'],
-            ["Sine — the height — FLIPS: the sine of negative 90 is the opposite of the sine of 90. Straight up becomes straight down: 1 becomes negative 1. Sine is an odd function — one minus survives, just like an odd power. The mirror knows which is which.",
-             '[[step eq="sin(−90°) = −sin(90°) = −1"]][[step eq="odd: one minus survives"]]'],
+            ("That is the method. Cosine — the across — ignores the minus completely: "
+             "the cosine of negative 180 equals the cosine of 180, flat left, negative "
+             "1. Cosine is called an even function, like the even powers of the minus "
+             "parade: the minus vanishes.",
+             '[[unitcircle angle="-180" caption="−180° — flat left either way: across −1"]][[step eq="cos(−180°) = cos(180°) = −1"]][[step eq="even: the minus vanishes"]]'),
+            ("Sine — the height — FLIPS: the sine of negative 90 is the opposite of "
+             "the sine of 90. Straight up becomes straight down: 1 becomes negative 1. "
+             "Sine is an odd function — one minus survives, just like an odd power. The "
+             "mirror knows which is which.",
+             '[[unitcircle angle="-90" caption="−90° — straight DOWN: height −1"]][[step eq="sin(−90°) = −sin(90°) = −1"]][[step eq="odd: one minus survives"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The cosine of negative 450: spin back a full turn, then a quarter more — straight down. The across of straight down is 0.",
-                        '[[step eq="cos(−450°) = 0"]]'],
-             "ask": {"a": 720, "b": 0, "c": 0, "op": "negf"}},
-            {"worked": ["One more together. The sine of negative 540: a turn and a half backwards lands flat left — height 0.",
-                        '[[step eq="sin(−540°) = 0"]]'],
-             "ask": {"a": 810, "b": 0, "c": 1, "op": "negf"}},
+            {"worked": ("Here is one more, done for you. The cosine of negative 450: spin "
+                        "back a full turn, then a quarter more — straight down. The across "
+                        "of straight down is 0.",
+                        '[[unitcircle angle="-450" caption="−450° — a full turn back and a quarter more: straight down, across 0"]][[step eq="cos(−450°) = 0"]]'),
+             "ask": {'a': 720, 'b': 0, 'c': 0, 'op': 'negf'}},
+            {"worked": ("One more together. The sine of negative 540: a turn and a half "
+                        "backwards lands flat left — height 0.",
+                        '[[unitcircle angle="-540" caption="−540° — a turn and a half back: flat left, height 0"]][[step eq="sin(−540°) = 0"]]'),
+             "ask": {'a': 810, 'b': 0, 'c': 1, 'op': 'negf'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The sine of negative "
+                       "90 degrees is negative 1. Tap the reason why."),
+            "choices": ("because the mirror flips the height, so straight up becomes "
+                        "straight down | because the mirror flips the across | because a "
+                        "backwards spin lands where the forwards one does"),
+            "answer": "because the mirror flips the height, so straight up becomes straight down",
+            "board": '[[unitcircle angle="-90" caption="−90° — straight down: height −1"]]',
+        },
+        "recap": [
+            ("So, here it is again. A backwards spin is the mirror image of the "
+             "forwards one: the height flips and the across holds. So cosine is even — "
+             "the minus vanishes — and sine is odd — one minus survives. The mirror "
+             "knows which is which.",
+             '[[unitcircle angle="-45" values="0" caption="the mirror flips height, never across"]]'),
+            ("And that is the minus parade, on the circle.",
+             '[[step eq="cos(−a) = cos a · sin(−a) = −sin a"]]'),
+        ],
         "bank": [
             {"a": 90, "b": 0, "c": 0, "op": "negf"},
-            {"a": 90, "b": 0, "c": 1, "op": "negf"},
-            {"a": 180, "b": 0, "c": 0, "op": "negf"},
             {"a": 180, "b": 0, "c": 1, "op": "negf"},
             {"a": 270, "b": 0, "c": 0, "op": "negf"},
             {"a": 270, "b": 0, "c": 1, "op": "negf"},
             {"a": 360, "b": 0, "c": 0, "op": "negf"},
+            {"a": 360, "b": 0, "c": 1, "op": "negf"},   # (tp) was (90, sine): the teach demonstrates sin(−90)
             {"a": 450, "b": 0, "c": 1, "op": "negf"},
             {"a": 540, "b": 0, "c": 0, "op": "negf"},
             {"a": 630, "b": 0, "c": 1, "op": "negf"},
+            {"a": 630, "b": 0, "c": 0, "op": "negf"},   # (tp) was (180, cosine): the teach demonstrates cos(−180)
         ],
     },
     {
@@ -19439,24 +19749,63 @@ _PRECALC_U5 = [
         "op": "sols", "max_value": 4,
         "levels": ("abstract",),
         "symbols": ("turn", "finish"),
-        "advance_line": "Three in a row — you've got it! Count one turn's crossings, then times the turns.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Count one turn's crossings, then times the turns.",
+        "why": [
+            ("Why count crossings? The last identity skill is counting answers. An "
+             "equation like: the sine equals 0 — how many angles solve it? Sweep the "
+             "arrow one full turn, and count every moment the height hits the target — "
+             "skip the start, keep the finish.",
+             '[[goal text="Count the crossings"]][[step eq="sweep · skip the start, keep the finish"]]'),
+        ],
+        "picture": [
+            ("Here is the sine wave through three full turns, with the level line y "
+             "equals 0 drawn across it. Every place the wave touches that line is one "
+             "answer. The wave starts ON the line — that touch is the start, and the "
+             "start is not counted.",
+             '[[graph func="sin(x*pi/180)" names="sine" lines="y=0" range="0..1080" yrange="-1.5..1.5" caption="the sine through three turns and the line y = 0 — every touch after the start counts"]]'),
+        ],
         "teach": [
-            ["The last identity skill is counting answers. An equation like: the sine equals 0 — how many angles solve it? Sweep the arrow one full turn, and count every moment the height hits the target — skip the start, keep the finish.",
-             '[[goal text="Count the crossings"]][[step eq="sweep · skip the start, keep the finish"]]'],
-            ["Sine equal 0 in one turn: the height is 0 at flat left and again at the finish — twice. Sine equal 1: only straight up — once. The middle value gets hit going up AND coming down; the ends of the swing get touched once.",
-             '[[step eq="sin = 0: twice · sin = 1: once"]]'],
-            ["More turns just repeat the story: three turns triple every count — sine equal 1 happens 3 times in three turns. The trap answers 4 — one per quarter — but the ends of the swing live in ONE spot each. Count the true crossings, then times the turns.",
-             '[[step eq="3 turns → 3 × each count"]][[step eq="4 ✗ one-per-quarter"]]'],
+            ("That is the method. Each turn, the height is 0 at flat left and again at "
+             "the finish — twice a turn. Three turns, so three times twice: the sine "
+             "equals 0 six times. The middle value gets hit going up AND coming down.",
+             '[[graph func="sin(x*pi/180)" names="sine" lines="y=0" points="(180,0),(360,0),(540,0),(720,0),(900,0),(1080,0)" range="0..1080" yrange="-1.5..1.5" caption="6 touches after the start — twice each turn"]][[step eq="3 turns · sin = 0"]][[step eq="2 × 3 = 6"]]'),
+            ("Now sine equal 1 across the same three turns: only straight up, once a "
+             "turn — 3. The ends of the swing get touched once each. The trap answers "
+             "4 per turn, one per quarter — but the ends of the swing live in ONE spot "
+             "each. Count the true crossings, then times the turns.",
+             '[[graph func="sin(x*pi/180)" names="sine" lines="y=1" points="(90,1),(450,1),(810,1)" range="0..1080" yrange="-1.5..1.5" caption="3 touches — once each turn, at straight up"]][[step eq="3 turns · sin = 1"]][[step eq="1 × 3 = 3"]][[step eq="4 per turn ✗ one-per-quarter"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The cosine equal 0, three turns: twice each turn — straight up and straight down — times 3 is 6.",
-                        '[[step eq="cos = 0 · 3 turns"]] [[step eq="2 × 3 = 6"]]'],
-             "ask": {"a": 0, "b": 1, "c": 1, "op": "sols"}},
-            {"worked": ["One more together. Sine equal negative 1, three turns: once each — 3.",
-                        '[[step eq="sin = −1 · 3 turns"]] [[step eq="3 times"]]'],
-             "ask": {"a": -1, "b": 2, "c": 0, "op": "sols"}},
+            {"worked": ("Here is one more, done for you. The cosine equal 0, three turns: "
+                        "twice each turn — straight up and straight down — times 3 is 6.",
+                        '[[graph func="cos(x*pi/180)" names="cosine" lines="y=0" points="(90,0),(270,0),(450,0),(630,0),(810,0),(990,0)" range="0..1080" yrange="-1.5..1.5" caption="cos = 0: twice each turn — 6 in three turns"]][[step eq="cos = 0 · 3 turns"]] [[step eq="2 × 3 = 6"]]'),
+             "ask": {'a': 0, 'b': 1, 'c': 1, 'op': 'sols'}},
+            {"worked": ("One more together. Sine equal negative 1, three turns: once each "
+                        "— 3.",
+                        '[[graph func="sin(x*pi/180)" names="sine" lines="y=-1" points="(270,-1),(630,-1),(990,-1)" range="0..1080" yrange="-1.5..1.5" caption="sin = −1: once each turn, at straight down — 3"]][[step eq="sin = −1 · 3 turns"]] [[step eq="1 × 3 = 3"]]'),
+             "ask": {'a': -1, 'b': 2, 'c': 0, 'op': 'sols'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Across three turns, "
+                       "the sine equals 1 three times. Tap the reason why."),
+            "choices": ("because the height reaches 1 only at straight up, once each turn "
+                        "| because the height reaches 1 once in every quarter | because "
+                        "the height reaches 1 going up and coming down"),
+            "answer": "because the height reaches 1 only at straight up, once each turn",
+            "board": '[[graph func="sin(x*pi/180)" names="sine" lines="y=1" points="(90,1),(450,1),(810,1)" range="0..1080" yrange="-1.5..1.5" caption="once each turn"]]',
+        },
+        "recap": [
+            ("So, here it is again. To count the answers of a trig equation, sweep one "
+             "turn and count the crossings — the middle value twice, the ends of the "
+             "swing once. Skip the start, keep the finish, then times the turns. Never "
+             "say four just because there are four quarters.",
+             '[[graph func="sin(x*pi/180)" names="sine" lines="y=0" range="0..1080" yrange="-1.5..1.5" caption="count one turn\'s crossings, then times the turns"]]'),
+            ("And that is solving, by counting.",
+             '[[step eq="sin = 0: 2 each turn · sin = 1: 1 each turn"]]'),
+        ],
         "bank": [
             {"a": 1, "b": 1, "c": 0, "op": "sols"},
             {"a": -1, "b": 1, "c": 0, "op": "sols"},
@@ -19489,24 +19838,63 @@ _PRECALC_U6 = [
         "op": "arsn", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("sine", "between"),
-        "advance_line": "Three in a row — you've got it! Half the product, times the sine.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Half the product, times the sine.",
+        "why": [
+            ("Why two sides and the angle? Unit Six puts trigonometry to work, "
+             "starting with area. Base times height, halved, needs a height you may "
+             "not have. Two sides and the angle between them are enough: the area is "
+             "half of one side, times the other side, times the sine of that angle.",
+             '[[goal text="Two sides and the angle"]][[step eq="area = ½ · side · side · sin(angle)"]]'),
+        ],
+        "picture": [
+            ("Here are three triangles drawn true, all with sides 10 and 4. The first "
+             "has 90 degrees between them, the second 30, the third 150. Look how the "
+             "right angle stands the short side straight up, and how the two others "
+             "lean it over — the sharp one forwards, the wide one back.",
+             '[[triangle v="A,B,C" sas="10,4,90" sides="10,,4" angles="90,," caption="sides 10 and 4 — 90° between them"]][[triangle v="A,B,C" sas="10,4,30" sides="10,,4" angles="30,," caption="the same sides — 30° between them"]][[triangle v="A,B,C" sas="10,4,150" sides="10,,4" angles="150,," caption="the same sides — 150° between them"]]'),
+        ],
         "teach": [
-            ["Unit Six puts trigonometry to work, starting with area. Base times height, halved, needs a height you may not have. Two sides and the angle between them are enough: the area is half of one side, times the other side, times the sine of that angle.",
-             '[[goal text="Two sides and the angle"]][[step eq="area = ½ · side · side · sin(angle)"]]'],
-            ["Two sines carry this lesson. The sine of 90 degrees is 1, so a right angle hands over half the product outright. Take sides 10 and 4, with 90 degrees between them. They cover half of 40, an area of 20.",
-             '[[triangle v="A,B,C" right="A" sides="10,,4" angles="90,," caption="sides 10 and 4 — one side missing"]][[step eq="½ · 10 · 4 · 1 = 20"]]'],
-            ["The sine of 30 degrees is exactly one half — keep that one in your pocket. So 30 degrees between those same sides quarters the product: 10. And 150 shares that sine, because its reference angle is 30 — the wide triangle covers what the sharp one covers.",
-             '[[step eq="30° → ¼ · 40 = 10"]][[step eq="150° → reference 30° → 10 as well"]]'],
+            ("That is the method, and two sines carry this lesson. The sine of 90 "
+             "degrees is 1, so a right angle hands over half the product outright. "
+             "Sides 10 and 4, with 90 degrees between them: they cover half of 40, an "
+             "area of 20.",
+             '[[triangle v="A,B,C" sas="10,4,90" sides="10,,4" angles="90,," caption="area = ½ · 10 · 4 · 1 = 20"]][[step eq="sin 90° = 1"]][[step eq="½ · 10 · 4 · 1 = 20"]]'),
+            ("The sine of 30 degrees is exactly one half — keep that one in your "
+             "pocket. So 30 degrees between those same sides quarters the product: 10. "
+             "And 150 shares that sine, because its reference angle is 30 — the wide "
+             "triangle covers what the sharp one covers.",
+             '[[triangle v="A,B,C" sas="10,4,150" sides="10,,4" angles="150,," caption="150° leans back, and covers the same 10"]][[step eq="30° → ¼ · 40 = 10"]][[step eq="150° → reference 30° → 10 as well"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Sides 12 and 4, with a right angle between them: half of 48 — an area of 24.",
-                        '[[step eq="½ · 12 · 4 · 1 = 24"]]'],
-             "ask": {"a": 6, "b": 10, "c": 90, "op": "arsn"}},
-            {"worked": ["One more together. The same 12 and 4, but 30 degrees between them: a quarter of 48 — 12.",
-                        '[[step eq="¼ · 12 · 4 = 12"]]'],
-             "ask": {"a": 12, "b": 6, "c": 150, "op": "arsn"}},
+            {"worked": ("Here is one more, done for you. Sides 12 and 4, with a right angle "
+                        "between them: half of 48 — an area of 24.",
+                        '[[triangle v="A,B,C" sas="12,4,90" sides="12,,4" angles="90,," caption="½ · 12 · 4 · 1 = 24"]][[step eq="½ · 12 · 4 · 1 = 24"]]'),
+             "ask": {'a': 6, 'b': 10, 'c': 90, 'op': 'arsn'}},
+            {"worked": ("One more together. The same 12 and 4, but 30 degrees between "
+                        "them: a quarter of 48 — 12.",
+                        '[[triangle v="A,B,C" sas="12,4,30" sides="12,,4" angles="30,," caption="sin 30° = ½ — a quarter of 48 is 12"]][[step eq="¼ · 12 · 4 = 12"]]'),
+             "ask": {'a': 12, 'b': 6, 'c': 150, 'op': 'arsn'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Sides 10 and 4 with "
+                       "30 degrees between them cover an area of 10. Tap the reason why."),
+            "choices": ("because the sine of 30 halves the half product again | because "
+                        "the sine of 30 is 1 | because two sides timesed is the area"),
+            "answer": "because the sine of 30 halves the half product again",
+            "board": '[[triangle v="A,B,C" sas="10,4,30" sides="10,,4" angles="30,," caption="¼ · 40 = 10"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two sides and the angle between them give the "
+             "area: half of one side, times the other, times the sine of the angle. The "
+             "sine of 90 is 1 and the sine of 30 is a half — and 150 shares it. Never "
+             "forget the half.",
+             '[[triangle v="A,B,C" sas="10,4,150" sides="10,,4" angles="150,," caption="half the product, times the sine"]]'),
+            ("And that is area without a height.",
+             '[[step eq="area = ½ · side · side · sin(angle)"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 4, "c": 90, "op": "arsn"},
             {"a": 4, "b": 4, "c": 30, "op": "arsn"},
@@ -19527,24 +19915,63 @@ _PRECALC_U6 = [
         "op": "ramp", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("ramp", "half"),
-        "advance_line": "Three in a row — you've got it! At 30 degrees, the climb is half the length.",
+        "advance_line": "Three in a row, and you can say why — you've got it! At 30 degrees, the climb is half the length.",
+        "why": [
+            ("Why does a ramp climb half its length? A ramp rises at 30 degrees — how "
+             "high does its far end sit? The sine of an angle is the rise divided by "
+             "the slope's length, so the rise equals length times sine — and at 30 "
+             "degrees that sine is a half. The ramp climbs half its length.",
+             '[[goal text="The thirty-degree ramp"]][[step eq="rise = length × sin 30° = ½ × length"]]'),
+        ],
+        "picture": [
+            ("Here is a 22-foot ramp at 30 degrees, as a right triangle. The slanted "
+             "side is the ramp — that is the 22 you walk. The upright side is how high "
+             "its top end sits, marked with a question mark. Look how much shorter the "
+             "upright is than the slope.",
+             '[[triangle v="A,B,C" right="B" sides=",?,22" angles="30,," caption="a 22-foot ramp at 30° — the upright side is the rise"]]'),
+        ],
         "teach": [
-            ["A ramp rises at 30 degrees. How high does its far end sit? The sine of an angle is the rise divided by the slope's length, so the rise equals length times sine — and at 30 degrees that sine is a half. The ramp climbs half its length.",
-             '[[goal text="The thirty-degree ramp"]][[step eq="rise = length × sin 30° = ½ × length"]]'],
-            ["A 22-foot ramp at 30 degrees: half of 22 is 11 feet up. You walk 22 along the slope and rise 11. The climb is always the smaller number — you travel farther than you rise, on every ramp ever built.",
-             '[[triangle v="A,B,C" right="B" sides=",11,22" angles="30,," caption="a 22-foot ramp at 30°"]]'],
-            ["That is the whole trap: the length is how far you WALK, and it never doubles as the height. A 40-foot ramp rises 20 — not 40, which is the walk, and certainly not 80, which would stand higher than the ramp is long.",
-             '[[step eq="40 ft ramp → 20 ft up ✓"]][[step eq="40 ✗ the walk · 80 ✗ doubled"]]'],
+            ("That is the method. A 22-foot ramp at 30 degrees: half of 22 is 11 feet "
+             "up. You walk 22 along the slope and rise 11. The climb is always the "
+             "smaller number — you travel farther than you rise, on every ramp ever "
+             "built.",
+             '[[triangle v="A,B,C" right="B" sides=",11,22" angles="30,," caption="a 22-foot ramp at 30° — 11 feet up"]][[step eq="½ · 22 = 11 ft"]]'),
+            ("That is the whole trap: the length is how far you WALK, and it never "
+             "doubles as the height. A 40-foot ramp rises 20 — not 40, which is the "
+             "walk, and certainly not 80, which would stand higher than the ramp is "
+             "long.",
+             '[[step eq="40 ft ramp → 20 ft up ✓"]][[step eq="40 ✗ the walk · 80 ✗ doubled"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A 26-foot ramp at 30 degrees: half of 26 — it rises 13 feet.",
-                        '[[step eq="½ · 26 = 13 ft"]]'],
-             "ask": {"a": 32, "b": 0, "op": "ramp"}},
-            {"worked": ["One more together. A 30-foot ramp at the same 30 degrees: half of 30 — it rises 15 feet.",
-                        '[[step eq="½ · 30 = 15 ft"]]'],
-             "ask": {"a": 36, "b": 0, "op": "ramp"}},
+            {"worked": ("Here is one more, done for you. A 26-foot ramp at 30 degrees: "
+                        "half of 26 — it rises 13 feet.",
+                        '[[triangle v="A,B,C" right="B" sides=",13,26" angles="30,," caption="½ · 26 = 13 ft"]][[step eq="½ · 26 = 13 ft"]]'),
+             "ask": {'a': 32, 'b': 0, 'op': 'ramp'}},
+            {"worked": ("One more together. A 30-foot ramp at the same 30 degrees: half "
+                        "of 30 — it rises 15 feet.",
+                        '[[triangle v="A,B,C" right="B" sides=",15,30" angles="30,," caption="½ · 30 = 15 ft"]][[step eq="½ · 30 = 15 ft"]]'),
+             "ask": {'a': 36, 'b': 0, 'op': 'ramp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A 22-foot ramp at 30 "
+                       "degrees rises 11 feet. Tap the reason why."),
+            "choices": ("because the sine of 30 is a half | because the rise of a ramp "
+                        "equals its length | because the rise is the length doubled"),
+            "answer": "because the sine of 30 is a half",
+            "board": '[[triangle v="A,B,C" right="B" sides=",11,22" angles="30,," caption="half of 22 is 11"]]',
+        },
+        "recap": [
+            ("So, here it is again. The rise is the length times the sine of the "
+             "angle, and the sine of 30 degrees is a half — so a 30-degree ramp climbs "
+             "half its length. The length is the walk, never the height, and never "
+             "double it.",
+             '[[triangle v="A,B,C" right="B" sides=",11,22" angles="30,," caption="the climb is half the length"]]'),
+            ("And that is a ramp, measured without climbing it.",
+             '[[step eq="rise = ½ × length"]]'),
+        ],
         "bank": [
             {"a": 6, "b": 0, "op": "ramp"},
             {"a": 8, "b": 0, "op": "ramp"},
@@ -19565,24 +19992,64 @@ _PRECALC_U6 = [
         "op": "brng", "max_value": 350,
         "levels": ("abstract",),
         "symbols": ("bearing", "clockwise"),
-        "advance_line": "Three in a row — you've got it! Add the turn, then wrap at 360.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Add the turn, then wrap at 360.",
+        "why": [
+            ("Why past the full turn? Sailors and pilots steer by a bearing: degrees "
+             "measured clockwise from north, from 0 up to 360. Turn clockwise and the "
+             "bearing grows — but the circle stops at 360, and a turn that passes it "
+             "starts counting again from zero.",
+             '[[goal text="Past the full turn"]][[step eq="bearing: 0° → 360°, clockwise from north"]]'),
+        ],
+        "picture": [
+            ("Here is the compass. North sits at the top, and a bearing is measured "
+             "clockwise from it — this ship points at 350, just short of north. The "
+             "dashed arc is a 40-degree turn clockwise, and look where it ends: past "
+             "north, on the other side of 360.",
+             '[[unitcircle bearing="350" turn="40" caption="bearing 350° — a 40° turn clockwise carries the ship past north"]]'),
+        ],
         "teach": [
-            ["Sailors and pilots steer by a bearing: degrees measured clockwise from north, from 0 up to 360. Turn clockwise and the bearing grows — but the circle stops at 360, and a turn that passes it starts counting again from zero.",
-             '[[goal text="Past the full turn"]][[step eq="bearing: 0° → 360°, clockwise from north"]]'],
-            ["A ship on bearing 350 turns 40 degrees clockwise. 350 plus 40 is 390 — past the full turn. Take away 360 and the true bearing is 30: the ship has swung around through north and is heading nearly north again.",
-             '[[step eq="350 + 40 = 390"]] [[step eq="390 − 360 = 30"]]'],
-            ["Two traps live here. Leaving 390 on the compass names a bearing no compass carries. And turning the other way — 350 take away 40 — points at 310, a heading the ship never took. Add the turn first, then wrap.",
-             '[[step eq="30 ✓"]][[step eq="390 ✗ no such bearing · 310 ✗ turned the wrong way"]]'],
+            ("That is the method. A ship on bearing 350 turns 40 degrees clockwise. "
+             "350 plus 40 is 390 — past the full turn. Take away 360 and the true "
+             "bearing is 30: the ship has swung around through north and is heading "
+             "nearly north again.",
+             '[[unitcircle bearing="30" caption="350 + 40 = 390, past 360 — bearing 30°"]][[step eq="350 + 40 = 390"]] [[step eq="390 − 360 = 30"]]'),
+            ("Two traps live here. Leaving 390 on the compass names a bearing no "
+             "compass carries. And turning the other way — 350 take away 40 — points "
+             "at 310, a heading the ship never took. Add the turn first, then wrap.",
+             '[[step eq="30 ✓"]][[step eq="390 ✗ no such bearing · 310 ✗ turned the wrong way"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Bearing 245, turning 160 clockwise: 405, past the turn — take away 360 for 45.",
-                        '[[step eq="245 + 160 = 405"]] [[step eq="405 − 360 = 45"]]'],
-             "ask": {"a": 290, "b": 125, "op": "brng"}},
-            {"worked": ["One more together. Bearing 290, turning 150: 440, and 440 take away 360 is 80.",
-                        '[[step eq="290 + 150 = 440"]] [[step eq="440 − 360 = 80"]]'],
-             "ask": {"a": 330, "b": 105, "op": "brng"}},
+            {"worked": ("Here is one more, done for you. Bearing 245, turning 160 "
+                        "clockwise: 405, past the turn — take away 360 for 45.",
+                        '[[unitcircle bearing="45" caption="245 + 160 = 405 — wrapped: 45°"]][[step eq="245 + 160 = 405"]] [[step eq="405 − 360 = 45"]]'),
+             "ask": {'a': 290, 'b': 125, 'op': 'brng'}},
+            {"worked": ("One more together. Bearing 290, turning 150: 440, and 440 take "
+                        "away 360 is 80.",
+                        '[[unitcircle bearing="80" caption="290 + 150 = 440 — wrapped: 80°"]][[step eq="290 + 150 = 440"]] [[step eq="440 − 360 = 80"]]'),
+             "ask": {'a': 330, 'b': 105, 'op': 'brng'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A ship on bearing 350 "
+                       "turns 40 degrees clockwise and ends on bearing 30. Tap the reason "
+                       "why."),
+            "choices": ("because the compass wraps at 360 and starts again from zero | "
+                        "because a clockwise turn is taken away from the bearing | because "
+                        "a bearing can climb past 360"),
+            "answer": "because the compass wraps at 360 and starts again from zero",
+            "board": '[[unitcircle bearing="30" caption="390 − 360 = 30"]]',
+        },
+        "recap": [
+            ("So, here it is again. A bearing is measured clockwise from north, 0 to "
+             "360. Add a clockwise turn, and if the sum passes 360 take 360 away — "
+             "the compass starts again from zero. Never leave a bearing past 360, and "
+             "never turn the wrong way.",
+             '[[unitcircle bearing="350" turn="40" caption="add the turn, then wrap at 360"]]'),
+            ("And that is a ship swinging through north.",
+             '[[step eq="350 + 40 = 390"]][[step eq="390 − 360 = 30"]]'),
+        ],
         "bank": [
             {"a": 200, "b": 170, "op": "brng"},
             {"a": 210, "b": 165, "op": "brng"},
@@ -19603,24 +20070,63 @@ _PRECALC_U6 = [
         "op": "vmag", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("arrow", "steps"),
-        "advance_line": "Three in a row — you've got it! The arrow is the hypotenuse of its two steps.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The arrow is the hypotenuse of its two steps.",
+        "why": [
+            ("Why is an arrow a hypotenuse? An arrow on a grid is described by its "
+             "steps: so many to the right, so many up. Those two steps meet at a right "
+             "angle — so the arrow itself is a hypotenuse, and Geometry's Pythagoras "
+             "measures it without a ruler.",
+             '[[goal text="The arrow and its steps"]][[step eq="arrow² = right² + up²"]]'),
+        ],
+        "picture": [
+            ("Here is an arrow on the grid: 3 across and 4 up. Look at the corner where "
+             "its two steps meet — the 3 along the bottom, the 4 straight up, "
+             "and the arrow slanting across between them. The steps are the legs; the "
+             "arrow is the long side.",
+             '[[vector v="3,4" caption="3 across, 4 up — the arrow is the slanted side"]]'),
+        ],
         "teach": [
-            ["An arrow on a grid is described by its steps: so many to the right, so many up. Those two steps meet at a right angle — so the arrow itself is a hypotenuse, and Geometry's Pythagoras measures it without a ruler.",
-             '[[goal text="The arrow and its steps"]][[vector v="3,4" caption="3 across, 4 up"]]'],
-            ["Right 3 and up 4: 9 put together with 16 is 25, and 5 times 5 squares back to it. The arrow is 5 long — farther than either step on its own, and shorter than walking 3 and then 4, which is 7.",
-             '[[step eq="3² + 4² = 25"]] [[step eq="√25 = 5"]][[step eq="5 > 4 · 5 < 3 + 4"]]'],
-            ["Those two bounds catch both traps. An arrow is never as long as its steps added, and never as short as its biggest step alone. Right 5 and up 12 gives 13 — not 17, and not 12.",
-             '[[vector v="5,12" caption="5 across, 12 up"]][[step eq="13 ✓ · 17 ✗ added · 12 ✗ the big step alone"]]'],
+            ("That is the method. Right 3 and up 4: 9 put together with 16 is 25, and "
+             "5 times 5 squares back to it. The arrow is 5 long — farther than either "
+             "step on its own, and shorter than walking 3 and then 4, which is 7.",
+             '[[triangle v="A,B,C" right="B" sides="3,4,5" caption="the two steps and the arrow: 3, 4, 5"]][[step eq="3² + 4² = 25"]] [[step eq="√25 = 5"]][[step eq="5 > 4 · 5 < 3 + 4"]]'),
+            ("Those two bounds catch both traps. An arrow is never as long as its "
+             "steps added, and never as short as its biggest step alone. Right 5 and "
+             "up 12 gives 13 — not 17, and not 12.",
+             '[[vector v="5,12" caption="5 across, 12 up — the arrow is 13"]][[step eq="13 ✓ · 17 ✗ added · 12 ✗ the big step alone"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Right 9 and up 40: 81 put together with 1600 is 1681, and 41 squares back to it. The arrow is 41.",
-                        '[[step eq="9² + 40² = 1681"]] [[step eq="√1681 = 41"]]'],
-             "ask": {"a": 12, "b": 35, "c": 37, "op": "vmag"}},
-            {"worked": ["One more together. Right 30 and up 40: the arrow is 50, the old 3-4-5 grown ten times.",
-                        '[[step eq="30² + 40² = 2500"]] [[step eq="√2500 = 50"]]'],
-             "ask": {"a": 24, "b": 32, "c": 40, "op": "vmag"}},
+            {"worked": ("Here is one more, done for you. Right 9 and up 40: 81 put "
+                        "together with 1600 is 1681, and 41 squares back to it. The arrow "
+                        "is 41.",
+                        '[[vector v="9,40" caption="right 9, up 40 — the arrow is 41"]][[step eq="9² + 40² = 1681"]] [[step eq="√1681 = 41"]]'),
+             "ask": {'a': 12, 'b': 35, 'c': 37, 'op': 'vmag'}},
+            {"worked": ("One more together. Right 30 and up 40: the arrow is 50, the old "
+                        "3-4-5 grown ten times.",
+                        '[[vector v="30,40" caption="right 30, up 40 — the arrow is 50"]][[step eq="30² + 40² = 2500"]] [[step eq="√2500 = 50"]]'),
+             "ask": {'a': 24, 'b': 32, 'c': 40, 'op': 'vmag'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. An arrow that goes 3 "
+                       "right and 4 up is 5 long. Tap the reason why."),
+            "choices": ("because the steps meet at a right angle | because an arrow is as "
+                        "long as its two steps added | because an arrow is as long as its "
+                        "bigger step"),
+            "answer": "because the steps meet at a right angle",
+            "board": '[[vector v="3,4" caption="3 across, 4 up — 5 long"]]',
+        },
+        "recap": [
+            ("So, here it is again. An arrow's two steps meet at a right angle, so the "
+             "arrow is the hypotenuse: square the steps, put them together, and "
+             "un-square. It is longer than either step and shorter than both added — "
+             "never the sum, never the big step alone.",
+             '[[vector v="3,4" caption="the arrow is the hypotenuse of its two steps"]]'),
+            ("And that is Pythagoras, wearing vector clothes.",
+             '[[step eq="3² + 4² = 25"]][[step eq="√25 = 5"]]'),
+        ],
         "bank": [
             {"a": 6, "b": 8, "c": 10, "op": "vmag"},
             {"a": 9, "b": 12, "c": 15, "op": "vmag"},
@@ -27992,6 +28498,251 @@ def _cmpd_worked(p):
 
 
 
+# ---- (tp, 2026-09-06) PRECALC UNITS 4-6: the half turn beside the angle, the arrow
+# wound backwards, the flat line with the arrow hugging it, the plain wave beside the
+# fast one, the hundred square split between sine and cosine, the right triangle's two
+# sharp corners, the mirror on the circle, the wave crossing its level line, the honest
+# SAS triangle, the ramp, the compass, the arrow and its two steps. Every ask draws its
+# question with the answer withheld; every walk-back draws it filled in.
+def _rad1_board(p):
+    a = p["a"]; deg = 180 * a
+    return (f'[[bars data="a half turn:180 | {deg}°:{deg}" caption="a half turn of 180 beside {deg}° — how many half turns fit?"]]'
+            f'[[step eq="{deg}° = ? π rad"]]')
+
+
+def _rad1_worked(p):
+    a = p["a"]; deg = 180 * a
+    if a <= 10:
+        fig = (f'[[tape parts="{"|".join(["180"] * a)}" total="{deg}°" '
+               f'caption="{deg}° = {a} half turns = {a}π rad"]]')
+    else:
+        fig = (f'[[numberline min="0" max="{deg}" hops="{",".join(str(180 * i) for i in range(a + 1))}" '
+               f'caption="{a} hops of 180 — {deg}° = {a}π rad"]]')
+    return (f"Look what you did: 180 degrees is one half turn, one pi. Count how many fit in "
+            f"{deg}: {deg} divided by 180 equals {a} — {a} pi radians. Quarter turns would "
+            f"say {2 * a}, and the degrees themselves were never the answer.",
+            fig + f'[[step eq="{deg} ÷ 180 = {a}"]][[step eq="{deg}° = {a}π rad"]]')
+
+
+def _nspn_board(p):
+    a = p["a"]
+    return (f'[[unitcircle angle="-{a}" values="0" caption="the arrow wound {a}° backwards — the same arrow, named forwards?"]]'
+            f'[[step eq="−{a}° + one full turn = ?"]]')
+
+
+def _nspn_worked(p):
+    a = p["a"]
+    return (f"Look what you did: a full turn is 360, so negative {a} plus 360 equals "
+            f"{360 - a}. The same arrow, named forwards — it hangs {a} below flat right "
+            f"either way. Dropping the minus would say {a}, the mirror image above the line.",
+            f'[[unitcircle angle="{360 - a}" values="0" caption="the same arrow: −{a}° is {360 - a}° forwards"]]'
+            f'[[step eq="−{a} + 360 = {360 - a}"]]')
+
+
+def _refq_board(p):
+    a = p["a"]
+    return (f'[[angle deg="180" split="{a}" caption="the flat line is 180° — the arrow at {a}°; the gap to flat left is the reference"]]'
+            f'[[step eq="{a}° · reference angle = ?"]]')
+
+
+def _refq_worked(p):
+    a = p["a"]
+    return (f"Look what you did: flat left is 180 and the arrow sits at {a}, so the gap is "
+            f"180 take away {a} — {180 - a} degrees. Measured from straight up it would be "
+            f"{a - 90}, but the reference angle hugs the FLAT line, always.",
+            f'[[angle deg="180" split="{a},{180 - a}" caption="180 − {a} = {180 - a}° — the gap to flat left"]]'
+            f'[[step eq="180 − {a} = {180 - a}°"]]')
+
+
+def _wper_board(p):
+    a = p["a"]
+    return (f'[[graph func="sin(x*pi/180); sin({a}*x*pi/180)" names="sin x; sin {a}x" range="0..360" yrange="-1.5..1.5" '
+            f'caption="the plain sine tells its story once in 360° — the sine of {a}x, beside it"]]'
+            f'[[step eq="y = sin({a}x)"]]'
+            f'[[step eq="repeats every ? degrees"]]')
+
+
+def _wper_worked(p):
+    a = p["a"]; per = 360 // a
+    return (f"Look what you did: divide — 360 divided by {a} equals {per}. This wave tells "
+            f"its whole story in {per} degrees, then starts again. Faster means SOONER: "
+            f"stretching to {360 * a} points the wrong way.",
+            f'[[graph func="sin({a}*x*pi/180)" names="sin {a}x" lines="x={per}" range="0..360" yrange="-1.5..1.5" '
+            f'caption="one full story by x = {per}°, then it repeats"]]'
+            f'[[step eq="360 ÷ {a} = {per}°"]]')
+
+
+def _pyid_board(p):
+    a = p["a"]
+    return (f'[[hundredgrid shaded="{a}" eq="sin² = {a} of 100" caption="one whole is 100 hundredths — sine squared shaded; cosine squared is the rest"]]'
+            f'[[step eq="sin² = {a}/100"]]'
+            f'[[step eq="cos² = ?/100"]]')
+
+
+def _pyid_worked(p):
+    a = p["a"]
+    return (f"Look what you did: sine squared plus cosine squared equals 1 — the whole "
+            f"hundred. 100 take away {a} equals {100 - a}: cosine squared is {100 - a} "
+            f"hundredths. The pair always splits one whole between them.",
+            f'[[hundredgrid shaded="{a}" eq="{a} + {100 - a} = 100" caption="sin² {a} shaded, cos² {100 - a} left — one whole between them"]]'
+            f'[[step eq="100 − {a} = {100 - a}"]][[step eq="cos² = {100 - a}/100"]]')
+
+
+def _cofn_board(p):
+    a = p["a"]
+    return (f'[[triangle v="A,B,C" right="B" angles="{a},90,?" caption="one right triangle — its two sharp corners finish 90 together"]]'
+            f'[[step eq="sin {a}° = cos ?°"]]')
+
+
+def _cofn_worked(p):
+    a = p["a"]
+    return (f"Look what you did: {a} plus {90 - a} equals 90, so the sine of {a} equals the "
+            f"cosine of {90 - a}. One triangle, two sharp corners — what one corner calls "
+            f"height, the other calls across.",
+            f'[[triangle v="A,B,C" right="B" angles="{a},90,{90 - a}" caption="{a} + {90 - a} = 90 — partners across ninety"]]'
+            f'[[step eq="sin {a}° = cos {90 - a}°"]]')
+
+
+def _negf_worked(p):
+    a, c = p["a"], p["c"]
+    base = (-a) % 360
+    spins = a // 360
+    # base is where the arrow POINTS after winding a degrees backwards, so the plain
+    # across/height tables read off it (the OP_EXT ans reads sin(-a) off +a instead).
+    v = ({0: 1, 90: 0, 180: -1, 270: 0} if c == 0 else {0: 0, 90: 1, 180: 0, 270: -1})[base]
+    vs = {1: "1", 0: "0", -1: "negative 1"}[v]
+    vb = vs.replace("negative ", "−")
+    strip = (f"{a} back is {spins} full spin{'s' if spins > 1 else ''} and {a - 360 * spins} more, so the arrow"
+             if spins else "The arrow")
+    if c == 0:
+        spoken = (f"Look what you did: the mirror flips height, never across. {strip} "
+                  f"points {_COMPASS[base]}, and its across is {vs}. The cosine of negative "
+                  f"{a} equals the cosine of {a} — even: the minus vanishes.")
+        tail = f"cosine = across = {vb}"
+    else:
+        spoken = (f"Look what you did: the mirror flips the height. {strip} points "
+                  f"{_COMPASS[base]}, and its height is {vs}. The sine of negative {a} is the "
+                  f"opposite of the sine of {a} — odd: one minus survives.")
+        tail = f"sine = height = {vb}"
+    return (spoken,
+            f'[[unitcircle angle="-{a}" caption="−{a}° — the arrow points {_COMPASS[base]}: {tail}"]]'
+            f'[[step eq="−{a}° → {_COMPASS[base]}"]][[step eq="{tail}"]]')
+
+
+def _sols_pts(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    f = ({0: 1, 90: 0, 180: -1, 270: 0} if c == 1 else {0: 0, 90: 1, 180: 0, 270: -1})
+    return [x for x in range(90, 360 * b + 1, 90) if f[x % 360] == a]
+
+
+def _sols_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    fn, word = ("cos", "cosine") if c == 1 else ("sin", "sine")
+    tv = "−1" if a == -1 else str(a)
+    turns = f"{b} turn{'s' if b > 1 else ''}"
+    return (f'[[graph func="{fn}(x*pi/180)" names="{word}" lines="y={a}" range="0..{360 * b}" yrange="-1.5..1.5" '
+            f'caption="the {word} through {turns} and the line y = {tv} — count the touches after the start"]]'
+            f'[[step eq="{turns} · {fn} = {tv} · count = ?"]]')
+
+
+def _sols_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    fn, word = ("cos", "cosine") if c == 1 else ("sin", "sine")
+    tv = "−1" if a == -1 else str(a)
+    tw = "negative 1" if a == -1 else str(a)
+    base = 2 if a == 0 else 1
+    ans = base * b
+    place = {(0, 0): "at flat left and at the finish", (0, 1): "at straight up",
+             (0, -1): "at straight down", (1, 0): "at straight up and at straight down",
+             (1, 1): "at the finish", (1, -1): "at flat left"}[(c, a)]
+    xs = _sols_pts(p)
+    pts = ",".join(f"({x},{a})" for x in xs)
+    turns = f"{b} turn{'s' if b > 1 else ''}"
+    tail = (f"{b} turns, {base} each: {ans}." if b > 1 else f"One turn, so the count is {base}.")
+    return (f"Look what you did: each turn, the {word} equals {tw} "
+            f"{'twice' if base == 2 else 'once'} — {place}. {tail} Skip the start, keep the "
+            f"finish, and never say 4 just because there are four quarters.",
+            f'[[graph func="{fn}(x*pi/180)" names="{word}" lines="y={a}" points="{pts}" range="0..{360 * b}" yrange="-1.5..1.5" '
+            f'caption="{ans} touch{"es" if ans > 1 else ""} after the start — {place}"]]'
+            f'[[step eq="{turns} · {base} each turn = {ans}"]]')
+
+
+def _arsn_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[triangle v="A,B,C" sas="{a},{b},{c}" sides="{a},,{b}" angles="{c},," caption="sides {a} and {b} with {c}° between them — drawn true"]]'
+            f'[[step eq="sides {a} and {b} · angle {c}° between them"]]'
+            f'[[step eq="area = ?"]]')
+
+
+def _arsn_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    prod = a * b
+    if c == 90:
+        ans = prod // 2
+        spoken = (f"Look what you did: the sine of 90 degrees is 1, so the area is half of "
+                  f"{a} times {b} — half of {prod}, {ans}. The whole {prod} is the rectangle "
+                  f"around it, and a triangle takes half.")
+        steps = f'[[step eq="sin 90° = 1"]][[step eq="½ · {a} · {b} · 1 = {ans}"]]'
+    else:
+        ans = prod // 4
+        spoken = (f"Look what you did: the sine of {c} degrees is one half, so half the "
+                  f"product is halved again — a quarter of {a} times {b}, a quarter of {prod}, "
+                  f"which is {ans}."
+                  + (" And 150 shares its sine with 30: the wide triangle covers what the "
+                     "sharp one covers." if c == 150 else ""))
+        steps = f'[[step eq="sin {c}° = ½"]][[step eq="½ · {a} · {b} · ½ = {ans}"]]'
+    return (spoken,
+            f'[[triangle v="A,B,C" sas="{a},{b},{c}" sides="{a},,{b}" angles="{c},," caption="area = ½ · {a} · {b} · sin {c}° = {ans}"]]'
+            + steps)
+
+
+def _ramp_board(p):
+    a = p["a"]
+    return (f'[[triangle v="A,B,C" right="B" sides=",?,{a}" angles="30,," caption="a {a}-foot ramp at 30° — how high is its top end?"]]'
+            f'[[step eq="height = ?"]]')
+
+
+def _ramp_worked(p):
+    a = p["a"]; h = a // 2
+    return (f"Look what you did: the sine of 30 degrees is one half, so the ramp climbs half "
+            f"its length — half of {a} is {h} feet. The {a} is how far you walk up the slope, "
+            f"and doubling would say {2 * a}, taller than the ramp is long.",
+            f'[[triangle v="A,B,C" right="B" sides=",{h},{a}" angles="30,," caption="half of {a} — the top end sits {h} feet up"]]'
+            f'[[step eq="½ · {a} = {h} ft"]]')
+
+
+def _brng_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[unitcircle bearing="{a}" turn="{b}" caption="the ship on bearing {a}° — now a {b}° turn clockwise"]]'
+            f'[[step eq="{a}° · turn {b}° clockwise · new bearing = ?"]]')
+
+
+def _brng_worked(p):
+    a, b = p["a"], p["b"]; tot = a + b; ans = tot - 360
+    return (f"Look what you did: {a} plus {b} equals {tot} — past a full turn, so take away "
+            f"360: the new bearing is {ans} degrees. The ship swung around through north. "
+            f"{tot} names no bearing, and {a - b} is where the backwards turn would point.",
+            f'[[unitcircle bearing="{ans}" caption="{a} + {b} = {tot}, past 360 — the new bearing is {ans}°"]]'
+            f'[[step eq="{a} + {b} = {tot}"]][[step eq="{tot} − 360 = {ans}"]]')
+
+
+def _vmag_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[triangle v="A,B,C" right="B" sides="{a},{b},?" caption="right {a}, up {b} — the arrow is the slanted side"]]'
+            f'[[step eq="the arrow = ?"]]')
+
+
+def _vmag_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; sq = a * a + b * b
+    return (f"Look what you did: right {a} and up {b} meet at a right angle, so the arrow is "
+            f"the hypotenuse. {a} squared is {a * a}, {b} squared is {b * b}, put together "
+            f"{sq} — and {c} times {c} squares back to it. The arrow is {c}: longer than "
+            f"either step, shorter than walking both, {a + b}.",
+            f'[[vector v="{a},{b}" caption="right {a}, up {b} — the arrow is {c} long"]]'
+            f'[[step eq="{a}² + {b}² = {sq}"]][[step eq="√{sq} = {c}"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -32765,7 +33516,8 @@ OP_EXT = {
         "ans": lambda p: p["a"],
         "spoken": lambda p: (f"How many pi radians is {180 * p['a']} "
                              f"degrees?"),
-        "board": lambda p: f'[[step eq="{180 * p["a"]}° = ? π rad"]]',
+        "board": _rad1_board,         # (tp) a half turn beside the angle, as bars
+        "worked": _rad1_worked,       # (tp) the half turns laid end to end
         "praise": lambda p: (f"180 degrees is one pi, so count the half "
                              f"turns: {180 * p['a']} divided by 180 equals "
                              f"{p['a']} — {p['a']} pi radians. Counting "
@@ -32785,8 +33537,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Start at negative {p['a']} degrees — a "
                              f"backwards spin. Add one full turn. What "
                              f"positive angle names the same direction?"),
-        "board": lambda p: (f'[[step eq="−{p["a"]}° + one full turn '
-                            f'= ?"]]'),
+        "board": _nspn_board,         # (tp) the arrow wound backwards, coordinates hidden
+        "worked": _nspn_worked,       # (tp) the same arrow, named forwards
         "praise": lambda p: (f"A full turn is 360: negative {p['a']} plus "
                              f"360 equals {360 - p['a']} — the same arrow, "
                              f"named forwards. Dropping the minus would say "
@@ -32811,8 +33563,8 @@ OP_EXT = {
                              f"reference angle is the small gap between the "
                              f"arrow and the flat line. How many degrees is "
                              f"that gap?"),
-        "board": lambda p: (f'[[step eq="{p["a"]}° · reference angle '
-                            f'= ?"]]'),
+        "board": _refq_board,         # (tp) the flat line split at the arrow, the gap blank
+        "worked": _refq_worked,       # (tp) both pieces labelled
         "praise": lambda p: (f"Flat left is 180, and the arrow sits at "
                              f"{p['a']}: the gap is 180 take away {p['a']} "
                              f"— {180 - p['a']} degrees. Measured from "
@@ -32832,8 +33584,8 @@ OP_EXT = {
         "spoken": lambda p: (f"y equals the sine of {p['a']} x. The plain "
                              f"sine repeats every 360 degrees. How many "
                              f"degrees until THIS wave repeats?"),
-        "board": lambda p: (f'[[step eq="y = sin({p["a"]}x)"]]'
-                            f'[[step eq="repeats every ? degrees"]]'),
+        "board": _wper_board,         # (tp) the plain sine beside the fast one, the axis in degrees
+        "worked": _wper_worked,       # (tp) the fast wave with its first repeat marked
         "praise": lambda p: (f"Divide: 360 divided by {p['a']} equals "
                              f"{360 // p['a']} — this wave tells its whole "
                              f"story in {360 // p['a']} degrees. Stretching "
@@ -32853,10 +33605,10 @@ OP_EXT = {
     "pyid": {  # sin^2 + cos^2 = 1, split into hundredths
         "ans": lambda p: 100 - p["a"],
         "spoken": lambda p: (f"For a certain angle, sine squared equals "
-                             f"{p['a']} hundredths. How many hundredths is "
-                             f"cosine squared?"),
-        "board": lambda p: (f'[[step eq="sin² = {p["a"]}/100"]]'
-                            f'[[step eq="cos² = ?/100"]]'),
+                             f"{p['a']} hundredths — {p['a']} of the 100. How "
+                             f"many of the 100 hundredths is cosine squared?"),
+        "board": _pyid_board,         # (tp) the hundred square, sine squared shaded
+        "worked": _pyid_worked,       # (tp) the split named
         "praise": lambda p: (f"Sine squared plus cosine squared equals 1 — "
                              f"the whole hundred: 100 take away {p['a']} "
                              f"equals {100 - p['a']}. The pair always "
@@ -32874,7 +33626,8 @@ OP_EXT = {
         "ans": lambda p: 90 - p["a"],
         "spoken": lambda p: (f"The sine of {p['a']} degrees equals the "
                              f"cosine of one special angle. Which angle?"),
-        "board": lambda p: f'[[step eq="sin {p["a"]}° = cos ?°"]]',
+        "board": _cofn_board,         # (tp) the right triangle, its second sharp corner blank
+        "worked": _cofn_worked,       # (tp) both sharp corners labelled
         "praise": lambda p: (f"Sine and cosine are partners across 90: "
                              f"{p['a']} plus {90 - p['a']} equals 90, so "
                              f"the sine of {p['a']} equals the cosine of "
@@ -32902,6 +33655,7 @@ OP_EXT = {
                                'tip"]]' if p["c"] == 0 else
                                '[[step eq="sine = the height of its '
                                'tip"]]')),
+        "worked": _negf_worked,       # (tp) the arrow wound backwards with its values (the pointed arrow is the answer -- walk-back only)
         "praise": lambda p: (lambda v, w:
                              ((f"Backwards or forwards, the across is the "
                                f"same — the mirror flips height, never "
@@ -32941,11 +33695,8 @@ OP_EXT = {
                              + ("0" if p["a"] == 0 else
                                 ("1" if p["a"] == 1 else "negative 1"))
                              + "?"),
-        "board": lambda p: (f'[[step eq="{p["b"]} '
-                            f'turn{"s" if p["b"] > 1 else ""} · '
-                            f'{"sin" if p["c"] == 0 else "cos"} = '
-                            f'{"−1" if p["a"] == -1 else p["a"]} · how '
-                            f'many times?"]]'),
+        "board": _sols_board,         # (tp) the wave through the turns with its level line; no question inside a step (the old "how many times?" was one)
+        "worked": _sols_worked,       # (tp) the touches marked
         "praise": lambda p: (lambda base, word, place:
                              (f"Each turn, the {word} equals "
                               + ("0" if p["a"] == 0 else
@@ -32985,9 +33736,8 @@ OP_EXT = {
         # and the praise calls that triangle wide. A picture that argues
         # with the speech is the le/topp defect; the teach keeps the figure
         # for the 90-degree case, where the drawing is honest.
-        "board": lambda p: (f'[[step eq="sides {p["a"]} and {p["b"]} · '
-                            f'angle {p["c"]}° between them"]]'
-                            f'[[step eq="area = ?"]]'),
+        "board": _arsn_board,         # (tp) the honest SAS triangle (sas=); the schematic layout drew 150 looking sharp
+        "worked": _arsn_worked,       # (tp) the same triangle with its area
         "praise": lambda p: ((f"The sine of 90 degrees is 1, so the area is "
                               f"half of {p['a']} times {p['b']} — "
                               f"{p['a'] * p['b'] // 2}. The whole "
@@ -33028,9 +33778,8 @@ OP_EXT = {
                              f"degrees above flat ground. How high is its "
                              f"top end?"),
         # The figure carries the givens; the height is a question mark.
-        "board": lambda p: ('[[triangle v="A,B,C" right="B" sides=",?,'
-                            + str(p["a"]) + '" angles="30,,"]]'
-                            + '[[step eq="height = ?"]]'),
+        "board": _ramp_board,         # (tp) the ramp triangle, captioned (it had no caption -- rule 41)
+        "worked": _ramp_worked,       # (tp) the height filled in
         "praise": lambda p: (f"The sine of 30 degrees is one half, so the "
                              f"ramp climbs half its length: half of "
                              f"{p['a']} equals {p['a'] // 2} feet. The "
@@ -33053,8 +33802,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A ship sails on a bearing of {p['a']} "
                              f"degrees, then turns {p['b']} degrees "
                              f"clockwise. What is its new bearing?"),
-        "board": lambda p: (f'[[step eq="{p["a"]}° · turn {p["b"]}° '
-                            f'clockwise → ?"]]'),
+        "board": _brng_board,         # (tp) the compass: the ship's arrow and the turn arc, its far end unnamed
+        "worked": _brng_worked,       # (tp) the compass at the new bearing
         "praise": lambda p: (f"{p['a']} plus {p['b']} equals "
                              f"{p['a'] + p['b']} — past a full turn, so "
                              f"take away 360: the new bearing is "
@@ -33081,9 +33830,8 @@ OP_EXT = {
                              f"{p['a']} steps to the right and {p['b']} "
                              f"steps up. How long is the arrow itself?"),
         # NOT [[vector]] on the ask -- that renderer PRINTS the magnitude.
-        "board": lambda p: ('[[triangle v="A,B,C" right="B" sides="'
-                            + str(p["a"]) + ',' + str(p["b"])
-                            + ',?"]][[step eq="the arrow = ?"]]'),
+        "board": _vmag_board,         # (tp) the two steps and the slanted side, captioned (it had no caption -- rule 41)
+        "worked": _vmag_worked,       # (tp) the arrow drawn with its length
         "praise": lambda p: (f"Right {p['a']} and up {p['b']} meet at a "
                              f"right angle, so the arrow is the "
                              f"hypotenuse: {p['a']} squared is "
