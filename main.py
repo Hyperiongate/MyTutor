@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  APP_BUILD -> "2026-09-06tr-probstat-units-one-to-three-to-the-shape".
+#               BUILD tr -- Probstat Units 1-3 (exploring data, describing
+#               distributions, scatterplots) rewritten to the shape on the dot plot,
+#               the histogram, the box plot, the number line, the bars, the hundred
+#               square, the scatter cloud, the machine and the tape. Stamp only.
 #   2026-09-06  APP_BUILD -> "2026-09-06tq-precalc-units-seven-to-nine-to-the-shape".
 #               BUILD tq -- Precalc Units 7-9 (conics, series, limits) rewritten to the
 #               shape on the circle, the conic grid, the tape, the path and the vector,
@@ -13821,7 +13826,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-06tq-precalc-units-seven-to-nine-to-the-shape"
+APP_BUILD = "2026-09-06tr-probstat-units-one-to-three-to-the-shape"
 
 
 @app.get("/health")

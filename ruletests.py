@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tr -- PART 3jn: Probstat Units 1-3 to the shape (12 lessons on
+#               the dot plot, the histogram, the stray dot, the two middles with the
+#               halfway mark, the box, the four distances as bars, the hundred square
+#               as a percent, the scatter cloud, the rate machine, predicted beside
+#               actual, the dots as a tape); 96 asks captioned (rule 41); the mode and
+#               percentile asks no longer compare the student to "most children" or
+#               "other students" (rule 42, live); three pending lines that were
+#               questions inside a step are statements.
 #   2026-09-06  BUILD tq -- PART 3jm: Precalc Units 7-9 to the shape (12 lessons on the
 #               circle with its radius marked "?", the circle with its middle unnamed, the
 #               ellipse's two reaches as a tape, the path and the vector, the pattern's
@@ -19844,8 +19852,10 @@ def part3ft_the_curriculum_is_read():
     teach = lambda lid: " ".join(t for t, _b in byid[lid]["teach"])
 
     # ---- Probability & Statistics: 22 second examples ----
+    # (tr, 2026-09-06) the even-list second example moved to middles 9 and 11 -- its
+    # old middles 18 and 20 gave 19, which the bank asks. The operation is still done.
     ps_fixed = {
-        "ps-u2-no-single-middle": "18 plus 20 is 38, halved",
+        "ps-u2-no-single-middle": "9 plus 11 is 20, halved",
         "ps-u2-the-middle-half": "27 take away 15",
         "ps-u3-the-slope-is-a-rate": "5 times 8",
         "ps-u3-how-far-off-the-line": "44 take away 14",
@@ -21966,7 +21976,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,227</b>" in page,
+          "<b>10,312</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -26332,6 +26342,131 @@ def part3jm_precalc_units_seven_to_nine_to_the_shape():
     check("  the changed files carry dated tq notes",
           "2026-09-06  BUILD tq" in rd("lessonscripts.py")[:60000] and "BUILD tq" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tq" in rd("ruletests.py")[:8000] and "(tq)" in rd("static/methodology.html")[:12000],
+          "Jim's rule 8")
+
+
+def part3jn_probstat_units_one_to_three_to_the_shape():
+    """PART 3jn (build tr, 2026-09-06) -- PROBSTAT UNITS 1-3 TO THE SHAPE.
+
+    The dot plot with its stacks, captioned; the line and the dots past it; the
+    histogram's bars; the stray dot; the even list walked back as the two middles
+    with the halfway mark; the box; the four distances as bars; the hundred square as
+    a percent; the scatter cloud; the rate machine; predicted beside actual; the dots
+    as a tape. The mode and percentile asks compare the student to no one (rule 42).
+    Every figure an ask draws carries a caption."""
+    print("\nPART 3jn — Probstat Units 1-3 to the shape (build tr)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    S1 = ["ps-u1-under-the-tallest-stack", "ps-u1-count-the-ones-above",
+          "ps-u1-add-the-bars", "ps-u1-the-one-that-sits-alone"]
+    S2 = ["ps-u2-no-single-middle", "ps-u2-the-middle-half",
+          "ps-u2-how-far-from-the-middle", "ps-u2-a-percent-not-a-person"]
+    S3 = ["ps-u3-one-dot-two-numbers", "ps-u3-the-slope-is-a-rate",
+          "ps-u3-how-far-off-the-line", "ps-u3-through-the-middle-of-the-cloud"]
+    _shape_unit_checks(S1, r"\[\[(dotplot|histogram)\b")
+    _shape_unit_checks(S2, r"\[\[(dotplot|numberline|boxplot|bars|hundredgrid)\b")
+    _shape_unit_checks(S3, r"\[\[(scatter|graph|machine|bars|numberline|tape)\b")
+
+    # ---- Unit 1 ------------------------------------------------------------------------
+    dotm = {"a": 18, "b": 5, "op": "dotm"}
+    check("⭐ under the tallest stack: the dot plot captioned on the ask (12 asks had none), the ask compares the student to no one (rule 42 -- \"the most children\" was live); the stack named in the walk-back",
+          '[[dotplot values="16,17,17,18,18,18,18,18,19,19,20" caption=' in L.board_for(dotm, "abstract")
+          and "most children" not in L.spoken_for(dotm, "abstract")
+          and not tutor.student_compare_conflict(L.spoken_for(dotm, "abstract"), course="probstat")
+          and "the tallest stack sits over 18, 5 dots high" in _W(dotm)[0] and 'caption="the tallest stack, 5 dots, stands over 18' in _W(dotm)[1], "")
+    dcnt = {"a": 13, "b": 8, "c": 7, "op": "dcnt"}
+    check("⭐ count the ones above: the dot plot captioned and the pending line a statement (the old \"how many players?\" was a question inside a step); the dots past the line counted in the walk-back",
+          'caption="one dot per player — count only the dots to the RIGHT of 13' in L.board_for(dcnt, "abstract")
+          and '[[step eq="more than 13 · count = ?"]]' in L.board_for(dcnt, "abstract")
+          and "there are 8" in _W(dcnt)[0] and 'caption="8 dots past 13; the one on 13 stays out"' in _W(dcnt)[1], "")
+    htot = {"a": 9, "b": 8, "c": 5, "op": "htot"}
+    check("  add the bars: the histogram captioned and the pending line a statement (the old \"how many scores in all?\" was a question inside a step); the bars added in the walk-back",
+          '[[histogram values=' in L.board_for(htot, "abstract") and 'caption="each bar carries its count' in L.board_for(htot, "abstract")
+          and '[[step eq="in all = ?"]]' in L.board_for(htot, "abstract")
+          and "9 plus 8 plus 5 equals 22" in _W(htot)[0] and 'caption="9 + 8 + 5 = 22 in all"' in _W(htot)[1], "")
+    farv = {"a": 15, "b": 38, "op": "farv"}
+    check("  the one that sits alone: the dot plot captioned on the ask; the stray named in the walk-back",
+          'caption="one dot per student — one dot sits far from the crowd' in L.board_for(farv, "abstract")
+          and "one sits alone out at 38" in _W(farv)[0] and 'the stray at 38 — the outlier is 38' in _W(farv)[1], "")
+
+    # ---- Unit 2 ------------------------------------------------------------------------
+    medv = {"a": 3, "b": 23, "op": "medv"}
+    check("⭐ no single middle: the even list as a captioned dot plot on the ask; the two middles on the number line with the halfway mark (mid=) in the walk-back",
+          '[[dotplot values="19,21,23,25,27,29" caption=' in L.board_for(medv, "abstract")
+          and '[[numberline min="18" max="30" points="23,25" mid="24" caption=' in _W(medv)[1]
+          and "halved is 24" in _W(medv)[0], "")
+    iqrw = {"a": 14, "b": 34, "c": 6, "op": "iqrw"}
+    check("  the middle half: the box plot captioned on the ask (12 asks had none); the box measured in the walk-back",
+          '[[boxplot five="8,14,24,34,40" caption=' in L.board_for(iqrw, "abstract")
+          and "34 take away 14 equals 20" in _W(iqrw)[0] and 'caption="the box runs 14 to 34 — 20 wide"' in _W(iqrw)[1], "")
+    madv = {"a": 24, "b": 6, "op": "madv"}
+    check("⭐ how far from the middle: the four numbers as a captioned dot plot on the ask; their four distances as bars in the walk-back",
+          '[[dotplot values="6,18,30,42" caption=' in L.board_for(madv, "abstract")
+          and '[[bars data="6:18 | 18:6 | 30:6 | 42:18" caption=' in _W(madv)[1]
+          and "shared between 4: 12" in _W(madv)[0], "")
+    pctl = {"a": 40, "b": 85, "op": "pctl"}
+    check("⭐ a percent, not a person: the hundred square as a percent on the ask, the ask a third-person swimmer against \"40 others\" (rule 42 -- \"other students\" was live), the pending line a statement; beaten beside ahead in the walk-back",
+          '[[hundredgrid shaded="85" unit="percent" eq="85th percentile: 85%" caption=' in L.board_for(pctl, "abstract")
+          and "other students" not in L.spoken_for(pctl, "abstract") and "40 others" in L.spoken_for(pctl, "abstract")
+          and not tutor.student_compare_conflict(L.spoken_for(pctl, "abstract") + "\n" + L.board_for(pctl, "abstract"), course="probstat")
+          and '[[step eq="beaten = ?"]]' in L.board_for(pctl, "abstract")
+          and '[[bars data="beaten:34 | ahead of her:6" caption=' in _W(pctl)[1] and "so she beat 34 of them" in _W(pctl)[0], "")
+
+    # ---- Unit 3 ------------------------------------------------------------------------
+    spnt = {"a": 12, "b": 0, "c": 2, "op": "spnt"}
+    check("  one dot, two numbers: the scatter cloud captioned on the ask (12 asks had none); the dot read in the walk-back; the teach reads a cloud of its own",
+          'caption="each dot is one student — find 12 along the bottom' in L.board_for(spnt, "abstract")
+          and "26 points" in _W(spnt)[0] and 'caption="the dot at 12 hours sits level with 26 points"' in _W(spnt)[1]
+          and "(2,12),(4,22),(6,31),(8,41),(10,50),(12,62)" in L.LESSON_BY_ID["ps-u3-one-dot-two-numbers"]["teach"][0][1], "")
+    sslp = {"a": 7, "b": 7, "op": "sslp"}
+    check("⭐ the slope is a rate: the rate machine on the ask; the line climbing with the point marked in the walk-back; the picture beat's fit is exactly y = 4x + 2",
+          '[[machine input="7" rule="× 7" output="?" caption=' in L.board_for(sslp, "abstract")
+          and '[[graph lines="y=7x" names="7 points per hour" points="(7,49)"' in _W(sslp)[1] and "7 times 7, 49 points" in _W(sslp)[0]
+          and '(2,11),(4,17),(6,26),(8,34),(10,41),(12,51)" fit="true"' in L.LESSON_BY_ID["ps-u3-the-slope-is-a-rate"]["picture"][0][1], "")
+    resd = {"a": 11, "b": 47, "op": "resd"}
+    check("  how far off the line: predicted beside actual as bars on the ask; the gap as one hop on the number line in the walk-back",
+          '[[bars data="predicted:11 | actual:47" caption=' in L.board_for(resd, "abstract")
+          and '[[numberline min="6" max="52" hops="11,47" caption=' in _W(resd)[1] and "the line guessed 36 points low" in _W(resd)[0]
+          and "30 points high" in _W({"a": 38, "b": 8, "op": "resd"})[0], "")
+    sblw = {"a": 19, "b": 4, "op": "sblw"}
+    check("  through the middle of the cloud: the dots as a tape with the below part blank on the ask; both parts in the walk-back",
+          '[[tape parts="4 above|?" total="19 dots" caption=' in L.board_for(sblw, "abstract")
+          and '[[tape parts="4 above|15 below" total="19 dots" caption=' in _W(sblw)[1] and "leaves 15 below" in _W(sblw)[0], "")
+
+    # ---- the giveaway audit, captions, spoken pending lines, rule 42, the notes -------
+    check("  nothing the twelve lessons demonstrate is later asked",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in S1 + S2 + S3), "")
+    check("  every figure an ask draws carries a caption (rule 41 -- 96 asks in these units drew one without)",
+          all("caption=" in tag for l in S1 + S2 + S3
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:dotplot|histogram|boxplot|numberline|bars|hundredgrid|scatter|machine|tape|graph)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in S1 + S2 + S3:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  no ask in the three units puts an arrow after an equals sign or a question inside a step",
+          not any(re.search(r"=[^\"]*→", m) or re.search(r"[A-Za-z]\?", m) for l in S1 + S2 + S3
+                  for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+                  for m in re.findall(r'\[\[step eq="([^"]*)"', L.board_for(p, "abstract"))), "")
+    check("  no ask, walk-back or beat in the three units compares the student to anyone (rule 42, course probstat)",
+          not any(tutor.student_compare_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract"), course="probstat")
+                  or tutor.student_compare_conflict(_W(p)[0], course="probstat")
+                  for l in S1 + S2 + S3
+                  for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]])
+          and not any(tutor.student_compare_conflict(sp, course="probstat") for l in S1 + S2 + S3
+                      for sp, _b in _authored_beats(L.LESSON_BY_ID[l])), "")
+    check("  no reason option works the arithmetic aloud (the spoken-math referee sweeps the joined options)",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in S1 + S2 + S3), "")
+    check("  the changed files carry dated tr notes",
+          "2026-09-06  BUILD tr" in rd("lessonscripts.py")[:60000] and "BUILD tr" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD tr" in rd("ruletests.py")[:8000] and "(tr)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -36677,6 +36812,7 @@ def main():
     part3jk_precalc_units_one_to_three_to_the_shape()
     part3jl_precalc_units_four_to_six_to_the_shape()
     part3jm_precalc_units_seven_to_nine_to_the_shape()
+    part3jn_probstat_units_one_to_three_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -2,6 +2,35 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tr -- PROBSTAT UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "go".
+#               THIS FILE:
+#                 * Unit 1 (exploring data): the dot plot, the dot plot with its line,
+#                   the histogram and the stray dot -- every ask captioned (96 asks in
+#                   these three units drew a figure with no caption, rule 41), walked
+#                   back with the stack, the count, the sum and the stray named;
+#                 * Unit 2 (describing distributions): the even list as a dot plot,
+#                   walked back as the two middles on the number line with the halfway
+#                   mark (mid=); the box plot; the four numbers as a dot plot, walked
+#                   back as their four distances as bars; the hundred square as a
+#                   percent, walked back as beaten beside ahead;
+#                 * Unit 3 (scatterplots): the scatter cloud captioned; the slope as a
+#                   rate MACHINE, walked back as the line climbing with the point
+#                   marked; predicted beside actual as bars, walked back as one hop on
+#                   the number line; the dots as a tape with the below part blank.
+#               RULE 42 IN THE ASKS THEMSELVES, live: the mode ask said "the most
+#               children" and the percentile ask "40 other students" -- the comparison
+#               shape. The mode ask now asks for "the number that happened most often";
+#               the percentile ask is a swimmer racing "40 others" (third person;
+#               "percentile" is exempt in probstat, "other students" never was). Two
+#               pending lines were questions inside a step ("how many players?", "how
+#               many scores in all?") and one more ("how many beaten = ?") -- all
+#               statements now. Trap lines kept in every lesson. ENGINE: OP_EXT dotm/
+#               dcnt/htot/farv/medv/iqrw/madv/pctl/spnt/sslp/resd/sblw gain "worked"
+#               (_dotm_* ... _sblw_*) and boards. Demonstrated numbers kept out of the
+#               banks and pairs: the mode teach stacks over 14 (every mode 5..13, 15,
+#               17, 18 is an ask); the even-list teach and worked pairs land on 7, 14
+#               and 10 (the old 9, 12 and 19 were asks); the scatter teach reads a
+#               cloud of its own (the old cloud WAS the slope-3 ask at 8 hours).
 #   2026-09-06  BUILD tq -- PRECALC UNITS 7-9 TO THE SHAPE (12 lessons). Jim: "go".
 #               PRECALC IS 36/36. THIS FILE:
 #                 * Unit 7 (conics, parametrics): the circle with its radius marked "?"
@@ -21152,24 +21181,62 @@ _PROBSTAT_U1 = [
         "op": "dotm", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("mode", "stack"),
-        "advance_line": "Three in a row — you've got it! The mode is the value under the stack.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The mode is the value under the stack.",
+        "why": [
+            ("Why look before you count? Welcome to Probability and Statistics, where "
+             "the first move is always to LOOK. A dot plot puts one dot above a number "
+             "for every time that number happened. The shape of the data stands up off "
+             "the page — tall where values repeat, flat where they do not.",
+             '[[goal text="Under the tallest stack"]][[dotplot values="12,13,13,14,14,14,14,15,15,16" caption="one dot per value — the shape stands up off the page"]]'),
+        ],
+        "picture": [
+            ("Here is a dot plot of books read: one dot per reader, stacked over the "
+             "number of books. Look at the stacks — one of them stands taller than "
+             "all the others. That tall stack is where the data piles up, and the "
+             "number underneath it is the one that happened most.",
+             '[[dotplot values="12,13,13,14,14,14,14,15,15,16" caption="one dot per reader — the tallest stack stands over one number"]]'),
+        ],
         "teach": [
-            ["Welcome to Probability and Statistics, where the first move is always to LOOK. A dot plot puts one dot above a number for every time that number happened. The shape of the data stands up off the page. It is tall where values repeat and flat where they do not.",
-             '[[goal text="Under the tallest stack"]][[dotplot values="3,4,4,5,5,5,5,6,6,7" caption="one dot per value — spot the stacks"]]'],
-            ["The mode is the value that happened most often — so find the tallest stack and read the number UNDERNEATH it. Here four dots stand over 5, more than any other number, so the mode is 5.",
-             '[[step eq="tallest stack sits over 5 → mode = 5"]]'],
-            ["Here is the slip worth naming. Four dots stand on that stack, and 4 is not the answer — the mode is the value they stand on, 5, not the count of them. Read down to the number line, never across to how many.",
-             '[[step eq="5 ✓ the value"]][[step eq="4 ✗ that is the count of dots"]]'],
+            ("That is the method: the mode is the value that happened most often, so "
+             "find the tallest stack and read the number UNDERNEATH it. Here four dots "
+             "stand over 14, more than any other number, so the mode is 14.",
+             '[[dotplot values="12,13,13,14,14,14,14,15,15,16" caption="four dots over 14 — the mode is 14"]][[step eq="tallest stack over 14"]][[step eq="mode = 14"]]'),
+            ("Here is the slip worth naming. Four dots stand on that stack, and 4 is "
+             "not the answer — the mode is the value they stand on, 14, not the count "
+             "of them. Read down to the number line, never across to how many.",
+             '[[step eq="14 ✓ the value"]][[step eq="4 ✗ that is the count of dots"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The tallest stack here sits over 16 — so the mode is 16, however many dots are stacked on it.",
-                        '[[dotplot values="14,15,15,16,16,16,17,17,18" caption="one dot per value — spot the stacks"]]'],
-             "ask": {"a": 18, "b": 5, "op": "dotm"}},
-            {"worked": ["One more together. The tallest stack here sits over 20, so the mode is 20.",
-                        '[[dotplot values="18,19,19,20,20,20,20,20,21,21,22" caption="one dot per value — spot the stacks"]]'],
-             "ask": {"a": 17, "b": 6, "op": "dotm"}},
+            {"worked": ("Here is one more, done for you. The tallest stack here sits over "
+                        "16 — so the mode is 16, however many dots are stacked on it.",
+                        '[[dotplot values="14,15,15,16,16,16,17,17,18" caption="the tallest stack stands over 16 — the mode is 16"]][[step eq="mode = 16"]]'),
+             "ask": {'a': 18, 'b': 5, 'op': 'dotm'}},
+            {"worked": ("One more together. The tallest stack here sits over 20, so the "
+                        "mode is 20.",
+                        '[[dotplot values="18,19,19,20,20,20,20,20,21,21,22" caption="five dots over 20 — the mode is 20"]][[step eq="mode = 20"]]'),
+             "ask": {'a': 17, 'b': 6, 'op': 'dotm'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. On the plot with four "
+                       "dots over 14, the mode is 14. Tap the reason why."),
+            "choices": ("because the mode is the value under the tallest stack | because "
+                        "the mode is how many dots stand on the stack | because the mode "
+                        "is the biggest number on the line"),
+            "answer": "because the mode is the value under the tallest stack",
+            "board": '[[dotplot values="12,13,13,14,14,14,14,15,15,16" caption="the value under the tallest stack"]]',
+        },
+        "recap": [
+            ("So, here it is again. A dot plot stacks one dot per value, and the mode "
+             "is the value under the tallest stack — the number that happened most "
+             "often. Read down to the number line, never across to the count of dots, "
+             "and never grab the biggest number on the line.",
+             '[[dotplot values="12,13,13,14,14,14,14,15,15,16" caption="under the tallest stack"]]'),
+            ("And that is the first thing a picture of data can tell you.",
+             '[[step eq="tallest stack over 14 · mode = 14"]]'),
+        ],
         "bank": [
             {"a": 5, "b": 3, "op": "dotm"},
             {"a": 6, "b": 5, "op": "dotm"},
@@ -21190,24 +21257,63 @@ _PROBSTAT_U1 = [
         "op": "dcnt", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("count", "line"),
-        "advance_line": "Three in a row — you've got it! Count only past the line, and never the dot standing on it.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Count only past the line, and never the dot standing on it.",
+        "why": [
+            ("Why count part of a plot? A dot plot answers more than one question. "
+             "Beyond what is most common, you can count how many values sit past some "
+             "mark — how many players scored more than 8, how many days ran over an "
+             "hour. Draw a line, then count one side of it.",
+             '[[goal text="Count the ones above"]]'),
+        ],
+        "picture": [
+            ("Here is a dot plot of goals, one dot per player, with a line to draw in "
+             "your mind at 8. Look at the three kinds of dot: the ones to the left of "
+             "8, the one standing exactly ON 8, and the ones to the right. More than 8 "
+             "means the right-hand kind only.",
+             '[[dotplot values="6,7,7,8,9,9,10,11" caption="one dot per player — left of 8, ON 8, and right of 8"]]'),
+        ],
         "teach": [
-            ["A dot plot answers more than one question. Beyond what is most common, you can count how many values sit past some mark — how many players scored more than 8, how many days ran over an hour. Draw a line, then count one side of it.",
-             '[[goal text="Count the ones above"]][[dotplot values="6,7,7,8,9,9,10,11" caption="one dot per value — spot the stacks"]]'],
-            ["Count how many are MORE than 8 here: 9, 9, 10 and 11 — four dots to the right of 8. Work left to right and touch each dot once; a count you cannot repeat exactly is a count you should do again.",
-             '[[step eq="more than 8 → 9, 9, 10, 11 → 4"]]'],
-            ["The dot standing exactly ON 8 is the whole trap. More than 8 does not include 8 itself, so that dot stays out and the answer is 4, not 5. And counting the other side answers a question nobody asked. Read the word, then count.",
-             '[[step eq="4 ✓"]][[step eq="5 ✗ counted the dot on the line"]]'],
+            ("That is the method. Count how many are MORE than 8 here: 9, 9, 10 and "
+             "11 — four dots to the right of 8. Work left to right and touch each dot "
+             "once; a count you cannot repeat exactly is a count you should do again.",
+             '[[dotplot values="6,7,7,8,9,9,10,11" caption="four dots to the right of 8"]][[step eq="more than 8 → 9, 9, 10, 11 → 4"]]'),
+            ("The dot standing exactly ON 8 is the whole trap. More than 8 does not "
+             "include 8 itself, so that dot stays out and the answer is 4, not 5. And "
+             "counting the other side answers a question nobody asked. Read the word, "
+             "then count.",
+             '[[step eq="4 ✓"]][[step eq="5 ✗ counted the dot on the line"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. More than 14: five dots sit to the right, and the one resting on 14 stays out.",
-                        '[[step eq="more than 14 → 5"]]'],
-             "ask": {"a": 13, "b": 8, "c": 7, "op": "dcnt"}},
-            {"worked": ["One more together. More than 9, with seven dots past the line: the answer is 7.",
-                        '[[step eq="more than 9 → 7"]]'],
-             "ask": {"a": 18, "b": 7, "c": 6, "op": "dcnt"}},
+            {"worked": ("Here is one more, done for you. More than 14: five dots sit to "
+                        "the right, and the one resting on 14 stays out.",
+                        '[[dotplot values="11,12,13,13,14,15,15,16,17,17" caption="five dots past 14 — the one on 14 stays out"]][[step eq="more than 14 → 5"]]'),
+             "ask": {'a': 13, 'b': 8, 'c': 7, 'op': 'dcnt'}},
+            {"worked": ("One more together. More than 9, with seven dots past the line: "
+                        "the answer is 7.",
+                        '[[dotplot values="7,8,8,9,10,10,10,11,11,12,12" caption="seven dots past 9"]][[step eq="more than 9 → 7"]]'),
+             "ask": {'a': 18, 'b': 7, 'c': 6, 'op': 'dcnt'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. On the plot with a "
+                       "dot on 8, more than 8 counts 4 dots, not 5. Tap the reason why."),
+            "choices": ("because the dot standing on 8 is not more than 8 | because the "
+                        "dot on the line counts for both sides | because more than 8 "
+                        "means 8 and everything past it"),
+            "answer": "because the dot standing on 8 is not more than 8",
+            "board": '[[dotplot values="6,7,7,8,9,9,10,11" caption="the dot on 8 stays out"]]',
+        },
+        "recap": [
+            ("So, here it is again. To count part of a dot plot, draw the line, read "
+             "the word, and count one side of it — touching each dot once. More than "
+             "the line leaves the dot ON the line out, and never count the side that "
+             "was not asked for.",
+             '[[dotplot values="6,7,7,8,9,9,10,11" caption="count only past the line"]]'),
+            ("And that is a plot answering a second question.",
+             '[[step eq="more than 8 → 4"]]'),
+        ],
         "bank": [
             {"a": 5, "b": 4, "c": 3, "op": "dcnt"},
             {"a": 10, "b": 4, "c": 8, "op": "dcnt"},
@@ -21228,24 +21334,61 @@ _PROBSTAT_U1 = [
         "op": "htot", "max_value": 27,
         "levels": ("abstract",),
         "symbols": ("histogram", "bars"),
-        "advance_line": "Three in a row — you've got it! Add every bar to find how many there are in all.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Add every bar to find how many there are in all.",
+        "why": [
+            ("Why bars instead of dots? When there are too many values for one dot "
+             "each, a histogram sorts them into groups and draws a bar for each group. "
+             "The bar's height is how many landed in that group — and on this board, "
+             "each bar carries its count printed above it.",
+             '[[goal text="Add the bars"]][[histogram values="5,5,5,15,15,15,15,25,25" caption="a bar for each group, its count printed on top"]]'),
+        ],
+        "picture": [
+            ("Here is a histogram with three bars, and a count printed on each: 3, 4 "
+             "and 2. Look at what the bars hide — you never see the values themselves, "
+             "only how many landed in each group. The whole is every group put "
+             "together.",
+             '[[histogram values="5,5,5,15,15,15,15,25,25" caption="three groups — 3, 4 and 2 landed in them"]]'),
+        ],
         "teach": [
-            ["When there are too many values for one dot each, a histogram sorts them into groups and draws a bar for each group. The bar's height is how many landed in that group — and on this board, each bar carries its count printed above it.",
-             '[[goal text="Add the bars"]][[histogram values="5,5,5,15,15,15,15,25,25" caption="how many land in each range"]]'],
-            ["To find how many values there are in all, add the bars: 3 plus 4 plus 2 equals 9 values. A histogram never shows you the values themselves — it shows you how many landed in each group, and adding those counts brings them all back.",
-             '[[step eq="3 + 4 + 2 = 9 values in all"]]'],
-            ["Two easy misreads. The tallest bar, 4, is only the biggest group — it is not the whole. And counting the bars themselves gives 3, which is how many GROUPS there are, not how many values. Add the heights, always.",
-             '[[step eq="9 ✓"]][[step eq="4 ✗ tallest group · 3 ✗ number of groups"]]'],
+            ("That is the method: to find how many values there are in all, add the "
+             "bars. 3 plus 4 plus 2 equals 9 values. A histogram never shows you the "
+             "values themselves — adding the counts brings them all back.",
+             '[[histogram values="5,5,5,15,15,15,15,25,25" caption="3 + 4 + 2 = 9 in all"]][[step eq="3 + 4 + 2 = 9 values in all"]]'),
+            ("Two easy misreads. The tallest bar, 4, is only the biggest group — it "
+             "is not the whole. And counting the bars themselves gives 3, which is how "
+             "many GROUPS there are, not how many values. Add the heights, always.",
+             '[[step eq="9 ✓"]][[step eq="4 ✗ tallest group · 3 ✗ number of groups"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Bars of 4, 4 and 4: adding them gives 12 values in all.",
-                        '[[step eq="4 + 4 + 4 = 12"]]'],
-             "ask": {"a": 9, "b": 8, "c": 5, "op": "htot"}},
-            {"worked": ["One more together. Bars of 5, 5 and 5 add up to 15 values.",
-                        '[[step eq="5 + 5 + 5 = 15"]]'],
-             "ask": {"a": 7, "b": 6, "c": 8, "op": "htot"}},
+            {"worked": ("Here is one more, done for you. Bars of 4, 4 and 4: adding them "
+                        "gives 12 values in all.",
+                        '[[histogram values="5,5,5,5,15,15,15,15,25,25,25,25" caption="4 + 4 + 4 = 12"]][[step eq="4 + 4 + 4 = 12"]]'),
+             "ask": {'a': 9, 'b': 8, 'c': 5, 'op': 'htot'}},
+            {"worked": ("One more together. Bars of 5, 5 and 5 add up to 15 values.",
+                        '[[histogram values="5,5,5,5,5,15,15,15,15,15,25,25,25,25,25" caption="5 + 5 + 5 = 15"]][[step eq="5 + 5 + 5 = 15"]]'),
+             "ask": {'a': 7, 'b': 6, 'c': 8, 'op': 'htot'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Bars of 3, 4 and 2 "
+                       "show 9 values in all. Tap the reason why."),
+            "choices": ("because the groups add up to the whole | because the tallest bar "
+                        "is the whole | because the number of bars is the number of "
+                        "values"),
+            "answer": "because the groups add up to the whole",
+            "board": '[[histogram values="5,5,5,15,15,15,15,25,25" caption="3 + 4 + 2 = 9"]]',
+        },
+        "recap": [
+            ("So, here it is again. A histogram sorts values into groups and prints "
+             "each group's count on its bar; how many in all is every bar added. The "
+             "tallest bar is only the biggest group, and the number of bars is only the "
+             "number of groups.",
+             '[[histogram values="5,5,5,15,15,15,15,25,25" caption="add every bar"]]'),
+            ("And that is the values, brought back from their groups.",
+             '[[step eq="3 + 4 + 2 = 9"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 4, "c": 3, "op": "htot"},
             {"a": 3, "b": 4, "c": 4, "op": "htot"},
@@ -21266,24 +21409,64 @@ _PROBSTAT_U1 = [
         "op": "farv", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("outlier", "cluster"),
-        "advance_line": "Three in a row — you've got it! The outlier is the value sitting alone, far from the crowd.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The outlier is the value sitting alone, far from the crowd.",
+        "why": [
+            ("Why hunt for the stray? Algebra One showed what one unusual value does "
+             "to a mean — it drags it. Before you can watch for that, you have to SPOT "
+             "the stray. On a dot plot it is obvious: nearly every dot huddles in one "
+             "cluster, and one sits out on its own with a gap between.",
+             '[[goal text="The one that sits alone"]]'),
+        ],
+        "picture": [
+            ("Here is a dot plot of minutes taken, one dot per student. Look at the "
+             "crowd huddled between 6 and 9 — and then look at the empty stretch to "
+             "the right of it, and the single dot out at 26 with nobody near it. That "
+             "lonely dot is the one we want.",
+             '[[dotplot values="6,7,7,8,8,9,26" caption="a crowd from 6 to 9, a gap, and one dot alone at 26"]]'),
+        ],
         "teach": [
-            ["Algebra One showed what one unusual value does to a mean — it drags it. Before you can watch for that, you have to SPOT the stray. On a dot plot it is obvious: nearly every dot huddles in one cluster, and one sits out on its own with a gap between.",
-             '[[goal text="The one that sits alone"]][[dotplot values="6,7,7,8,8,9,26" caption="one dot per value — spot the stacks"]]'],
-            ["That lonely dot is called an outlier, and here it sits at 26 while the crowd huddles between 6 and 9. The outlier is the VALUE it sits above — 26 — the same way the mode was the value under its stack.",
-             '[[step eq="crowd 6 to 9 · stray at 26 → outlier = 26"]]'],
-            ["Two things not to hand back. 7, where the crowd is thickest, is the mode — a different question. And 20, the size of the gap, tells you how far out the stray is, not what it is. Point at the lonely dot and read the number below it.",
-             '[[step eq="26 ✓"]][[step eq="7 ✗ the crowd · 20 ✗ the gap"]]'],
+            ("That is the method. That lonely dot is called an outlier, and here it "
+             "sits at 26 while the crowd huddles between 6 and 9. The outlier is the "
+             "VALUE it sits above — 26 — the same way the mode was the value under its "
+             "stack.",
+             '[[dotplot values="6,7,7,8,8,9,26" caption="the stray sits above 26 — the outlier is 26"]][[step eq="crowd 6 to 9 · stray at 26"]][[step eq="outlier = 26"]]'),
+            ("Two things not to hand back. 7, where the crowd is thickest, is the "
+             "mode — a different question. And 20, the size of the gap, tells you how "
+             "far out the stray is, not what it is. Point at the lonely dot and read "
+             "the number below it.",
+             '[[step eq="26 ✓"]][[step eq="7 ✗ the crowd · 20 ✗ the gap"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The crowd sits near 10 and one dot is stranded at 30 — the outlier is 30.",
-                        '[[dotplot values="9,10,10,11,11,12,30" caption="one dot per value — spot the stacks"]]'],
-             "ask": {"a": 15, "b": 38, "op": "farv"}},
-            {"worked": ["One more together. A crowd around 13 with one stray far out at 35: the outlier is 35.",
-                        '[[dotplot values="12,13,13,14,14,15,35" caption="one dot per value — spot the stacks"]]'],
-             "ask": {"a": 12, "b": 37, "op": "farv"}},
+            {"worked": ("Here is one more, done for you. The crowd sits near 10 and one "
+                        "dot is stranded at 30 — the outlier is 30.",
+                        '[[dotplot values="9,10,10,11,11,12,30" caption="the crowd near 10; the stray at 30"]][[step eq="outlier = 30"]]'),
+             "ask": {'a': 15, 'b': 38, 'op': 'farv'}},
+            {"worked": ("One more together. A crowd around 13 with one stray far out at "
+                        "35: the outlier is 35.",
+                        '[[dotplot values="12,13,13,14,14,15,35" caption="the crowd near 13; the stray at 35"]][[step eq="outlier = 35"]]'),
+             "ask": {'a': 12, 'b': 37, 'op': 'farv'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. On the plot with a "
+                       "crowd from 6 to 9, the outlier is 26. Tap the reason why."),
+            "choices": ("because 26 sits under the dot far from the crowd | because the "
+                        "outlier is the value where the crowd is thickest | because the "
+                        "outlier is the size of the gap"),
+            "answer": "because 26 sits under the dot far from the crowd",
+            "board": '[[dotplot values="6,7,7,8,8,9,26" caption="the one that sits alone"]]',
+        },
+        "recap": [
+            ("So, here it is again. An outlier is the value sitting alone, far from "
+             "the crowd, with a gap between — read the number under that lonely dot. "
+             "Never hand back the crowd's value, and never hand back the size of the "
+             "gap.",
+             '[[dotplot values="6,7,7,8,8,9,26" caption="the value under the lonely dot"]]'),
+            ("And that is the stray, spotted before it drags anything.",
+             '[[step eq="crowd 6 to 9 · outlier = 26"]]'),
+        ],
         "bank": [
             {"a": 5, "b": 17, "op": "farv"},
             {"a": 9, "b": 21, "op": "farv"},
@@ -21315,24 +21498,64 @@ _PROBSTAT_U2 = [
         "op": "medv", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("median", "middles"),
-        "advance_line": "Three in a row — you've got it! Two middles — the median sits halfway between them.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Two middles — the median sits halfway between them.",
+        "why": [
+            ("Why is there no single middle? Algebra One found the median of an odd "
+             "list: count in from both ends and one number is left standing. Unit Two "
+             "starts with the case that has no single middle at all — an even count, "
+             "where counting in from both ends leaves TWO numbers facing each other.",
+             '[[goal text="No single middle"]][[step eq="2, 4, | 6, 8 | , 10, 12"]]'),
+        ],
+        "picture": [
+            ("Here are six numbers on a dot plot: 2, 4, 6, 8, 10, 12. Count in from "
+             "both ends — two from the left, two from the right. Look at what is left: "
+             "6 and 8, two dots facing each other across a gap with nothing standing "
+             "in it. The median lives in that gap.",
+             '[[dotplot values="2,4,6,8,10,12" caption="six numbers — count in from both ends and two middles face each other"]]'),
+        ],
         "teach": [
-            ["Algebra One found the median of an odd list: count in from both ends and one number is left standing. Unit Two starts with the case that has no single middle at all — an even count, where counting in from both ends leaves TWO numbers facing each other.",
-             '[[goal text="No single middle"]][[step eq="4, 6, | 8, 10 | , 12, 14"]]'],
-            ["Take 4, 6, 8, 10, 12, 14 — six numbers, so three sit either side and the middles are 8 and 10. The median is halfway between them: add and halve, 8 plus 10 is 18, halved is 9. The median of an even list often is not in the list at all.",
-             '[[step eq="middles 8 and 10 → (8 + 10) ÷ 2 = 9"]]'],
-            ["Neither middle on its own will do. Answering 8 takes the lower one and 10 takes the upper, and both leave half the data unbalanced — 9 is the only number with three below it and three above. Find both middles, then go halfway.",
-             '[[step eq="9 ✓"]][[step eq="8 ✗ lower middle · 10 ✗ upper middle"]]'],
+            ("That is the method: find both middles, then go halfway. Take 2, 4, 6, 8, "
+             "10, 12 — six numbers, so three sit either side and the middles are 6 and "
+             "8. Add and halve: 6 plus 8 is 14, halved is 7. The median of an even "
+             "list often is not in the list at all.",
+             '[[numberline min="1" max="13" points="6,8" mid="7" caption="the two middles, 6 and 8 — halfway between them is 7"]][[step eq="middles 6 and 8"]][[step eq="(6 + 8) ÷ 2 = 7"]]'),
+            ("Neither middle on its own will do. Answering 6 takes the lower one and 8 "
+             "takes the upper, and both leave half the data unbalanced — 7 is the only "
+             "number with three below it and three above. Find both middles, then go "
+             "halfway.",
+             '[[step eq="7 ✓"]][[step eq="6 ✗ lower middle · 8 ✗ upper middle"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 7, 9, 11, 13, 15, 17: the middles are 11 and 13, so the median is 12.",
-                        '[[step eq="(11 + 13) ÷ 2 = 12"]]'],
-             "ask": {"a": 3, "b": 23, "op": "medv"}},
-            {"worked": ["One more together. With middles of 18 and 20: 18 plus 20 is 38, halved — the median is 19.",
-                        '[[step eq="(18 + 20) ÷ 2 = 19"]]'],
-             "ask": {"a": 2, "b": 22, "op": "medv"}},
+            {"worked": ("Here is one more, done for you. 9, 11, 13, 15, 17, 19: the "
+                        "middles are 13 and 15, so the median is 14.",
+                        '[[numberline min="8" max="20" points="13,15" mid="14" caption="middles 13 and 15 — halfway is 14"]][[step eq="(13 + 15) ÷ 2 = 14"]]'),
+             "ask": {'a': 3, 'b': 23, 'op': 'medv'}},
+            {"worked": ("One more together. With middles of 9 and 11: 9 plus 11 is 20, "
+                        "halved — the median is 10.",
+                        '[[numberline min="4" max="16" points="9,11" mid="10" caption="middles 9 and 11 — halfway is 10"]][[step eq="(9 + 11) ÷ 2 = 10"]]'),
+             "ask": {'a': 2, 'b': 22, 'op': 'medv'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The median of 2, 4, "
+                       "6, 8, 10, 12 is 7. Tap the reason why."),
+            "choices": ("because 7 is halfway between the two middles, 6 and 8 | because "
+                        "the median is the lower of the two middles | because the median "
+                        "is the upper of the two middles"),
+            "answer": "because 7 is halfway between the two middles, 6 and 8",
+            "board": '[[numberline min="1" max="13" points="6,8" mid="7" caption="halfway between the two middles"]]',
+        },
+        "recap": [
+            ("So, here it is again. An even list has no single middle: count in from "
+             "both ends, find the two middles facing each other, and the median is "
+             "halfway between them — add and halve. Never take the lower middle "
+             "alone, and never the upper.",
+             '[[dotplot values="2,4,6,8,10,12" caption="two middles — the median sits halfway between them"]]'),
+            ("And that is a median that is not in the list.",
+             '[[step eq="(6 + 8) ÷ 2 = 7"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 4, "op": "medv"},
             {"a": 2, "b": 7, "op": "medv"},
@@ -21353,24 +21576,65 @@ _PROBSTAT_U2 = [
         "op": "iqrw", "max_value": 60,
         "levels": ("abstract",),
         "symbols": ("box", "whiskers"),
-        "advance_line": "Three in a row — you've got it! The box is the middle half — take one edge away from the other.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The box is the middle half — take one edge away from the other.",
+        "why": [
+            ("Why a box? A box plot draws five numbers: the smallest, the biggest, "
+             "the median in the middle, and two more that cut the data into quarters. "
+             "The box spans the middle two quarters — the middle HALF of everything — "
+             "and the whiskers reach out to the extremes.",
+             '[[goal text="The middle half"]]'),
+        ],
+        "picture": [
+            ("Here is a box plot. Look at its three parts: a whisker reaching out "
+             "left to 4, the box in the middle from 10 to 20 with the median line "
+             "inside it, and a whisker reaching right to 26. The box is the calm "
+             "middle half; the whiskers are the wild ends.",
+             '[[boxplot five="4,10,15,20,26" caption="five numbers drawn as a box — the box runs 10 to 20"]]'),
+        ],
         "teach": [
-            ["A box plot draws five numbers: the smallest, the biggest, the median in the middle, and two more that cut the data into quarters. The box spans the middle two quarters — the middle HALF of everything — and the whiskers reach out to the extremes.",
-             '[[goal text="The middle half"]][[boxplot five="4,10,15,20,26" caption="five numbers drawn as a box"]]'],
-            ["This box runs from 10 to 20, so the middle half of the data lies between them: its width is 20 take away 10 — 10. Statisticians lean on that width because the wild extremes cannot touch it; whatever the whiskers do, the box holds the calm middle.",
-             '[[step eq="box: 10 to 20 → width 10"]]'],
-            ["Do not measure the whiskers by mistake. Tip to tip is 4 out to 26 — a stretch of 22, the whole range, which one strange value can blow wide open. And 20 alone is just the box's right edge. Two edges, one take-away.",
-             '[[step eq="10 ✓ the box"]][[step eq="22 ✗ whisker to whisker · 20 ✗ one edge"]]'],
+            ("That is the method: two edges, one take-away. This box runs from 10 to "
+             "20, so the middle half of the data lies between them: its width is 20 "
+             "take away 10 — 10. Statisticians lean on that width because the wild "
+             "extremes cannot touch it.",
+             '[[boxplot five="4,10,15,20,26" caption="the box runs 10 to 20 — 10 wide"]][[step eq="box: 10 to 20"]][[step eq="20 − 10 = 10"]]'),
+            ("Do not measure the whiskers by mistake. Tip to tip is 4 out to 26 — a "
+             "stretch of 22, the whole range, which one strange value can blow wide "
+             "open. And 20 alone is just the box\'s right edge. Two edges, one "
+             "take-away.",
+             '[[step eq="10 ✓ the box"]][[step eq="22 ✗ whisker to whisker · 20 ✗ one edge"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A box from 12 to 24: the middle half is 24 take away 12 — 12 wide.",
-                        '[[boxplot five="8,12,18,24,28" caption="five numbers drawn as a box"]]'],
-             "ask": {"a": 14, "b": 34, "c": 6, "op": "iqrw"}},
-            {"worked": ["One more together. This box runs 15 to 27: 27 take away 15 — 12 wide as well, however far its whiskers reach.",
-                        '[[boxplot five="9,15,21,27,33" caption="five numbers drawn as a box"]]'],
-             "ask": {"a": 23, "b": 41, "c": 6, "op": "iqrw"}},
+            {"worked": ("Here is one more, done for you. A box from 12 to 24: the middle "
+                        "half is 24 take away 12 — 12 wide.",
+                        '[[boxplot five="8,12,18,24,28" caption="the box runs 12 to 24 — 12 wide"]][[step eq="24 − 12 = 12"]]'),
+             "ask": {'a': 14, 'b': 34, 'c': 6, 'op': 'iqrw'}},
+            {"worked": ("One more together. This box runs 15 to 27: 27 take away 15 — 12 "
+                        "wide as well, however far its whiskers reach.",
+                        '[[boxplot five="9,15,21,27,33" caption="the box runs 15 to 27 — 12 wide"]][[step eq="27 − 15 = 12"]]'),
+             "ask": {'a': 23, 'b': 41, 'c': 6, 'op': 'iqrw'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. On the box plot whose "
+                       "box runs 10 to 20, the middle half is 10 wide. Tap the reason "
+                       "why."),
+            "choices": ("because the box is the middle half, edge to edge | because the "
+                        "middle half runs from whisker to whisker | because the width of "
+                        "the box is its right edge"),
+            "answer": "because the box is the middle half, edge to edge",
+            "board": '[[boxplot five="4,10,15,20,26" caption="20 − 10 = 10"]]',
+        },
+        "recap": [
+            ("So, here it is again. The box of a box plot is the middle half of the "
+             "data, and its width is one edge taken away from the other. Never "
+             "measure whisker to whisker — that is the whole range — and never hand "
+             "back one edge as the width.",
+             '[[boxplot five="4,10,15,20,26" caption="the box is the middle half"]]'),
+            ("And that is the calm middle, measured.",
+             '[[step eq="20 − 10 = 10"]]'),
+        ],
         "bank": [
             {"a": 5, "b": 9, "c": 2, "op": "iqrw"},
             {"a": 22, "b": 26, "c": 2, "op": "iqrw"},
@@ -21391,24 +21655,64 @@ _PROBSTAT_U2 = [
         "op": "madv", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("distance", "spread"),
-        "advance_line": "Three in a row — you've got it! Add the four distances, then share them out.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Add the four distances, then share them out.",
+        "why": [
+            ("Why measure spread? Two sets can share a mean and look nothing alike: "
+             "19, 20, 21 huddles, while 5, 20, 35 sprawls. To describe that difference "
+             "you measure spread — and the plainest measure asks how far a number "
+             "sits from the mean, on average.",
+             '[[goal text="How far from the middle"]][[dotplot values="19,20,21" caption="a huddle around 20"]][[dotplot values="5,20,35" caption="a sprawl around the same 20"]]'),
+        ],
+        "picture": [
+            ("Here are four numbers on a dot plot — 11, 17, 23, 29 — with their mean "
+             "at 20 in the middle. Look at how far each dot sits from 20: the outer "
+             "two far, the inner two close. Those four distances are what we average.",
+             '[[dotplot values="11,17,23,29" caption="four numbers, their mean at 20 — how far does each sit from it?"]]'),
+        ],
         "teach": [
-            ["Two sets can share a mean and look nothing alike: 19, 20, 21 huddles, while 5, 20, 35 sprawls. To describe that difference you measure spread — and the plainest measure asks how far a number sits from the mean, on average.",
-             '[[goal text="How far from the middle"]][[dotplot values="19,20,21" caption="one dot per value — spot the stacks"]][[step eq="same mean, very different spread"]]'],
-            ["Take 11, 17, 23, 29, whose mean is 20. Their distances from 20 are 9, 3, 3 and 9 — never mind which side, distance has no sign. Put them together for 24, then share between the four numbers: each sits 6 from the mean, on average.",
-             '[[step eq="9 + 3 + 3 + 9 = 24"]] [[step eq="24 ÷ 4 = 6"]]'],
-            ["The two temptations are the extremes. The farthest number is 9 away and the nearest only 3, so an average distance of 6 sits between them — as an average must. Square these distances instead of averaging them and you get variance, which is another unit's business.",
-             '[[step eq="6 ✓"]][[step eq="9 ✗ the farthest · 3 ✗ the nearest"]]'],
+            ("That is the method. The distances from 20 are 9, 3, 3 and 9 — never "
+             "mind which side, distance has no sign. Put them together for 24, then "
+             "share between the four numbers: each sits 6 from the mean, on average.",
+             '[[bars data="11:9 | 17:3 | 23:3 | 29:9" caption="the four distances — 24 in all, shared four ways: 6"]][[step eq="9 + 3 + 3 + 9 = 24"]] [[step eq="24 ÷ 4 = 6"]]'),
+            ("The two temptations are the extremes. The farthest number is 9 away and "
+             "the nearest only 3, so an average distance of 6 sits between them — as "
+             "an average must. Square these distances instead and you get variance, "
+             "which is another unit\'s business.",
+             '[[step eq="6 ✓"]][[step eq="9 ✗ the farthest · 3 ✗ the nearest"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 2, 12, 22, 32 have a mean of 17 and distances of 15, 5, 5, 15 — put together 40, shared four ways: 10.",
-                        '[[step eq="40 ÷ 4 = 10"]]'],
-             "ask": {"a": 24, "b": 6, "op": "madv"}},
-            {"worked": ["One more together. 10, 18, 26, 34: mean 22, distances 12, 4, 4, 12 — put together 32, shared four ways: 8.",
-                        '[[step eq="(12 + 4 + 4 + 12) ÷ 4 = 8"]]'],
-             "ask": {"a": 29, "b": 5, "op": "madv"}},
+            {"worked": ("Here is one more, done for you. 2, 12, 22, 32 have a mean of 17 "
+                        "and distances of 15, 5, 5, 15 — put together 40, shared four "
+                        "ways: 10.",
+                        '[[bars data="2:15 | 12:5 | 22:5 | 32:15" caption="40 in all, shared four ways: 10"]][[step eq="40 ÷ 4 = 10"]]'),
+             "ask": {'a': 24, 'b': 6, 'op': 'madv'}},
+            {"worked": ("One more together. 10, 18, 26, 34: mean 22, distances 12, 4, 4, "
+                        "12 — put together 32, shared four ways: 8.",
+                        '[[bars data="10:12 | 18:4 | 26:4 | 34:12" caption="32 in all, shared four ways: 8"]][[step eq="(12 + 4 + 4 + 12) ÷ 4 = 8"]]'),
+             "ask": {'a': 29, 'b': 5, 'op': 'madv'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. For 11, 17, 23, 29 "
+                       "with a mean of 20, the average distance is 6. Tap the reason "
+                       "why."),
+            "choices": ("because the four distances add to 24, shared four ways | because "
+                        "the average distance is the farthest one | because the average "
+                        "distance is the nearest one"),
+            "answer": "because the four distances add to 24, shared four ways",
+            "board": '[[bars data="11:9 | 17:3 | 23:3 | 29:9" caption="24 ÷ 4 = 6"]]',
+        },
+        "recap": [
+            ("So, here it is again. Spread is how far the numbers sit from the mean, "
+             "on average: measure each distance without a sign, add them, then share "
+             "them out. The answer sits between the nearest and the farthest — never "
+             "one of those extremes.",
+             '[[dotplot values="11,17,23,29" caption="add the four distances, then share them out"]]'),
+            ("And that is spread, in plain clothes.",
+             '[[step eq="(9 + 3 + 3 + 9) ÷ 4 = 6"]]'),
+        ],
         "bank": [
             {"a": 8, "b": 2, "op": "madv"},
             {"a": 14, "b": 2, "op": "madv"},
@@ -21429,24 +21733,66 @@ _PROBSTAT_U2 = [
         "op": "pctl", "max_value": 90,
         "levels": ("abstract",),
         "symbols": ("percentile", "percent"),
-        "advance_line": "Three in a row — you've got it! A percentile is a percent of the group, not a count of people.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A percentile is a percent of the group, not a count of people.",
+        "why": [
+            ("Why a percent, not a person? A last way to place one value inside a "
+             "distribution: say what percent of the others it beat. That is a "
+             "percentile. Finishing at the 80th percentile means faster than 80 "
+             "percent of the racers you were measured against — nothing more, "
+             "nothing less.",
+             '[[goal text="A percent, not a person"]][[step eq="80th percentile → faster than 80% of them"]]'),
+        ],
+        "picture": [
+            ("Here is the 80th percentile as a hundred square: 80 of every 100 "
+             "shaded. Look at what the square does NOT say — it never says how many "
+             "racers there were. The percentile is the shading; the headcount comes "
+             "only when you know the size of the group.",
+             '[[hundredgrid shaded="80" unit="percent" eq="80th percentile: 80%" caption="80 of every 100 — the group\'s size is a separate fact"]]'),
+        ],
         "teach": [
-            ["A last way to place one value inside a distribution: say what percent of the others it beat. That is a percentile. Sitting at the 80th percentile means you scored higher than 80 percent of the people you were measured against — nothing more, nothing less.",
-             '[[goal text="A percent, not a person"]][[step eq="80th percentile → higher than 80% of them"]]'],
-            ["Turn it into people by taking that percent of the group. Sit a test with 20 others at the 80th percentile: 80 percent of 20 is 16, so you beat 16 of them and 4 scored above you. The percentile never changes, but the headcount depends on the group.",
-             '[[step eq="80% of 20 = 16 beaten · 4 above"]]'],
-            ["Two mix-ups to dodge. The 80 is a percent, not 80 people — among 20 others there are not 80 anybody. And 4 answers the opposite question, how many finished ahead of you. Take the percent of the group, and read which side was asked for.",
-             '[[step eq="16 ✓"]][[step eq="80 ✗ that is the percent · 4 ✗ the other side"]]'],
+            ("That is the method: turn it into people by taking that percent of the "
+             "group. A runner races 20 others and finishes at the 80th percentile: 80 "
+             "percent of 20 is 16, so she beat 16 of them and 4 finished ahead. The "
+             "percentile never changes, but the headcount depends on the group.",
+             '[[bars data="beaten:16 | ahead of her:4" caption="80% of 20 = 16 beaten, 4 ahead"]][[step eq="80% of 20 = 16 beaten · 4 ahead"]]'),
+            ("Two mix-ups to dodge. The 80 is a percent, not 80 people — among 20 "
+             "racers there are not 80 anybody. And 4 answers the opposite question, "
+             "how many finished ahead. Take the percent of the group, and read which "
+             "side was asked for.",
+             '[[step eq="16 ✓"]][[step eq="80 ✗ that is the percent · 4 ✗ the other side"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Sit with 60 others at the 25th percentile: a quarter of 60 is 15 of them beaten.",
-                        '[[step eq="25% of 60 = 15"]]'],
-             "ask": {"a": 40, "b": 85, "op": "pctl"}},
-            {"worked": ["One more together. With 30 others at the 90th percentile: 90 percent of 30 is 27.",
-                        '[[step eq="90% of 30 = 27"]]'],
-             "ask": {"a": 40, "b": 75, "op": "pctl"}},
+            {"worked": ("Here is one more, done for you. A swimmer against 60 others at "
+                        "the 25th percentile: a quarter of 60 is 15 of them beaten.",
+                        '[[bars data="beaten:15 | ahead:45" caption="25% of 60 = 15"]][[step eq="25% of 60 = 15"]]'),
+             "ask": {'a': 40, 'b': 85, 'op': 'pctl'}},
+            {"worked": ("One more together. Against 30 others at the 90th percentile: 90 "
+                        "percent of 30 is 27.",
+                        '[[bars data="beaten:27 | ahead:3" caption="90% of 30 = 27"]][[step eq="90% of 30 = 27"]]'),
+             "ask": {'a': 40, 'b': 75, 'op': 'pctl'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. At the 80th "
+                       "percentile among 20 others, a runner beat 16 of them. Tap the "
+                       "reason why."),
+            "choices": ("because a percentile is a percent of the group | because the "
+                        "80th percentile means 80 racers were beaten | because the "
+                        "percentile counts the racers ahead"),
+            "answer": "because a percentile is a percent of the group",
+            "board": '[[bars data="beaten:16 | ahead of her:4" caption="a percent of the group"]]',
+        },
+        "recap": [
+            ("So, here it is again. A percentile is a percent of the group, not a "
+             "count of people: take that percent of the group\'s size for the "
+             "headcount, and read which side was asked for. Never hand back the "
+             "percent as people, and never the other side.",
+             '[[hundredgrid shaded="80" unit="percent" eq="80th percentile: 80%" caption="a percent, not a person"]]'),
+            ("And that is one value, placed inside its distribution.",
+             '[[step eq="80% of 20 = 16"]]'),
+        ],
         "bank": [
             {"a": 20, "b": 10, "op": "pctl"},
             {"a": 50, "b": 10, "op": "pctl"},
@@ -21480,24 +21826,64 @@ _PROBSTAT_U3 = [
         "op": "spnt", "max_value": 50,
         "levels": ("abstract",),
         "symbols": ("scatterplot", "dot"),
-        "advance_line": "Three in a row — you've got it! Across for the hours, up for the points.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Across for the hours, up for the points.",
+        "why": [
+            ("Why two numbers on one dot? Every plot so far showed ONE measurement. A "
+             "scatterplot shows two at once: each dot is one student, placed across "
+             "by hours practiced and up by points scored. That pairing is what lets "
+             "you see whether practice and points travel together.",
+             '[[goal text="One dot, two numbers"]]'),
+        ],
+        "picture": [
+            ("Here is a scatterplot of six students. Look at any one dot: slide "
+             "straight down from it and you land on the hours along the bottom; slide "
+             "straight across from it and you land on the points up the side. One "
+             "dot, two numbers — and the cloud rises from left to right.",
+             '[[scatter points="(2,12),(4,22),(6,31),(8,41),(10,50),(12,62)" caption="each dot is one student — hours across, points up"]]'),
+        ],
         "teach": [
-            ["Every plot so far showed ONE measurement. A scatterplot shows two at once: each dot is one child, placed across by hours practiced and up by points scored. One dot, two numbers — and that pairing is what lets you see whether practice and points travel together.",
-             '[[goal text="One dot, two numbers"]][[scatter points="(2,8),(4,16),(6,19),(8,27),(10,30),(12,38)" caption="each dot is one pair"]]'],
-            ["To read a child, find their hours along the bottom, go straight up until you meet their dot, then straight across to the side. The child at 8 hours sits level with 27 — so 27 points. Across first, then up, then across again.",
-             '[[step eq="8 hours → up to the dot → across → 27 points"]]'],
-            ["The mix-up to avoid is answering with the number you were GIVEN. 8 is the hours, and hours live across the bottom; the points live up the side. And it is easy to land on the dot next door — 30 belongs to the child who practiced 10 hours, not 8.",
-             '[[step eq="27 ✓"]][[step eq="8 ✗ that is the hours · 30 ✗ the next dot"]]'],
+            ("That is the method: across first, then up, then across again. To read "
+             "a student, find their hours along the bottom, go straight up until you "
+             "meet their dot, then straight across to the side. The student at 8 hours "
+             "sits level with 41 — so 41 points.",
+             '[[scatter points="(2,12),(4,22),(6,31),(8,41),(10,50),(12,62)" caption="8 along the bottom, up to the dot, across to 41"]][[step eq="8 hours → up to the dot → across → 41 points"]]'),
+            ("The mix-up to avoid is answering with the number you were GIVEN. 8 is "
+             "the hours, and hours live across the bottom; the points live up the "
+             "side. And it is easy to land on the dot next door — 50 belongs to the "
+             "student who practiced 10 hours, not 8.",
+             '[[step eq="41 ✓"]][[step eq="8 ✗ that is the hours · 50 ✗ the next dot"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. This child practiced 8 hours: go up to the dot, across to the side — 35 points.",
-                        '[[scatter points="(2,10),(4,20),(6,25),(8,35),(10,40),(12,50)" caption="each dot is one pair"]]'],
-             "ask": {"a": 12, "b": 0, "c": 2, "op": "spnt"}},
-            {"worked": ["One more together. On a gentler plot, the child at 6 hours sits level with 13 points.",
-                        '[[scatter points="(2,6),(4,12),(6,13),(8,19),(10,20),(12,26)" caption="each dot is one pair"]]'],
-             "ask": {"a": 10, "b": 0, "c": 3, "op": "spnt"}},
+            {"worked": ("Here is one more, done for you. This student practiced 8 hours: "
+                        "go up to the dot, across to the side — 35 points.",
+                        '[[scatter points="(2,10),(4,20),(6,25),(8,35),(10,40),(12,50)" caption="the dot at 8 hours sits level with 35"]][[step eq="8 hours · up · across = 35 points"]]'),
+             "ask": {'a': 12, 'b': 0, 'c': 2, 'op': 'spnt'}},
+            {"worked": ("One more together. On a gentler plot, the student at 6 hours "
+                        "sits level with 13 points.",
+                        '[[scatter points="(2,6),(4,12),(6,13),(8,19),(10,20),(12,26)" caption="the dot at 6 hours sits level with 13"]][[step eq="6 hours · up · across = 13 points"]]'),
+             "ask": {'a': 10, 'b': 0, 'c': 3, 'op': 'spnt'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. On the plot, the "
+                       "student at 8 hours scored 41 points. Tap the reason why."),
+            "choices": ("because the dot above 8 sits level with 41 on the side | because "
+                        "the hours are the points | because the nearest dot to the right "
+                        "gives the points"),
+            "answer": "because the dot above 8 sits level with 41 on the side",
+            "board": '[[scatter points="(2,12),(4,22),(6,31),(8,41),(10,50),(12,62)" caption="across, up, across"]]',
+        },
+        "recap": [
+            ("So, here it is again. Each dot on a scatterplot carries two numbers: "
+             "find the given one along the bottom, go straight up to the dot, then "
+             "straight across to the side for the other. Never hand back the number "
+             "you were given, and never read the dot next door.",
+             '[[scatter points="(2,12),(4,22),(6,31),(8,41),(10,50),(12,62)" caption="one dot, two numbers"]]'),
+            ("And that is two measurements, seen together.",
+             '[[step eq="8 hours → up → across → 41 points"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 0, "c": 2, "op": "spnt"},
             {"a": 2, "b": 0, "c": 3, "op": "spnt"},
@@ -21518,24 +21904,63 @@ _PROBSTAT_U3 = [
         "op": "sslp", "max_value": 81,
         "levels": ("abstract",),
         "symbols": ("slope", "per"),
-        "advance_line": "Three in a row — you've got it! The slope is points per hour — times the hours.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The slope is points per hour — times the hours.",
+        "why": [
+            ("Why is a slope a rate? Draw the single straight line that runs best "
+             "through a scatter cloud and you have a best-fit line. Algebra One "
+             "measured a line\'s slope as its climb per step. Here that climb MEANS "
+             "something: points per extra hour of practice.",
+             '[[goal text="The slope is a rate"]]'),
+        ],
+        "picture": [
+            ("Here is a scatter cloud with its best-fit line drawn through it. Look "
+             "at the line, not the dots: for every hour you move to the right, the "
+             "line climbs the same number of points. That steady climb per hour is "
+             "the slope — a rate, ready to be timesed by however many hours.",
+             '[[scatter points="(2,11),(4,17),(6,26),(8,34),(10,41),(12,51)" fit="true" caption="the best-fit line climbs 4 for every extra hour"]]'),
+        ],
         "teach": [
-            ["Draw the single straight line that runs best through a scatter cloud and you have a best-fit line. Algebra One measured a line's slope as its climb per step. Here that climb MEANS something: points per extra hour of practice.",
-             '[[goal text="The slope is a rate"]][[scatter points="(2,8),(4,16),(6,19),(8,27),(10,30),(12,38)" fit="true" caption="each dot is one pair — with the best-fit line"]]'],
-            ["Say the slope is 4 — four more points for each extra hour. Then two extra hours are worth 4 twice: 8 points. Ten extra hours would be worth 40. A slope is a rate, so it multiplies by however many steps you take.",
-             '[[step eq="4 points per hour × 2 hours = 8 points"]]'],
-            ["Two slips. Answering 4 gives ONE hour's worth when the question asked about two. And adding — 4 plus 2 — treats a rate as though it were a total. Times the rate by the steps, every time.",
-             '[[step eq="8 ✓"]][[step eq="4 ✗ one hour only · 6 ✗ added"]]'],
+            ("That is the method: times the rate by the steps. Say the slope is 4 — "
+             "four more points for each extra hour. Then two extra hours are worth 4 "
+             "twice: 8 points. Ten extra hours would be worth 40. A slope is a rate, "
+             "so it multiplies by however many steps you take.",
+             '[[graph lines="y=4x" names="4 points per hour" points="(2,8),(10,40)" range="0..12" yrange="0..50" caption="4 per hour — 2 hours up is 8, 10 hours up is 40"]][[step eq="4 points per hour × 2 hours = 8 points"]]'),
+            ("Two slips. Answering 4 gives ONE hour\'s worth when the question asked "
+             "about two. And adding — 4 plus 2 — treats a rate as though it were a "
+             "total. Times the rate by the steps, every time.",
+             '[[step eq="8 ✓"]][[step eq="4 ✗ one hour only · 6 ✗ added"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A slope of 7 points per hour, over 5 extra hours: 7 times 5 — 35 more points.",
-                        '[[step eq="7 × 5 = 35"]]'],
-             "ask": {"a": 7, "b": 7, "op": "sslp"}},
-            {"worked": ["One more together. 5 points per hour over 8 hours: 5 times 8 — 40 more points.",
-                        '[[step eq="5 × 8 = 40"]]'],
-             "ask": {"a": 5, "b": 9, "op": "sslp"}},
+            {"worked": ("Here is one more, done for you. A slope of 7 points per hour, over "
+                        "5 extra hours: 7 times 5 — 35 more points.",
+                        '[[graph lines="y=7x" names="7 points per hour" points="(5,35)" range="0..7" yrange="0..45" caption="7 × 5 = 35"]][[step eq="7 × 5 = 35"]]'),
+             "ask": {'a': 7, 'b': 7, 'op': 'sslp'}},
+            {"worked": ("One more together. 5 points per hour over 8 hours: 5 times 8 — 40 "
+                        "more points.",
+                        '[[machine input="8" rule="× 5" output="40" caption="8 hours in, 5 points each — 40"]][[step eq="5 × 8 = 40"]]'),
+             "ask": {'a': 5, 'b': 9, 'op': 'sslp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A slope of 4 points "
+                       "per hour is worth 8 points over two extra hours. Tap the reason "
+                       "why."),
+            "choices": ("because a rate multiplies by however many steps you take | "
+                        "because the slope is the total, whatever the hours | because a "
+                        "rate is added to the hours"),
+            "answer": "because a rate multiplies by however many steps you take",
+            "board": '[[graph lines="y=4x" names="4 points per hour" points="(2,8)" range="0..12" yrange="0..50" caption="4 × 2 = 8"]]',
+        },
+        "recap": [
+            ("So, here it is again. The slope of a best-fit line is a rate — points "
+             "per extra hour — so times it by the hours to predict the extra points. "
+             "Never hand back one hour\'s worth, and never add the rate to the hours.",
+             '[[scatter points="(2,11),(4,17),(6,26),(8,34),(10,41),(12,51)" fit="true" caption="the slope is a rate"]]'),
+            ("And that is a line that predicts.",
+             '[[step eq="4 × 2 = 8"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "sslp"},
             {"a": 3, "b": 3, "op": "sslp"},
@@ -21556,24 +21981,64 @@ _PROBSTAT_U3 = [
         "op": "resd", "max_value": 60,
         "levels": ("abstract",),
         "symbols": ("residual", "predicted"),
-        "advance_line": "Three in a row — you've got it! The residual is the gap between predicted and actual.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The residual is the gap between predicted and actual.",
+        "why": [
+            ("Why does a prediction miss? A best-fit line predicts, and predictions "
+             "miss. Read the line at some student\'s hours and it names a score; look "
+             "at that student\'s real dot and you see what they actually got. The gap "
+             "between those two is the interesting part.",
+             '[[goal text="How far off the line"]]'),
+        ],
+        "picture": [
+            ("Here are two bars: what the line predicted, 30, and what the student "
+             "actually scored, 36. Look at the gap between the tops of the bars — the "
+             "line guessed a little low. That gap is the whole lesson.",
+             '[[bars data="predicted:30 | actual:36" caption="the line said 30, the student scored 36 — the gap is the residual"]]'),
+        ],
         "teach": [
-            ["A best-fit line predicts, and predictions miss. Read the line at some child's hours and it names a score; look at that child's real dot and you see what they actually got. The gap between those two is the interesting part.",
-             '[[goal text="How far off the line"]][[step eq="predicted 30 · actual 36"]]'],
-            ["That gap has a name: the residual. If the line predicted 30 and the child scored 36, the residual is 6 — the line was 6 points low. A dot above the line has the line guessing low; a dot below has it guessing high.",
-             '[[step eq="36 − 30 = 6"]] [[step eq="residual = 6"]]'],
-            ["The best-fit line is chosen to keep these gaps as small as they can be across every dot at once — that is what BEST fit means. So do not hand back 36, which is what the child scored, or 66, which puts two unrelated numbers together. The residual is the distance between them.",
-             '[[step eq="6 ✓"]][[step eq="36 ✗ the actual score · 66 ✗ added"]]'],
+            ("That is the method: the gap has a name, the residual. If the line "
+             "predicted 30 and the student scored 36, the residual is 6 — the line "
+             "was 6 points low. A dot above the line has the line guessing low; a dot "
+             "below has it guessing high.",
+             '[[numberline min="25" max="41" hops="30,36" caption="from predicted 30 to actual 36 — a gap of 6"]][[step eq="36 − 30 = 6"]] [[step eq="residual = 6"]]'),
+            ("The best-fit line is chosen to keep these gaps as small as they can be "
+             "across every dot at once — that is what BEST fit means. So do not hand "
+             "back 36, which is what the student scored, or 66, which puts two "
+             "unrelated numbers together.",
+             '[[step eq="6 ✓"]][[step eq="36 ✗ the actual score · 66 ✗ added"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Predicted 29, actual 56: the line was 27 points low.",
-                        '[[step eq="56 − 29 = 27"]]'],
-             "ask": {"a": 5, "b": 47, "op": "resd"}},
-            {"worked": ["One more together. Predicted 44, actual 14: 44 take away 14 — the line guessed 30 points high.",
-                        '[[step eq="44 − 14 = 30"]]'],
-             "ask": {"a": 11, "b": 47, "op": "resd"}},
+            {"worked": ("Here is one more, done for you. Predicted 29, actual 56: the line "
+                        "was 27 points low.",
+                        '[[numberline min="24" max="61" hops="29,56" caption="from 29 to 56 — a gap of 27"]][[step eq="56 − 29 = 27"]]'),
+             "ask": {'a': 5, 'b': 47, 'op': 'resd'}},
+            {"worked": ("One more together. Predicted 44, actual 14: 44 take away 14 — the "
+                        "line guessed 30 points high.",
+                        '[[bars data="predicted:44 | actual:14" caption="the line said 44, the score was 14 — 30 high"]][[step eq="44 − 14 = 30"]]'),
+             "ask": {'a': 11, 'b': 47, 'op': 'resd'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The line predicted 30, "
+                       "the student scored 36, and the residual is 6. Tap the reason "
+                       "why."),
+            "choices": ("because the residual is the gap between predicted and actual | "
+                        "because the residual is the score the student got | because the "
+                        "residual is predicted and actual put together"),
+            "answer": "because the residual is the gap between predicted and actual",
+            "board": '[[bars data="predicted:30 | actual:36" caption="the gap between them"]]',
+        },
+        "recap": [
+            ("So, here it is again. A best-fit line predicts and the residual is how "
+             "far the truth sits from the prediction — the gap between predicted and "
+             "actual, low when the dot is above the line, high when below. Never hand "
+             "back the score, and never add the two.",
+             '[[bars data="predicted:30 | actual:36" caption="how far off the line"]]'),
+            ("And that is what best fit keeps small.",
+             '[[step eq="36 − 30 = 6"]]'),
+        ],
         "bank": [
             {"a": 5, "b": 8, "op": "resd"},
             {"a": 41, "b": 44, "op": "resd"},
@@ -21594,24 +22059,63 @@ _PROBSTAT_U3 = [
         "op": "sblw", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("above", "below"),
-        "advance_line": "Three in a row — you've got it! Every dot is on one side or the other.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Every dot is on one side or the other.",
+        "why": [
+            ("Why does the line run through the cloud? Here is a fact about the "
+             "best-fit line that catches people out: it does not sit on top of the "
+             "cloud, or underneath it. It runs THROUGH the middle, so dots end up on "
+             "both sides — some above it, some below.",
+             '[[goal text="Through the middle of the cloud"]]'),
+        ],
+        "picture": [
+            ("Here is a scatter cloud with its best-fit line. Look at where the dots "
+             "sit: some float above the line, some hang below it, and the line "
+             "threads between them. Count the dots on one side, and the rest must be "
+             "on the other.",
+             '[[scatter points="(2,12),(4,22),(6,31),(8,41),(10,50),(12,62)" fit="true" caption="the line threads through the cloud — dots above it and dots below"]]'),
+        ],
         "teach": [
-            ["Here is a fact about the best-fit line that catches people out: it does not sit on top of the cloud, or underneath it. It runs THROUGH the middle, so dots end up on both sides — some above it, some below.",
-             '[[goal text="Through the middle of the cloud"]][[scatter points="(2,8),(4,16),(6,19),(8,27),(10,30),(12,38)" fit="true" caption="each dot is one pair — with the best-fit line"]]'],
-            ["That turns the counting into one take-away. If 14 dots are plotted and none lands exactly on the line, then every dot is either above or below. With 6 above, the other 8 must be below: 14 take away 6.",
-             '[[step eq="14 dots · 6 above → 14 − 6 = 8 below"]]'],
-            ["Two answers to resist. 6 is the side you were already told about — the question asked for the other one. And 14 is every dot on the plot, both sides at once. Take the side you know away from the whole.",
-             '[[step eq="8 ✓"]][[step eq="6 ✗ the side you were given · 14 ✗ all of them"]]'],
+            ("That is the method: take the side you know away from the whole. If 14 "
+             "dots are plotted and none lands exactly on the line, every dot is "
+             "either above or below. With 6 above, the other 8 must be below: 14 "
+             "take away 6.",
+             '[[tape parts="6 above|8 below" total="14 dots" caption="14 dots: 6 above the line, 8 below"]][[step eq="14 dots · 6 above"]][[step eq="14 − 6 = 8 below"]]'),
+            ("Two answers to resist. 6 is the side you were already told about — the "
+             "question asked for the other one. And 14 is every dot on the plot, both "
+             "sides at once. Take the side you know away from the whole.",
+             '[[step eq="8 ✓"]][[step eq="6 ✗ the side you were given · 14 ✗ all of them"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 18 dots with 16 above the line leaves just 2 below.",
-                        '[[step eq="18 − 16 = 2"]]'],
-             "ask": {"a": 19, "b": 4, "op": "sblw"}},
-            {"worked": ["One more together. 18 dots, 6 above: 18 take away 6 — 12 sit below.",
-                        '[[step eq="18 − 6 = 12"]]'],
-             "ask": {"a": 19, "b": 13, "op": "sblw"}},
+            {"worked": ("Here is one more, done for you. 18 dots with 16 above the line "
+                        "leaves just 2 below.",
+                        '[[tape parts="16 above|2 below" total="18 dots" caption="18 − 16 = 2 below"]][[step eq="18 − 16 = 2"]]'),
+             "ask": {'a': 19, 'b': 4, 'op': 'sblw'}},
+            {"worked": ("One more together. 18 dots, 6 above: 18 take away 6 — 12 sit "
+                        "below.",
+                        '[[tape parts="6 above|12 below" total="18 dots" caption="18 − 6 = 12 below"]][[step eq="18 − 6 = 12"]]'),
+             "ask": {'a': 19, 'b': 13, 'op': 'sblw'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. With 14 dots and 6 "
+                       "above the line, 8 sit below. Tap the reason why."),
+            "choices": ("because every dot is on one side or the other | because the "
+                        "same number sits on each side | because every dot on the plot "
+                        "sits below the line"),
+            "answer": "because every dot is on one side or the other",
+            "board": '[[tape parts="6 above|8 below" total="14 dots" caption="one side or the other"]]',
+        },
+        "recap": [
+            ("So, here it is again. The best-fit line runs through the middle of the "
+             "cloud, so every dot is on one side or the other. Take the side you know "
+             "away from the whole for the side you do not. Never hand back the side "
+             "you were given, and never the whole cloud.",
+             '[[scatter points="(2,12),(4,22),(6,31),(8,41),(10,50),(12,62)" fit="true" caption="through the middle of the cloud"]]'),
+            ("And that is a line that splits the crowd.",
+             '[[step eq="14 − 6 = 8"]]'),
+        ],
         "bank": [
             {"a": 8, "b": 6, "op": "sblw"},
             {"a": 9, "b": 2, "op": "sblw"},
@@ -29469,6 +29973,198 @@ def _avgr_worked(p):
 
 
 
+# ---- (tr, 2026-09-06) PROBSTAT UNITS 1-3: the dot plot with its stacks, the line
+# and the dots past it, the histogram's bars, the stray dot, the even list with its
+# two middles, the box, the four distances as bars, the hundred square for a
+# percentile, the scatter cloud, the rate machine, predicted beside actual, the
+# dots split by the line. Every ask draws its question with the answer withheld;
+# every walk-back draws it filled in.
+def _dotm_board(p):
+    return (f'[[dotplot values="{_dotmode(p)}" caption="one dot per value — find the tallest stack and read the number under it"]]'
+            f'[[step eq="the mode = ?"]]')
+
+
+def _dotm_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the tallest stack sits over {a}, {b} dots high — so {b} "
+            f"students read {a} books each. The mode is the value UNDER the stack, {a}. "
+            f"Read down to the number line, never across to how many.",
+            f'[[dotplot values="{_dotmode(p)}" caption="the tallest stack, {b} dots, stands over {a} — the mode is {a}"]]'
+            f'[[step eq="tallest stack over {a}"]][[step eq="mode = {a}"]]')
+
+
+def _dcnt_board(p):
+    a = p["a"]
+    return (f'[[dotplot values="{_dotcut(p)}" caption="one dot per player — count only the dots to the RIGHT of {a}; the dot standing on {a} stays out"]]'
+            f'[[step eq="more than {a} · count = ?"]]')
+
+
+def _dcnt_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: count only the dots to the right of {a} — there are {b}. "
+            f"The dot standing exactly on {a} does not join them, because {a} is not more "
+            f"than {a}, and the {c} dots below answer the opposite question.",
+            f'[[dotplot values="{_dotcut(p)}" caption="{b} dots past {a}; the one on {a} stays out"]]'
+            f'[[step eq="more than {a} = {b}"]]')
+
+
+def _htot_board(p):
+    return (f'[[histogram values="{_histvals(p)}" caption="each bar carries its count — add the counts for how many in all"]]'
+            f'[[step eq="in all = ?"]]')
+
+
+def _htot_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; t = a + b + c
+    return (f"Look what you did: add the bars — {a} plus {b} plus {c} equals {t} scores in "
+            f"all. The tallest bar alone holds only {max(a, b, c)}, and the number of "
+            f"bars is not the number of scores.",
+            f'[[histogram values="{_histvals(p)}" caption="{a} + {b} + {c} = {t} in all"]]'
+            f'[[step eq="{a} + {b} + {c} = {t}"]]')
+
+
+def _farv_board(p):
+    return (f'[[dotplot values="{_farlist(p)}" caption="one dot per student — one dot sits far from the crowd; read the number under it"]]'
+            f'[[step eq="the outlier = ?"]]')
+
+
+def _farv_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: nearly every dot crowds around {a}, and one sits alone out "
+            f"at {b} — that stray is the outlier. {a} is where the crowd is, and {b - a} is "
+            f"only how far the stray sits from it.",
+            f'[[dotplot values="{_farlist(p)}" caption="the crowd near {a}; the stray at {b} — the outlier is {b}"]]'
+            f'[[step eq="outlier = {b}"]]')
+
+
+def _medv_board(p):
+    n = 2 * p["a"]
+    return (f'[[dotplot values="{",".join(str(v) for v in _evenlist(p))}" caption="{n} numbers — count in from both ends and two middles face each other"]]'
+            f'[[step eq="{n} numbers · no single middle · median = ?"]]')
+
+
+def _medv_worked(p):
+    a, b = p["a"], p["b"]; lo, hi, m = b, b + 2, b + 1
+    vals = _evenlist(p)
+    return (f"Look what you did: {2 * a} numbers, so {a} sit either side and the middles "
+            f"are {lo} and {hi}. The median is halfway between them: {lo} plus {hi} is "
+            f"{lo + hi}, halved is {m}. Neither middle on its own will do.",
+            f'[[numberline min="{vals[0] - 1}" max="{vals[-1] + 1}" points="{lo},{hi}" mid="{m}" caption="the two middles, {lo} and {hi} — halfway between them is {m}"]]'
+            f'[[step eq="({lo} + {hi}) ÷ 2 = {m}"]]')
+
+
+def _iqrw_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[boxplot five="{a - c},{a},{(a + b) // 2},{b},{b + c}" caption="the box is the middle half — one edge at {a}, the other at {b}; the whiskers reach the extremes"]]'
+            f'[[step eq="box width = ?"]]')
+
+
+def _iqrw_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; w = b - a
+    return (f"Look what you did: the box holds the middle half, from {a} to {b} — {b} take "
+            f"away {a} equals {w}. Whisker tip to whisker tip is {b + c - (a - c)}, the "
+            f"whole stretch, a different measurement; and {b} alone is just the right edge.",
+            f'[[boxplot five="{a - c},{a},{(a + b) // 2},{b},{b + c}" caption="the box runs {a} to {b} — {w} wide"]]'
+            f'[[step eq="{b} − {a} = {w}"]]')
+
+
+def _madv_board(p):
+    a = p["a"]
+    return (f'[[dotplot values="{",".join(str(v) for v in _madlist(p))}" caption="four numbers with their mean at {a} — how far does each sit from it?"]]'
+            f'[[step eq="mean {a} · average distance = ?"]]')
+
+
+def _madv_worked(p):
+    a, b = p["a"], p["b"]
+    vals = _madlist(p)
+    bars = " | ".join(f"{v}:{abs(v - a)}" for v in vals)
+    return (f"Look what you did: the four distances from {a} are {3 * b}, {b}, {b} and "
+            f"{3 * b} — put together {8 * b}, shared between 4: {2 * b}. The farthest sits "
+            f"{3 * b} away and the nearest {b}, so the average distance lies between them.",
+            f'[[bars data="{bars}" caption="each number\'s distance from the mean — {8 * b} in all, shared four ways: {2 * b}"]]'
+            f'[[step eq="{3 * b} + {b} + {b} + {3 * b} = {8 * b}"]][[step eq="{8 * b} ÷ 4 = {2 * b}"]]')
+
+
+def _pctl_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[hundredgrid shaded="{b}" unit="percent" eq="{b}th percentile: {b}%" caption="a percentile is a percent of the group — {b} of every 100; the group here is {a}"]]'
+            f'[[step eq="{a} others · {b}th percentile"]]'
+            f'[[step eq="beaten = ?"]]')
+
+
+def _pctl_worked(p):
+    a, b = p["a"], p["b"]; n = a * b // 100
+    return (f"Look what you did: {b} percent of {a} is {n}, so she beat {n} of them. The "
+            f"{b} is a PERCENT, never a headcount — and the other {a - n} finished ahead of her.",
+            f'[[bars data="beaten:{n} | ahead of her:{a - n}" caption="{b}% of {a} = {n} beaten, {a - n} ahead"]]'
+            f'[[step eq="{b}% of {a} = {n}"]]')
+
+
+def _spnt_board(p):
+    a = p["a"]
+    return (f'[[scatter points="{_scat_points(p)}" caption="each dot is one student — find {a} along the bottom, go up to the dot, then across"]]'
+            f'[[step eq="at {a} hours · points = ?"]]')
+
+
+def _spnt_worked(p):
+    a = p["a"]; y = _scat_at(p); nxt = _scat_next(p)
+    return (f"Look what you did: find {a} along the bottom, go straight up to the dot, then "
+            f"straight across — {y} points. The {a} is how long the student practiced, "
+            f"across, not up; and {nxt} belongs to the neighbouring dot.",
+            f'[[scatter points="{_scat_points(p)}" caption="the dot at {a} hours sits level with {y} points"]]'
+            f'[[step eq="{a} hours · up · across = {y} points"]]')
+
+
+def _sslp_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[machine input="{b}" rule="× {a}" output="?" caption="the slope as a rate: {b} extra hours go in, {a} points for each of them"]]'
+            f'[[step eq="{a} points per extra hour · {b} extra hours"]]'
+            f'[[step eq="extra points = ?"]]')
+
+
+def _sslp_worked(p):
+    a, b = p["a"], p["b"]; t = a * b
+    return (f"Look what you did: the slope is a rate — {a} points EACH hour, so {b} hours "
+            f"brings {b} times {a}, {t} points. {a} alone is one hour's worth, and adding "
+            f"the two numbers treats a rate like a total.",
+            f'[[graph lines="y={a}x" names="{a} points per hour" points="({b},{t})" range="0..{b + 2}" yrange="0..{t + 10}" caption="the line climbs {a} every hour — {b} hours up is {t} points"]]'
+            f'[[step eq="{a} × {b} = {t}"]]')
+
+
+def _resd_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[bars data="predicted:{a} | actual:{b}" caption="the line said {a}, the student scored {b} — the gap between the bars is the residual"]]'
+            f'[[step eq="predicted {a} · actual {b}"]]'
+            f'[[step eq="how far off = ?"]]')
+
+
+def _resd_worked(p):
+    a, b = p["a"], p["b"]; g = abs(b - a)
+    lo, hi = min(a, b), max(a, b)
+    way = "low" if b > a else "high"
+    return (f"Look what you did: the gap between {a} and {b} is {g} — the line guessed "
+            f"{g} points {way}. That gap is the residual, and every dot has one. {b} is "
+            f"what the student scored, not how far the line missed by.",
+            f'[[numberline min="{max(0, lo - 5)}" max="{hi + 5}" hops="{a},{b}" caption="from predicted {a} to actual {b} — a gap of {g}"]]'
+            f'[[step eq="{hi} − {lo} = {g}"]]')
+
+
+def _sblw_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="{b} above|?" total="{a} dots" caption="{a} dots, none on the line — {b} above it, the rest below"]]'
+            f'[[step eq="{a} dots · {b} above the line"]]'
+            f'[[step eq="below the line = ?"]]')
+
+
+def _sblw_worked(p):
+    a, b = p["a"], p["b"]; n = a - b
+    return (f"Look what you did: the line runs THROUGH the cloud, so every dot is on one "
+            f"side or the other — {a} take away {b} leaves {n} below. {b} is the side you "
+            f"were told about, and {a} is every dot on the plot.",
+            f'[[tape parts="{b} above|{n} below" total="{a} dots" caption="{a} − {b} = {n} below the line"]]'
+            f'[[step eq="{a} − {b} = {n}"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -34930,17 +35626,16 @@ OP_EXT = {
     # ---- build lq: Probability & Statistics U1 Exploring Data -------------
     "dotm": {  # the MODE off a dot plot: the value under the stack, not the count
         "ans": lambda p: p["a"],
-        "spoken": lambda p: ("This dot plot shows how many books each child "
+        "spoken": lambda p: ("This dot plot shows how many books each reader "
                              "read last month. Which number of books is the "
-                             "MODE — the number that the most children "
-                             "read?"),
-        "board": lambda p: (f'[[dotplot values="{_dotmode(p)}"]]'
-                            f'[[step eq="the mode = ?"]]'),
+                             "MODE — the number that happened most often?"),
+        "board": _dotm_board,         # (tr) the dot plot, captioned (it had no caption -- rule 41)
+        "worked": _dotm_worked,       # (tr) the tallest stack named
         "praise": lambda p: (f"The tallest stack sits over {p['a']}, and it "
-                             f"holds {p['b']} dots — so {p['b']} children "
+                             f"holds {p['b']} dots — so {p['b']} readers "
                              f"read {p['a']} books each. The mode is the "
                              f"value UNDER the stack, {p['a']}, never the "
-                             f"{p['b']} children standing on it."),
+                             f"{p['b']} readers standing on it."),
         "key": lambda p: p["a"],
         # The errors: the COUNT answered instead of the value (the classic),
         # and the biggest value on the line.
@@ -34958,9 +35653,8 @@ OP_EXT = {
         "spoken": lambda p: (f"This dot plot shows the goals each player "
                              f"scored. How many players scored MORE than "
                              f"{p['a']} goals?"),
-        "board": lambda p: (f'[[dotplot values="{_dotcut(p)}"]]'
-                            f'[[step eq="more than {p["a"]} · how many '
-                            f'players?"]]'),
+        "board": _dcnt_board,         # (tr) the dot plot captioned; the pending line a statement (the old "how many players?" was a question inside a step)
+        "worked": _dcnt_worked,       # (tr) the dots past the line counted
         "praise": lambda p: (f"Count only the dots to the RIGHT of {p['a']}: "
                              f"there are {p['b']}. The dot standing exactly "
                              f"on {p['a']} does not join them — {p['a']} is "
@@ -34982,8 +35676,8 @@ OP_EXT = {
         "spoken": lambda p: ("This histogram sorts the scores into groups, "
                              "and each bar carries its count printed on "
                              "top. How many scores are shown in all?"),
-        "board": lambda p: (f'[[histogram values="{_histvals(p)}"]]'
-                            f'[[step eq="how many scores in all?"]]'),
+        "board": _htot_board,         # (tr) the histogram captioned; the pending line a statement (the old "how many scores in all?" was a question inside a step)
+        "worked": _htot_worked,       # (tr) the bars added
         "praise": lambda p: (f"Add the bars: {p['a']} plus {p['b']} plus "
                              f"{p['c']} equals {p['a'] + p['b'] + p['c']}. "
                              f"The tallest bar alone holds only "
@@ -35010,8 +35704,8 @@ OP_EXT = {
                              "child took. One value sits far away from all "
                              "the others — the outlier. What is that "
                              "value?"),
-        "board": lambda p: (f'[[dotplot values="{_farlist(p)}"]]'
-                            f'[[step eq="the outlier = ?"]]'),
+        "board": _farv_board,         # (tr) the dot plot, captioned (it had no caption -- rule 41)
+        "worked": _farv_worked,       # (tr) the stray named
         "praise": lambda p: (f"Nearly every dot crowds around {p['a']}, and "
                              f"one sits alone out at {p['b']} — that stray "
                              f"is the outlier. {p['a']} is where the crowd "
@@ -35033,10 +35727,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Here are {2 * p['a']} numbers, smallest "
                              f"first: {_evenlist_words(p)}. What is the "
                              f"median?"),
-        "board": lambda p: (f'[[dotplot values="'
-                            + ",".join(str(v) for v in _evenlist(p))
-                            + f'"]][[step eq="{2 * p["a"]} numbers · no '
-                            f'single middle · median = ?"]]'),
+        "board": _medv_board,         # (tr) the even list as a dot plot, captioned
+        "worked": _medv_worked,       # (tr) the two middles on the number line with the halfway mark
         "praise": lambda p: (f"An even count has no one middle: {p['b']} "
                              f"and {p['b'] + 2} both sit there, with the "
                              f"rest split evenly either side of the pair. "
@@ -35060,10 +35752,8 @@ OP_EXT = {
                              f"{p['a'] - p['c']} and {p['b'] + p['c']}. How "
                              f"wide is the BOX — the middle half of the "
                              f"data?"),
-        "board": lambda p: (f'[[boxplot five="{p["a"] - p["c"]},{p["a"]},'
-                            f'{(p["a"] + p["b"]) // 2},{p["b"]},'
-                            f'{p["b"] + p["c"]}"]]'
-                            f'[[step eq="box width = ?"]]'),
+        "board": _iqrw_board,         # (tr) the box plot, captioned (it had no caption -- rule 41)
+        "worked": _iqrw_worked,       # (tr) the box measured
         "praise": lambda p: (f"The box holds the middle half, from {p['a']} "
                              f"to {p['b']}: {p['b']} take away {p['a']} "
                              f"equals {p['b'] - p['a']}. Whisker tip to "
@@ -35093,10 +35783,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Four numbers — {_madlist_words(p)} — have a "
                              f"mean of {p['a']}. On average, how far from "
                              f"that mean does a number sit?"),
-        "board": lambda p: (f'[[dotplot values="'
-                            + ",".join(str(v) for v in _madlist(p))
-                            + f'"]][[step eq="mean {p["a"]} · average '
-                            f'distance = ?"]]'),
+        "board": _madv_board,         # (tr) the four numbers as a dot plot, captioned
+        "worked": _madv_worked,       # (tr) the four distances as bars
         "praise": lambda p: (f"The four distances are {3 * p['b']}, "
                              f"{p['b']}, {p['b']} and {3 * p['b']} — put "
                              f"together {8 * p['b']}, shared between 4: "
@@ -35115,21 +35803,19 @@ OP_EXT = {
     },
     "pctl": {  # a percentile is a PERCENT of the class, not a headcount
         "ans": lambda p: p["a"] * p["b"] // 100,
-        "spoken": lambda p: (f"You sat a test along with {p['a']} other "
-                             f"students, and your score lands at the "
-                             f"{p['b']}th percentile — higher than "
-                             f"{p['b']} percent of them. How many of those "
-                             f"students did you beat?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} other students · '
-                            f'{p["b"]}th percentile"]]'
-                            f'[[step eq="how many beaten = ?"]]'),
+        "spoken": lambda p: (f"A swimmer raced against {p['a']} others and "
+                             f"finished at the {p['b']}th percentile — faster "
+                             f"than {p['b']} percent of them. How many of the "
+                             f"{p['a']} did she beat?"),
+        "board": _pctl_board,         # (tr) the hundred square as a percent; the pending line a statement (the old "how many beaten = ?" was a question inside a step)
+        "worked": _pctl_worked,       # (tr) beaten beside above
         "praise": lambda p: (f"{p['b']} percent of {p['a']} is "
-                             f"{p['a'] * p['b'] // 100}, so you beat "
+                             f"{p['a'] * p['b'] // 100}, so she beat "
                              f"{p['a'] * p['b'] // 100} of them. The "
                              f"{p['b']} is a PERCENT, never a headcount — "
                              f"and the other "
-                             f"{p['a'] - p['a'] * p['b'] // 100} scored "
-                             f"above you."),
+                             f"{p['a'] - p['a'] * p['b'] // 100} finished "
+                             f"ahead of her."),
         "key": lambda p: p["a"] * p["b"] // 100,
         # The errors: the percentile read as a count of people, and the
         # OTHER side of the class counted.
@@ -35151,8 +35837,8 @@ OP_EXT = {
                              f"scored up the side. One child practiced "
                              f"{p['a']} hours. How many points did that "
                              f"child score?"),
-        "board": lambda p: (f'[[scatter points="{_scat_points(p)}"]]'
-                            f'[[step eq="at {p["a"]} hours · points = ?"]]'),
+        "board": _spnt_board,         # (tr) the scatter cloud, captioned (it had no caption -- rule 41)
+        "worked": _spnt_worked,       # (tr) the dot read
         "praise": lambda p: (f"Find {p['a']} along the bottom, go straight "
                              f"up to the dot, then straight across: "
                              f"{_scat_at(p)} points. The {p['a']} is how "
@@ -35179,9 +35865,8 @@ OP_EXT = {
                              f"practice. Nadia practices {p['b']} hours "
                              f"more than Omar. How many more points would "
                              f"you predict for Nadia?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} points per extra hour · '
-                            f'{p["b"]} extra hours"]]'
-                            f'[[step eq="extra points = ?"]]'),
+        "board": _sslp_board,         # (tr) the rate machine
+        "worked": _sslp_worked,       # (tr) the line climbing, the point marked
         "praise": lambda p: (f"The slope is a rate: {p['a']} points EACH "
                              f"hour, so {p['b']} hours brings {p['b']} "
                              f"times {p['a']} — {p['a'] * p['b']} points. "
@@ -35204,9 +35889,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A best-fit line predicted {p['a']} points "
                              f"for Sam. Sam actually scored {p['b']}. How "
                              f"far off was the prediction?"),
-        "board": lambda p: (f'[[step eq="predicted {p["a"]} · actual '
-                            f'{p["b"]}"]]'
-                            f'[[step eq="how far off = ?"]]'),
+        "board": _resd_board,         # (tr) predicted beside actual as bars
+        "worked": _resd_worked,       # (tr) the gap as a hop on the number line
         "praise": lambda p: (f"The gap between {p['a']} and {p['b']} is "
                              f"{abs(p['b'] - p['a'])} — that gap has a "
                              f"name, the residual, and every dot has one. "
@@ -35230,9 +35914,8 @@ OP_EXT = {
                              f"scatterplot's {p['a']} dots, and no dot "
                              f"lands exactly on it. {p['b']} of the dots "
                              f"sit above the line. How many sit below it?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} dots · {p["b"]} above the '
-                            f'line"]]'
-                            f'[[step eq="below the line = ?"]]'),
+        "board": _sblw_board,         # (tr) the dots as a tape, the below part blank
+        "worked": _sblw_worked,       # (tr) both parts of the tape
         "praise": lambda p: (f"The line runs THROUGH the cloud, so every "
                              f"dot is on one side or the other: {p['a']} "
                              f"take away {p['b']} leaves "
