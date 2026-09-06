@@ -2,6 +2,31 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tg -- ALGEBRA 1 UNITS 4-6 TO THE SHAPE (12 lessons). THIS FILE:
+#                 * Unit 4 (lines) on the GRID: reading the line asks with a vertical line
+#                   at the given x ("climb from x = 6 up to the line") and walks back with
+#                   the point marked; the climb asks with the two points and walks back
+#                   with the line drawn through them; the start asks the left wall and
+#                   marks (0, b); start-and-climb marks the point reached;
+#                 * Unit 5 (two rules): where-two-rules-agree asks on TWO LINES with the
+#                   crossing ringed but unlabelled ([[graph cross="ask"]], new this build
+#                   in math-figures.js -- the auto-label used to print the answer);
+#                   swapping-in, sum-and-difference and the eraser as BARS (two x's and
+#                   the a against b; bigger as smaller-and-more; the two trips side by
+#                   side, the difference one pencil);
+#                 * Unit 6 (powers): the x's written out as a bar and counted (joining
+#                   adds); b copies of x^a as a bar (copying times); a digit on the
+#                   PLACE-VALUE CHART moved up a places (times ten to a power); the
+#                   doubling pond as BARS one day short, then to the end. Trap lines kept.
+#               ⚠️ every graph ask in the three units drew with no caption (rule 41, 58
+#               asks), and the sys2 ask ended on "2x = 8 → x = ?" -- a line the spoken
+#               question never read AND an arrow after an equals sign; it is "2x + a = b"
+#               then "x = ?" now. Every lesson: why, picture, teach, pairs, walk-back,
+#               reason, recap. ENGINE: OP_EXT lny/slp/yint/lin2/sys1/sys2/sumd/elim/exadd/
+#               exmul/sci/dbl gain boards and "worked" (_lny_* ... _dbl_*, _line_spec).
+#               Demonstrated numbers kept out of the banks (the old lny teach worked
+#               y = x + 2 at x = 3 and the old sci teach 3 × 10², both bank problems; the
+#               old dbl pair worked 2 pads for 4 days, a bank problem).
 #   2026-09-06  BUILD tf -- ALGEBRA 1 UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "start on
 #               algebra." THIS FILE:
 #                 * Unit 1 (expressions) as BARS: bx + c is b copies of x then the c (the
@@ -10195,24 +10220,62 @@ _ALGEBRA1_U4 = [
         "op": "lny", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("y", "line"),
-        "advance_line": "Three in a row — you've got it! Every point is an input standing under its output.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Every point is an input standing under its output.",
+        "why": [
+            ("Why a graph? Because last unit the machine answered one input at a "
+             "time. A graph answers ALL of them at once. The rule y equals x plus 2 "
+             "becomes a line on the grid, and every x along the bottom has its answer "
+             "waiting straight above it.",
+             '[[goal text="Reading the line"]]'),
+        ],
+        "picture": [
+            ("Here is y equals x plus 2 as a line. Pick x equals 5 along the bottom "
+             "and climb straight up until you hit the line. The height you reach is "
+             "7 — because 5 plus 2 is 7. That spot is the point 5 comma 7: the input "
+             "and its output, standing together.",
+             '[[graph lines="y=x+2" points="(5,7)" range="0..9" caption="y = x + 2 — climb from x = 5 to the point (5, 7)"]]'),
+        ],
         "teach": [
-            ["Last unit the machine answered one input at a time. A graph answers ALL of them at once. The rule y equals x plus 2 becomes a line on the graph. Pick any x along the bottom, go straight up to the line, and the height you reach is that x's answer — its y.",
-             '[[goal text="Reading the line"]][[graph lines="y=x+2" range="0..8" caption="y=x+2 on the grid"]]'],
-            ["What is y when x is 3? Find 3 along the bottom, climb up to the line, and read the height: 3 plus 2 equals 5. The point sits at 3 comma 5 — the input and its output, standing together.",
-             '[[graph lines="y=x+2" points="(3,5)" range="0..8" caption="y=x+2 — the point (3,5)"]][[step eq="x = 3"]] [[step eq="y = 3 + 2 = 5"]]'],
-            ["Keep the partners straight. The first number is the x you were given; the second is the y you found. At 3 comma 5, the answer to the question 'what is y' is 5 — not the 3 you started from.",
-             '[[step eq="(3, 5): x = 3, y = 5"]][[step eq="y = 3 ✗ — that is the input"]]'],
+            ("That is the method. What is y when x is 5? Find 5 along the bottom, "
+             "climb up to the line, and read the height: 5 plus 2 equals 7. The "
+             "point sits at 5 comma 7.",
+             '[[graph lines="y=x+2" points="(5,7)" range="0..9" caption="the point (5, 7)"]][[step eq="x = 5"]][[step eq="y = 5 + 2 = 7"]]'),
+            ("Keep the partners straight. The first number is the x you were given; "
+             "the second is the y you found. At 5 comma 7, the answer to the question "
+             "what is y is 7 — not the 5 you started from.",
+             '[[step eq="(5, 7): x = 5, y = 7"]][[step eq="y = 5 ✗ — that is the input"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals x plus 4, and x is 2. Climb: 2 plus 4 equals 6. The point is 2 comma 6, and y is 6.",
-                        '[[graph lines="y=x+4" points="(2,6)" range="0..8" caption="y=x+4 — the point (2,6)"]][[step eq="y = 2 + 4 = 6"]]'],
-             "ask": {"a": 3, "b": 6, "op": "lny"}},
-            {"worked": ["One more together. y equals x plus 5, and x is 4. Climb: 4 plus 5 equals 9. The point is 4 comma 9, so y is 9.",
-                        '[[step eq="y = 4 + 5 = 9"]]'],
-             "ask": {"a": 7, "b": 6, "op": "lny"}},
+            {"worked": ("Here is one more, done for you. y equals x plus 4, and x is 2. "
+                        "Climb: 2 plus 4 equals 6. The point is 2 comma 6, and y is 6.",
+                        '[[graph lines="y=x+4" points="(2,6)" range="0..8" caption="y = x + 4 — the point (2, 6)"]][[step eq="y = 2 + 4 = 6"]]'),
+             "ask": {'a': 3, 'b': 6, 'op': 'lny'}},
+            {"worked": ("One more together. y equals x plus 5, and x is 4. Climb: 4 plus "
+                        "5 equals 9. The point is 4 comma 9, so y is 9.",
+                        '[[graph lines="y=x+5" points="(4,9)" range="0..11" caption="y = x + 5 — the point (4, 9)"]][[step eq="y = 4 + 5 = 9"]]'),
+             "ask": {'a': 7, 'b': 6, 'op': 'lny'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. On the line y "
+                       "equals x plus 2, when x is 5, y is 7. Tap the reason why."),
+            "choices": ("because the height above 5 on the line is 5 plus 2 | "
+                        "because the first number of the point is the answer | because "
+                        "the line adds 2 to the height, so y is 9"),
+            "answer": "because the height above 5 on the line is 5 plus 2",
+            "board": '[[graph lines="y=x+2" points="(5,7)" range="0..9" caption="the point (5, 7): x = 5, y = 7"]]',
+        },
+        "recap": [
+            ("So, here it is again. A line is a rule drawn out. Find the x along the "
+             "bottom, climb to the line, read the height — that is y. The point is "
+             "the input standing under its output, and the answer is the second "
+             "number.",
+             '[[graph lines="y=x+2" points="(5,7)" range="0..9" caption="x = 5 · climb · y = 7"]]'),
+            ("And that is every input answered at once, on one picture.",
+             '[[step eq="y = x + 2 at x = 5: y = 7"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "lny"},
             {"a": 2, "b": 4, "op": "lny"},
@@ -10233,24 +10296,63 @@ _ALGEBRA1_U4 = [
         "op": "slp", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("slope", "line"),
-        "advance_line": "Three in a row — you've got it! The slope is the climb, not the height.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The slope is the climb, not the height.",
+        "why": [
+            ("Why the climb? Because lines are straight, and straight means FAIR: "
+             "every time x steps one to the right, y climbs by the same amount. That "
+             "amount — the climb per step — is called the slope. It is the line\'s "
+             "personality: big slope, steep line; small slope, gentle line.",
+             '[[goal text="The climb of a line"]]'),
+        ],
+        "picture": [
+            ("Here are two points on a line: 2 comma 3, and 3 comma 5. From the first "
+             "to the second, x stepped once to the right — 2 to 3. And y climbed from "
+             "3 up to 5: a climb of 2. Draw the line through them and it climbs 2 for "
+             "every step, all the way along.",
+             '[[graph lines="y=2x-1" points="(2,3),(3,5)" range="0..5" caption="one step right, 2 up — the slope is 2"]]'),
+        ],
         "teach": [
-            ["Lines are straight, and straight means FAIR: every time x steps one to the right, y climbs by the same amount. That amount — the climb per step — is called the slope. It is the line's personality: big slope, steep line; small slope, gentle line.",
-             '[[goal text="The climb of a line"]]'],
-            ["Here is a line through 2 comma 3 and 3 comma 5. x stepped once, from 2 to 3. y climbed from 3 to 5 — a climb of 2. The slope is 2, and it is 2 between ANY two neighbouring steps on this line, all the way along.",
-             '[[graph points="(2,3),(3,5)" range="0..5" caption="from (2,3) to (3,5)"]][[step eq="y: 3 → 5, a climb of 2"]]'],
-            ["The slope is the CLIMB, not the height. This line reaches height 5, but its slope is not 5 — 5 is where y landed, and 3 is where it started. The slope is the difference between them: how far y MOVED.",
-             '[[step eq="slope = 5 − 3 = 2 ✓"]][[step eq="slope = 5 ✗ — that is a height, not a climb"]]'],
+            ("That is the method. Take two neighbouring points, one step apart. y "
+             "went from 3 to 5, and 5 take away 3 equals 2. The slope is 2 — and it "
+             "is 2 between ANY two neighbouring steps on this line.",
+             '[[graph points="(2,3),(3,5)" range="0..5" caption="from (2, 3) to (3, 5)"]][[step eq="y: 3 → 5"]][[step eq="slope = 5 − 3 = 2"]]'),
+            ("The slope is the CLIMB, not the height. This line reaches height 5, "
+             "but its slope is not 5 — 5 is where y landed, and 3 is where it "
+             "started. The slope is the difference between them: how far y MOVED.",
+             '[[step eq="slope = 5 − 3 = 2 ✓"]][[step eq="slope = 5 ✗ — that is a height, not a climb"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Through 1 comma 4 and 2 comma 7. y went from 4 to 7 — a climb of 3. The slope is 3.",
-                        '[[graph points="(1,4),(2,7)" range="0..4" caption="from (1,4) to (2,7)"]][[step eq="7 − 4 = 3"]]'],
-             "ask": {"a": 3, "b": 2, "c": 5, "op": "slp"}},
-            {"worked": ["One more together. Through 2 comma 2 and 3 comma 6. From 2 up to 6 is a climb of 4 — the slope is 4.",
-                        '[[step eq="6 − 2 = 4"]]'],
-             "ask": {"a": 6, "b": 3, "c": 4, "op": "slp"}},
+            {"worked": ("Here is one more, done for you. Through 1 comma 4 and 2 comma "
+                        "7. y went from 4 to 7 — a climb of 3. The slope is 3.",
+                        '[[graph lines="y=3x+1" points="(1,4),(2,7)" range="0..4" caption="one step right, 3 up — slope 3"]][[step eq="7 − 4 = 3"]]'),
+             "ask": {'a': 3, 'b': 2, 'c': 5, 'op': 'slp'}},
+            {"worked": ("One more together. Through 2 comma 2 and 3 comma 6. From 2 up "
+                        "to 6 is a climb of 4 — the slope is 4.",
+                        '[[graph lines="y=4x-6" points="(2,2),(3,6)" range="0..5" caption="one step right, 4 up — slope 4"]][[step eq="6 − 2 = 4"]]'),
+             "ask": {'a': 6, 'b': 3, 'c': 4, 'op': 'slp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A line goes "
+                       "through 2 comma 3 and 3 comma 5, and its slope is 2. Tap the "
+                       "reason why."),
+            "choices": ("because y climbed from 3 to 5 while x stepped once | because "
+                        "the line reaches a height of 5 | because the slope is the "
+                        "first number of the first point"),
+            "answer": "because y climbed from 3 to 5 while x stepped once",
+            "board": '[[graph lines="y=2x-1" points="(2,3),(3,5)" range="0..5" caption="one step right, 2 up — slope 2"]]',
+        },
+        "recap": [
+            ("So, here it is again. The slope is how far y climbs when x steps one to "
+             "the right — the second height take away the first. It is a climb, "
+             "never a height, and it is the same between every pair of steps on the "
+             "line.",
+             '[[graph lines="y=2x-1" points="(2,3),(3,5)" range="0..5" caption="slope = 5 − 3 = 2"]]'),
+            ("And that is a line\'s personality in one number.",
+             '[[step eq="slope = 5 − 3 = 2"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 1, "c": 3, "op": "slp"},
             {"a": 2, "b": 3, "c": 5, "op": "slp"},
@@ -10271,24 +10373,61 @@ _ALGEBRA1_U4 = [
         "op": "yint", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("y", "zero"),
-        "advance_line": "Three in a row — you've got it! At x equals zero, the times part vanishes.",
+        "advance_line": "Three in a row, and you can say why — you've got it! At x equals zero, the times part vanishes.",
+        "why": [
+            ("Why the start? Because every line has a starting height: where it "
+             "stands when x is zero, right at the left wall of the grid. A rule like "
+             "y equals 2 x plus 3 tells you that height without any drawing — put "
+             "zero in for x and watch what happens.",
+             '[[goal text="Where the line starts"]]'),
+        ],
+        "picture": [
+            ("Here is y equals 2 x plus 3 on the grid. Look at the left wall, where x "
+             "is zero. The line stands at height 3 there — that is the point 0 comma "
+             "3 — and it does all its climbing from that start.",
+             '[[graph lines="y=2x+3" points="(0,3)" range="0..5" caption="y = 2x + 3 — at x = 0 the line stands at 3"]]'),
+        ],
         "teach": [
-            ["Every line has a starting height: where it stands when x is zero, right at the left wall of the graph. For a rule like y equals 2 x plus 3, you can find it without drawing anything — put zero in for x and watch what happens.",
-             '[[goal text="Where the line starts"]][[graph lines="y=2x+3" range="0..4" caption="y=2x+3 on the grid"]]'],
-            ["y equals 2 times zero plus 3. But 2 times zero is ZERO — the whole times part vanishes. All that is left is the plus 3. So at x equals zero, y equals 3. The line starts at height 3 and does its climbing from there.",
-             '[[step eq="y = 2 × 0 + 3"]][[step eq="y = 0 + 3 = 3"]]'],
-            ["So in y equals 2 x plus 3, the two numbers have two different jobs: the 2 is the climb per step, and the 3 is where the climbing starts. Asked where the line starts, the answer is the plus number — not the 2.",
-             '[[step eq="start = 3 ✓"]][[step eq="start = 2 ✗ — that is the climb, not the start"]]'],
+            ("That is the method. y equals 2 times zero plus 3. But 2 times zero is "
+             "ZERO — the whole times part vanishes. All that is left is the plus 3. "
+             "So at x equals zero, y equals 3.",
+             '[[graph lines="y=2x+3" points="(0,3)" range="0..5" caption="the start: (0, 3)"]][[step eq="y = 2 × 0 + 3"]][[step eq="y = 0 + 3 = 3"]]'),
+            ("So in y equals 2 x plus 3, the two numbers have two different jobs: the "
+             "2 is the climb per step, and the 3 is where the climbing starts. Asked "
+             "where the line starts, the answer is the plus number — not the 2.",
+             '[[step eq="start = 3 ✓"]][[step eq="start = 2 ✗ — that is the climb, not the start"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals 4 x plus 5. At x equals zero, 4 times zero vanishes, and y equals 5.",
-                        '[[step eq="y = 4 × 0 + 5 = 5"]]'],
-             "ask": {"a": 4, "b": 3, "op": "yint"}},
-            {"worked": ["One more together. y equals 3 x plus 7. At zero, y equals 7 — that is the starting height.",
-                        '[[step eq="y = 3 × 0 + 7 = 7"]]'],
-             "ask": {"a": 6, "b": 8, "op": "yint"}},
+            {"worked": ("Here is one more, done for you. y equals 4 x plus 5. At x "
+                        "equals zero, 4 times zero vanishes, and y equals 5.",
+                        '[[graph lines="y=4x+5" points="(0,5)" range="0..5" caption="at x = 0 the line stands at 5"]][[step eq="y = 4 × 0 + 5 = 5"]]'),
+             "ask": {'a': 4, 'b': 3, 'op': 'yint'}},
+            {"worked": ("One more together. y equals 3 x plus 7. At zero, y equals 7 — "
+                        "that is the starting height.",
+                        '[[graph lines="y=3x+7" points="(0,7)" range="0..5" caption="at x = 0 the line stands at 7"]][[step eq="y = 3 × 0 + 7 = 7"]]'),
+             "ask": {'a': 6, 'b': 8, 'op': 'yint'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The line y equals "
+                       "2 x plus 3 starts at height 3. Tap the reason why."),
+            "choices": ("because 2 times zero vanishes, and only the plus 3 is left | "
+                        "because the first number in the rule is the start | because at "
+                        "x equals zero, y is 2 plus 3"),
+            "answer": "because 2 times zero vanishes, and only the plus 3 is left",
+            "board": '[[graph lines="y=2x+3" points="(0,3)" range="0..5" caption="the start: (0, 3)"]]',
+        },
+        "recap": [
+            ("So, here it is again. A line starts where x is zero, at the left wall. "
+             "Put zero in for x: the times part vanishes, and the plus number is the "
+             "starting height. The other number is the climb, and it has a different "
+             "job.",
+             '[[graph lines="y=2x+3" points="(0,3)" range="0..5" caption="y = 2 × 0 + 3 = 3"]]'),
+            ("And that is a line read at its left wall, with no drawing needed.",
+             '[[step eq="y = 2 × 0 + 3 = 3"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "op": "yint"},
             {"a": 5, "b": 3, "op": "yint"},
@@ -10309,24 +10448,62 @@ _ALGEBRA1_U4 = [
         "op": "lin2", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("y", "x"),
-        "advance_line": "Three in a row — you've got it! Start at the plus number, climb the slope once per step.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Start at the plus number, climb the slope once per step.",
+        "why": [
+            ("Why put the two together? Because y equals 3 x plus 2 is the whole "
+             "line in one sentence: start at height 2, and climb 3 for every step x "
+             "takes. Two numbers, two jobs — and between them they answer any x you "
+             "like.",
+             '[[goal text="Start plus climb"]]'),
+        ],
+        "picture": [
+            ("Here is y equals 3 x plus 2. It starts at height 2 on the left wall. "
+             "Now walk x out to 4: four steps, each a climb of 3, is 12 of climbing. "
+             "12 on top of the start of 2 is 14, and there is the point 4 comma 14, "
+             "right on the line.",
+             '[[graph lines="y=3x+2" points="(0,2),(4,14)" range="0..6" caption="start 2, four steps of 3 — the point (4, 14)"]]'),
+        ],
         "teach": [
-            ["Now the two jobs work together. y equals 3 x plus 2: start at height 2, and climb 3 for every step x takes. That is the whole line in one sentence — and it answers any x you like.",
-             '[[goal text="Start plus climb"]][[graph lines="y=3x+2" range="0..5" caption="y=3x+2 on the grid"]]'],
-            ["What is y when x is 4? Four steps, each a climb of 3: 3 times 4 equals 12 of climbing. Add the start: 12 plus 2 equals 14. The line stands at height 14 over x equals 4.",
-             '[[graph lines="y=3x+2" points="(4,14)" range="0..6" caption="y=3x+2 — the point (4,14)"]][[step eq="y = 3 × 4 + 2 = 14"]]'],
-            ["Count your steps carefully. The height at x equals 4 is 14; one step earlier, at x equals 3, it was only 11. Stopping a step short is the easiest mistake on a graph — land on the x you were asked about, then read the height.",
-             '[[step eq="x = 4"]] [[step eq="check: 14 ✓"]][[step eq="x = 3"]] [[step eq="11 — one step short"]]'],
+            ("That is the method. What is y when x is 4? Four steps, each a climb of "
+             "3: 3 times 4 equals 12 of climbing. Add the start: 12 plus 2 equals 14. "
+             "The line stands at height 14 over x equals 4.",
+             '[[graph lines="y=3x+2" points="(4,14)" range="0..6" caption="the point (4, 14)"]][[step eq="y = 3 × 4 + 2"]][[step eq="12 + 2 = 14"]]'),
+            ("Count your steps carefully. The height at x equals 4 is 14; one step "
+             "earlier, at x equals 3, it was only 11. Stopping a step short is the "
+             "easiest mistake on a grid — land on the x you were asked about, then "
+             "read the height.",
+             '[[step eq="x = 4: 14 ✓"]][[step eq="x = 3: 11 ✗ — one step short"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals 2 x plus 5, at x equals 3. Climb: 2 times 3 equals 6. Start: plus 5. y equals 11.",
-                        '[[step eq="y = 2 × 3 + 5 = 11"]]'],
-             "ask": {"a": 2, "b": 3, "c": 4, "op": "lin2"}},
-            {"worked": ["One more together. y equals 4 x plus 1, at x equals 5: 4 times 5 equals 20, plus 1 equals 21.",
-                        '[[step eq="y = 4 × 5 + 1 = 21"]]'],
-             "ask": {"a": 5, "b": 3, "c": 5, "op": "lin2"}},
+            {"worked": ("Here is one more, done for you. y equals 2 x plus 5, at x "
+                        "equals 3. Climb: 2 times 3 equals 6. Start: plus 5. y equals 11.",
+                        '[[graph lines="y=2x+5" points="(3,11)" range="0..5" caption="start 5, three steps of 2 — the point (3, 11)"]][[step eq="y = 2 × 3 + 5 = 11"]]'),
+             "ask": {'a': 2, 'b': 3, 'c': 4, 'op': 'lin2'}},
+            {"worked": ("One more together. y equals 4 x plus 1, at x equals 5: 4 times 5 "
+                        "equals 20, plus 1 equals 21.",
+                        '[[graph lines="y=4x+1" points="(5,21)" range="0..7" caption="start 1, five steps of 4 — the point (5, 21)"]][[step eq="y = 4 × 5 + 1 = 21"]]'),
+             "ask": {'a': 5, 'b': 3, 'c': 5, 'op': 'lin2'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. On the line y "
+                       "equals 3 x plus 2, when x is 4, y is 14. Tap the reason why."),
+            "choices": ("because four steps of 3 is 12, plus the start of 2 | "
+                        "because 3 plus 2 is 5, and 5 climbs to 14 | because the line "
+                        "starts at 3 and climbs 2 four times"),
+            "answer": "because four steps of 3 is 12, plus the start of 2",
+            "board": '[[graph lines="y=3x+2" points="(4,14)" range="0..6" caption="the point (4, 14)"]]',
+        },
+        "recap": [
+            ("So, here it is again. y equals 3 x plus 2 means start at 2 and climb 3 "
+             "per step. For any x, times the climb by the steps, then add the start "
+             "— and land on the x you were asked about, not one short.",
+             '[[graph lines="y=3x+2" points="(4,14)" range="0..6" caption="3 × 4 + 2 = 14"]]'),
+            ("And that is the whole line, answering any x you like.",
+             '[[step eq="y = 3 × 4 + 2 = 14"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "c": 2, "op": "lin2"},
             {"a": 3, "b": 2, "c": 2, "op": "lin2"},
@@ -10367,24 +10544,64 @@ _ALGEBRA1_U5 = [
         "op": "sys1", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("cross", "x"),
-        "advance_line": "Three in a row — you've got it! The crossing is where both rules tell the same story.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The crossing is where both rules tell the same story.",
+        "why": [
+            ("Why two rules? Because two rules can both talk about the same x and y. "
+             "One says y equals x plus 2. Another says y equals 3 times x. Usually "
+             "they disagree — feed them the same x and they give different y\'s. But "
+             "two straight lines that are not parallel cross somewhere, and at the "
+             "crossing they agree.",
+             '[[goal text="Where two rules agree"]]'),
+        ],
+        "picture": [
+            ("Here are both rules on one grid: two lines, and they cross. At the "
+             "crossing, both rules give the SAME y. Try x equals 1: the first rule "
+             "says 1 plus 2, which is 3; the second says 3 times 1, which is 3. They "
+             "agree — and that is what the crossing point means.",
+             '[[graph lines="y=x+2; y=3x" range="0..4" caption="both rules on one grid — they cross at (1, 3)"]]'),
+        ],
         "teach": [
-            ["Two rules can both talk about the same x and y. One says y equals x plus 2. Another says y equals 3 times x. Usually they disagree — feed them the same x and they give different y's. But look at the picture: two lines, and they cross.",
-             '[[goal text="Where two rules agree"]][[graph lines="y=x+2; y=3x" range="0..4" caption="both rules on one grid"]]'],
-            ["At the crossing, both rules give the SAME y. Try x equals 1: the first rule says 3, the second says 3. They agree! That is what the crossing point means — the one x where both lines stand at the same height.",
-             '[[graph lines="y=x+2; y=3x" points="(1,3)" range="0..4" caption="both rules on one grid — they cross at (1,3)"]][[step eq="x + 2 = 3x at x = 1"]]'],
-            ["You can find it without the picture too: if both rules give the same y, then x plus 2 EQUALS 3 x. That is an equation, and you know what to do with equations. But keep the question straight — the answer asked for is the x of the crossing, not its height.",
-             '[[step eq="x + 2 = 3x"]] [[step eq="x = 1 ✓"]][[step eq="y = 3 is the HEIGHT, not the x"]]'],
+            ("That is the method. The crossing is the one x where both lines stand at "
+             "the same height. You can find it without the picture too: if both "
+             "rules give the same y, then x plus 2 EQUALS 3 x — an equation, and you "
+             "know what to do with equations. It is true at x equals 1.",
+             '[[graph lines="y=x+2; y=3x" range="0..4" caption="they cross at (1, 3)"]][[step eq="x + 2 = 3x"]][[step eq="true at x = 1: 3 = 3"]]'),
+            ("Keep the question straight. The answer asked for is the x of the "
+             "crossing, not its height. Both rules say 3 there — but 3 is the y, and "
+             "the x is 1.",
+             '[[step eq="x = 1 ✓"]][[step eq="y = 3 is the HEIGHT, not the x"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals x plus 4, and y equals 3 times x. They agree where x plus 4 equals 3 x — at x equals 2, where both say 6.",
-                        '[[graph lines="y=x+4; y=3x" points="(2,6)" range="0..5" caption="both rules on one grid — they cross at (2,6)"]][[step eq="x + 4 = 3x"]] [[step eq="x = 2"]]'],
-             "ask": {"a": 10, "b": 6, "op": "sys1"}},
-            {"worked": ["One more together. y equals x plus 6, and y equals 4 times x. x plus 6 equals 4 x at x equals 2, where both rules say 8.",
-                        '[[step eq="x + 6 = 4x"]] [[step eq="x = 2"]]'],
-             "ask": {"a": 12, "b": 5, "op": "sys1"}},
+            {"worked": ("Here is one more, done for you. y equals x plus 4, and y equals "
+                        "3 times x. They agree where x plus 4 equals 3 x — at x equals "
+                        "2, where both say 6.",
+                        '[[graph lines="y=x+4; y=3x" range="0..5" caption="they cross at (2, 6) — the x is 2"]][[step eq="x + 4 = 3x"]][[step eq="x = 2"]]'),
+             "ask": {'a': 10, 'b': 6, 'op': 'sys1'}},
+            {"worked": ("One more together. y equals x plus 6, and y equals 4 times x. x "
+                        "plus 6 equals 4 x at x equals 2, where both rules say 8.",
+                        '[[graph lines="y=x+6; y=4x" range="0..5" caption="they cross at (2, 8) — the x is 2"]][[step eq="x + 6 = 4x"]][[step eq="x = 2"]]'),
+             "ask": {'a': 12, 'b': 5, 'op': 'sys1'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. y equals x plus 2 "
+                       "and y equals 3 x agree at x equals 1. Tap the reason why."),
+            "choices": ("because at x equals 1 both rules give the same y | because "
+                        "the lines cross at height 3, so x is 3 | because the "
+                        "plus number, 2, is always where lines cross"),
+            "answer": "because at x equals 1 both rules give the same y",
+            "board": '[[graph lines="y=x+2; y=3x" range="0..4" caption="they cross at (1, 3) — the x is 1"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two rules on one grid cross once, and the crossing "
+             "is the x where both give the same y. Set the two rules equal and solve, "
+             "or read the crossing — and answer with its x, not its height.",
+             '[[graph lines="y=x+2; y=3x" range="0..4" caption="x + 2 = 3x at x = 1"]]'),
+            ("And that is two stories agreeing at exactly one point.",
+             '[[step eq="x + 2 = 3x at x = 1"]]'),
+        ],
         "bank": [
                                     {"a": 8, "b": 5, "op": "sys1"},
             {"a": 6, "b": 3, "op": "sys1"},
@@ -10403,24 +10620,63 @@ _ALGEBRA1_U5 = [
         "op": "sys2", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("swap", "y"),
-        "advance_line": "Three in a row — you've got it! Swap y for what it equals, and one letter is left.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Swap y for what it equals, and one letter is left.",
+        "why": [
+            ("Why swap? Because here is the strongest trick in this whole unit. If "
+             "one rule TELLS you what y equals, you can swap y out of the other rule "
+             "entirely — write what it equals in its place. Two letters become one, "
+             "and one letter you can solve.",
+             '[[goal text="Swapping a letter in"]]'),
+        ],
+        "picture": [
+            ("Here is x plus y equals 10 as a bar that weighs 10. The first rule says "
+             "y is x plus 2 — so the y piece is really an x piece and a 2. Swap it "
+             "in, and the bar holds two x\'s and a 2. Take the 2 off and two x\'s "
+             "are 8, so one x is 4.",
+             '[[tape parts="x | x | 2" total="10" caption="x + y = 10, and y = x + 2 — two x\'s and a 2"]][[tape parts="4 | 4 | 2" total="10" caption="x = 4 · y = 6"]]'),
+        ],
         "teach": [
-            ["Here is the strongest trick in this whole unit. If one rule TELLS you what y equals, you can swap y out of the other rule entirely — write what it equals in its place. Two letters become one, and one letter you can solve.",
-             '[[goal text="Swapping a letter in"]]'],
-            ["y equals x plus 2. Also, x plus y equals 10. Swap the y in the second rule for x plus 2: x plus x plus 2 equals 10. That is 2 x plus 2 equals 10 — so 2 x equals 8, and x equals 4.",
-             '[[step eq="x + (x + 2) = 10"]][[step eq="2x = 8"]][[step eq="x = 4"]]'],
-            ["Two cares. First: after the swap there are TWO x's — count them. Second: the question asked for x. y is 6 here, and 6 is also standing in the problem waiting to be tapped — but it is the other letter's answer, not yours.",
-             '[[step eq="x = 4 ✓ · y = 6 — the OTHER letter"]][[step eq="check: 4 + 6 = 10 ✓"]]'],
+            ("That is the method. y equals x plus 2. Also, x plus y equals 10. Swap "
+             "the y in the second rule for x plus 2: x plus x plus 2 equals 10. That "
+             "is 2 x plus 2 equals 10 — so 2 x equals 8, and x equals 4.",
+             '[[tape parts="x | x | 2" total="10" caption="two x\'s and a 2 weigh 10"]][[step eq="x + (x + 2) = 10"]][[step eq="2x = 8"]][[step eq="x = 4"]]'),
+            ("Two cares. First: after the swap there are TWO x\'s — count them. "
+             "Second: the question asked for x. y is 6 here, and 6 is also standing "
+             "in the problem waiting to be tapped — but it is the other letter\'s "
+             "answer, not yours.",
+             '[[step eq="x = 4 ✓ · y = 6 — the OTHER letter"]][[step eq="check: 4 + 6 = 10 ✓"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals x plus 4, and x plus y equals 12. Swap: x plus x plus 4 equals 12, so 2 x equals 8, and x equals 4.",
-                        '[[step eq="2x + 4 = 12"]][[step eq="x = 4"]]'],
-             "ask": {"a": 5, "b": 13, "op": "sys2"}},
-            {"worked": ["One more together. y equals x plus 3, and x plus y equals 11. Swap: 2 x plus 3 equals 11, so x equals 4.",
-                        '[[step eq="2x + 3 = 11"]] [[step eq="x = 4"]]'],
-             "ask": {"a": 7, "b": 23, "op": "sys2"}},
+            {"worked": ("Here is one more, done for you. y equals x plus 4, and x plus y "
+                        "equals 12. Swap: x plus x plus 4 equals 12, so 2 x equals 8, "
+                        "and x equals 4.",
+                        '[[tape parts="4 | 4 | 4" total="12" caption="two x\'s and a 4 weigh 12 — x = 4"]][[step eq="2x + 4 = 12"]][[step eq="x = 4"]]'),
+             "ask": {'a': 5, 'b': 13, 'op': 'sys2'}},
+            {"worked": ("One more together. y equals x plus 3, and x plus y equals 11. "
+                        "Swap: 2 x plus 3 equals 11, so x equals 4.",
+                        '[[tape parts="4 | 4 | 3" total="11" caption="two x\'s and a 3 weigh 11 — x = 4"]][[step eq="2x + 3 = 11"]][[step eq="x = 4"]]'),
+             "ask": {'a': 7, 'b': 23, 'op': 'sys2'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. y equals x plus 2, "
+                       "and x plus y equals 10, so x is 4. Tap the reason why."),
+            "choices": ("because swapping y in leaves two x\'s and a 2 weighing 10 | "
+                        "because 10 shared between x and y is 5 each | because y is 6, "
+                        "and 6 is the bigger letter"),
+            "answer": "because swapping y in leaves two x\'s and a 2 weighing 10",
+            "board": '[[tape parts="4 | 4 | 2" total="10" caption="x = 4 · y = 6 · 4 + 6 = 10"]]',
+        },
+        "recap": [
+            ("So, here it is again. When one rule says what y equals, swap that in "
+             "for y in the other rule. One letter is left; count the x\'s, solve, and "
+             "answer with the letter you were asked for.",
+             '[[tape parts="x | x | 2" total="10" caption="x + (x + 2) = 10 · x = 4"]]'),
+            ("And that is two letters turned into one.",
+             '[[step eq="x + (x + 2) = 10, so x = 4"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 7, "op": "sys2"},
             {"a": 4, "b": 8, "op": "sys2"},
@@ -10441,24 +10697,63 @@ _ALGEBRA1_U5 = [
         "op": "sumd", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("together", "difference"),
-        "advance_line": "Three in a row — you've got it! Add the two clues and the smaller number cancels itself away.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Add the two clues and the smaller number cancels itself away.",
+        "why": [
+            ("Why two clues? Because this is the oldest puzzle with two unknowns: two "
+             "secret numbers, and two clues. Put together they equal 10. Their "
+             "difference — the bigger take away the smaller — equals 4. Neither clue "
+             "alone is enough; together they trap the answer completely.",
+             '[[goal text="The sum and the difference"]]'),
+        ],
+        "picture": [
+            ("Here are the two secret numbers as one bar, weighing 10 together. And "
+             "here is the bigger one on its own: it is the smaller one and 4 more. So "
+             "the bar is really the smaller, the smaller, and 4. Two smallers and a "
+             "4 make 10, so two smallers make 6 and the smaller is 3. The bigger is "
+             "3 and 4: 7.",
+             '[[tape parts="bigger | smaller" total="10" caption="together 10"]][[tape parts="3 | 4 | 3" total="10" caption="the bigger is the smaller and 4 more: 7 and 3"]]'),
+        ],
         "teach": [
-            ["The oldest puzzle with two unknowns: two secret numbers, and two clues. Put together they equal 10. Their difference — the bigger take away the smaller — equals 4. Neither clue alone is enough; together they trap the answer completely.",
-             '[[goal text="The sum and the difference"]][[step eq="big + small = 10"]][[step eq="big − small = 4"]]'],
-            ["Here is the trap closing. Add the two clues: big plus small, plus big take away small — the small cancels itself away, leaving two bigs. 10 plus 4 equals 14, so two bigs equal 14, and the big one is 7. The small one is what is left: 3.",
-             '[[step eq="two bigs = 10 + 4 = 14"]][[step eq="big = 7 · small = 3"]]'],
-            ["Check both clues: 7 plus 3 equals 10, and 7 take away 3 equals 4. Both happy. The lazy answer is 5 — half of 10 — but that ignores the second clue entirely: 5 and 5 have no difference at all.",
-             '[[step eq="7 + 3 = 10 ✓ · 7 − 3 = 4 ✓"]][[step eq="5 and 5 ✗ — their difference is 0, not 4"]]'],
+            ("That is the method — the trap closing. Add the two clues: big plus "
+             "small, plus big take away small — the small cancels itself away, leaving "
+             "two bigs. 10 plus 4 equals 14, so two bigs equal 14, and the big one is "
+             "7. The small one is what is left: 3.",
+             '[[tape parts="7 | 3" total="10" caption="7 + 3 = 10 · 7 − 3 = 4"]][[step eq="two bigs = 10 + 4 = 14"]][[step eq="big = 7 · small = 3"]]'),
+            ("Check both clues: 7 plus 3 equals 10, and 7 take away 3 equals 4. Both "
+             "happy. The lazy answer is 5 — half of 10 — but that ignores the second "
+             "clue entirely: 5 and 5 have no difference at all.",
+             '[[step eq="7 + 3 = 10 ✓ · 7 − 3 = 4 ✓"]][[step eq="5 and 5 ✗ — their difference is 0, not 4"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Together 12, difference 2. Two bigs equal 14, so the bigger is 7 and the smaller is 5.",
-                        '[[step eq="two bigs = 14"]] [[step eq="big = 7"]]'],
-             "ask": {"a": 8, "b": 6, "op": "sumd"}},
-            {"worked": ["One more together. Together 16, difference 6. Two bigs equal 22, the bigger is 11, the smaller is 5.",
-                        '[[step eq="two bigs = 22"]] [[step eq="big = 11"]]'],
-             "ask": {"a": 22, "b": 6, "op": "sumd"}},
+            {"worked": ("Here is one more, done for you. Together 12, difference 2. Two "
+                        "bigs equal 14, so the bigger is 7 and the smaller is 5.",
+                        '[[tape parts="7 | 5" total="12" caption="7 + 5 = 12 · 7 − 5 = 2"]][[step eq="two bigs = 12 + 2 = 14"]][[step eq="big = 7"]]'),
+             "ask": {'a': 8, 'b': 6, 'op': 'sumd'}},
+            {"worked": ("One more together. Together 16, difference 6. Two bigs equal "
+                        "22, the bigger is 11, the smaller is 5.",
+                        '[[tape parts="11 | 5" total="16" caption="11 + 5 = 16 · 11 − 5 = 6"]][[step eq="two bigs = 16 + 6 = 22"]][[step eq="big = 11"]]'),
+             "ask": {'a': 22, 'b': 6, 'op': 'sumd'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Together 10, "
+                       "difference 4, and the bigger number is 7. Tap the reason why."),
+            "choices": ("because adding the clues leaves two bigs, 14 | "
+                        "because half of 10 is 5, and 5 is the bigger | because the "
+                        "bigger is the difference, 4, and 3 more"),
+            "answer": "because adding the clues leaves two bigs, 14",
+            "board": '[[tape parts="7 | 3" total="10" caption="7 + 3 = 10 · 7 − 3 = 4"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two clues, together and apart: add them and the "
+             "smaller cancels itself away, leaving two bigs. Halve that for the "
+             "bigger; the smaller is what is left. Then check both clues.",
+             '[[tape parts="7 | 3" total="10" caption="two bigs = 14 · big 7 · small 3"]]'),
+            ("And that is two secret numbers, trapped by two clues.",
+             '[[step eq="big = (10 + 4) ÷ 2 = 7"]]'),
+        ],
         "bank": [
             {"a": 6, "b": 2, "op": "sumd"},
             {"a": 8, "b": 2, "op": "sumd"},
@@ -10479,24 +10774,64 @@ _ALGEBRA1_U5 = [
         "op": "elim", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("take away", "cents"),
-        "advance_line": "Three in a row — you've got it! Take one buy away from the other and a whole unknown vanishes.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Take one buy away from the other and a whole unknown vanishes.",
+        "why": [
+            ("Why two shopping trips? Because nobody told you what anything costs, "
+             "and yet you can work it out. Trip one: two pencils and an eraser, 14 "
+             "cents. Trip two: one pencil and the same eraser, 9 cents. Two unknowns, "
+             "two receipts — and one of the unknowns is about to vanish.",
+             '[[goal text="The eraser vanishes"]]'),
+        ],
+        "picture": [
+            ("Here are the two trips as bars. Trip one: pencil, pencil, eraser — 14 "
+             "cents. Trip two: pencil, eraser — 9 cents. Lay them side by side and the "
+             "only difference is one pencil. So one pencil is 14 take away 9: 5 cents.",
+             '[[tape parts="pencil | pencil | eraser" total="14" caption="trip one: 14 cents"]][[tape parts="pencil | eraser" total="9" caption="trip two: 9 cents — the difference is one pencil"]]'),
+        ],
         "teach": [
-            ["Two shopping trips, paid in cents, the smallest coins. Trip one: two pencils and an eraser, 14 cents. Trip two: one pencil and the same eraser, 9 cents. Nobody told you what anything costs — and yet you can work out the pencil exactly.",
-             '[[goal text="The eraser vanishes"]][[step eq="2 pencils + eraser = 14"]][[step eq="1 pencil + eraser = 9"]]'],
-            ["Take the second trip away from the first. The eraser is in both, so it vanishes. One pencil is left over on one side, and 14 take away 9 equals 5 on the other. A pencil costs 5 cents.",
-             '[[step eq="difference: 1 pencil = 14 − 9 = 5"]]'],
-            ["And the eraser? Put the pencil back into trip two: 5 plus eraser equals 9, so the eraser is 4 cents. Careful when you tap — 4 is the ERASER'S price, and the question asked for the pencil. A system holds two answers, and only one of them is yours.",
-             '[[step eq="pencil = 5 ✓ · eraser = 4 — the other unknown"]][[step eq="check: 2 × 5 + 4 = 14 ✓"]]'],
+            ("That is the method. Take the second trip away from the first. The "
+             "eraser is in both, so it vanishes. One pencil is left over on one side, "
+             "and 14 take away 9 equals 5 on the other. A pencil costs 5 cents.",
+             '[[tape parts="5 | 5 | 4" total="14" caption="pencil 5, pencil 5, eraser 4"]][[step eq="difference: 1 pencil = 14 − 9 = 5"]]'),
+            ("And the eraser? Put the pencil back into trip two: 5 plus eraser "
+             "equals 9, so the eraser is 4 cents. Careful when you tap — 4 is the "
+             "ERASER\'S price, and the question asked for the pencil. A system holds "
+             "two answers, and only one of them is yours.",
+             '[[step eq="pencil = 5 ✓ · eraser = 4 — the other unknown"]][[step eq="check: 2 × 5 + 4 = 14 ✓"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Two pencils and an eraser, 12 cents; one pencil and the eraser, 7. Take away: one pencil equals 5 cents.",
-                        '[[step eq="1 pencil = 12 − 7 = 5"]]'],
-             "ask": {"a": 18, "b": 13, "op": "elim"}},
-            {"worked": ["One more together. Two pencils and an eraser, 16 cents; one pencil and the eraser, 9. The pencil is 16 take away 9 — 7 cents.",
-                        '[[step eq="1 pencil = 16 − 9 = 7"]]'],
-             "ask": {"a": 24, "b": 13, "op": "elim"}},
+            {"worked": ("Here is one more, done for you. Two pencils and an eraser, 12 "
+                        "cents; one pencil and the eraser, 7. Take away: one pencil "
+                        "equals 5 cents.",
+                        '[[tape parts="pencil | pencil | eraser" total="12" caption="12 cents"]][[tape parts="pencil | eraser" total="7" caption="7 cents"]][[step eq="1 pencil = 12 − 7 = 5"]]'),
+             "ask": {'a': 18, 'b': 13, 'op': 'elim'}},
+            {"worked": ("One more together. Two pencils and an eraser, 16 cents; one "
+                        "pencil and the eraser, 9. The pencil is 16 take away 9 — 7 "
+                        "cents.",
+                        '[[tape parts="pencil | pencil | eraser" total="16" caption="16 cents"]][[tape parts="pencil | eraser" total="9" caption="9 cents"]][[step eq="1 pencil = 16 − 9 = 7"]]'),
+             "ask": {'a': 24, 'b': 13, 'op': 'elim'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Two pencils and an "
+                       "eraser are 14 cents; one pencil and the eraser are 9. A pencil "
+                       "is 5 cents. Tap the reason why."),
+            "choices": ("because the trips differ by one pencil, 14 take away 9 | "
+                        "because 14 shared between the two pencils is 7 | because the "
+                        "eraser is 4, and 4 is the pencil too"),
+            "answer": "because the trips differ by one pencil, 14 take away 9",
+            "board": '[[tape parts="5 | 5 | 4" total="14" caption="pencil 5 · pencil 5 · eraser 4"]][[tape parts="5 | 4" total="9" caption="5 + 4 = 9"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two buys with the same unknown in both: take one "
+             "away from the other and that unknown vanishes, leaving the other one "
+             "alone. Then answer with the one you were asked for.",
+             '[[tape parts="5 | 5 | 4" total="14" caption="14 − 9 = one pencil = 5"]]'),
+            ("And that is a price found with no price ever told.",
+             '[[step eq="1 pencil = 14 − 9 = 5"]]'),
+        ],
         "bank": [
             {"a": 10, "b": 8, "op": "elim"},
             {"a": 8, "b": 5, "op": "elim"},
@@ -10535,24 +10870,61 @@ _ALGEBRA1_U6 = [
         "op": "exadd", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("power", "x"),
-        "advance_line": "Three in a row — you've got it! Multiplying powers ADDS the counts.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Multiplying powers ADDS the counts.",
+        "why": [
+            ("Why count copies? Because you know x to the power 3 means three x\'s "
+             "multiplied. So what is x to the 3, times x to the 2? Do not guess — "
+             "WRITE IT OUT and count. A power is just a count of copies, and counts "
+             "you can see.",
+             '[[goal text="Counting the copies"]]'),
+        ],
+        "picture": [
+            ("Here is x to the 3 times x to the 2 written out as a bar: three x\'s "
+             "multiplied, then two more x\'s multiplied, all in one row. Count them "
+             "along the bar: one, two, three, four, five. Five x\'s — x to the "
+             "power 5.",
+             '[[tape parts="x | x | x | x | x" total="x⁵" caption="x³ · x² written out — 3 x\'s then 2 more: 5 x\'s"]]'),
+        ],
         "teach": [
-            ["You know x to the power 3 means three x's multiplied. So what is x to the 3, times x to the 2? Do not guess — WRITE IT OUT. Three x's multiplied, times two more x's multiplied. Count them: five x's. It is x to the power 5.",
-             '[[goal text="Counting the copies"]][[step eq="x³ · x² = (x · x · x) · (x · x)"]]'],
-            ["That is the whole rule: when powers of x multiply, their counts ADD. 3 x's and 2 x's are 5 x's — the same way 3 apples and 2 apples are 5 apples. The power is just a count.",
-             '[[step eq="x³ · x² = x⁵"]][[step eq="3 + 2 = 5"]]'],
-            ["The tempting wrong move is timesing the powers: 3 times 2 equals 6, so x to the 6. Write it out and count — there are only five x's on the page. Nothing here made copies of copies; two piles just joined.",
-             '[[step eq="x³ · x² = x⁵ ✓"]][[step eq="x⁶ ✗ — count the x\'s: there are 5"]]'],
+            ("That is the whole rule: when powers of x multiply, their counts ADD. 3 "
+             "x\'s and 2 x\'s are 5 x\'s — the same way 3 apples and 2 apples are 5 "
+             "apples. The power is just a count.",
+             '[[tape parts="x | x | x | x | x" total="x⁵" caption="3 + 2 = 5 x\'s"]][[step eq="x³ · x² = (x · x · x) · (x · x)"]][[step eq="x³ · x² = x⁵"]]'),
+            ("The tempting wrong move is timesing the powers: 3 times 2 equals 6, so "
+             "x to the 6. Write it out and count — there are only five x\'s on the "
+             "page. Nothing here made copies of copies; two piles just joined.",
+             '[[step eq="x³ · x² = x⁵ ✓"]][[step eq="x⁶ ✗ — count the x\'s: there are 5"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x to the 4 times x to the 3. Four x's joined by three more: seven x's, so x to the 7.",
-                        '[[step eq="x⁴ · x³ = x⁷"]]'],
-             "ask": {"a": 3, "b": 7, "op": "exadd"}},
-            {"worked": ["One more together. x to the 5 times x to the 2: five and two make... careful — five x's and two x's are SEVEN x's. x to the 7.",
-                        '[[step eq="x⁵ · x² = x⁷"]]'],
-             "ask": {"a": 4, "b": 6, "op": "exadd"}},
+            {"worked": ("Here is one more, done for you. x to the 4 times x to the 3. "
+                        "Four x\'s joined by three more: seven x\'s, so x to the 7.",
+                        '[[tape parts="x | x | x | x | x | x | x" total="x⁷" caption="4 + 3 = 7 x\'s"]][[step eq="x⁴ · x³ = x⁷"]]'),
+             "ask": {'a': 3, 'b': 7, 'op': 'exadd'}},
+            {"worked": ("One more together. x to the 5 times x to the 2: five x\'s and "
+                        "two x\'s are SEVEN x\'s. x to the 7.",
+                        '[[tape parts="x | x | x | x | x | x | x" total="x⁷" caption="5 + 2 = 7 x\'s"]][[step eq="x⁵ · x² = x⁷"]]'),
+             "ask": {'a': 4, 'b': 6, 'op': 'exadd'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x to the 3 times "
+                       "x to the 2 is x to the 5. Tap the reason why."),
+            "choices": ("because three x\'s joined by two x\'s is five x\'s | because "
+                        "3 times 2 is 6, so the power is 6 | because the bigger power "
+                        "wins when powers multiply"),
+            "answer": "because three x\'s joined by two x\'s is five x\'s",
+            "board": '[[tape parts="x | x | x | x | x" total="x⁵" caption="x³ · x² = x⁵"]]',
+        },
+        "recap": [
+            ("So, here it is again. A power is a count of copies. When powers of x "
+             "multiply, the piles join and the counts add — write them out and count "
+             "if you are ever unsure.",
+             '[[tape parts="x | x | x | x | x" total="x⁵" caption="x³ · x² = x⁵"]]'),
+            ("And that is apples and apples, with a power in place of the apple.",
+             '[[step eq="x³ · x² = x⁵"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 4, "op": "exadd"},
             {"a": 3, "b": 3, "op": "exadd"},
@@ -10573,24 +10945,62 @@ _ALGEBRA1_U6 = [
         "op": "exmul", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("power", "parentheses"),
-        "advance_line": "Three in a row — you've got it! Copies of copies times the counts.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Copies of copies times the counts.",
+        "why": [
+            ("Why a second rule? Because now comes the OTHER situation, and it looks "
+             "teasingly similar. Take x to the 3 — all of it, parentheses around it — "
+             "and raise THAT to the power 2. That means two copies of the whole "
+             "thing: two copies of three x\'s.",
+             '[[goal text="Copies of copies"]]'),
+        ],
+        "picture": [
+            ("Here is x to the 3, all of it, raised to the power 2, as a bar: two "
+             "groups side by side, and each group is three x\'s. Two groups of three "
+             "is 3 times 2, which equals 6 x\'s. x to the power 6.",
+             '[[tape parts="x³ | x³" total="x⁶" caption="(x³)² — two copies of three x\'s: 6 x\'s"]]'),
+        ],
         "teach": [
-            ["Now the OTHER situation, and it looks teasingly similar. Take x to the 3 — all of it, parentheses around it — and raise THAT to the power 2. That means two copies of the whole thing: two copies of three x's.",
-             '[[goal text="Copies of copies"]][[step eq="(x³)² = (x · x · x) · (x · x · x)"]]'],
-            ["Count them: two groups of three is 3 times 2, which equals 6 x's. So a power OF a power TIMES the counts — because you are making copies of copies, and copies of copies is exactly what timesing counts.",
-             '[[step eq="(x³)² = x⁶"]][[step eq="3 × 2 = 6"]]'],
-            ["Yesterday multiplying powers ADDED, today a power of a power TIMES — and telling the two apart is the entire skill. Ask one question: am I JOINING two piles, or COPYING a whole pile? Joining adds. Copying times.",
-             '[[step eq="x³ · x² = x⁵ — joining, ADD"]][[step eq="(x³)² = x⁶ — copying, TIMES"]]'],
+            ("That is the rule: a power OF a power TIMES the counts — because you are "
+             "making copies of copies, and copies of copies is exactly what timesing "
+             "counts. Two copies of three x\'s: 3 times 2 equals 6.",
+             '[[tape parts="x³ | x³" total="x⁶" caption="2 copies of 3 x\'s"]][[step eq="(x³)² = (x · x · x) · (x · x · x)"]][[step eq="(x³)² = x⁶"]]'),
+            ("Yesterday multiplying powers ADDED; today a power of a power TIMES — "
+             "and telling the two apart is the entire skill. Ask one question: am I "
+             "JOINING two piles, or COPYING a whole pile? Joining adds. Copying "
+             "times.",
+             '[[step eq="x³ · x² = x⁵ — joining, ADD"]][[step eq="(x³)² = x⁶ — copying, TIMES"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x to the 4, all raised to the power 2. Two copies of four x's: 4 times 2 equals 8, so x to the 8.",
-                        '[[step eq="(x⁴)² = x⁸"]]'],
-             "ask": {"a": 3, "b": 4, "op": "exmul"}},
-            {"worked": ["One more together. x to the 2, raised to the power 5. Five copies of two x's is 10: x to the 10.",
-                        '[[step eq="(x²)⁵ = x¹⁰"]]'],
-             "ask": {"a": 5, "b": 4, "op": "exmul"}},
+            {"worked": ("Here is one more, done for you. x to the 4, all raised to the "
+                        "power 2. Two copies of four x\'s: 4 times 2 equals 8, so x to "
+                        "the 8.",
+                        '[[tape parts="x⁴ | x⁴" total="x⁸" caption="2 copies of 4 x\'s — 8 x\'s"]][[step eq="(x⁴)² = x⁸"]]'),
+             "ask": {'a': 3, 'b': 4, 'op': 'exmul'}},
+            {"worked": ("One more together. x to the 2, raised to the power 5. Five "
+                        "copies of two x\'s is 10: x to the 10.",
+                        '[[tape parts="x² | x² | x² | x² | x²" total="x¹⁰" caption="5 copies of 2 x\'s — 10 x\'s"]][[step eq="(x²)⁵ = x¹⁰"]]'),
+             "ask": {'a': 5, 'b': 4, 'op': 'exmul'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x to the 3, all "
+                       "raised to the power 2, is x to the 6. Tap the reason why."),
+            "choices": ("because it is two copies of three x\'s, and copies times | "
+                        "because 3 and 2 join into one pile of 5 | because the outside "
+                        "power is the answer on its own"),
+            "answer": "because it is two copies of three x\'s, and copies times",
+            "board": '[[tape parts="x³ | x³" total="x⁶" caption="(x³)² = x⁶"]]',
+        },
+        "recap": [
+            ("So, here it is again. A power of a power is copies of copies, and "
+             "copies of copies times the counts. Joining two piles adds; copying a "
+             "whole pile times. Ask which one you are doing.",
+             '[[tape parts="x³ | x³" total="x⁶" caption="(x³)² = x⁶"]]'),
+            ("And that is the two power rules, told apart.",
+             '[[step eq="(x³)² = x⁶"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "exmul"},
             {"a": 2, "b": 4, "op": "exmul"},
@@ -10611,24 +11021,61 @@ _ALGEBRA1_U6 = [
         "op": "sci", "max_value": 10000,
         "levels": ("abstract",),
         "symbols": ("ten", "power"),
-        "advance_line": "Three in a row — you've got it! The power counts the zeros.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The power counts the zeros.",
+        "why": [
+            ("Why powers of ten? Because they are the friendliest powers there are. "
+             "10 to the power 3 is 10 times 10 times 10, which equals 1000 — a one "
+             "with three zeros. The power counts the zeros, and that is why "
+             "scientists write huge numbers this way.",
+             '[[goal text="Times ten, again and again"]]'),
+        ],
+        "picture": [
+            ("Here is a 6 on the place-value chart, sitting in the ones. Times it by "
+             "10 to the power 2 — that is 10 times 10, a hundred. The 6 moves two "
+             "places up the chart, into the hundreds, with two zeros marching behind "
+             "it. 6 times 10 to the 2 is 600.",
+             '[[placevalue n="6" caption="6 in the ones"]][[placevalue n="600" caption="6 × 10² = 600 — two places up, two zeros behind"]]'),
+        ],
         "teach": [
-            ["Powers of ten are the friendliest powers there are. 10 to the power 3 is 10 times 10 times 10, which equals 1000 — a one with three zeros. The power counts the zeros. That is why scientists write huge numbers this way.",
-             '[[goal text="Times ten, again and again"]][[step eq="10³ = 10 × 10 × 10 = 1000"]]'],
-            ["Now put a digit in front. 3 times 10 to the power 2: that is 3 times 100, which equals 300 — the 3 with two zeros marching behind it.",
-             '[[step eq="3 × 10² = 3 × 100 = 300"]]'],
-            ["The trap is reading the power as a TIMES: 3 times 10 times 2 equals 60, and 60 is nowhere near 300. The 2 up there is not a number to times by — it is a count of how many times the ten itself appears.",
-             '[[step eq="3 × 10² = 300 ✓"]][[step eq="3 × 10 × 2 = 60 ✗"]]'],
+            ("That is the method. Put a digit in front of a power of ten: 6 times 10 "
+             "to the power 2 is 6 times 100, which equals 600 — the 6 with two zeros "
+             "behind it. The power says how many places the digit moves.",
+             '[[placevalue n="600" caption="6 × 10² = 600"]][[step eq="6 × 10² = 6 × 100 = 600"]]'),
+            ("The trap is reading the power as a TIMES: 6 times 10 times 2 equals "
+             "120, and 120 is nowhere near 600. The 2 up there is not a number to "
+             "times by — it is a count of how many times the ten itself appears.",
+             '[[step eq="6 × 10² = 600 ✓"]][[step eq="6 × 10 × 2 = 120 ✗"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 5 times 10 to the 3. That is 5 times 1000 — 5000, the 5 with three zeros behind it.",
-                        '[[step eq="5 × 10³ = 5000"]]'],
-             "ask": {"a": 2, "b": 4, "op": "sci"}},
-            {"worked": ["One more together. 7 times 10 to the 2. That is 7 times 100 — 700, the 7 with two zeros behind it.",
-                        '[[step eq="7 × 10² = 700"]]'],
-             "ask": {"a": 3, "b": 5, "op": "sci"}},
+            {"worked": ("Here is one more, done for you. 7 times 10 to the 3. That is 7 "
+                        "times 1000 — 7000, the 7 with three zeros behind it.",
+                        '[[placevalue n="7000" caption="7 × 10³ = 7000"]][[step eq="7 × 10³ = 7000"]]'),
+             "ask": {'a': 2, 'b': 4, 'op': 'sci'}},
+            {"worked": ("One more together. 8 times 10 to the 2. That is 8 times 100 — "
+                        "800, the 8 with two zeros behind it.",
+                        '[[placevalue n="800" caption="8 × 10² = 800"]][[step eq="8 × 10² = 800"]]'),
+             "ask": {'a': 3, 'b': 5, 'op': 'sci'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 6 times 10 to the "
+                       "power 2 is 600. Tap the reason why."),
+            "choices": ("because 10 to the 2 is 100: the 6 moves two places | "
+                        "because 6 times 10 is 60, and times 2 is 120 | because the "
+                        "power 2 puts a 2 after the 6"),
+            "answer": "because 10 to the 2 is 100: the 6 moves two places",
+            "board": '[[placevalue n="600" caption="6 × 10² = 600"]]',
+        },
+        "recap": [
+            ("So, here it is again. 10 to a power is a 1 with that many zeros, and a "
+             "digit times it moves that many places up the chart. The power counts "
+             "the zeros — it is never a number to times by.",
+             '[[placevalue n="600" caption="6 × 10² = 600"]]'),
+            ("And that is how a scientist writes a huge number in a small space.",
+             '[[step eq="6 × 10² = 600"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "op": "sci"},
             {"a": 2, "b": 3, "op": "sci"},
@@ -10649,24 +11096,62 @@ _ALGEBRA1_U6 = [
         "op": "dbl", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("doubles", "day"),
-        "advance_line": "Three in a row — you've got it! Doubling doubles everything there is, not just the start.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Doubling doubles everything there is, not just the start.",
+        "why": [
+            ("Why a pond? Because a pond has 3 lily pads, and lily pads double: every "
+             "day, each pad becomes two. Watch a few days go by — 3, then 6, then 12, "
+             "then 24. Look how fast that pulled away. This kind of growing has a "
+             "name: exponential.",
+             '[[goal text="The doubling pond"]]'),
+        ],
+        "picture": [
+            ("Here are the days as bars. Day zero: 3 pads. Day one: 6. Day two: 12. "
+             "Day three: 24. Each bar is twice the one before it, because each day "
+             "doubles EVERYTHING there is — and look how the bars pull away from a "
+             "straight line.",
+             '[[bars data="day 0:3 | day 1:6 | day 2:12 | day 3:24" caption="3 pads doubling — 3, 6, 12, 24"]]'),
+        ],
         "teach": [
-            ["A pond has 3 lily pads, and lily pads double: every day, each pad becomes two. Watch a few days go by — 3, then 6, then 12, then 24. Look how fast that pulled away. This kind of growing has a name: exponential.",
-             '[[goal text="The doubling pond"]][[step eq="3 → 6 → 12 → 24"]]'],
-            ["Why so fast? Because each day doubles EVERYTHING there is, not just the pads you started with. After 3 days the pond has been doubled 3 times: 3 times 2 times 2 times 2, which equals 24. The days count the doublings — the days are a power of 2.",
-             '[[step eq="3 × 2 × 2 × 2 = 24"]][[step eq="3 × 2³"]]'],
-            ["A careful person who has not seen doubling before guesses like a walker: up by the same amount each day, 3, 5, 7, 9. But the pond is not walking — it is doubling, and by day 3 it holds 24, not 9. Growth that FEEDS ON ITSELF leaves walking behind.",
-             '[[step eq="doubling: 3 → 24 ✓"]][[step eq="up by 2 a day: 3 → 9 ✗"]]'],
+            ("That is the method. After 3 days the pond has been doubled 3 times: 3 "
+             "times 2 times 2 times 2, which equals 24. The days count the doublings "
+             "— the days are a power of 2.",
+             '[[bars data="day 0:3 | day 1:6 | day 2:12 | day 3:24" caption="3 × 2³ = 24"]][[step eq="3 × 2 × 2 × 2 = 24"]][[step eq="3 × 2³ = 24"]]'),
+            ("A careful person who has not seen doubling before guesses like a "
+             "walker: up by the same amount each day, 3, 5, 7, 9. But the pond is not "
+             "walking — it is doubling, and by day 3 it holds 24, not 9. Growth that "
+             "FEEDS ON ITSELF leaves walking behind.",
+             '[[step eq="doubling: 3 → 24 ✓"]][[step eq="up by 2 a day: 3 → 9 ✗"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 2 pads, doubling for 4 days: 2, 4, 8, 16, 32. That is 2 times 2 to the power 4 — 32 pads.",
-                        '[[step eq="2 → 4 → 8 → 16 → 32"]]'],
-             "ask": {"a": 3, "b": 6, "op": "dbl"}},
-            {"worked": ["One more together. 5 pads, doubling for 3 days: 5, 10, 20, 40. Forty pads.",
-                        '[[step eq="5 → 10 → 20 → 40"]]'],
-             "ask": {"a": 4, "b": 6, "op": "dbl"}},
+            {"worked": ("Here is one more, done for you. 4 pads, doubling for 2 days: 4, "
+                        "8, 16. That is 4 times 2 to the power 2 — 16 pads.",
+                        '[[bars data="day 0:4 | day 1:8 | day 2:16" caption="4 × 2² = 16"]][[step eq="4 → 8 → 16"]]'),
+             "ask": {'a': 3, 'b': 6, 'op': 'dbl'}},
+            {"worked": ("One more together. 2 pads, doubling for 6 days: 2, 4, 8, 16, "
+                        "32, 64, 128. That is 2 times 2 to the power 6 — 128 pads.",
+                        '[[bars data="day 0:2 | day 1:4 | day 2:8 | day 3:16 | day 4:32 | day 5:64 | day 6:128" caption="2 × 2⁶ = 128"]][[step eq="2 → 4 → 8 → 16 → 32 → 64 → 128"]]'),
+             "ask": {'a': 4, 'b': 6, 'op': 'dbl'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 lily pads double "
+                       "every day, and after 3 days there are 24. Tap the reason why."),
+            "choices": ("because each day doubles everything: 3 times 2, three times | "
+                        "because 3 days of doubling adds 2 a day, 3 to 9 | because "
+                        "doubling means 3 times 2, then times 3 days"),
+            "answer": "because each day doubles everything: 3 times 2, three times",
+            "board": '[[bars data="day 0:3 | day 1:6 | day 2:12 | day 3:24" caption="3 × 2³ = 24"]]',
+        },
+        "recap": [
+            ("So, here it is again. Doubling doubles everything there is, so the days "
+             "are a power of 2: the start, times 2 for every day. It is not walking "
+             "up by the same amount — it feeds on itself and pulls away.",
+             '[[bars data="day 0:3 | day 1:6 | day 2:12 | day 3:24" caption="3 × 2³ = 24"]]'),
+            ("And that is exponential growth, in a pond.",
+             '[[step eq="3 × 2³ = 24"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "op": "dbl"},
                         {"a": 4, "b": 2, "op": "dbl"},
@@ -21657,6 +22142,237 @@ def _fback_worked(p):
 
 
 
+# ---- (tg, 2026-09-06) ALGEBRA 1 UNITS 4-6: the line on the grid, two rules as bars
+# and two lines, powers as counted copies, the place-value chart, the doubling bars.
+# Every ask draws its question with the answer withheld; every walk-back draws the
+# same picture filled in.
+def _line_spec(m, b):
+    """y = mx + b written the way the grapher reads it: y=2x-1, y=2x, y=x+3."""
+    mm = "" if m == 1 else str(m)
+    if b == 0:
+        return f"y={mm}x"
+    return f"y={mm}x{'+' if b > 0 else '-'}{abs(b)}"
+
+
+def _lny_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph lines="y=x+{a}; x={b}" range="0..{b + a + 2}" '
+            f'caption="y = x + {a} — climb from x = {b} up to the line: how high?"]]'
+            f'[[step eq="x = {b}"]][[step eq="y = {b} + {a} = ?"]]')
+
+
+def _lny_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: find {b} along the bottom, climb straight up to the line, and "
+            f"read the height — {b} plus {a} equals {b + a}. The point is {b} comma {b + a}: the "
+            f"x you were given, standing under the y you found.",
+            f'[[graph lines="y=x+{a}" points="({b},{b + a})" range="0..{b + a + 2}" '
+            f'caption="y = x + {a} — the point ({b}, {b + a}): x = {b}, y = {b + a}"]]')
+
+
+def _slp_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[graph points="({b},{c}),({b + 1},{c + a})" range="0..{b + 3}" '
+            f'caption="from ({b}, {c}) to ({b + 1}, {c + a}) — one step right: how far up?"]]'
+            f'[[step eq="climb = {c + a} − {c} = ?"]]')
+
+
+def _slp_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: x stepped once, from {b} to {b + 1}, and y climbed from {c} "
+            f"to {c + a} — a climb of {a}, because {c + a} take away {c} equals {a}. That "
+            f"climb per step is the slope, and it is {a} all the way along the line.",
+            f'[[graph lines="{_line_spec(a, c - a * b)}" points="({b},{c}),({b + 1},{c + a})" '
+            f'range="0..{b + 3}" caption="one step right, {a} up — slope {a}"]]'
+            f'[[step eq="slope = {c + a} − {c} = {a}"]]')
+
+
+def _yint_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph lines="y={a}x+{b}" range="0..5" '
+            f'caption="y = {a}x + {b} — where does it stand at the left wall, x = 0?"]]'
+            f'[[step eq="x = 0"]][[step eq="y = {a} × 0 + {b} = ?"]]')
+
+
+def _yint_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: at x equals zero, {a} times zero is zero — the whole times "
+            f"part vanishes — and all that is left is the plus {b}. The line starts at height "
+            f"{b} and does its climbing from there.",
+            f'[[graph lines="y={a}x+{b}" points="(0,{b})" range="0..5" '
+            f'caption="at x = 0 the line stands at {b}"]]'
+            f'[[step eq="y = {a} × 0 + {b} = {b}"]]')
+
+
+def _lin2_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[graph lines="y={a}x+{b}; x={c}" range="0..{c + 2}" '
+            f'caption="y = {a}x + {b} — climb from x = {c} up to the line: how high?"]]'
+            f'[[step eq="y = {a} × {c} + {b} = ?"]]')
+
+
+def _lin2_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: start at {b}, then climb {a} for each of the {c} steps — {a} "
+            f"times {c} equals {a * c} of climbing. {a * c} plus {b} equals {a * c + b}. The "
+            f"line stands at height {a * c + b} over x equals {c}.",
+            f'[[graph lines="y={a}x+{b}" points="({c},{a * c + b})" range="0..{c + 2}" '
+            f'caption="the point ({c}, {a * c + b}) — start {b}, climb {a} × {c}"]]'
+            f'[[step eq="y = {a} × {c} + {b} = {a * c + b}"]]')
+
+
+def _sys1_board(p):
+    a, b = p["a"], p["b"]
+    x0 = a // (b - 1)
+    return (f'[[graph lines="y=x+{a}; y={b}x" cross="ask" range="0..{x0 + 3}" '
+            f'caption="two rules on one grid — they cross once: at which x?"]]'
+            f'[[step eq="x + {a} = {b}x"]]')
+
+
+def _sys1_worked(p):
+    a, b = p["a"], p["b"]
+    x0 = a // (b - 1)
+    y0 = b * x0
+    return (f"Look what you did: the lines cross once, and at the crossing both rules give the "
+            f"same y. At x equals {x0}, the first rule says {x0} plus {a}, which is {y0}, and "
+            f"the second says {b} times {x0}, which is {y0}. They agree — and the x asked for "
+            f"is {x0}, not the height {y0}.",
+            f'[[graph lines="y=x+{a}; y={b}x" range="0..{x0 + 3}" '
+            f'caption="they cross at ({x0}, {y0}) — the x is {x0}"]]'
+            f'[[step eq="x + {a} = {b}x at x = {x0}"]]')
+
+
+def _sys2_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="x | x | {a}" total="{b}" '
+            f'caption="x + y = {b}, and y is x + {a} — two x\'s and the {a}"]]'
+            f'[[step eq="x + y = {b}"]]'
+            f'[[step eq="swap y in: x + (x + {a}) = {b}"]]'
+            f'[[step eq="2x + {a} = {b}"]][[step eq="x = ?"]]')
+
+
+def _sys2_worked(p):
+    a, b = p["a"], p["b"]
+    x0 = (b - a) // 2
+    return (f"Look what you did: swap y for what it equals and the bar holds two x's and a {a}. "
+            f"Take the {a} off: two x's are {b - a}, so one x is {x0}. And y is {x0} plus {a}, "
+            f"which is {x0 + a} — the OTHER letter. Check: {x0} plus {x0 + a} equals {b}.",
+            f'[[tape parts="{x0} | {x0} | {a}" total="{b}" caption="x = {x0} · y = {x0 + a} · {x0} + {x0 + a} = {b}"]]')
+
+
+def _sumd_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="bigger | smaller" total="{a}" caption="together {a}"]]'
+            f'[[tape parts="smaller | {b}" caption="the bigger is the smaller and {b} more"]]'
+            f'[[step eq="bigger + smaller = {a}"]]'
+            f'[[step eq="bigger − smaller = {b}"]]'
+            f'[[step eq="bigger = ({a} + {b}) ÷ 2 = ?"]]')
+
+
+def _sumd_worked(p):
+    a, b = p["a"], p["b"]
+    big = (a + b) // 2
+    small = (a - b) // 2
+    return (f"Look what you did: add the two clues and the smaller cancels itself away — two "
+            f"bigs equal {a} plus {b}, which is {a + b}, so the bigger is {big}. The smaller "
+            f"is what is left: {small}. Check both: {big} plus {small} is {a}, and {big} take "
+            f"away {small} is {b}.",
+            f'[[tape parts="{big} | {small}" total="{a}" caption="{big} + {small} = {a} · {big} − {small} = {b}"]]')
+
+
+def _elim_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="pencil | pencil | eraser" total="{a}" caption="trip one: {a} cents"]]'
+            f'[[tape parts="pencil | eraser" total="{b}" caption="trip two: {b} cents — the difference is one pencil"]]'
+            f'[[step eq="2 pencils + eraser = {a}"]]'
+            f'[[step eq="1 pencil + eraser = {b}"]]'
+            f'[[step eq="take the second away: 1 pencil = {a} − {b} = ?"]]')
+
+
+def _elim_worked(p):
+    a, b = p["a"], p["b"]
+    pen = a - b
+    er = b - pen
+    return (f"Look what you did: take trip two away from trip one. The eraser is in both, so "
+            f"it vanishes, and one pencil is left over against {a} take away {b} — {pen} "
+            f"cents. The eraser is {b} take away {pen}, which is {er} — the other unknown, "
+            f"not yours.",
+            f'[[tape parts="{pen} | {pen} | {er}" total="{a}" caption="pencil {pen} · pencil {pen} · eraser {er} = {a}"]]'
+            f'[[tape parts="{pen} | {er}" total="{b}" caption="{pen} + {er} = {b}"]]')
+
+
+def _exadd_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="{" | ".join(["x"] * (a + b))}" '
+            f'caption="x{_sup(a)} · x{_sup(b)} written out — {a} x\'s, then {b} more: count them"]]'
+            f'[[step eq="x{_sup(a)} · x{_sup(b)}"]]'
+            f'[[step eq="({" · ".join(["x"] * a)}) · ({" · ".join(["x"] * b)})"]]'
+            f'[[step eq="{a} + {b} = ? x\'s"]]')
+
+
+def _exadd_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: {a} x's joined by {b} more x's — count them on the page, and "
+            f"there are {a + b}. Two piles joined, so the counts ADD: x to the power {a + b}.",
+            f'[[tape parts="{" | ".join(["x"] * (a + b))}" total="x{_sup(a + b)}" '
+            f'caption="{a} + {b} = {a + b} x\'s — x{_sup(a + b)}"]]')
+
+
+def _exmul_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="{" | ".join(["x" + _sup(a)] * b)}" '
+            f'caption="{b} copies of x{_sup(a)} — {b} groups of {a} x\'s"]]'
+            f'[[step eq="(x{_sup(a)}){_sup(b)}"]]'
+            f'[[step eq="{b} copies of {a} x\'s"]]'
+            f'[[step eq="{a} × {b} = ? x\'s"]]')
+
+
+def _exmul_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: {b} copies of the whole thing, and each copy is {a} x's — "
+            f"{b} groups of {a} is {a} times {b}, which equals {a * b} x's. Copies of copies "
+            f"TIMES: x to the power {a * b}.",
+            f'[[tape parts="{" | ".join(["x" + _sup(a)] * b)}" total="x{_sup(a * b)}" '
+            f'caption="{b} × {a} = {a * b} x\'s — x{_sup(a * b)}"]]')
+
+
+def _sci_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[placevalue n="{b}" caption="{b} — now move it {a} places up the chart"]]'
+            f'[[step eq="{b} × 10{_sup(a)}"]]'
+            f'[[step eq="{b} × {" × ".join(["10"] * a)} = ?"]]')
+
+
+def _sci_worked(p):
+    a, b = p["a"], p["b"]
+    n = b * 10 ** a
+    return (f"Look what you did: 10 to the power {a} is a 1 with {a} zeros, so {b} times it "
+            f"moves the {b} up {a} places — {n}, the {b} with {a} zeros marching behind it. "
+            f"The power counts the zeros; it is not a number to times by.",
+            f'[[placevalue n="{n}" caption="{b} × 10{_sup(a)} = {n}"]]')
+
+
+def _dbl_board(p):
+    a, b = p["a"], p["b"]
+    known = " | ".join(f"day {d}:{b * 2 ** d}" for d in range(a))
+    return (f'[[bars data="{known}" caption="{b} pads, doubling — day {a} is the question"]]'
+            f'[[step eq="start: {b}"]]'
+            f'[[step eq="{" → ".join(str(b * 2 ** d) for d in range(a))} → ?"]]'
+            f'[[step eq="{b} × {" × ".join(["2"] * a)} = ?"]]')
+
+
+def _dbl_worked(p):
+    a, b = p["a"], p["b"]
+    n = b * 2 ** a
+    alld = " | ".join(f"day {d}:{b * 2 ** d}" for d in range(a + 1))
+    seq = ", then ".join(str(b * 2 ** d) for d in range(1, a + 1))
+    return (f"Look what you did: doubling {a} times — {seq}. After {a} days the pond holds "
+            f"{n} pads, because {b} times 2 to the power {a} is {n}. Each day doubled "
+            f"everything there was, not just the start — look how the bars pull away.",
+            f'[[bars data="{alld}" caption="{b} × 2{_sup(a)} = {n} pads after {a} days"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -23645,9 +24361,8 @@ OP_EXT = {
         "ans": lambda p: p["b"] + p["a"],
         "spoken": lambda p: (f"The line is y equals x plus {p['a']}. "
                              f"What is y when x is {p['b']}?"),
-        "board": lambda p: (f'[[graph lines="y=x+{p["a"]}" '
-                            f'range="0..{p["b"] + p["a"] + 2}"]]'
-                            f'[[step eq="x = {p["b"]} → y = {p["b"]} + {p["a"]} = ?"]]'),
+        "board": _lny_board,          # (tg) the line and the climb from x = b, the height withheld
+        "worked": _lny_worked,        # (tg) the point marked
         "praise": lambda p: (f"At x equals {p['b']}, the line stands at {p['b']} "
                              f"plus {p['a']} — y equals {p['b'] + p['a']}."),
         "key": lambda p: p["b"] + p["a"],
@@ -23664,11 +24379,8 @@ OP_EXT = {
                              f"{p['c']}, and the point {p['b'] + 1} comma "
                              f"{p['c'] + p['a']}. When x goes up by 1, how much "
                              f"does y go up?"),
-        "board": lambda p: (f'[[graph points="({p["b"]},{p["c"]}),'
-                            f'({p["b"] + 1},{p["c"] + p["a"]})" '
-                            f'range="0..{p["b"] + 3}"]]'
-                            f'[[step eq="y: {p["c"]} → {p["c"] + p["a"]}, '
-                            f'a climb of?"]]'),
+        "board": _slp_board,          # (tg) the two points, the climb asked
+        "worked": _slp_worked,        # (tg) the line through them, the climb named
         "praise": lambda p: (f"x stepped once and y climbed from {p['c']} to "
                              f"{p['c'] + p['a']} — a climb of {p['a']}. That climb "
                              f"is called the slope."),
@@ -23690,9 +24402,8 @@ OP_EXT = {
         "ans": lambda p: p["b"],
         "spoken": lambda p: (f"The line is y equals {p['a']} x plus {p['b']}. "
                              f"What is y when x is zero?"),
-        "board": lambda p: (f'[[graph lines="y={p["a"]}x+{p["b"]}" '
-                            f'range="0..5"]]'
-                            f'[[step eq="x = 0 → y = {p["a"]} × 0 + {p["b"]} = ?"]]'),
+        "board": _yint_board,         # (tg) the line, the left wall asked
+        "worked": _yint_worked,       # (tg) the start marked at x = 0
         "praise": lambda p: (f"{p['a']} times zero is zero — the times part "
                              f"vanishes, and y is just {p['b']}. That is where the "
                              f"line starts."),
@@ -23708,9 +24419,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] * p["c"] + p["b"],
         "spoken": lambda p: (f"The line is y equals {p['a']} x plus {p['b']}. "
                              f"What is y when x is {p['c']}?"),
-        "board": lambda p: (f'[[graph lines="y={p["a"]}x+{p["b"]}" '
-                            f'range="0..{p["c"] + 2}"]]'
-                            f'[[step eq="y = {p["a"]} × {p["c"]} + {p["b"]} = ?"]]'),
+        "board": _lin2_board,         # (tg) the line and the climb from x = c
+        "worked": _lin2_worked,       # (tg) the point marked, start and climb named
         "praise": lambda p: (f"Start at {p['b']}, climb {p['a']} for each of the "
                              f"{p['c']} steps: {p['a']} times {p['c']} equals "
                              f"{p['a'] * p['c']}, plus {p['b']} equals "
@@ -23740,9 +24450,8 @@ OP_EXT = {
         "spoken": lambda p: (f"One rule says y equals x plus {p['a']}. Another rule "
                              f"says y equals {p['b']} times x. For which x do both "
                              f"rules say the SAME y?"),
-        "board": lambda p: (f'[[graph lines="y=x+{p["a"]}; y={p["b"]}x" '
-                            f'range="0..{p["a"] // (p["b"] - 1) + 3}"]]'
-                            f'[[step eq="x + {p["a"]} = {p["b"]}x"]]'),
+        "board": _sys1_board,         # (tg) two lines, the crossing ringed and asked
+        "worked": _sys1_worked,       # (tg) the crossing labelled
         "praise": lambda p: (f"At x equals {p['a'] // (p['b'] - 1)}, both rules say "
                              f"y equals {p['b'] * (p['a'] // (p['b'] - 1))} — the "
                              f"lines cross there, and that crossing is the answer."),
@@ -23769,9 +24478,8 @@ OP_EXT = {
         "ans": lambda p: (p["b"] - p["a"]) // 2,
         "spoken": lambda p: (f"y equals x plus {p['a']}. Also, x plus y equals "
                              f"{p['b']}. What is x?"),
-        "board": lambda p: (f'[[step eq="x + y = {p["b"]}"]]'
-                            f'[[step eq="swap y in: x + (x + {p["a"]}) = {p["b"]}"]]'
-                            f'[[step eq="2x = {p["b"] - p["a"]} → x = ?"]]'),
+        "board": _sys2_board,         # (tg) the bar: two x's and the a, against b
+        "worked": _sys2_worked,       # (tg) the bar with x found, y beside it
         "praise": lambda p: (f"Swap y for what it equals and there are two x's: "
                              f"2 x plus {p['a']} equals {p['b']}, so 2 x equals "
                              f"{p['b'] - p['a']}, and x equals "
@@ -23793,9 +24501,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Two secret numbers. Put together they equal {p['a']}. "
                              f"The bigger take away the smaller equals {p['b']}. "
                              f"What is the bigger number?"),
-        "board": lambda p: (f'[[step eq="bigger + smaller = {p["a"]}"]]'
-                            f'[[step eq="bigger − smaller = {p["b"]}"]]'
-                            f'[[step eq="bigger = ({p["a"]} + {p["b"]}) ÷ 2 = ?"]]'),
+        "board": _sumd_board,         # (tg) the two bars: together, and the bigger as smaller-and-more
+        "worked": _sumd_worked,       # (tg) the two numbers on the bar, both clues checked
         "praise": lambda p: (f"The bigger is {(p['a'] + p['b']) // 2} and the "
                              f"smaller is {(p['a'] - p['b']) // 2} — together "
                              f"{p['a']}, apart {p['b']}. Both rules happy at once."),
@@ -23816,10 +24523,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Two pencils and an eraser cost {p['a']} cents. One "
                              f"pencil and the same eraser cost {p['b']} cents. "
                              f"What does one pencil cost?"),
-        "board": lambda p: (f'[[step eq="2 pencils + eraser = {p["a"]}"]]'
-                            f'[[step eq="1 pencil + eraser = {p["b"]}"]]'
-                            f'[[step eq="take the second away: 1 pencil = '
-                            f'{p["a"]} − {p["b"]} = ?"]]'),
+        "board": _elim_board,         # (tg) the two trips as bars, the difference one pencil
+        "worked": _elim_worked,       # (tg) the prices filled in
         "praise": lambda p: (f"Take the second buy away from the first: the eraser "
                              f"vanishes, one pencil is left, and it costs "
                              f"{p['a'] - p['b']} cents."),
@@ -23850,10 +24555,8 @@ OP_EXT = {
         "spoken": lambda p: (f"x to the power {p['a']}, times x to the power "
                              f"{p['b']}. Write out all the x's multiplied — "
                              f"how many x's are there?"),
-        "board": lambda p: (f'[[step eq="x{_sup(p["a"])} · x{_sup(p["b"])}"]]'
-                            f'[[step eq="({" · ".join(["x"] * p["a"])}) · '
-                            f'({" · ".join(["x"] * p["b"])})"]]'
-                            f'[[step eq="{p["a"]} + {p["b"]} = ? x\'s"]]'),
+        "board": _exadd_board,        # (tg) the x's written out as a bar, counted
+        "worked": _exadd_worked,      # (tg) the bar with its count
         "praise": lambda p: (f"{p['a']} x's joined by {p['b']} more x's — "
                              f"{p['a'] + p['b']} x's multiplied, which is x to the "
                              f"power {p['a'] + p['b']}. The powers ADD."),
@@ -23873,9 +24576,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Take x to the power {p['a']}, and raise all of it "
                              f"to the power {p['b']}. How many x's multiplied "
                              f"is that?"),
-        "board": lambda p: (f'[[step eq="(x{_sup(p["a"])}){_sup(p["b"])}"]]'
-                            f'[[step eq="{p["b"]} copies of {p["a"]} x\'s"]]'
-                            f'[[step eq="{p["a"]} × {p["b"]} = ? x\'s"]]'),
+        "board": _exmul_board,        # (tg) b copies of x^a as a bar
+        "worked": _exmul_worked,      # (tg) the copies counted
         "praise": lambda p: (f"{p['b']} copies of {p['a']} x's each: {p['a']} times "
                              f"{p['b']} equals {p['a'] * p['b']} x's. Copies of "
                              f"copies TIMES."),
@@ -23894,9 +24596,8 @@ OP_EXT = {
     "sci": {   # b × 10^a
         "ans": lambda p: p["b"] * 10 ** p["a"],
         "spoken": lambda p: (f"What is {p['b']} times 10 to the power {p['a']}?"),
-        "board": lambda p: (f'[[step eq="{p["b"]} × 10{_sup(p["a"])}"]]'
-                            f'[[step eq="{p["b"]} × '
-                            f'{" × ".join(["10"] * p["a"])} = ?"]]'),
+        "board": _sci_board,          # (tg) the digit on the chart before the move
+        "worked": _sci_worked,        # (tg) the digit moved up a places
         "praise": lambda p: (f"10 to the {p['a']} is a 1 with {p['a']} zeros, so "
                              f"{p['b']} times it is {p['b']} with {p['a']} zeros — "
                              f"{p['b'] * 10 ** p['a']}."),
@@ -23917,9 +24618,8 @@ OP_EXT = {
         # The sequence stops ONE DAY SHORT and ends on "?" -- drawn to the end it
         # hands the child the answer, and a board that answers its own ask teaches
         # tapping, not doubling.
-        "board": lambda p: (f'[[step eq="start: {p["b"]}"]]'
-                            f'[[step eq="{" → ".join(str(p["b"] * 2 ** d) for d in range(p["a"]))} → ?"]]'
-                            f'[[step eq="{p["b"]} × {" × ".join(["2"] * p["a"])} = ?"]]'),
+        "board": _dbl_board,          # (tg) the bars one day short
+        "worked": _dbl_worked,        # (tg) the bars to the end
         "praise": lambda p: (f"Doubling {p['a']} times: "
                              f"{' , then '.join(str(p['b'] * 2 ** d) for d in range(1, p['a'] + 1))}"
                              f" — {p['b'] * 2 ** p['a']} pads. Each day doubles "

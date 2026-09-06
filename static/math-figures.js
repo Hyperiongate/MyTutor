@@ -2,6 +2,10 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-06  BUILD tg -- [[graph cross="ask"]]: the crossing of two lines is ringed
+                 but reads "(?, ?)", so where-two-rules-agree can be ASKED on the
+                 picture (the auto-label used to print the answer); cross="none" draws
+                 no marker. Algebra 1 Unit 5. Without cross= nothing changed.
      2026-09-06  BUILD tf -- [[areamodel ask="1"]] keeps the sign of a taken-away room:
                  4(x − 3) asks as "= 4x - ?" (te wrote "+ ?"). Algebra 1 Unit 1.
      2026-09-06  BUILD te -- TWO FIGURES LEARN TO ASK. [[rectangle half="1"]] draws
@@ -408,12 +412,16 @@
       segs.forEach(function (pts) { if (pts.length > 1) svg += '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + col + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'; });
     });
     // intersection of the first two straight lines (kept from the old grapher)
-    if (parsedLines.length >= 2 && !parsedLines[0].vertical && !parsedLines[1].vertical && parsedLines[0].m !== parsedLines[1].m) {
+    // (tg, 2026-09-06) cross="ask": the crossing is ringed but its coordinates read
+    // "(?, ?)" -- Algebra 1's where-two-rules-agree ASKS for the crossing, and a picture
+    // that prints it is the answer handed over. cross="none" draws no marker at all.
+    var crossMode = String(a.cross || "").toLowerCase();
+    if (crossMode !== "none" && parsedLines.length >= 2 && !parsedLines[0].vertical && !parsedLines[1].vertical && parsedLines[0].m !== parsedLines[1].m) {
       var ix = (parsedLines[1].b - parsedLines[0].b) / (parsedLines[0].m - parsedLines[1].m);
       var iy = parsedLines[0].m * ix + parsedLines[0].b;
       if (ix >= xmin && ix <= xmax && iy >= ymin && iy <= ymax) {
         svg += '<circle cx="' + mapX(ix) + '" cy="' + mapY(iy) + '" r="5.5" fill="var(--bd-ffffff)" stroke="var(--bd-e0392b)" stroke-width="2.5"/>';
-        svg += '<text x="' + (mapX(ix) + 9) + '" y="' + (mapY(iy) - 7) + '" font-size="11" font-weight="700" fill="var(--bd-c0392b)">(' + trimnum(ix) + ", " + trimnum(iy) + ')</text>';
+        svg += '<text x="' + (mapX(ix) + 9) + '" y="' + (mapY(iy) - 7) + '" font-size="11" font-weight="700" fill="var(--bd-c0392b)">' + (crossMode === "ask" ? "(?, ?)" : "(" + trimnum(ix) + ", " + trimnum(iy) + ")") + '</text>';
       }
     }
     // BUILD dk (audit re-run finding 8): a point must never be drawn AT a declared

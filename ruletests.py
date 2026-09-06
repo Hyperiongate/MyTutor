@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tg -- PART 3jc: Algebra 1 Units 4-6 to the shape (12 lessons on the
+#               grid, two lines with the crossing asked, bars, the place-value chart and
+#               the doubling bars); every graph ask captioned.
 #   2026-09-06  BUILD tf -- PART 3jb: Algebra 1 Units 1-3 to the shape (12 lessons on the
 #               bar, the area model, the balance, the number line and the machine); every
 #               machine and number-line ask captioned.
@@ -21861,7 +21864,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>9,282</b>" in page,
+          "<b>9,366</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24813,6 +24816,112 @@ def part3jb_algebra_one_units_one_to_three_to_the_shape():
           "Jim's rule 8")
 
 
+def part3jc_algebra_one_units_four_to_six_to_the_shape():
+    """PART 3jc (build tg, 2026-09-06) -- ALGEBRA 1 UNITS 4-6 TO THE SHAPE.
+
+    Lines on the grid (the climb from a given x, the point marked; the slope as the
+    line through two points; the start at the left wall), two rules as two lines
+    with the crossing ringed and asked (cross="ask") and as bars (swap, sum and
+    difference, the eraser), powers as counted copies, a digit moved up the
+    place-value chart, the doubling pond as bars. Every graph ask carries a caption."""
+    print("\nPART 3jc — Algebra 1 Units 4-6 to the shape (build tg)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    A4 = ["alg1-u4-reading-the-line", "alg1-u4-the-climb",
+          "alg1-u4-where-it-starts", "alg1-u4-start-and-climb"]
+    A5 = ["alg1-u5-where-two-rules-agree", "alg1-u5-swapping-in",
+          "alg1-u5-sum-and-difference", "alg1-u5-the-eraser-vanishes"]
+    A6 = ["alg1-u6-counting-the-copies", "alg1-u6-copies-of-copies",
+          "alg1-u6-times-ten-again", "alg1-u6-the-doubling-pond"]
+    _shape_unit_checks(A4, r"\[\[graph\b")
+    _shape_unit_checks(A5, r"\[\[(graph|tape)\b")
+    _shape_unit_checks(A6, r"\[\[(tape|placevalue|bars)\b")
+
+    # ---- Unit 4 ------------------------------------------------------------------------
+    lny = {"a": 2, "b": 3, "op": "lny"}
+    check("⭐ reading the line is asked with a vertical line at the given x and the height withheld, and walked back with the point marked",
+          '[[graph lines="y=x+2; x=3" range="0..7"' in L.board_for(lny, "abstract")
+          and L.board_for(lny, "abstract").endswith('[[step eq="x = 3"]][[step eq="y = 3 + 2 = ?"]]')
+          and '[[graph lines="y=x+2" points="(3,5)" range="0..7"' in _W(lny)[1] and "standing under the y you found" in _W(lny)[0], _W(lny)[1])
+    slp = {"a": 2, "b": 2, "c": 3, "op": "slp"}
+    check("⭐ the climb is asked with the two points and walked back with the line drawn through them",
+          'points="(2,3),(3,5)"' in L.board_for(slp, "abstract") and 'lines=' not in L.board_for(slp, "abstract")
+          and '[[graph lines="y=2x-1" points="(2,3),(3,5)"' in _W(slp)[1] and '[[step eq="slope = 5 − 3 = 2"]]' in _W(slp)[1], _W(slp)[1])
+    check("  ...and the line through two points is written the way the grapher reads it",
+          L._line_spec(2, -1) == "y=2x-1" and L._line_spec(3, 1) == "y=3x+1" and L._line_spec(4, 0) == "y=4x" and L._line_spec(1, 3) == "y=x+3", "")
+    yint = {"a": 2, "b": 3, "op": "yint"}
+    check("  the start is asked at the left wall and walked back with (0, b) marked",
+          "at the left wall, x = 0?" in L.board_for(yint, "abstract") and 'points="(0,3)"' in _W(yint)[1]
+          and "the whole times part vanishes" in _W(yint)[0], "")
+    lin2 = {"a": 3, "b": 2, "c": 4, "op": "lin2"}
+    check("  start-and-climb is asked with the vertical line at x = c and walked back with the point reached",
+          'lines="y=3x+2; x=4"' in L.board_for(lin2, "abstract") and 'points="(4,14)"' in _W(lin2)[1]
+          and "12 of climbing" in _W(lin2)[0], "")
+
+    # ---- Unit 5 ------------------------------------------------------------------------
+    sys1 = {"a": 2, "b": 3, "op": "sys1"}
+    check("⭐ where two rules agree is asked on two lines with the crossing ringed but unlabelled, and walked back with it labelled",
+          '[[graph lines="y=x+2; y=3x" cross="ask" range="0..4"' in L.board_for(sys1, "abstract")
+          and 'cross=' not in _W(sys1)[1] and "they cross at (1, 3) — the x is 1" in _W(sys1)[1]
+          and "not the height 3" in _W(sys1)[0], _W(sys1)[1])
+    mf = rd("static/math-figures.js")
+    check("  math-figures.js rings the crossing as (?, ?) under cross=\"ask\" and draws none under cross=\"none\"",
+          'var crossMode = String(a.cross || "").toLowerCase();' in mf and '(crossMode === "ask" ? "(?, ?)" :' in mf
+          and 'if (crossMode !== "none" && parsedLines.length >= 2' in mf, "")
+    sys2 = {"a": 2, "b": 10, "op": "sys2"}
+    check("⭐ swapping in is asked as a bar of two x's and the a, and the pending line is spoken (no arrow after an equals)",
+          '[[tape parts="x | x | 2" total="10"' in L.board_for(sys2, "abstract")
+          and L.board_for(sys2, "abstract").endswith('[[step eq="2x + 2 = 10"]][[step eq="x = ?"]]')
+          and "→" not in L.board_for(sys2, "abstract")
+          and '[[tape parts="4 | 4 | 2" total="10" caption="x = 4 · y = 6 · 4 + 6 = 10"]]' == _W(sys2)[1], L.board_for(sys2, "abstract"))
+    sumd = {"a": 10, "b": 4, "op": "sumd"}
+    check("  sum and difference: the two bars on the ask, the two numbers on one bar in the walk-back with both clues checked",
+          '[[tape parts="bigger | smaller" total="10"' in L.board_for(sumd, "abstract") and '[[tape parts="smaller | 4"' in L.board_for(sumd, "abstract")
+          and '[[tape parts="7 | 3" total="10" caption="7 + 3 = 10 · 7 − 3 = 4"]]' == _W(sumd)[1], "")
+    elim = {"a": 14, "b": 9, "op": "elim"}
+    check("  the eraser: the two trips as bars, the prices filled in the walk-back, the eraser named as the other unknown",
+          'parts="pencil | pencil | eraser" total="14"' in L.board_for(elim, "abstract")
+          and '[[tape parts="5 | 5 | 4" total="14"' in _W(elim)[1] and "the other unknown, not yours" in _W(elim)[0], "")
+
+    # ---- Unit 6 ------------------------------------------------------------------------
+    ex1 = {"a": 3, "b": 2, "op": "exadd"}
+    check("⭐ multiplying powers: the x's written out as a bar to count; the walk-back names the count and x to that power",
+          '[[tape parts="x | x | x | x | x"' in L.board_for(ex1, "abstract")
+          and 'total="x⁵"' in _W(ex1)[1] and "the counts ADD" in _W(ex1)[0], "")
+    ex2 = {"a": 3, "b": 2, "op": "exmul"}
+    check("  a power of a power: b copies of x^a as a bar; the walk-back times the counts",
+          '[[tape parts="x³ | x³"' in L.board_for(ex2, "abstract") and 'total="x⁶"' in _W(ex2)[1]
+          and "Copies of copies TIMES" in _W(ex2)[0], "")
+    sci = {"a": 2, "b": 3, "op": "sci"}
+    check("⭐ times ten to a power: the digit on the chart before the move, moved up a places in the walk-back",
+          '[[placevalue n="3" caption="3 — now move it 2 places up the chart"]]' in L.board_for(sci, "abstract")
+          and '[[placevalue n="300" caption="3 × 10² = 300"]]' == _W(sci)[1] and "it is not a number to times by" in _W(sci)[0], "")
+    dbl = {"a": 3, "b": 3, "op": "dbl"}
+    check("⭐ the doubling pond: bars one day short on the ask, to the end in the walk-back",
+          '[[bars data="day 0:3 | day 1:6 | day 2:12" caption="3 pads, doubling — day 3 is the question"]]' in L.board_for(dbl, "abstract")
+          and '[[bars data="day 0:3 | day 1:6 | day 2:12 | day 3:24"' in _W(dbl)[1] and "look how the bars pull away" in _W(dbl)[0], "")
+
+    # ---- the giveaway audit, captions, the notes -----------------------------------------
+    check("  nothing the twelve lessons demonstrate is later asked",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in A4 + A5 + A6), "")
+    check("  every graph, bar chart, chart and tape an ask draws carries a caption (rule 41) -- 58 graph asks did not before tg",
+          all("caption=" in tag for l in A4 + A5 + A6
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:graph|bars|placevalue|tape)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    check("  no ask in the three units prints the crossing, and none writes a question inside a [[step eq]]",
+          not any(re.search(r'\[\[graph[^\]]*lines="y=[^";]*;\s*y=[^"]*"(?![^\]]*cross="ask")', L.board_for(p, "abstract"))
+                  or re.search(r'\[\[step eq="[^"]*[A-Za-z]\?[^"]*"\]\]', L.board_for(p, "abstract"))
+                  for l in A4 + A5 + A6 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
+    check("  the changed files carry dated tg notes",
+          "2026-09-06  BUILD tg" in rd("lessonscripts.py")[:20000] and "BUILD tg" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD tg" in rd("ruletests.py")[:8000] and "(tg)" in rd("static/methodology.html")[:6000]
+          and "2026-09-06  BUILD tg" in mf[:3000],
+          "Jim's rule 8")
+
+
 def part3dp_no_button_under_a_talking_teacher():
     """PART 3dp (build nb) -- NOTHING APPEARS UNDER A TEACHER WHO IS STILL TALKING.
 
@@ -25623,10 +25732,14 @@ def part3ib_five_flags_from_jims_queue():
             if _t.board_flood_conflict(text):
                 fires += 1
     for les in LS.LESSONS:
-        for sp, b in les.get("teach") or []:
-            n += 1
-            if _t.board_flood_conflict((sp or "") + (b or "")):
-                fires += 1
+        # (tg) the shape's why / picture / recap beats are authored replies too --
+        # and as lessons move to the shape (two teach beats, not three) the teach
+        # count alone fell under the 1,300 floor. The sweep reads every beat now.
+        for _field in ("teach", "why", "picture", "recap"):
+            for sp, b in les.get(_field) or []:
+                n += 1
+                if _t.board_flood_conflict((sp or "") + (b or "")):
+                    fires += 1
     check(f"⭐ zero flood fires across {n} authored replies",
           fires == 0 and n >= 1300, f"{fires} authored replies rejected")   # 1,389 on ship day
 
@@ -35131,6 +35244,7 @@ def main():
     part3iz_prealgebra_units_four_to_six_to_the_shape()
     part3ja_prealgebra_units_seven_to_nine_to_the_shape()
     part3jb_algebra_one_units_one_to_three_to_the_shape()
+    part3jc_algebra_one_units_four_to_six_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
