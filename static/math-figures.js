@@ -2,6 +2,11 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-06  BUILD th -- [[areamodel]] learns two more ask modes. ask="x": the x rooms
+                 and the sum's x-term read "?" (the four rooms: middle asked, corner
+                 given). ask="side": the last column's header and its rooms read "?"
+                 with the sum left whole (factoring: the rooms run backwards from a
+                 known sum). ask="1" is unchanged. Algebra 1 Unit 7.
      2026-09-06  BUILD tg -- [[graph cross="ask"]]: the crossing of two lines is ringed
                  but reads "(?, ?)", so where-two-rules-agree can be ASKED on the
                  picture (the auto-label used to print the answer); cross="none" draws
@@ -1438,7 +1443,15 @@
   function areamodel(a) {
     var rows = String(a.rows || "x,2").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
     var cols = String(a.cols || "x,3").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
-    var ask = String(a.ask || "") === "1" || String(a.ask || "").toLowerCase() === "true";
+    // (th, 2026-09-06) three ask modes. ask="1": the number-only room and the sum's
+    // constant read "?" (the distributive lessons). ask="x": the x rooms and the
+    // sum's x-term read "?" -- the four-rooms lesson asks for the MIDDLE with the
+    // corner given. ask="side": the LAST column's header and its rooms read "?" with
+    // the sum left whole -- factoring runs the rooms backwards from a known sum.
+    var askRaw = String(a.ask || "").toLowerCase();
+    var ask = askRaw === "1" || askRaw === "true";
+    var askX = askRaw === "x";
+    var askSide = askRaw === "side";
     var rt = rows.map(parseTerm), ct = cols.map(parseTerm);
     var vis = function (tm) { return tm.pow ? 2.3 : Math.min(2.6, Math.max(0.9, Math.abs(tm.coef) * 0.6)); };
     var rw = rt.map(vis), cw = ct.map(vis);
@@ -1453,8 +1466,9 @@
       ct.forEach(function (c, j) {
         var cwid = cw[j] * sx, coef = r.coef * c.coef, pow = r.pow + c.pow;
         s += '<rect x="' + xx + '" y="' + yy + '" width="' + cwid + '" height="' + ch + '" fill="' + cellColors[(i + j) % cellColors.length] + '" stroke="var(--bd-5b5bd6)" stroke-width="1.3"/>';
-        s += tspan(xx + cwid / 2, yy + ch / 2 + 5, (ask && pow === 0) ? "?" : termLabel(coef, pow), "var(--bd-26263a)", 14, 700);
-        if (i === 0) s += tspan(xx + cwid / 2, y0 - 12, termLabel(c.coef, c.pow), "var(--bd-555566)", 13, 800);
+        var hideCell = (ask && pow === 0) || (askX && pow === 1) || (askSide && j === ct.length - 1);
+        s += tspan(xx + cwid / 2, yy + ch / 2 + 5, hideCell ? "?" : termLabel(coef, pow), "var(--bd-26263a)", 14, 700);
+        if (i === 0) s += tspan(xx + cwid / 2, y0 - 12, (askSide && j === ct.length - 1) ? "?" : termLabel(c.coef, c.pow), "var(--bd-555566)", 13, 800);
         xx += cwid;
       });
       yy += ch;
@@ -1462,7 +1476,11 @@
     // expanded sum
     var sum = {};
     rt.forEach(function (r) { ct.forEach(function (c) { var p = r.pow + c.pow; sum[p] = (sum[p] || 0) + r.coef * c.coef; }); });
-    var parts = [2, 1, 0].filter(function (p) { return sum[p]; }).map(function (p) { return (ask && p === 0) ? (sum[p] < 0 ? "-?" : "?") : termLabel(sum[p], p); });
+    var parts = [2, 1, 0].filter(function (p) { return sum[p]; }).map(function (p) {
+      if (ask && p === 0) return sum[p] < 0 ? "-?" : "?";
+      if (askX && p === 1) return sum[p] < 0 ? "-?x" : "?x";
+      return termLabel(sum[p], p);
+    });
     var eq = parts.join(" + ").replace(/\+ -/g, "- ");
     s += tspan(W / 2, H - 10, "= " + eq, "var(--bd-26263a)", 14, 800);
     return s + "</svg>";

@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD th -- PART 3jd: Algebra 1 Units 7-9 to the shape (12 lessons on the
+#               area model with its new ask modes, the grid, the tape, the dotplot and the
+#               number line); the course is 36/36; every figure an ask draws captioned.
 #   2026-09-06  BUILD tg -- PART 3jc: Algebra 1 Units 4-6 to the shape (12 lessons on the
 #               grid, two lines with the crossing asked, bars, the place-value chart and
 #               the doubling bars); every graph ask captioned.
@@ -21864,7 +21867,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>9,366</b>" in page,
+          "<b>9,450</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24655,7 +24658,7 @@ def part3ja_prealgebra_units_seven_to_nine_to_the_shape():
           and 'var w = Math.max(1, Math.min(20, Math.floor(num(a.w, 5))));' in mf
           and 'var cell = (w > 12 || h > 8) ? 18 : 30' in mf, "")
     check("  ...and the area model asks with its number room blank (ask=\"1\")",
-          '(ask && pow === 0) ? "?" : termLabel(coef, pow)' in mf and '(ask && p === 0) ? (sum[p] < 0 ? "-?" : "?") : termLabel(sum[p], p)' in mf, "")   # (tf) re-pinned: the sign is kept
+          'var hideCell = (ask && pow === 0)' in mf and 'if (ask && p === 0) return sum[p] < 0 ? "-?" : "?";' in mf, "")   # (tf) re-pinned: the sign is kept; (th) re-pinned: three ask modes share one hideCell
     sla = {"a": 130, "b": 0, "op": "sla"}
     check("⭐ angles on a line: the straight line split with the rest asked, walked back with both pieces labelled",
           '[[angle deg="180" split="130" caption="a straight line — 130° and the rest"]][[step eq="180° − 130° = ?"]]' == L.board_for(sla, "abstract")
@@ -24759,7 +24762,7 @@ def part3jb_algebra_one_units_one_to_three_to_the_shape():
           and "that room is taken away" in _W(dstm)[0], "")
     mf = rd("static/math-figures.js")
     check("  math-figures.js keeps the sign of a taken-away room when the area model asks",
-          '(sum[p] < 0 ? "-?" : "?")' in mf, "")
+          'if (ask && p === 0) return sum[p] < 0 ? "-?" : "?";' in mf, "")   # (th) re-pinned: the sum's parts are built in a block now
 
     # ---- Unit 2 ------------------------------------------------------------------------
     un1 = {"a": 4, "b": 11, "op": "un1"}
@@ -24919,6 +24922,118 @@ def part3jc_algebra_one_units_four_to_six_to_the_shape():
           "2026-09-06  BUILD tg" in rd("lessonscripts.py")[:20000] and "BUILD tg" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tg" in rd("ruletests.py")[:8000] and "(tg)" in rd("static/methodology.html")[:6000]
           and "2026-09-06  BUILD tg" in mf[:3000],
+          "Jim's rule 8")
+
+
+def part3jd_algebra_one_units_seven_to_nine_to_the_shape():
+    """PART 3jd (build th, 2026-09-06) -- ALGEBRA 1 UNITS 7-9 TO THE SHAPE. The course
+    is 36/36.
+
+    The four rooms asked with the middle rooms blank (ask="x") and their reverse asked
+    with one side hidden (ask="side"); the difference of squares asked with the corner
+    blank and the middles showing; curves on the grid with the asked point withheld
+    and then marked; the mean as a pile shared into hidden parts, the median and the
+    odd one out on the dotplot, the range on the number line. Every figure an ask
+    draws carries a caption, and every pending line is spoken."""
+    print("\nPART 3jd — Algebra 1 Units 7-9 to the shape (build th)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    A7 = ["alg1-u7-the-four-rooms", "alg1-u7-factoring-backwards",
+          "alg1-u7-the-common-factor", "alg1-u7-the-vanishing-middle"]
+    A8 = ["alg1-u8-the-curve", "alg1-u8-two-answers",
+          "alg1-u8-the-lowest-point", "alg1-u8-the-ball-comes-down"]
+    A9 = ["alg1-u9-the-mean", "alg1-u9-the-median",
+          "alg1-u9-the-range", "alg1-u9-the-odd-one-out"]
+    _shape_unit_checks(A7, r"\[\[areamodel\b")
+    _shape_unit_checks(A8, r"\[\[graph\b")
+    _shape_unit_checks(A9, r"\[\[(tape|dotplot|bars|numberline)\b")
+
+    # ---- Unit 7 ------------------------------------------------------------------------
+    foil = {"a": 2, "b": 3, "op": "foil"}
+    check("⭐ the four rooms are asked with the middle rooms blank and the corner given, and walked back with the rooms read",
+          '[[areamodel rows="x,2" cols="x,3" ask="x"' in L.board_for(foil, "abstract")
+          and '[[areamodel rows="x,2" cols="x,3" caption="(x + 2)(x + 3) = x² + 5x + 6"]]' == _W(foil)[1]
+          and "middles ADD" in _W(foil)[0], _W(foil)[1])
+    mf = rd("static/math-figures.js")
+    check("  math-figures.js hides the x rooms under ask=\"x\" and the last column under ask=\"side\", and leaves ask=\"1\" as it was",
+          'var askX = askRaw === "x";' in mf and 'var askSide = askRaw === "side";' in mf
+          and 'var hideCell = (ask && pow === 0) || (askX && pow === 1) || (askSide && j === ct.length - 1);' in mf
+          and 'if (askX && p === 1) return sum[p] < 0 ? "-?x" : "?x";' in mf
+          and 'if (ask && p === 0) return sum[p] < 0 ? "-?" : "?";' in mf, "")
+    fnum = {"a": 3, "b": 2, "c": 0, "op": "fnum"}
+    check("⭐ factoring backwards is asked with one side hidden and the sum whole, and walked back with the side found",
+          '[[areamodel rows="x,3" cols="x,2" ask="side"' in L.board_for(fnum, "abstract")
+          and 'caption="(x + 3)(x + 2) = x² + 5x + 6 ✓"' in _W(fnum)[1] and "fit both clues" in _W(fnum)[0], "")
+    gcf = {"a": 2, "b": 3, "c": 3, "op": "gcfx"}
+    check("  the common factor is asked as a rectangle c tall with the second width hidden",
+          '[[areamodel rows="3" cols="2x,3" ask="side"' in L.board_for(gcf, "abstract")
+          and 'caption="6x + 9 = 3(2x + 3) ✓"' in _W(gcf)[1] and "came out of BOTH rooms" in _W(gcf)[0], "")
+    dsq = {"a": 4, "b": 0, "op": "dsq"}
+    check("⭐ the vanishing middle is asked with the corner blank and both middle rooms showing",
+          '[[areamodel rows="x,4" cols="x,-4" ask="1"' in L.board_for(dsq, "abstract")
+          and 'caption="(x + 4)(x − 4) = x² − 16"' in _W(dsq)[1] and "the square of 4, not 4 and not 8" in _W(dsq)[0], "")
+
+    # ---- Unit 8 ------------------------------------------------------------------------
+    sqy = {"a": 3, "b": 2, "op": "sqy"}
+    check("⭐ the curve is asked with a vertical line at the given x and walked back with the point marked",
+          '[[graph func="x^2+2" lines="x=3" range="-4..4"' in L.board_for(sqy, "abstract")
+          and 'points="(3,11)"' in _W(sqy)[1] and "9, not 6" in _W(sqy)[0], "")
+    rt = {"a": 3, "b": 5, "op": "roots"}
+    check("⭐ two answers: the bowl with one ground point marked and the other asked; both marked in the walk-back",
+          'func="(x-3)*(x-5)" points="(3,0)"' in L.board_for(rt, "abstract") and "(5,0)" not in L.board_for(rt, "abstract")
+          and 'points="(3,0),(5,0)"' in _W(rt)[1] and "one per bracket" in _W(rt)[0], "")
+    vtx = {"a": 4, "b": 2, "op": "vtx"}
+    check("  the lowest point is asked with no point marked and the pending line spoken, then marked in the walk-back",
+          'points=' not in L.board_for(vtx, "abstract")
+          and L.board_for(vtx, "abstract").endswith('[[step eq="the squared part bottoms out at 0"]][[step eq="lowest y = ?"]]')
+          and 'points="(4,2)"' in _W(vtx)[1], L.board_for(vtx, "abstract"))
+    hit = {"a": 5, "b": 0, "op": "hitg"}
+    check("  the ball comes down: the ground asked, the launch and the landing marked in the walk-back",
+          'func="25-x^2" range="0..6"' in L.board_for(hit, "abstract") and 'points=' not in L.board_for(hit, "abstract")
+          and 'points="(0,25),(5,0)"' in _W(hit)[1] and "it is not half of 25" in _W(hit)[0], "")
+
+    # ---- Unit 9 ------------------------------------------------------------------------
+    mean = {"a": 5, "b": 4, "op": "mean"}
+    check("⭐ the mean is asked as the pile shared into hidden parts and walked back with every part the mean",
+          '[[tape parts="? | ? | ? | ? | ?" total="20"' in L.board_for(mean, "abstract")
+          and '[[tape parts="4 | 4 | 4 | 4 | 4" total="20"' in _W(mean)[1] and "shared out evenly" in _W(mean)[0], "")
+    medn = {"a": 2, "b": 6, "op": "medn"}
+    check("  the median: the dots captioned on the ask, the middle named in the walk-back",
+          'caption="5 numbers in order — walk in from both ends"' in L.board_for(medn, "abstract")
+          and "the median is 6" in _W(medn)[1] and "not the middle of the ends" in _W(medn)[0], "")
+    rng = {"a": 4, "b": 19, "op": "rnge"}
+    check("  the range: two bars on the ask, the stretch on the number line in the walk-back",
+          '[[bars data="smallest:4 | biggest:19" caption=' in L.board_for(rng, "abstract")
+          and '[[numberline min="0" max="21" points="4,19"' in _W(rng)[1] and "the gap between them is measured" in _W(rng)[0], "")
+    outl = {"a": 4, "b": 5, "c": 45, "op": "outl"}
+    check("⭐ the odd one out: the dots with the newcomer far out, the mean written and the median asked on its own line",
+          L.board_for(outl, "abstract").endswith('[[step eq="mean = 13"]][[step eq="median = ?"]]')
+          and "leaves the median standing" in _W(outl)[0], L.board_for(outl, "abstract"))
+
+    # ---- the giveaway audit, captions, spoken pending lines, the notes ----------------
+    check("  nothing the twelve lessons demonstrate is later asked",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in A7 + A8 + A9), "")
+    check("  every figure an ask draws carries a caption (rule 41) -- 72 asks did not before th",
+          all("caption=" in tag for l in A7 + A8 + A9
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:graph|bars|dotplot|numberline|tape|areamodel)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in A7 + A8 + A9:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44) -- the old vtx and outl asks did not",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  every Algebra 1 lesson is on the shape -- the course is 36/36",
+          all(L.LESSON_BY_ID[l["id"]].get("why") and l.get("picture") and l.get("explain") and l.get("show_work_on_correct") and l.get("recap")
+              for l in L.LESSONS if l["course"] == "algebra1") and sum(1 for l in L.LESSONS if l["course"] == "algebra1") == 36, "")
+    check("  the changed files carry dated th notes",
+          "2026-09-06  BUILD th" in rd("lessonscripts.py")[:20000] and "BUILD th" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD th" in rd("ruletests.py")[:8000] and "(th)" in rd("static/methodology.html")[:6000]
+          and "2026-09-06  BUILD th" in mf[:3000],
           "Jim's rule 8")
 
 
@@ -35245,6 +35360,7 @@ def main():
     part3ja_prealgebra_units_seven_to_nine_to_the_shape()
     part3jb_algebra_one_units_one_to_three_to_the_shape()
     part3jc_algebra_one_units_four_to_six_to_the_shape()
+    part3jd_algebra_one_units_seven_to_nine_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

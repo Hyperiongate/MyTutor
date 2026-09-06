@@ -2,6 +2,34 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD th -- ALGEBRA 1 UNITS 7-9 TO THE SHAPE (12 lessons). THE COURSE IS
+#               36/36. THIS FILE:
+#                 * Unit 7 (the four rooms) on the AREA MODEL with two new ask modes
+#                   (math-figures.js, this build): the four rooms asked with the MIDDLE
+#                   rooms blank and the corner given ([[areamodel ask="x"]]); factoring
+#                   and the common factor asked with one SIDE hidden and the sum left
+#                   whole (ask="side"); the difference of squares asked with the corner
+#                   blank and the middles showing, so the cancelling is seen;
+#                 * Unit 8 (curves) on the GRID: the curve with a vertical line at the
+#                   asked x; the bowl with one ground point marked and the other asked;
+#                   the lowest point asked and then marked; the falling ball marked at
+#                   its launch and its landing;
+#                 * Unit 9 (the three middles): the mean as a pile shared into hidden
+#                   parts on the TAPE; the median and the odd-one-out on the DOTPLOT,
+#                   captioned; the range as two bars, then the stretch on the NUMBER
+#                   LINE. Trap lines kept in every lesson.
+#               ⚠️ every graph, dotplot and bar-chart ask in the three units drew with
+#               no caption (rule 41, 72 asks); underneath, the vtx and outl asks ended on
+#               lines the spoken question never read ("... bottoms out at 0 — lowest y =
+#               ?", "mean = 13 · median = ?") -- split into a plain line and "lowest y =
+#               ?" / "median = ?". Every lesson: why, picture, teach, pairs, walk-back,
+#               reason, recap. ENGINE: OP_EXT foil/fnum/gcfx/dsq/sqy/roots/vtx/hitg/mean/
+#               medn/rnge/outl gain boards and "worked" (_foil_* ... _outl_*).
+#               Demonstrated numbers kept out of the banks (the old fnum teach worked
+#               (x + 2)(x + 3), the old gcfx pair 8x + 6, the old mean pairs 28-in-4 and
+#               54-in-6, the old medn pairs, the old outl pair 6-and-26: all bank or pair
+#               problems). hitg's every square from 9 to 196 is a bank ask; its teach
+#               keeps 25 (teachaudit reads the tuple, and the beat opens on 25, not 5).
 #   2026-09-06  BUILD tg -- ALGEBRA 1 UNITS 4-6 TO THE SHAPE (12 lessons). THIS FILE:
 #                 * Unit 4 (lines) on the GRID: reading the line asks with a vertical line
 #                   at the given x ("climb from x = 6 up to the line") and walks back with
@@ -11184,24 +11212,65 @@ _ALGEBRA1_U7 = [
         "op": "foil", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("rooms", "x"),
-        "advance_line": "Three in a row — you've got it! The middle rooms add; the corner room times.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The middle rooms add; the corner room times.",
+        "why": [
+            ("Why four rooms? Because the rectangle picture grows up today. x plus 2, "
+             "times x plus 3 — BOTH sides have an x in them now, so the wall cuts "
+             "each way. Every pair of brackets you will ever multiply is this "
+             "rectangle, and it always has four rooms.",
+             '[[goal text="The four rooms"]]'),
+        ],
+        "picture": [
+            ("Here is the rectangle: x plus 2 tall, x plus 3 wide. Four rooms. The "
+             "big one is x times x — x squared. The two middle rooms are 3 x and 2 "
+             "x. The corner is 2 times 3, which is 6. Read them, all four rooms: x "
+             "squared plus 5 x plus 6.",
+             '[[areamodel rows="x,2" cols="x,3" caption="(x + 2) by (x + 3) — four rooms: x², 3x, 2x, 6"]]'),
+        ],
         "teach": [
-            ["The rectangle picture grows up today. x plus 2, times x plus 3. BOTH sides have an x in them now, so the wall cuts each way. That gives the rectangle four rooms: an x-squared room, two x rooms, and a corner of plain number.",
-             '[[goal text="The four rooms"]][[areamodel rows="x,2" cols="x,3" caption="a (x + 2) by (x + 3) rectangle — read the rooms"]]'],
-            ["Read the rooms. x times x is x squared. The two middle rooms are 3 x and 2 x — together 5 x. The corner is 2 times 3, which equals 6. So x plus 2, times x plus 3, comes to x squared plus 5 x plus 6.",
-             '[[areamodel rows="x,2" cols="x,3" caption="a (x + 2) by (x + 3) rectangle — read the rooms"]][[step eq="(x + 2)(x + 3) = x² + 5x + 6"]]'],
-            ["Two different jobs in one picture: the MIDDLE rooms add the two numbers — 2 plus 3 equals 5 — and the CORNER rooms times them — 2 times 3 equals 6. Mixing those two jobs up is the whole danger of this unit, so say them apart: middles add, corner times.",
-             '[[step eq="middles: 2 + 3 = 5"]] [[step eq="middle term: 5x"]][[step eq="corner: 2 × 3 = 6"]]'],
+            ("That is the method. Read the rooms. x times x is x squared. The two "
+             "middle rooms are 3 x and 2 x — together 5 x. The corner is 2 times 3, "
+             "which equals 6. So x plus 2, times x plus 3, comes to x squared plus 5 "
+             "x plus 6.",
+             '[[areamodel rows="x,2" cols="x,3" caption="read the rooms"]][[step eq="(x + 2)(x + 3) = x² + 5x + 6"]]'),
+            ("Two different jobs in one picture: the MIDDLE rooms add the two numbers "
+             "— 2 plus 3 equals 5 — and the CORNER room times them — 2 times 3 equals "
+             "6. Mixing those two jobs up is the whole danger of this unit, so say "
+             "them apart: middles add, corner times.",
+             '[[step eq="middles: 2 + 3 = 5"]][[step eq="middle term: 5x"]][[step eq="corner: 2 × 3 = 6"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x plus 4, times x plus 2. Middles: 4 plus 2 equals 6, so 6 x. Corner: 4 times 2 equals 8. x squared plus 6 x plus 8.",
-                        '[[areamodel rows="x,4" cols="x,2" caption="a (x + 4) by (x + 2) rectangle — read the rooms"]]'],
-             "ask": {"a": 4, "b": 6, "op": "foil"}},
-            {"worked": ["One more together. x plus 5, times x plus 3: middles make 8 x, corner is 15. x squared plus 8 x plus 15.",
-                        '[[step eq="(x + 5)(x + 3) = x² + 8x + 15"]]'],
-             "ask": {"a": 5, "b": 6, "op": "foil"}},
+            {"worked": ("Here is one more, done for you. x plus 4, times x plus 2. "
+                        "Middles: 4 plus 2 equals 6, so 6 x. Corner: 4 times 2 equals "
+                        "8. x squared plus 6 x plus 8.",
+                        '[[areamodel rows="x,4" cols="x,2" caption="(x + 4)(x + 2) = x² + 6x + 8"]][[step eq="(x + 4)(x + 2) = x² + 6x + 8"]]'),
+             "ask": {'a': 4, 'b': 6, 'op': 'foil'}},
+            {"worked": ("One more together. x plus 5, times x plus 3: middles make 8 x, "
+                        "corner is 15. x squared plus 8 x plus 15.",
+                        '[[areamodel rows="x,5" cols="x,3" caption="(x + 5)(x + 3) = x² + 8x + 15"]][[step eq="(x + 5)(x + 3) = x² + 8x + 15"]]'),
+             "ask": {'a': 5, 'b': 6, 'op': 'foil'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x plus 2, times x "
+                       "plus 3, has 5 x in the middle. Tap the reason why."),
+            "choices": ("because the two middle rooms are 3x and 2x, and they add | "
+                        "because 2 times 3 is 6, and the middle is 6x | because the "
+                        "middle is the bigger of the two numbers"),
+            "answer": "because the two middle rooms are 3x and 2x, and they add",
+            "board": '[[areamodel rows="x,2" cols="x,3" caption="(x + 2)(x + 3) = x² + 5x + 6"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two brackets make a rectangle with four rooms: x "
+             "squared, two middle rooms that ADD to the x count, and a corner that "
+             "TIMES the two numbers. Middles add, corner times.",
+             '[[areamodel rows="x,2" cols="x,3" caption="(x + 2)(x + 3) = x² + 5x + 6"]]'),
+            ("And that is every pair of brackets you will ever multiply, in one "
+             "picture.",
+             '[[step eq="(x + 2)(x + 3) = x² + 5x + 6"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 4, "op": "foil"},
             {"a": 3, "b": 3, "op": "foil"},
@@ -11222,24 +11291,64 @@ _ALGEBRA1_U7 = [
         "op": "fnum", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("factoring", "x"),
-        "advance_line": "Three in a row — you've got it! The right number fits BOTH clues at once.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The right number fits BOTH clues at once.",
+        "why": [
+            ("Why run it backwards? Because sometimes you are handed the finished sum "
+             "— x squared plus 6 x plus 8 — and asked what two sides built it. "
+             "Working back from the rooms to the sides is called factoring, and it "
+             "is a detective game with two clues.",
+             '[[goal text="Running the rooms backwards"]]'),
+        ],
+        "picture": [
+            ("Here is the rectangle with one side hidden. You know the rooms add up "
+             "to x squared plus 6 x plus 8, and you know one side is x plus 2. The "
+             "hidden number has to add with 2 to make the 6 x, AND times with 2 to "
+             "make the corner, 8. Only 4 does both — so the other side is x plus 4.",
+             '[[areamodel rows="x,2" cols="x,4" ask="side" caption="x² + 6x + 8 — one side is x + 2: what is the other?"]][[areamodel rows="x,2" cols="x,4" caption="(x + 2)(x + 4) — the rooms come back"]]'),
+        ],
         "teach": [
-            ["Now run yesterday's picture backwards. You are handed the finished sum — x squared plus 5 x plus 6 — and asked what two sides built it. Working back from the rooms to the sides is called factoring, and it is a detective game with two clues.",
-             '[[goal text="Running the rooms backwards"]][[areamodel rows="x,2" cols="x,3" caption="a (x + 2) by (x + 3) rectangle — read the rooms"]]'],
-            ["The clues: the two hidden numbers ADD to the x count, 5, and TIMES to the corner, 6. Try pairs: 1 and 4? Add to 5, but times to 4 — no. 2 and 3? Add to 5 AND times to 6. Both clues fit, so the sides are x plus 2 and x plus 3.",
-             '[[step eq="? + ? = 5 · ? × ? = 6"]][[step eq="2 + 3 = 5 ✓ · 2 × 3 = 6 ✓"]]'],
-            ["Both clues, always. A number that only adds right, or only timeses right, is an impostor. And you can check the whole answer for free — multiply the sides back out and watch the original come back.",
-             '[[step eq="(x + 2)(x + 3) = x² + 5x + 6 ✓"]]'],
+            ("That is the method. The clues: the two hidden numbers ADD to the x "
+             "count, 6, and TIMES to the corner, 8. With 2 as one of them, try "
+             "partners: 3? Adds to 5 — no. 4? 2 plus 4 is 6 AND 2 times 4 is 8. Both "
+             "clues fit, so the sides are x plus 2 and x plus 4.",
+             '[[areamodel rows="x,2" cols="x,4" ask="side" caption="the hidden side"]][[step eq="2 + ? = 6 · 2 × ? = 8"]][[step eq="2 + 4 = 6 ✓ · 2 × 4 = 8 ✓"]]'),
+            ("Both clues, always. A number that only adds right, or only timeses "
+             "right, is an impostor. And you can check the whole answer for free — "
+             "multiply the sides back out and watch the original come back.",
+             '[[step eq="(x + 2)(x + 4) = x² + 6x + 8 ✓"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x squared plus 7 x plus 12, equals x plus 3, times x plus what? The partner must add with 3 to 7 and times with 3 to 12 — that is 4, both ways.",
-                        '[[step eq="3 + 4 = 7 ✓ · 3 × 4 = 12 ✓"]]'],
-             "ask": {"a": 6, "b": 2, "op": "fnum"}},
-            {"worked": ["One more together. x squared plus 9 x plus 20, equals x plus 5, times x plus what? 5 plus 4 equals 9, and 5 times 4 equals 20. It is 4.",
-                        '[[step eq="(x + 5)(x + 4) = x² + 9x + 20"]]'],
-             "ask": {"a": 4, "b": 6, "op": "fnum"}},
+            {"worked": ("Here is one more, done for you. x squared plus 7 x plus 10, "
+                        "equals x plus 5, times x plus what? The partner must add with "
+                        "5 to 7 and times with 5 to 10 — that is 2, both ways.",
+                        '[[areamodel rows="x,5" cols="x,2" caption="(x + 5)(x + 2) = x² + 7x + 10"]][[step eq="5 + 2 = 7 ✓ · 5 × 2 = 10 ✓"]]'),
+             "ask": {'a': 6, 'b': 2, 'op': 'fnum'}},
+            {"worked": ("One more together. x squared plus 9 x plus 20, equals x plus "
+                        "5, times x plus what? 5 plus 4 equals 9, and 5 times 4 equals "
+                        "20. It is 4.",
+                        '[[areamodel rows="x,5" cols="x,4" caption="(x + 5)(x + 4) = x² + 9x + 20"]][[step eq="(x + 5)(x + 4) = x² + 9x + 20"]]'),
+             "ask": {'a': 4, 'b': 6, 'op': 'fnum'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x squared plus 6 "
+                       "x plus 8 is x plus 2, times x plus 4. Tap the reason why."),
+            "choices": ("because 4 adds with 2 to 6 and times to 8 | because 8 "
+                        "take away 2 is 6, so the partner is 6 | because the partner "
+                        "is the x count, 6, every time"),
+            "answer": "because 4 adds with 2 to 6 and times to 8",
+            "board": '[[areamodel rows="x,2" cols="x,4" caption="(x + 2)(x + 4) = x² + 6x + 8"]]',
+        },
+        "recap": [
+            ("So, here it is again. Factoring runs the rooms backwards: the hidden "
+             "number must add to the x count AND times to the corner. Test partners "
+             "against both clues, then multiply back out to check.",
+             '[[areamodel rows="x,2" cols="x,4" caption="(x + 2)(x + 4) = x² + 6x + 8"]]'),
+            ("And that is a detective game with two clues, solved.",
+             '[[step eq="x² + 6x + 8 = (x + 2)(x + 4)"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "c": 0, "op": "fnum"},
             {"a": 4, "b": 2, "c": 0, "op": "fnum"},
@@ -11260,24 +11369,61 @@ _ALGEBRA1_U7 = [
         "op": "gcfx", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("common factor", "x"),
-        "advance_line": "Three in a row — you've got it! Both parts share, or it is not a common factor.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Both parts share, or it is not a common factor.",
+        "why": [
+            ("Why a common factor? Because sometimes the whole expression shares one "
+             "number. Look at 6 x plus 9: the 6 is 3 times 2, and the 9 is 3 times 3. "
+             "The 3 lives in BOTH parts — it is a common factor, and you can pull it "
+             "out front.",
+             '[[goal text="Pulling out the common factor"]]'),
+        ],
+        "picture": [
+            ("Here is 6 x plus 9 as a rectangle 3 tall. Its two rooms are 6 x and 9. "
+             "A rectangle 3 tall with a 6 x room is 2 x wide there, and with a 9 room "
+             "is 3 wide there. So the whole width is 2 x plus 3, and the rectangle "
+             "is 3 times, 2 x plus 3.",
+             '[[areamodel rows="3" cols="2x,3" caption="3 tall: rooms 6x and 9 — width 2x + 3"]]'),
+        ],
         "teach": [
-            ["Sometimes the whole expression shares one number. Look at 6 x plus 9: the 6 is 3 times 2, and the 9 is 3 times 3. The 3 lives in BOTH parts — it is a common factor, and you can pull it out front.",
-             '[[goal text="Pulling out the common factor"]][[step eq="6x + 9 = 3 · 2x + 3 · 3"]]'],
-            ["Pull the 3 out: 6 x plus 9 equals 3 times, 2 x plus 3. Check it with the distributive lesson's own rule — the 3 reaches both rooms: 3 times 2 x is 6 x, and 3 times 3 is 9. It all comes back.",
-             '[[step eq="6x + 9 = 3(2x + 3)"]][[step eq="check: 3 × 2x = 6x ✓ · 3 × 3 = 9 ✓"]]'],
-            ["The mistake is pulling the factor from ONE part only: 3 times, 2 x plus 9 — multiply that back and you get 6 x plus 27, not 6 x plus 9. A common factor comes out of everything it was in, or it does not come out at all.",
-             '[[step eq="3(2x + 3) ✓"]][[step eq="3(2x + 9) ✗ — that is 6x + 27"]]'],
+            ("That is the method. Pull the 3 out: 6 x plus 9 equals 3 times, 2 x plus "
+             "3. Check it with the distributive lesson\'s own rule — the 3 reaches "
+             "both rooms: 3 times 2 x is 6 x, and 3 times 3 is 9. It all comes back.",
+             '[[areamodel rows="3" cols="2x,3" caption="6x + 9 = 3(2x + 3)"]][[step eq="6x + 9 = 3(2x + 3)"]][[step eq="check: 3 × 2x = 6x ✓ · 3 × 3 = 9 ✓"]]'),
+            ("The mistake is pulling the factor from ONE part only: 3 times, 2 x plus "
+             "9 — multiply that back and you get 6 x plus 27, not 6 x plus 9. A common "
+             "factor comes out of everything it was in, or it does not come out at "
+             "all.",
+             '[[step eq="3(2x + 3) ✓"]][[step eq="3(2x + 9) ✗ — that is 6x + 27"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 8 x plus 6 equals 2 times, 4 x plus 3. Both the 8 and the 6 gave up their 2.",
-                        '[[step eq="8x + 6 = 2(4x + 3)"]]'],
-             "ask": {"a": 3, "b": 5, "c": 2, "op": "gcfx"}},
-            {"worked": ["One more together. 15 x plus 10 equals 5 times, 3 x plus 2.",
-                        '[[step eq="15x + 10 = 5(3x + 2)"]]'],
-             "ask": {"a": 7, "b": 2, "c": 3, "op": "gcfx"}},
+            {"worked": ("Here is one more, done for you. 10 x plus 4 equals 2 times, 5 x "
+                        "plus 2. Both the 10 and the 4 gave up their 2.",
+                        '[[areamodel rows="2" cols="5x,2" caption="10x + 4 = 2(5x + 2)"]][[step eq="10x + 4 = 2(5x + 2)"]]'),
+             "ask": {'a': 3, 'b': 5, 'c': 2, 'op': 'gcfx'}},
+            {"worked": ("One more together. 15 x plus 10 equals 5 times, 3 x plus 2.",
+                        '[[areamodel rows="5" cols="3x,2" caption="15x + 10 = 5(3x + 2)"]][[step eq="15x + 10 = 5(3x + 2)"]]'),
+             "ask": {'a': 7, 'b': 2, 'c': 3, 'op': 'gcfx'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 6 x plus 9 is 3 "
+                       "times, 2 x plus 3. Tap the reason why."),
+            "choices": ("because the 3 comes out of both the 6x and the 9 | "
+                        "because the 3 comes out of the 6x only | "
+                        "because 6 plus 9 is 15, and 15 is 3 times 5"),
+            "answer": "because the 3 comes out of both the 6x and the 9",
+            "board": '[[areamodel rows="3" cols="2x,3" caption="6x + 9 = 3(2x + 3)"]]',
+        },
+        "recap": [
+            ("So, here it is again. A common factor lives in every part. Pull it "
+             "out front and divide EVERY part by it — then check by timesing it "
+             "back in: the factor reaches both rooms.",
+             '[[areamodel rows="3" cols="2x,3" caption="6x + 9 = 3(2x + 3)"]]'),
+            ("And that is the distributive lesson, run in reverse.",
+             '[[step eq="6x + 9 = 3(2x + 3)"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "c": 2, "op": "gcfx"},
             {"a": 2, "b": 5, "c": 3, "op": "gcfx"},
@@ -11298,24 +11444,63 @@ _ALGEBRA1_U7 = [
         "op": "dsq", "max_value": 200,
         "levels": ("abstract",),
         "symbols": ("squared", "take away"),
-        "advance_line": "Three in a row — you've got it! Plus and take away the same x's — the middles cancel.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Plus and take away the same x's — the middles cancel.",
+        "why": [
+            ("Why one special pair? Because one pair of sides does something "
+             "wonderful. x plus 3, times x TAKE AWAY 3. Build the rooms and watch the "
+             "middle of the answer vanish — a pattern famous enough to have a name.",
+             '[[goal text="The vanishing middle"]]'),
+        ],
+        "picture": [
+            ("Here is the rectangle: x plus 3 tall, x take away 3 wide. The rooms: x "
+             "squared; a middle room of take away 3 x; a middle room of plus 3 x; and "
+             "a corner of 3 times 3, taken away — 9. The two middles are the same "
+             "size with opposite signs, so they cancel, and the sum is x squared take "
+             "away 9.",
+             '[[areamodel rows="x,3" cols="x,-3" caption="(x + 3) by (x − 3) — the middles cancel: x² − 9"]]'),
+        ],
         "teach": [
-            ["One special pair of sides does something wonderful. x plus 3, times x TAKE AWAY 3. Build the rooms: x squared, then plus 3 x from one middle and take away 3 x from the other, then the corner, 3 times 3 taken away.",
-             '[[goal text="The vanishing middle"]][[step eq="(x + 3)(x − 3)"]][[step eq="x² + 3x − 3x − 9"]]'],
-            ["Watch the middles: plus 3 x and take away 3 x. They cancel — land exactly on nothing. All that survives is x squared take away 9. The whole middle of the answer vanished.",
-             '[[step eq="+3x − 3x = 0"]][[step eq="(x + 3)(x − 3) = x² − 9"]]'],
-            ["And notice WHICH 9: it is 3 squared, not 3 and not 6. The corner room is 3 times 3. This pattern — x squared take away a square — is famous enough to have a name, the difference of squares, and it works for any number in the 3's place.",
-             '[[step eq="x² − 9 ✓ (9 = 3²)"]][[step eq="x² − 3 ✗ · x² − 6x... ✗ nothing survived but the squares"]]'],
+            ("That is the method. Watch the middles: plus 3 x and take away 3 x. They "
+             "cancel — land exactly on nothing. All that survives is x squared take "
+             "away 9. The whole middle of the answer vanished.",
+             '[[areamodel rows="x,3" cols="x,-3" caption="read the rooms"]][[step eq="+3x − 3x = 0"]][[step eq="(x + 3)(x − 3) = x² − 9"]]'),
+            ("And notice WHICH 9: it is 3 squared, not 3 and not 6. The corner room is "
+             "3 times 3. This pattern — x squared take away a square — is called the "
+             "difference of squares, and it works for any number in the 3\'s place.",
+             '[[step eq="x² − 9 ✓ (9 = 3²)"]][[step eq="x² − 3 ✗ · x² − 6 ✗ — the corner is 3 × 3"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x plus 5, times x take away 5. The middles cancel, the corner is 5 squared: x squared take away 25.",
-                        '[[step eq="(x + 5)(x − 5) = x² − 25"]]'],
-             "ask": {"a": 13, "b": 0, "op": "dsq"}},
-            {"worked": ["One more together. x plus 10, times x take away 10: x squared take away 100.",
-                        '[[step eq="(x + 10)(x − 10) = x² − 100"]]'],
-             "ask": {"a": 14, "b": 0, "op": "dsq"}},
+            {"worked": ("Here is one more, done for you. x plus 5, times x take away 5. "
+                        "The middles cancel, the corner is 5 squared: x squared take "
+                        "away 25.",
+                        '[[areamodel rows="x,5" cols="x,-5" caption="(x + 5)(x − 5) = x² − 25"]][[step eq="(x + 5)(x − 5) = x² − 25"]]'),
+             "ask": {'a': 13, 'b': 0, 'op': 'dsq'}},
+            {"worked": ("One more together. x plus 10, times x take away 10: x squared "
+                        "take away 100.",
+                        '[[areamodel rows="x,10" cols="x,-10" caption="(x + 10)(x − 10) = x² − 100"]][[step eq="(x + 10)(x − 10) = x² − 100"]]'),
+             "ask": {'a': 14, 'b': 0, 'op': 'dsq'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x plus 3, times x "
+                       "take away 3, is x squared take away 9. Tap the reason why."),
+            "choices": ("because the middles cancel, and the corner is 3 times 3 | "
+                        "because the middles add to 6x, and the corner is 3 | because "
+                        "take away 3 means x squared take away 3"),
+            "answer": "because the middles cancel, and the corner is 3 times 3",
+            "board": '[[areamodel rows="x,3" cols="x,-3" caption="(x + 3)(x − 3) = x² − 9"]]',
+        },
+        "recap": [
+            ("So, here it is again. Plus a number on one side and take away the same "
+             "number on the other: the middle rooms cancel, and only x squared and "
+             "the corner survive — the number squared, taken away.",
+             '[[areamodel rows="x,3" cols="x,-3" caption="(x + 3)(x − 3) = x² − 9"]]'),
+            ("And that is the difference of squares, the one pair that vanishes in "
+             "the middle.",
+             '[[step eq="(x + 3)(x − 3) = x² − 9"]]'),
+        ],
         "bank": [
                         {"a": 4, "b": 0, "op": "dsq"},
                         {"a": 6, "b": 0, "op": "dsq"},
@@ -11348,24 +11533,63 @@ _ALGEBRA1_U8 = [
         "op": "sqy", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("squared", "curve"),
-        "advance_line": "Three in a row — you've got it! Squared means times itself, never times two.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Squared means times itself, never times two.",
+        "why": [
+            ("Why a curve? Because every line you have drawn was straight. Meet the "
+             "first rule that bends: y equals x squared. Feed it 1, 2, 3, 4 and out "
+             "come 1, 4, 9, 16 — each step up costs more than the last, so the graph "
+             "bends into a curve, shaped like a bowl.",
+             '[[goal text="The curve"]]'),
+        ],
+        "picture": [
+            ("Here is y equals x squared plus 2 on the grid — a bowl, not a line. "
+             "Climb from x equals 3 up to the curve: 3 squared is 3 times 3, which is "
+             "9, and plus 2 brings it to 11. The point 3 comma 11 sits on the curve, high "
+             "up its right side.",
+             '[[graph func="x^2+2" points="(3,11)" range="-4..4" caption="y = x² + 2 — the point (3, 11)"]]'),
+        ],
         "teach": [
-            ["Every line you have drawn was straight. Meet the first rule that bends: y equals x squared. Feed it 1, 2, 3, 4 and out come 1, 4, 9, 16 — each step up costs more than the last, so the graph bends into a curve, shaped like a bowl.",
-             '[[goal text="The curve"]][[graph func="x^2" range="-4..4" caption="x^2 on the grid"]]'],
-            ["Read it like any rule. y equals x squared plus 2, at x equals 3: 3 squared is 3 times 3, which equals 9, plus 2 equals 11.",
-             '[[graph func="x^2+2" range="-4..4" caption="x^2+2 on the grid"]][[step eq="y = 3² + 2 = 9 + 2 = 11"]]'],
-            ["The one error to burn away now: squared means TIMES ITSELF, not times two. 3 squared is 9, not 6. At x equals 2 the two happen to agree — 2 times 2 and 2 plus 2 are both 4 — and that coincidence at 2 is exactly what plants the habit. Everywhere else it breaks.",
-             '[[step eq="3² = 3 × 3 = 9 ✓"]][[step eq="3² = 6 ✗ — that is doubling"]]'],
+            ("That is the method. Read it like any rule. y equals x squared plus 2, "
+             "at x equals 3: 3 squared is 3 times 3, which equals 9, plus 2 equals "
+             "11.",
+             '[[graph func="x^2+2" points="(3,11)" range="-4..4" caption="the point (3, 11)"]][[step eq="y = 3² + 2 = 9 + 2 = 11"]]'),
+            ("The one error to burn away now: squared means TIMES ITSELF, not times "
+             "two. 3 squared is 9, not 6. At x equals 2 the two happen to agree — 2 "
+             "times 2 and 2 plus 2 are both 4 — and that coincidence at 2 is exactly "
+             "what plants the habit. Everywhere else it breaks.",
+             '[[step eq="3² = 3 × 3 = 9 ✓"]][[step eq="3² = 6 ✗ — that is doubling"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals x squared plus 3, at x equals 4: 16 plus 3 equals 19.",
-                        '[[step eq="y = 4² + 3 = 19"]]'],
-             "ask": {"a": 3, "b": 7, "op": "sqy"}},
-            {"worked": ["One more together. y equals x squared plus 1, at x equals 5: 25 plus 1 equals 26.",
-                        '[[step eq="y = 5² + 1 = 26"]]'],
-             "ask": {"a": 6, "b": 7, "op": "sqy"}},
+            {"worked": ("Here is one more, done for you. y equals x squared plus 3, at x "
+                        "equals 4: 16 plus 3 equals 19.",
+                        '[[graph func="x^2+3" points="(4,19)" range="-5..5" caption="y = x² + 3 — the point (4, 19)"]][[step eq="y = 4² + 3 = 19"]]'),
+             "ask": {'a': 3, 'b': 7, 'op': 'sqy'}},
+            {"worked": ("One more together. y equals x squared plus 1, at x equals 5: 25 "
+                        "plus 1 equals 26.",
+                        '[[graph func="x^2+1" points="(5,26)" range="-6..6" caption="y = x² + 1 — the point (5, 26)"]][[step eq="y = 5² + 1 = 26"]]'),
+             "ask": {'a': 6, 'b': 7, 'op': 'sqy'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. On the curve y "
+                       "equals x squared plus 2, when x is 3, y is 11. Tap the reason "
+                       "why."),
+            "choices": ("because 3 squared is 3 times 3, and then 2 more | because 3 "
+                        "squared is 3 times 2, and then 2 more | because the curve "
+                        "climbs 2 for every step, like a line"),
+            "answer": "because 3 squared is 3 times 3, and then 2 more",
+            "board": '[[graph func="x^2+2" points="(3,11)" range="-4..4" caption="the point (3, 11)"]]',
+        },
+        "recap": [
+            ("So, here it is again. A rule with x squared in it bends into a bowl. "
+             "Read it like any rule — swap in the x, square it by timesing it by "
+             "itself, then add the rest. Squared is never times two.",
+             '[[graph func="x^2+2" points="(3,11)" range="-4..4" caption="3² + 2 = 11"]]'),
+            ("And that is the first rule that bends, read straight.",
+             '[[step eq="y = 3² + 2 = 11"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 1, "op": "sqy"},
             {"a": 3, "b": 4, "op": "sqy"},
@@ -11386,24 +11610,64 @@ _ALGEBRA1_U8 = [
         "op": "roots", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("zero", "x"),
-        "advance_line": "Three in a row — you've got it! A product is zero only when a factor is zero.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A product is zero only when a factor is zero.",
+        "why": [
+            ("Why two answers? Because here is a fact so plain it hides its power: "
+             "zero times ANYTHING is zero — and NOTHING ELSE, times anything, ever "
+             "lands on zero. So if two brackets multiply to zero, one of the brackets "
+             "MUST be zero. There is no other way.",
+             '[[goal text="Zero times anything"]]'),
+        ],
+        "picture": [
+            ("Here is the curve for x take away 3, times x take away 5. A bowl — and "
+             "look where it touches the ground, where y is zero: at x equals 3, and "
+             "again at x equals 5. Two touches, because each bracket has its own x "
+             "that turns it to zero.",
+             '[[graph func="(x-3)*(x-5)" points="(3,0),(5,0)" range="0..7" caption="(x − 3)(x − 5) — the ground at x = 3 and x = 5"]]'),
+        ],
         "teach": [
-            ["Here is a fact so plain it hides its power: zero times ANYTHING is zero — and NOTHING ELSE, times anything, ever lands on zero. So if two brackets multiply to zero, one of the brackets MUST be zero. There is no other way.",
-             '[[goal text="Zero times anything"]][[step eq="(something) × (something) = 0"]]'],
-            ["x take away 3, times x take away 5, equals zero. When is the first bracket zero? At x equals 3. The second? At x equals 5. So the equation has TWO answers, 3 and 5 — a bending curve can touch the ground twice.",
-             '[[step eq="(x − 3)(x − 5) = 0"]][[step eq="x = 3 or x = 5"]]'],
-            ["Do not do arithmetic on the two numbers — they are not asking to be added or timesed. Each one answers its own bracket. Check: at x equals 5, the second bracket is zero, and zero times anything wipes out the whole thing.",
-             '[[step eq="x = 3, x = 5 ✓"]][[step eq="x = 8 ✗ · x = 15 ✗ — nobody asked for 3 + 5 or 3 × 5"]]'],
+            ("That is the method. x take away 3, times x take away 5, equals zero. "
+             "When is the first bracket zero? At x equals 3. The second? At x equals "
+             "5. So the equation has TWO answers, 3 and 5 — a bending curve can touch "
+             "the ground twice.",
+             '[[graph func="(x-3)*(x-5)" points="(3,0),(5,0)" range="0..7" caption="the ground at 3 and 5"]][[step eq="(x − 3)(x − 5) = 0"]][[step eq="x = 3 or x = 5"]]'),
+            ("Do not do arithmetic on the two numbers — they are not asking to be "
+             "added or timesed. Each one answers its own bracket. Check: at x equals "
+             "5, the second bracket is zero, and zero times anything wipes out the "
+             "whole thing.",
+             '[[step eq="x = 3, x = 5 ✓"]][[step eq="x = 8 ✗ · x = 15 ✗ — nobody asked for 3 + 5 or 3 × 5"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x take away 2, times x take away 6, equals zero. The answers are 2 and 6 — one per bracket.",
-                        '[[step eq="(x − 2)(x − 6) = 0"]] [[step eq="x = 2 or 6"]]'],
-             "ask": {"a": 6, "b": 4, "op": "roots"}},
-            {"worked": ["One more together. x take away 4, times x take away 7: the answers are 4 and 7.",
-                        '[[step eq="x = 4 or x = 7"]]'],
-             "ask": {"a": 7, "b": 5, "op": "roots"}},
+            {"worked": ("Here is one more, done for you. x take away 2, times x take "
+                        "away 6, equals zero. The answers are 2 and 6 — one per bracket.",
+                        '[[graph func="(x-2)*(x-6)" points="(2,0),(6,0)" range="0..8" caption="the ground at 2 and 6"]][[step eq="(x − 2)(x − 6) = 0"]][[step eq="x = 2 or 6"]]'),
+             "ask": {'a': 6, 'b': 4, 'op': 'roots'}},
+            {"worked": ("One more together. x take away 4, times x take away 7: the "
+                        "answers are 4 and 7.",
+                        '[[graph func="(x-4)*(x-7)" points="(4,0),(7,0)" range="0..9" caption="the ground at 4 and 7"]][[step eq="x = 4 or x = 7"]]'),
+             "ask": {'a': 7, 'b': 5, 'op': 'roots'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x take away 3, "
+                       "times x take away 5, equals zero, and the answers are 3 and 5. "
+                       "Tap the reason why."),
+            "choices": ("because a product is zero only when one bracket is zero | "
+                        "because 3 and 5 add to 8, and 8 is the answer | because the "
+                        "curve is a bowl, and bowls have one bottom"),
+            "answer": "because a product is zero only when one bracket is zero",
+            "board": '[[graph func="(x-3)*(x-5)" points="(3,0),(5,0)" range="0..7" caption="the ground at x = 3 and x = 5"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two brackets multiply to zero only when one of "
+             "them is zero. Each bracket names its own x, so a curve touches the "
+             "ground twice — two answers, and no arithmetic between them.",
+             '[[graph func="(x-3)*(x-5)" points="(3,0),(5,0)" range="0..7" caption="x = 3 or x = 5"]]'),
+            ("And that is zero times anything, doing all the work.",
+             '[[step eq="(x − 3)(x − 5) = 0, so x = 3 or x = 5"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "op": "roots"},
             {"a": 4, "b": 2, "op": "roots"},
@@ -11424,24 +11688,65 @@ _ALGEBRA1_U8 = [
         "op": "vtx", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("squared", "lowest"),
-        "advance_line": "Three in a row — you've got it! A square is never below zero, so the plus number is the floor.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A square is never below zero, so the plus number is the floor.",
+        "why": [
+            ("Why a lowest point? Because a square can never be below zero. Times "
+             "any number by itself — even a negative one — and the answer refuses to "
+             "be negative. That single refusal gives every bending curve of this "
+             "shape a FLOOR: a lowest point it touches and never goes under.",
+             '[[goal text="The lowest point"]]'),
+        ],
+        "picture": [
+            ("Here is y equals: x take away 3, squared, plus 2. A bowl with its "
+             "bottom marked — the point 3 comma 2. The squared part is zero right at "
+             "x equals 3, and there y is 0 plus 2. Everywhere else the square is "
+             "bigger than zero, so the curve is higher.",
+             '[[graph func="(x-3)^2+2" points="(3,2)" range="0..6" caption="y = (x − 3)² + 2 — the lowest point (3, 2)"]]'),
+        ],
         "teach": [
-            ["A square can never be below zero. Times any number by itself — even a negative one — and the answer refuses to be negative. That single refusal gives every bending curve of this shape a FLOOR: a lowest point it touches and never goes under.",
-             '[[goal text="The lowest point"]][[graph func="(x-3)^2+2" range="0..6" caption="(x-3)^2+2 on the grid"]]'],
-            ["y equals: x take away 3, squared, plus 2. The squared part is smallest when it is exactly zero — which happens right at x equals 3. At that moment y is 0 plus 2, which equals 2. The lowest y this curve ever reaches is 2.",
-             '[[step eq="(x − 3)² is 0 at x = 3"]][[step eq="lowest y = 0 + 2 = 2"]]'],
-            ["The rule's two numbers do two jobs — the U4 lesson again, curved. The 3 says WHERE the low point sits, left and right. The 2 says HOW LOW the curve goes. Asked for the lowest y, the answer is the plus number, not the number inside the brackets.",
-             '[[step eq="lowest y = 2 ✓"]][[step eq="3 ✗ — that is where it sits, not how low"]]'],
+            ("That is the method. The squared part is smallest when it is exactly "
+             "zero — which happens right at x equals 3. At that moment y is 0 plus 2, "
+             "which equals 2. The lowest y this curve ever reaches is 2.",
+             '[[graph func="(x-3)^2+2" points="(3,2)" range="0..6" caption="the lowest point (3, 2)"]][[step eq="(x − 3)² is 0 at x = 3"]][[step eq="lowest y = 0 + 2 = 2"]]'),
+            ("The rule\'s two numbers do two jobs — the start-and-climb lesson again, "
+             "curved. The 3 says WHERE the low point sits, left and right. The 2 says "
+             "HOW LOW the curve goes. Asked for the lowest y, the answer is the plus "
+             "number, not the number inside the brackets.",
+             '[[step eq="lowest y = 2 ✓"]][[step eq="3 ✗ — that is where it sits, not how low"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals: x take away 5, squared, plus 4. The square bottoms out at zero, so the lowest y is 4.",
-                        '[[graph func="(x-5)^2+4" range="2..8" caption="(x-5)^2+4 on the grid"]][[step eq="lowest y = 4"]]'],
-             "ask": {"a": 4, "b": 3, "op": "vtx"}},
-            {"worked": ["One more together. y equals: x take away 2, squared, plus 6. Lowest y: 6.",
-                        '[[step eq="lowest y = 6"]]'],
-             "ask": {"a": 7, "b": 8, "op": "vtx"}},
+            {"worked": ("Here is one more, done for you. y equals: x take away 5, "
+                        "squared, plus 4. The square bottoms out at zero, so the lowest "
+                        "y is 4.",
+                        '[[graph func="(x-5)^2+4" points="(5,4)" range="2..8" caption="the lowest point (5, 4) — lowest y = 4"]][[step eq="lowest y = 4"]]'),
+             "ask": {'a': 4, 'b': 3, 'op': 'vtx'}},
+            {"worked": ("One more together. y equals: x take away 2, squared, plus 6. "
+                        "Lowest y: 6.",
+                        '[[graph func="(x-2)^2+6" points="(2,6)" range="-1..5" caption="the lowest point (2, 6) — lowest y = 6"]][[step eq="lowest y = 6"]]'),
+             "ask": {'a': 7, 'b': 8, 'op': 'vtx'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. y equals x take "
+                       "away 3, squared, plus 2, and its lowest y is 2. Tap the reason "
+                       "why."),
+            "choices": ("because the square bottoms out at 0, leaving the plus 2 | "
+                        "because the 3 inside the brackets is the lowest y | because "
+                        "3 plus 2 is 5, and 5 is the floor"),
+            "answer": "because the square bottoms out at 0, leaving the plus 2",
+            "board": '[[graph func="(x-3)^2+2" points="(3,2)" range="0..6" caption="the lowest point (3, 2)"]]',
+        },
+        "recap": [
+            ("So, here it is again. A square is never below zero, so the squared "
+             "part bottoms out at 0 and the plus number is the floor. The number "
+             "inside the brackets says where the floor sits; the plus number says "
+             "how low.",
+             '[[graph func="(x-3)^2+2" points="(3,2)" range="0..6" caption="lowest y = 0 + 2 = 2"]]'),
+            ("And that is a floor no bowl ever goes under.",
+             '[[step eq="lowest y = 0 + 2 = 2"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 2, "op": "vtx"},
             {"a": 5, "b": 3, "op": "vtx"},
@@ -11462,24 +11767,65 @@ _ALGEBRA1_U8 = [
         "op": "hitg", "max_value": 200,
         "levels": ("abstract",),
         "symbols": ("squared", "zero"),
-        "advance_line": "Three in a row — you've got it! Ask what number squared equals the height.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Ask what number squared equals the height.",
+        "why": [
+            ("Why a ball? Because throw one and its height follows a bending curve — "
+             "quadratics are how the world falls. Here is one: y equals 25 take away "
+             "x squared. At x equals 0 the height is 25, and as x grows, x squared "
+             "eats the height away.",
+             '[[goal text="The ball comes down"]]'),
+        ],
+        "picture": [
+            ("Here is the curve, starting at height 25 and bending down to the "
+             "ground. It reaches the ground — height zero — at x equals 5, because "
+             "25 take away 5 squared is 25 take away 25, which is zero. The point 5 "
+             "comma 0 is where the ball lands.",
+             '[[graph func="25-x^2" points="(0,25),(5,0)" range="0..6" caption="y = 25 − x² — from height 25 down to the ground at x = 5"]]'),
+        ],
         "teach": [
-            ["Throw a ball and its height follows a bending curve — quadratics are how the world falls. Here is one: y equals 25 take away x squared. At x equals 0 the height is 25, and as x grows, x squared eats the height away.",
-             '[[goal text="The ball comes down"]][[graph func="25-x^2" range="0..6" caption="25-x^2 on the grid"]]'],
-            ["When does it hit the ground? The ground is where the height is zero, so 25 take away x squared equals 0 — x squared must equal 25. Now the question turns around — WHAT NUMBER, squared, equals 25? Five: 5 times 5 is 25. The ball lands at x equals 5.",
-             '[[step eq="25 − x² = 0"]][[step eq="x² = 25"]] [[step eq="x = 5"]]'],
-            ["That backwards question has a name: 5 is the square root of 25 — the number that squares to it. It is not half of 25. Halving undoes doubling; the square root undoes SQUARING, and you have known since the curve lesson that those are different beasts.",
-             '[[step eq="x = 5 ✓ (5² = 25)"]][[step eq="x = 12 ✗ — half undoes DOUBLING, not squaring"]]'],
+            ("That is the method. The ground is where the height is zero, so 25 take "
+             "away x squared equals 0 — x squared must equal 25. Now the question "
+             "turns around — WHAT NUMBER, squared, equals 25? Five: 5 times 5 is 25. "
+             "The ball lands at x equals 5.",
+             '[[graph func="25-x^2" points="(5,0)" range="0..6" caption="the ground at x = 5"]][[step eq="25 − x² = 0"]][[step eq="x² = 25"]][[step eq="x = 5"]]'),
+            ("That backwards question has a name: 5 is the square root of 25 — the "
+             "number that squares to it. It is not half of 25. Halving undoes "
+             "doubling; the square root undoes SQUARING, and you have known since the "
+             "curve lesson that those are different beasts.",
+             '[[step eq="x = 5 ✓ (5² = 25)"]][[step eq="x = 12 ✗ — half undoes DOUBLING, not squaring"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals 36 take away x squared. It lands where x squared equals 36 — and 6 squared is 36. x equals 6.",
-                        '[[step eq="x² = 36"]] [[step eq="x = 6"]]'],
-             "ask": {"a": 13, "b": 0, "op": "hitg"}},
-            {"worked": ["One more together. y equals 49 take away x squared. 7 squared is 49, so it lands at x equals 7.",
-                        '[[step eq="x² = 49"]] [[step eq="x = 7"]]'],
-             "ask": {"a": 14, "b": 0, "op": "hitg"}},
+            {"worked": ("Here is one more, done for you. y equals 36 take away x "
+                        "squared. It lands where x squared equals 36 — and 6 squared is "
+                        "36. x equals 6.",
+                        '[[graph func="36-x^2" points="(6,0)" range="0..7" caption="the ground at x = 6"]][[step eq="x² = 36"]][[step eq="x = 6"]]'),
+             "ask": {'a': 13, 'b': 0, 'op': 'hitg'}},
+            {"worked": ("One more together. y equals 49 take away x squared. 7 squared "
+                        "is 49, so it lands at x equals 7.",
+                        '[[graph func="49-x^2" points="(7,0)" range="0..8" caption="the ground at x = 7"]][[step eq="x² = 49"]][[step eq="x = 7"]]'),
+             "ask": {'a': 14, 'b': 0, 'op': 'hitg'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The height is 25 "
+                       "take away x squared, and the ball lands at x equals 5. Tap the "
+                       "reason why."),
+            "choices": ("because 5 squared is 25, so the height reaches zero there | "
+                        "because half of 25 is about 12, and halving undoes squaring | "
+                        "because the ball lands at the height it started from"),
+            "answer": "because 5 squared is 25, so the height reaches zero there",
+            "board": '[[graph func="25-x^2" points="(5,0)" range="0..6" caption="x² = 25, so x = 5"]]',
+        },
+        "recap": [
+            ("So, here it is again. The ground is where the height is zero, so set "
+             "the rule to zero and ask what number squared equals the height. That "
+             "number is the square root — and it undoes squaring, not doubling.",
+             '[[graph func="25-x^2" points="(5,0)" range="0..6" caption="25 − x² = 0 at x = 5"]]'),
+            ("And that is how the world falls, read off a curve.",
+             '[[step eq="x² = 25, so x = 5"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 0, "op": "hitg"},
             {"a": 4, "b": 0, "op": "hitg"},
@@ -11518,24 +11864,62 @@ _ALGEBRA1_U9 = [
         "op": "mean", "max_value": 200,
         "levels": ("abstract",),
         "symbols": ("mean", "share"),
-        "advance_line": "Three in a row — you've got it! The mean shares everything out equally.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The mean shares everything out equally.",
+        "why": [
+            ("Why the mean? Because it is what everybody would have if you piled all "
+             "of it together and shared it out equally. Five children with 3, 5, 5, "
+             "6 and 6 sweets have 25 sweets between them — and the mean asks what "
+             "each would hold if that pile were dealt out fairly.",
+             '[[goal text="The mean"]]'),
+        ],
+        "picture": [
+            ("Here are the five amounts as dots — 3, 5, 5, 6 and 6 — and here is "
+             "the whole pile of 25 as a bar, shared into five equal parts. Every "
+             "part is 5. That is the mean: 25 shared between 5 is 5 each.",
+             '[[dotplot values="3,5,5,6,6" caption="one dot per value — 25 in all"]][[tape parts="5 | 5 | 5 | 5 | 5" total="25" caption="25 shared between 5 — the mean is 5"]]'),
+        ],
         "teach": [
-            ["The mean is what everybody would have if you piled all of it together and shared it out equally. Five children with 3, 5, 5, 6 and 6 sweets have 25 sweets between them; share those 25 between the 5 and everybody gets 5.",
-             '[[goal text="The mean"]][[dotplot values="3,5,5,6,6" caption="one dot per value — spot the stacks"]]'],
-            ["So it is two steps and one of them you already know. Add everything up to find how much there is in all, then share that between HOW MANY there are. 25 shared between 5 equals 5. The mean is 5.",
-             '[[step eq="3 + 5 + 5 + 6 + 6 = 25"]][[step eq="25 ÷ 5 = 5"]]'],
-            ["Divide by the COUNT, not by anything else. Five numbers means divide by five — however big or small those numbers happen to be. And the mean is not the whole pile: 25 is what they have together, 5 is what they have each.",
-             '[[step eq="mean = 5 ✓"]][[step eq="25 ✗ — that is the total, not the mean"]]'],
+            ("That is the method — two steps, and one of them you already know. Add "
+             "everything up to find how much there is in all, then share that "
+             "between HOW MANY there are. 25 shared between 5 equals 5. The mean is "
+             "5.",
+             '[[tape parts="5 | 5 | 5 | 5 | 5" total="25" caption="25 ÷ 5 = 5 each"]][[step eq="3 + 5 + 5 + 6 + 6 = 25"]][[step eq="25 ÷ 5 = 5"]]'),
+            ("Divide by the COUNT, not by anything else. Five numbers means divide by "
+             "five — however big or small those numbers happen to be. And the mean is "
+             "not the whole pile: 25 is what they have together, 5 is what they have "
+             "each.",
+             '[[step eq="mean = 5 ✓"]][[step eq="25 ✗ — that is the whole pile, not the mean"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Four numbers add up to 28. Share 28 between 4: the mean is 7.",
-                        '[[step eq="28 ÷ 4 = 7"]]'],
-             "ask": {"a": 4, "b": 7, "op": "mean"}},
-            {"worked": ["One more together. Six numbers add up to 54. 54 shared between 6 equals 9.",
-                        '[[step eq="54 ÷ 6 = 9"]]'],
-             "ask": {"a": 6, "b": 9, "op": "mean"}},
+            {"worked": ("Here is one more, done for you. Three numbers add up to 18. "
+                        "Share 18 between 3: the mean is 6.",
+                        '[[tape parts="6 | 6 | 6" total="18" caption="18 ÷ 3 = 6 each"]][[step eq="18 ÷ 3 = 6"]]'),
+             "ask": {'a': 4, 'b': 7, 'op': 'mean'}},
+            {"worked": ("One more together. Five numbers add up to 35. 35 shared between "
+                        "5 equals 7.",
+                        '[[tape parts="7 | 7 | 7 | 7 | 7" total="35" caption="35 ÷ 5 = 7 each"]][[step eq="35 ÷ 5 = 7"]]'),
+             "ask": {'a': 6, 'b': 9, 'op': 'mean'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Five numbers add "
+                       "up to 25, and their mean is 5. Tap the reason why."),
+            "choices": ("because 25 shared equally between the 5 of them is 5 each | "
+                        "because 25 is what they have, so the mean is 25 | because the "
+                        "mean is the biggest number in the set"),
+            "answer": "because 25 shared equally between the 5 of them is 5 each",
+            "board": '[[tape parts="5 | 5 | 5 | 5 | 5" total="25" caption="25 ÷ 5 = 5 — the mean is 5"]]',
+        },
+        "recap": [
+            ("So, here it is again. The mean is the pile shared out equally: add "
+             "everything to find how much in all, then divide by how many there "
+             "are — the count, never anything else.",
+             '[[tape parts="5 | 5 | 5 | 5 | 5" total="25" caption="25 ÷ 5 = 5"]]'),
+            ("And that is one number standing for the whole set, fairly.",
+             '[[step eq="mean = 25 ÷ 5 = 5"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "op": "mean"},
             {"a": 4, "b": 3, "op": "mean"},
@@ -11556,24 +11940,60 @@ _ALGEBRA1_U9 = [
         "op": "medn", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("median", "middle"),
-        "advance_line": "Three in a row — you've got it! Line them up and walk in from both ends.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Line them up and walk in from both ends.",
+        "why": [
+            ("Why a second middle? Because the median is a different kind of middle: "
+             "not shared out, just stood in a line. Put the numbers in order, smallest "
+             "first, and the median is the one standing in the middle of the queue.",
+             '[[goal text="The median"]]'),
+        ],
+        "picture": [
+            ("Here are five numbers as dots, in order: 4, 5, 6, 7, 8. Walk in from "
+             "both ends at once — 4 and 8 go first, then 5 and 7 — and you meet at "
+             "6. Two dots below it, two above it. The median is 6.",
+             '[[dotplot values="4,5,6,7,8" caption="one dot per value — walk in from both ends and meet at 6"]]'),
+        ],
         "teach": [
-            ["The median is a different kind of middle: not shared out, just stood in a line. Put the numbers in order, smallest first, and the median is the one standing in the middle of the queue.",
-             '[[goal text="The median"]][[dotplot values="4,5,6,7,8" caption="one dot per value — spot the stacks"]]'],
-            ["Five numbers: 4, 5, 6, 7, 8. Walk in from both ends at once — 4 and 8, then 5 and 7 — and you meet at 6. Two numbers below it, two above it. The median is 6.",
-             '[[dotplot values="4,5,6,7,8" caption="one dot per value — spot the stacks"]][[step eq="2 below · 6 · 2 above"]]'],
-            ["In order FIRST — that is the step people skip. And the median is the middle NUMBER, not the middle of the ends: a queue's middle person is found by counting in, not by looking at who is at the front and the back.",
-             '[[step eq="median = 6 ✓"]][[step eq="4 ✗ · 8 ✗ — those are the ends"]]'],
+            ("That is the method. Five numbers: 4, 5, 6, 7, 8. Walk in from both "
+             "ends at once — 4 and 8, then 5 and 7 — and you meet at 6. Two numbers "
+             "below it, two above it. The median is 6.",
+             '[[dotplot values="4,5,6,7,8" caption="2 below · 6 · 2 above"]][[step eq="2 below · 6 · 2 above"]]'),
+            ("In order FIRST — that is the step people skip. And the median is the "
+             "middle NUMBER, not the middle of the ends: a queue\'s middle person is "
+             "found by counting in, not by looking at who is at the front and the "
+             "back.",
+             '[[step eq="median = 6 ✓"]][[step eq="4 ✗ · 8 ✗ — those are the ends"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 6, 7, 8, 9, 10, 11, 12. Seven numbers, so three each side — the median is 9.",
-                        '[[dotplot values="6,7,8,9,10,11,12" caption="one dot per value — spot the stacks"]][[step eq="3 below · 9 · 3 above"]]'],
-             "ask": {"a": 3, "b": 9, "op": "medn"}},
-            {"worked": ["One more together. 10, 11, 12, 13, 14. Walk in from both ends: the median is 12.",
-                        '[[step eq="median = 12"]]'],
-             "ask": {"a": 2, "b": 12, "op": "medn"}},
+            {"worked": ("Here is one more, done for you. 7, 8, 9, 10, 11, 12, 13. Seven "
+                        "numbers, so three each side — the median is 10.",
+                        '[[dotplot values="7,8,9,10,11,12,13" caption="3 below · 10 · 3 above"]][[step eq="3 below · 10 · 3 above"]]'),
+             "ask": {'a': 3, 'b': 9, 'op': 'medn'}},
+            {"worked": ("One more together. 11, 12, 13, 14, 15. Walk in from both ends: "
+                        "the median is 13.",
+                        '[[dotplot values="11,12,13,14,15" caption="2 below · 13 · 2 above"]][[step eq="median = 13"]]'),
+             "ask": {'a': 2, 'b': 12, 'op': 'medn'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Of 4, 5, 6, 7 and "
+                       "8, the median is 6. Tap the reason why."),
+            "choices": ("because 6 is the middle one, with two below and two above | "
+                        "because 6 is halfway between the two ends, 4 and 8 | because "
+                        "5 is written in the middle of the list"),
+            "answer": "because 6 is the middle one, with two below and two above",
+            "board": '[[dotplot values="4,5,6,7,8" caption="2 below · 6 · 2 above — the median is 6"]]',
+        },
+        "recap": [
+            ("So, here it is again. Put the numbers in order, then walk in from "
+             "both ends at once; where you meet is the median — the middle number, "
+             "with as many below it as above it.",
+             '[[dotplot values="4,5,6,7,8" caption="the median is 6"]]'),
+            ("And that is the middle of the queue, found by counting in.",
+             '[[step eq="median = 6"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 4, "op": "medn"},
             {"a": 2, "b": 5, "op": "medn"},
@@ -11594,24 +12014,62 @@ _ALGEBRA1_U9 = [
         "op": "rnge", "max_value": 60,
         "levels": ("abstract",),
         "symbols": ("range", "spread"),
-        "advance_line": "Three in a row — you've got it! The range is how far the data stretches.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The range is how far the data stretches.",
+        "why": [
+            ("Why the range? Because the mean and the median both tell you where the "
+             "data SITS — and nothing about how far it stretches. Biggest take away "
+             "smallest: one take away, and it describes the whole spread of the "
+             "data.",
+             '[[goal text="The range"]]'),
+        ],
+        "picture": [
+            ("Here are the two ends as bars: smallest 4, biggest 19. And here they "
+             "are on a number line, with the stretch between them — from 4 all the "
+             "way to 19 is a stretch of 15. That stretch is the range.",
+             '[[bars data="smallest:4 | biggest:19" caption="smallest 4, biggest 19"]][[numberline min="0" max="21" points="4,19" caption="from 4 to 19 — a stretch of 15"]]'),
+        ],
         "teach": [
-            ["The mean and the median both tell you where the data SITS. The range tells you something else entirely: how far it stretches. Biggest take away smallest — one take away, and it describes the whole spread of the data.",
-             '[[goal text="The range"]][[bars data="smallest:4 | biggest:19" caption="smallest 4, biggest 19"]]'],
-            ["Smallest 4, biggest 19. The range is 19 take away 4, which equals 15. The data covers a stretch of 15.",
-             '[[step eq="19 − 4 = 15"]]'],
-            ["Two sets can share a mean and be nothing alike. Children all aged 9, 9, 9 have a range of 0 — identical. Children aged 4, 9, 14 have the same mean of 9 and a range of 10 — wildly spread. The middle alone never tells you that.",
-             '[[step eq="9, 9, 9 → mean 9, range 0"]][[step eq="4, 9, 14 → mean 9, range 10"]]'],
+            ("That is the method. The range tells you something else entirely from "
+             "the middles: how far the data stretches. Smallest 4, biggest 19. The "
+             "range is 19 take away 4, which equals 15. The data covers a stretch of "
+             "15.",
+             '[[numberline min="0" max="21" points="4,19" caption="19 − 4 = 15"]][[step eq="19 − 4 = 15"]]'),
+            ("Two sets can share a mean and be nothing alike. Children all aged 9, 9, "
+             "9 have a range of 0 — identical. Children aged 4, 9, 14 have the same "
+             "mean of 9 and a range of 10 — wildly spread. The middle alone never "
+             "tells you that.",
+             '[[step eq="9, 9, 9 → mean 9, range 0"]][[step eq="4, 9, 14 → mean 9, range 10"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Smallest 5, biggest 21. The range is 21 take away 5, which equals 16.",
-                        '[[step eq="21 − 5 = 16"]]'],
-             "ask": {"a": 3, "b": 15, "op": "rnge"}},
-            {"worked": ["One more together. Smallest 7, biggest 25. The range is 25 take away 7, which equals 18.",
-                        '[[step eq="25 − 7 = 18"]]'],
-             "ask": {"a": 9, "b": 30, "op": "rnge"}},
+            {"worked": ("Here is one more, done for you. Smallest 5, biggest 21. The "
+                        "range is 21 take away 5, which equals 16.",
+                        '[[numberline min="0" max="23" points="5,21" caption="from 5 to 21 — a stretch of 16"]][[step eq="21 − 5 = 16"]]'),
+             "ask": {'a': 3, 'b': 15, 'op': 'rnge'}},
+            {"worked": ("One more together. Smallest 7, biggest 25. The range is 25 take "
+                        "away 7, which equals 18.",
+                        '[[numberline min="0" max="27" points="7,25" caption="from 7 to 25 — a stretch of 18"]][[step eq="25 − 7 = 18"]]'),
+             "ask": {'a': 9, 'b': 30, 'op': 'rnge'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Smallest 4, "
+                       "biggest 19, and the range is 15. Tap the reason why."),
+            "choices": ("because the range is the stretch from 4 up to 19 | because the "
+                        "range adds the two ends, 4 and 19 | because the range is the "
+                        "biggest number, 19"),
+            "answer": "because the range is the stretch from 4 up to 19",
+            "board": '[[numberline min="0" max="21" points="4,19" caption="19 − 4 = 15"]]',
+        },
+        "recap": [
+            ("So, here it is again. The range is how far the data stretches: the "
+             "biggest take away the smallest. It says nothing about where the data "
+             "sits, and everything about how spread out it is.",
+             '[[numberline min="0" max="21" points="4,19" caption="range = 19 − 4 = 15"]]'),
+            ("And that is the spread, in one take away.",
+             '[[step eq="range = 19 − 4 = 15"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 5, "op": "rnge"},
             {"a": 3, "b": 8, "op": "rnge"},
@@ -11632,24 +12090,64 @@ _ALGEBRA1_U9 = [
         "op": "outl", "max_value": 60,
         "levels": ("abstract",),
         "symbols": ("median", "mean"),
-        "advance_line": "Three in a row — you've got it! One unusual number drags the mean and leaves the median standing.",
+        "advance_line": "Three in a row, and you can say why — you've got it! One unusual number drags the mean and leaves the median standing.",
+        "why": [
+            ("Why this last lesson? Because it gives the other three their point. "
+             "Four children have 5 pencils each. A fifth walks in carrying 45. Watch "
+             "what that ONE child does to each of our middles.",
+             '[[goal text="When one number is unusual"]]'),
+        ],
+        "picture": [
+            ("Here are the five as dots: four stacked at 5, and one far out on its "
+             "own at 45. Walk in from both ends and the middle dot is still at 5 — "
+             "the median. But pile everything up — 65 — and share it between 5, and "
+             "the mean is 13. Nobody in the room has 13.",
+             '[[dotplot values="5,5,5,5,45" caption="four at 5, one at 45 — median 5, mean 13"]]'),
+        ],
         "teach": [
-            ["Now the lesson that gives the other three their point. Four children have 5 pencils each. A fifth walks in carrying 45. Watch what that ONE child does to each of our middles.",
-             '[[goal text="When one number is unusual"]][[dotplot values="5,5,5,5,45" caption="one dot per value — spot the stacks"]]'],
-            ["The mean: 5 and 5 and 5 and 5 and 45 add up to 65, shared between 5 gives 13. Thirteen! Not one child in that room has 13 pencils. The median, though — line them up, walk in from both ends, and the middle child still has 5.",
-             '[[step eq="mean = 65 ÷ 5 = 13"]][[step eq="median = 5"]]'],
-            ["A single unusual number DRAGS the mean and leaves the median standing. That is why you should always ask which middle someone is quoting you — averages that sound strange usually have one very odd number hiding behind them.",
-             '[[step eq="median 5 — the room ✓"]][[step eq="mean 13 — nobody ✗"]]'],
+            ("That is the method. The mean: 5 and 5 and 5 and 5 and 45 add up to 65, "
+             "shared between 5 gives 13. Thirteen! Not one child in that room has 13 "
+             "pencils. The median, though — line them up, walk in from both ends, "
+             "and the middle child still has 5.",
+             '[[dotplot values="5,5,5,5,45" caption="the middle dot is still at 5"]][[step eq="mean = 65 ÷ 5 = 13"]][[step eq="median = 5"]]'),
+            ("A single unusual number DRAGS the mean and leaves the median standing. "
+             "That is why you should ask which middle someone is quoting you — "
+             "averages that sound strange usually have one very odd number hiding "
+             "behind them.",
+             '[[step eq="median 5 — the room ✓"]][[step eq="mean 13 — nobody ✗"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Four children with 6 each, and one with 26. The mean is 10, but the median is still 6.",
-                        '[[dotplot values="6,6,6,6,26" caption="one dot per value — spot the stacks"]][[step eq="median = 6 · mean = 10"]]'],
-             "ask": {"a": 4, "b": 4, "c": 34, "op": "outl"}},
-            {"worked": ["One more together. Four with 5 each and one with 40: the mean climbs to 12, the median stays at 5.",
-                        '[[step eq="median = 5 · mean = 12"]]'],
-             "ask": {"a": 4, "b": 5, "c": 40, "op": "outl"}},
+            {"worked": ("Here is one more, done for you. Four children with 6 each, and "
+                        "one with 36. The mean is 12, but the median is still 6.",
+                        '[[dotplot values="6,6,6,6,36" caption="four at 6, one at 36 — median 6, mean 12"]][[step eq="median = 6 · mean = 12"]]'),
+             "ask": {'a': 4, 'b': 4, 'c': 34, 'op': 'outl'}},
+            {"worked": ("One more together. Four with 3 each and one with 28: the mean "
+                        "climbs to 8, the median stays at 3.",
+                        '[[dotplot values="3,3,3,3,28" caption="four at 3, one at 28 — median 3, mean 8"]][[step eq="median = 3 · mean = 8"]]'),
+             "ask": {'a': 4, 'b': 5, 'c': 40, 'op': 'outl'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Four children have "
+                       "5 pencils and one has 45, and the median is 5. Tap the reason "
+                       "why."),
+            "choices": ("because the middle child, counting in from both ends, has 5 | "
+                        "because 65 shared between 5 is 13, so the median is 13 | "
+                        "because the median is the unusual number, 45"),
+            "answer": "because the middle child, counting in from both ends, has 5",
+            "board": '[[dotplot values="5,5,5,5,45" caption="median 5 — the room · mean 13 — nobody"]]',
+        },
+        "recap": [
+            ("So, here it is again. One unusual number drags the mean away from the "
+             "room and leaves the median standing where the middle is. When an "
+             "average sounds strange, ask which middle it is.",
+             '[[dotplot values="5,5,5,5,45" caption="median 5 · mean 13"]]'),
+            ("And that is the point of having three middles — and the end of "
+             "Algebra 1.",
+             '[[step eq="median = 5 · mean = 13"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 2, "c": 22, "op": "outl"},
             {"a": 4, "b": 2, "c": 32, "op": "outl"},
@@ -22373,6 +22871,224 @@ def _dbl_worked(p):
 
 
 
+# ---- (th, 2026-09-06) ALGEBRA 1 UNITS 7-9: the four rooms and their reverse, curves
+# on the grid, the three middles. Every ask draws its question with the answer
+# withheld; every walk-back draws the same picture filled in.
+def _foil_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[areamodel rows="x,{a}" cols="x,{b}" ask="x" '
+            f'caption="(x + {a}) by (x + {b}) — four rooms: the middle two are the question"]]'
+            f'[[step eq="(x + {a})(x + {b})"]]'
+            f'[[step eq="x rooms: {a}x + {b}x"]]'
+            f'[[step eq="x² + ?x + {a * b}"]]')
+
+
+def _foil_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the two middle rooms are {b} x and {a} x, and middles ADD — "
+            f"{a} plus {b} equals {a + b}, so {a + b} x. The corner times: {a} times {b} is "
+            f"{a * b}. x squared, plus {a + b} x, plus {a * b}.",
+            f'[[areamodel rows="x,{a}" cols="x,{b}" caption="(x + {a})(x + {b}) = x² + {a + b}x + {a * b}"]]')
+
+
+def _fnum_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[areamodel rows="x,{a}" cols="x,{b}" ask="side" '
+            f'caption="the rooms add up to x² + {a + b}x + {a * b} — one side is x + {a}: what is the other?"]]'
+            f'[[step eq="x² + {a + b}x + {a * b}"]]'
+            f'[[step eq="= (x + {a})(x + ?)"]]'
+            f'[[step eq="{a} + ? = {a + b} · {a} × ? = {a * b}"]]')
+
+
+def _fnum_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the hidden number has to fit both clues. {a} plus {b} equals "
+            f"{a + b} — the x count. {a} times {b} equals {a * b} — the corner. {b} fits both, "
+            f"so the other side is x plus {b}. Multiply the sides back out and the sum comes "
+            f"back.",
+            f'[[areamodel rows="x,{a}" cols="x,{b}" caption="(x + {a})(x + {b}) = x² + {a + b}x + {a * b} ✓"]]')
+
+
+def _gcfx_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[areamodel rows="{c}" cols="{a}x,{b}" ask="side" '
+            f'caption="{c} tall — the rooms are {c * a}x and {c * b}: what is the second width?"]]'
+            f'[[step eq="{c * a}x + {c * b}"]]'
+            f'[[step eq="= {c}({a}x + ?)"]]'
+            f'[[step eq="{c} × ? = {c * b}"]]')
+
+
+def _gcfx_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: the {c} came out of BOTH rooms. {c * a} x is {c} times {a} x, "
+            f"and {c * b} is {c} times {b} — so inside the parentheses is {a} x plus {b}. Check "
+            f"it forwards: {c} times {a} x is {c * a} x, and {c} times {b} is {c * b}.",
+            f'[[areamodel rows="{c}" cols="{a}x,{b}" caption="{c * a}x + {c * b} = {c}({a}x + {b}) ✓"]]')
+
+
+def _dsq_board(p):
+    a = p["a"]
+    return (f'[[areamodel rows="x,{a}" cols="x,-{a}" ask="1" '
+            f'caption="(x + {a}) by (x − {a}) — the middle rooms cancel; the corner is the question"]]'
+            f'[[step eq="(x + {a})(x − {a})"]]'
+            f'[[step eq="middles: +{a}x − {a}x cancel"]]'
+            f'[[step eq="x² − ?"]]')
+
+
+def _dsq_worked(p):
+    a = p["a"]
+    return (f"Look what you did: the middle rooms are plus {a} x and take away {a} x — they "
+            f"cancel to nothing. The corner is {a} times {a}, which is {a * a}, taken away. "
+            f"x squared take away {a * a}: the square of {a}, not {a} and not {2 * a}.",
+            f'[[areamodel rows="x,{a}" cols="x,-{a}" caption="(x + {a})(x − {a}) = x² − {a * a}"]]')
+
+
+def _sqy_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph func="x^2+{b}" lines="x={a}" range="-{a + 1}..{a + 1}" '
+            f'caption="y = x² + {b} — climb from x = {a} up to the curve: how high?"]]'
+            f'[[step eq="y = {a}² + {b} = ?"]]')
+
+
+def _sqy_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: {a} squared is {a} times itself — {a * a}, not {2 * a}. Then "
+            f"plus {b}: {a * a} plus {b} equals {a * a + b}. The curve stands at height "
+            f"{a * a + b} over x equals {a}.",
+            f'[[graph func="x^2+{b}" points="({a},{a * a + b})" range="-{a + 1}..{a + 1}" '
+            f'caption="the point ({a}, {a * a + b}) — {a}² + {b}"]]'
+            f'[[step eq="y = {a}² + {b} = {a * a} + {b} = {a * a + b}"]]')
+
+
+def _roots_board(p):
+    a, b = p["a"], p["b"]
+    hi = max(a, b) + 2
+    return (f'[[graph func="(x-{a})*(x-{b})" points="({a},0)" range="0..{hi}" '
+            f'caption="the curve touches the ground at x = {a} — and once more: where?"]]'
+            f'[[step eq="(x − {a})(x − {b}) = 0"]]'
+            f'[[step eq="zero times anything is zero"]]'
+            f'[[step eq="x = {a}, or x = ?"]]')
+
+
+def _roots_worked(p):
+    a, b = p["a"], p["b"]
+    hi = max(a, b) + 2
+    return (f"Look what you did: a product is zero only when a factor is zero. x equals {a} "
+            f"turns the first bracket to zero, and x equals {b} turns the second to zero — "
+            f"so the curve touches the ground at {a} and at {b}. Two answers, one per bracket, "
+            f"and nobody added or timesed them.",
+            f'[[graph func="(x-{a})*(x-{b})" points="({a},0),({b},0)" range="0..{hi}" '
+            f'caption="the ground at x = {a} and x = {b}"]]'
+            f'[[step eq="x = {a} or x = {b}"]]')
+
+
+def _vtx_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph func="(x-{a})^2+{b}" range="{a - 3}..{a + 3}" '
+            f'caption="y = (x − {a})² + {b} — how low does the curve go?"]]'
+            f'[[step eq="y = (x − {a})² + {b}"]]'
+            f'[[step eq="the squared part bottoms out at 0"]]'
+            f'[[step eq="lowest y = ?"]]')
+
+
+def _vtx_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: a square is never below zero, so the squared part bottoms "
+            f"out at 0 — right at x equals {a}. There y is 0 plus {b}, which is {b}. The {a} "
+            f"says where the low point sits; the {b} says how low it goes.",
+            f'[[graph func="(x-{a})^2+{b}" points="({a},{b})" range="{a - 3}..{a + 3}" '
+            f'caption="the lowest point ({a}, {b}) — lowest y = {b}"]]'
+            f'[[step eq="lowest y = 0 + {b} = {b}"]]')
+
+
+def _hitg_board(p):
+    a = p["a"]
+    return (f'[[graph func="{a * a}-x^2" range="0..{a + 1}" '
+            f'caption="y = {a * a} − x² — where does the curve reach the ground?"]]'
+            f'[[step eq="{a * a} − x² = 0"]]'
+            f'[[step eq="x² = {a * a}"]]')
+
+
+def _hitg_worked(p):
+    a = p["a"]
+    return (f"Look what you did: the height is zero when x squared equals {a * a}, and the "
+            f"number that squares to {a * a} is {a} — {a} times {a}. The ball lands at x "
+            f"equals {a}. {a} is the square root of {a * a}; it is not half of {a * a}.",
+            f'[[graph func="{a * a}-x^2" points="(0,{a * a}),({a},0)" range="0..{a + 1}" '
+            f'caption="from height {a * a} down to the ground at x = {a}"]]'
+            f'[[step eq="x² = {a * a}, so x = {a}"]]')
+
+
+def _mean_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="{" | ".join(["?"] * a)}" total="{a * b}" '
+            f'caption="{a * b} in all, shared equally between {a} — how much each?"]]'
+            f'[[step eq="{a} numbers · {a * b} in all"]]'
+            f'[[step eq="{a * b} ÷ {a} = ?"]]')
+
+
+def _mean_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: pile everything together — {a * b} in all — then share it "
+            f"equally between the {a}. {a * b} shared between {a} is {b} each. The mean is "
+            f"{b}: what everybody would have if it were shared out evenly.",
+            f'[[tape parts="{" | ".join([str(b)] * a)}" total="{a * b}" '
+            f'caption="{a * b} ÷ {a} = {b} each — the mean is {b}"]]')
+
+
+def _medn_board(p):
+    a = p["a"]
+    return (f'[[dotplot values="{_medlist(p)}" '
+            f'caption="{2 * a + 1} numbers in order — walk in from both ends"]]'
+            f'[[step eq="{2 * a + 1} numbers · {a} on each side of the middle"]]')
+
+
+def _medn_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: {2 * a + 1} numbers, already in order. Walk in from both "
+            f"ends at once and you meet at {b}, with {a} below it and {a} above it. The median "
+            f"is {b} — the middle number, not the middle of the ends.",
+            f'[[dotplot values="{_medlist(p)}" caption="{a} below · {b} · {a} above — the median is {b}"]]'
+            f'[[step eq="median = {b}"]]')
+
+
+def _rnge_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[bars data="smallest:{a} | biggest:{b}" '
+            f'caption="smallest {a}, biggest {b} — how far does the data stretch?"]]'
+            f'[[step eq="{b} − {a} = ?"]]')
+
+
+def _rnge_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the range is how far the data stretches, from the smallest "
+            f"to the biggest. {b} take away {a} equals {b - a}. Not {a + b} — the ends are "
+            f"not added, the gap between them is measured.",
+            f'[[numberline min="0" max="{b + 2}" points="{a},{b}" '
+            f'caption="from {a} to {b} — a stretch of {b - a}"]]'
+            f'[[step eq="range = {b} − {a} = {b - a}"]]')
+
+
+def _outl_board(p):
+    b, c = p["b"], p["c"]
+    m = (4 * b + c) // 5
+    return (f'[[dotplot values="{b},{b},{b},{b},{c}" '
+            f'caption="four with {b}, one with {c} — where is the middle child?"]]'
+            f'[[step eq="mean = {m}"]][[step eq="median = ?"]]')
+
+
+def _outl_worked(p):
+    b, c = p["b"], p["c"]
+    m = (4 * b + c) // 5
+    return (f"Look what you did: line them up and walk in from both ends — the middle child "
+            f"still has {b}, so the median is {b}. The mean was dragged to {m} by the one "
+            f"with {c}, and nobody in the room has {m}. One unusual number moves the mean and "
+            f"leaves the median standing.",
+            f'[[dotplot values="{b},{b},{b},{b},{c}" caption="median {b} — the room · mean {m} — nobody"]]'
+            f'[[step eq="median = {b} · mean = {m}"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -24648,9 +25364,8 @@ OP_EXT = {
         "spoken": lambda p: (f"x plus {p['a']}, times x plus {p['b']}. That comes "
                             f"to x squared, plus how many x, plus "
                             f"{p['a'] * p['b']}?"),
-        "board": lambda p: (f'[[step eq="(x + {p["a"]})(x + {p["b"]})"]]'
-                            f'[[step eq="x rooms: {p["a"]}x + {p["b"]}x"]]'
-                            f'[[step eq="x² + ?x + {p["a"] * p["b"]}"]]'),
+        "board": _foil_board,         # (th) the four rooms, the middle two asked
+        "worked": _foil_worked,       # (th) the rooms read
         "praise": lambda p: (f"The two x rooms hold {p['a']} x and {p['b']} x — "
                              f"{p['a'] + p['b']} x in all. x squared, plus "
                              f"{p['a'] + p['b']} x, plus {p['a'] * p['b']}."),
@@ -24670,11 +25385,8 @@ OP_EXT = {
         "spoken": lambda p: (f"x squared, plus {p['a'] + p['b']} x, plus "
                              f"{p['a'] * p['b']}, equals: x plus {p['a']}, times, "
                              f"x plus what?"),
-        "board": lambda p: (f'[[step eq="x² + {p["a"] + p["b"]}x + '
-                            f'{p["a"] * p["b"]}"]]'
-                            f'[[step eq="= (x + {p["a"]})(x + ?)"]]'
-                            f'[[step eq="{p["a"]} + ? = {p["a"] + p["b"]} · '
-                            f'{p["a"]} × ? = {p["a"] * p["b"]}"]]'),
+        "board": _fnum_board,         # (th) the rooms with one side hidden
+        "worked": _fnum_worked,       # (th) the side found, the sum back
         "praise": lambda p: (f"{p['a']} plus {p['b']} equals {p['a'] + p['b']}, and "
                              f"{p['a']} times {p['b']} equals {p['a'] * p['b']} — "
                              f"{p['b']} fits BOTH clues, and a factor has to fit "
@@ -24695,9 +25407,8 @@ OP_EXT = {
         "ans": lambda p: p["b"],
         "spoken": lambda p: (f"{p['c'] * p['a']} x plus {p['c'] * p['b']} equals: "
                              f"{p['c']} times, {p['a']} x plus what?"),
-        "board": lambda p: (f'[[step eq="{p["c"] * p["a"]}x + {p["c"] * p["b"]}"]]'
-                            f'[[step eq="= {p["c"]}({p["a"]}x + ?)"]]'
-                            f'[[step eq="{p["c"]} × ? = {p["c"] * p["b"]}"]]'),
+        "board": _gcfx_board,         # (th) c tall, the second width hidden
+        "worked": _gcfx_worked,       # (th) the width found, checked forwards
         "praise": lambda p: (f"The {p['c']} was pulled out of BOTH parts: "
                              f"{p['c'] * p['a']} x became {p['a']} x, so "
                              f"{p['c'] * p['b']} becomes {p['b']}. Both parts "
@@ -24720,9 +25431,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] * p["a"],
         "spoken": lambda p: (f"x plus {p['a']}, times x take away {p['a']}. That "
                              f"comes to x squared take away what number?"),
-        "board": lambda p: (f'[[step eq="(x + {p["a"]})(x − {p["a"]})"]]'
-                            f'[[step eq="middles: +{p["a"]}x − {p["a"]}x cancel"]]'
-                            f'[[step eq="x² − ?"]]'),
+        "board": _dsq_board,          # (th) the four rooms, the corner asked
+        "worked": _dsq_worked,        # (th) the middles cancelled, the corner read
         "praise": lambda p: (f"The middle rooms cancel — plus {p['a']} x and take "
                              f"away {p['a']} x land on nothing — leaving x squared "
                              f"take away {p['a'] * p['a']}."),
@@ -24747,8 +25457,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] * p["a"] + p["b"],
         "spoken": lambda p: (f"The curve is y equals x squared plus {p['b']}. "
                              f"What is y when x is {p['a']}?"),
-        "board": lambda p: (f'[[graph func="x^2+{p["b"]}" range="-4..4"]]'
-                            f'[[step eq="y = {p["a"]}² + {p["b"]} = ?"]]'),
+        "board": _sqy_board,          # (th) the curve and the climb from x = a
+        "worked": _sqy_worked,        # (th) the point marked
         "praise": lambda p: (f"{p['a']} squared is {p['a']} times {p['a']} — "
                              f"{p['a'] * p['a']} — plus {p['b']} equals "
                              f"{p['a'] * p['a'] + p['b']}."),
@@ -24765,9 +25475,8 @@ OP_EXT = {
         "spoken": lambda p: (f"x take away {p['a']}, times x take away {p['b']}, "
                              f"equals zero. One answer is x equals {p['a']}. "
                              f"What is the other answer?"),
-        "board": lambda p: (f'[[step eq="(x − {p["a"]})(x − {p["b"]}) = 0"]]'
-                            f'[[step eq="zero times anything is zero"]]'
-                            f'[[step eq="x = {p["a"]}, or x = ?"]]'),
+        "board": _roots_board,        # (th) the curve with one ground point, the other asked
+        "worked": _roots_worked,      # (th) both ground points
         "praise": lambda p: (f"If either bracket lands on zero, the whole thing is "
                              f"zero. x equals {p['a']} kills the first bracket, and "
                              f"x equals {p['b']} kills the second."),
@@ -24788,11 +25497,8 @@ OP_EXT = {
                              f"reach?"),
         # The board shows the RULE and the square's floor -- never "0 + b = ?",
         # which is the answer wearing a hat (the pond taught this in kz).
-        "board": lambda p: (f'[[graph func="(x-{p["a"]})^2+{p["b"]}" '
-                            f'range="{p["a"] - 3}..{p["a"] + 3}"]]'
-                            f'[[step eq="y = (x − {p["a"]})² + {p["b"]}"]]'
-                            f'[[step eq="the squared part bottoms out at 0 — '
-                            f'lowest y = ?"]]'),
+        "board": _vtx_board,          # (th) the curve, how low asked
+        "worked": _vtx_worked,        # (th) the lowest point marked
         "praise": lambda p: (f"A square can never be below zero — the smallest the "
                              f"squared part gets is 0, right at x equals {p['a']} — "
                              f"so the lowest y is 0 plus {p['b']}: {p['b']}."),
@@ -24810,11 +25516,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A ball's height is y equals {p['a'] * p['a']} take "
                              f"away x squared. At what x does the height reach "
                              f"zero?"),
-        "board": lambda p: (f'[[graph func="{p["a"] * p["a"]}-x^2" '
-                            f'range="0..{p["a"] + 1}"]]'
-                            f'[[step eq="{p["a"] * p["a"]} − x² = 0"]]'
-                            f'[[step eq="what number squared equals '
-                            f'{p["a"] * p["a"]}?"]]'),
+        "board": _hitg_board,         # (th) the falling curve, the ground asked
+        "worked": _hitg_worked,       # (th) the launch and the landing marked
         "praise": lambda p: (f"The height is zero when x squared equals "
                              f"{p['a'] * p['a']} — and {p['a']} squared is exactly "
                              f"that. {p['a']} is called the square root of "
@@ -24842,9 +25545,8 @@ OP_EXT = {
                              f"What is their mean?"),
         # "in all", not "total" -- the spoken canon, kept on the board too so the
         # child reads the same word they hear (the validator only polices speech).
-        "board": lambda p: (f'[[step eq="{p["a"]} numbers · '
-                            f'{p["a"] * p["b"]} in all"]]'
-                            f'[[step eq="{p["a"] * p["b"]} ÷ {p["a"]} = ?"]]'),
+        "board": _mean_board,         # (th) the pile as a bar, shared into a hidden parts
+        "worked": _mean_worked,       # (th) every part the mean
         "praise": lambda p: (f"Sharing {p['a'] * p['b']} equally between {p['a']} "
                              f"gives {p['b']} each — the mean is {p['b']}."),
         "key": lambda p: p["b"],
@@ -24862,9 +25564,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Here are {2 * p['a'] + 1} numbers, smallest first: "
                              f"{_medlist_words(p)}. What is the median — the one in "
                              f"the middle?"),
-        "board": lambda p: (f'[[dotplot values="{_medlist(p)}"]]'
-                            f'[[step eq="{2 * p["a"] + 1} numbers · '
-                            f'{p["a"]} on each side of the middle"]]'),
+        "board": _medn_board,         # (th) the dots in order, captioned
+        "worked": _medn_worked,       # (th) the middle named
         "praise": lambda p: (f"With {2 * p['a'] + 1} numbers there are {p['a']} below "
                              f"and {p['a']} above, so the middle one is {p['b']} — "
                              f"that is the median."),
@@ -24881,8 +25582,8 @@ OP_EXT = {
         "ans": lambda p: p["b"] - p["a"],
         "spoken": lambda p: (f"In a set of numbers the smallest is {p['a']} and the "
                              f"biggest is {p['b']}. What is the range?"),
-        "board": lambda p: (f'[[bars data="smallest:{p["a"]} | biggest:{p["b"]}"]]'
-                            f'[[step eq="{p["b"]} − {p["a"]} = ?"]]'),
+        "board": _rnge_board,         # (th) the two ends as bars
+        "worked": _rnge_worked,       # (th) the stretch on the number line
         "praise": lambda p: (f"The range is how far the data STRETCHES: {p['b']} "
                              f"take away {p['a']} equals {p['b'] - p['a']}."),
         "key": lambda p: p["b"] - p["a"],
@@ -24897,10 +25598,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Four children have {p['b']} pencils each. A fifth "
                              f"child walks in with {p['c']}. What is the MEDIAN "
                              f"number of pencils now?"),
-        "board": lambda p: (f'[[dotplot values="{p["b"]},{p["b"]},{p["b"]},'
-                            f'{p["b"]},{p["c"]}"]]'
-                            f'[[step eq="mean = {(4 * p["b"] + p["c"]) // 5} · '
-                            f'median = ?"]]'),
+        "board": _outl_board,         # (th) the dots, the newcomer far out
+        "worked": _outl_worked,       # (th) the median standing, the mean dragged
         "praise": lambda p: (f"The median is still {p['b']} — the middle child did "
                              f"not move. But the mean jumped to "
                              f"{(4 * p['b'] + p['c']) // 5}, dragged up by one "
