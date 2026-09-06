@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD ts -- PART 3jo: THE LESSON INTRODUCES ITSELF. Every lesson's
+#               intro line names its course (curriculum.py's title, "&" said as "and"),
+#               its unit and the unit's name, "Lesson i of n" (n = the unit's lessons in
+#               COURSE_ORDER), and its topic; is unique across the 360; sits in its own
+#               closure; and is the FIRST output of begin, on a [[write]] card, in every
+#               course. Swept through the referees: the only fire is rule 7 on a title
+#               that names a figure ("Fractions on the number line") -- a title, not a
+#               claim; pinned as the one.
 #   2026-09-06  BUILD tr -- PART 3jn: Probstat Units 1-3 to the shape (12 lessons on
 #               the dot plot, the histogram, the stray dot, the two middles with the
 #               halfway mark, the box, the four distances as bars, the hundred square
@@ -21976,7 +21984,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,312</b>" in page,
+          "<b>10,322</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22976,13 +22984,16 @@ def part3il_the_lesson_learns_to_teach():
     _pic = spoken.index(les["picture"][0][0])
     _tch = spoken.index(les["teach"][0][0])
     _wrk = spoken.index(les["pairs"][0]["worked"][0])
-    check("⭐ the lesson opens WHY, then the PICTURE, then the rule, then the worked example",
-          _why == 0 and _why < _pic < _tch < _wrk and outs[-1]["kind"] == "ask",
+    # (ts, 2026-09-06) the lesson introduces itself at index 0 now -- course, unit,
+    # lesson, topic -- and the why is the first AUTHORED beat, at index 1.
+    check("⭐ the lesson opens on its introduction, then WHY, then the PICTURE, then the rule, then the worked example",
+          spoken[0] == L.lesson_intro(les)[0] and _why == 1 and _why < _pic < _tch < _wrk
+          and outs[-1]["kind"] == "ask",
           f"why@{_why} picture@{_pic} teach@{_tch} worked@{_wrk}")
     check("  no rule is spoken before the picture (the rule summarises what the picture showed)",
           "ones digit" not in " ".join(spoken[:_pic + 1]).lower(), "")
     check("  every rounding beat that names a number draws a number line",
-          all("[[numberline" in o["board"] for o in outs
+          all("[[numberline" in o["board"] for o in outs[1:]     # (ts) [0] is the introduction card
               if o["kind"] == "say" and "[[step" not in o["board"] and "[[goal" not in o["board"]),
           str([o["board"][:40] for o in outs if o["kind"] == "say"]))
     check("  the ask draws the number line with the halfway mark and NO hop (the picture is the tool, not the answer)",
@@ -23095,8 +23106,11 @@ def part3il_the_lesson_learns_to_teach():
           not any(old.get(f) for f in ("why", "picture", "recap", "explain", "show_work_on_correct")), "")
     st0 = L.start(old)
     o0, st0 = L.step(old, st0, ("begin",))
-    check("⭐ a pre-shape lesson still opens on its first teach line and ends with no recap",
-          o0[0]["spoken"] == old["teach"][0][0] and o0[-1]["kind"] == "ask", "")
+    # (ts) every lesson, shaped or not, introduces itself first; the pre-shape
+    # lesson's first AUTHORED line is still its first teach line
+    check("⭐ a pre-shape lesson still opens on its first teach line (after the introduction) and ends with no recap",
+          o0[0]["spoken"] == L.lesson_intro(old)[0] and o0[1]["spoken"] == old["teach"][0][0]
+          and o0[-1]["kind"] == "ask", "")
     ended = None
     for _ in range(12):
         p = st0["pending"]["problem"]
@@ -23120,9 +23134,10 @@ def part3il_the_lesson_learns_to_teach():
     main._SCRIPT_SESSIONS.pop(CODE, None)
     r = c.post("/api/script/start", json={"code": CODE, "course": "basic",
                                           "lesson": "basic-u1-rounding-tens"}).json()
-    check("  /api/script/start ships the shape's opening and `reason` on every ask",
+    check("  /api/script/start ships the introduction, the shape's opening and `reason` on every ask",
           r.get("ok") and r["steps"][-1]["kind"] == "ask" and r["steps"][-1].get("reason") is False
-          and r["steps"][0]["spoken"] == les["why"][0][0], str(r)[:200])
+          and r["steps"][0]["spoken"] == L.lesson_intro(les)[0]     # (ts) the introduction first
+          and r["steps"][1]["spoken"] == les["why"][0][0], str(r)[:200])
     last = r["steps"]
     for _ in range(2 + L.ADVANCE_STREAK):
         _sess = main._script_session(CODE)
@@ -23841,10 +23856,12 @@ def _entry_unit_checks(unit_ids, pic_regex, explain_ids=()):
         st = L.start(les, seed=1)
         outs, st = L.step(les, st, ("begin",))
         heard = [o["spoken"] for o in outs]
-        check(f"  {lid}: the lesson opens on its why, then its picture, then the teach",
-              len(outs) >= 3 and outs[0]["spoken"] == (les.get("why") or [("",)])[0][0]
-              and outs[1]["spoken"] == (les.get("picture") or [("",)])[0][0]
-              and outs[2]["spoken"] == les["teach"][0][0], str([o["spoken"][:30] for o in outs[:3]]))
+        # (ts) the introduction speaks first; the why, picture and teach follow it
+        check(f"  {lid}: the lesson opens on its introduction, then its why, then its picture, then the teach",
+              len(outs) >= 4 and outs[0]["spoken"] == L.lesson_intro(les)[0]
+              and outs[1]["spoken"] == (les.get("why") or [("",)])[0][0]
+              and outs[2]["spoken"] == (les.get("picture") or [("",)])[0][0]
+              and outs[3]["spoken"] == les["teach"][0][0], str([o["spoken"][:30] for o in outs[:4]]))
         ended = None
         for _ in range(40):
             pend = st.get("pending") or {}
@@ -24258,8 +24275,9 @@ def part3iv_the_times_table_is_a_pass():
     CODE = "SZ-3IV"
     main._SCRIPT_SESSIONS.pop(CODE, None)
     r = c.post("/api/script/start", json={"code": CODE, "course": "basic", "lesson": LID}).json()
-    check("  /api/script/start opens the table lesson on the shape",
-          r.get("ok") and r["steps"][0]["spoken"] == les["why"][0][0] and r["steps"][-1]["kind"] == "ask", str(r)[:120])
+    check("  /api/script/start opens the table lesson on its introduction, then the shape",
+          r.get("ok") and r["steps"][0]["spoken"] == L.lesson_intro(les)[0]     # (ts)
+          and r["steps"][1]["spoken"] == les["why"][0][0] and r["steps"][-1]["kind"] == "ask", str(r)[:120])
     last, n_api, ai_steps = r["steps"], 0, 0
     for _ in range(2 + SIZE + 1):
         _sess = main._script_session(CODE)
@@ -26467,6 +26485,77 @@ def part3jn_probstat_units_one_to_three_to_the_shape():
     check("  the changed files carry dated tr notes",
           "2026-09-06  BUILD tr" in rd("lessonscripts.py")[:60000] and "BUILD tr" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tr" in rd("ruletests.py")[:8000] and "(tr)" in rd("static/methodology.html")[:12000],
+          "Jim's rule 8")
+
+
+def part3jo_the_lesson_introduces_itself():
+    """PART 3jo (build ts, 2026-09-06) -- THE LESSON INTRODUCES ITSELF.
+
+    Jim, back after a day away: "Welcome back -- let's pick up where you left off",
+    then a Pre-Algebra why beat with no unit, no lesson, no name on it. "I have no idea
+    what it is referring to. I thought we fixed this." Every scripted lesson now opens
+    with lessonscripts.lesson_intro(): the course, the unit and its name, lesson i of
+    n, the topic -- spoken and on a board card -- BEFORE the why, fresh start and
+    return alike, and the line lives in the lesson's own closure."""
+    print("\nPART 3jo — the lesson introduces itself (build ts)")
+    import lessonscripts as L
+    import curriculum as C
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    intros = {l["id"]: L.lesson_intro(l) for l in L.LESSONS}
+    check("⭐ every lesson has an introduction, and no two lessons share one",
+          len(intros) == len(L.LESSONS) and len({sp for sp, _b in intros.values()}) == len(L.LESSONS), "")
+    check("⭐ every introduction names its course (the curriculum's own title, & said as and), its unit and the unit's name, and its topic",
+          all(sp.startswith(C.course_title(l["course"]).replace("&", "and").replace("/", "and") + f", Unit {l['unit']}: ")
+              and dict(C.units_for(l["course"]))[l["unit"]].replace("&", "and").replace("/", "and") + ". Lesson " in sp
+              and sp.endswith(": " + " ".join(l["topic"].replace("&", "and").replace("/", "and").split()) + ".")
+              for l in L.LESSONS for sp, _b in [intros[l["id"]]]), "")
+    _byunit = {}
+    for lid in L.COURSE_ORDER:
+        l = L.LESSON_BY_ID[lid]
+        _byunit.setdefault((l["course"], l["unit"]), []).append(lid)
+    check("⭐ \"Lesson i of n\" counts the unit's lessons in COURSE_ORDER, in order",
+          all(f"Lesson {k + 1} of {len(ids)}:" in intros[lid][0]
+              for ids in _byunit.values() for k, lid in enumerate(ids))
+          and all(len(ids) == 4 for ids in _byunit.values()) and len(_byunit) == 90, "")
+    check("  the board card is a [[write]] with the course and unit, the unit's name, and the lesson and topic",
+          all(bd.startswith('[[write lines="' + C.course_title(l["course"]) + f" · Unit {l['unit']} | ")
+              and f"| Lesson " in bd and " · " + l["topic"] + '"]]' in bd
+              for l in L.LESSONS for _sp, bd in [intros[l["id"]]]), "")
+    check("  the introduction says its numbers out loud -- no board problem, no question mark",
+          not any("?" in sp or "?" in bd for sp, bd in intros.values()), "")
+    check("  the introduction is one sentence pair under 34 words",
+          all(len(sp.split()) <= 34 for sp, _b in intros.values()), "")
+    # ---- begin speaks it first, in every course, before the why ----------------------
+    _firsts_ok = True
+    for lid in ("entry-u1-counting-to-10", "basic-u2-times-tables", "pre-u1-times-before-add",
+                "alg1-u3-f-of-x", "geo-u1-across-the-circle", "alg2-u8-the-height",
+                "pc-u1-machines-in-a-row", "ps-u1-under-the-tallest-stack",
+                "calc-u1-limits-pass-through", "diffeq-u7-the-shift-rule"):
+        les = L.LESSON_BY_ID[lid]
+        outs, _st = L.step(les, L.start(les, seed=1), ("begin",))
+        if not (outs and outs[0]["kind"] == "say" and outs[0]["spoken"] == intros[lid][0]
+                and outs[0]["board"] == intros[lid][1]
+                and (not les.get("why") or outs[1]["spoken"] == les["why"][0][0])):
+            _firsts_ok = False
+            bad(f"  begin does not open on the introduction: {lid}", str(outs[:1])[:120])
+    check("⭐ begin's FIRST output is the introduction, and the why beat follows it (ten lessons, ten courses)",
+          _firsts_ok, "")
+    check("⭐ every introduction is in its lesson's own closure (audio_lines)",
+          all(intros[l["id"]][0] in L.audio_lines(l) for l in L.LESSONS), "")
+    # ---- the referees, over all 360 introductions ------------------------------------
+    _fires = {}
+    for l in L.LESSONS:
+        sp, bd = intros[l["id"]]
+        r = tutor.prose_board_conflict(sp + "\n" + bd)
+        if r:
+            _fires[l["id"]] = r[:60]
+    check("  the referees are silent on every introduction but one -- rule 7 on the title that names a figure (\"Fractions on the number line\": a title, not a claim)",
+          set(_fires) <= {"basic-u5-fractions-on-the-number-line"}
+          and all("number line" in v for v in _fires.values()), str(_fires)[:200])
+    check("  the changed files carry dated ts notes",
+          "2026-09-06  BUILD ts" in rd("lessonscripts.py")[:60000] and "BUILD ts" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD ts" in rd("ruletests.py")[:8000] and "(ts)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -36813,6 +36902,7 @@ def main():
     part3jl_precalc_units_four_to_six_to_the_shape()
     part3jm_precalc_units_seven_to_nine_to_the_shape()
     part3jn_probstat_units_one_to_three_to_the_shape()
+    part3jo_the_lesson_introduces_itself()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

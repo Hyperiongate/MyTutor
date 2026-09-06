@@ -2,6 +2,18 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD ts -- THE LESSON INTRODUCES ITSELF. Jim, back after a day away:
+#               "Welcome back -- let's pick up where you left off", then a Pre-Algebra
+#               why beat with no unit, no lesson, no name -- "I have no idea what it is
+#               referring to. I thought we fixed this." (the 22:16 "no introduction"
+#               flag, back in the shape's costume: the old teach openers named the
+#               unit, the why beat opens on the why). ENGINE: lesson_intro(lesson)
+#               makes one spoken line and one board card -- "Pre-Algebra, Unit 1:
+#               Number Sense and Order of Operations. Lesson 1 of 4: Order of
+#               operations." on a [[write]] card -- and step()'s begin speaks it
+#               BEFORE the why, for every lesson in every course, fresh start and
+#               return alike; audio_lines() carries it (360 new closure lines --
+#               prewarm). Pure: it reads the lesson and curriculum.py's titles.
 #   2026-09-06  BUILD tr -- PROBSTAT UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "go".
 #               THIS FILE:
 #                 * Unit 1 (exploring data): the dot plot, the dot plot with its line,
@@ -39030,6 +39042,41 @@ def start(lesson, seed=None):
 # returns nothing for a lesson that does not carry it, so the 359 lessons authored
 # before the shape play exactly as they did.
 # =============================================================================
+def _spoken_name(text):
+    """A curriculum name the way it is SAID: "&" is "and", a slash is "and"."""
+    return " ".join(str(text or "").replace("&", "and").replace("/", "and").split())
+
+
+def lesson_intro(lesson):
+    """(ts, 2026-09-06) THE LESSON INTRODUCES ITSELF. Jim, back after a day away:
+    "Welcome back -- let's pick up where you left off" and then the why beat of a
+    Pre-Algebra lesson, mid-sentence into the course -- "I have no idea what it is
+    referring to." The old teach beats opened by naming the unit ("Unit Seven reads
+    shapes...", "Today we count past ten"); the shape's why beat opens on the WHY,
+    and that orientation was lost -- the 22:16 "no introduction" flag, back in a
+    new costume. This is the engine's answer, for every lesson in every course, on a
+    fresh start and on a return alike: one spoken line and one board card that say
+    where the student is -- the course, the unit and its name, which lesson of the
+    unit this is, and what it teaches -- BEFORE the why. Returns (spoken, board).
+    Pure: reads the lesson and the curriculum's titles; the walk-back and closure
+    machinery carry the line like any other."""
+    import curriculum as _cur
+    course, unit = lesson["course"], lesson["unit"]
+    title = _cur.course_title(course)
+    uname = dict(_cur.units_for(course)).get(unit, "")
+    sibs = [l for l in LESSONS if l["course"] == course and l["unit"] == unit]
+    order = {lid: i for i, lid in enumerate(COURSE_ORDER)}
+    sibs.sort(key=lambda l: order.get(l["id"], 10 ** 6))
+    n = len(sibs)
+    i = next((k + 1 for k, l in enumerate(sibs) if l["id"] == lesson["id"]), 1)
+    topic = str(lesson.get("topic") or "").strip()
+    spoken = (f"{_spoken_name(title)}, Unit {unit}: {_spoken_name(uname)}. "
+              f"Lesson {i} of {n}: {_spoken_name(topic)}.")
+    board = (f'[[write lines="{title} · Unit {unit} | {uname} | '
+             f'Lesson {i} of {n} · {topic}"]]')
+    return spoken, board
+
+
 def _beats(lesson, field):
     """The `say` beats of an authored section (why / picture / recap), or []."""
     return [{"kind": "say", "spoken": spoken, "board": board}
@@ -39227,6 +39274,9 @@ def step(lesson, state, event):
                   "mastered": False, "problems_done": state["done"]}], state)
 
     if kind == "begin":
+        # (ts) the lesson introduces itself -- course, unit, lesson, topic -- first
+        _isp, _ibd = lesson_intro(lesson)
+        out.append({"kind": "say", "spoken": _isp, "board": _ibd})
         # (sp) the shape: WHY the skill exists, then the PICTURE, then the rule --
         # in that order, so the rule summarises what the picture already showed.
         # A lesson without the two new fields opens on its teach beats as before.
@@ -39498,6 +39548,7 @@ def quiz_audio_lines(lesson, problems):
 # =============================================================================
 def audio_lines(lesson):
     lines = set()
+    lines.add(lesson_intro(lesson)[0])   # (ts) the lesson's own introduction
     for spoken, _board in lesson["teach"]:
         lines.add(spoken)
     # (sp) the shape's authored beats: why, picture, recap
@@ -39861,7 +39912,12 @@ def validate(lesson, board_tag_names=None):
                f"({p['a']}{p.get('op', '+')}{p['b']}, {level})", sp)
 
     # 7. build jr's lesson, enforced at authoring time: canon vocabulary only
-    all_speech = " ".join(audio_lines(lesson)).lower()
+    # (ts) the introduction quotes the curriculum's own names verbatim -- "Unit 3:
+    # Subtraction within 20", "The remainder theorem" -- the names the student sees
+    # on the course map. A name is said as written; the canon sweep reads every
+    # other line the lesson speaks, exactly as before.
+    _intro_line = lesson_intro(lesson)[0]
+    all_speech = " ".join(x for x in audio_lines(lesson) if x != _intro_line).lower()
     for canon, banned in VOCABULARY.items():
         for term in banned:
             ck(term not in all_speech,
