@@ -2,6 +2,7 @@
 # tags.py  --  THE TAG GRAMMAR, ONE COPY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD td -- placevalue's content attributes gain d= (the tenths column).
 #   2026-09-05  BUILD sy -- [[rectangle]] joins FIGURE_TAGS, PENDING_BOARD_TAGS and
 #               CONTENT_ATTRS (w/h): a rectangle on a unit grid.
 #   2026-09-05  BUILD sw -- [[hundredgrid]] joins FIGURE_TAGS, PENDING_BOARD_TAGS and
@@ -192,7 +193,7 @@ CONTENT_ATTRS = {
     "venn": {"a", "b", "both", "left", "right"},
     "tape": {"parts", "segments", "total"},
     # build sq: a place-value chart with no number draws an empty chart
-    "placevalue": {"n", "number", "h", "t", "o", "th"},
+    "placevalue": {"n", "number", "h", "t", "o", "th", "d"},   # (td) d = tenths
     # build sr: an array with no rows/cols draws the default 3 by 4 -- content is the counts
     "array": {"rows", "cols"},
     # build sw: a bare hundredths square is an empty grid -- content is the shading

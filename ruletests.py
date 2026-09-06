@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD td -- THE DATED-NOTE PINS READ A WIDER HEADER. Every file's change
+#               log grows from the top, so "BUILD sp is in the first 3,000 characters of
+#               math-figures.js" stopped being true the day td's note went above it. The
+#               windows are 12,000 (figures), 60,000 (lessonscripts), 16,000 (this file),
+#               8,000 (tags, tutor, pilot) -- the pins still say "the note is in the
+#               header", which is what they were for.
+#   2026-09-06  BUILD td -- PART 3iz: Prealgebra Units 4-6 to the shape (12 lessons on
+#               the tape, the fraction line, the hundred grid, the chart's new tenths
+#               column, two pies); the divisor fraction in parentheses.
 #   2026-09-05  BUILD tc -- PART 3iy: Prealgebra Units 1-3 to the shape (12 lessons on
 #               the ladder, the rectangle and the number line with hops); the integer
 #               asks mark the start, never the landing point.
@@ -21846,7 +21855,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>9,026</b>" in page,
+          "<b>9,111</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23047,10 +23056,10 @@ def part3il_the_lesson_learns_to_teach():
           "const asking = /\\?\\s*$/.test(txt) || /^(what|why|how|can you|i don'?t (get|understand))\\b/i.test(txt);" in ses,
           "")
     check("  the five files carry dated sp notes",
-          "2026-09-05  BUILD sp" in rd("lessonscripts.py")[:20000]
-          and "BUILD sp" in m[:200000] and "2026-09-05  BUILD sp" in mf[:3000]
-          and "(sp) 2026-09-05" in pil[:3000]
-          and "2026-09-05  BUILD sp" in rd("ruletests.py")[:6000], "Jim's rule 8")
+          "2026-09-05  BUILD sp" in rd("lessonscripts.py")[:60000]
+          and "BUILD sp" in m[:200000] and "2026-09-05  BUILD sp" in mf[:12000]
+          and "(sp) 2026-09-05" in pil[:8000]
+          and "2026-09-05  BUILD sp" in rd("ruletests.py")[:16000], "Jim's rule 8")
 
 
 def part3im_basic_unit_one_to_the_shape():
@@ -23186,12 +23195,12 @@ def part3im_basic_unit_one_to_the_shape():
 
     # ---- 6. dated notes -------------------------------------------------------------
     check("  the changed files carry dated sq notes",
-          "2026-09-05  BUILD sq" in rd("lessonscripts.py")[:20000]
+          "2026-09-05  BUILD sq" in rd("lessonscripts.py")[:60000]
           and "BUILD sq" in rd("main.py")[:200000] and "(build sq)" in bj[:3000]
-          and "2026-09-05  BUILD sq" in mf[:3000] and "BUILD sq" in rd("tags.py")[:3000]
-          and "BUILD sq" in rd("tutor.py")[:3000] and "2026-09-05 (sq)" in rd("static/script-board.js")[:3000]
+          and "2026-09-05  BUILD sq" in mf[:12000] and "BUILD sq" in rd("tags.py")[:8000]
+          and "BUILD sq" in rd("tutor.py")[:8000] and "2026-09-05 (sq)" in rd("static/script-board.js")[:3000]
           and all("(sq) 2026-09-05" in rd(pg)[:800] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "2026-09-05  BUILD sq" in rd("ruletests.py")[:8000], "Jim's rule 8")
+          and "2026-09-05  BUILD sq" in rd("ruletests.py")[:16000], "Jim's rule 8")
 
 
 def part3in_basic_unit_two_to_the_shape():
@@ -23312,12 +23321,12 @@ def part3in_basic_unit_two_to_the_shape():
     check("  every lesson in the course still validates",
           all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
     check("  the changed files carry dated sr notes",
-          "2026-09-05  BUILD sr" in rd("lessonscripts.py")[:20000]
-          and "BUILD sr" in rd("main.py")[:200000] and "2026-09-05  BUILD sr" in mf[:3000]
-          and "BUILD sr" in rd("tags.py")[:3000] and "BUILD sr" in rd("tutor.py")[:3000]
+          "2026-09-05  BUILD sr" in rd("lessonscripts.py")[:60000]
+          and "BUILD sr" in rd("main.py")[:200000] and "2026-09-05  BUILD sr" in mf[:12000]
+          and "BUILD sr" in rd("tags.py")[:8000] and "BUILD sr" in rd("tutor.py")[:8000]
           and "2026-09-05 (sr)" in rd("static/script-board.js")[:3000]
           and all("(sr) 2026-09-05" in rd(pg)[:800] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "2026-09-05  BUILD sr" in rd("ruletests.py")[:8000], "Jim's rule 8")
+          and "2026-09-05  BUILD sr" in rd("ruletests.py")[:16000], "Jim's rule 8")
 
 
 def part3io_basic_unit_three_to_the_shape():
@@ -23426,9 +23435,9 @@ def part3io_basic_unit_three_to_the_shape():
     check("  every lesson in the course still validates",
           all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
     check("  the changed files carry dated ss notes",
-          "2026-09-05  BUILD ss" in rd("lessonscripts.py")[:20000]
-          and "BUILD ss" in rd("main.py")[:200000] and "2026-09-05  BUILD ss" in mf[:3000]
-          and "2026-09-05  BUILD ss" in rd("ruletests.py")[:8000], "Jim's rule 8")
+          "2026-09-05  BUILD ss" in rd("lessonscripts.py")[:60000]
+          and "BUILD ss" in rd("main.py")[:200000] and "2026-09-05  BUILD ss" in mf[:12000]
+          and "2026-09-05  BUILD ss" in rd("ruletests.py")[:16000], "Jim's rule 8")
 
 
 def part3ip_basic_unit_four_to_the_shape():
@@ -23517,9 +23526,9 @@ def part3ip_basic_unit_four_to_the_shape():
     check("  every lesson in the course still validates",
           all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
     check("  the changed files carry dated st notes",
-          "2026-09-05  BUILD st" in rd("lessonscripts.py")[:20000]
+          "2026-09-05  BUILD st" in rd("lessonscripts.py")[:60000]
           and "BUILD st" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD st" in rd("ruletests.py")[:8000], "Jim's rule 8")
+          and "2026-09-05  BUILD st" in rd("ruletests.py")[:16000], "Jim's rule 8")
 
 
 def part3iq_basic_unit_five_to_the_shape():
@@ -23615,9 +23624,9 @@ def part3iq_basic_unit_five_to_the_shape():
     check("  every lesson in the course still validates",
           all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
     check("  the changed files carry dated su notes",
-          "2026-09-05  BUILD su" in rd("lessonscripts.py")[:20000]
-          and "BUILD su" in rd("main.py")[:200000] and "2026-09-05  BUILD su" in mf[:3000]
-          and "2026-09-05  BUILD su" in rd("ruletests.py")[:8000], "Jim's rule 8")
+          "2026-09-05  BUILD su" in rd("lessonscripts.py")[:60000]
+          and "BUILD su" in rd("main.py")[:200000] and "2026-09-05  BUILD su" in mf[:12000]
+          and "2026-09-05  BUILD su" in rd("ruletests.py")[:16000], "Jim's rule 8")
 
 
 def _shape_unit_checks(unit_ids, pic_regex):
@@ -23769,9 +23778,9 @@ def part3ir_basic_unit_six_to_the_shape():
     check("  ...and taking away hops back from it",
           'hops="0.5,0.375" points="0.375"' in _W(fus)[1] and "one half sits at 4 eighths" in _W(fus)[0], _W(fus)[0])
     check("  the changed files carry dated sv notes",
-          "2026-09-05  BUILD sv" in rd("lessonscripts.py")[:20000]
+          "2026-09-05  BUILD sv" in rd("lessonscripts.py")[:60000]
           and "BUILD sv" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD sv" in rd("ruletests.py")[:8000], "Jim's rule 8")
+          and "2026-09-05  BUILD sv" in rd("ruletests.py")[:16000], "Jim's rule 8")
 
 
 def part3is_basic_unit_seven_to_the_shape():
@@ -23824,12 +23833,12 @@ def part3is_basic_unit_seven_to_the_shape():
     check("  tutor's draw regex knows the square",
           bool(_tu._SM_DRAW_RE.search('[[hundredgrid shaded="25" caption="x"]]')), "")
     check("  the changed files carry dated sw notes",
-          "2026-09-05  BUILD sw" in rd("lessonscripts.py")[:20000]
-          and "BUILD sw" in rd("main.py")[:200000] and "2026-09-05  BUILD sw" in mf[:3000]
-          and "BUILD sw" in rd("tags.py")[:3000] and "BUILD sw" in rd("tutor.py")[:3000]
+          "2026-09-05  BUILD sw" in rd("lessonscripts.py")[:60000]
+          and "BUILD sw" in rd("main.py")[:200000] and "2026-09-05  BUILD sw" in mf[:12000]
+          and "BUILD sw" in rd("tags.py")[:8000] and "BUILD sw" in rd("tutor.py")[:8000]
           and "2026-09-05 (sw)" in rd("static/script-board.js")[:3000]
           and all("(sw) 2026-09-05" in rd(pg)[:900] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "2026-09-05  BUILD sw" in rd("ruletests.py")[:8000], "Jim's rule 8")
+          and "2026-09-05  BUILD sw" in rd("ruletests.py")[:16000], "Jim's rule 8")
 
 
 def part3it_basic_unit_eight_to_the_shape():
@@ -23866,9 +23875,9 @@ def part3it_basic_unit_eight_to_the_shape():
     check("  the array's sharing boxes shrink to fit ten groups",
           "var bw = Math.max(40, Math.min(120, Math.floor((W2 - 40) / rows) - bgap));" in mf, "")
     check("  the changed files carry dated sx notes",
-          "2026-09-05  BUILD sx" in rd("lessonscripts.py")[:20000]
-          and "BUILD sx" in rd("main.py")[:200000] and "2026-09-05  BUILD sx" in mf[:3000]
-          and "2026-09-05  BUILD sx" in rd("ruletests.py")[:8000], "Jim's rule 8")
+          "2026-09-05  BUILD sx" in rd("lessonscripts.py")[:60000]
+          and "BUILD sx" in rd("main.py")[:200000] and "2026-09-05  BUILD sx" in mf[:12000]
+          and "2026-09-05  BUILD sx" in rd("ruletests.py")[:16000], "Jim's rule 8")
 
 
 def part3iu_basic_unit_nine_to_the_shape():
@@ -23944,12 +23953,12 @@ def part3iu_basic_unit_nine_to_the_shape():
               or p.get("op") in ("*", "/", "fpr", "mf", "simp", "gcf", "lcm")
               for l in basic for p in list(l["bank"]) + [pr["ask"] for pr in l["pairs"]]), "")
     check("  the changed files carry dated sy notes",
-          "2026-09-05  BUILD sy" in rd("lessonscripts.py")[:20000]
-          and "BUILD sy" in rd("main.py")[:200000] and "2026-09-05  BUILD sy" in mf[:3000]
-          and "BUILD sy" in rd("tags.py")[:3000] and "BUILD sy" in rd("tutor.py")[:3000]
+          "2026-09-05  BUILD sy" in rd("lessonscripts.py")[:60000]
+          and "BUILD sy" in rd("main.py")[:200000] and "2026-09-05  BUILD sy" in mf[:12000]
+          and "BUILD sy" in rd("tags.py")[:8000] and "BUILD sy" in rd("tutor.py")[:8000]
           and "2026-09-05 (sy)" in rd("static/script-board.js")[:3000]
           and all("(sy) 2026-09-05" in rd(pg)[:1000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "2026-09-05  BUILD sy" in rd("ruletests.py")[:8000], "Jim's rule 8")
+          and "2026-09-05  BUILD sy" in rd("ruletests.py")[:16000], "Jim's rule 8")
 
 
 def part3iv_the_times_table_is_a_pass():
@@ -24168,7 +24177,7 @@ def part3iv_the_times_table_is_a_pass():
           0 < src.find('if state["phase"] == "table":\n        state["streak"] = 0') < src.find("# ---- wrong answer: the ONE doorway to the AI ----"), "")
     check("  the changed files carry dated sz notes",
           "2026-09-05  BUILD sz" in src[:20000] and "BUILD sz" in m[:200000]
-          and "2026-09-05  BUILD sz" in rd("ruletests.py")[:8000]
+          and "2026-09-05  BUILD sz" in rd("ruletests.py")[:16000]
           and "2026-09-05" in rd("static/methodology.html")[:6000], "Jim's rule 8")
 
 
@@ -24316,8 +24325,8 @@ def part3iw_the_tutor_sees_the_board():
     check("  tutor reads the board from the context first, board_for second",
           'board = str(context.get("board") or "") or _ls.board_for(p, level)' in tsrc, "")
     check("  the changed files carry dated ta notes",
-          "2026-09-05  BUILD ta" in tsrc[:6000] and "2026-09-05  BUILD ta" in rd("lessonscripts.py")[:20000]
-          and "BUILD ta" in m[:200000] and "2026-09-05  BUILD ta" in rd("ruletests.py")[:8000]
+          "2026-09-05  BUILD ta" in tsrc[:12000] and "2026-09-05  BUILD ta" in rd("lessonscripts.py")[:60000]
+          and "BUILD ta" in m[:200000] and "2026-09-05  BUILD ta" in rd("ruletests.py")[:16000]
           and "(ta)" in rd("static/methodology.html")[:6000], "Jim's rule 8")
 
 
@@ -24355,8 +24364,8 @@ def part3ix_entry_unit_one_to_the_shape():
     check("  nothing the Unit 1 pictures demonstrate is later asked",
           not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in U1), "")
     check("  the changed files carry dated tb notes",
-          "2026-09-05  BUILD tb" in rd("lessonscripts.py")[:20000] and "BUILD tb" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD tb" in rd("ruletests.py")[:8000] and "(tb)" in rd("static/methodology.html")[:6000],
+          "2026-09-05  BUILD tb" in rd("lessonscripts.py")[:60000] and "BUILD tb" in rd("main.py")[:200000]
+          and "2026-09-05  BUILD tb" in rd("ruletests.py")[:16000] and "(tb)" in rd("static/methodology.html")[:6000],
           "Jim's rule 8")
 
 
@@ -24451,8 +24460,113 @@ def part3iy_prealgebra_units_one_to_three_to_the_shape():
     check("  nothing the twelve lessons demonstrate is later asked (the old lessons demonstrated 7, 35, 12 and 20 -- all bank problems)",
           not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in U1 + U2 + U3), "")
     check("  the changed files carry dated tc notes",
-          "2026-09-05  BUILD tc" in rd("lessonscripts.py")[:20000] and "BUILD tc" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD tc" in rd("ruletests.py")[:8000] and "(tc)" in rd("static/methodology.html")[:6000],
+          "2026-09-05  BUILD tc" in rd("lessonscripts.py")[:60000] and "BUILD tc" in rd("main.py")[:200000]
+          and "2026-09-05  BUILD tc" in rd("ruletests.py")[:16000] and "(tc)" in rd("static/methodology.html")[:6000],
+          "Jim's rule 8")
+
+
+def part3iz_prealgebra_units_four_to_six_to_the_shape():
+    """PART 3iz (build td, 2026-09-06) -- PREALGEBRA UNITS 4-6 TO THE SHAPE.
+
+    Fractions on the tape and the fraction line (dividing by a fraction as hops --
+    the measurement picture); decimals on the hundred grid, the tenths line and the
+    place-value chart's new Tenths column; ratio as two tapes, a rate as sharing then
+    groups, a proportion as two pies, sharing in a ratio as the tape cut into the
+    counted parts. And the dbf ask no longer writes the flipped form under the
+    question."""
+    print("\nPART 3iz — Prealgebra Units 4-6 to the shape (build td)")
+    import lessonscripts as L
+    import tags as _tags
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    U4 = ["pre-u4-a-fraction-of-a-number", "pre-u4-how-many-parts-in-a-whole",
+          "pre-u4-dividing-by-a-fraction", "pre-u4-fractions-bigger-than-one"]
+    U5 = ["pre-u5-how-many-hundredths", "pre-u5-times-by-ten",
+          "pre-u5-tenths-times-a-number", "pre-u5-sharing-a-decimal"]
+    U6 = ["pre-u6-keeping-a-ratio", "pre-u6-scaling-a-rate",
+          "pre-u6-filling-in-a-proportion", "pre-u6-sharing-in-a-ratio"]
+    _shape_unit_checks(U4, r"\[\[(tape|numberline|solve)\b")
+    _shape_unit_checks(U5, r"\[\[(hundredgrid|placevalue|numberline|array|tape)\b")
+    _shape_unit_checks(U6, r"\[\[(tape|array|pie|solve)\b")
+
+    # ---- Unit 4 ------------------------------------------------------------------------
+    nuf = {"a": 2, "b": 3, "c": 12, "op": "nuf"}
+    check("⭐ a fraction of a number is asked on the tape with the parts hidden and walked back with them filled",
+          '[[tape parts="? | ? | ?" total="12"' in L.board_for(nuf, "abstract")
+          and '[[tape parts="4 | 4 | 4" total="12"' in _W(nuf)[1] and "Two thirds of 12 is 8" in _W(nuf)[0], _W(nuf)[1])
+    uic = {"a": 4, "b": 3, "op": "uic"}
+    check("  parts-in-a-whole: the tape of wholes, each labelled with its parts",
+          'parts="4 fourths | 4 fourths | 4 fourths" total="3 wholes"' in L.board_for(uic, "abstract")
+          and "12 fourths in 3 wholes" in _W(uic)[0], "")
+    dbf = {"a": 2, "b": 3, "c": 4, "op": "dbf"}
+    check("⭐ dividing by a fraction is asked as hops on the fraction line and walked back with the hops drawn; the divisor is in parentheses",
+          'denom="3" points="0"' in L.board_for(dbf, "abstract") and '[[step eq="4 ÷ (2/3) = ?"]]' in L.board_for(dbf, "abstract")
+          and 'hops="0.0,0.6667,1.3333,2.0,2.6667,3.3333,4.0"' in _W(dbf)[1] and "6 hops reach 4" in _W(dbf)[0], _W(dbf)[1])
+    big = {"a": 4, "b": 9, "c": 12, "op": "dbf"}
+    check("  ...and a big one is asked bare (no flipped form under the question) and walked back on the flip-and-times ladder",
+          L.board_for(big, "abstract") == '[[step eq="12 ÷ (4/9) = ?"]]'
+          and 'steps="flip and times : 12 × 9/4 | times the top : 108 ÷ 4 | divide : 27"' in _W(big)[1], L.board_for(big, "abstract"))
+    imp = {"a": 7, "b": 3, "op": "imp"}
+    check("  a fraction bigger than one is walked back a whole at a time with the left-over hop",
+          'hops="0,1,2,2.33"' in _W(imp)[1] and "2 whole ones and 1 third" in _W(imp)[0], _W(imp)[0])
+
+    # ---- Unit 5 ------------------------------------------------------------------------
+    hun = {"a": 4, "b": 5, "op": "hun"}
+    check("⭐ hundredths are asked on the hundred grid and walked back as full rows plus squares",
+          '[[hundredgrid shaded="45" ask="1"' in L.board_for(hun, "abstract")
+          and "4 full rows" in _W(hun)[0] and "45 hundredths" in _W(hun)[0], "")
+    x10 = {"a": 3, "b": 7, "op": "x10"}
+    check("⭐ times-by-ten is asked on the chart with a TENTHS column and walked back with every digit moved left",
+          '[[placevalue o="3" d="7"' in L.board_for(x10, "abstract")
+          and '[[placevalue t="3" o="7" d="0"' in _W(x10)[1] and "7 tenths became 7 ones" in _W(x10)[0], _W(x10)[1])
+    mf = rd("static/math-figures.js")
+    check("  math-figures.js draws the Tenths column (d= or a point in n=), a decimal point, and reads the expanded form",
+          'if (showD) cols.push(["Tenths", d, "var(--bd-d97706)"]);' in mf
+          and 'if (nraw.indexOf(".") >= 0) {' in mf and 'n + " of 10 slices of one"' in mf
+          and 'if (showD && d > 0) { parts.push("0." + d); totalText = total + "." + d; }' in mf, "")
+    check("  tags.py lets placevalue carry d=", "d" in _tags.CONTENT_ATTRS.get("placevalue", set()), "")
+    dth = {"a": 3, "b": 4, "op": "dth"}
+    check("  tenths times a number hops along the tenths line; a big product is groups of tenths on the array",
+          'denom="10" hops="0.0,0.3,0.6,0.9,1.2"' in _W(dth)[1]
+          and '[[array rows="9" cols="9" view="groups" eq="9 × 9 = 81" label="tenths"' in _W({"a": 9, "b": 9, "op": "dth"})[1], "")
+    dsh = {"a": 3, "b": 6, "c": 4, "op": "dsh"}
+    check("  sharing a decimal is the array of tenths shared into groups",
+          '[[array total="36" rows="4" ask="1" label="tenths"' in L.board_for(dsh, "abstract")
+          and '[[array rows="4" cols="9" view="groups" eq="36 ÷ 4 = 9" label="tenths"' in _W(dsh)[1], "")
+
+    # ---- Unit 6 ------------------------------------------------------------------------
+    rat = {"a": 2, "b": 3, "c": 6, "op": "rat"}
+    check("⭐ a ratio is walked back as two tapes -- the batch, then the batches, both sides timesed",
+          '[[tape parts="2 | 3" caption="one batch: 2 : 3"]][[tape parts="6 | 9"' in _W(rat)[1]
+          and "Both sides were timesed by 3" in _W(rat)[0], _W(rat)[1])
+    rte = {"a": 5, "b": 3, "c": 18, "op": "rte"}
+    check("  a rate is sharing over the hours, then groups of the rate",
+          '[[array total="18" rows="3" ask="1" label="hours"' in L.board_for(rte, "abstract")
+          and 'eq="18 ÷ 3 = 6"' in _W(rte)[1] and 'eq="6 × 5 = 30"' in _W(rte)[1], "")
+    pr = {"a": 3, "b": 4, "c": 8, "op": "prop"}
+    check("⭐ a proportion is two pies cut two ways; past twelve parts it is the ladder",
+          '[[pie parts="4" shaded="3"' in L.board_for(pr, "abstract") and '[[pie parts="8" shaded="6"' in _W(pr)[1]
+          and 'steps="the bottom : 9 × 3 = 27 | so the top : 2 × 3 = 6"' in _W({"a": 2, "b": 9, "c": 27, "op": "prop"})[1], "")
+    check("  ...and a proportion whose new bottom is not a whole number of the old one goes through 1 (no such problem is in the course; the path is held anyway)",
+          'steps="times the top by 6 : 12 ÷ 4 | divide : 3"' in _W({"a": 2, "b": 4, "c": 6, "op": "prop"})[1],
+          _W({"a": 2, "b": 4, "c": 6, "op": "prop"})[1])
+    shr = {"a": 2, "b": 3, "c": 20, "op": "shr"}
+    check("  sharing in a ratio is the tape cut into the counted parts, the shares filled in",
+          '[[tape parts="? | ? | ? | ? | ?" total="20"' in L.board_for(shr, "abstract")
+          and '[[tape parts="8 | 12" total="20"' in _W(shr)[1] and "8 plus 12 puts the 20 back together" in _W(shr)[0], "")
+
+    # ---- the giveaway audit, no question in a step tag, the notes ------------------------
+    check("  nothing the twelve lessons demonstrate is later asked",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in U4 + U5 + U6), "")
+    check("  no ask in the three units writes a question inside a [[step eq]]",
+          not any(re.search(r'\[\[step eq="[^"]*\?[^"=]*"\]\]', L.board_for(p, "abstract").replace("= ?", ""))
+                  for l in U4 + U5 + U6 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
+    check("  the changed files carry dated td notes",
+          "2026-09-06  BUILD td" in rd("lessonscripts.py")[:60000] and "BUILD td" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD td" in rd("ruletests.py")[:16000] and "(td)" in rd("static/methodology.html")[:6000]
+          and "2026-09-06  BUILD td" in mf[:12000] and "BUILD td" in rd("tags.py")[:8000],
           "Jim's rule 8")
 
 
@@ -34771,6 +34885,7 @@ def main():
     part3iw_the_tutor_sees_the_board()
     part3ix_entry_unit_one_to_the_shape()
     part3iy_prealgebra_units_one_to_three_to_the_shape()
+    part3iz_prealgebra_units_four_to_six_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

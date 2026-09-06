@@ -2,6 +2,12 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-06  BUILD td -- THE PLACE-VALUE CHART GROWS A TENTHS COLUMN. [[placevalue
+                 d="7"]] or n="3.7": a Tenths column right of the Ones, one cube sliced
+                 into ten with d slices filled, a decimal point between the headings,
+                 and the expanded form reading "3 + 0.7 = 3.7". Prealgebra's
+                 times-a-decimal-by-ten moves the digits across this chart. Without
+                 d= (or a point in n=) nothing changed.
      2026-09-05  BUILD sy -- THE RECTANGLE ON A GRID. New figure [[rectangle w="5"
                  h="3" show="perimeter|area"]]: unit squares, the sides labelled,
                  the walk around traced (perimeter) or the squares filled (area),
@@ -1101,7 +1107,19 @@
   // places directly (n= is read into them); ask="1" hides the digits and the sum so
   // the student READS the number off the blocks, which is the whole skill.
   function placevalue(a) {
-    var nstr = String(a.n || a.number || "").replace(/[^0-9]/g, "");
+    // (td, 2026-09-06) A TENTHS COLUMN, right of the ones, for Prealgebra's decimals:
+    // d="7" or n="3.7" -- the digit after the point. Drawn as one cube sliced into
+    // ten, d slices filled, so a tenth reads as a piece of a one. A decimal point
+    // is written between the Ones and Tenths headings. Without d= (or a point in
+    // n=) nothing here changes.
+    var nraw = String(a.n || a.number || "");
+    var d = num(a.d, NaN);
+    if (nraw.indexOf(".") >= 0) {
+      var dp = nraw.split(".")[1].replace(/[^0-9]/g, "");
+      if (isNaN(d)) d = dp.length ? parseInt(dp.charAt(0), 10) : 0;
+      nraw = nraw.split(".")[0];
+    }
+    var nstr = nraw.replace(/[^0-9]/g, "");
     var th = num(a.th, NaN), h = num(a.h, NaN), t = num(a.t, NaN), o = num(a.o, NaN);
     if (nstr) {
       var v = parseInt(nstr, 10) % 10000;
@@ -1123,6 +1141,9 @@
     var cols = showH ? [["Hundreds", h, "var(--bd-5b5bd6)"], ["Tens", t, "var(--bd-0d9488)"], ["Ones", o, "var(--bd-e0392b)"]]
                      : [["Tens", t, "var(--bd-0d9488)"], ["Ones", o, "var(--bd-e0392b)"]];
     if (th > 0) cols.unshift(["Thousands", th, "var(--bd-7c3aed)"]);
+    var showD = !isNaN(d);
+    d = showD ? Math.max(0, Math.min(9, Math.floor(d))) : 0;
+    if (showD) cols.push(["Tenths", d, "var(--bd-d97706)"]);
     var W = 660, H = ask ? 186 : 214, cw = (W - 40) / cols.length, x0 = 20;
     var s = svgOpen(W, H, 900);
     cols.forEach(function (c, i) {
@@ -1157,6 +1178,18 @@
           s += '<rect x="' + rx + '" y="' + by + '" width="10" height="72" fill="rgba(13,148,136,.22)" stroke="' + c[2] + '" stroke-width="1.6"/>';
           for (var q = 1; q < 10; q++) s += '<line x1="' + rx + '" y1="' + (by + q * 7.2) + '" x2="' + (rx + 10) + '" y2="' + (by + q * 7.2) + '" stroke="' + c[2] + '" stroke-width="0.5" opacity="0.7"/>';
         }
+      } else if (c[0] === "Tenths") {
+        // one cube, drawn large and cut into ten slices; the first d are filled
+        var sx0 = cx + 14, sy0 = by + 4, sw = Math.min(cw - 36, 90), sh = 40;
+        s += '<rect x="' + sx0 + '" y="' + sy0 + '" width="' + sw + '" height="' + sh + '" fill="var(--bd-ffffff)" stroke="' + c[2] + '" stroke-width="1.6"/>';
+        for (var sl = 0; sl < 10; sl++) {
+          var slx = sx0 + sl * sw / 10;
+          if (sl < n) s += '<rect x="' + slx + '" y="' + sy0 + '" width="' + (sw / 10) + '" height="' + sh + '" fill="rgba(217,119,6,.35)"/>';
+          if (sl > 0) s += '<line x1="' + slx + '" y1="' + sy0 + '" x2="' + slx + '" y2="' + (sy0 + sh) + '" stroke="' + c[2] + '" stroke-width="0.8" opacity="0.8"/>';
+        }
+        s += tspan(sx0 + sw / 2, sy0 + sh + 18, n + " of 10 slices of one", c[2], 12, 700);
+        // the decimal point, between Ones and Tenths
+        s += '<circle cx="' + (cx + 2) + '" cy="72" r="4" fill="var(--bd-26263a)"/>';
       } else {
         for (var u = 0; u < n; u++) {
           var ux = cx + 14 + (u % 5) * 22, uy = by + 8 + Math.floor(u / 5) * 24;
@@ -1170,7 +1203,9 @@
       if (showH) parts.push(String(h * 100));
       parts.push(String(t * 10)); parts.push(String(o));
       var total = th * 1000 + (showH ? h * 100 : 0) + t * 10 + o;
-      s += tspan(W / 2, H - 10, parts.join(" + ") + " = " + total, "var(--bd-5b5bd6)", 18, 800);
+      var totalText = String(total);
+      if (showD && d > 0) { parts.push("0." + d); totalText = total + "." + d; }   // an empty Tenths column reads as a whole number
+      s += tspan(W / 2, H - 10, parts.join(" + ") + " = " + totalText, "var(--bd-5b5bd6)", 18, 800);
     }
     return s + "</svg>";
   }
