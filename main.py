@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  APP_BUILD -> "2026-09-06tm-algebra-two-units-four-to-six-to-the-shape".
+#               BUILD tm -- Algebra 2 Units 4-6 (division moves in, roots, decay and
+#               logs) rewritten to the shape on the grid, the machine, the number line,
+#               the array and the bars. Stamp only.
 #   2026-09-06  APP_BUILD -> "2026-09-06tl-algebra-two-units-one-to-three-to-the-shape".
 #               BUILD tl -- Algebra 2 Units 1-3 (absolute value and clues, the vertex,
 #               roots, the test number and i, polynomials) rewritten to the shape on the
@@ -13798,7 +13802,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-06tl-algebra-two-units-one-to-three-to-the-shape"
+APP_BUILD = "2026-09-06tm-algebra-two-units-four-to-six-to-the-shape"
 
 
 @app.get("/health")

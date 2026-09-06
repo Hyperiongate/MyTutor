@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tm -- PART 3ji: Algebra 2 Units 4-6 to the shape (12 lessons on the
+#               grid with its point, its pole and its level line, the machine run
+#               backwards, the number line between two squares, the array and the bars);
+#               every figure an ask draws captioned; the logs-add and survivor pending
+#               lines fixed.
 #   2026-09-06  BUILD tl -- PART 3jh: Algebra 2 Units 1-3 to the shape (12 lessons on the
 #               number line with its hops, the bars, the tape, the grid with the vertex
 #               and the crossings marked, the array and the machine); every figure an ask
@@ -21894,7 +21899,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>9,787</b>" in page,
+          "<b>9,871</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25541,6 +25546,139 @@ def part3jh_algebra_two_units_one_to_three_to_the_shape():
     check("  the changed files carry dated tl notes",
           "2026-09-06  BUILD tl" in rd("lessonscripts.py")[:60000] and "BUILD tl" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tl" in rd("ruletests.py")[:8000] and "(tl)" in rd("static/methodology.html")[:6000],
+          "Jim's rule 8")
+
+
+def part3ji_algebra_two_units_four_to_six_to_the_shape():
+    """PART 3ji (build tm, 2026-09-06) -- ALGEBRA 2 UNITS 4-6 TO THE SHAPE.
+
+    The sharing curve with its point marked; the machine run backwards with its input
+    blank; the forbidden x on the jammed machine and the curve flying off at it; the
+    level line the survivor settles toward; the square two roots make (array, then
+    rectangle, then bars, by its side); the root beside the halving trap; the rooting
+    machine; the number between two squares on the number line with the hop to the
+    nearer one; the sample fading day by day; the power machine and the layers
+    stacked; two stacks of doublings joined; the number between two powers as three
+    bars. Every figure an ask draws carries a caption."""
+    print("\nPART 3ji — Algebra 2 Units 4-6 to the shape (build tm)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    A4 = ["alg2-u4-sharing-shrinks", "alg2-u4-which-x-was-fed",
+          "alg2-u4-the-forbidden-x", "alg2-u4-the-survivor"]
+    A5 = ["alg2-u5-under-one-roof", "alg2-u5-the-fraction-power",
+          "alg2-u5-undo-the-root", "alg2-u5-between-the-squares"]
+    A6 = ["alg2-u6-the-fading-half", "alg2-u6-the-hidden-exponent",
+          "alg2-u6-logs-add", "alg2-u6-between-the-powers"]
+    _shape_unit_checks(A4, r"\[\[(graph|machine)\b")
+    _shape_unit_checks(A5, r"\[\[(rectangle|array|bars|machine|numberline)\b")
+    _shape_unit_checks(A6, r"\[\[bars\b")
+
+    # ---- Unit 4 ------------------------------------------------------------------------
+    rdiv = {"a": 9, "b": 3, "op": "rdiv"}
+    check("⭐ sharing shrinks: the curve captioned and the divide on its own line; the point marked in the walk-back",
+          '[[graph func="9/x" range="0..11" caption="y = 9 ÷ x — the sharing curve; read it at x = 3"]]' in L.board_for(rdiv, "abstract")
+          and '[[step eq="x = 3: 9 ÷ 3 = ?"]]' in L.board_for(rdiv, "abstract") and "→" not in L.board_for(rdiv, "abstract")
+          and 'points="(3,3)"' in _W(rdiv)[1] and "The word is DIVIDED" in _W(rdiv)[0], "")
+    rsol = {"a": 10, "b": 5, "op": "rsol"}
+    check("⭐ which x was fed: the machine run backwards, its input blank; the input found and checked in the walk-back",
+          '[[machine input="?" rule="10 ÷ x" output="5" caption=' in L.board_for(rsol, "abstract")
+          and '[[step eq="x · 5 = 10"]][[step eq="x = ?"]]' in L.board_for(rsol, "abstract")
+          and '[[machine input="2" rule="10 ÷ x" output="5" caption="x = 10 ÷ 5 = 2 — check: 10 ÷ 2 = 5"]]' in _W(rsol)[1]
+          and "Rebuild, then divide" in _W(rsol)[0], "")
+    excl = {"a": 3, "b": 8, "op": "excl"}
+    check("⭐ the forbidden x: the jammed machine on the ask (no curve -- the pole sits at the answer); the curve flying off in the walk-back",
+          '[[machine input="?" rule="8 ÷ (x − 3)" output="jammed" caption=' in L.board_for(excl, "abstract")
+          and "[[graph" not in L.board_for(excl, "abstract")
+          and '[[graph func="8/(x-3)" range="-1..7" yrange="-12..12" caption=' in _W(excl)[1]
+          and "flies off at x equals 3" in _W(excl)[0], "")
+    rasy = {"a": 4, "b": 7, "op": "rasy"}
+    check("  the survivor: the curve captioned with no question inside a step; the level line drawn in the walk-back",
+          'caption="y = (4x + 7) ÷ x — as x grows huge, the curve flattens toward what?"' in L.board_for(rasy, "abstract")
+          and '[[step eq="split it: the fading part dies · y settles at ?"]]' in L.board_for(rasy, "abstract")
+          and '[[graph func="(4*x+7)/x" lines="y=4" range="0..20" caption=' in _W(rasy)[1]
+          and "the level line" in _W(rasy)[0], "")
+
+    # ---- Unit 5 ------------------------------------------------------------------------
+    rmul = {"a": 5, "b": 45, "op": "rmul"}
+    check("⭐ under one roof: no picture on the ask (the square's side is the answer); the square in the walk-back, by its side",
+          "[[" not in L.board_for(rmul, "abstract").replace("[[step", "")
+          and '[[rectangle w="15" h="15" caption="√5 · √45 = √225 — and 225 is 15 × 15"]]' in _W(rmul)[1]
+          and '[[array rows="4" cols="4"' in _W({"a": 2, "b": 8, "op": "rmul"})[1]
+          and '[[rectangle w="20" h="20"' in _W({"a": 8, "b": 50, "op": "rmul"})[1]
+          and "roots never add" in _W(rmul)[0], "")
+    rpow = {"a": 16, "b": 0, "op": "rpow"}
+    check("  the fraction power: the root beside the halving trap in the walk-back",
+          '[[bars data="√16 = 4:4 | half of 16:8" caption=' in _W(rpow)[1] and "never a halving" in _W(rpow)[0], "")
+    rsq = {"a": 3, "b": 0, "op": "rsq"}
+    check("⭐ undo the root: the rooting machine with its input blank; the input found and the square drawn in the walk-back",
+          '[[machine input="?" rule="√x" output="3" caption=' in L.board_for(rsq, "abstract")
+          and '[[machine input="9" rule="√x" output="3" caption="x = 3² = 9 — check: √9 = 3"]]' in _W(rsq)[1]
+          and '[[array rows="3" cols="3" caption="3 × 3 = 9"]]' in _W(rsq)[1]
+          and '[[rectangle w="14" h="14"' in _W({"a": 14, "b": 0, "op": "rsq"})[1]
+          and "doubling undoes halving, not rooting" in _W(rsq)[0], "")
+    rbet = {"a": 20, "b": 0, "op": "rbet"}
+    check("⭐ between the squares: the number on the line between the two squares; the hop to the nearer square in the walk-back",
+          '[[numberline min="16" max="25" points="20" caption="20 between the squares 16 and 25 — nearer which one?"]]' in L.board_for(rbet, "abstract")
+          and 'points="20" hops="16,20"' in _W(rbet)[1] and "closest to 4" in _W(rbet)[0]
+          and 'hops="49,44"' in _W({"a": 44, "b": 0, "op": "rbet"})[1], "")
+
+    # ---- Unit 6 ------------------------------------------------------------------------
+    hlfl = {"a": 24, "b": 3, "op": "hlfl"}
+    check("  the fading half: the sample to start on the ask; fading day by day on the bars in the walk-back",
+          '[[bars data="day 0:24" caption=' in L.board_for(hlfl, "abstract")
+          and '[[bars data="day 0:24 | day 1:12 | day 2:6 | day 3:3" caption="24 → 12 → 6 → 3"]]' in _W(hlfl)[1]
+          and "never a take away" in _W(hlfl)[0], "")
+    logb = {"a": 8, "b": 2, "c": 3, "op": "logb"}
+    check("⭐ the hidden exponent: the power machine with its exponent blank; the layers stacked as bars in the walk-back",
+          '[[machine input="?" rule="2 to the power x" output="8" caption=' in L.board_for(logb, "abstract")
+          and '[[bars data="2¹:2 | 2²:4 | 2³:8" caption="3 layers of 2 reach 8 — the logarithm is 3"]]' in _W(logb)[1]
+          and "count the layers" in _W(logb)[0], "")
+    logm = {"a": 4, "b": 64, "op": "logm"}
+    check("⭐ logs add: the two stacks as bars, the product and the blank on two lines (the unanswerable-choices referee read a × b); joined in the walk-back",
+          '[[bars data="log 4:2 | log 64:6" caption=' in L.board_for(logm, "abstract")
+          and '[[step eq="4 × 64 = 256"]][[step eq="log 256 = ?"]]' in L.board_for(logm, "abstract")
+          and not tutor.unanswerable_choices_conflict(L.spoken_for(logm, "abstract") + "\n" + L.board_for(logm, "abstract") + L.choices_for(logm))
+          and '[[bars data="log 4:2 | log 64:6 | log 256:8" caption="2 + 6 = 8"]]' in _W(logm)[1]
+          and "Values times; logs add" in _W(logm)[0], "")
+    lbet = {"a": 17, "b": 0, "op": "lbet"}
+    check("  between the powers: the two powers and the number as three bars; the distances named in the walk-back",
+          '[[bars data="2⁴:16 | 17:17 | 2⁵:32" caption="17 between the powers 16 and 32 — nearer which one?"]]' in L.board_for(lbet, "abstract")
+          and "nearer 16, so log 17 → 4" in _W(lbet)[1] and "closest to 4" in _W(lbet)[0], "")
+
+    # ---- the giveaway audit, captions, spoken pending lines, the notes ----------------
+    check("  nothing the twelve lessons demonstrate is later asked (the old logb pairs and the logm pair were asks)",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in A4 + A5 + A6)
+          and "5³:125" in L.LESSON_BY_ID["alg2-u6-the-hidden-exponent"]["pairs"][0]["worked"][1]
+          and "log 2:1 | log 64:6" in L.LESSON_BY_ID["alg2-u6-logs-add"]["pairs"][0]["worked"][1], "")
+    check("  every figure an ask draws carries a caption (rule 41) -- 24 asks did not before tm",
+          all("caption=" in tag for l in A4 + A5 + A6
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:graph|machine|numberline|bars|array|rectangle)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in A4 + A5 + A6:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  no walk-back in the three units asks the array or the rectangle for more than it draws",
+          all(int(m.group(1)) <= 10 and int(m.group(2)) <= 12
+              for l in A4 + A5 + A6
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for m in re.finditer(r'\[\[array rows="(\d+)" cols="(\d+)"', _W(p)[1]))
+          and all(int(m.group(1)) <= 20 and int(m.group(2)) <= 20
+                  for l in A4 + A5 + A6
+                  for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+                  for m in re.finditer(r'\[\[rectangle w="(\d+)" h="(\d+)"', _W(p)[1])), "")
+    check("  no reason option works the arithmetic aloud (the spoken-math referee sweeps the joined options)",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in A4 + A5 + A6), "")
+    check("  the changed files carry dated tm notes",
+          "2026-09-06  BUILD tm" in rd("lessonscripts.py")[:60000] and "BUILD tm" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD tm" in rd("ruletests.py")[:8000] and "(tm)" in rd("static/methodology.html")[:6000],
           "Jim's rule 8")
 
 
@@ -35872,6 +36010,7 @@ def main():
     part3jf_geometry_units_four_to_six_to_the_shape()
     part3jg_geometry_units_seven_to_nine_to_the_shape()
     part3jh_algebra_two_units_one_to_three_to_the_shape()
+    part3ji_algebra_two_units_four_to_six_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

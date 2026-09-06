@@ -2,6 +2,36 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tm -- ALGEBRA 2 UNITS 4-6 TO THE SHAPE (12 lessons). Jim: "go".
+#               THIS FILE:
+#                 * Unit 4 (division moves in): the sharing curve captioned, walked back
+#                   with the point marked; the MACHINE run backwards -- input "?", output
+#                   given -- and answered in the walk-back; the forbidden x asked on the
+#                   jammed machine (no curve on the ask: the pole sits at the answer),
+#                   walked back with the curve FLYING OFF at that x (yrange=); the
+#                   survivor's curve walked back with the level line drawn (lines="y=a"
+#                   beside func=);
+#                 * Unit 5 (roots): the two roots' square walked back as the array (to
+#                   10), the rectangle (to 20) or bars beyond -- walk-back only, its side
+#                   is the answer; the one-half power walked back as the root beside the
+#                   halving trap on the bars; the rooting machine with its input blank;
+#                   the number between two squares ON THE NUMBER LINE, walked back with
+#                   the hop to the nearer square;
+#                 * Unit 6 (decay and logs): the sample fading day by day on the bars;
+#                   the power machine with its exponent blank, walked back as the layers
+#                   stacked; the two stacks of doublings joined; the number between two
+#                   powers as three bars.
+#               Trap lines kept in every lesson. ⚠️ 24 graph asks drew with no caption
+#               (rule 41); under them, the logs-add pending line "a × b = ab · log ab =
+#               ?" read as a × b by the unanswerable-choices referee (6 asks -- now two
+#               lines), and the survivor's "which part survives? y → ?" was a question
+#               inside a step (12 asks). ENGINE: OP_EXT rdiv/rsol/excl/rasy/rmul/rpow/rsq/
+#               rbet/hlfl/logb/logm/lbet gain "worked" (_rdiv_* ... _lbet_*) and, where a
+#               picture withholds the answer, boards; _sq_figure(k, total, cap) picks the
+#               square's figure by its side. Demonstrated numbers kept out of the banks
+#               and pairs (the old hidden-exponent pairs walked 2^?=8 and 10^?=1000 --
+#               both pair asks -- so they walk 5^?=125 and 10^?=10,000; the old logs-add
+#               pair walked 4 and 8, a bank ask, so it walks 2 and 64).
 #   2026-09-06  BUILD tl -- ALGEBRA 2 UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "go".
 #               THIS FILE:
 #                 * Unit 1 (absolute value, two clues, three): the two spots on the
@@ -16197,24 +16227,62 @@ _ALGEBRA2_U4 = [
         "op": "rdiv", "max_value": 36,
         "levels": ("abstract",),
         "symbols": ("divided by", "reciprocal"),
-        "advance_line": "Three in a row — you've got it! Say the operation out loud, then tap.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Say the operation out loud, then tap.",
+        "why": [
+            ("Why does sharing shrink? Because a new family of functions moves in: "
+             "division. y equals 14 divided by x — the reciprocal shape. Feed it an x "
+             "and it SHARES 14 among x pieces: feed 2, get 7; feed 7, get 2. The bigger "
+             "the crowd, the smaller each share — growth backwards.",
+             '[[goal text="Sharing shrinks"]]'),
+        ],
+        "picture": [
+            ("Here is the curve on the grid, and it is unlike any polynomial: it falls "
+             "fast, then flattens, sliding along the floor without ever landing. The "
+             "point at x equals 2 sits at 7 — 14 shared among 2. Reading the curve IS "
+             "doing the divisions.",
+             '[[graph func="14/x" points="(2,7)" range="0..15" caption="y = 14 ÷ x — at x = 2, y = 7"]]'),
+        ],
         "teach": [
-            ["A new family of functions: division moves in. y equals 14 divided by x — the reciprocal shape. Feed it an x and it SHARES 14 among x pieces: feed 2, get 7; feed 7, get 2. The bigger the crowd, the smaller each share — growth backwards.",
-             '[[goal text="Sharing shrinks"]][[graph func="14/x" range="0..15" caption="14/x on the grid"]]'],
-            ["The graph is a curve unlike any polynomial: it falls fast, then flattens, sliding along the floor without ever landing. Each point is just a division done: at x equals 2, y is 7; at x equals 7, y is 2. Reading the curve IS doing the divisions.",
-             '[[graph func="14/x" range="0..15" caption="14/x on the grid"]][[step eq="y = 14 ÷ x"]]'],
-            ["The traps are the other operations wearing masks. 14 divided by 2 is 7 — but take away gives 12, and times gives 28, and a hurried hand reaches for both. The word is DIVIDED: sharing, not taking away, not growing. Say the operation out loud before you tap.",
-             '[[step eq="14 ÷ 2 = 7 ✓"]][[step eq="14 − 2 = 12 ✗ · 14 × 2 = 28 ✗ — masks"]]'],
+            ("That is the method. y equals 14 divided by x, at x equals 2: 14 shared "
+             "among 2 is 7. At x equals 7, 14 shared among 7 is 2. Each point is just a "
+             "division done.",
+             '[[graph func="14/x" points="(2,7),(7,2)" range="0..15" caption="14 ÷ 2 = 7 · 14 ÷ 7 = 2"]][[step eq="14 ÷ 2 = 7"]][[step eq="14 ÷ 7 = 2"]]'),
+            ("The traps are the other operations wearing masks. 14 divided by 2 is 7 — "
+             "but take away gives 12, and times gives 28, and a hurried hand reaches "
+             "for both. The word is DIVIDED: sharing, not taking away, not growing. Say "
+             "the operation out loud before you tap.",
+             '[[step eq="14 ÷ 2 = 7 ✓"]][[step eq="14 − 2 = 12 ✗ · 14 × 2 = 28 ✗ — masks"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals 16 divided by x, at x equals 4: 16 shared among 4 — 4.",
-                        '[[graph func="16/x" range="0..17" caption="16/x on the grid"]][[step eq="16 ÷ 4 = 4"]]'],
-             "ask": {"a": 9, "b": 3, "op": "rdiv"}},
-            {"worked": ["One more together. 25 divided by x, at x equals 5: 25 shared among 5 — 5.",
-                        '[[step eq="25 ÷ 5 = 5"]]'],
-             "ask": {"a": 30, "b": 6, "op": "rdiv"}},
+            {"worked": ("Here is one more, done for you. y equals 16 divided by x, at x "
+                        "equals 4: 16 shared among 4 — 4.",
+                        '[[graph func="16/x" points="(4,4)" range="0..17" caption="y = 16 ÷ x — at x = 4, y = 4"]][[step eq="16 ÷ 4 = 4"]]'),
+             "ask": {'a': 9, 'b': 3, 'op': 'rdiv'}},
+            {"worked": ("One more together. 25 divided by x, at x equals 5: 25 shared "
+                        "among 5 — 5.",
+                        '[[graph func="25/x" points="(5,5)" range="0..27" caption="y = 25 ÷ x — at x = 5, y = 5"]][[step eq="25 ÷ 5 = 5"]]'),
+             "ask": {'a': 30, 'b': 6, 'op': 'rdiv'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. y equals 14 divided "
+                       "by x, and at x equals 2 the answer is 7. Tap the reason why."),
+            "choices": ("because the function shares 14 among 2 | because the function "
+                        "takes 2 away from 14 | because the function grows 14 by 2"),
+            "answer": "because the function shares 14 among 2",
+            "board": '[[graph func="14/x" points="(2,7)" range="0..15" caption="14 ÷ 2 = 7"]]',
+        },
+        "recap": [
+            ("So, here it is again. y equals a number divided by x shares that number "
+             "among x pieces, and the bigger the crowd, the smaller each share — a "
+             "curve that falls and flattens. The word is divided: not take away, not "
+             "times.",
+             '[[graph func="14/x" points="(2,7)" range="0..15" caption="sharing shrinks"]]'),
+            ("And that is growth, run backwards.",
+             '[[step eq="14 ÷ 2 = 7"]]'),
+        ],
         "bank": [
             {"a": 6, "b": 2, "op": "rdiv"},
             {"a": 8, "b": 4, "op": "rdiv"},
@@ -16235,24 +16303,62 @@ _ALGEBRA2_U4 = [
         "op": "rsol", "max_value": 36,
         "levels": ("abstract",),
         "symbols": ("divided by", "undo"),
-        "advance_line": "Three in a row — you've got it! Rebuild, then divide.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Rebuild, then divide.",
+        "why": [
+            ("Why run it backwards? Because every function question can turn around. "
+             "20 divided by x equals 5 — some crowd got 5 each out of 20. Algebra One "
+             "asked which input went in, and the answer was always the same move — "
+             "undo. Division\'s undo starts with a question: what times 5 rebuilds "
+             "20?",
+             '[[goal text="Which x was fed"]]'),
+        ],
+        "picture": [
+            ("Here is the machine, run backwards. Its rule is 20 divided by x, its "
+             "output came out as 5, and its input door is blank. The question is not "
+             "what comes out — it is what went in.",
+             '[[machine input="?" rule="20 ÷ x" output="5" caption="the output is 5 — which x went in?"]]'),
+        ],
         "teach": [
-            ["Now run the sharing backwards. 20 divided by x equals 5 — some crowd got 5 each out of 20. Every function question can turn around: Algebra One asked which input went in, and the answer was always the same move — undo. Division's undo starts with a question: what times 5 rebuilds 20?",
-             '[[goal text="Which x was fed"]][[step eq="20 ÷ x = 5"]]'],
-            ["x times 5 must rebuild the 20 — so x is 20 divided by 5, which equals 4. Check by feeding it forward: 20 divided by 4 is 5. True. The undo of being divided by x turns out to be one more divide — the reciprocal's strange charm.",
-             '[[step eq="x · 5 = 20"]] [[step eq="x = 20 ÷ 5 = 4"]][[step eq="check: 20 ÷ 4 = 5 ✓"]]'],
-            ["The trap is grabbing times: 20 times 5 is 100, far off. And 20 take away 5 is 15 — a different operation's answer entirely. The x sits UNDER the 20, and freeing it costs one more divide. Rebuild, then divide.",
-             '[[step eq="x = 20 ÷ 5 = 4 ✓"]][[step eq="100 ✗ times is not this undo · 15 ✗"]]'],
+            ("That is the method. x times 5 must rebuild the 20 — so x is 20 divided by "
+             "5, which equals 4. Check by feeding it forward: 20 divided by 4 is 5. "
+             "True. The undo of being divided by x turns out to be one more divide — "
+             "the reciprocal\'s strange charm.",
+             '[[machine input="4" rule="20 ÷ x" output="5" caption="x = 20 ÷ 5 = 4 — check: 20 ÷ 4 = 5"]][[step eq="x · 5 = 20"]][[step eq="x = 20 ÷ 5 = 4"]][[step eq="check: 20 ÷ 4 = 5 ✓"]]'),
+            ("The trap is grabbing times: 20 times 5 is 100, far off. And 20 take away "
+             "5 is 15 — a different operation\'s answer entirely. The x sits UNDER the "
+             "20, and freeing it costs one more divide. Rebuild, then divide.",
+             '[[step eq="x = 20 ÷ 5 = 4 ✓"]][[step eq="100 ✗ times is not this undo · 15 ✗"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 24 divided by x equals 8: x is 24 divided by 8 — 3.",
-                        '[[step eq="x = 24 ÷ 8 = 3"]]'],
-             "ask": {"a": 10, "b": 5, "op": "rsol"}},
-            {"worked": ["One more together. 36 divided by x is 4: x is 36 divided by 4 — 9.",
-                        '[[step eq="x = 36 ÷ 4 = 9"]]'],
-             "ask": {"a": 30, "b": 10, "op": "rsol"}},
+            {"worked": ("Here is one more, done for you. 24 divided by x equals 8: x is 24 "
+                        "divided by 8 — 3.",
+                        '[[machine input="3" rule="24 ÷ x" output="8" caption="x = 24 ÷ 8 = 3"]][[step eq="x = 24 ÷ 8 = 3"]]'),
+             "ask": {'a': 10, 'b': 5, 'op': 'rsol'}},
+            {"worked": ("One more together. 36 divided by x is 4: x is 36 divided by 4 — "
+                        "9.",
+                        '[[machine input="9" rule="36 ÷ x" output="4" caption="x = 36 ÷ 4 = 9"]][[step eq="x = 36 ÷ 4 = 9"]]'),
+             "ask": {'a': 30, 'b': 10, 'op': 'rsol'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 20 divided by x "
+                       "equals 5, and x is 4. Tap the reason why."),
+            "choices": ("because x times 5 must rebuild the 20 | because the undo of "
+                        "dividing is always timesing | because the undo of dividing is "
+                        "taking away"),
+            "answer": "because x times 5 must rebuild the 20",
+            "board": '[[machine input="4" rule="20 ÷ x" output="5" caption="x = 20 ÷ 5 = 4"]]',
+        },
+        "recap": [
+            ("So, here it is again. When a number divided by x gives an answer, x times "
+             "that answer rebuilds the number — so x is the number divided by the "
+             "answer. Rebuild, then divide, and check it forward.",
+             '[[machine input="4" rule="20 ÷ x" output="5" caption="rebuild, then divide"]]'),
+            ("And that is the reciprocal\'s undo: one more divide.",
+             '[[step eq="x = 20 ÷ 5 = 4"]]'),
+        ],
         "bank": [
             {"a": 8, "b": 2, "op": "rsol"},
             {"a": 12, "b": 4, "op": "rsol"},
@@ -16273,24 +16379,66 @@ _ALGEBRA2_U4 = [
         "op": "excl", "max_value": 12, "min_value": -12,
         "levels": ("abstract",),
         "symbols": ("forbidden", "zero"),
-        "advance_line": "Three in a row — you've got it! The danger is where the BOTTOM is zero.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The danger is where the BOTTOM is zero.",
+        "why": [
+            ("Why forbidden? Because every function so far accepted every x, and "
+             "division ends that. y equals 5 divided by: x take away 4. Feed most x\'s "
+             "and all is well — but ONE x breaks the machine, because it turns the "
+             "bottom into zero, and dividing by zero is the one thing mathematics never "
+             "allows. That x is forbidden.",
+             '[[goal text="The forbidden x"]]'),
+        ],
+        "picture": [
+            ("Here is the curve of 5 divided by x take away 4. Look at x equals 4: the "
+             "curve flies off the top and comes back from the bottom, and never touches "
+             "that line. There is no point there at all — the machine jams.",
+             '[[graph func="5/(x-4)" range="0..8" yrange="-12..12" caption="y = 5 ÷ (x − 4) — the curve flies off at x = 4 and never lands"]]'),
+        ],
         "teach": [
-            ["Every function so far accepted every x. Division ends that. y equals 5 divided by: x take away 4. Feed most x's and all is well — but ONE x breaks the machine, because it turns the bottom into zero, and dividing by zero is the one thing mathematics never allows. That x is forbidden.",
-             '[[goal text="The forbidden x"]][[step eq="y = 5 ÷ (x − 4)"]]'],
-            ["Find it by asking when the bottom dies: x take away 4 equals zero exactly at x equals 4. Feed 4 and the division has no answer — the machine jams. Feed anything else — 5, 100, negative 7 — and the function answers happily. One hole in an endless road.",
-             '[[step eq="x − 4 = 0"]] [[step eq="x = 4 forbidden"]]'],
-            ["Two traps, both old friends. The minus begs for negative 4 — but feed negative 4 and the bottom is negative 8, alive and well: the vertex lesson taught you that flip. And zero is not automatically dangerous — feed x equals 0 and the bottom is negative 4, fine. The danger is where the BOTTOM is zero, not where x is.",
-             '[[step eq="x = 4 forbidden ✓"]][[step eq="−4 ✗ the flip · 0 ✗ the bottom there is −4, alive"]]'],
+            ("That is the method. Find it by asking when the bottom dies: x take away 4 "
+             "equals zero exactly at x equals 4. Feed 4 and the division has no answer "
+             "— the machine jams, so 4 is forbidden. Feed anything else — 5, 100, "
+             "negative 7 — and the function answers happily. One hole in an endless "
+             "road.",
+             '[[machine input="4" rule="5 ÷ (x − 4)" output="jammed" caption="x = 4 turns the bottom to zero — forbidden"]][[step eq="x − 4 = 0"]][[step eq="x = 4 forbidden"]]'),
+            ("Two traps, both old friends. The minus begs for negative 4 — but feed "
+             "negative 4 and the bottom is negative 8, alive and well: the vertex lesson "
+             "taught you that flip. And zero is not automatically dangerous — feed x "
+             "equals 0 and the bottom is negative 4, fine. The danger is where the "
+             "BOTTOM is zero, not where x is.",
+             '[[step eq="x = 4 forbidden ✓"]][[step eq="−4 ✗ the flip · 0 ✗ the bottom there is −4, alive"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals 7 divided by: x take away 6. The bottom dies at x equals 6 — forbidden.",
-                        '[[step eq="x − 6 = 0"]] [[step eq="x = 6"]]'],
-             "ask": {"a": 3, "b": 8, "op": "excl"}},
-            {"worked": ["One more together. y equals 2 divided by: x take away 9 — the forbidden x is 9.",
-                        '[[step eq="x − 9 = 0"]] [[step eq="x = 9"]]'],
-             "ask": {"a": 11, "b": 7, "op": "excl"}},
+            {"worked": ("Here is one more, done for you. y equals 7 divided by: x take "
+                        "away 6. The bottom dies at x equals 6 — forbidden.",
+                        '[[graph func="7/(x-6)" range="2..10" yrange="-12..12" caption="y = 7 ÷ (x − 6) — flies off at x = 6"]][[step eq="x − 6 = 0"]][[step eq="x = 6"]]'),
+             "ask": {'a': 3, 'b': 8, 'op': 'excl'}},
+            {"worked": ("One more together. y equals 2 divided by: x take away 9 — the "
+                        "forbidden x is 9.",
+                        '[[graph func="2/(x-9)" range="5..13" yrange="-12..12" caption="y = 2 ÷ (x − 9) — flies off at x = 9"]][[step eq="x − 9 = 0"]][[step eq="x = 9"]]'),
+             "ask": {'a': 11, 'b': 7, 'op': 'excl'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. y equals 5 divided "
+                       "by x take away 4, and the forbidden x is 4. Tap the reason why."),
+            "choices": ("because at x equals 4 the bottom is zero | because the minus "
+                        "means the forbidden x is negative 4 | because zero is always "
+                        "the forbidden x"),
+            "answer": "because at x equals 4 the bottom is zero",
+            "board": '[[graph func="5/(x-4)" range="0..8" yrange="-12..12" caption="the hole at x = 4"]]',
+        },
+        "recap": [
+            ("So, here it is again. A division function forbids the one x that turns "
+             "its bottom into zero — find it by asking when the bottom dies. Not the "
+             "sign flipped, and not zero by habit: the danger is where the bottom is "
+             "zero, not where x is.",
+             '[[graph func="5/(x-4)" range="0..8" yrange="-12..12" caption="one hole in an endless road"]]'),
+            ("And that is the first x a function ever refused.",
+             '[[step eq="x − 4 = 0 · x = 4 forbidden"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "excl"},
             {"a": 3, "b": 5, "op": "excl"},
@@ -16311,24 +16459,65 @@ _ALGEBRA2_U4 = [
         "op": "rasy", "max_value": 9, "min_value": 0,
         "levels": ("abstract",),
         "symbols": ("settles", "huge"),
-        "advance_line": "Three in a row — you've got it! Find who lives, then answer.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Find who lives, then answer.",
+        "why": [
+            ("Why a survivor? Because the last lesson of the unit asks what happens "
+             "far, far away. y equals 6 divided by x fades as x grows huge — share 6 "
+             "among a million and each gets almost nothing. But y equals: 2 x plus 6, "
+             "all divided by x, hides a survivor. Split it and see.",
+             '[[goal text="The survivor"]]'),
+        ],
+        "picture": [
+            ("Here is the curve, with a level line drawn at 2. Watch the curve as x "
+             "grows: it drops fast, then flattens, and slides closer and closer to that "
+             "line without ever quite landing on it. The 2 is the survivor.",
+             '[[graph func="(2*x+6)/x" lines="y=2" range="0..20" caption="y = (2x + 6) ÷ x — it settles toward the line y = 2"]]'),
+        ],
         "teach": [
-            ["Last lesson of the unit: what happens far, far away? y equals 6 divided by x fades as x grows huge — share 6 among a million and each gets almost nothing. But y equals: 2 x plus 6, all divided by x, hides a survivor. Split it and see.",
-             '[[goal text="The survivor"]][[graph func="(2*x+6)/x" range="0..20" caption="(2*x+6)/x on the grid"]]'],
-            ["Split the top: 2 x divided by x is just 2; 6 divided by x is the fading part. So y equals 2 plus 6-divided-by-x. Let x grow huge: the fading part dies toward zero, the 2 stands untouched — y settles toward 2.",
-             '[[graph func="(2*x+6)/x" range="0..20" caption="(2*x+6)/x on the grid"]][[step eq="y = 2 + 6 ÷ x"]] [[step eq="settles at 2"]]'],
-            ["The traps are the two other numbers in the room. Zero was plain division's answer — 6 over x alone dies — but today's function keeps a survivor, and tapping 0 forgets him. And 6 is the fading part's number — the part that dies. The survivor is the number riding on x. Find who lives, then answer.",
-             '[[step eq="settles at 2 ✓"]][[step eq="0 ✗ that was plain 6 ÷ x · 6 ✗ the fading part"]]'],
+            ("That is the method. Split the top: 2 x divided by x is just 2; 6 divided "
+             "by x is the fading part. So y equals 2 plus 6-divided-by-x. Let x grow "
+             "huge: the fading part dies toward zero, the 2 stands untouched — y "
+             "settles toward 2.",
+             '[[graph func="(2*x+6)/x" lines="y=2" range="0..20" caption="y = 2 + 6 ÷ x — the 6 ÷ x dies, the 2 survives"]][[step eq="y = 2 + 6 ÷ x"]][[step eq="settles at 2"]]'),
+            ("The traps are the two other numbers in the room. Zero was plain "
+             "division\'s answer — 6 over x alone dies — but today\'s function keeps "
+             "a survivor, and tapping 0 forgets him. And 6 is the fading part\'s number "
+             "— the part that dies. The survivor is the number riding on x. Find who "
+             "lives, then answer.",
+             '[[step eq="settles at 2 ✓"]][[step eq="0 ✗ that was plain 6 ÷ x · 6 ✗ the fading part"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals: 3 x plus 8, all divided by x. Split: 3 plus 8 over x — it settles toward 3.",
-                        '[[graph func="(3*x+8)/x" range="0..20" caption="(3*x+8)/x on the grid"]][[step eq="y = 3 + 8 ÷ x"]] [[step eq="settles at 3"]]'],
-             "ask": {"a": 4, "b": 7, "op": "rasy"}},
-            {"worked": ["One more together. 7 x plus 4, over x: the 4 fades — y settles toward 7.",
-                        '[[step eq="y = 7 + 4 ÷ x"]] [[step eq="settles at 7"]]'],
-             "ask": {"a": 5, "b": 9, "op": "rasy"}},
+            {"worked": ("Here is one more, done for you. y equals: 3 x plus 8, all divided "
+                        "by x. Split: 3 plus 8 over x — it settles toward 3.",
+                        '[[graph func="(3*x+8)/x" lines="y=3" range="0..20" caption="y = 3 + 8 ÷ x — settles toward 3"]][[step eq="y = 3 + 8 ÷ x"]][[step eq="settles at 3"]]'),
+             "ask": {'a': 4, 'b': 7, 'op': 'rasy'}},
+            {"worked": ("One more together. 7 x plus 4, over x: the 4 fades — y settles "
+                        "toward 7.",
+                        '[[graph func="(7*x+4)/x" lines="y=7" range="0..20" caption="y = 7 + 4 ÷ x — settles toward 7"]][[step eq="y = 7 + 4 ÷ x"]][[step eq="settles at 7"]]'),
+             "ask": {'a': 5, 'b': 9, 'op': 'rasy'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. y equals 2 x plus 6, "
+                       "all divided by x, and as x grows huge y settles toward 2. Tap the "
+                       "reason why."),
+            "choices": ("because the 6 over x fades away and the 2 stays | because "
+                        "everything divided by a huge x fades to zero | because the 6 "
+                        "is the bigger number, so it survives"),
+            "answer": "because the 6 over x fades away and the 2 stays",
+            "board": '[[graph func="(2*x+6)/x" lines="y=2" range="0..20" caption="the survivor: 2"]]',
+        },
+        "recap": [
+            ("So, here it is again. Split a division function into its parts: whatever "
+             "sits over x fades as x grows huge, and whatever rides on x survives. The "
+             "curve settles toward the survivor — the level line it never quite lands "
+             "on.",
+             '[[graph func="(2*x+6)/x" lines="y=2" range="0..20" caption="find who lives, then answer"]]'),
+            ("And that is a function, read at the horizon.",
+             '[[step eq="y = 2 + 6 ÷ x"]][[step eq="settles at 2"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 5, "op": "rasy"},
             {"a": 3, "b": 7, "op": "rasy"},
@@ -16361,24 +16550,64 @@ _ALGEBRA2_U5 = [
         "op": "rmul", "max_value": 54,
         "levels": ("abstract",),
         "symbols": ("square root", "times"),
-        "advance_line": "Three in a row — you've got it! Roots times under one roof.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Roots times under one roof.",
+        "why": [
+            ("Why one roof? Because roots come back with a rule that turns ragged "
+             "numbers clean. The square root of 2 is a messy, unending decimal. But the "
+             "root of 2 times the root of 2 is exactly 2. In general, two roots can go "
+             "under one roof: root of a, times root of b, equals the root of a times b.",
+             '[[goal text="Under one roof"]][[step eq="√a · √b = √(a·b)"]]'),
+        ],
+        "picture": [
+            ("Here is the square that the two roots make together. The square root of "
+             "3 times the square root of 48 is the root of 3 times 48 — the root of 144 "
+             "— and 144 is a perfect square: 12 rows of 12. The side of that square, "
+             "12, is the answer.",
+             '[[rectangle w="12" h="12" caption="√3 · √48 = √144 — and 144 is 12 × 12"]]'),
+        ],
         "teach": [
-            ["Back to roots — with a rule that turns ragged numbers clean. The square root of 2 is a messy, unending decimal. But the root of 2 times the root of 2 is exactly 2. In general, two roots can go under one roof. Root of a, times root of b, equals the root of a times b.",
-             '[[goal text="Under one roof"]][[step eq="√a · √b = √(a·b)"]]'],
-            ["The square root of 3, times the square root of 48. Alone, each is ragged. Under one roof: 3 times 48 is 144 — and 144 is a perfect square! Twelve times twelve. Two messy roots, one clean answer: 12.",
-             '[[step eq="√3 · √48 = √144"]][[step eq="12 × 12 = 144"]] [[step eq="√144 = 12"]]'],
-            ["Two traps. 144 is what sits UNDER the roof — the root still has to be taken; stopping there is the same slip as stopping at the square back in Pythagoras. And the roots never ADD: root 3 plus root 48 is 51 under nobody's roof — adding under roots is the famous illegal move.",
-             '[[step eq="√3 · √48 = 12 ✓"]][[step eq="144 ✗ still under the roof · 51 ✗ roots never add"]]'],
+            ("That is the method. The square root of 3, times the square root of 48. "
+             "Alone, each is ragged. Under one roof: 3 times 48 is 144 — and 144 is a "
+             "perfect square! Twelve times twelve. Two messy roots, one clean answer: "
+             "12.",
+             '[[rectangle w="12" h="12" caption="144 = 12 × 12"]][[step eq="√3 · √48 = √144"]][[step eq="12 × 12 = 144"]][[step eq="√144 = 12"]]'),
+            ("Two traps. 144 is what sits UNDER the roof — the root still has to be "
+             "taken; stopping there is the same slip as stopping at the square back in "
+             "Pythagoras. And the roots never ADD: root 3 plus root 48 is 51 under "
+             "nobody\'s roof — adding under roots is the famous illegal move.",
+             '[[step eq="√3 · √48 = 12 ✓"]][[step eq="144 ✗ still under the roof · 51 ✗ roots never add"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Root 2 times root 32: under one roof, 64 — and the root of 64 is 8.",
-                        '[[step eq="√2 · √32 = √64 = 8"]]'],
-             "ask": {"a": 5, "b": 45, "op": "rmul"}},
-            {"worked": ["One more together. Root 3 times root 75: 225 under the roof, and 15 times 15 is 225 — the answer is 15.",
-                        '[[step eq="√3 · √75 = √225 = 15"]]'],
-             "ask": {"a": 6, "b": 54, "op": "rmul"}},
+            {"worked": ("Here is one more, done for you. Root 2 times root 32: under one "
+                        "roof, 64 — and the root of 64 is 8.",
+                        '[[array rows="8" cols="8" caption="√2 · √32 = √64 — and 64 is 8 × 8"]][[step eq="√2 · √32 = √64 = 8"]]'),
+             "ask": {'a': 5, 'b': 45, 'op': 'rmul'}},
+            {"worked": ("One more together. Root 3 times root 75: 225 under the roof, and "
+                        "15 times 15 is 225 — the answer is 15.",
+                        '[[rectangle w="15" h="15" caption="√3 · √75 = √225 — and 225 is 15 × 15"]][[step eq="√3 · √75 = √225 = 15"]]'),
+             "ask": {'a': 6, 'b': 54, 'op': 'rmul'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The square root of "
+                       "3 times the square root of 48 is 12. Tap the reason why."),
+            "choices": ("because under one roof, 3 times 48 is a perfect square | because "
+                        "under one roof, 3 plus 48 is a perfect square | because the "
+                        "answer is 144, the number under the roof"),
+            "answer": "because under one roof, 3 times 48 is a perfect square",
+            "board": '[[rectangle w="12" h="12" caption="√144 = 12"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two square roots timesed go under one roof: the root "
+             "of the product. If that product is a perfect square, two ragged roots "
+             "give one clean whole number — its side. Take the root at the end, and "
+             "never add under the roofs.",
+             '[[rectangle w="12" h="12" caption="√3 · √48 = √144 = 12"]]'),
+            ("And that is a roof that turns messy numbers clean.",
+             '[[step eq="√a · √b = √(a·b)"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 8, "op": "rmul"},
             {"a": 3, "b": 12, "op": "rmul"},
@@ -16398,24 +16627,62 @@ _ALGEBRA2_U5 = [
         "op": "rpow", "max_value": 676,
         "levels": ("abstract",),
         "symbols": ("one-half power", "square root"),
-        "advance_line": "Three in a row — you've got it! A one-half power is a root, never a halving.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A one-half power is a root, never a halving.",
+        "why": [
+            ("Why a fraction in the exponent? Because exponents can wear fractions. "
+             "What could 25 to the one-half power mean? Follow the adding rule: 25 to "
+             "the one-half, times 25 to the one-half, is 25 to the one — plain 25. So "
+             "the one-half power is the number that times ITSELF into 25. That is a "
+             "square root.",
+             '[[goal text="The fraction power"]][[step eq="25^½ · 25^½ = 25¹"]]'),
+        ],
+        "picture": [
+            ("Here are the two numbers side by side: the square root of 25, which is 5, "
+             "and half of 25, which is 12 and a half. They are nowhere near each other. "
+             "The one-half power is the small one — the root.",
+             '[[bars data="√25 = 5:5 | half of 25:12.5" caption="the root, 5, beside the halving trap, 12.5"]]'),
+        ],
         "teach": [
-            ["Exponents can wear fractions. What could 25 to the one-half power mean? Follow the adding rule: 25 to the one-half, times 25 to the one-half, is 25 to the one — plain 25. So the one-half power is the number that times ITSELF into 25. That is a square root.",
-             '[[goal text="The fraction power"]][[step eq="25^½ · 25^½ = 25¹"]]'],
-            ["So 25 to the one-half power is the square root of 25 — which is 5. Check it: 5 times 5 is 25. The fraction in the exponent is not arithmetic waiting to happen; it is a costume the root wears.",
-             '[[step eq="25^½ = √25 = 5"]][[step eq="5 × 5 = 25 ✓"]]'],
-            ["The trap reads the costume literally: one-half power, so take half — half of 25 is 12 and a half. But 12.5 times 12.5 is over 156, nowhere near 25. Halving splits a number; the one-half power UNBUILDS a square. A root, never a halving.",
-             '[[step eq="25^½ = 5 ✓"]][[step eq="half of 25 ✗ — halving is not rooting"]]'],
+            ("That is the method. 25 to the one-half power is the square root of 25 — "
+             "which is 5. Check it: 5 times 5 is 25. The fraction in the exponent is "
+             "not arithmetic waiting to happen; it is a costume the root wears.",
+             '[[array rows="5" cols="5" caption="5 × 5 = 25 — so 25^½ = 5"]][[step eq="25^½ = √25 = 5"]][[step eq="5 × 5 = 25 ✓"]]'),
+            ("The trap reads the costume literally: one-half power, so take half — half "
+             "of 25 is 12 and a half. But 12.5 times 12.5 is over 156, nowhere near 25. "
+             "Halving splits a number; the one-half power UNBUILDS a square. A root, "
+             "never a halving.",
+             '[[step eq="25^½ = 5 ✓"]][[step eq="half of 25 ✗ — halving is not rooting"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 100 to the one-half power: the square root of 100 — 10.",
-                        '[[step eq="100^½ = √100 = 10"]]'],
-             "ask": {"a": 16, "b": 0, "op": "rpow"}},
-            {"worked": ["One more together. 900 to the one-half power: the root of 900 is 30.",
-                        '[[step eq="900^½ = √900 = 30"]]'],
-             "ask": {"a": 676, "b": 0, "op": "rpow"}},
+            {"worked": ("Here is one more, done for you. 100 to the one-half power: the "
+                        "square root of 100 — 10.",
+                        '[[array rows="10" cols="10" caption="10 × 10 = 100 — so 100^½ = 10"]][[step eq="100^½ = √100 = 10"]]'),
+             "ask": {'a': 16, 'b': 0, 'op': 'rpow'}},
+            {"worked": ("One more together. 900 to the one-half power: the root of 900 is "
+                        "30.",
+                        '[[bars data="√900 = 30:30 | half of 900:450" caption="the root, 30 — not the half, 450"]][[step eq="900^½ = √900 = 30"]]'),
+             "ask": {'a': 676, 'b': 0, 'op': 'rpow'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 25 to the one-half "
+                       "power is 5. Tap the reason why."),
+            "choices": ("because the one-half power is the square root | because the "
+                        "one-half power means take half | because the one-half power "
+                        "leaves the number alone"),
+            "answer": "because the one-half power is the square root",
+            "board": '[[array rows="5" cols="5" caption="25^½ = √25 = 5"]]',
+        },
+        "recap": [
+            ("So, here it is again. A one-half power is the number that times itself "
+             "into the base — the square root. The fraction is a costume the root "
+             "wears; it is never an instruction to halve.",
+             '[[bars data="√25 = 5:5 | half of 25:12.5" caption="a root, never a halving"]]'),
+            ("And that is an exponent that unbuilds a square.",
+             '[[step eq="25^½ = √25 = 5"]]'),
+        ],
         "bank": [
             {"a": 36, "b": 0, "op": "rpow"},
             {"a": 64, "b": 0, "op": "rpow"},
@@ -16435,24 +16702,61 @@ _ALGEBRA2_U5 = [
         "op": "rsq", "max_value": 196,
         "levels": ("abstract",),
         "symbols": ("square root", "undo"),
-        "advance_line": "Three in a row — you've got it! The root's undo is the square.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The root's undo is the square.",
+        "why": [
+            ("Why undo it? Because now the root lands in an equation: the square root "
+             "of x equals 15. Something, rooted, gave 15 — find the something. Every "
+             "equation move since Algebra One is an undo, and the square root\'s undo "
+             "is its opposite power: the SQUARE.",
+             '[[goal text="Undo the root"]]'),
+        ],
+        "picture": [
+            ("Here is the machine that roots. Its rule is the square root of x, its "
+             "output came out as 15, and its input door is blank. Whatever went in, "
+             "rooted, became 15 — and the undo finds it.",
+             '[[machine input="?" rule="√x" output="15" caption="the output is 15 — which x went in?"]]'),
+        ],
         "teach": [
-            ["Now the root lands in an equation: the square root of x equals 15. Something, rooted, gave 15 — find the something. Every equation move since Algebra One is an undo, and the square root's undo is its opposite power: the SQUARE.",
-             '[[goal text="Undo the root"]][[step eq="√x = 15"]]'],
-            ["Square both sides: the root of x, squared, is plain x — and 15 squared is 225. So x is 225. Check by rooting it forward: the square root of 225 is 15. True.",
-             '[[step eq="x = 15² = 225"]][[step eq="check: √225 = 15 ✓"]]'],
-            ["The trap is the halving family again, inverted: if root felt like half, its undo feels like DOUBLE — 30. But the root of 30 is between 5 and 6, nowhere near 15. And x is not just 15 handed back: the root already changed it. Undo with the square, then check forward.",
-             '[[step eq="x = 225 ✓"]][[step eq="30 ✗ doubling undoes halving, not rooting · 15 ✗ unchanged"]]'],
+            ("That is the method. Square both sides: the root of x, squared, is plain x "
+             "— and 15 squared is 225. So x is 225. Check by rooting it forward: the "
+             "square root of 225 is 15. True.",
+             '[[machine input="225" rule="√x" output="15" caption="x = 15² = 225 — check: √225 = 15"]][[step eq="x = 15² = 225"]][[step eq="check: √225 = 15 ✓"]]'),
+            ("The trap is the halving family again, inverted: if root felt like half, "
+             "its undo feels like DOUBLE — 30. But the root of 30 is between 5 and 6, "
+             "nowhere near 15. And x is not just 15 handed back: the root already "
+             "changed it. Undo with the square, then check forward.",
+             '[[step eq="x = 225 ✓"]][[step eq="30 ✗ doubling undoes halving, not rooting · 15 ✗ unchanged"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The square root of x equals 20: x is 20 squared — 400. Check: root 400 is 20.",
-                        '[[step eq="√x = 20"]] [[step eq="x = 400"]]'],
-             "ask": {"a": 3, "b": 0, "op": "rsq"}},
-            {"worked": ["One more together. Root of x equals 16: x is 16 squared — 256.",
-                        '[[step eq="√x = 16"]] [[step eq="x = 256"]]'],
-             "ask": {"a": 14, "b": 0, "op": "rsq"}},
+            {"worked": ("Here is one more, done for you. The square root of x equals 20: x "
+                        "is 20 squared — 400. Check: root 400 is 20.",
+                        '[[machine input="400" rule="√x" output="20" caption="x = 20² = 400"]][[step eq="√x = 20"]][[step eq="x = 400"]]'),
+             "ask": {'a': 3, 'b': 0, 'op': 'rsq'}},
+            {"worked": ("One more together. Root of x equals 16: x is 16 squared — 256.",
+                        '[[machine input="256" rule="√x" output="16" caption="x = 16² = 256"]][[step eq="√x = 16"]][[step eq="x = 256"]]'),
+             "ask": {'a': 14, 'b': 0, 'op': 'rsq'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The square root of "
+                       "x equals 15, and x is 225. Tap the reason why."),
+            "choices": ("because the square undoes the root: 15 times itself | "
+                        "because doubling undoes the root: 15 doubled | because the "
+                        "root changes nothing, so x is 15"),
+            "answer": "because the square undoes the root: 15 times itself",
+            "board": '[[machine input="225" rule="√x" output="15" caption="x = 15² = 225"]]',
+        },
+        "recap": [
+            ("So, here it is again. When the square root of x equals a number, undo the "
+             "root with its opposite power — square the number, and that is x. Then "
+             "check forward by rooting it. Never double, and never hand the number back "
+             "unchanged.",
+             '[[machine input="225" rule="√x" output="15" caption="the root\'s undo is the square"]]'),
+            ("And that is a radical equation, undone.",
+             '[[step eq="x = 15² = 225"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 0, "op": "rsq"},
             {"a": 5, "b": 0, "op": "rsq"},
@@ -16473,24 +16777,64 @@ _ALGEBRA2_U5 = [
         "op": "rbet", "max_value": 150,
         "levels": ("abstract",),
         "symbols": ("square root", "between"),
-        "advance_line": "Three in a row — you've got it! Square the neighbours, then see who is nearer.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Square the neighbours, then see who is nearer.",
+        "why": [
+            ("Why between? Because most numbers are not perfect squares — but their "
+             "roots still live somewhere. The square root of 40 is not whole; it sits "
+             "between two whole numbers, because 40 sits between two perfect squares: "
+             "36 and 49. Root of 36 is 6, root of 49 is 7 — so root 40 lives between 6 "
+             "and 7.",
+             '[[goal text="Between the squares"]][[step eq="36 < 40 < 49"]][[step eq="6 < √40 < 7"]]'),
+        ],
+        "picture": [
+            ("Here is 40 on the number line, between the two squares. The line runs "
+             "from 36, which is 6 squared, to 49, which is 7 squared — and 40 sits much "
+             "nearer the 36 end. So its root sits much nearer 6.",
+             '[[numberline min="36" max="49" points="40" caption="40 between 36 (6²) and 49 (7²) — nearer 36"]]'),
+        ],
         "teach": [
-            ["Most numbers are not perfect squares — but their roots still live somewhere. The square root of 40 is not whole; it sits between two whole numbers, because 40 sits between two perfect squares: 36 and 49. Root of 36 is 6, root of 49 is 7 — so root 40 lives between 6 and 7.",
-             '[[goal text="Between the squares"]][[step eq="36 < 40 < 49"]][[step eq="6 < √40 < 7"]]'],
-            ["Which is it closer to? Measure in the world of squares: 40 sits 4 past 36, and 9 short of 49. It leans toward 36 — so the root of 40 is closest to 6. Square the neighbours, then see who is nearer.",
-             '[[step eq="40 − 36 = 4 · 49 − 40 = 9"]][[step eq="√40 → closest to 6"]]'],
-            ["Two traps. First, leaning the wrong way: 7 is a neighbour, but it is the far one here. Second, the oldest trap in the unit, halving. Half of 40 is 20, and 20 times 20 is 400, absurdly far. The root of a number near 40 is small — squares grow FAST. Neighbours first, half never.",
-             '[[step eq="√40 → 6 ✓"]][[step eq="7 ✗ the far neighbour · 20 ✗ the halving habit"]]'],
+            ("That is the method. Which is it closer to? Measure in the world of "
+             "squares: 40 sits 4 past 36, and 9 short of 49. It leans toward 36 — so "
+             "the root of 40 is closest to 6. Square the neighbours, then see who is "
+             "nearer.",
+             '[[numberline min="36" max="49" points="40" hops="36,40" caption="40 − 36 = 4 · 49 − 40 = 9 — nearer 36, so √40 → 6"]][[step eq="40 − 36 = 4 · 49 − 40 = 9"]][[step eq="√40 → closest to 6"]]'),
+            ("Two traps. First, leaning the wrong way: 7 is a neighbour, but it is the "
+             "far one here. Second, the oldest trap in the unit, halving. Half of 40 is "
+             "20, and 20 times 20 is 400, absurdly far. The root of a number near 40 "
+             "is small — squares grow FAST. Neighbours first, half never.",
+             '[[step eq="√40 → 6 ✓"]][[step eq="7 ✗ the far neighbour · 20 ✗ the halving habit"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Root of 90: between 81 and 100, so between 9 and 10 — and 90 is 9 past 81, 10 short of 100: closest to 9.",
-                        '[[step eq="81 < 90 < 100 → √90 → 9"]]'],
-             "ask": {"a": 20, "b": 0, "op": "rbet"}},
-            {"worked": ["One more together. Root of 30: between 25 and 36, and 30 leans toward 25 — closest to 5.",
-                        '[[step eq="25 < 30 < 36 → √30 → 5"]]'],
-             "ask": {"a": 84, "b": 0, "op": "rbet"}},
+            {"worked": ("Here is one more, done for you. Root of 90: between 81 and 100, so "
+                        "between 9 and 10 — and 90 is 9 past 81, 10 short of 100: closest "
+                        "to 9.",
+                        '[[numberline min="81" max="100" points="90" hops="81,90" caption="90 − 81 = 9 · 100 − 90 = 10 — nearer 81, so √90 → 9"]][[step eq="81 < 90 < 100 → √90 → 9"]]'),
+             "ask": {'a': 20, 'b': 0, 'op': 'rbet'}},
+            {"worked": ("One more together. Root of 30: between 25 and 36, and 30 leans "
+                        "toward 25 — closest to 5.",
+                        '[[numberline min="25" max="36" points="30" hops="25,30" caption="30 − 25 = 5 · 36 − 30 = 6 — nearer 25, so √30 → 5"]][[step eq="25 < 30 < 36 → √30 → 5"]]'),
+             "ask": {'a': 84, 'b': 0, 'op': 'rbet'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The square root of "
+                       "40 is closest to 6. Tap the reason why."),
+            "choices": ("because 40 sits nearer 36 than 49 | because 40 sits nearer 49 "
+                        "than 36 | because half of 40 lands close to 6"),
+            "answer": "because 40 sits nearer 36 than 49",
+            "board": '[[numberline min="36" max="49" points="40" hops="36,40" caption="nearer 36, so √40 → 6"]]',
+        },
+        "recap": [
+            ("So, here it is again. A root that is not whole lives between two whole "
+             "numbers — the roots of the two perfect squares around it. Square the "
+             "neighbours, see which square the number sits nearer, and that neighbour "
+             "is the closest root. Never halve.",
+             '[[numberline min="36" max="49" points="40" caption="square the neighbours, then see who is nearer"]]'),
+            ("And that is a ragged root, placed.",
+             '[[step eq="6 < √40 < 7 → closest to 6"]]'),
+        ],
         "bank": [
             {"a": 12, "b": 0, "op": "rbet"},
             {"a": 18, "b": 0, "op": "rbet"},
@@ -16524,24 +16868,62 @@ _ALGEBRA2_U6 = [
         "op": "hlfl", "max_value": 96,
         "levels": ("abstract",),
         "symbols": ("halves", "decay"),
-        "advance_line": "Three in a row — you've got it! A divide each day, never a take away.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A divide each day, never a take away.",
+        "why": [
+            ("Why the fading half? Because the doubling pond had a shadow. Some things "
+             "grow by times — and some things FADE by times: a medicine in the blood, "
+             "a hot drink\'s extra warmth, a radioactive speck. Each day the sample "
+             "halves — it drops to half of whatever it was. That fading-by-times has a "
+             "name: decay.",
+             '[[goal text="The fading half"]]'),
+        ],
+        "picture": [
+            ("Here is a sample of 48 grams fading day by day as bars: 48, then 24, then "
+             "12, then 6. Each bar is half the one before it. Look how fast the bars "
+             "shrink at the start and how small they are by day three.",
+             '[[bars data="day 0:48 | day 1:24 | day 2:12 | day 3:6" caption="48 → 24 → 12 → 6 — each bar is half the one before"]]'),
+        ],
         "teach": [
-            ["The doubling pond had a shadow. Some things grow by times — and some things FADE by times: a medicine in the blood, a hot drink's extra warmth, a radioactive speck. Each day the sample halves — it drops to half of whatever it was. That fading-by-times has a name: decay.",
-             '[[goal text="The fading half"]][[step eq="whole → half → quarter → eighth"]]'],
-            ["A sample of 48 grams halves for 3 days: 48 to 24, 24 to 12, 12 to 6. Three days, three divides — and dividing by 2 three times is dividing by 8. Big numbers fall FAST when the fall is a times.",
-             '[[step eq="48 → 24 → 12 → 6"]][[step eq="48 ÷ 8 = 6"]]'],
-            ["The trap is the linear faller — the doubling pond's old enemy, walking downhill. Down by 2 each day gives 48, 46, 44: after 3 days, 42 — barely a dent. Halving is a DIVIDE each day, never a take away. And one halving is not three: keep dividing until the days run out.",
-             '[[step eq="48 ÷ 2 ÷ 2 ÷ 2 = 6 ✓"]][[step eq="48 − 6 = 42 ✗ the linear faller · 24 ✗ one day only"]]'],
+            ("That is the method. A sample of 48 grams halves for 3 days: 48 to 24, 24 "
+             "to 12, 12 to 6. Three days, three divides — and dividing by 2 three times "
+             "is dividing by 8. Big numbers fall FAST when the fall is a times.",
+             '[[bars data="day 0:48 | day 1:24 | day 2:12 | day 3:6" caption="three divides: 48 ÷ 8 = 6"]][[step eq="48 → 24 → 12 → 6"]][[step eq="48 ÷ 8 = 6"]]'),
+            ("The trap is the linear faller — the doubling pond\'s old enemy, walking "
+             "downhill. Down by 2 each day gives 48, 46, 44: after 3 days, 42 — barely a "
+             "dent. Halving is a DIVIDE each day, never a take away. And one halving is "
+             "not three: keep dividing until the days run out.",
+             '[[step eq="48 ÷ 2 ÷ 2 ÷ 2 = 6 ✓"]][[step eq="48 − 6 = 42 ✗ the linear faller · 24 ✗ one day only"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 40 grams, halving for 3 days: 40, 20, 10, 5 — five grams are left.",
-                        '[[step eq="40 ÷ 2 ÷ 2 ÷ 2 = 5"]]'],
-             "ask": {"a": 24, "b": 3, "op": "hlfl"}},
-            {"worked": ["One more together. 56 grams for 2 days: 56 to 28 to 14.",
-                        '[[step eq="56 ÷ 2 ÷ 2 = 14"]]'],
-             "ask": {"a": 64, "b": 2, "op": "hlfl"}},
+            {"worked": ("Here is one more, done for you. 40 grams, halving for 3 days: 40, "
+                        "20, 10, 5 — five grams are left.",
+                        '[[bars data="day 0:40 | day 1:20 | day 2:10 | day 3:5" caption="40 → 20 → 10 → 5"]][[step eq="40 ÷ 2 ÷ 2 ÷ 2 = 5"]]'),
+             "ask": {'a': 24, 'b': 3, 'op': 'hlfl'}},
+            {"worked": ("One more together. 56 grams for 2 days: 56 to 28 to 14.",
+                        '[[bars data="day 0:56 | day 1:28 | day 2:14" caption="56 → 28 → 14"]][[step eq="56 ÷ 2 ÷ 2 = 14"]]'),
+             "ask": {'a': 64, 'b': 2, 'op': 'hlfl'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A sample of 48 grams "
+                       "halves every day, and after 3 days 6 grams are left. Tap the "
+                       "reason why."),
+            "choices": ("because halving is a divide by 2, done three times | because "
+                        "halving is a take away of 2, done three times | because "
+                        "halving happens once, however many days pass"),
+            "answer": "because halving is a divide by 2, done three times",
+            "board": '[[bars data="day 0:48 | day 1:24 | day 2:12 | day 3:6" caption="48 ÷ 2 ÷ 2 ÷ 2 = 6"]]',
+        },
+        "recap": [
+            ("So, here it is again. Decay is fading by times: each day the sample "
+             "drops to half of whatever it was — a divide by 2, once for every day, "
+             "never a take away. Keep dividing until the days run out.",
+             '[[bars data="day 0:48 | day 1:24 | day 2:12 | day 3:6" caption="a divide each day"]]'),
+            ("And that is the doubling pond\'s shadow.",
+             '[[step eq="48 ÷ 2 ÷ 2 ÷ 2 = 6"]]'),
+        ],
         "bank": [
             {"a": 16, "b": 2, "op": "hlfl"},
             {"a": 16, "b": 3, "op": "hlfl"},
@@ -16562,24 +16944,63 @@ _ALGEBRA2_U6 = [
         "op": "logb", "max_value": 1024,
         "levels": ("abstract",),
         "symbols": ("logarithm", "power"),
-        "advance_line": "Three in a row — you've got it! The logarithm is the hidden exponent.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The logarithm is the hidden exponent.",
+        "why": [
+            ("Why hidden? Because every power question can turn around. Forward: 3 to "
+             "the power 4 is 81. Backwards: 3 raised to WHAT equals 27? Count the "
+             "threes: 3 times 3 times 3 — three of them. That backwards question is one "
+             "of the great tools of mathematics, and its answer has a name: the "
+             "logarithm.",
+             '[[goal text="The hidden exponent"]][[step eq="3^? = 27"]][[step eq="? = 3"]]'),
+        ],
+        "picture": [
+            ("Here are the layers of 3 as bars: one 3 is 3, two 3\'s stacked make 9, "
+             "three 3\'s stacked make 27. Count the bars it took to reach 27 — three. "
+             "That count is the logarithm.",
+             '[[bars data="3¹:3 | 3²:9 | 3³:27" caption="three layers of 3 reach 27 — the logarithm is 3"]]'),
+        ],
         "teach": [
-            ["Every power question can turn around. Forward: 3 to the power 4 is 81. Backwards: 3 raised to WHAT equals 27? Count the threes: 3 times 3 times 3 — three of them. That backwards question is one of the great tools of mathematics, and its answer has a name: the logarithm.",
-             '[[goal text="The hidden exponent"]][[step eq="3^? = 27"]] [[step eq="? = 3"]]'],
-            ["The logarithm is the hidden exponent — nothing more. 10 raised to what equals 100? Two tens: the logarithm is 2. The value can be enormous while the logarithm stays tiny; that smallness is its whole power, and why earthquakes and sound are measured in logs.",
-             '[[step eq="10^? = 100"]] [[step eq="? = 2"]][[step eq="the log counts the layers"]]'],
-            ["Two traps. Dividing by the base — 27 divided by 3 is 9 — peels ONE layer, then stops; the logarithm counts ALL the layers. And the base itself — the 3 you were handed — is the brick, not the count of bricks. Count how many times the base stacks, and answer with the count.",
-             '[[step eq="3^3 = 27"]] [[step eq="log is 3 ✓"]][[step eq="9 ✗ one divide, not the count · 3 as the base ✗ the brick, not the stack"]]'],
+            ("That is the method. The logarithm is the hidden exponent — nothing more. "
+             "10 raised to what equals 100? Two tens: the logarithm is 2. The value can "
+             "be enormous while the logarithm stays tiny; that smallness is its whole "
+             "power, and why earthquakes and sound are measured in logs.",
+             '[[bars data="10¹:10 | 10²:100" caption="two layers of 10 reach 100 — the logarithm is 2"]][[step eq="10^? = 100"]][[step eq="? = 2"]][[step eq="the log counts the layers"]]'),
+            ("Two traps. Dividing by the base — 27 divided by 3 is 9 — peels ONE "
+             "layer, then stops; the logarithm counts ALL the layers. And the base "
+             "itself — the 3 you were handed — is the brick, not the count of bricks. "
+             "Count how many times the base stacks, and answer with the count.",
+             '[[step eq="3^3 = 27"]][[step eq="log is 3 ✓"]][[step eq="9 ✗ one divide, not the count · 3 as the base ✗ the brick, not the stack"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 2 raised to what equals 8? 2, 4, 8 — three doublings: the logarithm is 3.",
-                        '[[step eq="2^3 = 8"]] [[step eq="log = 3"]]'],
-             "ask": {"a": 8, "b": 2, "c": 3, "op": "logb"}},
-            {"worked": ["One more together. 10 raised to what equals 1000? Three tens stacked — 3.",
-                        '[[step eq="10^3 = 1000"]] [[step eq="log = 3"]]'],
-             "ask": {"a": 1000, "b": 10, "c": 3, "op": "logb"}},
+            {"worked": ("Here is one more, done for you. 5 raised to what equals 125? 5, "
+                        "25, 125 — three layers of 5: the logarithm is 3.",
+                        '[[bars data="5¹:5 | 5²:25 | 5³:125" caption="three layers of 5 reach 125 — log = 3"]][[step eq="5^3 = 125"]][[step eq="log = 3"]]'),
+             "ask": {'a': 8, 'b': 2, 'c': 3, 'op': 'logb'}},
+            {"worked": ("One more together. 10 raised to what equals 10,000? Four tens "
+                        "stacked — 4.",
+                        '[[bars data="10¹:10 | 10²:100 | 10³:1000 | 10⁴:10000" caption="four layers of 10 reach 10,000 — log = 4"]][[step eq="10^4 = 10000"]][[step eq="log = 4"]]'),
+             "ask": {'a': 1000, 'b': 10, 'c': 3, 'op': 'logb'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 raised to what "
+                       "power equals 27? The logarithm is 3. Tap the reason why."),
+            "choices": ("because three layers of 3 stack up to 27 | because 27 divided by "
+                        "3 is the logarithm | because the base, 3, is the logarithm"),
+            "answer": "because three layers of 3 stack up to 27",
+            "board": '[[bars data="3¹:3 | 3²:9 | 3³:27" caption="3^3 = 27 — log = 3"]]',
+        },
+        "recap": [
+            ("So, here it is again. A logarithm is a power question turned around: the "
+             "base raised to what gives the value? Count how many times the base "
+             "stacks, and answer with the count — not one divide, and not the base "
+             "itself.",
+             '[[bars data="3¹:3 | 3²:9 | 3³:27" caption="the log counts the layers"]]'),
+            ("And that is the hidden exponent, found.",
+             '[[step eq="3^3 = 27 · log = 3"]]'),
+        ],
         "bank": [
             {"a": 16, "b": 2, "c": 4, "op": "logb"},
             {"a": 32, "b": 2, "c": 5, "op": "logb"},
@@ -16600,24 +17021,63 @@ _ALGEBRA2_U6 = [
         "op": "logm", "max_value": 128,
         "levels": ("abstract",),
         "symbols": ("logarithm", "product"),
-        "advance_line": "Three in a row — you've got it! When values times, their logs put together.",
+        "advance_line": "Three in a row, and you can say why — you've got it! When values times, their logs put together.",
+        "why": [
+            ("Why do logs add? Because the logarithm has one great law, and you have "
+             "met its family twice: powers add when values times, and degrees add when "
+             "polynomials times. Now the logarithm — which IS a hidden exponent — obeys "
+             "the same music: the log of a product is the logs, put together.",
+             '[[goal text="Logs add"]][[step eq="log(a · b) = log a + log b"]]'),
+        ],
+        "picture": [
+            ("Here are two stacks of doublings as bars, base 2: the log of 2 is 1 — "
+             "one doubling — and the log of 16 is 4 — four doublings. Join the two "
+             "stacks and you get a stack of five: the log of 32, which is 2 times 16.",
+             '[[bars data="log 2:1 | log 16:4 | log 32:5" caption="one doubling joined with four doublings is five — log 32 = 5"]]'),
+        ],
         "teach": [
-            ["The logarithm has one great law, and you have met its family twice: powers add when values times, and degrees add when polynomials times. Now the logarithm — which IS a hidden exponent — obeys the same music: the log of a product is the logs, put together.",
-             '[[goal text="Logs add"]][[step eq="log(a · b) = log a + log b"]]'],
-            ["Base 2: the log of 2 is 1, and the log of 16 is 4. Their product is 2 times 16 — 32. Stack it: one doubling joined with four doublings is five doublings, so the log of 32 is 1 plus 4 — 5. Check: 2 to the 5 is 32. True.",
-             '[[step eq="log 2 = 1 · log 16 = 4"]][[step eq="log 32 = 1 + 4 = 5 ✓"]]'],
-            ["Two traps. Multiplying the logs — 1 times 4 — treats the counts like values; but logs are COUNTS of layers, and joined stacks add their counts. And adding the values — 2 plus 16 is 18 — mixes the two worlds entirely. Values times; logs add. Never both at once.",
-             '[[step eq="log(2 · 16) = 1 + 4 = 5 ✓"]][[step eq="1 × 4 = 4 ✗ counts add · 2 + 16 = 18 ✗ wrong world"]]'],
+            ("That is the method. Base 2: the log of 2 is 1, and the log of 16 is 4. "
+             "Their product is 2 times 16 — 32. Stack it: one doubling joined with four "
+             "doublings is five doublings, so the log of 32 is 1 plus 4 — 5. Check: 2 "
+             "to the 5 is 32. True.",
+             '[[bars data="log 2:1 | log 16:4 | log 32:5" caption="1 + 4 = 5"]][[step eq="log 2 = 1 · log 16 = 4"]][[step eq="log 32 = 1 + 4 = 5 ✓"]]'),
+            ("Two traps. Multiplying the logs — 1 times 4 — treats the counts like "
+             "values; but logs are COUNTS of layers, and joined stacks add their "
+             "counts. And adding the values — 2 plus 16 is 18 — mixes the two worlds "
+             "entirely. Values times; logs add. Never both at once.",
+             '[[step eq="log(2 · 16) = 1 + 4 = 5 ✓"]][[step eq="1 × 4 = 4 ✗ counts add · 2 + 16 = 18 ✗ wrong world"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Log of 4 is 2, log of 8 is 3; 4 times 8 is 32, and its log is 2 plus 3 — 5.",
-                        '[[step eq="log 32 = 2 + 3 = 5"]]'],
-             "ask": {"a": 4, "b": 64, "op": "logm"}},
-            {"worked": ["One more together. Log of 64 is 6, log of 128 is 7 — the log of their product is 13.",
-                        '[[step eq="6 + 7 = 13"]]'],
-             "ask": {"a": 16, "b": 128, "op": "logm"}},
+            {"worked": ("Here is one more, done for you. Log of 2 is 1, log of 64 is 6; 2 "
+                        "times 64 is 128, and its log is 1 plus 6 — 7.",
+                        '[[bars data="log 2:1 | log 64:6 | log 128:7" caption="1 + 6 = 7"]][[step eq="log 128 = 1 + 6 = 7"]]'),
+             "ask": {'a': 4, 'b': 64, 'op': 'logm'}},
+            {"worked": ("One more together. Log of 64 is 6, log of 128 is 7 — the log of "
+                        "their product is 13.",
+                        '[[bars data="log 64:6 | log 128:7 | log 8192:13" caption="6 + 7 = 13"]][[step eq="6 + 7 = 13"]]'),
+             "ask": {'a': 16, 'b': 128, 'op': 'logm'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The log of 2 is 1 "
+                       "and the log of 16 is 4, so the log of 32 is 5. Tap the reason "
+                       "why."),
+            "choices": ("because joined stacks add their counts of doublings | because "
+                        "joined stacks times their counts of doublings | because the "
+                        "values 2 and 16 are added"),
+            "answer": "because joined stacks add their counts of doublings",
+            "board": '[[bars data="log 2:1 | log 16:4 | log 32:5" caption="values times; logs add"]]',
+        },
+        "recap": [
+            ("So, here it is again. A logarithm counts layers, and when two values are "
+             "timesed their stacks of layers join — so the log of the product is the "
+             "two logs added. Values times; logs add; never both at once.",
+             '[[bars data="log 2:1 | log 16:4 | log 32:5" caption="log(2 · 16) = 1 + 4"]]'),
+            ("And that is the logarithm\'s one great law.",
+             '[[step eq="log(a · b) = log a + log b"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 8, "op": "logm"},
             {"a": 4, "b": 16, "op": "logm"},
@@ -16638,24 +17098,62 @@ _ALGEBRA2_U6 = [
         "op": "lbet", "max_value": 120,
         "levels": ("abstract",),
         "symbols": ("logarithm", "between"),
-        "advance_line": "Three in a row — you've got it! Power the neighbours, then see who is nearer.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Power the neighbours, then see who is nearer.",
+        "why": [
+            ("Why between the powers? Because most numbers are not perfect powers — "
+             "but their logarithms still live somewhere, exactly as ragged roots lived "
+             "between the squares. Take the logarithm, base 2, of 18: 18 is not a power "
+             "of 2, but it sits between 16 and 32 — between 2 to the 4 and 2 to the 5. "
+             "So its log lives between 4 and 5.",
+             '[[goal text="Between the powers"]][[step eq="16 < 18 < 32"]][[step eq="4 < log 18 < 5"]]'),
+        ],
+        "picture": [
+            ("Here are the two powers and the number between them as bars: 16, then "
+             "18, then 32. The 18 bar is barely taller than the 16 bar and far short of "
+             "the 32 bar — it leans hard toward 16.",
+             '[[bars data="2⁴:16 | 18:18 | 2⁵:32" caption="18 between the powers 16 and 32 — nearer 16"]]'),
+        ],
         "teach": [
-            ["Most numbers are not perfect powers — but their logarithms still live somewhere, exactly as ragged roots lived between the squares. Take the logarithm, base 2, of 18: 18 is not a power of 2, but it sits between 16 and 32 — between 2 to the 4 and 2 to the 5. So its log lives between 4 and 5.",
-             '[[goal text="Between the powers"]][[step eq="16 < 18 < 32"]][[step eq="4 < log 18 < 5"]]'],
-            ["Which is it closer to? 18 sits 2 past 16, and 14 short of 32 — it leans hard toward 16, so the log of 18 is closest to 4. Same move as the squares: power the neighbours, then see who is nearer.",
-             '[[step eq="18 − 16 = 2 · 32 − 18 = 14"]][[step eq="log 18 → closest to 4"]]'],
-            ["The traps repeat their old shapes: 5 is the far neighbour here. And halving — 18 divided by 2 is 9 — is not a logarithm; 2 to the 9 is 512, absurdly past 18. Logs count layers, and layers pile up FAST. Neighbours first, half never.",
-             '[[step eq="log 18 → 4 ✓"]][[step eq="5 ✗ the far neighbour · 9 ✗ the halving habit"]]'],
+            ("That is the method. Which is it closer to? 18 sits 2 past 16, and 14 "
+             "short of 32 — it leans hard toward 16, so the log of 18 is closest to 4. "
+             "Same move as the squares: power the neighbours, then see who is nearer.",
+             '[[bars data="2⁴:16 | 18:18 | 2⁵:32" caption="18 − 16 = 2 · 32 − 18 = 14 — nearer 16, so log 18 → 4"]][[step eq="18 − 16 = 2 · 32 − 18 = 14"]][[step eq="log 18 → closest to 4"]]'),
+            ("The traps repeat their old shapes: 5 is the far neighbour here. And "
+             "halving — 18 divided by 2 is 9 — is not a logarithm; 2 to the 9 is 512, "
+             "absurdly past 18. Logs count layers, and layers pile up FAST. Neighbours "
+             "first, half never.",
+             '[[step eq="log 18 → 4 ✓"]][[step eq="5 ✗ the far neighbour · 9 ✗ the halving habit"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Log base 2 of 40: between 32 and 64, so between 5 and 6 — and 40 leans toward 32: closest to 5.",
-                        '[[step eq="32 < 40 < 64 → log 40 → 5"]]'],
-             "ask": {"a": 17, "b": 0, "op": "lbet"}},
-            {"worked": ["One more together. Log base 2 of 26: it sits 10 past 16 and only 6 short of 32 — closest to 5.",
-                        '[[step eq="16 < 26 < 32 → log 26 → 5"]]'],
-             "ask": {"a": 90, "b": 0, "op": "lbet"}},
+            {"worked": ("Here is one more, done for you. Log base 2 of 40: between 32 and "
+                        "64, so between 5 and 6 — and 40 leans toward 32: closest to 5.",
+                        '[[bars data="2⁵:32 | 40:40 | 2⁶:64" caption="40 − 32 = 8 · 64 − 40 = 24 — nearer 32, so log 40 → 5"]][[step eq="32 < 40 < 64 → log 40 → 5"]]'),
+             "ask": {'a': 17, 'b': 0, 'op': 'lbet'}},
+            {"worked": ("One more together. Log base 2 of 26: it sits 10 past 16 and only "
+                        "6 short of 32 — closest to 5.",
+                        '[[bars data="2⁴:16 | 26:26 | 2⁵:32" caption="26 − 16 = 10 · 32 − 26 = 6 — nearer 32, so log 26 → 5"]][[step eq="16 < 26 < 32 → log 26 → 5"]]'),
+             "ask": {'a': 90, 'b': 0, 'op': 'lbet'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The logarithm base "
+                       "2 of 18 is closest to 4. Tap the reason why."),
+            "choices": ("because 18 sits nearer 16 than 32 | because 18 sits nearer 32 "
+                        "than 16 | because half of 18 lands near 4"),
+            "answer": "because 18 sits nearer 16 than 32",
+            "board": '[[bars data="2⁴:16 | 18:18 | 2⁵:32" caption="nearer 16, so log 18 → 4"]]',
+        },
+        "recap": [
+            ("So, here it is again. A logarithm that is not whole lives between the "
+             "logs of the two powers around its number. Power the neighbours, see which "
+             "power the number sits nearer, and that neighbour is the closest log. "
+             "Never halve.",
+             '[[bars data="2⁴:16 | 18:18 | 2⁵:32" caption="power the neighbours, then see who is nearer"]]'),
+            ("And that is a ragged logarithm, placed.",
+             '[[step eq="4 < log 18 < 5 → closest to 4"]]'),
+        ],
         "bank": [
             {"a": 13, "b": 0, "op": "lbet"},
             {"a": 20, "b": 0, "op": "lbet"},
@@ -25870,6 +26368,220 @@ def _pval_worked(p):
 
 
 
+# ---- (tm, 2026-09-06) ALGEBRA 2 UNITS 4-6: the sharing curve with its point marked,
+# the machine run backwards (its input blank), the jammed machine and the curve that
+# flies off, the level line the curve settles toward, the square that two roots make,
+# the root beside the half, the machine that undoes a root, the number between two
+# squares on the line, the sample fading on the bars, the layers stacked as bars, the
+# logs added, the number between two powers. Every ask draws its question with the
+# answer withheld; every walk-back draws it filled in.
+def _rdiv_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph func="{a}/x" range="0..{a + 2}" caption="y = {a} ÷ x — the sharing curve; read it at x = {b}"]]'
+            f'[[step eq="y = {a} ÷ x"]]'
+            f'[[step eq="x = {b}: {a} ÷ {b} = ?"]]')
+
+
+def _rdiv_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: {a} shared among {b} is {a} divided by {b}, which equals "
+            f"{a // b}. The word is DIVIDED — not take away, not times. The bigger the "
+            f"crowd, the smaller each share.",
+            f'[[graph func="{a}/x" points="({b},{a // b})" range="0..{a + 2}" caption="at x = {b}, y = {a} ÷ {b} = {a // b}"]]'
+            f'[[step eq="{a} ÷ {b} = {a // b}"]]')
+
+
+def _rsol_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[machine input="?" rule="{a} ÷ x" output="{b}" caption="the machine ran backwards — which x went in to give {b}?"]]'
+            f'[[step eq="{a} ÷ x = {b}"]]'
+            f'[[step eq="x · {b} = {a}"]]'
+            f'[[step eq="x = ?"]]')
+
+
+def _rsol_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: x times {b} must rebuild {a}, so x is {a} divided by {b} — "
+            f"{a // b}. Check it forward: {a} divided by {a // b} is {b}. Rebuild, then "
+            f"divide; times is not this undo.",
+            f'[[machine input="{a // b}" rule="{a} ÷ x" output="{b}" caption="x = {a} ÷ {b} = {a // b} — check: {a} ÷ {a // b} = {b}"]]'
+            f'[[step eq="x = {a} ÷ {b} = {a // b}"]]')
+
+
+def _excl_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[machine input="?" rule="{b} ÷ (x − {a})" output="jammed" caption="one x jams the machine — the bottom turns to zero; which x?"]]'
+            f'[[step eq="y = {b} ÷ (x − {a})"]]'
+            f'[[step eq="the bottom hits zero when x = ?"]]')
+
+
+def _excl_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the bottom, x take away {a}, is zero exactly at x equals "
+            f"{a} — and dividing by zero is the one thing mathematics never allows. Look at "
+            f"the curve: it flies off at x equals {a} and never lands. Every other x is "
+            f"welcome.",
+            f'[[graph func="{b}/(x-{a})" range="{a - 4}..{a + 4}" yrange="-12..12" caption="y = {b} ÷ (x − {a}) — the curve flies off at x = {a}: the forbidden x"]]'
+            f'[[step eq="x − {a} = 0"]][[step eq="x = {a} forbidden"]]')
+
+
+def _rasy_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph func="({a}*x+{b})/x" range="0..20" caption="y = ({a}x + {b}) ÷ x — as x grows huge, the curve flattens toward what?"]]'
+            f'[[step eq="y = ({a}x + {b}) ÷ x"]]'
+            f'[[step eq="split it: the fading part dies · y settles at ?"]]')
+
+
+def _rasy_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: split the top — {a} x over x is just {a}, and {b} over x "
+            f"is the fading part. As x grows huge the {b} share dies toward zero and the "
+            f"{a} stands untouched: y settles toward {a}, the level line.",
+            f'[[graph func="({a}*x+{b})/x" lines="y={a}" range="0..20" caption="y = {a} + {b} ÷ x — the fading part dies, y settles toward the line y = {a}"]]'
+            f'[[step eq="y = {a} + {b} ÷ x"]][[step eq="settles at {a}"]]')
+
+
+def _sq_figure(k, total, cap):
+    """The square k by k: an array up to 10, a rectangle up to 20, bars beyond."""
+    if k <= 10:
+        return f'[[array rows="{k}" cols="{k}" caption="{cap}"]]'
+    if k <= 20:
+        return f'[[rectangle w="{k}" h="{k}" caption="{cap}"]]'
+    return f'[[bars data="{k} × {k}:{total}" caption="{cap}"]]'
+
+
+def _rmul_worked(p):
+    a, b = p["a"], p["b"]
+    k = round((a * b) ** 0.5)
+    return (f"Look what you did: under one roof, {a} times {b} is {a * b} — and {a * b} is "
+            f"a perfect square: {k} times {k}. Two ragged roots, one clean answer, {k}. "
+            f"Not {a * b}, still under the roof; and roots never add.",
+            _sq_figure(k, a * b, f"√{a} · √{b} = √{a * b} — and {a * b} is {k} × {k}")
+            + f'[[step eq="√{a} · √{b} = √{a * b} = {k}"]]')
+
+
+def _rpow_worked(p):
+    a = p["a"]
+    k = round(a ** 0.5)
+    return (f"Look what you did: a one-half power is a square root, never a halving. The "
+            f"root of {a} is {k}, because {k} times {k} is {a}. Half of {a} would be "
+            f"{a // 2} — and {a // 2} times itself is nowhere near {a}.",
+            f'[[bars data="√{a} = {k}:{k} | half of {a}:{a // 2}" caption="the root, {k}, beside the halving trap, {a // 2}"]]'
+            f'[[step eq="{a}^½ = √{a} = {k}"]]')
+
+
+def _rsq_board(p):
+    a = p["a"]
+    return (f'[[machine input="?" rule="√x" output="{a}" caption="something, rooted, gave {a} — which x went in?"]]'
+            f'[[step eq="√x = {a}"]]'
+            f'[[step eq="undo the root: x = ?"]]')
+
+
+def _rsq_worked(p):
+    a = p["a"]
+    return (f"Look what you did: the root\'s undo is the square. {a} times {a} equals "
+            f"{a * a}, so x is {a * a}. Check it forward: the square root of {a * a} is "
+            f"{a}. Not double — doubling undoes halving, not rooting.",
+            f'[[machine input="{a * a}" rule="√x" output="{a}" caption="x = {a}² = {a * a} — check: √{a * a} = {a}"]]'
+            + _sq_figure(a, a * a, f"{a} × {a} = {a * a}")
+            + f'[[step eq="x = {a}² = {a * a}"]]')
+
+
+def _rbet_board(p):
+    a = p["a"]
+    lo = int(a ** 0.5)
+    hi = lo + 1
+    return (f'[[numberline min="{lo * lo}" max="{hi * hi}" points="{a}" caption="{a} between the squares {lo * lo} and {hi * hi} — nearer which one?"]]'
+            f'[[step eq="{lo}² = {lo * lo} · {hi}² = {hi * hi}"]]'
+            f'[[step eq="{a} sits between — closest to?"]]')
+
+
+def _rbet_worked(p):
+    a = p["a"]
+    lo = int(a ** 0.5)
+    hi = lo + 1
+    near = lo if a - lo * lo < hi * hi - a else hi
+    return (f"Look what you did: {a} sits {a - lo * lo} past {lo * lo} and {hi * hi - a} "
+            f"short of {hi * hi}, so it leans toward {near * near} — the root of {a} is "
+            f"closest to {near}. Square the neighbours, then see who is nearer; never "
+            f"halve.",
+            f'[[numberline min="{lo * lo}" max="{hi * hi}" points="{a}" hops="{near * near},{a}" caption="{a} − {lo * lo} = {a - lo * lo} · {hi * hi} − {a} = {hi * hi - a} — nearer {near * near}, so √{a} → {near}"]]'
+            f'[[step eq="√{a} → closest to {near}"]]')
+
+
+def _hlfl_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[bars data="day 0:{a}" caption="{a} grams to start — it halves every day for {b} days"]]'
+            f'[[step eq="{a}' + " ÷ 2" * b + ' = ?"]]')
+
+
+def _hlfl_worked(p):
+    a, b = p["a"], p["b"]
+    days = " | ".join(f"day {d}:{a // 2 ** d}" for d in range(b + 1))
+    chain = " → ".join(str(a // 2 ** d) for d in range(b + 1))
+    return (f"Look what you did: a divide each day, never a take away. {chain} — halving "
+            f"{b} times divides by {2 ** b}, and {a} divided by {2 ** b} equals "
+            f"{a // 2 ** b} grams. Big numbers fall fast when the fall is a times.",
+            f'[[bars data="{days}" caption="{chain}"]]'
+            f'[[step eq="{a} ÷ {2 ** b} = {a // 2 ** b}"]]')
+
+
+def _logb_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[machine input="?" rule="{b} to the power x" output="{a}" caption="how many {b}\'s stack up to {a}? — the hidden exponent"]]'
+            f'[[step eq="{b}^? = {a}"]]')
+
+
+def _logb_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    layers = " | ".join(f"{b}{_sup(i)}:{b ** i}" for i in range(1, c + 1))
+    return (f"Look what you did: count the layers — {b} stacks {c} times to build {a}. "
+            f"The logarithm is the hidden exponent, {c}: the count of the layers, not one "
+            f"divide, and not the base itself.",
+            f'[[bars data="{layers}" caption="{c} layers of {b} reach {a} — the logarithm is {c}"]]'
+            f'[[step eq="{b}^{c} = {a} · log = {c}"]]')
+
+
+def _logm_board(p):
+    a, b = p["a"], p["b"]
+    la, lb = a.bit_length() - 1, b.bit_length() - 1
+    return (f'[[bars data="log {a}:{la} | log {b}:{lb}" caption="two stacks of doublings — {la} and {lb}; join them"]]'
+            f'[[step eq="log {a} = {la} · log {b} = {lb}"]]'
+            f'[[step eq="{a} × {b} = {a * b}"]]'
+            f'[[step eq="log {a * b} = ?"]]')
+
+
+def _logm_worked(p):
+    a, b = p["a"], p["b"]
+    la, lb = a.bit_length() - 1, b.bit_length() - 1
+    return (f"Look what you did: when values times, their logs add. {la} doublings joined "
+            f"with {lb} doublings is {la + lb} doublings — the log of {a * b} is {la} plus "
+            f"{lb}, which equals {la + lb}. Values times; logs add.",
+            f'[[bars data="log {a}:{la} | log {b}:{lb} | log {a * b}:{la + lb}" caption="{la} + {lb} = {la + lb}"]]'
+            f'[[step eq="log {a * b} = {la} + {lb} = {la + lb}"]]')
+
+
+def _lbet_board(p):
+    a = p["a"]
+    lo = a.bit_length() - 1
+    return (f'[[bars data="2{_sup(lo)}:{2 ** lo} | {a}:{a} | 2{_sup(lo + 1)}:{2 ** (lo + 1)}" caption="{a} between the powers {2 ** lo} and {2 ** (lo + 1)} — nearer which one?"]]'
+            f'[[step eq="2^{lo} = {2 ** lo} · 2^{lo + 1} = {2 ** (lo + 1)}"]]'
+            f'[[step eq="{a} sits between — closest to?"]]')
+
+
+def _lbet_worked(p):
+    a = p["a"]
+    lo = a.bit_length() - 1
+    hi = lo + 1
+    near = lo if a - 2 ** lo < 2 ** hi - a else hi
+    return (f"Look what you did: {a} sits {a - 2 ** lo} past {2 ** lo} and {2 ** hi - a} "
+            f"short of {2 ** hi}, so it leans toward {2 ** near} — the logarithm of {a} is "
+            f"closest to {near}. Power the neighbours, then see who is nearer; never halve.",
+            f'[[bars data="2{_sup(lo)}:{2 ** lo} | {a}:{a} | 2{_sup(hi)}:{2 ** hi}" caption="{a} − {2 ** lo} = {a - 2 ** lo} · {2 ** hi} − {a} = {2 ** hi - a} — nearer {2 ** near}, so log {a} → {near}"]]'
+            f'[[step eq="log {a} → closest to {near}"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -29644,10 +30356,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] // p["b"],
         "spoken": lambda p: (f"y equals {p['a']} divided by x. What is y when "
                              f"x equals {p['b']}?"),
-        "board": lambda p: (f'[[graph func="{p["a"]}/x" range="0..'
-                            f'{p["a"] + 2}"]]'
-                            f'[[step eq="y = {p["a"]} ÷ x · x = {p["b"]} '
-                            f'→ ?"]]'),
+        "board": _rdiv_board,         # (tm) the sharing curve, captioned; the divide on its own line
+        "worked": _rdiv_worked,       # (tm) the point marked
         "praise": lambda p: (f"{p['a']} divided by {p['b']} equals "
                              f"{p['a'] // p['b']} — the bigger the x, the "
                              f"smaller the share."),
@@ -29668,8 +30378,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] // p["b"],
         "spoken": lambda p: (f"{p['a']} divided by x equals {p['b']}. What "
                              f"is x?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} ÷ x = {p["b"]}"]]'
-                            f'[[step eq="x · {p["b"]} = {p["a"]} → x = ?"]]'),
+        "board": _rsol_board,         # (tm) the machine run backwards, its input blank
+        "worked": _rsol_worked,       # (tm) the input found and checked
         "praise": lambda p: (f"x times {p['b']} must rebuild {p['a']}, so x "
                              f"is {p['a']} divided by {p['b']} — "
                              f"{p['a'] // p['b']}. Check: "
@@ -29692,8 +30402,8 @@ OP_EXT = {
                              f"{p['a']}. Which x is FORBIDDEN?"),
         # No graph here: the vertical asymptote would sit AT the answer, read
         # straight off the picture. The formula reasoning is the skill.
-        "board": lambda p: (f'[[step eq="y = {p["b"]} ÷ (x − {p["a"]})"]]'
-                            f'[[step eq="the bottom hits zero when x = ?"]]'),
+        "board": _excl_board,         # (tm) the jammed machine, captioned (no curve: the pole sits at the answer)
+        "worked": _excl_worked,       # (tm) the curve flying off at the forbidden x
         "praise": lambda p: (f"x take away {p['a']} is zero exactly at x "
                              f"equals {p['a']} — and dividing by zero is the "
                              f"one thing mathematics never allows. Every "
@@ -29715,11 +30425,8 @@ OP_EXT = {
         # The board shows the UNSPLIT form -- splitting it is the skill (the
         # para/lg rule: never do the child's job on the board). The graph's
         # flattening is fair to read, like sys1's crossing.
-        "board": lambda p: (f'[[graph func="({p["a"]}*x+{p["b"]})/x" '
-                            f'range="0..20"]]'
-                            f'[[step eq="y = ({p["a"]}x + {p["b"]}) ÷ x"]]'
-                            f'[[step eq="split it: which part survives? '
-                            f'y → ?"]]'),
+        "board": _rasy_board,         # (tm) the curve, captioned
+        "worked": _rasy_worked,       # (tm) the level line drawn
         "praise": lambda p: (f"Split it: {p['a']} plus {p['b']} divided by x. "
                              f"The {p['b']} share dies away as x grows; the "
                              f"{p['a']} stays — y settles toward {p['a']}."),
@@ -29747,6 +30454,7 @@ OP_EXT = {
         # RAW givens only (the para/rasy rule): combining under one roof is the
         # skill, so the board must not do it.
         "board": lambda p: (f'[[step eq="√{p["a"]} · √{p["b"]} = ?"]]'),
+        "worked": _rmul_worked,       # (tm) the square the two roots make (walk-back only: its side is the answer)
         "praise": lambda p: (f"Under one roof: {p['a']} times {p['b']} is "
                              f"{p['a'] * p['b']}, and "
                              f"{round((p['a'] * p['b']) ** 0.5)} times itself "
@@ -29775,6 +30483,7 @@ OP_EXT = {
         # RAW givens only: translating the fraction power into a root IS the
         # skill -- the board must not translate it.
         "board": lambda p: (f'[[step eq="{p["a"]} to the ½ power = ?"]]'),
+        "worked": _rpow_worked,       # (tm) the root beside the halving trap, as bars
         "praise": lambda p: (f"A one-half power is a square root, never a "
                              f"halving: the root of {p['a']} is "
                              f"{round(p['a'] ** 0.5)}."),
@@ -29799,8 +30508,8 @@ OP_EXT = {
                              f"is x?"),
         # The board does NOT name the undo -- choosing the square over the
         # double IS the skill (the para/rasy rule).
-        "board": lambda p: (f'[[step eq="√x = {p["a"]}"]]'
-                            f'[[step eq="undo the root: x = ?"]]'),
+        "board": _rsq_board,          # (tm) the machine that roots, its input blank
+        "worked": _rsq_worked,        # (tm) the input found, the square drawn
         "praise": lambda p: (f"The root's undo is the square: {p['a']} times "
                              f"{p['a']} equals {p['a'] * p['a']}. Check: the "
                              f"square root of {p['a'] * p['a']} is "
@@ -29823,11 +30532,8 @@ OP_EXT = {
         "spoken": lambda p: (f"The square root of {p['a']} is not a whole "
                              f"number — it sits between two. Which whole "
                              f"number is it CLOSEST to?"),
-        "board": lambda p: (lambda lo:
-                            f'[[step eq="{lo}² = {lo * lo} · {lo + 1}² = '
-                            f'{(lo + 1) * (lo + 1)}"]]'
-                            f'[[step eq="{p["a"]} sits between — closest '
-                            f'to?"]]')(int(p["a"] ** 0.5)),
+        "board": _rbet_board,         # (tm) the number between the two squares on the line
+        "worked": _rbet_worked,       # (tm) the nearer square hopped to
         "praise": lambda p: (lambda lo, hi:
                              f"{p['a']} sits {p['a'] - lo * lo} past "
                              f"{lo * lo} and {hi * hi - p['a']} short of "
@@ -29864,8 +30570,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] // (2 ** p["b"]),
         "spoken": lambda p: (f"A sample of {p['a']} grams halves every day. "
                              f"How many grams are left after {p['b']} days?"),
-        "board": lambda p: (f'[[step eq="{p["a"]}'
-                            + " ÷ 2" * p["b"] + ' = ?"]]'),
+        "board": _hlfl_board,         # (tm) the sample to start, captioned
+        "worked": _hlfl_worked,       # (tm) the sample fading day by day on the bars
         "praise": lambda p: (f"Halving {p['b']} times divides by "
                              f"{2 ** p['b']}: {p['a']} divided by "
                              f"{2 ** p['b']} equals "
@@ -29889,7 +30595,8 @@ OP_EXT = {
         "ans": lambda p: p["c"],
         "spoken": lambda p: (f"{p['b']} raised to what power equals "
                              f"{p['a']}?"),
-        "board": lambda p: (f'[[step eq="{p["b"]}^? = {p["a"]}"]]'),
+        "board": _logb_board,         # (tm) the power machine, its exponent blank
+        "worked": _logb_worked,       # (tm) the layers stacked as bars
         "praise": lambda p: (f"{p['b']} multiplied out {p['c']} times builds "
                              f"{p['a']} — the hidden exponent, the logarithm, "
                              f"is {p['c']}."),
@@ -29913,12 +30620,8 @@ OP_EXT = {
                              f"base 2 of {p['b']} is "
                              f"{p['b'].bit_length() - 1}. What is the "
                              f"logarithm base 2 of {p['a'] * p['b']}?"),
-        "board": lambda p: (f'[[step eq="log {p["a"]} = '
-                            f'{p["a"].bit_length() - 1} · log {p["b"]} = '
-                            f'{p["b"].bit_length() - 1}"]]'
-                            f'[[step eq="{p["a"]} × {p["b"]} = '
-                            f'{p["a"] * p["b"]} · log {p["a"] * p["b"]} = '
-                            f'?"]]'),
+        "board": _logm_board,         # (tm) the two stacks as bars, captioned; the product and the blank on two lines
+        "worked": _logm_worked,       # (tm) the stacks joined
         "praise": lambda p: (f"When values times, their logarithms put "
                              f"together: {p['a'].bit_length() - 1} plus "
                              f"{p['b'].bit_length() - 1} equals "
@@ -29951,11 +30654,8 @@ OP_EXT = {
         "spoken": lambda p: (f"The logarithm base 2 of {p['a']} is not a "
                              f"whole number — it sits between two. Which "
                              f"whole number is it CLOSEST to?"),
-        "board": lambda p: (lambda lo:
-                            f'[[step eq="2^{lo} = {2 ** lo} · 2^{lo + 1} = '
-                            f'{2 ** (lo + 1)}"]]'
-                            f'[[step eq="{p["a"]} sits between — closest '
-                            f'to?"]]')(p["a"].bit_length() - 1),
+        "board": _lbet_board,         # (tm) the number between the two powers, as bars
+        "worked": _lbet_worked,       # (tm) the distances named
         "praise": lambda p: (lambda lo:
                              f"{p['a']} sits {p['a'] - 2 ** lo} past "
                              f"{2 ** lo} and {2 ** (lo + 1) - p['a']} short "
