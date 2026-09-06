@@ -2,6 +2,31 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tk -- GEOMETRY UNITS 7-9 TO THE SHAPE (12 lessons). THE COURSE IS
+#               36/36. THIS FILE:
+#                 * Unit 7 (the grid): the up-and-down segment captioned and walked back
+#                   with its steps counted; the slant walked back with the RIGHT TRIANGLE
+#                   drawn under it on the grid and beside it as a [[righttriangle]]; the
+#                   midpoint marked on the walk-back; the three corners captioned (the
+#                   fourth never drawn) and the box closed in the walk-back;
+#                 * Unit 8 (area and volume): the parallelogram DRAWN with its true height
+#                   as a dashed line ([[polygon kind="parallelogram"]], new this build in
+#                   geo-figures.js) and walked back pushed straight into a rectangle; the
+#                   two rooms as two rectangles; the cube ([[solid kind="cube"]]) walked
+#                   back as six faces on the bars; the box with every edge timesed;
+#                 * Unit 9 (chance and counting): the bag as bars, walked back as the
+#                   whole bag on a pie; rain against all the chances, walked back beside
+#                   no rain; the outfit grid as an ARRAY (the area model would print the
+#                   product); the two-way table captioned and read at the crossing.
+#               Trap lines kept in every lesson. ⚠️ every figure ask in the three units
+#               drew with no caption (rule 41, 72 asks: graph, twoway, bars), and the
+#               two-rooms ask's pending line carried the room areas the ask never spoke
+#               (rule 44, 12 asks -- now "a × b + c × b = ?"). ENGINE: OP_EXT vseg/dist/
+#               mid2/corn/para/lshp/surf/svol/poft/notp/outc/twop gain boards and "worked"
+#               (_vseg_* ... _twop_*). Demonstrated numbers kept out of the banks and
+#               pairs (the old straight-up teach used (4, 2)-(4, 7) -- a bank ask -- so
+#               the lesson now teaches on (1, 3)-(1, 8)). "students", never "children",
+#               in the new prose.
 #   2026-09-06  BUILD tj -- GEOMETRY UNITS 4-6 TO THE SHAPE (12 lessons). Jim: "go".
 #               THIS FILE:
 #                 * Unit 4 (similar shapes): the small triangle ABC beside its enlarged
@@ -14196,24 +14221,62 @@ _GEOMETRY_U7 = [
         "op": "vseg", "max_value": 9,
         "levels": ("abstract",),
         "symbols": ("segment", "grid"),
-        "advance_line": "Three in a row — you've got it! Count the steps, never the dots.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Count the steps, never the dots.",
+        "why": [
+            ("Why the grid? Because on a grid every point has an address, and every "
+             "shape can be measured straight from its coordinates. Start with the "
+             "simplest measure — an up-and-down segment. How long is it? Count the "
+             "STEPS between the ends, never the dots.",
+             '[[goal text="Straight up"]]'),
+        ],
+        "picture": [
+            ("Here is a segment standing straight up on the grid, from (1, 3) to (1, "
+             "8). Both ends share the same x, so only the heights differ — and the gap "
+             "between the heights is its length. Walk up from 3 to 8 and you take five "
+             "steps.",
+             '[[graph points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="from (1, 3) straight up to (1, 8) — five steps"]]'),
+        ],
         "teach": [
-            ["A new unit: geometry on the grid, where every point has an address and every shape can be measured straight from its coordinates. Start with the simplest measure — an up-and-down segment. How long is it? Count the STEPS between the ends, never the dots.",
-             '[[goal text="Straight up"]][[graph points="(4,2),(4,7)" range="0..10" yrange="0..10" caption="from (4,2) to (4,7)"]]'],
-            ["The segment runs from (4, 2) up to (4, 7). Its length is the gap between the heights: 7 take away 2, which equals 5. Count the steps to check: 2 to 3, to 4, to 5, to 6, to 7 — five steps.",
-             '[[graph points="(4,2),(4,7)" range="0..10" yrange="0..10" caption="from (4,2) to (4,7)"]][[step eq="7 − 2 = 5"]]'],
-            ["The trap is counting DOTS instead of steps. From 2 to 7 there are six dots but only five steps — a fence with six posts has five rails. Length is the steps. Do the take away, and trust it over your counting finger.",
-             '[[step eq="7 − 2 = 5 ✓ steps"]][[step eq="6 ✗ — that counts the dots, posts instead of rails"]]'],
+            ("That is the method. The segment runs from (1, 3) up to (1, 8). Its "
+             "length is the gap between the heights: 8 take away 3, which equals 5. "
+             "Count the steps to check: 3 to 4, to 5, to 6, to 7, to 8 — five steps.",
+             '[[graph points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="8 − 3 = 5 steps"]][[step eq="8 − 3 = 5"]]'),
+            ("The trap is counting DOTS instead of steps. From 3 to 8 there are six "
+             "dots but only five steps — a fence with six posts has five rails. Length "
+             "is the steps. Do the take away, and trust it over your counting finger.",
+             '[[step eq="8 − 3 = 5 ✓ steps"]][[step eq="6 ✗ — that counts the dots, posts instead of rails"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. From (2, 3) to (2, 9): the length is 9 take away 3 — 6.",
-                        '[[graph points="(2,3),(2,9)" range="0..10" yrange="0..10" caption="from (2,3) to (2,9)"]][[step eq="9 − 3 = 6"]]'],
-             "ask": {"a": 4, "b": 3, "c": 7, "op": "vseg"}},
-            {"worked": ["One more together. From (6, 1) to (6, 5): 5 take away 1 equals 4.",
-                        '[[step eq="5 − 1 = 4"]]'],
-             "ask": {"a": 6, "b": 2, "c": 8, "op": "vseg"}},
+            {"worked": ("Here is one more, done for you. From (2, 3) to (2, 9): the "
+                        "length is 9 take away 3 — 6.",
+                        '[[graph points="(2,3),(2,9)" range="0..10" yrange="0..10" caption="from (2, 3) to (2, 9) — 9 − 3 = 6"]][[step eq="9 − 3 = 6"]]'),
+             "ask": {'a': 4, 'b': 3, 'c': 7, 'op': 'vseg'}},
+            {"worked": ("One more together. From (6, 1) to (6, 5): 5 take away 1 equals "
+                        "4.",
+                        '[[graph points="(6,1),(6,5)" range="0..10" yrange="0..10" caption="from (6, 1) to (6, 5) — 5 − 1 = 4"]][[step eq="5 − 1 = 4"]]'),
+             "ask": {'a': 6, 'b': 2, 'c': 8, 'op': 'vseg'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A segment runs "
+                       "from (1, 3) up to (1, 8), and its length is 5. Tap the reason "
+                       "why."),
+            "choices": ("because the length is the gap between the heights | because "
+                        "the length is the number of dots, six | because the length is "
+                        "the top height, 8"),
+            "answer": "because the length is the gap between the heights",
+            "board": '[[graph points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="8 − 3 = 5"]]',
+        },
+        "recap": [
+            ("So, here it is again. An up-and-down segment on the grid has one length: "
+             "the gap between its two heights, the top take away the bottom. That "
+             "counts the steps — never the dots, which are always one too many.",
+             '[[graph points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="8 − 3 = 5 steps"]]'),
+            ("And that is a segment measured straight from its coordinates.",
+             '[[step eq="8 − 3 = 5"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 4, "c": 6, "op": "vseg"},
             {"a": 7, "b": 2, "c": 4, "op": "vseg"},
@@ -14234,24 +14297,66 @@ _GEOMETRY_U7 = [
         "op": "dist", "max_value": 13,
         "levels": ("abstract",),
         "symbols": ("distance", "across"),
-        "advance_line": "Three in a row — you've got it! Across squared plus up squared, then square back.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Across squared plus up squared, then square back.",
+        "why": [
+            ("Why the straight path? Because a grid holds two distances. You can walk "
+             "the grid lines — across, then up — or you can cut straight from one "
+             "point to the other. The straight distance is the shorter one, and "
+             "Pythagoras finds it: drop a right triangle under the slant, and the "
+             "straight path is its hypotenuse.",
+             '[[goal text="The straight path"]]'),
+        ],
+        "picture": [
+            ("Here is a slant from (2, 1) to (5, 5), with the right triangle drawn "
+             "underneath it: across 3 along the floor, up 4 at the wall. The slant is "
+             "the hypotenuse, and it comes out at 5 — shorter than the 7 you would pay "
+             "walking the lines.",
+             '[[graph points="(2,1),(5,1),(5,5)" range="0..10" yrange="0..10" caption="the right triangle under the slant — across 3, up 4, straight 5"]]'),
+        ],
         "teach": [
-            ["Now the slanted path. How far is it STRAIGHT from one point to another — not walking the grid lines, but cutting across? Drop a right triangle under the slant: count the across, count the up, and the straight distance is the hypotenuse. Pythagoras came to the grid.",
-             '[[goal text="The straight path"]][[graph points="(2,1),(5,5)" range="0..10" yrange="0..10" caption="from (2,1) to (5,5)"]]'],
-            ["From (2, 1) to (5, 5): across is 3, up is 4. 3 squared plus 4 squared is 9 plus 16 — 25. Which number times itself equals 25? 5. The straight distance is 5 — while walking the grid would cost 3 plus 4, seven.",
-             '[[graph points="(2,1),(5,5)" range="0..10" yrange="0..10" caption="from (2,1) to (5,5)"]][[step eq="across 3 · up 4"]][[step eq="3² + 4² = 25"]] [[step eq="√25 = 5"]]'],
-            ["So a grid holds two distances, and the trap is mixing them. Walking the lines — across, then up — costs 7 here. Cutting straight costs 5. The straight path is ALWAYS shorter than the walk around; if your answer is the two counts put together, you walked.",
-             '[[step eq="straight: 5 ✓"]][[step eq="3 + 4 = 7 ✗ — that walks the grid"]]'],
+            ("That is the method. From (2, 1) to (5, 5): across is 3, up is 4. 3 "
+             "squared plus 4 squared is 9 plus 16 — 25. Which number times itself "
+             "equals 25? 5. The straight distance is 5.",
+             '[[righttriangle adj="3" opp="4" hyp="5" caption="across 3, up 4 — straight 5"]][[step eq="across 3 · up 4"]][[step eq="3² + 4² = 25 = 5²"]]'),
+            ("So a grid holds two distances, and the trap is mixing them. Walking the "
+             "lines — across, then up — costs 7 here. Cutting straight costs 5. The "
+             "straight path is ALWAYS shorter than the walk around; if your answer is "
+             "the two counts put together, you walked.",
+             '[[step eq="straight: 5 ✓"]][[step eq="3 + 4 = 7 ✗ — that walks the grid"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. From (1, 2) to (7, 10): across 6, up 8. 36 plus 64 is 100, and 10 times 10 equals 100 — the distance is 10.",
-                        '[[graph points="(1,2),(7,10)" range="0..14" yrange="0..14" caption="from (1,2) to (7,10)"]][[step eq="6² + 8² = 100"]] [[step eq="√100 = 10"]]'],
-             "ask": {"a": 3, "b": 4, "c": 1, "op": "dist"}},
-            {"worked": ["One more together. From (4, 1) to (7, 5): across 3, up 4. 9 plus 16 is 25, and 5 times 5 equals 25 — the straight distance is 5.",
-                        '[[step eq="3² + 4² = 25"]] [[step eq="√25 = 5"]]'],
-             "ask": {"a": 2, "b": 2, "c": 2, "op": "dist"}},
+            {"worked": ("Here is one more, done for you. From (1, 2) to (7, 10): across "
+                        "6, up 8. 36 plus 64 is 100, and 10 times 10 equals 100 — the "
+                        "distance is 10.",
+                        '[[graph points="(1,2),(7,2),(7,10)" range="0..14" yrange="0..14" caption="across 6, up 8 — straight 10"]][[step eq="6² + 8² = 100 = 10²"]]'),
+             "ask": {'a': 3, 'b': 4, 'c': 1, 'op': 'dist'}},
+            {"worked": ("One more together. From (4, 1) to (7, 5): across 3, up 4. 9 "
+                        "plus 16 is 25, and 5 times 5 equals 25 — the straight distance "
+                        "is 5.",
+                        '[[graph points="(4,1),(7,1),(7,5)" range="0..14" yrange="0..14" caption="across 3, up 4 — straight 5"]][[step eq="3² + 4² = 25 = 5²"]]'),
+             "ask": {'a': 2, 'b': 2, 'c': 2, 'op': 'dist'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. From (2, 1) to (5, "
+                       "5) the straight distance is 5, not 7. Tap the reason why."),
+            "choices": ("because the slant is the hypotenuse of a 3-4-5 triangle | "
+                        "because across plus up is the straight distance | because "
+                        "the straight path is always the up count"),
+            "answer": "because the slant is the hypotenuse of a 3-4-5 triangle",
+            "board": '[[righttriangle adj="3" opp="4" hyp="5" caption="3² + 4² = 5²"]]',
+        },
+        "recap": [
+            ("So, here it is again. To find the straight distance between two points, "
+             "drop a right triangle under the slant: count the across, count the up, "
+             "square both, add, and square back. The straight path is the hypotenuse — "
+             "always shorter than walking the grid.",
+             '[[righttriangle adj="3" opp="4" hyp="5" caption="across 3, up 4 — straight 5"]]'),
+            ("And that is Pythagoras, come to the grid.",
+             '[[step eq="3² + 4² = 5²"]]'),
+        ],
         "bank": [
             {"a": 1, "b": 2, "c": 1, "op": "dist"},
             {"a": 2, "b": 5, "c": 1, "op": "dist"},
@@ -14272,24 +14377,65 @@ _GEOMETRY_U7 = [
         "op": "mid2", "max_value": 13,
         "levels": ("abstract",),
         "symbols": ("midpoint", "halfway"),
-        "advance_line": "Three in a row — you've got it! Add the two x's and share by two.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Add the two x's and share by two.",
+        "why": [
+            ("Why the middle? Because Unit 1 found the midpoint of a number line — add "
+             "the ends, share by two — and the grid version is the same idea twice. "
+             "The middle of a slanted segment sits halfway across AND halfway up. Each "
+             "coordinate gets its own little average, and today we chase the x.",
+             '[[goal text="The middle of a line"]]'),
+        ],
+        "picture": [
+            ("Here is a segment from (2, 3) to (8, 7), with its midpoint marked at (5, "
+             "5). Look at the x\'s: 2 on the left end, 8 on the right, and 5 in the "
+             "middle — the same distance from each. The y\'s do the same: 3 and 7, "
+             "with 5 between them.",
+             '[[graph points="(2,3),(5,5),(8,7)" range="0..12" yrange="0..12" caption="from (2, 3) to (8, 7) — the midpoint is (5, 5)"]]'),
+        ],
         "teach": [
-            ["Unit 1 found the midpoint of a number line: add the ends, share by two. The grid version is the same idea twice — the middle of a slanted segment sits halfway across AND halfway up. Each coordinate gets its own little average, and today we chase the x.",
-             '[[goal text="The middle of a line"]][[graph points="(2,3),(8,7)" range="0..12" yrange="0..12" caption="from (2,3) to (8,7)"]]'],
-            ["From (2, 3) to (8, 7). The x coordinates are 2 and 8: add them, 10, and share by two — the midpoint's x is 5. The y works the same way: 3 and 7 land on 5. The middle sits at (5, 5), balanced both ways.",
-             '[[graph points="(2,3),(5,5),(8,7)" range="0..12" yrange="0..12" caption="three corners — where is the fourth?"]][[step eq="x: (2 + 8) ÷ 2 = 5"]]'],
-            ["Two traps. Answer the coordinate you were ASKED for — the x and the y each have their own middle, and handing back the y is the grid's oldest mix-up. And the RUN — 8 take away 2, six — is how far the segment reaches, not where its middle sits.",
-             '[[step eq="x of the midpoint: 5 ✓"]][[step eq="the y instead ✗ · the run 6 ✗ — a length, not a place"]]'],
+            ("That is the method. From (2, 3) to (8, 7). The x coordinates are 2 and 8: "
+             "add them, 10, and share by two — the midpoint\'s x is 5. The y works the "
+             "same way: 3 and 7 land on 5. The middle sits at (5, 5), balanced both "
+             "ways.",
+             '[[graph points="(2,3),(5,5),(8,7)" range="0..12" yrange="0..12" caption="x: (2 + 8) ÷ 2 = 5 · y: (3 + 7) ÷ 2 = 5"]][[step eq="x: (2 + 8) ÷ 2 = 5"]]'),
+            ("Two traps. Answer the coordinate you were ASKED for — the x and the y "
+             "each have their own middle, and handing back the y is the grid\'s "
+             "oldest mix-up. And the RUN — 8 take away 2, six — is how far the segment "
+             "reaches, not where its middle sits.",
+             '[[step eq="x of the midpoint: 5 ✓"]][[step eq="the y instead ✗ · the run 6 ✗ — a length, not a place"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. From (3, 2) to (7, 6): the x's are 3 and 7 — put together 10, shared by two is 5.",
-                        '[[graph points="(3,2),(5,4),(7,6)" range="0..12" yrange="0..12" caption="three corners — where is the fourth?"]][[step eq="x: (3 + 7) ÷ 2 = 5"]]'],
-             "ask": {"a": 3, "b": 5, "c": 5, "op": "mid2"}},
-            {"worked": ["One more together. From (2, 4) to (10, 8): 2 plus 10 is 12, shared by two — the midpoint's x is 6.",
-                        '[[step eq="x: (2 + 10) ÷ 2 = 6"]]'],
-             "ask": {"a": 6, "b": 4, "c": 8, "op": "mid2"}},
+            {"worked": ("Here is one more, done for you. From (3, 2) to (7, 6): the "
+                        "x\'s are 3 and 7 — put together 10, shared by two is 5.",
+                        '[[graph points="(3,2),(5,4),(7,6)" range="0..12" yrange="0..12" caption="the midpoint (5, 4) — x: (3 + 7) ÷ 2 = 5"]][[step eq="x: (3 + 7) ÷ 2 = 5"]]'),
+             "ask": {'a': 3, 'b': 5, 'c': 5, 'op': 'mid2'}},
+            {"worked": ("One more together. From (2, 4) to (10, 8): 2 plus 10 is 12, "
+                        "shared by two — the midpoint\'s x is 6.",
+                        '[[graph points="(2,4),(6,6),(10,8)" range="0..12" yrange="0..12" caption="the midpoint (6, 6) — x: (2 + 10) ÷ 2 = 6"]][[step eq="x: (2 + 10) ÷ 2 = 6"]]'),
+             "ask": {'a': 6, 'b': 4, 'c': 8, 'op': 'mid2'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A segment runs "
+                       "from (2, 3) to (8, 7), and its midpoint\'s x is 5. Tap the "
+                       "reason why."),
+            "choices": ("because the midpoint\'s x is the two x\'s averaged | because "
+                        "the midpoint\'s x is the run, 8 take away 2 | because the "
+                        "midpoint\'s x is the same as its y, always"),
+            "answer": "because the midpoint\'s x is the two x\'s averaged",
+            "board": '[[graph points="(2,3),(5,5),(8,7)" range="0..12" yrange="0..12" caption="x: (2 + 8) ÷ 2 = 5"]]',
+        },
+        "recap": [
+            ("So, here it is again. The midpoint of a segment sits halfway across and "
+             "halfway up. For its x, add the two x\'s and share by two; the y gets "
+             "its own average. Answer the coordinate you were asked for — and never "
+             "the run, which is a length, not a place.",
+             '[[graph points="(2,3),(5,5),(8,7)" range="0..12" yrange="0..12" caption="the midpoint (5, 5)"]]'),
+            ("And that is the number line\'s midpoint, done twice.",
+             '[[step eq="x: (2 + 8) ÷ 2 = 5"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "c": 4, "op": "mid2"},
             {"a": 1, "b": 5, "c": 7, "op": "mid2"},
@@ -14310,24 +14456,66 @@ _GEOMETRY_U7 = [
         "op": "corn", "max_value": 12,
         "levels": ("abstract",),
         "symbols": ("rectangle", "corner"),
-        "advance_line": "Three in a row — you've got it! Straight above one corner, level with another.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Straight above one corner, level with another.",
+        "why": [
+            ("Why the fourth corner? Because it is a puzzle the grid can solve. A "
+             "rectangle has four corners — but you are given only three. The grid "
+             "holds the missing one, because a rectangle\'s sides run straight along "
+             "the grid: every corner shares its x with one neighbour and its y with "
+             "the other.",
+             '[[goal text="The fourth corner"]]'),
+        ],
+        "picture": [
+            ("Here are three corners of a rectangle: (2, 2), (7, 2), and (2, 6). Look "
+             "at the empty spot where the box should close — straight above (7, 2) and "
+             "level with (2, 6). The fourth corner sits there, at (7, 6).",
+             '[[graph points="(2,2),(7,2),(2,6),(7,6)" range="0..12" yrange="0..12" caption="the four corners — the fourth, (7, 6), closes the box"]]'),
+        ],
         "teach": [
-            ["Last lesson of the unit, and it is a puzzle. A rectangle has four corners — but you are given only three. The grid holds the missing one, because a rectangle's sides run straight along the grid: every corner shares its x with one neighbour and its y with the other.",
-             '[[goal text="The fourth corner"]][[graph points="(2,2),(7,2),(2,6)" range="0..12" yrange="0..12" caption="three corners — where is the fourth?"]]'],
-            ["Corners at (2, 2), (7, 2), and (2, 6). The fourth must close the box: it sits straight above (7, 2), so it shares that 7 — and it sits level with (2, 6), so it shares that 6. The fourth corner is (7, 6).",
-             '[[graph points="(2,2),(7,2),(2,6),(7,6)" range="0..12" yrange="0..12" caption="the four corners"]][[step eq="x from (7, 2) · y from (2, 6) → (7, 6)"]]'],
-            ["The trap is grabbing a number from the wrong corner — or the wrong coordinate. The new corner never gets its x from the corner diagonal to it, and an x question is never answered with a y. Say it in words first: straight above which corner? Level with which?",
-             '[[step eq="above (7, 2) → x = 7 ✓"]][[step eq="x = 2 ✗ wrong corner · a y for an x ✗"]]'],
+            ("That is the method. Corners at (2, 2), (7, 2), and (2, 6). The fourth "
+             "must close the box: it sits straight above (7, 2), so it shares that 7 — "
+             "and it sits level with (2, 6), so it shares that 6. The fourth corner is "
+             "(7, 6).",
+             '[[graph points="(2,2),(7,2),(2,6),(7,6)" range="0..12" yrange="0..12" caption="the four corners"]][[step eq="x from (7, 2) · y from (2, 6) → (7, 6)"]]'),
+            ("The trap is grabbing a number from the wrong corner — or the wrong "
+             "coordinate. The new corner never gets its x from the corner diagonal to "
+             "it, and an x question is never answered with a y. Say it in words first: "
+             "straight above which corner? Level with which?",
+             '[[step eq="above (7, 2) → x = 7 ✓"]][[step eq="x = 2 ✗ wrong corner · a y for an x ✗"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Corners at (1, 3), (6, 3), and (1, 6). The fourth sits straight above (6, 3): its x is 6, and the corner is (6, 6).",
-                        '[[graph points="(1,3),(6,3),(1,6)" range="0..12" yrange="0..12" caption="three corners — where is the fourth?"]][[step eq="above (6, 3) → x = 6"]]'],
-             "ask": {"a": 3, "b": 4, "c": 6, "op": "corn"}},
-            {"worked": ["One more together. Corners at (4, 2), (9, 2), and (4, 5): the fourth corner sits above (9, 2), so its x is 9.",
-                        '[[step eq="above (9, 2) → x = 9"]]'],
-             "ask": {"a": 5, "b": 6, "c": 10, "op": "corn"}},
+            {"worked": ("Here is one more, done for you. Corners at (1, 3), (6, 3), and "
+                        "(1, 6). The fourth sits straight above (6, 3): its x is 6, and "
+                        "the corner is (6, 6).",
+                        '[[graph points="(1,3),(6,3),(1,6),(6,6)" range="0..12" yrange="0..12" caption="the fourth corner is (6, 6)"]][[step eq="above (6, 3) → x = 6"]]'),
+             "ask": {'a': 3, 'b': 4, 'c': 6, 'op': 'corn'}},
+            {"worked": ("One more together. Corners at (4, 2), (9, 2), and (4, 5): the "
+                        "fourth corner sits above (9, 2), so its x is 9.",
+                        '[[graph points="(4,2),(9,2),(4,5),(9,5)" range="0..12" yrange="0..12" caption="the fourth corner is (9, 5)"]][[step eq="above (9, 2) → x = 9"]]'),
+             "ask": {'a': 5, 'b': 6, 'c': 10, 'op': 'corn'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Three corners of a "
+                       "rectangle sit at (2, 2), (7, 2) and (2, 6), so the fourth "
+                       "corner\'s x is 7. Tap the reason why."),
+            "choices": ("because the fourth corner sits straight above (7, 2) | because "
+                        "the fourth corner takes its x from (2, 6) | because the fourth "
+                        "corner\'s x is always its y"),
+            "answer": "because the fourth corner sits straight above (7, 2)",
+            "board": '[[graph points="(2,2),(7,2),(2,6),(7,6)" range="0..12" yrange="0..12" caption="above (7, 2) → x = 7"]]',
+        },
+        "recap": [
+            ("So, here it is again. A rectangle\'s sides run along the grid, so its "
+             "fourth corner sits straight above one given corner and level with "
+             "another. It takes its x from the corner below it and its y from the "
+             "corner beside it — never from the corner diagonal to it.",
+             '[[graph points="(2,2),(7,2),(2,6),(7,6)" range="0..12" yrange="0..12" caption="the fourth corner is (7, 6)"]]'),
+            ("And that is a box closed by its coordinates.",
+             '[[step eq="above (7, 2) → x = 7"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "c": 4, "op": "corn"},
             {"a": 1, "b": 4, "c": 5, "op": "corn"},
@@ -14362,24 +14550,65 @@ _GEOMETRY_U8 = [
         "op": "para", "max_value": 50,
         "levels": ("abstract",),
         "symbols": ("parallelogram", "height"),
-        "advance_line": "Three in a row — you've got it! Base times height — the slant just leans.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Base times height — the slant just leans.",
+        "why": [
+            ("Why the true height? Because a parallelogram is a pushed-over rectangle "
+             "— same base, same height, just leaning — and its area is still base "
+             "times height. But watch the words: the height is measured straight up, "
+             "and the leaning side is NOT the height.",
+             '[[goal text="The true height"]]'),
+        ],
+        "picture": [
+            ("Here is a parallelogram with a base of 6 and a leaning side of 5. The "
+             "dashed line inside it is the true height, straight up from the base: 4. "
+             "The slanted side is longer than the height, because leaning wastes some "
+             "length — the 5 is how long the side is, not how tall the shape stands.",
+             '[[polygon kind="parallelogram" base="6" slant="5" height="4" caption="base 6, leaning side 5 — the dashed true height is 4"]]'),
+        ],
         "teach": [
-            ["One more area idea, and it is a sneaky one. A parallelogram is a pushed-over rectangle — same base, same height, just leaning. Its area is still base times height. But watch the words: the height is measured straight up, and the leaning side is NOT the height.",
-             '[[goal text="The true height"]][[step eq="area = base × height"]]'],
-            ["Base 6, slanted side 5, height 4. The area is base times height: 6 times 4, which equals 24. Why not the 5? Push the leaning stack straight and it becomes a rectangle 6 long and 4 tall — the 5 was never how tall it stood.",
-             '[[step eq="6 × 4 = 24"]][[step eq="push it straight: a 6 by 4 rectangle"]]'],
-            ["The trap always looks generous: the slant is longer than the height — leaning wastes some length — so grabbing the slanted 5 gets 30, too big. Ask of every length: is this how tall it STANDS, or just how long its side is?",
-             '[[step eq="6 × 4 = 24 ✓"]][[step eq="6 × 5 = 30 ✗ — the slant is not the height"]]'],
+            ("That is the method. Base 6, slanted side 5, height 4. The area is base "
+             "times height: 6 times 4, which equals 24. Why not the 5? Push the leaning "
+             "stack straight and it becomes a rectangle 6 long and 4 tall — the 5 was "
+             "never how tall it stood.",
+             '[[rectangle w="6" h="4" caption="pushed straight: a 6 by 4 rectangle — area 24"]][[step eq="6 × 4 = 24"]]'),
+            ("The trap always looks generous: the slant is longer than the height — "
+             "leaning wastes some length — so grabbing the slanted 5 gets 30, too big. "
+             "Ask of every length: is this how tall it STANDS, or just how long its "
+             "side is?",
+             '[[step eq="6 × 4 = 24 ✓"]][[step eq="6 × 5 = 30 ✗ — the slant is not the height"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Base 5, height 2, slanted side 3: the area is 5 times 2 — 10. The 3 sat this one out.",
-                        '[[step eq="5 × 2 = 10"]]'],
-             "ask": {"a": 7, "b": 3, "c": 4, "op": "para"}},
-            {"worked": ["One more together. Base 8, slant 6, height 5: 8 times 5 equals 40.",
-                        '[[step eq="8 × 5 = 40"]]'],
-             "ask": {"a": 10, "b": 5, "c": 6, "op": "para"}},
+            {"worked": ("Here is one more, done for you. Base 5, height 2, slanted side "
+                        "3: the area is 5 times 2 — 10. The 3 sat this one out.",
+                        '[[polygon kind="parallelogram" base="5" slant="3" height="2" caption="base 5, height 2 — area 10; the 3 sat it out"]][[step eq="5 × 2 = 10"]]'),
+             "ask": {'a': 7, 'b': 3, 'c': 4, 'op': 'para'}},
+            {"worked": ("One more together. Base 8, slant 6, height 5: 8 times 5 equals "
+                        "40.",
+                        '[[polygon kind="parallelogram" base="8" slant="6" height="5" caption="base 8, height 5 — area 40"]][[step eq="8 × 5 = 40"]]'),
+             "ask": {'a': 10, 'b': 5, 'c': 6, 'op': 'para'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A parallelogram has "
+                       "a base of 6, a leaning side of 5 and a height of 4, and its "
+                       "area is 24. Tap the reason why."),
+            "choices": ("because the area is the base times the true height | because "
+                        "the area is the base times the leaning side | because the "
+                        "area is all three lengths added"),
+            "answer": "because the area is the base times the true height",
+            "board": '[[polygon kind="parallelogram" base="6" slant="5" height="4" caption="6 × 4 = 24"]]',
+        },
+        "recap": [
+            ("So, here it is again. A parallelogram\'s area is base times height, "
+             "and the height stands straight up — the dashed line, never the leaning "
+             "side. Push it straight and it is a rectangle; the slant only ever "
+             "leaned.",
+             '[[polygon kind="parallelogram" base="6" slant="5" height="4" caption="base 6 × height 4 = 24"]]'),
+            ("And that is a pushed-over rectangle, measured honestly.",
+             '[[step eq="6 × 4 = 24"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 3, "c": 5, "op": "para"},
             {"a": 5, "b": 3, "c": 4, "op": "para"},
@@ -14400,24 +14629,62 @@ _GEOMETRY_U8 = [
         "op": "lshp", "max_value": 50,
         "levels": ("abstract",),
         "symbols": ("area", "rectangles"),
-        "advance_line": "Three in a row — you've got it! Cut, measure, put together.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Cut, measure, put together.",
+        "why": [
+            ("Why two rooms? Because real floors are not always rectangles — but they "
+             "are usually MADE of rectangles. An L-shaped floor is two rectangles "
+             "standing together, and its area is found by cutting: find each "
+             "rectangle\'s area, then put the areas together.",
+             '[[goal text="Two rooms"]]'),
+        ],
+        "picture": [
+            ("Here are the two rooms the L is cut into. One is 5 long and 3 wide; the "
+             "other is 2 long and 3 wide. Each room is a rectangle you already know how "
+             "to measure — and the whole floor is simply the two of them side by "
+             "side.",
+             '[[rectangle w="5" h="3" caption="one room: 5 by 3"]][[rectangle w="2" h="3" caption="the other room: 2 by 3"]]'),
+        ],
         "teach": [
-            ["Real floors are not always rectangles — but they are usually MADE of rectangles. An L-shaped room is two rectangles standing together, and its area is found by cutting: find each rectangle's area, then put the pieces together.",
-             '[[goal text="Two rooms"]][[step eq="cut the L into two rectangles"]]'],
-            ["One part is 5 long and 3 wide: area 15. The other is 2 long and 3 wide: area 6. The whole floor is 15 plus 6, which equals 21 — cut, measure, put together. Any shape built from rectangles gives in to this.",
-             '[[step eq="5 × 3 = 15 · 2 × 3 = 6"]][[step eq="15 + 6 = 21"]]'],
-            ["Two traps. Stopping after one rectangle — 15 is only part of the floor. And adding the LENGTHS — 5 plus 3 plus 2 is 10, but lengths added give edges, not floor. Areas add to areas; lengths never do.",
-             '[[step eq="15 + 6 = 21 ✓"]][[step eq="15 ✗ one room only · 5 + 3 + 2 = 10 ✗ lengths are not areas"]]'],
+            ("That is the method. One part is 5 long and 3 wide: area 15. The other is "
+             "2 long and 3 wide: area 6. The whole floor is 15 plus 6, which equals 21 "
+             "— cut, measure, put together. Any shape built from rectangles gives in "
+             "to this.",
+             '[[rectangle w="5" h="3" caption="5 × 3 = 15"]][[rectangle w="2" h="3" caption="2 × 3 = 6"]][[step eq="15 + 6 = 21"]]'),
+            ("Two traps. Stopping after one rectangle — 15 is only part of the floor. "
+             "And adding the LENGTHS — 5 plus 3 plus 2 is 10, but lengths added give "
+             "edges, not floor. Areas add to areas; lengths never do.",
+             '[[step eq="15 + 6 = 21 ✓"]][[step eq="15 ✗ one room only · 5 + 3 + 2 = 10 ✗ lengths are not areas"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Rooms of 3 by 4 and 2 by 4: areas 12 and 8, and the floor is 12 plus 8 — 20.",
-                        '[[step eq="3 × 4 = 12 · 2 × 4 = 8"]][[step eq="12 + 8 = 20"]]'],
-             "ask": {"a": 5, "b": 2, "c": 4, "op": "lshp"}},
-            {"worked": ["One more together. 7 by 2 and 3 by 2: 14 plus 6 equals 20.",
-                        '[[step eq="14 + 6 = 20"]]'],
-             "ask": {"a": 6, "b": 5, "c": 4, "op": "lshp"}},
+            {"worked": ("Here is one more, done for you. Rooms of 3 by 4 and 2 by 4: "
+                        "areas 12 and 8, and the floor is 12 plus 8 — 20.",
+                        '[[rectangle w="3" h="4" caption="3 × 4 = 12"]][[rectangle w="2" h="4" caption="2 × 4 = 8"]][[step eq="12 + 8 = 20"]]'),
+             "ask": {'a': 5, 'b': 2, 'c': 4, 'op': 'lshp'}},
+            {"worked": ("One more together. 7 by 2 and 3 by 2: 14 plus 6 equals 20.",
+                        '[[rectangle w="7" h="2" caption="7 × 2 = 14"]][[rectangle w="3" h="2" caption="3 × 2 = 6"]][[step eq="14 + 6 = 20"]]'),
+             "ask": {'a': 6, 'b': 5, 'c': 4, 'op': 'lshp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A floor is made of "
+                       "a 5 by 3 room and a 2 by 3 room, and its area is 21. Tap the "
+                       "reason why."),
+            "choices": ("because each room\'s area is found, then the areas are added | "
+                        "because the lengths 5, 3 and 2 are added | because the bigger "
+                        "room\'s area is the whole floor"),
+            "answer": "because each room\'s area is found, then the areas are added",
+            "board": '[[rectangle w="5" h="3" caption="15"]][[rectangle w="2" h="3" caption="6 — together 21"]]',
+        },
+        "recap": [
+            ("So, here it is again. A floor made of rectangles is measured by cutting "
+             "it into them: find each rectangle\'s area, then put the areas together. "
+             "Never stop at one room, and never add the lengths — areas add to areas.",
+             '[[rectangle w="5" h="3" caption="5 × 3 = 15"]][[rectangle w="2" h="3" caption="2 × 3 = 6 — the floor is 21"]]'),
+            ("And that is cut, measure, put together.",
+             '[[step eq="15 + 6 = 21"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "c": 2, "op": "lshp"},
             {"a": 4, "b": 2, "c": 3, "op": "lshp"},
@@ -14438,24 +14705,63 @@ _GEOMETRY_U8 = [
         "op": "surf", "max_value": 150,
         "levels": ("abstract",),
         "symbols": ("surface area", "faces"),
-        "advance_line": "Three in a row — you've got it! Six faces, always six.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Six faces, always six.",
+        "why": [
+            ("Why six faces? Because a cube is wrapped in six identical square faces: "
+             "a top, a bottom, and four around the sides. That wrapping has a name. "
+             "Surface area is the area of everything you could touch. Know ONE face "
+             "and you know all six: the surface area is six of that face.",
+             '[[goal text="Six faces"]]'),
+        ],
+        "picture": [
+            ("Here is a cube. You can see three of its faces from here — the front, "
+             "the top and one side — and three more hide behind: the back, the bottom "
+             "and the other side. Six faces, every one the same square.",
+             '[[solid kind="cube" caption="a cube — three faces showing, three hidden; six in all"]]'),
+        ],
         "teach": [
-            ["A cube is wrapped in six identical square faces: a top, a bottom, and four around the sides. That wrapping has a name. Surface area is the area of everything you could touch. Know ONE face and you know all six: the surface area is six of that face.",
-             '[[goal text="Six faces"]][[step eq="a cube wears 6 equal faces"]]'],
-            ["Say one face has an area of 7. The cube has six faces just like it, so the surface area is 6 times 7, which equals 42 square units. One face, times six — that is the whole trick.",
-             '[[step eq="one face: 7"]][[step eq="6 × 7 = 42"]]'],
-            ["The trap is forgetting the floor and the ceiling. Four faces stand around the sides, and counting only them is 4 times 7 — 28 — but that box is still open. The top and the bottom are faces too: six, always six.",
-             '[[step eq="6 × 7 = 42 ✓"]][[step eq="4 × 7 = 28 ✗ — the top and bottom are faces too"]]'],
+            ("That is the method. Say one face has an area of 7. The cube has six "
+             "faces just like it, so the surface area is 6 times 7, which equals 42 "
+             "square units. One face, times six — that is the whole trick.",
+             '[[bars data="top:7 | bottom:7 | front:7 | back:7 | left:7 | right:7" caption="six faces of 7 — 6 × 7 = 42"]][[step eq="6 × 7 = 42"]]'),
+            ("The trap is forgetting the floor and the ceiling. Four faces stand "
+             "around the sides, and counting only them is 4 times 7 — 28 — but that "
+             "box is still open. The top and the bottom are faces too: six, always "
+             "six.",
+             '[[step eq="6 × 7 = 42 ✓"]][[step eq="4 × 7 = 28 ✗ — the top and bottom are faces too"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. One face is 9: the surface area is 6 times 9 — 54 square units.",
-                        '[[step eq="6 × 9 = 54"]]'],
-             "ask": {"a": 2, "b": 0, "op": "surf"}},
-            {"worked": ["One more together. A face of 14: the surface area is 6 times 14, which equals 84.",
-                        '[[step eq="6 × 14 = 84"]]'],
-             "ask": {"a": 25, "b": 0, "op": "surf"}},
+            {"worked": ("Here is one more, done for you. One face is 9: the surface area "
+                        "is 6 times 9 — 54 square units.",
+                        '[[bars data="top:9 | bottom:9 | front:9 | back:9 | left:9 | right:9" caption="6 × 9 = 54"]][[step eq="6 × 9 = 54"]]'),
+             "ask": {'a': 2, 'b': 0, 'op': 'surf'}},
+            {"worked": ("One more together. A face of 14: the surface area is 6 times 14, "
+                        "which equals 84.",
+                        '[[bars data="top:14 | bottom:14 | front:14 | back:14 | left:14 | right:14" caption="6 × 14 = 84"]][[step eq="6 × 14 = 84"]]'),
+             "ask": {'a': 25, 'b': 0, 'op': 'surf'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. One face of a cube "
+                       "has an area of 7, so its surface area is 42. Tap the reason "
+                       "why."),
+            "choices": ("because a cube has six equal faces, top and bottom included | "
+                        "because a cube has four faces standing round the sides | "
+                        "because the surface area is one face, squared"),
+            "answer": "because a cube has six equal faces, top and bottom included",
+            "board": '[[solid kind="cube" caption="six faces of 7 — 6 × 7 = 42"]]',
+        },
+        "recap": [
+            ("So, here it is again. Surface area is the area of everything you could "
+             "touch, and a cube wears six identical faces — four around the sides, "
+             "plus the top and the bottom. Know one face, and the surface area is six "
+             "of it.",
+             '[[solid kind="cube" caption="six equal faces"]]'),
+            ("And that is a cube, wrapped and measured.",
+             '[[step eq="6 × 7 = 42"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 0, "op": "surf"},
             {"a": 4, "b": 0, "op": "surf"},
@@ -14476,24 +14782,65 @@ _GEOMETRY_U8 = [
         "op": "svol", "max_value": 135,
         "levels": ("abstract",),
         "symbols": ("volume", "cubic"),
-        "advance_line": "Three in a row — you've got it! Length once, area twice — volume three times.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Length once, area twice — volume three times.",
+        "why": [
+            ("Why a surprise? Because the last measure is volume — the room inside a "
+             "box, counted in cubic units — and you already know the scaling story: "
+             "length pays the factor once, area pays it twice. Volume lives in THREE "
+             "directions — long, wide AND tall — so volume pays the factor three "
+             "times.",
+             '[[goal text="The volume surprise"]]'),
+        ],
+        "picture": [
+            ("Here is a box, and every edge of it is about to be enlarged by 2: twice "
+             "as long, twice as wide, twice as tall. Each of the three directions "
+             "doubles, so the room inside is doubled three times over — 2 times 2 "
+             "times 2, eight times the room.",
+             '[[solid kind="prism" w="×2" d="×2" h="×2" caption="every edge × 2 — long, wide and tall: 2 × 2 × 2 = 8 times the room"]]'),
+        ],
         "teach": [
-            ["The last measure is volume — the room inside a box, counted in cubic units. And you already know the scaling story: length pays the factor once, area pays it twice. Volume lives in THREE directions — long, wide AND tall — so volume pays the factor three times.",
-             '[[goal text="The volume surprise"]][[step eq="length ×2 · area ×4 · volume ×8"]]'],
-            ["A box holds 9 cubic units. Scale every edge by factor 2: the box grows twice as long, twice as wide, twice as tall — 2 times 2 times 2 is 8 times the room. 9 times 8 equals 72 cubic units.",
-             '[[step eq="2 × 2 × 2 = 8 times the room"]][[step eq="9 × 8 = 72"]]'],
-            ["The traps are the course's own history. Times 2 once — 18 — is the LENGTH habit. Times 2 twice — 36 — is the AREA habit from the similarity unit. Volume has one more direction waiting: times 2 three times, 72. Count the directions before you scale.",
-             '[[step eq="9 × 2 × 2 × 2 = 72 ✓"]][[step eq="9 × 2 = 18 ✗ length habit · 9 × 4 = 36 ✗ area habit"]]'],
+            ("That is the method. A box holds 9 cubic units. Scale every edge by "
+             "factor 2: the box grows twice as long, twice as wide, twice as tall — 2 "
+             "times 2 times 2 is 8 times the room. 9 times 8 equals 72 cubic units.",
+             '[[solid kind="prism" w="×2" d="×2" h="×2" caption="2 × 2 × 2 = 8 times the room"]][[step eq="9 × 8 = 72"]]'),
+            ("The traps are the course\'s own history. Times 2 once — 18 — is the "
+             "LENGTH habit. Times 2 twice — 36 — is the AREA habit from the similarity "
+             "unit. Volume has one more direction waiting: times 2 three times, 72. "
+             "Count the directions before you scale.",
+             '[[step eq="9 × 2 × 2 × 2 = 72 ✓"]][[step eq="9 × 2 = 18 ✗ length habit · 9 × 4 = 36 ✗ area habit"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A box of 12, factor 2: 12 times 8 — 96 cubic units.",
-                        '[[step eq="12 × 8 = 96"]]'],
-             "ask": {"a": 7, "b": 2, "op": "svol"}},
-            {"worked": ["One more together. Factor 3: 3 times 3 times 3 is 27 times the room. A box of 6 becomes 6 times 27 — 162.",
-                        '[[step eq="6 × 27 = 162"]]'],
-             "ask": {"a": 5, "b": 3, "op": "svol"}},
+            {"worked": ("Here is one more, done for you. A box of 12, factor 2: 12 times "
+                        "8 — 96 cubic units.",
+                        '[[solid kind="prism" w="×2" d="×2" h="×2" caption="8 times the room: 12 × 8 = 96"]][[step eq="12 × 8 = 96"]]'),
+             "ask": {'a': 7, 'b': 2, 'op': 'svol'}},
+            {"worked": ("One more together. Factor 3: 3 times 3 times 3 is 27 times the "
+                        "room. A box of 6 becomes 6 times 27 — 162.",
+                        '[[solid kind="prism" w="×3" d="×3" h="×3" caption="27 times the room: 6 × 27 = 162"]][[step eq="6 × 27 = 162"]]'),
+             "ask": {'a': 5, 'b': 3, 'op': 'svol'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A box of 9 cubic "
+                       "units has every edge enlarged by 2, and the new box holds 72. "
+                       "Tap the reason why."),
+            "choices": ("because volume pays the factor in all three directions | "
+                        "because volume pays the factor once, like a length | because "
+                        "volume pays the factor twice, like an area"),
+            "answer": "because volume pays the factor in all three directions",
+            "board": '[[solid kind="prism" w="×2" d="×2" h="×2" caption="9 × 2 × 2 × 2 = 72"]]',
+        },
+        "recap": [
+            ("So, here it is again. Scale every edge of a box and the volume pays the "
+             "factor three times — once for long, once for wide, once for tall. "
+             "Length once, area twice, volume three times: count the directions "
+             "before you scale.",
+             '[[solid kind="prism" w="×2" d="×2" h="×2" caption="2 × 2 × 2 = 8 times the room"]]'),
+            ("And that is the scaling story, told all the way up.",
+             '[[step eq="9 × 8 = 72"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "op": "svol"},
             {"a": 3, "b": 2, "op": "svol"},
@@ -14529,24 +14876,63 @@ _GEOMETRY_U9 = [
         "op": "poft", "max_value": 15,
         "levels": ("abstract",),
         "symbols": ("chance", "in all"),
-        "advance_line": "Three in a row — you've got it! Out of means out of everything.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Out of means out of everything.",
+        "why": [
+            ("Why chance? Because it is a new kind of number. A bag holds 3 red "
+             "marbles and 2 blue ones. Pick without looking, and red is not certain — "
+             "it has a chance: 3 out of 5. The first number counts the reds; the "
+             "second counts everything in the bag — the marbles in all.",
+             '[[goal text="Out of all"]]'),
+        ],
+        "picture": [
+            ("Here is the whole bag as a pie: 3 red parts and 2 blue parts, five parts "
+             "in all. The pick lands somewhere on this pie, and 3 of its 5 parts are "
+             "red — that is what 3 out of 5 looks like.",
+             '[[pie data="red:3 | blue:2" caption="the whole bag — 3 red, 2 blue, 5 in all: red is 3 out of 5"]]'),
+        ],
         "teach": [
-            ["A new kind of number: chance. A bag holds 3 red marbles and 2 blue ones. Pick without looking, and red is not certain — it has a chance: 3 out of 5. The first number counts the reds; the second counts everything in the bag — the marbles in all.",
-             '[[goal text="Out of all"]][[bars data="red:3 | blue:2" caption="red 3 and blue 2"]]'],
-            ["Why 5? Because the pick does not know about colors — it lands on one of ALL the marbles. 3 reds plus 2 blues is 5 marbles, so red's chance is 3 out of 5, and blue's is 2 out of 5. The out-of number is always the whole bag.",
-             '[[bars data="red:3 | blue:2" caption="red 3 and blue 2"]][[step eq="3 + 2 = 5 in the bag"]][[step eq="red: 3 out of 5 · blue: 2 out of 5"]]'],
-            ["The trap is saying 3 out of 2 — the reds against the blues. That compares the two teams, but a chance is not a comparison between teams: it is one team out of the WHOLE bag. Out of means out of everything.",
-             '[[step eq="3 out of 5 ✓"]][[step eq="3 out of 2 ✗ — the blues are not the whole bag"]]'],
+            ("That is the method. Why 5? Because the pick does not know about colors "
+             "— it lands on one of ALL the marbles. 3 reds plus 2 blues is 5 marbles, "
+             "so red\'s chance is 3 out of 5, and blue\'s is 2 out of 5. The out-of "
+             "number is always the whole bag.",
+             '[[bars data="red:3 | blue:2" caption="red 3 and blue 2"]][[step eq="3 + 2 = 5 in the bag"]][[step eq="red: 3 out of 5 · blue: 2 out of 5"]]'),
+            ("The trap is saying 3 out of 2 — the reds against the blues. That "
+             "compares the two teams, but a chance is not a comparison between "
+             "teams: it is one team out of the WHOLE bag. Out of means out of "
+             "everything.",
+             '[[step eq="3 out of 5 ✓"]][[step eq="3 out of 2 ✗ — the blues are not the whole bag"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 5 reds and 4 blues: the bag holds 5 plus 4 — 9 marbles — so red is 5 out of 9.",
-                        '[[bars data="red:5 | blue:4" caption="red 5 and blue 4"]][[step eq="5 + 4 = 9 · red: 5 out of 9"]]'],
-             "ask": {"a": 2, "b": 4, "op": "poft"}},
-            {"worked": ["One more together. 7 reds, 5 blues: red is 7 out of 12, because 7 plus 5 is 12.",
-                        '[[step eq="7 + 5 = 12"]]'],
-             "ask": {"a": 6, "b": 8, "op": "poft"}},
+            {"worked": ("Here is one more, done for you. 5 reds and 4 blues: the bag "
+                        "holds 5 plus 4 — 9 marbles — so red is 5 out of 9.",
+                        '[[pie data="red:5 | blue:4" caption="5 + 4 = 9 — red is 5 out of 9"]][[step eq="5 + 4 = 9 · red: 5 out of 9"]]'),
+             "ask": {'a': 2, 'b': 4, 'op': 'poft'}},
+            {"worked": ("One more together. 7 reds, 5 blues: red is 7 out of 12, "
+                        "because 7 plus 5 is 12.",
+                        '[[pie data="red:7 | blue:5" caption="7 + 5 = 12 — red is 7 out of 12"]][[step eq="7 + 5 = 12"]]'),
+             "ask": {'a': 6, 'b': 8, 'op': 'poft'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A bag holds 3 red "
+                       "marbles and 2 blue, and the chance of red is 3 out of 5. Tap "
+                       "the reason why."),
+            "choices": ("because the pick lands on one of all 5 marbles | because the "
+                        "reds are measured against the blues | because the chance is "
+                        "always out of 5"),
+            "answer": "because the pick lands on one of all 5 marbles",
+            "board": '[[pie data="red:3 | blue:2" caption="red is 3 out of 5"]]',
+        },
+        "recap": [
+            ("So, here it is again. A chance is one team out of the whole bag: the "
+             "first number counts the team, the second counts everything in all. "
+             "Never the reds against the blues — out of means out of everything.",
+             '[[pie data="red:3 | blue:2" caption="3 out of 5"]]'),
+            ("And that is the first number of chance.",
+             '[[step eq="3 + 2 = 5 · red: 3 out of 5"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "poft"},
             {"a": 4, "b": 2, "op": "poft"},
@@ -14567,24 +14953,64 @@ _GEOMETRY_U9 = [
         "op": "notp", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("chance", "out of"),
-        "advance_line": "Three in a row — you've got it! What one chance does not take, the other gets.",
+        "advance_line": "Three in a row, and you can say why — you've got it! What one chance does not take, the other gets.",
+        "why": [
+            ("Why the other chance? Because every chance has a shadow. If rain\'s "
+             "chance is 3 out of 10, what about NO rain? The two together cover every "
+             "possibility — some days it rains, all the other days it does not — so "
+             "their chances share the whole 10. What rain does not take, no-rain "
+             "gets.",
+             '[[goal text="The other chance"]]'),
+        ],
+        "picture": [
+            ("Here are all 10 chances as a pie, with rain\'s 3 shaded. Everything "
+             "left unshaded belongs to no-rain — 7 parts. The two together fill the "
+             "whole pie, because every chance belongs to somebody.",
+             '[[pie parts="10" shaded="3" caption="10 chances — rain takes 3, no rain gets the other 7"]]'),
+        ],
         "teach": [
-            ["Every chance has a shadow. If rain's chance is 3 out of 10, what about NO rain? The two together cover every possibility — some days it rains, all the other days it does not — so their chances share the whole 10. What rain does not take, no-rain gets.",
-             '[[goal text="The other chance"]][[pie parts="10" shaded="3" caption="10 equal parts, 3 shaded"]]'],
-            ["Rain: 3 out of 10. All ten chances belong to somebody, so no-rain takes the rest: 10 take away 3, which equals 7 — no rain is 7 out of 10. Check: 3 plus 7 equals 10, every chance spoken for.",
-             '[[pie parts="10" shaded="3" caption="10 equal parts, 3 shaded"]][[step eq="10 − 3 = 7"]][[step eq="3 + 7 = 10 ✓"]]'],
-            ["Two traps. The other chance is usually NOT the same number — 3 out of 10 for rain leaves 7 for no-rain, not 3. And it is never the whole 10 — that would call no-rain certain while rain still holds its 3. Take away, then check the two put the whole back.",
-             '[[step eq="10 − 3 = 7 ✓"]][[step eq="3 ✗ copied · 10 ✗ nothing here is certain"]]'],
+            ("That is the method. Rain: 3 out of 10. All ten chances belong to "
+             "somebody, so no-rain takes the rest: 10 take away 3, which equals 7 — no "
+             "rain is 7 out of 10. Check: 3 plus 7 equals 10, every chance spoken "
+             "for.",
+             '[[bars data="rain:3 | no rain:7" caption="3 + 7 = 10 — every chance spoken for"]][[step eq="10 − 3 = 7"]][[step eq="3 + 7 = 10 ✓"]]'),
+            ("Two traps. The other chance is usually NOT the same number — 3 out of "
+             "10 for rain leaves 7 for no-rain, not 3. And it is never the whole 10 — "
+             "that would call no-rain certain while rain still holds its 3. Take "
+             "away, then check the two put the whole back.",
+             '[[step eq="10 − 3 = 7 ✓"]][[step eq="3 ✗ copied · 10 ✗ nothing here is certain"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A chance of 4 out of 9: the other chance is 9 take away 4 — 5 out of 9.",
-                        '[[pie parts="9" shaded="4" caption="9 equal parts, 4 shaded"]][[step eq="9 − 4 = 5"]]'],
-             "ask": {"a": 2, "b": 9, "op": "notp"}},
-            {"worked": ["One more together. 6 out of 13: the other chance is 13 take away 6 — 7 out of 13.",
-                        '[[step eq="13 − 6 = 7"]]'],
-             "ask": {"a": 7, "b": 20, "op": "notp"}},
+            {"worked": ("Here is one more, done for you. A chance of 4 out of 9: the "
+                        "other chance is 9 take away 4 — 5 out of 9.",
+                        '[[bars data="rain:4 | no rain:5" caption="4 + 5 = 9"]][[step eq="9 − 4 = 5"]]'),
+             "ask": {'a': 2, 'b': 9, 'op': 'notp'}},
+            {"worked": ("One more together. 6 out of 13: the other chance is 13 take "
+                        "away 6 — 7 out of 13.",
+                        '[[bars data="rain:6 | no rain:7" caption="6 + 7 = 13"]][[step eq="13 − 6 = 7"]]'),
+             "ask": {'a': 7, 'b': 20, 'op': 'notp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The chance of rain "
+                       "is 3 out of 10, so the chance of no rain is 7 out of 10. Tap "
+                       "the reason why."),
+            "choices": ("because the two chances share all 10 between them | because "
+                        "the other chance is always the same number | because no rain "
+                        "is certain, so it takes all 10"),
+            "answer": "because the two chances share all 10 between them",
+            "board": '[[pie parts="10" shaded="3" caption="rain 3, no rain 7 — 10 in all"]]',
+        },
+        "recap": [
+            ("So, here it is again. A chance and its other chance share the whole "
+             "between them. Take the one you know away from the whole, and what is "
+             "left is the other — then check that the two put the whole back.",
+             '[[pie parts="10" shaded="3" caption="10 − 3 = 7"]]'),
+            ("And that is every chance, spoken for.",
+             '[[step eq="10 − 3 = 7"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 5, "op": "notp"},
             {"a": 4, "b": 7, "op": "notp"},
@@ -14605,24 +15031,62 @@ _GEOMETRY_U9 = [
         "op": "outc", "max_value": 28,
         "levels": ("abstract",),
         "symbols": ("choice", "times"),
-        "advance_line": "Three in a row — you've got it! Choices times up, never add.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Choices times up, never add.",
+        "why": [
+            ("Why count the ways? Because counting comes back, one last time. Say you "
+             "own 2 shirts and 3 hats. Getting dressed is one choice, then another — "
+             "and for EVERY shirt, every one of the hats is still open. Choices do not "
+             "add up; they times up: 2 shirts times 3 hats.",
+             '[[goal text="How many ways"]]'),
+        ],
+        "picture": [
+            ("Here is the outfit grid: one row for each shirt, one column for each "
+             "hat. Every box is one full outfit — the first shirt with the first hat, "
+             "the first shirt with the second hat, and so on. 2 rows of 3 boxes: six "
+             "boxes, six outfits.",
+             '[[array rows="2" cols="3" caption="2 rows of 3 — every box is one outfit"]]'),
+        ],
         "teach": [
-            ["Counting comes back, one last time. Say you own 2 shirts and 3 hats. Getting dressed is one choice, then another — and for EVERY shirt, every one of the hats is still open. Choices do not add up; they times up: 2 shirts times 3 hats.",
-             '[[goal text="How many ways"]][[areamodel rows="2" cols="3" caption="2 rows of 3 — count the boxes"]]'],
-            ["Draw the grid: one row for each shirt, one column for each hat. Every box is one full outfit — first shirt with first hat, first shirt with second hat, and so on. 2 rows of 3 boxes: 2 times 3, which equals 6 outfits.",
-             '[[areamodel rows="2" cols="3" caption="2 rows of 3 — count the boxes"]][[step eq="2 × 3 = 6 outfits"]]'],
-            ["The trap is adding: 2 shirts plus 3 hats is 5 THINGS, but things are not outfits — each outfit uses one of each. And do not stop at the shirts: 2 is a closet, not a count of ways. When choices stack, times; when piles pour into one pile, add.",
-             '[[step eq="2 × 3 = 6 ✓"]][[step eq="2 + 3 = 5 ✗ — that counts things, not outfits"]]'],
+            ("That is the method. Draw the grid: a row for each shirt, a column for "
+             "each hat. 2 rows of 3 boxes is 2 times 3, which equals 6 outfits. When "
+             "choices stack, times.",
+             '[[array rows="2" cols="3" caption="2 × 3 = 6 outfits"]][[step eq="2 × 3 = 6 outfits"]]'),
+            ("The trap is adding: 2 shirts plus 3 hats is 5 THINGS, but things are "
+             "not outfits — each outfit uses one of each. And do not stop at the "
+             "shirts: 2 is a closet, not a count of ways. When choices stack, times; "
+             "when piles pour into one pile, add.",
+             '[[step eq="2 × 3 = 6 ✓"]][[step eq="2 + 3 = 5 ✗ — that counts things, not outfits"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 4 shirts and 5 hats: 4 times 5 equals 20 different outfits.",
-                        '[[step eq="4 × 5 = 20"]]'],
-             "ask": {"a": 6, "b": 2, "op": "outc"}},
-            {"worked": ["One more together. 3 shirts and 6 hats — 3 times 6, which equals 18 ways.",
-                        '[[step eq="3 × 6 = 18"]]'],
-             "ask": {"a": 9, "b": 3, "op": "outc"}},
+            {"worked": ("Here is one more, done for you. 4 shirts and 5 hats: 4 times 5 "
+                        "equals 20 different outfits.",
+                        '[[array rows="4" cols="5" caption="4 × 5 = 20 outfits"]][[step eq="4 × 5 = 20"]]'),
+             "ask": {'a': 6, 'b': 2, 'op': 'outc'}},
+            {"worked": ("One more together. 3 shirts and 6 hats — 3 times 6, which "
+                        "equals 18 ways.",
+                        '[[array rows="3" cols="6" caption="3 × 6 = 18 outfits"]][[step eq="3 × 6 = 18"]]'),
+             "ask": {'a': 9, 'b': 3, 'op': 'outc'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. With 2 shirts and "
+                       "3 hats there are 6 different outfits. Tap the reason why."),
+            "choices": ("because every shirt can go with every one of the hats | "
+                        "because 2 shirts and 3 hats are 5 things | because the "
+                        "number of outfits is the number of shirts"),
+            "answer": "because every shirt can go with every one of the hats",
+            "board": '[[array rows="2" cols="3" caption="2 × 3 = 6 outfits"]]',
+        },
+        "recap": [
+            ("So, here it is again. When one choice stacks on another, the ways times "
+             "up — a row for each of the first, a column for each of the second, and "
+             "every box is one way. Adding counts things, never outfits.",
+             '[[array rows="2" cols="3" caption="2 × 3 = 6"]]'),
+            ("And that is choices, timesed up.",
+             '[[step eq="2 × 3 = 6"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "op": "outc"},
             {"a": 4, "b": 2, "op": "outc"},
@@ -14643,24 +15107,64 @@ _GEOMETRY_U9 = [
         "op": "twop", "max_value": 14,
         "levels": ("abstract",),
         "symbols": ("table", "row"),
-        "advance_line": "Three in a row — you've got it! The right row, the right column, the box where they cross.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The right row, the right column, the box where they cross.",
+        "why": [
+            ("Why a table? Because numbers love one. A class chose sports: the boys\' "
+             "counts sit in one row, the girls\' in another; soccer fills one column, "
+             "art the next. Every student lands in exactly one box, and reading the "
+             "right box answers most questions before any arithmetic starts.",
+             '[[goal text="Reading the table"]]'),
+        ],
+        "picture": [
+            ("Here is the table. Two rows — boys, then girls — and two columns — "
+             "soccer, then art. Four boxes, and each holds one count: the boys who "
+             "chose soccer, the boys who chose art, the girls who chose soccer, the "
+             "girls who chose art.",
+             '[[twoway rowlabels="boys,girls" collabels="soccer,art" data="4,3|2,6" caption="two rows, two columns — four boxes of counts"]]'),
+        ],
         "teach": [
-            ["Numbers love a table. A class chose sports: the boys' counts sit in one row, the girls' in another; soccer fills one column, art the next. Every child lands in exactly one box, and reading the right box answers most questions before any arithmetic starts.",
-             '[[goal text="Reading the table"]][[twoway rowlabels="boys,girls" collabels="soccer,art" data="4,3|2,6" caption="rows and columns of counts"]]'],
-            ["How many girls chose soccer? Find the girls row — the second one. Slide along to the soccer column. The box where they cross holds 2: two girls chose soccer. Row first, then column — an address, like a point on the grid.",
-             '[[twoway rowlabels="boys,girls" collabels="soccer,art" data="4,3|2,6" caption="rows and columns of counts"]][[step eq="girls row → soccer column → 2"]]'],
-            ["The traps are the next-door boxes. Stay in the soccer column but drift to the boys row: 4 — right sport, wrong children. Stay with the girls but slide to art: 6 — right children, wrong sport. Cross the RIGHT row with the RIGHT column, every time.",
-             '[[step eq="girls + soccer = 2 ✓"]][[step eq="4 ✗ wrong row · 6 ✗ wrong column"]]'],
+            ("That is the method. How many girls chose soccer? Find the girls row — "
+             "the second one. Slide along to the soccer column. The box where they "
+             "cross holds 2: two girls chose soccer. Row first, then column — an "
+             "address, like a point on the grid.",
+             '[[twoway rowlabels="boys,girls" collabels="soccer,art" data="4,3|2,6" caption="girls row, soccer column — the crossing holds 2"]][[step eq="girls row → soccer column → 2"]]'),
+            ("The traps are the next-door boxes. Stay in the soccer column but drift "
+             "to the boys row: 4 — right sport, wrong students. Stay with the girls but "
+             "slide to art: 6 — right students, wrong sport. Cross the RIGHT row with "
+             "the RIGHT column, every time.",
+             '[[step eq="girls + soccer = 2 ✓"]][[step eq="4 ✗ wrong row · 6 ✗ wrong column"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. How many girls chose art here? Girls row, art column — the box holds 7.",
-                        '[[twoway rowlabels="boys,girls" collabels="soccer,art" data="5,2|3,7" caption="rows and columns of counts"]][[step eq="girls row → art column → 7"]]'],
-             "ask": {"a": 5, "b": 6, "c": 2, "op": "twop"}},
-            {"worked": ["One more together. In this table the girls-and-art box holds 5 — right row, right column, done.",
-                        '[[twoway rowlabels="boys,girls" collabels="soccer,art" data="6,4|8,5" caption="rows and columns of counts"]][[step eq="girls row → art column → 5"]]'],
-             "ask": {"a": 11, "b": 10, "c": 12, "op": "twop"}},
+            {"worked": ("Here is one more, done for you. How many girls chose art here? "
+                        "Girls row, art column — the box holds 7.",
+                        '[[twoway rowlabels="boys,girls" collabels="soccer,art" data="5,2|3,7" caption="girls row, art column — 7"]][[step eq="girls row → art column → 7"]]'),
+             "ask": {'a': 5, 'b': 6, 'c': 2, 'op': 'twop'}},
+            {"worked": ("One more together. In this table the girls-and-art box holds 5 "
+                        "— right row, right column, done.",
+                        '[[twoway rowlabels="boys,girls" collabels="soccer,art" data="6,4|8,5" caption="girls row, art column — 5"]][[step eq="girls row → art column → 5"]]'),
+             "ask": {'a': 11, 'b': 10, 'c': 12, 'op': 'twop'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. In the table, the "
+                       "number of girls who chose soccer is 2. Tap the reason why."),
+            "choices": ("because 2 sits where the girls row meets the soccer column | "
+                        "because 2 is the smallest number in the table | because the "
+                        "girls row is the first row"),
+            "answer": "because 2 sits where the girls row meets the soccer column",
+            "board": '[[twoway rowlabels="boys,girls" collabels="soccer,art" data="4,3|2,6" caption="girls row, soccer column → 2"]]',
+        },
+        "recap": [
+            ("So, here it is again. A table holds a count in every box, and a box is "
+             "an address: the right row crossed with the right column. Row first, "
+             "then column — and beware the next-door boxes, right row but wrong "
+             "column, right column but wrong row.",
+             '[[twoway rowlabels="boys,girls" collabels="soccer,art" data="4,3|2,6" caption="girls row, soccer column → 2"]]'),
+            ("And that is a table, read at the crossing.",
+             '[[step eq="girls row → soccer column → 2"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 5, "c": 2, "op": "twop"},
             {"a": 4, "b": 2, "c": 3, "op": "twop"},
@@ -24497,6 +25001,198 @@ def _alen_worked(p):
 
 
 
+# ---- (tk, 2026-09-06) GEOMETRY UNITS 7-9: the grid with the segment and the right
+# triangle under the slant, the parallelogram with its true height, the two rooms,
+# the six faces, the box that grows three ways, the bag as a pie, the outfits as an
+# array, the table read at the crossing. Every ask draws its question with the answer
+# withheld; every walk-back draws it filled in.
+def _vseg_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[graph points="({a},{b}),({a},{c})" range="0..10" yrange="0..10" caption="from ({a}, {b}) straight up to ({a}, {c}) — how many steps?"]]'
+            f'[[step eq="{c} − {b} = ?"]]')
+
+
+def _vseg_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: the length is the gap between the heights, {c} take away "
+            f"{b}, which equals {c - b}. Count the steps, never the dots — a fence with "
+            f"{c - b + 1} posts has {c - b} rails.",
+            f'[[graph points="({a},{b}),({a},{c})" range="0..10" yrange="0..10" caption="{c} − {b} = {c - b} steps"]]'
+            f'[[step eq="{c} − {b} = {c - b}"]]')
+
+
+def _dist_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[graph points="({a},{b}),({a + 3 * c},{b + 4 * c})" range="0..14" yrange="0..14" caption="from ({a}, {b}) to ({a + 3 * c}, {b + 4 * c}) — across {3 * c}, up {4 * c}; how far straight?"]]'
+            f'[[step eq="across {3 * c} · up {4 * c}"]]'
+            f'[[step eq="{3 * c}² + {4 * c}² = ?²"]]')
+
+
+def _dist_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: a right triangle sits under the slant — across {3 * c}, up "
+            f"{4 * c}. {9 * c * c} plus {16 * c * c} is {25 * c * c}, and {5 * c} times "
+            f"{5 * c} squares back to it: the straight path is {5 * c}. Walking the grid "
+            f"would cost {7 * c}.",
+            f'[[graph points="({a},{b}),({a + 3 * c},{b}),({a + 3 * c},{b + 4 * c})" range="0..14" yrange="0..14" caption="the right triangle under the slant — across {3 * c}, up {4 * c}, straight {5 * c}"]]'
+            f'[[righttriangle adj="{3 * c}" opp="{4 * c}" hyp="{5 * c}" caption="{3 * c}² + {4 * c}² = {25 * c * c} = {5 * c}²"]]')
+
+
+def _mid2_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[graph points="({a},{b}),({c},{b + 4})" range="0..14" yrange="0..14" caption="from ({a}, {b}) to ({c}, {b + 4}) — where is the middle\'s x?"]]'
+            f'[[step eq="x: ({a} + {c}) ÷ 2 = ?"]]')
+
+
+def _mid2_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    m = (a + c) // 2
+    return (f"Look what you did: the x\'s are {a} and {c} — put together {a + c}, shared by "
+            f"two is {m}. The middle sits halfway across, at x equals {m}; its y is its own "
+            f"little average, {b + 2}.",
+            f'[[graph points="({a},{b}),({m},{b + 2}),({c},{b + 4})" range="0..14" yrange="0..14" caption="the midpoint ({m}, {b + 2}) — x: ({a} + {c}) ÷ 2 = {m}"]]'
+            f'[[step eq="x: ({a} + {c}) ÷ 2 = {m}"]]')
+
+
+def _corn_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[graph points="({a},{b}),({c},{b}),({a},{b + 3})" range="0..14" yrange="0..14" caption="three corners of a rectangle — the fourth closes the box; what is its x?"]]'
+            f'[[step eq="the fourth corner closes the rectangle"]]')
+
+
+def _corn_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: the fourth corner sits straight above ({c}, {b}), so it "
+            f"shares that x — {c}. It sits level with ({a}, {b + 3}), so its y is {b + 3}: the "
+            f"corner is ({c}, {b + 3}), and the box is closed.",
+            f'[[graph points="({a},{b}),({c},{b}),({a},{b + 3}),({c},{b + 3})" range="0..14" yrange="0..14" caption="the four corners — the fourth is ({c}, {b + 3})"]]'
+            f'[[step eq="above ({c}, {b}) → x = {c}"]]')
+
+
+def _para_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[polygon kind="parallelogram" base="{a}" slant="{c}" height="{b}" caption="base {a}, leaning side {c}, height {b} — which two make the area?"]]'
+            f'[[step eq="area = base × height = ?"]]')
+
+
+def _para_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: base times height — {a} times {b} equals {a * b}. Push the "
+            f"leaning stack straight and it is a rectangle {a} long and {b} tall; the slanted "
+            f"{c} was never how tall it stood.",
+            f'[[rectangle w="{a}" h="{b}" caption="pushed straight: {a} by {b} — area {a * b}"]]'
+            f'[[step eq="{a} × {b} = {a * b}"]]')
+
+
+def _lshp_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[rectangle w="{a}" h="{b}" caption="one room: {a} by {b}"]]'
+            f'[[rectangle w="{c}" h="{b}" caption="the other room: {c} by {b} — the floor in all?"]]'
+            f'[[step eq="{a} × {b} + {c} × {b} = ?"]]')
+
+
+def _lshp_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: cut, measure, put together. One room is {a} times {b}, "
+            f"{a * b}; the other is {c} times {b}, {c * b}. {a * b} plus {c * b} equals "
+            f"{b * (a + c)} — areas add to areas; lengths never do.",
+            f'[[rectangle w="{a}" h="{b}" caption="{a} × {b} = {a * b}"]]'
+            f'[[rectangle w="{c}" h="{b}" caption="{c} × {b} = {c * b}"]]'
+            f'[[step eq="{a * b} + {c * b} = {b * (a + c)}"]]')
+
+
+def _surf_board(p):
+    a = p["a"]
+    return (f'[[solid kind="cube" caption="a cube — one face has an area of {a}; six faces in all"]]'
+            f'[[step eq="6 × {a} = ?"]]')
+
+
+def _surf_worked(p):
+    a = p["a"]
+    return (f"Look what you did: six faces, all alike — top, bottom, and four around the "
+            f"sides. 6 times {a} equals {6 * a} square units. Four walls alone would be "
+            f"{4 * a}, an open box; the floor and the ceiling are faces too.",
+            f'[[bars data="top:{a} | bottom:{a} | front:{a} | back:{a} | left:{a} | right:{a}" caption="six faces of {a} — 6 × {a} = {6 * a}"]]'
+            f'[[step eq="6 × {a} = {6 * a}"]]')
+
+
+def _svol_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[solid kind="prism" caption="a box of {a} cubic units — every edge enlarged by {b}"]]'
+            f'[[step eq="volume grows in three directions"]]'
+            f'[[step eq="{a} × {b} × {b} × {b} = ?"]]')
+
+
+def _svol_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the box grows {b} times as long, {b} times as wide and {b} "
+            f"times as tall — {b} times {b} times {b} is {b ** 3} times the room. {a} times "
+            f"{b ** 3} equals {a * b ** 3} cubic units. Length pays once, area twice, volume "
+            f"three times.",
+            f'[[solid kind="prism" w="×{b}" d="×{b}" h="×{b}" caption="every edge × {b}: {b} × {b} × {b} = {b ** 3} times the room"]]'
+            f'[[step eq="{a} × {b ** 3} = {a * b ** 3}"]]')
+
+
+def _poft_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[bars data="red:{a} | blue:{b}" caption="{a} red and {b} blue — red is {a} out of the whole bag"]]'
+            f'[[step eq="out of ALL the marbles: {a} + {b} = ?"]]')
+
+
+def _poft_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the pick lands on one of ALL the marbles. {a} reds plus "
+            f"{b} blues is {a + b} in the bag, so red is {a} out of {a + b} — not out of "
+            f"{b}; the blues are not the whole bag.",
+            f'[[pie data="red:{a} | blue:{b}" caption="the whole bag: {a} + {b} = {a + b} — red is {a} out of {a + b}"]]'
+            f'[[step eq="{a} + {b} = {a + b}"]]')
+
+
+def _notp_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[bars data="rain:{a} | all the chances:{b}" caption="rain takes {a} of the {b} chances — no rain gets the rest"]]'
+            f'[[step eq="{b} − {a} = ?"]]')
+
+
+def _notp_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: every chance belongs to somebody. {b} take away {a} leaves "
+            f"{b - a} out of {b} for no rain — and {a} plus {b - a} puts the whole {b} back.",
+            f'[[bars data="rain:{a} | no rain:{b - a}" caption="{a} + {b - a} = {b} — every chance spoken for"]]'
+            f'[[step eq="{b} − {a} = {b - a}"]]')
+
+
+def _outc_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[array rows="{a}" cols="{b}" caption="a row for each of the {a} shirts, a column for each of the {b} hats — every box is one outfit"]]'
+            f'[[step eq="{a} × {b} = ?"]]')
+
+
+def _outc_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: for every shirt, every one of the hats is still open — "
+            f"choices times up. {a} rows of {b} boxes is {a} times {b}, which equals "
+            f"{a * b} outfits. Adding gives {a + b} things, not outfits.",
+            f'[[array rows="{a}" cols="{b}" caption="{a} × {b} = {a * b} outfits"]]'
+            f'[[step eq="{a} × {b} = {a * b}"]]')
+
+
+def _twop_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[twoway rowlabels="boys,girls" collabels="soccer,art" data="{a},{b}|{c},{c + 2}" caption="rows and columns of counts — find the girls row, then the art column"]]'
+            f'[[step eq="find the girls row, then the art column"]]')
+
+
+def _twop_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: the girls row is the second row; slide along to the art "
+            f"column, and the box where they cross holds {c + 2}. The next-door boxes were "
+            f"the traps — {b} is the boys with art, {c} is the girls with soccer.",
+            f'[[twoway rowlabels="boys,girls" collabels="soccer,art" data="{a},{b}|{c},{c + 2}" caption="girls row, art column — the crossing holds {c + 2}"]]'
+            f'[[step eq="girls row → art column → {c + 2}"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -27629,10 +28325,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Two points sit at ({p['a']}, {p['b']}) and "
                              f"({p['a']}, {p['c']}). How long is the segment "
                              f"between them?"),
-        "board": lambda p: (f'[[graph points="({p["a"]},{p["b"]}),'
-                            f'({p["a"]},{p["c"]})" range="0..10" '
-                            f'yrange="0..10"]]'
-                            f'[[step eq="{p["c"]} − {p["b"]} = ?"]]'),
+        "board": _vseg_board,         # (tk) the two points, captioned
+        "worked": _vseg_worked,       # (tk) the steps counted
         "praise": lambda p: (f"From {p['b']} up to {p['c']} is "
                              f"{p['c'] - p['b']} steps — count steps, never "
                              f"dots."),
@@ -27654,12 +28348,8 @@ OP_EXT = {
         "spoken": lambda p: (f"How far is it straight from ({p['a']}, {p['b']}) "
                              f"to ({p['a'] + 3 * p['c']}, "
                              f"{p['b'] + 4 * p['c']})?"),
-        "board": lambda p: (f'[[graph points="({p["a"]},{p["b"]}),'
-                            f'({p["a"] + 3 * p["c"]},{p["b"] + 4 * p["c"]})" '
-                            f'range="0..14" yrange="0..14"]]'
-                            f'[[step eq="across {3 * p["c"]} · up '
-                            f'{4 * p["c"]}"]]'
-                            f'[[step eq="{3 * p["c"]}² + {4 * p["c"]}² = ?²"]]'),
+        "board": _dist_board,         # (tk) the two points, the across and up named
+        "worked": _dist_worked,       # (tk) the right triangle under the slant
         "praise": lambda p: (f"Across {3 * p['c']} and up {4 * p['c']}: "
                              f"{9 * p['c'] * p['c']} plus "
                              f"{16 * p['c'] * p['c']} is "
@@ -27686,10 +28376,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A line runs from ({p['a']}, {p['b']}) up to "
                              f"({p['c']}, {p['b'] + 4}). What is the x "
                              f"coordinate of its midpoint?"),
-        "board": lambda p: (f'[[graph points="({p["a"]},{p["b"]}),'
-                            f'({p["c"]},{p["b"] + 4})" range="0..14" '
-                            f'yrange="0..14"]]'
-                            f'[[step eq="x: ({p["a"]} + {p["c"]}) ÷ 2 = ?"]]'),
+        "board": _mid2_board,         # (tk) the two ends, captioned
+        "worked": _mid2_worked,       # (tk) the midpoint marked
         "praise": lambda p: (f"The x's are {p['a']} and {p['c']}: put together "
                              f"{p['a'] + p['c']}, shared by two is "
                              f"{(p['a'] + p['c']) // 2}."),
@@ -27717,11 +28405,8 @@ OP_EXT = {
                              f"{p['b'] + 3}). What is the x coordinate of the "
                              f"fourth corner?"),
         # The fourth point is NEVER drawn -- the child closes the box.
-        "board": lambda p: (f'[[graph points="({p["a"]},{p["b"]}),'
-                            f'({p["c"]},{p["b"]}),({p["a"]},{p["b"] + 3})" '
-                            f'range="0..14" yrange="0..14"]]'
-                            f'[[step eq="the fourth corner closes the '
-                            f'rectangle"]]'),
+        "board": _corn_board,         # (tk) three corners, captioned (the fourth never drawn)
+        "worked": _corn_worked,       # (tk) the box closed
         "praise": lambda p: (f"The fourth corner sits straight above "
                              f"({p['c']}, {p['b']}), so its x is {p['c']} — the "
                              f"corner is ({p['c']}, {p['b'] + 3})."),
@@ -27754,9 +28439,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A parallelogram leans: its base is {p['a']}, its "
                              f"slanted side is {p['c']}, and its height is "
                              f"{p['b']}. What is its area?"),
-        "board": lambda p: (f'[[step eq="base {p["a"]} · height {p["b"]} · '
-                            f'slant {p["c"]}"]]'
-                            f'[[step eq="area = base × height = ?"]]'),
+        "board": _para_board,         # (tk) the parallelogram with its true height drawn
+        "worked": _para_worked,       # (tk) pushed straight into a rectangle
         "praise": lambda p: (f"Base times height: {p['a']} times {p['b']} equals "
                              f"{p['a'] * p['b']} — the slanted {p['c']} was never "
                              f"how tall it stood."),
@@ -27779,11 +28463,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A floor is made of two rectangles: one {p['a']} "
                              f"long and {p['b']} wide, and one {p['c']} long and "
                              f"{p['b']} wide. What is the floor's area in all?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} × {p["b"]} = '
-                            f'{p["a"] * p["b"]} · {p["c"]} × {p["b"]} = '
-                            f'{p["c"] * p["b"]}"]]'
-                            f'[[step eq="{p["a"] * p["b"]} + '
-                            f'{p["c"] * p["b"]} = ?"]]'),
+        "board": _lshp_board,         # (tk) the two rooms, captioned
+        "worked": _lshp_worked,       # (tk) each room measured
         "praise": lambda p: (f"Cut, measure, put together: {p['a'] * p['b']} plus "
                              f"{p['c'] * p['b']} equals "
                              f"{p['b'] * (p['a'] + p['c'])}."),
@@ -27806,8 +28487,8 @@ OP_EXT = {
         "ans": lambda p: 6 * p["a"],
         "spoken": lambda p: (f"One face of a cube has an area of {p['a']} square "
                              f"units. What is the cube's surface area?"),
-        "board": lambda p: (f'[[step eq="a cube wears 6 equal faces"]]'
-                            f'[[step eq="6 × {p["a"]} = ?"]]'),
+        "board": _surf_board,         # (tk) the cube, captioned
+        "worked": _surf_worked,       # (tk) the six faces as bars
         "praise": lambda p: (f"Six faces, all alike: 6 times {p['a']} equals "
                              f"{6 * p['a']} square units."),
         "key": lambda p: p["a"],
@@ -27825,9 +28506,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A box holds {p['a']} cubic units. Every edge is "
                              f"enlarged by a scale factor of {p['b']}. How many "
                              f"cubic units does the new box hold?"),
-        "board": lambda p: (f'[[step eq="volume grows in three directions"]]'
-                            f'[[step eq="{p["a"]} × {p["b"]} × {p["b"]} × '
-                            f'{p["b"]} = ?"]]'),
+        "board": _svol_board,         # (tk) the box, captioned
+        "worked": _svol_worked,       # (tk) every edge timesed
         "praise": lambda p: (f"Length pays the factor once, area twice — volume "
                              f"pays it three times: {p['a']} times "
                              f"{p['b'] ** 3} equals {p['a'] * p['b'] ** 3} cubic "
@@ -27860,9 +28540,8 @@ OP_EXT = {
                              f"blue marbles. One marble is picked without "
                              f"looking. The chance of red is {p['a']} out of "
                              f"how many?"),
-        "board": lambda p: (f'[[bars data="red:{p["a"]} | blue:{p["b"]}"]]'
-                            f'[[step eq="out of ALL the marbles: {p["a"]} + '
-                            f'{p["b"]} = ?"]]'),
+        "board": _poft_board,         # (tk) the two colours as bars, captioned
+        "worked": _poft_worked,       # (tk) the whole bag as a pie
         "praise": lambda p: (f"The pick lands on one of ALL the marbles: "
                              f"{p['a']} plus {p['b']} equals "
                              f"{p['a'] + p['b']}, so red is {p['a']} out of "
@@ -27883,9 +28562,8 @@ OP_EXT = {
         "spoken": lambda p: (f"The chance of rain today is {p['a']} out of "
                              f"{p['b']}. What is the chance of no rain, out of "
                              f"{p['b']}?"),
-        "board": lambda p: (f'[[step eq="all the chances: {p["b"]} · rain: '
-                            f'{p["a"]}"]]'
-                            f'[[step eq="{p["b"]} − {p["a"]} = ?"]]'),
+        "board": _notp_board,         # (tk) rain against all the chances
+        "worked": _notp_worked,       # (tk) rain beside no rain
         "praise": lambda p: (f"Every chance belongs to somebody: {p['b']} take "
                              f"away {p['a']} leaves {p['b'] - p['a']} out of "
                              f"{p['b']} for no rain — and {p['a']} plus "
@@ -27908,9 +28586,8 @@ OP_EXT = {
         # [[areamodel]] would draw the outfit grid beautifully -- and prints its
         # expanded product at the bottom, the answer. Teach boards use it; ask
         # boards get steps.
-        "board": lambda p: (f'[[step eq="for each of the {p["a"]} shirts, every '
-                            f'one of the {p["b"]} hats"]]'
-                            f'[[step eq="{p["a"]} × {p["b"]} = ?"]]'),
+        "board": _outc_board,         # (tk) the outfit grid as an array, captioned
+        "worked": _outc_worked,       # (tk) the boxes counted
         "praise": lambda p: (f"Choices times up: {p['a']} times {p['b']} equals "
                              f"{p['a'] * p['b']} different outfits."),
         "key": lambda p: p["a"] * p["b"],
@@ -27931,11 +28608,8 @@ OP_EXT = {
         # speaks is always satisfied, because reading the board IS the skill.
         "spoken": lambda p: ("The table shows a class and the sport each child "
                              "chose. How many girls chose art?"),
-        "board": lambda p: (f'[[twoway rowlabels="boys,girls" '
-                            f'collabels="soccer,art" '
-                            f'data="{p["a"]},{p["b"]}|{p["c"]},{p["c"] + 2}"]]'
-                            f'[[step eq="find the girls row, then the art '
-                            f'column"]]'),
+        "board": _twop_board,         # (tk) the table, captioned
+        "worked": _twop_worked,       # (tk) the crossing named
         "praise": lambda p: (f"Girls row, art column — the box where they cross "
                              f"holds {p['c'] + 2}."),
         "key": lambda p: p["c"],

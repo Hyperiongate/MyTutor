@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tk -- PART 3jg: Geometry Units 7-9 to the shape (12 lessons on the
+#               grid, the right triangle under the slant, the parallelogram with its true
+#               height drawn, the rooms, the cube, the box, the bars, the pie, the array
+#               and the two-way table); the course is 36/36; every figure an ask draws
+#               captioned; the two-rooms pending line spoken.
+#               The lessonscripts dated-note pins that read 20,000 characters (te...tk, sz)
+#               now read 60,000: the header outgrew them.
 #   2026-09-06  BUILD tj -- PART 3jf: Geometry Units 4-6 to the shape (12 lessons on the
 #               two triangles, the bars, the rectangle of squares, the right triangle and
 #               the pie of arcs); the second-triangle referee reads the v= names (tutor.py);
@@ -21874,7 +21881,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>9,617</b>" in page,
+          "<b>9,703</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24194,8 +24201,10 @@ def part3iv_the_times_table_is_a_pass():
     src = rd("lessonscripts.py")
     check("  the slip never enters the AI doorway (its branch sits above it in step)",
           0 < src.find('if state["phase"] == "table":\n        state["streak"] = 0') < src.find("# ---- wrong answer: the ONE doorway to the AI ----"), "")
+    # (tk, 2026-09-06) the header grew past 20,000 characters (every build to the
+    # shape adds a note above this one); the pin reads 60,000, as the sp...td pins do.
     check("  the changed files carry dated sz notes",
-          "2026-09-05  BUILD sz" in src[:20000] and "BUILD sz" in m[:200000]
+          "2026-09-05  BUILD sz" in src[:60000] and "BUILD sz" in m[:200000]
           and "2026-09-05  BUILD sz" in rd("ruletests.py")[:16000]
           and "2026-09-05" in rd("static/methodology.html")[:6000], "Jim's rule 8")
 
@@ -24716,7 +24725,7 @@ def part3ja_prealgebra_units_seven_to_nine_to_the_shape():
     check("  every ask in the three units reads its pending line aloud (rule 44) -- the old pcn/pwh/tri/tri3 asks did not",
           _unsp == 0, f"{_unsp} unspoken")
     check("  the changed files carry dated te notes",
-          "2026-09-06  BUILD te" in rd("lessonscripts.py")[:20000] and "BUILD te" in rd("main.py")[:200000]
+          "2026-09-06  BUILD te" in rd("lessonscripts.py")[:60000] and "BUILD te" in rd("main.py")[:200000]
           and "2026-09-06  BUILD te" in rd("ruletests.py")[:8000] and "(te)" in rd("static/methodology.html")[:6000]
           and "2026-09-06  BUILD te" in mf[:3000],
           "Jim's rule 8")
@@ -24820,7 +24829,7 @@ def part3jb_algebra_one_units_one_to_three_to_the_shape():
           not any(re.search(r'\[\[step eq="[^"]*[A-Za-z]\?[^"]*"\]\]', L.board_for(p, "abstract"))
                   for l in A1 + A2 + A3 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tf notes",
-          "2026-09-06  BUILD tf" in rd("lessonscripts.py")[:20000] and "BUILD tf" in rd("main.py")[:200000]
+          "2026-09-06  BUILD tf" in rd("lessonscripts.py")[:60000] and "BUILD tf" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tf" in rd("ruletests.py")[:8000] and "(tf)" in rd("static/methodology.html")[:6000]
           and "2026-09-06  BUILD tf" in mf[:3000],
           "Jim's rule 8")
@@ -24926,7 +24935,7 @@ def part3jc_algebra_one_units_four_to_six_to_the_shape():
                   or re.search(r'\[\[step eq="[^"]*[A-Za-z]\?[^"]*"\]\]', L.board_for(p, "abstract"))
                   for l in A4 + A5 + A6 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tg notes",
-          "2026-09-06  BUILD tg" in rd("lessonscripts.py")[:20000] and "BUILD tg" in rd("main.py")[:200000]
+          "2026-09-06  BUILD tg" in rd("lessonscripts.py")[:60000] and "BUILD tg" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tg" in rd("ruletests.py")[:8000] and "(tg)" in rd("static/methodology.html")[:6000]
           and "2026-09-06  BUILD tg" in mf[:3000],
           "Jim's rule 8")
@@ -25038,7 +25047,7 @@ def part3jd_algebra_one_units_seven_to_nine_to_the_shape():
           all(L.LESSON_BY_ID[l["id"]].get("why") and l.get("picture") and l.get("explain") and l.get("show_work_on_correct") and l.get("recap")
               for l in L.LESSONS if l["course"] == "algebra1") and sum(1 for l in L.LESSONS if l["course"] == "algebra1") == 36, "")
     check("  the changed files carry dated th notes",
-          "2026-09-06  BUILD th" in rd("lessonscripts.py")[:20000] and "BUILD th" in rd("main.py")[:200000]
+          "2026-09-06  BUILD th" in rd("lessonscripts.py")[:60000] and "BUILD th" in rd("main.py")[:200000]
           and "2026-09-06  BUILD th" in rd("ruletests.py")[:8000] and "(th)" in rd("static/methodology.html")[:6000]
           and "2026-09-06  BUILD th" in mf[:3000],
           "Jim's rule 8")
@@ -25142,7 +25151,7 @@ def part3je_geometry_units_one_to_three_to_the_shape():
     check("  every ask in the three units reads its pending line aloud (rule 44)",
           _unsp == 0, f"{_unsp} unspoken")
     check("  the changed files carry dated ti notes",
-          "2026-09-06  BUILD ti" in rd("lessonscripts.py")[:20000] and "BUILD ti" in rd("main.py")[:200000]
+          "2026-09-06  BUILD ti" in rd("lessonscripts.py")[:60000] and "BUILD ti" in rd("main.py")[:200000]
           and "2026-09-06  BUILD ti" in rd("ruletests.py")[:8000] and "(ti)" in rd("static/methodology.html")[:6000],
           "Jim's rule 8")
 
@@ -25264,9 +25273,139 @@ def part3jf_geometry_units_four_to_six_to_the_shape():
           not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
                   for l in G4 + G5 + G6), "")
     check("  the changed files carry dated tj notes",
-          "2026-09-06  BUILD tj" in rd("lessonscripts.py")[:20000] and "BUILD tj" in rd("main.py")[:200000]
+          "2026-09-06  BUILD tj" in rd("lessonscripts.py")[:60000] and "BUILD tj" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tj" in rd("ruletests.py")[:8000] and "(tj)" in rd("static/methodology.html")[:6000]
           and "2026-09-06  BUILD tj" in rd("tutor.py")[:8000],
+          "Jim's rule 8")
+
+
+def part3jg_geometry_units_seven_to_nine_to_the_shape():
+    """PART 3jg (build tk, 2026-09-06) -- GEOMETRY UNITS 7-9 TO THE SHAPE; THE COURSE
+    IS 36/36.
+
+    The up-and-down segment with its steps counted; the slant walked back with the
+    right triangle drawn under it; the midpoint marked; the three corners and the box
+    closed; the parallelogram drawn with its true height (polygon kind="parallelogram",
+    new in geo-figures.js) and pushed straight; the two rooms as two rectangles with a
+    pending line the ask speaks; the cube walked back as six faces on the bars; the
+    box with every edge timesed; the bag as bars and then the whole bag as a pie; rain
+    against all the chances and then beside no rain; the outfit grid as an array; the
+    two-way table read at the crossing. Every figure an ask draws carries a caption."""
+    print("\nPART 3jg — Geometry Units 7-9 to the shape (build tk)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    G7 = ["geo-u7-straight-up", "geo-u7-the-straight-path",
+          "geo-u7-the-middle-of-a-line", "geo-u7-the-fourth-corner"]
+    G8 = ["geo-u8-the-true-height", "geo-u8-two-rooms",
+          "geo-u8-six-faces", "geo-u8-the-volume-surprise"]
+    G9 = ["geo-u9-out-of-all", "geo-u9-the-other-chance",
+          "geo-u9-how-many-ways", "geo-u9-reading-the-table"]
+    _shape_unit_checks(G7, r"\[\[(graph|righttriangle)\b")
+    _shape_unit_checks(G8, r"\[\[(polygon|rectangle|solid|bars)\b")
+    _shape_unit_checks(G9, r"\[\[(pie|bars|array|twoway)\b")
+    check("⭐ Geometry is 36/36 on the shape",
+          all(L.LESSON_BY_ID[l].get("why") and L.LESSON_BY_ID[l].get("picture") and L.LESSON_BY_ID[l].get("recap")
+              and L.LESSON_BY_ID[l].get("explain") and L.LESSON_BY_ID[l].get("show_work_on_correct")
+              for l in [x["id"] for x in L.LESSONS if x["course"] == "geometry"])
+          and len([x for x in L.LESSONS if x["course"] == "geometry"]) == 36, "")
+
+    # ---- Unit 7 ------------------------------------------------------------------------
+    vseg = {"a": 4, "b": 3, "c": 7, "op": "vseg"}
+    check("⭐ straight up: the two points captioned on the ask; the steps counted in the walk-back",
+          '[[graph points="(4,3),(4,7)" range="0..10" yrange="0..10" caption="from (4, 3) straight up to (4, 7) — how many steps?"]]' in L.board_for(vseg, "abstract")
+          and 'caption="7 − 3 = 4 steps"' in _W(vseg)[1] and "posts has 4 rails" in _W(vseg)[0], "")
+    dist = {"a": 3, "b": 4, "c": 1, "op": "dist"}
+    check("⭐ the straight path: the slant with across and up named on the ask; the right triangle under it in the walk-back",
+          'caption="from (3, 4) to (6, 8) — across 3, up 4; how far straight?"' in L.board_for(dist, "abstract")
+          and '[[step eq="3² + 4² = ?²"]]' in L.board_for(dist, "abstract")
+          and '[[graph points="(3,4),(6,4),(6,8)"' in _W(dist)[1]
+          and '[[righttriangle adj="3" opp="4" hyp="5" caption="3² + 4² = 25 = 5²"]]' in _W(dist)[1]
+          and "Walking the grid would cost 7" in _W(dist)[0], "")
+    mid2 = {"a": 3, "b": 5, "c": 5, "op": "mid2"}
+    check("  the middle of a line: the two ends on the ask; the midpoint marked in the walk-back",
+          'points="(3,5),(5,9)"' in L.board_for(mid2, "abstract") and "caption=" in L.board_for(mid2, "abstract")
+          and 'points="(3,5),(4,7),(5,9)"' in _W(mid2)[1] and "its own little average" in _W(mid2)[0], "")
+    corn = {"a": 3, "b": 4, "c": 6, "op": "corn"}
+    check("  the fourth corner: three corners captioned and the fourth never drawn; the box closed in the walk-back",
+          'points="(3,4),(6,4),(3,7)" range=' in L.board_for(corn, "abstract") and "(6,7)" not in L.board_for(corn, "abstract")
+          and 'points="(3,4),(6,4),(3,7),(6,7)"' in _W(corn)[1] and "the box is closed" in _W(corn)[0], "")
+
+    # ---- Unit 8 ------------------------------------------------------------------------
+    para = {"a": 7, "b": 3, "c": 4, "op": "para"}
+    check("⭐ the true height: the parallelogram drawn with base, leaning side and dashed height; pushed straight in the walk-back",
+          '[[polygon kind="parallelogram" base="7" slant="4" height="3" caption=' in L.board_for(para, "abstract")
+          and '[[step eq="area = base × height = ?"]]' in L.board_for(para, "abstract")
+          and '[[rectangle w="7" h="3" caption="pushed straight: 7 by 3 — area 21"]]' in _W(para)[1]
+          and "never how tall it stood" in _W(para)[0], "")
+    gf = rd("static/geo-figures.js")
+    check("  geo-figures.js draws the parallelogram under kind=, base and side labelled, the true height dashed; nothing without it",
+          'if (String(a.kind || "").trim().toLowerCase() === "parallelogram") {' in gf
+          and '"height " + String(a.height)' in gf and 'stroke-dasharray="6,5"' in gf
+          and '"base " + String(a.base)' in gf and "2026-09-06  BUILD tk" in gf[:3000], "")
+    lshp = {"a": 5, "b": 2, "c": 4, "op": "lshp"}
+    check("⭐ two rooms: two rectangles captioned and a pending line the ask SPEAKS (rule 44 -- 12 asks did not before tk)",
+          '[[rectangle w="5" h="2" caption="one room: 5 by 2"]][[rectangle w="4" h="2" caption=' in L.board_for(lshp, "abstract")
+          and '[[step eq="5 × 2 + 4 × 2 = ?"]]' in L.board_for(lshp, "abstract")
+          and not tutor.prose_unspoken_problem_conflict(L.spoken_for(lshp, "abstract") + "\n" + L.board_for(lshp, "abstract"))
+          and '[[step eq="10 + 8 = 18"]]' in _W(lshp)[1] and "lengths never do" in _W(lshp)[0], "")
+    surf = {"a": 2, "b": 0, "op": "surf"}
+    check("  six faces: the cube captioned on the ask; the six faces as bars in the walk-back",
+          '[[solid kind="cube" caption=' in L.board_for(surf, "abstract") and '[[step eq="6 × 2 = ?"]]' in L.board_for(surf, "abstract")
+          and '[[bars data="top:2 | bottom:2 | front:2 | back:2 | left:2 | right:2" caption=' in _W(surf)[1]
+          and "an open box" in _W(surf)[0], "")
+    svol = {"a": 7, "b": 2, "op": "svol"}
+    check("  the volume surprise: the box captioned; every edge timesed in the walk-back",
+          '[[solid kind="prism" caption="a box of 7 cubic units — every edge enlarged by 2"]]' in L.board_for(svol, "abstract")
+          and '[[solid kind="prism" w="×2" d="×2" h="×2" caption=' in _W(svol)[1] and "volume three times" in _W(svol)[0], "")
+
+    # ---- Unit 9 ------------------------------------------------------------------------
+    poft = {"a": 2, "b": 4, "op": "poft"}
+    check("⭐ out of all: the two colours as bars on the ask; the whole bag as a pie in the walk-back",
+          '[[bars data="red:2 | blue:4" caption=' in L.board_for(poft, "abstract")
+          and '[[pie data="red:2 | blue:4" caption="the whole bag: 2 + 4 = 6 — red is 2 out of 6"]]' in _W(poft)[1]
+          and "the blues are not the whole bag" in _W(poft)[0], "")
+    notp = {"a": 2, "b": 9, "op": "notp"}
+    check("  the other chance: rain against all the chances on the ask; rain beside no rain in the walk-back",
+          '[[bars data="rain:2 | all the chances:9" caption=' in L.board_for(notp, "abstract")
+          and '[[bars data="rain:2 | no rain:7" caption="2 + 7 = 9 — every chance spoken for"]]' in _W(notp)[1]
+          and "puts the whole 9 back" in _W(notp)[0], "")
+    outc = {"a": 6, "b": 2, "op": "outc"}
+    check("⭐ how many ways: the outfit grid as an ARRAY (the area model prints the product); the boxes counted in the walk-back",
+          '[[array rows="6" cols="2" caption=' in L.board_for(outc, "abstract") and "areamodel" not in L.board_for(outc, "abstract")
+          and '[[array rows="6" cols="2" caption="6 × 2 = 12 outfits"]]' in _W(outc)[1] and "choices times up" in _W(outc)[0], "")
+    twop = {"a": 5, "b": 6, "c": 2, "op": "twop"}
+    check("  reading the table: the table captioned on the ask; the crossing named in the walk-back",
+          'data="5,6|2,4" caption="rows and columns of counts — find the girls row, then the art column"' in L.board_for(twop, "abstract")
+          and 'caption="girls row, art column — the crossing holds 4"' in _W(twop)[1]
+          and "The next-door boxes were the traps" in _W(twop)[0], "")
+
+    # ---- the giveaway audit, captions, spoken pending lines, the notes ----------------
+    check("  nothing the twelve lessons demonstrate is later asked (the old straight-up teach was a bank ask)",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in G7 + G8 + G9)
+          and "(1,3),(1,8)" in L.LESSON_BY_ID["geo-u7-straight-up"]["teach"][0][1], "")
+    check("  every figure an ask draws carries a caption (rule 41) -- 72 asks did not before tk",
+          all("caption=" in tag for l in G7 + G8 + G9
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:graph|polygon|rectangle|solid|bars|pie|array|twoway|righttriangle)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in G7 + G8 + G9:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  no reason option works the arithmetic aloud (the spoken-math referee sweeps the joined options)",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in G7 + G8 + G9), "")
+    check("  the new prose says students, never children",
+          not any(re.search(r"\bchild", s) for l in G7 + G8 + G9 for f in ("why", "picture", "teach", "recap")
+                  for s, _ in L.LESSON_BY_ID[l][f]), "")
+    check("  the changed files carry dated tk notes",
+          "2026-09-06  BUILD tk" in rd("lessonscripts.py")[:60000] and "BUILD tk" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD tk" in rd("ruletests.py")[:8000] and "(tk)" in rd("static/methodology.html")[:6000],
           "Jim's rule 8")
 
 
@@ -35596,6 +35735,7 @@ def main():
     part3jd_algebra_one_units_seven_to_nine_to_the_shape()
     part3je_geometry_units_one_to_three_to_the_shape()
     part3jf_geometry_units_four_to_six_to_the_shape()
+    part3jg_geometry_units_seven_to_nine_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

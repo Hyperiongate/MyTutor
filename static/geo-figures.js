@@ -2,6 +2,11 @@
    geo-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-06  BUILD tk -- [[polygon kind="parallelogram" base= slant= height=]] draws
+                 the pushed-over rectangle with its base and leaning side labelled and
+                 the TRUE HEIGHT as a dashed line straight down inside it -- Geometry
+                 Unit 8's "the slant is not the height", drawn. Without kind= nothing
+                 changed.
      2026-09-06  BUILD ti -- [[circle d="10"]] draws the diameter edge to edge through
                  the middle, labelled -- Geometry Unit 1's radius-and-diameter walk-back
                  shows two radiuses end to end. Without d= nothing changed.
@@ -347,6 +352,36 @@
   // ---- [[polygon]] : a regular n-gon, optional side / interior-angle labels (build ot) ----
   function polygon(a) {
     var W = 300, H = 260;
+    // (tk, 2026-09-06) [[polygon kind="parallelogram" base="6" slant="5" height="4"]]:
+    // the pushed-over rectangle, its base labelled underneath, the leaning side
+    // labelled along the slant, and the TRUE HEIGHT drawn as a dashed line straight
+    // down inside it, labelled in teal -- so "the slant is not the height" is seen,
+    // not just said. Leave height= out and the dashed line is not drawn (an ask can
+    // show the two lengths and withhold the picture of which one stands). Without
+    // kind="parallelogram" nothing here changed.
+    if (String(a.kind || "").trim().toLowerCase() === "parallelogram") {
+      var pw = 170, ph = 110, lean = 58, px0 = 44, py0 = 196;
+      var Q = [[px0, py0], [px0 + pw, py0], [px0 + pw + lean, py0 - ph], [px0 + lean, py0 - ph]];
+      var sp = open(W + 40, H);
+      sp += '<polygon points="' + Q.map(function (p) { return p.join(","); }).join(" ") +
+        '" fill="' + FILL + '" stroke="' + ACC + '" stroke-width="2.5" stroke-linejoin="round"/>';
+      if (a.base) sp += txt(px0 + pw / 2, py0 + 18, "base " + String(a.base), INK, 14, 700);
+      if (a.slant) {
+        var sm = mid(Q[1], Q[2]);
+        sp += txt(sm[0] + 30, sm[1], "side " + String(a.slant), INK, 14, 700);
+      }
+      if (a.height) {
+        var hx = px0 + lean + 36;
+        sp += '<line x1="' + hx + '" y1="' + py0 + '" x2="' + hx + '" y2="' + (py0 - ph) +
+          '" stroke="' + TEAL + '" stroke-width="2.4" stroke-dasharray="6,5"/>';
+        // the square corner where the height meets the base
+        sp += '<path d="M ' + hx + ' ' + (py0 - 12) + ' L ' + (hx + 12) + ' ' + (py0 - 12) + ' L ' + (hx + 12) + ' ' + py0 +
+          '" fill="none" stroke="' + TEAL + '" stroke-width="1.8"/>';
+        sp += txt(hx - 30, py0 - ph / 2, "height " + String(a.height), TEAL, 14, 700);
+      }
+      if (a.name) sp += txt((W + 40) / 2, H - 14, a.name, "var(--bd-6b6f82)", 14, 700);
+      return sp + "</svg>";
+    }
     var n = Math.max(3, Math.min(12, Math.round(num(a.sides != null ? a.sides : a.n, 5))));
     var C = [150, 122], R = 88;
     var P = [];
