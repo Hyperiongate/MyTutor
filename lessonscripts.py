@@ -2,6 +2,37 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tl -- ALGEBRA 2 UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "go".
+#               THIS FILE:
+#                 * Unit 1 (absolute value, two clues, three): the two spots on the
+#                   number line captioned, walked back with the steps between them hopped
+#                   (hops=); the fence on the line, walked back as negatives, zero and
+#                   positives on the BARS; the two shopping trips as TAPES (apple |
+#                   apple | apple | banana | banana), walked back with the pair of apples
+#                   left standing; the three clues as bars, walked back beside "everyone
+#                   once" -- and the sys3 ask gains the pending line x + y + z = ? (the
+#                   board-answers-the-question referee: the clues stood completed with
+#                   no line ending in "?");
+#                 * Unit 2 (the vertex, the roots, the test number, i): the curve
+#                   captioned and walked back with the vertex marked (points=); the
+#                   crossings marked; the test number walked back as two bars (a² against
+#                   4b) beside the curve -- no picture on the ask, a curve would count its
+#                   own crossings; x² = −a walked back as the square on the ARRAY (past a
+#                   side of 10, the rectangle -- its side is the answer, so walk-back
+#                   only), and the ask's pending line is its own line, "x = ? · i" (rule
+#                   44: the old "i² = −1 · x = ? · i" carried a number the ask never
+#                   spoke);
+#                 * Unit 3 (polynomials): the two piles of x's as bars, joined in the
+#                   walk-back; the degree beside its turns (no curve on the ask -- it
+#                   would show them); the cubic with its three crossings marked; the
+#                   MACHINE with its door blank, answered in the walk-back.
+#               Trap lines kept in every lesson. ⚠️ 60 figure asks drew with no caption
+#               (rule 41: graph 36, numberline 24). ENGINE: OP_EXT absv/absc/el2/sys3/vtx2/
+#               rsum/disc/imag/pdeg/turnc/rsum3/pval gain "worked" (_absv_* ... _pval_*)
+#               and, where a picture withholds the answer, boards. Demonstrated numbers
+#               kept out of the banks and pairs (the old inside-the-distance teach used 3
+#               -- a pair ask -- so it teaches on 5; the old wiggle-count why walked
+#               degree 3 to two turns -- the same -- so it walks degree 4 to three).
 #   2026-09-06  BUILD tk -- GEOMETRY UNITS 7-9 TO THE SHAPE (12 lessons). THE COURSE IS
 #               36/36. THIS FILE:
 #                 * Unit 7 (the grid): the up-and-down segment captioned and walked back
@@ -15198,46 +15229,65 @@ _ALGEBRA2_U1 = [
         "op": "absv", "max_value": 20, "min_value": -20,
         "levels": ("abstract",),
         "symbols": ("absolute value", "distance"),
-        "advance_line": "Three in a row — you've got it! Do the take away, keep the size, drop the sign.",
-        # (pe, 2026-08-27) REWRITTEN WITH JIM, LINE BY LINE. The old version is the
-        # lesson he was looking at when he said "the text itself is as if someone is
-        # teaching math in a non-native language". The fault was WRITING, not
-        # vocabulary -- he ruled on that himself after I went chasing the wrong thing:
-        # "Takeaway or minus, those were just as well. It's just when you put it in
-        # the whole context of those sentences, it just didn't make sense."
-        #   1. THE VERB BECAME A NOUN -- "The take away gives negative 5", "stopping
-        #      at the take away", "far-apart is never negative". Say what someone DOES.
-        #   2. METAPHORS NOBODY SET UP -- "nowhere on this walk", "the bars strip the
-        #      minus". A student has no picture for either.
-        #   3. THREE IDEAS PER SENTENCE, welded with dashes and colons. Unfollowable
-        #      by ear, which is the only way this lane is ever received.
-        # And his ruling on the trap beat: "saying that the negative sign only tells
-        # you which way you went is really confusing. All we really want to know is
-        # the distance between the two." So the trap argues from the thing itself --
-        # you cannot be negative 5 apart from something -- and the board no longer
-        # flashes an "11 ✗" that the spoken line stopped explaining.
+        "advance_line": "Three in a row, and you can say why — you've got it! Do the take away, keep the size, drop the sign.",
+        "why": [
+            ("Why two straight bars? Welcome to Algebra Two. The bars around a number "
+             "are called absolute value, and they ask one question: how far is this "
+             "number from zero? It does not matter which side of zero the number is "
+             "on. Four is four steps from zero, and negative four is also four steps "
+             "from zero — so both have absolute value four.",
+             '[[goal text="How far from zero"]][[step eq="|4| = 4"]][[step eq="|−4| = 4"]]'),
+        ],
+        "picture": [
+            ("Here is the number line, with negative 4 and 4 marked. Count the steps "
+             "from each one back to zero: four steps from the left, four steps from "
+             "the right. A distance is a plain count of steps, and it never has a "
+             "sign.",
+             '[[numberline min="-5" max="5" points="-4,4" caption="−4 and 4 are both 4 steps from zero"]]'),
+        ],
         "teach": [
-            ["Welcome to Algebra Two. Here are two straight bars around a number. They are called absolute value, and they ask one question: how far is this number from zero? It does not matter which side of zero the number is on. Four is four steps from zero. Negative four is also four steps from zero. So both have absolute value four.",
-             # (qc) 2026-08-29 -- Jim's screenshot: "there is no absolute value sign." The
-             # words say "here are two straight bars around a number" and the board showed
-             # only the number line. Rule 4 (say it -> write it) and rule 63 (the words and
-             # the picture are the same figure): the bars are now ON the board, first.
-             # Spoken line untouched, so no new audio key.
-             '[[goal text="How far from zero"]][[step eq="|4| = 4"]][[step eq="|−4| = 4"]][[numberline min="-5" max="5" points="-4,4" caption="−4 and 4 are both 4 from zero"]]'],
-            ["The same bars measure the gap between two numbers. Take 8 away from 3 and you get negative 5. Now ask the real question: how far apart are 3 and 8? They are 5 apart. The bars drop the negative sign and leave the 5.",
-             '[[numberline min="1" max="10" points="3,8" caption="3 and 8 — how far apart?"]][[step eq="|3 − 8| → 5 apart"]]'],
-            ["Here is where students go wrong. They do the take away, get negative 5, and stop there. But think about what we asked: how far apart are 3 and 8? Two numbers cannot be negative 5 apart. A distance is always a plain count of steps. So finish the job: drop the sign. They are 5 apart.",
-             '[[step eq="|3 − 8| = 5 ✓"]][[step eq="negative 5 ✗ two numbers cannot be negative 5 apart"]]'],
+            ("The same bars measure the gap between two numbers. Take 8 away from 3 "
+             "and you get negative 5. Now ask the real question: how far apart are 3 "
+             "and 8? Count the steps: 5 apart. The bars drop the negative sign and "
+             "leave the 5.",
+             '[[numberline min="1" max="10" points="3,8" hops="3,8" caption="3 and 8 — 5 steps apart"]][[step eq="|3 − 8| → 5 apart"]]'),
+            ("Here is where students go wrong. They do the take away, get negative 5, "
+             "and stop there. But think about what we asked: how far apart are 3 and "
+             "8? Two numbers cannot be negative 5 apart. A distance is always a plain "
+             "count of steps. So finish the job: drop the sign. They are 5 apart.",
+             '[[step eq="|3 − 8| = 5 ✓"]][[step eq="negative 5 ✗ two numbers cannot be negative 5 apart"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Take 9 away from 4 and you get negative 5. Keep the size, drop the sign. So 4 and 9 are 5 apart.",
-                        '[[numberline min="2" max="11" points="4,9" caption="4 and 9 — how far apart?"]][[step eq="|4 − 9| → 5"]]'],
-             "ask": {"a": 2, "b": 5, "op": "absv"}},
-            {"worked": ["One more together. Take 11 away from 5 and you get negative 6. Drop the sign: the absolute value is 6.",
-                        '[[step eq="|5 − 11| → 6"]]'],
-             "ask": {"a": 7, "b": 18, "op": "absv"}},
+            {"worked": ("Here is one more, done for you. Take 9 away from 4 and you get "
+                        "negative 5. Keep the size, drop the sign. So 4 and 9 are 5 "
+                        "apart.",
+                        '[[numberline min="2" max="11" points="4,9" hops="4,9" caption="4 and 9 — 5 steps apart"]][[step eq="|4 − 9| → 5"]]'),
+             "ask": {'a': 2, 'b': 5, 'op': 'absv'}},
+            {"worked": ("One more together. Take 11 away from 5 and you get negative 6. "
+                        "Drop the sign: the absolute value is 6.",
+                        '[[numberline min="3" max="13" points="5,11" hops="5,11" caption="5 and 11 — 6 steps apart"]][[step eq="|5 − 11| → 6"]]'),
+             "ask": {'a': 7, 'b': 18, 'op': 'absv'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The absolute value "
+                       "of 3 take away 8 is 5, not negative 5. Tap the reason why."),
+            "choices": ("because the bars ask how far apart, and distance has no sign | "
+                        "because the bars always make a number bigger | because the "
+                        "take away was done the wrong way round"),
+            "answer": "because the bars ask how far apart, and distance has no sign",
+            "board": '[[numberline min="1" max="10" points="3,8" hops="3,8" caption="|3 − 8| = 5"]]',
+        },
+        "recap": [
+            ("So, here it is again. Absolute value asks how far — from zero, or "
+             "between two numbers — and a distance is a plain count of steps. Do the "
+             "take away, keep the size, drop the sign.",
+             '[[numberline min="1" max="10" points="3,8" hops="3,8" caption="3 and 8 are 5 apart"]]'),
+            ("And that is two straight bars, and the one question they ask.",
+             '[[step eq="|3 − 8| = 5"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 5, "op": "absv"},
             {"a": 6, "b": 9, "op": "absv"},
@@ -15258,24 +15308,62 @@ _ALGEBRA2_U1 = [
         "op": "absc", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("absolute value", "whole numbers"),
-        "advance_line": "Three in a row — you've got it! Both sides, and the quiet zero in the middle.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Both sides, and the quiet zero in the middle.",
+        "why": [
+            ("Why count inside a distance? Because absolute value draws a fence on "
+             "both sides of zero. Which whole numbers have an absolute value less than "
+             "5? Any number closer to zero than 5 steps — on either side. The negatives "
+             "count, the positives count, and one number always sneaks in unseen: "
+             "zero.",
+             '[[goal text="Inside the distance"]]'),
+        ],
+        "picture": [
+            ("Here is the number line with the fence at negative 5 and 5. Everything "
+             "strictly inside it is closer to zero than 5: negative 4 up to 4. The "
+             "ends themselves stay out — 5 is not LESS than 5.",
+             '[[numberline min="-5" max="5" points="-4,4" caption="closer to zero than 5 — from −4 up to 4, the ends left out"]]'),
+        ],
         "teach": [
-            ["Now count INSIDE a distance. Which whole numbers have an absolute value less than 3? Any number closer to zero than 3 steps — on either side. The negatives count, the positives count, and one number always sneaks in unseen: zero.",
-             '[[goal text="Inside the distance"]][[numberline min="-3" max="3" points="-2,2" caption="closer to zero than 3"]]'],
-            ["List them: negative 2, negative 1, zero, 1, 2. Count: 2 negatives, 2 positives, and zero — 5 whole numbers. The ends themselves stay out: 3 is not LESS than 3.",
-             '[[numberline min="-3" max="3" points="-2,2" caption="closer to zero than 3"]][[step eq="2 + 2 + 1 = 5"]]'],
-            ["Two traps, both one short. Forget zero and you count 4 — but zero's absolute value is 0, and 0 is less than 3. Count only the positive side and you get 2 — half the picture. Both sides, and the quiet zero in the middle.",
-             '[[step eq="2 + 2 + 1 = 5 ✓"]][[step eq="4 ✗ forgot zero · 2 ✗ one side only"]]'],
+            ("That is the method. List them: negative 4, negative 3, negative 2, "
+             "negative 1, zero, then 1, 2, 3, 4. Count: 4 negatives, 4 positives, and "
+             "zero — 9 whole numbers.",
+             '[[bars data="negatives:4 | zero:1 | positives:4" caption="4 + 1 + 4 = 9 whole numbers"]][[step eq="4 + 1 + 4 = 9"]]'),
+            ("Two traps, both one short. Forget zero and you count 8 — but zero\'s "
+             "absolute value is 0, and 0 is less than 5. Count only the positive side "
+             "and you get 4 — half the picture. Both sides, and the quiet zero in the "
+             "middle.",
+             '[[step eq="4 + 1 + 4 = 9 ✓"]][[step eq="8 ✗ forgot zero · 4 ✗ one side only"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Less than 5: that is 4 negatives, 4 positives, and zero — 9 whole numbers.",
-                        '[[numberline min="-5" max="5" points="-4,4" caption="−4 and 4 — both sit 4 from zero"]][[step eq="4 + 4 + 1 = 9"]]'],
-             "ask": {"a": 3, "b": 0, "op": "absc"}},
-            {"worked": ["One more together. Less than 20: 19 negatives, 19 positives, and zero — 39.",
-                        '[[step eq="19 + 19 + 1 = 39"]]'],
-             "ask": {"a": 13, "b": 0, "op": "absc"}},
+            {"worked": ("Here is one more, done for you. Less than 2: that is negative 1, "
+                        "zero, and 1 — 3 whole numbers.",
+                        '[[bars data="negatives:1 | zero:1 | positives:1" caption="1 + 1 + 1 = 3"]][[step eq="1 + 1 + 1 = 3"]]'),
+             "ask": {'a': 3, 'b': 0, 'op': 'absc'}},
+            {"worked": ("One more together. Less than 20: 19 negatives, 19 positives, "
+                        "and zero — 39.",
+                        '[[bars data="negatives:19 | zero:1 | positives:19" caption="19 + 1 + 19 = 39"]][[step eq="19 + 1 + 19 = 39"]]'),
+             "ask": {'a': 13, 'b': 0, 'op': 'absc'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. There are 9 whole "
+                       "numbers with an absolute value less than 5. Tap the reason why."),
+            "choices": ("because both sides count, and so does zero in the middle | "
+                        "because only the positive side counts, doubled | because the "
+                        "ends, 5 and negative 5, count too"),
+            "answer": "because both sides count, and so does zero in the middle",
+            "board": '[[bars data="negatives:4 | zero:1 | positives:4" caption="4 + 1 + 4 = 9"]]',
+        },
+        "recap": [
+            ("So, here it is again. Absolute value less than a number means closer to "
+             "zero than that, on either side. Count the negatives, count the "
+             "positives, and add the quiet zero — the ends themselves stay out.",
+             '[[numberline min="-5" max="5" points="-4,4" caption="inside the fence: 4 + 1 + 4 = 9"]]'),
+            ("And that is a distance, counted from the inside.",
+             '[[step eq="4 + 1 + 4 = 9"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 0, "op": "absc"},
             {"a": 6, "b": 0, "op": "absc"},
@@ -15296,24 +15384,64 @@ _ALGEBRA2_U1 = [
         "op": "el2", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("clue", "cents"),
-        "advance_line": "Three in a row — you've got it! Vanish, then share.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Vanish, then share.",
+        "why": [
+            ("Why do the bananas cancel? Algebra One taught the vanishing trick: two "
+             "shopping trips priced in cents, and taking one clue away from the other "
+             "made the shared item disappear. Algebra Two adds one step. Sometimes what "
+             "is left after the vanishing is not one unknown — it is a PAIR, and the "
+             "pair still needs sharing.",
+             '[[goal text="The bananas cancel"]]'),
+        ],
+        "picture": [
+            ("Here are the two trips as bars. The big trip: three apples and two "
+             "bananas, 14 cents. The small trip: one apple and the same two bananas, "
+             "8 cents. The bananas sit in both bars — take the small bar away from the "
+             "big one and only apples are left.",
+             '[[tape parts="apple | apple | apple | banana | banana" total="14" caption="the big trip: 14 cents"]][[tape parts="apple | banana | banana" total="8" caption="the small trip: 8 cents — the same two bananas"]]'),
+        ],
         "teach": [
-            ["Algebra One taught the vanishing trick: two shopping trips priced in cents, and taking one clue away from the other made the shared item disappear. Algebra Two adds one step. Sometimes what is left after the vanishing is not one unknown — it is a PAIR, and the pair still needs sharing.",
-             '[[goal text="The bananas cancel"]][[step eq="clue 1 − clue 2 → the shared part vanishes"]]'],
-            ["Three apples and two bananas cost 14 cents; one apple and the same two bananas cost 8. Take the small trip away: the bananas vanish, and 3 apples take away 1 apple leaves 2 apples — costing 14 take away 8, which is 6. Two apples for 6: one apple is 3.",
-             '[[step eq="2 apples = 14 − 8 = 6"]][[step eq="1 apple = 6 ÷ 2 = 3"]]'],
-            ["The trap is stopping early. 6 is real — it is what TWO apples cost — but the question asked for one. After the vanishing, look at what is left standing: if a pair stands there, share before you answer. Vanish, then share.",
-             '[[step eq="2 apples = 6 · 1 apple = 3 ✓"]][[step eq="6 ✗ — that is the pair, not the apple"]]'],
+            ("That is the method. Take the small trip away: the bananas vanish, and 3 "
+             "apples take away 1 apple leaves 2 apples — costing 14 take away 8, which "
+             "is 6. Two apples for 6: one apple is 3.",
+             '[[tape parts="apple | apple" total="6" caption="left standing: 2 apples = 14 − 8 = 6"]][[step eq="2 apples = 14 − 8 = 6"]][[step eq="1 apple = 6 ÷ 2 = 3"]]'),
+            ("The trap is stopping early. 6 is real — it is what TWO apples cost — but "
+             "the question asked for one. After the vanishing, look at what is left "
+             "standing: if a pair stands there, share before you answer. Vanish, then "
+             "share.",
+             '[[step eq="2 apples = 6 · 1 apple = 3 ✓"]][[step eq="6 ✗ — that is the pair, not the apple"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Three apples and two bananas: 22 cents. One apple and the same bananas: 8. The bananas cancel — 2 apples cost 14, so one apple costs 7.",
-                        '[[step eq="2 apples = 22 − 8 = 14 · 1 apple = 7"]]'],
-             "ask": {"a": 12, "b": 6, "op": "el2"}},
-            {"worked": ["One more together. Trips of 19 and 9: the bananas cancel, 2 apples cost 10 — one apple is 5 cents.",
-                        '[[step eq="2 apples = 10 · 1 apple = 5"]]'],
-             "ask": {"a": 25, "b": 9, "op": "el2"}},
+            {"worked": ("Here is one more, done for you. Three apples and two bananas: 22 "
+                        "cents. One apple and the same bananas: 8. The bananas cancel — "
+                        "2 apples cost 14, so one apple costs 7.",
+                        '[[tape parts="apple | apple" total="14" caption="2 apples = 22 − 8 = 14 — one apple is 7"]][[step eq="2 apples = 22 − 8 = 14 · 1 apple = 7"]]'),
+             "ask": {'a': 12, 'b': 6, 'op': 'el2'}},
+            {"worked": ("One more together. Trips of 19 and 9: the bananas cancel, 2 "
+                        "apples cost 10 — one apple is 5 cents.",
+                        '[[tape parts="apple | apple" total="10" caption="2 apples = 19 − 9 = 10 — one apple is 5"]][[step eq="2 apples = 10 · 1 apple = 5"]]'),
+             "ask": {'a': 25, 'b': 9, 'op': 'el2'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Trips of 14 and 8 "
+                       "cents, and one apple costs 3. Tap the reason why."),
+            "choices": ("because the bananas cancel, leaving 2 apples to share | because "
+                        "the two trips are averaged | because the bananas cancel, and "
+                        "6 is the apple"),
+            "answer": "because the bananas cancel, leaving 2 apples to share",
+            "board": '[[tape parts="apple | apple" total="6" caption="2 apples = 6 · 1 apple = 3"]]',
+        },
+        "recap": [
+            ("So, here it is again. Take one clue away from the other and the shared "
+             "item vanishes. Then look at what is left standing: if it is a pair, "
+             "share it before you answer. Vanish, then share.",
+             '[[tape parts="apple | apple" total="6" caption="vanish, then share: 6 ÷ 2 = 3"]]'),
+            ("And that is Algebra One\'s trick, with one more step.",
+             '[[step eq="2 apples = 6 · 1 apple = 3"]]'),
+        ],
         "bank": [
             {"a": 10, "b": 6, "op": "el2"},
             {"a": 13, "b": 7, "op": "el2"},
@@ -15334,24 +15462,64 @@ _ALGEBRA2_U1 = [
         "op": "sys3", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("clue", "twice"),
-        "advance_line": "Three in a row — you've got it! Add the clues, then halve — everyone was there twice.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Add the clues, then halve — everyone was there twice.",
+        "why": [
+            ("Why three friends? Because it is one more growth: THREE unknowns. Three "
+             "friends, but the scale only fits two at a time — so you get three clues, "
+             "each about a pair. It looks impossible: no clue ever shows one friend "
+             "alone. But together the clues hold everything, because every friend "
+             "stands in exactly two of them.",
+             '[[goal text="Three friends"]]'),
+        ],
+        "picture": [
+            ("Here are the three clues as bars: the first pair weighs 7, the second "
+             "10, the third 9. Look at who is inside each bar — x is in the first and "
+             "the third, y in the first and the second, z in the second and the third. "
+             "Everyone appears exactly twice.",
+             '[[bars data="x + y:7 | y + z:10 | x + z:9" caption="three clues — every friend stands in two of them"]]'),
+        ],
         "teach": [
-            ["One more growth: THREE unknowns. Three friends, but the scale only fits two at a time — so you get three clues, each about a pair. It looks impossible: no clue ever shows one friend alone. But together the clues hold everything, because every friend stands in exactly two of them.",
-             '[[goal text="Three friends"]][[step eq="x + y · y + z · x + z"]]'],
-            ["Pairs weigh 7, 10, and 9. Put all three clues together: 26. But look who is inside: each friend stood on the scale twice — once with each of the others — so 26 counts everybody two times. Halve it: all three friends together weigh 13.",
-             '[[step eq="7 + 10 + 9 = 26"]][[step eq="everyone counted twice → 26 ÷ 2 = 13"]]'],
-            ["The trap is trusting the big sum. 26 is not a weight anyone felt — it is every friend counted twice. And averaging the three clues tells you about a typical PAIR, not about the trio. Add the clues, then halve — everyone was there twice.",
-             '[[step eq="26 ÷ 2 = 13 ✓"]][[step eq="26 ✗ everyone counted twice · 26 ÷ 3 ✗ a pair\'s typical weight"]]'],
+            ("That is the method. Put all three clues together: 26. But look who is "
+             "inside: each friend stood on the scale twice — once with each of the "
+             "others — so 26 counts everybody two times. Halve it: all three friends "
+             "together weigh 13.",
+             '[[bars data="all three clues:26 | everyone once:13" caption="26 counts everyone twice — halve it: 13"]][[step eq="7 + 10 + 9 = 26"]][[step eq="everyone counted twice → 26 ÷ 2 = 13"]]'),
+            ("The trap is trusting the big sum. 26 is not a weight anyone felt — it is "
+             "every friend counted twice. And averaging the three clues tells you "
+             "about a typical PAIR, not about the trio. Add the clues, then halve — "
+             "everyone was there twice.",
+             '[[step eq="26 ÷ 2 = 13 ✓"]][[step eq="26 ✗ everyone counted twice · 26 ÷ 3 ✗ a pair\'s typical weight"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Pairs of 6, 9, and 7: put together, 22 — everyone twice — so all three weigh 11.",
-                        '[[step eq="6 + 9 + 7 = 22"]] [[step eq="22 ÷ 2 = 11"]]'],
-             "ask": {"a": 5, "b": 10, "c": 9, "op": "sys3"}},
-            {"worked": ["One more together. 14, 17 and 15: together 46, halved — 23.",
-                        '[[step eq="46 ÷ 2 = 23"]]'],
-             "ask": {"a": 14, "b": 19, "c": 15, "op": "sys3"}},
+            {"worked": ("Here is one more, done for you. Pairs of 6, 9, and 7: put "
+                        "together, 22 — everyone twice — so all three weigh 11.",
+                        '[[bars data="all three clues:22 | everyone once:11" caption="6 + 9 + 7 = 22 → 11"]][[step eq="6 + 9 + 7 = 22"]][[step eq="22 ÷ 2 = 11"]]'),
+             "ask": {'a': 5, 'b': 10, 'c': 9, 'op': 'sys3'}},
+            {"worked": ("One more together. 14, 17 and 15: together 46, halved — 23.",
+                        '[[bars data="all three clues:46 | everyone once:23" caption="14 + 17 + 15 = 46 → 23"]][[step eq="46 ÷ 2 = 23"]]'),
+             "ask": {'a': 14, 'b': 19, 'c': 15, 'op': 'sys3'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Pairs weigh 7, 10 "
+                       "and 9, and all three friends together weigh 13. Tap the reason "
+                       "why."),
+            "choices": ("because the clues add to 26, and everyone was counted twice | "
+                        "because the clues add to 26, and that is the trio | because "
+                        "the average of the three clues is the trio"),
+            "answer": "because the clues add to 26, and everyone was counted twice",
+            "board": '[[bars data="all three clues:26 | everyone once:13" caption="26 ÷ 2 = 13"]]',
+        },
+        "recap": [
+            ("So, here it is again. Three clues about pairs hold all three friends, "
+             "because every friend stands in two clues. Add the clues and everyone is "
+             "counted twice — so halve the sum, and that is the trio.",
+             '[[bars data="all three clues:26 | everyone once:13" caption="add the clues, then halve"]]'),
+            ("And that is three unknowns, caught two at a time.",
+             '[[step eq="26 ÷ 2 = 13"]]'),
+        ],
         "bank": [
             {"a": 6, "b": 10, "c": 8, "op": "sys3"},
             {"a": 6, "b": 11, "c": 7, "op": "sys3"},
@@ -15385,24 +15553,65 @@ _ALGEBRA2_U2 = [
         "op": "vtx2", "max_value": 12, "min_value": -12,
         "levels": ("abstract",),
         "symbols": ("vertex", "squared"),
-        "advance_line": "Three in a row — you've got it! Take away points opposite: the turn sits at plus.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Take away points opposite: the turn sits at plus.",
+        "why": [
+            ("Why where? Algebra One found how LOW the curve y equals x take away 3, "
+             "squared, plus 2 can sink. Algebra Two asks the sharper question: WHERE? "
+             "At which x does the curve turn? The formula answers before any table "
+             "could — if you read its minus sign the right way around.",
+             '[[goal text="Where it turns"]]'),
+        ],
+        "picture": [
+            ("Here is the curve on the grid, with its turning point marked. It comes "
+             "down, turns, and climbs away again — and the turn sits at x equals 3, "
+             "floating 2 above the ground. The turning point has a name: the vertex.",
+             '[[graph func="(x-3)^2+2" points="(3,2)" range="-1..7" caption="y = (x − 3)² + 2 — the vertex, where it turns, at x = 3"]]'),
+        ],
         "teach": [
-            ["Algebra One found how LOW the curve y equals x take away 3, squared, plus 2 can sink. Algebra Two asks the sharper question: WHERE? At which x does the curve turn? The formula answers before any table could — if you read its minus sign the right way around.",
-             '[[goal text="Where it turns"]][[graph func="(x-3)^2+2" range="-1..7" caption="(x-3)^2+2 on the grid"]]'],
-            ["The curve turns where the squared part bottoms out — where x take away 3 equals ZERO. That happens at x equals 3, positive 3. The turning point has a name, the vertex — and its x always hides behind the opposite sign: take away 3 turns at plus 3.",
-             '[[graph func="(x-3)^2+2" range="-1..7" caption="(x-3)^2+2 on the grid"]][[step eq="x − 3 = 0"]] [[step eq="x = 3"]]'],
-            ["Two traps. The minus begs you to answer negative 3 — but at x equals negative 3, x take away 3 is negative 6, nowhere near zero. And the plus 2 is a different fact: how HIGH the turn floats — Algebra One's question. WHERE is 3; how high is 2. Keep them apart.",
-             '[[step eq="turns at x = 3 ✓"]][[step eq="−3 ✗ the sign flip · 2 ✗ how high, not where"]]'],
+            ("That is the method. The curve turns where the squared part bottoms out — "
+             "where x take away 3 equals ZERO. That happens at x equals 3, positive 3. "
+             "The vertex\'s x always hides behind the opposite sign: take away 3 "
+             "turns at plus 3.",
+             '[[graph func="(x-3)^2+2" points="(3,2)" range="-1..7" caption="x − 3 = 0 at x = 3"]][[step eq="x − 3 = 0"]][[step eq="x = 3"]]'),
+            ("Two traps. The minus begs you to answer negative 3 — but at x equals "
+             "negative 3, x take away 3 is negative 6, nowhere near zero. And the plus "
+             "2 is a different fact: how HIGH the turn floats — Algebra One\'s "
+             "question. WHERE is 3; how high is 2. Keep them apart.",
+             '[[step eq="turns at x = 3 ✓"]][[step eq="−3 ✗ the sign flip · 2 ✗ how high, not where"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals: x take away 4, squared, plus 5. The square hits zero at x equals 4 — the vertex sits at x equals 4.",
-                        '[[graph func="(x-4)^2+5" range="0..8" caption="(x-4)^2+5 on the grid"]][[step eq="x − 4 = 0"]] [[step eq="x = 4"]]'],
-             "ask": {"a": 3, "b": 8, "op": "vtx2"}},
-            {"worked": ["One more together. x take away 7, squared, plus 9: it turns at x equals 7.",
-                        '[[step eq="x − 7 = 0"]] [[step eq="x = 7"]]'],
-             "ask": {"a": 11, "b": 6, "op": "vtx2"}},
+            {"worked": ("Here is one more, done for you. y equals: x take away 4, "
+                        "squared, plus 5. The square hits zero at x equals 4 — the "
+                        "vertex sits at x equals 4.",
+                        '[[graph func="(x-4)^2+5" points="(4,5)" range="0..8" caption="y = (x − 4)² + 5 — it turns at x = 4"]][[step eq="x − 4 = 0"]][[step eq="x = 4"]]'),
+             "ask": {'a': 3, 'b': 8, 'op': 'vtx2'}},
+            {"worked": ("One more together. x take away 7, squared, plus 9: it turns at x "
+                        "equals 7.",
+                        '[[graph func="(x-7)^2+9" points="(7,9)" range="3..11" caption="y = (x − 7)² + 9 — it turns at x = 7"]][[step eq="x − 7 = 0"]][[step eq="x = 7"]]'),
+             "ask": {'a': 11, 'b': 6, 'op': 'vtx2'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. y equals x take away "
+                       "3, squared, plus 2, and the curve turns at x equals 3. Tap the "
+                       "reason why."),
+            "choices": ("because the squared part is zero exactly at x equals 3 | because "
+                        "the minus means the turn is at negative 3 | because the plus 2 "
+                        "says where the curve turns"),
+            "answer": "because the squared part is zero exactly at x equals 3",
+            "board": '[[graph func="(x-3)^2+2" points="(3,2)" range="-1..7" caption="x − 3 = 0 at x = 3"]]',
+        },
+        "recap": [
+            ("So, here it is again. A curve written as x take away a number, squared, "
+             "turns where that squared part is zero — at the number itself, with the "
+             "opposite sign to the one you see. The plus at the end says how high; the "
+             "take away inside says where.",
+             '[[graph func="(x-3)^2+2" points="(3,2)" range="-1..7" caption="where: x = 3 · how high: 2"]]'),
+            ("And that is the vertex, read straight off the formula.",
+             '[[step eq="x − 3 = 0"]][[step eq="x = 3"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 5, "op": "vtx2"},
             {"a": 3, "b": 7, "op": "vtx2"},
@@ -15423,24 +15632,63 @@ _ALGEBRA2_U2 = [
         "op": "rsum", "max_value": 15,
         "levels": ("abstract",),
         "symbols": ("roots", "sum"),
-        "advance_line": "Three in a row — you've got it! Two crossings, and questions about the answers mean both.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Two crossings, and questions about the answers mean both.",
+        "why": [
+            ("Why both? Because a quadratic in factored form hands you its answers. "
+             "Look at x take away 2, times x take away 5, equals zero. So x is 2 or x "
+             "is 5 — the two places the curve crosses. Algebra Two starts asking what "
+             "the answers do TOGETHER, because pairs of roots carry secrets single "
+             "roots cannot.",
+             '[[goal text="Both answers count"]]'),
+        ],
+        "picture": [
+            ("Here is the curve, and the two places it crosses the ground are marked: "
+             "x equals 2 and x equals 5. Each factor donated one crossing. Those two "
+             "crossings are called the roots.",
+             '[[graph func="(x-2)*(x-5)" points="(2,0),(5,0)" range="-1..8" caption="y = (x − 2)(x − 5) — the roots, 2 and 5"]]'),
+        ],
         "teach": [
-            ["A quadratic in factored form hands you its answers. Look at x take away 2, times x take away 5, equals zero. So x is 2 or x is 5, the two places the curve crosses. Algebra Two starts asking what the answers do TOGETHER, because pairs of roots carry secrets single roots cannot.",
-             '[[goal text="Both answers count"]][[graph func="(x-2)*(x-5)" range="-1..8" caption="(x-2)*(x-5) on the grid"]]'],
-            ["The two crossings are called the roots, and today's question is their sum: 2 put together with 5 is 7. Simple — but only if you remember BOTH answers exist. One crossing is half the story.",
-             '[[graph func="(x-2)*(x-5)" range="-1..8" caption="(x-2)*(x-5) on the grid"]][[step eq="roots 2 and 5 · 2 + 5 = 7"]]'],
-            ["Two traps. 2 times 5 is 10 — a real number, and famous later — but it is the product, not the sum. And answering 2 alone forgets the second crossing entirely. A curve that touches zero twice has two answers; questions about THE answers mean both.",
-             '[[step eq="2 + 5 = 7 ✓"]][[step eq="10 ✗ the product · 2 ✗ one answer of two"]]'],
+            ("That is the method. Today\'s question is the sum of the roots: 2 put "
+             "together with 5 is 7. Simple — but only if you remember BOTH answers "
+             "exist. One crossing is half the story.",
+             '[[graph func="(x-2)*(x-5)" points="(2,0),(5,0)" range="-1..8" caption="roots 2 and 5 — 2 + 5 = 7"]][[step eq="roots 2 and 5 · 2 + 5 = 7"]]'),
+            ("Two traps. 2 times 5 is 10 — a real number, and famous later — but it "
+             "is the product, not the sum. And answering 2 alone forgets the second "
+             "crossing entirely. A curve that touches zero twice has two answers; "
+             "questions about THE answers mean both.",
+             '[[step eq="2 + 5 = 7 ✓"]][[step eq="10 ✗ the product · 2 ✗ one answer of two"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x take away 3, times x take away 6, equals zero: the roots are 3 and 6, and their sum is 9.",
-                        '[[graph func="(x-3)*(x-6)" range="-1..9" caption="(x-3)*(x-6) on the grid"]][[step eq="3 + 6 = 9"]]'],
-             "ask": {"a": 3, "b": 5, "op": "rsum"}},
-            {"worked": ["One more together. The roots are 5 and 7, and their sum is 5 plus 7 — 12.",
-                        '[[step eq="5 + 7 = 12"]]'],
-             "ask": {"a": 6, "b": 8, "op": "rsum"}},
+            {"worked": ("Here is one more, done for you. x take away 3, times x take away "
+                        "6, equals zero: the roots are 3 and 6, and their sum is 9.",
+                        '[[graph func="(x-3)*(x-6)" points="(3,0),(6,0)" range="-1..9" caption="roots 3 and 6 — 3 + 6 = 9"]][[step eq="3 + 6 = 9"]]'),
+             "ask": {'a': 3, 'b': 5, 'op': 'rsum'}},
+            {"worked": ("One more together. The roots are 5 and 7, and their sum is 5 "
+                        "plus 7 — 12.",
+                        '[[graph func="(x-5)*(x-7)" points="(5,0),(7,0)" range="-1..12" caption="roots 5 and 7 — 5 + 7 = 12"]][[step eq="5 + 7 = 12"]]'),
+             "ask": {'a': 6, 'b': 8, 'op': 'rsum'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x take away 2, times "
+                       "x take away 5, equals zero, and the two answers put together "
+                       "equal 7. Tap the reason why."),
+            "choices": ("because each factor gives one root, and both are added | because "
+                        "the two roots are timesed, not added | because only the first "
+                        "factor gives an answer"),
+            "answer": "because each factor gives one root, and both are added",
+            "board": '[[graph func="(x-2)*(x-5)" points="(2,0),(5,0)" range="-1..8" caption="2 + 5 = 7"]]',
+        },
+        "recap": [
+            ("So, here it is again. Each factor of a quadratic donates one root, one "
+             "crossing of the ground. A question about the answers means both of them "
+             "— add the two roots, and never mistake their product for their sum.",
+             '[[graph func="(x-2)*(x-5)" points="(2,0),(5,0)" range="-1..8" caption="two roots, both counted"]]'),
+            ("And that is the first secret a pair of roots shares.",
+             '[[step eq="2 + 5 = 7"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "rsum"},
             {"a": 2, "b": 4, "op": "rsum"},
@@ -15461,24 +15709,65 @@ _ALGEBRA2_U2 = [
         "op": "disc", "max_value": 20, "min_value": 0,
         "levels": ("abstract",),
         "symbols": ("discriminant", "test number"),
-        "advance_line": "Three in a row — you've got it! The sign is the message: 2, 1 or 0.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The sign is the message: 2, 1 or 0.",
+        "why": [
+            ("Why a test number? Because you can count a curve\'s crossings without "
+             "drawing it. y equals x squared plus 2 x plus 7 hides a test number, "
+             "called the discriminant: the x part squared, take away 4 times the plain "
+             "number. Its SIGN — not its size — counts the crossings with the x line.",
+             '[[goal text="The test number"]][[step eq="x² + a·x + b → test: a² − 4b"]]'),
+        ],
+        "picture": [
+            ("Here are the two numbers the test compares, as bars: 2 squared, which is "
+             "4, against 4 times 7, which is 28. The second bar is taller, so the take "
+             "away falls below zero — and here is the curve itself, floating above the "
+             "x line, never touching it.",
+             '[[bars data="2²:4 | 4 · 7:28" caption="4 against 28 — the test number falls below zero"]][[graph func="x^2+2*x+7" range="-5..3" caption="y = x² + 2x + 7 — zero crossings"]]'),
+        ],
         "teach": [
-            ["Can you count a curve's crossings without drawing it? y equals x squared plus 2 x plus 7 hides a test number, called the discriminant: the x part squared, take away 4 times the plain number. Its SIGN — not its size — counts the crossings with the x line.",
-             '[[goal text="The test number"]][[step eq="x² + a·x + b → test: a² − 4b"]]'],
-            ["Try it: 2 squared is 4, and 4 times 7 is 28 — the test number falls below zero. A negative test means the curve never reaches the x line at all: zero crossings. Positive would mean two. And exactly zero means one perfect touch.",
-             '[[step eq="2² − 4·7 → below zero"]][[step eq="below zero → 0 · zero → 1 · above zero → 2"]]'],
-            ["The trap is answering with the test number itself — or fearing the negative. The test number is a MESSENGER: you never report it, only its sign. Below zero does not break the mathematics; it simply says no crossing here. And soon, a new number will live down there.",
-             '[[step eq="the sign is the message"]][[step eq="report crossings — 2, 1 or 0 — never the test number"]]'],
+            ("That is the method. 2 squared is 4, and 4 times 7 is 28 — the test "
+             "number falls below zero. A negative test means the curve never reaches "
+             "the x line at all: zero crossings. Positive would mean two. And exactly "
+             "zero means one perfect touch.",
+             '[[bars data="2²:4 | 4 · 7:28" caption="below zero → 0 crossings"]][[step eq="2² − 4·7 → below zero"]][[step eq="below zero → 0 · zero → 1 · above zero → 2"]]'),
+            ("The trap is answering with the test number itself — or fearing the "
+             "negative. The test number is a MESSENGER: you never report it, only its "
+             "sign. Below zero does not break the mathematics; it simply says no "
+             "crossing here. And soon, a new number will live down there.",
+             '[[step eq="the sign is the message"]][[step eq="report crossings — 2, 1 or 0 — never the test number"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x squared plus 3 x plus 1: the test is 9 take away 4 — positive. The curve cuts the x line twice.",
-                        '[[step eq="3² − 4·1 = positive"]] [[step eq="2 crossings"]]'],
-             "ask": {"a": 4, "b": 3, "op": "disc"}},
-            {"worked": ["One more together. x squared plus 8 x plus 16: 64 take away 64 is exactly zero — one perfect touch.",
-                        '[[step eq="8² − 4·16 = 0"]] [[step eq="1 touch"]]'],
-             "ask": {"a": 6, "b": 10, "op": "disc"}},
+            {"worked": ("Here is one more, done for you. x squared plus 3 x plus 1: the "
+                        "test is 9 take away 4 — positive. The curve cuts the x line "
+                        "twice.",
+                        '[[bars data="3²:9 | 4 · 1:4" caption="9 against 4 — positive: 2 crossings"]][[step eq="3² − 4·1 = positive"]][[step eq="2 crossings"]]'),
+             "ask": {'a': 4, 'b': 3, 'op': 'disc'}},
+            {"worked": ("One more together. x squared plus 8 x plus 16: 64 take away 64 "
+                        "is exactly zero — one perfect touch.",
+                        '[[bars data="8²:64 | 4 · 16:64" caption="64 against 64 — exactly zero: 1 touch"]][[step eq="8² − 4·16 = 0"]][[step eq="1 touch"]]'),
+             "ask": {'a': 6, 'b': 10, 'op': 'disc'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. y equals x squared "
+                       "plus 2 x plus 7 never meets the x line. Tap the reason why."),
+            "choices": ("because the test number is negative, so no crossing | because "
+                        "the test number is 24, so 24 crossings | because a plus 7 "
+                        "always means two crossings"),
+            "answer": "because the test number is negative, so no crossing",
+            "board": '[[bars data="2²:4 | 4 · 7:28" caption="below zero — no crossing"]]',
+        },
+        "recap": [
+            ("So, here it is again. The test number is the x part squared, take away "
+             "4 times the plain number — and only its sign matters. Positive, two "
+             "crossings; zero, one touch; negative, none. Report the crossings, never "
+             "the messenger.",
+             '[[graph func="x^2+2*x+7" range="-5..3" caption="a negative test — the curve never comes down"]]'),
+            ("And that is a curve counted without being drawn.",
+             '[[step eq="below zero → 0 · zero → 1 · above zero → 2"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 1, "op": "disc"},
             {"a": 2, "b": 5, "op": "disc"},
@@ -15499,24 +15788,64 @@ _ALGEBRA2_U2 = [
         "op": "imag", "max_value": 225, "min_value": -15,
         "levels": ("abstract",),
         "symbols": ("imaginary", "squared"),
-        "advance_line": "Three in a row — you've got it! The i carries the minus; the number carries the root.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The i carries the minus; the number carries the root.",
+        "why": [
+            ("Why a new number? Because the unit ends with a door opening. x squared "
+             "equals negative 9 has no everyday answer — squares are never negative. "
+             "For centuries, that was the end of it. Then mathematicians imagined a "
+             "new number, called i, with exactly one job: i squared equals negative 1. "
+             "The impossible question opened.",
+             '[[goal text="A new number"]][[step eq="i² = −1"]]'),
+        ],
+        "picture": [
+            ("Here is 9 as a square: 3 rows of 3. That is the everyday half "
+             "of the answer — 3 times 3 is 9. The minus is the other half, and it is "
+             "i\'s job: the answer is 3 times i.",
+             '[[array rows="3" cols="3" caption="3 × 3 = 9 — the number is 3; the i carries the minus"]]'),
+        ],
         "teach": [
-            ["The unit ends with a door opening. x squared equals negative 9 has no everyday answer — squares are never negative. For centuries, that was the end of it. Then mathematicians imagined a new number, called i, with exactly one job: i squared equals negative 1. The impossible question opened.",
-             '[[goal text="A new number"]][[step eq="i² = −1"]]'],
-            ["With i in hand, x equals 3 i solves it. Check: 3 i times 3 i is 9 times i squared — and i squared is negative 1 — so it equals negative 9. Numbers built with i are called imaginary, though they are as real to mathematics as any invention that works.",
-             '[[step eq="(3i)² = 9 · i² = −9 ✓"]]'],
-            ["Handle it with care. x squared equals negative 9 does not mean x is negative 3 — negative 3 squared is POSITIVE 9, the wrong sign entirely. The minus is i's job, not the number's. And 9 alone forgot the root: the number in front of i is what SQUARED gives 9 — that is 3.",
-             '[[step eq="x = 3i ✓ — the i carries the minus"]][[step eq="−3 ✗ (−3)² = +9 · 9 ✗ forgot the root"]]'],
+            ("That is the method. With i in hand, x equals 3 i solves it. Check: 3 i "
+             "times 3 i is 9 times i squared — and i squared is negative 1 — so it "
+             "equals negative 9. Numbers built with i are called imaginary, though "
+             "they are as real to mathematics as any invention that works.",
+             '[[array rows="3" cols="3" caption="(3i)² = 9 · i² = −9"]][[step eq="(3i)² = 9 · i² = −9 ✓"]]'),
+            ("Handle it with care. x squared equals negative 9 does not mean x is "
+             "negative 3 — negative 3 squared is POSITIVE 9, the wrong sign entirely. "
+             "The minus is i\'s job, not the number\'s. And 9 alone forgot the root: "
+             "the number in front of i is what SQUARED gives 9 — that is 3.",
+             '[[array rows="3" cols="3" caption="(−3)² is +9 — the wrong sign; the minus is i\'s job"]][[step eq="x = 3i ✓ — the i carries the minus"]][[step eq="−3 ✗ (−3)² = +9 · 9 ✗ forgot the root"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x squared equals negative 4. What times itself is 4? 2 — so x equals 2 i.",
-                        '[[step eq="x² = −4"]] [[step eq="x = 2i"]]'],
-             "ask": {"a": 16, "b": 0, "op": "imag"}},
-            {"worked": ["One more together. x squared equals negative 900: 30 times 30 is 900, so x is 30 i.",
-                        '[[step eq="x² = −900"]] [[step eq="x = 30i"]]'],
-             "ask": {"a": 25, "b": 0, "op": "imag"}},
+            {"worked": ("Here is one more, done for you. x squared equals negative 4. "
+                        "What times itself is 4? 2 — so x equals 2 i.",
+                        '[[array rows="2" cols="2" caption="2 × 2 = 4 — x = 2i"]][[step eq="x² = −4"]][[step eq="x = 2i"]]'),
+             "ask": {'a': 16, 'b': 0, 'op': 'imag'}},
+            {"worked": ("One more together. x squared equals negative 900: 30 times 30 is "
+                        "900, so x is 30 i.",
+                        '[[step eq="x² = −900"]][[step eq="30 × 30 = 900"]][[step eq="x = 30i"]]'),
+             "ask": {'a': 25, 'b': 0, 'op': 'imag'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x squared equals "
+                       "negative 9, and x is 3 i. Tap the reason why."),
+            "choices": ("because the number squares to 9, and i carries the minus | "
+                        "because the minus belongs to the 3, not to i | because x is "
+                        "the 9 itself, with i on the end"),
+            "answer": "because the number squares to 9, and i carries the minus",
+            "board": '[[array rows="3" cols="3" caption="(3i)² = −9"]]',
+        },
+        "recap": [
+            ("So, here it is again. A square can never be negative — until i, whose "
+             "one job is i squared equals negative 1. Then x squared equals a negative "
+             "number is solved by the root of that number, times i. The i carries the "
+             "minus; the number carries the root.",
+             '[[array rows="3" cols="3" caption="x² = −9 → x = 3i"]]'),
+            ("And that is the door the unit opens.",
+             '[[step eq="i² = −1 · x = 3i"]]'),
+        ],
         "bank": [
             {"a": 36, "b": 0, "op": "imag"},
             {"a": 49, "b": 0, "op": "imag"},
@@ -15549,24 +15878,65 @@ _ALGEBRA2_U3 = [
         "op": "pdeg", "max_value": 16,
         "levels": ("abstract",),
         "symbols": ("degree", "polynomial"),
-        "advance_line": "Three in a row — you've got it! Degrees add when polynomials times.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Degrees add when polynomials times.",
+        "why": [
+            ("Why degrees? Polynomials are algebra\'s long expressions, and their "
+             "single most important fact is the degree — the highest power inside. "
+             "Multiply two of them and the degrees do something beautifully simple. "
+             "You met it in Algebra One with powers: joining piles of x\'s ADDS the "
+             "counts. Degrees ride the same rule.",
+             '[[goal text="Degrees add"]][[step eq="x³ · x² = x⁵"]]'),
+        ],
+        "picture": [
+            ("Here are the two top powers as piles of x\'s: x to the 4 is a pile of "
+             "four, and x cubed is a pile of three. Times them and the piles join into "
+             "one pile — seven x\'s tall. The counts add.",
+             '[[bars data="x⁴:4 | x³:3 | joined x⁷:7" caption="a pile of 4 and a pile of 3 join into a pile of 7"]]'),
+        ],
         "teach": [
-            ["Polynomials are algebra's long expressions, and their single most important fact is the degree — the highest power inside. Multiply two of them and the degrees do something beautifully simple. You met it in Algebra One with powers: joining piles of x's ADDS the counts. Degrees ride the same rule.",
-             '[[goal text="Degrees add"]][[step eq="x³ · x² = x⁵"]]'],
-            ["Take a degree 4 polynomial times a degree 3 polynomial. The biggest power in the first is x to the 4; in the second, x cubed. When they meet, the piles join: x to the 4 times x cubed is x to the 7. Degree 4 times degree 3 lands on degree 7.",
-             '[[step eq="x⁴ · x³ = x⁷"]][[step eq="degree 4 × degree 3 → degree 7"]]'],
-            ["The trap is multiplying: 4 times 3 is 12, but degrees do not times — the powers INSIDE do the timesing, and powers add their counts. And do not just keep the bigger degree: that is addition's rule. Adding polynomials lets the biggest survive; timesing builds something bigger than both.",
-             '[[step eq="4 + 3 = 7 ✓"]][[step eq="12 ✗ degrees do not times · 4 ✗ that is adding\'s rule"]]'],
+            ("That is the method. Take a degree 4 polynomial times a degree 3 "
+             "polynomial. The biggest power in the first is x to the 4; in the second, "
+             "x cubed. When they meet, the piles join: x to the 4 times x cubed is x to "
+             "the 7. Degree 4 times degree 3 lands on degree 7.",
+             '[[bars data="x⁴:4 | x³:3 | joined x⁷:7" caption="4 + 3 = 7"]][[step eq="x⁴ · x³ = x⁷"]][[step eq="degree 4 × degree 3 → degree 7"]]'),
+            ("The trap is multiplying: 4 times 3 is 12, but degrees do not times — "
+             "the powers INSIDE do the timesing, and powers add their counts. And do "
+             "not just keep the bigger degree: that is addition\'s rule. Adding "
+             "polynomials lets the biggest survive; timesing builds something bigger "
+             "than both.",
+             '[[step eq="4 + 3 = 7 ✓"]][[step eq="12 ✗ degrees do not times · 4 ✗ that is adding\'s rule"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Degree 5 times degree 2: the top powers join — degree 7.",
-                        '[[step eq="x⁵ · x² = x⁷"]]'],
-             "ask": {"a": 2, "b": 3, "op": "pdeg"}},
-            {"worked": ["One more together. Degree 8 times degree 4 — the degrees add: 12.",
-                        '[[step eq="x⁸ · x⁴ = x¹²"]]'],
-             "ask": {"a": 6, "b": 9, "op": "pdeg"}},
+            {"worked": ("Here is one more, done for you. Degree 5 times degree 2: the top "
+                        "powers join — degree 7.",
+                        '[[bars data="x⁵:5 | x²:2 | joined x⁷:7" caption="5 + 2 = 7"]][[step eq="x⁵ · x² = x⁷"]]'),
+             "ask": {'a': 2, 'b': 3, 'op': 'pdeg'}},
+            {"worked": ("One more together. Degree 8 times degree 4 — the degrees add: 12.",
+                        '[[bars data="x⁸:8 | x⁴:4 | joined x¹²:12" caption="8 + 4 = 12"]][[step eq="x⁸ · x⁴ = x¹²"]]'),
+             "ask": {'a': 6, 'b': 9, 'op': 'pdeg'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A degree 4 "
+                       "polynomial times a degree 3 polynomial has degree 7. Tap the "
+                       "reason why."),
+            "choices": ("because the top powers join, and joined piles add their counts | "
+                        "because the top powers join, and joined piles times their "
+                        "counts | because the bigger degree always survives"),
+            "answer": "because the top powers join, and joined piles add their counts",
+            "board": '[[bars data="x⁴:4 | x³:3 | joined x⁷:7" caption="4 + 3 = 7"]]',
+        },
+        "recap": [
+            ("So, here it is again. A polynomial\'s degree is its highest power, and "
+             "when two polynomials are timesed their top powers join — piles of x\'s "
+             "add their counts. Degrees add; they never times, and the bigger one "
+             "never simply survives.",
+             '[[bars data="x⁴:4 | x³:3 | joined x⁷:7" caption="degree 4 × degree 3 → degree 7"]]'),
+            ("And that is Algebra One\'s power rule, grown up.",
+             '[[step eq="x⁴ · x³ = x⁷"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "op": "pdeg"},
             {"a": 4, "b": 2, "op": "pdeg"},
@@ -15587,24 +15957,62 @@ _ALGEBRA2_U3 = [
         "op": "turnc", "max_value": 16,
         "levels": ("abstract",),
         "symbols": ("degree", "turn"),
-        "advance_line": "Three in a row — you've got it! One fewer turn than the degree — a ceiling, not a schedule.",
+        "advance_line": "Three in a row, and you can say why — you've got it! One fewer turn than the degree — a ceiling, not a schedule.",
+        "why": [
+            ("Why the wiggle count? Because a polynomial\'s degree promises things "
+             "about its picture. A line — degree 1 — never turns. A parabola — degree "
+             "2 — turns exactly once. Higher degrees can wiggle more, and the pattern "
+             "holds forever: a curve can turn at most one fewer time than its degree.",
+             '[[goal text="The wiggle count"]]'),
+        ],
+        "picture": [
+            ("Here is a degree 4 curve on the grid. Count its turns: down, up, down, "
+             "then away — three turns. Degree 4, three turns: one fewer than the "
+             "degree, and it could never manage a fourth.",
+             '[[graph func="x^4-4*x^2" range="-3..3" caption="a degree 4 curve — three turns, one fewer than its degree"]]'),
+        ],
         "teach": [
-            ["A polynomial's degree promises things about its picture. A line — degree 1 — never turns. A parabola — degree 2 — turns exactly once. A degree 3 curve can wiggle: down, up, down again — two turns. The pattern holds forever: a curve can turn at most one fewer time than its degree.",
-             '[[goal text="The wiggle count"]][[graph func="x^3-3*x" range="-3..3" caption="x^3-3*x on the grid"]]'],
-            ["Why one fewer? Every turn spends a climb or a fall, and the last stretch always runs off to the horizon without turning back. So degree 4: at most 3 turns. Degree 6: at most 5. The wiggles can be fewer — they can flatten away — but never more.",
-             '[[graph func="x^4-4*x^2" range="-3..3" caption="x^4-4*x^2 on the grid"]][[step eq="degree 4 → at most 3 turns"]]'],
-            ["AT MOST is the promise's shape. A degree 4 curve MAY turn 3 times, or fewer — it can never turn 4. Tapping the degree itself counts one turn too many, and tapping 1 treats every curve as a parabola. One fewer than the degree: a ceiling, not a schedule.",
-             '[[step eq="degree 4 → 3 turns at most ✓"]][[step eq="4 ✗ the degree itself · 1 ✗ not every curve is a parabola"]]'],
+            ("That is the method. Why one fewer? Every turn spends a climb or a fall, "
+             "and the last stretch always runs off to the horizon without turning "
+             "back. So degree 4: at most 3 turns. Degree 6: at most 5. The wiggles can "
+             "be fewer — they can flatten away — but never more.",
+             '[[graph func="x^4-4*x^2" range="-3..3" caption="degree 4 → at most 3 turns"]][[step eq="degree 4 → at most 3 turns"]]'),
+            ("AT MOST is the promise\'s shape. A degree 4 curve MAY turn 3 times, or "
+             "fewer — it can never turn 4. Tapping the degree itself counts one turn "
+             "too many, and tapping 1 treats every curve as a parabola. One fewer than "
+             "the degree: a ceiling, not a schedule.",
+             '[[step eq="degree 4 → 3 turns at most ✓"]][[step eq="4 ✗ the degree itself · 1 ✗ not every curve is a parabola"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Degree 18 — huge — and still the same promise: at most 17 turns.",
-                        '[[step eq="degree 18 → at most 17 turns"]]'],
-             "ask": {"a": 3, "b": 0, "op": "turnc"}},
-            {"worked": ["One more together. Degree 20: one fewer than the degree — at most 19 turns.",
-                        '[[step eq="degree 20 → at most 19"]]'],
-             "ask": {"a": 16, "b": 0, "op": "turnc"}},
+            {"worked": ("Here is one more, done for you. Degree 18 — huge — and still the "
+                        "same promise: at most 17 turns.",
+                        '[[bars data="degree:18 | turns, at most:17" caption="degree 18 → at most 17 turns"]][[step eq="degree 18 → at most 17 turns"]]'),
+             "ask": {'a': 3, 'b': 0, 'op': 'turnc'}},
+            {"worked": ("One more together. Degree 20: one fewer than the degree — at "
+                        "most 19 turns.",
+                        '[[bars data="degree:20 | turns, at most:19" caption="degree 20 → at most 19"]][[step eq="degree 20 → at most 19"]]'),
+             "ask": {'a': 16, 'b': 0, 'op': 'turnc'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A degree 4 curve can "
+                       "turn at most 3 times. Tap the reason why."),
+            "choices": ("because the last stretch runs off without turning back | because "
+                        "a curve turns once for every degree it has | because every "
+                        "curve turns exactly once, like a parabola"),
+            "answer": "because the last stretch runs off without turning back",
+            "board": '[[graph func="x^4-4*x^2" range="-3..3" caption="degree 4 → at most 3 turns"]]',
+        },
+        "recap": [
+            ("So, here it is again. A polynomial of any degree can turn at most one "
+             "fewer time than that degree, because the last stretch always runs off to "
+             "the horizon. At most — a ceiling, not a schedule.",
+             '[[graph func="x^4-4*x^2" range="-3..3" caption="one fewer turn than the degree"]]'),
+            ("And that is a picture promised by a number.",
+             '[[step eq="degree 4 → at most 3 turns"]]'),
+        ],
         "bank": [
             {"a": 5, "b": 0, "op": "turnc"},
             {"a": 7, "b": 0, "op": "turnc"},
@@ -15625,24 +16033,62 @@ _ALGEBRA2_U3 = [
         "op": "rsum3", "max_value": 16,
         "levels": ("abstract",),
         "symbols": ("roots", "crossings"),
-        "advance_line": "Three in a row — you've got it! Count your crossings before you add.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Count your crossings before you add.",
+        "why": [
+            ("Why three crossings? Algebra One factored quadratics; Algebra Two grows "
+             "them. x take away 1, times x take away 3, times x take away 5, equals "
+             "zero — THREE factors, a cubic, three crossings: 1, 3 and 5. Each factor "
+             "donates one answer, exactly as before. More factors, more crossings.",
+             '[[goal text="Three crossings"]]'),
+        ],
+        "picture": [
+            ("Here is the cubic on the grid, with its three crossings marked: 1, 3 and "
+             "5. It wiggles up and down through the ground three times — one crossing "
+             "for each factor. These are the curve\'s roots.",
+             '[[graph func="(x-1)*(x-3)*(x-5)" points="(1,0),(3,0),(5,0)" range="0..6" caption="y = (x − 1)(x − 3)(x − 5) — roots 1, 3 and 5"]]'),
+        ],
         "teach": [
-            ["Algebra One factored quadratics; Algebra Two grows them. x take away 1, times x take away 3, times x take away 5, equals zero — THREE factors, a cubic, three crossings: 1, 3 and 5. Each factor donates one answer, exactly as before. More factors, more crossings.",
-             '[[goal text="Three crossings"]][[graph func="(x-1)*(x-3)*(x-5)" range="0..6" caption="(x-1)*(x-3)*(x-5) on the grid"]]'],
-            ["Now the Algebra Two question: what do the answers do together? These are the curve's roots, and their sum is 1 put together with 3 with 5 — 9. Simple — but only if you count all three. One crossing is a third of the story.",
-             '[[graph func="(x-1)*(x-3)*(x-5)" range="0..6" caption="(x-1)*(x-3)*(x-5) on the grid"]][[step eq="1 + 3 + 5 = 9"]]'],
-            ["Two traps. 1 times 3 times 5 is 15 — the product, the roots' OTHER shared secret, not their sum. And 1 plus 3 is 4 — a cubic has THREE answers, and questions about the answers mean all of them. Count your crossings before you add.",
-             '[[step eq="1 + 3 + 5 = 9 ✓"]][[step eq="15 ✗ the product · 4 ✗ forgot the third"]]'],
+            ("That is the method. Now the Algebra Two question: what do the answers do "
+             "together? Their sum is 1 put together with 3 with 5 — 9. Simple — but "
+             "only if you count all three. One crossing is a third of the story.",
+             '[[graph func="(x-1)*(x-3)*(x-5)" points="(1,0),(3,0),(5,0)" range="0..6" caption="1 + 3 + 5 = 9"]][[step eq="1 + 3 + 5 = 9"]]'),
+            ("Two traps. 1 times 3 times 5 is 15 — the product, the roots\' OTHER "
+             "shared secret, not their sum. And 1 plus 3 is 4 — a cubic has THREE "
+             "answers, and questions about the answers mean all of them. Count your "
+             "crossings before you add.",
+             '[[step eq="1 + 3 + 5 = 9 ✓"]][[step eq="15 ✗ the product · 4 ✗ forgot the third"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Roots of 2, 3 and 6: put together, 11.",
-                        '[[graph func="(x-2)*(x-3)*(x-6)" range="0..7" caption="(x-2)*(x-3)*(x-6) on the grid"]][[step eq="2 + 3 + 6 = 11"]]'],
-             "ask": {"a": 1, "b": 3, "c": 6, "op": "rsum3"}},
-            {"worked": ["One more together. Roots of 1, 5 and 7: 1 plus 5 plus 7, put together — 13.",
-                        '[[step eq="1 + 5 + 7 = 13"]]'],
-             "ask": {"a": 2, "b": 5, "c": 7, "op": "rsum3"}},
+            {"worked": ("Here is one more, done for you. Roots of 2, 3 and 6: put "
+                        "together, 11.",
+                        '[[graph func="(x-2)*(x-3)*(x-6)" points="(2,0),(3,0),(6,0)" range="0..7" caption="roots 2, 3 and 6 — 2 + 3 + 6 = 11"]][[step eq="2 + 3 + 6 = 11"]]'),
+             "ask": {'a': 1, 'b': 3, 'c': 6, 'op': 'rsum3'}},
+            {"worked": ("One more together. Roots of 1, 5 and 7: 1 plus 5 plus 7, put "
+                        "together — 13.",
+                        '[[graph func="(x-1)*(x-5)*(x-7)" points="(1,0),(5,0),(7,0)" range="0..8" caption="roots 1, 5 and 7 — 1 + 5 + 7 = 13"]][[step eq="1 + 5 + 7 = 13"]]'),
+             "ask": {'a': 2, 'b': 5, 'c': 7, 'op': 'rsum3'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x take away 1, times "
+                       "x take away 3, times x take away 5, equals zero, and the "
+                       "answers put together equal 9. Tap the reason why."),
+            "choices": ("because three factors give three roots, and all three are added | "
+                        "because the three roots are timesed together | because a cubic "
+                        "has two answers, added"),
+            "answer": "because three factors give three roots, and all three are added",
+            "board": '[[graph func="(x-1)*(x-3)*(x-5)" points="(1,0),(3,0),(5,0)" range="0..6" caption="1 + 3 + 5 = 9"]]',
+        },
+        "recap": [
+            ("So, here it is again. Every factor donates one root, so three factors "
+             "make three crossings. A question about the answers means all of them — "
+             "count the crossings, then add, and never hand back the product.",
+             '[[graph func="(x-1)*(x-3)*(x-5)" points="(1,0),(3,0),(5,0)" range="0..6" caption="three crossings, all counted"]]'),
+            ("And that is a quadratic\'s trick, grown to a cubic.",
+             '[[step eq="1 + 3 + 5 = 9"]]'),
+        ],
         "bank": [
             {"a": 1, "b": 2, "c": 4, "op": "rsum3"},
             {"a": 1, "b": 3, "c": 4, "op": "rsum3"},
@@ -15663,24 +16109,62 @@ _ALGEBRA2_U3 = [
         "op": "pval", "max_value": 70,
         "levels": ("abstract",),
         "symbols": ("cubed", "feed"),
-        "advance_line": "Three in a row — you've got it! Read the power, keep the sign.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Read the power, keep the sign.",
+        "why": [
+            ("Why feed it? Because a polynomial is a machine, like every function since "
+             "Algebra One: feed it an x and it answers. y equals: x cubed, take away 2 "
+             "x, plus 3. Feeding it means every x in the recipe gets the same meal — "
+             "the cubed one AND the plain one.",
+             '[[goal text="Feed the cube"]][[step eq="y = x³ − 2x + 3"]]'),
+        ],
+        "picture": [
+            ("Here is the machine with its rule written on it: x cubed, take away 2 x, "
+             "plus 3. Feed in x equals 5 and the machine works the whole recipe on that "
+             "5 — cubes it, takes away twice it, adds 3 — and out comes 118.",
+             '[[machine input="5" rule="x³ − 2x + 3" output="118" caption="feed 5 → 118"]]'),
+        ],
         "teach": [
-            ["A polynomial is a machine, like every function since Algebra One: feed it an x and it answers. y equals: x cubed, take away 2 x, plus 3. Feeding it means every x in the recipe gets the same meal — the cubed one AND the plain one.",
-             '[[goal text="Feed the cube"]][[step eq="y = x³ − 2x + 3"]]'],
-            ["Feed x equals 5: 5 cubed is 125; take away 2 times 5 — 10 — leaves 115; plus 3 is 118. Watch the first step: 5 CUBED, 125. The whole tower stands on reading that power right.",
-             '[[step eq="5³ = 125"]][[step eq="125 − 10 + 3 = 118"]]'],
-            ["The trap you met in Algebra One returns taller: x cubed does not mean 3 times x. Feed 5: cubed is 125, but 3 times 5 is only 15 — a different world. And carry the minus with you: take away 10, never plus 10. Read the power, keep the sign.",
-             '[[step eq="5³ = 125 ✓ · 3 × 5 = 15 ✗"]][[step eq="− 2x means take away · the sign stays"]]'],
+            ("That is the method. Feed x equals 5: 5 cubed is 125; take away 2 times 5 "
+             "— 10 — leaves 115; plus 3 is 118. Watch the first step: 5 CUBED, 125. "
+             "The whole tower stands on reading that power right.",
+             '[[machine input="5" rule="x³ − 2x + 3" output="118" caption="5³ − 2·5 + 3 = 118"]][[step eq="5³ = 125"]][[step eq="125 − 10 + 3 = 118"]]'),
+            ("The trap you met in Algebra One returns taller: x cubed does not mean 3 "
+             "times x. Feed 5: cubed is 125, but 3 times 5 is only 15 — a different "
+             "world. And carry the minus with you: take away 10, never plus 10. Read "
+             "the power, keep the sign.",
+             '[[step eq="5³ = 125 ✓ · 3 × 5 = 15 ✗"]][[step eq="− 2x means take away · the sign stays"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals: x cubed, take away 1 x, plus 3. Feed x equals 2: 8, take away 2, plus 3 — 9.",
-                        '[[step eq="2³ − 2 + 3 = 9"]]'],
-             "ask": {"a": 1, "b": 2, "c": 2, "op": "pval"}},
-            {"worked": ["One more together. x cubed, take away 2 x, plus 4, at x equals 3: 27 take away 6, plus 4 — 25.",
-                        '[[step eq="27 − 6 + 4 = 25"]]'],
-             "ask": {"a": 2, "b": 3, "c": 4, "op": "pval"}},
+            {"worked": ("Here is one more, done for you. y equals: x cubed, take away 1 x, "
+                        "plus 3. Feed x equals 2: 8, take away 2, plus 3 — 9.",
+                        '[[machine input="2" rule="x³ − 1x + 3" output="9" caption="2³ − 1·2 + 3 = 9"]][[step eq="2³ − 2 + 3 = 9"]]'),
+             "ask": {'a': 1, 'b': 2, 'c': 2, 'op': 'pval'}},
+            {"worked": ("One more together. x cubed, take away 2 x, plus 4, at x equals "
+                        "3: 27 take away 6, plus 4 — 25.",
+                        '[[machine input="3" rule="x³ − 2x + 4" output="25" caption="3³ − 2·3 + 4 = 25"]][[step eq="27 − 6 + 4 = 25"]]'),
+             "ask": {'a': 2, 'b': 3, 'c': 4, 'op': 'pval'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. y equals x cubed, "
+                       "take away 2 x, plus 3, and at x equals 5 the answer is 118. Tap "
+                       "the reason why."),
+            "choices": ("because the cube is a cube, and the minus is kept | "
+                        "because x cubed means 3 times x, so 15 to start | because the "
+                        "take away becomes a plus once x is fed in"),
+            "answer": "because the cube is a cube, and the minus is kept",
+            "board": '[[machine input="5" rule="x³ − 2x + 3" output="118" caption="125 − 10 + 3 = 118"]]',
+        },
+        "recap": [
+            ("So, here it is again. A polynomial is a machine: feed the x into every "
+             "place it appears. Read each power as a power — cubed means times itself "
+             "three times, never 3 times — and carry every sign with you.",
+             '[[machine input="5" rule="x³ − 2x + 3" output="118" caption="read the power, keep the sign"]]'),
+            ("And that is a function fed, one level taller.",
+             '[[step eq="5³ − 2·5 + 3 = 118"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "c": 2, "op": "pval"},
             {"a": 3, "b": 4, "c": 2, "op": "pval"},
@@ -25193,6 +25677,199 @@ def _twop_worked(p):
 
 
 
+# ---- (tl, 2026-09-06) ALGEBRA 2 UNITS 1-3: the distance on the number line, the
+# count as bars, the trips as tapes, the clues as bars, the curve on the grid with its
+# turn marked and its crossings marked, the test number as two bars, the square as an
+# array, the degrees as bars, the machine with its door blank. Every ask draws its
+# question with the answer withheld; every walk-back draws it filled in.
+def _absv_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[numberline min="{a - 2}" max="{b + 2}" points="{a},{b}" caption="{a} and {b} on the line — how far apart?"]]'
+            f'[[step eq="|{a} − {b}| = how far apart = ?"]]')
+
+
+def _absv_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: {a} take away {b} lands on negative {b - a} — but the bars "
+            f"ask how FAR, and a distance is a plain count of steps. From {a} to {b} is "
+            f"{b - a} steps: keep the size, drop the sign.",
+            f'[[numberline min="{a - 2}" max="{b + 2}" points="{a},{b}" hops="{a},{b}" caption="from {a} to {b}: {b - a} steps — |{a} − {b}| = {b - a}"]]'
+            f'[[step eq="|{a} − {b}| = {b - a}"]]')
+
+
+def _absc_board(p):
+    a = p["a"]
+    return (f'[[numberline min="{-a}" max="{a}" points="{-(a - 1)},{a - 1}" caption="closer to zero than {a} — from negative {a - 1} up to {a - 1}; count them ALL"]]'
+            f'[[step eq="|x| < {a} · count them ALL = ?"]]')
+
+
+def _absc_worked(p):
+    a = p["a"]
+    return (f"Look what you did: from negative {a - 1} up to {a - 1} — {a - 1} negatives, "
+            f"{a - 1} positives, and the quiet zero in the middle: {2 * a - 1} whole numbers. "
+            f"The ends stay out; {a} is not less than {a}.",
+            f'[[bars data="negatives:{a - 1} | zero:1 | positives:{a - 1}" caption="{a - 1} + 1 + {a - 1} = {2 * a - 1}"]]'
+            f'[[step eq="{a - 1} + 1 + {a - 1} = {2 * a - 1}"]]')
+
+
+def _el2_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="apple | apple | apple | banana | banana" total="{a}" caption="the big trip: 3 apples and 2 bananas, {a} cents"]]'
+            f'[[tape parts="apple | banana | banana" total="{b}" caption="the small trip: 1 apple and the same 2 bananas, {b} cents — one apple costs?"]]'
+            f'[[step eq="3 apples + 2 bananas = {a} · 1 apple + 2 bananas = {b}"]]'
+            f'[[step eq="the bananas cancel: 2 apples = ?"]]')
+
+
+def _el2_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: take the small trip away from the big one and the bananas "
+            f"vanish. 3 apples take away 1 apple leaves 2 apples, costing {a} take away "
+            f"{b} — {a - b}. Two apples for {a - b}: share, and one apple is "
+            f"{(a - b) // 2} cents. Vanish, then share.",
+            f'[[tape parts="apple | apple" total="{a - b}" caption="what is left standing: 2 apples = {a} − {b} = {a - b}"]]'
+            f'[[step eq="2 apples = {a - b} · 1 apple = {(a - b) // 2}"]]')
+
+
+def _sys3_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[bars data="x + y:{a} | y + z:{b} | x + z:{c}" caption="three clues, each about a pair — every friend stands in two of them"]]'
+            f'[[step eq="x + y = {a} · y + z = {b} · x + z = {c}"]]'
+            f'[[step eq="every friend is in exactly two clues"]]'
+            f'[[step eq="x + y + z = ?"]]')
+
+
+def _sys3_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    t = a + b + c
+    return (f"Look what you did: put the three clues together — {t} — but every friend "
+            f"stood on the scale twice, so {t} counts everybody two times. Halve it: all "
+            f"three together weigh {t // 2}. Not {t}, and not a pair\'s typical weight.",
+            f'[[bars data="all three clues:{t} | everyone once:{t // 2}" caption="{a} + {b} + {c} = {t} — everyone twice — so all three weigh {t // 2}"]]'
+            f'[[step eq="{t} ÷ 2 = {t // 2}"]]')
+
+
+def _vtx2_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph func="(x-{a})^2+{b}" range="{a - 4}..{a + 4}" caption="y = (x − {a})² + {b} — at which x does it turn?"]]'
+            f'[[step eq="y = (x − {a})² + {b}"]]'
+            f'[[step eq="the squared part is zero when x = ?"]]')
+
+
+def _vtx2_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the squared part bottoms out where x take away {a} is "
+            f"zero — at x equals {a}, positive {a}. The minus points opposite. And the "
+            f"plus {b} is a different fact: how high the turn floats, not where.",
+            f'[[graph func="(x-{a})^2+{b}" points="({a},{b})" range="{a - 4}..{a + 4}" caption="the turn at x = {a} — the vertex ({a}, {b})"]]'
+            f'[[step eq="x − {a} = 0"]][[step eq="x = {a}"]]')
+
+
+def _rsum_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph func="(x-{a})*(x-{b})" range="-1..{a + b}" caption="y = (x − {a})(x − {b}) — two crossings; put together they equal?"]]'
+            f'[[step eq="(x − {a})(x − {b}) = 0"]]'
+            f'[[step eq="the two crossings, put together = ?"]]')
+
+
+def _rsum_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: each factor donates one answer — x equals {a} and x "
+            f"equals {b}, the two crossings. Put together, {a} plus {b} equals {a + b}. "
+            f"Not the product, and not one answer of two.",
+            f'[[graph func="(x-{a})*(x-{b})" points="({a},0),({b},0)" range="-1..{a + b}" caption="crossings at {a} and {b} — {a} + {b} = {a + b}"]]'
+            f'[[step eq="{a} + {b} = {a + b}"]]')
+
+
+def _disc_worked(p):
+    a, b = p["a"], p["b"]
+    sq, fb = a * a, 4 * b
+    verdict = ("positive — the curve cuts the x line twice" if sq > fb else
+               "exactly zero — the curve touches the x line once" if sq == fb else
+               "below zero — the curve never reaches the x line")
+    n = 2 if sq > fb else 1 if sq == fb else 0
+    return (f"Look what you did: {a} squared is {sq}, and 4 times {b} is {fb}. The test "
+            f"number is {verdict}. You never report the test number, only its sign: "
+            f"{n} crossings.",
+            f'[[bars data="{a}²:{sq} | 4 · {b}:{fb}" caption="{sq} against {fb} — the test number is {verdict.split(" — ")[0]}"]]'
+            f'[[graph func="x^2+{a}*x+{b}" range="{-a - 3}..{3}" caption="y = x² + {a}x + {b} — {n} crossings"]]')
+
+
+def _imag_board(p):
+    a = p["a"]
+    return (f'[[step eq="x² = −{a}"]]'
+            f'[[step eq="i² = −1"]]'
+            f'[[step eq="x = ? · i"]]')
+
+
+def _imag_worked(p):
+    a = p["a"]
+    k = round(a ** 0.5)
+    return (f"Look what you did: the i carries the minus, so the number in front of it is "
+            f"what SQUARED gives {a} — {k}, because {k} times {k} is {a}. Check: {k} i "
+            f"times {k} i is {a} times i squared, negative {a}. So x is {k} i.",
+            (f'[[array rows="{k}" cols="{k}" caption="{k} × {k} = {a} — so x = {k}i"]]' if k <= 10 else
+             f'[[rectangle w="{k}" h="{k}" caption="{k} × {k} = {a} — so x = {k}i"]]')
+            + f'[[step eq="({k}i)² = {a} · i² = −{a} ✓"]]')
+
+
+def _pdeg_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[bars data="x{_sup(a)}:{a} | x{_sup(b)}:{b}" caption="two piles of x\'s — {a} in one, {b} in the other; join them"]]'
+            f'[[step eq="x{_sup(a)} · x{_sup(b)} = x to the?"]]')
+
+
+def _pdeg_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the top powers join, and joining piles of x\'s ADDS the "
+            f"counts — x to the {a} times x to the {b} is x to the {a + b}. Degree {a} "
+            f"times degree {b} lands on degree {a + b}. Not {a * b}: degrees do not times.",
+            f'[[bars data="x{_sup(a)}:{a} | x{_sup(b)}:{b} | joined x{_sup(a + b)}:{a + b}" caption="{a} + {b} = {a + b}"]]'
+            f'[[step eq="x{_sup(a)} · x{_sup(b)} = x{_sup(a + b)}"]]')
+
+
+def _turnc_worked(p):
+    a = p["a"]
+    return (f"Look what you did: every turn spends a climb or a fall, and the last stretch "
+            f"runs off to the horizon without turning back — so a degree {a} curve turns "
+            f"at most {a - 1} times, one fewer than its degree. A ceiling, not a schedule.",
+            f'[[bars data="degree:{a} | turns, at most:{a - 1}" caption="degree {a} → at most {a - 1} turns"]]'
+            f'[[step eq="degree {a} → at most {a - 1} turns"]]')
+
+
+def _rsum3_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[graph func="(x-{a})*(x-{b})*(x-{c})" range="-1..{c + 2}" caption="y = (x − {a})(x − {b})(x − {c}) — three crossings; put together they equal?"]]'
+            f'[[step eq="three crossings, put together = ?"]]')
+
+
+def _rsum3_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: three factors, three crossings — {a}, {b} and {c}. Put "
+            f"together, {a} plus {b} plus {c} equals {a + b + c}. Not the product, and not "
+            f"two of three: a cubic has three answers.",
+            f'[[graph func="(x-{a})*(x-{b})*(x-{c})" points="({a},0),({b},0),({c},0)" range="-1..{c + 2}" caption="crossings at {a}, {b} and {c} — {a} + {b} + {c} = {a + b + c}"]]'
+            f'[[step eq="{a} + {b} + {c} = {a + b + c}"]]')
+
+
+def _pval_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[machine input="{c}" rule="x³ − {a}x + {b}" output="?" caption="feed the machine x = {c} — every x gets the same meal; what comes out?"]]'
+            f'[[step eq="y = x³ − {a}x + {b}"]]'
+            f'[[step eq="x = {c}: {c}³ − {a}·{c} + {b} = ?"]]')
+
+
+def _pval_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    cube = c ** 3
+    y = cube - a * c + b
+    return (f"Look what you did: {c} CUBED is {cube} — not 3 times {c}. Take away {a} "
+            f"times {c}, {a * c}, leaves {cube - a * c}; plus {b} equals {y}. Read the "
+            f"power, keep the sign.",
+            f'[[machine input="{c}" rule="x³ − {a}x + {b}" output="{y}" caption="{c}³ − {a}·{c} + {b} = {y}"]]'
+            f'[[step eq="{c}³ = {cube}"]][[step eq="{cube} − {a * c} + {b} = {y}"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -28634,10 +29311,8 @@ OP_EXT = {
         "ans": lambda p: p["b"] - p["a"],
         "spoken": lambda p: (f"What is the absolute value of {p['a']} take away "
                              f"{p['b']}?"),
-        "board": lambda p: (f'[[numberline min="{p["a"] - 2}" '
-                            f'max="{p["b"] + 2}" points="{p["a"]},{p["b"]}"]]'
-                            f'[[step eq="|{p["a"]} − {p["b"]}| = how far '
-                            f'apart = ?"]]'),
+        "board": _absv_board,         # (tl) the two spots on the line, captioned
+        "worked": _absv_worked,       # (tl) the steps between them hopped
         # Spoken negatives as WORDS (the pre-u3 convention) -- never print "-4".
         "praise": lambda p: (f"{p['a']} take away {p['b']} lands on negative "
                              f"{p['b'] - p['a']} — but the absolute value asks "
@@ -28658,10 +29333,8 @@ OP_EXT = {
         "ans": lambda p: 2 * p["a"] - 1,
         "spoken": lambda p: (f"How many whole numbers x have an absolute value "
                              f"less than {p['a']}?"),
-        "board": lambda p: (f'[[numberline min="{-p["a"]}" max="{p["a"]}" '
-                            f'points="{-(p["a"] - 1)},{p["a"] - 1}"]]'
-                            f'[[step eq="from negative {p["a"] - 1} up to '
-                            f'{p["a"] - 1} · count them ALL = ?"]]'),
+        "board": _absc_board,         # (tl) the ends on the line, captioned
+        "worked": _absc_worked,       # (tl) negatives, zero, positives as bars
         # "{n} on each side" stays grammatical at n = 1 ("1 negatives" would
         # not -- caught reading ask1's praise aloud).
         "praise": lambda p: (f"From negative {p['a'] - 1} up to "
@@ -28688,9 +29361,8 @@ OP_EXT = {
         # The board names the cancellation but computes NOTHING -- the child
         # subtracts the trips AND shares between the two apples (el2's whole
         # step past alg1's elim, where one subtraction finished the job).
-        "board": lambda p: (f'[[step eq="3 apples + 2 bananas = {p["a"]} · '
-                            f'1 apple + 2 bananas = {p["b"]}"]]'
-                            f'[[step eq="the bananas cancel: 2 apples = ?"]]'),
+        "board": _el2_board,          # (tl) the two trips as tapes, captioned
+        "worked": _el2_worked,        # (tl) the pair of apples left standing
         "praise": lambda p: (f"Take the small trip away from the big one and "
                              f"the bananas vanish: 2 apples cost "
                              f"{p['a'] - p['b']}, so one apple is "
@@ -28718,10 +29390,8 @@ OP_EXT = {
                              f"the first pair weighs {p['a']}, the second pair "
                              f"{p['b']}, and the third pair {p['c']}. Put "
                              f"together, how much do all three weigh?"),
-        "board": lambda p: (f'[[step eq="x + y = {p["a"]} · y + z = {p["b"]} '
-                            f'· x + z = {p["c"]}"]]'
-                            f'[[step eq="every friend is in exactly two '
-                            f'clues"]]'),
+        "board": _sys3_board,         # (tl) the three clues as bars, captioned
+        "worked": _sys3_worked,       # (tl) all three clues beside everyone once
         "praise": lambda p: (f"Put the three clues together: "
                              f"{p['a'] + p['b'] + p['c']} — but every friend "
                              f"was weighed twice, so all three together weigh "
@@ -28761,10 +29431,8 @@ OP_EXT = {
         "spoken": lambda p: (f"y equals: x take away {p['a']}, squared, plus "
                              f"{p['b']}. At which x does this curve reach its "
                              f"lowest point?"),
-        "board": lambda p: (f'[[graph func="(x-{p["a"]})^2+{p["b"]}" '
-                            f'range="{p["a"] - 4}..{p["a"] + 4}"]]'
-                            f'[[step eq="y = (x − {p["a"]})² + {p["b"]}"]]'
-                            f'[[step eq="the squared part is zero when x = ?"]]'),
+        "board": _vtx2_board,         # (tl) the curve, captioned
+        "worked": _vtx2_worked,       # (tl) the vertex marked
         "praise": lambda p: (f"x take away {p['a']} is zero exactly at x equals "
                              f"{p['a']} — and there the square bottoms out. The "
                              f"minus points OPPOSITE: take away {p['a']} means "
@@ -28789,10 +29457,8 @@ OP_EXT = {
                              f"Put together, what do the two answers equal?"),
         # The graph SHOWS the two crossings -- reading a picture is allowed;
         # adding its two crossings is still the child's job.
-        "board": lambda p: (f'[[graph func="(x-{p["a"]})*(x-{p["b"]})" '
-                            f'range="-1..{p["a"] + p["b"]}"]]'
-                            f'[[step eq="(x − {p["a"]})(x − {p["b"]}) = 0"]]'
-                            f'[[step eq="the two crossings, put together = ?"]]'),
+        "board": _rsum_board,         # (tl) the curve, captioned
+        "worked": _rsum_worked,       # (tl) both crossings marked
         "praise": lambda p: (f"The answers are x equals {p['a']} and x equals "
                              f"{p['b']} — put together, {p['a'] + p['b']}."),
         "key": lambda p: p["a"] + p["b"],
@@ -28817,6 +29483,7 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="test number: {p["a"]}² − '
                             f'4 · {p["b"]}"]]'
                             f'[[step eq="its SIGN answers the question"]]'),
+        "worked": _disc_worked,       # (tl) the two numbers as bars, then the curve (a picture on the ask would count the crossings)
         # Praise never PRINTS a negative test number -- it speaks the judgment.
         "praise": lambda p: (f"{p['a']} squared is {p['a'] * p['a']}, and 4 "
                              f"times {p['b']} is {4 * p['b']}. "
@@ -28841,8 +29508,8 @@ OP_EXT = {
         "spoken": lambda p: (f"x squared equals negative {p['a']}. Written "
                              f"with i, x is a number times i. What is that "
                              f"number?"),
-        "board": lambda p: (f'[[step eq="x² = −{p["a"]}"]]'
-                            f'[[step eq="i² = −1 · x = ? · i"]]'),
+        "board": _imag_board,         # (tl) the question, i's one job, and the blank on its own line (rule 44)
+        "worked": _imag_worked,       # (tl) the square as an array, past 10 a rectangle (its side is the answer -- walk-back only)
         "praise": lambda p: (f"The i carries the minus: {round(p['a'] ** 0.5)} "
                              f"i times {round(p['a'] ** 0.5)} i equals "
                              f"{p['a']} times i squared — negative {p['a']}. "
@@ -28873,8 +29540,8 @@ OP_EXT = {
         "spoken": lambda p: (f"One polynomial has degree {p['a']}; another has "
                              f"degree {p['b']}. Multiply the two together. "
                              f"What is the degree of the answer?"),
-        "board": lambda p: (f'[[step eq="x{_sup(p["a"])} · x{_sup(p["b"])} = '
-                            f'x to the?"]]'),
+        "board": _pdeg_board,         # (tl) the two piles as bars, captioned
+        "worked": _pdeg_worked,       # (tl) the piles joined
         "praise": lambda p: (f"The top powers join: x to the {p['a']} times x "
                              f"to the {p['b']} is x to the "
                              f"{p['a'] + p['b']} — degree {p['a'] + p['b']}."),
@@ -28895,6 +29562,7 @@ OP_EXT = {
                              f"how many times can its curve turn?"),
         "board": lambda p: (f'[[step eq="degree {p["a"]} · at most ? '
                             f'turns"]]'),
+        "worked": _turnc_worked,      # (tl) the degree beside the turns (a curve of degree a would show its turns)
         "praise": lambda p: (f"A degree {p['a']} polynomial turns at most "
                              f"{p['a'] - 1} times — always one fewer than its "
                              f"degree."),
@@ -28914,9 +29582,8 @@ OP_EXT = {
                              f"{p['b']}, times x take away {p['c']}, equals "
                              f"zero. There are three answers. Put together, "
                              f"what do they equal?"),
-        "board": lambda p: (f'[[graph func="(x-{p["a"]})*(x-{p["b"]})*'
-                            f'(x-{p["c"]})" range="-1..{p["c"] + 2}"]]'
-                            f'[[step eq="three crossings, put together = ?"]]'),
+        "board": _rsum3_board,        # (tl) the cubic, captioned
+        "worked": _rsum3_worked,      # (tl) all three crossings marked
         "praise": lambda p: (f"The answers are {p['a']}, {p['b']} and "
                              f"{p['c']} — put together, "
                              f"{p['a'] + p['b'] + p['c']}."),
@@ -28940,9 +29607,8 @@ OP_EXT = {
         "ans": lambda p: p["c"] ** 3 - p["a"] * p["c"] + p["b"],
         "spoken": lambda p: (f"y equals: x cubed, take away {p['a']} x, plus "
                              f"{p['b']}. What is y when x equals {p['c']}?"),
-        "board": lambda p: (f'[[step eq="y = x³ − {p["a"]}x + {p["b"]}"]]'
-                            f'[[step eq="x = {p["c"]}: {p["c"]}³ − '
-                            f'{p["a"]}·{p["c"]} + {p["b"]} = ?"]]'),
+        "board": _pval_board,         # (tl) the machine with its door blank, captioned
+        "worked": _pval_worked,       # (tl) the machine answered
         "praise": lambda p: (f"{p['c']} cubed is {p['c'] ** 3}; take away "
                              f"{p['a']} times {p['c']} — "
                              f"{p['a'] * p['c']} — leaves "

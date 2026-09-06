@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tl -- PART 3jh: Algebra 2 Units 1-3 to the shape (12 lessons on the
+#               number line with its hops, the bars, the tape, the grid with the vertex
+#               and the crossings marked, the array and the machine); every figure an ask
+#               draws captioned; the sys3 and imag pending lines fixed.
+#               Re-pinned: PART 3gh (the absolute-value opener is the why beat, the number
+#               line the picture beat) and PART 3gi (the ask board is captioned).
 #   2026-09-06  BUILD tk -- PART 3jg: Geometry Units 7-9 to the shape (12 lessons on the
 #               grid, the right triangle under the slant, the parallelogram with its true
 #               height drawn, the rooms, the cube, the box, the bars, the pie, the array
@@ -16567,17 +16573,23 @@ def part3gh_the_bars_are_on_the_board():
     import lessonscripts as _ls
     import tutor as _t
     les = [l for l in _ls.LESSONS if l["id"] == "alg2-u1-how-far-from-zero"][0]
-    spoken, board = les["teach"][0]
+    # (tl, 2026-09-06) RE-PINNED: the lesson is on the shape now. The opener is the
+    # "why" beat and still draws the bars; the number line moved to the "picture"
+    # beat that follows it -- so the bars still come first, one beat ahead. The
+    # spoken opener is the shape's own ("Why two straight bars? Welcome to Algebra
+    # Two...") and ends on the same fact.
+    spoken, board = les["why"][0]
+    pic_spoken, pic_board = les["picture"][0]
     check("⭐ the opener that says 'two straight bars' now DRAWS them",
           '[[step eq="|4| = 4"]]' in board and '[[step eq="|−4| = 4"]]' in board,
           "the words point at a picture that is not there")
-    check("  ...ahead of the number line, so the bars come first",
-          board.index('[[step eq="|4| = 4"]]') < board.index("[[numberline"), "")
-    check("  the spoken line is untouched (no new audio key)",
-          spoken.startswith("Welcome to Algebra Two. Here are two straight bars around a number.")
-          and "So both have absolute value four." in spoken, "")
+    check("  ...ahead of the number line, so the bars come first (the line is the next beat)",
+          "[[numberline" not in board and "[[numberline" in pic_board, "")
+    check("  the spoken opener names the bars and ends on the same fact",
+          spoken.startswith("Why two straight bars? Welcome to Algebra Two.")
+          and "so both have absolute value four." in spoken, "")
     check("  the number line and its caption survive",
-          'points="-4,4"' in board and "both 4 from zero" in board, "")
+          'points="-4,4"' in pic_board and "both 4 steps from zero" in pic_board, "")
     t = spoken + "\n" + board
     check("  the card passes the full referee stack (bars are read aloud as 'bars')",
           not _t.prose_board_conflict(t, heard=t), _t.prose_board_conflict(t, heard=t))
@@ -16640,8 +16652,9 @@ def part3gi_the_intervention_teaches_the_problem_that_was_asked():
         note = seen.get("note", "")
         check("⭐ the absolute-value problem is described as ABSOLUTE VALUE, in the lesson's words",
               "What is the absolute value of 6 take away 9?" in note, note[:200])
+        # (tl, 2026-09-06) the lesson's ask board is captioned now (rule 41).
         check("  ...with the lesson's own board (number line + bars)",
-              '[[numberline min="4" max="11" points="6,9"]]' in note and "|6 − 9|" in note,
+              '[[numberline min="4" max="11" points="6,9" caption=' in note and "|6 − 9|" in note,
               note[:300])
         check("  ...the RIGHT answer (3, not 15)",
               "The correct answer is 3." in note and "15" not in note.split("choices")[0]
@@ -21881,7 +21894,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>9,703</b>" in page,
+          "<b>9,787</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25406,6 +25419,128 @@ def part3jg_geometry_units_seven_to_nine_to_the_shape():
     check("  the changed files carry dated tk notes",
           "2026-09-06  BUILD tk" in rd("lessonscripts.py")[:60000] and "BUILD tk" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tk" in rd("ruletests.py")[:8000] and "(tk)" in rd("static/methodology.html")[:6000],
+          "Jim's rule 8")
+
+
+def part3jh_algebra_two_units_one_to_three_to_the_shape():
+    """PART 3jh (build tl, 2026-09-06) -- ALGEBRA 2 UNITS 1-3 TO THE SHAPE.
+
+    The two spots on the number line with the steps hopped; the fence counted as
+    negatives, zero and positives on the bars; the two trips as tapes and the pair of
+    apples left standing; the three clues as bars with a pending line; the curve with
+    its vertex marked and its crossings marked; the test number as two bars beside the
+    curve; x² = −a with its blank on its own line and the square on the array; the
+    piles of x's joined; the degree beside its turns; the cubic's three crossings; the
+    machine with its door blank. Every figure an ask draws carries a caption."""
+    print("\nPART 3jh — Algebra 2 Units 1-3 to the shape (build tl)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    A1 = ["alg2-u1-how-far-from-zero", "alg2-u1-inside-the-distance",
+          "alg2-u1-the-bananas-cancel", "alg2-u1-three-friends"]
+    A2 = ["alg2-u2-where-it-turns", "alg2-u2-both-answers-count",
+          "alg2-u2-the-test-number", "alg2-u2-a-new-number"]
+    A3 = ["alg2-u3-degrees-add", "alg2-u3-the-wiggle-count",
+          "alg2-u3-three-crossings", "alg2-u3-feed-the-cube"]
+    _shape_unit_checks(A1, r"\[\[(numberline|bars|tape)\b")
+    _shape_unit_checks(A2, r"\[\[(graph|bars|array)\b")
+    _shape_unit_checks(A3, r"\[\[(bars|graph|machine)\b")
+
+    # ---- Unit 1 ------------------------------------------------------------------------
+    absv = {"a": 2, "b": 5, "op": "absv"}
+    check("⭐ how far from zero: the two spots captioned on the ask; the steps hopped in the walk-back",
+          '[[numberline min="0" max="7" points="2,5" caption="2 and 5 on the line — how far apart?"]]' in L.board_for(absv, "abstract")
+          and 'points="2,5" hops="2,5" caption="from 2 to 5: 3 steps — |2 − 5| = 3"' in _W(absv)[1]
+          and "keep the size, drop the sign" in _W(absv)[0], "")
+    absc = {"a": 3, "b": 0, "op": "absc"}
+    check("⭐ inside the distance: the fence on the line with a pending line the ask SPEAKS; negatives, zero, positives as bars in the walk-back",
+          'points="-2,2" caption=' in L.board_for(absc, "abstract") and '[[step eq="|x| < 3 · count them ALL = ?"]]' in L.board_for(absc, "abstract")
+          and '[[bars data="negatives:2 | zero:1 | positives:2" caption="2 + 1 + 2 = 5"]]' in _W(absc)[1]
+          and "the quiet zero" in _W(absc)[0], "")
+    el2 = {"a": 12, "b": 6, "op": "el2"}
+    check("  the bananas cancel: the two trips as tapes on the ask; the pair of apples left standing in the walk-back",
+          '[[tape parts="apple | apple | apple | banana | banana" total="12" caption=' in L.board_for(el2, "abstract")
+          and '[[tape parts="apple | banana | banana" total="6" caption=' in L.board_for(el2, "abstract")
+          and '[[tape parts="apple | apple" total="6" caption="what is left standing: 2 apples = 12 − 6 = 6"]]' in _W(el2)[1]
+          and "Vanish, then share" in _W(el2)[0], "")
+    sys3 = {"a": 5, "b": 10, "c": 9, "op": "sys3"}
+    check("⭐ three friends: the clues as bars and a pending line (the board no longer stands completed); everyone once in the walk-back",
+          '[[bars data="x + y:5 | y + z:10 | x + z:9" caption=' in L.board_for(sys3, "abstract")
+          and '[[step eq="x + y + z = ?"]]' in L.board_for(sys3, "abstract")
+          and not tutor.prose_board_conflict(L.spoken_for(sys3, "abstract") + "\n" + L.board_for(sys3, "abstract"),
+                                             heard=L.spoken_for(sys3, "abstract") + "\n" + L.board_for(sys3, "abstract"), course="algebra2")
+          and '[[bars data="all three clues:24 | everyone once:12" caption=' in _W(sys3)[1]
+          and "counts everybody two times" in _W(sys3)[0], "")
+
+    # ---- Unit 2 ------------------------------------------------------------------------
+    vtx2 = {"a": 3, "b": 8, "op": "vtx2"}
+    check("⭐ where it turns: the curve captioned on the ask; the vertex marked in the walk-back, on two lines (no arrow after an equals)",
+          '[[graph func="(x-3)^2+8" range="-1..7" caption="y = (x − 3)² + 8 — at which x does it turn?"]]' in L.board_for(vtx2, "abstract")
+          and 'points="(3,8)"' in _W(vtx2)[1] and '[[step eq="x − 3 = 0"]][[step eq="x = 3"]]' in _W(vtx2)[1]
+          and "→" not in _W(vtx2)[1] and "The minus points opposite" in _W(vtx2)[0], "")
+    rsum = {"a": 3, "b": 5, "op": "rsum"}
+    check("  both answers count: the curve captioned; both crossings marked in the walk-back",
+          'caption="y = (x − 3)(x − 5) — two crossings; put together they equal?"' in L.board_for(rsum, "abstract")
+          and 'points="(3,0),(5,0)"' in _W(rsum)[1] and "not one answer of two" in _W(rsum)[0], "")
+    disc = {"a": 4, "b": 3, "op": "disc"}
+    check("⭐ the test number: NO picture on the ask (a curve would count its own crossings); two bars beside the curve in the walk-back",
+          "[[graph" not in L.board_for(disc, "abstract") and "[[bars" not in L.board_for(disc, "abstract")
+          and '[[bars data="4²:16 | 4 · 3:12" caption="16 against 12 — the test number is positive"]]' in _W(disc)[1]
+          and '[[graph func="x^2+4*x+3" range="-7..3" caption="y = x² + 4x + 3 — 2 crossings"]]' in _W(disc)[1]
+          and "only its sign" in _W(disc)[0], "")
+    check("  ...and the walk-back speaks the judgment for zero and for below zero too",
+          "exactly zero" in _W({"a": 4, "b": 4, "op": "disc"})[0] and "1 crossings" in _W({"a": 4, "b": 4, "op": "disc"})[0]
+          and "below zero" in _W({"a": 2, "b": 5, "op": "disc"})[0] and "0 crossings" in _W({"a": 2, "b": 5, "op": "disc"})[0], "")
+    imag = {"a": 16, "b": 0, "op": "imag"}
+    check("⭐ a new number: the blank on its own line (rule 44 -- the old line carried an unspoken number); the square on the array in the walk-back",
+          '[[step eq="x² = −16"]][[step eq="i² = −1"]][[step eq="x = ? · i"]]' == L.board_for(imag, "abstract")
+          and '[[array rows="4" cols="4" caption="4 × 4 = 16 — so x = 4i"]]' in _W(imag)[1]
+          and "the i carries the minus" in _W(imag)[0], "")
+
+    # ---- Unit 3 ------------------------------------------------------------------------
+    pdeg = {"a": 2, "b": 3, "op": "pdeg"}
+    check("  degrees add: the two piles as bars on the ask; joined in the walk-back",
+          '[[bars data="x²:2 | x³:3" caption=' in L.board_for(pdeg, "abstract")
+          and '[[bars data="x²:2 | x³:3 | joined x⁵:5" caption="2 + 3 = 5"]]' in _W(pdeg)[1] and "degrees do not times" in _W(pdeg)[0], "")
+    turnc = {"a": 3, "b": 0, "op": "turnc"}
+    check("  the wiggle count: no curve on the ask (it would show its turns); the degree beside its turns in the walk-back",
+          "[[graph" not in L.board_for(turnc, "abstract")
+          and '[[bars data="degree:3 | turns, at most:2" caption="degree 3 → at most 2 turns"]]' in _W(turnc)[1]
+          and "A ceiling, not a schedule" in _W(turnc)[0], "")
+    rsum3 = {"a": 1, "b": 3, "c": 6, "op": "rsum3"}
+    check("  three crossings: the cubic captioned; all three crossings marked in the walk-back",
+          'caption="y = (x − 1)(x − 3)(x − 6) — three crossings; put together they equal?"' in L.board_for(rsum3, "abstract")
+          and 'points="(1,0),(3,0),(6,0)"' in _W(rsum3)[1] and "a cubic has three answers" in _W(rsum3)[0], "")
+    pval = {"a": 1, "b": 2, "c": 2, "op": "pval"}
+    check("⭐ feed the cube: the machine with its door blank on the ask; answered in the walk-back",
+          '[[machine input="2" rule="x³ − 1x + 2" output="?" caption=' in L.board_for(pval, "abstract")
+          and '[[machine input="2" rule="x³ − 1x + 2" output="8" caption="2³ − 1·2 + 2 = 8"]]' in _W(pval)[1]
+          and "not 3 times 2" in _W(pval)[0], "")
+
+    # ---- the giveaway audit, captions, spoken pending lines, the notes ----------------
+    check("  nothing the twelve lessons demonstrate is later asked (the old absc teach and turnc why were asks)",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in A1 + A2 + A3)
+          and "negatives:4 | zero:1 | positives:4" in L.LESSON_BY_ID["alg2-u1-inside-the-distance"]["teach"][0][1]
+          and "x^4-4*x^2" in L.LESSON_BY_ID["alg2-u3-the-wiggle-count"]["picture"][0][1], "")
+    check("  every figure an ask draws carries a caption (rule 41) -- 60 asks did not before tl",
+          all("caption=" in tag for l in A1 + A2 + A3
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:numberline|bars|tape|graph|array|machine)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in A1 + A2 + A3:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  no reason option works the arithmetic aloud (the spoken-math referee sweeps the joined options)",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in A1 + A2 + A3), "")
+    check("  the changed files carry dated tl notes",
+          "2026-09-06  BUILD tl" in rd("lessonscripts.py")[:60000] and "BUILD tl" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD tl" in rd("ruletests.py")[:8000] and "(tl)" in rd("static/methodology.html")[:6000],
           "Jim's rule 8")
 
 
@@ -35736,6 +35871,7 @@ def main():
     part3je_geometry_units_one_to_three_to_the_shape()
     part3jf_geometry_units_four_to_six_to_the_shape()
     part3jg_geometry_units_seven_to_nine_to_the_shape()
+    part3jh_algebra_two_units_one_to_three_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
