@@ -2,6 +2,38 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tn -- ALGEBRA 2 UNITS 7-9 TO THE SHAPE (12 lessons). THE COURSE IS
+#               36/36. THIS FILE:
+#                 * Unit 7 (patterns): the first three terms as BARS, walked back with
+#                   every term to the asked one (the ride, the leaps); 1 up to n on the
+#                   number line, walked back as the STAIRCASE RECTANGLE ([[rectangle
+#                   half="1"]] -- half of n rows of n + 1 is the sum; bars past 19); the
+#                   rule as a MACHINE with its output blank, walked back run twice;
+#                 * Unit 8 (the unit circle): the height and across asks stay
+#                   picture-free -- the renderer strips the spins and points the arrow,
+#                   which IS the answer -- and their pending lines are statements (the
+#                   old "where does the arrow point?" was a question inside a step, 24
+#                   asks); walked back with the arrow pointed; the spin ask draws the
+#                   arrow with its coordinates hidden ([[unitcircle values="0"]], new
+#                   this build in math-figures.js) and walks back with the SAME arrow
+#                   after the full turn; the wave walked back with its crest line;
+#                 * Unit 9 (statistics): the five scores as bars with the mean beside
+#                   them; shirts by pants as an array, then the hats; the plays as a pie
+#                   with the paying ones shaded, walked back as wins-of-tokens on the
+#                   array; the sample beside the school as bars.
+#               Trap lines kept in every lesson. ⚠️ 12 graph asks drew with no caption
+#               (rule 41), and the sample ask's spoken question -- "how many students in
+#               the school" -- was rule 42's shape (the comparison referee, 12 asks; it
+#               says "how many of the whole school" now). ENGINE: OP_EXT anth/gnth/gaus/
+#               reca/sinp/cosp/spin/ampl/wavg/cnt3/expv/samp gain "worked" (_anth_* ...
+#               _samp_*) and boards; _COMPASS names the four directions. Demonstrated
+#               numbers kept out of the banks and pairs (the old times-again pair walked
+#               (4, 2, 5) against the pair ask (4, 2, 4); the old pair-the-ends pair
+#               walked 1 to 6, a bank ask; the old height teach walked 270 and 450 and
+#               the across teach 810, all bank asks -- the height teaches on 90 and 630,
+#               the across on 0 and 450, the pairs on 540/1260 and 720/1260; the old
+#               stretched-wave teach drew 4·sin x, a bank ask, so it draws 20·sin x; the
+#               old heavier-mean pair repeated the teach and walks (9, 4) now).
 #   2026-09-06  BUILD tm -- ALGEBRA 2 UNITS 4-6 TO THE SHAPE (12 lessons). Jim: "go".
 #               THIS FILE:
 #                 * Unit 4 (division moves in): the sharing curve captioned, walked back
@@ -17187,24 +17219,62 @@ _ALGEBRA2_U7 = [
         "op": "anth", "max_value": 80,
         "levels": ("abstract",),
         "symbols": ("term", "step"),
-        "advance_line": "Three in a row — you've got it! Term one is already standing at the start.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Term one is already standing at the start.",
+        "why": [
+            ("Why ride? Because a pattern with a steady step is a road you can ride. "
+             "4, 7, 10, 13 — it starts at 4 and grows by 3. To find a far-off term, you "
+             "could walk: add 3, add 3, add 3… or you could RIDE: count the steps and "
+             "jump there in one move.",
+             '[[goal text="Ride the pattern"]][[step eq="4, 7, 10, 13, …"]]'),
+        ],
+        "picture": [
+            ("Here are the first terms as bars, each one 3 taller than the last. Term 1 "
+             "is the 4 — it is already standing there before any step is taken. From "
+             "term 1 to term 4 the bars climb three steps, not four.",
+             '[[bars data="term 1:4 | term 2:7 | term 3:10 | term 4:13" caption="start 4, step 3 — from term 1 to term 4 is three steps"]]'),
+        ],
         "teach": [
-            ["A pattern with a steady step is a road you can ride. 4, 7, 10, 13 — it starts at 4 and grows by 3. To find a far-off term, you could walk: add 3, add 3, add 3… or you could RIDE: count the steps and jump there in one move.",
-             '[[goal text="Ride the pattern"]][[step eq="4, 7, 10, 13, …"]]'],
-            ["How far is term 10? Careful — the famous trap lives right here. Term 1 is already standing at the start; walking from term 1 to term 10 crosses NINE steps, not ten. So term 10 is 4 plus 9 steps of 3 — 4 plus 27 — 31.",
-             '[[step eq="term 1 → term 10: 9 steps"]][[step eq="4 + 9 × 3 = 31"]]'],
-            ["Take ten steps instead and you land at 34 — one term too far. It is the fencepost from the grid unit, wearing a new coat: posts and rails, terms and steps. Terms count the posts; the ride is the rails. One fewer step than the term number, every time.",
-             '[[step eq="4 + 9 × 3 = 31 ✓"]][[step eq="4 + 10 × 3 = 34 ✗ — one step too many"]]'],
+            ("That is the method. How far is term 10? Careful — the famous trap lives "
+             "right here. Term 1 is already standing at the start; walking from term 1 "
+             "to term 10 crosses NINE steps, not ten. So term 10 is 4 plus 9 steps of 3 "
+             "— 4 plus 27 — 31.",
+             '[[bars data="term 1:4 | term 2:7 | term 3:10 | term 4:13 | term 10:31" caption="nine steps of 3 from 4 — term 10 is 31"]][[step eq="term 1 → term 10: 9 steps"]][[step eq="4 + 9 × 3 = 31"]]'),
+            ("Take ten steps instead and you land at 34 — one term too far. It is the "
+             "fencepost from the grid unit, wearing a new coat: posts and rails, terms "
+             "and steps. Terms count the posts; the ride is the rails. One fewer step "
+             "than the term number, every time.",
+             '[[step eq="4 + 9 × 3 = 31 ✓"]][[step eq="4 + 10 × 3 = 34 ✗ — one step too many"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Start 5, step 2, term 8: seven steps of 2 is 14, and 5 plus 14 is 19.",
-                        '[[step eq="5 + 7 × 2 = 19"]]'],
-             "ask": {"a": 2, "b": 3, "c": 5, "op": "anth"}},
-            {"worked": ["One more together. Start 6, step 4, term 7: six steps — 6 plus 24 equals 30.",
-                        '[[step eq="6 + 6 × 4 = 30"]]'],
-             "ask": {"a": 5, "b": 4, "c": 9, "op": "anth"}},
+            {"worked": ("Here is one more, done for you. Start 5, step 2, term 8: seven "
+                        "steps of 2 is 14, and 5 plus 14 is 19.",
+                        '[[bars data="term 1:5 | term 2:7 | term 3:9 | term 8:19" caption="seven steps of 2 from 5 — term 8 is 19"]][[step eq="5 + 7 × 2 = 19"]]'),
+             "ask": {'a': 2, 'b': 3, 'c': 5, 'op': 'anth'}},
+            {"worked": ("One more together. Start 6, step 4, term 7: six steps — 6 plus "
+                        "24 equals 30.",
+                        '[[bars data="term 1:6 | term 2:10 | term 3:14 | term 7:30" caption="six steps of 4 from 6 — term 7 is 30"]][[step eq="6 + 6 × 4 = 30"]]'),
+             "ask": {'a': 5, 'b': 4, 'c': 9, 'op': 'anth'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A pattern starts at "
+                       "4 and grows by 3, and term 10 is 31. Tap the reason why."),
+            "choices": ("because term 1 to term 10 is nine steps, not ten | because term "
+                        "1 to term 10 is ten steps of 3 | because term 10 is ten times "
+                        "the step"),
+            "answer": "because term 1 to term 10 is nine steps, not ten",
+            "board": '[[bars data="term 1:4 | term 2:7 | term 3:10 | term 4:13 | term 10:31" caption="4 + 9 × 3 = 31"]]',
+        },
+        "recap": [
+            ("So, here it is again. A pattern with a steady step is ridden, not walked: "
+             "the start, plus the step taken one fewer time than the term number — "
+             "because term 1 is already standing at the start. Posts and rails.",
+             '[[bars data="term 1:4 | term 2:7 | term 3:10 | term 4:13" caption="terms are the posts; the ride is the rails"]]'),
+            ("And that is the fencepost, in a new coat.",
+             '[[step eq="4 + 9 × 3 = 31"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "c": 4, "op": "anth"},
             {"a": 3, "b": 2, "c": 6, "op": "anth"},
@@ -17225,24 +17295,62 @@ _ALGEBRA2_U7 = [
         "op": "gnth", "max_value": 96,
         "levels": ("abstract",),
         "symbols": ("term", "ratio"),
-        "advance_line": "Three in a row — you've got it! A ratio is a times, never an add.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A ratio is a times, never an add.",
+        "why": [
+            ("Why times again? Because some patterns do not step — they LEAP. 2, 6, 18, "
+             "54: each term is 3 times the one before. The times-number has a name, the "
+             "ratio, and a pattern that rides a ratio grows the way the doubling pond "
+             "grew: slowly at first, then away.",
+             '[[goal text="Times again"]][[step eq="2, 6, 18, 54, …"]]'),
+        ],
+        "picture": [
+            ("Here are the terms as bars: 2, then 6, then 18, then 54. Each bar is 3 "
+             "times the one before it — look how the bars barely rise at first and "
+             "then shoot up. That is a ratio at work, not a step.",
+             '[[bars data="term 1:2 | term 2:6 | term 3:18 | term 4:54" caption="start 2, ratio 3 — each bar is 3 times the last"]]'),
+        ],
         "teach": [
-            ["Some patterns do not step — they LEAP. 2, 6, 18, 54: each term is 3 times the one before. The times-number has a name, the ratio, and a pattern that rides a ratio grows the way the doubling pond grew: slowly at first, then away.",
-             '[[goal text="Times again"]][[step eq="2, 6, 18, 54, …"]]'],
-            ["Ride it the same way: term 5 from a start of 2 with ratio 3 is four leaps — times 3, four times over. 2 times 81 is 162. The step-counting rule survives: one fewer leap than the term number.",
-             '[[step eq="term 5: 4 leaps of × 3"]][[step eq="2 × 81 = 162"]]'],
-            ["The trap is the old similarity mistake in a new coat: treating the ratio as a step. ADDING 3 four times gives 14 — a stroll, while the true pattern has already leapt past 150. When each term is TIMES the one before, adding is not slow — it is wrong.",
-             '[[step eq="2 × 3 × 3 × 3 × 3 = 162 ✓"]][[step eq="2 + 3 + 3 + 3 + 3 = 14 ✗ — a ratio is not a step"]]'],
+            ("That is the method. Ride it the same way: term 5 from a start of 2 with "
+             "ratio 3 is four leaps — times 3, four times over. 2 times 81 is 162. The "
+             "step-counting rule survives: one fewer leap than the term number.",
+             '[[bars data="term 1:2 | term 2:6 | term 3:18 | term 4:54 | term 5:162" caption="four leaps of × 3 from 2 — term 5 is 162"]][[step eq="term 5: 4 leaps of × 3"]][[step eq="2 × 81 = 162"]]'),
+            ("The trap is the old similarity mistake in a new coat: treating the ratio "
+             "as a step. ADDING 3 four times gives 14 — a stroll, while the true "
+             "pattern has already leapt past 150. When each term is TIMES the one "
+             "before, adding is not slow — it is wrong.",
+             '[[step eq="2 × 3 × 3 × 3 × 3 = 162 ✓"]][[step eq="2 + 3 + 3 + 3 + 3 = 14 ✗ — a ratio is not a step"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Start 4, ratio 2, term 5: four doublings — 4, 8, 16, 32, 64.",
-                        '[[step eq="4 × 2 × 2 × 2 × 2 = 64"]]'],
-             "ask": {"a": 4, "b": 2, "c": 4, "op": "gnth"}},
-            {"worked": ["One more together. Start 5, ratio 2, term 6: five doublings of 5 — 160.",
-                        '[[step eq="5 × 32 = 160"]]'],
-             "ask": {"a": 3, "b": 3, "c": 4, "op": "gnth"}},
+            {"worked": ("Here is one more, done for you. Start 3, ratio 3, term 3: two "
+                        "leaps — 3, 9, 27.",
+                        '[[bars data="term 1:3 | term 2:9 | term 3:27" caption="two leaps of × 3 from 3 — term 3 is 27"]][[step eq="3 × 3 × 3 = 27"]]'),
+             "ask": {'a': 4, 'b': 2, 'c': 4, 'op': 'gnth'}},
+            {"worked": ("One more together. Start 5, ratio 2, term 6: five doublings of 5 "
+                        "— 160.",
+                        '[[bars data="term 1:5 | term 2:10 | term 3:20 | term 4:40 | term 5:80 | term 6:160" caption="five doublings of 5 — term 6 is 160"]][[step eq="5 × 32 = 160"]]'),
+             "ask": {'a': 3, 'b': 3, 'c': 4, 'op': 'gnth'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A pattern starts at "
+                       "2 and each term is 3 times the one before, so term 5 is 162. Tap "
+                       "the reason why."),
+            "choices": ("because term 5 is four leaps of times 3 from 2 | because term 5 "
+                        "is four steps of plus 3 from 2 | because term 5 is five leaps "
+                        "of times 3 from 2"),
+            "answer": "because term 5 is four leaps of times 3 from 2",
+            "board": '[[bars data="term 1:2 | term 2:6 | term 3:18 | term 4:54 | term 5:162" caption="2 × 3 × 3 × 3 × 3 = 162"]]',
+        },
+        "recap": [
+            ("So, here it is again. When each term is a times of the one before, the "
+             "pattern leaps: ride it with one fewer leap than the term number, timesing "
+             "every time. A ratio is a times — adding it is not slow, it is wrong.",
+             '[[bars data="term 1:2 | term 2:6 | term 3:18 | term 4:54" caption="a ratio leaps; a step strolls"]]'),
+            ("And that is the doubling pond, riding a ratio.",
+             '[[step eq="2 × 81 = 162"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "c": 3, "op": "gnth"},
             {"a": 3, "b": 2, "c": 3, "op": "gnth"},
@@ -17263,24 +17371,61 @@ _ALGEBRA2_U7 = [
         "op": "gaus", "max_value": 5050,
         "levels": ("abstract",),
         "symbols": ("sum", "pair"),
-        "advance_line": "Three in a row — you've got it! Pair the ends, times, halve.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Pair the ends, times, halve.",
+        "why": [
+            ("Why pair the ends? A true story. A teacher, wanting quiet, told his class "
+             "to add every number from 1 to 100. A nine-year-old named Gauss put his "
+             "slate down in seconds — right. He had seen something in the sum no one "
+             "had shown him: the ENDS of it belong together.",
+             '[[goal text="Pair the ends"]][[step eq="1 + 2 + 3 + … + 100"]]'),
+        ],
+        "picture": [
+            ("Here is the sum 1 up to 10 as a staircase: ten rows, each one longer than "
+             "the last, inside a rectangle 10 rows tall and 11 wide. The staircase is "
+             "exactly half the rectangle — and that half is the sum.",
+             '[[rectangle w="11" h="10" half="1" caption="10 rows of 11 — the staircase is half: the sum"]]'),
+        ],
         "teach": [
-            ["A true story. A teacher, wanting quiet, told his class to add every number from 1 to 100. A nine-year-old named Gauss put his slate down in seconds — right. He had seen something in the sum no one had shown him: the ENDS of it belong together.",
-             '[[goal text="Pair the ends"]][[step eq="1 + 2 + 3 + … + 100"]]'],
-            ["Watch it on 1 to 10. Pair the ends: 1 with 10 is 11. 2 with 9 — 11 again. 3 with 8, 4 with 7, 5 with 6 — every pair is 11, and ten numbers make five pairs. Five 11s: 55. In general: the last number, times one more than it, halved.",
-             '[[step eq="1+10 · 2+9 · 3+8 · 4+7 · 5+6"]][[step eq="5 pairs of 11 = 55"]]'],
-            ["The traps: 10 times 10 is 100 — but the numbers being added are mostly SMALLER than 10, so squaring overshoots. And 10 alone is just the last footstep of the walk. Pair the ends, times, halve — and in a moment, you will do what Gauss did.",
-             '[[step eq="10 × 11 ÷ 2 = 55 ✓"]][[step eq="100 ✗ overshoots · 10 ✗ the last step only"]]'],
+            ("That is the method. Watch it on 1 to 10. Pair the ends: 1 with 10 is 11. "
+             "2 with 9 — 11 again. 3 with 8, 4 with 7, 5 with 6 — every pair is 11, and "
+             "ten numbers make five pairs. Five 11s: 55. In general: the last number, "
+             "times one more than it, halved.",
+             '[[rectangle w="11" h="10" half="1" caption="10 × 11 = 110, halved: 55"]][[step eq="1+10 · 2+9 · 3+8 · 4+7 · 5+6"]][[step eq="5 pairs of 11 = 55"]]'),
+            ("The traps: 10 times 10 is 100 — but the numbers being added are mostly "
+             "SMALLER than 10, so squaring overshoots. And 10 alone is just the last "
+             "footstep of the walk. Pair the ends, times, halve — and in a moment, you "
+             "will do what Gauss did.",
+             '[[step eq="10 × 11 ÷ 2 = 55 ✓"]][[step eq="100 ✗ overshoots · 10 ✗ the last step only"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 1 up to 6: pair the ends — 1 with 6, 2 with 5, 3 with 4 — three pairs of 7: 21.",
-                        '[[step eq="6 × 7 ÷ 2 = 21"]]'],
-             "ask": {"a": 11, "b": 0, "op": "gaus"}},
-            {"worked": ["One more together. 1 up to 30: 30 times 31, halved — 465.",
-                        '[[step eq="30 × 31 ÷ 2 = 465"]]'],
-             "ask": {"a": 100, "b": 0, "op": "gaus"}},
+            {"worked": ("Here is one more, done for you. 1 up to 13: pair the ends — 1 "
+                        "with 13, 2 with 12, and on — every pair is 14. 13 times 14, "
+                        "halved: 91.",
+                        '[[rectangle w="14" h="13" half="1" caption="13 rows of 14 — half of 182 is 91"]][[step eq="13 × 14 ÷ 2 = 91"]]'),
+             "ask": {'a': 11, 'b': 0, 'op': 'gaus'}},
+            {"worked": ("One more together. 1 up to 30: 30 times 31, halved — 465.",
+                        '[[bars data="30 × 31:930 | halved:465" caption="30 × 31 = 930, halved: 465"]][[step eq="30 × 31 ÷ 2 = 465"]]'),
+             "ask": {'a': 100, 'b': 0, 'op': 'gaus'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Every counting "
+                       "number from 1 up to 10, put together, is 55. Tap the reason why."),
+            "choices": ("because the ends pair into five 11s | because ten numbers of "
+                        "about 10 each — a hundred | because the sum is the last number, 10"),
+            "answer": "because the ends pair into five 11s",
+            "board": '[[rectangle w="11" h="10" half="1" caption="5 pairs of 11 = 55"]]',
+        },
+        "recap": [
+            ("So, here it is again. To add 1 up to any number, pair the ends — every "
+             "pair is one more than the last number — then times the last number by "
+             "one more than itself, and halve. The staircase is half the rectangle.",
+             '[[rectangle w="11" h="10" half="1" caption="pair the ends, times, halve"]]'),
+            ("And that is what Gauss saw at nine years old.",
+             '[[step eq="10 × 11 ÷ 2 = 55"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 0, "op": "gaus"},
             {"a": 5, "b": 0, "op": "gaus"},
@@ -17301,24 +17446,62 @@ _ALGEBRA2_U7 = [
         "op": "reca", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("rule", "term"),
-        "advance_line": "Three in a row — you've got it! Apply the WHOLE rule, every term.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Apply the WHOLE rule, every term.",
+        "why": [
+            ("Why walk? Because some patterns hand you no shortcut — only a rule: to "
+             "get the next term, take the one before, times 2, then take away 1. Start "
+             "at 5. There is nothing to ride here; you walk, one term at a time, "
+             "applying the whole rule at every step.",
+             '[[goal text="Walk the rule"]][[step eq="rule: × 2, then − 1"]]'),
+        ],
+        "picture": [
+            ("Here is the rule as a machine: times 2, then take away 1. Feed term 1 in "
+             "and term 2 comes out — and then term 2 goes back in, and out comes term "
+             "3. Each answer feeds the next turn of the machine.",
+             '[[machine input="5" rule="2x − 1" output="9" caption="term 1 in, term 2 out — then 9 goes back in"]]'),
+        ],
         "teach": [
-            ["Some patterns hand you no shortcut — only a rule: to get the next term, take the one before, times 2, then take away 1. Start at 5. There is nothing to ride here; you walk, one term at a time, applying the whole rule at every step.",
-             '[[goal text="Walk the rule"]][[step eq="rule: × 2, then − 1"]]'],
-            ["Walk it. Term 1 is 5. Term 2: 2 times 5 is 10, take away 1 — 9. Term 3: 2 times 9 is 18, take away 1 — 17. Each answer feeds back in; that is why it is a walk and not a jump.",
-             '[[step eq="5 → 9 → 17"]]'],
-            ["Two traps, both about not finishing. Stopping at term 2 answers a different question — count your arrivals. And applying only HALF the rule, doubling without taking away, walks a different pattern entirely: 5, 10, 20. The rule is a package: all of it, every term.",
-             '[[step eq="5 → 9 → 17 ✓"]][[step eq="9 ✗ stopped early · 18 ✗ the take away got dropped"]]'],
+            ("That is the method. Walk it. Term 1 is 5. Term 2: 2 times 5 is 10, take "
+             "away 1 — 9. Term 3: 2 times 9 is 18, take away 1 — 17. Each answer feeds "
+             "back in; that is why it is a walk and not a jump.",
+             '[[machine input="5" rule="2x − 1" output="9" caption="term 2: 2 × 5 − 1 = 9"]][[machine input="9" rule="2x − 1" output="17" caption="term 3: 2 × 9 − 1 = 17"]][[step eq="5 → 9 → 17"]]'),
+            ("Two traps, both about not finishing. Stopping at term 2 answers a "
+             "different question — count your arrivals. And applying only HALF the "
+             "rule, doubling without taking away, walks a different pattern entirely: "
+             "5, 10, 20. The rule is a package: all of it, every term.",
+             '[[step eq="5 → 9 → 17 ✓"]][[step eq="9 ✗ stopped early · 18 ✗ the take away got dropped"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Rule: times 2, take away 3. Start at 7: term 2 is 11, term 3 is 19.",
-                        '[[step eq="7 → 11 → 19"]]'],
-             "ask": {"a": 3, "b": 1, "op": "reca"}},
-            {"worked": ["One more together. Times 2, take away 5, from 9: term 2 is 13, term 3 is 21.",
-                        '[[step eq="9 → 13 → 21"]]'],
-             "ask": {"a": 10, "b": 6, "op": "reca"}},
+            {"worked": ("Here is one more, done for you. Rule: times 2, take away 3. "
+                        "Start at 7: term 2 is 11, term 3 is 19.",
+                        '[[machine input="7" rule="2x − 3" output="11" caption="term 2: 2 × 7 − 3 = 11"]][[machine input="11" rule="2x − 3" output="19" caption="term 3: 2 × 11 − 3 = 19"]][[step eq="7 → 11 → 19"]]'),
+             "ask": {'a': 3, 'b': 1, 'op': 'reca'}},
+            {"worked": ("One more together. Times 2, take away 5, from 9: term 2 is 13, "
+                        "term 3 is 21.",
+                        '[[machine input="9" rule="2x − 5" output="13" caption="term 2: 2 × 9 − 5 = 13"]][[machine input="13" rule="2x − 5" output="21" caption="term 3: 2 × 13 − 5 = 21"]][[step eq="9 → 13 → 21"]]'),
+             "ask": {'a': 10, 'b': 6, 'op': 'reca'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The rule is times 2, "
+                       "then take away 1, the first term is 5, and the third term is "
+                       "17. Tap the reason why."),
+            "choices": ("because the whole rule ran twice: 5 to 9 to 17 | because the "
+                        "rule ran once: 5 to 9 | because the doubling ran twice and the "
+                        "take away never did"),
+            "answer": "because the whole rule ran twice: 5 to 9 to 17",
+            "board": '[[machine input="9" rule="2x − 1" output="17" caption="5 → 9 → 17"]]',
+        },
+        "recap": [
+            ("So, here it is again. A rule with no shortcut is walked: apply the whole "
+             "of it to the term before, and feed each answer back in, until you arrive "
+             "at the term that was asked for. All of the rule, every term.",
+             '[[machine input="5" rule="2x − 1" output="9" caption="apply the whole rule, every term"]]'),
+            ("And that is a pattern walked, not ridden.",
+             '[[step eq="5 → 9 → 17"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "op": "reca"},
             {"a": 4, "b": 3, "op": "reca"},
@@ -17355,24 +17538,63 @@ _ALGEBRA2_U8 = [
         "op": "sinp", "max_value": 1170, "min_value": -1,
         "levels": ("abstract",),
         "symbols": ("sine", "height"),
-        "advance_line": "Three in a row — you've got it! Point the arrow, read the height.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Point the arrow, read the height.",
+        "why": [
+            ("Why a height? Meet the circle that runs all of trigonometry: size one, "
+             "an arrow spinning from its middle. The angle says how far the arrow has "
+             "turned from flat-right. And the sine of the angle is simply the HEIGHT of "
+             "the arrow\'s tip — how far above or below the middle line it sits.",
+             '[[goal text="The height"]]'),
+        ],
+        "picture": [
+            ("Here is the circle with the arrow at 90 degrees, pointing straight up. "
+             "Its tip sits at the very top: height 1. Read the pair at the tip — the "
+             "second number is the height, and it says 1. The sine of 90 is 1.",
+             '[[unitcircle angle="90" caption="the arrow at 90° — straight up, height 1: sine 1"]]'),
+        ],
         "teach": [
-            ["Meet the circle that runs all of trigonometry: size one, an arrow spinning from its middle. The angle says how far the arrow has turned from flat-right. And the sine of the angle is simply the HEIGHT of the arrow's tip — how far above or below the middle line it sits.",
-             '[[goal text="The height"]][[unitcircle angle="90" caption="the arrow at 90°"]]'],
-            ["At 90 degrees the arrow points straight up: its tip sits at height 1 — the sine of 90 is 1. At 270, straight down: height negative 1. At 0 or 180 the arrow lies flat and the tip has no height at all: sine 0. Four directions, three heights.",
-             '[[unitcircle angle="270" caption="the arrow at 270°"]][[step eq="90° → 1 · 270° → −1 · flat → 0"]]'],
-            ["Keep spinning and nothing new happens: 360 is a full turn — the arrow is back at flat-right, and every compass point repeats. 450 degrees is a spin and a quarter: straight up again, sine 1. Strip away the full turns, point the arrow, read the height.",
-             '[[unitcircle angle="450" caption="the arrow at 450°"]][[step eq="450° = 360° + 90°"]] [[step eq="straight up → 1"]]'],
+            ("That is the method. At 90 degrees the arrow points straight up: its tip "
+             "sits at height 1 — the sine of 90 is 1. Straight down would be height "
+             "negative 1. And flat, left or right, the tip has no height at all: sine "
+             "0. Four directions, three heights.",
+             '[[unitcircle angle="90" caption="straight up → height 1"]][[step eq="up → 1 · down → −1 · flat → 0"]]'),
+            ("Keep spinning and nothing new happens: 360 is a full turn — the arrow is "
+             "back at flat-right, and every compass point repeats. 630 degrees is a "
+             "spin and three quarters: straight down, sine negative 1. Strip away the "
+             "full turns, point the arrow, read the height.",
+             '[[unitcircle angle="630" caption="630° = 360° + 270° — straight down, height −1"]][[step eq="630° = 360° + 270°"]][[step eq="straight down → −1"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The sine of 630 degrees: 630 is a full spin plus 270 — straight down. The height is negative 1.",
-                        '[[unitcircle angle="630" caption="the arrow at 630°"]][[step eq="630° = 360° + 270°"]] [[step eq="−1"]]'],
-             "ask": {"a": 180, "b": 0, "op": "sinp"}},
-            {"worked": ["One more together. The sine of 540: a full spin plus 180 — flat to the left. Height 0.",
-                        '[[unitcircle angle="540" caption="the arrow at 540°"]][[step eq="540° → flat → 0"]]'],
-             "ask": {"a": 990, "b": 0, "op": "sinp"}},
+            {"worked": ("Here is one more, done for you. The sine of 540 degrees: 540 is "
+                        "a full spin plus 180 — flat to the left. The height is 0.",
+                        '[[unitcircle angle="540" caption="540° = 360° + 180° — flat to the left, height 0"]][[step eq="540° = 360° + 180°"]][[step eq="flat → 0"]]'),
+             "ask": {'a': 180, 'b': 0, 'op': 'sinp'}},
+            {"worked": ("One more together. The sine of 1260: three full spins plus 180 "
+                        "— flat to the left again. Height 0.",
+                        '[[unitcircle angle="1260" caption="1260° = 3 × 360° + 180° — flat, height 0"]][[step eq="1260° → flat → 0"]]'),
+             "ask": {'a': 990, 'b': 0, 'op': 'sinp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The sine of 90 "
+                       "degrees is 1. Tap the reason why."),
+            "choices": ("because at 90 the arrow points straight up, height 1 | because "
+                        "at 90 the arrow lies flat, fully across | because the sine is "
+                        "always the angle divided by 90"),
+            "answer": "because at 90 the arrow points straight up, height 1",
+            "board": '[[unitcircle angle="90" caption="straight up → sine 1"]]',
+        },
+        "recap": [
+            ("So, here it is again. The sine of an angle is the height of the "
+             "arrow\'s tip on the unit circle: 1 straight up, negative 1 straight "
+             "down, 0 when the arrow lies flat. Strip away the full turns first — they "
+             "change nothing.",
+             '[[unitcircle angle="90" caption="point the arrow, read the height"]]'),
+            ("And that is the circle that runs all of trigonometry.",
+             '[[step eq="up → 1 · down → −1 · flat → 0"]]'),
+        ],
         "bank": [
             {"a": 0, "b": 0, "op": "sinp"},
                         {"a": 270, "b": 0, "op": "sinp"},
@@ -17392,24 +17614,65 @@ _ALGEBRA2_U8 = [
         "op": "cosp", "max_value": 1170, "min_value": -1,
         "levels": ("abstract",),
         "symbols": ("cosine", "across"),
-        "advance_line": "Three in a row — you've got it! Same arrow, other coordinate.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Same arrow, other coordinate.",
+        "why": [
+            ("Why the across? Because the sine read the arrow\'s height, and its "
+             "partner, the cosine, reads the ACROSS — how far right or left of the "
+             "middle the tip sits. Same circle, same arrow, other coordinate: sine is "
+             "up-and-down, cosine is side-to-side.",
+             '[[goal text="The across"]]'),
+        ],
+        "picture": [
+            ("Here is the arrow at 0 degrees, lying flat to the right. Its tip sits "
+             "fully across — read the pair at the tip: the first number is the across, "
+             "and it says 1. The cosine of 0 is 1, while its height, the second "
+             "number, is 0.",
+             '[[unitcircle angle="0" caption="the arrow at 0° — flat right, across 1: cosine 1"]]'),
+        ],
         "teach": [
-            ["The sine read the arrow's height. Its partner, the cosine, reads the ACROSS — how far right or left of the middle the tip sits. Same circle, same arrow, other coordinate: sine is up-and-down, cosine is side-to-side.",
-             '[[goal text="The across"]][[unitcircle angle="0" caption="the arrow at 0°"]]'],
-            ["At 0 degrees the arrow points flat-right: fully across — cosine 1. At 180, flat-left: cosine negative 1. And straight up or straight down, the tip hangs over the middle with no across at all: cosine 0. The compass points swap their jobs.",
-             '[[unitcircle angle="180" caption="the arrow at 180°"]][[step eq="0° → 1 · 180° → −1 · up or down → 0"]]'],
-            ["Notice the swap exactly. Where the sine was 0, in the flat directions, the cosine is 1 or negative 1. Where the sine was 1 or negative 1, up and down, the cosine is 0. Full spins still vanish first. Point the arrow, then read ACROSS, not up.",
-             '[[unitcircle angle="810" caption="the arrow at 810°"]][[step eq="810° = two spins + 90°"]] [[step eq="up → across 0"]]'],
+            ("That is the method. At 0 degrees the arrow points flat-right: fully "
+             "across — cosine 1. Flat-left would be across negative 1. And straight up "
+             "or straight down, the tip hangs over the middle with no across at all: "
+             "cosine 0. The compass points swap their jobs.",
+             '[[unitcircle angle="0" caption="flat right → across 1"]][[step eq="right → 1 · left → −1 · up or down → 0"]]'),
+            ("Notice the swap exactly. Where the sine was 0, in the flat directions, "
+             "the cosine is 1 or negative 1. Where the sine was 1 or negative 1, up and "
+             "down, the cosine is 0. Full spins still vanish first: 450 is a spin and a "
+             "quarter, straight up — across 0. Point the arrow, then read ACROSS, not "
+             "up.",
+             '[[unitcircle angle="450" caption="450° = 360° + 90° — straight up, across 0"]][[step eq="450° = 360° + 90°"]][[step eq="up → across 0"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The cosine of 450 degrees: a spin and a quarter — straight up. Across: 0.",
-                        '[[unitcircle angle="450" caption="the arrow at 450°"]][[step eq="450° → up → 0"]]'],
-             "ask": {"a": 180, "b": 0, "op": "cosp"}},
-            {"worked": ["One more together. The cosine of 720: two full spins — flat-right again. Across: 1.",
-                        '[[unitcircle angle="720" caption="the arrow at 720°"]][[step eq="720° → flat right → 1"]]'],
-             "ask": {"a": 990, "b": 0, "op": "cosp"}},
+            {"worked": ("Here is one more, done for you. The cosine of 720 degrees: two "
+                        "full spins — flat-right again. Across: 1.",
+                        '[[unitcircle angle="720" caption="720° = 2 × 360° — flat right, across 1"]][[step eq="720° → flat right → 1"]]'),
+             "ask": {'a': 180, 'b': 0, 'op': 'cosp'}},
+            {"worked": ("One more together. The cosine of 1260: three spins plus 180 — "
+                        "flat to the left. Across: negative 1.",
+                        '[[unitcircle angle="1260" caption="1260° = 3 × 360° + 180° — flat left, across −1"]][[step eq="1260° → flat left → −1"]]'),
+             "ask": {'a': 990, 'b': 0, 'op': 'cosp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The cosine of 0 "
+                       "degrees is 1. Tap the reason why."),
+            "choices": ("because at 0 the arrow lies flat right, fully across | because "
+                        "at 0 the arrow points straight up | because the cosine is "
+                        "always 0 at 0"),
+            "answer": "because at 0 the arrow lies flat right, fully across",
+            "board": '[[unitcircle angle="0" caption="flat right → cosine 1"]]',
+        },
+        "recap": [
+            ("So, here it is again. The cosine of an angle is the across of the "
+             "arrow\'s tip: 1 flat right, negative 1 flat left, 0 straight up or "
+             "down. Same arrow as the sine, other coordinate — and full spins vanish "
+             "first.",
+             '[[unitcircle angle="0" caption="point the arrow, read the across"]]'),
+            ("And that is the sine\'s partner.",
+             '[[step eq="right → 1 · left → −1 · up or down → 0"]]'),
+        ],
         "bank": [
                         {"a": 90, "b": 0, "op": "cosp"},
             {"a": 270, "b": 0, "op": "cosp"},
@@ -17429,24 +17692,62 @@ _ALGEBRA2_U8 = [
         "op": "spin", "max_value": 440,
         "levels": ("abstract",),
         "symbols": ("full turn", "degrees"),
-        "advance_line": "Three in a row — you've got it! Add the whole 360 — same direction, same sine.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Add the whole 360 — same direction, same sine.",
+        "why": [
+            ("Why spin once more? Here is the circle\'s quiet superpower: a full turn "
+             "changes NOTHING. Spin the arrow all the way around — 360 degrees — and "
+             "it points exactly where it began. Angles that land the same way have a "
+             "bond: everything trigonometric about them is identical.",
+             '[[goal text="Spin once more"]]'),
+        ],
+        "picture": [
+            ("Here is the arrow at 45 degrees — and here it is again at 405 degrees. "
+             "Look closely: the two pictures are the same arrow, pointing the same "
+             "way. The second one has simply been around the circle once more.",
+             '[[unitcircle angle="45" values="0" caption="the arrow at 45°"]][[unitcircle angle="405" values="0" caption="the arrow at 405° — the same arrow"]]'),
+        ],
         "teach": [
-            ["Here is the circle's quiet superpower: a full turn changes NOTHING. Spin the arrow all the way around — 360 degrees — and it points exactly where it began. Angles that land the same way have a bond: everything trigonometric about them is identical.",
-             '[[goal text="Spin once more"]][[unitcircle angle="45" caption="the arrow at 45°"]]'],
-            ["Start at 45 degrees and spin one more full turn: 45 plus 360 is 405. The picture for 405 is the SAME picture — same direction, same height, same across. The wave repeats forever because the circle does.",
-             '[[unitcircle angle="405" caption="the arrow at 405°"]][[step eq="45° + 360° = 405°"]]'],
-            ["Two traps. A HALF turn — adding 180 — is real spinning but lands opposite: everything flips sign. And 360 take away the angle is a mirror, not a spin — a different arrow entirely. The turn that changes nothing is the whole 360, added on.",
-             '[[step eq="45° + 360° = 405° ✓ same arrow"]][[step eq="+180 ✗ lands opposite · 360 − 45 ✗ a mirror"]]'],
+            ("That is the method. Start at 45 degrees and spin one more full turn: 45 "
+             "plus 360 is 405. The picture for 405 is the SAME picture — same "
+             "direction, same height, same across. The wave repeats forever because "
+             "the circle does.",
+             '[[unitcircle angle="405" values="0" caption="45° + 360° = 405° — same arrow"]][[step eq="45° + 360° = 405°"]]'),
+            ("Two traps. A HALF turn — adding 180 — is real spinning but lands "
+             "opposite: everything flips sign. And 360 take away the angle is a "
+             "mirror, not a spin — a different arrow entirely. The turn that changes "
+             "nothing is the whole 360, added on.",
+             '[[step eq="45° + 360° = 405° ✓ same arrow"]][[step eq="+180 ✗ lands opposite · 360 − 45 ✗ a mirror"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 55 degrees, one more full turn: 55 plus 360 — 415.",
-                        '[[step eq="55° + 360° = 415°"]]'],
-             "ask": {"a": 35, "b": 0, "op": "spin"}},
-            {"worked": ["One more together. 72 degrees plus a full turn: 72 plus 360 — 432.",
-                        '[[step eq="72° + 360° = 432°"]]'],
-             "ask": {"a": 65, "b": 0, "op": "spin"}},
+            {"worked": ("Here is one more, done for you. 55 degrees, one more full turn: "
+                        "55 plus 360 — 415.",
+                        '[[unitcircle angle="415" values="0" caption="415° — the same arrow as 55°"]][[step eq="55° + 360° = 415°"]]'),
+             "ask": {'a': 35, 'b': 0, 'op': 'spin'}},
+            {"worked": ("One more together. 72 degrees plus a full turn: 72 plus 360 — "
+                        "432.",
+                        '[[unitcircle angle="432" values="0" caption="432° — the same arrow as 72°"]][[step eq="72° + 360° = 432°"]]'),
+             "ask": {'a': 65, 'b': 0, 'op': 'spin'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Start at 45 degrees, "
+                       "spin one more full turn, and you land on 405. Tap the reason "
+                       "why."),
+            "choices": ("because a full turn is 360, added on | because a full turn is "
+                        "180, added on | because a full turn is 360 take away the angle"),
+            "answer": "because a full turn is 360, added on",
+            "board": '[[unitcircle angle="405" values="0" caption="45° + 360° = 405°"]]',
+        },
+        "recap": [
+            ("So, here it is again. A full turn is 360 degrees, and adding it changes "
+             "nothing — the arrow lands where it began, with the same sine and the "
+             "same cosine. A half turn lands opposite, and a mirror is not a spin.",
+             '[[unitcircle angle="405" values="0" caption="same direction, same sine, same cosine"]]'),
+            ("And that is why the wave repeats forever.",
+             '[[step eq="45° + 360° = 405°"]]'),
+        ],
         "bank": [
             {"a": 10, "b": 0, "op": "spin"},
             {"a": 15, "b": 0, "op": "spin"},
@@ -17467,24 +17768,63 @@ _ALGEBRA2_U8 = [
         "op": "ampl", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("amplitude", "wave"),
-        "advance_line": "Three in a row — you've got it! The number out front is the crest.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The number out front is the crest.",
+        "why": [
+            ("Why a stretched wave? Because let the circle run and the sine draws a "
+             "wave — rising to 1, sinking to negative 1, forever. Now put a number out "
+             "front: y equals 20 times the sine of x. Every height gets timesed by 20, "
+             "so the whole wave STRETCHES: crest at 20, trough at negative 20.",
+             '[[goal text="The stretched wave"]]'),
+        ],
+        "picture": [
+            ("Here is the stretched wave, with a level line drawn across its crests at "
+             "20. The wave rises to touch that line and sinks just as far below the "
+             "middle, over and over. The 20 out front is exactly how high it reaches.",
+             '[[graph func="20*sin(x)" lines="y=20" range="-7..7" caption="y = 20 · sin x — the crest line at 20"]]'),
+        ],
         "teach": [
-            ["Let the circle run and the sine draws a wave — rising to 1, sinking to negative 1, forever. Now put a number out front: y equals 20 times the sine of x. Every height gets timesed by 20, so the whole wave STRETCHES: crest at 20, trough at negative 20.",
-             '[[goal text="The stretched wave"]][[graph func="sin(x)" range="-7..7" caption="sin(x) on the grid"]]'],
-            ["The stretch has a name: the amplitude — how high the wave reaches above its middle line. For y equals 20 times sine, the amplitude is 20. The number out front IS the crest; no computation, just recognition.",
-             '[[graph func="4*sin(x)" range="-7..7" caption="4*sin(x) on the grid"]][[step eq="y = 4·sin x"]] [[step eq="crest 4, trough −4"]]'],
-            ["Two traps. Crest to trough is DOUBLE the amplitude — 40 for our wave — but amplitude measures from the middle, not the bottom. And the plain sine's crest of 1 is gone the moment a number stands out front: the stretch happened. Read the front number; that is the top.",
-             '[[step eq="y = 20·sin x"]] [[step eq="top 20 ✓"]][[step eq="40 ✗ crest-to-trough · 1 ✗ the unstretched habit"]]'],
+            ("That is the method. The stretch has a name: the amplitude — how high the "
+             "wave reaches above its middle line. For y equals 20 times sine, the "
+             "amplitude is 20. The number out front IS the crest; no computation, just "
+             "recognition.",
+             '[[graph func="20*sin(x)" lines="y=20" range="-7..7" caption="crest 20, trough −20 — amplitude 20"]][[step eq="y = 20·sin x"]][[step eq="crest 20, trough −20"]]'),
+            ("Two traps. Crest to trough is DOUBLE the amplitude — 40 for our wave — "
+             "but amplitude measures from the middle, not the bottom. And the plain "
+             "sine\'s crest of 1 is gone the moment a number stands out front: the "
+             "stretch happened. Read the front number; that is the top.",
+             '[[step eq="y = 20·sin x"]][[step eq="top 20 ✓"]][[step eq="40 ✗ crest-to-trough · 1 ✗ the unstretched habit"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals 13 times the sine of x: the wave crests at 13.",
-                        '[[graph func="13*sin(x)" range="-7..7" caption="13*sin(x) on the grid"]][[step eq="crest = 13"]]'],
-             "ask": {"a": 11, "b": 0, "op": "ampl"}},
-            {"worked": ["One more together. y equals 25 times the sine of x — the highest it ever reaches is 25.",
-                        '[[step eq="crest = 25"]]'],
-             "ask": {"a": 15, "b": 0, "op": "ampl"}},
+            {"worked": ("Here is one more, done for you. y equals 13 times the sine of x: "
+                        "the wave crests at 13.",
+                        '[[graph func="13*sin(x)" lines="y=13" range="-7..7" caption="y = 13 · sin x — crest 13"]][[step eq="crest = 13"]]'),
+             "ask": {'a': 11, 'b': 0, 'op': 'ampl'}},
+            {"worked": ("One more together. y equals 25 times the sine of x — the highest "
+                        "it ever reaches is 25.",
+                        '[[graph func="25*sin(x)" lines="y=25" range="-7..7" caption="y = 25 · sin x — crest 25"]][[step eq="crest = 25"]]'),
+             "ask": {'a': 15, 'b': 0, 'op': 'ampl'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The wave y equals 20 "
+                       "times the sine of x reaches a highest value of 20. Tap the "
+                       "reason why."),
+            "choices": ("because the 20 out front stretches every height by 20 | because "
+                        "a wave always reaches from its trough to its crest, 40 | because "
+                        "every sine wave tops out at 1"),
+            "answer": "because the 20 out front stretches every height by 20",
+            "board": '[[graph func="20*sin(x)" lines="y=20" range="-7..7" caption="amplitude 20"]]',
+        },
+        "recap": [
+            ("So, here it is again. A number out front of the sine stretches the "
+             "wave, and that number is the amplitude — the crest, measured from the "
+             "middle line. Not the crest-to-trough swing, and not the plain sine\'s 1.",
+             '[[graph func="20*sin(x)" lines="y=20" range="-7..7" caption="the number out front is the crest"]]'),
+            ("And that is a wave, stretched and read.",
+             '[[step eq="crest = 20"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 0, "op": "ampl"},
             {"a": 3, "b": 0, "op": "ampl"},
@@ -17518,24 +17858,64 @@ _ALGEBRA2_U9 = [
         "op": "wavg", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("mean", "weight"),
-        "advance_line": "Three in a row — you've got it! Every score goes in as many times as it happened.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Every score goes in as many times as it happened.",
+        "why": [
+            ("Why heavier? Algebra One taught the mean: put together, share out. But "
+             "scores REPEAT — and a score that happens three times pulls three times "
+             "as hard. That pull is called its weight. Three quizzes of 10 and two of "
+             "5 do not average like one 10 and one 5.",
+             '[[goal text="The heavier mean"]]'),
+        ],
+        "picture": [
+            ("Here are the five quizzes as bars: three bars of 10 and two bars of 5, "
+             "with the mean drawn beside them at 8. Look where 8 sits — much nearer "
+             "the three tall bars than the two short ones. The heavier side dragged "
+             "it.",
+             '[[bars data="quiz 1:10 | quiz 2:10 | quiz 3:10 | quiz 4:5 | quiz 5:5 | mean:8" caption="three 10s and two 5s — the mean, 8, sits nearer the 10s"]]'),
+        ],
         "teach": [
-            ["Algebra One taught the mean: put together, share out. But scores REPEAT — and a score that happens three times pulls three times as hard. That pull is called its weight. Three quizzes of 10 and two of 5 do not average like one 10 and one 5.",
-             '[[goal text="The heavier mean"]][[step eq="10, 10, 10, 5, 5"]]'],
-            ["Do it honestly: all five scores go in. Three 10s are 30; two 5s are 10; put together, 40 — shared by the five quizzes, the mean is 8. Notice where 8 sits: closer to 10 than to 5, dragged by the heavier side.",
-             '[[step eq="30 + 10 = 40 · 40 ÷ 5 = 8"]][[step eq="8 sits nearer the three 10s"]]'],
-            ["The trap is averaging the two NUMBERS and forgetting how often each happened. 10 and 5 average to 7 and a half. But that treats a three-time score and a two-time score as equals. Count the repeats. Every score goes in as many times as it happened.",
-             '[[step eq="mean of the five = 8 ✓"]][[step eq="averaging just 10 and 5 ✗ — the repeats vanished"]]'],
+            ("That is the method. Do it honestly: all five scores go in. Three 10s are "
+             "30; two 5s are 10; put together, 40 — shared by the five quizzes, the "
+             "mean is 8. Notice where 8 sits: closer to 10 than to 5, dragged by the "
+             "heavier side.",
+             '[[bars data="quiz 1:10 | quiz 2:10 | quiz 3:10 | quiz 4:5 | quiz 5:5 | mean:8" caption="(30 + 10) ÷ 5 = 8"]][[step eq="30 + 10 = 40 · 40 ÷ 5 = 8"]][[step eq="8 sits nearer the three 10s"]]'),
+            ("The trap is averaging the two NUMBERS and forgetting how often each "
+             "happened. 10 and 5 average to 7 and a half. But that treats a three-time "
+             "score and a two-time score as equals. Count the repeats. Every score "
+             "goes in as many times as it happened.",
+             '[[step eq="mean of the five = 8 ✓"]][[step eq="averaging just 10 and 5 ✗ — the repeats vanished"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Three quizzes of 10 and two of 5: 30 plus 10 is 40, shared by 5 — the mean is 8.",
-                        '[[step eq="(30 + 10) ÷ 5 = 8"]]'],
-             "ask": {"a": 13, "b": 3, "op": "wavg"}},
-            {"worked": ["One more together. Three 4s and two 14s: 12 plus 28 is 40 — mean 8.",
-                        '[[step eq="(12 + 28) ÷ 5 = 8"]]'],
-             "ask": {"a": 18, "b": 8, "op": "wavg"}},
+            {"worked": ("Here is one more, done for you. Three quizzes of 9 and two of 4: "
+                        "27 plus 8 is 35, shared by 5 — the mean is 7.",
+                        '[[bars data="quiz 1:9 | quiz 2:9 | quiz 3:9 | quiz 4:4 | quiz 5:4 | mean:7" caption="(27 + 8) ÷ 5 = 7"]][[step eq="(27 + 8) ÷ 5 = 7"]]'),
+             "ask": {'a': 13, 'b': 3, 'op': 'wavg'}},
+            {"worked": ("One more together. Three 4s and two 14s: 12 plus 28 is 40 — "
+                        "mean 8.",
+                        '[[bars data="quiz 1:4 | quiz 2:4 | quiz 3:4 | quiz 4:14 | quiz 5:14 | mean:8" caption="(12 + 28) ÷ 5 = 8"]][[step eq="(12 + 28) ÷ 5 = 8"]]'),
+             "ask": {'a': 18, 'b': 8, 'op': 'wavg'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Three quizzes scored "
+                       "10 and two scored 5, and the mean of all five is 8. Tap the "
+                       "reason why."),
+            "choices": ("because all five scores go in, and the 10 counts three times | "
+                        "because 10 and 5 are averaged, and that is the mean | because "
+                        "the score that happened most is the mean"),
+            "answer": "because all five scores go in, and the 10 counts three times",
+            "board": '[[bars data="quiz 1:10 | quiz 2:10 | quiz 3:10 | quiz 4:5 | quiz 5:5 | mean:8" caption="the heavier side drags the mean"]]',
+        },
+        "recap": [
+            ("So, here it is again. When scores repeat, every score goes into the mean "
+             "as many times as it happened — a score that happens three times pulls "
+             "three times as hard. Never average the two numbers alone.",
+             '[[bars data="quiz 1:10 | quiz 2:10 | quiz 3:10 | quiz 4:5 | quiz 5:5 | mean:8" caption="count the repeats"]]'),
+            ("And that is the mean, with its weights on.",
+             '[[step eq="(30 + 10) ÷ 5 = 8"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 12, "op": "wavg"},
             {"a": 3, "b": 13, "op": "wavg"},
@@ -17555,24 +17935,61 @@ _ALGEBRA2_U9 = [
         "op": "cnt3", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("choice", "slot"),
-        "advance_line": "Three in a row — you've got it! Times every slot, skip none.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Times every slot, skip none.",
+        "why": [
+            ("Why three slots? Geometry counted outfits from two choices: shirts times "
+             "hats. Add pants and nothing changes but the length: every choice is a "
+             "slot, and slots TIMES together. 2 shirts, 5 pants, 3 hats — for each "
+             "shirt, every pair of pants; for each of those, every hat.",
+             '[[goal text="Three slots"]]'),
+        ],
+        "picture": [
+            ("Here is the first pair of slots as a grid: a row for each of the 2 "
+             "shirts, a column for each of the 5 pants — ten boxes, ten shirt-and-pants "
+             "pairs. The third slot, the hats, then multiplies every one of those "
+             "boxes by 3.",
+             '[[array rows="2" cols="5" caption="2 shirts by 5 pants — ten pairs; each pair then takes any of 3 hats"]]'),
+        ],
         "teach": [
-            ["Geometry counted outfits from two choices: shirts times hats. Add pants and nothing changes but the length: every choice is a slot, and slots TIMES together. 2 shirts, 5 pants, 3 hats — for each shirt, every pair of pants; for each of those, every hat.",
-             '[[goal text="Three slots"]][[step eq="shirts · pants · hats"]]'],
-            ["Count it: 2 times 5 is 10 shirt-and-pants pairs, and each pair takes any of 3 hats: 10 times 3 is 30 outfits. Slot by slot, left to right — the times just keeps rolling.",
-             '[[step eq="2 × 5 = 10 · 10 × 3 = 30"]]'],
-            ["Two traps, both old friends grown taller. Adding — 2 plus 5 plus 3 is 10 THINGS, not outfits. And stopping after two slots — 10 — forgets the hats entirely. However many slots there are: times every one, skip none.",
-             '[[step eq="2 × 5 × 3 = 30 ✓"]][[step eq="10 ✗ added, or stopped early"]]'],
+            ("That is the method. Count it: 2 times 5 is 10 shirt-and-pants pairs, and "
+             "each pair takes any of 3 hats: 10 times 3 is 30 outfits. Slot by slot, "
+             "left to right — the times just keeps rolling.",
+             '[[array rows="2" cols="5" caption="2 × 5 = 10 pairs — each with 3 hats: 30"]][[step eq="2 × 5 = 10 · 10 × 3 = 30"]]'),
+            ("Two traps, both old friends grown taller. Adding — 2 plus 5 plus 3 is 10 "
+             "THINGS, not outfits. And stopping after two slots — 10 — forgets the hats "
+             "entirely. However many slots there are: times every one, skip none.",
+             '[[step eq="2 × 5 × 3 = 30 ✓"]][[step eq="10 ✗ added, or stopped early"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 3 shirts, 3 pants, 2 hats: 3 times 3 is 9, times 2 — 18 outfits.",
-                        '[[step eq="3 × 3 × 2 = 18"]]'],
-             "ask": {"a": 2, "b": 3, "c": 3, "op": "cnt3"}},
-            {"worked": ["One more together. 4 shirts, 2 pants, 5 hats: 4 times 2 is 8, and 8 times 5 is 40 outfits.",
-                        '[[step eq="4 × 2 × 5 = 40"]]'],
-             "ask": {"a": 5, "b": 4, "c": 4, "op": "cnt3"}},
+            {"worked": ("Here is one more, done for you. 3 shirts, 3 pants, 2 hats: 3 "
+                        "times 3 is 9, times 2 — 18 outfits.",
+                        '[[array rows="3" cols="3" caption="3 × 3 = 9 pairs — each with 2 hats: 18"]][[step eq="3 × 3 × 2 = 18"]]'),
+             "ask": {'a': 2, 'b': 3, 'c': 3, 'op': 'cnt3'}},
+            {"worked": ("One more together. 4 shirts, 2 pants, 5 hats: 4 times 2 is 8, "
+                        "and 8 times 5 is 40 outfits.",
+                        '[[array rows="4" cols="2" caption="4 × 2 = 8 pairs — each with 5 hats: 40"]][[step eq="4 × 2 × 5 = 40"]]'),
+             "ask": {'a': 5, 'b': 4, 'c': 4, 'op': 'cnt3'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. With 2 shirts, 5 "
+                       "pants and 3 hats there are 30 outfits. Tap the reason why."),
+            "choices": ("because every slot times the next: shirts, pants, then hats | "
+                        "because the three closets add up to the outfits | because "
+                        "shirts and pants alone give the outfits, hats aside"),
+            "answer": "because every slot times the next: shirts, pants, then hats",
+            "board": '[[array rows="2" cols="5" caption="2 × 5 × 3 = 30"]]',
+        },
+        "recap": [
+            ("So, here it is again. Every choice is a slot, and slots times together, "
+             "however many there are: shirts times pants times hats. Never add the "
+             "closets, and never stop a slot early.",
+             '[[array rows="2" cols="5" caption="times every slot, skip none"]]'),
+            ("And that is the counting principle, one slot longer.",
+             '[[step eq="2 × 5 × 3 = 30"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "c": 2, "op": "cnt3"},
             {"a": 2, "b": 2, "c": 3, "op": "cnt3"},
@@ -17593,24 +18010,62 @@ _ALGEBRA2_U9 = [
         "op": "expv", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("expect", "tokens"),
-        "advance_line": "Three in a row — you've got it! Count the paying plays, then times.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Count the paying plays, then times.",
+        "why": [
+            ("Why expect? Because chance can be planned for. A game pays 5 tokens, and "
+             "you win exactly 2 times out of every 6 plays. Play 6 times: you cannot "
+             "say WHICH plays pay — but you can say how much to expect, because about "
+             "2 of them will.",
+             '[[goal text="What to expect"]]'),
+        ],
+        "picture": [
+            ("Here are the 6 plays as a pie, with the 2 paying plays shaded. Four "
+             "slices pay nothing; two slices pay 5 tokens each. The shaded part is "
+             "where the tokens come from.",
+             '[[pie parts="6" shaded="2" caption="6 plays — 2 of them pay 5 tokens each"]]'),
+        ],
         "teach": [
-            ["Chance can be planned for. A game pays 5 tokens, and you win exactly 2 times out of every 6 plays. Play 6 times: you cannot say WHICH plays pay — but you can say how much to expect, because about 2 of them will.",
-             '[[goal text="What to expect"]][[step eq="6 plays · 2 winners among them"]]'],
-            ["Expect it out: 2 winning plays, 5 tokens each — about 10 tokens over the 6 plays. Not a promise; a center of gravity. Casinos, insurers and weather planners live on exactly this number.",
-             '[[step eq="2 wins × 5 tokens = 10 expected"]]'],
-            ["Two traps. 6 times 5 — 30 — pretends EVERY play pays, but four of the six pay nothing. And plain 5 counts a single win, as if the other winning play never came. Count the paying plays first; then times by the prize.",
-             '[[step eq="2 × 5 = 10 ✓"]][[step eq="30 ✗ every play paid · 5 ✗ one win only"]]'],
+            ("That is the method. Expect it out: 2 winning plays, 5 tokens each — "
+             "about 10 tokens over the 6 plays. Not a promise; a center of gravity. "
+             "Casinos, insurers and weather planners live on exactly this number.",
+             '[[array rows="2" cols="5" caption="2 wins of 5 tokens — 2 × 5 = 10"]][[step eq="2 wins × 5 tokens = 10 expected"]]'),
+            ("Two traps. 6 times 5 — 30 — pretends EVERY play pays, but four of the "
+             "six pay nothing. And plain 5 counts a single win, as if the other winning "
+             "play never came. Count the paying plays first; then times by the prize.",
+             '[[step eq="2 × 5 = 10 ✓"]][[step eq="30 ✗ every play paid · 5 ✗ one win only"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Win 4 tokens, 3 times out of 5, over 5 plays: 3 wins of 4 — expect 12.",
-                        '[[step eq="3 × 4 = 12"]]'],
-             "ask": {"a": 2, "b": 3, "c": 4, "op": "expv"}},
-            {"worked": ["One more together. 2 wins in 7 plays, 6 tokens each: expect about 12.",
-                        '[[step eq="2 × 6 = 12"]]'],
-             "ask": {"a": 5, "b": 8, "c": 6, "op": "expv"}},
+            {"worked": ("Here is one more, done for you. Win 4 tokens, 3 times out of 5, "
+                        "over 5 plays: 3 wins of 4 — expect 12.",
+                        '[[pie parts="5" shaded="3" caption="5 plays, 3 pay 4 tokens — 3 × 4 = 12"]][[step eq="3 × 4 = 12"]]'),
+             "ask": {'a': 2, 'b': 3, 'c': 4, 'op': 'expv'}},
+            {"worked": ("One more together. 2 wins in 7 plays, 6 tokens each: expect "
+                        "about 12.",
+                        '[[pie parts="7" shaded="2" caption="7 plays, 2 pay 6 tokens — 2 × 6 = 12"]][[step eq="2 × 6 = 12"]]'),
+             "ask": {'a': 5, 'b': 8, 'c': 6, 'op': 'expv'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A game pays 5 tokens "
+                       "2 times out of every 6 plays, and over 6 plays you expect 10 "
+                       "tokens. Tap the reason why."),
+            "choices": ("because about 2 of the 6 plays pay, 5 tokens each | because all "
+                        "6 plays pay 5 tokens each | because one win of 5 tokens is all "
+                        "to expect"),
+            "answer": "because about 2 of the 6 plays pay, 5 tokens each",
+            "board": '[[pie parts="6" shaded="2" caption="2 wins × 5 tokens = 10"]]',
+        },
+        "recap": [
+            ("So, here it is again. To know what to expect from a game of chance, "
+             "count the plays that pay, then times by the prize. Not every play pays, "
+             "and one win is not the whole story — the expected amount is a center of "
+             "gravity, never a promise.",
+             '[[pie parts="6" shaded="2" caption="count the paying plays, then times"]]'),
+            ("And that is chance, planned for.",
+             '[[step eq="2 × 5 = 10 expected"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 5, "c": 2, "op": "expv"},
             {"a": 2, "b": 4, "c": 3, "op": "expv"},
@@ -17631,24 +18086,63 @@ _ALGEBRA2_U9 = [
         "op": "samp", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("sample", "about"),
-        "advance_line": "Three in a row — you've got it! Scale the sample, and keep the word ABOUT.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Scale the sample, and keep the word ABOUT.",
+        "why": [
+            ("Why does a sample speak? Because the last idea of Algebra Two is the "
+             "boldest: ask a few, learn about everyone. A sample of 20 students found "
+             "5 like pizza. The school holds 60 — nobody asked them all. Statistics "
+             "says the sample SPEAKS for the school, about.",
+             '[[goal text="The sample speaks"]]'),
+        ],
+        "picture": [
+            ("Here is the sample beside the school as bars: 20 asked, 5 said yes, and "
+             "a school of 60 standing three samples tall. If every slice of 20 behaves "
+             "like the one we asked, the school holds about three times the 5.",
+             '[[bars data="sample asked:20 | said yes:5 | the school:60" caption="20 asked, 5 said yes — the school is three samples wide"]]'),
+        ],
         "teach": [
-            ["The last idea of Algebra Two is the boldest: ask a few, learn about everyone. A sample of 20 students found 5 like pizza. The school holds 60 — nobody asked them all. Statistics says the sample SPEAKS for the school, about.",
-             '[[goal text="The sample speaks"]][[step eq="asked 20 · 5 said yes · school: 60"]]'],
-            ["Scale it: 60 students is three samples of 20, side by side. If each slice of 20 behaves like the one we asked, each holds about 5 pizza-lovers: 5 times 3 — about 15 in the school. The similarity unit's factor thinking, aimed at people.",
-             '[[step eq="60 = 3 × 20 · 5 × 3 = about 15"]]'],
-            ["Two traps. Answering 5 stops at the sample — the question asked about the school. And guessing half — 30 — ignores the sample entirely; we ASKED, and the sample said one in four, not one in two. Scale what the sample said, and keep the word about: samples estimate, never promise.",
-             '[[step eq="5 × 3 = about 15 ✓"]][[step eq="5 ✗ the sample only · 30 ✗ the half-guess"]]'],
+            ("That is the method. Scale it: 60 students is three samples of 20, side "
+             "by side. If each slice of 20 behaves like the one we asked, each holds "
+             "about 5 pizza-lovers: 5 times 3 — about 15 in the school. The similarity "
+             "unit\'s factor thinking, aimed at people.",
+             '[[bars data="one sample:5 | the school, 3 samples wide:15" caption="5 × 3 = about 15"]][[step eq="60 = 3 × 20 · 5 × 3 = about 15"]]'),
+            ("Two traps. Answering 5 stops at the sample — the question asked about "
+             "the school. And guessing half — 30 — ignores the sample entirely; we "
+             "ASKED, and the sample said one in four, not one in two. Scale what the "
+             "sample said, and keep the word about: samples estimate, never promise.",
+             '[[step eq="5 × 3 = about 15 ✓"]][[step eq="5 ✗ the sample only · 30 ✗ the half-guess"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A sample of 10 found 4 readers; the school has 30 — three samples wide. About 12 readers.",
-                        '[[step eq="4 × 3 = about 12"]]'],
-             "ask": {"a": 10, "b": 2, "c": 5, "op": "samp"}},
-            {"worked": ["One more together. 15 asked, 6 said yes; the school is 45 — three samples wide, so 6 times 3: about 18.",
-                        '[[step eq="6 × 3 = about 18"]]'],
-             "ask": {"a": 30, "b": 9, "c": 4, "op": "samp"}},
+            {"worked": ("Here is one more, done for you. A sample of 10 found 4 readers; "
+                        "the school has 30 — three samples wide. About 12 readers.",
+                        '[[bars data="one sample:4 | the school, 3 samples wide:12" caption="4 × 3 = about 12"]][[step eq="4 × 3 = about 12"]]'),
+             "ask": {'a': 10, 'b': 2, 'c': 5, 'op': 'samp'}},
+            {"worked": ("One more together. 15 asked, 6 said yes; the school is 45 — "
+                        "three samples wide, so 6 times 3: about 18.",
+                        '[[bars data="one sample:6 | the school, 3 samples wide:18" caption="6 × 3 = about 18"]][[step eq="6 × 3 = about 18"]]'),
+             "ask": {'a': 30, 'b': 9, 'c': 4, 'op': 'samp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A sample of 20 found "
+                       "5 like pizza, the school has 60, and about 15 in the school like "
+                       "pizza. Tap the reason why."),
+            "choices": ("because the school is three samples wide, so three times 5 | "
+                        "because the sample already said 5, and that is the answer | "
+                        "because about half of any school likes pizza"),
+            "answer": "because the school is three samples wide, so three times 5",
+            "board": '[[bars data="one sample:5 | the school, 3 samples wide:15" caption="scale the sample"]]',
+        },
+        "recap": [
+            ("So, here it is again. A sample speaks for the whole, about: find how "
+             "many samples wide the whole is, and scale what the sample said by that. "
+             "Never stop at the sample, never guess half — and keep the word about.",
+             '[[bars data="sample asked:20 | said yes:5 | the school:60" caption="ask a few, learn about everyone — about"]]'),
+            ("And that is Algebra Two\'s last idea: the sample speaks.",
+             '[[step eq="5 × 3 = about 15"]]'),
+        ],
         "bank": [
             {"a": 10, "b": 3, "c": 2, "op": "samp"},
             {"a": 12, "b": 4, "c": 2, "op": "samp"},
@@ -26582,6 +27076,221 @@ def _lbet_worked(p):
 
 
 
+# ---- (tn, 2026-09-06) ALGEBRA 2 UNITS 7-9: the pattern's first terms as bars and the
+# ride to the asked term, the leaps as bars, the ends paired on the number line and
+# the staircase rectangle, the rule walked through the machine twice, the arrow on the
+# unit circle (the height and across asks stay picture-free: the pointed arrow IS the
+# answer once the spins are stripped), the same arrow after a full turn, the wave with
+# its crest line, the five scores as bars, the shirts-by-pants array, the plays as a
+# pie, the sample beside the school. Every ask draws its question with the answer
+# withheld; every walk-back draws it filled in.
+def _anth_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[bars data="term 1:{a} | term 2:{a + b} | term 3:{a + 2 * b}" caption="start {a}, step {b} — the first three terms; ride on to term {c}"]]'
+            f'[[step eq="{a}, {a + b}, {a + 2 * b}, …"]]'
+            f'[[step eq="term {c} = ?"]]')
+
+
+def _anth_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    terms = " | ".join(f"term {i}:{a + (i - 1) * b}" for i in range(1, c + 1))
+    return (f"Look what you did: term 1 is already standing at the start, so term {c} is "
+            f"{c - 1} steps away — not {c}. {a} plus {c - 1} steps of {b} is {a} plus "
+            f"{(c - 1) * b}, which equals {a + (c - 1) * b}.",
+            f'[[bars data="{terms}" caption="{c - 1} steps of {b} from {a} — term {c} is {a + (c - 1) * b}"]]'
+            f'[[step eq="{a} + {c - 1} × {b} = {a + (c - 1) * b}"]]')
+
+
+def _gnth_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[bars data="term 1:{a} | term 2:{a * b} | term 3:{a * b * b}" caption="start {a}, each term {b} times the one before — leap on to term {c}"]]'
+            f'[[step eq="{a}, {a * b}, {a * b * b}, …"]]'
+            f'[[step eq="term {c} = ?"]]')
+
+
+def _gnth_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    terms = " | ".join(f"term {i}:{a * b ** (i - 1)}" for i in range(1, c + 1))
+    return (f"Look what you did: a ratio is a times, never an add. Term {c} is {c - 1} "
+            f"leaps of times {b} from {a} — {a} times {b ** (c - 1)}, which equals "
+            f"{a * b ** (c - 1)}. Adding {b} each time would only have strolled to "
+            f"{a + b * (c - 1)}.",
+            f'[[bars data="{terms}" caption="{c - 1} leaps of × {b} from {a} — term {c} is {a * b ** (c - 1)}"]]'
+            f'[[step eq="{a} × {b ** (c - 1)} = {a * b ** (c - 1)}"]]')
+
+
+def _gaus_board(p):
+    a = p["a"]
+    return (f'[[numberline min="1" max="{a}" points="1,{a}" caption="every counting number from 1 up to {a} — pair the ends"]]'
+            f'[[step eq="1 + 2 + 3 + … + {a} = ?"]]')
+
+
+def _gaus_worked(p):
+    a = p["a"]
+    total = a * (a + 1) // 2
+    fig = (f'[[rectangle w="{a + 1}" h="{a}" half="1" caption="{a} rows of {a + 1} — half of {a * (a + 1)} is {total}"]]'
+           if a + 1 <= 20 else
+           f'[[bars data="{a} × {a + 1}:{a * (a + 1)} | halved:{total}" caption="{a} × {a + 1} = {a * (a + 1)}, halved: {total}"]]')
+    return (f"Look what you did: pair the ends — 1 with {a}, 2 with {a - 1}, and on — and "
+            f"every pair is {a + 1}. That is {a} times {a + 1}, halved: {total}. Not "
+            f"{a * a}, which overshoots, and not {a}, the last footstep only.",
+            fig + f'[[step eq="{a} × {a + 1} ÷ 2 = {total}"]]')
+
+
+def _reca_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[machine input="{a}" rule="2x − {b}" output="?" caption="term 1 goes in, term 2 comes out — then term 2 goes back in for term 3"]]'
+            f'[[step eq="{a} → ×2 − {b} → ? → ×2 − {b} → ?"]]')
+
+
+def _reca_worked(p):
+    a, b = p["a"], p["b"]
+    t2 = 2 * a - b
+    t3 = 2 * t2 - b
+    return (f"Look what you did: walk the whole rule, every term. Term 2: 2 times {a} take "
+            f"away {b} is {t2}. Term 3: 2 times {t2} take away {b} is {t3}. Not {t2}, "
+            f"stopping early; and the take away happens every time.",
+            f'[[machine input="{a}" rule="2x − {b}" output="{t2}" caption="term 2: 2 × {a} − {b} = {t2}"]]'
+            f'[[machine input="{t2}" rule="2x − {b}" output="{t3}" caption="term 3: 2 × {t2} − {b} = {t3}"]]'
+            f'[[step eq="{a} → {t2} → {t3}"]]')
+
+
+_COMPASS = {0: "flat to the right", 90: "straight up", 180: "flat to the left", 270: "straight down"}
+
+
+def _sinp_board(p):
+    a = p["a"]
+    return (f'[[step eq="{a}° · strip the full turns, point the arrow"]]'
+            f'[[step eq="sine = the height of its tip = ?"]]')
+
+
+def _sinp_worked(p):
+    a = p["a"]
+    spins, base = a // 360, a % 360
+    h = {0: 0, 90: 1, 180: 0, 270: -1}[base]
+    hs = {1: "1", 0: "0", -1: "negative 1"}[h]
+    strip = (f"{a} is {spins} full spin{'s' if spins > 1 else ''} plus {base}, so " if spins else "")
+    return (f"Look what you did: {strip}the arrow points {_COMPASS[base]}. The sine is the "
+            f"height of its tip — {hs}. Strip away the full turns, point the arrow, read "
+            f"the height.",
+            f'[[unitcircle angle="{a}" caption="{a}° — the arrow points {_COMPASS[base]}: height {hs.replace("negative ", "−")}"]]'
+            f'[[step eq="{a}° → {_COMPASS[base]} → sine {hs.replace("negative ", "−")}"]]')
+
+
+def _cosp_board(p):
+    a = p["a"]
+    return (f'[[step eq="{a}° · strip the full turns, point the arrow"]]'
+            f'[[step eq="cosine = the across of its tip = ?"]]')
+
+
+def _cosp_worked(p):
+    a = p["a"]
+    spins, base = a // 360, a % 360
+    c = {0: 1, 90: 0, 180: -1, 270: 0}[base]
+    cs = {1: "1", 0: "0", -1: "negative 1"}[c]
+    strip = (f"{a} is {spins} full spin{'s' if spins > 1 else ''} plus {base}, so " if spins else "")
+    return (f"Look what you did: {strip}the arrow points {_COMPASS[base]}. The cosine is "
+            f"the across of its tip — {cs}. Same arrow as the sine; read across, not up.",
+            f'[[unitcircle angle="{a}" caption="{a}° — the arrow points {_COMPASS[base]}: across {cs.replace("negative ", "−")}"]]'
+            f'[[step eq="{a}° → {_COMPASS[base]} → cosine {cs.replace("negative ", "−")}"]]')
+
+
+def _spin_board(p):
+    a = p["a"]
+    return (f'[[unitcircle angle="{a}" values="0" caption="the arrow at {a}° — spin it one more full turn; where does it land?"]]'
+            f'[[step eq="{a}° + one full turn = ?"]]')
+
+
+def _spin_worked(p):
+    a = p["a"]
+    return (f"Look what you did: a full turn is 360, so {a} plus 360 equals {a + 360} — and "
+            f"the arrow points exactly where it began: same direction, same sine, same "
+            f"cosine. A half turn would land opposite; 360 take away {a} is a mirror.",
+            f'[[unitcircle angle="{a + 360}" values="0" caption="{a + 360}° — the same arrow as {a}°"]]'
+            f'[[step eq="{a}° + 360° = {a + 360}°"]]')
+
+
+def _ampl_board(p):
+    a = p["a"]
+    return (f'[[graph func="{a}*sin(x)" range="-7..7" caption="y = {a} · sin x — how high does the wave reach?"]]'
+            f'[[step eq="the top of the wave = ?"]]')
+
+
+def _ampl_worked(p):
+    a = p["a"]
+    return (f"Look what you did: the plain sine tops out at 1, and the {a} out front "
+            f"stretches every height by {a} — the wave crests at {a} and dips to negative "
+            f"{a}. The amplitude is {a}: not {2 * a}, crest to trough, and not 1.",
+            f'[[graph func="{a}*sin(x)" lines="y={a}" range="-7..7" caption="the crest line y = {a} — amplitude {a}"]]'
+            f'[[step eq="crest = {a} · trough = −{a}"]]')
+
+
+def _wavg_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[bars data="quiz 1:{a} | quiz 2:{a} | quiz 3:{a} | quiz 4:{b} | quiz 5:{b}" caption="five quizzes — three scored {a}, two scored {b}; the mean of all five?"]]'
+            f'[[step eq="{a}, {a}, {a}, {b}, {b}"]]'
+            f'[[step eq="mean of the five = ?"]]')
+
+
+def _wavg_worked(p):
+    a, b = p["a"], p["b"]
+    m = (3 * a + 2 * b) // 5
+    return (f"Look what you did: all five scores go in. Three {a}s are {3 * a}; two {b}s "
+            f"are {2 * b}; put together, {3 * a + 2 * b}, shared by 5 — the mean is {m}. "
+            f"It sits nearer the {a}s, because they count three times.",
+            f'[[bars data="quiz 1:{a} | quiz 2:{a} | quiz 3:{a} | quiz 4:{b} | quiz 5:{b} | mean:{m}" caption="({3 * a} + {2 * b}) ÷ 5 = {m} — nearer the three {a}s"]]'
+            f'[[step eq="({3 * a} + {2 * b}) ÷ 5 = {m}"]]')
+
+
+def _cnt3_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[array rows="{a}" cols="{b}" caption="{a} shirts by {b} pants — every box is one pair; each pair then takes any of {c} hats"]]'
+            f'[[step eq="{a} shirts · {b} pants · {c} hats"]]'
+            f'[[step eq="outfits = ?"]]')
+
+
+def _cnt3_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: slot by slot, the times keeps rolling. {a} times {b} is "
+            f"{a * b} shirt-and-pants pairs, and each pair takes any of {c} hats: {a * b} "
+            f"times {c} is {a * b * c} outfits. Not added, and not stopped at two slots.",
+            f'[[array rows="{a}" cols="{b}" caption="{a} × {b} = {a * b} pairs — each with {c} hats: {a * b * c}"]]'
+            f'[[step eq="{a} × {b} = {a * b} · {a * b} × {c} = {a * b * c}"]]')
+
+
+def _expv_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[pie parts="{b}" shaded="{a}" caption="{b} plays — about {a} of them pay {c} tokens; how many tokens to expect?"]]'
+            f'[[step eq="{b} plays · win {c} tokens, {a} times"]]'
+            f'[[step eq="expected in all = ?"]]')
+
+
+def _expv_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: count the paying plays first — about {a} of the {b} — "
+            f"then times by the prize: {a} wins of {c} tokens is {a * c} tokens. Not "
+            f"{b * c}, as if every play paid; and not {c}, one win only.",
+            f'[[array rows="{a}" cols="{c}" caption="{a} wins of {c} tokens — {a} × {c} = {a * c}"]]'
+            f'[[step eq="{a} × {c} = {a * c}"]]')
+
+
+def _samp_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[bars data="sample asked:{a} | said yes:{b} | the school:{a * c}" caption="{b} of {a} said yes — the school is {a * c}; about how many say yes there?"]]'
+            f'[[step eq="sample: {b} of {a}"]]'
+            f'[[step eq="the school: {a * c} · like pizza: about ?"]]')
+
+
+def _samp_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: the school is {c} samples wide — {a * c} is {c} times "
+            f"{a}. If each sample behaves like the one we asked, each holds about {b}: "
+            f"{b} times {c} is about {b * c}. Scale the sample, and keep the word about.",
+            f'[[bars data="one sample:{b} | the school, {c} samples wide:{b * c}" caption="{b} × {c} = about {b * c}"]]'
+            f'[[step eq="{a * c} = {c} × {a} · {b} × {c} = about {b * c}"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -30699,9 +31408,8 @@ OP_EXT = {
                              f"{p['c']}?"),
         # First three terms shown (the child could write them); the step COUNT
         # -- c or c-1 -- is the skill, so the board never says it.
-        "board": lambda p: (f'[[step eq="{p["a"]}, {p["a"] + p["b"]}, '
-                            f'{p["a"] + 2 * p["b"]}, …"]]'
-                            f'[[step eq="term {p["c"]} = ?"]]'),
+        "board": _anth_board,         # (tn) the first three terms as bars, captioned
+        "worked": _anth_worked,       # (tn) every term to the asked one
         "praise": lambda p: (f"From term 1 to term {p['c']} is "
                              f"{p['c'] - 1} steps — not {p['c']}: {p['a']} "
                              f"plus {p['c'] - 1} steps of {p['b']} equals "
@@ -30728,9 +31436,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A pattern starts at {p['a']}, and each term is "
                              f"{p['b']} times the one before. What is term "
                              f"number {p['c']}?"),
-        "board": lambda p: (f'[[step eq="{p["a"]}, {p["a"] * p["b"]}, '
-                            f'{p["a"] * p["b"] * p["b"]}, …"]]'
-                            f'[[step eq="term {p["c"]} = ?"]]'),
+        "board": _gnth_board,         # (tn) the first three terms as bars, captioned
+        "worked": _gnth_worked,       # (tn) every leap to the asked term
         "praise": lambda p: (f"Times {p['b']} again and again — "
                              f"{p['c'] - 1} times in all: term {p['c']} is "
                              f"{p['a'] * p['b'] ** (p['c'] - 1)}."),
@@ -30756,7 +31463,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] * (p["a"] + 1) // 2,
         "spoken": lambda p: (f"Put together every counting number from 1 up "
                              f"to {p['a']}. What is the sum?"),
-        "board": lambda p: (f'[[step eq="1 + 2 + 3 + … + {p["a"]} = ?"]]'),
+        "board": _gaus_board,         # (tn) 1 up to n on the number line, captioned
+        "worked": _gaus_worked,       # (tn) the staircase rectangle, half of it the sum (bars past 19)
         "praise": lambda p: (f"{p['a']} numbers, paired end to end, each pair "
                              f"{p['a'] + 1}: the sum is {p['a']} times "
                              f"{p['a'] + 1}, halved — "
@@ -30778,8 +31486,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A pattern's rule: each term is 2 times the one "
                              f"before, take away {p['b']}. The first term is "
                              f"{p['a']}. What is the third term?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} → ×2 − {p["b"]} → ? → '
-                            f'×2 − {p["b"]} → ?"]]'),
+        "board": _reca_board,         # (tn) the rule as a machine, its output blank
+        "worked": _reca_worked,       # (tn) the machine run twice
         "praise": lambda p: (f"Term 2: 2 times {p['a']} take away {p['b']} is "
                              f"{2 * p['a'] - p['b']}. Term 3: 2 times "
                              f"{2 * p['a'] - p['b']} take away {p['b']} — "
@@ -30813,9 +31521,8 @@ OP_EXT = {
         "ans": lambda p: {0: 0, 90: 1, 180: 0, 270: -1}[p["a"] % 360],
         "spoken": lambda p: (f"What is the sine of {p['a']} degrees — 1, 0, "
                              f"or negative 1?"),
-        "board": lambda p: (f'[[step eq="{p["a"]}° · where does the arrow '
-                            f'point?"]]'
-                            f'[[step eq="sine = the height of its tip"]]'),
+        "board": _sinp_board,         # (tn) statement lines only -- no question inside a step, no picture (the pointed arrow is the answer)
+        "worked": _sinp_worked,       # (tn) the arrow pointed
         # The no-spin branch must start with a CAPITAL (the praise prefix ends
         # in "!", so a lowercase opener reads broken -- caught out loud).
         "praise": lambda p: (lambda spins, base:
@@ -30842,9 +31549,8 @@ OP_EXT = {
         "ans": lambda p: {0: 1, 90: 0, 180: -1, 270: 0}[p["a"] % 360],
         "spoken": lambda p: (f"What is the cosine of {p['a']} degrees — 1, 0, "
                              f"or negative 1?"),
-        "board": lambda p: (f'[[step eq="{p["a"]}° · where does the arrow '
-                            f'point?"]]'
-                            f'[[step eq="cosine = the across of its tip"]]'),
+        "board": _cosp_board,         # (tn) statement lines only -- no question inside a step, no picture (the pointed arrow is the answer)
+        "worked": _cosp_worked,       # (tn) the arrow pointed
         "praise": lambda p: (lambda spins, base:
                              ((("After " + ("a full spin, "
                                             if spins == 1 else
@@ -30869,7 +31575,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Start at {p['a']} degrees and spin one more "
                              f"full turn around the circle. What angle do "
                              f"you land on?"),
-        "board": lambda p: (f'[[step eq="{p["a"]}° + one full turn = ?"]]'),
+        "board": _spin_board,         # (tn) the arrow at the angle, coordinates hidden (values="0")
+        "worked": _spin_worked,       # (tn) the same arrow after a full turn
         "praise": lambda p: (f"A full turn is 360: {p['a']} plus 360 equals "
                              f"{p['a'] + 360} — same direction, same sine, "
                              f"same cosine."),
@@ -30890,9 +31597,8 @@ OP_EXT = {
                              f"HIGHEST value it ever reaches?"),
         # The wave itself is on the board -- reading its crest IS understanding
         # amplitude (the sys1-crossing precedent).
-        "board": lambda p: (f'[[graph func="{p["a"]}*sin(x)" '
-                            f'range="-7..7"]]'
-                            f'[[step eq="the top of the wave = ?"]]'),
+        "board": _ampl_board,         # (tn) the wave, captioned
+        "worked": _ampl_worked,       # (tn) the crest line drawn
         "praise": lambda p: (f"The plain sine tops out at 1; times {p['a']} "
                              f"stretches it — the wave crests at {p['a']} "
                              f"and dips to negative {p['a']}."),
@@ -30919,9 +31625,8 @@ OP_EXT = {
                              f"two quizzes each scored {p['b']}. What is the "
                              f"mean of all five scores?"),
         # RAW givens: the five scores listed -- weighting them is the skill.
-        "board": lambda p: (f'[[step eq="{p["a"]}, {p["a"]}, {p["a"]}, '
-                            f'{p["b"]}, {p["b"]}"]]'
-                            f'[[step eq="mean of the five = ?"]]'),
+        "board": _wavg_board,         # (tn) the five scores as bars, captioned
+        "worked": _wavg_worked,       # (tn) the mean beside them
         "praise": lambda p: (f"All five go in: three {p['a']}s and two "
                              f"{p['b']}s put together are "
                              f"{3 * p['a'] + 2 * p['b']}, shared by 5 — "
@@ -30947,9 +31652,8 @@ OP_EXT = {
         "spoken": lambda p: (f"You own {p['a']} shirts, {p['b']} pairs of "
                              f"pants, and {p['c']} hats, all different. How "
                              f"many different outfits can you choose?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} shirts · {p["b"]} pants · '
-                            f'{p["c"]} hats"]]'
-                            f'[[step eq="outfits = ?"]]'),
+        "board": _cnt3_board,         # (tn) shirts by pants as an array, captioned
+        "worked": _cnt3_worked,       # (tn) the pairs counted, then the hats
         "praise": lambda p: (f"Choices times up, slot by slot: {p['a']} times "
                              f"{p['b']} is {p['a'] * p['b']}, times "
                              f"{p['c']} — {p['a'] * p['b'] * p['c']}."),
@@ -30974,9 +31678,8 @@ OP_EXT = {
                              f"{p['a']} times out of every {p['b']} plays. "
                              f"You play {p['b']} times. How many tokens "
                              f"should you EXPECT to win in all?"),
-        "board": lambda p: (f'[[step eq="{p["b"]} plays · win {p["c"]} '
-                            f'tokens, {p["a"]} times"]]'
-                            f'[[step eq="expected in all = ?"]]'),
+        "board": _expv_board,         # (tn) the plays as a pie, the paying ones shaded
+        "worked": _expv_worked,       # (tn) the wins of tokens as an array
         "praise": lambda p: (f"About {p['a']} of the {p['b']} plays pay out: "
                              f"{p['a']} wins of {p['c']} tokens equals "
                              f"{p['a'] * p['c']} tokens."),
@@ -30995,11 +31698,10 @@ OP_EXT = {
         "ans": lambda p: p["b"] * p["c"],
         "spoken": lambda p: (f"A sample of {p['a']} students found {p['b']} "
                              f"of them like pizza. The whole school has "
-                             f"{p['a'] * p['c']} students. About how many "
-                             f"students in the school like pizza?"),
-        "board": lambda p: (f'[[step eq="sample: {p["b"]} of {p["a"]}"]]'
-                            f'[[step eq="school: {p["a"] * p["c"]} students '
-                            f'· about?"]]'),
+                             f"{p['a'] * p['c']} students. About how many of the "
+                             f"whole school like pizza?"),
+        "board": _samp_board,         # (tn) the sample beside the school, as bars
+        "worked": _samp_worked,       # (tn) the sample scaled
         "praise": lambda p: (f"The school is {p['c']} samples wide: "
                              f"{p['b']} liked it per sample, times "
                              f"{p['c']} — about {p['b'] * p['c']}."),

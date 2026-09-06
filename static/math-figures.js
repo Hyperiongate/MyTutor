@@ -2,6 +2,11 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-06  BUILD tn -- [[unitcircle values="0"]] draws the arrow and its angle
+                 with no (cos, sin) at the tip and no legend -- the spin lesson's
+                 picture (same arrow after a full turn) without the two coordinates
+                 that are the height and across lessons' answers. Without values="0"
+                 nothing changed. Algebra 2 Unit 8.
      2026-09-06  BUILD th -- [[areamodel]] learns two more ask modes. ask="x": the x rooms
                  and the sum's x-term read "?" (the four rooms: middle asked, corner
                  given). ask="side": the last column's header and its rooms read "?"
@@ -913,9 +918,14 @@
     if (exact) { cosS = exact[0]; sinS = exact[1]; radS = exact[2]; }
     else { cosS = String(trimnum(Math.cos(rad))); sinS = String(trimnum(Math.sin(rad))); radS = String(trimnum(rad)); }
     var _tr = Math.cos(rad) >= 0;
-    s += tspan(px + (_tr ? -10 : 10), py - 10, "(" + cosS + ", " + sinS + ")", "var(--bd-26263a)", 11, 700, _tr ? "end" : "start");
+    // (tn, 2026-09-06) values="0": the arrow and its angle only -- no (cos, sin) at
+    // the tip and no legend underneath. A spin lesson wants the DIRECTION seen and
+    // the coordinates left out of the way (they are the next two lessons' answers).
+    // Without values="0" nothing changed.
+    var showVals = String(a.values == null ? "1" : a.values) !== "0";
+    if (showVals) s += tspan(px + (_tr ? -10 : 10), py - 10, "(" + cosS + ", " + sinS + ")", "var(--bd-26263a)", 11, 700, _tr ? "end" : "start");
     s += tspan(cx + ar + 8, cy - 8, trimnum(deg) + "°", "var(--bd-e0392b)", 12, 700, "start");
-    s += tspan(W / 2, H - 14, trimnum(deg) + "°  =  " + radS + " rad     cos = " + cosS + "     sin = " + sinS, "var(--bd-333344)", 12, 700);
+    if (showVals) s += tspan(W / 2, H - 14, trimnum(deg) + "°  =  " + radS + " rad     cos = " + cosS + "     sin = " + sinS, "var(--bd-333344)", 12, 700);
     return s + "</svg>";
   }
 

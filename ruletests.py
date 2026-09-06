@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tn -- PART 3jj: Algebra 2 Units 7-9 to the shape (12 lessons on the
+#               bars, the number line, the staircase rectangle, the machine run twice,
+#               the unit circle with its coordinates hidden, the wave with its crest
+#               line, the array and the pie); the course is 36/36; every figure an ask
+#               draws captioned; the unit-circle pending lines are statements; the
+#               sample ask no longer says "how many students" (rule 42).
+#               The methodology dated-note pins that read 6,000 characters now read 12,000:
+#               the page's own change notes outgrew them at tn (ta and tb fell past).
 #   2026-09-06  BUILD tm -- PART 3ji: Algebra 2 Units 4-6 to the shape (12 lessons on the
 #               grid with its point, its pole and its level line, the machine run
 #               backwards, the number line between two squares, the array and the bars);
@@ -21899,7 +21907,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>9,871</b>" in page,
+          "<b>9,957</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24224,7 +24232,7 @@ def part3iv_the_times_table_is_a_pass():
     check("  the changed files carry dated sz notes",
           "2026-09-05  BUILD sz" in src[:60000] and "BUILD sz" in m[:200000]
           and "2026-09-05  BUILD sz" in rd("ruletests.py")[:16000]
-          and "2026-09-05" in rd("static/methodology.html")[:6000], "Jim's rule 8")
+          and "2026-09-05" in rd("static/methodology.html")[:12000], "Jim's rule 8")
 
 
 def part3iw_the_tutor_sees_the_board():
@@ -24373,7 +24381,7 @@ def part3iw_the_tutor_sees_the_board():
     check("  the changed files carry dated ta notes",
           "2026-09-05  BUILD ta" in tsrc[:12000] and "2026-09-05  BUILD ta" in rd("lessonscripts.py")[:60000]
           and "BUILD ta" in m[:200000] and "2026-09-05  BUILD ta" in rd("ruletests.py")[:16000]
-          and "(ta)" in rd("static/methodology.html")[:6000], "Jim's rule 8")
+          and "(ta)" in rd("static/methodology.html")[:12000], "Jim's rule 8")
 
 
 def part3ix_entry_unit_one_to_the_shape():
@@ -24411,7 +24419,7 @@ def part3ix_entry_unit_one_to_the_shape():
           not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in U1), "")
     check("  the changed files carry dated tb notes",
           "2026-09-05  BUILD tb" in rd("lessonscripts.py")[:60000] and "BUILD tb" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD tb" in rd("ruletests.py")[:16000] and "(tb)" in rd("static/methodology.html")[:6000],
+          and "2026-09-05  BUILD tb" in rd("ruletests.py")[:16000] and "(tb)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -24507,7 +24515,7 @@ def part3iy_prealgebra_units_one_to_three_to_the_shape():
           not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in U1 + U2 + U3), "")
     check("  the changed files carry dated tc notes",
           "2026-09-05  BUILD tc" in rd("lessonscripts.py")[:60000] and "BUILD tc" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD tc" in rd("ruletests.py")[:16000] and "(tc)" in rd("static/methodology.html")[:6000],
+          and "2026-09-05  BUILD tc" in rd("ruletests.py")[:16000] and "(tc)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -24611,7 +24619,7 @@ def part3iz_prealgebra_units_four_to_six_to_the_shape():
                   for l in U4 + U5 + U6 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated td notes",
           "2026-09-06  BUILD td" in rd("lessonscripts.py")[:60000] and "BUILD td" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD td" in rd("ruletests.py")[:16000] and "(td)" in rd("static/methodology.html")[:6000]
+          and "2026-09-06  BUILD td" in rd("ruletests.py")[:16000] and "(td)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD td" in mf[:12000] and "BUILD td" in rd("tags.py")[:8000],
           "Jim's rule 8")
 
@@ -24744,7 +24752,7 @@ def part3ja_prealgebra_units_seven_to_nine_to_the_shape():
           _unsp == 0, f"{_unsp} unspoken")
     check("  the changed files carry dated te notes",
           "2026-09-06  BUILD te" in rd("lessonscripts.py")[:60000] and "BUILD te" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD te" in rd("ruletests.py")[:8000] and "(te)" in rd("static/methodology.html")[:6000]
+          and "2026-09-06  BUILD te" in rd("ruletests.py")[:8000] and "(te)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD te" in mf[:3000],
           "Jim's rule 8")
 
@@ -24848,7 +24856,7 @@ def part3jb_algebra_one_units_one_to_three_to_the_shape():
                   for l in A1 + A2 + A3 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tf notes",
           "2026-09-06  BUILD tf" in rd("lessonscripts.py")[:60000] and "BUILD tf" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tf" in rd("ruletests.py")[:8000] and "(tf)" in rd("static/methodology.html")[:6000]
+          and "2026-09-06  BUILD tf" in rd("ruletests.py")[:8000] and "(tf)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD tf" in mf[:3000],
           "Jim's rule 8")
 
@@ -24954,7 +24962,7 @@ def part3jc_algebra_one_units_four_to_six_to_the_shape():
                   for l in A4 + A5 + A6 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tg notes",
           "2026-09-06  BUILD tg" in rd("lessonscripts.py")[:60000] and "BUILD tg" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tg" in rd("ruletests.py")[:8000] and "(tg)" in rd("static/methodology.html")[:6000]
+          and "2026-09-06  BUILD tg" in rd("ruletests.py")[:8000] and "(tg)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD tg" in mf[:3000],
           "Jim's rule 8")
 
@@ -25066,7 +25074,7 @@ def part3jd_algebra_one_units_seven_to_nine_to_the_shape():
               for l in L.LESSONS if l["course"] == "algebra1") and sum(1 for l in L.LESSONS if l["course"] == "algebra1") == 36, "")
     check("  the changed files carry dated th notes",
           "2026-09-06  BUILD th" in rd("lessonscripts.py")[:60000] and "BUILD th" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD th" in rd("ruletests.py")[:8000] and "(th)" in rd("static/methodology.html")[:6000]
+          and "2026-09-06  BUILD th" in rd("ruletests.py")[:8000] and "(th)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD th" in mf[:3000],
           "Jim's rule 8")
 
@@ -25170,7 +25178,7 @@ def part3je_geometry_units_one_to_three_to_the_shape():
           _unsp == 0, f"{_unsp} unspoken")
     check("  the changed files carry dated ti notes",
           "2026-09-06  BUILD ti" in rd("lessonscripts.py")[:60000] and "BUILD ti" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD ti" in rd("ruletests.py")[:8000] and "(ti)" in rd("static/methodology.html")[:6000],
+          and "2026-09-06  BUILD ti" in rd("ruletests.py")[:8000] and "(ti)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -25292,7 +25300,7 @@ def part3jf_geometry_units_four_to_six_to_the_shape():
                   for l in G4 + G5 + G6), "")
     check("  the changed files carry dated tj notes",
           "2026-09-06  BUILD tj" in rd("lessonscripts.py")[:60000] and "BUILD tj" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tj" in rd("ruletests.py")[:8000] and "(tj)" in rd("static/methodology.html")[:6000]
+          and "2026-09-06  BUILD tj" in rd("ruletests.py")[:8000] and "(tj)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD tj" in rd("tutor.py")[:8000],
           "Jim's rule 8")
 
@@ -25423,7 +25431,7 @@ def part3jg_geometry_units_seven_to_nine_to_the_shape():
                   for s, _ in L.LESSON_BY_ID[l][f]), "")
     check("  the changed files carry dated tk notes",
           "2026-09-06  BUILD tk" in rd("lessonscripts.py")[:60000] and "BUILD tk" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tk" in rd("ruletests.py")[:8000] and "(tk)" in rd("static/methodology.html")[:6000],
+          and "2026-09-06  BUILD tk" in rd("ruletests.py")[:8000] and "(tk)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -25545,7 +25553,7 @@ def part3jh_algebra_two_units_one_to_three_to_the_shape():
                   for l in A1 + A2 + A3), "")
     check("  the changed files carry dated tl notes",
           "2026-09-06  BUILD tl" in rd("lessonscripts.py")[:60000] and "BUILD tl" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tl" in rd("ruletests.py")[:8000] and "(tl)" in rd("static/methodology.html")[:6000],
+          and "2026-09-06  BUILD tl" in rd("ruletests.py")[:8000] and "(tl)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -25678,7 +25686,141 @@ def part3ji_algebra_two_units_four_to_six_to_the_shape():
                   for l in A4 + A5 + A6), "")
     check("  the changed files carry dated tm notes",
           "2026-09-06  BUILD tm" in rd("lessonscripts.py")[:60000] and "BUILD tm" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tm" in rd("ruletests.py")[:8000] and "(tm)" in rd("static/methodology.html")[:6000],
+          and "2026-09-06  BUILD tm" in rd("ruletests.py")[:8000] and "(tm)" in rd("static/methodology.html")[:12000],
+          "Jim's rule 8")
+
+
+def part3jj_algebra_two_units_seven_to_nine_to_the_shape():
+    """PART 3jj (build tn, 2026-09-06) -- ALGEBRA 2 UNITS 7-9 TO THE SHAPE; THE COURSE
+    IS 36/36.
+
+    The pattern's first terms as bars and every term to the asked one; 1 up to n on
+    the number line and the staircase rectangle whose half is the sum; the rule as a
+    machine with its output blank, run twice in the walk-back; the height and across
+    asks picture-free with statement lines (the pointed arrow is the answer), walked
+    back with the arrow pointed; the spin ask on the unit circle with its coordinates
+    hidden (values="0", new in math-figures.js) and the same arrow after the turn; the
+    wave with its crest line; the five scores with their mean; shirts by pants as an
+    array; the plays as a pie; the sample beside the school. Every figure an ask draws
+    carries a caption, and the sample ask no longer measures "how many students"."""
+    print("\nPART 3jj — Algebra 2 Units 7-9 to the shape (build tn)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    A7 = ["alg2-u7-ride-the-pattern", "alg2-u7-times-again",
+          "alg2-u7-pair-the-ends", "alg2-u7-walk-the-rule"]
+    A8 = ["alg2-u8-the-height", "alg2-u8-the-across",
+          "alg2-u8-spin-once-more", "alg2-u8-the-stretched-wave"]
+    A9 = ["alg2-u9-the-heavier-mean", "alg2-u9-three-slots",
+          "alg2-u9-what-to-expect", "alg2-u9-the-sample-speaks"]
+    _shape_unit_checks(A7, r"\[\[(bars|rectangle|machine|numberline)\b")
+    _shape_unit_checks(A8, r"\[\[(unitcircle|graph)\b")
+    _shape_unit_checks(A9, r"\[\[(bars|array|pie)\b")
+    check("⭐ Algebra 2 is 36/36 on the shape",
+          all(L.LESSON_BY_ID[l].get("why") and L.LESSON_BY_ID[l].get("picture") and L.LESSON_BY_ID[l].get("recap")
+              and L.LESSON_BY_ID[l].get("explain") and L.LESSON_BY_ID[l].get("show_work_on_correct")
+              for l in [x["id"] for x in L.LESSONS if x["course"] == "algebra2"])
+          and len([x for x in L.LESSONS if x["course"] == "algebra2"]) == 36, "")
+
+    # ---- Unit 7 ------------------------------------------------------------------------
+    anth = {"a": 2, "b": 3, "c": 5, "op": "anth"}
+    check("⭐ ride the pattern: the first three terms as bars on the ask; every term to the asked one in the walk-back",
+          '[[bars data="term 1:2 | term 2:5 | term 3:8" caption=' in L.board_for(anth, "abstract")
+          and '[[bars data="term 1:2 | term 2:5 | term 3:8 | term 4:11 | term 5:14" caption="4 steps of 3 from 2 — term 5 is 14"]]' in _W(anth)[1]
+          and "already standing at the start" in _W(anth)[0], "")
+    gnth = {"a": 4, "b": 2, "c": 4, "op": "gnth"}
+    check("  times again: the first three terms as bars; every leap in the walk-back",
+          '[[bars data="term 1:4 | term 2:8 | term 3:16" caption=' in L.board_for(gnth, "abstract")
+          and 'term 4:32" caption="3 leaps of × 2 from 4 — term 4 is 32"' in _W(gnth)[1] and "never an add" in _W(gnth)[0], "")
+    gaus = {"a": 11, "b": 0, "op": "gaus"}
+    check("⭐ pair the ends: 1 up to n on the number line; the staircase rectangle (half of it the sum) in the walk-back, bars past 19",
+          '[[numberline min="1" max="11" points="1,11" caption=' in L.board_for(gaus, "abstract")
+          and '[[rectangle w="12" h="11" half="1" caption="11 rows of 12 — half of 132 is 66"]]' in _W(gaus)[1]
+          and '[[bars data="100 × 101:10100 | halved:5050" caption=' in _W({"a": 100, "b": 0, "op": "gaus"})[1]
+          and "the last footstep only" in _W(gaus)[0], "")
+    reca = {"a": 3, "b": 1, "op": "reca"}
+    check("  walk the rule: the rule as a machine with its output blank; run twice in the walk-back",
+          '[[machine input="3" rule="2x − 1" output="?" caption=' in L.board_for(reca, "abstract")
+          and '[[machine input="3" rule="2x − 1" output="5" caption="term 2: 2 × 3 − 1 = 5"]][[machine input="5" rule="2x − 1" output="9" caption="term 3: 2 × 5 − 1 = 9"]]' in _W(reca)[1]
+          and "walk the whole rule" in _W(reca)[0], "")
+
+    # ---- Unit 8 ------------------------------------------------------------------------
+    sinp = {"a": 990, "b": 0, "op": "sinp"}
+    check("⭐ the height: statement lines only on the ask (the old line held a question; the pointed arrow is the answer, so no picture); the arrow pointed in the walk-back",
+          '[[step eq="990° · strip the full turns, point the arrow"]][[step eq="sine = the height of its tip = ?"]]' == L.board_for(sinp, "abstract")
+          and '[[unitcircle angle="990" caption="990° — the arrow points straight down: height −1"]]' in _W(sinp)[1]
+          and "2 full spins plus 270" in _W(sinp)[0] and "negative 1" in _W(sinp)[0], "")
+    cosp = {"a": 180, "b": 0, "op": "cosp"}
+    check("  the across: statement lines only on the ask; the arrow pointed in the walk-back",
+          '[[step eq="cosine = the across of its tip = ?"]]' in L.board_for(cosp, "abstract") and "[[unitcircle" not in L.board_for(cosp, "abstract")
+          and 'caption="180° — the arrow points flat to the left: across −1"' in _W(cosp)[1] and "read across, not up" in _W(cosp)[0], "")
+    spin = {"a": 35, "b": 0, "op": "spin"}
+    check("⭐ spin once more: the arrow with its coordinates hidden on the ask; the same arrow after the turn in the walk-back",
+          '[[unitcircle angle="35" values="0" caption=' in L.board_for(spin, "abstract")
+          and '[[unitcircle angle="395" values="0" caption="395° — the same arrow as 35°"]]' in _W(spin)[1]
+          and "exactly where it began" in _W(spin)[0], "")
+    mf = rd("static/math-figures.js")
+    check("  math-figures.js hides the coordinates and the legend under values=\"0\", and nothing without it",
+          'var showVals = String(a.values == null ? "1" : a.values) !== "0";' in mf
+          and 'if (showVals) s += tspan(px + (_tr ? -10 : 10), py - 10, "(" + cosS + ", " + sinS + ")"' in mf
+          and "2026-09-06  BUILD tn" in mf[:3000], "")
+    ampl = {"a": 11, "b": 0, "op": "ampl"}
+    check("  the stretched wave: the wave captioned; the crest line drawn in the walk-back",
+          '[[graph func="11*sin(x)" range="-7..7" caption="y = 11 · sin x — how high does the wave reach?"]]' in L.board_for(ampl, "abstract")
+          and '[[graph func="11*sin(x)" lines="y=11" range="-7..7" caption=' in _W(ampl)[1] and "crest to trough" in _W(ampl)[0], "")
+
+    # ---- Unit 9 ------------------------------------------------------------------------
+    wavg = {"a": 13, "b": 3, "op": "wavg"}
+    check("  the heavier mean: the five scores as bars; the mean beside them in the walk-back",
+          '[[bars data="quiz 1:13 | quiz 2:13 | quiz 3:13 | quiz 4:3 | quiz 5:3" caption=' in L.board_for(wavg, "abstract")
+          and '| mean:9" caption="(39 + 6) ÷ 5 = 9 — nearer the three 13s"' in _W(wavg)[1] and "count three times" in _W(wavg)[0], "")
+    cnt3 = {"a": 2, "b": 3, "c": 3, "op": "cnt3"}
+    check("  three slots: shirts by pants as an array on the ask; the pairs counted, then the hats, in the walk-back",
+          '[[array rows="2" cols="3" caption=' in L.board_for(cnt3, "abstract")
+          and 'caption="2 × 3 = 6 pairs — each with 3 hats: 18"' in _W(cnt3)[1] and "not stopped at two slots" in _W(cnt3)[0], "")
+    expv = {"a": 2, "b": 3, "c": 4, "op": "expv"}
+    check("⭐ what to expect: the plays as a pie with the paying ones shaded; the wins of tokens as an array in the walk-back",
+          '[[pie parts="3" shaded="2" caption=' in L.board_for(expv, "abstract")
+          and '[[array rows="2" cols="4" caption="2 wins of 4 tokens — 2 × 4 = 8"]]' in _W(expv)[1]
+          and "as if every play paid" in _W(expv)[0], "")
+    samp = {"a": 10, "b": 2, "c": 5, "op": "samp"}
+    check("⭐ the sample speaks: the sample beside the school as bars, and the spoken question no longer says \"how many students\" (rule 42)",
+          '[[bars data="sample asked:10 | said yes:2 | the school:50" caption=' in L.board_for(samp, "abstract")
+          and "how many of the whole school" in L.spoken_for(samp, "abstract")
+          and not tutor.student_compare_conflict(L.spoken_for(samp, "abstract"))
+          and '[[bars data="one sample:2 | the school, 5 samples wide:10" caption="2 × 5 = about 10"]]' in _W(samp)[1]
+          and "keep the word about" in _W(samp)[0], "")
+
+    # ---- the giveaway audit, captions, spoken pending lines, the notes ----------------
+    check("  nothing the twelve lessons demonstrate is later asked (the old height, across, wave and pair beats were asks)",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in A7 + A8 + A9)
+          and 'angle="630"' in L.LESSON_BY_ID["alg2-u8-the-height"]["teach"][1][1]
+          and 'angle="450"' in L.LESSON_BY_ID["alg2-u8-the-across"]["teach"][1][1]
+          and "20*sin(x)" in L.LESSON_BY_ID["alg2-u8-the-stretched-wave"]["teach"][0][1], "")
+    check("  every figure an ask draws carries a caption (rule 41) -- 12 asks did not before tn",
+          all("caption=" in tag for l in A7 + A8 + A9
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:bars|numberline|machine|unitcircle|graph|array|pie)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in A7 + A8 + A9:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  no ask in the three units puts a question inside a step (the old unit-circle line did, 24 asks)",
+          not any(re.search(r"[A-Za-z]\?", m) for l in A7 + A8 + A9
+                  for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+                  for m in re.findall(r'\[\[step eq="([^"]*)"', L.board_for(p, "abstract"))), "")
+    check("  no reason option works the arithmetic aloud (the spoken-math referee sweeps the joined options)",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in A7 + A8 + A9), "")
+    check("  the changed files carry dated tn notes",
+          "2026-09-06  BUILD tn" in rd("lessonscripts.py")[:60000] and "BUILD tn" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD tn" in rd("ruletests.py")[:8000] and "(tn)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD tn" in rd("static/math-figures.js")[:3000],
           "Jim's rule 8")
 
 
@@ -36011,6 +36153,7 @@ def main():
     part3jg_geometry_units_seven_to_nine_to_the_shape()
     part3jh_algebra_two_units_one_to_three_to_the_shape()
     part3ji_algebra_two_units_four_to_six_to_the_shape()
+    part3jj_algebra_two_units_seven_to_nine_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
