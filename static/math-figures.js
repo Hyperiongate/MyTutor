@@ -2,6 +2,13 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-06  BUILD te -- TWO FIGURES LEARN TO ASK. [[rectangle half="1"]] draws
+                 the diagonal and fills the lower triangle -- a right triangle is half
+                 the rectangle round it -- with "6 × 4 = 24 · half is 12 squares"
+                 underneath (ask="1" writes "?"); sides may now reach 20 (smaller
+                 cells past 12 by 8). [[areamodel ask="1"]] reads "?" in the
+                 number-only room and in the sum's constant, so 4(x + 3) is asked on
+                 the picture without the picture answering. Prealgebra Units 8 and 9.
      2026-09-06  BUILD td -- THE PLACE-VALUE CHART GROWS A TENTHS COLUMN. [[placevalue
                  d="7"]] or n="3.7": a Tenths column right of the Ones, one cube sliced
                  into ten with d slices filled, a decimal point between the headings,
@@ -1320,12 +1327,17 @@
   // show="perimeter": the sides labelled and the walk around them traced, with
   // "5 + 3 + 5 + 3 = 16" underneath. show="area" (the default): the unit squares
   // filled and counted, "5 × 3 = 15 squares" underneath. ask="1" writes "?".
+  // (te, 2026-09-06) half="1": the diagonal drawn corner to corner and the lower
+  // triangle filled -- a right triangle IS half the rectangle round it, and the
+  // line underneath reads "6 × 4 = 24 · half is 12 squares" (ask="1": "half is ?").
+  // Sides up to 20 (was 12 by 8): a big rectangle draws on smaller cells.
   function rectangle(a) {
-    var w = Math.max(1, Math.min(12, Math.floor(num(a.w, 5))));
-    var h = Math.max(1, Math.min(8, Math.floor(num(a.h, 3))));
+    var w = Math.max(1, Math.min(20, Math.floor(num(a.w, 5))));
+    var h = Math.max(1, Math.min(20, Math.floor(num(a.h, 3))));
     var mode = String(a.show || "area").toLowerCase();
     var ask = String(a.ask || "") === "1" || String(a.ask || "").toLowerCase() === "true";
-    var cell = 30, x0 = 60, y0 = 40, W = x0 + w * cell + 60, H = y0 + h * cell + 60;
+    var half = String(a.half || "") === "1" || String(a.half || "").toLowerCase() === "true";
+    var cell = (w > 12 || h > 8) ? 18 : 30, x0 = 60, y0 = 40, W = x0 + w * cell + 60, H = y0 + h * cell + 60;
     var s = svgOpen(W, H, 660);
     for (var r = 0; r < h; r++) {
       for (var c = 0; c < w; c++) {
@@ -1349,13 +1361,19 @@
         s += '<path d="M ' + (mx - dx - dy * 0.7) + ' ' + (my - dy + dx * 0.7) + ' L ' + (mx + dx) + ' ' + (my + dy) + ' L ' + (mx - dx + dy * 0.7) + ' ' + (my - dy - dx * 0.7) + ' z" fill="' + col + '"/>';
       }
     }
+    if (half && mode !== "perimeter") {   // (te) the triangle: half the rectangle, drawn
+      s += '<path d="M ' + x0 + ' ' + y0 + ' L ' + x0 + ' ' + (y0 + h * cell) + ' L ' + (x0 + w * cell) + ' ' + (y0 + h * cell) +
+           ' z" fill="rgba(224,57,43,.30)" stroke="var(--bd-e0392b)" stroke-width="3"/>';
+    }
     var eq = String(a.eq || "");
     if (!eq) {
       eq = (mode === "perimeter")
         ? (w + " + " + h + " + " + w + " + " + h + " = " + (ask ? "?" : String(2 * (w + h))))
+        : half
+        ? (w + " × " + h + " = " + String(w * h) + " · half is " + (ask ? "?" : String(w * h / 2)) + " squares")
         : (w + " × " + h + " = " + (ask ? "?" : String(w * h)) + " squares");
     }
-    s += tspan(W / 2, H - 12, eq, col, 18, 800);
+    s += tspan(W / 2, H - 12, eq, half ? "var(--bd-e0392b)" : col, 18, 800);
     return s + "</svg>";
   }
 
@@ -1403,9 +1421,13 @@
     var c = (coef === 1 ? "" : coef === -1 ? "-" : String(coef));
     return c + (pow === 2 ? "x²" : "x");
   }
+  // (te, 2026-09-06) ask="1": the number-only room (the one with no x in it) reads
+  // "?" and so does the constant of the sum underneath -- so 4(x + 3) can be ASKED
+  // on the picture without the picture answering "12" for the student.
   function areamodel(a) {
     var rows = String(a.rows || "x,2").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
     var cols = String(a.cols || "x,3").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    var ask = String(a.ask || "") === "1" || String(a.ask || "").toLowerCase() === "true";
     var rt = rows.map(parseTerm), ct = cols.map(parseTerm);
     var vis = function (tm) { return tm.pow ? 2.3 : Math.min(2.6, Math.max(0.9, Math.abs(tm.coef) * 0.6)); };
     var rw = rt.map(vis), cw = ct.map(vis);
@@ -1420,7 +1442,7 @@
       ct.forEach(function (c, j) {
         var cwid = cw[j] * sx, coef = r.coef * c.coef, pow = r.pow + c.pow;
         s += '<rect x="' + xx + '" y="' + yy + '" width="' + cwid + '" height="' + ch + '" fill="' + cellColors[(i + j) % cellColors.length] + '" stroke="var(--bd-5b5bd6)" stroke-width="1.3"/>';
-        s += tspan(xx + cwid / 2, yy + ch / 2 + 5, termLabel(coef, pow), "var(--bd-26263a)", 14, 700);
+        s += tspan(xx + cwid / 2, yy + ch / 2 + 5, (ask && pow === 0) ? "?" : termLabel(coef, pow), "var(--bd-26263a)", 14, 700);
         if (i === 0) s += tspan(xx + cwid / 2, y0 - 12, termLabel(c.coef, c.pow), "var(--bd-555566)", 13, 800);
         xx += cwid;
       });
@@ -1429,7 +1451,7 @@
     // expanded sum
     var sum = {};
     rt.forEach(function (r) { ct.forEach(function (c) { var p = r.pow + c.pow; sum[p] = (sum[p] || 0) + r.coef * c.coef; }); });
-    var parts = [2, 1, 0].filter(function (p) { return sum[p]; }).map(function (p) { return termLabel(sum[p], p); });
+    var parts = [2, 1, 0].filter(function (p) { return sum[p]; }).map(function (p) { return (ask && p === 0) ? "?" : termLabel(sum[p], p); });
     var eq = parts.join(" + ").replace(/\+ -/g, "- ");
     s += tspan(W / 2, H - 10, "= " + eq, "var(--bd-26263a)", 14, 800);
     return s + "</svg>";

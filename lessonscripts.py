@@ -2,6 +2,37 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD te -- PREALGEBRA UNITS 7-9 TO THE SHAPE (12 lessons). THIS FILE:
+#                 * Unit 7 (percent) on the TAPE: the number cut into ten equal parts --
+#                   ten percent is one part -- and the taken parts marked (any percent);
+#                   the share as a bar beside the HUNDRED GRID holding the same share
+#                   out of 100 (what percent); the ten parts found from the part
+#                   (finding the whole); the price and the change as one bar, put on or
+#                   taken off (a price up or down);
+#                 * Unit 8 (measurement, geometry): one bar part per big unit with the
+#                   small units in each (changing units); the RECTANGLE ROUND THE
+#                   TRIANGLE with its diagonal drawn and half filled ([[rectangle
+#                   half="1"]], new this build in math-figures.js) -- a right triangle
+#                   is half a rectangle, seen; the straight line split with both pieces
+#                   labelled; the triangle with its three angles;
+#                 * Unit 9 (the first letters): x + b as a bar of x and b, x swapped for
+#                   its number (a letter holds a number); bx as b COPIES of x side by
+#                   side (a number against a letter); ax + bx as one bar counted
+#                   (collecting); the AREA MODEL asked with the number room blank
+#                   ([[areamodel ask="1"]], new this build) and read filled (the times
+#                   reaches both). Trap lines kept in every lesson.
+#               ⚠️ the pcn/pwh/tri/tri3 asks ended on a line the spoken question never
+#               read ("3 × 3 = ?", "100% = 4 × 10 = ?", "24 ÷ 2 = ?", "180° − 110° = ?")
+#               -- rule 44 hits the old sweep never saw because rule 41 (no caption)
+#               fired first; the pending line now carries the numbers the ask speaks
+#               ("30% of 30 = ?", "12 is 30% of ?", "6 × 4 ÷ 2 = ?", "180° − (50° +
+#               60°) = ?"). The dst ask used to print the answer (12) in the area
+#               model's number room. Every lesson: why, picture, teach, pairs,
+#               walk-back, reason, recap. ENGINE: OP_EXT pcn/asp/pwh/pup/cnv/tri/sla/
+#               tri3/evx/mlx/clt/dst gain boards and "worked" (_pcn_* ... _dst_*,
+#               _ten_tape, _clt_tape, _CNV_UNITS). Demonstrated numbers kept out of the
+#               banks (the old pup teach worked 40 up 10%, a bank problem; tri now
+#               teaches 8 by 3, mlx x=9, dst 4(x + 3)).
 #   2026-09-06  BUILD td -- PREALGEBRA UNITS 4-6 TO THE SHAPE (12 lessons). THIS FILE:
 #                 * Unit 4 (fractions) on the TAPE (a fraction of a number: the whole cut
 #                   into the bottom's parts, the top's parts taken; parts in a whole) and
@@ -8182,24 +8213,61 @@ _PREALGEBRA_U7 = [
         "op": "pcn", "max_value": 90,
         "levels": ("abstract",),
         "symbols": ("percent", "of"),
-        "advance_line": "Three in a row — you've got it! Find ten percent, then count the tens.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Ten percent first, then count the tens.",
+        "why": [
+            ("Why any percent? Because you already know 50 percent is half and 10 "
+             "percent is a tenth — but sale signs say 30 percent off, and a test says "
+             "70 percent. Half and a fourth are no help there. Here is one way that "
+             "works for every percent of every number.",
+             '[[goal text="Any percent, ten at a time"]]'),
+        ],
+        "picture": [
+            ("Here is 40 as a bar, cut into ten equal parts. Each part is 4 — that is "
+             "ten percent of 40. Now 30 percent: 30 is three tens, so take three of "
+             "those parts. 3 times 4 equals 12. The second bar shows the 12 taken and "
+             "the 28 left.",
+             '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40" caption="ten parts of 4 — 10% each"]][[tape parts="12 | 28" total="40" caption="3 parts: 30% of 40 = 12"]]'),
+        ],
         "teach": [
-            ["You already know 50 percent is half and 10 percent is a tenth. But what about 30 percent, or 70 percent? Half and a fourth are no help there. Here is one way that works for every single one of them.",
-             '[[goal text="Any percent, ten at a time"]]'],
-            ["Find TEN percent first, because that is easy — just a tenth. Ten percent of 40 is 4. Now 30 percent is three tens, so take three of those fours: 3 times 4 equals 12. So 30 percent of 40 equals 12.",
-             '[[step eq="10% of 40 = 4"]][[step eq="30% is 3 tens"]][[step eq="3 × 4 = 12"]]'],
-            ["One more. 70 percent of 20. Ten percent of 20 is 2. Seventy percent is seven tens, so 7 times 2 equals 14. Careful — the answer is not 2. Finding ten percent is only the first of the two steps.",
-             '[[step eq="10% of 20 = 2"]][[step eq="7 × 2 = 14"]]'],
+            ("That is the method. Find TEN percent first, because that is easy — just "
+             "a tenth. Then count how many tens the percent is, and times. 30 percent "
+             "of 40: ten percent is 4, 30 is three tens, 3 times 4 equals 12.",
+             '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40" caption="10% of 40 is one part — 4"]][[step eq="10% of 40 = 4"]][[step eq="30% is 3 tens"]][[step eq="3 × 4 = 12"]]'),
+            ("One more, and the trap. 70 percent of 20. Ten percent of 20 is 2. "
+             "Seventy percent is seven tens, so 7 times 2 equals 14. Careful — the "
+             "answer is not 2. Finding ten percent is only the first of the two steps.",
+             '[[tape parts="2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2" total="20" caption="ten parts of 2"]][[step eq="10% of 20 = 2"]][[step eq="7 × 2 = 14 ✓"]][[step eq="2 ✗ — that is only ten percent"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 20 percent of 50. Ten percent of 50 is 5, and 20 percent is two tens: 2 times 5 equals 10.",
-                        '[[step eq="10% of 50 = 5"]][[step eq="2 × 5 = 10"]]'],
-             "ask": {"a": 90, "b": 10, "op": "pcn"}},
-            {"worked": ["One more together. 80 percent of 40. Ten percent of 40 is 4, and eight of those is 8 times 4, which equals 32.",
-                        '[[step eq="10% of 40 = 4"]][[step eq="8 × 4 = 32"]]'],
-             "ask": {"a": 40, "b": 80, "op": "pcn"}},
+            {"worked": ("Here is one more, done for you. 20 percent of 50. Ten percent "
+                        "of 50 is 5, and 20 percent is two tens: 2 times 5 equals 10.",
+                        '[[tape parts="5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5" total="50" caption="ten parts of 5"]][[step eq="10% of 50 = 5"]][[step eq="2 × 5 = 10"]]'),
+             "ask": {'a': 90, 'b': 10, 'op': 'pcn'}},
+            {"worked": ("One more together. 80 percent of 40. Ten percent of 40 is 4, "
+                        "and eight of those is 8 times 4, which equals 32.",
+                        '[[tape parts="32 | 8" total="40" caption="8 parts of 4: 80% of 40 = 32"]][[step eq="10% of 40 = 4"]][[step eq="8 × 4 = 32"]]'),
+             "ask": {'a': 40, 'b': 80, 'op': 'pcn'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 30 percent of 40 "
+                       "is 12. Tap the reason why."),
+            "choices": ("because 10 percent is 4, and 30 percent is 3 of those | "
+                        "because 10 percent of 40 is 4, so the answer is 4 | because "
+                        "30 percent of every number is 12"),
+            "answer": "because 10 percent is 4, and 30 percent is 3 of those",
+            "board": '[[tape parts="12 | 28" total="40" caption="3 parts of 4: 30% of 40 = 12"]]',
+        },
+        "recap": [
+            ("So, here it is again. Any percent of any number: find ten percent "
+             "first — a tenth — then count how many tens the percent is, and times "
+             "by that. Two steps, and the first one is not the answer.",
+             '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40" caption="10% of 40 = 4 · 30% = 3 × 4 = 12"]]'),
+            ("And that is the sale sign read, and the test score understood.",
+             '[[step eq="30% of 40 = 12"]]'),
+        ],
         "bank": [
             {"a": 20, "b": 20, "op": "pcn"},
             {"a": 30, "b": 20, "op": "pcn"},
@@ -8220,24 +8288,63 @@ _PREALGEBRA_U7 = [
         "op": "asp", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("percent", "out of"),
-        "advance_line": "Three in a row — you've got it! Put it over a hundred and read the top.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Percent means out of a hundred.",
+        "why": [
+            ("Why turn a score into a percent? Because 15 out of 20 on one test and 21 "
+             "out of 30 on another cannot be compared as they stand. Percent means out "
+             "of a hundred — put both scores out of a hundred and you can see which is "
+             "better at a glance.",
+             '[[goal text="What percent is that"]]'),
+        ],
+        "picture": [
+            ("Here is 15 out of 20 as a bar: 15 shaded, 5 not. And here is the same "
+             "share on the hundred grid: 75 squares out of 100. The bottom went from "
+             "20 to 100 — timesed by 5 — so the top went from 15 to 75. 15 out of 20 "
+             "is 75 percent.",
+             '[[tape parts="15 | 5" total="20" caption="15 out of 20"]][[hundredgrid shaded="75" unit="percent" caption="75 out of 100 — the same share"]]'),
+        ],
         "teach": [
-            ["Sometimes you are given both numbers and asked for the percent instead. 15 out of 20 — what percent is that? Percent means out of a hundred, so this is the proportion puzzle you already know, with 100 on the bottom.",
-             '[[goal text="What percent is that"]]'],
-            ["15 out of 20 equals what out of 100? Look at the bottoms: 20 became 100, so it was timesed by 5. Do the same to the top: 15 times 5 equals 75. So 15 out of 20 is 75 percent.",
-             '[[step eq="15/20 = ?/100"]][[step eq="20 × 5 = 100, so 15 × 5 = 75"]]'],
-            ["Watch which number you answer with. 15 out of 20 is 75 percent, not 15 percent and not 25 percent. 25 is the percent of the ones you did NOT have.",
-             '[[step eq="15 out of 20 = 75% ✓"]][[step eq="the other 5 are the 25% ✗"]]'],
+            ("That is the method, and it is the proportion you already know, with "
+             "100 on the bottom. 15 out of 20 equals what out of 100? Look at the "
+             "bottoms: 20 became 100, so it was timesed by 5. Do the same to the top: "
+             "15 times 5 equals 75. So 15 out of 20 is 75 percent.",
+             '[[step eq="15/20 = ?/100"]][[step eq="20 × 5 = 100, so 15 × 5 = 75"]][[hundredgrid shaded="75" unit="percent" caption="75%"]]'),
+            ("Watch which number you answer with. 15 out of 20 is 75 percent — not "
+             "15 percent, and not 25 percent. 25 is the percent of the ones you did "
+             "NOT have. One more: 2 out of 5. The bottom 5 becomes 100 by timesing "
+             "by 20, so the top does too: 2 times 20 equals 40 percent.",
+             '[[step eq="15 out of 20 = 75% ✓"]][[step eq="the other 5 are the 25% ✗"]][[step eq="2/5 = 40/100"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 2 out of 5. The bottom 5 becomes 100 by timesing by 20, so the top does too: 2 times 20 equals 40 percent.",
-                        '[[step eq="2/5 = 40/100"]]'],
-             "ask": {"a": 4, "b": 10, "op": "asp"}},
-            {"worked": ["One more together. 11 out of 20. Times both by 5: 11 times 5 equals 55, so that is 55 percent.",
-                        '[[step eq="11/20 = 55/100"]]'],
-             "ask": {"a": 22, "b": 40, "op": "asp"}},
+            {"worked": ("Here is one more, done for you. 11 out of 20. Times both by 5: "
+                        "11 times 5 equals 55, so that is 55 percent.",
+                        '[[tape parts="11 | 9" total="20" caption="11 out of 20"]][[hundredgrid shaded="55" unit="percent" caption="55 out of 100"]][[step eq="11/20 = 55/100"]]'),
+             "ask": {'a': 4, 'b': 10, 'op': 'asp'}},
+            {"worked": ("One more together. 6 out of 25. The bottom 25 becomes 100 by "
+                        "timesing by 4, so the top does too: 6 times 4 equals 24 percent.",
+                        '[[tape parts="6 | 19" total="25" caption="6 out of 25"]][[hundredgrid shaded="24" unit="percent" caption="24 out of 100"]][[step eq="6/25 = 24/100"]]'),
+             "ask": {'a': 22, 'b': 40, 'op': 'asp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 15 out of 20 is "
+                       "75 percent. Tap the reason why."),
+            "choices": ("because the bottom was timesed by 5, so the top is too | "
+                        "because 15 out of 20 means 15 percent, near enough | because "
+                        "the 5 you did not have is what you count"),
+            "answer": "because the bottom was timesed by 5, so the top is too",
+            "board": '[[tape parts="15 | 5" total="20" caption="15 out of 20"]][[hundredgrid shaded="75" unit="percent" caption="75 out of 100"]]',
+        },
+        "recap": [
+            ("So, here it is again. Percent means out of a hundred. Put the share out "
+             "of 100: whatever the bottom was timesed by to reach 100, times the top "
+             "by the same. And answer with the part you HAD, not the part you missed.",
+             '[[tape parts="15 | 5" total="20" caption="15 out of 20"]][[hundredgrid shaded="75" unit="percent" caption="15/20 = 75/100"]]'),
+            ("And that is two test scores, compared at a glance.",
+             '[[step eq="15/20 = 75%"]]'),
+        ],
         "bank": [
             {"a": 1, "b": 10, "op": "asp"},
             {"a": 1, "b": 4, "op": "asp"},
@@ -8258,24 +8365,67 @@ _PREALGEBRA_U7 = [
         "op": "pwh", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("percent", "whole"),
-        "advance_line": "Three in a row — you've got it! Step down to ten percent, then up to a hundred.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Step down to ten percent, then up to the whole.",
+        "why": [
+            ("Why find the whole? Because sometimes the whole is what is missing. A "
+             "shop says 12 dollars is 30 percent off — what was the full price? A "
+             "class says 12 students is 30 percent of the school — how big is the "
+             "school? You are told a part and its percent, and the whole is the "
+             "question.",
+             '[[goal text="Finding the whole from a part"]]'),
+        ],
+        "picture": [
+            ("Here is the whole as a bar cut into ten equal parts — ten percent each. "
+             "30 percent is three of those parts, and those three parts are the 12. "
+             "So one part is 12 divided by 3, which equals 4, and all ten parts are "
+             "4 times 10, which equals 40. The whole is 40.",
+             '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40" caption="ten parts of 4 — 3 of them are the 12"]][[tape parts="12 | 28" total="40" caption="30% of 40 = 12"]]'),
+        ],
         "teach": [
-            ["Here the question turns around. You are told a part and what percent it is, and the whole is what is missing. 12 is 30 percent of what number? The same ten-percent step does it, walked in the other direction.",
-             '[[goal text="Finding the whole from a part"]]'],
-            ["30 percent is 12. Step DOWN to ten percent first: 30 percent is three tens, so ten percent is 12 divided by 3, which equals 4. Now step up: one hundred percent is ten of those, and 4 times 10 equals 40.",
-             '[[step eq="30% = 12"]][[step eq="10% = 12 ÷ 3 = 4"]][[step eq="100% = 4 × 10 = 40"]]'],
-            ["Check it the easy way: is 30 percent of 40 really 12? Ten percent of 40 is 4, three tens is 3 times 4, which equals 12. It fits. And notice the whole is BIGGER than the part — if your answer came out smaller, you ran the sum forwards by mistake.",
-             '[[step eq="30% of 40 = 12 ✓"]]'],
+            ("That is the method — the same ten-percent step, walked in the other "
+             "direction. 30 percent is 12. Step DOWN to ten percent first: 30 percent "
+             "is three tens, so ten percent is 12 divided by 3, which equals 4. Now "
+             "step up: one hundred percent is ten of those, and 4 times 10 equals 40.",
+             '[[tape parts="12 | ?" total="?" caption="12 is 30% — the whole is the question"]][[step eq="30% = 12"]][[step eq="10% = 12 ÷ 3 = 4"]][[step eq="100% = 4 × 10 = 40"]]'),
+            ("Check it the easy way: is 30 percent of 40 really 12? Ten percent of 40 "
+             "is 4, and three tens is 3 times 4, which equals 12. It fits. And notice "
+             "the whole is BIGGER than the part — if your answer came out smaller, you "
+             "ran the sum forwards by mistake.",
+             '[[step eq="30% of 40 = 12 ✓"]][[step eq="40 is bigger than 12 ✓"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 9 is 30 percent of what? Ten percent is 9 divided by 3, which equals 3, and a hundred percent is 3 times 10, which equals 30.",
-                        '[[step eq="10% = 3"]][[step eq="100% = 30"]]'],
-             "ask": {"a": 30, "b": 9, "op": "pwh"}},
-            {"worked": ["One more together. 30 is 60 percent of what? Ten percent is 30 divided by 6, which equals 5, so the whole is 5 times 10, which equals 50.",
-                        '[[step eq="10% = 5"]][[step eq="100% = 50"]]'],
-             "ask": {"a": 60, "b": 30, "op": "pwh"}},
+            {"worked": ("Here is one more, done for you. 24 is 40 percent of what? Ten "
+                        "percent is 24 divided by 4, which equals 6, and a hundred "
+                        "percent is 6 times 10, which equals 60.",
+                        '[[tape parts="6 | 6 | 6 | 6 | 6 | 6 | 6 | 6 | 6 | 6" total="60" caption="ten parts of 6 — 4 of them are the 24"]][[step eq="10% = 24 ÷ 4 = 6"]][[step eq="100% = 6 × 10 = 60"]]'),
+             "ask": {'a': 30, 'b': 9, 'op': 'pwh'}},
+            {"worked": ("One more together. 21 is 70 percent of what? Ten percent is 21 "
+                        "divided by 7, which equals 3, so the whole is 3 times 10, which "
+                        "equals 30.",
+                        '[[tape parts="21 | 9" total="30" caption="70% of 30 = 21"]][[step eq="10% = 21 ÷ 7 = 3"]][[step eq="100% = 3 × 10 = 30"]]'),
+             "ask": {'a': 60, 'b': 30, 'op': 'pwh'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 12 is 30 percent "
+                       "of 40. Tap the reason why."),
+            "choices": ("because 10 percent is 4, and the whole is ten of those | "
+                        "because 40 is the biggest number, so it must be the whole | "
+                        "because the whole is the part plus the percent number"),
+            "answer": "because 10 percent is 4, and the whole is ten of those",
+            "board": '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40" caption="ten parts of 4 — 3 of them are the 12"]]',
+        },
+        "recap": [
+            ("So, here it is again. Told a part and its percent, step down to ten "
+             "percent — divide the part by how many tens — then step up to the whole: "
+             "times by 10. And the whole is always bigger than the part.",
+             '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40" caption="10% = 12 ÷ 3 = 4 · 100% = 4 × 10 = 40"]]'),
+            ("And that is the full price found from the sale, and the school counted "
+             "from one class.",
+             '[[step eq="30% = 12, so 100% = 40"]]'),
+        ],
         "bank": [
             {"a": 60, "b": 18, "op": "pwh"},
             {"a": 50, "b": 20, "op": "pwh"},
@@ -8296,24 +8446,64 @@ _PREALGEBRA_U7 = [
         "op": "pup", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("percent", "price"),
-        "advance_line": "Three in a row — you've got it! Work out the change first, then move the price by it.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Work out the change, then move the price by that.",
+        "why": [
+            ("Why prices? Because this is where percents earn their keep. A coat goes "
+             "up by 10 percent, a bag is 20 percent off — and the shop does not tell "
+             "you the new price, it tells you the percent. Two steps, and the first "
+             "one you already know: work out what the change is worth, then move the "
+             "price by that.",
+             '[[goal text="A price goes up or down"]]'),
+        ],
+        "picture": [
+            ("Here is a 60 dollar coat as a bar. The price goes up by 10 percent. Ten "
+             "percent of 60 is 6, so the change is a 6 dollar piece. Put it on the end "
+             "of the bar: 60 plus 6 equals 66 dollars. That is the new price.",
+             '[[tape parts="60 | 6" total="66" caption="60 dollars, up by 10% of 60 — 6 more"]]'),
+        ],
         "teach": [
-            ["This is where percents earn their keep: prices. A coat costs 40 dollars and the price goes up by 10 percent. Two steps, and the first one you already know: work out what the change is worth, then move the price by that.",
-             '[[goal text="A price goes up or down"]]'],
-            ["Ten percent of 40 is 4, so the change is 4 dollars. The price goes UP, so put it on: 40 plus 4 equals 44 dollars.",
-             '[[step eq="10% of 40 = 4"]][[step eq="40 + 4 = 44"]]'],
-            ["Here is the trap. The new price is NOT 50 dollars. Ten is a percent, not ten dollars — you cannot put it straight onto the price. And when the price goes DOWN instead, the same 4 comes off: 40 take away 4 equals 36 dollars.",
-             '[[step eq="40 + 4 = 44 ✓"]][[step eq="40 + 10 = 50 ✗"]][[step eq="down: 40 − 4 = 36"]]'],
+            ("That is the method. First the change: a percent OF the price, found the "
+             "way you know — ten percent of 60 is 6. Then the move: the price goes UP, "
+             "so put the 6 on. 60 plus 6 equals 66 dollars.",
+             '[[tape parts="60 | 6" total="66" caption="the price and the change"]][[step eq="10% of 60 = 6"]][[step eq="60 + 6 = 66"]]'),
+            ("Here is the trap. The new price is NOT 70 dollars. Ten is a percent, "
+             "not ten dollars — you cannot put it straight onto the price. And when "
+             "the price goes DOWN instead, the same 6 comes off: 60 take away 6 "
+             "equals 54 dollars.",
+             '[[step eq="60 + 6 = 66 ✓"]][[step eq="60 + 10 = 70 ✗"]][[tape parts="54 | 6" total="60" caption="down: 60 − 6 = 54"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A 30 dollar shirt goes up by 10 percent. Ten percent of 30 is 3, so the new price is 30 plus 3, which equals 33 dollars.",
-                        '[[step eq="10% of 30 = 3"]][[step eq="30 + 3 = 33"]]'],
-             "ask": {"a": 10, "b": 30, "c": 1, "op": "pup"}},
-            {"worked": ["One more together. A 40 dollar bag goes down by 20 percent. Ten percent of 40 is 4, so 20 percent is 8, and 40 take away 8 equals 32 dollars.",
-                        '[[step eq="20% of 40 = 8"]][[step eq="40 − 8 = 32"]]'],
-             "ask": {"a": 20, "b": 40, "c": 0, "op": "pup"}},
+            {"worked": ("Here is one more, done for you. A 30 dollar shirt goes up by 20 "
+                        "percent. Ten percent of 30 is 3, so 20 percent is 6, and the "
+                        "new price is 30 plus 6, which equals 36 dollars.",
+                        '[[tape parts="30 | 6" total="36" caption="30 + 6 = 36 dollars"]][[step eq="20% of 30 = 6"]][[step eq="30 + 6 = 36"]]'),
+             "ask": {'a': 10, 'b': 30, 'c': 1, 'op': 'pup'}},
+            {"worked": ("One more together. A 50 dollar bag goes down by 30 percent. "
+                        "Ten percent of 50 is 5, so 30 percent is 15, and 50 take away "
+                        "15 equals 35 dollars.",
+                        '[[tape parts="35 | 15" total="50" caption="50 − 15 = 35 dollars"]][[step eq="30% of 50 = 15"]][[step eq="50 − 15 = 35"]]'),
+             "ask": {'a': 20, 'b': 40, 'c': 0, 'op': 'pup'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A 60 dollar coat "
+                       "goes up by 10 percent, and now it costs 66. Tap the reason why."),
+            "choices": ("because 10 percent of 60 is 6 dollars, put onto the 60 | "
+                        "because 10 percent means 10 dollars, and 60 plus 10 is 70 | "
+                        "because every price goes up by 6 dollars"),
+            "answer": "because 10 percent of 60 is 6 dollars, put onto the 60",
+            "board": '[[tape parts="60 | 6" total="66" caption="60 + 6 = 66 dollars"]]',
+        },
+        "recap": [
+            ("So, here it is again. A price goes up or down by a percent: first work "
+             "out the change — that percent OF the price — then put it on or take it "
+             "off. The percent is never dollars on its own.",
+             '[[tape parts="60 | 6" total="66" caption="10% of 60 = 6 · 60 + 6 = 66"]]'),
+            ("And that is the sale sign turned into the price you pay.",
+             '[[step eq="60 + 6 = 66 · 60 − 6 = 54"]]'),
+        ],
         "bank": [
             {"a": 10, "b": 20, "c": 1, "op": "pup"},
             {"a": 20, "b": 20, "c": 1, "op": "pup"},
@@ -8354,24 +8544,64 @@ _PREALGEBRA_U8 = [
         "op": "cnv", "max_value": 9000,
         "levels": ("abstract",),
         "symbols": ("unit", "centimetres"),
-        "advance_line": "Three in a row — you've got it! Going to a smaller unit means more of them.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Say the unit fact first, then times by it.",
+        "why": [
+            ("Why change units? Because a ruler reads in centimetres, a map reads in "
+             "metres and a recipe reads in grams — and the same length or the same "
+             "weight has to move between them. Measuring in a smaller unit takes MORE "
+             "of them, and how many more is one fact per unit.",
+             '[[goal text="Changing units"]]'),
+        ],
+        "picture": [
+            ("Here are 3 metres as a bar, one part for each metre. One metre is 100 "
+             "centimetres, so each part holds 100. Three parts of 100: 3 times 100 "
+             "equals 300 centimetres. The bar is the same length either way — it is "
+             "just counted in a smaller unit.",
+             '[[tape parts="100 | 100 | 100" total="300" caption="3 metres — 100 centimetres in each — 300 cm"]]'),
+        ],
         "teach": [
-            ["Measuring the same thing in a smaller unit takes MORE of them. One centimetre is 10 millimetres, one metre is 100 centimetres, one kilogram is 1000 grams. Each time you swap to the smaller unit, you times.",
-             '[[goal text="Changing units"]]'],
-            ["How many centimetres are there in 3 metres? One metre is 100 centimetres, so 3 metres is 3 lots of 100: 3 times 100 equals 300 centimetres.",
-             '[[step eq="1 m = 100 cm"]][[step eq="3 × 100 = 300"]]'],
-            ["The hard part is never the timesing — it is knowing HOW MANY zeros. 3 metres is not 30 centimetres; that would be using ten when the unit needs a hundred. Say the fact out loud first, then times by it.",
-             '[[step eq="3 m = 300 cm ✓"]][[step eq="3 m = 30 cm ✗"]]'],
+            ("That is the method. Say the unit fact first: one centimetre is 10 "
+             "millimetres, one metre is 100 centimetres, one kilogram is 1000 grams. "
+             "Then times by it. 3 metres: one metre is 100 centimetres, and 3 times "
+             "100 equals 300.",
+             '[[tape parts="100 | 100 | 100" total="300" caption="3 metres"]][[step eq="1 m = 100 cm"]][[step eq="3 × 100 = 300"]]'),
+            ("The hard part is never the timesing — it is knowing HOW MANY zeros. 3 "
+             "metres is not 30 centimetres; that would be using ten when the unit "
+             "needs a hundred. One more: 6 centimetres in millimetres. One centimetre "
+             "is 10 millimetres, so 6 times 10 equals 60 millimetres.",
+             '[[step eq="3 m = 300 cm ✓"]][[step eq="3 m = 30 cm ✗"]][[tape parts="10 | 10 | 10 | 10 | 10 | 10" total="60" caption="6 centimetres — 10 millimetres in each"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 6 centimetres in millimetres. One centimetre is 10 millimetres, so 6 times 10 equals 60 millimetres.",
-                        '[[step eq="6 × 10 = 60"]]'],
-             "ask": {"a": 7, "b": 10, "op": "cnv"}},
-            {"worked": ["One more together. 3 kilograms in grams. One kilogram is 1000 grams, so 3 times 1000 equals 3000 grams.",
-                        '[[step eq="3 × 1000 = 3000"]]'],
-             "ask": {"a": 8, "b": 100, "op": "cnv"}},
+            {"worked": ("Here is one more, done for you. 3 kilograms in grams. One "
+                        "kilogram is 1000 grams, so 3 times 1000 equals 3000 grams.",
+                        '[[tape parts="1000 | 1000 | 1000" total="3000" caption="3 kilograms — 1000 grams in each"]][[step eq="1 kg = 1000 g"]][[step eq="3 × 1000 = 3000"]]'),
+             "ask": {'a': 7, 'b': 10, 'op': 'cnv'}},
+            {"worked": ("One more together. 4 centimetres in millimetres. One centimetre "
+                        "is 10 millimetres, so 4 times 10 equals 40 millimetres.",
+                        '[[tape parts="10 | 10 | 10 | 10" total="40" caption="4 centimetres — 10 millimetres in each"]][[step eq="1 cm = 10 mm"]][[step eq="4 × 10 = 40"]]'),
+             "ask": {'a': 8, 'b': 100, 'op': 'cnv'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 metres is 300 "
+                       "centimetres. Tap the reason why."),
+            "choices": ("because a metre is 100 centimetres, so 3 metres is 3 hundreds | "
+                        "because a metre is 10 centimetres, so you write one zero | "
+                        "because centimetres are bigger, so you get fewer of them"),
+            "answer": "because a metre is 100 centimetres, so 3 metres is 3 hundreds",
+            "board": '[[tape parts="100 | 100 | 100" total="300" caption="3 metres = 300 centimetres"]]',
+        },
+        "recap": [
+            ("So, here it is again. To measure in a smaller unit, say the unit fact "
+             "out loud — 10, 100 or 1000 — then times by it. The number of zeros is "
+             "the whole question, and the unit fact answers it.",
+             '[[tape parts="100 | 100 | 100" total="300" caption="1 m = 100 cm · 3 × 100 = 300"]]'),
+            ("And that is the ruler, the map and the recipe all speaking the same "
+             "length.",
+             '[[step eq="3 m = 300 cm"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 10, "op": "cnv"},
             {"a": 5, "b": 10, "op": "cnv"},
@@ -8392,24 +8622,63 @@ _PREALGEBRA_U8 = [
         "op": "tri", "max_value": 200,
         "levels": ("abstract",),
         "symbols": ("base", "height"),
-        "advance_line": "Three in a row — you've got it! Times the base by the height, then halve it.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The rectangle round it, then half.",
+        "why": [
+            ("Why the area of a triangle? Because roofs, sails, ramps and slices of "
+             "pizza are triangles, and someone has to know how much paint, cloth or "
+             "cheese they take. You already know a rectangle's area — the long side "
+             "times the short side. A triangle is easier than it looks, because every "
+             "right triangle is exactly HALF of a rectangle.",
+             '[[goal text="Area of a triangle"]]'),
+        ],
+        "picture": [
+            ("Here is a right triangle with a base of 8 and a height of 3, drawn on "
+             "squares. Draw the rectangle round it — 8 long and 3 wide — and the "
+             "diagonal cuts it into two triangles the same size. The rectangle is 8 "
+             "times 3, which equals 24 squares, so the triangle is half of that: 12.",
+             '[[rectangle w="8" h="3" half="1" caption="base 8, height 3 — half of the 8 by 3 rectangle"]]'),
+        ],
         "teach": [
-            ["You already know a rectangle's area: the long side times the short side. A triangle is easier than it looks, because every right triangle is exactly HALF of a rectangle. Draw the rectangle round it and you can see the other half.",
-             '[[goal text="Area of a triangle"]][[triangle v="A,B,C" right="A" sides="6,,4" caption="base 6, height 4"]]'],
-            ["This one has a base of 6 and a height of 4. The rectangle round it is 6 times 4, which equals 24. The triangle is half of that: 24 divided by 2 equals 12.",
-             '[[triangle v="A,B,C" right="A" sides="6,,4" caption="base 6, height 4"]][[step eq="6 × 4 = 24"]][[step eq="24 ÷ 2 = 12"]]'],
-            ["Do not stop after the timesing. 24 is the rectangle, not the triangle. The halving is the whole idea — miss it and your triangle is twice the size of the one on the board.",
-             '[[step eq="24 ÷ 2 = 12 ✓"]][[step eq="24 ✗ — that is the rectangle"]]'],
+            ("That is the method. The base times the height is the rectangle round "
+             "the triangle. Then halve it, because the triangle is half. Base 8, "
+             "height 3: 8 times 3 equals 24, and 24 divided by 2 equals 12.",
+             '[[rectangle w="8" h="3" half="1" caption="8 × 3 = 24 · half is 12"]][[step eq="8 × 3 = 24"]][[step eq="24 ÷ 2 = 12"]]'),
+            ("Do not stop after the timesing. 24 is the rectangle, not the triangle. "
+             "The halving is the whole idea — miss it and your triangle is twice the "
+             "size of the one on the board.",
+             '[[step eq="24 ÷ 2 = 12 ✓"]][[step eq="24 ✗ — that is the rectangle"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A base of 8 and a height of 3. 8 times 3 equals 24, and half of 24 equals 12.",
-                        '[[triangle v="A,B,C" right="A" sides="8,,3" caption="base 8, height 3"]][[step eq="24 ÷ 2 = 12"]]'],
-             "ask": {"a": 9, "b": 4, "op": "tri"}},
-            {"worked": ["One more together. A base of 10 and a height of 6. 10 times 6 equals 60, and half of 60 equals 30.",
-                        '[[step eq="10 × 6 = 60"]][[step eq="60 ÷ 2 = 30"]]'],
-             "ask": {"a": 7, "b": 8, "op": "tri"}},
+            {"worked": ("Here is one more, done for you. A base of 10 and a height of "
+                        "6. 10 times 6 equals 60, and half of 60 equals 30.",
+                        '[[rectangle w="10" h="6" half="1" caption="10 × 6 = 60 · half is 30"]][[step eq="10 × 6 = 60"]][[step eq="60 ÷ 2 = 30"]]'),
+             "ask": {'a': 9, 'b': 4, 'op': 'tri'}},
+            {"worked": ("One more together. A base of 6 and a height of 7. 6 times 7 "
+                        "equals 42, and half of 42 equals 21.",
+                        '[[rectangle w="6" h="7" half="1" caption="6 × 7 = 42 · half is 21"]][[step eq="6 × 7 = 42"]][[step eq="42 ÷ 2 = 21"]]'),
+             "ask": {'a': 7, 'b': 8, 'op': 'tri'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A triangle with a "
+                       "base of 8 and a height of 3 has an area of 12. Tap the reason "
+                       "why."),
+            "choices": ("because it is half of the 8 by 3 rectangle, 24 | "
+                        "because 8 times 3 is 24, and that is the triangle | because "
+                        "the area is the base plus the height"),
+            "answer": "because it is half of the 8 by 3 rectangle, 24",
+            "board": '[[rectangle w="8" h="3" half="1" caption="8 × 3 = 24 · half is 12"]]',
+        },
+        "recap": [
+            ("So, here it is again. Base times height is the rectangle round the "
+             "triangle; the triangle is half of it. Times, then halve — and the "
+             "halving is the step people forget.",
+             '[[rectangle w="8" h="3" half="1" caption="8 × 3 = 24 · 24 ÷ 2 = 12"]]'),
+            ("And that is the sail measured, and the pizza slice shared fairly.",
+             '[[step eq="8 × 3 ÷ 2 = 12"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 2, "op": "tri"},
             {"a": 3, "b": 4, "op": "tri"},
@@ -8430,24 +8699,64 @@ _PREALGEBRA_U8 = [
         "op": "sla", "max_value": 360,
         "levels": ("abstract",),
         "symbols": ("degrees", "straight line"),
-        "advance_line": "Three in a row — you've got it! A straight line is 180 degrees.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A straight line is 180 degrees.",
+        "why": [
+            ("Why angles on a line? Because you know a quarter turn is 90 degrees, and "
+             "two of those make a half turn — a straight line, 180 degrees. That one "
+             "fact answers a whole family of questions: whenever two angles sit "
+             "together on a straight line, knowing one tells you the other.",
+             '[[goal text="Angles on a straight line"]]'),
+        ],
+        "picture": [
+            ("Here is a straight line with a ray drawn up from it. The two angles sit "
+             "together and fill the line, so together they are 180 degrees. One of "
+             "them is 130. The other is what is left: 180 take away 130, which equals "
+             "50 degrees. And 130 plus 50 puts the 180 back.",
+             '[[angle deg="180" split="130,50" caption="a straight line — 130° + 50° = 180°"]]'),
+        ],
         "teach": [
-            ["You know a quarter turn is 90 degrees — two of those make a half turn, and a half turn is a straight line: 180 degrees. That one fact answers a whole family of questions.",
-             '[[goal text="Angles on a straight line"]][[angle deg="180" split="90" caption="a straight line split — 90° and the rest"]]'],
-            ["Here is a straight line with a ray drawn up from it. The two angles sit together and fill the line, so together they are 180. If one of them is 130, the other is 180 take away 130, which equals 50.",
-             '[[angle deg="180" split="130" caption="a straight line split — 130° and the rest"]][[step eq="180° − 130° = 50°"]]'],
-            ["Watch which number you take away from. It is 180, not 90 and not 360. 90 is a quarter turn and 360 is the whole way round — neither of them is a straight line.",
-             '[[step eq="180° − 130° = 50° ✓"]][[step eq="360° − 130° = 230° ✗"]]'],
+            ("That is the method. Two angles on a straight line come to 180 degrees. "
+             "Given one, take it away from 180 and the other is what is left. 180 "
+             "take away 130 equals 50.",
+             '[[angle deg="180" split="130" caption="a straight line — 130° and the rest"]][[step eq="180° − 130° = 50°"]]'),
+            ("Watch which number you take away from. It is 180 — not 90 and not 360. "
+             "90 is a quarter turn and 360 is the whole way round; neither of them is "
+             "a straight line. One more: an angle of 120 on the line leaves 180 take "
+             "away 120, which equals 60 degrees.",
+             '[[step eq="180° − 130° = 50° ✓"]][[step eq="360° − 130° = 230° ✗"]][[angle deg="180" split="120,60" caption="120° + 60° = 180°"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. One angle on the line is 120 degrees. 180 take away 120 equals 60 degrees.",
-                        '[[angle deg="180" split="120" caption="a straight line split — 120° and the rest"]][[step eq="180° − 120° = 60°"]]'],
-             "ask": {"a": 150, "b": 0, "op": "sla"}},
-            {"worked": ["One more together. One angle is 45 degrees, so the other is 180 take away 45, which equals 135 degrees.",
-                        '[[angle deg="180" split="45" caption="a straight line split — 45° and the rest"]][[step eq="180° − 45° = 135°"]]'],
-             "ask": {"a": 70, "b": 0, "op": "sla"}},
+            {"worked": ("Here is one more, done for you. One angle on the line is 45 "
+                        "degrees. 180 take away 45 equals 135 degrees.",
+                        '[[angle deg="180" split="45,135" caption="45° + 135° = 180°"]][[step eq="180° − 45° = 135°"]]'),
+             "ask": {'a': 150, 'b': 0, 'op': 'sla'}},
+            {"worked": ("One more together. One angle is 75 degrees, so the other is "
+                        "180 take away 75, which equals 105 degrees.",
+                        '[[angle deg="180" split="75,105" caption="75° + 105° = 180°"]][[step eq="180° − 75° = 105°"]]'),
+             "ask": {'a': 70, 'b': 0, 'op': 'sla'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. One angle on a "
+                       "straight line is 130 degrees, so the other is 50. Tap the "
+                       "reason why."),
+            "choices": ("because the two together fill the line, and a line is 180 | "
+                        "because a straight line is 360 degrees, the whole way round | "
+                        "because the other angle on a line is 50 every time"),
+            "answer": "because the two together fill the line, and a line is 180",
+            "board": '[[angle deg="180" split="130,50" caption="130° + 50° = 180°"]]',
+        },
+        "recap": [
+            ("So, here it is again. A straight line is 180 degrees, and two angles "
+             "that sit together on it fill it. Take the one you know from 180, and "
+             "the other is what is left.",
+             '[[angle deg="180" split="130,50" caption="180° − 130° = 50°"]]'),
+            ("And that is one fact, a half turn, answering a whole family of "
+             "questions.",
+             '[[step eq="180° − 130° = 50°"]]'),
+        ],
         "bank": [
             {"a": 160, "b": 0, "op": "sla"},
             {"a": 140, "b": 0, "op": "sla"},
@@ -8468,24 +8777,65 @@ _PREALGEBRA_U8 = [
         "op": "tri3", "max_value": 180,
         "levels": ("abstract",),
         "symbols": ("degrees", "triangle"),
-        "advance_line": "Three in a row — you've got it! The three angles of any triangle are 180 degrees.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Three angles, 180 degrees, every triangle.",
+        "why": [
+            ("Why angles in a triangle? Because here is one of the most useful facts "
+             "in all of geometry. Take any triangle at all — thin, wide, lopsided — "
+             "and its three angles come to 180 degrees. Know two angles and the "
+             "third is forced.",
+             '[[goal text="Angles in a triangle"]]'),
+        ],
+        "picture": [
+            ("Here is a triangle with its three angles marked: 50, 60 and 70 degrees. "
+             "Add them: 50 plus 60 equals 110, and 110 plus 70 equals 180. Cover the "
+             "70 and you could still find it — it is whatever is left of the 180 "
+             "after the other two.",
+             '[[triangle v="A,B,C" angles="50,60,70" caption="50° + 60° + 70° = 180°"]]'),
+        ],
         "teach": [
-            ["Here is one of the most useful facts in all of geometry. Take any triangle at all — thin, wide, lopsided — and its three angles always come to 180 degrees. That is the same 180 as a straight line, and it is not a coincidence.",
-             '[[goal text="Angles in a triangle"]][[triangle v="A,B,C" angles="50,60,70" caption="angles 50°, 60°, 70°"]]'],
-            ["So if you are given two of them, the third one is forced. Two angles are 50 and 60. Add those: 50 plus 60 equals 110. Now 180 take away 110 equals 70 degrees.",
-             '[[triangle v="A,B,C" angles="50,60," caption="angles 50° and 60° — the third is forced"]][[step eq="50° + 60° = 110°"]][[step eq="180° − 110° = 70°"]]'],
-            ["Two steps, and the first one is not the answer. 110 is what the two you were GIVEN come to. The one you were asked for is what is left of the 180 after them.",
-             '[[step eq="180° − 110° = 70° ✓"]][[step eq="110° ✗ — that is the two you were given"]]'],
+            ("That is the method. The three angles come to 180 degrees. That is the "
+             "same 180 as a straight line, and it is not a coincidence. Given two "
+             "angles, add them, then take what they come to from 180. Two angles are "
+             "50 and 60: 50 plus 60 equals 110, and 180 take "
+             "away 110 equals 70 degrees.",
+             '[[triangle v="A,B,C" angles="50,60," caption="angles 50° and 60° — the third is forced"]][[step eq="50° + 60° = 110°"]][[step eq="180° − 110° = 70°"]]'),
+            ("Two steps, and the first one is not the answer. 110 is what the two you "
+             "were GIVEN come to. The one you were asked for is what is left of the "
+             "180 after them. One more: 35 and 65 come to 100, and 180 take away 100 "
+             "equals 80 degrees.",
+             '[[step eq="180° − 110° = 70° ✓"]][[step eq="110° ✗ — that is the two you were given"]][[triangle v="A,B,C" angles="35,65,80" caption="35° + 65° + 80° = 180°"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Two angles are 30 and 60. Together they are 90, and 180 take away 90 equals 90 degrees.",
-                        '[[triangle v="A,B,C" angles="30,60," caption="angles 30° and 60° — the third is forced"]][[step eq="180° − 90° = 90°"]]'],
-             "ask": {"a": 65, "b": 75, "op": "tri3"}},
-            {"worked": ["One more together. Two angles are 20 and 30. Together they are 50, so the third is 180 take away 50, which equals 130 degrees.",
-                        '[[step eq="20° + 30° = 50°"]][[step eq="180° − 50° = 130°"]]'],
-             "ask": {"a": 49, "b": 61, "op": "tri3"}},
+            {"worked": ("Here is one more, done for you. Two angles are 20 and 30. "
+                        "Together they are 50, and 180 take away 50 equals 130 degrees.",
+                        '[[triangle v="A,B,C" angles="20,30,130" caption="20° + 30° + 130° = 180°"]][[step eq="20° + 30° = 50°"]][[step eq="180° − 50° = 130°"]]'),
+             "ask": {'a': 65, 'b': 75, 'op': 'tri3'}},
+            {"worked": ("One more together. Two angles are 75 and 85. Together they are "
+                        "160, so the third is 180 take away 160, which equals 20 degrees.",
+                        '[[triangle v="A,B,C" angles="75,85,20" caption="75° + 85° + 20° = 180°"]][[step eq="75° + 85° = 160°"]][[step eq="180° − 160° = 20°"]]'),
+             "ask": {'a': 49, 'b': 61, 'op': 'tri3'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Two angles of a "
+                       "triangle are 50 and 60 degrees, so the third is 70. Tap the "
+                       "reason why."),
+            "choices": ("because the three angles come to 180, and 110 leaves 70 | "
+                        "because the third angle is 180 take away the bigger one | "
+                        "because a triangle's angles come to 360, like a full turn"),
+            "answer": "because the three angles come to 180, and 110 leaves 70",
+            "board": '[[triangle v="A,B,C" angles="50,60,70" caption="50° + 60° + 70° = 180°"]]',
+        },
+        "recap": [
+            ("So, here it is again. The three angles of any triangle come to 180 "
+             "degrees. Add the two you are given, take that from 180, and the "
+             "third is what is left.",
+             '[[triangle v="A,B,C" angles="50,60,70" caption="50° + 60° = 110° · 180° − 110° = 70°"]]'),
+            ("And that is a fact that holds for every triangle ever drawn.",
+             '[[step eq="180° − 110° = 70°"]]'),
+        ],
         "bank": [
             {"a": 80, "b": 80, "op": "tri3"},
             {"a": 70, "b": 85, "op": "tri3"},
@@ -8529,24 +8879,60 @@ _PREALGEBRA_U9 = [
         "op": "evx", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("x", "letter"),
-        "advance_line": "Three in a row — you've got it! Swap the letter for its number, then work it out.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Swap the letter for its number, then add.",
+        "why": [
+            ("Why a letter? Because here is the biggest idea in all of algebra, and it "
+             "is small enough to hold: a letter can stand for a number. When we write "
+             "x, we mean some number that x is holding for us. Tell me what x holds, "
+             "and every question about x becomes a question about that number.",
+             '[[goal text="A letter holds a number"]]'),
+        ],
+        "picture": [
+            ("Here is x plus 3 as a bar: a piece for x and a piece of 3, with the "
+             "whole bar the question. Now x is holding 5. Swap the x piece for a 5 "
+             "and the bar reads 5 plus 3, and the whole is 8.",
+             '[[tape parts="x | 3" total="?" caption="x + 3 — what is the whole?"]][[tape parts="5 | 3" total="8" caption="x holds 5: 5 + 3 = 8"]]'),
+        ],
         "teach": [
-            ["Here is the biggest idea in all of algebra, and it is small enough to hold: a letter can stand for a number. When we write x, we mean some number that x is holding for us. Tell me what x holds, and every question about x becomes a question about that number.",
-             '[[goal text="A letter holds a number"]]'],
-            ["Say x is holding 5. What is x plus 3? Swap the letter for its number: x plus 3 becomes 5 plus 3, which equals 8. That swap is the whole move.",
-             '[[step eq="x = 5"]][[step eq="x + 3 = 5 + 3 = 8"]]'],
-            ["One careful thing. x plus 3 with x holding 5 is NOT fifty-three. The 5 and the 3 do not sit next to each other like digits — the plus keeps them apart. Swap first, then add.",
-             '[[step eq="5 + 3 = 8 ✓"]][[step eq="53 ✗ — those are digits, not a sum"]]'],
+            ("That swap is the whole move. Say x is holding 5. What is x plus 3? Swap "
+             "the letter for its number: x plus 3 becomes 5 plus 3, which equals 8.",
+             '[[step eq="x = 5"]][[tape parts="5 | 3" total="8" caption="x + 3 with x holding 5"]][[step eq="x + 3 = 5 + 3 = 8"]]'),
+            ("One careful thing. x plus 3 with x holding 5 is NOT fifty-three. The 5 "
+             "and the 3 do not sit next to each other like digits — the plus keeps "
+             "them apart. Swap first, then add. One more: x holding 4, x plus 6 "
+             "becomes 4 plus 6, which equals 10.",
+             '[[step eq="5 + 3 = 8 ✓"]][[step eq="53 ✗ — those are digits, not a sum"]][[tape parts="4 | 6" total="10" caption="x holds 4: 4 + 6 = 10"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x is holding 4. x plus 6 becomes 4 plus 6, which equals 10.",
-                        '[[step eq="x = 4"]][[step eq="4 + 6 = 10"]]'],
-             "ask": {"a": 5, "b": 6, "op": "evx"}},
-            {"worked": ["One more together. x is holding 7. x plus 2 becomes 7 plus 2, which equals 9.",
-                        '[[step eq="7 + 2 = 9"]]'],
-             "ask": {"a": 8, "b": 7, "op": "evx"}},
+            {"worked": ("Here is one more, done for you. x is holding 7. x plus 2 "
+                        "becomes 7 plus 2, which equals 9.",
+                        '[[step eq="x = 7"]][[tape parts="7 | 2" total="9" caption="x + 2 = 7 + 2 = 9"]]'),
+             "ask": {'a': 5, 'b': 6, 'op': 'evx'}},
+            {"worked": ("One more together. x is holding 6. x plus 5 becomes 6 plus 5, "
+                        "which equals 11.",
+                        '[[step eq="x = 6"]][[tape parts="6 | 5" total="11" caption="x + 5 = 6 + 5 = 11"]]'),
+             "ask": {'a': 8, 'b': 7, 'op': 'evx'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x is holding 5, so "
+                       "x plus 3 is 8. Tap the reason why."),
+            "choices": ("because you swap the x for the 5, then add the 3 | because x "
+                        "plus 3 is 8 whatever x is holding | because the letter x is "
+                        "worth 8 in every sum"),
+            "answer": "because you swap the x for the 5, then add the 3",
+            "board": '[[tape parts="5 | 3" total="8" caption="x holds 5: x + 3 = 5 + 3 = 8"]]',
+        },
+        "recap": [
+            ("So, here it is again. A letter holds a number. To work out anything "
+             "about x, swap the letter for the number it is holding, then do the "
+             "sum. Swap first — the plus keeps the numbers apart.",
+             '[[tape parts="5 | 3" total="8" caption="x = 5 · x + 3 = 5 + 3 = 8"]]'),
+            ("And that is the doorway to algebra, one letter wide.",
+             '[[step eq="x = 5, so x + 3 = 8"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "evx"},
             {"a": 4, "b": 2, "op": "evx"},
@@ -8567,24 +8953,60 @@ _PREALGEBRA_U9 = [
         "op": "mlx", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("x", "times"),
-        "advance_line": "Three in a row — you've got it! A number against a letter means times, every time.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A number against a letter means times.",
+        "why": [
+            ("Why is this one worth a whole lesson? Because algebra has one piece of "
+             "shorthand you have to be told — nothing about it looks like what it "
+             "means. A number written right against a letter means TIMES. 3 x means "
+             "3 times x. The times sign is there; it is just invisible.",
+             '[[goal text="A number against a letter means times"]]'),
+        ],
+        "picture": [
+            ("Here is 3 x as a bar: three copies of x, side by side. Not one x with "
+             "a three beside it — three x's. Now x is holding 9, so every copy is a 9. Three "
+             "nines: 3 times 9 equals 27.",
+             '[[tape parts="x | x | x" total="?" caption="3x — three copies of x"]][[tape parts="9 | 9 | 9" total="27" caption="x holds 9: 3 × 9 = 27"]]'),
+        ],
         "teach": [
-            ["Algebra has one piece of shorthand you have to be told, because nothing about it looks like what it means: a number written right next to a letter means TIMES. 3 x means 3 times x. The times sign is there — it is just invisible.",
-             '[[goal text="A number against a letter means times"]]'],
-            ["Say x is holding 4. What is 3 x? That is 3 times x, so 3 times 4, which equals 12.",
-             '[[step eq="x = 4"]][[step eq="3x = 3 × 4 = 12"]]'],
-            ["The trap is reading 3 x as 3 plus x — it looks like the 3 is just standing near the x. It is not standing near it; it is timesing it. 3 x with x holding 4 equals 12, never 7.",
-             '[[step eq="3x = 12 ✓"]][[step eq="3 + 4 = 7 ✗"]]'],
+            ("That is the rule. Say x is holding 9. What is 3 x? That is 3 times x, "
+             "so 3 times 9, which equals 27.",
+             '[[step eq="x = 9"]][[tape parts="9 | 9 | 9" total="27" caption="3x with x holding 9"]][[step eq="3x = 3 × 9 = 27"]]'),
+            ("The trap is reading it as a plus — as if the number is just standing "
+             "near the x. It is not standing near it; it is timesing it. 3 x "
+             "with x holding 9 equals 27, never 12. One more: x holding 5, 2 x is 2 "
+             "times 5, which equals 10.",
+             '[[step eq="3x = 27 ✓"]][[step eq="3 + 9 = 12 ✗"]][[tape parts="5 | 5" total="10" caption="x holds 5: 2x = 2 × 5 = 10"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x is holding 5. 4 x is 4 times 5, which equals 20.",
-                        '[[step eq="4x = 4 × 5 = 20"]]'],
-             "ask": {"a": 4, "b": 5, "op": "mlx"}},
-            {"worked": ["One more together. x is holding 3. 6 x is 6 times 3, which equals 18.",
-                        '[[step eq="6x = 6 × 3 = 18"]]'],
-             "ask": {"a": 7, "b": 3, "op": "mlx"}},
+            {"worked": ("Here is one more, done for you. x is holding 8. 4 x is 4 times "
+                        "8, which equals 32.",
+                        '[[step eq="x = 8"]][[tape parts="8 | 8 | 8 | 8" total="32" caption="4x = 4 × 8 = 32"]]'),
+             "ask": {'a': 4, 'b': 5, 'op': 'mlx'}},
+            {"worked": ("One more together. x is holding 2. 5 x is 5 times 2, which "
+                        "equals 10.",
+                        '[[step eq="x = 2"]][[tape parts="2 | 2 | 2 | 2 | 2" total="10" caption="5x = 5 × 2 = 10"]]'),
+             "ask": {'a': 7, 'b': 3, 'op': 'mlx'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x is holding 9, so "
+                       "3 x is 27. Tap the reason why."),
+            "choices": ("because 3 x means 3 times x, three copies of 9 | because "
+                        "the 3 is standing next to x, so add it on | because 3 x means "
+                        "3 plus x, and the plus is hidden"),
+            "answer": "because 3 x means 3 times x, three copies of 9",
+            "board": '[[tape parts="9 | 9 | 9" total="27" caption="3x = 3 × 9 = 27"]]',
+        },
+        "recap": [
+            ("So, here it is again. A number written against a letter means times — "
+             "that many copies of the letter. 3 x is three x's, and with x holding 9 "
+             "it is 27. The times sign is invisible, but it is there.",
+             '[[tape parts="9 | 9 | 9" total="27" caption="3x = 3 × 9 = 27"]]'),
+            ("And that is the shorthand every line of algebra is written in.",
+             '[[step eq="3x = 3 × x"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "mlx"},
             {"a": 4, "b": 2, "op": "mlx"},
@@ -8605,24 +9027,60 @@ _PREALGEBRA_U9 = [
         "op": "clt", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("x", "terms"),
-        "advance_line": "Three in a row — you've got it! x's collect by counting, like apples.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Terms of x collect by counting.",
+        "why": [
+            ("Why collect the x's? Because you do not need to know what x is holding "
+             "to do some things with it. Three apples plus two apples is five apples. "
+             "Three x's plus two x's is five x's — whatever x turns out to be. Pieces "
+             "like 3 x and 2 x are called terms, and terms of x collect by counting.",
+             '[[goal text="Collecting the x\'s"]]'),
+        ],
+        "picture": [
+            ("Here are 3 x plus 2 x as one bar: three x's, then two more x's. Count "
+             "them along the bar: one, two, three, four, five. Five x's. So 3 x plus "
+             "2 x equals 5 x.",
+             '[[tape parts="x | x | x | x | x" total="5x" caption="3x + 2x — count the x\'s: 5x"]]'),
+        ],
         "teach": [
-            ["You do not need to know what x is holding to do some things with it. 3 x plus 2 x — three of something plus two of the same something is five of it. Three apples plus two apples: five apples. Three x's plus two x's: five x's. Pieces like 3 x and 2 x are called terms, and terms of x collect by counting.",
-             '[[goal text="Collecting the x\'s"]]'],
-            ["Watch: 3 x plus 2 x. Count them: 3 of them plus 2 of them equals 5 of them. So 3 x plus 2 x equals 5 x — whatever x turns out to be holding.",
-             '[[step eq="3x + 2x"]][[step eq="3 of them + 2 of them = 5 of them"]]'],
-            ["Careful — the counts ADD. Do not times them. 3 x plus 2 x is 5 x, not 6 x. The invisible times lives between a number and its own letter, not between the two counts.",
-             '[[step eq="3x + 2x = 5x ✓"]][[step eq="6x ✗ — the counts add"]]'],
+            ("That is the rule. 3 x plus 2 x: count them. 3 of them plus 2 of them "
+             "equals 5 of them, so 3 x plus 2 x equals 5 x — whatever x is holding.",
+             '[[tape parts="x | x | x | x | x" total="5x" caption="3 of them + 2 of them"]][[step eq="3x + 2x"]][[step eq="3 of them + 2 of them = 5 of them"]]'),
+            ("Careful — the counts ADD. Do not times them. 3 x plus 2 x is 5 x, not "
+             "6 x. The invisible times lives between a number and its own letter, not "
+             "between the two counts. One more: 4 x plus 5 x is four of them plus "
+             "five of them, nine of them — 9 x.",
+             '[[step eq="3x + 2x = 5x ✓"]][[step eq="6x ✗ — the counts add"]][[tape parts="x | x | x | x | x | x | x | x | x" total="9x" caption="4x + 5x = 9x"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 4 x plus 5 x. Four of them plus five of them equals nine of them: 9 x.",
-                        '[[step eq="4x + 5x = 9x"]]'],
-             "ask": {"a": 5, "b": 6, "op": "clt"}},
-            {"worked": ["One more together. 7 x plus 2 x. Seven of them plus two of them equals nine of them: 9 x.",
-                        '[[step eq="7x + 2x = 9x"]]'],
-             "ask": {"a": 8, "b": 6, "op": "clt"}},
+            {"worked": ("Here is one more, done for you. 7 x plus 2 x. Seven of them "
+                        "plus two of them equals nine of them: 9 x.",
+                        '[[tape parts="x | x | x | x | x | x | x | x | x" total="9x" caption="7x + 2x = 9x"]][[step eq="7x + 2x = 9x"]]'),
+             "ask": {'a': 5, 'b': 6, 'op': 'clt'}},
+            {"worked": ("One more together. 6 x plus 5 x. Six of them plus five of "
+                        "them equals eleven of them: 11 x.",
+                        '[[tape parts="6x | 5x" total="11x" caption="6x + 5x = 11x"]][[step eq="6x + 5x = 11x"]]'),
+             "ask": {'a': 8, 'b': 6, 'op': 'clt'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 x plus 2 x is "
+                       "5 x. Tap the reason why."),
+            "choices": ("because three of a thing and two more is five of it | "
+                        "because the counts times each other when x is there | because "
+                        "the letters add up and the numbers stay put"),
+            "answer": "because three of a thing and two more is five of it",
+            "board": '[[tape parts="x | x | x | x | x" total="5x" caption="3x + 2x = 5x"]]',
+        },
+        "recap": [
+            ("So, here it is again. Terms of x collect by counting: 3 of them plus 2 "
+             "of them is 5 of them, so 3 x plus 2 x is 5 x. The counts add — they "
+             "never times.",
+             '[[tape parts="x | x | x | x | x" total="5x" caption="3x + 2x = 5x"]]'),
+            ("And that is apples and apples, with a letter in place of the apple.",
+             '[[step eq="3x + 2x = 5x"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 4, "op": "clt"},
             {"a": 4, "b": 3, "op": "clt"},
@@ -8643,24 +9101,62 @@ _PREALGEBRA_U9 = [
         "op": "dst", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("parentheses", "x"),
-        "advance_line": "Three in a row — you've got it! The times outside reaches everything inside.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The times reaches both rooms.",
+        "why": [
+            ("Why does the times reach both? Because you met parentheses in the very "
+             "first prealgebra lesson: do what is inside first. But when an x is "
+             "inside, you CANNOT do the inside first — x plus 3 will not collapse "
+             "into one number. So the times outside has to reach in, and a rectangle "
+             "cut into two rooms is the way to see it.",
+             '[[goal text="The times reaches both rooms"]]'),
+        ],
+        "picture": [
+            ("Here is a rectangle 4 tall and x plus 3 wide. Its area is 4 times the "
+             "whole of x plus 3. A wall splits it into two rooms: one room is 4 by x "
+             "— that is 4 x — and the other is 4 by 3, which is 12. Both rooms "
+             "together: 4 x plus 12.",
+             '[[areamodel rows="4" cols="x,3" caption="a 4 by (x + 3) rectangle — two rooms: 4x and 12"]]'),
+        ],
         "teach": [
-            ["You met parentheses in the very first prealgebra lesson: do what is inside first. But when an x is inside, you CANNOT do the inside first — x plus 3 will not collapse into one number. So the times outside has to reach in. Here is the picture that shows what that means.",
-             '[[goal text="The times reaches both rooms"]][[areamodel rows="4" cols="x,3" caption="a 4 by (x + 3) rectangle — read the rooms"]]'],
-            ["This rectangle is 4 tall and x plus 3 wide, so its area is 4 times the whole of x plus 3. The wall splits it into two rooms: one is 4 times x, the other is 4 times 3, which equals 12. Both rooms together: 4 x plus 12.",
-             '[[areamodel rows="4" cols="x,3" caption="a 4 by (x + 3) rectangle — read the rooms"]][[step eq="4(x + 3) = 4x + 12"]]'],
-            ["The times reaches BOTH rooms — that is the whole rule. The wrong answer is 4 x plus 3, where the 4 timesed the x and never touched the 3. Look at the board: the second room is real, and it is 12, not 3.",
-             '[[step eq="4x + 12 ✓"]][[step eq="4x + 3 ✗ — the 3 never got timesed"]]'],
+            ("That is the rule: the times reaches BOTH rooms. 4 times the whole of x "
+             "plus 3 is 4 times x, plus 4 times 3. That is 4 x plus 12.",
+             '[[areamodel rows="4" cols="x,3" caption="read the rooms"]][[step eq="4(x + 3) = 4x + 12"]]'),
+            ("The wrong answer is 4 x plus 3, where the 4 timesed the x and never "
+             "touched the 3. Look at the board: the second room is real, and it is "
+             "12, not 3. One more: 5 times the whole of x plus 2 is 5 x plus 10.",
+             '[[step eq="4x + 12 ✓"]][[step eq="4x + 3 ✗ — the 3 never got timesed"]][[areamodel rows="5" cols="x,2" caption="5(x + 2) = 5x + 10"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Times the whole of x plus 2 by 5. The rooms are 5 x and 5 times 2, which equals 10. So it is 5 x plus 10.",
-                        '[[areamodel rows="5" cols="x,2" caption="a 5 by (x + 2) rectangle — read the rooms"]][[step eq="5(x + 2) = 5x + 10"]]'],
-             "ask": {"a": 6, "b": 2, "op": "dst"}},
-            {"worked": ["One more together. Times the whole of x plus 4 by 3. The rooms are 3 x and 3 times 4, which equals 12: 3 x plus 12.",
-                        '[[areamodel rows="3" cols="x,4" caption="a 3 by (x + 4) rectangle — read the rooms"]][[step eq="3(x + 4) = 3x + 12"]]'],
-             "ask": {"a": 5, "b": 6, "op": "dst"}},
+            {"worked": ("Here is one more, done for you. Times the whole of x plus 4 by "
+                        "3. The rooms are 3 x and 3 times 4, which equals 12: 3 x plus "
+                        "12.",
+                        '[[areamodel rows="3" cols="x,4" caption="a 3 by (x + 4) rectangle — read the rooms"]][[step eq="3(x + 4) = 3x + 12"]]'),
+             "ask": {'a': 6, 'b': 2, 'op': 'dst'}},
+            {"worked": ("One more together. Times the whole of x plus 5 by 2. The rooms "
+                        "are 2 x and 2 times 5, which equals 10: 2 x plus 10.",
+                        '[[areamodel rows="2" cols="x,5" caption="a 2 by (x + 5) rectangle — read the rooms"]][[step eq="2(x + 5) = 2x + 10"]]'),
+             "ask": {'a': 5, 'b': 6, 'op': 'dst'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 4 times the whole "
+                       "of x plus 3 is 4 x plus 12. Tap the reason why."),
+            "choices": ("because the 4 times the x and times the 3 too | because the 4 "
+                        "only reaches the x, and the 3 stays 3 | because the second "
+                        "room is 4 plus 3"),
+            "answer": "because the 4 times the x and times the 3 too",
+            "board": '[[areamodel rows="4" cols="x,3" caption="4(x + 3) = 4x + 12"]]',
+        },
+        "recap": [
+            ("So, here it is again. A times outside parentheses with an x inside "
+             "reaches both rooms: it times the x, and it times the number. 4 times "
+             "the whole of x plus 3 is 4 x plus 12 — never 4 x plus 3.",
+             '[[areamodel rows="4" cols="x,3" caption="4(x + 3) = 4x + 12"]]'),
+            ("And that is the last prealgebra lesson, and the first line of algebra.",
+             '[[step eq="4(x + 3) = 4x + 12"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "dst"},
             {"a": 4, "b": 2, "op": "dst"},
@@ -20219,6 +20715,246 @@ def _shr_worked(p):
             f'caption="{a} parts : {b} parts = {q * a} : {q * b}"]]')
 
 
+# ---- (te, 2026-09-06) PREALGEBRA UNITS 7-9: percent on the tape, geometry on its own
+# figures, the first letters as bars. Every ask draws its question with the answer
+# withheld; every walk-back draws the same picture filled in.
+def _ten_tape(b, total=None, caption=""):
+    """A bar cut into ten equal parts of b/10 -- ten percent each."""
+    part = b // 10
+    return (f'[[tape parts="{" | ".join([str(part)] * 10)}" total="{total if total is not None else b}" '
+            f'caption="{caption}"]]')
+
+
+def _pcn_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="{" | ".join(["?"] * 10)}" total="{b}" '
+            f'caption="{b} cut into ten equal parts — 10% is one part"]]'
+            f'[[step eq="10% of {b} = {b // 10}"]]'
+            f'[[step eq="{a}% is {a // 10} tens"]]'
+            f'[[step eq="{a}% of {b} = ?"]]')
+
+
+def _pcn_worked(p):
+    a, b = p["a"], p["b"]
+    n, part, ans = a // 10, b // 10, a * b // 100
+    return (f"Look what you did: ten percent of {b} is {part} — one of the ten parts. "
+            f"{a} percent is {n} of those parts: {n} times {part} equals {ans}.",
+            _ten_tape(b, caption=f"ten parts of {part} — 10% each")
+            + f'[[tape parts="{ans} | {b - ans}" total="{b}" caption="{n} parts: {a}% of {b} = {ans}"]]')
+
+
+def _asp_board(p):
+    a, b = p["a"], p["b"]
+    pic = (f'[[tape parts="{a} | {b - a}" total="{b}" caption="{a} out of {b}"]]'
+           f'[[hundredgrid shaded="0" ask="1" unit="percent" '
+           f'caption="the same share out of 100 — how many?"]]'
+           f'[[step eq="{a}/{b} = ?/100"]]')
+    if 100 % b == 0:
+        k = 100 // b
+        return pic + f'[[step eq="{b} × {k} = 100"]][[step eq="{a} × {k} = ?"]]'
+    return pic + f'[[step eq="{a} × 100 ÷ {b} = ?"]]'
+
+
+def _asp_worked(p):
+    a, b = p["a"], p["b"]
+    ans = a * 100 // b
+    pic = (f'[[tape parts="{a} | {b - a}" total="{b}" caption="{a} out of {b}"]]'
+           f'[[hundredgrid shaded="{ans}" unit="percent" '
+           f'caption="{ans} out of 100 — the same share"]]')
+    if 100 % b == 0:
+        k = 100 // b
+        return (f"Look what you did: the bottom went from {b} to 100 — timesed by {k} — so "
+                f"the top is timesed by {k} too: {a} times {k} equals {ans}. {a} out of {b} "
+                f"is {ans} percent.", pic)
+    return (f"Look what you did: 100 is not a whole number of {b}s, so go through 1 — {a} "
+            f"times 100 equals {a * 100}, and {a * 100} divided by {b} equals {ans}. {a} out "
+            f"of {b} is {ans} percent.", pic)
+
+
+def _pwh_board(p):
+    a, b = p["a"], p["b"]
+    n, part = a // 10, b // (a // 10)
+    return (f'[[tape parts="{b} | ?" total="?" caption="{b} is {a}% — the whole is the question"]]'
+            f'[[step eq="10% = {b} ÷ {n} = {part}"]]'
+            f'[[step eq="{b} is {a}% of ?"]]')
+
+
+def _pwh_worked(p):
+    a, b = p["a"], p["b"]
+    n, part, whole = a // 10, b // (a // 10), b * 100 // a
+    return (f"Look what you did: {a} percent is {n} tens, so ten percent is {b} divided by "
+            f"{n}, which equals {part}. The whole is ten of those: {part} times 10 equals "
+            f"{whole}. And {whole} is bigger than {b}, as the whole has to be.",
+            _ten_tape(whole, caption=f"ten parts of {part} — {n} of them are the {b}, all ten are {whole}")
+            + f'[[tape parts="{b} | {whole - b}" total="{whole}" caption="{a}% of {whole} = {b}"]]')
+
+
+def _pup_board(p):
+    a, b, up = p["a"], p["b"], bool(p.get("c"))
+    ch = a * b // 100
+    pic = (f'[[tape parts="{b} | {ch}" total="?" caption="the price and the change put on"]]' if up
+           else f'[[tape parts="? | {ch}" total="{b}" caption="the price with the change taken off"]]')
+    return (pic + f'[[step eq="10% of {b} = {b // 10}"]]'
+            + (f'[[step eq="{a}% = {ch}"]]' if a != 10 else "")
+            + f'[[step eq="{b} {"+" if up else "−"} {ch} = ?"]]')
+
+
+def _pup_worked(p):
+    a, b, up = p["a"], p["b"], bool(p.get("c"))
+    ch = a * b // 100
+    new = b + ch if up else b - ch
+    if up:
+        return (f"Look what you did: {a} percent of {b} is {ch} dollars — that is the change, "
+                f"not {a}. The price goes up, so put it on: {b} plus {ch} equals {new} dollars.",
+                f'[[tape parts="{b} | {ch}" total="{new}" caption="{b} + {ch} = {new} dollars"]]')
+    return (f"Look what you did: {a} percent of {b} is {ch} dollars — that is the change, "
+            f"not {a}. The price goes down, so take it off: {b} take away {ch} equals {new} "
+            f"dollars.",
+            f'[[tape parts="{new} | {ch}" total="{b}" caption="{b} − {ch} = {new} dollars"]]')
+
+
+_CNV_UNITS = {10: ("centimetre", "1 cm = 10 mm", "centimetres", "millimetres"),
+              100: ("metre", "1 m = 100 cm", "metres", "centimetres"),
+              1000: ("kilogram", "1 kg = 1000 g", "kilograms", "grams")}
+
+
+def _cnv_board(p):
+    a, b = p["a"], p["b"]
+    big, fact, bigs, smalls = _CNV_UNITS[b]
+    return (f'[[tape parts="{" | ".join([str(b)] * a)}" total="?" '
+            f'caption="{a} {bigs} — {b} {smalls} in each"]]'
+            f'[[step eq="{fact}"]][[step eq="{a} × {b} = ?"]]')
+
+
+def _cnv_worked(p):
+    a, b = p["a"], p["b"]
+    big, fact, bigs, smalls = _CNV_UNITS[b]
+    return (f"Look what you did: one {big} is {b} {smalls}, so {a} {bigs} are {a} lots of "
+            f"{b}. {a} times {b} equals {a * b} {smalls}.",
+            f'[[tape parts="{" | ".join([str(b)] * a)}" total="{a * b}" '
+            f'caption="{a} × {b} = {a * b} {smalls}"]]')
+
+
+def _tri_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[rectangle w="{a}" h="{b}" half="1" ask="1" '
+            f'caption="base {a}, height {b} — the triangle is half the rectangle round it"]]'
+            f'[[step eq="the rectangle round it: {a} × {b} = {a * b}"]]'
+            f'[[step eq="the triangle is half: {a} × {b} ÷ 2 = ?"]]')
+
+
+def _tri_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the rectangle round the triangle is {a} times {b}, which "
+            f"equals {a * b} squares. The triangle is half of it — the diagonal cuts the "
+            f"rectangle into two of them — and half of {a * b} is {a * b // 2}.",
+            f'[[rectangle w="{a}" h="{b}" half="1" caption="{a} × {b} = {a * b} · half is {a * b // 2}"]]')
+
+
+def _sla_board(p):
+    a = p["a"]
+    return (f'[[angle deg="180" split="{a}" caption="a straight line — {a}° and the rest"]]'
+            f'[[step eq="180° − {a}° = ?"]]')
+
+
+def _sla_worked(p):
+    a = p["a"]
+    return (f"Look what you did: the two angles together fill the straight line, and a "
+            f"straight line is 180 degrees. 180 take away {a} equals {180 - a}, and {a} "
+            f"plus {180 - a} puts the 180 back.",
+            f'[[angle deg="180" split="{a},{180 - a}" caption="{a}° + {180 - a}° = 180°"]]')
+
+
+def _tri3_board(p):
+    a, b = p["a"], p["b"]
+    right = ' right="A"' if a == 90 else ' right="B"' if b == 90 else ""
+    return (f'[[triangle v="A,B,C"{right} angles="{a},{b}," '
+            f'caption="angles {a}° and {b}° — the third is forced"]]'
+            f'[[step eq="{a}° + {b}° = {a + b}°"]]'
+            f'[[step eq="180° − ({a}° + {b}°) = ?"]]')
+
+
+def _tri3_worked(p):
+    a, b = p["a"], p["b"]
+    c = 180 - a - b
+    right = ' right="A"' if a == 90 else ' right="B"' if b == 90 else ' right="C"' if c == 90 else ""
+    return (f"Look what you did: the two you were given come to {a} plus {b}, which equals "
+            f"{a + b}. The three angles of any triangle come to 180, so the third is 180 take "
+            f"away {a + b}, which equals {c}.",
+            f'[[triangle v="A,B,C"{right} angles="{a},{b},{c}" '
+            f'caption="{a}° + {b}° + {c}° = 180°"]]')
+
+
+def _evx_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[step eq="x = {a}"]]'
+            f'[[tape parts="x | {b}" total="?" caption="x + {b}, with x holding {a}"]]'
+            f'[[step eq="x + {b} = {a} + {b} = ?"]]')
+
+
+def _evx_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: x is holding {a}, so swap the letter for its number. x plus "
+            f"{b} becomes {a} plus {b}, which equals {a + b} — a sum, not two digits side "
+            f"by side.",
+            f'[[tape parts="{a} | {b}" total="{a + b}" caption="x + {b} = {a} + {b} = {a + b}"]]')
+
+
+def _mlx_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[step eq="x = {a}"]]'
+            f'[[tape parts="{" | ".join(["x"] * b)}" total="?" caption="{b}x — {b} copies of x"]]'
+            f'[[step eq="{b}x = {b} × {a} = ?"]]')
+
+
+def _mlx_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: {b} x means {b} times x — {b} copies of it, not {b} beside "
+            f"it. With x holding {a}, that is {b} times {a}, which equals {a * b}.",
+            f'[[tape parts="{" | ".join([str(a)] * b)}" total="{a * b}" '
+            f'caption="{b}x = {b} × {a} = {a * b}"]]')
+
+
+def _clt_tape(a, b, total):
+    """ax + bx as one bar: an x per part while it fits ten parts, else the two
+    counts as two proportional parts."""
+    if a + b <= 10:
+        return f'[[tape parts="{" | ".join(["x"] * (a + b))}" total="{total}" '
+    return f'[[tape parts="{a}x | {b}x" total="{total}" '
+
+
+def _clt_board(p):
+    a, b = p["a"], p["b"]
+    xs = "x's"
+    return (_clt_tape(a, b, "?") + f'caption="{a} {xs} and {b} more {xs} — how many {xs}?"]]'
+            f'[[step eq="{a}x + {b}x"]]'
+            f'[[step eq="{a} of them + {b} of them = ? of them"]]')
+
+
+def _clt_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: {a} of them and {b} more of them — count them, do not times "
+            f"them. {a} plus {b} equals {a + b}, so {a} x plus {b} x equals {a + b} x, "
+            f"whatever x is holding.",
+            _clt_tape(a, b, f"{a + b}x") + f'caption="{a}x + {b}x = {a + b}x"]]')
+
+
+def _dst_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[areamodel rows="{a}" cols="x,{b}" ask="1" '
+            f'caption="{a} tall, x + {b} wide — read the two rooms"]]'
+            f'[[step eq="{a}(x + {b}) = {a}x + ?"]]')
+
+
+def _dst_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the {a} reaches both rooms. One room is {a} times x — {a} x. "
+            f"The other is {a} times {b}, which equals {a * b}. Both rooms together: {a} x "
+            f"plus {a * b}.",
+            f'[[areamodel rows="{a}" cols="x,{b}" caption="{a}(x + {b}) = {a}x + {a * b}"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -21624,9 +22360,8 @@ OP_EXT = {
     "pcn": {   # a percent of b, both multiples of ten
         "ans": lambda p: p["a"] * p["b"] // 100,
         "spoken": lambda p: f"What is {p['a']} percent of {p['b']}?",
-        "board": lambda p: (f'[[step eq="10% of {p["b"]} = {p["b"] // 10}"]]'
-                            f'[[step eq="{p["a"]}% is {p["a"] // 10} tens"]]'
-                            f'[[step eq="{p["a"] // 10} × {p["b"] // 10} = ?"]]'),
+        "board": _pcn_board,          # (te) the bar cut into ten -- 10% is one part
+        "worked": _pcn_worked,        # (te) the parts filled, the taken parts marked
         "praise": lambda p: (f"10 percent of {p['b']} is {p['b'] // 10}, and "
                              f"{p['a']} percent is {p['a'] // 10} of those — "
                              f"{p['a'] * p['b'] // 100}."),
@@ -21645,8 +22380,8 @@ OP_EXT = {
     "asp": {   # a out of b -- what percent?
         "ans": lambda p: p["a"] * 100 // p["b"],
         "spoken": lambda p: f"{p['a']} out of {p['b']} — what percent is that?",
-        "board": lambda p: (f'[[step eq="{p["a"]}/{p["b"]} = ?/100"]]'
-                            f'[[step eq="{p["a"]} × 100 ÷ {p["b"]} = ?"]]'),
+        "board": _asp_board,          # (te) the share as a bar, the empty hundred grid
+        "worked": _asp_worked,        # (te) the same share shaded out of 100
         "praise": lambda p: (f"{p['a']} out of {p['b']} is "
                              f"{p['a'] * 100 // p['b']} percent."),
         "key": lambda p: p["a"] * 100 // p["b"],
@@ -21665,10 +22400,8 @@ OP_EXT = {
     "pwh": {   # b is a percent of WHAT? -- the reverse, and the hard direction
         "ans": lambda p: p["b"] * 100 // p["a"],
         "spoken": lambda p: f"{p['b']} is {p['a']} percent of what number?",
-        "board": lambda p: (f'[[step eq="{p["a"]}% = {p["b"]}"]]'
-                            f'[[step eq="10% = {p["b"]} ÷ {p["a"] // 10} = '
-                            f'{p["b"] // (p["a"] // 10)}"]]'
-                            f'[[step eq="100% = {p["b"] // (p["a"] // 10)} × 10 = ?"]]'),
+        "board": _pwh_board,          # (te) the part as a bar, the whole the question
+        "worked": _pwh_worked,        # (te) the ten parts, the whole bracketed
         "praise": lambda p: (f"10 percent is {p['b'] // (p['a'] // 10)}, so the whole "
                              f"is ten of those — {p['b'] * 100 // p['a']}."),
         "key": lambda p: p["b"] * 100 // p["a"],
@@ -21701,12 +22434,8 @@ OP_EXT = {
         # percent is ten, and a board that says "10% of 40 = 4" and then "10% = 4"
         # teaches a child that the second step is empty. Show it only when it says
         # something new.
-        "board": lambda p: (f'[[step eq="10% of {p["b"]} = {p["b"] // 10}"]]'
-                            + (f'[[step eq="{p["a"]}% = {p["a"] * p["b"] // 100}"]]'
-                               if p["a"] != 10 else "")
-                            + f'[[step eq="{p["b"]} '
-                              f'{"+" if p.get("c") else "−"} '
-                              f'{p["a"] * p["b"] // 100} = ?"]]'),
+        "board": _pup_board,          # (te) the price and the change, the new price withheld
+        "worked": _pup_worked,        # (te) the bar with the change put on or taken off
         "praise": lambda p: (f"{p['a']} percent of {p['b']} is "
                              f"{p['a'] * p['b'] // 100}, so the new price is "
                              f"{p['b'] + p['a'] * p['b'] // 100 if p.get('c') else p['b'] - p['a'] * p['b'] // 100} dollars."),
@@ -21746,8 +22475,8 @@ OP_EXT = {
             f"How many millimetres are there in {p['a']} centimetres?" if p["b"] == 10
             else f"How many centimetres are there in {p['a']} metres?" if p["b"] == 100
             else f"How many grams are there in {p['a']} kilograms?"),
-        "board": lambda p: (f'[[step eq="1 {"cm = 10 mm" if p["b"] == 10 else "m = 100 cm" if p["b"] == 100 else "kg = 1000 g"}"]]'
-                            f'[[step eq="{p["a"]} × {p["b"]} = ?"]]'),
+        "board": _cnv_board,          # (te) one bar part per big unit, the small units in each
+        "worked": _cnv_worked,        # (te) the total bracketed
         "praise": lambda p: (f"Each one is {p['b']}, so {p['a']} of them are "
                              f"{p['a'] * p['b']}."),
         "key": lambda p: p["a"] * p["b"],
@@ -21770,12 +22499,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] * p["b"] // 2,
         "spoken": lambda p: (f"A triangle has a base of {p['a']} and a height of "
                              f"{p['b']}. What is its area?"),
-        "board": lambda p: (f'[[triangle v="A,B,C" right="A" '
-                            f'sides="{p["a"]},,{p["b"]}"]]'
-                            f'[[step eq="the rectangle round it: '
-                            f'{p["a"]} × {p["b"]} = {p["a"] * p["b"]}"]]'
-                            f'[[step eq="the triangle is half: '
-                            f'{p["a"] * p["b"]} ÷ 2 = ?"]]'),
+        "board": _tri_board,          # (te) the rectangle round it, the diagonal drawn, half asked
+        "worked": _tri_worked,        # (te) the same, the half counted
         "praise": lambda p: (f"The rectangle round it is {p['a'] * p['b']}, and the "
                              f"triangle is half of that — {p['a'] * p['b'] // 2}."),
         "key": lambda p: p["a"] * p["b"] // 2,
@@ -21795,8 +22520,8 @@ OP_EXT = {
                              f"is {p['a']} degrees. How big is the other one?"),
         # geo-figures' split= was built in July for exactly this sentence and no
         # scripted lesson had ever used it: the straight line IS the 180, drawn.
-        "board": lambda p: (f'[[angle deg="180" split="{p["a"]}"]]'
-                            f'[[step eq="180° − {p["a"]}° = ?"]]'),
+        "board": _sla_board,          # (te) the straight line split, the rest asked
+        "worked": _sla_worked,        # (te) both pieces labelled, put back to 180
         "praise": lambda p: (f"A straight line is 180 degrees, and 180 take away "
                              f"{p['a']} equals {180 - p['a']}."),
         "key": lambda p: 180 - p["a"],
@@ -21817,13 +22542,8 @@ OP_EXT = {
         # header calls these figures schematic, and they are -- but a right angle drawn
         # as a lazy corner with "90°" written beside it is schematic in the one way
         # that teaches the wrong thing.
-        "board": lambda p: (f'[[triangle v="A,B,C"'
-                            + (' right="A"' if p["a"] == 90 else
-                               ' right="B"' if p["b"] == 90 else "")
-                            + f' angles="{p["a"]},{p["b"]},"]]'
-                            f'[[step eq="{p["a"]}° + {p["b"]}° = '
-                            f'{p["a"] + p["b"]}°"]]'
-                            f'[[step eq="180° − {p["a"] + p["b"]}° = ?"]]'),
+        "board": _tri3_board,         # (te) the triangle with two angles, the third blank
+        "worked": _tri3_worked,       # (te) all three, put back to 180
         "praise": lambda p: (f"The two you were given are {p['a'] + p['b']} together, "
                              f"and 180 take away {p['a'] + p['b']} equals "
                              f"{180 - p['a'] - p['b']}."),
@@ -21853,8 +22573,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] + p["b"],
         "spoken": lambda p: (f"The letter x is holding the number {p['a']}. "
                              f"What is x plus {p['b']}?"),
-        "board": lambda p: (f'[[step eq="x = {p["a"]}"]]'
-                            f'[[step eq="x + {p["b"]} = {p["a"]} + {p["b"]} = ?"]]'),
+        "board": _evx_board,          # (te) x and the number as a bar, the total asked
+        "worked": _evx_worked,        # (te) the letter swapped for its number
         "praise": lambda p: (f"x is {p['a']}, so x plus {p['b']} is {p['a']} plus "
                              f"{p['b']}, which equals {p['a'] + p['b']}."),
         "key": lambda p: p["a"] + p["b"],
@@ -21874,8 +22594,8 @@ OP_EXT = {
         # fades, and fading it is what practice is for.
         "spoken": lambda p: (f"The letter x is holding the number {p['a']}. "
                              f"What is {p['b']} x?"),
-        "board": lambda p: (f'[[step eq="x = {p["a"]}"]]'
-                            f'[[step eq="{p["b"]}x = {p["b"]} × {p["a"]} = ?"]]'),
+        "board": _mlx_board,          # (te) b copies of x as a bar
+        "worked": _mlx_worked,        # (te) every copy is a, the total bracketed
         "praise": lambda p: (f"{p['b']} x means {p['b']} times x, and {p['b']} times "
                              f"{p['a']} equals {p['a'] * p['b']}."),
         "key": lambda p: p["a"] * p["b"],
@@ -21892,9 +22612,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] + p["b"],
         "spoken": lambda p: (f"{p['a']} x plus {p['b']} x — how many x is that "
                              f"in all?"),
-        "board": lambda p: (f'[[step eq="{p["a"]}x + {p["b"]}x"]]'
-                            f'[[step eq="{p["a"]} of them + {p["b"]} of them '
-                            f'= ? of them"]]'),
+        "board": _clt_board,          # (te) the x's as one bar, counted
+        "worked": _clt_worked,        # (te) the same bar with the count
         "praise": lambda p: (f"{p['a']} x's and {p['b']} more x's are "
                              f"{p['a'] + p['b']} x's in all — {p['a'] + p['b']} x."),
         "key": lambda p: p["a"] + p["b"],
@@ -21917,8 +22636,8 @@ OP_EXT = {
         # ⭐ [[areamodel]] draws a rectangle a tall and (x + b) wide, cut into an ax
         # piece and an ab piece, with the expanded sum printed under it. The child is
         # not told the rule -- the child is shown the two rooms of the rectangle.
-        "board": lambda p: (f'[[areamodel rows="{p["a"]}" cols="x,{p["b"]}"]]'
-                            f'[[step eq="{p["a"]}(x + {p["b"]}) = {p["a"]}x + ?"]]'),
+        "board": _dst_board,          # (te) the two rooms, the number room asked
+        "worked": _dst_worked,        # (te) the rooms read
         "praise": lambda p: (f"The {p['a']} reaches BOTH rooms: {p['a']} times x, and "
                              f"{p['a']} times {p['b']}, which equals "
                              f"{p['a'] * p['b']}. So it is {p['a']} x plus "

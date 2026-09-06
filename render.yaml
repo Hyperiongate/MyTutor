@@ -2,6 +2,13 @@
 # render.yaml  --  MyTutor  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD te -- THE CAP FOLLOWS THE SHAPE. Every lesson rewritten to the shape
+#               (why, picture, walk-back, reason, recap) adds lines to the voice closure:
+#               34,513 lines and 5,043 MB rendered on 09-06, 84% of the 6,000 MB cap, with
+#               Prealgebra 7-9, Entry 2-9 and nine more courses still to come. Jim raised
+#               TTS_CACHE_MAX_MB to 8000 in the dashboard on 09-06; this file records it
+#               so a rebuild-from-scratch starts with a cap that holds the course. The
+#               10 GB disk leaves ~2 GB for the nightly DB snapshots beside it.
 #   2026-08-30  BUILD ql -- THE DEEPSEEK TRIAL ENDED. TUTOR_PROVIDER is back to anthropic.
 #               The seat machinery STAYS (it is env-gated and inert), and so does everything
 #               the trial bought: the failover in tutor.py, /api/admin/seat-check, and the
@@ -122,8 +129,9 @@ services:
       - key: DATA_DIR
         value: /var/data       # MUST match the disk mount below: voice cache + nightly DB snapshots
       - key: TTS_CACHE_MAX_MB
-        value: "6000"          # 2026-08-23: the finished course is ~4,345 MB of mp3. This cap must
-                               # leave the course room AND fit inside sizeGB below. See the note at top.
+        value: "8000"          # 2026-09-06: the course on the shape is 5,043 MB and growing (was
+                               # 6000 from 08-23). This cap must leave the course room AND fit
+                               # inside sizeGB below. See the note at top.
       # Optional tuning vars production also understands (set in the dashboard as needed):
       #   OPENAI_AUDIT_MODEL (default gpt-4.1) · AUDIT_TURNS · USAGE_LOG_DAYS (180)
       #   DB_POOL_SIZE / DB_MAX_OVERFLOW · BACKUP_KEEP (14) · WEEKLY_EMAIL (on)

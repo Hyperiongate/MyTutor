@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD te -- PART 3ja: Prealgebra Units 7-9 to the shape (12 lessons on
+#               the tape, the hundred grid, the rectangle round the triangle, the split
+#               line, the triangle and the area model); every ask's pending line spoken.
 #   2026-09-06  BUILD td -- THE DATED-NOTE PINS READ A WIDER HEADER. Every file's change
 #               log grows from the top, so "BUILD sp is in the first 3,000 characters of
 #               math-figures.js" stopped being true the day td's note went above it. The
@@ -21855,7 +21858,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>9,111</b>" in page,
+          "<b>9,199</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24567,6 +24570,139 @@ def part3iz_prealgebra_units_four_to_six_to_the_shape():
           "2026-09-06  BUILD td" in rd("lessonscripts.py")[:60000] and "BUILD td" in rd("main.py")[:200000]
           and "2026-09-06  BUILD td" in rd("ruletests.py")[:16000] and "(td)" in rd("static/methodology.html")[:6000]
           and "2026-09-06  BUILD td" in mf[:12000] and "BUILD td" in rd("tags.py")[:8000],
+          "Jim's rule 8")
+
+
+def part3ja_prealgebra_units_seven_to_nine_to_the_shape():
+    """PART 3ja (build te, 2026-09-06) -- PREALGEBRA UNITS 7-9 TO THE SHAPE.
+
+    Percent on the tape (ten equal parts, ten percent each) and the hundred grid;
+    units as a bar with the small units in each part; the rectangle round the
+    triangle with its diagonal drawn and half filled; the straight line split and
+    the triangle with its three angles; the first letters as bars -- x and a number,
+    b copies of x, the x's counted -- and the area model asked with its number room
+    blank. And four asks whose pending line the spoken question never read now carry
+    the numbers it speaks."""
+    print("\nPART 3ja — Prealgebra Units 7-9 to the shape (build te)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    U7 = ["pre-u7-any-percent", "pre-u7-what-percent-is-that",
+          "pre-u7-finding-the-whole", "pre-u7-a-price-goes-up"]
+    U8 = ["pre-u8-changing-units", "pre-u8-area-of-a-triangle",
+          "pre-u8-angles-on-a-line", "pre-u8-angles-in-a-triangle"]
+    U9 = ["pre-u9-a-letter-holds-a-number", "pre-u9-a-number-against-a-letter",
+          "pre-u9-collecting-x", "pre-u9-the-times-reaches-both"]
+    _shape_unit_checks(U7, r"\[\[(tape|hundredgrid)\b")
+    _shape_unit_checks(U8, r"\[\[(tape|rectangle|angle|triangle)\b")
+    _shape_unit_checks(U9, r"\[\[(tape|areamodel)\b")
+
+    # ---- Unit 7 ------------------------------------------------------------------------
+    pcn = {"a": 30, "b": 40, "op": "pcn"}
+    check("⭐ any percent is asked on the bar cut into ten hidden parts and walked back with the parts filled and the taken parts marked",
+          '[[tape parts="? | ? | ? | ? | ? | ? | ? | ? | ? | ?" total="40"' in L.board_for(pcn, "abstract")
+          and L.board_for(pcn, "abstract").endswith('[[step eq="30% of 40 = ?"]]')
+          and '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40"' in _W(pcn)[1]
+          and '[[tape parts="12 | 28" total="40"' in _W(pcn)[1] and "3 times 4 equals 12" in _W(pcn)[0], _W(pcn)[1])
+    asp = {"a": 15, "b": 20, "op": "asp"}
+    check("⭐ what-percent is asked as the share beside an EMPTY hundred grid and walked back with the same share shaded out of 100",
+          '[[hundredgrid shaded="0" ask="1" unit="percent"' in L.board_for(asp, "abstract")
+          and '[[step eq="20 × 5 = 100"]][[step eq="15 × 5 = ?"]]' in L.board_for(asp, "abstract")
+          and '[[hundredgrid shaded="75" unit="percent"' in _W(asp)[1] and "timesed by 5" in _W(asp)[0], _W(asp)[1])
+    check("  ...and a bottom that does not go into 100 goes through 1",
+          '[[step eq="22 × 100 ÷ 40 = ?"]]' in L.board_for({"a": 22, "b": 40, "op": "asp"}, "abstract")
+          and "2200 divided by 40 equals 55" in _W({"a": 22, "b": 40, "op": "asp"})[0], "")
+    pwh = {"a": 30, "b": 12, "op": "pwh"}
+    check("⭐ finding the whole is asked with the whole bracketed as the question and walked back on the ten parts",
+          '[[tape parts="12 | ?" total="?"' in L.board_for(pwh, "abstract")
+          and L.board_for(pwh, "abstract").endswith('[[step eq="12 is 30% of ?"]]')
+          and '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40"' in _W(pwh)[1]
+          and "40 is bigger than 12" in _W(pwh)[0], _W(pwh)[1])
+    up = {"a": 10, "b": 40, "c": 1, "op": "pup"}
+    dn = {"a": 20, "b": 40, "c": 0, "op": "pup"}
+    check("  a price up is the price and the change with the total withheld; a price down is the change taken off the price",
+          '[[tape parts="40 | 4" total="?"' in L.board_for(up, "abstract") and '[[tape parts="40 | 4" total="44"' in _W(up)[1]
+          and '[[tape parts="? | 8" total="40"' in L.board_for(dn, "abstract") and '[[tape parts="32 | 8" total="40"' in _W(dn)[1]
+          and "that is the change, not 20" in _W(dn)[0], "")
+    check("  ...and the ten-percent line is not repeated when the percent IS ten",
+          L.board_for(up, "abstract").count("[[step") == 2 and L.board_for(dn, "abstract").count("[[step") == 3, "")
+
+    # ---- Unit 8 ------------------------------------------------------------------------
+    cnv = {"a": 3, "b": 100, "op": "cnv"}
+    check("⭐ changing units is one bar part per big unit with the small units in each, the total withheld then bracketed",
+          '[[tape parts="100 | 100 | 100" total="?" caption="3 metres — 100 centimetres in each"]]' in L.board_for(cnv, "abstract")
+          and '[[tape parts="100 | 100 | 100" total="300"' in _W(cnv)[1] and "one metre is 100 centimetres" in _W(cnv)[0], _W(cnv)[0])
+    check("  ...in millimetres and in grams too",
+          "7 centimetres — 10 millimetres in each" in L.board_for({"a": 7, "b": 10, "op": "cnv"}, "abstract")
+          and "one kilogram is 1000 grams" in _W({"a": 2, "b": 1000, "op": "cnv"})[0], "")
+    tri = {"a": 6, "b": 4, "op": "tri"}
+    check("⭐ the area of a triangle is asked on the rectangle round it with the diagonal drawn and the half withheld, and walked back with the half counted",
+          '[[rectangle w="6" h="4" half="1" ask="1"' in L.board_for(tri, "abstract")
+          and L.board_for(tri, "abstract").endswith('[[step eq="the triangle is half: 6 × 4 ÷ 2 = ?"]]')
+          and '[[rectangle w="6" h="4" half="1" caption="6 × 4 = 24 · half is 12"]]' in _W(tri)[1]
+          and "the diagonal cuts the rectangle into two of them" in _W(tri)[0], _W(tri)[1])
+    mf = rd("static/math-figures.js")
+    check("  math-figures.js draws the diagonal and the filled half (half=\"1\"), reads \"half is\" underneath, and lets the sides reach 20",
+          'if (half && mode !== "perimeter") {' in mf and '" · half is " + (ask ? "?" : String(w * h / 2)) + " squares"' in mf
+          and 'var w = Math.max(1, Math.min(20, Math.floor(num(a.w, 5))));' in mf
+          and 'var cell = (w > 12 || h > 8) ? 18 : 30' in mf, "")
+    check("  ...and the area model asks with its number room blank (ask=\"1\")",
+          '(ask && pow === 0) ? "?" : termLabel(coef, pow)' in mf and '(ask && p === 0) ? "?" : termLabel(sum[p], p)' in mf, "")
+    sla = {"a": 130, "b": 0, "op": "sla"}
+    check("⭐ angles on a line: the straight line split with the rest asked, walked back with both pieces labelled",
+          '[[angle deg="180" split="130" caption="a straight line — 130° and the rest"]][[step eq="180° − 130° = ?"]]' == L.board_for(sla, "abstract")
+          and '[[angle deg="180" split="130,50" caption="130° + 50° = 180°"]]' == _W(sla)[1]
+          and "130 plus 50 puts the 180 back" in _W(sla)[0], "")
+    t3 = {"a": 50, "b": 60, "op": "tri3"}
+    check("⭐ angles in a triangle: two angles drawn and the third blank, the pending line carrying the two the ask speaks; walked back with all three",
+          'angles="50,60," caption="angles 50° and 60° — the third is forced"]]' in L.board_for(t3, "abstract")
+          and L.board_for(t3, "abstract").endswith('[[step eq="180° − (50° + 60°) = ?"]]')
+          and 'angles="50,60,70" caption="50° + 60° + 70° = 180°"' in _W(t3)[1], _W(t3)[1])
+    check("  ...and a right angle is drawn as one, given or found",
+          ' right="B" angles="60,90,"' in L.board_for({"a": 60, "b": 90, "op": "tri3"}, "abstract")
+          and ' right="C" angles="30,60,90"' in _W({"a": 30, "b": 60, "op": "tri3"})[1], "")
+
+    # ---- Unit 9 ------------------------------------------------------------------------
+    evx = {"a": 5, "b": 3, "op": "evx"}
+    check("⭐ a letter holds a number: x and the number as a bar with the whole withheld, walked back with the letter swapped for its number",
+          '[[tape parts="x | 3" total="?"' in L.board_for(evx, "abstract")
+          and '[[tape parts="5 | 3" total="8" caption="x + 3 = 5 + 3 = 8"]]' == _W(evx)[1]
+          and "a sum, not two digits side by side" in _W(evx)[0], "")
+    mlx = {"a": 4, "b": 3, "op": "mlx"}
+    check("⭐ a number against a letter: b copies of x side by side, every copy the number in the walk-back",
+          '[[tape parts="x | x | x" total="?" caption="3x — 3 copies of x"]]' in L.board_for(mlx, "abstract")
+          and '[[tape parts="4 | 4 | 4" total="12"' in _W(mlx)[1] and "3 copies of it, not 3 beside it" in _W(mlx)[0], "")
+    clt = {"a": 3, "b": 2, "op": "clt"}
+    check("  collecting the x's: one bar of x's counted; past ten of them, the two counts as two parts",
+          '[[tape parts="x | x | x | x | x" total="?"' in L.board_for(clt, "abstract")
+          and '[[tape parts="x | x | x | x | x" total="5x"' in _W(clt)[1]
+          and '[[tape parts="9x | 9x" total="18x"' in _W({"a": 9, "b": 9, "op": "clt"})[1]
+          and "count them, do not times them" in _W(clt)[0], "")
+    dst = {"a": 4, "b": 3, "op": "dst"}
+    check("⭐ the times reaches both: the area model asked with its number room blank, read filled in the walk-back",
+          '[[areamodel rows="4" cols="x,3" ask="1"' in L.board_for(dst, "abstract")
+          and '[[areamodel rows="4" cols="x,3" caption="4(x + 3) = 4x + 12"]]' == _W(dst)[1]
+          and "The other is 4 times 3, which equals 12" in _W(dst)[0], "")
+
+    # ---- the giveaway audit, the spoken pending line, the notes ------------------------
+    check("  nothing the twelve lessons demonstrate is later asked",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in U7 + U8 + U9), "")
+    check("  no ask in the three units writes a question inside a [[step eq]]",
+          not any(re.search(r'\[\[step eq="[^"]*[A-Za-z]\?[^"]*"\]\]', L.board_for(p, "abstract"))
+                  for l in U7 + U8 + U9 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
+    _unsp = 0
+    for l in U7 + U8 + U9:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44) -- the old pcn/pwh/tri/tri3 asks did not",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  the changed files carry dated te notes",
+          "2026-09-06  BUILD te" in rd("lessonscripts.py")[:20000] and "BUILD te" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD te" in rd("ruletests.py")[:8000] and "(te)" in rd("static/methodology.html")[:6000]
+          and "2026-09-06  BUILD te" in mf[:3000],
           "Jim's rule 8")
 
 
@@ -34886,6 +35022,7 @@ def main():
     part3ix_entry_unit_one_to_the_shape()
     part3iy_prealgebra_units_one_to_three_to_the_shape()
     part3iz_prealgebra_units_four_to_six_to_the_shape()
+    part3ja_prealgebra_units_seven_to_nine_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
