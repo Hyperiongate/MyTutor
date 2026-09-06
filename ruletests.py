@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tf -- PART 3jb: Algebra 1 Units 1-3 to the shape (12 lessons on the
+#               bar, the area model, the balance, the number line and the machine); every
+#               machine and number-line ask captioned.
 #   2026-09-06  BUILD te -- PART 3ja: Prealgebra Units 7-9 to the shape (12 lessons on
 #               the tape, the hundred grid, the rectangle round the triangle, the split
 #               line, the triangle and the area model); every ask's pending line spoken.
@@ -21858,7 +21861,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>9,199</b>" in page,
+          "<b>9,282</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22715,7 +22718,7 @@ def part3ij_the_warm_choice():
     check("  the three files carry dated sn notes",
           "(sn) 2026-09-04" in page[:8000]
           and "2026-09-04  BUILD sn" in open(os.path.join(here, "lessonscripts.py"),
-                                              encoding="utf-8").read(20000)
+                                              encoding="utf-8").read(80000)   # (tf) the log grew past 20,000
           and "BUILD sn" in open(os.path.join(here, "main.py"), encoding="utf-8").read(200000),
           "Jim's rule 8")
 
@@ -24649,7 +24652,7 @@ def part3ja_prealgebra_units_seven_to_nine_to_the_shape():
           and 'var w = Math.max(1, Math.min(20, Math.floor(num(a.w, 5))));' in mf
           and 'var cell = (w > 12 || h > 8) ? 18 : 30' in mf, "")
     check("  ...and the area model asks with its number room blank (ask=\"1\")",
-          '(ask && pow === 0) ? "?" : termLabel(coef, pow)' in mf and '(ask && p === 0) ? "?" : termLabel(sum[p], p)' in mf, "")
+          '(ask && pow === 0) ? "?" : termLabel(coef, pow)' in mf and '(ask && p === 0) ? (sum[p] < 0 ? "-?" : "?") : termLabel(sum[p], p)' in mf, "")   # (tf) re-pinned: the sign is kept
     sla = {"a": 130, "b": 0, "op": "sla"}
     check("⭐ angles on a line: the straight line split with the rest asked, walked back with both pieces labelled",
           '[[angle deg="180" split="130" caption="a straight line — 130° and the rest"]][[step eq="180° − 130° = ?"]]' == L.board_for(sla, "abstract")
@@ -24703,6 +24706,110 @@ def part3ja_prealgebra_units_seven_to_nine_to_the_shape():
           "2026-09-06  BUILD te" in rd("lessonscripts.py")[:20000] and "BUILD te" in rd("main.py")[:200000]
           and "2026-09-06  BUILD te" in rd("ruletests.py")[:8000] and "(te)" in rd("static/methodology.html")[:6000]
           and "2026-09-06  BUILD te" in mf[:3000],
+          "Jim's rule 8")
+
+
+def part3jb_algebra_one_units_one_to_three_to_the_shape():
+    """PART 3jb (build tf, 2026-09-06) -- ALGEBRA 1 UNITS 1-3 TO THE SHAPE.
+
+    Expressions as bars (copies of a letter, the plus waiting its turn, the x pieces
+    counted past a y), the minus carried through the area model with its room blank;
+    equations on the balance (a off both sides, a copies shared, two undos in order)
+    and a less-than on the number line with the open circle; functions on the
+    machine (the rule in order, f(b), two machines nose to tail, the input found by
+    undoing). Every machine and number-line ask carries a caption."""
+    print("\nPART 3jb — Algebra 1 Units 1-3 to the shape (build tf)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    A1 = ["alg1-u1-two-steps-with-a-letter", "alg1-u1-two-letters",
+          "alg1-u1-collecting-past-a-y", "alg1-u1-minus-goes-through"]
+    A2 = ["alg1-u2-undoing-a-plus", "alg1-u2-undoing-a-times",
+          "alg1-u2-two-steps-back", "alg1-u2-the-biggest-x"]
+    A3 = ["alg1-u3-the-number-machine", "alg1-u3-f-of-x",
+          "alg1-u3-two-machines", "alg1-u3-which-input"]
+    _shape_unit_checks(A1, r"\[\[(tape|areamodel)\b")
+    _shape_unit_checks(A2, r"\[\[(balance|tape|numberline)\b")
+    _shape_unit_checks(A3, r"\[\[machine\b")
+
+    # ---- Unit 1 ------------------------------------------------------------------------
+    ev2 = {"a": 4, "b": 3, "c": 2, "op": "ev2"}
+    check("⭐ bx + c is asked as b copies of x then the c with the whole withheld, and walked back with every copy the number",
+          '[[tape parts="x | x | x | 2" total="?"' in L.board_for(ev2, "abstract")
+          and '[[tape parts="4 | 4 | 4 | 2" total="14" caption="3x + 2 = 12 + 2 = 14"]]' == _W(ev2)[1]
+          and "The plus waited its turn" in _W(ev2)[0], _W(ev2)[1])
+    evxy = {"a": 3, "b": 4, "c": 2, "op": "evxy"}
+    check("  x + cy is one x then c copies of y; each letter keeps its own number in the walk-back",
+          '[[tape parts="x | y | y" total="?"' in L.board_for(evxy, "abstract")
+          and '[[tape parts="3 | 4 | 4" total="11"' in _W(evxy)[1] and "never touched the x" in _W(evxy)[0], "")
+    cl2 = {"a": 3, "b": 2, "c": 4, "op": "cl2"}
+    check("⭐ collecting past a y: the bar in the order written, the x pieces counted, then collected as two parts; past ten pieces the counts are the parts",
+          '[[tape parts="x | x | x | y | y | x | x | x | x" total="?"' in L.board_for(cl2, "abstract")
+          and '[[tape parts="7x | 2y" caption="the x\'s collected: 7x + 2y"]]' == _W(cl2)[1]
+          and '[[tape parts="9x | 6y | 9x" total="?"' in L.board_for({"a": 9, "b": 6, "c": 9, "op": "cl2"}, "abstract"), "")
+    dstm = {"a": 4, "b": 3, "op": "dstm"}
+    check("⭐ the minus goes through: the area model asked with its taken-away room blank and the sign kept, read filled in the walk-back",
+          '[[areamodel rows="4" cols="x,-3" ask="1"' in L.board_for(dstm, "abstract")
+          and '[[areamodel rows="4" cols="x,-3" caption="4(x − 3) = 4x − 12"]]' == _W(dstm)[1]
+          and "that room is taken away" in _W(dstm)[0], "")
+    mf = rd("static/math-figures.js")
+    check("  math-figures.js keeps the sign of a taken-away room when the area model asks",
+          '(sum[p] < 0 ? "-?" : "?")' in mf, "")
+
+    # ---- Unit 2 ------------------------------------------------------------------------
+    un1 = {"a": 4, "b": 11, "op": "un1"}
+    check("⭐ undoing a plus: the balance as given, then x alone against the answer with the check written",
+          '[[balance left="x + 4" right="11" caption="take 4 off BOTH sides"]]' in L.board_for(un1, "abstract")
+          and '[[balance left="x" right="7" caption="4 off both sides: x = 7"]][[step eq="7 + 4 = 11 ✓"]]' == _W(un1)[1]
+          and "Put it back to check" in _W(un1)[0], "")
+    un2 = {"a": 3, "b": 12, "op": "un2"}
+    check("⭐ undoing a times: the a copies of x as a bar on the ask, shared in the walk-back",
+          '[[tape parts="x | x | x" total="12"' in L.board_for(un2, "abstract")
+          and '[[balance left="x" right="4"' in _W(un2)[1] and '[[tape parts="4 | 4 | 4" total="12" caption="3 × 4 = 12 ✓"]]' in _W(un2)[1]
+          and "the undo of a times is a share" in _W(un2)[0], "")
+    un3 = {"a": 2, "b": 3, "c": 11, "op": "un3"}
+    check("  two steps back: the balance after each undo, last on first off",
+          'caption="the 3 went on last — it comes off first"' in L.board_for(un3, "abstract")
+          and '[[balance left="2x" right="8" caption="3 off both sides"]][[balance left="x" right="4" caption="shared between 2: x = 4"]]' == _W(un3)[1], "")
+    ineq = {"a": 3, "b": 10, "op": "ineq"}
+    check("⭐ less than: the open circle and the shaded ray on the ask, the biggest whole number marked in the walk-back",
+          'ineq="x<7"' in L.board_for(ineq, "abstract") and 'points=' not in L.board_for(ineq, "abstract")
+          and 'ineq="x<7" points="6"' in _W(ineq)[1] and "shuts the door on 7 itself" in _W(ineq)[0], L.board_for(ineq, "abstract"))
+
+    # ---- Unit 3 ------------------------------------------------------------------------
+    fm1 = {"a": 2, "b": 1, "c": 4, "op": "fm1"}
+    check("⭐ the machine is asked with its output blank and a caption, and walked back filled with the rule's two steps",
+          '[[machine input="4" rule="2x + 1" output="?" caption="in 4 — times by 2, then add 1 — out ?"]]' == L.board_for(fm1, "abstract")
+          and 'output="9"' in _W(fm1)[1] and '[[step eq="2 × 4 = 8"]][[step eq="8 + 1 = 9"]]' in _W(fm1)[1], "")
+    fnot = {"a": 5, "b": 3, "op": "fnot"}
+    check("  f of b: machine f with its output blank, f(b) filled in the walk-back, nothing timesed",
+          'fname="f" caption="f of 3 — feed machine f the number 3"' in L.board_for(fnot, "abstract")
+          and 'caption="f(3) = 3 + 5 = 8"' in _W(fnot)[1] and "nothing is timesed" in _W(fnot)[0], "")
+    fm2 = {"a": 2, "b": 3, "c": 4, "op": "fm2"}
+    check("  two machines: the first filled, the second's output blank; both filled in the walk-back, in order",
+          'output="6" caption="machine one: in 4, out 6"' in L.board_for(fm2, "abstract") and 'output="?" fname="g"' in L.board_for(fm2, "abstract")
+          and 'output="18" fname="g"' in _W(fm2)[1] and "first machine first" in _W(fm2)[0], "")
+    fb = {"a": 3, "b": 10, "op": "fback"}
+    check("⭐ which input: the machine with its input blank, the input found by undoing and run forwards to check",
+          '[[machine input="?" rule="x + 3" output="10" fname="f" caption="in ?, out 10 — run it backwards"]]' in L.board_for(fb, "abstract")
+          and '[[machine input="7" rule="x + 3" output="10" fname="f" caption="f(7) = 10 ✓"]]' == _W(fb)[1], "")
+
+    # ---- the giveaway audit, captions, the notes -----------------------------------------
+    check("  nothing the twelve lessons demonstrate is later asked",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in A1 + A2 + A3), "")
+    check("  every machine and number line an ask draws carries a caption (rule 41) -- none did before tf",
+          all("caption=" in tag for l in A1 + A2 + A3
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:machine|numberline|balance|areamodel|tape)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    check("  no ask in the three units writes a question inside a [[step eq]]",
+          not any(re.search(r'\[\[step eq="[^"]*[A-Za-z]\?[^"]*"\]\]', L.board_for(p, "abstract"))
+                  for l in A1 + A2 + A3 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
+    check("  the changed files carry dated tf notes",
+          "2026-09-06  BUILD tf" in rd("lessonscripts.py")[:20000] and "BUILD tf" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD tf" in rd("ruletests.py")[:8000] and "(tf)" in rd("static/methodology.html")[:6000]
+          and "2026-09-06  BUILD tf" in mf[:3000],
           "Jim's rule 8")
 
 
@@ -35023,6 +35130,7 @@ def main():
     part3iy_prealgebra_units_one_to_three_to_the_shape()
     part3iz_prealgebra_units_four_to_six_to_the_shape()
     part3ja_prealgebra_units_seven_to_nine_to_the_shape()
+    part3jb_algebra_one_units_one_to_three_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

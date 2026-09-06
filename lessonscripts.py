@@ -2,6 +2,30 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tf -- ALGEBRA 1 UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "start on
+#               algebra." THIS FILE:
+#                 * Unit 1 (expressions) as BARS: bx + c is b copies of x then the c (the
+#                   plus waits its turn); x + cy is one x then c copies of y (each letter
+#                   its own number); ax + by + cx is the bar in the order written, the x
+#                   pieces counted past the y, then collected as two proportional parts;
+#                   a(x − b) on the AREA MODEL asked with the taken-away room blank
+#                   ([[areamodel ask="1"]] now keeps the sign: "= 4x - ?");
+#                 * Unit 2 (equations) on the BALANCE: x + a = b drawn level, a off both
+#                   sides, x alone against the answer, put back to check; ax = b as a
+#                   copies of x on the pan and as a bar shared; ax + b = c as the scale
+#                   after each undo (last on, first off); x + a < b on the number line
+#                   with the OPEN circle and the shaded ray, the biggest whole number
+#                   marked in the walk-back;
+#                 * Unit 3 (functions) on the MACHINE: the rule run in order with its
+#                   two steps written; f(b) with the output blank; two machines nose to
+#                   tail, the second's output blank; the input blank and found by undoing
+#                   the rule, then run forwards to check. Trap lines kept in every lesson.
+#               ⚠️ every machine and number-line ask in the three units drew with no
+#               caption (rule 41); every ask carries one now. Every lesson: why, picture,
+#               teach, pairs, walk-back, reason, recap. ENGINE: OP_EXT ev2/evxy/cl2/dstm/
+#               un1/un2/un3/ineq/fm1/fnot/fm2/fback gain boards and "worked" (_ev2_* ...
+#               _fback_*, _cl2_tape). Demonstrated numbers kept out of the banks (the old
+#               dstm pair worked 3(x − 4), a bank problem).
 #   2026-09-06  BUILD te -- PREALGEBRA UNITS 7-9 TO THE SHAPE (12 lessons). THIS FILE:
 #                 * Unit 7 (percent) on the TAPE: the number cut into ten equal parts --
 #                   ten percent is one part -- and the taken parts marked (any percent);
@@ -9195,24 +9219,62 @@ _ALGEBRA1_U1 = [
         "op": "ev2", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("x", "times"),
-        "advance_line": "Three in a row — you've got it! Times first, then add — even with a letter inside.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Times first, then add — even with a letter inside.",
+        "why": [
+            ("Welcome to algebra. Why start here? Because you already know the two "
+             "moves this lesson needs: a number against a letter means times, and "
+             "times comes before add. Put them together and you can work out "
+             "something like 3 x plus 2 the moment you learn what x is holding — and "
+             "that is most of what algebra ever asks.",
+             '[[goal text="Two steps with a letter"]]'),
+        ],
+        "picture": [
+            ("Here is 3 x plus 2 as a bar: three copies of x, then a 2 on the end. Now "
+             "x is holding 4, so every copy is a 4. Three fours is 12, and the 2 on "
+             "the end brings it to 14. The times happened inside the copies before the 2 was "
+             "ever counted.",
+             '[[tape parts="x | x | x | 2" total="?" caption="3x + 2 — three copies of x, then 2"]][[tape parts="4 | 4 | 4 | 2" total="14" caption="x holds 4: 12 + 2 = 14"]]'),
+        ],
         "teach": [
-            ["Welcome to algebra. You already know the two moves this lesson needs: a number against a letter means times, and times comes before add. Put them together and you can work out something like 3 x plus 2 the moment you learn what x is holding.",
-             '[[goal text="Two steps with a letter"]]'],
-            ["Say x is holding 4. What is 3 x plus 2? The times comes first: 3 times 4 equals 12. Then the add: 12 plus 2 equals 14.",
-             '[[step eq="x = 4"]][[step eq="3x + 2 = 3 × 4 + 2"]][[step eq="12 + 2 = 14"]]'],
-            ["The order is the whole game. If you add first — 4 plus 2, then times 3 — you get 18, and 18 is wrong. The plus cannot reach the x before the times has had it.",
-             '[[step eq="3 × 4 + 2 = 14 ✓"]][[step eq="3 × (4 + 2) = 18 ✗"]]'],
+            ("That is the method. Say x is holding 4. What is 3 x plus 2? The times "
+             "comes first: 3 times 4 equals 12. Then the add: 12 plus 2 equals 14.",
+             '[[step eq="x = 4"]][[tape parts="4 | 4 | 4 | 2" total="14" caption="3x + 2 with x holding 4"]][[step eq="3x + 2 = 3 × 4 + 2"]][[step eq="12 + 2 = 14"]]'),
+            ("The order is the whole game. If you add first — 4 plus 2, then times 3 "
+             "— you get 18, and 18 is wrong. The plus cannot reach the x before the "
+             "times has had it. Look at the bar: the 2 is one piece on the end, not "
+             "three.",
+             '[[step eq="3 × 4 + 2 = 14 ✓"]][[step eq="3 × (4 + 2) = 18 ✗"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x is holding 5. 2 x plus 7: times first, 2 times 5 equals 10, then 10 plus 7 equals 17.",
-                        '[[step eq="2x + 7 = 10 + 7 = 17"]]'],
-             "ask": {"a": 3, "b": 4, "c": 2, "op": "ev2"}},
-            {"worked": ["One more together. x is holding 3. 5 x plus 4: 5 times 3 equals 15, and 15 plus 4 equals 19.",
-                        '[[step eq="5x + 4 = 15 + 4 = 19"]]'],
-             "ask": {"a": 5, "b": 4, "c": 6, "op": "ev2"}},
+            {"worked": ("Here is one more, done for you. x is holding 5. 2 x plus 7: "
+                        "times first, 2 times 5 equals 10, then 10 plus 7 equals 17.",
+                        '[[step eq="x = 5"]][[tape parts="5 | 5 | 7" total="17" caption="2x + 7 = 10 + 7 = 17"]]'),
+             "ask": {'a': 3, 'b': 4, 'c': 2, 'op': 'ev2'}},
+            {"worked": ("One more together. x is holding 3. 5 x plus 4: 5 times 3 equals "
+                        "15, and 15 plus 4 equals 19.",
+                        '[[step eq="x = 3"]][[tape parts="3 | 3 | 3 | 3 | 3 | 4" total="19" caption="5x + 4 = 15 + 4 = 19"]]'),
+             "ask": {'a': 5, 'b': 4, 'c': 6, 'op': 'ev2'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x is holding 4, "
+                       "so 3 x plus 2 is 14. Tap the reason why."),
+            "choices": ("because 3 x is three fours, 12, then the 2 goes on | "
+                        "because 4 plus 2 is 6, and three sixes is 18 | because the "
+                        "3, the 4 and the 2 all add together"),
+            "answer": "because 3 x is three fours, 12, then the 2 goes on",
+            "board": '[[tape parts="4 | 4 | 4 | 2" total="14" caption="3x + 2 = 12 + 2 = 14"]]',
+        },
+        "recap": [
+            ("So, here it is again. A number against a letter means times, and times "
+             "comes before add. Swap x for its number, times first, then add. The "
+             "plus waits its turn.",
+             '[[tape parts="4 | 4 | 4 | 2" total="14" caption="x = 4 · 3x + 2 = 14"]]'),
+            ("And that is two old moves, working together for the first time.",
+             '[[step eq="3x + 2 = 3 × 4 + 2 = 14"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "c": 2, "op": "ev2"},
             {"a": 3, "b": 2, "c": 3, "op": "ev2"},
@@ -9233,24 +9295,62 @@ _ALGEBRA1_U1 = [
         "op": "evxy", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("y", "letter"),
-        "advance_line": "Three in a row — you've got it! Each letter keeps its own number.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Each letter keeps its own number.",
+        "why": [
+            ("Why a second letter? Because there was never anything special about x. "
+             "Any letter can hold a number, and two letters can each hold their own — "
+             "a price and a count, a length and a width. Meet y. It works exactly "
+             "like x, and the two of them can stand in the same expression without "
+             "getting mixed up.",
+             '[[goal text="Two letters at once"]]'),
+        ],
+        "picture": [
+            ("Here is x plus 2 y as a bar: one x, then two copies of y. Now x is "
+             "holding 3 and y is holding 4. The x piece is a 3, and the two y pieces "
+             "are 4 and 4. 3 plus 8 equals 11. The 2 belonged to the y — it made two "
+             "copies of y, and never touched the x.",
+             '[[tape parts="x | y | y" total="?" caption="x + 2y — one x, then two copies of y"]][[tape parts="3 | 4 | 4" total="11" caption="x holds 3, y holds 4: 3 + 8 = 11"]]'),
+        ],
         "teach": [
-            ["There was never anything special about x. Any letter can hold a number, and two letters can each hold their own. Meet y — it works exactly like x, and the two of them can stand in the same expression without getting mixed up.",
-             '[[goal text="Two letters at once"]]'],
-            ["Say x is holding 3 and y is holding 4. What is x plus 2 y? Deal with the times first: 2 y is 2 times 4, which equals 8. Then x plus that: 3 plus 8 equals 11.",
-             '[[step eq="x = 3 · y = 4"]][[step eq="x + 2y = 3 + 2 × 4"]][[step eq="3 + 8 = 11"]]'],
-            ["Each letter keeps its own number — the 2 belongs to the y and never touches the x. 3 plus 2, timesed by 4, would be 20, and 20 is wrong. Read who the 2 is standing next to.",
-             '[[step eq="3 + 2 × 4 = 11 ✓"]][[step eq="(3 + 2) × 4 = 20 ✗"]]'],
+            ("That is the method. Say x is holding 3 and y is holding 4. What is x "
+             "plus 2 y? Deal with the times first: 2 y is 2 times 4, which equals 8. "
+             "Then x plus that: 3 plus 8 equals 11.",
+             '[[step eq="x = 3 · y = 4"]][[tape parts="3 | 4 | 4" total="11" caption="x + 2y with x holding 3, y holding 4"]][[step eq="x + 2y = 3 + 2 × 4"]][[step eq="3 + 8 = 11"]]'),
+            ("Each letter keeps its own number — the 2 belongs to the y and never "
+             "touches the x. 3 plus 2, timesed by 4, would be 20, and 20 is wrong. "
+             "Read who the 2 is standing next to.",
+             '[[step eq="3 + 2 × 4 = 11 ✓"]][[step eq="(3 + 2) × 4 = 20 ✗"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x holds 5, y holds 2. x plus 4 y: 4 times 2 equals 8, and 5 plus 8 equals 13.",
-                        '[[step eq="5 + 4 × 2 = 13"]]'],
-             "ask": {"a": 2, "b": 3, "c": 3, "op": "evxy"}},
-            {"worked": ["One more together. x holds 6, y holds 3. x plus 5 y: 5 times 3 equals 15, and 6 plus 15 equals 21.",
-                        '[[step eq="6 + 5 × 3 = 21"]]'],
-             "ask": {"a": 7, "b": 5, "c": 4, "op": "evxy"}},
+            {"worked": ("Here is one more, done for you. x holds 5, y holds 2. x plus "
+                        "4 y: 4 times 2 equals 8, and 5 plus 8 equals 13.",
+                        '[[step eq="x = 5 · y = 2"]][[tape parts="5 | 2 | 2 | 2 | 2" total="13" caption="x + 4y = 5 + 8 = 13"]]'),
+             "ask": {'a': 2, 'b': 3, 'c': 3, 'op': 'evxy'}},
+            {"worked": ("One more together. x holds 6, y holds 3. x plus 5 y: 5 times 3 "
+                        "equals 15, and 6 plus 15 equals 21.",
+                        '[[step eq="x = 6 · y = 3"]][[tape parts="6 | 3 | 3 | 3 | 3 | 3" total="21" caption="x + 5y = 6 + 15 = 21"]]'),
+             "ask": {'a': 7, 'b': 5, 'c': 4, 'op': 'evxy'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x holds 3 and y "
+                       "holds 4, so x plus 2 y is 11. Tap the reason why."),
+            "choices": ("because 2 y is two fours, 8, then x adds 3 | because "
+                        "3 plus 2 is 5, and five fours is 20 | because the 2 goes with "
+                        "the x, not the y"),
+            "answer": "because 2 y is two fours, 8, then x adds 3",
+            "board": '[[tape parts="3 | 4 | 4" total="11" caption="x + 2y = 3 + 8 = 11"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two letters, two numbers, and each letter keeps "
+             "its own. A number against a letter is copies of THAT letter only. "
+             "Times first, then add.",
+             '[[tape parts="3 | 4 | 4" total="11" caption="x = 3, y = 4 · x + 2y = 11"]]'),
+            ("And that is a price and a count, side by side in one expression.",
+             '[[step eq="x + 2y = 3 + 2 × 4 = 11"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "c": 2, "op": "evxy"},
             {"a": 3, "b": 2, "c": 3, "op": "evxy"},
@@ -9271,24 +9371,63 @@ _ALGEBRA1_U1 = [
         "op": "cl2", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("x", "y"),
-        "advance_line": "Three in a row — you've got it! Only the same letter collects.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Only the same letter collects.",
+        "why": [
+            ("Why does this need its own lesson? Because you know that x's collect by "
+             "counting: 3 x plus 4 x is 7 x. Today there is a y standing in the "
+             "middle. The rule does not change — it just gets a boundary: only the "
+             "SAME letter collects. An x and a y are apples and oranges.",
+             '[[goal text="Collecting past a y"]]'),
+        ],
+        "picture": [
+            ("Here is 3 x plus 2 y plus 4 x as a bar, in the order it was written: "
+             "three x's, then two y's, then four more x's. Count only the x pieces: "
+             "three and four is seven x's. The two y pieces are a different thing — "
+             "gather them beside the x's and the bar reads 7 x plus 2 y.",
+             '[[tape parts="x | x | x | y | y | x | x | x | x" caption="3x + 2y + 4x — count only the x pieces"]][[tape parts="7x | 2y" caption="collected: 7x + 2y"]]'),
+        ],
         "teach": [
-            ["You know that x's collect by counting: 3 x plus 4 x is 7 x. Today there is a y standing in the middle. The rule does not change — it just gets a boundary: only the SAME letter collects. An x and a y are apples and oranges.",
-             '[[goal text="Collecting past a y"]]'],
-            ["Watch: 3 x plus 2 y plus 4 x. Walk along it and count only the x's: 3 of them, then 4 more, which equals 7 x. The 2 y is a different thing — it walks past and stays exactly as it is. The answer is 7 x plus 2 y.",
-             '[[step eq="3x + 2y + 4x"]][[step eq="the x\'s: 3 + 4 = 7 · the y stays"]]'],
-            ["The tempting mistake is grabbing everything: 3 plus 2 plus 4 equals 9, and calling it 9 of something. Nine of WHAT? The x's and the y are not the same thing, and a count needs everything in it to be the same thing.",
-             '[[step eq="7x + 2y ✓"]][[step eq="9 ✗" cap="nine of what? an x and a y are not the same thing"]]'],
+            ("That is the method. 3 x plus 2 y plus 4 x. Walk along it and count only "
+             "the x's: 3 of them, then 4 more, which equals 7 x. The 2 y is a "
+             "different thing — it walks past and stays exactly as it is. The answer "
+             "is 7 x plus 2 y.",
+             '[[tape parts="7x | 2y" caption="7x + 2y"]][[step eq="3x + 2y + 4x"]][[step eq="the x\'s: 3 + 4 = 7 · the y stays"]]'),
+            ("The tempting mistake is grabbing everything: 3 plus 2 plus 4 equals 9, "
+             "and calling it 9 of something. Nine of WHAT? The x's and the y are not "
+             "the same thing, and a count needs everything in it to be the same "
+             "thing.",
+             '[[step eq="7x + 2y ✓"]][[step eq="9 ✗" cap="nine of what? an x and a y are not the same thing"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 5 x plus 3 y plus 2 x. The x's: 5 plus 2 equals 7. So it is 7 x plus 3 y.",
-                        '[[step eq="5x + 3y + 2x = 7x + 3y"]]'],
-             "ask": {"a": 4, "b": 2, "c": 6, "op": "cl2"}},
-            {"worked": ["One more together. 6 x plus 4 y plus 3 x. The x's make 9, so it is 9 x plus 4 y.",
-                        '[[step eq="6x + 4y + 3x = 9x + 4y"]]'],
-             "ask": {"a": 8, "b": 3, "c": 5, "op": "cl2"}},
+            {"worked": ("Here is one more, done for you. 5 x plus 3 y plus 2 x. The "
+                        "x's: 5 plus 2 equals 7. So it is 7 x plus 3 y.",
+                        '[[tape parts="5x | 3y | 2x" caption="5x + 3y + 2x"]][[tape parts="7x | 3y" caption="collected: 7x + 3y"]][[step eq="5x + 3y + 2x = 7x + 3y"]]'),
+             "ask": {'a': 4, 'b': 2, 'c': 6, 'op': 'cl2'}},
+            {"worked": ("One more together. 6 x plus 4 y plus 3 x. The x's make 9, so "
+                        "it is 9 x plus 4 y.",
+                        '[[tape parts="6x | 4y | 3x" caption="6x + 4y + 3x"]][[tape parts="9x | 4y" caption="collected: 9x + 4y"]][[step eq="6x + 4y + 3x = 9x + 4y"]]'),
+             "ask": {'a': 8, 'b': 3, 'c': 5, 'op': 'cl2'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 x plus 2 y plus "
+                       "4 x is 7 x plus 2 y. Tap the reason why."),
+            "choices": ("because only the x pieces count together; the y is different | "
+                        "because all the numbers add up, whatever the letters | because "
+                        "the y in the middle stops the x\'s collecting"),
+            "answer": "because only the x pieces count together; the y is different",
+            "board": '[[tape parts="7x | 2y" caption="3x + 2y + 4x = 7x + 2y"]]',
+        },
+        "recap": [
+            ("So, here it is again. Terms collect by counting, but only the SAME "
+             "letter collects. Count the x's past the y; the y stays as it is, "
+             "beside them.",
+             '[[tape parts="7x | 2y" caption="3x + 2y + 4x = 7x + 2y"]]'),
+            ("And that is apples counted with apples, and oranges left as oranges.",
+             '[[step eq="3x + 2y + 4x = 7x + 2y"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "c": 3, "op": "cl2"},
             {"a": 3, "b": 3, "c": 4, "op": "cl2"},
@@ -9309,24 +9448,63 @@ _ALGEBRA1_U1 = [
         "op": "dstm", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("parentheses", "take away"),
-        "advance_line": "Three in a row — you've got it! The times reaches both rooms, minus and all.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The times reaches both rooms, minus and all.",
+        "why": [
+            ("Why a minus lesson? Because you know the times outside parentheses "
+             "reaches both rooms: 4 times the whole of x plus 3 is 4 x plus 12. Today "
+             "the inside says take away instead — x take away 3 — and the rule holds. "
+             "The times still reaches both rooms; the second room just comes off "
+             "instead of going on.",
+             '[[goal text="The minus goes through too"]]'),
+        ],
+        "picture": [
+            ("Here is a rectangle 4 tall and x take away 3 wide. The rooms are 4 "
+             "times x, and 4 times 3, which equals 12 — and that room is TAKEN AWAY, "
+             "because the width was x with 3 taken off. So 4 times the whole of x "
+             "take away 3 comes to 4 x take away 12.",
+             '[[areamodel rows="4" cols="x,-3" caption="a 4 by (x − 3) rectangle — the second room comes off"]]'),
+        ],
         "teach": [
-            ["You know the times outside parentheses reaches both rooms: 4 times the whole of x plus 3 is 4 x plus 12. Today the inside says take away instead — x take away 3 — and the rule holds. The times still reaches both rooms; the second room just comes off instead of going on.",
-             '[[goal text="The minus goes through too"]][[areamodel rows="4" cols="x,-3" caption="a 4 by (x − 3) rectangle — read the rooms"]]'],
-            ["Look at the picture: a rectangle 4 tall and x take away 3 wide. The rooms are 4 times x, and 4 times 3, which equals 12 — and that room is TAKEN AWAY. So 4 times the whole of x take away 3 comes to 4 x take away 12.",
-             '[[areamodel rows="4" cols="x,-3" caption="a 4 by (x − 3) rectangle — read the rooms"]][[step eq="4(x − 3) = 4x − 12"]]'],
-            ["The wrong answer is 4 x take away 3, where the 4 timesed the x and never reached the 3. The times does not stop at the minus sign — it carries it along. 12 comes off, not 3.",
-             '[[step eq="4x − 12 ✓"]][[step eq="4x − 3 ✗ — the 3 never got timesed"]]'],
+            ("That is the rule: the times reaches both rooms, minus and all. 4 times "
+             "the whole of x take away 3 is 4 times x, take away 4 times 3. That is "
+             "4 x take away 12.",
+             '[[areamodel rows="4" cols="x,-3" caption="read the rooms"]][[step eq="4(x − 3) = 4x − 12"]]'),
+            ("The wrong answer is 4 x take away 3, where the 4 timesed the x and never "
+             "reached the 3. The times does not stop at the minus sign — it carries "
+             "it along. 12 comes off, not 3.",
+             '[[step eq="4x − 12 ✓"]][[step eq="4x − 3 ✗ — the 3 never got timesed"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Times the whole of x take away 2 by 5. The rooms are 5 x, and 5 times 2, which equals 10, taken away: 5 x take away 10.",
-                        '[[areamodel rows="5" cols="x,-2" caption="a 5 by (x − 2) rectangle — read the rooms"]][[step eq="5(x − 2) = 5x − 10"]]'],
-             "ask": {"a": 6, "b": 2, "op": "dstm"}},
-            {"worked": ["One more together. Times the whole of x take away 4 by 3. The rooms are 3 x and 12, taken away: 3 x take away 12.",
-                        '[[areamodel rows="3" cols="x,-4" caption="a 3 by (x − 4) rectangle — read the rooms"]][[step eq="3(x − 4) = 3x − 12"]]'],
-             "ask": {"a": 7, "b": 3, "op": "dstm"}},
+            {"worked": ("Here is one more, done for you. Times the whole of x take away "
+                        "2 by 5. The rooms are 5 x, and 5 times 2, which equals 10, "
+                        "taken away: 5 x take away 10.",
+                        '[[areamodel rows="5" cols="x,-2" caption="a 5 by (x − 2) rectangle — read the rooms"]][[step eq="5(x − 2) = 5x − 10"]]'),
+             "ask": {'a': 6, 'b': 2, 'op': 'dstm'}},
+            {"worked": ("One more together. Times the whole of x take away 5 by 2. The "
+                        "rooms are 2 x and 10, taken away: 2 x take away 10.",
+                        '[[areamodel rows="2" cols="x,-5" caption="a 2 by (x − 5) rectangle — read the rooms"]][[step eq="2(x − 5) = 2x − 10"]]'),
+             "ask": {'a': 7, 'b': 3, 'op': 'dstm'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 4 times the whole "
+                       "of x take away 3 is 4 x take away 12. Tap the reason why."),
+            "choices": ("because the 4 times the 3 too, and that room comes off | "
+                        "because the 4 stops at the minus, so the 3 stays | "
+                        "because a minus inside turns the answer into 4 x plus 12"),
+            "answer": "because the 4 times the 3 too, and that room comes off",
+            "board": '[[areamodel rows="4" cols="x,-3" caption="4(x − 3) = 4x − 12"]]',
+        },
+        "recap": [
+            ("So, here it is again. A times outside parentheses reaches both rooms, "
+             "and a minus inside comes along for the ride: the second room is timesed "
+             "too, then taken away. 4 times x take away 3 is 4 x take away 12.",
+             '[[areamodel rows="4" cols="x,-3" caption="4(x − 3) = 4x − 12"]]'),
+            ("And that is the last of the four seeds, grown.",
+             '[[step eq="4(x − 3) = 4x − 12"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "dstm"},
             {"a": 4, "b": 2, "op": "dstm"},
@@ -9367,24 +9545,61 @@ _ALGEBRA1_U2 = [
         "op": "un1", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("equals", "x"),
-        "advance_line": "Three in a row — you've got it! Take the same off both sides and the scale stays level.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Take the same off both sides and the scale stays level.",
+        "why": [
+            ("Why solve? Because until today, I always told you what x was holding. "
+             "Now the equation tells you — in disguise. x plus 4 equals 11 means: "
+             "some hidden number, plus 4, comes to 11. Finding the hidden number is "
+             "called solving, and it is what algebra is for.",
+             '[[goal text="Undoing a plus"]]'),
+        ],
+        "picture": [
+            ("Here is the picture that keeps it honest: a balance scale. The left pan "
+             "holds x and a 4; the right pan holds 11; and equals means LEVEL. Take "
+             "the 4 off the left pan and the scale tips — unless you take 4 off the "
+             "right pan too. Do both, and x sits alone against 7.",
+             '[[balance left="x + 4" right="11" caption="equals means level"]][[balance left="x" right="7" caption="4 off both sides — still level: x = 7"]]'),
+        ],
         "teach": [
-            ["Until today, I always told you what x was holding. Now the equation tells you — in disguise. x plus 4 equals 11 means: some hidden number, plus 4, comes to 11 — and finding it is called solving. Here is the picture that keeps it honest: an equation is a balance scale, and equals means LEVEL.",
-             '[[goal text="Undoing a plus"]][[balance left="x + 4" right="11" caption="keep both sides balanced"]]'],
-            ["The left pan holds x and a 4. To get x alone, take the 4 off — but the scale only stays level if you take 4 off BOTH sides. 11 take away 4 equals 7. So x is holding 7.",
-             '[[balance left="x + 4" right="11" caption="take 4 off both sides"]][[step eq="x = 11 − 4 = 7"]]'],
-            ["Check it — put 7 back in: 7 plus 4 equals 11. Level. And watch the wrong move: ADDING 4 gives 15, which pushes the same way the equation already went. Solving is undoing, and the undo of a plus is a take away.",
-             '[[step eq="7 + 4 = 11 ✓"]][[step eq="x = 15 ✗ — that pushed instead of undoing"]]'],
+            ("That is the method. The left pan holds x and a 4. To get x alone, take "
+             "the 4 off — but the scale only stays level if you take 4 off BOTH "
+             "sides. 11 take away 4 equals 7. So x is holding 7.",
+             '[[balance left="x + 4" right="11" caption="take 4 off both sides"]][[step eq="x = 11 − 4 = 7"]]'),
+            ("Check it — put 7 back in: 7 plus 4 equals 11. Level. And watch the wrong "
+             "move: ADDING 4 gives 15, which pushes the same way the equation already "
+             "went. Solving is undoing, and the undo of a plus is a take away.",
+             '[[step eq="7 + 4 = 11 ✓"]][[step eq="x = 15 ✗ — that pushed instead of undoing"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x plus 5 equals 12. Take 5 off both sides: 12 take away 5 equals 7. x is holding 7.",
-                        '[[balance left="x + 5" right="12" caption="keep both sides balanced"]][[step eq="x = 12 − 5 = 7"]]'],
-             "ask": {"a": 4, "b": 13, "op": "un1"}},
-            {"worked": ["One more together. x plus 3 equals 10. 10 take away 3 equals 7, so x is holding 7.",
-                        '[[step eq="x = 10 − 3 = 7"]]'],
-             "ask": {"a": 6, "b": 21, "op": "un1"}},
+            {"worked": ("Here is one more, done for you. x plus 5 equals 12. Take 5 off "
+                        "both sides: 12 take away 5 equals 7. x is holding 7.",
+                        '[[balance left="x + 5" right="12" caption="take 5 off both sides"]][[balance left="x" right="7" caption="x = 7"]][[step eq="x = 12 − 5 = 7"]]'),
+             "ask": {'a': 4, 'b': 13, 'op': 'un1'}},
+            {"worked": ("One more together. x plus 3 equals 10. 10 take away 3 equals 7, "
+                        "so x is holding 7.",
+                        '[[balance left="x + 3" right="10" caption="take 3 off both sides"]][[balance left="x" right="7" caption="x = 7"]][[step eq="x = 10 − 3 = 7"]]'),
+             "ask": {'a': 6, 'b': 21, 'op': 'un1'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x plus 4 equals 11, "
+                       "so x is holding 7. Tap the reason why."),
+            "choices": ("because 4 came off both pans, leaving 11 take away 4 | "
+                        "because you add the 4 to the 11 to get x | because x is "
+                        "whatever is on the right pan"),
+            "answer": "because 4 came off both pans, leaving 11 take away 4",
+            "board": '[[balance left="x" right="7" caption="4 off both sides: x = 7"]]',
+        },
+        "recap": [
+            ("So, here it is again. An equation is a balance, and equals means level. "
+             "To find x, undo what was done to it — the undo of a plus is a take away "
+             "— and do it to BOTH sides so the scale stays level.",
+             '[[balance left="x + 4" right="11" caption="x + 4 = 11 · 4 off both sides · x = 7"]]'),
+            ("And that is the first equation you ever solved.",
+             '[[step eq="x + 4 = 11, so x = 7"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 5, "op": "un1"},
             {"a": 4, "b": 7, "op": "un1"},
@@ -9405,24 +9620,61 @@ _ALGEBRA1_U2 = [
         "op": "un2", "max_value": 60,
         "levels": ("abstract",),
         "symbols": ("x", "times"),
-        "advance_line": "Three in a row — you've got it! The undo of a times is a share.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The undo of a times is a share.",
+        "why": [
+            ("Why a second undo? Because x does not only hide behind a plus. 3 x "
+             "equals 12 is a new disguise — three x's together weigh 12. The undo is "
+             "NOT a take away this time. Three of something came to 12, so one of "
+             "them is 12 shared between 3. The undo of a times is a share.",
+             '[[goal text="Undoing a times"]]'),
+        ],
+        "picture": [
+            ("Here is the scale: three copies of x on the left, 12 on the right. And "
+             "here are the three copies as a bar that weighs 12 in all. Share the 12 "
+             "between the three pieces and each one is 4. So one x weighs 4.",
+             '[[balance left="3x" right="12" caption="three x\'s weigh 12"]][[tape parts="4 | 4 | 4" total="12" caption="12 shared between 3 — each x is 4"]]'),
+        ],
         "teach": [
-            ["A new disguise. 3 x equals 12 — three x's together weigh 12. The undo is NOT a take away this time. Three of something made 12, so one of them is 12 shared between 3. The undo of a times is a share.",
-             '[[goal text="Undoing a times"]][[balance left="3x" right="12" caption="keep both sides balanced"]]'],
-            ["Share both sides between 3: the left pan drops to one x, and the right drops to 12 shared between 3, which equals 4. So x is holding 4.",
-             '[[balance left="3x" right="12" caption="share both sides between 3"]][[step eq="x = 12 ÷ 3 = 4"]]'],
-            ["The trap is undoing the WRONG operation. 12 take away 3 equals 9 — but nothing here was added, so there is nothing to take away. Ask what happened to x. It was timesed, so it gets shared. Check: 3 times 4 equals 12. Level.",
-             '[[step eq="3 × 4 = 12 ✓"]][[step eq="x = 12 − 3 = 9 ✗ — wrong undo"]]'],
+            ("That is the method. Share both sides between 3: the left pan drops to "
+             "one x, and the right drops to 12 shared between 3, which equals 4. So "
+             "x is holding 4.",
+             '[[balance left="3x" right="12" caption="share both sides between 3"]][[balance left="x" right="4" caption="x = 4"]][[step eq="x = 12 ÷ 3 = 4"]]'),
+            ("The trap is undoing the WRONG operation. 12 take away 3 equals 9 — but "
+             "nothing here was added, so there is nothing to take away. Ask what "
+             "happened to x. It was timesed, so it gets shared. Check: 3 times 4 "
+             "equals 12. Level.",
+             '[[step eq="3 × 4 = 12 ✓"]][[step eq="x = 12 − 3 = 9 ✗ — wrong undo"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 4 x equals 20. Share both sides between 4: 20 shared between 4 equals 5. x is holding 5.",
-                        '[[balance left="4x" right="20" caption="keep both sides balanced"]][[step eq="x = 20 ÷ 4 = 5"]]'],
-             "ask": {"a": 2, "b": 12, "op": "un2"}},
-            {"worked": ["One more together. 5 x equals 30. 30 shared between 5 equals 6, so x is holding 6.",
-                        '[[step eq="x = 30 ÷ 5 = 6"]]'],
-             "ask": {"a": 4, "b": 36, "op": "un2"}},
+            {"worked": ("Here is one more, done for you. 4 x equals 20. Share both sides "
+                        "between 4: 20 shared between 4 equals 5. x is holding 5.",
+                        '[[balance left="4x" right="20" caption="share both sides between 4"]][[tape parts="5 | 5 | 5 | 5" total="20" caption="each x is 5"]][[step eq="x = 20 ÷ 4 = 5"]]'),
+             "ask": {'a': 2, 'b': 12, 'op': 'un2'}},
+            {"worked": ("One more together. 5 x equals 30. 30 shared between 5 equals 6, "
+                        "so x is holding 6.",
+                        '[[balance left="5x" right="30" caption="share both sides between 5"]][[tape parts="6 | 6 | 6 | 6 | 6" total="30" caption="each x is 6"]][[step eq="x = 30 ÷ 5 = 6"]]'),
+             "ask": {'a': 4, 'b': 36, 'op': 'un2'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 x equals 12, so "
+                       "x is holding 4. Tap the reason why."),
+            "choices": ("because three x\'s weigh 12, so one is 12 shared by 3 | "
+                        "because you take the 3 off the 12 to get x | because x is the "
+                        "12 with the 3 moved to the front"),
+            "answer": "because three x\'s weigh 12, so one is 12 shared by 3",
+            "board": '[[tape parts="4 | 4 | 4" total="12" caption="3x = 12 — each x is 4"]]',
+        },
+        "recap": [
+            ("So, here it is again. Ask what happened to x. If it was timesed, the "
+             "undo is a share — both sides, between the same number — and the scale "
+             "stays level. Nothing was added, so nothing comes off.",
+             '[[balance left="3x" right="12" caption="3x = 12 · share both sides between 3 · x = 4"]]'),
+            ("And that is the second undo, and the pair of them is most of solving.",
+             '[[step eq="3x = 12, so x = 4"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 8, "op": "un2"},
             {"a": 3, "b": 9, "op": "un2"},
@@ -9443,24 +9695,60 @@ _ALGEBRA1_U2 = [
         "op": "un3", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("x", "equals"),
-        "advance_line": "Three in a row — you've got it! Last on, first off — then share.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Last on, first off — then share.",
+        "why": [
+            ("Why two steps? Because now both disguises come at once: 2 x plus 3 "
+             "equals 11. Two undos to make, and the ORDER matters. Think of socks and "
+             "shoes: the shoes went on last, so they come off first. Here the plus 3 "
+             "went on last — it comes off first.",
+             '[[goal text="Two steps back"]]'),
+        ],
+        "picture": [
+            ("Here is the scale three times. First: two x's and a 3 against 11. Take "
+             "3 off both sides, and it reads two x's against 8. Share both sides "
+             "between 2, and it reads one x against 4. Each picture is level; each is "
+             "one undo.",
+             '[[balance left="2x + 3" right="11" caption="as given"]][[balance left="2x" right="8" caption="3 off both sides"]][[balance left="x" right="4" caption="shared between 2: x = 4"]]'),
+        ],
         "teach": [
-            ["Now both disguises at once: 2 x plus 3 equals 11. Two undos to make, and the ORDER matters. Think of socks and shoes: the shoes went on last, so they come off first. Here the plus 3 went on last — it comes off first.",
-             '[[goal text="Two steps back"]][[balance left="2x + 3" right="11" caption="keep both sides balanced"]]'],
-            ["Take 3 off both sides: 2 x equals 8. Now the second undo — share both sides between 2: x equals 4.",
-             '[[balance left="2x" right="8" caption="the 3 is off — one undo left"]][[step eq="2x = 11 − 3 = 8"]][[step eq="x = 8 ÷ 2 = 4"]]'],
-            ["Do not stop at 8. Eight is what TWO x's weigh, not what one x is holding. Both undos have to happen. Check: 2 times 4 is 8, plus 3 is 11. Level.",
-             '[[step eq="2 × 4 + 3 = 11 ✓"]][[step eq="x = 8 ✗ — that is two x\'s, not one"]]'],
+            ("That is the method. Take 3 off both sides: 2 x equals 8. Now the second "
+             "undo — share both sides between 2: x equals 4.",
+             '[[balance left="2x" right="8" caption="the 3 is off — one undo left"]][[step eq="2x = 11 − 3 = 8"]][[step eq="x = 8 ÷ 2 = 4"]]'),
+            ("Do not stop at 8. Eight is what TWO x's weigh, not what one x is "
+             "holding. Both undos have to happen. Check: 2 times 4 is 8, plus 3 is "
+             "11. Level.",
+             '[[step eq="2 × 4 + 3 = 11 ✓"]][[step eq="x = 8 ✗ — that is two x\'s, not one"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 3 x plus 2 equals 14. The 2 comes off first: 3 x equals 12. Then share: x equals 4.",
-                        '[[step eq="3x = 14 − 2 = 12"]][[step eq="x = 12 ÷ 3 = 4"]]'],
-             "ask": {"a": 2, "b": 4, "c": 14, "op": "un3"}},
-            {"worked": ["One more together. 4 x plus 3 equals 19. Take the 3 off: 4 x equals 16. Share between 4: x equals 4.",
-                        '[[step eq="4x = 16"]][[step eq="x = 4"]]'],
-             "ask": {"a": 5, "b": 3, "c": 38, "op": "un3"}},
+            {"worked": ("Here is one more, done for you. 3 x plus 2 equals 14. The 2 "
+                        "comes off first: 3 x equals 12. Then share: x equals 4.",
+                        '[[balance left="3x" right="12" caption="2 off both sides"]][[balance left="x" right="4" caption="shared between 3: x = 4"]][[step eq="3x = 14 − 2 = 12"]][[step eq="x = 12 ÷ 3 = 4"]]'),
+             "ask": {'a': 2, 'b': 4, 'c': 14, 'op': 'un3'}},
+            {"worked": ("One more together. 5 x plus 2 equals 27. Take the 2 off: 5 x "
+                        "equals 25. Share between 5: x equals 5.",
+                        '[[balance left="5x" right="25" caption="2 off both sides"]][[balance left="x" right="5" caption="shared between 5: x = 5"]][[step eq="5x = 25"]][[step eq="x = 5"]]'),
+             "ask": {'a': 5, 'b': 3, 'c': 38, 'op': 'un3'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 2 x plus 3 equals "
+                       "11, so x is holding 4. Tap the reason why."),
+            "choices": ("because the 3 comes off first, then 8 is shared by 2 | "
+                        "because 8 is left after the 3, so x holds 8 | because "
+                        "you share by 2 first, then take 3 off"),
+            "answer": "because the 3 comes off first, then 8 is shared by 2",
+            "board": '[[balance left="2x" right="8" caption="3 off both sides"]][[balance left="x" right="4" caption="shared between 2: x = 4"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two disguises, two undos, and last on comes off "
+             "first: take the added number off both sides, THEN share both sides. "
+             "Stop after one undo and you have what two x\'s weigh, not one.",
+             '[[balance left="2x + 3" right="11" caption="2x + 3 = 11 · 3 off · shared by 2 · x = 4"]]'),
+            ("And that is socks and shoes, in algebra.",
+             '[[step eq="2x + 3 = 11, so x = 4"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "c": 7, "op": "un3"},
             {"a": 3, "b": 2, "c": 11, "op": "un3"},
@@ -9481,24 +9769,64 @@ _ALGEBRA1_U2 = [
         "op": "ineq", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("less than", "x"),
-        "advance_line": "Three in a row — you've got it! Less than shuts the door on the number itself.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Less than shuts the door on the number itself.",
+        "why": [
+            ("Why less than? Because not every puzzle says equals. x plus 3 is LESS "
+             "THAN 10 — the left side has to weigh less than the right. Now x is not "
+             "one hidden number any more; it is a whole crowd of allowed ones, and the "
+             "puzzle is finding where the crowd stops.",
+             '[[goal text="Less than"]]'),
+        ],
+        "picture": [
+            ("Here is the crowd on the number line. Take 3 off both sides and x is "
+             "less than 7 — everything to the LEFT of 7 is allowed. The circle at 7 "
+             "is open, because 7 itself is shut out: 7 plus 3 lands on 10 instead of "
+             "staying under it. The biggest whole number in the crowd is 6.",
+             '[[numberline min="0" max="9" ineq="x<7" points="6" caption="x < 7 — the open circle shuts 7 out; the biggest whole number is 6"]]'),
+        ],
         "teach": [
-            ["Not every puzzle says equals. x plus 3 is LESS THAN 10 — the left side has to weigh less than the right. Now x is not one hidden number any more; it is a whole crowd of allowed ones, and the puzzle is finding where the crowd stops.",
-             '[[goal text="Less than"]][[step eq="x + 3 < 10"]]'],
-            ["Undo it exactly like an equation: take 3 from both sides. x is less than 7. On the number line, that is everything to the LEFT of 7 — and 7 itself is not included, because x plus 3 has to stay under 10, not land on it.",
-             '[[step eq="x < 10 − 3 = 7"]][[numberline min="0" max="9" points="7" caption="everything to the left of 7"]]'],
-            ["So what is the biggest WHOLE number x can hold? Not 7 — less than shuts the door on 7 itself. Try it: 7 plus 3 equals 10, and 10 is not less than 10. The biggest allowed is 6.",
-             '[[step eq="x = 6 ✓ — 6 + 3 = 9, under 10"]][[step eq="x = 7 ✗ — 7 + 3 = 10, not under"]]'],
+            ("That is the method. Undo it exactly like an equation: take 3 from both "
+             "sides. x is less than 7. On the number line, that is everything to the "
+             "left of 7 — and 7 itself is not included, because x plus 3 has to stay "
+             "under 10, not land on it.",
+             '[[step eq="x + 3 < 10"]][[step eq="x < 10 − 3 = 7"]][[numberline min="0" max="9" ineq="x<7" caption="everything to the left of 7 — 7 is shut out"]]'),
+            ("So what is the biggest WHOLE number x can hold? Not 7 — less than shuts "
+             "the door on 7 itself. Try it: 7 plus 3 equals 10, and 10 is not less "
+             "than 10. The biggest allowed is 6.",
+             '[[step eq="x = 6 ✓ — 6 + 3 = 9, under 10"]][[step eq="x = 7 ✗ — 7 + 3 = 10, not under"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x plus 4 is less than 11. Take 4 off: x is less than 7, so the biggest whole number is 6.",
-                        '[[step eq="x < 7"]][[step eq="biggest whole number: 6"]]'],
-             "ask": {"a": 3, "b": 9, "op": "ineq"}},
-            {"worked": ["One more together. x plus 2 is less than 9. x is less than 7 — the biggest whole number x can hold is 6.",
-                        '[[step eq="x < 7 → 6"]]'],
-             "ask": {"a": 6, "b": 19, "op": "ineq"}},
+            {"worked": ("Here is one more, done for you. x plus 4 is less than 11. Take "
+                        "4 off: x is less than 7, so the biggest whole number is 6.",
+                        '[[numberline min="0" max="9" ineq="x<7" points="6" caption="x < 7 — the biggest whole number is 6"]][[step eq="x < 11 − 4 = 7"]][[step eq="biggest whole number: 6"]]'),
+             "ask": {'a': 3, 'b': 9, 'op': 'ineq'}},
+            {"worked": ("One more together. x plus 5 is less than 14. x is less than 9 "
+                        "— the biggest whole number x can hold is 8.",
+                        '[[numberline min="0" max="11" ineq="x<9" points="8" caption="x < 9 — the biggest whole number is 8"]][[step eq="x < 9 → 8"]]'),
+             "ask": {'a': 6, 'b': 19, 'op': 'ineq'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x plus 3 is less "
+                       "than 10, and the biggest whole number x can hold is 6. Tap the "
+                       "reason why."),
+            "choices": ("because x is less than 7, and 7 itself is shut out | because "
+                        "10 take away 3 is 7, so x is 7 | because less than means x "
+                        "is 3 less than 10"),
+            "answer": "because x is less than 7, and 7 itself is shut out",
+            "board": '[[numberline min="0" max="9" ineq="x<7" points="6" caption="x < 7 — the biggest whole number is 6"]]',
+        },
+        "recap": [
+            ("So, here it is again. Undo a less-than exactly like an equation, both "
+             "sides. What you get is a boundary, not a number — and less than shuts "
+             "the door on the boundary itself, so the biggest whole number is one "
+             "below it.",
+             '[[numberline min="0" max="9" ineq="x<7" points="6" caption="x + 3 < 10 · x < 7 · biggest whole number 6"]]'),
+            ("And that is a crowd of answers, with a fence at one end.",
+             '[[step eq="x + 3 < 10, so x < 7"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 5, "op": "ineq"},
             {"a": 2, "b": 6, "op": "ineq"},
@@ -9538,24 +9866,64 @@ _ALGEBRA1_U3 = [
         "op": "fm1", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("machine", "rule"),
-        "advance_line": "Three in a row — you've got it! In goes a number, the rule runs, out comes the answer.",
+        "advance_line": "Three in a row, and you can say why — you've got it! In goes a number, the rule runs, out comes the answer.",
+        "why": [
+            ("Why a machine? Because half of the maths you will ever meet is a rule "
+             "that turns one number into another. A price into a price with tax, a "
+             "temperature into another scale, a time into a distance. A machine that "
+             "eats numbers is the honest picture of that: one rule painted on its "
+             "side, followed on whatever you feed it, no exceptions. That is all a "
+             "function is.",
+             '[[goal text="The number machine"]]'),
+        ],
+        "picture": [
+            ("Here is the machine. Its rule is painted on the box: times the input "
+             "by 2, then add 1. A 4 goes in the left door. Inside, the rule runs in "
+             "order — 2 times 4 is 8, then 8 plus 1 is 9 — and a 9 comes out the "
+             "right door.",
+             '[[machine input="4" rule="2x + 1" output="9" caption="in 4 — times by 2, then add 1 — out 9"]]'),
+        ],
         "teach": [
-            ["Here is a machine that eats numbers. It has one rule painted on its side, and it follows that rule on whatever you feed it — same rule, every time, no exceptions. Feed it a number and it puts a number out. That is all a function is: a rule with a door in and a door out.",
-             '[[goal text="The number machine"]][[machine input="4" rule="2x + 1" output="9" caption="in 4, out 9"]]'],
-            ["This machine's rule is: times the input by 2, then add 1. Feed it 4. The rule runs in order: 2 times 4 equals 8, then 8 plus 1 equals 9. Out comes 9.",
-             '[[machine input="4" rule="2x + 1" output="9" caption="in 4, out 9"]][[step eq="2 × 4 = 8"]][[step eq="8 + 1 = 9"]]'],
-            ["The rule says its steps in order, and the order is part of the rule. Times by 2 THEN add 1 is not the same machine as add 1 then times by 2 — feed them both a 4 and one puts out 9, the other 10.",
-             '[[step eq="2 × 4 + 1 = 9 ✓"]][[step eq="(4 + 1) × 2 = 10 — a DIFFERENT machine"]]'],
+            ("That is the method. Feed the machine its number and run the rule in "
+             "the order it says. Feed it 4: 2 times 4 equals 8, then 8 plus 1 equals "
+             "9. Out comes 9.",
+             '[[machine input="4" rule="2x + 1" output="9" caption="in 4, out 9"]][[step eq="2 × 4 = 8"]][[step eq="8 + 1 = 9"]]'),
+            ("The rule says its steps in order, and the order is part of the rule. "
+             "Times by 2 THEN add 1 is not the same machine as add 1 then times by 2 "
+             "— feed them both a 4 and one puts out 9, the other 10.",
+             '[[step eq="2 × 4 + 1 = 9 ✓"]][[step eq="(4 + 1) × 2 = 10 — a DIFFERENT machine"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The rule is times by 3, then add 2. Feed it 5: 3 times 5 equals 15, plus 2 equals 17.",
-                        '[[machine input="5" rule="3x + 2" output="17" caption="in 5, out 17"]]'],
-             "ask": {"a": 3, "b": 2, "c": 4, "op": "fm1"}},
-            {"worked": ["One more together. Times by 4, then add 1. Feed it 3: 4 times 3 equals 12, plus 1 equals 13.",
-                        '[[machine input="3" rule="4x + 1" output="13" caption="in 3, out 13"]]'],
-             "ask": {"a": 5, "b": 3, "c": 5, "op": "fm1"}},
+            {"worked": ("Here is one more, done for you. The rule is times by 3, then "
+                        "add 2. Feed it 5: 3 times 5 equals 15, plus 2 equals 17.",
+                        '[[machine input="5" rule="3x + 2" output="17" caption="in 5, out 17"]][[step eq="3 × 5 = 15"]][[step eq="15 + 2 = 17"]]'),
+             "ask": {'a': 3, 'b': 2, 'c': 4, 'op': 'fm1'}},
+            {"worked": ("One more together. Times by 4, then add 1. Feed it 3: 4 times 3 "
+                        "equals 12, plus 1 equals 13.",
+                        '[[machine input="3" rule="4x + 1" output="13" caption="in 3, out 13"]][[step eq="4 × 3 = 12"]][[step eq="12 + 1 = 13"]]'),
+             "ask": {'a': 5, 'b': 3, 'c': 5, 'op': 'fm1'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The rule is times "
+                       "by 2, then add 1, and a 4 goes in. Out comes 9. Tap the reason "
+                       "why."),
+            "choices": ("because the rule runs in order: 2 times 4, then 1 more | "
+                        "because you add the 1 first, then times by 2 | because the "
+                        "machine adds the 2, the 1 and the 4"),
+            "answer": "because the rule runs in order: 2 times 4, then 1 more",
+            "board": '[[machine input="4" rule="2x + 1" output="9" caption="in 4, out 9"]]',
+        },
+        "recap": [
+            ("So, here it is again. A function is a machine with one rule. Feed it a "
+             "number, run the rule in the order it says, and read what comes out. "
+             "Change the order and you have a different machine.",
+             '[[machine input="4" rule="2x + 1" output="9" caption="in 4, out 9"]]'),
+            ("And that is a price into a price with tax, and a time into a distance.",
+             '[[step eq="2 × 4 + 1 = 9"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "c": 3, "op": "fm1"},
             {"a": 2, "b": 3, "c": 3, "op": "fm1"},
@@ -9576,24 +9944,63 @@ _ALGEBRA1_U3 = [
         "op": "fnot", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("f", "of"),
-        "advance_line": "Three in a row — you've got it! f of 3 means feed the machine 3.",
+        "advance_line": "Three in a row, and you can say why — you've got it! f of 3 means feed the machine 3.",
+        "why": [
+            ("Why a name? Because mathematicians got tired of drawing the machine, so "
+             "they gave it one: f. And look under the machine — the board has been "
+             "writing its shorthand all along. f of 4 equals 9 means: feed machine f "
+             "the number 4, and 9 comes out. That is the whole code, and every "
+             "textbook after this one speaks it.",
+             '[[goal text="Saying f of x"]]'),
+        ],
+        "picture": [
+            ("Here is machine f. Its rule is x plus 5. Feed it 3, and 3 plus 5 comes "
+             "out: 8. Under the machine the board writes it the short way — f of 3 "
+             "equals 8 — the name, the number that went in, and the number that came "
+             "out.",
+             '[[machine input="3" rule="x + 5" output="8" fname="f" caption="in 3, out 8 — written f(3) = 8"]]'),
+        ],
         "teach": [
-            ["Mathematicians got tired of drawing the machine, so they gave it a name: f. And look under the machine — the board has been writing its shorthand all along: f of 4 equals 9. It means: feed machine f the number 4, and 9 comes out. That is the whole code.",
-             '[[goal text="Saying f of x"]][[machine input="4" rule="x + 5" output="9" fname="f" caption="in 4, out 9"]]'],
-            ["f of x equals x plus 5 — that is the rule, written with the name in front. So what is f of 3? Feed the machine 3: 3 plus 5 equals 8. f of 3 equals 8.",
-             '[[machine input="3" rule="x + 5" output="8" fname="f" caption="in 3, out 8"]][[step eq="f(3) = 3 + 5 = 8"]]'],
-            ["Now the warning, and it is a fair one. In the distributive lesson, parentheses meant TIMES. Here, f followed by 3 in parentheses does NOT mean f times 3 — there is no timesing anywhere. It is the machine's name and its meal. Same marks, different job.",
-             '[[step eq="f(3) = feed f the number 3 ✓"]][[step eq="f × 3 ✗ — nothing is being timesed"]]'],
+            ("That is the method. f of x equals x plus 5 — that is the rule, written "
+             "with the name in front. So what is f of 3? Feed the machine 3: 3 plus "
+             "5 equals 8. f of 3 equals 8.",
+             '[[machine input="3" rule="x + 5" output="8" fname="f" caption="in 3, out 8"]][[step eq="f(3) = 3 + 5 = 8"]]'),
+            ("Now the warning, and it is a fair one. In the distributive lesson, "
+             "parentheses meant TIMES. Here, f followed by 3 in parentheses does NOT "
+             "mean f times 3 — there is no timesing anywhere. It is the machine\'s "
+             "name and its meal. Same marks, different job.",
+             '[[step eq="f(3) = feed f the number 3 ✓"]][[step eq="f × 3 ✗ — nothing is being timesed"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. f of x equals x plus 4. f of 6: feed it 6, and 6 plus 4 equals 10.",
-                        '[[step eq="f(6) = 6 + 4 = 10"]]'],
-             "ask": {"a": 3, "b": 5, "op": "fnot"}},
-            {"worked": ["One more together. f of x equals x plus 2. f of 9 is 9 plus 2, which equals 11.",
-                        '[[step eq="f(9) = 11"]]'],
-             "ask": {"a": 7, "b": 4, "op": "fnot"}},
+            {"worked": ("Here is one more, done for you. f of x equals x plus 4. f of "
+                        "6: feed it 6, and 6 plus 4 equals 10.",
+                        '[[machine input="6" rule="x + 4" output="10" fname="f" caption="f(6) = 6 + 4 = 10"]][[step eq="f(6) = 6 + 4 = 10"]]'),
+             "ask": {'a': 3, 'b': 5, 'op': 'fnot'}},
+            {"worked": ("One more together. f of x equals x plus 2. f of 9 is 9 plus 2, "
+                        "which equals 11.",
+                        '[[machine input="9" rule="x + 2" output="11" fname="f" caption="f(9) = 9 + 2 = 11"]][[step eq="f(9) = 11"]]'),
+             "ask": {'a': 7, 'b': 4, 'op': 'fnot'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. f of x equals x "
+                       "plus 5, so f of 3 is 8. Tap the reason why."),
+            "choices": ("because f of 3 means feed the machine 3, not times | "
+                        "because f of 3 means f times 3 | because the 3 in parentheses "
+                        "is done first, then f"),
+            "answer": "because f of 3 means feed the machine 3, not times",
+            "board": '[[machine input="3" rule="x + 5" output="8" fname="f" caption="f(3) = 8"]]',
+        },
+        "recap": [
+            ("So, here it is again. f is the machine\'s name, and f of 3 means feed "
+             "it 3. The parentheses hold the meal — nothing is timesed. Run the rule "
+             "and write what came out: f of 3 equals 8.",
+             '[[machine input="3" rule="x + 5" output="8" fname="f" caption="f(3) = 3 + 5 = 8"]]'),
+            ("And that is the code every textbook after this one speaks.",
+             '[[step eq="f(3) = 8"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "fnot"},
             {"a": 4, "b": 2, "op": "fnot"},
@@ -9614,24 +10021,63 @@ _ALGEBRA1_U3 = [
         "op": "fm2", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("machine", "order"),
-        "advance_line": "Three in a row — you've got it! The first machine's output is the second machine's input.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The first machine's output is the second machine's input.",
+        "why": [
+            ("Why two machines? Because machines can stand in a line, and the world "
+             "is full of them lined up — a price gets a discount, THEN tax goes on. "
+             "The first machine\'s out-door feeds the second machine\'s in-door. Two "
+             "small rules in a row can do the work of one bigger rule.",
+             '[[goal text="Two machines in a row"]]'),
+        ],
+        "picture": [
+            ("Here are two machines, nose to tail. The first adds 2; the second times "
+             "by 3. Feed a 4 into the first: 4 plus 2 is 6, and that 6 does not stop "
+             "— it rolls straight into the second machine, where 6 times 3 is 18. In "
+             "4, out 18.",
+             '[[machine input="4" rule="x + 2" output="6" caption="machine one: in 4, out 6"]][[machine input="6" rule="3x" output="18" fname="g" caption="machine two: in 6, out 18"]]'),
+        ],
         "teach": [
-            ["Machines can stand in a line. The first machine's out-door feeds the second machine's in-door — whatever comes out of one goes straight into the next. Two small rules in a row can do the work of one bigger rule.",
-             '[[goal text="Two machines in a row"]]'],
-            ["The first machine adds 2. The second times by 3. Feed 4 through both, in order. Machine one: 4 plus 2 equals 6. That 6 goes into machine two: 6 times 3 equals 18.",
-             '[[machine input="4" rule="x + 2" output="6" caption="in 4, out 6"]][[machine input="6" rule="3x" output="18" fname="g" caption="in 6, out 18"]]'],
-            ["The order is everything. Run the same two machines the other way round — times 3 first, then add 2 — and 4 becomes 12 becomes 14, not 18. Same machines, different line-up, different answer. Read WHICH machine is first before you feed anything.",
-             '[[step eq="(4 + 2) × 3 = 18 ✓"]][[step eq="4 × 3 + 2 = 14 — the other order"]]'],
+            ("That is the method. Feed the number through both, in order. Machine "
+             "one: 4 plus 2 equals 6. That 6 goes into machine two: 6 times 3 equals "
+             "18.",
+             '[[machine input="4" rule="x + 2" output="6" caption="in 4, out 6"]][[machine input="6" rule="3x" output="18" fname="g" caption="in 6, out 18"]]'),
+            ("The order is everything. Run the same two machines the other way round "
+             "— times 3 first, then add 2 — and 4 becomes 12 becomes 14, not 18. "
+             "Same machines, different line-up, different answer. Read WHICH machine "
+             "is first before you feed anything.",
+             '[[step eq="(4 + 2) × 3 = 18 ✓"]][[step eq="4 × 3 + 2 = 14 — the other order"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. First adds 3, second times by 2. Feed 5: 5 plus 3 equals 8, and 8 times 2 equals 16.",
-                        '[[machine input="5" rule="x + 3" output="8" caption="in 5, out 8"]][[machine input="8" rule="2x" output="16" fname="g" caption="in 8, out 16"]]'],
-             "ask": {"a": 2, "b": 2, "c": 5, "op": "fm2"}},
-            {"worked": ["One more together. First adds 2, second times by 4. Feed 3: 3 plus 2 equals 5, and 5 times 4 equals 20.",
-                        '[[step eq="(3 + 2) × 4 = 20"]]'],
-             "ask": {"a": 4, "b": 4, "c": 2, "op": "fm2"}},
+            {"worked": ("Here is one more, done for you. First adds 3, second times by "
+                        "2. Feed 5: 5 plus 3 equals 8, and 8 times 2 equals 16.",
+                        '[[machine input="5" rule="x + 3" output="8" caption="in 5, out 8"]][[machine input="8" rule="2x" output="16" fname="g" caption="in 8, out 16"]]'),
+             "ask": {'a': 2, 'b': 2, 'c': 5, 'op': 'fm2'}},
+            {"worked": ("One more together. First adds 2, second times by 4. Feed 3: 3 "
+                        "plus 2 equals 5, and 5 times 4 equals 20.",
+                        '[[machine input="3" rule="x + 2" output="5" caption="in 3, out 5"]][[machine input="5" rule="4x" output="20" fname="g" caption="in 5, out 20"]]'),
+             "ask": {'a': 4, 'b': 4, 'c': 2, 'op': 'fm2'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The first machine "
+                       "adds 2, the second times by 3, and a 4 goes in. Out comes 18. "
+                       "Tap the reason why."),
+            "choices": ("because the 6 from machine one is what gets timesed | "
+                        "because the 4 is timesed first, then the 2 goes on | because "
+                        "both machines run on the 4 and the answers add"),
+            "answer": "because the 6 from machine one is what gets timesed",
+            "board": '[[machine input="4" rule="x + 2" output="6" caption="in 4, out 6"]][[machine input="6" rule="3x" output="18" fname="g" caption="in 6, out 18"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two machines in a row: what comes out of the "
+             "first goes straight into the second. Read which machine is first, "
+             "because the order changes the answer.",
+             '[[machine input="4" rule="x + 2" output="6" caption="in 4, out 6"]][[machine input="6" rule="3x" output="18" fname="g" caption="in 6, out 18"]]'),
+            ("And that is a discount and then a tax, in the right order.",
+             '[[step eq="(4 + 2) × 3 = 18"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "c": 3, "op": "fm2"},
             {"a": 2, "b": 3, "c": 2, "op": "fm2"},
@@ -9652,24 +10098,65 @@ _ALGEBRA1_U3 = [
         "op": "fback", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("f", "of"),
-        "advance_line": "Three in a row — you've got it! Undo the rule and the input walks back out.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Undo the rule and the input walks back out.",
+        "why": [
+            ("Why run it backwards? Because sometimes you know what came OUT and need "
+             "what went in — the bill, and you want the price before tax. f of x "
+             "equals x plus 3, and somebody tells you the machine put out 10, but not "
+             "what went in. f of WHAT equals 10? The input is hiding, exactly like x "
+             "hid on the balance.",
+             '[[goal text="Which input was it"]]'),
+        ],
+        "picture": [
+            ("Here is machine f with a blank at its in-door and a 10 at its out-door. "
+             "The rule added 3 on the way through. So walk back through the machine "
+             "the other way: undo the add, 10 take away 3, and a 7 appears at the "
+             "in-door. Feed 7 forwards and 7 plus 3 is 10 — it fits.",
+             '[[machine input="?" rule="x + 3" output="10" fname="f" caption="in ?, out 10 — run it backwards"]][[machine input="7" rule="x + 3" output="10" fname="f" caption="in 7, out 10 — it fits"]]'),
+        ],
         "teach": [
-            ["One more trick with the machine: running it backwards. f of x equals x plus 3, and somebody tells you the machine put out 10 — but not what went in. f of WHAT equals 10? The input is hiding, exactly like x hid on the balance.",
-             '[[goal text="Which input was it"]][[machine input="?" rule="x + 3" output="10" fname="f" caption="in ?, out 10 — run it backwards"]]'],
-            ["You already know this move. Something plus 3 came to 10 — that is an equation in machine clothes. Undo the rule: 10 take away 3 equals 7. The input was 7.",
-             '[[machine input="?" rule="x + 3" output="10" fname="f" caption="in ?, out 10 — run it backwards"]][[step eq="? + 3 = 10"]][[step eq="? = 10 − 3 = 7"]]'],
-            ["Check it by running the machine forwards: feed 7, and 7 plus 3 equals 10. It fits. The careless move is running the machine forwards with the OUTPUT — feeding it the 10 and getting 13. The 10 came out of the machine; it never went in.",
-             '[[step eq="f(7) = 10 ✓"]][[step eq="10 + 3 = 13 ✗ — the 10 came OUT, it never went in"]]'],
+            ("That is the method, and you already know the move. Something plus 3 "
+             "came to 10 — that is an equation in machine clothes. Undo the rule: 10 "
+             "take away 3 equals 7. The input was 7.",
+             '[[machine input="?" rule="x + 3" output="10" fname="f" caption="in ?, out 10 — run it backwards"]][[step eq="? + 3 = 10"]][[step eq="? = 10 − 3 = 7"]]'),
+            ("Check it by running the machine forwards: feed 7, and 7 plus 3 equals "
+             "10. It fits. The careless move is running the machine forwards with "
+             "the OUTPUT — feeding it the 10 and getting 13. The 10 came out of the "
+             "machine; it never went in.",
+             '[[step eq="f(7) = 10 ✓"]][[step eq="10 + 3 = 13 ✗ — the 10 came OUT, it never went in"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. f of x equals x plus 4, and the output is 11. Undo: 11 take away 4 equals 7. The input was 7.",
-                        '[[machine input="?" rule="x + 4" output="11" fname="f" caption="in ?, out 11 — run it backwards"]][[step eq="? = 11 − 4 = 7"]]'],
-             "ask": {"a": 3, "b": 13, "op": "fback"}},
-            {"worked": ["One more together. f of x equals x plus 5, and out came 12. 12 take away 5 equals 7 — the input was 7.",
-                        '[[step eq="? = 12 − 5 = 7"]]'],
-             "ask": {"a": 6, "b": 20, "op": "fback"}},
+            {"worked": ("Here is one more, done for you. f of x equals x plus 4, and "
+                        "the output is 11. Undo: 11 take away 4 equals 7. The input "
+                        "was 7.",
+                        '[[machine input="?" rule="x + 4" output="11" fname="f" caption="in ?, out 11 — run it backwards"]][[machine input="7" rule="x + 4" output="11" fname="f" caption="f(7) = 11 ✓"]][[step eq="? = 11 − 4 = 7"]]'),
+             "ask": {'a': 3, 'b': 13, 'op': 'fback'}},
+            {"worked": ("One more together. f of x equals x plus 2, and out came 15. "
+                        "15 take away 2 equals 13 — the input was 13.",
+                        '[[machine input="?" rule="x + 2" output="15" fname="f" caption="in ?, out 15 — run it backwards"]][[machine input="13" rule="x + 2" output="15" fname="f" caption="f(13) = 15 ✓"]][[step eq="? = 15 − 2 = 13"]]'),
+             "ask": {'a': 6, 'b': 20, 'op': 'fback'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. f of x equals x "
+                       "plus 3, and f of what equals 10? The input was 7. Tap the "
+                       "reason why."),
+            "choices": ("because the machine added 3, so undo it: 10 take away 3 | "
+                        "because you feed the 10 in, and 10 plus 3 is 13 | because the "
+                        "input is always 3 less than the rule says"),
+            "answer": "because the machine added 3, so undo it: 10 take away 3",
+            "board": '[[machine input="7" rule="x + 3" output="10" fname="f" caption="f(7) = 10 ✓"]]',
+        },
+        "recap": [
+            ("So, here it is again. Told the output, undo the rule to walk back to "
+             "the input — the undo of a plus is a take away — then run the machine "
+             "forwards to check. The output came out; it never went in.",
+             '[[machine input="7" rule="x + 3" output="10" fname="f" caption="? + 3 = 10 · ? = 7 · f(7) = 10"]]'),
+            ("And that is the price before tax, found from the bill.",
+             '[[step eq="f(?) = 10, so ? = 7"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 5, "op": "fback"},
             {"a": 4, "b": 7, "op": "fback"},
@@ -20955,6 +21442,221 @@ def _dst_worked(p):
 
 
 
+# ---- (tf, 2026-09-06) ALGEBRA 1 UNITS 1-3: letters as bars, the balance, the machine.
+# Every ask draws its question with the answer withheld; every walk-back draws the
+# same picture filled in.
+def _ev2_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[step eq="x = {a}"]]'
+            f'[[tape parts="{" | ".join(["x"] * b)} | {c}" total="?" '
+            f'caption="{b}x + {c} — {b} copies of x, then {c}"]]'
+            f'[[step eq="{b}x + {c} = {b} × {a} + {c} = ?"]]')
+
+
+def _ev2_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: times first — {b} x is {b} copies of {a}, and {b} times {a} "
+            f"equals {a * b}. Then the add: {a * b} plus {c} equals {a * b + c}. The plus "
+            f"waited its turn.",
+            f'[[tape parts="{" | ".join([str(a)] * b)} | {c}" total="{a * b + c}" '
+            f'caption="{b}x + {c} = {a * b} + {c} = {a * b + c}"]]')
+
+
+def _evxy_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[step eq="x = {a} · y = {b}"]]'
+            f'[[tape parts="x | {" | ".join(["y"] * c)}" total="?" '
+            f'caption="x + {c}y — one x, then {c} copies of y"]]'
+            f'[[step eq="x + {c}y = {a} + {c} × {b} = ?"]]')
+
+
+def _evxy_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: each letter kept its own number. {c} y is {c} copies of "
+            f"{b}, which is {b * c}. Then x plus that: {a} plus {b * c} equals {a + b * c}. "
+            f"The {c} belonged to the y and never touched the x.",
+            f'[[tape parts="{a} | {" | ".join([str(b)] * c)}" total="{a + b * c}" '
+            f'caption="x + {c}y = {a} + {b * c} = {a + b * c}"]]')
+
+
+def _cl2_tape(a, b, c, total):
+    """ax + by + cx as one bar in the order written: an x per part while it fits
+    ten parts, else the three counts as three proportional parts."""
+    if a + b + c <= 10:
+        parts = ["x"] * a + ["y"] * b + ["x"] * c
+        return f'[[tape parts="{" | ".join(parts)}" total="{total}" '
+    return f'[[tape parts="{a}x | {b}y | {c}x" total="{total}" '
+
+
+def _cl2_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (_cl2_tape(a, b, c, "?") + f'caption="{a}x + {b}y + {c}x — count only the x parts"]]'
+            f'[[step eq="{a}x + {b}y + {c}x"]]'
+            f'[[step eq="the x\'s: {a} + {c} = ? · the y walks past"]]')
+
+
+def _cl2_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: only the same letter collects. The x parts are {a} and "
+            f"{c}, and {a} plus {c} equals {a + c} — so {a + c} x. The {b} y is a different "
+            f"thing; it walked past and stayed as it was. {a + c} x plus {b} y.",
+            f'[[tape parts="{a + c}x | {b}y" caption="the x\'s collected: {a + c}x + {b}y"]]')
+
+
+def _dstm_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[areamodel rows="{a}" cols="x,-{b}" ask="1" '
+            f'caption="{a} tall, x − {b} wide — the second room is taken away"]]'
+            f'[[step eq="{a}(x − {b}) = {a}x − ?"]]')
+
+
+def _dstm_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the {a} reaches both rooms, minus and all. One room is {a} "
+            f"times x — {a} x. The other is {a} times {b}, which equals {a * b}, and that "
+            f"room is taken away. So it is {a} x take away {a * b} — not {b}.",
+            f'[[areamodel rows="{a}" cols="x,-{b}" caption="{a}(x − {b}) = {a}x − {a * b}"]]')
+
+
+def _un1_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[balance left="x + {a}" right="{b}" caption="take {a} off BOTH sides"]]'
+            f'[[step eq="x = {b} − {a} = ?"]]')
+
+
+def _un1_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: {a} came off both sides, so the scale stayed level. {b} "
+            f"take away {a} equals {b - a}, and x is holding {b - a}. Put it back to check: "
+            f"{b - a} plus {a} equals {b}. Level.",
+            f'[[balance left="x" right="{b - a}" caption="{a} off both sides: x = {b - a}"]]'
+            f'[[step eq="{b - a} + {a} = {b} ✓"]]')
+
+
+def _un2_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[balance left="{a}x" right="{b}" caption="share BOTH sides between {a}"]]'
+            f'[[tape parts="{" | ".join(["x"] * a)}" total="{b}" '
+            f'caption="{a} copies of x weigh {b} — how much is one?"]]'
+            f'[[step eq="x = {b} ÷ {a} = ?"]]')
+
+
+def _un2_worked(p):
+    a, b = p["a"], p["b"]
+    q = b // a
+    return (f"Look what you did: {a} copies of x weigh {b}, so one x is {b} shared between "
+            f"{a}, which equals {q}. Nothing was added, so nothing was taken away — the undo "
+            f"of a times is a share. Check: {a} times {q} equals {b}. Level.",
+            f'[[balance left="x" right="{q}" caption="shared between {a}: x = {q}"]]'
+            f'[[tape parts="{" | ".join([str(q)] * a)}" total="{b}" caption="{a} × {q} = {b} ✓"]]')
+
+
+def _un3_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[balance left="{a}x + {b}" right="{c}" caption="the {b} went on last — it comes off first"]]'
+            f'[[step eq="take {b} off both sides: {a}x = {c - b}"]]'
+            f'[[step eq="x = {c - b} ÷ {a} = ?"]]')
+
+
+def _un3_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    m = c - b
+    q = m // a
+    return (f"Look what you did: two undos, last on first off. The {b} came off both sides: "
+            f"{a} x equals {m}. Then the share: {m} shared between {a} equals {q}. Check: "
+            f"{a} times {q} is {a * q}, plus {b} is {c}. Level.",
+            f'[[balance left="{a}x" right="{m}" caption="{b} off both sides"]]'
+            f'[[balance left="x" right="{q}" caption="shared between {a}: x = {q}"]]')
+
+
+def _ineq_board(p):
+    a, b = p["a"], p["b"]
+    n = b - a
+    return (f'[[step eq="x + {a} < {b}"]]'
+            f'[[step eq="x < {b} − {a}"]]'
+            f'[[numberline min="0" max="{n + 2}" ineq="x<{n}" '
+            f'caption="everything to the left of {n} — the circle is open, {n} is shut out"]]')
+
+
+def _ineq_worked(p):
+    a, b = p["a"], p["b"]
+    n = b - a
+    return (f"Look what you did: take {a} off both sides and x is less than {n}. Less than "
+            f"shuts the door on {n} itself — {n} plus {a} is {b}, not under {b}. The biggest "
+            f"whole number under {n} is {n - 1}: {n - 1} plus {a} equals {n - 1 + a}, and "
+            f"that is under {b}.",
+            f'[[numberline min="0" max="{n + 2}" ineq="x<{n}" points="{n - 1}" '
+            f'caption="x < {n} — the biggest whole number is {n - 1}"]]'
+            f'[[step eq="{n - 1} + {a} = {n - 1 + a} < {b} ✓"]]')
+
+
+def _fm1_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[machine input="{c}" rule="{a}x + {b}" output="?" '
+            f'caption="in {c} — times by {a}, then add {b} — out ?"]]')
+
+
+def _fm1_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: {c} went in and the rule ran in order. Times by {a} first: "
+            f"{a} times {c} equals {a * c}. Then add {b}: {a * c} plus {b} equals "
+            f"{a * c + b}. Out came {a * c + b}.",
+            f'[[machine input="{c}" rule="{a}x + {b}" output="{a * c + b}" '
+            f'caption="in {c}, out {a * c + b}"]]'
+            f'[[step eq="{a} × {c} = {a * c}"]][[step eq="{a * c} + {b} = {a * c + b}"]]')
+
+
+def _fnot_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[machine input="{b}" rule="x + {a}" output="?" fname="f" '
+            f'caption="f of {b} — feed machine f the number {b}"]]'
+            f'[[step eq="f({b}) = {b} + {a} = ?"]]')
+
+
+def _fnot_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: f of {b} means feed the machine {b} — nothing is timesed. "
+            f"{b} plus {a} equals {a + b}, so f of {b} equals {a + b}.",
+            f'[[machine input="{b}" rule="x + {a}" output="{a + b}" fname="f" '
+            f'caption="f({b}) = {b} + {a} = {a + b}"]]')
+
+
+def _fm2_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[machine input="{c}" rule="x + {a}" output="{c + a}" '
+            f'caption="machine one: in {c}, out {c + a}"]]'
+            f'[[machine input="{c + a}" rule="{b}x" output="?" fname="g" '
+            f'caption="machine two: in {c + a} — times by {b} — out ?"]]')
+
+
+def _fm2_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    m = c + a
+    return (f"Look what you did: first machine first. {c} plus {a} equals {m}, and that {m} "
+            f"went straight into machine two: {m} times {b} equals {m * b}. Add first, then "
+            f"times — because that is the order the machines stand in.",
+            f'[[machine input="{c}" rule="x + {a}" output="{m}" caption="in {c}, out {m}"]]'
+            f'[[machine input="{m}" rule="{b}x" output="{m * b}" fname="g" '
+            f'caption="in {m}, out {m * b}"]]')
+
+
+def _fback_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[machine input="?" rule="x + {a}" output="{b}" fname="f" '
+            f'caption="in ?, out {b} — run it backwards"]]'
+            f'[[step eq="? + {a} = {b}"]]')
+
+
+def _fback_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the machine added {a} and put out {b}, so undo the add — "
+            f"{b} take away {a} equals {b - a}. The input was {b - a}. Run it forwards to "
+            f"check: {b - a} plus {a} equals {b}. It fits.",
+            f'[[machine input="{b - a}" rule="x + {a}" output="{b}" fname="f" '
+            f'caption="f({b - a}) = {b} ✓"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -22666,9 +23368,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] * p["b"] + p["c"],
         "spoken": lambda p: (f"The letter x is holding the number {p['a']}. "
                              f"What is {p['b']} x plus {p['c']}?"),
-        "board": lambda p: (f'[[step eq="x = {p["a"]}"]]'
-                            f'[[step eq="{p["b"]}x + {p["c"]} = '
-                            f'{p["b"]} × {p["a"]} + {p["c"]} = ?"]]'),
+        "board": _ev2_board,          # (tf) b copies of x and the c, the whole withheld
+        "worked": _ev2_worked,        # (tf) every copy the number, the whole bracketed
         "praise": lambda p: (f"{p['b']} x is {p['b']} times {p['a']}, which equals "
                              f"{p['a'] * p['b']}, and {p['a'] * p['b']} plus "
                              f"{p['c']} equals {p['a'] * p['b'] + p['c']}."),
@@ -22693,9 +23394,8 @@ OP_EXT = {
         # defect mlx had in build kt. The teach beats introduce y; the ask just asks.
         "spoken": lambda p: (f"x is holding {p['a']}, and y is holding {p['b']}. "
                              f"What is x plus {p['c']} y?"),
-        "board": lambda p: (f'[[step eq="x = {p["a"]} · y = {p["b"]}"]]'
-                            f'[[step eq="x + {p["c"]}y = {p["a"]} + '
-                            f'{p["c"]} × {p["b"]} = ?"]]'),
+        "board": _evxy_board,         # (tf) one x and c copies of y
+        "worked": _evxy_worked,       # (tf) each letter its own number
         "praise": lambda p: (f"{p['c']} y is {p['c']} times {p['b']}, which equals "
                              f"{p['c'] * p['b']}, and {p['a']} plus that equals "
                              f"{p['a'] + p['c'] * p['b']}."),
@@ -22716,9 +23416,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] + p["c"],
         "spoken": lambda p: (f"{p['a']} x plus {p['b']} y plus {p['c']} x — "
                              f"how many x is that in all?"),
-        "board": lambda p: (f'[[step eq="{p["a"]}x + {p["b"]}y + {p["c"]}x"]]'
-                            f'[[step eq="the x\'s: {p["a"]} + {p["c"]} = ? '
-                            f'· the y walks past"]]'),
+        "board": _cl2_board,          # (tf) the bar in the order written, x parts and y parts
+        "worked": _cl2_worked,        # (tf) the x's collected, the y beside them
         "praise": lambda p: (f"Only the x's collect: {p['a']} and {p['c']} make "
                              f"{p['a'] + p['c']} x. The {p['b']} y is a different "
                              f"thing and stays as it is."),
@@ -22739,8 +23438,8 @@ OP_EXT = {
                              f"That comes to {p['a']} x take away what number?"),
         # The area model again, with a NEGATIVE room: [[areamodel]] parses "-b" and
         # prints the expanded sum with the minus carried through ("= ax - ab").
-        "board": lambda p: (f'[[areamodel rows="{p["a"]}" cols="x,-{p["b"]}"]]'
-                            f'[[step eq="{p["a"]}(x − {p["b"]}) = {p["a"]}x − ?"]]'),
+        "board": _dstm_board,         # (tf) the area model with the taken-away room blank
+        "worked": _dstm_worked,       # (tf) the rooms read, the minus carried
         "praise": lambda p: (f"The {p['a']} reaches both rooms, minus and all: "
                              f"{p['a']} times x, and {p['a']} times {p['b']}, which "
                              f"equals {p['a'] * p['b']} — taken away. So it is "
@@ -22767,9 +23466,8 @@ OP_EXT = {
         "ans": lambda p: p["b"] - p["a"],
         "spoken": lambda p: (f"x plus {p['a']} equals {p['b']}. "
                              f"What number is x holding?"),
-        "board": lambda p: (f'[[balance left="x + {p["a"]}" right="{p["b"]}" '
-                            f'caption="take {p["a"]} off BOTH sides"]]'
-                            f'[[step eq="x = {p["b"]} − {p["a"]} = ?"]]'),
+        "board": _un1_board,          # (tf) the balance as given
+        "worked": _un1_worked,        # (tf) the balance with the a off both sides, checked
         "praise": lambda p: (f"Take {p['a']} off both sides and the scale stays "
                              f"level: x is {p['b']} take away {p['a']}, which "
                              f"equals {p['b'] - p['a']}."),
@@ -22786,9 +23484,8 @@ OP_EXT = {
         "ans": lambda p: p["b"] // p["a"],
         "spoken": lambda p: (f"{p['a']} x equals {p['b']}. "
                              f"What number is x holding?"),
-        "board": lambda p: (f'[[balance left="{p["a"]}x" right="{p["b"]}" '
-                            f'caption="share BOTH sides between {p["a"]}"]]'
-                            f'[[step eq="x = {p["b"]} ÷ {p["a"]} = ?"]]'),
+        "board": _un2_board,          # (tf) the balance and the a copies of x as a bar
+        "worked": _un2_worked,        # (tf) one x on the pan, the bar shared
         "praise": lambda p: (f"{p['a']} x's weigh {p['b']}, so one x weighs "
                              f"{p['b']} shared between {p['a']} — "
                              f"{p['b'] // p['a']}."),
@@ -22808,11 +23505,8 @@ OP_EXT = {
         "ans": lambda p: (p["c"] - p["b"]) // p["a"],
         "spoken": lambda p: (f"{p['a']} x plus {p['b']} equals {p['c']}. "
                              f"What number is x holding?"),
-        "board": lambda p: (f'[[balance left="{p["a"]}x + {p["b"]}" '
-                            f'right="{p["c"]}"]]'
-                            f'[[step eq="take {p["b"]} off both sides: '
-                            f'{p["a"]}x = {p["c"] - p["b"]}"]]'
-                            f'[[step eq="x = {p["c"] - p["b"]} ÷ {p["a"]} = ?"]]'),
+        "board": _un3_board,          # (tf) the balance as given
+        "worked": _un3_worked,        # (tf) the balance after each undo
         "praise": lambda p: (f"The {p['b']} went on last, so it comes off first: "
                              f"{p['a']} x equals {p['c'] - p['b']}. Then share: "
                              f"x equals {(p['c'] - p['b']) // p['a']}."),
@@ -22833,10 +23527,8 @@ OP_EXT = {
         "ans": lambda p: p["b"] - p["a"] - 1,
         "spoken": lambda p: (f"x plus {p['a']} is less than {p['b']}. "
                              f"What is the biggest whole number x can hold?"),
-        "board": lambda p: (f'[[step eq="x + {p["a"]} < {p["b"]}"]]'
-                            f'[[step eq="x < {p["b"]} − {p["a"]}"]]'
-                            f'[[numberline min="0" max="{p["b"] - p["a"] + 2}" '
-                            f'points="{p["b"] - p["a"]}"]]'),
+        "board": _ineq_board,         # (tf) the open circle and the shaded ray, the answer withheld
+        "worked": _ineq_worked,       # (tf) the biggest whole number marked, checked
         "praise": lambda p: (f"x has to stay under {p['b'] - p['a']} — it can be "
                              f"anything less, and the biggest whole number under "
                              f"{p['b'] - p['a']} is {p['b'] - p['a'] - 1}."),
@@ -22863,8 +23555,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A machine's rule is: times the input by {p['a']}, "
                              f"then add {p['b']}. Feed it {p['c']}. "
                              f"What number comes out?"),
-        "board": lambda p: (f'[[machine input="{p["c"]}" '
-                            f'rule="{p["a"]}x + {p["b"]}" output="?"]]'),
+        "board": _fm1_board,          # (tf) the machine with its output blank
+        "worked": _fm1_worked,        # (tf) the machine filled, the rule's two steps
         "praise": lambda p: (f"{p['c']} goes in, the rule runs: {p['a']} times "
                              f"{p['c']} equals {p['a'] * p['c']}, plus {p['b']} — "
                              f"out comes {p['a'] * p['c'] + p['b']}."),
@@ -22885,9 +23577,8 @@ OP_EXT = {
         "ans": lambda p: p["b"] + p["a"],
         "spoken": lambda p: (f"f of x equals x plus {p['a']}. "
                              f"What is f of {p['b']}?"),
-        "board": lambda p: (f'[[machine input="{p["b"]}" rule="x + {p["a"]}" '
-                            f'output="?" fname="f"]]'
-                            f'[[step eq="f({p["b"]}) = {p["b"]} + {p["a"]} = ?"]]'),
+        "board": _fnot_board,         # (tf) machine f with its output blank
+        "worked": _fnot_worked,       # (tf) f(b) filled
         "praise": lambda p: (f"f of {p['b']} means: feed the machine {p['b']}. "
                              f"{p['b']} plus {p['a']} equals {p['b'] + p['a']}."),
         "key": lambda p: p["b"] + p["a"],
@@ -22905,10 +23596,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Two machines in a row. The first adds {p['a']}. "
                              f"The second times by {p['b']}. Feed {p['c']} through "
                              f"both, first then second. What comes out?"),
-        "board": lambda p: (f'[[machine input="{p["c"]}" rule="x + {p["a"]}" '
-                            f'output="{p["c"] + p["a"]}"]]'
-                            f'[[machine input="{p["c"] + p["a"]}" '
-                            f'rule="{p["b"]}x" output="?" fname="g"]]'),
+        "board": _fm2_board,          # (tf) two machines, the second's output blank
+        "worked": _fm2_worked,        # (tf) both filled, in order
         "praise": lambda p: (f"Machine one: {p['c']} plus {p['a']} equals "
                              f"{p['c'] + p['a']}. That goes straight into machine "
                              f"two: {p['c'] + p['a']} times {p['b']} equals "
@@ -22930,9 +23619,8 @@ OP_EXT = {
         "ans": lambda p: p["b"] - p["a"],
         "spoken": lambda p: (f"f of x equals x plus {p['a']}. f of WHAT equals "
                              f"{p['b']}? Which number went in?"),
-        "board": lambda p: (f'[[machine input="?" rule="x + {p["a"]}" '
-                            f'output="{p["b"]}" fname="f"]]'
-                            f'[[step eq="? + {p["a"]} = {p["b"]}"]]'),
+        "board": _fback_board,        # (tf) the machine with its input blank
+        "worked": _fback_worked,      # (tf) the input found, run forwards
         "praise": lambda p: (f"The machine put out {p['b']} after adding {p['a']}, "
                              f"so {p['b']} take away {p['a']} went in — "
                              f"{p['b'] - p['a']}."),

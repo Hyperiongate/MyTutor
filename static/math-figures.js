@@ -2,6 +2,8 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-06  BUILD tf -- [[areamodel ask="1"]] keeps the sign of a taken-away room:
+                 4(x − 3) asks as "= 4x - ?" (te wrote "+ ?"). Algebra 1 Unit 1.
      2026-09-06  BUILD te -- TWO FIGURES LEARN TO ASK. [[rectangle half="1"]] draws
                  the diagonal and fills the lower triangle -- a right triangle is half
                  the rectangle round it -- with "6 × 4 = 24 · half is 12 squares"
@@ -1423,7 +1425,8 @@
   }
   // (te, 2026-09-06) ask="1": the number-only room (the one with no x in it) reads
   // "?" and so does the constant of the sum underneath -- so 4(x + 3) can be ASKED
-  // on the picture without the picture answering "12" for the student.
+  // on the picture without the picture answering "12" for the student. (tf) a
+  // taken-away room keeps its sign: 4(x − 3) asks as "= 4x - ?".
   function areamodel(a) {
     var rows = String(a.rows || "x,2").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
     var cols = String(a.cols || "x,3").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
@@ -1451,7 +1454,7 @@
     // expanded sum
     var sum = {};
     rt.forEach(function (r) { ct.forEach(function (c) { var p = r.pow + c.pow; sum[p] = (sum[p] || 0) + r.coef * c.coef; }); });
-    var parts = [2, 1, 0].filter(function (p) { return sum[p]; }).map(function (p) { return (ask && p === 0) ? "?" : termLabel(sum[p], p); });
+    var parts = [2, 1, 0].filter(function (p) { return sum[p]; }).map(function (p) { return (ask && p === 0) ? (sum[p] < 0 ? "-?" : "?") : termLabel(sum[p], p); });
     var eq = parts.join(" + ").replace(/\+ -/g, "- ");
     s += tspan(W / 2, H - 10, "= " + eq, "var(--bd-26263a)", 14, 800);
     return s + "</svg>";
