@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tj -- PART 3jf: Geometry Units 4-6 to the shape (12 lessons on the
+#               two triangles, the bars, the rectangle of squares, the right triangle and
+#               the pie of arcs); the second-triangle referee reads the v= names (tutor.py);
+#               every figure an ask draws captioned.
 #   2026-09-06  BUILD ti -- PART 3je: Geometry Units 1-3 to the shape (12 lessons on the
 #               angle, the circle with its diameter, the number line, the grid, the pie and
 #               the triangle); every figure an ask draws captioned.
@@ -21870,7 +21874,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>9,533</b>" in page,
+          "<b>9,617</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25140,6 +25144,129 @@ def part3je_geometry_units_one_to_three_to_the_shape():
     check("  the changed files carry dated ti notes",
           "2026-09-06  BUILD ti" in rd("lessonscripts.py")[:20000] and "BUILD ti" in rd("main.py")[:200000]
           and "2026-09-06  BUILD ti" in rd("ruletests.py")[:8000] and "(ti)" in rd("static/methodology.html")[:6000],
+          "Jim's rule 8")
+
+
+def part3jf_geometry_units_four_to_six_to_the_shape():
+    """PART 3jf (build tj, 2026-09-06) -- GEOMETRY UNITS 4-6 TO THE SHAPE.
+
+    The small triangle beside its enlarged copy with the asked side blank; the factor
+    on the bars; the matching side crossed over; the area surprise on the rectangle of
+    squares; the hypotenuse and the missing leg on the triangle, walked back on the
+    right triangle with its sides named; the tangent and the opposite side; the rest of
+    the circle walked back as two arcs on the pie; the inscribed angle asked on the
+    plain circle (inscribed= would print the answer) and the arc asked with the angle
+    drawn; the arc length on the pie of equal parts. Every figure an ask draws carries
+    a caption, and the second-triangle referee (tutor.py) reads the v= names, so DEF
+    beside ABC is a second triangle, not a redraw."""
+    print("\nPART 3jf — Geometry Units 4-6 to the shape (build tj)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    G4 = ["geo-u4-the-enlarging-copy", "geo-u4-finding-the-factor",
+          "geo-u4-the-matching-side", "geo-u4-the-area-surprise"]
+    G5 = ["geo-u5-the-longest-side", "geo-u5-the-missing-leg",
+          "geo-u5-the-climb-ratio", "geo-u5-using-the-tangent"]
+    G6 = ["geo-u6-the-rest-of-the-circle", "geo-u6-half-the-arc",
+          "geo-u6-double-it-back", "geo-u6-a-piece-of-the-rim"]
+    _shape_unit_checks(G4, r"\[\[(triangle|bars|rectangle)\b")
+    _shape_unit_checks(G5, r"\[\[(triangle|righttriangle)\b")
+    _shape_unit_checks(G6, r"\[\[(circle|pie)\b")
+
+    # ---- Unit 4 ------------------------------------------------------------------------
+    scal = {"a": 8, "b": 2, "op": "scal"}
+    check("⭐ the enlarging copy: the small triangle with one side and the factor on the ask; ABC beside DEF in the walk-back",
+          '[[triangle v="A,B,C" sides="8,," caption="the small triangle — one side is 8; scale factor 2"]]' in L.board_for(scal, "abstract")
+          and '[[step eq="scale factor 2: 8 × 2 = ?"]]' in L.board_for(scal, "abstract")
+          and '[[triangle v="D,E,F" sides="16,," caption="enlarged × 2: 16"]]' in _W(scal)[1]
+          and "a times, never an add" in _W(scal)[0], "")
+    sfac = {"a": 6, "b": 12, "op": "sfac"}
+    check("⭐ finding the factor: small beside big on the bars; the division and its check in the walk-back",
+          '[[bars data="small:6 | big:12" caption=' in L.board_for(sfac, "abstract")
+          and '[[step eq="12 ÷ 6 = 2 · 6 × 2 = 12 ✓"]]' in _W(sfac)[1] and "Check it backwards" in _W(sfac)[0], "")
+    mside = {"a": 5, "b": 4, "c": 2, "op": "mside"}
+    check("  the matching side: the small triangle with the match named; both triangles in the walk-back",
+          'sides="5,4," caption="the small triangle — 5 matches 10 in the big one; what matches 4?"' in L.board_for(mside, "abstract")
+          and '[[triangle v="D,E,F" sides="10,8," caption="big × 2: 10 and 8"]]' in _W(mside)[1]
+          and "then times to cross over" in _W(mside)[0], "")
+    sare = {"a": 10, "b": 2, "op": "sare"}
+    check("  the area surprise: the rectangle of squares on the ask, the one square scaled in the walk-back",
+          '[[rectangle w="2" h="2" caption=' in L.board_for(sare, "abstract") and '[[step eq="10 × 2 × 2 = ?"]]' in L.board_for(sare, "abstract")
+          and '[[step eq="10 × 2 × 2 = 40"]]' in _W(sare)[1] and "the factor strikes both" in _W(sare)[0], "")
+
+    # ---- Unit 5 ------------------------------------------------------------------------
+    pyth = {"a": 3, "b": 4, "c": 5, "op": "pyth"}
+    check("⭐ the longest side: the legs written and the hypotenuse blank on the ask; the right triangle with its sides named in the walk-back",
+          'right="B" sides="3,4," caption=' in L.board_for(pyth, "abstract") and '[[step eq="3² + 4² = ?²"]]' in L.board_for(pyth, "abstract")
+          and '[[righttriangle adj="4" opp="3" hyp="5" caption="legs 3 and 4, hypotenuse 5"]]' in _W(pyth)[1]
+          and "the walk around" in _W(pyth)[0], "")
+    leg = {"a": 4, "b": 3, "c": 5, "op": "leg"}
+    check("⭐ the missing leg: the hypotenuse and one leg on the ask, the other blank; squares taken away in the walk-back",
+          'sides="4,,5" caption=' in L.board_for(leg, "abstract") and '[[step eq="4² + ?² = 5²"]]' in L.board_for(leg, "abstract")
+          and '[[step eq="5² − 4² = 9 = 3²"]]' in _W(leg)[1] and "the rule speaks in squares" in _W(leg)[0], "")
+    tang = {"a": 2, "b": 8, "op": "tang"}
+    check("  the climb ratio: the right triangle captioned with adjacent and opposite; the ratio in the walk-back",
+          '[[righttriangle adj="2" opp="8" caption="adjacent 2, opposite 8 — how steep is the marked angle?"]]' in L.board_for(tang, "abstract")
+          and 'caption="tan = 8 ÷ 2 = 4 — climbs 4 for every 1 across"' in _W(tang)[1] and "A pure number, no length" in _W(tang)[0], "")
+    topp = {"a": 6, "b": 2, "op": "topp"}
+    check("  using the tangent: the adjacent side and the tangent on the ask; the opposite side drawn in the walk-back",
+          'sides="6,," caption="adjacent 6, tangent 2 — the opposite side is the question"' in L.board_for(topp, "abstract")
+          and '[[righttriangle adj="6" opp="12" caption="adjacent 6, tangent 2 — opposite 12"]]' in _W(topp)[1]
+          and "a times, not a" in _W(topp)[0], "")
+
+    # ---- Unit 6 ------------------------------------------------------------------------
+    cent = {"a": 20, "b": 0, "op": "cent"}
+    check("⭐ the rest of the circle: the plain circle on the ask; the two arcs on the pie in the walk-back",
+          '[[circle center="O" caption="two radiuses cut the circle — the small arc opens at 20°; how much is the rest?"]]' in L.board_for(cent, "abstract")
+          and '[[pie data="the arc 20°:20 | the rest 340°:340" caption="20° + 340° = 360°"]]' in _W(cent)[1]
+          and "not a line" in _W(cent)[0], "")
+    insc = {"a": 36, "b": 0, "op": "insc"}
+    check("⭐ half the arc: the PLAIN circle on the ask (inscribed= would print the answer); the angle on the rim in the walk-back",
+          "inscribed=" not in L.board_for(insc, "abstract") and '[[circle center="O" caption="an arc of 36°' in L.board_for(insc, "abstract")
+          and '[[circle center="O" inscribed="36" caption="arc 36° — from the rim it looks 18°"]]' in _W(insc)[1]
+          and "from farther away" in _W(insc)[0], "")
+    iarc = {"a": 16, "b": 0, "op": "iarc"}
+    check("  double it back: the angle drawn on the rim as the GIVEN; the arc named in the walk-back",
+          '[[circle center="O" inscribed="32" caption="an angle of 16° standing on the rim' in L.board_for(iarc, "abstract")
+          and 'caption="angle 16° on the rim — arc 2 × 16° = 32°"' in _W(iarc)[1] and "halving would have gone the wrong way" in _W(iarc)[0], "")
+    alen = {"a": 90, "b": 20, "op": "alen"}
+    check("  a piece of the rim: the pie of equal parts, one shaded, captioned; the part measured in the walk-back",
+          '[[pie parts="4" shaded="1" caption="a central angle of 90° cuts the circle into 4 equal parts' in L.board_for(alen, "abstract")
+          and '[[step eq="20 ÷ 4 = ?"]]' in L.board_for(alen, "abstract")
+          and '[[pie parts="4" shaded="1" caption="4 equal parts of 20 — the arc is 5"]]' in _W(alen)[1]
+          and "how far it runs" in _W(alen)[0], "")
+
+    # ---- the second-triangle referee reads the names (tutor.py, this build) ------------
+    _held = 'The small triangle.\n[[triangle v="A,B,C" sides="3,5,4" caption="small"]]'
+    _two = 'And its copy, DEF.\n[[triangle v="D,E,F" sides="6,10,8" caption="enlarged × 2"]]'
+    _redraw = 'Here it is again.\n[[triangle v="A,B,C" sides="6,10,8" caption="again"]]'
+    check("⭐ referee 68: DEF beside the held ABC is a second triangle, not a redraw; ABC redrawn with new sides still fires",
+          not tutor.second_triangle_conflict(_two, heard=_held) and bool(tutor.second_triangle_conflict(_redraw, heard=_held))
+          and tutor._tri_names('v="D,E,F" sides="6,10,8"') == "d,e,f" and tutor._tri_names('sides="3,4,5"') == "a,b,c", "")
+
+    # ---- the giveaway audit, captions, spoken pending lines, the notes ----------------
+    check("  nothing the twelve lessons demonstrate is later asked",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in G4 + G5 + G6), "")
+    check("  every figure an ask draws carries a caption (rule 41) -- 107 asks did not before tj",
+          all("caption=" in tag for l in G4 + G5 + G6
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:triangle|righttriangle|bars|rectangle|circle|pie)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in G4 + G5 + G6:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  no reason option works the arithmetic aloud (the spoken-math referee sweeps the joined options)",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in G4 + G5 + G6), "")
+    check("  the changed files carry dated tj notes",
+          "2026-09-06  BUILD tj" in rd("lessonscripts.py")[:20000] and "BUILD tj" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD tj" in rd("ruletests.py")[:8000] and "(tj)" in rd("static/methodology.html")[:6000]
+          and "2026-09-06  BUILD tj" in rd("tutor.py")[:8000],
           "Jim's rule 8")
 
 
@@ -35468,6 +35595,7 @@ def main():
     part3jc_algebra_one_units_four_to_six_to_the_shape()
     part3jd_algebra_one_units_seven_to_nine_to_the_shape()
     part3je_geometry_units_one_to_three_to_the_shape()
+    part3jf_geometry_units_four_to_six_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

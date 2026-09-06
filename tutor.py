@@ -2,6 +2,13 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tj -- THE ONE-TRIANGLE REFEREE READS THE CORNER NAMES. Referee 68
+#               (second_triangle_conflict) fired on Geometry's similar-triangle walk-backs,
+#               which draw the small triangle ABC beside its enlarged copy DEF in ONE
+#               reply. Its own reason is "two conflicting definitions of the same names";
+#               DEF beside ABC is two figures, not two definitions. It now compares the
+#               v= names (default A,B,C) and fires only when they match. Same-named
+#               second triangles still fire exactly as before.
 #   2026-09-05  BUILD ta -- THE INTERVENTION IS TOLD THE BOARD, AND THE PICTURE YOU NAME
 #               IS THE PICTURE THAT IS DRAWN (Jim's flag 22:31: "acted like there was a
 #               number line when there wasn't"). (1) script_intervention reads the ask's
@@ -7503,11 +7510,23 @@ def fraction_orientation_conflict(reply: str):
 # siblings: no conversation, no verdict.
 _TRI_TAG_RE = re.compile(r"\[\[\s*triangle\b([^\]]*)\]\]", re.I)
 _TRI_SIDES_RE = re.compile(r'sides\s*=\s*"([^"]*)"', re.I)
+_TRI_V_RE = re.compile(r'\bv\s*=\s*"([^"]*)"', re.I)
+
+
+def _tri_names(attrs):
+    """The triangle's vertex names, normalised -- "a,b,c" when none are given."""
+    vm = _TRI_V_RE.search(attrs)
+    return re.sub(r"\s+", "", vm.group(1)).lower() if vm and vm.group(1).strip() else "a,b,c"
 
 
 def second_triangle_conflict(reply: str, heard=None):
     """Return a description of a second, different triangle drawn over the first with
-    no [[clear]], or "". Silent when heard is None (fail open)."""
+    no [[clear]], or "". Silent when heard is None (fail open).
+
+    (tj, 2026-09-06) The conflict is TWO DEFINITIONS OF THE SAME NAMES -- that is the
+    referee's own reason. A triangle DEF drawn beside ABC (a similar copy, a congruent
+    copy) names different corners, so it is a second figure, not a second definition,
+    and the pair stays silent. Two triangles that share their names still fire."""
     try:
         if heard is None:
             return ""
@@ -7515,10 +7534,12 @@ def second_triangle_conflict(reply: str, heard=None):
         if _SB_CLEAR.search(text):
             return ""                     # this reply wipes: a fresh board
         mine = None
+        mine_names = "a,b,c"
         for attrs in _TRI_TAG_RE.findall(text):
             sm = _TRI_SIDES_RE.search(attrs)
             if sm:
                 mine = re.sub(r"\s+", "", sm.group(1)).lower()
+                mine_names = _tri_names(attrs)
         if not mine:
             return ""                     # no labeled triangle in this reply
         # the board's contents = the conversation since its LAST [[clear]]
@@ -7529,6 +7550,8 @@ def second_triangle_conflict(reply: str, heard=None):
             sm = _TRI_SIDES_RE.search(attrs)
             if not sm:
                 continue
+            if _tri_names(attrs) != mine_names:
+                continue                  # (tj) different corners: a second figure, not a second definition
             old = re.sub(r"\s+", "", sm.group(1)).lower()
             if old and old != mine:
                 return ("this reply draws a NEW triangle (sides {m}) with no "

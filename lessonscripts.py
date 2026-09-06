@@ -2,6 +2,36 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tj -- GEOMETRY UNITS 4-6 TO THE SHAPE (12 lessons). Jim: "go".
+#               THIS FILE:
+#                 * Unit 4 (similar shapes): the small triangle ABC beside its enlarged
+#                   copy DEF with the asked side blank (sides="a,,"), walked back with
+#                   every side filled; the factor asked on the bars (small beside big);
+#                   the matching side on the two triangles; the area surprise on the
+#                   rectangle of squares ([[rectangle w=b h=b]]);
+#                 * Unit 5 (the right triangle): the hypotenuse asked on the triangle with
+#                   the two legs written and the long side blank, walked back on the
+#                   RIGHT TRIANGLE with adjacent/opposite/hypotenuse named; the missing
+#                   leg the same way round; the tangent on the captioned right triangle
+#                   (adjacent along the floor, opposite up the wall); the opposite side
+#                   from the tangent;
+#                 * Unit 6 (circles): the rest of the circle asked on the plain circle
+#                   and walked back as the two arcs on a PIE ([[pie data=]] -- "the arc
+#                   a° | the rest (360 - a)°"); the inscribed angle asked on the plain
+#                   circle (inscribed= is a giveaway there: the renderer prints the
+#                   answer) and walked back with the angle drawn on the rim; the arc
+#                   asked with the angle drawn (inscribed="2a" labels the GIVEN);
+#                   the arc length on the pie of equal parts, one shaded.
+#               Trap lines kept in every lesson. ⚠️ every figure ask in the three units
+#               drew with no caption (rule 41, 107 asks: triangle, righttriangle, bars,
+#               rectangle, circle, pie). TUTOR.PY (this build): referee 68 (the second
+#               triangle) read ABC beside DEF as one triangle redrawn -- it now reads the
+#               v= names, so a second, differently named triangle is a second triangle.
+#               ENGINE: OP_EXT scal/sfac/mside/sare/pyth/leg/tang/topp/cent/insc/iarc/
+#               alen gain boards and "worked" (_scal_* ... _alen_*). Demonstrated numbers
+#               kept out of the banks and pairs. Reason options that worked the
+#               arithmetic aloud ("25 plus 144 is 169") reworded -- the spoken-math
+#               referee sweeps the joined options.
 #   2026-09-06  BUILD ti -- GEOMETRY UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "start in
 #               on the geometry." THIS FILE:
 #                 * Unit 1 (angles, the circle, the midpoint): the square corner split and
@@ -13188,24 +13218,62 @@ _GEOMETRY_U4 = [
         "op": "scal", "max_value": 64,
         "levels": ("abstract",),
         "symbols": ("scale factor", "similar"),
-        "advance_line": "Three in a row — you've got it! A scale factor is a times, never an add.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A scale factor is a times, never an add.",
+        "why": [
+            ("Why one more move? Because this one changes SIZE. An enlargement "
+             "copies a shape bigger — same shape, same angles, new size — and one "
+             "number runs the whole job: the scale factor. Scale factor 2 means every "
+             "length comes out 2 times as long. Shapes related this way are called "
+             "similar.",
+             '[[goal text="Scaling one side"]]'),
+        ],
+        "picture": [
+            ("Here is a small triangle with sides 3, 5 and 4, and beside it its "
+             "enlarged copy by scale factor 2: sides 6, 10 and 8. Each side kept its "
+             "place and timesed by the same 2 — that is why the copy keeps its "
+             "shape.",
+             '[[triangle v="A,B,C" sides="3,5,4" caption="small: 3, 5, 4"]][[triangle v="D,E,F" sides="6,10,8" caption="enlarged × 2: 6, 10, 8"]]'),
+        ],
         "teach": [
-            ["Geometry has one more move, and this one changes SIZE. An enlargement copies a shape bigger — same shape, same angles, new size — and one number runs the whole job: the scale factor. Scale factor 2 means every length comes out 2 times as long. Shapes related this way are called similar.",
-             '[[goal text="Scaling one side"]][[triangle v="A,B,C" sides="4,6,5" caption="sides 4, 6, 5"]]'],
-            ["Enlarge this triangle by scale factor 2. The side of 4 becomes 4 times 2 — 8. The side of 6 becomes 12, and the side of 5 becomes 10. Each side keeps its place and times by the same factor; that is why the copy keeps its shape.",
-             '[[triangle v="A,B,C" sides="4,6,5" caption="sides 4, 6, 5"]][[step eq="× 2: 4 → 8 · 6 → 12 · 5 → 10"]]'],
-            ["The trap: scale factor 2 does not ADD 2. Adding 2 turns the 4 into a 6 and the 6 into an 8 — and the copy comes out the WRONG shape, squashed where the short sides grew too much. Scaling is times. Every side, the same times.",
-             '[[step eq="4 × 2 = 8 ✓"]][[step eq="4 + 2 = 6 ✗ — adding bends the shape"]]'],
+            ("That is the method. Enlarge the triangle by scale factor 2. The side of "
+             "3 becomes 3 times 2 — 6. The side of 5 becomes 10, and the side of 4 "
+             "becomes 8. Every side, the same times.",
+             '[[triangle v="A,B,C" sides="3,5,4" caption="sides 3, 5, 4"]][[step eq="× 2: 3 → 6 · 5 → 10 · 4 → 8"]]'),
+            ("The trap: scale factor 2 does not ADD 2. Adding 2 turns the 3 into a 5 "
+             "and the 5 into a 7 — and the copy comes out the WRONG shape, squashed "
+             "where the short sides grew too much. Scaling is times.",
+             '[[step eq="3 × 2 = 6 ✓"]][[step eq="3 + 2 = 5 ✗ — adding bends the shape"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Scale factor 3, a side of 5: 5 times 3 equals 15.",
-                        '[[step eq="5 × 3 = 15"]]'],
-             "ask": {"a": 8, "b": 2, "op": "scal"}},
-            {"worked": ["One more together. Scale factor 4, a side of 7: 7 times 4 equals 28.",
-                        '[[step eq="7 × 4 = 28"]]'],
-             "ask": {"a": 15, "b": 3, "op": "scal"}},
+            {"worked": ("Here is one more, done for you. Scale factor 3, a side of 5: 5 "
+                        "times 3 equals 15.",
+                        '[[triangle v="A,B,C" sides="5,," caption="small: 5"]][[triangle v="D,E,F" sides="15,," caption="enlarged × 3: 15"]][[step eq="5 × 3 = 15"]]'),
+             "ask": {'a': 8, 'b': 2, 'op': 'scal'}},
+            {"worked": ("One more together. Scale factor 4, a side of 7: 7 times 4 "
+                        "equals 28.",
+                        '[[triangle v="A,B,C" sides="7,," caption="small: 7"]][[triangle v="D,E,F" sides="28,," caption="enlarged × 4: 28"]][[step eq="7 × 4 = 28"]]'),
+             "ask": {'a': 15, 'b': 3, 'op': 'scal'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A side of 3 "
+                       "enlarged by scale factor 2 becomes 6. Tap the reason why."),
+            "choices": ("because a scale factor times every side: 3 times 2 | "
+                        "because a scale factor adds to every side: 3 plus 2 | "
+                        "because the enlarged side is the factor, 2"),
+            "answer": "because a scale factor times every side: 3 times 2",
+            "board": '[[triangle v="A,B,C" sides="3,5,4" caption="small"]][[triangle v="D,E,F" sides="6,10,8" caption="enlarged × 2"]]',
+        },
+        "recap": [
+            ("So, here it is again. An enlargement keeps the shape and changes the "
+             "size, and the scale factor is a times — every side timesed by the same "
+             "number. Never an add; adding bends the shape.",
+             '[[triangle v="A,B,C" sides="3,5,4" caption="small"]][[triangle v="D,E,F" sides="6,10,8" caption="× 2"]]'),
+            ("And that is a similar shape: the same shape in a new size.",
+             '[[step eq="3 × 2 = 6"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 2, "op": "scal"},
             {"a": 6, "b": 2, "op": "scal"},
@@ -13226,24 +13294,64 @@ _GEOMETRY_U4 = [
         "op": "sfac", "max_value": 24,
         "levels": ("abstract",),
         "symbols": ("scale factor", "matches"),
-        "advance_line": "Three in a row — you've got it! Big side divided by the side it matches.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Big side divided by the side it matches.",
+        "why": [
+            ("Why find the factor? Because two similar shapes stand side by side — "
+             "the same shape in two sizes — and somewhere between them hides the "
+             "number that turns one into the other: the scale factor. Finding it is "
+             "one division: a big side divided by the small side it matches.",
+             '[[goal text="The scale factor"]]'),
+        ],
+        "picture": [
+            ("Here are two matching sides as bars: 4 in the small shape, 12 in the "
+             "big one. The big bar is three of the small one stacked — 12 is 3 times "
+             "4. So the scale factor is 3, and check it backwards: 4 times 3 equals "
+             "12.",
+             '[[bars data="small:4 | big:12" caption="matching sides 4 and 12 — the big is 3 times the small"]]'),
+        ],
         "teach": [
-            ["Two similar shapes stand side by side — the same shape in two sizes. Somewhere between them hides the number that turns one into the other: the scale factor. Finding it is one division: a big side divided by the small side it matches.",
-             '[[goal text="The scale factor"]][[bars data="small:4 | big:12" caption="matching sides: 4 and 12"]]'],
-            ["A side of 4 in the small shape matches a side of 12 in the big one. The factor is 12 divided by 4 — 3. Check it the other way: 4 times 3 equals 12. One matching pair of sides is all it ever takes.",
-             '[[bars data="small:4 | big:12" caption="matching sides: 4 and 12"]][[step eq="12 ÷ 4 = 3"]]'],
-            ["The trap is the difference. From 4 to 12 is 8 more — but 8 is not the factor, because the other sides do not each grow by 8; they each grow by times 3. Similar shapes share a times, never an add.",
-             '[[step eq="12 ÷ 4 = 3 ✓"]][[step eq="12 − 4 = 8 ✗ — a difference, not a factor"]]'],
+            ("That is the method. A side of 4 in the small shape matches a side of "
+             "12 in the big one. The factor is 12 divided by 4 — 3. Check it the "
+             "other way: 4 times 3 equals 12. One matching pair of sides is all it "
+             "ever takes.",
+             '[[bars data="small:4 | big:12" caption="matching sides: 4 and 12"]][[step eq="12 ÷ 4 = 3"]]'),
+            ("The trap is the difference. From 4 to 12 is 8 more — but 8 is not the "
+             "factor, because the other sides do not each grow by 8; they each grow "
+             "by times 3. Similar shapes share a times, never an add.",
+             '[[step eq="12 ÷ 4 = 3 ✓"]][[step eq="12 − 4 = 8 ✗ — a difference, not a factor"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A side of 7 matches a side of 21. The factor: 21 divided by 7 equals 3.",
-                        '[[bars data="small:7 | big:21" caption="matching sides: 7 and 21"]][[step eq="21 ÷ 7 = 3"]]'],
-             "ask": {"a": 6, "b": 12, "op": "sfac"}},
-            {"worked": ["One more together. 9 matches 18: the factor is 18 divided by 9 — 2.",
-                        '[[step eq="18 ÷ 9 = 2"]]'],
-             "ask": {"a": 5, "b": 15, "op": "sfac"}},
+            {"worked": ("Here is one more, done for you. A side of 7 matches a side of "
+                        "21. The factor: 21 divided by 7 equals 3.",
+                        '[[bars data="small:7 | big:21" caption="matching sides 7 and 21 — factor 3"]][[step eq="21 ÷ 7 = 3"]]'),
+             "ask": {'a': 6, 'b': 12, 'op': 'sfac'}},
+            {"worked": ("One more together. 9 matches 18: the factor is 18 divided by 9 "
+                        "— 2.",
+                        '[[bars data="small:9 | big:18" caption="matching sides 9 and 18 — factor 2"]][[step eq="18 ÷ 9 = 2"]]'),
+             "ask": {'a': 5, 'b': 15, 'op': 'sfac'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A side of 4 "
+                       "matches a side of 12, and the scale factor is 3. Tap the "
+                       "reason why."),
+            "choices": ("because 12 is 3 times 4 — big side divided by small | "
+                        "because 12 take away 4 is 8, so the factor is 8 | because the "
+                        "factor is the big side itself, 12"),
+            "answer": "because 12 is 3 times 4 — big side divided by small",
+            "board": '[[bars data="small:4 | big:12" caption="12 ÷ 4 = 3"]]',
+        },
+        "recap": [
+            ("So, here it is again. The scale factor hides between two matching "
+             "sides: divide the big one by the small one. Check by timesing back. "
+             "The difference between them is not the factor — similar shapes share "
+             "a times.",
+             '[[bars data="small:4 | big:12" caption="12 ÷ 4 = 3 · 4 × 3 = 12"]]'),
+            ("And that is one division, and the whole enlargement is known.",
+             '[[step eq="12 ÷ 4 = 3"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 6, "op": "sfac"},
             {"a": 4, "b": 8, "op": "sfac"},
@@ -13264,24 +13372,64 @@ _GEOMETRY_U4 = [
         "op": "mside", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("similar", "matching"),
-        "advance_line": "Three in a row — you've got it! Divide to find the factor, times to cross over.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Divide to find the factor, times to cross over.",
+        "why": [
+            ("Why the payoff? Because two similar triangles stand together: the "
+             "small one you can measure, and the big one is missing a side. Like "
+             "congruent triangles, similar ones come with matching pairs of sides — "
+             "but here every pair shares one scale factor instead of being equal. "
+             "Find the factor from a complete pair, then times the side you have.",
+             '[[goal text="The matching side"]]'),
+        ],
+        "picture": [
+            ("Here is the small triangle with sides 3 and 5, and the big one beside "
+             "it. The side of 3 matches a side of 6 — so the factor is 2 — and the "
+             "side of 5 crosses over to 5 times 2: 10. Two steps, always the same "
+             "two.",
+             '[[triangle v="A,B,C" sides="3,5," caption="small: 3 and 5"]][[triangle v="D,E,F" sides="6,10," caption="big × 2: 6 and 10"]]'),
+        ],
         "teach": [
-            ["Now the payoff. Two similar triangles: the small one you can measure, and the big one is missing a side. Like congruent triangles, similar ones come with matching pairs of sides — but here every pair shares one scale factor instead of being equal. Find the factor from a complete pair, then times the side you have.",
-             '[[goal text="The matching side"]][[triangle v="A,B,C" sides="3,5,4" caption="sides 3, 5, 4"]]'],
-            ["The side of 3 matches a side of 6. The factor: 6 divided by 3 equals 2. Another small side is 5 — so its match is 5 times 2, which equals 10. Two steps, always the same two: divide to find the factor, times to cross over.",
-             '[[triangle v="A,B,C" sides="3,5,4" caption="sides 3, 5, 4"]][[step eq="3 → 6: factor 2"]][[step eq="5 × 2 = 10"]]'],
-            ["Here is the oldest mistake in similarity. From 3 to 6 is 3 MORE — so 5 becomes 8? No. The big triangle is not the small one plus a border; it is the small one times a factor. 8 bends the shape. 10 keeps it.",
-             '[[step eq="5 × 2 = 10 ✓"]][[step eq="5 + 3 = 8 ✗ — the same add is the wrong rule"]]'],
+            ("That is the method. The side of 3 matches a side of 6. The factor: 6 "
+             "divided by 3 equals 2. Another small side is 5 — so its match is 5 "
+             "times 2, which equals 10. Divide to find the factor, times to cross "
+             "over.",
+             '[[triangle v="A,B,C" sides="3,5," caption="small: 3 and 5 — 3 matches 6"]][[step eq="3 → 6: factor 2"]][[step eq="5 × 2 = 10"]]'),
+            ("Here is the oldest mistake in similarity. From 3 to 6 is 3 MORE — so 5 "
+             "becomes 8? No. The big triangle is not the small one plus a border; "
+             "it is the small one times a factor. 8 bends the shape. 10 keeps it.",
+             '[[step eq="5 × 2 = 10 ✓"]][[step eq="5 + 3 = 8 ✗ — the same add is the wrong rule"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A side of 4 matches a side of 8 — the factor is 2. Another small side is 7, so its match is 7 times 2 — 14.",
-                        '[[triangle v="A,B,C" sides="4,7," caption="sides 4 and 7 — one side missing"]][[step eq="4 → 8: factor 2"]][[step eq="7 × 2 = 14"]]'],
-             "ask": {"a": 5, "b": 4, "c": 2, "op": "mside"}},
-            {"worked": ["One more together. 3 matches 12 — the factor is 4. The side of 6 crosses over to 6 times 4, which equals 24.",
-                        '[[step eq="3 → 12: factor 4 · 6 × 4 = 24"]]'],
-             "ask": {"a": 7, "b": 9, "c": 3, "op": "mside"}},
+            {"worked": ("Here is one more, done for you. A side of 4 matches a side of 8 "
+                        "— the factor is 2. Another small side is 7, so its match is 7 "
+                        "times 2 — 14.",
+                        '[[triangle v="A,B,C" sides="4,7," caption="small: 4 and 7"]][[triangle v="D,E,F" sides="8,14," caption="big × 2: 8 and 14"]][[step eq="4 → 8: factor 2 · 7 × 2 = 14"]]'),
+             "ask": {'a': 5, 'b': 4, 'c': 2, 'op': 'mside'}},
+            {"worked": ("One more together. 3 matches 12 — the factor is 4. The side of "
+                        "6 crosses over to 6 times 4, which equals 24.",
+                        '[[triangle v="A,B,C" sides="3,6," caption="small: 3 and 6"]][[triangle v="D,E,F" sides="12,24," caption="big × 4: 12 and 24"]][[step eq="3 → 12: factor 4 · 6 × 4 = 24"]]'),
+             "ask": {'a': 7, 'b': 9, 'c': 3, 'op': 'mside'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 3 matches 6, and "
+                       "so 5 matches 10. Tap the reason why."),
+            "choices": ("because the factor is 2, and 5 times 2 is 10 | because 3 grew "
+                        "by 3, so 5 grows by 3 to 8 | because the big side is always "
+                        "double, whatever the factor"),
+            "answer": "because the factor is 2, and 5 times 2 is 10",
+            "board": '[[triangle v="A,B,C" sides="3,5," caption="small"]][[triangle v="D,E,F" sides="6,10," caption="big × 2"]]',
+        },
+        "recap": [
+            ("So, here it is again. Similar triangles share one scale factor across "
+             "every matching pair. Divide a complete pair to find the factor, then "
+             "times the side you have to cross over. Never add the difference.",
+             '[[triangle v="A,B,C" sides="3,5," caption="small"]][[triangle v="D,E,F" sides="6,10," caption="× 2"]]'),
+            ("And that is a side you never measured, found.",
+             '[[step eq="3 → 6: factor 2 · 5 × 2 = 10"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 4, "c": 2, "op": "mside"},
             {"a": 4, "b": 5, "c": 2, "op": "mside"},
@@ -13302,24 +13450,61 @@ _GEOMETRY_U4 = [
         "op": "sare", "max_value": 80,
         "levels": ("abstract",),
         "symbols": ("area", "factor"),
-        "advance_line": "Three in a row — you've got it! Length pays the factor once — area pays it twice.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Length pays the factor once — area pays it twice.",
+        "why": [
+            ("Why a surprise? Because scale a shape by factor 2 and every side "
+             "doubles — but the AREA does not. Area lives in two directions at once, "
+             "across and up, and the factor strikes BOTH. The area comes out times 2 "
+             "times 2 — four times as big.",
+             '[[goal text="The area surprise"]]'),
+        ],
+        "picture": [
+            ("Here is what one square becomes under scale factor 2: a 2 by 2 block, "
+             "and four little squares fit inside. And under scale factor 3: a 3 by 3 "
+             "block, nine squares. The area grows by the factor times itself, every "
+             "time.",
+             '[[rectangle w="2" h="2" caption="scale factor 2: 2 × 2 = 4 squares"]][[rectangle w="3" h="3" caption="scale factor 3: 3 × 3 = 9 squares"]]'),
+        ],
         "teach": [
-            ["One last surprise, and it is a big one. Scale a shape by factor 2 and every side doubles — but the AREA does not. Area lives in two directions at once, across and up, and the factor strikes BOTH. The area comes out times 2 times 2 — four times as big.",
-             '[[goal text="The area surprise"]][[areamodel rows="2" cols="2" caption="2 rows of 2 — count the boxes"]]'],
-            ["Watch a 1 by 1 square, area 1. Scale factor 2: now it is 2 by 2, and four little squares fit inside — area 4. Scale factor 3: 3 by 3, and nine fit — area 9. The area grows by the factor times itself, every time.",
-             '[[areamodel rows="3" cols="3" caption="3 rows of 3 — count the boxes"]][[step eq="× 2 → area × 4 · × 3 → area × 9"]]'],
-            ["So an area of 5 scaled by factor 2 is not 10. Times 2 handles one direction — the other direction is still waiting. 5 times 2 times 2 equals 20. Length pays the factor once; area pays it twice.",
-             '[[step eq="5 × 2 × 2 = 20 ✓"]][[step eq="5 × 2 = 10 ✗ — one direction is still waiting"]]'],
+            ("That is the method. An area of 5 scaled by factor 2 is not 10. Times 2 "
+             "handles one direction — the other direction is still waiting. 5 times "
+             "2 times 2 equals 20. Length pays the factor once; area pays it twice.",
+             '[[rectangle w="2" h="2" caption="every square becomes 4"]][[step eq="5 × 2 × 2 = 20"]]'),
+            ("Watch the one-direction trap. 5 times 2 is 10 — that is a length\'s "
+             "answer, and area is not a length. The second times is not optional; "
+             "the across and the up both grew.",
+             '[[step eq="5 × 2 × 2 = 20 ✓"]][[step eq="5 × 2 = 10 ✗ — one direction is still waiting"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Area 7, scale factor 2: 7 times 2 times 2 equals 28.",
-                        '[[step eq="7 × 2 × 2 = 28"]]'],
-             "ask": {"a": 10, "b": 2, "op": "sare"}},
-            {"worked": ["One more together. Area 2, scale factor 3: 2 times 3 times 3 equals 18.",
-                        '[[step eq="2 × 3 × 3 = 18"]]'],
-             "ask": {"a": 5, "b": 4, "op": "sare"}},
+            {"worked": ("Here is one more, done for you. Area 7, scale factor 2: 7 times "
+                        "2 times 2 equals 28.",
+                        '[[rectangle w="2" h="2" caption="every square becomes 4"]][[step eq="7 × 2 × 2 = 28"]]'),
+             "ask": {'a': 10, 'b': 2, 'op': 'sare'}},
+            {"worked": ("One more together. Area 2, scale factor 3: 2 times 3 times 3 "
+                        "equals 18.",
+                        '[[rectangle w="3" h="3" caption="every square becomes 9"]][[step eq="2 × 3 × 3 = 18"]]'),
+             "ask": {'a': 5, 'b': 4, 'op': 'sare'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. An area of 5 "
+                       "scaled by factor 2 becomes 20. Tap the reason why."),
+            "choices": ("because the factor strikes both directions: 5 times 2 times 2 | "
+                        "because the factor strikes once: 5 times 2 is 10 | because "
+                        "the area grows by the factor added twice, 5 plus 4"),
+            "answer": "because the factor strikes both directions: 5 times 2 times 2",
+            "board": '[[rectangle w="2" h="2" caption="every square becomes 4 — 5 × 2 × 2 = 20"]]',
+        },
+        "recap": [
+            ("So, here it is again. A scale factor times every length once — and "
+             "every area twice, because area lives across and up at the same time. "
+             "Times by the factor, then times by it again.",
+             '[[rectangle w="2" h="2" caption="× 2 → area × 4"]][[rectangle w="3" h="3" caption="× 3 → area × 9"]]'),
+            ("And that is the surprise: double the sides, four times the paint.",
+             '[[step eq="5 × 2 × 2 = 20"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "op": "sare"},
             {"a": 4, "b": 2, "op": "sare"},
@@ -13353,24 +13538,66 @@ _GEOMETRY_U5 = [
         "op": "pyth", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("hypotenuse", "legs"),
-        "advance_line": "Three in a row — you've got it! Leg squared plus leg squared equals hypotenuse squared.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Leg squared plus leg squared equals hypotenuse squared.",
+        "why": [
+            ("Why the longest side? Because every right triangle hides an equation. "
+             "The two sides that form the square corner are called the legs, and the "
+             "longest side — always across from the right angle — is the hypotenuse. "
+             "More than two thousand years ago Pythagoras proved: leg squared plus "
+             "leg squared equals hypotenuse squared. Every right triangle, every "
+             "time.",
+             '[[goal text="The longest side"]]'),
+        ],
+        "picture": [
+            ("Here is a right triangle with legs of 5 and 12, and its hypotenuse "
+             "across from the square corner: 13. Square the legs — 25 and 144 — and "
+             "put them together: 169. And 13 times 13 is 169. The equation holds, and "
+             "the picture shows which side is which.",
+             '[[righttriangle adj="12" opp="5" hyp="13" caption="legs 5 and 12, hypotenuse 13 — 25 + 144 = 169 = 13²"]]'),
+        ],
         "teach": [
-            ["Every right triangle hides an equation. The two sides that form the square corner are called the legs, and the longest side — always across from the right angle — is the hypotenuse. More than two thousand years ago Pythagoras proved: leg squared plus leg squared equals hypotenuse squared. Every right triangle, every time.",
-             '[[goal text="The longest side"]][[righttriangle adj="4" opp="3" hyp="5" caption="legs 3 and 4, hypotenuse 5"]]'],
-            ["Try it on legs of 3 and 4. 3 squared is 9, and 4 squared is 16. Put together: 25. Now, which number times itself equals 25? 5 — so the hypotenuse is 5. The famous three-four-five triangle.",
-             '[[righttriangle adj="4" opp="3" hyp="5" caption="legs 3 and 4, hypotenuse 5"]][[step eq="3² + 4² = 9 + 16 = 25"]][[step eq="5 × 5 = 25"]] [[step eq="hyp = 5"]]'],
-            ["Two traps. Adding the legs — 3 plus 4 equals 7 — walks AROUND the corner, and the straight path is always shorter than the walk around: 5, not 7. And 25 is the SQUARE of the answer, not the answer — the rule speaks in squares, so the last step is always to square back.",
-             '[[step eq="3 + 4 = 7 ✗ — the walk around the corner"]][[step eq="25 ✗ — the square, not the side"]]'],
+            ("That is the method. Legs of 5 and 12. 5 squared is 25, and 12 squared "
+             "is 144. Put together: 169. Now, which number times itself equals 169? "
+             "13 — so the hypotenuse is 13.",
+             '[[righttriangle adj="12" opp="5" hyp="13" caption="legs 5 and 12, hypotenuse 13"]][[step eq="5² + 12² = 25 + 144 = 169"]][[step eq="13 × 13 = 169"]][[step eq="hyp = 13"]]'),
+            ("Two traps. Adding the legs — 5 plus 12 equals 17 — walks AROUND the "
+             "corner, and the straight path is always shorter than the walk around: "
+             "13, not 17. And 169 is the SQUARE of the answer, not the answer — the "
+             "rule speaks in squares, so the last step is always to square back.",
+             '[[step eq="5 + 12 = 17 ✗ — the walk around the corner"]][[step eq="169 ✗ — the square, not the side"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Legs of 9 and 12: 81 plus 144 equals 225, and 15 times 15 equals 225 — the hypotenuse is 15.",
-                        '[[righttriangle adj="12" opp="9" hyp="15" caption="legs 9 and 12, hypotenuse 15"]][[step eq="9² + 12² = 225"]] [[step eq="hyp = 15"]]'],
-             "ask": {"a": 3, "b": 4, "c": 5, "op": "pyth"}},
-            {"worked": ["One more together. Legs of 5 and 12: 25 plus 144 equals 169 — and 13 times 13 equals 169, so the hypotenuse is 13.",
-                        '[[step eq="5² + 12² = 169"]] [[step eq="hyp = 13"]]'],
-             "ask": {"a": 6, "b": 8, "c": 10, "op": "pyth"}},
+            {"worked": ("Here is one more, done for you. Legs of 9 and 12: 81 plus 144 "
+                        "equals 225, and 15 times 15 equals 225 — the hypotenuse is 15.",
+                        '[[righttriangle adj="12" opp="9" hyp="15" caption="legs 9 and 12, hypotenuse 15"]][[step eq="9² + 12² = 225"]][[step eq="hyp = 15"]]'),
+             "ask": {'a': 3, 'b': 4, 'c': 5, 'op': 'pyth'}},
+            {"worked": ("One more together. Legs of 12 and 35: 144 plus 1225 equals "
+                        "1369 — and 37 times 37 equals 1369, so the hypotenuse is 37.",
+                        '[[righttriangle adj="35" opp="12" hyp="37" caption="legs 12 and 35, hypotenuse 37"]][[step eq="12² + 35² = 1369"]][[step eq="hyp = 37"]]'),
+             "ask": {'a': 6, 'b': 8, 'c': 10, 'op': 'pyth'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A right triangle "
+                       "with legs 5 and 12 has a hypotenuse of 13. Tap the reason "
+                       "why."),
+            "choices": ("because the squares of the legs add up to 13 squared | because "
+                        "the legs add up to 17, near enough to 13 | because the "
+                        "hypotenuse is the two legs added, then halved"),
+            "answer": "because the squares of the legs add up to 13 squared",
+            "board": '[[righttriangle adj="12" opp="5" hyp="13" caption="5² + 12² = 13²"]]',
+        },
+        "recap": [
+            ("So, here it is again. In a right triangle, leg squared plus leg "
+             "squared equals hypotenuse squared. Square the legs, add, then find the "
+             "number that squares back — the straight path, not the walk around.",
+             '[[righttriangle adj="12" opp="5" hyp="13" caption="5² + 12² = 169 = 13²"]]'),
+            ("And that is an equation two thousand years old, still true in every "
+             "corner.",
+             '[[step eq="5² + 12² = 13²"]]'),
+        ],
         "bank": [
             {"a": 8, "b": 15, "c": 17, "op": "pyth"},
             {"a": 12, "b": 16, "c": 20, "op": "pyth"},
@@ -13391,24 +13618,65 @@ _GEOMETRY_U5 = [
         "op": "leg", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("hypotenuse", "leg"),
-        "advance_line": "Three in a row — you've got it! Square first, take away, then square back.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Square first, take away, then square back.",
+        "why": [
+            ("Why backwards? Because the equation runs that way too. Know the "
+             "hypotenuse and one leg, and the other leg is waiting inside the same "
+             "rule. Leg squared plus leg squared equals hypotenuse squared — so the "
+             "missing square is the hypotenuse\'s square take away the known leg\'s "
+             "square.",
+             '[[goal text="The missing leg"]]'),
+        ],
+        "picture": [
+            ("Here is a right triangle with its hypotenuse, 13, and one leg, 5. The "
+             "other leg is 12 — because 13 squared is 169, 5 squared is 25, and 169 "
+             "take away 25 is 144, which is 12 times 12. The picture holds all three "
+             "sides; the rule found the one that was missing.",
+             '[[righttriangle adj="12" opp="5" hyp="13" caption="hypotenuse 13, leg 5 — the other leg is 12: 169 − 25 = 144 = 12²"]]'),
+        ],
         "teach": [
-            ["The equation runs backwards too. Know the hypotenuse and one leg, and the other leg is waiting inside the same rule. Leg squared plus leg squared equals hypotenuse squared. So the missing square is the hypotenuse's square take away the known leg's square.",
-             '[[goal text="The missing leg"]][[righttriangle adj="4" opp="3" hyp="5" caption="legs 3 and 4, hypotenuse 5"]]'],
-            ["The hypotenuse is 13 and one leg is 5. 13 squared is 169; 5 squared is 25. Take away: 144. Which number times itself equals 144? 12 — the missing leg is 12.",
-             '[[righttriangle adj="12" opp="5" hyp="13" caption="legs 5 and 12, hypotenuse 13"]][[step eq="13² − 5² = 169 − 25 = 144"]][[step eq="12 × 12 = 144"]] [[step eq="leg = 12"]]'],
-            ["The trap is taking away the LENGTHS instead of the squares: 13 take away 5 equals 8, and 8 is wrong — the rule speaks in squares, never in plain sides. Square first, then take away, then find the number that squares back.",
-             '[[step eq="13² − 5² → leg = 12 ✓"]][[step eq="13 − 5 = 8 ✗ — the rule speaks in squares"]]'],
+            ("That is the method. The hypotenuse is 13 and one leg is 5. 13 squared "
+             "is 169; 5 squared is 25. Take away: 144. Which number times itself "
+             "equals 144? 12 — the missing leg is 12.",
+             '[[righttriangle adj="12" opp="5" hyp="13" caption="legs 5 and 12, hypotenuse 13"]][[step eq="13² − 5² = 169 − 25 = 144"]][[step eq="12 × 12 = 144"]][[step eq="leg = 12"]]'),
+            ("The trap is taking away the LENGTHS instead of the squares: 13 take "
+             "away 5 equals 8, and 8 is wrong — the rule speaks in squares, never in "
+             "plain sides. Square first, then take away, then find the number that "
+             "squares back.",
+             '[[step eq="13² − 5² → leg = 12 ✓"]][[step eq="13 − 5 = 8 ✗ — the rule speaks in squares"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Hypotenuse 10, leg 8: 100 take away 64 is 36, and 6 times 6 equals 36 — the other leg is 6.",
-                        '[[righttriangle adj="8" opp="6" hyp="10" caption="legs 6 and 8, hypotenuse 10"]][[step eq="10² − 8² = 36"]] [[step eq="leg = 6"]]'],
-             "ask": {"a": 4, "b": 3, "c": 5, "op": "leg"}},
-            {"worked": ["One more together. Hypotenuse 15, leg 12: 225 take away 144 is 81 — and 9 times 9 equals 81, so the leg is 9.",
-                        '[[step eq="15² − 12² = 81"]] [[step eq="leg = 9"]]'],
-             "ask": {"a": 8, "b": 15, "c": 17, "op": "leg"}},
+            {"worked": ("Here is one more, done for you. Hypotenuse 10, leg 8: 100 take "
+                        "away 64 is 36, and 6 times 6 equals 36 — the other leg is 6.",
+                        '[[righttriangle adj="8" opp="6" hyp="10" caption="legs 6 and 8, hypotenuse 10"]][[step eq="10² − 8² = 36"]][[step eq="leg = 6"]]'),
+             "ask": {'a': 4, 'b': 3, 'c': 5, 'op': 'leg'}},
+            {"worked": ("One more together. Hypotenuse 15, leg 12: 225 take away 144 is "
+                        "81 — and 9 times 9 equals 81, so the leg is 9.",
+                        '[[righttriangle adj="12" opp="9" hyp="15" caption="legs 9 and 12, hypotenuse 15"]][[step eq="15² − 12² = 81"]][[step eq="leg = 9"]]'),
+             "ask": {'a': 8, 'b': 15, 'c': 17, 'op': 'leg'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A right triangle "
+                       "has a hypotenuse of 13 and a leg of 5, so the other leg is 12. "
+                       "Tap the reason why."),
+            "choices": ("because 169 take away 25 is 144, and 12 squared is 144 | "
+                        "because 13 take away 5 is 8, near enough to 12 | because the "
+                        "other leg is the hypotenuse take away 1"),
+            "answer": "because 169 take away 25 is 144, and 12 squared is 144",
+            "board": '[[righttriangle adj="12" opp="5" hyp="13" caption="13² − 5² = 12²"]]',
+        },
+        "recap": [
+            ("So, here it is again. The same rule, run backwards: the missing "
+             "leg\'s square is the hypotenuse\'s square take away the known leg\'s "
+             "square. Square first, take away, then square back — never take away "
+             "the plain lengths.",
+             '[[righttriangle adj="12" opp="5" hyp="13" caption="13² − 5² = 144 = 12²"]]'),
+            ("And that is one equation, read in either direction.",
+             '[[step eq="13² − 5² = 12²"]]'),
+        ],
         "bank": [
             {"a": 6, "b": 8, "c": 10, "op": "leg"},
             {"a": 12, "b": 5, "c": 13, "op": "leg"},
@@ -13429,24 +13697,65 @@ _GEOMETRY_U5 = [
         "op": "tang", "max_value": 24,
         "levels": ("abstract",),
         "symbols": ("tangent", "opposite"),
-        "advance_line": "Three in a row — you've got it! Tangent is opposite divided by adjacent.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Tangent is opposite divided by adjacent.",
+        "why": [
+            ("Why does the angle start talking? Because stand at an angle in a right "
+             "triangle: the leg touching it is the adjacent side, and the leg across "
+             "from it is the opposite side. Their ratio — opposite divided by "
+             "adjacent — is called the tangent, and it measures how steeply the "
+             "angle climbs.",
+             '[[goal text="The climb ratio"]]'),
+        ],
+        "picture": [
+            ("Here is a right triangle with the angle marked. The adjacent side is 4 "
+             "— along the floor from the angle — and the opposite side is 8, "
+             "standing up across from it. The tangent is 8 divided by 4: 2. For "
+             "every 1 you walk across, this angle climbs 2.",
+             '[[righttriangle adj="4" opp="8" caption="adjacent 4, opposite 8 — tan = 8 ÷ 4 = 2"]]'),
+        ],
         "teach": [
-            ["Now the angle itself starts talking. Stand at an angle in a right triangle: the leg touching it is the adjacent side, and the leg across from it is the opposite side. Their ratio — opposite divided by adjacent — is called the tangent, and it measures how steeply the angle climbs.",
-             '[[goal text="The climb ratio"]][[righttriangle adj="4" opp="8" caption="legs 8 and 4"]]'],
-            ["Here the adjacent side is 4 and the opposite side is 8. The tangent is 8 divided by 4 — 2. That number says: for every 1 you walk across, the angle climbs 2. You met this in Algebra as the climb of a line; the tangent is that same climb, living inside a triangle.",
-             '[[righttriangle adj="4" opp="8" caption="legs 8 and 4"]][[step eq="tan = 8 ÷ 4 = 2"]]'],
-            ["Keep the ratio apart from the sides. The tangent is not the opposite side, and not the difference between the sides — it is opposite DIVIDED by adjacent, a pure number with no length at all. 8 take away 4 is a length. 8 divided by 4 is a steepness.",
-             '[[step eq="8 ÷ 4 = 2 ✓"]][[step eq="8 − 4 = 4 ✗ · 8 ✗ — lengths, not ratios"]]'],
+            ("That is the method. The adjacent side is 4 and the opposite side is 8. "
+             "The tangent is 8 divided by 4 — 2. That number says: for every 1 you "
+             "walk across, the angle climbs 2. You met this in Algebra as the climb "
+             "of a line; the tangent is that same climb, living inside a triangle.",
+             '[[righttriangle adj="4" opp="8" caption="legs 8 and 4"]][[step eq="tan = 8 ÷ 4 = 2"]]'),
+            ("Keep the ratio apart from the sides. The tangent is not the opposite "
+             "side, and not the difference between the sides — it is opposite "
+             "DIVIDED by adjacent, a pure number with no length at all. 8 take away "
+             "4 is a length. 8 divided by 4 is a steepness.",
+             '[[step eq="8 ÷ 4 = 2 ✓"]][[step eq="8 − 4 = 4 ✗ · 8 ✗ — lengths, not ratios"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Adjacent 2, opposite 10: the tangent is 10 divided by 2 — 5.",
-                        '[[righttriangle adj="2" opp="10" caption="legs 10 and 2"]][[step eq="tan = 10 ÷ 2 = 5"]]'],
-             "ask": {"a": 2, "b": 8, "op": "tang"}},
-            {"worked": ["One more together. Adjacent 10, opposite 20: the tangent is 20 divided by 10, which equals 2.",
-                        '[[step eq="tan = 20 ÷ 10 = 2"]]'],
-             "ask": {"a": 6, "b": 12, "op": "tang"}},
+            {"worked": ("Here is one more, done for you. Adjacent 2, opposite 10: the "
+                        "tangent is 10 divided by 2 — 5.",
+                        '[[righttriangle adj="2" opp="10" caption="adjacent 2, opposite 10 — tan 5"]][[step eq="tan = 10 ÷ 2 = 5"]]'),
+             "ask": {'a': 2, 'b': 8, 'op': 'tang'}},
+            {"worked": ("One more together. Adjacent 10, opposite 20: the tangent is 20 "
+                        "divided by 10, which equals 2.",
+                        '[[righttriangle adj="10" opp="20" caption="adjacent 10, opposite 20 — tan 2"]][[step eq="tan = 20 ÷ 10 = 2"]]'),
+             "ask": {'a': 6, 'b': 12, 'op': 'tang'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. An angle has an "
+                       "adjacent side of 4 and an opposite side of 8, and its tangent "
+                       "is 2. Tap the reason why."),
+            "choices": ("because the tangent is opposite divided by adjacent: 8 over 4 | "
+                        "because the tangent is the opposite side take away the adjacent | "
+                        "because the tangent is the longer side, 8"),
+            "answer": "because the tangent is opposite divided by adjacent: 8 over 4",
+            "board": '[[righttriangle adj="4" opp="8" caption="tan = 8 ÷ 4 = 2"]]',
+        },
+        "recap": [
+            ("So, here it is again. Stand at the angle: adjacent touches it, "
+             "opposite faces it. The tangent is opposite divided by adjacent — the "
+             "climb for every one across, a pure number, never a length.",
+             '[[righttriangle adj="4" opp="8" caption="tan = 8 ÷ 4 = 2"]]'),
+            ("And that is the climb of a line, found inside a triangle.",
+             '[[step eq="tan = 8 ÷ 4 = 2"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 6, "op": "tang"},
             {"a": 2, "b": 6, "op": "tang"},
@@ -13466,24 +13775,64 @@ _GEOMETRY_U5 = [
         "op": "topp", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("tangent", "adjacent"),
-        "advance_line": "Three in a row — you've got it! Adjacent times tangent equals opposite.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Adjacent times tangent equals opposite.",
+        "why": [
+            ("Why is this where it earns its keep? Because the tangent works "
+             "backwards too. Know an angle\'s tangent and how far away you stand, "
+             "and it hands you a height you could never reach with a ruler. Given "
+             "the tangent and the adjacent side, the side opposite the angle is "
+             "adjacent times tangent.",
+             '[[goal text="Using the tangent"]]'),
+        ],
+        "picture": [
+            ("Here is a right triangle whose angle has a tangent of 4, with an "
+             "adjacent side of 5. A tangent of 4 climbs 4 for every 1 across. Walk "
+             "5 across and it climbs 4, five times over — the opposite side is 20, "
+             "standing up across from the angle.",
+             '[[righttriangle adj="5" opp="20" caption="adjacent 5, tangent 4 — opposite 5 × 4 = 20"]]'),
+        ],
         "teach": [
-            ["The tangent works backwards too, and this is where it earns its keep. Know an angle's tangent and how far away you stand. It hands you a height you could never reach with a ruler. Given the tangent and the adjacent side, the side opposite the angle is adjacent times tangent.",
-             '[[goal text="Using the tangent"]][[righttriangle adj="5" opp="15" caption="legs 15 and 5"]]'],
-            ["Say the tangent is 3 and the adjacent side is 5. A tangent of 3 climbs 3 for every 1 across. Walk 5 across and it climbs 3, five times over: 5 times 3 equals 15. The opposite side is 15.",
-             '[[righttriangle adj="5" opp="15" caption="legs 15 and 5"]][[step eq="opposite = 5 × 3 = 15"]]'],
-            ["The trap is the same one from the similarity unit: ADDING when the number is a times. A tangent of 3 does not add 3 to the side — it times it. And the tangent itself is never the answer: 3 is a steepness, not a side.",
-             '[[step eq="5 × 3 = 15 ✓"]][[step eq="5 + 3 = 8 ✗ · 3 ✗ — a steepness, not a side"]]'],
+            ("That is the method. Say the tangent is 4 and the adjacent side is 5. A "
+             "tangent of 4 climbs 4 for every 1 across. Walk 5 across and it climbs "
+             "4, five times over: 5 times 4 equals 20. The opposite side is 20.",
+             '[[righttriangle adj="5" opp="20" caption="legs 20 and 5"]][[step eq="opposite = 5 × 4 = 20"]]'),
+            ("The trap is the same one from the similarity unit: ADDING when the "
+             "number is a times. A tangent of 4 does not add 4 to the side — it "
+             "times it. And the tangent itself is never the answer: 4 is a "
+             "steepness, not a side.",
+             '[[step eq="5 × 4 = 20 ✓"]][[step eq="5 + 4 = 9 ✗ · 4 ✗ — a steepness, not a side"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Tangent 2, adjacent 4: the opposite side is 4 times 2 — 8.",
-                        '[[righttriangle adj="4" opp="8" caption="legs 8 and 4"]][[step eq="opposite = 4 × 2 = 8"]]'],
-             "ask": {"a": 6, "b": 2, "op": "topp"}},
-            {"worked": ["One more together. Tangent 4, adjacent 8: the opposite side is 8 times 4, which equals 32.",
-                        '[[step eq="opposite = 8 × 4 = 32"]]'],
-             "ask": {"a": 7, "b": 3, "op": "topp"}},
+            {"worked": ("Here is one more, done for you. Tangent 2, adjacent 8: the "
+                        "opposite side is 8 times 2 — 16.",
+                        '[[righttriangle adj="8" opp="16" caption="adjacent 8, tangent 2 — opposite 16"]][[step eq="opposite = 8 × 2 = 16"]]'),
+             "ask": {'a': 6, 'b': 2, 'op': 'topp'}},
+            {"worked": ("One more together. Tangent 4, adjacent 8: the opposite side is "
+                        "8 times 4, which equals 32.",
+                        '[[righttriangle adj="8" opp="32" caption="adjacent 8, tangent 4 — opposite 32"]][[step eq="opposite = 8 × 4 = 32"]]'),
+             "ask": {'a': 7, 'b': 3, 'op': 'topp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. An angle has a "
+                       "tangent of 4 and an adjacent side of 5, so its opposite side "
+                       "is 20. Tap the reason why."),
+            "choices": ("because the tangent climbs 4 for every 1 across, five times over | "
+                        "because the tangent adds 4 to the side: 5 plus 4 | because "
+                        "the opposite side is the tangent itself, 4"),
+            "answer": "because the tangent climbs 4 for every 1 across, five times over",
+            "board": '[[righttriangle adj="5" opp="20" caption="opposite = 5 × 4 = 20"]]',
+        },
+        "recap": [
+            ("So, here it is again. The tangent is a climb per step, so the "
+             "opposite side is the adjacent side times the tangent — a times, never "
+             "an add, and never the tangent on its own.",
+             '[[righttriangle adj="5" opp="20" caption="opposite = adjacent × tangent"]]'),
+            ("And that is a height measured from the ground, with no ladder.",
+             '[[step eq="opposite = 5 × 4 = 20"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "op": "topp"},
             {"a": 4, "b": 2, "op": "topp"},
@@ -13519,24 +13868,65 @@ _GEOMETRY_U6 = [
         "op": "cent", "max_value": 360,
         "levels": ("abstract",),
         "symbols": ("arc", "degrees"),
-        "advance_line": "Three in a row — you've got it! A circle's pieces share 360.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A circle's arcs share 360.",
+        "why": [
+            ("Why the rest of the circle? Because a circle can be cut. Draw two "
+             "radiuses from the middle and the rim splits into two arcs, and every arc "
+             "is measured in degrees — by the angle it opens at the middle. All the way "
+             "around is one full turn: 360 degrees. The two arcs always share exactly "
+             "360.",
+             '[[goal text="The rest of the circle"]]'),
+        ],
+        "picture": [
+            ("Here is the circle, cut into its two arcs. The small arc opens at 60 "
+             "degrees, and the rest of the circle is the big arc — 300 degrees. Put "
+             "them side by side and they fill the whole turn: 60 and 300, and there is "
+             "no rim left over.",
+             '[[pie data="the small arc 60°:60 | the rest 300°:300" caption="the two arcs of one circle — 60° and 300° fill the whole turn"]]'),
+        ],
         "teach": [
-            ["Welcome to circles. Cut a circle with two radiuses and you get two arcs — two pieces of the rim — and every arc is measured in degrees, by the angle it opens at the middle. All the way around is one full turn: 360 degrees. A circle's pieces always share exactly 360.",
-             '[[goal text="The rest of the circle"]][[circle center="O" caption="the circle"]]'],
-            ["Say the small arc opens at 60 degrees. The rest of the circle is everything else: 360 take away 60, which equals 300 degrees. Check by putting the pieces back: 60 plus 300 equals 360 — the whole circle again.",
-             '[[circle center="O" caption="the circle"]][[step eq="360° − 60° = 300°"]][[step eq="60° + 300° = 360° ✓"]]'],
-            ["The trap comes from an old friend. Angles on a straight line share 180 — and after three units of triangles, 180 leaps to mind first. But a circle is not a line: it is a FULL turn, and full turns share 360. Ask which shape you are inside before you take away.",
-             '[[step eq="360 − 60 = 300 ✓"]][[step eq="180 − 60 = 120 ✗ — a line\'s share, not a circle\'s"]]'],
+            ("That is the method. The small arc opens at 60 degrees. The whole turn is "
+             "360, so the rest of the circle is 360 take away 60, which equals 300 "
+             "degrees. Check by putting the two arcs back: 60 plus 300 equals 360 — "
+             "the whole circle again.",
+             '[[circle center="O" caption="the circle — a full turn of 360°"]][[step eq="360° − 60° = 300°"]][[step eq="60° + 300° = 360° ✓"]]'),
+            ("The trap comes from an old friend. Angles on a straight line share 180 — "
+             "and after three units of triangles, 180 leaps to mind first. But a "
+             "circle is not a line: it is a FULL turn, and full turns share 360. Ask "
+             "which shape you are inside before you take away.",
+             '[[step eq="360 − 60 = 300 ✓"]][[step eq="180 − 60 = 120 ✗ — a line\'s share, not a circle\'s"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The small arc is 80 degrees, so the rest is 360 take away 80 — 280 degrees.",
-                        '[[circle center="O" caption="the circle"]][[step eq="360° − 80° = 280°"]]'],
-             "ask": {"a": 20, "b": 0, "op": "cent"}},
-            {"worked": ["One more together. An arc of 45: the rest of the circle is 360 take away 45, which equals 315 degrees.",
-                        '[[step eq="360° − 45° = 315°"]]'],
-             "ask": {"a": 150, "b": 0, "op": "cent"}},
+            {"worked": ("Here is one more, done for you. The small arc is 80 degrees, so "
+                        "the rest is 360 take away 80 — 280 degrees.",
+                        '[[pie data="the arc 80°:80 | the rest 280°:280" caption="80° + 280° = 360°"]][[step eq="360° − 80° = 280°"]]'),
+             "ask": {'a': 20, 'b': 0, 'op': 'cent'}},
+            {"worked": ("One more together. An arc of 45: the rest of the circle is 360 "
+                        "take away 45, which equals 315 degrees.",
+                        '[[pie data="the arc 45°:45 | the rest 315°:315" caption="45° + 315° = 360°"]][[step eq="360° − 45° = 315°"]]'),
+             "ask": {'a': 150, 'b': 0, 'op': 'cent'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The small arc opens "
+                       "at 60 degrees, so the rest of the circle is 300 degrees. Tap "
+                       "the reason why."),
+            "choices": ("because a circle is a full turn of 360, not 180 | because a "
+                        "circle is a straight line of 180 | because the rest is always "
+                        "twice the small arc"),
+            "answer": "because a circle is a full turn of 360, not 180",
+            "board": '[[pie data="the small arc 60°:60 | the rest 300°:300" caption="60° + 300° = 360°"]]',
+        },
+        "recap": [
+            ("So, here it is again. A circle is a full turn of 360 degrees, and its "
+             "two arcs share it. Know one arc, take it away from 360, and the rest of "
+             "the circle is what is left — never from 180, which is a line\'s share.",
+             '[[pie data="the small arc 60°:60 | the rest 300°:300" caption="360° − 60° = 300°"]]'),
+            ("And that is the first rule of circles: the arcs share 360.",
+             '[[step eq="360° − 60° = 300°"]]'),
+        ],
         "bank": [
             {"a": 25, "b": 0, "op": "cent"},
             {"a": 30, "b": 0, "op": "cent"},
@@ -13557,24 +13947,63 @@ _GEOMETRY_U6 = [
         "op": "insc", "max_value": 180,
         "levels": ("abstract",),
         "symbols": ("inscribed", "arc"),
-        "advance_line": "Three in a row — you've got it! From the rim, the arc looks half.",
+        "advance_line": "Three in a row, and you can say why — you've got it! From the rim, the arc looks half.",
+        "why": [
+            ("Why half? Because an angle can stand at the middle of a circle — or on "
+             "the rim itself. An angle whose corner sits ON the circle is called an "
+             "inscribed angle, and it opens onto an arc across from it. Here is the "
+             "circle\'s most famous rule: an inscribed angle is HALF its arc.",
+             '[[goal text="Half the arc"]]'),
+        ],
+        "picture": [
+            ("Here is an angle standing on the rim, opening onto the arc across from "
+             "it. The arc measures 80 degrees, and the angle on the rim measures 40 — "
+             "half. Slide the corner anywhere along the rim and the angle stays 40: "
+             "the arc rules the angle from anywhere on the circle.",
+             '[[circle center="O" inscribed="80" caption="an inscribed angle on the rim — the arc across is 80°, the angle is 40°"]]'),
+        ],
         "teach": [
-            ["An angle can stand at the middle of a circle — or on the rim itself. An angle whose corner sits ON the circle is called an inscribed angle, and it opens onto an arc across from it. Here is the circle's most famous rule: an inscribed angle is HALF its arc.",
-             '[[goal text="Half the arc"]][[circle center="O" inscribed="80" caption="an angle standing on the rim"]]'],
-            ["Look: the arc across measures 80 degrees, and the inscribed angle on the rim measures half of that — 80 divided by 2, which equals 40 degrees. Slide the corner anywhere along the rim: still 40. The arc rules the angle from anywhere on the circle.",
-             '[[circle center="O" inscribed="80" caption="an angle standing on the rim"]][[step eq="80° ÷ 2 = 40°"]]'],
-            ["The trap is treating them as twins. The angle at the MIDDLE equals its arc — but the rim is farther away, and from farther away things look smaller: exactly half. Same arc, two views: from the middle, 80; from the rim, 40.",
-             '[[step eq="from the middle: 80°"]][[step eq="from the rim: 80° ÷ 2 = 40°"]]'],
+            ("That is the method. The arc across measures 80 degrees, so the inscribed "
+             "angle is half of that: 80 divided by 2, which equals 40 degrees. From "
+             "the rim, an arc of 80 looks like 40.",
+             '[[circle center="O" inscribed="80" caption="arc 80°, inscribed angle 40°"]][[step eq="80° ÷ 2 = 40°"]]'),
+            ("The trap is treating them as twins. The angle at the MIDDLE equals its "
+             "arc — but the rim is farther away, and from farther away things look "
+             "smaller: exactly half. Same arc, two views: from the middle, 80; from "
+             "the rim, 40.",
+             '[[step eq="from the middle: 80°"]][[step eq="from the rim: 80° ÷ 2 = 40°"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The arc measures 56 degrees, so the inscribed angle is 56 divided by 2 — 28 degrees.",
-                        '[[circle center="O" inscribed="56" caption="an angle standing on the rim"]][[step eq="56° ÷ 2 = 28°"]]'],
-             "ask": {"a": 36, "b": 0, "op": "insc"}},
-            {"worked": ["One more together. An arc of 110: the inscribed angle is 110 divided by 2, which equals 55 degrees.",
-                        '[[step eq="110° ÷ 2 = 55°"]]'],
-             "ask": {"a": 150, "b": 0, "op": "insc"}},
+            {"worked": ("Here is one more, done for you. The arc measures 56 degrees, so "
+                        "the inscribed angle is 56 divided by 2 — 28 degrees.",
+                        '[[circle center="O" inscribed="56" caption="arc 56°, inscribed angle 28°"]][[step eq="56° ÷ 2 = 28°"]]'),
+             "ask": {'a': 36, 'b': 0, 'op': 'insc'}},
+            {"worked": ("One more together. An arc of 110: the inscribed angle is 110 "
+                        "divided by 2, which equals 55 degrees.",
+                        '[[circle center="O" inscribed="110" caption="arc 110°, inscribed angle 55°"]][[step eq="110° ÷ 2 = 55°"]]'),
+             "ask": {'a': 150, 'b': 0, 'op': 'insc'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. An arc measures 80 "
+                       "degrees, so the inscribed angle on the rim is 40 degrees. Tap "
+                       "the reason why."),
+            "choices": ("because an inscribed angle is half its arc | because an "
+                        "inscribed angle equals its arc, like the middle | because the "
+                        "rim always takes away 40"),
+            "answer": "because an inscribed angle is half its arc",
+            "board": '[[circle center="O" inscribed="80" caption="arc 80° — from the rim, 40°"]]',
+        },
+        "recap": [
+            ("So, here it is again. An angle with its corner on the rim is an "
+             "inscribed angle, and it measures half the arc across from it. From the "
+             "middle an arc looks its full size; from the rim, exactly half.",
+             '[[circle center="O" inscribed="80" caption="arc 80°, inscribed angle 40°"]]'),
+            ("And that is the circle\'s most famous rule: half the arc.",
+             '[[step eq="80° ÷ 2 = 40°"]]'),
+        ],
         "bank": [
             {"a": 30, "b": 0, "op": "insc"},
             {"a": 40, "b": 0, "op": "insc"},
@@ -13595,24 +14024,63 @@ _GEOMETRY_U6 = [
         "op": "iarc", "max_value": 160,
         "levels": ("abstract",),
         "symbols": ("inscribed", "arc"),
-        "advance_line": "Three in a row — you've got it! From angle to arc, you double.",
+        "advance_line": "Three in a row, and you can say why — you've got it! From angle to arc, you double.",
+        "why": [
+            ("Why double? Because a rule read forwards can be read back. You stand on "
+             "the rim, you measure the inscribed angle — and the arc across from you "
+             "is waiting to be found. If the angle is half the arc, then the arc is "
+             "DOUBLE the angle. One rule, two directions, like every good rule in "
+             "this course.",
+             '[[goal text="Double it back"]]'),
+        ],
+        "picture": [
+            ("Here is the angle on the rim, and it measures 40 degrees. The arc across "
+             "from it is the bigger one: 80 degrees, double the angle. Read the same "
+             "picture forwards and it still agrees — half of 80 is 40.",
+             '[[circle center="O" inscribed="80" caption="inscribed angle 40° — the arc across is double: 80°"]]'),
+        ],
         "teach": [
-            ["Now read the rule the other way. You stand on the rim, you measure the inscribed angle — and the arc across from you is waiting to be found. If the angle is half the arc, then the arc is DOUBLE the angle. One rule, two directions, like every good rule in this course.",
-             '[[goal text="Double it back"]][[circle center="O" inscribed="80" caption="an angle standing on the rim"]]'],
-            ["The inscribed angle measures 40 degrees. The arc across from it is double that: 2 times 40 equals 80 degrees. And check it forwards: half of 80 is 40 — the same picture, read both ways.",
-             '[[circle center="O" inscribed="80" caption="an angle standing on the rim"]][[step eq="arc = 2 × 40° = 80°"]]'],
-            ["The danger is halving out of habit. In the last lesson every answer came from dividing by 2 — but that was arc to angle. This lesson runs angle to arc, and the arc is the BIGGER one: from the rim out to the arc, you double. Ask which one you are holding before you move.",
-             '[[step eq="angle 40° → arc 80° ✓"]][[step eq="40° ÷ 2 = 20° ✗ — that halves the wrong direction"]]'],
+            ("That is the method. The inscribed angle measures 40 degrees. The arc "
+             "across from it is double that: 2 times 40 equals 80 degrees. And check "
+             "it forwards: half of 80 is 40 — the same picture, read both ways.",
+             '[[circle center="O" inscribed="80" caption="inscribed angle 40°, arc 80°"]][[step eq="arc = 2 × 40° = 80°"]][[step eq="80° ÷ 2 = 40° ✓"]]'),
+            ("The danger is halving out of habit. In the last lesson every answer came "
+             "from dividing by 2 — but that was arc to angle. This lesson runs angle "
+             "to arc, and the arc is the BIGGER one: from the rim out to the arc, you "
+             "double. Ask which one you are holding before you move.",
+             '[[step eq="angle 40° → arc 80° ✓"]][[step eq="40° ÷ 2 = 20° ✗ — that halves the wrong direction"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The inscribed angle is 26 degrees, so its arc is 2 times 26 — 52 degrees.",
-                        '[[circle center="O" inscribed="52" caption="an angle standing on the rim"]][[step eq="arc = 2 × 26° = 52°"]]'],
-             "ask": {"a": 16, "b": 0, "op": "iarc"}},
-            {"worked": ["One more together. An inscribed angle of 75: the arc is 2 times 75, which equals 150 degrees.",
-                        '[[step eq="arc = 2 × 75° = 150°"]]'],
-             "ask": {"a": 44, "b": 0, "op": "iarc"}},
+            {"worked": ("Here is one more, done for you. The inscribed angle is 26 "
+                        "degrees, so its arc is 2 times 26 — 52 degrees.",
+                        '[[circle center="O" inscribed="52" caption="inscribed angle 26°, arc 52°"]][[step eq="arc = 2 × 26° = 52°"]]'),
+             "ask": {'a': 16, 'b': 0, 'op': 'iarc'}},
+            {"worked": ("One more together. An inscribed angle of 75: the arc is 2 times "
+                        "75, which equals 150 degrees.",
+                        '[[circle center="O" inscribed="150" caption="inscribed angle 75°, arc 150°"]][[step eq="arc = 2 × 75° = 150°"]]'),
+             "ask": {'a': 44, 'b': 0, 'op': 'iarc'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. An inscribed angle "
+                       "measures 40 degrees, so the arc it opens onto is 80 degrees. "
+                       "Tap the reason why."),
+            "choices": ("because the arc is double the inscribed angle | because the arc "
+                        "is half the inscribed angle | because every arc on a circle "
+                        "is 80"),
+            "answer": "because the arc is double the inscribed angle",
+            "board": '[[circle center="O" inscribed="80" caption="angle 40° on the rim — arc 80°"]]',
+        },
+        "recap": [
+            ("So, here it is again. The inscribed angle is half its arc, so the arc "
+             "is double the angle. From arc to angle you halve; from angle to arc you "
+             "double — one rule, read in either direction.",
+             '[[circle center="O" inscribed="80" caption="angle 40°, arc 2 × 40° = 80°"]]'),
+            ("And that is the same picture, read both ways.",
+             '[[step eq="arc = 2 × 40° = 80°"]]'),
+        ],
         "bank": [
             {"a": 20, "b": 0, "op": "iarc"},
             {"a": 24, "b": 0, "op": "iarc"},
@@ -13633,24 +14101,67 @@ _GEOMETRY_U6 = [
         "op": "alen", "max_value": 120,
         "levels": ("abstract",),
         "symbols": ("arc", "equal parts"),
-        "advance_line": "Three in a row — you've got it! One equal part of the distance around.",
+        "advance_line": "Three in a row, and you can say why — you've got it! One equal part of the distance around.",
+        "why": [
+            ("Why length? Because so far every arc was measured in degrees — how far "
+             "it turns. One last measure: how far you would WALK along the rim. When "
+             "the central angle divides 360 evenly, the circle cuts into equal parts, "
+             "and the arc is simply one part of the whole distance around.",
+             '[[goal text="A piece of the rim"]]'),
+        ],
+        "picture": [
+            ("Here is a circle cut into 4 equal parts, with one part shaded. A central "
+             "angle of 90 degrees cuts it that way, because 90 goes into 360 four times. "
+             "If the whole distance around is 12, the shaded arc is one of four equal "
+             "parts of 12 — it is 3 long.",
+             '[[pie parts="4" shaded="1" caption="4 equal parts, 1 shaded — one quarter of the distance around"]]'),
+        ],
         "teach": [
-            ["One last measure: not the degrees of an arc, but its LENGTH — how far you would walk along the rim. When the central angle divides 360 evenly, the circle cuts into equal parts, and the arc is simply one part of the whole distance around.",
-             '[[goal text="A piece of the rim"]][[pie parts="4" shaded="1" caption="4 equal parts, 1 shaded"]]'],
-            ["Say the distance around a circle is 12, and the arc sits under a central angle of 90 degrees. 90 goes into 360 four times, so the circle is 4 equal parts and the arc is one of them: 12 divided by 4, which equals 3.",
-             '[[pie parts="4" shaded="1" caption="4 equal parts, 1 shaded"]][[step eq="360° ÷ 90° = 4 parts"]][[step eq="12 ÷ 4 = 3"]]'],
-            ["Keep degrees and length apart — they measure different things. An arc under 90 degrees is not 90 steps long: 90 says how far it TURNS, not how far it runs. And not every arc is half the circle; half only happens under a straight 180.",
-             '[[step eq="12 ÷ 4 = 3 ✓"]][[step eq="90 ✗ degrees are not steps · 6 ✗ that is half the circle"]]'],
+            ("That is the method. The distance around the circle is 12, and the arc "
+             "sits under a central angle of 90 degrees. 90 goes into 360 four times, "
+             "so the circle is 4 equal parts and the arc is one of them: 12 divided by "
+             "4, which equals 3.",
+             '[[pie parts="4" shaded="1" caption="4 equal parts of 12 — the arc is 3"]][[step eq="360° ÷ 90° = 4 parts"]][[step eq="12 ÷ 4 = 3"]]'),
+            ("Keep degrees and length apart — they measure different things. An arc "
+             "under 90 degrees is not 90 steps long: 90 says how far it TURNS, not "
+             "how far it runs. And not every arc is half the circle; half only happens "
+             "under a straight 180.",
+             '[[step eq="12 ÷ 4 = 3 ✓"]][[step eq="90 ✗ degrees are not steps · 6 ✗ that is half the circle"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Distance around: 18. Central angle: 60 degrees — that is 6 equal parts, so the arc is 18 divided by 6, which equals 3.",
-                        '[[pie parts="6" shaded="1" caption="6 equal parts, 1 shaded"]][[step eq="18 ÷ 6 = 3"]]'],
-             "ask": {"a": 90, "b": 20, "op": "alen"}},
-            {"worked": ["One more together. Distance around 32, central angle 45 — that is eight equal parts, so the arc is 32 divided by 8, which equals 4.",
-                        '[[step eq="32 ÷ 8 = 4"]]'],
-             "ask": {"a": 120, "b": 24, "op": "alen"}},
+            {"worked": ("Here is one more, done for you. Distance around: 18. Central "
+                        "angle: 60 degrees — that is 6 equal parts, so the arc is 18 "
+                        "divided by 6, which equals 3.",
+                        '[[pie parts="6" shaded="1" caption="6 equal parts of 18 — the arc is 3"]][[step eq="360° ÷ 60° = 6 parts"]][[step eq="18 ÷ 6 = 3"]]'),
+             "ask": {'a': 90, 'b': 20, 'op': 'alen'}},
+            {"worked": ("One more together. Distance around 32, central angle 45 — that "
+                        "is eight equal parts, so the arc is 32 divided by 8, which "
+                        "equals 4.",
+                        '[[pie parts="8" shaded="1" caption="8 equal parts of 32 — the arc is 4"]][[step eq="360° ÷ 45° = 8 parts"]][[step eq="32 ÷ 8 = 4"]]'),
+             "ask": {'a': 120, 'b': 24, 'op': 'alen'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The distance around "
+                       "a circle is 12, and an arc sits under a central angle of 90 "
+                       "degrees, so the arc is 3 long. Tap the reason why."),
+            "choices": ("because 90 degrees is one of 4 equal parts of the turn | "
+                        "because an arc of 90 degrees is 90 steps long | because every "
+                        "arc is half the distance around"),
+            "answer": "because 90 degrees is one of 4 equal parts of the turn",
+            "board": '[[pie parts="4" shaded="1" caption="4 equal parts of 12 — the arc is 3"]]',
+        },
+        "recap": [
+            ("So, here it is again. The central angle says how many equal parts the "
+             "circle is cut into — 360 divided by the angle. The arc is one of those "
+             "parts of the distance around. Degrees say how far it turns; length says "
+             "how far it runs.",
+             '[[pie parts="4" shaded="1" caption="4 equal parts of 12 — the arc is 3"]]'),
+            ("And that is an arc measured two ways: by its turn, and by its length.",
+             '[[step eq="12 ÷ 4 = 3"]]'),
+        ],
         "bank": [
             {"a": 90, "b": 8, "op": "alen"},
             {"a": 120, "b": 12, "op": "alen"},
@@ -23794,6 +24305,198 @@ def _chas_worked(p):
 
 
 
+# ---- (tj, 2026-09-06) GEOMETRY UNITS 4-6: the small shape beside its enlarged copy,
+# the right triangle with its sides, the circle cut by its arcs. Every ask draws its
+# question with the answer withheld; every walk-back draws it filled in.
+def _scal_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[triangle v="A,B,C" sides="{a},," caption="the small triangle — one side is {a}; scale factor {b}"]]'
+            f'[[step eq="scale factor {b}: {a} × {b} = ?"]]')
+
+
+def _scal_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: a scale factor is a times, never an add. {a} times {b} "
+            f"equals {a * b}, and every other side of the copy is timesed by {b} too — that is "
+            f"why the copy keeps its shape.",
+            f'[[triangle v="A,B,C" sides="{a},," caption="small: {a}"]]'
+            f'[[triangle v="D,E,F" sides="{a * b},," caption="enlarged × {b}: {a * b}"]]')
+
+
+def _sfac_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[bars data="small:{a} | big:{b}" caption="matching sides: {a} in the small shape, {b} in the big one"]]'
+            f'[[step eq="{b} ÷ {a} = ?"]]')
+
+
+def _sfac_worked(p):
+    a, b = p["a"], p["b"]
+    k = b // a
+    return (f"Look what you did: the factor is the big side divided by the side it matches — "
+            f"{b} divided by {a} equals {k}. Check it backwards: {a} times {k} equals {b}. Not "
+            f"the difference, {b - a}; similar shapes share a times.",
+            f'[[bars data="small:{a} | big:{b}" caption="{b} ÷ {a} = {k} — the big side is {k} times the small"]]'
+            f'[[step eq="{b} ÷ {a} = {k} · {a} × {k} = {b} ✓"]]')
+
+
+def _mside_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[triangle v="A,B,C" sides="{a},{b}," caption="the small triangle — {a} matches {a * c} in the big one; what matches {b}?"]]'
+            f'[[step eq="{a} → {a * c} · {b} → ?"]]')
+
+
+def _mside_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: divide to find the factor — {a * c} divided by {a} is {c} — "
+            f"then times to cross over: {b} times {c} equals {b * c}. Not {b} plus "
+            f"{a * c - a}; adding the same difference bends the shape.",
+            f'[[triangle v="A,B,C" sides="{a},{b}," caption="small: {a} and {b}"]]'
+            f'[[triangle v="D,E,F" sides="{a * c},{b * c}," caption="big × {c}: {a * c} and {b * c}"]]')
+
+
+def _sare_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[rectangle w="{b}" h="{b}" caption="scale factor {b} strikes both directions — {b} by {b} boxes for every one"]]'
+            f'[[step eq="area {a} · scale factor {b}"]]'
+            f'[[step eq="{a} × {b} × {b} = ?"]]')
+
+
+def _sare_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: area lives in two directions, and the factor strikes both. "
+            f"Every one square becomes {b} by {b} — {b * b} squares — so {a} times {b} times "
+            f"{b} equals {a * b * b}. Length pays the factor once; area pays it twice.",
+            f'[[rectangle w="{b}" h="{b}" caption="one square scaled by {b}: {b * b} squares"]]'
+            f'[[step eq="{a} × {b} × {b} = {a * b * b}"]]')
+
+
+def _pyth_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[triangle v="A,B,C" right="B" sides="{a},{b}," caption="legs {a} and {b} — the hypotenuse is across from the square corner"]]'
+            f'[[step eq="{a}² + {b}² = ?²"]]')
+
+
+def _pyth_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: {a} squared is {a * a} and {b} squared is {b * b}; put "
+            f"together, {a * a + b * b}. Which number times itself is {a * a + b * b}? {c} — "
+            f"so the hypotenuse is {c}. Not {a + b}, the walk around the corner, and not "
+            f"{a * a + b * b}, the square of the side.",
+            f'[[righttriangle adj="{b}" opp="{a}" hyp="{c}" caption="legs {a} and {b}, hypotenuse {c}"]]'
+            f'[[step eq="{a}² + {b}² = {a * a + b * b} = {c}²"]]')
+
+
+def _leg_board(p):
+    a, c = p["a"], p["c"]
+    return (f'[[triangle v="A,B,C" right="B" sides="{a},,{c}" caption="hypotenuse {c}, one leg {a} — the other leg is the question"]]'
+            f'[[step eq="{a}² + ?² = {c}²"]]')
+
+
+def _leg_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: the rule speaks in squares. {c} squared is {c * c}, take "
+            f"away {a} squared, {a * a}, leaves {c * c - a * a} — and {b} times {b} is "
+            f"{b * b}, so the other leg is {b}. Not {c - a}: the lengths are never taken "
+            f"away, the squares are.",
+            f'[[righttriangle adj="{a}" opp="{b}" hyp="{c}" caption="legs {a} and {b}, hypotenuse {c}"]]'
+            f'[[step eq="{c}² − {a}² = {c * c - a * a} = {b}²"]]')
+
+
+def _tang_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[righttriangle adj="{a}" opp="{b}" caption="adjacent {a}, opposite {b} — how steep is the marked angle?"]]'
+            f'[[step eq="tan = {b} ÷ {a} = ?"]]')
+
+
+def _tang_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the tangent is opposite divided by adjacent — {b} divided "
+            f"by {a} equals {b // a}. For every 1 across, the angle climbs {b // a}. A pure "
+            f"number, no length: not {b}, and not {b - a}.",
+            f'[[righttriangle adj="{a}" opp="{b}" caption="tan = {b} ÷ {a} = {b // a} — climbs {b // a} for every 1 across"]]'
+            f'[[step eq="tan = {b} ÷ {a} = {b // a}"]]')
+
+
+def _topp_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[triangle v="A,B,C" right="B" sides="{a},," caption="adjacent {a}, tangent {b} — the opposite side is the question"]]'
+            f'[[step eq="tan = {b} · opposite = {a} × {b} = ?"]]')
+
+
+def _topp_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: a tangent of {b} climbs {b} for every one across. Walk {a} "
+            f"across and it climbs {b}, {a} times over: {a} times {b} equals {a * b}. The "
+            f"tangent is a times, not an add — and never the answer itself.",
+            f'[[righttriangle adj="{a}" opp="{a * b}" caption="adjacent {a}, tangent {b} — opposite {a * b}"]]'
+            f'[[step eq="opposite = {a} × {b} = {a * b}"]]')
+
+
+def _cent_board(p):
+    a = p["a"]
+    return (f'[[circle center="O" caption="two radiuses cut the circle — the small arc opens at {a}°; how much is the rest?"]]'
+            f'[[step eq="360° − {a}° = ?"]]')
+
+
+def _cent_worked(p):
+    a = p["a"]
+    return (f"Look what you did: a circle is a full turn, and a full turn is 360 — not a "
+            f"line\'s 180. 360 take away {a} equals {360 - a}, and {a} plus {360 - a} puts "
+            f"the whole circle back.",
+            f'[[pie data="the arc {a}°:{a} | the rest {360 - a}°:{360 - a}" caption="{a}° + {360 - a}° = 360°"]]'
+            f'[[step eq="360° − {a}° = {360 - a}°"]]')
+
+
+def _insc_board(p):
+    a = p["a"]
+    return (f'[[circle center="O" caption="an arc of {a}° — an angle on the rim opens onto it; how big is that angle?"]]'
+            f'[[step eq="inscribed = {a}° ÷ 2 = ?"]]')
+
+
+def _insc_worked(p):
+    a = p["a"]
+    return (f"Look what you did: from the rim the arc looks half. {a} divided by 2 equals "
+            f"{a // 2} degrees. From the middle the same arc would be {a}; the rim is farther "
+            f"away, and from farther away it looks exactly half.",
+            f'[[circle center="O" inscribed="{a}" caption="arc {a}° — from the rim it looks {a // 2}°"]]'
+            f'[[step eq="{a}° ÷ 2 = {a // 2}°"]]')
+
+
+def _iarc_board(p):
+    a = p["a"]
+    return (f'[[circle center="O" inscribed="{2 * a}" caption="an angle of {a}° standing on the rim — how big is the arc it opens onto?"]]'
+            f'[[step eq="arc = 2 × {a}° = ?"]]')
+
+
+def _iarc_worked(p):
+    a = p["a"]
+    return (f"Look what you did: from angle to arc you double. 2 times {a} equals {2 * a} "
+            f"degrees — and check it forwards: half of {2 * a} is {a}. The arc is the bigger "
+            f"one; halving would have gone the wrong way.",
+            f'[[circle center="O" inscribed="{2 * a}" caption="angle {a}° on the rim — arc 2 × {a}° = {2 * a}°"]]'
+            f'[[step eq="arc = 2 × {a}° = {2 * a}°"]]')
+
+
+def _alen_board(p):
+    a, b = p["a"], p["b"]
+    n = 360 // a
+    return (f'[[pie parts="{n}" shaded="1" caption="a central angle of {a}° cuts the circle into {n} equal parts — the arc is one of them"]]'
+            f'[[step eq="360° ÷ {a}° = {n} parts"]]'
+            f'[[step eq="{b} ÷ {n} = ?"]]')
+
+
+def _alen_worked(p):
+    a, b = p["a"], p["b"]
+    n = 360 // a
+    return (f"Look what you did: {a} degrees goes into 360 {n} times, so the circle is {n} "
+            f"equal parts and the arc is one of them. The whole distance around is {b}, so "
+            f"the arc is {b} divided by {n} — {b // n}. Degrees say how far it turns; the "
+            f"length says how far it runs.",
+            f'[[pie parts="{n}" shaded="1" caption="{n} equal parts of {b} — the arc is {b // n}"]]'
+            f'[[step eq="{b} ÷ {n} = {b // n}"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -26618,9 +27321,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A triangle is enlarged by a scale factor of "
                              f"{p['b']}. One of its sides is {p['a']}. How long is "
                              f"that side in the enlarged copy?"),
-        "board": lambda p: (f'[[triangle v="A,B,C" sides="{p["a"]},,"]]'
-                            f'[[step eq="scale factor {p["b"]}: '
-                            f'{p["a"]} × {p["b"]} = ?"]]'),
+        "board": _scal_board,         # (tj) the small triangle, captioned
+        "worked": _scal_worked,       # (tj) the small beside the enlarged copy
         "praise": lambda p: (f"Scale factor {p['b']} is a times: {p['a']} times "
                              f"{p['b']} equals {p['a'] * p['b']}."),
         "key": lambda p: p["a"] * p["b"],
@@ -26641,8 +27343,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Two shapes are similar. A side of {p['a']} in the "
                              f"small one matches a side of {p['b']} in the big "
                              f"one. What is the scale factor?"),
-        "board": lambda p: (f'[[bars data="small:{p["a"]} | big:{p["b"]}"]]'
-                            f'[[step eq="{p["b"]} ÷ {p["a"]} = ?"]]'),
+        "board": _sfac_board,         # (tj) the matching sides as bars
+        "worked": _sfac_worked,       # (tj) the factor named, checked backwards
         "praise": lambda p: (f"{p['b']} divided by {p['a']} equals "
                              f"{p['b'] // p['a']} — and check it backwards: "
                              f"{p['a']} times {p['b'] // p['a']} equals "
@@ -26666,9 +27368,8 @@ OP_EXT = {
                              f"matches the side of {p['a'] * p['c']} in the big "
                              f"one. Another side of the small triangle is "
                              f"{p['b']}. How long is its matching side?"),
-        "board": lambda p: (f'[[triangle v="A,B,C" sides="{p["a"]},{p["b"]},"]]'
-                            f'[[step eq="{p["a"]} → {p["a"] * p["c"]} · '
-                            f'{p["b"]} → ?"]]'),
+        "board": _mside_board,        # (tj) the small triangle, the match asked
+        "worked": _mside_worked,      # (tj) the small beside the big
         "praise": lambda p: (f"{p['a'] * p['c']} divided by {p['a']} says the "
                              f"factor is {p['c']} — and {p['b']} times {p['c']} "
                              f"equals {p['b'] * p['c']}."),
@@ -26693,9 +27394,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A shape has an area of {p['a']} square units. It "
                              f"is enlarged by a scale factor of {p['b']}. What is "
                              f"the area of the enlarged copy?"),
-        "board": lambda p: (f'[[step eq="area {p["a"]} · scale factor '
-                            f'{p["b"]}"]]'
-                            f'[[step eq="{p["a"]} × {p["b"]} × {p["b"]} = ?"]]'),
+        "board": _sare_board,         # (tj) b by b boxes for every one
+        "worked": _sare_worked,       # (tj) the boxes counted
         "praise": lambda p: (f"Area lives in two directions, and the factor "
                              f"strikes both: {p['a']} times {p['b']} times "
                              f"{p['b']} equals {p['a'] * p['b'] * p['b']}."),
@@ -26725,9 +27425,8 @@ OP_EXT = {
         "ans": lambda p: p["c"],
         "spoken": lambda p: (f"A right triangle has legs of {p['a']} and "
                              f"{p['b']}. How long is the hypotenuse?"),
-        "board": lambda p: (f'[[triangle v="A,B,C" right="B" '
-                            f'sides="{p["a"]},{p["b"]},"]]'
-                            f'[[step eq="{p["a"]}² + {p["b"]}² = ?²"]]'),
+        "board": _pyth_board,         # (tj) the legs, the hypotenuse blank
+        "worked": _pyth_worked,       # (tj) all three sides
         "praise": lambda p: (f"{p['a']} squared is {p['a'] * p['a']} and "
                              f"{p['b']} squared is {p['b'] * p['b']}; put "
                              f"together that is {p['a'] * p['a'] + p['b'] * p['b']} "
@@ -26751,9 +27450,8 @@ OP_EXT = {
         "ans": lambda p: p["b"],
         "spoken": lambda p: (f"A right triangle's hypotenuse is {p['c']}, and one "
                              f"leg is {p['a']}. How long is the other leg?"),
-        "board": lambda p: (f'[[triangle v="A,B,C" right="B" '
-                            f'sides="{p["a"]},,{p["c"]}"]]'
-                            f'[[step eq="{p["a"]}² + ?² = {p["c"]}²"]]'),
+        "board": _leg_board,          # (tj) the hypotenuse and one leg
+        "worked": _leg_worked,        # (tj) all three sides
         "praise": lambda p: (f"{p['c']} squared is {p['c'] * p['c']}, take away "
                              f"{p['a']} squared, {p['a'] * p['a']}, leaves "
                              f"{p['c'] * p['c'] - p['a'] * p['a']} — and "
@@ -26782,8 +27480,8 @@ OP_EXT = {
                              f"tangent of the angle?"),
         # righttriangle is SAFE here: it labels the two givens and the (decimal)
         # hypotenuse -- none of which is the ratio being asked for.
-        "board": lambda p: (f'[[righttriangle adj="{p["a"]}" opp="{p["b"]}"]]'
-                            f'[[step eq="tan = {p["b"]} ÷ {p["a"]} = ?"]]'),
+        "board": _tang_board,         # (tj) the marked angle, captioned
+        "worked": _tang_worked,       # (tj) the climb named
         "praise": lambda p: (f"Tangent is the climb for every one across: "
                              f"{p['b']} divided by {p['a']} equals "
                              f"{p['b'] // p['a']}."),
@@ -26808,10 +27506,8 @@ OP_EXT = {
                              f"{p['b']}. Its adjacent side is {p['a']}. How long "
                              f"is its opposite side?"),
         # NOT righttriangle here: drawing it would need opp= -- the answer, printed.
-        "board": lambda p: (f'[[triangle v="A,B,C" right="B" '
-                            f'sides="{p["a"]},,"]]'
-                            f'[[step eq="tan = {p["b"]} · opposite = '
-                            f'{p["a"]} × {p["b"]} = ?"]]'),
+        "board": _topp_board,         # (tj) the adjacent side, the opposite blank
+        "worked": _topp_worked,       # (tj) both legs
         "praise": lambda p: (f"A tangent of {p['b']} climbs {p['b']} for every "
                              f"one across: {p['a']} across times {p['b']} equals "
                              f"{p['a'] * p['b']}."),
@@ -26839,8 +27535,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Two radiuses cut a circle into two arcs. The small "
                              f"arc's angle at the middle is {p['a']} degrees. How "
                              f"many degrees is the rest of the circle?"),
-        "board": lambda p: (f'[[circle center="O" caption="the circle"]]'
-                            f'[[step eq="360° − {p["a"]}° = ?"]]'),
+        "board": _cent_board,         # (tj) the circle, captioned
+        "worked": _cent_worked,       # (tj) the two arcs as a pie
         "praise": lambda p: (f"The whole circle is 360 degrees, and this arc uses "
                              f"{p['a']} — the rest is {360 - p['a']} degrees."),
         "key": lambda p: p["a"],
@@ -26862,8 +27558,8 @@ OP_EXT = {
         # [[circle inscribed=]] is BANNED here: the renderer labels the vertex
         # angle at half the arc -- exactly this ask's answer, printed. Plain
         # circle plus the computation instead.
-        "board": lambda p: (f'[[circle center="O" caption="the circle"]]'
-                            f'[[step eq="inscribed = {p["a"]}° ÷ 2 = ?"]]'),
+        "board": _insc_board,         # (tj) the plain circle, captioned (no inscribed= -- giveaway)
+        "worked": _insc_worked,       # (tj) the angle on the rim, labelled
         "praise": lambda p: (f"From the rim the arc looks half: {p['a']} divided "
                              f"by 2 equals {p['a'] // 2} degrees."),
         "key": lambda p: p["a"],
@@ -26883,8 +27579,8 @@ OP_EXT = {
                              f"opens onto?"),
         # inscribed="2a" labels the vertex as a -- the GIVEN. The arc's measure
         # is never printed by the renderer, so the figure teaches without telling.
-        "board": lambda p: (f'[[circle center="O" inscribed="{2 * p["a"]}"]]'
-                            f'[[step eq="arc = 2 × {p["a"]}° = ?"]]'),
+        "board": _iarc_board,         # (tj) the angle on the rim, captioned
+        "worked": _iarc_worked,       # (tj) the arc named
         "praise": lambda p: (f"From angle to arc you double: 2 times {p['a']} "
                              f"equals {2 * p['a']} degrees."),
         "key": lambda p: p["a"],
@@ -26902,10 +27598,8 @@ OP_EXT = {
         "spoken": lambda p: (f"The distance around a whole circle is {p['b']}. An "
                              f"arc of that circle sits under a central angle of "
                              f"{p['a']} degrees. How long is the arc?"),
-        "board": lambda p: (f'[[pie parts="{360 // p["a"]}" shaded="1"]]'
-                            f'[[step eq="360° ÷ {p["a"]}° = {360 // p["a"]} '
-                            f'parts"]]'
-                            f'[[step eq="{p["b"]} ÷ {360 // p["a"]} = ?"]]'),
+        "board": _alen_board,         # (tj) the equal parts, one shaded, captioned
+        "worked": _alen_worked,       # (tj) the part measured
         "praise": lambda p: (f"{p['a']} degrees is one of {360 // p['a']} equal "
                              f"parts of the turn, so the arc is {p['b']} divided "
                              f"by {360 // p['a']} — {p['b'] * p['a'] // 360}."),
