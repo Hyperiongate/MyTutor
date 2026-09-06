@@ -2,6 +2,33 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD to -- PRECALC UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "go".
+#               THIS FILE:
+#                 * Unit 1 (functions): two MACHINES in a row on the ask, g first with
+#                   its output blank and f fed from it, both answered in the walk-back;
+#                   the old point on the grid, walked back with where it landed; the
+#                   root's doorway walked back as the curve of √(x − a) starting at the
+#                   door (no picture on the ask: the curve starts at the answer); the
+#                   border at 5 on the number line with x marked, walked back with the
+#                   side named -- and the ask's pending line is "x = c · y = ?" (the old
+#                   "x = c → ?" put an arrow after an equals, 12 asks, live);
+#                 * Unit 2 (polynomials): the minus parade walked back as the ARRAY in
+#                   two rows, the odd one left over (extra="1"; the pairing is the
+#                   answer, so walk-back only); the plug-in machine with its output blank;
+#                   the four rooms with the corner blank ([[areamodel ask="1"]] -- the
+#                   end number is the corner room); the bottom walked back as the curve
+#                   flying off at each zero (yrange=; the poles are the answer, so
+#                   walk-back only);
+#                 * Unit 3 (logs and exponentials): the log beside the log of the power
+#                   as bars; the log machine run backwards with its input blank, walked
+#                   back as the layers stacked and the machine answered; the tank halving
+#                   day by day and the pile doubling year by year on the bars.
+#               Trap lines kept in every lesson. ⚠️ no figure asks in these three units
+#               before this build (no captions to miss) -- the pieces pending line was
+#               the live find. ENGINE: OP_EXT fcmp/fshf/fdom/fpie/negp/remt/vprd/vasy/
+#               logp/lsol/hcnt/cmpd gain "worked" (_fcmp_* ... _cmpd_*) and, where a
+#               picture withholds the answer, boards. Demonstrated numbers kept out of
+#               the banks and pairs (every old teach and pair already was).
 #   2026-09-06  BUILD tn -- ALGEBRA 2 UNITS 7-9 TO THE SHAPE (12 lessons). THE COURSE IS
 #               36/36. THIS FILE:
 #                 * Unit 7 (patterns): the first three terms as BARS, walked back with
@@ -18176,24 +18203,61 @@ _PRECALC_U1 = [
         "op": "fcmp", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("composition", "inside"),
-        "advance_line": "Three in a row — you've got it! The inner machine runs first.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The inner machine runs first.",
+        "why": [
+            ("Why machines in a row? Welcome to Pre-Calculus, where functions become "
+             "the main characters. Algebra One fed numbers through two machines in a "
+             "row; now the chaining gets a name — composition — and a notation: f of g "
+             "of x. Read it from the inside out: g runs first, then f eats what g made.",
+             '[[goal text="Machines in a row"]][[step eq="f(g(x)) — the inside runs first"]]'),
+        ],
+        "picture": [
+            ("Here are the two machines in a row. The first is g: it times by 2, and 5 "
+             "goes in. Whatever comes out of g goes straight into f, which adds 3. Two "
+             "machines, one conveyor belt, and the belt runs from g to f.",
+             '[[machine input="5" rule="2x" output="10" fname="g" caption="g runs first: g(5) = 10"]][[machine input="10" rule="x + 3" output="13" fname="f" caption="then f eats what g made: f(10) = 13"]]'),
+        ],
         "teach": [
-            ["Welcome to Pre-Calculus, where functions become the main characters. Algebra One fed numbers through two machines in a row; now the chaining gets a name — composition — and a notation: f of g of x. Read it from the inside out: g runs first, then f eats what g made.",
-             '[[goal text="Machines in a row"]][[step eq="f(g(x)) — the inside runs first"]]'],
-            ["Try f of x equals x plus 3, g of x equals 2 times x, and feed 5 to f of g. Inside first: g of 5 is 10. Then the outer machine: f of 10 is 13. The parentheses are a map: whatever sits deepest goes first.",
-             '[[step eq="g(5) = 10"]] [[step eq="f(10) = 13"]]'],
-            ["The trap is running f first: f of 5 is 8, then g gives 16 — a different number entirely, because these machines do not commute. Order is everything in a kitchen and in a composition: the INSIDE machine cooks first.",
-             '[[step eq="f(g(5)) = 13 ✓"]][[step eq="g(f(5)) = 16 ✗ — the order flipped"]]'],
+            ("That is the method. f of x equals x plus 3, g of x equals 2 times x, and "
+             "feed 5 to f of g. Inside first: g of 5 is 10. Then the outer machine: f "
+             "of 10 is 13. The parentheses are a map: whatever sits deepest goes first.",
+             '[[machine input="5" rule="2x" output="10" fname="g" caption="g(5) = 10"]][[machine input="10" rule="x + 3" output="13" fname="f" caption="f(10) = 13"]][[step eq="g(5) = 10"]][[step eq="f(10) = 13"]]'),
+            ("The trap is running f first: f of 5 is 8, then g gives 16 — a different "
+             "number entirely, because these machines do not commute. Order is "
+             "everything in a kitchen and in a composition: the INSIDE machine cooks "
+             "first.",
+             '[[step eq="f(g(5)) = 13 ✓"]][[step eq="g(f(5)) = 16 ✗ — the order flipped"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. f adds 4, g times by 3. f of g of 2: inside, g of 2 is 6; then f — 10.",
-                        '[[step eq="g(2) = 6"]] [[step eq="f(6) = 10"]]'],
-             "ask": {"a": 2, "b": 2, "c": 4, "op": "fcmp"}},
-            {"worked": ["One more together. f adds 5, g doubles. f of g of 7: inside, g of 7 is 14; then f — 19.",
-                        '[[step eq="g(7) = 14"]] [[step eq="f(14) = 19"]]'],
-             "ask": {"a": 7, "b": 3, "c": 6, "op": "fcmp"}},
+            {"worked": ("Here is one more, done for you. f adds 4, g times by 3. f of g of "
+                        "2: inside, g of 2 is 6; then f — 10.",
+                        '[[machine input="2" rule="3x" output="6" fname="g" caption="g(2) = 6"]][[machine input="6" rule="x + 4" output="10" fname="f" caption="f(6) = 10"]][[step eq="g(2) = 6"]][[step eq="f(6) = 10"]]'),
+             "ask": {'a': 2, 'b': 2, 'c': 4, 'op': 'fcmp'}},
+            {"worked": ("One more together. f adds 5, g doubles. f of g of 7: inside, g "
+                        "of 7 is 14; then f — 19.",
+                        '[[machine input="7" rule="2x" output="14" fname="g" caption="g(7) = 14"]][[machine input="14" rule="x + 5" output="19" fname="f" caption="f(14) = 19"]][[step eq="g(7) = 14"]][[step eq="f(14) = 19"]]'),
+             "ask": {'a': 7, 'b': 3, 'c': 6, 'op': 'fcmp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. f adds 3, g times by "
+                       "2, and f of g of 5 is 13. Tap the reason why."),
+            "choices": ("because g runs first, and f eats what g made | because f runs "
+                        "first, and g eats what f made | because the two machines run "
+                        "at the same time"),
+            "answer": "because g runs first, and f eats what g made",
+            "board": '[[machine input="5" rule="2x" output="10" fname="g" caption="g first"]][[machine input="10" rule="x + 3" output="13" fname="f" caption="then f"]]',
+        },
+        "recap": [
+            ("So, here it is again. A composition is two machines on one belt, and the "
+             "notation is a map: whatever sits deepest runs first. Run the inner "
+             "machine, hand its answer to the outer one — never the other way round.",
+             '[[machine input="5" rule="2x" output="10" fname="g" caption="inside first"]][[machine input="10" rule="x + 3" output="13" fname="f" caption="then the outer machine"]]'),
+            ("And that is composition: machines in a row.",
+             '[[step eq="f(g(5)) = 13"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "c": 2, "op": "fcmp"},
             {"a": 3, "b": 2, "c": 2, "op": "fcmp"},
@@ -18214,24 +18278,64 @@ _PRECALC_U1 = [
         "op": "fshf", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("slides", "opposite"),
-        "advance_line": "Three in a row — you've got it! The minus inside slides the graph right.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The minus inside slides the graph right.",
+        "why": [
+            ("Why does the graph slide? Because one rule moves EVERY graph ever drawn. "
+             "Change y equals f of x into y equals f of: x take away 3 — and the whole "
+             "picture slides 3 to the RIGHT. The vertex lesson met this for one curve; "
+             "it is true for all of them, and the minus still points opposite.",
+             '[[goal text="The graph slides"]]'),
+        ],
+        "picture": [
+            ("Here is a point on the old graph, (4, 2), and beside it the spot it "
+             "slides to under f of x take away 3: (7, 2). Same height, 3 further "
+             "along. Every point on the old graph moves exactly like this one.",
+             '[[graph points="(4,2),(7,2)" range="0..10" yrange="0..4" caption="(4, 2) slides right 3 to (7, 2)"]]'),
+        ],
         "teach": [
-            ["One rule moves EVERY graph ever drawn. Change y equals f of x into y equals f of: x take away 3 — and the whole picture slides 3 to the RIGHT. The vertex lesson met this for one curve; it is true for all of them, and the minus still points opposite.",
-             '[[goal text="The graph slides"]][[step eq="f(x − 3): everything slides right 3"]]'],
-            ["Why right? To get the OLD answer at f of zero, x take away 3 must BE zero — so x must be 3. Every old moment happens 3 later. A point like (4, 2) keeps its height and slides across: it lands at (7, 2).",
-             '[[step eq="old (4, 2) → new (7, 2)"]]'],
-            ["The trap is reading the minus literally and sliding LEFT — landing at (1, 2). But the minus inside is a delay, not a direction: it says x must grow before the function sees what it saw before. Inside the parentheses, signs point opposite. Always.",
-             '[[step eq="(4, 2) → (7, 2) ✓"]][[step eq="(1, 2) ✗ — the literal minus"]]'],
+            ("That is the method. Why right? To get the OLD answer at f of zero, x take "
+             "away 3 must BE zero — so x must be 3. Every old moment happens 3 later. "
+             "A point like (4, 2) keeps its height and slides across: it lands at (7, "
+             "2).",
+             '[[graph points="(4,2),(7,2)" range="0..10" yrange="0..4" caption="old (4, 2) → new (7, 2)"]][[step eq="old (4, 2) → new (7, 2)"]]'),
+            ("The trap is reading the minus literally and sliding LEFT — landing at "
+             "(1, 2). But the minus inside is a delay, not a direction: it says x must "
+             "grow before the function sees what it saw before. Inside the "
+             "parentheses, signs point opposite. Always.",
+             '[[step eq="(4, 2) → (7, 2) ✓"]][[step eq="(1, 2) ✗ — the literal minus"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y = f of: x take away 2. The point (5, 6) slides right 2 — new x is 7.",
-                        '[[step eq="(5, 6) → (7, 6)"]]'],
-             "ask": {"a": 3, "b": 5, "c": 2, "op": "fshf"}},
-            {"worked": ["One more together. f of: x take away 6, and the point (7, 3): it slides right 6, so the new x is 7 plus 6 — 13.",
-                        '[[step eq="(7, 3) → (13, 3)"]]'],
-             "ask": {"a": 7, "b": 8, "c": 4, "op": "fshf"}},
+            {"worked": ("Here is one more, done for you. y equals f of: x take away 2. The "
+                        "point (5, 6) slides right 2 — new x is 7.",
+                        '[[graph points="(5,6),(7,6)" range="0..10" yrange="0..8" caption="(5, 6) slides right 2 to (7, 6)"]][[step eq="(5, 6) → (7, 6)"]]'),
+             "ask": {'a': 3, 'b': 5, 'c': 2, 'op': 'fshf'}},
+            {"worked": ("One more together. f of: x take away 6, and the point (7, 3): it "
+                        "slides right 6, so the new x is 7 plus 6 — 13.",
+                        '[[graph points="(7,3),(13,3)" range="0..15" yrange="0..5" caption="(7, 3) slides right 6 to (13, 3)"]][[step eq="(7, 3) → (13, 3)"]]'),
+             "ask": {'a': 7, 'b': 8, 'c': 4, 'op': 'fshf'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Under y equals f of x "
+                       "take away 3, the point (4, 2) lands at (7, 2). Tap the reason "
+                       "why."),
+            "choices": ("because the minus inside is a delay, so the graph slides right | "
+                        "because the minus inside means left, so the graph slides left | "
+                        "because the minus inside lowers the graph by 3"),
+            "answer": "because the minus inside is a delay, so the graph slides right",
+            "board": '[[graph points="(4,2),(7,2)" range="0..10" yrange="0..4" caption="right 3"]]',
+        },
+        "recap": [
+            ("So, here it is again. Take a number away inside the parentheses and the "
+             "whole graph slides right by that much — the minus is a delay, and inside "
+             "the parentheses signs point opposite. Every point keeps its height and "
+             "moves across.",
+             '[[graph points="(4,2),(7,2)" range="0..10" yrange="0..4" caption="the minus inside slides the graph right"]]'),
+            ("And that is one rule for every graph ever drawn.",
+             '[[step eq="f(x − 3): everything slides right 3"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "c": 4, "op": "fshf"},
             {"a": 2, "b": 4, "c": 2, "op": "fshf"},
@@ -18252,24 +18356,66 @@ _PRECALC_U1 = [
         "op": "fdom", "max_value": 14, "min_value": -14,
         "levels": ("abstract",),
         "symbols": ("domain", "allowed"),
-        "advance_line": "Three in a row — you've got it! The doorway is where the inside hits zero — and it is welcome.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The doorway is where the inside hits zero — and it is welcome.",
+        "why": [
+            ("Why a doorway? Because not every x may enter every function. The set of "
+             "allowed x\'s is the function\'s domain, and Pre-Calculus reads it "
+             "straight off the formula. y equals the square root of: x take away 13 — "
+             "roots refuse negatives, so the inside must stay at zero or above.",
+             '[[goal text="The doorway"]][[step eq="√(x − 13): the inside must not go negative"]]'),
+        ],
+        "picture": [
+            ("Here is the curve of the square root of x take away 13. Look where it "
+             "begins: at x equals 13, right on the ground, and nothing at all to the "
+             "left of it. That starting point is the doorway — the smallest x allowed "
+             "in.",
+             '[[graph func="sqrt(x-13)" points="(13,0)" range="10..22" yrange="0..4" caption="y = √(x − 13) — the curve starts at the doorway, x = 13"]]'),
+        ],
         "teach": [
-            ["Not every x may enter every function. The set of allowed x's is the function's domain, and Pre-Calculus reads it straight off the formula. y equals the square root of: x take away 13 — roots refuse negatives, so the inside must stay at zero or above.",
-             '[[goal text="The doorway"]][[step eq="√(x − 13): the inside must not go negative"]]'],
-            ["Solve the doorway: x take away 13 stays at zero or above exactly when x is 13 or more. So 13 is the smallest x allowed — the domain's front door. At the door itself the root gets zero, and the root of zero is zero: perfectly fine.",
-             '[[step eq="x − 13 ≥ 0 → x ≥ 13"]][[step eq="√0 = 0 · the door is open"]]'],
-            ["Remember division's forbidden x? The bottom's zero was BANNED. The root's edge is the opposite: zero under a root is WELCOME — the boundary belongs. And the flip trap still lurks: the door is at 13, never negative 13. Doors sit where the inside hits zero.",
-             '[[step eq="door at 13, allowed ✓"]][[step eq="−13 ✗ the flip · division banned its zero; the root keeps it"]]'],
+            ("That is the method. Solve the doorway: x take away 13 stays at zero or "
+             "above exactly when x is 13 or more. So 13 is the smallest x allowed — the "
+             "domain\'s front door. At the door itself the root gets zero, and the "
+             "root of zero is zero: perfectly fine.",
+             '[[graph func="sqrt(x-13)" points="(13,0)" range="10..22" yrange="0..4" caption="the door at 13 — the root of zero is zero, welcome"]][[step eq="x − 13 ≥ 0 → x ≥ 13"]][[step eq="√0 = 0 · the door is open"]]'),
+            ("Remember division\'s forbidden x? The bottom\'s zero was BANNED. The "
+             "root\'s edge is the opposite: zero under a root is WELCOME — the "
+             "boundary belongs. And the flip trap still lurks: the door is at 13, never "
+             "negative 13. Doors sit where the inside hits zero.",
+             '[[step eq="door at 13, allowed ✓"]][[step eq="−13 ✗ the flip · division banned its zero; the root keeps it"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals the square root of: x take away 20. The inside hits zero at 20 — that is the doorway, and it is allowed in.",
-                        '[[step eq="√(x − 20) → door at 20"]]'],
-             "ask": {"a": 11, "b": 0, "op": "fdom"}},
-            {"worked": ["One more together. The root of: x take away 16 — the doorway is 16.",
-                        '[[step eq="√(x − 16) → door at 16"]]'],
-             "ask": {"a": 14, "b": 0, "op": "fdom"}},
+            {"worked": ("Here is one more, done for you. y equals the square root of: x "
+                        "take away 20. The inside hits zero at 20 — that is the doorway, "
+                        "and it is allowed in.",
+                        '[[graph func="sqrt(x-20)" points="(20,0)" range="17..29" yrange="0..4" caption="√(x − 20) — the door at 20"]][[step eq="√(x − 20) → door at 20"]]'),
+             "ask": {'a': 11, 'b': 0, 'op': 'fdom'}},
+            {"worked": ("One more together. The root of: x take away 16 — the doorway is "
+                        "16.",
+                        '[[graph func="sqrt(x-16)" points="(16,0)" range="13..25" yrange="0..4" caption="√(x − 16) — the door at 16"]][[step eq="√(x − 16) → door at 16"]]'),
+             "ask": {'a': 14, 'b': 0, 'op': 'fdom'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. For y equals the "
+                       "square root of x take away 13, the smallest x allowed in is 13. "
+                       "Tap the reason why."),
+            "choices": ("because at 13 the inside is zero, which a root allows | "
+                        "because at 13 the inside is zero, and zero is banned | because "
+                        "the minus means the door is at negative 13"),
+            "answer": "because at 13 the inside is zero, which a root allows",
+            "board": '[[graph func="sqrt(x-13)" points="(13,0)" range="10..22" yrange="0..4" caption="the door at 13, welcome"]]',
+        },
+        "recap": [
+            ("So, here it is again. A root refuses negatives, so its domain starts "
+             "where the inside hits zero — and that doorway is welcome, because the "
+             "root of zero is zero. Division bans its zero; the root keeps it. And the "
+             "door sits at the number itself, never its flip.",
+             '[[graph func="sqrt(x-13)" points="(13,0)" range="10..22" yrange="0..4" caption="the doorway is where the inside hits zero"]]'),
+            ("And that is a domain, read straight off the formula.",
+             '[[step eq="x − 13 ≥ 0 → x ≥ 13"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 0, "op": "fdom"},
             {"a": 3, "b": 0, "op": "fdom"},
@@ -18290,24 +18436,64 @@ _PRECALC_U1 = [
         "op": "fpie", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("piecewise", "rule"),
-        "advance_line": "Three in a row — you've got it! Check where x lives, then run that rule only.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Check where x lives, then run that rule only.",
+        "why": [
+            ("Why pieces? Because a function may be built from parts, each ruling its "
+             "own stretch of x — a piecewise function. Say: y equals x plus 4 when x is "
+             "below 5, and y equals 3 times x when x is 5 or more. One function, two "
+             "rules, and a border at 5.",
+             '[[goal text="A function in pieces"]][[step eq="x < 5 → x + 4 · x ≥ 5 → 3x"]]'),
+        ],
+        "picture": [
+            ("Here is the number line with the border marked at 5. Everything to the "
+             "left of the border belongs to the first rule, x plus 4; everything from 5 "
+             "onward belongs to the second, 3 times x. Before you compute, find which "
+             "side x lives on.",
+             '[[numberline min="0" max="10" points="5" caption="the border at 5 — below it, x + 4; from 5 on, 3x"]]'),
+        ],
         "teach": [
-            ["A function may be built from parts, each ruling its own stretch of x — a piecewise function. Say: y equals x plus 4 when x is below 5, and y equals 3 times x when x is 5 or more. One function, two rules, and a border at 5.",
-             '[[goal text="A function in pieces"]][[step eq="x < 5 → x + 4 · x ≥ 5 → 3x"]]'],
-            ["Feeding it is a two-step: first find WHERE x lives, then run that rule and no other. Feed 2: below 5, so 2 plus 4 — 6. Feed 6: it is 5 or more, so 3 times 6 — 18. Same function, different neighborhoods.",
-             '[[step eq="x = 2"]] [[step eq="first rule → 6"]][[step eq="x = 6"]] [[step eq="second rule → 18"]]'],
-            ["The trap is running the wrong rule — feeding 6 into x plus 4 and getting 10, a number the function never says at 6. The border matters too: exactly 5 belongs to the 5-or-more side; read the border's owner from the words. Check the neighborhood, then compute.",
-             '[[step eq="6 → 18 ✓"]][[step eq="6 → 10 ✗ — the wrong rule ran"]]'],
+            ("That is the method. Feeding it is a two-step: first find WHERE x lives, "
+             "then run that rule and no other. Feed 2: below 5, so 2 plus 4 — 6. Feed "
+             "6: it is 5 or more, so 3 times 6 — 18. Same function, different "
+             "neighborhoods.",
+             '[[numberline min="0" max="10" points="2,5,6" caption="2 is below the border; 6 is past it"]][[step eq="2 < 5 → 2 + 4 = 6"]][[step eq="6 ≥ 5 → 3 × 6 = 18"]]'),
+            ("The trap is running the wrong rule — feeding 6 into x plus 4 and getting "
+             "10, a number the function never says at 6. The border matters too: "
+             "exactly 5 belongs to the 5-or-more side; read the border\'s owner from "
+             "the words. Check the neighborhood, then compute.",
+             '[[step eq="6 → 18 ✓"]][[step eq="6 → 10 ✗ — the wrong rule ran"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Rules: x plus 6 below 5; 2 times x at 5 or more. Feed 3: below 5 — 3 plus 6 is 9.",
-                        '[[step eq="3 < 5 → 3 + 6 = 9"]]'],
-             "ask": {"a": 4, "b": 2, "c": 2, "op": "fpie"}},
-            {"worked": ["One more together. Same rules, feed 8: 5 or more — 2 times 8 is 16.",
-                        '[[step eq="8 ≥ 5 → 2 × 8 = 16"]]'],
-             "ask": {"a": 4, "b": 4, "c": 6, "op": "fpie"}},
+            {"worked": ("Here is one more, done for you. Rules: x plus 6 below 5; 2 times "
+                        "x at 5 or more. Feed 3: below 5 — 3 plus 6 is 9.",
+                        '[[numberline min="0" max="10" points="3,5" caption="3 is below 5 — the first rule: 3 + 6 = 9"]][[step eq="3 < 5 → 3 + 6 = 9"]]'),
+             "ask": {'a': 4, 'b': 2, 'c': 2, 'op': 'fpie'}},
+            {"worked": ("One more together. Same rules, feed 8: 5 or more — 2 times 8 is "
+                        "16.",
+                        '[[numberline min="0" max="10" points="5,8" caption="8 is past 5 — the second rule: 2 × 8 = 16"]][[step eq="8 ≥ 5 → 2 × 8 = 16"]]'),
+             "ask": {'a': 4, 'b': 4, 'c': 6, 'op': 'fpie'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The rules are x plus 4 "
+                       "below 5 and 3 times x from 5 on, and at x equals 6 the answer is "
+                       "18. Tap the reason why."),
+            "choices": ("because 6 is past the border, so the second rule runs | because "
+                        "6 is below the border, so the first rule runs | because both "
+                        "rules run and their answers are added"),
+            "answer": "because 6 is past the border, so the second rule runs",
+            "board": '[[numberline min="0" max="10" points="5,6" caption="6 is past 5 — 3 × 6 = 18"]]',
+        },
+        "recap": [
+            ("So, here it is again. A function in pieces has a border, and each rule "
+             "owns one side of it. Find which side x lives on, then run that rule and "
+             "no other — and read from the words which side owns the border itself.",
+             '[[numberline min="0" max="10" points="5" caption="check the neighborhood, then compute"]]'),
+            ("And that is one function with two rules.",
+             '[[step eq="x < 5 → x + 4 · x ≥ 5 → 3x"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "c": 2, "op": "fpie"},
             {"a": 5, "b": 3, "c": 3, "op": "fpie"},
@@ -18339,24 +18525,60 @@ _PRECALC_U2 = [
         "op": "negp", "max_value": 13, "min_value": -1,
         "levels": ("abstract",),
         "symbols": ("power", "even"),
-        "advance_line": "Three in a row — you've got it! Even wipes the minus; odd leaves one.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Even wipes the minus; odd leaves one.",
+        "why": [
+            ("Why a parade? Unit Two turns to polynomials — and starts with the "
+             "smallest one that bites: negative 1, raised to a power. Each minus sign "
+             "cancels the one before it, so everything hangs on whether the power is "
+             "even or odd. A parade of minus signs, counted in pairs.",
+             '[[goal text="The minus parade"]][[step eq="(−1)^n — even n → 1 · odd n → −1"]]'),
+        ],
+        "picture": [
+            ("Here are 14 minus signs lined up in two rows — 7 pairs, and nobody left "
+             "standing alone. Every pair cancels to a plus. And here are 15: the same "
+             "7 pairs, with one lone minus sign left over at the end of the parade.",
+             '[[array rows="2" cols="7" caption="14 minus signs — 7 pairs, all cancel"]][[array rows="2" cols="7" extra="1" caption="15 minus signs — 7 pairs and one left over"]]'),
+        ],
         "teach": [
-            ["Unit Two turns to polynomials — and starts with the smallest one that bites: negative 1, raised to a power. Each minus sign cancels the one before it, so everything hangs on whether the power is even or odd. A parade of minus signs, counted in pairs.",
-             '[[goal text="The minus parade"]][[step eq="(−1)^n — even n → 1 · odd n → −1"]]'],
-            ["Raise negative 1 to the power 14: the minus signs pair up — 7 pairs, none left out — so every minus cancels and the answer is 1. An even power wipes the minus away completely.",
-             '[[step eq="(−1)^14 = 1 — 7 pairs, all cancel"]]'],
-            ["Now the power 15: the pairs cancel, and one lone minus sign survives at the end of the parade. The answer is negative 1. Odd leaves a leftover; even leaves none — that single fact powers half of Pre-Calculus.",
-             '[[step eq="(−1)^15 = −1 — one minus survives"]][[step eq="even → 1 · odd → −1"]]'],
+            ("That is the method. Raise negative 1 to the power 14: the minus signs "
+             "pair up — 7 pairs, none left out — so every minus cancels and the answer "
+             "is 1. An even power wipes the minus away completely.",
+             '[[array rows="2" cols="7" caption="14 minus signs — 7 pairs cancel: 1"]][[step eq="(−1)^14 = 1 — 7 pairs, all cancel"]]'),
+            ("Now the power 15: the pairs cancel, and one lone minus sign survives at "
+             "the end of the parade. The answer is negative 1. Odd leaves a leftover; "
+             "even leaves none — that single fact powers half of Pre-Calculus.",
+             '[[array rows="2" cols="7" extra="1" caption="15 minus signs — one survives: −1"]][[step eq="(−1)^15 = −1 — one minus survives"]][[step eq="even → 1 · odd → −1"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Negative 1 to the power 20: even, so the pairs all cancel — 1.",
-                        '[[step eq="(−1)^20 = 1"]]'],
-             "ask": {"a": 12, "b": 0, "op": "negp"}},
-            {"worked": ["One more together. The power 25 is odd — one minus survives: negative 1.",
-                        '[[step eq="(−1)^25 = −1"]]'],
-             "ask": {"a": 13, "b": 0, "op": "negp"}},
+            {"worked": ("Here is one more, done for you. Negative 1 to the power 20: even, "
+                        "so the pairs all cancel — 1.",
+                        '[[array rows="2" cols="10" caption="20 minus signs — 10 pairs, all cancel: 1"]][[step eq="(−1)^20 = 1"]]'),
+             "ask": {'a': 12, 'b': 0, 'op': 'negp'}},
+            {"worked": ("One more together. The power 25 is odd — one minus survives: "
+                        "negative 1.",
+                        '[[array rows="2" cols="12" extra="1" caption="25 minus signs — 12 pairs and one left over: −1"]][[step eq="(−1)^25 = −1"]]'),
+             "ask": {'a': 13, 'b': 0, 'op': 'negp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Negative 1 to the "
+                       "power 15 is negative 1. Tap the reason why."),
+            "choices": ("because 15 is odd, so one minus sign is left over | because 15 is "
+                        "odd, so every minus sign cancels | because the minus signs all "
+                        "vanish to zero"),
+            "answer": "because 15 is odd, so one minus sign is left over",
+            "board": '[[array rows="2" cols="7" extra="1" caption="7 pairs and one left over"]]',
+        },
+        "recap": [
+            ("So, here it is again. Negative 1 to a power is a parade of minus signs "
+             "counted in pairs. An even power pairs them all, and the answer is 1; an "
+             "odd power leaves one minus sign standing, and the answer is negative 1.",
+             '[[array rows="2" cols="7" extra="1" caption="even → 1 · odd → −1"]]'),
+            ("And that is the smallest polynomial that bites.",
+             '[[step eq="(−1)^14 = 1 · (−1)^15 = −1"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 0, "op": "negp"},
             {"a": 3, "b": 0, "op": "negp"},
@@ -18377,24 +18599,63 @@ _PRECALC_U2 = [
         "op": "remt", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("left over", "divided by"),
-        "advance_line": "Three in a row — you've got it! Plug it in — no dividing needed.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Plug it in — no dividing needed.",
+        "why": [
+            ("Why no long division? Take x squared plus 5 x plus 1, divided by x take "
+             "away 2. Long division would grind through it and end with a number left "
+             "over — the way 17 divided by 5 leaves 2. Pre-Calculus owns a shortcut "
+             "that finds that number with no dividing at all.",
+             '[[goal text="No long division"]][[step eq="(x² + 5x + 1) ÷ (x − 2) → left over = ?"]]'),
+        ],
+        "picture": [
+            ("Here is the top of the division as a machine, with the 2 from x take "
+             "away 2 fed straight into it. Whatever the machine puts out IS the number "
+             "long division would have left over — one plug, no dividing.",
+             '[[machine input="2" rule="x² + 5x + 1" output="15" caption="plug in the 2 — out comes the leftover, 15"]]'),
+        ],
         "teach": [
-            ["Take x squared plus 5 x plus 1, divided by x take away 2. Long division would grind through it and end with a number left over — the way 17 divided by 5 leaves 2. Pre-Calculus owns a shortcut that finds that number with no dividing at all.",
-             '[[goal text="No long division"]][[step eq="(x² + 5x + 1) ÷ (x − 2) → left over = ?"]]'],
-            ["The shortcut — a famous theorem, named on the board: plug the 2 straight into the top. 2 squared equals 4, plus 5 times 2 equals 10, plus 1 — in all, 15. That IS the number long division would have left over. One plug beats twenty steps of dividing.",
-             '[[step eq="the Remainder Theorem"]][[step eq="2² + 5·2 + 1 = 15"]] [[step eq="left over = 15"]]'],
-            ["Why does it work? Because x take away 2 turns into ZERO exactly at x equals 2 — at that one x the whole divided-out part vanishes, and only the leftover speaks. Careful: plug in the 2 from x take away 2, never some other number.",
-             '[[step eq="at x = 2 the divisor is 0 — only the leftover speaks"]]'],
+            ("That is the method — a famous theorem, named on the board: plug the 2 "
+             "straight into the top. 2 squared equals 4, plus 5 times 2 equals 10, plus "
+             "1 — in all, 15. That IS the number long division would have left over. "
+             "One plug beats twenty steps of dividing.",
+             '[[machine input="2" rule="x² + 5x + 1" output="15" caption="the Remainder Theorem: plug in 2"]][[step eq="2² + 5·2 + 1 = 15"]][[step eq="left over = 15"]]'),
+            ("Why does it work? Because x take away 2 turns into ZERO exactly at x "
+             "equals 2 — at that one x the whole divided-out part vanishes, and only "
+             "the leftover speaks. Careful: plug in the 2 from x take away 2, never "
+             "some other number.",
+             '[[step eq="at x = 2 the divisor is 0 — only the leftover speaks"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. x squared plus 1 x plus 2, divided by x take away 5: plug in 5 — 25 plus 5 plus 2 equals 32.",
-                        '[[step eq="5² + 1·5 + 2 = 32"]]'],
-             "ask": {"a": 2, "b": 2, "c": 5, "op": "remt"}},
-            {"worked": ["One more together. x squared plus 4 x plus 3, divided by x take away 4: 16 plus 16 plus 3 — 35.",
-                        '[[step eq="4² + 4·4 + 3 = 35"]]'],
-             "ask": {"a": 5, "b": 2, "c": 4, "op": "remt"}},
+            {"worked": ("Here is one more, done for you. x squared plus 1 x plus 2, divided "
+                        "by x take away 5: plug in 5 — 25 plus 5 plus 2 equals 32.",
+                        '[[machine input="5" rule="x² + 1x + 2" output="32" caption="5² + 1·5 + 2 = 32"]][[step eq="5² + 1·5 + 2 = 32"]]'),
+             "ask": {'a': 2, 'b': 2, 'c': 5, 'op': 'remt'}},
+            {"worked": ("One more together. x squared plus 4 x plus 3, divided by x take "
+                        "away 4: 16 plus 16 plus 3 — 35.",
+                        '[[machine input="4" rule="x² + 4x + 3" output="35" caption="4² + 4·4 + 3 = 35"]][[step eq="4² + 4·4 + 3 = 35"]]'),
+             "ask": {'a': 5, 'b': 2, 'c': 4, 'op': 'remt'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. x squared plus 5 x "
+                       "plus 1, divided by x take away 2, leaves 15 over. Tap the reason "
+                       "why."),
+            "choices": ("because at x equals 2 only the leftover speaks | because the "
+                        "leftover is always the end number, 1 | because the leftover is "
+                        "the 2 from x take away 2"),
+            "answer": "because at x equals 2 only the leftover speaks",
+            "board": '[[machine input="2" rule="x² + 5x + 1" output="15" caption="one plug, no dividing"]]',
+        },
+        "recap": [
+            ("So, here it is again. To find what dividing by x take away a number "
+             "leaves over, plug that number into the top — at that x the divided-out "
+             "part vanishes and only the leftover speaks. No long division.",
+             '[[machine input="2" rule="x² + 5x + 1" output="15" caption="the Remainder Theorem"]]'),
+            ("And that is one plug beating twenty steps.",
+             '[[step eq="2² + 5·2 + 1 = 15"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 1, "c": 1, "op": "remt"},
             {"a": 2, "b": 2, "c": 3, "op": "remt"},
@@ -18415,24 +18676,64 @@ _PRECALC_U2 = [
         "op": "vprd", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("roots", "product"),
-        "advance_line": "Three in a row — you've got it! The end number is the product of the roots.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The end number is the product of the roots.",
+        "why": [
+            ("Why a secret? Back in Algebra Two you learned the two roots of a puzzle "
+             "secretly ADD to the middle number — and we promised the product would be "
+             "famous later. Later is now. The roots of an x-squared puzzle also "
+             "multiply to something: the plain END number.",
+             '[[goal text="The roots\' secret"]][[step eq="roots add → middle · roots times → end"]]'),
+        ],
+        "picture": [
+            ("Here are the four rooms of x take away 2, times x take away 6. The big "
+             "room is x squared; the two middle rooms hold the x\'s; and the corner "
+             "room, negative 2 times negative 6, holds the plain number, 12 — the "
+             "product of the roots.",
+             '[[areamodel rows="x,-2" cols="x,-6" caption="(x − 2) by (x − 6) — the corner room is 2 × 6 = 12"]]'),
+        ],
         "teach": [
-            ["Back in Algebra Two you learned the two roots of a puzzle secretly ADD to the middle number — and we promised the product would be famous later. Later is now. The roots of an x-squared puzzle also multiply to something: the plain END number.",
-             '[[goal text="The roots\' secret"]][[step eq="roots add → middle · roots times → end"]]'],
-            ["Watch it happen. Roots 2 and 6: the puzzle is x take away 2, times x take away 6. Multiply it out: x squared, take away 8 x, plus 12. The middle 8 is 2 plus 6. The end 12 is 2 times 6 — the product of the roots.",
-             '[[step eq="(x − 2)(x − 6) = x² − 8x + 12"]][[step eq="2 + 6 = 8 · 2 × 6 = 12"]]'],
-            ["So a puzzle hands over its numbers without any solving: the end number is the roots\' product, the middle is their sum. The trap runs backwards too — asked for the end number, do not ADD the roots. Sum sits in the middle; product sits at the end.",
-             '[[step eq="end = product ✓ · sum ✗ — that is the middle"]]'],
+            ("That is the method. Later is now — watch it happen. Roots 2 and 6: the puzzle is x take "
+             "away 2, times x take away 6. Multiply it out: x squared, take away 8 x, "
+             "plus 12. The middle 8 is 2 plus 6. The end 12 is 2 times 6 — the product "
+             "of the roots.",
+             '[[areamodel rows="x,-2" cols="x,-6" caption="x² − 8x + 12"]][[step eq="(x − 2)(x − 6) = x² − 8x + 12"]][[step eq="2 + 6 = 8 · 2 × 6 = 12"]]'),
+            ("So a puzzle hands over its numbers without any solving: the end number "
+             "is the roots\' product, the middle is their sum. The trap runs backwards "
+             "too — asked for the end number, do not ADD the roots. Sum sits in the "
+             "middle; product sits at the end.",
+             '[[step eq="end = product ✓ · sum ✗ — that is the middle"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Roots 4 and 7: the end number is 4 times 7 — 28. The middle would be 11.",
-                        '[[step eq="(x − 4)(x − 7) → end 28 · middle 11"]]'],
-             "ask": {"a": 2, "b": 8, "op": "vprd"}},
-            {"worked": ["One more together. Roots 2 and 9: the end number is 2 times 9 — 18.",
-                        '[[step eq="(x − 2)(x − 9) → end 18"]]'],
-             "ask": {"a": 5, "b": 7, "op": "vprd"}},
+            {"worked": ("Here is one more, done for you. Roots 4 and 7: the end number is "
+                        "4 times 7 — 28. The middle would be 11.",
+                        '[[areamodel rows="x,-4" cols="x,-7" caption="(x − 4)(x − 7) — end 28, middle 11"]][[step eq="(x − 4)(x − 7) → end 28 · middle 11"]]'),
+             "ask": {'a': 2, 'b': 8, 'op': 'vprd'}},
+            {"worked": ("One more together. Roots 2 and 9: the end number is 2 times 9 — "
+                        "18.",
+                        '[[areamodel rows="x,-2" cols="x,-9" caption="(x − 2)(x − 9) — end 18"]][[step eq="(x − 2)(x − 9) → end 18"]]'),
+             "ask": {'a': 5, 'b': 7, 'op': 'vprd'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A puzzle with roots 2 "
+                       "and 6 ends in the number 12. Tap the reason why."),
+            "choices": ("because the end number is the product of the roots | because the "
+                        "end number is the sum of the roots | because the end number is "
+                        "the bigger root, doubled"),
+            "answer": "because the end number is the product of the roots",
+            "board": '[[areamodel rows="x,-2" cols="x,-6" caption="the corner room: 2 × 6 = 12"]]',
+        },
+        "recap": [
+            ("So, here it is again. A puzzle\'s two roots write the whole puzzle: "
+             "their sum is the middle number, worn with a minus, and their product is "
+             "the plain end number — the corner room of the four. Sum in the middle, "
+             "product at the end.",
+             '[[areamodel rows="x,-2" cols="x,-6" caption="sum in the middle, product at the end"]]'),
+            ("And that is the promise Algebra Two made, paid.",
+             '[[step eq="2 + 6 = 8 · 2 × 6 = 12"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "vprd"},
             {"a": 2, "b": 4, "op": "vprd"},
@@ -18453,24 +18754,62 @@ _PRECALC_U2 = [
         "op": "vasy", "max_value": 9, "min_value": 0,
         "levels": ("abstract",),
         "symbols": ("forbidden", "factors"),
-        "advance_line": "Three in a row — you've got it! Count the different zeros, not the factors.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Count the different zeros, not the factors.",
+        "why": [
+            ("Why twice? Algebra Two found division\'s forbidden x — the one x that "
+             "zeroes a bottom. Pre-Calculus bottoms come factored: 1 divided by, x take "
+             "away 3, times x take away 7. TWO factors now — so how many x\'s are "
+             "forbidden? Count the zeros, and count carefully.",
+             '[[goal text="Twice forbidden"]][[step eq="y = 1 ÷ (x − 3)(x − 7)"]]'),
+        ],
+        "picture": [
+            ("Here is the curve of 1 divided by x take away 3, times x take away 7. "
+             "Watch it fly off the picture twice — once at x equals 3 and once at x "
+             "equals 7. Two places the curve can never touch: two forbidden x\'s.",
+             '[[graph func="1/((x-3)*(x-7))" range="1..9" yrange="-6..6" caption="y = 1 ÷ (x − 3)(x − 7) — flies off at 3 and at 7"]]'),
+        ],
         "teach": [
-            ["Algebra Two found division's forbidden x — the one x that zeroes a bottom. Pre-Calculus bottoms come factored: 1 divided by, x take away 3, times x take away 7. TWO factors now — so how many x's are forbidden? Count the zeros, and count carefully.",
-             '[[goal text="Twice forbidden"]][[step eq="y = 1 ÷ (x − 3)(x − 7)"]]'],
-            ["Each factor dies at its own x: x equals 3 zeroes the first, x equals 7 zeroes the second, and either one alone flattens the whole bottom. Two different zeros — two forbidden x's. The count is 2.",
-             '[[step eq="x = 3 ✗ · x = 7 ✗ — two forbidden"]]'],
-            ["But factors can repeat: 1 divided by, x take away 8, times x take away 8. Two factors, yet both die at the SAME x. Only x equals 8 is forbidden — the count is 1. Count the different zeros, never the factors.",
-             '[[step eq="(x − 8)(x − 8): both die at 8 → count 1"]]'],
+            ("That is the method. Each factor dies at its own x: x equals 3 zeroes the "
+             "first, x equals 7 zeroes the second, and either one alone flattens the "
+             "whole bottom. Two different zeros — two forbidden x\'s. The count is 2.",
+             '[[graph func="1/((x-3)*(x-7))" range="1..9" yrange="-6..6" caption="two zeros, two forbidden x\'s — count 2"]][[step eq="x = 3 ✗ · x = 7 ✗ — two forbidden"]]'),
+            ("But factors can repeat: 1 divided by, x take away 8, times x take away "
+             "8. Two factors, yet both die at the SAME x. Only x equals 8 is forbidden "
+             "— the count is 1. Count the different zeros, never the factors.",
+             '[[graph func="1/((x-8)*(x-8))" range="5..11" yrange="-6..6" caption="(x − 8)(x − 8) — flies off once, at 8: count 1"]][[step eq="(x − 8)(x − 8): both die at 8 → count 1"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 1 divided by, x take away 4, times x take away 9: zeros at 4 and 9 — two forbidden x's.",
-                        '[[step eq="(x − 4)(x − 9) → count 2"]]'],
-             "ask": {"a": 2, "b": 4, "op": "vasy"}},
-            {"worked": ["One more together. x take away 9, times x take away 9: both die at 9 — the count is 1.",
-                        '[[step eq="(x − 9)(x − 9) → count 1"]]'],
-             "ask": {"a": 7, "b": 7, "op": "vasy"}},
+            {"worked": ("Here is one more, done for you. 1 divided by, x take away 4, "
+                        "times x take away 9: zeros at 4 and 9 — two forbidden x\'s.",
+                        '[[graph func="1/((x-4)*(x-9))" range="2..11" yrange="-6..6" caption="flies off at 4 and at 9 — count 2"]][[step eq="(x − 4)(x − 9) → count 2"]]'),
+             "ask": {'a': 2, 'b': 4, 'op': 'vasy'}},
+            {"worked": ("One more together. x take away 9, times x take away 9: both die "
+                        "at 9 — the count is 1.",
+                        '[[graph func="1/((x-9)*(x-9))" range="6..12" yrange="-6..6" caption="flies off once, at 9 — count 1"]][[step eq="(x − 9)(x − 9) → count 1"]]'),
+             "ask": {'a': 7, 'b': 7, 'op': 'vasy'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. For 1 divided by x "
+                       "take away 8, times x take away 8, only one x is forbidden. Tap "
+                       "the reason why."),
+            "choices": ("because both factors die at the same x, 8 | because two factors "
+                        "always mean two forbidden x\'s | because a repeated factor "
+                        "cancels itself out"),
+            "answer": "because both factors die at the same x, 8",
+            "board": '[[graph func="1/((x-8)*(x-8))" range="5..11" yrange="-6..6" caption="one zero, counted once"]]',
+        },
+        "recap": [
+            ("So, here it is again. A factored bottom forbids every x that zeroes a "
+             "factor — but count the DIFFERENT zeros, never the factors. Two factors "
+             "with two zeros forbid two x\'s; two factors with the same zero forbid "
+             "one.",
+             '[[graph func="1/((x-3)*(x-7))" range="1..9" yrange="-6..6" caption="count the different zeros"]]'),
+            ("And that is the forbidden x, twice over.",
+             '[[step eq="x = 3 ✗ · x = 7 ✗ — count 2"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "op": "vasy"},
             {"a": 2, "b": 3, "op": "vasy"},
@@ -18503,24 +18842,63 @@ _PRECALC_U3 = [
         "op": "logp", "max_value": 512,
         "levels": ("abstract",),
         "symbols": ("logarithm", "power"),
-        "advance_line": "Three in a row — you've got it! The exponent comes down front.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The exponent comes down front.",
+        "why": [
+            ("Why does the power come down? Unit Three: the logarithm and the "
+             "exponential, each un-doing the other. Algebra Two counted layers one at "
+             "a time; Pre-Calculus learns the power rule — the logarithm of a power "
+             "lets the exponent step DOWN in front and turn into a times.",
+             '[[goal text="The power comes down"]][[step eq="log(a^n) = n × log a"]]'),
+        ],
+        "picture": [
+            ("Here are two bars, base 2 throughout. The first is the log of 1024 — ten "
+             "layers. The second is the log of 1024 squared — and it is exactly twice "
+             "as tall, twenty. Squaring the number doubled its log; the exponent "
+             "became a times.",
+             '[[bars data="log 1024:10 | log 1024²:20" caption="the exponent 2 comes down front: 2 × 10 = 20"]]'),
+        ],
         "teach": [
-            ["Unit Three: the logarithm and the exponential, each un-doing the other. Algebra Two counted layers one at a time; Pre-Calculus learns the power rule — the logarithm of a power lets the exponent step DOWN in front and turn into a times.",
-             '[[goal text="The power comes down"]][[step eq="log(a^n) = n × log a"]]'],
-            ["In this lesson every log is base 2. Try the logarithm of 1024 to the power 2. Log base 2 of 1024 is 10 — ten layers. The power rule: the exponent 2 comes down front — 2 times 10 equals 20. Done, and no giant number was ever built.",
-             '[[step eq="log 1024^2 = 2 × 10 = 20"]]'],
-            ["Feel the size of the shortcut: 1024 to the power 2 is past a MILLION, and you never touched it. The trap: the exponent TIMES the log, never the log raised to the exponent — that would say 100, wildly wrong.",
-             '[[step eq="2 × 10 = 20 ✓ · 10^2 = 100 ✗"]]'],
+            ("That is the method. In this lesson every log is base 2. Try the "
+             "logarithm of 1024 to the power 2. Log base 2 of 1024 is 10 — ten layers. "
+             "The power rule: the exponent 2 comes down front — 2 times 10 equals 20. "
+             "Done, and no giant number was ever built.",
+             '[[bars data="log 1024:10 | log 1024²:20" caption="log 1024² = 2 × 10 = 20"]][[step eq="log 1024^2 = 2 × 10 = 20"]]'),
+            ("Feel the size of the shortcut: 1024 to the power 2 is past a MILLION, and "
+             "you never touched it. The trap: the exponent TIMES the log, never the log "
+             "raised to the exponent — that would say 100, wildly wrong.",
+             '[[step eq="2 × 10 = 20 ✓ · 10^2 = 100 ✗"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Log base 2 of 256 to the power 3: log of 256 is 8, and 3 times 8 equals 24.",
-                        '[[step eq="log 256^3 = 3 × 8 = 24"]]'],
-             "ask": {"a": 512, "b": 2, "op": "logp"}},
-            {"worked": ["One more together. Log base 2 of 32 to the power 4: log of 32 is 5, and 4 times 5 equals 20.",
-                        '[[step eq="log 32^4 = 4 × 5 = 20"]]'],
-             "ask": {"a": 128, "b": 3, "op": "logp"}},
+            {"worked": ("Here is one more, done for you. Log base 2 of 256 to the power 3: "
+                        "log of 256 is 8, and 3 times 8 equals 24.",
+                        '[[bars data="log 256:8 | log 256³:24" caption="3 × 8 = 24"]][[step eq="log 256^3 = 3 × 8 = 24"]]'),
+             "ask": {'a': 512, 'b': 2, 'op': 'logp'}},
+            {"worked": ("One more together. Log base 2 of 32 to the power 4: log of 32 is "
+                        "5, and 4 times 5 equals 20.",
+                        '[[bars data="log 32:5 | log 32⁴:20" caption="4 × 5 = 20"]][[step eq="log 32^4 = 4 × 5 = 20"]]'),
+             "ask": {'a': 128, 'b': 3, 'op': 'logp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Log base 2 of 1024 "
+                       "squared is 20. Tap the reason why."),
+            "choices": ("because the exponent comes down front and times the log | "
+                        "because the log is raised to the exponent | because squaring a "
+                        "number leaves its log unchanged"),
+            "answer": "because the exponent comes down front and times the log",
+            "board": '[[bars data="log 1024:10 | log 1024²:20" caption="2 × 10 = 20"]]',
+        },
+        "recap": [
+            ("So, here it is again. The logarithm of a power lets the exponent step "
+             "down in front as a times: the log of a number to the n is n times the "
+             "log of the number. Never raise the log to the power — the exponent "
+             "times it.",
+             '[[bars data="log 1024:10 | log 1024²:20" caption="the power comes down"]]'),
+            ("And that is a million-sized number, never built.",
+             '[[step eq="log(a^n) = n × log a"]]'),
+        ],
         "bank": [
             {"a": 8, "b": 2, "op": "logp"},
             {"a": 16, "b": 2, "op": "logp"},
@@ -18541,24 +18919,62 @@ _PRECALC_U3 = [
         "op": "lsol", "max_value": 1000,
         "levels": ("abstract",),
         "symbols": ("logarithm", "rebuild"),
-        "advance_line": "Three in a row — you've got it! Stack the base and rebuild.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Stack the base and rebuild.",
+        "why": [
+            ("Why rebuild? Because a logarithm can sit inside an equation: the "
+             "logarithm, base 2, of some mystery number equals 10. Solving it means "
+             "running the log BACKWARDS — the log counted the layers, so you rebuild "
+             "the number by stacking the layers again.",
+             '[[goal text="Rebuild the number"]]'),
+        ],
+        "picture": [
+            ("Here is the log machine, run backwards: the rule is log base 2 of x, the "
+             "output came out as 10, and the input door is blank. Ten layers were "
+             "counted — the question is which number has ten layers of 2.",
+             '[[machine input="?" rule="log base 2 of x" output="10" caption="the log counted 10 layers — which number went in?"]]'),
+        ],
         "teach": [
-            ["A logarithm can sit inside an equation: the logarithm, base 2, of some mystery number equals 10. Solving it means running the log BACKWARDS — the log counted the layers, so you rebuild the number by stacking the layers again.",
-             '[[goal text="Rebuild the number"]][[step eq="log ? = 10 · base 2"]]'],
-            ["Ten layers of 2: 2 multiplied out 10 times equals 1024. The mystery number is 1024 — the exponential un-did the logarithm. Check it forward: log base 2 of 1024 is indeed 10. Rebuilt, and confirmed.",
-             '[[step eq="? = 2 stacked 10 times = 1024"]][[step eq="log 1024 = 10 ✓"]]'],
-            ["The base matters: log base 10 of the mystery equals 4 rebuilds to 10 thousand — never 40. The trap is timesing base and answer when the base must STACK: layers power upward; a single times cannot reach them.",
-             '[[step eq="base 10, log 4 → 10000 ✓ · 10 × 4 = 40 ✗"]]'],
+            ("That is the method. Ten layers of 2: 2 multiplied out 10 times equals "
+             "1024. The mystery number is 1024 — the exponential un-did the logarithm. "
+             "Check it forward: log base 2 of 1024 is indeed 10. Rebuilt, and "
+             "confirmed.",
+             '[[bars data="2¹:2 | 2²:4 | 2³:8 | 2⁴:16 | 2⁵:32 | 2⁶:64 | 2⁷:128 | 2⁸:256 | 2⁹:512 | 2¹⁰:1024" caption="10 layers of 2 — the mystery number is 1024"]][[step eq="? = 2 stacked 10 times = 1024"]][[step eq="log 1024 = 10 ✓"]]'),
+            ("The base matters: log base 10 of the mystery equals 4 rebuilds to 10 "
+             "thousand — never 40. The trap is timesing base and answer when the base "
+             "must STACK: layers power upward; a single times cannot reach them.",
+             '[[step eq="base 10, log 4 → 10000 ✓ · 10 × 4 = 40 ✗"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Log base 3 of the mystery equals 6: stack six 3s — 729.",
-                        '[[step eq="3 stacked 6 times = 729"]]'],
-             "ask": {"a": 2, "b": 8, "op": "lsol"}},
-            {"worked": ["One more together. Log base 2 of the mystery equals 9: stack nine 2s — 512.",
-                        '[[step eq="2 stacked 9 times = 512"]]'],
-             "ask": {"a": 10, "b": 3, "op": "lsol"}},
+            {"worked": ("Here is one more, done for you. Log base 3 of the mystery equals "
+                        "6: stack six 3s — 729.",
+                        '[[bars data="3¹:3 | 3²:9 | 3³:27 | 3⁴:81 | 3⁵:243 | 3⁶:729" caption="6 layers of 3 — 729"]][[step eq="3 stacked 6 times = 729"]]'),
+             "ask": {'a': 2, 'b': 8, 'op': 'lsol'}},
+            {"worked": ("One more together. Log base 2 of the mystery equals 9: stack nine "
+                        "2s — 512.",
+                        '[[machine input="512" rule="log base 2 of x" output="9" caption="9 layers of 2 — 512"]][[step eq="2 stacked 9 times = 512"]]'),
+             "ask": {'a': 10, 'b': 3, 'op': 'lsol'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The log base 2 of a "
+                       "mystery number is 10, and the number is 1024. Tap the reason "
+                       "why."),
+            "choices": ("because ten layers of 2 stack up to 1024 | because 2 times 10 "
+                        "rebuilds the number | because 2 plus 10 rebuilds the number"),
+            "answer": "because ten layers of 2 stack up to 1024",
+            "board": '[[machine input="1024" rule="log base 2 of x" output="10" caption="log 1024 = 10 ✓"]]',
+        },
+        "recap": [
+            ("So, here it is again. A log inside an equation is solved by running it "
+             "backwards: the log counted the layers, so stack the base that many times "
+             "and the number is rebuilt. Layers power upward — a single times cannot "
+             "reach them.",
+             '[[machine input="1024" rule="log base 2 of x" output="10" caption="stack the base and rebuild"]]'),
+            ("And that is the exponential, un-doing the logarithm.",
+             '[[step eq="2 stacked 10 times = 1024"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "lsol"},
             {"a": 3, "b": 2, "op": "lsol"},
@@ -18579,24 +18995,63 @@ _PRECALC_U3 = [
         "op": "hcnt", "max_value": 96,
         "levels": ("abstract",),
         "symbols": ("halvings", "days"),
-        "advance_line": "Three in a row — you've got it! Count the halvings, not the ratio.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Count the halvings, not the ratio.",
+        "why": [
+            ("Why count the halvings? Algebra Two halved a sample forward: start, "
+             "halve for a stretch of days, find the end. Pre-Calculus asks it "
+             "BACKWARDS: here is the start, here is the end — how many halvings "
+             "happened? That backwards question is exactly a logarithm wearing work "
+             "clothes.",
+             '[[goal text="Count the halvings"]]'),
+        ],
+        "picture": [
+            ("Here is a tank as bars, dropping to half each day: 56, then 28, then 14, "
+             "then 7. Count the drops between the first bar and the last — three. That "
+             "count of drops is the number of days.",
+             '[[bars data="day 0:56 | day 1:28 | day 2:14 | day 3:7" caption="56 → 28 → 14 → 7 — three halvings"]]'),
+        ],
         "teach": [
-            ["Algebra Two halved a sample forward: start, halve for a stretch of days, find the end. Pre-Calculus asks it BACKWARDS: here is the start, here is the end — how many halvings happened? That backwards question is exactly a logarithm wearing work clothes.",
-             '[[goal text="Count the halvings"]][[step eq="start → half, half, half → end" cap="how many halvings?"]]'],
-            ["A tank starts at 56 liters and drops to half each day; now it holds 7. Halve and count: 56, then 28, then 14, then 7. Three halvings — three days went by. You rode the halving down and counted the steps.",
-             '[[step eq="56 → 28 → 14 → 7 · 3 days"]]'],
-            ["The trap: 56 divided by 7 equals 8, and 8 is NOT the answer — 8 says how many times bigger, never how many halvings. Each halving divides by 2, so ask instead: how many 2s multiply up to 8? Three. The ratio hides the count.",
-             '[[step eq="56 ÷ 7 = 8 ✗ ratio"]][[step eq="8 = 2 × 2 × 2"]] [[step eq="3 days ✓"]]'],
+            ("That is the method. A tank starts at 56 liters and drops to half each "
+             "day; now it holds 7. Halve and count: 56, then 28, then 14, then 7. Three "
+             "halvings — three days went by. You rode the halving down and counted the "
+             "steps.",
+             '[[bars data="day 0:56 | day 1:28 | day 2:14 | day 3:7" caption="three halvings — three days"]][[step eq="56 → 28 → 14 → 7 · 3 days"]]'),
+            ("The trap: 56 divided by 7 equals 8, and 8 is NOT the answer — 8 says how "
+             "many times bigger, never how many halvings. Each halving divides by 2, "
+             "so ask instead: how many 2s multiply up to 8? Three. The ratio hides the "
+             "count.",
+             '[[step eq="56 ÷ 7 = 8 ✗ ratio"]][[step eq="8 = 2 × 2 × 2"]][[step eq="3 days ✓"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. From 36 down to 9: 36, then 18, then 9 — two halvings, two days.",
-                        '[[step eq="36 → 18 → 9 · 2 days"]]'],
-             "ask": {"a": 28, "b": 7, "op": "hcnt"}},
-            {"worked": ["One more together. From 24 down to 3: 24, then 12, then 6, then 3 — three days.",
-                        '[[step eq="24 → 12 → 6 → 3 · 3 days"]]'],
-             "ask": {"a": 96, "b": 3, "op": "hcnt"}},
+            {"worked": ("Here is one more, done for you. From 36 down to 9: 36, then 18, "
+                        "then 9 — two halvings, two days.",
+                        '[[bars data="day 0:36 | day 1:18 | day 2:9" caption="36 → 18 → 9 — two halvings"]][[step eq="36 → 18 → 9 · 2 days"]]'),
+             "ask": {'a': 28, 'b': 7, 'op': 'hcnt'}},
+            {"worked": ("One more together. From 24 down to 3: 24, then 12, then 6, then 3 "
+                        "— three days.",
+                        '[[bars data="day 0:24 | day 1:12 | day 2:6 | day 3:3" caption="24 → 12 → 6 → 3 — three halvings"]][[step eq="24 → 12 → 6 → 3 · 3 days"]]'),
+             "ask": {'a': 96, 'b': 3, 'op': 'hcnt'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A tank drops from 56 "
+                       "liters to 7, halving each day, and 3 days went by. Tap the "
+                       "reason why."),
+            "choices": ("because three halvings take 56 down to 7 | because 56 divided by "
+                        "7 is the number of days | because the tank lost 7 liters a day"),
+            "answer": "because three halvings take 56 down to 7",
+            "board": '[[bars data="day 0:56 | day 1:28 | day 2:14 | day 3:7" caption="count the halvings"]]',
+        },
+        "recap": [
+            ("So, here it is again. Given the start and the end of a halving, ride the "
+             "halving down and count the steps — that count is the days. The ratio of "
+             "start to end is not the count; it hides the count as a power of 2.",
+             '[[bars data="day 0:56 | day 1:28 | day 2:14 | day 3:7" caption="count the halvings, not the ratio"]]'),
+            ("And that is a logarithm in work clothes.",
+             '[[step eq="56 → 28 → 14 → 7 · 3 days"]]'),
+        ],
         "bank": [
             {"a": 12, "b": 3, "op": "hcnt"},
             {"a": 20, "b": 5, "op": "hcnt"},
@@ -18617,24 +19072,64 @@ _PRECALC_U3 = [
         "op": "cmpd", "max_value": 96,
         "levels": ("abstract",),
         "symbols": ("doubles", "years"),
-        "advance_line": "Three in a row — you've got it! Count the doublings first, then double.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Count the doublings first, then double.",
+        "why": [
+            ("Why money? Because the exponential\'s favorite home is money. Save some "
+             "dollars where the pile doubles every few years, and the growth is not a "
+             "climb — it is a rocket. This lesson reads the rocket: how much after the "
+             "years go by?",
+             '[[goal text="Money doubles"]][[step eq="$ → ×2 → ×2 → ×2 …"]]'),
+        ],
+        "picture": [
+            ("Here is a pile of 4 dollars as bars, doubling every 3 years: 4 at the "
+             "start, 8 after 3 years, 16 after 6. Each bar is twice the one before — "
+             "and the years only matter through how many doublings they hold.",
+             '[[bars data="year 0:4 | year 3:8 | year 6:16" caption="4 dollars doubling every 3 years — two doublings in 6 years"]]'),
+        ],
         "teach": [
-            ["The exponential's favorite home is money. Save some dollars where the pile doubles every few years, and the growth is not a climb — it is a rocket. This lesson reads the rocket: how much after the years go by?",
-             '[[goal text="Money doubles"]][[step eq="$ → ×2 → ×2 → ×2 …"]]'],
-            ["Say 4 dollars, doubling every 3 years, left alone for 6 years. First count the doublings: 6 divided by 3 equals 2. Then double twice: 4, then 8, then 16. Sixteen dollars — the years only matter through the COUNT of doublings.",
-             '[[step eq="6 ÷ 3 = 2 doublings"]][[step eq="4 → 8 → 16"]]'],
-            ["The trap is thinking in plain adding: up 4, up 4 — that reaches 12 and stalls. Doubling reaches 16, then 32, then 64, pulling away faster every step. Exponential growth beats steady adding every time, given enough years.",
-             '[[step eq="16 ✓ doubling · 12 ✗ steady adding"]]'],
+            ("That is the method. 4 dollars, doubling every 3 years, left alone for 6 "
+             "years. First count the doublings: 6 divided by 3 equals 2. Then double "
+             "twice: 4, then 8, then 16. Sixteen dollars — the years only matter "
+             "through the COUNT of doublings.",
+             '[[bars data="year 0:4 | year 3:8 | year 6:16" caption="6 ÷ 3 = 2 doublings: 4 → 8 → 16"]][[step eq="6 ÷ 3 = 2 doublings"]][[step eq="4 → 8 → 16"]]'),
+            ("The trap is thinking in plain adding: up 4, up 4 — that reaches 12 and "
+             "stalls. Doubling reaches 16, then 32, then 64, pulling away faster every "
+             "step. Exponential growth beats steady adding every time, given enough "
+             "years.",
+             '[[step eq="16 ✓ doubling · 12 ✗ steady adding"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 3 dollars doubling every 2 years, for 6 years: three doublings — 3, then 6, then 12, then 24.",
-                        '[[step eq="6 ÷ 2 = 3"]] [[step eq="3 → 6 → 12 → 24"]]'],
-             "ask": {"a": 2, "b": 2, "c": 6, "op": "cmpd"}},
-            {"worked": ["One more together. 6 dollars doubling every 4 years, for 8 years: two doublings — 6, then 12, then 24.",
-                        '[[step eq="8 ÷ 4 = 2"]] [[step eq="6 → 12 → 24"]]'],
-             "ask": {"a": 6, "b": 4, "c": 5, "op": "cmpd"}},
+            {"worked": ("Here is one more, done for you. 3 dollars doubling every 2 years, "
+                        "for 6 years: three doublings — 3, then 6, then 12, then 24.",
+                        '[[bars data="year 0:3 | year 2:6 | year 4:12 | year 6:24" caption="3 doublings: 3 → 6 → 12 → 24"]][[step eq="6 ÷ 2 = 3"]][[step eq="3 → 6 → 12 → 24"]]'),
+             "ask": {'a': 2, 'b': 2, 'c': 6, 'op': 'cmpd'}},
+            {"worked": ("One more together. 6 dollars doubling every 4 years, for 8 years: "
+                        "two doublings — 6, then 12, then 24.",
+                        '[[bars data="year 0:6 | year 4:12 | year 8:24" caption="2 doublings: 6 → 12 → 24"]][[step eq="8 ÷ 4 = 2"]][[step eq="6 → 12 → 24"]]'),
+             "ask": {'a': 6, 'b': 4, 'c': 5, 'op': 'cmpd'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 4 dollars doubles "
+                       "every 3 years, and after 6 years there are 16. Tap the reason "
+                       "why."),
+            "choices": ("because 6 years holds two doublings: 4 to 8 to 16 | because 6 "
+                        "years adds 4 dollars twice: 12 | because the pile doubles once, "
+                        "whatever the years"),
+            "answer": "because 6 years holds two doublings: 4 to 8 to 16",
+            "board": '[[bars data="year 0:4 | year 3:8 | year 6:16" caption="two doublings"]]',
+        },
+        "recap": [
+            ("So, here it is again. Money that doubles every few years is read by "
+             "counting the doublings first — the years divided by the doubling time — "
+             "and then doubling that many times. Exponential growth pulls away from "
+             "steady adding every time.",
+             '[[bars data="year 0:4 | year 3:8 | year 6:16" caption="count the doublings first, then double"]]'),
+            ("And that is the exponential, at home.",
+             '[[step eq="6 ÷ 3 = 2 doublings"]][[step eq="4 → 8 → 16"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "c": 2, "op": "cmpd"},
             {"a": 3, "b": 2, "c": 3, "op": "cmpd"},
@@ -27291,6 +27786,212 @@ def _samp_worked(p):
 
 
 
+# ---- (to, 2026-09-06) PRECALC UNITS 1-3: two machines in a row, the point that
+# slides on the grid, the root's doorway, the border on the number line, the minus
+# parade paired on the array, the plug-in machine, the four rooms with the end number
+# blank, the bottom that flies off twice, the exponent brought down as bars, the log
+# machine run backwards, the tank halving and the pile doubling on the bars. Every ask
+# draws its question with the answer withheld; every walk-back draws it filled in.
+def _fcmp_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[machine input="{c}" rule="{b}x" output="?" fname="g" caption="g runs first: {c} goes in"]]'
+            f'[[machine input="?" rule="x + {a}" output="?" fname="f" caption="then f eats what g made — what comes out?"]]'
+            f'[[step eq="f(x) = x + {a} · g(x) = {b}x"]]'
+            f'[[step eq="f(g({c})) = ?"]]')
+
+
+def _fcmp_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: inside first — g of {c} is {b} times {c}, {b * c}. Then the "
+            f"outer machine: f of {b * c} is {b * c} plus {a}, which equals {b * c + a}. The "
+            f"inner machine runs before the outer; run f first and the number is different.",
+            f'[[machine input="{c}" rule="{b}x" output="{b * c}" fname="g" caption="g({c}) = {b * c}"]]'
+            f'[[machine input="{b * c}" rule="x + {a}" output="{b * c + a}" fname="f" caption="f({b * c}) = {b * c + a}"]]'
+            f'[[step eq="f(g({c})) = {b * c + a}"]]')
+
+
+def _fshf_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    hi = b + a + 2
+    return (f'[[graph points="({b},{c})" range="0..{hi}" yrange="0..{max(c + 2, 4)}" caption="the point ({b}, {c}) on the old graph — under f(x − {a}), where does it land?"]]'
+            f'[[step eq="y = f(x − {a}) · old point ({b}, {c})"]]'
+            f'[[step eq="new x = ?"]]')
+
+
+def _fshf_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    hi = b + a + 2
+    return (f"Look what you did: the minus inside points opposite — take away {a} inside "
+            f"slides the whole graph RIGHT by {a}. The point keeps its height, {c}, and "
+            f"lands at x equals {b} plus {a}, which is {b + a}. Not {b - a}: that is the "
+            f"literal minus.",
+            f'[[graph points="({b},{c}),({b + a},{c})" range="0..{hi}" yrange="0..{max(c + 2, 4)}" caption="({b}, {c}) slides right {a} to ({b + a}, {c})"]]'
+            f'[[step eq="({b}, {c}) → ({b + a}, {c})"]]')
+
+
+def _fdom_worked(p):
+    a = p["a"]
+    return (f"Look what you did: below {a}, x take away {a} goes negative and the root "
+            f"refuses. At x equals {a} the inside is exactly zero — and zero under a root "
+            f"is welcome. The doorway is {a}, and the curve starts right there. Not "
+            f"negative {a}: that is the flip.",
+            f'[[graph func="sqrt(x-{a})" points="({a},0)" range="{a - 3}..{a + 9}" yrange="0..4" caption="y = √(x − {a}) — the curve starts at the doorway, x = {a}"]]'
+            f'[[step eq="x − {a} ≥ 0 → x ≥ {a}"]]')
+
+
+def _fpie_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[numberline min="0" max="10" points="5,{c}" caption="the border at 5 — which side does x = {c} live on?"]]'
+            f'[[step eq="x < 5 → x + {a} · x ≥ 5 → {b}x"]]'
+            f'[[step eq="x = {c} · y = ?"]]')
+
+
+def _fpie_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    if c < 5:
+        return (f"Look what you did: {c} lives below 5, so the FIRST rule runs and no other — "
+                f"{c} plus {a}, which equals {c + a}. The other rule sleeps; check the "
+                f"neighborhood, then compute.",
+                f'[[numberline min="0" max="10" points="5,{c}" caption="{c} is below 5 — the first rule runs: {c} + {a} = {c + a}"]]'
+                f'[[step eq="{c} < 5 → {c} + {a} = {c + a}"]]')
+    return (f"Look what you did: {c} is 5 or more, so the SECOND rule runs and no other — "
+            f"{b} times {c}, which equals {b * c}. The other rule sleeps; check the "
+            f"neighborhood, then compute.",
+            f'[[numberline min="0" max="10" points="5,{c}" caption="{c} is 5 or more — the second rule runs: {b} × {c} = {b * c}"]]'
+            f'[[step eq="{c} ≥ 5 → {b} × {c} = {b * c}"]]')
+
+
+def _negp_worked(p):
+    a = p["a"]
+    pairs, left = a // 2, a % 2
+    extra = f' extra="{left}"' if left else ""
+    if left:
+        return (f"Look what you did: {a} minus signs pair up — {pairs} pairs, and one lone "
+                f"minus sign left over at the end of the parade. The pairs cancel; the "
+                f"survivor stays. Odd power, answer negative 1.",
+                f'[[array rows="2" cols="{pairs}"{extra} caption="{a} minus signs — {pairs} pairs cancel, one survives: −1"]]'
+                f'[[step eq="(−1)^{a} = −1"]]')
+    return (f"Look what you did: {a} minus signs pair up — {pairs} pairs, none left over — "
+            f"and every pair cancels. Even power, answer 1: the minus is wiped away "
+            f"completely.",
+            f'[[array rows="2" cols="{pairs}" caption="{a} minus signs — {pairs} pairs, all cancel: 1"]]'
+            f'[[step eq="(−1)^{a} = 1"]]')
+
+
+def _remt_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[machine input="{a}" rule="x² + {b}x + {c}" output="?" caption="plug {a} into the top — what comes out is the number left over"]]'
+            f'[[step eq="(x² + {b}x + {c}) ÷ (x − {a})"]]'
+            f'[[step eq="left over = ?"]]')
+
+
+def _remt_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    r = a * a + a * b + c
+    return (f"Look what you did: plug in {a} — {a} squared is {a * a}, plus {b} times {a} is "
+            f"{a * b}, plus {c}: in all, {r}. That is exactly what long division would have "
+            f"left over, and you never divided. Plug in the {a} from x take away {a}.",
+            f'[[machine input="{a}" rule="x² + {b}x + {c}" output="{r}" caption="{a}² + {b}·{a} + {c} = {r} — the leftover"]]'
+            f'[[step eq="{a}² + {b}·{a} + {c} = {r}"]]')
+
+
+def _vprd_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[areamodel rows="x,-{a}" cols="x,-{b}" ask="1" caption="(x − {a}) by (x − {b}) — four rooms; the corner room is the end number"]]'
+            f'[[step eq="(x − {a})(x − {b})"]]'
+            f'[[step eq="end number = ?"]]')
+
+
+def _vprd_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the corner room is negative {a} times negative {b} — "
+            f"{a * b}. The end number is the product of the roots. The middle number is "
+            f"their sum, {a + b}, worn with a minus: sum sits in the middle, product at the "
+            f"end.",
+            f'[[areamodel rows="x,-{a}" cols="x,-{b}" caption="x² − {a + b}x + {a * b} — the end number is {a} × {b}"]]'
+            f'[[step eq="(x − {a})(x − {b}) = x² − {a + b}x + {a * b}"]]')
+
+
+def _vasy_worked(p):
+    a, b = p["a"], p["b"]
+    if a != b:
+        lo, hi = min(a, b), max(a, b)
+        return (f"Look what you did: each factor dies at its own x — {a} zeroes the first, "
+                f"{b} the second — and either one alone flattens the whole bottom. Look at "
+                f"the curve: it flies off twice. Two different zeros — the count is 2.",
+                f'[[graph func="1/((x-{a})*(x-{b}))" range="{lo - 2}..{hi + 2}" yrange="-6..6" caption="y = 1 ÷ (x − {a})(x − {b}) — flies off at {a} and at {b}: two forbidden x\'s"]]'
+                f'[[step eq="x = {a} ✗ · x = {b} ✗ — count 2"]]')
+    return (f"Look what you did: two factors, but both die at the SAME x — only {a} zeroes "
+            f"the bottom. Look at the curve: it flies off once. Count the different zeros, "
+            f"never the factors: the count is 1.",
+            f'[[graph func="1/((x-{a})*(x-{a}))" range="{a - 3}..{a + 3}" yrange="-6..6" caption="y = 1 ÷ (x − {a})(x − {a}) — flies off once, at {a}: one forbidden x"]]'
+            f'[[step eq="(x − {a})(x − {a}): both die at {a} — count 1"]]')
+
+
+def _logp_worked(p):
+    a, b = p["a"], p["b"]
+    j = a.bit_length() - 1
+    return (f"Look what you did: log base 2 of {a} is {j} — {j} layers. The power rule "
+            f"brings the exponent {b} down front: {b} times {j}, which equals {b * j}. "
+            f"Not {j ** b}, the log raised to the power — that is the wrong kind of growth.",
+            f'[[bars data="log {a}:{j} | log {a}^{b}:{b * j}" caption="the exponent {b} comes down front: {b} × {j} = {b * j}"]]'
+            f'[[step eq="log {a}^{b} = {b} × {j} = {b * j}"]]')
+
+
+def _lsol_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[machine input="?" rule="log base {a} of x" output="{b}" caption="the log counted {b} layers — which number went in?"]]'
+            f'[[step eq="log ? = {b} · base {a}"]]')
+
+
+def _lsol_worked(p):
+    a, b = p["a"], p["b"]
+    layers = " | ".join(f"{a}{_sup(i)}:{a ** i}" for i in range(1, b + 1))
+    return (f"Look what you did: the log counted {b} layers of {a}, so rebuild the number by "
+            f"stacking them again — {a} multiplied out {b} times is {a ** b}. Not {a * b}: "
+            f"a single times cannot reach {b} whole layers.",
+            f'[[bars data="{layers}" caption="{b} layers of {a} — the mystery number is {a ** b}"]]'
+            f'[[machine input="{a ** b}" rule="log base {a} of x" output="{b}" caption="log {a ** b} = {b} ✓"]]')
+
+
+def _hcnt_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[bars data="start:{a} | now:{b}" caption="{a} liters down to {b}, halving each day — how many halvings?"]]'
+            f'[[step eq="{a} → half each day → {b}"]]'
+            f'[[step eq="days = ?"]]')
+
+
+def _hcnt_worked(p):
+    a, b = p["a"], p["b"]
+    k = (a // b).bit_length() - 1
+    days = " | ".join(f"day {i}:{a >> i}" for i in range(k + 1))
+    chain = " → ".join(str(a >> i) for i in range(k + 1))
+    return (f"Look what you did: halve and count — {chain}. That is {k} halvings, {k} days. "
+            f"The ratio, {a // b}, says how many times bigger {a} is — never how many "
+            f"days; ask how many 2s multiply up to it.",
+            f'[[bars data="{days}" caption="{chain} — {k} halvings"]]'
+            f'[[step eq="{chain} · {k} days"]]')
+
+
+def _cmpd_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[bars data="start:{c}" caption="{c} dollars, doubling every {a} years — after {a * b} years?"]]'
+            f'[[step eq="${c} · doubles every {a} years"]]'
+            f'[[step eq="after {a * b} years → $?"]]')
+
+
+def _cmpd_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    years = " | ".join(f"year {a * i}:{c * 2 ** i}" for i in range(b + 1))
+    chain = " → ".join(str(c * 2 ** i) for i in range(b + 1))
+    return (f"Look what you did: count the doublings first — {a * b} divided by {a} is {b}. "
+            f"Then double {b} times: {chain}. {c * 2 ** b} dollars. Steady adding would "
+            f"have stalled at {c * (1 + b)}; doubling pulls away.",
+            f'[[bars data="{years}" caption="{b} doublings: {chain}"]]'
+            f'[[step eq="{a * b} ÷ {a} = {b} doublings"]][[step eq="{chain}"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -31732,9 +32433,8 @@ OP_EXT = {
         "ans": lambda p: p["b"] * p["c"] + p["a"],
         "spoken": lambda p: (f"f of x equals x plus {p['a']}. g of x equals "
                              f"{p['b']} times x. What is f of g of {p['c']}?"),
-        "board": lambda p: (f'[[step eq="f(x) = x + {p["a"]} · g(x) = '
-                            f'{p["b"]}x"]]'
-                            f'[[step eq="f(g({p["c"]})) = ?"]]'),
+        "board": _fcmp_board,         # (to) two machines in a row, g first, both outputs blank
+        "worked": _fcmp_worked,       # (to) both machines answered
         "praise": lambda p: (f"Inside first: g of {p['c']} is "
                              f"{p['b'] * p['c']}. Then f: {p['b'] * p['c']} "
                              f"plus {p['a']} equals "
@@ -31763,9 +32463,8 @@ OP_EXT = {
                              f"f of: x take away {p['a']}. The point "
                              f"({p['b']}, {p['c']}) on the old graph slides "
                              f"to a new spot. What is its new x?"),
-        "board": lambda p: (f'[[step eq="y = f(x − {p["a"]}) · old point '
-                            f'({p["b"]}, {p["c"]})"]]'
-                            f'[[step eq="new x = ?"]]'),
+        "board": _fshf_board,         # (to) the old point on the grid, captioned
+        "worked": _fshf_worked,       # (to) the point and where it landed
         "praise": lambda p: (f"The minus points OPPOSITE, exactly as the "
                              f"vertex lesson said: take away {p['a']} inside "
                              f"slides the graph RIGHT — the point lands at x "
@@ -31791,6 +32490,7 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="y = √(x − {p["a"]})"]]'
                             f'[[step eq="under the root must not go negative '
                             f'· smallest x = ?"]]'),
+        "worked": _fdom_worked,       # (to) the curve starting at the doorway (no picture on the ask: the curve starts at the answer)
         "praise": lambda p: (f"Below {p['a']}, x take away {p['a']} goes "
                              f"negative and the root refuses. At x equals "
                              f"{p['a']} it is exactly zero — and zero under "
@@ -31812,9 +32512,8 @@ OP_EXT = {
                              f"when x is below 5, and y equals {p['b']} times "
                              f"x when x is 5 or more. What is y when x "
                              f"equals {p['c']}?"),
-        "board": lambda p: (f'[[step eq="x < 5 → x + {p["a"]} · x ≥ 5 → '
-                            f'{p["b"]}x"]]'
-                            f'[[step eq="x = {p["c"]} → ?"]]'),
+        "board": _fpie_board,         # (to) the border and x on the number line
+        "worked": _fpie_worked,       # (to) the side named, the rule run
         "praise": lambda p: ((f"x equals {p['c']} is below 5, so the FIRST "
                               f"rule runs: {p['c']} plus {p['a']} equals "
                               f"{p['c'] + p['a']}. The other rule sleeps.")
@@ -31850,6 +32549,7 @@ OP_EXT = {
         "spoken": lambda p: (f"What is negative 1, raised to the power "
                              f"{p['a']}?"),
         "board": lambda p: f'[[step eq="(−1)^{p["a"]} = ?"]]',
+        "worked": _negp_worked,       # (to) the minus signs paired on the array (the pairing is the answer -- walk-back only)
         "praise": lambda p: ((f"The power {p['a']} is even: the minus signs "
                               f"cancel two at a time, none survive, and the "
                               f"answer is 1.")
@@ -31871,9 +32571,8 @@ OP_EXT = {
                              f"divided by x take away {p['a']}. Do NOT "
                              f"divide — plug {p['a']} into the top instead. "
                              f"What number is left over?"),
-        "board": lambda p: (f'[[step eq="(x² + {p["b"]}x + {p["c"]}) ÷ '
-                            f'(x − {p["a"]})"]]'
-                            f'[[step eq="left over = ?"]]'),
+        "board": _remt_board,         # (to) the plug-in machine, its output blank
+        "worked": _remt_worked,       # (to) the machine answered
         "praise": lambda p: (f"Plug in {p['a']}: {p['a']} squared equals "
                              f"{p['a'] * p['a']}, plus {p['b']} times "
                              f"{p['a']} equals {p['a'] * p['b']}, plus "
@@ -31901,8 +32600,8 @@ OP_EXT = {
                              f"so it equals x take away {p['a']}, times x "
                              f"take away {p['b']}. Multiplied out, it ends "
                              f"in a plain number. What is that END number?"),
-        "board": lambda p: (f'[[step eq="(x − {p["a"]})(x − {p["b"]})"]]'
-                            f'[[step eq="end number = ?"]]'),
+        "board": _vprd_board,         # (to) the four rooms with the corner blank
+        "worked": _vprd_worked,       # (to) the four rooms filled
         "praise": lambda p: (f"The end number is the product of the roots: "
                              f"{p['a']} times {p['b']} equals "
                              f"{p['a'] * p['b']}. The middle number is "
@@ -31928,6 +32627,7 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="y = 1 ÷ (x − {p["a"]})'
                             f'(x − {p["b"]})"]]'
                             f'[[step eq="forbidden x count = ?"]]'),
+        "worked": _vasy_worked,       # (to) the curve flying off (its poles are the answer -- walk-back only)
         "praise": lambda p: ((f"Two factors, two different zeros: x equals "
                               f"{p['a']} zeroes the first, and x equals "
                               f"{p['b']} zeroes the second. The count is 2 "
@@ -31950,6 +32650,7 @@ OP_EXT = {
         "spoken": lambda p: (f"What is the logarithm, base 2, of {p['a']} "
                              f"raised to the power {p['b']}?"),
         "board": lambda p: f'[[step eq="log {p["a"]}^{p["b"]} = ? · base 2"]]',
+        "worked": _logp_worked,       # (to) the log beside the log of the power, as bars
         "praise": lambda p: (lambda j:
                              f"The power rule: the exponent {p['b']} comes "
                              f"down front. Log base 2 of {p['a']} is {j}, "
@@ -31975,7 +32676,8 @@ OP_EXT = {
         "spoken": lambda p: (f"The logarithm, base {p['a']}, of a mystery "
                              f"number equals {p['b']}. What is the mystery "
                              f"number?"),
-        "board": lambda p: f'[[step eq="log ? = {p["b"]} · base {p["a"]}"]]',
+        "board": _lsol_board,         # (to) the log machine run backwards, its input blank
+        "worked": _lsol_worked,       # (to) the layers stacked and the machine answered
         "praise": lambda p: (f"Stack the base: {p['a']} multiplied out "
                              f"{p['b']} times equals {p['a'] ** p['b']} — "
                              f"the power un-does the log. The tap "
@@ -32000,9 +32702,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A tank starts at {p['a']} liters, and each "
                              f"day it drops to HALF. Now it holds {p['b']} "
                              f"liters. How many days went by?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} → half each day → '
-                            f'{p["b"]}"]]'
-                            f'[[step eq="days = ?"]]'),
+        "board": _hcnt_board,         # (to) start beside now, as bars
+        "worked": _hcnt_worked,       # (to) the tank halving day by day
         "praise": lambda p: (lambda k:
                              "Halve and count: "
                              + ", then ".join(str(p["a"] >> i)
@@ -32033,10 +32734,8 @@ OP_EXT = {
                              f"every {p['a']} years. After "
                              f"{p['a'] * p['b']} years, how many dollars do "
                              f"you have?"),
-        "board": lambda p: (f'[[step eq="${p["c"]} · doubles every '
-                            f'{p["a"]} years"]]'
-                            f'[[step eq="after {p["a"] * p["b"]} years → '
-                            f'$?"]]'),
+        "board": _cmpd_board,         # (to) the pile to start, as a bar
+        "worked": _cmpd_worked,       # (to) the pile doubling year by year
         "praise": lambda p: ("Count the doublings first: "
                              f"{p['a'] * p['b']} divided by {p['a']} equals "
                              f"{p['b']}. Now double: "

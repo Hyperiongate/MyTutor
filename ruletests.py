@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD to -- PART 3jk: Precalc Units 1-3 to the shape (12 lessons on two
+#               machines in a row, the grid, the number line, the minus parade on the
+#               array, the four rooms with the corner blank, the curve flying off, the
+#               log machine run backwards and the bars); every figure an ask draws
+#               captioned; the pieces pending line fixed.
 #   2026-09-06  BUILD tn -- PART 3jj: Algebra 2 Units 7-9 to the shape (12 lessons on the
 #               bars, the number line, the staircase rectangle, the machine run twice,
 #               the unit circle with its coordinates hidden, the wave with its crest
@@ -21907,7 +21912,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>9,957</b>" in page,
+          "<b>10,041</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25821,6 +25826,129 @@ def part3jj_algebra_two_units_seven_to_nine_to_the_shape():
           "2026-09-06  BUILD tn" in rd("lessonscripts.py")[:60000] and "BUILD tn" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tn" in rd("ruletests.py")[:8000] and "(tn)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD tn" in rd("static/math-figures.js")[:3000],
+          "Jim's rule 8")
+
+
+def part3jk_precalc_units_one_to_three_to_the_shape():
+    """PART 3jk (build to, 2026-09-06) -- PRECALC UNITS 1-3 TO THE SHAPE.
+
+    Two machines in a row with g first; the old point on the grid and where it landed;
+    the root's doorway as the curve that starts at the door (walk-back only); the
+    border on the number line with a pending line the arrow referee accepts; the minus
+    parade paired on the array with the odd one left over; the plug-in machine; the
+    four rooms with the corner blank; the bottom flying off at each zero (walk-back
+    only); the exponent brought down as bars; the log machine run backwards; the tank
+    halving and the pile doubling on the bars. Every figure an ask draws carries a
+    caption."""
+    print("\nPART 3jk — Precalc Units 1-3 to the shape (build to)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    P1 = ["pc-u1-machines-in-a-row", "pc-u1-the-graph-slides",
+          "pc-u1-the-doorway", "pc-u1-a-function-in-pieces"]
+    P2 = ["pc-u2-the-minus-parade", "pc-u2-no-long-division",
+          "pc-u2-the-roots-secret", "pc-u2-twice-forbidden"]
+    P3 = ["pc-u3-the-power-comes-down", "pc-u3-rebuild-the-number",
+          "pc-u3-count-the-halvings", "pc-u3-money-doubles"]
+    _shape_unit_checks(P1, r"\[\[(machine|graph|numberline)\b")
+    _shape_unit_checks(P2, r"\[\[(array|machine|areamodel|graph)\b")
+    _shape_unit_checks(P3, r"\[\[(bars|machine)\b")
+
+    # ---- Unit 1 ------------------------------------------------------------------------
+    fcmp = {"a": 2, "b": 2, "c": 4, "op": "fcmp"}
+    check("⭐ machines in a row: g first with its output blank, f fed from it; both answered in the walk-back",
+          '[[machine input="4" rule="2x" output="?" fname="g" caption=' in L.board_for(fcmp, "abstract")
+          and '[[machine input="?" rule="x + 2" output="?" fname="f" caption=' in L.board_for(fcmp, "abstract")
+          and '[[machine input="4" rule="2x" output="8" fname="g" caption="g(4) = 8"]][[machine input="8" rule="x + 2" output="10" fname="f" caption="f(8) = 10"]]' in _W(fcmp)[1]
+          and "The inner machine runs before the outer" in _W(fcmp)[0], "")
+    fshf = {"a": 3, "b": 5, "c": 2, "op": "fshf"}
+    check("  the graph slides: the old point captioned on the ask; the point and where it landed in the walk-back",
+          '[[graph points="(5,2)" range="0..10" yrange="0..4" caption=' in L.board_for(fshf, "abstract")
+          and 'points="(5,2),(8,2)"' in _W(fshf)[1] and "that is the literal minus" in _W(fshf)[0], "")
+    fdom = {"a": 11, "b": 0, "op": "fdom"}
+    check("⭐ the doorway: no picture on the ask (the curve starts at the answer); the curve starting at the door in the walk-back",
+          "[[graph" not in L.board_for(fdom, "abstract")
+          and '[[graph func="sqrt(x-11)" points="(11,0)" range="8..20" yrange="0..4" caption=' in _W(fdom)[1]
+          and "zero under a root is welcome" in _W(fdom)[0], "")
+    fpie = {"a": 4, "b": 2, "c": 2, "op": "fpie"}
+    check("⭐ a function in pieces: the border and x on the number line, and a pending line with no arrow after an equals (12 asks had one); the side named in the walk-back",
+          '[[numberline min="0" max="10" points="5,2" caption=' in L.board_for(fpie, "abstract")
+          and '[[step eq="x = 2 · y = ?"]]' in L.board_for(fpie, "abstract") and "→" not in L.board_for(fpie, "abstract").split("[[step eq=\"x = 2")[1]
+          and 'caption="2 is below 5 — the first rule runs: 2 + 4 = 6"' in _W(fpie)[1]
+          and "the SECOND rule runs" in _W({"a": 4, "b": 4, "c": 6, "op": "fpie"})[0], "")
+
+    # ---- Unit 2 ------------------------------------------------------------------------
+    negp = {"a": 13, "b": 0, "op": "negp"}
+    check("⭐ the minus parade: no picture on the ask (the pairing is the answer); the array in two rows with the odd one left over in the walk-back",
+          "[[array" not in L.board_for(negp, "abstract")
+          and '[[array rows="2" cols="6" extra="1" caption="13 minus signs — 6 pairs cancel, one survives: −1"]]' in _W(negp)[1]
+          and '[[array rows="2" cols="6" caption="12 minus signs — 6 pairs, all cancel: 1"]]' in _W({"a": 12, "b": 0, "op": "negp"})[1]
+          and "negative 1" in _W(negp)[0], "")
+    remt = {"a": 2, "b": 2, "c": 5, "op": "remt"}
+    check("  no long division: the plug-in machine with its output blank; answered in the walk-back",
+          '[[machine input="2" rule="x² + 2x + 5" output="?" caption=' in L.board_for(remt, "abstract")
+          and '[[machine input="2" rule="x² + 2x + 5" output="13" caption="2² + 2·2 + 5 = 13 — the leftover"]]' in _W(remt)[1]
+          and "you never divided" in _W(remt)[0], "")
+    vprd = {"a": 2, "b": 8, "op": "vprd"}
+    check("⭐ the roots' secret: the four rooms with the corner blank on the ask; filled in the walk-back",
+          '[[areamodel rows="x,-2" cols="x,-8" ask="1" caption=' in L.board_for(vprd, "abstract")
+          and '[[areamodel rows="x,-2" cols="x,-8" caption="x² − 10x + 16 — the end number is 2 × 8"]]' in _W(vprd)[1]
+          and "product at the end" in _W(vprd)[0], "")
+    vasy = {"a": 2, "b": 4, "op": "vasy"}
+    check("⭐ twice forbidden: no picture on the ask (the poles are the answer); the curve flying off at each zero in the walk-back, once when the factor repeats",
+          "[[graph" not in L.board_for(vasy, "abstract")
+          and '[[graph func="1/((x-2)*(x-4))" range="0..6" yrange="-6..6" caption=' in _W(vasy)[1] and "the count is 2" in _W(vasy)[0]
+          and '[[graph func="1/((x-7)*(x-7))" range="4..10" yrange="-6..6" caption=' in _W({"a": 7, "b": 7, "op": "vasy"})[1]
+          and "the count is 1" in _W({"a": 7, "b": 7, "op": "vasy"})[0], "")
+
+    # ---- Unit 3 ------------------------------------------------------------------------
+    logp = {"a": 512, "b": 2, "op": "logp"}
+    check("  the power comes down: the log beside the log of the power, as bars, in the walk-back",
+          '[[bars data="log 512:9 | log 512^2:18" caption="the exponent 2 comes down front: 2 × 9 = 18"]]' in _W(logp)[1]
+          and "the wrong kind of growth" in _W(logp)[0], "")
+    lsol = {"a": 2, "b": 8, "op": "lsol"}
+    check("⭐ rebuild the number: the log machine run backwards, its input blank; the layers stacked and the machine answered in the walk-back",
+          '[[machine input="?" rule="log base 2 of x" output="8" caption=' in L.board_for(lsol, "abstract")
+          and '| 2⁸:256" caption="8 layers of 2 — the mystery number is 256"' in _W(lsol)[1]
+          and '[[machine input="256" rule="log base 2 of x" output="8" caption="log 256 = 8 ✓"]]' in _W(lsol)[1]
+          and "a single times cannot reach" in _W(lsol)[0], "")
+    hcnt = {"a": 28, "b": 7, "op": "hcnt"}
+    check("  count the halvings: start beside now on the ask; the tank halving day by day in the walk-back",
+          '[[bars data="start:28 | now:7" caption=' in L.board_for(hcnt, "abstract")
+          and '[[bars data="day 0:28 | day 1:14 | day 2:7" caption="28 → 14 → 7 — 2 halvings"]]' in _W(hcnt)[1]
+          and "never how many days" in _W(hcnt)[0], "")
+    cmpd = {"a": 2, "b": 2, "c": 6, "op": "cmpd"}
+    check("  money doubles: the pile to start on the ask; doubling year by year in the walk-back",
+          '[[bars data="start:6" caption=' in L.board_for(cmpd, "abstract")
+          and '[[bars data="year 0:6 | year 2:12 | year 4:24" caption="2 doublings: 6 → 12 → 24"]]' in _W(cmpd)[1]
+          and "doubling pulls away" in _W(cmpd)[0], "")
+
+    # ---- the giveaway audit, captions, spoken pending lines, the notes ----------------
+    check("  nothing the twelve lessons demonstrate is later asked",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in P1 + P2 + P3), "")
+    check("  every figure an ask draws carries a caption (rule 41)",
+          all("caption=" in tag for l in P1 + P2 + P3
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:machine|graph|numberline|array|areamodel|bars)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in P1 + P2 + P3:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  no ask in the three units puts an arrow after an equals sign or a question inside a step",
+          not any(re.search(r"=[^\"]*→", m) or re.search(r"[A-Za-z]\?", m) for l in P1 + P2 + P3
+                  for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+                  for m in re.findall(r'\[\[step eq="([^"]*)"', L.board_for(p, "abstract"))), "")
+    check("  no reason option works the arithmetic aloud (the spoken-math referee sweeps the joined options)",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in P1 + P2 + P3), "")
+    check("  the changed files carry dated to notes",
+          "2026-09-06  BUILD to" in rd("lessonscripts.py")[:60000] and "BUILD to" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD to" in rd("ruletests.py")[:8000] and "(to)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -36154,6 +36282,7 @@ def main():
     part3jh_algebra_two_units_one_to_three_to_the_shape()
     part3ji_algebra_two_units_four_to_six_to_the_shape()
     part3jj_algebra_two_units_seven_to_nine_to_the_shape()
+    part3jk_precalc_units_one_to_three_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
