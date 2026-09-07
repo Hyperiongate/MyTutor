@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tt -- PART 3jp: Probstat Units 4-6 to the shape (12 lessons on
+#               the school as bars and the sample as a tape, the surveys back and
+#               silent, the asked and the never-asked, the people machine, the bag as
+#               bars and the chance on the hundred square, the three piles joined, two
+#               pies and the array of days by buses, the spinner and the tree of paths,
+#               the four groups and the two-way table, the girls' share, the school
+#               beside the group, the bag before and after a marble is kept); 12 asks
+#               captioned (rule 41); the undercoverage ask no longer asks "how many
+#               students" (rule 42, live); one pending line that was a question inside
+#               a step is a statement. Tile 10,322 -> 10,407.
 #   2026-09-06  BUILD ts -- PART 3jo: THE LESSON INTRODUCES ITSELF. Every lesson's
 #               intro line names its course (curriculum.py's title, "&" said as "and"),
 #               its unit and the unit's name, "Lesson i of n" (n = the unit's lessons in
@@ -21984,7 +21994,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,322</b>" in page,
+          "<b>10,407</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24837,9 +24847,14 @@ def part3ja_prealgebra_units_seven_to_nine_to_the_shape():
                 _unsp += 1
     check("  every ask in the three units reads its pending line aloud (rule 44) -- the old pcn/pwh/tri/tri3 asks did not",
           _unsp == 0, f"{_unsp} unspoken")
+    # (tt, 2026-09-06) the ruletests dated-note pins read 16,000: the header's notes
+    # outgrew 8,000 at tt (te's note sits past 8,353, tf's past 8,118), as the
+    # methodology pins outgrew 6,000 at tn and the lessonscripts pins 20,000 at sz.
+    # Every [:8000] pin on this file widened at once, so the next build does not
+    # re-learn it one pin at a time.
     check("  the changed files carry dated te notes",
           "2026-09-06  BUILD te" in rd("lessonscripts.py")[:60000] and "BUILD te" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD te" in rd("ruletests.py")[:8000] and "(te)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD te" in rd("ruletests.py")[:16000] and "(te)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD te" in mf[:3000],
           "Jim's rule 8")
 
@@ -24943,7 +24958,7 @@ def part3jb_algebra_one_units_one_to_three_to_the_shape():
                   for l in A1 + A2 + A3 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tf notes",
           "2026-09-06  BUILD tf" in rd("lessonscripts.py")[:60000] and "BUILD tf" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tf" in rd("ruletests.py")[:8000] and "(tf)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD tf" in rd("ruletests.py")[:16000] and "(tf)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD tf" in mf[:3000],
           "Jim's rule 8")
 
@@ -25049,7 +25064,7 @@ def part3jc_algebra_one_units_four_to_six_to_the_shape():
                   for l in A4 + A5 + A6 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tg notes",
           "2026-09-06  BUILD tg" in rd("lessonscripts.py")[:60000] and "BUILD tg" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tg" in rd("ruletests.py")[:8000] and "(tg)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD tg" in rd("ruletests.py")[:16000] and "(tg)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD tg" in mf[:3000],
           "Jim's rule 8")
 
@@ -25161,7 +25176,7 @@ def part3jd_algebra_one_units_seven_to_nine_to_the_shape():
               for l in L.LESSONS if l["course"] == "algebra1") and sum(1 for l in L.LESSONS if l["course"] == "algebra1") == 36, "")
     check("  the changed files carry dated th notes",
           "2026-09-06  BUILD th" in rd("lessonscripts.py")[:60000] and "BUILD th" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD th" in rd("ruletests.py")[:8000] and "(th)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD th" in rd("ruletests.py")[:16000] and "(th)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD th" in mf[:3000],
           "Jim's rule 8")
 
@@ -25265,7 +25280,7 @@ def part3je_geometry_units_one_to_three_to_the_shape():
           _unsp == 0, f"{_unsp} unspoken")
     check("  the changed files carry dated ti notes",
           "2026-09-06  BUILD ti" in rd("lessonscripts.py")[:60000] and "BUILD ti" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD ti" in rd("ruletests.py")[:8000] and "(ti)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD ti" in rd("ruletests.py")[:16000] and "(ti)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -25387,7 +25402,7 @@ def part3jf_geometry_units_four_to_six_to_the_shape():
                   for l in G4 + G5 + G6), "")
     check("  the changed files carry dated tj notes",
           "2026-09-06  BUILD tj" in rd("lessonscripts.py")[:60000] and "BUILD tj" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tj" in rd("ruletests.py")[:8000] and "(tj)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD tj" in rd("ruletests.py")[:16000] and "(tj)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD tj" in rd("tutor.py")[:8000],
           "Jim's rule 8")
 
@@ -25518,7 +25533,7 @@ def part3jg_geometry_units_seven_to_nine_to_the_shape():
                   for s, _ in L.LESSON_BY_ID[l][f]), "")
     check("  the changed files carry dated tk notes",
           "2026-09-06  BUILD tk" in rd("lessonscripts.py")[:60000] and "BUILD tk" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tk" in rd("ruletests.py")[:8000] and "(tk)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD tk" in rd("ruletests.py")[:16000] and "(tk)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -25640,7 +25655,7 @@ def part3jh_algebra_two_units_one_to_three_to_the_shape():
                   for l in A1 + A2 + A3), "")
     check("  the changed files carry dated tl notes",
           "2026-09-06  BUILD tl" in rd("lessonscripts.py")[:60000] and "BUILD tl" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tl" in rd("ruletests.py")[:8000] and "(tl)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD tl" in rd("ruletests.py")[:16000] and "(tl)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -25773,7 +25788,7 @@ def part3ji_algebra_two_units_four_to_six_to_the_shape():
                   for l in A4 + A5 + A6), "")
     check("  the changed files carry dated tm notes",
           "2026-09-06  BUILD tm" in rd("lessonscripts.py")[:60000] and "BUILD tm" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tm" in rd("ruletests.py")[:8000] and "(tm)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD tm" in rd("ruletests.py")[:16000] and "(tm)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -25906,7 +25921,7 @@ def part3jj_algebra_two_units_seven_to_nine_to_the_shape():
                   for l in A7 + A8 + A9), "")
     check("  the changed files carry dated tn notes",
           "2026-09-06  BUILD tn" in rd("lessonscripts.py")[:60000] and "BUILD tn" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tn" in rd("ruletests.py")[:8000] and "(tn)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD tn" in rd("ruletests.py")[:16000] and "(tn)" in rd("static/methodology.html")[:12000]
           and "2026-09-06  BUILD tn" in rd("static/math-figures.js")[:3000],
           "Jim's rule 8")
 
@@ -26030,7 +26045,7 @@ def part3jk_precalc_units_one_to_three_to_the_shape():
                   for l in P1 + P2 + P3), "")
     check("  the changed files carry dated to notes",
           "2026-09-06  BUILD to" in rd("lessonscripts.py")[:60000] and "BUILD to" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD to" in rd("ruletests.py")[:8000] and "(to)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD to" in rd("ruletests.py")[:16000] and "(to)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -26226,7 +26241,7 @@ def part3jl_precalc_units_four_to_six_to_the_shape():
                   for l in P4 + P5 + P6), "")
     check("  the changed files carry dated tp notes",
           "2026-09-06  BUILD tp" in rd("lessonscripts.py")[:60000] and "BUILD tp" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tp" in rd("ruletests.py")[:8000] and "(tp)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD tp" in rd("ruletests.py")[:16000] and "(tp)" in rd("static/methodology.html")[:12000]
           and "BUILD tp" in _mf[:3000] and "BUILD tp" in _gf[:3000],
           "Jim's rule 8")
 
@@ -26359,7 +26374,7 @@ def part3jm_precalc_units_seven_to_nine_to_the_shape():
                   for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tq notes",
           "2026-09-06  BUILD tq" in rd("lessonscripts.py")[:60000] and "BUILD tq" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tq" in rd("ruletests.py")[:8000] and "(tq)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD tq" in rd("ruletests.py")[:16000] and "(tq)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -26484,7 +26499,7 @@ def part3jn_probstat_units_one_to_three_to_the_shape():
                   for l in S1 + S2 + S3), "")
     check("  the changed files carry dated tr notes",
           "2026-09-06  BUILD tr" in rd("lessonscripts.py")[:60000] and "BUILD tr" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tr" in rd("ruletests.py")[:8000] and "(tr)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD tr" in rd("ruletests.py")[:16000] and "(tr)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -26555,7 +26570,147 @@ def part3jo_the_lesson_introduces_itself():
           and all("number line" in v for v in _fires.values()), str(_fires)[:200])
     check("  the changed files carry dated ts notes",
           "2026-09-06  BUILD ts" in rd("lessonscripts.py")[:60000] and "BUILD ts" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD ts" in rd("ruletests.py")[:8000] and "(ts)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD ts" in rd("ruletests.py")[:16000] and "(ts)" in rd("static/methodology.html")[:12000],
+          "Jim's rule 8")
+
+
+def part3jp_probstat_units_four_to_six_to_the_shape():
+    """PART 3jp (build tt, 2026-09-06) -- PROBSTAT UNITS 4-6 TO THE SHAPE.
+
+    The school as bars and the sample as a tape cut the same way; the surveys back and
+    silent as a tape, walked back on the hundred square; the asked and the never-asked;
+    the people machine that quadruples; the bag as bars and the chance on the hundred
+    square; the three piles joined on a tape; two pies for two chances and the array of
+    days by buses; the spinner as a pie and the tree of paths; the four groups as bars
+    and the two-way table; the girls' share on the hundred square; the school beside
+    the group; the bag before and after a marble is kept. The undercoverage ask
+    compares the student to no one (rule 42). Every figure an ask draws is captioned."""
+    print("\nPART 3jp — Probstat Units 4-6 to the shape (build tt)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    S4 = ["ps-u4-a-sample-that-matches", "ps-u4-who-actually-answered",
+          "ps-u4-the-ones-you-never-asked", "ps-u4-the-price-of-accuracy"]
+    S5 = ["ps-u5-chance-on-a-scale", "ps-u5-either-one-wins",
+          "ps-u5-both-at-once", "ps-u5-count-the-winning-paths"]
+    S6 = ["ps-u6-out-of-how-many-now", "ps-u6-inside-the-smaller-world",
+          "ps-u6-what-independent-claims", "ps-u6-the-bag-remembers"]
+    _shape_unit_checks(S4, r"\[\[(bars|tape|hundredgrid|machine)\b")
+    _shape_unit_checks(S5, r"\[\[(bars|tape|hundredgrid|pie|array|tree)\b")
+    _shape_unit_checks(S6, r"\[\[(bars|tape|hundredgrid|twoway)\b")
+
+    # ---- Unit 4 ------------------------------------------------------------------------
+    strf = {"a": 60, "b": 35, "c": 38, "op": "strf"}
+    check("⭐ a sample that matches: the school as bars and the sample as a tape with both parts blank on the ask; the tape filled in the walk-back",
+          '[[bars data="girls:60 | boys:35" caption=' in L.board_for(strf, "abstract")
+          and '[[tape parts="? girls|? boys" total="sample of 38" caption=' in L.board_for(strf, "abstract")
+          and '[[tape parts="24 girls|14 boys" total="sample of 38" caption=' in _W(strf)[1]
+          and "38 times 60, divided by 95, is 24 girls" in _W(strf)[0], "")
+    resp = {"a": 90, "b": 72, "op": "resp"}
+    check("  who actually answered: back and silent as a tape on the ask; the rate on the hundred square in the walk-back",
+          '[[tape parts="72 back|18 silent" total="90 sent" caption=' in L.board_for(resp, "abstract")
+          and '[[hundredgrid shaded="80" unit="percent" eq="72 of 90 → 80%" caption=' in _W(resp)[1]
+          and "72 out of 90 is 80 percent" in _W(resp)[0], "")
+    bias = {"a": 120, "b": 320, "op": "bias"}
+    check("⭐ the ones you never asked: the ask asks about \"the whole school\" (rule 42 -- \"how many students\" was live) and its praise counts no students; the tape with the second part blank on the ask, both parts in the walk-back",
+          "how many students" not in L.spoken_for(bias, "abstract").lower()
+          and "How many of the whole school never had a chance" in L.spoken_for(bias, "abstract")
+          and "students" not in L.praise_for(bias, 0)
+          and not tutor.student_compare_conflict(L.spoken_for(bias, "abstract") + "\n" + L.board_for(bias, "abstract"), course="probstat")
+          and '[[tape parts="120 asked|?" total="school of 320" caption=' in L.board_for(bias, "abstract")
+          and '[[tape parts="120 asked|200 never asked" total="school of 320" caption=' in _W(bias)[1]
+          and "leaves 200 who never had a chance" in _W(bias)[0], "")
+    merr = {"a": 110, "b": 5, "op": "merr"}
+    check("  the price of accuracy: the people machine with its output blank on the ask, the pending line a statement; now beside four times as bars in the walk-back",
+          '[[machine input="110" rule="× 4" output="?" caption=' in L.board_for(merr, "abstract")
+          and '[[step eq="half the margin · people = ?"]]' in L.board_for(merr, "abstract")
+          and '[[bars data="now:110 | four times:440" caption=' in _W(merr)[1]
+          and "four times 110 is 440 people" in _W(merr)[0], "")
+
+    # ---- Unit 5 ------------------------------------------------------------------------
+    ppct = {"a": 17, "b": 20, "op": "ppct"}
+    check("  chance on a scale: the bag as bars on the ask; the chance on the hundred square in the walk-back",
+          '[[bars data="red:17 | not red:3" caption=' in L.board_for(ppct, "abstract")
+          and '[[hundredgrid shaded="85" unit="percent" eq="17 of 20 → 85%" caption=' in _W(ppct)[1]
+          and "17 out of 20 is 85 percent" in _W(ppct)[0], "")
+    por = {"a": 7, "b": 9, "c": 8, "op": "por"}
+    check("⭐ either one wins: the bars captioned on the ask (12 asks had none) and the pending line a statement (the old \"how many winners?\" was a question inside a step); the piles joined on a tape in the walk-back",
+          '[[bars data="red:7 | blue:9 | green:8" caption=' in L.board_for(por, "abstract")
+          and '[[step eq="red OR blue wins · winners = ?"]]' in L.board_for(por, "abstract")
+          and '[[tape parts="7 red|9 blue|8 green" total="24 marbles" caption=' in _W(por)[1]
+          and "7 plus 9 is 16 winners out of 24" in _W(por)[0], "")
+    pand = {"a": 10, "b": 8, "op": "pand"}
+    check("⭐ both at once: two pies with one slice each on the ask; the array of days by buses in the walk-back (it prints its product)",
+          '[[pie parts="10" shaded="1" caption=' in L.board_for(pand, "abstract")
+          and '[[pie parts="8" shaded="1" caption=' in L.board_for(pand, "abstract")
+          and '[[array rows="8" cols="10" caption=' in _W(pand)[1] and "one in 80" in _W(pand)[0]
+          and not any("[[array" in L.board_for(p, "abstract") for p in L.LESSON_BY_ID["ps-u5-both-at-once"]["bank"]), "")
+    ptre = {"a": 9, "b": 8, "op": "ptre"}
+    check("⭐ count the winning paths: the spinner as a pie with its winners shaded on the ask; the tree of paths in the walk-back (it prints every leaf's product)",
+          '[[pie parts="9" shaded="8" caption=' in L.board_for(ptre, "abstract")
+          and '[[tree stage1="W:8,L:1" stage2="W:8,L:1" caption=' in _W(ptre)[1] and "8 times 8 is 64 paths" in _W(ptre)[0]
+          and not any("[[tree" in L.board_for(p, "abstract") for p in L.LESSON_BY_ID["ps-u5-count-the-winning-paths"]["bank"]), "")
+
+    # ---- Unit 6 ------------------------------------------------------------------------
+    cbse = {"a": 16, "b": 18, "c": 5, "op": "cbse"}
+    check("⭐ out of how many now: the four groups as bars on the ask; the two-way table (it prints the row totals) in the walk-back; the teach counts 7 plus 5 girls (6 plus 4 was the (6, 4, 13) bank ask)",
+          '[[bars data="girls soccer:16 | girls art:18 | boys soccer:5 | boys art:8" caption=' in L.board_for(cbse, "abstract")
+          and '[[twoway rowlabels="girls,boys" collabels="soccer,art" data="16,18|5,8" caption=' in _W(cbse)[1]
+          and "16 plus 18 is 34 girls" in _W(cbse)[0]
+          and not any("[[twoway" in L.board_for(p, "abstract") for p in L.LESSON_BY_ID["ps-u6-out-of-how-many-now"]["bank"])
+          and 'data="7,5|5,8"' in L.LESSON_BY_ID["ps-u6-out-of-how-many-now"]["teach"][0][1], "")
+    ccnt = {"a": 30, "b": 10, "op": "ccnt"}
+    check("  inside the smaller world: the girls' two clubs as bars on the ask; the share on the hundred square in the walk-back",
+          '[[bars data="soccer:30 | art:10" caption=' in L.board_for(ccnt, "abstract")
+          and '[[hundredgrid shaded="75" unit="percent" eq="30 of 40 → 75%" caption=' in _W(ccnt)[1]
+          and "30 of them chose soccer: 75 percent" in _W(ccnt)[0], "")
+    indp = {"a": 75, "b": 55, "c": 20, "op": "indp"}
+    check("  what independent claims: the school beside the group as bars on the ask; predicted beside measured in the walk-back; the teach predicts 45 percent (30 was a bank ask)",
+          '[[bars data="whole school:75 | the 55 left-handers:20" caption=' in L.board_for(indp, "abstract")
+          and '[[bars data="school:75 | if independent:75 | measured:20" caption=' in _W(indp)[1]
+          and "75 percent, whether there are 55 of them or 200" in _W(indp)[0]
+          and "45 percent of a school likes maths" in L.LESSON_BY_ID["ps-u6-what-independent-claims"]["teach"][0][0], "")
+    wout = {"a": 19, "b": 39, "op": "wout"}
+    check("  the bag remembers: the bag as a tape before the marble is kept on the ask; the smaller bag in the walk-back",
+          '[[tape parts="19 red|20 other" total="39 marbles" caption=' in L.board_for(wout, "abstract")
+          and '[[tape parts="18 red|20 other" total="38 marbles" caption=' in _W(wout)[1]
+          and "39 take away 1 leaves 38" in _W(wout)[0], "")
+
+    # ---- the giveaway audit, captions, spoken pending lines, rule 42, the notes -------
+    check("  nothing the twelve lessons demonstrate is later asked (the margin lesson teaches 60 -> 240, the AND lesson one in 5 times one in 3)",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in S4 + S5 + S6)
+          and "60 becomes 240" in L.LESSON_BY_ID["ps-u4-the-price-of-accuracy"]["teach"][0][0]
+          and "5 by 3 is 15 squares" in L.LESSON_BY_ID["ps-u5-both-at-once"]["teach"][0][0], "")
+    check("  every figure an ask draws carries a caption (rule 41 -- 12 asks in these units drew one without)",
+          all("caption=" in tag for l in S4 + S5 + S6
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:bars|tape|hundredgrid|machine|pie|array|tree|twoway)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in S4 + S5 + S6:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  no ask in the three units puts an arrow after an equals sign or a question inside a step",
+          not any(re.search(r"=[^\"]*→", m) or re.search(r"[A-Za-z]\?", m) for l in S4 + S5 + S6
+                  for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+                  for m in re.findall(r'\[\[step eq="([^"]*)"', L.board_for(p, "abstract"))), "")
+    check("  no ask, walk-back or beat in the three units compares the student to anyone (rule 42, course probstat)",
+          not any(tutor.student_compare_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract"), course="probstat")
+                  or tutor.student_compare_conflict(_W(p)[0], course="probstat")
+                  for l in S4 + S5 + S6
+                  for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]])
+          and not any(tutor.student_compare_conflict(sp, course="probstat") for l in S4 + S5 + S6
+                      for sp, _b in _authored_beats(L.LESSON_BY_ID[l])), "")
+    check("  no reason option works the arithmetic aloud (the spoken-math referee sweeps the joined options)",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in S4 + S5 + S6), "")
+    check("  the changed files carry dated tt notes",
+          "2026-09-06  BUILD tt" in rd("lessonscripts.py")[:60000] and "BUILD tt" in rd("main.py")[:200000]
+          and "2026-09-06  BUILD tt" in rd("ruletests.py")[:16000] and "(tt)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -36903,6 +37058,7 @@ def main():
     part3jm_precalc_units_seven_to_nine_to_the_shape()
     part3jn_probstat_units_one_to_three_to_the_shape()
     part3jo_the_lesson_introduces_itself()
+    part3jp_probstat_units_four_to_six_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

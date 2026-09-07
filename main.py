@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  APP_BUILD -> "2026-09-06tt-probstat-units-four-to-six-to-the-shape".
+#               BUILD tt -- Probstat Units 4-6 (sampling, probability, conditional)
+#               rewritten to the shape on the bars, the tape, the hundred square, the
+#               machine, the pie, the array, the tree and the two-way table. The
+#               undercoverage ask no longer asks "how many students" (rule 42). Stamp
+#               only.
 #   2026-09-06  APP_BUILD -> "2026-09-06ts-the-lesson-introduces-itself".
 #               BUILD ts -- Jim, back after a day: "Welcome back" and then a why beat
 #               with no unit, no lesson, no name. Every scripted lesson now opens with
@@ -13832,7 +13838,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-06ts-the-lesson-introduces-itself"
+APP_BUILD = "2026-09-06tt-probstat-units-four-to-six-to-the-shape"
 
 
 @app.get("/health")

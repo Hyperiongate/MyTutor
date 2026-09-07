@@ -2,6 +2,39 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-06  BUILD tt -- PROBSTAT UNITS 4-6 TO THE SHAPE (12 lessons). Jim:
+#               "Continue with the probability and statistics."
+#               THIS FILE:
+#                 * Unit 4 (sampling): the school as bars and the sample as a TAPE cut
+#                   the same way (asked with both parts blank); the surveys back and
+#                   silent as a tape, walked back on the hundred square as a percent;
+#                   the asked and the never-asked as a tape with the second part blank;
+#                   the people MACHINE (rule x 4) with its output blank, walked back as
+#                   now beside four times;
+#                 * Unit 5 (probability): the bag as bars, the chance on the hundred
+#                   square; the three piles captioned (12 asks drew bars with none,
+#                   rule 41) and joined on a tape; two PIES with one slice each for two
+#                   chances, walked back as the ARRAY of days by buses (the array prints
+#                   its product -- walk-back only); the spinner as a pie with its winners
+#                   shaded, walked back as the TREE of paths (it prints every leaf's
+#                   product -- walk-back only);
+#                 * Unit 6 (conditional): the four groups as bars, walked back as the
+#                   TWO-WAY table (it prints the row totals -- walk-back only); the
+#                   girls' share on the hundred square; the school beside the group as
+#                   bars; the bag as a tape before and after a marble is kept.
+#               RULE 42 IN THE ASK ITSELF, live: the undercoverage ask said "How many
+#               students never had a chance to be asked?" -- "how many students" is the
+#               comparison shape (tn's law) -- and its praise counted "students it could
+#               never reach". The ask asks about "the whole school" now; the praise
+#               counts "the ones it could never reach". One pending line was a question
+#               inside a step ("how many winners?") -- a statement now. Trap lines kept
+#               in every lesson. ENGINE: OP_EXT strf/resp/bias/merr/ppct/por/pand/ptre/
+#               cbse/ccnt/indp/wout gain "worked" (_strf_* ... _wout_*) and boards.
+#               Demonstrated numbers kept out of the banks and pairs: the margin lesson
+#               teaches 60 -> 240 -> 960 (100 -> 400 was a bank ask); the AND lesson
+#               teaches one in 5 times one in 3 (4 times 3 was the (3, 4) bank ask);
+#               the GIVEN lesson counts 7 plus 5 girls (6 plus 4 was the (6, 4, 13)
+#               bank ask); independence predicts 45 percent (30 was a bank ask).
 #   2026-09-06  BUILD ts -- THE LESSON INTRODUCES ITSELF. Jim, back after a day away:
 #               "Welcome back -- let's pick up where you left off", then a Pre-Algebra
 #               why beat with no unit, no lesson, no name -- "I have no idea what it is
@@ -22160,24 +22193,66 @@ _PROBSTAT_U4 = [
         "op": "strf", "max_value": 90,
         "levels": ("abstract",),
         "symbols": ("mix", "share"),
-        "advance_line": "Three in a row — you've got it! Keep the group's own mix inside the sample.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Keep the group's own mix inside the sample.",
+        "why": [
+            ("Why build the sample first? Algebra Two took a sample\'s answer and "
+             "scaled it up to a whole school. That only works if the sample looks "
+             "like the school. So this unit builds the sample before it asks anything "
+             "— and the plainest way is to keep the same mix of people inside it.",
+             '[[goal text="A sample that matches"]]'),
+        ],
+        "picture": [
+            ("Here is a school as two bars, 40 girls and 60 boys, and under it a "
+             "sample of 20 cut as a tape. Look at the cut: the tape is split the way "
+             "the bars are, two-fifths girls and three-fifths boys. The sample is a "
+             "small copy of the school.",
+             '[[bars data="girls:40 | boys:60" caption="the school — 40 girls, 60 boys"]][[tape parts="8 girls|12 boys" total="sample of 20" caption="the sample of 20, cut the way the school is"]]'),
+        ],
         "teach": [
-            ["Algebra Two took a sample's answer and scaled it up to a whole school. That only works if the sample looks like the school. So this unit builds the sample first — and the plainest way is to keep the same mix of people inside it.",
-             '[[goal text="A sample that matches"]][[step eq="school 40 girls · 60 boys → sample keeps 40:60"]]'],
-            ["A school of 40 girls and 60 boys is two-fifths girls. A sample of 20 students should be two-fifths girls too: 20 times 40, divided by 100 — 8 girls, and 12 boys. Take the share the group has, and give the sample that same share.",
-             '[[step eq="20 × 40 ÷ 100 = 8 girls"]]'],
-            ["The lazy move is splitting the sample down the middle — 10 and 10 — which only matches a school that really is half and half. And copying 40 straight across would ask more girls than the whole sample holds. Work out the share, then take it.",
-             '[[step eq="8 ✓"]][[step eq="10 ✗ half and half · 40 ✗ the school\'s own count"]]'],
+            ("That is the method: take the share the group has and give the sample "
+             "that same share. Girls are 40 of the 100, so a sample of 20 keeps two "
+             "fifths girls — 20 times 40, divided by 100, is 8 girls, and the other 12 "
+             "are boys.",
+             '[[tape parts="8 girls|12 boys" total="sample of 20" caption="20 × 40 ÷ 100 = 8 girls"]][[step eq="20 × 40 ÷ 100 = 8 girls"]]'),
+            ("The lazy move is splitting the sample down the middle — 10 and 10 — "
+             "which only matches a school that really is half and half. And copying "
+             "40 straight across asks for more girls than the sample holds. Work out "
+             "the share, then take it.",
+             '[[step eq="8 ✓"]][[step eq="10 ✗ half and half · 40 ✗ the school\'s own count"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 60 girls and 30 boys, a sample of 24: girls are two-thirds, so 16 of them.",
-                        '[[step eq="24 × 60 ÷ 90 = 16 girls"]]'],
-             "ask": {"a": 60, "b": 35, "c": 38, "op": "strf"}},
-            {"worked": ["One more together. 45 girls and 40 boys, a sample of 34: girls are 45 of the 85, and 34 times 45 divided by 85 is 18 girls.",
-                        '[[step eq="34 × 45 ÷ 85 = 18 girls"]]'],
-             "ask": {"a": 75, "b": 30, "c": 28, "op": "strf"}},
+            {"worked": ("Here is one more, done for you. 60 girls and 30 boys, a sample "
+                        "of 24: girls are two-thirds of the school, so 24 times 60, "
+                        "divided by 90 — 16 girls.",
+                        '[[bars data="girls:60 | boys:30" caption="two-thirds girls"]][[tape parts="16 girls|8 boys" total="sample of 24" caption="24 × 60 ÷ 90 = 16 girls"]][[step eq="24 × 60 ÷ 90 = 16 girls"]]'),
+             "ask": {'a': 60, 'b': 35, 'c': 38, 'op': 'strf'}},
+            {"worked": ("One more together. 45 girls and 40 boys, a sample of 34: girls "
+                        "are 45 of the 85, and 34 times 45 divided by 85 is 18 girls.",
+                        '[[tape parts="18 girls|16 boys" total="sample of 34" caption="34 × 45 ÷ 85 = 18 girls"]][[step eq="34 × 45 ÷ 85 = 18 girls"]]'),
+             "ask": {'a': 75, 'b': 30, 'c': 28, 'op': 'strf'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A school of 40 girls "
+                       "and 60 boys gets a sample of 20 with 8 girls in it. Tap the reason "
+                       "why."),
+            "choices": ("because the sample keeps the school\'s own share of girls | "
+                        "because every sample is split half and half | because the sample "
+                        "copies the school\'s girl count"),
+            "answer": "because the sample keeps the school\'s own share of girls",
+            "board": '[[tape parts="8 girls|12 boys" total="sample of 20" caption="the school\'s mix, inside the sample"]]',
+        },
+        "recap": [
+            ("So, here it is again. A sample should look like the group it comes "
+             "from, so take the share the group has and give the sample that same "
+             "share. Never split it half and half by habit, and never copy the "
+             "group\'s own count into the sample.",
+             '[[bars data="girls:40 | boys:60" caption="the school"]][[tape parts="8 girls|12 boys" total="sample of 20" caption="a sample that matches"]]'),
+            ("And that is a sample you can trust.",
+             '[[step eq="20 × 40 ÷ 100 = 8"]]'),
+        ],
         "bank": [
             {"a": 20, "b": 80, "c": 10, "op": "strf"},
             {"a": 20, "b": 60, "c": 20, "op": "strf"},
@@ -22198,24 +22273,65 @@ _PROBSTAT_U4 = [
         "op": "resp", "max_value": 200,
         "levels": ("abstract",),
         "symbols": ("response rate", "percent"),
-        "advance_line": "Three in a row — you've got it! Returned out of sent, as a percent.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Returned out of sent, as a percent.",
+        "why": [
+            ("Why count the answers? Sending a survey is not the same as getting "
+             "answers. Of everyone you ask, only some reply — and the percent who do "
+             "is called the response rate. It is the first number a statistician "
+             "looks for, before believing a word of the results.",
+             '[[goal text="Who actually answered"]]'),
+        ],
+        "picture": [
+            ("Here are 60 surveys as a tape: 15 came back, and 45 stayed silent. "
+             "Look at the two parts — the answers are the short piece, and the "
+             "silence is three times as long. A survey that reports only the short "
+             "piece is reporting a quarter of the story.",
+             '[[tape parts="15 back|45 silent" total="60 sent" caption="60 went out — 15 came back, 45 stayed silent"]]'),
+        ],
         "teach": [
-            ["Sending a survey is not the same as getting answers. Of everyone you ask, only some reply — and the percent who do is called the response rate. It is the first number a statistician looks for, before believing a word of the results.",
-             '[[goal text="Who actually answered"]][[step eq="60 sent · 15 back → ?%"]]'],
-            ["Work it out as any percent: 15 back out of 60 sent is a quarter — 25 percent. Three out of every four people you asked said nothing at all, and a survey reporting only the quarter who answered is reporting a quarter of the story.",
-             '[[step eq="15 ÷ 60 = 25%"]]'],
-            ["Why it matters: the silent ones may differ from the answerers. People with strong feelings reply; the contented shrug and bin it. So do not hand back 15, which is a count of surveys, or 45, which is how many stayed silent. The rate is the percent.",
-             '[[step eq="25 ✓"]][[step eq="15 ✗ a count · 45 ✗ the silent ones"]]'],
+            ("That is the method: work the rate out as any percent — returned out of "
+             "sent. 15 back out of 60 sent is a quarter, so 25 percent. On the hundred "
+             "square that is 25 cells filled: 25 of every 100 surveys came back, and "
+             "75 did not.",
+             '[[hundredgrid shaded="25" unit="percent" eq="15 of 60 → 25%" caption="25 of every 100 came back"]][[step eq="15 ÷ 60 = 25%"]]'),
+            ("Why it matters: the silent ones may differ from the answerers. People "
+             "with strong feelings reply; the contented shrug and bin it. So do not "
+             "hand back 15, which is a count of surveys, or 45, which is how many "
+             "stayed silent. The rate is the percent.",
+             '[[step eq="25 ✓"]][[step eq="15 ✗ a count · 45 ✗ the silent ones"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 55 sent and 33 back: 33 out of 55 is 60 percent.",
-                        '[[step eq="33 ÷ 55 = 60%"]]'],
-             "ask": {"a": 90, "b": 72, "op": "resp"}},
-            {"worked": ["One more together. 150 sent with 96 back: 96 out of 150 — 64 percent.",
-                        '[[step eq="96 ÷ 150 = 64%"]]'],
-             "ask": {"a": 75, "b": 54, "op": "resp"}},
+            {"worked": ("Here is one more, done for you. 55 sent and 33 back: 33 out of "
+                        "55 is 60 percent.",
+                        '[[tape parts="33 back|22 silent" total="55 sent" caption="33 of 55 came back"]][[hundredgrid shaded="60" unit="percent" eq="33 of 55 → 60%" caption="60 of every 100"]][[step eq="33 ÷ 55 = 60%"]]'),
+             "ask": {'a': 90, 'b': 72, 'op': 'resp'}},
+            {"worked": ("One more together. 150 sent with 96 back: 96 out of 150 — 64 "
+                        "percent.",
+                        '[[hundredgrid shaded="64" unit="percent" eq="96 of 150 → 64%" caption="64 of every 100 came back"]][[step eq="96 ÷ 150 = 64%"]]'),
+             "ask": {'a': 75, 'b': 54, 'op': 'resp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 60 surveys went out, "
+                       "15 came back, and the response rate is 25 percent. Tap the reason "
+                       "why."),
+            "choices": ("because the rate is the returned surveys out of the sent ones | "
+                        "because the rate is the count that came back | because the rate "
+                        "counts the surveys that stayed silent"),
+            "answer": "because the rate is the returned surveys out of the sent ones",
+            "board": '[[hundredgrid shaded="25" unit="percent" eq="15 of 60 → 25%" caption="returned out of sent"]]',
+        },
+        "recap": [
+            ("So, here it is again. The response rate is the surveys that came back "
+             "out of the surveys that went out, as a percent. A low one is a "
+             "warning, because the silent may not think like the answerers. Never "
+             "hand back a count, and never the silent ones.",
+             '[[tape parts="15 back|45 silent" total="60 sent" caption="who actually answered"]]'),
+            ("And that is the first number to check.",
+             '[[step eq="15 ÷ 60 = 25%"]]'),
+        ],
         "bank": [
             {"a": 20, "b": 2, "op": "resp"},
             {"a": 50, "b": 7, "op": "resp"},
@@ -22236,24 +22352,65 @@ _PROBSTAT_U4 = [
         "op": "bias", "max_value": 400,
         "levels": ("abstract",),
         "symbols": ("biased", "chance"),
-        "advance_line": "Three in a row — you've got it! Count everyone the survey could never reach.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Count everyone the survey could never reach.",
+        "why": [
+            ("Why can a well-run survey still be wrong? Because it asked the wrong "
+             "crowd. Hand a lunch survey only to those eating in the cafeteria, and "
+             "everyone who brings lunch from home is invisible — and they are the "
+             "ones with the strongest opinions about school lunches.",
+             '[[goal text="The ones you never asked"]]'),
+        ],
+        "picture": [
+            ("Here is a school of 300 as a tape. The 120 in the cafeteria were handed "
+             "the survey — that is the first part. Look at the rest of the tape: it "
+             "is blank, because nobody there was ever asked. The blank part is the "
+             "survey\'s blind spot.",
+             '[[tape parts="120 asked|?" total="school of 300" caption="120 were handed the survey — the rest of the school never was"]]'),
+        ],
         "teach": [
-            ["A survey can be perfectly run and still be wrong, if it asks the wrong crowd. Hand a lunch survey only to the children in the cafeteria and every child who brings lunch from home is invisible — and they are the ones with the strongest opinions about school lunches.",
-             '[[goal text="The ones you never asked"]][[step eq="asked: 120 in the cafeteria · school: 300"]]'],
-            ["Count them: a school of 300 with 120 in the cafeteria leaves 180 children who never had a chance of being handed the survey. Not 180 who said no — 180 who were never asked at all. A sample like that is called biased.",
-             '[[step eq="300 − 120 = 180 never asked"]]'],
-            ["The cure is giving everyone a chance of being picked, usually at random. And notice which numbers do not answer the question: 120 is the crowd that WAS asked, and 300 is everybody, asked or not. The gap between them is the blind spot.",
-             '[[step eq="180 ✓"]][[step eq="120 ✗ those asked · 300 ✗ everyone"]]'],
+            ("That is the method: take the ones asked away from the whole school. 300 "
+             "take away 120 leaves 180 who never had a chance of being handed the "
+             "survey. Not 180 who said no — 180 who were never asked at all. A sample "
+             "like that is called biased.",
+             '[[tape parts="120 asked|180 never asked" total="school of 300" caption="300 − 120 = 180 never had a chance"]][[step eq="300 − 120 = 180"]]'),
+            ("The cure is giving everyone a chance of being picked, usually at random. "
+             "And notice which numbers do not answer the question: 120 is the crowd "
+             "that WAS asked, and 300 is everybody, asked or not. The gap between them "
+             "is the blind spot.",
+             '[[step eq="180 ✓"]][[step eq="120 ✗ those asked · 300 ✗ everyone"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 90 asked at the school gate, out of 250: 160 never had a chance.",
-                        '[[step eq="250 − 90 = 160"]]'],
-             "ask": {"a": 120, "b": 320, "op": "bias"}},
-            {"worked": ["One more together. 140 asked in a school of 360: 360 take away 140 — 220 never had a chance.",
-                        '[[step eq="360 − 140 = 220"]]'],
-             "ask": {"a": 160, "b": 400, "op": "bias"}},
+            {"worked": ("Here is one more, done for you. 90 asked at the school gate, out "
+                        "of 250: 250 take away 90 — 160 never had a chance.",
+                        '[[tape parts="90 asked|160 never asked" total="school of 250" caption="250 − 90 = 160"]][[step eq="250 − 90 = 160"]]'),
+             "ask": {'a': 120, 'b': 320, 'op': 'bias'}},
+            {"worked": ("One more together. 140 asked in a school of 360: 360 take away "
+                        "140 — 220 never had a chance.",
+                        '[[tape parts="140 asked|220 never asked" total="school of 360" caption="360 − 140 = 220"]][[step eq="360 − 140 = 220"]]'),
+             "ask": {'a': 160, 'b': 400, 'op': 'bias'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A school of 300, a "
+                       "survey handed to 120 in the cafeteria, and 180 never had a "
+                       "chance. Tap the reason why."),
+            "choices": ("because everyone outside the crowd asked was never reached | "
+                        "because 180 of them refused to answer | because the whole "
+                        "school was handed the survey"),
+            "answer": "because everyone outside the crowd asked was never reached",
+            "board": '[[tape parts="120 asked|180 never asked" total="school of 300" caption="the blind spot"]]',
+        },
+        "recap": [
+            ("So, here it is again. A survey handed to one crowd can never hear from "
+             "the rest, so take the ones asked away from the whole for the ones it "
+             "could never reach — that sample is biased. Never hand back the crowd "
+             "asked, and never everybody.",
+             '[[tape parts="120 asked|180 never asked" total="school of 300" caption="the ones you never asked"]]'),
+            ("And that is why everyone needs a chance.",
+             '[[step eq="300 − 120 = 180"]]'),
+        ],
         "bank": [
             {"a": 30, "b": 50, "op": "bias"},
             {"a": 40, "b": 70, "op": "bias"},
@@ -22274,24 +22431,65 @@ _PROBSTAT_U4 = [
         "op": "merr", "max_value": 1000,
         "levels": ("abstract",),
         "symbols": ("margin", "four times"),
-        "advance_line": "Three in a row — you've got it! Four times the people for half the margin.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Four times the people for half the margin.",
+        "why": [
+            ("Why does accuracy cost so much? Every sample carries a margin of error "
+             "— a give-or-take around its answer. Ask 60 people and you might report "
+             "55 percent, give or take 12. Bigger samples give smaller margins, but "
+             "not in the way most people expect.",
+             '[[goal text="The price of accuracy"]]'),
+        ],
+        "picture": [
+            ("Here is a machine that takes a headcount in and hands the bigger sample "
+             "out. Look at its rule: times 4. That is what halving the margin costs — "
+             "60 people go in, and four times as many come out. Not twice: four "
+             "times.",
+             '[[machine input="60" rule="× 4" output="240" caption="halving the margin — 60 people in, four times as many out"]]'),
+        ],
         "teach": [
-            ["Every sample carries a margin of error — a give-or-take around its answer. Ask 100 people and you might report 60 percent, give or take 10. Bigger samples give smaller margins, but not in the way most people expect.",
-             '[[goal text="The price of accuracy"]][[step eq="100 people → margin about 10 points"]]'],
-            ["Doubling the sample does NOT halve the margin. To halve it you need four times as many people: 100 becomes 400. Want the margin halved again? Four times more still — 1600 people to go from 10 points to 2 and a half.",
-             '[[step eq="100 → 400 halves it · 400 → 1600 halves it again"]]'],
-            ["That is why national surveys stop around a thousand people. Going further costs a fortune and buys very little. So the tap that says double — 200 — is the honest-looking wrong answer, and the margin itself is not a headcount at all.",
-             '[[step eq="400 ✓"]][[step eq="200 ✗ doubling · 10 ✗ that is the margin"]]'],
+            ("That is the method: doubling the sample does NOT halve the margin. To "
+             "halve it you need four times as many people, so 60 becomes 240. Want "
+             "the margin halved again? Four times more still — 960 people to go from "
+             "12 points to 3.",
+             '[[bars data="sample:60 | halved once:240 | halved twice:960" caption="each halving of the margin needs four times the people"]][[step eq="60 × 4 = 240 halves it"]][[step eq="240 × 4 = 960 halves it again"]]'),
+            ("That is why national surveys stop around a thousand people. Going "
+             "further costs a fortune and buys very little. So the tap that says "
+             "double — 120 — is the honest-looking wrong answer, and the margin itself "
+             "is not a headcount at all.",
+             '[[step eq="240 ✓"]][[step eq="120 ✗ doubling · 12 ✗ that is the margin"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A sample of 45 needs four times as many — 180 people — to halve its margin.",
-                        '[[step eq="45 × 4 = 180"]]'],
-             "ask": {"a": 110, "b": 5, "op": "merr"}},
-            {"worked": ["One more together. 250 people need four times as many — 1000 — to halve the margin.",
-                        '[[step eq="250 × 4 = 1000"]]'],
-             "ask": {"a": 190, "b": 3, "op": "merr"}},
+            {"worked": ("Here is one more, done for you. A sample of 45 needs four times "
+                        "as many — 180 people — to halve its margin.",
+                        '[[machine input="45" rule="× 4" output="180" caption="45 people × 4 = 180 people"]][[step eq="45 × 4 = 180"]]'),
+             "ask": {'a': 110, 'b': 5, 'op': 'merr'}},
+            {"worked": ("One more together. 250 people need four times as many — 1000 — "
+                        "to halve the margin.",
+                        '[[bars data="now:250 | four times:1000" caption="250 to 1000 — the margin halves"]][[step eq="250 × 4 = 1000"]]'),
+             "ask": {'a': 190, 'b': 3, 'op': 'merr'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A sample of 60 "
+                       "needs 240 people to halve its margin of error. Tap the reason "
+                       "why."),
+            "choices": ("because halving the margin takes four times the people | "
+                        "because doubling the sample halves the margin | because the "
+                        "margin itself is the number of people needed"),
+            "answer": "because halving the margin takes four times the people",
+            "board": '[[machine input="60" rule="× 4" output="240" caption="the price of half the margin — 60 people to 240"]]',
+        },
+        "recap": [
+            ("So, here it is again. A sample\'s margin of error shrinks slowly: "
+             "halving it costs four times the people, and halving it again costs four "
+             "times more. Never double and expect half, and never hand back the "
+             "margin as a headcount.",
+             '[[machine input="60" rule="× 4" output="240" caption="the price of accuracy — 60 people to 240"]]'),
+            ("And that is why a thousand is usually enough.",
+             '[[step eq="60 × 4 = 240"]]'),
+        ],
         "bank": [
             {"a": 25, "b": 3, "op": "merr"},
             {"a": 50, "b": 4, "op": "merr"},
@@ -22325,24 +22523,64 @@ _PROBSTAT_U5 = [
         "op": "ppct", "max_value": 90,
         "levels": ("abstract",),
         "symbols": ("percent", "chance"),
-        "advance_line": "Three in a row — you've got it! A chance is a percent of the whole.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A chance is a percent of the whole.",
+        "why": [
+            ("Why put chance on a scale? Geometry counted a chance: 3 red marbles out "
+             "of 10 is 3 out of 10. That is true, but two chances counted out of "
+             "different wholes cannot be compared. So probability puts every chance "
+             "on ONE scale, from 0 to 100.",
+             '[[goal text="Chance on a scale"]][[step eq="0 = never · 100 = always"]]'),
+        ],
+        "picture": [
+            ("Here is the bag as two bars: 3 red marbles and 7 that are not red. "
+             "Look at the red bar against the whole bag of 10 — it is a bit less than "
+             "a third. The hundred square underneath turns that share into a number "
+             "on the scale: 30 of every 100 picks would be red.",
+             '[[bars data="red:3 | not red:7" caption="the bag — 3 red out of 10"]][[hundredgrid shaded="30" unit="percent" eq="3 of 10 → 30%" caption="30 of every 100 picks would be red"]]'),
+        ],
         "teach": [
-            ["Geometry counted a chance: 3 red marbles out of 10 is 3 out of 10. That is true, but two chances counted out of different wholes cannot be compared. So probability puts every chance on ONE scale, from 0 to 100.",
-             '[[goal text="Chance on a scale"]][[step eq="0 = never · 100 = always"]]'],
-            ["Turn a count into a percent the ordinary way. 3 red out of 10 marbles is 30 percent — 3 divided by 10, then out of a hundred. Now it can be set beside any other chance in the world: a 30 percent chance of red, a 40 percent chance of rain.",
-             '[[step eq="3 out of 10 → 30%"]]'],
-            ["The two ends anchor the scale: 0 percent never happens, 100 percent always does, and everything real lives between. So do not hand back 3, the count of red marbles, or 7, the count that is not red. The question asks for the percent.",
-             '[[step eq="30 ✓"]][[step eq="3 ✗ a count · 7 ✗ the others"]]'],
+            ("That is the method: turn the count into a percent the ordinary way. 3 "
+             "red out of 10 marbles is 3 divided by 10, then out of a hundred — 30 "
+             "percent. Now it can sit beside any other chance in the world: a 30 "
+             "percent chance of red, a 40 percent chance of rain.",
+             '[[hundredgrid shaded="30" unit="percent" eq="3 of 10 → 30%" caption="3 divided by 10, out of a hundred"]][[step eq="3 ÷ 10 = 30%"]]'),
+            ("The two ends anchor the scale: 0 percent never happens, 100 percent "
+             "always does, and everything real lives between. So do not hand back 3, "
+             "the count of red marbles, or 7, the count that is not red. The question "
+             "asks for the percent.",
+             '[[step eq="30 ✓"]][[step eq="3 ✗ a count · 7 ✗ the others"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 9 red out of 12 marbles: 9 divided by 12 is 75 percent.",
-                        '[[step eq="9 out of 12 → 75%"]]'],
-             "ask": {"a": 17, "b": 20, "op": "ppct"}},
-            {"worked": ["One more together. 7 out of 35 marbles: 7 divided by 35 — 20 percent.",
-                        '[[step eq="7 out of 35 → 20%"]]'],
-             "ask": {"a": 16, "b": 20, "op": "ppct"}},
+            {"worked": ("Here is one more, done for you. 9 red out of 12 marbles: 9 "
+                        "divided by 12 is 75 percent.",
+                        '[[bars data="red:9 | not red:3" caption="9 red out of 12"]][[hundredgrid shaded="75" unit="percent" eq="9 of 12 → 75%" caption="75 of every 100"]][[step eq="9 ÷ 12 = 75%"]]'),
+             "ask": {'a': 17, 'b': 20, 'op': 'ppct'}},
+            {"worked": ("One more together. 7 out of 35 marbles: 7 divided by 35 — 20 "
+                        "percent.",
+                        '[[hundredgrid shaded="20" unit="percent" eq="7 of 35 → 20%" caption="20 of every 100 picks"]][[step eq="7 ÷ 35 = 20%"]]'),
+             "ask": {'a': 16, 'b': 20, 'op': 'ppct'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A bag of 10 marbles "
+                       "with 3 red gives a 30 percent chance of red. Tap the reason why."),
+            "choices": ("because a chance is the red share, out of a hundred | because "
+                        "the chance is the count of red marbles | because the chance is "
+                        "the count that is not red"),
+            "answer": "because a chance is the red share, out of a hundred",
+            "board": '[[hundredgrid shaded="30" unit="percent" eq="3 of 10 → 30%" caption="chance on a scale"]]',
+        },
+        "recap": [
+            ("So, here it is again. A chance is a percent of the whole, on one scale "
+             "from 0, never, to 100, always — divide the count by the whole, then out "
+             "of a hundred. Never hand back the count of red, and never the count "
+             "that is not.",
+             '[[hundredgrid shaded="30" unit="percent" eq="3 of 10 → 30%" caption="chance on a scale"]]'),
+            ("And that is a chance you can compare with any other.",
+             '[[step eq="3 ÷ 10 = 30%"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 20, "op": "ppct"},
             {"a": 8, "b": 50, "op": "ppct"},
@@ -22363,24 +22601,62 @@ _PROBSTAT_U5 = [
         "op": "por", "max_value": 27,
         "levels": ("abstract",),
         "symbols": ("or", "winners"),
-        "advance_line": "Three in a row — you've got it! Two piles that cannot overlap simply join.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Two piles that cannot overlap simply join.",
+        "why": [
+            ("Why do chances join up? Because there are exactly two ways to want two "
+             "things, and this is the first: either one will do. A bag of red, blue "
+             "and green, where red OR blue wins — a marble cannot be both colours at "
+             "once, so the winners are two piles side by side.",
+             '[[goal text="Either one wins"]]'),
+        ],
+        "picture": [
+            ("Here is the bag as three bars: 4 red, 3 blue and 5 green. Look at the "
+             "red bar and the blue bar standing next to each other — those are the "
+             "winners, and no marble is counted in both. The green bar is the losers.",
+             '[[bars data="red:4 | blue:3 | green:5" caption="red 4, blue 3, green 5 — red OR blue wins"]]'),
+        ],
         "teach": [
-            ["Chances join up, and there are exactly two ways. The first: either one will do. A bag of 4 red, 3 blue and 5 green, where red OR blue wins — a marble cannot be both colours at once, so the two piles simply join.",
-             '[[goal text="Either one wins"]][[bars data="red:4 | blue:3 | green:5" caption="red 4 and blue 3 and green 5"]]'],
-            ["Put them together: 4 plus 3 gives 7 winners out of the 12 marbles. That is the OR rule, and it works whenever the two things cannot happen together — one marble, one colour.",
-             '[[step eq="4 + 3 = 7 winners out of 12"]]'],
-            ["Do not times them. 4 times 3 is 12, which would say every marble in the bag is a winner — and timesing belongs to the OTHER rule, the one for two separate events. Adding the green in as well counts marbles that lose.",
-             '[[step eq="7 ✓"]][[step eq="12 ✗ timesed · 12 ✗ the whole bag"]]'],
+            ("That is the method: put the two piles together. 4 plus 3 is 7 winners "
+             "out of the 12 marbles. That is the OR rule, and it works whenever the "
+             "two things cannot happen together — one marble, one colour.",
+             '[[tape parts="4 red|3 blue|5 green" total="12 marbles" caption="the red and blue parts side by side — 7 winners"]][[step eq="4 + 3 = 7 winners out of 12"]]'),
+            ("Do not times them. 4 times 3 is 12, which would say every marble in the "
+             "bag is a winner — and timesing belongs to the OTHER rule, the one for "
+             "two separate events. Adding the green in as well counts marbles that "
+             "lose.",
+             '[[step eq="7 ✓"]][[step eq="12 ✗ timesed · 12 ✗ the whole bag"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 3 red, 6 blue and 2 green, with red or blue winning: 3 plus 6 — 9 winners.",
-                        '[[step eq="3 + 6 = 9 winners"]]'],
-             "ask": {"a": 7, "b": 9, "c": 8, "op": "por"}},
-            {"worked": ["One more together. 5 red and 2 blue among 4 green: 5 plus 2 — 7 winners.",
-                        '[[step eq="5 + 2 = 7 winners"]]'],
-             "ask": {"a": 6, "b": 9, "c": 6, "op": "por"}},
+            {"worked": ("Here is one more, done for you. 3 red, 6 blue and 2 green, with "
+                        "red or blue winning: 3 plus 6 — 9 winners.",
+                        '[[tape parts="3 red|6 blue|2 green" total="11 marbles" caption="red and blue together — 9 winners"]][[step eq="3 + 6 = 9 winners"]]'),
+             "ask": {'a': 7, 'b': 9, 'c': 8, 'op': 'por'}},
+            {"worked": ("One more together. 5 red and 2 blue among 4 green: 5 plus 2 — 7 "
+                        "winners.",
+                        '[[bars data="red:5 | blue:2 | green:4" caption="5 red and 2 blue — 7 winners"]][[step eq="5 + 2 = 7 winners"]]'),
+             "ask": {'a': 6, 'b': 9, 'c': 6, 'op': 'por'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. With 4 red and 3 blue "
+                       "in the bag and either colour winning, there are 7 winners. Tap the "
+                       "reason why."),
+            "choices": ("because a marble cannot be two colours, so the piles just join | "
+                        "because either-or means timesing the two piles | because every "
+                        "marble in the bag is a winner"),
+            "answer": "because a marble cannot be two colours, so the piles just join",
+            "board": '[[tape parts="4 red|3 blue|5 green" total="12 marbles" caption="either one wins"]]',
+        },
+        "recap": [
+            ("So, here it is again. When either of two things will do and they cannot "
+             "happen together, the winners are the two piles put together — the OR "
+             "rule adds. Never times them, and never count the losers in.",
+             '[[bars data="red:4 | blue:3 | green:5" caption="either one wins"]]'),
+            ("And that is the first way chances join.",
+             '[[step eq="4 + 3 = 7"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "c": 2, "op": "por"},
             {"a": 4, "b": 2, "c": 7, "op": "por"},
@@ -22401,24 +22677,64 @@ _PROBSTAT_U5 = [
         "op": "pand", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("and", "rarer"),
-        "advance_line": "Three in a row — you've got it! Wanting both leaves a chance rarer — times the two.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Wanting both leaves a chance rarer — times the two.",
+        "why": [
+            ("Why is wanting both so different? It is the second way chances join up: "
+             "you want BOTH, and the two have nothing to do with each other. Rain "
+             "tomorrow is one day in 5. A late bus is one bus in 3. Neither cares "
+             "what the other does.",
+             '[[goal text="Both at once"]]'),
+        ],
+        "picture": [
+            ("Here are the two chances as two pies. The first is cut into 5, with one "
+             "rainy slice; the second into 3, with one late slice. Look at how small "
+             "each slice is on its own — and a rainy day WITH a late bus needs both "
+             "slices to come up together.",
+             '[[pie parts="5" shaded="1" caption="one day in 5 is rainy"]][[pie parts="3" shaded="1" caption="one bus in 3 is late"]]'),
+        ],
         "teach": [
-            ["The second way chances join up: you want BOTH, and the two have nothing to do with each other. Rain tomorrow is one day in 4. A late bus is one bus in 3. Neither cares what the other does.",
-             '[[goal text="Both at once"]][[step eq="rain 1 in 4 · late bus 1 in 3"]]'],
-            ["Think it through. Of every 4 days, one is rainy — and on that rainy day, only one bus in 3 runs late. So a rainy day WITH a late bus turns up one time in 4 times 3: one in 12. Wanting both times the two chances together.",
-             '[[step eq="1 in 4 × 1 in 3 → 1 in 12"]]'],
-            ["Notice the direction: asking for both always leaves a chance rarer, so the answer must be a bigger \"one in\" number than either you started with. One in 7 — adding them — is more common than rain alone, which cannot be right.",
-             '[[step eq="1 in 12 ✓ rarer"]][[step eq="1 in 7 ✗ added · 1 in 4 ✗ the bus ignored"]]'],
+            ("That is the method: times the two chances. Of every 5 days one is "
+             "rainy, and on that rainy day only one bus in 3 runs late. Lay the days "
+             "against the buses as an array — 5 by 3 is 15 squares, and only one is "
+             "rainy AND late. Both together turn up one time in 15.",
+             '[[array rows="3" cols="5" caption="5 kinds of day by 3 kinds of bus — 15 squares, one of them rainy AND late"]][[step eq="1 in 5 × 1 in 3 → 1 in 15"]]'),
+            ("Notice the direction: asking for both always leaves a chance rarer, so "
+             "the answer must be a bigger one-in number than either you started with. "
+             "One in 8 — adding them — is more common than rain alone, which cannot "
+             "be right.",
+             '[[step eq="1 in 15 ✓ rarer"]][[step eq="1 in 8 ✗ added · 1 in 5 ✗ the bus ignored"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. One in 5 and one in 6, with nothing between them: one in 30.",
-                        '[[step eq="5 × 6 = 30"]]'],
-             "ask": {"a": 10, "b": 8, "op": "pand"}},
-            {"worked": ["One more together. One in 7 and one in 11: 7 times 11 — one in 77.",
-                        '[[step eq="7 × 11 = 77"]]'],
-             "ask": {"a": 6, "b": 12, "op": "pand"}},
+            {"worked": ("Here is one more, done for you. One in 5 and one in 6, with "
+                        "nothing between them: 5 times 6 — one in 30.",
+                        '[[array rows="5" cols="6" caption="5 by 6 — 30 squares, one of them both"]][[step eq="5 × 6 = 30"]]'),
+             "ask": {'a': 10, 'b': 8, 'op': 'pand'}},
+            {"worked": ("One more together. One in 7 and one in 11: 7 times 11 — one in "
+                        "77.",
+                        '[[array rows="7" cols="11" caption="7 by 11 — 77 squares, one of them both"]][[step eq="7 × 11 = 77"]]'),
+             "ask": {'a': 6, 'b': 12, 'op': 'pand'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Rain is one day in 5, "
+                       "a late bus is one in 3, and both at once is one in 15. Tap the "
+                       "reason why."),
+            "choices": ("because wanting both is rarer, so the two chances times together "
+                        "| because wanting both adds the two chances | because the rarer "
+                        "chance alone decides it"),
+            "answer": "because wanting both is rarer, so the two chances times together",
+            "board": '[[array rows="3" cols="5" caption="one square in 15"]]',
+        },
+        "recap": [
+            ("So, here it is again. When you want both of two things that have nothing "
+             "to do with each other, times the two chances — the answer is rarer than "
+             "either. Never add them, and never ignore one of the two.",
+             '[[pie parts="5" shaded="1" caption="one in 5"]][[pie parts="3" shaded="1" caption="one in 3 — both at once is one in 15"]]'),
+            ("And that is the second way chances join.",
+             '[[step eq="5 × 3 = 15"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 3, "op": "pand"},
             {"a": 3, "b": 4, "op": "pand"},
@@ -22439,24 +22755,65 @@ _PROBSTAT_U5 = [
         "op": "ptre", "max_value": 64,
         "levels": ("abstract",),
         "symbols": ("paths", "both"),
-        "advance_line": "Three in a row — you've got it! Winners on the first spin, times winners on the second.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Winners on the first spin, times winners on the second.",
+        "why": [
+            ("Why draw the paths? Draw the two rules as a picture and you get a tree: "
+             "every first outcome branches into every second one, and each finished "
+             "branch is one path through the whole experiment. A spinner spun twice "
+             "is exactly that kind of picture.",
+             '[[goal text="Count the winning paths"]]'),
+        ],
+        "picture": [
+            ("Here is a spinner cut into 4 equal parts, 2 of them winners, and under "
+             "it the tree for spinning it twice. Look at the branches: the first spin "
+             "wins or loses, and each of those splits again for the second spin. Four "
+             "finished paths, and every one is win-then-something or lose-then-something.",
+             '[[pie parts="4" shaded="2" caption="4 equal parts, 2 winners"]][[tree stage1="W:2,L:2" stage2="W:2,L:2" caption="every path, stage by stage"]]'),
+        ],
         "teach": [
-            ["Draw the two rules as a picture and you get a tree: every first outcome branches into every second one, and each finished branch is one path through the whole experiment. A 4-part spinner with 2 winners, spun twice, holds 4 times 4 — sixteen paths in all.",
-             '[[goal text="Count the winning paths"]][[tree stage1="W:2,L:2" stage2="W:2,L:2" caption="every path, stage by stage"]]'],
-            ["Now count the ones that win BOTH times. Each of the 2 winning first spins can be followed by each of the 2 winning second spins, so 2 times 2 — four paths win twice, out of sixteen. That is the AND rule again, counted on a picture.",
-             '[[step eq="2 × 2 = 4 winning paths of 16"]]'],
-            ["Two miscounts. 2 times 4 is 8 — that counts winning FIRST and then anything at all, which is a different question. And 2 plus 2 treats two spins as though they were one longer spin. Winners times winners, always.",
-             '[[step eq="4 ✓"]][[step eq="8 ✗ second spin left free · 4 ✗ added"]]'],
+            ("That is the method: count the paths that win BOTH times. Each of the 2 "
+             "winning first spins can be followed by each of the 2 winning second "
+             "spins. So 2 times 2 — four paths win twice, out of the 4 times 4, "
+             "sixteen paths in all. That is the AND rule again, counted on a picture.",
+             '[[tree stage1="W:2,L:2" stage2="W:2,L:2" caption="the win-then-win path counts 2 × 2"]][[step eq="2 × 2 = 4 winning paths of 16"]]'),
+            ("Two miscounts. 2 times 4 is 8 — that counts winning FIRST and then "
+             "anything at all, which is a different question. And 2 plus 2 treats two "
+             "spins as though they were one longer spin. Winners times winners, "
+             "always.",
+             '[[step eq="4 ✓"]][[step eq="8 ✗ second spin left free · 4 ✗ added"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A 12-part spinner with 9 winners, spun twice: 9 times 9 — 81 paths win both times.",
-                        '[[step eq="9 × 9 = 81 winning paths"]]'],
-             "ask": {"a": 9, "b": 8, "op": "ptre"}},
-            {"worked": ["One more together. 11 parts with 10 winners: 10 times 10 — 100 paths win twice.",
-                        '[[step eq="10 × 10 = 100"]]'],
-             "ask": {"a": 7, "b": 4, "op": "ptre"}},
+            {"worked": ("Here is one more, done for you. A 12-part spinner with 9 "
+                        "winners, spun twice: 9 times 9 — 81 paths win both times.",
+                        '[[tree stage1="W:9,L:3" stage2="W:9,L:3" caption="win-then-win counts 9 × 9"]][[step eq="9 × 9 = 81 winning paths"]]'),
+             "ask": {'a': 9, 'b': 8, 'op': 'ptre'}},
+            {"worked": ("One more together. 11 parts with 10 winners: 10 times 10 — 100 "
+                        "paths win twice.",
+                        '[[pie parts="11" shaded="10" caption="11 parts, 10 winners"]][[tree stage1="W:10,L:1" stage2="W:10,L:1" caption="win-then-win counts 10 × 10"]][[step eq="10 × 10 = 100"]]'),
+             "ask": {'a': 7, 'b': 4, 'op': 'ptre'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A 4-part spinner with "
+                       "2 winners, spun twice, has 4 paths that win both times. Tap the "
+                       "reason why."),
+            "choices": ("because every winning first spin pairs with every winning second "
+                        "| because the second spin can land anywhere | because two spins "
+                        "add their winners together"),
+            "answer": "because every winning first spin pairs with every winning second",
+            "board": '[[tree stage1="W:2,L:2" stage2="W:2,L:2" caption="the winning paths"]]',
+        },
+        "recap": [
+            ("So, here it is again. A two-stage experiment is a tree, and the paths "
+             "that win both times are the winners of the first spin times the winners "
+             "of the second. Never leave the second spin free, and never add the two "
+             "spins.",
+             '[[pie parts="4" shaded="2" caption="count the winning paths"]]'),
+            ("And that is the AND rule, drawn.",
+             '[[step eq="2 × 2 = 4"]]'),
+        ],
         "bank": [
             {"a": 4, "b": 3, "op": "ptre"},
             {"a": 5, "b": 3, "op": "ptre"},
@@ -22488,24 +22845,65 @@ _PROBSTAT_U6 = [
         "op": "cbse", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("among", "world"),
-        "advance_line": "Three in a row — you've got it! Asking about one group shrinks the whole to that group.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Asking about one group shrinks the whole to that group.",
+        "why": [
+            ("Why does one small word change the whole? Unit Six turns on the word "
+             "GIVEN. Ask \"what is the chance a student plays soccer?\" and the whole "
+             "is the whole class. Ask it about the girls only, and the boys have just "
+             "left the room — the whole is a different number.",
+             '[[goal text="Out of how many now?"]]'),
+        ],
+        "picture": [
+            ("Here is a class as four bars: 7 girls in soccer, 5 girls in art, 5 boys "
+             "in soccer and 8 boys in art — 25 students. Look at the two girls\' "
+             "bars standing on the left. Ask about the girls only and those two bars "
+             "are the entire world; the boys\' bars do not count any more.",
+             '[[bars data="girls soccer:7 | girls art:5 | boys soccer:5 | boys art:8" caption="four groups — asking about the girls keeps only the first two bars"]]'),
+        ],
         "teach": [
-            ["Unit Six turns on one small word: GIVEN. A class has 6 girls in soccer and 4 in art, 5 boys in soccer and 8 in art — 23 children. Ask \"what is the chance a child plays soccer?\" and the whole is all 23.",
-             '[[goal text="Out of how many now?"]][[twoway rowlabels="girls,boys" collabels="soccer,art" data="6,4|5,8" caption="rows and columns of counts"]]'],
-            ["Now ask a different question: among the girls only, what is the chance of soccer? The boys have left the room. The world has shrunk to the 10 girls — 6 plus 4 — and every chance from here on is out of 10, not 23.",
-             '[[step eq="among the girls: 6 + 4 = 10"]]'],
-            ["That is the whole idea of a conditional chance: the word GIVEN throws away everyone it does not mention. Answering 23 keeps the boys who were just sent away, and 6 is the soccer girls themselves — the group you are counting, not the group you are counting out of.",
-             '[[step eq="10 ✓"]][[step eq="23 ✗ everyone · 6 ✗ the cell"]]'],
+            ("That is the method: the word GIVEN throws away everyone it does not "
+             "mention. Among the girls only, the world has shrunk to 7 plus 5 — 12 "
+             "girls — and every chance from here on is out of 12, not 25. The two-way "
+             "table shows it: the girls\' row adds to 12.",
+             '[[twoway rowlabels="girls,boys" collabels="soccer,art" data="7,5|5,8" caption="the girls\' row adds to 12 — that is the whole now"]][[step eq="among the girls: 7 + 5 = 12"]]'),
+            ("Answering 25 keeps the boys who were just sent away. And 7 is the soccer "
+             "girls themselves — the group you are counting, not the group you are "
+             "counting out of. Read which group the question names, and add up that "
+             "group.",
+             '[[step eq="12 ✓"]][[step eq="25 ✗ everyone · 7 ✗ the cell"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 9 girls in soccer and 7 in art: among the girls, everything is out of 16.",
-                        '[[step eq="9 + 7 = 16 girls"]]'],
-             "ask": {"a": 16, "b": 18, "c": 5, "op": "cbse"}},
-            {"worked": ["One more together. 5 girls in soccer and 15 in art: 5 plus 15 — a world of 20 girls.",
-                        '[[step eq="5 + 15 = 20 girls"]]'],
-             "ask": {"a": 14, "b": 17, "c": 8, "op": "cbse"}},
+            {"worked": ("Here is one more, done for you. 9 girls in soccer and 7 in art: "
+                        "among the girls, everything is out of 9 plus 7 — 16.",
+                        '[[twoway rowlabels="girls,boys" collabels="soccer,art" data="9,7|6,9" caption="the girls\' row adds to 16"]][[step eq="9 + 7 = 16 girls"]]'),
+             "ask": {'a': 16, 'b': 18, 'c': 5, 'op': 'cbse'}},
+            {"worked": ("One more together. 5 girls in soccer and 15 in art: 5 plus 15 — a "
+                        "world of 20 girls.",
+                        '[[bars data="girls soccer:5 | girls art:15" caption="the two girls\' bars — 20 girls"]][[step eq="5 + 15 = 20 girls"]]'),
+             "ask": {'a': 14, 'b': 17, 'c': 8, 'op': 'cbse'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. In a class of 25 with "
+                       "7 girls in soccer and 5 in art, a chance about the girls is out of "
+                       "12. Tap the reason why."),
+            "choices": ("because asking about the girls shrinks the whole to the girls | "
+                        "because a chance is always out of the whole class | because the "
+                        "whole is the soccer girls alone"),
+            "answer": "because asking about the girls shrinks the whole to the girls",
+            "board": '[[twoway rowlabels="girls,boys" collabels="soccer,art" data="7,5|5,8" caption="out of how many now?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A conditional chance names a group, and that group "
+             "becomes the whole — add up the group named, and everyone else has left "
+             "the room. Never keep the whole class, and never hand back the one cell "
+             "you were counting.",
+             '[[twoway rowlabels="girls,boys" collabels="soccer,art" data="7,5|5,8" caption="the girls\' row is the whole now"]]'),
+            ("And that is what GIVEN does.",
+             '[[step eq="7 + 5 = 12"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 2, "c": 2, "op": "cbse"},
             {"a": 6, "b": 4, "c": 13, "op": "cbse"},
@@ -22526,24 +22924,64 @@ _PROBSTAT_U6 = [
         "op": "ccnt", "max_value": 80,
         "levels": ("abstract",),
         "symbols": ("among", "percent"),
-        "advance_line": "Three in a row — you've got it! Divide inside the smaller world, not the big one.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Divide inside the smaller world, not the big one.",
+        "why": [
+            ("Why work inside the smaller world? Once GIVEN has shrunk the whole, the "
+             "chance is worked out the ordinary way — just inside the smaller group. "
+             "Every girl in a class chose one club, and the question is asked among "
+             "the girls, so the boys never enter the arithmetic at all.",
+             '[[goal text="Inside the smaller world"]]'),
+        ],
+        "picture": [
+            ("Here are the girls as two bars: 9 chose soccer and 6 chose art. Look at "
+             "the soccer bar against both bars together — it is a bit more than half. "
+             "The hundred square underneath turns that share into a percent: 60 of "
+             "every 100 girls chose soccer.",
+             '[[bars data="soccer:9 | art:6" caption="the girls — 9 soccer, 6 art"]][[hundredgrid shaded="60" unit="percent" eq="9 of 15 → 60%" caption="60 of every 100 girls chose soccer"]]'),
+        ],
         "teach": [
-            ["Once the world has shrunk, work out the chance the ordinary way — just inside the smaller group. Every girl in a class chose one club: 9 chose soccer and 6 chose art. Among the girls, that is 15 children in all.",
-             '[[goal text="Inside the smaller world"]][[step eq="girls: 9 soccer + 6 art = 15"]]'],
-            ["So the chance a girl chose soccer is 9 out of 15 — 60 percent. The boys never enter the arithmetic at any point, however many of them there are, because the question already sent them away.",
-             '[[step eq="9 out of 15 → 60%"]]'],
-            ["Two answers not to give: 9 is a headcount, not a percent, and 40 percent is the art share — the rest of the girls. Read which group is being asked about, count that group, and divide inside it.",
-             '[[step eq="60 ✓"]][[step eq="9 ✗ a count · 40 ✗ the other club"]]'],
+            ("That is the method: add up the group, then divide inside it. 9 plus 6 is "
+             "15 girls, and 9 of those chose soccer — 9 out of 15 is 60 percent. "
+             "However many boys there are, they never enter the arithmetic, because "
+             "the question already sent them away.",
+             '[[hundredgrid shaded="60" unit="percent" eq="9 of 15 → 60%" caption="9 out of the 15 girls"]][[step eq="9 + 6 = 15"]][[step eq="9 ÷ 15 = 60%"]]'),
+            ("Two answers not to give: 9 is a headcount, not a percent, and 40 percent "
+             "is the art share — the rest of the girls. Read which group is being "
+             "asked about, count that group, and divide inside it.",
+             '[[step eq="60 ✓"]][[step eq="9 ✗ a count · 40 ✗ the other club"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 8 girls in soccer and 32 in art: 8 out of 40 is 20 percent.",
-                        '[[step eq="8 out of 40 → 20%"]]'],
-             "ask": {"a": 30, "b": 10, "op": "ccnt"}},
-            {"worked": ["One more together. 21 in soccer and 14 in art: 21 out of 35 — 60 percent.",
-                        '[[step eq="21 out of 35 → 60%"]]'],
-             "ask": {"a": 14, "b": 6, "op": "ccnt"}},
+            {"worked": ("Here is one more, done for you. 8 girls in soccer and 32 in art: "
+                        "8 out of 40 is 20 percent.",
+                        '[[bars data="soccer:8 | art:32" caption="8 of the 40 girls"]][[hundredgrid shaded="20" unit="percent" eq="8 of 40 → 20%" caption="20 of every 100"]][[step eq="8 ÷ 40 = 20%"]]'),
+             "ask": {'a': 30, 'b': 10, 'op': 'ccnt'}},
+            {"worked": ("One more together. 21 in soccer and 14 in art: 21 out of 35 — 60 "
+                        "percent.",
+                        '[[hundredgrid shaded="60" unit="percent" eq="21 of 35 → 60%" caption="60 of every 100 girls"]][[step eq="21 ÷ 35 = 60%"]]'),
+             "ask": {'a': 14, 'b': 6, 'op': 'ccnt'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 9 girls chose soccer "
+                       "and 6 chose art, so 60 percent of the girls chose soccer. Tap the "
+                       "reason why."),
+            "choices": ("because you divide by all the girls, not the class | because "
+                        "the percent is the count of soccer girls | because the boys are "
+                        "divided into the girls"),
+            "answer": "because you divide by all the girls, not the class",
+            "board": '[[hundredgrid shaded="60" unit="percent" eq="9 of 15 → 60%" caption="inside the smaller world"]]',
+        },
+        "recap": [
+            ("So, here it is again. Inside the smaller world, a chance is worked out "
+             "the ordinary way — the count you want, divided by the whole of the group "
+             "named, as a percent. Never hand back the headcount, and never the other "
+             "club\'s share.",
+             '[[bars data="soccer:9 | art:6" caption="inside the smaller world"]]'),
+            ("And that is a conditional rate.",
+             '[[step eq="9 ÷ 15 = 60%"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 8, "op": "ccnt"},
             {"a": 6, "b": 19, "op": "ccnt"},
@@ -22564,24 +23002,67 @@ _PROBSTAT_U6 = [
         "op": "indp", "max_value": 90,
         "levels": ("abstract",),
         "symbols": ("independent", "rate"),
-        "advance_line": "Three in a row — you've got it! Independent means the group looks just like everyone.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Independent means the group looks just like everyone.",
+        "why": [
+            ("Why is independence a claim? Two things are independent when knowing "
+             "one tells you nothing about the other. That is a claim you can TEST, "
+             "because it carries a promise: the group\'s rate should match the "
+             "overall rate, exactly.",
+             '[[goal text="What independent claims"]]'),
+        ],
+        "picture": [
+            ("Here are two bars: the whole school, where 45 percent like maths, and "
+             "beside it the left-handers. Look at the second bar — if left-handedness "
+             "had nothing to do with liking maths, it would stand exactly as tall as "
+             "the first. Independence promises a matching bar.",
+             '[[bars data="whole school:45 | left-handers if independent:45" caption="percent who like maths — independence promises the same height"]]'),
+        ],
         "teach": [
-            ["Two things are independent when knowing one tells you nothing about the other. That is a claim you can TEST, because it carries a promise: the group's rate should match the overall rate, exactly.",
-             '[[goal text="What independent claims"]][[step eq="independent → group rate = overall rate"]]'],
-            ["Say 30 percent of a school likes maths. If left-handedness were independent of liking maths, then 30 percent of the left-handers would like maths too — the same 30, whether there are 20 left-handers or 200.",
-             '[[step eq="school 30% → left-handers 30% if independent"]]'],
-            ["Then you look. If the left-handers actually come in at 55 percent, the promise is broken and the two are NOT independent — something links them. The question asks what independence WOULD predict, so the measured 55 is not the answer, and the number of left-handers is not a rate at all.",
-             '[[step eq="30 ✓ what independence predicts"]][[step eq="55 ✗ what was measured"]]'],
+            ("That is the method: independence predicts the overall rate for every "
+             "group. Say 45 percent of a school likes maths. If left-handedness were "
+             "independent of liking maths, then 45 percent of the left-handers would "
+             "like maths too — the same 45, whether there are 20 left-handers or 200.",
+             '[[bars data="school:45 | if independent:45" caption="the group would look just like the school"]][[step eq="school 45% · if independent, left-handers 45%"]]'),
+            ("Then you look. If the left-handers actually come in at 60 percent, the "
+             "promise is broken and the two are NOT independent — something links "
+             "them. The question asks what independence WOULD predict, so the "
+             "measured 60 is not the answer, and the number of left-handers is not a "
+             "rate at all.",
+             '[[bars data="school:45 | if independent:45 | measured:60" caption="the measured bar breaks the promise"]][[step eq="45 ✓ what independence predicts"]][[step eq="60 ✗ what was measured"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 40 percent of a school walks to school. If independence held, 40 percent of the bus-pass holders would walk too.",
-                        '[[step eq="school 40% → any group 40%"]]'],
-             "ask": {"a": 75, "b": 55, "c": 20, "op": "indp"}},
-            {"worked": ["One more together. A school at 60 percent predicts 60 percent inside any independent group.",
-                        '[[step eq="school 60% → group 60%"]]'],
-             "ask": {"a": 85, "b": 20, "c": 65, "op": "indp"}},
+            {"worked": ("Here is one more, done for you. 40 percent of a school walks to "
+                        "school. If independence held, 40 percent of the bus-pass holders "
+                        "would walk too.",
+                        '[[bars data="school:40 | bus-pass holders if independent:40" caption="the same 40"]][[step eq="school 40% · any independent group 40%"]]'),
+             "ask": {'a': 75, 'b': 55, 'c': 20, 'op': 'indp'}},
+            {"worked": ("One more together. A school at 60 percent predicts 60 percent "
+                        "inside any independent group.",
+                        '[[bars data="school:60 | if independent:60" caption="school 60, group 60"]][[step eq="school 60% · group 60%"]]'),
+             "ask": {'a': 85, 'b': 20, 'c': 65, 'op': 'indp'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 45 percent of a school "
+                       "likes maths, so independence would put the left-handers at 45 "
+                       "percent too. Tap the reason why."),
+            "choices": ("because an independent group looks just like everyone | because "
+                        "an independent group always scores higher | because the group\'s "
+                        "headcount sets its rate"),
+            "answer": "because an independent group looks just like everyone",
+            "board": '[[bars data="school:45 | if independent:45" caption="what independent claims"]]',
+        },
+        "recap": [
+            ("So, here it is again. Independent means the group\'s rate matches the "
+             "overall rate, so independence predicts the school\'s own percent for "
+             "any group — and a measured rate that differs breaks the claim. Never "
+             "hand back the measured rate, and never a headcount.",
+             '[[bars data="school:45 | if independent:45 | measured:60" caption="what independent claims"]]'),
+            ("And that is a promise you can check.",
+             '[[step eq="if independent: 45%"]]'),
+        ],
         "bank": [
             {"a": 10, "b": 20, "c": 90, "op": "indp"},
             {"a": 15, "b": 40, "c": 85, "op": "indp"},
@@ -22602,24 +23083,64 @@ _PROBSTAT_U6 = [
         "op": "wout", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("kept", "smaller"),
-        "advance_line": "Three in a row — you've got it! A marble kept out leaves a smaller bag behind.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A marble kept out leaves a smaller bag behind.",
+        "why": [
+            ("Why does the bag remember? The last conditional idea is the most "
+             "physical. Take a marble from a bag and put it back, and the second pick "
+             "faces exactly the bag the first one did. Keep it instead, and the bag "
+             "has changed — the second pick lives in a smaller world.",
+             '[[goal text="The bag remembers"]]'),
+        ],
+        "picture": [
+            ("Here is a bag of 10 as a tape, 4 red and 6 other. Now take one red out "
+             "and keep it. Look at the second tape: the red part is shorter by one, "
+             "and the whole tape is shorter too — 9 marbles, not 10. Both numbers "
+             "moved.",
+             '[[tape parts="4 red|6 other" total="10 marbles" caption="before — 4 red in a bag of 10"]][[tape parts="3 red|6 other" total="9 marbles" caption="after one red is kept — 3 red in a bag of 9"]]'),
+        ],
         "teach": [
-            ["The last conditional idea is the most physical. Take a marble from a bag and put it back, and the second pick faces exactly the bag the first one did. Keep it instead, and the bag has changed — the second pick lives in a smaller world.",
-             '[[goal text="The bag remembers"]][[step eq="10 marbles · one taken and kept → 9 left"]]'],
-            ["A bag of 10 with 4 red. Take a red and keep it: 9 marbles are left and only 3 of them are red, so the next pick is 3 out of 9 rather than 4 out of 10. Both numbers moved, and the bottom one is what the question asks for.",
-             '[[step eq="4 of 10 → 3 of 9"]]'],
-            ["Answering 10 is the slip worth naming — it treats the bag as though the marble went back. And 3 is the reds left over, the TOP of the new chance, not the bottom. One marble kept out, one smaller bag.",
-             '[[step eq="9 ✓"]][[step eq="10 ✗ nothing taken · 3 ✗ that is the reds"]]'],
+            ("That is the method: take the kept marble off the whole. 10 take away 1 "
+             "leaves 9, so the next pick is out of 9. The reds moved too, 4 down to "
+             "3, so the next chance of red is 3 out of 9 rather than 4 out of 10. The "
+             "bottom number is what the question asks for.",
+             '[[tape parts="3 red|6 other" total="9 marbles" caption="10 − 1 = 9 marbles for the next pick"]][[step eq="10 − 1 = 9"]][[step eq="4 of 10 → 3 of 9"]]'),
+            ("Answering 10 is the slip worth naming — it treats the bag as though the "
+             "marble went back. And 3 is the reds left over, the TOP of the new "
+             "chance, not the bottom. One marble kept out, one smaller bag.",
+             '[[step eq="9 ✓"]][[step eq="10 ✗ nothing taken · 3 ✗ that is the reds"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 25 marbles, one kept out: the next pick is out of 24.",
-                        '[[step eq="25 − 1 = 24"]]'],
-             "ask": {"a": 19, "b": 39, "op": "wout"}},
-            {"worked": ["One more together. A bag of 16 with one marble kept leaves 15 for the next pick.",
-                        '[[step eq="16 − 1 = 15"]]'],
-             "ask": {"a": 6, "b": 38, "op": "wout"}},
+            {"worked": ("Here is one more, done for you. 25 marbles, one kept out: 25 take "
+                        "away 1 — the next pick is out of 24.",
+                        '[[tape parts="8 red|16 other" total="24 marbles" caption="25 − 1 = 24 left for the next pick"]][[step eq="25 − 1 = 24"]]'),
+             "ask": {'a': 19, 'b': 39, 'op': 'wout'}},
+            {"worked": ("One more together. A bag of 16 with one marble kept: 16 take away "
+                        "1 leaves 15 for the next pick.",
+                        '[[tape parts="4 red|11 other" total="15 marbles" caption="16 − 1 = 15"]][[step eq="16 − 1 = 15"]]'),
+             "ask": {'a': 6, 'b': 38, 'op': 'wout'}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A bag of 10 with 4 "
+                       "red, one red taken and kept, and the next pick is out of 9. Tap "
+                       "the reason why."),
+            "choices": ("because a marble kept out leaves a smaller bag behind | because "
+                        "the bag is the same until every red is gone | because the next "
+                        "pick is out of the reds left"),
+            "answer": "because a marble kept out leaves a smaller bag behind",
+            "board": '[[tape parts="3 red|6 other" total="9 marbles" caption="the bag remembers"]]',
+        },
+        "recap": [
+            ("So, here it is again. Without replacement, the bag remembers: a marble "
+             "kept out leaves one fewer in the bag, so the next pick is out of a "
+             "smaller whole, and the top of the chance shrinks too. Never keep the "
+             "old bag, and never hand back the reds left as the whole.",
+             '[[tape parts="3 red|6 other" total="9 marbles" caption="the bag remembers"]]'),
+            ("And that is the second pick\'s world.",
+             '[[step eq="10 − 1 = 9"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 5, "op": "wout"},
             {"a": 5, "b": 14, "op": "wout"},
@@ -30177,6 +30698,210 @@ def _sblw_worked(p):
 
 
 
+# ---- (tt, 2026-09-06) PROBSTAT UNITS 4-6: the school as bars and the sample as a
+# tape cut the same way, the surveys back and silent as a tape, the asked and the
+# never-asked, the people machine that quadruples, the bag as bars and the chance
+# on the hundred square, the three piles joined, two pies for two chances and the
+# array of days by buses, the spinner as a pie and the tree of paths, the four
+# groups as bars and the two-way table, the girls' share on the hundred square, the
+# school beside the group, the bag before and after a marble is kept. Every ask
+# draws its question with the answer withheld; every walk-back draws it filled in.
+def _strf_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[bars data="girls:{a} | boys:{b}" caption="the school — {a} girls and {b} boys; the sample keeps this mix"]]'
+            f'[[tape parts="? girls|? boys" total="sample of {c}" caption="the sample of {c}, cut the way the school is"]]'
+            f'[[step eq="school: {a} girls · {b} boys"]]'
+            f'[[step eq="sample of {c} · girls = ?"]]')
+
+
+def _strf_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; g = c * a // (a + b)
+    return (f"Look what you did: girls are {a} of the {a + b} in the school, so the sample "
+            f"keeps that share — {c} times {a}, divided by {a + b}, is {g} girls, leaving "
+            f"{c - g} boys. Half and half would give {c // 2}, which matches only a school "
+            f"that is half and half, and {a} copies the school's own count into the sample.",
+            f'[[tape parts="{g} girls|{c - g} boys" total="sample of {c}" caption="{g} girls and {c - g} boys — the school\'s mix, {a} to {b}, inside {c}"]]'
+            f'[[step eq="{c} × {a} ÷ {a + b} = {g} girls"]]')
+
+
+def _resp_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="{b} back|{a - b} silent" total="{a} sent" caption="{a} surveys went out — {b} came back and the rest stayed silent"]]'
+            f'[[step eq="{b} back out of {a} sent"]]'
+            f'[[step eq="percent returned = ?"]]')
+
+
+def _resp_worked(p):
+    a, b = p["a"], p["b"]; r = 100 * b // a
+    return (f"Look what you did: {b} out of {a} is {r} percent — the response rate. {b} is "
+            f"a count of surveys and {a - b} is how many never came back; the rate is the "
+            f"percent, and a low one warns that the silent may not think like the answerers.",
+            f'[[hundredgrid shaded="{r}" unit="percent" eq="{b} of {a} → {r}%" caption="{r} of every 100 surveys came back"]]'
+            f'[[step eq="{b} ÷ {a} = {r}%"]]')
+
+
+def _bias_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="{a} asked|?" total="school of {b}" caption="the {a} in the cafeteria were handed the survey — the rest of the school never was"]]'
+            f'[[step eq="asked: {a} in the cafeteria · school: {b}"]]'
+            f'[[step eq="never had a chance = ?"]]')
+
+
+def _bias_worked(p):
+    a, b = p["a"], p["b"]; n = b - a
+    return (f"Look what you did: {b} take away {a} leaves {n} who never had a chance — not "
+            f"{n} who said no, {n} who were never asked at all. {a} is the crowd that WAS "
+            f"asked and {b} is everyone; the gap between them is the survey's blind spot.",
+            f'[[tape parts="{a} asked|{n} never asked" total="school of {b}" caption="{b} − {a} = {n} never had a chance"]]'
+            f'[[step eq="{b} − {a} = {n}"]]')
+
+
+def _merr_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[machine input="{a}" rule="× 4" output="?" caption="four times the people halves the margin — {a} people go in, the new headcount comes out"]]'
+            f'[[step eq="{a} people · margin {b} points"]]'
+            f'[[step eq="half the margin · people = ?"]]')
+
+
+def _merr_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: four times {a} is {4 * a} people. Doubling to {2 * a} does "
+            f"not halve the margin — it only shaves it — and {b} is the margin itself, not a "
+            f"headcount. Every extra bit of certainty costs far more people than the last.",
+            f'[[bars data="now:{a} | four times:{4 * a}" caption="{a} people to {4 * a} — and the margin of {b} points halves"]]'
+            f'[[step eq="{a} × 4 = {4 * a}"]]')
+
+
+def _ppct_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[bars data="red:{a} | not red:{b - a}" caption="{b} marbles in the bag, {a} of them red — the chance of red, as a percent"]]'
+            f'[[step eq="{a} red out of {b} marbles"]]'
+            f'[[step eq="percent chance of red = ?"]]')
+
+
+def _ppct_worked(p):
+    a, b = p["a"], p["b"]; r = 100 * a // b
+    return (f"Look what you did: {a} out of {b} is {r} percent — a chance on the scale from "
+            f"0, never, to 100, always. {a} is a count of marbles and {b - a} is how many are "
+            f"not red; the question asked for the percent.",
+            f'[[hundredgrid shaded="{r}" unit="percent" eq="{a} of {b} → {r}%" caption="{r} of every 100 picks would be red"]]'
+            f'[[step eq="{a} ÷ {b} = {r}%"]]')
+
+
+def _por_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[bars data="red:{a} | blue:{b} | green:{c}" caption="three piles — red OR blue wins, and a marble cannot be two colours at once"]]'
+            f'[[step eq="red OR blue wins · winners = ?"]]')
+
+
+def _por_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: a marble cannot be red and blue at once, so the two piles "
+            f"join — {a} plus {b} is {a + b} winners out of {a + b + c}. Timesing gives "
+            f"{a * b}, which counts pairs of marbles, and {a + b + c} counts the green losers in.",
+            f'[[tape parts="{a} red|{b} blue|{c} green" total="{a + b + c} marbles" caption="the red and blue parts side by side — {a + b} winners"]]'
+            f'[[step eq="{a} + {b} = {a + b}"]]')
+
+
+def _pand_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[pie parts="{a}" shaded="1" caption="one day in {a} is rainy"]]'
+            f'[[pie parts="{b}" shaded="1" caption="one bus in {b} is late — neither cares what the other does"]]'
+            f'[[step eq="rain: 1 in {a} · late bus: 1 in {b}"]]'
+            f'[[step eq="both = 1 in ?"]]')
+
+
+def _pand_worked(p):
+    a, b = p["a"], p["b"]; t = a * b
+    return (f"Look what you did: one day in {a} is rainy, and on that day one bus in {b} is "
+            f"late. So both together turn up one time in {a} times {b} — one in {t}. Wanting "
+            f"both is rarer, never one in {a + b}, and never one in {max(a, b)} on its own.",
+            f'[[array rows="{min(a, b)}" cols="{max(a, b)}" caption="{a} kinds of day by {b} kinds of bus — {t} squares, and only one is rainy AND late"]]'
+            f'[[step eq="{a} × {b} = {t}"]]')
+
+
+def _ptre_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[pie parts="{a}" shaded="{b}" caption="{a} equal parts, {b} of them winners — spun twice"]]'
+            f'[[step eq="{b} winners of {a} parts · spun twice"]]'
+            f'[[step eq="paths that win twice = ?"]]')
+
+
+def _ptre_worked(p):
+    a, b = p["a"], p["b"]; t = b * b
+    return (f"Look what you did: each of the {b} winning first spins can be followed by each "
+            f"of the {b} winning second spins. So {b} times {b} is {t} paths that win both "
+            f"times, out of {a * a}. {b * a} leaves the second spin free, and {2 * b} adds "
+            f"two spins together.",
+            f'[[tree stage1="W:{b},L:{a - b}" stage2="W:{b},L:{a - b}" caption="every path, stage by stage — the win-then-win path counts {b} × {b}"]]'
+            f'[[step eq="{b} × {b} = {t}"]]')
+
+
+def _cbse_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[bars data="girls soccer:{a} | girls art:{b} | boys soccer:{c} | boys art:{c + 3}" caption="four groups — the question asks about the girls only"]]'
+            f'[[step eq="girls: {a} soccer, {b} art · boys: {c} soccer, {c + 3} art"]]'
+            f'[[step eq="among the girls · out of ?"]]')
+
+
+def _cbse_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; g = a + b; t = 2 * c + 3 + a + b
+    return (f"Look what you did: asking about the girls only sends the boys away — {a} plus "
+            f"{b} is {g} girls, so every chance from here is out of {g}. The whole class of "
+            f"{t} answers a different question, and {a} alone is the soccer girls.",
+            f'[[twoway rowlabels="girls,boys" collabels="soccer,art" data="{a},{b}|{c},{c + 3}" caption="the girls\' row adds to {g} — that is the whole now"]]'
+            f'[[step eq="{a} + {b} = {g}"]]')
+
+
+def _ccnt_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[bars data="soccer:{a} | art:{b}" caption="every girl chose one club — {a} soccer, {b} art; the soccer share of the girls, as a percent"]]'
+            f'[[step eq="girls: {a} soccer · {b} art"]]'
+            f'[[step eq="percent of the girls in soccer = ?"]]')
+
+
+def _ccnt_worked(p):
+    a, b = p["a"], p["b"]; g = a + b; r = 100 * a // g
+    return (f"Look what you did: the girls are the whole world now — {a} plus {b} is {g} — "
+            f"and {a} of them chose soccer: {r} percent. The other {100 - r} percent is the "
+            f"art share, and {a} is a headcount, not a percent.",
+            f'[[hundredgrid shaded="{r}" unit="percent" eq="{a} of {g} → {r}%" caption="{r} of every 100 girls chose soccer"]]'
+            f'[[step eq="{a} + {b} = {g}"]][[step eq="{a} ÷ {g} = {r}%"]]')
+
+
+def _indp_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[bars data="whole school:{a} | the {b} left-handers:{c}" caption="percent who like maths — the whole school, and the left-handers as measured"]]'
+            f'[[step eq="whole school: {a}% · left-handers: {c}%"]]'
+            f'[[step eq="if independent, left-handers = ?%"]]')
+
+
+def _indp_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: independent means the left-handers would look just like the "
+            f"school — {a} percent, whether there are {b} of them or 200. They came in at "
+            f"{c}, so the two are not independent, and {b} is a headcount, not a rate.",
+            f'[[bars data="school:{a} | if independent:{a} | measured:{c}" caption="independence predicts {a}% — the measured {c}% breaks the promise"]]'
+            f'[[step eq="if independent: {a}%"]]')
+
+
+def _wout_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="{a} red|{b - a} other" total="{b} marbles" caption="one red is taken and KEPT — the next pick faces a smaller bag"]]'
+            f'[[step eq="{b} marbles · {a} red · one red taken and kept"]]'
+            f'[[step eq="next pick · out of ?"]]')
+
+
+def _wout_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Look what you did: the marble did not go back, so the bag is smaller — {b} take "
+            f"away 1 leaves {b - 1}. The reds shrank too, to {a - 1}, but that is the top of "
+            f"the chance, not the bottom; answering {b} forgets that anything was taken at all.",
+            f'[[tape parts="{a - 1} red|{b - a} other" total="{b - 1} marbles" caption="{b} − 1 = {b - 1} marbles left for the next pick"]]'
+            f'[[step eq="{b} − 1 = {b - 1}"]]')
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -35949,9 +36674,8 @@ OP_EXT = {
                              f"boys. A sample of {p['c']} students is built "
                              f"to keep the same mix. How many girls should "
                              f"it include?"),
-        "board": lambda p: (f'[[step eq="school: {p["a"]} girls · '
-                            f'{p["b"]} boys"]]'
-                            f'[[step eq="sample of {p["c"]} · girls = ?"]]'),
+        "board": _strf_board,         # (tt) the school as bars, the sample as a tape cut the same way
+        "worked": _strf_worked,       # (tt) the tape filled in
         "praise": lambda p: (f"Girls are {p['a']} of {p['a'] + p['b']} in "
                              f"the school, so the sample keeps that share: "
                              f"{p['c']} times {p['a']} divided by "
@@ -35983,9 +36707,8 @@ OP_EXT = {
         "ans": lambda p: 100 * p["b"] // p["a"],
         "spoken": lambda p: (f"{p['a']} surveys went out and {p['b']} came "
                              f"back. What percent of them came back?"),
-        "board": lambda p: (f'[[step eq="{p["b"]} back out of {p["a"]} '
-                            f'sent"]]'
-                            f'[[step eq="percent returned = ?"]]'),
+        "board": _resp_board,         # (tt) back and silent as a tape
+        "worked": _resp_worked,       # (tt) the rate on the hundred square
         "praise": lambda p: (f"{p['b']} out of {p['a']} is "
                              f"{100 * p['b'] // p['a']} percent — that is "
                              f"the response rate, and a low one is a "
@@ -36010,17 +36733,16 @@ OP_EXT = {
     "bias": {  # undercoverage: who never had a chance of being asked at all
         "ans": lambda p: p["b"] - p["a"],
         "spoken": lambda p: (f"A lunch survey is handed only to the "
-                             f"{p['a']} students in the cafeteria, in a "
-                             f"school of {p['b']}. How many students never "
+                             f"{p['a']} in the cafeteria, in a school of "
+                             f"{p['b']}. How many of the whole school never "
                              f"had a chance to be asked?"),
-        "board": lambda p: (f'[[step eq="asked: {p["a"]} in the cafeteria · '
-                            f'school: {p["b"]}"]]'
-                            f'[[step eq="never had a chance = ?"]]'),
+        "board": _bias_board,         # (tt) the asked and the never-asked as a tape, the second part blank
+        "worked": _bias_worked,       # (tt) both parts
         "praise": lambda p: (f"{p['b']} take away {p['a']} leaves "
-                             f"{p['b'] - p['a']} students it could never "
-                             f"reach — and the ones who bring lunch from "
-                             f"home are just the ones it misses. A sample "
-                             f"that cannot reach everyone is biased."),
+                             f"{p['b'] - p['a']} it could never reach — and "
+                             f"the ones who bring lunch from home are just "
+                             f"the ones it misses. A sample that cannot reach "
+                             f"everyone is biased."),
         "key": lambda p: p["b"] - p["a"],
         # The errors: the asked group, and the whole school.
         "choices": lambda p: [p["b"] - p["a"], p["a"], p["b"]],
@@ -36038,9 +36760,8 @@ OP_EXT = {
                              f"of error of about {p['b']} points. To cut "
                              f"that margin in HALF you need four times as "
                              f"many people. How many people is that?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} people → margin '
-                            f'{p["b"]} points"]]'
-                            f'[[step eq="half the margin → ? people"]]'),
+        "board": _merr_board,         # (tt) the people machine, its output blank; the pending line a statement
+        "worked": _merr_worked,       # (tt) now beside four times, as bars
         "praise": lambda p: (f"Four times {p['a']} is {4 * p['a']} people. "
                              f"Accuracy comes slowly: doubling to "
                              f"{2 * p['a']} does NOT halve the margin, it "
@@ -36064,9 +36785,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A bag holds {p['b']} marbles and {p['a']} of "
                              f"them are red. One is picked without looking. "
                              f"What percent chance is it red?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} red out of {p["b"]} '
-                            f'marbles"]]'
-                            f'[[step eq="percent chance of red = ?"]]'),
+        "board": _ppct_board,         # (tt) the bag as bars, red beside not red
+        "worked": _ppct_worked,       # (tt) the chance on the hundred square
         "praise": lambda p: (f"{p['a']} out of {p['b']} is "
                              f"{100 * p['a'] // p['b']} percent — chance "
                              f"lives on a scale from 0 to 100, where 0 never "
@@ -36092,10 +36812,8 @@ OP_EXT = {
                              f"{p['c']} green marbles. One is picked. Red OR "
                              f"blue wins. How many of the marbles are "
                              f"winners?"),
-        "board": lambda p: (f'[[bars data="red:{p["a"]} | blue:{p["b"]} | '
-                            f'green:{p["c"]}"]]'
-                            f'[[step eq="red OR blue wins · how many '
-                            f'winners?"]]'),
+        "board": _por_board,          # (tt) the bars captioned (they had none -- rule 41); the pending line a statement (the old "how many winners?" was a question inside a step)
+        "worked": _por_worked,        # (tt) the piles joined on a tape
         "praise": lambda p: (f"A marble cannot be red AND blue at once, so "
                              f"the two piles just join: {p['a']} plus "
                              f"{p['b']} equals {p['a'] + p['b']} winners out "
@@ -36122,9 +36840,8 @@ OP_EXT = {
                              f"in {p['b']}. Neither has anything to do with "
                              f"the other. The chance of BOTH happening is "
                              f"one in what?"),
-        "board": lambda p: (f'[[step eq="rain: 1 in {p["a"]} · late bus: 1 '
-                            f'in {p["b"]}"]]'
-                            f'[[step eq="both = 1 in ?"]]'),
+        "board": _pand_board,         # (tt) two pies, one slice each
+        "worked": _pand_worked,       # (tt) days by buses as an array
         "praise": lambda p: (f"One day in {p['a']} is rainy, and one bus "
                              f"in {p['b']} is late, so both together turn up "
                              f"one time in {p['a']} times {p['b']} — one in "
@@ -36152,9 +36869,8 @@ OP_EXT = {
                              f"paths win BOTH times?"),
         # NOT [[tree]] on the ask -- that renderer prints every leaf's
         # product, which is the answer. The teach beats show it instead.
-        "board": lambda p: (f'[[step eq="{p["b"]} winners of {p["a"]} parts '
-                            f'· spun twice"]]'
-                            f'[[step eq="paths that win twice = ?"]]'),
+        "board": _ptre_board,         # (tt) the spinner as a pie with its winners shaded
+        "worked": _ptre_worked,       # (tt) the tree of paths (it prints the products -- walk-back only)
         "praise": lambda p: (f"Each winning first spin can be followed by "
                              f"each winning second spin: {p['b']} times "
                              f"{p['b']} equals {p['b'] * p['b']} winning "
@@ -36181,17 +36897,15 @@ OP_EXT = {
                              f"chose soccer and {p['c'] + 3} boys chose art. "
                              f"Picking from the GIRLS only, the chance of "
                              f"soccer is out of how many?"),
-        "board": lambda p: (f'[[step eq="girls: {p["a"]} soccer, {p["b"]} '
-                            f'art · boys: {p["c"]} soccer, {p["c"] + 3} '
-                            f'art"]]'
-                            f'[[step eq="among the girls · out of ?"]]'),
+        "board": _cbse_board,         # (tt) the four groups as bars
+        "worked": _cbse_worked,       # (tt) the two-way table with its row totals
         "praise": lambda p: (f"Asking about the girls only shrinks the "
-                             f"world to the girls: {p['a']} plus {p['b']} "
-                             f"equals {p['a'] + p['b']}. The whole class of "
-                             f"{2 * p['c'] + 3 + p['a'] + p['b']} is the "
-                             f"answer to a different question, and "
-                             f"{p['a']} on its own is the soccer girls, not "
-                             f"the group they came from."),
+                             f"world to the girls: {p['a']} plus "
+                             f"{p['b']} equals {p['a'] + p['b']}. The whole "
+                             f"class of "
+                             f"{2 * p['c'] + 3 + p['a'] + p['b']} answers a "
+                             f"different question, and {p['a']} alone is "
+                             f"the soccer girls."),
         "key": lambda p: p["a"] + p["b"],
         # The errors: the WHOLE class (conditioning ignored -- the heart of
         # the unit), and the cell itself.
@@ -36211,10 +36925,8 @@ OP_EXT = {
                              f"{p['a']} chose soccer and {p['b']} chose art. "
                              f"Picking a girl at random, what percent chose "
                              f"soccer?"),
-        "board": lambda p: (f'[[step eq="girls: {p["a"]} soccer · {p["b"]} '
-                            f'art"]]'
-                            f'[[step eq="percent of the girls in soccer = '
-                            f'?"]]'),
+        "board": _ccnt_board,         # (tt) the girls' two clubs as bars
+        "worked": _ccnt_worked,       # (tt) the share on the hundred square
         "praise": lambda p: (f"The girls are the whole world now — "
                              f"{p['a']} plus {p['b']} equals "
                              f"{p['a'] + p['b']} of them — and {p['a']} of "
@@ -36249,10 +36961,8 @@ OP_EXT = {
                              f"left-handedness had nothing to do with liking "
                              f"maths, what percent of the left-handers would "
                              f"like it?"),
-        "board": lambda p: (f'[[step eq="whole school: {p["a"]}% · '
-                            f'left-handers: {p["c"]}%"]]'
-                            f'[[step eq="if independent, left-handers '
-                            f'= ?%"]]'),
+        "board": _indp_board,         # (tt) the school beside the group as bars
+        "worked": _indp_worked,       # (tt) predicted beside measured
         "praise": lambda p: (f"Independent means the left-handers would "
                              f"look just like the school: {p['a']} percent. "
                              f"They came in at {p['c']}, so the two are NOT "
@@ -36278,9 +36988,8 @@ OP_EXT = {
                              f"them are red. You take one red out and keep "
                              f"it. For the NEXT pick, the chance of red is "
                              f"out of how many marbles now?"),
-        "board": lambda p: (f'[[step eq="{p["b"]} marbles · {p["a"]} red · '
-                            f'one red taken and kept"]]'
-                            f'[[step eq="next pick · out of ?"]]'),
+        "board": _wout_board,         # (tt) the bag as a tape before the marble is kept
+        "worked": _wout_worked,       # (tt) the smaller bag
         "praise": lambda p: (f"The marble did not go back, so the bag is "
                              f"smaller: {p['b']} take away 1 leaves "
                              f"{p['b'] - 1}. The reds shrank too, to "
