@@ -2,6 +2,42 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tz -- CALCULUS UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "continue
+#               with updating the courses as far as how we're taught." CALCULUS 12/36.
+#               THIS FILE:
+#                 * Unit 1 (limits): f and g closing on the same x on one GRAPH with the
+#                   hole drawn (hole= on the first curve, names="f; g"), the product
+#                   withheld, walked back as the product curve closing on it; the
+#                   fraction flattening with NO line on the ask, the line y = a/b drawn
+#                   on the walk-back; two shelves with the open and closed dots at the
+#                   border (piecewise func="a for x<6; b for x>=6"), the leap marked on
+#                   the walk-back; the sloping piece climbing to a border the flat piece
+#                   misses, the flat piece raised to meet it on the walk-back;
+#                 * Unit 2 (the derivative): y = x squared with the point alone on the
+#                   ask, the tangent line on the walk-back; the power rule as a MACHINE
+#                   (the exponent goes in, rule "x the front number", output "?"), the
+#                   machine filled and the new power written on the walk-back; a line
+#                   alone on the ask, two steps marked on the walk-back; the derivative
+#                   as a machine fed an x, the curve with the point on the ask and the
+#                   tangent on the walk-back;
+#                 * Unit 3 (the rules): x times (x + a) with the point, the slope rule
+#                   as its OWN step, the tangent on the walk-back; the chain rule as a
+#                   machine (the power goes in, rule "x the inside's derivative"); the
+#                   chain rule at a point, the tangent on the walk-back; a plain number
+#                   underneath as a two-stage machine ("x 2, then / b").
+#               LEGENDS: every single-curve graph carries names= now -- the legend used
+#               to print the raw expression ("y=(36*x^2)/(3*x^2 + 3)"), and reads
+#               "y = 36x² / (3x² + 3)" instead (40 graphs across asks, walk-backs, beats).
+#               PENDING LINES: two boards wrote a chain of equals ending in "= ?" and
+#               are two steps now ("slope = 2x + 6" then "at x = 5 · slope = ?"); two
+#               piecewise boards wrote an arrow after an equals sign and use the colon
+#               form ("x < 6: y = 2 · x ≥ 6: y = 14"). The cnst lesson said "makes"
+#               (canon is "equals"). Trap lines kept in every lesson. ENGINE: OP_EXT
+#               llaw/linf/jump/cfix/derv/pwrc/cnst/evat/prod/chan/chev/quot gain
+#               "worked" (_llaw_* ... _quot_*) and picture boards. Demonstrated numbers
+#               kept out of the banks: the power rule teaches 6x^3 (a bank ask was
+#               3x^6), the chain rule (5x + 3)^6 and (4x + 7)^2. The eight PART 3fs
+#               fixed fragments survive in each lesson's second worked pair.
 #   2026-09-07  BUILD ty -- PROBSTAT UNITS 7-9 TO THE SHAPE (12 lessons). Jim: "continue
 #               with updating the courses as far as how we're taught." ⭐ PROBSTAT 36/36.
 #               THIS FILE:
@@ -24138,24 +24174,63 @@ _CALCULUS_U1 = [
         "op": "llaw", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("limits", "product"),
-        "advance_line": "Three in a row — you've got it! Limits pass straight through the arithmetic.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Limits pass straight through the arithmetic.",
+        "why": [
+            ("Welcome to Calculus, built on one idea you already own: the limit — where a "
+             "function is headed. Pre-Calculus found limits one at a time. Calculus needs "
+             "them to join up, because real functions are built from simpler ones, and "
+             "happily they do, without any fuss at all.",
+             '[[goal text="Limits pass through"]]'),
+        ],
+        "picture": [
+            ("Here are two curves. Watch them near x equals 4, where the line is drawn: "
+             "f closes on 6 and g closes on 5. Look at the two heights the curves are "
+             "heading for — those two numbers are all the product needs.",
+             '[[graph func="6 + (x-4)^2/8; 5 - (x-4)^2/8" hole="4" lines="x=4" names="f; g" range="0..8" yrange="0..9" caption="f closes on 6 at x = 4 and g closes on 5 — the two heights the product needs"]]'),
+        ],
         "teach": [
-            ["Welcome to Calculus, built on one idea you already own: the limit — where a function is HEADED. Pre-Calculus found limits one at a time. Calculus needs them to join up, and happily they do, without any fuss at all.",
-             '[[goal text="Limits pass through"]][[step eq="f → 6 · g → 5"]]'],
-            ["If f is heading for 6 as x creeps toward some point, and g is heading for 5, then f plus g heads for 11 and f times g heads for 30. The limits pass straight through the arithmetic — whatever you do to the functions, you may do to their limits instead.",
-             '[[step eq="f + g → 11 · f × g → 30"]]'],
-            ["That single permission is what every later rule rests on: complicated functions get taken apart, their pieces followed separately, and the answers put back together. So for a product, times the two limits — adding answers the wrong question.",
-             '[[step eq="30 ✓"]][[step eq="11 ✗ that is the sum · 6 ✗ just the bigger"]]'],
+            ("That is the method: limits pass straight through the arithmetic. If f is "
+             "heading for 6 and g for 5, then f plus g heads for 11 and f times g heads "
+             "for 30. Whatever you do to the functions, you may do to their limits "
+             "instead. Here is the product curve closing on 30.",
+             '[[graph func="(6 + (x-4)^2/8)*(5 - (x-4)^2/8)" hole="4" lines="x=4" names="f × g" range="0..8" yrange="0..36" caption="f times g closes on 30 at x = 4 — 6 times 5"]][[step eq="6 × 5 = 30"]]'),
+            ("That single permission is what every later rule rests on: take a "
+             "complicated function apart, follow the pieces, put the answers back "
+             "together. For a product, times the two limits — adding answers a different "
+             "question, and 6 is only the bigger of the two.",
+             '[[step eq="30 ✓"]][[step eq="11 ✗ that is the sum · 6 ✗ just the bigger"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. f heads for 9 and g for 4: their product heads for 36.",
-                        '[[step eq="9 × 4 = 36"]]'],
+            {"worked": ("Here is one more, done for you. f heads for 9 and g for 4: their "
+                        "product heads for 36.",
+                        '[[graph func="(9 + (x-4)^2/8)*(4 - (x-4)^2/8)" hole="4" lines="x=4" names="f × g" range="0..8" yrange="0..42" caption="the product closes on 36 — 9 times 4"]][[step eq="9 × 4 = 36"]]'),
              "ask": {"a": 2, "b": 11, "op": "llaw"}},
-            {"worked": ["One more together. Limits of 7 and 6 give a product heading for 42.",
-                        '[[step eq="7 × 6 = 42"]]'],
+            {"worked": ("One more together. Limits of 7 and 6 give a product heading for "
+                        "42 — the limit passes straight through the times sign.",
+                        '[[graph func="(7 + (x-4)^2/8)*(6 - (x-4)^2/8)" hole="4" lines="x=4" names="f × g" range="0..8" yrange="0..48" caption="the product closes on 42 — 7 times 6"]][[step eq="7 × 6 = 42"]]'),
              "ask": {"a": 12, "b": 2, "op": "llaw"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. f heads for 6 and g "
+                       "for 5, so f times g heads for 30. Tap the reason why."),
+            "choices": ("because a limit passes straight through the arithmetic | "
+                        "because the bigger limit always wins | "
+                        "because 6 and 5 are added to make 30"),
+            "answer": "because a limit passes straight through the arithmetic",
+            "board": '[[graph func="6 + (x-4)^2/8; 5 - (x-4)^2/8" hole="4" lines="x=4" names="f; g" range="0..8" yrange="0..9" caption="why 30?"]]',
+        },
+        "recap": [
+            ("So, here it is again. Limits pass straight through the arithmetic: whatever "
+             "you do to the functions, you may do to their limits instead. For a product, "
+             "times the two limits. Adding answers a different question, and the bigger "
+             "limit alone is not the product.",
+             '[[graph func="(6 + (x-4)^2/8)*(5 - (x-4)^2/8)" hole="4" lines="x=4" names="f × g" range="0..8" yrange="0..36" caption="the product closes on the product of the limits"]]'),
+            ("And that is the limit law every later rule rests on.",
+             '[[step eq="6 × 5 = 30"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 2, "op": "llaw"},
             {"a": 2, "b": 4, "op": "llaw"},
@@ -24176,24 +24251,61 @@ _CALCULUS_U1 = [
         "op": "linf", "max_value": 96,
         "levels": ("abstract",),
         "symbols": ("infinity", "cancel"),
-        "advance_line": "Three in a row — you've got it! Same power top and bottom — the ratio survives.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Same power top and bottom — the ratio survives.",
+        "why": [
+            ("Some limits are asked at the far end of the number line, where x runs off "
+             "toward infinity. Algebra Two met one: a fraction whose bottom outgrew its top "
+             "settled to a number. Calculus asks it in general, and the answer is the "
+             "same every time — far out, only the leaders matter.",
+             '[[goal text="Far out, only the leaders matter"]]'),
+        ],
+        "picture": [
+            ("Here is 8 x squared over 2 x squared, drawn as x grows. Look at the curve: "
+             "it climbs quickly, then flattens, and the further out you go the flatter it "
+             "gets. It is settling onto one number and never leaving it.",
+             '[[graph func="(8*x^2)/(2*x^2 + 2)" names="y = 8x² / (2x² + 2)" range="0..12" yrange="0..6" caption="8 x squared over 2 x squared — the curve flattens as x grows"]]'),
+        ],
         "teach": [
-            ["Some limits are asked at the far end of the number line, where x runs off toward infinity. Algebra Two met one: a fraction whose bottom outgrew its top settled to a number. Calculus asks it in general.",
-             '[[goal text="Far out, only the leaders matter"]][[step eq="y = 8x² ÷ 2x² · for huge x"]]'],
-            ["Take 8 x squared over 2 x squared. However enormous x becomes, the two x squareds cancel exactly — they grow at the very same speed — and what is left is 8 over 2, which is 4. The curve flattens toward 4 and stays there.",
-             '[[step eq="the x²s cancel → 8 ÷ 2 = 4"]]'],
-            ["So when the top and bottom carry the same power, the limit is the ratio of their front numbers, and nothing else about them matters at all. Taking one from the other, or timesing them, describes no part of what the fraction does.",
-             '[[step eq="4 ✓"]][[step eq="6 ✗ subtracted · 16 ✗ timesed"]]'],
+            ("That is the method: when the top and bottom carry the same power, the x "
+             "squareds cancel exactly, because they grow at the very same speed. What is "
+             "left is 8 over 2, which is 4. The curve flattens onto the line y equals 4 "
+             "and stays there.",
+             '[[graph func="(8*x^2)/(2*x^2 + 2)" names="y = 8x² / (2x² + 2)" lines="y=4" range="0..12" yrange="0..6" caption="the curve settles onto y = 4 — 8 over 2"]][[step eq="8 ÷ 2 = 4"]]'),
+            ("Nothing else about the two pieces matters at all. Taking one number from "
+             "the other, or timesing them, describes no part of what the fraction does. "
+             "The ratio of the front numbers is what survives.",
+             '[[step eq="4 ✓"]][[step eq="6 ✗ subtracted · 16 ✗ timesed"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 45 x squared over 9 x squared: the x squareds cancel, leaving 5.",
-                        '[[step eq="45 ÷ 9 = 5"]]'],
+            {"worked": ("Here is one more, done for you. 45 x squared over 9 x squared: the "
+                        "x squareds cancel, leaving 5.",
+                        '[[graph func="(45*x^2)/(9*x^2 + 9)" names="y = 45x² / (9x² + 9)" lines="y=5" range="0..12" yrange="0..7" caption="settling onto y = 5 — 45 over 9"]][[step eq="45 ÷ 9 = 5"]]'),
              "ask": {"a": 36, "b": 3, "op": "linf"}},
-            {"worked": ["One more together. 70 x squared over 10 x squared: the x squareds cancel, leaving 70 over 10 — 7.",
-                        '[[step eq="70 ÷ 10 = 7"]]'],
+            {"worked": ("One more together. 70 x squared over 10 x squared: the x squareds "
+                        "cancel, leaving 70 over 10 — 7.",
+                        '[[graph func="(70*x^2)/(10*x^2 + 10)" names="y = 70x² / (10x² + 10)" lines="y=7" range="0..12" yrange="0..9" caption="settling onto y = 7 — 70 over 10"]][[step eq="70 ÷ 10 = 7"]]'),
              "ask": {"a": 26, "b": 2, "op": "linf"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Far out, 8 x squared "
+                       "over 2 x squared settles to 4. Tap the reason why."),
+            "choices": ("because the x squareds grow at the same speed and cancel | "
+                        "because a fraction always settles to its top number | "
+                        "because 8 take away 2 is the limit"),
+            "answer": "because the x squareds grow at the same speed and cancel",
+            "board": '[[graph func="(8*x^2)/(2*x^2 + 2)" names="y = 8x² / (2x² + 2)" range="0..12" yrange="0..6" caption="why 4?"]]',
+        },
+        "recap": [
+            ("So, here it is again. Far out, with the same power on top and bottom, the "
+             "powers cancel and the limit is the ratio of the front numbers. Nothing else "
+             "about the pieces matters — not their difference, not their product.",
+             '[[graph func="(8*x^2)/(2*x^2 + 2)" names="y = 8x² / (2x² + 2)" lines="y=4" range="0..12" yrange="0..6" caption="only the leaders matter"]]'),
+            ("And that is a limit at infinity.",
+             '[[step eq="8 ÷ 2 = 4"]]'),
+        ],
         "bank": [
             {"a": 6, "b": 3, "op": "linf"},
             {"a": 6, "b": 2, "op": "linf"},
@@ -24214,24 +24326,62 @@ _CALCULUS_U1 = [
         "op": "jump", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("jump", "sides"),
-        "advance_line": "Three in a row — you've got it! The jump is the gap between the two sides.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The jump is the gap between the two sides.",
+        "why": [
+            ("A curve is continuous where you could draw it without lifting the pencil. "
+             "Where you must lift it, there is a break — and Pre-Calculus already met the "
+             "kind where the two sides head for different numbers. Now the break gets "
+             "measured, because a break has a size.",
+             '[[goal text="How big is the break?"]]'),
+        ],
+        "picture": [
+            ("Here are two shelves. Below x equals 6 the curve sits at 4; from 6 onward it "
+             "sits at 10. Look at the border: an open dot where the low shelf ends, a "
+             "closed dot where the high shelf begins, and a leap between them.",
+             '[[graph func="4 for x<6; 10 for x>=6" range="0..12" yrange="0..14" caption="two shelves at x = 6 — the open dot at 4, the closed dot at 10, and the leap between them"]]'),
+        ],
         "teach": [
-            ["A curve is continuous where you could draw it without lifting the pencil. Where you must lift it, there is a break — and Pre-Calculus already met the kind where the two sides head for different numbers.",
-             '[[goal text="How big is the break?"]][[step eq="x < 6: y = 4 · x ≥ 6: y = 10"]]'],
-            ["Now measure it. From the left the curve heads for 4; from the right it heads for 10. It leaps 6 in no distance at all, so the break has a size — 6 — and mathematicians call this a jump discontinuity for the obvious reason.",
-             '[[step eq="10 − 4 = a jump of 6"]]'],
-            ["The two sides are what the measurement needs. Answering 10 names where the curve lands but not how far it travelled, and adding the heights describes nothing the curve ever does. Take one side from the other.",
-             '[[step eq="6 ✓"]][[step eq="10 ✗ where it lands · 14 ✗ added"]]'],
+            ("That is the method: take one side from the other. From the left the curve "
+             "heads for 4; from the right it heads for 10. It leaps 6 in no distance at "
+             "all, so the break has a size — 6 — and mathematicians call this a jump "
+             "discontinuity for the obvious reason.",
+             '[[graph func="4 for x<6; 10 for x>=6" lines="x=6" points="(6,4),(6,10)" range="0..12" yrange="0..14" caption="the leap at x = 6 — from 4 up to 10 is 6"]][[step eq="10 − 4 = a jump of 6"]]'),
+            ("The two sides are what the measurement needs. Answering 10 names where the "
+             "curve lands but not how far it travelled, and adding the heights describes "
+             "nothing the curve ever does.",
+             '[[step eq="6 ✓"]][[step eq="10 ✗ where it lands · 14 ✗ added"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The left side heads for 9 and the right for 25: a jump of 16.",
-                        '[[step eq="25 − 9 = 16"]]'],
+            {"worked": ("Here is one more, done for you. The left side heads for 9 and the "
+                        "right for 25: a jump of 16.",
+                        '[[graph func="9 for x<6; 25 for x>=6" lines="x=6" points="(6,9),(6,25)" range="0..12" yrange="0..29" caption="from 9 up to 25 is 16"]][[step eq="25 − 9 = 16"]]'),
              "ask": {"a": 2, "b": 14, "op": "jump"}},
-            {"worked": ["One more together. Sides of 11 and 30: 30 take away 11 — a jump of 19.",
-                        '[[step eq="30 − 11 = 19"]]'],
+            {"worked": ("One more together. Sides of 11 and 30: 30 take away 11 — a jump "
+                        "of 19, measured from one shelf to the other.",
+                        '[[graph func="11 for x<6; 30 for x>=6" lines="x=6" points="(6,11),(6,30)" range="0..12" yrange="0..34" caption="from 11 up to 30 is 19"]][[step eq="30 − 11 = 19"]]'),
              "ask": {"a": 4, "b": 17, "op": "jump"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The sides head for 4 "
+                       "and 10, and the jump is 6. Tap the reason why."),
+            "choices": ("because the jump is the gap between the two sides | "
+                        "because the jump is always where the curve lands | "
+                        "because 4 and 10 are added to make the jump"),
+            "answer": "because the jump is the gap between the two sides",
+            "board": '[[graph func="4 for x<6; 10 for x>=6" range="0..12" yrange="0..14" caption="why 6?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A jump discontinuity is a break with a size, and the "
+             "size is the gap between the two sides — take one from the other. Where the "
+             "curve lands is not how far it leapt, and adding the heights is not a "
+             "measurement of anything.",
+             '[[graph func="4 for x<6; 10 for x>=6" lines="x=6" points="(6,4),(6,10)" range="0..12" yrange="0..14" caption="the jump is the gap between the sides"]]'),
+            ("And that is how big the break is.",
+             '[[step eq="10 − 4 = 6"]]'),
+        ],
         "bank": [
             {"a": 3, "b": 5, "op": "jump"},
             {"a": 4, "b": 7, "op": "jump"},
@@ -24252,24 +24402,63 @@ _CALCULUS_U1 = [
         "op": "cfix", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("continuous", "meet"),
-        "advance_line": "Three in a row — you've got it! Walk the slope up to the border and match it.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Walk the slope up to the border and match it.",
+        "why": [
+            ("A break can be mended. Take a curve that runs along y equals x plus 2 until "
+             "x reaches 5, and then goes flat at 3. It jumps, badly. The question is what "
+             "flat value would make it continuous instead — and that question is the "
+             "whole test for continuity, run as a repair job.",
+             '[[goal text="Mend the curve"]]'),
+        ],
+        "picture": [
+            ("Here is the broken curve. The sloping piece climbs toward the border at x "
+             "equals 5, and the flat piece sits down at 3. Look at the open dot where the "
+             "slope arrives at the border — that is where the flat piece would have to "
+             "meet it.",
+             '[[graph func="x+2 for x<5; 3 for x>=5" range="0..9" yrange="0..11" caption="the slope climbs to the border at x = 5; the flat piece sits at 3 — they do not meet"]]'),
+        ],
         "teach": [
-            ["A break can be mended. Take a curve that runs along y equals x plus 2 until x reaches 5, and then goes flat at 3. It jumps, badly. What flat value would make it continuous instead?",
-             '[[goal text="Mend the curve"]][[step eq="x < 5: y = x + 2 · x ≥ 5: y = 3"]]'],
-            ["Walk the sloping piece right up to the border and see where it arrives: at x equals 5 it is heading for 5 plus 2, which is 7. Set the flat piece to 7 and the two ends meet exactly — no jump, no hole, nothing to lift the pencil for.",
-             '[[step eq="5 + 2 = 7"]] [[step eq="set the flat piece to 7"]]'],
-            ["That is continuity as a repair job, and it is the whole test: the limit coming in must equal the value waiting there. The broken 3 is what you were given, not what fits, and 2 is only the slope's own number.",
-             '[[step eq="7 ✓"]][[step eq="3 ✗ the broken value · 2 ✗ the slope\'s number"]]'],
+            ("That is the method: walk the sloping piece right up to the border and see "
+             "where it arrives. At x equals 5 it is heading for 5 plus 2, which is 7. Set "
+             "the flat piece to 7 and the two ends meet exactly — no jump, no hole, "
+             "nothing to lift the pencil for.",
+             '[[graph func="x+2 for x<5; 7 for x>=5" points="(5,7)" range="0..9" yrange="0..11" caption="the flat piece raised to 7 — the two ends meet at x = 5"]][[step eq="5 + 2 = 7"]][[step eq="set the flat piece to 7"]]'),
+            ("That is continuity: the limit coming in must equal the value waiting there. "
+             "The broken 3 is what you were given, not what fits, and 2 is only the "
+             "slope\'s own number.",
+             '[[step eq="7 ✓"]][[step eq="3 ✗ the broken value · 2 ✗ the slope\'s number"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals x plus 8 up to x equals 12: the slope arrives at 20, so the flat piece must be 20.",
-                        '[[step eq="12 + 8 = 20"]]'],
+            {"worked": ("Here is one more, done for you. y equals x plus 8 up to x equals "
+                        "12: the slope arrives at 20, so the flat piece must be 20.",
+                        '[[graph func="x+8 for x<12; 20 for x>=12" points="(12,20)" range="0..16" yrange="0..24" caption="the slope arrives at 20 — the flat piece meets it"]][[step eq="12 + 8 = 20"]]'),
              "ask": {"a": 6, "b": 2, "c": 9, "op": "cfix"}},
-            {"worked": ["One more together. x plus 9 running up to x equals 13 arrives at 13 plus 9 — 22, so the flat piece must be 22.",
-                        '[[step eq="13 + 9 = 22"]]'],
+            {"worked": ("One more together. x plus 9 running up to x equals 13 arrives at "
+                        "13 plus 9 — 22, so the flat piece must be 22.",
+                        '[[graph func="x+9 for x<13; 22 for x>=13" points="(13,22)" range="0..17" yrange="0..26" caption="the slope arrives at 22 — the flat piece meets it"]][[step eq="13 + 9 = 22"]]'),
              "ask": {"a": 7, "b": 2, "c": 9, "op": "cfix"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. With x plus 2 running "
+                       "up to x equals 5, the flat piece must be 7. Tap the reason why."),
+            "choices": ("because the flat piece has to meet the slope where it arrives | "
+                        "because the flat piece is always the border plus 2 | "
+                        "because 3 is too small a number for a curve"),
+            "answer": "because the flat piece has to meet the slope where it arrives",
+            "board": '[[graph func="x+2 for x<5; 3 for x>=5" range="0..9" yrange="0..11" caption="why 7?"]]',
+        },
+        "recap": [
+            ("So, here it is again. To mend a break, walk the sloping piece to the border "
+             "and set the flat piece to meet it there — the limit coming in equals the "
+             "value waiting. The broken value is what you were given, and the slope\'s "
+             "own number is not a height.",
+             '[[graph func="x+2 for x<5; 7 for x>=5" points="(5,7)" range="0..9" yrange="0..11" caption="the two ends meet"]]'),
+            ("And that is continuity as a repair job.",
+             '[[step eq="5 + 2 = 7"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 4, "c": 3, "op": "cfix"},
             {"a": 3, "b": 2, "c": 3, "op": "cfix"},
@@ -24299,24 +24488,62 @@ _CALCULUS_U2 = [
         "op": "derv", "max_value": 48,
         "levels": ("abstract",),
         "symbols": ("derivative", "slope"),
-        "advance_line": "Three in a row — you've got it! On x squared, the slope at a point is twice that point.",
+        "advance_line": "Three in a row, and you can say why — you've got it! On x squared, the slope at a point is twice that point.",
+        "why": [
+            ("Pre-Calculus ended by shrinking a window on the curve y equals x squared "
+             "and watching the average rate settle. That settling number has a name — "
+             "the derivative — and it is the slope of the curve at one single point, "
+             "which nothing before Calculus could measure.",
+             '[[goal text="The window closes"]]'),
+        ],
+        "picture": [
+            ("Here is y equals x squared with the point at x equals 4. Look at how steep "
+             "the curve is right there — not across a window, but at that one point. "
+             "The straight line touching the curve there has that steepness, and its "
+             "slope is the derivative.",
+             '[[graph func="x^2" names="y = x²" lines="y=8x-16" points="(4,16)" range="0..6" yrange="0..36" caption="y = x squared with the tangent at x = 4 — it climbs 8 for every step across"]]'),
+        ],
         "teach": [
-            ["Pre-Calculus ended by shrinking a window on the curve y equals x squared and watching the average rate settle. That settling number has a name — the derivative — and it is the slope of the curve at one single point, which nothing before Calculus could measure.",
-             '[[goal text="The window closes"]][[step eq="average rate from a to b = a + b"]]'],
-            ["The average rate between two x's was the two put together. Now slide the second one onto the first. Between 4 and 5 the rate is 9. Between 4 and 4 point 1 it is about 8 point 1. Closing in, it settles on 8, which is 4 plus 4.",
-             '[[step eq="4→5: 9 · 4→4.1: 8.1 · closing in: 8"]]'],
-            ["So on this curve the slope at any x is simply twice that x. At 4 the curve climbs at 8, at 10 it climbs at 20, and it never stops steepening. Careful: 16 is how HIGH the curve sits above 4, which is a different question entirely.",
-             '[[step eq="slope at 4 = 8 ✓"]][[step eq="16 ✗ that is the height"]]'],
+            ("That is the method: the average rate between two x\'s was the two put "
+             "together, so slide the second one onto the first. Between 4 and 5 the rate "
+             "is 9. Between 4 and 4 point 1 it is about 8 point 1. Closing in, it settles "
+             "on 8, which is 4 plus 4.",
+             '[[graph func="x^2" names="y = x²" lines="y=8x-16" points="(4,16)" range="0..6" yrange="0..36" caption="the window closes onto x = 4 — the rate settles on 8"]][[step eq="4 → 5: 9 · 4 → 4.1: 8.1 · closing in: 8"]]'),
+            ("So on this curve the slope at any x is simply twice that x. At 4 the curve "
+             "climbs at 8, at 10 it climbs at 20, and it never stops steepening. Careful: "
+             "16 is how high the curve sits above 4, which is a different question.",
+             '[[step eq="slope at 4 = 8 ✓"]][[step eq="16 ✗ that is the height"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. At x equals 30 the slope of x squared is twice 30 — 60.",
-                        '[[step eq="slope at 30 = 60"]]'],
+            {"worked": ("Here is one more, done for you. At x equals 30 the slope of x "
+                        "squared is twice 30 — 60.",
+                        '[[graph func="x^2" names="y = x²" lines="y=60x-900" points="(30,900)" range="0..32" yrange="0..1024" caption="the tangent at x = 30 climbs 60 for every step"]][[step eq="slope at 30 = 60"]]'),
              "ask": {"a": 13, "b": 0, "op": "derv"}},
-            {"worked": ["One more together. At x equals 25 the slope is twice 25 — 50.",
-                        '[[step eq="slope at 25 = 50"]]'],
+            {"worked": ("One more together. At x equals 25 the slope is twice 25 — 50, and "
+                        "the tangent there climbs 50 for every step across.",
+                        '[[graph func="x^2" names="y = x²" lines="y=50x-625" points="(25,625)" range="0..27" yrange="0..729" caption="the tangent at x = 25 climbs 50 for every step"]][[step eq="slope at 25 = 50"]]'),
              "ask": {"a": 14, "b": 0, "op": "derv"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. On x squared, the "
+                       "slope at x equals 4 is 8, not 16. Tap the reason why."),
+            "choices": ("because the two x's of the window slide onto one point | "
+                        "because the slope is always the height of the curve | "
+                        "because 4 squared is 8"),
+            "answer": "because the two x's of the window slide onto one point",
+            "board": '[[graph func="x^2" names="y = x²" points="(4,16)" range="0..6" yrange="0..36" caption="why 8, and not 16?"]]',
+        },
+        "recap": [
+            ("So, here it is again. The derivative is the slope of a curve at one single "
+             "point — the average rate with its window closed. On x squared it is twice "
+             "the x. The height of the curve at that x is a different question entirely.",
+             '[[graph func="x^2" names="y = x²" lines="y=8x-16" points="(4,16)" range="0..6" yrange="0..36" caption="the slope at a point"]]'),
+            ("And that is the derivative.",
+             '[[step eq="slope at 4 = 8"]]'),
+        ],
         "bank": [{"a": v, "b": 0, "op": "derv"} for v in
                  (3, 5, 6, 7, 8, 9, 10, 11, 12)],
     },
@@ -24327,24 +24554,63 @@ _CALCULUS_U2 = [
         "op": "pwrc", "max_value": 96,
         "levels": ("abstract",),
         "symbols": ("power rule", "exponent"),
-        "advance_line": "Three in a row — you've got it! The exponent comes down and times what is already there.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The exponent comes down and times what is already there.",
+        "why": [
+            ("Shrinking a window every time would be unbearable, so Calculus finds the "
+             "pattern once and keeps it. It is called the power rule, and it turns a whole "
+             "limit into two moves: the exponent comes down in front, and the power drops "
+             "by one.",
+             '[[goal text="The power comes down front"]]'),
+        ],
+        "picture": [
+            ("Here is the rule as a machine. For 6 x to the power 3, the exponent 3 goes "
+             "in, it meets the 6 already standing there, and the front number of the "
+             "derivative comes out. Watch what the exponent does: it comes down and "
+             "times the front.",
+             '[[write text="y = 6x^3"]][[machine input="3" rule="× 6" output="18" caption="the exponent 3 comes down and meets the 6 — the front number 18 comes out"]]'),
+        ],
         "teach": [
-            ["Shrinking a window every time would be unbearable, so Calculus finds the pattern once and keeps it. It is called the power rule: the exponent comes down in front, and the power drops by one.",
-             '[[goal text="The power comes down front"]][[step eq="x^n → n·x^(n−1)"]]'],
-            ["Watch it agree with what you know. For x squared the 2 comes down and the power drops to 1, giving 2 x — exactly the twice-the-x from the last lesson. Now try 5 x to the power 3: the 3 comes down onto the 5, giving 15 x squared.",
-             '[[step eq="5x³"]] [[step eq="3 × 5 = 15"]] [[step eq="15x²"]]'],
-            ["The exponent TIMES the front number, never plus. And leaving the front number alone means the exponent never came down at all — the one move the rule is entirely about.",
-             '[[step eq="15 ✓"]][[step eq="8 ✗ added · 5 ✗ the exponent stayed up"]]'],
+            ("That is the method, and it agrees with what you know. For x squared the 2 "
+             "comes down and the power drops to 1, giving 2 x — exactly the twice-the-x "
+             "from the last lesson. For 6 x to the power 3: the 3 comes down onto the 6, "
+             "giving 18, and the power drops to 2 — 18 x squared.",
+             '[[machine input="3" rule="× 6" output="18" caption="3 times 6 is 18, and the power drops to 2"]][[write text="18x^2"]][[step eq="3 × 6 = 18"]]'),
+            ("The exponent times the front number, never plus. And leaving the front "
+             "number alone means the exponent never came down at all — the one move the "
+             "rule is entirely about.",
+             '[[step eq="18 ✓"]][[step eq="9 ✗ added · 6 ✗ the exponent stayed up"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. For 9 x to the power 4: the 4 comes down onto the 9 — 36.",
-                        '[[step eq="4 × 9 = 36"]]'],
+            {"worked": ("Here is one more, done for you. For 9 x to the power 4: the 4 comes "
+                        "down onto the 9 — 36.",
+                        '[[machine input="4" rule="× 9" output="36" caption="the 4 comes down onto the 9 — 36"]][[write text="36x^3"]][[step eq="4 × 9 = 36"]]'),
              "ask": {"a": 2, "b": 11, "op": "pwrc"}},
-            {"worked": ["One more together. 7 x to the power 6: the 6 comes down onto the 7 — 42.",
-                        '[[step eq="6 × 7 = 42"]]'],
+            {"worked": ("One more together. 7 x to the power 6: the 6 comes down onto the "
+                        "7 — 42, and the power drops to 5.",
+                        '[[machine input="6" rule="× 7" output="42" caption="the 6 comes down onto the 7 — 42"]][[write text="42x^5"]][[step eq="6 × 7 = 42"]]'),
              "ask": {"a": 8, "b": 3, "op": "pwrc"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. For 6 x to the power "
+                       "3, the derivative\'s front number is 18, not 9. Tap the reason why."),
+            "choices": ("because the exponent comes down and times the front number | "
+                        "because the exponent and the front number are added | "
+                        "because 18 is the biggest number on the board"),
+            "answer": "because the exponent comes down and times the front number",
+            "board": '[[machine input="3" rule="× 6" output="?" caption="why 18, and not 9?"]]',
+        },
+        "recap": [
+            ("So, here it is again. The power rule: the exponent comes down in front and "
+             "times what is already there, and the power drops by one. Adding the two "
+             "numbers is no rule, and a front number left alone means the exponent never "
+             "came down.",
+             '[[machine input="3" rule="× 6" output="18" caption="the exponent comes down front"]]'),
+            ("And that is the power rule.",
+             '[[step eq="3 × 6 = 18"]]'),
+        ],
         "bank": [{"a": a, "b": b, "op": "pwrc"} for a, b in
                  ((2,3),(4,2),(5,2),(3,4),(7,2),(3,5),(2,8),(6,3),(4,5),(3,7))],
     },
@@ -24355,24 +24621,61 @@ _CALCULUS_U2 = [
         "op": "cnst", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("constant", "steepness"),
-        "advance_line": "Three in a row — you've got it! A line's slope is the number in front of x.",
+        "advance_line": "Three in a row, and you can say why — you've got it! A line's slope is the number in front of x.",
+        "why": [
+            ("Not every derivative changes as you move. A straight line has the same "
+             "steepness at every point on it, so its derivative is a constant — one "
+             "number, true everywhere along the line. So lines are the easiest "
+             "curves in Calculus, and the best place to check the rules agree.",
+             '[[goal text="A line has one slope"]]'),
+        ],
+        "picture": [
+            ("Here is y equals 3 x plus 5 on the grid. Look at any step to the right: "
+             "the line climbs 3. Take another step, anywhere at all, and it climbs 3 "
+             "again. The steepness never changes.",
+             '[[graph lines="y=3x+5" points="(1,8),(2,11)" range="0..4" yrange="0..19" caption="one step right, 3 up — the same steepness at every point"]]'),
+        ],
         "teach": [
-            ["Not every derivative changes as you move. A straight line has the same steepness at every point on it, so its derivative is a constant — one number, true everywhere along the line.",
-             '[[goal text="A line has one slope"]][[graph lines="y=3x+5" range="0..8" caption="y=3x+5 on the grid"]]'],
-            ["For y equals 3 x plus 5, the slope is 3 wherever you stand. Algebra One measured that as the climb per step across; Calculus calls the same number the derivative, and the power rule agrees — x to the 1 sends its 1 down onto the 3.",
-             '[[step eq="y = 3x + 5"]] [[step eq="slope 3, everywhere"]]'],
-            ["The 5 does nothing to the steepness — it only lifts the whole line up the page, and a plain number on its own has a derivative of zero. So read the number sitting in front of x, and ignore the one standing alone.",
-             '[[step eq="3 ✓"]][[step eq="5 ✗ that lifts, not tilts · 8 ✗ added"]]'],
+            ("That is the method: read the number sitting in front of x. For y equals 3 "
+             "x plus 5, the slope is 3 wherever you stand. Algebra One measured that as "
+             "the climb per step across; Calculus calls the same number the derivative, "
+             "and the power rule agrees — x to the 1 sends its 1 down onto the 3.",
+             '[[graph lines="y=3x+5" points="(1,8),(2,11)" range="0..4" yrange="0..19" caption="the slope is 3, everywhere"]][[step eq="y = 3x + 5"]][[step eq="slope 3, everywhere"]]'),
+            ("The 5 does nothing to the steepness — it only lifts the whole line up the "
+             "page, and a plain number on its own has a derivative of zero. Read the "
+             "number in front of x, and ignore the one standing alone.",
+             '[[step eq="3 ✓"]][[step eq="5 ✗ that lifts, not tilts · 8 ✗ added"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals 15 x plus 9 has a slope of 15 at every point.",
-                        '[[step eq="slope = 15"]]'],
+            {"worked": ("Here is one more, done for you. y equals 15 x plus 9 has a slope "
+                        "of 15 at every point.",
+                        '[[graph lines="y=15x+9" points="(1,24),(2,39)" range="0..4" yrange="0..71" caption="one step right, 15 up"]][[step eq="slope = 15"]]'),
              "ask": {"a": 12, "b": 4, "op": "cnst"}},
-            {"worked": ["One more together. The slope of y equals 18 x plus 11 is 18.",
-                        '[[step eq="slope = 18"]]'],
+            {"worked": ("One more together. The slope of y equals 18 x plus 11 is 18 — "
+                        "the number in front of x, the same at every point.",
+                        '[[graph lines="y=18x+11" points="(1,29),(2,47)" range="0..4" yrange="0..85" caption="one step right, 18 up"]][[step eq="slope = 18"]]'),
              "ask": {"a": 13, "b": 5, "op": "cnst"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The derivative of y "
+                       "equals 3 x plus 5 is 3, not 5. Tap the reason why."),
+            "choices": ("because the number in front of x is the climb per step | "
+                        "because the bigger number is always the slope | "
+                        "because 5 is the slope and 3 is the height"),
+            "answer": "because the number in front of x is the climb per step",
+            "board": '[[graph lines="y=3x+5" range="0..4" yrange="0..19" caption="why 3, and not 5?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A line has one slope, the number in front of x, and "
+             "that is its derivative everywhere. The number standing alone only lifts "
+             "the line and has a derivative of zero.",
+             '[[graph lines="y=3x+5" points="(1,8),(2,11)" range="0..4" yrange="0..19" caption="one slope, everywhere"]]'),
+            ("And that is the derivative of a line.",
+             '[[step eq="slope = 3"]]'),
+        ],
         "bank": [{"a": a, "b": b, "op": "cnst"} for a, b in
                  ((2,6),(3,7),(4,2),(5,3),(6,4),(7,5),(8,6),(9,7),(10,2),(11,3))],
     },
@@ -24383,24 +24686,61 @@ _CALCULUS_U2 = [
         "op": "evat", "max_value": 96,
         "levels": ("abstract",),
         "symbols": ("machine", "at x"),
-        "advance_line": "Three in a row — you've got it! Work out the derivative, then feed it the x.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Work out the derivative, then feed it the x.",
+        "why": [
+            ("A derivative is not one number — it is a whole new function, a machine "
+             "that hands you the slope at whatever x you feed it. So there are two jobs, "
+             "in order: get the derivative first, then feed it the x you were asked "
+             "about.",
+             '[[goal text="Feed the derivative an x"]]'),
+        ],
+        "picture": [
+            ("Here is y equals 5 x squared with the point at x equals 6. The curve is "
+             "steeper the further out you stand — look at the tangent at that point. Its "
+             "slope is what the derivative hands back when you feed it 6.",
+             '[[graph func="5*x^2" names="y = 5x²" lines="y=60x-180" points="(6,180)" range="0..8" yrange="0..320" caption="y = 5 x squared with the tangent at x = 6 — it climbs 60 for every step"]]'),
+        ],
         "teach": [
-            ["A derivative is not one number — it is a whole new function, a machine that hands you the slope at whatever x you feed it. Get the derivative first, then feed it.",
-             '[[goal text="Feed the derivative an x"]][[step eq="y = 5x²"]] [[step eq="slope machine = 10x"]]'],
-            ["For y equals 5 x squared the power rule gives 10 x. That is the machine. At x equals 2 it hands back 20, at x equals 6 it hands back 60 — the same curve, steeper the further out you stand.",
-             '[[step eq="at x = 2: 20 · at x = 6: 60"]]'],
-            ["Two answers not to give. The curve's HEIGHT at that x is a different measurement — at 6 the curve sits at 180 while its slope is 60. And 10 is the machine's own front number, before any x was fed in at all.",
-             '[[step eq="60 ✓"]][[step eq="180 ✗ the height · 10 ✗ nothing fed in"]]'],
+            ("That is the method: for y equals 5 x squared the power rule gives 10 x. "
+             "That is the machine. Feed it 2 and it hands back 20; feed it 6 and it hands "
+             "back 60 — the same curve, steeper the further out you stand.",
+             '[[graph func="5*x^2" names="y = 5x²" lines="y=60x-180" points="(6,180)" range="0..8" yrange="0..320" caption="the machine 10x hands back 60 at x = 6"]][[step eq="y = 5x² · slope = 10x"]][[step eq="at x = 2: 20 · at x = 6: 60"]]'),
+            ("Two answers not to give. The curve\'s height at that x is a different "
+             "measurement — at 6 the curve sits at 180 while its slope is 60. And 10 is "
+             "the machine\'s own front number, before any x was fed in.",
+             '[[step eq="60 ✓"]][[step eq="180 ✗ the height · 10 ✗ nothing fed in"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals 6 x squared gives 12 x; at x equals 4 the slope is 48.",
-                        '[[step eq="12 × 4 = 48"]]'],
+            {"worked": ("Here is one more, done for you. y equals 6 x squared gives 12 x; "
+                        "at x equals 4 the slope is 48.",
+                        '[[graph func="6*x^2" names="y = 6x²" lines="y=48x-96" points="(4,96)" range="0..6" yrange="0..216" caption="the tangent at x = 4 climbs 48 for every step"]][[step eq="12 × 4 = 48"]]'),
              "ask": {"a": 3, "b": 0, "c": 7, "op": "evat"}},
-            {"worked": ["One more together. y equals 7 x squared gives 14 x, so at x equals 3 the slope is 42.",
-                        '[[step eq="14 × 3 = 42"]]'],
+            {"worked": ("One more together. y equals 7 x squared gives 14 x, so at x equals "
+                        "3 the slope is 14 times 3 — 42.",
+                        '[[graph func="7*x^2" names="y = 7x²" lines="y=42x-63" points="(3,63)" range="0..5" yrange="0..175" caption="the tangent at x = 3 climbs 42 for every step"]][[step eq="14 × 3 = 42"]]'),
              "ask": {"a": 3, "b": 0, "c": 8, "op": "evat"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. For y equals 5 x "
+                       "squared, the slope at x equals 6 is 60, not 180. Tap the reason why."),
+            "choices": ("because the derivative is a machine, and you feed it 6 | "
+                        "because the slope is always the height at that x | "
+                        "because 180 is too steep for any curve"),
+            "answer": "because the derivative is a machine, and you feed it 6",
+            "board": '[[graph func="5*x^2" names="y = 5x²" points="(6,180)" range="0..8" yrange="0..320" caption="why 60, and not 180?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A derivative is a machine: work it out first, then "
+             "feed it the x, and it hands back the slope at that point. The height of the "
+             "curve there is a different measurement, and the machine\'s front number "
+             "on its own has had nothing fed in.",
+             '[[graph func="5*x^2" names="y = 5x²" lines="y=60x-180" points="(6,180)" range="0..8" yrange="0..320" caption="feed the derivative an x"]]'),
+            ("And that is evaluating a derivative.",
+             '[[step eq="10 × 6 = 60"]]'),
+        ],
         "bank": [{"a": a, "b": 0, "c": c, "op": "evat"} for a, c in
                  ((2,3),(2,4),(3,3),(2,5),(2,6),(2,7),(3,5),(2,8),(2,9),(4,5))],
     },
@@ -24422,24 +24762,63 @@ _CALCULUS_U3 = [
         "op": "prod", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("product", "expand"),
-        "advance_line": "Three in a row — you've got it! Feed the x into the derivative you worked out.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Feed the x into the derivative you worked out.",
+        "why": [
+            ("What is the derivative of two functions multiplied together? Not the two "
+             "derivatives multiplied — that is the tempting guess, and it is wrong. There "
+             "is a rule for it, and the surest way to believe the rule is to check it "
+             "against expanding first, which you can already do.",
+             '[[goal text="Two things multiplied"]]'),
+        ],
+        "picture": [
+            ("Here is y equals x times the quantity x plus 4, with the point at x equals "
+             "5. Look at the tangent touching the curve there — its steepness is what we "
+             "are after, and it climbs 14 for every step across.",
+             '[[graph func="x*(x+4)" names="y = x(x + 4)" lines="y=14x-25" points="(5,45)" range="0..7" yrange="0..77" caption="y = x times (x + 4) with the tangent at x = 5 — it climbs 14 for every step"]]'),
+        ],
         "teach": [
-            ["What is the derivative of two functions multiplied together? Not the two derivatives multiplied — that is the tempting guess and it is wrong. There is a rule for it, and the surest way to believe the rule is to check it against expanding first.",
-             '[[goal text="Two things multiplied"]][[step eq="y = x(x + 4)"]]'],
-            ["Take y equals x times the quantity x plus 4. Expand it: x squared plus 4 x, whose derivative you already know — 2 x plus 4. The product rule gives the very same answer without expanding, which matters when the pieces are too ugly to expand.",
-             '[[step eq="x² + 4x → slope = 2x + 4"]]'],
-            ["Then feed in the x you were asked about. At x equals 5 the slope is 10 plus 4 — 14. The curve's HEIGHT there is 5 times 9, which is 45, and 10 is only half the derivative, with the second piece forgotten.",
-             '[[step eq="2(5) + 4 = 14 ✓"]][[step eq="45 ✗ the height · 10 ✗ half of it"]]'],
+            ("That is the method: expand it, then differentiate what you know. x times the "
+             "quantity x plus 4 is x squared plus 4 x, whose derivative is 2 x plus 4. The "
+             "product rule gives the very same answer without expanding, which matters "
+             "when the pieces are too ugly to expand.",
+             '[[graph func="x*(x+4)" names="y = x(x + 4)" lines="y=14x-25" points="(5,45)" range="0..7" yrange="0..77" caption="the slope at x = 5 is 2 times 5 plus 4"]][[step eq="x² + 4x · slope = 2x + 4"]]'),
+            ("Then feed in the x you were asked about. At x equals 5 the slope is 10 "
+             "plus 4 — 14. The curve\'s height there is 5 times 9, which is 45, and 10 "
+             "is only half the derivative, with the second piece forgotten.",
+             '[[step eq="2(5) + 4 = 14 ✓"]][[step eq="45 ✗ the height · 10 ✗ half of it"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. y equals x times x plus 9: the slope is 2 x plus 9, and at x equals 8 that is 25.",
-                        '[[step eq="2(8) + 9 = 25"]]'],
+            {"worked": ("Here is one more, done for you. y equals x times x plus 9: the "
+                        "slope is 2 x plus 9, and at x equals 8 that is 25.",
+                        '[[graph func="x*(x+9)" names="y = x(x + 9)" lines="y=25x-64" points="(8,136)" range="0..10" yrange="0..190" caption="the tangent at x = 8 climbs 25 for every step"]][[step eq="2(8) + 9 = 25"]]'),
              "ask": {"a": 6, "b": 0, "c": 5, "op": "prod"}},
-            {"worked": ["One more together. With x plus 11 inside, the slope is 2 x plus 11, and at x equals 7 that is 14 plus 11 — 25.",
-                        '[[step eq="2(7) + 11 = 25"]]'],
+            {"worked": ("One more together. With x plus 11 inside, the slope is 2 x plus 11, "
+                        "and at x equals 7 that is 14 plus 11 — 25.",
+                        '[[graph func="x*(x+11)" names="y = x(x + 11)" lines="y=25x-49" points="(7,126)" range="0..9" yrange="0..180" caption="the tangent at x = 7 climbs 25 for every step"]][[step eq="2(7) + 11 = 25"]]'),
              "ask": {"a": 5, "b": 0, "c": 6, "op": "prod"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. For x times the "
+                       "quantity x plus 4, the slope at x equals 5 is 14, not 45. Tap the "
+                       "reason why."),
+            "choices": ("because 5 is fed into the derivative, 2 x plus 4 | "
+                        "because the slope is always the height of the curve | "
+                        "because 45 is the two derivatives multiplied"),
+            "answer": "because 5 is fed into the derivative, 2 x plus 4",
+            "board": '[[graph func="x*(x+4)" names="y = x(x + 4)" points="(5,45)" range="0..7" yrange="0..77" caption="why 14, and not 45?"]]',
+        },
+        "recap": [
+            ("So, here it is again. Two things multiplied: expand if you can, "
+             "differentiate what you know, then feed in the x. The product rule gives "
+             "the same answer without expanding. The height of the curve is not its "
+             "slope, and half the derivative is not the derivative.",
+             '[[graph func="x*(x+4)" names="y = x(x + 4)" lines="y=14x-25" points="(5,45)" range="0..7" yrange="0..77" caption="the tangent at x = 5"]]'),
+            ("And that is the product rule, checked.",
+             '[[step eq="2(5) + 4 = 14"]]'),
+        ],
         "bank": [{"a": a, "b": 0, "c": c, "op": "prod"} for a, c in
                  ((2,2),(3,2),(2,3),(5,2),(6,2),(5,3),(6,3),(5,4),(6,4),(5,5))],
     },
@@ -24450,24 +24829,60 @@ _CALCULUS_U3 = [
         "op": "chan", "max_value": 81,
         "levels": ("abstract",),
         "symbols": ("chain rule", "inside"),
-        "advance_line": "Three in a row — you've got it! The power comes down AND the inside's derivative comes out.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The power comes down AND the inside's derivative comes out.",
+        "why": [
+            ("Pre-Calculus fed one machine into another and called it composition. "
+             "Differentiating one of those needs the chain rule, and it says: "
+             "differentiate the outside, then times by the derivative of the inside. "
+             "Forgetting that second half is the commonest mistake in all of Calculus.",
+             '[[goal text="Do not forget the inside"]]'),
+        ],
+        "picture": [
+            ("Here is the chain rule as a machine. For the quantity 5 x plus 3, raised to "
+             "the power 6, the power 6 goes in. But the inside, 5 x plus 3, has its own "
+             "derivative — 5 — and that comes out too. Watch the two meet.",
+             '[[write text="y = (5x + 3)^6"]][[machine input="6" rule="× 5" output="30" caption="the power 6 comes down and the inside\'s 5 comes out — they meet at 30"]]'),
+        ],
         "teach": [
-            ["Pre-Calculus fed one machine into another and called it composition. Differentiating one of those needs the chain rule, and it says: differentiate the outside, then times by the derivative of the inside.",
-             '[[goal text="Do not forget the inside"]][[step eq="y = (5x + 3)^4"]]'],
-            ["Take the quantity 5 x plus 3, raised to the power 4. The outside is something to the 4, so the 4 comes down. But the inside, 5 x plus 3, has its own derivative — 5 — and that comes out too. Front number: 4 times 5, which is 20.",
-             '[[step eq="4 comes down · inside gives 5 → 20"]]'],
-            ["Forgetting the inside leaves 4 and is the commonest mistake in all of Calculus — it quietly assumes the inside was just x. Whenever something sits inside something else, its derivative must come out as well.",
-             '[[step eq="20 ✓"]][[step eq="4 ✗ inside forgotten · 9 ✗ added"]]'],
+            ("That is the method: the outside is something to the 6, so the 6 comes down. "
+             "The inside gives 5, and that comes out as well. Front number: 6 times 5, "
+             "which is 30.",
+             '[[machine input="6" rule="× 5" output="30" caption="6 times 5 is 30 — both came down"]][[step eq="6 comes down · inside gives 5 · 6 × 5 = 30"]]'),
+            ("Forgetting the inside leaves 6 and is the commonest mistake in all of "
+             "Calculus — it quietly assumes the inside was just x. Whenever something sits "
+             "inside something else, its derivative must come out as well.",
+             '[[step eq="30 ✓"]][[step eq="6 ✗ inside forgotten · 11 ✗ added"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The quantity 7 x plus 3 to the power 5: the 5 comes down and meets the inside's 7 — 35.",
-                        '[[step eq="5 × 7 = 35"]]'],
+            {"worked": ("Here is one more, done for you. The quantity 7 x plus 3 to the "
+                        "power 5: the 5 comes down and meets the inside\'s 7 — 35.",
+                        '[[machine input="5" rule="× 7" output="35" caption="the 5 comes down and meets the inside\'s 7 — 35"]][[step eq="5 × 7 = 35"]]'),
              "ask": {"a": 8, "b": 3, "op": "chan"}},
-            {"worked": ["One more together. 6 x plus 3, to the power 7: 7 times 6 is 42.",
-                        '[[step eq="7 × 6 = 42"]]'],
+            {"worked": ("One more together. 6 x plus 3, to the power 7: the 7 comes down "
+                        "and the inside\'s 6 comes out — 7 times 6 is 42.",
+                        '[[machine input="7" rule="× 6" output="42" caption="the 7 meets the inside\'s 6 — 42"]][[step eq="7 × 6 = 42"]]'),
              "ask": {"a": 9, "b": 3, "op": "chan"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. For 5 x plus 3 to the "
+                       "power 6, the front number is 30, not 6. Tap the reason why."),
+            "choices": ("because the inside has a derivative, and it comes out too | "
+                        "because the power is always multiplied by five | "
+                        "because 6 and 5 are added to make 30"),
+            "answer": "because the inside has a derivative, and it comes out too",
+            "board": '[[machine input="6" rule="× 5" output="?" caption="why 30, and not 6?"]]',
+        },
+        "recap": [
+            ("So, here it is again. The chain rule: differentiate the outside, then times "
+             "by the derivative of the inside. Both come down. Forgetting the inside is "
+             "the commonest mistake in Calculus, and adding the two is no rule at all.",
+             '[[machine input="6" rule="× 5" output="30" caption="the power AND the inside"]]'),
+            ("And that is the chain rule.",
+             '[[step eq="6 × 5 = 30"]]'),
+        ],
         "bank": [{"a": a, "b": b, "op": "chan"} for a, b in
                  ((2,3),(4,2),(5,2),(3,4),(7,2),(3,5),(2,8),(6,3),(4,5),(3,7))],
     },
@@ -24478,24 +24893,61 @@ _CALCULUS_U3 = [
         "op": "chev", "max_value": 96,
         "levels": ("abstract",),
         "symbols": ("squared", "inside"),
-        "advance_line": "Three in a row — you've got it! Twice the inside, times the inside's derivative.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Twice the inside, times the inside's derivative.",
+        "why": [
+            ("Now use the chain rule on a real number. For the quantity 4 x plus 7, "
+             "squared, the rule gives: 2, times the quantity itself, times the inside\'s "
+             "derivative 4. Feed in an x and the slope at that point drops out — a "
+             "number you can draw.",
+             '[[goal text="The chain rule at a point"]]'),
+        ],
+        "picture": [
+            ("Here is y equals the quantity 4 x plus 7, squared, with the point at x "
+             "equals zero. Look at the tangent there — it climbs 56 for every step "
+             "across. That steepness is what the chain rule computes.",
+             '[[graph func="(4*x+7)^2" names="y = (4x + 7)²" lines="y=56x+49" points="(0,49)" range="-1..2" yrange="0..225" caption="y = (4x + 7) squared with the tangent at x = 0 — it climbs 56 for every step"]]'),
+        ],
         "teach": [
-            ["Now use the chain rule on a real number. For the quantity 3 x plus 5, squared, the rule gives: 2, times the quantity itself, times the inside's derivative 3.",
-             '[[goal text="The chain rule at a point"]][[step eq="y = (3x + 5)²"]] [[step eq="slope = 2(3x + 5)·3"]]'],
-            ["At x equals zero the inside is just 5, because the 3 x vanishes. So the slope is 2 times 5 times 3 — 30. Work the inside out first, then let the two outside numbers do their work.",
-             '[[step eq="inside = 5"]] [[step eq="2 × 5 × 3 = 30"]]'],
-            ["Two slips. 25 is the curve's height at zero, the inside squared, not its steepness. And 10 keeps the 2 and the inside but drops the 3 — the inside's own derivative, which is the whole reason the chain rule exists.",
-             '[[step eq="30 ✓"]][[step eq="25 ✗ the height · 10 ✗ the 3 dropped"]]'],
+            ("That is the method: work the inside out first, then let the two outside "
+             "numbers do their work. At x equals zero the inside is just 7, because the "
+             "4 x vanishes. So the slope is 2 times 7 times 4 — 56.",
+             '[[graph func="(4*x+7)^2" names="y = (4x + 7)²" lines="y=56x+49" points="(0,49)" range="-1..2" yrange="0..225" caption="2 times 7 times 4 is 56"]][[step eq="slope = 2(4x + 7)·4"]][[step eq="inside = 7 · 2 × 7 × 4 = 56"]]'),
+            ("Two slips. 49 is the curve\'s height at zero, the inside squared, not its "
+             "steepness. And 14 keeps the 2 and the inside but drops the 4 — the inside\'s "
+             "own derivative, which is the whole reason the chain rule exists.",
+             '[[step eq="56 ✓"]][[step eq="49 ✗ the height · 14 ✗ the 4 dropped"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. The quantity 4 x plus 9, squared: at zero the slope is 2 times 9 times 4 — 72.",
-                        '[[step eq="2 × 9 × 4 = 72"]]'],
+            {"worked": ("Here is one more, done for you. The quantity 4 x plus 9, squared: "
+                        "at zero the slope is 2 times 9 times 4 — 72.",
+                        '[[graph func="(4*x+9)^2" names="y = (4x + 9)²" lines="y=72x+81" points="(0,81)" range="-1..2" yrange="0..289" caption="the tangent at x = 0 climbs 72 for every step"]][[step eq="2 × 9 × 4 = 72"]]'),
              "ask": {"a": 8, "b": 3, "op": "chev"}},
-            {"worked": ["One more together. With 7 inside and a multiplier of 5: 2 times 7 times 5 — the slope at zero is 70.",
-                        '[[step eq="2 × 7 × 5 = 70"]]'],
+            {"worked": ("One more together. With 7 inside and a multiplier of 5: 2 times 7 "
+                        "times 5 — the slope at zero is 70.",
+                        '[[graph func="(5*x+7)^2" names="y = (5x + 7)²" lines="y=70x+49" points="(0,49)" range="-1..2" yrange="0..289" caption="the tangent at x = 0 climbs 70 for every step"]][[step eq="2 × 7 × 5 = 70"]]'),
              "ask": {"a": 9, "b": 3, "op": "chev"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. For 4 x plus 7 "
+                       "squared, the slope at zero is 56, not 14. Tap the reason why."),
+            "choices": ("because the inside\'s derivative 4 comes out and times the rest | "
+                        "because the slope at zero is always the inside squared | "
+                        "because 14 is the height of the curve"),
+            "answer": "because the inside\'s derivative 4 comes out and times the rest",
+            "board": '[[graph func="(4*x+7)^2" names="y = (4x + 7)²" points="(0,49)" range="-1..2" yrange="0..225" caption="why 56, and not 14?"]]',
+        },
+        "recap": [
+            ("So, here it is again. The chain rule at a point: work the inside out first, "
+             "then 2 times the inside times the inside\'s derivative. The height at that "
+             "point is the inside squared, not the slope, and dropping the inside\'s "
+             "derivative drops the whole point of the rule.",
+             '[[graph func="(4*x+7)^2" names="y = (4x + 7)²" lines="y=56x+49" points="(0,49)" range="-1..2" yrange="0..225" caption="the tangent at x = 0"]]'),
+            ("And that is the chain rule, fed a number.",
+             '[[step eq="2 × 7 × 4 = 56"]]'),
+        ],
         "bank": [{"a": a, "b": b, "op": "chev"} for a, b in
                  ((2,3),(2,5),(3,4),(2,7),(3,5),(2,8),(6,3),(4,5),(3,7),(2,11))],
     },
@@ -24506,24 +24958,62 @@ _CALCULUS_U3 = [
         "op": "quot", "max_value": 60,
         "levels": ("abstract",),
         "symbols": ("underneath", "divides"),
-        "advance_line": "Three in a row — you've got it! Differentiate the top, and the number underneath keeps dividing.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Differentiate the top, and the number underneath keeps dividing.",
+        "why": [
+            ("There is a quotient rule for one function divided by another, and it is "
+             "fiddly. But most fractions in practice have a plain number underneath, "
+             "and those need no rule at all. A number underneath just divides "
+             "everything, before or after, and the answer comes out the same.",
+             '[[goal text="A number underneath"]]'),
+        ],
+        "picture": [
+            ("Here is 12 x squared over 4 as a machine. The front number 12 goes in. The "
+             "power rule doubles it, and the 4 underneath divides it. Watch the front "
+             "number of the derivative come out the other side.",
+             '[[write text="y = 12x² ÷ 4"]][[machine input="12" rule="× 2, then ÷ 4" output="6" caption="12 doubled is 24, and 24 over 4 is 6 — the number underneath came along for the ride"]]'),
+        ],
         "teach": [
-            ["There is a quotient rule for one function divided by another, and it is fiddly. But most fractions in practice have a plain NUMBER underneath — and those need no rule at all.",
-             '[[goal text="A number underneath"]][[step eq="y = 12x² ÷ 4"]]'],
-            ["A number underneath just divides everything, before or after, and the answer comes out the same. For 12 x squared over 4: differentiate the top to get 24 x, then divide by 4 — 6 x. The number underneath simply came along for the ride.",
-             '[[step eq="12x² → 24x → 24 ÷ 4 = 6"]]'],
-            ["The slip is dividing without differentiating: 12 over 4 is 3, which forgets that the power rule doubles the front number first. And timesing the two numbers is no rule at all. Differentiate the top; keep dividing underneath.",
-             '[[step eq="6 ✓"]][[step eq="3 ✗ the doubling forgotten · 48 ✗ timesed"]]'],
+            ("That is the method: differentiate the top, then divide by the number "
+             "underneath. For 12 x squared over 4: the top gives 24 x, and 24 over 4 is "
+             "6 — so the derivative is 6 x. The number underneath simply came along.",
+             '[[machine input="12" rule="× 2, then ÷ 4" output="6" caption="24 over 4 is 6"]][[step eq="12x² → 24x"]][[step eq="24 ÷ 4 = 6"]]'),
+            ("The slip is dividing without differentiating: 12 over 4 is 3, which "
+             "forgets that the power rule doubles the front number first. And timesing "
+             "the two numbers is no rule at all. Differentiate the top; keep dividing "
+             "underneath.",
+             '[[step eq="6 ✓"]][[step eq="3 ✗ the doubling forgotten · 48 ✗ timesed"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 45 x squared over 9: the top gives 90 x, and 90 over 9 is 10.",
-                        '[[step eq="90 ÷ 9 = 10"]]'],
+            {"worked": ("Here is one more, done for you. 45 x squared over 9: the top gives "
+                        "90 x, and 90 over 9 is 10.",
+                        '[[machine input="45" rule="× 2, then ÷ 9" output="10" caption="90 over 9 is 10"]][[step eq="90 ÷ 9 = 10"]]'),
              "ask": {"a": 22, "b": 2, "op": "quot"}},
-            {"worked": ["One more together. 55 x squared over 11: the top gives 110 x, and 110 over 11 is 10.",
-                        '[[step eq="110 ÷ 11 = 10"]]'],
+            {"worked": ("One more together. 55 x squared over 11: the top gives 110 x, and "
+                        "110 over 11 is 10 — the 11 underneath just kept dividing.",
+                        '[[machine input="55" rule="× 2, then ÷ 11" output="10" caption="110 over 11 is 10"]][[step eq="110 ÷ 11 = 10"]]'),
              "ask": {"a": 24, "b": 2, "op": "quot"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. For 12 x squared over "
+                       "4, the derivative\'s front number is 6, not 3. Tap the reason why."),
+            "choices": ("because the top is differentiated before the 4 divides it | "
+                        "because a number underneath always halves the answer | "
+                        "because 12 over 4 is 6"),
+            "answer": "because the top is differentiated before the 4 divides it",
+            "board": '[[machine input="12" rule="× 2, then ÷ 4" output="?" caption="why 6, and not 3?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A plain number underneath needs no quotient rule: "
+             "differentiate the top, and the number underneath keeps dividing. Dividing "
+             "without differentiating forgets the doubling, and timesing the two numbers "
+             "is no rule at all.",
+             '[[machine input="12" rule="× 2, then ÷ 4" output="6" caption="the number underneath keeps dividing"]]'),
+            ("And that is a constant denominator.",
+             '[[step eq="24 ÷ 4 = 6"]]'),
+        ],
         "bank": [{"a": a, "b": b, "op": "quot"} for a, b in
                  ((2,2),(6,3),(9,3),(20,5),(30,6),(42,7),(14,2),(24,3),(36,4),(50,5))],
     },
@@ -31592,6 +32082,223 @@ def _npop_worked(p):
 
 
 
+# ---- (tz, 2026-09-07) CALCULUS UNITS 1-3: two curves closing on their limits at x = 4
+# and the product curve closing on theirs; the fraction flattening toward a number as x
+# grows, the asymptote drawn only on the walk-back; two shelves with the open and the
+# closed dot at the border, the leap measured on the walk-back; the sloping piece and the
+# flat piece that do not meet, and the mended curve; the parabola with its point, the
+# tangent drawn only on the walk-back; the exponent as the input of a MACHINE that meets
+# the front number; the line with its one slope, the step-and-climb on the walk-back; the
+# curve with its point and the tangent at it; the product curve and its tangent; the
+# power and the inside as a machine; the composed curve at zero and its tangent; the
+# front number through the doubling-and-dividing machine. Every ask draws its question
+# with the answer withheld; every walk-back draws it filled in.
+def _llaw_board(p):
+    a, b = p["a"], p["b"]; top = max(a, b) + 3
+    return (f'[[graph func="{a} + (x-4)^2/8; {b} - (x-4)^2/8" hole="4" lines="x=4" names="f; g" range="0..8" yrange="0..{top}" caption="f closes on {a} at x = 4 and g closes on {b} — their product closes on a number too"]]'
+            f'[[step eq="f → {a} · g → {b}"]]'
+            f'[[step eq="f × g → ?"]]')
+
+
+def _llaw_worked(p):
+    a, b = p["a"], p["b"]; t = a * b
+    return (f"Look what you did: f is heading for {a} and g for {b}, and the limit passes "
+            f"straight through the times sign — {a} times {b} is {t}, so f times g heads "
+            f"for {t}. Adding would give {a + b}, which answers a different question, and "
+            f"{max(a, b)} is only the bigger of the two.",
+            f'[[graph func="({a} + (x-4)^2/8)*({b} - (x-4)^2/8)" hole="4" lines="x=4" names="f × g" range="0..8" yrange="0..{t + 6}" caption="the product curve closes on {t} at x = 4 — {a} times {b}"]]'
+            f'[[step eq="{a} × {b} = {t}"]]')
+
+
+def _linf_board(p):
+    a, b = p["a"], p["b"]; c = a // b
+    return (f'[[graph func="({a}*x^2)/({b}*x^2 + {b})" names="y = {a}x² / ({b}x² + {b})" range="0..12" yrange="0..{c + 2}" caption="{a} x squared over {b} x squared — as x grows the curve flattens toward one number"]]'
+            f'[[step eq="y = {a}x² ÷ {b}x²"]]'
+            f'[[step eq="x grows huge · y → ?"]]')
+
+
+def _linf_worked(p):
+    a, b = p["a"], p["b"]; c = a // b
+    return (f"Look what you did: the x squareds grow at the very same speed and cancel "
+            f"exactly, whatever x is — so {a} over {b} is what survives, and that is {c}. "
+            f"The curve flattens onto {c} and stays there. {a - b} takes one from the "
+            f"other and {a * b} times them, and neither describes what the fraction does.",
+            f'[[graph func="({a}*x^2)/({b}*x^2 + {b})" names="y = {a}x² / ({b}x² + {b})" lines="y={c}" range="0..12" yrange="0..{c + 2}" caption="the curve settles onto the line y = {c} — {a} over {b}"]]'
+            f'[[step eq="{a} ÷ {b} = {c}"]]')
+
+
+def _jump_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph func="{a} for x<6; {b} for x>=6" range="0..12" yrange="0..{b + 4}" caption="two shelves at the border x = 6 — the open dot at {a}, the closed dot at {b}, and a leap between them"]]'
+            f'[[step eq="x < 6: y = {a} · x ≥ 6: y = {b}"]]'
+            f'[[step eq="the jump measures ?"]]')
+
+
+def _jump_worked(p):
+    a, b = p["a"], p["b"]; j = b - a
+    return (f"Look what you did: from the left the curve heads for {a} and from the right "
+            f"for {b}, so it leaps {j} in no distance at all — a jump of {j}. {b} is only "
+            f"where it lands, and {a + b} adds two heights that the curve never adds.",
+            f'[[graph func="{a} for x<6; {b} for x>=6" lines="x=6" points="(6,{a}),(6,{b})" range="0..12" yrange="0..{b + 4}" caption="the leap at x = 6 — from {a} up to {b} is {j}"]]'
+            f'[[step eq="{b} − {a} = {j}"]]')
+
+
+def _cfix_board(p):
+    a, b, c = p["a"], p["b"], p["c"]; top = max(b, c + a) + 4
+    return (f'[[graph func="x+{a} for x<{c}; {b} for x>={c}" range="0..{c + 4}" yrange="0..{top}" caption="the sloping piece climbs to the border at x = {c} and the flat piece sits at {b} — walk the slope to the border and see where it arrives"]]'
+            f'[[step eq="x < {c}: y = x + {a} · x ≥ {c}: y = {b}"]]'
+            f'[[step eq="join up smoothly · flat value = ?"]]')
+
+
+def _cfix_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; v = c + a; top = max(b, v) + 4
+    return (f"Look what you did: walk the sloping piece right up to {c} and it arrives at "
+            f"{c} plus {a}, which is {v}. Set the flat piece to {v} and the two ends meet — "
+            f"no jump, no hole, nothing to lift the pencil for. {b} is the value that does "
+            f"not fit, and {a} is only the slope\'s own number.",
+            f'[[graph func="x+{a} for x<{c}; {v} for x>={c}" points="({c},{v})" range="0..{c + 4}" yrange="0..{top}" caption="the flat piece raised to {v} — the two ends meet at x = {c}"]]'
+            f'[[step eq="{c} + {a} = {v}"]]')
+
+
+def _derv_board(p):
+    a = p["a"]; r = a + 2
+    return (f'[[graph func="x^2" names="y = x²" points="({a},{a * a})" range="0..{r}" yrange="0..{r * r}" caption="y = x squared with the point at x = {a} — the slope right there, at that one point, is the derivative"]]'
+            f'[[step eq="y = x² · window shrinking onto x = {a}"]]'
+            f'[[step eq="the rate closes in on ?"]]')
+
+
+def _derv_worked(p):
+    a = p["a"]; m = 2 * a; r = a + 2
+    return (f"Look what you did: the average rate is the two x\'s put together, so sliding "
+            f"both onto {a} gives {m} — the derivative at {a}, the slope of the curve at "
+            f"that single point. {a * a} is how high the curve sits there, not how steep.",
+            f'[[graph func="x^2" names="y = x²" lines="y={m}x-{a * a}" points="({a},{a * a})" range="0..{r}" yrange="0..{r * r}" caption="the tangent at x = {a} climbs {m} for every step across"]]'
+            f'[[step eq="slope at {a} = {m}"]]')
+
+
+def _pwrc_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[write text="y = {b}x^{a}"]]'
+            f'[[machine input="{a}" rule="× {b}" output="?" caption="the exponent {a} comes down and meets the {b} already standing there — the front number of the derivative comes out"]]'
+            f'[[step eq="derivative front number = ?"]]')
+
+
+def _pwrc_worked(p):
+    a, b = p["a"], p["b"]; t = a * b
+    return (f"Look what you did: the {a} comes down and meets the {b} standing there — {a} "
+            f"times {b} is {t} — and the power drops to {a - 1}. So the derivative is {t} x "
+            f"to the {a - 1}. {a + b} adds the two, which no rule does, and {b} left the "
+            f"exponent up where it was.",
+            f'[[machine input="{a}" rule="× {b}" output="{t}" caption="the {a} comes down onto the {b} — {t}"]]'
+            f'[[write text="{t}x^{a - 1}"]]'
+            f'[[step eq="{a} × {b} = {t}"]]')
+
+
+def _cnst_board(p):
+    a, b = p["a"], p["b"]; top = 4 * a + b + 2
+    return (f'[[graph lines="y={a}x+{b}" range="0..4" yrange="0..{top}" caption="the line y = {a}x + {b} — the same steepness at every point on it"]]'
+            f'[[step eq="y = {a}x + {b}"]]'
+            f'[[step eq="slope anywhere = ?"]]')
+
+
+def _cnst_worked(p):
+    a, b = p["a"], p["b"]; top = 4 * a + b + 2
+    return (f"Look what you did: the line climbs {a} for every step across, at every point "
+            f"on it, so its derivative is {a} — one number, true everywhere. The {b} only "
+            f"lifts the whole line up the page and never tilts it, and {a + b} adds a height "
+            f"to a slope.",
+            f'[[graph lines="y={a}x+{b}" points="(1,{a + b}),(2,{2 * a + b})" range="0..4" yrange="0..{top}" caption="one step right, {a} up — the slope is {a} wherever you stand"]]'
+            f'[[step eq="slope = {a}"]]')
+
+
+def _evat_board(p):
+    a, c = p["a"], p["c"]; r = c + 2
+    return (f'[[graph func="{a}*x^2" names="y = {a}x²" points="({c},{a * c * c})" range="0..{r}" yrange="0..{a * r * r}" caption="y = {a} x squared with the point at x = {c} — the slope right there is what the derivative hands back"]]'
+            f'[[step eq="y = {a}x² · slope = {2 * a}x"]]'
+            f'[[step eq="at x = {c} · slope = ?"]]')
+
+
+def _evat_worked(p):
+    a, c = p["a"], p["c"]; m = 2 * a * c; h = a * c * c; r = c + 2
+    return (f"Look what you did: the derivative is a machine of its own — feed it {c} and "
+            f"it hands back {2 * a} times {c}, which is {m}. That is the slope right at that "
+            f"point. {h} is how high the curve sits there, and {2 * a} is the machine\'s "
+            f"front number before any x went in.",
+            f'[[graph func="{a}*x^2" names="y = {a}x²" lines="y={m}x-{h}" points="({c},{h})" range="0..{r}" yrange="0..{a * r * r}" caption="the tangent at x = {c} climbs {m} for every step across"]]'
+            f'[[step eq="{2 * a} × {c} = {m}"]]')
+
+
+def _prod_board(p):
+    a, c = p["a"], p["c"]; r = c + 2
+    return (f'[[graph func="x*(x+{a})" names="y = x(x + {a})" points="({c},{c * (c + a)})" range="0..{r}" yrange="0..{r * (r + a)}" caption="y = x times (x + {a}) with the point at x = {c} — the slope right there"]]'
+            f'[[step eq="y = x(x + {a}) = x² + {a}x"]]'
+            f'[[step eq="slope = 2x + {a}"]]'
+            f'[[step eq="at x = {c} · slope = ?"]]')
+
+
+def _prod_worked(p):
+    a, c = p["a"], p["c"]; m = 2 * c + a; h = c * (c + a); r = c + 2
+    return (f"Look what you did: feed {c} into 2 x plus {a} — {2 * c} plus {a} is {m}, the "
+            f"slope at that point. The product rule gives the same without expanding first. "
+            f"{h} is the curve\'s height there, and {2 * c} is half the derivative with the "
+            f"second piece forgotten.",
+            f'[[graph func="x*(x+{a})" names="y = x(x + {a})" lines="y={m}x-{c * c}" points="({c},{h})" range="0..{r}" yrange="0..{r * (r + a)}" caption="the tangent at x = {c} climbs {m} for every step across"]]'
+            f'[[step eq="2({c}) + {a} = {m}"]]')
+
+
+def _chan_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[write text="y = ({a}x + 3)^{b}"]]'
+            f'[[machine input="{b}" rule="× {a}" output="?" caption="the power {b} comes down, and the inside\'s own derivative {a} comes out to meet it"]]'
+            f'[[step eq="front number of the derivative = ?"]]')
+
+
+def _chan_worked(p):
+    a, b = p["a"], p["b"]; t = a * b
+    return (f"Look what you did: two things come down — the power {b}, and the inside\'s "
+            f"derivative {a} — and {b} times {a} is {t}. Forgetting the inside leaves {b}, "
+            f"the commonest mistake in Calculus, and {a + b} adds what should be timesed.",
+            f'[[machine input="{b}" rule="× {a}" output="{t}" caption="the power {b} meets the inside\'s {a} — {t}"]]'
+            f'[[step eq="{b} × {a} = {t}"]]')
+
+
+def _chev_board(p):
+    a, b = p["a"], p["b"]; top = (2 * a + b) ** 2
+    return (f'[[graph func="({a}*x+{b})^2" names="y = ({a}x + {b})²" points="(0,{b * b})" range="-1..2" yrange="0..{top}" caption="y = ({a}x + {b}) squared with the point at x = 0 — the slope right there"]]'
+            f'[[step eq="y = ({a}x + {b})²"]]'
+            f'[[step eq="slope = 2({a}x + {b})·{a}"]]'
+            f'[[step eq="at x = 0 · slope = ?"]]')
+
+
+def _chev_worked(p):
+    a, b = p["a"], p["b"]; m = 2 * a * b; h = b * b; top = (2 * a + b) ** 2
+    return (f"Look what you did: at x equals zero the inside is just {b}, so the slope is 2 "
+            f"times {b} times {a} — {m}. {h} is the curve\'s height there, the inside "
+            f"squared, and {2 * b} drops the inside\'s derivative, which is the whole point "
+            f"of the chain rule.",
+            f'[[graph func="({a}*x+{b})^2" names="y = ({a}x + {b})²" lines="y={m}x+{h}" points="(0,{h})" range="-1..2" yrange="0..{top}" caption="the tangent at x = 0 climbs {m} for every step across"]]'
+            f'[[step eq="2 × {b} × {a} = {m}"]]')
+
+
+def _quot_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[write text="y = {a}x² ÷ {b}"]]'
+            f'[[machine input="{a}" rule="× 2, then ÷ {b}" output="?" caption="the front number goes in — the power rule doubles it, and the {b} underneath divides it"]]'
+            f'[[step eq="derivative front number = ?"]]')
+
+
+def _quot_worked(p):
+    a, b = p["a"], p["b"]; d = 2 * a; t = d // b
+    return (f"Look what you did: the power rule doubles the {a} to {d}, and the {b} "
+            f"underneath divides it — {d} over {b} is {t}. A plain number on the bottom "
+            f"needs no quotient rule; it just comes along for the ride. {a // b} forgot the "
+            f"doubling, and {a * b} timesed what should be divided.",
+            f'[[machine input="{a}" rule="× 2, then ÷ {b}" output="{t}" caption="{a} doubled is {d}, and {d} over {b} is {t}"]]'
+            f'[[step eq="{d} ÷ {b} = {t}"]]')
+
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -38043,8 +38750,8 @@ OP_EXT = {
         "spoken": lambda p: (f"As x creeps toward 4, f creeps toward "
                              f"{p['a']} and g creeps toward {p['b']}. What "
                              f"does f times g creep toward?"),
-        "board": lambda p: (f'[[step eq="f → {p["a"]} · g → {p["b"]}"]]'
-                            f'[[step eq="f × g → ?"]]'),
+        "board": _llaw_board,         # (tz) the ask picture, answer withheld
+        "worked": _llaw_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"Limits pass straight through the arithmetic: "
                              f"if f is heading for {p['a']} and g for "
                              f"{p['b']}, their product heads for {p['a']} "
@@ -38068,8 +38775,8 @@ OP_EXT = {
         "spoken": lambda p: (f"As x grows huge, what number does {p['a']} x "
                              f"squared, divided by {p['b']} x squared, "
                              f"settle toward?"),
-        "board": lambda p: (f'[[step eq="y = {p["a"]}x² ÷ {p["b"]}x²"]]'
-                            f'[[step eq="x grows huge · y → ?"]]'),
+        "board": _linf_board,         # (tz) the ask picture, answer withheld
+        "worked": _linf_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"The x squareds cancel however big x gets, "
                              f"leaving {p['a']} over {p['b']} — "
                              f"{p['a'] // p['b']}. Algebra Two's asymptote "
@@ -38093,9 +38800,8 @@ OP_EXT = {
         "spoken": lambda p: (f"y is {p['a']} while x is below 6, and jumps "
                              f"to {p['b']} the moment x reaches 6. How big "
                              f"is the jump?"),
-        "board": lambda p: (f'[[step eq="x < 6 → y = {p["a"]} · x ≥ 6 → '
-                            f'y = {p["b"]}"]]'
-                            f'[[step eq="the jump measures ?"]]'),
+        "board": _jump_board,         # (tz) the ask picture, answer withheld
+        "worked": _jump_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"The two sides head for {p['a']} and "
                              f"{p['b']}, so the curve leaps "
                              f"{p['b'] - p['a']} in no distance at all — "
@@ -38122,10 +38828,8 @@ OP_EXT = {
                              f"{p['c']}. Right now it jumps. What would "
                              f"that flat value have to be for the curve to "
                              f"join up smoothly?"),
-        "board": lambda p: (f'[[step eq="x < {p["c"]} → y = x + {p["a"]} · '
-                            f'x ≥ {p["c"]} → y = {p["b"]}"]]'
-                            f'[[step eq="join up smoothly · flat value = '
-                            f'?"]]'),
+        "board": _cfix_board,         # (tz) the ask picture, answer withheld
+        "worked": _cfix_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"Walk the sloping piece right up to "
                              f"{p['c']}: it arrives at {p['c']} plus "
                              f"{p['a']}, which is {p['c'] + p['a']}. Set "
@@ -38153,9 +38857,8 @@ OP_EXT = {
         "spoken": lambda p: (f"On y equals x squared, shrink the window "
                              f"onto x equals {p['a']}. What number does the "
                              f"average rate close in on?"),
-        "board": lambda p: (f'[[step eq="y = x² · window shrinking onto x = '
-                            f'{p["a"]}"]]'
-                            f'[[step eq="the rate closes in on ?"]]'),
+        "board": _derv_board,         # (tz) the ask picture, answer withheld
+        "worked": _derv_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"The average rate is the two x's put "
                              f"together, so sliding both onto {p['a']} "
                              f"gives {2 * p['a']} — the DERIVATIVE there, "
@@ -38178,8 +38881,8 @@ OP_EXT = {
                              f"in front and the power drops by one. For y "
                              f"equals {p['b']} x to the power {p['a']}, "
                              f"what is the derivative's front number?"),
-        "board": lambda p: (f'[[step eq="y = {p["b"]}x^{p["a"]}"]]'
-                            f'[[step eq="derivative front number = ?"]]'),
+        "board": _pwrc_board,         # (tz) the ask picture, answer withheld
+        "worked": _pwrc_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"The {p['a']} comes down and meets the "
                              f"{p['b']} already standing there: {p['a']} "
                              f"times {p['b']} equals {p['a'] * p['b']}, and "
@@ -38204,8 +38907,8 @@ OP_EXT = {
                              f"{p['b']}. Its steepness never changes. What "
                              f"is its derivative — the slope, anywhere "
                              f"along it?"),
-        "board": lambda p: (f'[[step eq="y = {p["a"]}x + {p["b"]}"]]'
-                            f'[[step eq="slope anywhere = ?"]]'),
+        "board": _cnst_board,         # (tz) the ask picture, answer withheld
+        "worked": _cnst_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"A line climbs {p['a']} for every step "
                              f"across, at every point on it, so its "
                              f"derivative is just {p['a']} — a constant. "
@@ -38228,9 +38931,8 @@ OP_EXT = {
         "spoken": lambda p: (f"For y equals {p['a']} x squared, the "
                              f"derivative is {2 * p['a']} x. What is the "
                              f"slope of the curve at x equals {p['c']}?"),
-        "board": lambda p: (f'[[step eq="y = {p["a"]}x² → slope = '
-                            f'{2 * p["a"]}x"]]'
-                            f'[[step eq="at x = {p["c"]} · slope = ?"]]'),
+        "board": _evat_board,         # (tz) the ask picture, answer withheld
+        "worked": _evat_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"The derivative is a machine of its own: feed "
                              f"it {p['c']} and it gives {2 * p['a']} times "
                              f"{p['c']} — {2 * p['a'] * p['c']}. That is "
@@ -38262,10 +38964,8 @@ OP_EXT = {
                              f"plus {p['a']} x, so its derivative is 2 x "
                              f"plus {p['a']}. What is the slope at x equals "
                              f"{p['c']}?"),
-        "board": lambda p: (f'[[step eq="y = x(x + {p["a"]}) = x² + '
-                            f'{p["a"]}x"]]'
-                            f'[[step eq="slope = 2x + {p["a"]} · at x = '
-                            f'{p["c"]} = ?"]]'),
+        "board": _prod_board,         # (tz) the ask picture, answer withheld
+        "worked": _prod_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"Feed {p['c']} into 2 x plus {p['a']}: "
                              f"{2 * p['c']} plus {p['a']} is "
                              f"{2 * p['c'] + p['a']}. The product rule "
@@ -38293,9 +38993,8 @@ OP_EXT = {
                              f"brings the power down front AND times by the "
                              f"inside's own derivative. What number ends up "
                              f"in front?"),
-        "board": lambda p: (f'[[step eq="y = ({p["a"]}x + 3)^{p["b"]}"]]'
-                            f'[[step eq="front number of the derivative = '
-                            f'?"]]'),
+        "board": _chan_board,         # (tz) the ask picture, answer withheld
+        "worked": _chan_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"Two things come down: the power {p['b']} "
                              f"and the inside's derivative {p['a']} — "
                              f"{p['b']} times {p['a']} is "
@@ -38320,9 +39019,8 @@ OP_EXT = {
                              f"slope of 2, times that quantity, times "
                              f"{p['a']}. What is the slope at x equals "
                              f"zero?"),
-        "board": lambda p: (f'[[step eq="y = ({p["a"]}x + {p["b"]})²"]]'
-                            f'[[step eq="slope = 2({p["a"]}x + {p["b"]})'
-                            f'·{p["a"]} · at x = 0 = ?"]]'),
+        "board": _chev_board,         # (tz) the ask picture, answer withheld
+        "worked": _chev_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"At x equals zero the inside is just "
                              f"{p['b']}, so the slope is 2 times {p['b']} "
                              f"times {p['a']} — {2 * p['a'] * p['b']}. "
@@ -38347,8 +39045,8 @@ OP_EXT = {
                              f"{p['b']}. A plain number on the bottom just "
                              f"divides everything. What is the derivative's "
                              f"front number?"),
-        "board": lambda p: (f'[[step eq="y = {p["a"]}x² ÷ {p["b"]}"]]'
-                            f'[[step eq="derivative front number = ?"]]'),
+        "board": _quot_board,         # (tz) the ask picture, answer withheld
+        "worked": _quot_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"The power rule doubles the {p['a']} to "
                              f"{2 * p['a']}, and the {p['b']} underneath "
                              f"divides it: {2 * p['a']} over {p['b']} is "

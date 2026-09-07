@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tz -- CALCULUS UNITS 1-3 TO THE SHAPE. PART 3jv: _shape_unit_checks on
+#               the three units, the twelve named asks and walk-backs (the hole and the
+#               two shelves on the ask, the line and the tangent withheld until the
+#               walk-back, the power and chain rules as machines with output "?"), the
+#               names= legend on every raw-"*" graph, the giveaway audit, captions, rule
+#               44, no arrow-after-equals or question-in-step, the board-notation referee
+#               over every ask and walk-back board at every level, the joined options
+#               (no arithmetic, none over twelve words), the eight PART 3fs fixed
+#               fragments in each lesson's SECOND worked pair, CALCULUS 12/36, and the
+#               notes. Tile 10,590 -> 10,678.
 #   2026-09-07  BUILD ty -- PROBSTAT UNITS 7-9 TO THE SHAPE. PART 3ju: _shape_unit_checks on
 #               the three units, the twelve named asks and walk-backs (the two-dot number
 #               line with NO hops on the zsco ask, the tape with total="?", the pot and
@@ -22062,7 +22072,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,590</b>" in page,
+          "<b>10,678</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -27532,6 +27542,178 @@ def part3ju_probstat_units_seven_to_nine_to_the_shape():
     check("  the changed files carry dated ty notes",
           "2026-09-07  BUILD ty" in rd("lessonscripts.py")[:60000] and "BUILD ty" in rd("main.py")[:200000]
           and "2026-09-07  BUILD ty" in rd("ruletests.py")[:28000] and "(ty)" in rd("static/methodology.html")[:20000],
+          "Jim's rule 8")
+
+
+def part3jv_calculus_units_one_to_three_to_the_shape():
+    """PART 3jv (build tz, 2026-09-07) -- CALCULUS UNITS 1-3 TO THE SHAPE. The first
+    twelve of the course's thirty-six.
+
+    Two curves closing on the same x with the hole drawn, and the product curve closing
+    on their product; the fraction flattening onto its line (the line withheld on the
+    ask, drawn on the walk-back); two shelves with the open and closed dots at the
+    border, and the leap between them; the sloping piece climbing to a border the flat
+    piece misses, and the flat piece raised to meet it; y = x squared with the point
+    alone on the ask and the tangent on the walk-back; the power rule as a MACHINE (the
+    exponent goes in, times the front number); a line with the same steepness everywhere,
+    two steps marked on the walk-back; the derivative as a machine fed an x, the tangent
+    drawn; x times (x + a) with the point, then the tangent; the chain rule as a machine
+    (the power goes in, times the inside's derivative); the chain rule at a point, the
+    tangent drawn; a plain number underneath as a two-stage machine. Every single-curve
+    graph carries a names= legend (the raw "(36*x^2)/(3*x^2 + 3)" no longer prints).
+    Every figure an ask draws is captioned; no board writes "= number = ?"."""
+    print("\nPART 3jv — Calculus Units 1-3 to the shape (build tz)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    C1 = ["calc-u1-limits-pass-through", "calc-u1-far-out-only-the-leaders-matter",
+          "calc-u1-how-big-is-the-break", "calc-u1-mend-the-curve"]
+    C2 = ["calc-u2-the-window-closes", "calc-u2-the-power-comes-down-front",
+          "calc-u2-a-line-has-one-slope", "calc-u2-feed-the-derivative-an-x"]
+    C3 = ["calc-u3-two-things-multiplied", "calc-u3-do-not-forget-the-inside",
+          "calc-u3-the-chain-rule-at-a-point", "calc-u3-a-number-underneath"]
+    _shape_unit_checks(C1, r"\[\[(graph)\b")
+    _shape_unit_checks(C2, r"\[\[(graph|machine)\b")
+    _shape_unit_checks(C3, r"\[\[(graph|machine)\b")
+    _asks = lambda l: list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+
+    # ---- Unit 1 ------------------------------------------------------------------------
+    llaw = {"a": 2, "b": 11, "op": "llaw"}
+    check("⭐ limits pass through: f and g closing on x = 4 with the hole drawn on the ask, the product withheld; the product curve closing on 22 in the walk-back",
+          '[[graph func="2 + (x-4)^2/8; 11 - (x-4)^2/8" hole="4" lines="x=4" names="f; g" range="0..8" yrange="0..14" caption=' in L.board_for(llaw, "abstract")
+          and '[[step eq="f → 2 · g → 11"]][[step eq="f × g → ?"]]' in L.board_for(llaw, "abstract")
+          and '[[graph func="(2 + (x-4)^2/8)*(11 - (x-4)^2/8)" hole="4" lines="x=4" names="f × g" range="0..8" yrange="0..28" caption=' in _W(llaw)[1]
+          and "2 times 11 is 22, so f times g heads for 22" in _W(llaw)[0], "")
+    linf = {"a": 36, "b": 3, "op": "linf"}
+    check("⭐ far out only the leaders matter: the fraction flattening with NO line on the ask and a names= legend; the line y = 12 drawn in the walk-back",
+          '[[graph func="(36*x^2)/(3*x^2 + 3)" names="y = 36x² / (3x² + 3)" range="0..12" yrange="0..14" caption=' in L.board_for(linf, "abstract")
+          and "lines=" not in L.board_for(linf, "abstract")
+          and '[[step eq="x grows huge · y → ?"]]' in L.board_for(linf, "abstract")
+          and 'names="y = 36x² / (3x² + 3)" lines="y=12"' in _W(linf)[1]
+          and "36 over 3 is what survives, and that is 12" in _W(linf)[0], "")
+    jump = {"a": 2, "b": 14, "op": "jump"}
+    check("⭐ how big is the break: two shelves with the open and closed dots at x = 6 on the ask, the pending line a statement in colon form (no arrow after an equals sign); the leap marked in the walk-back",
+          '[[graph func="2 for x<6; 14 for x>=6" range="0..12" yrange="0..18" caption=' in L.board_for(jump, "abstract")
+          and '[[step eq="x < 6: y = 2 · x ≥ 6: y = 14"]][[step eq="the jump measures ?"]]' in L.board_for(jump, "abstract")
+          and '[[graph func="2 for x<6; 14 for x>=6" lines="x=6" points="(6,2),(6,14)" range="0..12" yrange="0..18" caption=' in _W(jump)[1]
+          and "it leaps 12 in no distance at all" in _W(jump)[0], "")
+    cfix = {"a": 6, "b": 2, "c": 9, "op": "cfix"}
+    check("  mend the curve: the sloping piece climbing to the border the flat piece misses on the ask; the flat piece raised to 15 and the ends meeting in the walk-back",
+          '[[graph func="x+6 for x<9; 2 for x>=9" range="0..13" yrange="0..19" caption=' in L.board_for(cfix, "abstract")
+          and '[[step eq="x < 9: y = x + 6 · x ≥ 9: y = 2"]][[step eq="join up smoothly · flat value = ?"]]' in L.board_for(cfix, "abstract")
+          and '[[graph func="x+6 for x<9; 15 for x>=9" points="(9,15)" range="0..13" yrange="0..19" caption=' in _W(cfix)[1]
+          and "arrives at 9 plus 6, which is 15" in _W(cfix)[0], "")
+
+    # ---- Unit 2 ------------------------------------------------------------------------
+    derv = {"a": 13, "b": 0, "op": "derv"}
+    check("⭐ the window closes: y = x squared with the point alone on the ask (no tangent); the tangent y = 26x - 169 drawn in the walk-back",
+          '[[graph func="x^2" names="y = x²" points="(13,169)" range="0..15" yrange="0..225" caption=' in L.board_for(derv, "abstract")
+          and "lines=" not in L.board_for(derv, "abstract")
+          and '[[step eq="the rate closes in on ?"]]' in L.board_for(derv, "abstract")
+          and 'names="y = x²" lines="y=26x-169" points="(13,169)"' in _W(derv)[1]
+          and "sliding both onto 13 gives 26" in _W(derv)[0], "")
+    pwrc = {"a": 2, "b": 11, "op": "pwrc"}
+    check("⭐ the power comes down front: the rule written and the exponent fed into the MACHINE (× the front number) with its output blank on the ask; the machine filled and the new power written in the walk-back; the teach's 6x³ is not a bank ask",
+          '[[write text="y = 11x^2"]][[machine input="2" rule="× 11" output="?" caption=' in L.board_for(pwrc, "abstract")
+          and '[[step eq="derivative front number = ?"]]' in L.board_for(pwrc, "abstract")
+          and '[[machine input="2" rule="× 11" output="22" caption=' in _W(pwrc)[1]
+          and '[[write text="22x^1"]]' in _W(pwrc)[1]
+          and "2 times 11 is 22" in _W(pwrc)[0]
+          and not any(p["a"] == 3 and p["b"] == 6 for p in _asks("calc-u2-the-power-comes-down-front")), "")
+    cnst = {"a": 12, "b": 4, "op": "cnst"}
+    check("  a line has one slope: the line alone on the ask; two steps marked on the walk-back; the lesson never says \"makes\" (canon is \"equals\")",
+          '[[graph lines="y=12x+4" range="0..4" yrange="0..54" caption=' in L.board_for(cnst, "abstract")
+          and '[[step eq="slope anywhere = ?"]]' in L.board_for(cnst, "abstract")
+          and '[[graph lines="y=12x+4" points="(1,16),(2,28)" range="0..4" yrange="0..54" caption=' in _W(cnst)[1]
+          and "so its derivative is 12 — one number, true everywhere" in _W(cnst)[0]
+          and not any(" makes " in s for s, _b in _authored_beats(L.LESSON_BY_ID["calc-u2-a-line-has-one-slope"])), "")
+    evat = {"a": 3, "b": 0, "c": 7, "op": "evat"}
+    check("  feed the derivative an x: the curve with the point on the ask, the tangent withheld; the tangent y = 42x - 147 in the walk-back",
+          '[[graph func="3*x^2" names="y = 3x²" points="(7,147)" range="0..9" yrange="0..243" caption=' in L.board_for(evat, "abstract")
+          and "lines=" not in L.board_for(evat, "abstract")
+          and '[[step eq="y = 3x² · slope = 6x"]][[step eq="at x = 7 · slope = ?"]]' in L.board_for(evat, "abstract")
+          and 'lines="y=42x-147" points="(7,147)"' in _W(evat)[1]
+          and "6 times 7, which is 42" in _W(evat)[0], "")
+
+    # ---- Unit 3 ------------------------------------------------------------------------
+    prod = {"a": 6, "b": 0, "c": 5, "op": "prod"}
+    check("⭐ two things multiplied: the product curve with the point on the ask and the slope rule as its OWN step (no chain of equals ending in = ?); the tangent in the walk-back",
+          '[[graph func="x*(x+6)" names="y = x(x + 6)" points="(5,55)" range="0..7" yrange="0..91" caption=' in L.board_for(prod, "abstract")
+          and '[[step eq="y = x(x + 6) = x² + 6x"]][[step eq="slope = 2x + 6"]][[step eq="at x = 5 · slope = ?"]]' in L.board_for(prod, "abstract")
+          and not tutor.board_notation_conflict(L.board_for(prod, "abstract"))
+          and 'lines="y=16x-25" points="(5,55)"' in _W(prod)[1]
+          and "10 plus 6 is 16, the slope at that point" in _W(prod)[0], "")
+    chan = {"a": 8, "b": 3, "op": "chan"}
+    check("⭐ do not forget the inside: the power fed into the MACHINE (× the inside's derivative) on the ask; the machine filled in the walk-back; the teach keeps \"commonest mistake in all of Calculus\" and its (5x + 3)^6 is not a bank ask",
+          '[[write text="y = (8x + 3)^3"]][[machine input="3" rule="× 8" output="?" caption=' in L.board_for(chan, "abstract")
+          and '[[step eq="front number of the derivative = ?"]]' in L.board_for(chan, "abstract")
+          and '[[machine input="3" rule="× 8" output="24" caption=' in _W(chan)[1]
+          and "3 times 8 is 24" in _W(chan)[0]
+          and any("commonest mistake in all of Calculus" in s for s, _b in L.LESSON_BY_ID["calc-u3-do-not-forget-the-inside"]["teach"])
+          and not any(p["a"] == 5 and p["b"] == 6 for p in _asks("calc-u3-do-not-forget-the-inside")), "")
+    chev = {"a": 8, "b": 3, "op": "chev"}
+    check("  the chain rule at a point: the squared curve with the point at x = 0 on the ask; the tangent y = 48x + 9 in the walk-back; the teach's (4x + 7)² is not a bank ask",
+          '[[graph func="(8*x+3)^2" names="y = (8x + 3)²" points="(0,9)" range="-1..2" yrange="0..361" caption=' in L.board_for(chev, "abstract")
+          and '[[step eq="slope = 2(8x + 3)·8"]][[step eq="at x = 0 · slope = ?"]]' in L.board_for(chev, "abstract")
+          and 'lines="y=48x+9" points="(0,9)"' in _W(chev)[1]
+          and "2 times 3 times 8 — 48" in _W(chev)[0]
+          and not any(p["a"] == 4 and p["b"] == 7 for p in _asks("calc-u3-the-chain-rule-at-a-point")), "")
+    quot = {"a": 22, "b": 2, "op": "quot"}
+    check("  a number underneath: the front number fed into the two-stage MACHINE (× 2, then ÷ the bottom) on the ask; the machine filled in the walk-back",
+          '[[write text="y = 22x² ÷ 2"]][[machine input="22" rule="× 2, then ÷ 2" output="?" caption=' in L.board_for(quot, "abstract")
+          and '[[step eq="derivative front number = ?"]]' in L.board_for(quot, "abstract")
+          and '[[machine input="22" rule="× 2, then ÷ 2" output="22" caption=' in _W(quot)[1]
+          and "44 over 2 is 22" in _W(quot)[0], "")
+
+    # ---- the giveaway audit, captions, legends, pending lines, notation, fragments, notes
+    check("  nothing the twelve lessons demonstrate is later asked (teachaudit, both directions)",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in C1 + C2 + C3), "")
+    check("  every figure an ask draws carries a caption (rule 41)",
+          all("caption=" in tag for l in C1 + C2 + C3 for p in _asks(l)
+              for tag in re.findall(r"\[\[(?:graph|machine)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _raw = [tag for l in C1 + C2 + C3 for p in _asks(l)
+            for tag in re.findall(r"\[\[graph\b[^\]]*\]\]", L.board_for(p, "abstract") + _W(p)[1])
+            if "*" in (re.search(r'func="([^"]*)"', tag) or [None, ""])[1] and "names=" not in tag]
+    check("⭐ every graph whose expression carries a raw \"*\" names its legend (names=) -- the ask and the walk-back both",
+          not _raw, str(_raw[:2]))
+    _unsp = 0
+    for l in C1 + C2 + C3:
+        for p in _asks(l):
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("  no ask in the three units puts an arrow after an equals sign or a question inside a step",
+          not any(re.search(r"=[^\"]*→", m) or re.search(r"[A-Za-z]\?", m) for l in C1 + C2 + C3 for p in _asks(l)
+                  for m in re.findall(r'\[\[step eq="([^"]*)"', L.board_for(p, "abstract"))), "")
+    check("  no ask board or walk-back board in the three units writes \"= number = ?\" (the board-notation referee, every level)",
+          not any(tutor.board_notation_conflict(L.board_for(p, lv)) or tutor.board_notation_conflict(_W(p)[1])
+                  for l in C1 + C2 + C3 for p in _asks(l) for lv in L.LESSON_BY_ID[l].get("levels", L.LEVELS)), "")
+    check("  no reason option works the arithmetic aloud, and none is longer than twelve words",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in C1 + C2 + C3)
+          and all(len(o.split()) <= 12 for l in C1 + C2 + C3 for o in L.LESSON_BY_ID[l]["explain"]["choices"].split("|")), "")
+    _FRAG = {"calc-u1-far-out-only-the-leaders-matter": "70 over 10",
+             "calc-u1-how-big-is-the-break": "30 take away 11",
+             "calc-u1-mend-the-curve": "13 plus 9",
+             "calc-u2-the-window-closes": "twice 25",
+             "calc-u2-the-power-comes-down-front": "the 6 comes down onto the 7",
+             "calc-u3-two-things-multiplied": "14 plus 11",
+             "calc-u3-the-chain-rule-at-a-point": "2 times 7 times 5",
+             "calc-u3-a-number-underneath": "110 over 11"}
+    check("⭐ the eight PART 3fs fixed fragments survive in each lesson's SECOND worked pair, and every second pair is a real sentence",
+          all(f in L.LESSON_BY_ID[l]["pairs"][1]["worked"][0] for l, f in _FRAG.items())
+          and all(len(L.LESSON_BY_ID[l]["pairs"][1]["worked"][0].split()) >= 12 for l in C1 + C2 + C3),
+          str([l for l, f in _FRAG.items() if f not in L.LESSON_BY_ID[l]["pairs"][1]["worked"][0]]))
+    check("  CALCULUS 12/36: the first three units carry the whole shape and the other twenty-four are untouched (no explain yet)",
+          sum(1 for les in L.LESSONS if les["course"] == "calculus"
+              and all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain")) and les.get("show_work_on_correct") is True) == 12
+          and sum(1 for les in L.LESSONS if les["course"] == "calculus") == 36, "")
+    check("  the changed files carry dated tz notes",
+          "2026-09-07  BUILD tz" in rd("lessonscripts.py")[:60000] and "BUILD tz" in rd("main.py")[:200000]
+          and "2026-09-07  BUILD tz" in rd("ruletests.py")[:28000] and "(tz)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -37885,6 +38067,7 @@ def main():
     part3js_the_say_it_then_write_it_family()
     part3jt_the_words_and_the_picture_are_the_same_thing()
     part3ju_probstat_units_seven_to_nine_to_the_shape()
+    part3jv_calculus_units_one_to_three_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

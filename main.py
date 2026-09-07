@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  APP_BUILD -> "2026-09-07tz-calculus-units-one-to-three-to-the-shape".
+#               BUILD tz -- Calculus Units 1-3 (limits, the derivative, the rules)
+#               rewritten to the shape: twelve lessons, each with a why, a picture drawn
+#               before the rule, the rule read off the picture, two worked examples drawn
+#               on it, every right answer walked back on the picture, a reason question
+#               after the streak, and a recap. CALCULUS 12/36. The limit lessons draw the
+#               curves themselves (the hole, the two shelves, the fraction flattening);
+#               the derivative lessons draw the point on the ask and the tangent on the
+#               walk-back; the rule lessons run the power and chain rules as machines.
+#               Every single-curve graph names its legend (the raw "(36*x^2)/..." no
+#               longer prints). No engine or route change: this build is lessonscripts.py
+#               and its battery.
 #   2026-09-07  APP_BUILD -> "2026-09-07ty-probstat-units-seven-to-nine-to-the-shape".
 #               BUILD ty -- Probstat Units 7-9 (expected value, the normal curve,
 #               confidence) rewritten to the shape: twelve lessons, each with a why, a
@@ -13895,7 +13907,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-07ty-probstat-units-seven-to-nine-to-the-shape"
+APP_BUILD = "2026-09-07tz-calculus-units-one-to-three-to-the-shape"
 
 
 @app.get("/health")
