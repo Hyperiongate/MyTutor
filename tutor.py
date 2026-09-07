@@ -2,6 +2,45 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tw -- THE SAY-IT-THEN-WRITE-IT FAMILY (three proven holes from the
+#               09-06 and 09-07 watches; the fourth turned out to be a ruling, see below).
+#                 * F5, THE ASK-LISTS LEARN "GIVE ME AN EXAMPLE" (rules 2/8, _VIS_ASKED
+#                   and _RD_ASKS). The 09-06 watch: a student asked for a missing-leg
+#                   example and got one in words with nothing on the board. Reconstructed
+#                   live -- "can you SHOW me an example" fires, "can you GIVE me an
+#                   example" is silent, and so are "an example?", "like what?" and "show
+#                   me one". Both lists gained the same phrases because build oy's ONE
+#                   GRAMMAR law says the did-they-ask gate reuses these two and never
+#                   grows a third copy. These read the STUDENT'S words, so the canon
+#                   (which is tutor text) has no exposure at all; the sentences that must
+#                   stay silent are the ones that only look like asks -- "that's a good
+#                   example", "like what we did yesterday", "for example, 3 plus 4 is 7".
+#                 * N5, THE 78TH REFEREE: op_unspoken_conflict (rule 4). The 09-07 watch:
+#                   [[step op="- 5"]] drawn while the voice said only "First move -- get
+#                   the plain number alone on the right side". The student sees a
+#                   subtraction and hears a goal, so they cannot repeat the move. RULES.md
+#                   has rule 4 as COVERED, never ENFORCED -- prompt words alone, and build
+#                   ps already taught us what that is worth. orphan_step_conflict (rule 15)
+#                   checks the op has a from-LINE; nothing checked it has WORDS. Narrow:
+#                   the op's own arithmetic sign picks a small word list, and any one of
+#                   those words anywhere in the prose buys silence. An op carrying no
+#                   arithmetic sign ("..", "(the 1 is carried)") is not rule 4's business
+#                   and is skipped. CONDUCT class, not truth: nothing false is taught,
+#                   the student simply cannot hear the move.
+#                 * N7, THE CREDITED-METHOD LIST LEARNS ARITHMETIC (rule 43). The 09-07
+#                   watch: the student sent "11" and was told "You multiplied 3 times 2
+#                   first to get 6, then added the 5." _NM_CREDIT holds the PROCEDURE
+#                   verbs (borrowed, regrouped, factored, carried...) and not one
+#                   arithmetic verb, so it fires on "you carried the 1" and is silent on
+#                   this. ⚠️ THE TRAP, and it is the whole shape of the fix: the canon
+#                   uses these verbs constantly inside NOUN-MODIFYING RELATIVE CLAUSES --
+#                   "the number you divided BY", "the number you took away", "the part you
+#                   added", "there you halved". Six of them, found by sweeping before the
+#                   pattern was written. A credit is a claim about what the student just
+#                   DID and does not sit after a noun, so the new pattern refuses those
+#                   heads and refuses a following "by". Swept: 0 fires across 1,015
+#                   foundation scripts x 6 bare answers and 2,539 lesson beats.
+#               Referees 77 -> 78. Truth class unchanged at 11: all three are conduct.
 #   2026-09-07  BUILD tv -- THE FIRST-USE GATE LEARNS WHO WROTE THE SYMBOL (referee 31,
 #               notation_intro_conflict, rule 14/48). The 09-06 watch's F2 and the 09-07
 #               watch's N6 are ONE hole, proven by reconstruction in this build's dry run.
@@ -3718,9 +3757,28 @@ def _tags_present(text: str, names) -> bool:
 # a CHANGE that ought to be shown happening. Both end with a student looking at a board
 # that has nothing new on it. Added build co, when the rule index made it plain these
 # were the only two rules in the whole prompt that nothing checked at all.
+# (tw, 2026-09-07) ...AND "GIVE ME AN EXAMPLE", which is the same ask in the words a
+# student actually uses. The 09-06 watch caught a missing-leg example asked for and
+# answered in words with nothing drawn; reconstructed live, "can you SHOW me an example"
+# fired and "can you GIVE me an example" did not. The phrases below are appended to BOTH
+# lists, because build oy's ONE GRAMMAR law says the did-they-ask gate reuses
+# _VIS_ASKED and _RD_ASKS and never grows a third copy of "show me".
+# ⚠️ THE SENTENCES THAT ONLY LOOK LIKE ASKS are what the boundaries are for: "that's a
+# good example", "for example, 3 plus 4 is 7", "like what we did yesterday", "I like what
+# you said". Hence "an example" only as a REQUEST (give/show/get/have/see) or as a bare
+# question, and "like what" only when nothing follows it that turns it into a comparison.
+_EXAMPLE_ASKS = (
+    r"|\b(?:give|gimme|show) (?:me )?(?:an|one|another|a) example\b"
+    r"|\bcan i (?:get|have|see) (?:an |one )?example\b"
+    r"|\ban example\s*\?"
+    r"|\bfor example\s*\?"
+    r"|\blike what\b(?!\s+(?:we|you|i|it|that|the|they|he|she|happened|i'm))"
+    r"|\b(?:show|give) me one\b"
+    r"|\bwhat (?:would|does) (?:that|it|one) look like\b")
+
 _VIS_ASKED = re.compile(
     r"\b(?:show me|can i see|could i see|let me see|draw (?:it|one|that|me)|"
-    r"can you draw|would you draw|picture of (?:it|that))\b", re.I)
+    r"can you draw|would you draw|picture of (?:it|that))\b" + _EXAMPLE_ASKS, re.I)
 _VIS_PROMISE = re.compile(
     r"\b(?:here'?s|here is|let me|i'?ll|i will|watch)\b[^.!?]{0,40}"
     r"\b(?:show|draw|sketch|graph|plot)\b", re.I)
@@ -4410,10 +4468,12 @@ def triangle_side_conflict(reply: str):
 # The compliant replies contain a COMPLETED line. The refusals contain only PENDING ones.
 # So: they asked to be shown, nothing in the reply is worked out, and the work is handed
 # straight back. All three, or it does not fire.
+# (tw) "give" joins the verb list and _EXAMPLE_ASKS rides along -- ONE GRAMMAR with
+# _VIS_ASKED above, which is where those phrases and their boundaries are documented.
 _RD_ASKS = re.compile(
-    r"\b(?:can|could|will|would) you (?:please )?(?:show|walk|do|work)\b"
+    r"\b(?:can|could|will|would) you (?:please )?(?:show|walk|do|work|give)\b"
     r"|\bshow me\b|\bwalk me through\b|\bcan (?:you|we) do (?:that|this|it|the)\b"
-    r"|\bdo (?:that|this|it) one first\b|\bcan i see\b", re.I)
+    r"|\bdo (?:that|this|it) one first\b|\bcan i see\b" + _EXAMPLE_ASKS, re.I)
 # A line that is WORKED OUT: an "=" followed by something that is not a bare "?".
 _RD_COMPLETED = re.compile(r"=\s*(?!\s*\?)[^\s=?][^=?]*$")
 _RD_HANDS_BACK = re.compile(
@@ -6744,6 +6804,91 @@ def orphan_step_conflict(reply: str):
         print(f"[orphanstep] crashed (fail open): {exc}")
         _event("referee_crash", "orphanstep", str(exc))
         return ""
+
+
+# =============================================================================
+# BUILD tw (2026-09-07) -- THE SEVENTY-EIGHTH REFEREE: AN OPERATION DRAWN OVER BOTH
+# SIDES MUST BE SAID OUT LOUD (rule 4).
+# -----------------------------------------------------------------------------
+# The 2026-09-07 night watch, returning-student, quoted exactly:
+#
+#     "First move -- get the plain number alone on the right side."
+#     [[step op="- 5" eq="x^2 + 6x = -5"]]
+#
+# The student SEES a subtraction and HEARS a goal. They can follow the line on the
+# board and still not be able to say what was done, which is the whole of rule 4:
+# say it, then write it, in the same reply.
+#
+# WHY NOTHING CAUGHT IT. RULES.md carries rule 4 as COVERED -- prompt words and
+# nothing else -- and build ps's law is that a rule held by prompt words alone is a
+# wish. orphan_step_conflict (build jc, rule 15) is the only referee that reads op=
+# at all, and it asks a different question: is the line being operated ON in this
+# reply? It can pass while the operation is never spoken, and in the watch's reply
+# it did.
+#
+# NARROW, AND THE NARROWNESS IS THE SIGN ITSELF. The op's arithmetic sign picks one
+# small list of words, and ANY of them anywhere in the prose buys silence -- "take
+# 5 from both sides", "subtract five", "minus five", "we take away 5" all pass. An
+# op carrying no arithmetic sign is not rule 4's business and is skipped: the canon
+# holds op=".." and op="(the 1 is carried)", which are annotations, not moves.
+# Canon sweep: 0 fires across every authored beat that carries an op=.
+# =============================================================================
+_OPU_TAG = re.compile(r'\[\[\s*step\b[^\]]*\bop\s*=\s*"\s*([^"]*?)\s*"', re.I)
+_OPU_SIGN = {"x": "*", "×": "*", "*": "*", "÷": "/", "/": "/", "-": "-", "−": "-", "+": "+"}
+_OPU_WORDS = {
+    # ⚠️ "take 5 away from each side" is the phrasing a young student hears most, and
+    # the first draft of this list MISSED it (take + NUMBER + away): a referee an
+    # honest sentence cannot satisfy is the iz phantom. Caught in this build's dry run.
+    "-": (re.compile(r"\b(?:subtract(?:s|ed|ing)?|minus|"
+                     r"take[sn]?\s+(?:\w+\s+){0,3}away|took\s+(?:\w+\s+){0,3}away|"
+                     r"takes?\s+\w{1,12}\s+(?:from|off)|take\s+(?:it\s+)?off|"
+                     r"remove[sd]?|removing|deduct(?:s|ed|ing)?|knock(?:s|ed)?\s+(?:\w+\s+){0,3}off|"
+                     r"lose[sd]?\s+\w{1,10}\s+(?:from|off)|"
+                     r"less\s+\w{1,10}\s+(?:from|on))\b", re.I),
+          'a subtraction -- say it, e.g. "subtract 5 from both sides"'),
+    "+": (re.compile(r"\b(?:add(?:s|ed|ing)?|plus|put(?:s|ting)?\s+\w{1,10}\s+"
+                     r"(?:in|on|back)|bring(?:s|ing)?\s+\w{1,10}\s+(?:in|over|back))\b", re.I),
+          'an addition -- say it, e.g. "add 5 to both sides"'),
+    "*": (re.compile(r"\b(?:multipl(?:y|ies|ied|ying)|times(?:ed|ing)?|double[sd]?|"
+                     r"doubling|twice)\b", re.I),
+          'a multiplication -- say it, e.g. "multiply both sides by 3"'),
+    "/": (re.compile(r"\b(?:divid(?:e|es|ed|ing)|split(?:s|ting)?|shar(?:e|es|ed|ing)|"
+                     r"halve[sd]?|halving|half)\b", re.I),
+          'a division -- say it, e.g. "divide both sides by 2"'),
+}
+
+
+def op_unspoken_conflict(reply: str):
+    """Return a description of an operation drawn on the board and never said aloud,
+    or "". Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        for m in _OPU_TAG.finditer(text):
+            op = m.group(1)
+            sign = ""
+            for ch in op:
+                if ch in _OPU_SIGN:
+                    sign = _OPU_SIGN[ch]
+                    break
+            if not sign:
+                continue          # an annotation, not a move -- not rule 4's business
+            words, hint = _OPU_WORDS[sign]
+            if words.search(prose):
+                continue          # the voice said it -- that is the job done
+            return ('your board applies "{o}" over both sides, and your spoken words '
+                    "never say what that move IS. The student sees {h}. Rule 4: SAY IT, "
+                    "THEN WRITE IT, in the same reply -- a student who only hears you "
+                    "can follow the line on the board and still not be able to repeat "
+                    "the step. Add the sentence that names the move, right before the "
+                    "line that draws it, and keep everything else the same."
+                    ).format(o=" ".join(op.split())[:24], h=hint)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[opunspoken] crashed (fail open): {exc}")
+        _event("referee_crash", "opunspoken", str(exc))
+        return ""
+
 
 
 # BUILD jd -- RULE 19(c), THE SPOKEN-LENGTH CEILING (the THIRTY-FOURTH referee).
@@ -10405,6 +10550,26 @@ _NM_CREDIT = (
     re.compile(r"\bthe way you (?:did|worked|handled|set|solved)\b", re.I),
     re.compile(r"\byour (?:method|approach|working|reasoning|strategy) (?:is|was|there)\b", re.I),
     re.compile(r"\bnice work (?:converting|borrowing|regrouping|factoring|simplifying)\b", re.I),
+    # (tw, 2026-09-07) THE ARITHMETIC VERBS. The 09-07 watch: the student sent "11" and
+    # was told "You multiplied 3 times 2 first to get 6, then added the 5." Every verb
+    # above is a PROCEDURE verb; not one of them is arithmetic, so the referee fired on
+    # "you carried the 1" and was silent on this.
+    # ⚠️ THE TRAP THIS PATTERN MUST NOT CATCH, and it is why the lookbehinds are here:
+    # the canon uses these verbs constantly inside NOUN-MODIFYING RELATIVE CLAUSES, and
+    # a sweep found six before this was written -- "smaller than the number you divided
+    # BY", "add the ANSWER to the number you took away", "count your zeros against the
+    # number you timesed BY", "the part you added, forgets the outcome", "there you
+    # halved, here you divide by 6". None of those credits anybody with anything. A
+    # credit is a claim about what the student just DID, and it does not sit after a
+    # noun or after "there/here/where/when"; nor is it followed by "by", which turns the
+    # verb into a description of a number. Present tense is teaching, not crediting, so
+    # only the past forms are here. Swept with the boundaries: 0 fires across 1,015
+    # foundation scripts x 6 bare answers and 2,539 lesson beats.
+    re.compile(r"(?<!number )(?<!part )(?<!amount )(?<!one )(?<!value )(?<!thing )"
+               r"(?<!digit )(?<!total )(?<!figure )(?<!place )(?<!column )(?<!side )"
+               r"(?<!row )(?<!answer )(?<!there )(?<!here )(?<!where )(?<!when )(?<!way )"
+               r"\byou (?:multiplied|added|subtracted|divided|timesed|halved|doubled|"
+               r"rounded|took away|counted (?:on|up|back|out))\b(?!\s+by\b)", re.I),
 )
 _NM_ASKS_HOW = re.compile(r"\bhow (?:did|d'?you|do you) (?:you )?(?:get|work|do|find)\b", re.I)
 
@@ -10845,6 +11010,14 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if orphan:
             _event("referee_fire", "orphanstep", orphan)
             return orphan
+        # build tw: SEVENTY-EIGHTH, immediately after it -- the op has a line under
+        # it, and now: does the VOICE say what the move is? (rule 4, say it then write
+        # it). Conduct class: nothing false is taught, the student simply cannot hear
+        # the step.
+        opunspoken = op_unspoken_conflict(reply)
+        if opunspoken:
+            _event("referee_fire", "opunspoken", opunspoken)
+            return opunspoken
         # build jh: THIRTY-SIXTH -- a step labelled with the wrong place value for the
         # board it is drawn on (rule 13). Objective: the partial answer says which
         # column is next. From Jim's resumed 24368 + 8175.

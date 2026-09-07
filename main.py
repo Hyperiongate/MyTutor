@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  APP_BUILD -> "2026-09-07tw-the-say-it-then-write-it-family".
+#               BUILD tw -- three proven holes from the 09-06 and 09-07 watches, all of
+#               them a student looking at something the voice never gave them. (1) The
+#               ask-lists (_VIS_ASKED, _RD_ASKS) learn "give me an example", "an
+#               example?", "like what?" and "show me one" -- they knew only "show me an
+#               example", so the same request in the words a student actually uses went
+#               unrefereed. (2) THE 78TH REFEREE, op_unspoken_conflict: an operation
+#               drawn over both sides ([[step op="- 5"]]) while the voice says only the
+#               goal. Rule 4 was COVERED by prompt words and enforced by nothing.
+#               (3) The credited-method list learns the ARITHMETIC verbs -- it held the
+#               procedure verbs only, so "you carried the 1" fired and "You multiplied 3
+#               times 2 first" did not. Referees 77 -> 78, all three conduct-class; truth
+#               class unchanged at 11. No engine or route change.
 #   2026-09-07  APP_BUILD -> "2026-09-07tv-the-gate-learns-who-wrote-the-symbol".
 #               BUILD tv -- referee 31 (the first-use gate) stops counting the STUDENT'S
 #               own words as evidence that a notation has been met. The 09-06 watch's F2
@@ -13862,7 +13875,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-07tv-the-gate-learns-who-wrote-the-symbol"
+APP_BUILD = "2026-09-07tw-the-say-it-then-write-it-family"
 
 
 @app.get("/health")

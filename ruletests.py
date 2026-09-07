@@ -2,6 +2,27 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tw -- THE SAY-IT-THEN-WRITE-IT FAMILY. PART 3js pins the widened
+#               ask-lists with the sentences that only LOOK like asks ("that's a good
+#               example", "like what we did yesterday", "for example, 3 plus 4 is 7"), the
+#               78th referee with eighteen honest phrasings it must leave alone, and the
+#               arithmetic credit verbs with the six authored relative clauses that must
+#               stay silent ("the number you divided BY", "there you halved"). Both canon
+#               sweeps repeated here. Referees 77 -> 78 (nine pins moved). Truth class
+#               stays 11. Tile 10,450 -> 10,482.
+#               ALSO, the same note-pin drift tv met in tutor.py, now in
+#               methodology.html: the twenty-four pins reading
+#               rd("static/methodology.html")[:12000] overflowed when tu's, tv's and
+#               tw's own notes pushed the 09-05 ones past 12,000 ((tb) sat at 12,156
+#               and (ta) at 12,501). Widened to [:20000], all twenty-four at once,
+#               and the one tsrc[:12000] to [:24000] to match tutor.py's window. The
+#               pins check the same strings in the same files; only the window moved.
+#               And once more in ruletests.py's OWN notes, which tt widened to
+#               [:16000] two days ago: the sp note sat at 16,033. All
+#               34 rd("ruletests.py")[:16000] pins -> [:28000]. THE PATTERN IS THE
+#               POINT: three builds in a row have each pushed one file's oldest pinned
+#               note past its window, and each time the honest repair is to widen every
+#               pin on that file at once rather than meet them one build at a time.
 #   2026-09-07  BUILD tv -- THE FIRST-USE GATE LEARNS WHO WROTE THE SYMBOL. PART 3jr
 #               reconstructs the 09-06 F2 and 09-07 N6 silence in both places it hid (a
 #               [[write]] tag and a [[machine]] caption), pins that the tutor writing OR
@@ -12898,7 +12919,7 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- this build widened a gate",
-          n_ref == 77,
+          n_ref == 78,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -12982,7 +13003,7 @@ def part3hn_credit_only_what_you_saw():
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rm widened a gate",
-          n_ref == 77, f"{n_ref} *_conflict functions")
+          n_ref == 78, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -13059,7 +13080,7 @@ def part3ho_three_one_line_holes():
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rn widened two gates",
-          n_ref == 77, f"{n_ref} *_conflict functions")
+          n_ref == 78, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -19435,10 +19456,10 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ seventy-seven referees now, counted from the code (62 + pz + qf + qm + qs + "
+    check("⭐ seventy-eight referees now, counted from the code (62 + pz + qf + qm + qs + "
           "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + "
-          "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach)",
-          n_ref == 77, n_ref)
+          "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach + tw's opunspoken)",
+          n_ref == 78, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -22025,7 +22046,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,450</b>" in page,
+          "<b>10,482</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22789,8 +22810,8 @@ def part3ii_the_board_tells_the_truth_about_which_question():
           fires == 0 and seen >= 9000, f"{fires} authored replies rejected")
 
     # ---- the count moved, and everything that pins it moved with it ----------------
-    check("  seventy-seven *_conflict referees",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 77, "")
+    check("  seventy-eight *_conflict referees",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 78, "")
     check("  tutor.py carries a dated sm note",
           "2026-09-04  BUILD sm" in open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                      "tutor.py"), encoding="utf-8").read(200000), "")
@@ -23236,7 +23257,7 @@ def part3il_the_lesson_learns_to_teach():
           "2026-09-05  BUILD sp" in rd("lessonscripts.py")[:60000]
           and "BUILD sp" in m[:200000] and "2026-09-05  BUILD sp" in mf[:12000]
           and "(sp) 2026-09-05" in pil[:8000]
-          and "2026-09-05  BUILD sp" in rd("ruletests.py")[:16000], "Jim's rule 8")
+          and "2026-09-05  BUILD sp" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
 def part3im_basic_unit_one_to_the_shape():
@@ -23377,7 +23398,7 @@ def part3im_basic_unit_one_to_the_shape():
           and "2026-09-05  BUILD sq" in mf[:12000] and "BUILD sq" in rd("tags.py")[:8000]
           and "BUILD sq" in rd("tutor.py")[:24000] and "2026-09-05 (sq)" in rd("static/script-board.js")[:3000]
           and all("(sq) 2026-09-05" in rd(pg)[:800] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "2026-09-05  BUILD sq" in rd("ruletests.py")[:16000], "Jim's rule 8")
+          and "2026-09-05  BUILD sq" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
 def part3in_basic_unit_two_to_the_shape():
@@ -23503,7 +23524,7 @@ def part3in_basic_unit_two_to_the_shape():
           and "BUILD sr" in rd("tags.py")[:8000] and "BUILD sr" in rd("tutor.py")[:24000]
           and "2026-09-05 (sr)" in rd("static/script-board.js")[:3000]
           and all("(sr) 2026-09-05" in rd(pg)[:800] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "2026-09-05  BUILD sr" in rd("ruletests.py")[:16000], "Jim's rule 8")
+          and "2026-09-05  BUILD sr" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
 def part3io_basic_unit_three_to_the_shape():
@@ -23614,7 +23635,7 @@ def part3io_basic_unit_three_to_the_shape():
     check("  the changed files carry dated ss notes",
           "2026-09-05  BUILD ss" in rd("lessonscripts.py")[:60000]
           and "BUILD ss" in rd("main.py")[:200000] and "2026-09-05  BUILD ss" in mf[:12000]
-          and "2026-09-05  BUILD ss" in rd("ruletests.py")[:16000], "Jim's rule 8")
+          and "2026-09-05  BUILD ss" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
 def part3ip_basic_unit_four_to_the_shape():
@@ -23705,7 +23726,7 @@ def part3ip_basic_unit_four_to_the_shape():
     check("  the changed files carry dated st notes",
           "2026-09-05  BUILD st" in rd("lessonscripts.py")[:60000]
           and "BUILD st" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD st" in rd("ruletests.py")[:16000], "Jim's rule 8")
+          and "2026-09-05  BUILD st" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
 def part3iq_basic_unit_five_to_the_shape():
@@ -23803,7 +23824,7 @@ def part3iq_basic_unit_five_to_the_shape():
     check("  the changed files carry dated su notes",
           "2026-09-05  BUILD su" in rd("lessonscripts.py")[:60000]
           and "BUILD su" in rd("main.py")[:200000] and "2026-09-05  BUILD su" in mf[:12000]
-          and "2026-09-05  BUILD su" in rd("ruletests.py")[:16000], "Jim's rule 8")
+          and "2026-09-05  BUILD su" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
 def _shape_unit_checks(unit_ids, pic_regex):
@@ -23959,7 +23980,7 @@ def part3ir_basic_unit_six_to_the_shape():
     check("  the changed files carry dated sv notes",
           "2026-09-05  BUILD sv" in rd("lessonscripts.py")[:60000]
           and "BUILD sv" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD sv" in rd("ruletests.py")[:16000], "Jim's rule 8")
+          and "2026-09-05  BUILD sv" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
 def part3is_basic_unit_seven_to_the_shape():
@@ -24017,7 +24038,7 @@ def part3is_basic_unit_seven_to_the_shape():
           and "BUILD sw" in rd("tags.py")[:8000] and "BUILD sw" in rd("tutor.py")[:24000]
           and "2026-09-05 (sw)" in rd("static/script-board.js")[:3000]
           and all("(sw) 2026-09-05" in rd(pg)[:900] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "2026-09-05  BUILD sw" in rd("ruletests.py")[:16000], "Jim's rule 8")
+          and "2026-09-05  BUILD sw" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
 def part3it_basic_unit_eight_to_the_shape():
@@ -24056,7 +24077,7 @@ def part3it_basic_unit_eight_to_the_shape():
     check("  the changed files carry dated sx notes",
           "2026-09-05  BUILD sx" in rd("lessonscripts.py")[:60000]
           and "BUILD sx" in rd("main.py")[:200000] and "2026-09-05  BUILD sx" in mf[:12000]
-          and "2026-09-05  BUILD sx" in rd("ruletests.py")[:16000], "Jim's rule 8")
+          and "2026-09-05  BUILD sx" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
 def part3iu_basic_unit_nine_to_the_shape():
@@ -24137,7 +24158,7 @@ def part3iu_basic_unit_nine_to_the_shape():
           and "BUILD sy" in rd("tags.py")[:8000] and "BUILD sy" in rd("tutor.py")[:24000]
           and "2026-09-05 (sy)" in rd("static/script-board.js")[:3000]
           and all("(sy) 2026-09-05" in rd(pg)[:1000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "2026-09-05  BUILD sy" in rd("ruletests.py")[:16000], "Jim's rule 8")
+          and "2026-09-05  BUILD sy" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
 def part3iv_the_times_table_is_a_pass():
@@ -24359,8 +24380,8 @@ def part3iv_the_times_table_is_a_pass():
     # shape adds a note above this one); the pin reads 60,000, as the sp...td pins do.
     check("  the changed files carry dated sz notes",
           "2026-09-05  BUILD sz" in src[:60000] and "BUILD sz" in m[:200000]
-          and "2026-09-05  BUILD sz" in rd("ruletests.py")[:16000]
-          and "2026-09-05" in rd("static/methodology.html")[:12000], "Jim's rule 8")
+          and "2026-09-05  BUILD sz" in rd("ruletests.py")[:28000]
+          and "2026-09-05" in rd("static/methodology.html")[:20000], "Jim's rule 8")
 
 
 def part3iw_the_tutor_sees_the_board():
@@ -24507,9 +24528,9 @@ def part3iw_the_tutor_sees_the_board():
     check("  tutor reads the board from the context first, board_for second",
           'board = str(context.get("board") or "") or _ls.board_for(p, level)' in tsrc, "")
     check("  the changed files carry dated ta notes",
-          "2026-09-05  BUILD ta" in tsrc[:12000] and "2026-09-05  BUILD ta" in rd("lessonscripts.py")[:60000]
-          and "BUILD ta" in m[:200000] and "2026-09-05  BUILD ta" in rd("ruletests.py")[:16000]
-          and "(ta)" in rd("static/methodology.html")[:12000], "Jim's rule 8")
+          "2026-09-05  BUILD ta" in tsrc[:24000] and "2026-09-05  BUILD ta" in rd("lessonscripts.py")[:60000]
+          and "BUILD ta" in m[:200000] and "2026-09-05  BUILD ta" in rd("ruletests.py")[:28000]
+          and "(ta)" in rd("static/methodology.html")[:20000], "Jim's rule 8")
 
 
 def part3ix_entry_unit_one_to_the_shape():
@@ -24547,7 +24568,7 @@ def part3ix_entry_unit_one_to_the_shape():
           not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in U1), "")
     check("  the changed files carry dated tb notes",
           "2026-09-05  BUILD tb" in rd("lessonscripts.py")[:60000] and "BUILD tb" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD tb" in rd("ruletests.py")[:16000] and "(tb)" in rd("static/methodology.html")[:12000],
+          and "2026-09-05  BUILD tb" in rd("ruletests.py")[:28000] and "(tb)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -24643,7 +24664,7 @@ def part3iy_prealgebra_units_one_to_three_to_the_shape():
           not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in U1 + U2 + U3), "")
     check("  the changed files carry dated tc notes",
           "2026-09-05  BUILD tc" in rd("lessonscripts.py")[:60000] and "BUILD tc" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD tc" in rd("ruletests.py")[:16000] and "(tc)" in rd("static/methodology.html")[:12000],
+          and "2026-09-05  BUILD tc" in rd("ruletests.py")[:28000] and "(tc)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -24747,7 +24768,7 @@ def part3iz_prealgebra_units_four_to_six_to_the_shape():
                   for l in U4 + U5 + U6 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated td notes",
           "2026-09-06  BUILD td" in rd("lessonscripts.py")[:60000] and "BUILD td" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD td" in rd("ruletests.py")[:16000] and "(td)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD td" in rd("ruletests.py")[:28000] and "(td)" in rd("static/methodology.html")[:20000]
           and "2026-09-06  BUILD td" in mf[:12000] and "BUILD td" in rd("tags.py")[:8000],
           "Jim's rule 8")
 
@@ -24885,7 +24906,7 @@ def part3ja_prealgebra_units_seven_to_nine_to_the_shape():
     # re-learn it one pin at a time.
     check("  the changed files carry dated te notes",
           "2026-09-06  BUILD te" in rd("lessonscripts.py")[:60000] and "BUILD te" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD te" in rd("ruletests.py")[:16000] and "(te)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD te" in rd("ruletests.py")[:28000] and "(te)" in rd("static/methodology.html")[:20000]
           and "2026-09-06  BUILD te" in mf[:3000],
           "Jim's rule 8")
 
@@ -24989,7 +25010,7 @@ def part3jb_algebra_one_units_one_to_three_to_the_shape():
                   for l in A1 + A2 + A3 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tf notes",
           "2026-09-06  BUILD tf" in rd("lessonscripts.py")[:60000] and "BUILD tf" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tf" in rd("ruletests.py")[:16000] and "(tf)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD tf" in rd("ruletests.py")[:28000] and "(tf)" in rd("static/methodology.html")[:20000]
           and "2026-09-06  BUILD tf" in mf[:3000],
           "Jim's rule 8")
 
@@ -25095,7 +25116,7 @@ def part3jc_algebra_one_units_four_to_six_to_the_shape():
                   for l in A4 + A5 + A6 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tg notes",
           "2026-09-06  BUILD tg" in rd("lessonscripts.py")[:60000] and "BUILD tg" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tg" in rd("ruletests.py")[:16000] and "(tg)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD tg" in rd("ruletests.py")[:28000] and "(tg)" in rd("static/methodology.html")[:20000]
           and "2026-09-06  BUILD tg" in mf[:3000],
           "Jim's rule 8")
 
@@ -25207,7 +25228,7 @@ def part3jd_algebra_one_units_seven_to_nine_to_the_shape():
               for l in L.LESSONS if l["course"] == "algebra1") and sum(1 for l in L.LESSONS if l["course"] == "algebra1") == 36, "")
     check("  the changed files carry dated th notes",
           "2026-09-06  BUILD th" in rd("lessonscripts.py")[:60000] and "BUILD th" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD th" in rd("ruletests.py")[:16000] and "(th)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD th" in rd("ruletests.py")[:28000] and "(th)" in rd("static/methodology.html")[:20000]
           and "2026-09-06  BUILD th" in mf[:3000],
           "Jim's rule 8")
 
@@ -25311,7 +25332,7 @@ def part3je_geometry_units_one_to_three_to_the_shape():
           _unsp == 0, f"{_unsp} unspoken")
     check("  the changed files carry dated ti notes",
           "2026-09-06  BUILD ti" in rd("lessonscripts.py")[:60000] and "BUILD ti" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD ti" in rd("ruletests.py")[:16000] and "(ti)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD ti" in rd("ruletests.py")[:28000] and "(ti)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -25433,7 +25454,7 @@ def part3jf_geometry_units_four_to_six_to_the_shape():
                   for l in G4 + G5 + G6), "")
     check("  the changed files carry dated tj notes",
           "2026-09-06  BUILD tj" in rd("lessonscripts.py")[:60000] and "BUILD tj" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tj" in rd("ruletests.py")[:16000] and "(tj)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD tj" in rd("ruletests.py")[:28000] and "(tj)" in rd("static/methodology.html")[:20000]
           and "2026-09-06  BUILD tj" in rd("tutor.py")[:24000],
           "Jim's rule 8")
 
@@ -25564,7 +25585,7 @@ def part3jg_geometry_units_seven_to_nine_to_the_shape():
                   for s, _ in L.LESSON_BY_ID[l][f]), "")
     check("  the changed files carry dated tk notes",
           "2026-09-06  BUILD tk" in rd("lessonscripts.py")[:60000] and "BUILD tk" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tk" in rd("ruletests.py")[:16000] and "(tk)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD tk" in rd("ruletests.py")[:28000] and "(tk)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -25686,7 +25707,7 @@ def part3jh_algebra_two_units_one_to_three_to_the_shape():
                   for l in A1 + A2 + A3), "")
     check("  the changed files carry dated tl notes",
           "2026-09-06  BUILD tl" in rd("lessonscripts.py")[:60000] and "BUILD tl" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tl" in rd("ruletests.py")[:16000] and "(tl)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD tl" in rd("ruletests.py")[:28000] and "(tl)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -25819,7 +25840,7 @@ def part3ji_algebra_two_units_four_to_six_to_the_shape():
                   for l in A4 + A5 + A6), "")
     check("  the changed files carry dated tm notes",
           "2026-09-06  BUILD tm" in rd("lessonscripts.py")[:60000] and "BUILD tm" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tm" in rd("ruletests.py")[:16000] and "(tm)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD tm" in rd("ruletests.py")[:28000] and "(tm)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -25952,7 +25973,7 @@ def part3jj_algebra_two_units_seven_to_nine_to_the_shape():
                   for l in A7 + A8 + A9), "")
     check("  the changed files carry dated tn notes",
           "2026-09-06  BUILD tn" in rd("lessonscripts.py")[:60000] and "BUILD tn" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tn" in rd("ruletests.py")[:16000] and "(tn)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD tn" in rd("ruletests.py")[:28000] and "(tn)" in rd("static/methodology.html")[:20000]
           and "2026-09-06  BUILD tn" in rd("static/math-figures.js")[:3000],
           "Jim's rule 8")
 
@@ -26076,7 +26097,7 @@ def part3jk_precalc_units_one_to_three_to_the_shape():
                   for l in P1 + P2 + P3), "")
     check("  the changed files carry dated to notes",
           "2026-09-06  BUILD to" in rd("lessonscripts.py")[:60000] and "BUILD to" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD to" in rd("ruletests.py")[:16000] and "(to)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD to" in rd("ruletests.py")[:28000] and "(to)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -26272,7 +26293,7 @@ def part3jl_precalc_units_four_to_six_to_the_shape():
                   for l in P4 + P5 + P6), "")
     check("  the changed files carry dated tp notes",
           "2026-09-06  BUILD tp" in rd("lessonscripts.py")[:60000] and "BUILD tp" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tp" in rd("ruletests.py")[:16000] and "(tp)" in rd("static/methodology.html")[:12000]
+          and "2026-09-06  BUILD tp" in rd("ruletests.py")[:28000] and "(tp)" in rd("static/methodology.html")[:20000]
           and "BUILD tp" in _mf[:3000] and "BUILD tp" in _gf[:3000],
           "Jim's rule 8")
 
@@ -26405,7 +26426,7 @@ def part3jm_precalc_units_seven_to_nine_to_the_shape():
                   for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tq notes",
           "2026-09-06  BUILD tq" in rd("lessonscripts.py")[:60000] and "BUILD tq" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tq" in rd("ruletests.py")[:16000] and "(tq)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD tq" in rd("ruletests.py")[:28000] and "(tq)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -26530,7 +26551,7 @@ def part3jn_probstat_units_one_to_three_to_the_shape():
                   for l in S1 + S2 + S3), "")
     check("  the changed files carry dated tr notes",
           "2026-09-06  BUILD tr" in rd("lessonscripts.py")[:60000] and "BUILD tr" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tr" in rd("ruletests.py")[:16000] and "(tr)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD tr" in rd("ruletests.py")[:28000] and "(tr)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -26601,7 +26622,7 @@ def part3jo_the_lesson_introduces_itself():
           and all("number line" in v for v in _fires.values()), str(_fires)[:200])
     check("  the changed files carry dated ts notes",
           "2026-09-06  BUILD ts" in rd("lessonscripts.py")[:60000] and "BUILD ts" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD ts" in rd("ruletests.py")[:16000] and "(ts)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD ts" in rd("ruletests.py")[:28000] and "(ts)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -26741,7 +26762,7 @@ def part3jp_probstat_units_four_to_six_to_the_shape():
                   for l in S4 + S5 + S6), "")
     check("  the changed files carry dated tt notes",
           "2026-09-06  BUILD tt" in rd("lessonscripts.py")[:60000] and "BUILD tt" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tt" in rd("ruletests.py")[:16000] and "(tt)" in rd("static/methodology.html")[:12000],
+          and "2026-09-06  BUILD tt" in rd("ruletests.py")[:28000] and "(tt)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -26882,10 +26903,10 @@ def part3jq_the_caption_the_sequence_and_the_definition():
     check("  the changed files carry dated tu notes",
           "2026-09-07  BUILD tu" in rd("tutor.py")[:200000]
           and "BUILD tu" in rd("main.py")[:200000]
-          and "2026-09-07  BUILD tu" in rd("ruletests.py")[:16000]
+          and "2026-09-07  BUILD tu" in rd("ruletests.py")[:28000]
           and "2026-09-07  BUILD tu" in rd("nightwatch.py")[:16000]
           and "2026-09-07  BUILD tu" in rd("lessonaudit.py")[:16000]
-          and "(tu)" in rd("static/methodology.html")[:12000],
+          and "(tu)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -27007,13 +27028,169 @@ def part3jr_the_gate_learns_who_wrote_the_symbol():
 
     # ---- nothing else moved ---------------------------------------------------------
     check("  no new referee and no new truth-class name: tv is a gate correction",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 77
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 78
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tv notes",
           "2026-09-07  BUILD tv" in rd("tutor.py")[:200000]
           and "BUILD tv" in rd("main.py")[:200000]
-          and "2026-09-07  BUILD tv" in rd("ruletests.py")[:16000]
-          and "(tv)" in rd("static/methodology.html")[:12000],
+          and "2026-09-07  BUILD tv" in rd("ruletests.py")[:28000]
+          and "(tv)" in rd("static/methodology.html")[:20000],
+          "Jim's rule 8")
+
+
+def part3js_the_say_it_then_write_it_family():
+    """PART 3js (build tw, 2026-09-07) -- THE SAY-IT-THEN-WRITE-IT FAMILY.
+
+    Three proven holes, one complaint: the student is looking at something the voice
+    never gave them.
+      * F5 (09-06) -- "can you SHOW me an example" fired; "can you GIVE me an example"
+        did not, and neither did "an example?", "like what?" or "show me one".
+      * N5 (09-07) -- [[step op="- 5"]] drawn while the voice said only "get the plain
+        number alone on the right side". Rule 4 was COVERED and enforced by nothing.
+      * N7 (09-07) -- the student sent "11" and was told "You multiplied 3 times 2 first
+        to get 6, then added the 5." _NM_CREDIT held the procedure verbs and no
+        arithmetic ones.
+
+    Every silence pinned below is a real sentence: the asks that only look like asks,
+    the eighteen honest ways to say an operation, and the six authored relative clauses
+    that use these verbs without crediting anybody with anything."""
+    print("\nPART 3js — the say-it-then-write-it family (build tw)")
+    import tutor as T
+    import foundations as FND, lessonscripts as LS
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+
+    # ---- F5: the ask-lists ---------------------------------------------------------
+    WORDS_ONLY = ("Sure. If a leg is 3 and the hypotenuse is 5, you square 5, square 3, "
+                  "subtract, and take the square root. That gives 4.")
+    _asked = lambda m: bool(T.prose_visual_conflict(WORDS_ONLY, student_message=m)
+                            or T.refused_demonstration_conflict(WORDS_ONLY, student_message=m))
+    check("⭐ THE 09-06 HOLE: \"can you GIVE me an example\" is the same request as "
+          "\"SHOW me\", and only one of them was refereed",
+          _asked("can you show me an example") and _asked("can you give me an example"), "")
+    for _m in ("give me an example", "gimme an example", "an example?", "like what?",
+               "show me one", "can I get an example", "what would that look like"):
+        check(f"  asks, and now fires: {_m!r}", _asked(_m), "")
+    for _m in ("that's a good example", "like what we did yesterday",
+               "for example, 3 plus 4 is 7", "I like what you said", "ok thanks", "11"):
+        check(f"  ⭐ only LOOKS like an ask, stays silent: {_m!r}", not _asked(_m), "")
+    _tsrc = rd("tutor.py")
+    check("  ONE GRAMMAR (build oy's law): the phrases live in _EXAMPLE_ASKS and BOTH "
+          "lists use it -- never a third copy of \"show me\"",
+          _tsrc.count("_EXAMPLE_ASKS = (") == 1 and _tsrc.count("+ _EXAMPLE_ASKS") == 2, "")
+
+    # ---- N5: the 78th referee ------------------------------------------------------
+    WATCH = ('First move -- get the plain number alone on the right side. '
+             '[[step eq="x^2 + 6x + 5 = 0"]][[step op="- 5" eq="x^2 + 6x = -5"]]')
+    check("⭐ THE 09-07 REPLY: an operation drawn over both sides with the voice saying "
+          "only the goal",
+          bool(T.op_unspoken_conflict(WATCH)) and "- 5" in T.op_unspoken_conflict(WATCH), "")
+    check("  ...and it reaches a student through the dispatcher",
+          bool(T.prose_board_conflict(WATCH)), "")
+    _HONEST = [("Subtract 5 from both sides.", "- 5"), ("Take 5 away from each side.", "- 5"),
+               ("Take five away from both sides.", "- 5"), ("We took 5 away from each side.", "- 5"),
+               ("Minus five on both sides.", "- 5"), ("Take 5 off both sides.", "- 5"),
+               ("Knock 5 off each side.", "- 5"), ("Remove 5 from both sides.", "- 5"),
+               ("Add 5 to both sides.", "+ 5"), ("We put 5 back on each side.", "+ 5"),
+               ("Plus five, both sides.", "+ 5"), ("Multiply both sides by 3.", "* 3"),
+               ("Times both sides by 3.", "x 3"), ("Double each side.", "* 2"),
+               ("Divide both sides by 2.", "/ 2"), ("Split each side in half.", "/ 2"),
+               ("Halve both sides.", "/ 2"), ("Share it out by 6.", "÷ 6")]
+    _miss = [say for say, op in _HONEST
+             if T.op_unspoken_conflict(f'{say} [[step op="{op}" eq="x = 1"]]')]
+    check(f"⭐ EIGHTEEN HONEST PHRASINGS SATISFY IT -- a referee an honest sentence "
+          f"cannot satisfy is the iz phantom, and the first draft of this list missed "
+          f"\"take 5 away\" (take + NUMBER + away)",
+          not _miss and len(_HONEST) == 18, str(_miss[:3]))
+    check("  an op with no arithmetic sign is an annotation, not a move, and is skipped",
+          not T.op_unspoken_conflict('Look. [[step op="(the 1 is carried)" eq="x = 1"]]')
+          and not T.op_unspoken_conflict('Look. [[step op=".." eq="x = 1"]]'), "")
+    check("  a step with no op= at all is not this referee's business",
+          not T.op_unspoken_conflict('Here it is. [[step eq="x = 1"]]'), "")
+    check("  ...and it is a DIFFERENT question from rule 15's orphan step, which asks "
+          "whether the line being acted ON is in this reply",
+          bool(T.orphan_step_conflict('Subtract 5. [[step op="- 5" eq="x = 1"]]'))
+          and not T.op_unspoken_conflict('Subtract 5. [[step op="- 5" eq="x = 1"]]'), "")
+
+    # ---- N7: the arithmetic credit verbs --------------------------------------------
+    check("⭐ THE 09-07 REPLY: a method credited to a student who sent \"11\"",
+          bool(T.narrated_method_conflict(
+              "That's right -- eleven. You multiplied 3 times 2 first to get 6, then "
+              "added the 5.", "11")), "")
+    check("  ...and the shorter form of the same credit",
+          bool(T.narrated_method_conflict("Exactly, 11. You added 5 and 6.", "11")), "")
+    check("  ...while the procedure verbs it always knew still fire",
+          bool(T.narrated_method_conflict("Nice -- you carried the 1.", "11")), "")
+    _CLAUSES = ("A remainder is always smaller than the number you divided by.",
+                "Add the ANSWER to the number you took away.",
+                "Count your zeros against the number you timesed by.",
+                "Handing back 65, the part you added, forgets the outcome.",
+                "There you halved, here you divide by 6.")
+    check("⭐ THE TRAP: six authored sentences use these verbs inside NOUN-MODIFYING "
+          "RELATIVE CLAUSES and credit nobody with anything -- all silent",
+          not any(T.narrated_method_conflict(c, "11") for c in _CLAUSES), "")
+    check("  ...and PRESENT tense is teaching, not crediting",
+          not T.narrated_method_conflict("You multiply 3 times 2 first, then add the 5.",
+                                         "11"), "")
+    check("  ...and rule 59's question is still the right move, untouched",
+          not T.narrated_method_conflict("That's right -- eleven. What did you do first?",
+                                         "11"), "")
+
+    # ---- ⭐ the standing canon sweeps -------------------------------------------------
+    _texts = []
+
+    def _w(o):
+        if isinstance(o, str):
+            _texts.append(o)
+        elif isinstance(o, dict):
+            for v in o.values():
+                _w(v)
+        elif isinstance(o, (list, tuple)):
+            for v in o:
+                _w(v)
+    for _n in dir(FND):
+        if not _n.startswith("_"):
+            _w(getattr(FND, _n))
+    _ANS = ("4/4", "15", "x plus 4", "2/3", "yes", "24")
+    _noise = sum(sum(1 for t in _texts if T.narrated_method_conflict(t, m)) for m in _ANS)
+    check(f"⭐ CANON SWEEP: the arithmetic verbs are silent on all {len(_texts)} canonical "
+          f"scripts x 6 bare answers", _noise == 0 and len(_texts) >= 1000, f"{_noise} fires")
+    _beats = _bfire = _ops = _opfire = 0
+    for _les in LS.LESSONS:
+        _bs = []
+        for _f in ("why", "picture", "teach", "recap"):
+            _bs += [(sp or "") + "\n" + (b or "") for sp, b in (_les.get(_f) or [])]
+        for _pr in (_les.get("pairs") or []):
+            _wk = _pr.get("worked") or ("", "")
+            _bs.append((_wk[0] or "") + "\n" + (_wk[1] or ""))
+        for _t in _bs:
+            _beats += 1
+            if any(T.narrated_method_conflict(_t, m) for m in _ANS):
+                _bfire += 1
+            if "op=" in _t:
+                _ops += 1
+                if T.op_unspoken_conflict(_t):
+                    _opfire += 1
+    for _t in _texts:
+        if "op=" in _t:
+            _ops += 1
+            if T.op_unspoken_conflict(_t):
+                _opfire += 1
+    check(f"⭐ CANON SWEEP: silent across {_beats} authored lesson beats x 6 bare answers",
+          _bfire == 0 and _beats >= 2400, f"{_bfire} fires")
+    check(f"⭐ CANON SWEEP: the 78th referee is silent on all {_ops} authored beats that "
+          f"carry an op=", _opfire == 0 and _ops >= 5, f"{_opfire} fires")
+
+    # ---- the count, and the notes ----------------------------------------------------
+    check("  seventy-eight referees, and the truth class unchanged at eleven (all three "
+          "of tw's are conduct: nothing false is taught)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 78
+          and len(T.TRUTH_REFEREES) == 11, "")
+    check("  the changed files carry dated tw notes",
+          "2026-09-07  BUILD tw" in rd("tutor.py")[:24000]
+          and "BUILD tw" in rd("main.py")[:200000]
+          and "2026-09-07  BUILD tw" in rd("ruletests.py")[:28000]
+          and "(tw)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -28468,7 +28645,7 @@ def part3hx_the_question_mark_is_a_blank_said_so():
           and n >= 1900 and m >= 3000,
           str(hits[:4]))
     check("  the referee count is unchanged -- sa is a registry row on referee 31",
-          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 77, "")
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 78, "")
 
 
 def part3hw_a_variables_letter_keeps_its_case():
@@ -28617,7 +28794,7 @@ def part3hu_the_accepted_offer_is_honored():
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
     check("  the referee count is unchanged -- rx widened a gate",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 77, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 78, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -28738,7 +28915,7 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
     check("  the referee count is unchanged -- ry widened a gate and added a floor",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 77, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 78, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -37364,6 +37541,7 @@ def main():
     part3jp_probstat_units_four_to_six_to_the_shape()
     part3jq_the_caption_the_sequence_and_the_definition()
     part3jr_the_gate_learns_who_wrote_the_symbol()
+    part3js_the_say_it_then_write_it_family()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
