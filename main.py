@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  APP_BUILD -> "2026-09-07tv-the-gate-learns-who-wrote-the-symbol".
+#               BUILD tv -- referee 31 (the first-use gate) stops counting the STUDENT'S
+#               own words as evidence that a notation has been met. The 09-06 watch's F2
+#               and the 09-07 watch's N6 are one hole: `heard` joins every message of the
+#               turn, so the function-notation student's opening -- "my book has f(x) in
+#               it and I don't know what that means" -- silenced the referee on the reply
+#               that introduced f(x), on a [[write]] tag and inside a [[machine]] caption
+#               alike. _create_verified now computes heard_tutor from the assistant
+#               messages only and prose_board_conflict carries it to that referee and no
+#               other. A reading the tutor gave in an earlier turn also buys silence now,
+#               which nothing ever tested. No new referee (still 77), no engine or route
+#               change, truth class unchanged at 11.
 #   2026-09-07  APP_BUILD -> "2026-09-07tu-the-truth-trio-and-the-reviewers-list".
 #               BUILD tu -- the 2026-09-07 night watch's three TRUTH-class findings,
 #               and the reviewer's rulings list grown from one row to five. Jim's
@@ -13850,7 +13862,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-07tu-the-truth-trio-and-the-reviewers-list"
+APP_BUILD = "2026-09-07tv-the-gate-learns-who-wrote-the-symbol"
 
 
 @app.get("/health")

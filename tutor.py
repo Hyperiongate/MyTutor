@@ -2,6 +2,45 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tv -- THE FIRST-USE GATE LEARNS WHO WROTE THE SYMBOL (referee 31,
+#               notation_intro_conflict, rule 14/48). The 09-06 watch's F2 and the 09-07
+#               watch's N6 are ONE hole, proven by reconstruction in this build's dry run.
+#                 * THE CAUSE. `heard` is built in _create_verified from EVERY message of
+#                   the turn, the STUDENT'S INCLUDED, and the gate said "the symbol
+#                   appeared in any earlier turn -> known, silent". The
+#                   function-notation scenario opens with the student saying "my book has
+#                   f(x) in it and I don't know what that means" -- so the student's own
+#                   confession that they cannot read the symbol is what silenced the
+#                   referee on the reply that introduced it. A student WRITING a symbol
+#                   is evidence they have NOT been taught it; it is the opposite of
+#                   having met it.
+#                 * THE FIX, at the one owner. notation_intro_conflict takes an optional
+#                   heard_tutor= and tests "met before" against THAT. It falls back to
+#                   `heard` when the caller does not supply it, so every existing caller
+#                   and every existing pin behaves exactly as before -- the referee is
+#                   not made stricter for anyone who has not opted in. _create_verified
+#                   computes it from the assistant messages only, the same way and at the
+#                   same moment it computes `heard` and `prev_tutor` (from the ORIGINAL
+#                   messages, never the retried list -- build ia's law), and
+#                   prose_board_conflict carries it to this referee AND NO OTHER. The
+#                   other referees fed `heard` are unchanged, deliberately: `heard` means
+#                   "what this conversation has said" for them and that is still right.
+#                 * N6 NEEDED NO CAPTION WORK. The 09-07 triage refused to assume F2's
+#                   fix would reach the [[machine ... caption="...f(2) = 5"]] sighting,
+#                   so the code was asked instead of guessed: _note_tag_vals has read
+#                   every quoted attribute value in every tag since build ni, captions
+#                   included. Pinned in the new PART so it stays true.
+#                 * AND THE HALF NEITHER WATCH ASKED FOR. Nothing ever tested whether the
+#                   READING was heard earlier -- only whether the SYMBOL was. A tutor who
+#                   said "f of x" aloud last turn and writes f(2) this turn was accused of
+#                   a first use. A reading in the tutor's earlier turns now buys silence
+#                   too, by the same tutor-only test: the student saying "f of x" is not
+#                   evidence they were taught it (the cautious-grader law -- erring here
+#                   means the tutor reads it aloud one extra time, which costs a student
+#                   nothing).
+#               No new referee: the count stays 77 and the truth class stays 11. Canon
+#               swept: the authored cards and generated boards fire exactly as they did
+#               before this build, with tutor-only heard and with the old heard alike.
 #   2026-09-07  BUILD tu -- THE TRUTH TRIO (the 2026-09-07 night watch's three
 #               truth-class findings). Jim's ruling, 2026-09-07: "truth items first" --
 #               a false picture and a false definition reached a student; nothing else
@@ -5672,10 +5711,19 @@ def _note_tag_vals(text):
     return out
 
 
-def notation_intro_conflict(reply: str, heard=None):
+def notation_intro_conflict(reply: str, heard=None, heard_tutor=None):
     """Return a description of board notation new to this conversation that the
     spoken words never read aloud, or "". Silent when `heard` is None.
-    Never raises: any unexpected input yields "" (fail open)."""
+    Never raises: any unexpected input yields "" (fail open).
+
+    (tv, 2026-09-07) heard_tutor -- WHAT THE TUTOR ITSELF HAS SAID, and the only
+    evidence that a notation has been MET. `heard` is every message of the turn
+    joined, the student's included, and the 09-06 and 09-07 watches both caught the
+    same consequence: a student who writes a symbol to ask what it means is counted
+    as having met it, and this referee goes quiet on the very reply that should read
+    it aloud. A student writing a symbol is evidence they have NOT been taught it.
+    Optional and FALLS BACK TO `heard` when absent, so no existing caller changes
+    behaviour by upgrading underneath it; _create_verified supplies it."""
     try:
         if heard is None:
             return ""
@@ -5687,7 +5735,10 @@ def notation_intro_conflict(reply: str, heard=None):
         prose = _spoken_only(text)
         if not prose.strip():
             return ""    # a tags-only FRAGMENT (foundation strings) is not a reply
-        base = str(heard)
+        # (tv) THE ONE LINE THE TWO WATCHES COST. heard_tutor is the tutor's own
+        # turns; `heard` is everybody's. Falling back rather than requiring it keeps
+        # every existing caller and pin on exactly the behaviour they were written to.
+        base = str(heard_tutor if heard_tutor is not None else heard)
         for name, sym, spoken, fix in _NOTATIONS:
             # (sq, 2026-09-05) ONE VALUE AT A TIME. The joined string put the end
             # of one attribute beside the start of the next, and build iz's phantom
@@ -5699,7 +5750,15 @@ def notation_intro_conflict(reply: str, heard=None):
             if not any(sym.search(v) for v in val_list):
                 continue                    # this notation isn't on the board
             if sym.search(base):
-                continue                    # the student has met it before
+                continue                    # the TUTOR has written it before
+            # (tv) ...and a READING the tutor gave earlier counts as having met it
+            # too. Nothing tested this before: the gate looked for the SYMBOL in the
+            # earlier turns and never for the WORDS, so a tutor who said "f of x"
+            # aloud last turn and writes f(2) this turn was accused of a first use.
+            # Judged against the same tutor-only text, for the same reason -- a
+            # student saying "f of x" is not evidence anyone taught it to them.
+            if spoken.search(base):
+                continue                    # the tutor read it aloud earlier
             # The reading can live in the prose OR on the board itself -- the
             # authored f(x) script writes 'say it out loud: "f of x"' INSIDE the
             # tag, and that IS the introduction (the canonical sweep's catch).
@@ -10434,7 +10493,7 @@ def narrated_method_conflict(reply: str, student_message: str = ""):
 def prose_board_conflict(reply: str, student_message: str = "", expected_unit=None,
                          allowed_units=None, record=None, heard=None,
                          terms_known=None, course: str = "", prev_tutor=None,
-                         opener: bool = False):
+                         opener: bool = False, heard_tutor=None):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
@@ -10571,7 +10630,11 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         # remainder. Notation new to the conversation must be read aloud (14);
         # a question is never re-asked word for word (22); a back-reference
         # points only at work the conversation actually held (62).
-        notation = notation_intro_conflict(reply, heard)
+        # (tv) heard_tutor reaches THIS referee and no other. The rest of the
+        # referees fed `heard` mean "what this conversation has said" by it, and that
+        # is still exactly right for them -- only the FIRST-USE question turns on who
+        # did the saying.
+        notation = notation_intro_conflict(reply, heard, heard_tutor=heard_tutor)
         if notation:
             _event("referee_fire", "notation", notation)
             return notation
@@ -12320,6 +12383,17 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     # very vocabulary it is checking for, and the regeneration would escape.
     heard = " ".join(m.get("content", "") for m in (messages or [])
                      if isinstance(m, dict) and isinstance(m.get("content"), str)).lower()
+    # (tv, 2026-09-07) WHAT THE TUTOR ITSELF HAS SAID, for the first-use gate
+    # (referee 31). Same source and same law as `heard` and `prev_tutor` above -- the
+    # ORIGINAL messages, never the retried list, or a rejected draft and its nudge
+    # would teach the gate the very notation it is checking for. The difference is the
+    # role filter, and the role filter is the whole fix: `heard` counts the student's
+    # own "my book has f(x) in it and I don't know what that means" as having met the
+    # symbol, which is backwards. An empty string is a real answer here (turn one: the
+    # tutor has said nothing yet), so the referee tests it with `is not None`.
+    heard_tutor = " ".join(m.get("content", "") for m in (messages or [])
+                          if isinstance(m, dict) and m.get("role") == "assistant"
+                          and isinstance(m.get("content"), str)).lower()
     # build ii: the PREVIOUS tutor turn, for the repeat-question referee (rule 22)
     # -- also from the ORIGINAL messages, for the same reason as heard.
     prev_tutor = ""
@@ -12444,6 +12518,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                                                 allowed_units=(meta or {}).get("allowed_units"),
                                                 record=(meta or {}).get("record"),
                                                 heard=heard,
+                                                heard_tutor=heard_tutor,
                                                 terms_known=(meta or {}).get("terms_known"),
                                                 course=(meta or {}).get("course", ""),
                                                 prev_tutor=prev_tutor,

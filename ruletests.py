@@ -2,6 +2,22 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tv -- THE FIRST-USE GATE LEARNS WHO WROTE THE SYMBOL. PART 3jr
+#               reconstructs the 09-06 F2 and 09-07 N6 silence in both places it hid (a
+#               [[write]] tag and a [[machine]] caption), pins that the tutor writing OR
+#               reading the notation earlier buys silence while the student doing either
+#               buys none, pins that heard_tutor reaches referee 31 AND NO OTHER, pins
+#               that _create_verified reads the assistant messages from the ORIGINAL list
+#               (build ia's law), and pins the fallback exactly: with no heard_tutor the
+#               referee's verdict is identical to before this build, across every
+#               foundation beat. Referees stay 77, truth class stays 11. Tile 10,433 -> 10,450.
+#               ALSO, the drift tt saw in ruletests.py, now in tutor.py: the five
+#               pins reading rd("tutor.py")[:8000] for the sq/sr/sw/sy/tj notes
+#               overflowed -- tu's and tv's own header notes pushed the 09-05 ones
+#               past 8,000 bytes (sy, the oldest, sat at 9,131). Widened to
+#               [:24000], all five at once, so the next build does not meet them
+#               one at a time. The pins still check the same strings in the same
+#               file; only the window moved.
 #   2026-09-07  BUILD tu -- THE TRUTH TRIO AND THE REVIEWER'S LIST. PART 3jq pins the
 #               76th referee (a pie's caption against the fraction it shades), the 77th
 #               (a listed sequence that moves away from the value it claims to approach),
@@ -22009,7 +22025,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,433</b>" in page,
+          "<b>10,450</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23359,7 +23375,7 @@ def part3im_basic_unit_one_to_the_shape():
           "2026-09-05  BUILD sq" in rd("lessonscripts.py")[:60000]
           and "BUILD sq" in rd("main.py")[:200000] and "(build sq)" in bj[:3000]
           and "2026-09-05  BUILD sq" in mf[:12000] and "BUILD sq" in rd("tags.py")[:8000]
-          and "BUILD sq" in rd("tutor.py")[:8000] and "2026-09-05 (sq)" in rd("static/script-board.js")[:3000]
+          and "BUILD sq" in rd("tutor.py")[:24000] and "2026-09-05 (sq)" in rd("static/script-board.js")[:3000]
           and all("(sq) 2026-09-05" in rd(pg)[:800] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "2026-09-05  BUILD sq" in rd("ruletests.py")[:16000], "Jim's rule 8")
 
@@ -23484,7 +23500,7 @@ def part3in_basic_unit_two_to_the_shape():
     check("  the changed files carry dated sr notes",
           "2026-09-05  BUILD sr" in rd("lessonscripts.py")[:60000]
           and "BUILD sr" in rd("main.py")[:200000] and "2026-09-05  BUILD sr" in mf[:12000]
-          and "BUILD sr" in rd("tags.py")[:8000] and "BUILD sr" in rd("tutor.py")[:8000]
+          and "BUILD sr" in rd("tags.py")[:8000] and "BUILD sr" in rd("tutor.py")[:24000]
           and "2026-09-05 (sr)" in rd("static/script-board.js")[:3000]
           and all("(sr) 2026-09-05" in rd(pg)[:800] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "2026-09-05  BUILD sr" in rd("ruletests.py")[:16000], "Jim's rule 8")
@@ -23998,7 +24014,7 @@ def part3is_basic_unit_seven_to_the_shape():
     check("  the changed files carry dated sw notes",
           "2026-09-05  BUILD sw" in rd("lessonscripts.py")[:60000]
           and "BUILD sw" in rd("main.py")[:200000] and "2026-09-05  BUILD sw" in mf[:12000]
-          and "BUILD sw" in rd("tags.py")[:8000] and "BUILD sw" in rd("tutor.py")[:8000]
+          and "BUILD sw" in rd("tags.py")[:8000] and "BUILD sw" in rd("tutor.py")[:24000]
           and "2026-09-05 (sw)" in rd("static/script-board.js")[:3000]
           and all("(sw) 2026-09-05" in rd(pg)[:900] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "2026-09-05  BUILD sw" in rd("ruletests.py")[:16000], "Jim's rule 8")
@@ -24118,7 +24134,7 @@ def part3iu_basic_unit_nine_to_the_shape():
     check("  the changed files carry dated sy notes",
           "2026-09-05  BUILD sy" in rd("lessonscripts.py")[:60000]
           and "BUILD sy" in rd("main.py")[:200000] and "2026-09-05  BUILD sy" in mf[:12000]
-          and "BUILD sy" in rd("tags.py")[:8000] and "BUILD sy" in rd("tutor.py")[:8000]
+          and "BUILD sy" in rd("tags.py")[:8000] and "BUILD sy" in rd("tutor.py")[:24000]
           and "2026-09-05 (sy)" in rd("static/script-board.js")[:3000]
           and all("(sy) 2026-09-05" in rd(pg)[:1000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "2026-09-05  BUILD sy" in rd("ruletests.py")[:16000], "Jim's rule 8")
@@ -25418,7 +25434,7 @@ def part3jf_geometry_units_four_to_six_to_the_shape():
     check("  the changed files carry dated tj notes",
           "2026-09-06  BUILD tj" in rd("lessonscripts.py")[:60000] and "BUILD tj" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tj" in rd("ruletests.py")[:16000] and "(tj)" in rd("static/methodology.html")[:12000]
-          and "2026-09-06  BUILD tj" in rd("tutor.py")[:8000],
+          and "2026-09-06  BUILD tj" in rd("tutor.py")[:24000],
           "Jim's rule 8")
 
 
@@ -26870,6 +26886,134 @@ def part3jq_the_caption_the_sequence_and_the_definition():
           and "2026-09-07  BUILD tu" in rd("nightwatch.py")[:16000]
           and "2026-09-07  BUILD tu" in rd("lessonaudit.py")[:16000]
           and "(tu)" in rd("static/methodology.html")[:12000],
+          "Jim's rule 8")
+
+
+def part3jr_the_gate_learns_who_wrote_the_symbol():
+    """PART 3jr (build tv, 2026-09-07) -- THE FIRST-USE GATE LEARNS WHO WROTE THE SYMBOL.
+
+    Referee 31 asks whether a notation is NEW to this conversation and answered it with
+    `heard` -- every message of the turn, the STUDENT'S INCLUDED. The function-notation
+    scenario opens with "my book has f(x) in it and I don't know what that means", so
+    the student's own confession that they cannot read the symbol is what silenced the
+    referee on the reply that introduced it. Caught by the 09-06 watch on a [[write]]
+    tag (F2) and by the 09-07 watch inside a [[machine]] caption (N6) -- one hole, two
+    costumes. A student WRITING a symbol is evidence they have NOT been taught it.
+
+    Everything below is the reconstruction, run as a test: with heard alone the referee
+    is silent, with heard_tutor it fires, and the honest silences all survive."""
+    print("\nPART 3jr — the gate learns who wrote the symbol (build tv)")
+    import tutor as T
+    import inspect as _insp
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    N = T.notation_intro_conflict
+
+    STUDENT = "my book has f(x) in it and I don't know what that means"
+    # a reply whose ONLY new notation is f(x): no 2x hug, no slash, no exponent --
+    # the first dry run of this build fired on "a number hugging a letter" instead
+    # and proved nothing until the reply was isolated.
+    WRITE = 'A rule with a name. [[write text="f(x) = 2 times x + 1"]]'
+    MACHINE = ('Put in 2, get out 5. [[machine input="2" rule="x + 3" output="5" '
+               'fname="f" caption="put in 2, get out 5 - that\'s f(2) = 5"]]')
+    _isf = lambda d: bool(d) and "function notation (f)" in d
+
+    # ---- F2: the [[write]] tag ----------------------------------------------------
+    check("⭐ THE 09-06 HOLE, reconstructed: the student's own \"I don't know what that "
+          "means\" silenced the referee on the reply that introduced f(x)",
+          _isf(N(WRITE, heard="")) and not N(WRITE, heard=STUDENT), "")
+    check("⭐ ...and heard_tutor closes it -- the student wrote it, the tutor never did",
+          _isf(N(WRITE, heard=STUDENT, heard_tutor="")), "")
+
+    # ---- N6: the same hole inside a caption ---------------------------------------
+    check("⭐ THE 09-07 SIGHTING is the SAME hole, not a second one: the machine's "
+          "caption behaves exactly like the write tag",
+          _isf(N(MACHINE, heard="")) and not N(MACHINE, heard=STUDENT)
+          and _isf(N(MACHINE, heard=STUDENT, heard_tutor="")), "")
+    check("  ...because _note_tag_vals has read captions since build ni -- asked of the "
+          "code, not assumed",
+          "f(2) = 5" in " ".join(T._note_tag_vals(MACHINE)), "")
+
+    # ---- what DOES count as having met it -----------------------------------------
+    check("  the TUTOR having written it earlier buys silence",
+          not N(WRITE, heard=STUDENT, heard_tutor='last turn: [[write text="f(x) = 3"]]'), "")
+    # heard="" DELIBERATELY: with the student's sentence in heard the symbol test would
+    # decide this on its own under a broken base, and the reading half would look pinned
+    # when it was not. This build's failability run caught exactly that.
+    check("⭐ the TUTOR having READ it aloud earlier buys silence -- the half neither "
+          "watch asked for, and nothing tested before tv",
+          not N(WRITE, heard="", heard_tutor="we read that as f of x")
+          and _isf(N(WRITE, heard="", heard_tutor="we talked about machines")), "")
+    check("⭐ the STUDENT saying \"f of x\" buys NOTHING -- a student saying it is not "
+          "evidence anyone taught it to them (the cautious-grader law)",
+          _isf(N(WRITE, heard="f of x", heard_tutor="")), "")
+
+    # ---- the referee must still be satisfiable (the iz phantom law) ---------------
+    check("  a reply that DOES read it aloud is satisfied, even with an empty tutor "
+          "history -- a referee that cannot be satisfied is the iz phantom",
+          not N('We write that as f of two equals five. [[machine input="2" '
+                'rule="x + 3" output="5" fname="f" caption="put in 2, get out 5"]]',
+                heard=STUDENT, heard_tutor=""), "")
+    check("  heard=None still switches the referee off entirely",
+          N(WRITE, heard=None) == "" and N(WRITE, heard=None, heard_tutor="") == "", "")
+
+    # ---- ⭐ THE FALLBACK IS EXACT --------------------------------------------------
+    # The whole safety of an optional argument: a caller that does not pass it must get
+    # the behaviour it was written against, to the character.
+    import foundations as FND
+    _n = _fires = _same = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            _t = (_sc.get("say") or "") + "\n" + "\n".join(_sc.get("board") or [])
+            if not _t.strip():
+                continue
+            _n += 1
+            _a, _b = N(_t, heard=""), N(_t, heard="", heard_tutor="")
+            if _a == _b:
+                _same += 1
+            if _a:
+                _fires += 1
+    check(f"⭐ THE FALLBACK IS EXACT: across {_n} foundation beats the verdict is "
+          f"identical with and without heard_tutor",
+          _n == 306 and _same == _n, f"{_n - _same} drifted")
+    check("  ...and the referee's own reach is unchanged by this build (83 of those "
+          "beats fire at heard=\"\", exactly as before tv)",
+          _fires == 83, _fires)
+
+    # ---- the plumbing --------------------------------------------------------------
+    _disp = _insp.getsource(T.prose_board_conflict)
+    check("⭐ heard_tutor reaches referee 31 AND NO OTHER -- the rest still mean "
+          "\"what this conversation has said\" by heard, and that is still right",
+          "notation_intro_conflict(reply, heard, heard_tutor=heard_tutor)" in _disp
+          and _disp.count("heard_tutor=heard_tutor") == 1, "")
+    _cv = _insp.getsource(T._create_verified)
+    # ⚠️ the obvious spelling of this pin -- 'm.get("role") == "assistant"' in _cv --
+    # is satisfied by prev_tutor's OWN line four lines below (_m.get(...) contains it as
+    # a substring), so it passes whatever heard_tutor does. This build's failability run
+    # caught it: the seam was broken and the check did not notice. It reads the
+    # heard_tutor statement itself now.
+    _ht = _cv[_cv.index("heard_tutor = "):_cv.index("# build ii: the PREVIOUS tutor turn")]
+    check("  _create_verified computes it from the ASSISTANT messages only",
+          'm.get("role") == "assistant"' in _ht and '"user"' not in _ht
+          and "heard_tutor" in _cv, "")
+    check("⭐ ...from the ORIGINAL messages, never the retried list (build ia's law: a "
+          "rejected draft plus its nudge would teach the gate the very notation it "
+          "is checking for)",
+          _cv.index("heard_tutor = ") < _cv.index("drafts = []")
+          and "for m in (messages or [])" in _cv, "")
+    check("  ...and it is passed down beside heard, not instead of it",
+          "heard=heard," in _cv and "heard_tutor=heard_tutor," in _cv, "")
+
+    # ---- nothing else moved ---------------------------------------------------------
+    check("  no new referee and no new truth-class name: tv is a gate correction",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 77
+          and len(T.TRUTH_REFEREES) == 11, "")
+    check("  the changed files carry dated tv notes",
+          "2026-09-07  BUILD tv" in rd("tutor.py")[:200000]
+          and "BUILD tv" in rd("main.py")[:200000]
+          and "2026-09-07  BUILD tv" in rd("ruletests.py")[:16000]
+          and "(tv)" in rd("static/methodology.html")[:12000],
           "Jim's rule 8")
 
 
@@ -37219,6 +37363,7 @@ def main():
     part3jo_the_lesson_introduces_itself()
     part3jp_probstat_units_four_to_six_to_the_shape()
     part3jq_the_caption_the_sequence_and_the_definition()
+    part3jr_the_gate_learns_who_wrote_the_symbol()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
