@@ -2,6 +2,13 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-07  BUILD ub -- [[graph shade="lo..hi"]]: THE AREA UNDER A CURVE, the picture
+                 Calculus Units 7-9 teach from. The region between the first curve and
+                 the x-axis over lo..hi is filled faintly in the curve's colour, under
+                 everything else; between="1" fills between the first and second curves
+                 (the strip between two curves); label="?" or a number is written in the
+                 middle of the region ("?" on an ask, the area on the walk-back). Without
+                 shade= nothing changed -- every canon graph draws byte-for-byte as before.
      2026-09-07  BUILD ua -- [[graph]] keeps its y labels whole. A label wider than the
                  left margin ("-20000", the cubic in Calculus Unit 5) ran off the canvas
                  and read as its last four characters. The canvas now grows leftward by
@@ -432,6 +439,40 @@
     svg += '<text x="' + ayLblX + '" y="' + (PAD - 6) + '" ' + AXIS_LBL + '>y</text>';
 
     svg += '<g clip-path="url(#gclip)">';
+    // (ub, 2026-09-07) shade="lo..hi": THE AREA UNDER A CURVE, Calculus Units 7-9's
+    // picture. The region between the first sampled curve (a func= curve, else the first
+    // sloped line) and the x-axis over lo..hi is filled in the curve's own colour, faintly,
+    // underneath everything else. between="1" fills between the first and the SECOND
+    // curve instead (the strip caught between two curves). label="?" (or a number) is
+    // written in the middle of the region -- "?" on an ask, the area on the walk-back.
+    // Without shade= nothing changed.
+    var shadeR = parseRange(a.shade);
+    if (shadeR && shadeR[1] > shadeR[0]) {
+      var sampled = curves.filter(function (c) { return !!c.fn; });
+      var topC = sampled[0], botC = (String(a.between || "") === "1") ? sampled[1] : null;
+      if (topC) {
+        var lo = Math.max(xmin, shadeR[0]), hi = Math.min(xmax, shadeR[1]), M = 160, up = [], dn = [], sumT = 0, sumB = 0, cnt = 0;
+        for (var si = 0; si <= M; si++) {
+          var sx = lo + (hi - lo) * si / M, ty, by;
+          try { ty = topC.fn(sx); } catch (e) { ty = NaN; }
+          try { by = botC ? botC.fn(sx) : 0; } catch (e) { by = NaN; }
+          if (!isFinite(ty) || !isFinite(by) || !inDomain(sx, topC.dom)) continue;
+          ty = Math.max(ymin, Math.min(ymax, ty)); by = Math.max(ymin, Math.min(ymax, by));
+          up.push(mapX(sx) + "," + mapY(ty)); dn.unshift(mapX(sx) + "," + mapY(by));
+          sumT += ty; sumB += by; cnt++;
+        }
+        if (up.length > 1) {
+          var shadeCol = COLORS[0];
+          svg += '<polygon points="' + up.concat(dn).join(" ") + '" fill="' + shadeCol + '" fill-opacity="0.18" stroke="' + shadeCol + '" stroke-width="1" stroke-opacity="0.5"/>';
+          var lab = String(a.label == null ? "" : a.label).trim();
+          if (lab && cnt) {
+            var lx0 = mapX((lo + hi) / 2), ly0 = mapY((sumT / cnt + sumB / cnt) / 2) + 6;
+            svg += '<text x="' + lx0 + '" y="' + ly0 + '" font-size="18" font-weight="800" fill="' + shadeCol + '" text-anchor="middle" ' +
+                   'stroke="var(--bd-ffffff)" stroke-width="4" paint-order="stroke" font-family="system-ui,Segoe UI,Arial,sans-serif">' + esc(lab) + '</text>';
+          }
+        }
+      }
+    }
     // vertical lines
     curves.forEach(function (c) {
       if (c._vLine) svg += '<line x1="' + mapX(c._vLine.x) + '" y1="' + PAD + '" x2="' + mapX(c._vLine.x) + '" y2="' + (S - PAD) + '" stroke="' + COLORS[0] + '" stroke-width="2.5"/>';

@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  APP_BUILD -> "2026-09-07ub-calculus-units-seven-to-nine-to-the-shape".
+#               BUILD ub -- Calculus Units 7-9 (the integral, its uses, differential
+#               equations) rewritten to the shape: twelve lessons, each with a why, a
+#               picture drawn before the rule, the rule read off the picture, two worked
+#               examples drawn on it, every right answer walked back on the picture, a
+#               reason question after the streak, and a recap. ⭐ CALCULUS 36/36. The
+#               area under the graph is SHADED on every integral ask with "?" written in
+#               it and the area written on the walk-back -- static/math-figures.js learns
+#               [[graph shade="lo..hi" label="?"]] and between="1"; every canon graph
+#               draws byte-for-byte as before (1,455 of them). No route change.
 #   2026-09-07  APP_BUILD -> "2026-09-07ua-calculus-units-four-to-six-to-the-shape".
 #               BUILD ua -- Calculus Units 4-6 (derivatives at work, optimisation,
 #               antiderivatives) rewritten to the shape: twelve lessons, each with a why,
@@ -13920,7 +13930,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-07ua-calculus-units-four-to-six-to-the-shape"
+APP_BUILD = "2026-09-07ub-calculus-units-seven-to-nine-to-the-shape"
 
 
 @app.get("/health")

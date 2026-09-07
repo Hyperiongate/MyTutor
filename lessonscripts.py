@@ -2,6 +2,37 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD ub -- CALCULUS UNITS 7-9 TO THE SHAPE (12 lessons). Jim: "continue
+#               with updating the courses as far as how we're taught." ⭐ CALCULUS 36/36.
+#               THIS FILE:
+#                 * Unit 7 (the integral): the area under the graph SHADED on the ask
+#                   with "?" written in it ([[graph shade="lo..hi" label="?"]], new in
+#                   math-figures.js) and the area written on the walk-back -- the
+#                   rectangle under a steady speed, the triangle under the ramp y = x,
+#                   the strip under 2x from one end to the other; the hump whose area is
+#                   GIVEN (h + h/2 sin over one whole period, so the label is honest)
+#                   and the flat line it flattens to on the walk-back;
+#                 * Unit 8 (uses): the strip between two humps (between="1"); the
+#                   trapezium under a climbing speed and its halfway line on the
+#                   walk-back; the flow rectangle asked, the AMOUNT line from the start
+#                   on the walk-back; the cylinder ([[solid kind="cylinder"]]) a
+#                   rectangle sweeps out;
+#                 * Unit 9 (differential equations): the amount line falling from the
+#                   start, its end point on the walk-back; the two rates as bars, the
+#                   net line on the walk-back; the rate line against the amount, the
+#                   point on the walk-back; the rate line falling to zero, the crossing
+#                   on the walk-back.
+#               LEGENDS: "speed = 7 m/s" as a legend name fired the one-thought-per-line
+#               referee (an equation with a trailing unit) on 24 asks and walk-backs --
+#               "a steady 7 metres a second" and "6 litres a minute running in" now.
+#               THREE closures crossed the 24,000-character audio ceiling (defi 24,126,
+#               revo 25,361, pgrw 24,650): each praise says the arithmetic once and
+#               keeps the one idea its walk-back does not say. Trap lines kept in every
+#               lesson; "one idea wearing two hats" and "measures the CHANGE, never the
+#               amount" kept in their teaches. ENGINE: OP_EXT defi/triz/ftc/avgv/btwn/
+#               trap/accu/revo/dfeq/mixr/pgrw/eqbm gain "worked" (_defi_* ... _eqbm_*)
+#               and picture boards. The six PART 3fs fixed fragments survive in each
+#               lesson's second worked pair.
 #   2026-09-07  BUILD ua -- CALCULUS UNITS 4-6 TO THE SHAPE (12 lessons). Jim: "continue
 #               with updating the courses as far as how we're taught." CALCULUS 24/36.
 #               THIS FILE:
@@ -25900,24 +25931,62 @@ _CALCULUS_U7 = [
         "op": "defi", "max_value": 170,
         "levels": ("abstract",),
         "symbols": ("integral", "rectangle"),
-        "advance_line": "Three in a row — you've got it! Height times width is the area under the graph.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Height times width is the area under the graph.",
+        "why": [
+            ("Unit Six ran the derivative backwards. Unit Seven does something that "
+             "sounds unrelated and turns out to be the same thing: measuring the AREA "
+             "underneath a graph. That area is called a definite integral, and the "
+             "simplest one of all is a rectangle.",
+             '[[goal text="The area is the answer"]]'),
+        ],
+        "picture": [
+            ("Here is a car holding a steady 8 metres a second for 5 seconds, drawn on a "
+             "speed graph. The speed line is flat, and the shaded shape underneath it is "
+             "a rectangle — 8 tall and 5 wide. Look at that shaded rectangle: it is about "
+             "to mean something.",
+             '[[graph lines="y=8" names="a steady 8 metres a second" shade="0..5" label="?" range="0..7" yrange="0..10" caption="8 metres a second for 5 seconds — the shaded rectangle under the speed line"]]'),
+        ],
         "teach": [
-            ["Unit 6 ran the derivative backwards. This unit does something that sounds unrelated and turns out to be the same thing: measuring the AREA underneath a graph. That area is called a definite integral.",
-             '[[goal text="The area is the answer"]][[step eq="speed 8 m/s · for 5 s"]]'],
-            ["Draw a car holding a steady 8 metres a second for 5 seconds on a speed graph and you get a rectangle, 8 tall and 5 wide. Its area is 40 — and 40 metres is exactly how far the car went. The area MEANS something.",
-             '[[step eq="8 × 5 = 40 m"]]'],
-            ["So multiply the height by the width. Adding them puts metres and seconds together as though they measured the same thing, and the width alone is just the time you were already told.",
-             '[[step eq="40 ✓"]][[step eq="13 ✗ added · 5 ✗ the time"]]'],
+            ("That is the method: height times width. The rectangle is 8 tall and 5 wide, "
+             "so its area is 40 — and 40 metres is exactly how far the car went. The area "
+             "MEANS the distance. That is what an integral is: the area underneath, read "
+             "as whatever the picture measures.",
+             '[[graph lines="y=8" names="a steady 8 metres a second" shade="0..5" label="40" range="0..7" yrange="0..10" caption="8 tall, 5 wide — an area of 40, and 40 metres travelled"]][[step eq="8 × 5 = 40 m"]]'),
+            ("So multiply the height by the width. Adding them puts metres and seconds "
+             "together as though they measured the same thing, and the width alone is "
+             "just the time you were already told.",
+             '[[step eq="40 ✓"]][[step eq="13 ✗ added · 5 ✗ the time"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 6 metres a second for 4 seconds is a rectangle of area 24 metres.",
-                        '[[step eq="6 × 4 = 24 m"]]'],
+            {"worked": ("Here is one more, done for you. 6 metres a second for 4 seconds is a "
+                        "rectangle of area 24 — 24 metres.",
+                        '[[graph lines="y=6" names="a steady 6 metres a second" shade="0..4" label="24" range="0..6" yrange="0..8" caption="6 tall, 4 wide — 24 metres"]][[step eq="6 × 4 = 24 m"]]'),
              "ask": {"a": 11, "b": 5, "op": "defi"}},
-            {"worked": ["One more together. 9 metres a second for 6 seconds: 9 times 6 — 54 metres.",
-                        '[[step eq="9 × 6 = 54 m"]]'],
+            {"worked": ("One more together. 9 metres a second for 6 seconds: the rectangle is "
+                        "9 tall and 6 wide, so 9 times 6 — 54 metres.",
+                        '[[graph lines="y=9" names="a steady 9 metres a second" shade="0..6" label="54" range="0..8" yrange="0..11" caption="9 tall, 6 wide — 54 metres"]][[step eq="9 × 6 = 54 m"]]'),
              "ask": {"a": 10, "b": 9, "op": "defi"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 8 metres a second for 5 "
+                       "seconds is 40 metres, not 13. Tap the reason why."),
+            "choices": ("because the distance is the rectangle's area, height times width | "
+                        "because the speed and the time are added together | "
+                        "because the distance is the time alone"),
+            "answer": "because the distance is the rectangle's area, height times width",
+            "board": '[[graph lines="y=8" names="a steady 8 metres a second" shade="0..5" label="?" range="0..7" yrange="0..10" caption="why 40, and not 13?"]]',
+        },
+        "recap": [
+            ("So, here it is again. The area under a speed graph is the distance, and "
+             "under a steady speed that area is a rectangle: height times width. Never add "
+             "the two numbers, and never hand back the time alone.",
+             '[[graph lines="y=8" names="a steady 8 metres a second" shade="0..5" label="40" range="0..7" yrange="0..10" caption="the area is the answer"]]'),
+            ("And that is a definite integral.",
+             '[[step eq="8 × 5 = 40"]]'),
+        ],
         "bank": [{"a": a, "b": b, "op": "defi"} for a, b in
                  ((2, 3), (3, 7), (17, 2), (4, 12), (7, 9),
                   (7, 11), (12, 8), (14, 8), (19, 7), (14, 11))],
@@ -25929,24 +25998,62 @@ _CALCULUS_U7 = [
         "op": "triz", "max_value": 460,
         "levels": ("abstract",),
         "symbols": ("ramp", "triangle"),
-        "advance_line": "Three in a row — you've got it! Square the time, then halve it.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Square the time, then halve it.",
+        "why": [
+            ("A steady speed drew a rectangle. Now let the car speed up steadily, so "
+             "that after t seconds it is going t metres a second. The graph is no longer "
+             "flat — it is a straight ramp climbing from the corner, and the shape "
+             "underneath it is a triangle.",
+             '[[goal text="When the graph is a ramp"]]'),
+        ],
+        "picture": [
+            ("Here is the ramp: the speed climbs from nothing, one metre a second faster "
+             "every second. After 6 seconds the shaded shape under it is a triangle, 6 "
+             "wide and 6 tall. Look at the empty half above the ramp — the triangle is "
+             "half of the square around it.",
+             '[[graph lines="y=x" names="speed = t" shade="0..6" label="?" range="0..8" yrange="0..8" caption="the speed ramps up from nothing — the shaded triangle is the distance after 6 seconds"]]'),
+        ],
         "teach": [
-            ["Steady speed drew a rectangle. Now let the car speed up steadily, so that after t seconds it is going t metres a second. The graph is no longer flat — it is a straight ramp climbing from the corner.",
-             '[[goal text="When the graph is a ramp"]][[step eq="speed = t · from 0 to 6 s"]]'],
-            ["Under a ramp the shape is a triangle, 6 wide and 6 tall after 6 seconds. A triangle covers half of the rectangle around it, so the area is 6 times 6 halved — 18 metres.",
-             '[[step eq="6 × 6 ÷ 2 = 18 m"]]'],
-            ["Forgetting the half claims 36, the whole rectangle, as if the car had gone flat out from the very first second. And the time itself, 6, is not a distance at all.",
-             '[[step eq="18 ✓"]][[step eq="36 ✗ no half · 6 ✗ the time"]]'],
+            ("That is the method: square the time, then halve it. A triangle covers half "
+             "of the rectangle around it, so the area is 6 times 6 halved — 18 metres. "
+             "The car went 18 metres in those 6 seconds.",
+             '[[graph lines="y=x" names="speed = t" shade="0..6" label="18" range="0..8" yrange="0..8" caption="6 by 6, halved — 18 metres"]][[step eq="6 × 6 ÷ 2 = 18 m"]]'),
+            ("Forgetting the half claims 36, the whole rectangle, as if the car had gone "
+             "flat out from the very first second. And the time itself, 6, is not a "
+             "distance at all.",
+             '[[step eq="18 ✓"]][[step eq="36 ✗ no half · 6 ✗ the time"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. After 32 seconds the triangle is 32 by 32, halved: 512 metres.",
-                        '[[step eq="32 × 32 ÷ 2 = 512 m"]]'],
+            {"worked": ("Here is one more, done for you. After 32 seconds the triangle is 32 "
+                        "by 32, halved: 512 metres.",
+                        '[[graph lines="y=x" names="speed = t" shade="0..32" label="512" range="0..34" yrange="0..34" caption="32 by 32, halved — 512 metres"]][[step eq="32 × 32 ÷ 2 = 512 m"]]'),
              "ask": {"a": 28, "b": 0, "op": "triz"}},
-            {"worked": ["One more together. After 34 seconds: 34 times 34 halved is 578 metres.",
-                        '[[step eq="34 × 34 ÷ 2 = 578 m"]]'],
+            {"worked": ("One more together. After 34 seconds: the triangle is 34 wide and 34 "
+                        "tall, and 34 times 34 halved is 578 metres.",
+                        '[[graph lines="y=x" names="speed = t" shade="0..34" label="578" range="0..36" yrange="0..36" caption="34 by 34, halved — 578 metres"]][[step eq="34 × 34 ÷ 2 = 578 m"]]'),
              "ask": {"a": 30, "b": 0, "op": "triz"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Under the ramp, after 6 "
+                       "seconds the car has gone 18 metres, not 36. Tap the reason why."),
+            "choices": ("because a triangle is half the rectangle around it | "
+                        "because the car went flat out from the first second | "
+                        "because the distance is the time squared"),
+            "answer": "because a triangle is half the rectangle around it",
+            "board": '[[graph lines="y=x" names="speed = t" shade="0..6" label="?" range="0..8" yrange="0..8" caption="why 18, and not 36?"]]',
+        },
+        "recap": [
+            ("So, here it is again. Under a ramp the area is a triangle, and a triangle "
+             "is half the rectangle around it: square the time, then halve. Forget the "
+             "half and you have claimed the whole rectangle; the time alone is not a "
+             "distance.",
+             '[[graph lines="y=x" names="speed = t" shade="0..6" label="18" range="0..8" yrange="0..8" caption="when the graph is a ramp"]]'),
+            ("And that is the triangle under a ramp.",
+             '[[step eq="6 × 6 ÷ 2 = 18"]]'),
+        ],
         "bank": [{"a": v, "b": 0, "op": "triz"} for v in
                  (8, 10, 12, 14, 16, 18, 20, 22, 24, 26)],
     },
@@ -25957,24 +26064,61 @@ _CALCULUS_U7 = [
         "op": "ftc", "max_value": 170,
         "levels": ("abstract",),
         "symbols": ("theorem", "ends"),
-        "advance_line": "Three in a row — you've got it! Square both ends and take the smaller from the bigger.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Square both ends and take the smaller from the bigger.",
+        "why": [
+            ("Rectangles and triangles are easy shapes. Most graphs are neither — so "
+             "here is the theorem that handles all of them, and it is the biggest idea in "
+             "the subject: the area comes from the two ends.",
+             '[[goal text="End take away start"]]'),
+        ],
+        "picture": [
+            ("Here is y equals 2 x, with the strip underneath it shaded from x equals 3 "
+             "to x equals 5. It is not a triangle from the corner and not a rectangle — "
+             "it starts partway along. Look at the two ends of the strip, because the "
+             "theorem reads them.",
+             '[[graph lines="y=2x" names="y = 2x" shade="3..5" label="?" range="0..7" yrange="0..14" caption="the strip under y = 2x from x = 3 to x = 5 — its two ends are what the theorem reads"]]'),
+        ],
         "teach": [
-            ["Rectangles and triangles are easy shapes. Most graphs are neither — so here is the theorem that handles all of them, and it is the biggest idea in the subject.",
-             '[[goal text="End take away start"]][[step eq="area under 2x, from 3 to 5"]]'],
-            ["To find the area under y equals 2 x, first run it backwards as in Unit 6: 2 x comes from x squared. Then work x squared out at both ends and take one from the other. From 3 to 5: 25 take away 9 is 16.",
-             '[[step eq="5² − 3² = 25 − 9 = 16"]]'],
-            ["That is the Fundamental Theorem of Calculus: areas and antiderivatives are one idea wearing two hats. Squaring the gap between the ends instead gives 4, a different number entirely, and the plain gap is only 2.",
-             '[[step eq="16 ✓"]][[step eq="4 ✗ gap squared · 2 ✗ the gap"]]'],
+            ("That is the method: run the rule backwards as in Unit Six — 2 x comes from "
+             "x squared — then work x squared out at both ends and take one from the "
+             "other. From 3 to 5: 25 take away 9 is 16, and the shaded strip holds "
+             "exactly 16.",
+             '[[graph lines="y=2x" names="y = 2x" shade="3..5" label="16" range="0..7" yrange="0..14" caption="5² take away 3² — the strip holds 16"]][[step eq="5² − 3² = 25 − 9 = 16"]]'),
+            ("That is the Fundamental Theorem of Calculus: areas and antiderivatives are "
+             "one idea wearing two hats. Squaring the gap between the ends instead gives "
+             "4, a different number entirely, and the plain gap is only 2.",
+             '[[step eq="16 ✓"]][[step eq="4 ✗ gap squared · 2 ✗ the gap"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. From 3 to 8: 64 take away 9 is 55.",
-                        '[[step eq="8² − 3² = 55"]]'],
+            {"worked": ("Here is one more, done for you. From 3 to 8: 64 take away 9 is 55.",
+                        '[[graph lines="y=2x" names="y = 2x" shade="3..8" label="55" range="0..10" yrange="0..20" caption="8² take away 3² — 55"]][[step eq="8² − 3² = 55"]]'),
              "ask": {"a": 5, "b": 9, "op": "ftc"}},
-            {"worked": ["One more together. From 2 to 11: 121 take away 4 is 117.",
-                        '[[step eq="11² − 2² = 117"]]'],
+            {"worked": ("One more together. From 2 to 11: 121 take away 4 is 117 — end take "
+                        "away start, and the strip between them holds 117.",
+                        '[[graph lines="y=2x" names="y = 2x" shade="2..11" label="117" range="0..13" yrange="0..26" caption="11² take away 2² — 117"]][[step eq="11² − 2² = 117"]]'),
              "ask": {"a": 6, "b": 12, "op": "ftc"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. The area under 2 x from "
+                       "3 to 5 is 16, not 4. Tap the reason why."),
+            "choices": ("because the end's x squared take away the start's x squared | "
+                        "because the gap between the ends is squared | "
+                        "because the area is the width of the strip"),
+            "answer": "because the end's x squared take away the start's x squared",
+            "board": '[[graph lines="y=2x" names="y = 2x" shade="3..5" label="?" range="0..7" yrange="0..14" caption="why 16, and not 4?"]]',
+        },
+        "recap": [
+            ("So, here it is again. To find the area under a graph, run the rule "
+             "backwards, work the antiderivative out at both ends, and take start from "
+             "end. That is the Fundamental Theorem — one idea in two hats. Never square "
+             "the gap, and never hand back the gap itself.",
+             '[[graph lines="y=2x" names="y = 2x" shade="3..5" label="16" range="0..7" yrange="0..14" caption="end take away start"]]'),
+            ("And that is the biggest idea in the subject.",
+             '[[step eq="5² − 3² = 16"]]'),
+        ],
         "bank": [{"a": a, "b": b, "op": "ftc"} for a, b in
                  ((1, 3), (5, 7), (8, 10), (7, 10), (9, 12),
                   (2, 9), (7, 12), (9, 14), (6, 13), (4, 13))],
@@ -25986,24 +26130,60 @@ _CALCULUS_U7 = [
         "op": "avgv", "max_value": 160,
         "levels": ("abstract",),
         "symbols": ("average", "flat"),
-        "advance_line": "Three in a row — you've got it! Area divided by width is the average height.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Area divided by width is the average height.",
+        "why": [
+            ("One last thing the area can tell you. Suppose you know the area under a "
+             "curve and you want a single number for how high the curve typically ran — "
+             "its average height. Flatten it out.",
+             '[[goal text="Flatten it out"]]'),
+        ],
+        "picture": [
+            ("Here is a curve with a hump and a dip, and the shaded area under it from 0 "
+             "to 5 is 60. Imagine pushing the hump down into the dip until the top is "
+             "flat. The area does not change — only the shape does.",
+             '[[graph func="12 + 6*sin(2*pi*x/5)" names="the curve" shade="0..5" label="60" range="0..5" yrange="0..21" caption="the area under the curve from 0 to 5 is 60 — push the hump down into the dip until the top is flat"]]'),
+        ],
         "teach": [
-            ["One last thing the area can tell you. Suppose you know the area under a curve and you want a single number for how high the curve typically ran. Flatten it out.",
-             '[[goal text="Flatten it out"]][[step eq="area 60 · width 5"]]'],
-            ["Imagine pushing the humps down into the dips until the top is flat. An area of 60 spread across a width of 5 stands 12 high, so 12 is the curve's average height — the average value of the function.",
-             '[[step eq="60 ÷ 5 = 12"]]'],
-            ["Some of the curve towers above that line and some falls below, and the two trade places exactly. Handing back 60 answers with an area where a height was asked for, and 5 is only the width.",
-             '[[step eq="12 ✓"]][[step eq="60 ✗ the area · 5 ✗ the width"]]'],
+            ("That is the method: area divided by width. An area of 60 spread across a "
+             "width of 5 stands 12 high, so 12 is the curve's average height — the "
+             "average value of the function. The flat line sits exactly where the hump "
+             "above it and the dip below it trade places.",
+             '[[graph func="12 + 6*sin(2*pi*x/5)" names="the curve; flattened to 12" lines="y=12" shade="0..5" label="60" range="0..5" yrange="0..21" caption="the same 60 of area as a flat rectangle 5 wide — it stands 12 high"]][[step eq="60 ÷ 5 = 12"]]'),
+            ("Some of the curve towers above that line and some falls below, and the two "
+             "trade places exactly. Handing back 60 answers with an area where a height "
+             "was asked for, and 5 is only the width.",
+             '[[step eq="12 ✓"]][[step eq="60 ✗ the area · 5 ✗ the width"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. An area of 96 across a width of 8 flattens to a height of 12.",
-                        '[[step eq="96 ÷ 8 = 12"]]'],
+            {"worked": ("Here is one more, done for you. An area of 96 across a width of 8 "
+                        "flattens to a height of 12.",
+                        '[[graph func="12 + 6*sin(2*pi*x/8)" names="the curve; flattened to 12" lines="y=12" shade="0..8" label="96" range="0..8" yrange="0..21" caption="96 across 8 — it stands 12 high"]][[step eq="96 ÷ 8 = 12"]]'),
              "ask": {"a": 154, "b": 11, "op": "avgv"}},
-            {"worked": ["One more together. 150 of area across a width of 10: 150 divided by 10 — it stands 15 high.",
-                        '[[step eq="150 ÷ 10 = 15"]]'],
+            {"worked": ("One more together. 150 of area across a width of 10: 150 divided by "
+                        "10 — flattened, it stands 15 high, the curve\'s average.",
+                        '[[graph func="15 + 7.5*sin(2*pi*x/10)" names="the curve; flattened to 15" lines="y=15" shade="0..10" label="150" range="0..10" yrange="0..26" caption="150 across 10 — it stands 15 high"]][[step eq="150 ÷ 10 = 15"]]'),
              "ask": {"a": 153, "b": 9, "op": "avgv"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. An area of 60 across a "
+                       "width of 5 has an average height of 12, not 60. Tap the reason why."),
+            "choices": ("because the area is spread evenly across the width | "
+                        "because the average height is the area itself | "
+                        "because the height is the width of the curve"),
+            "answer": "because the area is spread evenly across the width",
+            "board": '[[graph func="12 + 6*sin(2*pi*x/5)" names="the curve" shade="0..5" label="60" range="0..5" yrange="0..21" caption="why 12, and not 60?"]]',
+        },
+        "recap": [
+            ("So, here it is again. The average height of a curve is its area divided by "
+             "its width — the height of the flat rectangle with the same area. The area "
+             "is not a height, and the width is not a height either.",
+             '[[graph func="12 + 6*sin(2*pi*x/5)" names="the curve; flattened to 12" lines="y=12" shade="0..5" label="60" range="0..5" yrange="0..21" caption="flatten it out"]]'),
+            ("And that is the average value of a function.",
+             '[[step eq="60 ÷ 5 = 12"]]'),
+        ],
         "bank": [{"a": a, "b": b, "op": "avgv"} for a, b in
                  ((6, 3), (12, 4), (8, 2), (30, 6), (42, 7),
                   (35, 5), (72, 9), (90, 10), (80, 8), (132, 12))],
@@ -26026,24 +26206,61 @@ _CALCULUS_U8 = [
         "op": "btwn", "max_value": 190,
         "levels": ("abstract",),
         "symbols": ("between", "strip"),
-        "advance_line": "Three in a row — you've got it! Top area take away bottom area.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Top area take away bottom area.",
+        "why": [
+            ("Unit Seven measured the area under one curve. Draw a second curve below "
+             "it and a new region appears — the strip caught between the two. Measuring "
+             "that strip is the first real use of everything you have learned.",
+             '[[goal text="The gap between two curves"]]'),
+        ],
+        "picture": [
+            ("Here are two curves over the same stretch. The area under the top one is "
+             "50, and the area under the bottom one is 18. Look at the shaded strip "
+             "between them — and notice that the bottom curve\'s 18 is sitting INSIDE "
+             "the top curve\'s 50.",
+             '[[graph func="5 + 2.5*sin(2*pi*x/10); 1.8 + 0.9*sin(2*pi*x/10)" names="top; bottom" shade="0..10" between="1" label="?" range="0..10" yrange="0..10" caption="two curves over the same stretch — 50 under the top one, 18 under the bottom one, and the strip between them"]]'),
+        ],
         "teach": [
-            ["Unit 7 measured the area under one curve. Draw a second curve below it and a new region appears — the strip caught between the two. Measuring that is the first real use of everything you have learned.",
-             '[[goal text="The gap between two curves"]][[step eq="top area 50 · bottom area 18"]]'],
-            ["Here is the trick, and it is easier than it looks. The area under the top curve is 50. The area under the bottom curve, 18, is already counted inside that 50. So take it away: 32 is the strip between them.",
-             '[[step eq="50 − 18 = 32"]]'],
-            ["Top take away bottom, always in that order. Adding the two counts the lower region twice over, and answering with the top area alone hands back the whole slab instead of the gap.",
-             '[[step eq="32 ✓"]][[step eq="68 ✗ added · 50 ✗ the whole slab"]]'],
+            ("That is the method: top area take away bottom area. The 18 under the "
+             "bottom curve is already counted inside the 50, so take it away — 50 take "
+             "away 18 is 32, and the strip between them holds 32.",
+             '[[graph func="5 + 2.5*sin(2*pi*x/10); 1.8 + 0.9*sin(2*pi*x/10)" names="top; bottom" shade="0..10" between="1" label="32" range="0..10" yrange="0..10" caption="50 take away 18 — the strip between holds 32"]][[step eq="50 − 18 = 32"]]'),
+            ("Top take away bottom, always in that order. Adding the two counts the "
+             "lower region twice over, and answering with the top area alone hands back "
+             "the whole slab instead of the gap.",
+             '[[step eq="32 ✓"]][[step eq="68 ✗ added · 50 ✗ the whole slab"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A top area of 120 with 45 underneath it: the strip between them is 75.",
-                        '[[step eq="120 − 45 = 75"]]'],
+            {"worked": ("Here is one more, done for you. A top area of 120 with 45 underneath "
+                        "it: the strip between them is 75.",
+                        '[[graph func="12 + 6*sin(2*pi*x/10); 4.5 + 2.25*sin(2*pi*x/10)" names="top; bottom" shade="0..10" between="1" label="75" range="0..10" yrange="0..21" caption="120 take away 45 — 75 between"]][[step eq="120 − 45 = 75"]]'),
              "ask": {"a": 150, "b": 31, "op": "btwn"}},
-            {"worked": ["One more together. Top 160, bottom 38: 160 take away 38 — the gap is 122.",
-                        '[[step eq="160 − 38 = 122"]]'],
+            {"worked": ("One more together. Top 160, bottom 38: 160 take away 38 — the gap "
+                        "between the two curves is 122.",
+                        '[[graph func="16 + 8*sin(2*pi*x/10); 3.8 + 1.9*sin(2*pi*x/10)" names="top; bottom" shade="0..10" between="1" label="122" range="0..10" yrange="0..27" caption="160 take away 38 — 122 between"]][[step eq="160 − 38 = 122"]]'),
              "ask": {"a": 164, "b": 22, "op": "btwn"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. With 50 under the top "
+                       "curve and 18 under the bottom, the strip between holds 32, not 68. "
+                       "Tap the reason why."),
+            "choices": ("because the bottom area is already inside the top area | "
+                        "because the two areas are added together | "
+                        "because the strip is the whole top area"),
+            "answer": "because the bottom area is already inside the top area",
+            "board": '[[graph func="5 + 2.5*sin(2*pi*x/10); 1.8 + 0.9*sin(2*pi*x/10)" names="top; bottom" shade="0..10" between="1" label="?" range="0..10" yrange="0..10" caption="why 32, and not 68?"]]',
+        },
+        "recap": [
+            ("So, here it is again. The area between two curves is the top area take "
+             "away the bottom area, because the bottom area is already inside the top. "
+             "Never add them, and never hand back the top area alone.",
+             '[[graph func="5 + 2.5*sin(2*pi*x/10); 1.8 + 0.9*sin(2*pi*x/10)" names="top; bottom" shade="0..10" between="1" label="32" range="0..10" yrange="0..10" caption="the gap between two curves"]]'),
+            ("And that is the area between.",
+             '[[step eq="50 − 18 = 32"]]'),
+        ],
         "bank": [{"a": a, "b": b, "op": "btwn"} for a, b in
                  ((4, 2), (24, 4), (41, 3), (61, 5), (81, 7),
                   (98, 6), (118, 8), (138, 10), (155, 9), (175, 11))],
@@ -26055,24 +26272,63 @@ _CALCULUS_U8 = [
         "op": "trap", "max_value": 320,
         "levels": ("abstract",),
         "symbols": ("trapezium", "halfway"),
-        "advance_line": "Three in a row — you've got it! Average the two speeds, then hold it for the time.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Average the two speeds, then hold it for the time.",
+        "why": [
+            ("A rectangle came from a steady speed and a triangle from a speed starting "
+             "at nothing. Now a train that is already moving speeds up further — the "
+             "graph is a ramp that starts partway up the page, and the shape under it "
+             "is a trapezium.",
+             '[[goal text="A speed that climbs"]]'),
+        ],
+        "picture": [
+            ("Here is the train\'s speed: 4 metres a second at the start, climbing "
+             "steadily to 10 after 5 seconds. The shaded shape under it is a trapezium — "
+             "a rectangle with a triangle on top. Find the height halfway along, "
+             "because there is a lovely shortcut hiding there.",
+             '[[graph func="4 + 6*x/5" names="speed" shade="0..5" label="?" range="0..7" yrange="0..14" caption="the speed climbs steadily from 4 to 10 over 5 seconds — the shaded trapezium is the distance"]]'),
+        ],
         "teach": [
-            ["A rectangle came from a steady speed and a triangle from a speed starting at nothing. Now a train that is already moving speeds up further — the graph is a ramp that starts partway up the page.",
-             '[[goal text="A speed that climbs"]][[step eq="4 m/s → 10 m/s over 5 s"]]'],
-            ["That shape is a trapezium, and there is a lovely shortcut. The speed climbs steadily, so the average speed is exactly halfway between 4 and 10 — that is 7 — and 7 metres a second for 5 seconds is 35 metres.",
-             '[[step eq="(4 + 10) ÷ 2 = 7 · 7 × 5 = 35"]]'],
-            ["Forgetting to halve holds both speeds at once and doubles the answer to 70. Using the top speed for the whole journey claims 50, as though the train had never been slower than its finish.",
-             '[[step eq="35 ✓"]][[step eq="70 ✗ no half · 50 ✗ top speed only"]]'],
+            ("That is the method: average the two speeds, then hold it for the time. The "
+             "speed climbs steadily, so the average speed is exactly halfway between 4 "
+             "and 10 — that is 7 — and 7 metres a second for 5 seconds is 35 metres. The "
+             "halfway line cuts the trapezium into a rectangle of the same area.",
+             '[[graph func="4 + 6*x/5" names="speed; the halfway speed, 7" lines="y=7" shade="0..5" label="35" range="0..7" yrange="0..14" caption="halfway between 4 and 10 is 7, held for 5 seconds — 35 metres"]][[step eq="(4 + 10) ÷ 2 = 7 · 7 × 5 = 35"]]'),
+            ("Forgetting to halve holds both speeds at once and doubles the answer to "
+             "70. Using the top speed for the whole journey claims 50, as though the "
+             "train had never been slower than its finish.",
+             '[[step eq="35 ✓"]][[step eq="70 ✗ no half · 50 ✗ top speed only"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. From 13 to 21 metres a second over 9 seconds: halfway is 17, and 17 for 9 seconds is 153 metres.",
-                        '[[step eq="(13 + 21) ÷ 2 = 17 · 17 × 9 = 153"]]'],
+            {"worked": ("Here is one more, done for you. From 13 to 21 metres a second over 9 "
+                        "seconds: halfway is 17, and 17 for 9 seconds is 153 metres.",
+                        '[[graph func="13 + 8*x/9" names="speed; the halfway speed, 17" lines="y=17" shade="0..9" label="153" range="0..11" yrange="0..25" caption="halfway is 17, held for 9 seconds — 153 metres"]][[step eq="(13 + 21) ÷ 2 = 17 · 17 × 9 = 153"]]'),
              "ask": {"a": 6, "b": 16, "c": 10, "op": "trap"}},
-            {"worked": ["One more together. From 11 to 18 over 12 seconds: halfway is 14 and a half, giving 174 metres.",
-                        '[[step eq="(11 + 18) × 12 ÷ 2 = 174"]]'],
+            {"worked": ("One more together. From 11 to 18 over 12 seconds: halfway is 14 and a "
+                        "half, giving 174 metres for the whole climb.",
+                        '[[graph func="11 + 7*x/12" names="speed; the halfway speed, 14.5" lines="y=14.5" shade="0..12" label="174" range="0..14" yrange="0..22" caption="halfway is 14 and a half, held for 12 seconds — 174 metres"]][[step eq="(11 + 18) × 12 ÷ 2 = 174"]]'),
              "ask": {"a": 18, "b": 22, "c": 7, "op": "trap"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Climbing from 4 to 10 "
+                       "over 5 seconds, the train goes 35 metres, not 70. Tap the reason why."),
+            "choices": ("because the average speed is halfway between the two | "
+                        "because both speeds are held for the whole time | "
+                        "because the top speed is held for the whole time"),
+            "answer": "because the average speed is halfway between the two",
+            "board": '[[graph func="4 + 6*x/5" names="speed" shade="0..5" label="?" range="0..7" yrange="0..14" caption="why 35, and not 70?"]]',
+        },
+        "recap": [
+            ("So, here it is again. Under a speed that climbs steadily the shape is a "
+             "trapezium, and its area is the halfway speed held for the whole time — "
+             "average the two speeds, then multiply by the seconds. Never hold both "
+             "speeds at once, and never the top speed alone.",
+             '[[graph func="4 + 6*x/5" names="speed; the halfway speed, 7" lines="y=7" shade="0..5" label="35" range="0..7" yrange="0..14" caption="a speed that climbs"]]'),
+            ("And that is the trapezium under a climbing speed.",
+             '[[step eq="(4 + 10) ÷ 2 × 5 = 35"]]'),
+        ],
         "bank": [{"a": a, "b": b, "c": c, "op": "trap"} for a, b, c in
                  ((2, 4, 2), (3, 16, 2), (4, 12, 4), (5, 18, 4), (6, 8, 9),
                   (7, 13, 8), (8, 20, 7), (17, 22, 6), (13, 21, 8),
@@ -26085,24 +26341,64 @@ _CALCULUS_U8 = [
         "op": "accu", "max_value": 160,
         "levels": ("abstract",),
         "symbols": ("accumulation", "start"),
-        "advance_line": "Three in a row — you've got it! Work out the change, then add it to what was there.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Work out the change, then add it to what was there.",
+        "why": [
+            ("Areas have measured distances so far. Here is the same idea measuring "
+             "something you can pour. A tank holds 20 litres at the start, and water "
+             "runs in at 6 litres a minute for 5 minutes — and the integral only counts "
+             "what ARRIVES.",
+             '[[goal text="Adding on to what was there"]]'),
+        ],
+        "picture": [
+            ("Here is the flow: a flat 6 litres a minute for 5 minutes, and the shaded "
+             "rectangle under it is the water that runs in. But look at what the picture "
+             "does not show — the 20 litres that were already sitting in the tank before "
+             "the tap was opened.",
+             '[[graph lines="y=6" names="6 litres a minute running in" shade="0..5" label="?" range="0..7" yrange="0..8" caption="6 litres a minute for 5 minutes — the shaded rectangle is what ARRIVES, on top of the 20 already there"]]'),
+        ],
         "teach": [
-            ["Areas have measured distances so far. Here is the same idea measuring something you can pour. A tank holds 20 litres, and water runs in at 6 litres a minute for 5 minutes.",
-             '[[goal text="Adding on to what was there"]][[step eq="20 L in the tank · 6 L/min for 5 min"]]'],
-            ["Six litres a minute for five minutes is 30 litres — that is the area under the flow graph. But the tank was not empty at the start, so those 30 land on top of the 20 already in it: 50 litres.",
-             '[[step eq="6 × 5 = 30 · 20 + 30 = 50"]]'],
-            ["This is what accumulation means: an integral measures the CHANGE, never the amount. Answering 30 forgets the water that was already there, and adding all three numbers loosely gives 31, which measures nothing at all.",
-             '[[step eq="50 ✓"]][[step eq="30 ✗ the change only · 31 ✗ all three added"]]'],
+            ("That is the method: work out the change, then add it to what was there. "
+             "Six litres a minute for five minutes is 30 litres — the area under the "
+             "flow graph. The tank was not empty, so those 30 land on top of the 20 "
+             "already in it: 50 litres. The amount line starts at 20 and climbs to 50.",
+             '[[graph lines="y=6x+20" names="litres in the tank" points="(0,20),(5,50)" range="0..6" yrange="0..60" caption="from 20 litres at the start up to 50 after 5 minutes"]][[step eq="6 × 5 = 30 · 20 + 30 = 50"]]'),
+            ("This is what accumulation means: an integral measures the CHANGE, never "
+             "the amount. Answering 30 forgets the water that was already there, and "
+             "adding all three numbers loosely gives 31, which measures nothing at all.",
+             '[[step eq="50 ✓"]][[step eq="30 ✗ the change only · 31 ✗ all three added"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 14 litres in the tank, 11 a minute for 10 minutes: 110 more, so 124.",
-                        '[[step eq="14 + 110 = 124"]]'],
+            {"worked": ("Here is one more, done for you. 14 litres in the tank, 11 a minute "
+                        "for 10 minutes: 110 more, so 124.",
+                        '[[graph lines="y=11x+14" names="litres in the tank" points="(0,14),(10,124)" range="0..11" yrange="0..134" caption="from 14 up to 124 after 10 minutes"]][[step eq="14 + 110 = 124"]]'),
              "ask": {"a": 6, "b": 9, "c": 36, "op": "accu"}},
-            {"worked": ["One more together. 23 litres to start, 10 a minute for 12 minutes: 120 more, so 143 litres.",
-                        '[[step eq="23 + 120 = 143"]]'],
+            {"worked": ("One more together. 23 litres to start, 10 a minute for 12 minutes: "
+                        "120 more, so 143 litres — the change added onto what was there.",
+                        '[[graph lines="y=10x+23" names="litres in the tank" points="(0,23),(12,143)" range="0..13" yrange="0..153" caption="from 23 up to 143 after 12 minutes"]][[step eq="23 + 120 = 143"]]'),
              "ask": {"a": 12, "b": 9, "c": 5, "op": "accu"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 20 litres to start and 6 "
+                       "a minute for 5 minutes leaves 50 in the tank, not 30. Tap the reason "
+                       "why."),
+            "choices": ("because the integral is the change, added onto the start | "
+                        "because the integral is the whole amount in the tank | "
+                        "because the start is emptied before the tap opens"),
+            "answer": "because the integral is the change, added onto the start",
+            "board": '[[graph lines="y=6" names="6 litres a minute running in" shade="0..5" label="?" range="0..7" yrange="0..8" caption="why 50, and not 30?"]]',
+        },
+        "recap": [
+            ("So, here it is again. The area under a flow graph is what arrives — the "
+             "change — and an integral measures the change, never the amount. Add it onto "
+             "what was already there. Never forget the start, and never add the three "
+             "numbers loosely.",
+             '[[graph lines="y=6x+20" names="litres in the tank" points="(0,20),(5,50)" range="0..6" yrange="0..60" caption="adding on to what was there"]]'),
+            ("And that is accumulation.",
+             '[[step eq="20 + 30 = 50"]]'),
+        ],
         "bank": [{"a": a, "b": b, "c": c, "op": "accu"} for a, b, c in
                  ((2, 3, 2), (3, 2, 18), (4, 5, 20), (5, 4, 36), (6, 7, 30),
                   (7, 9, 25), (8, 11, 16), (10, 8, 40), (9, 12, 28),
@@ -26115,24 +26411,62 @@ _CALCULUS_U8 = [
         "op": "revo", "max_value": 300,
         "levels": ("abstract",),
         "symbols": ("revolution", "radius"),
-        "advance_line": "Three in a row — you've got it! Square the radius, then stack it along the length.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Square the radius, then stack it along the length.",
+        "why": [
+            ("The boldest use of all. Take a flat shape, spin it around a line, and it "
+             "sweeps out a solid — a volume of revolution. Integration measures that "
+             "solid as easily as it measured the flat area, and the radius does the "
+             "work.",
+             '[[goal text="Spin it into a solid"]]'),
+        ],
+        "picture": [
+            ("Here is a rectangle 3 tall and 4 long. Spin it about the line beneath it "
+             "and it sweeps out a cylinder — the height 3 becomes the radius, and the "
+             "length 4 stays the length. Every slice through that cylinder is a circle "
+             "of radius 3.",
+             '[[rectangle w="4" h="3" show="area" eq="3 tall and 4 long — spin it about the line beneath" caption="the flat rectangle — its height becomes the cylinder\'s radius when it spins"]]'),
+        ],
         "teach": [
-            ["The boldest use of all. Take a flat shape, spin it around a line, and it sweeps out a solid — a volume of revolution. Integration measures that solid as easily as it measured the flat area.",
-             '[[goal text="Spin it into a solid"]][[step eq="rectangle 3 tall, 4 long · spun"]]'],
-            ["Spin a rectangle 3 tall and 4 long and you get a cylinder of radius 3. Every slice through it is a circle of area pi times 3 squared — 9 pi — and 4 lengths of that stack up to 36 pi.",
-             '[[step eq="3² × 4 = 36 · volume = 36π"]]'],
-            ["Squaring the radius is what turns a flat area into a solid one. Leaving the squaring out gives 12, still an area pretending to be a volume, and doubling the radius where you meant to square it gives only 24.",
-             '[[step eq="36 ✓"]][[step eq="12 ✗ not squared · 24 ✗ doubled"]]'],
+            ("That is the method: square the radius, then stack it along the length. "
+             "Each slice is a circle of area pi times 3 squared — 9 pi — and 4 lengths "
+             "of that stack up to 36 pi.",
+             '[[solid kind="cylinder" r="3" h="4" caption="a circle of area 9π, stacked 4 long — 36π"]][[step eq="3² × 4 = 36 · volume = 36π"]]'),
+            ("Squaring the radius is what turns a flat area into a solid one. Leaving "
+             "the squaring out gives 12, still an area pretending to be a volume, and "
+             "doubling the radius where you meant to square it gives only 24.",
+             '[[step eq="36 ✓"]][[step eq="12 ✗ not squared · 24 ✗ doubled"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A rectangle 6 tall and 8 long: 6 squared is 36, and 8 of those is 288 pi.",
-                        '[[step eq="6² × 8 = 288"]]'],
+            {"worked": ("Here is one more, done for you. A rectangle 6 tall and 8 long: 6 "
+                        "squared is 36, and 8 of those is 288 pi.",
+                        '[[solid kind="cylinder" r="6" h="8" caption="a circle of area 36π, stacked 8 long — 288π"]][[step eq="6² × 8 = 288"]]'),
              "ask": {"a": 5, "b": 8, "op": "revo"}},
-            {"worked": ["One more together. 5 tall and 12 long: 25 times 12 is 300 pi.",
-                        '[[step eq="5² × 12 = 300"]]'],
+            {"worked": ("One more together. 5 tall and 12 long: 25 times 12 is 300 pi, the "
+                        "circle of area 25 pi stacked twelve long.",
+                        '[[solid kind="cylinder" r="5" h="12" caption="a circle of area 25π, stacked 12 long — 300π"]][[step eq="5² × 12 = 300"]]'),
              "ask": {"a": 5, "b": 11, "op": "revo"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A rectangle 3 tall and 4 "
+                       "long spins into a cylinder of 36 pi, not 12 pi. Tap the reason why."),
+            "choices": ("because every slice is a circle, and its area squares the radius | "
+                        "because the volume is the flat rectangle's area | "
+                        "because the radius is doubled, not squared"),
+            "answer": "because every slice is a circle, and its area squares the radius",
+            "board": '[[solid kind="cylinder" r="3" h="4" caption="why 36π, and not 12π?"]]',
+        },
+        "recap": [
+            ("So, here it is again. Spin a flat shape about a line and it sweeps out a "
+             "solid; every slice is a circle, so square the radius and stack the circles "
+             "along the length. Leave the squaring out and you still have a flat area; "
+             "double where you should square and the solid comes out thin.",
+             '[[solid kind="cylinder" r="3" h="4" caption="spin it into a solid"]]'),
+            ("And that is a volume of revolution.",
+             '[[step eq="3² × 4 = 36 · 36π"]]'),
+        ],
         "bank": [{"a": a, "b": b, "op": "revo"} for a, b in
                  ((3, 2), (3, 5), (3, 6), (5, 3), (3, 10),
                   (3, 11), (4, 7), (7, 3), (5, 7), (4, 12))],
@@ -26156,24 +26490,62 @@ _CALCULUS_U9 = [
         "op": "dfeq", "max_value": 190,
         "levels": ("abstract",),
         "symbols": ("differential", "rate"),
-        "advance_line": "Three in a row — you've got it! Rate times time is what goes, then take it off the start.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Rate times time is what goes, then take it off the start.",
+        "why": [
+            ("Every equation you have met describes an AMOUNT. A differential equation "
+             "describes a rate instead — how fast something is changing — and "
+             "integration is what turns it back into an amount. Unit Nine reads three "
+             "of them.",
+             '[[goal text="An equation about a rate"]]'),
+        ],
+        "picture": [
+            ("Here is a tank that starts at 60 litres, and the equation says it loses 4 "
+             "litres every minute. So the line of what is in the tank starts at 60 and "
+             "falls 4 for every minute across. The equation says nothing about how much "
+             "is in there — only how steeply the line drops.",
+             '[[graph lines="y=-4x+60" names="litres in the tank" points="(0,60)" range="0..9" yrange="0..70" caption="the tank starts at 60 litres and the line falls 4 every minute — the equation only says how fast it drops"]]'),
+        ],
         "teach": [
-            ["Every equation you have met describes an AMOUNT. A differential equation describes a rate instead — how fast something is changing — and integration is what turns it back into an amount.",
-             '[[goal text="An equation about a rate"]][[step eq="dV/dt = −4 · starts at 60 L"]]'],
-            ["Read this one out loud: the tank loses 4 litres every minute. It says nothing about how much is in there — only how fast it leaves. Start it at 60 litres and run it 7 minutes: 4 times 7 is 28 gone, so 32 are left.",
-             '[[step eq="4 × 7 = 28 · 60 − 28 = 32"]]'],
-            ["So the rate has to meet the clock before it means anything. Taking away one minute's worth leaves 56, and answering 28 hands back what drained rather than what is in the tank.",
-             '[[step eq="32 ✓"]][[step eq="56 ✗ one minute · 28 ✗ what drained"]]'],
+            ("That is the method: rate times time is what goes, then take it off the "
+             "start. Run it 7 minutes: 4 times 7 is 28 gone, so 60 take away 28 leaves "
+             "32 — the line has dropped from 60 to 32.",
+             '[[graph lines="y=-4x+60" names="litres in the tank" points="(0,60),(7,32)" range="0..9" yrange="0..70" caption="from 60 down to 32 after 7 minutes — 28 gone"]][[step eq="4 × 7 = 28 · 60 − 28 = 32"]]'),
+            ("So the rate has to meet the clock before it means anything. Taking away "
+             "one minute\'s worth leaves 56, and answering 28 hands back what drained "
+             "rather than what is in the tank.",
+             '[[step eq="32 ✓"]][[step eq="56 ✗ one minute · 28 ✗ what drained"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 166 litres losing 8 a minute for 2 minutes: 16 gone, so 150 are left.",
-                        '[[step eq="166 − 16 = 150"]]'],
+            {"worked": ("Here is one more, done for you. 166 litres losing 8 a minute for 2 "
+                        "minutes: 16 gone, so 150 are left.",
+                        '[[graph lines="y=-8x+166" names="litres in the tank" points="(0,166),(2,150)" range="0..4" yrange="0..176" caption="from 166 down to 150 after 2 minutes"]][[step eq="166 − 16 = 150"]]'),
              "ask": {"a": 155, "b": 8, "c": 5, "op": "dfeq"}},
-            {"worked": ["One more together. 183 litres, 5 a minute, 4 minutes: 20 gone, leaving 163.",
-                        '[[step eq="183 − 20 = 163"]]'],
+            {"worked": ("One more together. 183 litres, 5 a minute, 4 minutes: 20 gone, "
+                        "leaving 163 — the line drops from 183 to 163.",
+                        '[[graph lines="y=-5x+183" names="litres in the tank" points="(0,183),(4,163)" range="0..6" yrange="0..193" caption="from 183 down to 163 after 4 minutes"]][[step eq="183 − 20 = 163"]]'),
              "ask": {"a": 175, "b": 5, "c": 7, "op": "dfeq"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A tank of 60 losing 4 a "
+                       "minute holds 32 after 7 minutes, not 28. Tap the reason why."),
+            "choices": ("because the rate times the time is taken off the start | "
+                        "because the rate times the time is what is left | "
+                        "because only one minute of loss is taken off"),
+            "answer": "because the rate times the time is taken off the start",
+            "board": '[[graph lines="y=-4x+60" names="litres in the tank" points="(0,60)" range="0..9" yrange="0..70" caption="why 32, and not 28?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A differential equation gives a rate, and the rate "
+             "has to meet the clock: rate times time is what goes, and that comes off "
+             "the start. What drained is not what is left, and one minute\'s worth is "
+             "not the whole run.",
+             '[[graph lines="y=-4x+60" names="litres in the tank" points="(0,60),(7,32)" range="0..9" yrange="0..70" caption="an equation about a rate"]]'),
+            ("And that is a differential equation, read.",
+             '[[step eq="60 − 4 × 7 = 32"]]'),
+        ],
         "bank": [{"a": a, "b": b, "c": c, "op": "dfeq"} for a, b, c in
                  ((8, 3, 2), (28, 2, 4), (50, 4, 3), (86, 6, 5), (109, 5, 7),
                   (134, 7, 6), (182, 9, 8), (144, 8, 2), (164, 2, 9),
@@ -26186,24 +26558,61 @@ _CALCULUS_U9 = [
         "op": "mixr", "max_value": 320,
         "levels": ("abstract",),
         "symbols": ("net", "against"),
-        "advance_line": "Three in a row — you've got it! Find the net rate first, then let the clock work on it.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Find the net rate first, then let the clock work on it.",
+        "why": [
+            ("Real tanks rarely do one thing at a time. This one is filling and "
+             "draining at once: 9 litres a minute run in while 4 litres a minute run "
+             "out. Two rates, pulling against each other — and only their net effect "
+             "reaches the clock.",
+             '[[goal text="Two rates at once"]]'),
+        ],
+        "picture": [
+            ("Here are the two rates as bars: 9 in, 4 out. Look at how much taller the "
+             "in bar stands — that difference is all the tank actually feels. The rest "
+             "of the inflow is cancelled by the drain before it can count.",
+             '[[bars data="in:9 | out:4" caption="two rates pulling against each other — 9 litres a minute running in, 4 draining out"]]'),
+        ],
         "teach": [
-            ["Real tanks rarely do one thing at a time. This one is filling and draining at once: 9 litres a minute run in while 4 litres a minute run out. Two rates, pulling against each other.",
-             '[[goal text="Two rates at once"]][[step eq="in 9 L/min · out 4 L/min"]]'],
-            ["Settle the fight before you touch the clock. Nine in and four out means the tank truly gains 5 litres a minute — that single number is the net rate. Over 7 minutes it gains 35 litres.",
-             '[[step eq="9 − 4 = 5 · 5 × 7 = 35"]]'],
-            ["Adding the two rates instead pretends the drain is helping to fill, and reaches 91. Counting the inflow alone forgets the plug is out at all, and claims 63.",
-             '[[step eq="35 ✓"]][[step eq="91 ✗ added · 63 ✗ inflow only"]]'],
+            ("That is the method: settle the fight before you touch the clock. Nine in "
+             "and four out means the tank truly gains 5 litres a minute — that single "
+             "number is the net rate. Over 7 minutes it gains 35 litres, and the line of "
+             "what is in the tank climbs 5 every minute.",
+             '[[graph lines="y=5x" names="litres in the tank" points="(7,35)" range="0..10" yrange="0..55" caption="the tank climbs 5 a minute — 35 litres after 7 minutes"]][[step eq="9 − 4 = 5 · 5 × 7 = 35"]]'),
+            ("Adding the two rates instead pretends the drain is helping to fill, and "
+             "reaches 91. Counting the inflow alone forgets the plug is out at all, and "
+             "claims 63.",
+             '[[step eq="35 ✓"]][[step eq="91 ✗ added · 63 ✗ inflow only"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 22 in and 11 out is a net 11 a minute; over 12 minutes, 132 litres.",
-                        '[[step eq="(22 − 11) × 12 = 132"]]'],
+            {"worked": ("Here is one more, done for you. 22 in and 11 out is a net 11 a "
+                        "minute; over 12 minutes, 132 litres.",
+                        '[[graph lines="y=11x" names="litres in the tank" points="(12,132)" range="0..15" yrange="0..152" caption="a net 11 a minute — 132 litres after 12 minutes"]][[step eq="(22 − 11) × 12 = 132"]]'),
              "ask": {"a": 10, "b": 2, "c": 11, "op": "mixr"}},
-            {"worked": ["One more together. 20 in, 2 out, so 18 a minute net; over 9 minutes that is 162 litres.",
-                        '[[step eq="(20 − 2) × 9 = 162"]]'],
+            {"worked": ("One more together. 20 in, 2 out, so 18 a minute net; over 9 minutes "
+                        "that is 162 litres in the tank.",
+                        '[[graph lines="y=18x" names="litres in the tank" points="(9,162)" range="0..12" yrange="0..182" caption="a net 18 a minute — 162 litres after 9 minutes"]][[step eq="(20 − 2) × 9 = 162"]]'),
              "ask": {"a": 18, "b": 5, "c": 9, "op": "mixr"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. With 9 in and 4 out, "
+                       "the tank holds 35 after 7 minutes, not 91. Tap the reason why."),
+            "choices": ("because the drain is taken off the inflow before the clock runs | "
+                        "because the two rates are added together | "
+                        "because the drain does not count at all"),
+            "answer": "because the drain is taken off the inflow before the clock runs",
+            "board": '[[bars data="in:9 | out:4" caption="why 35, and not 91?"]]',
+        },
+        "recap": [
+            ("So, here it is again. When two rates pull against each other, find the net "
+             "rate first — in take away out — and only then let the clock work on it. "
+             "Never add the two rates, and never count the inflow alone.",
+             '[[graph lines="y=5x" names="litres in the tank" points="(7,35)" range="0..10" yrange="0..55" caption="two rates at once"]]'),
+            ("And that is a net rate.",
+             '[[step eq="(9 − 4) × 7 = 35"]]'),
+        ],
         "bank": [{"a": a, "b": b, "c": c, "op": "mixr"} for a, b, c in
                  ((4, 2, 2), (6, 4, 9), (8, 3, 6), (19, 5, 3), (12, 7, 11),
                   (13, 6, 10), (20, 3, 5), (22, 5, 6), (18, 8, 12),
@@ -26216,24 +26625,63 @@ _CALCULUS_U9 = [
         "op": "pgrw", "max_value": 160,
         "levels": ("abstract",),
         "symbols": ("proportional", "colony"),
-        "advance_line": "Three in a row — you've got it! Multiply the amount by the growth constant.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Multiply the amount by the growth constant.",
+        "why": [
+            ("Both tanks so far changed at a fixed rate. Now the most important "
+             "differential equation there is, the one where the rate depends on the "
+             "amount itself — growth that is proportional to what is already there. A "
+             "bacterial colony is the classic.",
+             '[[goal text="When the rate depends on the amount"]]'),
+        ],
+        "picture": [
+            ("Here is the rate drawn against the amount: for every bacterium in the "
+             "dish, the colony gains 4 more a minute. The line climbs — the bigger the "
+             "colony, the faster it grows. Read it at any size and it tells you how fast "
+             "the colony is growing right then.",
+             '[[graph lines="y=4x" names="rate = 4P" range="0..16" yrange="0..64" caption="the rate against the amount — the bigger the colony, the faster it grows"]]'),
+        ],
         "teach": [
-            ["Both tanks so far changed at a fixed rate. Now the most important differential equation there is, the one where the rate depends on the amount itself — growth that is proportional to what is already there.",
-             '[[goal text="When the rate depends on the amount"]][[step eq="dP/dt = 4P"]]'],
-            ["A bacterial colony gains 4 new bacteria a minute for every single bacterium already in it. With 12 in the dish right now, the rate right now is 12 times 4 — 48 a minute.",
-             '[[step eq="P = 12 · rate = 12 × 4 = 48"]]'],
-            ["And that rate will not hold, because the growing feeds the growing. Adding the two numbers instead of timesing them gives 16, and answering 4 pretends a colony of a thousand grows no faster than a colony of ten.",
-             '[[step eq="48 ✓"]][[step eq="16 ✗ added · 4 ✗ the constant alone"]]'],
+            ("That is the method: multiply the amount by the growth constant. With 12 "
+             "in the dish right now, every one of them contributes 4 a minute. So the "
+             "rate right now is 12 times 4 — 48 a minute, the height of the line at P "
+             "equals 12.",
+             '[[graph lines="y=4x" names="rate = 4P" points="(12,48)" range="0..16" yrange="0..64" caption="at P = 12 the line stands 48 high — 48 new bacteria a minute"]][[step eq="P = 12 · rate = 12 × 4 = 48"]]'),
+            ("And that rate will not hold, because the growing feeds the growing. "
+             "Adding the two numbers instead of timesing them gives 16, and answering 4 "
+             "pretends a colony of a thousand grows no faster than a colony of ten.",
+             '[[step eq="48 ✓"]][[step eq="16 ✗ added · 4 ✗ the constant alone"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 18 bacteria gaining 9 each a minute: the rate is 162 a minute.",
-                        '[[step eq="18 × 9 = 162"]]'],
+            {"worked": ("Here is one more, done for you. 18 bacteria gaining 9 each a minute: "
+                        "the rate is 162 a minute.",
+                        '[[graph lines="y=9x" names="rate = 9P" points="(18,162)" range="0..22" yrange="0..198" caption="at P = 18 the line stands 162 high"]][[step eq="18 × 9 = 162"]]'),
              "ask": {"a": 28, "b": 4, "op": "pgrw"}},
-            {"worked": ["One more together. 20 bacteria at 9 each: 20 times 9 — 180 a minute.",
-                        '[[step eq="20 × 9 = 180"]]'],
+            {"worked": ("One more together. 20 bacteria at 9 each: 20 times 9 — 180 a minute, "
+                        "and climbing as the colony climbs.",
+                        '[[graph lines="y=9x" names="rate = 9P" points="(20,180)" range="0..24" yrange="0..216" caption="at P = 20 the line stands 180 high"]][[step eq="20 × 9 = 180"]]'),
              "ask": {"a": 21, "b": 7, "op": "pgrw"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A colony of 12 gaining 4 "
+                       "each a minute grows at 48 a minute, not 16. Tap the reason why."),
+            "choices": ("because every one of the 12 contributes 4 a minute | "
+                        "because the amount and the constant are added | "
+                        "because the rate is the constant, whatever the size"),
+            "answer": "because every one of the 12 contributes 4 a minute",
+            "board": '[[graph lines="y=4x" names="rate = 4P" range="0..16" yrange="0..64" caption="why 48, and not 16?"]]',
+        },
+        "recap": [
+            ("So, here it is again. When the rate is proportional to the amount, the "
+             "rate right now is the amount times the growth constant. It climbs as the "
+             "amount climbs, which is why this kind of change explodes. Never add "
+             "the two numbers, and never answer with the constant alone.",
+             '[[graph lines="y=4x" names="rate = 4P" points="(12,48)" range="0..16" yrange="0..64" caption="when the rate depends on the amount"]]'),
+            ("And that is proportional growth.",
+             '[[step eq="12 × 4 = 48"]]'),
+        ],
         "bank": [{"a": a, "b": b, "op": "pgrw"} for a, b in
                  ((2, 3), (11, 2), (4, 9), (17, 3), (13, 5),
                   (10, 8), (16, 6), (19, 6), (22, 6), (19, 8))],
@@ -26245,24 +26693,62 @@ _CALCULUS_U9 = [
         "op": "eqbm", "max_value": 190,
         "levels": ("abstract",),
         "symbols": ("equilibrium", "population"),
-        "advance_line": "Three in a row — you've got it! Set the rate to zero and solve for P.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Set the rate to zero and solve for P.",
+        "why": [
+            ("The last question of the whole course, and it is a quiet one. A "
+             "differential equation tells you how fast a population changes — so ask it "
+             "where the change stops. That place is called equilibrium.",
+             '[[goal text="Where the change stops"]]'),
+        ],
+        "picture": [
+            ("Here is the rate drawn against the population: 45 take away 5 P. Small "
+             "populations grow fast; the bigger the population, the slower the growth — "
+             "until the line reaches the axis and the rate is zero. Somewhere along that "
+             "line the change stops.",
+             '[[graph lines="y=-5x+45" names="rate = 45 − 5P" range="0..14" yrange="-20..50" caption="the rate against the population — it falls as P grows, and somewhere it reaches zero"]]'),
+        ],
         "teach": [
-            ["The last question of the whole course, and it is a quiet one. A differential equation tells you how fast things change — so ask it where the change stops. That place is called equilibrium.",
-             '[[goal text="Where the change stops"]][[step eq="dP/dt = 45 − 5P"]]'],
-            ["This population changes at a rate of 45 take away 5 P. Set that rate to zero: 5 P has to equal 45, so P is 9. Park the population at exactly 9 and nothing moves — births and deaths balance.",
-             '[[step eq="5P = 45"]] [[step eq="P = 9"]]'],
-            ["It is a stable place, too. Above 9 the rate turns negative and pulls back down; below it, the rate pushes up. So divide, do not take away — 40 is not a population, and 45 is the number in the equation, not the answer to it.",
-             '[[step eq="9 ✓"]][[step eq="40 ✗ taken away · 45 ✗ the equation\'s number"]]'],
+            ("That is the method: set the rate to zero and solve for P. 5 P has to "
+             "equal 45, so P is 9 — the line crosses the axis at 9. Park the population "
+             "at exactly 9 and nothing moves: births and deaths balance.",
+             '[[graph lines="y=-5x+45" names="rate = 45 − 5P" points="(9,0)" range="0..14" yrange="-20..50" caption="the rate crosses zero at P = 9 — equilibrium"]][[step eq="5P = 45"]][[step eq="P = 9"]]'),
+            ("It is a stable place, too. Above 9 the rate turns negative and pulls back "
+             "down; below it, the rate pushes up. So divide, do not take away — 40 is "
+             "not a population, and 45 is the number in the equation, not the answer to "
+             "it.",
+             '[[step eq="9 ✓"]][[step eq="40 ✗ taken away · 45 ✗ the equation\'s number"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. A rate of 58 take away 2 P is zero when P is 29.",
-                        '[[step eq="2P = 58"]] [[step eq="P = 29"]]'],
+            {"worked": ("Here is one more, done for you. A rate of 58 take away 2 P is zero "
+                        "when P is 29.",
+                        '[[graph lines="y=-2x+58" names="rate = 58 − 2P" points="(29,0)" range="0..34" yrange="-8..60" caption="the rate crosses zero at P = 29"]][[step eq="2P = 58"]][[step eq="P = 29"]]'),
              "ask": {"a": 144, "b": 6, "op": "eqbm"}},
-            {"worked": ["One more together. 90 take away 3 P is zero when 3 P equals 90, so P is 30.",
-                        '[[step eq="3P = 90"]] [[step eq="P = 30"]]'],
+            {"worked": ("One more together. 90 take away 3 P is zero when 3 P equals 90, so P "
+                        "is 30 — the population where the change stops.",
+                        '[[graph lines="y=-3x+90" names="rate = 90 − 3P" points="(30,0)" range="0..35" yrange="-12..93" caption="the rate crosses zero at P = 30"]][[step eq="3P = 90"]][[step eq="P = 30"]]'),
              "ask": {"a": 189, "b": 7, "op": "eqbm"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. A rate of 45 take away "
+                       "5 P stops changing at a population of 9, not 40. Tap the reason why."),
+            "choices": ("because the rate is zero when 5 P equals 45 | "
+                        "because the constant is taken away from the equation's number | "
+                        "because the population is the equation's own number"),
+            "answer": "because the rate is zero when 5 P equals 45",
+            "board": '[[graph lines="y=-5x+45" names="rate = 45 − 5P" range="0..14" yrange="-20..50" caption="why 9, and not 40?"]]',
+        },
+        "recap": [
+            ("So, here it is again. Equilibrium is the population that drives the rate "
+             "to zero: set the rate to zero and solve for P by dividing. Above it the "
+             "rate pulls down, below it the rate pushes up. Never take away where you "
+             "should divide, and never hand back the equation\'s own number.",
+             '[[graph lines="y=-5x+45" names="rate = 45 − 5P" points="(9,0)" range="0..14" yrange="-20..50" caption="where the change stops"]]'),
+            ("And that is the end of the course.",
+             '[[step eq="5P = 45 · P = 9"]]'),
+        ],
         "bank": [{"a": a, "b": b, "op": "eqbm"} for a, b in
                  ((6, 3), (8, 2), (24, 4), (48, 6), (50, 5),
                   (84, 7), (126, 9), (128, 8), (36, 2), (40, 2))],
@@ -33017,6 +33503,231 @@ def _init_worked(p):
             f"the constant the point gave you, and {a} pretends the curve never climbed.",
             f'[[graph func="x^2+{a}" names="y = x² + {a}" points="(0,{a}),({c},{ans})" range="0..{r}" yrange="0..{r * r + a + 2}" caption="from {a} at x = 0 up to {ans} at x = {c}"]]'
             f'[[step eq="{c}² + {a} = {ans}"]]')
+
+
+
+# ---- (ub, 2026-09-07) CALCULUS UNITS 7-9: the area under the graph, SHADED
+# ([[graph shade="lo..hi" label="?"]]) with its label "?" on the ask and the area on the
+# walk-back -- the rectangle under a steady speed, the triangle under a ramp, the strip
+# under 2x between two ends, the hump whose area is given and the flat line it flattens
+# to, the strip caught between two curves (between="1"), the trapezium under a climbing
+# speed and the halfway line, the flow rectangle and then the amount line; the cylinder
+# a rectangle sweeps out; the amount line falling from the start, the two rates as bars
+# and the net line, the rate line against the amount, the rate line crossing zero.
+# Every ask draws its question with the answer withheld; every walk-back draws it in.
+def _defi_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph lines="y={a}" names="a steady {a} metres a second" shade="0..{b}" label="?" range="0..{b + 2}" yrange="0..{a + 2}" caption="a steady {a} metres a second for {b} seconds — the shaded rectangle under the speed line is the distance"]]'
+            f'[[step eq="speed {a} m/s · for {b} s"]]'
+            f'[[step eq="area under the graph = ? metres"]]')
+
+
+def _defi_worked(p):
+    a, b = p["a"], p["b"]; d = a * b
+    return (f"Look what you did: the speed line sits at {a} for {b} seconds, so the shape under "
+            f"it is a rectangle {a} tall and {b} wide — {a} times {b} is {d}, and {d} metres "
+            f"is how far the car went. The area MEANS the distance. {a + b} adds metres to "
+            f"seconds, and {b} is the time you were told.",
+            f'[[graph lines="y={a}" names="a steady {a} metres a second" shade="0..{b}" label="{d}" range="0..{b + 2}" yrange="0..{a + 2}" caption="{a} tall, {b} wide — an area of {d}, and {d} metres travelled"]]'
+            f'[[step eq="{a} × {b} = {d} m"]]')
+
+
+def _triz_board(p):
+    a = p["a"]
+    return (f'[[graph lines="y=x" names="speed = t" shade="0..{a}" label="?" range="0..{a + 2}" yrange="0..{a + 2}" caption="the speed ramps up from nothing — the shaded triangle under it is the distance after {a} seconds"]]'
+            f'[[step eq="speed = t · from 0 to {a} s"]]'
+            f'[[step eq="triangle area = ? metres"]]')
+
+
+def _triz_worked(p):
+    a = p["a"]; d = a * a // 2
+    return (f"Look what you did: after {a} seconds the triangle is {a} wide and {a} tall, and "
+            f"a triangle takes half the rectangle round it — {a} times {a} halved is {d} "
+            f"metres. {a * a} forgets the half and claims the whole rectangle, as if the car "
+            f"had gone flat out from the first second, and {a} is the time, not a distance.",
+            f'[[graph lines="y=x" names="speed = t" shade="0..{a}" label="{d}" range="0..{a + 2}" yrange="0..{a + 2}" caption="{a} by {a}, halved — {d} metres"]]'
+            f'[[step eq="{a} × {a} ÷ 2 = {d} m"]]')
+
+
+def _ftc_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[graph lines="y=2x" names="y = 2x" shade="{a}..{b}" label="?" range="0..{b + 2}" yrange="0..{2 * b + 4}" caption="the strip under y = 2x from x = {a} to x = {b} — its area is what the theorem finds"]]'
+            f'[[step eq="area under 2x from {a} to {b}"]]'
+            f'[[step eq="{b}² − {a}² = ?"]]')
+
+
+def _ftc_worked(p):
+    a, b = p["a"], p["b"]; d = b * b - a * a
+    return (f"Look what you did: 2 x comes from x squared, so work x squared out at both ends "
+            f"and take one from the other — {b} squared is {b * b}, {a} squared is {a * a}, "
+            f"and {b * b} take away {a * a} is {d}. That is the shaded strip's area, end "
+            f"take away start. {(b - a) * (b - a)} squares the gap instead, and {b - a} is "
+            f"only the gap.",
+            f'[[graph lines="y=2x" names="y = 2x" shade="{a}..{b}" label="{d}" range="0..{b + 2}" yrange="0..{2 * b + 4}" caption="{b}² take away {a}² — the strip holds {d}"]]'
+            f'[[step eq="{b}² − {a}² = {d}"]]')
+
+
+def _avgv_board(p):
+    a, b = p["a"], p["b"]; h = a // b; amp = h / 2; top = int(h * 1.6) + 2
+    return (f'[[graph func="{h} + {amp:g}*sin(2*pi*x/{b})" names="the curve" shade="0..{b}" label="{a}" range="0..{b}" yrange="0..{top}" caption="the area under the curve from 0 to {b} is {a} — push the hump down into the dip until the top is flat"]]'
+            f'[[step eq="area {a} · width {b}"]]'
+            f'[[step eq="flattened height = ?"]]')
+
+
+def _avgv_worked(p):
+    a, b = p["a"], p["b"]; h = a // b; amp = h / 2; top = int(h * 1.6) + 2
+    return (f"Look what you did: spread {a} of area evenly across a width of {b} and it stands "
+            f"{a} over {b} high — {h}. That flat line is the curve's average height: the hump "
+            f"above it and the dip below it trade places exactly. {a} is the area, not a "
+            f"height, and {b} is only the width.",
+            f'[[graph func="{h} + {amp:g}*sin(2*pi*x/{b})" names="the curve; flattened to {h}" lines="y={h}" shade="0..{b}" label="{a}" range="0..{b}" yrange="0..{top}" caption="the same {a} of area as a flat rectangle {b} wide — it stands {h} high"]]'
+            f'[[step eq="{a} ÷ {b} = {h}"]]')
+
+
+def _btwn_board(p):
+    a, b = p["a"], p["b"]; ta = a / 10; tb = b / 10; top = int(ta * 1.5) + 3
+    return (f'[[graph func="{ta:g} + {ta / 2:g}*sin(2*pi*x/10); {tb:g} + {tb / 2:g}*sin(2*pi*x/10)" names="top; bottom" shade="0..10" between="1" label="?" range="0..10" yrange="0..{top}" caption="two curves over the same stretch — {a} under the top one, {b} under the bottom one, and the shaded strip caught between them"]]'
+            f'[[step eq="top area {a} · bottom area {b}"]]'
+            f'[[step eq="area between = ?"]]')
+
+
+def _btwn_worked(p):
+    a, b = p["a"], p["b"]; ta = a / 10; tb = b / 10; top = int(ta * 1.5) + 3; d = a - b
+    return (f"Look what you did: the {b} under the bottom curve is already counted inside the "
+            f"{a} under the top one, so take it away — {a} take away {b} is {d}, the strip "
+            f"between them. Top take away bottom, always in that order. {a + b} counts the "
+            f"lower region twice over, and {a} is the whole slab, not the gap.",
+            f'[[graph func="{ta:g} + {ta / 2:g}*sin(2*pi*x/10); {tb:g} + {tb / 2:g}*sin(2*pi*x/10)" names="top; bottom" shade="0..10" between="1" label="{d}" range="0..10" yrange="0..{top}" caption="{a} take away {b} — the strip between holds {d}"]]'
+            f'[[step eq="{a} − {b} = {d}"]]')
+
+
+def _trap_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[graph func="{a} + {b - a}*x/{c}" names="speed" shade="0..{c}" label="?" range="0..{c + 2}" yrange="0..{b + 4}" caption="the speed climbs steadily from {a} to {b} over {c} seconds — the shaded trapezium under it is the distance"]]'
+            f'[[step eq="{a} m/s → {b} m/s · over {c} s"]]'
+            f'[[step eq="area under the graph = ? metres"]]')
+
+
+def _trap_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; d = (a + b) * c // 2; mid = (a + b) / 2
+    return (f"Look what you did: the speed climbs steadily, so its average is halfway between "
+            f"{a} and {b} — {mid:g} — and {mid:g} metres a second for {c} seconds is {d} "
+            f"metres. The halfway line cuts the trapezium into a rectangle of the same area. "
+            f"{(a + b) * c} forgets the halving and holds both speeds at once, and {b * c} "
+            f"holds the top speed for the whole journey.",
+            f'[[graph func="{a} + {b - a}*x/{c}" names="speed; the halfway speed, {mid:g}" lines="y={mid:g}" shade="0..{c}" label="{d}" range="0..{c + 2}" yrange="0..{b + 4}" caption="halfway between {a} and {b} is {mid:g}, held for {c} seconds — {d} metres"]]'
+            f'[[step eq="({a} + {b}) × {c} ÷ 2 = {d}"]]')
+
+
+def _accu_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[graph lines="y={a}" names="{a} litres a minute running in" shade="0..{b}" label="?" range="0..{b + 2}" yrange="0..{a + 2}" caption="water runs in at {a} litres a minute for {b} minutes — the shaded rectangle is what ARRIVES, on top of the {c} already there"]]'
+            f'[[step eq="starts with {c} L"]]'
+            f'[[step eq="{a} L/min · {b} min · total = ?"]]')
+
+
+def _accu_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; g = a * b; t = c + g
+    return (f"Look what you did: {a} litres a minute for {b} minutes is {g} litres — the area "
+            f"under the flow graph. But the tank was not empty, so those {g} land on top of the "
+            f"{c} already there: {c} plus {g} is {t}. The amount line starts at {c} and climbs "
+            f"to {t}. {g} forgets the water that was there, and {c + a + b} adds three numbers "
+            f"that measure nothing together.",
+            f'[[graph lines="y={a}x+{c}" names="litres in the tank" points="(0,{c}),({b},{t})" range="0..{b + 1}" yrange="0..{t + 10}" caption="from {c} litres at the start up to {t} after {b} minutes"]]'
+            f'[[step eq="{a} × {b} = {g}"]]'
+            f'[[step eq="{c} + {g} = {t}"]]')
+
+
+def _revo_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[solid kind="cylinder" r="{a}" h="{b}" caption="the rectangle {a} tall and {b} long, spun about the line beneath it — a cylinder of radius {a} and length {b}"]]'
+            f'[[step eq="radius {a} · length {b}"]]'
+            f'[[step eq="volume = ? × π"]]')
+
+
+def _revo_worked(p):
+    a, b = p["a"], p["b"]; q = a * a; v = q * b
+    return (f"Look what you did: every slice through the cylinder is a circle of radius {a}, "
+            f"and its area is pi times {a} squared — {q} pi. Stack {b} lengths of that and "
+            f"the volume is {v} pi. Squaring the radius is what turns a flat area into a "
+            f"solid: {a * b} leaves the squaring out, and {2 * a * b} doubles the radius "
+            f"where it should be squared.",
+            f'[[solid kind="cylinder" r="{a}" h="{b}" caption="a circle of area {q}π, stacked {b} long — {v}π"]]'
+            f'[[step eq="{a}² = {q}"]]'
+            f'[[step eq="{q} × {b} = {v}"]]')
+
+
+def _dfeq_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[graph lines="y=-{b}x+{a}" names="litres in the tank" points="(0,{a})" range="0..{c + 2}" yrange="0..{a + 10}" caption="the tank starts at {a} litres and the line falls {b} every minute — the equation only says how fast it drops"]]'
+            f'[[step eq="dV/dt = −{b} · starts at {a} L"]]'
+            f'[[step eq="after {c} min · ? litres"]]')
+
+
+def _dfeq_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; g = b * c; left = a - g
+    return (f"Look what you did: the rate has to meet the clock — {b} litres a minute for {c} "
+            f"minutes is {g} gone, and {a} take away {g} leaves {left}. The line drops from "
+            f"{a} to {left} over the {c} minutes. {a - b} takes away only one minute's worth, "
+            f"and {g} is what drained, not what is left in the tank.",
+            f'[[graph lines="y=-{b}x+{a}" names="litres in the tank" points="(0,{a}),({c},{left})" range="0..{c + 2}" yrange="0..{a + 10}" caption="from {a} down to {left} after {c} minutes — {g} gone"]]'
+            f'[[step eq="{b} × {c} = {g}"]]'
+            f'[[step eq="{a} − {g} = {left}"]]')
+
+
+def _mixr_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[bars data="in:{a} | out:{b}" caption="two rates pulling against each other — {a} litres a minute running in, {b} draining out"]]'
+            f'[[step eq="in {a} L/min · out {b} L/min"]]'
+            f'[[step eq="after {c} min · ? litres"]]')
+
+
+def _mixr_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; n = a - b; t = n * c
+    return (f"Look what you did: settle the fight first — {a} in and {b} out means the tank "
+            f"truly gains {n} litres a minute, the net rate. Then let the clock work on that "
+            f"one number: {n} times {c} is {t} litres. {(a + b) * c} adds the two rates as if "
+            f"the drain were helping, and {a * c} counts the inflow alone.",
+            f'[[graph lines="y={n}x" names="litres in the tank" points="({c},{t})" range="0..{c + 3}" yrange="0..{t + 20}" caption="the tank climbs {n} a minute — {t} litres after {c} minutes"]]'
+            f'[[step eq="{a} − {b} = {n}"]]'
+            f'[[step eq="{n} × {c} = {t}"]]')
+
+
+def _pgrw_board(p):
+    a, b = p["a"], p["b"]; r = a + 4
+    return (f'[[graph lines="y={b}x" names="rate = {b}P" range="0..{r}" yrange="0..{b * r}" caption="the rate against the amount — the bigger the colony, the faster it grows; read the line at P = {a}"]]'
+            f'[[step eq="dP/dt = {b}P"]]'
+            f'[[step eq="P = {a} · rate = ?"]]')
+
+
+def _pgrw_worked(p):
+    a, b = p["a"], p["b"]; r = a + 4; g = a * b
+    return (f"Look what you did: every one of the {a} bacteria contributes {b} a minute, so the "
+            f"rate right now is {a} times {b} — {g} a minute, the height of the line at P "
+            f"equals {a}. And it will not stay there: the growing feeds the growing. {a + b} "
+            f"adds where it should multiply, and {b} pretends the colony's size does not "
+            f"matter.",
+            f'[[graph lines="y={b}x" names="rate = {b}P" points="({a},{g})" range="0..{r}" yrange="0..{b * r}" caption="at P = {a} the line stands {g} high — {g} new bacteria a minute"]]'
+            f'[[step eq="{a} × {b} = {g}"]]')
+
+
+def _eqbm_board(p):
+    a, b = p["a"], p["b"]; q = a // b
+    return (f'[[graph lines="y=-{b}x+{a}" names="rate = {a} − {b}P" range="0..{q + 2}" yrange="{-2 * b}..{a + b}" caption="the rate against the population — it falls as P grows, and somewhere it reaches zero"]]'
+            f'[[step eq="dP/dt = {a} − {b}P"]]'
+            f'[[step eq="rate = 0 when P = ?"]]')
+
+
+def _eqbm_worked(p):
+    a, b = p["a"], p["b"]; q = a // b
+    return (f"Look what you did: set the rate to zero — {b} P has to equal {a}, so P is {a} "
+            f"over {b}, which is {q}. That is where the line crosses the axis: sit the "
+            f"population there and nothing moves. Above it the rate is negative and pulls "
+            f"down; below it the rate pushes up. {a - b} takes away instead of dividing, and "
+            f"{a} is the equation's own number.",
+            f'[[graph lines="y=-{b}x+{a}" names="rate = {a} − {b}P" points="({q},0)" range="0..{q + 5}" yrange="{-4 * b}..{a + b}" caption="the rate crosses zero at P = {q} — equilibrium"]]'
+            f'[[step eq="{b}P = {a}"]]'
+            f'[[step eq="P = {q}"]]')
 
 
 
@@ -40115,15 +40826,12 @@ OP_EXT = {
                              f"second for {p['b']} seconds. On a speed "
                              f"graph that is a rectangle, and its area is "
                              f"the distance travelled. How far did it go?"),
-        "board": lambda p: (f'[[step eq="speed {p["a"]} m/s · for '
-                            f'{p["b"]} s"]]'
-                            f'[[step eq="area under the graph = ? metres"]]'),
+        "board": _defi_board,         # (ub) the ask picture, answer withheld
+        "worked": _defi_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"{p['a']} metres every second for {p['b']} "
-                             f"seconds is {p['a'] * p['b']} metres — and on "
-                             f"the graph that is exactly the rectangle's "
-                             f"area, height times width. That is what an "
-                             f"integral IS: the area underneath, read as "
-                             f"whatever the picture measures."),
+                             f"seconds is {p['a'] * p['b']} metres — the "
+                             f"rectangle's area, height times width, read "
+                             f"as a distance."),
         "key": lambda p: p["a"] * p["b"],
         # The errors: the two numbers added, and the time alone.
         "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"], p["b"]],
@@ -40141,9 +40849,8 @@ OP_EXT = {
                              f"seconds it is going t metres a second. After "
                              f"{p['a']} seconds, the area under that speed "
                              f"graph is a triangle. How far has it gone?"),
-        "board": lambda p: (f'[[step eq="speed = t · from 0 to '
-                            f'{p["a"]} s"]]'
-                            f'[[step eq="triangle area = ? metres"]]'),
+        "board": _triz_board,         # (ub) the ask picture, answer withheld
+        "worked": _triz_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"The triangle is {p['a']} wide and {p['a']} "
                              f"tall, and a triangle takes half the "
                              f"rectangle: {p['a']} times {p['a']} halved is "
@@ -40169,9 +40876,8 @@ OP_EXT = {
                              f"{p['a']} to x equals {p['b']}, is found by "
                              f"working out x squared at both ends and "
                              f"taking one from the other. What is it?"),
-        "board": lambda p: (f'[[step eq="area under 2x from {p["a"]} to '
-                            f'{p["b"]}"]]'
-                            f'[[step eq="{p["b"]}² − {p["a"]}² = ?"]]'),
+        "board": _ftc_board,         # (ub) the ask picture, answer withheld
+        "worked": _ftc_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"{p['b']} squared is {p['b'] * p['b']}, "
                              f"{p['a']} squared is {p['a'] * p['a']}, so "
                              f"the area is "
@@ -40198,8 +40904,8 @@ OP_EXT = {
                              f"x equals {p['b']} is {p['a']}. If that same "
                              f"area were a flat rectangle of the same "
                              f"width, how tall would it be?"),
-        "board": lambda p: (f'[[step eq="area {p["a"]} · width {p["b"]}"]]'
-                            f'[[step eq="flattened height = ?"]]'),
+        "board": _avgv_board,         # (ub) the ask picture, answer withheld
+        "worked": _avgv_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"Spread {p['a']} of area evenly across a "
                              f"width of {p['b']} and it stands "
                              f"{p['a'] // p['b']} high — the curve's "
@@ -40224,9 +40930,8 @@ OP_EXT = {
                              f"area under the top one is {p['a']}, and the "
                              f"area under the bottom one is {p['b']}. How "
                              f"much area sits between them?"),
-        "board": lambda p: (f'[[step eq="top area {p["a"]} · bottom area '
-                            f'{p["b"]}"]]'
-                            f'[[step eq="area between = ?"]]'),
+        "board": _btwn_board,         # (ub) the ask picture, answer withheld
+        "worked": _btwn_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"The bottom curve's {p['b']} is counted inside "
                              f"the top curve's {p['a']}, so take it away and "
                              f"{p['a'] - p['b']} is what is left in the gap. "
@@ -40247,9 +40952,8 @@ OP_EXT = {
                              f"metres a second to {p['b']} metres a second "
                              f"over {p['c']} seconds. How far does it "
                              f"travel in that time?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} m/s → {p["b"]} m/s · over '
-                            f'{p["c"]} s"]]'
-                            f'[[step eq="area under the graph = ? metres"]]'),
+        "board": _trap_board,         # (ub) the ask picture, answer withheld
+        "worked": _trap_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"Its average speed is halfway between "
                              f"{p['a']} and {p['b']}, and it holds that for "
                              f"{p['c']} seconds: "
@@ -40276,9 +40980,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A tank already holds {p['c']} litres. Water "
                              f"runs in at {p['a']} litres a minute for "
                              f"{p['b']} minutes. How much is in it then?"),
-        "board": lambda p: (f'[[step eq="starts with {p["c"]} L"]]'
-                            f'[[step eq="{p["a"]} L/min · {p["b"]} min · '
-                            f'total = ?"]]'),
+        "board": _accu_board,         # (ub) the ask picture, answer withheld
+        "worked": _accu_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"{p['a']} litres a minute for {p['b']} "
                              f"minutes runs in {p['a'] * p['b']}, and that "
                              f"lands on top of the {p['c']} already there — "
@@ -40306,16 +41009,13 @@ OP_EXT = {
                              f"out a cylinder. Its volume is pi times the "
                              f"radius squared, times the length. What "
                              f"number does the pi multiply?"),
-        "board": lambda p: (f'[[step eq="radius {p["a"]} · length '
-                            f'{p["b"]}"]]'
-                            f'[[step eq="volume = ? × π"]]'),
+        "board": _revo_board,         # (ub) the ask picture, answer withheld
+        "worked": _revo_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"The radius {p['a']} squares to "
                              f"{p['a'] * p['a']}, and {p['b']} lengths of "
                              f"that stack up to {p['a'] * p['a'] * p['b']} "
                              f"pi. Squaring the radius is what turns a flat "
-                             f"area into a solid — leave the squaring out "
-                             f"and you get {p['a'] * p['b']}, a rectangle "
-                             f"pretending to be a cylinder."),
+                             f"area into a solid."),
         "key": lambda p: p["a"] * p["a"] * p["b"],
         # The errors: the squaring left out, and the radius doubled instead
         # of squared.
@@ -40338,9 +41038,8 @@ OP_EXT = {
                              f"loses {p['b']} litres every minute. It "
                              f"starts with {p['a']} litres. How many are "
                              f"left after {p['c']} minutes?"),
-        "board": lambda p: (f'[[step eq="dV/dt = −{p["b"]} · starts at '
-                            f'{p["a"]} L"]]'
-                            f'[[step eq="after {p["c"]} min · ? litres"]]'),
+        "board": _dfeq_board,         # (ub) the ask picture, answer withheld
+        "worked": _dfeq_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"{p['b']} litres a minute for {p['c']} "
                              f"minutes is {p['b'] * p['c']} gone, and "
                              f"{p['a']} take away that is "
@@ -40366,9 +41065,8 @@ OP_EXT = {
                              f"litres a minute and drains out at {p['b']} "
                              f"litres a minute at the same time. After "
                              f"{p['c']} minutes, how much is in it?"),
-        "board": lambda p: (f'[[step eq="in {p["a"]} L/min · out '
-                            f'{p["b"]} L/min"]]'
-                            f'[[step eq="after {p["c"]} min · ? litres"]]'),
+        "board": _mixr_board,         # (ub) the ask picture, answer withheld
+        "worked": _mixr_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"The two rates pull against each other, so "
                              f"the tank really gains {p['a'] - p['b']} "
                              f"litres a minute — and over {p['c']} minutes "
@@ -40395,14 +41093,12 @@ OP_EXT = {
                              f"for every single bacterium already there. "
                              f"Right now there are {p['a']}. How fast is it "
                              f"growing at this moment?"),
-        "board": lambda p: (f'[[step eq="dP/dt = {p["b"]}P"]]'
-                            f'[[step eq="P = {p["a"]} · rate = ?"]]'),
+        "board": _pgrw_board,         # (ub) the ask picture, answer withheld
+        "worked": _pgrw_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"Every one of the {p['a']} contributes "
                              f"{p['b']} a minute, so the rate right now is "
-                             f"{p['a'] * p['b']}. And it will not stay "
-                             f"there: as the colony grows the rate grows "
-                             f"with it, and that is exactly why this kind "
-                             f"of change explodes."),
+                             f"{p['a'] * p['b']} — and it grows as the "
+                             f"colony grows."),
         "key": lambda p: p["a"] * p["b"],
         # The errors: the two numbers added, and the constant answered as
         # though the amount did not matter.
@@ -40420,8 +41116,8 @@ OP_EXT = {
                              f"take away {p['b']} P, where P is the "
                              f"population. Equilibrium is the P that "
                              f"drives that rate to zero. What is it?"),
-        "board": lambda p: (f'[[step eq="dP/dt = {p["a"]} − {p["b"]}P"]]'
-                            f'[[step eq="rate = 0 when P = ?"]]'),
+        "board": _eqbm_board,         # (ub) the ask picture, answer withheld
+        "worked": _eqbm_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"Set the rate to zero and {p['b']} P has to "
                              f"equal {p['a']}, so P is "
                              f"{p['a'] // p['b']}. Sit the population "
