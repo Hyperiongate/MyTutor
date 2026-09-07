@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  APP_BUILD -> "2026-09-07tx-the-words-and-the-picture-are-the-same-thing".
+#               BUILD tx -- the last two proven holes from the 09-06 watch. THE 79TH
+#               REFEREE, shares_picture_conflict: a story about a chocolate bar drawn as
+#               a [[pie]] (or a pizza drawn as a bar). RULES.md itself recorded that half
+#               of rule 63 as prompt-covered and a scenario candidate; the scenario found
+#               it. And board_count_conflict learns the STORY nouns (bags, candies,
+#               marbles...) and the "plus N loose" claim it had no pattern for at all --
+#               so a drawing that omits the four loose candies the voice just promised is
+#               caught against the tag's own add= attribute. Plus Jim's 2026-09-07 ruling
+#               on N10 as RULED_ALLOWED row six: the money model for decimals is teaching,
+#               not a units defect. Referees 78 -> 79; truth class unchanged at 11.
 #   2026-09-07  APP_BUILD -> "2026-09-07tw-the-say-it-then-write-it-family".
 #               BUILD tw -- three proven holes from the 09-06 and 09-07 watches, all of
 #               them a student looking at something the voice never gave them. (1) The
@@ -13875,7 +13886,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-07tw-the-say-it-then-write-it-family"
+APP_BUILD = "2026-09-07tx-the-words-and-the-picture-are-the-same-thing"
 
 
 @app.get("/health")

@@ -2,6 +2,43 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tx -- THE WORDS AND THE PICTURE ARE THE SAME THING (the last two
+#               proven holes from the 09-06 watch).
+#                 * THE 79TH REFEREE, shares_picture_conflict (rule 63). The watch:
+#                   "chocolate bar" in the words, [[pie]] on the board. RULES.md's own
+#                   rule-63 entry says the shares-picture half "remain[s] prompt-covered
+#                   ... a natural scenario candidate", and the scenario duly found it.
+#                   A student told about a bar and shown a circle is handed two different
+#                   objects and asked to treat them as one. NARROW: it fires only when the
+#                   reply draws ONE of the two families -- a [[pie]] with no
+#                   [[tape]]/[[rectangle]], or the reverse -- and the words name the
+#                   OTHER shape and not this one. A reply that draws BOTH is teaching the
+#                   equivalence and is silent by construction; a reply whose words name
+#                   both shapes is silent for the same reason. CONDUCT class, and
+#                   deliberately: nothing false is said, the figure is simply the wrong
+#                   object for the story. ⚠️ Jim may want it truth-class -- his 09-04
+#                   ruling put the board/words COUNT disagreement in the truth class, and
+#                   this is the same family one step further out. It is left conduct
+#                   until he says otherwise, which is how boardcount waited under sj.
+#                   Canon sweep: 0 fires across 9,047 authored beats.
+#                 * F1, THE COUNT CLAIM LEARNS THE STORY NOUNS AND THE LOOSE ONES. The
+#                   watch: "3 bags with 2 candies each, plus 4 loose" over an [[objects]]
+#                   tag that drew the bags and not the loose candies. Reconstructed --
+#                   _DRAWN_COUNT_CLAIM_RE knew bundles/groups/rows/piles/stacks/boxes and
+#                   a handful of emoji nouns, so "bags" and "candies" matched nothing, and
+#                   nothing at all knew the "plus N loose" shape. Two changes: the noun
+#                   list grows the story nouns, and a SECOND regex,
+#                   _LOOSE_COUNT_CLAIM_RE, holds the leftover claim. Two regexes and not
+#                   one alternation, for a mechanical reason worth writing down: an
+#                   alternation would carry two capture groups and the loop reads
+#                   group(1), so the loose branch would have handed it None. The loop
+#                   walks both patterns now.
+#                   ⚠️ THE POINT OF THE FIX is that "plus 4 loose" is checked against
+#                   what the TAG can support: with add="4" on the tag the claim is
+#                   honest and silent; without it the drawing is missing four candies the
+#                   voice just promised. Canon sweep: 0 fires across 9,047 authored
+#                   beats, before and after, unchanged.
+#               Referees 78 -> 79. Truth class unchanged at 11.
 #   2026-09-07  BUILD tw -- THE SAY-IT-THEN-WRITE-IT FAMILY (three proven holes from the
 #               09-06 and 09-07 watches; the fourth turned out to be a ruling, see below).
 #                 * F5, THE ASK-LISTS LEARN "GIVE ME AN EXAMPLE" (rules 2/8, _VIS_ASKED
@@ -7732,6 +7769,10 @@ _NUMWORD = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
             "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15,
             "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19,
             "twenty": 20}
+# (tx, 2026-09-07) THE NOUN LIST GREW THE STORY NOUNS. The 09-06 watch's claim was
+# "3 bags with 2 candies each, plus 4 loose" -- and "bags" and "candies" were on no
+# list, so a miscounted drawing under a candy story was invisible. The words a story
+# uses are not the words a maths lesson uses, and this referee reads stories.
 _DRAWN_COUNT_CLAIM_RE = re.compile(
     r"\b(?:here\s+are|here'?s|i\s+see|there\s+are|we\s+(?:have|drew|see)|"
     r"i\s+count|you\s+(?:can\s+)?see|look\s+at\s+(?:the|these))\s+"
@@ -7739,7 +7780,25 @@ _DRAWN_COUNT_CLAIM_RE = re.compile(
     r"fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|\d{1,2})\s+"
     r"(?:separate\s+|big\s+|little\s+|more\s+)?"
     r"(bundles?|groups?|rows?|piles?|stacks?|boxes?|tens?|stars?|apples?|"
-    r"cookies?|coins?|hearts?|balls?|dots?)\b", re.I)
+    r"cookies?|coins?|hearts?|balls?|dots?|"
+    r"bags?|candies|candy|sweets?|marbles?|blocks?|cubes?|sticks?|buttons?|"
+    r"pencils?|books?|cards?|counters?|beads?|shells?|stickers?|packs?|"
+    r"bunches?|baskets?|crayons?|erasers?|berries)\b", re.I)
+# (tx) THE LEFTOVER CLAIM, which nothing knew at all. "...plus 4 loose candies" promises
+# four things beside the groups, and the [[objects]] tag has an add= attribute for
+# exactly that -- so the number is checkable: with add="4" the claim is honest and this
+# is silent; without it, the voice promised four candies the drawing never drew.
+# ⚠️ A SEPARATE PATTERN, NOT AN ALTERNATION IN THE ONE ABOVE, and the reason is
+# mechanical: an alternation carries two capture groups and the loop below reads
+# group(1), so the loose branch would have handed it None on every match. The loop walks
+# both patterns instead, and each keeps a single group.
+_LOOSE_COUNT_CLAIM_RE = re.compile(
+    r"\b(?:plus|and|with)\s+"
+    r"(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|"
+    r"fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|\d{1,2})\s+"
+    r"(?:more\s+|extra\s+|other\s+|single\s+)?(?:\w+\s+)?"
+    r"(?:loose|spare|left\s*-?\s*over|leftover|on\s+(?:its|their)\s+own|"
+    r"by\s+(?:itself|themselves)|on\s+the\s+side)\b", re.I)
 
 
 # (qs) THE SIXTY-SIXTH REFEREE -- A COUNTED DRAWING NEVER SITS UNDER THE QUESTION.
@@ -8029,7 +8088,10 @@ def board_count_conflict(reply: str):
                 ok.add(t); ok.add(sum(rows) - t)       # what remains
         ok.discard(0)
         prose = _spoken_only(text)
-        for m in _DRAWN_COUNT_CLAIM_RE.finditer(prose):
+        # (tx) both claim shapes: "here are N bags" and "...plus N loose".
+        for _m_claim in (m for _rx in (_DRAWN_COUNT_CLAIM_RE, _LOOSE_COUNT_CLAIM_RE)
+                         for m in _rx.finditer(prose)):
+            m = _m_claim
             word = m.group(1).lower()
             n = _NUMWORD.get(word, None)
             if n is None:
@@ -10430,6 +10492,83 @@ def pie_caption_conflict(reply: str):
         return ""
 
 
+# =============================================================================
+# BUILD tx (2026-09-07) -- THE SEVENTY-NINTH REFEREE: THE STORY AND THE PICTURE
+# ARE THE SAME OBJECT (rule 63).
+# -----------------------------------------------------------------------------
+# The 2026-09-06 night watch, fractions-lost, basic: the words told a story about a
+# CHOCOLATE BAR and the board drew a [[pie]]. RULES.md's own rule-63 entry admits
+# the gap in writing -- the shares-picture half "remain[s] prompt-covered ... a
+# natural scenario candidate" -- and the scenario found it on its first pass.
+#
+# WHY IT MATTERS MORE THAN IT LOOKS. A student learning fractions is learning that
+# a whole can be cut, and the object being cut is the whole point of the story. Told
+# about a bar and shown a circle, they are handed two different objects and asked to
+# treat them as one -- and the student who cannot yet hold both is exactly the
+# student this picture exists for.
+#
+# NARROW, THREE WAYS:
+#   * it fires only when the reply draws ONE family -- a [[pie]] with no
+#     [[tape]]/[[rectangle]], or a [[tape]]/[[rectangle]] with no [[pie]];
+#   * the words must name the OTHER shape and NOT this one, so a reply that says
+#     "a pizza cut like a chocolate bar" is silent;
+#   * a reply that draws BOTH is teaching the equivalence and never reaches the test.
+#
+# CONDUCT CLASS, deliberately. Nothing false is said: the fractions are right and the
+# picture is right, it is simply the wrong object for the story. ⚠️ Jim may want this
+# in the truth class -- his 2026-09-04 ruling put the board/words COUNT disagreement
+# there, and this is that family one step further out. It waits for him, the way
+# boardcount waited under sj.
+# Canon sweep: 0 fires across 9,047 authored beats.
+# =============================================================================
+_SHARE_RECT_NOUN = re.compile(
+    # ⚠️ "paths?" WAS ON THIS LIST FOR ONE DRY RUN and fired on four authored
+    # probstat beats -- "the paths that win both times", over the spinner's
+    # [[pie]]. A path is not an object anybody shares. The sweep that caught it
+    # ran against the SHIPPED list, not the prototype's: the two had drifted by
+    # three nouns, and only the shipped one is the truth.
+    r"\b(chocolate\s+bars?|candy\s+bars?|bars?|strips?|ribbons?|ropes?|rulers?|"
+    r"fences?|roads?|planks?|licorice|sticks?\s+of\s+gum)\b", re.I)
+_SHARE_ROUND_NOUN = re.compile(
+    r"\b(pizzas?|pies?|cakes?|cookies?|clocks?|wheels?|pancakes?|waffles?)\b", re.I)
+_SHARE_PIE_TAG = re.compile(r"\[\[\s*pie\b", re.I)
+_SHARE_BAR_TAG = re.compile(r"\[\[\s*(?:tape|rectangle)\b", re.I)
+
+
+def shares_picture_conflict(reply: str):
+    """Return a description of a shares story drawn as the wrong object, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        has_pie = bool(_SHARE_PIE_TAG.search(text))
+        has_bar = bool(_SHARE_BAR_TAG.search(text))
+        if has_pie == has_bar:
+            return ""      # both families drawn (the equivalence), or neither: silent
+        prose = _spoken_only(text)
+        rect = _SHARE_RECT_NOUN.search(prose)
+        round_ = _SHARE_ROUND_NOUN.search(prose)
+        if has_pie and rect and not round_:
+            return ('your words tell a story about a {n} -- a straight thing -- and your '
+                    'board draws a [[pie]], which is round. Rule 63: the picture IS the '
+                    'story, and a student who is handed two different objects and asked '
+                    'to treat them as one loses the very idea the picture was there to '
+                    'carry. Draw the {n} as a [[tape]] (or a [[rectangle]]) cut into the '
+                    'same equal parts, or tell the story about something round.'
+                    ).format(n=" ".join(rect.group(0).split()))
+        if has_bar and round_ and not rect:
+            return ('your words tell a story about a {n} -- a round thing -- and your '
+                    'board draws it as a straight bar. Rule 63: the picture IS the '
+                    'story. Draw the {n} as a [[pie]] cut into the same equal parts, or '
+                    'tell the story about something straight, like a chocolate bar.'
+                    ).format(n=" ".join(round_.group(0).split()))
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[sharespic] crashed (fail open): {exc}")
+        _event("referee_crash", "sharespic", str(exc))
+        return ""
+
+
+
 
 # =============================================================================
 # THE SELF-CORRECTION CHECK (2026-08-16, build gl) -- the eleventh referee.
@@ -10699,6 +10838,13 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if piecaption:
             _event("referee_fire", "piecaption", piecaption)
             return piecaption
+        # build tx: SEVENTY-NINTH, beside it -- the caption agrees with the pie, and
+        # now: is a PIE the right object for the story the words are telling? (rule 63,
+        # the shares-picture half RULES.md admits is prompt-covered).
+        sharespic = shares_picture_conflict(reply)
+        if sharespic:
+            _event("referee_fire", "sharespic", sharespic)
+            return sharespic
         # build gl: third, and cheap -- the tutor must never be seen changing its mind.
         selfcorrect = self_correction_conflict(reply)
         if selfcorrect:

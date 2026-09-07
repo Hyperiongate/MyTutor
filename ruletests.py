@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tx -- THE WORDS AND THE PICTURE ARE THE SAME THING. PART 3jt pins
+#               the 79th referee with its three silences (both families drawn, both shapes
+#               named, no story noun at all), the widened count claim against the tag's own
+#               add= attribute, and RULED_ALLOWED at six rows. Both canon sweeps repeated.
+#               ⚠️ The sweep that mattered ran against the SHIPPED noun list, not the
+#               prototype's: "paths?" had drifted into the shipped one and fired on four
+#               authored probstat beats ("the paths that win both times", over the
+#               spinner's [[pie]]). Referees 78 -> 79 (ten pins moved). Tile 10,482 -> 10,503.
 #   2026-09-07  BUILD tw -- THE SAY-IT-THEN-WRITE-IT FAMILY. PART 3js pins the widened
 #               ask-lists with the sentences that only LOOK like asks ("that's a good
 #               example", "like what we did yesterday", "for example, 3 plus 4 is 7"), the
@@ -12919,7 +12927,7 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- this build widened a gate",
-          n_ref == 78,
+          n_ref == 79,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -13003,7 +13011,7 @@ def part3hn_credit_only_what_you_saw():
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rm widened a gate",
-          n_ref == 78, f"{n_ref} *_conflict functions")
+          n_ref == 79, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -13080,7 +13088,7 @@ def part3ho_three_one_line_holes():
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rn widened two gates",
-          n_ref == 78, f"{n_ref} *_conflict functions")
+          n_ref == 79, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -19456,10 +19464,10 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ seventy-eight referees now, counted from the code (62 + pz + qf + qm + qs + "
+    check("⭐ seventy-nine referees now, counted from the code (62 + pz + qf + qm + qs + "
           "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + "
-          "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach + tw's opunspoken)",
-          n_ref == 78, n_ref)
+          "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach + tw's opunspoken + tx's sharespic)",
+          n_ref == 79, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -22046,7 +22054,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,482</b>" in page,
+          "<b>10,503</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22810,8 +22818,8 @@ def part3ii_the_board_tells_the_truth_about_which_question():
           fires == 0 and seen >= 9000, f"{fires} authored replies rejected")
 
     # ---- the count moved, and everything that pins it moved with it ----------------
-    check("  seventy-eight *_conflict referees",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 78, "")
+    check("  seventy-nine *_conflict referees",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 79, "")
     check("  tutor.py carries a dated sm note",
           "2026-09-04  BUILD sm" in open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                      "tutor.py"), encoding="utf-8").read(200000), "")
@@ -26873,10 +26881,17 @@ def part3jq_the_caption_the_sequence_and_the_definition():
           and not T._is_truth_finding("prose", ""), "")
 
     # ---- the reviewer's list -----------------------------------------------------
-    check("⭐ RULED_ALLOWED carries five rows now, not one (rules 42, 52, 48, 27, 14)",
-          len(_NW.RULED_ALLOWED) == 5
-          and sorted(r["rule"] for r in _NW.RULED_ALLOWED) == [14, 27, 42, 48, 52],
-          [r["rule"] for r in _NW.RULED_ALLOWED])
+    # (tx, 2026-09-07) THIS PIN FROZE A LIST THAT IS MEANT TO GROW. It read
+    # "len == 5" and "the rules are exactly [14, 27, 42, 48, 52]", and tx's sixth row
+    # broke it the moment Jim ruled on N10 -- which is the mechanism working, not
+    # failing. What tu actually proved is that FOUR ROWS JOINED THE ONE THAT WAS THERE,
+    # and that is what it pins now: those five rules are present, and the list is never
+    # back down to one. A later build adding a row is expected and costs nobody an edit.
+    _tu_rules = [r["rule"] for r in _NW.RULED_ALLOWED]
+    check("⭐ RULED_ALLOWED grew from one row to five at tu (rules 42, 52, 48, 27, 14) "
+          "and has never shrunk",
+          all(_r in _tu_rules for _r in (14, 27, 42, 48, 52))
+          and len(_NW.RULED_ALLOWED) >= 5, _tu_rules)
     check("⭐ EVERY row carries a boundary -- sh's law: a ruling without one is a blank "
           "cheque, and the renderer would print a loud placeholder instead",
           all((r.get("boundary") or "").strip() for r in _NW.RULED_ALLOWED), "")
@@ -27028,7 +27043,7 @@ def part3jr_the_gate_learns_who_wrote_the_symbol():
 
     # ---- nothing else moved ---------------------------------------------------------
     check("  no new referee and no new truth-class name: tv is a gate correction",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 78
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 79
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tv notes",
           "2026-09-07  BUILD tv" in rd("tutor.py")[:200000]
@@ -27184,13 +27199,173 @@ def part3js_the_say_it_then_write_it_family():
     # ---- the count, and the notes ----------------------------------------------------
     check("  seventy-eight referees, and the truth class unchanged at eleven (all three "
           "of tw's are conduct: nothing false is taught)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 78
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 79
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tw notes",
           "2026-09-07  BUILD tw" in rd("tutor.py")[:24000]
           and "BUILD tw" in rd("main.py")[:200000]
           and "2026-09-07  BUILD tw" in rd("ruletests.py")[:28000]
           and "(tw)" in rd("static/methodology.html")[:20000],
+          "Jim's rule 8")
+
+
+def part3jt_the_words_and_the_picture_are_the_same_thing():
+    """PART 3jt (build tx, 2026-09-07) -- THE WORDS AND THE PICTURE ARE THE SAME THING.
+
+    The last two proven holes from the 2026-09-06 watch.
+      * F9 -- "chocolate bar" in the words, [[pie]] on the board. RULES.md's own rule-63
+        entry records that half as prompt-covered and "a natural scenario candidate";
+        the scenario found it on its first pass. The 79th referee.
+      * F1 -- "3 bags with 2 candies each, plus 4 loose" over an [[objects]] tag that
+        drew the bags and not the loose ones. The claim regex knew bundles and groups
+        and no story nouns, and nothing at all knew "plus N loose".
+    Plus Jim's 2026-09-07 ruling on N10: the money model for decimals is teaching, not a
+    units defect -- RULED_ALLOWED row six."""
+    print("\nPART 3jt — the words and the picture are the same thing (build tx)")
+    import tutor as T
+    import nightwatch as _NW
+    import foundations as FND, lessonscripts as LS
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+
+    # ---- F9: the 79th referee -------------------------------------------------------
+    BAR_AS_PIE = ('Think of a chocolate bar cut into 4 equal pieces. '
+                  '[[pie parts="4" shaded="1" caption="one fourth"]]')
+    PIZZA_AS_BAR = ('Think of a pizza cut into 4. '
+                    '[[tape parts="1|1|1|1" total="4" caption="one fourth"]]')
+    check("⭐ THE 09-06 FINDING: a chocolate bar told in the words and drawn as a pie",
+          bool(T.shares_picture_conflict(BAR_AS_PIE))
+          and "chocolate bar" in T.shares_picture_conflict(BAR_AS_PIE), "")
+    check("  ...and the mirror: a pizza drawn as a straight bar",
+          bool(T.shares_picture_conflict(PIZZA_AS_BAR))
+          and "round thing" in T.shares_picture_conflict(PIZZA_AS_BAR), "")
+    check("  ...and it reaches a student through the dispatcher",
+          bool(T.prose_board_conflict(BAR_AS_PIE)), "")
+    check("⭐ THE THREE SILENCES: the story and the picture agreeing, either way round",
+          not T.shares_picture_conflict(
+              'Think of a pizza cut into 4. [[pie parts="4" shaded="1" caption="a"]]')
+          and not T.shares_picture_conflict(
+              'A chocolate bar in 4. [[tape parts="1|1|1|1" total="4" caption="a"]]'), "")
+    # ⚠️ THE WORDS HERE NAME ONE SHAPE ONLY, DELIBERATELY. The first spelling of this
+    # pin said "a pizza and a chocolate bar" -- which names BOTH nouns, so it stayed
+    # silent through the words-name-both door whether the both-drawn door existed or
+    # not, and this build's failability run proved it could never fail. One noun, two
+    # figures: now only the both-drawn silence can keep it quiet.
+    check("  ...a reply that draws BOTH families is teaching the equivalence, and never "
+          "reaches the test",
+          not T.shares_picture_conflict(
+              'Here is a chocolate bar, cut two ways so you can see it. '
+              '[[pie parts="4" shaded="1" caption="a"]]'
+              '[[tape parts="1|1|1|1" total="4" caption="b"]]'), "")
+    check("  ...a reply whose WORDS name both shapes is silent for the same reason",
+          not T.shares_picture_conflict(
+              'A pizza cut like a chocolate bar. [[pie parts="4" shaded="1" caption="a"]]'), "")
+    check("  ...and a figure with no story noun at all is not this referee's business",
+          not T.shares_picture_conflict(
+              'Four equal parts, one shaded. [[pie parts="4" shaded="1" caption="a"]]'), "")
+
+    # ---- F1: the count claim ---------------------------------------------------------
+    LOOSE_BAD = ('Here are 3 bags with 2 candies each, plus 4 loose candies. '
+                 '[[objects emoji="C" groups="2,2,2" caption="three bags of two"]]')
+    LOOSE_OK = ('Here are 3 bags with 2 candies each, plus 4 loose candies. '
+                '[[objects emoji="C" groups="2,2,2" add="4" caption="the bags and the loose ones"]]')
+    check("⭐ THE 09-06 FINDING: \"plus 4 loose\" promised in the words, four candies "
+          "the drawing never drew",
+          bool(T.board_count_conflict(LOOSE_BAD))
+          and "plus 4 loose" in T.board_count_conflict(LOOSE_BAD), "")
+    check("⭐ ...and SILENT the moment the tag draws them -- the whole point is that the "
+          "number is checked against what the tag can support",
+          not T.board_count_conflict(LOOSE_OK), "")
+    check("  the story nouns are on the list now: \"5 bags\" over three groups of two "
+          "is caught, where \"bags\" used to match nothing",
+          bool(T.board_count_conflict(
+              'Here are 5 bags. [[objects emoji="B" groups="2,2,2" caption="x"]]')), "")
+    check("  ...and an honest claim about the same drawing is silent",
+          not T.board_count_conflict(
+              'Here are 3 groups of 2. [[objects emoji="S" groups="2,2,2" caption="x"]]'), "")
+    check("  a reply with no drawing in it is out of scope, as it always was",
+          not T.board_count_conflict("Here are 5 bags, plus 4 loose."), "")
+    # ⚠️ the first spelling of this pin asserted `.groups == 1` on both patterns and
+    # was simply WRONG ABOUT THE CODE -- the original claim regex has always captured
+    # the noun as well as the number. The property the loop depends on is narrower and
+    # is what is pinned now: in EACH pattern, group(1) is the number.
+    check("  TWO patterns, not one alternation, and group(1) is the number in both -- "
+          "an alternation would carry a second number group and hand the loop None on "
+          "every loose match",
+          T._DRAWN_COUNT_CLAIM_RE.search("here are 3 bags").group(1) == "3"
+          and T._LOOSE_COUNT_CLAIM_RE.search("plus 4 loose").group(1) == "4"
+          and T._DRAWN_COUNT_CLAIM_RE is not T._LOOSE_COUNT_CLAIM_RE, "")
+
+    # ---- N10: the ruling row ----------------------------------------------------------
+    check("⭐ RULED_ALLOWED carries six rows now: Jim's 2026-09-07 ruling that the money "
+          "model for decimals is teaching, not a units defect",
+          len(_NW.RULED_ALLOWED) == 6
+          and sorted(r["rule"] for r in _NW.RULED_ALLOWED) == [14, 27, 27, 42, 48, 52], "")
+    check("  ...every row still carries a boundary (sh's law)",
+          all((r.get("boundary") or "").strip() for r in _NW.RULED_ALLOWED), "")
+    check("  ...and the new row's boundary keeps a unit that CHANGES the quantity real",
+          any("CHANGES THE QUANTITY" in (r.get("boundary") or "")
+              for r in _NW.RULED_ALLOWED), "")
+    check("  the two rule-27 rows are different rulings, not a duplicate: the trailing "
+          "zero (tu) and the concrete model (tx)",
+          len({r["date"] for r in _NW.RULED_ALLOWED if r["rule"] == 27}) == 1
+          and len([r for r in _NW.RULED_ALLOWED if r["rule"] == 27]) == 2
+          and any("3.50" in r["shape"] for r in _NW.RULED_ALLOWED)
+          and any("CONCRETE MODEL" in r["shape"] for r in _NW.RULED_ALLOWED), "")
+
+    # ---- ⭐ the canon sweeps ------------------------------------------------------------
+    _n = _f9 = _f1 = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            _t = (_sc.get("say") or "") + "\n" + "\n".join(_sc.get("board") or [])
+            if not _t.strip():
+                continue
+            _n += 1
+            if T.shares_picture_conflict(_t):
+                _f9 += 1
+            if T.board_count_conflict(_t):
+                _f1 += 1
+    for _les in LS.LESSONS:
+        _bs = []
+        for _f in ("why", "picture", "teach", "recap"):
+            _bs += [(sp or "") + "\n" + (b or "") for sp, b in (_les.get(_f) or [])]
+        for _pr in (_les.get("pairs") or []):
+            _wk = _pr.get("worked") or ("", "")
+            _bs.append((_wk[0] or "") + "\n" + (_wk[1] or ""))
+        for _p in (_les.get("bank") or []):
+            for _lv in _les.get("levels", LS.LEVELS):
+                _bs.append((LS.spoken_for(_p, _lv) or "") + "\n" + (LS.board_for(_p, _lv) or ""))
+            _w2 = LS._worked_for(_p)
+            if _w2:
+                _bs.append((_w2[0] or "") + "\n" + (_w2[1] or ""))
+        for _t in _bs:
+            if not _t.strip():
+                continue
+            _n += 1
+            if T.shares_picture_conflict(_t):
+                _f9 += 1
+            if T.board_count_conflict(_t):
+                _f1 += 1
+    check(f"⭐ CANON SWEEP: the 79th referee is silent across all {_n} authored beats "
+          f"-- \"paths?\" was on its noun list for one dry run and fired on four probstat "
+          f"beats (\"the paths that win both times\", over the spinner's pie)",
+          _f9 == 0 and _n >= 9000, f"{_f9} fires")
+    check(f"⭐ CANON SWEEP: the widened count claim is silent across all {_n} authored "
+          f"beats, exactly as the narrow one was", _f1 == 0, f"{_f1} fires")
+
+    # ---- the count, and the notes ------------------------------------------------------
+    check("  seventy-nine referees, truth class still eleven (F9 is conduct: nothing "
+          "false is said, the figure is the wrong object for the story -- Jim may rule "
+          "it truth, as he did for boardcount on 2026-09-04)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 79
+          and len(T.TRUTH_REFEREES) == 11, "")
+    check("  the changed files carry dated tx notes",
+          "2026-09-07  BUILD tx" in rd("tutor.py")[:24000]
+          and "2026-09-07  BUILD tx" in rd("nightwatch.py")[:16000]
+          and "BUILD tx" in rd("main.py")[:200000]
+          and "2026-09-07  BUILD tx" in rd("ruletests.py")[:28000]
+          and "(tx)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -28645,7 +28820,7 @@ def part3hx_the_question_mark_is_a_blank_said_so():
           and n >= 1900 and m >= 3000,
           str(hits[:4]))
     check("  the referee count is unchanged -- sa is a registry row on referee 31",
-          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 78, "")
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 79, "")
 
 
 def part3hw_a_variables_letter_keeps_its_case():
@@ -28794,7 +28969,7 @@ def part3hu_the_accepted_offer_is_honored():
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
     check("  the referee count is unchanged -- rx widened a gate",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 78, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 79, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -28915,7 +29090,7 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
     check("  the referee count is unchanged -- ry widened a gate and added a floor",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 78, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 79, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -37542,6 +37717,7 @@ def main():
     part3jq_the_caption_the_sequence_and_the_definition()
     part3jr_the_gate_learns_who_wrote_the_symbol()
     part3js_the_say_it_then_write_it_family()
+    part3jt_the_words_and_the_picture_are_the_same_thing()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

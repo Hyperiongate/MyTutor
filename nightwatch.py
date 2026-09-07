@@ -2,6 +2,13 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tx -- RULED_ALLOWED ROW SIX, rule 27 (Jim's ruling, 2026-09-07).
+#               The 09-07 watch confirmed the tutor answering "whats 3.5 + 0.47" as "three
+#               dollars and fifty cents plus forty-seven cents" -- money units the
+#               student's question never gave. Jim ruled it not a defect: money is the
+#               standard concrete model for decimals, and rule 27 is about UNITS -- a
+#               quantity carrying the wrong one -- not about analogies. A tutor reaching
+#               for coins to make a decimal sum concrete is teaching, not mislabelling.
 #   2026-09-07  BUILD tu -- THE REVIEWER'S LIST GROWS FROM ONE ROW TO FIVE. Two watches
 #               (09-06, 09-07) confirmed four shapes that are decided designs or plain
 #               correctness, because the reviewer was never told about them. Each new
@@ -661,6 +668,27 @@ RULED_ALLOWED = [
                     "covers ORDER WITHIN ONE REPLY. It does not reach a reading that is "
                     "absent, a reading that appears only in a LATER reply, or a symbol "
                     "read in a way a student could not repeat.",
+    },
+    {
+        "rule": 27,
+        "date": "2026-09-07",
+        "shape": "a bare arithmetic question answered with a familiar CONCRETE MODEL "
+                 "beside it -- money for decimals, slices for fractions, steps for "
+                 "negative numbers -- reported as units the student never gave",
+        "ruling": "Jim, 2026-09-07, ruling on the 09-07 watch's finding that "
+                  '"whats 3.5 + 0.47" was answered as "three dollars and fifty cents '
+                  'plus forty-seven cents": not a defect. Money is the standard '
+                  "concrete model for decimals -- it is how the place value is taught "
+                  "in the first place -- and rule 27 is about UNITS, a quantity "
+                  "carrying the wrong one, not about analogies. A tutor reaching for "
+                  "coins to make a decimal sum concrete is teaching.",
+        "boundary": "A UNIT THAT CHANGES THE QUANTITY IS STILL A REAL 27, and so is an "
+                    "answer given only in a unit the student must convert back before "
+                    "they can use it: 3.5 + 0.47 answered as \"three ninety-seven\" "
+                    "with no number said, or a length answered in centimetres when the "
+                    "question was in metres, or a model swapped MID-PROBLEM so the "
+                    "student is asked to hold two at once. This ruling covers a "
+                    "familiar model offered ALONGSIDE the arithmetic, and nothing else.",
     },
 ]
 
