@@ -2,6 +2,22 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD uc -- THE YOUNGEST SPEAK, AND THE MIC WAITS ITS TURN. PART 3jy pins
+#               both halves: the three teaching pages no longer send Entry-Level or Basic
+#               to the tap buttons first (four strings gone, four shared ones in, the
+#               symbol pads still hidden, the no-microphone branch still honest), and
+#               session.html holds the MICROPHONE alone while a scripted question is
+#               spoken -- the pin proves the taps and the typing box still open FIRST
+#               (nb/pd's rule, by index, not by hope), that micHold touches no other
+#               control, that setPhase clears "waiting", and that a hold cannot outlive
+#               its beat. Plus the things that did NOT change, pinned live: choices_for
+#               still builds a row for every course, referee 58 still fires without one,
+#               and prompts.py still carries the buttons guarantee.
+#               ALSO: the page-note windows. Four pins read the three pages' heads at
+#               [:800], [:900] and [:1000] -- each build had nudged its own up by 100,
+#               the one-at-a-time habit the ub note warned about -- and uc's note pushed
+#               sq, sr, sw and sy past them. All four are [:6000] now, together.
+#               Tile 10,861 -> 10,886.
 #   2026-09-07  BUILD ub -- CALCULUS UNITS 7-9 TO THE SHAPE. PART 3jx: _shape_unit_checks on
 #               the three units, the grapher's shade= (its three seams), the twelve named
 #               asks and walk-backs (every shaded ask writes "?" in its region and every
@@ -22103,7 +22119,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,861</b>" in page,
+          "<b>10,886</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23454,7 +23470,7 @@ def part3im_basic_unit_one_to_the_shape():
           and "BUILD sq" in rd("main.py")[:200000] and "(build sq)" in bj[:3000]
           and "2026-09-05  BUILD sq" in mf[:12000] and "BUILD sq" in rd("tags.py")[:8000]
           and "BUILD sq" in rd("tutor.py")[:24000] and "2026-09-05 (sq)" in rd("static/script-board.js")[:3000]
-          and all("(sq) 2026-09-05" in rd(pg)[:800] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
+          and all("(sq) 2026-09-05" in rd(pg)[:6000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "2026-09-05  BUILD sq" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
@@ -23580,7 +23596,7 @@ def part3in_basic_unit_two_to_the_shape():
           and "BUILD sr" in rd("main.py")[:200000] and "2026-09-05  BUILD sr" in mf[:12000]
           and "BUILD sr" in rd("tags.py")[:8000] and "BUILD sr" in rd("tutor.py")[:24000]
           and "2026-09-05 (sr)" in rd("static/script-board.js")[:3000]
-          and all("(sr) 2026-09-05" in rd(pg)[:800] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
+          and all("(sr) 2026-09-05" in rd(pg)[:6000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "2026-09-05  BUILD sr" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
@@ -24094,7 +24110,7 @@ def part3is_basic_unit_seven_to_the_shape():
           and "BUILD sw" in rd("main.py")[:200000] and "2026-09-05  BUILD sw" in mf[:12000]
           and "BUILD sw" in rd("tags.py")[:8000] and "BUILD sw" in rd("tutor.py")[:24000]
           and "2026-09-05 (sw)" in rd("static/script-board.js")[:3000]
-          and all("(sw) 2026-09-05" in rd(pg)[:900] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
+          and all("(sw) 2026-09-05" in rd(pg)[:6000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "2026-09-05  BUILD sw" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
@@ -24214,7 +24230,7 @@ def part3iu_basic_unit_nine_to_the_shape():
           and "BUILD sy" in rd("main.py")[:200000] and "2026-09-05  BUILD sy" in mf[:12000]
           and "BUILD sy" in rd("tags.py")[:8000] and "BUILD sy" in rd("tutor.py")[:24000]
           and "2026-09-05 (sy)" in rd("static/script-board.js")[:3000]
-          and all("(sy) 2026-09-05" in rd(pg)[:1000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
+          and all("(sy) 2026-09-05" in rd(pg)[:6000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "2026-09-05  BUILD sy" in rd("ruletests.py")[:28000], "Jim's rule 8")
 
 
@@ -28115,6 +28131,138 @@ def part3jx_calculus_units_seven_to_nine_to_the_shape():
           "2026-09-07  BUILD ub" in rd("lessonscripts.py")[:90000] and "BUILD ub" in rd("main.py")[:200000]
           and "2026-09-07  BUILD ub" in rd("ruletests.py")[:28000] and "(ub)" in rd("static/methodology.html")[:30000]
           and "2026-09-07  BUILD ub" in rd("static/math-figures.js")[:12000],
+          "Jim's rule 8")
+
+
+def part3jy_the_youngest_speak_and_the_mic_waits():
+    """PART 3jy (build uc, 2026-09-07) -- THE TWO YOUNGEST COURSES ANSWER LIKE EVERY
+    OTHER COURSE, AND THE MICROPHONE WAITS FOR THE SPEAKER.
+
+    Jim: "back when I made the decision that they had to have a multiple choice answer,
+    it was to avoid having them write the answer. And then we sent one out and said,
+    nobody has to write the answer, everybody can just speak the answer ... we should
+    have gone back to the first two courses." And: "let the speaker do the speaking. And
+    as soon as they're done ... they light up."
+
+    Half one, all three teaching pages: every instruction that sent Entry-Level and Basic
+    to the tap buttons FIRST now reads what the other eight read. The buttons are
+    untouched -- choices_for is course-blind, referee 58 and build qw's guarantee still
+    put a row under every elementary question -- and so are the two hidden symbol pads
+    (Jim's call). The no-microphone branches still describe the buttons, because there
+    they really are the only door.
+
+    Half two, session.html: an ask beat opens the taps and the typing box the moment its
+    question reaches the board (builds nb/pd -- THAT ORDER IS PINNED HERE, UNCHANGED) and
+    now holds the MICROPHONE dim for the length of the spoken line, releasing it the
+    instant the line ends."""
+    print("\nPART 3jy — the youngest speak, and the mic waits its turn (build uc)")
+    import lessonscripts as L
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    src = {p: rd("static/" + p) for p in PAGES}
+    ses = src["session.html"]
+    pr = rd("prompts.py")
+    NL = chr(10)      # a needle that spans two source lines, written without a raw newline
+
+    # ---- half one: the three pages say the same thing -------------------------------
+    GONE = [
+        ('the answer-bar line no longer says "tap one of the answer buttons that pop up"',
+         "tap one of the answer buttons that pop up"),
+        ("the composer no longer tells the youngest to tap instead of type",
+         'input.placeholder = "Tap an answer button'),
+        ("the ready hint no longer has an elementary branch that leads with the buttons",
+         "SAY your answer, or tap an answer button"),
+    ]
+    for label, needle in GONE:
+        left = [p for p in PAGES if needle in src[p]]
+        check(f"⭐ all three pages: {label}", not left, f"still in: {left}")
+    HERE = [
+        ("the answer-bar line leads with the microphone",
+         "tap the microphone and <b>say your answer out loud</b>"),
+        ("...and names typing as the second door, the buttons as the third",
+         "tap <b>Type my answer</b> and write it instead. The answer buttons work too!"),
+        ("the two symbol pads stay hidden for entry/basic (Jim's call)",
+         ".elem-mode .mtk-open, .elem-mode .gpi-open, .elem-mode .mtk-hint,"),
+        ("the no-microphone branch still describes the buttons (a capability, not a policy)",
+         'IS_ELEM' + NL + '              ? "Your turn — tap one of the answer buttons!"'),
+    ]
+    for label, needle in HERE:
+        missing = [p for p in PAGES if needle not in src[p]]
+        check(f"  all three pages: {label}", not missing, f"missing from: {missing}")
+    check("⭐ the ready hint is ONE line for all ten courses wherever the mic can record",
+          '? "Your turn — tap the microphone to talk, or tap “Type my answer” below."' in ses
+          and all('? "Your turn — tap 🎙️ and say your answer, or type it below."' in src[p]
+                  for p in ("practice.html", "topic.html")), "")
+    check("  session.html: the tour's last stop leads with the microphone in both classrooms",
+          "the microphone lights up — tap it and just SAY your answer out loud" in ses
+          and "when I ask you a question, you have TWO easy ways to answer" not in ses, "")
+    check("  session.html: the welcome tip leads with the microphone when it can record",
+          "<b>tap the microphone and say your answer out loud</b>. Would you rather write it?" in ses
+          and "or <b>tap one of the answer buttons at the bottom</b>. Both work!" not in ses, "")
+
+    # ---- half two: the mic waits, and NOTHING ELSE does -----------------------------
+    _mic = ses[ses.find("function micHold(on) {"):] if "function micHold(on) {" in ses else ""
+    _mic = _mic[:_mic.find(NL + "    }")] if _mic else ""
+    check("⭐ session.html: micHold() dims the MIC ALONE -- disabled, .waiting, \"Listen…\" -- and releases through setPhase(\"ready\")",
+          bool(_mic)
+          and 'if (phase !== "ready") return;' in _mic
+          and "talkBtn.disabled = true;" in _mic
+          and 'talkBtn.classList.add("waiting");' in _mic
+          and 'talkLabel.textContent = "Listen…";' in _mic
+          and 'talkBtn.classList.remove("waiting");' in _mic
+          and 'setPhase("ready");' in _mic
+          and "choice" not in _mic and "composer" not in _mic, "")
+    _seam = ses.find("micHold(true);")
+    _open = ses.find('busy = false; setPhase("ready");' + NL + "        // (uc)")
+    check("⭐ session.html: the ask beat OPENS THE TAPS AND TYPING FIRST (nb/pd's rule) and only then holds the mic",
+          _open > 0 and _seam > _open and (_seam - _open) < 400, f"open {_open} hold {_seam}")
+    _say = ses.find("scrSay(words).then(()", _seam if _seam > 0 else 0)
+    check("⭐ session.html: the hold is taken BEFORE the spoken line and released inside its .then, guarded by the beat",
+          _say > _seam > 0
+          and "if (SCR.beat === myBeat) {" in ses[_say:_say + 400]
+          and "micHold(false);" in ses[_say:_say + 500], "")
+    check("  session.html: a hold never outlives a rejected line (the .catch releases it too)",
+          "}).catch(function () {" in ses[_say:_say + 900]
+          and "if (SCR.beat === myBeat) micHold(false);" in ses[_say:_say + 900], "")
+    check("  session.html: every phase change owns the button -- setPhase clears \"waiting\" too",
+          'talkBtn.classList.remove("ready", "recording", "waiting");' in ses, "")
+    check("  session.html: the held mic is visibly DIM and never animated",
+          ".talkbtn.waiting { background: #c3ccd8; opacity: .5; cursor: default; animation: none; box-shadow: none; }" in ses, "")
+    check("⭐ the TAP BUTTONS are never held: the shared row knows nothing about micHold",
+          "micHold" not in rd("static/board.js")
+          and "if (busy) return;" in rd("static/board.js"), "")
+
+    # ---- the buttons themselves: nothing about them changed --------------------------
+    check("⭐ choices_for still builds a row for EVERY course -- the youngest keep their buttons, and so does Calculus",
+          L.choices_for({"a": 4, "b": 3, "op": "+"}).startswith('[[choices options="')
+          and L.choices_for({"a": 5, "b": 9, "op": "ftc"}).startswith('[[choices options="'), "")
+    check("⭐ referee 58 still fires on an elementary question shipped with no buttons...",
+          bool(tutor.elementary_buttons_conflict("Nice work! Now, what is four plus three?", "entry"))
+          and bool(tutor.elementary_buttons_conflict("Nice work! Now, what is four plus three?", "basic")), "")
+    check("  ...and stays silent when the row is there, and on every other course",
+          not tutor.elementary_buttons_conflict(
+              'What is four plus three?' + NL + '[[choices options="6 | 7 | 8"]]', "entry")
+          and not tutor.elementary_buttons_conflict("What is four plus three?", "algebra1"), "")
+
+    # ---- the prompt says what the pages now show ------------------------------------
+    check("⭐ prompts.py: the tutor is told his youngest students SAY their answers (typing too), buttons as a third door",
+          "Your student SAYS their answer out loud -- they tap the microphone and talk" in pr
+          and "a third door, always open, that a child can simply TAP." in pr, "")
+    check("  prompts.py: no course scope still says the youngest answer BY TAPPING",
+          "answers by TAPPING buttons" not in pr
+          and pr.count("SAYS their answer out loud (typing works too)") == 4, "")
+    check("⭐ prompts.py: the buttons guarantee itself is untouched",
+          "EVERY QUESTION YOU END A TURN WITH SHIPS ITS BUTTONS" in pr
+          and "never tell a child to" in pr and "tap INSTEAD of talking.)" in pr, "")
+    check("  the shared block still tells him tap, talk and type are equally good (dr)",
+          "tap, talk," in tutor.GRAPH_TOOL_NOTE, "")
+
+    check("  the changed files carry dated uc notes",
+          all("(uc) 2026-09-07" in src[p][:6000] for p in PAGES)
+          and "BUILD uc" in rd("main.py")[:200000]
+          and "2026-09-07  BUILD uc" in rd("ruletests.py")[:28000]
+          and "BUILD uc" in pr[:60000]      # prompts.py keeps its notes deep in a long header
+          and "(uc)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -38471,6 +38619,7 @@ def main():
     part3jv_calculus_units_one_to_three_to_the_shape()
     part3jw_calculus_units_four_to_six_to_the_shape()
     part3jx_calculus_units_seven_to_nine_to_the_shape()
+    part3jy_the_youngest_speak_and_the_mic_waits()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -2,6 +2,25 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  APP_BUILD -> "2026-09-07uc-the-youngest-speak-and-the-mic-waits".
+#               BUILD uc -- TWO OF JIM'S CHANGES, both about how the student answers.
+#               (1) Entry-Level and Basic answer the way the other eight courses answer:
+#               say it, type it if you'd rather, tap a button if you like. Jim: "we sent
+#               one out and said nobody has to write the answer, everybody can just speak
+#               the answer ... we should have gone back to the first two courses." Every
+#               instruction that sent them to the buttons FIRST now reads what the other
+#               courses read (session/practice/topic: the answer-bar line, the ready hint,
+#               the tour's last stop, the welcome tip, the composer placeholder), and
+#               prompts.py tells the tutor the same thing. THE BUTTONS ARE UNTOUCHED --
+#               every course ships them, referee 58 and build qw's guarantee still put a
+#               row under every elementary question; what is gone is the instruction to
+#               use them INSTEAD of talking. The two symbol pads stay hidden there.
+#               (2) The microphone waits for the speaker (session.html): a scripted ask
+#               beat opens the taps and the typing box the moment the question lands --
+#               builds nb/pd, unchanged -- and now holds the MIC dim until the spoken line
+#               ends. Jim: "let the speaker do the speaking. And as soon as they're done
+#               ... they light up." No route, engine or lesson change: this build is the
+#               three teaching pages, prompts.py, and their battery.
 #   2026-09-07  APP_BUILD -> "2026-09-07ub-calculus-units-seven-to-nine-to-the-shape".
 #               BUILD ub -- Calculus Units 7-9 (the integral, its uses, differential
 #               equations) rewritten to the shape: twelve lessons, each with a why, a
@@ -13930,7 +13949,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-07ub-calculus-units-seven-to-nine-to-the-shape"
+APP_BUILD = "2026-09-07uc-the-youngest-speak-and-the-mic-waits"
 
 
 @app.get("/health")

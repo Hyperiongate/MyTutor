@@ -1,5 +1,22 @@
 <!DOCTYPE html>
 <!--
+    (uc) 2026-09-07 -- THE YOUNGEST STUDENTS SPEAK THEIR ANSWERS, AND THE MIC WAITS ITS
+    TURN. Jim, on Entry-Level and Basic: "back when I made the decision that they had to
+    have a multiple choice answer, it was to avoid having them write the answer. And then
+    we sent one out and said, nobody has to write the answer, everybody can just speak the
+    answer ... we should have gone back to the first two courses." (1) Every instruction
+    that sent the two youngest courses to the tap buttons FIRST now reads exactly what the
+    other eight read -- the answer-bar line, the ready hint, the tour's last stop, the
+    welcome tip -- and the composer keeps the standard "Type your answer here" placeholder
+    (it used to say "Tap an answer button"). The buttons are untouched and still appear on
+    every question in every course; what is gone is the instruction to use them INSTEAD of
+    talking. The two SYMBOL PADS (Math Keyboard, Graph) stay hidden here, Jim's call.
+    The no-microphone branches still describe the buttons, because on a device that cannot
+    record they really are the youngest students' only door. (2) session.html only: the mic is
+    held DIM for the length of a scripted question and lights up the moment it ends
+    (micHold + .talkbtn.waiting) -- Jim: "let the speaker do the speaking. And as soon as
+    they're done ... they light up." The tap buttons and the typing box still open the
+    instant the question is on the board (builds nb/pd); only the microphone waits.
     (sy) 2026-09-05 -- handleTags dispatches [[rectangle]] to showFig (a rectangle on a grid).
     (sw) 2026-09-05 -- handleTags dispatches [[hundredgrid]] to showFig (the hundredths square).
     (sr) 2026-09-05 -- handleTags dispatches [[array]] to showFig (the multiplication array).
@@ -1453,6 +1470,12 @@
       animation: talkglow 1.5s ease-in-out infinite; }
     .talkbtn.ready:active { transform: scale(.97); }
     .talkbtn.recording { background: #e0392b; cursor: pointer; animation: recpulse 1.15s ease-in-out infinite; }
+    /* (uc, 2026-09-07, Jim: "let the speaker do the speaking. And as soon as they're
+       done ... they light up") the mic while Mr. Cadabra is still SAYING the question:
+       visibly DIM and unavailable, so the button never invites a tap that would record
+       over his own voice. The answer buttons and the typing box stay live underneath --
+       see micHold() in the script. */
+    .talkbtn.waiting { background: #c3ccd8; opacity: .5; cursor: default; animation: none; box-shadow: none; }
     @keyframes talkglow { 0%,100% { box-shadow: 0 8px 20px rgba(91,91,214,.32); }
       50% { box-shadow: 0 10px 30px rgba(91,91,214,.65); } }
     @keyframes recpulse { 0% { box-shadow: 0 0 0 0 rgba(224,57,43,.5); }
@@ -2118,8 +2141,12 @@
     // re-verifies eligibility (all 9 units mastered) each time. This flag is a courtesy.
     const FINAL_MODE = (params.get("final") === "prep" || params.get("final") === "exam")
       ? params.get("final") : "";
-    // ELEMENTARY (2026-08-03): the two youngest courses answer by TAPPING choice buttons, so
-    // their welcome, tour, and hint talk about tapping -- never about keyboards or typing.
+    // ELEMENTARY (2026-08-03): the two youngest courses. (uc, 2026-09-07) They answer the
+    // way every other course answers now -- SAY it, type it if you'd rather, tap a button
+    // if you like -- so this flag no longer changes the answering instructions at all. What
+    // it still does: hide the two SYMBOL PADS (Math Keyboard, Graph), keep the welcome and
+    // the tour in young-reader words, and describe the buttons honestly on a device with no
+    // microphone, where they really are the only door.
     const IS_ELEM = (COURSE === "entry" || COURSE === "basic");
     if (!CODE) { window.location.href = "/login"; }
 
@@ -2162,10 +2189,22 @@
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
     // ---------- ELEMENTARY MODE (2026-08-03, Jim: the answer bar said "type your answer" and
     // showed the Math Keyboard/Graph right after the tour said "just tap") ----------
-    // For the two tap-to-answer courses, hide ALL the typing gear -- the 🧮 Math Keyboard and
-    // 📈 Graph buttons, the "Two ways to answer" reminder, and their "?" help bubbles -- and
-    // replace them with one tap-friendly line. The plain text box stays as a quiet backup.
-    // Done with a body class + CSS so it also catches buttons that other scripts inject later.
+    // For the two youngest courses, hide the SYMBOL PADS -- the 🧮 Math Keyboard and 📈 Graph
+    // buttons, the "Two ways to answer" reminder, and their "?" help bubbles -- and replace
+    // them with one plain line. Done with a body class + CSS so it also catches buttons that
+    // other scripts inject later.
+    // ⭐ (uc, 2026-09-07) AND THAT LINE NOW SAYS WHAT EVERY OTHER COURSE SAYS. Jim: "back when
+    // I made the decision that they had to have a multiple choice answer, it was to avoid
+    // having them write the answer. And then we sent one out and said, nobody has to write the
+    // answer, everybody can just speak the answer ... we should have gone back to the first two
+    // courses." Entry-Level and Basic have had the microphone since build dr; only the WORDS
+    // still sent them to the buttons first, and the placeholder told them to tap. Speak first,
+    // type if you'd rather, tap if you like -- the same three doors, in the same order, as
+    // Pre-Algebra through Differential Equations. The buttons themselves are untouched: every
+    // course ships them (lessonscripts.choices_for is course-blind), and referee 58 plus build
+    // qw's guarantee still put a row under every elementary question. What is gone is the
+    // instruction to use them INSTEAD of talking. Jim's ruling, same call: the two symbol pads
+    // stay hidden here -- they are for algebra and up.
     if (IS_ELEM) {
       document.body.classList.add("elem-mode");
       const est = document.createElement("style");
@@ -2176,10 +2215,9 @@
         ".elem-hint{font-size:14px;font-weight:600;color:#5b6079;margin:0 24px 6px;padding:0 4px}" +
         ".elem-hint b{color:#20233a}";
       document.head.appendChild(est);
-      if (input) input.placeholder = "Tap an answer button — or type here";
       const eh = document.createElement("div");
       eh.className = "elem-hint";
-      eh.innerHTML = "👆 <b>How to answer:</b> when Mr. Cadabra asks a question, tap one of the answer buttons that pop up!";
+      eh.innerHTML = "🎙️ <b>How to answer:</b> tap the microphone and <b>say your answer out loud</b> — or tap <b>Type my answer</b> and write it instead. The answer buttons work too!";
       composer.parentNode.insertBefore(eh, composer);
     }
 
@@ -3618,14 +3656,16 @@
       if (p === "ready" && /\?/.test(String(typeof lastTutorText !== "undefined" ? lastTutorText : "").slice(-200))) cadSilenceArm(); else cadSilenceDisarm();   /* only when he actually asked something */
       _cadPhase = p;
       phase = p;
-      talkBtn.classList.remove("ready", "recording");
+      talkBtn.classList.remove("ready", "recording", "waiting");   /* (uc) "waiting" too: a phase change always owns the button */
       if (p === "ready") {
         talkBtn.disabled = false; talkBtn.classList.add("ready");
         talkLabel.textContent = "Tap to talk";
+        // (uc) ONE LINE FOR ALL TEN COURSES while the mic is available -- the elementary
+        // branch used to lead with the answer buttons. The no-mic branch still splits,
+        // because that split is not a policy: with no microphone AND no typing, the
+        // buttons really are the only door the youngest students have.
         hint.textContent = canRecord
-          ? (IS_ELEM
-              ? "Your turn — tap the microphone and SAY your answer, or tap an answer button!"
-              : "Your turn — tap the microphone to talk, or tap “Type my answer” below.")
+          ? "Your turn — tap the microphone to talk, or tap “Type my answer” below."
           : (IS_ELEM
               ? "Your turn — tap one of the answer buttons!"
               : "Your turn — type your answer below and press Enter ⏎.");
@@ -3645,6 +3685,39 @@
 
 
 
+
+    // ⭐ (uc, 2026-09-07) THE MICROPHONE WAITS FOR THE SPEAKER. Jim: "the buttons that
+    // you click ... either need to be dim until they are active, or they need to be
+    // capable of interrupting the speaker. I think it's probably better if we let the
+    // speaker do the speaking. And as soon as they're done, and it's time for the
+    // student to say something, then the buttons aren't dim -- they light up."
+    // An ask beat unlocks the moment its question reaches the board (scrPlay's ⭐ rule,
+    // builds nb and pd: "a student who can hear the question must never be locked out of
+    // answering while it finishes"). THAT RULE IS UNCHANGED, and it is about the TAP
+    // BUTTONS and the typing box -- pd's own regression was tap buttons that "sat on
+    // screen looking live and did NOTHING". It never had to cover the MICROPHONE, and
+    // covering it was wrong: a mic opened over his voice records HIM, and the student
+    // reads a glowing button as "your turn" while he is still mid-question. So the mic
+    // alone is held dim for the length of the spoken line and lights up the instant it
+    // ends. busy, phase and every other door are untouched; hold, then release.
+    // ⚠️ The release is guarded by SCR.beat (the student may have tapped an answer and
+    // moved the lesson on) and setPhase clears "waiting" on every phase change, so a
+    // held mic can never survive into a state that owns the button.
+    var _micHeld = false;
+    function micHold(on) {
+      _micHeld = !!on;
+      if (phase !== "ready") return;         // busy / recording own the button already
+      if (_micHeld) {
+        talkBtn.disabled = true;
+        talkBtn.classList.remove("ready");
+        talkBtn.classList.add("waiting");
+        talkLabel.textContent = "Listen…";
+        hint.textContent = tutorName + " is talking — the microphone lights up the moment he's done. You can tap an answer or type any time.";
+      } else {
+        talkBtn.classList.remove("waiting");
+        setPhase("ready");                   // the real ready state, glow, hint and all
+      }
+    }
 
     talkBtn.addEventListener("click", () => {
       if (phase === "ready") startRecording();
@@ -3751,11 +3824,14 @@
       { id: "tutor",
         text: "And that glowing face — that's me, Mr. Cadabra! The big whiteboard is mine too: that's where I'll draw every step as we go." },
       { id: "answer",
-        text: IS_ELEM
-          ? (canRecord
-              ? "Last one, and it's the important one: when I ask you a question, you have TWO easy ways to answer. Tap the glowing microphone and just SAY your answer out loud — or tap one of the big answer buttons that pop up at the bottom. Both are perfect! And if you're not sure, tap 'I'm not sure' and I'll help you figure it out."
-              : "Last one, and it's the important one: when I ask you a question, big answer buttons pop up right down here at the bottom. Just tap the answer you think is right! And if you're not sure, tap the 'I'm not sure' button and I'll help you figure it out.")
-          : "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap the big 'Type my answer' button and type it instead." },
+        // (uc) the tour's last stop is the same stop in every course now: SAY it. The
+        // elementary line used to open with the buttons; it opens with the microphone,
+        // in words a young reader can follow, and the buttons come last, as a bonus.
+        text: (IS_ELEM && !canRecord)
+          ? "Last one, and it's the important one: when I ask you a question, big answer buttons pop up right down here at the bottom. Just tap the answer you think is right! And if you're not sure, tap the 'I'm not sure' button and I'll help you figure it out."
+          : (IS_ELEM
+              ? "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. Saying 'I'm confused' is a great answer too; it tells me to slow down and try another way. If you'd rather write it, tap the big 'Type my answer' button — and the answer buttons at the bottom always work as well."
+              : "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap the big 'Type my answer' button and type it instead.") },
     ];
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
     // Minimum time to dwell on a line so it stays readable even if the voice is
@@ -4066,6 +4142,9 @@
         // happens" reintroduced by the fix for a different complaint. The door opens
         // the moment the question is on the board; his voice carries on underneath.
         busy = false; setPhase("ready");
+        // (uc) ...and the MIC alone waits for him to finish the question -- see micHold().
+        // The taps and the typing box opened on the line above and stay open.
+        micHold(true);
         // (qr) tap_only -- THE OTHER FIELD THE PORT DROPPED. The engine sets it after
         // TWO answers in a row it could not read (lessonscripts _ask: unheard >= 2):
         // the student's voice or typing is not landing, so we stop asking them to use
@@ -4077,9 +4156,12 @@
           // Only tidy up if this is still the beat on stage -- the student may have
           // answered mid-question and moved the lesson on.
           if (SCR.beat === myBeat) {
+            micHold(false);                 // (uc) his voice is done -> the microphone lights up
             statusEl.textContent = step.tap_only ? "Tap your answer." : "";
             setState("idle");
           }
+        }).catch(function () {              // (uc) a hold must never outlive its beat
+          if (SCR.beat === myBeat) micHold(false);
         });
         return;
       }
@@ -4492,10 +4574,14 @@
       }
       // ELEMENTARY welcome overlay: tap is the anchor; since build dr, talking joins it
       // whenever the browser can record. Never about keyboards.
+      // (uc) the welcome tip leads with the microphone for the youngest too -- typing
+      // named as the second door, the buttons as the third, exactly the order every
+      // other course reads. The no-mic tip is unchanged: with no microphone the buttons
+      // really are what is left.
       if (IS_ELEM) {
         const tip = el("welcomeAnswerTip");
         if (tip) tip.innerHTML = canRecord
-          ? '<span class="ic">🎙️</span><span>When it\'s your turn, <b>tap the microphone and say your answer out loud</b> — or <b>tap one of the answer buttons at the bottom</b>. Both work! Not sure? Tap <b>"I\'m not sure"</b> and he\'ll help.</span>'
+          ? '<span class="ic">🎙️</span><span>When it\'s your turn, <b>tap the microphone and say your answer out loud</b>. Would you rather write it? Tap <b>“Type my answer”</b>. The answer buttons at the bottom work too — and if you\'re not sure, tap <b>"I\'m not sure"</b> and he\'ll help.</span>'
           : '<span class="ic">👆</span><span>When it\'s your turn, <b>answer buttons pop up at the bottom</b> — just tap the answer you think is right. Not sure? Tap <b>"I\'m not sure"</b> and he\'ll help.</span>';
       } else if (canRecord) {
         // 2026-08-06: voice is on — tell the student they can talk (or type).

@@ -1,5 +1,21 @@
 <!DOCTYPE html>
 <!--
+    (uc) 2026-09-07 -- THE YOUNGEST STUDENTS SPEAK THEIR ANSWERS, AND THE MIC WAITS ITS
+    TURN. Jim, on Entry-Level and Basic: "back when I made the decision that they had to
+    have a multiple choice answer, it was to avoid having them write the answer. And then
+    we sent one out and said, nobody has to write the answer, everybody can just speak the
+    answer ... we should have gone back to the first two courses." (1) Every instruction
+    that sent the two youngest courses to the tap buttons FIRST now reads exactly what the
+    other eight read -- the answer-bar line, the ready hint, the tour's last stop, the
+    welcome tip -- and the composer keeps the standard "Type your answer here" placeholder
+    (it used to say "Tap an answer button"). The buttons are untouched and still appear on
+    every question in every course; what is gone is the instruction to use them INSTEAD of
+    talking. The two SYMBOL PADS (Math Keyboard, Graph) stay hidden here, Jim's call.
+    The no-microphone branches still describe the buttons, because on a device that cannot
+    record they really are the youngest students' only door. The mic-waits-for-the-speaker half of this build is
+    session.html's alone: these two pages have no scripted lane, and their live lane has
+    always spoken the reply BEFORE setPhase("ready") -- the mic was never bright over his
+    voice here.
     (sy) 2026-09-05 -- handleTags dispatches [[rectangle]] to showFig (a rectangle on a grid).
     (sw) 2026-09-05 -- handleTags dispatches [[hundredgrid]] to showFig (the hundredths square).
     (sr) 2026-09-05 -- handleTags dispatches [[array]] to showFig (the multiplication array).
@@ -959,7 +975,10 @@
     const params = new URLSearchParams(window.location.search);
     const CODE = (params.get("code") || "").trim();
     const COURSE = (params.get("course") || "algebra1").trim(); // which course this topic is for (multi-course)
-    const IS_ELEM = (COURSE === "entry" || COURSE === "basic");   // tap-to-answer courses
+    // (uc, 2026-09-07) The two youngest courses answer the way every other course does
+    // -- say it, type it, or tap a button. This flag hides the two symbol pads and
+    // nothing else about HOW to answer; see the ELEMENTARY MODE block below.
+    const IS_ELEM = (COURSE === "entry" || COURSE === "basic");
 
     if (!CODE) { window.location.href = "/login"; }
     const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
@@ -978,10 +997,22 @@
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
     // ---------- ELEMENTARY MODE (2026-08-03, Jim: the answer bar said "type your answer" and
     // showed the Math Keyboard/Graph right after the tour said "just tap") ----------
-    // For the two tap-to-answer courses, hide ALL the typing gear -- the 🧮 Math Keyboard and
-    // 📈 Graph buttons, the "Two ways to answer" reminder, and their "?" help bubbles -- and
-    // replace them with one tap-friendly line. The plain text box stays as a quiet backup.
-    // Done with a body class + CSS so it also catches buttons that other scripts inject later.
+    // For the two youngest courses, hide the SYMBOL PADS -- the 🧮 Math Keyboard and 📈 Graph
+    // buttons, the "Two ways to answer" reminder, and their "?" help bubbles -- and replace
+    // them with one plain line. Done with a body class + CSS so it also catches buttons that
+    // other scripts inject later.
+    // ⭐ (uc, 2026-09-07) AND THAT LINE NOW SAYS WHAT EVERY OTHER COURSE SAYS. Jim: "back when
+    // I made the decision that they had to have a multiple choice answer, it was to avoid
+    // having them write the answer. And then we sent one out and said, nobody has to write the
+    // answer, everybody can just speak the answer ... we should have gone back to the first two
+    // courses." Entry-Level and Basic have had the microphone since build dr; only the WORDS
+    // still sent them to the buttons first, and the placeholder told them to tap. Speak first,
+    // type if you'd rather, tap if you like -- the same three doors, in the same order, as
+    // Pre-Algebra through Differential Equations. The buttons themselves are untouched: every
+    // course ships them (lessonscripts.choices_for is course-blind), and referee 58 plus build
+    // qw's guarantee still put a row under every elementary question. What is gone is the
+    // instruction to use them INSTEAD of talking. Jim's ruling, same call: the two symbol pads
+    // stay hidden here -- they are for algebra and up.
     if (IS_ELEM) {
       document.body.classList.add("elem-mode");
       const est = document.createElement("style");
@@ -992,10 +1023,9 @@
         ".elem-hint{font-size:14px;font-weight:600;color:#5b6079;margin:0 24px 6px;padding:0 4px}" +
         ".elem-hint b{color:#20233a}";
       document.head.appendChild(est);
-      if (input) input.placeholder = "Tap an answer button — or type here";
       const eh = document.createElement("div");
       eh.className = "elem-hint";
-      eh.innerHTML = "👆 <b>How to answer:</b> when Mr. Cadabra asks a question, tap one of the answer buttons that pop up!";
+      eh.innerHTML = "🎙️ <b>How to answer:</b> tap the microphone and <b>say your answer out loud</b> — or tap <b>Type my answer</b> and write it instead. The answer buttons work too!";
       composer.parentNode.insertBefore(eh, composer);
     }
 
@@ -1506,10 +1536,12 @@
       if (p === "ready") {
         talkBtn.disabled = false; talkBtn.classList.add("ready"); el("newTopic").disabled = false;
         talkLabel.textContent = "Tap to talk";
+        // (uc) ONE LINE FOR ALL TEN COURSES while the mic is available -- the elementary
+        // branch used to lead with the answer buttons. The no-mic branch still splits,
+        // because that split is not a policy: with no microphone AND no typing, the
+        // buttons really are the only door the youngest students have.
         hint.textContent = canRecord
-          ? (IS_ELEM
-              ? "Your turn — tap 🎙️ and SAY your answer, or tap an answer button!"
-              : "Your turn — tap 🎙️ and say your answer, or type it below.")
+          ? "Your turn — tap 🎙️ and say your answer, or type it below."
           : (IS_ELEM
               ? "Your turn — tap one of the answer buttons!"
               : "Your turn — type your answer below and press Enter ⏎.");

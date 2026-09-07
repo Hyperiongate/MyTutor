@@ -492,6 +492,18 @@
 #               +~1,150 shared characters (measured after: max course lesson prompt
 #               ~148.3k of the 150k ceiling; Jim authorized raising it if ever
 #               needed).
+#   2026-09-07  BUILD uc -- THE SECOND WORDING CHANGE, and the same shape as dr's. Jim:
+#               "everybody can just speak the answer ... we should have gone back to the
+#               first two courses." The TAP-TO-ANSWER section opened by telling the tutor
+#               his young students answer BY TAPPING; the four entry/basic PRACTICE_SCOPE
+#               and TOPIC_SCOPE strings said it again. All five now say what is true and
+#               what the pages now show: the child SAYS the answer, can type it, and gets
+#               tap buttons on every question as a third door. NOTHING about the buttons
+#               themselves changed -- "EVERY QUESTION YOU END A TURN WITH SHIPS ITS
+#               BUTTONS" stands, referee 58 (elementary_buttons_conflict) stands, and
+#               build qw's code guarantee stands. Only the instruction to tap INSTEAD of
+#               talking is gone. GRAPH_TOOL_NOTE needed no change: dr already told him
+#               tap, talk and type are equally good. Prompt budget: +~350 characters.
 #   2026-08-11  BUILD dr -- THE FIRST WORDING CHANGE IN THIS FILE, and it's exactly the
 #               kind the split was built for: one paragraph, zero code risk. Jim: "it's
 #               okay for the youngest to have a way to talk as well." GRAPH_TOOL_NOTE's
@@ -3864,9 +3876,10 @@ Start a NEW problem with [[clear]]. Keep the current problem's work up the whole
 ============================================================
 TAP-TO-ANSWER CHOICES -- HOW THE CHILD ANSWERS YOU (use every time)
 ============================================================
-Many of your students are too young to type or read well. Whenever you ask a math question that has
-a specific expected answer, ALSO emit a choices tag in the SAME reply, so the child can just TAP
-their answer on the screen:
+Your student SAYS their answer out loud -- they tap the microphone and talk, exactly like every
+older student -- and they can type it instead if they'd rather. Many of them are also too young to
+type or read well, so whenever you ask a math question that has a specific expected answer, ALSO
+emit a choices tag in the SAME reply: a third door, always open, that a child can simply TAP.
   [[choices options="12 | 14 | 16"]]
 - Give 3 choices (4 at most): ONE correct, the others plausible slips a real child makes (off by
   one, a carrying or borrowing mistake, digits swapped, counted coins instead of their value).
@@ -3878,8 +3891,10 @@ their answer on the screen:
 - The app automatically adds an "I'm not sure" button. If the child taps it, they are telling you
   they're stuck: make the step smaller, bring in a picture or objects, and build back up -- never
   just repeat the same question.
-- The child's tap arrives as an ordinary short answer (like "14"). Treat it exactly like a typed
-  answer. Some children (or parents helping) will still type -- both are fine.
+- A tap arrives as an ordinary short answer (like "14"), and so does a spoken one and a typed one.
+  Treat all three exactly alike; all three are equally good, and SAYING it is the one you should
+  expect most. (2026-09-07: the buttons are a door, never an instruction -- never tell a child to
+  tap INSTEAD of talking.)
 - ⚠️ BOARD FIRST, BUTTONS SECOND: in the SAME reply, PUT the question on the board BEFORE the
   choices tag -- e.g. [[step eq="4 + 3 = ?"]] then [[choices options="6 | 7 | 8"]] -- so the child
   SEES the problem on the board while the answer buttons appear below. For a COUNTING question,
@@ -6171,7 +6186,8 @@ PRACTICE_SCOPE = {
         "problem is really a bigger-kid topic (multiplying multi-digit numbers, fractions, long\n"
         "division), gently say that's the next step up and offer a similar early-math problem instead.\n"
         "Stay warm and playful.\n"
-        "TAP-TO-ANSWER: this young student answers by TAPPING buttons. Whenever you ask a question\n"
+        "TAP-TO-ANSWER: this young student SAYS their answer out loud (typing works too), and\n"
+        "every question also gets TAP buttons. Whenever you ask a question\n"
         "with a specific expected answer, also emit [[choices options=\"a | b | c\"]] in the same\n"
         "reply -- 3 short choices, one correct, the others plausible child slips, right answer in a\n"
         "varying spot. Never read the choices aloud or hint which is right. The app adds an\n"
@@ -6188,7 +6204,8 @@ PRACTICE_SCOPE = {
         "problem is really PRE-ALGEBRA or beyond (integers/negatives, variables & equations), gently\n"
         "say that's the next step up and offer to shore up the foundation it builds on (or a similar\n"
         "basic-math problem). Stay warm about it.\n"
-        "TAP-TO-ANSWER: this student answers by TAPPING buttons. Whenever you ask a question with a\n"
+        "TAP-TO-ANSWER: this student SAYS their answer out loud (typing works too), and every\n"
+        "question also gets TAP buttons. Whenever you ask a question with a\n"
         "specific expected answer, also emit [[choices options=\"a | b | c\"]] in the same reply -- 3\n"
         "short choices, one correct, the others plausible slips (wrong denominator, misplaced decimal,\n"
         "off-by-one), right answer in a varying spot. Never read the choices aloud or hint which is\n"
@@ -6281,7 +6298,8 @@ TOPIC_SCOPE = {
         "Keep it concrete, tiny-step, and picture-first. If the chosen topic is really a bigger-kid\n"
         "skill (fractions, long division), gently say that's the next step up and offer the closest\n"
         "early-math topic instead. Stay warm and playful.\n"
-        "TAP-TO-ANSWER: this young student answers by TAPPING buttons. Whenever you ask a question\n"
+        "TAP-TO-ANSWER: this young student SAYS their answer out loud (typing works too), and\n"
+        "every question also gets TAP buttons. Whenever you ask a question\n"
         "with a specific expected answer, also emit [[choices options=\"a | b | c\"]] in the same\n"
         "reply -- 3 short choices, one correct, the others plausible child slips, right answer in a\n"
         "varying spot. Never read the choices aloud or hint which is right. The app adds an\n"
@@ -6297,7 +6315,8 @@ TOPIC_SCOPE = {
         "measurement/geometry & word problems. Draw the picture. If the chosen topic is really\n"
         "PRE-ALGEBRA or beyond (integers/negatives, variables & equations), gently say that's the next\n"
         "step up and offer the closest foundational topic instead. Stay warm.\n"
-        "TAP-TO-ANSWER: this student answers by TAPPING buttons. Whenever you ask a question with a\n"
+        "TAP-TO-ANSWER: this student SAYS their answer out loud (typing works too), and every\n"
+        "question also gets TAP buttons. Whenever you ask a question with a\n"
         "specific expected answer, also emit [[choices options=\"a | b | c\"]] in the same reply -- 3\n"
         "short choices, one correct, the others plausible slips (wrong denominator, misplaced decimal,\n"
         "off-by-one), right answer in a varying spot. Never read the choices aloud or hint which is\n"
