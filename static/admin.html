@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+    (ud) 2026-09-07 -- THE OWNER'S TOOLS OPEN WITH THE DASHBOARD (the deep look, P0). The
+    scripted picker (/pilot), the bench (cadabra-lab.html), the demo concept page
+    (demolab.html), the retired avatar stub and static/mockup/ were reachable by anyone
+    who knew the address. main.py now answers 404 to the public and serves them only
+    to the owner; load() calls POST /api/owner/unlock right after the key verifies, so
+    the HttpOnly owner cookie is set, and three quick links take Jim there. Nothing
+    else on this page changes.
     (sj) 2026-09-03 -- THE FLOOR TILE. "Withheld by the floor": turns where every
     draft carried a TRUTH-class finding, so nothing shipped and the student got the
     fallback line (verify_floored). Counted as checked, never as shipped. Amber.
@@ -1281,6 +1288,10 @@
       { href: "/community", t: "Forum moderation", d: "Hide posts/replies — unlocked automatically once this page is unlocked" },
       { href: "/family", t: "Family portal", d: "The parent sign-in page" },
       { href: "/pricing", t: "Pricing page", d: "What families see" },
+      // (ud) the owner's tools -- unlocked by the cookie this page sets on load
+      { href: "/pilot", t: "Scripted picker (/pilot)", d: "Owner tool — every authored lesson, any course, any unit" },
+      { href: "/static/cadabra-lab.html", t: "Mr. Cadabra's bench", d: "Owner tool — his expressions on the real floating layer" },
+      { href: "/static/demolab.html", t: "Demo layout concept", d: "Owner tool — the 2026-08-25 concept page, nothing wired" },
       { href: "https://dashboard.render.com", t: "Render", d: "Deploys, logs, env vars", ext: true },
       { href: "https://dashboard.stripe.com", t: "Stripe", d: "Payments, customers, refunds", ext: true },
       { href: "https://search.google.com/search-console", t: "Google Search Console", d: "How Google sees the site", ext: true },
@@ -2290,6 +2301,10 @@
     $("refreshBtn").disabled = true;
     try {
       var payload = await api("/api/admin/stats");   // key rides in the header (build dg)
+      // (ud) THE OWNER'S TOOLS OPEN WITH THE DASHBOARD. /pilot, the bench, the demo
+      // concept page and the mockups are 404 to the public now; this one call sets the
+      // HttpOnly owner cookie the gate reads, so the quick links below simply work.
+      try { await api("/api/owner/unlock", { method: "POST", body: "{}" }); } catch (e) {}
       $("lockView").style.display = "none";
       $("dashView").style.display = "";
       $("refreshBtn").style.display = "";

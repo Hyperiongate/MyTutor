@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD ud -- P0 OF THE DEEP LOOK. PART 3jz: the five public pages say the
+#               true order for the youngest (say it, type it, the buttons are there) and
+#               the eight stale sentences are gone; methodology's prose numbers sit in
+#               <span data-referees> pinned to the count in tutor.py; the sign-in page
+#               prints no test codes (they fill only from /api/site-flags) and the
+#               "no passwords" note is gone; the owner's tools (pilot.html and /pilot,
+#               the bench, demolab, the avatar stub, static/mockup/) answer 404 to the
+#               public through _OwnerGatedStatic and open for the owner cookie that
+#               POST /api/owner/unlock sets; practice/topic's "How to answer" line is
+#               the short form and session.html keeps the long one. PART 3jy's two
+#               shared-needle pins on that line are split by page. DO-NO-HARM pins on
+#               /drill (Abrabot stays, Jim's call) and the five page routes. Tile
+#               10,886 -> 10,942.
 #   2026-09-07  BUILD uc -- THE YOUNGEST SPEAK, AND THE MIC WAITS ITS TURN. PART 3jy pins
 #               both halves: the three teaching pages no longer send Entry-Level or Basic
 #               to the tap buttons first (four strings gone, four shared ones in, the
@@ -11998,6 +12011,203 @@ sys.exit(0 if ok else 1)
 """
 
 
+def part3jz_the_small_fixes_of_the_deep_look():
+    """PART 3jz (build ud, 2026-09-07) -- P0 OF THE DEEP LOOK.
+
+    claude/Review_Deep_Look_2026-09-07.md found, around a finished teaching engine, a
+    layer of things that had not kept pace. Jim chose the order: P0 first (this build),
+    then P2 (the authored lane writes every answer down), then P1 (the phone classroom).
+
+    P0 is five small things, each pinned here so it cannot drift back:
+      (1) the public copy still sent the youngest students to the buttons INSTEAD of the
+          microphone, two weeks after build uc -- five pages;
+      (2) the methodology prose said "58 separate checks" beside a tile that said 79;
+      (3) the sign-in page printed the test-persona codes and a "not yet security"
+          note for every visitor;
+      (4) the owner's workbenches (pilot.html and /pilot, the bench, the demo concept
+          page, the retired avatar stub, static/mockup/) were served to anyone;
+      (5) the "How to answer" line wrapped to five bold lines in practice/topic's
+          sidebar.
+    Not done, on purpose: the drill room keeps its "Abrabot" name (builds mh/mt made him
+    a deliberate second character; the tour calls him "my helper") -- that is Jim's
+    design call, not a defect, and the pin here only records that nothing changed."""
+    print("\nPART 3jz — the small fixes of the deep look (build ud)")
+    import inspect as _insp, re as _re
+    import tutor as _t
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    NL = chr(10)
+    m = rd("main.py")
+
+    # ---- (1) the copy says the true order --------------------------------------
+    STALE = [
+        ("landing.html", "answer by tapping big answer buttons"),
+        ("landing.html", "answer by <em>tapping</em> big answer buttons"),
+        ("landing.html", "(Elementary students tap answer buttons, and anyone can type instead.)"),
+        ("features.html", "and elementary students tap answer buttons.)"),
+        ("features.html", "The youngest students tap big answer buttons — no typing"),
+        ("teachers.html", "the youngest students just tap answer buttons"),
+        ("students.html", "they tap big answer buttons"),
+        ("homeschool.html", "elementary students can simply tap their answers"),
+    ]
+    for fn, needle in STALE:
+        body = _re.sub(r"<!--.*?-->", "", rd("static/" + fn), flags=_re.S)   # notes are not copy
+        check(f"⭐ {fn}: no longer says the youngest answer by tapping INSTEAD ('{needle[:38]}…')",
+              needle not in body, "")
+    TRUE = [
+        ("landing.html", "the youngest students (grades 1–6) also get big answer buttons to tap", 1),
+        ("landing.html", "the youngest students (grades 1–6) also get big answer buttons to <em>tap</em>", 1),
+        ("landing.html", "(The youngest students get big answer buttons too, and anyone can type instead.)", 1),
+        ("features.html", "the youngest students get answer buttons too.)", 1),
+        ("features.html", "The youngest students say their answers out loud — no typing or reading fluency needed — with big answer buttons beside the microphone.", 1),
+        ("teachers.html", "the youngest students say their answers or tap big answer buttons.", 1),
+        ("students.html", "they say their answers out loud, with big answer buttons right there too.", 1),
+        ("homeschool.html", "the youngest students have big answer buttons beside the microphone.", 1),
+    ]
+    for fn, needle, n in TRUE:
+        check(f"  {fn}: says the true order ('{needle[:44]}…')",
+              rd("static/" + fn).count(needle) >= n, "")
+    # the FAQ and its JSON-LD twin on the landing page tell the same story
+    _land = rd("static/landing.html")
+    check("  landing.html: the FAQ answer and its JSON-LD twin agree about the youngest students",
+          "also get big answer buttons to tap." in _land
+          and "also get big answer buttons to <em>tap</em>." in _land, "")
+    # the visible copy never says "child"
+    for fn in sorted({f for f, _ in STALE}):
+        body = _re.sub(r"<!--.*?-->", "", rd("static/" + fn), flags=_re.S)
+        check(f"  {fn}: the new copy says 'student', never 'child'",
+              not _re.search(r"youngest child|elementary child", body), "")
+
+    # ---- (2) the methodology prose reads the referee count from the code ---------
+    n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
+    page = rd("static/methodology.html")
+    spans = _re.findall(r"<span data-referees>(\d+)</span>", page)
+    check("⭐ methodology.html: the prose carries the referee count in <span data-referees> (two places)",
+          len(spans) >= 2, str(spans))
+    check("  ...and every one of them is the count taken from tutor.py",
+          spans and all(int(x) == n_ref for x in spans), f"{spans} vs {n_ref}")
+    check("  ...and the tile still matches it too (the ps pin, restated)",
+          "<b>%d</b>" % n_ref in page, "")
+    body = _re.sub(r"<!--.*?-->", "", page, flags=_re.S)
+    stray = _re.findall(r"(?<![\d>])(\d+) separate (?:automated )?checks", body)
+    check("  ...and no bare number precedes 'separate checks' anywhere in the visible page",
+          not stray, str(stray))
+    check("  ...and '58 separate' is gone from the visible page",
+          "58 separate" not in body, "")
+
+    # ---- (3) the sign-in page ----------------------------------------------------
+    idx = rd("static/index.html")
+    ibody = _re.sub(r"<!--.*?-->", "", idx, flags=_re.S)
+    check("⭐ index.html: the test-persona codes are no longer printed in the markup",
+          "Test student codes for v0.1" not in ibody
+          and '<div class="codes" id="testCodes" hidden></div>' in ibody, "")
+    check("  ...the codes fill only when /api/site-flags says test_codes",
+          'fetch("/api/site-flags"' in idx and "if (!flags || !flags.test_codes) return;" in idx
+          and 'box.textContent = "Dev box — test student codes:' in idx, "")
+    check("  ...and the 'not yet security: there are no passwords' note is gone",
+          "not yet security" not in ibody and "there are no passwords" not in ibody, "")
+    check("  ...replaced by the true note: a student code is a house key; parents and teachers have passwords",
+          "Treat a student code like a house key" in ibody
+          and "Parent and teacher accounts sign in with a password." in ibody, "")
+    check("  main.py: SHOW_TEST_CODES follows the env, else the dev-box flag",
+          'os.environ.get("SHOW_TEST_CODES", "")' in m
+          and "else ALLOW_FILE_FALLBACK)" in m, "")
+    check("  main.py: GET /api/site-flags returns booleans only",
+          '@app.get("/api/site-flags")' in m
+          and 'return {"test_codes": bool(SHOW_TEST_CODES), "build": APP_BUILD}' in m, "")
+    check("  main.py: health() reports the two flags",
+          '"flags": {"test_codes": bool(SHOW_TEST_CODES), "owner_tools": bool(_owner_token())}' in m, "")
+
+    # ---- (4) the owner's tools ---------------------------------------------------
+    check("⭐ main.py: the four owner pages and static/mockup/ are named in one place",
+          '_OWNER_STATIC_FILES = frozenset({"pilot.html", "demolab.html", "cadabra-lab.html",' in m
+          and '"avatar-lab.html"})' in m
+          and '_OWNER_STATIC_PREFIXES = ("mockup/",)' in m, "")
+    check("  ...and static/shots/ is NOT gated (the marketing pages show those screenshots)",
+          '"shots/"' not in m[m.find("_OWNER_STATIC_PREFIXES ="):m.find("_OWNER_STATIC_PREFIXES =") + 80], "")
+    check("  main.py: the static mount is the gated subclass",
+          'app.mount("/static", _OwnerGatedStatic(directory=str(STATIC_DIR)), name="static")' in m
+          and 'app.mount("/static", StaticFiles(' not in m, "")
+    _g = m[m.find("class _OwnerGatedStatic(StaticFiles):"):]
+    _g = _g[:_g.find(NL + NL + NL)]
+    check("  ...and it answers 404 -- the missing-file answer -- to a non-owner",
+          "if _owner_static_path(path) and not _is_owner(Request(scope)):" in _g
+          and 'raise HTTPException(status_code=404, detail="Not Found")' in _g
+          and "return await super().get_response(path, scope)" in _g, "")
+    _io = m[m.find("def _is_owner(request: Request) -> bool:"):]
+    _io = _io[:_io.find(NL + NL + NL)]
+    check("  _is_owner: constant-time on the header AND the cookie, fail-closed on an unset key",
+          _io.count("hmac.compare_digest(") == 2
+          and "if not admin or not token:" in _io and "return False" in _io, "")
+    _ot = m[m.find("def _owner_token() -> str:"):]
+    _ot = _ot[:_ot.find(NL + NL + NL)]
+    check("  _owner_token: an HMAC of the admin key, empty when the key is unset",
+          'return ""' in _ot and "hmac.new(admin.encode(" in _ot and "hashlib.sha256" in _ot, "")
+    _pl = m[m.find('@app.get("/pilot")'):]
+    _pl = _pl[:_pl.find(NL + NL + NL)]
+    check("  /pilot is an owner tool: 404 unless _is_owner",
+          "def pilot_page(request: Request):" in _pl
+          and "if not _is_owner(request):" in _pl
+          and 'raise HTTPException(status_code=404, detail="Not Found")' in _pl
+          and 'FileResponse(STATIC_DIR / "pilot.html")' in _pl, "")
+    _un = m[m.find('@app.post("/api/owner/unlock")'):]
+    _un = _un[:_un.find(NL + NL + NL)]
+    check("  /api/owner/unlock: header only, general tier, HttpOnly + SameSite=Lax cookie, Secure on https",
+          'alias="X-Admin-Key"' in _un and "_require_admin(x_admin_key)" in _un
+          and "httponly=True, samesite=\"lax\", secure=secure" in _un
+          and 'key: str = ""' not in _un, "")     # no ?key= query form (build dg)
+    check("  /api/owner/lock drops the cookie without a key",
+          '@app.post("/api/owner/lock")' in m and "response.delete_cookie(_OWNER_COOKIE" in m, "")
+    adm = rd("static/admin.html")
+    check("  admin.html: the dashboard unlock sets the owner cookie, and links the three tools",
+          'await api("/api/owner/unlock", { method: "POST", body: "{}" })' in adm
+          and '{ href: "/pilot", t: "Scripted picker (/pilot)"' in adm
+          and '{ href: "/static/cadabra-lab.html", t: "Mr. Cadabra\'s bench"' in adm
+          and '{ href: "/static/demolab.html"' in adm, "")
+    # nothing public links to the owner tools
+    _pub = ("landing.html", "home.html", "session.html", "features.html", "courses.html",
+            "students.html", "parents.html", "teachers.html", "homeschool.html", "pricing.html",
+            "help.html", "index.html", "dashboard.html", "demo.html", "app-nav.js", "site-nav.js")
+    _leak = []
+    for fn in _pub:
+        body = _re.sub(r"(?m)<!--.*?-->|/\*.*?\*/|^\s*//.*$", "", rd("static/" + fn), flags=_re.S)
+        if _re.search(r"""href=["']/pilot|["']/static/(?:cadabra-lab|demolab|avatar-lab)\.html|/static/mockup/""", body):
+            _leak.append(fn)
+    check("  no public page links to an owner tool", not _leak, str(_leak))
+    check("  robots.txt still hides /drill (unchanged)", "Disallow: /drill" in rd("static/robots.txt"), "")
+
+    # ---- (5) the sidebar hint, and what did NOT change ---------------------------
+    for fn in ("practice.html", "topic.html"):
+        src = rd("static/" + fn)
+        check(f"⭐ {fn}: the 'How to answer' line is the short form",
+              'eh.innerHTML = "🎙️ Tap the mic and <b>say your answer</b> — or tap <b>Type my answer</b>. The answer buttons work too.";' in src, "")
+        check(f"  {fn}: ...set light and small for the sidebar",
+              '".elem-hint{font-size:12.5px;font-weight:500;line-height:1.35;' in src, "")
+    ses = rd("static/session.html")
+    check("  session.html keeps the full sentence (its composer is full-width) -- DO NO HARM",
+          'eh.innerHTML = "🎙️ <b>How to answer:</b> tap the microphone and <b>say your answer out loud</b>' in ses, "")
+    check("  DO NO HARM: /drill is still routed and still Abrabot's room (Jim's design call, untouched)",
+          '@app.get("/drill")' in m and 'FileResponse(STATIC_DIR / "drill.html")' in m
+          and "ABRABOT'S PRACTICE ROOM" in m
+          and 'add("/drill" + q, "🤖", "Practice")' in rd("static/app-nav.js"), "")
+    check("  DO NO HARM: /demo, /practice, /topic, /session, /home still serve their pages",
+          all(f'FileResponse(STATIC_DIR / "{p}.html")' in m for p in ("demo", "practice", "topic", "home"))
+          and '@app.get("/session")' in m, "")
+
+    # ---- the notes -------------------------------------------------------------
+    check("  the stamp is ud",
+          'APP_BUILD = "2026-09-07ud-the-small-fixes-of-the-deep-look"' in m, "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-07  APP_BUILD -> \"2026-09-07ud-" in m[:200000]
+          and "2026-09-07  BUILD ud" in rd("ruletests.py")[:28000]
+          and "(ud) Tile 10,886" in rd("static/methodology.html")[:30000]
+          and all("(ud) 2026-09-07" in rd("static/" + p)[:6000]
+                  for p in ("landing.html", "teachers.html", "students.html", "homeschool.html",
+                            "practice.html", "topic.html", "admin.html"))
+          and "2026-09-07  (ud)" in rd("static/features.html")[:6000]
+          and "2026-09-07  (ud)" in rd("static/index.html")[:6000], "")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -22119,7 +22329,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,886</b>" in page,
+          "<b>10,942</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -28176,11 +28386,21 @@ def part3jy_the_youngest_speak_and_the_mic_waits():
     for label, needle in GONE:
         left = [p for p in PAGES if needle in src[p]]
         check(f"⭐ all three pages: {label}", not left, f"still in: {left}")
+    # (ud) the answer-bar line is session.html's full sentence above its full-width
+    # composer, and a SHORT one on practice/topic, whose composer sits in the narrow
+    # sidebar (uc's sentence wrapped to five bold lines there). Same three doors, same
+    # order, on all three -- pinned per page below; PART 3jz holds the short line.
+    check("⭐ session.html: the answer-bar line leads with the microphone, then typing, then the buttons",
+          "tap the microphone and <b>say your answer out loud</b>" in ses
+          and "tap <b>Type my answer</b> and write it instead. The answer buttons work too!" in ses, "")
+    for _p in ("practice.html", "topic.html"):
+        _l = src[_p].find('eh.innerHTML = "🎙️')
+        _line = src[_p][_l:src[_p].find(NL, _l)] if _l >= 0 else ""
+        check(f"  {_p}: the answer-bar line leads with the mic, then typing, then the buttons (short form)",
+              bool(_line)
+              and _line.find("say your answer") < _line.find("Type my answer") < _line.find("answer buttons"),
+              _line[:120])
     HERE = [
-        ("the answer-bar line leads with the microphone",
-         "tap the microphone and <b>say your answer out loud</b>"),
-        ("...and names typing as the second door, the buttons as the third",
-         "tap <b>Type my answer</b> and write it instead. The answer buttons work too!"),
         ("the two symbol pads stay hidden for entry/basic (Jim's call)",
          ".elem-mode .mtk-open, .elem-mode .gpi-open, .elem-mode .mtk-hint,"),
         ("the no-microphone branch still describes the buttons (a capability, not a policy)",
@@ -38620,6 +38840,7 @@ def main():
     part3jw_calculus_units_four_to_six_to_the_shape()
     part3jx_calculus_units_seven_to_nine_to_the_shape()
     part3jy_the_youngest_speak_and_the_mic_waits()
+    part3jz_the_small_fixes_of_the_deep_look()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

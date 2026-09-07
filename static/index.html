@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+  - 2026-09-07  (ud) THE PUBLIC SIGN-IN PAGE STOPS TALKING LIKE A DEV BOX (the deep look, P0).
+    Two lines leaked from the pilot: the test-persona codes printed for every visitor,
+    and a note that said "they are not yet security: there are no passwords" -- untrue
+    since parents and teachers got passwords. The codes now live in an empty, hidden
+    #testCodes box that fills ONLY when /api/site-flags reports test_codes (SHOW_TEST_CODES=1
+    in the env, or a dev box running ALLOW_FILE_FALLBACK); Render never shows them. The
+    note is rewritten to what is true: a student code is a house key, keep it in the
+    family; parent and teacher accounts have passwords. PART 3jz pins both.
   - 2026-08-07  CODE BOX FITS EVERY PASS (build be, Jim: pasted a pass verbatim, "not
     recognized"). The code inputs had maxlength="12", but 5 of the 50 beta code words
     make 13-character passes (TRY-JUNIPER42...) — the paste silently lost the last
@@ -237,16 +245,16 @@
 
     </div>
 
-    <div class="codes">
-      Test student codes for v0.1: 1234 (Alex), 2345 (Maya), 3456 (Sam), 0000 (Demo).
-    </div>
+    <!-- (ud) The test-persona codes are a DEV BOX line: hidden until /api/site-flags says
+         test_codes is on (SHOW_TEST_CODES=1, or a dev box running ALLOW_FILE_FALLBACK).
+         On Render they never render. -->
+    <div class="codes" id="testCodes" hidden></div>
 
     <div class="strip">
-      <b>A note while we're still building.</b> These three doors decide what you <i>see</i> — a
-      student sees only their own work, a parent sees only their student, a teacher sees only the
-      classes under their teacher code. They are not yet security: there are no passwords, so
-      anyone holding a code can open that door. Please don't treat a code as private until real
-      accounts are in place.
+      <b>About codes.</b> A student code opens that student's classroom, and only theirs; a
+      parent sees only their own student; a teacher sees only the classes under their teacher
+      code. Treat a student code like a house key — anyone holding it can open that door — so
+      keep it in the family. Parent and teacher accounts sign in with a password.
     </div>
 
     <div class="foot-note">New here? <a href="/">Learn about Mr. Cadabra's Classroom</a> · <a href="/demo">Try a free lesson</a></div>
@@ -349,6 +357,22 @@
     el("tcode").addEventListener("keydown", (e) => { if (e.key === "Enter") teacherLogin(); });
 
     el("code").focus();
+
+    // (ud) THE TEST CODES ARE A DEV-BOX LINE. The persona codes (1234 Alex, 2345 Maya,
+    // 3456 Sam, 0000 Demo) used to be printed on the public sign-in page. They show only
+    // when the server says so -- /api/site-flags reads SHOW_TEST_CODES (or the dev box's
+    // ALLOW_FILE_FALLBACK) -- so the page on Render stays clean without a second copy of it.
+    (async function showTestCodesOnDevBox() {
+      try {
+        const r = await fetch("/api/site-flags", { cache: "no-store" });
+        if (!r.ok) return;
+        const flags = await r.json();
+        if (!flags || !flags.test_codes) return;
+        const box = el("testCodes");
+        box.textContent = "Dev box — test student codes: 1234 (Alex), 2345 (Maya), 3456 (Sam), 0000 (Demo).";
+        box.hidden = false;
+      } catch (e) { /* no flags, no codes -- the public page is the default */ }
+    })();
   </script>
 </body>
 </html>

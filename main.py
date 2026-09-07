@@ -2,6 +2,35 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  APP_BUILD -> "2026-09-07ud-the-small-fixes-of-the-deep-look".
+#               BUILD ud -- P0 OF THE DEEP LOOK (claude/Review_Deep_Look_2026-09-07.md;
+#               Jim chose P0, then P2 data, then P1 phone). THIS FILE:
+#               (1) THE OWNER'S TOOLS ARE THE OWNER'S. static/pilot.html (and the /pilot
+#                   route), cadabra-lab.html (the bench), demolab.html (the layout
+#                   concept), avatar-lab.html (the retired stub) and static/mockup/ were
+#                   served to anyone who typed the address. StaticFiles is now
+#                   _OwnerGatedStatic: those paths answer 404 to the public -- the same
+#                   answer a missing file gives -- and open for the X-Admin-Key header or
+#                   the HttpOnly mt_owner cookie that POST /api/owner/unlock sets (admin
+#                   .html calls it as the dashboard unlocks; /api/owner/lock drops it).
+#                   The cookie is HMAC(FORUM_MOD_KEY, label): rotate the key and every
+#                   browser is out; an unset key closes the tools to everyone. shots/
+#                   stays public (the marketing pages show those screenshots).
+#               (2) THE PUBLIC SIGN-IN PAGE STOPS TALKING LIKE A DEV BOX. SHOW_TEST_CODES
+#                   (unset: follows ALLOW_FILE_FALLBACK, so a dev box shows them and
+#                   Render does not) reaches index.html through GET /api/site-flags,
+#                   booleans only; the "not yet security" note is rewritten to what is
+#                   true. health() reports both flags.
+#               ELSEWHERE (no main.py change): the public copy that still sent the
+#               youngest students to the buttons INSTEAD of the microphone (landing,
+#               features, teachers, students, homeschool) reads the uc order; the
+#               methodology prose's "58 separate checks" (the tile said 79) now sits in
+#               <span data-referees> pinned to the count in tutor.py; practice/topic's
+#               "How to answer" line is short and light in their narrow sidebar.
+#               NOT DONE, ON PURPOSE: the drill room keeps its "Abrabot" name -- builds
+#               mh/mt made him a deliberate second character (the browser's voice, no
+#               cost, no mastery) and the tour introduces him as "my helper"; that is a
+#               design choice for Jim, not a defect. PART 3jz pins all of the above.
 #   2026-09-07  APP_BUILD -> "2026-09-07uc-the-youngest-speak-and-the-mic-waits".
 #               BUILD uc -- TWO OF JIM'S CHANGES, both about how the student answers.
 #               (1) Entry-Level and Basic answer the way the other eight courses answer:
@@ -6601,6 +6630,74 @@ store.init()
 # it (throttled) the moment the app boots degraded.
 ALLOW_FILE_FALLBACK = (os.environ.get("ALLOW_FILE_FALLBACK", "").strip().lower()
                        in ("1", "true", "yes", "on"))
+
+# ---- (ud) THE PUBLIC SIGN-IN PAGE STOPS TALKING LIKE A DEV BOX -----------------
+# The persona codes (1234 Alex ... 0000 Demo) were printed on /login for every
+# visitor. They are a dev-box line now: SHOW_TEST_CODES=1 shows them; unset, a dev
+# box (ALLOW_FILE_FALLBACK) shows them and Render does not. /api/site-flags is the
+# one public door the page reads it through -- booleans only, never a secret.
+SHOW_TEST_CODES = ((os.environ.get("SHOW_TEST_CODES", "").strip().lower()
+                    in ("1", "true", "yes", "on"))
+                   if os.environ.get("SHOW_TEST_CODES", "").strip() else ALLOW_FILE_FALLBACK)
+
+# ---- (ud) THE OWNER'S TOOLS ARE THE OWNER'S -------------------------------------
+# Four pages and a folder under static/ are Jim's workbenches, not the app: the
+# scripted picker (pilot.html, also routed at /pilot), Mr. Cadabra's bench
+# (cadabra-lab.html), the demo layout concept (demolab.html), the retired avatar
+# stub (avatar-lab.html) and static/mockup/. StaticFiles served every one of them to
+# anyone who typed the address. Now they answer 404 to the public -- exactly what a
+# missing file answers, so their existence is not advertised -- and open only for
+# the owner: an X-Admin-Key header (scripts), or the HttpOnly mt_owner cookie that
+# POST /api/owner/unlock sets once the general admin key verifies (admin.html calls
+# it as the dashboard unlocks). The cookie is an HMAC of the admin key, so rotating
+# FORUM_MOD_KEY in Render logs every browser out of the tools at once, and an UNSET
+# key is fail-closed: nothing is the owner. static/shots/ stays public on purpose --
+# the marketing pages show those screenshots.
+_OWNER_STATIC_FILES = frozenset({"pilot.html", "demolab.html", "cadabra-lab.html",
+                                 "avatar-lab.html"})
+_OWNER_STATIC_PREFIXES = ("mockup/",)
+_OWNER_COOKIE = "mt_owner"
+_OWNER_TOOLS = ("/pilot", "/static/cadabra-lab.html", "/static/demolab.html")
+
+
+def _owner_token() -> str:
+    """The cookie value that proves the owner: HMAC(admin key, a fixed label). Empty
+    when the admin key is unset, and an empty token never matches anything."""
+    admin = os.environ.get("FORUM_MOD_KEY", "").strip()
+    if not admin:
+        return ""
+    return hmac.new(admin.encode("utf-8"), b"mr-cadabra-owner-tools",
+                    hashlib.sha256).hexdigest()
+
+
+def _is_owner(request: Request) -> bool:
+    """True for the admin key in the X-Admin-Key header or the owner cookie; constant-
+    time compares; False whenever FORUM_MOD_KEY is unset (fail-closed)."""
+    admin = os.environ.get("FORUM_MOD_KEY", "").strip()
+    token = _owner_token()
+    if not admin or not token:
+        return False
+    header = (request.headers.get("x-admin-key") or "").strip()
+    if header and hmac.compare_digest(header, admin):
+        return True
+    cookie = (request.cookies.get(_OWNER_COOKIE) or "").strip()
+    return bool(cookie) and hmac.compare_digest(cookie, token)
+
+
+def _owner_static_path(path: str) -> bool:
+    """Is this static path one of the owner's tools? `path` is the part after /static/."""
+    p = (path or "").replace("\\", "/").lstrip("/")
+    return p in _OWNER_STATIC_FILES or p.startswith(_OWNER_STATIC_PREFIXES)
+
+
+class _OwnerGatedStatic(StaticFiles):
+    """StaticFiles that answers 404 for the owner's tools unless the request is the
+    owner's. Everything else is served exactly as before."""
+
+    async def get_response(self, path: str, scope):
+        if _owner_static_path(path) and not _is_owner(Request(scope)):
+            raise HTTPException(status_code=404, detail="Not Found")
+        return await super().get_response(path, scope)
 if store.degraded():
     print("[store] ⚠️  DEGRADED: DATABASE_URL is set but the database is unreachable. "
           + ("ALLOW_FILE_FALLBACK is on (dev): file mode allowed." if ALLOW_FILE_FALLBACK
@@ -7917,12 +8014,46 @@ def home_page():
 
 
 @app.get("/pilot")
-def pilot_page():
+def pilot_page(request: Request):
     """THE AUTHORED-SPINE LANE (build op -- Phase 3's pilot, Jim's "go").
     Scripted lessons served instantly from the authored course, the model held to
-    bounded interventions. The home hub links Pre-Algebra students here with
-    ?course=prealgebra&unit=1; unfiltered it is the full scripted picker."""
+    bounded interventions. The home hub linked Pre-Algebra students here with
+    ?course=prealgebra&unit=1 during the pilot; unfiltered it is the full scripted
+    picker. (ud) AN OWNER TOOL NOW: session.html carries the authored lane for every
+    student, nothing links here any more, and the public gets the same 404 a missing
+    page gets. Unlock from /admin (the dashboard sets the owner cookie) or send the
+    admin key in X-Admin-Key."""
+    if not _is_owner(request):
+        raise HTTPException(status_code=404, detail="Not Found")
     return FileResponse(STATIC_DIR / "pilot.html")
+
+
+@app.get("/api/site-flags")
+def site_flags():
+    """(ud) Public, boolean-only page flags. `test_codes`: /login may print the
+    persona test codes (SHOW_TEST_CODES, or a dev box). Nothing here is a secret."""
+    return {"test_codes": bool(SHOW_TEST_CODES), "build": APP_BUILD}
+
+
+@app.post("/api/owner/unlock")
+def owner_unlock(request: Request, response: Response,
+                 x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """(ud) Set the HttpOnly owner cookie that opens the owner's tools (/pilot, the
+    bench, the demo concept page, static/mockup/). Header only -- the key never rides
+    in a URL (build dg). Constant-time, general tier, 30 days, Secure on https."""
+    _require_admin(x_admin_key)
+    secure = (request.url.scheme == "https"
+              or (request.headers.get("x-forwarded-proto") or "").lower() == "https")
+    response.set_cookie(_OWNER_COOKIE, _owner_token(), max_age=30 * 24 * 3600,
+                        httponly=True, samesite="lax", secure=secure, path="/")
+    return {"ok": True, "tools": list(_OWNER_TOOLS)}
+
+
+@app.post("/api/owner/lock")
+def owner_lock(response: Response):
+    """(ud) Drop the owner cookie. No key needed: locking yourself out is always allowed."""
+    response.delete_cookie(_OWNER_COOKIE, path="/")
+    return {"ok": True}
 
 
 @app.get("/topic")
@@ -13949,7 +14080,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-07uc-the-youngest-speak-and-the-mic-waits"
+APP_BUILD = "2026-09-07ud-the-small-fixes-of-the-deep-look"
 
 
 @app.get("/health")
@@ -13996,6 +14127,10 @@ def health():
         "storage": store.status(),
         "subsystems": subsystems,
         "ops": ops,
+        # (ud) two booleans a deploy can be checked against: does /login print the
+        # test codes (it must not on Render), and is the owner gate armed (an unset
+        # admin key means the owner's tools are closed to everyone).
+        "flags": {"test_codes": bool(SHOW_TEST_CODES), "owner_tools": bool(_owner_token())},
     }
 
 
@@ -16623,7 +16758,8 @@ async def transcribe(audio: UploadFile = File(...), code: str = "", expect: str 
 
 
 # Serve the static folder (css/js/images if we add them) under /static.
-app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+# (ud) the owner's tools under static/ answer 404 to the public -- see _OwnerGatedStatic.
+app.mount("/static", _OwnerGatedStatic(directory=str(STATIC_DIR)), name="static")
 
 
 # I did no harm and this file is not truncated.

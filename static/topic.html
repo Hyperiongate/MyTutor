@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    (ud) 2026-09-07 -- THE "HOW TO ANSWER" LINE FITS THE SIDEBAR (the deep look, P0).
+    This page's composer lives in the narrow left column, and uc's full sentence wrapped
+    to five bold lines there. The line is short and light now ("Tap the mic and say your
+    answer -- or tap Type my answer. The answer buttons work too.") -- the same three
+    doors in the same order; session.html keeps the full sentence above its full-width
+    composer. PART 3jy's shared-needle pin is split to say so; PART 3jz pins this line.
     (uc) 2026-09-07 -- THE YOUNGEST STUDENTS SPEAK THEIR ANSWERS, AND THE MIC WAITS ITS
     TURN. Jim, on Entry-Level and Basic: "back when I made the decision that they had to
     have a multiple choice answer, it was to avoid having them write the answer. And then
@@ -1020,12 +1026,14 @@
         ".elem-mode .mtk-open, .elem-mode .gpi-open, .elem-mode .mtk-hint," +
         ".elem-mode .mtk-open + .hlp-q, .elem-mode .gpi-open + .hlp-q," +
         ".elem-mode #composer .hlp-q { display: none !important; }" +
-        ".elem-hint{font-size:14px;font-weight:600;color:#5b6079;margin:0 24px 6px;padding:0 4px}" +
-        ".elem-hint b{color:#20233a}";
+        // (ud) this page's composer sits in the NARROW sidebar, so the line is short and
+        // light here -- session.html keeps the full sentence above its full-width composer.
+        ".elem-hint{font-size:12.5px;font-weight:500;line-height:1.35;color:#5b6079;margin:0 12px 6px;padding:0 4px}" +
+        ".elem-hint b{color:#20233a;font-weight:700}";
       document.head.appendChild(est);
       const eh = document.createElement("div");
       eh.className = "elem-hint";
-      eh.innerHTML = "🎙️ <b>How to answer:</b> tap the microphone and <b>say your answer out loud</b> — or tap <b>Type my answer</b> and write it instead. The answer buttons work too!";
+      eh.innerHTML = "🎙️ Tap the mic and <b>say your answer</b> — or tap <b>Type my answer</b>. The answer buttons work too.";
       composer.parentNode.insertBefore(eh, composer);
     }
 
