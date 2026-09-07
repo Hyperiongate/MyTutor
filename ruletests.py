@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD ty -- PROBSTAT UNITS 7-9 TO THE SHAPE. PART 3ju: _shape_unit_checks on
+#               the three units, the twelve named asks and walk-backs (the two-dot number
+#               line with NO hops on the zsco ask, the tape with total="?", the pot and
+#               people machines), the giveaway audit (800 for the tails lesson), captions,
+#               rule 44, no arrow-after-equals or question-in-step (36 baseline presweep
+#               hits), rule 42 across every ask, walk-back and beat, the joined options, the
+#               nine PART 3ft ps_fixed fragments in each lesson's SECOND worked pair, and
+#               ⭐ PROBSTAT 36/36. Tile 10,503 -> 10,590.
 #   2026-09-07  BUILD tx -- THE WORDS AND THE PICTURE ARE THE SAME THING. PART 3jt pins
 #               the 79th referee with its three silences (both families drawn, both shapes
 #               named, no story noun at all), the widened count claim against the tag's own
@@ -22054,7 +22062,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,503</b>" in page,
+          "<b>10,590</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -27366,6 +27374,164 @@ def part3jt_the_words_and_the_picture_are_the_same_thing():
           and "BUILD tx" in rd("main.py")[:200000]
           and "2026-09-07  BUILD tx" in rd("ruletests.py")[:28000]
           and "(tx)" in rd("static/methodology.html")[:20000],
+          "Jim's rule 8")
+
+
+def part3ju_probstat_units_seven_to_nine_to_the_shape():
+    """PART 3ju (build ty, 2026-09-07) -- PROBSTAT UNITS 7-9 TO THE SHAPE. ⭐ PROBSTAT 36/36.
+
+    The two known chances on the hundred square and the three prizes as bars; the paying
+    plays shaded and the two piles of tokens; the wins shaded and the pot machine; what
+    you pay beside what comes back, and the tape of back and gone; the middle band of the
+    bell and the 68 on the hundred square; the mean and the value as two dots with NO hops
+    on the ask (a hop prints its jump -- counting hops IS the answer) and the hops on the
+    walk-back; one hop shown and two walked; the top sliver and the three parts of the
+    group as a tape; the estimate and the step down; the two halves of the doubt with
+    total="?"; the estimate, the ceiling and the claim on one line; the three percents as
+    bars and the people machine. Two asks compared the student to "students" (rule 42)
+    and three wrote a question inside a step. Every figure an ask draws is captioned."""
+    print("\nPART 3ju — Probstat Units 7-9 to the shape (build ty)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    S7 = ["ps-u7-the-chances-fill-the-hundred", "ps-u7-what-one-play-is-worth",
+          "ps-u7-what-would-be-fair", "ps-u7-why-the-machine-stays-open"]
+    S8 = ["ps-u8-the-crowded-middle", "ps-u8-how-far-out-is-that",
+          "ps-u8-which-value-sits-out-there", "ps-u8-almost-nobody-out-there"]
+    S9 = ["ps-u9-give-or-take", "ps-u9-how-wide-is-the-doubt",
+          "ps-u9-can-that-claim-survive", "ps-u9-the-range-in-real-people"]
+    _shape_unit_checks(S7, r"\[\[(hundredgrid|bars|tape|machine)\b")
+    _shape_unit_checks(S8, r"\[\[(normal|hundredgrid|numberline|tape)\b")
+    _shape_unit_checks(S9, r"\[\[(numberline|tape|bars|machine)\b")
+
+    # ---- Unit 7 ------------------------------------------------------------------------
+    pdis = {"a": 30, "b": 60, "op": "pdis"}
+    check("⭐ the chances fill the hundred: the two known chances shaded on the hundred square with large as the white cells on the ask; the three prizes as bars in the walk-back",
+          '[[hundredgrid shaded="30" plus="60" unit="percent" caption=' in L.board_for(pdis, "abstract")
+          and '[[bars data="small:30 | medium:60 | large:10" caption=' in _W(pdis)[1]
+          and "large takes the 10 that are left" in _W(pdis)[0], "")
+    evwa = {"a": 12, "b": 2, "c": 10, "op": "evwa"}
+    check("  what one play is worth: the paying plays shaded on the ask; the two piles of tokens as bars in the walk-back",
+          '[[hundredgrid shaded="10" unit="percent" caption=' in L.board_for(evwa, "abstract")
+          and '[[bars data="10 plays × 12:120 | 90 plays × 2:180" caption=' in _W(evwa)[1]
+          and "so one play is worth 3" in _W(evwa)[0], "")
+    fair = {"a": 2, "b": 50, "op": "fair"}
+    check("⭐ what would be fair: the wins shaded on the hundred square on the ask; the pot MACHINE (÷ the wins) in the walk-back, its input a number",
+          '[[hundredgrid shaded="50" unit="percent" caption=' in L.board_for(fair, "abstract")
+          and '[[machine input="200" rule="÷ 50" output="4" caption=' in _W(fair)[1]
+          and "200 shared by 50 is 4 a prize" in _W(fair)[0], "")
+    hedg = {"a": 5, "b": 3, "op": "hedg"}
+    check("  why the machine stays open: what you pay beside what comes back as bars on the ask; the tape of back and gone in the walk-back",
+          '[[bars data="you pay:5 | comes back:3" caption=' in L.board_for(hedg, "abstract")
+          and '[[tape parts="3 back|2 gone" total="5 paid" caption=' in _W(hedg)[1]
+          and "leaves 2 tokens gone" in _W(hedg)[0], "")
+
+    # ---- Unit 8 ------------------------------------------------------------------------
+    n68 = {"a": 50, "b": 0, "op": "n68"}
+    check("⭐ the crowded middle: the ask asks about \"the whole group\" (rule 42 -- \"how many students\" was live) and its praise counts no students; the middle band of the bell on the ask, the 68 on the hundred square in the walk-back",
+          "how many students" not in L.spoken_for(n68, "abstract").lower()
+          and "About how many of the whole group is that" in L.spoken_for(n68, "abstract")
+          and "students" not in L.praise_for(n68, 0)
+          and not tutor.student_compare_conflict(L.spoken_for(n68, "abstract") + "\n" + L.board_for(n68, "abstract"), course="probstat")
+          and '[[normal mean="100" sd="10" lo="90" hi="110" caption=' in L.board_for(n68, "abstract")
+          and '[[step eq="the middle band holds ?"]]' in L.board_for(n68, "abstract")
+          and '[[hundredgrid shaded="68" unit="percent" eq="68% of 50 → 34" caption=' in _W(n68)[1]
+          and "68 percent of 50 is 34" in _W(n68)[0], "")
+    zsco = {"a": 10, "b": 2, "c": 16, "op": "zsco"}
+    check("⭐ how far out is that: the mean and the value as two dots with NO hops on the ask (a hop prints its jump and counting them is the answer); the hops of one deviation in the walk-back; the pending line a statement (\"how many deviations above = ?\" was live)",
+          '[[numberline min="8" max="18" points="10,16" caption=' in L.board_for(zsco, "abstract")
+          and "hops=" not in L.board_for(zsco, "abstract")
+          and '[[step eq="deviations above the mean = ?"]]' in L.board_for(zsco, "abstract")
+          and '[[numberline min="8" max="18" points="10,16" hops="10,12,14,16" caption=' in _W(zsco)[1]
+          and "so that gap holds 3 of them" in _W(zsco)[0], "")
+    zval = {"a": 10, "b": 2, "op": "zval"}
+    check("  which value sits out there: ONE hop shown on the ask, the target withheld; two hops walked in the walk-back",
+          '[[numberline min="8" max="16" points="10" hops="10,12" caption=' in L.board_for(zval, "abstract")
+          and '[[numberline min="8" max="16" points="10,14" hops="10,12,14" caption=' in _W(zval)[1]
+          and "10 plus 4 is 14" in _W(zval)[0], "")
+    ntal = {"a": 80, "b": 0, "op": "ntal"}
+    check("  almost nobody out there: the top sliver of the bell on the ask; the three parts of the group as a tape in the walk-back; the teach counts a group of 800 (400 was a bank ask)",
+          '[[normal mean="100" sd="10" lo="120" hi="140" caption=' in L.board_for(ntal, "abstract")
+          and '[[tape parts="2 bottom end|76 middle|2 top end" total="80 in all" caption=' in _W(ntal)[1]
+          and "2 above two deviations and 2 below" in _W(ntal)[0]
+          and "In a group of 800, 5 percent is 40" in L.LESSON_BY_ID["ps-u8-almost-nobody-out-there"]["teach"][0][0], "")
+
+    # ---- Unit 9 ------------------------------------------------------------------------
+    cint = {"a": 20, "b": 12, "op": "cint"}
+    check("  give or take: the estimate as a dot with the margin's reach on the ask; the step down as a hop in the walk-back",
+          '[[numberline min="-4" max="44" points="20" caption=' in L.board_for(cint, "abstract")
+          and '[[numberline min="-4" max="44" points="8,20,32" hops="20,8" caption=' in _W(cint)[1]
+          and "20 take away 12 — 8 percent" in _W(cint)[0], "")
+    cwid = {"a": 21, "b": 2, "op": "cwid"}
+    check("⭐ how wide is the doubt: the two halves of the doubt as a tape with total=\"?\" on the ask; the width in the walk-back",
+          '[[tape parts="2 down|2 up" total="?" caption=' in L.board_for(cwid, "abstract")
+          and '[[tape parts="2 down|2 up" total="4 points wide" caption=' in _W(cwid)[1]
+          and "4 points wide, from 19 to 23" in _W(cwid)[0], "")
+    inci = {"a": 24, "b": 3, "c": 29, "op": "inci"}
+    check("  can that claim survive: the estimate, the ceiling and the claim as three dots on the ask; the gap as a hop from the ceiling in the walk-back",
+          '[[numberline min="19" max="31" points="24,27,29" caption=' in L.board_for(inci, "abstract")
+          and "hops=" not in L.board_for(inci, "abstract")
+          and '[[numberline min="19" max="31" points="24,27,29" hops="27,29" caption=' in _W(inci)[1]
+          and "that is 2 points past anything" in _W(inci)[0], "")
+    npop = {"a": 20, "b": 10, "c": 200, "op": "npop"}
+    check("⭐ the range in real people: the ask asks about \"the whole school\" (rule 42 -- \"how many students\" was live) and its praise counts no students; the three percents as bars on the ask; the people MACHINE in the walk-back, its input the school",
+          "how many students" not in L.spoken_for(npop, "abstract").lower()
+          and "how many of the whole school is that" in L.spoken_for(npop, "abstract")
+          and "students" not in L.praise_for(npop, 0)
+          and not tutor.student_compare_conflict(L.spoken_for(npop, "abstract") + "\n" + L.board_for(npop, "abstract"), course="probstat")
+          and '[[bars data="low end:10 | estimate:20 | high end:30" caption=' in L.board_for(npop, "abstract")
+          and '[[machine input="200" rule="× 10%" output="20" caption=' in _W(npop)[1]
+          and "10 percent of 200 is 20" in _W(npop)[0], "")
+
+    # ---- the giveaway audit, captions, spoken pending lines, rule 42, the fragments, the notes
+    check("  nothing the twelve lessons demonstrate is later asked (the tails lesson teaches a group of 800)",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in S7 + S8 + S9), "")
+    check("  every figure an ask draws carries a caption (rule 41)",
+          all("caption=" in tag for l in S7 + S8 + S9
+              for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+              for tag in re.findall(r"\[\[(?:bars|tape|hundredgrid|machine|pie|array|tree|twoway|normal|numberline)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _unsp = 0
+    for l in S7 + S8 + S9:
+        for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]:
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)",
+          _unsp == 0, f"{_unsp} unspoken")
+    check("⭐ no ask in the three units puts an arrow after an equals sign or a question inside a step (36 baseline presweep hits: \"how many students = ?\", \"how many deviations above = ?\")",
+          not any(re.search(r"=[^\"]*→", m) or re.search(r"[A-Za-z]\?", m) for l in S7 + S8 + S9
+                  for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+                  for m in re.findall(r'\[\[step eq="([^"]*)"', L.board_for(p, "abstract"))), "")
+    check("  no ask, walk-back or beat in the three units compares the student to anyone (rule 42, course probstat)",
+          not any(tutor.student_compare_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract"), course="probstat")
+                  or tutor.student_compare_conflict(_W(p)[0], course="probstat")
+                  for l in S7 + S8 + S9
+                  for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]])
+          and not any(tutor.student_compare_conflict(sp, course="probstat") for l in S7 + S8 + S9
+                      for sp, _b in _authored_beats(L.LESSON_BY_ID[l])), "")
+    check("  no reason option works the arithmetic aloud (the spoken-math referee sweeps the joined options)",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in S7 + S8 + S9), "")
+    _FRAG = {"ps-u7-the-chances-fill-the-hundred": "100 take away 45",
+             "ps-u7-what-one-play-is-worth": "1000 plus 600 over a hundred plays",
+             "ps-u7-why-the-machine-stays-open": "30 take away 22",
+             "ps-u8-the-crowded-middle": "68 percent of 900 is 612",
+             "ps-u8-which-value-sits-out-there": "two deviations is 14",
+             "ps-u8-almost-nobody-out-there": "5 percent is 100 at the ends",
+             "ps-u9-give-or-take": "75 take away 6",
+             "ps-u9-how-wide-is-the-doubt": "A margin of 15, doubled",
+             "ps-u9-can-that-claim-survive": "58 take away 50"}
+    check("⭐ the nine PART 3ft ps_fixed fragments survive in each lesson's SECOND worked pair",
+          all(f in L.LESSON_BY_ID[l]["pairs"][1]["worked"][0] for l, f in _FRAG.items()),
+          str([l for l, f in _FRAG.items() if f not in L.LESSON_BY_ID[l]["pairs"][1]["worked"][0]]))
+    check("⭐ PROBSTAT 36/36: every one of the course's lessons carries the whole shape",
+          all(all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain")) and les.get("show_work_on_correct") is True
+              for les in L.LESSONS if les["course"] == "probstat")
+          and sum(1 for les in L.LESSONS if les["course"] == "probstat") == 36, "")
+    check("  the changed files carry dated ty notes",
+          "2026-09-07  BUILD ty" in rd("lessonscripts.py")[:60000] and "BUILD ty" in rd("main.py")[:200000]
+          and "2026-09-07  BUILD ty" in rd("ruletests.py")[:28000] and "(ty)" in rd("static/methodology.html")[:20000],
           "Jim's rule 8")
 
 
@@ -37718,6 +37884,7 @@ def main():
     part3jr_the_gate_learns_who_wrote_the_symbol()
     part3js_the_say_it_then_write_it_family()
     part3jt_the_words_and_the_picture_are_the_same_thing()
+    part3ju_probstat_units_seven_to_nine_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

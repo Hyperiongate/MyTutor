@@ -2,6 +2,40 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD ty -- PROBSTAT UNITS 7-9 TO THE SHAPE (12 lessons). Jim: "continue
+#               with updating the courses as far as how we're taught." ⭐ PROBSTAT 36/36.
+#               THIS FILE:
+#                 * Unit 7 (expected value): the two known chances on the HUNDRED SQUARE
+#                   with large as the white cells (asked), the three prizes as BARS that
+#                   fill the hundred (walked back); the paying plays shaded on the hundred
+#                   square, walked back as two PILES of tokens as bars; the wins shaded on
+#                   the hundred square, walked back as the pot MACHINE (÷ the wins); what
+#                   you pay beside what comes back as bars, walked back as a TAPE of back
+#                   and gone;
+#                 * Unit 8 (the normal curve): the middle band on the BELL ([[normal]] on
+#                   the ask -- the answer is a headcount, not on its axis), walked back on
+#                   the hundred square; the mean and the value as two dots on a NUMBER
+#                   LINE with no hops on the ask (a hop prints its jump, and counting the
+#                   hops IS the answer), the hops of one deviation on the walk-back; ONE
+#                   hop shown on the ask and two walked; the top sliver of the bell on the
+#                   ask, the three parts of the group as a tape on the walk-back;
+#                 * Unit 9 (confidence): the estimate as a dot with the margin's reach on
+#                   the ask, the step down as a hop on the walk-back; the two halves of the
+#                   doubt as a tape with total="?" on the ask and the width on the
+#                   walk-back; the estimate, the ceiling and the claim as three dots, the
+#                   gap as a hop on the walk-back; the three percents as bars on the ask,
+#                   the people machine on the walk-back.
+#               RULE 42 IN THE ASK ITSELF, live: two asks said "how many students" (n68,
+#               npop) -- the comparison shape (tn's law) -- and are "how many of the whole
+#               group / the whole school" now; their praise counts no students. THREE ops
+#               wrote a QUESTION inside a step ("how many students = ?", "how many
+#               deviations above = ?" -- 36 baseline presweep hits) and write statements
+#               now ("the middle band holds ?", "deviations above the mean = ?"). Trap
+#               lines kept in every lesson. ENGINE: OP_EXT pdis/evwa/fair/hedg/n68/zsco/
+#               zval/ntal/cint/cwid/inci/npop gain "worked" (_pdis_* ... _npop_*) and
+#               picture boards. Demonstrated numbers kept out of the banks: the tails
+#               lesson teaches a group of 800 (400 was a bank ask). The nine PART 3ft
+#               ps_fixed fragments survive in each lesson's second worked pair.
 #   2026-09-06  BUILD tt -- PROBSTAT UNITS 4-6 TO THE SHAPE (12 lessons). Jim:
 #               "Continue with the probability and statistics."
 #               THIS FILE:
@@ -23172,24 +23206,59 @@ _PROBSTAT_U7 = [
         "op": "pdis", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("chances", "hundred"),
-        "advance_line": "Three in a row — you've got it! The chances fill the hundred, and what is left is the last one.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The chances fill the hundred, and what is left is the last one.",
+        "why": [
+            ("Why should the chances add up to anything? Because something happens every "
+             "single play. A prize machine gives small, medium or large, and there is no "
+             "fourth door. So the chances of the three together have to fill the whole "
+             "hundred — that is what a distribution is.",
+             '[[goal text="The chances fill the hundred"]]'),
+        ],
+        "picture": [
+            ("Here is the hundred square. Small comes up 25 times in every hundred plays, "
+             "so 25 cells. Medium comes up 40 times — 40 more cells. Look at what is still "
+             "white: every one of those cells is a play that must have been large.",
+             '[[hundredgrid shaded="25" plus="40" unit="percent" caption="25 for small, 40 more for medium — the white cells are every play that was large"]]'),
+        ],
         "teach": [
-            ["A random variable is just an outcome with a number on it — the prize a machine gives, the score a spinner shows. List every value it can take and the chance of each, and you have its distribution. Those chances have a duty: they must fill the whole hundred.",
-             '[[goal text="The chances fill the hundred"]][[step eq="small 25% · medium 40% · large ?%"]]'],
-            ["Why? Because something happens every single time. If small comes up 25 percent of the time and medium 40, that is 65 accounted for. So large takes the 35 that are left. There is nowhere else for those plays to go.",
-             '[[step eq="25 + 40 = 65"]] [[step eq="large: 100 − 65 = 35%"]]'],
-            ["So any missing chance can be found. Add the ones you know, take them from 100, and the leftover is the answer. Handing back 65, the part you added, forgets the very outcome you were asked about — and 100 is all three together.",
-             '[[step eq="35 ✓"]][[step eq="65 ✗ the two given · 100 ✗ all of them"]]'],
+            ("That is the method: add the chances you know, and take them from 100. 25 plus "
+             "40 is 65 accounted for, so large takes the 35 that are left. There is nowhere "
+             "else for those plays to go.",
+             '[[bars data="small:25 | medium:40 | large:35" caption="three prizes that fill the hundred — 25, 40 and 35"]][[step eq="100 − 25 − 40 = 35%"]]'),
+            ("Answering 65 hands back the two you were given and forgets the very prize you "
+             "were asked about. And 100 is all three together. The leftover is the answer.",
+             '[[step eq="35 ✓"]][[step eq="65 ✗ the two given · 100 ✗ all of them"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 40 percent and 15 percent are spoken for, so the third takes 45.",
-                        '[[step eq="100 − 40 − 15 = 45%"]]'],
+            {"worked": ("Here is one more, done for you. 40 percent and 15 percent are spoken "
+                        "for, so the third takes 45.",
+                        '[[hundredgrid shaded="40" plus="15" unit="percent" caption="40 and 15 shaded — 45 cells still white"]][[step eq="100 − 40 − 15 = 45%"]]'),
              "ask": {"a": 10, "b": 30, "op": "pdis"}},
-            {"worked": ["One more together. 20 and 25 make 45, so 100 take away 45 — 55 percent for the last one.",
-                        '[[step eq="100 − 20 − 25 = 55%"]]'],
+            {"worked": ("One more together. 20 and 25 make 45, so 100 take away 45 — 55 "
+                        "percent for the last one.",
+                        '[[bars data="small:20 | medium:25 | large:55" caption="20, 25 and the 55 left over"]][[step eq="100 − 20 − 25 = 55%"]]'),
              "ask": {"a": 10, "b": 35, "op": "pdis"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Small is 25 percent and "
+                       "medium 40, so large is 35. Tap the reason why."),
+            "choices": ("because the three chances have to fill the whole hundred | "
+                        "because large is always the rarest prize | "
+                        "because 25 and 40 average out to 35"),
+            "answer": "because the three chances have to fill the whole hundred",
+            "board": '[[hundredgrid shaded="25" plus="40" unit="percent" caption="why is the white part 35?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A distribution lists every outcome and its chance, and "
+             "the chances fill the hundred because something happens every time. Add the "
+             "ones you know, take them from 100, and the leftover is the missing one.",
+             '[[hundredgrid shaded="25" plus="40" unit="percent" caption="the chances fill the hundred"]]'),
+            ("And that is why a missing chance can always be found.",
+             '[[step eq="100 − 25 − 40 = 35"]]'),
+        ],
         "bank": [
             {"a": 30, "b": 60, "op": "pdis"},
             {"a": 60, "b": 30, "op": "pdis"},
@@ -23210,24 +23279,63 @@ _PROBSTAT_U7 = [
         "op": "evwa", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("average", "often"),
-        "advance_line": "Three in a row — you've got it! Weigh each payout by how often it comes.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Weigh each payout by how often it comes.",
+        "why": [
+            ("Why would anyone want to know what one play is worth? Because the best prize "
+             "is not what you usually get, and the worst is not either. A machine that pays "
+             "20 tokens sometimes and 5 tokens most of the time is worth something in "
+             "between — pulled toward whichever turns up more often.",
+             '[[goal text="What one play is worth"]]'),
+        ],
+        "picture": [
+            ("Here are a hundred plays on the hundred square. The 40 shaded cells are the "
+             "plays that paid 20 tokens. The 60 white cells paid 5. Look how much more of "
+             "the square is white — that is why the true value sits closer to 5 than to 20.",
+             '[[hundredgrid shaded="40" unit="percent" caption="40 plays paid 20 tokens, 60 plays paid 5 — the small prize covers more of the square"]]'),
+        ],
         "teach": [
-            ["What is one play worth? Not the best prize, and not the worst — something in between, pulled toward whichever turns up more often. That in-between number is the expected value, and it is a weighted average, exactly like the heavier mean of Algebra Two.",
-             '[[goal text="What one play is worth"]][[step eq="20 tokens 40% · 5 tokens 60%"]]'],
-            ["Take 20 tokens 40 percent of the time and 5 tokens the other 60. Over a hundred plays that is 40 twenties and 60 fives — 800 plus 300, which is 1100 tokens across 100 plays. So one play is worth 11 tokens on average.",
-             '[[step eq="40×20 + 60×5 = 1100"]] [[step eq="1100 ÷ 100 = 11 a play"]]'],
-            ["The trap is averaging the two prizes and stopping: 20 and 5 average to 12 point 5, which would only be right if both came up equally often. They do not — the small prize comes up more, so the true value sits lower, at 11. And the big prize alone is not what a play is worth.",
-             '[[step eq="11 ✓"]][[step eq="12 or 13 ✗ the prizes averaged · 20 ✗ the big prize"]]'],
+            ("That is the method: count the tokens over a hundred plays, then share them "
+             "out. 40 plays at 20 is 800, and 60 plays at 5 is 300 — 1100 tokens in all. "
+             "Share 1100 across 100 plays and one play is worth 11. That is a weighted "
+             "average: each prize weighed by how often it comes.",
+             '[[bars data="40 plays × 20:800 | 60 plays × 5:300" caption="two piles of tokens — 800 and 300, 1100 together"]][[step eq="800 + 300 = 1100"]][[step eq="1100 ÷ 100 = 11 a play"]]'),
+            ("The trap is averaging the two prizes and stopping. 20 and 5 average to 12 "
+             "and a half, which is only right if both come up equally often — and they do "
+             "not. And 20 alone is the big prize, not what a play is worth.",
+             '[[step eq="11 ✓"]][[step eq="12 or 13 ✗ the prizes averaged · 20 ✗ the big prize"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 30 tokens 20 percent of the time and 5 tokens otherwise: 600 plus 400 over a hundred plays — 10 a play.",
-                        '[[step eq="20×30 + 80×5 = 1000"]] [[step eq="1000 ÷ 100 = 10 a play"]]'],
+            {"worked": ("Here is one more, done for you. 30 tokens 20 percent of the time and "
+                        "5 tokens otherwise: 600 plus 400 over a hundred plays — 10 a play.",
+                        '[[bars data="20 plays × 30:600 | 80 plays × 5:400" caption="600 and 400 — 1000 tokens across 100 plays"]][[step eq="600 + 400 = 1000"]][[step eq="1000 ÷ 100 = 10 a play"]]'),
              "ask": {"a": 22, "b": 12, "c": 10, "op": "evwa"}},
-            {"worked": ["One more together. 25 tokens 40 percent of the time and 10 the rest: 1000 plus 600 over a hundred plays — 16 tokens a play.",
-                        '[[step eq="40×25 + 60×10 = 1600"]] [[step eq="1600 ÷ 100 = 16 a play"]]'],
+            {"worked": ("One more together. 25 tokens 40 percent of the time and 10 the rest: "
+                        "1000 plus 600 over a hundred plays — 16 tokens a play.",
+                        '[[bars data="40 plays × 25:1000 | 60 plays × 10:600" caption="1000 and 600 — 1600 tokens across 100 plays"]][[step eq="1000 + 600 = 1600"]][[step eq="1600 ÷ 100 = 16 a play"]]'),
              "ask": {"a": 22, "b": 12, "c": 20, "op": "evwa"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 20 tokens 40 percent of "
+                       "the time and 5 the rest is worth 11 a play, not 12 and a half. Tap "
+                       "the reason why."),
+            "choices": ("because the small prize comes up more and pulls the value down | "
+                        "because the big prize is what a play is worth | "
+                        "because a machine never pays its average"),
+            "answer": "because the small prize comes up more and pulls the value down",
+            "board": '[[hundredgrid shaded="40" unit="percent" caption="why 11 and not 12 and a half?"]]',
+        },
+        "recap": [
+            ("So, here it is again. What one play is worth is a weighted average: count the "
+             "tokens over a hundred plays, then share them across the hundred. Each prize "
+             "counts as often as it comes, so the one that comes up more pulls the value "
+             "its way. Never average the prizes alone, and never take the big one.",
+             '[[bars data="40 plays × 20:800 | 60 plays × 5:300" caption="weighed by how often each comes"]]'),
+            ("And that is expected value.",
+             '[[step eq="1100 ÷ 100 = 11"]]'),
+        ],
         "bank": [
             {"a": 12, "b": 2, "c": 10, "op": "evwa"},
             {"a": 12, "b": 2, "c": 20, "op": "evwa"},
@@ -23248,24 +23356,61 @@ _PROBSTAT_U7 = [
         "op": "fair", "max_value": 200,
         "levels": ("abstract",),
         "symbols": ("fair", "prize"),
-        "advance_line": "Three in a row — you've got it! Spread the whole stake over the wins.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Spread the whole stake over the wins.",
+        "why": [
+            ("Why would you run expected value backwards? To design a game. A fair game is "
+             "worth exactly what it costs — play it a thousand times and you end up level, "
+             "neither up nor down. So the question turns around: what prize would make this "
+             "game fair?",
+             '[[goal text="What would be fair"]]'),
+        ],
+        "picture": [
+            ("Here are a hundred plays. Every one of them costs 5 tokens, so that is 500 "
+             "tokens paid in. Only the 20 shaded cells are wins. Look at those 20 cells: "
+             "between them they have to hand the whole 500 back.",
+             '[[hundredgrid shaded="20" unit="percent" caption="all 100 plays pay 5 tokens — only the 20 shaded ones win, and they must return the whole 500"]]'),
+        ],
         "teach": [
-            ["Run expected value backwards and you can design a game. A fair game is one worth exactly what it costs — over many plays you come out level, neither up nor down. So what prize would make a game fair?",
-             '[[goal text="What would be fair"]][[step eq="costs 5 tokens · win 20% of the time"]]'],
-            ["Count a hundred plays. At 5 tokens a play you have paid 500 tokens, and you have won 20 times. Those 500 tokens must come back across just those 20 wins, so the fair prize is 500 shared over 20 — 25 tokens.",
-             '[[step eq="500 paid ÷ 20 wins = 25 a prize"]]'],
-            ["A prize of 5 — your money back — sounds fair and is not: you only collect it one play in five, and the other four are gone. The rarer the win, the bigger the prize has to be, which is why every real prize worth having is hard to get.",
-             '[[step eq="25 ✓"]][[step eq="5 ✗ just your stake · 20 ✗ that is the percent"]]'],
+            ("That is the method: work out the pot, then share it over the wins. 100 plays "
+             "at 5 tokens is 500 in the pot. Shared over 20 wins, that is 25 tokens a "
+             "prize. The rarer the win, the bigger the prize has to be.",
+             '[[machine input="500" rule="÷ 20" output="25" caption="the pot of 500 shared over 20 wins — 25 tokens a prize"]][[step eq="500 ÷ 20 = 25"]]'),
+            ("A prize of 5 — your money back — sounds fair and is not: you only collect it "
+             "one play in five, and the other four are gone. And 20 is the percent of wins, "
+             "not tokens at all.",
+             '[[step eq="25 ✓"]][[step eq="5 ✗ just your stake · 20 ✗ that is the percent"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 6 tokens a play, winning a quarter of the time: 600 over 25 wins — a fair prize of 24.",
-                        '[[step eq="600 ÷ 25 = 24"]]'],
+            {"worked": ("Here is one more, done for you. 6 tokens a play, winning a quarter "
+                        "of the time: 600 over 25 wins — a fair prize of 24.",
+                        '[[machine input="600" rule="÷ 25" output="24" caption="600 in the pot, 25 wins — 24 a prize"]][[step eq="600 ÷ 25 = 24"]]'),
              "ask": {"a": 12, "b": 15, "op": "fair"}},
-            {"worked": ["One more together. 8 tokens a play, winning 40 percent of the time: 800 over 40 — 20 tokens.",
-                        '[[step eq="800 ÷ 40 = 20"]]'],
+            {"worked": ("One more together. 8 tokens a play, winning 40 percent of the time: "
+                        "800 over 40 — 20 tokens.",
+                        '[[machine input="800" rule="÷ 40" output="20" caption="800 in the pot, 40 wins — 20 a prize"]][[step eq="800 ÷ 40 = 20"]]'),
              "ask": {"a": 7, "b": 10, "op": "fair"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. At 5 tokens a play and a "
+                       "win one time in five, the fair prize is 25, not 5. Tap the reason why."),
+            "choices": ("because every play pays in but only the wins pay out | "
+                        "because a prize is always five times the stake | "
+                        "because 5 tokens is too small to be a prize"),
+            "answer": "because every play pays in but only the wins pay out",
+            "board": '[[hundredgrid shaded="20" unit="percent" caption="why 25 and not 5?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A fair game returns exactly what it takes in. Every "
+             "play pays into the pot, only the wins pay out of it, so the fair prize is the "
+             "whole pot shared over the wins. Your stake back is not fair, and the percent "
+             "is not a prize.",
+             '[[machine input="500" rule="÷ 20" output="25" caption="the pot shared over the wins"]]'),
+            ("And that is how a game is designed.",
+             '[[step eq="500 ÷ 20 = 25"]]'),
+        ],
         "bank": [
             {"a": 2, "b": 50, "op": "fair"},
             {"a": 3, "b": 30, "op": "fair"},
@@ -23286,24 +23431,60 @@ _PROBSTAT_U7 = [
         "op": "hedg", "max_value": 60,
         "levels": ("abstract",),
         "symbols": ("long run", "back"),
-        "advance_line": "Three in a row — you've got it! Paid out take away paid back — that is the real cost.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Paid out take away paid back — that is the real cost.",
+        "why": [
+            ("Why is the machine still standing there? Because real games are not fair, "
+             "and the gap is the whole business. You pay a fixed price each play, and "
+             "expected value says what comes back on average. The difference is what a "
+             "play really costs you in the long run, and it is small on purpose.",
+             '[[goal text="Why the machine stays open"]]'),
+        ],
+        "picture": [
+            ("Here are the two numbers as bars. The tall one is what you pay: 10 tokens, "
+             "every play. The shorter one is what comes back on average: 7. Look at the "
+             "gap between the tops of the bars — that gap is the real cost of a play.",
+             '[[bars data="you pay:10 | comes back:7" caption="10 out, 7 back on average — the gap between the bars is what a play really costs"]]'),
+        ],
         "teach": [
-            ["Real games are not fair, and the gap is the whole business model. You pay a fixed price each play; expected value says what comes back on average. Take one from the other and you have what a play really costs you in the long run.",
-             '[[goal text="Why the machine stays open"]][[step eq="pay 10 · get back 7 on average"]]'],
-            ["Pay 10 tokens and get 7 back on average: each play quietly costs 3. Play once and you might walk away up — that is why anyone plays. Play four hundred times and the 3 arrives with perfect reliability: 1200 tokens gone.",
-             '[[step eq="10 − 7 = 3 a play"]]'],
-            ["So the two numbers to keep apart are what comes back and what it costs. 7 is what comes back, and adding the two is nothing at all — no play ever costs you 17. The gap is small on purpose: small enough to ignore, steady enough to build a business on.",
-             '[[step eq="3 ✓"]][[step eq="7 ✗ what comes back · 17 ✗ added"]]'],
+            ("That is the method: take what comes back away from what you pay. 10 take "
+             "away 7 is 3 — each play quietly costs 3 tokens. Play once and you might walk "
+             "away up; play four hundred times and the 3 arrives with perfect reliability.",
+             '[[tape parts="7 back|3 gone" total="10 paid" caption="of the 10 you pay, 7 comes back and 3 is gone for good"]][[step eq="10 − 7 = 3 a play"]]'),
+            ("Keep the two numbers apart. 7 is what comes back, not what it costs. And "
+             "adding them is nothing at all — no play ever costs you 17.",
+             '[[step eq="3 ✓"]][[step eq="7 ✗ what comes back · 17 ✗ added"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Pay 20, get 13 back on average: 7 tokens a play, gone.",
-                        '[[step eq="20 − 13 = 7"]]'],
+            {"worked": ("Here is one more, done for you. Pay 20, get 13 back on average: 7 "
+                        "tokens a play, gone.",
+                        '[[tape parts="13 back|7 gone" total="20 paid" caption="13 back, 7 gone"]][[step eq="20 − 13 = 7"]]'),
              "ask": {"a": 15, "b": 9, "op": "hedg"}},
-            {"worked": ["One more together. Pay 30 and get 22 back: 30 take away 22 — each play costs 8.",
-                        '[[step eq="30 − 22 = 8"]]'],
+            {"worked": ("One more together. Pay 30 and get 22 back: 30 take away 22 — each "
+                        "play costs 8.",
+                        '[[bars data="you pay:30 | comes back:22" caption="30 out, 22 back — a gap of 8"]][[step eq="30 − 22 = 8"]]'),
              "ask": {"a": 16, "b": 14, "op": "hedg"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Pay 10 and get 7 back on "
+                       "average, and a play really costs 3. Tap the reason why."),
+            "choices": ("because what comes back is taken away from what you pay | "
+                        "because the machine keeps every token you put in | "
+                        "because 10 and 7 are added together"),
+            "answer": "because what comes back is taken away from what you pay",
+            "board": '[[bars data="you pay:10 | comes back:7" caption="why does a play cost 3?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A play costs what you pay take away what comes back on "
+             "average. The gap hides in any single play and shows up over hundreds — that "
+             "is the business model. What comes back is not the cost, and adding the two "
+             "means nothing.",
+             '[[bars data="you pay:10 | comes back:7" caption="the gap is the real cost"]]'),
+            ("And that is why the machine stays open.",
+             '[[step eq="10 − 7 = 3"]]'),
+        ],
         "bank": [
             {"a": 5, "b": 3, "op": "hedg"},
             {"a": 6, "b": 4, "op": "hedg"},
@@ -23337,24 +23518,62 @@ _PROBSTAT_U8 = [
         "op": "n68", "max_value": 800,
         "levels": ("abstract",),
         "symbols": ("bell curve", "standard deviation"),
-        "advance_line": "Three in a row — you've got it! About 68 in every hundred sit in the middle band.",
+        "advance_line": "Three in a row, and you can say why — you've got it! About 68 in every hundred sit in the middle band.",
+        "why": [
+            ("Why does one curve matter so much? Measure almost anything about a big group "
+             "— heights, test scores, how long the walk to school takes — and the picture "
+             "comes out the same shape every time. Crowded in the middle, thin at both "
+             "ends. Once you know the shape, you know how a group is spread out before you "
+             "count it.",
+             '[[goal text="The crowded middle"]]'),
+        ],
+        "picture": [
+            ("Here is the bell curve, with the middle at 100 and a spread of 10. The shaded "
+             "band runs from 90 to 110 — one standard deviation each way. Look how much of "
+             "the curve sits under that band: about 68 of every hundred.",
+             '[[normal mean="100" sd="10" lo="90" hi="110" caption="the middle band, one deviation each way — about 68 of every 100 sit inside it"]]'),
+        ],
         "teach": [
-            ["Measure almost anything about a big group of people. Heights, test scores, how long a walk to school takes. The picture comes out the same shape every time: a bell curve, crowded in the middle and thinning at both ends.",
-             '[[goal text="The crowded middle"]][[normal mean="100" sd="10" lo="90" hi="110" caption="the bell curve — middle 100, spread 10"]]'],
-            ["The spread has a ruler: one standard deviation, the typical distance from the middle that Unit Two measured. And the bell always shares itself out the same way — about 68 percent of everybody sits no further than one standard deviation from the mean.",
-             '[[step eq="no further than 1 deviation → about 68%"]]'],
-            ["Turn that into people. In a school of 200, about 68 percent — 136 students — are no further than one standard deviation from the average height. The 68 is a percent and never a headcount, and 200 is everybody, middle and ends together.",
-             '[[step eq="68% of 200 = 136 students"]][[step eq="68 ✗ a percent · 200 ✗ everyone"]]'],
+            ("That is the method: the bell always shares itself out the same way, so 68 "
+             "percent of any group sits in the middle band. In a school of 200, 68 percent "
+             "is 136 — that many sit no further than one deviation from the average height.",
+             '[[hundredgrid shaded="68" unit="percent" eq="68% of 200 → 136" caption="68 of every 100 — and 68 percent of 200 is 136"]][[step eq="68% of 200 = 136"]]'),
+            ("The 68 is a percent and never a headcount, so answering 68 counts nobody. "
+             "And 200 is everybody — middle and ends together. Take the percent of the "
+             "group, and that is the middle band.",
+             '[[step eq="136 ✓"]][[step eq="68 ✗ a percent · 200 ✗ everyone"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. In a group of 300, 68 percent is 204 people in the middle band.",
-                        '[[step eq="68% of 300 = 204"]]'],
+            {"worked": ("Here is one more, done for you. In a group of 300, 68 percent is 204 "
+                        "in the middle band.",
+                        '[[hundredgrid shaded="68" unit="percent" eq="68% of 300 → 204" caption="68 percent of 300 is 204"]][[step eq="68% of 300 = 204"]]'),
              "ask": {"a": 725, "b": 0, "op": "n68"}},
-            {"worked": ["One more together. Out of 900: 68 percent of 900 is 612, sitting no further than one standard deviation out.",
-                        '[[step eq="68% of 900 = 612"]]'],
+            {"worked": ("One more together. Out of 900: 68 percent of 900 is 612, sitting no "
+                        "further than one standard deviation out.",
+                        '[[normal mean="100" sd="10" lo="90" hi="110" caption="the middle band of 900 holds 612"]][[step eq="68% of 900 = 612"]]'),
              "ask": {"a": 675, "b": 0, "op": "n68"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. In a group of 200, "
+                       "about 136 sit in the middle band. Tap the reason why."),
+            "choices": ("because the bell always keeps about 68 percent inside one deviation | "
+                        "because 136 people is the size of the middle band everywhere | "
+                        "because the ends of the bell hold the most people"),
+            "answer": "because the bell always keeps about 68 percent inside one deviation",
+            "board": '[[normal mean="100" sd="10" lo="90" hi="110" caption="why 136 of 200?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A bell curve is crowded in the middle, and it always "
+             "shares itself out the same way: about 68 percent sit inside one standard "
+             "deviation of the mean. Take 68 percent of the group and that is the middle "
+             "band — the 68 is never a headcount, and the whole group is never the answer.",
+             '[[normal mean="100" sd="10" lo="90" hi="110" caption="68 of every 100, in the middle band"]]'),
+            ("And that is the 68 percent rule.",
+             '[[step eq="68% of 200 = 136"]]'),
+        ],
         "bank": [
             {"a": 50, "b": 0, "op": "n68"},
             {"a": 125, "b": 0, "op": "n68"},
@@ -23375,24 +23594,63 @@ _PROBSTAT_U8 = [
         "op": "zsco", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("deviations", "above"),
-        "advance_line": "Three in a row — you've got it! Measure the gap in deviations, not in raw units.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Measure the gap in deviations, not in raw units.",
+        "why": [
+            ("Why is a score of 82 impressive, or not? You cannot say until you know the "
+             "middle and the spread. 82 in a class averaging 70 is one thing; 82 in a "
+             "class averaging 80 is another. So the bell curve measures every distance in "
+             "its own unit: standard deviations from the mean.",
+             '[[goal text="How far out is that?"]]'),
+        ],
+        "picture": [
+            ("Here is a number line with the mean at 70 and the score at 82. One standard "
+             "deviation is 6, so a step of 6 is the ruler. Look at the gap between the two "
+             "dots — it holds two steps of 6, one after the other.",
+             '[[numberline min="64" max="88" points="70,82" hops="70,76,82" caption="from the mean at 70 to 82 is two hops of 6"]]'),
+        ],
         "teach": [
-            ["Is a score of 82 impressive? You cannot say until you know the middle and the spread. So the bell curve measures every distance in its own units: how many standard deviations above or below the mean a value sits.",
-             '[[goal text="How far out is that?"]][[normal mean="70" sd="6" caption="the bell curve — middle 70, spread 6"]]'],
-            ["Mean 70, one standard deviation 6, and a score of 82. The raw gap is 12, and 12 holds two sixes — so 82 sits two deviations above the mean. Roughly 2 people in a hundred beat that, which is why it is impressive.",
-             '[[step eq="82 − 70 = 12"]] [[step eq="12 ÷ 6 = 2 deviations"]]'],
-            ["Answering 12 stops at the raw gap and never asks how big a step is — and 12 points might be enormous or nothing at all, depending on the spread. That is the whole reason for counting deviations: it lets a height and a test score be compared at all.",
-             '[[step eq="2 ✓"]][[step eq="12 ✗ the raw gap · 6 ✗ one step"]]'],
+            ("That is the method: find the raw gap, then count how many deviations fit in "
+             "it. 82 take away 70 is 12, and 12 holds two sixes — so 82 sits two deviations "
+             "above the mean. Roughly 2 people in a hundred beat that, which is why it is "
+             "impressive.",
+             '[[numberline min="64" max="88" points="70,82" hops="70,76,82" caption="12 holds two sixes"]][[step eq="82 − 70 = 12"]][[step eq="12 ÷ 6 = 2 deviations"]]'),
+            ("Answering 12 stops at the raw gap and never asks how big a step is — 12 "
+             "points might be enormous or nothing at all, depending on the spread. And 6 "
+             "is one step, not the count of them.",
+             '[[step eq="2 ✓"]][[step eq="12 ✗ the raw gap · 6 ✗ one step"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Mean 80, deviation 7, value 94: the gap is 14, which holds two sevens — 2 deviations.",
-                        '[[step eq="14 ÷ 7 = 2 deviations"]]'],
+            {"worked": ("Here is one more, done for you. Mean 80, deviation 7, value 94: the "
+                        "gap is 14, which holds two sevens — 2 deviations.",
+                        '[[numberline min="73" max="101" points="80,94" hops="80,87,94" caption="two hops of 7 from 80 reach 94"]][[step eq="14 ÷ 7 = 2 deviations"]]'),
              "ask": {"a": 60, "b": 2, "c": 66, "op": "zsco"}},
-            {"worked": ["One more together. Mean 90, deviation 8, value 114: a gap of 24 — 3 deviations out.",
-                        '[[step eq="24 ÷ 8 = 3 deviations"]]'],
+            {"worked": ("One more together. Mean 90, deviation 8, value 114: a gap of 24 — 3 "
+                        "deviations out.",
+                        '[[numberline min="82" max="122" points="90,114" hops="90,98,106,114" caption="three hops of 8 from 90 reach 114"]][[step eq="24 ÷ 8 = 3 deviations"]]'),
              "ask": {"a": 65, "b": 3, "c": 71, "op": "zsco"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. With a mean of 70 and a "
+                       "deviation of 6, a score of 82 sits two deviations out, not 12. Tap "
+                       "the reason why."),
+            "choices": ("because the gap is measured in steps of the deviation | "
+                        "because 12 is too big a number to be a distance | "
+                        "because every score sits exactly two deviations out"),
+            "answer": "because the gap is measured in steps of the deviation",
+            "board": '[[numberline min="64" max="88" points="70,82" caption="why two, and not 12?"]]',
+        },
+        "recap": [
+            ("So, here it is again. To say how far out a value is, find the raw gap from "
+             "the mean and count how many standard deviations fit inside it. The raw gap "
+             "alone says nothing, and one deviation is the ruler, not the answer. Counting "
+             "steps is what lets a height and a test score be compared at all.",
+             '[[numberline min="64" max="88" points="70,82" hops="70,76,82" caption="count the steps, not the units"]]'),
+            ("And that is a standard score.",
+             '[[step eq="12 ÷ 6 = 2"]]'),
+        ],
         "bank": [
             {"a": 10, "b": 2, "c": 16, "op": "zsco"},
             {"a": 15, "b": 3, "c": 21, "op": "zsco"},
@@ -23413,24 +23671,61 @@ _PROBSTAT_U8 = [
         "op": "zval", "max_value": 140,
         "levels": ("abstract",),
         "symbols": ("mean", "two"),
-        "advance_line": "Three in a row — you've got it! Two steps of the deviation, starting from the mean.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Two steps of the deviation, starting from the mean.",
+        "why": [
+            ("Why run the ruler the other way? Because sometimes the question is not how "
+             "far out a value is, but which value sits at a named distance. Two standard "
+             "deviations above the mean, say — the line that only about 2 people in a "
+             "hundred ever reach. Name that value and you have named the rare ones.",
+             '[[goal text="Which value sits out there?"]]'),
+        ],
+        "picture": [
+            ("Here is the number line with the mean at 50 and a deviation of 8. Watch the "
+             "hops: one hop of 8 lands on 58, and a second hop of 8 lands on 66. Look where "
+             "the second hop ends — that is the value two deviations out.",
+             '[[numberline min="42" max="74" points="50,66" hops="50,58,66" caption="two hops of 8 from the mean at 50 land on 66"]]'),
+        ],
         "teach": [
-            ["The ruler works in both directions. Instead of asking how far out a value is, name a distance and ask which value sits there. Two standard deviations above the mean, say. Only about 2 people in a hundred ever reach that far.",
-             '[[goal text="Which value sits out there?"]][[normal mean="50" sd="8" lo="66" hi="82" caption="the bell curve — middle 50, spread 8"]]'],
-            ["Mean 50, one deviation 8. Two deviations is 8 twice — 16 — and that distance starts FROM the mean: 50 plus 16 is 66. Everything above 66 is that rare top sliver of the curve.",
-             '[[step eq="50 + 2×8 = 66"]]'],
-            ["Two slips. Adding one 8 gives 58, which is only one deviation out. And answering 16 gives the distance while forgetting to start from 50 — a distance is not a value. Two steps, always beginning at the mean.",
-             '[[step eq="66 ✓"]][[step eq="58 ✗ one deviation · 16 ✗ the distance alone"]]'],
+            ("That is the method: two deviations is the deviation twice, and the distance "
+             "starts from the mean. 8 twice is 16, and 50 plus 16 is 66. Everything above "
+             "66 is the rare top sliver of the curve.",
+             '[[numberline min="42" max="74" points="50,66" hops="50,58,66" caption="8 twice is 16, and 50 plus 16 is 66"]][[step eq="50 + 2 × 8 = 66"]]'),
+            ("Two slips. Adding one 8 gives 58, which is only one deviation out. And "
+             "answering 16 gives the distance while forgetting to start from 50 — a "
+             "distance is not a value. Two steps, always beginning at the mean.",
+             '[[step eq="66 ✓"]][[step eq="58 ✗ one deviation · 16 ✗ the distance alone"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Mean 70, deviation 9: two deviations is 18, so the value is 88.",
-                        '[[step eq="70 + 18 = 88"]]'],
+            {"worked": ("Here is one more, done for you. Mean 70, deviation 9: two deviations "
+                        "is 18, so the value is 88.",
+                        '[[numberline min="61" max="97" points="70,88" hops="70,79,88" caption="two hops of 9 from 70 land on 88"]][[step eq="70 + 18 = 88"]]'),
              "ask": {"a": 60, "b": 2, "op": "zval"}},
-            {"worked": ["One more together. Mean 80, deviation 7: two deviations is 14, so the value is 80 plus 14 — 94.",
-                        '[[step eq="80 + 14 = 94"]]'],
+            {"worked": ("One more together. Mean 80, deviation 7: two deviations is 14, so "
+                        "the value is 80 plus 14 — 94.",
+                        '[[numberline min="73" max="101" points="80,94" hops="80,87,94" caption="two hops of 7 from 80 land on 94"]][[step eq="80 + 14 = 94"]]'),
              "ask": {"a": 65, "b": 3, "op": "zval"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. Mean 50, deviation 8, "
+                       "and the value two deviations up is 66, not 58. Tap the reason why."),
+            "choices": ("because two deviations means two hops of 8 from the mean | "
+                        "because 58 is below the mean | "
+                        "because the deviation is always added twice to itself"),
+            "answer": "because two deviations means two hops of 8 from the mean",
+            "board": '[[numberline min="42" max="74" points="50" hops="50,58" caption="why 66, and not 58?"]]',
+        },
+        "recap": [
+            ("So, here it is again. To find the value a named distance out, take that many "
+             "hops of the deviation, always starting from the mean. One hop is one "
+             "deviation, and the distance alone is not a value until it leaves from the "
+             "middle.",
+             '[[numberline min="42" max="74" points="50,66" hops="50,58,66" caption="two hops from the mean"]]'),
+            ("And that is reading the curve backwards.",
+             '[[step eq="50 + 2 × 8 = 66"]]'),
+        ],
         "bank": [
             {"a": 10, "b": 2, "op": "zval"},
             {"a": 15, "b": 3, "op": "zval"},
@@ -23451,24 +23746,62 @@ _PROBSTAT_U8 = [
         "op": "ntal", "max_value": 800,
         "levels": ("abstract",),
         "symbols": ("ends", "outside"),
-        "advance_line": "Three in a row — you've got it! Half of the leftover five percent lives at each end.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Half of the leftover five percent lives at each end.",
+        "why": [
+            ("Why does rare really mean rare? Because the bell keeps sharing itself out the "
+             "same way. About 68 percent sit inside one deviation, about 95 inside two — "
+             "which leaves just 5 percent outside two deviations, in all. And that 5 is "
+             "split between the two ends.",
+             '[[goal text="Almost nobody out there"]]'),
+        ],
+        "picture": [
+            ("Here is the bell with the middle at 100 and a spread of 10. The shaded part "
+             "is the top end — everything beyond two deviations, past 120. Look how thin "
+             "that sliver is. The same sliver sits at the bottom end, below 80.",
+             '[[normal mean="100" sd="10" lo="120" hi="140" caption="the top end — the sliver beyond two deviations, about 2 or 3 of every 100"]]'),
+        ],
         "teach": [
-            ["The bell keeps sharing itself out the same way. About 68 percent sit no further than one standard deviation out, and about 95 percent no further than two — which leaves just 5 percent outside two deviations in all.",
-             '[[goal text="Almost nobody out there"]][[normal mean="100" sd="10" lo="80" hi="120" caption="the bell curve — middle 100, spread 10"]]'],
-            ["And that 5 percent is split between the two ends of the curve, evenly, because the bell is symmetric. In a group of 400: 5 percent is 20 people out at the ends, so 10 sit above two deviations and 10 below.",
-             '[[step eq="5% of 400 = 20 · half at each end = 10"]]'],
-            ["Forgetting the split is the slip — 20 counts BOTH ends when the question asked for one. And a bell curve never has half its people out at the edges; that is what the shape is telling you. Rare really does mean rare.",
-             '[[step eq="10 ✓"]][[step eq="20 ✗ both ends · 200 ✗ half the group"]]'],
+            ("That is the method: take 5 percent of the group for both ends, then halve it "
+             "for one. In a group of 800, 5 percent is 40 out at the ends — so 20 sit above "
+             "two deviations and 20 below. The bell is symmetric, so the split is even.",
+             '[[tape parts="20 bottom end|760 middle|20 top end" total="800 in all" caption="the two ends hold 40 between them — 20 at each"]][[step eq="5% of 800 = 40 · half at each end = 20"]]'),
+            ("Forgetting the split is the slip — 40 counts both ends when the question "
+             "asked for one. And a bell never has half its people out at the edges; that is "
+             "what the shape is telling you.",
+             '[[step eq="20 ✓"]][[step eq="40 ✗ both ends · 400 ✗ half the group"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. Out of 1000, 5 percent is 50 at the ends — so 25 sit above two deviations.",
-                        '[[step eq="50 ÷ 2 = 25 above"]]'],
+            {"worked": ("Here is one more, done for you. Out of 1000, 5 percent is 50 at the "
+                        "ends — so 25 sit above two deviations.",
+                        '[[tape parts="25 bottom end|950 middle|25 top end" total="1000 in all" caption="50 at the ends — 25 at each"]][[step eq="50 ÷ 2 = 25 above"]]'),
              "ask": {"a": 600, "b": 0, "op": "ntal"}},
-            {"worked": ["One more together. In a group of 2000: 5 percent is 100 at the ends, so 50 sit beyond two deviations at the top.",
-                        '[[step eq="2000 ÷ 40 = 50"]]'],
+            {"worked": ("One more together. In a group of 2000: 5 percent is 100 at the ends, "
+                        "so 50 sit beyond two deviations at the top.",
+                        '[[tape parts="50 bottom end|1900 middle|50 top end" total="2000 in all" caption="100 at the ends — 50 at each"]][[step eq="2000 ÷ 40 = 50"]]'),
              "ask": {"a": 560, "b": 0, "op": "ntal"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. In a group of 800, "
+                       "about 20 sit beyond two deviations at the top, not 40. Tap the "
+                       "reason why."),
+            "choices": ("because the 5 percent outside is shared between two ends | "
+                        "because the top end is always exactly 20 people | "
+                        "because 40 is more than 5 percent of the group"),
+            "answer": "because the 5 percent outside is shared between two ends",
+            "board": '[[normal mean="100" sd="10" lo="120" hi="140" caption="why 20, and not 40?"]]',
+        },
+        "recap": [
+            ("So, here it is again. Beyond two deviations lives just 5 percent of a bell "
+             "curve, and the two ends share it evenly. Take 5 percent of the group, then "
+             "halve it for one end. Both ends together is not one end, and the edges are "
+             "never half the group.",
+             '[[normal mean="100" sd="10" lo="120" hi="140" caption="the thin top sliver"]]'),
+            ("And that is why a value two deviations out is worth remarking on.",
+             '[[step eq="800 ÷ 40 = 20"]]'),
+        ],
         "bank": [
             {"a": 80, "b": 0, "op": "ntal"},
             {"a": 120, "b": 0, "op": "ntal"},
@@ -23499,24 +23832,61 @@ _PROBSTAT_U9 = [
         "op": "cint", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("poll", "give or take"),
-        "advance_line": "Three in a row — you've got it! The margin steps down as well as up.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The margin steps down as well as up.",
+        "why": [
+            ("A poll says give or take because a sample never knows the exact answer. An "
+             "honest poll reports a range instead: 46 percent, give or take 5. That "
+             "give-or-take is the margin of error from Unit Four, and it turns one number "
+             "into a band the truth could be hiding in.",
+             '[[goal text="Give or take"]]'),
+        ],
+        "picture": [
+            ("Here is the estimate, 46, on a number line. Watch the hop: 5 down from 46 "
+             "lands on 41. The same hop up would land on 51. Look at the two ends — the "
+             "band reaches the same distance each way, and 41 is its floor.",
+             '[[numberline min="36" max="56" points="41,46,51" hops="46,41" caption="one step of 5 down from 46 lands on 41 — the low end of the band"]]'),
+        ],
         "teach": [
-            ["A sample never knows the exact answer, so an honest poll reports a range: 46 percent, give or take 5. That give-or-take is the margin of error from Unit Four, and it turns one number into a band of numbers the truth could be hiding in.",
-             '[[goal text="Give or take"]][[step eq="46% ± 5 → from 41 to 51"]]'],
-            ["The band reaches the same distance each way. Down from 46 by 5 gives 41; up by 5 gives 51. So this poll is really saying: somewhere between 41 and 51, and we cannot narrow it further with the people we asked.",
-             '[[step eq="46 − 5 = 41 · 46 + 5 = 51"]]'],
-            ["Asked for the LOWEST the truth might be, take the margin off. Answering 51 gives the highest — the same step in the other direction — and 5 on its own is just the size of the step, not a percent anybody claimed.",
-             '[[step eq="41 ✓"]][[step eq="51 ✗ the high end · 5 ✗ the step"]]'],
+            ("That is the method: asked for the lowest the truth might be, take the margin "
+             "off the estimate. 46 take away 5 is 41. So this poll is really saying: "
+             "somewhere between 41 and 51, and we cannot narrow it with the people we "
+             "asked.",
+             '[[numberline min="36" max="56" points="41,46,51" hops="46,41" caption="46 take away 5 is 41 — the floor of the band"]][[step eq="46 − 5 = 41"]][[step eq="46 + 5 = 51"]]'),
+            ("Answering 51 gives the highest — the same step in the other direction. And 5 "
+             "on its own is just the size of the step, not a percent anybody claimed.",
+             '[[step eq="41 ✓"]][[step eq="51 ✗ the high end · 5 ✗ the step"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 62 percent give or take 9: the low end is 62 take away 9 — 53.",
-                        '[[step eq="62 − 9 = 53"]]'],
+            {"worked": ("Here is one more, done for you. 62 percent give or take 9: the low "
+                        "end is 62 take away 9 — 53.",
+                        '[[numberline min="44" max="80" points="53,62,71" hops="62,53" caption="a step of 9 down from 62 lands on 53"]][[step eq="62 − 9 = 53"]]'),
              "ask": {"a": 20, "b": 2, "op": "cint"}},
-            {"worked": ["One more together. 75 percent give or take 6: 75 take away 6 — it reaches down to 69.",
-                        '[[step eq="75 − 6 = 69"]]'],
+            {"worked": ("One more together. 75 percent give or take 6: 75 take away 6 — it "
+                        "reaches down to 69.",
+                        '[[numberline min="63" max="87" points="69,75,81" hops="75,69" caption="a step of 6 down from 75 lands on 69"]][[step eq="75 − 6 = 69"]]'),
              "ask": {"a": 22, "b": 3, "op": "cint"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 46 percent give or take "
+                       "5 reaches down to 41. Tap the reason why."),
+            "choices": ("because the margin steps the same distance down as up | "
+                        "because a poll always rounds its answer down | "
+                        "because 41 is the smallest percent a poll can report"),
+            "answer": "because the margin steps the same distance down as up",
+            "board": '[[numberline min="36" max="56" points="46" caption="why 41?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A poll reports a range, not a point, and the margin "
+             "reaches the same distance each way from the estimate. The low end is the "
+             "estimate take away the margin; the high end is the same step up. The margin "
+             "alone is only the size of the step.",
+             '[[numberline min="36" max="56" points="41,46,51" hops="46,41" caption="the margin steps down as well as up"]]'),
+            ("And that is what give or take means.",
+             '[[step eq="46 − 5 = 41"]]'),
+        ],
         "bank": [
             {"a": 20, "b": 12, "op": "cint"},
             {"a": 21, "b": 12, "op": "cint"},
@@ -23537,24 +23907,58 @@ _PROBSTAT_U9 = [
         "op": "cwid", "max_value": 100,
         "levels": ("abstract",),
         "symbols": ("range", "doubt"),
-        "advance_line": "Three in a row — you've got it! The margin counts twice — once each way.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The margin counts twice — once each way.",
+        "why": [
+            ("Why is a margin of 4 not as tight as it sounds? Because the margin points "
+             "both ways at once. It is only the trip from the middle to one edge, so the "
+             "range a poll really covers is wider than its margin — twice as wide.",
+             '[[goal text="How wide is the doubt"]]'),
+        ],
+        "picture": [
+            ("Here is the doubt as a tape. 50 percent give or take 4: one part reaches 4 "
+             "down, to 46, and the other reaches 4 up, to 54. Look at the whole tape from "
+             "end to end — it is the two parts together, 8 points across.",
+             '[[tape parts="4 down|4 up" total="8 points wide" caption="4 down to 46 and 4 up to 54 — the whole range is 8 points across"]]'),
+        ],
         "teach": [
-            ["The margin measures how much doubt a poll carries, and it points both ways at once. So the range a poll really covers is wider than its margin — the margin is only the trip from the middle to one edge.",
-             '[[goal text="How wide is the doubt"]][[step eq="50% ± 4 → 46 … 54"]]'],
-            ["Take 50 percent give or take 4. It reaches down to 46 and up to 54, so from edge to edge it covers 8 points — the 4 counted twice. The whole range is always double the margin, exactly the way an ellipse's width was double its reach.",
-             '[[step eq="4 down + 4 up = 8 points wide"]]'],
-            ["That is why a margin of 4 is not as tight as it sounds: the poll is really pointing at an 8-point stretch. Answering 4 gives one side only, and 50 is the middle of the range rather than its size.",
-             '[[step eq="8 ✓"]][[step eq="4 ✗ one side · 50 ✗ the middle"]]'],
+            ("That is the method: the whole range is the margin counted twice, once each "
+             "way. 4 down plus 4 up is 8 points wide, from 46 to 54 — exactly the way an "
+             "ellipse's width was double its reach.",
+             '[[numberline min="42" max="58" points="46,50,54" caption="from 46 to 54 — 8 points, with 50 in the middle"]][[step eq="4 + 4 = 8 points wide"]]'),
+            ("Answering 4 gives one side only. And 50 is the middle of the range, not its "
+             "size. Edge to edge, it is the margin doubled.",
+             '[[step eq="8 ✓"]][[step eq="4 ✗ one side · 50 ✗ the middle"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 40 percent give or take 12 covers 24 points, from 28 up to 52.",
-                        '[[step eq="12 × 2 = 24 points wide"]]'],
+            {"worked": ("Here is one more, done for you. 40 percent give or take 12 covers 24 "
+                        "points, from 28 up to 52.",
+                        '[[tape parts="12 down|12 up" total="24 points wide" caption="12 and 12 — from 28 to 52 is 24 across"]][[step eq="12 × 2 = 24 points wide"]]'),
              "ask": {"a": 21, "b": 12, "op": "cwid"}},
-            {"worked": ["One more together. A margin of 15, doubled, opens a range 30 points wide.",
-                        '[[step eq="15 × 2 = 30"]]'],
+            {"worked": ("One more together. A margin of 15, doubled, opens a range 30 points "
+                        "wide.",
+                        '[[tape parts="15 down|15 up" total="30 points wide" caption="15 and 15 — 30 across"]][[step eq="15 × 2 = 30"]]'),
              "ask": {"a": 22, "b": 13, "op": "cwid"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 50 percent give or take "
+                       "4 covers a range 8 points wide, not 4. Tap the reason why."),
+            "choices": ("because the margin reaches both down and up from the middle | "
+                        "because a range is always twice the estimate | "
+                        "because 4 points is too narrow for any poll"),
+            "answer": "because the margin reaches both down and up from the middle",
+            "board": '[[tape parts="4 down|4 up" total="?" caption="why 8, and not 4?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A margin is the trip from the middle to one edge, and "
+             "the doubt reaches both ways, so the whole range is the margin doubled. One "
+             "side is not the width, and the middle is not the size.",
+             '[[tape parts="4 down|4 up" total="8 points wide" caption="the margin counts twice"]]'),
+            ("And that is how wide the doubt is.",
+             '[[step eq="4 × 2 = 8"]]'),
+        ],
         "bank": [
             {"a": 21, "b": 2, "op": "cwid"},
             {"a": 22, "b": 3, "op": "cwid"},
@@ -23575,24 +23979,61 @@ _PROBSTAT_U9 = [
         "op": "inci", "max_value": 95,
         "levels": ("abstract",),
         "symbols": ("claim", "range"),
-        "advance_line": "Three in a row — you've got it! Measure from the edge of your range, not its middle.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Measure from the edge of your range, not its middle.",
+        "why": [
+            ("Why build a range at all? Here is what it is for. Somebody claims a number; "
+             "your sample disagrees. Whether that is a real disagreement depends on one "
+             "thing — can their claim fit inside your range at all?",
+             '[[goal text="Can that claim survive?"]]'),
+        ],
+        "picture": [
+            ("Here are three dots on one line. Your estimate, 40. Your ceiling, 46 — the "
+             "very most your range allows, 40 plus 6. And a company's claim, 55. Look at "
+             "the gap between the ceiling and the claim: that is the disagreement.",
+             '[[numberline min="32" max="58" points="40,46,55" hops="46,55" caption="from your ceiling at 46 to their claim at 55 is a gap of 9"]]'),
+        ],
         "teach": [
-            ["Here is what a range is FOR. Somebody claims a number; your sample disagrees. Whether that is a real disagreement depends on whether their claim can fit inside your range at all.",
-             '[[goal text="Can that claim survive?"]][[step eq="your poll 40% ± 6 → 34 … 46"]]'],
-            ["Your poll says 40 percent give or take 6, so your range tops out at 46. A company claims 55. That claim sits 9 points past the very best your data can support — far outside, and your sample flatly contradicts it.",
-             '[[step eq="46 is your ceiling · 55 − 46 = 9 points past"]]'],
-            ["Measure from the EDGE, not the middle. Measuring from 40 gives 15 and pretends your estimate is exact, when the whole point of a range is that it is not. And the margin 6 is the size of your doubt, not the size of the disagreement.",
-             '[[step eq="9 ✓"]][[step eq="15 ✗ measured from the middle · 6 ✗ the margin"]]'],
+            ("That is the method. Measure from the EDGE, not the middle. Your range tops out "
+             "at 46, and 55 take away 46 is 9 — the claim sits 9 points past the very best "
+             "your data can support. Your sample flatly contradicts it.",
+             '[[numberline min="32" max="58" points="40,46,55" hops="46,55" caption="from the ceiling at 46 to the claim at 55 is 9"]][[step eq="46 is your ceiling"]][[step eq="55 − 46 = 9 points past"]]'),
+            ("Measuring from 40 gives 15 and pretends your estimate is exact, when the "
+             "whole point of a range is that it is not. And the margin 6 is the size of "
+             "your doubt, not the size of the disagreement.",
+             '[[step eq="9 ✓"]][[step eq="15 ✗ measured from the middle · 6 ✗ the margin"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 30 percent give or take 4 tops out at 34, and a claim of 45 sits 11 points past it.",
-                        '[[step eq="45 − 34 = 11 points past"]]'],
+            {"worked": ("Here is one more, done for you. 30 percent give or take 4 tops out at "
+                        "34, and a claim of 45 sits 11 points past it.",
+                        '[[numberline min="24" max="48" points="30,34,45" hops="34,45" caption="from the ceiling at 34 to the claim at 45 is 11"]][[step eq="45 − 34 = 11 points past"]]'),
              "ask": {"a": 20, "b": 2, "c": 34, "op": "inci"}},
-            {"worked": ["One more together. A ceiling of 50 with a claim of 58: 58 take away 50 — 8 points outside.",
-                        '[[step eq="58 − 50 = 8"]]'],
+            {"worked": ("One more together. A ceiling of 50 with a claim of 58: 58 take away "
+                        "50 — 8 points outside.",
+                        '[[numberline min="44" max="62" points="50,58" hops="50,58" caption="from 50 to 58 is 8"]][[step eq="58 − 50 = 8"]]'),
              "ask": {"a": 21, "b": 2, "c": 36, "op": "inci"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. With a ceiling of 46 "
+                       "and a claim of 55, the disagreement is 9 points, not 15. Tap the "
+                       "reason why."),
+            "choices": ("because the gap starts at the edge of the range | "
+                        "because a claim is always measured from zero | "
+                        "because 15 is bigger than the margin"),
+            "answer": "because the gap starts at the edge of the range",
+            "board": '[[numberline min="32" max="58" points="40,46,55" caption="why 9, and not 15?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A range is for testing claims: find your ceiling — the "
+             "estimate plus the margin — and measure from there, not from the middle. A "
+             "claim past the ceiling is a claim your data cannot support, and the margin "
+             "is the size of your doubt, not the size of the disagreement.",
+             '[[numberline min="32" max="58" points="40,46,55" hops="46,55" caption="measure from the edge"]]'),
+            ("And that is how a claim gets tested.",
+             '[[step eq="55 − 46 = 9"]]'),
+        ],
         "bank": [
             {"a": 24, "b": 3, "c": 29, "op": "inci"},
             {"a": 25, "b": 2, "c": 30, "op": "inci"},
@@ -23613,24 +24054,59 @@ _PROBSTAT_U9 = [
         "op": "npop", "max_value": 1000,
         "levels": ("abstract",),
         "symbols": ("low end", "students"),
-        "advance_line": "Three in a row — you've got it! Take the low end FIRST, then count the people.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Take the low end FIRST, then count the people.",
+        "why": [
+            ("Why carry the doubt along? Algebra Two scaled a sample's answer up to a whole "
+             "school. Now do it honestly: a sample's range becomes a range of people, and "
+             "a sample that does not know exactly should never be reported as though it "
+             "did.",
+             '[[goal text="The range in real people"]]'),
+        ],
+        "picture": [
+            ("Here are three percents as bars: the low end 20, the estimate 30, the high "
+             "end 40 — a sample of the 400 students in a school, give or take 10. Look at the shortest "
+             "bar. That is the one to carry onto the people first.",
+             '[[bars data="low end:20 | estimate:30 | high end:40" caption="20, 30 and 40 percent — the low end is the bar to take first, of a school of 400"]]'),
+        ],
         "teach": [
-            ["Algebra Two scaled a sample's answer up to a whole school. Now do it honestly — with the give-or-take carried along, because a sample's range becomes a range of people.",
-             '[[goal text="The range in real people"]][[step eq="30% ± 10 of 400 students"]]'],
-            ["A sample says 30 percent of 400 students walk, give or take 10 points. The low end of the range is 20 percent, and 20 percent of 400 is 80 students. The high end, 40 percent, gives 160 — so somewhere between 80 and 160 walk.",
-             '[[step eq="low end 20% of 400 = 80 students"]]'],
-            ["The order matters: take the low end of the percents FIRST, then count the people. Using 30 percent gives 120 and quietly drops the doubt — and a sample that does not know exactly should never be reported as though it did.",
-             '[[step eq="80 ✓"]][[step eq="120 ✗ the margin dropped · 160 ✗ the high end"]]'],
+            ("That is the method: take the low end of the percents first, then count the "
+             "people. The low end is 20 percent, and 20 percent of 400 is 80. The high end, "
+             "40 percent, gives 160 — so somewhere between 80 and 160 walk.",
+             '[[machine input="400" rule="× 20%" output="80" caption="the whole school of 400 goes in, the low end\'s 20 percent comes out — 80"]][[step eq="20% of 400 = 80"]]'),
+            ("The order matters. Using 30 percent gives 120 and quietly drops the doubt. "
+             "And 160 is the high end, the other edge of the range.",
+             '[[step eq="80 ✓"]][[step eq="120 ✗ the margin dropped · 160 ✗ the high end"]]'),
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 45 percent of 600 give or take 5: the low end is 40 percent — 240 students.",
-                        '[[step eq="40% of 600 = 240"]]'],
+            {"worked": ("Here is one more, done for you. 45 percent of 600 give or take 5: "
+                        "the low end is 40 percent — 240.",
+                        '[[machine input="600" rule="× 40%" output="240" caption="600 in, the low end\'s 40 percent out — 240"]][[step eq="40% of 600 = 240"]]'),
              "ask": {"a": 30, "b": 5, "c": 400, "op": "npop"}},
-            {"worked": ["One more together. 55 percent of 800 give or take 15 reaches down to 40 percent — 320 students.",
-                        '[[step eq="40% of 800 = 320"]]'],
+            {"worked": ("One more together. 55 percent of 800 give or take 15 reaches down to "
+                        "40 percent — 320.",
+                        '[[bars data="low end:40 | estimate:55 | high end:70" caption="40, 55 and 70 percent of 800 — the low end first"]][[step eq="40% of 800 = 320"]]'),
              "ask": {"a": 20, "b": 5, "c": 700, "op": "npop"}},
         ],
-        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one."),
+        "show_work_on_correct": True,
+        "explain": {
+            "spoken": ("One more thing — not the answer, the reason. 30 percent of 400, give "
+                       "or take 10, is at least 80, not 120. Tap the reason why."),
+            "choices": ("because the low end of the percents is taken before counting people | "
+                        "because 80 is the smallest number a sample can give | "
+                        "because a school of 400 always has 80 walkers"),
+            "answer": "because the low end of the percents is taken before counting people",
+            "board": '[[bars data="low end:20 | estimate:30 | high end:40" caption="why 80, and not 120?"]]',
+        },
+        "recap": [
+            ("So, here it is again. A sample's range becomes a range of people: take the "
+             "low end of the percents first, then count. Using the estimate alone drops "
+             "the doubt, and the high end is the other edge.",
+             '[[bars data="low end:20 | estimate:30 | high end:40" caption="the low end first, then the people"]]'),
+            ("And that is a range carried onto real people.",
+             '[[step eq="20% of 400 = 80"]]'),
+        ],
         "bank": [
             {"a": 20, "b": 10, "c": 200, "op": "npop"},
             {"a": 20, "b": 5, "c": 200, "op": "npop"},
@@ -30902,6 +31378,220 @@ def _wout_worked(p):
 
 
 
+# ---- (ty, 2026-09-07) PROBSTAT UNITS 7-9: the chances on the hundred square and the
+# three prizes as bars; the paying plays on the hundred square and the two piles of
+# tokens as bars; the wins on the hundred square and the pot shared by a machine; what
+# you pay beside what comes back as bars, the gap as a tape; the middle band of the
+# bell and the 68 on the hundred square; the mean and the value on a number line with
+# no hops on the ask and the hops of one deviation on the walk-back; one hop shown and
+# two walked; the top sliver of the bell and the three parts of the group as a tape;
+# the estimate on a number line and the step down as a hop; the two halves of the doubt
+# as a tape; the estimate, the ceiling and the claim on one line and the gap as a hop;
+# the low end as bars and the people machine. Every ask draws its question with the
+# answer withheld; every walk-back draws it filled in.
+def _pdis_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[hundredgrid shaded="{a}" plus="{b}" unit="percent" caption="small takes {a} of the hundred and medium {b} more — large is every cell still white"]]'
+            f'[[step eq="small {a}% · medium {b}%"]]'
+            f'[[step eq="large = ?%"]]')
+
+
+def _pdis_worked(p):
+    a, b = p["a"], p["b"]; c = 100 - a - b
+    return (f"Look what you did: {a} and {b} together fill {a + b} of the hundred, so large "
+            f"takes the {c} that are left. Something happens every single play, and these "
+            f"three are the only doors. {a + b} is the two you were given, not the one "
+            f"asked for, and 100 is all three together.",
+            f'[[bars data="small:{a} | medium:{b} | large:{c}" caption="three prizes that fill the hundred between them — {a}, {b} and {c}"]]'
+            f'[[step eq="100 − {a} − {b} = {c}%"]]')
+
+
+def _evwa_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[hundredgrid shaded="{c}" unit="percent" caption="of every 100 plays, the {c} shaded pay {a} tokens and the white ones pay {b}"]]'
+            f'[[step eq="{a} tokens on {c} plays · {b} tokens on {100 - c}"]]'
+            f'[[step eq="one play is worth ? on average"]]')
+
+
+def _evwa_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; big = a * c; small = b * (100 - c); v = (big + small) // 100
+    return (f"Look what you did: {c} plays at {a} tokens is {big}, and {100 - c} plays at "
+            f"{b} is {small}. Together that is {big + small} tokens across 100 plays, so one "
+            f"play is worth {v}. The plain average, {(a + b) // 2}, would need both prizes "
+            f"to come up equally often.",
+            f'[[bars data="{c} plays × {a}:{big} | {100 - c} plays × {b}:{small}" caption="two piles of tokens — {big} from the big prize, {small} from the small — {big + small} in all"]]'
+            f'[[step eq="{big} + {small} = {big + small}"]]'
+            f'[[step eq="{big + small} ÷ 100 = {v} a play"]]')
+
+
+def _fair_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[hundredgrid shaded="{b}" unit="percent" caption="{b} of every 100 plays win — and all 100 of them pay {a} tokens"]]'
+            f'[[step eq="{a} tokens a play · win {b} of 100"]]'
+            f'[[step eq="fair prize = ?"]]')
+
+
+def _fair_worked(p):
+    a, b = p["a"], p["b"]; pot = 100 * a; prize = pot // b
+    return (f"Look what you did: 100 plays at {a} tokens each is {pot} tokens paid in, and "
+            f"only {b} of those plays win. Fair means the whole {pot} comes back across "
+            f"those {b} wins — {pot} shared by {b} is {prize} a prize. Just your stake "
+            f"back, {a}, still loses you every play you do not win.",
+            f'[[machine input="{pot}" rule="÷ {b}" output="{prize}" caption="the pot of {pot} shared over {b} wins — {prize} tokens a prize"]]'
+            f'[[step eq="{pot} ÷ {b} = {prize}"]]')
+
+
+def _hedg_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[bars data="you pay:{a} | comes back:{b}" caption="every play: {a} tokens out, {b} back on average — the gap between the bars is the real cost"]]'
+            f'[[step eq="pay {a} · get back {b} on average"]]'
+            f'[[step eq="real cost per play = ?"]]')
+
+
+def _hedg_worked(p):
+    a, b = p["a"], p["b"]; g = a - b
+    return (f"Look what you did: {a} out and {b} back leaves {g} tokens gone on every play. "
+            f"That gap hides inside any single play and shows up with perfect reliability "
+            f"over hundreds — it is how the machine stays open. {b} is what comes back, "
+            f"and adding the two is nothing a play ever costs.",
+            f'[[tape parts="{b} back|{g} gone" total="{a} paid" caption="of the {a} you pay, {b} comes back and {g} is gone for good"]]'
+            f'[[step eq="{a} − {b} = {g}"]]')
+
+
+def _n68_board(p):
+    a = p["a"]
+    return (f'[[normal mean="100" sd="10" lo="90" hi="110" caption="the middle band, one deviation each way — about 68 of every 100 sit inside it"]]'
+            f'[[step eq="{a} in the group · about 68% in the middle band"]]'
+            f'[[step eq="the middle band holds ?"]]')
+
+
+def _n68_worked(p):
+    a = p["a"]; n = 68 * a // 100
+    return (f"Look what you did: 68 percent of {a} is {n} — that is how many of the group "
+            f"sit no further than one deviation from the middle. The 68 is a percent and "
+            f"never a headcount, and {a} is everybody, middle and ends together.",
+            f'[[hundredgrid shaded="68" unit="percent" eq="68% of {a} → {n}" caption="68 of every 100 — and 68 percent of {a} is {n}"]]'
+            f'[[step eq="68% of {a} = {n}"]]')
+
+
+def _zsco_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[numberline min="{a - b}" max="{c + b}" points="{a},{c}" caption="the mean at {a} and the value at {c} — the gap between them, measured in steps of {b}"]]'
+            f'[[step eq="mean {a} · one deviation {b} · value {c}"]]'
+            f'[[step eq="deviations above the mean = ?"]]')
+
+
+def _zsco_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; k = (c - a) // b
+    hops = ",".join(str(a + i * b) for i in range(k + 1))
+    return (f"Look what you did: {c} sits {c - a} above the mean, and each deviation is a "
+            f"step of {b} — so that gap holds {k} of them. Counting steps instead of raw "
+            f"units is what lets a height and a test score be compared at all. {c - a} is "
+            f"the raw gap, and {b} is one step.",
+            f'[[numberline min="{a - b}" max="{c + b}" points="{a},{c}" hops="{hops}" caption="{k} hops of {b} carry the mean at {a} up to {c}"]]'
+            f'[[step eq="({c} − {a}) ÷ {b} = {k} deviations"]]')
+
+
+def _zval_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[numberline min="{a - b}" max="{a + 3 * b}" points="{a}" hops="{a},{a + b}" caption="one deviation is one hop of {b} from the mean at {a} — two deviations is two hops"]]'
+            f'[[step eq="mean {a} · one deviation {b}"]]'
+            f'[[step eq="two deviations above the mean = ?"]]')
+
+
+def _zval_worked(p):
+    a, b = p["a"], p["b"]; v = a + 2 * b
+    return (f"Look what you did: two deviations is {b} twice — {2 * b} — and the distance "
+            f"starts from the mean, so {a} plus {2 * b} is {v}. {a + b} is one hop only, "
+            f"and {2 * b} is the distance with nowhere to start from.",
+            f'[[numberline min="{a - b}" max="{a + 3 * b}" points="{a},{v}" hops="{a},{a + b},{v}" caption="two hops of {b} from {a} land on {v}"]]'
+            f'[[step eq="{a} + 2 × {b} = {v}"]]')
+
+
+def _ntal_board(p):
+    a = p["a"]
+    return (f'[[normal mean="100" sd="10" lo="120" hi="140" caption="the top end — the sliver beyond two deviations, about 2 or 3 of every 100"]]'
+            f'[[step eq="{a} in the group · 95% no further than two deviations"]]'
+            f'[[step eq="the top end holds ?"]]')
+
+
+def _ntal_worked(p):
+    a = p["a"]; ends = a // 20; top = a // 40
+    return (f"Look what you did: 5 percent of {a} is {ends} out at the ends, and the bell "
+            f"is symmetric, so they split evenly — {top} above two deviations and {top} "
+            f"below. {ends} counts both ends when the question asked for one.",
+            f'[[tape parts="{top} bottom end|{a - ends} middle|{top} top end" total="{a} in all" caption="the two ends hold {ends} between them — {top} at each"]]'
+            f'[[step eq="{a} ÷ 40 = {top}"]]')
+
+
+def _cint_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[numberline min="{a - 2 * b}" max="{a + 2 * b}" points="{a}" caption="the estimate at {a} — the margin of {b} reaches the same distance each way"]]'
+            f'[[step eq="{a}% · give or take {b}"]]'
+            f'[[step eq="lowest possible = ?"]]')
+
+
+def _cint_worked(p):
+    a, b = p["a"], p["b"]; lo = a - b
+    return (f"Look what you did: give or take {b} means {b} either way, so the low end is "
+            f"{a} take away {b} — {lo} percent. {a + b} is the high end, the same step in "
+            f"the other direction, and {b} on its own is only the size of the step.",
+            f'[[numberline min="{a - 2 * b}" max="{a + 2 * b}" points="{lo},{a},{a + b}" hops="{a},{lo}" caption="one step of {b} down from {a} lands on {lo}"]]'
+            f'[[step eq="{a} − {b} = {lo}"]]')
+
+
+def _cwid_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="{b} down|{b} up" total="?" caption="the doubt reaches {b} below {a} and {b} above it — the whole range is both parts together"]]'
+            f'[[step eq="{a}% · give or take {b}"]]'
+            f'[[step eq="lowest to highest = ? points"]]')
+
+
+def _cwid_worked(p):
+    a, b = p["a"], p["b"]; w = 2 * b
+    return (f"Look what you did: the range runs {b} below and {b} above, so it is {b} twice "
+            f"— {w} points wide, from {a - b} to {a + b}. The margin {b} is one side of the "
+            f"middle, and {a} is the middle itself.",
+            f'[[tape parts="{b} down|{b} up" total="{w} points wide" caption="{b} and {b} — the whole range from {a - b} to {a + b} is {w} points across"]]'
+            f'[[step eq="{b} × 2 = {w}"]]')
+
+
+def _inci_board(p):
+    a, b, c = p["a"], p["b"], p["c"]; top = a + b
+    return (f'[[numberline min="{a - b - 2}" max="{c + 2}" points="{a},{top},{c}" caption="your estimate at {a}, your ceiling at {top}, their claim at {c} — measure from the ceiling"]]'
+            f'[[step eq="your range tops out at {top}%"]]'
+            f'[[step eq="their claim {c}% · points past the ceiling = ?"]]')
+
+
+def _inci_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; top = a + b; g = c - top
+    return (f"Look what you did: your range reaches {top} at the very most, and they claim "
+            f"{c} — that is {g} points past anything your poll can support. Measuring from "
+            f"{a} instead gives {c - a} and pretends your estimate is exact, and {b} is the "
+            f"size of your doubt, not the size of the disagreement.",
+            f'[[numberline min="{a - b - 2}" max="{c + 2}" points="{a},{top},{c}" hops="{top},{c}" caption="one hop of {g} from the ceiling at {top} reaches their claim at {c}"]]'
+            f'[[step eq="{c} − {top} = {g}"]]')
+
+
+def _npop_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[bars data="low end:{a - b} | estimate:{a} | high end:{a + b}" caption="three percents — the low end {a - b}, the estimate {a}, the high end {a + b} — of a school of {c}"]]'
+            f'[[step eq="{a}% of {c} · give or take {b}"]]'
+            f'[[step eq="the low end, in people = ?"]]')
+
+
+def _npop_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]; lo = a - b; n = lo * c // 100
+    return (f"Look what you did: the low end of the range is {lo} percent, and {lo} percent "
+            f"of {c} is {n}. Using {a} percent gives {a * c // 100} and quietly drops the "
+            f"give-or-take — a sample that does not know exactly should never be reported "
+            f"as though it did.",
+            f'[[machine input="{c}" rule="× {lo}%" output="{n}" caption="the whole school of {c} goes in, the low end\'s {lo} percent comes out — {n}"]]'
+            f'[[step eq="{lo}% of {c} = {n}"]]')
+
+
+
+
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
@@ -37013,9 +37703,8 @@ OP_EXT = {
                              f"large prize. Small comes up {p['a']} percent "
                              f"of the time and medium {p['b']} percent. "
                              f"What percent of the time is it large?"),
-        "board": lambda p: (f'[[step eq="small {p["a"]}% · medium '
-                            f'{p["b"]}% · large?%"]]'
-                            f'[[step eq="every chance adds to 100"]]'),
+        "board": _pdis_board,         # (ty) the ask picture, answer withheld
+        "worked": _pdis_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"All the chances of one machine add to the "
                              f"whole 100: {p['a']} plus {p['b']} is "
                              f"{p['a'] + p['b']}, so large takes what is "
@@ -37040,9 +37729,8 @@ OP_EXT = {
                              f"of the time, and {p['b']} tokens the rest of "
                              f"the time. Over many plays, how many tokens "
                              f"is a single play worth on average?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} tokens {p["c"]}% of the '
-                            f'time · {p["b"]} tokens otherwise"]]'
-                            f'[[step eq="one play is worth ? on average"]]'),
+        "board": _evwa_board,         # (ty) the ask picture, answer withheld
+        "worked": _evwa_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"Weighed by how often each turns up, "
                              f"{p['a']} tokens {p['c']} percent of the time "
                              f"and {p['b']} the rest averages "
@@ -37076,9 +37764,8 @@ OP_EXT = {
                              f"you win {p['b']} percent of the time. What "
                              f"prize would make the game exactly fair — "
                              f"worth just what it costs?"),
-        "board": lambda p: (f'[[step eq="costs {p["a"]} tokens · win '
-                            f'{p["b"]}% of the time"]]'
-                            f'[[step eq="fair prize = ?"]]'),
+        "board": _fair_board,         # (ty) the ask picture, answer withheld
+        "worked": _fair_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"You pay on all hundred plays but collect "
                              f"on {p['b']}: {100 * p['a']} tokens in, "
                              f"shared over {p['b']} wins — "
@@ -37104,9 +37791,8 @@ OP_EXT = {
                              f"over many plays it pays back {p['b']} tokens "
                              f"a play on average. In the long run, how many "
                              f"tokens does each play really cost you?"),
-        "board": lambda p: (f'[[step eq="pay {p["a"]} · get back {p["b"]} '
-                            f'on average"]]'
-                            f'[[step eq="real cost per play = ?"]]'),
+        "board": _hedg_board,         # (ty) the ask picture, answer withheld
+        "worked": _hedg_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"Money out, money back: {p['a']} take away "
                              f"{p['b']} leaves {p['a'] - p['b']} tokens "
                              f"gone a play. That gap never shows in one "
@@ -37126,16 +37812,15 @@ OP_EXT = {
     # ---- build lt: Prob & Stats U8 The Normal Distribution ----------------
     "n68": {  # the middle of the bell: 68 percent, turned into children
         "ans": lambda p: 68 * p["a"] // 100,
-        "spoken": lambda p: (f"The heights of {p['a']} students follow a "
-                             f"bell curve. About 68 percent of them sit "
+        "spoken": lambda p: (f"The heights of a group of {p['a']} follow a "
+                             f"bell curve. About 68 percent of the group sit "
                              f"no further than one standard deviation "
                              f"from the mean. "
-                             f"About how many students is that?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} students · about 68% '
-                            f'no further than one deviation"]]'
-                            f'[[step eq="how many students = ?"]]'),
+                             f"About how many of the whole group is that?"),
+        "board": _n68_board,         # (ty) the ask picture, answer withheld
+        "worked": _n68_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"68 percent of {p['a']} is "
-                             f"{68 * p['a'] // 100} students — most of a "
+                             f"{68 * p['a'] // 100} — most of a "
                              f"bell curve crowds close to the middle, and "
                              f"that is what gives it the shape. The 68 is a "
                              f"percent, never a headcount, and {p['a']} is "
@@ -37159,9 +37844,8 @@ OP_EXT = {
                              f"ABOVE the mean?"),
         # NOT [[normal]] on the ask -- that renderer labels the axis at
         # every standard deviation, so the picture counts them for you.
-        "board": lambda p: (f'[[step eq="mean {p["a"]} · one standard '
-                            f'deviation {p["b"]} · value {p["c"]}"]]'
-                            f'[[step eq="how many deviations above = ?"]]'),
+        "board": _zsco_board,         # (ty) the ask picture, answer withheld
+        "worked": _zsco_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"{p['c']} sits {p['c'] - p['a']} above the "
                              f"mean, and each standard deviation is "
                              f"{p['b']} — so that gap holds "
@@ -37191,9 +37875,8 @@ OP_EXT = {
                              f"standard deviation is {p['b']}. What value "
                              f"sits exactly two standard deviations ABOVE "
                              f"the mean?"),
-        "board": lambda p: (f'[[step eq="mean {p["a"]} · one standard '
-                            f'deviation {p["b"]}"]]'
-                            f'[[step eq="two deviations above = ?"]]'),
+        "board": _zval_board,         # (ty) the ask picture, answer withheld
+        "worked": _zval_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"Two deviations is {p['b']} twice — "
                              f"{2 * p['b']} — laid on top of the mean: "
                              f"{p['a']} plus {2 * p['b']} equals "
@@ -37221,9 +37904,8 @@ OP_EXT = {
                              f"between the two ends. About how many sit "
                              f"more than two standard deviations ABOVE the "
                              f"mean?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} people · 95% no further '
-                            f'than two deviations"]]'
-                            f'[[step eq="the top end holds ?"]]'),
+        "board": _ntal_board,         # (ty) the ask picture, answer withheld
+        "worked": _ntal_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"5 percent of {p['a']} is {p['a'] // 20} "
                              f"people out at the ends, and they split "
                              f"evenly: {p['a'] // 40} above and "
@@ -37248,9 +37930,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A poll estimates {p['a']} percent, give or "
                              f"take {p['b']} points. What is the LOWEST "
                              f"percent the true answer might be?"),
-        "board": lambda p: (f'[[step eq="{p["a"]}% · give or take '
-                            f'{p["b"]}"]]'
-                            f'[[step eq="lowest possible = ?"]]'),
+        "board": _cint_board,         # (ty) the ask picture, answer withheld
+        "worked": _cint_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"Give or take {p['b']} means {p['b']} either "
                              f"way, so the low end is {p['a']} take away "
                              f"{p['b']} — {p['a'] - p['b']} percent. "
@@ -37272,9 +37953,8 @@ OP_EXT = {
                              f"take {p['b']} points. From its lowest to its "
                              f"highest, how many points wide is that whole "
                              f"range?"),
-        "board": lambda p: (f'[[step eq="{p["a"]}% · give or take '
-                            f'{p["b"]}"]]'
-                            f'[[step eq="lowest to highest = ? points"]]'),
+        "board": _cwid_board,         # (ty) the ask picture, answer withheld
+        "worked": _cwid_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"The range runs {p['b']} below and {p['b']} "
                              f"above, so it is {p['b']} twice — "
                              f"{2 * p['b']} points wide, from "
@@ -37299,10 +37979,8 @@ OP_EXT = {
                              f"claims {p['c']} percent. How many points "
                              f"ABOVE your highest possible value is their "
                              f"claim?"),
-        "board": lambda p: (f'[[step eq="your range tops out at '
-                            f'{p["a"] + p["b"]}%"]]'
-                            f'[[step eq="their claim {p["c"]}% · how far '
-                            f'above = ?"]]'),
+        "board": _inci_board,         # (ty) the ask picture, answer withheld
+        "worked": _inci_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"Your range reaches {p['a'] + p['b']} at the "
                              f"very most, and they claim {p['c']}: that is "
                              f"{p['c'] - (p['a'] + p['b'])} points past "
@@ -37327,19 +38005,17 @@ OP_EXT = {
     },
     "npop": {  # carry the range down onto real people
         "ans": lambda p: (p["a"] - p["b"]) * p["c"] // 100,
-        "spoken": lambda p: (f"A sample says {p['a']} percent of the "
-                             f"{p['c']} students walk to school, give or "
+        "spoken": lambda p: (f"A sample says {p['a']} percent of a school of "
+                             f"{p['c']} walk to school, give or "
                              f"take {p['b']} points. At the LOW end of that "
-                             f"range, how many students is that?"),
-        "board": lambda p: (f'[[step eq="{p["a"]}% of {p["c"]} · give or '
-                            f'take {p["b"]}"]]'
-                            f'[[step eq="low end · how many students = '
-                            f'?"]]'),
+                             f"range, how many of the whole school is that?"),
+        "board": _npop_board,         # (ty) the ask picture, answer withheld
+        "worked": _npop_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"The low end of the range is "
                              f"{p['a'] - p['b']} percent, and "
                              f"{p['a'] - p['b']} percent of {p['c']} is "
-                             f"{(p['a'] - p['b']) * p['c'] // 100} "
-                             f"students. Using {p['a']} percent gives "
+                             f"{(p['a'] - p['b']) * p['c'] // 100}. "
+                             f"Using {p['a']} percent gives "
                              f"{p['a'] * p['c'] // 100} and quietly drops "
                              f"the give-or-take — the whole point of a "
                              f"sample is that it does not know exactly."),

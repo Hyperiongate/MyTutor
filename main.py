@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  APP_BUILD -> "2026-09-07ty-probstat-units-seven-to-nine-to-the-shape".
+#               BUILD ty -- Probstat Units 7-9 (expected value, the normal curve,
+#               confidence) rewritten to the shape: twelve lessons, each with a why, a
+#               picture drawn before the rule, the rule read off the picture, two worked
+#               examples drawn on it, every right answer walked back on the picture, a
+#               reason question after the streak, and a recap. ⭐ PROBSTAT 36/36. Two asks
+#               that said "how many students" ask about the whole group now (rule 42);
+#               three that wrote a question inside a step write statements. No engine or
+#               route change: this build is lessonscripts.py and its battery.
 #   2026-09-07  APP_BUILD -> "2026-09-07tx-the-words-and-the-picture-are-the-same-thing".
 #               BUILD tx -- the last two proven holes from the 09-06 watch. THE 79TH
 #               REFEREE, shares_picture_conflict: a story about a chocolate bar drawn as
@@ -13886,7 +13895,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-07tx-the-words-and-the-picture-are-the-same-thing"
+APP_BUILD = "2026-09-07ty-probstat-units-seven-to-nine-to-the-shape"
 
 
 @app.get("/health")
