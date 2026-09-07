@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  APP_BUILD -> "2026-09-07ua-calculus-units-four-to-six-to-the-shape".
+#               BUILD ua -- Calculus Units 4-6 (derivatives at work, optimisation,
+#               antiderivatives) rewritten to the shape: twelve lessons, each with a why,
+#               a picture drawn before the rule, the rule read off the picture, two worked
+#               examples drawn on it, every right answer walked back on the picture, a
+#               reason question after the streak, and a recap. CALCULUS 24/36. The speed
+#               line, the valley, the hump and the cubic are drawn with the answer
+#               withheld; the fence is a tape and the square a metre grid; the reverse
+#               power rule is a machine. One ask wrote a chain of equals ending in "= ?"
+#               on all twelve of its problems (rule 15) and writes two statements now.
+#               static/math-figures.js: a [[graph]] keeps a five-digit y label whole by
+#               growing its canvas leftward; every canon graph draws byte-for-byte as
+#               before. No route change.
 #   2026-09-07  APP_BUILD -> "2026-09-07tz-calculus-units-one-to-three-to-the-shape".
 #               BUILD tz -- Calculus Units 1-3 (limits, the derivative, the rules)
 #               rewritten to the shape: twelve lessons, each with a why, a picture drawn
@@ -13907,7 +13920,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-07tz-calculus-units-one-to-three-to-the-shape"
+APP_BUILD = "2026-09-07ua-calculus-units-four-to-six-to-the-shape"
 
 
 @app.get("/health")

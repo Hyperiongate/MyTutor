@@ -2,6 +2,23 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD ua -- CALCULUS UNITS 4-6 TO THE SHAPE. PART 3jw: _shape_unit_checks on
+#               the three units, the twelve named asks and walk-backs (the speed line
+#               alone, the valley alone, the hump alone, the cubic alone; the tape with
+#               every part blank, the metre grid with ask="1", the machines with output
+#               "?"), the grapher's left margin (the leftExt seam and the measured 5px a
+#               character), the giveaway audit, captions, legends, rule 44, no
+#               arrow-after-equals or question-in-step, the board-notation referee over
+#               every ask and walk-back board (twelve init asks were live hits), the
+#               joined options, the audio ceiling on all twelve, the eight PART 3fs
+#               fixed fragments, the best-rectangle bank floor, CALCULUS 24/36, and the
+#               notes in five files. Tile 10,678 -> 10,769.
+#               ALSO: the math-figures.js note window. Six pins read mf[:3000] (te, tf,
+#               tg, th, tn, tp) and ua's own note pushed te (3,211) and tf (3,042) past
+#               it. Widened to [:12000], all of them at once, the width the sp..td pins
+#               already used. And tz's "CALCULUS 12/36" pin was an exact count that
+#               fired on ua's own progress: a floor now (at least 12), as ua's is
+#               (at least 24) -- a count pin is a floor, never an equality.
 #   2026-09-07  BUILD tz -- CALCULUS UNITS 1-3 TO THE SHAPE. PART 3jv: _shape_unit_checks on
 #               the three units, the twelve named asks and walk-backs (the hole and the
 #               two shelves on the ask, the line and the tangent withheld until the
@@ -22072,7 +22089,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,678</b>" in page,
+          "<b>10,769</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24933,7 +24950,7 @@ def part3ja_prealgebra_units_seven_to_nine_to_the_shape():
     check("  the changed files carry dated te notes",
           "2026-09-06  BUILD te" in rd("lessonscripts.py")[:60000] and "BUILD te" in rd("main.py")[:200000]
           and "2026-09-06  BUILD te" in rd("ruletests.py")[:28000] and "(te)" in rd("static/methodology.html")[:20000]
-          and "2026-09-06  BUILD te" in mf[:3000],
+          and "2026-09-06  BUILD te" in mf[:12000],
           "Jim's rule 8")
 
 
@@ -25037,7 +25054,7 @@ def part3jb_algebra_one_units_one_to_three_to_the_shape():
     check("  the changed files carry dated tf notes",
           "2026-09-06  BUILD tf" in rd("lessonscripts.py")[:60000] and "BUILD tf" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tf" in rd("ruletests.py")[:28000] and "(tf)" in rd("static/methodology.html")[:20000]
-          and "2026-09-06  BUILD tf" in mf[:3000],
+          and "2026-09-06  BUILD tf" in mf[:12000],
           "Jim's rule 8")
 
 
@@ -25143,7 +25160,7 @@ def part3jc_algebra_one_units_four_to_six_to_the_shape():
     check("  the changed files carry dated tg notes",
           "2026-09-06  BUILD tg" in rd("lessonscripts.py")[:60000] and "BUILD tg" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tg" in rd("ruletests.py")[:28000] and "(tg)" in rd("static/methodology.html")[:20000]
-          and "2026-09-06  BUILD tg" in mf[:3000],
+          and "2026-09-06  BUILD tg" in mf[:12000],
           "Jim's rule 8")
 
 
@@ -25255,7 +25272,7 @@ def part3jd_algebra_one_units_seven_to_nine_to_the_shape():
     check("  the changed files carry dated th notes",
           "2026-09-06  BUILD th" in rd("lessonscripts.py")[:60000] and "BUILD th" in rd("main.py")[:200000]
           and "2026-09-06  BUILD th" in rd("ruletests.py")[:28000] and "(th)" in rd("static/methodology.html")[:20000]
-          and "2026-09-06  BUILD th" in mf[:3000],
+          and "2026-09-06  BUILD th" in mf[:12000],
           "Jim's rule 8")
 
 
@@ -25945,7 +25962,7 @@ def part3jj_algebra_two_units_seven_to_nine_to_the_shape():
     check("  math-figures.js hides the coordinates and the legend under values=\"0\", and nothing without it",
           'var showVals = String(a.values == null ? "1" : a.values) !== "0";' in mf
           and 'if (showVals) s += tspan(px + (_tr ? -10 : 10), py - 10, "(" + cosS + ", " + sinS + ")"' in mf
-          and "2026-09-06  BUILD tn" in mf[:3000], "")
+          and "2026-09-06  BUILD tn" in mf[:12000], "")
     ampl = {"a": 11, "b": 0, "op": "ampl"}
     check("  the stretched wave: the wave captioned; the crest line drawn in the walk-back",
           '[[graph func="11*sin(x)" range="-7..7" caption="y = 11 · sin x — how high does the wave reach?"]]' in L.board_for(ampl, "abstract")
@@ -26000,7 +26017,7 @@ def part3jj_algebra_two_units_seven_to_nine_to_the_shape():
     check("  the changed files carry dated tn notes",
           "2026-09-06  BUILD tn" in rd("lessonscripts.py")[:60000] and "BUILD tn" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tn" in rd("ruletests.py")[:28000] and "(tn)" in rd("static/methodology.html")[:20000]
-          and "2026-09-06  BUILD tn" in rd("static/math-figures.js")[:3000],
+          and "2026-09-06  BUILD tn" in rd("static/math-figures.js")[:12000],
           "Jim's rule 8")
 
 
@@ -26320,7 +26337,7 @@ def part3jl_precalc_units_four_to_six_to_the_shape():
     check("  the changed files carry dated tp notes",
           "2026-09-06  BUILD tp" in rd("lessonscripts.py")[:60000] and "BUILD tp" in rd("main.py")[:200000]
           and "2026-09-06  BUILD tp" in rd("ruletests.py")[:28000] and "(tp)" in rd("static/methodology.html")[:20000]
-          and "BUILD tp" in _mf[:3000] and "BUILD tp" in _gf[:3000],
+          and "BUILD tp" in _mf[:12000] and "BUILD tp" in _gf[:3000],
           "Jim's rule 8")
 
 
@@ -27707,13 +27724,203 @@ def part3jv_calculus_units_one_to_three_to_the_shape():
           all(f in L.LESSON_BY_ID[l]["pairs"][1]["worked"][0] for l, f in _FRAG.items())
           and all(len(L.LESSON_BY_ID[l]["pairs"][1]["worked"][0].split()) >= 12 for l in C1 + C2 + C3),
           str([l for l, f in _FRAG.items() if f not in L.LESSON_BY_ID[l]["pairs"][1]["worked"][0]]))
-    check("  CALCULUS 12/36: the first three units carry the whole shape and the other twenty-four are untouched (no explain yet)",
+    # (ua) a floor, not an exact count: ua took the course to 24 and this pin, written
+    # "== 12", fired on the next build's own progress. The twelve of C1-C3 are pinned by
+    # _shape_unit_checks above; the count only grows from here.
+    check("  CALCULUS at least 12/36: the first three units carry the whole shape (a floor -- the count only grows)",
           sum(1 for les in L.LESSONS if les["course"] == "calculus"
-              and all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain")) and les.get("show_work_on_correct") is True) == 12
+              and all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain")) and les.get("show_work_on_correct") is True) >= 12
           and sum(1 for les in L.LESSONS if les["course"] == "calculus") == 36, "")
     check("  the changed files carry dated tz notes",
           "2026-09-07  BUILD tz" in rd("lessonscripts.py")[:60000] and "BUILD tz" in rd("main.py")[:200000]
           and "2026-09-07  BUILD tz" in rd("ruletests.py")[:28000] and "(tz)" in rd("static/methodology.html")[:20000],
+          "Jim's rule 8")
+
+
+def part3jw_calculus_units_four_to_six_to_the_shape():
+    """PART 3jw (build ua, 2026-09-07) -- CALCULUS UNITS 4-6 TO THE SHAPE. CALCULUS 24/36.
+
+    The speed line alone on the ask, the height it reaches and the crossing on the
+    walk-back; area against side with the point, then the tangent there; the valley
+    alone, then its flat bottom; the speed line, then one step up it; the fence shared
+    four ways as a tape with every part blank, then the square walked round; the square
+    on a metre grid asked, then counted; the hump of every split, then its peak; the
+    cubic whose bend changes, then the place it changes; the power rule run backwards as
+    a MACHINE that halves, then one that divides by the new exponent; two parallel curves
+    with the lower one's point, then both; one member of the family with its start, then
+    its height further on. The init ask wrote a chain of equals ending in "= ?" on every
+    one of its twelve asks (rule 15, live) and writes two statements now. The grapher
+    keeps a five-digit y label whole (the cubic's) by growing its canvas leftward, and
+    every canon graph draws byte-for-byte as before."""
+    print("\nPART 3jw — Calculus Units 4-6 to the shape (build ua)")
+    import lessonscripts as L
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    C4 = ["calc-u4-when-is-it-going-that-fast", "calc-u4-one-rate-drives-another",
+          "calc-u4-where-the-curve-levels-off", "calc-u4-differentiate-twice"]
+    C5 = ["calc-u5-the-best-rectangle", "calc-u5-and-how-much-ground-that-wins",
+          "calc-u5-equal-halves-win", "calc-u5-where-the-bend-changes"]
+    C6 = ["calc-u6-the-rule-run-backwards", "calc-u6-raise-then-divide",
+          "calc-u6-a-whole-family", "calc-u6-one-point-picks-one-curve"]
+    _shape_unit_checks(C4, r"\[\[(graph)\b")
+    _shape_unit_checks(C5, r"\[\[(graph|tape|rectangle)\b")
+    _shape_unit_checks(C6, r"\[\[(graph|machine)\b")
+    _asks = lambda l: list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]
+
+    # ---- Unit 4 ------------------------------------------------------------------------
+    vsol = {"a": 6, "b": 144, "op": "vsol"}
+    check("⭐ when is it going that fast: the speed line ALONE on the ask (no height, no crossing); the height 144 and the crossing at t = 12 in the walk-back",
+          '[[graph lines="y=12x" names="speed = 12t" range="0..14" yrange="0..168" caption=' in L.board_for(vsol, "abstract")
+          and "y=144" not in L.board_for(vsol, "abstract") and "points=" not in L.board_for(vsol, "abstract")
+          and '[[step eq="speed = 12t"]][[step eq="speed = 144 at t = ?"]]' in L.board_for(vsol, "abstract")
+          and '[[graph lines="y=12x; y=144" names="speed = 12t; speed = 144" points="(12,144)" range="0..14" yrange="0..168" caption=' in _W(vsol)[1]
+          and "144 over 12, which is 12 seconds" in _W(vsol)[0], "")
+    mrat = {"a": 11, "b": 2, "op": "mrat"}
+    check("⭐ one rate drives another: area against side with the point on the ask, the tangent withheld; the tangent y = 22x - 121 in the walk-back; the praise says the arithmetic once (the closure crossed the 24,000-character ceiling at 24,652)",
+          '[[graph func="x^2" names="area = side²" points="(11,121)" range="0..14" yrange="0..196" caption=' in L.board_for(mrat, "abstract")
+          and "lines=" not in L.board_for(mrat, "abstract")
+          and '[[step eq="area growing at ? cm²/s"]]' in L.board_for(mrat, "abstract")
+          and 'lines="y=22x-121" points="(11,121)"' in _W(mrat)[1]
+          and "2 times 11 times 2 is 44 square centimetres a second" in _W(mrat)[0]
+          and L.praise_for(mrat, 0).count("2 times 11 times 2") == 1
+          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u4-one-rate-drives-another"])) <= 24000, "")
+    crit = {"a": 24, "b": 0, "op": "crit"}
+    check("⭐ where the curve levels off: the valley alone on the ask (no point, no tangent); the flat tangent y = -144 and the point at the bottom in the walk-back",
+          '[[graph func="x^2-24*x" names="y = x² − 24x" range="0..24" yrange="-180..36" caption=' in L.board_for(crit, "abstract")
+          and "points=" not in L.board_for(crit, "abstract") and "lines=" not in L.board_for(crit, "abstract")
+          and '[[step eq="slope = 2x − 24"]][[step eq="slope = 0 at x = ?"]]' in L.board_for(crit, "abstract")
+          and 'names="y = x² − 24x; the flat tangent" lines="y=-144" points="(12,-144)"' in _W(crit)[1]
+          and "so 2 x is 24 and x is 12" in _W(crit)[0], "")
+    acce = {"a": 12, "b": 0, "op": "acce"}
+    check("  differentiate twice: the speed line alone on the ask, the pending line a statement (\"differentiate again → ?\" was live); one step up the line in the walk-back",
+          '[[graph lines="y=24x" names="speed = 24t" range="0..5" yrange="0..120" caption=' in L.board_for(acce, "abstract")
+          and '[[step eq="fallen 12t² · speed 24t"]][[step eq="acceleration = ?"]]' in L.board_for(acce, "abstract")
+          and 'points="(1,24),(2,48)"' in _W(acce)[1]
+          and '[[step eq="12t² → 24t → 24"]]' in _W(acce)[1]
+          and "one second on, the speed is 24 higher" in _W(acce)[0], "")
+
+    # ---- Unit 5 ------------------------------------------------------------------------
+    optr = {"a": 56, "b": 0, "op": "optr"}
+    check("⭐ the best rectangle: the fence shared four ways as a TAPE with every part blank on the ask; the square of side 14 walked round (the perimeter rectangle) in the walk-back",
+          '[[tape parts="?|?|?|?" total="56 m of fence" caption=' in L.board_for(optr, "abstract")
+          and '[[step eq="biggest area · each side = ?"]]' in L.board_for(optr, "abstract")
+          and '[[rectangle w="14" h="14" show="perimeter" caption=' in _W(optr)[1]
+          and "56 over 4 is 14 metres a side" in _W(optr)[0], "")
+    maxa = {"a": 60, "b": 0, "op": "maxa"}
+    check("⭐ how much ground that wins: the square of side 15 on the metre grid with ask=\"1\" (\"15 × 15 = ? squares\") on the ask; the count in the walk-back; the op's check keeps every fence the grid can draw (80, not 88)",
+          '[[rectangle w="15" h="15" show="area" ask="1" caption=' in L.board_for(maxa, "abstract")
+          and '[[step eq="area = ? m²"]]' in L.board_for(maxa, "abstract")
+          and '[[rectangle w="15" h="15" show="area" caption=' in _W(maxa)[1] and 'ask="1"' not in _W(maxa)[1]
+          and "15 times 15 — 225 square metres" in _W(maxa)[0]
+          and L.OP_EXT["maxa"]["check"]({"a": 80, "b": 0, "op": "maxa"})[0]
+          and not L.OP_EXT["maxa"]["check"]({"a": 88, "b": 0, "op": "maxa"})[0], "")
+    sumx = {"a": 26, "b": 0, "op": "sumx"}
+    check("  equal halves win: the hump of every split on the ask, the peak withheld; the peak (13, 169) and the line y = 169 in the walk-back; the teach splits 30 (20 was a bank ask)",
+          '[[graph func="x*(26-x)" names="product = x(26 − x)" range="0..26" yrange="0..202" caption=' in L.board_for(sumx, "abstract")
+          and "points=" not in L.board_for(sumx, "abstract")
+          and '[[step eq="biggest product = ?"]]' in L.board_for(sumx, "abstract")
+          and 'lines="y=169" points="(13,169)"' in _W(sumx)[1]
+          and "13 and 13 give 169, the top of the hump" in _W(sumx)[0]
+          and "15 with 15 gives 225" in L.LESSON_BY_ID["calc-u5-equal-halves-win"]["teach"][0][0]
+          and not any(p["a"] == 30 for p in _asks("calc-u5-equal-halves-win")), "")
+    infl = {"a": 66, "b": 0, "op": "infl"}
+    check("⭐ where the bend changes: the cubic alone on the ask (its five-digit y labels whole); the line x = 22 in the walk-back",
+          '[[graph func="x^3-66*x^2" names="y = x³ − 66x²" range="0..66" yrange="-47916..7986" caption=' in L.board_for(infl, "abstract")
+          and "lines=" not in L.board_for(infl, "abstract")
+          and '[[step eq="second derivative = 0 at x = ?"]]' in L.board_for(infl, "abstract")
+          and 'names="y = x³ − 66x²; x = 22" lines="x=22"' in _W(infl)[1]
+          and "so 6 x is 132 and x is 22" in _W(infl)[0], "")
+
+    # ---- Unit 6 ------------------------------------------------------------------------
+    anti = {"a": 44, "b": 0, "op": "anti"}
+    check("⭐ the rule run backwards: the derivative written and the front number fed into the MACHINE (÷ 2) with its output blank on the ask; the machine filled and 22x² written in the walk-back",
+          '[[write text="derivative = 44x"]][[machine input="44" rule="÷ 2" output="?" caption=' in L.board_for(anti, "abstract")
+          and '[[step eq="? x² came from it"]]' in L.board_for(anti, "abstract")
+          and '[[machine input="44" rule="÷ 2" output="22" caption=' in _W(anti)[1]
+          and '[[write text="22x²"]]' in _W(anti)[1]
+          and "44 over 2 is 22" in _W(anti)[0], "")
+    antp = {"a": 5, "b": 66, "op": "antp"}
+    check("  raise then divide: the front number fed into the MACHINE (÷ the new exponent) on the ask; the machine filled and 11x^6 written in the walk-back",
+          '[[write text="derivative = 66x^5"]][[machine input="66" rule="÷ 6" output="?" caption=' in L.board_for(antp, "abstract")
+          and '[[step eq="? x^6 came from it"]]' in L.board_for(antp, "abstract")
+          and '[[machine input="66" rule="÷ 6" output="11" caption=' in _W(antp)[1]
+          and '[[write text="11x^6"]]' in _W(antp)[1]
+          and "66 over 6 is 11" in _W(antp)[0], "")
+    plusc = {"a": 28, "b": 17, "op": "plusc"}
+    check("  a whole family: two parallel curves with the LOWER one's point on the ask; both points in the walk-back",
+          '[[graph func="x^2+12; x^2+29" names="lower; higher" points="(4,28)" range="0..6" yrange="-2..69" caption=' in L.board_for(plusc, "abstract")
+          and '[[step eq="lower is 28 · higher = ?"]]' in L.board_for(plusc, "abstract")
+          and 'points="(4,28),(4,45)"' in _W(plusc)[1]
+          and "28 plus 17 — 45" in _W(plusc)[0], "")
+    init = {"a": 19, "b": 0, "c": 4, "op": "init"}
+    check("⭐ one point picks one curve: the pending line is two statements (\"y at x = 4 = ?\" was a chain of equals ending in = ? on all twelve asks, rule 15); the curve with its start on the ask, both points in the walk-back",
+          '[[graph func="x^2+19" names="y = x² + 19" points="(0,19)" range="0..5" yrange="0..46" caption=' in L.board_for(init, "abstract")
+          and '[[step eq="y = 19 at x = 0 · at x = 4 · y = ?"]]' in L.board_for(init, "abstract")
+          and not tutor.board_notation_conflict(L.board_for(init, "abstract"))
+          and 'points="(0,19),(4,35)"' in _W(init)[1]
+          and "4 squared is 16, plus 19 — 35" in _W(init)[0], "")
+
+    # ---- the grapher's left margin ------------------------------------------------------
+    _mf = rd("static/math-figures.js")
+    check("⭐ [[graph]] grows its canvas leftward by the overflow of the widest y label (the cubic's five digits), and a graph whose labels fit keeps viewBox 0 0",
+          "var leftExt = Math.max(0, Math.ceil(yLblW - (mapX(0) - 6)));" in _mf
+          and "viewBox=\"' + (-leftExt) + ' 0 ' + (S + leftExt) + ' ' + S + '\"" in _mf
+          and "length * 5 + 2" in _mf
+          and "2026-09-07  BUILD ua" in _mf[:12000], "")
+
+    # ---- the giveaway audit, captions, legends, pending lines, notation, fragments, notes
+    check("  nothing the twelve lessons demonstrate is later asked (teachaudit, both directions; the related-rates teach grows a side of 15, the halves teach splits 30)",
+          not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in C4 + C5 + C6)
+          and not any(p["a"] == 15 and p["b"] == 3 for p in _asks("calc-u4-one-rate-drives-another")), "")
+    check("  every figure an ask draws carries a caption (rule 41)",
+          all("caption=" in tag for l in C4 + C5 + C6 for p in _asks(l)
+              for tag in re.findall(r"\[\[(?:graph|machine|tape|rectangle)\b[^\]]*\]\]", L.board_for(p, "abstract"))), "")
+    _raw = [tag for l in C4 + C5 + C6 for p in _asks(l)
+            for tag in re.findall(r"\[\[graph\b[^\]]*\]\]", L.board_for(p, "abstract") + _W(p)[1])
+            if "*" in (re.search(r'func="([^"]*)"', tag) or [None, ""])[1] and "names=" not in tag]
+    check("  every graph whose expression carries a raw \"*\" names its legend (names=)", not _raw, str(_raw[:2]))
+    _unsp = 0
+    for l in C4 + C5 + C6:
+        for p in _asks(l):
+            if tutor.prose_unspoken_problem_conflict(L.spoken_for(p, "abstract") + "\n" + L.board_for(p, "abstract")):
+                _unsp += 1
+    check("  every ask in the three units reads its pending line aloud (rule 44)", _unsp == 0, f"{_unsp} unspoken")
+    check("  no ask in the three units puts an arrow after an equals sign or a question inside a step",
+          not any(re.search(r"=[^\"]*→", m) or re.search(r"[A-Za-z]\?", m) for l in C4 + C5 + C6 for p in _asks(l)
+                  for m in re.findall(r'\[\[step eq="([^"]*)"', L.board_for(p, "abstract"))), "")
+    check("⭐ no ask board or walk-back board in the three units writes \"= number = ?\" (the board-notation referee, every level -- twelve init asks did)",
+          not any(tutor.board_notation_conflict(L.board_for(p, lv)) or tutor.board_notation_conflict(_W(p)[1])
+                  for l in C4 + C5 + C6 for p in _asks(l) for lv in L.LESSON_BY_ID[l].get("levels", L.LEVELS)), "")
+    check("  no reason option works the arithmetic aloud, and none is longer than twelve words",
+          not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
+                  for l in C4 + C5 + C6)
+          and all(len(o.split()) <= 12 for l in C4 + C5 + C6 for o in L.LESSON_BY_ID[l]["explain"]["choices"].split("|")), "")
+    check("  every lesson's closure stays under the 24,000-character audio ceiling",
+          all(sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID[l])) <= 24000 for l in C4 + C5 + C6), "")
+    _FRAG = {"calc-u4-when-is-it-going-that-fast": "162 over 18",
+             "calc-u4-one-rate-drives-another": "2 times 9 times 5",
+             "calc-u4-where-the-curve-levels-off": "2 x equals 34",
+             "calc-u4-differentiate-twice": "speed 80 t",
+             "calc-u5-the-best-rectangle": "shared four ways",
+             "calc-u5-where-the-bend-changes": "168 divided by 6",
+             "calc-u6-the-rule-run-backwards": "half of 56",
+             "calc-u6-a-whole-family": "44 plus 15"}
+    check("⭐ the eight PART 3fs fixed fragments survive in each lesson's SECOND worked pair, and every second pair is a real sentence",
+          all(f in L.LESSON_BY_ID[l]["pairs"][1]["worked"][0] for l, f in _FRAG.items())
+          and all(len(L.LESSON_BY_ID[l]["pairs"][1]["worked"][0].split()) >= 12 for l in C4 + C5 + C6),
+          str([l for l, f in _FRAG.items() if f not in L.LESSON_BY_ID[l]["pairs"][1]["worked"][0]]))
+    check("  the best-rectangle bank still holds at least 7 problems (PART 3ck's trimmed-bank floor)",
+          len(L.LESSON_BY_ID["calc-u5-the-best-rectangle"]["bank"]) >= 7, "")
+    check("  CALCULUS at least 24/36: Units 1-6 carry the whole shape (a floor -- the count only grows)",
+          sum(1 for les in L.LESSONS if les["course"] == "calculus"
+              and all(les.get(f) for f in ("why", "picture", "teach", "recap", "explain")) and les.get("show_work_on_correct") is True) >= 24
+          and sum(1 for les in L.LESSONS if les["course"] == "calculus") == 36, "")
+    check("  the changed files carry dated ua notes",
+          "2026-09-07  BUILD ua" in rd("lessonscripts.py")[:60000] and "BUILD ua" in rd("main.py")[:200000]
+          and "2026-09-07  BUILD ua" in rd("ruletests.py")[:28000] and "(ua)" in rd("static/methodology.html")[:20000]
+          and "2026-09-07  BUILD ua" in rd("static/math-figures.js")[:12000],
           "Jim's rule 8")
 
 
@@ -38068,6 +38275,7 @@ def main():
     part3jt_the_words_and_the_picture_are_the_same_thing()
     part3ju_probstat_units_seven_to_nine_to_the_shape()
     part3jv_calculus_units_one_to_three_to_the_shape()
+    part3jw_calculus_units_four_to_six_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

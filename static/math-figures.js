@@ -2,6 +2,12 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-07  BUILD ua -- [[graph]] keeps its y labels whole. A label wider than the
+                 left margin ("-20000", the cubic in Calculus Unit 5) ran off the canvas
+                 and read as its last four characters. The canvas now grows leftward by
+                 the overflow of the widest label (viewBox and max-width both), so every
+                 label is whole; a graph whose labels already fit draws byte-for-byte as
+                 before. Calculus Units 4-6.
      2026-09-06  BUILD tp -- three attributes for Precalc Units 4-6, none changing a
                  tag that does not use them. [[unitcircle bearing="350" turn="40"]]
                  is THE COMPASS: the circle read clockwise from north with N/E/S/W, the
@@ -382,17 +388,31 @@
     var mapY = function (y) { return PAD + (ymax - y) / (ymax - ymin) * plot; };
     var span = ymax - ymin;
 
-    var svg = '<svg viewBox="0 0 ' + S + ' ' + S + '" xmlns="' + NS +
-      '" style="width:100%;max-width:430px;height:auto;display:block;margin:6px auto;">';
-    svg += '<defs><clipPath id="gclip"><rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '"/></clipPath></defs>';
-    svg += '<rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '" fill="var(--bd-fbfbff)" stroke="var(--bd-e7e6f2)"/>';
-
     // grid + labels with a "nice" tick step per axis
     function step(range) {
       var raw = range / 10, p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), n = raw / p;
       var s = n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10; return s * p;
     }
     var xstep = step(xmax - xmin), ystep = step(ymax - ymin);
+    // (ua, 2026-09-07) A y label wider than the left margin used to run off the
+    // canvas: the labels sit to the left of the y axis, anchored at its end, and with
+    // the axis at the frame's left edge (xmin = 0) a five-digit label ("-20000", the
+    // cubic in Calculus Unit 5) was cut to its last four characters. The canvas now
+    // grows leftward by exactly the overflow of the widest label, so every label is
+    // whole and nothing else moves. A graph whose labels already fit is unchanged.
+    var yLblW = 0;
+    for (var ly = Math.ceil(ymin / ystep) * ystep; ly <= ymax + 1e-9; ly += ystep) {
+      if (Math.abs(ly) < 1e-9) continue;
+      yLblW = Math.max(yLblW, String(trimnum(ly)).length * 5 + 2);   // measured: 5px a character at this size
+    }
+    var leftExt = Math.max(0, Math.ceil(yLblW - (mapX(0) - 6)));
+    if (mapX(0) < PAD || mapX(0) > S - PAD) leftExt = 0;   // the axis is off the frame: labels sit inside it
+
+    var svg = '<svg viewBox="' + (-leftExt) + ' 0 ' + (S + leftExt) + ' ' + S + '" xmlns="' + NS +
+      '" style="width:100%;max-width:' + (430 + leftExt) + 'px;height:auto;display:block;margin:6px auto;">';
+    svg += '<defs><clipPath id="gclip"><rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '"/></clipPath></defs>';
+    svg += '<rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '" fill="var(--bd-fbfbff)" stroke="var(--bd-e7e6f2)"/>';
+
     for (var gx = Math.ceil(xmin / xstep) * xstep; gx <= xmax + 1e-9; gx += xstep) {
       var px = mapX(gx), zx = Math.abs(gx) < 1e-9;
       svg += '<line x1="' + px + '" y1="' + PAD + '" x2="' + px + '" y2="' + (S - PAD) + '" stroke="' + (zx ? "var(--bd-9aa7b6)" : "var(--bd-eef0f7)") + '" stroke-width="' + (zx ? 1.5 : 1) + '"/>';
