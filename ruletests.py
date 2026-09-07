@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tu -- THE TRUTH TRIO AND THE REVIEWER'S LIST. PART 3jq pins the
+#               76th referee (a pie's caption against the fraction it shades), the 77th
+#               (a listed sequence that moves away from the value it claims to approach),
+#               KNOWN_FALSEHOODS row 17 (factoring defined as pieces that multiply to
+#               zero), the truth class at 11, RULED_ALLOWED at five rows each carrying
+#               its boundary, and the critic's sixth discipline check. Both canon sweeps
+#               are repeated here so they cannot rot: 0 fires across the authored pie
+#               tags, 0 across the authored strings. Referees 75 -> 77. Tile 10,407 -> 10,433.
 #   2026-09-06  BUILD tt -- PART 3jp: Probstat Units 4-6 to the shape (12 lessons on
 #               the school as bars and the sample as a tape, the surveys back and
 #               silent, the asked and the never-asked, the people machine, the bag as
@@ -12874,7 +12882,7 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- this build widened a gate",
-          n_ref == 75,
+          n_ref == 77,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -12958,7 +12966,7 @@ def part3hn_credit_only_what_you_saw():
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rm widened a gate",
-          n_ref == 75, f"{n_ref} *_conflict functions")
+          n_ref == 77, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -13035,7 +13043,7 @@ def part3ho_three_one_line_holes():
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rn widened two gates",
-          n_ref == 75, f"{n_ref} *_conflict functions")
+          n_ref == 77, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -16400,8 +16408,15 @@ def part3ge_the_named_list_of_falsehoods():
     ]
     for reply, label in QUIET:
         check(f"  SILENT: {label}", not F(reply), f"fired: {(F(reply) or '')[:90]}")
+    # (tu, 2026-09-07) THE PROXY NAMED WHAT IT MEANS. This read "precedence" or
+    # "multipl" in the NAME -- wide enough to catch any falsehood about
+    # multiplication, and row 17 (factoring-multiplies-to-zero) is not a
+    # precedence form. It names the order-of-operations shapes now; a real
+    # precedence form added to this table still fails it.
+    _PRECEDENCE_NAMES = ("precedence", "multiply-before", "multiply-first",
+                         "left-to-right", "pemdas", "bodmas", "order-of-operations")
     check("  the precedence forms are deliberately absent from the table",
-          not any("precedence" in n or "multipl" in n for n, *_ in _t.KNOWN_FALSEHOODS),
+          not any(any(p in n for p in _PRECEDENCE_NAMES) for n, *_ in _t.KNOWN_FALSEHOODS),
           "the 37th referee owns them")
     check("  every entry carries a true form and an escape",
           all(len(e) == 4 and e[3] and e[2] for e in _t.KNOWN_FALSEHOODS)
@@ -19404,10 +19419,10 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ seventy-five referees now, counted from the code (62 + pz + qf + qm + qs + "
+    check("⭐ seventy-seven referees now, counted from the code (62 + pz + qf + qm + qs + "
           "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + "
-          "se's boardflood + sf's spokenmath + sm's exprswap)",
-          n_ref == 75, n_ref)
+          "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach)",
+          n_ref == 77, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -21994,7 +22009,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,407</b>" in page,
+          "<b>10,433</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22758,8 +22773,8 @@ def part3ii_the_board_tells_the_truth_about_which_question():
           fires == 0 and seen >= 9000, f"{fires} authored replies rejected")
 
     # ---- the count moved, and everything that pins it moved with it ----------------
-    check("  seventy-five *_conflict referees",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 75, "")
+    check("  seventy-seven *_conflict referees",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 77, "")
     check("  tutor.py carries a dated sm note",
           "2026-09-04  BUILD sm" in open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                      "tutor.py"), encoding="utf-8").read(200000), "")
@@ -26714,6 +26729,150 @@ def part3jp_probstat_units_four_to_six_to_the_shape():
           "Jim's rule 8")
 
 
+def part3jq_the_caption_the_sequence_and_the_definition():
+    """PART 3jq (build tu, 2026-09-07) -- THE TRUTH TRIO, AND THE REVIEWER'S LIST.
+
+    The 2026-09-07 night watch's three truth-class findings, each one a thing a student
+    would have been shown or told that is not so:
+      * a pie captioned "one sixth" with two sixths shaded (the 76th referee);
+      * "at 2.01, 2.1, the outputs are 4.01, then 4.1 -- sinking toward 4" (the 77th);
+      * "factoring -- breaking the expression into two pieces that multiply to zero"
+        (KNOWN_FALSEHOODS row 17).
+    And the reviewer's rulings list grown from one row to five, with the critic's sixth
+    discipline check beside it. Every silence below is a real form the tutor uses
+    honestly -- the equivalence caption, the honest limit order, the TRUE zero-product
+    law -- because a referee is only as safe as the sentences it leaves alone."""
+    print("\nPART 3jq — the caption, the sequence and the definition (build tu)")
+    import tutor as T
+    import nightwatch as _NW
+    import lessonaudit as _LA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+
+    # ---- the 76th: the caption and the pie are the same fraction ------------------
+    HIGH = '[[pie parts="6" shaded="2" caption="one sixth"]]'
+    check("⭐ the 76th referee catches the watch's HIGH: a pie captioned \"one sixth\" "
+          "with two sixths shaded",
+          bool(T.pie_caption_conflict(HIGH))
+          and "2 of 6" in T.pie_caption_conflict(HIGH), "")
+    check("  ...and it reaches a student through the dispatcher, not just on its own",
+          bool(T.prose_board_conflict("Here is one sixth. " + HIGH)), "")
+    check("⭐ THE EQUIVALENCE ESCAPE: a caption teaching that two sixths IS one third "
+          "stays silent -- this is the figure equivalence is taught with",
+          not T.pie_caption_conflict(
+              '[[pie parts="6" shaded="2" caption="two sixths — the same amount as one third"]]')
+          and not T.pie_caption_conflict('[[pie parts="6" shaded="2" caption="one third"]]'), "")
+    check("  ...digit captions, percent captions and captions naming no fraction at all "
+          "stay silent",
+          not T.pie_caption_conflict('[[pie parts="12" shaded="9" caption="9/12"]]')
+          and not T.pie_caption_conflict('[[pie parts="4" shaded="1" caption="25% of the pie"]]')
+          and not T.pie_caption_conflict(
+              '[[pie parts="6" shaded="2" caption="count the shaded pieces"]]'), "")
+    check("  ...a pie with no countable parts, or more shaded than it has, is left to "
+          "the malformed-tag referee",
+          not T.pie_caption_conflict('[[pie shaded="2" caption="one sixth"]]')
+          and not T.pie_caption_conflict('[[pie parts="6" shaded="9" caption="one sixth"]]'), "")
+    _pies = _fires = 0
+    _PIE = re.compile(r"\[\[\s*pie\b[^\]]*\]\]", re.I)
+    for _fn in ("lessonscripts.py", "foundations.py"):
+        for _m in _PIE.finditer(rd(_fn).replace('\\"', '"')):
+            _pies += 1
+            if T.pie_caption_conflict(_m.group(0)):
+                _fires += 1
+    check(f"⭐ CANON SWEEP: zero fires across {_pies} authored pie tags, both files",
+          _fires == 0 and _pies >= 115, f"{_fires} authored pies rejected")
+
+    # ---- the 77th: a sequence moves the way the sentence says --------------------
+    AWAY = "From the right, at 2.01, 2.1, the outputs are 4.01, then 4.1 -- sinking toward 4."
+    check("⭐ the 77th referee catches the calculus finding: numbers said to sink toward "
+          "4 that move away from it",
+          bool(T.approach_direction_conflict(AWAY))
+          and "move AWAY" in T.approach_direction_conflict(AWAY), "")
+    check("  ...and it reaches a student through the dispatcher",
+          bool(T.prose_board_conflict(AWAY)), "")
+    check("⭐ the honest order is silent -- 4.1 then 4.01 really does sink toward 4",
+          not T.approach_direction_conflict(
+              "From the right, at 2.1, then 2.01, the outputs are 4.1, then 4.01 -- sinking toward 4.")
+          and not T.approach_direction_conflict(
+              "From the left, at 1.9, then 1.99, the outputs are 3.9, then 3.99 -- climbing toward 4."), "")
+    check("  ...a list that REACHES the value, and a claim with another number standing "
+          "between it and the list, are both silent",
+          not T.approach_direction_conflict("The values 4.5, 4, 4 are approaching 4.")
+          and not T.approach_direction_conflict(
+              "At 2.01, 2.1, the outputs are 4.01, then 4.1 -- 3 steps toward 4."), "")
+    check("  ...and a claim with no listed sequence at all is silent",
+          not T.approach_direction_conflict("The outputs are creeping toward 4."), "")
+
+    # ---- row 17: factoring is not defined by zero --------------------------------
+    DEF = ("Let's name what we're doing: factoring -- breaking the expression into two "
+           "pieces that multiply to zero.")
+    check("⭐ KNOWN_FALSEHOODS row 17 catches factoring DEFINED as pieces that multiply "
+          "to zero",
+          bool(T.known_falsehood_conflict(DEF))
+          and "factoring multiplies to zero" in T.known_falsehood_conflict(DEF), "")
+    check("  ...and the true form it dictates names the ORIGINAL expression",
+          "multiply back to the ORIGINAL expression" in T.known_falsehood_conflict(DEF), "")
+    check("⭐ THE TRAP IT MUST NOT CATCH: the zero-product property said truthfully, in "
+          "the two forms the canon already uses",
+          not T.known_falsehood_conflict(
+              "So if two brackets multiply to zero, one of the brackets has to be zero.")
+          and not T.known_falsehood_conflict(
+              "If two factors multiply to zero, one of them must be zero.")
+          and not T.known_falsehood_conflict(
+              "Factoring means rewriting x^2 - 5x + 6 as two factors that multiply back "
+              "to the original expression."), "")
+    check("  the falsehood table holds seventeen named falsehoods",
+          len(T.KNOWN_FALSEHOODS) == 17, len(T.KNOWN_FALSEHOODS))
+
+    # ---- the truth class ---------------------------------------------------------
+    check("⭐ both new referees are TRUTH-class (Jim's ruling 2026-09-07): a draft "
+          "carrying one is withheld, not shipped least-bad",
+          T._is_truth_finding("prose", "piecaption")
+          and T._is_truth_finding("prose", "approach")
+          and len(T.TRUTH_REFEREES) == 11, len(T.TRUTH_REFEREES))
+    check("  ...and the conduct class is unchanged -- an unknown name still fails OPEN "
+          "to least-bad",
+          not T._is_truth_finding("prose", "caption")
+          and not T._is_truth_finding("prose", ""), "")
+
+    # ---- the reviewer's list -----------------------------------------------------
+    check("⭐ RULED_ALLOWED carries five rows now, not one (rules 42, 52, 48, 27, 14)",
+          len(_NW.RULED_ALLOWED) == 5
+          and sorted(r["rule"] for r in _NW.RULED_ALLOWED) == [14, 27, 42, 48, 52],
+          [r["rule"] for r in _NW.RULED_ALLOWED])
+    check("⭐ EVERY row carries a boundary -- sh's law: a ruling without one is a blank "
+          "cheque, and the renderer would print a loud placeholder instead",
+          all((r.get("boundary") or "").strip() for r in _NW.RULED_ALLOWED), "")
+    _v = _NW.render_verify_system()
+    check("  ...and the (C) block the reviewer actually reads renders all five, with no "
+          "placeholder in it",
+          all(str(r["shape"])[:40] in _v for r in _NW.RULED_ALLOWED)
+          and "NONE RECORDED" not in _v, "")
+    check("  the rule-14 row is the narrowest, and says so: a reading absent from the "
+          "whole reply is still a real finding",
+          any("NOWHERE IN THE REPLY" in (r.get("boundary") or "")
+              for r in _NW.RULED_ALLOWED), "")
+
+    # ---- the critic's sixth discipline check --------------------------------------
+    check("⭐ the critic knows the board lands whole and the voice follows -- the shape "
+          "three watches reported as a defect",
+          "THE BOARD LANDS WHOLE" in _LA.CRITIC_SYSTEM
+          and "never read\n   ANYWHERE in the reply" in _LA.CRITIC_SYSTEM, "")
+    check("  ...and the list no longer miscounts itself as three",
+          "Six discipline checks" in _LA.CRITIC_SYSTEM
+          and "Three discipline checks" not in _LA.CRITIC_SYSTEM, "")
+
+    # ---- Jim's rule 8 -------------------------------------------------------------
+    check("  the changed files carry dated tu notes",
+          "2026-09-07  BUILD tu" in rd("tutor.py")[:200000]
+          and "BUILD tu" in rd("main.py")[:200000]
+          and "2026-09-07  BUILD tu" in rd("ruletests.py")[:16000]
+          and "2026-09-07  BUILD tu" in rd("nightwatch.py")[:16000]
+          and "2026-09-07  BUILD tu" in rd("lessonaudit.py")[:16000]
+          and "(tu)" in rd("static/methodology.html")[:12000],
+          "Jim's rule 8")
+
+
 def part3dp_no_button_under_a_talking_teacher():
     """PART 3dp (build nb) -- NOTHING APPEARS UNDER A TEACHER WHO IS STILL TALKING.
 
@@ -28165,7 +28324,7 @@ def part3hx_the_question_mark_is_a_blank_said_so():
           and n >= 1900 and m >= 3000,
           str(hits[:4]))
     check("  the referee count is unchanged -- sa is a registry row on referee 31",
-          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 75, "")
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 77, "")
 
 
 def part3hw_a_variables_letter_keeps_its_case():
@@ -28314,7 +28473,7 @@ def part3hu_the_accepted_offer_is_honored():
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
     check("  the referee count is unchanged -- rx widened a gate",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 75, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 77, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -28435,7 +28594,7 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
     check("  the referee count is unchanged -- ry widened a gate and added a floor",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 75, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 77, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -37059,6 +37218,7 @@ def main():
     part3jn_probstat_units_one_to_three_to_the_shape()
     part3jo_the_lesson_introduces_itself()
     part3jp_probstat_units_four_to_six_to_the_shape()
+    part3jq_the_caption_the_sequence_and_the_definition()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

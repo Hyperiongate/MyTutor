@@ -2,6 +2,51 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tu -- THE TRUTH TRIO (the 2026-09-07 night watch's three
+#               truth-class findings). Jim's ruling, 2026-09-07: "truth items first" --
+#               a false picture and a false definition reached a student; nothing else
+#               in either watch did.
+#                 * THE 76TH REFEREE, pie_caption_conflict (rule 41/13). The watch's
+#                   HIGH: [[pie parts="6" shaded="2" caption="one sixth"]] -- the
+#                   caption names 1/6, the drawing shades 2/6. missing_caption_conflict
+#                   (build gj) only ever asked whether a caption EXISTS; nothing has
+#                   ever compared a caption's words to the figure's own numbers, so
+#                   the board taught the wrong fraction in silence. The referee reads
+#                   the fractions a caption NAMES -- word forms ("one sixth"), digit
+#                   forms ("9/12") and percents ("25%") -- and compares them with
+#                   shaded/parts. ⚠️ THE EQUIVALENCE ESCAPE IS THE WHOLE SAFETY: a
+#                   caption may legitimately name the equivalent it is teaching
+#                   ("two sixths -- the same amount as one third"), so ANY fraction
+#                   named in the caption that equals the drawing buys silence. Scoped
+#                   to [[pie]] ALONE, deliberately: the canon sweep found a
+#                   hundredgrid captioned "a tenth is a whole row" over shaded="40",
+#                   where the caption names a PART of the picture and not its
+#                   shading -- the pie has no such idiom. Sweep: 0 fires across 129
+#                   authored pie tags.
+#                 * THE 77TH REFEREE, approach_direction_conflict (rule 13). The
+#                   watch's calculus finding: "From the right, at 2.01, 2.1, the
+#                   outputs are 4.01, then 4.1 -- sinking toward 4." The listed
+#                   numbers move AWAY from 4 while the sentence says they sink toward
+#                   it -- self-contradicting inside one sentence, so code can decide
+#                   it with no judgement. Fires only when the reply lists the sequence
+#                   ITSELF and its own last number is further from the named limit
+#                   than its first. Silent when the order is honest, when the list
+#                   reaches the limit, and when another number sits between the list
+#                   and the claim (that is a different list). Sweep: 0 fires across
+#                   12 files.
+#                 * KNOWN_FALSEHOODS ROW 17, factoring-multiplies-to-zero (rule 13/61).
+#                   "factoring -- breaking the expression into two pieces that multiply
+#                   to zero." The factors multiply to the EXPRESSION; it is the
+#                   EQUATION that equals zero. ⚠️ THE TRAP THIS ROW MUST NOT CATCH is
+#                   the zero-product property said TRUTHFULLY -- "if two brackets
+#                   multiply to zero, one of the brackets has to be zero" is right and
+#                   appears in the canon twice -- so the escapes are the corrective
+#                   teachings: "one of them/the factors", "only when one", "at least
+#                   one", "either", "zero-product", "multiply back to the original".
+#                   Swept with those escapes: 0 fires across 60,739 authored lines.
+#               TRUTH CLASS 9 -> 11 (piecaption, approach). Both are a false thing a
+#               student would be shown or told, which is sj's own test; knownfalse was
+#               already truth-class, so row 17 rides free. Referees 75 -> 77.
 #   2026-09-06  BUILD tj -- THE ONE-TRIANGLE REFEREE READS THE CORNER NAMES. Referee 68
 #               (second_triangle_conflict) fired on Geometry's similar-triangle walk-backs,
 #               which draw the small triangle ABC beside its enlarged copy DEF in ONE
@@ -6424,6 +6469,34 @@ KNOWN_FALSEHOODS = [
      "a quadratic has AT MOST two real solutions -- it can have two, one repeated, "
      "or none at all; this one has two because the two factors give different "
      "values of x"),
+    # ---- (tu) the 2026-09-07 night watch, algebra2, rule 13 ----
+    # "factoring -- breaking the expression into two pieces that multiply to zero."
+    # FALSE, and it is the DEFINITION a student is handed. (x - 2) and (x - 3)
+    # multiply to x^2 - 5x + 6; it is the EQUATION that equals zero, and blurring
+    # the two is exactly how a student comes to think factoring only happens when
+    # something equals zero -- and then cannot factor an expression on its own.
+    # ⚠️ THE TRAP THIS ROW MUST NOT CATCH is the zero-product property said
+    # TRUTHFULLY. "So if two brackets multiply to zero, one of the brackets has to
+    # be zero" is RIGHT and lives in the canon twice, word for word. The escapes
+    # are therefore the corrective teachings themselves: naming one of the factors,
+    # "only when one", "at least one", "either", the zero-product property by name,
+    # or the true definition ("multiply back to the original"). Swept with those
+    # escapes: 0 fires across 60,739 authored lines.
+    ("factoring-multiplies-to-zero",
+     re.compile(r"\bfactor(?:ing|ise|ize|ised|ized|s|ed)?\b[^.!?]{0,80}?"
+                r"\b(?:multiply|multiplied|multiplying|times)\b[^.!?]{0,25}?"
+                r"\b(?:to|out\s+to|and\s+get)\s+(?:zero|0)\b", re.I),
+     re.compile(r"multiply\s+(?:back\s+)?(?:out\s+)?to\s+(?:the\s+)?(?:original|"
+                r"expression|quadratic|polynomial|start(?:ing)?)"
+                r"|zero[-\s]?product"
+                r"|one\s+of\s+(?:them|the\s+(?:two\s+)?(?:factors|brackets|pieces|parts))"
+                r"|only\s+(?:when|if)\s+one|at\s+least\s+one"
+                r"|either\s+(?:one|factor|bracket)"
+                r"|because\s+the\s+(?:equation|whole\s+thing)\s+(?:is|equals|=)\s*(?:zero|0)"
+                r"|not\s+to\s+zero", re.I),
+     "factoring rewrites the expression as two factors that multiply back to the "
+     "ORIGINAL expression -- x squared minus 5x plus 6 is (x - 2)(x - 3); it is the "
+     "EQUATION that equals zero, which is why (x - 2)(x - 3) = 0 gives the solutions"),
 ]
 
 
@@ -6450,6 +6523,89 @@ def known_falsehood_conflict(reply: str):
         print(f"[knownfalse] crashed (fail open): {exc}")
         _event("referee_crash", "knownfalse", str(exc))
         return ""
+
+
+# =============================================================================
+# BUILD tu (2026-09-07) -- THE SEVENTY-SEVENTH REFEREE: A SEQUENCE MUST MOVE THE
+# WAY THE SENTENCE SAYS IT MOVES (rule 13).
+# -----------------------------------------------------------------------------
+# The 2026-09-07 night watch, limits-hole, quoted exactly:
+#
+#     "From the right, at 2.01, 2.1, the outputs are 4.01, then 4.1 -- sinking
+#      toward 4."
+#
+# 4.01 then 4.1 is moving AWAY from 4. The sentence contradicts its own numbers,
+# and it is the sentence a student is being asked to learn the idea of a limit
+# from. This is the first defect the calculus lane has produced -- the courses are
+# not on the shape yet, but the live tutor teaches calculus today.
+#
+# WHY THIS ONE IS DECIDABLE AND MOST "REASONING" FINDINGS ARE NOT: the reply
+# carries BOTH halves. It lists the numbers and it names the value they approach,
+# so nothing has to be inferred about what the tutor meant -- arithmetic settles
+# it. The referee never asks whether a limit is right; only whether the numbers
+# printed in this sentence move the way this sentence says they move.
+#
+# THE THREE SILENCES, each of them a real form the tutor uses honestly:
+#   * the honest order ("4.1, then 4.01 -- sinking toward 4") -- the distance
+#     shrinks, nothing to say;
+#   * a list that REACHES the value it approaches (a limit that is attained);
+#   * another number standing between the list and the claim -- then the claim is
+#     about some other list, and guessing which is how a referee earns its first
+#     false positive.
+# Canon sweep: 0 fires across 12 files, line by line.
+# =============================================================================
+_APPROACH_RE = re.compile(
+    r"(?P<list>-?\d+(?:\.\d+)?(?:\s*,\s*(?:and\s+)?(?:then\s+)?-?\d+(?:\.\d+)?){1,5})"
+    r"(?P<mid>[^.!?;]{0,45}?)"
+    r"\b(?:sinking|climbing|falling|rising|creeping|heading|closing|homing|settling|"
+    r"moving|going|drifting|shrinking|growing|marching|inching|zeroing)?\s*"
+    r"(?:in\s+)?(?:toward|towards|approaching|closer\s+and\s+closer\s+to|"
+    r"closing\s+in\s+on)\s+"
+    r"(?P<limit>-?\d+(?:\.\d+)?)\b", re.I)
+_APPROACH_NUM = re.compile(r"-?\d+(?:\.\d+)?")
+_APPROACH_TOL = 1e-12
+
+
+def approach_direction_conflict(reply: str):
+    """Return a description of a listed sequence said to move TOWARD a value that its
+    own numbers move away from, or "". Never raises: fail open."""
+    try:
+        for m in _APPROACH_RE.finditer(str(reply or "")):
+            if re.search(r"\d", m.group("mid") or ""):
+                continue                    # a number in between: a different list
+            nums = [float(x) for x in _APPROACH_NUM.findall(m.group("list"))]
+            if len(nums) < 2:
+                continue
+            limit = float(m.group("limit"))
+            first, last = abs(nums[0] - limit), abs(nums[-1] - limit)
+            if last <= first + _APPROACH_TOL:
+                continue                    # it does approach, or holds its distance
+            if any(abs(x - limit) < _APPROACH_TOL for x in nums):
+                continue                    # the list reaches the value itself
+            shown = " ".join(m.group(0).split())[:80]
+            return ('you say those numbers move toward {L} -- "{s}" -- but the ones '
+                    'you listed move AWAY from it: {a} is {da} away from {L} and {b} '
+                    'is {db} away. Rule 13: a sentence must be true of its own '
+                    'numbers. Either list them in the order that closes on {L}, or '
+                    'say the direction they actually go. Keep everything else the '
+                    'same.').format(L=_approach_fmt(limit), s=shown,
+                                    a=_approach_fmt(nums[0]), b=_approach_fmt(nums[-1]),
+                                    da=_approach_fmt(first), db=_approach_fmt(last))
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[approach] crashed (fail open): {exc}")
+        _event("referee_crash", "approach", str(exc))
+        return ""
+
+
+def _approach_fmt(x) -> str:
+    """A number the way the tutor would say it: 4 not 4.0, 0.09 not 0.09000000000004."""
+    try:
+        v = round(float(x), 10)
+        return str(int(v)) if float(v).is_integer() else ("%g" % v)
+    except Exception:  # noqa: BLE001
+        return str(x)
+
 
 
 def overgeneralized_precedence_conflict(reply: str):
@@ -9962,6 +10118,116 @@ def missing_caption_conflict(reply: str):
 
 
 # =============================================================================
+# BUILD tu (2026-09-07) -- THE SEVENTY-SIXTH REFEREE: THE CAPTION AND THE PIE
+# MUST BE THE SAME FRACTION (rule 41 / 13).
+# -----------------------------------------------------------------------------
+# The 2026-09-07 night watch's only HIGH, quoted exactly:
+#
+#     [[pie parts="6" shaded="2" caption="one sixth"]]
+#
+# The caption says one sixth. The drawing shades two sixths. A student who trusts
+# the picture over the voice -- which is the whole reason the picture is there --
+# learns that one sixth looks like a third of the circle.
+#
+# WHY NOTHING CAUGHT IT. missing_caption_conflict (build gj) is the cheapest
+# referee in the file and it asks exactly one question: is there a caption? It has
+# never read one. The caption referee fired 21 times in the week this defect
+# shipped, and every one of those fires was an absent caption. A caption that is
+# present and WRONG has been invisible since gj.
+#
+# ⚠️ THE EQUIVALENCE ESCAPE IS THE WHOLE SAFETY OF THIS REFEREE. Equivalent
+# fractions are TAUGHT with exactly this figure, and the caption names both sides
+# on purpose: "two sixths -- the same amount as one third" over a 6-part pie with
+# 2 shaded is correct and must stay silent. So ANY fraction the caption names that
+# equals the drawing buys silence, and only a caption whose every named fraction
+# disagrees with the drawing is a finding.
+#
+# SCOPED TO [[pie]] ALONE, and the reason is in the canon. The sweep found a
+# hundredgrid captioned "a tenth is a whole row" over shaded="40" -- the caption
+# names a PART of the picture, not its shading, and it is right. The pie carries
+# no such idiom in 129 authored tags, so the pie is where this referee is honest.
+# Widening it to another figure means sweeping that figure first.
+# Canon sweep: 0 fires across 129 authored pie tags, both files.
+# =============================================================================
+_PIE_TAG_RE = re.compile(r'\[\[\s*pie\b([^\]]*)\]\]', re.I)
+_PIE_ATTR_RE = r'\b%s\s*=\s*"\s*([^"]*?)\s*"'
+_CAP_NUMER = {"a": 1, "an": 1, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+              "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11,
+              "twelve": 12}
+_CAP_DENOM = {"half": 2, "halves": 2, "third": 3, "thirds": 3, "quarter": 4,
+              "quarters": 4, "fourth": 4, "fourths": 4, "fifth": 5, "fifths": 5,
+              "sixth": 6, "sixths": 6, "seventh": 7, "sevenths": 7, "eighth": 8,
+              "eighths": 8, "ninth": 9, "ninths": 9, "tenth": 10, "tenths": 10,
+              "twelfth": 12, "twelfths": 12}
+_CAP_WORDFRAC = re.compile(r"\b(%s)[\s\-]+(%s)\b" % ("|".join(_CAP_NUMER),
+                                                     "|".join(_CAP_DENOM)), re.I)
+_CAP_DIGFRAC = re.compile(r"(?<![\d/])(\d{1,3})\s*/\s*(\d{1,3})(?![\d/])")
+_CAP_PCT = re.compile(r"(\d{1,3})\s*(?:%|percent)\b", re.I)
+
+
+def _caption_fractions(caption: str):
+    """Every fraction a caption NAMES, as (numerator, denominator) pairs in lowest
+    terms is not needed -- exact pairs are compared by cross-multiplication, so no
+    Fraction import and no float ever touches this."""
+    out = []
+    text = str(caption or "")
+    for m in _CAP_WORDFRAC.finditer(text):
+        out.append((_CAP_NUMER[m.group(1).lower()], _CAP_DENOM[m.group(2).lower()]))
+    for m in _CAP_DIGFRAC.finditer(text):
+        d = int(m.group(2))
+        if d:
+            out.append((int(m.group(1)), d))
+    for m in _CAP_PCT.finditer(text):
+        out.append((int(m.group(1)), 100))
+    return out
+
+
+def pie_caption_conflict(reply: str):
+    """Return a description of a pie whose caption names a fraction the drawing does
+    not show, or "". Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        for m in _PIE_TAG_RE.finditer(str(reply or "")):
+            body = m.group(1)
+            got = {}
+            for name in ("parts", "shaded", "caption"):
+                hit = re.search(_PIE_ATTR_RE % name, body)
+                got[name] = hit.group(1) if hit else ""
+            parts, shaded = got["parts"].strip(), got["shaded"].strip()
+            if not parts.isdigit() or not shaded.isdigit():
+                continue                    # not a countable pie; nothing to compare
+            n, k = int(parts), int(shaded)
+            if n <= 0 or k > n:
+                continue                    # malformed_tag_conflict owns that
+            named = _caption_fractions(got["caption"])
+            if not named:
+                continue                    # the caption names no fraction: silent
+            # THE EQUIVALENCE ESCAPE: any named fraction that equals the drawing.
+            if any(p * n == q * k for p, q in named):
+                continue
+            said = ", ".join("%d/%d" % (p, q) for p, q in named)
+            return ('your caption says "{c}" but the pie you drew has {k} of {n} '
+                    'pieces shaded -- the picture is {k}/{n}, not {s}. Rule 41: the '
+                    'caption names what to NOTICE in the figure, so a caption and a '
+                    'figure that disagree teach the student the wrong one, and the '
+                    'student who is already lost will believe the picture. Either '
+                    'shade {n2} piece{pl} to make the picture say {s}, or caption the '
+                    'picture you actually drew (and if you meant to show they are the '
+                    'same amount, say BOTH -- "{k}/{n} -- the same amount as {s}").'
+                    ).format(c=" ".join(str(got["caption"]).split())[:70], k=k, n=n,
+                             s=said, n2=(named[0][0] * n // named[0][1]
+                                         if named[0][1] and n % named[0][1] == 0
+                                         else named[0][0]),
+                             pl="" if (named[0][1] and n % named[0][1] == 0
+                                       and named[0][0] * n // named[0][1] == 1) else "s")
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[piecaption] crashed (fail open): {exc}")
+        _event("referee_crash", "piecaption", str(exc))
+        return ""
+
+
+
+# =============================================================================
 # THE SELF-CORRECTION CHECK (2026-08-16, build gl) -- the eleventh referee.
 # -----------------------------------------------------------------------------
 # The one HIGH finding in the 2026-08-16 audits, quoted exactly:
@@ -10202,6 +10468,13 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if caption:
             _event("referee_fire", "caption", caption)
             return caption
+        # build tu: SEVENTY-SIXTH, immediately after it -- the caption is there,
+        # and it names a different fraction than the pie actually shows. Truth-class:
+        # the picture would teach the student the wrong fraction (the 09-07 HIGH).
+        piecaption = pie_caption_conflict(reply)
+        if piecaption:
+            _event("referee_fire", "piecaption", piecaption)
+            return piecaption
         # build gl: third, and cheap -- the tutor must never be seen changing its mind.
         selfcorrect = self_correction_conflict(reply)
         if selfcorrect:
@@ -10540,6 +10813,13 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if knownfalse:
             _event("referee_fire", "knownfalse", knownfalse)
             return knownfalse
+        # build tu: SEVENTY-SEVENTH -- a listed sequence said to move TOWARD a
+        # value that its own numbers move away from (the 09-07 watch's calculus
+        # finding). Truth-class: the sentence is false of the numbers beside it.
+        approach = approach_direction_conflict(reply)
+        if approach:
+            _event("referee_fire", "approach", approach)
+            return approach
         # build sm: SEVENTY-FIFTH -- the board works the asked expression with its
         # numbers REORDERED so the answer changes (the 09-04 watch's HIGH; the 08-29
         # probe, promoted under Jim's ruling that board/words disagreement is
@@ -11973,6 +12253,10 @@ TRUTH_REFEREES = {
     # and said 11 -- would have shipped as conduct under the sj list; it does not now.
     "boardcount":    "the spoken count of a drawing is not what the drawing shows (nz)",
     "exprswap":      "the board works the asked expression with its numbers reordered so the answer changes (sm)",
+    # (tu) JIM'S RULING, 2026-09-07: "truth items first". Both of these are a false
+    # thing a student would be SHOWN or TOLD, which is sj's own test for this list.
+    "piecaption":    "a pie's caption names a fraction the drawing does not show (tu)",
+    "approach":      "a listed sequence said to move toward a value its own numbers move away from (tu)",
 }
 # Considered and NOT included, so the next reader does not re-argue them from scratch:
 #   recordclaim (false about the record, rule 62 family, not about maths) ·

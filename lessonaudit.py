@@ -2,6 +2,20 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tu -- DISCIPLINE CHECK 6: THE BOARD LANDS WHOLE, THEN THE VOICE.
+#               Three watches (09-01, 09-03, 09-06) reported the same shape on the
+#               geometry-picture scenario: an opening card writes a^2 + b^2 = c^2 and
+#               the reading of it comes LATER IN THE SAME REPLY. The critic reads a
+#               transcript top to bottom and sees notation arriving before its words.
+#               The student never does: session.html draws the entire reply's board
+#               with handleTags and only then speaks it in runTutor. Order inside one
+#               reply is an artefact of how a transcript is written down. Rules 4 and
+#               14 are written to that standard ("in the same reply"), and the gate
+#               build rl added enforces the real version -- a reading absent from the
+#               whole reply. The critic now knows the same thing the reviewer knows;
+#               nightwatch's RULED_ALLOWED carries the matching row and its boundary.
+#               (Also corrected: this list has said "Three discipline checks" since it
+#               grew to five in build gn2. It is six now, and it says six.)
 #   2026-08-19  BUILD iu -- THE A/B HARNESS (Jim's call: "I wanna do an AB test...
 #               when we use ChatGPT, we use version five point six"). Three lineup
 #               flags, validated loudly per the build-im discipline:
@@ -313,8 +327,8 @@ Do NOT report: tone, warmth, length, formatting, or anything you merely think co
 phrased better. Do NOT invent rule numbers. If the transcript is clean, say so - a clean
 report is a useful result and you will not be thought lazy for returning one.
 
-Three discipline checks, added after your predecessor's first marking run (each cost a
-human time to reject):
+Six discipline checks, added after marking runs whose findings a human had to
+reject one by one (each cost real attention):
 1. BEFORE you flag, re-read the surrounding turns. A claim that was derived or justified
    EARLIER in the transcript is not an unjustified assertion. (Example from that run: a
    graph of y = x+2 with a hole at x = 2 was flagged as a false feature -- but the
@@ -339,6 +353,13 @@ human time to reject):
    once the tutor has raised it -- rule 50 preserves that agency on purpose; flag only a
    tutor who never raised it at all. And an OFFER ("Want to try one more, or move on?")
    is an invitation, not an understanding check, and needs no pending board line.
+6. THE BOARD LANDS WHOLE, AND THEN THE VOICE SPEAKS. You are reading a transcript
+   top to bottom, so inside one reply you will sometimes see a board tag arrive BEFORE
+   the words that read it aloud. The student never experiences that order: the page
+   draws the entire reply's board first and only then speaks it. So a symbol written
+   in a tag and read aloud LATER IN THE SAME REPLY is NOT a finding -- do not report
+   it. What IS a finding, every time, is a symbol or equation that is never read
+   ANYWHERE in the reply that writes it; report that one.
 
 Return STRICT JSON only, no prose around it:
 {"findings":[{"severity":"high|medium|low","rule":<number or null>,

@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  APP_BUILD -> "2026-09-07tu-the-truth-trio-and-the-reviewers-list".
+#               BUILD tu -- the 2026-09-07 night watch's three TRUTH-class findings,
+#               and the reviewer's rulings list grown from one row to five. Jim's
+#               ruling, 2026-09-07: truth items first. The 76th referee compares a
+#               pie's caption with the fraction the pie actually shades (the watch's
+#               HIGH: parts="6" shaded="2" captioned "one sixth"); the 77th catches a
+#               listed sequence said to move TOWARD a value its own numbers move away
+#               from; KNOWN_FALSEHOODS row 17 catches factoring DEFINED as pieces that
+#               multiply to zero. Both new referees are truth-class, so a draft
+#               carrying one is withheld rather than shipped least-bad. No engine or
+#               route changed: this build is referees, a falsehood row, four reviewer
+#               rulings and one critic discipline line.
 #   2026-09-06  APP_BUILD -> "2026-09-06tt-probstat-units-four-to-six-to-the-shape".
 #               BUILD tt -- Probstat Units 4-6 (sampling, probability, conditional)
 #               rewritten to the shape on the bars, the tape, the hundred square, the
@@ -13838,7 +13850,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-06tt-probstat-units-four-to-six-to-the-shape"
+APP_BUILD = "2026-09-07tu-the-truth-trio-and-the-reviewers-list"
 
 
 @app.get("/health")

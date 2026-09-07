@@ -2,6 +2,32 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD tu -- THE REVIEWER'S LIST GROWS FROM ONE ROW TO FIVE. Two watches
+#               (09-06, 09-07) confirmed four shapes that are decided designs or plain
+#               correctness, because the reviewer was never told about them. Each new
+#               row costs one dict; each one stops a recurring waste:
+#                 * RULE 52(d) -- "what's 3.5 + 0.47?" left unanswered. The prompt's own
+#                   rule 52 names that exact sentence as the thing it is NOT. The
+#                   reviewer sees only rule TITLES in its (B) index, so it confirmed a
+#                   shape the rule excludes in its own text. Boundary: a question ABOUT
+#                   the mathematics left unanswered is still a real 52.
+#                 * RULE 48 -- a [[choices]] row's fractions not read aloud. Build iz
+#                   (2026-08-19) ruled in code that answer OPTIONS are not board
+#                   notation. Boundary: the same fraction on a [[write]] or [[step]] is
+#                   still a finding.
+#                 * RULE 27 -- 3.5 written as 3.50 to align decimal places. REFUTED by
+#                   the reviewer three watches running (09-05, 09-06, 09-07) and right
+#                   every time; it has cost three triage paragraphs. Boundary: a
+#                   trailing zero that CHANGES a value, or a value silently rounded, is
+#                   a real finding.
+#                 * RULES 4/14 -- a tag written before the notation is read, INSIDE ONE
+#                   REPLY. The live page lands the whole reply's board (handleTags) and
+#                   then speaks (runTutor, session.html), so order within one reply is a
+#                   transcript artefact the student never experiences. Boundary: no
+#                   reading ANYWHERE in the reply is still a real first-use finding --
+#                   that is the gate build rl exists to hold.
+#               ⚠️ EVERY ROW SILENCES A CLASS OF FINDING. Each one carries the boundary
+#               that is still enforced, per sh's law, and the battery pins the count.
 #   2026-09-04  BUILD so -- TWO MORE THINGS THE EYES CAN SEE. (1) voice_fallback: the
 #               browser-voice fallback voice.js used to confess on the console only,
 #               now an event with its reason -- a telemetry line, a named offender, a
@@ -557,6 +583,84 @@ RULED_ALLOWED = [
                     "percentile or class average. The test is what the sentence "
                     "MEASURES. If it measures this student against a room of CHILDREN, "
                     "confirm it -- the ruling does not reach it.",
+    },
+    {
+        "rule": 52,
+        "date": "2026-09-06",
+        "shape": 'a REQUEST TO COMPUTE -- "what\'s 3.5 + 0.47?", "what is 12 x 8?" -- '
+                 "reported as a rule-52 question the tutor failed to answer first",
+        "ruling": "The prompt's own rule 52 carries clause (d) verbatim: \"A REQUEST TO "
+                  "COMPUTE IS NOT THIS RULE (a critic read 'what's 3.5 + 0.47?' as a "
+                  'rule-52 question).\" The rule already names this exact sentence as '
+                  "the thing it is not -- and it named it because a critic made this "
+                  "same mistake once before. The reviewer sees only rule TITLES in its "
+                  "(B) index, so the clause that settles it has never reached this "
+                  "seat. The 2026-09-06 watch confirmed it anyway.",
+        "boundary": "A QUESTION ABOUT THE MATHEMATICS IS STILL A REAL 52 and is caught "
+                    'every time: "why does that work", "is it because the bottoms are '
+                    'the same", "what if the top were bigger", "how come you moved the '
+                    'point". The test is what the student ASKED FOR. If they asked for '
+                    "a NUMBER, this ruling covers it. If they asked for a REASON and "
+                    "the tutor moved on without giving one, confirm it -- the ruling "
+                    "does not reach that.",
+    },
+    {
+        "rule": 48,
+        "date": "2026-08-19",
+        "shape": "the fractions inside a [[choices]] row -- the tappable answer buttons "
+                 '-- reported as new notation written but never read aloud',
+        "ruling": "Build iz (2026-08-19) ruled this in CODE, not in prose: answer "
+                  "options are not board notation. A [[choices]] row is a set of "
+                  "buttons the student taps, and the fraction-slash entry judges "
+                  "non-choices tags only. The rule that made it necessary: a pipe "
+                  "separator in an options row once ordered the tutor to explain "
+                  "absolute-value bars that no board had ever drawn.",
+        "boundary": "THE SAME FRACTION ON A [[write]] OR A [[step]] IS STILL A FINDING, "
+                    "and so is any notation the tutor puts on the board in its own "
+                    "voice. This ruling reaches the BUTTONS and nothing else. Separately "
+                    "-- and this is not a defect for you to report -- whether the "
+                    "buttons should be READ ALOUD to a young student is an open product "
+                    "question of Jim's, a page feature and not a referee.",
+    },
+    {
+        "rule": 27,
+        "date": "2026-09-07",
+        "shape": 'writing 3.5 as "3.50" (or 7 as "7.0") on the board to line up decimal '
+                 "places, without stopping to explain that the trailing zero changes "
+                 "nothing",
+        "ruling": "Refuted by this seat three watches running -- 2026-09-05, 2026-09-06 "
+                  "and 2026-09-07 -- and right every time. 3.50 is the standard "
+                  "equivalent form, writing it is how column addition is taught, and "
+                  "no conduct rule requires the equivalence to be spelled out before "
+                  "the columns are drawn. Three correct refutations of one shape is the "
+                  "signal to write the row rather than spend a fourth.",
+        "boundary": "A TRAILING ZERO THAT CHANGES A VALUE IS A REAL FINDING -- 3.5 "
+                    'written as "3.05", a value silently ROUNDED to fit the column '
+                    '(2.457 becoming "2.46" with no word said), or a whole number given '
+                    "a decimal point that moves it. This ruling covers the zero that "
+                    "adds nothing but alignment, and nothing else.",
+    },
+    {
+        "rule": 14,
+        "date": "2026-09-07",
+        "shape": "a symbol or equation appearing in a board tag EARLIER IN THE REPLY "
+                 "than the words that read it aloud -- reported as notation written "
+                 "before it was introduced",
+        "ruling": "The student never experiences that order. The live page draws the "
+                  "WHOLE reply's board with handleTags and only then speaks it, in "
+                  "runTutor (session.html) -- so within a single reply the board lands "
+                  "as one picture and the voice follows. Rules 4 and 14 are written to "
+                  "that standard: 'in the same reply'. This shape has been confirmed on "
+                  "the geometry-picture scenario in three separate watches (09-01, "
+                  "09-03, 09-06), every one of them reading a transcript artefact as a "
+                  "defect.",
+        "boundary": "⚠️ THE NARROWEST ROW ON THIS LIST, and the most dangerous to widen. "
+                    "If the reading appears NOWHERE IN THE REPLY, it is a real "
+                    "first-use finding and you must confirm it -- that is the gate "
+                    "build rl exists to hold, and it catches exactly this. The ruling "
+                    "covers ORDER WITHIN ONE REPLY. It does not reach a reading that is "
+                    "absent, a reading that appears only in a LATER reply, or a symbol "
+                    "read in a way a student could not repeat.",
     },
 ]
 
