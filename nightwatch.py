@@ -2,6 +2,13 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  BUILD uo -- RULED_ALLOWED ROW SEVEN, rule 48 (Jim's ruling, 2026-09-08,
+#               on the 09-08 triage's recommendation). Two scenarios in one watch
+#               confirmed a [[step]]/[[write]] equation whose every symbol was already
+#               introduced as 'new notation not read aloud in full'. Not a defect: an
+#               equation built from taught symbols is a board line, not a notation;
+#               rule 44 (pending lines) and rule 14 (first use) keep their referees.
+#               Boundary: a symbol never introduced is still a real 14/48 finding.
 #   2026-09-07  BUILD tx -- RULED_ALLOWED ROW SIX, rule 27 (Jim's ruling, 2026-09-07).
 #               The 09-07 watch confirmed the tutor answering "whats 3.5 + 0.47" as "three
 #               dollars and fifty cents plus forty-seven cents" -- money units the
@@ -689,6 +696,29 @@ RULED_ALLOWED = [
                     "question was in metres, or a model swapped MID-PROBLEM so the "
                     "student is asked to hold two at once. This ruling covers a "
                     "familiar model offered ALONGSIDE the arithmetic, and nothing else.",
+    },
+    {
+        "rule": 48,
+        "date": "2026-09-08",
+        "shape": "a [[step]] or [[write]] EQUATION built entirely from symbols this "
+                 "conversation has already introduced and read aloud -- x, f(x), the "
+                 "caret, the fraction bar -- reported as new notation written but not "
+                 "read aloud in full",
+        "ruling": "Jim, 2026-09-08, on the recommendation of the 09-08 triage (#8, #13): "
+                  "not a defect. Rule 48 is about NOTATION -- a symbol the student has "
+                  "never met appearing on the board unexplained. An equation assembled "
+                  "from symbols already taught is a board LINE, not a new notation; "
+                  "reading every board line aloud is rule 44's job (a pending line the "
+                  "words never name) and rule 14's (first use), both held by live "
+                  "referees. This shape had been confirmed on two scenarios in one "
+                  "watch and would recur every night until ruled.",
+        "boundary": "A SYMBOL THIS CONVERSATION HAS NOT INTRODUCED IS STILL A REAL "
+                    "FINDING and referee 31 catches it every time: a first caret, a "
+                    "first absolute-value bar, a first sigma, a first f(x) with no "
+                    "reading -- confirm those under 14/48 as before. And a NEW RULE or "
+                    "formula written on the board, questioned, and never read is still "
+                    "a real 44. The test is whether every symbol in the line has been "
+                    "met. If one has not, this ruling does not reach it.",
     },
 ]
 

@@ -6,6 +6,29 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD uo -- PROMPT_CEILING 207,000 -> 208,000 (the rule-28 clause put the
+#               all-heard algebra2 prompt 533 over; dated note at the constant). And:
+#   2026-09-08  BUILD uo -- THE EIGHTY-FIRST REFEREE: ONE NAME PER FUNCTION (rule 28).
+#               Jim's ruling, 2026-09-08, on the 09-08 watch's #3 (f(x) = x^2, then f(x) =
+#               (x^2 - 4)/(x - 2), no word said): YES, one letter names one function for the
+#               whole conversation. NEW function_redefined_conflict(reply, heard_tutor):
+#               every WRITTEN definition `f(x) = <rule>` in the tutor's own earlier turns
+#               (the last per letter stands) against every written definition in this
+#               reply; a different rule under the same letter with no retiring words
+#               fires. Cautious: a bare constant is an equation (solve f(x) = 0), not a
+#               definition; the same text, the same rule in another variable letter, or
+#               mathcheck.expressions_equal True (x^2 vs x*x) is one function and
+#               UNDECIDED is silent; "a new function", "put f away", "this time f is",
+#               "reuse" buy silence; history-gated (no heard_tutor, no verdict); without
+#               mathcheck it is silent. Dispatched after rz's varcase, event "funcrename".
+#               Conduct (truth class stays 11). Referee count 80 -> 81. Canon swept
+#               CUMULATIVELY (each beat against the beats before it): 3,277 strings, 0.
+#               THE HONEST GAP: it reads written definitions, not [[machine fname= rule=]]
+#               tags -- five authored lessons (alg1-u3 x3, pc-u1 x2) reuse a machine's
+#               letter across practice examples, which the ruling would forbid; widening
+#               waits on Jim's word about those lessons. Also this build: the prompt's
+#               rule 28 gains the clause (prompts.py); RULED_ALLOWED row seven, rule 48
+#               (nightwatch.py); mathcheck.expressions_equal.
 #   2026-09-08  BUILD un -- THE EIGHTIETH REFEREE, TWO ROWS, THE PLAIN PROSE, THE THIRD
 #               SIGHTING, BRANCH THREE (the 2026-09-08 night watch, 14 new confirmed on ug;
 #               the five that needed no ruling -- claude/Triage_NightWatch_2026-09-08_...).
@@ -1130,7 +1153,13 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # 621 over. Thirteenth verse, same discipline: teaching is never trimmed to duck a
 # tripwire; the raise is deliberate and this is its dated note. The two-prompt-
 # sizes LARGE result remains the evidence that should set this number.
-PROMPT_CEILING = 207_000
+# 2026-09-08 (build uo): RAISED 207,000 -> 208,000. Rule 28 gained the one-letter-one-
+# function clause (Jim's ruling on the 09-08 watch), in the shared block, and the
+# all-heard algebra2 prompt measured 207,533 -- 533 over. Fourteenth verse, same
+# discipline: teaching is never trimmed to duck a tripwire; the raise is deliberate and
+# this is its dated note. The two-prompt-sizes LARGE result remains the evidence that
+# should set this number.
+PROMPT_CEILING = 208_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -7684,6 +7713,149 @@ _TRI_NAMES_SIDE = re.compile(
 
 
 # =============================================================================
+# BUILD uo (2026-09-08) -- THE EIGHTY-FIRST REFEREE: ONE NAME PER FUNCTION (rule 28).
+# -----------------------------------------------------------------------------
+# The 2026-09-08 night watch, limits-hole, rule 28: the tutor wrote f(x) = x^2 for the
+# first example and, two turns later, f(x) = (x^2 - 4)/(x - 2) for the next -- the same
+# letter, a different function, no word said about it. Jim's ruling, 2026-09-08, asked
+# directly: YES, one letter names one function for the whole conversation. Reusing f is
+# ordinary classroom shorthand for a teacher; for a student who is still learning that
+# f IS a name, it is the same name pointing at two things -- exactly what rule 28 is
+# written against ("every synonym you sprinkle in is a brand-new thing to learn").
+#
+# WHAT IT READS. heard_tutor -- the tutor's OWN earlier turns, the same feed tv gave the
+# first-use gate (never the student's words, never a rejected draft). Every written
+# definition `f(x) = <rule>` in those turns is collected and the LAST one per letter
+# stands; then every written definition in THIS reply is compared to it. A definition is
+# a letter f/g/h, a parenthesised single-letter variable, an equals sign and a rule
+# written in symbols (a tag value or the prose -- the board and the words alike).
+#
+# ⚠️ CAUTIOUS, five ways:
+#   (1) a pure-constant right side is an EQUATION, not a definition ("solve f(x) = 0",
+#       "when f(x) = 5") and never counts; nor does a right side preceded by solve /
+#       set / when / where / if / find / want;
+#   (2) two rules that are the same function stay silent: the same text, the same text
+#       in another variable letter (f(t) = 2t is f(x) = 2x), or mathcheck's
+#       expressions_equal says True (x^2 and x*x) -- and UNDECIDED is silent too;
+#       without mathcheck at all the referee is silent (fail open, /health says so);
+#   (3) the tutor may retire a name: "a new function", "a different function", "put f
+#       away", "forget the old f", "this time f is", "f gets a new rule" -- any of
+#       those in the spoken words buys silence, and the LAST definition then stands
+#       for the next turn (so the renamed f is not reported again);
+#   (4) history-gated: no heard_tutor (None), no verdict -- turn one is always silent;
+#   (5) canon 0: swept over every authored lesson cumulatively (each beat against the
+#       beats before it) and every foundation course in order.
+_FR_DEF = re.compile(r"(?<![a-z])([fgh])\s*\(\s*([a-z])\s*\)\s*=(?!=)\s*"
+                     r"((?:(?![fgh]\s*\(\s*[a-z]\s*\)\s*=)[^=\]\"\n|;])+)")   # a rule never swallows the next definition
+_FR_STOP = re.compile(
+    r"\b(?:and|so|then|when|where|which|is|means|gives|tells|if|or|but|because|while|that|"
+    r"this|here|now|let|call|plug|put|write|say|read|look|see|what|how|why|the|we|you|"
+    r"at|to|with|for|our|your|its|has|have|does|do|not|no|yes|right|ok|okay|good|great)\b"
+    r"|[.!?,:]\s|[.!?,:]$|\s--\s|\s[–—]\s")     # a spaced minus is math; -- and the dashes are prose
+_FR_EQUATION_BEFORE = re.compile(
+    r"\b(?:solve|solving|solves|set|setting|sets|when|where|if|find|finding|make|making|"
+    r"want|wants|does|is|until|whenever|suppose)\s*[:,]?\s*$", re.I)
+_FR_NEW_WORDS = re.compile(
+    r"\bnew\s+(?:function|rule|job|meaning|definition|assignment)\b"
+    r"|\b(?:different|another|second|fresh|separate)\s+function\b"
+    r"|\bput\s+(?:the\s+|our\s+|that\s+)?(?:old\s+|first\s+|earlier\s+)?[fgh]\s+(?:away|aside|down)\b"
+    r"|\bforget\s+(?:about\s+)?(?:the\s+|our\s+|that\s+)?(?:old\s+|first\s+|earlier\s+)?[fgh]\b"
+    r"|\bre-?(?:use|using|used|define|defining|defined|name|naming|named)\b"
+    r"|\b(?:this\s+time|from\s+now\s+on|now)\s*,?\s+(?:let(?:'s|\s+us)?\s+)?(?:say\s+)?[fgh]\s*(?:\(\s*[a-z]\s*\))?\s+(?:is|will\s+be|means|equals|becomes|gets|stands)\b"
+    r"|\bgive\s+[fgh]\s*(?:\(\s*[a-z]\s*\))?\s+a\s+(?:new|different|fresh)\b"
+    r"|\b[fgh]\s*(?:\(\s*[a-z]\s*\))?\s+(?:gets|takes|has)\s+a\s+(?:new|different|fresh)\b"
+    r"|\bstart\s+(?:over|fresh|again)\b|\bnew\s+[fgh]\b|\bretire\b|\bwipe\s+the\s+(?:board|slate)\b"
+    r"|\bsame\s+letter\b|\bsame\s+name\b", re.I)
+_FR_EXPR_OK = re.compile(r"^[0-9a-z^+\-*/().√]+$")
+
+
+def _fr_rhs(raw: str) -> str:
+    """The rule written after `f(x) =`, cut at the first English word or sentence
+    mark and normalised (no spaces, ^ for superscripts, * for the dot); "" when it
+    is not a rule in symbols, or is a bare constant (an equation, not a definition)."""
+    txt = str(raw or "")
+    m = _FR_STOP.search(txt)
+    if m:
+        txt = txt[:m.start()]
+    txt = (txt.lower().replace("²", "^2").replace("³", "^3").replace("·", "*")
+           .replace("×", "*").replace("−", "-").replace("–", "-"))
+    txt = re.sub(r"\s+", "", txt).rstrip(".,;:!?")
+    if not txt or not _FR_EXPR_OK.match(txt):
+        return ""
+    if re.fullmatch(r"[0-9./\-+()]+", txt):
+        return ""                              # f(x) = 0 is an equation to solve
+    return txt
+
+
+def _fr_definitions(text: str):
+    """[(letter, variable, rule)] for every written definition in `text`, in order."""
+    out = []
+    low = str(text or "").lower()
+    for m in _FR_DEF.finditer(low):
+        before = low[max(0, m.start() - 16):m.start()]
+        if _FR_EQUATION_BEFORE.search(before):
+            continue
+        rule = _fr_rhs(m.group(3))
+        if rule:
+            out.append((m.group(1), m.group(2), rule))
+    return out
+
+
+def _fr_same_rule(old_var: str, old: str, new_var: str, new: str):
+    """True when two written rules are one function (text, text in the other variable
+    letter, or mathcheck says equivalent); None when mathcheck cannot decide; False
+    when they are different functions."""
+    if old == new:
+        return True
+    if old_var != new_var:
+        swapped = re.sub(r"(?<![a-z])" + re.escape(old_var) + r"(?![a-z])", new_var, old)
+        if swapped == new:
+            return True
+        old = swapped
+    if mathcheck is None or not hasattr(mathcheck, "expressions_equal"):
+        return None
+    return mathcheck.expressions_equal(old, new)
+
+
+def function_redefined_conflict(reply: str, heard_tutor=None):
+    """Return a description of a function letter given a second, different rule with
+    no word about it, or "". Silent without heard_tutor. Never raises (fail open)."""
+    try:
+        if heard_tutor is None:
+            return ""
+        earlier = {}
+        for name, var, rule in _fr_definitions(str(heard_tutor)):
+            earlier[name] = (var, rule)              # the LAST definition stands
+        if not earlier:
+            return ""
+        text = str(reply or "")
+        if _FR_NEW_WORDS.search(_spoken_only(text)):
+            return ""                                 # the name was retired out loud
+        for name, var, rule in _fr_definitions(text):
+            if name not in earlier:
+                continue
+            old_var, old = earlier[name]
+            same = _fr_same_rule(old_var, old, var, rule)
+            if same is not False:
+                continue                              # the same function, or undecided
+            return ('the letter {n} already names a function in this conversation -- you '
+                    'wrote {n}({ov}) = {o} earlier -- and this reply writes {n}({v}) = {r}, '
+                    'a DIFFERENT function under the same name, with no word about it. '
+                    'Rule 28: one name per thing, all lesson; to a student still learning '
+                    'that {n} is a name, the same letter pointing at two rules is two '
+                    'things to learn. Either use a new letter for the new function '
+                    '(g, or h) and say so, or say out loud that {n} is being given a new '
+                    'rule ("let\'s put the old {n} away -- this time {n}({v}) means '
+                    '{r}"). Keep everything else the same.').format(
+                        n=name, ov=old_var, o=old, v=var, r=rule)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[funcrename] crashed (fail open): {exc}")
+        _event("referee_crash", "funcrename", str(exc))
+        return ""
+
+
+# =============================================================================
 # BUILD un (2026-09-08) -- THE EIGHTIETH REFEREE: THE LETTERS ON THE SIDES ARE SAID.
 # -----------------------------------------------------------------------------
 # The 2026-09-08 night watch, geometry-picture, rule 14: the first triangle carried
@@ -9141,6 +9313,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if vcase:
             _event("referee_fire", "varcase", vcase)
             return vcase
+        # (uo) the eighty-first: one name per function, all conversation (rule 28,
+        # Jim's 2026-09-08 ruling). History-gated on heard_tutor like referee 31.
+        frename = function_redefined_conflict(reply, heard_tutor=heard_tutor)
+        if frename:
+            _event("referee_fire", "funcrename", frename)
+            return frename
         # (se) the seventy-third: the board holds one beat (rule 19c, Jim's flag).
         # Reply-only and computed from the canon's own density ceiling.
         flood = board_flood_conflict(reply)

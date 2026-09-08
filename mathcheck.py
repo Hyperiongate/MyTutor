@@ -2,6 +2,13 @@
 # mathcheck.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  BUILD uo -- expressions_equal(a, b): a third public proof beside
+#               constant_equal and is_canonical_constant. True/False only when both
+#               texts pass the parse gate and equivalence is decidable (symbolic
+#               .equals, then the sampled zero test); None otherwise. Used by the
+#               one-name-per-function referee (rule 28, Jim's 2026-09-08 ruling) so
+#               that x^2 and x*x are one function and (x^2 - 4)/(x - 2) is not x^2.
+#               Nothing else in this file changed.
 #   2026-09-02  BUILD ry -- TWO PUBLIC PROOFS FOR THE QUIZ-VERDICT FLOOR (Jim's
 #               same-day ruling: "Retry + code floor"). constant_equal(a, b):
 #               True/False only when both texts are single all-constant
@@ -937,6 +944,28 @@ def constant_equal(a_text: str, b_text: str):
             vals.append(complex(expr.evalf(chop=True)))
         tol = _decimal_tolerance(str(b_text or ""))
         return abs(vals[0] - vals[1]) <= max(tol, tol * abs(vals[0]), BASE_TOL)
+    except Exception:  # noqa: BLE001 -- undecided, never a guess
+        return None
+
+
+def expressions_equal(a_text: str, b_text: str):
+    """(uo) True/False when both texts parse as single expressions and their
+    equivalence is DECIDABLE -- symbolically or by the same sampled test the
+    verify tags use; None when either fails the parse gate or the test cannot
+    decide. The one-name-per-function referee (tutor.function_redefined_conflict)
+    asks this before calling two rules for the same letter DIFFERENT: x^2 and
+    x*x are one function, (x^2 - 4)/(x - 2) is not x^2. Never raises."""
+    if not _SYMPY_OK:
+        return None
+    try:
+        parts = []
+        for raw in (a_text, b_text):
+            t = _normalize(_desuperscript(str(raw or "").strip()))
+            if not t or _reject_reason(t):
+                return None
+            parts.append(t)
+        verdict, _why = _check_equivalence(parts[0], parts[1], _decimal_tolerance(parts[1]))
+        return {"ok": True, "wrong": False}.get(verdict)
     except Exception:  # noqa: BLE001 -- undecided, never a guess
         return None
 

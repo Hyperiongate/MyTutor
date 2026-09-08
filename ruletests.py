@@ -6,6 +6,13 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD uo -- ONE NAME PER FUNCTION (Jim's three rulings on the 09-08 watch:
+#               #3 yes, #7 leave it, #8/#13 as recommended). PART 3kk: the EIGHTY-FIRST
+#               referee function_redefined_conflict (rule 28, fed heard_tutor), mathcheck's
+#               expressions_equal, the prompt's rule-28 clause, RULED_ALLOWED row seven
+#               (rule 48). Thirteen referee-count pins 80 -> 81; the row-six pin 6 -> 7;
+#               the tile 11,236 -> 11,268. Canon swept cumulatively, 0. The honest gap
+#               ([[machine fname=]] not read; five lessons reuse a letter) is pinned.
 #   2026-09-08  BUILD un -- THE TRUTH ITEMS AND THE PROVEN HOLES of the 2026-09-08 night
 #               watch (14 new confirmed on ug; the five needing no ruling). PART 3kj: the
 #               rule-61 referees read _plain_prose (markdown emphasis stripped -- the
@@ -11317,8 +11324,8 @@ def part3kg_the_mark_floor():
     check("  no retry anywhere in it (Jim: the verdict is already spoken; only the record was missing)",
           "MATHCHECK_MAX_ATTEMPTS" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000]
           and "retry" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000].lower(), "")
-    check("  the referee count is eighty since un -- uk added a floor, not a referee",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 80, "")
+    check("  the referee count is eighty-one since uo -- uk added a floor, not a referee",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 81, "")
 
     # ---- through the real shipping door (3gb's stub harness) --------------------------------
     import mathcheck as _mc
@@ -11780,9 +11787,9 @@ def part3kj_the_truth_items_and_the_proven_holes():
           and "which side is which" in (T.prose_board_conflict(W, "ok") or "")
           and '_event("referee_fire", "triangleletters", trinames)' in tsrc
           and tsrc.find('_event("referee_fire", "triangleletters"') > tsrc.find('_event("referee_fire", "triangleletter",') > 0, "")
-    check("⭐ eighty referees; the truth class still eleven (rule 14 is conduct; the rows ride "
+    check("⭐ eighty referees at un, eighty-one since uo; the truth class still eleven (rule 14 is conduct; the rows ride "
           "referee 61's table)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 80 and len(T.TRUTH_REFEREES) == 11, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 81 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweeps: nothing authored trips any of it --------------------------------------
     texts = []; pairs = []
@@ -11817,6 +11824,180 @@ def part3kj_the_truth_items_and_the_proven_holes():
           and 'APP_BUILD -> "2026-09-08un-the-figure-that-never-came"' in notes("main.py")
           and "2026-09-08  BUILD un" in notes("ruletests.py")
           and "(un) Tile 11,190" in notes("static/methodology.html"), "")
+
+
+def part3kk_one_name_per_function():
+    """PART 3kk (build uo, 2026-09-08) -- ONE NAME PER FUNCTION, and the seventh ruling row.
+
+    Jim's three rulings on the 2026-09-08 watch (asked directly, answered "1. yes
+    2. as you wish 3. as you recommend"):
+      #3  RULE 28 -- one letter names one function, all conversation: YES. THE
+          EIGHTY-FIRST REFEREE, function_redefined_conflict(reply, heard_tutor): every
+          written definition `f(x) = <rule>` in the tutor's own earlier turns (the last
+          per letter stands) against every written definition in this reply; a
+          DIFFERENT rule under the same letter with no retiring words fires. Same text,
+          the same rule in another variable letter, or mathcheck.expressions_equal True
+          (x^2 vs x*x) is the same function; undecided is silent; a bare constant is an
+          equation, not a definition; "a new function", "put f away", "this time f is"
+          buy silence. The prompt's rule 28 carries the clause, ⚑ enforced.
+      #7  the simplifying-rule condition: left as is (prompt wording at most).
+      #8/#13  RULE 48 -- a board equation whose every symbol was introduced is not
+          "new notation not read aloud": RULED_ALLOWED ROW SEVEN, with the boundary
+          (a symbol never introduced is still a real 14/48; a new rule never read is
+          still a real 44).
+    mathcheck gains expressions_equal(a, b) beside constant_equal. Canon: 0 fires over
+    every authored string swept CUMULATIVELY (each beat against the beats before it)."""
+    print("\nPART 3kk — one name per function (build uo)")
+    import tutor as T, nightwatch as NW, mathcheck as MC
+    import foundations as FND, lessonscripts as LS
+    tsrc = code_only(open("tutor.py", encoding="utf-8").read())
+
+    # ---- the watch's shape --------------------------------------------------------------
+    H = ('Let\'s start with a simple one. [[step eq="f(x) = x^2"]] So f of x equals x squared. '
+         "What is f(3)?")
+    R = ('Now look at this one. [[step eq="f(x) = (x^2 - 4)/(x - 2)"]] At x = 2 the bottom is '
+         "zero. What happens?")
+    d = T.function_redefined_conflict(R, heard_tutor=H.lower())
+    check("⭐ THE WATCH'S SHAPE: f(x) = x^2, then f(x) = (x^2 - 4)/(x - 2) under the same letter, "
+          "no word said -- fires",
+          bool(d) and "DIFFERENT function" in d and "f(x) = x^2" in d and "(x^2-4)/(x-2)" in d, (d or "")[:120])
+    check("  ...through the dispatcher, fed heard_tutor (the tutor's own turns, tv's feed)",
+          "DIFFERENT function" in (T.prose_board_conflict(R, "ok", heard_tutor=H.lower()) or "")
+          and "frename = function_redefined_conflict(reply, heard_tutor=heard_tutor)" in tsrc
+          and '_event("referee_fire", "funcrename", frename)' in tsrc, "")
+    for label, h, r, want in (
+            ("the same rule restated", H, 'Remember, [[step eq="f(x) = x^2"]] so f(3) = 9. What is f(4)?', False),
+            ("x·x is x^2 (mathcheck decides)", H, 'We can write [[step eq="f(x) = x·x"]] too. What is f(5)?', False),
+            ("the same rule in another variable letter", H,
+             'The letter inside can change: [[step eq="f(t) = t^2"]] is the same function. What is f(2)?', False),
+            ("solve f(x) = 0 is an equation, not a definition", H,
+             "Now let's solve f(x) = 0. What x makes x squared zero?", False),
+            ("f(x) = 9 is an equation (a bare constant)", H, "When does f(x) = 9? Find x.", False),
+            ("'when does f(x) = g(x)' is an equation too (the solve/when guard)", H,
+             "When does f(x) = g(x)? Set them equal and solve for x.", False),
+            ("a new LETTER for the new function", H,
+             'Here is a second function. [[step eq="g(x) = (x^2 - 4)/(x - 2)"]] What happens at x = 2?', False),
+            ("the old name retired out loud", H,
+             "Let's put the old f away. This time f(x) means something new: "
+             '[[step eq="f(x) = (x^2 - 4)/(x - 2)"]] What happens at x = 2?', False),
+            ("'a new function, also called f'", H,
+             'Now a new function, also called f: [[step eq="f(x) = 3x - 2"]] What is f(1)?', False),
+            ("mathcheck cannot decide (√x is outside its grammar) -- silent, never a guess", H,
+             'Try [[step eq="f(x) = √x"]] next. What is f(9)?', False),
+            ("(x+1)(x-1) + 1 IS x^2 -- mathcheck decides, silent", H,
+             'Another way to write it: [[step eq="f(x) = (x+1)(x-1) + 1"]] What is f(3)?', False),
+            ("no heard_tutor (history-gated)", None, R, False),
+            ("an empty heard_tutor (turn one)", "", R, False),
+            ("the renamed f stands for the next turn (the LAST definition rules)",
+             (H + " A different function now, still called f: f(x) = 3x.").lower(),
+             'So [[step eq="f(x) = 3x"]] gives f(2) = 6. What is f(4)?', False),
+            ("a definition in the prose, redefined in the prose", "f(x) = 2x + 1 is our rule.",
+             "Next: f(x) = 5x. What is f(2)?", True),
+            ("g redefined too", "g(x) = x + 1", "Let g(x) = x - 1 now. What is g(3)?", True),
+            ("F earlier, f now (rz's case referee owns the case; this one sees one letter)",
+             "F(x) = x^2", 'Next [[step eq="f(x) = 2x"]]. What is f(1)?', True)):
+        got = bool(T.function_redefined_conflict(r, heard_tutor=(h.lower() if isinstance(h, str) else h)))
+        check(f"  {'fires' if want else 'silent'}: {label}", got == want, "")
+    check("  the grammar: three definitions in one sentence, each cut at the prose; a spaced "
+          "minus survives; an equation to solve is skipped",
+          T._fr_definitions("f(x) = 2x - 3 -- our rule. g(x) = x + 1, and h(x) = x^2 – the square. "
+                            "f(x) = 0 has one root. solve f(x) = 4.")
+          == [("f", "x", "2x-3"), ("g", "x", "x+1"), ("h", "x", "x^2")], "")
+    check("  it never raises (fail open)",
+          T.function_redefined_conflict(None, heard_tutor="f(x) = x") == ""
+          and T.function_redefined_conflict(R, heard_tutor=object()) == "", "")
+
+    # ---- mathcheck's third public proof --------------------------------------------------
+    check("⭐ mathcheck.expressions_equal: True for one function written two ways, False for two "
+          "functions, None when it cannot decide",
+          MC.expressions_equal("x^2", "x*x") is True and MC.expressions_equal("x²", "x^2") is True
+          and MC.expressions_equal("2x + 1", "2*x+1") is True
+          and MC.expressions_equal("x^2", "(x^2 - 4)/(x - 2)") is False
+          and MC.expressions_equal("x^2", "x + 2") is False
+          and MC.expressions_equal("", "x") is None and MC.expressions_equal("x^2", "x ^ 2 when") is None, "")
+    check("  _fr_same_rule: True for one function, False for two, None when mathcheck cannot "
+          "decide (and None is silence: never a guess)",
+          T._fr_same_rule("x", "x^2", "x", "√x") is None
+          and T._fr_same_rule("x", "x^2", "x", "x*x") is True
+          and T._fr_same_rule("x", "x^2", "x", "(x^2-4)/(x-2)") is False
+          and T._fr_same_rule("t", "2t", "x", "2x") is True, "")
+
+    # ---- the prompt carries the clause ------------------------------------------------------
+    check("  rule 28 in the prompt: ONE LETTER NAMES ONE FUNCTION, ALL CONVERSATION, ⚑ enforced",
+          "ONE LETTER NAMES ONE FUNCTION, ALL CONVERSATION" in T.GRAPH_TOOL_NOTE
+          and "retire the old one out loud first" in T.GRAPH_TOOL_NOTE
+          and T.rule_titles().get(28, "").startswith("ONE NAME PER THING"), "")
+
+    # ---- the seventh ruling row (rule 48) -----------------------------------------------------
+    rows = NW.RULED_ALLOWED
+    check("⭐ RULED_ALLOWED carries seven rows: Jim's 2026-09-08 ruling that a board equation built "
+          "from introduced symbols is not new notation (rule 48)",
+          len(rows) == 7 and sorted(r["rule"] for r in rows) == [14, 27, 27, 42, 48, 48, 52]
+          and any(r["rule"] == 48 and r["date"] == "2026-09-08" for r in rows), "")
+    r48 = next((r for r in rows if r["rule"] == 48 and r["date"] == "2026-09-08"), {"boundary": "", "shape": "\0"})
+    check("  ...its boundary keeps a symbol never introduced a real 14/48 and a new rule never "
+          "read a real 44 (sh's law: write the boundary before the shape)",
+          "NOT INTRODUCED IS STILL A REAL" in r48["boundary"] and "real 44" in r48["boundary"]
+          and all((r.get("boundary") or "").strip() for r in rows), "")
+    check("  ...and the reviewer sees it: rendered into VERIFY_SYSTEM's (C) block, fresh",
+          "RULE 48 · RULED ALLOWED 2026-09-08" in NW.render_verify_system()
+          and r48["shape"][:40] in NW.VERIFY_SYSTEM, "")
+    check("  the two rule-48 rows are different rulings: the [[choices]] buttons (iz) and the "
+          "introduced-symbol equation (uo)",
+          len([r for r in rows if r["rule"] == 48]) == 2
+          and any("[[choices]]" in r["shape"] for r in rows if r["rule"] == 48)
+          and any("already introduced" in r["shape"] for r in rows if r["rule"] == 48), "")
+
+    check("⭐ eighty-one referees; the truth class still eleven (rule 28 is conduct)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 81 and len(T.TRUTH_REFEREES) == 11, "")
+
+    # ---- the canon sweep, CUMULATIVE: each beat against the beats before it ---------------------
+    n = 0; fires = []; machine_reuse = []
+    for c, scr in FND.FOUNDATIONS.items():
+        items = list(scr.values() if isinstance(scr, dict) else scr)
+        heard = []
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1
+                if T.function_redefined_conflict(t, heard_tutor=" ".join(heard).lower()):
+                    fires.append(("foundation", c, sc.get("term")))
+            heard.append(t)
+    for les in LS.LESSONS:
+        beats = [(sp or "") + "\n" + (b or "") for sp, b in _authored_beats(les)]
+        for pr in (les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            beats.append((w[0] or "") + "\n" + (w[1] or ""))
+        heard = []; seen = {}
+        for i, t in enumerate(beats):
+            if t.strip():
+                n += 1
+                if T.function_redefined_conflict(t, heard_tutor=" ".join(heard).lower()):
+                    fires.append(("lesson", les["id"], i))
+            heard.append(t)
+            for m in re.finditer(r"\[\[machine\b([^\]]*)\]\]", t):
+                a = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
+                if a.get("fname"):
+                    seen.setdefault(a["fname"], set()).add(a.get("rule"))
+        if any(len(v) > 1 for v in seen.values()):
+            machine_reuse.append(les["id"])
+    check(f"⭐ CANON SWEEP: {n} authored strings swept cumulatively, zero fires",
+          n >= 3000 and not fires, str(fires[:4]))
+    check("  THE HONEST GAP, on Jim's desk: the referee reads WRITTEN definitions (f(x) = ...), not "
+          "[[machine fname= rule=]] tags -- five authored lessons reuse a machine's letter across "
+          "their practice examples ('one more, done for you. f of x equals x plus 4'), which "
+          "Jim's ruling would forbid; widening the grammar waits on his word about those lessons",
+          len(machine_reuse) <= 5 and "machine" not in tsrc[tsrc.find("_FR_DEF = "):tsrc.find("def function_redefined_conflict(")],
+          str(machine_reuse))
+
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-08  BUILD uo" in notes("tutor.py")
+          and "2026-09-08  BUILD uo" in notes("mathcheck.py")
+          and "2026-09-08  BUILD uo" in notes("prompts.py")
+          and "2026-09-08  BUILD uo" in notes("nightwatch.py")
+          and 'APP_BUILD -> "2026-09-08uo-one-name-per-function"' in notes("main.py")
+          and "2026-09-08  BUILD uo" in notes("ruletests.py")
+          and "(uo) Tile 11,236" in notes("static/methodology.html"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -12813,7 +12994,7 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- this build widened a gate",
-          n_ref == 80,
+          n_ref == 81,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -12897,7 +13078,7 @@ def part3hn_credit_only_what_you_saw():
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rm widened a gate",
-          n_ref == 80, f"{n_ref} *_conflict functions")
+          n_ref == 81, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -12974,7 +13155,7 @@ def part3ho_three_one_line_holes():
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rn widened two gates",
-          n_ref == 80, f"{n_ref} *_conflict functions")
+          n_ref == 81, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -19358,10 +19539,10 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ eighty referees now, counted from the code (62 + pz + qf + qm + qs + "
+    check("⭐ eighty-one referees now, counted from the code (62 + pz + qf + qm + qs + "
           "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + "
-          "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach + tw's opunspoken + tx's sharespic + un's triangleletters)",
-          n_ref == 80, n_ref)
+          "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach + tw's opunspoken + tx's sharespic + un's triangleletters + uo's funcrename)",
+          n_ref == 81, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -21947,7 +22128,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,236</b>" in page,
+          "<b>11,268</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22709,8 +22890,8 @@ def part3ii_the_board_tells_the_truth_about_which_question():
           fires == 0 and seen >= 9000, f"{fires} authored replies rejected")
 
     # ---- the count moved, and everything that pins it moved with it ----------------
-    check("  eighty *_conflict referees (un added triangleletters)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 80, "")
+    check("  eighty-one *_conflict referees (un added triangleletters, uo funcrename)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 81, "")
     check("  tutor.py carries a dated sm note",
           "2026-09-04  BUILD sm" in notes("tutor.py"), "")
 
@@ -26910,10 +27091,13 @@ def part3jr_the_gate_learns_who_wrote_the_symbol():
 
     # ---- the plumbing --------------------------------------------------------------
     _disp = _insp.getsource(T.prose_board_conflict)
-    check("⭐ heard_tutor reaches referee 31 AND NO OTHER -- the rest still mean "
-          "\"what this conversation has said\" by heard, and that is still right",
+    check("⭐ heard_tutor reaches referee 31 and (since uo) the eighty-first, funcrename, AND "
+          "NO OTHER -- the rest still mean \"what this conversation has said\" by heard, and "
+          "that is still right; only the two questions that turn on WHO wrote the symbol "
+          "read the tutor's own turns",
           "notation_intro_conflict(reply, heard, heard_tutor=heard_tutor)" in _disp
-          and _disp.count("heard_tutor=heard_tutor") == 1, "")
+          and "function_redefined_conflict(reply, heard_tutor=heard_tutor)" in _disp
+          and _disp.count("heard_tutor=heard_tutor") == 2, "")
     _cv = _insp.getsource(T._create_verified)
     # ⚠️ the obvious spelling of this pin -- 'm.get("role") == "assistant"' in _cv --
     # is satisfied by prev_tutor's OWN line four lines below (_m.get(...) contains it as
@@ -26934,7 +27118,7 @@ def part3jr_the_gate_learns_who_wrote_the_symbol():
 
     # ---- nothing else moved ---------------------------------------------------------
     check("  no new referee and no new truth-class name: tv is a gate correction",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 80
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 81
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tv notes",
           "2026-09-07  BUILD tv" in notes("tutor.py")
@@ -27088,9 +27272,9 @@ def part3js_the_say_it_then_write_it_family():
           f"carry an op=", _opfire == 0 and _ops >= 5, f"{_opfire} fires")
 
     # ---- the count, and the notes ----------------------------------------------------
-    check("  eighty referees (un), and the truth class unchanged at eleven (all three "
+    check("  eighty-one referees (uo), and the truth class unchanged at eleven (all three "
           "of tw's are conduct: nothing false is taught)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 80
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 81
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tw notes",
           "2026-09-07  BUILD tw" in notes("tutor.py")
@@ -27188,10 +27372,10 @@ def part3jt_the_words_and_the_picture_are_the_same_thing():
           and T._DRAWN_COUNT_CLAIM_RE is not T._LOOSE_COUNT_CLAIM_RE, "")
 
     # ---- N10: the ruling row ----------------------------------------------------------
-    check("⭐ RULED_ALLOWED carries six rows now: Jim's 2026-09-07 ruling that the money "
+    check("⭐ RULED_ALLOWED carries six rows at tx (seven since uo): Jim's 2026-09-07 ruling that the money "
           "model for decimals is teaching, not a units defect",
-          len(_NW.RULED_ALLOWED) == 6
-          and sorted(r["rule"] for r in _NW.RULED_ALLOWED) == [14, 27, 27, 42, 48, 52], "")
+          len(_NW.RULED_ALLOWED) == 7
+          and sorted(r["rule"] for r in _NW.RULED_ALLOWED) == [14, 27, 27, 42, 48, 48, 52], "")
     check("  ...every row still carries a boundary (sh's law)",
           all((r.get("boundary") or "").strip() for r in _NW.RULED_ALLOWED), "")
     check("  ...and the new row's boundary keeps a unit that CHANGES the quantity real",
@@ -27246,10 +27430,10 @@ def part3jt_the_words_and_the_picture_are_the_same_thing():
           f"beats, exactly as the narrow one was", _f1 == 0, f"{_f1} fires")
 
     # ---- the count, and the notes ------------------------------------------------------
-    check("  eighty referees (un), truth class still eleven (F9 is conduct: nothing "
+    check("  eighty-one referees (uo), truth class still eleven (F9 is conduct: nothing "
           "false is said, the figure is the wrong object for the story -- Jim may rule "
           "it truth, as he did for boardcount on 2026-09-04)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 80
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 81
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tx notes",
           "2026-09-07  BUILD tx" in notes("tutor.py")
@@ -29553,7 +29737,7 @@ def part3hx_the_question_mark_is_a_blank_said_so():
           and n >= 1900 and m >= 3000,
           str(hits[:4]))
     check("  the referee count is unchanged -- sa is a registry row on referee 31",
-          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 80, "")
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 81, "")
 
 
 def part3hw_a_variables_letter_keeps_its_case():
@@ -29702,7 +29886,7 @@ def part3hu_the_accepted_offer_is_honored():
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
     check("  the referee count is unchanged -- rx widened a gate",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 80, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 81, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -29823,7 +30007,7 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
     check("  the referee count is unchanged -- ry widened a gate and added a floor",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 80, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 81, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -30310,7 +30494,8 @@ def part3hq_the_pencil_has_feelings_about_your_work():
     check("APP_BUILD is stamped rr or later", bool(_stamp) and _stamp.group(1) >= "2026-09-02rr", _stamp and _stamp.group(1))
     traw = rd("tutor.py")
     check("⭐ the thirteenth ceiling raise carries its dated note (the [[ink]] paragraph x9 cost 621 chars)",
-          "2026-09-02 (build rr): RAISED 205,000 -> 207,000" in traw and "PROMPT_CEILING = 207_000" in traw,
+          "2026-09-02 (build rr): RAISED 205,000 -> 207,000" in traw and "PROMPT_CEILING = 208_000" in traw
+          and "2026-09-08 (build uo): RAISED 207,000 -> 208,000" in traw,   # (uo) the fourteenth, dated the same way
           "an undated raise is how the ledger's discipline dies")
 
 
@@ -38471,6 +38656,7 @@ def main():
     part3kh_the_landscape_phone()
     part3ki_the_tap_unlocks_the_sound()
     part3kj_the_truth_items_and_the_proven_holes()
+    part3kk_one_name_per_function()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

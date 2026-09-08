@@ -6,6 +6,13 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  APP_BUILD -> "2026-09-08uo-one-name-per-function". BUILD uo. NO CODE IN
+#               THIS FILE CHANGED but the stamp. Jim's three rulings on the 09-08 watch:
+#               the eighty-first referee, tutor.function_redefined_conflict (rule 28: one
+#               letter names one function, all conversation -- fed heard_tutor); the
+#               prompt's rule-28 clause; RULED_ALLOWED row seven (rule 48: a board equation
+#               built from introduced symbols is not new notation); mathcheck's
+#               expressions_equal. PART 3kk pins it.
 #   2026-09-08  APP_BUILD -> "2026-09-08un-the-figure-that-never-came". BUILD un. NO CODE
 #               IN THIS FILE CHANGED but the stamp. The 2026-09-08 night watch's truth items
 #               and proven holes, all in tutor.py: the rule-61 referees read the prose with
@@ -8648,7 +8655,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-08un-the-figure-that-never-came"
+APP_BUILD = "2026-09-08uo-one-name-per-function"
 
 
 @app.get("/health")

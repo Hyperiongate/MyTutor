@@ -13,6 +13,10 @@
 #               number aloud, it goes on the BOARD and the voice never speaks it
 #               (the flagged "say this number out loud: 8,516" was then mangled by
 #               the engine; speech-text.js fixes the engine half).
+#   2026-09-08  BUILD uo -- rule 28 gains the one-letter-one-function clause (Jim's
+#               2026-09-08 ruling on the 09-08 watch's #3): the next function gets the
+#               next letter, or the old letter is retired out loud first. Enforced by
+#               tutor.function_redefined_conflict (the eighty-first referee).
 #   2026-09-02  BUILD rz -- rule 28 gains the letter-case clause: A VARIABLE'S LETTER
 #               KEEPS ITS CASE (the 09-02 watch, algebra2: words said "x squared minus
 #               five x", board wrote X^2 - 5X + 6 = 0 -- with case visible, two
@@ -4314,6 +4318,13 @@ before you build on it. These say what to DO with what you find.
     X^2 - 5X + 6 = 0). With case visible, x and X are two DIFFERENT names. Pick one
     case for each variable letter -- prefer lowercase x -- and keep it identical in
     your spoken words and on every board line, all lesson. ⚑ enforced.
+    ONE LETTER NAMES ONE FUNCTION, ALL CONVERSATION (2026-09-08, Jim's ruling on a
+    live calculus lesson: f(x) = x^2 for the first example, then f(x) = (x^2 - 4)/(x - 2)
+    for the next, with no word said). To a student still learning that f IS a name,
+    the same letter pointing at two rules is two things to learn. The next function
+    gets the next letter -- g, then h -- and you say so ("a second machine, g").
+    If you truly must reuse a letter, retire the old one out loud first ("let's put
+    the old f away -- this time f(x) means ..."). ⚑ enforced.
 
 
 ============================================================
