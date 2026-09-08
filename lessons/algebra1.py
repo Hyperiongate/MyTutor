@@ -2,6 +2,11 @@
 # lessons/algebra1.py  --  ALGEBRA I: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  BUILD up -- A NEW MACHINE, STILL CALLED f. The two worked examples in
+#               alg1-u3-f-of-x, alg1-u3-two-machines and alg1-u3-which-input give the
+#               machine a new rule; each now says so first ("-- a new machine, still
+#               called f", "-- two new machines"), per Jim's rule-28 ruling. Six lines;
+#               no numbers, boards or answers changed.
 #   2026-09-08  BUILD uj -- ONE FILE PER COURSE. Split out of lessonscripts.py (Jim's
 #               housekeeping, second half). Every lesson below is the text that sat in
 #               lessonscripts.py, moved whole -- the unit lists keep their names, and
@@ -790,11 +795,11 @@ _ALGEBRA1_U3 = [
              '[[step eq="f(3) = feed f the number 3 ✓"]][[step eq="f × 3 ✗ — nothing is being timesed"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. f of x equals x plus 4. f of "
+            {"worked": ("Here is one more, done for you — a new machine, still called f. f of x equals x plus 4. f of "
                         "6: feed it 6, and 6 plus 4 equals 10.",
                         '[[machine input="6" rule="x + 4" output="10" fname="f" caption="f(6) = 6 + 4 = 10"]][[step eq="f(6) = 6 + 4 = 10"]]'),
              "ask": {'a': 3, 'b': 5, 'op': 'fnot'}},
-            {"worked": ("One more together. f of x equals x plus 2. f of 9 is 9 plus 2, "
+            {"worked": ("One more together — a new machine, still called f. f of x equals x plus 2. f of 9 is 9 plus 2, "
                         "which equals 11.",
                         '[[machine input="9" rule="x + 2" output="11" fname="f" caption="f(9) = 9 + 2 = 11"]][[step eq="f(9) = 11"]]'),
              "ask": {'a': 7, 'b': 4, 'op': 'fnot'}},
@@ -866,11 +871,11 @@ _ALGEBRA1_U3 = [
              '[[step eq="(4 + 2) × 3 = 18 ✓"]][[step eq="4 × 3 + 2 = 14 — the other order"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. First adds 3, second times by "
+            {"worked": ("Here is one more, done for you — two new machines. First adds 3, second times by "
                         "2. Feed 5: 5 plus 3 equals 8, and 8 times 2 equals 16.",
                         '[[machine input="5" rule="x + 3" output="8" caption="in 5, out 8"]][[machine input="8" rule="2x" output="16" fname="g" caption="in 8, out 16"]]'),
              "ask": {'a': 2, 'b': 2, 'c': 5, 'op': 'fm2'}},
-            {"worked": ("One more together. First adds 2, second times by 4. Feed 3: 3 "
+            {"worked": ("One more together — two new machines. First adds 2, second times by 4. Feed 3: 3 "
                         "plus 2 equals 5, and 5 times 4 equals 20.",
                         '[[machine input="3" rule="x + 2" output="5" caption="in 3, out 5"]][[machine input="5" rule="4x" output="20" fname="g" caption="in 5, out 20"]]'),
              "ask": {'a': 4, 'b': 4, 'c': 2, 'op': 'fm2'}},
@@ -944,12 +949,12 @@ _ALGEBRA1_U3 = [
              '[[step eq="f(7) = 10 ✓"]][[step eq="10 + 3 = 13 ✗ — the 10 came OUT, it never went in"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. f of x equals x plus 4, and "
+            {"worked": ("Here is one more, done for you — a new machine, still called f. f of x equals x plus 4, and "
                         "the output is 11. Undo: 11 take away 4 equals 7. The input "
                         "was 7.",
                         '[[machine input="?" rule="x + 4" output="11" fname="f" caption="in ?, out 11 — run it backwards"]][[machine input="7" rule="x + 4" output="11" fname="f" caption="f(7) = 11 ✓"]][[step eq="? = 11 − 4 = 7"]]'),
              "ask": {'a': 3, 'b': 13, 'op': 'fback'}},
-            {"worked": ("One more together. f of x equals x plus 2, and out came 15. "
+            {"worked": ("One more together — a new machine, still called f. f of x equals x plus 2, and out came 15. "
                         "15 take away 2 equals 13 — the input was 13.",
                         '[[machine input="?" rule="x + 2" output="15" fname="f" caption="in ?, out 15 — run it backwards"]][[machine input="13" rule="x + 2" output="15" fname="f" caption="f(13) = 15 ✓"]][[step eq="? = 15 − 2 = 13"]]'),
              "ask": {'a': 6, 'b': 20, 'op': 'fback'}},

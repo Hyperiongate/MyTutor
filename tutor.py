@@ -6,6 +6,16 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD up -- A NEW MACHINE, STILL CALLED f (uo's honest gap, closed by Jim's
+#               word: "say 'a new machine, f' each time"). The eighty-first referee's
+#               _fr_definitions now reads [[machine fname="f" rule="x + 4"]] cards as
+#               definitions in x (no fname or a non-expression rule like "÷ 40" defines
+#               nothing); "new machine(s)" joins the retiring words; a trailing operator
+#               left by a dot separator ("f(x) = x + 2 · g(x) = 2x") is stripped so the
+#               line reads as two definitions. The four practice ops and the eight worked
+#               lines (lessonscripts.py, lessons/algebra1.py, lessons/precalc.py) retire the
+#               name out loud in every problem. Cumulative canon sweep: 36 definitions
+#               seen (was 1), 0 fires. Referee count unchanged (81).
 #   2026-09-08  BUILD uo -- PROMPT_CEILING 207,000 -> 208,000 (the rule-28 clause put the
 #               all-heard algebra2 prompt 533 over; dated note at the constant). And:
 #   2026-09-08  BUILD uo -- THE EIGHTY-FIRST REFEREE: ONE NAME PER FUNCTION (rule 28).
@@ -7765,6 +7775,7 @@ _FR_NEW_WORDS = re.compile(
     r"|\bgive\s+[fgh]\s*(?:\(\s*[a-z]\s*\))?\s+a\s+(?:new|different|fresh)\b"
     r"|\b[fgh]\s*(?:\(\s*[a-z]\s*\))?\s+(?:gets|takes|has)\s+a\s+(?:new|different|fresh)\b"
     r"|\bstart\s+(?:over|fresh|again)\b|\bnew\s+[fgh]\b|\bretire\b|\bwipe\s+the\s+(?:board|slate)\b"
+    r"|\bnew\s+machines?\b"                      # (up) the authored lane's form: "a new machine, still called f"
     r"|\bsame\s+letter\b|\bsame\s+name\b", re.I)
 _FR_EXPR_OK = re.compile(r"^[0-9a-z^+\-*/().√]+$")
 
@@ -7779,7 +7790,7 @@ def _fr_rhs(raw: str) -> str:
         txt = txt[:m.start()]
     txt = (txt.lower().replace("²", "^2").replace("³", "^3").replace("·", "*")
            .replace("×", "*").replace("−", "-").replace("–", "-"))
-    txt = re.sub(r"\s+", "", txt).rstrip(".,;:!?")
+    txt = re.sub(r"\s+", "", txt).rstrip(".,;:!?").rstrip("*+-/^")   # a trailing dot was a separator
     if not txt or not _FR_EXPR_OK.match(txt):
         return ""
     if re.fullmatch(r"[0-9./\-+()]+", txt):
@@ -7787,8 +7798,16 @@ def _fr_rhs(raw: str) -> str:
     return txt
 
 
+_FR_MACHINE = re.compile(r"\[\[\s*machine\b([^\]]*)\]\]", re.I)
+_FR_MACHINE_ATTR = re.compile(r'(\w+)\s*=\s*"([^"]*)"')
+
+
 def _fr_definitions(text: str):
-    """[(letter, variable, rule)] for every written definition in `text`, in order."""
+    """[(letter, variable, rule)] for every written definition in `text`, in order:
+    `f(x) = <rule>` in a tag value or the prose, and (up) a [[machine fname="f"
+    rule="x + 4"]] card -- the authored lane's way of defining a function, whose rule
+    is written in x. A machine with no fname, or a rule that is not an expression in
+    symbols ("÷ 40", "× 5"), defines nothing."""
     out = []
     low = str(text or "").lower()
     for m in _FR_DEF.finditer(low):
@@ -7798,6 +7817,12 @@ def _fr_definitions(text: str):
         rule = _fr_rhs(m.group(3))
         if rule:
             out.append((m.group(1), m.group(2), rule))
+    for m in _FR_MACHINE.finditer(low):
+        attrs = {k.lower(): v for k, v in _FR_MACHINE_ATTR.findall(m.group(1))}
+        name = (attrs.get("fname") or "").strip()
+        rule = _fr_rhs(attrs.get("rule") or "")
+        if re.fullmatch(r"[fgh]", name) and rule:
+            out.append((name, "x", rule))
     return out
 
 

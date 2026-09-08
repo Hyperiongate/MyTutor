@@ -7,6 +7,13 @@
 #               VERBATIM, 70 entries; 39 stay here. Keep adding new notes HERE, newest at
 #               top; roll them out again (notes_rollout.py) when this header passes ~100
 #               KB.
+#   2026-09-08  BUILD up -- A NEW MACHINE, STILL CALLED f. Jim's 2026-09-08 ruling (rule
+#               28: one letter names one function, all conversation) reaches the practice
+#               sets, which give f a fresh rule every problem. The four function ops now
+#               open by retiring the name out loud: fnot and fback "A new machine, still
+#               called f.", fm2 "Two new machines in a row.", fcmp "Two new machines, still
+#               called f and g." -- rule 28's own escape clause, applied uniformly. Nothing
+#               else in the ops changed (answers, boards, choices, checks, praise).
 #   2026-09-08  BUILD uj -- ONE FILE PER COURSE. THIS FILE IS THE ENGINE NOW. The 360
 #               authored lessons -- 25,500 lines, 61% of this file -- moved to lessons/
 #               (entry.py, basic.py, prealgebra.py, algebra1.py, geometry.py, algebra2.py,
@@ -8394,8 +8401,8 @@ OP_EXT = {
     },
     "fnot": {  # f(x) = x + a -- what is f(b)?
         "ans": lambda p: p["b"] + p["a"],
-        "spoken": lambda p: (f"f of x equals x plus {p['a']}. "
-                             f"What is f of {p['b']}?"),
+        "spoken": lambda p: (f"A new machine, still called f. f of x equals x plus {p['a']}. "
+                             f"What is f of {p['b']}?"),   # (up) the name retired out loud, every problem
         "board": _fnot_board,         # (tf) machine f with its output blank
         "worked": _fnot_worked,       # (tf) f(b) filled
         "praise": lambda p: (f"f of {p['b']} means: feed the machine {p['b']}. "
@@ -8412,7 +8419,7 @@ OP_EXT = {
     },
     "fm2": {   # machine one adds a, machine two times by b, input c -- IN ORDER
         "ans": lambda p: (p["c"] + p["a"]) * p["b"],
-        "spoken": lambda p: (f"Two machines in a row. The first adds {p['a']}. "
+        "spoken": lambda p: (f"Two new machines in a row. The first adds {p['a']}. "   # (up) new, every problem
                              f"The second times by {p['b']}. Feed {p['c']} through "
                              f"both, first then second. What comes out?"),
         "board": _fm2_board,          # (tf) two machines, the second's output blank
@@ -8436,8 +8443,8 @@ OP_EXT = {
     },
     "fback": { # f(x) = x + a and f(?) = b -- which input was it?
         "ans": lambda p: p["b"] - p["a"],
-        "spoken": lambda p: (f"f of x equals x plus {p['a']}. f of WHAT equals "
-                             f"{p['b']}? Which number went in?"),
+        "spoken": lambda p: (f"A new machine, still called f. f of x equals x plus {p['a']}. "
+                             f"f of WHAT equals {p['b']}? Which number went in?"),   # (up)
         "board": _fback_board,        # (tf) the machine with its input blank
         "worked": _fback_worked,      # (tf) the input found, run forwards
         "praise": lambda p: (f"The machine put out {p['b']} after adding {p['a']}, "
@@ -10915,8 +10922,9 @@ OP_EXT = {
     # the contrast is taught), and a function in pieces.
     "fcmp": {  # f(x) = x + a, g(x) = b x: evaluate f(g(c)) -- inside first
         "ans": lambda p: p["b"] * p["c"] + p["a"],
-        "spoken": lambda p: (f"f of x equals x plus {p['a']}. g of x equals "
-                             f"{p['b']} times x. What is f of g of {p['c']}?"),
+        "spoken": lambda p: (f"Two new machines, still called f and g. f of x equals x plus "
+                             f"{p['a']}. g of x equals {p['b']} times x. "
+                             f"What is f of g of {p['c']}?"),   # (up) the names retired out loud
         "board": _fcmp_board,         # (to) two machines in a row, g first, both outputs blank
         "worked": _fcmp_worked,       # (to) both machines answered
         "praise": lambda p: (f"Inside first: g of {p['c']} is "

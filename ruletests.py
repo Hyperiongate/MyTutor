@@ -6,6 +6,12 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD up -- A NEW MACHINE, STILL CALLED f (uo's honest gap closed, Jim's
+#               word). PART 3kl: the four practice ops and the eight worked lines retire
+#               the name out loud; _fr_definitions reads [[machine fname= rule=]] cards;
+#               'new machine' is a retiring phrase; the cumulative canon sweep sees 36
+#               definitions and fires 0. 3kk's gap pin now reads the closure. Tile
+#               11,268 -> 11,290.
 #   2026-09-08  BUILD uo -- ONE NAME PER FUNCTION (Jim's three rulings on the 09-08 watch:
 #               #3 yes, #7 leave it, #8/#13 as recommended). PART 3kk: the EIGHTY-FIRST
 #               referee function_redefined_conflict (rule 28, fed heard_tutor), mathcheck's
@@ -11983,12 +11989,26 @@ def part3kk_one_name_per_function():
             machine_reuse.append(les["id"])
     check(f"⭐ CANON SWEEP: {n} authored strings swept cumulatively, zero fires",
           n >= 3000 and not fires, str(fires[:4]))
-    check("  THE HONEST GAP, on Jim's desk: the referee reads WRITTEN definitions (f(x) = ...), not "
-          "[[machine fname= rule=]] tags -- five authored lessons reuse a machine's letter across "
-          "their practice examples ('one more, done for you. f of x equals x plus 4'), which "
-          "Jim's ruling would forbid; widening the grammar waits on his word about those lessons",
-          len(machine_reuse) <= 5 and "machine" not in tsrc[tsrc.find("_FR_DEF = "):tsrc.find("def function_redefined_conflict(")],
-          str(machine_reuse))
+    # (up) the gap is closed: every beat in which a machine letter's rule CHANGES from
+    # the rule it last had must say "new machine" in its spoken words.
+    unsaid = []
+    for _les in LS.LESSONS:
+        if _les["id"] not in machine_reuse:
+            continue
+        _last = {}
+        for _s, _b in _authored_beats(_les) + [pr["worked"] for pr in _les.get("pairs") or []]:
+            for _m in re.finditer(r"\[\[machine\b([^\]]*)\]\]", _b or ""):
+                _a = dict(re.findall(r'(\w+)="([^"]*)"', _m.group(1)))
+                if _a.get("fname"):
+                    if (_a["fname"] in _last and _last[_a["fname"]] != _a.get("rule")
+                            and "new machine" not in (_s or "").lower()):
+                        unsaid.append((_les["id"], (_s or "")[:40]))
+                    _last[_a["fname"]] = _a.get("rule")
+    check("  THE HONEST GAP uo pinned, CLOSED by up (Jim's word: 'say a new machine, f each time'): "
+          "the referee reads [[machine fname= rule=]] cards now, and every beat that gives a "
+          "machine's letter a second rule says 'new machine' out loud",
+          len(machine_reuse) <= 5 and "_FR_MACHINE" in tsrc and not unsaid,
+          str(unsaid[:3] or machine_reuse))
 
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-08  BUILD uo" in notes("tutor.py")
@@ -11998,6 +12018,118 @@ def part3kk_one_name_per_function():
           and 'APP_BUILD -> "2026-09-08uo-one-name-per-function"' in notes("main.py")
           and "2026-09-08  BUILD uo" in notes("ruletests.py")
           and "(uo) Tile 11,236" in notes("static/methodology.html"), "")
+
+
+def part3kl_a_new_machine_still_called_f():
+    """PART 3kl (build up, 2026-09-08) -- A NEW MACHINE, STILL CALLED f.
+
+    uo's honest gap, closed by Jim's word ("say 'a new machine, f' each time"). The
+    authored function lessons give the letter f a fresh rule for every practice problem
+    -- a problem-set convention -- and the four practice ops (fnot, fback, fm2, fcmp)
+    generate every question that way; the two worked examples in each of four lessons
+    (alg1-u3-f-of-x, -two-machines, -which-input, pc-u1-machines-in-a-row) did the same
+    in the author's voice. Now every one of them RETIRES THE NAME OUT LOUD first -- "A
+    new machine, still called f", "Two new machines" -- which is rule 28's own escape
+    clause, applied uniformly; and the eighty-first referee reads [[machine fname=
+    rule=]] cards as definitions (uo read written f(x) = ... only), with "new machine"
+    among the retiring words. The cumulative canon sweep now SEES 36 definitions where
+    uo's saw one, and still fires 0 -- for the right reason, not for blindness."""
+    print("\nPART 3kl — a new machine, still called f (build up)")
+    import tutor as T, lessonscripts as LS
+    import foundations as FND
+    tsrc = code_only(open("tutor.py", encoding="utf-8").read())
+    byid = {l["id"]: l for l in LS.LESSONS}
+
+    # ---- the four ops retire the name in every generated question ------------------------
+    SAMPLE = {"fnot": {"a": 3, "b": 5, "op": "fnot"}, "fback": {"a": 3, "b": 13, "op": "fback"},
+              "fm2": {"a": 2, "b": 2, "c": 5, "op": "fm2"}, "fcmp": {"a": 2, "b": 2, "c": 4, "op": "fcmp"}}
+    H = ('f is the machine. [[machine input="3" rule="x + 5" output="8" fname="f" caption="f(3) = 8"]] '
+         'g of x equals 3 x. [[machine input="2" rule="3x" output="6" fname="g"]]')
+    for op, p in SAMPLE.items():
+        ext = LS.OP_EXT[op]
+        spoken = ext["spoken"](p)
+        ask = spoken + "\n" + ext["board"](p)
+        w = ext["worked"](p); worked = (w[0] or "") + "\n" + (w[1] or "")
+        bare = (spoken.replace("A new machine, still called f. ", "")
+                      .replace("Two new machines, still called f and g. ", "")
+                      .replace("Two new machines in a row.", "Two machines in a row.")) + "\n" + ext["board"](p)
+        check(f"⭐ {op}: every generated question opens by retiring the name ('new machine')",
+              spoken.startswith(("A new machine, still called f.", "Two new machines"))
+              and bool(T._FR_NEW_WORDS.search(spoken)), spoken[:70])
+        check(f"  {op}: against a history where f/g meant something else, the question and its worked "
+              "line are silent -- and the SAME question without the phrase would fire (the phrase is "
+              "load-bearing, not decoration)",
+              not T.function_redefined_conflict(ask, heard_tutor=H.lower())
+              and not T.function_redefined_conflict(worked, heard_tutor=(H + " " + ask).lower())
+              and bool(T.function_redefined_conflict(bare, heard_tutor=H.lower())), bare[:60])
+        check(f"  {op}: the numbers are still all spoken (the question changed only its opening)",
+              all(str(p[k]) in spoken for k in ("a", "b", "c") if k in p), "")
+
+    # ---- the eight worked lines in the four lessons -------------------------------------------
+    for lid in ("alg1-u3-f-of-x", "alg1-u3-two-machines", "alg1-u3-which-input", "pc-u1-machines-in-a-row"):
+        les = byid.get(lid) or {}
+        pairs = les.get("pairs") or []
+        check(f"  {lid}: both worked examples retire the name out loud",
+              len(pairs) >= 2 and all("new machine" in (pr.get("worked") or ("", ""))[0] for pr in pairs[:2])
+              and all(bool(T._FR_NEW_WORDS.search((pr.get("worked") or ("", ""))[0])) for pr in pairs[:2]),
+              str([(pr.get("worked") or ("",))[0][:50] for pr in pairs[:2]]))
+    les = byid["alg1-u3-f-of-x"]
+    sp, b = les["pairs"][0]["worked"]
+    teach = " ".join((s or "") + " " + (bb or "") for s, bb in _authored_beats(les)).lower()
+    check("⭐ the lesson's own shape: after the teach beats defined f as x + 5, the worked example "
+          "gives f the rule x + 4 -- silent WITH its phrase, a fire WITHOUT it",
+          not T.function_redefined_conflict(sp + "\n" + b, heard_tutor=teach)
+          and bool(T.function_redefined_conflict(
+              sp.replace(" — a new machine, still called f", "") + "\n" + b, heard_tutor=teach)), "")
+
+    # ---- the referee reads machine cards --------------------------------------------------------
+    check("⭐ _fr_definitions reads a [[machine fname= rule=]] card as a definition in x; a card "
+          "with no fname, or a rule that is not an expression (÷ 40), defines nothing",
+          T._fr_definitions('[[machine input="6" rule="x + 4" output="10" fname="f"]] '
+                            '[[machine input="800" rule="÷ 40" output="20" fname="f"]] '
+                            '[[machine input="4" rule="2x" output="8"]]') == [("f", "x", "x+4")]
+          and "_FR_MACHINE" in tsrc and "\\bnew\\s+machines?\\b" in tsrc, "")
+    check("  a dot between two definitions on one board line separates them (fcmp's own step)",
+          T._fr_definitions('[[step eq="f(x) = x + 2 · g(x) = 2x"]]') == [("f", "x", "x+2"), ("g", "x", "2x")], "")
+    check("  the referee count is unchanged -- up widened the eighty-first's grammar",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 81, "")
+
+    # ---- the cumulative canon sweep now SEES the definitions, and still fires 0 ---------------
+    n = defs = 0; fires = []
+    for c, scr in FND.FOUNDATIONS.items():
+        items = list(scr.values() if isinstance(scr, dict) else scr)
+        heard = []
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1; defs += len(T._fr_definitions(t))
+                if T.function_redefined_conflict(t, heard_tutor=" ".join(heard).lower()):
+                    fires.append(("foundation", c, sc.get("term")))
+            heard.append(t)
+    for les in LS.LESSONS:
+        beats = [(s or "") + "\n" + (bb or "") for s, bb in _authored_beats(les)]
+        for pr in (les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            beats.append((w[0] or "") + "\n" + (w[1] or ""))
+        heard = []
+        for i, t in enumerate(beats):
+            if t.strip():
+                n += 1; defs += len(T._fr_definitions(t))
+                if T.function_redefined_conflict(t, heard_tutor=" ".join(heard).lower()):
+                    fires.append(("lesson", les["id"], i))
+            heard.append(t)
+    check(f"⭐ CANON SWEEP, cumulative: {n} authored strings, {defs} definitions SEEN (uo's grammar saw "
+          "one), zero fires -- silence for the right reason",
+          n >= 3000 and defs >= 30 and not fires, str(fires[:4]))
+
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-08  BUILD up" in notes("tutor.py")
+          and "2026-09-08  BUILD up" in notes("lessonscripts.py")
+          and "2026-09-08  BUILD up" in notes("lessons/algebra1.py")
+          and "2026-09-08  BUILD up" in notes("lessons/precalc.py")
+          and 'APP_BUILD -> "2026-09-08up-a-new-machine-still-called-f"' in notes("main.py")
+          and "2026-09-08  BUILD up" in notes("ruletests.py")
+          and "(up) Tile 11,268" in notes("static/methodology.html"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -22128,7 +22260,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,268</b>" in page,
+          "<b>11,290</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -38657,6 +38789,7 @@ def main():
     part3ki_the_tap_unlocks_the_sound()
     part3kj_the_truth_items_and_the_proven_holes()
     part3kk_one_name_per_function()
+    part3kl_a_new_machine_still_called_f()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -2,6 +2,10 @@
 # lessons/precalc.py  --  TRIG / PRE-CALC: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  BUILD up -- A NEW MACHINE, STILL CALLED f. The two worked examples in
+#               pc-u1-machines-in-a-row give f and g new rules; each now says so first
+#               ("-- two new machines, still called f and g"), per Jim's rule-28 ruling.
+#               Two lines; no numbers, boards or answers changed.
 #   2026-09-08  BUILD uj -- ONE FILE PER COURSE. Split out of lessonscripts.py (Jim's
 #               housekeeping, second half). Every lesson below is the text that sat in
 #               lessonscripts.py, moved whole -- the unit lists keep their names, and
@@ -58,11 +62,11 @@ _PRECALC_U1 = [
              '[[step eq="f(g(5)) = 13 ✓"]][[step eq="g(f(5)) = 16 ✗ — the order flipped"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. f adds 4, g times by 3. f of g of "
+            {"worked": ("Here is one more, done for you — two new machines, still called f and g. f adds 4, g times by 3. f of g of "
                         "2: inside, g of 2 is 6; then f — 10.",
                         '[[machine input="2" rule="3x" output="6" fname="g" caption="g(2) = 6"]][[machine input="6" rule="x + 4" output="10" fname="f" caption="f(6) = 10"]][[step eq="g(2) = 6"]][[step eq="f(6) = 10"]]'),
              "ask": {'a': 2, 'b': 2, 'c': 4, 'op': 'fcmp'}},
-            {"worked": ("One more together. f adds 5, g doubles. f of g of 7: inside, g "
+            {"worked": ("One more together — two new machines, still called f and g. f adds 5, g doubles. f of g of 7: inside, g "
                         "of 7 is 14; then f — 19.",
                         '[[machine input="7" rule="2x" output="14" fname="g" caption="g(7) = 14"]][[machine input="14" rule="x + 5" output="19" fname="f" caption="f(14) = 19"]][[step eq="g(7) = 14"]][[step eq="f(14) = 19"]]'),
              "ask": {'a': 7, 'b': 3, 'c': 6, 'op': 'fcmp'}},
