@@ -6,6 +6,18 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD ul -- THE LANDSCAPE PHONE (found by the release rehearsal of the
+#               unpushed stack). PART 3kh: the last-declared <=900px x <=520px block on
+#               session/practice/topic (one-line top row with the nav scrolling inside it,
+#               the tutor head beside the Curriculum row, a one-row dock with the hint
+#               hidden, the symbol strip one scrolling row, the welcome/entry cards
+#               scrolling from the top), cadabra.js rule 33's phone.maxHeight (the menu
+#               twins, version ul); LIVE at 844x390 (playwright + a uvicorn subprocess):
+#               the board >= 180px after the tour, the nav one row, mic + Pause + Type on
+#               one row, the pencil small and clear, no sideways scroll; practice's entry
+#               card scrolls and its board >= 120px with the strip one row. Also: 3kc's
+#               isPhone pin reads the width test that still leads; its menu pin reads
+#               the phone block by key. Tile 11,170 -> 11,184 (PART 3kh's 14).
 #   2026-09-08  BUILD uk -- THE MARK FLOOR (F4; Jim's 09-07 ruling: build it, no retry).
 #               PART 3kg: tutor.repair_missing_mark -- the watch case ("Correct" spoken,
 #               no mark -> [[mark correct="1"]] prepended, words untouched), "Not quite"
@@ -10677,11 +10689,11 @@ def part3kc_the_phone_classroom():
           "var edge = isPhone() ? 26 : 60;" in cad
           and "if (isPhone()) return h;" in cad[cad.find("function parkSpot() {"):cad.find("function parkSpot() {") + 300], "")
     check("  cadabra.js: an older menu with no `phone` block changes nothing (both fall back)",
-          "return !!(p && window.innerWidth <= (p.maxWidth || 640));" in cad
+          "window.innerWidth <= (p.maxWidth || 640) ||" in cad     # (ul) the width test still leads
           and 'var h = (isPhone() && p && p.height) ? p.height : ((M.script && M.script.height) || 112);' in cad, "")
     _m = _json.loads(menu)
     check("⭐ the menu carries the phone block, in both copies, identical, version ug or later",
-          menu == menu_ex and _m.get("phone") == {"maxWidth": 640, "height": 92}
+          menu == menu_ex and _m.get("phone", {}).get("maxWidth") == 640 and _m.get("phone", {}).get("height") == 92
           and str(_m.get("version", "")) >= "2026-09-08ug" and _m.get("height") == 146, str(_m.get("phone")))
 
     # ---- the live render ------------------------------------------------------------------
@@ -11355,6 +11367,158 @@ def part3kg_the_mark_floor():
           and 'APP_BUILD -> "2026-09-08uk-the-mark-floor"' in notes("main.py")
           and "2026-09-08  BUILD uk" in notes("ruletests.py")
           and "(uk) Tile 11,130" in notes("static/methodology.html"), "")
+
+
+def part3kh_the_landscape_phone():
+    """PART 3kh (build ul, 2026-09-08) -- THE LANDSCAPE PHONE (found by the release rehearsal).
+
+    The rehearsal of the unpushed stack turned a phone sideways (844x390): ug's phone
+    rules read only the WIDTH, so the top row's nav wrapped to two rows, the dock stood
+    three rows tall, the pencil was full-size over the composer, the welcome and entry
+    cards were clipped top and bottom -- and the BOARD WAS 38 PIXELS HIGH. Now a
+    last-declared block for screens <=900px wide AND <=520px tall (session, practice,
+    topic): the top row one line with the nav scrolling inside it, the tutor's name and
+    the Curriculum row sharing a line, the dock one row (mic, Pause, Type) with the hint
+    hidden, the symbol strip one scrolling row, the overlays scrolling from the top; and
+    cadabra.js rule 33 treats a window no taller than the menu's phone.maxHeight (520)
+    as a phone. Pinned statically and measured live at 844x390."""
+    print("\nPART 3kh — the landscape phone (build ul)")
+    import json as _json, socket, subprocess, sys, time as _t
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    Q = "@media (max-width: 900px) and (max-height: 520px) {"
+    for pg_ in ("static/session.html", "static/practice.html", "static/topic.html"):
+        src = rd(pg_)
+        blk = src[src.rfind(Q):src.find("</style>", src.rfind(Q))] if Q in src else ""
+        check(f"⭐ {pg_}: the landscape block exists, declared LAST (after ug's phone rules)",
+              bool(blk) and src.rfind(Q) > src.rfind("@media (max-width: 640px) {")
+              and ".topbar { flex-wrap: nowrap;" in blk and ".topbar .anav { order: 0;" in blk
+              and "overflow-x: auto" in blk, "")
+        check(f"  {pg_}: the dock is one row -- tutor head beside the Curriculum row, mic + Pause + Type on one line, the hint hidden",
+              ".side.left { display: grid; grid-template-columns: minmax(150px, auto) minmax(0, 1fr);" in blk
+              and ".side.left .tutor-head { grid-column: 1; grid-row: 1;" in blk
+              and ".side.left .leftnav { grid-column: 2; grid-row: 1;" in blk
+              and ".side.left .controls { display: grid; grid-template-columns: minmax(0, 1fr) auto auto;" in blk
+              and ".side.left .pausebtn { grid-column: 2; grid-row: 1;" in blk
+              and ".side.left .hint { display: none; }" in blk
+              and ("(ul) 2026-09-08" in notes(pg_)), "")
+    for pg_ in ("static/practice.html", "static/topic.html"):
+        src = rd(pg_); blk = src[src.rfind(Q):src.find("</style>", src.rfind(Q))]
+        check(f"  {pg_}: the entry card scrolls from the top; the symbol strip is one scrolling row (two classes beat the injected rule)",
+              ".entry { align-items: flex-start; overflow-y: auto;" in blk
+              and ".feedbar .mkstrip { flex-wrap: nowrap; overflow-x: auto;" in blk
+              and ".side.left .link { grid-column: 3; grid-row: 1;" in blk, "")
+    ses = rd("static/session.html"); blk = ses[ses.rfind(Q):ses.find("</style>", ses.rfind(Q))]
+    check("  session.html: the welcome and the invitation scroll from the top; Type my answer on the mic's row",
+          ".welcome { align-items: flex-start;" in blk and ".welcome-badge { display: none; }" in blk
+          and ".side.left .typebtn { grid-column: 3; grid-row: 1;" in blk, "")
+    cad = rd("static/cadabra.js"); menu = rd("static/cadabra-script.json"); menu_ex = rd("static/cadabra-script.example.json")
+    _m = _json.loads(menu)
+    check("⭐ cadabra.js rule 33: a window no taller than phone.maxHeight is a phone too; the menu carries maxHeight 520 in both copies, version ul or later",
+          "(p.maxHeight ? window.innerHeight <= p.maxHeight : false)" in cad
+          and "window.innerWidth <= (p.maxWidth || 640) ||" in cad
+          and menu == menu_ex and _m.get("phone", {}).get("maxHeight") == 520
+          and _m.get("phone", {}).get("maxWidth") == 640 and _m.get("phone", {}).get("height") == 92
+          and str(_m.get("version", "")) >= "2026-09-08ul" and "2026-09-08 (ul)" in menu[:8000]
+          and "(ul) RULE 33" in notes("static/cadabra.js"), str(_m.get("phone")))
+    check("  the desktop and the portrait phone are untouched by the block (it needs BOTH the width and the height)",
+          "and (max-height: 520px)" in Q and ses.count(Q) == 1, "")
+
+    # ---- the live render at 844x390 ------------------------------------------------------------
+    NAME = "⭐ LIVE at 844x390: the board is the tallest thing on screen, the nav one row, the dock one row, the pencil small and clear, no sideways scroll"
+    if dep_gate(NAME, "playwright", "the landscape layout is measured in a real browser"):
+        port = None
+        try:
+            sck = socket.socket(); sck.bind(("127.0.0.1", 0)); port = sck.getsockname()[1]; sck.close()
+        except Exception:  # noqa: BLE001
+            port = 8138
+        env = dict(os.environ, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="1")
+        env.pop("DATABASE_URL", None); env.pop("ANTHROPIC_API_KEY", None)
+        srv = subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1",
+                                "--port", str(port)], cwd=here, env=env,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            import urllib.request
+            up = False
+            for _ in range(60):
+                try:
+                    urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=2).read(); up = True; break
+                except Exception:  # noqa: BLE001
+                    _t.sleep(0.5)
+            if not up:
+                skip(NAME, "the app did not come up in 30 s")
+            else:
+                from playwright.sync_api import sync_playwright
+                MEASURE = """() => {
+                  const q = s => document.querySelector(s);
+                  const feed = q('#feed'); const fr = feed.getBoundingClientRect();
+                  const words = [...feed.querySelectorAll('.bubble, .boardsay, .wrow, .wline, .sline')].map(e => e.getBoundingClientRect());
+                  const body = q('#cadabra-layer .cd-body'); const pr = body ? body.getBoundingClientRect() : null;
+                  const over = (a, b) => a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+                  const dock = q('.side.left').getBoundingClientRect();
+                  const anav = q('.anav'); const rows = anav ? new Set([...anav.querySelectorAll('a')].map(x => Math.round(x.getBoundingClientRect().top))).size : 0;
+                  const tb = q('#talkBtn').getBoundingClientRect(), pb = q('#pauseBtn').getBoundingClientRect(), ty = q('#typeToggle').getBoundingClientRect();
+                  const head = q('.tutor-head').getBoundingClientRect(), nav = q('.leftnav').getBoundingClientRect();
+                  return { feedH: Math.round(fr.height), feedBottom: Math.round(fr.bottom), dockH: Math.round(dock.height),
+                           anavRows: rows, pencilH: pr ? Math.round(pr.height) : null, pencilOverWords: words.some(w => over(pr, w)),
+                           docW: document.documentElement.scrollWidth, docH: document.documentElement.scrollHeight, label: q('#talkLabel').textContent,
+                           oneRow: Math.abs(tb.top - pb.top) < 4 && Math.abs(tb.top - ty.top) < 6,
+                           headBesideNav: Math.abs(head.top - nav.top) < 12, hint: getComputedStyle(q('#hint')).display, vh: innerHeight };
+                }"""
+                with sync_playwright() as pw:
+                    try:
+                        br = pw.chromium.launch()
+                    except Exception as exc:  # noqa: BLE001
+                        br = None; skip(NAME, f"chromium would not launch: {str(exc)[:80]}")
+                    if br:
+                        ctx = br.new_context(viewport={"width": 844, "height": 390}, is_mobile=True, has_touch=True)
+                        pg = ctx.new_page()
+                        pg.goto(f"http://127.0.0.1:{port}/session?code=1234&course=algebra1", wait_until="load")
+                        pg.wait_for_timeout(2500)
+                        try:
+                            pg.click("#welcome button", timeout=2500)
+                        except Exception:  # noqa: BLE001
+                            pass
+                        pg.wait_for_timeout(4000)
+                        try:
+                            pg.click("#tourSkip", timeout=2500)       # the steady state, after the tour
+                        except Exception:  # noqa: BLE001
+                            pass
+                        pg.wait_for_timeout(3000)
+                        m = pg.evaluate(MEASURE)
+                        pg.goto(f"http://127.0.0.1:{port}/practice?code=1234", wait_until="load")
+                        pg.wait_for_timeout(2000)
+                        e = pg.evaluate("""() => { const w = document.querySelector('.entry'); const c = w.querySelector('.entry-card');
+                            return { ov: getComputedStyle(w).overflowY, top: Math.round(c.getBoundingClientRect().top),
+                                     scrolls: w.scrollHeight > w.clientHeight || c.getBoundingClientRect().bottom <= innerHeight }; }""")
+                        pg.evaluate("document.getElementById('entry').classList.add('hide')")
+                        pg.wait_for_timeout(500)
+                        p2 = pg.evaluate("""() => { const q = s => document.querySelector(s); const fr = q('#feed').getBoundingClientRect();
+                            const strip = q('.feedbar .mkstrip'); const rows = strip ? new Set([...strip.querySelectorAll('.mkkey')].map(x => Math.round(x.getBoundingClientRect().top))).size : 0;
+                            const pr = q('#cadabra-layer .cd-body'); return { feedH: Math.round(fr.height), stripRows: rows, docW: document.documentElement.scrollWidth,
+                            pencilH: pr ? Math.round(pr.getBoundingClientRect().height) : null }; }""")
+                        br.close()
+                        check(NAME,
+                              m["feedH"] >= 180 and m["feedBottom"] <= m["vh"] and m["dockH"] <= 120
+                              and m["anavRows"] == 1 and m["oneRow"] and m["headBesideNav"] and m["hint"] == "none"
+                              and m["pencilH"] and m["pencilH"] < 110 and not m["pencilOverWords"]
+                              and m["docW"] == 844 and m["docH"] <= 390 and m["label"] == "Listen…",
+                              _json.dumps(m))
+                        check("  LIVE at 844x390: practice's entry card scrolls from the top; with it closed the board is over 120px and the symbol strip one row",
+                              e["ov"] == "auto" and e["top"] <= 12 and e["scrolls"]
+                              and p2["feedH"] >= 120 and p2["stripRows"] == 1 and p2["docW"] == 844
+                              and p2["pencilH"] and p2["pencilH"] < 110, _json.dumps({"entry": e, "practice": p2}))
+        finally:
+            try:
+                srv.terminate(); srv.wait(timeout=10)
+            except Exception:  # noqa: BLE001
+                try: srv.kill()
+                except Exception: pass
+
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-08ul-the-landscape-phone"' in notes("main.py")
+          and "2026-09-08  BUILD ul" in notes("ruletests.py")
+          and "(ul) Tile 11,170" in notes("static/methodology.html"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -21485,7 +21649,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,170</b>" in page,
+          "<b>11,184</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -38006,6 +38170,7 @@ def main():
     part3ke_the_notes_move_out()
     part3kf_one_file_per_course()
     part3kg_the_mark_floor()
+    part3kh_the_landscape_phone()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -4,6 +4,13 @@
                 changelog/session.html.md -- moved out on 2026-09-08 (build ui) VERBATIM,
                 125 entries; 17 stay here. Keep adding new notes HERE, newest at top; roll
                 them out again (notes_rollout.py) when this header passes ~100 KB.
+    (ul) 2026-09-08 -- THE LANDSCAPE PHONE. The release rehearsal measured this page on a
+    phone turned sideways (844x390): the board was 38px tall behind a two-row nav and a
+    three-row dock. A last-declared block for screens <=900px wide AND <=520px tall makes
+    the top row one line (the icon nav scrolls inside it) and the dock one row (mic, Pause,
+    Type my answer; the hint hidden), so the board gets the middle of the screen. Portrait
+    phones, tablets and desktops are untouched. Nothing else on this page changed.
+
     (uh) 2026-09-08 -- THE SHORT TOUR FOR THE YOUNGEST (P3 of the deep look, with the
     demo rebuild). Entry and Basic Math's first-time tour is three stops (TOUR_STEPS_ELEM:
     me and the board, the map, how to answer -- the answer stop is uc's own line, taken
@@ -997,6 +1004,62 @@
       #tourSkip { bottom: auto !important; top: 8px !important; right: 10px !important;
         padding: 6px 10px !important; font-size: 12px !important; }
       body.touring .topbar { padding-right: 112px; }
+    }
+    /* ===== 2026-09-08 (build ul) THE LANDSCAPE PHONE ================================
+       The release rehearsal measured an 844x390 phone (a phone turned sideways): the top
+       row's nav wrapped to two rows, the dock stood three rows tall, and the board was
+       38 PIXELS high -- a student who turned the phone lost the lesson. On a short screen
+       (<=900px wide AND <=520px tall) the top row is ONE line with the icon nav scrolling
+       inside it, the dock is one row (mic, Pause, Type my answer) with the hint hidden, and the
+       board takes what is left. Declared LAST so it wins over ug's phone rules. Portrait
+       phones, tablets and desktops are untouched (their height is over 520px). */
+    @media (max-width: 900px) and (max-height: 520px) {
+      .topbar { flex-wrap: nowrap; padding: 4px 10px 3px; gap: 6px; align-items: center; }
+      .topbar .title { font-size: 14px; white-space: nowrap; overflow: hidden;
+        text-overflow: ellipsis; flex: 0 1 auto; min-width: 60px; }
+      .topbar .spacer { display: none; }
+      .topbar .anav { order: 0; flex: 1 1 auto; width: auto; min-width: 0; margin-left: 4px;
+        flex-wrap: nowrap; overflow-x: auto; gap: 6px; -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; }
+      .topbar .anav::-webkit-scrollbar { display: none; }
+      .streakchips { margin-left: 0; gap: 5px; flex: 0 0 auto; }
+      .schip2 { padding: 3px 8px 2px; font-size: 11px; }
+      .schip2 .sclab { font-size: 8px; }
+      .chiprow { margin: 2px 10px 0; }
+      .pbars { margin: 2px 10px 0; }
+      .feed { margin: 4px 8px 4px; padding: 10px 12px; }
+      /* the tutor's name and the Curriculum row share ONE line; the controls sit under them */
+      .side.left { display: grid; grid-template-columns: minmax(150px, auto) minmax(0, 1fr);
+        column-gap: 10px; row-gap: 2px; align-items: center; padding: 4px 10px 4px; }
+      .side.left .tutor-head { grid-column: 1; grid-row: 1; padding: 2px 0; border-bottom: 0; margin: 0; }
+      .side.left .leftnav { grid-column: 2; grid-row: 1; padding: 0; justify-content: flex-end; }
+      .side.left .controls { grid-column: 1 / -1; grid-row: 2; }
+      .side.left > #planPanel { grid-column: 1 / -1; }
+      .side.left .tutor-name { font-size: 13px; }
+      .side.left .student-name { font-size: 10px; }
+      .side.left .status { font-size: 11px; }
+      .side.left .leftnav { gap: 5px; }
+      .side.left .leftnav .navbtn { padding: 4px 9px; font-size: 12px; }
+      .side.left .controls { display: grid; grid-template-columns: minmax(0, 1fr) auto auto;
+        column-gap: 8px; row-gap: 3px; padding: 2px 0 0; margin-top: 0; }
+      .side.left .talkbtn { grid-column: 1; grid-row: 1; padding: 8px 12px; font-size: 14px; }
+      .side.left .pausebtn { grid-column: 2; grid-row: 1; padding: 8px 12px; font-size: 13px; }
+      .side.left .typebtn { grid-column: 3; grid-row: 1; width: auto; margin-top: 0;
+        padding: 8px 12px; font-size: 13px; justify-self: end; }
+      .side.left .hint { display: none; }
+      .side.left .elem-hint { display: none; }
+      .side.left .controls > .hlp-q { grid-column: 3; grid-row: 2; justify-self: end; }
+      .side.left .live { grid-column: 1 / -1; grid-row: 3; }
+      .side.left .composer { grid-column: 1 / -1; }
+      #tourSkip { bottom: auto !important; top: 4px !important; right: 8px !important;
+        padding: 5px 9px !important; font-size: 12px !important; }
+      body.touring .topbar { padding-right: 104px; }
+      /* the welcome and the assessment invitation were centred and CLIPPED top and bottom
+         on a 390px-high screen (the second button off screen); they scroll from the top */
+      .welcome { align-items: flex-start; padding: 8px 12px; }
+      .welcome-card { padding: 14px 20px 14px; border-radius: 16px; }
+      .welcome-card h2 { font-size: 20px; margin: 2px 0 6px; }
+      .welcome-badge { display: none; }
     }
 </style>
   <!-- Privacy-friendly analytics by Plausible (shared include) -->

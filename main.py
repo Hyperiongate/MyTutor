@@ -6,6 +6,14 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  APP_BUILD -> "2026-09-08ul-the-landscape-phone". BUILD ul -- THE LANDSCAPE
+#               PHONE. NO CODE IN THIS FILE CHANGED but the stamp. A release rehearsal of the
+#               whole unpushed stack (tt..uk) on a real Postgres -- every route, a fresh
+#               database and the upgrade path, a family and a teacher, 44 page renders --
+#               found one defect: a phone turned sideways (844x390) showed a 38px board.
+#               session/practice/topic gain a last-declared block for short screens;
+#               cadabra.js rule 33 treats a short window as a phone (the menu's
+#               phone.maxHeight). PART 3kh pins and measures it.
 #   2026-09-08  APP_BUILD -> "2026-09-08uk-the-mark-floor". BUILD uk -- THE MARK FLOOR
 #               (F4 of the 09-06 night watch; Jim ruled 09-07: build it, no retry). NO CODE
 #               IN THIS FILE CHANGED but the stamp. tutor.py: repair_missing_mark at the
@@ -8626,7 +8634,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-08uk-the-mark-floor"
+APP_BUILD = "2026-09-08ul-the-landscape-phone"
 
 
 @app.get("/health")

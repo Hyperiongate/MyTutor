@@ -7,6 +7,7 @@
   ],
   "_CHANGE_NOTES": [
     "Keep newest at top. JSON has no comments, so the notes live here.",
+    "2026-09-08 (ul): THE LANDSCAPE PHONE. `phone.maxHeight` (520): a window no taller than this is a phone too (cadabra.js rule 33), so a phone turned sideways gets the small pencil in the board's corner instead of the full-size one over the composer. Version bumped.",
     "2026-09-08 (uh): THE DEMO TEACHES. pages.demolesson lets him mount on static/demo-lesson.html, the demo's real-lesson excerpt (/demo/lesson). That page drives him itself -- a wave when the excerpt opens, a glance when a question is asked, a celebrate on a right answer -- so its block is empty, like the demo's; it exists so he may mount there at all (rule 18). Version bumped.",
     "2026-09-08 (ug): THE SMALL SCREEN. New `phone` block -- on a window no wider than maxWidth (640) he is `height` 92 instead of 146, rests in the board's top-right corner and does not wander (cadabra.js rule 33). The deep look's phone screenshot had him, at 146, parked over the tutor's first sentence.",
     "2026-09-02 (rr): HE HAS FEELINGS ABOUT YOUR WORK. Jim's behaviour list. New moments on the lesson pages: board.written -> glance (chance 0.5, not more than every 45 s, only after the voice stops and only if nobody is typing); student.stuck -> comfort (listening face, one line from `empathy`, and he STAYS beside the answer box); milestone -> party (stars, arms, a bang on the newest board line, a line from milestone.<kind>); mic.on/off -> the listening face; tutor.thinking/tutor.done -> the chin pose; lesson.start gains a SILENT wave after enter (ri's ruling stands: no joke, no tour, no words while the real voice opens); lesson.end -> a goodbye wave. answer.correct on session also points at the streak star about a third of the time. New line bags: empathy, milestone, milestone.streak/lesson/quiz/unit/course. The [[ink]] tag reaches cadabra.js through the pages, not through this file.",
@@ -17,10 +18,10 @@
     "2026-09-01 (ri): THE PENCIL WAKES UP QUIETLY. Jim watched the first live lesson: 'the pencil was floating around pointing at things that didn't match the voice.' The joke and the tour at lesson.start ran WHILE Mr. Cadabra's real recorded voice gave the opening, so the pencil pointed at the answer bar as the voice talked about stars. Ruling applied: at lesson.start he ENTERS and nothing more -- the real voice owns the opening. The joke and tour behaviours still exist in cadabra.js for future scheduling at a quiet moment. Also: the tour's 'problem' stop and the celebrate targets named 'problem' pointed at a data-cad name that exists on no page (rule 30: targets resolve by data-cad name) -- the dead tour stop is removed and the celebrations now aim at 'board', where the problem actually lives.",
     "2026-08-31 (rh/stage2-4): first menu -- entrance, joke, tour, park, celebrate, nudges, clearInk wired to the session page."
   ],
-  "version": "2026-09-08uh",
+  "version": "2026-09-08ul",
   "defaultStage": "early",
   "height": 146,
-  "phone": { "maxWidth": 640, "height": 92 },
+  "phone": { "maxWidth": 640, "maxHeight": 520, "height": 92 },
   "hands": "glove",
   "handSize": 26,
   "stages": {

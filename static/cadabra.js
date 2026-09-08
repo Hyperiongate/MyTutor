@@ -77,6 +77,12 @@
                  bubble -- on top of it. A target near the top of the window is now
                  approached from BELOW, his tip is kept low enough that head and bubble
                  both stay in view, and the bubble hangs underneath him when he points up.
+     2026-09-08  (ul) RULE 33 LEARNS THE LANDSCAPE PHONE. The release rehearsal turned a
+                 phone sideways (844x390): isPhone() read only the width, so he was 146px
+                 tall, 55% down a 390px window, over the composer. isPhone() now also
+                 answers yes when the window is no taller than the menu's phone.maxHeight
+                 (520) -- the small size and the board's corner apply there too. A menu
+                 with no maxHeight behaves exactly as ug left it.
      2026-09-08  (ug) RULE 33 -- THE SMALL SCREEN (P1 of the deep look). On a phone
                  (the menu's phone.maxWidth, 640) he is the menu's phone.height (92)
                  instead of 146, his home is the board's top-right corner instead of
@@ -740,7 +746,10 @@
   function phoneMenu() { return (M.script && M.script.phone) || null; }
   function isPhone() {
     var p = phoneMenu();
-    return !!(p && window.innerWidth <= (p.maxWidth || 640));
+    if (!p) return false;
+    /* (ul) a phone turned sideways is still a phone: the menu's phone.maxHeight (520) */
+    return window.innerWidth <= (p.maxWidth || 640) ||
+           (p.maxHeight ? window.innerHeight <= p.maxHeight : false);
   }
   function homeSpot() {
     var vw = window.innerWidth, vh = window.innerHeight;
