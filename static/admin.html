@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+    (ue) 2026-09-07 -- THE ENGAGEMENT ROW COUNTS THE AUTHORED LANE (P2 of the deep
+    look). After five whole scripted lessons this row read 0 problems practiced, 0
+    checks, 0 units mastered: the lane wrote no per-answer row. store.admin_stats now
+    carries lesson_answers / lesson_answers_7d / lesson_answers_right_7d /
+    lessons_done / lessons_done_7d from the new script_answers table and script_done.
+    "Problems practiced" adds the two lanes and splits them in its caption; two new
+    tiles, "Lesson answers (7d)" (with the % right) and "Lessons done"; "Checks taken"
+    says what it counts (Unit Quizzes). Nothing else on this page changes.
     (ud) 2026-09-07 -- THE OWNER'S TOOLS OPEN WITH THE DASHBOARD (the deep look, P0). The
     scripted picker (/pilot), the bench (cadabra-lab.html), the demo concept page
     (demolab.html), the retired avatar stub and static/mockup/ were reachable by anyone
@@ -964,8 +972,16 @@
       { l: "Engaged minutes (7d)", v: num(s.minutes_7d) },
       { l: "Engaged minutes (all)", v: num(s.minutes_total), s: "≈ " + num(Math.round((s.minutes_total || 0) / 60)) + " hours" },
       { l: "Units mastered", v: num(s.units_mastered), s: "90%+ on a Unit Quiz" },
-      { l: "Checks taken", v: num(s.checks_taken) },
-      { l: "Problems practiced", v: num(s.problems_practiced) }
+      { l: "Checks taken", v: num(s.checks_taken), s: "Unit Quizzes sat" },
+      // (ue) THE AUTHORED LANE COUNTS. The deep look drove five whole lessons and this
+      // row read "0 problems practiced" -- the lane kept no per-answer row. It does now
+      // (script_answers); the tile ADDS the lanes and its caption splits them.
+      { l: "Problems practiced", v: num((s.problems_practiced || 0) + (s.lesson_answers || 0)),
+        s: num(s.lesson_answers) + " in lessons · " + num(s.problems_practiced) + " in practice & quizzes" },
+      { l: "Lesson answers (7d)", v: num(s.lesson_answers_7d),
+        s: (s.lesson_answers_7d ? Math.round(100 * (s.lesson_answers_right_7d || 0) / s.lesson_answers_7d) + "% right · " : "")
+           + "graded in code, authored lane" },
+      { l: "Lessons done", v: num(s.lessons_done), s: num(s.lessons_done_7d) + " in the last 7 days" }
     ]));
 
     // ---- COST & VERIFIER (2026-08-04, Measurement plan #1) ----

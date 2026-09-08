@@ -2,6 +2,23 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD ue -- THE AUTHORED LANE WRITES IT DOWN (P2 of the deep look, Jim's
+#               order). (1) NEW TABLE script_answers: one row per graded answer in the
+#               scripted lane -- the question as spoken, the answer, the expected, right
+#               or not, the try number, the milliseconds, the day. record_script_answer
+#               (append-only, never raises), script_answer_stats (answers, right, first-
+#               try %), get_script_answers (newest first), lessons_done_count. Joins
+#               _STUDENT_CODE_TABLES (reset / code change / delete follow it). Never
+#               blended into student_stats -- Jim's apart-from-the-course ruling (mt)
+#               stands; get_mastery's stats and admin_stats carry the lane's numbers
+#               BESIDE the live lane's, and the pages add them and say so.
+#               (2) "TAUGHT" ON THE STATUS LADDER (rank 4, under mastered's 5). Jim's
+#               ruling: "Mastered" is the 90% Unit Quiz and nothing else. A finished
+#               authored lesson and a passed topic quiz used to write "mastered" into
+#               topic_progress; they write "taught" now (main.py), shown as "Lesson
+#               done". _migrate_taught_status turns every historical "mastered" row
+#               that no unit_checks row at PASS_PCT earned into "taught" -- once,
+#               data-only, on startup. record_check stays the ONE writer of "mastered".
 #   2026-09-03  BUILD sj -- "verify_floored" gets its counter. tutor.py's new floor
 #               withholds a draft whose every attempt carried a TRUTH-class finding
 #               (status "floored"); without a key here it would land in verify_unknown,
@@ -1147,6 +1164,33 @@ def init():
             Column("runs", Integer, default=0),               # finishes, either way
             Column("last_at", DateTime(timezone=True)),
         )
+        # (ue, 2026-09-07) THE AUTHORED LANE WRITES EVERY ANSWER DOWN. The deep look
+        # drove five whole scripted lessons and found the admin console reading
+        # "0 problems practiced": the lane kept only script_done (one row per
+        # finished lesson) and the streak. One row per GRADED answer now -- the
+        # question as spoken, what the student answered, what was expected, right or
+        # not, which try it was, and the seconds it took. Never blended into
+        # student_stats (Jim's apart-from-the-course ruling, mt): the dashboards ADD
+        # the two lanes at read time and say so, so nothing can be un-blended later.
+        # Brand-new table -> create_all builds it. Joins _STUDENT_CODE_TABLES.
+        _tables["script_answers"] = Table(
+            "script_answers", _meta,
+            Column("id", Integer, primary_key=True, autoincrement=True),
+            Column("code", String(64), index=True),
+            Column("course", String(32), index=True),
+            Column("lesson_id", String(80)),
+            Column("unit", Integer),
+            Column("kind", String(12)),          # ask | reason | redo
+            Column("guided", Integer, default=0),
+            Column("asked", String(240)),        # the question, as spoken
+            Column("answer", String(80)),        # what the student said / tapped
+            Column("expected", String(80)),
+            Column("correct", Integer, default=0),
+            Column("attempt", Integer, default=1),   # 1 = first try at this question
+            Column("ms", Integer, default=0),        # from the question to the answer
+            Column("day", String(10), index=True),   # ISO 'YYYY-MM-DD'
+            Column("created_at", DateTime(timezone=True)),
+        )
         _tables["sprints"] = Table(
             "sprints", _meta,
             Column("id", Integer, primary_key=True, autoincrement=True),
@@ -1369,6 +1413,10 @@ def init():
         # Give `usage_log` its three timing columns if it predates build jm
         # (additive, default 0 = "not timed"). No-ops once migrated.
         _migrate_usage_log_timing()
+        # (ue) Un-say "mastered" where no Unit Quiz ever said it: a finished
+        # authored lesson or a passed topic quiz used to write status="mastered".
+        # Those rows become "taught". One pass; no-ops once done.
+        _migrate_taught_status()
         # Prove the connection works.
         from sqlalchemy import text as _text
         with _engine.connect() as conn:
@@ -1494,6 +1542,26 @@ def _migrate_student_stats_today_streak():
             conn.execute(_text(
                 "ALTER TABLE student_stats ADD COLUMN today_streak_day VARCHAR(10)"))
     print("[store] migrated student_stats: +today_streak, +today_streak_day columns.")
+
+
+def _migrate_taught_status():
+    """(ue, 2026-09-07) ONE-TIME, HONEST migration: topic_progress rows that say
+    "mastered" without a unit_checks row at PASS_PCT or better were written by a
+    finished authored lesson (rk) or a passed topic quiz (ov) -- not by the 90%
+    Unit Quiz, which is the only thing "Mastered" means from this build on (Jim's
+    ruling, 2026-09-07). They become "taught" (the dashboards read it "Lesson
+    done"). Rows the Unit Quiz DID earn are untouched. Runs on every startup and
+    finds nothing to do after the first pass; both writers say "taught" now, so
+    the state cannot come back. Data-only; no schema change."""
+    from sqlalchemy import select, update, and_, not_, exists
+    tp = _tables["topic_progress"]; uc = _tables["unit_checks"]
+    earned = exists().where(and_(uc.c.code == tp.c.code, uc.c.course == tp.c.course,
+                                 uc.c.unit == tp.c.unit, uc.c.best_pct >= PASS_PCT))
+    with _engine.begin() as conn:
+        n = conn.execute(update(tp).where(and_(tp.c.status == "mastered", not_(earned)))
+                         .values(status="taught")).rowcount
+    if n:
+        print(f"[store] migrated topic_progress: {n} lesson/topic-quiz 'mastered' row(s) -> 'taught'.")
 
 
 def _migrate_classes_teacher_code():
@@ -1823,7 +1891,11 @@ def ensure_account(code: str, name: str = "", email: str = "") -> None:
 # ---- per-topic tracking (Phase 2 foundation) -------------------------------
 # Honest engagement levels, ranked. We only ever UPGRADE a unit's status, never
 # downgrade it (exploring a unit you've already practiced shouldn't demote it).
-STATUS_RANK = {"explored": 1, "learning": 2, "practiced": 3, "mastered": 4}
+# (ue) "taught" = a finished authored lesson, or a passed topic quiz -- shown as
+# "Lesson done". "mastered" is the 90% Unit Quiz and nothing else (Jim's ruling,
+# 2026-09-07); record_check is its only writer. Ranks are relative, so the old
+# rows keep their order and _sql_deeper_status keeps its never-regress law.
+STATUS_RANK = {"explored": 1, "learning": 2, "practiced": 3, "taught": 4, "mastered": 5}
 
 
 def record_topic(code: str, unit: int, unit_name: str = "", status: str = "explored",
@@ -1892,6 +1964,109 @@ def get_script_done(code: str, course: str = DEFAULT_COURSE) -> list:
          "last_at": r[3].isoformat() if r[3] else None}
         for r in rows
     ]
+
+
+def record_script_answer(code: str, course: str, lesson_id: str, unit: int,
+                         kind: str, asked: str, answer: str, expected: str,
+                         correct: bool, attempt: int = 1, ms: int = 0,
+                         guided: bool = False, day: str = "") -> None:
+    """(ue) One graded answer in the authored lane. Append-only; never raises
+    (a lost row must never cost a turn). Strings are capped, `ms` is clamped to
+    ten minutes, and `attempt` is the try number at THIS question (1 = first)."""
+    if not _ENABLED:
+        return
+    try:
+        t = _tables["script_answers"]
+        with _engine.connect() as conn:
+            conn.execute(t.insert().values(
+                code=code, course=(course or DEFAULT_COURSE)[:32],
+                lesson_id=str(lesson_id or "")[:80], unit=int(unit or 0),
+                kind=str(kind or "ask")[:12], guided=1 if guided else 0,
+                asked=str(asked or "")[:240], answer=str(answer or "")[:80],
+                expected=str(expected or "")[:80], correct=1 if correct else 0,
+                attempt=max(1, int(attempt or 1)),
+                ms=max(0, min(int(ms or 0), 600_000)),
+                day=(day or "").strip() or _today(), created_at=_now()))
+            conn.commit()
+    except Exception as exc:  # noqa: BLE001
+        print(f"[store] record_script_answer failed (non-fatal): {_redact(str(exc))}")
+
+
+def script_answer_stats(code: str, course: str = "") -> dict:
+    """(ue) This student's authored-lane answers, whole-student unless a course is
+    named: {answers, right, first_try, first_try_right, first_try_pct, seconds}.
+    first_try_pct is None until there is a first try to measure."""
+    out = {"answers": 0, "right": 0, "first_try": 0, "first_try_right": 0,
+           "first_try_pct": None, "seconds": 0}
+    if not _ENABLED:
+        return out
+    from sqlalchemy import select, func, case
+    try:
+        t = _tables["script_answers"]
+        where = (t.c.code == code)
+        if course:
+            where = where & (t.c.course == course)
+        with _engine.connect() as conn:
+            row = conn.execute(select(
+                func.count(),
+                func.coalesce(func.sum(t.c.correct), 0),
+                func.coalesce(func.sum(case((t.c.attempt == 1, 1), else_=0)), 0),
+                func.coalesce(func.sum(case(((t.c.attempt == 1) & (t.c.correct == 1), 1),
+                                            else_=0)), 0),
+                func.coalesce(func.sum(t.c.ms), 0),
+            ).where(where)).fetchone()
+        out["answers"] = int(row[0] or 0); out["right"] = int(row[1] or 0)
+        out["first_try"] = int(row[2] or 0); out["first_try_right"] = int(row[3] or 0)
+        out["seconds"] = int((row[4] or 0) // 1000)
+        if out["first_try"]:
+            out["first_try_pct"] = int(100 * out["first_try_right"] // out["first_try"])
+    except Exception as exc:  # noqa: BLE001
+        print(f"[store] script_answer_stats failed: {_redact(str(exc))}")
+    return out
+
+
+def get_script_answers(code: str, course: str = "", limit: int = 200) -> list:
+    """(ue) The most recent answers, newest first, for the per-student views."""
+    if not _ENABLED:
+        return []
+    from sqlalchemy import select
+    try:
+        t = _tables["script_answers"]
+        where = (t.c.code == code)
+        if course:
+            where = where & (t.c.course == course)
+        with _engine.connect() as conn:
+            rows = conn.execute(select(
+                t.c.course, t.c.lesson_id, t.c.unit, t.c.kind, t.c.guided, t.c.asked,
+                t.c.answer, t.c.expected, t.c.correct, t.c.attempt, t.c.ms, t.c.day,
+                t.c.created_at
+            ).where(where).order_by(t.c.id.desc()).limit(max(1, min(int(limit), 2000)))).all()
+        return [{"course": r[0], "lesson_id": r[1], "unit": r[2], "kind": r[3],
+                 "guided": bool(r[4]), "asked": r[5], "answer": r[6], "expected": r[7],
+                 "correct": bool(r[8]), "attempt": r[9], "ms": r[10], "day": r[11],
+                 "at": r[12].isoformat() if r[12] else None} for r in rows]
+    except Exception as exc:  # noqa: BLE001
+        print(f"[store] get_script_answers failed: {_redact(str(exc))}")
+        return []
+
+
+def lessons_done_count(code: str, course: str = "") -> int:
+    """(ue) Finished authored lessons (script_done rows), whole-student unless a
+    course is named. A lesson finished twice counts once -- it is a lesson done."""
+    if not _ENABLED:
+        return 0
+    from sqlalchemy import select, func
+    try:
+        t = _tables["script_done"]
+        where = (t.c.code == code)
+        if course:
+            where = where & (t.c.course == course)
+        with _engine.connect() as conn:
+            return int(conn.execute(select(func.count()).select_from(t).where(where))
+                       .scalar() or 0)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[store] lessons_done_count failed: {_redact(str(exc))}")
+        return 0
 
 
 # ---- engaged time (2026-07-30) ----------------------------------------------
@@ -2845,6 +3020,9 @@ def get_mastery(code: str, course: str = DEFAULT_COURSE) -> dict:
     # showing yesterday's number under today's label. Same clock as the day streak.
     today_streak = (s["today_streak"] if s.get("today_streak_day") == _streak_today()
                     else 0)
+    # (ue) the authored lane, beside the live lane's counters -- never added into
+    # them here (the pages add and say so), so the two stay separable for good.
+    la = script_answer_stats(code)
     return {
         "checks": checks,
         "stats": {
@@ -2854,6 +3032,10 @@ def get_mastery(code: str, course: str = DEFAULT_COURSE) -> dict:
             "streak_days": s["streak_days"],
             "last_active": s["last_active"],
             "today_streak": today_streak,
+            "lesson_answers": la["answers"],
+            "lesson_answers_right": la["right"],
+            "lesson_first_try_pct": la["first_try_pct"],
+            "lessons_done": lessons_done_count(code),
         },
     }
 
@@ -3458,6 +3640,8 @@ _STUDENT_CODE_TABLES = [
     # starts the course from lesson one on purpose, and the record follows a
     # regenerated code.
     ("script_done", "code"),
+    # 2026-09-07 (build ue): every graded answer in the authored lane, same rule.
+    ("script_answers", "code"),
     # 2026-09-02 (build sb): the practice goal, same rule -- it follows a
     # regenerated login code and dies with a reset or removed student.
     ("practice_goals", "code"),
@@ -4784,6 +4968,9 @@ def admin_stats() -> dict:
         "active_7d": 0, "active_30d": 0,
         "minutes_total": 0, "minutes_7d": 0,
         "units_mastered": 0, "checks_taken": 0, "problems_practiced": 0,
+        # (ue) the authored lane: graded answers and finished lessons, all-time and 7d
+        "lesson_answers": 0, "lesson_answers_7d": 0, "lesson_answers_right_7d": 0,
+        "lessons_done": 0, "lessons_done_7d": 0,
         "forum_posts": 0, "forum_replies": 0,
         "beta_total": 0, "beta_active_windows": 0, "beta_signins_used": 0,
     }
@@ -4840,6 +5027,16 @@ def admin_stats() -> dict:
             out["checks_taken"] = scalar(select(func.coalesce(func.sum(SS.c.checks_taken), 0)))
             out["problems_practiced"] = scalar(
                 select(func.coalesce(func.sum(SS.c.problems_practiced), 0)))
+            # (ue) the authored lane, counted from its own tables
+            SA = _tables["script_answers"]; SD = _tables["script_done"]
+            out["lesson_answers"] = scalar(select(func.count()).select_from(SA))
+            out["lesson_answers_7d"] = scalar(
+                select(func.count()).select_from(SA).where(SA.c.day >= cutoff7))
+            out["lesson_answers_right_7d"] = scalar(
+                select(func.coalesce(func.sum(SA.c.correct), 0)).where(SA.c.day >= cutoff7))
+            out["lessons_done"] = scalar(select(func.count()).select_from(SD))
+            out["lessons_done_7d"] = scalar(
+                select(func.count()).select_from(SD).where(SD.c.last_at >= now - _dt.timedelta(days=7)))
             # Community forum (soft-deleted rows excluded).
             out["forum_posts"] = scalar(
                 select(func.count()).select_from(FP).where(FP.c.deleted == 0))

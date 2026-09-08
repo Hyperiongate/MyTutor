@@ -1,5 +1,20 @@
 <!DOCTYPE html>
 <!--
+    2026-09-07  TWO WORDS, TWO MEANINGS (build ue, P2 of the deep look). The review
+                showed this page saying "★ Mastered" in the journey for a unit whose tile
+                said "0 of 9 mastered": a finished authored lesson wrote status
+                "mastered", and the tile meant the 90% Unit Quiz. Jim's ruling: "Mastered"
+                is the Unit Quiz and nothing else; a finished lesson is "Lesson done".
+                STATUS gains "taught" -> "Lesson done" (✔, teal, rank 4 under mastered's
+                5; the meter, key, journey and pills all know it). The tiles now COUNT THE
+                AUTHORED LANE and say so: "Problems practiced" adds the lesson answers to
+                the live lane's count and splits them in its caption; "Accuracy" shows the
+                first-try rate in lessons when there is no quiz accuracy yet, and both
+                when there are; a new "Lessons done" tile; each unit card leads with
+                "n of m lessons done"; the tile grid's minimum widens 170 -> 200px so six
+                tiles sit 3 + 3 on a desktop, never 5 + 1. Reads the new stats.lesson_*
+                fields and u.lessons_done / u.lessons_total from /api/topics; nothing
+                else moved.
     2026-08-31  A STREAK A CHILD CAN SEE TODAY (build qz). Jim: "something on the top that
                 says how many days in a row they've worked and how many problems in a row
                 they have gotten correct today... prominent, so easily visible... a
@@ -250,7 +265,7 @@
       --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
       --warm:#ff7a59; --panel:#ffffff; --ok:#16a34a;
       /* Status palette (state, not series): always paired with a label + icon. */
-      --st-mastered:#0e9f6e; --st-practiced:#2f8fd6; --st-learning:#d97706; --st-explored:#5b5bd6; --st-none:#9aa7b6;
+      --st-mastered:#0e9f6e; --st-taught:#0f8a9e; --st-practiced:#2f8fd6; --st-learning:#d97706; --st-explored:#5b5bd6; --st-none:#9aa7b6;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; }
@@ -342,7 +357,8 @@
     @media (max-width: 560px) { .streakbar { flex-direction: column; } }
 
     /* KPI tiles */
-    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 12px; }
+    /* (ue) six tiles now (Lessons done joined the row): 3 + 3 on a desktop, never 5 + 1 */
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 12px; }
     /* build dm: the sprint record card -- pale round-A bar beside solid round-B bar */
     .sprintcard { background: #fff; border: 1px solid var(--line, #ece8f6); border-radius: 14px;
       padding: 14px 16px 10px; margin-bottom: 12px; box-shadow: 0 6px 18px rgba(60,40,120,.05); }
@@ -393,6 +409,7 @@
       place-items: center; font-weight: 800; font-size: 15px; color: #fff; border: 3px solid #fff;
       box-shadow: 0 3px 10px rgba(20,30,45,.16); }
     .stop.mastered  .node { background: var(--st-mastered);  } .stop.mastered  .bar { background: var(--st-mastered); }
+    .stop.taught    .node { background: var(--st-taught);    } .stop.taught    .bar { background: var(--st-taught); }
     .stop.practiced .node { background: var(--st-practiced); } .stop.practiced .bar { background: var(--st-practiced); }
     .stop.learning  .node { background: var(--st-learning);  } .stop.learning  .bar { background: var(--st-learning); }
     .stop.explored  .node { background: var(--st-explored);  } .stop.explored  .bar { background: var(--st-explored); }
@@ -406,7 +423,7 @@
       box-shadow: 0 10px 28px rgba(20,30,45,.07); }
     .meter { display: flex; gap: 2px; height: 26px; border-radius: 8px; overflow: hidden; background: #eef0f7; }
     .seg { height: 100%; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 800; min-width: 0; }
-    .seg.mastered { background: var(--st-mastered); } .seg.practiced { background: var(--st-practiced); }
+    .seg.mastered { background: var(--st-mastered); } .seg.taught { background: var(--st-taught); } .seg.practiced { background: var(--st-practiced); }
     .seg.learning { background: var(--st-learning); } .seg.explored { background: var(--st-explored); }
     .seg.notstarted { background: #cdd3e0; color: #6b6f82; }
     .mkey { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; }
@@ -428,6 +445,7 @@
       display: inline-flex; align-items: center; gap: 5px; }
     .pill .ic { font-size: 11px; }
     .pill.mastered { background: rgba(14,159,110,.14); color: #0b7d57; border: 1px solid rgba(14,159,110,.4); }
+    .pill.taught { background: rgba(15,138,158,.12); color: #0b6b7a; border: 1px solid rgba(15,138,158,.38); }
     .pill.practiced { background: rgba(47,143,214,.12); color: #1f6fb0; border: 1px solid rgba(47,143,214,.35); }
     .pill.learning { background: rgba(217,119,6,.12); color: #b45309; border: 1px solid rgba(217,119,6,.35); }
     .pill.explored { background: rgba(91,91,214,.12); color: #4a4ac0; border: 1px solid rgba(91,91,214,.35); }
@@ -741,14 +759,20 @@
     }
 
     // Status meta: label + icon + css class. Status is NEVER color-alone (label + icon always).
+    // (ue) TWO WORDS, TWO MEANINGS -- Jim's ruling, 2026-09-07. "Mastered" is the 90%
+    // Unit Quiz and nothing else (u.mastered, from unit_checks). "Lesson done" is a
+    // finished authored lesson or a passed topic quiz (status "taught"). Before this
+    // build a finished lesson wrote "mastered" into the unit's status and the journey
+    // starred it while the tile beside it said 0 of 9 -- two meanings on one screen.
     const STATUS = {
-      "mastered":    { label: "Mastered",         cls: "mastered",   ic: "★", rank: 4 },
+      "mastered":    { label: "Mastered",         cls: "mastered",   ic: "★", rank: 5 },
+      "taught":      { label: "Lesson done",      cls: "taught",     ic: "✔", rank: 4 },
       "practiced":   { label: "Practiced",        cls: "practiced",  ic: "✓", rank: 3 },
       "learning":    { label: "Learning",         cls: "learning",   ic: "◐", rank: 2 },
       "explored":    { label: "Explored",         cls: "explored",   ic: "○", rank: 1 },
       "not-started": { label: "Not started yet",  cls: "notstarted", ic: "·", rank: 0 },
     };
-    const ORDER = ["mastered", "practiced", "learning", "explored", "not-started"];
+    const ORDER = ["mastered", "taught", "practiced", "learning", "explored", "not-started"];
     // A unit's DISPLAY status: "mastered" wins (passed a check); else its engagement status.
     const dstatus = (u) => (u.mastered ? "mastered" : (u.status || "not-started"));
     function fmtDate(iso) {
@@ -869,6 +893,13 @@
       const acc = (stats.accuracy_pct === null || stats.accuracy_pct === undefined) ? null : stats.accuracy_pct;
       const streak = stats.streak_days || 0;
       const practiced = stats.problems_practiced || 0;
+      // (ue) THE AUTHORED LANE COUNTS. Every graded answer in a lesson is on record now
+      // (script_answers); it is ADDED here, beside the live lane's counter, and the tile
+      // says which is which -- the two are never blended in the store.
+      const lessonAnswers = stats.lesson_answers || 0;
+      const lessonFirstTry = (stats.lesson_first_try_pct === null || stats.lesson_first_try_pct === undefined)
+                             ? null : stats.lesson_first_try_pct;
+      const lessonsDone = stats.lessons_done || 0;
 
       // (qz, 2026-08-31) THE PROMINENT STREAK BAR. Jim: something at the TOP, easily
       // visible, a motivator to come back every day -- the day streak (already a tile
@@ -924,9 +955,17 @@
           small: courseName ? ("in " + courseName) : "in this course" },
         { lbl: "Day streak", big: streak > 0 ? ("🔥 " + streak) : "0",
           small: (streak === 1 ? "day in a row" : "days in a row") + " · " + ALL },
-        { lbl: "Accuracy", big: acc === null ? "—" : (acc + "%"),
-          small: acc === null ? "take a quiz to see" : ("on quizzes & practice · " + ALL) },
-        { lbl: "Problems practiced", big: String(practiced), small: ALL },
+        { lbl: "Accuracy",
+          big: acc !== null ? (acc + "%") : (lessonFirstTry !== null ? (lessonFirstTry + "%") : "—"),
+          small: acc !== null
+            ? ("on quizzes & practice" + (lessonFirstTry !== null ? (" · " + lessonFirstTry + "% first try in lessons") : "") + " · " + ALL)
+            : (lessonFirstTry !== null ? ("first try in lessons · " + ALL) : "take a quiz to see") },
+        { lbl: "Problems practiced", big: String(practiced + lessonAnswers),
+          small: (lessonAnswers || practiced)
+            ? (lessonAnswers + " in lessons · " + practiced + " in practice & quizzes · " + ALL)
+            : ALL },
+        { lbl: "Lessons done", big: String(lessonsDone),
+          small: lessonsDone === 1 ? ("lesson finished · " + ALL) : ("lessons finished · " + ALL) },
         { lbl: "Time this week", big: timeWeek === null ? "—" : fmtMin(timeWeek),
           small: timeWeek === null ? "turns on with tracking"
                                    : (fmtMin(timeToday) + " today · real work only · " + ALL) },
@@ -1067,7 +1106,7 @@
 
 
       // ----- Status breakdown meter (real counts across the 9 units) -----
-      const counts = { "mastered": 0, "practiced": 0, "learning": 0, "explored": 0, "not-started": 0 };
+      const counts = { "mastered": 0, "taught": 0, "practiced": 0, "learning": 0, "explored": 0, "not-started": 0 };
       units.forEach(u => { counts[dstatus(u)] = (counts[dstatus(u)] || 0) + 1; });
       if (units.length) {
         el("breakdownWrap").style.display = "block";
@@ -1076,7 +1115,7 @@
           const w = (counts[k] / total) * 100;
           return `<div class="seg ${st.cls}" style="width:${w}%" title="${st.label}: ${counts[k]}">${counts[k]}</div>`;
         }).join("");
-        const swColor = { mastered: "var(--st-mastered)", practiced: "var(--st-practiced)", learning: "var(--st-learning)",
+        const swColor = { mastered: "var(--st-mastered)", taught: "var(--st-taught)", practiced: "var(--st-practiced)", learning: "var(--st-learning)",
                           explored: "var(--st-explored)", "not-started": "#cdd3e0" };
         el("mkey").innerHTML = ORDER.map(k => {
           const st = STATUS[k];
@@ -1137,6 +1176,8 @@
             let meta = "&nbsp;";
             if (touched) {
               const mb = [];
+              // (ue) lessons done first -- it is what a finished lesson now means
+              if (u.lessons_total) mb.push(u.lessons_done + " of " + u.lessons_total + " lessons done");
               const qp = (u.quizzes || []).filter(q => q.passed).length;
               if (qp) mb.push(qp + (qp === 1 ? " topic quiz" : " topic quizzes") + " passed");
               if (u.checks_taken) mb.push("Unit Quiz best " + u.best_pct + "%");

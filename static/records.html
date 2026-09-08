@@ -4,6 +4,13 @@
   records.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-09-07  (build ue, P2 of the deep look) THE STATUS COLUMN SPEAKS PLAINLY, AND
+                LESSONS DONE GET A COLUMN. The Status column printed the raw status word,
+                so a finished lesson read "mastered" beside a Mastery column that said
+                "—" for the same unit. Now: statusWord() -- "Lesson done" for "taught"
+                (a finished authored lesson or a passed topic quiz), "Mastered" only
+                when the Unit Quiz said so (Jim's ruling, 2026-09-07). A new "Lessons
+                done" column ("n of m") from /api/records' lessons_done / lessons_total.
     2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: /api/records/me +
                 X-Student-Code header. (This page never carried analytics; the new
                 analytics.js guard covers it anyway if that ever changes.)
@@ -155,6 +162,12 @@
       .then(render).catch(e => fail(e.message || "Could not load records."));
   }
 
+  // (ue) the status column in plain words -- "taught" is a finished lesson or a passed
+  // topic quiz ("Lesson done"); "Mastered" is the 90% Unit Quiz and nothing else.
+  const STATUS_WORDS = { "mastered": "Mastered", "taught": "Lesson done", "practiced": "Practiced",
+                         "learning": "Learning", "explored": "Explored" };
+  function statusWord(s) { return STATUS_WORDS[s] || (s === "not-started" ? "—" : s); }
+
   function render(d) {
     el("err").style.display = "none";
     if (!d.tracking) { fail("Progress tracking is offline right now — records are unavailable."); return; }
@@ -201,7 +214,8 @@
       const rows = c.units.map(u => {
         const qp = (u.quizzes || []).filter(q => q.passed).length;
         return "<tr><td>" + u.unit + "</td><td>" + esc(u.name) + "</td>"
-          + "<td>" + esc(u.status === "not-started" ? "—" : u.status) + "</td>"
+          + "<td>" + esc(statusWord(u.status)) + "</td>"
+          + "<td>" + (u.lessons_total ? (u.lessons_done || 0) + " of " + u.lessons_total : "—") + "</td>"
           + "<td>" + (qp ? qp + " passed" : "—") + "</td>"
           + "<td>" + (u.checks_taken ? u.best_pct + "%" : "—") + "</td>"
           + "<td>" + (u.mastered ? '<span class="star">★ Mastered</span>' : "—") + "</td></tr>";
@@ -209,7 +223,7 @@
       return '<div class="card"><div class="coursehead"><h2>' + esc(c.title) + "</h2>"
         + '<span class="cap">' + c.units_mastered + " of " + c.units.length + " units mastered"
         + (c.placement ? " · placed: " + esc(c.placement) : "") + "</span></div>"
-        + "<table><tr><th>#</th><th>Unit</th><th>Status</th><th>Topic quizzes</th><th>Unit Quiz best</th><th>Mastery</th></tr>"
+        + "<table><tr><th>#</th><th>Unit</th><th>Status</th><th>Lessons done</th><th>Topic quizzes</th><th>Unit Quiz best</th><th>Mastery</th></tr>"
         + rows + "</table></div>";
     }).join("");
 

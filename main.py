@@ -2,6 +2,36 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  APP_BUILD -> "2026-09-07ue-the-authored-lane-writes-it-down".
+#               BUILD ue -- P2 OF THE DEEP LOOK, FIRST HALF (Jim's order: P0, P2, P1).
+#               The review drove five whole authored lessons and the admin console
+#               read "0 problems practiced": the scripted lane kept one row per
+#               finished lesson (script_done) and the streak, and nothing per answer.
+#               (1) EVERY GRADED ANSWER IS WRITTEN DOWN. _script_note_ask remembers the
+#                   question on screen (a new pending problem resets the try count and
+#                   starts the clock; a re-ask after "unheard" keeps both -- unheard is
+#                   not a try); _script_record_answer writes one script_answers row
+#                   (store.py, new) at each of the lane's THREE grading points -- the
+#                   ordinary ask at the engine's own line, the reason question by its
+#                   label, the intervention redo -- with the verdict the star already
+#                   uses. Fail-open everywhere: a lost row never costs a turn. The
+#                   streak, the engine and the payload are untouched.
+#               (2) "LESSON DONE" IS NOT "MASTERED". Jim's ruling (2026-09-07): "Mastered"
+#                   is the 90% Unit Quiz and nothing else. _script_finish writes "taught"
+#                   for a mastered end (was "mastered"); the passed topic quiz writes
+#                   "taught" (was "mastered"); store.record_check stays the one writer of
+#                   "mastered", and store's one-time migration un-says the historical
+#                   rows. _goal_suggest counts a taught unit as a practice pick.
+#               (3) /api/topics and /api/records units carry lessons_done / lessons_total
+#                   (_lessons_by_unit, from script_done and the course's lessons); the
+#                   dashboard's stats carry lesson_answers / lesson_first_try_pct /
+#                   lessons_done beside the live lane's counters (store.get_mastery),
+#                   never blended -- Jim's apart-from-the-course ruling (mt) stands and
+#                   the pages ADD the lanes and say so.
+#               ENGAGED MINUTES WERE NEVER MISSING: /api/heartbeat counts them from
+#               time-tracker.js on every learning page, scripted lane included; the
+#               review's zero came from driving the lane by API with no page open. No
+#               second clock is added -- it would double-count.
 #   2026-09-07  APP_BUILD -> "2026-09-07ud-the-small-fixes-of-the-deep-look".
 #               BUILD ud -- P0 OF THE DEEP LOOK (claude/Review_Deep_Look_2026-09-07.md;
 #               Jim chose P0, then P2 data, then P1 phone). THIS FILE:
@@ -6879,6 +6909,33 @@ def read_placement(code: str, course: str = "algebra1") -> dict:
         return {}
 
 
+def _lessons_by_unit(code: str, course: str) -> dict:
+    """(ue) {unit: {"done": n, "total": m}} for a course: `total` counts the authored
+    lessons in each unit, `done` the ones this student has finished (script_done,
+    a lesson finished twice counts once). Never raises; an unreadable store gives
+    every unit done=0 so the page shows honest zeros, not a missing card."""
+    out = {}
+    try:
+        for les in lessonscripts.LESSONS:
+            if les.get("course") != course:
+                continue
+            u = out.setdefault(int(les.get("unit") or 0), {"done": 0, "total": 0})
+            u["total"] += 1
+    except Exception as exc:  # noqa: BLE001
+        print(f"[lessons] course walk failed: {exc}")
+    if not store.enabled():
+        return out
+    try:
+        for r in store.get_script_done(code, course) or []:
+            les = lessonscripts.LESSON_BY_ID.get(r.get("lesson_id") or "") or {}
+            u = out.get(int(les.get("unit") or 0))
+            if u is not None:
+                u["done"] += 1
+    except Exception as exc:  # noqa: BLE001
+        print(f"[lessons] get_script_done failed: {exc}")
+    return out
+
+
 def _track_topic(code: str, unit, name: str, status: str, course: str = "algebra1") -> None:
     """Record real per-topic engagement (Phase 2), but only when the database is on,
     and never let a tracking hiccup break a student's turn. `course` files the progress
@@ -8359,12 +8416,14 @@ def topics_state(request: Request, code: str = Depends(_code_dep), course: str =
             print(f"[topics] get_topic_quizzes failed: {exc}")
 
     checks = mastery.get("checks", {})
+    lessons = _lessons_by_unit(code, course)      # (ue) lessons done, per unit
     units = []
     for n, name in curriculum.units_for(course):
         r = recorded.get(n)
         c = checks.get(n) or {}
         best = int(c.get("best_pct") or 0)
         uq = quiz_rows.get(n, [])
+        lu = lessons.get(n) or {"done": 0, "total": 0}
         units.append({
             "unit": n,
             "name": name,
@@ -8373,9 +8432,11 @@ def topics_state(request: Request, code: str = Depends(_code_dep), course: str =
             "last_touched": (r.get("last_touched") if r else None),
             "best_pct": best,                       # best UNIT QUIZ score (0 if none)
             "checks_taken": int(c.get("checks_taken") or 0),
-            "mastered": best >= store.PASS_PCT,
+            "mastered": best >= store.PASS_PCT,     # the 90% Unit Quiz, and nothing else
             "quizzes": uq,                          # topic-quiz rows: {name, best_pct, passed}
             "quizzes_passed": len([q for q in uq if q["passed"]]),
+            "lessons_done": lu["done"],             # (ue) finished authored lessons
+            "lessons_total": lu["total"],
         })
 
     started = [u for u in units if u["status"] != "not-started"]
@@ -11055,10 +11116,13 @@ def _script_session(code: str):
 
 
 def _script_finish(code: str, sess, end_step):
-    """Record the outcome through the SAME store calls the live lanes use."""
+    """Record the outcome through the SAME store calls the live lanes use.
+    (ue) A mastered end writes "taught" -- "Lesson done" on every page -- not
+    "mastered": Jim's ruling (2026-09-07) keeps that word for the 90% Unit Quiz,
+    whose only writer is store.record_check. A still-learning end stays "learning"."""
     try:
         lesson = sess["lesson"]
-        status = "mastered" if end_step.get("mastered") else "learning"
+        status = "taught" if end_step.get("mastered") else "learning"
         store.record_topic(code, lesson["unit"], lesson["topic"], status,
                            lesson["course"])
     except Exception as exc:  # noqa: BLE001
@@ -11085,6 +11149,50 @@ def _script_finish(code: str, sess, end_step):
     except Exception as exc:  # noqa: BLE001
         print(f"[script] seam note failed (non-fatal): {exc}")
     _SCRIPT_SESSIONS.pop(code, None)
+
+
+def _script_note_ask(sess, steps):
+    """(ue) Remember the question on the screen so its answer can be written down.
+    Called with the steps of every response the lane sends. A NEW question (a
+    different pending problem, or the reason question) resets the try counter and
+    starts the clock; a re-ask of the same question after an unheard answer keeps
+    both -- unheard is not a try. Reads the engine's pending state, never a step's
+    answer key."""
+    try:
+        for st in steps or []:
+            if st.get("kind") != "ask":
+                continue
+            pend = (sess.get("state") or {}).get("pending") or {}
+            key = ("reason" if pend.get("reason")
+                   else json.dumps(pend.get("problem"), sort_keys=True, default=str))
+            if key != sess.get("ask_key"):
+                sess["ask_key"] = key
+                sess["ask_tries"] = 0
+                sess["ask_t"] = _time.monotonic()
+            sess["ask_spoken"] = st.get("spoken", "")
+            sess["ask_guided"] = bool(st.get("guided"))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[script] ask note failed (non-fatal): {exc}")
+
+
+def _script_record_answer(code, sess, kind, answer, expected, correct):
+    """(ue) THE AUTHORED LANE WRITES IT DOWN. One row per graded answer -- the
+    question as spoken, the answer, the expected, right or not, which try, and the
+    milliseconds since the question (or the previous try) -- through
+    store.record_script_answer, which never raises. Fail-open: a lost row never
+    costs a turn. Returns nothing; the streak and the engine are untouched."""
+    try:
+        sess["ask_tries"] = int(sess.get("ask_tries", 0)) + 1
+        now = _time.monotonic()
+        ms = int((now - sess.get("ask_t", now)) * 1000)
+        sess["ask_t"] = now                      # the next try's clock starts here
+        lesson = sess["lesson"]
+        store.record_script_answer(
+            code, lesson.get("course", ""), lesson.get("id", ""), lesson.get("unit", 0),
+            kind, sess.get("ask_spoken", ""), str(answer), str(expected), bool(correct),
+            attempt=sess["ask_tries"], ms=ms, guided=bool(sess.get("ask_guided")))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[script] answer record failed (non-fatal): {exc}")
 
 
 def _script_log(code, course, t_start, kind="script"):
@@ -11133,6 +11241,7 @@ def script_start(body: ScriptStartIn):
     _SCRIPT_SESSIONS[code] = {"state": state, "lesson": lesson, "mode": "script",
                               "ai_turns": 0, "history": [], "redo": None,
                               "t0": _time.monotonic()}
+    _script_note_ask(_SCRIPT_SESSIONS[code], steps)      # (ue) the first question
     _script_log(code, lesson["course"], t0)
     # kd: the id rides along so the pilot page can offer "Next lesson" from the
     # course order without guessing which lesson this session is in.
@@ -11265,11 +11374,16 @@ def script_answer(body: ScriptAnswerIn):
                             "board": ""})
             steps, state = lessonscripts.step(lesson, state, ("unheard",))
             sess["state"] = state
+            _script_note_ask(sess, steps)
             _script_log(code, lesson["course"], t0)
             return {"ok": True, "steps": pre + _script_clean(steps, lesson["id"])}
-        _streak = _script_streak(code, lessonscripts.reason_right(lesson, label))
+        _right = lessonscripts.reason_right(lesson, label)
+        _streak = _script_streak(code, _right)
+        _script_record_answer(code, sess, "reason", label,
+                              (state.get("pending") or {}).get("expected", ""), _right)
         steps, state = lessonscripts.step(lesson, state, ("answer", label))
         sess["state"] = state
+        _script_note_ask(sess, steps)
         for s in steps:
             if s["kind"] == "end":
                 _script_finish(code, sess, s)
@@ -11301,10 +11415,12 @@ def script_answer(body: ScriptAnswerIn):
                     "spoken": lessonscripts.LINE_TAP, "board": redo["choices"]}]}
         if body.value is not None and int(body.value) == redo["expected"]:
             _streak = _script_streak(code, True)   # (rd) a right redo climbs the star
+            _script_record_answer(code, sess, "redo", body.value, redo["expected"], True)
             praise = lessonscripts.praise_for(redo["problem"], state["done"])
             steps, state = lessonscripts.step(lesson, state, ("resume",))
             sess.update(state=state, mode="script", ai_turns=0,
                         history=[], redo=None)
+            _script_note_ask(sess, steps)
             out = [{"kind": "say", "spoken": praise, "board": ""}]                 + _script_clean(steps, lesson["id"])
             for s in steps:
                 if s["kind"] == "end":
@@ -11317,6 +11433,7 @@ def script_answer(body: ScriptAnswerIn):
         # (rd) a wrong redo is still a wrong tap: the star falls NOW, whichever of
         # the two exits below this turn leaves through.
         _streak = _script_streak(code, False)
+        _script_record_answer(code, sess, "redo", body.value, redo["expected"], False)
         # wrong again: another bounded AI turn, or fall back to the scripted retest
         if sess["ai_turns"] < SCRIPT_AI_TURNS:
             sess["history"].append({"role": "user",
@@ -11335,6 +11452,7 @@ def script_answer(body: ScriptAnswerIn):
                 return resp
         steps, state = lessonscripts.step(lesson, state, ("resume",))
         sess.update(state=state, mode="script", ai_turns=0, history=[], redo=None)
+        _script_note_ask(sess, steps)
         for s in steps:
             if s["kind"] == "end":
                 _script_finish(code, sess, s)
@@ -11354,7 +11472,11 @@ def script_answer(body: ScriptAnswerIn):
     if (not body.unheard) and body.value is not None:
         _pend = (state.get("pending") or {}).get("problem")
         if _pend is not None:
-            _streak = _script_streak(code, int(body.value) == lessonscripts.ans(_pend))
+            _exp = lessonscripts.ans(_pend)
+            _streak = _script_streak(code, int(body.value) == _exp)
+            # (ue) written down at the engine's own line, same verdict as the star
+            _script_record_answer(code, sess, "ask", body.value, _exp,
+                                  int(body.value) == _exp)
     steps, state = lessonscripts.step(lesson, state, event)
     sess["state"] = state
     out = list(pre)          # build ou: the authored refusal line leads, then the re-ask
@@ -11382,6 +11504,7 @@ def script_answer(body: ScriptAnswerIn):
             out.extend(_script_clean([s], lesson["id"]))
             if s["kind"] == "end":
                 _script_finish(code, sess, s)
+    _script_note_ask(sess, out)          # (ue) whichever question is on screen now
     _script_log(code, lesson["course"], t0)
     resp = {"ok": True, "steps": out}
     if _streak:
@@ -11517,8 +11640,11 @@ def script_quiz_answer(body: ScriptQuizAnswerIn):
                                     result["correct"], result["total"],
                                     lesson["course"])
             if result["passed"]:
+                # (ue) "taught", not "mastered": the topic quiz is the lesson's
+                # own door at 80%; "Mastered" is the 90% Unit Quiz alone (Jim).
+                # The pass itself is on record in topic_quizzes, as before.
                 store.record_topic(code, lesson["unit"], lesson["topic"],
-                                   "mastered", lesson["course"])
+                                   "taught", lesson["course"])
         except Exception as exc:  # noqa: BLE001
             print(f"[quiz] outcome record failed (non-fatal): {exc}")
     _script_log(code, lesson["course"], t0, kind="quiz")
@@ -13906,15 +14032,18 @@ def records_report(request: Request, code: str = Depends(_code_dep), days: int =
             print(f"[records] course {cid} read failed: {exc}")
             continue
         units = []
+        lessons = _lessons_by_unit(code, cid)      # (ue) lessons done, per unit
         for n, name in curriculum.units_for(cid):
             r = recorded.get(n)
             c = checks.get(n) or {}
             best = int(c.get("best_pct") or 0)
+            lu = lessons.get(n) or {"done": 0, "total": 0}
             units.append({"unit": n, "name": name,
                           "status": (r["status"] if r else "not-started"),
                           "best_pct": best, "checks_taken": int(c.get("checks_taken") or 0),
                           "mastered": best >= store.PASS_PCT,
-                          "quizzes": quiz_rows.get(n, [])})
+                          "quizzes": quiz_rows.get(n, []),
+                          "lessons_done": lu["done"], "lessons_total": lu["total"]})
         placement = read_placement(code, cid) or {}
         courses.append({"course": cid, "title": curriculum.course_title(cid),
                         "placement": placement.get("level_title") or "",
@@ -13992,7 +14121,9 @@ def _goal_suggest(code: str) -> str:
         rows = store.get_topics(code, course)
         best = None
         for r in rows:
-            if r.get("status") == "mastered" and (
+            # (ue) a unit whose lesson is done is as good a practice pick as a
+            # mastered one -- "taught" is what a finished authored lesson writes now
+            if r.get("status") in ("mastered", "taught") and (
                     best is None or (r.get("last_touched") or "") >
                     (best.get("last_touched") or "")):
                 best = r
@@ -14080,7 +14211,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-07ud-the-small-fixes-of-the-deep-look"
+APP_BUILD = "2026-09-07ue-the-authored-lane-writes-it-down"
 
 
 @app.get("/health")

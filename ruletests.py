@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-07  BUILD ue -- THE AUTHORED LANE WRITES IT DOWN (P2 of the deep look, first
+#               half). PART 3ka: the script_answers table and its registry row; the
+#               ladder explored < learning < practiced < taught < mastered with
+#               record_check the one writer of "mastered"; the one-time migration; the
+#               lane's three grading points each writing a row with the star's verdict,
+#               unheard writing none, the question noted at the start and after every
+#               turn; the heartbeat still the ONE clock for minutes; lessons_done per
+#               unit in /api/topics and /api/records; the goal suggester; the three pages
+#               ("Lesson done" ranked under Mastered, tiles that ADD the lanes and say
+#               so, the records column, the admin tiles). LIVE (subprocess + TestClient
+#               + sqlite): the migration on planted rows, then one whole lesson with a
+#               wrong answer first -- rows, attempt numbers, stats, "taught" not
+#               "mastered", the dashboard/records/admin payloads. Tile 10,942 -> 10,977.
 #   2026-09-07  BUILD ud -- P0 OF THE DEEP LOOK. PART 3jz: the five public pages say the
 #               true order for the youngest (say it, type it, the buttons are there) and
 #               the eight stale sentences are gone; methodology's prose numbers sit in
@@ -12195,8 +12208,8 @@ def part3jz_the_small_fixes_of_the_deep_look():
           and '@app.get("/session")' in m, "")
 
     # ---- the notes -------------------------------------------------------------
-    check("  the stamp is ud",
-          'APP_BUILD = "2026-09-07ud-the-small-fixes-of-the-deep-look"' in m, "")
+    check("  the stamp passed through ud (the note stays after the stamp moves on)",
+          'APP_BUILD -> "2026-09-07ud-the-small-fixes-of-the-deep-look"' in m[:200000], "")
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-07  APP_BUILD -> \"2026-09-07ud-" in m[:200000]
           and "2026-09-07  BUILD ud" in rd("ruletests.py")[:28000]
@@ -12206,6 +12219,256 @@ def part3jz_the_small_fixes_of_the_deep_look():
                             "practice.html", "topic.html", "admin.html"))
           and "2026-09-07  (ud)" in rd("static/features.html")[:6000]
           and "2026-09-07  (ud)" in rd("static/index.html")[:6000], "")
+
+
+def part3ka_the_authored_lane_writes_it_down():
+    """PART 3ka (build ue, 2026-09-07) -- P2 OF THE DEEP LOOK, FIRST HALF.
+
+    The review drove five whole authored lessons and the admin console read "0 problems
+    practiced"; the student dashboard said "30 right in a row" beside "0 problems
+    practiced"; and "Mastered" meant two things on one screen -- a finished lesson wrote
+    status="mastered" into the unit while the tile beside it meant the 90% Unit Quiz.
+
+    Jim's rulings (2026-09-07): P0, then P2, then P1; and a finished authored lesson is
+    "Lesson done" -- "Mastered" is the Unit Quiz and nothing else.
+
+    Static pins on the store, the lane, the payloads and the three pages; then a LIVE
+    drill (subprocess + TestClient + sqlite): one lesson, one wrong answer then right
+    ones, and the rows, the stats, the "taught" status and the dashboard payload read
+    back -- plus the one-time migration proven on planted rows."""
+    print("\nPART 3ka — the authored lane writes it down (build ue)")
+    import re as _re, subprocess, sys, tempfile
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    NL = chr(10)
+    ssrc = rd("store.py"); m = rd("main.py")
+    dash = rd("static/dashboard.html"); rec = rd("static/records.html"); adm = rd("static/admin.html")
+
+    # ---- the store --------------------------------------------------------------------
+    _tbl = ssrc[ssrc.find('_tables["script_answers"] = Table('):]
+    _tbl = _tbl[:_tbl.find(NL + "        )")]
+    check("⭐ store: the script_answers table exists, one row per graded answer",
+          bool(_tbl) and all(f'Column("{c}"' in _tbl for c in
+                             ("code", "course", "lesson_id", "unit", "kind", "guided", "asked",
+                              "answer", "expected", "correct", "attempt", "ms", "day", "created_at")),
+          "")
+    check("  ...and it joins the student-code registry (reset / code change / delete follow it)",
+          '("script_answers", "code"),' in ssrc, "")
+    check("  store: record_script_answer is append-only and never raises",
+          "def record_script_answer(" in ssrc
+          and "if not _ENABLED:" in ssrc[ssrc.find("def record_script_answer("):ssrc.find("def record_script_answer(") + 900]
+          and "record_script_answer failed (non-fatal)" in ssrc, "")
+    check("  store: script_answer_stats, get_script_answers, lessons_done_count exist",
+          all(f"def {f}(" in ssrc for f in ("script_answer_stats", "get_script_answers", "lessons_done_count")), "")
+    check("⭐ store: the ladder is explored < learning < practiced < taught < mastered",
+          'STATUS_RANK = {"explored": 1, "learning": 2, "practiced": 3, "taught": 4, "mastered": 5}' in ssrc, "")
+    check("  store: record_check is the ONE writer of \"mastered\" (the 90% Unit Quiz)",
+          ssrc.count('_set_unit_status(code, unit, "mastered"') == 1
+          and 'record_topic(code, unit, unit_name, "mastered"' not in ssrc, "")
+    check("  store: the one-time migration un-says the rows no Unit Quiz earned",
+          "def _migrate_taught_status():" in ssrc
+          and 'tp.c.status == "mastered", not_(earned)' in ssrc
+          and '.values(status="taught")' in ssrc
+          and ssrc.find("_migrate_usage_log_timing()" + NL) < ssrc.find("        _migrate_taught_status()") < ssrc.find("# Prove the connection works."),
+          "")
+    check("  store: get_mastery's stats carry the lane BESIDE the live counters (never blended)",
+          all(f'"{k}":' in ssrc[ssrc.find("def get_mastery("):ssrc.find("def get_mastery(") + 2600]
+              for k in ("lesson_answers", "lesson_answers_right", "lesson_first_try_pct", "lessons_done"))
+          and '"problems_practiced": s["problems_practiced"],' in ssrc, "")
+    check("  store: admin_stats counts the lane from its own tables",
+          all(f'out["{k}"]' in ssrc for k in ("lesson_answers", "lesson_answers_7d", "lesson_answers_right_7d",
+                                              "lessons_done", "lessons_done_7d")), "")
+
+    # ---- the lane -----------------------------------------------------------------------
+    mcode = NL.join(ln.split("#")[0] for ln in _re.sub(r'"""[\s\S]*?"""', "", m).splitlines())
+    check("⭐ main: a finished lesson writes \"taught\", a passed topic quiz writes \"taught\"",
+          'status = "taught" if end_step.get("mastered") else "learning"' in m
+          and m.count('"taught", lesson["course"])') == 1, "")
+    check("  main: nothing in main.py writes status \"mastered\" any more",
+          not _re.search(r'record_topic\([^)]*"mastered"', mcode)
+          and '"mastered" if end_step' not in mcode, "")
+    check("  main: _script_note_ask remembers the question and resets tries only on a NEW one",
+          "def _script_note_ask(sess, steps):" in m
+          and 'if key != sess.get("ask_key"):' in m and 'sess["ask_tries"] = 0' in m
+          and 'sess["ask_spoken"] = st.get("spoken", "")' in m, "")
+    check("  main: _script_record_answer writes through the store and fails open",
+          "def _script_record_answer(code, sess, kind, answer, expected, correct):" in m
+          and "store.record_script_answer(" in m and "answer record failed (non-fatal)" in m, "")
+    _ans = m[m.find('@app.post("/api/script/answer")'):m.find("# THE TOPIC QUIZ, THROUGH THE AUTHORED SPINE")]
+    check("⭐ main: all THREE grading points write a row -- the ask, the reason question, the redo (right and wrong)",
+          _ans.count("_script_record_answer(") == 4
+          and '_script_record_answer(code, sess, "ask", body.value, _exp,' in _ans
+          and '_script_record_answer(code, sess, "reason", label,' in _ans
+          and '_script_record_answer(code, sess, "redo", body.value, redo["expected"], True)' in _ans
+          and '_script_record_answer(code, sess, "redo", body.value, redo["expected"], False)' in _ans, "")
+    check("  main: the ask's row carries the engine's own verdict (the star's)",
+          "_exp = lessonscripts.ans(_pend)" in _ans
+          and "_streak = _script_streak(code, int(body.value) == _exp)" in _ans, "")
+    check("  main: the question is noted at the start and after every turn that can ask",
+          "_script_note_ask(_SCRIPT_SESSIONS[code], steps)" in m
+          and _ans.count("_script_note_ask(sess,") >= 5, str(_ans.count("_script_note_ask(sess,")))
+    check("  main: an unheard answer writes NO row (it is not a try)",
+          _ans.find("if (not body.unheard) and body.value is not None:") < _ans.find('_script_record_answer(code, sess, "ask"'), "")
+    check("  DO NO HARM: the streak door is untouched (the star still moves at the engine's line)",
+          "def _script_streak(code: str, correct: bool):" in m
+          and "store.bump_today_streak(code) if correct" in m, "")
+    check("  DO NO HARM: engaged minutes keep their ONE clock (the heartbeat); no second writer",
+          m.count("store.record_minutes(") == 1 and "def heartbeat(req: HeartbeatRequest):" in m, "")
+    check("  main: /api/topics and /api/records carry lessons_done / lessons_total per unit",
+          "def _lessons_by_unit(code: str, course: str) -> dict:" in m
+          and m.count('"lessons_done": lu["done"]') == 2 and m.count('lessons = _lessons_by_unit(code,') == 2, "")
+    check("  main: the goal suggester counts a taught unit as a practice pick",
+          'if r.get("status") in ("mastered", "taught") and (' in m, "")
+
+    # ---- the pages -------------------------------------------------------------------------
+    check("⭐ dashboard: \"taught\" is \"Lesson done\", ranked under Mastered, in every list",
+          '"taught":      { label: "Lesson done",      cls: "taught",     ic: "✔", rank: 4 }' in dash
+          and '"mastered":    { label: "Mastered",         cls: "mastered",   ic: "★", rank: 5 }' in dash
+          and 'const ORDER = ["mastered", "taught", "practiced", "learning", "explored", "not-started"];' in dash
+          and '"taught": 0,' in dash and 'taught: "var(--st-taught)"' in dash
+          and ".pill.taught {" in dash and ".stop.taught" in dash and ".seg.taught" in dash, "")
+    check("  dashboard: u.mastered still means the Unit Quiz alone (dstatus unchanged)",
+          'const dstatus = (u) => (u.mastered ? "mastered" : (u.status || "not-started"));' in dash, "")
+    check("⭐ dashboard: Problems practiced ADDS the lanes and says which is which",
+          'big: String(practiced + lessonAnswers)' in dash
+          and '" in lessons · " + practiced + " in practice & quizzes · "' in dash, "")
+    check("  dashboard: Accuracy shows the first-try rate in lessons, and says so",
+          '(lessonFirstTry + "%")' in dash and '"first try in lessons · "' in dash
+          and '"% first try in lessons"' in dash, "")
+    check("  dashboard: a Lessons done tile, and each unit card leads with n of m lessons done",
+          '{ lbl: "Lessons done", big: String(lessonsDone),' in dash
+          and 'mb.push(u.lessons_done + " of " + u.lessons_total + " lessons done")' in dash, "")
+    check("  records: the status column speaks plainly and Lessons done has a column",
+          '"taught": "Lesson done"' in rec and "function statusWord(s)" in rec
+          and '"<td>" + esc(statusWord(u.status)) + "</td>"' in rec
+          and "<th>Lessons done</th>" in rec
+          and '(u.lessons_done || 0) + " of " + u.lessons_total' in rec, "")
+    check("  admin: Engagement counts the lane -- added, split, and two new tiles",
+          'v: num((s.problems_practiced || 0) + (s.lesson_answers || 0))' in adm
+          and '{ l: "Lesson answers (7d)", v: num(s.lesson_answers_7d),' in adm
+          and '{ l: "Lessons done", v: num(s.lessons_done),' in adm
+          and '{ l: "Checks taken", v: num(s.checks_taken), s: "Unit Quizzes sat" }' in adm, "")
+    for fn in ("static/dashboard.html", "static/records.html", "static/admin.html"):
+        body = _re.sub(r"<!--.*?-->", "", rd(fn), flags=_re.S)
+        check(f"  {fn}: the new copy says 'student', never 'child'",
+              not _re.search(r"[Cc]hild(?:ren)?\b", NL.join(
+                  ln for ln in body.splitlines() if "lesson" in ln.lower() and "done" in ln.lower()
+                  and not ln.strip().startswith("//"))), "")
+
+    # ---- the live drill: subprocess + TestClient + sqlite ----------------------------------------
+    tmp = tempfile.mkdtemp()
+    drill = os.path.join(tmp, "drill_ue.py")
+    with open(drill, "w", encoding="utf-8") as fh:
+        fh.write(
+            "import os, sys\n"
+            "sys.path.insert(0, os.environ['PYTHONPATH'])\n"
+            "import store\n"
+            "store.init(); assert store.enabled()\n"
+            "from sqlalchemy import insert, select\n"
+            "# ---- the migration on planted rows: one earned by a 90% Unit Quiz, one not ----\n"
+            "tp = store._tables['topic_progress']; uc = store._tables['unit_checks']\n"
+            "with store._engine.begin() as c:\n"
+            "    c.execute(insert(tp).values(code='MIG1', course='basic', unit=1, status='mastered', touches=1))\n"
+            "    c.execute(insert(tp).values(code='MIG1', course='basic', unit=2, status='mastered', touches=1))\n"
+            "    c.execute(insert(uc).values(code='MIG1', course='basic', unit=2, checks_taken=1, best_pct=95))\n"
+            "store._migrate_taught_status()\n"
+            "with store._engine.connect() as c:\n"
+            "    st = {r[0]: r[1] for r in c.execute(select(tp.c.unit, tp.c.status).where(tp.c.code == 'MIG1')).all()}\n"
+            "assert st == {1: 'taught', 2: 'mastered'}, st\n"
+            "store._migrate_taught_status()   # a second pass finds nothing\n"
+            "print('MIG-OK')\n"
+            "# ---- the lane, live ----\n"
+            "import main, lessonscripts as L\n"
+            "from fastapi.testclient import TestClient\n"
+            "cl = TestClient(main.app)\n"
+            "CODE = '1234'\n"
+            "les = [l for l in L.LESSONS if l['course'] == 'basic'][0]\n"
+            "r = cl.post('/api/script/start', json={'code': CODE, 'course': 'basic', 'lesson': les['id']}).json()\n"
+            "assert r['ok'], r\n"
+            "wrong_once = False; reason_wrong_once = False; ended = None; turns = 0\n"
+            "while ended is None and turns < 60:\n"
+            "    turns += 1\n"
+            "    sess = main._SCRIPT_SESSIONS[CODE]\n"
+            "    pend = (sess['state'].get('pending') or {})\n"
+            "    if sess['mode'] == 'intervene':\n"
+            "        said = str(sess['redo']['expected'])\n"
+            "    elif pend.get('reason'):\n"
+            "        # the reason question: miss it ONCE (a wrong label), then say it -- the one\n"
+            "        # place a second try at the SAME question exists without a model\n"
+            "        if not reason_wrong_once:\n"
+            "            wrong_lbl = [o for o in L._reason_options(les) if not L.reason_right(les, o)][0]\n"
+            "            said = wrong_lbl; reason_wrong_once = True\n"
+            "        else: said = les['explain']['answer']\n"
+            "    elif pend.get('problem') is not None:\n"
+            "        v = L.ans(pend['problem'])\n"
+            "        if not wrong_once: said = str(v + 1); wrong_once = True\n"
+            "        else: said = str(v)\n"
+            "    else:\n"
+            "        raise SystemExit('no pending ask: ' + str(sess['state'])[:200])\n"
+            "    rr = cl.post('/api/script/answer', json={'code': CODE, 'said': said}).json()\n"
+            "    assert rr['ok'], rr\n"
+            "    for st in rr['steps']:\n"
+            "        if st.get('kind') == 'end': ended = st\n"
+            "assert ended is not None, 'the lesson never ended'\n"
+            "rows = store.get_script_answers(CODE, 'basic', limit=500)\n"
+            "assert len(rows) >= 4, rows\n"
+            "kinds = {r['kind'] for r in rows}\n"
+            "assert 'ask' in kinds, kinds\n"
+            "wrong = [r for r in rows if not r['correct']]\n"
+            "assert len(wrong) == 2, wrong           # the wrong ask, the wrong reason\n"
+            "assert all(r['attempt'] == 1 for r in wrong), wrong\n"
+            "# a wrong ask moves to a NEW retest problem (the engine's law), so its next row is\n"
+            "# attempt 1 again; the reason question re-asks ITSELF, so its right answer is try 2\n"
+            "second = [r for r in rows if r['attempt'] == 2]\n"
+            "assert len(second) == 1 and second[0]['kind'] == 'reason' and second[0]['correct'], second\n"
+            "asks = [r for r in reversed(rows) if r['kind'] == 'ask']\n"
+            "assert asks and all(r['attempt'] == 1 for r in asks), asks\n"
+            "assert 'reason' in kinds, kinds\n"
+            "assert all(r['asked'] for r in rows), 'a row without its question'\n"
+            "assert all(r['expected'] for r in rows), 'a row without the expected answer'\n"
+            "stats = store.script_answer_stats(CODE)\n"
+            "assert stats['answers'] == len(rows) and stats['right'] == len(rows) - len(wrong), stats\n"
+            "assert stats['first_try_pct'] is not None and 0 <= stats['first_try_pct'] < 100, stats\n"
+            "assert store.lessons_done_count(CODE) == 1 and store.lessons_done_count(CODE, 'basic') == 1\n"
+            "tops = {r['unit']: r for r in store.get_topics(CODE, 'basic')}\n"
+            "assert tops[les['unit']]['status'] in ('taught', 'learning'), tops\n"
+            "assert tops[les['unit']]['status'] != 'mastered', tops\n"
+            "t = cl.get('/api/topics/me?course=basic', headers={'X-Student-Code': CODE}).json()\n"
+            "u = [x for x in t['units'] if x['unit'] == les['unit']][0]\n"
+            "assert u['lessons_done'] == 1 and u['lessons_total'] >= 1 and u['mastered'] is False, u\n"
+            "assert t['summary']['stats']['lesson_answers'] == len(rows), t['summary']['stats']\n"
+            "assert t['summary']['stats']['lessons_done'] == 1, t['summary']['stats']\n"
+            "assert t['summary']['units_mastered'] == 0\n"
+            "a = store.admin_stats()\n"
+            "assert a['lesson_answers'] == len(rows) and a['lessons_done'] == 1 and a['lesson_answers_7d'] == len(rows), a\n"
+            "rec = cl.get('/api/records/me?days=30', headers={'X-Student-Code': CODE}).json()\n"
+            "cu = [c for c in rec['courses'] if c['course'] == 'basic'][0]\n"
+            "ru = [x for x in cu['units'] if x['unit'] == les['unit']][0]\n"
+            "assert ru['lessons_done'] == 1 and ru['status'] != 'mastered', ru\n"
+            "print('LANE-OK', len(rows), stats['first_try_pct'])\n")
+    env = dict(os.environ, DATABASE_URL=f"sqlite:///{os.path.join(tmp, 'ue.db')}",
+               PYTHONPATH=here, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="")
+    env.pop("ANTHROPIC_API_KEY", None)
+    if dep_gate("LIVE: one lesson, a wrong answer then right ones -> rows, stats, taught, payloads",
+                "sqlalchemy", "the drill records to a real database"):
+        r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                           capture_output=True, text=True, timeout=240)
+        check("⭐ LIVE: the migration turns the unearned 'mastered' row into 'taught' and leaves the earned one",
+              "MIG-OK" in r.stdout, (r.stdout + r.stderr)[-400:])
+        check("⭐ LIVE: one lesson, a wrong answer then right ones -> rows, stats, taught, payloads",
+              r.returncode == 0 and "LANE-OK" in r.stdout, (r.stdout + r.stderr)[-600:])
+
+    # ---- the notes -------------------------------------------------------------------------
+    check("  the stamp passed through ue (the note stays after the stamp moves on)",
+          'APP_BUILD -> "2026-09-07ue-the-authored-lane-writes-it-down"' in m[:200000], "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-07  APP_BUILD -> \"2026-09-07ue-" in m[:200000]
+          and "2026-09-07  BUILD ue" in ssrc[:6000]
+          and "2026-09-07  BUILD ue" in rd("ruletests.py")[:28000]
+          and "(ue) Tile 10,942" in rd("static/methodology.html")[:30000]
+          and "2026-09-07  TWO WORDS, TWO MEANINGS (build ue" in dash[:6000]
+          and "2026-09-07  (build ue" in rec[:6000]
+          and "(ue) 2026-09-07" in adm[:6000], "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -18182,9 +18445,15 @@ def part3gq_the_parent_reads_the_right_course():
           "row under one course's name read as one course's numbers.")
     check("  ...the parent box says it too",
           "(streak, accuracy and practice count every course)" in html, "")
-    check("  ...and no tile number was changed to say it",
-          'big: String(practiced)' in html and 'big: acc === null ? "—" : (acc + "%")' in html,
-          "the honest fix is a label, never a different number")
+    # (ue) the number DID change, once, on purpose: "Problems practiced" now adds the
+    # authored lane's answers to the live lane's count -- and the caption splits the two,
+    # which is qn's real law (a number says what it counts). The live count itself is
+    # untouched in the store; the pin now reads the sum and the split together.
+    check("  ...and the practiced number that changed says exactly what it added",
+          'big: String(practiced + lessonAnswers)' in html
+          and '" in lessons · " + practiced + " in practice & quizzes · "' in html
+          and "stats.problems_practiced || 0" in html,
+          "the honest fix is a label -- or a sum whose caption names both parts")
     check("⭐ 'How far has your child gone' says how many courses there are",
           'subjHas() + " worked in " + list.length + " courses"' in html,
           "Jim: 'if I've been in three courses, I should say three courses'")
@@ -22329,7 +22598,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,942</b>" in page,
+          "<b>10,977</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -38059,8 +38328,12 @@ chk("perfect child masters with ZERO AI calls -- in the promised three",
     str(ended))
 # kc: the default lesson is now ENTRY-LEVEL MATH (the re-cut moved single-digit
 # adding there), so its mastery lands under course "entry"
+# (ue) a finished lesson writes "taught" -- "Lesson done" -- never "mastered": Jim's
+# ruling keeps that word for the 90% Unit Quiz, and store.record_check is its one writer
 rows = store.get_topics("KID1", "entry")
-chk("mastery recorded through the real store", any(r0.get("status") == "mastered" for r0 in rows), str(rows))
+chk("lesson done recorded through the real store (status 'taught', never 'mastered')",
+    any(r0.get("status") == "taught" for r0 in rows)
+    and not any(r0.get("status") == "mastered" for r0 in rows), str(rows))
 # (rj) the seam's memory: the finished lesson is waiting for the __script_done__ turn
 chk("the seam note is waiting for the live tutor (topic + mastered)",
     (main._SCRIPT_DONE_NOTES.get("KID1") or {}).get("mastered") is True
@@ -38841,6 +39114,7 @@ def main():
     part3jx_calculus_units_seven_to_nine_to_the_shape()
     part3jy_the_youngest_speak_and_the_mic_waits()
     part3jz_the_small_fixes_of_the_deep_look()
+    part3ka_the_authored_lane_writes_it_down()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
