@@ -6,6 +6,12 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  APP_BUILD -> "2026-09-08uk-the-mark-floor". BUILD uk -- THE MARK FLOOR
+#               (F4 of the 09-06 night watch; Jim ruled 09-07: build it, no retry). NO CODE
+#               IN THIS FILE CHANGED but the stamp. tutor.py: repair_missing_mark at the
+#               shipping door -- a spoken, unambiguous verdict on a numbered quiz answer
+#               that forgot its [[mark]] gets the mark from code (the page posts it to
+#               /api/mark/me exactly as a model-written mark). PART 3kg pins it.
 #   2026-09-08  APP_BUILD -> "2026-09-08uj-one-file-per-course". BUILD uj -- ONE FILE PER
 #               COURSE (housekeeping, second half). NO CODE IN THIS FILE CHANGED but the
 #               stamp. lessonscripts.py's 360 lessons now live in lessons/<course>.py (ten
@@ -8620,7 +8626,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-08uj-one-file-per-course"
+APP_BUILD = "2026-09-08uk-the-mark-floor"
 
 
 @app.get("/health")

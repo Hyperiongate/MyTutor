@@ -6,6 +6,17 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD uk -- THE MARK FLOOR (F4; Jim's 09-07 ruling: build it, no retry).
+#               PART 3kg: tutor.repair_missing_mark -- the watch case ("Correct" spoken,
+#               no mark -> [[mark correct="1"]] prepended, words untouched), "Not quite"
+#               -> "0", ten verdict words each way, rule 18(c)'s echo first, board-only
+#               numbering; the silences (a mark or nice already there, hedged openings
+#               counted and untouched, "The correct answer is", "Correct answer is", bare
+#               "Right,"/"Yes,", "Perfect squares", no verdict at all, not a numbered
+#               question, nobody answered, no previous turn); the repaired reply passes the
+#               verdict referee and the probe; ry's floor untouched and never marked twice;
+#               the one shipping door after ry, the events, no retry, the referee count
+#               still 79; zero touches across the canon pairs. Tile 11,130 -> 11,170 (PART 3kg's 40, three of them through _create_verified with a stub model).
 #   2026-09-08  BUILD uj -- ONE FILE PER COURSE (housekeeping, second half). The 360
 #               lessons moved from lessonscripts.py to lessons/<course>.py (ten pure-data
 #               files; lessons/__init__.py joins them). NEW HELPER lessons_src() = the
@@ -11193,6 +11204,159 @@ def part3kf_one_file_per_course():
           and "(uj) Tile 11,102" in notes("static/methodology.html"), "")
 
 
+def part3kg_the_mark_floor():
+    """PART 3kg (build uk, 2026-09-08) -- THE MARK FLOOR (F4).
+
+    The 09-06 watch, quiz-eighty, rule 45: the reply SAID "Correct" and forgot the
+    [[mark]] -- the student heard the verdict, their record never learned it. Jim's
+    09-07 ruling: build it, no retry. repair_missing_mark at the shipping door: the
+    previous turn asked a numbered quiz question, the student answered, this reply
+    OPENS with an unambiguous verdict word (after rule 18(c)'s echo, if any) and
+    carries no [[mark]]/[[nice]] -> code prepends the mark the verdict implies.
+    Code invents nothing. Hedged verdicts are counted and never touched; ry's floor
+    (verdict AND mark missing) is untouched; the canon is never touched."""
+    print("\nPART 3kg — the mark floor (build uk)")
+    import tutor as _t
+    here = os.path.dirname(os.path.abspath(__file__))
+    tsrc = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    prev = 'Question 3: simplify 8/12. [[write text="Q3: simplify 8/12"]]'
+    nxt = ' Question 4: what is 3/4 + 1/4? [[write text="Q4: 3/4 + 1/4 = ?"]]'
+
+    # ---- fires: the watch case and the ruling's words --------------------------------
+    f, st, d = _t.repair_missing_mark("Correct!" + nxt, prev, "2/3")
+    check("⭐ the watch case: a spoken \"Correct\" on a numbered quiz answer, no mark -> [[mark correct=\"1\"]] prepended, words untouched",
+          st == "repaired" and f == '[[mark correct="1"]] Correct!' + nxt and "positive verdict" in d, d[:80])
+    f, st, d = _t.repair_missing_mark("Not quite — 8/12 simplifies to 2/3." + nxt, prev, "3/4")
+    check("⭐ \"Not quite\" -> [[mark correct=\"0\"]]: the record learns the miss the tutor spoke",
+          st == "repaired" and f.startswith('[[mark correct="0"]] Not quite') and "negative verdict" in d, d[:80])
+    for rep, ans, want in (("Exactly right." + nxt, "2/3", "1"), ("That's right!" + nxt, "2/3", "1"),
+                           ("You got it." + nxt, "2/3", "1"), ("Spot on —" + nxt, "2/3", "1"),
+                           ("Well done." + nxt, "2/3", "1"), ("Nailed it!" + nxt, "2/3", "1"),
+                           ("Incorrect." + nxt, "3/4", "0"), ("Wrong." + nxt, "3/4", "0"),
+                           ("Nope —" + nxt, "3/4", "0"), ("That's not it." + nxt, "3/4", "0")):
+        _f, _s, _d = _t.repair_missing_mark(rep, prev, ans)
+        check(f"  fires: {rep.split(nxt)[0]!r} -> correct=\"{want}\"",
+              _s == "repaired" and _f.startswith('[[mark correct="%s"]] ' % want), _d[:60])
+    f, st, d = _t.repair_missing_mark("2/3 — correct!" + nxt, prev, "2/3")
+    check("⭐ rule 18(c)'s echo first (\"2/3 — correct!\") still OPENS with the verdict",
+          st == "repaired" and f.startswith('[[mark correct="1"]] 2/3 — correct!'), d[:60])
+    f, st, d = _t.repair_missing_mark("Spring — that's right: six votes. Question 2: ...",
+                                      "Question 1: which season came second? [[choices options=\"Spring | Fall\"]]", "Spring")
+    check("  ...and a word answer echoed (\"Spring — that's right\") too",
+          st == "repaired" and f.startswith('[[mark correct="1"]] Spring'), d[:60])
+    f, st, d = _t.repair_missing_mark("Correct.", 'Simplify 8/12. [[write text="Q3: simplify 8/12"]]', "2/3")
+    check("  the numbering may live only on the board (ry's gate): a [[write]] \"Q3:\" is a question asked",
+          st == "repaired", d[:60])
+
+    # ---- silences: code invents nothing --------------------------------------------------
+    for label, rep, ans, want_status in (
+            ("a mark already rides the reply", '[[mark correct="1"]] Correct!' + nxt, "2/3", ""),
+            ("a nice tag already rides the reply", '[[nice praise="Nailed it"]] Correct!' + nxt, "2/3", ""),
+            ("hedged: \"Close!\" is not unambiguous", "Close! 8/12 is 2/3." + nxt, "4/6", "unrepairable"),
+            ("hedged: \"Almost.\"", "Almost." + nxt, "4/6", "unrepairable"),
+            ("hedged: \"Nearly there\"", "Nearly there." + nxt, "4/6", "unrepairable"),
+            ("\"The correct answer is 2/3\" is a reveal, not a verdict", "The correct answer is 2/3." + nxt, "3/4", ""),
+            ("\"Correct answer is 2/3\" -- the noun, not the verdict", "Correct answer is 2/3." + nxt, "3/4", ""),
+            ("bare \"Right,\" is a discourse opener", "Right, let's look at" + nxt, "2/3", ""),
+            ("bare \"Yes,\" is not unambiguous either", "Yes, 2/3." + nxt, "2/3", ""),
+            ("\"Perfect squares are ...\" is a noun phrase", "Perfect squares are 4 and 9." + nxt, "2/3", ""),
+            ("no opening verdict at all is ry's floor / the probe, not this one", "Let's look at that together." + nxt, "2/3", ""),
+            ("not a numbered question last turn", "Correct!" + nxt, "2/3", None),
+            ("nobody answered anything", "Correct!" + nxt, "", "")):
+        p = "What is 3 + 4? [[step eq=\"3 + 4 = ?\"]]" if want_status is None else prev
+        _f, _s, _d = _t.repair_missing_mark(rep, p, ans)
+        check(f"  silent: {label}", _s == (want_status or "") and _f == rep, f"{_s} {_d[:60]}")
+    f, st, d = _t.repair_missing_mark("Correct!" + nxt, None, "2/3")
+    check("  silent: no previous turn at all", st == "" and f == "Correct!" + nxt, "")
+    check("  the repaired reply satisfies the quiz-verdict referee and the missing-mark probe",
+          not _t.quiz_verdict_conflict('[[mark correct="1"]] Correct!' + nxt, prev, "2/3")
+          and not _t.missing_mark_probe('[[mark correct="1"]] Correct!' + nxt,
+                                        [{"role": "assistant", "content": prev}, {"role": "user", "content": "2/3"}]), "")
+    check("  ry's floor is untouched: verdict AND mark missing is still proved-correct-only",
+          _t.repair_missing_verdict("Now" + nxt, prev, "2/3")[1] == "repaired"
+          and _t.repair_missing_verdict("Now" + nxt, prev, "3/4")[1] == "unrepairable", "")
+    f2, s2, _ = _t.repair_missing_mark(_t.repair_missing_verdict("Now" + nxt, prev, "2/3")[0], prev, "2/3")
+    check("  ...and a reply ry already marked is never marked twice",
+          s2 == "" and f2.count("[[mark") == 1, "")
+
+    # ---- the door, the events, the count ---------------------------------------------------
+    check("⭐ the floor rides the ONE shipping door, after ry's verdict floor",
+          'reply, _mst, _mdet = repair_missing_mark(\n            reply, prev_tutor, _last_user_text(messages))' in tsrc
+          and tsrc.find("repair_missing_mark(\n            reply, prev_tutor") > tsrc.find("repair_missing_verdict(\n            reply, prev_tutor, ")
+          and '_event("code_repair", "quizmark", _mdet, _code, _course)' in tsrc
+          and '_event("pass_through", "quizmark", _mdet, _code, _course)' in tsrc, "")
+    check("  no retry anywhere in it (Jim: the verdict is already spoken; only the record was missing)",
+          "MATHCHECK_MAX_ATTEMPTS" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000]
+          and "retry" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000].lower(), "")
+    check("  the referee count is unchanged -- uk added a floor, not a referee",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 79, "")
+
+    # ---- through the real shipping door (3gb's stub harness) --------------------------------
+    import mathcheck as _mc
+
+    class _B:
+        pass
+
+    def _resp(text):
+        r, b = _B(), _B()
+        b.type, b.text = "text", text
+        r.content, r.stop_reason, r.usage = [b], "end_turn", None
+        return r
+
+    class _Stub:
+        def __init__(self, script):
+            self.script, self.calls, self.messages = list(script), [], self
+
+        def create(self, **kw):
+            self.calls.append(kw)
+            return _resp(self.script.pop(0))
+
+    saved = (_mc.verify_reply, _t.prose_board_conflict, _t._live_critic_review, _t._event)
+    events = []
+    try:
+        _mc.verify_reply = lambda r: ("ok", "")
+        _t.prose_board_conflict = lambda r, *a, **k: ""
+        _t._live_critic_review = lambda r, *a, **k: ""
+        _t._event = lambda kind, name, detail="", code="", course="": events.append((kind, name, detail))
+        msgs = [{"role": "assistant", "content": prev}, {"role": "user", "content": "2/3"}]
+        out = _t._create_verified(_Stub(["Correct!" + nxt]), "uk-stub", None, msgs, " [3kg]",
+                                  {"code": "T", "course": "basic"})
+        ev = [e for e in events if e[1] == "quizmark"]
+        check("⭐ LIVE through _create_verified: the shipped reply carries the mark and the event says code_repair/quizmark",
+              out == '[[mark correct="1"]] Correct!' + nxt and ev and ev[0][0] == "code_repair", f"out={out[:50]!r} {ev[:1]}")
+        events.clear()
+        out = _t._create_verified(_Stub(["Close! 8/12 is 2/3." + nxt]), "uk-stub", None, msgs, " [3kg]",
+                                  {"code": "T", "course": "basic"})
+        ev = [e for e in events if e[1] == "quizmark"]
+        check("  LIVE: a hedged verdict ships untouched and is counted as pass_through/quizmark",
+              out == "Close! 8/12 is 2/3." + nxt and ev and ev[0][0] == "pass_through", f"out={out[:50]!r} {ev[:1]}")
+        events.clear()
+        out = _t._create_verified(_Stub(['Correct! [[mark correct="1"]]' + nxt]), "uk-stub", None, msgs, " [3kg]",
+                                  {"code": "T", "course": "basic"})
+        check("  LIVE: DO NO HARM -- a reply that marked itself ships unchanged, no quizmark event",
+              out == 'Correct! [[mark correct="1"]]' + nxt and not [e for e in events if e[1] == "quizmark"], f"{out[:50]!r}")
+    finally:
+        _mc.verify_reply, _t.prose_board_conflict, _t._live_critic_review, _t._event = saved
+
+    # ---- the canon ------------------------------------------------------------------------
+    import foundations as FND
+    touches = pairs = 0
+    for course, scripts in FND.FOUNDATIONS.items():
+        items = list(scripts.values() if isinstance(scripts, dict) else scripts)
+        texts = [(sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or []) for sc in items]
+        for i in range(1, len(texts)):
+            pairs += 1
+            if _t.repair_missing_mark(texts[i], texts[i - 1], "2/3")[1] == "repaired":
+                touches += 1
+    check(f"⭐ zero floor touches across {pairs} canon pairs",
+          touches == 0 and pairs >= 250, f"{touches} touches -- the floor must never mark authored teaching")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-08  BUILD uk" in notes("tutor.py")
+          and 'APP_BUILD -> "2026-09-08uk-the-mark-floor"' in notes("main.py")
+          and "2026-09-08  BUILD uk" in notes("ruletests.py")
+          and "(uk) Tile 11,130" in notes("static/methodology.html"), "")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -21321,7 +21485,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,130</b>" in page,
+          "<b>11,170</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -37841,6 +38005,7 @@ def main():
     part3kd_the_demo_teaches()
     part3ke_the_notes_move_out()
     part3kf_one_file_per_course()
+    part3kg_the_mark_floor()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

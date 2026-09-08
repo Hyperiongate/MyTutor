@@ -6,6 +6,19 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD uk -- THE MARK FLOOR (F4, Jim's 09-07 ruling: "build it, no retry").
+#               NEW repair_missing_mark(reply, prev_tutor, student_message), wired at the
+#               shipping door right after ry's verdict floor: when the previous turn asked
+#               a numbered quiz question, the student answered, and the reply OPENS with an
+#               unambiguous verdict word (after rule 18(c)'s echo, if any) and carries no
+#               [[mark]]/[[nice]], code prepends [[mark correct="1"]] (correct / exactly /
+#               that's right / you got it / spot on / well done / nailed it / perfect / bang
+#               on) or [[mark correct="0"]] (not quite / incorrect / not right / wrong /
+#               nope). Hedged openings (close, almost, nearly, sort of) are counted as a
+#               pass_through and never touched; bare "Right,"/"Yes,", "Correct answer is",
+#               "Perfect squares" never fire. Code invents nothing: it writes down the
+#               verdict the tutor spoke. Events: code_repair/pass_through "quizmark".
+#               Referee count unchanged (79). Canon: 0 touches across the foundation pairs.
 #   2026-09-07  BUILD tx -- THE WORDS AND THE PICTURE ARE THE SAME THING (the last two
 #               proven holes from the 09-06 watch).
 #                 * THE 79TH REFEREE, shares_picture_conflict (rule 63). The watch:
@@ -7072,6 +7085,100 @@ def repair_missing_verdict(reply: str, prev_tutor=None, student_message: str = "
 
 
 # =============================================================================
+# BUILD uk (2026-09-08) -- THE MARK FLOOR: THE VERDICT THE TUTOR SPOKE IS WRITTEN DOWN.
+# -----------------------------------------------------------------------------
+# JIM'S RULING, 2026-09-07 (claude/Rulings_2026-09-07_Night_Watch_Two_Decisions.md):
+# "BUILD IT. No retry." The 09-06 watch (quiz-eighty, rule 45, 60% correct): the
+# reply SAID "Correct" and forgot the [[mark]] -- the student heard the verdict and
+# their record never learned it. Rule 45 says [[mark]] is REQUIRED; missing_mark_probe
+# measures the omission; ry's repair_missing_verdict floors only when BOTH the verdict
+# and the mark are missing and code can prove the answer. This is the mark half of the
+# same turn: the previous turn asked a numbered quiz question, the student answered,
+# this reply OPENS with an UNAMBIGUOUS verdict word and carries no [[mark]]/[[nice]]
+# -> code writes down the mark the tutor's own verdict implies. No retry: the verdict
+# is already spoken and there is nothing for a retry to improve.
+#
+# ⚠️ CODE INVENTS NOTHING -- the boundaries that follow:
+#   * only an UNAMBIGUOUS opening verdict fires it: correct / exactly / that's right /
+#     you got it / spot on / well done / nailed it / perfect / bang on -> "1";
+#     not quite / incorrect / not right / wrong / nope -> "0". Hedged openings
+#     ("Close", "Almost", "Nearly", "Sort of") are NOT unambiguous -- left alone,
+#     counted, and the probe keeps measuring them. Bare "Right," and "Yes," are
+#     discourse openers as often as verdicts and never fire; "Correct answer is 12"
+#     is a reveal, not a verdict, and "Perfect squares are ..." a noun phrase: neither
+#     fires, because the verdict word must be followed by PUNCTUATION (the lookahead),
+#     never by another word;
+#   * the verdict may follow the ECHO rule 18(c) demands ("2/3 -- correct!", "Spring
+#     -- that's right"): the student's own answer, then the verdict, still OPENS the
+#     reply;
+#   * the floor never decides whether the student was right. It transcribes the
+#     verdict the tutor already gave -- which is what separates it from ry, which had
+#     to prove the answer because no verdict existed;
+#   * a reply already carrying [[mark]] or [[nice]] is never touched; both verdict and
+#     mark missing is still ry's floor, unchanged; not a numbered quiz question, or
+#     nobody answered -> not this floor's turn.
+_QM_POSITIVE = re.compile(
+    r"^\W*(?:correct|exactly(?:\s+right)?|that(?:'s|\s+is)\s+(?:right|correct|it)|"
+    r"you(?:'re|\s+are)\s+right|you\s+got\s+it|spot\s+on|well\s+done|nailed\s+it|"
+    r"perfect|bang\s+on)(?=\s*(?:[.!,;:—–\-]|$))", re.I)
+_QM_NEGATIVE = re.compile(
+    r"^\W*(?:not\s+quite(?:\s+right)?|incorrect|not\s+right|not\s+correct|"
+    r"that(?:'s|\s+is)\s+not\s+(?:it|right|correct)|wrong|nope)(?=\s*(?:[.!,;:—–\-]|$))", re.I)
+_QM_HEDGED = re.compile(
+    r"^\W*(?:close|almost|nearly|sort\s+of|kind\s+of|not\s+bad|partly|half\s+right)\b", re.I)
+
+
+def _qm_strip_echo(prose: str, student_message: str) -> str:
+    """Rule 18(c): the first words after their answer NAME their answer. If the
+    reply opens by echoing what the student said, followed by a dash, colon or
+    comma, the verdict that follows still opens the reply."""
+    ans = " ".join(str(student_message or "").split()).strip(" .!?")
+    if not ans or len(ans) > 60:
+        return prose
+    head = " ".join(prose.split())
+    if head.lower().startswith(ans.lower()):
+        rest = head[len(ans):].lstrip()
+        if rest[:1] in ("—", "–", "-", ":", ","):
+            return rest[1:].lstrip()
+    return prose
+
+
+def repair_missing_mark(reply: str, prev_tutor=None, student_message: str = ""):
+    """(reply, status, detail): status is "" (not this floor's turn), "repaired"
+    (the spoken verdict is now recorded as [[mark correct="1"|"0"]]) or
+    "unrepairable" (a numbered quiz answer went unmarked behind a HEDGED verdict --
+    counted, not touched). Never raises (fail open: the reply ships untouched)."""
+    try:
+        text = str(reply or "")
+        if prev_tutor is None or not str(student_message or "").strip():
+            return text, "", ""
+        if re.search(r"\[\[\s*(?:mark|nice)\b", text, re.I):
+            return text, "", ""            # something was recorded -- nothing to do
+        prev = _spoken_only(str(prev_tutor or ""))
+        if not (_QV_NUMBERED.search(prev) or _QV_NUMBERED.search(_qv_tag_text(prev_tutor))):
+            return text, "", ""            # the last turn was not a numbered question
+        prose = _qm_strip_echo(_spoken_only(text).strip(), student_message)
+        if _QM_POSITIVE.match(prose):
+            verdict, mark = "positive", "1"
+        elif _QM_NEGATIVE.match(prose):
+            verdict, mark = "negative", "0"
+        elif _QM_HEDGED.match(prose):
+            return (text, "unrepairable",
+                    'hedged verdict "%s" opens a numbered quiz answer with no mark -- '
+                    "not unambiguous, so code records nothing" % prose[:24])
+        else:
+            return text, "", ""            # no opening verdict: ry's floor / the probe
+        fixed = '[[mark correct="%s"]] ' % mark + text.lstrip()
+        return (fixed, "repaired",
+                'the reply opened with a %s verdict ("%s") on a numbered quiz answer and '
+                'carried no mark; recorded [[mark correct="%s"]]' % (verdict, prose[:24], mark))
+    except Exception as exc:  # noqa: BLE001 -- a repair must never cost a turn
+        print(f"[markrepair] crashed (fail open): {exc}")
+        _event("referee_crash", "markrepair", str(exc))
+        return str(reply or ""), "", ""
+
+
+# =============================================================================
 # BUILD rc (2026-08-31) -- THE STAR FALLS WHEN THE CHILD SLIPS: CODE'S OWN GRADE.
 # -----------------------------------------------------------------------------
 # Jim's ruling: a miss is ANY WRONG TAP -- the first wrong answer resets today's
@@ -10565,6 +10672,19 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
         elif _vst == "unrepairable":
             print(f"[verdictrepair]{log_prefix} UNREPAIRABLE: {_vdet}")
             _event("pass_through", "quizverdict", _vdet, _code, _course)
+        # (uk) the mark floor, Jim's 2026-09-07 ruling ("build it, no retry"): a
+        # shipped reply that SPEAKS an unambiguous verdict on a numbered quiz
+        # answer and forgot the [[mark]] gets the mark from CODE -- it records
+        # what the tutor said. Runs after ry's floor, so a verdict ry just
+        # supplied (with its own mark) is never marked twice.
+        reply, _mst, _mdet = repair_missing_mark(
+            reply, prev_tutor, _last_user_text(messages))
+        if _mst == "repaired":
+            print(f"[markrepair]{log_prefix} REPAIRED: {_mdet}")
+            _event("code_repair", "quizmark", _mdet, _code, _course)
+        elif _mst == "unrepairable":
+            print(f"[markrepair]{log_prefix} UNREPAIRABLE: {_mdet}")
+            _event("pass_through", "quizmark", _mdet, _code, _course)
         return reply
 
     def _settle(kept):
