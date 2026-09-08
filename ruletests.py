@@ -2,6 +2,30 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  BUILD uh -- THE DEMO TEACHES (P3 of the deep look). PART 3kd: the demo
+#               lesson lane in main.py (levels/start/answer on the real engine, the first
+#               authored lesson per course derived from COURSE_ORDER, a fixed seed,
+#               _script_clean and never an answer key, NO student / NO store write / NO
+#               model, opaque short-lived tokens, the eight-answer cap, per-visitor
+#               limits); speak-prep's "demo" lane (no code, rate-limited, the drill's
+#               closure-only cache-only twin); static/demo-lesson.html (the demo voice
+#               lane, the three routes, Skip to the question, the doors back, the pencil
+#               mounting when the stage opens, MTBoard's dark board); demo.html's front
+#               door (/demo/lesson first; ?tour=1 and ?views=1); the menu's demolesson
+#               roster entry (both copies, version uh or later -- ug's version pin now
+#               reads 'ug or later'); session.html's THREE-stop tour for Entry and Basic
+#               (no Course Assessment, no Final Exam, no layout words; the grand tour
+#               still eleven stops); the sitemap. LIVE (subprocess + TestClient +
+#               sqlite): levels, a start twice with the same opening, a wrong then right
+#               answers graded by the engine's own key with `right` reported and the key
+#               never shipped, the cap (429), a dead token (409), the voice lane (a
+#               closure line 200, a stranger 409, the drill lane still wants a code) --
+#               and every student table read back EMPTY. Tile 11,023 -> 11,052 (27 in PART 3kd, and 2 in
+#               PART 3p, which walks every page and now meets demo-lesson.html). TWO
+#               WINDOWS: the 45 'dated note' pins that read THIS file's header as [:28000]
+#               now read [:40000] (sp's and sq's notes had slid past 28,000 as the header
+#               grew -- the pins were true and the window was small); PART 3il's reason-door
+#               pin looks for read_answer AFTER the door (the demo lane calls it earlier).
 #   2026-09-08  BUILD ug -- THE PHONE CLASSROOM (P1 of the deep look). PART 3kc: on every
 #               screen <=900px the app is the viewport, the board column is bounded and
 #               the BOARD scrolls (the runaway pad found in ug's dry run -- 853,422px of
@@ -12235,7 +12259,7 @@ def part3jz_the_small_fixes_of_the_deep_look():
           'APP_BUILD -> "2026-09-07ud-the-small-fixes-of-the-deep-look"' in m[:200000], "")
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-07  APP_BUILD -> \"2026-09-07ud-" in m[:200000]
-          and "2026-09-07  BUILD ud" in rd("ruletests.py")[:28000]
+          and "2026-09-07  BUILD ud" in rd("ruletests.py")[:40000]
           and "(ud) Tile 10,886" in rd("static/methodology.html")[:30000]
           and all("(ud) 2026-09-07" in rd("static/" + p)[:6000]
                   for p in ("landing.html", "teachers.html", "students.html", "homeschool.html",
@@ -12487,7 +12511,7 @@ def part3ka_the_authored_lane_writes_it_down():
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-07  APP_BUILD -> \"2026-09-07ue-" in m[:200000]
           and "2026-09-07  BUILD ue" in ssrc[:6000]
-          and "2026-09-07  BUILD ue" in rd("ruletests.py")[:28000]
+          and "2026-09-07  BUILD ue" in rd("ruletests.py")[:40000]
           and "(ue) Tile 10,942" in rd("static/methodology.html")[:30000]
           and "2026-09-07  TWO WORDS, TWO MEANINGS (build ue" in dash[:6000]
           and "2026-09-07  (build ue" in rec[:6000]
@@ -12632,7 +12656,7 @@ def part3kb_the_per_student_view():
           'APP_BUILD -> "2026-09-08uf-the-per-student-view"' in m[:200000], "")
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-08  BUILD uf" in ssrc[:6000]
-          and "2026-09-08  BUILD uf" in rd("ruletests.py")[:28000]
+          and "2026-09-08  BUILD uf" in rd("ruletests.py")[:40000]
           and "(uf) Tile 10,977" in rd("static/methodology.html")[:30000]
           and "(uf) 2026-09-08" in adm[:6000], "")
 
@@ -12726,9 +12750,9 @@ def part3kc_the_phone_classroom():
           "return !!(p && window.innerWidth <= (p.maxWidth || 640));" in cad
           and 'var h = (isPhone() && p && p.height) ? p.height : ((M.script && M.script.height) || 112);' in cad, "")
     _m = _json.loads(menu)
-    check("⭐ the menu carries the phone block, in both copies, identical, version ug",
+    check("⭐ the menu carries the phone block, in both copies, identical, version ug or later",
           menu == menu_ex and _m.get("phone") == {"maxWidth": 640, "height": 92}
-          and _m.get("version") == "2026-09-08ug" and _m.get("height") == 146, str(_m.get("phone")))
+          and str(_m.get("version", "")) >= "2026-09-08ug" and _m.get("height") == 146, str(_m.get("phone")))
 
     # ---- the live render ------------------------------------------------------------------
     NAME = "⭐ LIVE at 390x844: the board bounded and tall, the dock short, the nav one row, the pencil clear of the words, no sideways scroll"
@@ -12804,12 +12828,236 @@ def part3kc_the_phone_classroom():
     check("  the stamp passed through ug (the note stays after the stamp moves on)",
           'APP_BUILD -> "2026-09-08ug-the-phone-classroom"' in m[:200000], "")
     check("  the dated notes are in (Jim's rule 8)",
-          "2026-09-08  BUILD ug" in rd("ruletests.py")[:28000]
+          "2026-09-08  BUILD ug" in rd("ruletests.py")[:40000]
           and "(ug) Tile 10,994" in rd("static/methodology.html")[:30000]
           and all("(ug) 2026-09-08" in pages[p][:6000] for p in pages)
           and "(ug) 2026-09-08" in demo[:6000]
           and "2026-09-08  (ug) RULE 33" in cad[:12000]
           and "2026-09-08 (ug): THE SMALL SCREEN" in menu[:6000], "")
+
+
+def part3kd_the_demo_teaches():
+    """PART 3kd (build uh, 2026-09-08) -- P3 OF THE DEEP LOOK: THE DEMO TEACHES.
+
+    The review: "the demo is a tour of the furniture with an empty board; it never
+    shows a lesson", and "the welcome tour is the same length for a first grader as
+    for a calculus student". Now /demo/lesson plays the opening of a course's FIRST
+    authored lesson through the real engine -- the why, the picture, the rule, the
+    worked example, one question the visitor answers, the walk-back -- with NO
+    student, NO store write and NO model; the front door leads there first and keeps
+    the tour and the three views as second doors. And Entry / Basic Math's first-time
+    tour is THREE stops instead of eleven.
+
+    Static pins on the lane (main.py), the speak-prep "demo" lane (closure-only,
+    cache-only, no code), the page, the front door's doors, the menu's roster, the
+    short tour and the sitemap; then a LIVE drill (subprocess + TestClient + sqlite):
+    levels, a start, a wrong then a right answer graded by the engine's own key with
+    `right` reported and the key never shipped, the eight-answer cap, a dead token,
+    and -- read back from the database afterwards -- NOTHING written."""
+    print("\nPART 3kd — the demo teaches (build uh)")
+    import re as _re, subprocess, sys, tempfile, json as _json
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    m = rd("main.py"); page = rd("static/demo-lesson.html"); demo = rd("static/demo.html")
+    sess = rd("static/session.html"); menu = rd("static/cadabra-script.json")
+    menu_ex = rd("static/cadabra-script.example.json"); smap = rd("static/sitemap.xml")
+    robots = rd("static/robots.txt")
+
+    # ---- the lane in main.py -----------------------------------------------------------------
+    lane = m[m.find("_DEMO_LESSON_SESSIONS: dict = {}"):m.find("_SCRIPT_DONE_NOTES: dict = {}")]
+    check("⭐ main: the demo lesson lane exists -- levels, start, answer -- on the real engine",
+          bool(lane) and '@app.get("/api/demo/lesson/levels")' in lane
+          and '@app.post("/api/demo/lesson/start")' in lane
+          and '@app.post("/api/demo/lesson/answer")' in lane
+          and "state = lessonscripts.start(lesson, seed=DEMO_LESSON_SEED)" in lane
+          and 'steps, state = lessonscripts.step(lesson, state, ("begin",))' in lane, "")
+    check("  main: the lesson is each course's FIRST authored lesson, derived from COURSE_ORDER",
+          "def _demo_lesson_by_course() -> dict:" in lane
+          and "for lid in lessonscripts.COURSE_ORDER:" in lane
+          and "if c and c not in out:" in lane, "a hand-kept list goes stale the day a course is re-cut")
+    check("⭐ main: the payload goes through _script_clean -- never an answer key",
+          lane.count("_script_clean(") >= 3
+          and '"steps": _script_clean(steps, lesson["id"])' in lane
+          and 'out.extend(_script_clean([st], lesson["id"]))' in lane, "")
+    check("⭐ main: NO student, NO store write, NO model in the lane",
+          "_require_student" not in lane and "_student_or_404" not in lane
+          and not _re.search(r"\bstore\.", lane) and "_SCRIPT_SESSIONS" not in lane
+          and "tutor." not in lane and "anthropic" not in lane.lower()
+          and 'lessonscripts.step(lesson, sess["state"], ("resume",))' in lane, "")
+    check("  main: the three grading doors are the classroom's own (tap, typed words, the reason question)",
+          "lessonscripts.reason_option_for(lesson, body.said or \"\")" in lane
+          and "lessonscripts.read_answer(body.said)" in lane
+          and 'steps, state = lessonscripts.step(lesson, state, ("answer", int(body.value)))' in lane
+          and "right = bool(_pend is not None and int(body.value) == lessonscripts.ans(_pend))" in lane
+          and "right = bool(lessonscripts.reason_right(lesson, label))" in lane, "")
+    check("  main: opaque short-lived tokens, a cap on sessions, a cap on graded answers, per-visitor limits",
+          "token = secrets.token_urlsafe(18)" in lane and "_DEMO_LESSON_TTL_S = 30 * 60" in lane
+          and "if len(_DEMO_LESSON_SESSIONS) >= _DEMO_LESSON_CAP:" in lane
+          and 'if sess["answers"] >= DEMO_LESSON_MAX_ANSWERS:' in lane
+          and "raise HTTPException(status_code=429" in lane
+          and "raise HTTPException(status_code=409" in lane
+          and '_rate_limit("demo-lesson:" + (request.client.host if request.client else "?")' in lane, "")
+    check("  main: /demo/lesson serves the page",
+          '@app.get("/demo/lesson")' in m and 'FileResponse(STATIC_DIR / "demo-lesson.html")' in m, "")
+
+    # ---- the voice: the drill lane's twin ---------------------------------------------------
+    sp = m[m.find('@app.post("/api/speak-prep")'):m.find("t = secrets.token_urlsafe(16)", m.find('@app.post("/api/speak-prep")'))]
+    check("⭐ main: speak-prep's demo lane -- no student code, rate-limited per visitor",
+          "def speak_prep(req: SpeakPrepIn, request: Request):" in sp
+          and 'if lane == "demo":' in sp and 'code = "demo"' in sp
+          and '_rate_limit("speak-demo:" + (request.client.host if request.client else "?")' in sp
+          and sp.index('if lane == "demo":') < sp.index("_require_student(code)"), "")
+    check("⭐ main: ...and it is closure-only and cache-only, exactly like the drill's",
+          'if lane in ("drill", "demo"):' in sp and "cached_only = True" in sp
+          and "in_closure = _tts_cache_path(text).name in _script_closure_paths()" in sp
+          and "raise HTTPException(status_code=409" in sp, "a visitor must never make the paid renderer run")
+
+    # ---- the page ----------------------------------------------------------------------------
+    check("⭐ demo-lesson.html: the page exists, on the demo voice lane, on the lane's three routes",
+          'var CODE = "demo";' in page and 'voiceLane = "demo";' in page
+          and '"/api/demo/lesson/levels"' in page and '"/api/demo/lesson/start"' in page
+          and '"/api/demo/lesson/answer"' in page and "/api/script/" not in page, "")
+    check("  demo-lesson.html: the opening is skippable and the excerpt ends after the right answer",
+          "Skip to the question" in page and "function closeOut(" in page
+          and "j.right" in page, "")
+    check("  demo-lesson.html: the doors back -- the tour, another level, the three views",
+          'href="/demo?tour=1"' in page and 'href="/demo?views=1"' in page
+          and "backToPicker" in page, "")
+    check("  demo-lesson.html: the pencil mounts on the roster name, when the stage opens, and the board is his corner",
+          'cad("mount", { page: "demolesson" })' in page and "function mountPencil()" in page
+          and page.index("mountPencil();") > page.index('$("stage").classList.remove("hide")')
+          and 'id="board" class="feed" data-cad="board"' in page
+          and "#board{padding-right:60px}" in page, "")
+    check("  demo-lesson.html: the board theme is board.js's own (MTBoard, dark by default, the chip toggles)",
+          'MTBoard.wire("dark", $("board"))' in page and 'id="boardChip" type="button" data-board-toggle' in page
+          and "background:var(--bd-panel)" in page and "function applyBoard" not in page, "")
+    body = _re.sub(r"<!--.*?-->", "", page, flags=_re.S)
+    check("  demo-lesson.html: says 'student', never 'child' (appendChild is DOM, not prose); ends whole",
+          not _re.search(r"\b[Cc]hild(?:ren)?\b", body)
+          and page.rstrip().endswith("<!-- I did no harm and this file is not truncated. -->"), "")
+
+    # ---- the front door ----------------------------------------------------------------------
+    check("⭐ demo.html: the front door leads to the real lesson first; the tour and the views stay",
+          '<a class="cta" id="lessonBtn" href="/demo/lesson"' in demo
+          and 'id="startBtn"' in demo and "var DEMO_REAL_LESSONS=true;" in demo
+          and "location.href='/demo/lesson?course='+encodeURIComponent(L[0])" in demo, "")
+    check("  demo.html: ?tour=1 opens on the tour, ?views=1 on the three views",
+          "tour=1" in demo[demo.find("THE LESSON PAGE'S TWO DOORS BACK"):demo.find("THE LESSON PAGE'S TWO DOORS BACK") + 2500]
+          and "views=1" in demo[demo.find("THE LESSON PAGE'S TWO DOORS BACK"):demo.find("THE LESSON PAGE'S TWO DOORS BACK") + 2500]
+          and "showBalloons(true, false); }; }" in demo, "")
+    check("  demo.html: the eleven-stop tour and the balloons are untouched",
+          "DEMOS" in demo and "ABRA_BANK" in demo and "function startDemo" in demo, "")
+
+    # ---- the menu ----------------------------------------------------------------------------
+    _m = _json.loads(menu)
+    check("⭐ the menu names demolesson, both copies identical, version uh or later",
+          menu == menu_ex and "demolesson" in _m.get("pages", {})
+          and str(_m.get("version", "")) >= "2026-09-08uh"
+          and _m["pages"].get("demo") is not None and _m["pages"].get("session") is not None, "")
+
+    # ---- the short tour ----------------------------------------------------------------------
+    elem = sess[sess.find("const TOUR_STEPS_ELEM = ["):sess.find("const tourSteps = ")]
+    grand = sess[sess.find("const TOUR_STEPS = ["):sess.find("const TOUR_STEPS_ELEM")]
+    check("⭐ session.html: Entry and Basic get a three-stop tour -- me and the board, the map, how to answer",
+          bool(elem) and elem.count("{ id:") == 2
+          and '{ id: "tutor",' in elem and '{ id: "bars",' in elem
+          and 'TOUR_STEPS.find(function (st) { return st.id === "answer"; })' in elem
+          and 'const tourSteps = () => (IS_ELEM ? TOUR_STEPS_ELEM : TOUR_STEPS);' in sess
+          and "for (const step of tourSteps())" in sess, "")
+    el_code = code_only(elem)
+    check("⭐ session.html: the short tour never says Course Assessment or Final Exam, and never points with layout",
+          "Final Exam" not in el_code and "Course Assessment" not in el_code
+          and not _re.search(r"on the left|right below it|right under it|in the corner", el_code, _re.I), "")
+    check("  session.html: the grand tour is whole -- eleven stops, word for word the same list",
+          code_only(grand).count("{ id:") == 11 and 'id: "assess",' in grand and 'id: "final",' in grand
+          and "for (const step of TOUR_STEPS)" not in sess, "")
+    check("  session.html: the closing line shortens for the youngest, the hand-off is the same path",
+          'IS_ELEM ? "Okay — that\'s the tour!" : "Okay — that\'s the grand tour!"' in sess
+          and 'runTutor("__tour_done__")' in sess, "")
+
+    # ---- findable ----------------------------------------------------------------------------
+    check("  sitemap lists /demo/lesson; robots does not hide it",
+          "https://mrcadabra.com/demo/lesson</loc>" in smap
+          and not _re.search(r"^Disallow: /demo", robots, _re.M), "")
+
+    # ---- the live drill ----------------------------------------------------------------------
+    tmp = tempfile.mkdtemp()
+    drill = os.path.join(tmp, "drill_uh.py")
+    with open(drill, "w", encoding="utf-8") as fh:
+        fh.write(
+            "import os, sys, json\n"
+            "sys.path.insert(0, os.environ['PYTHONPATH'])\n"
+            "import store; store.init(); assert store.enabled()\n"
+            "import main, lessonscripts as L\n"
+            "from fastapi.testclient import TestClient\n"
+            "cl = TestClient(main.app)\n"
+            "assert cl.get('/demo/lesson').status_code == 200\n"
+            "lv = cl.get('/api/demo/lesson/levels').json(); assert lv['ok'] and len(lv['levels']) >= 8, lv\n"
+            "assert all(k in lv['levels'][0] for k in ('course', 'title', 'topic', 'unit', 'lesson_id'))\n"
+            "assert [x['course'] for x in lv['levels']][:2] == ['entry', 'basic'], lv['levels'][:2]\n"
+            "assert cl.post('/api/demo/lesson/start', json={'course': 'nope'}).status_code == 404\n"
+            "r = cl.post('/api/demo/lesson/start', json={'course': 'basic'}).json(); assert r['ok'] and r['token']\n"
+            "r2 = cl.post('/api/demo/lesson/start', json={'course': 'basic'}).json()\n"
+            "assert [s['spoken'] for s in r['steps']] == [s['spoken'] for s in r2['steps']], 'the seed is fixed'\n"
+            "def clean(steps):\n"
+            "    for s in steps:\n"
+            "        assert 'answer' not in s and 'expected' not in s and 'problem' not in s, s.keys()\n"
+            "clean(r['steps'])\n"
+            "asks = [s for s in r['steps'] if s['kind'] == 'ask']; assert asks, 'the opening must reach a question'\n"
+            "tok = r['token']; sess = main._DEMO_LESSON_SESSIONS[tok]\n"
+            "pend = sess['state']['pending']; key = L.ans(pend['problem'])\n"
+            "w = cl.post('/api/demo/lesson/answer', json={'token': tok, 'value': key + 1}).json()\n"
+            "assert w['ok'] and w['right'] is False and w['answers_left'] == main.DEMO_LESSON_MAX_ANSWERS - 1, w\n"
+            "clean(w['steps']); assert w['steps'], 'the walk-back must come back'\n"
+            "assert not any(s['kind'] == 'intervene' for s in w['steps']), 'intervene is played as resume'\n"
+            "assert tok in main._DEMO_LESSON_SESSIONS\n"
+            "# answer whatever is pending now, by typed words, with the engine's own key\n"
+            "n = 1\n"
+            "while True:\n"
+            "    p = main._DEMO_LESSON_SESSIONS[tok]['state'].get('pending') or {}\n"
+            "    if not p: break\n"
+            "    said = sess['lesson']['explain']['answer'] if p.get('reason') else str(L.ans(p['problem']))\n"
+            "    g = cl.post('/api/demo/lesson/answer', json={'token': tok, 'said': said}).json(); n += 1\n"
+            "    assert g['ok'] and g['right'] is True, g\n"
+            "    clean(g['steps'])\n"
+            "    if n >= 3: break\n"
+            "# the cap\n"
+            "main.DEMO_LESSON_MAX_ANSWERS = n\n"
+            "assert cl.post('/api/demo/lesson/answer', json={'token': tok, 'said': '1'}).status_code == 429\n"
+            "assert cl.post('/api/demo/lesson/answer', json={'token': 'nope', 'said': '1'}).status_code == 409\n"
+            "# the voice lane\n"
+            "line = asks[0]['spoken']\n"
+            "v = cl.post('/api/speak-prep', json={'code': '', 'text': line, 'lead': 0, 'lane': 'demo'})\n"
+            "assert v.status_code == 200 and 't' in v.json(), (v.status_code, v.text[:200])\n"
+            "assert cl.post('/api/speak-prep', json={'code': '', 'text': 'hello there stranger ' + tok, 'lead': 0, 'lane': 'demo'}).status_code == 409\n"
+            "assert cl.post('/api/speak-prep', json={'code': 'demo', 'text': line, 'lead': 0, 'lane': 'drill'}).status_code == 401\n"
+            "# nothing written\n"
+            "import sqlalchemy as sa\n"
+            "eng = sa.create_engine(os.environ['DATABASE_URL'])\n"
+            "with eng.connect() as c:\n"
+            "    names = set(sa.inspect(eng).get_table_names())\n"
+            "    for t in ('script_answers', 'script_done', 'topic_progress', 'unit_checks', 'time_daily', 'students'):\n"
+            "        if t in names:\n"
+            "            cnt = c.execute(sa.text('select count(*) from ' + t)).scalar()\n"
+            "            assert cnt == 0, (t, cnt)\n"
+            "print('DEMO-OK', n)\n")
+    env = dict(os.environ, DATABASE_URL=f"sqlite:///{os.path.join(tmp, 'uh.db')}",
+               PYTHONPATH=here, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="",
+               FORUM_MOD_KEY="uh-test-key")
+    env.pop("ANTHROPIC_API_KEY", None)
+    NAME = "⭐ LIVE: a demo lesson graded by the engine's own key, the cap, a dead token, the voice lane -- and nothing written"
+    if dep_gate(NAME, "sqlalchemy", "the drill proves the store stays empty on a real database"):
+        r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                           capture_output=True, text=True, timeout=240)
+        check(NAME, r.returncode == 0 and "DEMO-OK" in r.stdout, (r.stdout + r.stderr)[-700:])
+
+    check("  the stamp passed through uh (the note stays after the stamp moves on)",
+          'APP_BUILD -> "2026-09-08uh-the-demo-teaches"' in m[:200000], "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-08  BUILD uh" in rd("ruletests.py")[:40000]
+          and "(uh) Tile 11,023" in rd("static/methodology.html")[:30000]
+          and "(uh) 2026-09-08" in sess[:6000] and "(uh)" in demo[:6000]
+          and "2026-09-08 (uh)" in menu[:6000], "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -22939,7 +23187,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,023</b>" in page,
+          "<b>11,052</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24123,7 +24371,9 @@ def part3il_the_lesson_learns_to_teach():
           main._script_session(CODE) is None, "")
     m = rd("main.py")
     _door = m.find('if sess["mode"] == "script" and (state.get("pending") or {}).get("reason"):')
-    _read = m.find("got = lessonscripts.read_answer(body.said)\n")
+    # (uh) the demo lesson lane has its own read_answer call earlier in the file, so the
+    # read is looked for AFTER the door -- the pin is about the classroom route's order.
+    _read = m.find("got = lessonscripts.read_answer(body.said)\n", max(_door, 0))
     check("  the reason door runs BEFORE read_answer can scan the label for a digit",
           0 < _door < _read, f"door@{_door} read_answer@{_read}")
     check("  _script_clean ships `reason` on every ask",
@@ -24150,7 +24400,7 @@ def part3il_the_lesson_learns_to_teach():
           "2026-09-05  BUILD sp" in rd("lessonscripts.py")[:90000]
           and "BUILD sp" in m[:200000] and "2026-09-05  BUILD sp" in mf[:12000]
           and "(sp) 2026-09-05" in pil[:8000]
-          and "2026-09-05  BUILD sp" in rd("ruletests.py")[:28000], "Jim's rule 8")
+          and "2026-09-05  BUILD sp" in rd("ruletests.py")[:40000], "Jim's rule 8")
 
 
 def part3im_basic_unit_one_to_the_shape():
@@ -24291,7 +24541,7 @@ def part3im_basic_unit_one_to_the_shape():
           and "2026-09-05  BUILD sq" in mf[:12000] and "BUILD sq" in rd("tags.py")[:8000]
           and "BUILD sq" in rd("tutor.py")[:24000] and "2026-09-05 (sq)" in rd("static/script-board.js")[:3000]
           and all("(sq) 2026-09-05" in rd(pg)[:6000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "2026-09-05  BUILD sq" in rd("ruletests.py")[:28000], "Jim's rule 8")
+          and "2026-09-05  BUILD sq" in rd("ruletests.py")[:40000], "Jim's rule 8")
 
 
 def part3in_basic_unit_two_to_the_shape():
@@ -24417,7 +24667,7 @@ def part3in_basic_unit_two_to_the_shape():
           and "BUILD sr" in rd("tags.py")[:8000] and "BUILD sr" in rd("tutor.py")[:24000]
           and "2026-09-05 (sr)" in rd("static/script-board.js")[:3000]
           and all("(sr) 2026-09-05" in rd(pg)[:6000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "2026-09-05  BUILD sr" in rd("ruletests.py")[:28000], "Jim's rule 8")
+          and "2026-09-05  BUILD sr" in rd("ruletests.py")[:40000], "Jim's rule 8")
 
 
 def part3io_basic_unit_three_to_the_shape():
@@ -24528,7 +24778,7 @@ def part3io_basic_unit_three_to_the_shape():
     check("  the changed files carry dated ss notes",
           "2026-09-05  BUILD ss" in rd("lessonscripts.py")[:90000]
           and "BUILD ss" in rd("main.py")[:200000] and "2026-09-05  BUILD ss" in mf[:12000]
-          and "2026-09-05  BUILD ss" in rd("ruletests.py")[:28000], "Jim's rule 8")
+          and "2026-09-05  BUILD ss" in rd("ruletests.py")[:40000], "Jim's rule 8")
 
 
 def part3ip_basic_unit_four_to_the_shape():
@@ -24619,7 +24869,7 @@ def part3ip_basic_unit_four_to_the_shape():
     check("  the changed files carry dated st notes",
           "2026-09-05  BUILD st" in rd("lessonscripts.py")[:90000]
           and "BUILD st" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD st" in rd("ruletests.py")[:28000], "Jim's rule 8")
+          and "2026-09-05  BUILD st" in rd("ruletests.py")[:40000], "Jim's rule 8")
 
 
 def part3iq_basic_unit_five_to_the_shape():
@@ -24717,7 +24967,7 @@ def part3iq_basic_unit_five_to_the_shape():
     check("  the changed files carry dated su notes",
           "2026-09-05  BUILD su" in rd("lessonscripts.py")[:90000]
           and "BUILD su" in rd("main.py")[:200000] and "2026-09-05  BUILD su" in mf[:12000]
-          and "2026-09-05  BUILD su" in rd("ruletests.py")[:28000], "Jim's rule 8")
+          and "2026-09-05  BUILD su" in rd("ruletests.py")[:40000], "Jim's rule 8")
 
 
 def _shape_unit_checks(unit_ids, pic_regex):
@@ -24873,7 +25123,7 @@ def part3ir_basic_unit_six_to_the_shape():
     check("  the changed files carry dated sv notes",
           "2026-09-05  BUILD sv" in rd("lessonscripts.py")[:90000]
           and "BUILD sv" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD sv" in rd("ruletests.py")[:28000], "Jim's rule 8")
+          and "2026-09-05  BUILD sv" in rd("ruletests.py")[:40000], "Jim's rule 8")
 
 
 def part3is_basic_unit_seven_to_the_shape():
@@ -24931,7 +25181,7 @@ def part3is_basic_unit_seven_to_the_shape():
           and "BUILD sw" in rd("tags.py")[:8000] and "BUILD sw" in rd("tutor.py")[:24000]
           and "2026-09-05 (sw)" in rd("static/script-board.js")[:3000]
           and all("(sw) 2026-09-05" in rd(pg)[:6000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "2026-09-05  BUILD sw" in rd("ruletests.py")[:28000], "Jim's rule 8")
+          and "2026-09-05  BUILD sw" in rd("ruletests.py")[:40000], "Jim's rule 8")
 
 
 def part3it_basic_unit_eight_to_the_shape():
@@ -24970,7 +25220,7 @@ def part3it_basic_unit_eight_to_the_shape():
     check("  the changed files carry dated sx notes",
           "2026-09-05  BUILD sx" in rd("lessonscripts.py")[:90000]
           and "BUILD sx" in rd("main.py")[:200000] and "2026-09-05  BUILD sx" in mf[:12000]
-          and "2026-09-05  BUILD sx" in rd("ruletests.py")[:28000], "Jim's rule 8")
+          and "2026-09-05  BUILD sx" in rd("ruletests.py")[:40000], "Jim's rule 8")
 
 
 def part3iu_basic_unit_nine_to_the_shape():
@@ -25051,7 +25301,7 @@ def part3iu_basic_unit_nine_to_the_shape():
           and "BUILD sy" in rd("tags.py")[:8000] and "BUILD sy" in rd("tutor.py")[:24000]
           and "2026-09-05 (sy)" in rd("static/script-board.js")[:3000]
           and all("(sy) 2026-09-05" in rd(pg)[:6000] for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "2026-09-05  BUILD sy" in rd("ruletests.py")[:28000], "Jim's rule 8")
+          and "2026-09-05  BUILD sy" in rd("ruletests.py")[:40000], "Jim's rule 8")
 
 
 def part3iv_the_times_table_is_a_pass():
@@ -25273,7 +25523,7 @@ def part3iv_the_times_table_is_a_pass():
     # shape adds a note above this one); the pin reads 60,000, as the sp...td pins do.
     check("  the changed files carry dated sz notes",
           "2026-09-05  BUILD sz" in src[:60000] and "BUILD sz" in m[:200000]
-          and "2026-09-05  BUILD sz" in rd("ruletests.py")[:28000]
+          and "2026-09-05  BUILD sz" in rd("ruletests.py")[:40000]
           and "2026-09-05" in rd("static/methodology.html")[:30000], "Jim's rule 8")
 
 
@@ -25422,7 +25672,7 @@ def part3iw_the_tutor_sees_the_board():
           'board = str(context.get("board") or "") or _ls.board_for(p, level)' in tsrc, "")
     check("  the changed files carry dated ta notes",
           "2026-09-05  BUILD ta" in tsrc[:24000] and "2026-09-05  BUILD ta" in rd("lessonscripts.py")[:90000]
-          and "BUILD ta" in m[:200000] and "2026-09-05  BUILD ta" in rd("ruletests.py")[:28000]
+          and "BUILD ta" in m[:200000] and "2026-09-05  BUILD ta" in rd("ruletests.py")[:40000]
           and "(ta)" in rd("static/methodology.html")[:30000], "Jim's rule 8")
 
 
@@ -25461,7 +25711,7 @@ def part3ix_entry_unit_one_to_the_shape():
           not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in U1), "")
     check("  the changed files carry dated tb notes",
           "2026-09-05  BUILD tb" in rd("lessonscripts.py")[:90000] and "BUILD tb" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD tb" in rd("ruletests.py")[:28000] and "(tb)" in rd("static/methodology.html")[:30000],
+          and "2026-09-05  BUILD tb" in rd("ruletests.py")[:40000] and "(tb)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -25557,7 +25807,7 @@ def part3iy_prealgebra_units_one_to_three_to_the_shape():
           not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in U1 + U2 + U3), "")
     check("  the changed files carry dated tc notes",
           "2026-09-05  BUILD tc" in rd("lessonscripts.py")[:90000] and "BUILD tc" in rd("main.py")[:200000]
-          and "2026-09-05  BUILD tc" in rd("ruletests.py")[:28000] and "(tc)" in rd("static/methodology.html")[:30000],
+          and "2026-09-05  BUILD tc" in rd("ruletests.py")[:40000] and "(tc)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -25661,7 +25911,7 @@ def part3iz_prealgebra_units_four_to_six_to_the_shape():
                   for l in U4 + U5 + U6 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated td notes",
           "2026-09-06  BUILD td" in rd("lessonscripts.py")[:90000] and "BUILD td" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD td" in rd("ruletests.py")[:28000] and "(td)" in rd("static/methodology.html")[:30000]
+          and "2026-09-06  BUILD td" in rd("ruletests.py")[:40000] and "(td)" in rd("static/methodology.html")[:30000]
           and "2026-09-06  BUILD td" in mf[:12000] and "BUILD td" in rd("tags.py")[:8000],
           "Jim's rule 8")
 
@@ -25799,7 +26049,7 @@ def part3ja_prealgebra_units_seven_to_nine_to_the_shape():
     # re-learn it one pin at a time.
     check("  the changed files carry dated te notes",
           "2026-09-06  BUILD te" in rd("lessonscripts.py")[:90000] and "BUILD te" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD te" in rd("ruletests.py")[:28000] and "(te)" in rd("static/methodology.html")[:30000]
+          and "2026-09-06  BUILD te" in rd("ruletests.py")[:40000] and "(te)" in rd("static/methodology.html")[:30000]
           and "2026-09-06  BUILD te" in mf[:12000],
           "Jim's rule 8")
 
@@ -25903,7 +26153,7 @@ def part3jb_algebra_one_units_one_to_three_to_the_shape():
                   for l in A1 + A2 + A3 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tf notes",
           "2026-09-06  BUILD tf" in rd("lessonscripts.py")[:90000] and "BUILD tf" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tf" in rd("ruletests.py")[:28000] and "(tf)" in rd("static/methodology.html")[:30000]
+          and "2026-09-06  BUILD tf" in rd("ruletests.py")[:40000] and "(tf)" in rd("static/methodology.html")[:30000]
           and "2026-09-06  BUILD tf" in mf[:12000],
           "Jim's rule 8")
 
@@ -26009,7 +26259,7 @@ def part3jc_algebra_one_units_four_to_six_to_the_shape():
                   for l in A4 + A5 + A6 for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tg notes",
           "2026-09-06  BUILD tg" in rd("lessonscripts.py")[:90000] and "BUILD tg" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tg" in rd("ruletests.py")[:28000] and "(tg)" in rd("static/methodology.html")[:30000]
+          and "2026-09-06  BUILD tg" in rd("ruletests.py")[:40000] and "(tg)" in rd("static/methodology.html")[:30000]
           and "2026-09-06  BUILD tg" in mf[:12000],
           "Jim's rule 8")
 
@@ -26121,7 +26371,7 @@ def part3jd_algebra_one_units_seven_to_nine_to_the_shape():
               for l in L.LESSONS if l["course"] == "algebra1") and sum(1 for l in L.LESSONS if l["course"] == "algebra1") == 36, "")
     check("  the changed files carry dated th notes",
           "2026-09-06  BUILD th" in rd("lessonscripts.py")[:90000] and "BUILD th" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD th" in rd("ruletests.py")[:28000] and "(th)" in rd("static/methodology.html")[:30000]
+          and "2026-09-06  BUILD th" in rd("ruletests.py")[:40000] and "(th)" in rd("static/methodology.html")[:30000]
           and "2026-09-06  BUILD th" in mf[:12000],
           "Jim's rule 8")
 
@@ -26225,7 +26475,7 @@ def part3je_geometry_units_one_to_three_to_the_shape():
           _unsp == 0, f"{_unsp} unspoken")
     check("  the changed files carry dated ti notes",
           "2026-09-06  BUILD ti" in rd("lessonscripts.py")[:90000] and "BUILD ti" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD ti" in rd("ruletests.py")[:28000] and "(ti)" in rd("static/methodology.html")[:30000],
+          and "2026-09-06  BUILD ti" in rd("ruletests.py")[:40000] and "(ti)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -26347,7 +26597,7 @@ def part3jf_geometry_units_four_to_six_to_the_shape():
                   for l in G4 + G5 + G6), "")
     check("  the changed files carry dated tj notes",
           "2026-09-06  BUILD tj" in rd("lessonscripts.py")[:90000] and "BUILD tj" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tj" in rd("ruletests.py")[:28000] and "(tj)" in rd("static/methodology.html")[:30000]
+          and "2026-09-06  BUILD tj" in rd("ruletests.py")[:40000] and "(tj)" in rd("static/methodology.html")[:30000]
           and "2026-09-06  BUILD tj" in rd("tutor.py")[:24000],
           "Jim's rule 8")
 
@@ -26478,7 +26728,7 @@ def part3jg_geometry_units_seven_to_nine_to_the_shape():
                   for s, _ in L.LESSON_BY_ID[l][f]), "")
     check("  the changed files carry dated tk notes",
           "2026-09-06  BUILD tk" in rd("lessonscripts.py")[:90000] and "BUILD tk" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tk" in rd("ruletests.py")[:28000] and "(tk)" in rd("static/methodology.html")[:30000],
+          and "2026-09-06  BUILD tk" in rd("ruletests.py")[:40000] and "(tk)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -26600,7 +26850,7 @@ def part3jh_algebra_two_units_one_to_three_to_the_shape():
                   for l in A1 + A2 + A3), "")
     check("  the changed files carry dated tl notes",
           "2026-09-06  BUILD tl" in rd("lessonscripts.py")[:90000] and "BUILD tl" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tl" in rd("ruletests.py")[:28000] and "(tl)" in rd("static/methodology.html")[:30000],
+          and "2026-09-06  BUILD tl" in rd("ruletests.py")[:40000] and "(tl)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -26733,7 +26983,7 @@ def part3ji_algebra_two_units_four_to_six_to_the_shape():
                   for l in A4 + A5 + A6), "")
     check("  the changed files carry dated tm notes",
           "2026-09-06  BUILD tm" in rd("lessonscripts.py")[:90000] and "BUILD tm" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tm" in rd("ruletests.py")[:28000] and "(tm)" in rd("static/methodology.html")[:30000],
+          and "2026-09-06  BUILD tm" in rd("ruletests.py")[:40000] and "(tm)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -26866,7 +27116,7 @@ def part3jj_algebra_two_units_seven_to_nine_to_the_shape():
                   for l in A7 + A8 + A9), "")
     check("  the changed files carry dated tn notes",
           "2026-09-06  BUILD tn" in rd("lessonscripts.py")[:90000] and "BUILD tn" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tn" in rd("ruletests.py")[:28000] and "(tn)" in rd("static/methodology.html")[:30000]
+          and "2026-09-06  BUILD tn" in rd("ruletests.py")[:40000] and "(tn)" in rd("static/methodology.html")[:30000]
           and "2026-09-06  BUILD tn" in rd("static/math-figures.js")[:12000],
           "Jim's rule 8")
 
@@ -26990,7 +27240,7 @@ def part3jk_precalc_units_one_to_three_to_the_shape():
                   for l in P1 + P2 + P3), "")
     check("  the changed files carry dated to notes",
           "2026-09-06  BUILD to" in rd("lessonscripts.py")[:90000] and "BUILD to" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD to" in rd("ruletests.py")[:28000] and "(to)" in rd("static/methodology.html")[:30000],
+          and "2026-09-06  BUILD to" in rd("ruletests.py")[:40000] and "(to)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -27186,7 +27436,7 @@ def part3jl_precalc_units_four_to_six_to_the_shape():
                   for l in P4 + P5 + P6), "")
     check("  the changed files carry dated tp notes",
           "2026-09-06  BUILD tp" in rd("lessonscripts.py")[:90000] and "BUILD tp" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tp" in rd("ruletests.py")[:28000] and "(tp)" in rd("static/methodology.html")[:30000]
+          and "2026-09-06  BUILD tp" in rd("ruletests.py")[:40000] and "(tp)" in rd("static/methodology.html")[:30000]
           and "BUILD tp" in _mf[:12000] and "BUILD tp" in _gf[:3000],
           "Jim's rule 8")
 
@@ -27319,7 +27569,7 @@ def part3jm_precalc_units_seven_to_nine_to_the_shape():
                   for p in list(L.LESSON_BY_ID[l]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[l]["pairs"]]), "")
     check("  the changed files carry dated tq notes",
           "2026-09-06  BUILD tq" in rd("lessonscripts.py")[:90000] and "BUILD tq" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tq" in rd("ruletests.py")[:28000] and "(tq)" in rd("static/methodology.html")[:30000],
+          and "2026-09-06  BUILD tq" in rd("ruletests.py")[:40000] and "(tq)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -27444,7 +27694,7 @@ def part3jn_probstat_units_one_to_three_to_the_shape():
                   for l in S1 + S2 + S3), "")
     check("  the changed files carry dated tr notes",
           "2026-09-06  BUILD tr" in rd("lessonscripts.py")[:90000] and "BUILD tr" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tr" in rd("ruletests.py")[:28000] and "(tr)" in rd("static/methodology.html")[:30000],
+          and "2026-09-06  BUILD tr" in rd("ruletests.py")[:40000] and "(tr)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -27515,7 +27765,7 @@ def part3jo_the_lesson_introduces_itself():
           and all("number line" in v for v in _fires.values()), str(_fires)[:200])
     check("  the changed files carry dated ts notes",
           "2026-09-06  BUILD ts" in rd("lessonscripts.py")[:90000] and "BUILD ts" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD ts" in rd("ruletests.py")[:28000] and "(ts)" in rd("static/methodology.html")[:30000],
+          and "2026-09-06  BUILD ts" in rd("ruletests.py")[:40000] and "(ts)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -27655,7 +27905,7 @@ def part3jp_probstat_units_four_to_six_to_the_shape():
                   for l in S4 + S5 + S6), "")
     check("  the changed files carry dated tt notes",
           "2026-09-06  BUILD tt" in rd("lessonscripts.py")[:90000] and "BUILD tt" in rd("main.py")[:200000]
-          and "2026-09-06  BUILD tt" in rd("ruletests.py")[:28000] and "(tt)" in rd("static/methodology.html")[:30000],
+          and "2026-09-06  BUILD tt" in rd("ruletests.py")[:40000] and "(tt)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -27803,7 +28053,7 @@ def part3jq_the_caption_the_sequence_and_the_definition():
     check("  the changed files carry dated tu notes",
           "2026-09-07  BUILD tu" in rd("tutor.py")[:200000]
           and "BUILD tu" in rd("main.py")[:200000]
-          and "2026-09-07  BUILD tu" in rd("ruletests.py")[:28000]
+          and "2026-09-07  BUILD tu" in rd("ruletests.py")[:40000]
           and "2026-09-07  BUILD tu" in rd("nightwatch.py")[:16000]
           and "2026-09-07  BUILD tu" in rd("lessonaudit.py")[:16000]
           and "(tu)" in rd("static/methodology.html")[:30000],
@@ -27933,7 +28183,7 @@ def part3jr_the_gate_learns_who_wrote_the_symbol():
     check("  the changed files carry dated tv notes",
           "2026-09-07  BUILD tv" in rd("tutor.py")[:200000]
           and "BUILD tv" in rd("main.py")[:200000]
-          and "2026-09-07  BUILD tv" in rd("ruletests.py")[:28000]
+          and "2026-09-07  BUILD tv" in rd("ruletests.py")[:40000]
           and "(tv)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
@@ -28089,7 +28339,7 @@ def part3js_the_say_it_then_write_it_family():
     check("  the changed files carry dated tw notes",
           "2026-09-07  BUILD tw" in rd("tutor.py")[:24000]
           and "BUILD tw" in rd("main.py")[:200000]
-          and "2026-09-07  BUILD tw" in rd("ruletests.py")[:28000]
+          and "2026-09-07  BUILD tw" in rd("ruletests.py")[:40000]
           and "(tw)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
@@ -28249,7 +28499,7 @@ def part3jt_the_words_and_the_picture_are_the_same_thing():
           "2026-09-07  BUILD tx" in rd("tutor.py")[:24000]
           and "2026-09-07  BUILD tx" in rd("nightwatch.py")[:16000]
           and "BUILD tx" in rd("main.py")[:200000]
-          and "2026-09-07  BUILD tx" in rd("ruletests.py")[:28000]
+          and "2026-09-07  BUILD tx" in rd("ruletests.py")[:40000]
           and "(tx)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
@@ -28408,7 +28658,7 @@ def part3ju_probstat_units_seven_to_nine_to_the_shape():
           and sum(1 for les in L.LESSONS if les["course"] == "probstat") == 36, "")
     check("  the changed files carry dated ty notes",
           "2026-09-07  BUILD ty" in rd("lessonscripts.py")[:90000] and "BUILD ty" in rd("main.py")[:200000]
-          and "2026-09-07  BUILD ty" in rd("ruletests.py")[:28000] and "(ty)" in rd("static/methodology.html")[:30000],
+          and "2026-09-07  BUILD ty" in rd("ruletests.py")[:40000] and "(ty)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -28583,7 +28833,7 @@ def part3jv_calculus_units_one_to_three_to_the_shape():
           and sum(1 for les in L.LESSONS if les["course"] == "calculus") == 36, "")
     check("  the changed files carry dated tz notes",
           "2026-09-07  BUILD tz" in rd("lessonscripts.py")[:90000] and "BUILD tz" in rd("main.py")[:200000]
-          and "2026-09-07  BUILD tz" in rd("ruletests.py")[:28000] and "(tz)" in rd("static/methodology.html")[:30000],
+          and "2026-09-07  BUILD tz" in rd("ruletests.py")[:40000] and "(tz)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
 
 
@@ -28769,7 +29019,7 @@ def part3jw_calculus_units_four_to_six_to_the_shape():
           and sum(1 for les in L.LESSONS if les["course"] == "calculus") == 36, "")
     check("  the changed files carry dated ua notes",
           "2026-09-07  BUILD ua" in rd("lessonscripts.py")[:90000] and "BUILD ua" in rd("main.py")[:200000]
-          and "2026-09-07  BUILD ua" in rd("ruletests.py")[:28000] and "(ua)" in rd("static/methodology.html")[:30000]
+          and "2026-09-07  BUILD ua" in rd("ruletests.py")[:40000] and "(ua)" in rd("static/methodology.html")[:30000]
           and "2026-09-07  BUILD ua" in rd("static/math-figures.js")[:12000],
           "Jim's rule 8")
 
@@ -28949,7 +29199,7 @@ def part3jx_calculus_units_seven_to_nine_to_the_shape():
           and sum(1 for les in L.LESSONS if les["course"] == "calculus") == 36, "")
     check("  the changed files carry dated ub notes",
           "2026-09-07  BUILD ub" in rd("lessonscripts.py")[:90000] and "BUILD ub" in rd("main.py")[:200000]
-          and "2026-09-07  BUILD ub" in rd("ruletests.py")[:28000] and "(ub)" in rd("static/methodology.html")[:30000]
+          and "2026-09-07  BUILD ub" in rd("ruletests.py")[:40000] and "(ub)" in rd("static/methodology.html")[:30000]
           and "2026-09-07  BUILD ub" in rd("static/math-figures.js")[:12000],
           "Jim's rule 8")
 
@@ -29090,7 +29340,7 @@ def part3jy_the_youngest_speak_and_the_mic_waits():
     check("  the changed files carry dated uc notes",
           all("(uc) 2026-09-07" in src[p][:6000] for p in PAGES)
           and "BUILD uc" in rd("main.py")[:200000]
-          and "2026-09-07  BUILD uc" in rd("ruletests.py")[:28000]
+          and "2026-09-07  BUILD uc" in rd("ruletests.py")[:40000]
           and "BUILD uc" in pr[:60000]      # prompts.py keeps its notes deep in a long header
           and "(uc)" in rd("static/methodology.html")[:30000],
           "Jim's rule 8")
@@ -39458,6 +39708,7 @@ def main():
     part3ka_the_authored_lane_writes_it_down()
     part3kb_the_per_student_view()
     part3kc_the_phone_classroom()
+    part3kd_the_demo_teaches()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

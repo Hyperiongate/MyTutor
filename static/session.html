@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+    (uh) 2026-09-08 -- THE SHORT TOUR FOR THE YOUNGEST (P3 of the deep look, with the
+    demo rebuild). Entry and Basic Math's first-time tour is three stops (TOUR_STEPS_ELEM:
+    me and the board, the map, how to answer -- the answer stop is uc's own line, taken
+    from the grand tour's list by id), about 150 words instead of the grand tour's 500,
+    and it never says "Course Assessment" or "Final Exam" to a six-year-old. Same opener,
+    glow, Skip pill, closing line (shortened), __tour_done__ hand-off and tour-seen
+    record; tourSteps() picks the list by IS_ELEM. Every other course keeps the grand
+    tour word for word. Nothing else on this page changed.
+
     (ug) 2026-09-08 -- THE PHONE CLASSROOM (P1 of the deep look). The review's phone
     screenshot: the title on three lines beside a five-high column of nav icons, the
     board squeezed to ~370px behind a 416px dock, the pencil over the tutor's first
@@ -3925,6 +3934,25 @@
               ? "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. Saying 'I'm confused' is a great answer too; it tells me to slow down and try another way. If you'd rather write it, tap the big 'Type my answer' button — and the answer buttons at the bottom always work as well."
               : "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap the big 'Type my answer' button and type it instead.") },
     ];
+    // (uh) THE SHORT TOUR FOR THE YOUNGEST. The grand tour is eleven stops and
+    // about 500 words -- three minutes or more of listening before a first grader's
+    // first question. Entry and Basic Math get THREE stops -- me and the board, the
+    // map, and how to answer -- about 150 words, under a minute with the opener, and
+    // not one word about a Course Assessment or a Final Exam (the sidebar keeps those
+    // doors; the tour simply does not read them out to a six-year-old). The stops are chosen from the
+    // grand tour's own list by id, so the answer stop is uc's exact line (it says
+    // "SAY it" first, the tap buttons last) and can never drift from it. The
+    // opener, the glow, the Skip pill, the __tour_done__ hand-off and the
+    // recorded tour-seen fact are all the same code path: only the list is shorter.
+    // ⚠️ NO LAYOUT WORDS here either (build in's phone rule: the glow is the pointer).
+    const TOUR_STEPS_ELEM = [
+      { id: "tutor",
+        text: "See that glowing face? That's me, Mr. Cadabra! And the big whiteboard is mine — that's where I'll draw every step, so you can see it while I say it." },
+      { id: "bars",
+        text: "Now look at the glowing map. It shows what we're learning today, and every piece turns gold as you learn it. After our tour it hides behind the little Progress button — tap that any time to peek." },
+      TOUR_STEPS.find(function (st) { return st.id === "answer"; }),
+    ];
+    const tourSteps = () => (IS_ELEM ? TOUR_STEPS_ELEM : TOUR_STEPS);
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
     // Minimum time to dwell on a line so it stays readable even if the voice is
     // unavailable and speak() returns instantly (~360ms per word, min 2.6s).
@@ -3972,7 +4000,7 @@
       }
       const tourLine = (t) => Promise.race([sayTourLine(t), skipWait]);
       await tourLine(COURSE_OPENER);
-      for (const step of TOUR_STEPS) {
+      for (const step of tourSteps()) {   // (uh) three stops for Entry and Basic, the grand tour for everyone else
         if (skipped) break;
         highlightEl(step.id);
         await tourLine(step.text);
@@ -3986,11 +4014,12 @@
       // right here, at the moment of maximum orientation. Choosing "skip" continues
       // the EXACT old flow (__tour_done__), so nothing is ever lost by declining.
       if (!isPlaced) {
-        if (!skipped) await sayTourLine("Okay — that's the grand tour!");
+        if (!skipped) await sayTourLine(IS_ELEM ? "Okay — that's the tour!" : "Okay — that's the grand tour!");
         offerAssessment(() => runTutor("__tour_done_declined__"));
         return;
       }
-      if (!skipped) await sayTourLine("Okay — that's the grand tour! Now let's get into the fun part.");
+      if (!skipped) await sayTourLine(IS_ELEM ? "Okay — that's the tour! Now let's get into the fun part."
+                                              : "Okay — that's the grand tour! Now let's get into the fun part.");
       await runTutor("__tour_done__");   // hand off WITHOUT a re-introduction (he just said his name in the tour)
     }
 

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  demo-lesson.html  --  THE DEMO TEACHES  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    (uh) 2026-09-08 -- NEW FILE, P3 of the deep look (claude/Review_Deep_Look_2026-09-07.md).
+    The review: "the demo is a tour of the furniture with an empty board; it never
+    shows a lesson, which is the one thing a parent came to see, while the app has a
+    hundred and more authored lessons that draw the picture before the rule." Jim
+    chose P3 after P0, P2 and P1.
+
+    WHAT THIS PAGE IS. A visitor picks a level and Mr. Cadabra teaches the OPENING of
+    that course's first authored lesson exactly as a student hears it: the why, the
+    picture, the rule read off the picture, the worked example, then ONE question the
+    visitor answers by tapping or typing, then the walk-back on the picture. Then the
+    honest close -- "that was a real lesson; in the classroom it goes on" -- and three
+    doors: the classroom tour (/demo?tour=1), another level, the three views
+    (/demo?views=1). The old demo (static/demo.html) keeps its tour and its views and
+    its hand-written level lessons; its front door now leads HERE first.
+
+    WHAT IS REAL. The engine: /api/demo/lesson/start and /answer run lessonscripts
+    itself (a fixed seed, the classroom's _script_clean -- never an answer key, the
+    classroom's three grading doors). The boards: script-board.js + board.js +
+    the figure libraries, the same files the classroom draws with, on the same dark
+    board (board-theme.css). The voice: voice.js in the "demo" lane -- the pre-rendered
+    closure, cache-only (a visitor can never make the paid renderer run; an unrendered
+    line falls to the browser voice). The pencil: cadabra.js, mounted as page
+    "demolesson" (the menu roster), waving at the start and pointing at the board.
+
+    WHAT IS DELIBERATELY NOT HERE. No student code, no store write, no model, no
+    microphone (build bz's ruling for the demo: a sales page must not depend on a
+    permission prompt -- typing and tapping only; the tour says the classroom talks).
+    No answer key on the page: right and wrong come back from the server.
+
+    THE PLAYER is drill.html's shape (mx: no Next button while the voice is audibly
+    playing; a reader who hears nothing gets one; om: a "Skip to the question" door
+    through the opening, because a returning visitor has heard it). PART 3kd pins it.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="index, follow">
+<title>Try a real lesson — Mr. Cadabra's Classroom</title>
+<meta name="description" content="Pick a level and Mr. Cadabra teaches you a real lesson from his classroom — the picture, the rule, one problem you answer yourself.">
+<link rel="icon" href="/static/favicon.svg">
+<link rel="stylesheet" href="/static/board.css">
+<link rel="stylesheet" href="/static/board-theme.css">
+<style>
+  :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--line:#e6e4f2;--card:#fff;--warn:#e8930c}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);
+    background:#fbfbff;background-image:radial-gradient(760px 500px at 8% -10%,rgba(91,91,214,.16),transparent 60%),
+    radial-gradient(760px 480px at 94% -6%,rgba(20,184,166,.15),transparent 55%);}
+  a{color:var(--purple)}
+  .wrap{max-width:980px;margin:0 auto;padding:18px 14px 40px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;flex-wrap:wrap}
+  .brand .tag{color:var(--muted);font-weight:600;font-size:14px}
+  .badge{display:inline-block;background:#fff3e8;color:#c2610a;border:1px solid #ffd9b3;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800;letter-spacing:.04em}
+  .sub{color:var(--muted);font-size:15px;margin:6px 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 22px;box-shadow:0 10px 30px rgba(20,30,45,.07);margin-bottom:14px}
+  h1{font-size:24px;margin:0 0 6px}
+  h2{font-size:18px;margin:0 0 10px}
+  .levels{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:12px}
+  .level{text-align:left;background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;font:inherit;color:var(--ink);transition:transform .08s,border-color .12s}
+  .level:hover{border-color:var(--purple);transform:translateY(-1px)}
+  .level b{display:block;font-size:15px}
+  .level span{display:block;color:var(--muted);font-size:12.5px;margin-top:3px}
+  .hide{display:none !important}
+  /* ---- the stage ---- */
+  .topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .topbar .title{font-weight:800;font-size:16px;background:linear-gradient(90deg,var(--purple),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .topbar .spacer{flex:1}
+  .linkbtn{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+  .linkbtn:hover{border-color:var(--purple);color:var(--purple)}
+  #bubble{font-size:18px;line-height:1.55;min-height:56px;background:#f1f3fb;border:1px solid var(--line);border-radius:15px;border-bottom-left-radius:5px;padding:12px 16px}
+  #bubble b{color:#b3402e}
+  #board{margin-top:12px;border-radius:16px;min-height:220px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;
+    background:var(--bd-panel);border:1px solid var(--line);overflow-x:auto}   /* the panel is painted by the page, as demo.html's .feed is: board-theme.css only supplies the tokens */
+  #board .stage-hint{color:var(--muted);font-size:14px;text-align:center;margin:auto}
+  #controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+  button.opt,button.next,button.check{border:0;border-radius:14px;font:inherit;font-size:18px;font-weight:800;cursor:pointer;padding:12px 22px;transition:transform .06s}
+  button.opt:active,button.next:active{transform:scale(.97)}
+  .next{background:var(--purple);color:#fff}
+  .opt{background:#fff;border:2.5px solid var(--purple) !important;color:var(--purple);min-width:74px}
+  .opt.right{background:#eefaf5;border-color:#0e9f6e !important;color:#0b7d57}
+  .opt.wrong{background:#fdf0ee;border-color:#e0392b !important;color:#b3402e}
+  .opt:disabled,.next:disabled{opacity:.45;cursor:default}
+  .ansrow{display:flex;gap:8px;flex:1 1 100%;max-width:520px}
+  .ansrow input{flex:1;font-size:17px;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;font:inherit}
+  .ansrow input:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(109,90,230,.15)}
+  .check{background:var(--teal);color:#fff}
+  .skip{margin-left:auto;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+  #status{font-size:13px;color:var(--muted);margin-top:10px;min-height:18px}
+  .prompt{flex:1 1 100%;font-size:13.5px;color:var(--muted)}
+  .fb{flex:1 1 100%;font-weight:700;min-height:20px}
+  .fb.ok{color:#0b7d57}.fb.no{color:#b3402e}
+  /* ---- the close ---- */
+  .endbox{background:linear-gradient(135deg,#f3f0ff,#e9fbf8);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-top:14px}
+  .endbox h3{margin:0 0 6px;font-size:20px}
+  .endbox p{margin:0 0 12px;color:var(--muted);line-height:1.5}
+  .doors{display:flex;gap:10px;flex-wrap:wrap}
+  .door{display:inline-block;border-radius:14px;padding:12px 18px;font:inherit;font-size:15px;font-weight:800;cursor:pointer;text-decoration:none;border:2px solid var(--purple);color:var(--purple);background:#fff}
+  .door.primary{background:linear-gradient(90deg,var(--purple),var(--teal));color:#fff;border-color:transparent}
+  .sound{font-size:13px;color:var(--muted);margin-top:10px}
+  @media (max-width:640px){
+    .wrap{padding:12px 8px 24px}
+    .card{padding:14px 12px}
+    #board{padding-right:60px}   /* the pencil's column: on a phone his home is the board's top-right corner (cadabra.js rule 33) */
+    #bubble{font-size:16px}
+    button.opt,button.next,button.check{font-size:16px;padding:11px 16px}
+    .levels{grid-template-columns:1fr 1fr}
+  }
+</style>
+<script src="/static/analytics.js"></script>
+</head>
+<body data-cadabra-page="demolesson">
+<!-- (uh) cadabra.js is not deferred: window.Cadabra must exist before the page script runs. -->
+<script src="/static/cadabra.js"></script>
+<div class="wrap">
+  <div class="brand"><img src="/static/brand-mark.svg" alt="" style="height:26px;width:auto"><b>Mr. Cadabra's Classroom</b>
+    <span class="tag">· a real lesson</span><span class="badge">DEMO</span></div>
+  <div class="sub">Pick a level. Mr. Cadabra teaches you the start of a real lesson from that course — the picture, the rule, one problem you answer yourself.</div>
+
+  <!-- ===== THE PICKER ===== -->
+  <div class="card" id="picker">
+    <h1>Which level?</h1>
+    <div class="sub" style="margin-bottom:0">Every one of these is a lesson a student actually gets — not a sample written for the demo.</div>
+    <div class="levels" id="levels"><span class="prompt">Loading the courses…</span></div>
+    <div class="sound">🔊 Turn your sound on — he teaches out loud. You tap or type your answers here; in the classroom your student just <b>says</b> it.</div>
+  </div>
+
+  <!-- ===== THE STAGE ===== -->
+  <div class="hide" id="stage">
+    <div class="topbar">
+      <div class="title" id="title">Mr. Cadabra's Classroom</div>
+      <span class="badge">DEMO</span>
+      <div class="spacer"></div>
+      <button class="linkbtn" id="boardChip" type="button" data-board-toggle aria-pressed="true">⬜ White board</button>
+      <button class="linkbtn" id="another" type="button">↩ Pick another level</button>
+    </div>
+    <div class="card">
+      <div id="bubble" data-cad="tutor">&nbsp;</div>
+      <div id="board" class="feed" data-cad="board"><div class="stage-hint" id="stageHint">The board fills in as he teaches.</div></div>
+      <div id="controls" data-cad="answer"></div>
+      <div id="status"></div>
+      <div id="end"></div>
+    </div>
+  </div>
+</div>
+
+<!-- THE BOARD. board-text.js MUST load before board.js; the figure libraries answer
+     MathFigures.svg / GeoFigures.svg; script-board.js provides board.js's ambient
+     contract (el, feed, composer, busy, drawBoard, wipeBoard, choiceValues) and must
+     precede board.js -- drill.html's load order, verbatim. -->
+<script src="/static/board-text.js"></script>
+<script src="/static/math-figures.js"></script>
+<script src="/static/geo-figures.js"></script>
+<script src="/static/script-board.js"></script>
+<script src="/static/board.js"></script>
+
+<!-- THE VOICE. voice.js's ambient contract: CODE, forSpeech, setState. The lane is
+     "demo": the server mints closure-only, cache-only tickets and asks for no
+     student code (main.py speak_prep). -->
+<script>
+  var CODE = "demo";
+  function forSpeech(t) { return String(t == null ? "" : t); }   // the cache is keyed on the verbatim text
+  var __voiceSpoke = false;
+  function setState(s) { if (s === "speaking") __voiceSpoke = true; }
+</script>
+<script src="/static/voice.js"></script>
+<script>
+  voiceLane = "demo";
+  if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var qs = new URLSearchParams(location.search);
+  var TOKEN = null, COURSE = "", TITLE = "", queue = [], asksSeen = 0, firstAskPlayed = false, ended = false;
+  var VOICE_WAIT_MS = 3000, VOICE_STALL_PAD_MS = 6000;
+  window.boardWarn = function (msg) { try { console.warn("[demo-lesson board]", msg); } catch (e) {} };
+
+  // ---- the board theme (rp): board.js's MTBoard, dark by default like /demo ----
+  // One system, not a copy: the chip carries data-board-toggle and MTBoard.wire owns the
+  // click, the label and the mt_board key. board.js also re-applies the SAVED choice at
+  // DOMContentLoaded with a white default, which fires after this script -- so the dark
+  // default is wired again there (wire is idempotent) and the visitor's own saved pick,
+  // when there is one, wins both times.
+  function wireBoard() { try { if (window.MTBoard) MTBoard.wire("dark", $("board")); } catch (e) {} }
+  wireBoard();
+  document.addEventListener("DOMContentLoaded", wireBoard);
+
+  // ---- the pencil ----
+  function cad(fn) { try { if (window.Cadabra && typeof Cadabra[fn] === "function") return Cadabra[fn].apply(Cadabra, [].slice.call(arguments, 1)); } catch (e) {} }
+  // He mounts when the stage opens, not on the picker: rule 33 reads the board's corner as
+  // his phone home, and a hidden board (the picker) put his entrance in the page's top-left,
+  // over the intro text, for five seconds. Mount is once-only in cadabra.js (rule 18's roster
+  // check runs there); a second level in the same visit just waves.
+  var _mounted = false;
+  function mountPencil() { if (_mounted) return; _mounted = true; cad("mount", { page: "demolesson" }); }
+
+  // ---- voice: drill.html's speak() shape (mx/nb) ----
+  function sayMsEstimate(t) { var n = String(t == null ? "" : t).length; return Math.min(180000, Math.max(2500, n * 85)); }
+  function speakLine(text, onDone, onWaiting, patient) {
+    var t0 = performance.now(), done = false, warnTimer = null;
+    function finish(played) { if (done) return; done = true; if (warnTimer) clearTimeout(warnTimer); onDone && onDone(!!played); }
+    if (!text) return finish(false);
+    __voiceSpoke = false;
+    var nudge = function () { if (!done) onWaiting && onWaiting(); };
+    warnTimer = setTimeout(function () {
+      if (done) return;
+      if (!__voiceSpoke || !patient) return nudge();
+      warnTimer = setTimeout(nudge, Math.max(0, (t0 + sayMsEstimate(text) + VOICE_STALL_PAD_MS) - performance.now()));
+    }, VOICE_WAIT_MS);
+    var p;
+    try { p = window.speak ? window.speak(text, { eleven: true, profile: null }) : null; } catch (e) { p = null; }
+    if (!p || !p.then) return finish(false);
+    p.then(function () { finish(__voiceSpoke); }, function () { finish(false); });
+  }
+  function hush() { try { if (typeof stopAllSpeech === "function") stopAllSpeech(); } catch (e) {} }
+
+  // ---- the picker ----
+  function loadLevels() {
+    fetch("/api/demo/lesson/levels").then(function (r) { return r.json(); }).then(function (j) {
+      var box = $("levels"); box.innerHTML = "";
+      (j.levels || []).forEach(function (lv) {
+        var b = document.createElement("button"); b.className = "level"; b.type = "button";
+        b.innerHTML = "<b>" + esc(lv.title) + "</b><span>Unit " + esc(lv.unit) + " · " + esc(lv.topic) + "</span>";
+        b.onclick = function () { start(lv.course); };
+        box.appendChild(b);
+      });
+      var want = (qs.get("course") || "").trim().toLowerCase();
+      if (want && (j.levels || []).some(function (l) { return l.course === want; })) start(want);
+    }).catch(function () { $("levels").innerHTML = '<span class="prompt">The courses could not be loaded — try again in a moment.</span>'; });
+  }
+
+  // ---- the lesson ----
+  function start(course) {
+    hush(); queue = []; asksSeen = 0; firstAskPlayed = false; ended = false; TOKEN = null;
+    $("end").innerHTML = ""; $("controls").innerHTML = ""; $("status").textContent = "";
+    try { history.replaceState(null, "", "/demo/lesson?course=" + encodeURIComponent(course)); } catch (e) {}
+    fetch("/api/demo/lesson/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ course: course }) })
+      .then(function (r) { if (!r.ok) throw new Error("start " + r.status); return r.json(); })
+      .then(function (j) {
+        TOKEN = j.token; COURSE = j.course; TITLE = j.title;
+        $("title").textContent = j.title + " · Unit " + j.unit + ": " + j.topic;
+        $("picker").classList.add("hide"); $("stage").classList.remove("hide");
+        wipeBoard(); $("board").innerHTML = '<div class="stage-hint" id="stageHint">The board fills in as he teaches.</div>';
+        window.scrollTo(0, 0);
+        mountPencil();
+        cad("wave", { center: false });
+        // the opening: everything before the first ask is skippable (om's door)
+        var steps = j.steps || [];
+        var firstAsk = steps.findIndex(function (s) { return s.kind === "ask"; });
+        steps.forEach(function (s, i) { if (firstAsk < 0 || i < firstAsk) s.intro = true; });
+        ingest(steps);
+      })
+      .catch(function () { $("levels").innerHTML = '<span class="prompt">That lesson could not start — pick a level again.</span>'; $("picker").classList.remove("hide"); });
+  }
+  function ingest(steps) { queue = queue.concat(steps || []); playNext(); }
+  function playNext() { if (queue.length) playStep(queue.shift()); }
+
+  function drawFor(step) {
+    var markup = step.board || "";
+    var f = $("board");
+    if (!markup) return;
+    var keep = f.innerHTML;
+    wipeBoard();
+    if (!drawBoard(markup)) f.innerHTML = keep;
+    cad("glance");
+  }
+
+  function playStep(step) {
+    if (ended) return;
+    var words = step.spoken || "";
+    var ctl = $("controls"); ctl.innerHTML = "";
+    if (step.kind === "end") { closeOut(); return; }
+    if (step.kind === "ask") {
+      // the excerpt is ONE question: after the first ask has been answered right, the
+      // walk-back plays and the next ask is where we stop and say so
+      if (firstAskPlayed && step._afterRight) { closeOut(); return; }
+      if (asksSeen >= 3) { closeOut(); return; }
+      asksSeen++; firstAskPlayed = true;
+      drawFor(step);
+      $("bubble").innerHTML = styleTerms(words);
+      renderAsk(step, ctl);
+      speakLine(words, function () { enableAsk(ctl); }, function () { enableAsk(ctl); }, false);
+      $("status").textContent = step.reason ? "Tap the reason." : "Tap an answer, or type it and press Check.";
+      return;
+    }
+    // say (and anything else the engine may say)
+    drawFor(step);
+    $("bubble").innerHTML = styleTerms(words);
+    var b = document.createElement("button"); b.className = "next"; b.textContent = "Next ▶"; b.disabled = true; b.style.display = "none";
+    var advanced = false;
+    var go = function () { if (!advanced) { advanced = true; playNext(); } };
+    b.onclick = go;
+    var reveal = function () { b.style.display = ""; b.disabled = false; };
+    ctl.appendChild(b);
+    if (step.intro) {
+      var sk = document.createElement("button"); sk.className = "skip"; sk.type = "button"; sk.textContent = "⏭ Skip to the question";
+      sk.onclick = function () {
+        if (advanced) return; advanced = true; hush();
+        queue = queue.filter(function (s) { return !s.intro; });
+        playNext();
+      };
+      ctl.appendChild(sk);
+    }
+    speakLine(words, function (played) { if (played) setTimeout(go, 650); else { reveal(); b.focus(); } }, reveal, true);
+    $("status").textContent = "";
+  }
+
+  // ---- the answer: taps and typed words, the classroom's own doors ----
+  function renderAsk(step, ctl) {
+    var opts = choiceValues(step.choices || "");
+    var fb = document.createElement("div"); fb.className = "fb";
+    opts.forEach(function (v) {
+      var ob = document.createElement("button"); ob.className = "opt"; ob.type = "button"; ob.textContent = v; ob.disabled = true;
+      ob.onclick = function () { submit(v, ob, ctl, fb); };
+      ctl.appendChild(ob);
+    });
+    if (!step.tap_only) {
+      var row = document.createElement("div"); row.className = "ansrow";
+      var input = document.createElement("input"); input.type = "text"; input.placeholder = "or type your answer"; input.autocomplete = "off"; input.disabled = true;
+      var check = document.createElement("button"); check.className = "check"; check.type = "button"; check.textContent = "Check ✓"; check.disabled = true;
+      check.onclick = function () { if (input.value.trim()) submit(input.value.trim(), null, ctl, fb); };
+      input.addEventListener("keydown", function (ev) { if (ev.key === "Enter" && input.value.trim()) submit(input.value.trim(), null, ctl, fb); });
+      row.appendChild(input); row.appendChild(check); ctl.appendChild(row);
+    }
+    ctl.appendChild(fb);
+  }
+  function enableAsk(ctl) { ctl.querySelectorAll("button, input").forEach(function (x) { x.disabled = false; }); }
+  var _busy = false;
+  function submit(said, btn, ctl, fb) {
+    if (_busy || !TOKEN) return;
+    _busy = true; hush();
+    ctl.querySelectorAll("button, input").forEach(function (x) { x.disabled = true; });
+    fetch("/api/demo/lesson/answer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: TOKEN, said: String(said) }) })
+      .then(function (r) { if (!r.ok) throw new Error("answer " + r.status); return r.json(); })
+      .then(function (j) {
+        _busy = false;
+        if (btn) btn.classList.add(j.right ? "right" : "wrong");
+        if (j.right) { cad("celebrate", { target: "board" }); }
+        var steps = j.steps || [];
+        if (j.right) steps.forEach(function (s) { if (s.kind === "ask") s._afterRight = true; });
+        ingest(steps);
+      })
+      .catch(function () {
+        _busy = false;
+        fb.className = "fb no"; fb.textContent = "That did not go through — try once more.";
+        enableAsk(ctl);
+      });
+  }
+
+  // ---- the close ----
+  function closeOut() {
+    if (ended) return;
+    ended = true; hush(); $("controls").innerHTML = ""; $("status").textContent = "";
+    var box = $("end");
+    box.innerHTML =
+      '<div class="endbox"><h3>That was a real lesson.</h3>' +
+      '<p>' + esc(TITLE) + ' — the way every student in that course starts it. In the classroom it goes on: two more problems, the ' +
+      '“say why” question, and the recap — and your student <b>talks</b> with him instead of typing.</p>' +
+      '<div class="doors">' +
+      '<a class="door primary" href="/demo?tour=1">🏫 See the classroom</a>' +
+      '<button class="door" type="button" id="againBtn">🎓 Try another level</button>' +
+      '<a class="door" href="/demo?views=1">📊 What parents and teachers see</a>' +
+      '</div></div>';
+    $("againBtn").onclick = backToPicker;
+    var line = "That is how every lesson in my classroom starts. Shall we look around, or try another level?";
+    $("bubble").innerHTML = styleTerms(line);
+    speakLine(line, function () {}, null, false);
+    try { box.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) {}
+  }
+  function backToPicker() {
+    hush(); ended = true; queue = []; TOKEN = null;
+    $("stage").classList.add("hide"); $("picker").classList.remove("hide");
+    try { history.replaceState(null, "", "/demo/lesson"); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+  $("another").onclick = backToPicker;
+
+  loadLevels();
+})();
+</script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

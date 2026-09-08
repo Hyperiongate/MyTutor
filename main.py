@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  APP_BUILD -> "2026-09-08uh-the-demo-teaches". BUILD uh -- P3 OF THE DEEP
+#               LOOK. The demo was a tour of the furniture with an empty board; it never
+#               showed a lesson. Now the front door leads to /demo/lesson (NEW route,
+#               static/demo-lesson.html): pick a level, and Mr. Cadabra teaches the
+#               opening of that course's FIRST authored lesson exactly as a student
+#               hears it -- the why, the picture, the rule read off it, the worked
+#               example, one question answered by tap or typed words, the walk-back --
+#               then offers the classroom tour (/demo?tour=1) and the three views
+#               (/demo?views=1). THE DEMO LESSON LANE (/api/demo/lesson/levels, /start,
+#               /answer): the real engine, a fixed seed, _script_clean (never an answer
+#               key), the classroom's three grading doors, NO student, NO store write,
+#               NO model (intervene -> the engine's resume), opaque short-lived tokens,
+#               eight graded answers per token, per-visitor rate limits. THE VOICE: a
+#               "demo" lane on /api/speak-prep -- the drill lane's twin (closure-only,
+#               cache-only: a visitor can never make the paid renderer run), no student
+#               code, rate-limited per visitor. speak_prep gains `request` for that.
+#               session.html: the youngest students get a THREE-stop tour (its own doc).
 #   2026-09-08  APP_BUILD -> "2026-09-08ug-the-phone-classroom". BUILD ug -- P1 OF THE
 #               DEEP LOOK. NO CODE IN THIS FILE CHANGED; this is the stamp. The work is in
 #               static/session.html, practice.html, topic.html, demo.html (a bounded board
@@ -7943,8 +7960,23 @@ def login_page():
 
 @app.get("/demo")
 def demo_page():
-    """The self-contained interactive demo lesson (pretty route for marketing links)."""
+    """The self-contained interactive demo lesson (pretty route for marketing links).
+    (uh) The front door now leads to /demo/lesson first -- a REAL authored lesson --
+    and comes back here for the classroom tour (?tour=1) and the three views
+    (?views=1); see static/demo.html's note."""
     return FileResponse(STATIC_DIR / "demo.html")
+
+
+@app.get("/demo/lesson")
+def demo_lesson_page():
+    """(uh, 2026-09-08) THE DEMO TEACHES -- P3 of the deep look. A visitor picks a
+    level and Mr. Cadabra teaches the opening of that course's first authored lesson
+    exactly as a student hears it: the why, the picture, the rule read off it, the
+    worked example, then ONE question the visitor answers by tap or by typing, then
+    the walk-back on the picture. The real engine (lessonscripts), the real boards
+    (script-board.js), the real voice (the pre-rendered closure, cache-only), no
+    student record, no model. The page: static/demo-lesson.html."""
+    return FileResponse(STATIC_DIR / "demo-lesson.html")
 
 
 @app.get("/homeschool")
@@ -11017,6 +11049,187 @@ def admin_course_trial(body: CourseTrialIn):
 SCRIPT_AI_TURNS = int(os.environ.get("SCRIPT_AI_TURNS", "3") or 3)
 _SCRIPT_SESSIONS: dict = {}
 _SCRIPT_TTL_S = 2 * 3600
+
+# =============================================================================
+# (uh, 2026-09-08) THE DEMO LESSON LANE -- P3 OF THE DEEP LOOK
+# -----------------------------------------------------------------------------
+# The review: "the demo is a tour of the furniture with an empty board; it never
+# shows a lesson, while the app has a hundred and more authored lessons that draw
+# the picture before the rule." Jim chose P3 after P0/P2/P1.
+#
+# ONE COURSE, ONE LESSON, THE REAL ENGINE. /api/demo/lesson/start picks the course's
+# FIRST authored lesson (DEMO_LESSON_BY_COURSE, derived from COURSE_ORDER so a
+# re-cut course moves it by itself), runs lessonscripts.start + step("begin") with a
+# FIXED seed (every visitor hears the same opening), and returns the beats up to the
+# first ask through the same _script_clean the classroom uses -- never an answer key.
+# /api/demo/lesson/answer grades a tap or typed words with the same code paths
+# (read_answer, reason_option_for, ans()) and returns the engine's own praise,
+# walk-back and next beat.
+#
+# WHAT IT DELIBERATELY DOES NOT DO. No student, so nothing is written to the store
+# (no record_topic, no script_done, no script_answers, no streak) and no student
+# code is needed or accepted. No model: the engine's `intervene` step (the one door
+# to the AI in the classroom) is answered here by the engine's own "resume" -- the
+# retest problem -- exactly as the classroom does when the model is unreachable.
+# Sessions are opaque tokens in memory, capped and short-lived; a visitor gets at
+# most DEMO_LESSON_MAX_ANSWERS graded answers per token. The VOICE rides the
+# "demo" lane of /api/speak-prep: closure-only and cache-only (mj's drill rule), so
+# a visitor can never make the paid renderer run.
+# =============================================================================
+_DEMO_LESSON_SESSIONS: dict = {}
+_DEMO_LESSON_TTL_S = 30 * 60
+_DEMO_LESSON_CAP = 800
+DEMO_LESSON_SEED = 7
+DEMO_LESSON_MAX_ANSWERS = 8
+
+
+def _demo_lesson_by_course() -> dict:
+    """{course: lesson_id} -- the first authored lesson of each course, in the course
+    order the picker and the classroom use. Derived, never hand-kept."""
+    out = {}
+    try:
+        for lid in lessonscripts.COURSE_ORDER:
+            les = lessonscripts.LESSON_BY_ID.get(lid) or {}
+            c = les.get("course")
+            if c and c not in out:
+                out[c] = lid
+    except Exception as exc:  # noqa: BLE001
+        print(f"[demo-lesson] course walk failed: {exc}")
+    return out
+
+
+def _demo_lesson_session(token: str):
+    now = _time.monotonic()
+    for k in [k for k, v in _DEMO_LESSON_SESSIONS.items()
+              if now - v.get("t0", now) > _DEMO_LESSON_TTL_S]:
+        _DEMO_LESSON_SESSIONS.pop(k, None)
+    return _DEMO_LESSON_SESSIONS.get((token or "").strip())
+
+
+class DemoLessonStartIn(BaseModel):
+    course: str = "entry"
+
+
+class DemoLessonAnswerIn(BaseModel):
+    token: str
+    value: int | None = None
+    said: str | None = None
+    unheard: bool = False
+
+
+@app.get("/api/demo/lesson/levels")
+def demo_lesson_levels():
+    """The picker: every course with an authored first lesson, its title, unit and
+    topic. Public and harmless: titles only."""
+    titles = {}
+    try:
+        titles = {k: v.get("title", k) for k, v in curriculum.COURSES.items()}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[demo-lesson] course titles unavailable: {exc}")
+    out = []
+    for cid, lid in _demo_lesson_by_course().items():
+        les = lessonscripts.LESSON_BY_ID.get(lid) or {}
+        out.append({"course": cid, "title": titles.get(cid, cid), "lesson_id": lid,
+                    "topic": les.get("topic", ""), "unit": les.get("unit", 1)})
+    return {"ok": True, "levels": out}
+
+
+@app.post("/api/demo/lesson/start")
+def demo_lesson_start(body: DemoLessonStartIn, request: Request):
+    _rate_limit("demo-lesson:" + (request.client.host if request.client else "?"),
+                limit=40, window_seconds=600, what="demo lessons")
+    course = (body.course or "").strip().lower()
+    lid = _demo_lesson_by_course().get(course)
+    lesson = lessonscripts.LESSON_BY_ID.get(lid or "")
+    if not lesson:
+        raise HTTPException(status_code=404, detail="No demo lesson for that level.")
+    state = lessonscripts.start(lesson, seed=DEMO_LESSON_SEED)
+    steps, state = lessonscripts.step(lesson, state, ("begin",))
+    token = secrets.token_urlsafe(18)
+    if len(_DEMO_LESSON_SESSIONS) >= _DEMO_LESSON_CAP:
+        _DEMO_LESSON_SESSIONS.pop(next(iter(_DEMO_LESSON_SESSIONS)), None)   # oldest-in first
+    _DEMO_LESSON_SESSIONS[token] = {"state": state, "lesson": lesson, "answers": 0,
+                                    "t0": _time.monotonic()}
+    titles = {}
+    try:
+        titles = {k: v.get("title", k) for k, v in curriculum.COURSES.items()}
+    except Exception:  # noqa: BLE001
+        pass
+    return {"ok": True, "token": token, "course": course,
+            "title": titles.get(course, course), "topic": lesson.get("topic", ""),
+            "unit": lesson.get("unit", 1), "lesson_id": lesson.get("id", ""),
+            "steps": _script_clean(steps, lesson["id"])}
+
+
+@app.post("/api/demo/lesson/answer")
+def demo_lesson_answer(body: DemoLessonAnswerIn, request: Request):
+    """One graded answer, the classroom's own three doors (tap, typed words, the
+    reason question) without the store, the streak or the model."""
+    sess = _demo_lesson_session(body.token)
+    if not sess:
+        raise HTTPException(status_code=409, detail=(
+            "That demo lesson has ended -- start it again."))
+    if sess["answers"] >= DEMO_LESSON_MAX_ANSWERS:
+        raise HTTPException(status_code=429, detail="That is plenty for a demo -- try the classroom.")
+    lesson, state = sess["lesson"], sess["state"]
+    pre = []
+
+    right = None
+
+    def _finish(steps_out):
+        """Play `intervene` (the AI's door) as the engine's own resume, and never
+        ship an answer key. Every `end` simply ends -- nothing to record. `right`
+        is the engine's own verdict, so the page can end the excerpt after ONE
+        right answer without ever holding the key."""
+        out = list(pre)
+        for st in steps_out:
+            if st["kind"] == "intervene":
+                more, st2 = lessonscripts.step(lesson, sess["state"], ("resume",))
+                sess["state"] = st2
+                out.extend(_script_clean(more, lesson["id"]))
+            else:
+                out.extend(_script_clean([st], lesson["id"]))
+        return {"ok": True, "steps": out, "right": right,
+                "answers_left": max(0, DEMO_LESSON_MAX_ANSWERS - sess["answers"])}
+
+    # the reason question, by its label (sp)
+    if (state.get("pending") or {}).get("reason"):
+        label = lessonscripts.reason_option_for(lesson, body.said or "")
+        if body.unheard or not label:
+            got = lessonscripts.read_answer(body.said or "")
+            if got["kind"] == "unsure":
+                pre.append({"kind": "say", "spoken": lessonscripts.LINE_UNSURE, "board": ""})
+            steps, state = lessonscripts.step(lesson, state, ("unheard",))
+            sess["state"] = state
+            return _finish(steps)
+        sess["answers"] += 1
+        right = bool(lessonscripts.reason_right(lesson, label))
+        steps, state = lessonscripts.step(lesson, state, ("answer", label))
+        sess["state"] = state
+        return _finish(steps)
+
+    # typed or spoken words become the integer a tap would send (ou)
+    if body.value is None and (body.said or "").strip():
+        got = lessonscripts.read_answer(body.said)
+        if got["kind"] == "value":
+            body.value = got["value"]
+        else:
+            if got["kind"] == "notwhole":
+                pre.append({"kind": "say", "spoken": lessonscripts.LINE_WHOLE, "board": ""})
+            elif got["kind"] == "unsure":
+                pre.append({"kind": "say", "spoken": lessonscripts.LINE_UNSURE, "board": ""})
+            body.unheard = True
+
+    if body.unheard or body.value is None:
+        steps, state = lessonscripts.step(lesson, state, ("unheard",))
+        sess["state"] = state
+        return _finish(steps)
+    sess["answers"] += 1
+    _pend = (state.get("pending") or {}).get("problem")
+    right = bool(_pend is not None and int(body.value) == lessonscripts.ans(_pend))
+    steps, state = lessonscripts.step(lesson, state, ("answer", int(body.value)))
+    sess["state"] = state
+    return _finish(steps)
 # (rj, 2026-09-01) THE SEAM'S MEMORY. When a scripted lesson ends, _script_finish
 # leaves a one-entry note here so the very next __script_done__ chat turn can tell
 # the live tutor WHICH lesson just ended and whether it was mastered -- Jim watched
@@ -14378,7 +14591,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-08ug-the-phone-classroom"
+APP_BUILD = "2026-09-08uh-the-demo-teaches"
 
 
 @app.get("/health")
@@ -16291,12 +16504,22 @@ class SpeakPrepIn(BaseModel):
 
 
 @app.post("/api/speak-prep")
-def speak_prep(req: SpeakPrepIn):
+def speak_prep(req: SpeakPrepIn, request: Request):
     """Mint an utterance ticket (build hs -- see the note above). Same gate and rate
     limit as /api/speak itself: this is the endpoint that now spends the budget."""
     code = (req.code or "").strip()
-    _require_student(code)
-    _rate_limit("speak:" + code, limit=60, window_seconds=300, what="voice requests")
+    lane = (req.lane or "").strip().lower()
+    if lane == "demo":
+        # (uh) THE DEMO LESSON HAS NO STUDENT. Its lines are the authored course's
+        # own (closure-only, below) and the ticket is cache-only, so nothing here
+        # can spend money; the budget that remains to guard is the cache's
+        # bandwidth, keyed by the visitor, not by a code nobody typed.
+        code = "demo"
+        _rate_limit("speak-demo:" + (request.client.host if request.client else "?"),
+                    limit=120, window_seconds=600, what="voice requests")
+    else:
+        _require_student(code)
+        _rate_limit("speak:" + code, limit=60, window_seconds=300, what="voice requests")
     text = (req.text or "").strip()
     if len(text) > MAX_SPEAK_CHARS:
         raise HTTPException(status_code=413, detail="That text is too long to speak.")
@@ -16315,7 +16538,7 @@ def speak_prep(req: SpeakPrepIn):
     #       rendered yet costs nothing -- it 204s and the browser voice takes over.
     # A server-side gate beats a grep over a file, and this one is exact.
     cached_only = False
-    if (req.lane or "").strip().lower() == "drill":
+    if lane in ("drill", "demo"):        # (uh) the demo lane is the drill lane's twin
         cached_only = True
         try:
             in_closure = _tts_cache_path(text).name in _script_closure_paths()

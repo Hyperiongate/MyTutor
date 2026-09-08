@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <!--
+    (uh) 2026-09-08 -- THE DEMO TEACHES (P3 of the deep look). This page was a tour of
+    the furniture with an empty board. The lesson comes first now: the front door's
+    primary button leads to /demo/lesson (static/demo-lesson.html -- a real authored
+    lesson through the real engine, boards and voice), and this page keeps the two
+    things it does well: the classroom TOUR (the second button; /demo?tour=1 opens on
+    it) and the THREE VIEWS (/demo?views=1 opens on the balloons). After the tour the
+    level picker sends a visitor to the real lesson page (DEMO_REAL_LESSONS, one
+    switch; the hand-written DEMOS from build bw and Abrabot's practice bank stay in
+    the file untouched -- the Extra practice button still uses the bank). Every voice
+    line on this page is unchanged (VOICE_LINES / DEMO_VOICE_LINES twins, untouched).
+    PART 3kd pins the doors.
     (ug) 2026-09-08 -- THE PHONE DEMO (P1 of the deep look). On a 390px phone the first
     screen after "Start the demo" was a menu -- the nav wrapped into three rows above
     the topbar, the goal bar and the bars, and the board began 526px down an 844px
@@ -917,13 +928,19 @@
 <div class="wrap" id="intro">
   <div class="brand"><img src="/static/brand-mark.svg" alt="" style="height:26px;width:auto;flex:0 0 auto"><b>Mr. Cadabra's Classroom</b>
     <span class="tag">· with Mr. Cadabra</span><span class="demo-badge">DEMO</span></div>
-  <div class="sub">A real lesson, start to finish — at any level from counting to calculus.</div>
+  <div class="sub">A real lesson, at any level from counting to calculus — then the classroom around it.</div>
   <div class="card">
-    <h2>👋 Welcome to the demo</h2>
-    <p>Press the button and you'll step into the actual classroom screen your student learns on.
-       Mr. Cadabra will walk you around it in his own voice — every button, the progress bars,
-       the whiteboard — and then teach you one real problem at any level you pick.</p>
-    <button class="cta" id="startBtn" type="button">▶ Start the demo</button>
+    <h2 id="introHead">👋 Welcome to the demo</h2>
+    <!-- (uh) THE LESSON COMES FIRST. The front door used to open on the classroom tour
+         with an empty board; a parent came to see a lesson. The primary button now
+         leads to /demo/lesson (a real authored lesson at any level); the tour and the
+         three views are the second and third doors, and they are what this page
+         opens on when the lesson page sends a visitor back with ?tour=1 / ?views=1. -->
+    <p id="introText">Press the button and Mr. Cadabra teaches you the start of a real lesson at any level you pick —
+       the picture, the rule, one problem you answer yourself. Then he walks you around the actual
+       classroom screen your student learns on, in his own voice.</p>
+    <a class="cta" id="lessonBtn" href="/demo/lesson" style="display:inline-block;text-decoration:none;text-align:center">▶ Start with a real lesson</a>
+    <button class="cta" id="startBtn" type="button" style="background:#fff;color:var(--purple);border:2px solid var(--purple);margin-left:8px">🏫 Take the classroom tour</button>
   </div>
   <div class="sub">🔊 Turn your sound on — he talks you through the whole thing.</div>
 </div>
@@ -3229,6 +3246,26 @@
   }
   el('startBtn').onclick=startDemo;
   el('restart').onclick=function(){ location.reload(); };
+  // (uh) THE LESSON PAGE'S TWO DOORS BACK. /demo?tour=1 opens on the classroom tour;
+  // /demo?views=1 opens on the three views. One tap to begin either -- browsers will
+  // not play audio until the visitor acts (the audience-walkthrough rule below).
+  (function(){
+    var q; try{ q=new URLSearchParams(location.search); }catch(e){ return; }
+    var lb=el('lessonBtn'), sb=el('startBtn');
+    if(q.get('tour')==='1'){
+      if(lb) lb.style.display='none';
+      if(sb){ sb.style.background=''; sb.style.color=''; sb.style.border=''; sb.style.marginLeft='';
+              sb.textContent='▶ Take the classroom tour'; }
+      el('introHead').textContent='🏫 The classroom';
+      el('introText').textContent="Mr. Cadabra walks you around the actual classroom screen your student learns on — every button, the progress bars, the board — in his own voice.";
+    } else if(q.get('views')==='1'){
+      if(lb) lb.style.display='none';
+      if(sb){ sb.style.background=''; sb.style.color=''; sb.style.border=''; sb.style.marginLeft='';
+              sb.textContent='▶ See the three views'; sb.onclick=function(){ warmDemoAudio(); el('intro').style.display='none'; el('restart').style.display='inline-block'; showBalloons(true, false); }; }
+      el('introHead').textContent='📊 What the grown-ups see';
+      el('introText').textContent="Three views of the same student — the parent's, the teacher's, and the student's own dashboard. Pick one and he walks you through it.";
+    }
+  })();
 
   // ===== AUDIENCE WALKTHROUGHS — /demo?view=parents|teachers|homeschool|students =====
   // 2026-08-10 (build cp, Jim: "it's almost like a video... I would like one of those
@@ -3288,6 +3325,12 @@
   })();
 
   // ---- LEVEL PICKER ----
+  // (uh) THE PICKER LEADS TO THE REAL LESSON. With DEMO_REAL_LESSONS on, a level button
+  // goes to /demo/lesson?course=<id>, where the course's first authored lesson plays
+  // through the real engine, boards and voice. Off, the hand-written DEMOS below run as
+  // they did from build bw to ug -- kept whole, one switch, so the old path is a
+  // reading away, never a rewrite.
+  var DEMO_REAL_LESSONS=true;
   var curId='';
   function startScript(id){
     warmDemoAudio(); curId=id; practiceRan=false;   // (nf) a fresh level practices again
@@ -3303,12 +3346,16 @@
     board.innerHTML=''; clearAnswer(); clearGlow();
     if(spoken){ lineDone=null; say(PICK_LINE); } else { bubble.textContent=PICK_LINE; }
     var hint=document.createElement('div'); hint.className='prompt';
-    hint.textContent='Pick a level — each one is a real problem from that course.';
+    hint.textContent= DEMO_REAL_LESSONS ? 'Pick a level — Mr. Cadabra teaches you the start of that course\'s first real lesson.'
+                                       : 'Pick a level — each one is a real problem from that course.';
     var grid=document.createElement('div'); grid.className='levels';
     LEVELS.forEach(function(L){
       var b=document.createElement('button'); b.className='lvl'; b.type='button';
       b.innerHTML='<b>'+L[1]+'</b><span>'+L[2]+'</span>';
-      b.onclick=function(){ startScript(L[0]); };
+      b.onclick=function(){
+        if(DEMO_REAL_LESSONS){ if(window.mtTrack) mtTrack('Demo Level Picked', {level:L[0], real:1}); location.href='/demo/lesson?course='+encodeURIComponent(L[0]); return; }
+        startScript(L[0]);
+      };
       grid.appendChild(b);
     });
     answer.appendChild(hint); answer.appendChild(grid);
