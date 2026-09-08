@@ -6,6 +6,15 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD un -- THE TRUTH ITEMS AND THE PROVEN HOLES of the 2026-09-08 night
+#               watch (14 new confirmed on ug; the five needing no ruling). PART 3kj: the
+#               rule-61 referees read _plain_prose (markdown emphasis stripped -- the
+#               **division** dodge); two KNOWN_FALSEHOODS rows (the hundredths place is
+#               not two digits; parentheses do mean multiply in 3(5)); the story-units
+#               grammar reads 'two bags of candy with four pieces each' (third sighting);
+#               postponed_show's branch three (a figure asked for, only text tags landed);
+#               the EIGHTIETH referee triangle_letters_unspoken_conflict (rule 14). Canon
+#               sweeps 0. Twelve referee-count pins 79 -> 80; the falsehood pin 17 -> 19.
 #   2026-09-08  BUILD um -- THE TAP UNLOCKS THE SOUND. Jim, on his phone, the day the
 #               stack went live: the demo lesson had no sound. PART 3ki: demo-lesson.html's
 #               unlockSound() (warmUpAudio + a silent utterance) inside the level tap, the
@@ -11308,8 +11317,8 @@ def part3kg_the_mark_floor():
     check("  no retry anywhere in it (Jim: the verdict is already spoken; only the record was missing)",
           "MATHCHECK_MAX_ATTEMPTS" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000]
           and "retry" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000].lower(), "")
-    check("  the referee count is unchanged -- uk added a floor, not a referee",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 79, "")
+    check("  the referee count is eighty since un -- uk added a floor, not a referee",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 80, "")
 
     # ---- through the real shipping door (3gb's stub harness) --------------------------------
     import mathcheck as _mc
@@ -11626,6 +11635,188 @@ def part3ki_the_tap_unlocks_the_sound():
           'APP_BUILD -> "2026-09-08um-the-tap-unlocks-the-sound"' in notes("main.py")
           and "2026-09-08  BUILD um" in notes("ruletests.py")
           and "(um) Tile 11,184" in notes("static/methodology.html"), "")
+
+
+def part3kj_the_truth_items_and_the_proven_holes():
+    """PART 3kj (build un, 2026-09-08) -- THE TRUTH ITEMS AND THE PROVEN HOLES of the
+    2026-09-08 night watch (14 new confirmed on build ug; the five that needed no ruling).
+
+    #9  EMPHASIS IS NOT A WORD: "that's what **division** means" dodged the division row
+        because `**` broke `division\\s+means`. The rule-61 referees (known_falsehood,
+        false_universal) now read _plain_prose: the spoken words with **bold**, *italic*,
+        __under__ and whole-word _italic_ marks removed; x_1 stays a subscript.
+    #6  A ROW: "the hundredths place (the two digits right after the decimal point)".
+    #4  A ROW: "the parentheses mean 'plug this in,' never 'multiply'" -- 3(5) multiplies;
+        silent when the claim is scoped to function notation.
+    #1  THE THIRD SIGHTING of the story-units disease: "three dollars, plus two bags of
+        candy WITH four pieces each" (a mass noun, then the count) slipped hr's grammar,
+        which wanted "N bags of N things". Widened: with/holding/containing N things each,
+        "N bags with N things each", "N bags of candy, N pieces each".
+    #2  BRANCH THREE of postponed_show_conflict (rule 65): the student asked for or
+        accepted a FIGURE by name (a hole, the graph, a curve...) and the reply put only
+        TEXT tags on the board (step, write, goal, note) -- decidable without judgement
+        because tags.FIGURE_TAGS is the list of tags that draw. rx's any-tag silence
+        stands for a bare yes to an offer that names no figure.
+    #10 THE EIGHTIETH REFEREE, triangle_letters_unspoken_conflict (rule 14): a
+        [[triangle]] lettering two or more sides, an equation in those letters, and spoken
+        words that never say which side is which. One spoken letter buys silence.
+    Every change canon-swept over all authored strings before enforcing (0 fires)."""
+    print("\nPART 3kj — the truth items and the proven holes (build un)")
+    import tutor as T
+    import foundations as FND, lessonscripts as LS
+    tsrc = code_only(open("tutor.py", encoding="utf-8").read())
+
+    # ---- #9 emphasis-proof ---------------------------------------------------------------
+    DIV = ("Great question! That's what **division** means, sharing fairly with nothing left "
+           "over. Let's try one.")
+    check("⭐ #9 THE WATCH'S SHAPE: the division row fires through **bold** (it fired on the "
+          "plain sentence all along)",
+          bool(T.known_falsehood_conflict(DIV)) and bool(T.known_falsehood_conflict(DIV.replace("**", "")))
+          and "(division never has leftovers)" in T.known_falsehood_conflict(DIV), T.known_falsehood_conflict(DIV)[:100])
+    check("  ...and through *italic*, __under__ and whole-word _italic_ marks",
+          all(bool(T.known_falsehood_conflict(DIV.replace("**", m))) for m in ("*", "__", "_")), "")
+    check("  _plain_prose strips the marks and leaves a subscript alone (x_1, a_n)",
+          T._plain_prose("what **division** means, _shares_ and *it*, __x__ but x_1 and a_n")
+          == "what division means, shares and it, x but x_1 and a_n", repr(T._plain_prose("**a** x_1 _b_")))
+    check("  the row's own silence condition still holds (the claim scoped to today)",
+          not T.known_falsehood_conflict("For today, we'll start with division that shares fairly "
+                                         "with nothing left over."), "")
+    check("  both rule-61 referees read the plain prose (source pin)",
+          "prose = _plain_prose(reply)" in tsrc[tsrc.find("def known_falsehood_conflict("):tsrc.find("def known_falsehood_conflict(") + 1500]
+          and "prose = _plain_prose(text)" in tsrc[tsrc.find("def false_universal_conflict("):tsrc.find("def false_universal_conflict(") + 1500]
+          and "_KF_UNDER_ITALIC" in tsrc, "")
+
+    # ---- #6 and #4: two rows ---------------------------------------------------------------
+    H = "Look at the hundredths place (the two digits right after the decimal point)."
+    d = T.known_falsehood_conflict(H)
+    check("⭐ #6 the hundredths row fires on the watch's sentence",
+          bool(d) and "(hundredths place is two digits)" in d and "SECOND digit" in d, d[:100])
+    for s in ("The hundredths place is the second digit after the decimal point.",
+              "Line up the tenths and hundredths places before you add.",
+              "Round to the hundredths place -- two places after the point.",
+              "Two digits after the point: the tenths place and the hundredths place."):
+        check(f"  silent (true): {s[:58]!r}", not T.known_falsehood_conflict(s), "")
+    P = "The parentheses mean 'plug this in,' never 'multiply.'"
+    d = T.known_falsehood_conflict(P)
+    check("⭐ #4 the parentheses row fires on the watch's sentence, bare and inside a reply",
+          bool(d) and "(parentheses never mean multiply)" in d and "DO mean multiply" in d
+          and bool(T.known_falsehood_conflict("So f(5) reads as f of five. " + P + " What is f(5)?")), (d or "")[:100])
+    for s in ("In function notation, the parentheses mean plug this in, never multiply.",
+              "After a function's name, the parentheses never mean multiply.",
+              "In f(x), the parentheses never mean multiply.",
+              "In 3(5) the parentheses mean multiply."):
+        check(f"  silent (scoped or true): {s[:58]!r}", not T.known_falsehood_conflict(s), "")
+    names = [r[0] for r in T.KNOWN_FALSEHOODS]
+    check("  nineteen named falsehoods, the two new rows beside the division row",
+          len(T.KNOWN_FALSEHOODS) == 19 and "hundredths-place-is-two-digits" in names
+          and "parentheses-never-mean-multiply" in names and len(set(names)) == 19, str(len(names)))
+
+    # ---- #1 the story-units grammar ---------------------------------------------------------
+    for s, want in (
+            ("You have three dollars, plus two bags of candy with four pieces each. How many pieces?", True),
+            ("You have 4 dollars, plus 3 bags with 2 candies each.", True),
+            ("You have 4 dollars, plus 3 bags of candy, 2 pieces each.", True),
+            ("You have 4 dollars, plus 3 boxes holding 2 marbles each.", True),
+            ("You have 4 dollars, plus 3 bags of 2 candies each.", True),          # hr's original shape
+            ("You have 4 apples, plus 3 bags of candy with 2 pieces each.", False),  # no money: one unit
+            ("You have 4 dollars, plus 3 bags of chips at 2 dollars each.", False)):  # money throughout
+        got = bool(T.story_units_conflict(s))
+        check(("⭐ #1 THE THIRD SIGHTING fires: " if s.startswith("You have three") else
+               f"  story units {'fires' if want else 'silent'}: ") + repr(s[:62]),
+              got == want, "")
+
+    # ---- #2 branch three: a figure asked for, only text landed --------------------------------
+    offer = ('At x = 2 the fraction breaks. [[step eq="f(x) = (x^2 - 4)/(x - 2)"]] Want me to '
+             "show you the graph with the hole, or the algebra first?")
+    textonly = ('Good choice. [[step eq="f(x) = (x^2 - 4)/(x - 2)"]] The top factors as '
+                "(x - 2)(x + 2). What cancels?")
+    drawn = 'Here it is. [[graph fn="x+2" hole="2"]] See the open circle at x = 2? What is y there?'
+    d = T.postponed_show_conflict(textonly, "a hole", offer)
+    check("⭐ #2 THE WATCH'S SHAPE: the student chose the hole, the reply wrote only a [[step]]",
+          bool(d) and "waiting to SEE" in d and "hole" in d, (d or "")[:100])
+    for said, prev, rep, want, label in (
+            ("yes", offer, textonly, True, "a bare yes to an offer that NAMES the graph"),
+            ("the graph please", offer, textonly, True, "the acceptance names the figure"),
+            ("show me the graph", "Nice. What is f(3)?", textonly, True, "asked outright, no offer needed"),
+            ("a hole", offer, drawn, False, "the figure was drawn ([[graph]] is a figure tag)"),
+            ("yes", "Want me to show you the next step, or try one yourself?", textonly, False,
+             "no figure named anywhere -- rx's any-tag silence stands"),
+            ("yes but can we do the algebra first and then maybe the graph later after that",
+             offer, textonly, False, "a conversation, not an acceptance"),
+            ("the graph please", "Nice. What is f(3)?", textonly, False, "no offer and no ask verb"),
+            ("a hole", offer, "Sure -- so the top factors as (x - 2)(x + 2). What cancels?", False,
+             "nothing on the board at all: rx's branch (a promise), not this one")):
+        got = bool(T.postponed_show_conflict(rep, said, prev))
+        check(f"  branch three {'fires' if want else 'silent'}: {label}", got == want, "")
+    check("  rx's branch is unchanged: offer -> yes! -> nothing drawn is still a broken promise",
+          "promise" in (T.postponed_show_conflict(
+              "Awesome! Ready to try one yourself with a new number of cookies?", "yes!",
+              'Six cookies. Want me to show you how the cookies get split? [[objects kind="cookie" count="6"]]') or ""), "")
+    check("  the dispatcher carries branch three (postponedshow)",
+          bool(T.prose_board_conflict(textonly, "a hole", prev_tutor=offer))
+          and "_tags_present(text_, _BOARD_TAGS) and not _tags_present(text_, FIGURE_TAGS)" in tsrc, "")
+
+    # ---- #10 the eightieth referee ---------------------------------------------------------------
+    W = ('Here is our right triangle. [[triangle sides="c = ?, a = 6, b = 8" caption="the two legs '
+         'meet at the square corner"]] One leg is six, the other leg is eight, and we want the '
+         'hypotenuse. [[write text="a^2 + b^2 = c^2"]] The rule says square one leg, square the '
+         "other leg, add. What is six squared?")
+    d = T.triangle_letters_unspoken_conflict(W)
+    check("⭐ #10 THE WATCH'S SHAPE: a, b, c on the sides and in the equation, never said aloud",
+          bool(d) and "a, b, c" in d and "which side is which" in d, (d or "")[:100])
+    for s, label in (
+            (W.replace("One leg is six", "Call the six-leg a, the eight-leg b, and the hypotenuse c. One leg is six"),
+             "the letters are named"),
+            (W.replace("square one leg, square the other leg, add", "a squared plus b squared equals c squared"),
+             "the equation is read aloud (the authored voice)"),
+            (W.replace("the hypotenuse.", "the hypotenuse, side c."), "ONE letter spoken buys silence"),
+            (W.replace(' [[write text="a^2 + b^2 = c^2"]]', ""), "no equation in the letters"),
+            (W.replace('sides="c = ?, a = 6, b = 8"', 'sides="?, 6, 8"'), "the sides are not lettered"),
+            ("", "an empty reply")):
+        check(f"  silent: {label}", not T.triangle_letters_unspoken_conflict(s), "")
+    check("  it never raises (fail open) and is dispatched right after gn's triangleletter -- the "
+          "dispatcher's verdict on the watch's shape is THIS referee's",
+          T.triangle_letters_unspoken_conflict(None) == ""
+          and "which side is which" in (T.prose_board_conflict(W, "ok") or "")
+          and '_event("referee_fire", "triangleletters", trinames)' in tsrc
+          and tsrc.find('_event("referee_fire", "triangleletters"') > tsrc.find('_event("referee_fire", "triangleletter",') > 0, "")
+    check("⭐ eighty referees; the truth class still eleven (rule 14 is conduct; the rows ride "
+          "referee 61's table)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 80 and len(T.TRUTH_REFEREES) == 11, "")
+
+    # ---- the canon sweeps: nothing authored trips any of it --------------------------------------
+    texts = []; pairs = []
+    for c, scr in FND.FOUNDATIONS.items():
+        items = list(scr.values() if isinstance(scr, dict) else scr)
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                texts.append(t)
+        for a, b in zip(items, items[1:]):
+            pairs.append((a.get("say") or "", (b.get("say") or "") + "\n" + "\n".join(b.get("board") or [])))
+    for les in LS.LESSONS:
+        beats = [(sp or "") + "\n" + (b or "") for sp, b in _authored_beats(les)]
+        for pr in (les.get("pairs") or []):
+            w = pr.get("worked") or ("", "")
+            beats.append((w[0] or "") + "\n" + (w[1] or ""))
+        texts += [t for t in beats if t.strip()]
+        pairs += list(zip(beats, beats[1:]))
+    fires = {n: sum(1 for t in texts if getattr(T, n)(t)) for n in
+             ("known_falsehood_conflict", "false_universal_conflict", "story_units_conflict",
+              "triangle_letters_unspoken_conflict")}
+    check(f"⭐ CANON SWEEP: {len(texts)} authored strings, zero fires from the rows, the plain prose, "
+          "the story grammar and the eightieth referee",
+          len(texts) >= 3000 and all(v == 0 for v in fires.values()), str(fires))
+    b3 = sum(1 for a, b in pairs for said in ("yes", "a hole", "the graph please")
+             if T.postponed_show_conflict(b, said, a))
+    check(f"  CANON SWEEP: {len(pairs)} consecutive authored pairs x three acceptances, zero "
+          "postponed-show fires", len(pairs) >= 2500 and b3 == 0, str(b3))
+
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-08  BUILD un" in notes("tutor.py")
+          and 'APP_BUILD -> "2026-09-08un-the-figure-that-never-came"' in notes("main.py")
+          and "2026-09-08  BUILD un" in notes("ruletests.py")
+          and "(un) Tile 11,190" in notes("static/methodology.html"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -12622,7 +12813,7 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- this build widened a gate",
-          n_ref == 79,
+          n_ref == 80,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -12706,7 +12897,7 @@ def part3hn_credit_only_what_you_saw():
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rm widened a gate",
-          n_ref == 79, f"{n_ref} *_conflict functions")
+          n_ref == 80, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -12783,7 +12974,7 @@ def part3ho_three_one_line_holes():
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged -- rn widened two gates",
-          n_ref == 79, f"{n_ref} *_conflict functions")
+          n_ref == 80, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -19167,10 +19358,10 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ seventy-nine referees now, counted from the code (62 + pz + qf + qm + qs + "
+    check("⭐ eighty referees now, counted from the code (62 + pz + qf + qm + qs + "
           "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + "
-          "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach + tw's opunspoken + tx's sharespic)",
-          n_ref == 79, n_ref)
+          "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach + tw's opunspoken + tx's sharespic + un's triangleletters)",
+          n_ref == 80, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -21756,7 +21947,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,190</b>" in page,
+          "<b>11,236</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22518,8 +22709,8 @@ def part3ii_the_board_tells_the_truth_about_which_question():
           fires == 0 and seen >= 9000, f"{fires} authored replies rejected")
 
     # ---- the count moved, and everything that pins it moved with it ----------------
-    check("  seventy-nine *_conflict referees",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 79, "")
+    check("  eighty *_conflict referees (un added triangleletters)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 80, "")
     check("  tutor.py carries a dated sm note",
           "2026-09-04  BUILD sm" in notes("tutor.py"), "")
 
@@ -26566,8 +26757,8 @@ def part3jq_the_caption_the_sequence_and_the_definition():
           and not T.known_falsehood_conflict(
               "Factoring means rewriting x^2 - 5x + 6 as two factors that multiply back "
               "to the original expression."), "")
-    check("  the falsehood table holds seventeen named falsehoods",
-          len(T.KNOWN_FALSEHOODS) == 17, len(T.KNOWN_FALSEHOODS))
+    check("  the falsehood table holds nineteen named falsehoods (seventeen here, two more in un)",
+          len(T.KNOWN_FALSEHOODS) == 19, len(T.KNOWN_FALSEHOODS))
 
     # ---- the truth class ---------------------------------------------------------
     check("⭐ both new referees are TRUTH-class (Jim's ruling 2026-09-07): a draft "
@@ -26743,7 +26934,7 @@ def part3jr_the_gate_learns_who_wrote_the_symbol():
 
     # ---- nothing else moved ---------------------------------------------------------
     check("  no new referee and no new truth-class name: tv is a gate correction",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 79
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 80
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tv notes",
           "2026-09-07  BUILD tv" in notes("tutor.py")
@@ -26897,9 +27088,9 @@ def part3js_the_say_it_then_write_it_family():
           f"carry an op=", _opfire == 0 and _ops >= 5, f"{_opfire} fires")
 
     # ---- the count, and the notes ----------------------------------------------------
-    check("  seventy-eight referees, and the truth class unchanged at eleven (all three "
+    check("  eighty referees (un), and the truth class unchanged at eleven (all three "
           "of tw's are conduct: nothing false is taught)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 79
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 80
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tw notes",
           "2026-09-07  BUILD tw" in notes("tutor.py")
@@ -27055,10 +27246,10 @@ def part3jt_the_words_and_the_picture_are_the_same_thing():
           f"beats, exactly as the narrow one was", _f1 == 0, f"{_f1} fires")
 
     # ---- the count, and the notes ------------------------------------------------------
-    check("  seventy-nine referees, truth class still eleven (F9 is conduct: nothing "
+    check("  eighty referees (un), truth class still eleven (F9 is conduct: nothing "
           "false is said, the figure is the wrong object for the story -- Jim may rule "
           "it truth, as he did for boardcount on 2026-09-04)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 79
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 80
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tx notes",
           "2026-09-07  BUILD tx" in notes("tutor.py")
@@ -29362,7 +29553,7 @@ def part3hx_the_question_mark_is_a_blank_said_so():
           and n >= 1900 and m >= 3000,
           str(hits[:4]))
     check("  the referee count is unchanged -- sa is a registry row on referee 31",
-          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 79, "")
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 80, "")
 
 
 def part3hw_a_variables_letter_keeps_its_case():
@@ -29511,7 +29702,7 @@ def part3hu_the_accepted_offer_is_honored():
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
     check("  the referee count is unchanged -- rx widened a gate",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 79, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 80, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -29632,7 +29823,7 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
     check("  the referee count is unchanged -- ry widened a gate and added a floor",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 79, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 80, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -38279,6 +38470,7 @@ def main():
     part3kg_the_mark_floor()
     part3kh_the_landscape_phone()
     part3ki_the_tap_unlocks_the_sound()
+    part3kj_the_truth_items_and_the_proven_holes()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

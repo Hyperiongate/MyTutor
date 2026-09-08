@@ -6,6 +6,14 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  APP_BUILD -> "2026-09-08un-the-figure-that-never-came". BUILD un. NO CODE
+#               IN THIS FILE CHANGED but the stamp. The 2026-09-08 night watch's truth items
+#               and proven holes, all in tutor.py: the rule-61 referees read the prose with
+#               markdown emphasis stripped (the **division** dodge); two new falsehood rows
+#               (the hundredths place; parentheses never multiply); the story-units grammar
+#               reads "two bags of candy with four pieces each"; postponed_show's branch
+#               three (a figure asked for, only text tags landed); the eightieth referee,
+#               triangle_letters_unspoken_conflict (rule 14). PART 3kj pins it.
 #   2026-09-08  APP_BUILD -> "2026-09-08um-the-tap-unlocks-the-sound". BUILD um. NO CODE IN
 #               THIS FILE CHANGED but the stamp. Jim, on his phone after the push: the demo
 #               lesson had no sound. static/demo-lesson.html never primed the audio inside
@@ -8640,7 +8648,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-08um-the-tap-unlocks-the-sound"
+APP_BUILD = "2026-09-08un-the-figure-that-never-came"
 
 
 @app.get("/health")

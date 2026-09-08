@@ -6,6 +6,41 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD un -- THE EIGHTIETH REFEREE, TWO ROWS, THE PLAIN PROSE, THE THIRD
+#               SIGHTING, BRANCH THREE (the 2026-09-08 night watch, 14 new confirmed on ug;
+#               the five that needed no ruling -- claude/Triage_NightWatch_2026-09-08_...).
+#                 * #9 EMPHASIS IS NOT A WORD. "that's what **division** means, sharing
+#                   fairly with nothing left over" dodged the division row because `**`
+#                   broke `division\s+means`. NEW _plain_prose(text): the spoken words with
+#                   **bold**, *italic*, __under__ and whole-word _italic_ marks removed
+#                   (x_1 keeps its subscript). known_falsehood_conflict and
+#                   false_universal_conflict read it. Any row could be dodged that way.
+#                 * #6 ROW hundredths-place-is-two-digits: "the hundredths place (the two
+#                   digits right after the decimal point)". Silent on "second digit", "two
+#                   places", "tenths and hundredths".
+#                 * #4 ROW parentheses-never-mean-multiply: "the parentheses mean 'plug this
+#                   in,' never 'multiply'". Silent when scoped (function notation, in f(,
+#                   after a function's name).
+#                 * #1 THE THIRD SIGHTING of the story-units disease: "three dollars, plus
+#                   two bags of candy WITH four pieces each" -- a mass noun, then the count.
+#                   _SU_OBJ_GROUP now reads "N bags of <stuff> with/holding/containing N
+#                   <things> each", "N bags with N <things> each", "N bags of <stuff>, N
+#                   <things> each"; _SU_CONTAINERS shared.
+#                 * #2 BRANCH THREE of postponed_show_conflict (rule 65): the student asked
+#                   for or accepted a FIGURE by name (a hole, the graph, a curve, a number
+#                   line...) and the reply's tags are all TEXT tags (step, write, goal,
+#                   note). rx's any-tag silence was right where judging WHICH drawing
+#                   honours an offer would guess; here nothing was drawn at all and
+#                   tags.FIGURE_TAGS decides it. _PS_FIGURE_WORD, _ps_named_figure.
+#                 * #10 THE EIGHTIETH REFEREE triangle_letters_unspoken_conflict (rule 14):
+#                   a [[triangle]] lettering two or more sides, an equation in those letters
+#                   (a^2 + b^2 = c^2), and spoken words that never name a side by letter.
+#                   One spoken letter buys silence. Dispatched right after gn's
+#                   triangleletter; event "triangleletters". Conduct, not truth (truth class
+#                   stays 11). Referee count 79 -> 80; KNOWN_FALSEHOODS 17 -> 19.
+#               Canon: 3,277 authored strings, 0 fires from all four functions, 0 old-vs-new
+#               verdict differences; 2,907 consecutive pairs x 3 acceptances, 0 branch-three
+#               fires. PART 3kj pins every shape and the sweeps.
 #   2026-09-08  BUILD uk -- THE MARK FLOOR (F4, Jim's 09-07 ruling: "build it, no retry").
 #               NEW repair_missing_mark(reply, prev_tutor, student_message), wired at the
 #               shipping door right after ry's verdict floor: when the previous turn asked
@@ -2429,6 +2464,30 @@ _PS_ACCEPT_RE = re.compile(
     r"let'?s\s+see(?:\s+it)?)[\s!.]*$", re.I)
 
 
+# (un) THE FIGURE THAT NEVER CAME. The 2026-09-08 watch, calculus: the student chose to
+# see a hole, and the reply wrote only [[step eq="f(x) = (x^2 - 4)/(x - 2)"]] -- the
+# graph with the hole came a turn later. rx's acceptance branch stays silent when ANY
+# board tag lands, by design ("judging WHICH drawing honours the offer would guess").
+# But when the thing asked for is a FIGURE by name -- a graph, a curve, a hole, a
+# picture, a number line -- and the reply's tags are all TEXT tags (a step, a line of
+# writing, a goal card), no judgement is needed: nothing was drawn. tags.FIGURE_TAGS
+# is the list of tags that draw. The acceptance may name the thing it accepts ("a
+# hole", "the graph please") as well as being a bare yes.
+_PS_FIGURE_WORD = re.compile(
+    r"\b(?:graph|curve|hole|jump|gap|picture|drawing|diagram|sketch|number\s*line|"
+    r"pie|tape|bar\s*chart|chart|plot|figure|shape)s?\b", re.I)
+
+
+def _ps_named_figure(said: str, prev_ask: str) -> str:
+    """The figure word the student is waiting for: in their own words, or in the
+    offer they accepted. "" when neither names one."""
+    m = _PS_FIGURE_WORD.search(said or "")
+    if m:
+        return m.group(0)
+    m = _PS_FIGURE_WORD.search(prev_ask or "")
+    return m.group(0) if m else ""
+
+
 def postponed_show_conflict(reply: str, student_message: str = "", prev_tutor=None):
     """Return a description of a requested drawing postponed into an offer -- or
     of an ACCEPTED offer honored with no drawing at all (rx) -- or "".
@@ -2437,6 +2496,22 @@ def postponed_show_conflict(reply: str, student_message: str = "", prev_tutor=No
         said = " ".join(str(student_message or "").split())
         if not said:
             return ""
+        # ---- (un) branch three: a FIGURE was asked for or accepted; only text landed --
+        text_ = str(reply or "")
+        prev_ask_ = _rb_final_ask(str(prev_tutor or "")) if prev_tutor else ""
+        accepted_ = bool(prev_ask_ and _PS_OFFER_RE.search(prev_ask_) and len(said) <= 40
+                         and (_PS_ACCEPT_RE.match(said) or _PS_FIGURE_WORD.search(said)))
+        asked_ = bool(prose_asked_to_see(said) or _RD_ASKS.search(said))
+        if (accepted_ or asked_) and len(said) <= 60:
+            fig = _ps_named_figure(said, prev_ask_ if accepted_ else "")
+            if fig and _tags_present(text_, _BOARD_TAGS) and not _tags_present(text_, FIGURE_TAGS):
+                return ('the student is waiting to SEE {a} -- they said "{s}" -- and this '
+                        "reply puts only writing on the board (a step, a line, a card), "
+                        "not a drawing. Rule 65: the asking is the answer; draw {a} IN "
+                        "THIS REPLY with a figure tag (a [[graph]] with the point left "
+                        "open for a hole, a [[numberline]], a [[pie]] -- whichever it is), "
+                        "narrate it, and then ask your question about it.").format(
+                            a=fig.lower(), s=said[:40])
         # ---- (rx) branch two: the offer was accepted last turn ----------------
         if prev_tutor and len(said) <= 30 and _PS_ACCEPT_RE.match(said):
             prev_ask = _rb_final_ask(str(prev_tutor or ""))
@@ -3157,10 +3232,18 @@ _SU_MONEY = re.compile(
 # dollars and 3 bags of candy; each candy sells for a dime" is a fine story whose
 # money resolution lives in the NEXT sentence), and a referee that fires on it
 # would veto honest shopping problems. Narrow means narrow.
+# (un) THE THIRD SIGHTING, 2026-09-08: "three dollars, plus two bags of candy with four
+# pieces each" -- a MASS noun after "of" and the count after "with". The grammar now
+# also reads "N bags of <stuff> with/holding/containing N <things> each", "N bags with N
+# <things> each" and "N bags of <stuff>, N <things> each".
+_SU_CONTAINERS = r"(?:bags?|boxes?|groups?|packs?|packets?|piles?|stacks?|rows?|baskets?|sets?|trays?|cartons?|jars?)"
 _SU_OBJ_GROUP = re.compile(
-    r"\b(?:plus|add(?:s|ed|ing)?)\s+(?:\d+|" + _PR_NUMWORD + r")\s+"
-    r"(?:bags?|boxes?|groups?|packs?|piles?|stacks?|rows?|baskets?|sets?|trays?)\s+of\s+"
-    r"(?:\d+|" + _PR_NUMWORD + r")\s+(?!dollars?\b|cents?\b|bucks?\b)([a-z]+)", re.I)
+    r"\b(?:plus|add(?:s|ed|ing)?)\s+(?:\d+|" + _PR_NUMWORD + r")\s+" + _SU_CONTAINERS
+    + r"(?:"
+    r"\s+of\s+(?:\d+|" + _PR_NUMWORD + r")\s+(?!dollars?\b|cents?\b|bucks?\b)([a-z]+)"          # N bags of N candies
+    r"|(?:\s+of\s+(?!dollars?\b|cents?\b|bucks?\b)([a-z]+))?[\s,]*(?:with|holding|containing|of)?\s*"
+    r"(?:\d+|" + _PR_NUMWORD + r")\s+(?!dollars?\b|cents?\b|bucks?\b)([a-z]+)\s+(?:each|apiece|in\s+each|per\s+bag)"   # N bags of candy with N pieces each
+    r")", re.I)
 _SU_RESOLVES = re.compile(
     r"\b(?:cost|costs|costing|worth|pay|pays|paid|spend|spends|spent|price|priced|at|for)\b"
     r"[^.!?]{0,24}?(?:\$|\bdollars?\b|\bcents?\b|\bbucks?\b)"
@@ -3180,7 +3263,7 @@ def story_units_conflict(reply: str):
                 continue
             if _SU_RESOLVES.search(sent):
                 continue          # the groups become money -- a fine shopping story
-            thing = m.group(1)
+            thing = m.group(1) or m.group(3) or m.group(2) or "objects"
             return ('your story adds a MONEY amount to "{t}" -- two kinds of thing '
                     "that cannot go in one pile, so the addition in the story is not "
                     "the addition in the expression and the numbers become "
@@ -4222,7 +4305,7 @@ def false_universal_conflict(reply: str):
     Never raises: any unexpected input yields "" (fail open)."""
     try:
         text = str(reply or "")
-        prose = _spoken_only(text)
+        prose = _plain_prose(text)           # (un) emphasis-proof
         # (c) one mention of the condition ANYWHERE buys silence
         if _FU_ESCAPE.search(prose):
             return ""
@@ -4276,6 +4359,22 @@ def false_universal_conflict(reply: str):
 # 0 of 2,109 cards, both files (PART 3ge repeats the sweep).
 # =============================================================================
 _KF_SENTENCE = re.compile(r"[^.!?]+[.!?]?")
+# (un) MARKDOWN EMPHASIS IS NOT A WORD. The 2026-09-08 watch: "that's what **division**
+# means, sharing fairly with nothing left over" -- the division row exists and fires on
+# the plain sentence, but `**division**` broke `division\s+means`. The student hears no
+# asterisks; the rule-61 referees read what the student hears.
+_KF_EMPHASIS = re.compile(r"\*{1,2}|__")
+# a single-underscore italic wraps a whole word (_division_); an underscore INSIDE a
+# word (x_1, a_n) is a subscript and stays.
+_KF_UNDER_ITALIC = re.compile(r"(?<![A-Za-z0-9])_([^_\s][^_]*?)_(?![A-Za-z0-9])")
+
+
+def _plain_prose(text: str) -> str:
+    """The spoken words with markdown emphasis marks removed (bold/italic asterisks,
+    double underscores, whole-word single-underscore italics), so a falsehood cannot
+    hide inside **bold** or _italics_. Subscripts like x_1 are untouched."""
+    plain = _KF_EMPHASIS.sub("", _spoken_only(str(text or "")))
+    return _KF_UNDER_ITALIC.sub(r"\1", plain)
 KNOWN_FALSEHOODS = [
     # (name, the FALSE sentence, the condition that buys silence, the TRUE form)
     ("hypotenuse-is-always-c",
@@ -4288,6 +4387,24 @@ KNOWN_FALSEHOODS = [
                 r"|only\s+(?:when|if|because)", re.I),
      "the hypotenuse takes the lowercase letter of the vertex it skips -- it is c "
      "here because the right angle is at C; with the right angle at B it would be b"),
+    # (un) the 2026-09-08 watch, decimal-alignment: "the hundredths place (the two digits
+    # right after the decimal point)". The hundredths place is ONE digit, the second one.
+    ("hundredths-place-is-two-digits",
+     re.compile(r"\bhundredths?\s+place\b[^.!?]{0,40}?\b(?:the\s+)?(?:two|both|2)\s+digits?\b"
+                r"|\b(?:two|both|2)\s+digits?\b[^.!?]{0,40}?\bhundredths?\s+place\b", re.I),
+     re.compile(r"second\s+digit|two\s+places|to\s+the\s+hundredths|hundredths\s+place\s+is\s+the\s+second"
+                r"|tenths\s+(?:place|digit)|tenths\s+and\s+(?:the\s+)?hundredths", re.I),
+     "the hundredths place is the SECOND digit after the decimal point -- the first "
+     "digit after the point is the tenths place"),
+    # (un) the same watch, function-notation: "the parentheses mean 'plug this in,' never
+    # 'multiply.'" Parentheses DO mean multiply in 3(5); the true claim is scoped to
+    # function notation.
+    ("parentheses-never-mean-multiply",
+     re.compile(r"\bparenthes[ei]s\b[^.!?]{0,80}?\bnever\b[^.!?]{0,30}?\bmultipl", re.I),
+     re.compile(r"function\s+notation|in\s+[fgh]\s*\(|after\s+(?:a|the)\s+function|"
+                r"function'?s\s+name|next\s+to\s+(?:a|the)\s+function", re.I),
+     "in function notation like f(5), the parentheses mean 'plug this in', not "
+     "'multiply' -- in 3(5) they DO mean multiply"),
     ("division-never-has-leftovers",
      re.compile(r"\b(?:all\s+)?division\s+(?:is|means)\b[^.!?]{0,60}"
                 r"(?:until|so(?:\s+that)?|with|and)\s+nothing(?:'s|\s+is)?\s+left(?:\s+over)?", re.I),
@@ -4483,7 +4600,7 @@ def known_falsehood_conflict(reply: str):
     """Return a description of a named false general statement, or "". Never raises:
     any unexpected input yields "" (fail open)."""
     try:
-        prose = _spoken_only(str(reply or ""))
+        prose = _plain_prose(reply)          # (un) emphasis-proof
         if not prose.strip():
             return ""
         for name, false_re, unless_re, true_form in KNOWN_FALSEHOODS:
@@ -7566,6 +7683,67 @@ _TRI_NAMES_SIDE = re.compile(
     r"|\b([a-z])\s*(?:²|\^2|squared)\b", re.I)
 
 
+# =============================================================================
+# BUILD un (2026-09-08) -- THE EIGHTIETH REFEREE: THE LETTERS ON THE SIDES ARE SAID.
+# -----------------------------------------------------------------------------
+# The 2026-09-08 night watch, geometry-picture, rule 14: the first triangle carried
+# sides="c = ?, a = 6, b = 8" and the board wrote a^2 + b^2 = c^2 -- correctly lettered
+# (gn's referee above is rightly silent) -- while the spoken words said only "one
+# leg", "the other leg" and "the hypotenuse". A student sees three letters on the
+# figure and in the equation and is never told which side is which. Rule 14: a
+# notation is defined the first time it appears; a side's letter is a notation.
+#
+# NARROW: fires only when a [[triangle]] letters at least TWO of its sides with single
+# lowercase letters AND the reply also writes an equation in those letters (a^2 + b^2
+# = c^2, or any step/write naming two of them) AND the spoken words name NONE of the
+# lettered sides ("side a", "leg a", "a squared", "call the six-leg a", "the hypotenuse
+# c", "c is"). One spoken letter buys silence -- naming one side is the start of the
+# mapping, and the authored lessons say "a squared plus b squared" out loud (canon 0).
+_TL_SIDE_LETTERED = re.compile(r"(?<![A-Za-z])([a-z])\s*=\s*[^,]+")
+_TL_EQ_LETTERS = re.compile(r"(?<![A-Za-z])([a-z])\s*(?:\^\s*2|²|squared)")
+
+
+def _tl_letter_spoken(prose: str, letter: str) -> bool:
+    L = re.escape(letter)
+    return bool(re.search(
+        r"\b(?:side|leg|legs|hypotenuse|length|call(?:ed)?(?:\s+\w+){0,4}|name(?:d)?(?:\s+\w+){0,4}|label(?:led)?(?:\s+\w+){0,4}|letter)\s+" + L + r"(?![A-Za-z])"
+        r"|(?<![A-Za-z])" + L + r"\s+(?:squared|²|is|equals|=|for|stands|means|goes|will\s+be)\b"
+        r"|(?<![A-Za-z])" + L + r"\s*,?\s+(?:the|our|that)\s+(?:hypotenuse|leg|side|long|short)", prose, re.I))
+
+
+def triangle_letters_unspoken_conflict(reply: str):
+    """Return a description of a triangle whose lettered sides are written into an
+    equation but never named aloud, or "". Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        for m in _TRI_TAG.finditer(text):
+            attrs = {k.lower(): v for k, v in _TRI_ATTR.findall(m.group(1))}
+            sides_raw = (attrs.get("sides") or "")
+            letters = sorted({x.lower() for x in _TL_SIDE_LETTERED.findall(sides_raw)})
+            if len(letters) < 2:
+                continue
+            vals = " ".join(_note_tag_vals(text))
+            used = {x.lower() for x in _TL_EQ_LETTERS.findall(vals + " " + prose)}
+            if len(used & set(letters)) < 2:
+                continue                 # no equation in those letters -- nothing to map
+            if any(_tl_letter_spoken(prose, L) for L in letters):
+                continue                 # at least one side is named aloud
+            return ('the triangle letters its sides {ls} and the board writes an equation in '
+                    "those letters, but you never SAY which side is which -- the words say "
+                    '"one leg", "the other leg", "the hypotenuse". Rule 14: a letter on a '
+                    "figure is a notation, defined the first time it appears. Say it in this "
+                    'reply, in the words a student can follow: "we\'ll call the six-leg a, '
+                    'the eight-leg b, and the hypotenuse c -- so a squared plus b squared '
+                    'equals c squared." Keep everything else the same.').format(
+                        ls=", ".join(letters))
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[triangleletters] crashed (fail open): {exc}")
+        _event("referee_crash", "triangleletters", str(exc))
+        return ""
+
+
 def triangle_letter_conflict(reply: str):
     """Return a description of a triangle whose words name sides by letter that the
     picture does not carry (or carries against the convention), or "". Never raises:
@@ -8811,6 +8989,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if triletter:
             _event("referee_fire", "triangleletter", triletter)
             return triletter
+        # build un: EIGHTIETH -- the same tag once more: its side letters are written into
+        # an equation and never said (rule 14). Reads the reply's own tags and prose.
+        trinames = triangle_letters_unspoken_conflict(reply)
+        if trinames:
+            _event("referee_fire", "triangleletters", trinames)
+            return trinames
         # build gy: EIGHTEENTH -- the like-denominator rule spoken as a universal (rule 61).
         frac61 = fraction_rule_unconditioned(reply)
         if frac61:
