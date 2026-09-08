@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  APP_BUILD -> "2026-09-08ug-the-phone-classroom". BUILD ug -- P1 OF THE
+#               DEEP LOOK. NO CODE IN THIS FILE CHANGED; this is the stamp. The work is in
+#               static/session.html, practice.html, topic.html, demo.html (a bounded board
+#               and a three-row dock on every screen <=900px; a one-line top row, the icon
+#               nav on its own row, bubbles clear of the pencil and the lesson title
+#               wrapping on phones <=640px; the mic reads "Listen…" while it is dark),
+#               static/cadabra.js (rule 33: small, in the board's corner, no wander on a
+#               phone) and the menu's new `phone` block. ALSO FIXED THERE: on every screen
+#               <=900px the board had no bound on its height, so board.js's top-anchoring
+#               pad grew it without limit (853,422px measured after forty seconds) -- the
+#               app is the viewport now and the board scrolls, as on a desktop.
 #   2026-09-08  APP_BUILD -> "2026-09-08uf-the-per-student-view". BUILD uf -- P2 OF THE
 #               DEEP LOOK, SECOND HALF. The admin console could see totals and 37 tables
 #               but could not answer "how is Sam doing". NEW GET /api/admin/student?code=
@@ -14367,7 +14378,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-08uf-the-per-student-view"
+APP_BUILD = "2026-09-08ug-the-phone-classroom"
 
 
 @app.get("/health")

@@ -77,6 +77,14 @@
                  bubble -- on top of it. A target near the top of the window is now
                  approached from BELOW, his tip is kept low enough that head and bubble
                  both stay in view, and the bubble hangs underneath him when he points up.
+     2026-09-08  (ug) RULE 33 -- THE SMALL SCREEN (P1 of the deep look). On a phone
+                 (the menu's phone.maxWidth, 640) he is the menu's phone.height (92)
+                 instead of 146, his home is the board's top-right corner instead of
+                 55% down the window, and the roaming drift is off; a resize or a
+                 rotation re-reads the size (applyMenuHeight in sizeLayer). He still
+                 points, glances and parks exactly as before -- only where he RESTS
+                 and how big he is change, and only on a phone. A menu with no
+                 `phone` block behaves exactly as it did.
      2026-09-01  (rj) BIGGER, AND HE FLOATS. Jim, after watching him live: "the pencil
                  needs to be 30% larger and needs to have a slight floating motion."
                  The SIZE is the menu's, not this file's: cadabra-script.json height
@@ -505,7 +513,7 @@
       freeR: { x: home.x + 40, y: home.y - 40, rot:  62, mode: "open" },
       aimL: null, aimR: null, chase: null, bubBelow: false, handKey: "", lastT: 0, envI: 0, envA: 0
     };
-    applyHeight((M.script && M.script.height) || 112);
+    applyMenuHeight();
     sizeLayer();
     window.addEventListener("resize", sizeLayer, false);
     M.raf = requestAnimationFrame(frame);
@@ -525,6 +533,13 @@
   function sizeLayer() {
     W = window.innerWidth; H = window.innerHeight;
     if (DOM) DOM.svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    applyMenuHeight();                       // (ug) a rotation or a resize re-reads the size
+  }
+  /* (ug) the menu's height, or the menu's PHONE height on a phone (rule 33). */
+  function applyMenuHeight() {
+    var p = phoneMenu();
+    var h = (isPhone() && p && p.height) ? p.height : ((M.script && M.script.height) || 112);
+    applyHeight(h);
   }
   function applyHeight(px) { if (S) S.scale = px / LOCAL_H; }
   function heightPx() { return S ? S.scale * LOCAL_H : 112; }
@@ -715,15 +730,36 @@
     return !!(el.closest && el.closest("input,textarea,select,button,a,[contenteditable],[role=button]"));
   }
 
+  /* (ug, 2026-09-08) RULE 33 -- THE SMALL SCREEN. On a phone the old home (55% down
+     the window, right of "main") put him, at 146px, squarely over the tutor's first
+     sentence -- the deep look's phone screenshot. On a phone he is SMALL (the menu's
+     `phone.height`, 92) and his home is the board's top-right corner, where the bubbles'
+     right margin is; he leaves it only to point, and comes back. The width that counts
+     as a phone is the menu's too (`phone.maxWidth`, 640). Both fall back to the desktop
+     numbers when the menu has no `phone` block, so an older menu changes nothing. */
+  function phoneMenu() { return (M.script && M.script.phone) || null; }
+  function isPhone() {
+    var p = phoneMenu();
+    return !!(p && window.innerWidth <= (p.maxWidth || 640));
+  }
   function homeSpot() {
+    var vw = window.innerWidth, vh = window.innerHeight;
+    if (isPhone()) {
+      var board = document.querySelector('[data-cad="board"]') || document.getElementById("board")
+               || document.querySelector("[data-cad-home]");
+      var b = board ? board.getBoundingClientRect() : { top: 60, right: vw - 8 };
+      var hp = heightPx();
+      return { x: Math.min(vw - 20, Math.max(40, b.right - 18)),
+               y: Math.max(hp * 0.9, Math.min(vh - 60, b.top + hp + 8)) };   /* his tip just inside the corner */
+    }
     var main = document.querySelector("[data-cad-home]") || document.querySelector("main") || document.body;
     var r = main.getBoundingClientRect();
-    var vw = window.innerWidth, vh = window.innerHeight;
     var x = Math.min(vw - 80, Math.max(80, r.right + 90));
     return { x: x, y: Math.max(140, Math.min(vh - 60, vh * 0.55)) };
   }
   function parkSpot() {
     var h = homeSpot();
+    if (isPhone()) return h;              /* (ug) rule 33: the dock is where the bottom is on a phone */
     return { x: h.x, y: window.innerHeight - 50 };
   }
 
@@ -847,7 +883,7 @@
     S.ang += (S.tang - S.ang) * (1 - Math.pow(0.004, dt / 1000));
 
     /* RULE 5 + 6: no drift while parked, and none while he is talking. */
-    var bob = 0, dx = 0, drift = effective().drift;
+    var bob = 0, dx = 0, drift = isPhone() ? 0 : effective().drift;   /* (ug) rule 33: no wander on a phone */
     if (!M.reduced && drift > 0 && S.mode !== "park" && !S.driven && !S.speaking) {
       bob = Math.sin(t * 1.55) * 7 * drift;
       dx  = Math.sin(t * 0.62 + 1.1) * 10 * drift;
@@ -978,7 +1014,8 @@
     })();
   }
   function flyTo(x, y, ang) {
-    S.tx = Math.max(60, Math.min(W - 60, x));
+    var edge = isPhone() ? 26 : 60;         /* (ug) rule 33: a phone lets him sit in the corner */
+    S.tx = Math.max(edge, Math.min(W - edge, x));
     S.ty = Math.max(heightPx() * 0.9, Math.min(H - 30, y));
     if (ang !== undefined) S.tang = ang;
   }

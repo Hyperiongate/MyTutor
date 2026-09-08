@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  BUILD ug -- THE PHONE CLASSROOM (P1 of the deep look). PART 3kc: on every
+#               screen <=900px the app is the viewport, the board column is bounded and
+#               the BOARD scrolls (the runaway pad found in ug's dry run -- 853,422px of
+#               board -- cannot recur), the dock is three short rows; <=640px the top row
+#               is one line, the icon nav one scrolling row, the bubbles clear of the
+#               pencil's corner, the lesson title wraps; the demo's board column leads
+#               with a one-row dock; cadabra.js rule 33 (the menu's phone block, both
+#               copies identical, version ug); the mic reads "Listen…" while dark on all
+#               three pages; the tour marks body.touring. LIVE (playwright + a uvicorn
+#               subprocess, skipped where playwright is absent): a 390x844 render of an
+#               Algebra I lesson measured -- board >= 380px and on screen, dock <= 260px,
+#               nav one row, pencil < 110px and clear of every word, no sideways scroll,
+#               mic beside Pause. Tile 10,994 -> 11,023.
 #   2026-09-08  BUILD uf -- THE PER-STUDENT VIEW (P2 of the deep look, second half). PART
 #               3kb: GET /api/admin/student (general tier, header only, rate-limited,
 #               404/400, read-only, no code-listing route anywhere), its payload shape
@@ -12624,6 +12637,181 @@ def part3kb_the_per_student_view():
           and "(uf) 2026-09-08" in adm[:6000], "")
 
 
+def part3kc_the_phone_classroom():
+    """PART 3kc (build ug, 2026-09-08) -- P1 OF THE DEEP LOOK: THE PHONE CLASSROOM.
+
+    The review's 390px screenshot: the title on three lines beside a five-high column of
+    nav icons, the board squeezed to ~370px behind a 416px dock, the pencil parked over
+    the tutor's first sentence, the mic a grey pill reading "…". And a bug the review did
+    not see but ug's own dry run did: on every screen <=900px the board had no bound on
+    its height, so board.js's top-anchoring pad grew the feed which grew the pad --
+    853,422 pixels of board after forty seconds, measured.
+
+    Static pins on the three classroom pages, the demo, cadabra.js and its menu; then a
+    LIVE render (playwright, a uvicorn subprocess in file mode) at 390x844 that measures
+    what the review measured: the board bounded and tall, the dock short, the icon nav
+    one row, the pencil clear of every bubble, no sideways scroll, the mic reading a word."""
+    print("\nPART 3kc — the phone classroom (build ug)")
+    import re as _re, subprocess, sys, json as _json, socket, time as _t
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    NL = chr(10)
+    pages = {p: rd("static/" + p) for p in ("session.html", "practice.html", "topic.html")}
+    demo = rd("static/demo.html"); cad = rd("static/cadabra.js")
+    menu = rd("static/cadabra-script.json"); menu_ex = rd("static/cadabra-script.example.json")
+
+    # ---- the board is the scroller on every small screen ------------------------------
+    for p, src in pages.items():
+        blk = src[src.find("THE BOARD IS THE SCROLLER, ON EVERY SMALL SCREEN"):]
+        blk = blk[:blk.find("THE PHONE CLASSROOM -- P1")]
+        check(f"⭐ {p}: on every screen <=900px the app is the viewport, the board column is bounded and the BOARD scrolls",
+              "@media (max-width: 900px) {" in blk
+              and "html, body { height: 100%; overflow: hidden; }" in blk
+              and ".app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; min-height: 0; }" in blk
+              and ".center { flex: 1 1 auto; min-height: 0; height: auto; display: flex; flex-direction: column;" in blk
+              and ".feed { flex: 1 1 auto; min-height: 0; overflow-y: auto; }" in blk
+              and ".side.left { flex: 0 0 auto; position: static; overflow: visible; }" in blk, "")
+        check(f"  {p}: the dock is three short rows -- mic beside Pause, then the hint, then Type",
+              ".side.left .controls { display: grid; grid-template-columns: minmax(0, 1fr) auto;" in blk
+              and ".side.left .talkbtn { grid-column: 1; grid-row: 1;" in blk
+              and ".side.left .pausebtn { grid-column: 2; grid-row: 1; width: auto; margin-top: 0;" in blk
+              and ".side.left .hint { grid-column: 1 / -1; grid-row: 2;" in blk, "")
+        check(f"  {p}: the phone block (<=640px) -- one top row, the icon nav on its own scrolling row, bubbles clear of the pencil's corner",
+              "@media (max-width: 640px) {" in src[src.find("THE PHONE CLASSROOM -- P1"):]
+              and ".topbar { flex-wrap: wrap; padding: 8px 12px 6px; gap: 6px 8px; }" in src
+              and ".topbar .anav { order: 9; flex: 1 1 100%; width: 100%; margin-left: 0;" in src
+              and ".feed .bubble { max-width: calc(100% - 52px); }" in src
+              and ".worklist .wrow.solo .wl { white-space: normal; font-size: 20px; line-height: 1.25; }" in src, "")
+        check(f"  {p}: the blocks are declared LAST (after every desktop rule)",
+              src.rfind("@media (min-width: 901px)") < src.find("THE BOARD IS THE SCROLLER, ON EVERY SMALL SCREEN"), "")
+        check(f"  {p}: the mic always carries a word -- \"Listen…\" while it is dark, never \"…\"",
+              '<span id="talkLabel">Listen…</span>' in src
+              and 'talkLabel.textContent = "Listen…"' in src
+              and 'talkLabel.textContent = "…"' not in src, "")
+        check(f"  DO NO HARM: {p} keeps dz's tablet dock and or's desktop strip (their rules untouched)",
+              ".side.left { order: 2; position: sticky; bottom: 0; z-index: 25;" in src
+              and ("#sbTab { display: none; }" in src if p == "session.html" else True), "")
+    ses = pages["session.html"]
+    check("  session.html: the tour marks the body while it runs, and the Skip pill moves to the top-right corner on a phone",
+          'document.body.classList.add("touring");' in ses
+          and 'document.body.classList.remove("touring");' in ses
+          and "#tourSkip { bottom: auto !important; top: 8px !important; right: 10px !important;" in ses
+          and "body.touring .topbar { padding-right: 112px; }" in ses, "")
+    check("  session.html: the pausebtn keeps its ONE #f9a825 declaration (nr's pin, restated)",
+          ses.count("background:#f9a825") == 1, str(ses.count("background:#f9a825")))
+
+    # ---- the demo ------------------------------------------------------------------------
+    check("⭐ demo.html: the board column leads on a phone and the nav is a one-row dock stuck to the bottom",
+          "THE PHONE DEMO -- P1 of the deep look" in demo
+          and "body.classroom .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; min-height: 0; }" in demo
+          and ".center { order: 1; flex: 1 1 auto; height: auto; min-height: 0; overflow: hidden;" in demo
+          and ".side { order: 2; flex: 0 0 auto; position: relative; z-index: 25; background: #fff;" in demo
+          and ".curriculum.show { position: absolute; bottom: calc(100% + 4px);" in demo, "")
+    check("  demo.html: declared last, phones only",
+          demo.rfind("@media(max-width:900px){") < demo.find("THE PHONE DEMO -- P1")
+          and "@media (max-width: 640px) {" in demo[demo.find("THE PHONE DEMO -- P1"):], "")
+
+    # ---- the pencil: rule 33 -------------------------------------------------------------
+    check("⭐ cadabra.js: rule 33 -- on a phone he is the menu's phone height, rests in the board's top-right corner, and does not wander",
+          "function isPhone() {" in cad and "function phoneMenu() {" in cad
+          and "if (isPhone()) {" in cad[cad.find("function homeSpot() {"):cad.find("function homeSpot() {") + 900]
+          and 'document.querySelector(\'[data-cad="board"]\') || document.getElementById("board")' in cad
+          and "function applyMenuHeight() {" in cad
+          and "applyMenuHeight();                       // (ug) a rotation or a resize re-reads the size" in cad
+          and "drift = isPhone() ? 0 : effective().drift;" in cad, "")
+    check("  cadabra.js: a phone lets him sit in the corner (flyTo's edge) and parks him at home, not in the dock",
+          "var edge = isPhone() ? 26 : 60;" in cad
+          and "if (isPhone()) return h;" in cad[cad.find("function parkSpot() {"):cad.find("function parkSpot() {") + 300], "")
+    check("  cadabra.js: an older menu with no `phone` block changes nothing (both fall back)",
+          "return !!(p && window.innerWidth <= (p.maxWidth || 640));" in cad
+          and 'var h = (isPhone() && p && p.height) ? p.height : ((M.script && M.script.height) || 112);' in cad, "")
+    _m = _json.loads(menu)
+    check("⭐ the menu carries the phone block, in both copies, identical, version ug",
+          menu == menu_ex and _m.get("phone") == {"maxWidth": 640, "height": 92}
+          and _m.get("version") == "2026-09-08ug" and _m.get("height") == 146, str(_m.get("phone")))
+
+    # ---- the live render ------------------------------------------------------------------
+    NAME = "⭐ LIVE at 390x844: the board bounded and tall, the dock short, the nav one row, the pencil clear of the words, no sideways scroll"
+    if dep_gate(NAME, "playwright", "the phone layout is measured in a real browser"):
+        port = None
+        try:
+            sck = socket.socket(); sck.bind(("127.0.0.1", 0)); port = sck.getsockname()[1]; sck.close()
+        except Exception:  # noqa: BLE001
+            port = 8137
+        env = dict(os.environ, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="1")
+        env.pop("DATABASE_URL", None); env.pop("ANTHROPIC_API_KEY", None)
+        srv = subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1",
+                                "--port", str(port)], cwd=here, env=env,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            import urllib.request
+            up = False
+            for _ in range(60):
+                try:
+                    urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=2).read(); up = True; break
+                except Exception:  # noqa: BLE001
+                    _t.sleep(0.5)
+            if not up:
+                skip(NAME, "the app did not come up in 30 s")
+            else:
+                from playwright.sync_api import sync_playwright
+                MEASURE = """() => {
+                  const q = s => document.querySelector(s);
+                  const feed = q('#feed'); const fr = feed.getBoundingClientRect();
+                  const words = [...feed.querySelectorAll('.bubble, .boardsay, .wrow, .wline, .sline')].map(e => e.getBoundingClientRect());
+                  const body = q('#cadabra-layer .cd-body'); const pr = body ? body.getBoundingClientRect() : null;
+                  const over = (a, b) => a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+                  const dock = q('.side.left').getBoundingClientRect();
+                  const anav = q('.anav'); const rows = anav ? new Set([...anav.querySelectorAll('a')].map(x => Math.round(x.getBoundingClientRect().top))).size : 0;
+                  const tb = q('#talkBtn').getBoundingClientRect(), pb = q('#pauseBtn').getBoundingClientRect();
+                  return { feedH: Math.round(fr.height), feedBottom: Math.round(fr.bottom), dockH: Math.round(dock.height),
+                           anavRows: rows, pencilH: pr ? Math.round(pr.height) : null, pencilOverWords: words.some(w => over(pr, w)),
+                           docW: document.documentElement.scrollWidth, label: q('#talkLabel').textContent,
+                           sameRow: Math.abs(tb.top - pb.top) < 4, vh: innerHeight, words: words.length };
+                }"""
+                with sync_playwright() as pw:
+                    try:
+                        br = pw.chromium.launch()
+                    except Exception as exc:  # noqa: BLE001
+                        br = None; skip(NAME, f"chromium would not launch: {str(exc)[:80]}")
+                    if br:
+                        ctx = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True)
+                        pg = ctx.new_page()
+                        pg.goto(f"http://127.0.0.1:{port}/session?code=1234&course=algebra1", wait_until="load")
+                        pg.wait_for_timeout(2500)
+                        try:
+                            pg.click("#welcome button", timeout=2500)
+                        except Exception:  # noqa: BLE001
+                            pass
+                        pg.wait_for_timeout(12000)
+                        m = pg.evaluate(MEASURE)
+                        br.close()
+                        check(NAME,
+                              m["feedH"] >= 380 and m["feedBottom"] <= m["vh"] and m["dockH"] <= 260
+                              and m["anavRows"] == 1 and m["pencilH"] and m["pencilH"] < 110
+                              and m["words"] >= 1 and not m["pencilOverWords"]
+                              and m["docW"] == 390 and m["label"] == "Listen…" and m["sameRow"],
+                              _json.dumps(m))
+        finally:
+            try:
+                srv.terminate(); srv.wait(timeout=10)
+            except Exception:  # noqa: BLE001
+                try: srv.kill()
+                except Exception: pass
+
+    # ---- the notes --------------------------------------------------------------------------
+    m = rd("main.py")
+    check("  the stamp passed through ug (the note stays after the stamp moves on)",
+          'APP_BUILD -> "2026-09-08ug-the-phone-classroom"' in m[:200000], "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-08  BUILD ug" in rd("ruletests.py")[:28000]
+          and "(ug) Tile 10,994" in rd("static/methodology.html")[:30000]
+          and all("(ug) 2026-09-08" in pages[p][:6000] for p in pages)
+          and "(ug) 2026-09-08" in demo[:6000]
+          and "2026-09-08  (ug) RULE 33" in cad[:12000]
+          and "2026-09-08 (ug): THE SMALL SCREEN" in menu[:6000], "")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -22751,7 +22939,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,994</b>" in page,
+          "<b>11,023</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -39269,6 +39457,7 @@ def main():
     part3jz_the_small_fixes_of_the_deep_look()
     part3ka_the_authored_lane_writes_it_down()
     part3kb_the_per_student_view()
+    part3kc_the_phone_classroom()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

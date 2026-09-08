@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+    (ug) 2026-09-08 -- THE PHONE DEMO (P1 of the deep look). On a 390px phone the first
+    screen after "Start the demo" was a menu -- the nav wrapped into three rows above
+    the topbar, the goal bar and the bars, and the board began 526px down an 844px
+    screen. A <=640px block declared LAST: the board column leads, the nav is a one-row
+    dock stuck to the bottom (the curriculum list pops up from it), the top row is one
+    line, the board is tall. cadabra.js's phone home (rule 33) reads this page's #board.
+    Tablets keep the 900px rules; desktops are untouched. PART 3kc pins it.
     (sg) 2026-09-02 -- THE SWEEP HIT THE CODE: .weekrow/.nextrow:first-child and
     .track .stop:first-child had become :first-student (the sd child->student
     sweep, meant for visible copy, also rewrote code identifiers) -- dead
@@ -859,6 +866,39 @@
     .navbtn{width:auto;font-size:12px;padding:7px 10px}
     .controls{display:none}
     .center{height:auto;min-height:70vh}
+  }
+  /* ===== 2026-09-08 (build ug) THE PHONE DEMO -- P1 of the deep look ==================
+     On a 390px phone the demo's first screen was a menu: the nav wrapped into three rows
+     above the topbar, the goal bar and the three bars, and the board sat below the fold
+     (top 526px on an 844px screen). Declared LAST, phones only (<=640px): the board
+     column leads, the nav becomes a one-row dock stuck to the bottom (the curriculum
+     list pops UP from it), the top row is one line, and the board is tall. Tablets keep
+     the 900px rules above; desktops are untouched. */
+  @media (max-width: 640px) {
+    body.classroom { overflow: hidden; height: 100vh; height: 100dvh; }
+    body.classroom .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; min-height: 0; }
+    .center { order: 1; flex: 1 1 auto; height: auto; min-height: 0; overflow: hidden;
+      display: flex; flex-direction: column; }
+    .feed { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+    .side { order: 2; flex: 0 0 auto; position: relative; z-index: 25; background: #fff;
+      border-top: 1px solid var(--line); border-bottom: none; border-right: none;
+      box-shadow: 0 -10px 26px rgba(20,30,45,.10); padding: 6px 10px 8px; gap: 6px;
+      flex-direction: column; flex-wrap: nowrap; overflow: visible; }
+    .leftnav { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; gap: 6px;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .leftnav::-webkit-scrollbar { display: none; }
+    .navbtn { white-space: nowrap; flex: 0 0 auto; width: auto; font-size: 13px; padding: 7px 10px; }
+    .curriculum.show { position: absolute; bottom: calc(100% + 4px); left: 8px; right: 8px;
+      background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px;
+      box-shadow: 0 -8px 24px rgba(20,30,45,.14); z-index: 26; }
+    .topbar { flex-wrap: wrap; padding: 8px 12px 4px; gap: 6px 8px; }
+    .topbar .title { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      flex: 1 1 auto; min-width: 0; }
+    .goalbar { margin: 4px 10px 0; }
+    .dbars { margin: 6px 10px 0; }
+    .saywrap { margin: 8px 10px 0; }
+    .feed { margin: 8px 10px; }
+    .answerzone { padding: 0 10px 10px; }
   }
 </style>
   <script src="/static/analytics.js"></script>
