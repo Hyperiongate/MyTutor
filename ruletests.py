@@ -6,6 +6,14 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD uq -- THE PROBLEM IS ALWAYS ON THE BOARD (Jim's corrections queue,
+#               13 flags). PART 3km: main._ai_board_floor (an intervention with no board
+#               tag gets the ask's own board -- pinned through the lane with the model
+#               stubbed); the practice-intro card; speech-text.js's quotation rule (run in
+#               node); fcmp's board order; the graph-slides lesson's two curves; inside-the-
+#               distance says integers and counts dots; 'Nice counting!' gone; the function
+#               lessons' recaps say 'back to our first machine'; the funcrename canon sweep
+#               in the lesson's REAL order (asks included). Three content pins moved.
 #   2026-09-08  BUILD up -- A NEW MACHINE, STILL CALLED f (uo's honest gap closed, Jim's
 #               word). PART 3kl: the four practice ops and the eight worked lines retire
 #               the name out loud; _fr_definitions reads [[machine fname= rule=]] cards;
@@ -12132,6 +12140,192 @@ def part3kl_a_new_machine_still_called_f():
           and "(up) Tile 11,268" in notes("static/methodology.html"), "")
 
 
+def part3km_the_problem_is_always_on_the_board():
+    """PART 3km (build uq, 2026-09-08) -- THE PROBLEM IS ALWAYS ON THE BOARD.
+
+    Jim's corrections queue, 2026-09-08 (13 flags from a live precalc and algebra2
+    session, `claude/Triage_Corrections_Queue_2026-09-08_...`). The precalc lesson was
+    rendered in a headless browser to see what he saw: the AUTHORED questions draw the
+    machines; what left him with only audio was the live tutor's re-ask after a wrong
+    answer, which arrived with no board tag at all, and "Now it's your turn" speaking over
+    a board that had scrolled away.
+      * main._ai_board_floor: an `ai` step whose reply carries no drawing or writing tag
+        gets the ask's own board (the intervene step's, the ask as drawn) prepended --
+        code_repair "askboard". A reply that drew something is left alone.
+      * the practice intro carries a card (PRACTICE_INTRO_BOARD), never a blank board.
+      * speech-text.js: a quotation loses its marks BEFORE the prime rules ('"two x" is
+        two times x' was spoken as "two x double prime"); y" still reads double prime.
+      * _fcmp_board: the two rules first, the machines, then the question; the worked
+        board writes each machine's line beside it (flags 21:57, 21:59).
+      * pc-u1-the-graph-slides: a concrete f (the square root), BOTH curves on the board in
+        every beat, the method in plain words (flags 22:09, 22:10).
+      * alg2-u1-inside-the-distance and the absc op: INTEGERS (the lesson said "whole
+        numbers" for the negatives -- false), every dot on the number line, counted one
+        side at a time (flag 21:40).
+      * "Nice counting!" -> "Nice work!" (flag 22:05); the composition advance line names
+        composition; the trap beat keeps the two rules on the board (flag 21:56); the
+        explain and recap beats of the five function lessons say "back to our first
+        machine" when they return to it, a retiring phrase the eighty-first referee reads.
+    The pace itself is build us (the shape Jim chose)."""
+    print("\nPART 3km — the problem is always on the board (build uq)")
+    import tutor as T, lessonscripts as LS, main as M, tags as TG
+    byid = LS.LESSON_BY_ID
+
+    # ---- the askboard floor ------------------------------------------------------------------
+    ask = ('[[step eq="f(x) = x + 2 · g(x) = 2x"]][[machine input="4" rule="2x" output="?" fname="g" '
+           'caption="g runs first"]][[step eq="f(g(4)) = ?"]]')
+    check("⭐ THE WATCH'S SHAPE: an intervention with NO board tag gets the ask's own board prepended",
+          M._ai_board_floor("", ask) == ask
+          and M._ai_board_floor('[[choices options="8 | 10 | 12"]]', ask) == ask + '[[choices options="8 | 10 | 12"]]'
+          and M._ai_board_floor('[[mark correct="0"]]', ask).startswith(ask), "")
+    check("  a reply that drew or wrote something of its own is left alone (judging WHICH drawing is a referee's job)",
+          M._ai_board_floor('[[step eq="2x = 2 · x"]]', ask) == '[[step eq="2x = 2 · x"]]'
+          and M._ai_board_floor('[[numberline min="0" max="5"]]', ask) == '[[numberline min="0" max="5"]]', "")
+    check("  the family it reads is the drawing and writing tags -- a choices row, a mark, a nice are not a board",
+          set(M._AI_BOARD_FAMILY) == set(TG.FIGURE_TAGS) | set(TG.WRITING_TAGS)
+          and "choices" not in M._AI_BOARD_FAMILY and "mark" not in M._AI_BOARD_FAMILY, "")
+    check("  no ask board, no change; never raises",
+          M._ai_board_floor("[[x", "") == "[[x" and M._ai_board_floor(None, None) == "", "")
+    msrc = code_only(open("main.py", encoding="utf-8").read())
+    check("  wired at BOTH ai-step sites: the first intervention and the wrong-again redo",
+          msrc.count("_ai_board_floor(") >= 3
+          and "_ai_board_floor(_brd, context.get(\"board\"), code, lesson[\"course\"])" in msrc
+          and "_ai_board_floor(_brd, (redo.get(\"context\") or {}).get(\"board\")," in msrc, str(msrc.count("_ai_board_floor(")))
+
+    # ---- live: the lane, with the model stubbed to answer with no board --------------------------
+    try:
+        from fastapi.testclient import TestClient
+        _orig = M._script_intervene
+        M._script_intervene = lambda code, course, context, history: (
+            "Let's slow down. A number right up against a letter means times. Now try it yourself: "
+            'what is f of g of 4? [[choices options="10 | 12 | 8"]]')
+        try:
+            c = TestClient(M.app)
+            r = c.post("/api/script/start", json={"code": "1234", "course": "precalc", "lesson": "pc-u1-machines-in-a-row"})
+            steps = r.json().get("steps", [])
+            first_ask = next((s for s in steps if s.get("kind") == "ask"), {})
+            r2 = c.post("/api/script/answer", json={"code": "1234", "value": 999})
+            ai = next((s for s in r2.json().get("steps", []) if s.get("kind") == "ai"), {})
+            check("⭐ LIVE: a wrong tap, the model's re-ask with only a choices row -- the ai step reaches the page "
+                  "WITH the machines the question was asked on",
+                  bool(ai) and "[[machine" in (ai.get("board") or "") and "[[choices" in (ai.get("board") or "")
+                  and (first_ask.get("board") or "")[:40] in (ai.get("board") or ""), str(ai)[:160])
+        finally:
+            M._script_intervene = _orig
+            M._SCRIPT_SESSIONS.pop("1234", None)
+    except Exception as exc:  # noqa: BLE001
+        bad("LIVE: the askboard floor through the lane", f"the drill could not run: {exc}")
+
+    # ---- the practice intro carries a card -------------------------------------------------------
+    check("⭐ the practice intro carries a card, never a blank board",
+          LS.PRACTICE_INTRO_BOARD.startswith('[[card title="Your turn"')
+          and '"board": PRACTICE_INTRO_BOARD' in code_only(open("lessonscripts.py", encoding="utf-8").read())
+          and "Three right answers in a row" in LS.PRACTICE_INTRO_BOARD, "")
+
+    # ---- speech: a quotation is not a prime mark -------------------------------------------------
+    js = open("static/speech-text.js", encoding="utf-8").read()
+    check("⭐ speech-text.js hides a quotation's marks BEFORE the prime rules and puts them back after (the \"two x double prime\" flag)",
+          js.find('(^|[\\s(])(["\\u201c])([^"\\u201c\\u201d\\n]{1,120}?)(["\\u201d])(?=[\\s.,;:!?)]|$)') > 0
+          and js.find('(^|[\\s(])(["\\u201c])') < js.find("build ip (2026-08-19): derivatives are SAID")
+          and js.find(".replace(/\\u0001/g, '\"')") > js.find("$1$2 prime"), "")
+    import shutil as _sh, subprocess as _sp, json as _j
+    if True:
+        if _sh.which("node"):
+            prog = ("const fs=require('fs'); const src=fs.readFileSync('static/speech-text.js','utf8');"
+                    "const fn=new Function('window', src+'\\n; return forSpeech;')({});"
+                    "const t=['A number written right up against a letter — like 2x — means times: \"two x\" is two times x.',"
+                    "'The board shows y\" + y = 0.','Say \"y\" out loud.','She said “hello x” to me.'];"
+                    "console.log(JSON.stringify(t.map(fn)));")
+            try:
+                out = _j.loads(_sp.run(["node", "-e", prog], capture_output=True, text=True, timeout=30).stdout.strip())
+            except Exception as exc:  # noqa: BLE001
+                out = [str(exc)]
+            check("  ...and forSpeech says it right: the quotation plain, the derivative still 'y double prime'",
+                  len(out) == 4 and '"two x" is two times x' in out[0] and "prime" not in out[0]
+                  and "y double prime plus y equals 0" in out[1] and out[2] == 'Say "y" out loud.' and "prime" not in out[3]
+                  and "“hello x”" in out[3], str(out)[:200])
+        else:
+            skip("  ...and forSpeech says it right (node)", "node is not installed here")
+
+    # ---- the composition boards ----------------------------------------------------------------------
+    p = {"a": 2, "b": 2, "c": 4, "op": "fcmp"}
+    b = LS.OP_EXT["fcmp"]["board"](p); w = LS.OP_EXT["fcmp"]["worked"](p)[1]
+    check("⭐ fcmp: the two rules first, then the machines, then the question (flag 21:57)",
+          b.index('[[step eq="f(x) = x + 2 · g(x) = 2x"]]') < b.index("[[machine") < b.index('[[step eq="f(g(4)) = ?"]]'), b[:80])
+    check("  fcmp worked: each machine's line is written beside it (flag 21:59)",
+          w.index('caption="g(4) = 8"') < w.index('[[step eq="g(4) = 2 × 4 = 8"]]') < w.index('caption="f(8) = 10"')
+          < w.index('[[step eq="f(8) = 8 + 2 = 10"]]') < w.index('[[step eq="f(g(4)) = 10"]]'), "")
+    les = byid["pc-u1-machines-in-a-row"]
+    check("  the trap beat keeps the two rules on the board (flag 21:56); the advance line names composition",
+          '[[step eq="f(x) = x + 3 · g(x) = 2x"]]' in les["teach"][1][1]
+          and "In a composition, the inside function runs first" in les["advance_line"], "")
+
+    # ---- the graph slides: both curves, every beat ----------------------------------------------------
+    gs = byid["pc-u1-the-graph-slides"]
+    two = 'func="sqrt(x) | sqrt(x-3)" names="y = f(x) | y = f(x − 3)"'
+    check("⭐ the graph-slides lesson draws BOTH curves in its why, picture, trap, reason and recap beats "
+          "(flags 22:09, 22:10: 'makes ZERO sense without a visual')",
+          two in gs["why"][0][1] and two in gs["picture"][0][1] and two in gs["teach"][1][1]
+          and two in gs["explain"]["board"] and two in gs["recap"][0][1], "")
+    check("  ...the method is said plainly and the arrow is read aloud",
+          "take 3 off x FIRST" in gs["teach"][0][0] and "New x equals old x plus 3" in gs["teach"][0][0]
+          and "(4, 2) becomes (7, 2)" in gs["teach"][1][0] and "Why right?" not in gs["teach"][0][0], "")
+
+    # ---- inside the distance: integers, dots ---------------------------------------------------------
+    ab = byid["alg2-u1-inside-the-distance"]
+    alltext = " ".join(s_ + " " + b_ for s_, b_ in _authored_beats(ab)) + " " + " ".join(pr["worked"][0] + pr["worked"][1] for pr in ab["pairs"])
+    check("⭐ inside the distance says INTEGERS, never 'whole numbers' for the negatives (a truth fix), and counts dots",
+          "whole numbers" not in alltext and "integers" in ab["why"][0][0]
+          and 'points="-4,-3,-2,-1,0,1,2,3,4"' in ab["picture"][0][1] and "bars data" not in alltext
+          and ab["symbols"] == ("absolute value", "integers"), "")
+    check("  ...the absc op agrees: the question, the walk-back and the praise say integers; the dots are drawn",
+          "integers" in LS.OP_EXT["absc"]["spoken"]({"a": 3, "b": 0, "op": "absc"})
+          and "whole" not in LS.OP_EXT["absc"]["praise"]({"a": 3, "b": 0, "op": "absc"})
+          and LS._absc_dots(3) == "-2,-1,0,1,2" and LS._absc_dots(13) == "-12,-1,0,1,12", "")
+    check("  the praise prefixes: 'Nice counting!' is gone (it praised a composition)",
+          "Nice counting!" not in LS.PRAISE_PREFIXES and "Nice work!" in LS.PRAISE_PREFIXES and len(LS.PRAISE_PREFIXES) == 5, "")
+
+    # ---- the recaps return to the first machine out loud ------------------------------------------------
+    for lid in ("alg1-u3-f-of-x", "alg1-u3-two-machines", "alg1-u3-which-input", "pc-u1-machines-in-a-row"):
+        l = byid[lid]
+        check(f"  {lid}: the reason and recap beats say 'back to our first machine(s)' -- a retiring phrase",
+              "Back to our first" in l["explain"]["spoken"] and "back to our first" in l["recap"][0][0]
+              and bool(T._FR_NEW_WORDS.search(l["explain"]["spoken"])), "")
+    # the lesson in its REAL order (why, picture, teach, the pairs' worked lines and generated asks,
+    # the reason question, the recap) is silent under the eighty-first referee
+    fires = []
+    for l in LS.LESSONS:
+        beats = [(sp or "", bb or "") for k in ("why", "picture", "teach") for sp, bb in (l.get(k) or [])]
+        for pr in l.get("pairs") or []:
+            beats.append(tuple(pr["worked"]))
+            pp = pr.get("ask") or {}; ext = LS.OP_EXT.get(pp.get("op"))
+            if ext and all(k in pp for k in ("a", "b")):
+                try:
+                    beats.append((ext["spoken"](pp), ext["board"](pp)))
+                except Exception:  # noqa: BLE001
+                    pass
+        ex = l.get("explain") or {}
+        if isinstance(ex, dict) and ex.get("spoken"):
+            beats.append((ex.get("spoken", ""), ex.get("board", "")))
+        beats += [(sp or "", bb or "") for sp, bb in (l.get("recap") or [])]
+        heard = ""
+        for i, (sp, bb) in enumerate(beats):
+            if T.function_redefined_conflict(sp + "\n" + bb, heard_tutor=heard.lower()):
+                fires.append((l["id"], i))
+            heard += " " + sp + " " + bb
+    check(f"⭐ CANON SWEEP in the lesson's REAL order (asks included), {len(LS.LESSONS)} lessons: zero "
+          "one-name-per-function fires", not fires, str(fires[:5]))
+
+    check("  the dated notes are in (Jim's rule 8)",
+          "BUILD uq --" in notes("main.py") and "2026-09-08  BUILD uq" in notes("lessonscripts.py")
+          and "2026-09-08  BUILD uq" in notes("lessons/precalc.py") and "2026-09-08  BUILD uq" in notes("lessons/algebra2.py")
+          and "2026-09-08  BUILD uq" in notes("lessons/algebra1.py") and "2026-09-08  BUILD uq" in notes("tutor.py")
+          and "2026-09-08  A QUOTATION IS NOT A PRIME MARK" in notes("static/speech-text.js")
+          and 'APP_BUILD -> "2026-09-08uq-the-problem-is-always-on-the-board"' in notes("main.py")
+          and "2026-09-08  BUILD uq" in notes("ruletests.py")
+          and "(uq) Tile 11,290" in notes("static/methodology.html"), "")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -16787,8 +16981,11 @@ def part3gf_one_entry_per_function_letter():
     # which-input[r0], machines-in-a-row[p0] and [r1] -- recaps and a picture beat in
     # the three lessons that TEACH the reading, silent as heard (the lenient sweep
     # above is the law; this count is the ledger).
-    check("  strict first-turn sweep: at most the 16 recorded cards (%d)" % strict,
-          strict <= 16, "the shape started fighting real teaching -- re-read the sixteen")
+    # (uq, 2026-09-08) 16 -> 18: the graph-slides lesson's picture and method beats now
+    # write f(x) and f(x − 3) beside both curves (Jim's flag: "makes ZERO sense without a
+    # visual") after its why beat has said "call that rule f" -- silent as heard.
+    check("  strict first-turn sweep: at most the 18 recorded cards (%d)" % strict,
+          strict <= 18, "the shape started fighting real teaching -- re-read the eighteen")
     check("  the sweep covered the whole canon", n >= 1900, "%d" % n)
     tsrc = open(_t.__file__, encoding="utf-8").read()
     check("  three entries, one per letter, and the shared class is gone",
@@ -22260,7 +22457,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,290</b>" in page,
+          "<b>11,313</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -25834,10 +26031,11 @@ def part3jh_algebra_two_units_one_to_three_to_the_shape():
           and 'points="2,5" hops="2,5" caption="from 2 to 5: 3 steps — |2 − 5| = 3"' in _W(absv)[1]
           and "keep the size, drop the sign" in _W(absv)[0], "")
     absc = {"a": 3, "b": 0, "op": "absc"}
-    check("⭐ inside the distance: the fence on the line with a pending line the ask SPEAKS; negatives, zero, positives as bars in the walk-back",
-          'points="-2,2" caption=' in L.board_for(absc, "abstract") and '[[step eq="|x| < 3 · count them ALL = ?"]]' in L.board_for(absc, "abstract")
-          and '[[bars data="negatives:2 | zero:1 | positives:2" caption="2 + 1 + 2 = 5"]]' in _W(absc)[1]
-          and "the quiet zero" in _W(absc)[0], "")
+    check("⭐ inside the distance: the fence on the line with a pending line the ask SPEAKS; every dot inside "
+          "the fence, counted one side at a time in the walk-back (uq: integers and dots, not whole numbers and bars)",
+          'points="-2,-1,0,1,2" caption=' in L.board_for(absc, "abstract") and '[[step eq="|x| < 3 · integers inside the fence = ?"]]' in L.board_for(absc, "abstract")
+          and '[[numberline min="-3" max="3" points="-2,-1,0,1,2" caption="2 left + 2 right + zero = 5"]]' in _W(absc)[1]
+          and "zero in the middle" in _W(absc)[0] and "integers" in _W(absc)[0] and "whole numbers" not in _W(absc)[0], "")
     el2 = {"a": 12, "b": 6, "op": "el2"}
     check("  the bananas cancel: the two trips as tapes on the ask; the pair of apples left standing in the walk-back",
           '[[tape parts="apple | apple | apple | banana | banana" total="12" caption=' in L.board_for(el2, "abstract")
@@ -25901,7 +26099,7 @@ def part3jh_algebra_two_units_one_to_three_to_the_shape():
     # ---- the giveaway audit, captions, spoken pending lines, the notes ----------------
     check("  nothing the twelve lessons demonstrate is later asked (the old absc teach and turnc why were asks)",
           not any(_TA.direct_hits(L.LESSON_BY_ID[l]) + _TA.reverse_hits(L.LESSON_BY_ID[l]) for l in A1 + A2 + A3)
-          and "negatives:4 | zero:1 | positives:4" in L.LESSON_BY_ID["alg2-u1-inside-the-distance"]["teach"][0][1]
+          and 'points="-4,-3,-2,-1,0,1,2,3,4"' in L.LESSON_BY_ID["alg2-u1-inside-the-distance"]["teach"][0][1]   # (uq) dots, not bars
           and "x^4-4*x^2" in L.LESSON_BY_ID["alg2-u3-the-wiggle-count"]["picture"][0][1], "")
     check("  every figure an ask draws carries a caption (rule 41) -- 60 asks did not before tl",
           all("caption=" in tag for l in A1 + A2 + A3
@@ -26222,7 +26420,7 @@ def part3jk_precalc_units_one_to_three_to_the_shape():
     check("⭐ machines in a row: g first with its output blank, f fed from it; both answered in the walk-back",
           '[[machine input="4" rule="2x" output="?" fname="g" caption=' in L.board_for(fcmp, "abstract")
           and '[[machine input="?" rule="x + 2" output="?" fname="f" caption=' in L.board_for(fcmp, "abstract")
-          and '[[machine input="4" rule="2x" output="8" fname="g" caption="g(4) = 8"]][[machine input="8" rule="x + 2" output="10" fname="f" caption="f(8) = 10"]]' in _W(fcmp)[1]
+          and '[[machine input="4" rule="2x" output="8" fname="g" caption="g(4) = 8"]][[step eq="g(4) = 2 × 4 = 8"]][[machine input="8" rule="x + 2" output="10" fname="f" caption="f(8) = 10"]]' in _W(fcmp)[1]   # (uq) each machine's line beside it
           and "The inner machine runs before the outer" in _W(fcmp)[0], "")
     fshf = {"a": 3, "b": 5, "c": 2, "op": "fshf"}
     check("  the graph slides: the old point captioned on the ask; the point and where it landed in the walk-back",
@@ -38790,6 +38988,7 @@ def main():
     part3kj_the_truth_items_and_the_proven_holes()
     part3kk_one_name_per_function()
     part3kl_a_new_machine_still_called_f()
+    part3km_the_problem_is_always_on_the_board()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

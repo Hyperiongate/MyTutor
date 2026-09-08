@@ -6,6 +6,19 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  APP_BUILD -> "2026-09-08uq-the-problem-is-always-on-the-board". BUILD uq --
+#               Jim's corrections queue (13 flags from a live precalc/algebra2 session; the
+#               triage is claude/Triage_Corrections_Queue_2026-09-08_...). IN THIS FILE:
+#               _ai_board_floor(board_tags, ask_board) -- an `ai` intervention step whose
+#               reply carries no drawing or writing tag gets the ask's own board (the one
+#               the engine put on the intervene step) prepended, at BOTH ai-step sites
+#               (the first intervention and the wrong-again redo). Jim's flags 22:03/22:05:
+#               the live tutor re-asked "what is f of g of 2?" with no board, and he "had
+#               to guess since there was audio of the problem but no text and no visual".
+#               Event code_repair "askboard". Elsewhere in uq: the practice-intro card and
+#               the absc/fcmp boards (lessonscripts.py), the rewritten graph-slides and
+#               inside-the-distance lessons (lessons/), speech-text.js's quotation rule,
+#               the eighty-first referee's "back to our first machine" phrase (tutor.py).
 #   2026-09-08  APP_BUILD -> "2026-09-08up-a-new-machine-still-called-f". BUILD up. NO
 #               CODE IN THIS FILE CHANGED but the stamp. uo's honest gap closed on Jim's
 #               word: the authored function practice retires the name out loud in every
@@ -5350,6 +5363,40 @@ def _split_ai_reply(reply: str):
         return reply, ""
 
 
+# (uq, 2026-09-08) THE PROBLEM ASKED IS ALWAYS ON THE BOARD. Jim's flags 22:03/22:05 on a
+# live precalc lesson: after a wrong answer the intervention re-taught and re-asked
+# ("Now try it yourself: what is f of g of 2?") with NO board tag in its reply -- the
+# question existed only in the air, and he "had to guess since there was audio of the
+# problem but no text and no visual". script_intervention TELLS the model to draw the
+# same kind of board; it did not, and nothing in code made it. Now code does: an ai
+# step whose reply carries no board tag at all gets the ask's own board -- the one the
+# engine put on the intervene step (the ask as it was drawn) -- prepended, so the
+# machines, the number line, the column, whatever the lesson drew, are in front of the
+# student while the tutor talks about them. NARROW: only a reply with no board tag; a
+# reply that drew something of its own is left alone (judging whether it drew the RIGHT
+# thing is a referee's job, not this floor's). Counted as code_repair "askboard".
+# the families that DRAW or WRITE -- a [[choices]] row, a [[mark]] or a [[nice]] is not a board
+_AI_BOARD_FAMILY = tuple(getattr(tags, "FIGURE_TAGS", ()) or ()) + tuple(getattr(tags, "WRITING_TAGS", ()) or ())
+
+
+def _ai_board_floor(board_tags: str, ask_board: str, code: str = "", course: str = "") -> str:
+    """The intervention's board, with the ask's own board prepended when the model
+    drew nothing. Never raises: any surprise returns the tags as they came."""
+    try:
+        brd = str(board_tags or "")
+        if not str(ask_board or "").strip():
+            return brd
+        names = {m.lower() for m in re.findall(r"\[\[\s*([\w-]+)", brd)}
+        if names & set(_AI_BOARD_FAMILY):
+            return brd                            # it drew something; leave it be
+        tutor._event("code_repair", "askboard",
+                     "the intervention carried no board tag; the ask's board was restored",
+                     code, course)
+        return str(ask_board) + brd
+    except Exception:  # noqa: BLE001 -- never brick a lesson over a board
+        return str(board_tags or "")
+
+
 # (sl, 2026-09-04) THE NEXT LESSON IS ALREADY WRITTEN DOWN. Jim's ruling: a MASTERED
 # lesson advances on its own, no student choice; a "still learning" end does NOT advance.
 # COURSE_ORDER (lessonscripts) is the authored sequence -- 360 lessons, 36 per course, and
@@ -5751,6 +5798,8 @@ def script_answer(body: ScriptAnswerIn):
                 sess["history"].append({"role": "assistant", "content": reply})
                 _script_log(code, lesson["course"], t0)
                 _say, _brd = _split_ai_reply(reply)
+                _brd = _ai_board_floor(_brd, (redo.get("context") or {}).get("board"),
+                                       code, lesson["course"])          # (uq)
                 resp = {"ok": True, "steps": [{"kind": "ai", "spoken": _say,
                                                "board": _brd}]}
                 if _streak:
@@ -5799,6 +5848,7 @@ def script_answer(body: ScriptAnswerIn):
                                   "choices": context["choices"],
                                   "context": context})
                 _say, _brd = _split_ai_reply(reply)
+                _brd = _ai_board_floor(_brd, context.get("board"), code, lesson["course"])   # (uq)
                 out.append({"kind": "ai", "spoken": _say, "board": _brd})
             else:
                 # the model is unreachable or produced nothing: the script absorbs
@@ -8660,7 +8710,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-08up-a-new-machine-still-called-f"
+APP_BUILD = "2026-09-08uq-the-problem-is-always-on-the-board"
 
 
 @app.get("/health")

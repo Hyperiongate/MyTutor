@@ -6,6 +6,10 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD uq -- "back to our first machine" joins the eighty-first referee's
+#               retiring phrases (_FR_NEW_WORDS): a lesson's reason and recap beats return
+#               to the opening machine after a practice set that renamed it. The canon is
+#               now swept in the lesson's REAL order (asks included) -- PART 3km.
 #   2026-09-08  BUILD up -- A NEW MACHINE, STILL CALLED f (uo's honest gap, closed by Jim's
 #               word: "say 'a new machine, f' each time"). The eighty-first referee's
 #               _fr_definitions now reads [[machine fname="f" rule="x + 4"]] cards as
@@ -7776,6 +7780,7 @@ _FR_NEW_WORDS = re.compile(
     r"|\b[fgh]\s*(?:\(\s*[a-z]\s*\))?\s+(?:gets|takes|has)\s+a\s+(?:new|different|fresh)\b"
     r"|\bstart\s+(?:over|fresh|again)\b|\bnew\s+[fgh]\b|\bretire\b|\bwipe\s+the\s+(?:board|slate)\b"
     r"|\bnew\s+machines?\b"                      # (up) the authored lane's form: "a new machine, still called f"
+    r"|\bback\s+to\s+(?:our|the)\s+(?:very\s+)?(?:first|original|opening)\s+(?:two\s+|three\s+)?(?:machines?|functions?|rules?|[fgh])\b"   # (uq) a recap returns to the first machine
     r"|\bsame\s+letter\b|\bsame\s+name\b", re.I)
 _FR_EXPR_OK = re.compile(r"^[0-9a-z^+\-*/().√]+$")
 

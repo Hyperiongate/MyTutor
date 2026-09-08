@@ -2,6 +2,12 @@
    speech-text.js  --  WHAT THE TUTOR SAYS OUT LOUD  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-08  A QUOTATION IS NOT A PRIME MARK (build uq, Jim's live flag 22:03:
+                 '"two x" is two times x' was spoken as "two x double prime"). A
+                 quotation -- an opening quote at a word start, its closing quote
+                 before a space or a stop -- has both marks hidden while the prime
+                 rules run (and put back as curly quotes after); a derivative written
+                 y" (no opening quote at a word start) is untouched.
      2026-09-02  A COMMA NUMBER IS SPOKEN IN WORDS (build se, Jim's live flag: "say
                  this number out loud: 8,516" came out "8 5 1 scenes"). The old rule
                  dropped the comma and handed the engine "8516" -- and the engine
@@ -130,6 +136,19 @@ function forSpeech(text) {
     // leave nothing behind; a stray single asterisk still becomes a space, as before.
     .replace(/\*\*/g, "")
     .replace(/\*+/g, " ")                                       // strip markdown *
+    // (uq, 2026-09-08) A QUOTATION IS NOT A PRIME MARK. Jim's flag 22:03: 'like 2x --
+    // means times: "two x" is two times x' was spoken as "two x double prime" -- the
+    // CLOSING quote of "two x" sits right after the letter x, and the ASCII prime rule
+    // below reads a quote after a standalone letter as a double prime. A quotation --
+    // an opening quote at a word start, its closing quote before a space or a stop --
+    // loses both marks here, before the prime rules run. A derivative written y" has
+    // its quote after the letter with no opening quote at a word start, so it is
+    // untouched: y" + y = 0 still reads "y double prime plus y equals zero". The marks
+    // themselves are kept for the voice (a quoted word gets its little pause): they are
+    // hidden behind two sentinels while the prime rules run and put back right after.
+    .replace(/(^|[\s(])(["\u201c])([^"\u201c\u201d\n]{1,120}?)(["\u201d])(?=[\s.,;:!?)]|$)/g, function (m, pre, q1, body, q2) {
+      return pre + (q1 === '"' ? "\u0001" : "\u0003") + body + (q2 === '"' ? "\u0002" : "\u0004");
+    })
     // build ip (2026-08-19): derivatives are SAID, not improvised. Unicode prime marks
     // are unambiguous -- convert them on any letter, longest mark first so y‴ is never
     // read as y″ + ′. (Digit-attached primes -- 45°30′, 5′10″ -- are left alone: those
@@ -147,6 +166,8 @@ function forSpeech(text) {
     .replace(/(^|[^A-Za-z0-9"“'‘’])([A-Za-z])(?:'''|’’’)(?!['’A-Za-z])/g, "$1$2 triple prime")
     .replace(/(^|[^A-Za-z0-9"“'‘’])([A-Za-z])(?:''|’’|["”])(?!['’A-Za-z])/g, "$1$2 double prime")
     .replace(/(^|[^A-Za-z0-9"“'‘’])([A-Za-z])['’](?!['’A-Za-z])/g, "$1$2 prime")
+    .replace(/\u0001/g, '"').replace(/\u0002/g, '"')                    // (uq) the quotation's marks, back as they were
+    .replace(/\u0003/g, "\u201c").replace(/\u0004/g, "\u201d")
     .replace(/\$(\s*)(\d{1,3}(?:,\d{3})+)/g, function (m, s, n) { return "$" + s + n.replace(/,/g, ""); })   // (se) $1,850 -> $1850 (money was "1 dollar,850" before -- pre-existing, found on this build's own dry run)
     .replace(/\$\s*(\d+)(?:\.(\d{1,2}))?/g, moneyWords)
     .replace(/\b\d{1,3}(?:,\d{3})+\b(?!\.\d)/g, commaNumberWords)   // (se) 8,516 -> "eight thousand five hundred sixteen"

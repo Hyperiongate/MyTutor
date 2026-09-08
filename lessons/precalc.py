@@ -2,6 +2,13 @@
 # lessons/precalc.py  --  TRIG / PRE-CALC: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  BUILD uq -- THE PROBLEM IS ALWAYS ON THE BOARD (Jim's flags 22:09/22:10,
+#               21:56, 22:08). pc-u1-the-graph-slides: a concrete f (the square root), BOTH
+#               curves drawn in the why, picture, trap, reason and recap beats, the method
+#               in plain words ("take 3 off x FIRST, then do what f did"), the arrow read
+#               aloud. pc-u1-machines-in-a-row: the trap beat keeps the two rules on the
+#               board; the advance line names composition; the reason and recap beats say
+#               "back to our first two machines" (a retiring phrase for rule 28).
 #   2026-09-08  BUILD up -- A NEW MACHINE, STILL CALLED f. The two worked examples in
 #               pc-u1-machines-in-a-row give f and g new rules; each now says so first
 #               ("-- two new machines, still called f and g"), per Jim's rule-28 ruling.
@@ -36,7 +43,7 @@ _PRECALC_U1 = [
         "op": "fcmp", "max_value": 40,
         "levels": ("abstract",),
         "symbols": ("composition", "inside"),
-        "advance_line": "Three in a row, and you can say why — you've got it! The inner machine runs first.",
+        "advance_line": "Three in a row, and you can say why — you've got it! In a composition, the inside function runs first.",
         "why": [
             ("Why machines in a row? Welcome to Pre-Calculus, where functions become "
              "the main characters. Algebra One fed numbers through two machines in a "
@@ -59,7 +66,9 @@ _PRECALC_U1 = [
              "number entirely, because these machines do not commute. Order is "
              "everything in a kitchen and in a composition: the INSIDE machine cooks "
              "first.",
-             '[[step eq="f(g(5)) = 13 ✓"]][[step eq="g(f(5)) = 16 ✗ — the order flipped"]]'),
+             # (uq) Jim's flag 21:56: "without being able to see the original functions
+             # unless I scrolled up" -- the two rules ride this beat's board too.
+             '[[step eq="f(x) = x + 3 · g(x) = 2x"]][[step eq="f(g(5)) = 13 ✓"]][[step eq="g(f(5)) = 16 ✗ — the order flipped"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you — two new machines, still called f and g. f adds 4, g times by 3. f of g of "
@@ -75,7 +84,7 @@ _PRECALC_U1 = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. f adds 3, g times by "
+            "spoken": ("One more thing — not the answer, the reason. Back to our first two machines: f adds 3, g times by "
                        "2, and f of g of 5 is 13. Tap the reason why."),
             "choices": ("because g runs first, and f eats what g made | because f runs "
                         "first, and g eats what f made | because the two machines run "
@@ -84,7 +93,7 @@ _PRECALC_U1 = [
             "board": '[[machine input="5" rule="2x" output="10" fname="g" caption="g first"]][[machine input="10" rule="x + 3" output="13" fname="f" caption="then f"]]',
         },
         "recap": [
-            ("So, here it is again. A composition is two machines on one belt, and the "
+            ("So, here it is again, back to our first two machines. A composition is two machines on one belt, and the "
              "notation is a map: whatever sits deepest runs first. Run the inner "
              "machine, hand its answer to the outer one — never the other way round.",
              '[[machine input="5" rule="2x" output="10" fname="g" caption="inside first"]][[machine input="10" rule="x + 3" output="13" fname="f" caption="then the outer machine"]]'),
@@ -112,30 +121,39 @@ _PRECALC_U1 = [
         "levels": ("abstract",),
         "symbols": ("slides", "opposite"),
         "advance_line": "Three in a row, and you can say why — you've got it! The minus inside slides the graph right.",
+        # (uq, 2026-09-08) Jim's flags 22:09/22:10: "makes ZERO sense without a visual",
+        # "none of this makes any sense". The why beat had a goal card and no curve; the
+        # picture was two dots; the method said "to get the OLD answer at f of zero, x
+        # take away 3 must BE zero". Now a concrete f -- the square root -- and BOTH
+        # curves on the board in every beat, and the method in plain words.
         "why": [
-            ("Why does the graph slide? Because one rule moves EVERY graph ever drawn. "
-             "Change y equals f of x into y equals f of: x take away 3 — and the whole "
-             "picture slides 3 to the RIGHT. The vertex lesson met this for one curve; "
-             "it is true for all of them, and the minus still points opposite.",
-             '[[goal text="The graph slides"]]'),
+            ("Why does the graph slide? Because one rule moves every graph ever drawn, "
+             "and the board shows it. The lower curve is one you know: y equals the "
+             "square root of x — call that rule f. The other curve is the SAME rule "
+             "with one change inside the parentheses: y equals f of x take away 3. The "
+             "whole curve slid 3 to the RIGHT. Not up, not left — right.",
+             '[[graph func="sqrt(x) | sqrt(x-3)" names="y = f(x) | y = f(x − 3)" range="0..12" yrange="0..4" caption="the same curve, slid 3 to the right"]][[goal text="The graph slides"]]'),
         ],
         "picture": [
-            ("Here is a point on the old graph, (4, 2), and beside it the spot it "
-             "slides to under f of x take away 3: (7, 2). Same height, 3 further "
-             "along. Every point on the old graph moves exactly like this one.",
-             '[[graph points="(4,2),(7,2)" range="0..10" yrange="0..4" caption="(4, 2) slides right 3 to (7, 2)"]]'),
+            ("Follow one point. On the old curve, x equals 4 gives 2 — the point (4, "
+             "2). On the new curve the height 2 sits at x equals 7, because 7 take "
+             "away 3 is 4, and the square root of 4 is 2. So (4, 2) slid to (7, 2) — "
+             "the same height, 3 further right. Every point on the old curve moves "
+             "exactly like this one.",
+             '[[graph func="sqrt(x) | sqrt(x-3)" names="y = f(x) | y = f(x − 3)" points="(4,2),(7,2)" range="0..12" yrange="0..4" caption="(4, 2) slides right 3 to (7, 2)"]]'),
         ],
         "teach": [
-            ("That is the method. Why right? To get the OLD answer at f of zero, x take "
-             "away 3 must BE zero — so x must be 3. Every old moment happens 3 later. "
-             "A point like (4, 2) keeps its height and slides across: it lands at (7, "
-             "2).",
-             '[[graph points="(4,2),(7,2)" range="0..10" yrange="0..4" caption="old (4, 2) → new (7, 2)"]][[step eq="old (4, 2) → new (7, 2)"]]'),
+            ("That is the method. The new rule says: take 3 off x FIRST, then do what f "
+             "did. So the new curve at x equals 7 does what the old curve did at 4 — "
+             "and the old curve at 4 was 2. The height stays; x moves. New x equals old "
+             "x plus 3: 4 plus 3 is 7.",
+             '[[step eq="new curve at x = 7: f(7 − 3) = f(4) = 2"]][[step eq="new x = old x + 3 = 4 + 3 = 7"]]'),
             ("The trap is reading the minus literally and sliding LEFT — landing at "
-             "(1, 2). But the minus inside is a delay, not a direction: it says x must "
-             "grow before the function sees what it saw before. Inside the "
-             "parentheses, signs point opposite. Always.",
-             '[[step eq="(4, 2) → (7, 2) ✓"]][[step eq="(1, 2) ✗ — the literal minus"]]'),
+             "(1, 2). But the minus inside is a delay, not a direction: x has to grow "
+             "by 3 before the rule sees what it saw before. On the board the arrow "
+             "says where the point goes: (4, 2) becomes (7, 2), the check mark — not "
+             "(1, 2). Inside the parentheses, the sign points opposite. Always.",
+             '[[graph func="sqrt(x) | sqrt(x-3)" names="y = f(x) | y = f(x − 3)" points="(4,2),(7,2)" range="0..12" yrange="0..4" caption="right 3 ✓ — not left"]][[step eq="(4, 2) → (7, 2) ✓"]][[step eq="(1, 2) ✗ — the literal minus"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. y equals f of: x take away 2. The "
@@ -158,14 +176,14 @@ _PRECALC_U1 = [
                         "because the minus inside means left, so the graph slides left | "
                         "because the minus inside lowers the graph by 3"),
             "answer": "because the minus inside is a delay, so the graph slides right",
-            "board": '[[graph points="(4,2),(7,2)" range="0..10" yrange="0..4" caption="right 3"]]',
+            "board": '[[graph func="sqrt(x) | sqrt(x-3)" names="y = f(x) | y = f(x − 3)" points="(4,2),(7,2)" range="0..12" yrange="0..4" caption="right 3"]]',
         },
         "recap": [
             ("So, here it is again. Take a number away inside the parentheses and the "
              "whole graph slides right by that much — the minus is a delay, and inside "
              "the parentheses signs point opposite. Every point keeps its height and "
              "moves across.",
-             '[[graph points="(4,2),(7,2)" range="0..10" yrange="0..4" caption="the minus inside slides the graph right"]]'),
+             '[[graph func="sqrt(x) | sqrt(x-3)" names="y = f(x) | y = f(x − 3)" points="(4,2),(7,2)" range="0..12" yrange="0..4" caption="the minus inside slides the graph right"]]'),
             ("And that is one rule for every graph ever drawn.",
              '[[step eq="f(x − 3): everything slides right 3"]]'),
         ],

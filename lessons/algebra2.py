@@ -2,6 +2,11 @@
 # lessons/algebra2.py  --  ALGEBRA II: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  BUILD uq -- THE PROBLEM IS ALWAYS ON THE BOARD (Jim's flag 21:40: "this
+#               entire way of explaining absolute value is ridiculous"). alg2-u1-inside-the-
+#               distance: INTEGERS, never "whole numbers" for the negatives (false in the US
+#               convention); every dot drawn on the number line and counted one side at a
+#               time; the bar chart of negatives/zero/positives is gone; symbols updated.
 #   2026-09-08  BUILD uj -- ONE FILE PER COURSE. Split out of lessonscripts.py (Jim's
 #               housekeeping, second half). Every lesson below is the text that sat in
 #               lessonscripts.py, moved whole -- the unit lists keep their names, and
@@ -110,62 +115,76 @@ _ALGEBRA2_U1 = [
         "topic": "Counting inside a distance",
         "op": "absc", "max_value": 30,
         "levels": ("abstract",),
-        "symbols": ("absolute value", "whole numbers"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Both sides, and the quiet zero in the middle.",
+        # (uq, 2026-09-08) Jim's flag 21:40: "this entire way of explaining absolute value
+        # is ridiculous and very hard to follow". Two things were wrong. The lesson said
+        # "whole numbers" for the negatives -- false in the US convention (whole numbers
+        # are 0, 1, 2, ...; the numbers on both sides of zero are the INTEGERS). And it
+        # counted with a bar chart of "negatives | zero | positives" instead of the dots a
+        # student can see. Now: integers, every dot drawn on the number line, one side at
+        # a time, and zero named as a dot like any other.
+        "symbols": ("absolute value", "integers"),
+        "advance_line": "Three in a row, and you can say why — you've got it! Both sides of zero, and zero itself.",
         "why": [
-            ("Why count inside a distance? Because absolute value draws a fence on "
-             "both sides of zero. Which whole numbers have an absolute value less than "
-             "5? Any number closer to zero than 5 steps — on either side. The negatives "
-             "count, the positives count, and one number always sneaks in unseen: "
-             "zero.",
-             '[[goal text="Inside the distance"]]'),
+            ("Why count inside a distance? Absolute value is a distance from zero: the "
+             "absolute value of negative 3 is 3, because negative 3 sits 3 steps from "
+             "zero. So 'absolute value less than five' is a fence question: the integers "
+             "that sit closer to zero than five steps. Integers are the whole-number "
+             "steps on the line — the negative ones too — and zero is one of them. "
+             "Every dot on the board is inside the fence.",
+             '''[[numberline min="-5" max="5" points="-4,-3,-2,-1,0,1,2,3,4" caption="every integer closer to zero than 5 steps"]][[goal text="Inside the distance"]]'''),
         ],
         "picture": [
-            ("Here is the number line with the fence at negative 5 and 5. Everything "
-             "strictly inside it is closer to zero than 5: negative 4 up to 4. The "
-             "ends themselves stay out — 5 is not LESS than 5.",
-             '[[numberline min="-5" max="5" points="-4,4" caption="closer to zero than 5 — from −4 up to 4, the ends left out"]]'),
+            ("Here is the number line with the fence at negative 5 and 5. Every dot is "
+             "an integer strictly inside the fence — closer to zero than 5. The fence "
+             "posts themselves stay out: 5 is not LESS than 5, and neither is negative "
+             "5.",
+             '''[[numberline min="-5" max="5" points="-4,-3,-2,-1,0,1,2,3,4" caption="the dots inside the fence — the posts at −5 and 5 stay out"]]'''),
         ],
         "teach": [
-            ("That is the method. List them: negative 4, negative 3, negative 2, "
-             "negative 1, zero, then 1, 2, 3, 4. Count: 4 negatives, 4 positives, and "
-             "zero — 9 whole numbers.",
-             '[[bars data="negatives:4 | zero:1 | positives:4" caption="4 + 1 + 4 = 9 whole numbers"]][[step eq="4 + 1 + 4 = 9"]]'),
-            ("Two traps, both one short. Forget zero and you count 8 — but zero\'s "
-             "absolute value is 0, and 0 is less than 5. Count only the positive side "
-             "and you get 4 — half the picture. Both sides, and the quiet zero in the "
-             "middle.",
-             '[[step eq="4 + 1 + 4 = 9 ✓"]][[step eq="8 ✗ forgot zero · 4 ✗ one side only"]]'),
+            ("That is the method. Count the dots one side at a time. Left of zero: "
+             "negative 4, negative 3, negative 2, negative 1 — four dots. Right of "
+             "zero: 1, 2, 3, 4 — four more. And zero itself, in the middle — one. Four "
+             "plus four plus one: nine integers.",
+             '''[[numberline min="-5" max="5" points="-4,-3,-2,-1,0,1,2,3,4" caption="4 on the left + 4 on the right + zero = 9"]][[step eq="4 + 4 + 1 = 9"]]'''),
+            ("Two traps, both one short. Skip zero and you get 8 — but zero's distance "
+             "from zero is 0, and 0 is less than 5, so zero is inside the fence. Count "
+             "only the right side and you get 4 — half the fence. Both sides, and "
+             "zero in the middle.",
+             '[[step eq="4 + 4 + 1 = 9 ✓"]][[step eq="8 ✗ skipped zero · 4 ✗ one side only"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. Less than 2: that is negative 1, "
-                        "zero, and 1 — 3 whole numbers.",
-                        '[[bars data="negatives:1 | zero:1 | positives:1" caption="1 + 1 + 1 = 3"]][[step eq="1 + 1 + 1 = 3"]]'),
+            {"worked": ("Here is one more, done for you — a smaller fence, less than 2. "
+                        "Inside it: negative 1, zero, and 1. One dot on the left, one on "
+                        "the right, and zero: three integers.",
+                        '[[numberline min="-2" max="2" points="-1,0,1" caption="the dots inside the fence: 1 + 1 + 1 = 3"]][[step eq="1 + 1 + 1 = 3"]]'),
              "ask": {'a': 3, 'b': 0, 'op': 'absc'}},
-            {"worked": ("One more together. Less than 20: 19 negatives, 19 positives, "
-                        "and zero — 39.",
-                        '[[bars data="negatives:19 | zero:1 | positives:19" caption="19 + 1 + 19 = 39"]][[step eq="19 + 1 + 19 = 39"]]'),
+            {"worked": ("One more together — a wide fence, less than 20. Left of zero: "
+                        "negative 19 up to negative 1, nineteen dots. Right of zero: 1 up "
+                        "to 19, nineteen more. And zero. Nineteen plus nineteen plus one "
+                        "is 39.",
+                        '[[numberline min="-20" max="20" points="-19,0,19" caption="19 dots on the left, zero, 19 on the right — the posts at ±20 stay out"]][[step eq="19 + 19 + 1 = 39"]]'),
              "ask": {'a': 13, 'b': 0, 'op': 'absc'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. There are 9 whole "
-                       "numbers with an absolute value less than 5. Tap the reason why."),
+            "spoken": ("One more thing — not the answer, the reason. There are 9 integers "
+                       "with an absolute value less than 5. Tap the reason why."),
             "choices": ("because both sides count, and so does zero in the middle | "
                         "because only the positive side counts, doubled | because the "
                         "ends, 5 and negative 5, count too"),
             "answer": "because both sides count, and so does zero in the middle",
-            "board": '[[bars data="negatives:4 | zero:1 | positives:4" caption="4 + 1 + 4 = 9"]]',
+            "board": '''[[numberline min="-5" max="5" points="-4,-3,-2,-1,0,1,2,3,4" caption="4 + 4 + 1 = 9"]]''',
         },
         "recap": [
             ("So, here it is again. Absolute value less than a number means closer to "
-             "zero than that, on either side. Count the negatives, count the "
-             "positives, and add the quiet zero — the ends themselves stay out.",
-             '[[numberline min="-5" max="5" points="-4,4" caption="inside the fence: 4 + 1 + 4 = 9"]]'),
+             "zero than that, on either side. Count the dots on the left, count the "
+             "dots on the right, and add zero in the middle — the fence posts "
+             "themselves stay out.",
+             '''[[numberline min="-5" max="5" points="-4,-3,-2,-1,0,1,2,3,4" caption="inside the fence: 4 + 4 + 1 = 9"]]'''),
             ("And that is a distance, counted from the inside.",
-             '[[step eq="4 + 1 + 4 = 9"]]'),
+             '[[step eq="4 + 4 + 1 = 9"]]'),
         ],
         "bank": [
             {"a": 4, "b": 0, "op": "absc"},

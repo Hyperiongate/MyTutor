@@ -7,6 +7,17 @@
 #               VERBATIM, 70 entries; 39 stay here. Keep adding new notes HERE, newest at
 #               top; roll them out again (notes_rollout.py) when this header passes ~100
 #               KB.
+#   2026-09-08  BUILD uq -- THE PROBLEM IS ALWAYS ON THE BOARD (Jim's corrections queue).
+#               * PRACTICE_INTRO_BOARD: the practice intro ("Now it's your turn...") carries
+#                 a card now; it spoke over a scrolled-away board (flag 22:02).
+#               * _fcmp_board: the two rules FIRST, then the machines, then f(g(c)) = ?
+#                 (flag 21:57 "visuals backwards"); _fcmp_worked writes each machine's
+#                 line beside it (flag 21:59).
+#               * absc: INTEGERS, not "whole numbers" (false for the negatives); the
+#                 question, the board, the walk-back and the praise count DOTS on the
+#                 number line one side at a time (_absc_dots), not bars (flag 21:40).
+#               * PRAISE_PREFIXES: "Nice counting!" -> "Nice work!" (flag 22:05: it praised
+#                 a composition). New closure text: run the script-prewarm after the push.
 #   2026-09-08  BUILD up -- A NEW MACHINE, STILL CALLED f. Jim's 2026-09-08 ruling (rule
 #               28: one letter names one function, all conversation) reaches the practice
 #               sets, which give f a fresh rule every problem. The four function ops now
@@ -905,11 +916,14 @@ VOCABULARY = {
 }
 
 # ---- PRAISE (rotated deterministically by problem index; all pre-renderable) ------
-PRAISE_PREFIXES = ("That's it!", "You got it!", "Nice counting!",
+PRAISE_PREFIXES = ("That's it!", "You got it!", "Nice work!",       # (uq) "Nice counting!" praised a composition
                    "Exactly right!", "Well done!")
 
 # fixed one-line scripts (every one of these is pre-rendered once)
 LINE_WRONG = "Not quite — let's look at it together."
+# (uq, 2026-09-08) Jim's flag 22:02: "There is no visual. Only audio." -- the practice
+# intro spoke over a board that had scrolled away. It carries this card now.
+PRACTICE_INTRO_BOARD = '[[card title="Your turn" items="Three right answers in a row | Tap an answer, say it, or type it | I\'m not sure is always a fair answer"]]'
 LINE_REASK = "Let me say that again."
 LINE_TAP = "Tap the answer you think is right."
 LINE_END_GRACEFUL = ("We did some strong thinking today. We'll practice this again "
@@ -3926,19 +3940,28 @@ def _absv_worked(p):
             f'[[step eq="|{a} − {b}| = {b - a}"]]')
 
 
+def _absc_dots(a):
+    """(uq) every integer strictly inside the fence, as dots -- all of them up to a
+    fence of 10; a wider fence shows its innermost, zero and its outermost dot."""
+    if a <= 10:
+        return ",".join(str(k) for k in range(-(a - 1), a))
+    return f"{-(a - 1)},-1,0,1,{a - 1}"
+
+
 def _absc_board(p):
     a = p["a"]
-    return (f'[[numberline min="{-a}" max="{a}" points="{-(a - 1)},{a - 1}" caption="closer to zero than {a} — from negative {a - 1} up to {a - 1}; count them ALL"]]'
-            f'[[step eq="|x| < {a} · count them ALL = ?"]]')
+    return (f'[[numberline min="{-a}" max="{a}" points="{_absc_dots(a)}" caption="the fence at −{a} and {a} — count every integer strictly inside it"]]'
+            f'[[step eq="|x| < {a} · integers inside the fence = ?"]]')
 
 
 def _absc_worked(p):
     a = p["a"]
-    return (f"Look what you did: from negative {a - 1} up to {a - 1} — {a - 1} negatives, "
-            f"{a - 1} positives, and the quiet zero in the middle: {2 * a - 1} whole numbers. "
-            f"The ends stay out; {a} is not less than {a}.",
-            f'[[bars data="negatives:{a - 1} | zero:1 | positives:{a - 1}" caption="{a - 1} + 1 + {a - 1} = {2 * a - 1}"]]'
-            f'[[step eq="{a - 1} + 1 + {a - 1} = {2 * a - 1}"]]')
+    return (f"Look what you did: count the dots one side at a time. Left of zero, negative "
+            f"{a - 1} up to negative 1: {a - 1} dots. Right of zero, 1 up to {a - 1}: {a - 1} "
+            f"more. And zero in the middle. {a - 1} plus {a - 1} plus 1 is {2 * a - 1} "
+            f"integers. The fence posts stay out — {a} is not less than {a}.",
+            f'[[numberline min="{-a}" max="{a}" points="{_absc_dots(a)}" caption="{a - 1} left + {a - 1} right + zero = {2 * a - 1}"]]'
+            f'[[step eq="{a - 1} + {a - 1} + 1 = {2 * a - 1}"]]')
 
 
 def _el2_board(p):
@@ -4535,10 +4558,12 @@ def _samp_worked(p):
 # machine run backwards, the tank halving and the pile doubling on the bars. Every ask
 # draws its question with the answer withheld; every walk-back draws it filled in.
 def _fcmp_board(p):
+    # (uq) Jim's flag 21:57: "show the two functions first, then ask the question, then
+    # use the graphic to solve". The rules lead, the machines follow, the question last.
     a, b, c = p["a"], p["b"], p["c"]
-    return (f'[[machine input="{c}" rule="{b}x" output="?" fname="g" caption="g runs first: {c} goes in"]]'
+    return (f'[[step eq="f(x) = x + {a} · g(x) = {b}x"]]'
+            f'[[machine input="{c}" rule="{b}x" output="?" fname="g" caption="g runs first: {c} goes in"]]'
             f'[[machine input="?" rule="x + {a}" output="?" fname="f" caption="then f eats what g made — what comes out?"]]'
-            f'[[step eq="f(x) = x + {a} · g(x) = {b}x"]]'
             f'[[step eq="f(g({c})) = ?"]]')
 
 
@@ -4548,7 +4573,9 @@ def _fcmp_worked(p):
             f"outer machine: f of {b * c} is {b * c} plus {a}, which equals {b * c + a}. The "
             f"inner machine runs before the outer; run f first and the number is different.",
             f'[[machine input="{c}" rule="{b}x" output="{b * c}" fname="g" caption="g({c}) = {b * c}"]]'
+            f'[[step eq="g({c}) = {b} × {c} = {b * c}"]]'
             f'[[machine input="{b * c}" rule="x + {a}" output="{b * c + a}" fname="f" caption="f({b * c}) = {b * c + a}"]]'
+            f'[[step eq="f({b * c}) = {b * c} + {a} = {b * c + a}"]]'
             f'[[step eq="f(g({c})) = {b * c + a}"]]')
 
 
@@ -9942,18 +9969,17 @@ OP_EXT = {
                             "two different spots on the line (automatic once "
                             "a is below b)"),
     },
-    "absc": {  # how many whole numbers have |x| < a: the zero counts too
+    "absc": {  # how many INTEGERS have |x| < a: the zero counts too (uq: "whole numbers" was wrong)
         "ans": lambda p: 2 * p["a"] - 1,
-        "spoken": lambda p: (f"How many whole numbers x have an absolute value "
-                             f"less than {p['a']}?"),
+        "spoken": lambda p: (f"How many integers x have an absolute value less than "
+                             f"{p['a']}? Count every dot inside the fence."),
         "board": _absc_board,         # (tl) the ends on the line, captioned
         "worked": _absc_worked,       # (tl) negatives, zero, positives as bars
         # "{n} on each side" stays grammatical at n = 1 ("1 negatives" would
         # not -- caught reading ask1's praise aloud).
         "praise": lambda p: (f"From negative {p['a'] - 1} up to "
                              f"{p['a'] - 1}: {p['a'] - 1} on each side, and "
-                             f"zero in the middle — {2 * p['a'] - 1} whole "
-                             f"numbers."),
+                             f"zero in the middle — {2 * p['a'] - 1} integers."),
         "key": lambda p: p["a"],
         # The errors: forgetting ZERO (one short of everything), and counting
         # the positive side only.
@@ -15614,8 +15640,8 @@ def step(lesson, state, event):
             state["phase"] = "pair-1"
             return (out, state)
         if state["phase"] == "pair-1":
-            out.append({"kind": "say", "spoken": lesson["practice_intro"],
-                        "board": ""})
+            out.append({"kind": "say", "spoken": lesson["practice_intro"],   # (uq) a card, never a blank board
+                        "board": PRACTICE_INTRO_BOARD})
             if lesson.get("mastery") == "table":
                 # (sz) the table lesson practices as a PASS, not a streak
                 state["phase"] = "table"

@@ -2,6 +2,10 @@
 # lessons/algebra1.py  --  ALGEBRA I: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  BUILD uq -- the reason and recap beats of alg1-u3-f-of-x, -two-machines and
+#               -which-input say "back to our first machine(s)" when they return to the
+#               lesson's opening machine after the practice set -- a retiring phrase the
+#               one-name-per-function referee reads (rule 28). Words only.
 #   2026-09-08  BUILD up -- A NEW MACHINE, STILL CALLED f. The two worked examples in
 #               alg1-u3-f-of-x, alg1-u3-two-machines and alg1-u3-which-input give the
 #               machine a new rule; each now says so first ("-- a new machine, still
@@ -808,7 +812,7 @@ _ALGEBRA1_U3 = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. f of x equals x "
+            "spoken": ("One more thing — not the answer, the reason. Back to our first machine, f: f of x equals x "
                        "plus 5, so f of 3 is 8. Tap the reason why."),
             "choices": ("because f of 3 means feed the machine 3, not times | "
                         "because f of 3 means f times 3 | because the 3 in parentheses "
@@ -817,7 +821,7 @@ _ALGEBRA1_U3 = [
             "board": '[[machine input="3" rule="x + 5" output="8" fname="f" caption="f(3) = 8"]]',
         },
         "recap": [
-            ("So, here it is again. f is the machine\'s name, and f of 3 means feed "
+            ("So, here it is again, back to our first machine. f is the machine\'s name, and f of 3 means feed "
              "it 3. The parentheses hold the meal — nothing is timesed. Run the rule "
              "and write what came out: f of 3 equals 8.",
              '[[machine input="3" rule="x + 5" output="8" fname="f" caption="f(3) = 3 + 5 = 8"]]'),
@@ -884,7 +888,7 @@ _ALGEBRA1_U3 = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. The first machine "
+            "spoken": ("One more thing — not the answer, the reason. Back to our first two machines: the first machine "
                        "adds 2, the second times by 3, and a 4 goes in. Out comes 18. "
                        "Tap the reason why."),
             "choices": ("because the 6 from machine one is what gets timesed | "
@@ -894,7 +898,7 @@ _ALGEBRA1_U3 = [
             "board": '[[machine input="4" rule="x + 2" output="6" caption="in 4, out 6"]][[machine input="6" rule="3x" output="18" fname="g" caption="in 6, out 18"]]',
         },
         "recap": [
-            ("So, here it is again. Two machines in a row: what comes out of the "
+            ("So, here it is again, back to our first two machines. Two machines in a row: what comes out of the "
              "first goes straight into the second. Read which machine is first, "
              "because the order changes the answer.",
              '[[machine input="4" rule="x + 2" output="6" caption="in 4, out 6"]][[machine input="6" rule="3x" output="18" fname="g" caption="in 6, out 18"]]'),
@@ -963,7 +967,7 @@ _ALGEBRA1_U3 = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. f of x equals x "
+            "spoken": ("One more thing — not the answer, the reason. Back to our first machine, f: f of x equals x "
                        "plus 3, and f of what equals 10? The input was 7. Tap the "
                        "reason why."),
             "choices": ("because the machine added 3, so undo it: 10 take away 3 | "
@@ -973,7 +977,7 @@ _ALGEBRA1_U3 = [
             "board": '[[machine input="7" rule="x + 3" output="10" fname="f" caption="f(7) = 10 ✓"]]',
         },
         "recap": [
-            ("So, here it is again. Told the output, undo the rule to walk back to "
+            ("So, here it is again, back to our first machine. Told the output, undo the rule to walk back to "
              "the input — the undo of a plus is a take away — then run the machine "
              "forwards to check. The output came out; it never went in.",
              '[[machine input="7" rule="x + 3" output="10" fname="f" caption="? + 3 = 10 · ? = 7 · f(7) = 10"]]'),
