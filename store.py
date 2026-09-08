@@ -2,6 +2,10 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  BUILD uf -- THE PER-STUDENT VIEW (P2 of the deep look, second half).
+#               student_courses(code): every course a student has a trace in, one
+#               pass over five tables, for /api/admin/student to walk. Read-only; no
+#               schema change.
 #   2026-09-07  BUILD ue -- THE AUTHORED LANE WRITES IT DOWN (P2 of the deep look, Jim's
 #               order). (1) NEW TABLE script_answers: one row per graded answer in the
 #               scripted lane -- the question as spoken, the answer, the expected, right
@@ -2067,6 +2071,29 @@ def lessons_done_count(code: str, course: str = "") -> int:
     except Exception as exc:  # noqa: BLE001
         print(f"[store] lessons_done_count failed: {_redact(str(exc))}")
         return 0
+
+
+def student_courses(code: str) -> list:
+    """(uf) Every course this student has left a trace in -- topic_progress,
+    unit_checks, script_done, script_answers, time_daily -- in one pass, sorted.
+    The per-student view walks these so a course the student never opened is
+    simply absent. Never raises."""
+    if not _ENABLED:
+        return []
+    from sqlalchemy import select
+    found = set()
+    try:
+        with _engine.connect() as conn:
+            for name in ("topic_progress", "unit_checks", "script_done",
+                         "script_answers", "time_daily"):
+                t = _tables[name]
+                for (c,) in conn.execute(select(t.c.course).where(t.c.code == code)
+                                         .distinct()).all():
+                    if c:
+                        found.add(str(c))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[store] student_courses failed: {_redact(str(exc))}")
+    return sorted(found)
 
 
 # ---- engaged time (2026-07-30) ----------------------------------------------

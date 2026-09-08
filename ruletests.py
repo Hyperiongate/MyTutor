@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  BUILD uf -- THE PER-STUDENT VIEW (P2 of the deep look, second half). PART
+#               3kb: GET /api/admin/student (general tier, header only, rate-limited,
+#               404/400, read-only, no code-listing route anywhere), its payload shape
+#               in ue's words, store.student_courses, the One student card in admin.html
+#               (hidden until unlocked, no reset button, "student" never "child"); LIVE
+#               (subprocess + TestClient + sqlite): a lesson driven, then the route
+#               refused without the key / with a wrong key / with the key in the query,
+#               404 for an unknown code, 400 for none, and the payload read back whole
+#               (the masked code only, the unit "taught", the lesson, the answers newest
+#               first with their topic, the stats). Tile 10,977 -> 10,994.
 #   2026-09-07  BUILD ue -- THE AUTHORED LANE WRITES IT DOWN (P2 of the deep look, first
 #               half). PART 3ka: the script_answers table and its registry row; the
 #               ladder explored < learning < practiced < taught < mastered with
@@ -12471,6 +12481,149 @@ def part3ka_the_authored_lane_writes_it_down():
           and "(ue) 2026-09-07" in adm[:6000], "")
 
 
+def part3kb_the_per_student_view():
+    """PART 3kb (build uf, 2026-09-08) -- P2 OF THE DEEP LOOK, SECOND HALF.
+
+    The review: "the admin is an operator console with no per-student learning view --
+    the operator can see totals and tables but cannot answer 'how is Sam doing'". Now
+    GET /api/admin/student?code= answers it: one student, everything, read-only, on the
+    general admin key, by a code the owner TYPES (no route lists codes -- F2). admin.html
+    gains the "One student" card under the board.
+
+    Static pins on the route's gate and shape, the store reader and the card; then a
+    LIVE drill (subprocess + TestClient + sqlite): a lesson driven for a persona, then the
+    route refused without the key, with a wrong key, with the key in the QUERY (header
+    only, build dg), 404 for an unknown code, 400 for none -- and the payload read back
+    with the lesson, its answers newest first, the unit's "taught", and the tiles' numbers."""
+    print("\nPART 3kb — the per-student view (build uf)")
+    import re as _re, subprocess, sys, tempfile
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    NL = chr(10)
+    m = rd("main.py"); ssrc = rd("store.py"); adm = rd("static/admin.html")
+
+    # ---- the route -----------------------------------------------------------------------
+    _r = m[m.find('@app.get("/api/admin/student")'):m.find('@app.get("/api/admin/flags")')]
+    check("⭐ main: GET /api/admin/student exists, general tier, header only, rate-limited, DB required",
+          bool(_r) and "def admin_student(request: Request, code: str = \"\"," in _r
+          and "_require_db()" in _r and "_require_admin(x_admin_key)" in _r
+          and 'key: str = ""' not in _r
+          and '_rate_limit("admin-student", limit=120, window_seconds=600' in _r, "")
+    check("  main: an unknown code is a 404, an empty one a 400 -- a typo never 'succeeds'",
+          'raise HTTPException(status_code=404, detail="That code isn\'t a known student.")' in _r
+          and 'raise HTTPException(status_code=400, detail="Type a student code.")' in _r, "")
+    check("  main: it reads, never writes (no record_/reset_/delete in the route)",
+          not _re.search(r"store\.(record_|reset_|delete_|bump_|set_)", _r)
+          and "store.student_courses(code)" in _r, "")
+    check("  main: the payload carries the whole picture",
+          all(k in _r for k in ('"courses": courses', '"lessons": lessons', '"answers": answers',
+                                '"quizzes": quizzes', '"checks": checks', '"awards": awards',
+                                '"answer_stats": answer_stats', '"time": {"days": time_days',
+                                '"code_masked": _mask_code(code)')), "")
+    check("  main: the units speak ue's words (status, lessons_done, mastered = the Unit Quiz)",
+          '"lessons_done": l["done"], "lessons_total": l["total"],' in _r
+          and '"mastered": best >= store.PASS_PCT})' in _r
+          and "lu = _lessons_by_unit(code, cid)" in _r, "")
+    check("  main: every answer carries its lesson's topic; lessons and courses newest first",
+          'a["topic"] = les.get("topic") or a.get("lesson_id")' in _r
+          and 'lessons.sort(key=lambda x: x.get("last_at") or "", reverse=True)' in _r
+          and 'courses.sort(key=lambda c: c.get("last_active") or "", reverse=True)' in _r, "")
+    check("⭐ main: NO route lists student codes (F2 stays closed)",
+          not _re.search(r'@app\.get\("/api/admin/students"\)', m)
+          and "def admin_students(" not in m, "")
+    check("  store: student_courses walks the five tables in one pass and never raises",
+          "def student_courses(code: str) -> list:" in ssrc
+          and all(f'"{t}"' in ssrc[ssrc.find("def student_courses("):ssrc.find("def student_courses(") + 1200]
+                  for t in ("topic_progress", "unit_checks", "script_done", "script_answers", "time_daily"))
+          and "student_courses failed" in ssrc, "")
+
+    # ---- the card -------------------------------------------------------------------------
+    check("⭐ admin.html: the One student card, hidden until the key unlocks the page",
+          '<div class="card" id="stuCard" style="display:none">' in adm
+          and '$("stuCard").style.display = "";' in adm
+          and '<input class="f" id="stuCode"' in adm and 'id="stuGo"' in adm, "")
+    check("  admin.html: the lookup rides the header through api(), by the typed code",
+          'await api("/api/admin/student?code=" + encodeURIComponent(code))' in adm
+          and "function renderStudent(d)" in adm and "function stuLookup()" in adm, "")
+    check("  admin.html: the statuses read in ue's words",
+          '"taught": "Lesson done"' in adm and 'STATUS_WORDS[u.status]' in adm
+          and "'★ Mastered'" in adm, "")
+    check("  admin.html: the tables -- units, lessons done, answers, quizzes, minutes by day",
+          all(t in adm for t in ("<th>Question</th><th>Answered</th><th>Expected</th><th>Right?</th>",
+                                 "<th>Lesson</th><th class=\"numc\">Runs</th><th>Three in a row</th>",
+                                 "Engaged minutes by day", "<th>Kind</th><th>Course</th>")), "")
+    check("  admin.html: the card never carries a delete or reset button",
+          "reset" not in adm[adm.find('id="stuCard"'):adm.find('id="stuOut"')].lower()
+          and "wipe" not in adm[adm.find('id="stuCard"'):adm.find('id="stuOut"')].lower(), "")
+    body = _re.sub(r"<!--.*?-->", "", adm, flags=_re.S)
+    check("  admin.html: the new copy says 'student', never 'child'",
+          not _re.search(r"[Cc]hild(?:ren)?\b", body[body.find('id="stuCard"'):body.find('id="stuOut"')]), "")
+
+    # ---- the live drill --------------------------------------------------------------------
+    tmp = tempfile.mkdtemp()
+    drill = os.path.join(tmp, "drill_uf.py")
+    with open(drill, "w", encoding="utf-8") as fh:
+        fh.write(
+            "import os, sys\n"
+            "sys.path.insert(0, os.environ['PYTHONPATH'])\n"
+            "import store; store.init(); assert store.enabled()\n"
+            "import main, lessonscripts as L\n"
+            "from fastapi.testclient import TestClient\n"
+            "cl = TestClient(main.app); CODE = '1234'; KEY = 'uf-test-key'\n"
+            "les = [l for l in L.LESSONS if l['course'] == 'basic'][0]\n"
+            "r = cl.post('/api/script/start', json={'code': CODE, 'course': 'basic', 'lesson': les['id']}).json(); assert r['ok']\n"
+            "ended = None; turns = 0\n"
+            "while ended is None and turns < 60:\n"
+            "    turns += 1; sess = main._SCRIPT_SESSIONS[CODE]; pend = (sess['state'].get('pending') or {})\n"
+            "    if sess['mode'] == 'intervene': said = str(sess['redo']['expected'])\n"
+            "    elif pend.get('reason'): said = les['explain']['answer']\n"
+            "    else: said = str(L.ans(pend['problem']))\n"
+            "    rr = cl.post('/api/script/answer', json={'code': CODE, 'said': said}).json(); assert rr['ok']\n"
+            "    for st in rr['steps']:\n"
+            "        if st.get('kind') == 'end': ended = st\n"
+            "assert ended is not None\n"
+            "H = {'X-Admin-Key': KEY}\n"
+            "assert cl.get('/api/admin/student?code=' + CODE).status_code == 401, 'no key'\n"
+            "assert cl.get('/api/admin/student?code=' + CODE, headers={'X-Admin-Key': 'wrong'}).status_code == 401\n"
+            "assert cl.get('/api/admin/student?code=' + CODE + '&key=' + KEY).status_code == 401, 'query key must not work'\n"
+            "assert cl.get('/api/admin/student?code=NOPE9999', headers=H).status_code == 404\n"
+            "assert cl.get('/api/admin/student?code=', headers=H).status_code == 400\n"
+            "d = cl.get('/api/admin/student?code=' + CODE, headers=H).json()\n"
+            "assert d['ok'] and d['name'] == 'Alex' and d['code_masked'] == '\u2022\u2022\u2022\u2022', d.get('code_masked')\n"
+            "assert CODE not in str(d), 'the raw code must not ride in the payload'\n"
+            "bc = [c for c in d['courses'] if c['course'] == 'basic']; assert bc, d['courses']\n"
+            "u = [x for x in bc[0]['units'] if x['unit'] == les['unit']][0]\n"
+            "assert u['status'] == 'taught' and u['lessons_done'] == 1 and u['mastered'] is False, u\n"
+            "assert bc[0]['lessons_done'] == 1 and bc[0]['units_mastered'] == 0\n"
+            "assert len(d['lessons']) == 1 and d['lessons'][0]['topic'] == les['topic'] and d['lessons'][0]['three_in_a_row'] is True, d['lessons']\n"
+            "assert len(d['answers']) >= 4 and all(a['topic'] == les['topic'] for a in d['answers']), d['answers'][:2]\n"
+            "ats = [a['at'] for a in d['answers']]; assert ats == sorted(ats, reverse=True), 'newest first'\n"
+            "assert all(a['asked'] and a['expected'] for a in d['answers'])\n"
+            "assert d['answer_stats']['answers'] == len(d['answers']) and d['answer_stats']['first_try_pct'] == 100, d['answer_stats']\n"
+            "assert d['stats']['lessons_done'] == 1 and d['stats']['lesson_answers'] == len(d['answers']), d['stats']\n"
+            "assert d['quizzes'] == [] and d['checks'] == [] and isinstance(d['awards'], list)\n"
+            "assert d['time']['minutes_all'] == 0 and d['time']['days'] == [], d['time']\n"
+            "print('STUDENT-OK', len(d['answers']))\n")
+    env = dict(os.environ, DATABASE_URL=f"sqlite:///{os.path.join(tmp, 'uf.db')}",
+               PYTHONPATH=here, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="",
+               FORUM_MOD_KEY="uf-test-key")
+    env.pop("ANTHROPIC_API_KEY", None)
+    if dep_gate("LIVE: the route refuses everything but the header key, then reads one student back whole",
+                "sqlalchemy", "the drill records to a real database"):
+        r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                           capture_output=True, text=True, timeout=240)
+        check("⭐ LIVE: the route refuses everything but the header key, then reads one student back whole",
+              r.returncode == 0 and "STUDENT-OK" in r.stdout, (r.stdout + r.stderr)[-600:])
+
+    check("  the stamp passed through uf (the note stays after the stamp moves on)",
+          'APP_BUILD -> "2026-09-08uf-the-per-student-view"' in m[:200000], "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-08  BUILD uf" in ssrc[:6000]
+          and "2026-09-08  BUILD uf" in rd("ruletests.py")[:28000]
+          and "(uf) Tile 10,977" in rd("static/methodology.html")[:30000]
+          and "(uf) 2026-09-08" in adm[:6000], "")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -22598,7 +22751,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>10,977</b>" in page,
+          "<b>10,994</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -39115,6 +39268,7 @@ def main():
     part3jy_the_youngest_speak_and_the_mic_waits()
     part3jz_the_small_fixes_of_the_deep_look()
     part3ka_the_authored_lane_writes_it_down()
+    part3kb_the_per_student_view()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

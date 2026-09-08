@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <!--
+    (uf) 2026-09-08 -- ONE STUDENT (P2 of the deep look, second half). The review's
+    finding: "the admin is an operator console with no per-student learning view".
+    A new card under the board: type a student code, see everything about that one
+    student -- tiles (lessons done, lesson answers with the first-try %, units
+    mastered, topic quizzes, engaged minutes, streaks, practice, awards), every course
+    they touched with each unit's status in ue's words, the lessons done with dates,
+    every graded answer in the authored lane (question, answered, expected, right,
+    try, seconds), the quizzes, the minutes by day. GET /api/admin/student?code= on the
+    same key this page already holds. Nothing lists codes; nothing writes. The card is
+    hidden until the dashboard unlocks.
     (ue) 2026-09-07 -- THE ENGAGEMENT ROW COUNTS THE AUTHORED LANE (P2 of the deep
     look). After five whole scripted lessons this row read 0 problems practiced, 0
     checks, 0 units mastered: the lane wrote no per-answer row. store.admin_stats now
@@ -513,6 +523,22 @@
 <!-- ============ DASHBOARD (only after the key verifies) ============ -->
 <div id="dashView" style="display:none">
   <section class="wrap"><div id="board"></div></section>
+
+  <!-- (uf) 2026-09-08 ONE STUDENT. The deep look's finding: this page could see totals
+       and tables but not "how is Sam doing". Type the code the family has; nothing
+       here lists codes (F2). Read-only. "Lesson done" and "Mastered" mean what ue
+       made them mean: a finished lesson, and the 90% Unit Quiz. -->
+  <section class="wrap"><div class="card" id="stuCard" style="display:none">
+    <div class="sechead"><h2>🔎 One student</h2>
+      <span class="note">Type a student code to see everything about one student &mdash; read-only, nothing here changes their work.</span></div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+      <div style="flex:2;min-width:240px"><label for="stuCode">Student code</label>
+        <input class="f" id="stuCode" type="text" autocomplete="off" placeholder="e.g. MAPLE4821" /></div>
+      <button class="btn btn-primary" id="stuGo" type="button">Look up</button>
+    </div>
+    <div class="msg" id="stuMsg"></div>
+    <div id="stuOut" style="margin-top:14px"></div>
+  </div></section>
 
   <!-- Beta pass generator (same engine as /beta?admin=) -->
   <section class="wrap"><div class="card">
@@ -1318,6 +1344,102 @@
         esc(i.t) + '<span>' + esc(i.d) + '</span></a>';
     }).join("");
   }
+
+  // ---------- (uf) one student ----------
+  function stuMsg(text, kind) { var el = $("stuMsg"); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || ""; }
+  var STATUS_WORDS = { "mastered": "Mastered", "taught": "Lesson done", "practiced": "Practiced",
+                       "learning": "Learning", "explored": "Explored", "not-started": "—" };
+  function when(iso) {
+    if (!iso) return "—";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(iso))) return String(iso);   // a bare day (last_active) stays a day
+    try { var d = new Date(iso); return d.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+      + " " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }); } catch (e) { return String(iso).slice(0, 16); }
+  }
+  function fmtMin(m) { m = Number(m || 0); var h = Math.floor(m / 60), mm = m % 60; return h ? (h + "h" + (mm ? " " + mm + "m" : "")) : (mm + " min"); }
+  function renderStudent(d) {
+    var st = d.stats || {}, as = d.answer_stats || {}, tm = d.time || {};
+    var unitsMastered = (d.courses || []).reduce(function (a, c) { return a + (c.units_mastered || 0); }, 0);
+    var lessonsDone = (d.lessons || []).length;
+    var html = '<div class="note" style="margin-bottom:10px"><b>' + esc(d.name || "Student") + '</b>'
+      + (d.grade ? ' · grade ' + esc(d.grade) : '') + ' · code ' + esc(d.code_masked)
+      + (d.family ? ' · family account' : ' · pilot / beta code')
+      + (st.last_active ? ' · last active ' + esc(when(st.last_active)) : '') + '</div>';
+    html += tiles([
+      { l: "Lessons done", v: num(lessonsDone), s: (d.lessons || []).filter(function (l) { return l.three_in_a_row; }).length + " with three in a row" },
+      { l: "Lesson answers", v: num(as.answers), s: (as.first_try_pct === null || as.first_try_pct === undefined ? "no first try yet" : as.first_try_pct + "% right first try") + " · " + num(as.right) + " right" },
+      { l: "Units mastered", v: num(unitsMastered), s: "90%+ on a Unit Quiz" },
+      { l: "Topic quizzes passed", v: num((d.quizzes || []).filter(function (q) { return q.passed; }).length), s: "of " + num((d.quizzes || []).length) + " taken" },
+      { l: "Engaged minutes (7d)", v: num(tm.minutes_7d), s: fmtMin(tm.minutes_all) + " all time · " + num(tm.active_days_30d) + " active days in 30" },
+      { l: "Streaks", v: num(st.streak_days) + "d", s: num(st.today_streak) + " right in a row today" },
+      { l: "Practice & quizzes", v: num(st.problems_practiced), s: (st.accuracy_pct === null || st.accuracy_pct === undefined) ? "no quiz accuracy yet" : st.accuracy_pct + "% accuracy" },
+      { l: "Awards", v: num((d.awards || []).length), s: (d.awards || []).slice(0, 2).map(function (a) { return a.icon + " " + a.title; }).join(" · ") || "none yet" }
+    ]);
+    // courses and units
+    (d.courses || []).forEach(function (c) {
+      html += '<h3 style="margin:18px 0 4px;font-size:16px">' + esc(c.title) + ' <span class="note">— '
+        + num(c.units_mastered) + ' of ' + num(c.units.length) + ' units mastered · ' + num(c.lessons_done) + ' of ' + num(c.lessons_total) + ' lessons done'
+        + (c.last_active ? ' · last worked ' + esc(when(c.last_active)) : '') + '</span></h3>';
+      html += '<table class="mini"><tr><th>#</th><th>Unit</th><th>Status</th><th class="numc">Lessons done</th><th class="numc">Topic quizzes</th><th class="numc">Unit Quiz best</th><th>Mastery</th><th>Last touched</th></tr>'
+        + c.units.filter(function (u) { return u.status !== "not-started" || u.lessons_done || u.checks_taken; }).map(function (u) {
+          return '<tr><td class="numc">' + u.unit + '</td><td>' + esc(u.name) + '</td><td>' + esc(STATUS_WORDS[u.status] || u.status) + '</td>'
+            + '<td class="numc">' + (u.lessons_total ? u.lessons_done + ' of ' + u.lessons_total : '—') + '</td>'
+            + '<td class="numc">' + (u.quizzes_passed || '—') + '</td>'
+            + '<td class="numc">' + (u.checks_taken ? u.best_pct + '%' : '—') + '</td>'
+            + '<td>' + (u.mastered ? '★ Mastered' : '—') + '</td><td>' + esc(when(u.last_touched)) + '</td></tr>';
+        }).join("") + '</table>';
+    });
+    if (!(d.courses || []).length) html += '<div class="note" style="margin-top:12px">No course activity recorded yet.</div>';
+    // lessons done
+    if ((d.lessons || []).length) {
+      html += '<h3 style="margin:18px 0 4px;font-size:16px">Lessons done <span class="note">— newest first</span></h3>'
+        + '<table class="mini"><tr><th>When</th><th>Course</th><th class="numc">Unit</th><th>Lesson</th><th class="numc">Runs</th><th>Three in a row</th></tr>'
+        + d.lessons.map(function (l) {
+          return '<tr><td>' + esc(when(l.last_at)) + '</td><td>' + esc(l.course_title) + '</td><td class="numc">' + esc(l.unit) + '</td><td>' + esc(l.topic) + '</td>'
+            + '<td class="numc">' + num(l.runs) + '</td><td>' + (l.three_in_a_row ? '✔ yes' : 'still learning') + '</td></tr>';
+        }).join("") + '</table>';
+    }
+    // every answer
+    if ((d.answers || []).length) {
+      html += '<h3 style="margin:18px 0 4px;font-size:16px">Answers in lessons <span class="note">— newest first, up to 150 · graded in code</span></h3>'
+        + '<table class="mini"><tr><th>When</th><th>Course · unit</th><th>Question</th><th>Answered</th><th>Expected</th><th>Right?</th><th class="numc">Try</th><th class="numc">Sec</th></tr>'
+        + d.answers.map(function (a) {
+          return '<tr><td>' + esc(when(a.at)) + '</td><td>' + esc(a.course_title) + ' · ' + esc(a.unit) + (a.kind === "reason" ? ' · why' : (a.kind === "redo" ? ' · redo' : (a.guided ? ' · guided' : ''))) + '</td>'
+            + '<td>' + esc(a.asked) + '</td><td class="nm">' + esc(a.answer) + '</td><td class="nm">' + esc(a.expected) + '</td>'
+            + '<td class="' + (a.correct ? '' : 'hot') + '">' + (a.correct ? '✔' : '✗') + '</td><td class="numc">' + num(a.attempt) + '</td><td class="numc">' + Math.round((a.ms || 0) / 1000) + '</td></tr>';
+        }).join("") + '</table>';
+    }
+    // quizzes and checks
+    if ((d.quizzes || []).length || (d.checks || []).length) {
+      html += '<h3 style="margin:18px 0 4px;font-size:16px">Quizzes</h3><table class="mini"><tr><th>Kind</th><th>Course</th><th class="numc">Unit</th><th>Topic</th><th class="numc">Best</th><th>Result</th></tr>'
+        + (d.quizzes || []).map(function (q) {
+          return '<tr><td>Topic quiz</td><td>' + esc(q.course_title) + '</td><td class="numc">' + esc(q.unit) + '</td><td>' + esc(q.topic) + '</td><td class="numc">' + q.best_pct + '%</td><td>' + (q.passed ? 'passed' : 'not yet') + '</td></tr>';
+        }).join("")
+        + (d.checks || []).map(function (c) {
+          return '<tr><td>Unit Quiz</td><td>' + esc(c.course_title) + '</td><td class="numc">' + esc(c.unit) + '</td><td>' + esc(c.name) + '</td><td class="numc">' + c.best_pct + '%</td><td>' + (c.mastered ? '★ Mastered' : ('not yet · ' + num(c.checks_taken) + ' sat')) + '</td></tr>';
+        }).join("") + '</table>';
+    }
+    // time by day
+    if ((tm.days || []).length) {
+      html += '<h3 style="margin:18px 0 4px;font-size:16px">Engaged minutes by day <span class="note">— the heartbeat: tab visible and the student active</span></h3>'
+        + '<table class="mini"><tr><th>Day</th><th class="numc">Minutes</th><th>Courses</th></tr>'
+        + tm.days.map(function (x) {
+          return '<tr><td>' + esc(x.day) + '</td><td class="numc">' + num(x.minutes) + '</td><td>' + esc(Object.keys(x.courses || {}).map(function (k) { return k + " " + x.courses[k]; }).join(" · ")) + '</td></tr>';
+        }).join("") + '</table>';
+    }
+    $("stuOut").innerHTML = html;
+  }
+  async function stuLookup() {
+    var code = ($("stuCode").value || "").trim();
+    if (!code) { stuMsg("Type a student code."); return; }
+    $("stuGo").disabled = true; stuMsg(""); $("stuOut").innerHTML = "";
+    try {
+      var d = await api("/api/admin/student?code=" + encodeURIComponent(code));
+      renderStudent(d);
+    } catch (e) { stuMsg(e.message); }
+    $("stuGo").disabled = false;
+  }
+  $("stuGo").addEventListener("click", stuLookup);
+  $("stuCode").addEventListener("keydown", function (ev) { if (ev.key === "Enter") { ev.preventDefault(); stuLookup(); } });
 
   // ---------- beta generator (same API as /beta) ----------
   function betaStatus(c) {
@@ -2323,6 +2445,7 @@
       try { await api("/api/owner/unlock", { method: "POST", body: "{}" }); } catch (e) {}
       $("lockView").style.display = "none";
       $("dashView").style.display = "";
+      $("stuCard").style.display = "";          // (uf) the one-student card opens with the key
       $("refreshBtn").style.display = "";
       CRITIC_SEAT = (payload.critic_seat && payload.critic_seat.model)
         ? payload.critic_seat.model

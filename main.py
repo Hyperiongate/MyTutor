@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-08  APP_BUILD -> "2026-09-08uf-the-per-student-view". BUILD uf -- P2 OF THE
+#               DEEP LOOK, SECOND HALF. The admin console could see totals and 37 tables
+#               but could not answer "how is Sam doing". NEW GET /api/admin/student?code=
+#               (general admin tier, X-Admin-Key header only, rate-limited, 404 for an
+#               unknown code): one student, everything, read-only -- the courses they
+#               touched with every unit's status in the ue words, the lessons done with
+#               dates and the three-in-a-row flag, every graded answer in the authored
+#               lane (script_answers, newest first, the question and the expected
+#               beside the answer), topic quizzes, Unit Quizzes, engaged minutes by day,
+#               awards, the whole-student stats. BY CODE, TYPED: there is deliberately
+#               NO route that lists student codes (F2 closed enumeration). admin.html
+#               gains the "One student" card under the board. store.student_courses is
+#               the one new reader. No teaching, no lane, no store write changed.
 #   2026-09-07  APP_BUILD -> "2026-09-07ue-the-authored-lane-writes-it-down".
 #               BUILD ue -- P2 OF THE DEEP LOOK, FIRST HALF (Jim's order: P0, P2, P1).
 #               The review drove five whole authored lessons and the admin console
@@ -13505,6 +13518,149 @@ def flag_sentence(body: FlagIn,
     return {"ok": True, "id": fid}
 
 
+@app.get("/api/admin/student")
+def admin_student(request: Request, code: str = "",
+                  x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """(uf, 2026-09-08) THE PER-STUDENT VIEW -- P2 of the deep look, second half.
+    The admin console could see totals and tables but could not answer "how is
+    Sam doing". This is one student, everything, read-only: the courses they have
+    touched with every unit's status (in the ue words: "Lesson done" is a finished
+    lesson, "Mastered" is the 90% Unit Quiz), the lessons done with dates, every
+    graded answer in the authored lane (script_answers, newest first), the topic
+    quizzes and Unit Quizzes, the engaged minutes by day, the awards, the streaks.
+    BY CODE, TYPED -- there is deliberately no route that LISTS student codes
+    (finding F2 closed enumeration); the owner types the code the family has.
+    General admin tier, header only (build dg), rate-limited. 404 for a code that
+    is not a known student."""
+    _require_db()
+    _require_admin(x_admin_key)
+    _rate_limit("admin-student", limit=120, window_seconds=600, what="student lookups")
+    code = (code or "").strip()
+    if not code:
+        raise HTTPException(status_code=400, detail="Type a student code.")
+    student = _lookup_student(code)
+    if not student:
+        raise HTTPException(status_code=404, detail="That code isn't a known student.")
+
+    # ---- whole-student numbers (get_mastery's stats are whole-student by design)
+    courses_seen = store.student_courses(code)
+    try:
+        stats = (store.get_mastery(code, courses_seen[0] if courses_seen else "algebra1")
+                 or {}).get("stats", {})
+    except Exception as exc:  # noqa: BLE001
+        print(f"[admin-student] get_mastery failed: {exc}")
+        stats = {}
+    try:
+        answer_stats = store.script_answer_stats(code)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[admin-student] script_answer_stats failed: {exc}")
+        answer_stats = {}
+
+    # ---- per course: units, lessons done, quizzes, checks
+    courses, lessons, quizzes, checks = [], [], [], []
+    for cid in courses_seen:
+        if cid not in curriculum.COURSES:
+            continue
+        try:
+            recorded = {r["unit"]: r for r in store.get_topics(code, cid)}
+            uchecks = (store.get_mastery(code, cid) or {}).get("checks", {})
+            quiz_rows = store.get_topic_quizzes(code, cid)
+            done_rows = store.get_script_done(code, cid) or []
+        except Exception as exc:  # noqa: BLE001
+            print(f"[admin-student] course {cid} read failed: {exc}")
+            continue
+        lu = _lessons_by_unit(code, cid)
+        units = []
+        for n, name in curriculum.units_for(cid):
+            r = recorded.get(n) or {}
+            c = uchecks.get(n) or {}
+            best = int(c.get("best_pct") or 0)
+            l = lu.get(n) or {"done": 0, "total": 0}
+            units.append({"unit": n, "name": name,
+                          "status": r.get("status") or "not-started",
+                          "touches": int(r.get("touches") or 0),
+                          "last_touched": r.get("last_touched"),
+                          "lessons_done": l["done"], "lessons_total": l["total"],
+                          "quizzes_passed": len([q for q in quiz_rows if q["unit"] == n
+                                                 and q["best_pct"] >= store.QUIZ_PASS_PCT]),
+                          "best_pct": best, "checks_taken": int(c.get("checks_taken") or 0),
+                          "mastered": best >= store.PASS_PCT})
+            if c:
+                checks.append({"course": cid, "course_title": curriculum.course_title(cid),
+                               "unit": n, "name": name, "best_pct": best,
+                               "last_pct": int(c.get("last_pct") or 0),
+                               "checks_taken": int(c.get("checks_taken") or 0),
+                               "mastered": best >= store.PASS_PCT})
+        for q in quiz_rows:
+            quizzes.append({"course": cid, "course_title": curriculum.course_title(cid),
+                            "unit": q["unit"], "topic": q["topic_name"],
+                            "best_pct": q["best_pct"],
+                            "passed": q["best_pct"] >= store.QUIZ_PASS_PCT})
+        for d in done_rows:
+            les = lessonscripts.LESSON_BY_ID.get(d.get("lesson_id") or "") or {}
+            lessons.append({"course": cid, "course_title": curriculum.course_title(cid),
+                            "lesson_id": d.get("lesson_id"),
+                            "topic": les.get("topic") or d.get("lesson_id"),
+                            "unit": les.get("unit"), "three_in_a_row": bool(d.get("mastered")),
+                            "runs": int(d.get("runs") or 0), "last_at": d.get("last_at")})
+        last = [u["last_touched"] for u in units if u["last_touched"]]
+        courses.append({"course": cid, "title": curriculum.course_title(cid), "units": units,
+                        "units_mastered": len([u for u in units if u["mastered"]]),
+                        "units_started": len([u for u in units if u["status"] != "not-started"]),
+                        "lessons_done": sum(u["lessons_done"] for u in units),
+                        "lessons_total": sum(u["lessons_total"] for u in units),
+                        "last_active": max(last) if last else None})
+    lessons.sort(key=lambda x: x.get("last_at") or "", reverse=True)
+    courses.sort(key=lambda c: c.get("last_active") or "", reverse=True)
+
+    # ---- every graded answer in the authored lane, newest first
+    answers = []
+    try:
+        for a in store.get_script_answers(code, limit=150):
+            les = lessonscripts.LESSON_BY_ID.get(a.get("lesson_id") or "") or {}
+            a = dict(a)
+            a["topic"] = les.get("topic") or a.get("lesson_id")
+            a["course_title"] = curriculum.course_title(a.get("course") or "")
+            answers.append(a)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[admin-student] get_script_answers failed: {exc}")
+
+    # ---- engaged minutes by day, 30 days
+    time_days, minutes_7d, minutes_all = [], 0, 0
+    try:
+        agg: dict = {}
+        for r in store.get_time(code, days=30):
+            d = agg.setdefault(r["day"], {"day": r["day"], "minutes": 0, "courses": {}})
+            d["minutes"] += r["minutes"]
+            d["courses"][r["course"]] = d["courses"].get(r["course"], 0) + r["minutes"]
+        time_days = sorted(agg.values(), key=lambda x: x["day"], reverse=True)[:30]
+        import datetime as _dtm
+        cutoff7 = (_dtm.date.today() - _dtm.timedelta(days=6)).isoformat()
+        minutes_7d = sum(d["minutes"] for d in time_days if d["day"] >= cutoff7)
+        minutes_all = sum(r["minutes"] for r in store.get_time(code, days=3650))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[admin-student] get_time failed: {exc}")
+
+    awards = []
+    try:
+        for aid, earned in store.get_awards(code).items():
+            if aid in AWARD_DEFS:
+                awards.append({"id": aid, "icon": AWARD_DEFS[aid][0],
+                               "title": AWARD_DEFS[aid][1], "earned_at": earned})
+        awards.sort(key=lambda a: a.get("earned_at") or "", reverse=True)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[admin-student] get_awards failed: {exc}")
+
+    return {"ok": True, "code_masked": _mask_code(code),
+            "name": student.get("name") or "", "grade": student.get("grade") or "",
+            "family": bool(student.get("family")),
+            "stats": stats, "answer_stats": answer_stats,
+            "time": {"days": time_days, "minutes_7d": minutes_7d, "minutes_all": minutes_all,
+                     "active_days_30d": len([d for d in time_days if d["minutes"] > 0])},
+            "courses": courses, "lessons": lessons, "answers": answers,
+            "quizzes": quizzes, "checks": checks, "awards": awards}
+
+
 @app.get("/api/admin/flags")
 def admin_flags(key: str = "", include_resolved: int = 0,
                 x_admin_key: str = Header(default="", alias="X-Admin-Key")):
@@ -14211,7 +14367,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-07ue-the-authored-lane-writes-it-down"
+APP_BUILD = "2026-09-08uf-the-per-student-view"
 
 
 @app.get("/health")
