@@ -6,6 +6,13 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  APP_BUILD -> "2026-09-08uj-one-file-per-course". BUILD uj -- ONE FILE PER
+#               COURSE (housekeeping, second half). NO CODE IN THIS FILE CHANGED but the
+#               stamp. lessonscripts.py's 360 lessons now live in lessons/<course>.py (ten
+#               pure-data files joined by lessons/__init__.py); lessonscripts.py imports
+#               them and keeps every name this file reads (LESSONS, LESSON_BY_ID,
+#               COURSE_ORDER, PILOT_LESSON, start, step, ans ...). The data was proved
+#               deep-equal before and after; PART 3kf pins it.
 #   2026-09-08  APP_BUILD -> "2026-09-08ui-the-notes-move-out". BUILD ui -- THE NOTES MOVE
 #               OUT (housekeeping). NO CODE IN THIS FILE CHANGED but the stamp. This header
 #               was 552 KB -- 48% of the file, 583 dated notes back to 2026-07-19. Every note
@@ -8613,7 +8620,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-08ui-the-notes-move-out"
+APP_BUILD = "2026-09-08uj-one-file-per-course"
 
 
 @app.get("/health")

@@ -6,6 +6,18 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD uj -- ONE FILE PER COURSE (housekeeping, second half). The 360
+#               lessons moved from lessonscripts.py to lessons/<course>.py (ten pure-data
+#               files; lessons/__init__.py joins them). NEW HELPER lessons_src() = the
+#               engine plus the ten course files, for the pins that scan what the lessons
+#               SAY (op= as a column label, the pie canon sweep, the counting lessons'
+#               text); the 'is whole' pin now walks the ten files too; four .read(N) note
+#               windows that ui's sweep missed now read notes(). PART 3kf pins the
+#               package (pure data, 36 per course, ORDER slices), the engine's import and
+#               the data identity (LESSONS rebuilt from the files equals the engine's,
+#               COURSE_ORDER is the ORDERs joined, no duplicate ids, every lesson in the
+#               file of its course). Tile 11,091 -> 11,102 (the whole-file pin) -> 11,130
+#               (PART 3kf's 28).
 #   2026-09-08  BUILD ui -- THE NOTES MOVE OUT (housekeeping). THIS HEADER: every note
 #               dated before 2026-09-01 (241 of them) now lives in changelog/ruletests.py.md,
 #               verbatim -- the pointer above says so; same for main.py, tutor.py, store.py,
@@ -891,6 +903,26 @@ def notes(fn: str) -> str:
     except OSError:
         pass
     return head
+
+
+LESSON_FILES = ("lessons/entry.py", "lessons/basic.py", "lessons/prealgebra.py", "lessons/algebra1.py",
+                "lessons/geometry.py", "lessons/algebra2.py", "lessons/precalc.py", "lessons/probstat.py",
+                "lessons/calculus.py", "lessons/diffeq.py")
+
+
+def lessons_src() -> str:
+    """The AUTHORED SOURCE: lessonscripts.py (the engine) plus the ten course files
+    under lessons/ (build uj -- one file per course), joined. A pin that scans what
+    the lessons SAY (a tag attribute, a phrase, a count of "Here is the trap") reads
+    this, so it does not matter which file a lesson sits in."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    parts = [open(os.path.join(here, "lessonscripts.py"), encoding="utf-8").read()]
+    for fn in LESSON_FILES:
+        try:
+            parts.append(open(os.path.join(here, fn), encoding="utf-8").read())
+        except OSError:
+            pass
+    return "\n".join(parts)
 
 
 # =============================================================================
@@ -11044,8 +11076,8 @@ def part3ke_the_notes_move_out():
 
     # ---- do no harm -------------------------------------------------------------------------
     m = rd("main.py")
-    check("  main.py: the stamp and nothing else in the code (the routes of uh are all still there)",
-          'APP_BUILD = "2026-09-08ui-the-notes-move-out"' in m
+    check("  main.py: the stamp passed through ui and nothing else in the code (the routes of uh are all still there)",
+          'APP_BUILD -> "2026-09-08ui-the-notes-move-out"' in notes("main.py")
           and '@app.get("/demo/lesson")' in m and '@app.post("/api/demo/lesson/answer")' in m
           and '@app.get("/api/admin/student")' in m and "class _OwnerGatedStatic(" in m, "")
     check("  the four pages still open on their doctype and comment, the pointer INSIDE the comment",
@@ -11056,6 +11088,109 @@ def part3ke_the_notes_move_out():
           and 'APP_BUILD -> "2026-09-08ui-the-notes-move-out"' in notes("main.py")
           and "2026-09-08  BUILD ui" in notes("ruletests.py")
           and "(ui) Tile 11,052" in notes("static/methodology.html"), "")
+
+
+def part3kf_one_file_per_course():
+    """PART 3kf (build uj, 2026-09-08) -- ONE FILE PER COURSE (housekeeping, second half).
+
+    lessonscripts.py held the engine AND all 360 authored lessons: 41,846 lines, 61%
+    of them lesson data. Now lessons/ holds the course -- entry.py, basic.py,
+    prealgebra.py, algebra1.py, geometry.py, algebra2.py, precalc.py, probstat.py,
+    calculus.py, diffeq.py -- each a PURE-DATA file (its unit lists, their build
+    notes, and ORDER, its slice of the teaching order), joined in course order by
+    lessons/__init__.py. lessonscripts.py imports LESSONS and COURSE_ORDER where the
+    lists used to sit and does exactly what it always did after them.
+
+    Pins: the package's shape (ten files, pure data -- no import, no def, no lambda
+    -- 36 lessons of the right course each, ORDER of 36 ids of that course, whole);
+    the engine's import and the absence of the old lists; the DATA IDENTITY -- the
+    engine's LESSONS is the ten files' lessons reordered by their joined ORDERs, no
+    id twice, every lesson in the file of its course, LESSON_BY_ID and PILOT_LESSON
+    consistent -- and the battery's own lessons_src() helper feeding the text pins."""
+    print("\nPART 3kf — one file per course (build uj)")
+    import ast as _ast
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    COURSES = ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2",
+               "precalc", "probstat", "calculus", "diffeq")
+
+    # ---- the package -------------------------------------------------------------------------
+    init = rd("lessons/__init__.py")
+    check("⭐ lessons/__init__.py joins the ten courses in course order (LESSONS and COURSE_ORDER)",
+          "from . import entry, basic, prealgebra, algebra1, geometry, algebra2, precalc, probstat, calculus, diffeq" in init
+          and "LESSONS = [les for m in _MODULES for les in m.LESSONS]" in init
+          and "COURSE_ORDER = [lid for m in _MODULES for lid in m.ORDER]" in init
+          and 'COURSES = ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2",' in init
+          and init.rstrip().endswith("# I did no harm and this file is not truncated."), "")
+    import lessons as LP
+    import lessonscripts as LS
+    for c in COURSES:
+        src = rd(f"lessons/{c}.py")
+        tree = _ast.parse(src)
+        impure = [type(n).__name__ for n in _ast.walk(tree)
+                  if isinstance(n, (_ast.Import, _ast.ImportFrom, _ast.FunctionDef, _ast.Lambda,
+                                    _ast.ClassDef, _ast.Call, _ast.Attribute))
+                  and not (isinstance(n, _ast.Call) and isinstance(n.func, _ast.Attribute)
+                           and n.func.attr == "extend" and isinstance(n.func.value, _ast.Name)
+                           and n.func.value.id == "LESSONS")
+                  and not (isinstance(n, _ast.Attribute) and n.attr == "extend")]
+        mod = getattr(LP, c)
+        les = list(mod.LESSONS); order = list(mod.ORDER)
+        check(f"⭐ lessons/{c}.py: pure data (only lists, dicts, literals and LESSONS.extend), whole, dated",
+              not impure and src.rstrip().endswith("# I did no harm and this file is not truncated.")
+              and "2026-09-08  BUILD uj" in notes(f"lessons/{c}.py") and "LESSONS = []" in src,
+              f"impure nodes: {sorted(set(impure))[:5]}")
+        check(f"  lessons/{c}.py: 36 lessons of course '{c}', ORDER of the same 36 ids, each id once",
+              len(les) == 36 and all(l["course"] == c for l in les)
+              and len(order) == 36 and sorted(order) == sorted(l["id"] for l in les)
+              and len(set(order)) == 36,
+              f"{len(les)} lessons, {len(order)} in ORDER, courses {sorted({l['course'] for l in les})}")
+
+    # ---- the engine -------------------------------------------------------------------------
+    eng = rd("lessonscripts.py")
+    check("⭐ lessonscripts.py imports the course from lessons/ and keeps the old lists out",
+          "from lessons import LESSONS, COURSE_ORDER" in eng
+          and "_MORE_LESSONS = [" not in eng and "_PREALGEBRA_U1 = [" not in eng
+          and "_DIFFEQ_U9 = [" not in eng and "LESSONS.extend(" not in eng
+          and eng.count("\n") < 20000, f"{eng.count(chr(10))} lines")
+    check("  lessonscripts.py: the disagreement check, the reorder, LESSON_BY_ID and PILOT_LESSON are where they were",
+          '_by_id = {les["id"]: les for les in LESSONS}' in eng
+          and "if sorted(COURSE_ORDER) != sorted(_by_id):" in eng
+          and "LESSONS = [_by_id[i] for i in COURSE_ORDER]" in eng
+          and 'LESSON_BY_ID = {les["id"]: les for les in LESSONS}' in eng
+          and "PILOT_LESSON = LESSONS[0]" in eng
+          and eng.index("from lessons import LESSONS, COURSE_ORDER") < eng.index('_by_id = {les["id"]'), "")
+
+    # ---- the data identity -------------------------------------------------------------------
+    joined = [l for c in COURSES for l in getattr(LP, c).LESSONS]
+    joined_order = [i for c in COURSES for i in getattr(LP, c).ORDER]
+    by_id = {l["id"]: l for l in joined}
+    check("⭐ the engine's LESSONS is the ten files' lessons in the joined ORDER -- 360, no id twice",
+          len(joined) == 360 and len(by_id) == 360 and list(LS.COURSE_ORDER) == joined_order
+          and [l["id"] for l in LS.LESSONS] == joined_order
+          and all(LS.LESSON_BY_ID[i] is by_id[i] for i in joined_order)
+          and LS.PILOT_LESSON is LS.LESSONS[0] and LS.PILOT_LESSON["id"] == joined_order[0],
+          f"{len(joined)} joined, {len(by_id)} ids, order equal {list(LS.COURSE_ORDER) == joined_order}")
+    check("  every lesson sits in the file of its course, and the courses run in the classroom's order",
+          all(l["course"] == c for c in COURSES for l in getattr(LP, c).LESSONS)
+          and [LS.LESSON_BY_ID[i]["course"] for i in LS.COURSE_ORDER[::36]] == list(COURSES), "")
+    check("  the engine still answers from the data: start + begin on the first lesson of each course",
+          all(LS.step(LS.LESSON_BY_ID[getattr(LP, c).ORDER[0]],
+                      LS.start(LS.LESSON_BY_ID[getattr(LP, c).ORDER[0]], seed=1), ("begin",))[0]
+              for c in COURSES), "")
+
+    # ---- the battery's own reading of the authored text ----------------------------------------
+    rt = rd("ruletests.py")
+    check("  ruletests: lessons_src() joins the engine and the ten course files; the text pins read it",
+          "def lessons_src() -> str:" in rt and 'LESSON_FILES = ("lessons/entry.py"' in rt
+          and rt.count("lessons_src()") >= 4 and "lessonscripts.py" in lessons_src()[:2000]
+          and '"id": "entry-u1-counting-to-10"' in lessons_src()
+          and '"id": "diffeq-u9-a-perfectly-known-equation"' in lessons_src(), "")
+    check("  the dated notes are in (Jim's rule 8): main's stamp note, the engine, this file, the tile",
+          'APP_BUILD -> "2026-09-08uj-one-file-per-course"' in notes("main.py")
+          and "2026-09-08  BUILD uj" in notes("lessonscripts.py")
+          and "2026-09-08  BUILD uj" in notes("ruletests.py")
+          and "(uj) Tile 11,102" in notes("static/methodology.html"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -17867,8 +18002,10 @@ def part3gw_the_counting_lessons_actually_count():
           "count= is a board attribute; a spoken line carrying it would both be read "
           "aloud as gibberish and silently re-price the whole course's audio")
 
-    for f in ("foundations.py", "lessonscripts.py"):
-        src = open(f, encoding="utf-8").read()
+    for f in ("foundations.py", "lessonscripts.py", "lessons/__init__.py", "lessons/entry.py", "lessons/basic.py",
+              "lessons/prealgebra.py", "lessons/algebra1.py", "lessons/geometry.py", "lessons/algebra2.py",
+              "lessons/precalc.py", "lessons/probstat.py", "lessons/calculus.py", "lessons/diffeq.py"):
+        src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), f), encoding="utf-8").read()
         check("  %s is whole" % f,
               src.rstrip().endswith("# I did no harm and this file is not truncated."), f)
 
@@ -19830,8 +19967,7 @@ def part3fk_entry_fills_its_units():
           {i: len(byid[i]["bank"]) for i in new if len(byid[i]["bank"]) < 7})
 
     # the four fixes the battery itself forced, pinned so they stay fixed
-    src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                            "lessonscripts.py"), encoding="utf-8").read()
+    src = lessons_src()      # (uj) the lessons live in lessons/<course>.py; the engine stays in lessonscripts.py
     check("⭐ op= is never used as a column label on a [[step]]",
           'op="ones"' not in src and 'op="tens"' not in src
           and 'op="hundreds"' not in src,
@@ -21185,7 +21321,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,091</b>" in page,
+          "<b>11,130</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -21533,8 +21669,7 @@ def part3if_the_law_wore_a_different_costume():
           f"enforcing, every time")
 
     # ---- the file's own law ---------------------------------------------------
-    _t = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                           "tutor.py"), encoding="utf-8").read(200000)
+    _t = notes("tutor.py")
     check("  tutor.py carries a dated si note",
           "2026-09-03  BUILD si" in _t, "Jim's rule 8")
 
@@ -21819,8 +21954,7 @@ def part3ih_the_seam_reads_the_course_order():
     check("  ...and the live-tutor handoff is still there beneath it (the fallback)",
           'await runTutor(step.mastered ? "__script_done_mastered__" : "__script_done__");' in page, "")
     check("  session.html and main.py carry dated sl notes",
-          "(sl) 2026-09-04" in page[:6000] and "2026-09-04  BUILD sl" in open(os.path.join(
-              os.path.dirname(os.path.abspath(__file__)), "main.py"), encoding="utf-8").read(200000),
+          "(sl) 2026-09-04" in notes("static/session.html") and "2026-09-04  BUILD sl" in notes("main.py"),
           "Jim's rule 8")
 
 
@@ -21952,8 +22086,7 @@ def part3ii_the_board_tells_the_truth_about_which_question():
     check("  seventy-nine *_conflict referees",
           sum(1 for n in dir(T) if n.endswith("_conflict")) == 79, "")
     check("  tutor.py carries a dated sm note",
-          "2026-09-04  BUILD sm" in open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                     "tutor.py"), encoding="utf-8").read(200000), "")
+          "2026-09-04  BUILD sm" in notes("tutor.py"), "")
 
 
 def part3ij_the_warm_choice():
@@ -22041,9 +22174,8 @@ def part3ij_the_warm_choice():
           0 < _sl < _sn < _rt, f"sl@{_sl} sn@{_sn} runTutor@{_rt}")
     check("  the three files carry dated sn notes",
           "(sn) 2026-09-04" in notes("static/session.html")
-          and "2026-09-04  BUILD sn" in open(os.path.join(here, "lessonscripts.py"),
-                                              encoding="utf-8").read(80000)   # (tf) the log grew past 20,000
-          and "BUILD sn" in open(os.path.join(here, "main.py"), encoding="utf-8").read(200000),
+          and "2026-09-04  BUILD sn" in notes("lessonscripts.py")
+          and "BUILD sn" in notes("main.py"),
           "Jim's rule 8")
 
 
@@ -25952,8 +26084,8 @@ def part3jq_the_caption_the_sequence_and_the_definition():
           and not T.pie_caption_conflict('[[pie parts="6" shaded="9" caption="one sixth"]]'), "")
     _pies = _fires = 0
     _PIE = re.compile(r"\[\[\s*pie\b[^\]]*\]\]", re.I)
-    for _fn in ("lessonscripts.py", "foundations.py"):
-        for _m in _PIE.finditer(rd(_fn).replace('\\"', '"')):
+    for _src in (lessons_src(), rd("foundations.py")):      # (uj) the lessons live in lessons/<course>.py
+        for _m in _PIE.finditer(_src.replace('\\"', '"')):
             _pies += 1
             if T.pie_caption_conflict(_m.group(0)):
                 _fires += 1
@@ -28055,7 +28187,7 @@ def part3ib_five_flags_from_jims_queue():
 
     # ① the trap sentence is gone; the count survives whole
     import lessonscripts as LS
-    lsrc = open(os.path.join(here, "lessonscripts.py"), encoding="utf-8").read()
+    lsrc = lessons_src()     # (uj) the authored text lives in lessons/<course>.py now
     check("⭐ ① the entry count-on line ends on the count -- no 'trap' sentence",
           '"Ten — eleven, twelve, thirteen, fourteen. Fourteen stars.",' in lsrc
           and "The trap is starting again at one after ten" not in lsrc,
@@ -37708,6 +37840,7 @@ def main():
     part3kc_the_phone_classroom()
     part3kd_the_demo_teaches()
     part3ke_the_notes_move_out()
+    part3kf_one_file_per_course()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
