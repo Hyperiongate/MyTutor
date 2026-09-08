@@ -6,6 +6,12 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  APP_BUILD -> "2026-09-08um-the-tap-unlocks-the-sound". BUILD um. NO CODE IN
+#               THIS FILE CHANGED but the stamp. Jim, on his phone after the push: the demo
+#               lesson had no sound. static/demo-lesson.html never primed the audio inside
+#               a tap and its ?course= door autostarted with no tap at all -- phones play
+#               both silently. The page unlocks the sound inside every tap that starts
+#               speech and ?course= shows a Start door instead. PART 3ki pins it.
 #   2026-09-08  APP_BUILD -> "2026-09-08ul-the-landscape-phone". BUILD ul -- THE LANDSCAPE
 #               PHONE. NO CODE IN THIS FILE CHANGED but the stamp. A release rehearsal of the
 #               whole unpushed stack (tt..uk) on a real Postgres -- every route, a fresh
@@ -8634,7 +8640,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-08ul-the-landscape-phone"
+APP_BUILD = "2026-09-08um-the-tap-unlocks-the-sound"
 
 
 @app.get("/health")

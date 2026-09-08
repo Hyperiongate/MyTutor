@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+    (um) 2026-09-08 -- THE TAP UNLOCKS THE SOUND. Jim, on his phone, the day the stack went
+    live: "no sound". This page never primed the audio pipeline inside a tap (every other
+    page does: warmUpAudio in the welcome tap, warmDemoAudio in demo.html's level tap),
+    and the ?course= door -- the one demo.html's picker sends a visitor through -- started
+    the lesson with no tap at all, which every phone plays silently. Now unlockSound()
+    runs synchronously inside the level tap, the Next/Skip tap and the begin door, before
+    any fetch; and ?course= shows a "Start <course>" door instead of autostarting -- the
+    tap starts it. Desktop behaviour is unchanged except the door. PART 3ki pins it.
+
   =============================================================================
   demo-lesson.html  --  THE DEMO TEACHES  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
@@ -106,6 +115,8 @@
   .door{display:inline-block;border-radius:14px;padding:12px 18px;font:inherit;font-size:15px;font-weight:800;cursor:pointer;text-decoration:none;border:2px solid var(--purple);color:var(--purple);background:#fff}
   .door.primary{background:linear-gradient(90deg,var(--purple),var(--teal));color:#fff;border-color:transparent}
   .sound{font-size:13px;color:var(--muted);margin-top:10px}
+  button.next.begin{display:block;width:100%;margin:12px 0 4px;font-size:18px;padding:14px 18px}
+  button.level.picked{border-color:var(--purple);box-shadow:0 0 0 3px rgba(109,90,230,.18)}
   @media (max-width:640px){
     .wrap{padding:12px 8px 24px}
     .card{padding:14px 12px}
@@ -224,6 +235,19 @@
     p.then(function () { finish(__voiceSpoke); }, function () { finish(false); });
   }
   function hush() { try { if (typeof stopAllSpeech === "function") stopAllSpeech(); } catch (e) {} }
+  // (um) THE TAP UNLOCKS THE SOUND. Phones refuse to play audio that no tap started:
+  // the classroom pages prime voice.js's pipeline inside the welcome tap (warmUpAudio),
+  // and demo.html primes its own inside the level tap (warmDemoAudio). This page did
+  // neither -- Jim, on his phone: "no sound". Called synchronously inside every tap
+  // that starts speech, BEFORE the fetch, so the gesture is still live: the audio
+  // graph, the silent clip through ttsAudio, and a silent utterance so the browser
+  // voice (the fallback for a line not in the cache) is unlocked too.
+  var _unlocked = false;
+  function unlockSound() {
+    try { if (typeof warmUpAudio === "function") warmUpAudio(); else if (typeof ensureAudioGraph === "function") ensureAudioGraph(); } catch (e) {}
+    if (_unlocked) return; _unlocked = true;
+    try { if ("speechSynthesis" in window) { var u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u); } } catch (e) {}
+  }
 
   // ---- the picker ----
   function loadLevels() {
@@ -232,11 +256,22 @@
       (j.levels || []).forEach(function (lv) {
         var b = document.createElement("button"); b.className = "level"; b.type = "button";
         b.innerHTML = "<b>" + esc(lv.title) + "</b><span>Unit " + esc(lv.unit) + " · " + esc(lv.topic) + "</span>";
-        b.onclick = function () { start(lv.course); };
+        b.onclick = function () { unlockSound(); start(lv.course); };
         box.appendChild(b);
       });
+      // (um) ?course= no longer starts the lesson by itself: a page that speaks with no tap
+      // is silent on every phone. The level is picked out and a "tap to begin" door is
+      // shown; the tap unlocks the sound and starts it.
       var want = (qs.get("course") || "").trim().toLowerCase();
-      if (want && (j.levels || []).some(function (l) { return l.course === want; })) start(want);
+      var lv0 = (j.levels || []).filter(function (l) { return l.course === want; })[0];
+      if (lv0) {
+        var door = document.createElement("button"); door.className = "next begin"; door.id = "beginBtn"; door.type = "button";
+        door.innerHTML = "▶ Start " + esc(lv0.title) + " · Unit " + esc(lv0.unit) + ": " + esc(lv0.topic);
+        door.onclick = function () { unlockSound(); start(want); };
+        box.parentNode.insertBefore(door, box);
+        Array.prototype.forEach.call(box.querySelectorAll("button.level"), function (btn) { if (btn.textContent.indexOf(lv0.title) === 0) btn.classList.add("picked"); });
+        try { door.focus(); } catch (e) {}
+      }
     }).catch(function () { $("levels").innerHTML = '<span class="prompt">The courses could not be loaded — try again in a moment.</span>'; });
   }
 
@@ -299,7 +334,7 @@
     $("bubble").innerHTML = styleTerms(words);
     var b = document.createElement("button"); b.className = "next"; b.textContent = "Next ▶"; b.disabled = true; b.style.display = "none";
     var advanced = false;
-    var go = function () { if (!advanced) { advanced = true; playNext(); } };
+    var go = function () { unlockSound(); if (!advanced) { advanced = true; playNext(); } };
     b.onclick = go;
     var reveal = function () { b.style.display = ""; b.disabled = false; };
     ctl.appendChild(b);

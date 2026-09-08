@@ -6,6 +6,14 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-08  BUILD um -- THE TAP UNLOCKS THE SOUND. Jim, on his phone, the day the
+#               stack went live: the demo lesson had no sound. PART 3ki: demo-lesson.html's
+#               unlockSound() (warmUpAudio + a silent utterance) inside the level tap, the
+#               Next/Skip tap and the new Start door; ?course= shows the door instead of
+#               autostarting (start(want) only in the door's onclick); LIVE (playwright +
+#               a uvicorn subprocess): ?course=basic shows the door and no stage, the tap
+#               opens the stage with the audio context running, a plain level tap too.
+#               Tile 11,184 -> 11,190 (PART 3ki's 6).
 #   2026-09-08  BUILD ul -- THE LANDSCAPE PHONE (found by the release rehearsal of the
 #               unpushed stack). PART 3kh: the last-declared <=900px x <=520px block on
 #               session/practice/topic (one-line top row with the nav scrolling inside it,
@@ -11521,6 +11529,105 @@ def part3kh_the_landscape_phone():
           and "(ul) Tile 11,170" in notes("static/methodology.html"), "")
 
 
+def part3ki_the_tap_unlocks_the_sound():
+    """PART 3ki (build um, 2026-09-08) -- THE TAP UNLOCKS THE SOUND (the demo lesson).
+
+    Jim, on his phone, the day the stack went live: the demo lesson played with no
+    sound. demo-lesson.html never primed voice.js's audio pipeline inside a tap (the
+    classroom pages call warmUpAudio in the welcome tap; demo.html calls warmDemoAudio
+    in its level tap), and the ?course= door -- where demo.html's picker sends a
+    visitor -- started the lesson with no tap at all, which every phone plays
+    silently. Now unlockSound() runs synchronously inside the level tap, the Next /
+    Skip tap and a new "Start <course>" door, before any fetch; ?course= shows the
+    door instead of autostarting. Pinned statically and driven in a headless browser."""
+    print("\nPART 3ki — the tap unlocks the sound (build um)")
+    import socket, subprocess, sys, time as _t
+    here = os.path.dirname(os.path.abspath(__file__))
+    page = open(os.path.join(here, "static", "demo-lesson.html"), encoding="utf-8").read()
+    code = code_only(page)
+    check("⭐ demo-lesson.html: unlockSound() primes voice.js inside the gesture (warmUpAudio, then the silent utterance)",
+          "function unlockSound() {" in code
+          and 'if (typeof warmUpAudio === "function") warmUpAudio(); else if (typeof ensureAudioGraph === "function") ensureAudioGraph();' in code
+          and 'var u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u);' in code, "")
+    check("⭐ the level tap, the begin door and the Next/Skip tap all unlock BEFORE they start anything",
+          "b.onclick = function () { unlockSound(); start(lv.course); };" in code
+          and "door.onclick = function () { unlockSound(); start(want); };" in code
+          and "var go = function () { unlockSound(); if (!advanced) { advanced = true; playNext(); } };" in code, "")
+    check("⭐ ?course= never starts the lesson without a tap: start(want) lives only in the door's onclick",
+          code.count("start(want)") == 1 and 'door.id = "beginBtn"' in code
+          and "if (want && (j.levels || []).some(" not in code, "")
+    check("  the door is styled and the picked level is marked; the page carries the dated note",
+          "button.next.begin{display:block;width:100%" in page and "button.level.picked{" in page
+          and "(um) 2026-09-08" in notes("static/demo-lesson.html")
+          and page.rstrip().endswith("<!-- I did no harm and this file is not truncated. -->"), "")
+
+    NAME = "⭐ LIVE: ?course=basic shows the Start door and no stage; the tap opens the stage; a level tap opens it too"
+    if dep_gate(NAME, "playwright", "the door is driven in a real browser"):
+        port = None
+        try:
+            sck = socket.socket(); sck.bind(("127.0.0.1", 0)); port = sck.getsockname()[1]; sck.close()
+        except Exception:  # noqa: BLE001
+            port = 8139
+        env = dict(os.environ, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="1")
+        env.pop("DATABASE_URL", None); env.pop("ANTHROPIC_API_KEY", None)
+        srv = subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1",
+                                "--port", str(port)], cwd=here, env=env,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            import urllib.request
+            up = False
+            for _ in range(60):
+                try:
+                    urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=2).read(); up = True; break
+                except Exception:  # noqa: BLE001
+                    _t.sleep(0.5)
+            if not up:
+                skip(NAME, "the app did not come up in 30 s")
+            else:
+                from playwright.sync_api import sync_playwright
+                with sync_playwright() as pw:
+                    try:
+                        br = pw.chromium.launch()
+                    except Exception as exc:  # noqa: BLE001
+                        br = None; skip(NAME, f"chromium would not launch: {str(exc)[:80]}")
+                    if br:
+                        ctx = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True)
+                        pg = ctx.new_page()
+                        pg.goto(f"http://127.0.0.1:{port}/demo/lesson?course=basic", wait_until="load")
+                        pg.wait_for_timeout(1500)
+                        a = pg.evaluate("(()=>({door: !!document.getElementById('beginBtn'), stage: !document.getElementById('stage').classList.contains('hide'), picked: document.querySelectorAll('#levels .picked').length}))()")
+                        try:
+                            pg.click("#beginBtn", timeout=3000)     # a missing door FAILS the check below; it never crashes the battery
+                        except Exception:  # noqa: BLE001
+                            pass
+                        pg.wait_for_timeout(2500)
+                        b = pg.evaluate("(()=>({stage: !document.getElementById('stage').classList.contains('hide'), ctx: (typeof audioCtx !== 'undefined' && audioCtx) ? audioCtx.state : 'none', title: document.getElementById('title').textContent}))()")
+                        pg.goto(f"http://127.0.0.1:{port}/demo/lesson", wait_until="load"); pg.wait_for_timeout(1500)
+                        c = pg.evaluate("(()=>({door: !!document.getElementById('beginBtn'), stage: !document.getElementById('stage').classList.contains('hide')}))()")
+                        try:
+                            pg.click("#levels button >> nth=0", timeout=3000)
+                        except Exception:  # noqa: BLE001
+                            pass
+                        pg.wait_for_timeout(2500)
+                        d = pg.evaluate("(()=>({stage: !document.getElementById('stage').classList.contains('hide'), ctx: (typeof audioCtx !== 'undefined' && audioCtx) ? audioCtx.state : 'none'}))()")
+                        br.close()
+                        check(NAME,
+                              a["door"] and not a["stage"] and a["picked"] == 1
+                              and b["stage"] and b["ctx"] == "running" and "Basic Math" in b["title"]
+                              and not c["door"] and not c["stage"] and d["stage"] and d["ctx"] == "running",
+                              str({"door": a, "tapped": b, "plain": c, "level": d}))
+        finally:
+            try:
+                srv.terminate(); srv.wait(timeout=10)
+            except Exception:  # noqa: BLE001
+                try: srv.kill()
+                except Exception: pass
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-08um-the-tap-unlocks-the-sound"' in notes("main.py")
+          and "2026-09-08  BUILD um" in notes("ruletests.py")
+          and "(um) Tile 11,184" in notes("static/methodology.html"), "")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -21649,7 +21756,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,184</b>" in page,
+          "<b>11,190</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -38171,6 +38278,7 @@ def main():
     part3kf_one_file_per_course()
     part3kg_the_mark_floor()
     part3kh_the_landscape_phone()
+    part3ki_the_tap_unlocks_the_sound()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
