@@ -6,6 +6,12 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  APP_BUILD -> "2026-09-09ut-the-first-watch-on-the-new-stack". BUILD ut. NO
+#               CODE IN THIS FILE CHANGED -- the stamp only. The 09-09 night watch (the
+#               first on the us stack: 0 errors, every closure line rendered) gave tutor.py
+#               one falsehood row, the times sign in the notation registry, and three narrow
+#               referees (arrowpointer, pictured, problemnumbers); ruletests PART 3kp pins
+#               them. /health reads the new stamp after the push.
 #   2026-09-09  APP_BUILD -> "2026-09-09us-orient-then-one-idea-per-beat". BUILD us -- THE
 #               SHAPE JIM CHOSE: ORIENT, THEN ONE IDEA PER BEAT WITH A CHECK. Jim, after a
 #               live lesson: "if you just sat down for the first time, what do you need?
@@ -8859,7 +8865,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-09us-orient-then-one-idea-per-beat"
+APP_BUILD = "2026-09-09ut-the-first-watch-on-the-new-stack"
 
 
 @app.get("/health")

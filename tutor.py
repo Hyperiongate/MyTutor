@@ -6,6 +6,28 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  BUILD ut -- THE FIRST WATCH ON THE NEW STACK (09-09 08:46: 8 confirmed,
+#               13 refuted, 0 errors, every closure line rendered). Five holes, no ruling:
+#               (1) KNOWN_FALSEHOODS row percent-divided-by-a-hundred -- "twenty-five percent
+#               divided by one hundred" (0.0025) said as the meaning of 25%; silent on
+#               "percent MEANS <n> divided by", "out of a hundred", "per hundred". Rows 19 ->
+#               20. (2) THE TIMES SIGN joins the notation registry (_NOTATIONS, referee 31):
+#               a first-use × with no "times / multiply" in the reply. Canon as heard: 0; the
+#               strict first-turn ledger lists 26 captions ("3 × 4 = 12" under "three groups
+#               of four") -- an authoring list in the build doc, never a live defect. The
+#               rewrite arrow's advice now says it is never a pointer. (3) arrow_as_pointer_
+#               conflict: "1/4 → denominator = 4" -- an arrow after a VALUE pointing at a
+#               PART (denominator, exponent, hypotenuse...) followed by "=" / "is". A
+#               computation on the left ("13² − 5² → leg = 12", geo-u5) GIVES its result and
+#               is silent (_AP_LHS_OP); results ("→ median = 5") never in the word list.
+#               (4) pictured_not_drawn_conflict (rule 7): picture / imagine / think of /
+#               visualise / pretend (+ "you have", "there are") + a drawable noun with no
+#               figure tag in the reply -- the third sighting of the family. (5) problem_
+#               numbers_unspoken_conflict (rule 44): when the reply ASKS, every term of a
+#               [[column]] and every numeric side of a [[triangle]] must be spoken (the
+#               standing referee reads "?" lines only and is generous by design). Dispatched
+#               after triangleletters: arrowpointer, pictured, problemnumbers. Referees 81 ->
+#               84; truth class still 11. PART 3kp pins all of it and sweeps the canon.
 #   2026-09-08  BUILD uq -- "back to our first machine" joins the eighty-first referee's
 #               retiring phrases (_FR_NEW_WORDS): a lesson's reason and recap beats return
 #               to the opening machine after a practice set that renamed it. The canon is
@@ -3694,8 +3716,20 @@ _NOTATIONS = (
     ("the rewrite arrow", re.compile(r"->|→|⇒"),
      re.compile(r"\bbecomes?\b|\brewrit(?:e|es|ten|ing)\b|\bturns?\s+into\b|"
                 r"\barrow\b|\bwhich\s+is\b|\bmeans\b", re.I),
+     # (ut) the 2026-09-09 watch read our own advice back as a falsehood: the board
+     # wrote "1/4 → denominator = 4" (the arrow as a POINTER) and the tutor said the
+     # arrow "means becomes". The advice now says when NOT to use it.
      'That little arrow is read "becomes" -- it says we are REWRITING the same '
-     "amount in a new outfit, not computing something new."),
+     "amount in a new outfit, not computing something new. It is never a pointer: "
+     'to name a part, write the words ("1/4 has denominator 4"), not an arrow.'),
+    # (ut) 2026-09-09 -- THE TIMES SIGN. The watch (quiz-eighty, prealgebra): the first
+    # percent-of-a-number example wrote [[step eq="20% of 80: 0.20 × 80 = 16"]] and no
+    # word in the reply said "times" or "multiply". The 09-08 rule-48 ruling's own
+    # boundary: a symbol this conversation has not introduced is a real first use.
+    ("the times sign", re.compile(r"×"),
+     re.compile(r"\btimes\b|\bmultipl|\bproduct\b", re.I),
+     'That x-shaped sign means TIMES -- "0.20 × 80" is read "zero point two zero '
+     "times eighty\": it is the multiplication sign."),
     # ⚠️ the READING may be the prose itself: the voice lane reads digits, so a
     # spoken sentence containing "2x" IS "two x" out loud. The defect this entry
     # holds is a hug that appears ONLY on the board, never in the spoken words.
@@ -4439,6 +4473,16 @@ KNOWN_FALSEHOODS = [
                 r"|tenths\s+(?:place|digit)|tenths\s+and\s+(?:the\s+)?hundredths", re.I),
      "the hundredths place is the SECOND digit after the decimal point -- the first "
      "digit after the point is the tenths place"),
+    # (ut) the 2026-09-09 watch, quiz-eighty: "twenty-five percent divided by one hundred"
+    # said as the meaning of 25%. Twenty-five percent divided by a hundred is 0.0025;
+    # the true sentence is "twenty-five percent MEANS twenty-five divided by a hundred".
+    ("percent-divided-by-a-hundred",
+     re.compile(r"\b(?:\d+(?:\.\d+)?|[a-z]+(?:[\s-][a-z]+)?)\s+percent\s+divided\s+by\s+(?:one\s+hundred|a\s+hundred|100)\b", re.I),
+     re.compile(r"percent\s+(?:means|is)\s+[^.!?]{0,30}?\bdivided\s+by|out\s+of\s+(?:one\s+hundred|a\s+hundred|100)"
+                r"|per\s+hundred|the\s+percent\s+(?:number\s+)?divided\s+by", re.I),
+     "twenty-five percent MEANS twenty-five divided by a hundred -- 25 ÷ 100 = 0.25; "
+     "the percent sign already says 'out of a hundred', so the number in front of it "
+     "is what gets divided"),
     # (un) the same watch, function-notation: "the parentheses mean 'plug this in,' never
     # 'multiply.'" Parentheses DO mean multiply in 3(5); the true claim is scoped to
     # function notation.
@@ -7886,6 +7930,146 @@ def function_redefined_conflict(reply: str, heard_tutor=None):
 
 
 # =============================================================================
+# BUILD ut (2026-09-09) -- THREE NARROW REFEREES FROM THE FIRST WATCH ON THE NEW STACK.
+# -----------------------------------------------------------------------------
+# (a) THE ARROW AS A POINTER (rule 13/15). fractions-lost: the board wrote
+#     "1/4 → denominator = 4" and the tutor read the arrow the way OUR registry entry
+#     says to -- "becomes" -- which is false for that line: a fraction does not become
+#     the statement of its denominator. The arrow rewrites an amount; pointing at a
+#     PART of it is a sentence ("1/4 has denominator 4"). Fires on a board value whose
+#     arrow is followed by a property word and an equals sign or "is".
+# (b) A PICTURE ASKED FOR IN THE MIND, NOT ON THE BOARD (rule 7). "Picture a bar cut
+#     into 100 equal little pieces" with nothing drawn -- the THIRD sighting of the
+#     imagine / picture family (09-07 N9, 09-08 #12, tonight). Fires when the spoken
+#     words tell the student to picture / imagine / think of / visualise a thing the
+#     board can draw, and the reply draws no figure at all.
+# (c) THE PROBLEM'S NUMBERS ARE SAID (rule 44, the column and the triangle). The
+#     rule-44 referee reads pending lines -- values with a "?" -- and is deliberately
+#     generous (one spoken number covers a line). Tonight two shapes walked past it: a
+#     [[column]] whose second term 0.47 was never said, and a [[triangle]] whose sides
+#     6 and 8 lived only in the tag while the words asked "how would you set up the
+#     equation with these numbers?". When the reply ASKS, every number the column adds
+#     and every numeric side the triangle carries must be spoken.
+# ⚠️ PARTS only, never RESULTS: "3, 5, 10 → median = 5" is a legitimate "gives" (the canon's
+# own median card) -- a list becomes its statistic. A fraction pointing at its own
+# denominator is the false shape. So: the parts of a thing, not the results of an operation.
+_AP_POINTER = re.compile(
+    r"(?:->|→|⇒)\s*(?:the\s+|its\s+)?(denominator|numerator|top|bottom|hypotenuse|legs?|sides?|"
+    r"slope|intercept|vertex|radius|diameter|coefficient|constant|exponent|base|height|width|"
+    r"length|angle)\s*(?:=|\bis\b)", re.I)
+
+
+# (ut) the canon's own "13² − 5² → leg = 12 ✓" (geo-u5): a COMPUTATION on the left
+# gives its result, and the arrow there is "gives" -- true. The pointer shape has a
+# single VALUE on the left ("1/4", "x^2", "the triangle"), which has nothing to give.
+# So the left side must hold no operator: an operator makes it a computation, silent.
+_AP_LHS_OP = re.compile(r"[+×·÷=]|\s[-−–]\s|\d[-−]\d|\bplus\b|\bminus\b|\btimes\b|\bover\b", re.I)
+
+
+def _ap_lhs(val: str, at: int) -> str:
+    """The text just before an arrow at `at`, back to the last separator."""
+    seg = val[:at]
+    for sep in (":", ";", "\n", "|"):
+        seg = seg.rsplit(sep, 1)[-1]
+    return seg.strip()
+
+
+def arrow_as_pointer_conflict(reply: str):
+    """Return a description of a rewrite arrow used as a pointer at a part, or "".
+    Never raises (fail open)."""
+    try:
+        for val in _note_tag_vals(str(reply or "")):
+            m = _AP_POINTER.search(val)
+            if m and not _AP_LHS_OP.search(_ap_lhs(val, m.start())):
+                return ('the board writes "{v}" -- an arrow pointing at the {w}. The arrow is '
+                        "read \"becomes\", and a fraction does not BECOME the statement of its "
+                        "{w}; read that way the line is false (rule 13), and a student learns "
+                        "the arrow means something it does not. Write the part as a sentence "
+                        'instead: [[write text="1/4 has denominator 4"]], and say "one fourth '
+                        'has denominator four". Keep everything else the same.').format(
+                            v=" ".join(val.split())[:50], w=m.group(1).lower())
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[arrowpointer] crashed (fail open): {exc}")
+        _event("referee_crash", "arrowpointer", str(exc))
+        return ""
+
+
+_PND_VERB = re.compile(
+    r"\b(?:picture|imagine|visuali[sz]e|think\s+of|pretend)\s+"
+    r"(?:(?:that\s+)?(?:you\s+(?:have|see|hold|had)|we\s+(?:have|had)|there\s+(?:is|are|were))\s+)?"
+    r"(?:a|an|the|some|two|three|four|five|six|seven|eight|nine|ten|\d+)\s+"
+    r"(?:\w+\s+){0,3}?"
+    r"(bars?|tapes?|strips?|number\s+lines?|pies?|pizzas?|circles?|cookies?|rectangles?|squares?|"
+    r"grids?|arrays?|graphs?|curves?|triangles?|dots?|counters?|blocks?|coins?|pennies|dimes|"
+    r"balances?|scales?|boxes?|bags?|jars?|thermometers?|ladders?|towers?|stacks?|rows?|"
+    r"columns?|charts?|tables?|pieces|slices|marbles|apples|candies|stars)\b", re.I)
+
+
+def pictured_not_drawn_conflict(reply: str):
+    """Return a description of a picture the words asked the student to imagine while
+    the board drew nothing, or "". Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        m = _PND_VERB.search(prose)
+        if not m:
+            return ""
+        if _tags_present(text, FIGURE_TAGS):
+            return ""                             # something IS drawn; whether it is the
+                                                  # right thing is another referee's question
+        return ('you say "{s}" and draw nothing -- the student is asked to hold a picture in '
+                "their head that the board could show them. Rule 7: a picture that helps is "
+                "DRAWN, in this reply, with a figure tag (a [[tape]] or [[objects]] for the "
+                "pieces, a [[numberline]], a [[pie]] -- whichever it is), and the words then "
+                "point at it. Either draw the {w}, or leave the imagining out.").format(
+                    s=m.group(0)[:60], w=m.group(1).lower())
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[pictured] crashed (fail open): {exc}")
+        _event("referee_crash", "pictured", str(exc))
+        return ""
+
+
+_PN_COLUMN = re.compile(r"\[\[\s*column\b([^\]]*)\]\]", re.I)
+
+
+def problem_numbers_unspoken_conflict(reply: str):
+    """Return a description of a column or a lettered triangle whose numbers the words
+    never say while the reply asks the student about it, or "". Never raises."""
+    try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        low = prose.lower()
+        if "?" not in prose and "your turn" not in low:
+            return ""
+        missing, where = [], ""
+        for m in _PN_COLUMN.finditer(text):
+            attrs = {k.lower(): v for k, v in _TRI_ATTR.findall(m.group(1))}
+            for term in re.split(r"\s*\|\s*", attrs.get("terms") or ""):
+                term = term.strip()
+                if re.fullmatch(r"-?\d+(?:\.\d+)?", term) and not _pq_spoken_covers(prose, term):
+                    missing.append(term); where = "the column adds"
+        for m in _TRI_TAG.finditer(text):
+            attrs = {k.lower(): v for k, v in _TRI_ATTR.findall(m.group(1))}
+            for side in re.split(r"\s*,\s*", attrs.get("sides") or ""):
+                val = side.split("=")[-1].strip() if "=" in side else side.strip()
+                if re.fullmatch(r"\d+(?:\.\d+)?", val) and not _pq_spoken_covers(prose, val):
+                    missing.append(val); where = where or "the triangle's sides are"
+        if not missing:
+            return ""
+        return ('{w} {m}, and the spoken words never say {it} -- yet this reply asks the '
+                "student to work with those numbers. Rule 44: READ THE PROBLEM ALOUD, IN "
+                "FULL, before you ask. Say every number the board carries the way a person "
+                "says it, then ask.").format(
+                    w=where[0].upper() + where[1:], m=" and ".join(missing[:3]),
+                    it="them" if len(missing) > 1 else "it")
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[problemnumbers] crashed (fail open): {exc}")
+        _event("referee_crash", "problemnumbers", str(exc))
+        return ""
+
+
+# =============================================================================
 # BUILD un (2026-09-08) -- THE EIGHTIETH REFEREE: THE LETTERS ON THE SIDES ARE SAID.
 # -----------------------------------------------------------------------------
 # The 2026-09-08 night watch, geometry-picture, rule 14: the first triangle carried
@@ -9197,6 +9381,21 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if trinames:
             _event("referee_fire", "triangleletters", trinames)
             return trinames
+        # build ut: EIGHTY-SECOND, -THIRD and -FOURTH (reply-only) -- an arrow used as a
+        # pointer (rule 13), a picture asked for in the mind with nothing drawn (rule 7),
+        # and the rule-44 widening for a column's terms and a triangle's sides.
+        arrowp = arrow_as_pointer_conflict(reply)
+        if arrowp:
+            _event("referee_fire", "arrowpointer", arrowp)
+            return arrowp
+        pictured = pictured_not_drawn_conflict(reply)
+        if pictured:
+            _event("referee_fire", "pictured", pictured)
+            return pictured
+        pnums = problem_numbers_unspoken_conflict(reply)
+        if pnums:
+            _event("referee_fire", "problemnumbers", pnums)
+            return pnums
         # build gy: EIGHTEENTH -- the like-denominator rule spoken as a universal (rule 61).
         frac61 = fraction_rule_unconditioned(reply)
         if frac61:
