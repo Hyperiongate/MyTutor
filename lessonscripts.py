@@ -7,6 +7,31 @@
 #               VERBATIM, 70 entries; 39 stay here. Keep adding new notes HERE, newest at
 #               top; roll them out again (notes_rollout.py) when this header passes ~100
 #               KB.
+#   2026-09-09  BUILD uv -- THE LESSON HAS A VISIBLE FINISH LINE, AND THE ORIENTATION
+#               CARD CARRIES THE RECORD. Two board-only repairs from Jim's 2026-09-09
+#               ruling ("wherever we can, we want to have graphics to support what we are
+#               saying"). NOT ONE SPOKEN WORD CHANGES in either, so no new voice line
+#               exists in this build and NO PREWARM IS NEEDED.
+#               (a) _end_board / _card_text, read by _end: every lesson now ends on a
+#                   card -- "Lesson done" (Jim's own word; his 2026-09-07 ruling reserves
+#                   "mastered" for the 90% Unit Quiz) or "Where we got to" for a
+#                   still-learning end -- carrying the topic and how many problems were
+#                   answered. A student who answered none is not handed a zero to look
+#                   at. boardaudit.py measured what the silent ending cost: 68 endings
+#                   across Entry-Level and Diffeq where a child answers the last question
+#                   and then hears 40-70 words with nothing new drawn, and ALL 23
+#                   stretches in the whole course that ran past referee 85's ceiling were
+#                   lesson endings. The worst run in the course: 69 words -> 53.
+#               (b) lesson_orientation(lesson, prev_done, last=None) + _last_time_item:
+#                   the orientation card now says what they did LAST TIME, WHEN, and HOW
+#                   IT WENT, from the record main.py prepares (_orientation_last). The
+#                   two SPOKEN variants are deliberately untouched -- they are
+#                   pre-rendered clips, and a per-student sentence would turn the second
+#                   beat of every lesson into a live text-to-speech call, a bill and a
+#                   wait on the one beat that has to land instantly. The board holds a
+#                   score better than the ear does. last=None returns byte-for-byte what
+#                   us shipped, and an absent or impossible field drops that part of the
+#                   line rather than guessing (rule 0).
 #   2026-09-09  BUILD us -- ORIENT, THEN ONE IDEA PER BEAT WITH A CHECK (the shape Jim
 #               chose, 2026-09-08). Three pure helpers, the engine's walk untouched:
 #               lesson_orientation(lesson, prev_done) -> (spoken, card) -- "Before this
@@ -15408,17 +15433,53 @@ def prev_lesson(lesson):
         return None
 
 
-def lesson_orientation(lesson, prev_done=False):
+def _last_time_item(prev, last):
+    """(uv) The "last time" line of the orientation card: WHAT they did, WHEN, and
+    HOW IT WENT, from the record. `last` is prepared by main.py (see _orientation_last)
+    so this stays a pure function of its arguments and the battery can replay it.
+    Returns "" when there is nothing true to say -- an absent record never becomes a
+    guess, which is rule 0 applied to the card."""
+    topic = _card_text(prev.get("topic") or "")
+    if not topic:
+        return ""
+    when = _card_text((last or {}).get("when") or "")
+    head = "Last time (%s): %s" % (when, topic) if when else "Last time: %s" % topic
+    try:
+        asked = int((last or {}).get("asked") or 0)
+        right = int((last or {}).get("right") or 0)
+    except (TypeError, ValueError):
+        return head
+    if asked <= 0 or right > asked:
+        return head
+    return "%s — %d of %d right" % (head, right, asked)
+
+
+def lesson_orientation(lesson, prev_done=False, last=None):
     """(us) Where we are and where we are going: (spoken, board). `prev_done` is the
     RECORD's word that the previous lesson in the order was finished (main.py reads
     store.get_script_done); without it the line names only today, so nothing false
-    about the student's past is ever said."""
+    about the student's past is ever said.
+
+    (uv, 2026-09-09) ...AND THE CARD NOW CARRIES THE RECORD. Jim: "They are not an AI.
+    They don't remember instantly what they did yesterday. So we have to familiarize
+    them -- this is where we are, then this is what we're gonna do."
+
+    ⚠️ THE SPOKEN LINE IS UNCHANGED, DELIBERATELY, in both of its variants. The two
+    variants are pre-rendered clips (_script_closure_texts); making the VOICE say a
+    per-student score would make every lesson's second beat a live text-to-speech call
+    -- a cost and a wait on the one beat that has to land instantly -- for a detail the
+    board holds better anyway. That is Jim's own rule applied to itself: the specifics
+    belong where they can be looked at twice, not in the ear. `last=None` (no record,
+    dev file mode, any error) returns byte-for-byte what us shipped."""
     topic = _spoken_name(str(lesson.get("topic") or "").strip())
     prev = prev_lesson(lesson)
     if prev_done and prev:
         ptopic = _spoken_name(str(prev.get("topic") or "").strip())
         spoken = f"Before this came {ptopic}, and you finished it. Today: {topic}. {ORIENT_PLAN}"
-        items = f"Done: {prev.get('topic')} | Today: {lesson.get('topic')} | The idea, a picture, the method, then your turn"
+        head = _last_time_item(prev, last) if last else ""
+        items = (f"{head} | Today: {lesson.get('topic')} | The idea, a picture, the method, then your turn"
+                 if head else
+                 f"Done: {prev.get('topic')} | Today: {lesson.get('topic')} | The idea, a picture, the method, then your turn")
     else:
         spoken = f"Today: {topic}. {ORIENT_PLAN}"
         items = f"Today: {lesson.get('topic')} | The idea, a picture, the method, then your turn"
@@ -15532,15 +15593,52 @@ def _ask_reason(state, lesson, spoken=None):
     return out
 
 
+# (uv, 2026-09-09) THE LESSON HAS A VISIBLE FINISH LINE. Jim's rule, given the same
+# day: "wherever we can, we want to have graphics to support what we are saying" --
+# and the ending was the one beat of the whole shape that never drew anything. The
+# engine said "you can add single-digit numbers" out loud, over whatever happened to
+# be left on the board, and stopped. boardaudit.py found the cost: 68 lesson endings
+# across Entry-Level and Diffeq where a child answers the last question and then hears
+# 40-70 words with NOTHING new to look at -- every one of the 23 stretches in the whole
+# course that runs past referee 85's ceiling is a lesson ending.
+#
+# ⚠️ NOT ONE SPOKEN WORD CHANGES. The card carries what the voice already said, so no
+# new audio line exists and the pre-rendered closure is untouched (a prewarm is not
+# needed for this build). "Lesson done" is Jim's own word for a finished authored
+# lesson -- his 2026-09-07 ruling reserving "mastered" for the 90% Unit Quiz -- so the
+# card and the record now say the same thing.
+_END_CARD_UNSAFE = re.compile(r'["|\[\]]')
+
+
+def _card_text(text):
+    """A string safe inside a tag attribute: no quotes, no pipes, no brackets."""
+    return " ".join(_END_CARD_UNSAFE.sub(" ", str(text or "")).split())
+
+
+def _end_board(lesson, state, mastered):
+    """The card a lesson ends on: what it was, and how much of it they did. A
+    still-learning end says where they GOT TO -- never "done", which would be false --
+    and a student who answered nothing is not handed a zero to look at."""
+    items = [_card_text(lesson.get("topic") or "")]
+    done = int(state.get("done") or 0)
+    if done:
+        items.append("%d problem%s answered" % (done, "" if done == 1 else "s"))
+    return '[[card title="%s" items="%s"]]' % (
+        "Lesson done" if mastered else "Where we got to",
+        " | ".join(i for i in items if i))
+
+
 def _end(lesson, state, spoken, mastered):
     """Beat seven's first half: the recap, then the end line. EVERY end of a lesson
     passes through here, so a lesson that carries a recap says it whether the student
     mastered the idea or is still learning it -- the still-learning student needs to
-    hear the rule again more, not less."""
+    hear the rule again more, not less. (uv) ...and it ends on a card, so the last
+    thing said is also the last thing seen."""
     state["finished"] = True
     return _beats(lesson, "recap") + [
         {"kind": "end", "spoken": spoken, "graceful": True, "mastered": mastered,
-         "problems_done": state["done"]}]
+         "problems_done": state["done"],
+         "board": _end_board(lesson, state, mastered)}]
 
 
 def _problem_key(p):

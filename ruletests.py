@@ -6,6 +6,17 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  BUILD uv -- PART 3kr, THE BOARD KEEPS UP WITH THE VOICE. Pins the
+#               EIGHTY-FIFTH referee (board_silence_conflict) with its failability seam
+#               (lift the ceiling, the same reply goes silent), the canon sweep (not one
+#               authored beat in the course fires it), boardaudit.worst() under the
+#               referee's OWN ceiling read from tutor.py so the two cannot drift, the end
+#               card in both wordings across all 360 lessons, session.html drawing it
+#               (its end branch used to return before handleTags), and the orientation
+#               card's record with the SPOKEN line proven byte-identical to us -- the pin
+#               that keeps this build prewarm-free. Sixteen referee-count pins 84 -> 85.
+#               One live drive: a whole lesson to its end over real HTTP, then the two new
+#               cards rendered at 390x844 and measured for overflow.
 #   2026-09-09  BUILD uu -- THE FRONT DOOR, QUIETED. PART 3kq: the nav is one row (brand,
 #               Pricing, Sign in), no link row, no ribbon, site-nav.js not loaded; the hero
 #               is one sentence and three honest doors in order (/demo/lesson, /demo?tour=1,
@@ -11378,8 +11389,8 @@ def part3kg_the_mark_floor():
     check("  no retry anywhere in it (Jim: the verdict is already spoken; only the record was missing)",
           "MATHCHECK_MAX_ATTEMPTS" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000]
           and "retry" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000].lower(), "")
-    check("  the referee count is eighty-four since ut (eighty-one since uo) -- uk added a floor, not a referee",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 84, "")
+    check("  the referee count is eighty-five since uv (eighty-one since uo) -- uk added a floor, not a referee",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 85, "")
 
     # ---- through the real shipping door (3gb's stub harness) --------------------------------
     import mathcheck as _mc
@@ -11841,9 +11852,9 @@ def part3kj_the_truth_items_and_the_proven_holes():
           and "which side is which" in (T.prose_board_conflict(W, "ok") or "")
           and '_event("referee_fire", "triangleletters", trinames)' in tsrc
           and tsrc.find('_event("referee_fire", "triangleletters"') > tsrc.find('_event("referee_fire", "triangleletter",') > 0, "")
-    check("⭐ eighty referees at un, eighty-one since uo, eighty-four since ut; the truth class still eleven (rule 14 is conduct; the rows ride "
+    check("⭐ eighty referees at un, eighty-one since uo, eighty-four since ut, eighty-five since uv; the truth class still eleven (rule 14 is conduct; the rows ride "
           "referee 61's table)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 84 and len(T.TRUTH_REFEREES) == 11, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweeps: nothing authored trips any of it --------------------------------------
     texts = []; pairs = []
@@ -12002,8 +12013,8 @@ def part3kk_one_name_per_function():
           and any("[[choices]]" in r["shape"] for r in rows if r["rule"] == 48)
           and any("already introduced" in r["shape"] for r in rows if r["rule"] == 48), "")
 
-    check("⭐ eighty-one referees at uo (eighty-four since ut); the truth class still eleven (rule 28 is conduct)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 84 and len(T.TRUTH_REFEREES) == 11, "")
+    check("⭐ eighty-one referees at uo (eighty-five since uv); the truth class still eleven (rule 28 is conduct)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweep, CUMULATIVE: each beat against the beats before it ---------------------
     n = 0; fires = []; machine_reuse = []
@@ -12139,8 +12150,8 @@ def part3kl_a_new_machine_still_called_f():
           and "_FR_MACHINE" in tsrc and "\\bnew\\s+machines?\\b" in tsrc, "")
     check("  a dot between two definitions on one board line separates them (fcmp's own step)",
           T._fr_definitions('[[step eq="f(x) = x + 2 · g(x) = 2x"]]') == [("f", "x", "x+2"), ("g", "x", "2x")], "")
-    check("  the referee count is unchanged by up -- it widened the eighty-first's grammar (eighty-four since ut)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 84, "")
+    check("  the referee count is unchanged by up -- it widened the eighty-first's grammar (eighty-five since uv)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85, "")
 
     # ---- the cumulative canon sweep now SEES the definitions, and still fires 0 ---------------
     n = defs = 0; fires = []
@@ -12896,8 +12907,8 @@ def part3kp_the_first_watch_on_the_new_stack():
     check("  dispatched after triangleletters, in order: arrowpointer, pictured, problemnumbers",
           tsrc.find('_event("referee_fire", "triangleletters"') < tsrc.find('_event("referee_fire", "arrowpointer"')
           < tsrc.find('_event("referee_fire", "pictured"') < tsrc.find('_event("referee_fire", "problemnumbers"'), "")
-    check("⭐ eighty-four referees; the truth class still eleven (the row rides referee 61's table; the three are conduct)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 84 and len(T.TRUTH_REFEREES) == 11, "")
+    check("⭐ eighty-five referees; the truth class still eleven (the row rides referee 61's table; the three are conduct)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweeps ---------------------------------------------------------------------------------
     texts = []; strict_times = []
@@ -13127,6 +13138,356 @@ def part3kq_the_front_door_quieted():
           and 'APP_BUILD -> "2026-09-09uu-the-front-door-quieted"' in notes("main.py")
           and "2026-09-09  BUILD uu" in notes("ruletests.py")
           and "(uu) Tile 11,382" in notes("static/methodology.html"), "")
+
+
+def part3kr_the_board_keeps_up_with_the_voice():
+    """PART 3kr (build uv, 2026-09-09) -- THE BOARD KEEPS UP WITH THE VOICE.
+
+    Jim, 2026-09-09, on what makes a child give up: "If you have two paragraphs to
+    spit out to a child and you say it and there's no text and there's no graphic,
+    the child is just listening and not remembering anything. It's better to have the
+    graphic. It's better to have one paragraph instead of two... this little level of
+    confusion is very, very frustrating, and I see it all the time in this app."
+
+    Three things carry the ruling, and this PART pins all three:
+
+      1. REFEREE 85, board_silence_conflict -- a live reply that speaks past 55 words
+         with NOTHING on the board. The ceiling is not a guess: boardaudit.py walked
+         all 360 lessons through the real engine and found that the longest thing the
+         course itself ever says over a still board is 53 words.
+      2. boardaudit.py -- the sweep the referee cannot do. A referee sees ONE reply;
+         a child meets a RUN of beats, and the board is an append-only feed where the
+         tutor's own bubbles push earlier work out of view. The audit measures the
+         words between one drawn mark and the next, and PART 3kr pins its worst.
+      3. THE TWO BOARD-ONLY REPAIRS the audit asked for, neither of which changes a
+         single spoken word (no new voice line exists in this build, so no prewarm):
+           * every lesson ENDS on a card (_end_board) -- before this, 68 endings
+             across Entry-Level and Diffeq left a child hearing 40-70 words with
+             nothing to look at, and all 23 over-ceiling runs in the whole course
+             were lesson endings;
+           * the orientation card carries the RECORD (main._orientation_last) --
+             what they did last time, when, and how it went, which is the "they don't
+             remember what they did yesterday" half of Jim's ruling. The SPOKEN line
+             is deliberately unchanged: its two variants are pre-rendered clips.
+    """
+    print("\nPART 3kr — the board keeps up with the voice (build uv)")
+    import re as _re, json as _json, socket, subprocess, sys, time as _t
+    import tutor as T
+    import lessonscripts as LS
+    import boardaudit as BA
+    import main as M
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+
+    def _now_iso(days_ago):
+        """An ISO stamp `days_ago` days back, for the day-phrase pins."""
+        from datetime import datetime, timedelta, timezone
+        return (datetime.now(timezone.utc) - timedelta(days=days_ago)).isoformat()
+
+    def _walk_to_end(lesson):
+        """Drive this lesson to its end with the pure engine; returns the end step."""
+        state = LS.start(lesson, seed=12345)
+        steps, state = LS.step(lesson, state, ("begin",))
+        for _ in range(200):
+            last = steps[-1]
+            if last["kind"] == "end":
+                return last
+            if last["kind"] == "ask":
+                value = ((lesson.get("explain") or {}).get("answer", "")
+                         if last.get("reason") else last["expected"])
+                steps, state = LS.step(lesson, state, ("answer", value))
+            elif last["kind"] == "intervene":
+                steps, state = LS.step(lesson, state, ("resume",))
+            else:
+                return None
+        return None
+
+    # ---- 1. the referee exists, and is the eighty-fifth ------------------------------------
+    n_ref = sum(1 for n in dir(T) if n.endswith("_conflict"))
+    check("⭐ the EIGHTY-FIFTH referee: board_silence_conflict (uv); the truth class still "
+          "eleven -- a wall of talk teaches nothing false, it teaches nothing",
+          n_ref == 85 and hasattr(T, "board_silence_conflict") and len(T.TRUTH_REFEREES) == 11,
+          f"{n_ref} *_conflict functions")
+    check("  it rides the same sweep as the rest, next to its sibling spokenmath",
+          'bsilence = board_silence_conflict(reply)' in rd("tutor.py")
+          and '_event("referee_fire", "boardsilence", bsilence)' in rd("tutor.py"), "")
+
+    LONG = "We are going to talk about what a variable really is and why it matters. " * 6
+    check("⭐ a long turn with NOTHING on the board fires",
+          bool(T.board_silence_conflict(LONG)), "")
+    check("  ...and the correction is reachable in one rewrite: draw it, or say less",
+          "DRAW THE THING YOU ARE TALKING ABOUT" in T.board_silence_conflict(LONG)
+          and "say LESS" in T.board_silence_conflict(LONG), "")
+    check("  one [[step]] buys silence -- this referee polices the EMPTY board only",
+          T.board_silence_conflict(LONG + '[[step eq="2x = 8"]]') == "", "")
+    check("  a short turn over a standing board is fine (praise, a nudge, a verdict)",
+          T.board_silence_conflict("That's it! Four plus four equals eight.") == "", "")
+
+    # the mark list is WIDER than board_flood's, on purpose: the flood counts BEATS,
+    # this counts MARKS -- things a child can look at
+    for tag, why in (('[[goal text="Doubles"]]', "a goal banner is something to look at"),
+                     ('[[today items="a | b"]]', "the plan card is something to look at"),
+                     ('[[highlight line="2"]]', "a highlight is the board being pointed at"),
+                     ('[[card title="x" items="y"]]', "a card is something to look at")):
+        check(f"  {why}: {tag.split()[0]}]] buys silence",
+              T.board_silence_conflict(LONG + tag) == "", tag)
+    check("⭐ a row of BUTTONS is not a mark on the board -- [[choices]] alone still fires",
+          bool(T.board_silence_conflict(LONG + '[[choices options="yes | no"]]')), "")
+    check("  the two ends of the same axis are measured with related rulers "
+          "(board_flood caps the top, this the bottom)",
+          set(T._BS_MARKS) > set(T._BF_COUNTED) and "choices" not in T._BS_MARKS, "")
+
+    # failability seams -- one at a time (the un lesson: a pin must be breakable)
+    _keep = T._BS_CEILING
+    try:
+        T._BS_CEILING = 10_000
+        check("  SEAM: with the ceiling lifted the same reply goes silent (the ceiling is load-bearing)",
+              T.board_silence_conflict(LONG) == "", "")
+    finally:
+        T._BS_CEILING = _keep
+    check("  ...and it is back where it belongs afterwards", T._BS_CEILING == 55, str(T._BS_CEILING))
+    check("  a referee crash fails OPEN, like every other one",
+          T.board_silence_conflict(None) == "" and T.board_silence_conflict(12345) == "", "")
+    check("⭐ THE BAND HAS A TOP: past the spoken-length ceiling referee 34 owns the turn. "
+          "Its nudge already asks for ONE step WITH ITS BOARD LINE, so it subsumes this "
+          "one -- and the sweep returns the FIRST fire, so without the band the better "
+          "correction would never be reached (PART 3ck's sweep pin caught exactly that).",
+          T.board_silence_conflict("word " * 126) == ""
+          and "FIRST BEAT ONLY" in str(T.prose_board_conflict("word " * 126))
+          and "DRAW THE THING YOU ARE TALKING ABOUT" in str(T.prose_board_conflict("word " * 70)),
+          "")
+    check("  ...and the band is the two ceilings, read from the code, in the right order",
+          T._BS_CEILING < T._SPOKEN_WORD_CEILING,
+          f"{T._BS_CEILING} vs {T._SPOKEN_WORD_CEILING}")
+
+    # ---- 2. the ceiling is computed from the canon, and the canon still passes -------------
+    worst = BA.worst()
+    check("⭐ THE CEILING IS COMPUTED FROM THE COURSE'S OWN CONTENT: after uv's two repairs "
+          "the longest stretch of talking over a still board in all 360 lessons is under it",
+          worst <= T._BS_CEILING, f"the worst run is {worst} spoken words, ceiling {T._BS_CEILING}")
+    check("  ...and the audit really walked the whole course",
+          len(LS.LESSONS) == 360 and len(BA.audit()) == 0,
+          f"{len(BA.audit())} runs over the ceiling")
+    fired = [(les["id"], str(spoken or "")[:60])
+             for les in LS.LESSONS
+             for spoken, board in _authored_beats(les)
+             if T.board_silence_conflict(str(spoken or "") + "\n" + str(board or ""))]
+    check("⭐ the CANON sweep: not one authored beat in the whole course fires the new referee",
+          not fired, f"{len(fired)} fire, first: {fired[:2]}")
+
+    check("  boardaudit reads the referee's own mark list and ceiling -- they cannot drift apart",
+          BA.CEILING is T._BS_CEILING and BA._MARK_RE is T._BS_MARK_RE, "")
+    check("  ...and it inserts the orientation beat exactly where main.py does (index 1)",
+          'steps.insert(1, {"kind": "say"' in rd("main.py")
+          and 'steps.insert(1, {"kind": "say"' in rd("boardaudit.py"), "")
+    check("  boardaudit.py ends whole",
+          rd("boardaudit.py").rstrip().endswith("# I did no harm and this file is not truncated."), "")
+
+    # ---- 3a. every lesson ends on a card ---------------------------------------------------
+    les = LS.LESSON_BY_ID["entry-u2-doubles"]
+    done = LS._end_board(les, {"done": 3}, True)
+    still = LS._end_board(les, {"done": 1}, False)
+    check('⭐ a finished lesson ends on "Lesson done" -- Jim\'s own word for it '
+          '(his 2026-09-07 ruling reserves "mastered" for the 90% Unit Quiz)',
+          done == '[[card title="Lesson done" items="Doubles | 3 problems answered"]]', done)
+    check('  a still-learning end says where they GOT TO, never "done", and counts one problem singular',
+          still == '[[card title="Where we got to" items="Doubles | 1 problem answered"]]', still)
+    check("  a student who answered nothing is not handed a zero to look at",
+          LS._end_board(les, {"done": 0}, False)
+          == '[[card title="Where we got to" items="Doubles"]]',
+          LS._end_board(les, {"done": 0}, False))
+    check("  a topic carrying a quote or a pipe cannot break the tag it sits in",
+          '"' not in LS._card_text('a "quoted" topic | with a pipe [and brackets]')
+          and "|" not in LS._card_text('a "quoted" topic | with a pipe [and brackets]'), "")
+    check("⭐ EVERY one of the 360 lessons now ends on a card, mastered or not",
+          all(_re.match(r"^\[\[card title=\"(Lesson done|Where we got to)\" items=\"",
+                        LS._end_board(L, {"done": 2}, m))
+              for L in LS.LESSONS for m in (True, False)), "")
+    check("  the end STEP carries it, so the page has something to draw",
+          "\"board\": _end_board(lesson, state, mastered)" in rd("lessonscripts.py"), "")
+    _mastered_end = _walk_to_end(LS.LESSON_BY_ID["entry-u2-doubles"])
+    check("⭐ NOT ONE SPOKEN WORD CHANGED: a lesson driven to its end still speaks its own "
+          "advance line, and now draws beside it",
+          bool(_mastered_end)
+          and _mastered_end["spoken"] == LS.LESSON_BY_ID["entry-u2-doubles"]["advance_line"]
+          and _mastered_end["board"].startswith('[[card title="Lesson done"'),
+          str(_mastered_end)[:140])
+    check("  ...and the walk still ends mastered, with its problem count intact (do no harm)",
+          bool(_mastered_end) and _mastered_end["mastered"] is True
+          and _mastered_end["problems_done"] == 3, str(_mastered_end)[:120])
+
+    # the page renders it: session.html's end branch returned BEFORE handleTags
+    sess = rd("static/session.html")
+    endbranch = sess[sess.find('if (step.kind === "end") {'):]
+    check("⭐ session.html draws the end card (its end branch used to return before handleTags)",
+          endbranch.find('handleTags(step.board || "")') < endbranch.find('await scrSay(step.spoken')
+          and endbranch.find('handleTags(step.board || "")') > 0, "")
+
+    # ---- 3b. the orientation card carries the record ---------------------------------------
+    L2 = LS.LESSON_BY_ID["entry-u2-doubles"]
+    us_spoken, us_board = LS.lesson_orientation(L2, True)
+    uv_spoken, uv_board = LS.lesson_orientation(L2, True, {"when": "yesterday", "right": 4, "asked": 4})
+    check("⭐ THE SPOKEN LINE IS UNCHANGED by the record -- both variants stay pre-rendered clips, "
+          "so no new voice line exists in this build and no prewarm is needed",
+          uv_spoken == us_spoken
+          and LS.lesson_orientation(L2, False)[0] == LS.lesson_orientation(L2, False, {"when": "x"})[0], "")
+    check("⭐ ...and the CARD carries what the ear should not: what, when, and how it went",
+          "Last time (yesterday): Adding single-digit numbers — 4 of 4 right" in uv_board, uv_board)
+    check("  no record at all -> byte-for-byte what us shipped",
+          LS.lesson_orientation(L2, True, None) == (us_spoken, us_board), "")
+    check("  a score without a date still says what it can",
+          "Last time: Adding single-digit numbers — 3 of 5 right"
+          in LS.lesson_orientation(L2, True, {"right": 3, "asked": 5})[1], "")
+    check("  an IMPOSSIBLE score is dropped, never shown (rule 0: a recap is a memory, not a guess)",
+          "of" not in LS._last_time_item(LS.LESSON_BY_ID["entry-u2-add-single-digit"],
+                                         {"when": "last week", "right": 9, "asked": 4}), "")
+    check("  a lesson with no previous lesson never claims one",
+          "Last time" not in LS.lesson_orientation(LS.LESSON_BY_ID[LS.COURSE_ORDER[0]], True,
+                                                   {"when": "yesterday", "right": 1, "asked": 1})[1], "")
+
+    check("⭐ the day phrases are the honest ones, and an unreadable date says NOTHING",
+          [M._days_ago_phrase(x) for x in ("", "garbage", None)] == ["", "", ""]
+          and M._days_ago_phrase("2199-01-01T00:00:00") == "", "")
+    check("  ...and a real date reads as a child would say it",
+          M._days_ago_phrase(_now_iso(0)) == "earlier today"
+          and M._days_ago_phrase(_now_iso(1)) == "yesterday"
+          and M._days_ago_phrase(_now_iso(3)) == "3 days ago"
+          and M._days_ago_phrase(_now_iso(9)) == "last week"
+          and M._days_ago_phrase(_now_iso(400)) == "",
+          str([M._days_ago_phrase(_now_iso(n)) for n in (0, 1, 3, 9, 400)]))
+    check("  no store, no rows, no score -- and never an exception",
+          M._orientation_last("1234", "entry", "nope", "") is None, "")
+    check("  the score counts FIRST TRIES at REAL questions only -- the guided pairs are "
+          "the tutor's own work, not the student's",
+          'not r.get("guided") and int(r.get("attempt") or 1) == 1' in rd("main.py"), "")
+    check("  ...and it is only ever asked for a lesson the record says was FINISHED",
+          "if prev_done:" in rd("main.py") and "_orientation_last(code, lesson[\"course\"]" in rd("main.py"), "")
+
+    # ---- the dated notes and the whole files -----------------------------------------------
+    # each file heads its notes in its OWN house style -- a .py build note, main.py's
+    # stamp line, an .html page's dated block -- so the needle is per file, never one
+    # substring hopefully common to all six (which is how this pin first went green
+    # on files that carried no note at all).
+    for fn, needle in (("tutor.py", "2026-09-09  BUILD uv"),
+                       ("lessonscripts.py", "2026-09-09  BUILD uv"),
+                       ("main.py", '2026-09-09  APP_BUILD -> "2026-09-09uv'),
+                       ("ruletests.py", "2026-09-09  BUILD uv"),
+                       ("boardaudit.py", "2026-09-09  NEW (build uv)"),
+                       ("static/session.html", "(uv) 2026-09-09"),
+                       ("static/methodology.html", "2026-09-09  (uv)")):
+        check(f"  {fn} carries uv's dated note", needle in notes(fn), fn)
+    meth = rd("static/methodology.html")
+    check("  methodology's tile and both data-referees spans say 85",
+          meth.count("<span data-referees>85</span>") == 2
+          and '<div class="num"><b>85</b>' in meth, "")
+
+    # ---- LIVE: a whole lesson over HTTP, and the card in a real browser ---------------------
+    NAME = "⭐ LIVE: a lesson driven to its end over HTTP ends on the card, and the card renders at 390x844"
+    if dep_gate(NAME, "playwright", "the card is measured in a real browser"):
+        try:
+            sck = socket.socket(); sck.bind(("127.0.0.1", 0)); port = sck.getsockname()[1]; sck.close()
+        except Exception:  # noqa: BLE001
+            port = 8141
+        env = dict(os.environ, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="1")
+        env.pop("DATABASE_URL", None); env.pop("ANTHROPIC_API_KEY", None)
+        srv = subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1",
+                                "--port", str(port)], cwd=here, env=env,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            import urllib.request
+            up = False
+            for _ in range(60):
+                try:
+                    urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=2).read(); up = True; break
+                except Exception:  # noqa: BLE001
+                    _t.sleep(0.5)
+            if not up:
+                skip(NAME, "the app did not come up in 30 s")
+            else:
+                base = f"http://127.0.0.1:{port}"
+
+                def post(path, payload):
+                    req = urllib.request.Request(
+                        base + path, data=_json.dumps(payload).encode(),
+                        headers={"Content-Type": "application/json"})
+                    return _json.load(urllib.request.urlopen(req, timeout=30))
+
+                lid = "entry-u2-doubles"
+                lesson = LS.LESSON_BY_ID[lid]
+                level = lesson.get("levels", LS.LEVELS)[0]
+                j = post("/api/script/start", {"code": "1234", "lesson": lid})
+                steps, endstep, guard = j["steps"], None, 0
+                orient = next((s for s in steps if s.get("beat") == "orientation"), None)
+                while guard < 60 and endstep is None:
+                    guard += 1
+                    last = steps[-1]
+                    if last["kind"] == "end":
+                        endstep = last
+                        break
+                    if last["kind"] != "ask":
+                        break
+                    want = next((p for p in list(lesson["bank"]) + [pr["ask"] for pr in lesson["pairs"]]
+                                 if LS.spoken_for(p, level) == last["spoken"]), None)
+                    if want is None:
+                        break
+                    steps = post("/api/script/answer",
+                                 {"code": "1234", "value": int(LS.ans(want))})["steps"]
+                check("  LIVE: the lesson reached its end over real HTTP",
+                      endstep is not None, "the drive never reached an end step")
+                check("  LIVE: the end step carries the Lesson done card",
+                      bool(endstep) and endstep.get("board", "").startswith('[[card title="Lesson done"'),
+                      (endstep or {}).get("board", "")[:90])
+                check("  LIVE: the orientation beat is still the second step, with its card",
+                      bool(orient) and steps is not None and orient["board"].startswith('[[card title="Today"')
+                      and j["steps"].index(orient) == 1, "")
+
+                from playwright.sync_api import sync_playwright
+                CARDS = [
+                    '[[card title="Today" items="Last time (yesterday): Adding single-digit numbers — 4 of 4 right | Today: Doubles | The idea, a picture, the method, then your turn"]]',
+                    '[[card title="Lesson done" items="Doubles | 3 problems answered"]]',
+                ]
+                PLAY = """(rows) => {
+                  const feed = document.querySelector('#feed'); feed.innerHTML = '';
+                  const out = [];
+                  for (const board of rows) {
+                    addBubble('tutor', 'x'); handleTags(board);
+                    const all = feed.querySelectorAll('.mblock, .cardblock, .worklist');
+                    const el = all[all.length - 1]; const r = el ? el.getBoundingClientRect() : null;
+                    out.push({drew: !!el, text: el ? el.innerText.replace(/\\s+/g,' ').trim() : '',
+                              overflows: r ? r.right > innerWidth + 1 : true});
+                  }
+                  out.push({docW: document.documentElement.scrollWidth, vw: innerWidth});
+                  return out;
+                }"""
+                with sync_playwright() as pw:
+                    br = pw.chromium.launch()
+                    ctx = br.new_context(viewport={"width": 390, "height": 844},
+                                         is_mobile=True, has_touch=True, device_scale_factor=1)
+                    pg = ctx.new_page()
+                    errs = []
+                    pg.on("pageerror", lambda e: errs.append(str(e)[:120]))
+                    pg.goto(base + "/session?code=1234&course=entry", wait_until="load")
+                    pg.wait_for_timeout(2500)
+                    try:
+                        pg.click("#welcome button", timeout=2500)
+                    except Exception:  # noqa: BLE001
+                        pass
+                    pg.wait_for_timeout(500)
+                    res = pg.evaluate(PLAY, CARDS)
+                    ctx.close(); br.close()
+                drew = res[:-1]
+                check(NAME,
+                      all(d["drew"] and not d["overflows"] for d in drew)
+                      and "Lesson done" in drew[1]["text"]
+                      and "4 of 4 right" in drew[0]["text"]
+                      and res[-1]["docW"] <= res[-1]["vw"] and not errs,
+                      _json.dumps(res)[:220] + (" errors: " + str(errs[:2]) if errs else ""))
+        finally:
+            srv.terminate()
+            try:
+                srv.wait(timeout=10)
+            except Exception:  # noqa: BLE001
+                srv.kill()
 
 
 def part3he_the_main_road_moves_the_star():
@@ -14122,8 +14483,8 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
 
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
-    check("  the referee count is unchanged by rl -- it widened a gate (eighty-four since ut)",
-          n_ref == 84,
+    check("  the referee count is unchanged by rl -- it widened a gate (eighty-five since uv)",
+          n_ref == 85,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -14206,8 +14567,8 @@ def part3hn_credit_only_what_you_saw():
           T.back_reference_conflict("You lined those up perfectly!", heard=None)
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
-    check("  the referee count is unchanged by rm -- it widened a gate (eighty-four since ut)",
-          n_ref == 84, f"{n_ref} *_conflict functions")
+    check("  the referee count is unchanged by rm -- it widened a gate (eighty-five since uv)",
+          n_ref == 85, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -14283,8 +14644,8 @@ def part3ho_three_one_line_holes():
           T.function_ask_rewrite_conflict("What is f(4)?") != "",
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
-    check("  the referee count is unchanged by rn -- it widened two gates (eighty-four since ut)",
-          n_ref == 84, f"{n_ref} *_conflict functions")
+    check("  the referee count is unchanged by rn -- it widened two gates (eighty-five since uv)",
+          n_ref == 85, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -20671,10 +21032,10 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ eighty-four referees now, counted from the code (62 + pz + qf + qm + qs + "
+    check("⭐ eighty-five referees now, counted from the code (62 + pz + qf + qm + qs + "
           "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + "
           "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach + tw's opunspoken + tx's sharespic + un's triangleletters + uo's funcrename + ut's arrowpointer, pictured and problemnumbers)",
-          n_ref == 84, n_ref)
+          n_ref == 85, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -23260,7 +23621,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,412</b>" in page,
+          "<b>11,461</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24022,8 +24383,8 @@ def part3ii_the_board_tells_the_truth_about_which_question():
           fires == 0 and seen >= 9000, f"{fires} authored replies rejected")
 
     # ---- the count moved, and everything that pins it moved with it ----------------
-    check("  eighty-four *_conflict referees (un added triangleletters, uo funcrename, ut three)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 84, "")
+    check("  eighty-five *_conflict referees (un added triangleletters, uo funcrename, ut three, uv boardsilence)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85, "")
     check("  tutor.py carries a dated sm note",
           "2026-09-04  BUILD sm" in notes("tutor.py"), "")
 
@@ -28252,8 +28613,8 @@ def part3jr_the_gate_learns_who_wrote_the_symbol():
           "heard=heard," in _cv and "heard_tutor=heard_tutor," in _cv, "")
 
     # ---- nothing else moved ---------------------------------------------------------
-    check("  no new referee from tv (a gate correction; eighty-four since ut) and no new truth-class name",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 84
+    check("  no new referee from tv (a gate correction; eighty-five since uv) and no new truth-class name",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tv notes",
           "2026-09-07  BUILD tv" in notes("tutor.py")
@@ -28407,9 +28768,9 @@ def part3js_the_say_it_then_write_it_family():
           f"carry an op=", _opfire == 0 and _ops >= 5, f"{_opfire} fires")
 
     # ---- the count, and the notes ----------------------------------------------------
-    check("  eighty-four referees (ut), and the truth class unchanged at eleven (all three "
+    check("  eighty-five referees (uv), and the truth class unchanged at eleven (all three "
           "of tw's are conduct: nothing false is taught)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 84
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tw notes",
           "2026-09-07  BUILD tw" in notes("tutor.py")
@@ -28565,10 +28926,10 @@ def part3jt_the_words_and_the_picture_are_the_same_thing():
           f"beats, exactly as the narrow one was", _f1 == 0, f"{_f1} fires")
 
     # ---- the count, and the notes ------------------------------------------------------
-    check("  eighty-four referees (ut), truth class still eleven (F9 is conduct: nothing "
+    check("  eighty-five referees (uv), truth class still eleven (F9 is conduct: nothing "
           "false is said, the figure is the wrong object for the story -- Jim may rule "
           "it truth, as he did for boardcount on 2026-09-04)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 84
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tx notes",
           "2026-09-07  BUILD tx" in notes("tutor.py")
@@ -30871,8 +31232,8 @@ def part3hx_the_question_mark_is_a_blank_said_so():
           not hits and not (dd and "question-mark blank" in dd)
           and n >= 1900 and m >= 3000,
           str(hits[:4]))
-    check("  the referee count is unchanged by sa -- a registry row on referee 31 (eighty-four since ut)",
-          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 84, "")
+    check("  the referee count is unchanged by sa -- a registry row on referee 31 (eighty-five since uv)",
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 85, "")
 
 
 def part3hw_a_variables_letter_keeps_its_case():
@@ -31020,8 +31381,8 @@ def part3hu_the_accepted_offer_is_honored():
               'triangle with it marked?',
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
-    check("  the referee count is unchanged by rx -- it widened a gate (eighty-four since ut)",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 84, "")
+    check("  the referee count is unchanged by rx -- it widened a gate (eighty-five since uv)",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 85, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -31141,8 +31502,8 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("0.5") is True
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
-    check("  the referee count is unchanged by ry -- it widened a gate and added a floor (eighty-four since ut)",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 84, "")
+    check("  the referee count is unchanged by ry -- it widened a gate and added a floor (eighty-five since uv)",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 85, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -39800,6 +40161,7 @@ def main():
     part3ko_orient_then_one_idea_per_beat_with_a_check()
     part3kp_the_first_watch_on_the_new_stack()
     part3kq_the_front_door_quieted()
+    part3kr_the_board_keeps_up_with_the_voice()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

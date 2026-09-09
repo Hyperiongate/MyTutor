@@ -6,6 +6,24 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  APP_BUILD -> "2026-09-09uv-the-board-keeps-up-with-the-voice". BUILD uv --
+#               WHAT HAPPENED LAST TIME, FROM THE RECORD. Jim, 2026-09-09: "They are not
+#               an AI. They don't remember instantly what they did before yesterday. So we
+#               have to familiarize them. This is where we are. Then we have to say, this
+#               is what we're gonna do." us gave every lesson an orientation beat, but it
+#               could only say THAT the previous lesson was finished -- a boolean.
+#               Everything else a returning child needs was already in the store (ue's
+#               script_answers, one row per graded answer; script_done.last_at) and nothing
+#               read it. NEW: _days_ago_phrase ("yesterday", "3 days ago", "last week", ""
+#               when nothing honest can be said) and _orientation_last (the score of their
+#               last sitting at that lesson). script_start hands the prepared dict to
+#               lessonscripts.lesson_orientation, which puts it on the CARD and leaves the
+#               spoken line alone -- a pre-rendered clip, so uv adds NO voice lines and
+#               needs no prewarm. Fail-open at every step: no store, no rows, a bad date or
+#               an impossible score simply drops that part of the line (rule 0: a recap is
+#               a memory, not a guess), and the score is only ever asked for a lesson the
+#               record says was FINISHED. FIRST-TRY answers to REAL questions only -- the
+#               guided pairs are the tutor's own work and would inflate a child's score.
 #   2026-09-09  APP_BUILD -> "2026-09-09uu-the-front-door-quieted". BUILD uu. NO CODE IN
 #               THIS FILE CHANGED -- the stamp only. static/landing.html (served at "/")
 #               is now the quiet front door Jim asked for on 28 Aug and approved as the
@@ -5698,6 +5716,81 @@ def script_intervene_run(body: ScriptInterveneIn):
     return {"ok": True, "steps": out or []}
 
 
+# =============================================================================
+# (uv, 2026-09-09) WHAT HAPPENED LAST TIME, FROM THE RECORD.
+# -----------------------------------------------------------------------------
+# Jim, 2026-09-09: "They are not an AI. They don't remember instantly what they did
+# before yesterday. So we have to familiarize them. This is where we are. Then we
+# have to say, this is what we're gonna do."
+#
+# us gave every lesson an orientation beat, but it could only say THAT the previous
+# lesson was finished -- a boolean. Everything else a returning child needs was
+# already in the store (ue's script_answers, one row per graded answer; script_done's
+# last_at) and nothing read it. This does, and hands lessonscripts.lesson_orientation
+# a small prepared dict so that function stays pure and the battery can replay it.
+#
+# ⚠️ IT GOES ON THE CARD, NOT INTO THE VOICE. The orientation's two spoken variants
+# are pre-rendered clips; a per-student sentence would make the second beat of every
+# lesson a live text-to-speech call -- a bill and a wait on the one beat that must
+# land instantly. The board holds a score better than the ear does anyway.
+#
+# ⚠️ AND IT NEVER GUESSES. Every field is optional and any miss simply drops that
+# part of the line (rule 0: a recap is a memory, not a guess). No store, no rows, a
+# bad date, an impossible score -> the card falls back to exactly what us shipped.
+# FIRST-TRY answers to REAL questions only: the guided pairs are the "I do" beats,
+# and counting them would inflate a child's own score with the tutor's own work.
+def _days_ago_phrase(stamp: str) -> str:
+    """"yesterday" / "3 days ago" / "last week" from an ISO timestamp, or "" when
+    nothing honest can be said. Never raises."""
+    try:
+        from datetime import datetime, timezone
+        raw = str(stamp or "").strip()
+        if not raw:
+            return ""
+        then = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        now = datetime.now(timezone.utc)
+        if then.tzinfo is None:
+            then = then.replace(tzinfo=timezone.utc)
+        days = (now.date() - then.astimezone(timezone.utc).date()).days
+        if days < 0:
+            return ""
+        if days == 0:
+            return "earlier today"
+        if days == 1:
+            return "yesterday"
+        if days < 7:
+            return f"{days} days ago"
+        if days < 14:
+            return "last week"
+        if days < 60:
+            return f"{days // 7} weeks ago"
+        return ""
+    except Exception:  # noqa: BLE001 -- a date must never cost a lesson
+        return ""
+
+
+def _orientation_last(code: str, course: str, prev_id: str, last_at: str = ""):
+    """How the previous lesson went: {"when", "right", "asked"}, any key optional,
+    or None when the record says nothing. Never raises."""
+    out = {}
+    when = _days_ago_phrase(last_at)
+    if when:
+        out["when"] = when
+    try:
+        rows = store.get_script_answers(code, course, limit=400) or []
+        mine = [r for r in rows
+                if r.get("lesson_id") == prev_id and r.get("kind") == "ask"
+                and not r.get("guided") and int(r.get("attempt") or 1) == 1]
+        if mine:
+            day = mine[0].get("day")          # newest first: their last sitting at it
+            sitting = [r for r in mine if r.get("day") == day]
+            out["asked"] = len(sitting)
+            out["right"] = sum(1 for r in sitting if r.get("correct"))
+    except Exception as exc:  # noqa: BLE001 -- a missing score is a missing line, not an error
+        print(f"[script] last-time score unavailable (non-fatal): {exc}")
+    return out or None
+
+
 @app.post("/api/script/start")
 def script_start(body: ScriptStartIn):
     t0 = _time.monotonic()
@@ -5718,15 +5811,25 @@ def script_start(body: ScriptStartIn):
     # says the previous lesson in the order was finished -- what today is, and the
     # plan, on a card. Fail-open: no record, no store, any error -> the "Today" form.
     prev_done = False
+    _last = None
     try:
         prev = lessonscripts.prev_lesson(lesson)
         if prev is not None and store is not None:
-            done = {d.get("lesson_id") for d in (store.get_script_done(code, lesson["course"]) or [])}
+            rows = store.get_script_done(code, lesson["course"]) or []
+            done = {d.get("lesson_id") for d in rows}
             prev_done = prev["id"] in done
+            # (uv) ...and HOW it went, for the card. Only when the record says it
+            # was finished -- a score for a lesson they never completed would be a
+            # claim about a past that did not happen.
+            if prev_done:
+                _at = next((d.get("last_at") for d in rows
+                            if d.get("lesson_id") == prev["id"]), "")
+                _last = _orientation_last(code, lesson["course"], prev["id"], _at or "")
     except Exception as exc:  # noqa: BLE001 -- no record (dev file mode, a store hiccup): the "Today" form
         prev_done = False
+        _last = None
     try:
-        _osp, _obd = lessonscripts.lesson_orientation(lesson, prev_done)
+        _osp, _obd = lessonscripts.lesson_orientation(lesson, prev_done, _last)
         steps.insert(1, {"kind": "say", "spoken": _osp, "board": _obd, "beat": "orientation"})
     except Exception as exc:  # noqa: BLE001 -- the orientation must never cost a lesson
         print(f"[script] orientation skipped (non-fatal): {exc}")
@@ -8872,7 +8975,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-09uu-the-front-door-quieted"
+APP_BUILD = "2026-09-09uv-the-board-keeps-up-with-the-voice"
 
 
 @app.get("/health")

@@ -4,6 +4,12 @@
                 changelog/session.html.md -- moved out on 2026-09-08 (build ui) VERBATIM,
                 125 entries; 17 stay here. Keep adding new notes HERE, newest at top; roll
                 them out again (notes_rollout.py) when this header passes ~100 KB.
+    (uv) 2026-09-09 -- THE ENDING IS DRAWN, NOT ONLY SPOKEN. Jim: "wherever we can, we
+    want to have graphics to support what we are saying" -- and the last words of a lesson
+    had none. scrPlay's `end` branch returns before the handleTags call every other beat
+    reaches, so a board on an end step went nowhere; lessonscripts._end_board now puts a
+    "Lesson done" card there and this draws it. ONE LINE. An empty board still draws
+    nothing, exactly as before.
     (us) 2026-09-09 -- ORIENT, THEN ONE IDEA PER BEAT WITH A CHECK (the shape Jim chose:
     "it's trying to teach very, very fast. Here's this. Here's this. Now go."). The
     server names every say beat (`beat`, from lessonscripts.beat_of) and speaks the
@@ -3233,6 +3239,12 @@
       clearScrNext();                            // never two pacers on screen at once
       if (step.kind === "end") {
         addBubble("tutor", step.spoken || ""); lastTutorText = step.spoken || "";
+        // (uv, 2026-09-09) THE ENDING IS DRAWN, NOT ONLY SPOKEN. Every other beat
+        // reaches handleTags below; the end branch returns before it, so the card
+        // lessonscripts._end_board now puts on the step would have gone nowhere.
+        // Jim's rule: wherever we can, the words get a picture -- and the last words
+        // of a lesson had none. Empty board = nothing drawn, exactly as before.
+        handleTags(step.board || "");
         await scrSay(step.spoken || "");
         SCR.on = false; SCR.pending = false;
         // (rj, 2026-09-01) THE ANNOUNCED SEAM. Jim watched the silent handoff

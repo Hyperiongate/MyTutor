@@ -6,6 +6,27 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  BUILD uv -- THE BOARD KEEPS UP WITH THE VOICE. Jim, 2026-09-09: "If you
+#               have two paragraphs to spit out to a child and you say it and there's no
+#               text and there's no graphic, the child is just listening and not
+#               remembering anything... I see it all the time in this app." THE
+#               EIGHTY-FIFTH REFEREE, board_silence_conflict: a reply that speaks past 55
+#               words with NOTHING on the board -- no step, no picture, no card. It is
+#               the missing third of an axis two referees already policed: board_flood
+#               (73, se) caps the TOP at seven drawing tags, spoken_math_unwritten (74,
+#               sf) catches worked MATH over an empty board, and neither sees PROSE
+#               teaching at length with nothing to look at -- sf's referee needs two
+#               spoken computations in digit form, and an explanation (the why, the
+#               re-teach after a wrong answer) carries no digits and sails past it.
+#               ⚠️ THE CEILING IS COMPUTED, NOT GUESSED, exactly as se's was: boardaudit.py
+#               (new this build) walked all 360 lessons through the real engine and the
+#               longest thing the course itself ever says over a still board is 53 words.
+#               Marks counted = every board tag but [[choices]] -- WIDER than
+#               board_flood's list on purpose, because the flood counts BEATS and this
+#               counts things a child can LOOK AT ([[goal]], [[today]], [[highlight]] all
+#               buy silence; a row of buttons does not). Reply-only, fail-open, no
+#               history. Referees 84 -> 85; TRUTH CLASS STILL 11 -- a wall of talk
+#               teaches nothing false, it teaches nothing. PART 3kr.
 #   2026-09-09  BUILD ut -- THE FIRST WATCH ON THE NEW STACK (09-09 08:46: 8 confirmed,
 #               13 refuted, 0 errors, every closure line rendered). Five holes, no ruling:
 #               (1) KNOWN_FALSEHOODS row percent-divided-by-a-hundred -- "twenty-five percent
@@ -2890,6 +2911,114 @@ def spoken_math_unwritten_conflict(reply: str, heard=None):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[spokenmath] crashed (fail open): {exc}")
         _event("referee_crash", "spokenmath", str(exc))
+        return ""
+
+
+
+
+# =============================================================================
+# REFEREE 85 -- THE BOARD KEEPS UP WITH THE VOICE  (build uv, 2026-09-09)
+# -----------------------------------------------------------------------------
+# Jim, 2026-09-09, on what actually makes a child give up:
+#   "If you have two paragraphs to spit out to a child and you say it and there's
+#    no text and there's no graphic, the child is just listening and not
+#    remembering anything. It's better to have the graphic. It's better to have
+#    one paragraph instead of two. It's better to have half a paragraph instead of
+#    a full paragraph... this little level of confusion is very, very frustrating,
+#    and I see it all the time in this app."
+#
+# WHY THIS IS A DEFECT AND NOT A TASTE. Speech is TRANSIENT: the moment a sentence
+# is spoken it is gone, and a child who cannot skim it back or re-read it has to
+# HOLD it -- using the same working memory the mathematics itself needs. A board
+# line PERSISTS: it can be looked at again, as many times as they like, for free.
+# So a long turn over a still board does not merely bore a child, it TAXES them for
+# every word, and the tax is heaviest exactly where the teaching is densest. That
+# is why "one paragraph instead of two" is not a style note: it is the difference
+# between a child who can follow and a child who is holding water in their hands.
+#
+# THE SHAPE. Three referees already police this axis and they meet cleanly:
+#   * board_flood (73, se)          caps the TOP -- 7+ drawing tags is several
+#                                   beats wearing one turn's clothes
+#   * spoken_math_unwritten (74, sf) catches WORKED MATH over an empty board
+#                                   (Jim's own rule: "if we can write out a
+#                                    problem, we do")
+#   * spoken_length (34, jd)        caps the words at 110 whatever is drawn
+# None of them catches what Jim describes here: PROSE TEACHING, at length, with
+# nothing at all to look at. sf's referee needs two spoken computations in digit
+# form; an explanation -- the why, the definition, the recap, the re-teach after a
+# wrong answer -- carries no digits and sails past it. That gap is this referee.
+#
+# ⚠️ THE CEILING IS COMPUTED FROM THE COURSE'S OWN CONTENT, exactly as se's was.
+# Every authored beat in all 360 lessons was walked through the REAL engine, in the
+# real order, asks included (boardaudit.py, shipped with this build). The result is
+# unusually clean: every `say` beat in the whole canon that draws NOTHING is either
+# a praise line or the nine-word reason-right line, and THE LONGEST UNDRAWN BEAT IN
+# THE ENTIRE CANON IS 53 SPOKEN WORDS. The gate fires at MORE THAN 55 -- a margin
+# above anything the course itself ever says over a still board, and exactly half
+# the 110-word hard ceiling. In Jim's own units: ONE paragraph may ride on a
+# standing board; TWO paragraphs must put something up.
+#
+# CAUTIOUS THREE WAYS:
+#   * ANY drawing tag buys silence -- one [[step]] is enough. This referee polices
+#     the EMPTY board and nothing else; whether the RIGHT thing was drawn is the
+#     turf of vischeck, boardnote, pictured and a dozen others.
+#   * the mark list is WIDER than board_flood's on purpose. The flood counts BEATS,
+#     so it excludes the banners; this counts MARKS -- things a child can look at --
+#     so [[goal]], [[today]], [[unitplan]], [[finalexam]] and [[highlight]] all
+#     count. A goals card IS something to look at, and a highlight is the board
+#     being pointed at. Only [[choices]] is excluded: a row of buttons is an input
+#     control, not a mark on the board.
+#   * reply-only and objective. No history, no record, no model judgement -- it
+#     reads the reply's own tags and counts its own words, so it cannot be wrong
+#     about the past and cannot loop.
+#
+# THE SESSION OPENER CANNOT TRIP THIS by following its own rules: SESSION_OPENER_RULES
+# 0(c) REQUIRES [[goal]], [[card]] and [[today]] in the first message, and all three
+# count as marks. An opener that ships none of them is already a defect under rule 0.
+# =============================================================================
+_BS_MARKS = tuple(sorted(set(_tagreg.BOARD_TAGS) - {"choices"}))
+_BS_MARK_RE = re.compile(r"\[\[\s*(?:" + "|".join(_BS_MARKS) + r")\b")
+_BS_CEILING = 55           # the canon's longest undrawn beat is 53 spoken words
+
+
+def board_silence_conflict(reply: str):
+    """Return a description of a long spoken turn that puts nothing on the board,
+    or "". Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        if _BS_MARK_RE.search(text):
+            return ""                     # something is up there: not this referee's call
+        prose = _spoken_only(text)
+        n = len([w for w in re.split(r"\s+", prose) if w.strip()])
+        if n <= _BS_CEILING:
+            return ""
+        # ⚠️ THE BAND, AND WHY IT HAS A TOP. Past the spoken-length ceiling referee 34
+        # (spokenlen, jd) owns the turn, and its correction is the better one to give:
+        # it already asks for "ONE idea or ONE step WITH ITS BOARD LINE" and names the
+        # word count to aim at, so it subsumes this referee's advice for a turn that is
+        # also too long. Two referees firing on one reply teaches the model nothing
+        # extra and costs a retry; the sweep returns the FIRST fire, and this one sits
+        # early, so without this line the more specific nudge would never be reached
+        # (PART 3ck's sweep pin caught exactly that). If the rewrite comes back short
+        # and STILL draws nothing, this referee fires on it then -- which is the order
+        # a teacher would use: shorten it, then show it.
+        if n > _SPOKEN_WORD_CEILING:
+            return ""
+        secs = int(n / 2.8)
+        opening = " ".join(prose.split()[:12])
+        return ("this turn speaks {n} words -- about {s} seconds -- and puts NOTHING "
+                "on the board: no step, no picture, no card. The student hears "
+                '"{o}..." and has to HOLD every word of it, because spoken words '
+                "cannot be re-read and there is nothing to look at. Two fixes, either "
+                "is enough: DRAW THE THING YOU ARE TALKING ABOUT in this same reply -- "
+                "the expression as a [[step]], the picture as its figure tag, the "
+                "plan as a [[card]] -- or say LESS: keep the first idea only, land it "
+                "in about 40 words, and end with a short check-in so the rest becomes "
+                "next turn's material. Do not answer this by talking faster.").format(
+                    n=n, s=secs, o=opening)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[boardsilence] crashed (fail open): {exc}")
+        _event("referee_crash", "boardsilence", str(exc))
         return ""
 
 
@@ -9560,6 +9689,15 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if smath:
             _event("referee_fire", "spokenmath", smath)
             return smath
+        # (uv) the EIGHTY-FIFTH, immediately after its sibling: sf catches worked
+        # MATH over an empty board; this catches PROSE at length over one. Jim's
+        # 2026-09-09 ruling ("two paragraphs, no text, no graphic -- the child is
+        # just listening and not remembering anything"). Reply-only; the ceiling is
+        # computed from the canon's own longest undrawn beat (53 words).
+        bsilence = board_silence_conflict(reply)
+        if bsilence:
+            _event("referee_fire", "boardsilence", bsilence)
+            return bsilence
         # (oc) the forty-eighth: a result you speak is a result you drew.
         skipres = skipped_result_conflict(reply, heard)
         if skipres:
