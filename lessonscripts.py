@@ -7,6 +7,17 @@
 #               VERBATIM, 70 entries; 39 stay here. Keep adding new notes HERE, newest at
 #               top; roll them out again (notes_rollout.py) when this header passes ~100
 #               KB.
+#   2026-09-09  BUILD us -- ORIENT, THEN ONE IDEA PER BEAT WITH A CHECK (the shape Jim
+#               chose, 2026-09-08). Three pure helpers, the engine's walk untouched:
+#               lesson_orientation(lesson, prev_done) -> (spoken, card) -- "Before this
+#               came <prev>, and you finished it. Today: <topic>. First the idea, then a
+#               picture, then the method -- then your turn." (the record's word) or the
+#               "Today:" form; prev_lesson(lesson) from COURSE_ORDER; beat_of(lesson,
+#               spoken) -> why/picture/teach/worked/practice_intro/explain/recap/"".
+#               LINE_CHECK ("Got it?"), CHECK_CHOICES and READY_CHOICES are the page's
+#               check and ready gate, byte-identical in session.html. Both orientation
+#               forms join every lesson's audio closure (the battery's ceiling 24,000 ->
+#               24,500); LINE_CHECK is a STANDALONE line. Run the prewarm after the push.
 #   2026-09-09  BUILD ur -- THE WRONG ANSWER IS ANSWERED AT ONCE. Two fixed lines join the
 #               audio closure: LINE_THINKING ("Give me a moment to work this one out with
 #               you.") and LINE_THINKING_MORE ("Still working on it -- one more moment."),
@@ -15363,6 +15374,76 @@ def lesson_intro(lesson):
     return spoken, board
 
 
+# =============================================================================
+# (us, 2026-09-09) THE SHAPE JIM CHOSE: ORIENT, THEN ONE IDEA PER BEAT WITH A CHECK.
+# Jim, after a live precalc lesson: "if you just sat down for the first time, what
+# do you need? You need to get oriented. Maybe a little review of what we did. A
+# review of what we're gonna do today. And then a step by step instruction." Three
+# pure helpers the lane reads; the ENGINE's walk is unchanged (every recorded walk
+# in the battery replays byte for byte):
+#   * lesson_orientation(lesson, prev_done): the second spoken line of every lesson,
+#     after the intro -- what came before (when the record says it was finished),
+#     what today is, and the plan (the idea, a picture, the method, then your turn),
+#     as a card. Two fixed variants per lesson, both in the audio closure.
+#   * beat_of(lesson, spoken): which authored beat a say step IS, so the page can
+#     pause on it. main.py's _script_clean attaches it as `beat`.
+#   * LINE_CHECK / CHECK_CHOICES / READY_CHOICES: the page's check after a picture,
+#     teach or worked beat ("Got it?" -- Got it / Show me again), and the ready gate
+#     before practice. A check is never graded and never recorded: it is a pause the
+#     student controls, and "Show me again" replays the beat -- a cache hit.
+# =============================================================================
+LINE_CHECK = "Got it?"
+CHECK_CHOICES = "Got it | Show me again"
+READY_CHOICES = "I'm ready | Show me that example again"
+ORIENT_PLAN = "First the idea, then a picture, then the method — then your turn."
+
+
+def prev_lesson(lesson):
+    """The lesson before this one in the course's teaching order, or None."""
+    try:
+        ids = [i for i in COURSE_ORDER if LESSON_BY_ID.get(i, {}).get("course") == lesson["course"]]
+        k = ids.index(lesson["id"])
+        return LESSON_BY_ID.get(ids[k - 1]) if k > 0 else None
+    except (ValueError, KeyError):
+        return None
+
+
+def lesson_orientation(lesson, prev_done=False):
+    """(us) Where we are and where we are going: (spoken, board). `prev_done` is the
+    RECORD's word that the previous lesson in the order was finished (main.py reads
+    store.get_script_done); without it the line names only today, so nothing false
+    about the student's past is ever said."""
+    topic = _spoken_name(str(lesson.get("topic") or "").strip())
+    prev = prev_lesson(lesson)
+    if prev_done and prev:
+        ptopic = _spoken_name(str(prev.get("topic") or "").strip())
+        spoken = f"Before this came {ptopic}, and you finished it. Today: {topic}. {ORIENT_PLAN}"
+        items = f"Done: {prev.get('topic')} | Today: {lesson.get('topic')} | The idea, a picture, the method, then your turn"
+    else:
+        spoken = f"Today: {topic}. {ORIENT_PLAN}"
+        items = f"Today: {lesson.get('topic')} | The idea, a picture, the method, then your turn"
+    return spoken, f'[[card title="Today" items="{items}"]]'
+
+
+def beat_of(lesson, spoken):
+    """(us) Which authored beat this spoken line is: why / picture / teach / worked /
+    practice_intro / explain / recap, or "" for anything else (a praise, a re-ask,
+    the intro, the engine's own lines)."""
+    s = str(spoken or "")
+    if not s:
+        return ""
+    for field in ("why", "picture", "teach", "recap"):
+        if any(sp == s for sp, _b in (lesson.get(field) or [])):
+            return field
+    if any((pr.get("worked") or ("",))[0] == s for pr in (lesson.get("pairs") or [])):
+        return "worked"
+    if s == lesson.get("practice_intro"):
+        return "practice_intro"
+    if s == (lesson.get("explain") or {}).get("spoken"):
+        return "explain"
+    return ""
+
+
 def _beats(lesson, field):
     """The `say` beats of an authored section (why / picture / recap), or []."""
     return [{"kind": "say", "spoken": spoken, "board": board}
@@ -15835,6 +15916,8 @@ def quiz_audio_lines(lesson, problems):
 def audio_lines(lesson):
     lines = set()
     lines.add(lesson_intro(lesson)[0])   # (ts) the lesson's own introduction
+    lines.add(lesson_orientation(lesson, True)[0])    # (us) both orientation variants
+    lines.add(lesson_orientation(lesson, False)[0])
     for spoken, _board in lesson["teach"]:
         lines.add(spoken)
     # (sp) the shape's authored beats: why, picture, recap
@@ -15966,7 +16049,9 @@ STANDALONE_LINES = (tuple(ABRABOT_INTRO)
                     # build ou: the free-answer lines belong to no lesson
                     + (LINE_WHOLE, LINE_UNSURE)
                     # (ur) the wait lines belong to the lane, not to any lesson's closure
-                    + (LINE_THINKING, LINE_THINKING_MORE))
+                    + (LINE_THINKING, LINE_THINKING_MORE)
+                    # (us) the check after a beat
+                    + (LINE_CHECK,))
 
 
 def course_audio_lines(lessons=None):
@@ -16204,8 +16289,10 @@ def validate(lesson, board_tag_names=None):
     # Subtraction within 20", "The remainder theorem" -- the names the student sees
     # on the course map. A name is said as written; the canon sweep reads every
     # other line the lesson speaks, exactly as before.
+    # (us) ...and so does the orientation, which names today's topic and the one before
     _intro_line = lesson_intro(lesson)[0]
-    all_speech = " ".join(x for x in audio_lines(lesson) if x != _intro_line).lower()
+    _named = {_intro_line, lesson_orientation(lesson, True)[0], lesson_orientation(lesson, False)[0]}
+    all_speech = " ".join(x for x in audio_lines(lesson) if x not in _named).lower()
     for canon, banned in VOCABULARY.items():
         for term in banned:
             ck(term not in all_speech,

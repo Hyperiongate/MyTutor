@@ -6,6 +6,19 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  APP_BUILD -> "2026-09-09us-orient-then-one-idea-per-beat". BUILD us -- THE
+#               SHAPE JIM CHOSE: ORIENT, THEN ONE IDEA PER BEAT WITH A CHECK. Jim, after a
+#               live lesson: "if you just sat down for the first time, what do you need?
+#               You need to get oriented. A little review. What we're gonna do today. Then
+#               step by step." IN THIS FILE: script_start inserts the ORIENTATION as the
+#               second step, after the intro -- lessonscripts.lesson_orientation(lesson,
+#               prev_done), where prev_done is the RECORD's word (store.get_script_done)
+#               that the previous lesson in the order was finished; no record, no store,
+#               any error -> the "Today" form, never a lost lesson. _script_clean attaches
+#               `beat` to every say step (lessonscripts.beat_of) so the page can pause on
+#               it: the check after a picture, teach or worked beat and the ready gate
+#               after the practice intro live in session.html. The engine's walk is
+#               unchanged. PART 3ko pins it, live end to end.
 #   2026-09-09  APP_BUILD -> "2026-09-09ur-the-wrong-answer-is-answered-at-once". BUILD ur --
 #               Jim's flag 21:41 (algebra2): "more than 30 second wait after a wrong answer".
 #               The answer endpoint resolved the model's re-teach (verified up to three
@@ -5455,9 +5468,16 @@ def _script_clean(steps, lesson_id: str = ""):
     where the live tutor still takes over until ruling ④ lands. Purely additive --
     a caller that passes no lesson_id gets byte-identical output to before sl."""
     out = []
+    _les = lessonscripts.LESSON_BY_ID.get(lesson_id) if lesson_id else None
     for s in steps:
         c = {"kind": s["kind"], "spoken": s.get("spoken", ""),
              "board": s.get("board", "")}
+        if s["kind"] == "say":
+            # (us) which authored beat this is, so the page can pause on it -- the
+            # check after a picture, teach or worked beat, the ready gate after the
+            # practice intro. "" for everything else; a step that already carries one
+            # (the orientation, built in script_start) keeps it.
+            c["beat"] = s.get("beat") or (lessonscripts.beat_of(_les, c["spoken"]) if _les else "")
         if s["kind"] == "ask":
             c["choices"] = s.get("choices", "")
             c["tap_only"] = bool(s.get("tap_only"))
@@ -5680,6 +5700,23 @@ def script_start(body: ScriptStartIn):
     # the times table in the same order; a lesson without a table never reads it
     state = lessonscripts.start(lesson, seed=secrets.randbits(30))
     steps, state = lessonscripts.step(lesson, state, ("begin",))
+    # (us, 2026-09-09) THE LESSON ORIENTS THE STUDENT. Right after the intro line
+    # (course, unit, lesson i of n, topic): what came before -- only when the RECORD
+    # says the previous lesson in the order was finished -- what today is, and the
+    # plan, on a card. Fail-open: no record, no store, any error -> the "Today" form.
+    prev_done = False
+    try:
+        prev = lessonscripts.prev_lesson(lesson)
+        if prev is not None and store is not None:
+            done = {d.get("lesson_id") for d in (store.get_script_done(code, lesson["course"]) or [])}
+            prev_done = prev["id"] in done
+    except Exception as exc:  # noqa: BLE001 -- no record (dev file mode, a store hiccup): the "Today" form
+        prev_done = False
+    try:
+        _osp, _obd = lessonscripts.lesson_orientation(lesson, prev_done)
+        steps.insert(1, {"kind": "say", "spoken": _osp, "board": _obd, "beat": "orientation"})
+    except Exception as exc:  # noqa: BLE001 -- the orientation must never cost a lesson
+        print(f"[script] orientation skipped (non-fatal): {exc}")
     _SCRIPT_SESSIONS[code] = {"state": state, "lesson": lesson, "mode": "script",
                               "ai_turns": 0, "history": [], "redo": None,
                               "t0": _time.monotonic()}
@@ -8822,7 +8859,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-09ur-the-wrong-answer-is-answered-at-once"
+APP_BUILD = "2026-09-09us-orient-then-one-idea-per-beat"
 
 
 @app.get("/health")

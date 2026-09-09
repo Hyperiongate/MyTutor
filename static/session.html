@@ -4,6 +4,19 @@
                 changelog/session.html.md -- moved out on 2026-09-08 (build ui) VERBATIM,
                 125 entries; 17 stay here. Keep adding new notes HERE, newest at top; roll
                 them out again (notes_rollout.py) when this header passes ~100 KB.
+    (us) 2026-09-09 -- ORIENT, THEN ONE IDEA PER BEAT WITH A CHECK (the shape Jim chose:
+    "it's trying to teach very, very fast. Here's this. Here's this. Now go."). The
+    server names every say beat (`beat`, from lessonscripts.beat_of) and speaks the
+    orientation second. This page pauses on the beats: after a picture, teach or worked
+    beat it says "Got it?" (spoken, never bubbled -- a bubble scrolled the board out of
+    view) and shows Got it / Show me again; "Show me again" replays the same line over
+    the board that is already there (a cache hit), twice at most. After the practice
+    intro: I'm ready / Show me that example again. scrChoice is showSeamChoice's twin
+    that RESOLVES with the tap; spoken or typed words answer a check too (sendToTutor
+    routes them while SCR.check is set: again / show / no -> the replay). Never graded,
+    never sent to the server. A beat with no name, or a silent one (the Next pacer is
+    already a gate), plays exactly as before. SCR gains check and lastWorked.
+
     (ur) 2026-09-09 -- THE WRONG ANSWER IS ANSWERED AT ONCE. Jim's flag: "more than 30
     second wait after a wrong answer". scrAnswer sends defer_ai, so the server returns
     the verdict, the star and the hold line ("Not quite -- let's look at it together")
@@ -3121,7 +3134,8 @@
     // =====================================================================
     const SCR = { on: false, id: "", lesson: "", pending: false, queue: [], all: null,
                   beat: 0,     // (pd) which beat is on stage, so a late callback knows
-                  aiFetch: null, lastAnswer: "" };   // (ur) the re-teach in flight, and the answer that earned it
+                  aiFetch: null, lastAnswer: "",     // (ur) the re-teach in flight, and the answer that earned it
+                  check: null, lastWorked: null };   // (us) the check on screen, and the last worked example (for "show me that again")
 
     async function scriptLessons() {
       if (SCR.all) return SCR.all;
@@ -3396,11 +3410,77 @@
       // said nothing hands the pace to the student rather than racing a reader.
       const heard = await scrSay(words);
       statusEl.textContent = "";
+      // (us, 2026-09-09) ONE IDEA PER BEAT, WITH A CHECK. Jim: "it's trying to teach
+      // very, very fast. Here's this. Here's this. Now go." A picture, teach or worked
+      // beat now ends on a check the student answers before the next beat plays --
+      // "Got it?" with Got it / Show me again (a replay of the same line, a cache
+      // hit; twice at most) -- and the practice intro ends on a ready gate (I'm ready
+      // / Show me that example again). The server names the beat (`beat`, from
+      // lessonscripts.beat_of); a beat with no name, or a silent one (the Next ▶
+      // pacer is already a gate), plays exactly as before. Never graded, never sent.
+      if (heard && SCR_CHECK_BEATS.has(step.beat)) { await scrCheck(step); scrNext(); return; }
+      if (heard && step.beat === "practice_intro") { await scrReady(); scrNext(); return; }
+      if (heard && step.beat === "worked") SCR.lastWorked = step;
       if (heard) { await delay(SCR_BREATH); scrNext(); }
       // (qr) a beat whose buttons ARE its question never also grows a "Next ▶". Two
       // pacers on one beat is the thing clearScrNext() exists to prevent; this is the
       // same rule for the one say beat that now carries taps.
       else if (!boardTaps) showScrNext();
+    }
+    // (us) THE CHECK AND THE READY GATE -- page-level pauses the student controls.
+    const SCR_CHECK_BEATS = new Set(["picture", "teach", "worked"]);
+    const LINE_CHECK = "Got it?";                                          // byte-identical to lessonscripts.LINE_CHECK
+    const CHECK_CHOICES = ["Got it", "Show me again"];                       // ...and CHECK_CHOICES
+    const READY_CHOICES = ["I'm ready", "Show me that example again"];       // ...and READY_CHOICES
+    // A row of big taps that RESOLVES with the label tapped (showSeamChoice's twin,
+    // for a pause rather than a navigation). Spoken or typed words answer it too:
+    // sendToTutor routes them here while SCR.check is set.
+    function scrChoice(labels) {
+      return new Promise((resolve) => {
+        ensureChoicesCSS(); clearChoices();
+        const row = document.createElement("div"); row.className = "choicerow"; choicesRow = row;
+        const done = (label) => { SCR.check = null; clearChoices(); resolve(label); };
+        SCR.check = { labels: labels, done: done };
+        for (const label of labels) {
+          const b = document.createElement("button"); b.type = "button";
+          b.className = "choicebtn"; b.textContent = label;
+          b.addEventListener("click", () => {
+            Array.prototype.forEach.call(row.querySelectorAll("button"), (x) => { x.disabled = true; });
+            ensureAudioGraph(); done(label);
+          });
+          row.appendChild(b);
+        }
+        composer.parentNode.insertBefore(row, composer);
+        try { scrollFeed(); } catch (e) {}
+        busy = false; setPhase("ready"); setState("idle");
+      });
+    }
+    async function scrReplay(step) {
+      // the same words again -- a cache hit -- over the board that is already there.
+      // ⚠️ NO NEW BUBBLE: a bubble starts a new row and scrolls the board the student
+      // asked to see again out of view (the first cut did exactly that -- "Got it?"
+      // sat alone at the top of an empty board). The transcript already holds the line.
+      busy = true; setPhase("busy");
+      statusEl.textContent = tutorName + " is talking…";
+      await scrSay(step.spoken || "");
+      statusEl.textContent = "";
+    }
+    async function scrCheck(step) {
+      if (step.beat === "worked") SCR.lastWorked = step;
+      for (let again = 0; again < 2; again++) {
+        lastTutorText = LINE_CHECK;             // spoken, not bubbled -- the board stays where it is
+        await scrSay(LINE_CHECK);
+        const label = await scrChoice(CHECK_CHOICES);
+        if (label !== CHECK_CHOICES[1]) return;
+        await scrReplay(step);
+      }
+    }
+    async function scrReady() {
+      for (let again = 0; again < 2; again++) {
+        const label = await scrChoice(READY_CHOICES);
+        if (label !== READY_CHOICES[1] || !SCR.lastWorked) return;
+        await scrReplay(SCR.lastWorked);
+      }
     }
     function scrNext() {
       clearScrNext();
@@ -3575,6 +3655,12 @@
       // (pb) ONE DOOR, TWO GRADERS. While an authored lesson is running, the answer
       // is graded by CODE and the next beat is already written and recorded -- so
       // it arrives instantly. Everything else about this function is unchanged.
+      // (us) a check or the ready gate is up: the student's words answer it, never the tutor
+      if (SCR.on && SCR.check) {
+        const again = /\b(again|show|no|not|repeat|once more|one more)\b/i.test(message);
+        SCR.check.done(again ? SCR.check.labels[1] : SCR.check.labels[0]);
+        return;
+      }
       if (SCR.on && SCR.pending) { await scrAnswer(message); return; }
       await runTutor(message);
     }

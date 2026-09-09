@@ -6,6 +6,15 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  BUILD us -- ORIENT, THEN ONE IDEA PER BEAT WITH A CHECK (the shape Jim
+#               chose). PART 3ko: lesson_orientation's two forms and prev_lesson;
+#               beat_of; both forms in every closure, LINE_CHECK a lane line; the
+#               engine's walk unchanged; the lane (the orientation second, the record's
+#               word, the store failing, the beat names); the page's check and ready
+#               gate, spoken never bubbled, words answering; LIVE end to end (a replay,
+#               six checks, two guided asks, the ready gate, the first practice
+#               question). The closure ceiling pins 24,000 -> 24,500 (the orientation
+#               lines).
 #   2026-09-09  BUILD ur -- THE WRONG ANSWER IS ANSWERED AT ONCE. PART 3kn: the deferred
 #               re-teach through the TestClient with the model stubbed (defer_ai, the
 #               ai_pending marker, /api/script/intervene, the wrong-again redo, the
@@ -12498,6 +12507,12 @@ def part3kn_the_wrong_answer_is_answered_at_once():
                         at_ask = False
                         for _ in range(200):
                             pg.wait_for_timeout(1000)
+                            if pg.evaluate("!!SCR.check"):          # (us) the checks on the way: Got it
+                                try:
+                                    pg.click('.choicerow button:has-text("Got it")', timeout=2000)
+                                except Exception:  # noqa: BLE001
+                                    pass
+                                continue
                             if pg.evaluate("SCR.on && SCR.pending && SCR.queue.length === 0 && !busy"):
                                 at_ask = True; break
                         if not at_ask:
@@ -12534,6 +12549,209 @@ def part3kn_the_wrong_answer_is_answered_at_once():
           and 'APP_BUILD -> "2026-09-09ur-the-wrong-answer-is-answered-at-once"' in notes("main.py")
           and "2026-09-09  BUILD ur" in notes("ruletests.py")
           and "(ur) Tile 11,313" in notes("static/methodology.html"), "")
+
+
+def part3ko_orient_then_one_idea_per_beat_with_a_check():
+    """PART 3ko (build us, 2026-09-09) -- ORIENT, THEN ONE IDEA PER BEAT WITH A CHECK.
+
+    Jim, after a live precalc lesson (2026-09-08): "it's trying to teach very, very
+    fast. Here's this. Here's this. Now go. If you just sat down for the first time,
+    what do you need? You need to get oriented. Maybe a little review of what we did.
+    What we're gonna do today. And then a step by step instruction." He chose this
+    shape (asked directly): orientation, then one idea per beat with a check the student
+    answers before the next beat plays, and practice only when the student says ready.
+      * lessonscripts.lesson_orientation(lesson, prev_done): the second line of every
+        lesson -- what came before (only when the RECORD says the previous lesson in the
+        order was finished), what today is, and the plan, on a card. Two fixed variants
+        per lesson, both in the audio closure. main.py's script_start inserts it after
+        the intro, reading store.get_script_done; no record -> the "Today" form.
+      * lessonscripts.beat_of(lesson, spoken) names a say step's authored beat; main.py's
+        _script_clean attaches it as `beat`. The ENGINE's walk is unchanged.
+      * session.html: after a picture, teach or worked beat -- "Got it?" (spoken, never
+        bubbled: a bubble scrolled the board out of view in the first cut) with Got it /
+        Show me again (the same line replayed, a cache hit, twice at most); after the
+        practice intro -- I'm ready / Show me that example again. Words answer a check
+        too. Never graded, never sent. A silent beat keeps the Next pacer instead.
+    Pinned in the engine, through the TestClient, statically on the page, and LIVE in a
+    headless browser: the first check with a replay, every check after, the two guided
+    asks answered, the ready gate, the first practice question."""
+    print("\nPART 3ko — orient, then one idea per beat with a check (build us)")
+    import lessonscripts as LS, main as M
+    pcode = code_only(open("static/session.html", encoding="utf-8").read())
+    msrc = code_only(open("main.py", encoding="utf-8").read())
+
+    # ---- the engine's helpers --------------------------------------------------------------------
+    gs = LS.LESSON_BY_ID["pc-u1-the-graph-slides"]; first = LS.LESSON_BY_ID["pc-u1-machines-in-a-row"]
+    sp1, bd1 = LS.lesson_orientation(gs, True); sp0, bd0 = LS.lesson_orientation(gs, False)
+    check("⭐ lesson_orientation: what came before (when finished), what today is, the plan -- on a card",
+          sp1.startswith("Before this came Composition, and you finished it. Today: Shifting graphs.")
+          and sp1.endswith(LS.ORIENT_PLAN) and 'title="Today"' in bd1 and "Done: Composition | Today: Shifting graphs" in bd1
+          and "then your turn" in bd1, sp1[:80])
+    check("  ...and without the record's word, only today -- nothing false about the past is ever said",
+          sp0 == "Today: Shifting graphs. " + LS.ORIENT_PLAN and "Done:" not in bd0 and "Before" not in sp0
+          and LS.lesson_orientation(first, True)[0].startswith("Today: Composition.")     # the first lesson has no predecessor
+          and LS.prev_lesson(first) is None and LS.prev_lesson(gs)["id"] == "pc-u1-machines-in-a-row", "")
+    check("  both variants are in every lesson's closure; the check line is a lane line",
+          all(LS.lesson_orientation(l, True)[0] in LS.audio_lines(l) and LS.lesson_orientation(l, False)[0] in LS.audio_lines(l)
+              for l in LS.LESSONS) and LS.LINE_CHECK in LS.STANDALONE_LINES and LS.LINE_CHECK in LS.course_audio_lines(), "")
+    check("  beat_of names the authored beat of a spoken line, and nothing else",
+          LS.beat_of(gs, gs["why"][0][0]) == "why" and LS.beat_of(gs, gs["picture"][0][0]) == "picture"
+          and LS.beat_of(gs, gs["teach"][1][0]) == "teach" and LS.beat_of(gs, gs["pairs"][1]["worked"][0]) == "worked"
+          and LS.beat_of(gs, gs["practice_intro"]) == "practice_intro" and LS.beat_of(gs, gs["explain"]["spoken"]) == "explain"
+          and LS.beat_of(gs, gs["recap"][0][0]) == "recap" and LS.beat_of(gs, "Nice work! 7.") == "" and LS.beat_of(gs, "") == "", "")
+    _walk = LS.step(gs, LS.start(gs, seed=1), ("begin",))[0]
+    check("  the ENGINE's walk is unchanged (the shape lives in main.py and the page)",
+          [s["kind"] for s in _walk] == ["say"] * (1 + len(gs["why"]) + len(gs["picture"]) + len(gs["teach"]) + 1) + ["ask"]
+          and not any("beat" in s for s in _walk), str([s["kind"] for s in _walk]))
+
+    # ---- the lane: the orientation step and the beat names ------------------------------------------
+    try:
+        from fastapi.testclient import TestClient
+        c = TestClient(M.app)
+        _orig_done = getattr(M.store, "get_script_done", None) if M.store is not None else None
+        try:
+            if M.store is not None:
+                M.store.get_script_done = lambda code, course="": [{"lesson_id": "pc-u1-machines-in-a-row", "mastered": True}]
+            r = c.post("/api/script/start", json={"code": "1234", "course": "precalc", "lesson": "pc-u1-the-graph-slides"}); j = r.json()
+            st = j.get("steps") or []
+            check("⭐ /api/script/start: the orientation is the SECOND step, after the intro, and the record's word makes it "
+                  "the 'Before this came ...' form",
+                  len(st) > 3 and st[0]["spoken"] == LS.lesson_intro(gs)[0] and st[1].get("beat") == "orientation"
+                  and st[1]["spoken"] == sp1 and st[1]["board"] == bd1, str(st[1])[:120])
+            check("  every say step carries its beat name; the asks carry none",
+                  st[2].get("beat") == "why" and st[3].get("beat") == "picture" and st[4].get("beat") == "teach"
+                  and [s.get("beat") for s in st if s["kind"] == "say"][-1] == "worked" and "beat" not in st[-1], str([s.get("beat") for s in st]))
+            if M.store is not None:
+                M.store.get_script_done = lambda code, course="": [{"lesson_id": "pc-u1-the-doorway", "mastered": True}]
+            r = c.post("/api/script/start", json={"code": "1234", "course": "precalc", "lesson": "pc-u1-the-graph-slides"}); j = r.json()
+            check("  a record that holds OTHER lessons but not the one before: the 'Today' form -- 'you finished it' is "
+                  "never said on a guess",
+                  (j.get("steps") or [{}, {}])[1].get("beat") == "orientation" and j["steps"][1]["spoken"] == sp0, "")
+            if M.store is not None:
+                M.store.get_script_done = lambda code, course="": (_ for _ in ()).throw(RuntimeError("no db"))
+            r = c.post("/api/script/start", json={"code": "1234", "course": "precalc", "lesson": "pc-u1-the-graph-slides"}); j = r.json()
+            check("  a store that cannot answer (dev file mode, a hiccup): the 'Today' form, never a lost lesson",
+                  (j.get("steps") or [{}, {}])[1].get("beat") == "orientation" and j["steps"][1]["spoken"] == sp0, "")
+        finally:
+            if M.store is not None and _orig_done is not None:
+                M.store.get_script_done = _orig_done
+            M._SCRIPT_SESSIONS.pop("1234", None)
+    except Exception as exc:  # noqa: BLE001
+        bad("the orientation through the lane", f"the drill could not run: {exc}")
+    check("  wired in script_start (fail-open, two tries) and in _script_clean",
+          'steps.insert(1, {"kind": "say", "spoken": _osp, "board": _obd, "beat": "orientation"})' in msrc
+          and 'c["beat"] = s.get("beat") or (lessonscripts.beat_of(_les, c["spoken"]) if _les else "")' in msrc, "")
+
+    # ---- the page, statically -----------------------------------------------------------------------------
+    import json as _jsn
+    READY_LABELS = LS.READY_CHOICES.split(" | ")
+    check("⭐ session.html: a picture, teach or worked beat ends on the check; the practice intro on the ready gate; "
+          "the lines and labels are byte-identical to lessonscripts",
+          'const SCR_CHECK_BEATS = new Set(["picture", "teach", "worked"]);' in pcode
+          and 'const LINE_CHECK = "%s";' % LS.LINE_CHECK in pcode
+          and 'const CHECK_CHOICES = %s;' % _jsn.dumps(LS.CHECK_CHOICES.split(" | ")) in pcode
+          and 'const READY_CHOICES = %s;' % _jsn.dumps(READY_LABELS) in pcode
+          and "if (heard && SCR_CHECK_BEATS.has(step.beat)) { await scrCheck(step); scrNext(); return; }" in pcode
+          and 'if (heard && step.beat === "practice_intro") { await scrReady(); scrNext(); return; }' in pcode, "")
+    check("  the check is spoken and never bubbled (a bubble scrolled the board away); the replay is words only",
+          "lastTutorText = LINE_CHECK;" in pcode and 'addBubble("tutor", LINE_CHECK)' not in pcode
+          and "async function scrReplay(step)" in pcode
+          and 'addBubble("tutor", step.spoken || "")' not in pcode[pcode.find("async function scrReplay"):pcode.find("async function scrCheck")], "")
+    check("  words answer a check (again / show / no -> the replay; anything else -> got it), never the tutor; twice at most",
+          "if (SCR.on && SCR.check) {" in pcode and "SCR.check.done(again ? SCR.check.labels[1] : SCR.check.labels[0]);" in pcode
+          and "for (let again = 0; again < 2; again++)" in pcode and "check: null, lastWorked: null" in pcode, "")
+
+    # ---- LIVE: the shape, end to end ------------------------------------------------------------------------
+    NAME = ("⭐ LIVE: the orientation, then a check after the picture (Show me again replays it), after each teach beat and "
+            "the worked example, the two guided asks, the ready gate, and the first practice question")
+    if dep_gate(NAME, "playwright", "the shape is watched in a real browser"):
+        import socket, subprocess, sys, time as _t, json as _json
+        try:
+            sck = socket.socket(); sck.bind(("127.0.0.1", 0)); port = sck.getsockname()[1]; sck.close()
+        except Exception:  # noqa: BLE001
+            port = 8140
+        env = dict(os.environ, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="1")
+        env.pop("DATABASE_URL", None); env.pop("ANTHROPIC_API_KEY", None)
+        srv = subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", str(port)],
+                               cwd=os.path.dirname(os.path.abspath(__file__)), env=env,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            import urllib.request
+            up = False
+            for _ in range(60):
+                try:
+                    urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=2).read(); up = True; break
+                except Exception:  # noqa: BLE001
+                    _t.sleep(0.5)
+            if not up:
+                skip(NAME, "the app did not come up in 30 s")
+            else:
+                from playwright.sync_api import sync_playwright
+                with sync_playwright() as pw:
+                    try:
+                        br = pw.chromium.launch()
+                    except Exception as exc:  # noqa: BLE001
+                        br = None; skip(NAME, f"chromium would not launch: {str(exc)[:80]}")
+                    if br:
+                        ctx = br.new_context(viewport={"width": 1440, "height": 900}); pg = ctx.new_page()
+                        errs = []; pg.on("pageerror", lambda e: errs.append(str(e)[:120]))
+                        pg.add_init_script("window.__speakLog = [];")
+                        pg.goto(f"http://127.0.0.1:{port}/session?code=1234&course=precalc", wait_until="load"); pg.wait_for_timeout(2500)
+                        pg.evaluate("window.speak = (w) => { voiceHeard = true; window.__speakLog.push(String(w)); return new Promise(r => setTimeout(r, 120)); };")
+                        for sel in ("#welcome button", "#tourSkip", "text=Not right now"):   # "Not right now" starts lesson one itself
+                            try:
+                                pg.click(sel, timeout=2500); pg.wait_for_timeout(1200)
+                            except Exception:  # noqa: BLE001
+                                pass
+                        taps = []; quiet_ok = True; board_ok = True; answered = 0; reached = False
+                        for _ in range(520):
+                            pg.wait_for_timeout(500)
+                            st = pg.evaluate("({check: SCR.check ? SCR.check.labels : null, pending: SCR.pending, q: SCR.queue.length, "
+                                             "busy: busy, n: window.__speakLog.length, btns: [...document.querySelectorAll('.choicerow button')].map(b => b.textContent)})")
+                            if st["check"]:
+                                label = st["check"][1] if not taps else st["check"][0]
+                                pg.wait_for_timeout(700)
+                                if pg.evaluate("window.__speakLog.length") != st["n"]:
+                                    quiet_ok = False                              # something spoke over the check
+                                if st["btns"] != st["check"]:
+                                    board_ok = False                              # the row on screen is not the check
+                                taps.append(label)
+                                try:
+                                    pg.click('.choicerow button:has-text("%s")' % label, timeout=3000)
+                                except Exception:  # noqa: BLE001
+                                    quiet_ok = False
+                                pg.wait_for_timeout(300)
+                                continue
+                            if st["pending"] and st["q"] == 0 and not st["busy"]:
+                                if answered < 2:
+                                    ans = LS.ans(first["pairs"][answered]["ask"]); answered += 1
+                                    pg.evaluate("sendToTutor('%d')" % ans); pg.wait_for_timeout(1500); continue
+                                reached = True; break
+                        log = pg.evaluate("window.__speakLog")
+                        pic = first["picture"][0][0]
+                        i_pic = log.index(pic) if pic in log else -1
+                        check(NAME,
+                              reached and not errs and quiet_ok and board_ok
+                              and log[1:3] == [LS.lesson_intro(first)[0], LS.lesson_orientation(first, False)[0]]
+                              and i_pic > 0 and log[i_pic + 1:i_pic + 4] == [LS.LINE_CHECK, pic, LS.LINE_CHECK]   # Show me again replayed it
+                              and log.count(LS.LINE_CHECK) == 6                                                   # picture x2, teach x2, worked x2
+                              and taps[:2] == ["Show me again", "Got it"] and taps[-1] == READY_LABELS[0]
+                              and log[-2] == first["practice_intro"] and log[-1].startswith("Two new machines"),
+                              _json.dumps({"taps": taps, "lines": [l[:28] for l in log], "errors": errs})[:600])
+                        br.close()
+        finally:
+            try:
+                srv.terminate(); srv.wait(timeout=10)
+            except Exception:  # noqa: BLE001
+                try: srv.kill()
+                except Exception: pass
+
+    check("  the dated notes are in (Jim's rule 8)",
+          "BUILD us --" in notes("main.py") and "2026-09-09  BUILD us" in notes("lessonscripts.py")
+          and "(us) 2026-09-09" in notes("static/session.html")
+          and 'APP_BUILD -> "2026-09-09us-orient-then-one-idea-per-beat"' in notes("main.py")
+          and "2026-09-09  BUILD us" in notes("ruletests.py")
+          and "(us) Tile 11,329" in notes("static/methodology.html"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -22667,7 +22885,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,329</b>" in page,
+          "<b>11,344</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -23627,7 +23845,7 @@ def part3ik_the_mark_goes_away_and_the_voice_is_counted():
           "def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None, extras=None):" in nw
           and '"extras": dict(extras or {})' in nw, "")
     check("  the six files carry dated so notes",
-          all("2026-09-04" in rd(f)[:6000] and "(so)" in rd(f)[:6000]
+          all("2026-09-04" in notes(f) and "(so)" in notes(f)          # (us) notes(), never a slice (ui's law)
               for f in ("static/session.html", "static/topic.html", "static/practice.html"))
           and "BUILD so" in cl[:2500] and "BUILD so" in vo[:3000]
           and "BUILD so" in notes("main.py") and "BUILD so" in nw[:20000], "Jim's rule 8")
@@ -23816,7 +24034,8 @@ def part3il_the_lesson_learns_to_teach():
     check("  /api/script/start ships the introduction, the shape's opening and `reason` on every ask",
           r.get("ok") and r["steps"][-1]["kind"] == "ask" and r["steps"][-1].get("reason") is False
           and r["steps"][0]["spoken"] == L.lesson_intro(les)[0]     # (ts) the introduction first
-          and r["steps"][1]["spoken"] == les["why"][0][0], str(r)[:200])
+          and r["steps"][1].get("beat") == "orientation"            # (us) then where we are
+          and r["steps"][2]["spoken"] == les["why"][0][0], str(r)[:200])
     last = r["steps"]
     for _ in range(2 + L.ADVANCE_STREAK):
         _sess = main._script_session(CODE)
@@ -24958,7 +25177,8 @@ def part3iv_the_times_table_is_a_pass():
     r = c.post("/api/script/start", json={"code": CODE, "course": "basic", "lesson": LID}).json()
     check("  /api/script/start opens the table lesson on its introduction, then the shape",
           r.get("ok") and r["steps"][0]["spoken"] == L.lesson_intro(les)[0]     # (ts)
-          and r["steps"][1]["spoken"] == les["why"][0][0] and r["steps"][-1]["kind"] == "ask", str(r)[:120])
+          and r["steps"][1].get("beat") == "orientation"                       # (us)
+          and r["steps"][2]["spoken"] == les["why"][0][0] and r["steps"][-1]["kind"] == "ask", str(r)[:120])
     last, n_api, ai_steps = r["steps"], 0, 0
     for _ in range(2 + SIZE + 1):
         _sess = main._script_session(CODE)
@@ -28365,7 +28585,7 @@ def part3jw_calculus_units_four_to_six_to_the_shape():
           and 'lines="y=22x-121" points="(11,121)"' in _W(mrat)[1]
           and "2 times 11 times 2 is 44 square centimetres a second" in _W(mrat)[0]
           and L.praise_for(mrat, 0).count("2 times 11 times 2") == 1
-          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u4-one-rate-drives-another"])) <= 24000, "")
+          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u4-one-rate-drives-another"])) <= 24500, "")
     crit = {"a": 24, "b": 0, "op": "crit"}
     check("⭐ where the curve levels off: the valley alone on the ask (no point, no tangent); the flat tangent y = -144 and the point at the bottom in the walk-back",
           '[[graph func="x^2-24*x" names="y = x² − 24x" range="0..24" yrange="-180..36" caption=' in L.board_for(crit, "abstract")
@@ -28477,8 +28697,8 @@ def part3jw_calculus_units_four_to_six_to_the_shape():
           not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
                   for l in C4 + C5 + C6)
           and all(len(o.split()) <= 12 for l in C4 + C5 + C6 for o in L.LESSON_BY_ID[l]["explain"]["choices"].split("|")), "")
-    check("  every lesson's closure stays under the 24,000-character audio ceiling",
-          all(sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID[l])) <= 24000 for l in C4 + C5 + C6), "")
+    check("  every lesson's closure stays under the 24,500-character audio ceiling (24,000 until us)",
+          all(sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID[l])) <= 24500 for l in C4 + C5 + C6), "")
     _FRAG = {"calc-u4-when-is-it-going-that-fast": "162 over 18",
              "calc-u4-one-rate-drives-another": "2 times 9 times 5",
              "calc-u4-where-the-curve-levels-off": "2 x equals 34",
@@ -28549,7 +28769,7 @@ def part3jx_calculus_units_seven_to_nine_to_the_shape():
           and '[[step eq="area under the graph = ? metres"]]' in L.board_for(defi, "abstract")
           and 'shade="0..5" label="55"' in _W(defi)[1]
           and "11 times 5 is 55, and 55 metres is how far the car went" in _W(defi)[0]
-          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u7-the-area-is-the-answer"])) <= 24000, "")
+          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u7-the-area-is-the-answer"])) <= 24500, "")
     triz = {"a": 28, "b": 0, "op": "triz"}
     check("  when the graph is a ramp: the triangle under y = x shaded with \"?\" on the ask; \"392\" on the walk-back",
           '[[graph lines="y=x" names="speed = t" shade="0..28" label="?" range="0..30" yrange="0..30" caption=' in L.board_for(triz, "abstract")
@@ -28596,7 +28816,7 @@ def part3jx_calculus_units_seven_to_nine_to_the_shape():
           and '[[step eq="volume = ? × π"]]' in L.board_for(revo, "abstract")
           and '[[step eq="5² = 25"]][[step eq="25 × 8 = 200"]]' in _W(revo)[1]
           and "Stack 8 lengths of that and the volume is 200 pi" in _W(revo)[0]
-          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u8-spin-it-into-a-solid"])) <= 24000, "")
+          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u8-spin-it-into-a-solid"])) <= 24500, "")
 
     # ---- Unit 9 ------------------------------------------------------------------------
     dfeq = {"a": 155, "b": 8, "c": 5, "op": "dfeq"}
@@ -28618,7 +28838,7 @@ def part3jx_calculus_units_seven_to_nine_to_the_shape():
           and '[[step eq="P = 28 · rate = ?"]]' in L.board_for(pgrw, "abstract")
           and 'points="(28,112)"' in _W(pgrw)[1]
           and "28 times 4 — 112 a minute" in _W(pgrw)[0]
-          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u9-when-the-rate-depends-on-the-amount"])) <= 24000, "")
+          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u9-when-the-rate-depends-on-the-amount"])) <= 24500, "")
     eqbm = {"a": 144, "b": 6, "op": "eqbm"}
     check("  where the change stops: the rate line falling toward zero with no point on the ask; the crossing (24, 0) on the walk-back",
           '[[graph lines="y=-6x+144" names="rate = 144 − 6P" range="0..26" yrange="-12..150" caption=' in L.board_for(eqbm, "abstract")
@@ -28661,8 +28881,8 @@ def part3jx_calculus_units_seven_to_nine_to_the_shape():
           not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
                   for l in C7 + C8 + C9)
           and all(len(o.split()) <= 12 for l in C7 + C8 + C9 for o in L.LESSON_BY_ID[l]["explain"]["choices"].split("|")), "")
-    check("  every lesson's closure stays under the 24,000-character audio ceiling",
-          all(sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID[l])) <= 24000 for l in C7 + C8 + C9), "")
+    check("  every lesson's closure stays under the 24,500-character audio ceiling (24,000 until us)",
+          all(sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID[l])) <= 24500 for l in C7 + C8 + C9), "")
     _FRAG = {"calc-u7-the-area-is-the-answer": "9 times 6",
              "calc-u7-flatten-it-out": "150 divided by 10",
              "calc-u8-the-gap-between-two-curves": "160 take away 38",
@@ -37451,8 +37671,10 @@ def part3cv_scripted_engine():
         #   walk-backs name both steps, both squares, the sum and the two bounds,
         #   which is the lesson. The next-largest lesson in the canon is 21,212.
         #   Measured, not guessed; the bar is raised, the lessons are not cut.
+        # (us, 2026-09-09) the ceiling 24,000 -> 24,500: every lesson's closure gained its two
+        # orientation lines (~200 chars); three calculus closures sat 60 chars under 24,000.
         check(f"{_les['id']}: the closure is priceable and small",
-              0 < est2["chars"] < 24000 and est2["usd"] < 5.5, str(est2))
+              0 < est2["chars"] < 24500 and est2["usd"] < 5.5, str(est2))
 
     # ---- 9. ⭐ THE CLOSURE: everything ever spoken is pre-renderable ----
     missing = sorted({s for s in heard if s and s not in closure})
@@ -39200,6 +39422,7 @@ def main():
     part3kl_a_new_machine_still_called_f()
     part3km_the_problem_is_always_on_the_board()
     part3kn_the_wrong_answer_is_answered_at_once()
+    part3ko_orient_then_one_idea_per_beat_with_a_check()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
