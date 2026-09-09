@@ -6,6 +6,13 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  BUILD ur -- THE WRONG ANSWER IS ANSWERED AT ONCE. PART 3kn: the deferred
+#               re-teach through the TestClient with the model stubbed (defer_ai, the
+#               ai_pending marker, /api/script/intervene, the wrong-again redo, the
+#               fail-safe, no model, the pilot shape, 409s); session.html's defer_ai,
+#               scrFetchIntervene, the ai_pending beat and the byte-identical thinking
+#               lines; LIVE in a browser with the re-teach delayed twelve seconds (the
+#               hold line within a second, the thinking line, the lesson goes on).
 #   2026-09-08  BUILD uq -- THE PROBLEM IS ALWAYS ON THE BOARD (Jim's corrections queue,
 #               13 flags). PART 3km: main._ai_board_floor (an intervention with no board
 #               tag gets the ask's own board -- pinned through the lane with the model
@@ -12326,6 +12333,209 @@ def part3km_the_problem_is_always_on_the_board():
           and "(uq) Tile 11,290" in notes("static/methodology.html"), "")
 
 
+def part3kn_the_wrong_answer_is_answered_at_once():
+    """PART 3kn (build ur, 2026-09-09) -- THE WRONG ANSWER IS ANSWERED AT ONCE.
+
+    Jim's flag 21:41 (2026-09-08, algebra2): "more than 30 second wait after a wrong
+    answer". The engine emits LINE_WRONG before its intervene step, but /api/script/answer
+    resolved the model's re-teach (one call, verified up to three times, ~10 s each) BEFORE
+    responding, so the student heard nothing for the whole wait. Now:
+      * a page that sends defer_ai gets the verdict, the star and the hold line at once,
+        with an {"kind": "ai_pending"} marker in place of the re-teach; the re-teach
+        comes from POST /api/script/intervene (_script_deferred_run -- the same model
+        turn, bookkeeping, askboard floor and fail-open, moved out of the answer turn);
+      * session.html sends defer_ai, starts the intervene fetch the moment the answer
+        lands, plays the hold line, and at the ai_pending beat waits with the face
+        thinking -- saying LINE_THINKING after four seconds and LINE_THINKING_MORE ten
+        seconds later if the re-teach is still coming -- then plays what arrives;
+      * FAIL-SAFE: an answer that arrives while a re-teach is still deferred (a page
+        that never fetched it) resolves it first, silently; a page that does not send
+        defer_ai (pilot.html) gets exactly the old shape; a failed fetch falls open to
+        the live tutor with the student's own answer, as a failed answer call always has.
+    Pinned through the TestClient with the model stubbed, statically on the page, and
+    LIVE in a headless browser with the re-teach delayed twelve seconds."""
+    print("\nPART 3kn — the wrong answer is answered at once (build ur)")
+    import main as M, lessonscripts as LS
+    msrc = code_only(open("main.py", encoding="utf-8").read())
+    page = open("static/session.html", encoding="utf-8").read()
+    pcode = code_only(page)
+
+    # ---- the server, with the model stubbed --------------------------------------------------------
+    try:
+        from fastapi.testclient import TestClient
+        _orig = M._script_intervene
+        calls = []
+        M._script_intervene = lambda code, course, context, history: (
+            calls.append(len(history)) or 'Slow down. Now try it yourself. [[choices options="10 | 12 | 8"]]')
+        c = TestClient(M.app)
+        def fresh():
+            M._SCRIPT_SESSIONS.pop("1234", None)
+            c.post("/api/script/start", json={"code": "1234", "course": "precalc", "lesson": "pc-u1-machines-in-a-row"})
+            return M._SCRIPT_SESSIONS["1234"]
+        try:
+            sess = fresh()
+            r = c.post("/api/script/answer", json={"code": "1234", "said": "999", "defer_ai": True}); j = r.json()
+            kinds = [s.get("kind") for s in j.get("steps", [])]
+            check("⭐ THE WATCH'S SHAPE: a wrong answer with defer_ai returns AT ONCE -- the hold line and an ai_pending "
+                  "marker, no model call yet, the re-teach deferred",
+                  r.status_code == 200 and kinds == ["say", "ai_pending"] and j["steps"][0]["spoken"] == LS.LINE_WRONG
+                  and not calls and (sess.get("deferred") or {}).get("kind") == "first" and sess["mode"] == "script", str(kinds))
+            r = c.post("/api/script/intervene", json={"code": "1234"}); j = r.json()
+            ai = (j.get("steps") or [{}])[0]
+            check("⭐ /api/script/intervene runs the model turn: ONE call, the ai step with the ask's board (the askboard "
+                  "floor), the session in intervene mode with its redo",
+                  r.status_code == 200 and ai.get("kind") == "ai" and "[[machine" in ai.get("board", "") and "[[choices" in ai.get("board", "")
+                  and calls == [0] and sess["mode"] == "intervene" and sess["ai_turns"] == 1 and bool(sess.get("redo"))
+                  and not sess.get("deferred"), str(ai)[:120])
+            check("  nothing deferred -> 409 (never a second model call)",
+                  c.post("/api/script/intervene", json={"code": "1234"}).status_code == 409 and calls == [0], "")
+            r = c.post("/api/script/answer", json={"code": "1234", "said": "999", "defer_ai": True}); j = r.json()
+            check("  wrong AGAIN inside the intervention, deferred: the hold line and the marker; the history carries the answer",
+                  [s.get("kind") for s in j["steps"]] == ["say", "ai_pending"] and (sess.get("deferred") or {}).get("kind") == "redo"
+                  and len(sess["history"]) == 2 and calls == [0], "")
+            r = c.post("/api/script/intervene", json={"code": "1234"}); j = r.json()
+            check("  ...and its re-teach: the second model turn, fed the history, ai_turns 2",
+                  (j.get("steps") or [{}])[0].get("kind") == "ai" and calls == [0, 2] and sess["ai_turns"] == 2 and len(sess["history"]) == 3, str(calls))
+            exp = sess["redo"]["expected"]
+            r = c.post("/api/script/answer", json={"code": "1234", "said": str(exp), "defer_ai": True}); j = r.json()
+            check("  a RIGHT redo is graded by code as before: praise, then the lesson goes on, mode script",
+                  [s.get("kind") for s in j["steps"]][:2] == ["say", "ask"] and sess["mode"] == "script", "")
+            # the fail-safe: a page that never fetched
+            sess = fresh(); calls.clear()
+            c.post("/api/script/answer", json={"code": "1234", "said": "999", "defer_ai": True})
+            r = c.post("/api/script/answer", json={"code": "1234", "said": "999"}); j = r.json()
+            check("⭐ FAIL-SAFE: an answer arriving while a re-teach is still deferred resolves it first, silently -- the "
+                  "session never wedges (the deferred turn, then the redo's own)",
+                  not sess.get("deferred") and sess["mode"] == "intervene" and calls == [0, 2]
+                  and [s.get("kind") for s in j["steps"]] == ["ai"], str(calls))
+            # no model: the engine's own retest
+            M._script_intervene = lambda *a, **k: ""
+            sess = fresh()
+            c.post("/api/script/answer", json={"code": "1234", "said": "999", "defer_ai": True})
+            r = c.post("/api/script/intervene", json={"code": "1234"}); j = r.json()
+            check("  no model (unreachable, or nothing): the intervene call returns the engine's own retest -- an ask, "
+                  "mode script, no dead air",
+                  [s.get("kind") for s in j["steps"]] == ["ask"] and sess["mode"] == "script", "")
+            # the old shape, untouched
+            M._script_intervene = lambda code, course, context, history: 'Old shape. [[choices options="1 | 2 | 3"]]'
+            sess = fresh()
+            r = c.post("/api/script/answer", json={"code": "1234", "said": "999"}); j = r.json()
+            check("  a page that does not send defer_ai (pilot.html) gets exactly the old shape: the re-teach in the same response",
+                  [s.get("kind") for s in j["steps"]] == ["say", "ai"] and sess["mode"] == "intervene" and not sess.get("deferred"), "")
+            M._SCRIPT_SESSIONS.pop("1234", None)
+            check("  no lesson running -> 409", c.post("/api/script/intervene", json={"code": "1234"}).status_code == 409, "")
+        finally:
+            M._script_intervene = _orig
+            M._SCRIPT_SESSIONS.pop("1234", None)
+    except Exception as exc:  # noqa: BLE001
+        bad("the deferred lane through the TestClient", f"the drill could not run: {exc}")
+
+    check("  the deferral is wired at BOTH sites (the first intervention and the wrong-again redo) and the "
+          "answer endpoint resolves a stale deferral first",
+          msrc.count('sess["deferred"] = {"kind": "first"') == 1 and msrc.count('sess["deferred"] = {"kind": "redo"') == 1
+          and 'if sess.get("deferred"):\n        # (ur)' in msrc.replace("\r", "")
+          and "def _script_deferred_run(" in msrc and '@app.post("/api/script/intervene")' in msrc, "")
+
+    # ---- the page -------------------------------------------------------------------------------------
+    check("⭐ session.html sends defer_ai, fetches the re-teach the moment the answer lands, and plays the ai_pending beat",
+          "{ code: CODE, said: txt, defer_ai: true }" in pcode and "function scrFetchIntervene()" in pcode
+          and 'fetch("/api/script/intervene"' in pcode and 'if (step.kind === "ai_pending") {' in pcode
+          and 'if ((j.steps || []).some((st) => st && st.kind === "ai_pending")) scrFetchIntervene();' in pcode, "")
+    check("  the thinking lines are byte-identical to lessonscripts (their clips are cache hits)",
+          'const LINE_THINKING = "%s";' % LS.LINE_THINKING in pcode and 'const LINE_THINKING_MORE = "%s";' % LS.LINE_THINKING_MORE in pcode
+          and LS.LINE_THINKING in LS.STANDALONE_LINES and LS.LINE_THINKING_MORE in LS.STANDALONE_LINES
+          and LS.LINE_THINKING in LS.course_audio_lines() and LS.LINE_THINKING_MORE in LS.course_audio_lines()
+          and LS.LINE_THINKING not in LS.audio_lines(LS.LESSON_BY_ID["pc-u1-machines-in-a-row"]), "")
+    check("  the wait is spoken, not silent: four seconds, then ten; the steps that arrive go to the FRONT of the queue; "
+          "a failed fetch falls open to the live tutor with the student's own answer",
+          "delay(4000)" in pcode and "delay(10000)" in pcode and "SCR.queue = (j.steps || []).concat(SCR.queue);" in pcode
+          and 'await runTutor(SCR.lastAnswer || "I\'m not sure");' in pcode and "aiFetch: null, lastAnswer:" in pcode, "")
+
+    # ---- LIVE: the page, a wrong answer, the re-teach twelve seconds away ---------------------------------
+    NAME = "⭐ LIVE: a wrong tap on the page -- the hold line within a second, the thinking line while the re-teach is twelve seconds away, then the lesson goes on"
+    if dep_gate(NAME, "playwright", "the timing is measured in a real browser"):
+        import socket, subprocess, sys, time as _t, json as _json
+        try:
+            sck = socket.socket(); sck.bind(("127.0.0.1", 0)); port = sck.getsockname()[1]; sck.close()
+        except Exception:  # noqa: BLE001
+            port = 8139
+        env = dict(os.environ, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="1")
+        env.pop("DATABASE_URL", None); env.pop("ANTHROPIC_API_KEY", None)
+        srv = subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", str(port)],
+                               cwd=os.path.dirname(os.path.abspath(__file__)), env=env,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            import urllib.request
+            up = False
+            for _ in range(60):
+                try:
+                    urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=2).read(); up = True; break
+                except Exception:  # noqa: BLE001
+                    _t.sleep(0.5)
+            if not up:
+                skip(NAME, "the app did not come up in 30 s")
+            else:
+                from playwright.sync_api import sync_playwright
+                with sync_playwright() as pw:
+                    try:
+                        br = pw.chromium.launch()
+                    except Exception as exc:  # noqa: BLE001
+                        br = None; skip(NAME, f"chromium would not launch: {str(exc)[:80]}")
+                    if br:
+                        ctx = br.new_context(viewport={"width": 1440, "height": 900}); pg = ctx.new_page()
+                        posts = []
+                        pg.on("request", lambda rq: posts.append(rq.url.split("/api/")[-1]) if "/api/script/" in rq.url else None)
+                        pg.add_init_script("window.__speakLog = [];")
+                        pg.goto(f"http://127.0.0.1:{port}/session?code=1234&course=precalc", wait_until="load"); pg.wait_for_timeout(2500)
+                        # the voice is stubbed as HEARD (no audio in the sandbox); the re-teach fetch is delayed 12 s page-side
+                        pg.evaluate("window.speak = (w) => { voiceHeard = true; window.__speakLog.push(w); return new Promise(r => setTimeout(r, 120)); };")
+                        pg.evaluate("(() => { const f = window.fetch; window.fetch = (u, o) => (String(u).includes('/api/script/intervene') ? new Promise(r => setTimeout(r, 12000)).then(() => f(u, o)) : f(u, o)); })()")
+                        for sel in ("#welcome button", "#tourSkip", "text=Not right now"):    # "Not right now" starts lesson one itself
+                            try:
+                                pg.click(sel, timeout=2500); pg.wait_for_timeout(1200)
+                            except Exception:  # noqa: BLE001
+                                pass
+                        at_ask = False
+                        for _ in range(200):
+                            pg.wait_for_timeout(1000)
+                            if pg.evaluate("SCR.on && SCR.pending && SCR.queue.length === 0 && !busy"):
+                                at_ask = True; break
+                        if not at_ask:
+                            skip(NAME, "the lesson did not reach its first question in 200 s")
+                        else:
+                            n0 = pg.evaluate("window.__speakLog.length")
+                            t0 = _t.time(); first = None
+                            pg.evaluate("sendToTutor('999')")
+                            for _ in range(240):
+                                pg.wait_for_timeout(250)
+                                log = pg.evaluate("window.__speakLog")
+                                if first is None and len(log) > n0:
+                                    first = _t.time() - t0
+                                if len(log) >= n0 + 3 and pg.evaluate("SCR.pending && SCR.queue.length === 0 && !busy"):
+                                    break
+                            log = pg.evaluate("window.__speakLog")[n0:]
+                            check(NAME,
+                                  first is not None and first < 1.5 and len(log) >= 3
+                                  and log[0] == LS.LINE_WRONG and log[1] == LS.LINE_THINKING
+                                  and "script/intervene" in posts and posts.index("script/intervene") > posts.index("script/answer")
+                                  and pg.evaluate("SCR.on && SCR.pending"),
+                                  _json.dumps({"first_line_after_s": first, "lines": [l[:50] for l in log], "posts": posts[-3:]}))
+                        br.close()
+        finally:
+            try:
+                srv.terminate(); srv.wait(timeout=10)
+            except Exception:  # noqa: BLE001
+                try: srv.kill()
+                except Exception: pass
+
+    check("  the dated notes are in (Jim's rule 8)",
+          "BUILD ur --" in notes("main.py") and "2026-09-09  BUILD ur" in notes("lessonscripts.py")
+          and "(ur) 2026-09-09" in notes("static/session.html")
+          and 'APP_BUILD -> "2026-09-09ur-the-wrong-answer-is-answered-at-once"' in notes("main.py")
+          and "2026-09-09  BUILD ur" in notes("ruletests.py")
+          and "(ur) Tile 11,313" in notes("static/methodology.html"), "")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -19616,8 +19826,8 @@ def part3fz_a_hyphen_marked_a_right_answer_wrong():
           _m._split_ai_reply(None)[0] in (None, "")
           and _m._split_ai_reply("plain words") == ("plain words", ""), "")
     msrc = _insp.getsource(_m)
-    check("⭐ BOTH ai-step return sites are split, not just the one in the screenshot",
-          msrc.count("_split_ai_reply(reply)") == 2,
+    check("⭐ BOTH ai-step return sites are split, not just the one in the screenshot (three since ur: the deferred run too)",
+          msrc.count("_split_ai_reply(reply)") == 3,
           "the second site is the ordinary-turn path and leaks the same way")
 
     # ---- (3) the operator the problem actually has ----
@@ -22457,7 +22667,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,313</b>" in page,
+          "<b>11,329</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -38989,6 +39199,7 @@ def main():
     part3kk_one_name_per_function()
     part3kl_a_new_machine_still_called_f()
     part3km_the_problem_is_always_on_the_board()
+    part3kn_the_wrong_answer_is_answered_at_once()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

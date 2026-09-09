@@ -4,6 +4,18 @@
                 changelog/session.html.md -- moved out on 2026-09-08 (build ui) VERBATIM,
                 125 entries; 17 stay here. Keep adding new notes HERE, newest at top; roll
                 them out again (notes_rollout.py) when this header passes ~100 KB.
+    (ur) 2026-09-09 -- THE WRONG ANSWER IS ANSWERED AT ONCE. Jim's flag: "more than 30
+    second wait after a wrong answer". scrAnswer sends defer_ai, so the server returns
+    the verdict, the star and the hold line ("Not quite -- let's look at it together")
+    immediately, with an ai_pending beat where the model's re-teach used to be; the page
+    fetches the re-teach from /api/script/intervene the moment the answer lands
+    (scrFetchIntervene) and plays the hold line meanwhile. The ai_pending beat waits with
+    the face thinking, says LINE_THINKING after four seconds and LINE_THINKING_MORE ten
+    seconds later if the re-teach is still coming (both byte-identical to lessonscripts,
+    so their clips are cache hits), then puts what arrives at the front of the queue. A
+    failed fetch falls open to the live tutor with the student's own answer, exactly as
+    a failed answer call always has. SCR gains aiFetch and lastAnswer.
+
     (ul) 2026-09-08 -- THE LANDSCAPE PHONE. The release rehearsal measured this page on a
     phone turned sideways (844x390): the board was 38px tall behind a two-row nav and a
     three-row dock. A last-declared block for screens <=900px wide AND <=520px tall makes
@@ -3108,7 +3120,8 @@
     // noticing a seam.
     // =====================================================================
     const SCR = { on: false, id: "", lesson: "", pending: false, queue: [], all: null,
-                  beat: 0 };   // (pd) which beat is on stage, so a late callback knows
+                  beat: 0,     // (pd) which beat is on stage, so a late callback knows
+                  aiFetch: null, lastAnswer: "" };   // (ur) the re-teach in flight, and the answer that earned it
 
     async function scriptLessons() {
       if (SCR.all) return SCR.all;
@@ -3266,6 +3279,34 @@
         busy = true; setPhase("busy");
         await runTutor(step.mastered ? "__script_done_mastered__" : "__script_done__");
         return;
+      }
+      // (ur, 2026-09-08) THE WAIT IS SPOKEN, NOT SILENT. The server answered the wrong
+      // answer at once: the hold line before this beat has already played. This beat
+      // waits for the re-teach the page fetched at the same time -- with the face
+      // thinking and the status line saying so -- and, if it is still coming after
+      // five seconds, says one more authored line. The steps that arrive go to the
+      // FRONT of the queue and play next. A failed fetch falls open to the live tutor
+      // with the student's own answer, exactly as a failed answer call always has.
+      if (step.kind === "ai_pending") {
+        busy = true; setPhase("busy"); setState("thinking"); statusEl.textContent = tutorName + " is thinking…";
+        const p = scrFetchIntervene();
+        let j = await Promise.race([p, delay(4000).then(() => "__slow__")]);
+        for (const line of [LINE_THINKING, LINE_THINKING_MORE]) {
+          if (j !== "__slow__") break;
+          addBubble("tutor", line); lastTutorText = line;
+          await scrSay(line);
+          setState("thinking"); statusEl.textContent = tutorName + " is thinking…";
+          j = await Promise.race([p, delay(10000).then(() => "__slow__")]);
+        }
+        if (j === "__slow__") j = await p;
+        SCR.aiFetch = null;
+        if (!j || !j.ok) {
+          SCR.on = false; SCR.pending = false;
+          await runTutor(SCR.lastAnswer || "I'm not sure");
+          return;
+        }
+        SCR.queue = (j.steps || []).concat(SCR.queue);
+        return scrNext();
       }
       const myBeat = ++SCR.beat;
       const words = step.spoken || "";
@@ -3427,6 +3468,18 @@
     }
 
     // The student answered (typed, spoken, or tapped -- one door, as always).
+    // (ur) THE RE-TEACH, FETCHED WHILE THE HOLD LINE PLAYS. One in flight at a time;
+    // the promise never rejects (a failure resolves to null and the ai_pending beat
+    // falls open to the live tutor, exactly as a failed answer call always has).
+    function scrFetchIntervene() {
+      if (SCR.aiFetch) return SCR.aiFetch;
+      SCR.aiFetch = fetch("/api/script/intervene", { method: "POST", headers: { "Content-Type": "application/json" },
+                                                     body: JSON.stringify({ code: CODE }) })
+        .then((r) => r.json()).catch(() => null);
+      return SCR.aiFetch;
+    }
+    const LINE_THINKING = "Give me a moment to work this one out with you.";   // byte-identical to lessonscripts.LINE_THINKING
+    const LINE_THINKING_MORE = "Still working on it — one more moment.";         // ...and LINE_THINKING_MORE
     async function scrAnswer(message) {
       const txt = String(message || "").trim();
       // A question is a QUESTION, not an answer: it goes to the raised-hand door,
@@ -3434,8 +3487,14 @@
       // lesson straight back (build oq).
       const asking = /\?\s*$/.test(txt) || /^(what|why|how|can you|i don'?t (get|understand))\b/i.test(txt);
       const url = asking ? "/api/script/ask" : "/api/script/answer";
+      // (ur, 2026-09-08) defer_ai: the server answers a WRONG answer at once -- the
+      // verdict, the star and the hold line -- and leaves the model's re-teach for a
+      // second call (see the ai_pending beat in scrPlay). Jim's flag: "more than 30
+      // second wait after a wrong answer" -- the re-teach is verified up to three
+      // times on the server, and the student heard nothing for all of it.
       const body = asking ? { code: CODE, question: txt, heard: lastTutorText }
-                          : { code: CODE, said: txt };
+                          : { code: CODE, said: txt, defer_ai: true };
+      SCR.lastAnswer = txt;
       // (so, 2026-09-04) HE SHOWS HIMSELF THINKING. Jim, on a wrong answer: "he didn't
       // show himself thinking and it didn't say he was thinking so it looked frozen."
       // pb's note above says a scripted answer "arrives instantly" -- true for a RIGHT
@@ -3470,6 +3529,9 @@
           renderStreakChips({ streak_days: j.streak.streak_days, today_streak: j.streak.today_streak });
         }   /* (rd) the scripted lane's own grade feeds the chips -- the server's number, never a guess */
         SCR.pending = false;
+        // (ur) the re-teach is fetched NOW, while the hold line plays; the ai_pending
+        // beat awaits this promise when the queue reaches it
+        if ((j.steps || []).some((st) => st && st.kind === "ai_pending")) scrFetchIntervene();
         scrIngest(j.steps);
       } catch (e) {
         // The script could not be reached: the live tutor picks the turn up, so a

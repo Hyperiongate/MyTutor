@@ -6,6 +6,23 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  APP_BUILD -> "2026-09-09ur-the-wrong-answer-is-answered-at-once". BUILD ur --
+#               Jim's flag 21:41 (algebra2): "more than 30 second wait after a wrong answer".
+#               The answer endpoint resolved the model's re-teach (verified up to three
+#               times, ~10 s each) BEFORE responding, so the engine's own "Not quite --
+#               let's look at it together" reached the student only after the whole wait.
+#               NEW: ScriptAnswerIn.defer_ai -- the answer turn returns at once (the
+#               verdict, the star, the hold line, an {"kind": "ai_pending"} marker) and
+#               stores the deferred turn on the session; NEW POST /api/script/intervene
+#               (_script_deferred_run) runs it: the same model turn, bookkeeping (mode,
+#               history, redo), askboard floor and fail-open (no reply -> the engine's own
+#               retest) that lived in the answer turn, at both sites (the first
+#               intervention and the wrong-again redo). FAIL-SAFE: an answer that arrives
+#               while a re-teach is still deferred resolves it first, silently; a page
+#               that does not send defer_ai (pilot.html) gets exactly the old shape.
+#               session.html sends defer_ai and speaks the wait (LINE_THINKING). PART 3kn
+#               pins it through the TestClient, statically, and live in a browser with the
+#               re-teach delayed twelve seconds.
 #   2026-09-08  APP_BUILD -> "2026-09-08uq-the-problem-is-always-on-the-board". BUILD uq --
 #               Jim's corrections queue (13 flags from a live precalc/algebra2 session; the
 #               triage is claude/Triage_Corrections_Queue_2026-09-08_...). IN THIS FILE:
@@ -5568,12 +5585,84 @@ class ScriptAnswerIn(BaseModel):
     code: str
     value: int | None = None
     unheard: bool = False
+    # (ur, 2026-09-08) THE WRONG ANSWER IS ANSWERED AT ONCE. A page that sends
+    # defer_ai=True gets the verdict and the authored hold line back immediately and
+    # a {"kind": "ai_pending"} marker in place of the model's re-teach; it then POSTs
+    # /api/script/intervene, which runs the model turn and returns the ai step. A page
+    # that does not send it (pilot.html) gets exactly the old shape: the re-teach
+    # resolved before this call returns.
+    defer_ai: bool = False
     # build ou (2026-08-27): the child's OWN words -- typed, or transcribed from
     # their voice. Read by CODE (lessonscripts.read_answer), never by a model:
     # the whole latency case for this lane is that nothing thinks between the
     # child and the next sentence. `value` still wins when both arrive, so a tap
     # is byte-for-byte the request it has always been.
     said: str | None = None
+
+
+# (ur, 2026-09-08) THE WRONG ANSWER IS ANSWERED AT ONCE. Jim's flag 21:41 on a live
+# algebra2 lesson: "more than 30 second wait after a wrong answer". The engine emits
+# "Not quite -- let's look at it together" BEFORE its intervene step, but this endpoint
+# resolved the model's re-teach (one call, verified up to three times, ~10 s each) before
+# responding, so the student heard nothing for the whole wait. Now, when the page asks
+# for it (defer_ai), the answer turn returns at once -- the verdict, the star, the hold
+# line, and an "ai_pending" marker -- and the page fetches the re-teach from
+# /api/script/intervene while the hold line plays. The model turn itself, its
+# bookkeeping (mode, history, redo, the askboard floor) and its fail-open (no reply ->
+# the engine's own retest) are unchanged: they moved from the answer turn into
+# _script_deferred_run. FAIL-SAFE: an answer that arrives while a re-teach is still
+# deferred (a page that never asked) resolves it first, silently, so the session can
+# never wedge.
+def _script_deferred_run(code, sess, lesson, t0):
+    """Run the deferred intervention and return the steps the page should play: the
+    ai step (with the askboard floor), or the engine's resume steps when the model
+    gave nothing. None when nothing was deferred."""
+    d = sess.pop("deferred", None)
+    if not d:
+        return None
+    reply = _script_intervene(code, lesson["course"], d["context"], list(d.get("history") or []))
+    if reply:
+        _say, _brd = _split_ai_reply(reply)
+        _brd = _ai_board_floor(_brd, (d.get("context") or {}).get("board"), code, lesson["course"])
+        if d.get("kind") == "redo":
+            sess["ai_turns"] = int(sess.get("ai_turns") or 0) + 1
+            sess.setdefault("history", []).append({"role": "assistant", "content": reply})
+        else:
+            sess.update(mode="intervene", ai_turns=1,
+                        history=[{"role": "assistant", "content": reply}],
+                        redo=d.get("redo"))
+        out = [{"kind": "ai", "spoken": _say, "board": _brd}]
+    else:
+        # the model is unreachable or produced nothing: the script absorbs it --
+        # straight to the engine's retest, no dead air, no error page
+        steps, state = lessonscripts.step(lesson, sess["state"], ("resume",))
+        sess.update(state=state, mode="script", ai_turns=0, history=[], redo=None)
+        out = _script_clean(steps, lesson["id"])
+        for s in steps:
+            if s["kind"] == "end":
+                _script_finish(code, sess, s)
+    _script_note_ask(sess, out)
+    _script_log(code, lesson["course"], t0)
+    return out
+
+
+class ScriptInterveneIn(BaseModel):
+    code: str
+
+
+@app.post("/api/script/intervene")
+def script_intervene_run(body: ScriptInterveneIn):
+    """(ur) The deferred re-teach: the model turn the answer endpoint put off."""
+    t0 = _time.monotonic()
+    code = (body.code or "").strip()
+    sess = _script_session(code)
+    if not sess:
+        raise HTTPException(status_code=409, detail=(
+            "No scripted lesson is running for this code -- POST /api/script/start."))
+    if not sess.get("deferred"):
+        raise HTTPException(status_code=409, detail="nothing is waiting to be taught")
+    out = _script_deferred_run(code, sess, sess["lesson"], t0)
+    return {"ok": True, "steps": out or []}
 
 
 @app.post("/api/script/start")
@@ -5697,6 +5786,11 @@ def script_answer(body: ScriptAnswerIn):
         raise HTTPException(status_code=409, detail=(
             "No scripted lesson is running for this code -- POST /api/script/start."))
     lesson, state = sess["lesson"], sess["state"]
+    if sess.get("deferred"):
+        # (ur) a page that never fetched its re-teach: resolve it now, silently, so the
+        # redo below is graded against the question the model was asked to re-teach
+        _script_deferred_run(code, sess, lesson, t0)
+        state = sess["state"]
 
     # ---- build ou: THE CHILD'S OWN WORDS BECOME AN ANSWER, IN CODE ----------
     # A tap sends `value` and nothing here runs. A typed or spoken answer sends
@@ -5791,6 +5885,17 @@ def script_answer(body: ScriptAnswerIn):
         if sess["ai_turns"] < SCRIPT_AI_TURNS:
             sess["history"].append({"role": "user",
                                     "content": f"My answer is {body.value}."})
+            if body.defer_ai:
+                # (ur) the verdict and the hold line now; the re-teach on the next call
+                sess["deferred"] = {"kind": "redo", "context": redo["context"],
+                                    "history": list(sess["history"])}
+                _script_log(code, lesson["course"], t0)
+                resp = {"ok": True, "steps": pre + [
+                    {"kind": "say", "spoken": lessonscripts.LINE_WRONG, "board": ""},
+                    {"kind": "ai_pending", "spoken": "", "board": ""}]}
+                if _streak:
+                    resp["streak"] = _streak
+                return resp
             reply = _script_intervene(code, lesson["course"], redo["context"],
                                       sess["history"])
             if reply:
@@ -5839,6 +5944,13 @@ def script_answer(body: ScriptAnswerIn):
         if s["kind"] == "intervene":
             context = dict(s)
             context["choices"] = lessonscripts.choices_for(s["problem"])
+            if body.defer_ai:
+                # (ur) the engine's LINE_WRONG is already in `out`; the re-teach waits
+                sess["deferred"] = {"kind": "first", "context": context, "history": [],
+                                    "redo": {"problem": s["problem"], "expected": s["expected"],
+                                             "choices": context["choices"], "context": context}}
+                out.append({"kind": "ai_pending", "spoken": "", "board": ""})
+                continue
             reply = _script_intervene(code, lesson["course"], context, [])
             if reply:
                 sess.update(mode="intervene", ai_turns=1,
@@ -8710,7 +8822,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-08uq-the-problem-is-always-on-the-board"
+APP_BUILD = "2026-09-09ur-the-wrong-answer-is-answered-at-once"
 
 
 @app.get("/health")

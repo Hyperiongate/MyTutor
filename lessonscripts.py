@@ -7,6 +7,13 @@
 #               VERBATIM, 70 entries; 39 stay here. Keep adding new notes HERE, newest at
 #               top; roll them out again (notes_rollout.py) when this header passes ~100
 #               KB.
+#   2026-09-09  BUILD ur -- THE WRONG ANSWER IS ANSWERED AT ONCE. Two fixed lines join the
+#               audio closure: LINE_THINKING ("Give me a moment to work this one out with
+#               you.") and LINE_THINKING_MORE ("Still working on it -- one more moment."),
+#               spoken by session.html while a deferred re-teach is still coming (byte-
+#               identical there). They are STANDALONE_LINES -- the lane's, not any
+#               lesson's closure (three calculus closures sit 25 chars under the 24,000
+#               ceiling). Nothing else in this file changed. Run the prewarm.
 #   2026-09-08  BUILD uq -- THE PROBLEM IS ALWAYS ON THE BOARD (Jim's corrections queue).
 #               * PRACTICE_INTRO_BOARD: the practice intro ("Now it's your turn...") carries
 #                 a card now; it spoke over a scrolled-away board (flag 22:02).
@@ -921,6 +928,12 @@ PRAISE_PREFIXES = ("That's it!", "You got it!", "Nice work!",       # (uq) "Nice
 
 # fixed one-line scripts (every one of these is pre-rendered once)
 LINE_WRONG = "Not quite — let's look at it together."
+# (ur, 2026-09-08) THE WAIT IS SPOKEN. Jim's flag 21:41: "more than 30 second wait after a
+# wrong answer". The page speaks LINE_WRONG the moment the answer is graded (the model's
+# re-teach is fetched separately now) and, if that re-teach is still coming five seconds
+# later, this line -- byte-identical in session.html, so its clip is a cache hit.
+LINE_THINKING = "Give me a moment to work this one out with you."
+LINE_THINKING_MORE = "Still working on it — one more moment."
 # (uq, 2026-09-08) Jim's flag 22:02: "There is no visual. Only audio." -- the practice
 # intro spoke over a board that had scrolled away. It carries this card now.
 PRACTICE_INTRO_BOARD = '[[card title="Your turn" items="Three right answers in a row | Tap an answer, say it, or type it | I\'m not sure is always a fair answer"]]'
@@ -15951,7 +15964,9 @@ STANDALONE_LINES = (tuple(ABRABOT_INTRO)
                     # (sn) and so does the still-learning choice
                     + (LINE_STILL_LEARNING_CHOICE,)
                     # build ou: the free-answer lines belong to no lesson
-                    + (LINE_WHOLE, LINE_UNSURE))
+                    + (LINE_WHOLE, LINE_UNSURE)
+                    # (ur) the wait lines belong to the lane, not to any lesson's closure
+                    + (LINE_THINKING, LINE_THINKING_MORE))
 
 
 def course_audio_lines(lessons=None):
