@@ -6,6 +6,19 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  BUILD uu -- THE FRONT DOOR, QUIETED. PART 3kq: the nav is one row (brand,
+#               Pricing, Sign in), no link row, no ribbon, site-nav.js not loaded; the hero
+#               is one sentence and three honest doors in order (/demo/lesson, /demo?tour=1,
+#               /login) with the mockup's guest door left out; the pencil portrait inline
+#               with breath and blink off under reduced motion; DO NO HARM on the window
+#               (the teach sample, the mini-lesson, the hidden canvas, the plain demo link),
+#               the seven sections, the FAQ and its JSON-LD twin, the parent button's words,
+#               the youngest-students sentence (moved to the Learn step, verbatim), "student"
+#               never "child"; the footer's link row carries every old nav link plus How we
+#               teach and the two college courses; LIVE at 1280x800 (three doors and the
+#               pencil above the fold, the teach button in view) and 390x844 (no sideways
+#               scroll), no page error. The older landing pins (3ad, 3gt, 3id, 3jz, rj, the
+#               Maya week) all still hold on the new page -- nothing moved.
 #   2026-09-09  BUILD ut -- THE FIRST WATCH ON THE NEW STACK. PART 3kp: the percent row
 #               fires on the watch's line and stays silent on the four true forms; the times
 #               sign is caught by referee 31 on first use and silent once said or once met;
@@ -12937,6 +12950,185 @@ def part3kp_the_first_watch_on_the_new_stack():
           and "(ut) Tile 11,344" in notes("static/methodology.html"), "")
 
 
+def part3kq_the_front_door_quieted():
+    """PART 3kq (build uu, 2026-09-09) -- THE FRONT DOOR, QUIETED.
+
+    Jim, 28 Aug: "the home page... maybe is something as simple as log on, new to the
+    site, log on as a guest, or take a tour... so it's not so much in your face." The
+    approved direction was static/mockup/landing-cadabra.html (1 Sep); every handoff
+    since carried "swapping the live landing.html needs Jim's word". He gave it on
+    2026-09-09. The real page is now that shape: one row of nav (brand, Pricing, Sign
+    in), no beta ribbon, one sentence, the pencil portrait beside the whiteboard window,
+    THREE HONEST DOORS -- Try a lesson (/demo/lesson, the real authored lesson), Take
+    the tour (/demo?tour=1, the tour the pencil hosts), Sign in (/login) -- and every
+    link the old nav carried in the footer's .foot-links row. The mockup's "Guest login
+    -- five lessons a day" door named a feature that does not exist and was left out.
+    Everything below the fold is unchanged in substance, and every older pin on this
+    page (3ad, 3gt, 3id, 3jz, the rj include, the Maya week) still holds -- this PART
+    pins the new shape and the do-no-harm of the old one, then measures it in a browser
+    at 1280x800 and 390x844."""
+    print("\nPART 3kq — the front door, quieted (build uu)")
+    import re as _re, socket, subprocess, sys, time as _t
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    la = rd("static/landing.html")
+    body = _re.sub(r"<!--.*?-->", "", la, flags=_re.S)         # change notes are not copy
+    code = code_only(la)
+
+    # ---- the top: one quiet row ------------------------------------------------------------------
+    nav = body[body.find("<nav>"):body.find("</nav>")]
+    check("⭐ the nav is one row: the brand (a link home), Pricing, Sign in -- and nothing else",
+          'class="brand" href="/"' in nav and '<a class="nav-link" href="/pricing">Pricing</a>' in nav
+          and '<a class="btn btn-ghost" href="/login">Sign in</a>' in nav
+          and nav.count("<a ") == 3 and "nav-links" not in nav, str(nav.count("<a ")))
+    check("  the twelve-link row and the beta ribbon are gone from the top",
+          "nav-links" not in body and "beta-ribbon" not in body and "We're in beta!" not in body, "")
+    check("  site-nav.js no longer loads here (it injected into the row this page no longer has)",
+          "/static/site-nav.js" not in code and "site-nav.js no longer loads here" in la, "")
+    check("  the nav wraps on a phone instead of pushing the page sideways",
+          "@media(max-width:620px){.nav-top{flex-wrap:wrap;justify-content:center" in la, "")
+
+    # ---- the hero: one sentence, three doors, in order ----------------------------------------
+    hero = body[body.find('<header class="wrap hero">'):body.find("</header>")]
+    doors = _re.findall(r'<a class="btn btn-(primary|ghost)" href="([^"]+)">([^<]+)</a>', hero[hero.find('class="doors"'):])
+    check("⭐ three honest doors, in order: Try a lesson (the real lesson), Take the tour (the hosted tour), Sign in",
+          [(k, h) for k, h, _ in doors[:3]] == [("primary", "/demo/lesson"), ("ghost", "/demo?tour=1"), ("ghost", "/login")]
+          and "Try a lesson" in doors[0][2] and doors[1][2] == "Take the tour" and doors[2][2] == "Sign in", str(doors))
+    check("  one sentence: the headline and one lede, no pill, no second lede",
+          "<h1>A math tutor who <span class=\"grad-text\">teaches out loud</span>, one step at a time.</h1>" in hero
+          and hero.count('class="lede"') == 1 and 'class="pill"' not in hero, "")
+    check("  the mockup's guest door was NOT carried over: nothing here claims what the product cannot do",
+          "Guest login" not in body and "five lessons a day" not in body and "Guests get" not in body, "")
+    check("  the note under the doors says what the lesson is (real, not a video) and what it costs (nothing)",
+          "A real lesson, not a video: pick a level and he teaches it. No card, no account." in hero, "")
+    check("  every try-a-lesson button on the page goes to the real lesson; the demo's own front door keeps its two doors",
+          body.count('href="/demo/lesson"') == 3 and body.count('href="/demo?tour=1"') == 1
+          and '@app.get("/demo/lesson")' in rd("main.py"), str(body.count('href="/demo/lesson"')))
+
+    # ---- the pencil, inline, beside the window -----------------------------------------------------
+    port_ = hero[hero.find('id="portrait"'):hero.find('<div class="mock">')]
+    check("⭐ the pencil is the hero picture: the portrait SVG inline, hands and all, one Mr. Cadabra per screen",
+          'aria-label="Mr. Cadabra, drawn as a yellow No.2 pencil wearing a wizard hat"' in port_
+          and 'id="pfeL"' in port_ and 'id="pfeR"' in port_ and 'id="pfHL"' in port_ and 'id="pfHR"' in port_
+          and 'fill="#F2BC1B"' in port_ and 'fill="#4a4ac9"' in port_          # No.2 yellow; the real brand purple on the band
+          and 'class="cadbust"' not in body, "")
+    check("  he breathes and blinks, and both stop under prefers-reduced-motion",
+          'class="pf-breathe"' in port_ and "@media (prefers-reduced-motion: reduce){.pf-breathe{animation:none}}" in la
+          and "function wireBlink(){" in la
+          and "if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;" in la[la.find("function wireBlink(){"):la.find("function wireBlink(){") + 400], "")
+    check("  the scene: the portrait and the window side by side, stacked on a narrow phone",
+          '<div class="scene">' in hero and ".scene{display:flex;align-items:flex-end" in la
+          and "@media(max-width:480px){.scene{flex-direction:column" in la, "")
+
+    # ---- DO NO HARM: everything the window used to do, it still does -----------------------------
+    check("⭐ DO NO HARM: the whiteboard window keeps the teach sample, the mini-lesson, the hidden face canvas and the plain demo link",
+          'id="hearBtn"' in body and "/api/demo-audio/71" in la and "function wireHear(" in la
+          and 'id="heroBoard"' in body and 'id="heroBubble"' in body and 'id="heroReply"' in body
+          and "var SEQ = [" in la and 'id="heroFace"' in body and "/static/tutor-face.js" in code
+          and "function wireDemoWelcome(){ /* nothing to wire" in la and ".board .step:nth-child(1)" in la, "")
+    check("  the window is one column now (his bubble over the board) and the orb span is hidden, not deleted",
+          ".mock-body{display:grid;grid-template-columns:1fr" in la and "#heroOrb{display:none" in la
+          and 'id="heroOrb" aria-hidden="true"' in body, "")
+    for sid in ("why", "tutor", "courses", "how", "pricing", "privacy", "faq"):
+        check(f"  DO NO HARM: the #{sid} section is still there", f'<section id="{sid}"' in body, "")
+    check("  DO NO HARM: the FAQ and its JSON-LD twin are whole (nine questions each), the offers and the org too",
+          body.count('"@type": "Question"') == 9 and body.count("<details") == 9
+          and '"@type": "Organization"' in body and '"price": "29.00"' in body and '"price": "24.00"' in body
+          and 'data-m="29" data-a="24"' in body, "")
+    check("  DO NO HARM: the parent button's exact words (PART 3gt) and the youngest-students sentence (PART 3jz) survive the move",
+          "How is my student doing, really?" in body
+          and "(The youngest students get big answer buttons too, and anyone can type instead.)" in body[body.find('<section id="how"'):body.find('<section id="pricing"')], "")
+    check("  the visible copy says 'student', never 'child' (nth-child and appendChild are code)",
+          not _re.search(r"\b[Cc]hild(?:ren)?\b", _re.sub(r"nth-child|appendChild|\.children", "", body)), "")
+
+    # ---- the footer carries every link the nav used to ----------------------------------------------
+    foot = body[body.find("<footer>"):body.find("</footer>")]
+    links = _re.findall(r'href="([^"]+)"', foot[foot.find('class="foot-links"'):])
+    NEED = ["/", "/mission", "/methodology", "/features", "/courses", "/courses#calculus", "/courses#diffeq",
+            "/homeschool", "/students", "/parents", "/teachers", "/community", "/beta", "/pricing", "/privacy",
+            "/terms", "#faq", "/login", "mailto:support@mrcadabra.com"]
+    check("⭐ the footer's link row carries every link the old nav had, plus How we teach and the two college courses the dropdown held",
+          all(n in links for n in NEED) and links.index("/methodology") == 2, str([n for n in NEED if n not in links]))
+    check("  the beta programme is still one click away (the ribbon's promise, in the footer)",
+          "Beta program — 5 free sign-ins" in foot, "")
+    check("  the file ends whole", la.rstrip().endswith("<!-- I did no harm and this file is not truncated. -->"), "")
+
+    # ---- LIVE: the fold and the phone ------------------------------------------------------------------
+    NAME = "⭐ LIVE at 1280x800 and 390x844: the three doors and the pencil above the fold, no sideways scroll on a phone, no page error"
+    if dep_gate(NAME, "playwright", "the fold is measured in a real browser"):
+        try:
+            sck = socket.socket(); sck.bind(("127.0.0.1", 0)); port = sck.getsockname()[1]; sck.close()
+        except Exception:  # noqa: BLE001
+            port = 8139
+        env = dict(os.environ, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="1")
+        env.pop("DATABASE_URL", None); env.pop("ANTHROPIC_API_KEY", None)
+        srv = subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1",
+                                "--port", str(port)], cwd=here, env=env,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            import urllib.request
+            up = False
+            for _ in range(60):
+                try:
+                    urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=2).read(); up = True; break
+                except Exception:  # noqa: BLE001
+                    _t.sleep(0.5)
+            if not up:
+                skip(NAME, "the app did not come up in 30 s")
+            else:
+                from playwright.sync_api import sync_playwright
+                MEASURE = """() => {
+                  const q = s => document.querySelector(s); const r = s => { const e = q(s); return e ? e.getBoundingClientRect() : null; };
+                  const doors = [...document.querySelectorAll('.doors a')].map(a => a.getBoundingClientRect());
+                  const p = r('#portrait svg'), b = r('#hearBtn'), n = r('nav');
+                  return { docW: document.documentElement.scrollWidth, vw: innerWidth, vh: innerHeight,
+                           doors: doors.length, doorsBottom: Math.max(...doors.map(d => d.bottom)), doorsOneRow: new Set(doors.map(d => Math.round(d.top))).size,
+                           pencilTop: p ? Math.round(p.top) : null, pencilBottom: p ? Math.round(p.bottom) : null, pencilW: p ? Math.round(p.width) : null,
+                           hearVisible: !!b && b.bottom <= innerHeight && b.width > 0, navRows: n ? Math.round(n.height) : null,
+                           navLinks: document.querySelectorAll('nav a').length, ribbon: !!q('.beta-ribbon'), footLinks: document.querySelectorAll('.foot-links a').length };
+                }"""
+                with sync_playwright() as pw:
+                    try:
+                        br = pw.chromium.launch()
+                    except Exception as exc:  # noqa: BLE001
+                        br = None; skip(NAME, f"chromium would not launch: {str(exc)[:80]}")
+                    if br:
+                        errs = []
+                        ctx = br.new_context(viewport={"width": 1280, "height": 800})
+                        pg = ctx.new_page(); pg.on("pageerror", lambda e: errs.append(str(e)))
+                        pg.goto(f"http://127.0.0.1:{port}/", wait_until="load"); pg.wait_for_timeout(1500)
+                        d = pg.evaluate(MEASURE)
+                        ctx2 = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True)
+                        p2 = ctx2.new_page(); p2.on("pageerror", lambda e: errs.append(str(e)))
+                        p2.goto(f"http://127.0.0.1:{port}/", wait_until="load"); p2.wait_for_timeout(1500)
+                        m = p2.evaluate(MEASURE)
+                        br.close()
+                        check(NAME,
+                              d["doors"] == 3 and d["doorsOneRow"] == 1 and d["doorsBottom"] <= 800
+                              and d["pencilTop"] is not None and d["pencilTop"] >= 60 and d["pencilBottom"] <= 800 and d["pencilW"] >= 150
+                              and d["hearVisible"] and d["navLinks"] == 3 and not d["ribbon"] and d["navRows"] <= 90
+                              and d["footLinks"] == len(NEED) and d["docW"] == 1280
+                              and m["docW"] == 390 and m["doors"] == 3 and m["navRows"] <= 120 and not m["ribbon"]
+                              and not errs,
+                              f"desk={d} phone={m} errs={errs[:2]}")
+        finally:
+            srv.terminate()
+            try:
+                srv.wait(timeout=10)
+            except Exception:  # noqa: BLE001
+                srv.kill()
+
+    # ---- the mockup stays a mockup, the note says so -------------------------------------------------
+    check("  the mockup is untouched and still owner-gated (ud): the design record stays where it was",
+          os.path.exists(os.path.join(here, "static", "mockup", "landing-cadabra.html"))
+          and '_OWNER_STATIC_PREFIXES = ("mockup/",)' in rd("main.py"), "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "(uu) 2026-09-09 -- THE FRONT DOOR, QUIETED" in la[:8000]
+          and 'APP_BUILD -> "2026-09-09uu-the-front-door-quieted"' in notes("main.py")
+          and "2026-09-09  BUILD uu" in notes("ruletests.py")
+          and "(uu) Tile 11,382" in notes("static/methodology.html"), "")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -23068,7 +23260,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,382</b>" in page,
+          "<b>11,412</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -39607,6 +39799,7 @@ def main():
     part3kn_the_wrong_answer_is_answered_at_once()
     part3ko_orient_then_one_idea_per_beat_with_a_check()
     part3kp_the_first_watch_on_the_new_stack()
+    part3kq_the_front_door_quieted()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
