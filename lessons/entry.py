@@ -2,6 +2,14 @@
 # lessons/entry.py  --  ENTRY-LEVEL MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-10  BUILD va -- THE WALK-BACK IS SWITCHED ON in seventeen lessons. Their
+#               ops draw a picture after a right answer now (see lessonscripts.py's
+#               note), and a walk-back nobody can reach is not a fix: every one of these
+#               had show_work_on_correct off, so the picture would have existed and
+#               never been shown. Units 2 through 7; Units 1, 8 and 9 follow with their
+#               own ops. NOT ONE authored sentence in this file changed -- only the flag.
+#               ⚠️ 198 new voice lines (about $7): a walk-back is SPOKEN, one line per
+#               problem the lesson can ask.
 #   2026-09-10  BUILD ux -- THE STARS COME BACK TO THE TRAP BEAT. add-single-digit's
 #               teach[1] ends "...until you have touched every star on the board" and
 #               its board drew two step lines: the stars were two beats up the feed
@@ -436,6 +444,9 @@ _ENTRY_PILOT = [
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and "
                            "we're done — here comes the first one."),
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [
             {"a": 15, "b": 16, "op": "+"}, {"a": 18, "b": 13, "op": "+"},
             {"a": 24, "b": 17, "op": "+"}, {"a": 26, "b": 15, "op": "+"},
@@ -482,6 +493,9 @@ _ENTRY_PILOT = [
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and "
                            "we're done — here comes the first one."),
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [
             {"a": 12, "b": 13, "op": "+"}, {"a": 21, "b": 14, "op": "+"},
             {"a": 23, "b": 15, "op": "+"}, {"a": 32, "b": 16, "op": "+"},
@@ -539,6 +553,9 @@ _ENTRY_MORE = [
              "ask": {"a": 95, "b": 61, "op": "s2d"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 20, "b": 10, "op": "s2d"}, {"a": 27, "b": 14, "op": "s2d"}, {"a": 30, "b": 10, "op": "s2d"}, {"a": 76, "b": 53, "op": "s2d"}, {"a": 95, "b": 65, "op": "s2d"}, {"a": 56, "b": 20, "op": "s2d"}, {"a": 94, "b": 51, "op": "s2d"}, {"a": 64, "b": 11, "op": "s2d"}, {"a": 85, "b": 21, "op": "s2d"}, {"a": 99, "b": 10, "op": "s2d"}],
     },
     {
@@ -577,6 +594,9 @@ _ENTRY_MORE = [
              "ask": {"a": 969, "b": 427, "op": "s3d"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 201, "b": 200, "op": "s3d"}, {"a": 347, "b": 306, "op": "s3d"}, {"a": 532, "b": 420, "op": "s3d"}, {"a": 374, "b": 211, "op": "s3d"}, {"a": 831, "b": 600, "op": "s3d"}, {"a": 958, "b": 646, "op": "s3d"}, {"a": 906, "b": 504, "op": "s3d"}, {"a": 713, "b": 211, "op": "s3d"}, {"a": 823, "b": 202, "op": "s3d"}, {"a": 999, "b": 100, "op": "s3d"}],
     },
     {
@@ -612,6 +632,9 @@ _ENTRY_MORE = [
              "ask": {"a": 83, "b": 39, "op": "chk"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 20, "b": 10, "op": "chk"}, {"a": 41, "b": 30, "op": "chk"}, {"a": 53, "b": 32, "op": "chk"}, {"a": 62, "b": 49, "op": "chk"}, {"a": 70, "b": 45, "op": "chk"}, {"a": 77, "b": 43, "op": "chk"}, {"a": 83, "b": 66, "op": "chk"}, {"a": 89, "b": 53, "op": "chk"}, {"a": 94, "b": 88, "op": "chk"}, {"a": 99, "b": 98, "op": "chk"}],
     },
     {
@@ -647,6 +670,9 @@ _ENTRY_MORE = [
              "ask": {"a": 6, "b": 8, "op": "m"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 1, "b": 1, "op": "m"}, {"a": 2, "b": 1, "op": "m"}, {"a": 3, "b": 1, "op": "m"}, {"a": 4, "b": 1, "op": "m"}, {"a": 5, "b": 1, "op": "m"}, {"a": 5, "b": 9, "op": "m"}, {"a": 6, "b": 9, "op": "m"}, {"a": 7, "b": 9, "op": "m"}, {"a": 8, "b": 9, "op": "m"}, {"a": 9, "b": 9, "op": "m"}],
     },
     {
@@ -681,6 +707,9 @@ _ENTRY_MORE = [
              "ask": {"a": 3, "b": 5, "op": "qtr"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 1, "b": 1, "op": "qtr"}, {"a": 1, "b": 5, "op": "qtr"}, {"a": 1, "b": 9, "op": "qtr"}, {"a": 2, "b": 4, "op": "qtr"}, {"a": 2, "b": 8, "op": "qtr"}, {"a": 3, "b": 2, "op": "qtr"}, {"a": 3, "b": 6, "op": "qtr"}, {"a": 4, "b": 1, "op": "qtr"}, {"a": 4, "b": 5, "op": "qtr"}, {"a": 4, "b": 9, "op": "qtr"}],
     },
     {
@@ -715,6 +744,9 @@ _ENTRY_MORE = [
              "ask": {"a": 100, "b": 45, "op": "chg"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 25, "b": 24, "op": "chg"}, {"a": 25, "b": 18, "op": "chg"}, {"a": 100, "b": 88, "op": "chg"}, {"a": 100, "b": 82, "op": "chg"}, {"a": 100, "b": 74, "op": "chg"}, {"a": 50, "b": 15, "op": "chg"}, {"a": 50, "b": 6, "op": "chg"}, {"a": 100, "b": 40, "op": "chg"}, {"a": 100, "b": 23, "op": "chg"}, {"a": 100, "b": 5, "op": "chg"}],
     },
     {
@@ -842,6 +874,9 @@ _ENTRY_MORE = [
             ("And that is a sum you can do in your head for the rest of your life.",
              '[[step eq="34 + 10 = 44"]]'),
         ],
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 10, "b": 0, "op": "t10"}, {"a": 19, "b": 0, "op": "t10"}, {"a": 28, "b": 0, "op": "t10"}, {"a": 36, "b": 0, "op": "t10"}, {"a": 45, "b": 0, "op": "t10"}, {"a": 54, "b": 0, "op": "t10"}, {"a": 66, "b": 0, "op": "t10"}, {"a": 71, "b": 0, "op": "t10"}, {"a": 80, "b": 0, "op": "t10"}, {"a": 89, "b": 0, "op": "t10"}],
     },
     {
@@ -903,6 +938,9 @@ _ENTRY_MORE = [
             ("And that is why the same digit can be worth so many different amounts.",
              '[[step eq="the 7 in 374 is worth 70"]]'),
         ],
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 1, "b": 2, "c": 1, "op": "wor"}, {"a": 9, "b": 2, "c": 3, "op": "wor"}, {"a": 8, "b": 3, "c": 4, "op": "wor"}, {"a": 7, "b": 4, "c": 3, "op": "wor"}, {"a": 6, "b": 5, "c": 4, "op": "wor"}, {"a": 4, "b": 6, "c": 5, "op": "wor"}, {"a": 3, "b": 7, "c": 6, "op": "wor"}, {"a": 2, "b": 8, "c": 6, "op": "wor"}, {"a": 1, "b": 9, "c": 7, "op": "wor"}, {"a": 8, "b": 9, "c": 8, "op": "wor"}],
     },
     {
@@ -941,6 +979,9 @@ _ENTRY_MORE = [
              "ask": {"a": 634, "b": 145, "op": "a3d"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 100, "b": 100, "op": "a3d"}, {"a": 156, "b": 301, "op": "a3d"}, {"a": 330, "b": 239, "op": "a3d"}, {"a": 321, "b": 342, "op": "a3d"}, {"a": 601, "b": 137, "op": "a3d"}, {"a": 411, "b": 381, "op": "a3d"}, {"a": 702, "b": 163, "op": "a3d"}, {"a": 799, "b": 100, "op": "a3d"}, {"a": 559, "b": 410, "op": "a3d"}, {"a": 899, "b": 100, "op": "a3d"}],
     },
     {
@@ -979,6 +1020,9 @@ _ENTRY_MORE = [
              "ask": {"a": 47, "b": 76, "op": "c2h"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 10, "b": 90, "op": "c2h"}, {"a": 49, "b": 57, "op": "c2h"}, {"a": 61, "b": 51, "op": "c2h"}, {"a": 20, "b": 99, "op": "c2h"}, {"a": 28, "b": 98, "op": "c2h"}, {"a": 84, "b": 49, "op": "c2h"}, {"a": 75, "b": 67, "op": "c2h"}, {"a": 54, "b": 99, "op": "c2h"}, {"a": 87, "b": 79, "op": "c2h"}, {"a": 99, "b": 99, "op": "c2h"}],
     },
     {
@@ -1144,6 +1188,9 @@ _ENTRY_MORE = [
              "sums there are.",
              '[[step eq="4 + 4 = 8"]]'),
         ],
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 1, "b": 0, "op": "dbe"}, {"a": 2, "b": 0, "op": "dbe"}, {"a": 3, "b": 0, "op": "dbe"}, {"a": 4, "b": 0, "op": "dbe"}, {"a": 5, "b": 0, "op": "dbe"}, {"a": 6, "b": 0, "op": "dbe"}, {"a": 7, "b": 0, "op": "dbe"}, {"a": 8, "b": 0, "op": "dbe"}],
     },
     {
@@ -1198,6 +1245,9 @@ _ENTRY_MORE = [
              "add to.",
              '[[step eq="6 + 4 = 10, then 10 + 3 = 13"]]'),
         ],
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 1, "b": 1, "c": 1, "op": "add3"}, {"a": 1, "b": 3, "c": 5, "op": "add3"}, {"a": 3, "b": 7, "c": 1, "op": "add3"}, {"a": 9, "b": 1, "c": 2, "op": "add3"}, {"a": 2, "b": 9, "c": 3, "op": "add3"}, {"a": 4, "b": 8, "c": 3, "op": "add3"}, {"a": 6, "b": 5, "c": 5, "op": "add3"}, {"a": 8, "b": 5, "c": 4, "op": "add3"}, {"a": 4, "b": 8, "c": 7, "op": "add3"}, {"a": 9, "b": 9, "c": 2, "op": "add3"}],
     },
     {
@@ -1250,6 +1300,9 @@ _ENTRY_MORE = [
             ("And that is how you work out how many more you need.",
              '[[step eq="7 + 3 = 10"]]'),
         ],
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{"a": 1, "b": 2, "op": "msp"}, {"a": 3, "b": 5, "op": "msp"}, {"a": 6, "b": 9, "op": "msp"}, {"a": 10, "b": 14, "op": "msp"}, {"a": 15, "b": 20, "op": "msp"}, {"a": 7, "b": 14, "op": "msp"}, {"a": 3, "b": 12, "op": "msp"}, {"a": 3, "b": 14, "op": "msp"}, {"a": 7, "b": 20, "op": "msp"}, {"a": 1, "b": 20, "op": "msp"}],
     },
     {
@@ -1278,6 +1331,9 @@ _ENTRY_MORE = [
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and "
                            "we're done — here comes the first one."),
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [{'a': 21, 'b': 13, 'op': '-'}, {'a': 32, 'b': 15, 'op': '-'}, {'a': 34, 'b': 16, 'op': '-'}, {'a': 43, 'b': 17, 'op': '-'}, {'a': 45, 'b': 28, 'op': '-'}, {'a': 52, 'b': 24, 'op': '-'}, {'a': 56, 'b': 38, 'op': '-'}, {'a': 63, 'b': 26, 'op': '-'}, {'a': 71, 'b': 44, 'op': '-'}, {'a': 75, 'b': 47, 'op': '-'}, {'a': 82, 'b': 55, 'op': '-'}, {'a': 91, 'b': 63, 'op': '-'}],
     },
     # ------------------------- BUILD kd: the content sweep -------------------------
@@ -1523,6 +1579,9 @@ _ENTRY_MORE = [
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and "
                            "we're done — here comes the first one."),
+        # (va) the walk-back is ON: this lesson's op draws a picture after a
+        # right answer now, and a walk-back nobody can reach is not a fix.
+        "show_work_on_correct": True,
         "bank": [
             {"a": 1, "b": 1, "op": "nick"},             {"a": 1, "b": 3, "op": "nick"}, {"a": 2, "b": 1, "op": "nick"},
                         {"a": 3, "b": 3, "op": "nick"}, {"a": 3, "b": 2, "op": "nick"},

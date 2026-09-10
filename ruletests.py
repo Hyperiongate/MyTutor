@@ -6,6 +6,21 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  BUILD va -- PART 3kw, THE YOUNGEST COURSE DRAWS EVERY PROBLEM. Pins
+#               that each of the thirteen ops draws on the ask AND on the walk-back;
+#               that NOT ONE of the 445 Entry asks carries its own answer (rule 15(e) --
+#               every column's result row blank, every unknown a "?"), because a picture
+#               on the question is only a gift if it does not give the game away; that
+#               the walk-back FLAG is on wherever the op can draw one; that three digits
+#               are read as three digits; that no tape asks for more parts than [[tape]]
+#               will draw; and that the whole course -- 871 asks and walk-backs -- comes
+#               through the referee stack with 0 findings.
+#               ⭐ AND THE PICTURES ARE DRAWN, not just written: _VA_FIG_HARNESS puts
+#               every distinct figure the course can emit through the REAL
+#               math-figures.js in node (295 render, 0 throw, 0 empty). A tag that
+#               renders nothing looks perfect in the source -- uw learned that with
+#               OBJ_COUNT_MAX and this build learned it again with [[tape]]'s ten-part
+#               slice. Skips gracefully where node is absent.
 #   2026-09-10  BUILD uz -- PART 3kv, JIM'S FOUR RULINGS ON THE 09-10 NIGHT WATCH.
 #               Pins referee 87 and its canon sweep, rule 15(f) (and that the referee
 #               count moved by exactly ONE this build -- his ruling was rules, not a
@@ -13611,10 +13626,11 @@ def part3ks_entry_units_two_to_four_to_the_shape():
     U4 = ["entry-u4-tens-and-ones", "entry-u4-hundreds-tens-and-ones",
           "entry-u4-ten-more", "entry-u4-what-a-digit-is-worth"]
     ALL = U2 + U3 + U4
-    WORKED = ["entry-u2-add-single-digit", "entry-u2-add-past-ten",
-              "entry-u3-take-away-single-digit", "entry-u3-take-away-bigger",
-              "entry-u3-story-problems", "entry-u4-tens-and-ones",
-              "entry-u4-hundreds-tens-and-ones"]
+    # (va, 2026-09-10) ALL TWELVE. uw could only list the seven whose op HAD a worked
+    # picture; its build doc named the other five (dbe, add3, msp, t10, wor) for Jim to
+    # price, he ruled them in on 2026-09-10, and va drew them. The list is the promise
+    # kept, not the pin loosened -- every op in these twelve now has a picture to draw.
+    WORKED = list(U2 + U3 + U4)
     _entry_unit_checks(U2, r"\[\[(objects|tape|numberline)\b", explain_ids=(), worked_ids=WORKED)
     _entry_unit_checks(U3, r"\[\[(objects|numberline|step)\b", explain_ids=(), worked_ids=WORKED)
     _entry_unit_checks(U4, r"\[\[(objects|placevalue|step)\b", explain_ids=U4, worked_ids=WORKED)
@@ -13659,10 +13675,15 @@ def part3ks_entry_units_two_to_four_to_the_shape():
         check(f"  {lid}: the walk-back flag matches whether its op HAS a picture to draw",
               bool(les.get("show_work_on_correct")) is can_draw,
               f"flag={bool(les.get('show_work_on_correct'))} can_draw={can_draw}")
-    check("⭐ seven of the twelve now show the work on a right answer -- Entry was the "
-          "only taught course with it off in all 36 (the other eight run 36 of 36)",
-          sum(1 for l in ALL if L.LESSON_BY_ID[l].get("show_work_on_correct")) == 7,
-          str(sorted(l for l in ALL if L.LESSON_BY_ID[l].get("show_work_on_correct"))))
+    # (va, 2026-09-10) ALL TWELVE NOW. uw could only switch on the seven whose op had a
+    # picture to draw, and its build doc listed the other five (dbe, add3, msp, t10,
+    # wor) for Jim to price. He ruled them in on 2026-09-10 and va drew them -- so the
+    # "flag matches whether the op has a picture" check above is now satisfied by every
+    # op HAVING one. That is the fix uw's doc promised, not a weakened pin.
+    check("⭐ all twelve show the work on a right answer now (uw switched on the seven "
+          "whose op could draw; va drew the other five)",
+          sum(1 for l in ALL if L.LESSON_BY_ID[l].get("show_work_on_correct")) == 12,
+          str(sorted(l for l in ALL if not L.LESSON_BY_ID[l].get("show_work_on_correct"))))
 
     # ---- the trap beat, in every one of the twelve --------------------------------------
     check("⭐ every one of the twelve names its trap on the second teach beat, with a "
@@ -14232,6 +14253,41 @@ def part3ku_the_demo_keeps_time():
           "Jim's rule 8")
 
 
+# (va) THE ENTRY FIGURE HARNESS -- every picture the youngest course can draw, put
+# through the REAL math-figures.js in node. A tag that renders nothing looks perfect
+# in the source (build uw learned that with OBJ_COUNT_MAX; this build learned it again
+# with [[tape]]'s ten-part slice), so the only honest check is to draw it.
+_VA_FIG_HARNESS = r"""
+const fs = require("fs");
+global.window = global;
+global.document = { createElement: () => ({ style:{}, setAttribute(){}, appendChild(){} }) };
+eval(fs.readFileSync(process.argv[2], "utf8"));
+const API = global.MathFigures || global.MTFigures || global.Figures;
+const boards = JSON.parse(fs.readFileSync(process.argv[3], "utf8"));
+const TAG = /\[\[\s*([\w-]+)([^\]]*)\]\]/g;
+const SKIP = ["step","goal","card","choices","check","write","today"];
+let drew = 0; const bad = []; const seen = new Set();
+for (const b of boards) {
+  let m;
+  while ((m = TAG.exec(b))) {
+    const name = m[1], raw = m[2] || "";
+    if (SKIP.includes(name)) continue;
+    const attrs = {};
+    for (const a of raw.matchAll(/([\w-]+)\s*=\s*"([^"]*)"/g)) attrs[a[1]] = a[2];
+    const key = name + "|" + JSON.stringify(attrs);
+    if (seen.has(key)) continue; seen.add(key);
+    try {
+      const out = API.render ? API.render(name, attrs) : (API[name] ? API[name](attrs) : null);
+      if (out === null) continue;
+      if (!out || !String(out).includes("<svg")) bad.push([name, raw.slice(0, 70)]);
+      else drew++;
+    } catch (e) { bad.push([name, String(e).slice(0, 70)]); }
+  }
+}
+console.log(JSON.stringify({drew: drew, bad: bad}));
+"""
+
+
 def part3kv_a_picture_counts_one_kind_of_thing():
     """PART 3kv (build uz, 2026-09-10) -- JIM'S FOUR RULINGS ON THE 09-10 NIGHT WATCH.
 
@@ -14426,6 +14482,203 @@ def part3kv_a_picture_counts_one_kind_of_thing():
           and "(uz)" in notes("static/challenge.html")
           and "(uz)" in notes("static/methodology.html")
           and "2026-09-10  BUILD uz" in notes("wordaudit.py"),
+          "Jim's rule 8")
+
+
+def part3kw_the_youngest_course_draws_every_problem():
+    """PART 3kw (build va, 2026-09-10) -- THE YOUNGEST COURSE DRAWS EVERY PROBLEM.
+
+    Jim, 2026-09-09: "if you have two paragraphs to spit out to a child and you say it
+    and there's no text and there's no graphic, the child is just listening and not
+    remembering anything." Build uv answered that for the LIVE lane (referee 85, the
+    board floor). This is the same complaint in the SCRIPTED lane, and the measurement
+    turned out to be worse than anything anyone had looked at:
+
+      ⚠️ OF THE 33 OPS ENTRY-LEVEL ASKS WITH, 26 DREW NOTHING WHEN THEY ASKED, AND 28
+      DREW NOTHING AFTER A RIGHT ANSWER.
+
+    A five-year-old was handed "2, ?" as a line of text. "What is 96 plus 7?" -- one
+    line. "How many cents is 3 nickels and 2 pennies?" -- one line. The course whose
+    students are least able to hold a number in their heads was the course drawing the
+    least.
+
+    THIS BUILD IS THE THIRTEEN OPS UNITS 5, 6 AND 7 ASK WITH, plus the five build uw
+    reported and Jim ruled in on 2026-09-10 (dbe, add3, msp, t10, wor). Each gains the
+    picture that TEACHES ITS SKILL -- the column for column arithmetic, the tape for a
+    part and a whole, one tape part per coin so that counting them IS the sum, the
+    place-value chart for a ten added and for a digit's worth -- on the ask with the
+    answer row blank, and again on the walk-back with it filled.
+
+    ⭐ AND THE FLAG IS ON. show_work_on_correct was off in all seventeen of these
+    lessons, and a walk-back nobody can reach is not a fix.
+
+    ⚠️ _col_add IS NOT USED FOR THREE DIGITS. It speaks a // 10 as "the tens", which is
+    true of a two-digit number and false of a three-digit one (125's a // 10 is 12).
+    _col3_add and _col3_sub read hundreds, tens and ones as digits."""
+    print("\nPART 3kw — the youngest course draws every problem (build va)")
+    import json as _json
+    import re as _re
+    import subprocess as _sp
+    import tempfile as _tf
+    import lessonscripts as L
+    import tutor as T
+    import tags as _tg
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+
+    NONFIG = {"step", "goal", "card", "choices", "check", "highlight", "write",
+              "today", "stepcard", "quiz", "finalexam", "unitplan", "solve"}
+    FIG = _re.compile(r"\[\[\s*(?:" + "|".join(sorted(set(_tg.BOARD_TAGS) - NONFIG)) + r")\b")
+    ENTRY = [l for l in L.LESSONS if l["course"] == "entry"]
+    THIRTEEN = ["c2h", "a3d", "s2d", "s3d", "chk", "nick", "qtr", "chg",
+                "dbe", "add3", "msp", "t10", "wor"]
+
+    # ---- one real problem per op, taken from the course itself -----------------------
+    sample = {}
+    for les in ENTRY:
+        for p in list(les["bank"]) + [pr["ask"] for pr in les["pairs"]]:
+            sample.setdefault(p.get("op", "+"), p)
+
+    for op in THIRTEEN:
+        p = sample.get(op)
+        check("⭐ %s draws a picture when it asks, and again when it walks back" % op,
+              bool(p) and FIG.search(L.board_for(p, "abstract"))
+              and bool(L._worked_for(p)) and FIG.search(L._worked_for(p)[1]),
+              str(p) + " | " + (L.board_for(p, "abstract")[:70] if p else ""))
+
+    # ---- ⚠️ AND NOT ONE ASK BOARD CARRIES ITS OWN ANSWER (rule 15(e)) ----------------
+    # A picture on the question is only a gift if it does not give the game away. Every
+    # ask column is drawn with no result row and every ask tape's unknown is a "?".
+    leaks, asked = [], 0
+    for les in ENTRY:
+        for p in list(les["bank"]) + [pr["ask"] for pr in les["pairs"]]:
+            b = L.board_for(p, "abstract")
+            asked += 1
+            if 'result="' in b.split("[[step", 1)[0]:
+                leaks.append((les["id"], p, "a filled result row"))
+            for tot in _re.findall(r'\[\[tape [^\]]*total="([^"]*)"', b):
+                if tot.strip() not in ("?", "") and str(L.ans(p)) == tot.strip():
+                    leaks.append((les["id"], p, "the total IS the answer"))
+    check("⭐⭐ RULE 15(e): across all %d Entry-Level asks, not one board carries its own "
+          "answer -- every column's result row is blank and every unknown is a ?" % asked,
+          not leaks and asked >= 380, str(leaks[:3]))
+
+    # ---- the seventeen lessons can actually REACH their walk-back --------------------
+    on = [l["id"] for l in ENTRY if l.get("show_work_on_correct")]
+    check("⭐ the walk-back is switched ON in the seventeen lessons whose op can now "
+          "draw one (%d of %d Entry lessons)" % (len(on), len(ENTRY)),
+          len(on) == 24 and all(
+              l.get("show_work_on_correct") for l in ENTRY
+              if any(p.get("op", "+") in THIRTEEN
+                     for p in list(l["bank"]) + [pr["ask"] for pr in l["pairs"]])),
+          "%d on: %s" % (len(on), sorted(on)))
+    check("  ...and every lesson that claims a walk-back really emits one, for every "
+          "problem it can ask",
+          not [(l["id"], p) for l in ENTRY if l.get("show_work_on_correct")
+               for p in list(l["bank"]) + [pr["ask"] for pr in l["pairs"]]
+               if not L._worked_for(p)], "")
+
+    # ---- three digits are read as three digits ---------------------------------------
+    sp3, _b3 = L._col3_add(125, 243)
+    check("⭐ three-digit addition reads HUNDREDS, TENS and ONES -- not a // 10",
+          "Tens: 2 plus 4 equals 6" in sp3 and "Hundreds: 1 plus 2 equals 3" in sp3
+          and "12 plus 24" not in sp3, sp3)
+    sm3, _bm3 = L._col3_sub(468, 137)
+    check("  ...and so does three-digit take away",
+          "Tens: 6 take away 3 equals 3" in sm3 and "Hundreds: 4 take away 1 equals 3" in sm3, sm3)
+    check("  the two-digit helpers are still the ones the two-digit ops use",
+          L._worked_for({"a": 47, "b": 23, "op": "s2d"})[0] == L._col_sub(47, 23)[0]
+          and L._worked_for({"a": 68, "b": 45, "op": "c2h"})[0].startswith(L._col_add(68, 45)[0]), "")
+    # ⚠️ AND THE THREE-DIGIT OPS REALLY USE THEM. The two checks above prove the
+    # HELPERS are right; a seam that pointed a3d back at _col_add passed all three,
+    # because nothing was reading the op's own walk-back. A pin on a helper is not a
+    # pin on the code that calls it.
+    a3 = L._worked_for({"a": 125, "b": 243, "op": "a3d"})[0]
+    s3 = L._worked_for({"a": 468, "b": 137, "op": "s3d"})[0]
+    check("⭐ ...and a3d and s3d ACTUALLY SPEAK three digits -- the op's own walk-back, "
+          "not just the helper",
+          "Hundreds: 1 plus 2 equals 3" in a3 and "12 plus 24" not in a3
+          and "Hundreds: 4 take away 1 equals 3" in s3 and "46 take away 13" not in s3,
+          a3[:110] + " || " + s3[:110])
+
+    # ---- ⚠️ THE TEN-PART SLICE --------------------------------------------------------
+    # [[tape]] keeps ten parts and silently drops the rest -- nine nickels and four
+    # pennies is thirteen coins. Same class of trap as OBJ_COUNT_MAX.
+    over = []
+    for les in ENTRY:
+        for p in list(les["bank"]) + [pr["ask"] for pr in les["pairs"]]:
+            for b in (L.board_for(p, "abstract"), (L._worked_for(p) or ("", ""))[1]):
+                for parts in _re.findall(r'\[\[tape parts="([^"]*)"', b or ""):
+                    k = len([x for x in parts.split("|") if x.strip()])
+                    if k > 10:
+                        over.append((les["id"], p, k))
+    check("⭐⭐ not one Entry tape asks for more parts than [[tape]] will draw (it keeps "
+          "TEN and silently drops the rest)", not over, str(over[:3]))
+    check("  ...and the coin tapes collapse rather than overflow: nine nickels and four "
+          "pennies is two parts, three nickels and two pennies is five",
+          L._coin_parts(3, 5, 2) == ["5", "5", "5", "1", "1"]
+          and len(L._coin_parts(9, 5, 4)) == 2
+          and L._coin_parts(9, 5, 4)[0] == "45",
+          str(L._coin_parts(9, 5, 4)))
+
+    # ---- the two rule-41 breaches this build's own sweep found ------------------------
+    check("⭐ the two Entry figures that had NEVER carried a caption now do (rule 41 -- "
+          "found by this build's own Entry-wide presweep, not by a flag)",
+          'caption="the hour hand is at' in L.board_for({"a": 6, "b": 4, "op": "hrl"}, "abstract")
+          and "caption=" in L.board_for({"a": 6, "b": 4, "op": "cube"}, "abstract"), "")
+
+    # ---- the whole course, through the referee stack ----------------------------------
+    SKIP = ("keep talking", "puts no pending line", "already answers")
+    swept, fires = 0, []
+    for les in ENTRY:
+        for p in list(les["bank"]) + [pr["ask"] for pr in les["pairs"]]:
+            pairs = [(L.spoken_for(p, lv), L.board_for(p, lv) + L.choices_for(p))
+                     for lv in les.get("levels", L.LEVELS)]
+            w = L._worked_for(p)
+            if w:
+                pairs.append(w)
+            for sp, bd in pairs:
+                swept += 1
+                t = (sp or "") + "\n" + (bd or "")
+                r = T.prose_board_conflict(t, heard=t, course="entry")
+                if r and not any(x in r for x in SKIP):
+                    fires.append((les["id"], r[:70]))
+    check("⭐⭐ %d Entry asks and walk-backs through the WHOLE referee stack: 0 findings"
+          % swept, not fires and swept >= 850, str(fires[:3]))
+    check("  every Entry lesson still validates",
+          not [1 for l in ENTRY for ok, _, _ in L.validate(l) if not ok], "")
+
+    # ---- and the pictures really draw ------------------------------------------------
+    boards = sorted({b for les in ENTRY
+                     for p in list(les["bank"]) + [pr["ask"] for pr in les["pairs"]]
+                     for b in (L.board_for(p, "abstract"), (L._worked_for(p) or ("", ""))[1])
+                     if b})
+    try:
+        _sp.run(["node", "--version"], capture_output=True, check=True)
+    except Exception:  # noqa: BLE001
+        skip("Entry figure render", "node not available")
+    else:
+        with _tf.TemporaryDirectory() as tmp:
+            hp = os.path.join(tmp, "va.js"); bp = os.path.join(tmp, "b.json")
+            open(hp, "w").write(_VA_FIG_HARNESS)
+            open(bp, "w", encoding="utf-8").write(_json.dumps(boards))
+            res = _sp.run(["node", hp, os.path.join(here, "static", "math-figures.js"), bp],
+                          capture_output=True, text=True)
+            if res.returncode != 0:
+                bad("Entry figure render harness", res.stderr.strip()[:200])
+            else:
+                out = _json.loads(res.stdout)
+                check("⭐⭐ EVERY picture the youngest course can draw, through the real "
+                      "math-figures.js: %d distinct figures render an SVG, 0 throw, 0 "
+                      "come back empty" % out["drew"],
+                      not out["bad"] and out["drew"] >= 250, str(out["bad"][:3]))
+
+    check("  the changed files carry dated va notes (Jim's rule 8)",
+          "2026-09-10  BUILD va" in notes("lessonscripts.py")
+          and "2026-09-10  BUILD va" in notes("lessons/entry.py")
+          and "2026-09-10  BUILD va" in notes("ruletests.py")
+          and "BUILD va" in notes("main.py")
+          and "(va)" in notes("static/methodology.html"),
           "Jim's rule 8")
 
 def part3he_the_main_road_moves_the_star():
@@ -41197,6 +41450,7 @@ def main():
     part3kt_the_expression_comes_first()
     part3ku_the_demo_keeps_time()
     part3kv_a_picture_counts_one_kind_of_thing()
+    part3kw_the_youngest_course_draws_every_problem()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

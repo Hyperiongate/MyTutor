@@ -6,6 +6,13 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  APP_BUILD -> "2026-09-10va-the-youngest-course-draws-every-problem".
+#               BUILD va -- NO CODE IN THIS FILE CHANGED, the stamp only. Thirteen
+#               Entry-Level ops that drew nothing now draw the picture that teaches
+#               their skill, on the ask and on the walk-back, and the walk-back is
+#               switched on in the seventeen lessons that use them.
+#               ⚠️ 198 NEW VOICE LINES (about $7) -- a walk-back is spoken, one line per
+#               problem. Run the script-prewarm from /admin after this push.
 #   2026-09-10  APP_BUILD -> "2026-09-10uz-a-picture-counts-one-kind-of-thing". BUILD uz
 #               -- NO CODE IN THIS FILE CHANGED, the stamp only. Jim's four rulings on
 #               the 09-10 night watch: referee 87 (a priced story is not drawn with
@@ -9013,7 +9020,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-10uz-a-picture-counts-one-kind-of-thing"
+APP_BUILD = "2026-09-10va-the-youngest-course-draws-every-problem"
 
 
 @app.get("/health")

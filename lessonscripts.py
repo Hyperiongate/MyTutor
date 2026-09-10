@@ -7,6 +7,34 @@
 #               VERBATIM, 70 entries; 39 stay here. Keep adding new notes HERE, newest at
 #               top; roll them out again (notes_rollout.py) when this header passes ~100
 #               KB.
+#   2026-09-10  BUILD va -- THE YOUNGEST COURSE DRAWS EVERY PROBLEM. Jim, 2026-09-09:
+#               "if you have two paragraphs to spit out to a child and you say it and
+#               there's no text and there's no graphic, the child is just listening and
+#               not remembering anything." uv answered that for the LIVE lane (referee
+#               85). This is the same complaint in the SCRIPTED lane, and the
+#               measurement was worse than anyone had looked at:
+#               ⚠️ OF THE 33 OPS ENTRY-LEVEL ASKS WITH, 26 DREW NOTHING WHEN THEY ASKED
+#               AND 28 DREW NOTHING AFTER A RIGHT ANSWER. A five-year-old got "2, ?" as
+#               a line of text; "What is 96 plus 7?" was one line.
+#               THIRTEEN OPS FIXED HERE -- the eight Units 5-7 ask with (c2h, a3d, s2d,
+#               s3d, chk, nick, qtr, chg) plus the five uw reported and Jim ruled in on
+#               2026-09-10 (dbe, add3, msp, t10, wor). Each gets the picture that
+#               TEACHES ITS SKILL: [[column]] for column arithmetic, [[tape]] for a part
+#               and a whole, ONE TAPE PART PER COIN so counting them IS the sum,
+#               [[placevalue]] for a ten added and for a digit's worth. On the ask with
+#               the answer row blank; on the walk-back with it filled. Units 1, 8 and 9
+#               follow in their own build.
+#               ⚠️ _col3_add / _col3_sub ARE NOT _col_add / _col_sub. Those speak
+#               a // 10 as "the tens" -- true of a two-digit number, FALSE of a
+#               three-digit one (125's a // 10 is 12). The three-digit pair reads
+#               hundreds, tens and ones as digits.
+#               ⚠️ AND [[tape]] KEEPS TEN PARTS AND SILENTLY DROPS THE REST. Nine
+#               nickels and four pennies is thirteen coins. _coin_parts collapses past
+#               the cap instead of overflowing -- the same class of trap as uw's
+#               OBJ_COUNT_MAX, where a card asking to count 17 stars looked perfect in
+#               the source and did nothing on screen.
+#               Two figures that had NEVER carried a caption (hrl, cube -- rule 41) were
+#               found by this build's own Entry-wide presweep and captioned. PART 3kw.
 #   2026-09-10  BUILD uy -- THE DEMO LESSON'S CLOSING LINE JOINS THE CLOSURE.
 #               ⭐ JIM, on the demo: "After a sample problem, fell back to browser's
 #               voice." It was not a cache miss and not the network:
@@ -6615,6 +6643,289 @@ def _eqbm_worked(p):
 
 
 # The base ops have no OP_EXT entry; their walk-back pictures live here.
+
+# =============================================================================
+# (va, 2026-09-10) THE YOUNGEST COURSE DRAWS EVERY PROBLEM.
+# -----------------------------------------------------------------------------
+# Jim, 2026-09-09, on what makes a child give up: "if you have two paragraphs to spit
+# out to a child and you say it and there's no text and there's no graphic, the child
+# is just listening and not remembering anything." Build uv answered that for the LIVE
+# lane (referee 85, the board floor). This is the same complaint in the SCRIPTED lane,
+# and the measurement is worse than anyone had looked at:
+#
+#   ⚠️ OF THE 33 OPS ENTRY-LEVEL ASKS WITH, 26 DREW NOTHING AT ALL WHEN THEY ASKED,
+#   AND 28 DREW NOTHING AFTER A RIGHT ANSWER.
+#
+# A five-year-old was handed "2, ?" as a line of text. "What is 96 plus 7?" -- one
+# line. "How many cents is 3 nickels and 2 pennies?" -- one line. The course whose
+# students are least able to hold a number in their head was the course drawing least.
+#
+# These thirteen are the ops Units 5, 6 and 7 ask with, plus the five build uw
+# reported and Jim ruled in on 2026-09-10 (dbe, add3, msp, t10, wor). Units 8 and 9
+# follow in their own build.
+#
+# THE PICTURE IS THE ONE THAT TEACHES THE SKILL, never decoration:
+#   * column arithmetic  -> [[column]], the columns lined up, the answer row blank
+#   * a part and a whole -> [[tape]], the missing piece marked ?
+#   * coins              -> [[tape]], one part per coin, so counting them IS the sum
+#   * ten more           -> [[placevalue]], the ones untouched and one ten-stick added
+#   * what a digit is worth -> [[placevalue]], the number in its columns
+#
+# ⚠️ AND NOT ONE ASK BOARD CARRIES ITS OWN ANSWER (rule 15(e)). Every ask column is
+# drawn with NO result row, every ask tape's unknown is a "?", and no card counts
+# objects under a question. The walk-back is where the picture fills in.
+# =============================================================================
+def _d_ones(v):
+    return v % 10
+
+
+def _d_tens(v):
+    return (v // 10) % 10
+
+
+def _d_hund(v):
+    return (v // 100) % 10
+
+
+def _col_ask(a, b, op, caption):
+    """The SAME column the walk-back fills in, with the answer row still empty."""
+    return '[[column terms="%d|%d" op="%s" caption="%s"]]' % (a, b, op, caption)
+
+
+def _col3_add(a, b):
+    """(va) Three digits, no carrying -- a3d's own check guarantees every column
+    stays under ten, so the walk-back is the three columns read in order.
+    ⚠️ NOT _col_add: that one speaks a // 10 as "the tens", which is true of a
+    two-digit number and false of a three-digit one (125's a // 10 is 12)."""
+    total = a + b
+    return (f"Look what you did: ones first — {_d_ones(a)} plus {_d_ones(b)} equals "
+            f"{_d_ones(total)}. Tens: {_d_tens(a)} plus {_d_tens(b)} equals "
+            f"{_d_tens(total)}. Hundreds: {_d_hund(a)} plus {_d_hund(b)} equals "
+            f"{_d_hund(total)}. {a} plus {b} equals {total}.",
+            f'[[column terms="{a}|{b}" op="+" result="{total}" '
+            f'caption="ones, then tens, then hundreds"]]')
+
+
+def _col3_sub(a, b):
+    """(va) Three digits, no regrouping -- s3d's check guarantees every column can
+    take its own away, so the walk-back reads the three columns in order."""
+    left = a - b
+    return (f"Look what you did: ones first — {_d_ones(a)} take away {_d_ones(b)} "
+            f"equals {_d_ones(left)}. Tens: {_d_tens(a)} take away {_d_tens(b)} equals "
+            f"{_d_tens(left)}. Hundreds: {_d_hund(a)} take away {_d_hund(b)} equals "
+            f"{_d_hund(left)}. {a} take away {b} equals {left}.",
+            f'[[column terms="{a}|{b}" op="−" result="{left}" '
+            f'caption="ones, then tens, then hundreds"]]')
+
+
+# ---- the money pictures -------------------------------------------------------------
+# ⚠️ [[tape]] KEEPS TEN PARTS AND SILENTLY DROPS THE REST (math-figures.js slices at
+# 10 -- the same class of trap as board.js's OBJ_COUNT_MAX, where a card asking to
+# count 17 stars looked right in the source and did nothing on screen). Nine nickels
+# and four pennies is thirteen coins. So: one part per coin while they FIT, and past
+# that the coins of a kind collapse into one part carrying their own total, which is
+# still the true picture -- it is just counted in groups rather than one at a time.
+_TAPE_MAX_PARTS = 10
+
+
+def _coin_parts(count, value, pennies):
+    if count + pennies <= _TAPE_MAX_PARTS:
+        return [str(value)] * count + ["1"] * pennies
+    return [str(value * count)] + (["1"] * pennies if pennies <= 3
+                                   else [str(pennies)])
+
+
+def _coin_tape(count, value, pennies, coin, total):
+    parts = " | ".join(_coin_parts(count, value, pennies))
+    return (parts, '[[tape parts="%s" total="%s" caption="%s"]]'
+            % (parts, total, "%s, then %s" % (_plural(count, coin),
+                                              _irr(pennies, "penny", "pennies"))))
+
+
+# ---- (va) the thirteen walk-backs, and the thirteen ask pictures --------------------
+def _c2h_board(p):
+    return (_col_ask(p["a"], p["b"], "+", "line up the ones — this one goes past a hundred")
+            + f'[[step eq="{p["a"]} + {p["b"]} = ?"]]')
+
+
+def _c2h_worked(p):
+    a, b = p["a"], p["b"]
+    spoken, board = _col_add(a, b)
+    return (spoken + f" The tens filled a whole hundred, so {a + b} needs a hundreds "
+                     f"column of its own.", board)
+
+
+def _a3d_board(p):
+    return (_col_ask(p["a"], p["b"], "+", "ones under ones, tens under tens, hundreds under hundreds")
+            + f'[[step eq="{p["a"]} + {p["b"]} = ?"]]')
+
+
+def _a3d_worked(p):
+    return _col3_add(p["a"], p["b"])
+
+
+def _s2d_board(p):
+    return (_col_ask(p["a"], p["b"], "−", "line up the ones")
+            + f'[[step eq="{p["a"]} − {p["b"]} = ?"]]')
+
+
+def _s2d_worked(p):
+    return _col_sub(p["a"], p["b"])
+
+
+def _s3d_board(p):
+    return (_col_ask(p["a"], p["b"], "−", "ones under ones, tens under tens, hundreds under hundreds")
+            + f'[[step eq="{p["a"]} − {p["b"]} = ?"]]')
+
+
+def _s3d_worked(p):
+    return _col3_sub(p["a"], p["b"])
+
+
+def _chk_board(p):
+    """(va) The CLAIM is on the board too. Checking by adding back is a question about
+    somebody else's answer, and a child cannot check an answer they cannot see."""
+    a, b = p["a"], p["b"]
+    return (f'[[step eq="they say: {a} − {b} = {a - b}"]]'
+            + _col_ask(a - b, b, "+", "add the answer back to what was taken away")
+            + f'[[step eq="{a - b} + {b} = ?"]]')
+
+
+def _chk_worked(p):
+    a, b = p["a"], p["b"]
+    spoken, board = _col_add(a - b, b)
+    return (spoken + f" That is {a}, the number they started with — so the take away "
+                     f"was right.",
+            board + f'[[step eq="{a} − {b} = {a - b} ✓"]]')
+
+
+def _nick_board(p):
+    _parts, tape = _coin_tape(p["a"], 5, p["b"], "nickel", "?")
+    return tape + f'[[step eq="{p["a"]} nickels + {p["b"]} pennies = ? cents"]]'
+
+
+def _nick_worked(p):
+    a, b = p["a"], p["b"]
+    total = 5 * a + b
+    _parts, tape = _coin_tape(a, 5, b, "nickel", str(total))
+    counts = ", ".join(str(5 * (i + 1)) for i in range(a))
+    return (f"Look what you did: a nickel is five cents, so you counted by fives — "
+            f"{counts}. Then {_irr(b, 'penny', 'pennies')}, one at a time, brings it "
+            f"to {total} cents.", tape)
+
+
+def _qtr_board(p):
+    _parts, tape = _coin_tape(p["a"], 25, p["b"], "quarter", "?")
+    return tape + f'[[step eq="{p["a"]} quarters + {p["b"]} pennies = ? cents"]]'
+
+
+def _qtr_worked(p):
+    a, b = p["a"], p["b"]
+    total = 25 * a + b
+    _parts, tape = _coin_tape(a, 25, b, "quarter", str(total))
+    counts = ", ".join(str(25 * (i + 1)) for i in range(a))
+    return (f"Look what you did: a quarter is twenty-five cents, so you counted by "
+            f"twenty-fives — {counts}. Then {_irr(b, 'penny', 'pennies')} brings it to "
+            f"{total} cents.", tape)
+
+
+def _chg_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="{b} | ?" total="{a}" caption="you paid {a} cents; the toy '
+            f'took {b} of them"]][[step eq="{a} − {b} = ? cents change"]]')
+
+
+def _chg_worked(p):
+    a, b = p["a"], p["b"]
+    left = a - b
+    return (f"Look what you did: the {a} cents you paid splits into two pieces — the "
+            f"{b} the toy took, and the rest. {a} take away {b} equals {left}, so "
+            f"{_plural(left, 'cent')} comes back.",
+            f'[[tape parts="{b} | {left}" total="{a}" caption="{b} for the toy, '
+            f'{left} back"]]')
+
+
+def _dbe_board(p):
+    a = p["a"]
+    return (f'[[tape parts="{a} | {a}" total="?" caption="{a}, and {a} more — the same '
+            f'number twice"]][[step eq="{a} + {a} = ?"]]')
+
+
+def _dbe_worked(p):
+    a = p["a"]
+    # ⚠️ NOT "makes": the vocabulary canon says a sum EQUALS its total, and the
+    # validator holds every authored line to it -- including this one, which it caught.
+    return (f"Look what you did: {a} and {a} more. The two pieces are the same size — "
+            f"that is what a double IS — and together they equal {2 * a}.",
+            f'[[tape parts="{a} | {a}" total="{2 * a}" caption="a double: {a} + {a} = '
+            f'{2 * a}"]]')
+
+
+def _add3_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f'[[tape parts="{a} | {b} | {c}" total="?" caption="three pieces, joined '
+            f'end to end"]][[step eq="{a} + {b} + {c} = ?"]]')
+
+
+def _add3_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Look what you did: two at a time. {a} plus {b} equals {a + b}, and "
+            f"{a + b} plus {c} equals {a + b + c}. Three pieces, one length.",
+            f'[[tape parts="{a} | {b} | {c}" total="{a + b + c}" '
+            f'caption="{a} + {b} = {a + b}, then + {c} = {a + b + c}"]]')
+
+
+def _msp_board(p):
+    a, b = p["a"], p["b"]
+    return (f'[[tape parts="{a} | ?" total="{b}" caption="{a} is here; the whole is '
+            f'{b}"]][[step eq="{a} + ? = {b}"]]')
+
+
+def _msp_worked(p):
+    a, b = p["a"], p["b"]
+    gap = b - a
+    return (f"Look what you did: the whole is {b} and one piece is {a}, so the piece "
+            f"you were looking for is what fills the gap — {gap}. The answer is the "
+            f"SIZE of the hop, not where it lands.",
+            f'[[numberline min="0" max="{b}" hops="{a},{b}" '
+            f'caption="from {a} up to {b} is a hop of {gap}"]]'
+            f'[[tape parts="{a} | {gap}" total="{b}" caption="{a} + {gap} = {b}"]]')
+
+
+def _t10_board(p):
+    a = p["a"]
+    return (f'[[placevalue t="{a // 10}" o="{a % 10}" '
+            f'caption="{a} — now add one more ten"]][[step eq="{a} + 10 = ?"]]')
+
+
+def _t10_worked(p):
+    a = p["a"]
+    # ⚠️ _plural, NOT an f-string count: "1 ones" is the exact shape the battery
+    # sweeps all 360 lessons for, and it caught this line.
+    return (f"Look what you did: one more ten-stick, and the ones never moved — the "
+            f"ones column still shows {_plural(a % 10, 'one')}. Only the tens changed, "
+            f"so ten more than {a} is {a + 10}.",
+            f'[[placevalue t="{a // 10 + 1}" o="{a % 10}" '
+            f'caption="one more ten: {a} + 10 = {a + 10}"]]')
+
+
+def _wor_board(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    n = 100 * a + 10 * b + c
+    return (f'[[placevalue h="{a}" t="{b}" o="{c}" caption="{n} — find the column the '
+            f'{b} is standing in"]][[step eq="{n} → the {b} is worth ?"]]')
+
+
+def _wor_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    n = 100 * a + 10 * b + c
+    return (f"Look what you did: you found the column first. The {b} is in the tens "
+            f"column, and a block in the tens column is a whole stick of ten — so {b} "
+            f"of them is worth {10 * b}.",
+            f'[[placevalue h="{a}" t="{b}" o="{c}" caption="the {b} is {b} tens = '
+            f'{10 * b}"]]')
+
+
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"]),
     "-": lambda p: _col_sub(p["a"], p["b"]),
@@ -6811,7 +7122,8 @@ OP_EXT = {
     "dbe": {   # a double: a and a again
         "ans": lambda p: 2 * p["a"],
         "spoken": lambda p: f"What is {p['a']} plus {p['a']}?",
-        "board": lambda p: f'[[step eq="{p["a"]} + {p["a"]} = ?"]]',
+        "board": _dbe_board,          # (va) two pieces the same size
+        "worked": _dbe_worked,        # (va) ...and what they come to
         "praise": lambda p: (f"{p['a']} plus {p['a']} equals {2 * p['a']} — "
                              f"that is a double."),
         "key": lambda p: p["a"],
@@ -6821,7 +7133,8 @@ OP_EXT = {
     "add3": {  # three single digits in one go
         "ans": lambda p: p["a"] + p["b"] + p["c"],
         "spoken": lambda p: (f"What is {p['a']} plus {p['b']} plus {p['c']}?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} + {p["b"]} + {p["c"]} = ?"]]'),
+        "board": _add3_board,         # (va) three pieces joined end to end
+        "worked": _add3_worked,       # (va) ...two at a time
         "praise": lambda p: (f"{p['a']} plus {p['b']} plus {p['c']} equals "
                              f"{p['a'] + p['b'] + p['c']}."),
         "key": lambda p: p["a"] + p["b"] + p["c"],
@@ -6833,7 +7146,8 @@ OP_EXT = {
     "msp": {   # the missing part: a and how many more make b
         "ans": lambda p: p["b"] - p["a"],
         "spoken": lambda p: f"{p['a']} and how many more make {p['b']}?",
-        "board": lambda p: f'[[step eq="{p["a"]} + ? = {p["b"]}"]]',
+        "board": _msp_board,          # (va) the piece and the whole, the gap marked ?
+        "worked": _msp_worked,        # (va) the HOP, and its size written in
         "praise": lambda p: (f"{p['a']} and {p['b'] - p['a']} more make {p['b']}."),
         "key": lambda p: p["b"] - p["a"],
         "check": lambda p: (1 <= p["a"] < p["b"] <= 20,
@@ -6842,7 +7156,8 @@ OP_EXT = {
     "t10": {   # ten more than a
         "ans": lambda p: p["a"] + 10,
         "spoken": lambda p: f"What is ten more than {p['a']}?",
-        "board": lambda p: f'[[step eq="{p["a"]} + 10 = ?"]]',
+        "board": _t10_board,          # (va) the blocks, ready for one more ten
+        "worked": _t10_worked,        # (va) ...with the ones untouched
         "praise": lambda p: (f"Ten more than {p['a']} is {p['a'] + 10} — only the "
                              f"tens digit changed."),
         "key": lambda p: p["a"],
@@ -6853,8 +7168,8 @@ OP_EXT = {
         "ans": lambda p: 10 * p["b"],
         "spoken": lambda p: (f"In the number {100 * p['a'] + 10 * p['b'] + p['c']}, "
                              f"what is the {p['b']} worth?"),
-        "board": lambda p: (f'[[step eq="{100 * p["a"] + 10 * p["b"] + p["c"]} → '
-                            f'the {p["b"]} is worth ?"]]'),
+        "board": _wor_board,          # (va) the number in its columns
+        "worked": _wor_worked,        # (va) ...with the named place read off
         "praise": lambda p: (f"The {p['b']} sits in the tens place, so it is worth "
                              f"{10 * p['b']}."),
         "key": lambda p: p["b"],
@@ -6870,7 +7185,8 @@ OP_EXT = {
     "a3d": {   # three-digit plus three-digit, no column carrying
         "ans": lambda p: p["a"] + p["b"],
         "spoken": lambda p: f"What is {p['a']} plus {p['b']}?",
-        "board": lambda p: f'[[step eq="{p["a"]} + {p["b"]} = ?"]]',
+        "board": _a3d_board,            # (va) three columns lined up
+        "worked": _a3d_worked,          # (va) ones, tens, hundreds, in that order
         "praise": lambda p: f"{p['a']} plus {p['b']} equals {p['a'] + p['b']}.",
         "key": lambda p: p["a"] + p["b"],
         "check": lambda p: (100 <= p["a"] <= 899 and 100 <= p["b"] <= 899
@@ -6882,7 +7198,8 @@ OP_EXT = {
     "c2h": {   # two-digit plus two-digit that crosses one hundred
         "ans": lambda p: p["a"] + p["b"],
         "spoken": lambda p: f"What is {p['a']} plus {p['b']}?",
-        "board": lambda p: f'[[step eq="{p["a"]} + {p["b"]} = ?"]]',
+        "board": _c2h_board,            # (va) the column, answer row blank
+        "worked": _c2h_worked,          # (va) ...and filled, with the new hundred named
         "praise": lambda p: (f"{p['a']} plus {p['b']} equals {p['a'] + p['b']} — "
                              f"it went past one hundred."),
         "key": lambda p: p["a"] + p["b"],
@@ -6893,7 +7210,8 @@ OP_EXT = {
     "s2d": {   # two-digit take away, no column regrouping
         "ans": lambda p: p["a"] - p["b"],
         "spoken": lambda p: f"What is {p['a']} take away {p['b']}?",
-        "board": lambda p: f'[[step eq="{p["a"]} − {p["b"]} = ?"]]',
+        "board": _s2d_board,            # (va) the column, answer row blank
+        "worked": _s2d_worked,          # (va) ...and filled
         "praise": lambda p: (f"{p['a']} take away {p['b']} equals "
                              f"{p['a'] - p['b']}."),
         "key": lambda p: p["a"] - p["b"],
@@ -6905,7 +7223,8 @@ OP_EXT = {
     "s3d": {   # three-digit take away, no column regrouping
         "ans": lambda p: p["a"] - p["b"],
         "spoken": lambda p: f"What is {p['a']} take away {p['b']}?",
-        "board": lambda p: f'[[step eq="{p["a"]} − {p["b"]} = ?"]]',
+        "board": _s3d_board,            # (va) three columns lined up
+        "worked": _s3d_worked,          # (va) ones, tens, hundreds, in that order
         "praise": lambda p: (f"{p['a']} take away {p['b']} equals "
                              f"{p['a'] - p['b']}."),
         "key": lambda p: p["a"] - p["b"],
@@ -6919,7 +7238,8 @@ OP_EXT = {
         "spoken": lambda p: (f"Someone worked out {p['a']} take away {p['b']} and "
                              f"got {p['a'] - p['b']}. Add {p['a'] - p['b']} and "
                              f"{p['b']} to check. What do you get?"),
-        "board": lambda p: f'[[step eq="{p["a"] - p["b"]} + {p["b"]} = ?"]]',
+        "board": _chk_board,          # (va) the CLAIM, then the add-back column
+        "worked": _chk_worked,        # (va) ...and it lands back on the start
         "praise": lambda p: (f"{p['a'] - p['b']} plus {p['b']} equals {p['a']}, the "
                              f"number they started with, so the take away was right."),
         "key": lambda p: p["a"],
@@ -6930,8 +7250,8 @@ OP_EXT = {
         "ans": lambda p: 25 * p["a"] + p["b"],
         "spoken": lambda p: (f"How many cents is {_plural(p['a'], 'quarter')} and "
                              f"{_irr(p['b'], 'penny', 'pennies')}?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} quarters + {p["b"]} pennies '
-                            f'= ? cents"]]'),
+        "board": _qtr_board,          # (va) one part per coin
+        "worked": _qtr_worked,        # (va) ...counted by twenty-fives
         "praise": lambda p: (f"{_plural(p['a'], 'quarter')} and "
                              f"{_irr(p['b'], 'penny', 'pennies')} equals "
                              f"{25 * p['a'] + p['b']} cents."),
@@ -6943,7 +7263,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] - p["b"],
         "spoken": lambda p: (f"A toy costs {p['b']} cents. You pay {p['a']} cents. "
                              f"How much change do you get?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} − {p["b"]} = ? cents change"]]'),
+        "board": _chg_board,          # (va) what you paid, split into the cost and the rest
+        "worked": _chg_worked,        # (va) ...with the rest filled in
         "praise": lambda p: (f"{p['a']} take away {p['b']} equals "
                              f"{_plural(p['a'] - p['b'], 'cent')} change."),
         "key": lambda p: p["a"] - p["b"],
@@ -7245,7 +7566,8 @@ OP_EXT = {
         "ans": lambda p: 5 * p["a"] + p["b"],
         "spoken": lambda p: (f"How many cents is {_plural(p['a'], 'nickel')} and "
                              f"{_irr(p['b'], 'penny', 'pennies')}?"),
-        "board": lambda p: f'[[step eq="{p["a"]} nickels + {p["b"]} pennies = ? cents"]]',
+        "board": _nick_board,         # (va) one part per coin -- counting them IS the sum
+        "worked": _nick_worked,       # (va) ...counted by fives, then the pennies
         "praise": lambda p: (f"{_plural(p['a'], 'nickel')} and "
                              f"{_irr(p['b'], 'penny', 'pennies')} equals "
                              f"{5 * p['a'] + p['b']} cents."),
@@ -7335,7 +7657,11 @@ OP_EXT = {
         "ans": lambda p: p["a"] + p["b"],
         "spoken": lambda p: (f"It is {p['a']} o'clock. What time will it be "
                              f"{_plural(p['b'], 'hour')} later?"),
-        "board": lambda p: (f'[[numberline min="1" max="12" points="{p["a"]}"]]'
+        # (va) ⚠️ RULE 41, and it had been uncaptioned since the lesson was written -- the
+        # Entry-wide presweep this build ran is what found it. A caption names what to
+        # NOTICE, and on a clock line that is where you are starting from.
+        "board": lambda p: (f'[[numberline min="1" max="12" points="{p["a"]}" '
+                            f'caption="the hour hand is at {p["a"]} — count {p["b"]} hours on"]]'
                             f'[[step eq="{p["a"]} o\'clock, {p["b"]} hours later = ?"]]'),
         "praise": lambda p: (f"{_plural(p['b'], 'hour')} after {p['a']} o'clock "
                              f"is {p['a'] + p['b']} o'clock."),
@@ -7408,7 +7734,9 @@ OP_EXT = {
         "spoken": lambda p: (f"The pencil is {_plural(p['a'], 'cube')} long. The "
                              f"crayon is {_plural(p['b'], 'cube')} long. How many "
                              f"cubes longer is the pencil?"),
-        "board": lambda p: (f'[[bars data="pencil:{p["a"]} | crayon:{p["b"]}"]]'
+        # (va) ⚠️ RULE 41, same as hrl above -- uncaptioned since it was written.
+        "board": lambda p: (f'[[bars data="pencil:{p["a"]} | crayon:{p["b"]}" '
+                            f'caption="two bars side by side — how much longer is the pencil?"]]'
                             f'[[step eq="{p["a"]} cubes − {p["b"]} cubes = ?"]]'),
         "praise": lambda p: (f"{_plural(p['a'], 'cube')} take away "
                              f"{_plural(p['b'], 'cube')} — the pencil is "
