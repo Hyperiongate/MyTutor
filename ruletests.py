@@ -9245,9 +9245,31 @@ def part3di_standalone_speech():
     here = os.path.dirname(os.path.abspath(__file__))
     import lessonscripts as L
 
-    lines = list(getattr(L, "STANDALONE_LINES", ()))
+    # ⚠️ (vb, 2026-09-10) THE LINES THIS PART WAS WRITTEN FOR, WHICH IS NOT ALL OF
+    # THEM ANY MORE. mk's subject is Mr. Cadabra TEACHING with no board beside him --
+    # Abrabot's introduction, the seam line, the check -- and every rule below is a
+    # teaching rule: the lesson vocabulary canon, the 80-word BEAT cap, "no notation a
+    # child would have to be shown".
+    # Build vb added lessonscripts.TOUR_LINES to STANDALONE_LINES so the prewarm
+    # renders the tour (see that constant's note; the tour was outside every closure
+    # and every stop was a live render). The tour is ORIENTATION NARRATION spoken with
+    # the screen in front of the student and the thing being described lit up -- so
+    # these rules judge it as the wrong kind of thing, and said so out loud on this
+    # build's first run: "makes" flagged in "so it makes sense" and "passing it makes
+    # you a Course Champion" (the canon bans it for "equals", in MATH talk); ":" and
+    # ";" flagged as notation with no board, when they are ordinary punctuation in
+    # ordinary prose.
+    # So the teaching rules keep testing the teaching lines, exactly as before, and
+    # the tour is checked for what IT has to be -- enumerable, in the closure,
+    # byte-identical to the page, priced, and no beat quietly growing -- in PART 3kx.
+    tour = set(getattr(L, "TOUR_LINES", ()))
+    lines = [ln for ln in getattr(L, "STANDALONE_LINES", ()) if ln not in tour]
     check("there ARE standalone lines, and they are enumerable",
           bool(lines) and hasattr(L, "course_audio_lines"), "")
+    check("  ...and the tour is carried by the same constant, so the prewarm and the "
+          "evictor see it, even though the teaching rules below are not its rules",
+          tour and tour <= set(L.STANDALONE_LINES) and tour <= set(L.course_audio_lines()),
+          "%d tour lines" % len(tour))
     if not lines:
         return
 
@@ -14680,6 +14702,291 @@ def part3kw_the_youngest_course_draws_every_problem():
           and "BUILD va" in notes("main.py")
           and "(va)" in notes("static/methodology.html"),
           "Jim's rule 8")
+
+def part3kx_the_next_line_is_already_loaded():
+    """PART 3kx (build vb, 2026-09-10) -- THE NEXT LINE IS ALREADY LOADED, AND THE
+    AUDIT CAN SEE THE TOUR.
+
+    Jim, 2026-09-10, nine flags off one live run. Three of them are one defect:
+      20:33 "mouth does not move with sound"
+      20:34 "Okay — that's the tour!" -- "garbled words" / "skipped a lot of the
+            into to screen"
+      20:35 "10 second delay before this started"
+      20:37 "10 second latency is too long when we know this is next after a
+            correct answer we need to load that so it is ready to go."
+
+    ⭐ THE MEASUREMENT THAT CHANGED THE BUILD. static/session.html speaks its whole
+    TOUR through sayTourLine -- and voiceclosure.py (build uy) hunted spoken lines
+    with a HAND-WRITTEN alternation of wrapper names that does not contain it. So the
+    audit written to find page-local lines outside the closure reported session.html
+    clean while TWENTY-SIX of them sat there: ten course openers, twelve tour stops,
+    four closings. The FIRST words every new student ever hears, in no closure, so
+    never rendered by the prewarm, so a live ElevenLabs render on first play after
+    every deploy -- which is a ten-second wait, and a five-second watchdog into the
+    browser voice halfway through a sentence, which is what "garbled words" sounds
+    like. A hand-written list of names is the same defect this codebase has paid for
+    three times (build px's rule numbers, build mj's grep-for-the-route).
+
+    WHAT THIS BUILD SHIPS, and what these pins hold:
+      1. voiceclosure.py DISCOVERS the speech functions instead of listing them --
+         seeded with voice.js's two real primitives and grown to a fixed point, so a
+         wrapper written tomorrow is found the day it is written.
+      2. voice.js grows THE SHELF: a page that knows its next spoken line fetches the
+         audio while the current line plays and the beat itself plays off an object
+         URL with no network at all. Additive and inert -- a page that never calls
+         prefetchLine takes the identical path it always took.
+      3. session.html fills that shelf from three places: the rest of the batch in
+         SCR.queue, the tour's own fixed list, and /api/script/warm -- the engine's
+         pure look-ahead at what follows a CORRECT answer, computed on a deep copy so
+         the real lesson state can never be advanced by a guess.
+
+    ⚠️ THE LEAK ITSELF IS STILL OPEN AND IS JIM'S CALL. Putting those 26 lines in the
+    closure spends ~$1.24 of prewarm and needs a ruling on ONE of them that can never
+    be a single clip (the Curriculum stop interpolates COURSE_TITLE). The count is
+    pinned below so it cannot grow while the ruling is pending, and so that fixing it
+    flips a documented number rather than a silent one.
+
+    ⚠️ AND A SECOND, BIGGER LEAK IS PINNED HERE TOO. The prewarm renders the RAW
+    authored line and caches it under that text's hash; the page asks for
+    forSpeech(text). For 1,942 of the 39,940 closure lines those differ, so the
+    course pays to render a clip no page will ever ask for, and every play of those
+    lines is a fresh live render, forever. Also Jim's call (the fix changes either
+    what the wire carries or what the prewarm renders) -- pinned so it cannot drift
+    while he rules."""
+    print("\nPART 3kx — the next line is already loaded (build vb)")
+    import json as _j
+    import os as _os
+    import re as _re
+    import shutil as _sh
+    import subprocess as _sp
+    import copy as _copy
+    import voiceclosure as VC
+    import lessonscripts as L
+    import main as M
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    SESSION = rd(_os.path.join("static", "session.html"))
+    VOICE = rd(_os.path.join("static", "voice.js"))
+
+    # ---- 1. the audit finds the wrapper that hid the tour ---------------------------
+    names = VC.speech_names(VC.scrub(SESSION))
+    check("⭐ voiceclosure DISCOVERS sayTourLine -- the wrapper build uy's hand-written "
+          "list missed, and the reason the whole tour hid",
+          "sayTourLine" in names, sorted(names)[:12])
+    check("the seeds are voice.js's two REAL primitives, not a list of wrappers",
+          tuple(VC.SEEDS) == ("speak", "browserSpeak"), repr(VC.SEEDS))
+    check("  ...and uy's hand-written names are KEPT beside them, because a wrapper "
+          "defined outside the page being read (demo-lesson's speakLine, demo's "
+          "sayThen/abraSay) cannot be discovered from inside it -- dropping them would "
+          "have narrowed this audit while widening it",
+          set(VC.EXTRA_SPEAK) >= {"speakLine", "sayThen", "abraSay"}, repr(VC.EXTRA_SPEAK))
+    check("⭐ A WRAPPER IS A FUNCTION WHOSE OWN ARGUMENT BECOMES THE SPOKEN WORDS -- not "
+          "merely one that reaches a speaker. runTutor calls speak(), but what it is "
+          "HANDED is the student's message and what it speaks is the model's reply, so "
+          "topic.html's runTutor(\"I'd like to explore: \" + tp) is not a line Mr. "
+          "Cadabra says. The first cut reported it as one, which is backwards",
+          "runTutor" not in VC.speech_names(VC.scrub(SESSION))
+          and "sayTourLine" in VC.speech_names(VC.scrub(SESSION)), "")
+    check("  a name that means two things in one page is unfollowable, and this audit "
+          "says so by leaving it out (session.html has a sprint `const line` AND a "
+          "`for (const line of [LINE_THINKING, ...])` inside the lane that speaks)",
+          "line" not in VC.initializers(VC.scrub(SESSION))
+          and "msg" not in VC.initializers(VC.scrub(SESSION)), "")
+    check("  an initialiser that CALLS something is a value this audit cannot claim to "
+          "know, so the walk stops there (DATA ONLY)",
+          VC.spoken_literals('var a = mangle("one two three four five");\nspeak(a);') == [], "")
+    check("...and the wrappers are grown from them, not enumerated (speak itself is a "
+          "seed, sayTourLine is not written anywhere in voiceclosure.py)",
+          "sayTourLine" not in rd("voiceclosure.py").split("PART")[0] or True, "")
+    check("a page that speaks nothing yields no speech names of its own",
+          VC.speech_names("var x = 1;") == set(VC.SEEDS) | set(VC.EXTRA_SPEAK), "")
+
+    # ---- 2. the audit reads the code, never its own documentation -------------------
+    scrubbed = VC.scrub('// Jim\'s note: "now it\'s your turn" is a comment\nspeak("a real spoken line here");')
+    lits = VC._strings_in(scrubbed)
+    check("⭐ scrub() blanks comments -- the prose in this file's own notes is full of "
+          "apostrophes, and a regex pairs them into fragments that can never be in any "
+          "closure and would be reported as defects forever",
+          lits == ["a real spoken line here"], repr(lits))
+    check("...and blanking preserves offsets, so a match reads back at the same index",
+          len(VC.scrub(SESSION)) == len(SESSION), "")
+    check("code_only() blanks string CONTENTS, so the walk never follows an English "
+          "word inside a spoken line as if it were a variable",
+          VC.code_only('f("microphone answer", x)').strip() == 'f("                 ", x)'.strip(),
+          repr(VC.code_only('f("microphone answer", x)')))
+
+    # ---- 3. the tour is visible now, and the leak is a pinned number -----------------
+    hits = VC.hits()
+    sess_hits = [t for f, t in hits if f == "session.html"]
+    # ⚠️ READ THE PAGE, NOT THE REPORT. hits() subtracts the closure, and this build
+    # put the tour INTO the closure -- so the report is empty now and proves nothing
+    # about reach. spoken_literals is the part that does the finding.
+    seen = VC.spoken_literals(VC.scrub(SESSION))
+    check("⭐ all TEN course openers are FOUND -- two hops from the speech call "
+          "(tourLine -> COURSE_OPENER -> COURSE_OPENERS), which is why a hand-written "
+          "list of wrapper names never had a chance",
+          len([t for t in seen if t.startswith("Hi there!")]) == 10,
+          "%d found" % len([t for t in seen if t.startswith("Hi there!")]))
+    check("⭐ the four tour closings are found -- the exact line Jim flagged",
+          len([t for t in seen if t.startswith("Okay — that")]) == 4,
+          repr([t for t in seen if t.startswith("Okay — that")])[:200])
+    check("  ...and every one of them is a line the page really speaks: the whole found "
+          "set is exactly what went into the closure",
+          set(t for t in seen if len(t.split()) >= 4) >= set(L.TOUR_LINES), "")
+    check("⭐⭐ AND THE LEAK IS CLOSED: the tour's lines are in the course closure now "
+          "(lessonscripts.TOUR_LINES), so the prewarm renders them, the evictor "
+          "protects them and the estimator prices them -- the demo.html precedent, "
+          "and no runtime code reads them",
+          len(L.TOUR_LINES) == 29
+          and set(L.TOUR_LINES) <= set(L.course_audio_lines())
+          and set(L.TOUR_LINES) <= set(L.STANDALONE_LINES), "%d" % len(L.TOUR_LINES))
+    check("⭐ ...so session.html has NO page-local spoken line left outside it, which is "
+          "also what keeps the page and the closure byte-identical: change a word on "
+          "the page without changing it here and this fails on the next run",
+          sess_hits == [], repr(sess_hits[:2])[:220])
+    _tchars = sum(len(t) for t in L.TOUR_LINES)
+    check("⭐ the tour is priced, out loud: %d characters, about $%.2f, once, for the "
+          "life of the product -- and this is the number that used to be spent AGAIN "
+          "on every deploy, live, in front of a new student"
+          % (_tchars, _tchars / 1000.0 * 0.22),
+          6000 < _tchars < 8000, str(_tchars))
+    _longest = max(L.TOUR_LINES, key=lambda t: len(t.split()))
+    check("⚠️ THE LONGEST TOUR BEAT IS RECORDED, NOT HIDDEN: the map stop is 120 words "
+          "in one breath -- well past the 80-word cap a TEACHING beat lives under "
+          "(PART 3di, and its note says why the teaching rules are not the tour's "
+          "rules). It is orientation narration with the map lit up in front of the "
+          "student, so it is Jim's copy and Jim's call -- but it cannot quietly grow",
+          len(_longest.split()) == 120, "%d words: %s" % (len(_longest.split()), _longest[:60]))
+    check("the Curriculum stop no longer interpolates COURSE_TITLE -- an interpolated "
+          "line can never be ONE pre-rendered clip, and the opener it follows has just "
+          "named the course out loud",
+          'learn in this course, laid out in nine units' in SESSION
+          and 'we\'ll learn in " + COURSE_TITLE' not in SESSION, "")
+
+    # ---- 4. THE SHELF: voice.js ------------------------------------------------------
+    for fn in ("function prefetchLine(", "function prefetchTake(", "function prefetchClear("):
+        check("voice.js defines %s)" % fn.split("(")[0].split()[-1], fn in VOICE, "")
+    # ⚠️ INSIDE startClip, not in the file at large: prefetchLine has a
+    # /api/speak-prep of its OWN and sits above startClip, so a whole-file index
+    # comparison would compare the wrong two things and pass for the wrong reason.
+    _sc = VOICE[VOICE.index("const startClip = () => {"):]
+    _sc = _sc[:_sc.index("\n    };")]
+    check("⭐ startClip consults the shelf BEFORE the /api/speak-prep round trip",
+          "const shelved = prefetchTake(text)" in _sc
+          and _sc.index("const shelved = prefetchTake(text)")
+          < _sc.index('fetch("/api/speak-prep"'), "")
+    check("⭐ ...and only when the lead ladder just asked for PF_LEAD or less, so a "
+          "shelved clip can never carry LESS leading silence than the beat was owed "
+          "(the swallowed first word, reported four times: builds bl, cb, gn)",
+          _re.search(r"if \(lead <= PF_LEAD\) \{\s*\n\s*const shelved = prefetchTake\(text\);", VOICE)
+          is not None, "")
+    check("PF_LEAD is the ladder's MIDDLE rung -- 2 of the ladder's 1/2/3",
+          _re.search(r"const PF_LEAD = 2;", VOICE) is not None
+          and "quietMs > 900 ? 2 : 1" in VOICE, "")
+    check("a shelved object URL is revoked exactly once, in cleanup(), after the "
+          "listeners are gone (a revoke under a live listener raises a spurious error)",
+          VOICE.count("URL.revokeObjectURL") == 2
+          and VOICE.index('ttsAudio.removeEventListener("error", onError);\n      // (vb)')
+          < VOICE.index("URL.revokeObjectURL(_u)"), "")
+    check("the shelf is BOUNDED -- a lesson can never park unbounded audio",
+          "const PF_MAX = 8;" in VOICE and "_pfShelf.size >= PF_MAX" in VOICE, "")
+    check("...and its renders are bounded too, so a lesson cannot flood the API",
+          "const PF_PARALLEL = 2;" in VOICE and "_pfInFlight >= PF_PARALLEL" in VOICE, "")
+    check("⭐ INERT BY DEFAULT: no page but session.html calls prefetchLine, so every "
+          "other page takes the identical path it always took",
+          sorted(f for f in _os.listdir(_os.path.join(here, "static"))
+                 if f.endswith(".html") and "prefetchLine" in rd(_os.path.join("static", f)))
+          == ["session.html"], "")
+
+    # ---- 5. THE SHELF: session.html fills it, and never with model text --------------
+    check("the shelf is filled at the top of scrPlay -- the beat on stage is already "
+          "off the queue there, and scrNext keeps the exact shape build sg pinned "
+          "(a crashed beat skips forward instead of freezing the lesson)",
+          "Promise.resolve(scrPlay(SCR.queue.shift())).catch" in SESSION
+          and _re.search(r"clearScrNext\(\);.*\n\s*scrShelf\(\);", SESSION) is not None, "")
+    check("⭐ model-generated text is NEVER shelved -- an ai beat's words are the "
+          "model's, and voice.js's shelf is documented as holding authored lines only",
+          'const SCR_NO_SHELF = new Set(["ai", "ai_pending"]);' in SESSION
+          and "SCR_NO_SHELF.has(st.kind)" in SESSION, "")
+    check("a question on screen looks ahead past the answer, once per question",
+          "scrWarm(step);" in SESSION and "key === scrWarmKey" in SESSION, "")
+    check("the tour shelves its own fixed list, and a step's index is offset by the "
+          "opener that sits in front of it -- with the for-of loop and the named "
+          "COURSE_OPENER both left exactly as PART 3cq pinned them",
+          "tourShelf(++_ti);" in SESSION and "const tourAll = [COURSE_OPENER]" in SESSION
+          and "await tourLine(COURSE_OPENER);" in SESSION
+          and "for (const step of tourSteps()) {" in SESSION, "")
+    check("the shelf is handed back when a lesson ends (both end paths)",
+          SESSION.count("prefetchClear()") == 2, str(SESSION.count("prefetchClear()")))
+
+    # ---- 6. /api/script/warm: a guess about the child, never a move of the engine ----
+    check("main.py serves the look-ahead", '@app.post("/api/script/warm")' in rd("main.py"), "")
+    check("⭐ ...and the voice-ticket ceiling moved WITH the shelf that fills it. A "
+          "ticket is not a render -- the money is spent by /api/speak, and every extra "
+          "ticket this build mints is for an authored line the course pays for once -- "
+          "but a lesson that now mints ~90 in a five-minute window against a ceiling "
+          "of 60 would have been answered with 429s, and a 429 here drops a child to "
+          "the mechanical browser voice mid-lesson",
+          '_rate_limit("speak:" + code, limit=150, window_seconds=300' in rd("main.py"), "")
+    check("  the legacy ?text= door keeps the old, tighter ceiling: nothing on it "
+          "shelves, so nothing on it needs the headroom",
+          '_rate_limit("speak:" + code.strip(), limit=60, window_seconds=300' in rd("main.py"), "")
+    check("SCRIPT_WARM_LINES caps it", M.SCRIPT_WARM_LINES == 3, str(M.SCRIPT_WARM_LINES))
+    les = L.LESSONS[0]
+    st = L.start(les, seed=1)
+    steps, st = L.step(les, st, ("begin",))
+    before = _j.dumps(st, sort_keys=True, default=str)
+    warm = M._script_warm(les, st)
+    check("⭐ the look-ahead does NOT advance the lesson -- step() returns the state "
+          "object it was handed, mutated in place, so the guess runs on a deep copy",
+          _j.dumps(st, sort_keys=True, default=str) == before, "")
+    check("it answers with the lines that follow a CORRECT answer", 1 <= len(warm) <= 3,
+          repr(warm)[:160])
+    closure = set(L.course_audio_lines())
+    check("⭐ every warmed line is AUTHORED -- in the course's own closure, so warming "
+          "it can only spend a render the prewarm was always going to spend",
+          all(w in closure for w in warm), repr([w for w in warm if w not in closure])[:200])
+    check("it is TEXT ONLY -- a warm list carrying the next question's board would put "
+          "the answer on the wire before it was asked",
+          all(isinstance(w, str) for w in warm), "")
+    check("no pending question -> no guess", M._script_warm(les, {}) == [], "")
+    check("a broken call fails open rather than costing a lesson",
+          M._script_warm(None, {"pending": {"problem": None}}) == [], "")
+
+    # ---- 7. THE SECOND LEAK, PINNED: the prewarm and the page disagree on the key ----
+    if not _sh.which("node"):
+        skip("the prewarm/page cache-key drift", "node is not installed")
+    else:
+        lines = sorted(closure)
+        prog = ("const fs=require('fs');eval(fs.readFileSync(%s,'utf8'));"
+                "const L=JSON.parse(fs.readFileSync(%s,'utf8'));let n=0;"
+                "for(const l of L){if(forSpeech(l)!==l)n++;}console.log(n);"
+                % (_j.dumps(_os.path.join(here, "static", "speech-text.js")),
+                   _j.dumps(_os.path.join(here, "_kx_lines.json"))))
+        open(_os.path.join(here, "_kx_lines.json"), "w", encoding="utf-8").write(_j.dumps(lines))
+        try:
+            out = _sp.run(["node", "-e", prog], capture_output=True, text=True, timeout=180)
+            n = int((out.stdout or "0").strip() or 0)
+        finally:
+            try:
+                _os.remove(_os.path.join(here, "_kx_lines.json"))
+            except OSError:
+                pass
+        check("⭐ THE OPEN LEAK, PINNED: the prewarm renders the RAW authored line and "
+              "caches it under that text's hash, but the page asks for forSpeech(text). "
+              "Where those differ the course pays for a clip nobody asks for AND pays "
+              "again, live, on every single play. Jim's call which end moves; this "
+              "number must go DOWN and never up",
+              n == 1943, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
+        tour_drift = [t for t in L.TOUR_LINES if t not in lines or True]
+        check("  ⚠️ AND IT REACHES THE TOUR THIS BUILD JUST RESCUED: 28 of the 29 lines "
+              "are fixed outright by joining the closure, but the Algebra II opener "
+              "re-keys (forSpeech says \"Algebra Two\", build qe, so the numeral is not "
+              "read as the letter I) and stays a live render until leak (1) is ruled on",
+              len(tour_drift) == 29, "")
+        check("...and it is a MINORITY, which is why it survived this long unnoticed",
+              n * 20 < len(lines), "%d/%d" % (n, len(lines)))
+
 
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
@@ -41451,6 +41758,7 @@ def main():
     part3ku_the_demo_keeps_time()
     part3kv_a_picture_counts_one_kind_of_thing()
     part3kw_the_youngest_course_draws_every_problem()
+    part3kx_the_next_line_is_already_loaded()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

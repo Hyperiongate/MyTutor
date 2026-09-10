@@ -6,6 +6,42 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  APP_BUILD -> "2026-09-10vb-the-next-line-is-already-loaded".
+#               BUILD vb -- THE LOOK-AHEAD. Jim: "10 second latency is too long when
+#               we know this is next after a correct answer we need to load that so
+#               it is ready to go." Two additions here, both fail-open:
+#                 * _script_warm(lesson, state) -- the spoken lines that follow a
+#                   CORRECT answer to the question now pending, computed by the pure
+#                   engine on a DEEP COPY (step() mutates the state it is handed, so
+#                   a guess about the child must never be allowed to move the
+#                   lesson). Text only, capped at SCRIPT_WARM_LINES = 3, [] on any
+#                   error at all.
+#                 * POST /api/script/warm -- one door for it, deliberately NOT a
+#                   field on script_answer's five different returns (that is the
+#                   drift this file keeps paying for), and the better moment anyway:
+#                   the page asks while the QUESTION is on screen and the child is
+#                   thinking, which is dead air we were paying for already.
+#               `import copy` is new, with the rest of the standard library.
+#               ⚠️ THE VOICE-TICKET CEILING MOVED WITH IT: speak-prep's per-code
+#               limit is 60 -> 150 per five minutes, because the shelf mints its
+#               ticket early and a lesson can now reach ~90 in a window. A ticket
+#               is not a render (the money is spent by /api/speak, on authored
+#               lines that cache forever), and a 429 here would have dropped a
+#               child to the mechanical browser voice mid-lesson.
+#               ⚠️ ONE OPEN LEAK THIS BUILD MEASURED AND DID NOT FIX -- Jim's call,
+#               and pinned in ruletests PART 3kx so it cannot grow while he rules:
+#               1,943 of the 39,969 closure lines are prewarmed under the RAW
+#               authored text but REQUESTED as forSpeech(text), so the course pays
+#               to render a clip no page ever asks for and then pays AGAIN, live, on
+#               every play. Worst in geometry (11%) and algebra2 (8.7%). Either the
+#               wire stops transforming or the prewarm starts to -- both change
+#               something real, which is why it is a ruling and not a patch.
+#               ⭐ THE SECOND LEAK IS FIXED HERE: session.html's whole TOUR -- ten
+#               course openers, the stops, the closings, the first words every new
+#               student hears -- was in no closure, so the prewarm never rendered
+#               one of them. lessonscripts.TOUR_LINES puts all 29 in it (~$1.47,
+#               once), and voiceclosure.py, whose hand-written list of speech
+#               function names is why nobody saw it, now discovers those names.
 #   2026-09-10  APP_BUILD -> "2026-09-10va-the-youngest-course-draws-every-problem".
 #               BUILD va -- NO CODE IN THIS FILE CHANGED, the stamp only. Thirteen
 #               Entry-Level ops that drew nothing now draw the picture that teaches
@@ -817,6 +853,10 @@
 #   change is needed once the disk is attached.
 # =============================================================================
 
+# (vb) copy.deepcopy is used by _script_warm's speculative engine step -- the
+# look-ahead must never advance the real lesson state. Imported HERE with the
+# rest of the standard library, not beside its one caller (build kq's law).
+import copy
 import gzip
 import hashlib
 import hmac
@@ -5641,6 +5681,78 @@ def _script_note_ask(sess, steps):
         print(f"[script] ask note failed (non-fatal): {exc}")
 
 
+# =============================================================================
+# BUILD vb (2026-09-10) -- WHAT COMES NEXT IF THEY ARE RIGHT.
+# -----------------------------------------------------------------------------
+# Jim, 2026-09-10, on a scripted lesson: "10 second latency is too long when we
+# know this is next after a correct answer we need to load that so it is ready to
+# go." He is exactly right about what we know. Every batch this lane sends ends in
+# a QUESTION, and the engine is a pure state machine: given the question's own
+# answer, the beats that follow a CORRECT reply are already computable, here, with
+# no model and no network.
+#
+# So we compute them and send their SPOKEN LINES along with the batch, as `warm`.
+# The page hands them to voice.js's shelf (build vb, static/voice.js) while the
+# current beat is still playing, so the first beat AFTER the child answers plays
+# off bytes that are already in the browser. That first beat is the one Jim was
+# waiting ten seconds for: every other beat of a batch was already covered by the
+# page's own look-ahead, because the whole batch arrives at once.
+#
+#   ⚠️ IT IS A GUESS ABOUT THE CHILD, NOT ABOUT THE LESSON. If they answer
+#      WRONGLY the warmed lines are simply not needed yet -- they are the same
+#      authored lines the lesson will reach after the re-teach, so nothing is
+#      wasted, only early. The engine is not advanced: the speculative step runs
+#      on a DEEP COPY (step() returns the state object it was handed, mutated in
+#      place -- "Pure" in its docstring means "no I/O", not "no mutation"), and
+#      nothing here writes to the session, the store or the streak.
+#   ⚠️ TEXT ONLY, AND CAPPED. No boards, no kinds, no answer keys -- a warm list
+#      that carried the next question's board would put the answer on the wire
+#      before it was asked. Three lines is the cap: enough to cover the seam,
+#      small enough that a wrong guess costs at most three authored renders that
+#      the prewarm was always going to pay for.
+#   ⚠️ FAIL-OPEN, TOTAL. Any exception at all returns [] and the lane behaves
+#      exactly as it did before this build. A latency feature must never be able
+#      to cost a lesson.
+# =============================================================================
+SCRIPT_WARM_LINES = 3
+
+
+def _script_warm(lesson, state) -> list:
+    """The spoken lines that follow a CORRECT answer to the question now pending.
+    [] when there is no pending question, when the answer cannot be derived, or on
+    any error whatsoever. Never mutates `state`, never touches the store."""
+    try:
+        pend = (state or {}).get("pending") or {}
+        if not pend:
+            return []
+        if pend.get("reason"):
+            # (sp) the reason question is graded by its LABEL, and the engine wrote
+            # the right label into its own pending record (_ask_reason: "expected").
+            # Read it there -- exactly where _script_note_ask reads the same state --
+            # rather than re-deriving a second opinion from the lesson dict.
+            label = pend.get("expected") or ""
+            if not label:
+                return []
+            event = ("answer", label)
+        else:
+            problem = pend.get("problem")
+            if problem is None:
+                return []
+            event = ("answer", int(lessonscripts.ans(problem)))
+        steps, _ = lessonscripts.step(lesson, copy.deepcopy(state), event)
+        out = []
+        for st in steps or []:
+            spoken = (st or {}).get("spoken") or ""
+            if spoken.strip():
+                out.append(spoken)
+            if len(out) >= SCRIPT_WARM_LINES:
+                break
+        return out
+    except Exception as exc:  # noqa: BLE001 -- a warm guess must never cost a lesson
+        print(f"[script] warm look-ahead skipped (non-fatal): {exc}")
+        return []
+
+
 def _script_record_answer(code, sess, kind, answer, expected, correct):
     """(ue) THE AUTHORED LANE WRITES IT DOWN. One row per graded answer -- the
     question as spoken, the answer, the expected, right or not, which try, and the
@@ -6176,6 +6288,39 @@ def script_answer(body: ScriptAnswerIn):
     if _streak:
         resp["streak"] = _streak
     return resp
+
+class ScriptWarmIn(BaseModel):
+    code: str = ""
+
+
+@app.post("/api/script/warm")
+def script_warm(body: ScriptWarmIn):
+    """(vb, 2026-09-10) THE LINES THAT FOLLOW A CORRECT ANSWER, SO THE PAGE CAN
+    LOAD THEM WHILE THE CHILD IS STILL THINKING.
+
+    ⭐ WHY A DOOR OF ITS OWN, AND NOT A FIELD ON THE ANSWER RESPONSE. Two reasons,
+    and the second is the better one:
+      1. script_answer leaves through five different returns. Adding a field to
+         each is precisely the drift this file's history keeps paying for ("only
+         the lesson lane ever ran ensure_today_tag"), and a latency feature is not
+         worth that risk. This endpoint reads the session's CURRENT pending
+         question, so there is one site and it cannot drift out of step.
+      2. The best moment to render the next line is not when the batch is sent --
+         it is while the QUESTION is on screen and the child is working it out.
+         That is dead air measured in seconds, and it is free.
+
+    Returns spoken TEXT ONLY (see _script_warm): no boards, no kinds, no answer
+    keys. Never an error -- no session, no pending question, or any failure at all
+    returns {"ok": True, "lines": []} and the page simply speaks the ordinary way.
+    """
+    code = (body.code or "").strip()
+    _rate_limit("scriptwarm:" + code, limit=120, window_seconds=300,
+                what="look-ahead requests")
+    sess = _script_session(code)
+    if not sess:
+        return {"ok": True, "lines": []}
+    return {"ok": True, "lines": _script_warm(sess.get("lesson"), sess.get("state"))}
+
 
 # =============================================================================
 # THE TOPIC QUIZ, THROUGH THE AUTHORED SPINE  (build ov, 2026-08-27)
@@ -9020,7 +9165,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-10va-the-youngest-course-draws-every-problem"
+APP_BUILD = "2026-09-10vb-the-next-line-is-already-loaded"
 
 
 @app.get("/health")
@@ -10948,7 +11093,23 @@ def speak_prep(req: SpeakPrepIn, request: Request):
                     limit=120, window_seconds=600, what="voice requests")
     else:
         _require_student(code)
-        _rate_limit("speak:" + code, limit=60, window_seconds=300, what="voice requests")
+        # ⭐ (vb, 2026-09-10) 60 -> 150, AND THE ARITHMETIC IS THE REASON.
+        # This limit guards the budget by counting TICKETS, and until this build a
+        # lesson minted exactly one per spoken line: a beat lands every ~10-15s
+        # (readMs's 2.6s floor, plus the clip, plus SCR_BREATH), so ~20-30 in a
+        # five-minute window against a ceiling of 60. Comfortable.
+        # Build vb's shelf mints the ticket EARLY instead -- one per line still when
+        # the shelf is used (startClip finds the clip and returns before it preps) --
+        # but a shelf MISS costs a second one, and /api/script/warm adds up to three
+        # per question. Worst case lands near 90 in a window, so the old ceiling
+        # would have started answering a real lesson with 429s, and a 429 here is not
+        # a small thing: the page falls to the mechanical browser voice mid-lesson.
+        # ⚠️ THIS DOES NOT LOOSEN THE BUDGET, because a ticket is not a render: the
+        # money is spent by /api/speak, and every extra ticket this build mints is
+        # for an AUTHORED line the course pays for exactly once and then caches
+        # forever. What the ceiling still does -- stop a logged-in student pumping
+        # arbitrary text through a paid renderer -- it does at 150 as well as at 60.
+        _rate_limit("speak:" + code, limit=150, window_seconds=300, what="voice requests")
     text = (req.text or "").strip()
     if len(text) > MAX_SPEAK_CHARS:
         raise HTTPException(status_code=413, detail="That text is too long to speak.")

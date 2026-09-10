@@ -2,6 +2,23 @@
    voice.js  --  THE TUTOR'S VOICE, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-10  BUILD vb -- THE SHELF (prefetchLine / prefetchTake / prefetchClear,
+                 and the one `if (lead <= PF_LEAD)` branch at the top of startClip).
+                 Jim: "10 second latency is too long when we know this is next after
+                 a correct answer we need to load that so it is ready to go." A page
+                 that knows its next spoken line now hands it here while the current
+                 line is still playing; the ticket and the bytes are fetched then,
+                 and the beat itself plays off an object URL with NO network at all.
+                 ⚠️ ADDITIVE AND INERT BY DEFAULT: a page that never calls
+                 prefetchLine takes the identical path it always took -- the shelf is
+                 empty, prefetchTake returns "", and startClip falls straight through
+                 to the prep it has always done. The lead ladder is NOT weakened (see
+                 THE SHELF's own note): shelved clips are minted at the ladder's
+                 middle rung and are used only where the ladder asked for that rung
+                 or less, so no beat ever gets less leading silence than before.
+                 ⚠️ NEVER SHELVE GENERATED TEXT -- one shelved line is one real
+                 /api/speak. Only the SCRIPTED lane calls this, and every line it
+                 shelves is authored closure text the prewarm renders anyway.
      2026-09-04  BUILD so -- THE BROWSER-VOICE FALLBACK IS COUNTED. fallToBrowser now
                  files a voice_fallback event (reason, first-clip flag, audio-context
                  state, line length, the first 40 chars of the TUTOR's line) through
@@ -375,6 +392,142 @@ function probeClip(url, text) {
   } catch (e) {}
 }
 
+// =============================================================================
+// BUILD vb (2026-09-10) -- THE SHELF: THE NEXT LINE IS ALREADY IN THE BROWSER.
+// -----------------------------------------------------------------------------
+// Jim, 2026-09-10, on a scripted lesson: "10 second latency is too long when we
+// know this is next after a correct answer we need to load that so it is ready
+// to go." He is describing exactly the shape of this file's cost. Every spoken
+// line pays, AT THE MOMENT IT IS NEEDED and strictly in series:
+//     POST /api/speak-prep   (mint a ticket)   ~1 round trip
+//     GET  /api/speak?t=...  (the audio)       a disk read if the line has been
+//                                              rendered before -- a full
+//                                              ElevenLabs render if it has not
+// A newly authored line that the prewarm has not reached yet is a guaranteed
+// cache MISS, and a miss is seconds. The student hears nothing for all of it.
+//
+// THE SHELF fixes the half of that which is fixable: a page that KNOWS what is
+// coming (the scripted lane knows -- the whole batch of beats is already in the
+// browser) hands the text here while the current line is still playing. This
+// mints the ticket, pulls the bytes, and parks them as an object URL. When
+// speak() reaches that line, startClip finds it on the shelf and plays it with
+// NO network at all.
+//
+//   ⚠️ IT IS NOT A CACHE AND IT IS NOT FREE. Each shelved line is one real
+//      /api/speak, so it may spend one ElevenLabs render -- but only on AUTHORED
+//      lines the course was always going to render (the prewarm renders exactly
+//      these strings), and only once, because the server caches by text forever.
+//      Never shelve model-generated text: the live lane cannot know its next
+//      line anyway, which is why runTutor does not call this.
+//   ⚠️ THE LEAD LADDER IS NOT WEAKENED. startClip's lead ladder (builds bl/cb)
+//      exists because Jim reported a swallowed first word four separate times,
+//      and a shelved clip carries whatever lead it was minted with. So the shelf
+//      mints at PF_LEAD = 2 -- the ladder's MIDDLE rung -- and startClip uses a
+//      shelved clip only when the ladder asks for 2 or less. A shelved line
+//      therefore never gets LESS leading silence than it would have had; a
+//      lead-1 beat gets ~280ms more, which is bought back many times over by the
+//      round trip it no longer makes. A lead-3 beat (the session's first clip,
+//      or one after a real silence) ignores the shelf entirely and takes the
+//      ordinary path -- which is now a server CACHE HIT, because the shelf
+//      already made the server render it. Both paths win; only one is instant.
+//      ⓘ If a later build measures the real quiet gap between beats and finds it
+//      is reliably under 900ms, PF_LEAD can drop to 1 and the extra 280ms goes
+//      away. Do not change it by reasoning -- measure it (build jb's law).
+// =============================================================================
+const PF_LEAD = 2;              // see the lead note above -- the ladder's middle rung
+const PF_MAX = 8;               // lines on the shelf at once; the queue simply moves on
+const PF_PARALLEL = 2;          // concurrent renders -- a lesson must never flood the API
+const _pfShelf = new Map();     // spoken text -> {state, url, run}
+let _pfInFlight = 0;
+let _pfHits = 0, _pfMiss = 0;   // reported once per lesson by prefetchClear()
+
+function _pfPump() {
+  if (_pfInFlight >= PF_PARALLEL) return;
+  for (const rec of _pfShelf.values()) {
+    if (rec.state === "wait") {
+      rec.run();
+      if (_pfInFlight >= PF_PARALLEL) return;
+    }
+  }
+}
+
+// Put ONE line on the shelf. Safe to call repeatedly with the same text, safe to
+// call for a line that is never played, and a complete no-op when the natural
+// voice is off (the browser voice needs no bytes). Never throws.
+function prefetchLine(text) {
+  const key = String(text || "");
+  if (!key || !elevenEnabled) return;
+  if (_pfShelf.has(key) || _pfShelf.size >= PF_MAX) return;
+  const rec = { state: "wait", url: "" };
+  rec.run = function () {
+    if (rec.state !== "wait") return;
+    rec.state = "load";
+    _pfInFlight += 1;
+    let done = false;
+    const settle = function () {
+      if (done) return;
+      done = true;
+      _pfInFlight -= 1;
+      _pfPump();
+    };
+    fetch("/api/speak-prep", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: CODE, text: forSpeech(key), lead: PF_LEAD,
+                             lane: voiceLane })
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        // {voice:false} and the drill/demo lane's 409 are ANSWERS, not outages --
+        // there was never going to be a clip, so the shelf stays empty and the
+        // ordinary path falls to the browser voice exactly as it always has.
+        if (!d || !d.t || d.voice === false) return null;
+        return fetch("/api/speak?t=" + encodeURIComponent(d.t));
+      })
+      .then(function (r) {
+        if (!r || !r.ok || r.status === 204) return null;   // 204 = cache-only miss
+        return r.blob();
+      })
+      .then(function (b) {
+        if (!b || !b.size || rec.state === "dead") { _pfShelf.delete(key); settle(); return; }
+        rec.url = URL.createObjectURL(b);
+        rec.state = "ready";
+        settle();
+      })
+      .catch(function () { _pfShelf.delete(key); settle(); });
+  };
+  _pfShelf.set(key, rec);
+  _pfPump();
+}
+
+// Take a shelved clip if one is READY. The caller owns the object URL from here
+// and must revoke it (speak()'s cleanup does). "" means nothing was shelved.
+function prefetchTake(text) {
+  const key = String(text || "");
+  const rec = _pfShelf.get(key);
+  if (!rec || rec.state !== "ready" || !rec.url) return "";
+  _pfShelf.delete(key);
+  return rec.url;
+}
+
+// The lesson is over (or the page is leaving): give the bytes back and report how
+// the shelf did. ONE event per lesson, not per beat -- the night watch needs the
+// hit rate, not a row for every line the tutor spoke.
+function prefetchClear() {
+  for (const rec of _pfShelf.values()) {
+    if (rec.state === "ready" && rec.url) { try { URL.revokeObjectURL(rec.url); } catch (e) {} }
+    rec.state = "dead";
+  }
+  _pfShelf.clear();
+  if (_pfHits || _pfMiss) {
+    try {
+      console.log("[voiceshelf] hits=" + _pfHits + " misses=" + _pfMiss);
+      if (window.MyTutorReport) window.MyTutorReport("voice_shelf",
+        "hits=" + _pfHits + " misses=" + _pfMiss + " lead=" + PF_LEAD);
+    } catch (e) {}
+  }
+  _pfHits = 0; _pfMiss = 0;
+}
+
 // (mj) speak(text, opts) -- opts is OPTIONAL and every pre-mj caller passes nothing,
 // which takes the identical path it always took.
 //   opts.eleven  : ask for the natural voice for THIS line only (the drill lane's
@@ -397,6 +550,9 @@ function speak(text, opts) {
     // took to start, what the graph's state was, and how much leading silence was
     // asked for. Costs nothing, changes nothing, and ends the guessing.
     let clipAskedAt = 0, clipLead = -1;
+    // (vb) the object URL of a SHELVED clip, if this line was played off the
+    // shelf. Held here so cleanup() can hand the bytes back exactly once.
+    let pfObjectURL = "";
     // 2026-08-17 (build gp3): the state of the graph WHEN THE CLIP WAS ASKED FOR, which
     // is a different question from its state when the audio starts. The gn probe logged
     // only the latter and it was misread as "the graph was never suspended, so the
@@ -467,6 +623,12 @@ function speak(text, opts) {
       ttsAudio.removeEventListener("timeupdate", onProgress);
       ttsAudio.removeEventListener("ended", onEnded);
       ttsAudio.removeEventListener("error", onError);
+      // (vb) a shelved clip's bytes go back here, after the listeners are gone so a
+      // revoke can never raise a spurious "error" on the element. Once, ever.
+      if (pfObjectURL) {
+        const _u = pfObjectURL; pfObjectURL = "";
+        try { URL.revokeObjectURL(_u); } catch (e) {}
+      }
     }
     ttsAudio.addEventListener("playing", onPlaying);
     ttsAudio.addEventListener("timeupdate", onProgress);
@@ -488,6 +650,26 @@ function speak(text, opts) {
       startKeepAlive();
       clipAskedAt = Date.now(); clipLead = lead;      // build gn: for the [voicehead] probe
       firstSpeakLead = false;
+      // (vb) THE SHELF FIRST -- see THE SHELF above. A line the page told us was
+      // coming is already bytes in this browser: no prep, no fetch, no render, no
+      // wait. Consulted ONLY when the ladder just asked for PF_LEAD or less, so a
+      // shelved clip can never carry less leading silence than this beat was owed.
+      // A miss is counted only while the shelf is actually in use, so a page that
+      // never shelves anything reports nothing.
+      if (lead <= PF_LEAD) {
+        const shelved = prefetchTake(text);
+        if (shelved) {
+          _pfHits += 1;
+          pfObjectURL = shelved;
+          clipLead = PF_LEAD;                  // what the bytes were minted with
+          ttsAudio.src = shelved;
+          probeClip(shelved, text);            // build jb's probe reads the same bytes
+          const p = ttsAudio.play();
+          if (p && p.catch) p.catch(() => { if (!started) failedClip("play rejected"); });
+          return;
+        }
+        if (_pfShelf.size) _pfMiss += 1;
+      }
       // build hs (2026-08-18, Phase 5): THE SPOKEN LINE AND THE LOGIN CODE LEAVE THE
       // URL. The old src carried ?text=...&code=... -- a child's lesson line (usually
       // with their first name) plus their credential, written into every HTTP log on

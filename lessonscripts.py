@@ -7,6 +7,25 @@
 #               VERBATIM, 70 entries; 39 stay here. Keep adding new notes HERE, newest at
 #               top; roll them out again (notes_rollout.py) when this header passes ~100
 #               KB.
+#   2026-09-10  BUILD vb -- TOUR_LINES: THE TOUR JOINS THE COURSE'S VOICE. The 29
+#               lines static/session.html speaks on a new student's very first visit
+#               -- ten course openers, the tour stops, the closings -- were in NO
+#               closure, so the prewarm never rendered one of them and every stop was
+#               a live ElevenLabs render (ten seconds of silence, then a five-second
+#               watchdog into the mechanical browser voice mid-sentence: Jim, this
+#               morning, "10 second delay before this started" / "garbled words").
+#               They hid because voiceclosure.py's speech-function names were a
+#               HAND-WRITTEN list that did not contain the page's own sayTourLine;
+#               that audit now discovers its names (see its header) and its standing
+#               ZERO-hits pin is what keeps these byte-identical to the page.
+#               ⚠️ NOTHING READS TOUR_LINES AT RUNTIME. It is here so the prewarm
+#               renders them, the evictor protects them and the estimator prices
+#               them -- the demo.html precedent (VOICE_LINES twinned with
+#               main.DEMO_VOICE_LINES). ~6.7k characters, about $1.47, once.
+#               ⚠️ RUN THE PREWARM after this push, and note that ONE of the 29 (the
+#               Algebra II opener) still re-keys under forSpeech and stays a live
+#               render until the wider cache-key drift is ruled on -- ruletests
+#               PART 3kx measures it at 1,943 of the 39,969 closure lines.
 #   2026-09-10  BUILD va -- THE YOUNGEST COURSE DRAWS EVERY PROBLEM. Jim, 2026-09-09:
 #               "if you have two paragraphs to spit out to a child and you say it and
 #               there's no text and there's no graphic, the child is just listening and
@@ -16545,6 +16564,65 @@ LINE_DEMO_LESSON_END = ("That is how every lesson in my classroom starts. Shall 
                         "look around, or try another level?")
 
 # Everything above, plus anything else that is spoken outside a lesson later.
+# =============================================================================
+# (vb, 2026-09-10) THE TOUR IS PART OF THE COURSE'S VOICE.
+# -----------------------------------------------------------------------------
+# THE CLOSURE PROPERTY (voiceclosure.py's header states it): every line the app can
+# speak in Mr. Cadabra's voice must be enumerable IN ADVANCE, or the prewarm never
+# renders it, the evictor never protects it, and the first student to reach it pays a
+# live ElevenLabs render -- ten seconds of silence, and a five-second watchdog into
+# the mechanical browser voice halfway through the sentence.
+#
+# static/session.html's TOUR was outside it. All of it: ten course openers, the tour
+# stops, the closings -- the FIRST words every new student in every course ever hears.
+# It hid because the audit written to catch exactly this carried a hand-written list
+# of speech-function names that did not include the page's own `sayTourLine` (fixed in
+# the same build; see voiceclosure.py). Jim heard the cost on 2026-09-10: "10 second
+# delay before this started", "garbled words", "skipped a lot of the into to screen".
+#
+# ⭐ THESE ARE THE PAGE'S OWN STRINGS, VERBATIM -- the demo.html precedent (VOICE_LINES
+#    twinned with main.DEMO_VOICE_LINES). Nothing reads them at runtime; they are here
+#    so the prewarm renders them, the evictor protects them and the estimator prices
+#    them. ⚠️ THEY CANNOT DRIFT: voiceclosure's standing pin is ZERO page-local spoken
+#    lines outside the closure, so changing a word on the page without changing it here
+#    fails the battery on the next run.
+# ⚠️ ~6.7k characters, about $1.47, once, for the life of the product.
+# ⚠️ ONE LINE HAD TO CHANGE TO GET HERE: the Curriculum stop interpolated COURSE_TITLE,
+#    and an interpolated line can never be one clip. It says "this course" now -- the
+#    opener it follows has just named the course out loud.
+# =============================================================================
+TOUR_LINES = (
+    "Hi there! I'm Mr. Cadabra, and I am so happy you're here. We're going to have fun with math — counting, adding, taking away, coins, telling time, and shapes — one little step at a time, and I'll help you the whole way. Before we start, let me show you around your screen real quick.",
+    "Hi there! Welcome, I'm Mr. Cadabra. In Basic Math we'll get really strong at the things that matter — multiplying and dividing bigger numbers, fractions, decimals, and solving word problems — and I'll draw everything out so it makes sense. Before we dive in, let me give you a quick tour of your screen.",
+    "Hi there! Welcome to algebra. I'm Mr. Cadabra. Algebra is really just how we find a number we don't know yet — we call that mystery number a variable, usually a letter like x. Before we dive in, let me give you a quick tour of your screen.",
+    "Hi there! Welcome to geometry. I'm Mr. Cadabra. Geometry is all about shapes and space — points, lines, angles, and the figures they build — and learning why they behave the way they do. Before we dive in, let me give you a quick tour of your screen.",
+    "Hi there! Welcome to pre-algebra. I'm Mr. Cadabra. Pre-algebra is where the pieces of math you already know — fractions, decimals, percents, and negative numbers — come together to get you ready for algebra. Before we dive in, let me give you a quick tour of your screen.",
+    "Hi there! Welcome to Algebra II. I'm Mr. Cadabra. Algebra II picks up right where Algebra I left off — you'll master every kind of function, meet a brand-new kind of number, and build the toolkit that gets you ready for pre-calculus. Before we dive in, let me give you a quick tour of your screen.",
+    "Hi there! Welcome to Trig and Pre-Calc. I'm Mr. Cadabra. This is the launchpad to calculus — you'll get fluent with every kind of function, master trigonometry and the unit circle, explore the elegant curves, and take your first look at limits. Before we dive in, let me give you a quick tour of your screen.",
+    "Hi there! Welcome to calculus. I'm Mr. Cadabra. Calculus is really just two big ideas — how fast something is changing at a single instant, and how much adds up when it changes the whole way. Master those two and you can describe almost anything that moves. Before we dive in, let me give you a quick tour of your screen.",
+    "Hi there! Welcome to differential equations. I'm Mr. Cadabra. This is where calculus becomes modeling — an equation about how something changes, and solving it tells you what that something actually is. It describes almost every physical law there is. Before we dive in, let me give you a quick tour of your screen.",
+    "Hi there! Welcome to Probability and Statistics. I'm Mr. Cadabra. This course is all about making sense of data and chance — you'll learn to picture data, summarize it, spot real patterns, and figure out how sure you can be about what it's telling you. Before we dive in, let me give you a quick tour of your screen.",
+    "Okay — that's the tour!",
+    "Okay — that's the grand tour!",
+    "Okay — that's the tour! Now let's get into the fun part.",
+    "Okay — that's the grand tour! Now let's get into the fun part.",
+    "See the glowing spot? That's your Curriculum — everything we'll learn in this course, laid out in nine units. Click any unit to see exactly what's inside it.",
+    "Now the glow has moved to the Course Assessment. Whenever you're ready, it finds your strengths and builds a recommended path that's just for you. It's totally optional — and it's always waiting right there.",
+    "Next, your Progress dashboard. That's where you'll watch yourself win — units mastered, accuracy, streaks, and your trophy case.",
+    "Then Practice a problem — for when you're stuck on one specific problem, from homework or anywhere. Bring it to me there and we'll work through it together.",
+    "Now Extra practice is glowing — that's my helper Abrabot. The button I just showed you, Practice a problem, is for a problem YOU bring me. This one is the other way round: Abrabot has more problems for you, on a lesson we have already done, as many as you want. He keeps count, so you can show somebody how much you have practised — and if one gets tricky, he comes and gets me.",
+    "Now glowing: Explore a topic. Curious about just one thing — fractions, slope, anything? Open it, name your topic, and we'll dig into exactly that.",
+    "And the Final Exam — that's the top of the mountain. It unlocks once you've mastered all nine units, and passing it makes you a Course Champion. Something to look forward to!",
+    "And see the Look-it-up button glowing? Any time you want to just READ about something — fractions, slope, anything — tap it, type the topic, and a page opens right on top. Your lesson waits for you, and closing it puts you right back here.",
+    "Now look up top — that's your map, and it never lies. First it tells you in plain words what you're working on right now, and what's still to come today. Then your UNIT: one piece for every topic, with a little quiz marker after each — so you can always see exactly how far away the next quiz is — and the flag at the end is the Unit Quiz. Below that is the whole COURSE: nine units that turn gold as you master them, marching straight toward that Final Exam. After our tour it tucks itself away behind the little Progress button, so the whole board is yours — tap it any time to peek at your map.",
+    "And that glowing face — that's me, Mr. Cadabra! The big whiteboard is mine too: that's where I'll draw every step as we go.",
+    "Last one, and it's the important one: when I ask you a question, big answer buttons pop up right down here at the bottom. Just tap the answer you think is right! And if you're not sure, tap the 'I'm not sure' button and I'll help you figure it out.",
+    "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. Saying 'I'm confused' is a great answer too; it tells me to slow down and try another way. If you'd rather write it, tap the big 'Type my answer' button — and the answer buttons at the bottom always work as well.",
+    "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap the big 'Type my answer' button and type it instead.",
+    "See that glowing face? That's me, Mr. Cadabra! And the big whiteboard is mine — that's where I'll draw every step, so you can see it while I say it.",
+    "Now look at the glowing map. It shows what we're learning today, and every piece turns gold as you learn it. After our tour it hides behind the little Progress button — tap that any time to peek.",
+)
+
 STANDALONE_LINES = (tuple(ABRABOT_INTRO)
                     + (CADABRA_HANDOFF_HELLO, CADABRA_HANDOFF_BYE)
                     # (rj) the seam line belongs to the course, not to any lesson
@@ -16558,7 +16636,9 @@ STANDALONE_LINES = (tuple(ABRABOT_INTRO)
                     # (us) the check after a beat
                     + (LINE_CHECK,)
                     # (uy) the demo lesson's own closing line -- see above
-                    + (LINE_DEMO_LESSON_END,))
+                    + (LINE_DEMO_LESSON_END,)
+                    # (vb) the tour -- see TOUR_LINES above
+                    + TOUR_LINES)
 
 
 def course_audio_lines(lessons=None):

@@ -4,6 +4,15 @@
                 changelog/session.html.md -- moved out on 2026-09-08 (build ui) VERBATIM,
                 125 entries; 17 stay here. Keep adding new notes HERE, newest at top; roll
                 them out again (notes_rollout.py) when this header passes ~100 KB.
+    (vb) 2026-09-10 -- THE NEXT LINE IS ALREADY LOADED. Jim: "10 second latency is too
+    long when we know this is next after a correct answer we need to load that so it is
+    ready to go", and on the tour "10 second delay before this started" / "garbled
+    words". voice.js grew a SHELF (its own header explains it); this page fills it from
+    the three places it knows what is coming: scrShelf() (the rest of the batch in
+    SCR.queue), scrWarm() (/api/script/warm, asked the moment a QUESTION is on screen,
+    so the engine's look-ahead renders while the student works it out) and tourShelf()
+    (the tour is a fixed list). ⚠️ AUTHORED LINES ONLY: an ai beat is the MODEL's words
+    and is skipped. ⚠️ Every call is guarded and every fetch swallows its own failure.
     (uv) 2026-09-09 -- THE ENDING IS DRAWN, NOT ONLY SPOKEN. Jim: "wherever we can, we
     want to have graphics to support what we are saying" -- and the last words of a lesson
     had none. scrPlay's `end` branch returns before the handleTags call every other beat
@@ -3013,7 +3022,12 @@
     // no more doubling up ("two more helpers..." covered practice + assessment in one breath).
     const TOUR_STEPS = [
       { id: "curriculum",
-        text: "See the glowing spot? That's your Curriculum — everything we'll learn in " + COURSE_TITLE + ", laid out in nine units. Click any unit to see exactly what's inside it." },
+        // (vb) ⚠️ THIS LINE USED TO INTERPOLATE COURSE_TITLE, and an interpolated line
+        // can never be ONE pre-rendered clip -- which is why the whole tour sat outside
+        // the voice closure and every stop was a live ElevenLabs render. The course is
+        // already named in the opener this stop follows ("Welcome to geometry"), so
+        // "this course" loses nothing and buys the line a real voice.
+        text: "See the glowing spot? That's your Curriculum — everything we'll learn in this course, laid out in nine units. Click any unit to see exactly what's inside it." },
       { id: "assess",
         text: "Now the glow has moved to the Course Assessment. Whenever you're ready, it finds your strengths and builds a recommended path that's just for you. It's totally optional — and it's always waiting right there." },
       { id: "dashboard",
@@ -3117,10 +3131,30 @@
         };
       }
       const tourLine = (t) => Promise.race([sayTourLine(t), skipWait]);
+      // (vb, 2026-09-10) THE TOUR LOADS ITSELF AHEAD. Jim, on a first run: "10 second
+      // delay before this started", "garbled words", "skipped a lot of the intro to
+      // screen" -- all on the tour, which is the FIRST thing a new student ever hears.
+      // The tour is a fixed list known before its first word, so every line after the
+      // one playing goes on voice.js's shelf (see THE SHELF above scrShelf) and is
+      // already bytes in the browser when its turn comes. ⚠️ THIS DOES NOT MAKE THE
+      // FIRST LINE FASTER -- nothing can; it is asked for and played in the same
+      // breath -- and it does not spend a character that was not going to be spent:
+      // every line here is one this tour was always going to speak.
+      const TOUR_AHEAD = 2;
+      const tourAll = [COURSE_OPENER].concat(tourSteps().map((st) => st.text));
+      const tourShelf = (i) => {
+        if (typeof prefetchLine !== "function") return;
+        for (let k = i + 1; k <= i + TOUR_AHEAD && k < tourAll.length; k++) {
+          if (tourAll[k]) prefetchLine(tourAll[k]);
+        }
+      };
+      let _ti = 0;
+      tourShelf(0);
       await tourLine(COURSE_OPENER);
       for (const step of tourSteps()) {   // (uh) three stops for Entry and Basic, the grand tour for everyone else
         if (skipped) break;
         highlightEl(step.id);
+        tourShelf(++_ti);                 // (vb) tourAll[0] is the opener, so a step's index is _ti
         await tourLine(step.text);
       }
       if (sk) { sk.style.display = "none"; sk.disabled = false; sk.onclick = null; }
@@ -3216,6 +3250,64 @@
     // begins, short enough that the lane still feels fast.
     const SCR_BREATH = 650;
 
+    // =====================================================================
+    // (vb, 2026-09-10) THE SHELF, FILLED FROM THE SCRIPT.
+    // ---------------------------------------------------------------------
+    // Jim, watching a lesson: "10 second latency is too long when we know this
+    // is next after a correct answer we need to load that so it is ready to
+    // go." voice.js build vb grew a shelf for exactly this (see THE SHELF
+    // there); these two functions are what put lines on it, and between them
+    // they cover both kinds of "next":
+    //
+    //   scrShelf()  -- the rest of THIS batch. Every beat the server sent is
+    //                  already sitting in SCR.queue, so while one beat plays we
+    //                  fetch the audio for the next few. Called at the top of
+    //                  scrPlay, once the beat on stage is off the queue.
+    //   scrWarm()   -- the beats of the NEXT batch, which only the server can
+    //                  know. Called the moment a question reaches the screen:
+    //                  /api/script/warm answers with the lines that follow a
+    //                  CORRECT answer, and they render during the seconds a
+    //                  student spends working it out -- dead air we were paying
+    //                  for anyway.
+    //
+    // ⚠️ AUTHORED LINES ONLY. An `ai`/`ai_pending` beat carries MODEL-GENERATED
+    //    text, and voice.js's shelf is documented as never holding any: those
+    //    beats are skipped here. Nothing is lost -- a re-teach is not known
+    //    until its own fetch lands, by which time it IS the next beat, so there
+    //    was never a gap to fill.
+    // ⚠️ ENTIRELY OPTIONAL. Every call is guarded on prefetchLine existing and
+    //    every fetch swallows its own failure: a page without voice.js, a 429,
+    //    a dropped network -- the lesson speaks exactly as it did before.
+    // =====================================================================
+    const SCR_SHELF_AHEAD = 3;
+    const SCR_NO_SHELF = new Set(["ai", "ai_pending"]);   // model text is never shelved
+    function scrShelf() {
+      if (typeof prefetchLine !== "function") return;
+      let n = 0;
+      for (const st of SCR.queue) {
+        if (n >= SCR_SHELF_AHEAD) break;
+        if (!st || SCR_NO_SHELF.has(st.kind)) continue;
+        const words = st.spoken || "";
+        if (!words) continue;
+        prefetchLine(words);
+        n += 1;
+      }
+    }
+    let scrWarmKey = "";          // the question we last looked ahead from -- once each
+    function scrWarm(step) {
+      if (typeof prefetchLine !== "function") return;
+      const key = (step && step.spoken) || "";
+      if (!key || key === scrWarmKey) return;
+      scrWarmKey = key;
+      fetch("/api/script/warm", { method: "POST", headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ code: CODE }) })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) {
+          ((j && j.lines) || []).forEach(function (ln) { prefetchLine(ln); });
+        })
+        .catch(function () {});
+    }
+
     // (pd) SPEAK A SCRIPTED LINE THE WAY THE TOUR DOES. Promise.all means the beat
     // ends when the audio finishes OR when a student could have read the line --
     // WHICHEVER IS LATER. Build pb awaited speak() alone, so a missing clip resolved
@@ -3261,6 +3353,7 @@
     async function scrPlay(step) {
       if (!step) { SCR.pending = false; return scrNext(); }
       clearScrNext();                            // never two pacers on screen at once
+      scrShelf();          // (vb) this beat is off the queue -- load the ones behind it
       if (step.kind === "end") {
         addBubble("tutor", step.spoken || ""); lastTutorText = step.spoken || "";
         // (uv, 2026-09-09) THE ENDING IS DRAWN, NOT ONLY SPOKEN. Every other beat
@@ -3271,6 +3364,10 @@
         handleTags(step.board || "");
         await scrSay(step.spoken || "");
         SCR.on = false; SCR.pending = false;
+        // (vb) the shelf belongs to a lesson: hand its bytes back and let it report
+        // its hit rate once (voice.js prefetchClear). A new lesson starts an empty one.
+        scrWarmKey = "";
+        try { if (typeof prefetchClear === "function") prefetchClear(); } catch (e) {}
         // (rj, 2026-09-01) THE ANNOUNCED SEAM. Jim watched the silent handoff
         // ("thought for a bit and then acted as if we had been working on
         // subtraction") and ruled: announce it, then continue. On a MASTERED end
@@ -3352,6 +3449,9 @@
         SCR.aiFetch = null;
         if (!j || !j.ok) {
           SCR.on = false; SCR.pending = false;
+          // (vb) the lesson is over for the shelf too -- give the bytes back
+          scrWarmKey = "";
+          try { if (typeof prefetchClear === "function") prefetchClear(); } catch (e) {}
           await runTutor(SCR.lastAnswer || "I'm not sure");
           return;
         }
@@ -3422,6 +3522,7 @@
         // (uc) ...and the MIC alone waits for him to finish the question -- see micHold().
         // The taps and the typing box opened on the line above and stay open.
         micHold(true);
+        scrWarm(step);   // (vb) thinking time is free -- render what follows a right answer
         // (qr) tap_only -- THE OTHER FIELD THE PORT DROPPED. The engine sets it after
         // TWO answers in a row it could not read (lessonscripts _ask: unheard >= 2):
         // the student's voice or typing is not landing, so we stop asking them to use
@@ -3709,9 +3810,32 @@
       const ctl = new AbortController();
       const abortTimer = setTimeout(() => { try { ctl.abort(); } catch (e) {} }, 90000);
       try {
-        const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
+        // ⭐ (vb, 2026-09-10) THE WAIT IS NEVER SILENT. Jim, live in an Entry lesson:
+        // "10 second delay before this started" and "10 second latency is too long".
+        // The SCRIPTED lane has answered this since build ur -- its ai_pending branch
+        // races the fetch against four seconds and fills the gap with Mr. Cadabra's own
+        // voice -- and this lane, the LIVE one, had nothing at all: a static "thinking…"
+        // and ten seconds of silence, which to a five-year-old is indistinguishable
+        // from a broken app.
+        // ⚠️ THIS DOES NOT MAKE THE TURN FASTER. It makes the silence stop, which is a
+        // different fix and an honest one: the model's own time is the model's own
+        // time, and the timing telemetry this build adds is what will aim the next
+        // build at it. Both lines are AUTHORED closure text, already rendered and
+        // cached, so this costs nothing to say and never falls to the browser voice.
+        // Same shape, same lines and the same 4s/10s pacing as the scripted lane --
+        // one behaviour, written twice only because the two lanes fetch differently.
+        const chatFetch = fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code: CODE, message, unit: FOCUS_UNIT, course: COURSE, final: FINAL_MODE }),
           signal: ctl.signal });
+        let res = await Promise.race([chatFetch, delay(4000).then(() => "__slow__")]);
+        for (const line of [LINE_THINKING, LINE_THINKING_MORE]) {
+          if (res !== "__slow__") break;
+          addBubble("tutor", line); lastTutorText = line;
+          await withDeadline(() => speak(line), speechDeadline(line), "wait line", stopAllSpeech);
+          setState("thinking"); statusEl.textContent = tutorName + " is thinking…";
+          res = await Promise.race([chatFetch, delay(10000).then(() => "__slow__")]);
+        }
+        if (res === "__slow__") res = await chatFetch;
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
         // The whiteboard KEEPS the current picture up across turns. Mr. Cadabra draws the
