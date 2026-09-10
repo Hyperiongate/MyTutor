@@ -6,6 +6,31 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  BUILD ux -- REFEREE 86, THE READING LEVEL OF THE YOUNGEST COURSES.
+#               ⭐ JIM, on a live Prealgebra opener, 2026-09-09: "'ambiguity' is a
+#               word that a child will not understand." hard_word_conflict carries 78
+#               general-academic words with their PLAIN-ENGLISH TWINS and names the
+#               swap -- a referee that only says "too hard" gets a rewrite that is a
+#               coin flip; one that says 'say "so" instead of "consequently"' gets
+#               the sentence an author would have written. Scoped to entry, basic and
+#               prealgebra; silent above, where the vocabulary IS the subject.
+#               ⚠️ IT IS NOT A BAN ON MATHEMATICAL WORDS. Numerator, quotient,
+#               equivalent, proportion and reciprocal are what these courses TEACH
+#               and rule 14 REQUIRES them; not one is on the list.
+#               ⭐ THE SWEEP THAT LICENSED IT: 12,140 authored lines across all 360
+#               lessons -- the youngest three courses AND the other six -- use NOT ONE
+#               of the 78 words. The referee is not a new standard; it is the standard
+#               the scripted lane already keeps, extended to the lane that cannot be
+#               proof-read in advance. Pinned in PART 3kt.
+#               ⚠️ ITS PROMPT TWIN IS COURSE-SCOPED, AND THAT IS LOAD-BEARING. The
+#               first cut put the rule in the universal rule list, and the battery
+#               caught it inside one run: Algebra II's all-heard prompt went 631
+#               characters OVER its 208,000 ceiling. _plain_words_block(course) rides
+#               beside _notation_block at all three prompt builders, so the nine
+#               courses it is not true for pay nothing for it. A rule that is true for
+#               three courses and paid for by twelve is a rule in the wrong place.
+#               REFEREE COUNT 85 -> 86. Truth class unchanged at 11 (this is a
+#               reading-level referee, not a truth referee).
 #   2026-09-09  BUILD uw -- A BLANK IS A BLANK WHEREVER IT STANDS. answered_ask
 #               (referee 52) read a pending line as "= ?" only, so a MISSING-ADDEND
 #               line -- "7 + ? = 10", the ordinary way to write "seven and how many
@@ -787,6 +812,7 @@ from prompts import (  # noqa: E402
     PRACTICE_SYSTEM_PROMPT_TEMPLATE,
     ASSESSMENT_SYSTEM_STUDENT, ASSESSMENT_SYSTEM_PARENT,
     TOPIC_SYSTEM_PROMPT_TEMPLATE,
+    PLAIN_WORDS_BLOCK,          # (ux) the PLAIN WORDS table -- the TEXT; the scope is here
 )
 
 # The STUDENT-FACING model. Configurable via env (CLAUDE_MODEL) so we never have to
@@ -1084,6 +1110,28 @@ def _notation_block(course: str) -> str:
         return ""
 
 
+# (ux) The three courses whose students are still learning to read. Same list referee
+# 86 is scoped to (_HW_COURSES) -- and deliberately a SECOND name rather than an import
+# from the referee, because the prompt block and the referee are allowed to disagree
+# later (a course could keep the rule and lose the enforcement, or the reverse) and a
+# shared constant would hide that decision instead of making someone take it.
+_PW_COURSES = ("entry", "basic", "prealgebra")
+
+
+def _plain_words_block(course: str) -> str:
+    """(ux) The PLAIN WORDS table (rule 48(i)) for entry/basic/prealgebra, or "".
+
+    The prompt twin of referee 86: the referee names the swap when a hard word gets
+    through, and this tells him the rule before he needs correcting. Scoped like the
+    notation block -- Algebra II is 631 characters from its own ceiling and this is
+    not true for Algebra II anyway. Never raises."""
+    try:
+        return PLAIN_WORDS_BLOCK if str(course or "").strip().lower() in _PW_COURSES else ""
+    except Exception as exc:  # noqa: BLE001
+        print(f"[tutor] plain-words block failed ({exc}) -- continuing without it")
+        return ""
+
+
 # build gf (2026-08-14): FILTERING IS NOT OPTIONAL. ruletests caught this within an hour of
 # build gb shipping: when no unit can be determined -- an unplaced student, or a practice
 # problem the classifier cannot place -- unit was None, prompt_block filtered NOTHING, and
@@ -1290,7 +1338,7 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
             progress=progress,
             playbook=playbook,
             mastery=mastery,
-        ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE + _notation_block(course) + _misconception_block(course) + _foundation_block(
+        ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE + _notation_block(course) + _plain_words_block(course) + _misconception_block(course) + _foundation_block(
             course, heard, carry_heard_wording,
             unit or _FILTER_UNIT_FALLBACK)   # build gb: only THIS unit's scripts carry their wording
         if final_mode == "prep":
@@ -3032,6 +3080,117 @@ def board_silence_conflict(reply: str):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[boardsilence] crashed (fail open): {exc}")
         _event("referee_crash", "boardsilence", str(exc))
+        return ""
+
+
+# =============================================================================
+# BUILD ux (2026-09-10) -- REFEREE 86: THE READING LEVEL OF THE YOUNGEST COURSES.
+# -----------------------------------------------------------------------------
+# Jim flagged a live Prealgebra opener on 2026-09-09: "'ambiguity' is a word that a
+# child will not understand." He is describing the SAME failure the board referees
+# describe from the other side. A child who meets a word they cannot read does not
+# ask what it means -- they stop following, and by rule 0's own logic (confusion ->
+# frustration -> the app is the enemy) the sentence after it is wasted whatever it
+# says. The truth of the sentence is not the question here; whether it lands is.
+#
+# SCOPE: entry, basic and prealgebra -- the three courses whose students are still
+# LEARNING TO READ or have only just finished. Algebra up, the vocabulary is part of
+# the subject and this referee is silent.
+#
+# ⚠️ WHAT IT IS NOT. It is NOT a ban on mathematical words. "Numerator", "quotient",
+# "equivalent", "proportion" and "reciprocal" are TAUGHT by these courses and are
+# nowhere in the list -- a lesson's own vocabulary is the lesson's job (rule 14 is
+# what guards that, and it REQUIRES the words). The list is general academic English
+# with a plain-English twin: the words a model reaches for out of habit and an
+# author never does.
+#
+# THE LIST IS A DICTIONARY, NOT A DENYLIST, and that is the whole design. A referee
+# that says "that word is too hard" gets a rewrite that is a coin flip. A referee
+# that says 'say "so" instead of "consequently"' gets the sentence the author would
+# have written. Every entry carries its swap; a word with no honest swap does not
+# belong on the list.
+#
+# THE CANON SWEEP THAT LICENSED IT: every authored line of all 360 lessons -- the
+# youngest three courses AND the other six -- uses NOT ONE of these 78 words. The
+# house voice already writes this way. The referee is not a new standard; it is the
+# standard the scripted lane already keeps, extended to the lane that cannot be
+# proof-read in advance.
+# =============================================================================
+_HW_COURSES = ("entry", "basic", "prealgebra")
+
+# word (lowercase) -> what an author would have said instead
+_HW_PLAIN = {
+    "ambiguity": "not clear", "ambiguous": "not clear", "ambiguously": "not clear",
+    "approximately": "about", "arbitrary": "any one you like",
+    "arbitrarily": "any way you like",
+    "coincide": "land on the same spot", "coincides": "lands on the same spot",
+    "commence": "start", "commences": "starts",
+    "conceptual": "the idea behind it", "conceptually": "in idea",
+    "consequently": "so", "constitute": "make up", "constitutes": "makes up",
+    "criteria": "the tests", "criterion": "the test",
+    "cumulative": "adding up as you go",
+    "denote": "stand for", "denotes": "stands for", "denoted": "stood for",
+    "determine": "work out", "determines": "works out", "determined": "worked out",
+    "discrepancy": "difference", "distinct": "different", "distinctly": "clearly",
+    "elaborate": "say more", "encompass": "take in", "encompasses": "takes in",
+    "entail": "mean", "entails": "means",
+    "explicit": "written out", "explicitly": "in so many words",
+    "facilitate": "help", "generalise": "make it work for every number",
+    "generalize": "make it work for every number", "hence": "so",
+    "implication": "what it means", "implications": "what it means",
+    "implicit": "not written down", "implicitly": "without saying so",
+    "incorporate": "put in", "inherent": "built in", "inherently": "by its nature",
+    "initiate": "start", "intuition": "what it feels like",
+    "intuitive": "what it feels like", "intuitively": "by feel",
+    "invariably": "every time", "magnitude": "size",
+    "methodology": "the way you do it", "negligible": "too small to matter",
+    "nonetheless": "even so", "notion": "idea",
+    "obtain": "get", "obtains": "gets", "obtained": "got",
+    "paradigm": "way of looking at it", "perceive": "see", "perceived": "saw",
+    "prerequisite": "what you need first", "presumably": "probably",
+    "rationale": "the reason", "reiterate": "say again",
+    "respectively": "in that order", "scenario": "story", "scenarios": "stories",
+    "subsequent": "next", "subsequently": "then", "substantial": "big",
+    "sufficient": "enough", "sufficiently": "enough",
+    "terminology": "the words we use", "theoretical": "on paper",
+    "thereby": "so", "thus": "so", "ultimately": "in the end",
+    "utilise": "use", "utilize": "use", "utilised": "used", "utilized": "used",
+    "whereas": "but",
+}
+_HW_WORD_RE = re.compile(r"[A-Za-z][A-Za-z']*")
+_HW_NAMED = 3              # name at most three swaps; a wall of them is not a nudge
+
+
+def hard_word_conflict(reply: str, course: str = ""):
+    """Return a description of a word too hard for this course's reader, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        if str(course or "").strip().lower() not in _HW_COURSES:
+            return ""
+        prose = _spoken_only(str(reply or ""))
+        seen = []
+        for w in _HW_WORD_RE.findall(prose):
+            lw = w.lower()
+            if lw in _HW_PLAIN and lw not in seen:
+                seen.append(lw)
+        if not seen:
+            return ""
+        named = seen[:_HW_NAMED]
+        swaps = "; ".join('say "%s" instead of "%s"' % (_HW_PLAIN[w], w) for w in named)
+        more = "" if len(seen) <= _HW_NAMED else (
+            " (%d more like it in the same reply: %s)"
+            % (len(seen) - len(named), ", ".join(seen[_HW_NAMED:])))
+        return ("this reply uses %d word%s a %s student cannot read: %s. A word they "
+                "cannot read does not slow them down -- it stops them following, and "
+                "everything after it is wasted however true it is. %s%s. Change ONLY "
+                "those words: keep the sentence, the board and the maths exactly as "
+                "they are."
+                % (len(seen), "" if len(seen) == 1 else "s",
+                   str(course).strip().lower(), ", ".join('"%s"' % w for w in seen),
+                   swaps, more))
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[hardword] crashed (fail open): {exc}")
+        _event("referee_crash", "hardword", str(exc))
         return ""
 
 
@@ -9719,6 +9878,16 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if bsilence:
             _event("referee_fire", "boardsilence", bsilence)
             return bsilence
+        # (ux) the EIGHTY-SIXTH, beside the two above and for the same reason: 85 asks
+        # whether the child has anything to LOOK at, 34 whether there is too much to
+        # hold -- this asks whether they can READ what is being said at all. Jim, on a
+        # live Prealgebra opener, 2026-09-09: "'ambiguity' is a word that a child will
+        # not understand." Scoped to entry/basic/prealgebra; names the plain-English
+        # swap for every word it catches.
+        hardword = hard_word_conflict(reply, course)
+        if hardword:
+            _event("referee_fire", "hardword", hardword)
+            return hardword
         # (oc) the forty-eighth: a result you speak is a result you drew.
         skipres = skipped_result_conflict(reply, heard)
         if skipres:
@@ -11838,7 +12007,7 @@ def build_practice_prompt(student: dict, problem: str, course: str = DEFAULT_COU
         playbook=playbook,
         subject=_subject(course),
         scope_block=PRACTICE_SCOPE.get(course or DEFAULT_COURSE, PRACTICE_SCOPE[DEFAULT_COURSE]),
-    ) + _notation_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"),
+    ) + _notation_block(course) + _plain_words_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"),
                       (student or {}).get("foundations_verbatim", True), _fu)
 
 
@@ -11877,7 +12046,7 @@ def build_topic_prompt(student: dict, topic: str, course: str = DEFAULT_COURSE) 
         playbook=playbook,
         subject=_subject(course),
         scope_block=TOPIC_SCOPE.get(course or DEFAULT_COURSE, TOPIC_SCOPE[DEFAULT_COURSE]),
-    ) + _notation_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"),
+    ) + _notation_block(course) + _plain_words_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"),
                       (student or {}).get("foundations_verbatim", True), _fu)
 
 

@@ -14,7 +14,7 @@
     "it's trying to teach very, very fast. Here's this. Here's this. Now go."). The
     server names every say beat (`beat`, from lessonscripts.beat_of) and speaks the
     orientation second. This page pauses on the beats: after a picture, teach or worked
-    beat it says "Got it?" (spoken, never bubbled -- a bubble scrolled the board out of
+    beat it says "With me so far?" (spoken, never bubbled -- a bubble scrolled the board out of
     view) and shows Got it / Show me again; "Show me again" replays the same line over
     the board that is already there (a cache hit), twice at most. After the practice
     intro: I'm ready / Show me that example again. scrChoice is showSeamChoice's twin
@@ -175,6 +175,13 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-09-10  (ux) The check after a picture, teach or worked beat is now "With me
+                so far?" with a "Yes" button -- Jim: "Got it?!" "is suddenly
+                enthusiastic and loud." Both strings stay byte-identical to
+                lessonscripts (the voice cache is keyed on the exact text). And a feed
+                block that draws a PICTURE now spans both columns of oz's grid: the
+                drawn bar goes 720 -> 884px at 1440x900. Phones are byte-identical --
+                the grid is off below 901px.
     (sg) 2026-09-02 -- THE SWEEP HIT THE CODE. Jim live: "This opened and nothing
     happened. NO voice" -- the sd child->student sweep, meant for visible copy, also rewrote code identifiers: wipeBoard's Array.from(feed.children) had become
     feed.students, so the scripted opener's first board tag crashed handleTags,
@@ -826,6 +833,23 @@
       .feed > * { grid-column: 1 / -1; }
       .feed > .bubble.tutor { grid-column: 1; justify-self: start; max-width: 100%; }
       .feed > .mblock, .feed > .mrow, .feed > .steprow { grid-column: 2; }
+      /* ⚠️ (ux, 2026-09-10) A PICTURE TALLER THAN THE WORDS TAKES THE WHOLE WIDTH.
+         Jim's flag, live in algebra1: "The diagram is half the size it could be."
+         MEASURED on the flagged beat at 1440x900: the tutor's 58-word bubble is
+         432x142, the two bar models beside it are 806px wide -- and the 475px left
+         column sits EMPTY for the 650px below the bubble. oz built these two columns
+         from Jim's own complaint ("it's still not using the full screen"), and this
+         is the same complaint's remainder, not a reversal of it: the words keep their
+         readable 32% column, and a block that draws an actual PICTURE stops paying
+         for a column it is not using.
+         The selector list is board.js's OWN definition of "a picture, not a
+         re-statement" (its supersede walk, line ~1108), reused verbatim rather than
+         copied into a second list that could drift -- build oy's one-grammar law.
+         :has() is new to this codebase, and its failure mode is the reason it is safe
+         here: a browser that does not support it simply does not match, and the
+         layout is byte-for-byte what shipped before this build. */
+      .feed > .mblock:has(.mfig, .graphwrap, .colmath, .objwrap, .scale, .machine,
+                          .solveboard, .steprow) { grid-column: 1 / -1; }
       .feed > .bubble.student { justify-self: end; }
       .feed > .bubble.system { justify-self: center; }
     }
@@ -3425,7 +3449,7 @@
       // (us, 2026-09-09) ONE IDEA PER BEAT, WITH A CHECK. Jim: "it's trying to teach
       // very, very fast. Here's this. Here's this. Now go." A picture, teach or worked
       // beat now ends on a check the student answers before the next beat plays --
-      // "Got it?" with Got it / Show me again (a replay of the same line, a cache
+      // "With me so far?" with Yes / Show me again (a replay of the same line, a cache
       // hit; twice at most) -- and the practice intro ends on a ready gate (I'm ready
       // / Show me that example again). The server names the beat (`beat`, from
       // lessonscripts.beat_of); a beat with no name, or a silent one (the Next ▶
@@ -3441,8 +3465,8 @@
     }
     // (us) THE CHECK AND THE READY GATE -- page-level pauses the student controls.
     const SCR_CHECK_BEATS = new Set(["picture", "teach", "worked"]);
-    const LINE_CHECK = "Got it?";                                          // byte-identical to lessonscripts.LINE_CHECK
-    const CHECK_CHOICES = ["Got it", "Show me again"];                       // ...and CHECK_CHOICES
+    const LINE_CHECK = "With me so far?";                                  // byte-identical to lessonscripts.LINE_CHECK
+    const CHECK_CHOICES = ["Yes", "Show me again"];                          // ...and CHECK_CHOICES
     const READY_CHOICES = ["I'm ready", "Show me that example again"];       // ...and READY_CHOICES
     // A row of big taps that RESOLVES with the label tapped (showSeamChoice's twin,
     // for a pause rather than a navigation). Spoken or typed words answer it too:
@@ -3470,7 +3494,7 @@
     async function scrReplay(step) {
       // the same words again -- a cache hit -- over the board that is already there.
       // ⚠️ NO NEW BUBBLE: a bubble starts a new row and scrolls the board the student
-      // asked to see again out of view (the first cut did exactly that -- "Got it?"
+      // asked to see again out of view (the first cut did exactly that -- the check
       // sat alone at the top of an empty board). The transcript already holds the line.
       busy = true; setPhase("busy");
       statusEl.textContent = tutorName + " is talking…";

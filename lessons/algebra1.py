@@ -2,6 +2,18 @@
 # lessons/algebra1.py  --  ALGEBRA I: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-10  BUILD ux -- JIM'S FOUR FLAGS ON UNIT 1, 2026-09-09. two-steps-with-a-
+#               letter and two-letters: every teach beat, worked pair and reason
+#               question names the EXPRESSION before the value ("5 x plus 4, with x
+#               holding 3", never "x is holding 3. 5 x plus 4"), and every board runs
+#               expression -> what the letters hold -> the picture filled in.
+#               ⭐ AND THE BAR IS BACK ON THE TRAP BEAT. two-steps' teach[1] ends
+#               "Look at the bar: the 2 is one piece on the end, not three" and its
+#               board drew two step lines -- the bar was two beats up the feed and off
+#               the top of the screen. Jim: "I had to croll up to see the bar." It
+#               draws the bar now, and two-letters' trap beat draws its own. deixis.py
+#               sweeps the whole course for the class; it found two more, in
+#               Entry-Level and Prealgebra, both fixed in this build.
 #   2026-09-08  BUILD uq -- the reason and recap beats of alg1-u3-f-of-x, -two-machines and
 #               -which-input say "back to our first machine(s)" when they return to the
 #               lesson's opening machine after the practice set -- a retiring phrase the
@@ -63,31 +75,32 @@ _ALGEBRA1_U1 = [
              '[[tape parts="x | x | x | 2" total="?" caption="3x + 2 — three copies of x, then 2"]][[tape parts="4 | 4 | 4 | 2" total="14" caption="x holds 4: 12 + 2 = 14"]]'),
         ],
         "teach": [
-            ("That is the method. Say x is holding 4. What is 3 x plus 2? The times "
-             "comes first: 3 times 4 equals 12. Then the add: 12 plus 2 equals 14.",
-             '[[step eq="x = 4"]][[tape parts="4 | 4 | 4 | 2" total="14" caption="3x + 2 with x holding 4"]][[step eq="3x + 2 = 3 × 4 + 2"]][[step eq="12 + 2 = 14"]]'),
+            ("That is the method. Take the question first: what is 3 x plus 2? Then "
+             "take what x holds: 4. The times comes first: 3 times 4 equals 12. Then "
+             "the add: 12 plus 2 equals 14.",
+             '[[tape parts="x | x | x | 2" total="?" caption="3x + 2 — 3 copies of x, then 2"]][[step eq="x = 4"]][[tape parts="4 | 4 | 4 | 2" total="14" caption="3x + 2 = 3 × 4 + 2 = 14"]]'),
             ("The order is the whole game. If you add first — 4 plus 2, then times 3 "
              "— you get 18, and 18 is wrong. The plus cannot reach the x before the "
              "times has had it. Look at the bar: the 2 is one piece on the end, not "
              "three.",
-             '[[step eq="3 × 4 + 2 = 14 ✓"]][[step eq="3 × (4 + 2) = 18 ✗"]]'),
+             '[[step eq="3 × 4 + 2 = 14 ✓"]][[step eq="3 × (4 + 2) = 18 ✗"]][[tape parts="4 | 4 | 4 | 2" total="14" caption="the 2 is one piece on the end, not three"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. x is holding 5. 2 x plus 7: "
+            {"worked": ("Here is one more, done for you. 2 x plus 7, with x holding 5: "
                         "times first, 2 times 5 equals 10, then 10 plus 7 equals 17.",
-                        '[[step eq="x = 5"]][[tape parts="5 | 5 | 7" total="17" caption="2x + 7 = 10 + 7 = 17"]]'),
+                        '[[step eq="2x + 7"]][[step eq="x = 5"]][[tape parts="5 | 5 | 7" total="17" caption="2x + 7 = 10 + 7 = 17"]]'),
              "ask": {'a': 3, 'b': 4, 'c': 2, 'op': 'ev2'}},
-            {"worked": ("One more together. x is holding 3. 5 x plus 4: 5 times 3 equals "
-                        "15, and 15 plus 4 equals 19.",
-                        '[[step eq="x = 3"]][[tape parts="3 | 3 | 3 | 3 | 3 | 4" total="19" caption="5x + 4 = 15 + 4 = 19"]]'),
+            {"worked": ("One more together. 5 x plus 4, with x holding 3: 5 times 3 "
+                        "equals 15, and 15 plus 4 equals 19.",
+                        '[[step eq="5x + 4"]][[step eq="x = 3"]][[tape parts="3 | 3 | 3 | 3 | 3 | 4" total="19" caption="5x + 4 = 15 + 4 = 19"]]'),
              "ask": {'a': 5, 'b': 4, 'c': 6, 'op': 'ev2'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. x is holding 4, "
-                       "so 3 x plus 2 is 14. Tap the reason why."),
+            "spoken": ("One more thing — not the answer, the reason. 3 x plus 2 is 14, "
+                       "when x is holding 4. Tap the reason why."),
             "choices": ("because 3 x is three fours, 12, then the 2 goes on | "
                         "because 4 plus 2 is 6, and three sixes is 18 | because the "
                         "3, the 4 and the 2 all add together"),
@@ -139,31 +152,31 @@ _ALGEBRA1_U1 = [
              '[[tape parts="x | y | y" total="?" caption="x + 2y — one x, then two copies of y"]][[tape parts="3 | 4 | 4" total="11" caption="x holds 3, y holds 4: 3 + 8 = 11"]]'),
         ],
         "teach": [
-            ("That is the method. Say x is holding 3 and y is holding 4. What is x "
-             "plus 2 y? Deal with the times first: 2 y is 2 times 4, which equals 8. "
-             "Then x plus that: 3 plus 8 equals 11.",
-             '[[step eq="x = 3 · y = 4"]][[tape parts="3 | 4 | 4" total="11" caption="x + 2y with x holding 3, y holding 4"]][[step eq="x + 2y = 3 + 2 × 4"]][[step eq="3 + 8 = 11"]]'),
+            ("That is the method. Take the question first: what is x plus 2 y? Then "
+             "take what the letters hold: x is 3, y is 4. Deal with the times first: "
+             "2 y is 2 times 4, which equals 8. Then x plus that: 3 plus 8 equals 11.",
+             '[[tape parts="x | y | y" total="?" caption="x + 2y — one x, then 2 copies of y"]][[step eq="x = 3 · y = 4"]][[tape parts="3 | 4 | 4" total="11" caption="x + 2y = 3 + 2 × 4 = 11"]]'),
             ("Each letter keeps its own number — the 2 belongs to the y and never "
              "touches the x. 3 plus 2, timesed by 4, would be 20, and 20 is wrong. "
              "Read who the 2 is standing next to.",
-             '[[step eq="3 + 2 × 4 = 11 ✓"]][[step eq="(3 + 2) × 4 = 20 ✗"]]'),
+             '[[step eq="3 + 2 × 4 = 11 ✓"]][[step eq="(3 + 2) × 4 = 20 ✗"]][[tape parts="3 | 4 | 4" total="11" caption="the 2 made two y pieces — it never touched the x"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. x holds 5, y holds 2. x plus "
-                        "4 y: 4 times 2 equals 8, and 5 plus 8 equals 13.",
-                        '[[step eq="x = 5 · y = 2"]][[tape parts="5 | 2 | 2 | 2 | 2" total="13" caption="x + 4y = 5 + 8 = 13"]]'),
+            {"worked": ("Here is one more, done for you. x plus 4 y, with x holding 5 "
+                        "and y holding 2: 4 times 2 equals 8, and 5 plus 8 equals 13.",
+                        '[[step eq="x + 4y"]][[step eq="x = 5 · y = 2"]][[tape parts="5 | 2 | 2 | 2 | 2" total="13" caption="x + 4y = 5 + 8 = 13"]]'),
              "ask": {'a': 2, 'b': 3, 'c': 3, 'op': 'evxy'}},
-            {"worked": ("One more together. x holds 6, y holds 3. x plus 5 y: 5 times 3 "
-                        "equals 15, and 6 plus 15 equals 21.",
-                        '[[step eq="x = 6 · y = 3"]][[tape parts="6 | 3 | 3 | 3 | 3 | 3" total="21" caption="x + 5y = 6 + 15 = 21"]]'),
+            {"worked": ("One more together. x plus 5 y, with x holding 6 and y holding "
+                        "3: 5 times 3 equals 15, and 6 plus 15 equals 21.",
+                        '[[step eq="x + 5y"]][[step eq="x = 6 · y = 3"]][[tape parts="6 | 3 | 3 | 3 | 3 | 3" total="21" caption="x + 5y = 6 + 15 = 21"]]'),
              "ask": {'a': 7, 'b': 5, 'c': 4, 'op': 'evxy'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. x holds 3 and y "
-                       "holds 4, so x plus 2 y is 11. Tap the reason why."),
+            "spoken": ("One more thing — not the answer, the reason. x plus 2 y is 11, "
+                       "when x holds 3 and y holds 4. Tap the reason why."),
             "choices": ("because 2 y is two fours, 8, then x adds 3 | because "
                         "3 plus 2 is 5, and five fours is 20 | because the 2 goes with "
                         "the x, not the y"),

@@ -6,6 +6,30 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  BUILD ux -- PART 3kt, THE EXPRESSION COMES FIRST. Pins Jim's four
+#               Algebra I flags at the PATTERN level: every one of the 372 spoken
+#               lines the four letter lessons can say names the expression before the
+#               value (and the test is shown to tell his own flagged sentence apart,
+#               before and after); every ask board draws the bar first and x = N
+#               second; every walk-back board shows what the letter was holding; not
+#               one beat in any of the 360 lessons points at a picture its board does
+#               not draw (deixis.py, with a BUILT control and a cry-wolf control);
+#               the :has() figure-width rule in all three feed pages; "With me so
+#               far?" and its "Yes" button, byte-identical page-to-lane and in the
+#               closure; referee 86 with its canon sweep and its course-scoped prompt
+#               twin. FOUR PINS REPOINTED: 3ja/3jb's two walk-back equalities (the
+#               boards gained their x = N line), 3gw's count-along total (21 -> 22,
+#               entry-u2's trap beat got its stars back) and 3kr's methodology count
+#               (85 -> 86). ONE LITERAL REMOVED: the us live-walk pin tapped "Got it"
+#               by name and now reads CHECK_LABELS from lessonscripts -- a pin that
+#               hard-codes a string the product can change is a pin that fails for the
+#               wrong reason.
+#               ⚠️ THE LAW THIS BUILD RE-LEARNED THE HARD WAY: DO NOT EDIT A FILE
+#               WHILE THE BATTERY IS RUNNING. Two rn pins failed on a clean tree --
+#               they use inspect.getsource(), which re-reads tutor.py from disk at the
+#               loaded code object's line numbers, and a 15-line insert had shifted
+#               them. Nothing was wrong with the code. Same law as the uv cp -r
+#               incident; the cost is a wasted 25-minute run and a false lead.
 #   2026-09-09  BUILD uw -- PART 3ks, ENTRY-LEVEL UNITS 2-4 TO THE SHAPE. Pins the
 #               twelve lessons' whole shape, ruling (c) BOTH ways (no reason question
 #               in Units 2-3, all four Unit 4 lessons carry it), the walk-back flag
@@ -11400,8 +11424,8 @@ def part3kg_the_mark_floor():
     check("  no retry anywhere in it (Jim: the verdict is already spoken; only the record was missing)",
           "MATHCHECK_MAX_ATTEMPTS" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000]
           and "retry" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000].lower(), "")
-    check("  the referee count is eighty-five since uv (eighty-one since uo) -- uk added a floor, not a referee",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 85, "")
+    check("  the referee count is eighty-six since ux (eighty-one since uo) -- uk added a floor, not a referee",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 86, "")
 
     # ---- through the real shipping door (3gb's stub harness) --------------------------------
     import mathcheck as _mc
@@ -11863,9 +11887,9 @@ def part3kj_the_truth_items_and_the_proven_holes():
           and "which side is which" in (T.prose_board_conflict(W, "ok") or "")
           and '_event("referee_fire", "triangleletters", trinames)' in tsrc
           and tsrc.find('_event("referee_fire", "triangleletters"') > tsrc.find('_event("referee_fire", "triangleletter",') > 0, "")
-    check("⭐ eighty referees at un, eighty-one since uo, eighty-four since ut, eighty-five since uv; the truth class still eleven (rule 14 is conduct; the rows ride "
+    check("⭐ eighty referees at un, eighty-one since uo, eighty-four since ut, eighty-six since ux; the truth class still eleven (rule 14 is conduct; the rows ride "
           "referee 61's table)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85 and len(T.TRUTH_REFEREES) == 11, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweeps: nothing authored trips any of it --------------------------------------
     texts = []; pairs = []
@@ -12024,8 +12048,8 @@ def part3kk_one_name_per_function():
           and any("[[choices]]" in r["shape"] for r in rows if r["rule"] == 48)
           and any("already introduced" in r["shape"] for r in rows if r["rule"] == 48), "")
 
-    check("⭐ eighty-one referees at uo (eighty-five since uv); the truth class still eleven (rule 28 is conduct)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85 and len(T.TRUTH_REFEREES) == 11, "")
+    check("⭐ eighty-one referees at uo (eighty-six since ux); the truth class still eleven (rule 28 is conduct)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweep, CUMULATIVE: each beat against the beats before it ---------------------
     n = 0; fires = []; machine_reuse = []
@@ -12161,8 +12185,8 @@ def part3kl_a_new_machine_still_called_f():
           and "_FR_MACHINE" in tsrc and "\\bnew\\s+machines?\\b" in tsrc, "")
     check("  a dot between two definitions on one board line separates them (fcmp's own step)",
           T._fr_definitions('[[step eq="f(x) = x + 2 · g(x) = 2x"]]') == [("f", "x", "x+2"), ("g", "x", "2x")], "")
-    check("  the referee count is unchanged by up -- it widened the eighty-first's grammar (eighty-five since uv)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85, "")
+    check("  the referee count is unchanged by up -- it widened the eighty-first's grammar (eighty-six since ux)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86, "")
 
     # ---- the cumulative canon sweep now SEES the definitions, and still fires 0 ---------------
     n = defs = 0; fires = []
@@ -12613,7 +12637,7 @@ def part3ko_orient_then_one_idea_per_beat_with_a_check():
         the intro, reading store.get_script_done; no record -> the "Today" form.
       * lessonscripts.beat_of(lesson, spoken) names a say step's authored beat; main.py's
         _script_clean attaches it as `beat`. The ENGINE's walk is unchanged.
-      * session.html: after a picture, teach or worked beat -- "Got it?" (spoken, never
+      * session.html: after a picture, teach or worked beat -- "With me so far?" (spoken, never
         bubbled: a bubble scrolled the board out of view in the first cut) with Got it /
         Show me again (the same line replayed, a cache hit, twice at most); after the
         practice intro -- I'm ready / Show me that example again. Words answer a check
@@ -12691,6 +12715,7 @@ def part3ko_orient_then_one_idea_per_beat_with_a_check():
     # ---- the page, statically -----------------------------------------------------------------------------
     import json as _jsn
     READY_LABELS = LS.READY_CHOICES.split(" | ")
+    CHECK_LABELS = LS.CHECK_CHOICES.split(" | ")   # (ux) the check's own labels, read from the lane
     check("⭐ session.html: a picture, teach or worked beat ends on the check; the practice intro on the ready gate; "
           "the lines and labels are byte-identical to lessonscripts",
           'const SCR_CHECK_BEATS = new Set(["picture", "teach", "worked"]);' in pcode
@@ -12781,7 +12806,9 @@ def part3ko_orient_then_one_idea_per_beat_with_a_check():
                               and log[1:3] == [LS.lesson_intro(first)[0], LS.lesson_orientation(first, False)[0]]
                               and i_pic > 0 and log[i_pic + 1:i_pic + 4] == [LS.LINE_CHECK, pic, LS.LINE_CHECK]   # Show me again replayed it
                               and log.count(LS.LINE_CHECK) == 6                                                   # picture x2, teach x2, worked x2
-                              and taps[:2] == ["Show me again", "Got it"] and taps[-1] == READY_LABELS[0]
+                              # (ux) the labels come from lessonscripts, never a literal: Jim
+                              # retired "Got it?!" and its button on 2026-09-09
+                              and taps[:2] == ["Show me again", CHECK_LABELS[0]] and taps[-1] == READY_LABELS[0]
                               and log[-2] == first["practice_intro"] and log[-1].startswith("Two new machines"),
                               _json.dumps({"taps": taps, "lines": [l[:28] for l in log], "errors": errs})[:600])
                         br.close()
@@ -12918,8 +12945,8 @@ def part3kp_the_first_watch_on_the_new_stack():
     check("  dispatched after triangleletters, in order: arrowpointer, pictured, problemnumbers",
           tsrc.find('_event("referee_fire", "triangleletters"') < tsrc.find('_event("referee_fire", "arrowpointer"')
           < tsrc.find('_event("referee_fire", "pictured"') < tsrc.find('_event("referee_fire", "problemnumbers"'), "")
-    check("⭐ eighty-five referees; the truth class still eleven (the row rides referee 61's table; the three are conduct)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85 and len(T.TRUTH_REFEREES) == 11, "")
+    check("⭐ eighty-six referees; the truth class still eleven (the row rides referee 61's table; the three are conduct)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweeps ---------------------------------------------------------------------------------
     texts = []; strict_times = []
@@ -13217,7 +13244,7 @@ def part3kr_the_board_keeps_up_with_the_voice():
     n_ref = sum(1 for n in dir(T) if n.endswith("_conflict"))
     check("⭐ the EIGHTY-FIFTH referee: board_silence_conflict (uv); the truth class still "
           "eleven -- a wall of talk teaches nothing false, it teaches nothing",
-          n_ref == 85 and hasattr(T, "board_silence_conflict") and len(T.TRUTH_REFEREES) == 11,
+          n_ref == 86 and hasattr(T, "board_silence_conflict") and len(T.TRUTH_REFEREES) == 11,
           f"{n_ref} *_conflict functions")
     check("  it rides the same sweep as the rest, next to its sibling spokenmath",
           'bsilence = board_silence_conflict(reply)' in rd("tutor.py")
@@ -13388,9 +13415,9 @@ def part3kr_the_board_keeps_up_with_the_voice():
                        ("static/methodology.html", "2026-09-09  (uv)")):
         check(f"  {fn} carries uv's dated note", needle in notes(fn), fn)
     meth = rd("static/methodology.html")
-    check("  methodology's tile and both data-referees spans say 85",
-          meth.count("<span data-referees>85</span>") == 2
-          and '<div class="num"><b>85</b>' in meth, "")
+    check("  methodology's tile and both data-referees spans say 86 (ux added referee 86)",
+          meth.count("<span data-referees>86</span>") == 2
+          and '<div class="num"><b>86</b>' in meth, "")
 
     # ---- LIVE: a whole lesson over HTTP, and the card in a real browser ---------------------
     NAME = "⭐ LIVE: a lesson driven to its end over HTTP ends on the card, and the card renders at 390x844"
@@ -13739,6 +13766,270 @@ def part3ks_entry_units_two_to_four_to_the_shape():
           and "(uw)" in notes("static/methodology.html"),
           "Jim's rule 8")
 
+
+
+def part3kt_the_expression_comes_first():
+    """PART 3kt (build ux, 2026-09-10) -- THE EXPRESSION COMES FIRST, THE PICTURE IS
+    STILL THERE, AND THE WORDS CAN BE READ.
+
+    Four flags Jim raised on Algebra I in one sitting, and the two rulings he gave
+    with them. Every one is fixed at the PATTERN level -- in the op, not in the beat
+    that happened to be flagged -- so the same defect cannot survive in the eleven
+    other places the same op is spoken.
+
+      22:43  "This is taught out of order. it should first show the equation, then
+             the value of x, not the other way around."   -> every ask, every praise,
+             every walk-back and every authored beat in the four letter lessons now
+             names the EXPRESSION first and what the letter holds second.
+      22:42  "This didn't show x=3 on the visible board."  -> every walk-back board
+             opens on the expression and on what the letter was holding.
+      22:41  "I had to croll up to see the bar."           -> a beat whose words point
+             at a picture now DRAWS that picture. deixis.py sweeps all 360 lessons for
+             the class; it found two more, in Entry-Level and in Prealgebra.
+      22:40  "The diagram is half the size it could be."   -> build oz's two-column
+             feed left a 32% column empty whenever the figure was taller than the
+             words. A :has() rule gives a block that draws a PICTURE the full width:
+             the drawn bar goes 720 -> 884px at 1440x900, and the phone is
+             byte-identical (the grid is off below 901px).
+
+    JIM'S RULING: "Got it?!" GOES. "It is suddenly enthusiastic and loud. maybe
+    something like, 'ready?'" The check after a picture, teach or worked beat is now
+    "With me so far?", and the tap that says yes is just "Yes".
+
+    AND: A READING-LEVEL REFEREE ON THE YOUNGEST COURSES, from his 12:53 flag on a
+    live Prealgebra opener -- "'ambiguity' is a word that a child will not
+    understand." Referee 86 carries 78 general-academic words with their
+    plain-English twins and NAMES THE SWAP, because a referee that only says "too
+    hard" gets a rewrite that is a coin flip. It is NOT a ban on mathematical words:
+    numerator, quotient, equivalent and reciprocal are what these courses TEACH and
+    rule 14 REQUIRES them. The canon sweep that licensed it is pinned below -- not
+    one of the 78 words appears in any authored line of any of the 360 lessons."""
+    print("\nPART 3kt — the expression comes first (build ux)")
+    import inspect as _insp
+    import json as _jsn
+    import re as _re
+    import lessonscripts as L
+    import tutor as T
+    import deixis as DX
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    IDS = ["pre-u9-a-letter-holds-a-number", "pre-u9-a-number-against-a-letter",
+           "alg1-u1-two-steps-with-a-letter", "alg1-u1-two-letters"]
+
+    # ---- 1. flag 22:43 -- the expression is named before the value, everywhere ------
+    VALUE = _re.compile(r"\b[xy]\s+(?:is\s+holding|holds)\s*:?\s*(?:the\s+number\s+)?\d")
+    EXPR = _re.compile(r"\b(?:\d+\s*[xy]\b|[xy]\s+plus\b)")
+
+    def _out_of_order(text):
+        v, e = VALUE.search(text or ""), EXPR.search(text or "")
+        return bool(v and e and v.start() < e.start())
+
+    spoken = []
+    for lid in IDS:
+        les = L.LESSON_BY_ID[lid]
+        spoken += [("teach", s) for s, _ in les["teach"]]
+        for f in ("why", "picture", "recap"):
+            spoken += [(f, s) for s, _ in (les.get(f) or [])]
+        spoken += [("worked", pr["worked"][0]) for pr in les["pairs"]]
+        ex = les.get("explain") or {}
+        if ex:
+            spoken.append(("explain", ex["spoken"]))
+        for p in list(les["bank"]) + [pr["ask"] for pr in les["pairs"]]:
+            for lv in les.get("levels", L.LEVELS):
+                spoken.append(("ask", L.spoken_for(p, lv)))
+            for i in range(len(L.PRAISE_PREFIXES)):
+                spoken.append(("praise", L.praise_for(p, i)))
+            w = L._worked_for(p)
+            if w:
+                spoken.append(("walkback", w[0]))
+    bad = [(k, s) for k, s in spoken if _out_of_order(s)]
+    check("⭐⭐ JIM 22:43: not one of the %d spoken lines the four letter lessons can say "
+          "puts the VALUE before the EXPRESSION" % len(spoken),
+          not bad and len(spoken) >= 350, str(bad[:3]))
+    check("  ...and the test really can tell the two apart -- Jim's own flagged "
+          "sentence, before and after",
+          _out_of_order("One more together. x is holding 3. 5 x plus 4: 5 times 3 equals 15.")
+          and not _out_of_order("One more together. 5 x plus 4, with x holding 3: 5 times 3 equals 15.")
+          and _out_of_order("The letter x is holding the number 5. What is x plus 3?")
+          and not _out_of_order("What is x plus 3, when the letter x is holding 5?"), "")
+    check("  the four asks are ONE sentence with the question first: \"What is "
+          "<expression>, when <letter> is holding <number>?\"",
+          L.spoken_for({"a": 5, "b": 3, "op": "evx"}, "abstract")
+          == "What is x plus 3, when the letter x is holding 5?"
+          and L.spoken_for({"a": 4, "b": 3, "op": "mlx"}, "abstract")
+          == "What is 3 x, when the letter x is holding 4?"
+          and L.spoken_for({"a": 4, "b": 3, "c": 2, "op": "ev2"}, "abstract")
+          == "What is 3 x plus 2, when the letter x is holding 4?"
+          and L.spoken_for({"a": 3, "b": 4, "c": 2, "op": "evxy"}, "abstract")
+          == "What is x plus 2 y, when x is holding 3 and y is holding 4?",
+          L.spoken_for({"a": 5, "b": 3, "op": "evx"}, "abstract"))
+
+    # ---- 2. flag 22:42 -- every board runs expression, value, then the working ------
+    ASKS = [{"a": 5, "b": 3, "op": "evx"}, {"a": 4, "b": 3, "op": "mlx"},
+            {"a": 4, "b": 3, "c": 2, "op": "ev2"}, {"a": 3, "b": 4, "c": 2, "op": "evxy"}]
+    check("⭐ every ASK board draws the expression as a bar FIRST and what the letter "
+          "holds SECOND -- the order the words now use",
+          all(b.startswith("[[tape") and 'eq="x = ' in b
+              and b.index("[[step") > b.index("[[tape")
+              for b in (L.board_for(p, "abstract") for p in ASKS)),
+          str([L.board_for(p, "abstract")[:44] for p in ASKS]))
+    check("⭐⭐ JIM 22:42: every WALK-BACK board SHOWS what the letter was holding -- and "
+          "shows the expression before it",
+          all(w.startswith("[[step eq=") and 'eq="x = ' in w and "[[tape" in w
+              and w.index('eq="x = ') < w.index("[[tape")
+              for w in (_W(p)[1] for p in ASKS)),
+          str([_W(p)[1][:60] for p in ASKS]))
+    check("  ...both letters, on the two-letter op",
+          '[[step eq="x + 2y"]][[step eq="x = 3 · y = 4"]]' in _W(ASKS[3])[1], _W(ASKS[3])[1])
+    check("  the ask boards still end on the pending line, which rule 44 reads aloud",
+          all(L.board_for(p, "abstract").endswith('= ?\"]]') for p in ASKS), "")
+
+    # ---- 3. flag 22:41 -- the words point at a picture that IS drawn ----------------
+    check("⭐⭐ JIM 22:41: across ALL %d lessons, not one beat tells a student to look at "
+          "a picture its own board does not draw" % len(L.LESSONS),
+          not DX.hits(), str(DX.hits()[:3]))
+    check("  ...and the sweep really catches one (a BUILT control -- the flagged beat's "
+          "own words over the board it used to have)",
+          len(DX.hits([{"id": "control", "course": "algebra1",
+                        "teach": [("The order is the whole game. Look at the bar: the 2 "
+                                   "is one piece on the end, not three.",
+                                   '[[step eq="3 × 4 + 2 = 14 ✓"]]')],
+                        "pairs": [], "picture": [], "recap": []}])) == 1, "")
+    check("  ...and it does NOT cry wolf on the shape's own closing tagline "
+          "(\"and that is Pythagoras, living on the circle\")",
+          not DX.hits([{"id": "control2", "course": "precalc", "teach": [], "pairs": [],
+                        "picture": [], "recap": [("And that is Pythagoras, living on the "
+                                                  "circle.", '[[step eq="a² + b² = c²"]]')]}]), "")
+    check("  the three beats it found all draw their picture now: the bar in Algebra I, "
+          "the stars in Entry-Level, the halved rectangle in Prealgebra",
+          '[[tape parts="4 | 4 | 4 | 2"' in L.LESSON_BY_ID["alg1-u1-two-steps-with-a-letter"]["teach"][1][1]
+          and '[[objects emoji="⭐" groups="5" add="3"' in L.LESSON_BY_ID["entry-u2-add-single-digit"]["teach"][1][1]
+          and '[[rectangle w="8" h="3" half="1"' in L.LESSON_BY_ID["pre-u8-area-of-a-triangle"]["teach"][1][1], "")
+
+    # ---- 4. flag 22:40 -- the figure gets the whole feed ----------------------------
+    RULE = ('.feed > .mblock:has(.mfig, .graphwrap, .colmath, .objwrap, .scale, .machine,\n'
+            '                          .solveboard, .steprow) { grid-column: 1 / -1; }')
+    COL2 = ".feed > .mblock, .feed > .mrow, .feed > .steprow { grid-column: 2; }"
+    for fn in ("static/session.html", "static/practice.html", "static/topic.html"):
+        page = rd(fn)
+        check("⭐ %s: a block that draws a PICTURE spans both columns of oz's grid" % fn,
+              RULE in page, "")
+        check("  %s: ...declared AFTER the rule that pins a block to column 2, so it wins"
+              % fn, RULE in page and COL2 in page and page.index(RULE) > page.index(COL2), "")
+        check("  %s: ...and INSIDE the >900px grid block, so the phone is byte-identical"
+              % fn,
+              RULE in page and page.index("@media (min-width: 901px)") < page.index(RULE)
+              and page.index(RULE) < page.index(".feed > .bubble.student { justify-self: end; }"), "")
+
+    # ---- 5. Jim's ruling: "Got it?!" goes -------------------------------------------
+    page = rd("static/session.html")
+    check('⭐⭐ JIM: "Got it?!" is retired -- the check is "With me so far?" and the tap '
+          'that says yes is "Yes"',
+          L.LINE_CHECK == "With me so far?" and L.CHECK_CHOICES == "Yes | Show me again",
+          repr(L.LINE_CHECK) + " " + repr(L.CHECK_CHOICES))
+    check("  ...and the page speaks it byte-for-byte (the voice cache is keyed on the "
+          "exact text, so a mismatch is the browser's voice)",
+          'const LINE_CHECK = "%s";' % L.LINE_CHECK in page
+          and 'const CHECK_CHOICES = %s;' % _jsn.dumps(L.CHECK_CHOICES.split(" | ")) in page, "")
+    check("  ...the old wording is gone from the page and from the lane",
+          '"Got it?"' not in page and "Got it" not in L.CHECK_CHOICES
+          and L.LINE_CHECK != "Got it?", "")
+    check("  ...and it is IN the audio closure, so it is a rendered clip in his voice",
+          L.LINE_CHECK in L.STANDALONE_LINES and L.LINE_CHECK in L.course_audio_lines(), "")
+
+    # ---- 6. referee 86 -- the reading level of the youngest courses -----------------
+    check("⭐ referee 86 exists, is wired into the sweep, and the count is eighty-six",
+          hasattr(T, "hard_word_conflict")
+          and sum(1 for n in dir(T) if n.endswith("_conflict")) == 86
+          and "hard_word_conflict(reply, course)" in _insp.getsource(T.prose_board_conflict),
+          "")
+    check("⭐⭐ it fires on Jim's own word, in all three youngest courses, and NAMES the "
+          "plain word to use",
+          all('say "not clear" instead of "ambiguity"'
+              in (T.hard_word_conflict("There is some ambiguity here.", course=c) or "")
+              for c in ("entry", "basic", "prealgebra")),
+          T.hard_word_conflict("There is some ambiguity here.", course="prealgebra")[:120])
+    check("  ...and is SILENT above Prealgebra, where the vocabulary is part of the subject",
+          not any(T.hard_word_conflict("There is some ambiguity here.", course=c)
+                  for c in ("algebra1", "algebra2", "geometry", "precalc",
+                            "probstat", "calculus", "diffeq")), "")
+    check("  ...it is NOT a ban on mathematical words -- rule 14 REQUIRES those",
+          not any(T.hard_word_conflict("The numerator is 3, and that quotient is "
+                                       "equivalent to this proportion.", course=c)
+                  for c in ("entry", "basic", "prealgebra")), "")
+    check("  every one of the %d words carries a plain-English twin -- a word with no "
+          "honest swap does not belong on the list" % len(T._HW_PLAIN),
+          len(T._HW_PLAIN) >= 70
+          and all(isinstance(v, str) and v.strip() for v in T._HW_PLAIN.values()), "")
+    check("  it names at most three swaps and counts the rest (a wall of them is not a "
+          "nudge)",
+          "2 more like it in the same reply"
+          in T.hard_word_conflict("Consequently we obtain 12; thus we determine x, "
+                                  "whereas y is 5.",
+                                  course="prealgebra"),
+          T.hard_word_conflict("Consequently we obtain 12; thus we determine x, "
+                               "whereas y is 5.", course="prealgebra")[-90:])
+    check("  never raises (fail open), on anything",
+          T.hard_word_conflict(None, None) == "" and T.hard_word_conflict(123, 456) == "", "")
+    # ⭐ THE SWEEP THAT LICENSED IT
+    lines = []
+    for les in L.LESSONS:
+        got = [s for s, _ in les["teach"]]
+        for f in ("why", "picture", "recap"):
+            got += [s for s, _ in (les.get(f) or [])]
+        got += [pr["worked"][0] for pr in les["pairs"]]
+        ex = les.get("explain") or {}
+        if ex:
+            got.append(ex["spoken"])
+        got += [les["practice_intro"], les["advance_line"], les["topic"]]
+        for p in list(les["bank"]) + [pr["ask"] for pr in les["pairs"]]:
+            for lv in les.get("levels", L.LEVELS):
+                got.append(L.spoken_for(p, lv))
+            w = L._worked_for(p)
+            if w:
+                got.append(w[0])
+        lines += [(les["course"], s) for s in got]
+    lines += [(c, s) for s in L.STANDALONE_LINES for c in ("entry", "basic", "prealgebra")]
+    fires = [(c, s[:60]) for c, s in lines if T.hard_word_conflict(s, course=c)]
+    check("⭐⭐ THE CANON SWEEP THAT LICENSED IT: %d authored lines across all %d lessons, "
+          "and referee 86 fires on NONE of them -- the house voice already writes this way"
+          % (len(lines), len(L.LESSONS)),
+          not fires and len(lines) >= 11000, str(fires[:3]))
+
+    # ---- 7. the prompt twin, scoped so nine courses do not pay for it ---------------
+    check("⭐ the PLAIN WORDS block is the referee's prompt twin, and rides the three "
+          "youngest courses ONLY",
+          T._plain_words_block("prealgebra") and T._plain_words_block("entry")
+          and T._plain_words_block("basic")
+          and not any(T._plain_words_block(c) for c in
+                      ("algebra1", "algebra2", "geometry", "precalc", "probstat",
+                       "calculus", "diffeq")), "")
+    check("  ...⚠️ AND THAT SCOPING IS LOAD-BEARING: the first cut put it in the "
+          "universal rule list and Algebra II's all-heard prompt went 631 characters "
+          "over its ceiling -- this battery caught it inside one run",
+          "(i) IN EARLY MATH" not in rd("prompts.py")
+          and rd("prompts.py").count("🗣  PLAIN WORDS") == 1, "")
+    check("  ...it names the swaps and says out loud that it is not about mathematical "
+          "words",
+          'not "consequently"' in T._plain_words_block("prealgebra")
+          and "THIS IS NOT ABOUT MATHEMATICAL WORDS" in T._plain_words_block("prealgebra")
+          and "rule 14" in T._plain_words_block("prealgebra"), "")
+    check("  ...and it is appended at all three prompt builders, beside the notation block",
+          rd("tutor.py").count("+ _notation_block(course) + _plain_words_block(course) "
+                               "+ _misconception_block(course)") == 3, "")
+
+    # ---- 8. do no harm ---------------------------------------------------------------
+    check("  every lesson in the course still validates",
+          not [1 for l in L.LESSONS for ok, _, _ in L.validate(l) if not ok], "")
+    check("  the changed files carry dated ux notes (Jim's rule 8)",
+          "2026-09-10  BUILD ux" in notes("lessonscripts.py")
+          and "2026-09-10  BUILD ux" in notes("tutor.py")
+          and "2026-09-10  BUILD ux" in notes("ruletests.py")
+          and "BUILD ux" in notes("main.py")
+          and "2026-09-10  BUILD ux" in notes("prompts.py")
+          and "(ux)" in notes("static/methodology.html"),
+          "Jim's rule 8")
 
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
@@ -14733,8 +15024,8 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
 
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
-    check("  the referee count is unchanged by rl -- it widened a gate (eighty-five since uv)",
-          n_ref == 85,
+    check("  the referee count is unchanged by rl -- it widened a gate (eighty-six since ux)",
+          n_ref == 86,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -14817,8 +15108,8 @@ def part3hn_credit_only_what_you_saw():
           T.back_reference_conflict("You lined those up perfectly!", heard=None)
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
-    check("  the referee count is unchanged by rm -- it widened a gate (eighty-five since uv)",
-          n_ref == 85, f"{n_ref} *_conflict functions")
+    check("  the referee count is unchanged by rm -- it widened a gate (eighty-six since ux)",
+          n_ref == 86, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -14894,8 +15185,8 @@ def part3ho_three_one_line_holes():
           T.function_ask_rewrite_conflict("What is f(4)?") != "",
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
-    check("  the referee count is unchanged by rn -- it widened two gates (eighty-five since uv)",
-          n_ref == 85, f"{n_ref} *_conflict functions")
+    check("  the referee count is unchanged by rn -- it widened two gates (eighty-six since ux)",
+          n_ref == 86, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -20534,8 +20825,13 @@ def part3gw_the_counting_lessons_actually_count():
     # 13, 14, 15, 16, 17 or 18 stars LOOKS right in the source and is refused by
     # board.js (OBJ_COUNT_MAX is 12: "past a dozen this is not counting along"), so
     # the attribute came off and the words do the counting instead.
-    check("  the canon counts twenty-one drawings (the tutor's own modelled counts)",
-          len(counted) == 21, "%d: %s" % (len(counted), ", ".join(sorted(counted))))
+    # (ux) TWENTY-TWO since ux: entry-u2-add-single-digit's TRAP beat got the stars
+    # back. Its words end "...until you have touched every star on the board" and its
+    # board drew two step lines -- the stars were two beats up the feed and off the
+    # top of the screen. Same defect Jim flagged in Algebra I ("I had to croll up to
+    # see the bar"), same fix. deixis.py is what found all three.
+    check("  the canon counts twenty-two drawings (the tutor's own modelled counts)",
+          len(counted) == 22, "%d: %s" % (len(counted), ", ".join(sorted(counted))))
 
     # ---- the lessons that had to have it --------------------------------------
     ids = set(counted)
@@ -21305,10 +21601,10 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ eighty-five referees now, counted from the code (62 + pz + qf + qm + qs + "
+    check("⭐ eighty-six referees now, counted from the code (62 + pz + qf + qm + qs + "
           "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + "
           "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach + tw's opunspoken + tx's sharespic + un's triangleletters + uo's funcrename + ut's arrowpointer, pictured and problemnumbers)",
-          n_ref == 85, n_ref)
+          n_ref == 86, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -24656,8 +24952,8 @@ def part3ii_the_board_tells_the_truth_about_which_question():
           fires == 0 and seen >= 9000, f"{fires} authored replies rejected")
 
     # ---- the count moved, and everything that pins it moved with it ----------------
-    check("  eighty-five *_conflict referees (un added triangleletters, uo funcrename, ut three, uv boardsilence)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85, "")
+    check("  eighty-six *_conflict referees (uo funcrename, ut three, uv boardsilence, ux hardword)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86, "")
     check("  tutor.py carries a dated sm note",
           "2026-09-04  BUILD sm" in notes("tutor.py"), "")
 
@@ -26743,8 +27039,14 @@ def part3ja_prealgebra_units_seven_to_nine_to_the_shape():
     evx = {"a": 5, "b": 3, "op": "evx"}
     check("⭐ a letter holds a number: x and the number as a bar with the whole withheld, walked back with the letter swapped for its number",
           '[[tape parts="x | 3" total="?"' in L.board_for(evx, "abstract")
-          and '[[tape parts="5 | 3" total="8" caption="x + 3 = 5 + 3 = 8"]]' == _W(evx)[1]
-          and "a sum, not two digits side by side" in _W(evx)[0], "")
+          # (ux) the walk-back opens on the EXPRESSION, then what x holds, then the
+          # picture filled in -- Jim: "it should first show the equation, then the
+          # value of x, not the other way around" / "This didn't show x=3".
+          and ('[[step eq="x + 3"]][[step eq="x = 5"]]'
+               '[[tape parts="5 | 3" total="8" caption="x + 3 = 5 + 3 = 8"]]') == _W(evx)[1]
+          # (ux) "A sum..." is its own sentence now that the walk-back opens on the
+          # expression, so the pin reads the phrase, not the lower-case article
+          and "sum, not two digits side by side" in _W(evx)[0], _W(evx)[1])
     mlx = {"a": 4, "b": 3, "op": "mlx"}
     check("⭐ a number against a letter: b copies of x side by side, every copy the number in the walk-back",
           '[[tape parts="x | x | x" total="?" caption="3x — 3 copies of x"]]' in L.board_for(mlx, "abstract")
@@ -26815,7 +27117,9 @@ def part3jb_algebra_one_units_one_to_three_to_the_shape():
     ev2 = {"a": 4, "b": 3, "c": 2, "op": "ev2"}
     check("⭐ bx + c is asked as b copies of x then the c with the whole withheld, and walked back with every copy the number",
           '[[tape parts="x | x | x | 2" total="?"' in L.board_for(ev2, "abstract")
-          and '[[tape parts="4 | 4 | 4 | 2" total="14" caption="3x + 2 = 12 + 2 = 14"]]' == _W(ev2)[1]
+          # (ux) expression, then what x holds, then the picture filled in
+          and ('[[step eq="3x + 2"]][[step eq="x = 4"]]'
+               '[[tape parts="4 | 4 | 4 | 2" total="14" caption="3x + 2 = 12 + 2 = 14"]]') == _W(ev2)[1]
           and "The plus waited its turn" in _W(ev2)[0], _W(ev2)[1])
     evxy = {"a": 3, "b": 4, "c": 2, "op": "evxy"}
     check("  x + cy is one x then c copies of y; each letter keeps its own number in the walk-back",
@@ -28913,8 +29217,8 @@ def part3jr_the_gate_learns_who_wrote_the_symbol():
           "heard=heard," in _cv and "heard_tutor=heard_tutor," in _cv, "")
 
     # ---- nothing else moved ---------------------------------------------------------
-    check("  no new referee from tv (a gate correction; eighty-five since uv) and no new truth-class name",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85
+    check("  no new referee from tv (a gate correction; eighty-six since ux) and no new truth-class name",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tv notes",
           "2026-09-07  BUILD tv" in notes("tutor.py")
@@ -29068,9 +29372,9 @@ def part3js_the_say_it_then_write_it_family():
           f"carry an op=", _opfire == 0 and _ops >= 5, f"{_opfire} fires")
 
     # ---- the count, and the notes ----------------------------------------------------
-    check("  eighty-five referees (uv), and the truth class unchanged at eleven (all three "
+    check("  eighty-six referees (ux), and the truth class unchanged at eleven (all three "
           "of tw's are conduct: nothing false is taught)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tw notes",
           "2026-09-07  BUILD tw" in notes("tutor.py")
@@ -29226,10 +29530,10 @@ def part3jt_the_words_and_the_picture_are_the_same_thing():
           f"beats, exactly as the narrow one was", _f1 == 0, f"{_f1} fires")
 
     # ---- the count, and the notes ------------------------------------------------------
-    check("  eighty-five referees (uv), truth class still eleven (F9 is conduct: nothing "
+    check("  eighty-six referees (ux), truth class still eleven (F9 is conduct: nothing "
           "false is said, the figure is the wrong object for the story -- Jim may rule "
           "it truth, as he did for boardcount on 2026-09-04)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 85
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tx notes",
           "2026-09-07  BUILD tx" in notes("tutor.py")
@@ -31532,8 +31836,8 @@ def part3hx_the_question_mark_is_a_blank_said_so():
           not hits and not (dd and "question-mark blank" in dd)
           and n >= 1900 and m >= 3000,
           str(hits[:4]))
-    check("  the referee count is unchanged by sa -- a registry row on referee 31 (eighty-five since uv)",
-          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 85, "")
+    check("  the referee count is unchanged by sa -- a registry row on referee 31 (eighty-six since ux)",
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 86, "")
 
 
 def part3hw_a_variables_letter_keeps_its_case():
@@ -31681,8 +31985,8 @@ def part3hu_the_accepted_offer_is_honored():
               'triangle with it marked?',
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
-    check("  the referee count is unchanged by rx -- it widened a gate (eighty-five since uv)",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 85, "")
+    check("  the referee count is unchanged by rx -- it widened a gate (eighty-six since ux)",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 86, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -31802,8 +32106,8 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("0.5") is True
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
-    check("  the referee count is unchanged by ry -- it widened a gate and added a floor (eighty-five since uv)",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 85, "")
+    check("  the referee count is unchanged by ry -- it widened a gate and added a floor (eighty-six since ux)",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 86, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -40463,6 +40767,7 @@ def main():
     part3kq_the_front_door_quieted()
     part3kr_the_board_keeps_up_with_the_voice()
     part3ks_entry_units_two_to_four_to_the_shape()
+    part3kt_the_expression_comes_first()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

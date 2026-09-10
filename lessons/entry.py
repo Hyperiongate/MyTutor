@@ -2,6 +2,13 @@
 # lessons/entry.py  --  ENTRY-LEVEL MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-10  BUILD ux -- THE STARS COME BACK TO THE TRAP BEAT. add-single-digit's
+#               teach[1] ends "...until you have touched every star on the board" and
+#               its board drew two step lines: the stars were two beats up the feed
+#               and, on a phone, off the screen. Same defect Jim flagged in Algebra I
+#               ("I had to croll up to see the bar"), found by the same sweep
+#               (deixis.py, new this build). Board only -- not one spoken word
+#               changed, so not one voice line re-renders.
 #   2026-09-09  BUILD uw -- ENTRY-LEVEL UNITS 2-4 TO THE SHAPE (12 lessons). Jim:
 #               "Let's get Entry-Level units 2 through 9 on the shape." This is the
 #               first of three builds; Units 5-7 and 8-9 follow.
@@ -92,7 +99,7 @@ _ENTRY_PILOT = [
             ("Here is the trap. Count every star in both groups, not only the new "
              "ones. Five stars and three more is eight, not three. Start at one, and "
              "keep going until you have touched every star on the board.",
-             '[[step eq="5 + 3 = 8 ✓"]][[step eq="3 ✗ that is only the new stars"]]'),
+             '[[step eq="5 + 3 = 8 ✓"]][[step eq="3 ✗ that is only the new stars"]][[objects emoji="⭐" groups="5" add="3" count="1" caption="five stars and three more — touch every one"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Six stars, and one more star. "

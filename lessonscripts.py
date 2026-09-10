@@ -7,6 +7,34 @@
 #               VERBATIM, 70 entries; 39 stay here. Keep adding new notes HERE, newest at
 #               top; roll them out again (notes_rollout.py) when this header passes ~100
 #               KB.
+#   2026-09-10  BUILD ux -- THE EXPRESSION COMES FIRST, AND "GOT IT?!" IS RETIRED.
+#               ⭐ JIM'S FLAG 22:43, on a live Algebra I walk-back ("One more
+#               together. x is holding 3. 5 x plus 4..."): "This is taught out of
+#               order. it should first show the equation, then the value of x, not
+#               the other way around." Fixed in the OP, not in the flagged beat: all
+#               four evaluate ops (evx, mlx, ev2, evxy) now ask "What is <expression>,
+#               when <letter> is holding <number>?", and evx's praise and walk-back
+#               were re-ordered to match. 372 spoken lines the four lessons can say,
+#               0 that put the value first (PART 3kt pins it, and pins that the test
+#               can tell Jim's own sentence apart before and after).
+#               ⭐ FLAG 22:42 ("This didn't show x=3 on the visible board"): every
+#               walk-back board now opens [[step <expression>]][[step x = N]] before
+#               the filled picture, and every ASK board draws the bar FIRST and what
+#               the letter holds SECOND -- the board in the same order as the words
+#               (build tx's law: the words and the picture are the same thing).
+#               ⚠️ EXPRESSION-FIRST CHANGES WHICH NUMBER A BEAT OPENS ON, and the
+#               giveaway audits read the OPENING numbers. Two beats that were clean
+#               in the old order became hits in the new one -- mlx's teach beat
+#               opened "3 x ... 3 times x ... 9" (a bank problem and its answer) and
+#               evx's second pair opened on pair one's own ask. Both reworded. Run
+#               the presweep AFTER a re-ordering, not only after a re-wording.
+#               ⭐ JIM ON THE CHECK: "It is suddenly enthusiastic and loud. maybe
+#               something like, 'ready?'" LINE_CHECK "Got it?" -> "With me so far?",
+#               CHECK_CHOICES "Got it | Show me again" -> "Yes | Show me again".
+#               session.html carries both byte-for-byte (the voice cache is keyed on
+#               the exact text) and the battery pins the two copies equal.
+#               ⚠️ 211 NEW VOICE LINES (about $3.60): 210 from the re-ordering plus
+#               the new check. A PREWARM IS NEEDED after this push.
 #   2026-09-09  BUILD uv -- THE LESSON HAS A VISIBLE FINISH LINE, AND THE ORIENTATION
 #               CARD CARRIES THE RECORD. Two board-only repairs from Jim's 2026-09-09
 #               ruling ("wherever we can, we want to have graphics to support what we are
@@ -2653,24 +2681,30 @@ def _tri3_worked(p):
 
 
 def _evx_board(p):
+    # (ux) THE ORDER, on the board as in the words: the EXPRESSION first, then what
+    # the letter is holding, then the swap. Jim, 2026-09-09: "it should first show
+    # the equation, then the value of x, not the other way around."
     a, b = p["a"], p["b"]
-    return (f'[[step eq="x = {a}"]]'
-            f'[[tape parts="x | {b}" total="?" caption="x + {b}, with x holding {a}"]]'
+    return (f'[[tape parts="x | {b}" total="?" caption="x + {b} — one x, then {b}"]]'
+            f'[[step eq="x = {a}"]]'
             f'[[step eq="x + {b} = {a} + {b} = ?"]]')
 
 
 def _evx_worked(p):
+    # (ux) the walk-back SHOWS what x was holding -- Jim, 2026-09-09: "This didn't
+    # show x=3 on the visible board" -- and reads expression, value, answer.
     a, b = p["a"], p["b"]
-    return (f"Look what you did: x is holding {a}, so swap the letter for its number. x plus "
-            f"{b} becomes {a} plus {b}, which equals {a + b} — a sum, not two digits side "
-            f"by side.",
+    return (f"Look what you did: x plus {b}, with x holding {a} — swap the letter for its "
+            f"number and it becomes {a} plus {b}, which equals {a + b}. A sum, not two "
+            f"digits side by side.",
+            f'[[step eq="x + {b}"]][[step eq="x = {a}"]]'
             f'[[tape parts="{a} | {b}" total="{a + b}" caption="x + {b} = {a} + {b} = {a + b}"]]')
 
 
 def _mlx_board(p):
     a, b = p["a"], p["b"]
-    return (f'[[step eq="x = {a}"]]'
-            f'[[tape parts="{" | ".join(["x"] * b)}" total="?" caption="{b}x — {b} copies of x"]]'
+    return (f'[[tape parts="{" | ".join(["x"] * b)}" total="?" caption="{b}x — {b} copies of x"]]'
+            f'[[step eq="x = {a}"]]'
             f'[[step eq="{b}x = {b} × {a} = ?"]]')
 
 
@@ -2678,6 +2712,7 @@ def _mlx_worked(p):
     a, b = p["a"], p["b"]
     return (f"Look what you did: {b} x means {b} times x — {b} copies of it, not {b} beside "
             f"it. With x holding {a}, that is {b} times {a}, which equals {a * b}.",
+            f'[[step eq="{b}x"]][[step eq="x = {a}"]]'
             f'[[tape parts="{" | ".join([str(a)] * b)}" total="{a * b}" '
             f'caption="{b}x = {b} × {a} = {a * b}"]]')
 
@@ -2727,9 +2762,9 @@ def _dst_worked(p):
 # same picture filled in.
 def _ev2_board(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f'[[step eq="x = {a}"]]'
-            f'[[tape parts="{" | ".join(["x"] * b)} | {c}" total="?" '
+    return (f'[[tape parts="{" | ".join(["x"] * b)} | {c}" total="?" '
             f'caption="{b}x + {c} — {b} copies of x, then {c}"]]'
+            f'[[step eq="x = {a}"]]'
             f'[[step eq="{b}x + {c} = {b} × {a} + {c} = ?"]]')
 
 
@@ -2738,15 +2773,16 @@ def _ev2_worked(p):
     return (f"Look what you did: times first — {b} x is {b} copies of {a}, and {b} times {a} "
             f"equals {a * b}. Then the add: {a * b} plus {c} equals {a * b + c}. The plus "
             f"waited its turn.",
+            f'[[step eq="{b}x + {c}"]][[step eq="x = {a}"]]'
             f'[[tape parts="{" | ".join([str(a)] * b)} | {c}" total="{a * b + c}" '
             f'caption="{b}x + {c} = {a * b} + {c} = {a * b + c}"]]')
 
 
 def _evxy_board(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f'[[step eq="x = {a} · y = {b}"]]'
-            f'[[tape parts="x | {" | ".join(["y"] * c)}" total="?" '
+    return (f'[[tape parts="x | {" | ".join(["y"] * c)}" total="?" '
             f'caption="x + {c}y — one x, then {c} copies of y"]]'
+            f'[[step eq="x = {a} · y = {b}"]]'
             f'[[step eq="x + {c}y = {a} + {c} × {b} = ?"]]')
 
 
@@ -2755,6 +2791,7 @@ def _evxy_worked(p):
     return (f"Look what you did: each letter kept its own number. {c} y is {c} copies of "
             f"{b}, which is {b * c}. Then x plus that: {a} plus {b * c} equals {a + b * c}. "
             f"The {c} belonged to the y and never touched the x.",
+            f'[[step eq="x + {c}y"]][[step eq="x = {a} · y = {b}"]]'
             f'[[tape parts="{a} | {" | ".join([str(b)] * c)}" total="{a + b * c}" '
             f'caption="x + {c}y = {a} + {b * c} = {a + b * c}"]]')
 
@@ -8175,11 +8212,15 @@ OP_EXT = {
     # used by a scripted lesson.
     "evx": {   # x holds a -- what is x + b?
         "ans": lambda p: p["a"] + p["b"],
-        "spoken": lambda p: (f"The letter x is holding the number {p['a']}. "
-                             f"What is x plus {p['b']}?"),
+        # (ux) THE EXPRESSION FIRST. Jim, 2026-09-09, on a walk-back that opened with
+        # the value: "This is taught out of order. it should first show the equation,
+        # then the value of x, not the other way around." A child who hears a number
+        # before there is a question to put it in has nowhere to hold it.
+        "spoken": lambda p: (f"What is x plus {p['b']}, "
+                             f"when the letter x is holding {p['a']}?"),
         "board": _evx_board,          # (te) x and the number as a bar, the total asked
         "worked": _evx_worked,        # (te) the letter swapped for its number
-        "praise": lambda p: (f"x is {p['a']}, so x plus {p['b']} is {p['a']} plus "
+        "praise": lambda p: (f"x plus {p['b']}, with x holding {p['a']}, is {p['a']} plus "
                              f"{p['b']}, which equals {p['a'] + p['b']}."),
         "key": lambda p: p["a"] + p["b"],
         # THE first-variable error is CONCATENATION: x holds 5, so "x + 3" is read as
@@ -8196,8 +8237,8 @@ OP_EXT = {
         # The ask does NOT re-explain the shorthand -- the teach beats own that.
         # A scaffold repeated in every one of twelve asks is a scaffold that never
         # fades, and fading it is what practice is for.
-        "spoken": lambda p: (f"The letter x is holding the number {p['a']}. "
-                             f"What is {p['b']} x?"),
+        "spoken": lambda p: (f"What is {p['b']} x, "
+                             f"when the letter x is holding {p['a']}?"),
         "board": _mlx_board,          # (te) b copies of x as a bar
         "worked": _mlx_worked,        # (te) every copy is a, the total bracketed
         "praise": lambda p: (f"{p['b']} x means {p['b']} times x, and {p['b']} times "
@@ -8268,8 +8309,8 @@ OP_EXT = {
     # to carry a minus sign with it.
     "ev2": {   # x holds a -- what is bx + c?
         "ans": lambda p: p["a"] * p["b"] + p["c"],
-        "spoken": lambda p: (f"The letter x is holding the number {p['a']}. "
-                             f"What is {p['b']} x plus {p['c']}?"),
+        "spoken": lambda p: (f"What is {p['b']} x plus {p['c']}, "
+                             f"when the letter x is holding {p['a']}?"),
         "board": _ev2_board,          # (tf) b copies of x and the c, the whole withheld
         "worked": _ev2_worked,        # (tf) every copy the number, the whole bracketed
         "praise": lambda p: (f"{p['b']} x is {p['b']} times {p['a']}, which equals "
@@ -8294,8 +8335,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] + p["c"] * p["b"],
         # No "two letters now" preamble in the ask -- the same scaffold-never-fades
         # defect mlx had in build kt. The teach beats introduce y; the ask just asks.
-        "spoken": lambda p: (f"x is holding {p['a']}, and y is holding {p['b']}. "
-                             f"What is x plus {p['c']} y?"),
+        "spoken": lambda p: (f"What is x plus {p['c']} y, when x is holding {p['a']} "
+                             f"and y is holding {p['b']}?"),
         "board": _evxy_board,         # (tf) one x and c copies of y
         "worked": _evxy_worked,       # (tf) each letter its own number
         "praise": lambda p: (f"{p['c']} y is {p['c']} times {p['b']}, which equals "
@@ -15413,12 +15454,19 @@ def lesson_intro(lesson):
 #   * beat_of(lesson, spoken): which authored beat a say step IS, so the page can
 #     pause on it. main.py's _script_clean attaches it as `beat`.
 #   * LINE_CHECK / CHECK_CHOICES / READY_CHOICES: the page's check after a picture,
-#     teach or worked beat ("Got it?" -- Got it / Show me again), and the ready gate
+#     teach or worked beat ("With me so far?" -- Yes / Show me again), and the ready gate
 #     before practice. A check is never graded and never recorded: it is a pause the
 #     student controls, and "Show me again" replays the beat -- a cache hit.
 # =============================================================================
-LINE_CHECK = "Got it?"
-CHECK_CHOICES = "Got it | Show me again"
+# ⭐ (ux, 2026-09-10) JIM ON "GOT IT?!": "It is suddenly enthusiastic and loud.
+# maybe something like, 'ready?'" -- a check is a PAUSE the student controls, and it
+# has to sound like one. "With me so far?" asks the same thing at the volume of the
+# beat it follows, and the tap that says yes is just "Yes". ⚠️ Both strings are
+# spoken/rendered byte-for-byte by session.html (the voice cache is keyed on the
+# exact text); the battery pins the two copies equal. Changing either RE-RENDERS a
+# voice line -- a prewarm is needed after a push that touches LINE_CHECK.
+LINE_CHECK = "With me so far?"
+CHECK_CHOICES = "Yes | Show me again"
 READY_CHOICES = "I'm ready | Show me that example again"
 ORIENT_PLAN = "First the idea, then a picture, then the method — then your turn."
 

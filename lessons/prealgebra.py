@@ -2,6 +2,23 @@
 # lessons/prealgebra.py  --  PRE-ALGEBRA: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-10  BUILD ux -- THE EXPRESSION COMES FIRST (Unit 9's two letter lessons),
+#               and a trap beat that draws its picture again (Unit 8's triangle).
+#               Jim's flag 22:43: "it should first show the equation, then the value
+#               of x, not the other way around." Every teach beat, worked pair and
+#               reason question in a-letter-holds-a-number and
+#               a-number-against-a-letter now names the expression first; the boards
+#               run expression -> what x holds -> the picture filled in.
+#               ⚠️ TWO NEW GIVEAWAYS THE RE-ORDERING CREATED, both caught by the
+#               presweep and both fixed here. The audits read a beat's OPENING
+#               numbers, and expression-first opens on the coefficient rather than on
+#               the value. mlx's teach beat said "what is 3 x? That is 3 times x...
+#               9" -- opening 3, 3 with 9 following, which is a bank problem and its
+#               answer -- so the shorthand is now named without repeating the
+#               coefficient. evx's second worked pair opened on pair one's own ask
+#               (5, 6), so it demonstrates x holding 6, x plus 7 instead.
+#               area-of-a-triangle's trap beat says "twice the size of the one on the
+#               board" and drew only two step lines; the halved rectangle is back.
 #   2026-09-08  BUILD uj -- ONE FILE PER COURSE. Split out of lessonscripts.py (Jim's
 #               housekeeping, second half). Every lesson below is the text that sat in
 #               lessonscripts.py, moved whole -- the unit lists keep their names, and
@@ -2344,7 +2361,7 @@ _PREALGEBRA_U8 = [
             ("Do not stop after the timesing. 24 is the rectangle, not the triangle. "
              "The halving is the whole idea — miss it and your triangle is twice the "
              "size of the one on the board.",
-             '[[step eq="24 ÷ 2 = 12 ✓"]][[step eq="24 ✗ — that is the rectangle"]]'),
+             '[[step eq="24 ÷ 2 = 12 ✓"]][[step eq="24 ✗ — that is the rectangle"]][[rectangle w="8" h="3" half="1" caption="the triangle is the filled half — 12, not 24"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. A base of 10 and a height of "
@@ -2592,36 +2609,37 @@ _PREALGEBRA_U9 = [
              '[[tape parts="x | 3" total="?" caption="x + 3 — what is the whole?"]][[tape parts="5 | 3" total="8" caption="x holds 5: 5 + 3 = 8"]]'),
         ],
         "teach": [
-            ("That swap is the whole move. Say x is holding 5. What is x plus 3? Swap "
-             "the letter for its number: x plus 3 becomes 5 plus 3, which equals 8.",
-             '[[step eq="x = 5"]][[tape parts="5 | 3" total="8" caption="x + 3 with x holding 5"]][[step eq="x + 3 = 5 + 3 = 8"]]'),
+            ("That swap is the whole move. Take the question first: what is x plus 3? "
+             "Then take what x holds: 5. Swap the letter for its number, and x plus 3 "
+             "becomes 5 plus 3, which equals 8.",
+             '[[tape parts="x | 3" total="?" caption="x + 3 — one x, then 3"]][[step eq="x = 5"]][[tape parts="5 | 3" total="8" caption="x + 3 = 5 + 3 = 8"]]'),
             ("One careful thing. x plus 3 with x holding 5 is NOT fifty-three. The 5 "
              "and the 3 do not sit next to each other like digits — the plus keeps "
-             "them apart. Swap first, then add. One more: x holding 4, x plus 6 "
+             "them apart. Swap first, then add. One more: x plus 6, with x holding 4, "
              "becomes 4 plus 6, which equals 10.",
-             '[[step eq="5 + 3 = 8 ✓"]][[step eq="53 ✗ — those are digits, not a sum"]][[tape parts="4 | 6" total="10" caption="x holds 4: 4 + 6 = 10"]]'),
+             '[[step eq="5 + 3 = 8 ✓"]][[step eq="53 ✗ — those are digits, not a sum"]][[tape parts="4 | 6" total="10" caption="x + 6 with x holding 4: 4 + 6 = 10"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. x is holding 7. x plus 2 "
+            {"worked": ("Here is one more, done for you. x plus 2, with x holding 7, "
                         "becomes 7 plus 2, which equals 9.",
-                        '[[step eq="x = 7"]][[tape parts="7 | 2" total="9" caption="x + 2 = 7 + 2 = 9"]]'),
+                        '[[step eq="x + 2"]][[step eq="x = 7"]][[tape parts="7 | 2" total="9" caption="x + 2 = 7 + 2 = 9"]]'),
              "ask": {'a': 5, 'b': 6, 'op': 'evx'}},
-            {"worked": ("One more together. x is holding 6. x plus 5 becomes 6 plus 5, "
-                        "which equals 11.",
-                        '[[step eq="x = 6"]][[tape parts="6 | 5" total="11" caption="x + 5 = 6 + 5 = 11"]]'),
+            {"worked": ("One more together. x plus 7, with x holding 6, becomes 6 plus "
+                        "7, which equals 13.",
+                        '[[step eq="x + 7"]][[step eq="x = 6"]][[tape parts="6 | 7" total="13" caption="x + 7 = 6 + 7 = 13"]]'),
              "ask": {'a': 8, 'b': 7, 'op': 'evx'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. x is holding 5, so "
-                       "x plus 3 is 8. Tap the reason why."),
+            "spoken": ("One more thing — not the answer, the reason. x plus 3 is 8, "
+                       "when x is holding 5. Tap the reason why."),
             "choices": ("because you swap the x for the 5, then add the 3 | because x "
                         "plus 3 is 8 whatever x is holding | because the letter x is "
                         "worth 8 in every sum"),
             "answer": "because you swap the x for the 5, then add the 3",
-            "board": '[[tape parts="5 | 3" total="8" caption="x holds 5: x + 3 = 5 + 3 = 8"]]',
+            "board": '[[tape parts="5 | 3" total="8" caption="x + 3 with x holding 5: 5 + 3 = 8"]]',
         },
         "recap": [
             ("So, here it is again. A letter holds a number. To work out anything "
@@ -2666,31 +2684,32 @@ _PREALGEBRA_U9 = [
              '[[tape parts="x | x | x" total="?" caption="3x — three copies of x"]][[tape parts="9 | 9 | 9" total="27" caption="x holds 9: 3 × 9 = 27"]]'),
         ],
         "teach": [
-            ("That is the rule. Say x is holding 9. What is 3 x? That is 3 times x, "
-             "so 3 times 9, which equals 27.",
-             '[[step eq="x = 9"]][[tape parts="9 | 9 | 9" total="27" caption="3x with x holding 9"]][[step eq="3x = 3 × 9 = 27"]]'),
+            ("That is the rule. Take the question first: what is 3 x? The number "
+             "against the letter means times. Then take what x holds: 9. So it is 3 "
+             "times 9, which equals 27.",
+             '[[tape parts="x | x | x" total="?" caption="3x — 3 copies of x"]][[step eq="x = 9"]][[tape parts="9 | 9 | 9" total="27" caption="3x = 3 × 9 = 27"]]'),
             ("The trap is reading it as a plus — as if the number is just standing "
              "near the x. It is not standing near it; it is timesing it. 3 x "
-             "with x holding 9 equals 27, never 12. One more: x holding 5, 2 x is 2 "
-             "times 5, which equals 10.",
-             '[[step eq="3x = 27 ✓"]][[step eq="3 + 9 = 12 ✗"]][[tape parts="5 | 5" total="10" caption="x holds 5: 2x = 2 × 5 = 10"]]'),
+             "with x holding 9 equals 27, never 12. One more: 2 x, with x holding 5, "
+             "is 2 times 5, which equals 10.",
+             '[[step eq="3x = 27 ✓"]][[step eq="3 + 9 = 12 ✗"]][[tape parts="5 | 5" total="10" caption="2x with x holding 5: 2 × 5 = 10"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. x is holding 8. 4 x is 4 times "
-                        "8, which equals 32.",
-                        '[[step eq="x = 8"]][[tape parts="8 | 8 | 8 | 8" total="32" caption="4x = 4 × 8 = 32"]]'),
+            {"worked": ("Here is one more, done for you. 4 x, with x holding 8, is 4 "
+                        "times 8, which equals 32.",
+                        '[[step eq="4x"]][[step eq="x = 8"]][[tape parts="8 | 8 | 8 | 8" total="32" caption="4x = 4 × 8 = 32"]]'),
              "ask": {'a': 4, 'b': 5, 'op': 'mlx'}},
-            {"worked": ("One more together. x is holding 2. 5 x is 5 times 2, which "
+            {"worked": ("One more together. 5 x, with x holding 2, is 5 times 2, which "
                         "equals 10.",
-                        '[[step eq="x = 2"]][[tape parts="2 | 2 | 2 | 2 | 2" total="10" caption="5x = 5 × 2 = 10"]]'),
+                        '[[step eq="5x"]][[step eq="x = 2"]][[tape parts="2 | 2 | 2 | 2 | 2" total="10" caption="5x = 5 × 2 = 10"]]'),
              "ask": {'a': 7, 'b': 3, 'op': 'mlx'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. x is holding 9, so "
-                       "3 x is 27. Tap the reason why."),
+            "spoken": ("One more thing — not the answer, the reason. 3 x is 27, when x "
+                       "is holding 9. Tap the reason why."),
             "choices": ("because 3 x means 3 times x, three copies of 9 | because "
                         "the 3 is standing next to x, so add it on | because 3 x means "
                         "3 plus x, and the plus is hidden"),

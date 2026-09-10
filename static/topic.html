@@ -73,6 +73,8 @@
   topic.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-09-10  (ux) A feed block that draws a PICTURE spans both columns of oz's grid
+                (Jim: "The diagram is half the size it could be"). Phones untouched.
     (sg) 2026-09-02 -- THE SWEEP HIT THE CODE: wipeBoard's feed.children had
     become feed.students (the sd child->student sweep, meant for visible copy, also rewrote code identifiers), so every board wipe on this page threw. Restored.
     PART 3id pins it; the crash Jim actually hit was /session's twin of this line.
@@ -188,6 +190,23 @@
       .feed > * { grid-column: 1 / -1; }
       .feed > .bubble.tutor { grid-column: 1; justify-self: start; max-width: 100%; }
       .feed > .mblock, .feed > .mrow, .feed > .steprow { grid-column: 2; }
+      /* ⚠️ (ux, 2026-09-10) A PICTURE TALLER THAN THE WORDS TAKES THE WHOLE WIDTH.
+         Jim's flag, live in algebra1: "The diagram is half the size it could be."
+         MEASURED on the flagged beat at 1440x900: the tutor's 58-word bubble is
+         432x142, the two bar models beside it are 806px wide -- and the 475px left
+         column sits EMPTY for the 650px below the bubble. oz built these two columns
+         from Jim's own complaint ("it's still not using the full screen"), and this
+         is the same complaint's remainder, not a reversal of it: the words keep their
+         readable 32% column, and a block that draws an actual PICTURE stops paying
+         for a column it is not using.
+         The selector list is board.js's OWN definition of "a picture, not a
+         re-statement" (its supersede walk, line ~1108), reused verbatim rather than
+         copied into a second list that could drift -- build oy's one-grammar law.
+         :has() is new to this codebase, and its failure mode is the reason it is safe
+         here: a browser that does not support it simply does not match, and the
+         layout is byte-for-byte what shipped before this build. */
+      .feed > .mblock:has(.mfig, .graphwrap, .colmath, .objwrap, .scale, .machine,
+                          .solveboard, .steprow) { grid-column: 1 / -1; }
       .feed > .bubble.student { justify-self: end; }
       .feed > .bubble.system { justify-self: center; }
     }

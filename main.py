@@ -6,6 +6,15 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  APP_BUILD -> "2026-09-10ux-the-expression-comes-first". BUILD ux --
+#               NO CODE IN THIS FILE CHANGED, the stamp only. Jim's four Algebra I
+#               flags fixed in the OPS rather than in the flagged beats (the
+#               expression before the value, x = N on every walk-back board, the bar
+#               redrawn on the trap beat, the figure given the whole feed width);
+#               "Got it?" retired for "With me so far?"; referee 86 reads the youngest
+#               courses' reading level; deixis.py joined the repo.
+#               ⚠️ 211 NEW VOICE LINES: run the script-prewarm from /admin after this
+#               push.
 #   2026-09-09  APP_BUILD -> "2026-09-09uw-entry-units-two-to-four-to-the-shape".
 #               BUILD uw -- NO CODE IN THIS FILE CHANGED, the stamp only. Twelve
 #               Entry-Level lessons (Units 2, 3 and 4) went to the shape, Jim's
@@ -8982,7 +8991,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-09uw-entry-units-two-to-four-to-the-shape"
+APP_BUILD = "2026-09-10ux-the-expression-comes-first"
 
 
 @app.get("/health")
