@@ -6,6 +6,13 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  APP_BUILD -> "2026-09-09uw-entry-units-two-to-four-to-the-shape".
+#               BUILD uw -- NO CODE IN THIS FILE CHANGED, the stamp only. Twelve
+#               Entry-Level lessons (Units 2, 3 and 4) went to the shape, Jim's
+#               ruling (c) landed on the reason question, referee 52 stopped reading
+#               a missing addend as a completed line, and wordaudit.py joined the
+#               repo. ⚠️ 181 NEW VOICE LINES: run the script-prewarm from /admin
+#               after this push.
 #   2026-09-09  APP_BUILD -> "2026-09-09uv-the-board-keeps-up-with-the-voice". BUILD uv --
 #               WHAT HAPPENED LAST TIME, FROM THE RECORD. Jim, 2026-09-09: "They are not
 #               an AI. They don't remember instantly what they did before yesterday. So we
@@ -8975,7 +8982,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-09uv-the-board-keeps-up-with-the-voice"
+APP_BUILD = "2026-09-09uw-entry-units-two-to-four-to-the-shape"
 
 
 @app.get("/health")

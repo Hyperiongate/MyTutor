@@ -6,6 +6,19 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  BUILD uw -- A BLANK IS A BLANK WHEREVER IT STANDS. answered_ask
+#               (referee 52) read a pending line as "= ?" only, so a MISSING-ADDEND
+#               line -- "7 + ? = 10", the ordinary way to write "seven and how many
+#               more make ten" -- was read as COMPLETED (its right side is a number,
+#               so _EQ_DONE_RE matched) and the referee convicted the ask of
+#               answering itself. It fired on all twelve asks of
+#               entry-u3-the-missing-part, and would fire on the LIVE tutor every
+#               time it poses a missing addend, which is a common shape from Entry
+#               through Algebra. _EQ_PEND_RE now reads a question mark ANYWHERE in a
+#               [[step]]'s own eq= text, where it can only ever mean the blank the
+#               student is being asked to fill. Swept: 7,142 authored beats and asks,
+#               0 fires; the real self-answer ("How many in all?" over "3 + 2 = 5")
+#               still fires. NO referee count change -- still 85.
 #   2026-09-09  BUILD uv -- THE BOARD KEEPS UP WITH THE VOICE. Jim, 2026-09-09: "If you
 #               have two paragraphs to spit out to a child and you say it and there's no
 #               text and there's no graphic, the child is just listening and not
@@ -6284,7 +6297,15 @@ _TOTAL_ASK_RE = re.compile(
     r"in\s+total|what\s+number\s+(?:do(?:es)?\s+(?:that|this|it)\s+make|"
     r"did\s+you\s+(?:build|make)|is\s+(?:that|this|it)))\b[^.?!]*\?", re.I)
 _EQ_DONE_RE = re.compile(r"=\s*-?\d[\d.,]*\s*$")
-_EQ_PEND_RE = re.compile(r"=\s*\?")
+# (uw, 2026-09-09) A BLANK IS A BLANK WHEREVER IT STANDS. This read "= ?" only, so a
+# MISSING-ADDEND line -- "7 + ? = 10", which is the ordinary way to write "seven and
+# how many more make ten" -- was read as a COMPLETED line (its right side is a number,
+# so _EQ_DONE_RE matched) and the referee convicted the ask of answering itself. It
+# fires on all twelve asks of entry-u3-the-missing-part, and would fire on the LIVE
+# tutor every time it poses a missing addend, which is a common shape from Entry
+# through Algebra. These values are a [[step]]'s own eq= text, where a question mark
+# can only ever mean the blank the student is being asked to fill.
+_EQ_PEND_RE = re.compile(r"\?")
 
 
 def answered_ask_conflict(reply: str):

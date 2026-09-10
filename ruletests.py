@@ -6,6 +6,17 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  BUILD uw -- PART 3ks, ENTRY-LEVEL UNITS 2-4 TO THE SHAPE. Pins the
+#               twelve lessons' whole shape, ruling (c) BOTH ways (no reason question
+#               in Units 2-3, all four Unit 4 lessons carry it), the walk-back flag
+#               following whether the op HAS a picture rather than following the
+#               unit, every trap beat's check and cross, the per-lesson content, the
+#               word-aware giveaway audit (the only four hits are `doubles`, whose
+#               problem space is exhausted), the referee widening, captions, rule 44
+#               and the house words. _entry_unit_checks GAINS worked_ids: tb assumed
+#               one thing decided both the reason question and the walk-back, and
+#               Jim's 2026-09-09 rulings separate them; worked_ids=None keeps tb's
+#               behaviour, so the Unit 1 caller is untouched.
 #   2026-09-09  BUILD uv -- PART 3kr, THE BOARD KEEPS UP WITH THE VOICE. Pins the
 #               EIGHTY-FIFTH referee (board_silence_conflict) with its failability seam
 #               (lift the ceiling, the same reply goes silent), the canon sweep (not one
@@ -13490,6 +13501,245 @@ def part3kr_the_board_keeps_up_with_the_voice():
                 srv.kill()
 
 
+def part3ks_entry_units_two_to_four_to_the_shape():
+    """PART 3ks (build uw, 2026-09-09) -- ENTRY-LEVEL UNITS 2-4 TO THE SHAPE.
+
+    Twelve lessons for the youngest students: adding to twenty, taking away, and
+    place value. Each one now opens on WHY it is worth learning, shows a picture a
+    five-year-old can count, reads the rule off that picture, names the trap with a
+    check and a cross, works two examples, practises, and says the rule again.
+
+    ⭐ JIM'S RULING (c), 2026-09-09, LANDS HERE. The shape's "say why" beat taps a
+    WRITTEN reason, and Unit 1 skipped it because its students cannot read three
+    options yet. His ruling: Units 2 and 3 skip it too; Unit 4 up carries it, where
+    the student is reading tens, hundreds, money and clocks. Pinned both ways below.
+
+    ⭐ AND HIS SECOND RULING: the walk-back. Entry was the only taught course with
+    show_work_on_correct off in all 36 lessons, while the other eight run 36 of 36.
+    It is on here wherever the lesson's op HAS a worked picture to draw -- seven of
+    the twelve -- and off where the op has none, because a flag over a missing
+    picture is a flag over nothing. The five ops with no walk-back (dbe, add3, msp,
+    t10, wor) are listed in the build doc for Jim to price.
+
+    ⚠️ TWO LESSONS HAVE AN EXHAUSTED PROBLEM SPACE, like Unit 1's "Counting to 10"
+    whose ten problems are all taught. `doubles` IS the ten doubles and
+    `tens-and-ones` IS one ten with one to nine ones, so every possible
+    demonstration is also an ask. The demonstrations are chosen so that a clean
+    three-in-a-row run never meets one, and a student who struggles far enough to
+    reach one gets rehearsal of something they have just watched.
+
+    ⚠️ THE GIVEAWAY AUDIT WAS BLIND TO THIS WHOLE COURSE. teachaudit and workedaudit
+    read digits only; Entry spells its numbers out loud, so a beat handing a child
+    an answer its own bank asks has read clean since the course was written.
+    wordaudit.py (new) is the same test with number words understood, and it is what
+    found `doubles` demonstrating 6+6, 7+7 and 5+5 with all three in its bank."""
+    print("\nPART 3ks — Entry-Level Units 2-4 to the shape (build uw)")
+    import lessonscripts as L
+    import wordaudit as WA
+    import teachaudit as _TA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    _W = lambda p: L._worked_for(p) or ("", "")
+    U2 = ["entry-u2-add-single-digit", "entry-u2-doubles",
+          "entry-u2-add-past-ten", "entry-u2-adding-three-numbers"]
+    U3 = ["entry-u3-take-away-single-digit", "entry-u3-take-away-bigger",
+          "entry-u3-the-missing-part", "entry-u3-story-problems"]
+    U4 = ["entry-u4-tens-and-ones", "entry-u4-hundreds-tens-and-ones",
+          "entry-u4-ten-more", "entry-u4-what-a-digit-is-worth"]
+    ALL = U2 + U3 + U4
+    WORKED = ["entry-u2-add-single-digit", "entry-u2-add-past-ten",
+              "entry-u3-take-away-single-digit", "entry-u3-take-away-bigger",
+              "entry-u3-story-problems", "entry-u4-tens-and-ones",
+              "entry-u4-hundreds-tens-and-ones"]
+    _entry_unit_checks(U2, r"\[\[(objects|tape|numberline)\b", explain_ids=(), worked_ids=WORKED)
+    _entry_unit_checks(U3, r"\[\[(objects|numberline|step)\b", explain_ids=(), worked_ids=WORKED)
+    _entry_unit_checks(U4, r"\[\[(objects|placevalue|step)\b", explain_ids=U4, worked_ids=WORKED)
+
+    # ---- ruling (c): where the reason question is, and where it deliberately is not ----
+    check("⭐⭐ JIM'S RULING (c): NO reason question in Units 2 and 3 -- a student still "
+          "learning to add single digits cannot read three tapped options",
+          not any(L.LESSON_BY_ID[l].get("explain") for l in U2 + U3),
+          str([l for l in U2 + U3 if L.LESSON_BY_ID[l].get("explain")]))
+    check("⭐⭐ ...and ALL FOUR Unit 4 lessons carry it, where the student is reading "
+          "tens, hundreds, money and clocks",
+          all(L.LESSON_BY_ID[l].get("explain") for l in U4),
+          str([l for l in U4 if not L.LESSON_BY_ID[l].get("explain")]))
+    for lid in U4:
+        # ⚠️ GUARDED, and the failability drive is why. Breaking the seam above --
+        # taking the reason question off a Unit 4 lesson -- made this loop raise
+        # KeyError instead of failing by name, and a battery that throws tells you
+        # less than one that reports. Every field this loop reads is optional here;
+        # the ruling itself is pinned by the two checks above.
+        ex = L.LESSON_BY_ID[lid].get("explain") or {}
+        opts = [o.strip() for o in str(ex.get("choices", "")).split("|") if o.strip()]
+        check(f"  {lid}: three options, each under twelve words, none question-shaped, "
+              "the answer among them",
+              len(opts) == 3 and all(len(o.split()) <= 12 for o in opts)
+              and not any(o.endswith("?") for o in opts) and ex.get("answer") in opts,
+              str([len(o.split()) for o in opts]))
+        check(f"  {lid}: every option is a reason, not a statement -- all three open "
+              "with because",
+              bool(opts) and all(o.lower().startswith("because") for o in opts),
+              str(opts[:1]))
+        check(f"  {lid}: no option works the arithmetic aloud",
+              bool(opts) and not tutor.spoken_math_unwritten_conflict(
+                  ex.get("choices", ""), heard="prior turn, no tags"), "")
+        check(f"  {lid}: the reason question draws a board of its own",
+              bool(ex.get("board", "").strip()), "")
+
+    # ---- the walk-back flag follows the PICTURE, not the unit ---------------------------
+    for lid in ALL:
+        les = L.LESSON_BY_ID[lid]
+        probs = list(les["bank"]) + [pr["ask"] for pr in les["pairs"]]
+        can_draw = all(L._worked_for(p) is not None for p in probs)
+        check(f"  {lid}: the walk-back flag matches whether its op HAS a picture to draw",
+              bool(les.get("show_work_on_correct")) is can_draw,
+              f"flag={bool(les.get('show_work_on_correct'))} can_draw={can_draw}")
+    check("⭐ seven of the twelve now show the work on a right answer -- Entry was the "
+          "only taught course with it off in all 36 (the other eight run 36 of 36)",
+          sum(1 for l in ALL if L.LESSON_BY_ID[l].get("show_work_on_correct")) == 7,
+          str(sorted(l for l in ALL if L.LESSON_BY_ID[l].get("show_work_on_correct"))))
+
+    # ---- the trap beat, in every one of the twelve --------------------------------------
+    check("⭐ every one of the twelve names its trap on the second teach beat, with a "
+          "check and a cross on the board",
+          all("✓" in L.LESSON_BY_ID[l]["teach"][1][1] and "✗" in L.LESSON_BY_ID[l]["teach"][1][1]
+              for l in ALL),
+          str([l for l in ALL if "✗" not in L.LESSON_BY_ID[l]["teach"][1][1]]))
+
+    # ---- Unit 2 --------------------------------------------------------------------------
+    check("⭐ adding opens on eight stars in two groups, and the plus and equals signs "
+          "are still introduced by name on the beat that reads the picture",
+          'groups="4" add="4" count="1"' in L.LESSON_BY_ID["entry-u2-add-single-digit"]["picture"][0][1]
+          and "plus sign" in L.LESSON_BY_ID["entry-u2-add-single-digit"]["teach"][0][0]
+          and "equals sign" in L.LESSON_BY_ID["entry-u2-add-single-digit"]["teach"][0][0], "")
+    check("  ...and its trap is counting only the new stars, not both groups",
+          "only the new ones" in L.LESSON_BY_ID["entry-u2-add-single-digit"]["teach"][1][0]
+          and '[[step eq="5 + 3 = 8 ✓"]]' in L.LESSON_BY_ID["entry-u2-add-single-digit"]["teach"][1][1], "")
+    check("⭐ doubles: the demonstrations are 4, 6, 7, 8 and 5 -- the doubles a clean run "
+          "never meets (the pairs ask 9 and 10, the bank ramps 1, 2, 3)",
+          all(str(n) in L.LESSON_BY_ID["entry-u2-doubles"]["teach"][0][1] + L.LESSON_BY_ID["entry-u2-doubles"]["picture"][0][1] for n in (4, 6))
+          and [p["ask"]["a"] for p in L.LESSON_BY_ID["entry-u2-doubles"]["pairs"]] == [9, 10]
+          and [b["a"] for b in L.LESSON_BY_ID["entry-u2-doubles"]["bank"]][:3] == [1, 2, 3], "")
+    check("  past ten counts ON from the bigger number, and its trap is saying the "
+          "starting number twice",
+          "count on" in L.LESSON_BY_ID["entry-u2-add-past-ten"]["picture"][0][0].lower()
+          and "counted twice" in L.LESSON_BY_ID["entry-u2-add-past-ten"]["teach"][1][1], "")
+    check("  three numbers are drawn as three pieces of tape joined end to end",
+          '[[tape parts="2|3|4" total="9 in all"' in L.LESSON_BY_ID["entry-u2-adding-three-numbers"]["picture"][0][1], "")
+
+    # ---- Unit 3 --------------------------------------------------------------------------
+    check("⭐ taking away opens on six stars with four crossed off, the minus sign is "
+          "introduced by name, and the trap is answering with what WENT AWAY",
+          'groups="6" take="4"' in L.LESSON_BY_ID["entry-u3-take-away-single-digit"]["picture"][0][1]
+          and "minus sign" in L.LESSON_BY_ID["entry-u3-take-away-single-digit"]["teach"][0][0]
+          and "what went away, not what is left" in L.LESSON_BY_ID["entry-u3-take-away-single-digit"]["teach"][1][1], "")
+    check("⭐ ...and it no longer demonstrates 5 − 2 and 4 − 1, both of which its own "
+          "bank asks (the defect the baseline presweep found)",
+          not any(h for h in WA.hits(L.LESSON_BY_ID["entry-u3-take-away-single-digit"])),
+          str(WA.hits(L.LESSON_BY_ID["entry-u3-take-away-single-digit"])[:2]))
+    check("  taking away from bigger numbers counts BACK, and its trap is counting the "
+          "starting number as one of the counts",
+          "count back" in L.LESSON_BY_ID["entry-u3-take-away-bigger"]["picture"][0][0].lower()
+          and "counted as one of the three" in L.LESSON_BY_ID["entry-u3-take-away-bigger"]["teach"][1][1], "")
+    check("  the missing part draws the HOP itself on the number line, and its trap is "
+          "answering with where the hop lands",
+          'hops="7,10"' in L.LESSON_BY_ID["entry-u3-the-missing-part"]["picture"][0][1]
+          and "where we finished" in L.LESSON_BY_ID["entry-u3-the-missing-part"]["teach"][1][1], "")
+    check("  story problems teach the WORD that decides the sign, and the trap is adding "
+          "just because there are two numbers",
+          "gets more" in L.LESSON_BY_ID["entry-u3-story-problems"]["teach"][0][1]
+          and "flies away" in L.LESSON_BY_ID["entry-u3-story-problems"]["teach"][0][1]
+          and "put together" in L.LESSON_BY_ID["entry-u3-story-problems"]["teach"][1][1], "")
+    check("  ...and both its worked pairs keep their own story on the ask",
+          all("story" in pr["ask"] for pr in L.LESSON_BY_ID["entry-u3-story-problems"]["pairs"]), "")
+
+    # ---- Unit 4 --------------------------------------------------------------------------
+    check("⭐ tens and ones opens on a bundle of ten with four loose ones, and its trap "
+          "is swapping the digits",
+          'groups="10" add="4"' in L.LESSON_BY_ID["entry-u4-tens-and-ones"]["picture"][0][1]
+          and "the digits were swapped" in L.LESSON_BY_ID["entry-u4-tens-and-ones"]["teach"][1][1], "")
+    check("  hundreds/tens/ones and what-a-digit-is-worth both draw the real blocks",
+          '[[placevalue h="3" t="4" o="6"' in L.LESSON_BY_ID["entry-u4-hundreds-tens-and-ones"]["picture"][0][1]
+          and '[[placevalue h="3" t="7" o="4"' in L.LESSON_BY_ID["entry-u4-what-a-digit-is-worth"]["picture"][0][1], "")
+    check("  ten more shows the ones NOT moving, and its trap is adding one instead of ten",
+          "the 7 did not move" in L.LESSON_BY_ID["entry-u4-ten-more"]["teach"][1][1]
+          and "one more, not ten more" in L.LESSON_BY_ID["entry-u4-ten-more"]["teach"][1][1], "")
+
+    # ---- the giveaway audit, with the numbers spelled out ------------------------------
+    rows = WA.audit([L.LESSON_BY_ID[l] for l in ALL])
+    check("⭐⭐ THE WORD-AWARE GIVEAWAY AUDIT: the only beats in the twelve that "
+          "demonstrate a problem their own lesson asks are the four in `doubles`, whose "
+          "ten problems ARE the ten doubles -- every other lesson is clean",
+          len(rows) == 4 and {r[0] for r in rows} == {"entry-u2-doubles"},
+          str([(r[0], r[1]) for r in rows]))
+    check("  ...and the audit really can see spelled-out numbers (the digit-only one "
+          "reports all twelve clean, which is why it never caught this)",
+          WA.numbers("Six plus six equals twelve") == [6, 6, 12]
+          and WA.numbers("twenty-five") == [25]
+          and WA.numbers("Here is one more, done for you. One ten") == [1, 10]
+          and not (_TA.direct_hits(L.LESSON_BY_ID["entry-u2-doubles"])
+                   + _TA.reverse_hits(L.LESSON_BY_ID["entry-u2-doubles"])), "")
+    check("  wordaudit.py ends whole",
+          rd("wordaudit.py").rstrip().endswith("# I did no harm and this file is not truncated."), "")
+
+    # ---- the referee this build widened -------------------------------------------------
+    check("⭐ A BLANK IS A BLANK WHEREVER IT STANDS: a missing-addend line no longer "
+          "reads as a completed one. It convicted all twelve asks of the missing-part "
+          "lesson, and would convict the LIVE tutor on every missing addend it poses.",
+          tutor.answered_ask_conflict('Seven and how many more make ten?\n[[step eq="7 + ? = 10"]]') == ""
+          and bool(tutor.answered_ask_conflict('How many in all?\n[[step eq="3 + 2 = 5"]]')), "")
+    _fired = sum(1 for lid in ALL
+                 for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]
+                 for lv in L.LESSON_BY_ID[lid].get("levels", L.LEVELS)
+                 if tutor.answered_ask_conflict(L.spoken_for(p, lv) + "\n" + L.board_for(p, lv)))
+    check("  ...and not one ask in the twelve fires it now",
+          _fired == 0, f"{_fired} asks still fire")
+
+    # ---- captions, the pending line, the house words -----------------------------------
+    check("  every figure an ask draws in the twelve carries a caption (rule 41)",
+          all("caption=" in tag for lid in ALL
+              for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]
+              for lv in L.LESSON_BY_ID[lid].get("levels", L.LEVELS)
+              for tag in re.findall(r"\[\[(?:objects|numberline|placevalue|tape|array|column)\b[^\]]*\]\]",
+                                    L.board_for(p, lv))), "")
+    check("  every ask in the twelve reads its pending line aloud (rule 44)",
+          not any(tutor.prose_unspoken_problem_conflict(L.spoken_for(p, lv) + "\n" + L.board_for(p, lv))
+                  for lid in ALL
+                  for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]
+                  for lv in L.LESSON_BY_ID[lid].get("levels", L.LEVELS)), "")
+    check("  no authored board in the twelve puts an arrow after an equals sign or a "
+          "question inside a step",
+          not any(re.search(r"=[^\"]*→", m) or re.search(r"[A-Za-z]\?", m)
+                  for lid in ALL for f in ("why", "picture", "teach", "recap")
+                  for _s, b in (L.LESSON_BY_ID[lid].get(f) or [])
+                  for m in re.findall(r'\[\[step eq="([^"]*)"', b)), "")
+    check("  the spoken copy says student, never child (the sd sweep's rule, in the "
+          "lessons too)",
+          not any(re.search(r"\bchild(?:ren)?\b", s, re.I)
+                  for lid in ALL for f in ("why", "picture", "teach", "recap")
+                  for s, _b in (L.LESSON_BY_ID[lid].get(f) or [])), "")
+
+    # ---- the whole course still stands --------------------------------------------------
+    check("⭐ Entry-Level is 16 of 36 on the shape now (Unit 1 from tb, Units 2-4 here); "
+          "the other eight taught courses are untouched at 36 of 36",
+          sum(1 for l in L.LESSONS if l["course"] == "entry" and l.get("why") and l.get("recap")) == 16
+          and all(sum(1 for l in L.LESSONS if l["course"] == c and l.get("why")) == 36
+                  for c in ("basic", "prealgebra", "algebra1", "geometry", "algebra2",
+                            "precalc", "probstat", "calculus")),
+          str(sum(1 for l in L.LESSONS if l["course"] == "entry" and l.get("why"))))
+    check("  every lesson in the course still validates, and the board floor still holds",
+          all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les))
+          and __import__("boardaudit").worst() <= tutor._BS_CEILING, "")
+    check("  the changed files carry dated uw notes",
+          "2026-09-09  BUILD uw" in notes("lessons/entry.py")
+          and "BUILD uw" in notes("main.py")
+          and "2026-09-09  BUILD uw" in notes("ruletests.py")
+          and "2026-09-09  NEW (build uw)" in notes("wordaudit.py")
+          and "(uw)" in notes("static/methodology.html"),
+          "Jim's rule 8")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -16682,8 +16932,16 @@ def part3ev_the_giveaway_audits_join_the_battery():
     import teachaudit as TA
     import workedaudit as WA
 
-    ALLOWED = {"basic-u9-quarter-turns", "entry-u3-story-problems",
-               "entry-u2-doubles"}
+    # (uw, 2026-09-09) entry-u3-story-problems LEFT this list: it was demonstrating
+    # 3 + 2 and 6 − 2 with both in its own bank, and the uw rewrite moved the
+    # demonstrations off. entry-u4-tens-and-ones JOINED it, for honesty rather than
+    # for this audit: its problem space is one ten with one to nine ones, so every
+    # demonstration is also an ask -- and because the lesson spells its numbers out
+    # loud, the DIGIT-based audits below cannot see it at all. wordaudit.py can; PART
+    # 3ks pins what it finds. This list is the documented set of lessons whose
+    # problem space is exhausted, not merely the set this audit happens to catch.
+    ALLOWED = {"basic-u9-quarter-turns", "entry-u2-doubles",
+               "entry-u4-tens-and-ones"}
     th, wh = [], []
     for les in LS.LESSONS:
         th += TA.direct_hits(les) + TA.reverse_hits(les)
@@ -16698,8 +16956,12 @@ def part3ev_the_giveaway_audits_join_the_battery():
     # two facts in its teach beats where the old one demonstrated four. And the audit
     # now sweeps why and picture beats too (teachaudit._pre_ask_beats) -- the sweep
     # grew, the hits shrank, and the allowlist did not.
-    check("  the allowlist holds exactly its documented size (5 teach + 4 worked)",
-          len(th) == 5 and len(wh) == 4,
+    # (uw) was 5 teach + 4 worked. It FELL to 2 + 2, and the fall is not all good
+    # news: story-problems' two were really fixed, but doubles' dropped out only
+    # because the uw rewrite spells its numbers ("Six plus six equals twelve"), which
+    # the digit-based audit cannot read. The four that remain are quarter-turns'.
+    check("  the allowlist holds exactly its documented size (2 teach + 2 worked)",
+          len(th) == 2 and len(wh) == 2,
           "teach %d worked %d -- growth inside the allowlist is still growth"
           % (len(th), len(wh)))
     check("  only the two tiny recall domains have worked-example hits",
@@ -20265,14 +20527,25 @@ def part3gw_the_counting_lessons_actually_count():
     # picture and recap beats count along too, and counting-past-ten's counted
     # twelve moved from teach to its picture beat. The sweep reads the shape's
     # beats now (above), so every counted drawing is still held to the renderer.
-    check("  the canon counts fourteen drawings (the tutor's own modelled counts)",
-          len(counted) == 14, "%d: %s" % (len(counted), ", ".join(sorted(counted))))
+    # (uw, 2026-09-09) was fourteen. Entry Units 2-4 went to the shape and their
+    # pictures count along where the renderer will actually do it: seven more in
+    # adding, doubles, past-ten and story problems. ⚠️ SEVEN MORE WERE WRITTEN AND
+    # THEN TAKEN OUT AGAIN -- this pin's sibling above caught them. A count-along of
+    # 13, 14, 15, 16, 17 or 18 stars LOOKS right in the source and is refused by
+    # board.js (OBJ_COUNT_MAX is 12: "past a dozen this is not counting along"), so
+    # the attribute came off and the words do the counting instead.
+    check("  the canon counts twenty-one drawings (the tutor's own modelled counts)",
+          len(counted) == 21, "%d: %s" % (len(counted), ", ".join(sorted(counted))))
 
     # ---- the lessons that had to have it --------------------------------------
     ids = set(counted)
+    # (uw) entry-u2-add-single-digit's count-along moved from its teach beat to its
+    # PICTURE beat, the same move tb made for counting-to-10: the shape shows the
+    # picture first and reads the rule off it, so the stars are counted one at a time
+    # on [p0] and the teach beat that follows names the plus and equals signs.
     for want in ("entry-u1-counting-to-10[t0]", "entry-u1-counting-to-10[t1]",
                  "entry-u1-counting-to-10[p0]", "entry-u1-counting-past-ten[p0]",
-                 "entry-u2-add-single-digit[t1]", "entry/number"):
+                 "entry-u2-add-single-digit[p0]", "entry/number"):
         check("  counted: %s" % want, want in ids,
               "a counting lesson that does not count along is the one card this build "
               "existed for")
@@ -23621,7 +23894,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>11,461</b>" in page,
+          "<b>11,582</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -24734,7 +25007,16 @@ def part3il_the_lesson_learns_to_teach():
                 "worked picture"), "")
 
     # ---- 9. DO NO HARM: a lesson without the fields plays exactly as before -------
-    old = L.LESSON_BY_ID.get("entry-u2-add-single-digit") or L.LESSONS[0]
+    # (uw, 2026-09-09) ⚠️ THE CONTROL IS BUILT HERE NOW, NOT BORROWED. It used to be
+    # entry-u2-add-single-digit, chosen because that lesson had none of the shape's
+    # fields -- and build uw put the shape on it, which broke this check without
+    # anything being wrong. Borrowing a real lesson as a control means the control
+    # expires the day that lesson is improved, and every course is walking towards
+    # the shape. So the control is now MADE: a real lesson with the shape's fields
+    # stripped off it, which is exactly the thing this section exists to prove still
+    # plays. It cannot expire.
+    old = {k: v for k, v in (L.LESSON_BY_ID.get("entry-u2-add-single-digit") or L.LESSONS[0]).items()
+           if k not in ("why", "picture", "recap", "explain", "show_work_on_correct")}
     check("  the control lesson carries none of the new fields",
           not any(old.get(f) for f in ("why", "picture", "recap", "explain", "show_work_on_correct")), "")
     st0 = L.start(old)
@@ -25460,22 +25742,40 @@ def _shape_unit_checks(unit_ids, pic_regex):
           all(ok for _les in L.LESSONS for ok, _l, _d in L.validate(_les)), "")
 
 
-def _entry_unit_checks(unit_ids, pic_regex, explain_ids=()):
+def _entry_unit_checks(unit_ids, pic_regex, explain_ids=(), worked_ids=None):
     """(tb, 2026-09-05) THE CHECKS AN ENTRY UNIT-TO-THE-SHAPE BUILD RUNS. Entry's
     students are the youngest, and ruling ⑤ keeps the quick praise for counting and
     comparing, so a lesson here carries why, picture, teach and recap always, and the
-    walk-back and the reason question only where the lesson is multi-step (named in
-    `explain_ids`). Every lesson: the whole shape it promises, the real validator, most
-    beats drawing its picture; a perfect walk that opens why -> picture -> teach,
-    masters, speaks the recap before the end line, and stays inside its closure."""
+    walk-back and the reason question only where the lesson earns them. Every lesson:
+    the whole shape it promises, the real validator, most beats drawing its picture; a
+    perfect walk that opens why -> picture -> teach, masters, speaks the recap before
+    the end line, and stays inside its closure.
+
+    (uw, 2026-09-09) ⚠️ THE TWO FLAGS CAME APART, because Jim ruled them apart. tb
+    assumed one thing decided both -- "the lesson is multi-step" -- so `explain_ids`
+    demanded `show_work_on_correct` as well. His 2026-09-09 rulings separate them:
+    the REASON QUESTION is decided by the UNIT (Entry carries it from Unit 4 up, where
+    the student can read the options), and the WALK-BACK is decided by whether the
+    lesson's op actually has a worked picture to draw (five Entry ops have none, and a
+    flag over a missing picture would be a flag over nothing). `worked_ids=None` keeps
+    tb's behaviour exactly -- the walk-back is expected wherever the reason question
+    is -- so the Unit 1 caller is untouched."""
     import lessonscripts as L
     import tags as _tags
+    if worked_ids is None:
+        worked_ids = explain_ids
     for lid in unit_ids:
         les = L.LESSON_BY_ID.get(lid) or {}
         wants_reason = lid in explain_ids
-        check(f"⭐ {lid}: why, picture, teach and recap" + (", explain and the walk-back flag" if wants_reason else " (quick praise, ruling ⑤)"),
+        wants_worked = lid in worked_ids
+        _label = ("why, picture, teach and recap"
+                  + (", explain" if wants_reason else "")
+                  + (", the walk-back flag" if wants_worked else "")
+                  + ("" if (wants_reason or wants_worked) else " (quick praise, ruling ⑤)"))
+        check(f"⭐ {lid}: {_label}",
               all(les.get(f) for f in ("why", "picture", "teach", "recap"))
-              and (not wants_reason or (les.get("explain") and les.get("show_work_on_correct") is True)),
+              and (not wants_reason or bool(les.get("explain")))
+              and (bool(les.get("show_work_on_correct")) is wants_worked),
               str(sorted(les)))
         check(f"  {lid}: passes the real validator with the real registry",
               bool(les) and all(ok for ok, _l, _d in L.validate(les, set(_tags.BOARD_TAGS))),
@@ -40162,6 +40462,7 @@ def main():
     part3kp_the_first_watch_on_the_new_stack()
     part3kq_the_front_door_quieted()
     part3kr_the_board_keeps_up_with_the_voice()
+    part3ks_entry_units_two_to_four_to_the_shape()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
