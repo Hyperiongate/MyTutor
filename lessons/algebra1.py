@@ -1817,7 +1817,6 @@ _ALGEBRA1_U6 = [
              '[[step eq="(x³)² = x⁶"]]'),
         ],
         "bank": [
-            {"a": 2, "b": 3, "op": "exmul"},
             {"a": 2, "b": 4, "op": "exmul"},
             {"a": 3, "b": 3, "op": "exmul"},
             {"a": 5, "b": 2, "op": "exmul"},
@@ -1827,6 +1826,7 @@ _ALGEBRA1_U6 = [
             {"a": 4, "b": 4, "op": "exmul"},
             {"a": 3, "b": 6, "op": "exmul"},
             {"a": 4, "b": 5, "op": "exmul"},
+            {"a": 3, "b": 7, "op": "exmul"},   # (uz) was 2,3 at the FRONT -- the first ask was the one the teach beat had just worked
         ],
     },
     {

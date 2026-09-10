@@ -6,6 +6,18 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  APP_BUILD -> "2026-09-10uz-a-picture-counts-one-kind-of-thing". BUILD uz
+#               -- NO CODE IN THIS FILE CHANGED, the stamp only. Jim's four rulings on
+#               the 09-10 night watch: referee 87 (a priced story is not drawn with
+#               objects), rule 15(f) (invite their method, draw their method -- rules,
+#               not a referee, by his ruling), the Course Assessment loses its voice
+#               (rule 18), and the 21 giveaway candidates triaged to 2 real fixes, both
+#               closed by moving a bank problem.
+#               ⚠️ 15 NEW VOICE LINES (about $0.29). Not one SPOKEN line was rewritten
+#               -- but a bank problem IS spoken, so swapping two of them retires 16 ask,
+#               re-ask, praise and walk-back lines and renders 15 new ones. "No spoken
+#               line changed" is not the same as "no voice line changed"; the closure is
+#               the only thing that knows the difference, and it was asked.
 #   2026-09-10  APP_BUILD -> "2026-09-10uy-the-demo-keeps-time". BUILD uy -- NO CODE IN
 #               THIS FILE CHANGED, the stamp only. The five demo defects Jim reported:
 #               the mouth reads the real audio at last, he starts in the middle of the
@@ -9001,7 +9013,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-10uy-the-demo-keeps-time"
+APP_BUILD = "2026-09-10uz-a-picture-counts-one-kind-of-thing"
 
 
 @app.get("/health")

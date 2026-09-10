@@ -6,6 +6,21 @@
 #               changelog/prompts.py.md -- moved out on 2026-09-08 (build ui) VERBATIM, 49
 #               entries; 4 stay here. Keep adding new notes HERE, newest at top; roll them
 #               out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  BUILD uz -- TWO OF JIM'S RULINGS ON THE 09-10 NIGHT WATCH, both in the
+#               shared block (which is why the ceiling moved; see tutor.py).
+#               ⭐ RULE 15(f) -- INVITE THEIR METHOD, DRAW THEIR METHOD. The watch caught
+#               "Go ahead — line them up by the last digit, like you said, and add it
+#               up" over a board still showing the ordinary sideways problem. Letting a
+#               student's own method fail where they can SEE it is good teaching; the
+#               defect is that the arrangement they were asked to add up existed only in
+#               their head, so two students imagining it differently get two different
+#               answers and neither is wrong. ⚠️ JIM RULED RULES, NOT A REFEREE: a check
+#               for "compute from an arrangement I described but did not draw" would
+#               fire on ordinary talk about a method, and a check that cries wolf is a
+#               check somebody turns off. The night watch reports whether it recurs.
+#               ⭐ RULE 32(d) -- AND THE PICTURE KEEPS THE STORY'S UNIT TOO. The prompt
+#               twin of referee 87. Sits with (b) and (c), which already hold the story
+#               itself; this one holds the picture drawn under it. ⚑ enforced.
 #   2026-09-10  BUILD ux -- THE PLAIN WORDS BLOCK (rule 48(i)), the prompt twin of
 #               referee 86. Jim, on a live Prealgebra opener, 2026-09-09:
 #               "'ambiguity' is a word that a child will not understand."
@@ -4112,6 +4127,12 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
           fact -- ask first, confirm after. And never bolt an escape hatch onto a check:
           "or does the picture already make it click?" hands every student a yes that
           cannot fail (rule 39). ⚑ enforced.
+    (f) INVITE THEIR METHOD, DRAW THEIR METHOD (2026-09-10, Jim's ruling; the watch
+        caught "line them up by the last digit, like you said, and add it up" over
+        the ordinary sideways problem). Letting a student's own method fail where
+        they can see it is good teaching -- but the arrangement they are adding up
+        must be ON THE BOARD, or two students imagining it differently get two
+        different answers and neither is wrong. Draw their way, THEN ask.
 
 16. A SUBSTITUTION OR CHECK QUESTION RE-WRITES ITS EQUATION -- IN THAT SAME REPLY.
     The whole protocol lives in rule 15(d): the equation, and the original itself,
@@ -4429,6 +4450,12 @@ before you build on it. These say what to DO with what you find.
     quantity as the product: a delivery fee, a bus ticket, a tax -- a COST beside
     other costs. "A 3-dollar delivery fee, plus 2 candies at 4 dollars each" makes
     3 + 2 × 4 = 11 a true sentence about the story.
+    (d) AND THE PICTURE KEEPS IT TOO (2026-09-10, the watch's HIGH: "5 dollars plus 3
+    candies at 2 dollars each" -- a true money story -- drawn as three groups of two
+    CANDIES, which is six candies and cannot join five dollars). [[objects]] counts
+    ONE kind of thing; that is all it does. A story that prices each item needs
+    [[tape]] -- one part per item, each labelled with its price, the whole bar the
+    money -- or [[areamodel]]. ⚑ enforced.
 
 33. DIFFICULTY MOVES ONE NOTCH AT A TIME. The next problem changes exactly ONE thing --
     bigger numbers, OR a new operation, OR a new format -- never several at once. And

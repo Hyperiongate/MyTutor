@@ -6,6 +6,19 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  BUILD uz -- PART 3kv, JIM'S FOUR RULINGS ON THE 09-10 NIGHT WATCH.
+#               Pins referee 87 and its canon sweep, rule 15(f) (and that the referee
+#               count moved by exactly ONE this build -- his ruling was rules, not a
+#               referee, and a pin is how that stays true), the Course Assessment's
+#               silence, and the giveaway triage: 21 candidates -> 2 real (both closed
+#               by moving a BANK problem, so no voice line re-renders), 15 exhausted
+#               problem spaces, 3 honest, 1 blind spot in the audit itself.
+#               ⚠️ AND A PIN THAT READ ITS OWN DOCUMENTATION. The first cut of the
+#               assessment-is-silent check searched the whole file for "ttsAudio",
+#               "/api/speak" and "/api/voice-status" -- and found them, in the NOTE THAT
+#               EXPLAINS THAT THEY WERE REMOVED. It strips comments first now. A pin
+#               that reads prose is checking the wrong text; same family as ux's pin
+#               that required the very declaration it was meant to guard.
 #   2026-09-10  BUILD uy -- PART 3ku, THE DEMO KEEPS TIME. Pins the five demo defects
 #               Jim reported, each MEASURED in a real browser before and after
 #               (tools/demoprobe.py and tools/cadcentre.py drive /demo with generated
@@ -11448,8 +11461,8 @@ def part3kg_the_mark_floor():
     check("  no retry anywhere in it (Jim: the verdict is already spoken; only the record was missing)",
           "MATHCHECK_MAX_ATTEMPTS" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000]
           and "retry" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000].lower(), "")
-    check("  the referee count is eighty-six since ux (eighty-one since uo) -- uk added a floor, not a referee",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 86, "")
+    check("  the referee count is eighty-seven since uz (eighty-one since uo) -- uk added a floor, not a referee",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 87, "")
 
     # ---- through the real shipping door (3gb's stub harness) --------------------------------
     import mathcheck as _mc
@@ -11911,9 +11924,9 @@ def part3kj_the_truth_items_and_the_proven_holes():
           and "which side is which" in (T.prose_board_conflict(W, "ok") or "")
           and '_event("referee_fire", "triangleletters", trinames)' in tsrc
           and tsrc.find('_event("referee_fire", "triangleletters"') > tsrc.find('_event("referee_fire", "triangleletter",') > 0, "")
-    check("⭐ eighty referees at un, eighty-one since uo, eighty-four since ut, eighty-six since ux; the truth class still eleven (rule 14 is conduct; the rows ride "
+    check("⭐ eighty referees at un, eighty-one since uo, eighty-four since ut, eighty-seven since uz; the truth class still eleven (rule 14 is conduct; the rows ride "
           "referee 61's table)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86 and len(T.TRUTH_REFEREES) == 11, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 87 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweeps: nothing authored trips any of it --------------------------------------
     texts = []; pairs = []
@@ -12072,8 +12085,8 @@ def part3kk_one_name_per_function():
           and any("[[choices]]" in r["shape"] for r in rows if r["rule"] == 48)
           and any("already introduced" in r["shape"] for r in rows if r["rule"] == 48), "")
 
-    check("⭐ eighty-one referees at uo (eighty-six since ux); the truth class still eleven (rule 28 is conduct)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86 and len(T.TRUTH_REFEREES) == 11, "")
+    check("⭐ eighty-one referees at uo (eighty-seven since uz); the truth class still eleven (rule 28 is conduct)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 87 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweep, CUMULATIVE: each beat against the beats before it ---------------------
     n = 0; fires = []; machine_reuse = []
@@ -12209,8 +12222,8 @@ def part3kl_a_new_machine_still_called_f():
           and "_FR_MACHINE" in tsrc and "\\bnew\\s+machines?\\b" in tsrc, "")
     check("  a dot between two definitions on one board line separates them (fcmp's own step)",
           T._fr_definitions('[[step eq="f(x) = x + 2 · g(x) = 2x"]]') == [("f", "x", "x+2"), ("g", "x", "2x")], "")
-    check("  the referee count is unchanged by up -- it widened the eighty-first's grammar (eighty-six since ux)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86, "")
+    check("  the referee count is unchanged by up -- it widened the eighty-first's grammar (eighty-seven since uz)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 87, "")
 
     # ---- the cumulative canon sweep now SEES the definitions, and still fires 0 ---------------
     n = defs = 0; fires = []
@@ -12969,8 +12982,8 @@ def part3kp_the_first_watch_on_the_new_stack():
     check("  dispatched after triangleletters, in order: arrowpointer, pictured, problemnumbers",
           tsrc.find('_event("referee_fire", "triangleletters"') < tsrc.find('_event("referee_fire", "arrowpointer"')
           < tsrc.find('_event("referee_fire", "pictured"') < tsrc.find('_event("referee_fire", "problemnumbers"'), "")
-    check("⭐ eighty-six referees; the truth class still eleven (the row rides referee 61's table; the three are conduct)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86 and len(T.TRUTH_REFEREES) == 11, "")
+    check("⭐ eighty-seven referees; the truth class still eleven (the row rides referee 61's table; the three are conduct)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 87 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweeps ---------------------------------------------------------------------------------
     texts = []; strict_times = []
@@ -13268,7 +13281,7 @@ def part3kr_the_board_keeps_up_with_the_voice():
     n_ref = sum(1 for n in dir(T) if n.endswith("_conflict"))
     check("⭐ the EIGHTY-FIFTH referee: board_silence_conflict (uv); the truth class still "
           "eleven -- a wall of talk teaches nothing false, it teaches nothing",
-          n_ref == 86 and hasattr(T, "board_silence_conflict") and len(T.TRUTH_REFEREES) == 11,
+          n_ref == 87 and hasattr(T, "board_silence_conflict") and len(T.TRUTH_REFEREES) == 11,
           f"{n_ref} *_conflict functions")
     check("  it rides the same sweep as the rest, next to its sibling spokenmath",
           'bsilence = board_silence_conflict(reply)' in rd("tutor.py")
@@ -13439,9 +13452,9 @@ def part3kr_the_board_keeps_up_with_the_voice():
                        ("static/methodology.html", "2026-09-09  (uv)")):
         check(f"  {fn} carries uv's dated note", needle in notes(fn), fn)
     meth = rd("static/methodology.html")
-    check("  methodology's tile and both data-referees spans say 86 (ux added referee 86)",
-          meth.count("<span data-referees>86</span>") == 2
-          and '<div class="num"><b>86</b>' in meth, "")
+    check("  methodology's tile and both data-referees spans say 87 (ux added referee 86)",
+          meth.count("<span data-referees>87</span>") == 2
+          and '<div class="num"><b>87</b>' in meth, "")
 
     # ---- LIVE: a whole lesson over HTTP, and the card in a real browser ---------------------
     NAME = "⭐ LIVE: a lesson driven to its end over HTTP ends on the card, and the card renders at 390x844"
@@ -13963,9 +13976,10 @@ def part3kt_the_expression_comes_first():
           L.LINE_CHECK in L.STANDALONE_LINES and L.LINE_CHECK in L.course_audio_lines(), "")
 
     # ---- 6. referee 86 -- the reading level of the youngest courses -----------------
-    check("⭐ referee 86 exists, is wired into the sweep, and the count is eighty-six",
+    check("⭐ referee 86 exists and is wired into the sweep (the count is eighty-seven "
+          "since uz added the picture-units referee)",
           hasattr(T, "hard_word_conflict")
-          and sum(1 for n in dir(T) if n.endswith("_conflict")) == 86
+          and sum(1 for n in dir(T) if n.endswith("_conflict")) == 87
           and "hard_word_conflict(reply, course)" in _insp.getsource(T.prose_board_conflict),
           "")
     check("⭐⭐ it fires on Jim's own word, in all three youngest courses, and NAMES the "
@@ -14215,6 +14229,203 @@ def part3ku_the_demo_keeps_time():
           and "(uy)" in notes("static/demo-lesson.html")
           and "2026-09-10  BUILD uy" in notes("ruletests.py")
           and "BUILD uy" in notes("main.py"),
+          "Jim's rule 8")
+
+
+def part3kv_a_picture_counts_one_kind_of_thing():
+    """PART 3kv (build uz, 2026-09-10) -- JIM'S FOUR RULINGS ON THE 09-10 NIGHT WATCH.
+
+    ⭐ RULING ①, on the watch's only HIGH. A live Prealgebra reply told a TRUE money
+    story -- "5 dollars, plus 3 candies at 2 dollars each", where 3 x 2 is six DOLLARS
+    -- and drew it as three groups of two CANDIES, which is six candies and cannot
+    join five dollars. The general rule ("a picture's units must match the story's")
+    is not decidable by any pattern. The NARROW one is, and it is the one Jim ruled
+    on: an [[objects]] card counts ONE KIND OF THING, so a story that prices each item
+    cannot be drawn with it at all, however the caption is worded. Referee 87, plus
+    rule 32(d) as its prompt twin.
+
+    ⭐ RULING ②, on the un-drawn alignment. "Go ahead — line them up by the last digit,
+    like you said, and add it up", over a board still showing the ordinary sideways
+    problem. Letting a student's own method fail where they can see it is GOOD
+    teaching; the defect is that the arrangement they were asked to add up existed
+    only in their head, so two students imagining it differently would get two
+    different answers and neither would be wrong. Jim ruled RULES, NOT A REFEREE: a
+    check for "compute from an arrangement I described but did not draw" would fire on
+    ordinary talk about a method, and a check that cries wolf is a check somebody turns
+    off. Rule 15(f), and the night watch reports whether it keeps happening.
+
+    ⭐ RULING ③, on the assessment. voiceclosure.py (build uy) reported two lines that
+    challenge.html speaks and no closure holds -- so every assessment reached for the
+    PAID renderer on demand, for a line that could never be cached (one interpolates
+    the question number). Rule 18 gives the character no part in a quiz or a test, and
+    the Course Assessment is a test. The voice is out; every word a student READS is
+    unchanged.
+
+    ⭐ RULING ④, on the 21 giveaway candidates wordaudit.py has been reporting since
+    uw. Triaged: 2 real (both closed by moving a BANK problem, so not one spoken line
+    changed and not one voice line re-renders), 15 in lessons whose problem space is
+    exhausted -- the ten doubles, counting to ten, the four quarter turns, the times
+    table, the twelve exponents under 216 -- 3 honest, and 1 blind spot in the audit
+    itself, which read "Unit Two turns to polynomials" as the number 2."""
+    print("\nPART 3kv — a picture counts one kind of thing (build uz)")
+    import inspect as _insp
+    import re as _re
+    import lessonscripts as L
+    import tutor as T
+    import voiceclosure as VC
+    import wordaudit as WA
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+
+    # ---- ① referee 87 ---------------------------------------------------------------
+    STORY = ("You have 5 dollars, and 3 candies at 2 dollars each. ")
+    BADPIC = '[[objects emoji="C" groups="2 | 2 | 2" caption="3 groups of 2 candies each"]]'
+    TAPE = '[[tape parts="2 | 2 | 2" total="6" caption="3 candies at 2 dollars"]]'
+    check("⭐⭐ ①  a per-item PRICE story drawn with [[objects]] fires, and the nudge names "
+          "the picture that CAN carry it",
+          "[[tape]]" in (T.unit_picture_conflict(STORY + BADPIC) or "")
+          and "ONE KIND OF THING" in T.unit_picture_conflict(STORY + BADPIC), "")
+    check("  ...the same story drawn as a BAR is silent",
+          not T.unit_picture_conflict(STORY + TAPE), "")
+    check("  ...and an objects card with no price in the story is silent -- this referee "
+          "owns one collision and says nothing about any other picture",
+          not T.unit_picture_conflict("Here are 3 groups of 2 candies. " + BADPIC), "")
+    for shape in ("3 candies at $2 each", "each candy costs 2 dollars",
+                  "they sell for 3 dollars each", "2 dollars apiece"):
+        check("  ...it knows the shape \"%s\"" % shape,
+              bool(T.unit_picture_conflict("You have 5 dollars and " + shape + ". " + BADPIC)),
+              shape)
+    check("  never raises (fail open)",
+          T.unit_picture_conflict(None) == "" and T.unit_picture_conflict(123) == "", "")
+    check("⭐ wired into the sweep beside its two picture-truth siblings, and the count "
+          "is eighty-seven",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 87
+          and "unit_picture_conflict(reply)" in _insp.getsource(T.prose_board_conflict)
+          and _insp.getsource(T.prose_board_conflict).index("unit_picture_conflict")
+              > _insp.getsource(T.prose_board_conflict).index("shares_picture_conflict"), "")
+    # ⭐ THE CANON SWEEP
+    n, fires = 0, []
+    for les in L.LESSONS:
+        pairs = [(s, b) for s, b in les["teach"]]
+        for f in ("why", "picture", "recap"):
+            pairs += [(s, b) for s, b in (les.get(f) or [])]
+        pairs += [(pr["worked"][0], pr["worked"][1]) for pr in les["pairs"]]
+        ex = les.get("explain") or {}
+        if ex:
+            pairs.append((ex["spoken"], ex.get("board", "")))
+        for p in list(les["bank"]) + [pr["ask"] for pr in les["pairs"]]:
+            for lv in les.get("levels", L.LEVELS):
+                pairs.append((L.spoken_for(p, lv), L.board_for(p, lv)))
+            w = L._worked_for(p)
+            if w:
+                pairs.append((w[0], w[1]))
+        for sp, bd in pairs:
+            n += 1
+            if T.unit_picture_conflict((sp or "") + "\n" + (bd or "")):
+                fires.append((les["id"], (sp or "")[:60]))
+    check("⭐⭐ THE CANON SWEEP: %d authored beats and asks across all %d lessons, and "
+          "referee 87 fires on none of them -- the scripted lane never draws a price "
+          "story with objects, which is why this only ever showed up live" % (n, len(L.LESSONS)),
+          not fires and n >= 10000, str(fires[:3]))
+    check("  its prompt twin is rule 32(d), where the story-unit rules already live",
+          "(d) AND THE PICTURE KEEPS IT TOO" in rd("prompts.py")
+          and "[[objects]] counts" in rd("prompts.py"), "")
+
+    # ---- ② rules, not a referee -----------------------------------------------------
+    pr = rd("prompts.py")
+    check("⭐⭐ ②  rule 15(f): invite their method, DRAW their method",
+          "(f) INVITE THEIR METHOD, DRAW THEIR METHOD" in pr
+          and "line them up by the last digit" in pr
+          and "Draw their way, THEN ask." in pr, "")
+    check("  ...and it is a RULE, not a referee -- Jim's ruling. The count moved by "
+          "exactly one this build, and that one is the picture referee",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 87, "")
+
+    # ---- ③ the assessment does not speak --------------------------------------------
+    ch = rd("static/challenge.html")
+    # ⚠️ THE CODE, NOT THE COMMENTS. The first cut of this pin read the whole file and
+    # caught the note that EXPLAINS the removal -- which names every one of the things
+    # it was checking were gone. A pin that reads prose is checking the wrong text.
+    _chcode = _re.sub(r"//[^\n]*", "", ch.split("-->", 1)[1])
+    _chcode = _re.sub(r"/\*.*?\*/", "", _chcode, flags=_re.S)
+    check("⭐⭐ ③  the Course Assessment has no voice (rule 18: a test gets no character)",
+          not any(k in _chcode for k in ("ttsAudio", "SpeechSynthesisUtterance",
+                                         "speechSynthesis", "/api/speak",
+                                         "/api/voice-status", "browserSay")),
+          str([k for k in ("ttsAudio", "SpeechSynthesisUtterance", "speechSynthesis",
+                           "/api/speak", "/api/voice-status", "browserSay")
+               if k in _chcode]))
+    check("  ...and every word a student READS is unchanged -- showLine writes the same "
+          "sentence to the same place",
+          "function showLine(text) { el(\"say\").textContent = text; }" in ch
+          and "Welcome back — picking up right where you left off." in ch
+          and "let's map out your whole course" in ch, "")
+    check("  ...and it is not called say() any more, so voiceclosure cannot go on "
+          "reporting a voice that no longer exists",
+          "function say(" not in ch.split("-->", 1)[1], "")
+    check("⭐ voiceclosure.py: ZERO page-local spoken lines outside the closure, on "
+          "EVERY page now -- not just the cache-only ones",
+          not VC.hits(), str(VC.hits()[:2]))
+
+    # ---- ④ the giveaway triage ------------------------------------------------------
+    rows = WA.audit(L.LESSONS)
+    ids = {r[0] for r in rows}
+    # ⚠️ (uz) "no spoken line changed" is NOT "no voice line changed": a bank problem is
+    # SPOKEN, so swapping two of them retired 16 lines and rendered 15 (about $0.29).
+    # The closure is the only thing that knows the difference, and it was asked.
+    check("⭐⭐ ④  the two REAL giveaways are closed, and closed by moving a BANK problem "
+          "-- no authored sentence was rewritten",
+          "pre-u9-a-number-against-a-letter" not in ids
+          and "alg1-u6-copies-of-copies" not in ids, str(sorted(ids)))
+    check("  ...pre-u9's bank asks 7 x instead of 3 x (its picture beat opens \"3 x ... "
+          "three copies ... 9\", and 3x with x holding 3 IS 9)",
+          {"a": 7, "b": 2, "op": "mlx"} in L.LESSON_BY_ID["pre-u9-a-number-against-a-letter"]["bank"]
+          and {"a": 3, "b": 3, "op": "mlx"} not in L.LESSON_BY_ID["pre-u9-a-number-against-a-letter"]["bank"], "")
+    check("  ...and alg1-u6's FIRST ask is no longer the one its teach beat had just "
+          "worked (two copies of three x's is 6)",
+          {"a": 2, "b": 3, "op": "exmul"} not in L.LESSON_BY_ID["alg1-u6-copies-of-copies"]["bank"]
+          and {"a": 3, "b": 7, "op": "exmul"} in L.LESSON_BY_ID["alg1-u6-copies-of-copies"]["bank"], "")
+    check("⭐ the audit no longer reads a UNIT NUMBER as a problem number ("
+          "\"Unit Two turns to polynomials\" is not a beat handing away an answer)",
+          WA.numbers("Why a parade? Unit Two turns to polynomials") == []
+          and WA.numbers("Unit 9 has two problems") == [2]
+          and "pc-u2-the-minus-parade" not in ids, "")
+    check("  ...and it still reads everything it read before",
+          WA.numbers("Six plus six equals twelve") == [6, 6, 12]
+          and WA.numbers("twenty-five") == [25]
+          and WA.numbers("Here is one more, done for you. One ten") == [1, 10], "")
+    check("  what is LEFT is the exhausted problem spaces and three honest beats -- "
+          "eighteen candidates in eight lessons, every one of them read",
+          len(rows) == 18 and ids == {
+              "entry-u1-counting-to-10", "entry-u2-doubles", "entry-u8-minutes-past-the-hour",
+              "basic-u2-times-tables", "basic-u9-quarter-turns",
+              "pre-u1-exponents-are-repeated-times", "alg1-u3-two-machines",
+              "alg1-u4-the-climb"},
+          "%d rows in %s" % (len(rows), sorted(ids)))
+
+    # ---- the ceiling, and the cliff under it ----------------------------------------
+    traw = rd("tutor.py")
+    check("⭐ the fifteenth ceiling raise carries its dated note, and the constant "
+          "matches it",
+          "2026-09-10 (build uz): RAISED 208,000 -> 209,000" in traw
+          and "PROMPT_CEILING = 209_000" in traw
+          and "Fifteenth verse, same discipline" in traw,
+          "teaching is never trimmed to duck a tripwire")
+    check("  ...and it names what fifteen verses are telling us: the deferral is "
+          "one-shot, so this is a cliff and the answer has been \"raise it\" every time",
+          "A SECOND deferral tier" in traw and "Jim's call, not a build's" in traw, "")
+
+    # ---- do no harm ------------------------------------------------------------------
+    check("  every lesson in the course still validates",
+          not [1 for l in L.LESSONS for ok, _, _ in L.validate(l) if not ok], "")
+    check("  the changed files carry dated uz notes (Jim's rule 8)",
+          "2026-09-10  BUILD uz" in notes("tutor.py")
+          and "2026-09-10  BUILD uz" in notes("prompts.py")
+          and "2026-09-10  BUILD uz" in notes("ruletests.py")
+          and "BUILD uz" in notes("main.py")
+          and "(uz)" in notes("static/challenge.html")
+          and "(uz)" in notes("static/methodology.html")
+          and "2026-09-10  BUILD uz" in notes("wordaudit.py"),
           "Jim's rule 8")
 
 def part3he_the_main_road_moves_the_star():
@@ -15210,8 +15421,8 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
 
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
-    check("  the referee count is unchanged by rl -- it widened a gate (eighty-six since ux)",
-          n_ref == 86,
+    check("  the referee count is unchanged by rl -- it widened a gate (eighty-seven since uz)",
+          n_ref == 87,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -15294,8 +15505,8 @@ def part3hn_credit_only_what_you_saw():
           T.back_reference_conflict("You lined those up perfectly!", heard=None)
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
-    check("  the referee count is unchanged by rm -- it widened a gate (eighty-six since ux)",
-          n_ref == 86, f"{n_ref} *_conflict functions")
+    check("  the referee count is unchanged by rm -- it widened a gate (eighty-seven since uz)",
+          n_ref == 87, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -15371,8 +15582,8 @@ def part3ho_three_one_line_holes():
           T.function_ask_rewrite_conflict("What is f(4)?") != "",
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
-    check("  the referee count is unchanged by rn -- it widened two gates (eighty-six since ux)",
-          n_ref == 86, f"{n_ref} *_conflict functions")
+    check("  the referee count is unchanged by rn -- it widened two gates (eighty-seven since uz)",
+          n_ref == 87, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -21787,10 +21998,10 @@ def part3fx_the_child_cannot_be_right():
     # ---- the seat count moves, and the tile moves with it ----
     import inspect as _insp, re as _re
     n_ref = len(_re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_t)))
-    check("⭐ eighty-six referees now, counted from the code (62 + pz + qf + qm + qs + "
+    check("⭐ eighty-seven referees now, counted from the code (62 + pz + qf + qm + qs + "
           "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + "
           "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach + tw's opunspoken + tx's sharespic + un's triangleletters + uo's funcrename + ut's arrowpointer, pictured and problemnumbers)",
-          n_ref == 86, n_ref)
+          n_ref == 87, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -25140,8 +25351,8 @@ def part3ii_the_board_tells_the_truth_about_which_question():
           fires == 0 and seen >= 9000, f"{fires} authored replies rejected")
 
     # ---- the count moved, and everything that pins it moved with it ----------------
-    check("  eighty-six *_conflict referees (uo funcrename, ut three, uv boardsilence, ux hardword)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86, "")
+    check("  eighty-seven *_conflict referees (uo funcrename, ut three, uv boardsilence, ux hardword)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 87, "")
     check("  tutor.py carries a dated sm note",
           "2026-09-04  BUILD sm" in notes("tutor.py"), "")
 
@@ -29405,8 +29616,8 @@ def part3jr_the_gate_learns_who_wrote_the_symbol():
           "heard=heard," in _cv and "heard_tutor=heard_tutor," in _cv, "")
 
     # ---- nothing else moved ---------------------------------------------------------
-    check("  no new referee from tv (a gate correction; eighty-six since ux) and no new truth-class name",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86
+    check("  no new referee from tv (a gate correction; eighty-seven since uz) and no new truth-class name",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 87
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tv notes",
           "2026-09-07  BUILD tv" in notes("tutor.py")
@@ -29560,9 +29771,9 @@ def part3js_the_say_it_then_write_it_family():
           f"carry an op=", _opfire == 0 and _ops >= 5, f"{_opfire} fires")
 
     # ---- the count, and the notes ----------------------------------------------------
-    check("  eighty-six referees (ux), and the truth class unchanged at eleven (all three "
+    check("  eighty-seven referees (ux), and the truth class unchanged at eleven (all three "
           "of tw's are conduct: nothing false is taught)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 87
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tw notes",
           "2026-09-07  BUILD tw" in notes("tutor.py")
@@ -29718,10 +29929,10 @@ def part3jt_the_words_and_the_picture_are_the_same_thing():
           f"beats, exactly as the narrow one was", _f1 == 0, f"{_f1} fires")
 
     # ---- the count, and the notes ------------------------------------------------------
-    check("  eighty-six referees (ux), truth class still eleven (F9 is conduct: nothing "
+    check("  eighty-seven referees (ux), truth class still eleven (F9 is conduct: nothing "
           "false is said, the figure is the wrong object for the story -- Jim may rule "
           "it truth, as he did for boardcount on 2026-09-04)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 86
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 87
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tx notes",
           "2026-09-07  BUILD tx" in notes("tutor.py")
@@ -32034,8 +32245,8 @@ def part3hx_the_question_mark_is_a_blank_said_so():
           not hits and not (dd and "question-mark blank" in dd)
           and n >= 1900 and m >= 3000,
           str(hits[:4]))
-    check("  the referee count is unchanged by sa -- a registry row on referee 31 (eighty-six since ux)",
-          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 86, "")
+    check("  the referee count is unchanged by sa -- a registry row on referee 31 (eighty-seven since uz)",
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 87, "")
 
 
 def part3hw_a_variables_letter_keeps_its_case():
@@ -32183,8 +32394,8 @@ def part3hu_the_accepted_offer_is_honored():
               'triangle with it marked?',
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
-    check("  the referee count is unchanged by rx -- it widened a gate (eighty-six since ux)",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 86, "")
+    check("  the referee count is unchanged by rx -- it widened a gate (eighty-seven since uz)",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 87, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -32304,8 +32515,8 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("0.5") is True
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
-    check("  the referee count is unchanged by ry -- it widened a gate and added a floor (eighty-six since ux)",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 86, "")
+    check("  the referee count is unchanged by ry -- it widened a gate and added a floor (eighty-seven since uz)",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 87, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -32791,10 +33002,19 @@ def part3hq_the_pencil_has_feelings_about_your_work():
     _stamp = re.search(r'^APP_BUILD = "([^"]+)"', main_src, re.M)
     check("APP_BUILD is stamped rr or later", bool(_stamp) and _stamp.group(1) >= "2026-09-02rr", _stamp and _stamp.group(1))
     traw = rd("tutor.py")
-    check("⭐ the thirteenth ceiling raise carries its dated note (the [[ink]] paragraph x9 cost 621 chars)",
-          "2026-09-02 (build rr): RAISED 205,000 -> 207,000" in traw and "PROMPT_CEILING = 208_000" in traw
-          and "2026-09-08 (build uo): RAISED 207,000 -> 208,000" in traw,   # (uo) the fourteenth, dated the same way
+    check("⭐ EVERY ceiling raise carries its dated note, and the constant matches the "
+          "newest one (fifteen verses of the same discipline)",
+          "2026-09-02 (build rr): RAISED 205,000 -> 207,000" in traw
+          and "2026-09-08 (build uo): RAISED 207,000 -> 208,000" in traw
+          and "2026-09-10 (build uz): RAISED 208,000 -> 209,000" in traw
+          and "PROMPT_CEILING = 209_000" in traw,
           "an undated raise is how the ledger's discipline dies")
+    # (uz) ...and the raise now says out loud what fifteen of them are telling us: the
+    # deferral is one-shot, so every course above Prealgebra sits behind a cliff and
+    # the answer has been "raise it" every single time. Written down as Jim's decision
+    # to make, so the sixteenth is a choice rather than a reflex.
+    check("  ...and the newest one names the cliff underneath the ledger",
+          "A SECOND deferral tier" in traw and "Jim's call, not a build's" in traw, "")
 
 
 # =============================================================================
@@ -35803,10 +36023,19 @@ def part3bj_credential_leaves_url():
                           ("library.js", '"X-Student-Code": CODE'),
                           ("session.html", '"X-Student-Code": CODE'),
                           ("dashboard.html", '"X-Student-Code": CODE'),
-                          ("challenge.html", '"/api/speak-prep"')):
+                          # (uz) challenge.html LEFT this list: the Course Assessment no
+                          # longer speaks at all (rule 18 -- a test gets no character;
+                          # Jim's ruling 2026-09-10), so there is no /api/speak call on
+                          # it to send in either form. PART 3kv pins the silence, and the
+                          # URL-form sweep above still reads this page like every other.
+                          ):
         with open(os.path.join(here, "static", fname), encoding="utf-8") as fh:
             check(f"{fname} sends the new form", needle in fh.read(),
                   "this surface reverted to the URL form")
+    with open(os.path.join(here, "static", "challenge.html"), encoding="utf-8") as fh:
+        check("challenge.html asks for no speech at all (uz: rule 18)",
+              "/api/speak" not in re.sub(r"//[^\n]*", "", fh.read().split("-->", 1)[1]),
+              "the assessment lost its voice in uz; a speech call here is a regression")
 
     # JIM'S PLAUSIBLE RULING (2026-08-18): no fourth party on children's pages.
     with open(os.path.join(here, "static", "analytics.js"), encoding="utf-8") as fh:
@@ -40967,6 +41196,7 @@ def main():
     part3ks_entry_units_two_to_four_to_the_shape()
     part3kt_the_expression_comes_first()
     part3ku_the_demo_keeps_time()
+    part3kv_a_picture_counts_one_kind_of_thing()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

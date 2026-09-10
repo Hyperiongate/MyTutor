@@ -2727,8 +2727,8 @@ _PREALGEBRA_U9 = [
         "bank": [
             {"a": 2, "b": 3, "op": "mlx"},
             {"a": 4, "b": 2, "op": "mlx"},
-            {"a": 3, "b": 3, "op": "mlx"},
             {"a": 3, "b": 4, "op": "mlx"},
+            {"a": 7, "b": 2, "op": "mlx"},   # (uz) was 3,3 -- the picture beat opens "3 x ... three copies ... 9"
             {"a": 5, "b": 3, "op": "mlx"},
             {"a": 4, "b": 4, "op": "mlx"},
             {"a": 6, "b": 3, "op": "mlx"},

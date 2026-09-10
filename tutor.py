@@ -6,6 +6,27 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  BUILD uz -- REFEREE 87: A PICTURE COUNTS ONE KIND OF THING, and the
+#               fifteenth ceiling raise. ⭐ JIM'S RULING on the 09-10 watch's only HIGH:
+#               a live Prealgebra reply told a TRUE money story ("5 dollars, plus 3
+#               candies at 2 dollars each" -- the 3 x 2 is six DOLLARS) and drew it as
+#               three groups of two CANDIES, which is six candies and joins nothing.
+#               "A picture's units must match the story's" is not decidable by any
+#               pattern; the narrow form is, and it is the one he ruled on:
+#               [[objects]] counts ONE KIND OF THING, so a story that prices each item
+#               cannot be drawn with it at all, whatever the caption says.
+#               unit_picture_conflict owns exactly that collision -- a per-item price in
+#               the prose and an objects card on the board -- and says nothing about any
+#               other picture. Canon swept: 0 fires across 11,021 authored beats and
+#               asks in all 360 lessons, which is why this only ever showed up live.
+#               Prompt twin: rule 32(d), beside the story-unit rules already there.
+#               REFEREE COUNT 86 -> 87; truth class unchanged at 11.
+#               ⚠️ PROMPT_CEILING 208,000 -> 209,000, the fifteenth raise, dated in the
+#               ledger above exactly like the fourteen before it -- and this time the
+#               note says out loud what fifteen verses are telling us: the deferral is
+#               ONE-SHOT, Algebra II had 442 characters of headroom before this, and the
+#               answer has been "raise it" every single time. A second deferral tier, or
+#               per-course rule blocks, is the structural answer and it is Jim's call.
 #   2026-09-10  BUILD ux -- REFEREE 86, THE READING LEVEL OF THE YOUNGEST COURSES.
 #               ⭐ JIM, on a live Prealgebra opener, 2026-09-09: "'ambiguity' is a
 #               word that a child will not understand." hard_word_conflict carries 78
@@ -1277,7 +1298,24 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # discipline: teaching is never trimmed to duck a tripwire; the raise is deliberate and
 # this is its dated note. The two-prompt-sizes LARGE result remains the evidence that
 # should set this number.
-PROMPT_CEILING = 208_000
+# 2026-09-10 (build uz): RAISED 208,000 -> 209,000. Two of Jim's rulings on the 09-10
+# watch landed in the shared block: rule 15(f) (invite their method, DRAW their method
+# -- the watch caught "line them up by the last digit, like you said, and add it up"
+# over the ordinary sideways problem) and rule 32(d) (the PICTURE keeps the story's
+# unit -- an [[objects]] card counts one kind of thing, so a story that prices each
+# item cannot be drawn with it). The all-heard algebra2 prompt measured 208,504 -- 504
+# over. Fifteenth verse, same discipline: teaching is never trimmed to duck a
+# tripwire; the raise is deliberate and this is its dated note.
+# ⚠️ AND THE THING THE FIFTEEN VERSES ARE TELLING US. Before this raise Algebra II had
+# 442 characters of headroom, and every course above Prealgebra sits behind the SAME
+# one-shot deferral: drop the heard-script wording, and if that is not enough, ship
+# over and shout about it. That is a cliff, not a mechanism -- the next universal rule
+# anybody writes breaks the build again, and the answer has been "raise it" fifteen
+# times running. A SECOND deferral tier (or a per-course rule block, which is what
+# ux's plain-words block and ox's elementary buttons both chose instead) is the
+# structural answer, and it is Jim's call, not a build's. Written down here so the
+# sixteenth verse is a decision rather than a reflex.
+PROMPT_CEILING = 209_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -3191,6 +3229,75 @@ def hard_word_conflict(reply: str, course: str = ""):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[hardword] crashed (fail open): {exc}")
         _event("referee_crash", "hardword", str(exc))
+        return ""
+
+
+# =============================================================================
+# BUILD uz (2026-09-10) -- REFEREE 87: A PICTURE COUNTS ONE KIND OF THING.
+# -----------------------------------------------------------------------------
+# The 2026-09-10 night watch's only HIGH, in a live Prealgebra order-of-operations
+# lesson. The story was "5 dollars, plus 3 candies at 2 dollars each" -- so the
+# "3 x 2" in it is three candies TIMES two dollars, and it comes to six DOLLARS,
+# which is what then joins the 5. The picture drawn under it was:
+#
+#     [[objects emoji="🍬" groups="2 | 2 | 2" caption="3 groups of 2 candies each"]]
+#
+# ...three groups of two CANDIES, which comes to six CANDIES. Six candies cannot be
+# added to five dollars. The child is looking at a model of a different problem.
+#
+# ⭐ JIM'S RULING, 2026-09-10, on the narrow form of this: an [[objects]] card can
+# only ever count ONE KIND OF THING -- that is the whole of what it draws. So a story
+# that gives each item a PRICE has two units in it, and cannot be drawn with objects
+# at all, however the caption is worded. The bar model can carry it (one part per
+# item, each part labelled with the price, the whole bar the money) and the area model
+# can carry it; objects cannot.
+#
+# ⚠️ WHY THIS IS NARROW ON PURPOSE. "A picture's units must match the story's" is the
+# true rule and is not decidable by any pattern. This one is: a per-item price is a
+# fixed handful of English shapes ("at 2 dollars each", "$2 each", "2 dollars apiece",
+# "costs 3 dollars", "per candy"), and [[objects]] is a single named tag. The referee
+# owns exactly the collision Jim ruled on and says nothing about any other picture.
+#
+# THE CANON SWEEP: 0 fires across every authored beat, ask and walk-back in all 360
+# lessons -- the scripted lane never draws a price story with objects, which is why
+# this only ever showed up in the live lane.
+# =============================================================================
+_UP_OBJECTS = re.compile(r"\[\[\s*objects\b")
+# a price attached to EACH item: the four shapes English actually uses
+_UP_PER_ITEM = re.compile(
+    r"(?:\$\s*\d|\b\d+\s*(?:dollars?|pounds?|euros?|cents?|pence|p)\b)"
+    r"[^.!?]{0,24}\b(?:each|apiece|a\s?piece|per\b)"
+    r"|\b(?:each|every)\s+\w{2,14}\s+(?:costs?|is|sells?\s+for)\s+"
+    r"(?:\$\s*\d|\d+\s*(?:dollars?|pounds?|euros?|cents?|pence)\b)"
+    r"|\b(?:costs?|sells?\s+for)\s+(?:\$\s*\d|\d+\s*(?:dollars?|pounds?|euros?|cents?|pence)\b)"
+    r"[^.!?]{0,20}\b(?:each|apiece|per)\b",
+    re.I)
+
+
+def unit_picture_conflict(reply: str):
+    """Return a description of a per-item PRICE story drawn with [[objects]], or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        if not _UP_OBJECTS.search(text):
+            return ""
+        prose = _spoken_only(text)
+        m = _UP_PER_ITEM.search(prose)
+        if not m:
+            return ""
+        said = " ".join(m.group(0).split())[:48]
+        return ('this reply tells a story where each item has a PRICE ("{s}") and '
+                "draws it with [[objects]]. An objects card counts ONE KIND OF "
+                "THING -- that is all it can do -- so what the student ends up "
+                "looking at is a count of the ITEMS, not an amount of MONEY, and "
+                "the two cannot be added together. Draw the money instead: "
+                '[[tape]] with one part per item, each part labelled with the '
+                "price and the whole bar the total -- or, if the point is rows and "
+                "columns, [[areamodel]]. Keep the story and the arithmetic exactly "
+                "as they are; change the picture.").format(s=said)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[unitpicture] crashed (fail open): {exc}")
+        _event("referee_crash", "unitpicture", str(exc))
         return ""
 
 
@@ -9635,6 +9742,16 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if sharespic:
             _event("referee_fire", "sharespic", sharespic)
             return sharespic
+        # (uz) the EIGHTY-SEVENTH, beside its two siblings above and for the same
+        # reason: the caption agrees with the picture and the picture is the wrong
+        # OBJECT for the story. Jim's ruling on the 2026-09-10 watch's HIGH -- an
+        # [[objects]] card counts one kind of thing, so a story that prices each item
+        # has two units in it and cannot be drawn that way at all. Truth class: the
+        # picture models a different problem than the words.
+        unitpic = unit_picture_conflict(reply)
+        if unitpic:
+            _event("referee_fire", "unitpicture", unitpic)
+            return unitpic
         # build gl: third, and cheap -- the tutor must never be seen changing its mind.
         selfcorrect = self_correction_conflict(reply)
         if selfcorrect:

@@ -21,6 +21,20 @@
 #               words properly -- "twenty-five" is 25, not a 20 and a 5. Both of
 #               those were false positives on the build that wrote this.
 #
+#   2026-09-10  BUILD uz -- A UNIT NUMBER IS NOT A PROBLEM NUMBER, and the backlog is
+#               triaged. pc-u2-the-minus-parade's why beat opens "Unit Two turns to
+#               polynomials"; the audit read a 2, and that lesson's first bank problem
+#               is (-1) to the power 2 -- so a sentence about the SYLLABUS was reported
+#               as a beat handing away an answer. UNITREF strips a NAMED unit ("Unit
+#               Two", "Unit 9") the way LEADIN strips the worked-beat opener; a real
+#               number keeps its meaning everywhere else.
+#               ⭐ AND THE 21 CANDIDATES ARE READ (Jim's ruling, 2026-09-10): 2 real and
+#               closed by moving a BANK problem so no authored sentence was rewritten
+#               (pre-u9-a-number-against-a-letter, alg1-u6-copies-of-copies), 15 in
+#               lessons whose problem space is EXHAUSTED -- the ten doubles, counting to
+#               ten, the four quarter turns, the whole times table, the twelve exponents
+#               under 216 -- 3 honest, and this one blind spot. 21 -> 18, and every one
+#               of the 18 has been read.
 #               DELIBERATELY NOT WIRED INTO ruletests.py, for the same reason
 #               teachaudit and workedaudit are not: it reports on content that
 #               shipped long ago (31 candidates across the 360 lessons, not yet
@@ -51,13 +65,20 @@ UNITS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
 LEADIN = re.compile(r"^\s*(?:Here is one more, done for you\.|One more together\.)\s*", re.I)
 # "twenty-five" is 25. Without this the audit reads a 20 the beat never says.
 COMPOUND = re.compile(r"\b(%s)[\s-](%s)\b" % ("|".join(TENS), "|".join(UNITS)), re.I)
+# (uz, 2026-09-10) ⚠️ A UNIT NUMBER IS NOT A PROBLEM NUMBER. pc-u2-the-minus-parade's
+# why beat opens "Unit Two turns to polynomials", the audit read a 2, and the lesson's
+# first bank problem is (-1) to the power 2 -- so a sentence about the SYLLABUS was
+# reported as a beat handing away an answer. Same class as LEADIN: a number that
+# belongs to the sentence rather than to any problem. Named units only ("Unit Two",
+# "Unit 9"), so a real number keeps its meaning everywhere else.
+UNITREF = re.compile(r"\bunits?\s+(?:\d+|%s)\b" % "|".join(sorted(WORDS, key=len, reverse=True)), re.I)
 TOKEN = re.compile(r"\d+|[A-Za-z]+")
 
 
 def numbers(text):
     """Every number a beat SAYS, in order, digits and words alike."""
     text = COMPOUND.sub(lambda m: str(TENS[m.group(1).lower()] + UNITS[m.group(2).lower()]),
-                        LEADIN.sub("", str(text or "")))
+                        UNITREF.sub("unit", LEADIN.sub("", str(text or ""))))
     out = []
     for tok in TOKEN.findall(text):
         if tok.isdigit():

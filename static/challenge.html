@@ -4,6 +4,18 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    (uz) 2026-09-10 -- THE ASSESSMENT DOES NOT SPEAK. Rule 18 gives the character no
+    part in a quiz, a test or a timed challenge, and this page is the Course
+    Assessment -- it had a voice anyway. voiceclosure.py (build uy) is what finally
+    said so out loud: two of the lines it spoke were written in this page and so were
+    in no closure, which meant every assessment reached for /api/speak ON DEMAND, the
+    paid renderer, for a line that could never be cached (one of them interpolates the
+    question number, so it could not be pre-rendered even in principle). ⭐ Jim's
+    ruling, 2026-09-10. Gone: the audio element, the ElevenLabs ticket fetch, the
+    browser-voice fallback, the voice picker, the iPad audio unlock and the
+    /api/voice-status call that existed only to choose between them. Unchanged: every
+    word a student READS. say() is showLine() now -- a function named say() that says
+    nothing is a lie in the code, and it is the name voiceclosure reads. PART 3kv.
     (sg) 2026-09-02 -- THE SWEEP HIT THE CODE: answer()'s el("choices").children
     had become .students (the sd child->student sweep, meant for visible copy, also rewrote code identifiers), so grading a tapped answer threw before it could
     dim the other choices. Restored. PART 3id pins it.
@@ -1100,48 +1112,34 @@
     }
     drawOrb();
 
-    // ---- Voice (optional; streams if ElevenLabs configured, else browser) ----
-    let firstSpeakLead = true;   // first clip gets extra leading silence (see /api/speak lead=)
-    const ttsAudio = new Audio(); let elevenOn = false, maleVoice = null;
-    // iPAD/TABLET UNLOCK (2026-08-03): iPads/tablets refuse to start audio unless the FIRST play happens inside a real tap --
-    // an `await` breaks that chain. So begin() calls this SYNCHRONOUSLY, first thing, inside the
-    // tap: one tiny silent WAV "unlocks" ttsAudio (later .src changes + .play() are then allowed),
-    // and one silent utterance unlocks the browser-voice fallback the same way.
-    const SILENT_WAV = "data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";  // 50ms of true silence
-    let audioWarmed = false;
-    function warmUpAudio() {
-      if (audioWarmed) return; audioWarmed = true;
-      try {
-        ttsAudio.src = SILENT_WAV;
-        const p = ttsAudio.play(); if (p && p.catch) p.catch(() => {});
-      } catch (e) {}
-      try { if (window.speechSynthesis) { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u); } } catch (e) {}
-    }
-    function pickVoice(){ const v = window.speechSynthesis ? speechSynthesis.getVoices() : []; if(!v.length) return;
-      const en = v.filter(x => /en/i.test(x.lang)); maleVoice = en.find(x => /david|daniel|alex|male|fred/i.test(x.name)) || en[0] || v[0]; }
-    if (window.speechSynthesis){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-    function say(text, spoken) {
-      el("say").textContent = text;
-      const line = spoken || text;
-      if (elevenOn) { try { ttsAudio.pause(); } catch(e){}
-        // build hs: prep-then-ticket -- the line and the code leave the URL (see voice.js).
-        const _lead = firstSpeakLead ? 3 : 0; firstSpeakLead = false;
-        fetch("/api/speak-prep", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: CODE, text: line, lead: _lead })
-        }).then((r) => { if (!r.ok) throw new Error("prep " + r.status); return r.json(); })
-          .then((d) => {
-            if (!d || !d.t || d.voice === false) { browserSay(line); return; }
-            ttsAudio.src = "/api/speak?t=" + encodeURIComponent(d.t);
-            const p = ttsAudio.play(); if (p && p.catch) p.catch(()=>browserSay(line));
-          })
-          .catch(()=>browserSay(line)); }
-      else browserSay(line);
-    }
-    function browserSay(line){ if(!window.speechSynthesis) return; try { speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(line); if(maleVoice) u.voice=maleVoice; u.rate=1.02; u.pitch=0.95; speechSynthesis.speak(u);}catch(e){} }
+    // ---- (uz, 2026-09-10) THE ASSESSMENT DOES NOT SPEAK ----------------------------
+    // RULE 18: a quiz, a test or a timed challenge gets no character at all -- and this
+    // page is the Course Assessment. It had a voice anyway, and voiceclosure.py (build
+    // uy) is what finally said so out loud: two of the lines it spoke were written HERE
+    // and so were in no closure, which meant every assessment reached for /api/speak on
+    // demand -- the paid renderer -- for a line that could never be cached. One of them
+    // interpolates the question number, so it could not be pre-rendered even in
+    // principle.
+    // ⭐ JIM'S RULING, 2026-09-10: the assessment should not speak.
+    // WHAT IS GONE: ttsAudio, the ElevenLabs ticket fetch, the browser-voice fallback,
+    // the voice picker, the iPad audio unlock, and the /api/voice-status call that
+    // existed only to choose between them. WHAT IS UNCHANGED: every word. say() still
+    // writes the same sentence to the same place on screen -- a student reads it exactly
+    // as before. Restoring the voice is undoing this comment; nothing else was touched.
+    // ⚠️ AND IT IS NOT CALLED say() ANY MORE. A function named say() that says nothing
+    // is a lie in the code, and voiceclosure.py reads exactly these names to find the
+    // lines a page speaks -- it would have gone on reporting this page forever, for a
+    // voice that no longer exists. One name, one truth: showLine writes a line.
+    function showLine(text) { el("say").textContent = text; }
+    function warmUpAudio() {}          // kept: begin() calls it inside the tap
 
     // ---- Flow: comprehensive pass over ALL nine units (5 questions each) ----
+    // ⚠️ (uz) RESTORED. The edit that took the voice out of this page was written as a
+    // character-offset cut and it ran 400 characters past its target, swallowing this
+    // declaration with the last of the voice helpers. ORDER is what the whole run walks;
+    // nothing on the page works without it. The battery caught it on the first run --
+    // "ORDER — never declared on this page" -- which is the entire reason the battery
+    // reads every page for out-of-scope identifiers. NEVER CUT BY OFFSET: name both ends.
     const ORDER = [];
     for (let u = 1; u <= 9; u++) { const qs = BANK[u] || []; for (let qi = 0; qi < qs.length; qi++) ORDER.push({ u, qi }); }
     const TOTAL_Q = ORDER.length;
@@ -1173,16 +1171,13 @@
 
     async function begin(resume) {
       warmUpAudio();   // iPad: MUST run before the await below, while we're still inside the tap
-      try { const vs = await fetch("/api/voice-status"); if (vs.ok) elevenOn = !!(await vs.json()).eleven; } catch(e){}
       el("startPanel").style.display = "none";
       el("quiz").style.display = "flex";
       if (resume) {
         el("pts").textContent = points; el("streak").textContent = (points / 100);
-        say("Welcome back — picking up right where you left off. Question " + (idx + 1) + ".",
-            "Welcome back! Picking up right where you left off.");
+        showLine("Welcome back — picking up right where you left off. Question " + (idx + 1) + ".");
       } else {
-        say("Alright — let's map out your whole course. Take your time; there's no penalty for a miss.",
-            "Alright! Let's map out your whole course. Take your time. There's no penalty for a miss.");
+        showLine("Alright — let's map out your whole course. Take your time; there's no penalty for a miss.");
       }
       setTimeout(nextQuestion, 700);
     }
@@ -1308,13 +1303,10 @@
         : ("As you work through the course, each unit is mastered by its Unit Quiz — 90% or "
            + "better — and the Final Exam opens when every unit's quiz is passed.");
 
-      say(weak.length
+      showLine(weak.length
           ? ("Here's your map. We can start with " + UNIT_NAMES[firstUnit] + ", or you can pick your own spot."
              + (strong.length ? " One thing to know: your strong areas are a head start, not a pass — their Unit Quizzes will just be quick wins when you get to them." : ""))
-          : "You're strong across the board! Each unit still gets its Unit Quiz — for you, those will be quick wins. Pick wherever you'd like to sharpen up.",
-          weak.length ? ("Here's your map. We can start with unit " + firstUnit + ", or pick your own."
-             + (strong.length ? " Your strong areas are a head start, not a pass — their quizzes will be quick wins." : ""))
-                      : "You're strong across the board! Each unit still gets its quiz — quick wins for you. Pick wherever you'd like.");
+          : "You're strong across the board! Each unit still gets its Unit Quiz — for you, those will be quick wins. Pick wherever you'd like to sharpen up.");
 
       el("goPath").onclick = () => {
         el("rPickPanel").style.display = "none";
