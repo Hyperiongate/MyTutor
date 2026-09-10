@@ -6,6 +6,25 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  BUILD uy -- PART 3ku, THE DEMO KEEPS TIME. Pins the five demo defects
+#               Jim reported, each MEASURED in a real browser before and after
+#               (tools/demoprobe.py and tools/cadcentre.py drive /demo with generated
+#               clips and a Chrome-shaped speechSynthesis, its 15-second cutoff
+#               included):
+#                 (1) the analyser trio on the WINDOW -- cadabra.js saw `undefined` x3
+#                     before, because sc declared them inside this page's IIFE;
+#                 (2) the pencil centred as the classroom opens -- x=1360 of 1440
+#                     before, 730 after -- and a beat on the front-door path to see it;
+#                 (3) line ownership: beginLine/isCurrent/stopVoice/ssKeepAlive. Before,
+#                     a clip was replaced 0.42s after it started; after, it plays in full;
+#                 (4) the board peek as a CUE on its own words -- the flip at 18.48s of
+#                     an 18.48s clip before, 9.36s after;
+#                 (5) the demo lesson's closing line in the closure, and voiceclosure.py
+#                     watching for the next page that writes its own.
+#               ⚠️ FOUR (sc) PINS REPOINTED, AND ONE OF THEM WAS REQUIRING THE DEFECT:
+#               it asserted the literal `var audioCtx=null, analyser=null, ...` -- the
+#               very declaration that made the mouth blind. A pin that copies the code
+#               back to itself proves the code has not changed, never that it works.
 #   2026-09-10  BUILD ux -- PART 3kt, THE EXPRESSION COMES FIRST. Pins Jim's four
 #               Algebra I flags at the PATTERN level: every one of the 372 spoken
 #               lines the four letter lessons can say names the expression before the
@@ -6457,7 +6476,9 @@ def part3u2_talking_moments():
           "one voice, never two: his own speech now carries the identical WELCOME_LINE")
     check("  the tour starts with no clip left to fail",
           dp.count("sayThen(WELCOME_LINE, afterHello);") == 1
-          and "if (justWelcomed) { afterHello(); return; }" in dp,
+          # (uy) ...and the marked arrival waits 1.2s first, so it sees him arrive in
+          # the MIDDLE of the screen. The invariant is that the welcome is SKIPPED.
+          and "if (justWelcomed) { setTimeout(afterHello, 1200); return; }" in dp,
           "a visitor who has just heard the site welcome skips straight to the tour; "
           "everyone else hears him say hello and then the tour starts")
 
@@ -7639,7 +7660,10 @@ def part3ad_clip_never_eats():
           "sessionStorage.removeItem('cadabra_welcomed')" in dm,
           "a marker that is never cleared silences the demo's own welcome forever")
     check("a marked arrival skips the demo's own welcome entirely",
-          re.search(r"if \(justWelcomed\) \{ afterHello\(\); return; \}", dm) is not None,
+          # (uy) the skip is what matters; the 1.2s pause before the tour is so the
+          # visitor sees him standing in the middle (Jim, 2026-09-09).
+          re.search(r"if \(justWelcomed\) \{ setTimeout\(afterHello, \d+\); return; \}", dm)
+          is not None and "sayThen(WELCOME_LINE" in dm.split("justWelcomed) {", 1)[1],
           "nobody may ever hear two welcome clips back to back")
 
     # 3. AFTER A LESSON, NOTHING ALREADY HEARD IS REPLAYED.
@@ -14029,6 +14053,168 @@ def part3kt_the_expression_comes_first():
           and "BUILD ux" in notes("main.py")
           and "2026-09-10  BUILD ux" in notes("prompts.py")
           and "(ux)" in notes("static/methodology.html"),
+          "Jim's rule 8")
+
+
+def part3ku_the_demo_keeps_time():
+    """PART 3ku (build uy, 2026-09-10) -- THE DEMO KEEPS TIME.
+
+    Five things Jim watched the demo do wrong, and every one of them turned out to be
+    a question of OWNERSHIP rather than of timing:
+
+      ① "voice doesn't match mouth." Build sc declared usingAnalyser/analyser/timeData
+         on this page believing cadabra.js would read them. It could not: the whole
+         page runs inside one IIFE, so they were locals, voiceLevel()'s
+         `typeof analyser !== "undefined"` was false on every frame, and the pencil ran
+         the synthetic flap for every line from sc to here. Measured before: cadabra.js
+         saw `undefined, undefined, undefined`. After: the three names, and
+         usingAnalyser true while a clip plays.
+
+      ② "Mr Cadabra should start the demo right in the middle of the screen." He was
+         parked at his home corner -- measured at x=1360 of 1440, 640px off centre --
+         until the FIRST TOUR STOP flew him to the Curriculum button. Now: 730 of 1440,
+         ten pixels off centre, on both paths, and the front-door path (which skips the
+         welcome) gets a beat to see it.
+
+      ③ "After abrabot talked, mr cadabra's voice was silent for the next item in the
+         sidebar then started again later." lineDone was ONE global slot with no owner.
+         Abrabot's 45-word cameo runs past Chrome's ~15s utterance limit, so onend never
+         came; the safety timer moved the tour on; and the next line's
+         speechSynthesis.cancel() released the stale utterance, whose onend fired into
+         the NEXT line's callback. Measured before: the "Explore a topic" clip was
+         replaced 0.42 SECONDS after it started. After: it plays its full 11.4s.
+
+      ④ "Said to look at the board as it changed from dark to white and back to dark but
+         the actuall change lagged by about 5 seconds. Needs to happen with the voice."
+         The flip ran from the stop's `after` hook, which by definition cannot fire
+         until the line is over. Measured before: the board turned white at 18.48s of an
+         18.48s clip -- the very end. After: 9.36s, half way through, under the words.
+
+      ⑤ "After a sample problem, fell back to browser's voice." static/demo-lesson.html
+         ENDS on a line written in the page. The demo lane is cache-only on purpose, so
+         a line in no lesson is in no closure, was never rendered, and fell to the
+         browser voice EVERY time -- at the exact moment a visitor has decided the
+         product is real. It is a STANDALONE_LINE now, and voiceclosure.py (new) is what
+         watches for the next page that writes its own line."""
+    print("\nPART 3ku — the demo keeps time (build uy)")
+    import lessonscripts as L
+    import voiceclosure as VC
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    body = rd("static/demo.html")
+    cad = rd("static/cadabra.js")
+    lesson = rd("static/demo-lesson.html")
+
+    # ---- ① the mouth ---------------------------------------------------------------
+    check("⭐⭐ ①  the three names cadabra.js reads are on the WINDOW, where a script "
+          "outside this page's IIFE can see them",
+          "window.analyser=null; window.timeData=null; window.usingAnalyser=false;" in body
+          and "window.usingAnalyser=!!window.analyser;" in body
+          and "window.timeData=new Uint8Array(window.analyser.fftSize);" in body, "")
+    check("  ...and they are EXACTLY the names voiceLevel() looks for (one convention, "
+          "two pages -- voice.js gets away with locals only because it is a classic "
+          "script and this page is an IIFE)",
+          'typeof usingAnalyser !== "undefined"' in cad
+          and 'typeof analyser !== "undefined"' in cad
+          and 'typeof timeData !== "undefined"' in cad, "")
+    check("  the old declaration -- the one that made the pin pass and the mouth fail -- "
+          "is gone",
+          "var audioCtx=null, analyser=null, timeData=null, usingAnalyser=false;" not in body,
+          "sc's `var` inside the IIFE is what this build is fixing")
+
+    # ---- ② the middle of the screen -------------------------------------------------
+    check("⭐ ②  he is flown to the middle as the classroom opens",
+          "function cadCenter()" in body and "cadCenter();" in body
+          and "Cadabra.wave({ center: true })" in body, "")
+    check("  ...and the front-door path, which skips the welcome, gets a beat to see it",
+          "if (justWelcomed) { setTimeout(afterHello, 1200); return; }" in body,
+          "without the pause the first tour stop flies him off inside half a second")
+
+    # ---- ③ + ⑤ every spoken line owns its own events ---------------------------------
+    for want, why in (
+        ("function beginLine(fn){ lineDone=fn||null; lineDoneSeq=++lineSeq; return lineDoneSeq; }",
+         "every line is stamped"),
+        ("function isCurrent(seq){ return !seq || seq===lineDoneSeq; }",
+         "and every handler can ask whether it still speaks for the current one"),
+        ("function stopVoice(){", "an interruption detaches the handlers BEFORE silencing"),
+        ("function ssKeepAlive(on){", "Chrome's 15-second utterance cutoff is nudged"),
+    ):
+        check("⭐ ③  %s" % why, want in body, want[:60])
+    check("  fireLineDone drops an event that belongs to a superseded line",
+          "function fireLineDone(seq){\n    if(!isCurrent(seq)) return;" in body,
+          "this is the line that stops a stale utterance ending the NEXT line")
+    check("⭐⭐ ⑤  a superseded clip cannot FAIL either -- which is what dropped the demo "
+          "to the browser voice three abandoned clips in",
+          "function stale(){ return !isCurrent(seq); }" in body
+          and "if(settled||stale()) return; settled=true;" in body
+          and "setTimeout(function(){ if(!settled && !stale()) fail(); }, 6000);" in body, "")
+    check("  every never-stall safety timer speaks for its OWN line only",
+          body.count("if(isCurrent(seq)) fin();") >= 3,
+          "an unguarded one advanced a tour that had already moved on")
+    check("  the utterance is remembered so it can be disowned",
+          "curUtter=u;" in body and "if(curUtter===u) curUtter=null;" in body, "")
+
+    # ---- ④ the cue -------------------------------------------------------------------
+    check("⭐⭐ ④  the board peek is a CUE on its own words, not an `after` hook",
+          "{t:'boardChip',     cue:{at:\"Watch: white\", fn:themePeek}," in body
+          and "after:themePeek" not in body, "")
+    check("  ...and that phrase really is in the line it is armed on",
+          "Watch: white... and back to dark." in body,
+          "a cue whose phrase is not in the line silently never fires")
+    check("  the cue is measured from the CLIP'S OWN CLOCK, not from whenever the "
+          "duration turned up",
+          "function scheduleCue(seq, seconds, elapsed){" in body
+          and "(cue.frac*seconds - (elapsed||0))*1000" in body
+          and "scheduleCue(seq, demoAudio.duration || (String(text).split(/\\s+/).length*0.42), demoAudio.currentTime);" in body,
+          "re-arming from NOW each time a better duration arrived pushed the cue late "
+          "by however late the duration was")
+    check("  ...it takes the duration from whichever of play/loadedmetadata/"
+          "durationchange arrives first",
+          "demoAudio.onloadedmetadata=function(){" in body
+          and "demoAudio.ondurationchange=function(){" in body, "")
+    check("  a cue that never fires still fires AT THE END -- which is exactly where it "
+          "used to fire, so this can only be earlier, never later and never never",
+          "function fin(){ if(finished) return; finished=true; if(cueSpec) fireCue(); done(); }" in body, "")
+    check("  themePeek gates nothing now (`go` is optional)",
+          "if(typeof go==='function') go();" in body, "")
+
+    # ---- ⑤ the closing line of the demo lesson ---------------------------------------
+    check("⭐⭐ ⑤  the demo lesson's closing line belongs to the COURSE now, so it is "
+          "rendered like every other line he speaks",
+          L.LINE_DEMO_LESSON_END in L.STANDALONE_LINES
+          and L.LINE_DEMO_LESSON_END in L.course_audio_lines(), "")
+    check("  ...and the page carries it byte-for-byte (the cache is keyed on the exact "
+          "text, so one character adrift is the browser's voice again)",
+          ('var line = "%s";' % L.LINE_DEMO_LESSON_END) in lesson, "")
+    check("⭐ voiceclosure.py: NO page that can only ever play from the cache speaks a "
+          "line the closure does not hold",
+          not VC.blocking(), str(VC.blocking()[:2]))
+    check("  ...and the audit really catches one (a built control: the line as it was, "
+          "against a closure that does not hold it)",
+          VC.blocking(closure=set(L.course_audio_lines()) - {L.LINE_DEMO_LESSON_END})
+          == [("demo-lesson.html", L.LINE_DEMO_LESSON_END)],
+          str(VC.blocking(closure=set(L.course_audio_lines()) - {L.LINE_DEMO_LESSON_END})))
+    check("  ...it reads a line that reaches speech through a VARIABLE, not only a "
+          "literal in the call (the first cut's backreference closed on the variable "
+          "NAME, matched nothing, and reported the very file it was written for clean)",
+          VC.spoken_literals('var line = "one two three four five";\nspeakLine(line, null);')
+          == ["one two three four five"], "")
+    check("  demo.html is the one exemption, and it is a named one (its own enumerated "
+          "whitelist, twinned with main.DEMO_VOICE_LINES)",
+          VC.EXEMPT_PAGES == ("demo.html",) and VC.CACHE_ONLY_PAGES == ("demo-lesson.html",), "")
+
+    # ---- do no harm -------------------------------------------------------------------
+    tour = body.split("var TOUR=[", 1)[1].split("\n  ];", 1)[0]
+    check("  the tour's stops, lines and order are untouched by this build",
+          tour.count("{t:'") == 13 and "after:abrabotCameo" in tour
+          and "{t:'bubble',        before:cadWave" in tour
+          and tour.index("{t:'board',") < tour.index("{t:'boardChip',"), "%d stops" % tour.count("{t:'"))
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-10  BUILD uy" in notes("lessonscripts.py")
+          and "(uy)" in notes("static/demo.html")
+          and "(uy)" in notes("static/demo-lesson.html")
+          and "2026-09-10  BUILD uy" in notes("ruletests.py")
+          and "BUILD uy" in notes("main.py"),
           "Jim's rule 8")
 
 def part3he_the_main_road_moves_the_star():
@@ -24026,7 +24212,9 @@ def part3dr_the_demo_practices_too():
           and "runAbraPractice(function(){ showPicker(true); }, true)" in dcode,
           "Jim's 09-02 ruling: he was introduced on the tour; no second Abrabot section")
     check("⚠️ Abrabot's demo voice is the FREE one",
-          "browserSay(text, true)" in dcode
+          # (uy) browserSay carries the line's sequence number now -- the robot voice is
+          # unchanged; what matters is that it is the BROWSER's and never a clip.
+          "browserSay(text, true, seq)" in dcode
           and "playServerClip" not in dcode.split("function abraSay")[1].split("function runAbraPractice")[0],
           "his lines must never touch /api/demo-audio -- zero cost, every visitor")
     # (nh) This pin originally held nf's design -- ONE canvas swapping persona by
@@ -31553,8 +31741,12 @@ def part3hz_the_demo_holds_still_and_shows_its_boards():
           str(spoken_wb[:2]))
 
     # ③ the board-choice stop
+    # (uy) the hook moved from `after` to `cue`: an `after` hook cannot run until the
+    # LINE IS OVER, and "Watch: white... and back to dark" is three-fifths of the way
+    # through it. Jim: the flip "lagged by about 5 seconds. Needs to happen with the
+    # voice." PART 3ku pins the cue itself and the measurement.
     check("⭐ the tour points at the board choice, right after the board stop",
-          "{t:'boardChip',     after:themePeek," in body
+          "{t:'boardChip',     cue:{at:\"Watch: white\", fn:themePeek}," in body
           and "My board can be a white board or a dark one" in body, "")
     check("  themePeek flips to the OTHER board and lands on the stored choice",
           "function themePeek(go)" in body
@@ -31584,16 +31776,22 @@ def part3hz_the_demo_holds_still_and_shows_its_boards():
           "unequal lengths speak the wrong line over the wrong panel")
 
     # ⑤ the mouth reads the real audio
-    check("⭐ the demo declares the analyser trio cadabra.js has read since rt",
-          "var audioCtx=null, analyser=null, timeData=null, usingAnalyser=false;" in body
+    # ⚠️ (uy) ON THE WINDOW. sc declared these three as `var` inside this page's one
+    # IIFE, so cadabra.js -- which reads them as globals -- saw nothing, and the mouth
+    # ran on the synthetic flap for every line from sc to uy. This pin used to require
+    # the very declaration that made it useless; it now requires the working one.
+    check("⭐ the demo declares the analyser trio cadabra.js has read since rt -- ON THE "
+          "WINDOW, where a script outside this page's IIFE can actually see it",
+          "window.analyser=null; window.timeData=null; window.usingAnalyser=false;" in body
+          and "var audioCtx=null, analyser=null, timeData=null, usingAnalyser=false;" not in body
           and "createMediaElementSource(demoAudio)" in body
-          and "analyser.fftSize=512" in body, "")
+          and "window.analyser.fftSize=512" in body, "")
     check("  built inside the first user gesture, resumed on every play",
           "ensureDemoAnalyser();" in body
           and 'audioCtx.state==="suspended") audioCtx.resume()' in body
-          and "usingAnalyser=!!analyser;" in body, "")
+          and "window.usingAnalyser=!!window.analyser;" in body, "")
     check("  browser-voice lines keep the flap (no stream to read)",
-          "u.onstart=function(){usingAnalyser=false;" in body, "")
+          "window.usingAnalyser=false;" in body, "")
 
     # the voice lists: still identical, and the theme line rode BOTH
     main_lines = _voice_lines_from(os.path.join(here, "main.py"), "DEMO_VOICE_LINES")
@@ -40768,6 +40966,7 @@ def main():
     part3kr_the_board_keeps_up_with_the_voice()
     part3ks_entry_units_two_to_four_to_the_shape()
     part3kt_the_expression_comes_first()
+    part3ku_the_demo_keeps_time()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

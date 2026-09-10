@@ -7,6 +7,24 @@
 #               VERBATIM, 70 entries; 39 stay here. Keep adding new notes HERE, newest at
 #               top; roll them out again (notes_rollout.py) when this header passes ~100
 #               KB.
+#   2026-09-10  BUILD uy -- THE DEMO LESSON'S CLOSING LINE JOINS THE CLOSURE.
+#               ⭐ JIM, on the demo: "After a sample problem, fell back to browser's
+#               voice." It was not a cache miss and not the network:
+#               static/demo-lesson.html ENDS on a line written in the page, and the
+#               demo lane is CACHE-ONLY on purpose (a visitor must never be able to
+#               make the paid renderer run). A line in no lesson is in no closure, was
+#               never rendered, and fell to the browser voice EVERY time -- at the one
+#               moment a visitor has just decided the product is real.
+#               LINE_DEMO_LESSON_END belongs to the COURSE, exactly like LINE_NEW_TOPIC
+#               and LINE_STILL_LEARNING_CHOICE; the page carries it byte-for-byte and
+#               the battery pins the two copies equal. ONE new voice line.
+#               ⚠️ AND THE THING THAT WAS WATCHING FOR THIS: nothing. voiceclosure.py
+#               (new) reads every page in static/, finds the literals that reach a
+#               speech call -- including through a variable -- and reports the ones the
+#               closure does not hold. Zero on the cache-only pages; two on
+#               challenge.html, which is an assessment (rule 18) whose lane may render
+#               on demand and one of whose lines interpolates a question number.
+#               PART 3ku.
 #   2026-09-10  BUILD ux -- THE EXPRESSION COMES FIRST, AND "GOT IT?!" IS RETIRED.
 #               ⭐ JIM'S FLAG 22:43, on a live Algebra I walk-back ("One more
 #               together. x is holding 3. 5 x plus 4..."): "This is taught out of
@@ -16185,6 +16203,19 @@ LINE_NEW_TOPIC = ("That lesson is finished — well done! Something new is comin
 LINE_STILL_LEARNING_CHOICE = ("You're doing great — would you like to go on to the "
                               "next lesson, or review this a bit more to get it solid?")
 
+# (uy, 2026-09-10) THE DEMO LESSON'S CLOSING LINE. Jim, on the demo: "After a sample
+# problem, fell back to browser's voice." static/demo-lesson.html ends on this line,
+# written in the page -- and the demo lane is CACHE-ONLY on purpose (a visitor must
+# never be able to make the paid renderer run), so a line in no lesson is in no
+# closure, was never rendered, and fell to the browser voice EVERY TIME. It plays at
+# the exact moment a visitor has just decided the product is real.
+# It belongs to the COURSE, not to any lesson, for the same reason LINE_NEW_TOPIC
+# does; the page carries it byte-for-byte (the cache is keyed on the exact text) and
+# the battery pins the two copies equal. voiceclosure.py (new) is what now watches for
+# the next page that writes its own line.
+LINE_DEMO_LESSON_END = ("That is how every lesson in my classroom starts. Shall we "
+                        "look around, or try another level?")
+
 # Everything above, plus anything else that is spoken outside a lesson later.
 STANDALONE_LINES = (tuple(ABRABOT_INTRO)
                     + (CADABRA_HANDOFF_HELLO, CADABRA_HANDOFF_BYE)
@@ -16197,7 +16228,9 @@ STANDALONE_LINES = (tuple(ABRABOT_INTRO)
                     # (ur) the wait lines belong to the lane, not to any lesson's closure
                     + (LINE_THINKING, LINE_THINKING_MORE)
                     # (us) the check after a beat
-                    + (LINE_CHECK,))
+                    + (LINE_CHECK,)
+                    # (uy) the demo lesson's own closing line -- see above
+                    + (LINE_DEMO_LESSON_END,))
 
 
 def course_audio_lines(lessons=None):

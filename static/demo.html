@@ -1,5 +1,32 @@
 <!DOCTYPE html>
 <!--
+    (uy) 2026-09-10 -- THE FIVE THINGS JIM WATCHED THIS PAGE DO WRONG, and every one of
+    them was OWNERSHIP rather than timing. ① THE MOUTH READS THE REAL AUDIO -- for real
+    this time. sc declared usingAnalyser/analyser/timeData believing cadabra.js would
+    read them; everything here runs inside ONE IIFE, so they were LOCALS and
+    voiceLevel() saw `undefined` on every frame of every line from sc until now. They
+    are on window. ② HE STARTS IN THE MIDDLE: cadCenter() as the classroom opens
+    (measured: x=1360 of 1440 before, 730 after), and the front-door path -- which
+    skips the welcome entirely -- waits 1.2s so there is something to see. ③ EVERY
+    SPOKEN LINE HAS A NUMBER. lineDone was one global slot with no owner, so a stale
+    utterance's onend (Chrome stops a 45-word line at about 15s and never fires onend
+    until the next cancel) landed on the NEXT line's callback: the tour advanced twice
+    and the clip it skipped was replaced 0.42 SECONDS after it started -- Jim's silent
+    sidebar item. beginLine / isCurrent / stopVoice / ssKeepAlive. ⑤ AND THE SAME
+    OWNERSHIP STOPS THE FALLBACK: replacing src on the shared element raises an error
+    for the clip being abandoned, and that error was charged to the line that abandoned
+    it -- three of those and serverVoiceWorthTrying hands the whole rest of the demo to
+    the flat browser voice. A superseded line can no longer fail. ④ THE BOARD PEEK IS A
+    CUE, not an `after` hook: an `after` hook cannot run until the line is OVER, and
+    "Watch: white... and back to dark" is three-fifths of the way through it (measured:
+    the flip at 18.48s of an 18.48s clip before, 9.36s after). A cue is armed on its
+    phrase and timed from the CLIP'S OWN CLOCK -- and if it never fires, the line's own
+    end fires it, which is exactly where it used to fire, so this can only ever be
+    earlier. PART 3ku pins all five, and tools/demoprobe.py + tools/cadcentre.py are
+    the harnesses that measured them: generated clips, a Chrome-shaped
+    speechSynthesis with its cutoff, and a `before` mode that serves the page
+    exactly as it shipped, so every number above is two runs and not an argument.
+    The tour's stops, lines and order are untouched.
     2026-09-08  OLDER NOTES (before 2026-09-01) live in changelog/demo.html.md
                 -- moved out on 2026-09-08 (build ui) VERBATIM, 23 entries; 8 stay here.
                 Keep adding new notes HERE, newest at top; roll them out again
@@ -1479,17 +1506,30 @@
      graph as voice.js (one convention, two pages); guarded so a browser without
      WebAudio keeps exactly the old behaviour. Browser-voice lines set
      usingAnalyser=false -- speechSynthesis has no stream to read, the flap stays. */
-  var audioCtx=null, analyser=null, timeData=null, usingAnalyser=false;
+  /* ⚠️ (uy, 2026-09-10) ON THE WINDOW, NOT IN THIS CLOSURE -- and THAT is why the
+     mouth never matched. Build sc declared these three names believing cadabra.js
+     would read them. It cannot: everything on this page runs inside one IIFE, so
+     `var analyser` here is a LOCAL, and voiceLevel()'s `typeof analyser !==
+     "undefined"` was false on every frame of every line since sc shipped. The pencil
+     has been running the synthetic flap the whole time -- moving while he talks, blind
+     to syllables and pauses. That is Jim's "voice doesn't match mouth", exactly.
+     voice.js gets away with the same three lines because it is a classic script and
+     its top-level `let` lands in the shared script scope; this file's does not. So the
+     three names cadabra.js reads live on window, explicitly, and audioCtx -- which it
+     never reads -- stays local. Guarded exactly as before: no WebAudio, no analyser,
+     and the flap is the fallback rather than the only behaviour. */
+  var audioCtx=null;
+  window.analyser=null; window.timeData=null; window.usingAnalyser=false;
   function ensureDemoAnalyser(){
-    if(analyser || audioCtx) return;
+    if(window.analyser || audioCtx) return;
     try{
       var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
       audioCtx=new AC();
       var s=audioCtx.createMediaElementSource(demoAudio);
-      analyser=audioCtx.createAnalyser(); analyser.fftSize=512;
-      timeData=new Uint8Array(analyser.fftSize);
-      s.connect(analyser); analyser.connect(audioCtx.destination);
-    }catch(e){ audioCtx=null; analyser=null; timeData=null; }
+      window.analyser=audioCtx.createAnalyser(); window.analyser.fftSize=512;
+      window.timeData=new Uint8Array(window.analyser.fftSize);
+      s.connect(window.analyser); window.analyser.connect(audioCtx.destination);
+    }catch(e){ audioCtx=null; window.analyser=null; window.timeData=null; }
   }
   function warmDemoAudio(){
     if(demoWarmed) return; demoWarmed=true;
@@ -1499,8 +1539,104 @@
   }
 
   // ---- speech, with a completion signal that drives the tour's auto-advance ----
-  var lineDone=null;
-  function fireLineDone(){ if(lineDone){ var f=lineDone; lineDone=null; try{f();}catch(e){} } }
+  /* ============================================================================
+     (uy, 2026-09-10) EVERY SPOKEN LINE HAS A NUMBER, AND ONLY THE CURRENT LINE'S
+     EVENTS COUNT. Two of Jim's five demo defects were the same defect.
+
+     lineDone was ONE global slot with no owner, and demoAudio is ONE shared element.
+     So an event belonging to a line that has already been superseded -- a stalled
+     utterance's onend, an aborted clip's onerror -- landed on whatever line was
+     current at that moment:
+
+       ③ "After abrabot talked, mr cadabra's voice was silent for the next item in the
+          sidebar then started again later." Abrabot's cameo line is 45 words, and
+          Chrome stops a speechSynthesis utterance at about 15 seconds. onend never
+          came, abraSay's safety timer moved the tour on, and the NEXT line's
+          speechSynthesis.cancel() finally released that stale utterance -- whose onend
+          fired straight into the NEXT line's lineDone. The tour advanced twice, and
+          the clip it skipped was replaced on the shared element before a note of it
+          played. One silent sidebar item, then normal service.
+
+       ⑤ "After a sample problem, fell back to browser's voice." Replacing demoAudio.src
+          while the previous clip is still loading fires an error on the element -- and
+          onerror by then points at the NEW call's fail(). Three of those and
+          serverVoiceWorthTrying() gives up and the rest of the demo is the flat browser
+          voice. A deliberate interruption was being counted as a server failure.
+
+     The fix is one idea: beginLine() stamps a sequence number, every handler carries
+     the number it was started with, and anything arriving for an older number is
+     dropped. stopVoice() detaches handlers BEFORE silencing, so an interruption cannot
+     raise an event at all. Neither is a timing tweak; both are ownership.
+     ============================================================================ */
+  var lineSeq=0, lineDone=null, lineDoneSeq=0, curUtter=null;
+  function beginLine(fn){ lineDone=fn||null; lineDoneSeq=++lineSeq; return lineDoneSeq; }
+  function isCurrent(seq){ return !seq || seq===lineDoneSeq; }
+  function fireLineDone(seq){
+    if(!isCurrent(seq)) return;                 /* a superseded line's event: not this one's business */
+    if(!lineDone) return;
+    var f=lineDone; lineDone=null; try{f();}catch(e){}
+  }
+  /* Silence whatever is speaking WITHOUT it counting as a failure or a completion. */
+  function stopVoice(){
+    try{ if(curUtter){ curUtter.onstart=null; curUtter.onend=null; curUtter.onerror=null; } }catch(e){}
+    curUtter=null; ssKeepAlive(false);
+    try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
+    try{ demoAudio.onplay=null; demoAudio.onended=null; demoAudio.onerror=null; demoAudio.onstalled=null;
+         demoAudio.onloadedmetadata=null; demoAudio.ondurationchange=null; }catch(e){}
+    try{ demoAudio.pause(); }catch(e){}
+  }
+  /* Chrome and Edge stop a speechSynthesis utterance after about 15 seconds unless the
+     queue is nudged. Abrabot's cameo is 45 words -- well past that -- so his line was
+     being cut off mid-sentence AND leaving the stale utterance described above. */
+  var ssTick=null;
+  function ssKeepAlive(on){
+    if(ssTick){ clearInterval(ssTick); ssTick=null; }
+    if(!on) return;
+    ssTick=setInterval(function(){
+      try{ if(speechSynthesis.speaking && !speechSynthesis.paused){
+        speechSynthesis.pause(); speechSynthesis.resume(); } }catch(e){}
+    }, 9000);
+  }
+
+  /* ============================================================================
+     (uy) A CUE THAT LANDS ON THE WORD, not after the sentence.
+     ④ Jim: "Said to look at the board as it changed from dark to white and back to
+     dark but the actuall change lagged by about 5 seconds. Needs to happen with the
+     voice." The board-peek ran from the stop's `after` hook -- which by definition
+     fires when the LINE IS OVER, and "Watch: white... and back to dark" sits about
+     three-fifths of the way through a fifteen-second line. The lag was the rest of
+     the sentence.
+     A cue is armed with the PHRASE it belongs to; when the clip starts playing we know
+     its real duration, and speech is close enough to linear in characters that the
+     phrase's character position lands the cue within a word. If the duration is never
+     known (browser voice, a missing clip) the word count estimates it; if the cue never
+     fires at all, the line's own completion fires it -- which is exactly today's
+     behaviour, so this can only ever be earlier, never later or never.
+     ============================================================================ */
+  var cue=null;
+  function armCue(seq, text, phrase, fn){
+    cue=null;
+    var t=String(text||""), i=t.indexOf(phrase);
+    if(i<0 || !t.length) return;
+    cue={seq:seq, frac:i/t.length, fn:fn, fired:false, timer:null};
+  }
+  function fireCue(){
+    if(!cue || cue.fired) return;
+    cue.fired=true;
+    if(cue.timer){ clearTimeout(cue.timer); cue.timer=null; }
+    try{ cue.fn(); }catch(e){}
+  }
+  // ⚠️ `elapsed` IS NOT OPTIONAL POLISH. A clip's real duration often arrives AFTER
+  // play has started, and the first cut re-armed the timer from NOW each time it
+  // learned a better number -- so a duration that arrived 2.4 seconds late pushed the
+  // cue 2.4 seconds late with it. The cue is a point in the CLIP, so it is measured
+  // from the clip's own clock.
+  function scheduleCue(seq, seconds, elapsed){
+    if(!cue || cue.seq!==seq || cue.fired || !(seconds>0)) return;
+    if(cue.timer) clearTimeout(cue.timer);
+    cue.timer=setTimeout(function(){ if(isCurrent(seq)) fireCue(); },
+                         Math.max(0, (cue.frac*seconds - (elapsed||0))*1000));
+  }
   function setSpeaking(on){
     speakingNow=!!on;
     if(orb) orb.classList.toggle('speaking', !!on);
@@ -1512,21 +1648,26 @@
        robot line announces silence to the pencil instead. */
     try { document.dispatchEvent(new CustomEvent((on && !lastRobot) ? "mt:speaking" : "mt:silent")); } catch(e){}
   }
-  function browserSay(text, robot){
-    if(!voiceOn||!('speechSynthesis' in window)){ fireLineDone(); return; }
+  function browserSay(text, robot, seq){
+    if(!seq) seq=beginLine(null);
+    if(!voiceOn||!('speechSynthesis' in window)){ fireLineDone(seq); return; }
     try{
-      speechSynthesis.cancel();
+      stopVoice();                       /* (uy) handlers off FIRST -- an interruption raises nothing */
       // (nf) Abrabot's register: a higher pitch on the SAME browser voice -- the
       // guarantee that works on a machine with one English voice installed, exactly
       // the rule drill.html settled. And "Abra-bot", so the engine says it right.
       var sayable = robot ? text.replace(/Abrabot/g,'Abra-bot') : text;
       var u=new SpeechSynthesisUtterance(sayable.replace(/x²/g,'x squared').replace(/\^/g,' to the '));
       u.rate=robot?1.02:0.98; u.pitch=robot?1.32:1.06;
-      u.onstart=function(){usingAnalyser=false; setSpeaking(true);};   /* (sc) no stream to read */
-      u.onend=function(){setSpeaking(false); fireLineDone();};
-      u.onerror=function(){setSpeaking(false); fireLineDone();};
+      curUtter=u;                                                      /* (uy) so stopVoice can disown it */
+      u.onstart=function(){ window.usingAnalyser=false; setSpeaking(true); ssKeepAlive(true);   /* (sc) no stream to read */
+        scheduleCue(seq, String(text).split(/\s+/).length*0.42, 0); };   /* (uy) no duration to read: estimate from the words */
+      u.onend=function(){ ssKeepAlive(false); if(curUtter===u) curUtter=null;
+        setSpeaking(false); fireLineDone(seq); };
+      u.onerror=function(){ ssKeepAlive(false); if(curUtter===u) curUtter=null;
+        setSpeaking(false); fireLineDone(seq); };
       speechSynthesis.speak(u);
-    }catch(e){ fireLineDone(); }
+    }catch(e){ fireLineDone(seq); }
   }
   // The four audience intros live at the END of VOICE_LINES (appended, build cp). They
   // are referenced BY TEXT here and looked up by index at play time, exactly like every
@@ -1599,48 +1740,73 @@
     lineStarting("Your courses. You finished Basic Math and moved up")
   ];
   /* (sc) STU_STOPS lost its Abrabot ender too -- same by-index law as HS_STOPS. */
-  function say(text){
+  function say(text, seq){
+    if(!seq) seq=beginLine(null);          /* (uy) a bare say() is still a line, and owns its events */
     lastSaid=text; lastRobot=false; bubble.textContent=text; replay.style.display="inline-block";
-    if(!voiceOn){ fireLineDone(); return; }
+    if(!voiceOn){ fireLineDone(seq); return; }
     var i=VOICE_LINES.indexOf(text);
-    if(i>=0 && serverVoiceWorthTrying()){ playServerClip(i, text, 0); return; }
-    browserSay(text);
+    if(i>=0 && serverVoiceWorthTrying()){ playServerClip(i, text, 0, seq); return; }
+    browserSay(text, false, seq);
   }
   // One clip, with ONE retry before this line (and only this line) falls back.
-  function playServerClip(i, text, attempt){
+  function playServerClip(i, text, attempt, seq){
     try{
-      try{ demoAudio.pause(); }catch(e){}
-      try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
+      stopVoice();                       /* (uy) handlers off BEFORE the pause and the swap */
       var settled=false;
+      // ⚠️ (uy) A LINE THAT IS NO LONGER THE CURRENT ONE CANNOT FAIL, CANNOT FINISH,
+      // AND CANNOT COUNT AGAINST THE SERVER VOICE. Replacing src on the shared element
+      // makes the browser raise an error for the clip being abandoned; before this,
+      // that error was charged to the line that did the abandoning, and three of them
+      // dropped the whole rest of the demo to the flat browser voice.
+      function stale(){ return !isCurrent(seq); }
       function fail(){
-        if(settled) return; settled=true;
+        if(settled||stale()) return; settled=true;
         setSpeaking(false);
-        if(attempt===0){ setTimeout(function(){ playServerClip(i, text, 1); }, 500); return; }
+        if(attempt===0){ setTimeout(function(){ if(!stale()) playServerClip(i, text, 1, seq); }, 500); return; }
         voiceFails++; linesSinceRetry=0;     // this LINE falls back; the next still tries
-        browserSay(text);
+        browserSay(text, false, seq);
       }
-      demoAudio.onplay=function(){ if(!settled){ settled=true; voiceFails=0; } try{ if(audioCtx&&audioCtx.state==="suspended") audioCtx.resume(); }catch(e){} usingAnalyser=!!analyser; setSpeaking(true); };   /* (sc) the mouth reads this clip */
-      demoAudio.onended=function(){ setSpeaking(false); fireLineDone(); };
+      demoAudio.onplay=function(){
+        if(stale()){ try{ demoAudio.pause(); }catch(e){} return; }
+        if(!settled){ settled=true; voiceFails=0; }
+        try{ if(audioCtx&&audioCtx.state==="suspended") audioCtx.resume(); }catch(e){}
+        window.usingAnalyser=!!window.analyser; setSpeaking(true);   /* (sc/uy) the mouth reads this clip */
+        scheduleCue(seq, demoAudio.duration || (String(text).split(/\s+/).length*0.42), demoAudio.currentTime);
+      };
+      demoAudio.onended=function(){ if(stale()) return; setSpeaking(false); fireLineDone(seq); };
+      // (uy) ⚠️ THE CUE NEEDS THE CLIP'S REAL LENGTH, and duration is not always known
+      // by the time play starts. Take it at whichever of these three arrives first;
+      // scheduleCue re-arms harmlessly and only ever from the CURRENT line.
+      demoAudio.onloadedmetadata=function(){ if(!stale() && demoAudio.duration) scheduleCue(seq, demoAudio.duration, demoAudio.currentTime); };
+      demoAudio.ondurationchange=function(){ if(!stale() && demoAudio.duration) scheduleCue(seq, demoAudio.duration, demoAudio.currentTime); };
       demoAudio.onerror=fail;
       demoAudio.onstalled=fail;
       demoAudio.src='/api/demo-audio/'+i+(attempt?('?r='+attempt):'');
       var p=demoAudio.play(); if(p&&p.catch) p.catch(fail);
       // a clip that never even starts (server still generating, dead network) must not
       // strand the tour: fall back after 6 seconds of nothing.
-      setTimeout(function(){ if(!settled) fail(); }, 6000);
-    }catch(e){ voiceFails++; browserSay(text); }
+      setTimeout(function(){ if(!settled && !stale()) fail(); }, 6000);
+    }catch(e){ voiceFails++; browserSay(text, false, seq); }
   }
 
   // Speak, then call done() -- with an absolute safety timer so the tour can NEVER stall
   // on a missed audio event (the captions carry it either way).
-  function sayThen(text, done){
+  // (uy) `cueSpec` is {at:"<phrase from this line>", fn:fn} -- fn runs AS he reaches
+  // that phrase, and at the latest when the line ends, which is where it used to run.
+  function sayThen(text, done, cueSpec){
     var finished=false;
-    function fin(){ if(finished) return; finished=true; done(); }
-    lineDone=fin; say(text);
-    setTimeout(fin, 4500 + String(text).split(/\s+/).length*450);
+    function fin(){ if(finished) return; finished=true; if(cueSpec) fireCue(); done(); }
+    var seq=beginLine(fin);
+    if(cueSpec) armCue(seq, text, cueSpec.at, cueSpec.fn); else cue=null;
+    say(text, seq);
+    // ⚠️ (uy) THE SAFETY TIMER ONLY SPEAKS FOR ITS OWN LINE. Unguarded, a stale one
+    // advanced a tour that had already moved on -- half of defect ③.
+    setTimeout(function(){ if(isCurrent(seq)) fin(); },
+               4500 + String(text).split(/\s+/).length*450);
   }
-  replay.onclick=function(){ warmDemoAudio(); lineDone=null;
-    if(lastRobot){ bubble.textContent=lastSaid; browserSay(lastSaid, true); } else { say(lastSaid); } };
+  replay.onclick=function(){ warmDemoAudio();
+    var seq=beginLine(null);
+    if(lastRobot){ bubble.textContent=lastSaid; browserSay(lastSaid, true, seq); } else { say(lastSaid, seq); } };
 
   function addRow(text, cls){
     var hint=el('stageHint'); if(hint) hint.remove();
@@ -2267,11 +2433,15 @@
     lastSaid=text; lastRobot=true; bubble.textContent=text; replay.style.display="inline-block";
     var finished=false;
     function fin(){ if(finished) return; finished=true; if(done) done(); }
-    lineDone=fin;
-    if(!voiceOn){ setTimeout(fin, 900+String(text).split(/\s+/).length*330); }
-    else browserSay(text, true);
-    // the same never-stall safety timer sayThen uses -- captions carry it either way
-    setTimeout(fin, 4500+String(text).split(/\s+/).length*450);
+    var seq=beginLine(fin);
+    cue=null;
+    if(!voiceOn){ setTimeout(function(){ if(isCurrent(seq)) fin(); }, 900+String(text).split(/\s+/).length*330); }
+    else browserSay(text, true, seq);
+    // the same never-stall safety timer sayThen uses -- captions carry it either way,
+    // and (uy) it speaks only for its OWN line: Abrabot's cameo runs past Chrome's
+    // fifteen-second utterance limit, so this timer IS the thing that ends his line,
+    // and before the guard it went on to end the next one too.
+    setTimeout(function(){ if(isCurrent(seq)) fin(); }, 4500+String(text).split(/\s+/).length*450);
   }
 
   // (ng) THE BUTTON IS REAL. Its six neighbours are set dressing the tour points at;
@@ -2706,7 +2876,10 @@
        "he goes up and points that you can choose white or dark... it clicks briefly to
        white... and it goes back to the dark." The after-hook does exactly that flip,
        touching only the attribute -- the visitor's own stored choice is what it lands on. */
-    {t:'boardChip',     after:themePeek,
+    /* (uy, 2026-09-10) Jim: the flip "lagged by about 5 seconds. Needs to happen with
+       the voice." It was an `after` hook -- it could not run until the line was over.
+       It is a CUE now, armed on the words it belongs to. */
+    {t:'boardChip',     cue:{at:"Watch: white", fn:themePeek},
      line:"One more trick before we pick a problem. My board can be a white board or a dark one — this button right here. Watch: white... and back to dark. Choose whichever is easier on your eyes; I teach exactly the same on both."},
     {t:'streakChips',  line:"And these two bubbles at the top are the streak. The flame counts days in a row your student has worked; the star counts problems right in a row today. Small, honest numbers — and students watch them like a scoreboard."},
     {t:'dbars',         line:"See the bars up top? That's your student's map — today's goals, the current unit with a marker for every quiz, and the whole course marching gold toward the Final Exam. They always know exactly where they are."},
@@ -2718,7 +2891,8 @@
      a peek is not a decision. go() always runs, even if the DOM is missing. */
   function themePeek(go){
     var bd=el('board'), chip=el('boardChip'), fin=false;
-    function done(){ if(fin) return; fin=true; go(); }
+    /* (uy) `go` is optional now: as a CUE this runs under the voice and gates nothing. */
+    function done(){ if(fin) return; fin=true; if(typeof go==='function') go(); }
     function setD(dark){ try{ if(!bd) return;
       if(dark) bd.setAttribute('data-board','dark'); else bd.removeAttribute('data-board');
       if(chip){ chip.setAttribute('aria-pressed', dark?'true':'false');
@@ -2781,6 +2955,13 @@
   function cadMount(){ try { if (window.Cadabra) Cadabra.mount({ page: 'demo' }); } catch (e) {} }
   function cadPoint(id){ try { if (window.Cadabra) Cadabra.point(id); } catch (e) {} }
   function cadWave(){ try { if (window.Cadabra && Cadabra.wave) Cadabra.wave({ center: true }); } catch (e) {} }   /* (rr/rs) "this is me" is a wave, from the tour stop itself */
+  /* (uy, 2026-09-10) Jim: "Mr Cadabra should start the demo right in the middle of the
+     screen." He was parked at his home corner until the FIRST TOUR STOP flew him to the
+     Curriculum button -- so the host of the demo spent his own welcome off to one side,
+     and a visitor arriving from the front door (who skips the welcome entirely) never
+     saw him arrive at all. wave({center:true}) flies him to the middle and leaves him
+     there; the tour then takes him wherever it likes. No-op without the character. */
+  function cadCenter(){ try { if (window.Cadabra && Cadabra.wave) Cadabra.wave({ center: true }); } catch (e) {} }
   function cadRelease(){ try { if (window.Cadabra) Cadabra.release(); } catch (e) {} }
   cadMount();
 
@@ -2832,7 +3013,7 @@
         setTimeout(function(){ runTour(k+1); }, 420);
       }
       if(st.after){ try{ st.after(go); }catch(e){ go(); } } else { go(); }
-    });
+    }, st.cue);                          /* (uy) a cue fires under the line, not after it */
   }
   function skipTour(){
     tourCancelled=true; lineDone=null;
@@ -2853,6 +3034,9 @@
     sk.textContent='Skip the tour — take me to the levels →';
     sk.onclick=skipTour;
     answer.appendChild(sk);
+    /* (uy) ...and he is in the MIDDLE for it, on BOTH paths below -- the visitor who
+       hears this page's welcome and the one who came from the front door and does not. */
+    cadCenter();
     // BUILD eu: when his demo-welcome clip exists, he SAYS hello himself instead of the
     // synthesised WELCOME_LINE -- one voice, never two. The click on Start is the user
     // gesture that lets it play with sound, and the tour begins the moment it finishes
@@ -2871,7 +3055,12 @@
       justWelcomed = sessionStorage.getItem('cadabra_welcomed') === '1';
       if (justWelcomed) sessionStorage.removeItem('cadabra_welcomed');
     } catch(e){}
-    if (justWelcomed) { afterHello(); return; }
+    /* (uy) ⚠️ AND THE FRONT-DOOR PATH GETS A BEAT TO SEE IT. This visitor skips the
+       welcome line entirely, so without a pause the first tour stop would fly him off
+       to the Curriculum button inside half a second and he would never be seen in the
+       middle at all -- which is the path Jim was on when he raised this. 1.2s is one
+       wave, not a stall. */
+    if (justWelcomed) { setTimeout(afterHello, 1200); return; }
     /* (rk) THE HUMAN WELCOME CLIP IS RETIRED. demo_welcome is footage of a real
        person introducing himself as Mr. Cadabra, and Mr. Cadabra is the pencil now.
        His own voice still speaks the identical WELCOME_LINE, so nothing is lost --

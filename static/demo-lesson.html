@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+    (uy) 2026-09-10 -- THE CLOSING LINE IS IN THE VOICE CLOSURE. Jim: "After a sample
+    problem, fell back to browser's voice." This page ends on a line written HERE, and
+    this lane is cache-only on purpose (a visitor must never be able to make the paid
+    renderer run) -- so a line in no lesson was in no closure, was never rendered, and
+    fell to the browser voice every single time, at the moment a visitor has just
+    decided the product is real. It is lessonscripts.LINE_DEMO_LESSON_END now; this page
+    carries it BYTE-FOR-BYTE (the cache is keyed on the exact text) and the battery pins
+    the two copies equal. voiceclosure.py (new) watches for the next page that writes
+    its own line. Nothing else on this page changed. PART 3ku.
     (um) 2026-09-08 -- THE TAP UNLOCKS THE SOUND. Jim, on his phone, the day the stack went
     live: "no sound". This page never primed the audio pipeline inside a tap (every other
     page does: warmUpAudio in the welcome tap, warmDemoAudio in demo.html's level tap),

@@ -6,6 +6,16 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  APP_BUILD -> "2026-09-10uy-the-demo-keeps-time". BUILD uy -- NO CODE IN
+#               THIS FILE CHANGED, the stamp only. The five demo defects Jim reported:
+#               the mouth reads the real audio at last, he starts in the middle of the
+#               screen, every spoken line owns its own events (so a stale utterance can
+#               no longer silence the next one, and an abandoned clip can no longer be
+#               counted as a server failure), the board peek runs under the words that
+#               describe it, and the demo lesson's closing line is in the voice closure.
+#               voiceclosure.py joined the repo.
+#               ⚠️ ONE MORE NEW VOICE LINE on top of ux's 211: run the script-prewarm
+#               from /admin after this push.
 #   2026-09-10  APP_BUILD -> "2026-09-10ux-the-expression-comes-first". BUILD ux --
 #               NO CODE IN THIS FILE CHANGED, the stamp only. Jim's four Algebra I
 #               flags fixed in the OPS rather than in the flagged beats (the
@@ -8991,7 +9001,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-10ux-the-expression-comes-first"
+APP_BUILD = "2026-09-10uy-the-demo-keeps-time"
 
 
 @app.get("/health")
