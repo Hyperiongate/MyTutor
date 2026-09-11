@@ -6,6 +6,17 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  BUILD vh -- THE CASE FLOOR. repair_variable_case(reply) runs at the one
+#               shipping door (_shipped, after the mark floor): a reply whose board
+#               writes the variable in the other case from the words -- or in BOTH
+#               cases, the mixed board referee 72 is silent on by design -- gets its
+#               isolated board letters rewritten to the case the student heard, in the
+#               same tags and attributes the referee reads (one reader, _vc_cases).
+#               The 09-11 watch's finding 8 (returning-student, rule 28) fires referee
+#               72 today and shipped anyway: the model would not change a letter's
+#               case in three attempts. elembuttons / quizverdict / quizmark pattern.
+#               Events: code_repair · varcase / pass_through · varcase. Referee count
+#               unchanged at 87 -- a floor, not a referee. PART 3ld.
 #   2026-09-11  BUILD vg -- THE EVENT TAP. EVENT_TAPS + tap_events: every _event is
 #               also handed to any in-process listener, before the store write and
 #               without touching it; empty in production. _settle's pass_through
@@ -2974,6 +2985,114 @@ def variable_case_conflict(reply: str):
         print(f"[varcase] crashed (fail open): {exc}")
         _event("referee_crash", "varcase", str(exc))
         return ""
+
+
+# =============================================================================
+# BUILD vh (2026-09-11) -- THE CASE FLOOR: CODE MAKES THE BOARD'S LETTER MATCH THE WORDS.
+# -----------------------------------------------------------------------------
+# The 09-11 night watch (returning-student, algebra2, rule 28): the words said "x
+# squared minus five x plus six equals zero" and the board wrote X^2 - 5X + 6 = 0 --
+# the SAME defect referee 72 was built for on 2026-09-02, from the SAME scenario.
+# Run through the referee today, that reply FIRES. So the referee did its job, three
+# times, and _settle shipped the least-bad draft anyway: the model would not change a
+# letter's case on request. varcase fired 4x in the week and the watch's shipped-with-
+# a-finding count stood at 186. A referee that fires and is ignored is a log line;
+# this is the elembuttons / quizverdict / quizmark pattern applied to it -- when the
+# defect is one CODE can fix with certainty, code fixes it at the door.
+#
+# WHAT IT DOES. The board follows the words. The referee's own detector says which
+# letter, which case the board used and which the words used; the repair rewrites
+# every ISOLATED occurrence of that letter, in the same tags and attributes the
+# referee reads (step/write/solve/machine; eq=, text=, rule=), to the words' case.
+# Nothing else in the reply changes -- not the prose, not any other tag, not a letter
+# that is part of a word or a unit (the referee's isolation rule, reused).
+#
+# ⭐ AND THE MIXED BOARD, which the referee stays silent on BY DESIGN ("a reply already
+# mixing cases on one side is ambiguous"): a board that writes X^2 in one line and
+# (x - 2)(x - 3) in the next is not ambiguous when the WORDS use one case throughout --
+# the words settle it. That is the shape the watch's own finding describes ("switches
+# between capital X on the board and lowercase x in speech and later board work"). The
+# repair reads the same two grammars and normalises the board to the words' single
+# case. When the words are mixed too, or say nothing, code claims nothing.
+#
+# ⚠️ CAUTIOUS THE SAME FOUR WAYS THE REFEREE IS: a, e, i, o are never touched; only
+# isolated letters in math attributes; only when the words use exactly ONE case for
+# that letter; and the repair is checked by re-running the referee -- a repair that
+# leaves it firing is reported UNREPAIRABLE and the reply ships untouched, as it
+# would have without this floor. Fail open, never a turn.
+_VC_REPAIR_TAG_RE = re.compile(r"(\[\[\s*(?:step|write|solve|machine)\b)([^\]]*)(\]\])")
+_VC_REPAIR_ATTR_RE = re.compile(r'(\b(?:eq|text|rule)\s*=\s*")([^"]*)(")')
+
+
+def _vc_cases(reply: str):
+    """(board_cases, prose_cases): letter-key -> set of cases, read exactly as the
+    referee reads them. Shared so the floor and the referee can never disagree about
+    what is on the board."""
+    text = str(reply or "")
+    board = {}
+    for attrs in _VC_BOARD_TAG_RE.findall(text):
+        for name, val in _CW_ATTR_RE.findall(attrs):
+            if name not in ("eq", "text", "rule"):
+                continue
+            for m in _VC_ISOLETTER_RE.finditer(val):
+                board.setdefault(m.group(1).lower(), set()).add(m.group(1))
+    prose = {}
+    for pat in _VC_PROSE_PATS:
+        for m in pat.finditer(_spoken_only(text)):
+            prose.setdefault(m.group(1).lower(), set()).add(m.group(1))
+    return board, prose
+
+
+def repair_variable_case(reply: str):
+    """(reply, status, detail): status is "" (nothing to do), "repaired" (the board's
+    isolated variable letters now match the case the words use) or "unrepairable"
+    (the referee still fires after the rewrite -- counted, the reply ships untouched).
+    Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        board, prose = _vc_cases(text)
+        fixes = {}                        # letter-key -> the case the words use
+        for key, bset in board.items():
+            if key in _VC_NEVER:
+                continue
+            pset = prose.get(key)
+            if not pset or len(pset) != 1:
+                continue                  # the words are silent or mixed: claim nothing
+            want = next(iter(pset))
+            if bset != {want}:
+                fixes[key] = want         # a clean split, OR a mixed board
+        if not fixes:
+            return text, "", ""
+
+        def _fix_attr(m):
+            val = m.group(2)
+            def _sub(lm):
+                ch = lm.group(1)
+                return fixes.get(ch.lower(), ch) if ch.lower() in fixes else ch
+            return m.group(1) + _VC_ISOLETTER_RE.sub(_sub, val) + m.group(3)
+
+        def _fix_tag(m):
+            return m.group(1) + _VC_REPAIR_ATTR_RE.sub(_fix_attr, m.group(2)) + m.group(3)
+
+        fixed = _VC_REPAIR_TAG_RE.sub(_fix_tag, text)
+        if fixed == text:
+            return text, "", ""
+        still = variable_case_conflict(fixed)
+        if still:
+            return (text, "unrepairable",
+                    "the board wrote %s and the words say %s; rewriting the board's "
+                    "letters did not satisfy the referee (%s)" % (
+                        ", ".join(sorted("".join(sorted(board[k])) for k in fixes)),
+                        ", ".join(sorted(fixes.values())), still[:60]))
+        what = "; ".join('"%s" -> "%s"' % ("/".join(sorted(board[k])), v)
+                         for k, v in sorted(fixes.items()))
+        return (fixed, "repaired",
+                "the board's variable letter did not match the words (%s); the board now "
+                "uses the case the student heard" % what)
+    except Exception as exc:  # noqa: BLE001 -- a repair must never cost a turn
+        print(f"[caserepair] crashed (fail open): {exc}")
+        _event("referee_crash", "caserepair", str(exc))
+        return str(reply or ""), "", ""
 
 
 # =============================================================================
@@ -11863,6 +11982,18 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
         elif _mst == "unrepairable":
             print(f"[markrepair]{log_prefix} UNREPAIRABLE: {_mdet}")
             _event("pass_through", "quizmark", _mdet, _code, _course)
+        # (vh) the case floor, the 09-11 watch's finding 8: a shipped reply whose
+        # board writes the variable in the other case from the words -- or in BOTH
+        # cases -- gets the board rewritten to the case the student heard. Same door,
+        # same reason: the guarantee is about what reaches the child. Runs last, so
+        # it sees the reply the other floors have already settled.
+        reply, _cst, _cdet = repair_variable_case(reply)
+        if _cst == "repaired":
+            print(f"[caserepair]{log_prefix} REPAIRED: {_cdet}")
+            _event("code_repair", "varcase", _cdet, _code, _course)
+        elif _cst == "unrepairable":
+            print(f"[caserepair]{log_prefix} UNREPAIRABLE: {_cdet}")
+            _event("pass_through", "varcase", _cdet, _code, _course)
         return reply
 
     def _settle(kept):

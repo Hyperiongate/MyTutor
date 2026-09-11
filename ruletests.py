@@ -6,6 +6,14 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  BUILD vh -- PART 3ld, THE CASE FLOOR. repair_variable_case at the
+#               shipping door: the watch's reply fires referee 72 and is repaired
+#               (X^2 - 5X -> x^2 - 5x); the mixed board (X^2 beside (x - 2)) is settled
+#               by the words; six silences; isolated letters only; the unrepairable
+#               path ships untouched; one board reader for floor and referee; LIVE
+#               through _create_verified with the real prose stack (three fires, one
+#               named pass-through, one code_repair); do-no-harm; the watch's stamp
+#               names the repair.
 #   2026-09-11  BUILD vg -- PART 3lc, EVERY FINDING SAYS WHETHER THE REFEREES KNEW.
 #               Pins tutor.tap_events (empty in production, removed on exit, a raising
 #               tap harms nothing, runs before the untouched store write), the referee
@@ -15739,6 +15747,152 @@ def _raise_in_tap(T):
             raise RuntimeError("inside")
     except RuntimeError:
         pass
+
+
+def part3ld_the_case_floor():
+    """PART 3ld (build vh, 2026-09-11) -- THE CASE FLOOR: CODE MAKES THE BOARD'S LETTER
+    MATCH THE WORDS.
+
+    The 09-11 watch (returning-student, algebra2, rule 28) confirmed the exact defect
+    referee 72 was built for on 09-02, from the same scenario -- X^2 - 5X + 6 = 0 on the
+    board under "x squared minus five x". The referee FIRES on that reply today; so it
+    fired, the model would not change a letter's case in three attempts, and _settle
+    shipped least-bad. A referee that fires and is ignored is a log line. This is the
+    elembuttons / quizverdict / quizmark pattern applied to it: repair_variable_case runs
+    at the one shipping door and rewrites the board's isolated variable letters to the
+    case the student heard -- and it also settles the MIXED board (X^2 beside (x - 2))
+    the referee stays silent on by design, when the words use one case throughout.
+    Checked by re-running the referee; a rewrite it does not satisfy ships untouched
+    and is counted unrepairable. The night watch's stamp (vg) now also names the code
+    floors that repaired a turn."""
+    print("\nPART 3ld — the case floor: code makes the board's letter match the words (build vh)")
+    import os as _os
+    import tutor as _t
+    import nightwatch as NW
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    tsrc = open(_os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    R = _t.repair_variable_case
+
+    watch = ('Here it is: x squared minus five x plus six equals zero.\n\n'
+             '[[step eq="X^2 - 5X + 6 = 0"]]\n\nWhat two numbers multiply to six and add to negative five?')
+    check("⭐ the watch's reply still FIRES referee 72 (the referee was never the problem)",
+          bool(_t.variable_case_conflict(watch)), "")
+    out, st, det = R(watch)
+    check("⭐⭐ REPAIRED: the board follows the words -- X^2 - 5X becomes x^2 - 5x, nothing else moves",
+          st == "repaired" and '[[step eq="x^2 - 5x + 6 = 0"]]' in out
+          and out.replace('[[step eq="x^2 - 5x + 6 = 0"]]', '[[step eq="X^2 - 5X + 6 = 0"]]') == watch
+          and '"X" -> "x"' in det, f"{st} {out[:80]!r}")
+    check("  ...and the referee is silent on the repaired reply", not _t.variable_case_conflict(out), "")
+    out, st, det = R('x squared minus five x plus six. [[step eq="X^2 - 5X + 6 = 0"]] [[step eq="(x - 2)(x - 3) = 0"]]')
+    check("⭐ THE MIXED BOARD (the watch's own description): X^2 beside (x - 2), words lowercase -> one case",
+          st == "repaired" and 'eq="x^2 - 5x + 6 = 0"' in out and 'eq="(x - 2)(x - 3) = 0"' in out and '"X/x" -> "x"' in det, f"{st} {det[:80]}")
+    for label, r in (
+            ("the board already matches the words", 'x squared minus five x. [[step eq="x^2 - 5x + 6 = 0"]]'),
+            ("the words say nothing about the letter", 'Look at this. [[step eq="X^2 - 5X + 6 = 0"]]'),
+            ("the words are mixed themselves", 'x squared and then X plus one. [[step eq="X^2 + X + 1"]]'),
+            ("a, e, i, o are never touched", 'a plus b. [[step eq="A + B = 7"]]'),
+            ("a caption is not a math attribute", 'x squared. [[step eq="x^2" caption="X marks the spot"]]'),
+            ("no board at all", "x squared minus five x is what we solve.")):
+        check("  silent: %s" % label, R(r)[1] == "" and R(r)[0] == r, R(r)[1])
+    out, st, _d = R('x plus two. [[step eq="X + 2 cm = 5 cm"]] [[write text="Xylophone X"]]')
+    check("  only ISOLATED letters move: 'cm' and 'Xylophone' keep their letters; the lone X in a write text= does not",
+          st == "repaired" and 'eq="x + 2 cm = 5 cm"' in out and 'text="Xylophone x"' in out, out)
+    out, st, _d = R('two x plus one. [[machine fname="f" rule="2X + 1"]]')
+    check("  a machine's rule= is a math attribute; its fname= is not",
+          st == "repaired" and 'rule="2x + 1"' in out and 'fname="f"' in out, out)
+    check("  never raises, and a non-string ships as itself", R(None) == ("", "", "") and R(123)[1] == "", "")
+    # the unrepairable path: the referee is made to keep objecting after the rewrite
+    _saved_vc = _t.variable_case_conflict
+    try:
+        _t.variable_case_conflict = lambda r: "still objecting"
+        out, st, det = R(watch)
+        check("  UNREPAIRABLE when the referee still fires after the rewrite: the reply ships UNTOUCHED and is counted",
+              st == "unrepairable" and out == watch and "still objecting" in det, f"{st} {det[:60]}")
+    finally:
+        _t.variable_case_conflict = _saved_vc
+    check("  the floor and the referee read the board through ONE reader (_vc_cases) -- they cannot disagree",
+          "def _vc_cases(" in tsrc and "board, prose = _vc_cases(text)" in tsrc
+          and "_VC_BOARD_TAG_RE.findall(text)" in tsrc[tsrc.find("def _vc_cases("):tsrc.find("def _vc_cases(") + 1200], "")
+    check("  no referee count change: still 87 -- vh added a floor, not a referee",
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 87, "")
+
+    # ---- through the real shipping door -------------------------------------------------------
+    import mathcheck as _mc
+
+    class _B:
+        pass
+
+    def _resp(text):
+        r, b = _B(), _B()
+        b.type, b.text = "text", text
+        r.content, r.stop_reason, r.usage = [b], "end_turn", None
+        return r
+
+    class _Stub:
+        def __init__(self, script):
+            self.script, self.calls, self.messages = list(script), [], self
+
+        def create(self, **kw):
+            self.calls.append(kw)
+            return _resp(self.script.pop(0))
+
+    saved = (_mc.verify_reply, _t._live_critic_review)
+    # ⚠️ EVENTS ARE READ THROUGH vg's TAP, NOT BY REPLACING _event. Replacing _event
+    # (the 3gb harness's habit) also silences _note_fire, so _settle's pass-through
+    # loses the referee's name and this pin would fail for a reason that is not in
+    # production. The tap is the funnel's own reader, and it is what the watch uses.
+    bucket = []
+    # the watch's reply ends on an answerable ask with no pending line, which is
+    # pendcheck's finding (rule 15) and fires FIRST (a bare continue-check trips
+    # finiteanswer instead); a pending line under the ask isolates the case defect so
+    # this pin tests exactly one referee
+    live = watch.replace("What two numbers multiply to six and add to negative five?",
+                         'What two numbers multiply to six and add to negative five? [[step eq="? × ? = 6"]]')
+    try:
+        _mc.verify_reply = lambda r: ("ok", "")
+        _t._live_critic_review = lambda r, *a, **k: ""
+        msgs = [{"role": "user", "content": "can we solve x squared minus five x plus six equals zero?"}]
+        # the REAL prose referee stack judges the drafts; the model refuses to change the case three times
+        with _t.tap_events(bucket):
+            out = _t._create_verified(_Stub([live, live, live]), "vh-stub", None, msgs, " [3ld]",
+                                      {"code": "T", "course": "algebra2"})
+        fires = [e for e in bucket if e["kind"] == "referee_fire" and e["name"] == "varcase"]
+        pt = [e for e in bucket if e["kind"] == "pass_through" and e["name"] == "prosecheck"]
+        rep = [e for e in bucket if e["kind"] == "code_repair" and e["name"] == "varcase"]
+        check("⭐⭐ LIVE through _create_verified: varcase fired on all three drafts, the least-bad shipped as a pass-through NAMED varcase, "
+              "and the door REPAIRED it -- the child sees x^2 - 5x + 6 = 0",
+              len(fires) == 3 and len(pt) == 1 and "(varcase)" in pt[0]["detail"] and len(rep) == 1
+              and '[[step eq="x^2 - 5x + 6 = 0"]]' in out and "X^2" not in out,
+              f"fires={len(fires)} pt={[e['detail'][:50] for e in pt]} rep={len(rep)} out={out[:70]!r}")
+        bucket.clear()
+        clean = live.replace("X^2 - 5X", "x^2 - 5x")
+        with _t.tap_events(bucket):
+            out = _t._create_verified(_Stub([clean]), "vh-stub", None, msgs, " [3ld]", {"code": "T", "course": "algebra2"})
+        check("  DO NO HARM: a clean draft ships as-is, one call, no varcase event of any kind",
+              out == clean and not [e for e in bucket if e["name"] == "varcase"], f"{[e for e in bucket if e['name'] == 'varcase']}")
+    finally:
+        _mc.verify_reply, _t._live_critic_review = saved
+    check("  wired at the shipping door, LAST, after the mark floor, with its own events",
+          tsrc.find("reply, _cst, _cdet = repair_variable_case(reply)") > tsrc.find("reply, _mst, _mdet = repair_missing_mark(")
+          and '_event("code_repair", "varcase", _cdet, _code, _course)' in tsrc
+          and '_event("pass_through", "varcase", _cdet, _code, _course)' in tsrc, "")
+
+    # ---- the watch's stamp names the repair -------------------------------------------------------
+    tr = [("user", "q"), ("assistant", 'x squared. [[step eq="x^2 - 5x + 6 = 0"]]')]
+    ev = [[{"kind": "referee_fire", "name": "varcase", "detail": "d"},
+           {"kind": "pass_through", "name": "prosecheck", "detail": "shipped attempt 3 of 3 (varcase): d"},
+           {"kind": "code_repair", "name": "varcase", "detail": "repaired"}]]
+    stp = NW.shipped_as({"quote": '[[step eq="x^2 - 5x + 6 = 0"]]'}, tr, ev)
+    check("⭐ the night watch's stamp carries the code floor that repaired the turn, and says the critic read the repaired reply",
+          stp["kind"] == "pass-through" and stp["repaired"] == ["varcase"]
+          and "REPAIRED this reply at the door (`varcase`)" in NW.shipped_line(stp)
+          and "IS the repaired reply" in NW.shipped_line(stp), str(stp))
+    check("  a turn without a repair carries an empty list and the old line",
+          NW.shipped_as({"quote": '[[step eq="x^2 - 5x + 6 = 0"]]'}, tr, [[]])["repaired"] == []
+          and "REPAIRED" not in NW.shipped_line(NW.shipped_as({"quote": '[[step eq="x^2 - 5x + 6 = 0"]]'}, tr, [[]])), "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-11  BUILD vh" in notes("tutor.py") and "2026-09-11  BUILD vh" in notes("nightwatch.py")
+          and "2026-09-11  BUILD vh" in notes("ruletests.py") and 'APP_BUILD -> "2026-09-11vh-' in notes("main.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -42548,6 +42702,7 @@ def main():
     part3la_a_name_the_page_defines_is_judged_by_its_body()
     part3lb_three_holes_from_the_09_11_watch()
     part3lc_every_finding_says_whether_the_referees_knew()
+    part3ld_the_case_floor()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

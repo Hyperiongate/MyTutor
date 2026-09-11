@@ -2,6 +2,11 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-11  BUILD vh -- the stamp also carries the code floors that REPAIRED the
+#               reply at the door (code_repair events on the turn), and the Shipped-as
+#               line says so on a pass-through: the critic reads the transcript the
+#               harness kept, which is the repaired reply -- so a finding about the
+#               repaired thing means the repair is what to re-read.
 #   2026-09-11  BUILD vg -- EVERY FINDING SAYS WHETHER THE REFEREES ALREADY KNEW.
 #               The 09-11 triage: 186 replies a week ship WITH a known finding, and
 #               for three of the night's ten confirmed findings nobody could tell a
@@ -898,7 +903,7 @@ def shipped_as(finding, transcript, turn_events):
     """{"kind": "pass-through" | "floor" | "hole" | "unplaced", "referee": str,
         "fired": [names], "turn": n} for one finding. Never raises: any trouble yields
     the "unplaced" stamp, which the report prints as exactly that."""
-    out = {"kind": "unplaced", "referee": "", "fired": [], "turn": -1}
+    out = {"kind": "unplaced", "referee": "", "fired": [], "repaired": [], "turn": -1}
     try:
         idx = _place_turn((finding or {}).get("quote"), transcript)
         if idx < 0:
@@ -914,6 +919,11 @@ def shipped_as(finding, transcript, turn_events):
             if e.get("kind") == "referee_fire" and e.get("name") and e["name"] not in fired:
                 fired.append(e["name"])
         out["fired"] = fired
+        # (vh) the code floors that REPAIRED this reply at the door -- a pass-through
+        # the floor then fixed is a finding the critic should not have been able to
+        # see; if it saw one anyway, the repair is what to re-read.
+        out["repaired"] = [e.get("name") for e in events
+                           if e.get("kind") == "code_repair" and e.get("name")]
         for e in events:
             if e.get("kind") == "floor":
                 out["kind"] = "floor"
@@ -936,10 +946,16 @@ def shipped_line(stamp) -> str:
     st = stamp or {}
     kind = st.get("kind") or "unplaced"
     fired = st.get("fired") or []
+    repaired = st.get("repaired") or []
     if kind == "pass-through":
         who = f"`{st['referee']}`" if st.get("referee") else "a referee"
         tail = (f" (fired on this turn: {', '.join('`%s`' % n for n in fired)})"
                 if fired else "")
+        if repaired:
+            tail += (f" ⚠️ code then REPAIRED this reply at the door "
+                     f"({', '.join('`%s`' % n for n in repaired)}); the transcript the "
+                     f"critic read IS the repaired reply, so this finding survived the "
+                     f"repair -- the repair is what to re-read.")
         return (f"Shipped as: **PASS-THROUGH** — {who} still objected to the draft that "
                 f"shipped; the attempts ran out and the least-bad draft went to the "
                 f"student. It has its referee; what it wants is a better nudge, a code "
