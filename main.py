@@ -6,6 +6,35 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-10  APP_BUILD -> "2026-09-10vc-one-label-for-every-clip".
+#               BUILD vc -- THE LABEL ON THE SHELF AND THE LABEL ON THE REQUEST.
+#               Jim's ruling on build vb's open finding, in his words: "Go with
+#               recommendation two" -- have the RECORDER tidy the sentence the same
+#               way the page does, and generate the server's copy from the page's.
+#               A clip is filed under a label and the label IS the sentence. The
+#               prewarm filed it as authored; the page asked for it after forSpeech
+#               tidied it ("Algebra II" -> "Algebra Two", "3:2" -> "3 to 2",
+#               "**Area**" -> "Area"). Where those differ the clip was never found:
+#               rendered once for nobody, then rendered LIVE again on every play, by
+#               every student, forever. 1,943 of 39,969 course lines (11% of
+#               geometry) and 306 of 306 foundations scripts -- every one of those,
+#               since build cf, because each opens with a **bold** term.
+#               forSpeech stays in JavaScript (the browser voice needs it too), so
+#               the server's copy is a BUILD ARTEFACT: tools/genspeechmap.py runs the
+#               real function in node over every authored line and writes the
+#               differences to speechmap.py. Changes here:
+#                 * `import speechmap` -- HARD, because the failure mode is silence.
+#                 * _spoken(text) -- the ONE reader; anything absent is its own
+#                   answer, so a gap degrades to pre-vc behaviour, never worse.
+#                 * _closure_lines() -- mk's one owner of what the closure IS now
+#                   also owns what it is CALLED. All six sites go through it.
+#                 * _drill_speakable and the foundations prewarm tidy at the top.
+#               ⚠️ RUN BOTH PREWARMS AFTER THIS PUSH. The correct labels have never
+#               been rendered: ~403,600 characters, about $89 once. That is not new
+#               spend -- it is the spend that has been repeating on every play.
+#               ⚠️ REGENERATE speechmap.py after ANY edit to static/speech-text.js or
+#               to an authored line. ruletests PART 3ky rebuilds it in memory and
+#               fails the build when the committed file is stale.
 #   2026-09-10  APP_BUILD -> "2026-09-10vb-the-next-line-is-already-loaded".
 #               BUILD vb -- THE LOOK-AHEAD. Jim: "10 second latency is too long when
 #               we know this is next after a correct answer we need to load that so
@@ -895,6 +924,9 @@ import lessonscripts   # build jt: the scripted-first pilot engine (pure; see it
 import store   # durable DB storage; dormant unless DATABASE_URL is set (see store.py)
 import curriculum   # 9 units + classify_unit() for real per-topic tracking
 import tags     # build hm: the tag grammar's one source (hard import, loud at boot)
+import speechmap  # (vc) GENERATED from static/speech-text.js -- see _spoken() below.
+                  # A hard import on purpose: without it every clip goes back to
+                  # being filed under a label no page ever asks for, silently.
 import library  # 2026-08-07: the "Look it up" reference library (seeds + generate-once)
 try:
     # 2026-08-10 (build ck): the misconception catalogue, used to recognise a known
@@ -6709,7 +6741,9 @@ def _drill_speakable(text) -> bool:
     the page ask for the natural voice ONLY where it stands a chance, so a stuck child
     is not made to wait on a request that was always going to 204."""
     try:
-        return _tts_cache_path(str(text or "")).name in _script_closure_paths()
+        # (vc) the LESSON's text arrives raw here; the closure is keyed on what the
+        # page asks for, so it is asked in the page's own words.
+        return _tts_cache_path(_spoken(str(text or ""))).name in _script_closure_paths()
     except Exception:  # noqa: BLE001
         return False
 
@@ -7442,7 +7476,7 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
     # narrowed it, and course_audio_lines() adds the standalone lines (Abrabot's
     # introduction) only in the un-narrowed case -- rendering one lesson must not
     # quietly re-price course-level speech.
-    lines = lessonscripts.course_audio_lines(
+    lines = _closure_lines(
         None if len(lessons) == len(lessonscripts.LESSONS) else lessons)
     todo, already = [], 0
     for say in lines:
@@ -7554,7 +7588,7 @@ def admin_clip_bytes(body: ClipBytesIn,
     # narrowed it, and course_audio_lines() adds the standalone lines (Abrabot's
     # introduction) only in the un-narrowed case -- rendering one lesson must not
     # quietly re-price course-level speech.
-    lines = lessonscripts.course_audio_lines(
+    lines = _closure_lines(
         None if len(lessons) == len(lessonscripts.LESSONS) else lessons)
     i = int(body.index or 0)
     if i < 0 or i >= len(lines):
@@ -7616,7 +7650,7 @@ def admin_course_audio_audit(body: CourseAudioAuditIn,
     # narrowed it, and course_audio_lines() adds the standalone lines (Abrabot's
     # introduction) only in the un-narrowed case -- rendering one lesson must not
     # quietly re-price course-level speech.
-    lines = lessonscripts.course_audio_lines(
+    lines = _closure_lines(
         None if len(lessons) == len(lessonscripts.LESSONS) else lessons)
 
     CANON = {"mpeg": "1", "layer": 3, "rate": 44100, "kbps": 128, "channels": "mono"}
@@ -7757,7 +7791,14 @@ def admin_prewarm_foundations(body: PrewarmAdminIn):
     already = 0
     for c in courses:
         for f in foundations.for_course(c):
-            say = (f.get("say") or "").strip()
+            # (vc) ⚠️ EVERY ONE OF THE 306 FOUNDATION SCRIPTS RE-KEYED, not some:
+            # each opens with a **bold** term and forSpeech strips the asterisks, so
+            # this prewarm has been filing every clip under a label no page has ever
+            # asked for -- rendered once for nothing, then rendered LIVE again on
+            # every play, for every student, since build cf. _spoken() is the fix and
+            # it is applied here, at the top, so the check, the render, the cache
+            # write and the usage log all speak of the same string.
+            say = _spoken((f.get("say") or "").strip())
             if not say:
                 continue
             try:
@@ -9165,7 +9206,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-10vb-the-next-line-is-already-loaded"
+APP_BUILD = "2026-09-10vc-one-label-for-every-clip"
 
 
 @app.get("/health")
@@ -10777,7 +10818,7 @@ def _script_closure_texts() -> set:
     if _SCRIPT_CLOSURE_TEXTS is None:
         try:
             # (mk) one owner -- see lessonscripts.course_audio_lines()
-            _SCRIPT_CLOSURE_TEXTS = set(lessonscripts.course_audio_lines())
+            _SCRIPT_CLOSURE_TEXTS = set(_closure_lines())
         except Exception as exc:  # noqa: BLE001
             print(f"[speak] closure unavailable, scripted model split is off: {exc}")
             _SCRIPT_CLOSURE_TEXTS = set()
@@ -10801,6 +10842,63 @@ def _tts_model_for(text: str) -> str:
     except Exception:  # noqa: BLE001 -- never let the split break the voice
         pass
     return ELEVEN_MODEL
+
+
+# =============================================================================
+# BUILD vc (2026-09-10) -- THE LABEL ON THE SHELF AND THE LABEL ON THE REQUEST.
+# -----------------------------------------------------------------------------
+# A voice clip is filed under a label, and the label IS the sentence (see
+# _tts_cache_path below: sha256 of voice + model + text). The prewarm filed it under
+# the sentence AS AUTHORED. The page asks for it after speech-text.js's forSpeech()
+# has tidied it for speaking -- "Algebra II" -> "Algebra Two" (so the numeral is not
+# read as the letter I), "3:2" -> "3 to 2", "**Area**" -> "Area".
+#
+# Where those two differ the clip is NEVER FOUND. The course pays to render one no
+# page will ever ask for, and then pays AGAIN, live, in front of a student, on every
+# single play, forever. Measured 2026-09-10, and it was not a rounding error:
+#     1,943 of 39,969 course lines   (11.0% of geometry, 8.7% of algebra2)
+#       306 of 306 foundations lines (ALL of them -- each opens with a **bold** term
+#                                     that forSpeech strips)
+# It is also why Jim heard "10 second delay before this started" and why the drill
+# lane's closure gate 409'd lines that were plainly in the closure.
+#
+# ⭐ JIM'S RULING, 2026-09-10, given both options in plain words: have the RECORDER
+#    tidy the sentence the same way the page does -- and generate the server's copy
+#    from the page's, so the two can never drift apart. forSpeech stays where it
+#    lives, in JavaScript, because that is also what the browser voice needs; and
+#    tools/genspeechmap.py runs the real function, in node, over every authored line
+#    and writes the differences to speechmap.py. ruletests PART 3ky rebuilds that in
+#    memory and fails the build if the committed file is stale, so it cannot rot.
+#
+# _spoken() is the ONE reader. Everything absent from the map is its own answer, so a
+# gap degrades to exactly the behaviour that shipped before this build, never worse.
+# =============================================================================
+def _spoken(text: str) -> str:
+    """The authored line as THE PAGE WILL ACTUALLY ASK FOR IT (forSpeech applied).
+
+    Call this wherever authored text becomes a cache key -- what the prewarm renders,
+    what the closure protects, what the estimator prices. Never call it on text that
+    came FROM a page: that has already been through forSpeech, and running the map
+    over it a second time is how you would invent a third label."""
+    try:
+        return speechmap.MAP.get(text, text)
+    except Exception:  # noqa: BLE001 -- a broken map must never break the voice
+        return text
+
+
+def _closure_lines(lessons=None) -> list:
+    """(mk's one owner, wearing (vc)'s label.) Every line the course can speak, as the
+    page asks for it. The SIX sites that used to call course_audio_lines() directly
+    call this instead -- one owner of what the closure IS, and now one owner of what
+    it is CALLED, because a set that disagrees with the page about either is a set
+    that protects the wrong files and prices the wrong job."""
+    # sorted(set(...)) keeps course_audio_lines' own contract ("deduped and sorted")
+    # on the far side of the map: two different authored lines CAN tidy to the same
+    # sentence ("Algebra II" and "Algebra Two" both become "Algebra Two"), and a
+    # closure that listed one clip twice would price and render it twice. There are
+    # no such pairs today (PART 3ky measures it at zero) -- this is what keeps it
+    # harmless on the day there is one.
+    return sorted({_spoken(s) for s in lessonscripts.course_audio_lines(lessons)})
 
 
 def _tts_cache_path(text: str) -> Path:
@@ -11587,7 +11685,7 @@ def _script_closure_chars() -> dict:
         try:
             # (mk) one owner -- the estimator and the guard must never disagree
             # about what the closure contains, or the projection drifts again.
-            for say in lessonscripts.course_audio_lines():
+            for say in _closure_lines():
                 out[_tts_cache_path(say).name] = len(say)
         except Exception as exc:  # noqa: BLE001 -- degrade to the fallback estimate
             print(f"[speak] closure chars unavailable: {exc}")
@@ -11634,7 +11732,7 @@ def _script_closure_paths() -> set:
         try:
             # (mk) one owner: a line this set misses is a line the evictor will
             # happily delete after the course has paid to render it.
-            for say in lessonscripts.course_audio_lines():
+            for say in _closure_lines():
                 paths.add(_tts_cache_path(say).name)
         except Exception as exc:  # noqa: BLE001
             print(f"[speak] closure unavailable, eviction unprotected: {exc}")

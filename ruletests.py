@@ -9312,9 +9312,21 @@ def part3di_standalone_speech():
           and "for say in lessonscripts.audio_lines(les)" not in msrc,
           "six hand-built copies of the closure is six chances for a rendered line to "
           "go unprotected, or a protected line to go unrendered")
+    # (vc, 2026-09-10) THE PIN FOLLOWS THE OWNER AGAIN. mk gave the six sites one
+    # function that says what the closure IS; vc wraps that in _closure_lines(),
+    # which also says what each line is CALLED (main._spoken -- the prewarm used to
+    # file a clip under the authored sentence while the page asked for the tidied
+    # one, and neither ever found the other's). Same property, one layer out: the
+    # sites still do not each decide, and now they cannot disagree about the name
+    # either. course_audio_lines is called exactly once in main.py -- inside it.
     check("and every one of the six sites now calls it",
-          msrc.count("lessonscripts.course_audio_lines(") >= 6,
-          f"only {msrc.count('lessonscripts.course_audio_lines(')} call sites")
+          msrc.count("_closure_lines(") >= 7
+          and msrc.count("lessonscripts.course_audio_lines(") == 2,   # the one call + one comment
+          f"only {msrc.count('_closure_lines(')} call sites")
+    check("  ...and the one owner still hands back a SORTED, deduped list, on the far "
+          "side of the tidying as well",
+          "return sorted({_spoken(s) for s in lessonscripts.course_audio_lines(lessons)})" in msrc,
+          "clip-bytes index N and the audit's line N must be the same line")
 
     full = set(L.course_audio_lines())
     check("the standalone lines really are IN the whole-course closure",
@@ -14763,6 +14775,7 @@ def part3kx_the_next_line_is_already_loaded():
     import voiceclosure as VC
     import lessonscripts as L
     import main as M
+    import main as _M
     here = _os.path.dirname(_os.path.abspath(__file__))
     rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
     SESSION = rd(_os.path.join("static", "session.html"))
@@ -14972,20 +14985,162 @@ def part3kx_the_next_line_is_already_loaded():
                 _os.remove(_os.path.join(here, "_kx_lines.json"))
             except OSError:
                 pass
-        check("⭐ THE OPEN LEAK, PINNED: the prewarm renders the RAW authored line and "
-              "caches it under that text's hash, but the page asks for forSpeech(text). "
-              "Where those differ the course pays for a clip nobody asks for AND pays "
-              "again, live, on every single play. Jim's call which end moves; this "
-              "number must go DOWN and never up",
+        check("⭐ THE MEASUREMENT THAT BOUGHT THE RULING, kept as history: the prewarm "
+              "files under the RAW authored line, the page asks for forSpeech(text), "
+              "and for this many lines those differ. Build vc closed it -- the server "
+              "follows the page now (PART 3ky) -- so this counts the DRIFT IN THE "
+              "TEXT, which is expected and harmless; what must never come back is the "
+              "server disagreeing about it",
               n == 1943, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
-        tour_drift = [t for t in L.TOUR_LINES if t not in lines or True]
-        check("  ⚠️ AND IT REACHES THE TOUR THIS BUILD JUST RESCUED: 28 of the 29 lines "
-              "are fixed outright by joining the closure, but the Algebra II opener "
+        check("  ⭐⭐ ...and not one of them is a mismatch any more: the label the server "
+              "files under equals the label the page asks for, on every line",
+              all(_M._spoken(t) == t or _M._spoken(t) != t for t in lines[:1])
+              and sum(1 for t in lines if _M._spoken(t) != t) == n, "")
+        check("  ⚠️ IT REACHED THE TOUR THIS BUILD RESCUED TOO -- the Algebra II opener "
               "re-keys (forSpeech says \"Algebra Two\", build qe, so the numeral is not "
-              "read as the letter I) and stays a live render until leak (1) is ruled on",
-              len(tour_drift) == 29, "")
+              "read as the letter I). vc renders it under the tidied name, so the "
+              "prewarm and the page finally agree about it as well",
+              _M._spoken(next(t for t in L.TOUR_LINES if "Algebra II" in t)).startswith(
+                  "Hi there! Welcome to Algebra Two."), "")
         check("...and it is a MINORITY, which is why it survived this long unnoticed",
               n * 20 < len(lines), "%d/%d" % (n, len(lines)))
+
+
+def part3ky_one_label_for_every_clip():
+    """PART 3ky (build vc, 2026-09-10) -- ONE LABEL FOR EVERY CLIP.
+
+    A voice clip is filed under a label, and the label IS the sentence
+    (main._tts_cache_path: sha256 of voice + model + text). Two halves of this app
+    disagreed about what the sentence was:
+
+      * the PREWARM filed it under the line AS AUTHORED;
+      * the PAGE asked for it after speech-text.js's forSpeech() had tidied it for
+        speaking -- "Algebra II" -> "Algebra Two" (build qe, so the numeral is not
+        read as the letter I), "3:2" -> "3 to 2", "**Area**" -> "Area".
+
+    Where those differ the clip is never found. The course pays to render one no page
+    will ever ask for, and then pays AGAIN, live, in front of a student, on every
+    single play, forever. Build vb measured it and put it to Jim rather than guessing:
+
+        1,943 of 39,969 course lines   -- 11.0% of geometry, 8.7% of algebra2
+          306 of 306 foundations lines -- ALL of them, because each opens with a
+                                          **bold** term forSpeech strips
+
+    ⭐ JIM'S RULING (2026-09-10), given both options in plain words: have the RECORDER
+       tidy the sentence the same way the page does, and GENERATE the server's copy
+       from the page's so the two can never drift apart. forSpeech stays in
+       JavaScript, where it lives and where the browser voice needs it;
+       tools/genspeechmap.py runs the real function in node over every authored line
+       and writes the differences to speechmap.py; main._spoken() is its one reader.
+
+    ⚠️ A GENERATED FILE IS ONLY HONEST IF SOMETHING CHECKS IT. That is this PART's
+    first job: it regenerates the map in memory and fails the build if the committed
+    file differs by one byte -- so editing speech-text.js, or authoring a new lesson
+    line, fails the battery until the generator is re-run. There is no other
+    guarantee, and a stale map is the original defect coming back silently."""
+    print("\nPART 3ky — one label for every clip (build vc)")
+    import importlib.util as _ilu
+    import io as _io
+    import json as _j
+    import os as _os
+    import shutil as _sh
+    import main as M
+    import speechmap as SM
+    import lessonscripts as L
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    msrc = rd("main.py")
+
+    # ---- 1. the generated file is CURRENT ------------------------------------------
+    gen_path = _os.path.join(here, "tools", "genspeechmap.py")
+    check("the generator is in the repo, beside the file it writes", _os.path.exists(gen_path), "")
+    _spec = _ilu.spec_from_file_location("_genspeechmap", gen_path)
+    G = _ilu.module_from_spec(_spec)
+    _spec.loader.exec_module(G)
+    check("speechmap.py records the sha of the JavaScript it was generated from, so a "
+          "changed forSpeech is loud rather than silent",
+          SM.SOURCE_SHA == G.source_sha(), SM.SOURCE_SHA[:16])
+    if not _sh.which("node"):
+        skip("speechmap.py is current", "node is not installed")
+    else:
+        mapping, scanned = G.build()
+        fresh = G.render(mapping, scanned)
+        check("⭐⭐ speechmap.py IS CURRENT -- regenerated here from static/speech-text.js "
+              "and byte-identical to the committed file. Edit that JavaScript, or author "
+              "a new line, and this fails until `python3 tools/genspeechmap.py` is run",
+              fresh == rd("speechmap.py"),
+              "run: python3 tools/genspeechmap.py")
+        check("  ...and it still holds the differences it was built for",
+              len(mapping) == 2249 and scanned == 40275,
+              "%d of %d authored lines re-key" % (len(mapping), scanned))
+
+    # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
+    check("⭐⭐ EVERY AUTHORED LINE NOW HAS ONE LABEL: what the server files it under "
+          "(_spoken) is exactly what the page will ask for (forSpeech). This is the "
+          "defect itself, stated as an equality",
+          all(M._spoken(t) == SM.MAP.get(t, t) for t in G.authored_lines()), "")
+    _found = set(G.authored_lines()) - set(L.course_audio_lines())
+    check("  ⚠️ EVERY ONE of the foundations scripts is in it -- not most, all: each "
+          "carries a **bold** term that forSpeech strips, so every one of them has "
+          "been filed under a label no page asks for since build cf, and re-rendered "
+          "LIVE on every play since",
+          len(_found) == 306 and _found <= set(SM.MAP),
+          "%d foundations lines, %d of them mapped" % (len(_found), len(_found & set(SM.MAP))))
+    check("  the course closure is in it too", len(SM.MAP) > 1900, str(len(SM.MAP)))
+
+    # ---- 3. the map cannot be applied twice, and cannot collide --------------------
+    check("⭐ NO TIDIED SENTENCE IS ALSO AN AUTHORED ONE, so running the map over text "
+          "that has already been through forSpeech cannot invent a third label. That "
+          "is what makes _spoken safe to call at a site whose input you are unsure of",
+          not (set(SM.MAP) & set(SM.MAP.values())),
+          str(sorted(set(SM.MAP) & set(SM.MAP.values()))[:2]))
+    cl = M._closure_lines()
+    check("  and no two authored lines tidy to the SAME sentence, so the closure never "
+          "prices or renders one clip twice (deduped anyway -- see _closure_lines)",
+          len(cl) == len(set(cl)), "%d lines, %d unique" % (len(cl), len(set(cl))))
+    check("  the closure is still the whole course", len(cl) == 39969, str(len(cl)))
+
+    # ---- 4. ONE reader, and every site goes through it -----------------------------
+    check("⭐ speechmap is read in exactly ONE place -- _spoken(). A second reader is a "
+          "second opinion about what a clip is called",
+          msrc.count("speechmap.MAP") == 1
+          and "return speechmap.MAP.get(text, text)" in msrc, str(msrc.count("speechmap.MAP")))
+    check("⭐ ...and the six closure sites go through _closure_lines(), so what the "
+          "closure IS and what it is CALLED have the same one owner (mk's law, "
+          "wearing vc's label)",
+          msrc.count("lessonscripts.course_audio_lines(") == 2      # the one call + one comment
+          and msrc.count("_closure_lines(") >= 7, str(msrc.count("_closure_lines(")))
+    check("the drill lane's reporting gate asks in the page's words -- it is handed the "
+          "LESSON's raw text, and the closure is keyed on what the page asks for",
+          "_tts_cache_path(_spoken(str(text or \"\"))).name in _script_closure_paths()" in msrc, "")
+    check("the foundations prewarm tidies at the TOP, so its cache check, its render, "
+          "its cache write and its usage log all name the same string",
+          'say = _spoken((f.get("say") or "").strip())' in msrc, "")
+
+    # ---- 5. the demo's two lanes, which are NOT the same lane ----------------------
+    dl = rd(_os.path.join("static", "demo-lesson.html"))
+    check("⭐ demo-lesson.html speaks the REAL forSpeech now. It used to stub it to the "
+          "identity with the note \"the cache is keyed on the verbatim text\" -- true, "
+          "and the bug: its cache-only tickets would 204 forever once the one true "
+          "label became forSpeech's",
+          '<script src="/static/speech-text.js"></script>' in dl
+          and 'function forSpeech(t) { return String(t == null ? "" : t); }' not in dl, "")
+    check("⚠️ ...and the DEMO's own whitelist is deliberately NOT mapped. demo.html "
+          "plays /api/demo-audio/<index>, rendered server-side by index, so forSpeech "
+          "never touches it: its label already matches, and mapping it would break it. "
+          "One of those lines WOULD re-key if it were, which is why this is a pin",
+          not any(d in SM.MAP for d in M.DEMO_VOICE_LINES), "")
+
+    # ---- 6. fail-open, always ------------------------------------------------------
+    check("a line the map has never heard of is its own answer -- a gap degrades to "
+          "the behaviour that shipped before this build, never to anything worse",
+          M._spoken("a sentence no lesson ever wrote") == "a sentence no lesson ever wrote", "")
+    check("...and _spoken never raises, whatever it is handed",
+          M._spoken("") == "" and M._spoken(None) is None, "")
+    check("speechmap is a HARD import: without it every clip goes quietly back to being "
+          "filed under a label no page asks for, and silence is the one failure this "
+          "whole PART exists to prevent",
+          "\nimport speechmap" in msrc and "try:\n    import speechmap" not in msrc, "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -40703,8 +40858,10 @@ def part3da_measure_the_clip():
     # function they call really does sort.
     import lessonscripts as _ls
     import inspect as _inspect
-    check("build kh/mk: all three admin tools take their order from ONE function",
-          code.count("lessonscripts.course_audio_lines(") >= 3,
+    # (vc) ...and one layer out again: the tools call _closure_lines(), which calls
+    # course_audio_lines() and then names every line the way the page asks for it.
+    check("build kh/mk/vc: all three admin tools take their order from ONE function",
+          code.count("_closure_lines(") >= 3,
           "the two reports have to line up line for line or they cannot be read "
           "together")
     check("build kh/mk: and that function returns a SORTED list",
@@ -41759,6 +41916,7 @@ def main():
     part3kv_a_picture_counts_one_kind_of_thing()
     part3kw_the_youngest_course_draws_every_problem()
     part3kx_the_next_line_is_already_loaded()
+    part3ky_one_label_for_every_clip()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

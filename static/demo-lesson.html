@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <!--
+    (vc) 2026-09-10 -- THE REAL forSpeech, NOT A STUB. This page defined its own
+    `function forSpeech(t) { return t; }` with the note "the cache is keyed on the
+    verbatim text". That was true, and it was the bug: the prewarm filed clips under the
+    verbatim text while every OTHER page asked for the TIDIED text, so the two halves of
+    the app disagreed about what a clip is called and neither ever found the other's.
+    Jim's ruling of 2026-09-10 settled it the other way round -- the recorder tidies too
+    (main.py _spoken, speechmap.py, generated from static/speech-text.js) -- so the one
+    true label is forSpeech's, and this page now loads the real thing. It had to: this
+    lane's tickets are cache-only, so a page asking under the old label would 204 and
+    fall to the browser voice forever. ONE script tag added, one stub removed.
     (uy) 2026-09-10 -- THE CLOSING LINE IS IN THE VOICE CLOSURE. Jim: "After a sample
     problem, fell back to browser's voice." This page ends on a line written HERE, and
     this lane is cache-only on purpose (a visitor must never be able to make the paid
@@ -184,10 +194,18 @@
 
 <!-- THE VOICE. voice.js's ambient contract: CODE, forSpeech, setState. The lane is
      "demo": the server mints closure-only, cache-only tickets and asks for no
-     student code (main.py speak_prep). -->
+     student code (main.py speak_prep).
+     (vc, 2026-09-10) ⚠️ THE REAL forSpeech, NOT A STUB. This page used to define
+     `function forSpeech(t) { return t; }` with the note "the cache is keyed on the
+     verbatim text" -- which was true, and was the bug: the cache was keyed on the
+     verbatim text while every OTHER page asked for the tidied text, so the two
+     never matched and the course paid to render each clip twice over. Jim's ruling
+     of 2026-09-10 settled it the other way round: the recorder tidies too (main.py
+     _spoken, speechmap.py), so the one true label is forSpeech's, and this page has
+     to speak it like everybody else or its cache-only tickets would 204 forever. -->
+<script src="/static/speech-text.js"></script>
 <script>
   var CODE = "demo";
-  function forSpeech(t) { return String(t == null ? "" : t); }   // the cache is keyed on the verbatim text
   var __voiceSpoke = false;
   function setState(s) { if (s === "speaking") __voiceSpoke = true; }
 </script>
