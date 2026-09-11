@@ -2,6 +2,23 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-11  BUILD vk -- THE FIGURE'S WORDS FIT THE BOARD THEY LAND ON. Jim, from a
+                 live Basic lesson: "the number line is like two inches long ... the
+                 words are so small you can't see them. And then ... the words are huge."
+                 MEASURED in a real Chromium (tools/figprobe.py): on a 420px phone the
+                 number line's labels rendered at 6.9px and the place-value headings at
+                 8.6px, beside worklist rows whose CSS text stayed 24px; on a laptop the
+                 same figures were 24-30px. Every figure is drawn in a 660-wide viewBox
+                 with 12-15 unit labels and the <svg> is width:100%, so a board narrower
+                 than the drawing scales the words down with it. svgOpen now measures
+                 the board's room (figFit) and, when it is narrower than the viewBox,
+                 every tspan label is enlarged in viewBox units by that ratio (capped at
+                 2.0); a display digit over 20 units grows by half of it so it cannot
+                 climb into the heading above (the chart's "?" did, at the full ratio);
+                 fitStep reads the ratio so a number line thins its labels rather than
+                 overlapping them. Re-measured: 12.5-15.6px on the phone; laptop and
+                 desktop byte-for-byte unchanged (ratio 1); node (va's harness) has no
+                 document and gets 1. The <svg> carries data-fit for the harness.
      2026-09-07  BUILD ub -- [[graph shade="lo..hi"]]: THE AREA UNDER A CURVE, the picture
                  Calculus Units 7-9 teach from. The region between the first curve and
                  the x-axis over lo..hi is filled faintly in the curve's colour, under
@@ -633,7 +650,7 @@
   function fitStep(min, max, plotW, fontPx, intOnly) {
     var span = max - min; if (!(span > 0)) return 1;
     var step = niceStep(span, plotW, 30, intOnly);
-    var charPx = fontPx * 0.62, gap = 10;
+    var charPx = fontPx * _fit * 0.62, gap = 10;   // (vk) labels grow with the fit; so must the room they need
     for (var guard = 0; guard < 14; guard++) {
       var prevW = 0, worst = 0, ok = true;
       for (var t = firstTick(min, step); t <= max + 1e-9; t += step) {
@@ -667,11 +684,43 @@
     var want = (h > 0) ? Math.round(w / h * FIG_TALL) : 0;
     return Math.max(maxw || 400, Math.min(FIG_CEIL, want));
   }
+  // (vk, 2026-09-11) THE FIGURE'S WORDS FIT THE BOARD THEY LAND ON. Every figure is
+  // drawn in a viewBox (most are 660 wide) with 12-15 unit labels, and the <svg> is
+  // width:100% -- so on a board NARROWER than the viewBox the whole drawing scales
+  // down and the labels with it: measured on a 420px phone, the number line's labels
+  // were 6.9px and the place-value chart's headings 8.6px, beside worklist rows whose
+  // CSS text stayed 24px. That is Jim's "the words are so small you can't see them,
+  // and then the words are huge". The board's width is known at draw time (the
+  // figures render in the browser), so svgOpen measures the room, and when the room
+  // is narrower than the drawing every label is enlarged in viewBox units by the same
+  // ratio -- the picture still fits, the words come back to readable. fitStep reads
+  // the same ratio so a number line thins its labels instead of overlapping them.
+  // Wide boards are byte-for-byte what they were (the ratio is 1); node (the va
+  // render harness) has no document and gets 1 too.
+  var FIT_MAX = 2.0, _fit = 1;
+  function figFit(w) {
+    try {
+      if (typeof document === "undefined" || !document.getElementById) return 1;
+      var host = document.getElementById("feed") || document.getElementById("board");
+      var room = host ? host.clientWidth - 40 : 0;          // the feed's own padding
+      if (!(room > 0) || !(w > 0) || room >= w) return 1;
+      return Math.min(FIT_MAX, w / room);
+    } catch (e) { return 1; }
+  }
   function svgOpen(w, h, maxw) {
-    return '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="' + NS + '" style="width:100%;max-width:' + figCap(w, h, maxw) + 'px;height:auto;display:block;margin:6px auto;">';
+    _fit = figFit(w);
+    return '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="' + NS + '" style="width:100%;max-width:' + figCap(w, h, maxw) + 'px;height:auto;display:block;margin:6px auto;" data-fit="' + _fit.toFixed(2) + '">';
+  }
+  // A LABEL grows by the whole ratio; a DISPLAY digit (the place-value chart's 34-unit
+  // digits, anything over 20 units) was already big and grows by half of it, so it
+  // cannot climb into the heading above it -- measured on the 420px chart: the "?"
+  // overlapped "Hundreds" at the full ratio and clears it at half.
+  function fitSize(size) {
+    var f = (size > 20) ? 1 + (_fit - 1) / 2 : _fit;
+    return Math.round(size * f * 10) / 10;
   }
   function tspan(x, y, s, fill, size, weight, anchor) {
-    return '<text x="' + x + '" y="' + y + '" fill="' + (fill || "var(--bd-26263a)") + '" font-size="' + (size || 12) +
+    return '<text x="' + x + '" y="' + y + '" fill="' + (fill || "var(--bd-26263a)") + '" font-size="' + fitSize(size || 12) +
       '" font-weight="' + (weight || 600) + '" text-anchor="' + (anchor || "middle") +
       '" font-family="system-ui,Segoe UI,Arial,sans-serif">' + esc(s) + '</text>';
   }

@@ -2,6 +2,14 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-11  BUILD vk -- fitRow MEASURES AGAINST THE BOARD, NOT AGAINST ITSELF. On a
+                 420px phone the ask's line "1 hundreds + 4 tens + 3 ones = ?" rendered
+                 462px wide in a 378px feed and read "undreds + 4 tens + 3 ones", and
+                 fitRow did nothing: a grid row whose content is wider than its box grows
+                 the box (min-width:auto), so scrollWidth never exceeded clientWidth. The
+                 bound is now the smaller of the row's box and the board's room; the row
+                 shrinks to 14px and the whole line is on the screen. Measured before and
+                 after with tools/figprobe.py.
      2026-09-05  (build sq) REGROUPING IS DRAWN. [[column]] takes borrows="4|13": one
                  cell per column of the top number, written small and red above it, the
                  replaced digits struck through -- the take-away picture Jim asked for.
@@ -964,7 +972,17 @@ function fitRow(row) {
   try {
     let size = parseFloat(getComputedStyle(row).fontSize) || 33;
     let guard = 0;
-    while (row.scrollWidth > row.clientWidth + 1 && size > 14 && guard++ < 20) {
+    // (vk, 2026-09-11) MEASURED AGAINST THE BOARD, NOT AGAINST ITSELF. On a 420px phone
+    // the ask's line "1 hundreds + 4 tens + 3 ones = ?" rendered 462px wide in a 378px
+    // feed and read "undreds + 4 tens + 3 ones" -- and this function did nothing,
+    // because a grid row whose content is wider than its box simply GROWS the box
+    // (min-width:auto), so scrollWidth never exceeded clientWidth. The room a row has
+    // is the board's, so that is the bound; the row's own box still counts when it is
+    // the smaller (a half-width [[beside]] column).
+    const host = row.closest ? (row.closest("#feed") || row.closest("#board")) : null;
+    const room = host ? host.clientWidth - 40 : Infinity;         // the feed's own padding
+    const limit = Math.min(row.clientWidth, room) + 1;
+    while ((row.scrollWidth > limit || row.getBoundingClientRect().width > room) && size > 14 && guard++ < 20) {
       size -= 2; row.style.fontSize = size + "px";
     }
   } catch (e) {}

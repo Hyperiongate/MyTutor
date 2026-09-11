@@ -2,6 +2,12 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-11  BUILD vj -- LINE_CHECK "With me so far?" -> "Ready?" (Jim: "I prefer
+#               ready in place of with me so far") and LINE_READY, the SAME string, for
+#               the ready gate after the practice intro, which build us left silent
+#               (Jim: 'it says "here comes the first one" and then waits'). One closure
+#               clip replaces one; STANDALONE_LINES unchanged in count. Four Basic lines
+#               changed in lessons/basic.py the same build (see its header).
 #   2026-09-08  OLDER NOTES (before 2026-09-01) live in
 #               changelog/lessonscripts.py.md -- moved out on 2026-09-08 (build ui)
 #               VERBATIM, 70 entries; 39 stay here. Keep adding new notes HERE, newest at
@@ -15830,7 +15836,17 @@ def lesson_intro(lesson):
 # spoken/rendered byte-for-byte by session.html (the voice cache is keyed on the
 # exact text); the battery pins the two copies equal. Changing either RE-RENDERS a
 # voice line -- a prewarm is needed after a push that touches LINE_CHECK.
-LINE_CHECK = "With me so far?"
+# ⭐ (vj, 2026-09-11) JIM: "I prefer ready in place of with me so far." The check after a
+# picture, teach or worked beat now says "Ready?" -- one word, the pause it is. AND THE
+# READY GATE SPEAKS THE SAME WORD: 344 practice intros end "...here comes the first one."
+# and build us put an I'm ready / Show me that example again gate after every one of them,
+# in silence -- Jim, flagging it live: 'it says "here comes the first one" and then waits.
+# If it wants me to click on "ready" it should say "ready?"'. scrReady() now speaks
+# LINE_READY before its buttons exactly as scrCheck() speaks LINE_CHECK. The two are ONE
+# string on purpose: one clip in the closure, one entry in the speech map, and the child
+# hears the same word for the same kind of pause. ⚠️ Byte-for-byte in session.html.
+LINE_CHECK = "Ready?"
+LINE_READY = LINE_CHECK
 CHECK_CHOICES = "Yes | Show me again"
 READY_CHOICES = "I'm ready | Show me that example again"
 ORIENT_PLAN = "First the idea, then a picture, then the method — then your turn."

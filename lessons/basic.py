@@ -2,6 +2,24 @@
 # lessons/basic.py  --  BASIC MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-11  BUILD vj -- FOUR OF JIM'S SIX FLAGS FROM A LIVE BASIC LESSON.
+#               (1) basic-u1-place-value-to-1000: the TOPIC "Place value to 1,000" ->
+#               "Place value: hundreds, tens and ones". The lesson never shows a
+#               thousand (every number is three digits; the bank tops out at 929), so
+#               the next lesson's "Before this came Place value to 1,000, and you
+#               finished it" was the record telling the truth about the wrong name --
+#               Jim: "we never did place value to 1,000". The id and the order are
+#               untouched. Its [[goal]] card carries the new name.
+#               (2) the same lesson's why beat and second recap beat no longer speak
+#               of "three hundred and forty-two tally marks" -- Jim: "a child does not
+#               know what a tally mark is" / "sort of a nonsense statement". The why
+#               now ends "and three digits say it all"; the recap says "places save
+#               the counting: three digits tell you three hundred and forty-two
+#               without counting one by one".
+#               (3) basic-u1-rounding-tens why beat: "more than you need" -> "more
+#               ACCURATE than you need" (Jim's own wording).
+#               Four spoken lines change, so four clips re-render on the next prewarm;
+#               speechmap.py regenerated the same build.
 #   2026-09-08  BUILD uj -- ONE FILE PER COURSE. Split out of lessonscripts.py (Jim's
 #               housekeeping, second half). Every lesson below is the text that sat in
 #               lessonscripts.py, moved whole -- the unit lists keep their names, and
@@ -1538,7 +1556,7 @@ _BASIC_MORE = [
         # (sq, 2026-09-05) TO THE SHAPE, with the place-value chart ([[placevalue]]):
         # why places exist, the chart before the rule, every example on the chart.
         "id": "basic-u1-place-value-to-1000", "course": "basic", "unit": 1,
-        "topic": "Place value to 1,000",
+        "topic": "Place value: hundreds, tens and ones",
         "op": "pv", "max_value": 999,
         "levels": ("abstract",),
         "symbols": ("hundreds", "ones"),
@@ -1547,9 +1565,9 @@ _BASIC_MORE = [
         "why": [
             ("Why do we have places at all? Because counting one at a time stops "
              "working. If a school has 342 students, nobody counts them one by "
-             "one. We count in hundreds, then tens, then ones — three digits do "
-             "the job of three hundred and forty-two tally marks.",
-             '[[goal text="Place value to 1,000"]]'),
+             "one. We count in hundreds, then tens, then ones — and three digits "
+             "say it all.",
+             '[[goal text="Place value: hundreds, tens and ones"]]'),
         ],
         "picture": [
             ("Here is the place-value chart. Three columns: hundreds, tens and "
@@ -1596,8 +1614,8 @@ _BASIC_MORE = [
              "hundreds, tens, ones — and a digit means what its column says: the "
              "3 is three hundred, the 4 is forty, the 2 is two.",
              '[[placevalue n="342" caption="300 + 40 + 2 = 342"]]'),
-            ("And places are for when one-at-a-time stops working — three digits "
-             "instead of three hundred and forty-two tally marks.",
+            ("And places save the counting: three digits tell you three hundred "
+             "and forty-two without counting one by one.",
              '[[step eq="342 = 300 + 40 + 2"]]'),
         ],
         "bank": [
@@ -1625,7 +1643,7 @@ _BASIC_MORE = [
                          "You can round to the nearest ten."),
         # 1 · WHY -- what rounding is FOR, in the student's world
         "why": [
-            ("Rounding is for when the exact number is more than you need. If a "
+            ("Rounding is for when the exact number is more accurate than you need. If a "
              "jar has 47 marbles and a friend asks how many, saying about 50 is "
              "easier to say, easier to remember, and close enough.",
              '[[goal text="Rounding to the nearest ten"]]'),

@@ -6,6 +6,16 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  APP_BUILD -> "2026-09-11vk-the-figures-words-fit-the-board".
+#               BUILD vk -- no change in this file beyond the stamp. math-figures.js:
+#               labels grow to readable on a board narrower than the drawing; board.js:
+#               fitRow bounded by the board; tools/figprobe.py measures it. PART 3lg.
+#   2026-09-11  APP_BUILD -> "2026-09-11vj-ready-and-four-basic-lines".
+#               BUILD vj -- media-src gains blob: (every shelved clip plays from a blob:
+#               URL and was logging a report-only CSP violation). lessonscripts /
+#               session.html: the check says "Ready?" and the ready gate speaks it;
+#               lessons/basic.py: four lines from Jim's flags. ⚠️ PREWARM OWED: one
+#               closure clip and four Basic lines re-render (dry_run first). PART 3lf.
 #   2026-09-11  APP_BUILD -> "2026-09-11vi-what-the-words-say-is-written-the-board-writes".
 #               BUILD vi -- no change in this file beyond the stamp. tutor.py: referee
 #               88 (written_not_written_conflict); methodology.html: the tile says 88.
@@ -1946,7 +1956,14 @@ _CSP_REPORT_ONLY = (
     # warm-up and the keep-alive loop: the two mechanisms that protect the first syllable
     # of every sentence the tutor speaks. The voice would regress and nobody would connect
     # it to a security header. A landmine defused for the cost of one line.
-    "media-src 'self' data:; "
+    # 2026-09-11 (build vj, found in Jim's console the day the shelf went live): every
+    # SHELVED clip is played from a blob: object URL (voice.js prefetchLine parks the
+    # bytes in the browser), and every one of them was logging the SAME violation the
+    # data: URIs logged before gp2 -- "media-src 'self' data:" does not name blob:.
+    # Report-only, so the clip plays; the day this flips to enforcing, every shelf hit
+    # would fail to load and the first line after every correct answer would go silent,
+    # and nobody would connect it to a security header. Same landmine, same one word.
+    "media-src 'self' data: blob:; "
     "connect-src 'self' https://plausible.io; "
     "frame-ancestors 'self'; "
     "base-uri 'self'; "
@@ -9248,7 +9265,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-11vi-what-the-words-say-is-written-the-board-writes"
+APP_BUILD = "2026-09-11vk-the-figures-words-fit-the-board"
 
 
 @app.get("/health")

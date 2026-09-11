@@ -6,6 +6,18 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  BUILD vk -- PART 3lg, THE FIGURE'S WORDS FIT THE BOARD. Pins the rule
+#               in math-figures.js (figFit / fitSize / fitStep) and board.js (fitRow
+#               bounded by the board), the node ratio of 1, and -- in a real Chromium
+#               through tools/figprobe.py -- that a 420px phone renders readable labels
+#               (>= 12px) and rows that fit, while a 1440px laptop is byte-for-byte the
+#               sizes measured before the build.
+#   2026-09-11  BUILD vj -- PART 3lf, "READY?" AND FOUR BASIC LINES. LINE_CHECK is
+#               "Ready?" and LINE_READY the same string, spoken by the ready gate; the
+#               place-value lesson renamed for what it teaches, tally marks gone,
+#               "more accurate than you need"; blob: in media-src. 3ko's live drive
+#               now expects seven check lines (the gate speaks one) and 3kt reads the
+#               current word.
 #   2026-09-11  BUILD vi -- PART 3le, REFEREE 88: WHAT THE WORDS SAY IS WRITTEN, THE
 #               BOARD WRITES. Both watch replies fire; the fixed shapes, the canon's
 #               own shapes (balance + step, a chain line, the method with no number,
@@ -11040,7 +11052,10 @@ def part3kc_the_phone_classroom():
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-08  BUILD ug" in notes("ruletests.py")
           and "(ug) Tile 10,994" in notes("static/methodology.html")
-          and all("(ug) 2026-09-08" in pages[p][:6000] for p in pages)
+          # (vj) the header itself, never a 6,000-character slice: session.html's notes
+          # grow newest-at-top and vj's note pushed ug's past the window -- the same
+          # proxy-window expiry the 09-11 handoff's laws already name
+          and all("(ug) 2026-09-08" in notes("static/" + p) for p in pages)
           and "(ug) 2026-09-08" in notes("static/demo.html")
           and "2026-09-08  (ug) RULE 33" in cad[:12000]
           and "2026-09-08 (ug): THE SMALL SCREEN" in menu[:6000], "")
@@ -12950,11 +12965,14 @@ def part3ko_orient_then_one_idea_per_beat_with_a_check():
                               reached and not errs and quiet_ok and board_ok
                               and log[1:3] == [LS.lesson_intro(first)[0], LS.lesson_orientation(first, False)[0]]
                               and i_pic > 0 and log[i_pic + 1:i_pic + 4] == [LS.LINE_CHECK, pic, LS.LINE_CHECK]   # Show me again replayed it
-                              and log.count(LS.LINE_CHECK) == 6                                                   # picture x2, teach x2, worked x2
+                              # (vj) picture x2, teach x2, worked x2 -- AND the ready gate speaks the
+                              # same word once after the practice intro, so the count is seven
+                              and log.count(LS.LINE_CHECK) == 7
                               # (ux) the labels come from lessonscripts, never a literal: Jim
                               # retired "Got it?!" and its button on 2026-09-09
                               and taps[:2] == ["Show me again", CHECK_LABELS[0]] and taps[-1] == READY_LABELS[0]
-                              and log[-2] == first["practice_intro"] and log[-1].startswith("Two new machines"),
+                              and log[-3] == first["practice_intro"] and log[-2] == LS.LINE_READY
+                              and log[-1].startswith("Two new machines"),
                               _json.dumps({"taps": taps, "lines": [l[:28] for l in log], "errors": errs})[:600])
                         br.close()
         finally:
@@ -14077,9 +14095,12 @@ def part3kt_the_expression_comes_first():
 
     # ---- 5. Jim's ruling: "Got it?!" goes -------------------------------------------
     page = rd("static/session.html")
-    check('⭐⭐ JIM: "Got it?!" is retired -- the check is "With me so far?" and the tap '
-          'that says yes is "Yes"',
-          L.LINE_CHECK == "With me so far?" and L.CHECK_CHOICES == "Yes | Show me again",
+    # (vj, 2026-09-11) "With me so far?" -> "Ready?" -- Jim: "I prefer ready in place of
+    # with me so far." The pin keeps ux's point (the loud "Got it?!" is gone, the tap is
+    # "Yes") and reads the CURRENT word.
+    check('⭐⭐ JIM: "Got it?!" is retired -- the check is "Ready?" (vj; "With me so far?" '
+          'at ux) and the tap that says yes is "Yes"',
+          L.LINE_CHECK == "Ready?" and L.CHECK_CHOICES == "Yes | Show me again",
           repr(L.LINE_CHECK) + " " + repr(L.CHECK_CHOICES))
     check("  ...and the page speaks it byte-for-byte (the voice cache is keyed on the "
           "exact text, so a mismatch is the browser's voice)",
@@ -15052,7 +15073,10 @@ def part3kx_the_next_line_is_already_loaded():
               "follows the page now (PART 3ky) -- so this counts the DRIFT IN THE "
               "TEXT, which is expected and harmless; what must never come back is the "
               "server disagreeing about it",
-              n == 1943, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
+              # (vj) 1,943 -> 1,940: the three lines that carried "Place value to 1,000"
+              # (the comma forSpeech tidies) were renamed; the history count moves with
+              # the course, and the honest repair is to write the generator's number
+              n == 1940, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
         check("  ⭐⭐ ...and not one of them is a mismatch any more: the label the server "
               "files under equals the label the page asks for, on every line",
               all(_M._spoken(t) == t or _M._spoken(t) != t for t in lines[:1])
@@ -15131,8 +15155,13 @@ def part3ky_one_label_for_every_clip():
               "a new line, and this fails until `python3 tools/genspeechmap.py` is run",
               fresh == rd("speechmap.py"),
               "run: python3 tools/genspeechmap.py")
-        check("  ...and it still holds the differences it was built for",
-              len(mapping) == 2249 and scanned == 40275,
+        # (vj) 2,249 -> 2,246: the three re-keyed lines that carried "Place value to
+        # 1,000" (forSpeech tidies the comma out of the number) were renamed. ⚠️ THIS
+        # LITERAL MOVES WITH THE COURSE: an authored edit that adds or removes a tidied
+        # form changes it, and the honest repair is to read the new count off the
+        # generator's own report line and write it here with the build that did it.
+        check("  ...and it still holds the differences it was built for (2,246 since vj; 2,249 at vc)",
+              len(mapping) == 2246 and scanned == 40275,
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
@@ -16033,6 +16062,197 @@ def part3le_what_the_words_say_is_written_the_board_writes():
           "2026-09-11  BUILD vi" in notes("tutor.py") and "2026-09-11  BUILD vi" in notes("ruletests.py")
           and "2026-09-11  (vi) Tile 87 -> 88" in notes("static/methodology.html")
           and 'APP_BUILD -> "2026-09-11vi-' in notes("main.py"), "")
+
+
+def part3lf_ready_and_four_basic_lines():
+    """PART 3lf (build vj, 2026-09-11) -- "READY?", THE GATE THAT SPEAKS, FOUR BASIC LINES,
+    AND blob: IN media-src.
+
+    Six flags from Jim's live Basic lesson (claude/Triage_Corrections_Queue_2026-09-11).
+    His rulings: "I prefer ready in place of with me so far. Go ahead and start the fixes."
+      * LINE_CHECK "With me so far?" -> "Ready?"; LINE_READY is the SAME string, and
+        scrReady() now speaks it before its buttons -- 344 practice intros end "...here
+        comes the first one." and build us left the gate silent after them.
+      * basic-u1-place-value-to-1000: topic "Place value to 1,000" -> "Place value:
+        hundreds, tens and ones" (the lesson never shows a thousand; the orientation's
+        "you finished Place value to 1,000" was the record telling the truth about the
+        wrong name); the why beat and the second recap beat lose "tally marks".
+      * basic-u1-rounding-tens: "more than you need" -> "more accurate than you need".
+      * main.py: media-src gains blob: -- every shelved clip (vb) plays from a blob: URL
+        and was logging a report-only CSP violation in Jim's console.
+    Voice: one closure clip replaces one ("Ready?"); four Basic lines re-render; the
+    speech map is regenerated (3ky pins it current). The closure count is unchanged."""
+    print("\nPART 3lf — \"Ready?\", the gate that speaks, four Basic lines, blob: in media-src (build vj)")
+    import os as _os
+    import json as _jsn
+    import lessonscripts as L
+    import lessons as LESS
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    page = rd("static/session.html")
+    pcode = code_only(page)
+
+    # ---- 1. "Ready?" ----------------------------------------------------------------------
+    check('⭐⭐ JIM: the check is "Ready?" and the ready gate speaks the SAME word (one clip)',
+          L.LINE_CHECK == "Ready?" and L.LINE_READY == L.LINE_CHECK, repr((L.LINE_CHECK, L.LINE_READY)))
+    check("  the page's copies are byte-identical to the engine's",
+          'const LINE_CHECK = "%s";' % L.LINE_CHECK in pcode and "const LINE_READY = LINE_CHECK;" in pcode, "")
+    check("⭐ scrReady() SPEAKS the gate line before its buttons, spoken and never bubbled -- scrCheck's shape",
+          "await scrSay(LINE_READY);" in pcode
+          and pcode.index("await scrSay(LINE_READY);") < pcode.index("const label = await scrChoice(READY_CHOICES);")
+          and "lastTutorText = LINE_READY;" in pcode and 'addBubble("tutor", LINE_READY)' not in pcode, "")
+    check("  the ready gate is still the practice intro's gate, and the check still the beats'",
+          'if (heard && step.beat === "practice_intro") { await scrReady(); scrNext(); return; }' in pcode
+          and "if (heard && SCR_CHECK_BEATS.has(step.beat)) { await scrCheck(step); scrNext(); return; }" in pcode, "")
+    closure = L.course_audio_lines()
+    check("  the closure carries the new word and not the old",
+          "Ready?" in closure and "With me so far?" not in closure and L.LINE_CHECK in L.STANDALONE_LINES, "")
+    check("  the old wording is gone from the page's code (its notes may remember it)",
+          "With me so far?" not in pcode, "")
+
+    # ---- 2. the four Basic lines -------------------------------------------------------------
+    pv = L.LESSON_BY_ID["basic-u1-place-value-to-1000"]
+    rt = L.LESSON_BY_ID["basic-u1-rounding-tens"]
+    check("⭐ the place-value lesson is named for what it teaches: hundreds, tens and ones (its id and order unchanged)",
+          pv["topic"] == "Place value: hundreds, tens and ones"
+          and [l["id"] for l in L.LESSONS if l["course"] == "basic"][:4] ==
+          ["basic-u1-place-value-to-1000", "basic-u1-rounding-tens", "basic-u1-rounding-hundreds", "basic-u1-multi-digit-review"],
+          pv["topic"])
+    check("  ...and its goal card carries the new name", 'goal text="Place value: hundreds, tens and ones"' in pv["why"][0][1], "")
+    check("  ...and it still never shows a thousand (every ask and bank problem is three digits)",
+          pv.get("max_value") == 999 and all(0 < p["a"] <= 9 for p in pv["bank"]), "")
+    pv_text = " ".join(b[0] for k in ("why", "picture", "teach", "recap") for b in (pv.get(k) or []))
+    check('⭐ "tally marks" is gone from the lesson a child hears',
+          "tally" not in pv_text.lower() and "three digits say it all" in pv_text
+          and "places save the counting" in pv_text, "")
+    check("⭐ rounding-tens says 'more accurate than you need' (Jim's wording)",
+          "more accurate than you need" in rt["why"][0][0] and "is more than you need" not in rt["why"][0][0], "")
+    check("  the orientation line names the new topic when the record says it was finished",
+          "Before this came Place value: hundreds, tens and ones, and you finished it." in L.lesson_orientation(rt, True)[0]
+          and "Place value to 1,000" not in L.lesson_orientation(rt, True)[0], "")
+    check("  every changed line is in the closure (the prewarm will find them)",
+          all(t in closure for t in (pv["why"][0][0], pv["recap"][1][0], rt["why"][0][0],
+                                     L.lesson_orientation(rt, True)[0], L.lesson_intro(pv)[0])), "")
+    check("  the closure count is unchanged at 39,969 (lines changed, none added)", len(closure) == 39969, str(len(closure)))
+
+    # ---- 3. blob: in media-src -------------------------------------------------------------------
+    import main as M
+    csp = M._CSP_REPORT_ONLY
+    check("⭐ media-src names blob: beside data: -- a shelved clip plays from a blob: URL",
+          "media-src 'self' data: blob:;" in csp, csp.split("media-src")[1][:40])
+
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-11  BUILD vj" in notes("lessonscripts.py") and "2026-09-11  BUILD vj" in notes("lessons/basic.py")
+          and "(vj) 2026-09-11" in notes("static/session.html") and "2026-09-11  BUILD vj" in notes("ruletests.py")
+          and 'APP_BUILD -> "2026-09-11vj-' in notes("main.py"), "")
+
+
+def part3lg_the_figures_words_fit_the_board():
+    """PART 3lg (build vk, 2026-09-11) -- THE FIGURE'S WORDS FIT THE BOARD THEY LAND ON.
+
+    Jim, from a live Basic lesson: "the number line is like two inches long ... the
+    words are so small you can't see them. And then ... the words are huge. So it's
+    inconsistent, and it's generally small."
+    MEASURED (tools/figprobe.py, the real page in a real Chromium): on a laptop the
+    number line's labels are 24-30px; on a 420px phone the same labels were 6.9px and
+    the place-value headings 8.6px, beside worklist rows whose CSS text stayed 24px --
+    and the ask's row "1 hundreds + 4 tens + 3 ones = ?" was 462px wide in a 378px feed
+    and read "undreds + 4 tens + 3 ones". Every figure is drawn 660 units wide with
+    12-15 unit labels in a width:100% <svg>, so a board narrower than the drawing
+    scales the words down with it; and fitRow measured a row against its OWN box, which
+    a grid row simply grows to fit its content.
+    THE FIX, two rules: svgOpen measures the board's room and, when it is narrower than
+    the viewBox, tspan enlarges every label by that ratio (capped 2.0; display digits
+    over 20 units by half of it, so the chart's "?" cannot climb into "Hundreds"), and
+    fitStep reads the same ratio so a number line thins its labels instead of
+    overlapping; fitRow is bounded by the board's room. Wide boards are byte-for-byte
+    what they were (ratio 1); node has no document and gets 1."""
+    print("\nPART 3lg — the figure's words fit the board they land on (build vk)")
+    import os as _os
+    import json as _json
+    import subprocess as _sp
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    mf = code_only(rd("static/math-figures.js"))
+    bj = code_only(rd("static/board.js"))
+
+    # ---- 1. the rule, in the source ----------------------------------------------------
+    check("⭐ svgOpen measures the board's room and stamps the ratio on the <svg> (data-fit)",
+          "_fit = figFit(w);" in mf and 'data-fit="\' + _fit.toFixed(2) + \'"' in mf
+          and 'document.getElementById("feed") || document.getElementById("board")' in mf, "")
+    check("  the ratio is capped at 2.0 and is 1 whenever the room is at least the drawing's width, or there is no document",
+          "var FIT_MAX = 2.0" in mf and "if (!(room > 0) || !(w > 0) || room >= w) return 1;" in mf
+          and 'typeof document === "undefined"' in mf, "")
+    check("⭐ every tspan label grows by the ratio; a display digit over 20 units by half of it",
+          "function fitSize(size)" in mf and "var f = (size > 20) ? 1 + (_fit - 1) / 2 : _fit;" in mf
+          and "font-size=\"' + fitSize(size || 12) +" in mf, "")
+    check("  fitStep reads the ratio, so a number line thins its labels rather than overlapping them",
+          "var charPx = fontPx * _fit * 0.62" in mf, "")
+    check("⭐ fitRow is bounded by the board's room, not only the row's own box",
+          'row.closest("#feed") || row.closest("#board")' in bj
+          and "const limit = Math.min(row.clientWidth, room) + 1;" in bj
+          and "row.getBoundingClientRect().width > room" in bj, "")
+    check("  the harness exists and is the tool the build measured with",
+          _os.path.exists(_os.path.join(here, "tools", "figprobe.py"))
+          and "def measure(" in rd("tools/figprobe.py") and "data-fit" in rd("tools/figprobe.py"), "")
+
+    # ---- 2. node: no document, ratio 1, every figure still draws --------------------
+    import shutil as _sh
+    if not _sh.which("node"):
+        skip("  node: without a document the ratio is 1 and the labels are their authored sizes (15, 34)", "node is not installed here")
+    else:
+        prog = r"""
+global.window = global;
+global.document = { createElement: () => ({ style:{}, setAttribute(){}, appendChild(){} }) };
+eval(require("fs").readFileSync(process.argv[1], "utf8"));
+const out = global.MathFigures.svg("numberline", {min:"40", max:"50", mid:"45", points:"47"});
+const pv = global.MathFigures.svg("placevalue", {n:"342"});
+console.log(JSON.stringify({fit: /data-fit="([\d.]+)"/.exec(out)[1], pvfit: /data-fit="([\d.]+)"/.exec(pv)[1],
+  label15: /font-size="15"/.test(out), heading15: /font-size="15"/.test(pv), digit34: /font-size="34"/.test(pv)}));
+"""
+        try:
+            out = _sp.run(["node", "-e", prog, _os.path.join(here, "static", "math-figures.js")],
+                          capture_output=True, text=True, timeout=60)
+            got = _json.loads((out.stdout or "{}").strip() or "{}")
+        except Exception as exc:  # noqa: BLE001
+            got = {"err": str(exc)}
+        check("  node: without a document the ratio is 1 and the labels are their authored sizes (15, 34)",
+              got.get("fit") == "1.00" and got.get("pvfit") == "1.00" and got.get("label15") and got.get("heading15") and got.get("digit34"),
+              str(got))
+
+    # ---- 3. the real page, measured ----------------------------------------------------------
+    NAME = "⭐⭐ MEASURED on the real page: a phone's labels are readable and its rows fit; a laptop is unchanged"
+    if dep_gate(NAME, "playwright", "the figures are measured in a real browser"):
+        try:
+            import sys as _sys
+            if _os.path.join(here, "tools") not in _sys.path:
+                _sys.path.insert(0, _os.path.join(here, "tools"))
+            import figprobe as FP
+            phone = FP.measure(_os.path.join(here, "static"), 420, 860)
+            laptop = FP.measure(_os.path.join(here, "static"), 1440, 900)
+        except Exception as exc:  # noqa: BLE001
+            skip(NAME, "the probe could not run: %s" % str(exc)[:120])
+        else:
+            pf = {f["kind"]: f for f in phone["figs"] if f["w"] > 0}
+            lf = {f["kind"]: f for f in laptop["figs"] if f["w"] > 0}
+            check(NAME,
+                  pf.get("numberline", {}).get("text_min", 0) >= 12 and pf.get("placevalue", {}).get("text_min", 0) >= 14
+                  and all(f["fit"] > 1.5 for f in pf.values())
+                  and all(r["w"] <= phone["room"] + 20 for r in phone["rows"])
+                  and lf.get("numberline", {}).get("text_min", 0) >= 24 and lf.get("placevalue", {}).get("text_min", 0) >= 24
+                  and all(f["fit"] == 1 for f in lf.values()),
+                  _json.dumps({"phone": pf, "phone_rows": phone["rows"], "laptop": lf})[:700])
+            check("  the phone's chart digits grew by HALF the ratio, so they stay under the headings (no overlap)",
+                  pf.get("placevalue", {}).get("text_max", 0) < 30, str(pf.get("placevalue")))
+            check("  the laptop's rows and figures are the sizes the build measured before it touched anything (33px / 27px rows; 24.5 and 25.0 px labels)",
+                  [r["fontpx"] for r in laptop["rows"]] == [33, 27]
+                  and lf.get("numberline", {}).get("text_min") == 24.5 and lf.get("placevalue", {}).get("text_min") == 25.0,
+                  _json.dumps({"rows": laptop["rows"], "figs": lf})[:400])
+
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-11  BUILD vk" in notes("static/math-figures.js") and "2026-09-11  BUILD vk" in notes("static/board.js")
+          and "2026-09-11  BUILD vk" in notes("ruletests.py") and "2026-09-11  NEW (build vk)" in notes("tools/figprobe.py")
+          and 'APP_BUILD -> "2026-09-11vk-' in notes("main.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -42844,6 +43064,8 @@ def main():
     part3lc_every_finding_says_whether_the_referees_knew()
     part3ld_the_case_floor()
     part3le_what_the_words_say_is_written_the_board_writes()
+    part3lf_ready_and_four_basic_lines()
+    part3lg_the_figures_words_fit_the_board()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
