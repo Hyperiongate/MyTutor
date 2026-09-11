@@ -6,6 +6,27 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  BUILD vf -- THREE HOLES FROM THE 09-11 NIGHT WATCH, no ruling needed.
+#               ① _NOTATIONS gains "a one-sided limit sign": a digit + superscript
+#               minus/plus, or 2^- / 2^+ with nothing after the sign. The watch's
+#               calculus reply wrote x→2⁻ with "from the left" in the words and the
+#               sign never named -- so the READING is the sign spoken as a sign (a
+#               little / raised minus, "minus sign", "superscript"), never the side-
+#               word alone: that reply said "From the left, the function acts like x
+#               PLUS one" and must still fire. Placed BEFORE the exponent entry because
+#               the gate returns its first fire and 2^- carries a caret. notation.py
+#               has the prompt twin, scoped to precalc/calculus/diffeq.
+#               ② KNOWN_FALSEHOODS row 21, square-root-of-a-number-is-positive: the
+#               09-10 watch's "what positive number times itself" and the 09-11 watch's
+#               "the positive value that, multiplied by itself" -- the 09-10 triage asked
+#               for this row, it was not built, and the sentence came back the next
+#               night. The escape is the SCOPING phrase (for a positive number), not the
+#               words "positive number", which sat inside the 09-10 falsehood.
+#               ③ postponed_show_conflict (referee 70): the offers-of-MORE exemption
+#               ("once more", "another", "different") now requires a board tag in the
+#               reply. The watch's HIGH drew nothing and offered "once more with
+#               different numbers"; seconds presuppose firsts. Referee count unchanged
+#               at 87; truth class 11. PART 3lb.
 #   2026-09-10  BUILD uz -- REFEREE 87: A PICTURE COUNTS ONE KIND OF THING, and the
 #               fifteenth ceiling raise. ⭐ JIM'S RULING on the 09-10 watch's only HIGH:
 #               a live Prealgebra reply told a TRUE money story ("5 dollars, plus 3
@@ -2716,7 +2737,17 @@ def postponed_show_conflict(reply: str, student_message: str = "", prev_tutor=No
         ask = _rb_final_ask(str(reply or ""))
         if not ask or not _PS_OFFER_RE.search(ask):
             return ""
-        if _PS_MORE_RE.search(ask):
+        # (vf, 2026-09-11) SECONDS PRESUPPOSE FIRSTS. The 09-11 watch's HIGH
+        # (geometry, rule 65): the student asked to see why subtracting gets b² by
+        # itself, and the reply -- with NOTHING on the board -- ended "Want to see it
+        # once more with different numbers, or go ahead and try one yourself?". Both
+        # of rf's exemption words were in it ("once more", "different"), so the offer
+        # read as seconds and the referee stayed silent. An offer of MORE is good
+        # teaching when the requested thing was delivered; from a reply that drew
+        # nothing it is the postponement this referee exists for, wearing the
+        # vocabulary of a second helping. A board tag in the reply is what makes an
+        # offer of more an offer of more.
+        if _PS_MORE_RE.search(ask) and _tags_present(str(reply or ""), _BOARD_TAGS):
             return ""                     # offering seconds, not postponing firsts
         return ('the student asked to be SHOWN -- "{s}" -- and this reply ends by '
                 'OFFERING that drawing ("{a}") instead of making it. Rule 65: they '
@@ -4055,6 +4086,35 @@ _NOTATIONS = (
     # (rl, 2026-09-01) the caret alone missed every REAL superscript the boards
     # draw -- the watch's "a² + b² = c²" card shipped unread. [²³] joins the
     # pattern; the reading regex was already right.
+    # (vf, 2026-09-11) THE 09-11 WATCH, calculus, rule 48: [[step eq="limit as x→2⁻:
+    # x + 1 = ?"]] with "from the left" in the words but nothing tying the raised
+    # minus to it. The ARROW was rightly known (lim (x→2) had been written and read a
+    # turn earlier); the SIGN floating above the 2 is the notation, and no entry held
+    # it. The shape is a digit followed by a superscript minus/plus, or the caret
+    # spelling 2^- / 2^+ with nothing after the sign (2^-1 is an exponent and never
+    # matches). ⚠️ THE READING NAMES THE SIGN. "From the left" alone was IN the
+    # watch's reply and the reviewer's point stands: a student can follow "from the
+    # left" in the sentence and still not know that the little minus is how the
+    # board says it. So the reading is the sign tied to the side in one sentence --
+    # "a little/raised/small minus ... from the left", "superscript", "the minus up
+    # high" -- not the side-word on its own. ⚠️ SITS BEFORE THE EXPONENT ENTRY on
+    # purpose: the gate returns its first fire, and 2^- also carries a caret; placed
+    # after, a one-sided limit would be nudged as "an exponent" with advice that
+    # cannot satisfy it. Canon swept in PART 3lb: no authored line writes either
+    # form.
+    ("a one-sided limit sign", re.compile(r"\d\s*[⁻⁺]|\d\^[-+](?![\w.(])"),
+     # ⚠️ NOT "from the left ... plus": the watch's own sentence was "From the left,
+     # the function acts like x PLUS one", and a side-word within reach of an
+     # arithmetic word is not a reading of the sign. The sign has to be spoken AS a
+     # sign: an adjective on it (little / raised / floating minus), "minus sign",
+     # "superscript", or "the minus up high".
+     re.compile(r"\b(?:little|small|tiny|raised|floating|high|hovering)\s+(?:minus|plus)\b|"
+                r"\b(?:minus|plus)\s+(?:sign|symbol)\b|"
+                r"\b(?:minus|plus)\s+(?:up\s+high|up\s+top|floating|raised|above|in\s+the\s+air)\b|"
+                r"\bsuperscript\b", re.I),
+     'That little minus floating up high means FROM THE LEFT -- we read x→2⁻ out '
+     'loud as "x approaches two from the left", the side where x is a bit less than '
+     "two; a raised plus means from the right."),
     ("an exponent", re.compile(r"\^|[²³]"),
      re.compile(r"\bsquared\b|\bcubed\b|\bpower\b|\bexponent\b|\braised\s+to\b", re.I),
      'That small raised number is an EXPONENT -- "s squared" means s times s.'),
@@ -5088,6 +5148,34 @@ KNOWN_FALSEHOODS = [
      "factoring rewrites the expression as two factors that multiply back to the "
      "ORIGINAL expression -- x squared minus 5x plus 6 is (x - 2)(x - 3); it is the "
      "EQUATION that equals zero, which is why (x - 2)(x - 3) = 0 gives the solutions"),
+    # ---- (vf) the 09-10 AND 09-11 watches, geometry, rule 61 -- the same sentence
+    # twice in two nights ----
+    # 09-10: "the square root of a number asks 'what positive number times itself
+    # gives this?'"  09-11: "the square root of a number is the positive value that,
+    # multiplied by itself, gives you back that number." Both generalise over "a
+    # number" and both say POSITIVE: the square root of zero is zero, which is not
+    # positive, and a negative number has no real square root at all. The 09-10
+    # triage asked for this row and it was never built; the watch found the sentence
+    # again the next night. The false shape: "square root of a/any/the number" +
+    # is/asks/means/gives + "positive" in the same sentence. The escapes are the
+    # corrective teachings: scoping the claim to a POSITIVE number, "non-negative",
+    # "or zero", "not negative", "principal", or the two-solutions contrast that
+    # names the SYMBOL (the sibling row above owns that pair). Swept in PART 3lb.
+    ("square-root-of-a-number-is-positive",
+     re.compile(r"\bsquare\s+root\s+of\s+(?:a|any|the|every)\s+number\b[^.!?]{0,60}?"
+                r"\b(?:is|asks|means|gives|equals|finds)\b[^.!?]{0,60}?\bpositive\b", re.I),
+     # ⚠️ "positive number" is NOT an escape on its own -- the 09-10 sentence had it
+     # INSIDE the false claim ("what positive number times itself"). The escape is
+     # the SCOPING phrase: for / of / when / if + a positive number.
+     re.compile(r"\b(?:for|of|when|if|given)\s+(?:a|any|the|every)\s+positive\s+number\b|"
+                r"\bpositive\s+number'?s\s+square\s+root\b|"
+                r"\bnon-?negative\b|\bor\s+zero\b|\bzero\s+or\b|"
+                r"\bnot\s+negative\b|\bgreater\s+than\s+(?:or\s+equal\s+to\s+)?zero\b|"
+                r"\bprincipal\b|\bfor\s+(?:a|any)\s+positive\b|\bsquare\s+root\s+of\s+"
+                r"zero\b|\bno\s+real\s+square\s+root\b", re.I),
+     "for a positive number, the square root is the positive value that multiplies "
+     "by itself to give that number -- here the square root of 25 is 5; the square "
+     "root of zero is zero, and a negative number has no real square root"),
 ]
 
 

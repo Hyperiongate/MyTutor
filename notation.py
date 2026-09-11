@@ -2,6 +2,14 @@
 # notation.py  --  THE NOTATION REGISTRY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-11  BUILD vf -- THE ONE-SIDED LIMIT SIGN JOINS THE REGISTRY (the 09-11
+#               night watch, calculus, rule 48): "x→2⁻" reached a student with "from
+#               the left" in the words and nothing saying that the little raised
+#               minus is how the board writes it. One new row, precalc/calculus/
+#               diffeq; `wrote` is a digit + superscript sign, or 2^- / 2^+ with
+#               nothing after the sign; `heard` names the SIGN (a little / raised
+#               minus, "minus sign", "superscript"), never the side-word alone.
+#               tutor.py's referee list gained the matching entry the same build.
 #   2026-09-01  BUILD rl -- THE LIMIT JOINS THE REGISTRY (the 09-01 night watch's
 #               first-use cluster, rule 48): "lim (x→2)" reached a student before
 #               anyone ever said "the limit as x approaches" -- and lim was not
@@ -190,6 +198,27 @@ NOTATIONS = [
      "heard": r"\blimit\b",
      "note": "the value f(x) closes in on as x slides toward the target -- "
              "approached, not necessarily reached"},
+
+    # (vf, 2026-09-11) the 09-11 night watch, calculus, rule 48: [[step eq="limit as
+    # x→2⁻: x + 1 = ?"]] with "from the left" in the words and nothing tying the
+    # raised minus to it. The arrow was known; the SIGN above the 2 was on no list.
+    # `wrote` is a digit followed by a superscript minus/plus, or the caret spelling
+    # 2^- / 2^+ with nothing after the sign (2^-1 is an exponent, never this).
+    # `heard` names the sign, not merely the side -- the watch's reply said "from
+    # the left" and the student still had no way to know the little minus said it.
+    # The runtime twin (the rule-48 referee's own list in tutor.py) gained its
+    # matching entry the same build, placed BEFORE the exponent entry so 2^- is
+    # nudged as what it is.
+    {"id": "one-sided", "shown": "x→2⁻",
+     "spoken": "x approaches two from the left -- the little raised minus means from the left, "
+               "a raised plus means from the right",
+     "never": "two minus",
+     "courses": ("precalc", "calculus", "diffeq"),
+     "wrote": r"\d\s*[⁻⁺]|\d\^[-+](?![\w.(])",
+     "heard": r"(?:little|small|tiny|raised|floating|high|hovering) (?:minus|plus)|"
+              r"(?:minus|plus) (?:sign|symbol)|superscript",
+     "note": "the sign says which SIDE x comes from; the two one-sided limits must agree "
+             "for the limit itself to exist"},
 
     {"id": "differential", "shown": "dy/dx", "spoken": "d y d x", "never": "d times y over d times x",
      "courses": ("calculus", "diffeq"), "wrote": r"\bd\s*[a-z]\s*/\s*d\s*[a-z]\b",

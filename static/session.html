@@ -4,6 +4,16 @@
                 changelog/session.html.md -- moved out on 2026-09-08 (build ui) VERBATIM,
                 125 entries; 17 stay here. Keep adding new notes HERE, newest at top; roll
                 them out again (notes_rollout.py) when this header passes ~100 KB.
+    (vd) 2026-09-11 -- THE TOUR HANDS OFF TO THE COURSE, NOT TO THE MODEL. Jim, after
+    two logins as a brand-new student: "it started off counting by fives ... and now I
+    just logged in again, and it's counting up to five. So it feels like the lesson is
+    out of order." Two things were deciding where a student begins: the first visit
+    ended on runTutor("__tour_done__") -- the MODEL's free choice -- and every visit
+    after ran the authored course from lesson one. New: tourHandoff(), which records the
+    tour through /api/tour-seen (vd) and THEN starts the authored lesson, falling
+    through to the live opener, with its original message, when a course has no script.
+    ⚠️ The record is the trap: it used to be written only as a side effect of that model
+    call, so skipping the call without this would re-run the whole tour every login.
     (vb) 2026-09-10 -- THE NEXT LINE IS ALREADY LOADED. Jim: "10 second latency is too
     long when we know this is next after a correct answer we need to load that so it is
     ready to go", and on the tour "10 second delay before this started" / "garbled
@@ -2993,7 +3003,12 @@
       if (FORCE_TOUR || (!hasHistory && !touredAnywhere)) { busy = true; setPhase("busy"); runTour(); }
       // 2026-08-05: a toured student ENTERING A NEW COURSE (no history, no placement here)
       // skips the tour but still gets the assessment invitation before the opener.
-      else if (!hasHistory && !isPlaced) { busy = true; setPhase("busy"); offerAssessment(() => kickoff("__open_declined__")); }
+      // (vd) ...and a toured student entering a NEW course goes to that course's
+      // authored lesson one too, for the same reason: one authority on where a
+      // student begins. tourHandoff records the tour again (harmless -- the row is
+      // per classroom type and already set) and falls through to kickoff's own
+      // message if the course has no script.
+      else if (!hasHistory && !isPlaced) { busy = true; setPhase("busy"); offerAssessment(() => tourHandoff("__open_declined__")); }
       // (pb) THE FAST PATH. A returning student whose next topic has an authored
       // lesson starts it straight away -- no model opener, so the very first thing
       // they hear arrives at once. No script for this unit? The live opener runs
@@ -3164,15 +3179,57 @@
       if (!sbWasOpen) setSidebar(false);   // build or: and the sidebar tucks away too
       // 2026-08-05: a first-timer with no placement gets the assessment invitation
       // right here, at the moment of maximum orientation. Choosing "skip" continues
-      // the EXACT old flow (__tour_done__), so nothing is ever lost by declining.
+      // into the course exactly as watching the whole tour does (tourHandoff below).
       if (!isPlaced) {
         if (!skipped) await sayTourLine(IS_ELEM ? "Okay — that's the tour!" : "Okay — that's the grand tour!");
-        offerAssessment(() => runTutor("__tour_done_declined__"));
+        offerAssessment(() => tourHandoff("__tour_done_declined__"));
         return;
       }
       if (!skipped) await sayTourLine(IS_ELEM ? "Okay — that's the tour! Now let's get into the fun part."
                                               : "Okay — that's the grand tour! Now let's get into the fun part.");
-      await runTutor("__tour_done__");   // hand off WITHOUT a re-introduction (he just said his name in the tour)
+      await tourHandoff("__tour_done__");
+    }
+
+    // =====================================================================
+    // (vd, 2026-09-11) THE TOUR HANDS OFF TO THE COURSE, NOT TO THE MODEL.
+    // ---------------------------------------------------------------------
+    // Jim, after two logins as a brand-new student: "when I was there earlier, it
+    // started off counting by fives ... and now I just logged in again, and it's
+    // counting up to five. So it feels like the lesson is out of order."
+    //
+    // The course was not out of order. TWO DIFFERENT THINGS WERE DECIDING WHERE A
+    // STUDENT BEGINS. A brand-new student's first lesson was taught by the MODEL,
+    // freehand -- this function used to be `await runTutor("__tour_done__")` -- and
+    // then EVERY session after it ran the authored course from lesson one (begin()'s
+    // build-pb fast path, which only ever covered a RETURNING student). So the first
+    // lesson could be anything at all, and the second lesson started at the
+    // beginning. That reads as going backwards, because it is.
+    //
+    // Build ov's ruling -- "the scripted lane becomes the main road" -- was never
+    // carried across the tour. It is now: the authored lesson starts here, and it
+    // introduces itself (build ts: course, unit, lesson i of n, topic), so nothing
+    // about the arrival gets quieter.
+    //
+    // ⚠️ THE RECORD IS WHY THIS IS A FUNCTION AND NOT A ONE-LINE SWAP. "This student
+    // saw the tour" was written down on the SERVER inside the __tour_done__ opener --
+    // a side effect of asking the model to teach. Skip the model and a new student
+    // is handed the whole tour again on every login, forever. /api/tour-seen (vd)
+    // exists for exactly that, it is awaited BEFORE the lesson starts, and it costs
+    // nothing.
+    // ⚠️ FAIL OPEN, TWICE. A course with no authored lesson left -- and any failure
+    // at all -- falls through to the live opener with the very message it always
+    // sent, so the behaviour on that path is byte-for-byte what shipped before.
+    // =====================================================================
+    async function tourHandoff(openerMessage) {
+      try {
+        await fetch("/api/tour-seen", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: CODE, course: COURSE }) });
+      } catch (e) {}       // the lesson must never wait on a bookkeeping row
+      try {
+        if (await scriptStart()) return;
+      } catch (e) {}
+      await runTutor(openerMessage);   // no authored lesson here: exactly as before
     }
 
     // =====================================================================

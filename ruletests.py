@@ -6,6 +6,23 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  BUILD vf -- PART 3lb, THREE HOLES FROM THE 09-11 NIGHT WATCH: the
+#               one-sided limit sign joins both notation lists (the reading names the
+#               SIGN, and the entry sits before the exponent entry); the square-root-
+#               of-a-number-is-positive row joins KNOWN_FALSEHOODS (asked for on 09-10,
+#               found again on 09-11); referee 70's offers-of-MORE exemption now needs
+#               a board tag in the reply (seconds presuppose firsts). Two rf fixtures
+#               in PART 3hg repaired to intent (they draw what they claim delivered).
+#               Canon swept, 0 fires; referee count unchanged at 87.
+#   2026-09-11  BUILD ve -- PART 3la, A NAME THE PAGE DEFINES ITSELF IS JUDGED BY ITS
+#               BODY. The tree at vd FAILED uz's zero-hits closure pin once it was staged
+#               whole: static/demolab.html (never staged before today) defines a say()
+#               that writes a caption and speaks nothing, and voiceclosure's EXTRA_SPEAK
+#               seeds made it a speaker by name. Pins: demolab.html is in the audit's
+#               page list; its say is not a speaker; demo-lesson's own speakLine still
+#               is; three synthetic pages (a local say that speaks / one that only
+#               writes / an undefined say that stays a seed); the seed tuples and the
+#               one exemption unchanged; the rule lives in code.
 #   2026-09-10  BUILD va -- PART 3kw, THE YOUNGEST COURSE DRAWS EVERY PROBLEM. Pins
 #               that each of the thirteen ops draws on the ask AND on the walk-back;
 #               that NOT ONE of the 445 Entry asks carries its own answer (rule 15(e) --
@@ -10779,7 +10796,27 @@ def part3kb_the_per_student_view():
             "assert cl.get('/api/admin/student?code=', headers=H).status_code == 400\n"
             "d = cl.get('/api/admin/student?code=' + CODE, headers=H).json()\n"
             "assert d['ok'] and d['name'] == 'Alex' and d['code_masked'] == '\u2022\u2022\u2022\u2022', d.get('code_masked')\n"
-            "assert CODE not in str(d), 'the raw code must not ride in the payload'\n"
+            # (vd, 2026-09-11) ⚠️ THIS WAS A FLAKY TEST, AND A FLAKY TEST IN A BATTERY
+            # THAT GATES A DEPLOY IS WORSE THAN NO TEST -- it teaches you to re-run
+            # until green. It used to be `CODE not in str(d)`: a substring scan over
+            # the WHOLE payload for "1234", which also appears inside a microsecond
+            # field ("...:07.123456") often enough to fail a clean build at random.
+            # Caught on build vd's first run and confirmed by re-running the same
+            # tree green. The property it is really asserting -- no field carries the
+            # raw credential -- is now asserted precisely: every string in the
+            # payload EXCEPT the timestamps, which are dates, not places a credential
+            # hides.
+            "def _strs(x, k=''):\n"
+            "    import re as _re\n"
+            "    if isinstance(x, dict):\n"
+            "        return [s for kk, vv in x.items() for s in _strs(vv, kk)]\n"
+            "    if isinstance(x, list):\n"
+            "        return [s for vv in x for s in _strs(vv, k)]\n"
+            "    if isinstance(x, str) and not _re.match(r'^\\d{4}-\\d{2}-\\d{2}', x):\n"
+            "        return [(k, x)]\n"
+            "    return []\n"
+            "_leak = [(k, v) for k, v in _strs(d) if CODE in v]\n"
+            "assert not _leak, ('the raw code must not ride in the payload', _leak[:3])\n"
             "bc = [c for c in d['courses'] if c['course'] == 'basic']; assert bc, d['courses']\n"
             "u = [x for x in bc[0]['units'] if x['unit'] == les['unit']][0]\n"
             "assert u['status'] == 'taught' and u['lessons_done'] == 1 and u['mastered'] is False, u\n"
@@ -11900,9 +11937,10 @@ def part3kj_the_truth_items_and_the_proven_holes():
               "In 3(5) the parentheses mean multiply."):
         check(f"  silent (scoped or true): {s[:58]!r}", not T.known_falsehood_conflict(s), "")
     names = [r[0] for r in T.KNOWN_FALSEHOODS]
-    check("  twenty named falsehoods since ut (nineteen at un), the two un rows beside the division row",
-          len(T.KNOWN_FALSEHOODS) == 20 and "hundredths-place-is-two-digits" in names
-          and "parentheses-never-mean-multiply" in names and len(set(names)) == 20, str(len(names)))
+    # (vf) 20 -> 21: the square-root-of-a-number-is-positive row, PART 3lb.
+    check("  twenty-one named falsehoods since vf (twenty at ut, nineteen at un), the two un rows beside the division row",
+          len(T.KNOWN_FALSEHOODS) == 21 and "hundredths-place-is-two-digits" in names
+          and "parentheses-never-mean-multiply" in names and len(set(names)) == 21, str(len(names)))
 
     # ---- #1 the story-units grammar ---------------------------------------------------------
     for s, want in (
@@ -12965,7 +13003,8 @@ def part3kp_the_first_watch_on_the_new_stack():
           bool(T.known_falsehood_conflict("So 25 percent divided by 100 gives the decimal."))
           and bool(T.known_falsehood_conflict("Twelve point five percent divided by a hundred is the decimal.")), "")
     names = [r[0] for r in T.KNOWN_FALSEHOODS]
-    check("  twenty named falsehoods, unique", len(T.KNOWN_FALSEHOODS) == 20 and len(set(names)) == 20
+    # (vf) 20 -> 21: the square-root-of-a-number-is-positive row, PART 3lb.
+    check("  twenty-one named falsehoods, unique (twenty at ut)", len(T.KNOWN_FALSEHOODS) == 21 and len(set(names)) == 21
           and "percent-divided-by-a-hundred" in names, str(len(names)))
 
     # ---- #2 the times sign in the registry ----------------------------------------------------------
@@ -15143,6 +15182,377 @@ def part3ky_one_label_for_every_clip():
           "\nimport speechmap" in msrc and "try:\n    import speechmap" not in msrc, "")
 
 
+def part3kz_one_authority_on_where_a_student_begins():
+    """PART 3kz (build vd, 2026-09-11) -- ONE AUTHORITY ON WHERE A STUDENT BEGINS.
+
+    Jim, after logging in twice as a brand-new student: "when I was there earlier, it
+    started off counting by fives ... And now we did about eight problems like that.
+    And now I just logged in again, and it's counting up to five. So it feels like the
+    lesson is out of order."
+
+    ⭐ THE COURSE WAS NEVER OUT OF ORDER. TWO DIFFERENT THINGS WERE DECIDING WHERE A
+       STUDENT BEGINS, and they disagreed:
+
+         first visit  -- runTour() ended on `await runTutor("__tour_done__")`, so a
+                         brand-new student's first lesson was taught by the MODEL,
+                         freehand, on whatever topic it chose;
+         every visit after -- begin()'s build-pb fast path ran the AUTHORED course
+                         from lesson one, in COURSE_ORDER, and kept to it.
+
+    So the first lesson could be anything, and the second lesson started at the
+    beginning. That reads as going backwards because it IS going backwards. Build ov's
+    ruling -- "the scripted lane becomes the main road" -- had simply never been
+    carried across the tour: the fast path was written for a RETURNING student and the
+    first visit was left where it was.
+
+    vd sends the new student into the authored course like everybody else, through
+    tourHandoff().
+
+    ⚠️ AND THE REASON THIS IS NOT A ONE-LINE SWAP. "This student saw the tour" was
+    written down on the server INSIDE the __tour_done__ opener -- a side effect of
+    asking the model to teach. Skip that model call and a new student is handed the
+    whole tour again on every login, forever. So the record gets a door of its own
+    (/api/tour-seen), one owner writes it (_record_tour), and the page awaits it
+    BEFORE the lesson starts. That trap is what these pins are mostly about."""
+    print("\nPART 3kz — one authority on where a student begins (build vd)")
+    import os as _os
+    import main as M
+    import lessonscripts as L
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    SESSION = rd(_os.path.join("static", "session.html"))
+    msrc = rd("main.py")
+
+    # ---- 1. the tour hands off to the COURSE ---------------------------------------
+    _tour = SESSION[SESSION.index("async function runTour()"):]
+    _tour = _tour[:_tour.index("async function tourHandoff(")]
+    # ⚠️ code_only, ALWAYS (build ki's law, and it fired here on the first run): the
+    # note above tourHandoff QUOTES the line it replaced -- `await
+    # runTutor("__tour_done__")` -- because that is the record of why the function
+    # exists. A pin that reads the raw file fires on the documentation, and the
+    # tempting repair is to delete the documentation.
+    _tour_code = code_only(_tour)
+    check("⭐ runTour no longer hands the class to the model -- the line that made a "
+          "new student's first lesson a model guess is gone",
+          "runTutor(" not in _tour_code, "")
+    check("⭐ ...both of its exits go through tourHandoff -- the watched tour and the "
+          "declined-assessment card, so they cannot drift apart",
+          'await tourHandoff("__tour_done__");' in _tour
+          and 'offerAssessment(() => tourHandoff("__tour_done_declined__"));' in _tour, "")
+    check("  and so does the OTHER first-visit door: a toured student entering a NEW "
+          "course (no history, no placement here)",
+          'offerAssessment(() => tourHandoff("__open_declined__"));' in SESSION, "")
+
+    _hand = SESSION[SESSION.index("async function tourHandoff(openerMessage) {"):]
+    _hand = _hand[:_hand.index("\n    }\n")]
+    check("⭐⭐ THE TOUR IS RECORDED BEFORE THE LESSON STARTS. Without this a new "
+          "student is handed the whole tour again on every single login, because the "
+          "fact used to be written only as a side effect of the model call vd skips",
+          _hand.index('"/api/tour-seen"') < _hand.index("scriptStart()"), "")
+    check("⭐ ...and the authored lesson is what starts",
+          "if (await scriptStart()) return;" in _hand, "")
+    check("⭐ FAIL OPEN: a course with no authored lesson left, or any failure at all, "
+          "still reaches the live opener with the very message it always sent -- that "
+          "path is byte-for-byte what shipped before",
+          "await runTutor(openerMessage);" in _hand
+          and _hand.count("catch (e) {}") == 2, str(_hand.count("catch (e) {}")))
+    check("  the bookkeeping row can never hold up a lesson (its own try/catch, and "
+          "nothing below reads its answer)",
+          "} catch (e) {}       // the lesson must never wait on a bookkeeping row" in _hand, "")
+
+    # ---- 2. the record has ONE owner and a door -------------------------------------
+    check("⭐ store.record_tour_seen is called in exactly ONE place -- _record_tour. "
+          "Two writers of 'the tour is over' is how it came to be a side effect of "
+          "teaching in the first place",
+          msrc.count("store.record_tour_seen(") == 1
+          and "def _record_tour(code: str, course: str) -> None:" in msrc,
+          str(msrc.count("store.record_tour_seen(")))
+    check("  the live opener still records it, through the same owner (do no harm: a "
+          "course with no script still arrives that way)",
+          "_record_tour(code, req.course)      # (vd) one owner" in msrc, "")
+    check("/api/tour-seen exists, and asks the model NOTHING",
+          '@app.post("/api/tour-seen")' in msrc
+          and "class TourSeenIn(BaseModel):" in msrc, "")
+    _ep = msrc[msrc.index('@app.post("/api/tour-seen")'):]
+    _ep = _ep[:_ep.index("\ndef _has_any_history")]
+    check("  ...it is student-gated and rate-limited, like every door that writes",
+          "_require_student(code)" in _ep and '_rate_limit("tourseen:' in _ep, "")
+    check("  ...and it really does nothing else: no model, no prompt, no reply to wait "
+          "on -- which is the whole point of it being a door of its own",
+          "_reply_pipeline" not in _ep and "get_tutor_reply" not in _ep
+          and "build_system_prompt" not in _ep, "")
+
+    # ---- 3. what "lesson one" actually is, so the fix has a destination -------------
+    check("⭐ LESSONS is in COURSE_ORDER, which is what makes 'the first lesson the "
+          "student has not done' mean the first lesson of the course",
+          [l["id"] for l in L.LESSONS] == list(L.COURSE_ORDER), "")
+    firsts = {}
+    for les in L.LESSONS:
+        firsts.setdefault(les["course"], les)
+    check("  ...so a brand-new student in Entry now begins where the course begins",
+          firsts["entry"]["id"] == "entry-u1-counting-to-10"
+          and firsts["entry"]["unit"] == 1, firsts["entry"]["id"])
+    check("  ...and every other course opens on its own unit 1 as well",
+          all(f["unit"] == 1 for f in firsts.values()),
+          str({c: (f["unit"], f["id"]) for c, f in firsts.items() if f["unit"] != 1}))
+    check("  the picker still reads the course in that order, first-unfinished-wins "
+          "(untouched by this build -- vd changes WHO asks it, not what it answers)",
+          "return pool.find(fresh) || list.find(fresh) || null;" in SESSION
+          and "const fresh = l => !doneIds.has(l.id) && !done.has((l.topic || \"\").toLowerCase());" in SESSION, "")
+    check("  and the lesson introduces itself when it starts, so the arrival does not "
+          "get quieter for losing the model's hello (build ts)",
+          "def lesson_intro(" in rd("lessonscripts.py")
+          and '_isp, _ibd = lesson_intro(lesson)' in rd("lessonscripts.py"), "")
+
+
+def part3la_a_name_the_page_defines_is_judged_by_its_body():
+    """PART 3la (build ve, 2026-09-11) -- A NAME THE PAGE DEFINES ITSELF IS JUDGED BY
+    ITS BODY.
+
+    ⭐ THE BATTERY WAS RED ON JIM'S DISK AND NOBODY KNEW. The 09-11 handoff reported
+       11,788 passed, 0 failed, on a tree that had been staged into the cloud
+       container ONE FILE AT A TIME -- and static/demolab.html was not among the
+       files staged. voiceclosure.pages() reads os.listdir(static), so an audit that
+       could not see the page reported it clean. Staged in full today, the same tree
+       failed uz's standing pin (ZERO page-local spoken lines outside the closure)
+       with EIGHT lines from demolab.html.
+
+    ⭐ AND THE EIGHT LINES ARE NOT SPOKEN. demolab.html is the 2026-08-25 layout
+       concept page (owner-only, linked from nowhere, "calls no API"). Its `say(text)`
+       writes the text into a caption bubble -- a speaker in name only. vb's audit
+       DISCOVERS wrappers by their bodies, but it also keeps uy's hand-written names
+       as EXTRA_SPEAK seeds, because those are defined OUTSIDE the page that calls
+       them and cannot be discovered from inside it. `say` is on that list; so a page
+       that defined its own `say` was a speaker by decree, whatever its body did.
+
+    THE FIX IS THE LAW THIS AUDIT ALREADY KEEPS. "A wrapper is a function whose own
+    argument becomes the spoken words" -- and a name the page DEFINES has a body right
+    there to read. A seed name is now unconditional only when the page does not define
+    it; a local definition is judged exactly like every discovered wrapper. demo-
+    lesson.html defines its own speakLine and hands the text to window.speak, so the
+    fixed point still finds it -- pinned below, alongside the negative.
+
+    ⚠️ NOT EXEMPTED. The tempting one-liner was EXEMPT_PAGES += ("demolab.html",), and
+    it would have been a hand-written list growing by one -- the very shape vb was
+    written to retire. The fix is in the rule, so the next concept page with a caption
+    bubble called say() is handled the day it is written."""
+    print("\nPART 3la — a name the page defines itself is judged by its body (build ve)")
+    import os as _os
+    import io as _io
+    import voiceclosure as VC
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    _page = lambda fn: VC.scrub(_io.open(_os.path.join(here, "static", fn),
+                                         encoding="utf-8").read())
+
+    # ---- 1. the page the partial staging hid is SEEN ---------------------------------
+    check("⭐ static/demolab.html is on disk and in the audit's page list (the 09-11 "
+          "battery was green only because this file had not been staged)",
+          "demolab.html" in VC.pages(), str(VC.pages()))
+    check("  ...and it defines its own say(), which writes a caption and speaks nothing",
+          "function say(text)" in _page("demolab.html")
+          and 'document.getElementById("say")' in _page("demolab.html"), "")
+
+    # ---- 2. the local definition wins over the seed ----------------------------------
+    check("⭐⭐ demolab's say is NOT a speaker -- a name the page defines is judged by "
+          "its body, not by the seed list",
+          "say" not in VC.speech_names(_page("demolab.html")),
+          str(sorted(VC.speech_names(_page("demolab.html")))))
+    check("  ...so the page contributes ZERO lines to the closure report",
+          not [t for fn, t in VC.hits() if fn == "demolab.html"],
+          str([t for fn, t in VC.hits() if fn == "demolab.html"][:2]))
+    check("  ...and the standing pin is green on the WHOLE tree: zero page-local "
+          "spoken lines outside the closure, every page",
+          not VC.hits(), str(VC.hits()[:2]))
+
+    # ---- 3. a local definition that DOES speak is still found ------------------------
+    check("⭐ demo-lesson.html defines its own speakLine and it IS a speaker -- its "
+          "body hands the text to window.speak, and the fixed point finds it",
+          "speakLine" in VC.speech_names(_page("demo-lesson.html"))
+          and "function speakLine(text" in _page("demo-lesson.html"), "")
+    check("  synthetic: a local say() that calls speak(t) is a speaker",
+          VC.spoken_literals('function say(t){ speak(t); }\n'
+                             'say("one two three four five words");')
+          == ["one two three four five words"], "")
+    check("  synthetic: a local say() that only writes text is not",
+          VC.spoken_literals('function say(t){ el.textContent = t; }\n'
+                             'say("one two three four five words");') == [], "")
+    check("  synthetic: a page that does NOT define say() still treats it as a seed "
+          "(the reason EXTRA_SPEAK exists -- defined elsewhere, called here)",
+          VC.spoken_literals('say("one two three four five words");')
+          == ["one two three four five words"], "")
+
+    # ---- 4. nothing else moved ---------------------------------------------------------
+    check("  the seed lists are what vb left them (this build narrows WHEN a seed "
+          "applies, not WHICH names are seeds)",
+          VC.SEEDS == ("speak", "browserSpeak")
+          and VC.EXTRA_SPEAK == ("speakLine", "speakThen", "sayThen", "abraSay", "say"), "")
+    check("  demo.html is still the one exemption -- demolab was NOT added to a list",
+          VC.EXEMPT_PAGES == ("demo.html",), str(VC.EXEMPT_PAGES))
+    check("  the rule lives in speech_names, in code",
+          "{n for n in EXTRA_SPEAK if n not in bodies}"
+          in code_only(open(_os.path.join(here, "voiceclosure.py"), encoding="utf-8").read()), "")
+
+
+def part3lb_three_holes_from_the_09_11_watch():
+    """PART 3lb (build vf, 2026-09-11) -- THREE HOLES FROM THE 09-11 NIGHT WATCH, none
+    needing a ruling, none adding a referee.
+
+    ① THE ONE-SIDED LIMIT SIGN (calculus, rule 48). [[step eq="limit as x→2⁻: x + 1
+       = ?"]] shipped with "from the left" in the words and nothing tying the raised
+       minus to it. The arrow was rightly known (lim (x→2) had been written and read a
+       turn earlier); the SIGN above the 2 was on no list -- not tutor's _NOTATIONS,
+       not notation.py's registry. Both gain the row. ⚠️ THE READING NAMES THE SIGN:
+       the watch's own sentence was "From the left, the function acts like x PLUS
+       one" -- a side-word within reach of an arithmetic word is not a reading, so
+       "from the left ... plus" is deliberately NOT accepted. ⚠️ BEFORE THE EXPONENT
+       ENTRY: the gate returns its first fire and 2^- also carries a caret.
+
+    ② THE SQUARE ROOT OF A NUMBER IS NOT ALWAYS POSITIVE (geometry, rule 61). The
+       09-10 watch: "asks 'what positive number times itself gives this?'"; the 09-11
+       watch: "is the positive value that, multiplied by itself, gives you back that
+       number". The 09-10 triage asked for the row; it was never built; the sentence
+       came back the next night. One KNOWN_FALSEHOODS row. ⚠️ "positive number" is
+       not an escape on its own -- it sat INSIDE the 09-10 falsehood -- the escape is
+       the scoping phrase (for / of / when a positive number).
+
+    ③ SECONDS PRESUPPOSE FIRSTS (geometry, rule 65, the watch's HIGH). The student
+       asked to see why subtracting gets b² by itself; the reply drew NOTHING and
+       ended "Want to see it once more with different numbers, or go ahead and try
+       one yourself?". rf's referee 70 exempts offers of MORE ("once more",
+       "different") as seconds; with an empty board there were no firsts. The
+       exemption now needs a board tag in the reply. Two of rf's own fixtures
+       carried "Here you go" / "Done!" over an empty board and are repaired to intent
+       in PART 3hg (they draw what they claim to have delivered).
+
+    The canon is swept for ① and ② (7,491 authored strings, 0 fires); ③ is message-
+    gated and the canon has no student turns, so its pins are the fixtures."""
+    print("\nPART 3lb — three holes from the 09-11 night watch (build vf)")
+    import os as _os
+    import tutor as T
+    import notation as NR
+    import foundations as FND
+    import lessonscripts as LS
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    N = lambda r, **kw: T.notation_intro_conflict(r, heard=kw.get("heard", ""), heard_tutor=kw.get("heard_tutor", ""))
+    K = T.known_falsehood_conflict
+    P = T.postponed_show_conflict
+
+    # ---- ① the one-sided limit sign -------------------------------------------------
+    heard = 'Earlier: [[step eq="lim (x→2) f(x)"]] and I said the limit as x approaches two.'
+    watch = ('From the left, the function acts like x plus one.\n\n'
+             '[[step eq="limit as x→2⁻:  x + 1 = ?"]]\n\nWhat does x plus one get close to?')
+    check("⭐⭐ ①  FIRES on the watch's own reply -- 'from the left' was said, the sign was never named",
+          "one-sided limit sign" in (N(watch, heard=heard, heard_tutor=heard) or ""),
+          (N(watch, heard=heard, heard_tutor=heard) or "")[:90])
+    check("  ...and the arrow itself is NOT what fires (it was written and read a turn earlier)",
+          "rewrite arrow" not in (N(watch, heard=heard, heard_tutor=heard) or ""), "")
+    check("  the nudge quotes the sentence to say",
+          "little minus floating up high" in (N(watch, heard=heard, heard_tutor=heard) or ""), "")
+    for label, fix in (
+            ("the nudge's own sentence", "That little minus up high means from the left."),
+            ("'the raised minus sign'", "The raised minus sign says from the left."),
+            ("'superscript'", "We write x approaches 2 from the left as x arrow 2 with a superscript minus."),
+            ("'the minus floating above'", "the minus floating above the two means from the left")):
+        check("  silent once %s reads it" % label,
+              not N(fix + ' [[step eq="limit as x→2⁻: x + 1 = ?"]]', heard=heard, heard_tutor=heard), "")
+    check("  silent when the TUTOR wrote the sign earlier",
+          not N(watch, heard=heard + " x→2⁻", heard_tutor=heard + " x→2⁻"), "")
+    check("  silent when the tutor READ it earlier",
+          not N(watch, heard=heard, heard_tutor=heard + " the little minus means from the left"), "")
+    check("  the caret spelling 2^- is the same sign, and is nudged as THIS sign, not as an exponent",
+          "one-sided limit sign" in (N('Look. [[step eq="lim x→2^- f(x) = ?"]]') or ""), "")
+    check("  2^3 and 2^-1 are exponents and never this entry",
+          "one-sided" not in (N('Two cubed. [[step eq="2^3 = 8"]]') or "")
+          and "one-sided" not in (N('an exponent. [[step eq="2^-1 = x"]]') or ""), "")
+    _names = [n for n, *_ in T._NOTATIONS]
+    check("⭐ the entry sits BEFORE the exponent entry (the gate returns its first fire)",
+          _names.index("a one-sided limit sign") < _names.index("an exponent"), str(_names[:4]))
+    check("  notation.py's registry has the twin row, scoped to precalc/calculus/diffeq",
+          any(n["id"] == "one-sided" and set(n["courses"]) == {"precalc", "calculus", "diffeq"}
+              for n in NR.NOTATIONS), "")
+    check("  ...so the calculus prompt carries the reading and Algebra II pays nothing for it",
+          "from the left" in NR.prompt_block("calculus")
+          and "from the left" not in NR.prompt_block("algebra2"), "")
+
+    # ---- ② the square root row --------------------------------------------------------
+    s1 = ("Remember, the square root of a number is the positive value that, multiplied "
+          "by itself, gives you back that number.")
+    s2 = "the square root of a number asks 'what positive number times itself gives this?'"
+    check("⭐⭐ ②  FIRES on the 09-11 sentence", "square root of a number is positive" in (K(s1) or ""), K(s1)[:90])
+    check("⭐ ...and on the 09-10 sentence the triage asked for", bool(K(s2)), K(s2)[:90])
+    check("  the nudge dictates the true form", "for a positive number" in K(s1) and "square root of zero is zero" in K(s1), "")
+    for label, s in (
+            ("the true form itself", "For a positive number, the square root is the positive value that multiplies by itself to give that number."),
+            ("'non-negative'", "The square root of a number is the value that times itself gives the number; the symbol gives the non-negative one."),
+            ("no 'positive' at all", "The square root of a number tells us which number times itself gives us that number."),
+            ("the zero caveat", "The square root of a number is the positive value that times itself gives it -- the square root of zero is zero."),
+            ("a specific number, not a generalisation", "The square root of 25 is the positive number 5.")):
+        check("  silent: %s" % label, not K(s), s[:60])
+    check("  the sibling row (two answers) is untouched", "always two answers" in (K("square root always gives you two answers, positive and negative") or ""), "")
+    check("  the table grew by exactly one row and every row is whole",
+          len(T.KNOWN_FALSEHOODS) == 21 and all(len(e) == 4 and e[2] and e[3] for e in T.KNOWN_FALSEHOODS),
+          str(len(T.KNOWN_FALSEHOODS)))
+
+    # ---- ③ seconds presuppose firsts --------------------------------------------------
+    said = "can you show me why subtracting 25 gets b squared by itself?"
+    high = ("That subtracting step is the key move — clearing the +25 so b² stands alone. "
+            "Want to see it once more with different numbers, or go ahead and try one yourself?")
+    check("⭐⭐ ③  FIRES on the watch's HIGH -- nothing drawn, an offer of 'once more'",
+          bool(P(high, said)), P(high, said)[:90])
+    check("  ...and its two siblings were rightly silent on it (no hand-back phrase; no board at all)",
+          not T.refused_demonstration_conflict(high, said), "")
+    check("⭐ SILENT when the subtraction IS on the board and the offer is of more",
+          not P('Here it is lined up:\n[[step eq="b^2 + 25 - 25 = 169 - 25"]]\n[[step eq="b^2 = 144"]]\n'
+                "Want to see it once more with different numbers?", said), "")
+    for label, reply in (
+            ("'Here you go' over an empty board + 'one more'", "Here you go. Want me to draw one more?"),
+            ("'Done!' over an empty board + 'a different way'", "Done! Want me to show it a different way?")):
+        check("  FIRES: %s (rf's old fixture shape, now the defect it always was)" % label,
+              bool(P(reply, "show me the hypotenuse please")), "")
+    check("  the plain offer of the requested drawing still fires (rf's own case)",
+          bool(P("So that is the idea. Want to see it marked on a triangle?", "can you draw it?")), "")
+    check("  message-gated and never raises", not P(high, "") and P(None, None) == "", "")
+
+    # ---- the canon sweeps --------------------------------------------------------------
+    texts = []
+    for c, scr in FND.FOUNDATIONS.items():
+        for sc in (scr.values() if isinstance(scr, dict) else scr):
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                texts.append(t)
+    for les in LS.LESSONS:
+        beats = [(sp or "") + "\n" + (b or "") for sp, b in _authored_beats(les)]
+        for pr in les.get("pairs") or []:
+            w = pr.get("worked") or ("", ""); beats.append((w[0] or "") + "\n" + (w[1] or ""))
+            pp = pr.get("ask") or {}; ext = LS.OP_EXT.get(pp.get("op"))
+            if ext:
+                try:
+                    beats.append(ext["spoken"](pp) + "\n" + ext["board"](pp))
+                except Exception:  # noqa: BLE001
+                    pass
+        for pp in les.get("bank") or []:
+            ext = LS.OP_EXT.get(pp.get("op"))
+            if ext:
+                try:
+                    beats.append(ext["spoken"](pp) + "\n" + ext["board"](pp))
+                except Exception:  # noqa: BLE001
+                    pass
+        texts.extend(t for t in beats if t.strip())
+    row_fires = sum(1 for t in texts if "square root of a number is positive" in (K(t) or ""))
+    sign_fires = sum(1 for t in texts if "one-sided limit sign" in (N(t) or ""))
+    check(f"⭐ CANON SWEEP: {len(texts)} authored strings, zero fires from the row and the entry (strict: nothing heard)",
+          len(texts) >= 7000 and row_fires == 0 and sign_fires == 0, f"row {row_fires}, sign {sign_fires}")
+
+    # ---- counted, noted ------------------------------------------------------------------
+    check("  no referee count change: still 87, truth class still 11",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 87 and len(T.TRUTH_REFEREES) == 11, "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-11  BUILD vf" in notes("tutor.py")
+          and "2026-09-11  BUILD vf" in notes("notation.py")
+          and "2026-09-11  BUILD vf" in notes("ruletests.py")
+          and 'APP_BUILD -> "2026-09-11vf-' in notes("main.py"), "")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -15405,12 +15815,20 @@ def part3hg_the_asked_for_picture_is_drawn_now():
     check("⭐ SILENT when the reply just draws the thing and asks about it",
           not P('[[triangle sides="3,4,5"]] The longest side, c, is the '
                 "hypotenuse. Which side is longest?", ask), "")
+    # (vf, 2026-09-11) FIXTURES REPAIRED TO INTENT: these three were always meant to
+    # be offers of MORE after the requested thing was DELIVERED -- and the first one
+    # said so, with a triangle on the board. The other two carried "Here you go" /
+    # "Done!" over an EMPTY board, which is the 09-11 watch's HIGH exactly (nothing
+    # drawn, an offer of "once more with different numbers"). Seconds presuppose
+    # firsts: the exemption now needs a board tag in the reply, so the two fixtures
+    # draw the thing they claim to have delivered. The bare-board shapes are pinned
+    # as FIRES in PART 3lb.
     for label, reply in (
             ("an offer of ANOTHER one",
              '[[triangle sides="3,4,5"]] Here it is, marked. Want to see another one?'),
-            ("'one more'", "Here you go. Want me to draw one more?"),
-            ("'a different way'", "Done! Want me to show it a different way?")):
-        check("⭐ SILENT on %s (seconds, not postponed firsts)" % label,
+            ("'one more'", '[[triangle sides="3,4,5"]] Here you go. Want me to draw one more?'),
+            ("'a different way'", '[[triangle sides="5,12,13"]] Done! Want me to show it a different way?')):
+        check("⭐ SILENT on %s (seconds, not postponed firsts -- the thing is on the board)" % label,
               not P(reply, ask), "")
     check("  silent when the student asked nothing visual",
           not P(watch, "I don't get it"), "")
@@ -30152,8 +30570,9 @@ def part3jq_the_caption_the_sequence_and_the_definition():
           and not T.known_falsehood_conflict(
               "Factoring means rewriting x^2 - 5x + 6 as two factors that multiply back "
               "to the original expression."), "")
-    check("  the falsehood table holds twenty named falsehoods (seventeen here, two more in un, one in ut)",
-          len(T.KNOWN_FALSEHOODS) == 20, len(T.KNOWN_FALSEHOODS))
+    # (vf) 20 -> 21: the square-root-of-a-number-is-positive row, PART 3lb.
+    check("  the falsehood table holds twenty-one named falsehoods (seventeen here, two more in un, one in ut, one in vf)",
+          len(T.KNOWN_FALSEHOODS) == 21, len(T.KNOWN_FALSEHOODS))
 
     # ---- the truth class ---------------------------------------------------------
     check("⭐ both new referees are TRUTH-class (Jim's ruling 2026-09-07): a draft "
@@ -31491,8 +31910,15 @@ def part3jy_the_youngest_speak_and_the_mic_waits():
     check("  the shared block still tells him tap, talk and type are equally good (dr)",
           "tap, talk," in tutor.GRAPH_TOOL_NOTE, "")
 
+    # (vd, 2026-09-11) THE WINDOW WAS A PROXY, AND IT EXPIRED. This asked for the note
+    # inside the first 6,000 characters, which meant "in the header" on the day it was
+    # written -- but a header grows newest-at-top, so every later build pushed uc's
+    # note further down until the pin failed for having WORKED. It reads the header
+    # itself now: the leading HTML comment, however long it gets. Same property, no
+    # expiry, and no more shaving a new build's notes to fit a number.
+    _hdr = lambda t: t[:t.index("-->")] if "-->" in t[:40000] else t[:6000]
     check("  the changed files carry dated uc notes",
-          all("(uc) 2026-09-07" in src[p][:6000] for p in PAGES)
+          all("(uc) 2026-09-07" in _hdr(src[p]) for p in PAGES)
           and "BUILD uc" in notes("main.py")
           and "2026-09-07  BUILD uc" in notes("ruletests.py")
           and "BUILD uc" in notes("prompts.py")      # prompts.py keeps its notes deep in a long header
@@ -38040,11 +38466,20 @@ def part3cb_tour_once():
           '"tours_seen"' in ssrc and '("tours_seen", "code")' in ssrc
           and "def record_tour_seen(" in ssrc and "def tour_seen(" in ssrc,
           "the fact is inferred again -- tour -> placement -> return replays the intro")
+    # (vd) THE PIN FOLLOWS THE OWNER. ik put this record inline in the opener; vd gave
+    # it one writer (_record_tour) and a door of its own (/api/tour-seen), because the
+    # tour no longer hands off to the model at all for a new student -- and a fact
+    # recorded only as a side effect of teaching would have vanished with it. The
+    # property is unchanged and now holds on BOTH paths.
     check("the fact is recorded when the tour ends, BEFORE any model call",
           "if after_tour:" in msrc
-          and "store.record_tour_seen(code, _tour_group_key(req.course))" in msrc
-          and msrc.index("store.record_tour_seen") < msrc.index("assess_declined ="),
+          and "_record_tour(code, req.course)" in msrc
+          and msrc.index("_record_tour(code, req.course)") < msrc.index("assess_declined ="),
           "a slow or failed opener costs the student a second sit-through")
+    check("  ...and on the path that never calls the model at all, first of all",
+          '@app.post("/api/tour-seen")' in msrc
+          and hsrc.index('"/api/tour-seen"') < hsrc.index("if (await scriptStart()) return;"),
+          "a new student would be handed the whole tour again on every login")
     check("the session flag counts the recorded fact OR the old history inference",
           "or store.tour_seen(code, _tour_group_key(course))" in msrc,
           "the recorded fact exists but the page never hears about it")
@@ -38055,8 +38490,12 @@ def part3cb_tour_once():
     check("skipping hands off through the SAME tour-done path (a skipped tour is a "
           "seen tour)",
           "skipWait" in hsrc and "Promise.race" in hsrc
-          and 'runTutor("__tour_done__")' in hsrc
-          and 'runTutor("__tour_done_declined__")' in hsrc,
+          # (vd) that path is tourHandoff now -- it records the tour itself and then
+          # starts the authored lesson, so a skipper is recorded EARLIER than before
+          # rather than later. Both exits still go through the one function.
+          and 'await tourHandoff("__tour_done__");' in hsrc
+          and 'offerAssessment(() => tourHandoff("__tour_done_declined__"));' in hsrc
+          and "await runTutor(openerMessage);" in hsrc,
           "a skipped tour is not recorded -- the replay bug returns for skippers")
     # build in (Jim on a phone: the sidebar stacks BELOW the chat, so "over on the
     # left" pointed at nothing): the tour's pointer is the GLOW, never the layout.
@@ -41917,6 +42356,9 @@ def main():
     part3kw_the_youngest_course_draws_every_problem()
     part3kx_the_next_line_is_already_loaded()
     part3ky_one_label_for_every_clip()
+    part3kz_one_authority_on_where_a_student_begins()
+    part3la_a_name_the_page_defines_is_judged_by_its_body()
+    part3lb_three_holes_from_the_09_11_watch()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

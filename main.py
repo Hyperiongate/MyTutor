@@ -6,6 +6,35 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  APP_BUILD -> "2026-09-11vf-three-holes-from-the-09-11-watch".
+#               BUILD vf -- no change in this file beyond the stamp. tutor.py: the
+#               one-sided limit sign (first-use list), the square-root row, and
+#               referee 70's seconds exemption; notation.py: the prompt twin. PART 3lb.
+#   2026-09-11  APP_BUILD -> "2026-09-11ve-a-name-the-page-defines-is-judged-by-its-body".
+#               BUILD ve -- no change in this file beyond the stamp. voiceclosure.py:
+#               an EXTRA_SPEAK seed name applies only when the page does not define
+#               it (demolab.html's caption-bubble say() is not a speaker). PART 3la.
+#               BUILD vd -- THE TOUR HANDS OFF TO THE COURSE, NOT TO THE MODEL.
+#               Jim, after two logins as a brand-new student: "when I was there
+#               earlier, it started off counting by fives ... And now I just logged in
+#               again, and it's counting up to five. So it feels like the lesson is
+#               out of order." The course was never out of order. TWO things decided
+#               where a student begins and they disagreed: the FIRST visit ended the
+#               tour on runTutor("__tour_done__"), so the first lesson was the MODEL's
+#               free choice, and EVERY visit after ran the authored course from lesson
+#               one (begin()'s build-pb fast path, written for a RETURNING student).
+#               First lesson anything, second lesson the beginning -- which reads as
+#               going backwards because it is. Build ov's ruling ("the scripted lane
+#               becomes the main road") had never been carried across the tour.
+#               Here: _record_tour() is now the ONE writer of "this student saw the
+#               tour", and POST /api/tour-seen is a door onto it that asks the model
+#               nothing. ⚠️ THAT DOOR IS THE WHOLE REASON THIS IS NOT A ONE-LINE FIX:
+#               the fact used to be recorded only as a side effect of the __tour_done__
+#               model call, so skipping that call would have handed a new student the
+#               entire tour again on every login, forever.
+#               The page (session.html tourHandoff) records the tour, starts the
+#               authored lesson, and falls through to the live opener with the very
+#               message it always sent when a course has no script left.
 #   2026-09-10  APP_BUILD -> "2026-09-10vc-one-label-for-every-clip".
 #               BUILD vc -- THE LABEL ON THE SHELF AND THE LABEL ON THE REQUEST.
 #               Jim's ruling on build vb's open finding, in his words: "Go with
@@ -9206,7 +9235,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-10vc-one-label-for-every-clip"
+APP_BUILD = "2026-09-11vf-three-holes-from-the-09-11-watch"
 
 
 @app.get("/health")
@@ -9474,6 +9503,53 @@ def _tour_group(course: str):
 def _tour_group_key(course: str) -> str:
     """The tours_seen row key for this course's classroom type (build ik)."""
     return "elem" if course in _ELEM_COURSES else "typing"
+
+
+def _record_tour(code: str, course: str) -> None:
+    """(vd) THE TOUR WAS SEEN. Write it down, and never fail a turn over it.
+
+    ⚠️ THIS USED TO LIVE INSIDE THE OPENER, and that was the trap that made build vd
+    bigger than three lines. The fact was recorded in the `__tour_done__` branch of
+    /api/chat -- so "the tour is over" was known to the server ONLY as a side effect
+    of asking the MODEL to teach. Skip that model call (which is exactly what vd does
+    for a new student, so the authored course can start instead) and the student is
+    handed the whole tour again on every single login, forever.
+    One function, two callers: the opener below, and /api/tour-seen."""
+    try:
+        store.record_tour_seen(code, _tour_group_key(course))
+    except Exception as exc:  # noqa: BLE001 -- never fail a turn over this
+        print(f"[tour] record failed (ignored): {exc}")
+
+
+class TourSeenIn(BaseModel):
+    code: str = ""
+    # ⚠️ curriculum.DEFAULT_COURSE, not a bare DEFAULT_COURSE: this class is defined
+    # well above main's own alias, and a class body is evaluated at IMPORT time -- the
+    # first cut of it took the whole app down at boot with a NameError.
+    course: str = curriculum.DEFAULT_COURSE
+
+
+@app.post("/api/tour-seen")
+def tour_seen(body: TourSeenIn):
+    """(vd, 2026-09-11) The tour is over -- WITHOUT asking the model anything.
+
+    Jim, after logging in twice as a new student: "when I was there earlier, it
+    started off counting by fives ... and now I just logged in again, and it's
+    counting up to five. So it feels like the lesson is out of order." It was not the
+    course that was out of order. A brand-new student's first lesson was taught by
+    the MODEL, freehand (runTour ended on runTutor("__tour_done__")), while every
+    session after it ran the AUTHORED course from lesson one. Two different
+    authorities on where a student begins, and they disagreed.
+
+    vd sends the new student into the authored course like everybody else -- and the
+    only thing the old hand-off did that still HAS to happen is this record. So it
+    gets a door of its own. No model, no cost, no reply to wait for."""
+    code = (body.code or "").strip()
+    _require_student(code)
+    _rate_limit("tourseen:" + code, limit=30, window_seconds=300, what="tour records")
+    _record_tour(code, (body.course or curriculum.DEFAULT_COURSE).strip()
+                 or curriculum.DEFAULT_COURSE)
+    return {"ok": True}
 
 
 def _has_any_history(code: str, courses=None) -> bool:
@@ -10449,10 +10525,7 @@ def chat(req: ChatRequest):
         # __tour_done...) -- write the fact down BEFORE any model call, so a failed
         # or slow opener can never cost the student a second sit-through.
         if after_tour:
-            try:
-                store.record_tour_seen(code, _tour_group_key(req.course))
-            except Exception as exc:  # noqa: BLE001 -- never fail a turn over this
-                print(f"[tour] record failed (ignored): {exc}")
+            _record_tour(code, req.course)      # (vd) one owner -- see _record_tour
         # 2026-08-07 (build at): "_declined" = the student JUST answered the on-screen
         # assessment-invitation card with "Not right now" -- the tutor must respect it.
         assess_declined = message.endswith("_declined__")

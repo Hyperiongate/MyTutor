@@ -2,6 +2,22 @@
 # voiceclosure.py  --  THE PAGE-LOCAL SPOKEN LINE AUDIT  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-11  BUILD ve -- A NAME THE PAGE DEFINES ITSELF IS JUDGED BY ITS BODY.
+#               The battery was RED on Jim's disk and nobody knew: the 09-11 handoff's
+#               "11,788 passed, 0 failed" was run on a tree staged one file at a time,
+#               and static/demolab.html was never staged, so pages() never listed it.
+#               Staged whole, uz's ZERO-hits pin failed on eight demolab lines -- and
+#               not one of them is spoken. demolab's say(text) writes a caption
+#               bubble; it was a speaker only because `say` sits in EXTRA_SPEAK, the
+#               hand-written seeds kept for names DEFINED OUTSIDE the page that calls
+#               them. speech_names() now applies an EXTRA_SPEAK seed only when the page
+#               does not define that name; a local definition is judged by its body
+#               like every discovered wrapper (demo-lesson's own speakLine still hands
+#               its text to window.speak and is still found). NOT an exemption: adding
+#               demolab.html to EXEMPT_PAGES would have been a hand-written list
+#               growing by one, the shape vb retired. PART 3la. ⚠️ THE LAW THIS PAID
+#               FOR: stage the WHOLE repo before a battery run; a file the audit cannot
+#               see is a file it reports clean.
 #   2026-09-10  BUILD vb -- THE NAMES ARE DISCOVERED, AND THE FILE STOPS READING ITS
 #               OWN COMMENTS. uy shipped with a hand-written alternation of wrapper
 #               names, and session.html speaks its whole TOUR through `sayTourLine`,
@@ -371,7 +387,19 @@ def _walk(text, inits, seen, depth):
 
 def speech_names(source):
     """Every function in this page that ends up speaking -- the two voice.js
-    primitives plus each wrapper that reaches them, to a fixed point."""
+    primitives plus each wrapper that reaches them, to a fixed point.
+
+    (ve, 2026-09-11) A NAME THE PAGE DEFINES ITSELF IS JUDGED BY ITS BODY. The
+    EXTRA_SPEAK seeds exist because their definitions live OUTSIDE the page that
+    calls them (voice.js, demo.html's own helpers) and cannot be discovered from
+    inside it. When the page DOES define one of those names, the definition is
+    right there to read, and it wins: demolab.html's `say(text)` writes the text
+    into a caption bubble and never reaches a speaker, so it is not a speaker --
+    yet the seed list called it one and reported eight lines a page never speaks
+    as missing from the closure. demo-lesson.html's own `speakLine` hands its text
+    to window.speak, so the fixed point below finds it exactly as before. The
+    voice.js primitives in SEEDS are never defined by a page and stay unconditional.
+    """
     bodies, params = {}, {}
     for rx, braced in ((_FN_DECL, True), (_FN_ASSIGN, False)):
         for m in rx.finditer(source):
@@ -381,7 +409,7 @@ def speech_names(source):
             bodies.setdefault(m.group(1), "")
             bodies[m.group(1)] += body
             params.setdefault(m.group(1), _first_param(source, m))
-    names = set(SEEDS) | set(EXTRA_SPEAK)
+    names = set(SEEDS) | {n for n in EXTRA_SPEAK if n not in bodies}
     for _ in range(12):                     # a fixed point; 12 is far past any page
         grew = False
         for fn, body in bodies.items():
