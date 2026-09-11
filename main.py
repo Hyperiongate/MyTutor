@@ -6,6 +6,10 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  APP_BUILD -> "2026-09-11vi-what-the-words-say-is-written-the-board-writes".
+#               BUILD vi -- no change in this file beyond the stamp. tutor.py: referee
+#               88 (written_not_written_conflict); methodology.html: the tile says 88.
+#               PART 3le.
 #   2026-09-11  APP_BUILD -> "2026-09-11vh-the-case-floor".
 #               BUILD vh -- no change in this file beyond the stamp. tutor.py: the case
 #               floor (repair_variable_case at the shipping door); nightwatch.py: the
@@ -9244,7 +9248,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-11vh-the-case-floor"
+APP_BUILD = "2026-09-11vi-what-the-words-say-is-written-the-board-writes"
 
 
 @app.get("/health")

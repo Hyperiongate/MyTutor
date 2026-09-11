@@ -6,6 +6,19 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  BUILD vi -- REFEREE 88, WHAT THE WORDS SAY IS WRITTEN, THE BOARD WRITES
+#               (rule 4). The 09-11 watch, two findings, one defect: "written f(x) =
+#               2x + 1" over a machine card that never wrote it (algebra1), and "we
+#               subtract twenty-five from BOTH sides" over a board holding only the
+#               starting line (geometry). written_not_written_conflict: ① a written-
+#               claim verb + an equation no tag value carries (standing board counts);
+#               ② an operation + a NUMBER + from/to/by/off both sides, fewer than two
+#               line tags, no right-hand side carrying the number beside an operator.
+#               The number is required (the canon says "take the same off both sides"
+#               over one card); a figure buys ② silence; the preposition is required
+#               (a rectangle's "BOTH sides have an x" is not a move). Dispatched after
+#               spokenmath (74). Canon: 7,491 strings, 0 fires. REFEREE COUNT 87 -> 88;
+#               truth class unchanged at 11 (conduct). PART 3le.
 #   2026-09-11  BUILD vh -- THE CASE FLOOR. repair_variable_case(reply) runs at the one
 #               shipping door (_shipped, after the mark floor): a reply whose board
 #               writes the variable in the other case from the words -- or in BOTH
@@ -3214,6 +3227,161 @@ def spoken_math_unwritten_conflict(reply: str, heard=None):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[spokenmath] crashed (fail open): {exc}")
         _event("referee_crash", "spokenmath", str(exc))
+        return ""
+
+
+# =============================================================================
+# REFEREE 88 -- WHAT THE WORDS SAY IS WRITTEN, THE BOARD WRITES  (build vi, 2026-09-11)
+# -----------------------------------------------------------------------------
+# The 09-11 night watch, two findings, one defect, rule 4 (say it, write it):
+#   function-notation (algebra1): "say the rule is 'double it and add one', WRITTEN
+#     f(x) = 2x + 1" -- and the board carried a function-machine card, never that
+#     equation. The student is being taught a NOTATION and cannot look at it.
+#   geometry-picture (geometry): "To get b squared alone, we SUBTRACT TWENTY-FIVE from
+#     BOTH sides" -- over a board holding only b² + 25 = 169. The student had asked to
+#     see the subtraction lined up; the promised move never landed.
+# Every referee on this axis polices the other direction: unspoken (74's cousin) and
+# opunspoken catch a board the words never read; spoken_math_unwritten (74) catches a
+# worked CHAIN over an EMPTY board. Nothing catches a reply whose words announce a
+# specific thing as written, or announce a specific move, while the board stays as
+# it was. Two grammars, both anchored on the words' OWN claim:
+#   ① "WRITTEN f(x) = 2x + 1": a written-claim verb (written, we write it, is
+#      written as, looks like) followed in the same sentence by an equation with
+#      "=". The equation is looked for, whitespace-blind, in every tag value of the
+#      reply -- and in the standing board (heard) when the caller supplies it, since
+#      a claim about a line already on the board is true. Missing everywhere: fire.
+#   ② "SUBTRACT TWENTY-FIVE FROM BOTH SIDES": an operation verb, a NUMBER, and "both
+#      sides" in one sentence. A move has two states, so a board that shows it has
+#      at least two line tags (step / write / solve / balance / column) -- the canon
+#      draws exactly that: two [[balance]] cards, or a balance and the step. A reply
+#      with fewer than two, and no single line whose eq= carries the number beside
+#      an operator (x = 11 − 4 = 7 shows the move in one line), never showed it.
+#      ⚠️ THE NUMBER IS REQUIRED. "Take the same off both sides", "do it to BOTH
+#      sides" are the METHOD being taught, not a move being made; the canon says
+#      them over a single card and must stay silent. Only a move with a value can
+#      be missing from the board.
+# Canon swept in PART 3le: 0 fires across every authored beat, worked line, ask and
+# bank problem. Conduct, not truth: nothing false is taught, something promised is
+# not shown. Reply-only for ②; ① is heard-aware for the standing board.
+_WW_CLAIM_RE = re.compile(
+    r"\b(?:written(?:\s+(?:as|like|out\s+as|down\s+as))?|we\s+write\s+(?:it|this|that|"
+    r"the\s+rule|the\s+equation)(?:\s+(?:as|like|down\s+as))?|is\s+written\s+(?:as|like)?|"
+    r"looks\s+like|which\s+we\s+write\s+(?:as)?)\s*:?\s*"
+    r"([A-Za-z0-9()^+\-−*/·×÷=.,\s]{3,60}?=[A-Za-z0-9()^+\-−*/·×÷.\s]{1,60}?)(?=[.!?;,]|\s+(?:so|and|which|where|that|because|then)\b|$)",
+    re.I)
+_WW_OPS_RE = re.compile(
+    r"\b(?:add(?:ing)?|subtract(?:ing)?|take(?:\s+away)?|taking|minus|plus|divid(?:e|ing)|"
+    r"multipl(?:y|ying)|times|halv(?:e|ing)|doubl(?:e|ing)|square(?:\s+root)?|remove|removing)\b",
+    re.I)
+# ⚠️ AN OPERATION ON both sides, not the words "both sides" anywhere near a verb: the
+# canon sweep caught "BOTH sides have an x in them" (a rectangle's sides, alg1-u7) and
+# "each side of the best rectangle is 18" (calc-u5). The move is "<verb> ... from/to/
+# by/off both sides" or "both sides by/between N".
+_WW_BOTH_RE = re.compile(
+    r"\b(?:from|to|by|off|of|on)\s+(?:both|each)\s+sides?\b"
+    r"|\b(?:both|each)\s+sides?\s+(?:by|between|in\s+half|in\s+two)\b", re.I)
+# the number-word grammar is numwords' own (twenty-five, one hundred sixty-nine), never
+# a hand copy of the tables -- "twenty-five" read as "twenty" would send this referee
+# looking for the wrong number on the board
+_WW_NUM_RE = re.compile(r"\b(?:\d+(?:\.\d+)?|" + _numw.NUMWORD_PATTERN + r")\b", re.I)
+_WW_LINE_TAG_RE = re.compile(r"\[\[\s*(?:step|write|solve|balance|column)\b", re.I)
+_WW_EQ_RE = re.compile(r'\b(?:eq|text|left|right|caption)\s*=\s*"([^"]*)"')
+
+
+def _ww_norm(expr: str) -> str:
+    """An expression with its whitespace gone and its operator spellings unified, so
+    'f(x) = 2x + 1' and 'f(x)=2x+1' and 'f(x) = 2·x + 1' are one string."""
+    t = str(expr or "").lower()
+    t = t.replace("−", "-").replace("×", "*").replace("·", "*").replace("÷", "/")
+    t = re.sub(r"\s+", "", t)
+    # a written product between a number and a letter is the same product with the
+    # sign dropped: 2·x and 2x are one string ("a number hugging a letter", rule 48)
+    t = re.sub(r"(?<=[0-9)])\*(?=[a-z(])", "", t)
+    return t.strip(" .,;:")
+
+
+def _ww_sentence_number(sent: str):
+    """The FIRST number in the both-sides sentence, as a string of digits."""
+    m = _WW_NUM_RE.search(sent)
+    if not m:
+        return None
+    tok = m.group(0).lower()
+    if tok.replace(".", "").isdigit():
+        return tok
+    n = _numw.word_value(tok)
+    return str(n) if n is not None else None
+
+
+def written_not_written_conflict(reply: str, heard=None):
+    """Return a description of a thing the words say is WRITTEN, or a MOVE the words
+    announce, that the board never shows -- or "". Never raises: fail open."""
+    try:
+        text = str(reply or "")
+        prose = _plain_prose(text)
+        if not prose.strip():
+            return ""
+        vals = [v for tag in re.findall(r"\[\[[^\]]*\]\]", text)
+                for v in re.findall(r'"([^"]*)"', tag)]
+        board = " | ".join(_ww_norm(v) for v in vals)
+        standing = ""
+        if heard is not None:
+            standing = " | ".join(_ww_norm(v) for tag in re.findall(r"\[\[[^\]]*\]\]", str(heard))
+                                  for v in re.findall(r'"([^"]*)"', tag))
+        # ---- ① written, but not written --------------------------------------------
+        for sent in _vis_sentences(prose):
+            for m in _WW_CLAIM_RE.finditer(sent):
+                eqn = _ww_norm(m.group(1))
+                if "=" not in eqn or len(eqn) < 3:
+                    continue
+                if eqn in board or (standing and eqn in standing):
+                    continue
+                said = " ".join(m.group(1).split())[:50]
+                return ('your words say "{s}" is WRITTEN, and no board line in this reply '
+                        "writes it. Rule 4: say it AND write it, in the same reply -- a "
+                        "student being taught a notation has to be able to LOOK at the "
+                        'thing you are naming. Add [[step eq="{s}"]] beside those words and '
+                        "keep everything else the same.").format(s=said)
+        # ---- ② a move announced with a value, and a board that did not move --------
+        for sent in _vis_sentences(prose):
+            if not (_WW_BOTH_RE.search(sent) and _WW_OPS_RE.search(sent)):
+                continue
+            num = _ww_sentence_number(sent)
+            if num is None:
+                continue                          # the method, not a move: silent
+            if _tags_present(text, FIGURE_TAGS):
+                # a move whose RESULT is drawn (the canon's inequality beat: "take 3
+                # off both sides" over a number line showing x < 7) -- drawing the
+                # wrong thing is other referees' turf; this one polices a board that
+                # did not move at all. The cautious direction, by the sweep law.
+                continue
+            lines = len(_WW_LINE_TAG_RE.findall(text))
+            if lines >= 2:
+                continue                          # two states on the board: the move is shown
+            shown = False
+            for v in _WW_EQ_RE.findall(text):
+                nv = _ww_norm(v)
+                # ⚠️ AFTER THE FIRST "=", not anywhere: "b^2 + 25 = 169" carries the 25
+                # of "subtract twenty-five" and shows NO move -- that is the starting
+                # line, the watch's own reply. "x = 11 - 4 = 7" carries it on the RIGHT
+                # of an equals sign, which is the move being computed.
+                rhs = nv.split("=", 1)[1] if "=" in nv else ""
+                if re.search(r"[-+*/]" + re.escape(num) + r"(?![\d.])", rhs) \
+                        or re.search(r"(?<![\d.])" + re.escape(num) + r"[-+*/]", rhs) \
+                        or ("bothsides" in nv and num in nv):
+                    shown = True                  # x = 11 - 4 = 7, or a captioned card
+                    break
+            if shown:
+                continue
+            said = " ".join(sent.split())[:70]
+            return ('you say "{s}" -- a move with a value -- and the board does not make '
+                    "it: no second line, nothing that takes {n} from anything. Rule 4: "
+                    "say it AND write it. Put the move on the board as it happens -- the "
+                    "line before, then the line after ([[step]] or [[balance]]) -- and "
+                    "keep everything else the same.").format(s=said, n=num)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[saidwritten] crashed (fail open): {exc}")
+        _event("referee_crash", "saidwritten", str(exc))
         return ""
 
 
@@ -10247,6 +10415,14 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if smath:
             _event("referee_fire", "spokenmath", smath)
             return smath
+        # (vi) the EIGHTY-EIGHTH, beside its sibling: sf catches a worked chain over
+        # an EMPTY board; this catches a thing the words say is WRITTEN, or a move
+        # the words announce with a value, that the board never shows. Heard-aware
+        # for the standing board (a claim about a line already up is true).
+        saidw = written_not_written_conflict(reply, heard)
+        if saidw:
+            _event("referee_fire", "saidwritten", saidw)
+            return saidw
         # (uv) the EIGHTY-FIFTH, immediately after its sibling: sf catches worked
         # MATH over an empty board; this catches PROSE at length over one. Jim's
         # 2026-09-09 ruling ("two paragraphs, no text, no graphic -- the child is
