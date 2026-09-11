@@ -6,6 +6,17 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  BUILD vl -- REFEREES 89 AND 90, from the 09-11 night watch's last two
+#               closable findings. 89 caption_answer_conflict (rule 17): a caption on any
+#               tag states a value in answer form ("heading toward y=4", "closer to 50")
+#               and the reply's final ask asks for that kind of thing without naming the
+#               number -- the check is spoiled before it is asked. shownanswer (61) reads
+#               [[step]] pairs only; a caption is board text too. 90 divisor_blank_
+#               conflict (rule 18): the words ask for a common divisor of A and B and a
+#               pending [[step eq="A/B = ?"]] asks for the fraction's value -- two
+#               questions in one turn. Both dispatched right after shownanswer. Canon:
+#               7,491 strings, 0 fires each. REFEREE COUNT 88 -> 90; truth class 11
+#               (conduct). PART 3lh.
 #   2026-09-11  BUILD vi -- REFEREE 88, WHAT THE WORDS SAY IS WRITTEN, THE BOARD WRITES
 #               (rule 4). The 09-11 watch, two findings, one defect: "written f(x) =
 #               2x + 1" over a machine card that never wrote it (algebra1), and "we
@@ -5147,6 +5158,116 @@ def answer_already_shown_conflict(reply: str):
     except Exception as exc:  # noqa: BLE001 -- fail open, always
         print(f"[shownanswer] crashed (fail open): {exc}")
         _event("referee_crash", "shownanswer", str(exc))
+        return ""
+
+
+# =============================================================================
+# REFEREE 89 -- THE CAPTION DOES NOT ANSWER THE QUESTION  (build vl, 2026-09-11)
+# -----------------------------------------------------------------------------
+# The 09-11 night watch, calculus (limits-hole), rule 17:
+#   [[graph func="(x^2-4)/(x-2)" hole="2" caption="the curve runs right up to x=2 from
+#   both sides, heading toward y=4 -- even though the point itself is missing"]]
+#   What height does it look like both sides are heading toward?
+# The student can read "y=4" on the board before answering; the check is spoiled.
+# Referee 61 (shownanswer) owns the [[step]] shape of this -- "1 + 2 = 3" written and
+# "1 + 2 = ?" asked under it -- and reads step pairs only. A caption is board text too,
+# and a figure's caption is exactly where a live tutor, describing the picture it just
+# drew, writes the number it is about to ask for. The narrow, decidable shape:
+#   * a CAPTION (any tag's caption=) states a value in answer form -- "y = 4",
+#     "toward(s) 4", "approaching 4", "closer to 50", "heading to 4", "lands on 4";
+#   * the reply's FINAL ask asks for THAT KIND of thing -- a height / value / number /
+#     y-value, or where it heads / approaches / gets close to / lands;
+#   * and the ask does not itself name the number (then it is a yes-or-no check about
+#     it, "is it heading toward 4?", which is a different question).
+# A caption that names a value nobody is asked for ("47 sits past halfway, closer to
+# 50" on a TEACH beat) is teaching, and stays silent because there is no such ask.
+# Conduct, not truth (rule 17: the answer was visible, not false). Canon swept in PART
+# 3lh: every ask and bank problem, 0 fires.
+_CA_CAPTION_RE = re.compile(r'\bcaption\s*=\s*"([^"]*)"', re.I)
+_CA_VALUE_RE = re.compile(
+    r"(?:\by\s*=\s*|\btowards?\s+(?:y\s*=\s*)?|\bapproach(?:es|ing)?\s+(?:y\s*=\s*)?|"
+    r"\bclos(?:e|er)\s+to\s+|\bhead(?:s|ing)?\s+(?:to|toward|towards)\s+(?:y\s*=\s*)?|"
+    r"\blands?\s+on\s+|\bgets?\s+to\s+|\bends?\s+(?:at|on)\s+)"
+    r"(-?\d+(?:\.\d+)?)\b", re.I)
+_CA_ASK_RE = re.compile(
+    r"\bwhat\s+(?:height|value|number|y[- ]?value|y\s+value|point)\b|"
+    r"\b(?:what|which)\b[^.!?]{0,40}\b(?:head(?:s|ing)?\s+(?:to|toward|towards)|approach(?:es|ing)?|"
+    r"get(?:s|ting)?\s+close(?:r)?\s+to|clos(?:e|er|ing)\s+(?:to|in\s+on)|lands?\s+on|ends?\s+(?:up\s+)?(?:at|on))\b|"
+    r"\bwhere\s+(?:does|is|do)\b[^.!?]{0,40}\b(?:head|go|land|end\s+up|approach|get\s+close)", re.I)
+
+
+def caption_answer_conflict(reply: str):
+    """Return a description of a caption that states the value the reply's final ask
+    asks for, or "". Never raises: fail open."""
+    try:
+        text = str(reply or "")
+        ask = _rb_final_ask(text)
+        if not ask or not _CA_ASK_RE.search(ask):
+            return ""
+        for cap in _CA_CAPTION_RE.findall(text):
+            for m in _CA_VALUE_RE.finditer(cap):
+                n = m.group(1)
+                if re.search(r"(?<![\d.])" + re.escape(n) + r"(?![\d.])", ask):
+                    continue              # the ask names it: a yes-or-no check, not a spoiled one
+                said = " ".join(cap.split())[:70]
+                return ('the caption on the board says "{c}" -- and then you ask "{a}". Rule 17: '
+                        "NEVER ANSWER YOUR OWN QUESTION -- the answer ({n}) is written on the board "
+                        "before the student is asked for it, so the check is spoiled. Keep the "
+                        "picture; take the value out of the caption (say what the curve DOES, "
+                        'not the number it reaches: "runs up to x = 2 from both sides") and ask '
+                        "the same question.").format(c=said, a=" ".join(ask.split())[:60], n=n)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[captionanswer] crashed (fail open): {exc}")
+        _event("referee_crash", "captionanswer", str(exc))
+        return ""
+
+
+# =============================================================================
+# REFEREE 90 -- THE BLANK ON THE BOARD IS THE QUESTION IN THE WORDS  (build vl, 2026-09-11)
+# -----------------------------------------------------------------------------
+# The 09-11 night watch, prealgebra (quiz-eighty), rule 18:
+#   "Your turn: can you simplify four tenths the same way? What number divides evenly
+#    into both 4 and 10?"        [[step eq="4/10 = ?"]]
+# The words ask for the COMMON DIVISOR (2). The blank on the board is the VALUE of the
+# fraction (2/5). A student looking at the board fills the blank with 2/5 and is
+# "wrong"; a student who answers the words with 2 and sees it land in the blank reads
+# the false line 4/10 = 2. One reply, two questions, and the record grades whichever
+# the student happened to answer. The narrow shape: the final ask asks for a number
+# that divides / goes into BOTH of two numbers (or their common factor), and a pending
+# [[step]] line is exactly "A/B = ?" with those two numbers. Rule 18: the question is
+# complete and UNAMBIGUOUS on the board. Conduct. Canon swept in PART 3lh: 0 fires.
+_DB_ASK_RE = re.compile(
+    r"\b(?:what|which)\s+(?:number|factor|whole\s+number)\b[^.!?]{0,50}?\b(?:divides?|goes|fits)\s+"
+    r"(?:evenly\s+|exactly\s+)?into\s+both\b"
+    r"|\b(?:common|shared|biggest|greatest|largest)\s+factor\b"
+    r"|\bwhat\s+do\s+(?:both|they|the\s+two)\b[^.!?]{0,30}\bshare\b"
+    r"|\bdivide\s+(?:both|each)\s+(?:the\s+)?(?:top\s+and\s+(?:the\s+)?bottom|numerator\s+and\s+(?:the\s+)?denominator)\s+by\b", re.I)
+_DB_PENDING_RE = re.compile(r'\[\[\s*step\b[^\]]*\beq\s*=\s*"\s*(\d+)\s*/\s*(\d+)\s*=\s*\?\s*"')
+
+
+def divisor_blank_conflict(reply: str):
+    """Return a description of a board blank that asks for a fraction's value while
+    the words ask for a common divisor, or "". Never raises: fail open."""
+    try:
+        text = str(reply or "")
+        ask = _rb_final_ask(text)
+        if not ask or not _DB_ASK_RE.search(ask):
+            return ""
+        for a, b in _DB_PENDING_RE.findall(text):
+            return ('your words ask "{q}" -- a number that divides BOTH {a} and {b} -- but the '
+                    'board asks "{a}/{b} = ?", whose blank is the fraction\'s VALUE. Two questions '
+                    "in one turn: a student who reads the board answers {a2}/{b2}-style and is "
+                    "marked wrong; one who answers the words sees the divisor land in a blank that "
+                    "then reads {a}/{b} = (divisor), which is false. Rule 18: one question, complete "
+                    'and unambiguous on the board. Put the question you are asking on the board: '
+                    '[[write text="What number divides both {a} and {b}?"]], and write '
+                    '[[step eq="{a}/{b} = ?/?"]] only when you ask for the simplified fraction.'
+                    ).format(q=" ".join(ask.split())[:60], a=a, b=b, a2=a, b2=b)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[divisorblank] crashed (fail open): {exc}")
+        _event("referee_crash", "divisorblank", str(exc))
         return ""
 
 
@@ -10613,6 +10734,18 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if shown:
             _event("referee_fire", "shownanswer", shown)
             return shown
+        # (vl) the EIGHTY-NINTH, beside its rule-17 sibling: a CAPTION that states the
+        # value the final ask asks for. Reply-only, conduct.
+        capans = caption_answer_conflict(reply)
+        if capans:
+            _event("referee_fire", "captionanswer", capans)
+            return capans
+        # (vl) the NINETIETH, rule 18: the blank on the board asks a different
+        # question from the words (a fraction's value vs. a common divisor).
+        dblank = divisor_blank_conflict(reply)
+        if dblank:
+            _event("referee_fire", "divisorblank", dblank)
+            return dblank
         # build pt: SIXTY-SECOND -- rule 15, Jim's third flag: a welcome-back that
         # asked for "the first move to simplify the left side" and drew nothing.
         noprob = question_without_a_problem_conflict(reply)
