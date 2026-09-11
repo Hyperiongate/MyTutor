@@ -6,6 +6,13 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  BUILD vg -- THE EVENT TAP. EVENT_TAPS + tap_events: every _event is
+#               also handed to any in-process listener, before the store write and
+#               without touching it; empty in production. _settle's pass_through
+#               detail now names the REFEREE in parentheses after the attempt count
+#               ("shipped attempt 3 of 3 (varcase): ..."); the event's name stays the
+#               class the counters read. Both for the night watch's HOLE / PASS-THROUGH
+#               stamp (nightwatch.py PART 3b). PART 3lc.
 #   2026-09-11  BUILD vf -- THREE HOLES FROM THE 09-11 NIGHT WATCH, no ruling needed.
 #               ① _NOTATIONS gains "a one-sided limit sign": a digit + superscript
 #               minus/plus, or 2^- / 2^+ with nothing after the sign. The watch's
@@ -779,6 +786,48 @@ def _fired_name() -> str:
         return ""
 
 
+# =============================================================================
+# (vg, 2026-09-11) THE EVENT TAP -- the same events, read IN-PROCESS by a harness.
+# -----------------------------------------------------------------------------
+# Every fire, crash, pass-through and floor already goes through _event on its way to
+# store.system_events. The night watch drives get_tutor_reply directly, all of its
+# lessons under one student code ("AUDIT"), so the table cannot say which TURN an
+# event belonged to -- and the 09-11 triage could not tell, for three of ten
+# confirmed findings, whether the reply had passed every referee (a HOLE: build a
+# referee) or had been caught three times and shipped least-bad anyway (a
+# PASS-THROUGH: fix the nudge, or repair in code). A tap is a callable that sees
+# (kind, name, detail) the instant _event does; a harness installs one around each
+# turn and reads the bucket back. Empty in production: the live server registers
+# nothing, and the loop below costs one list copy per event.
+# ⚠️ ADDITIVE. The store write is untouched and happens after the taps, whatever a
+# tap does; a tap that raises is dropped for that event and never reaches a lesson.
+EVENT_TAPS: list = []
+
+
+class tap_events:
+    """`with tutor.tap_events(bucket): ...` -- every _event inside the block is also
+    appended to `bucket` as {"kind", "name", "detail"}. Re-entrant; removes only
+    its own tap on exit."""
+
+    def __init__(self, bucket):
+        self.bucket = bucket
+
+    def _tap(self, kind, name, detail):
+        self.bucket.append({"kind": str(kind or ""), "name": str(name or ""),
+                            "detail": str(detail or "")})
+
+    def __enter__(self):
+        EVENT_TAPS.append(self._tap)
+        return self.bucket
+
+    def __exit__(self, *exc):
+        try:
+            EVENT_TAPS.remove(self._tap)
+        except ValueError:
+            pass
+        return False
+
+
 def _event(kind: str, name: str, detail: str = "", code: str = "", course: str = "") -> None:
     """Count one health event (build ha -- EYES). The 2026-08-17 review's meta-finding:
     ~19 fail-open handlers reported crashes to stdout only, so a dead referee and a
@@ -787,6 +836,11 @@ def _event(kind: str, name: str, detail: str = "", code: str = "", course: str =
     Never raises, never slows a turn, no-ops when the store is off."""
     if kind == "referee_fire":
         _note_fire(name)                      # (sj) the floor reads this back
+    for _tap in list(EVENT_TAPS):             # (vg) in-process listeners, if any
+        try:
+            _tap(kind, name, detail)
+        except Exception:  # noqa: BLE001 -- a tap never harms a lesson
+            pass
     try:
         if store is not None:
             store.record_event(kind, name, str(detail or "")[:300], code, course)
@@ -11843,8 +11897,13 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
         # one event, named for the referee whose finding the shipped draft carries:
         # "prosecheck", "livecritic" or "mathcheck" -- exactly the names the counters
         # and the night watch have always read.
+        # (vg) THE REFEREE'S OWN NAME rides in the detail, in parentheses, right after
+        # the attempt count. The event's NAME stays the class ("prosecheck" /
+        # "livecritic" / "mathcheck") that the counters and the watch's offenders list
+        # have always read; the night watch's HOLE / PASS-THROUGH stamp reads the
+        # parenthesised name to say WHICH referee the shipped draft still carried.
         _event("pass_through", referee,
-               f"shipped attempt {b_attempt} of {MATHCHECK_MAX_ATTEMPTS}: {b_detail}",
+               f"shipped attempt {b_attempt} of {MATHCHECK_MAX_ATTEMPTS} ({b_name}): {b_detail}",
                (meta or {}).get("code", ""), (meta or {}).get("course", ""))
         _measure_output(tokens, reply, meta)                    # build jq
         remember_phrasings(reply, meta)                         # build jr

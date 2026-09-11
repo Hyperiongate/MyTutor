@@ -2,6 +2,13 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-11  BUILD vg -- run_scenario(..., turn_events=None): when the caller passes
+#               a list, one entry per assistant turn holds the tutor events raised
+#               while that reply was made (fires, pass-throughs, floors), read in-
+#               process through tutor.tap_events. A retried turn's entry is the
+#               attempt whose reply shipped (the retry's, when it replaced an apology).
+#               The night watch reads it to stamp each finding HOLE / PASS-THROUGH.
+#               No other caller changes; the return shape is untouched.
 #   2026-09-07  BUILD tu -- DISCIPLINE CHECK 6: THE BOARD LANDS WHOLE, THEN THE VOICE.
 #               Three watches (09-01, 09-03, 09-06) reported the same shape on the
 #               geometry-picture scenario: an opening card writes a^2 + b^2 = c^2 and
@@ -681,12 +688,21 @@ def audit_student(sc, prompt_size="normal"):
     return student
 
 
-def run_scenario(sc, turns=TURNS, prompt_size="normal"):
+def run_scenario(sc, turns=TURNS, prompt_size="normal", turn_events=None):
     """Play one lesson. Returns (transcript, error, fallbacks, prompt_chars).
     Transcript is [(role, text), ...]; fallbacks counts tutor turns that came back
     as an apology; prompt_chars is the measured system-prompt size this lesson
     actually taught with (build hq: the experiment reports what it measured, never
-    what it assumed)."""
+    what it assumed).
+
+    (vg, 2026-09-11) `turn_events` -- an optional LIST the caller owns. When given,
+    one entry is appended per assistant turn, in transcript order: the list of
+    tutor events ({"kind", "name", "detail"}) raised while that reply was made --
+    every referee fire, every pass-through, every floor -- read in-process through
+    tutor.tap_events. A retried turn's entry holds the events of the ATTEMPT WHOSE
+    REPLY SHIPPED: the retry's when it replaced an apology, the first's when the
+    apology stood. The night watch uses this to stamp each finding HOLE or
+    PASS-THROUGH; every other caller passes nothing and sees no change."""
     # build dh: a scenario may seed a full progress record (mastery state, open units,
     # best scores) -- the harness calls the tutor directly, so anything main.py would
     # normally load onto the student must arrive through the scenario itself.
@@ -700,25 +716,35 @@ def run_scenario(sc, turns=TURNS, prompt_size="normal"):
     history = []
     fallbacks = 0
     for i in range(turns):
+        bucket = []                                   # (vg) this attempt's events
         try:
-            reply = tutor.get_tutor_reply(dict(student), list(history), transcript[-1][1],
-                                          course=sc["course"], code="AUDIT")
+            with tutor.tap_events(bucket):
+                reply = tutor.get_tutor_reply(dict(student), list(history), transcript[-1][1],
+                                              course=sc["course"], code="AUDIT")
             if _is_fallback(reply):
                 # Count it, then retry ONCE -- an audit lesson derailed by a transient
                 # API hiccup marks nothing, and a real student would simply repeat
                 # themselves, which is exactly what this does.
                 fallbacks += 1
                 time.sleep(2)
-                retry = tutor.get_tutor_reply(dict(student), list(history),
-                                              transcript[-1][1],
-                                              course=sc["course"], code="AUDIT")
+                retry_bucket = []
+                with tutor.tap_events(retry_bucket):
+                    retry = tutor.get_tutor_reply(dict(student), list(history),
+                                                  transcript[-1][1],
+                                                  course=sc["course"], code="AUDIT")
                 if not _is_fallback(retry):
                     reply = retry
+                    # (vg) the events that explain the reply the student SAW are the
+                    # retry's; the first attempt's floor or fail-open explains only
+                    # the apology it replaced
+                    bucket = retry_bucket
                 else:
                     fallbacks += 1
         except Exception as exc:  # noqa: BLE001
             return (transcript, f"tutor call failed on turn {i + 1}: {exc}",
                     fallbacks, prompt_chars)
+        if isinstance(turn_events, list):
+            turn_events.append(bucket)
         transcript.append(("assistant", reply))
         history.append({"role": "user", "content": transcript[-2][1]})
         history.append({"role": "assistant", "content": reply})

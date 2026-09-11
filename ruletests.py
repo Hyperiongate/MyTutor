@@ -6,6 +6,13 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  BUILD vg -- PART 3lc, EVERY FINDING SAYS WHETHER THE REFEREES KNEW.
+#               Pins tutor.tap_events (empty in production, removed on exit, a raising
+#               tap harms nothing, runs before the untouched store write), the referee
+#               name in _settle's pass_through detail, run_scenario's one-bucket-per-
+#               turn (a retry's bucket is the attempt that shipped), shipped_as's four stamps with unique placement and
+#               no guessing, the report's Shipped-as line, tally and reviewer-vs-code
+#               flag, the stamp in the ledger, and that older results still render.
 #   2026-09-11  BUILD vf -- PART 3lb, THREE HOLES FROM THE 09-11 NIGHT WATCH: the
 #               one-sided limit sign joins both notation lists (the reading names the
 #               SIGN, and the entry sits before the exponent entry); the square-root-
@@ -15551,6 +15558,187 @@ def part3lb_three_holes_from_the_09_11_watch():
           and "2026-09-11  BUILD vf" in notes("notation.py")
           and "2026-09-11  BUILD vf" in notes("ruletests.py")
           and 'APP_BUILD -> "2026-09-11vf-' in notes("main.py"), "")
+
+
+def part3lc_every_finding_says_whether_the_referees_knew():
+    """PART 3lc (build vg, 2026-09-11) -- EVERY FINDING SAYS WHETHER THE REFEREES ALREADY
+    KNEW.
+
+    The 09-11 triage: "replies shipped WITH a known finding: 186" -- and for three of the
+    night's ten confirmed findings nobody could tell a HOLE (no referee objected to the
+    draft that shipped -- build a referee) from a PASS-THROUGH (a referee objected on
+    every attempt and _settle shipped least-bad -- fix the nudge, repair in code, or
+    rule). The two want opposite work, and building a second referee for a
+    pass-through changes nothing a child sees.
+
+    THE MECHANISM, in three files:
+      tutor.py       EVENT_TAPS + tap_events: every _event is also handed to any
+                     in-process tap, BEFORE the store write and without touching it;
+                     _settle's pass_through detail now carries the referee's own name
+                     in parentheses after the attempt count.
+      lessonaudit.py run_scenario(..., turn_events=None): one bucket per assistant
+                     turn, the retry sharing its turn's bucket; no tap left behind.
+      nightwatch.py  shipped_as() places a finding on its turn by its own QUOTE
+                     (unique match, whitespace-normalised, longest line of a multi-line
+                     quote, never under six characters) and stamps it pass-through /
+                     floor / hole / unplaced; the stamp rides on the finding, into the
+                     ledger, under the finding in the report, into the New section's
+                     tally, and onto a REFUTED finding a referee had also caught.
+    Never a guess: a quote that matches no turn, or several, is printed as unplaced."""
+    print("\nPART 3lc — every finding says whether the referees already knew (build vg)")
+    import os as _os
+    import tutor as T
+    import lessonaudit as LA
+    import nightwatch as NW
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+
+    # ---- 1. the tap ---------------------------------------------------------------------
+    check("⭐ EVENT_TAPS is empty at import -- production registers nothing",
+          isinstance(T.EVENT_TAPS, list) and not T.EVENT_TAPS, str(T.EVENT_TAPS))
+    bucket = []
+    with T.tap_events(bucket):
+        T._event("referee_fire", "varcase", "the board writes X", "AUDIT", "algebra2")
+        T._event("pass_through", "prosecheck", "shipped attempt 3 of 3 (varcase): x", "AUDIT", "algebra2")
+    T._event("referee_fire", "spokenlen", "after the block", "AUDIT", "algebra2")
+    check("⭐ events inside the block land in the bucket as {kind, name, detail}; events after it do not",
+          [(e["kind"], e["name"]) for e in bucket] == [("referee_fire", "varcase"), ("pass_through", "prosecheck")]
+          and bucket[0]["detail"] == "the board writes X", str(bucket))
+    check("  the tap is removed on exit, even when the block raises",
+          not T.EVENT_TAPS and (lambda: (_raise_in_tap(T), not T.EVENT_TAPS)[1])(), str(T.EVENT_TAPS))
+    # a tap that raises never reaches the caller and never blocks the store write
+    T.EVENT_TAPS.append(lambda k, n, d: 1 / 0)
+    try:
+        T._event("referee_fire", "x", "y")
+        _ok = True
+    except Exception:  # noqa: BLE001
+        _ok = False
+    finally:
+        T.EVENT_TAPS.clear()
+    check("  a tap that raises is dropped for that event and never harms a lesson", _ok, "")
+    check("  the taps run BEFORE the store write and the store write is untouched",
+          "for _tap in list(EVENT_TAPS):" in rd("tutor.py")
+          and rd("tutor.py").index("for _tap in list(EVENT_TAPS):") < rd("tutor.py").index("store.record_event(kind, name, str(detail or \"\")[:300], code, course)"), "")
+    check("⭐ _settle's pass_through detail carries the REFEREE'S NAME in parentheses after the attempt count",
+          'f"shipped attempt {b_attempt} of {MATHCHECK_MAX_ATTEMPTS} ({b_name}): {b_detail}"' in rd("tutor.py"), "")
+    check("  ...and the watch's _PT_NAME reads it back",
+          NW._PT_NAME.match("shipped attempt 3 of 3 (varcase): the board writes X").group(1) == "varcase"
+          and NW._PT_NAME.match("shipped attempt 1 of 3 (unspoken-board): y").group(1) == "unspoken-board"
+          and NW._PT_NAME.match("shipped attempt 2 of 3: no name") is None, "")
+
+    # ---- 2. run_scenario fills one bucket per assistant turn -------------------------------
+    script = [
+        ('Seven. [[step eq="3 + 4 = 7"]] What is 4 plus 5?', []),
+        ('Here it is: x squared. [[step eq="X^2 = 9"]]',
+         [("referee_fire", "varcase", "a"), ("referee_fire", "varcase", "b"), ("referee_fire", "varcase", "c"),
+          ("pass_through", "prosecheck", "shipped attempt 3 of 3 (varcase): the board writes X")]),
+        ("Sorry, I lost my train of thought. Could you say that again?", [("floor", "mathcheck", "withheld attempt 3 of 3: false")]),
+        ('Good. Want to see it once more?', [("referee_fire", "livecritic", "x")]),
+    ]
+    calls = {"n": 0}
+
+    def fake_reply(student, history, msg, course="", code=""):
+        text, evs = script[min(calls["n"], len(script) - 1)]
+        calls["n"] += 1
+        for k, n, d in evs:
+            T._event(k, n, d, code, course)
+        return text
+
+    saved = (T.get_tutor_reply, LA._student_turn, LA.audit_student, T.build_system_prompt, LA._is_fallback)
+    T.get_tutor_reply = fake_reply
+    LA._student_turn = lambda sc, tr: ("ok next", None)
+    LA.audit_student = lambda sc, ps: {"code": "AUDIT"}
+    T.build_system_prompt = lambda s, c: "prompt"
+    LA._is_fallback = lambda r: r.startswith("Sorry")
+    try:
+        sc = {"id": "t", "course": "algebra2", "opening": "hi"}
+        ev = []
+        tr, err, fb, _pc = LA.run_scenario(sc, 3, turn_events=ev)
+        check("⭐ one bucket per assistant turn, in order; a retried turn's bucket is the attempt whose reply SHIPPED "
+              "(the retry's fire, not the apology's floor)",
+              err is None and len(ev) == 3 and [len(b) for b in ev] == [0, 4, 1]
+              and ev[2][0]["kind"] == "referee_fire" and ev[2][0]["name"] == "livecritic",
+              f"err={err} sizes={[len(b) for b in ev]}")
+        check("  the retry counted as a fallback and the transcript holds the retry's reply",
+              fb == 1 and tr[-1][1].startswith("Good. Want to see it once more?"), f"fb={fb} last={tr[-1][1][:40]!r}")
+        check("  no tap is left installed", not T.EVENT_TAPS, str(T.EVENT_TAPS))
+        calls["n"] = 0
+        tr2, err2, _fb2, _pc2 = LA.run_scenario(sc, 2)
+        check("  a caller that passes nothing sees no change (same transcript shape, no taps)",
+              err2 is None and sum(1 for r, _ in tr2 if r == "assistant") == 2 and not T.EVENT_TAPS, "")
+
+        # ---- 3. shipped_as ----------------------------------------------------------------------
+        F = lambda q: {"quote": q, "rule": 28, "what": "w", "severity": "medium"}
+        st = NW.shipped_as(F('[[step eq="X^2 = 9"]]'), tr, ev)
+        check("⭐⭐ PASS-THROUGH: the turn shipped with a pass_through, and the stamp names the referee",
+              st["kind"] == "pass-through" and st["referee"] == "varcase" and st["turn"] == 2 and st["fired"] == ["varcase"], str(st))
+        st = NW.shipped_as(F('Want to see it once more?'), tr, ev)
+        check("⭐⭐ HOLE: nothing objected to the shipped draft; the referee that fired on the way is named",
+              st["kind"] == "hole" and st["turn"] == 3 and st["fired"] == ["livecritic"], str(st))
+        st = NW.shipped_as(F('Here it is:\n[[step eq="X^2 = 9"]]\n...'), tr, ev)
+        check("  a multi-line quote is placed by its longest line", st["kind"] == "pass-through" and st["turn"] == 2, str(st))
+        check("  a quote under six characters, or one matching no turn, is UNPLACED -- never a guess",
+              NW.shipped_as(F("x"), tr, ev)["kind"] == "unplaced"
+              and NW.shipped_as(F("never said this anywhere"), tr, ev)["kind"] == "unplaced", "")
+        trx = [("user", "hi"), ("assistant", 'A [[step eq="4/10 = ?"]]'), ("user", "k"), ("assistant", 'B [[step eq="4/10 = ?"]]')]
+        check("  a line the lesson REPEATS places nothing on its own, and the whole quote breaks the tie",
+              NW.shipped_as(F("4/10 = ?"), trx, [[], []])["kind"] == "unplaced"
+              and NW.shipped_as(F('B [[step eq="4/10 = ?"]]'), trx, [[], []])["turn"] == 2, "")
+        check("  a floored turn is stamped FLOOR with the truth referee's name",
+              NW.shipped_as(F("withheld"), [("user", "q"), ("assistant", "the withheld line was this")],
+                            [[{"kind": "floor", "name": "mathcheck", "detail": "d"}]])["kind"] == "floor", "")
+        check("  never raises", NW.shipped_as(None, None, None)["kind"] == "unplaced"
+              and NW.shipped_as(F("abcdefgh"), tr, None)["kind"] == "unplaced", "")
+
+        # ---- 4. the report and the ledger ---------------------------------------------------------
+        pt = NW.shipped_as(F('[[step eq="X^2 = 9"]]'), tr, ev)
+        hole = NW.shipped_as(F('Want to see it once more?'), tr, ev)
+        res = {"ok": True, "ran": 1,
+               "new": [dict(F('[[step eq="X^2 = 9"]]'), scenario="t", course="algebra2", why="w", fix="f", verified="v", shipped=pt),
+                       dict(F('Want to see it once more?'), scenario="t", course="algebra2", why="w", fix="f", verified="v", shipped=hole)],
+               "refuted_list": [{"scenario": "t", "rule": 28, "what": "w", "reviewer": "r", "shipped": pt}]}
+        md = NW.report_markdown(res, build="vg-test")
+        check("⭐ the report prints a 'Shipped as:' line under each finding, naming the kind and the referee",
+              "Shipped as: **PASS-THROUGH** — `varcase`" in md and "Shipped as: **HOLE**" in md
+              and "`livecritic` fired and was satisfied" in md, "")
+        check("  ...the New section opens with the tally", "**1 hole(s)**" in md and "**1 pass-through(s)**" in md, "")
+        check("  ...and a REFUTED finding a referee had caught is flagged as reviewer-vs-code disagreement",
+              "but `varcase` objected to this very reply" in md, "")
+        check("  a night without stamps prints no tally and no Shipped-as line (older results still render)",
+              "hole(s)" not in NW.report_markdown({"ok": True, "ran": 1, "new": [dict(F("q"), scenario="t", course="c", why="w", fix="f", verified="v")]})
+              and "Shipped as" not in NW.report_markdown({"ok": True, "ran": 1, "new": [dict(F("q"), scenario="t", course="c", why="w", fix="f", verified="v")]}), "")
+        out = {"new": [], "recurring": 0}
+        ledger = {}
+        NW._record(out, ledger, sc, F('[[step eq="X^2 = 9"]]'), verified_note="v", shipped=pt)
+        fp = out["new"][0]["fp"]
+        check("⭐ the stamp rides on the reported finding AND into the ledger",
+              out["new"][0]["shipped"]["kind"] == "pass-through" and ledger[fp]["shipped"]["referee"] == "varcase", "")
+        NW._record(out, ledger, sc, F('[[step eq="X^2 = 9"]]'), verified_note="v", shipped=hole)
+        check("  a repeat refreshes the ledger's stamp (a hole becomes a pass-through once its referee lands)",
+              out["recurring"] == 1 and ledger[fp]["shipped"]["kind"] == "hole" and ledger[fp]["seen"] == 2, "")
+        import json as _json
+        check("  the ledger entry is JSON-serialisable with the stamp in it", bool(_json.dumps(ledger)), "")
+        check("  run_night passes the buckets and stamps confirmed AND refuted findings",
+              "turn_events=_turn_events" in rd("nightwatch.py")
+              and "shipped=shipped_as(f, transcript, _turn_events)" in rd("nightwatch.py")
+              and '"shipped": shipped_as(f, transcript, _turn_events)' in rd("nightwatch.py"), "")
+    finally:
+        T.get_tutor_reply, LA._student_turn, LA.audit_student, T.build_system_prompt, LA._is_fallback = saved
+        T.EVENT_TAPS.clear()
+
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-11  BUILD vg" in notes("tutor.py") and "2026-09-11  BUILD vg" in notes("nightwatch.py")
+          and "2026-09-11  BUILD vg" in notes("lessonaudit.py") and "2026-09-11  BUILD vg" in notes("ruletests.py")
+          and 'APP_BUILD -> "2026-09-11vg-' in notes("main.py"), "")
+
+
+def _raise_in_tap(T):
+    """PART 3lc helper: a tap_events block that raises must still remove its tap."""
+    try:
+        with T.tap_events([]):
+            raise RuntimeError("inside")
+    except RuntimeError:
+        pass
 
 
 def part3he_the_main_road_moves_the_star():
@@ -42359,6 +42547,7 @@ def main():
     part3kz_one_authority_on_where_a_student_begins()
     part3la_a_name_the_page_defines_is_judged_by_its_body()
     part3lb_three_holes_from_the_09_11_watch()
+    part3lc_every_finding_says_whether_the_referees_knew()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

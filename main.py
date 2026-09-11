@@ -6,6 +6,11 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-11  APP_BUILD -> "2026-09-11vg-every-finding-says-whether-the-referees-knew".
+#               BUILD vg -- no change in this file beyond the stamp. nightwatch.py stamps
+#               each finding HOLE / PASS-THROUGH / FLOOR / unplaced from the tutor events
+#               of its own turn (tutor.tap_events, lessonaudit.run_scenario turn_events).
+#               PART 3lc.
 #   2026-09-11  APP_BUILD -> "2026-09-11vf-three-holes-from-the-09-11-watch".
 #               BUILD vf -- no change in this file beyond the stamp. tutor.py: the
 #               one-sided limit sign (first-use list), the square-root row, and
@@ -9235,7 +9240,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-11vf-three-holes-from-the-09-11-watch"
+APP_BUILD = "2026-09-11vg-every-finding-says-whether-the-referees-knew"
 
 
 @app.get("/health")

@@ -2,6 +2,22 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-11  BUILD vg -- EVERY FINDING SAYS WHETHER THE REFEREES ALREADY KNEW.
+#               The 09-11 triage: 186 replies a week ship WITH a known finding, and
+#               for three of the night's ten confirmed findings nobody could tell a
+#               HOLE (no referee objected to the shipped draft: build one) from a
+#               PASS-THROUGH (a referee objected on every attempt and _settle shipped
+#               least-bad: fix the nudge, repair in code, or rule) -- and the two want
+#               opposite work. PART 3b: lessonaudit.run_scenario now hands back one
+#               event bucket per assistant turn (tutor.tap_events, in-process, the
+#               same funnel system_events reads); shipped_as() places a finding on
+#               its turn by its own quote and stamps it hole / pass-through / floor /
+#               unplaced, naming the referee (tutor's pass_through detail now carries
+#               it in parentheses). The stamp rides on the reported finding, into the
+#               ledger, and under each finding in the report as a "Shipped as:" line;
+#               the New section opens with the tally; a REFUTED finding a referee had
+#               also caught is flagged as reviewer-vs-code disagreement. Never a guess:
+#               a quote that matches no turn is printed as unplaced.
 #   2026-09-08  BUILD uo -- RULED_ALLOWED ROW SEVEN, rule 48 (Jim's ruling, 2026-09-08,
 #               on the 09-08 triage's recommendation). Two scenarios in one watch
 #               confirmed a [[step]]/[[write]] equation whose every symbol was already
@@ -817,6 +833,136 @@ def verify_finding(openai_call, scenario, transcript, finding):
 
 
 # =============================================================================
+# PART 3b -- HOLE OR PASS-THROUGH: what the referees already knew about this reply
+# (build vg, 2026-09-11)
+# =============================================================================
+# The 09-11 triage put it plainly: for each confirmed finding, DID A REFEREE ALREADY
+# FIRE ON THAT REPLY AND SHIP IT ANYWAY? The telemetry counted 186 replies in a week
+# shipped with a known finding, and three of the night's ten findings could have been
+# either kind -- and the two kinds want opposite work. A HOLE (every referee was silent
+# on the draft that shipped) wants a referee, or a row in a table. A PASS-THROUGH (a
+# referee fired on every attempt and _settle shipped the least-bad draft) already HAS
+# its referee; what it wants is a better nudge, a code repair (the elembuttons /
+# quizmark / quizverdict pattern), or a ruling that the rule is wrong. Building a second
+# referee for a pass-through changes nothing a child sees.
+#
+# HOW IT KNOWS. tutor._event is the one funnel every fire, floor and pass-through goes
+# through; tutor.tap_events lets a harness read that funnel in-process, and
+# lessonaudit.run_scenario fills one bucket per assistant turn. A finding is placed on
+# its turn by its own QUOTE (the critic's "exact words from the transcript"), matched
+# against the assistant replies after whitespace normalisation; a quote that spans
+# several board lines is matched by its longest line. Then:
+#   PASS-THROUGH  the turn carries a pass_through event. Its detail names the referee
+#                 in parentheses (vg made _settle write it), so the stamp says WHICH.
+#   FLOOR         the turn carries a floor event: a truth finding withheld the draft
+#                 and the child got the fallback line -- the reply the critic read was
+#                 the apology, not a teaching draft.
+#   HOLE          neither: the draft that shipped passed every referee. The referees
+#                 that fired on EARLIER drafts and were satisfied are named beside it,
+#                 because "livecritic objected twice and was answered" is a different
+#                 hole from "nothing ever objected".
+#   UNPLACED      the quote matched no assistant turn (the critic paraphrased), so
+#                 nothing can be said. Reported as such, never guessed.
+# ⚠️ HONEST LIMIT. A pass_through stamp says the shipped draft still carried THAT
+# referee's finding; it does not prove the referee's finding and the critic's are the
+# same defect. The report prints the referee's name and lets the reader judge.
+_PT_NAME = re.compile(r"^shipped attempt \d+ of \d+ \(([\w-]+)\)")
+
+
+def _place_turn(quote, transcript):
+    """The index into `transcript` of the assistant reply that contains the quote, or
+    -1. Whitespace-normalised, case-insensitive. A multi-line quote is placed by its
+    longest line, and the placement must be UNIQUE: a key found in several replies
+    (a board line the lesson repeats) is tried again as the whole quote, and if that
+    is still not unique the finding is unplaced -- never a guess. A key under six
+    characters is never trusted to place anything."""
+    try:
+        q = str(quote or "")
+        lines = [_WS.sub(" ", ln).strip() for ln in q.splitlines()]
+        lines = [ln for ln in lines if ln] or [_WS.sub(" ", q).strip()]
+        whole = " ".join(lines).lower()
+        norm = [(i, _WS.sub(" ", str(text or "")).lower())
+                for i, (role, text) in enumerate(transcript or []) if role == "assistant"]
+        for key in (max(lines, key=len).lower(), whole):
+            if len(key) < 6:
+                continue
+            hits = [i for i, text in norm if key in text]
+            if len(hits) == 1:
+                return hits[0]
+        return -1
+    except Exception:  # noqa: BLE001
+        return -1
+
+
+def shipped_as(finding, transcript, turn_events):
+    """{"kind": "pass-through" | "floor" | "hole" | "unplaced", "referee": str,
+        "fired": [names], "turn": n} for one finding. Never raises: any trouble yields
+    the "unplaced" stamp, which the report prints as exactly that."""
+    out = {"kind": "unplaced", "referee": "", "fired": [], "turn": -1}
+    try:
+        idx = _place_turn((finding or {}).get("quote"), transcript)
+        if idx < 0:
+            return out
+        # assistant turn number k (0-based) -> turn_events[k]
+        k = sum(1 for role, _ in transcript[:idx] if role == "assistant")
+        if not isinstance(turn_events, list) or k >= len(turn_events):
+            return out
+        events = turn_events[k] or []
+        out["turn"] = k + 1
+        fired = []
+        for e in events:
+            if e.get("kind") == "referee_fire" and e.get("name") and e["name"] not in fired:
+                fired.append(e["name"])
+        out["fired"] = fired
+        for e in events:
+            if e.get("kind") == "floor":
+                out["kind"] = "floor"
+                out["referee"] = e.get("name") or ""
+                return out
+        for e in events:
+            if e.get("kind") == "pass_through":
+                m = _PT_NAME.match(e.get("detail") or "")
+                out["kind"] = "pass-through"
+                out["referee"] = (m.group(1) if m else "") or e.get("name") or ""
+                return out
+        out["kind"] = "hole"
+        return out
+    except Exception:  # noqa: BLE001
+        return {"kind": "unplaced", "referee": "", "fired": [], "turn": -1}
+
+
+def shipped_line(stamp) -> str:
+    """One report line for a stamp, in words a triage can act on."""
+    st = stamp or {}
+    kind = st.get("kind") or "unplaced"
+    fired = st.get("fired") or []
+    if kind == "pass-through":
+        who = f"`{st['referee']}`" if st.get("referee") else "a referee"
+        tail = (f" (fired on this turn: {', '.join('`%s`' % n for n in fired)})"
+                if fired else "")
+        return (f"Shipped as: **PASS-THROUGH** — {who} still objected to the draft that "
+                f"shipped; the attempts ran out and the least-bad draft went to the "
+                f"student. It has its referee; what it wants is a better nudge, a code "
+                f"repair, or a ruling.{tail}")
+    if kind == "floor":
+        who = f"`{st['referee']}`" if st.get("referee") else "a truth referee"
+        return (f"Shipped as: **FLOOR** — {who} withheld every draft and the student got "
+                f"the fallback line; the words the critic read are the apology, not a "
+                f"teaching draft.")
+    if kind == "hole":
+        if fired:
+            _v = "was" if len(fired) == 1 else "were"
+            return (f"Shipped as: **HOLE** — the draft that shipped passed every referee "
+                    f"(on the way, {', '.join('`%s`' % n for n in fired)} fired and "
+                    f"{_v} satisfied). Nothing objected to what the student saw: this "
+                    f"wants a referee, a table row, or a rule.")
+        return ("Shipped as: **HOLE** — no referee objected to any draft of this turn. "
+                "This wants a referee, a table row, or a rule.")
+    return ("Shipped as: **unplaced** — the quote matched no assistant turn (the critic "
+            "paraphrased), so the referees' record for it cannot be read.")
+
+
+# =============================================================================
 # PART 4 -- THE NIGHT
 # =============================================================================
 def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None, extras=None):
@@ -891,7 +1037,9 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None, ex
             # build hq: run_scenario now also returns the measured prompt size
             # (the two-prompt-sizes experiment); the watch teaches at the normal
             # size and does not use the measurement.
-            transcript, err, fallbacks, _pchars = lessonaudit.run_scenario(sc, turns)
+            _turn_events = []                        # (vg) one bucket per assistant turn
+            transcript, err, fallbacks, _pchars = lessonaudit.run_scenario(
+                sc, turns, turn_events=_turn_events)
             if err:
                 out["errors"].append(f"{sc['id']}: {err}")
                 out["roster"][_slot]["outcome"] = "error"
@@ -939,7 +1087,8 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None, ex
                     out["unverified"].append({"scenario": sc["id"],
                                               "what": f.get("what"), "error": verr})
                 elif real:
-                    _record(out, ledger, sc, f, verified_note=why)
+                    _record(out, ledger, sc, f, verified_note=why,
+                            shipped=shipped_as(f, transcript, _turn_events))
                 elif not rule_known:
                     # (pq) NOT A REFUTATION. The reviewer was never given this rule, so
                     # it could not judge the conduct promise the finding names. Held
@@ -965,7 +1114,10 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None, ex
                                                 "severity": f.get("severity"),
                                                 "rule": f.get("rule"),
                                                 "what": f.get("what"),
-                                                "reviewer": why})
+                                                "reviewer": why,
+                                                # (vg) a refuted finding that a referee
+                                                # had ALSO caught is worth a second look
+                                                "shipped": shipped_as(f, transcript, _turn_events)})
         except Exception as exc:  # noqa: BLE001 -- one bad lesson never ends the night
             out["errors"].append(f"{sc['id']}: {type(exc).__name__}: {exc}")
             if out["roster"][_slot]["outcome"] != "ran":
@@ -979,24 +1131,33 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None, ex
     return out
 
 
-def _record(out, ledger, sc, finding, verified_note=""):
-    """Confirmed finding -> the ledger. New ones are reported; repeats are counted."""
+def _record(out, ledger, sc, finding, verified_note="", shipped=None):
+    """Confirmed finding -> the ledger. New ones are reported; repeats are counted.
+    (vg) `shipped` is the HOLE / PASS-THROUGH stamp from shipped_as(); it rides on the
+    reported finding and into the ledger, and a repeat refreshes the ledger's copy
+    (the same defect can be a hole one night and a pass-through the next, once a
+    referee for it lands)."""
     fp = fingerprint(sc["id"], finding)
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     if fp in ledger:
         ledger[fp]["seen"] = int(ledger[fp].get("seen", 1)) + 1
         ledger[fp]["last"] = stamp
+        if shipped:
+            ledger[fp]["shipped"] = dict(shipped)
         out["recurring"] += 1
         return
     ledger[fp] = {"first": stamp, "last": stamp, "seen": 1,
                   "scenario": sc["id"], "course": sc.get("course"),
                   "rule": finding.get("rule"), "what": finding.get("what"),
                   "quote": (finding.get("quote") or "")[:400]}
+    if shipped:
+        ledger[fp]["shipped"] = dict(shipped)
     out["new"].append({"fp": fp, "scenario": sc["id"], "course": sc.get("course"),
                        "severity": finding.get("severity"), "rule": finding.get("rule"),
                        "what": finding.get("what"), "quote": finding.get("quote"),
                        "why": finding.get("why"), "fix": finding.get("fix"),
-                       "verified": verified_note})
+                       "verified": verified_note,
+                       "shipped": dict(shipped) if shipped else None})
 
 
 # =============================================================================
@@ -1063,6 +1224,18 @@ def report_markdown(result, build="") -> str:
         L += ["**The watch did not complete.**", ""]
     if new:
         L += ["## New, and each survived an independent challenge", ""]
+        # (vg) THE TALLY THAT SAYS WHAT KIND OF WORK THE NIGHT IS ASKING FOR. Holes
+        # want referees; pass-throughs already have them and want repairs or rulings.
+        _kinds = [(f.get("shipped") or {}).get("kind") for f in new]
+        _n_hole = _kinds.count("hole"); _n_pt = _kinds.count("pass-through")
+        _n_fl = _kinds.count("floor"); _n_un = _kinds.count("unplaced") + _kinds.count(None)
+        if any(_kinds):
+            L += [f"_Of these {len(new)}: **{_n_hole} hole(s)** (no referee objected to what "
+                  f"shipped — these want a referee, a row, or a rule) · **{_n_pt} "
+                  f"pass-through(s)** (a referee objected on every attempt and the least-bad "
+                  f"draft shipped — these want a better nudge, a code repair, or a ruling)"
+                  + (f" · {_n_fl} floored" if _n_fl else "")
+                  + (f" · {_n_un} unplaced" if _n_un else "") + "._", ""]
         for f in new:
             L += [f"### {str(f.get('severity','?')).upper()} — {f.get('scenario')} "
                   f"({f.get('course')})" + (f" — rule {f['rule']}" if f.get("rule") else ""),
@@ -1070,6 +1243,8 @@ def report_markdown(result, build="") -> str:
                   f"> {f.get('quote')}", "",
                   f"Why it matters: {f.get('why')}", "",
                   f"Suggested fix: {f.get('fix')}", ""]
+            if f.get("shipped"):
+                L += [shipped_line(f["shipped"]), ""]
             if f.get("verified"):
                 L += [f"_Reviewer: {f['verified']}_", ""]
     else:
@@ -1112,6 +1287,12 @@ def report_markdown(result, build="") -> str:
                   + (f" (rule {t['rule']})" if t.get("rule") else "")
                   + f" — {t.get('what')}",
                   f"  - reviewer: _{t.get('reviewer') or '(no reason given)'}_"]
+            # (vg) a refuted finding that a REFEREE had also caught on this turn is the
+            # one to re-read: the reviewer and the code disagree about the same reply.
+            _sh = t.get("shipped") or {}
+            if _sh.get("kind") == "pass-through":
+                L += [f"  - ⚠️ but `{_sh.get('referee') or 'a referee'}` objected to this very "
+                      f"reply and it shipped least-bad -- the reviewer and the code disagree"]
         L += [""]
 
     # THE WEEK'S TELEMETRY (build ha -- EYES). The governor reads the same
