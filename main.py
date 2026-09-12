@@ -6,6 +6,16 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  APP_BUILD -> "2026-09-12vq-the-bar-shows-the-eaten-pieces".
+#               BUILD vq -- no change in this file beyond the stamp. Jim's two rulings on
+#               the 09-12 watch: math-figures.js [[tape shaded= eaten=]]; prompts.py the
+#               two tape notes; tutor.py referees 96 (tapepieces) and 97 (requestedstep);
+#               methodology.html 97. PART 3lm.
+#   2026-09-12  APP_BUILD -> "2026-09-12vp-the-first-stamps-answered".
+#               BUILD vp -- no change in this file beyond the stamp. tutor.py: referees
+#               92-95, KNOWN_FALSEHOODS rows 23-24, the 91 promise shape, vl's nudge
+#               corrected, "the quantity" in the bracket reading; notation.py the twin
+#               note; methodology.html 95. PART 3ll.
 #   2026-09-12  APP_BUILD -> "2026-09-12vo-name-the-whole-gate".
 #               BUILD vo -- REFEREE 91, exam_blockers_conflict (rule 50): a live reply
 #               that explains the locked Final Exam and names only SOME of the units
@@ -9287,7 +9297,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-12vo-name-the-whole-gate"
+APP_BUILD = "2026-09-12vq-the-bar-shows-the-eaten-pieces"
 
 
 @app.get("/health")

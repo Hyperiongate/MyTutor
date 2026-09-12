@@ -2,6 +2,11 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-12  BUILD vq -- [[tape]] gains shaded= (the first N parts filled solid: the
+                 pieces we have) and eaten= / gone= / missing= (the last N parts faded,
+                 hatched and crossed: the pieces that are gone). Jim's ruling on the 09-12
+                 night watch's chocolate-bar finding: the bar could not show an eaten
+                 piece and sharespic steers bar stories to the bar. Bare tapes unchanged.
      2026-09-11  BUILD vk -- THE FIGURE'S WORDS FIT THE BOARD THEY LAND ON. Jim, from a
                  live Basic lesson: "the number line is like two inches long ... the
                  words are so small you can't see them. And then ... the words are huge."
@@ -1280,6 +1285,14 @@
   // (ot, 2026-08-27) A tape diagram / bar model: the bar is split into parts (numeric
   // parts get proportional widths; a "?" part shares the space evenly), with the total
   // bracketed above. THE picture for part-part-whole, equal groups, and ratio problems.
+  // (vq, 2026-09-12) THE BAR CAN SHOW THE PIECES WE HAVE AND THE PIECES THAT ARE GONE.
+  // Jim's ruling on the 09-12 night watch: "a chocolate bar with some eaten already"
+  // was drawn as eight plain pieces, because only the pie could shade -- and sharespic
+  // (rule 63) rightly steers a bar story TO the bar. shaded="3" fills the FIRST three
+  // parts solid (the pieces we have); eaten="2" (aliases gone= / missing=) draws the
+  // LAST two parts faded, hatched and crossed (the pieces that are gone). Both count
+  // PARTS, from opposite ends, so shaded="5" eaten="3" on eight parts is the whole
+  // story of 5/8 left. Without either attribute the bar is byte-for-byte what it was.
   function tape(a) {
     var parts = String(a.parts || a.segments || "").split("|").map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 10);
     if (!parts.length) return "";
@@ -1296,11 +1309,24 @@
       widths = parts.map(function () { return bw / parts.length; });
     }
     var fills = ["rgba(91,91,214,.16)", "rgba(13,148,136,.16)", "rgba(217,119,6,.14)"];
+    var nsh = Math.max(0, Math.min(parts.length, Math.floor(num(a.shaded, 0))));
+    var neat = Math.max(0, Math.min(parts.length - nsh, Math.floor(num(a.eaten !== undefined ? a.eaten : (a.gone !== undefined ? a.gone : a.missing), 0))));
     var s = svgOpen(W, H, 640), xx = x0;
+    if (neat) {   // the hatch for the pieces that are gone, defined once
+      s += '<defs><pattern id="tapegone" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
+           '<line x1="0" y1="0" x2="0" y2="8" stroke="var(--bd-c8d0da)" stroke-width="2"/></pattern></defs>';
+    }
     parts.forEach(function (p, i) {
+      var gone = neat && i >= parts.length - neat, have = nsh && i < nsh;
+      var fill = gone ? "url(#tapegone)" : have ? "rgba(91,91,214,.55)" : fills[i % fills.length];
       s += '<rect x="' + xx + '" y="' + y0 + '" width="' + widths[i] + '" height="' + bh +
-           '" fill="' + fills[i % fills.length] + '" stroke="var(--bd-5b5bd6)" stroke-width="1.8"/>';
-      s += tspan(xx + widths[i] / 2, y0 + bh / 2 + 6, p, "var(--bd-26263a)", 18, 800);
+           '" fill="' + fill + '" stroke="var(--bd-5b5bd6)" stroke-width="1.8"' + (gone ? ' stroke-dasharray="5 4"' : '') + '/>';
+      if (gone) {   // a cross through the eaten piece
+        s += '<path d="M ' + (xx + 6) + ' ' + (y0 + 6) + ' L ' + (xx + widths[i] - 6) + ' ' + (y0 + bh - 6) +
+             ' M ' + (xx + widths[i] - 6) + ' ' + (y0 + 6) + ' L ' + (xx + 6) + ' ' + (y0 + bh - 6) +
+             '" stroke="var(--bd-e0392b)" stroke-width="2" fill="none"/>';
+      }
+      s += tspan(xx + widths[i] / 2, y0 + bh / 2 + 6, p, gone ? "var(--bd-8a86a6)" : (have ? "var(--bd-fbfbff)" : "var(--bd-26263a)"), 18, 800);
       xx += widths[i];
     });
     if (a.total) {   // the whole, bracketed above the bar

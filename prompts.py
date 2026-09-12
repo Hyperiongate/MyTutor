@@ -2,6 +2,11 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-12  BUILD vq -- the two [[tape]] notes (the prealgebra picture list and the
+#               elementary one) teach shaded= and eaten=: the bar can now show the
+#               pieces we have and the pieces that are gone, so a chocolate-bar story
+#               is drawn on the bar WITH its eaten pieces (Jim's ruling on the 09-12
+#               night watch). "Never say a bar shows eaten pieces it does not mark."
 #   2026-09-08  OLDER NOTES (before 2026-09-01) live in
 #               changelog/prompts.py.md -- moved out on 2026-09-08 (build ui) VERBATIM, 49
 #               entries; 4 stay here. Keep adding new notes HERE, newest at top; roll them
@@ -1314,7 +1319,11 @@ Sort factors or multiples into overlapping circles (Unit 2 -- GCF and LCM ARE th
 Draw a tape diagram (bar model) for ratios, fractions of a quantity, and part-part-whole:
   [[tape parts="3 | 3 | 3 | 3" total="12" label="four equal parts"]]  -- a "?" part
   ([[tape parts="8 | ?" total="20"]]) is THE picture for a missing part; leave total= off
-  until the student has found it when the total is the answer.
+  until the student has found it when the total is the answer. A story about pieces we
+  HAVE and pieces that are GONE is drawn on the bar: shaded="5" fills the first five parts
+  (ours), eaten="3" crosses out the last three (eaten, used, missing) --
+  [[tape parts="1|1|1|1|1|1|1|1" shaded="5" eaten="3"]] IS "five eighths of the bar is
+  left". Never say a bar shows eaten or shaded pieces it does not mark.
 
 Show hops on the number line for integer moves (Unit 3): [[numberline range="-6..6"
   points="-2" hops="-2,1,4"]] draws red arcs -2 -> 1 -> 4, each labeled its own jump (+3).
@@ -3399,6 +3408,9 @@ Other tools when they fit:
     total="12" label="three equal groups"]] -- numeric parts get honest widths, and a "?" part
     ([[tape parts="7 | ?" total="12"]]) is THE picture for a missing part. The total rides in a
     red bracket above; leave total off until the child has found it when the total IS the answer.
+    Pieces we HAVE and pieces that are GONE: shaded="5" fills the first five parts, eaten="3"
+    crosses out the last three -- [[tape parts="1|1|1|1|1|1|1|1" shaded="5" eaten="3"]] is a
+    chocolate bar with three pieces eaten. Never say a bar shows eaten pieces it does not mark.
   - SHOW countable things (stars, apples, coins, cookies) -> [[objects emoji="⭐" groups="5"]]
     draws five big stars on the board. Two rows to COMPARE: [[objects emoji="🍎" groups="5 | 3"]].
     ADDING more: [[objects emoji="⭐" groups="5" add="1"]] draws ⭐⭐⭐⭐⭐ + ⭐ -- use it whenever

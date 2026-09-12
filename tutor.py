@@ -6,6 +6,31 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vq -- THE BAR SHOWS THE EATEN PIECES; THE STEP YOU ASKED TO SEE IS
+#               ON THE BOARD (Jim's two rulings on the 09-12 watch, "Yes to both").
+#               REFEREE 96 tape_pieces_conflict (rule 63): words say pieces are eaten /
+#               gone / shaded / missing over a [[tape]] (or equal-parts [[pie]]) that
+#               marks none -- now that math-figures.js draws shaded= and eaten= on the
+#               tape, the corner sharespic put the tutor in is gone. Before sharespic.
+#               REFEREE 97 requested_step_conflict (rule 65): the student names a both-
+#               sides operation with a number and asks to SEE it; the board must carry
+#               the move (a line with the number beside an operator, [[step op=]],
+#               [[solve]] or [[balance]]). Reuses referee 88's grammars; message-gated;
+#               after inkmissing. COUNT 95 -> 97; conduct. PART 3lm.
+#   2026-09-12  BUILD vp -- THE FIRST STAMPS ANSWERED (the 09-12 night watch, the first
+#               to carry vg's HOLE/PASS-THROUGH stamps; eight of its seventeen). REFEREES
+#               92-95: written_question_conflict (rule 44 -- a [[write]] question the
+#               words never ask; caused by vl's own divisorblank nudge, now corrected to
+#               "on the board AND in your words"); ink_missing_conflict (rule 7 -- "circle
+#               the multiplication part" with no [[ink]]); unacknowledged_answer_conflict
+#               (rule 18 -- an answer the reply neither confirms nor corrects; message-
+#               gated); column_above_below_conflict (rule 63 -- "the seven above it" when
+#               the column stacks it below; above/below only, never over/under). Referee
+#               91 gains the PROMISE shape ("then straight to the exam" after one unit).
+#               KNOWN_FALSEHOODS rows 23 (cancelling handles every removable
+#               discontinuity) and 24 (different-sized pieces cannot be added). The
+#               bracket-product fix sentence reads each bracket as THE QUANTITY. COUNT
+#               91 -> 95; conduct. PART 3ll.
 #   2026-09-12  BUILD vo -- REFEREE 91, NAME THE WHOLE GATE (rule 50; the 09-10 watch's
 #               finding 7, the last of that triage's builds). exam_blockers_conflict: a
 #               reply that explains the locked Final Exam and names at least one of the
@@ -4663,9 +4688,12 @@ _NOTATIONS = (
     ("two parentheses written side by side", re.compile(r"\)\("),
      re.compile(r"\btimes\b|\bmultipl|\bproduct\b|\bdistribut|\bfactor|\bFOIL\b|"
                 r"\bexpand", re.I),
-     'Two brackets touching -- like (x + 2)(x + 3) -- means TIMES: "x plus two, '
-     'times, x plus three". When nothing sits between two brackets, the '
-     "multiplication sign is understood."),
+     # (vp) read each bracket as THE QUANTITY -- "x minus 3 times x plus 3" can be
+     # heard as x − 3x + 3 (the 09-12 watch, limits-hole, rule 48).
+     'Two brackets touching -- like (x + 2)(x + 3) -- means TIMES: "the quantity x '
+     'plus two, times the quantity x plus three". When nothing sits between two '
+     "brackets the multiplication sign is understood, and each bracket is read as "
+     '"the quantity".'),
     ("a question-mark blank standing as a term",
      # ⚠️ the class holds BOTH minus signs: the canon writes "? − 3 = 4" with U+2212.
      # ⚠️ the slash and the dot must HUG the blank (?/5, ?·i): spaced, they are the
@@ -5370,9 +5398,11 @@ def divisor_blank_conflict(reply: str):
                     "in one turn: a student who reads the board answers {a2}/{b2}-style and is "
                     "marked wrong; one who answers the words sees the divisor land in a blank that "
                     "then reads {a}/{b} = (divisor), which is false. Rule 18: one question, complete "
-                    'and unambiguous on the board. Put the question you are asking on the board: '
-                    '[[write text="What number divides both {a} and {b}?"]], and write '
-                    '[[step eq="{a}/{b} = ?/?"]] only when you ask for the simplified fraction.'
+                    'and unambiguous on the board. Put the question you are asking on the board AND '
+                    "keep asking it in your words -- "
+                    '[[write text="What number divides both {a} and {b}?"]] with the same question '
+                    'spoken -- and write [[step eq="{a}/{b} = ?/?"]] only when you ask for the '
+                    "simplified fraction."
                     ).format(q=" ".join(ask.split())[:60], a=a, b=b, a2=a, b2=b)
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
@@ -5773,6 +5803,38 @@ KNOWN_FALSEHOODS = [
                 r"\bwhat\s+comes\s+out\b|\bthe\s+output\s+(?:of|at|when)\b", re.I),
      "the machine is named f; f(x), read 'f of x', is the number it sends out when x "
      "goes in -- the output, not the name"),
+    # (vp, 2026-09-12) THE 09-12 WATCH'S HIGH, limits-hole, rule 61: "cancel first, then
+    # see what it approaches, is exactly how you'll handle EVERY removable discontinuity
+    # from here on." False as a rule: a removable discontinuity in a piecewise or
+    # trigonometric function has no common factor to cancel. Escape: the scoping
+    # words -- rational / factorable / factored / like this one / of this kind / when
+    # a factor cancels.
+    ("cancelling-handles-every-removable-discontinuity",
+     re.compile(r"\b(?:every|all|any)\s+(?:the\s+)?removable\s+discontinuit(?:y|ies)\b"
+                r"[^.!?]{0,80}?\b(?:cancel|cancell?ing|factor)"
+                r"|\b(?:cancel|cancell?ing|factor)\w*\b[^.!?]{0,120}?\b(?:every|all|any)\s+"
+                r"(?:the\s+)?removable\s+discontinuit(?:y|ies)\b", re.I),
+     re.compile(r"\brational\b|\bfactorable\b|\bfactored\s+form\b|\blike\s+this\s+one\b|"
+                r"\bof\s+this\s+(?:kind|type|shape)\b|\bwhen\s+(?:a|the)\s+factor\s+cancels\b|"
+                r"\bwhenever\s+(?:a|the)\s+factor\b|\bnot\s+(?:every|all)\b|\bsome\s+removable\b", re.I),
+     "for a factorable rational function, cancel the common factor and see what the "
+     "simplified expression approaches -- other removable discontinuities, in piecewise "
+     "or trigonometric functions, have no factor to cancel and are handled differently"),
+    # (vp, 2026-09-12) THE 09-12 WATCH, decimal-alignment, rule 13: "different-sized pieces
+    # from different columns can't be added." Tenths and hundredths add fine once they
+    # are written in the same place; the true rule is that they cannot be added AS IF
+    # they were the same size. Escape: directly / as if / in the same column / until or
+    # unless we convert / first / without.
+    ("different-sized-pieces-cannot-be-added",
+     re.compile(r"\bdifferent[- ]sized?\s+(?:pieces|parts|units|chunks)\b[^.!?]{0,60}?"
+                r"\b(?:can'?t|cannot|can\s+not|never)\s+be\s+(?:added|combined)\b"
+                r"|\b(?:can'?t|cannot|can\s+not|never)\s+(?:add|combine)\s+different[- ]sized?\s+"
+                r"(?:pieces|parts|units|chunks)\b", re.I),
+     re.compile(r"\bdirectly\b|\bas\s+if\b|\bas\s+though\b|\bin\s+the\s+same\s+column\b|"
+                r"\b(?:until|unless|before|without)\b[^.!?]{0,30}?\b(?:convert|rewrite|rename|"
+                r"line\s+(?:them\s+)?up|match|trade)\b|\bfirst\b|\bstraight\s+across\b|\bin\s+one\s+column\b", re.I),
+     "pieces of different sizes cannot be added AS IF they were the same size -- line them "
+     "up by place value, or convert them to the same size first, and then they add"),
 ]
 
 
@@ -8868,6 +8930,19 @@ _EB_LOCK_RE = re.compile(
     r"|\b(?:locked|unlocks?|unlocked|unlocking|holding|blocking|stands?\s+between|"
     r"standing\s+between|keeps?\s+(?:it|the\s+door)\s+(?:locked|shut))\b[^.!?]{0,80}?"
     r"\b(?:final\s+exam|the\s+final|the\s+exam|course\s+exam)\b", re.I)
+# (vp, 2026-09-12) THE PROMISE SHAPE. The 09-12 watch, the day vo shipped: "give the
+# Unit 4 quiz a fresh shot right now, ten questions, then STRAIGHT TO THE EXAM if it
+# lands at ninety or better" -- with Unit 7 at 80%. No lock word, so (a) above never
+# matched: this sentence does not explain the lock, it PROMISES the exam after one
+# unit. Sentence-scoped on purpose -- an earlier sentence that named Unit 7 does not
+# unsay a promise that leaves it out; the child hears the promise.
+_EB_PROMISE_RE = re.compile(
+    r"\b(?:then|and|before)\s+(?:it'?s\s+)?(?:straight\s+|right\s+|on\s+|off\s+)?(?:to|into|onto)\s+"
+    r"the\s+(?:final\s+)?(?:exam|final)\b"
+    r"|\b(?:the\s+)?(?:final\s+)?(?:exam|final)\s+(?:unlocks|opens|is\s+(?:yours|next|open|unlocked)|"
+    r"will\s+(?:be\s+)?(?:open|unlock|unlocked))\b"
+    r"|\bunlocks?\s+the\s+(?:final\s+)?(?:exam|final)\b|\bready\s+for\s+the\s+(?:final\s+)?(?:exam|final)\b", re.I)
+_EB_SENTENCE = re.compile(r"[^.!?\n]+[.!?]?")
 _EB_UNIT_RE = re.compile(r"\bunit\s+(\d)\b", re.I)
 _EB_WHOLE_RE = re.compile(
     r"\b(?:every|each|all)\s+(?:(?:of\s+)?the\s+)?(?:\w+\s+)?units?\b|\ball\s+(?:nine|eight|seven|six|\d)\b|"
@@ -8903,10 +8978,14 @@ def exam_blockers_conflict(reply: str, record=None, course: str = ""):
         prose = _spoken_only(str(reply or ""))
         if not prose.strip():
             return ""
-        if not _EB_LOCK_RE.search(prose):
-            return ""                                   # (a) no lock explained
-        if _EB_WHOLE_RE.search(prose):
-            return ""                                   # (c) the whole gate is named
+        lock = bool(_EB_LOCK_RE.search(prose))
+        promises = [s for s in _EB_SENTENCE.findall(prose) if _EB_PROMISE_RE.search(s)]
+        if not lock and not promises:
+            return ""                                   # (a) no lock explained, no exam promised
+        if lock and _EB_WHOLE_RE.search(prose):
+            lock = False                                # (c) the whole gate is named
+        if not lock and not promises:
+            return ""
         names = _eb_unit_names(course)
         try:
             total = int(record.get("units") or 0)
@@ -8925,18 +9004,38 @@ def exam_blockers_conflict(reply: str, record=None, course: str = ""):
         blockers = [u for u in range(1, total + 1) if u not in mastered]
         if not blockers:
             return ""
-        named = {int(m.group(1)) for m in _EB_UNIT_RE.finditer(prose)}
-        low = prose.lower()
-        for u, title in names.items():
-            t = re.sub(r"\s+", " ", str(title or "")).strip().lower()
-            if len(t) >= 4 and t in low:
-                named.add(u)
-        if not (named & set(blockers)):
-            return ""                                   # (b) the rule, not the list
-        missing = [u for u in blockers if u not in named]
-        if not missing:
-            return ""                                   # (d) every blocker is named
+        def _named_in(txt):
+            got = {int(m.group(1)) for m in _EB_UNIT_RE.finditer(txt)}
+            low = txt.lower()
+            for u, title in names.items():
+                t = re.sub(r"\s+", " ", str(title or "")).strip().lower()
+                if len(t) >= 4 and t in low:
+                    got.add(u)
+            return got
         best = record.get("best") or {}
+        named, missing, shape = set(), [], ""
+        # the promise shape first: a sentence that hands the child the exam after ONE
+        # unit is the sharper of the two defects
+        for sent in promises:
+            if _EB_WHOLE_RE.search(sent):
+                continue                                # "…and every other unit" is honest
+            got = _named_in(sent) & set(blockers)
+            if not got:
+                continue                                # the rule, not a list
+            miss = [u for u in blockers if u not in got]
+            if miss:
+                named, missing, shape = got, miss, "promise"
+                break
+        if not shape and lock:
+            named = _named_in(prose)
+            if not (named & set(blockers)):
+                return ""                               # (b) the rule, not the list
+            missing = [u for u in blockers if u not in named]
+            if not missing:
+                return ""                               # (d) every blocker is named
+            shape = "lock"
+        if not shape:
+            return ""
         def _label(u):
             t = names.get(u)
             lab = f"Unit {u}" + (f" ({t})" if t else "")
@@ -8945,6 +9044,18 @@ def exam_blockers_conflict(reply: str, record=None, course: str = ""):
             except Exception:  # noqa: BLE001
                 b = None
             return lab + (f", best {int(b)}%" if b not in (None, "") else ", not yet attempted")
+        if shape == "promise":
+            return ("your reply PROMISES the Final Exam after {n} alone -- but the record "
+                    "shows {m} also still below mastery, and the exam unlocks only when "
+                    "EVERY unit is mastered. A student who hears \"then straight to the "
+                    "exam\" and finishes {n} will find the door still shut. Rule 50(g)/(h): "
+                    "name the WHOLE gate in the same sentence that promises the door: "
+                    "{all} -- \"and once {rest} reaches ninety too, the exam unlocks.\" "
+                    "Keep everything else the same."
+                    ).format(n=", ".join(f"Unit {u}" for u in sorted(named)),
+                             m=", ".join(_label(u) for u in missing),
+                             all="; ".join(_label(u) for u in blockers),
+                             rest=", ".join(f"Unit {u}" for u in missing))
         return ("your reply explains why the Final Exam is locked and names only {n} -- "
                 "but the record shows {m} also still below mastery, and the exam unlocks "
                 "only when EVERY unit is mastered. A student who finishes {n} will find "
@@ -8958,6 +9069,403 @@ def exam_blockers_conflict(reply: str, record=None, course: str = ""):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[examblockers] crashed (fail open): {exc}")
         _event("referee_crash", "examblockers", str(exc))
+        return ""
+
+# =============================================================================
+# BUILD vp (2026-09-12) -- FOUR SMALL REFEREES FROM THE 09-12 NIGHT WATCH (the first
+# watch to carry vg's stamps): referees 92-95.
+# -----------------------------------------------------------------------------
+# 92 written_question_conflict (rule 44) -- quiz-eighty: [[write text="What number
+#    divides evenly into both 3 and 6?"]] with the words saying only "What number is
+#    it?". THIS ONE WAS OURS: vl's divisorblank nudge said "put the question you are
+#    asking on the board", and the model obeyed by moving it there and out of the
+#    words (the nudge now says "on the board AND in your words"). A [[write]] whose
+#    text is a QUESTION must be carried by the spoken words: fewer than half of its
+#    content words in the prose is a written question nobody heard.
+# 93 ink_missing_conflict (rule 7) -- order-of-operations: "circle the multiplication
+#    part first, in pen", and nothing circled on the board. The [[ink circle= |
+#    underline= | box= | bang=]] tag (build rr) exists for exactly this. An imperative
+#    circle / underline / box / highlight + an object, with no [[ink]] in the reply.
+#    "a circle" the SHAPE never matches (the verb needs its object determiner), and
+#    "circle back" is idiom.
+# 94 unacknowledged_answer_conflict (rule 18) -- returning-student: the student wrote
+#    "(-5)(0)=0, so yeah it works" and the tutor opened a new problem without a word.
+#    Message-gated (like tappedanswer): the student's message carries an ANSWER (a
+#    digit or an equals sign, short, not a question, not a request), the previous
+#    tutor turn asked something, and the reply neither acknowledges (yes / right /
+#    correct / not quite / close / nice / works ... or a [[mark]]/[[check]]/[[quiz]]
+#    tag) nor echoes any number the student said. A child who answers and hears
+#    nothing back has been told their answer did not matter.
+# 95 column_above_below_conflict (rule 63; colplace's sibling) -- decimal-alignment: "the seven ABOVE it" when the
+#    [[column]] lists 3.5 over 0.47, so the 7 is BELOW the 5. The tag's term order is
+#    the picture; a digit said to be above/below another must be in the right row.
+# Canon-swept (PART 3ll): 0 fires from the three that can see authored text; 94 is
+# message-gated and the canon has no student turns. All conduct.
+# =============================================================================
+def _vp_number_words(n: int) -> str:
+    """0..999 as spoken words ("forty-two"), "" outside that range -- for matching a
+    number a student or a board said against prose the voice lane speaks."""
+    try:
+        n = int(n)
+        if n < 0 or n > 999:
+            return ""
+        if n in _EQ_NUMWORD and n != 100:
+            return _EQ_NUMWORD[n]
+        h, r = divmod(n, 100)
+        parts = []
+        if h:
+            parts.append(_EQ_NUMWORD[h] + " hundred")
+        if r:
+            if r in _EQ_NUMWORD:
+                parts.append(_EQ_NUMWORD[r])
+            else:
+                t, o = divmod(r, 10)
+                parts.append(_EQ_NUMWORD[t * 10] + "-" + _EQ_NUMWORD[o])
+        return " ".join(parts)
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+_WQ_WRITE_RE = re.compile(r'\[\[\s*write\b[^\]]*\btext\s*=\s*"([^"]*\?)\s*"', re.I)
+_WQ_WORD_RE = re.compile(r"[a-z]{3,}")
+_WQ_STOP = frozenset("the and for you your what which how many much does with into from that this".split())
+
+
+def written_question_conflict(reply: str):
+    """Return a description of a [[write]] question the spoken words never carry,
+    or "". Never raises: fail open."""
+    try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        if not prose.strip():
+            return ""
+        low = prose.lower()
+        for m in _WQ_WRITE_RE.finditer(text):
+            q = m.group(1).strip()
+            words = [w for w in _WQ_WORD_RE.findall(q.lower()) if w not in _WQ_STOP]
+            nums = re.findall(r"\d+(?:\.\d+)?", q)
+            keys = words + nums
+            if len(keys) < 3:
+                continue                        # too short to be a question anybody depends on
+            hit = 0
+            for k in keys:
+                if re.match(r"^\d", k):
+                    if re.search(r"(?<![\d.])" + re.escape(k) + r"(?![\d.])", low):
+                        hit += 1
+                    else:
+                        w = _vp_number_words(int(float(k))) if float(k).is_integer() else ""
+                        if w and re.search(r"\b" + re.escape(w).replace(r"\-", "[\\s-]") + r"\b", low):
+                            hit += 1
+                elif re.search(r"\b" + re.escape(k[:5]), low):
+                    hit += 1
+            if hit * 2 >= len(keys):
+                continue                        # the words carry the question
+            return ('your board writes the question "{q}" and your spoken words never ask '
+                    "it -- the student hears only what depends on it. Rule 44: the problem "
+                    "is read aloud, in full, in the same reply that writes it. SAY the "
+                    'question in your words -- "{q}" -- and keep it on the board too. '
+                    "Keep everything else the same.").format(q=q[:100])
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[writtenq] crashed (fail open): {exc}")
+        _event("referee_crash", "writtenq", str(exc))
+        return ""
+
+
+# ⚠️ an INSTRUCTION, not a description: "they circle it, for ever" (diffeq's rabbits and
+# foxes orbiting a balance point) has a subject; the verb here opens the sentence or
+# follows an instruction word (let's / please / now / first / you can / I want you to).
+_INK_VERB_RE = re.compile(
+    r"(?:^|[.!?;:,]\s*|\b(?:let'?s|let\s+us|please|now|first|then|next|and|so|go\s+ahead\s+and|"
+    r"you\s+can|you\s+should|you'?ll|we'?ll|we|i'?ll|i\s+want\s+you\s+to|time\s+to|to|always)\s+)"
+    r"((?:circle|underline|box|highlight|ring)\s+(?:the|that|this|it|each|both|every|those|these|"
+    r"just\s+the|only\s+the)\b)(?!\s+(?:back|around\s+to))", re.I)
+_INK_LETS_RE = re.compile(r"\b(?:let'?s|let\s+us|we|I'?ll|I\s+will|go\s+ahead\s+and|first|now|and|then|so|,|--|:)\s*$", re.I)
+_INK_TAG_RE = re.compile(r"\[\[\s*ink\b", re.I)
+
+
+def ink_missing_conflict(reply: str):
+    """Return a description of a circle/underline/box/highlight instruction with no
+    [[ink]] mark on the board, or "". Never raises: fail open."""
+    try:
+        text = str(reply or "")
+        if _INK_TAG_RE.search(text):
+            return ""
+        prose = _spoken_only(text)
+        if not prose.strip():
+            return ""
+        m = _INK_VERB_RE.search(prose)
+        if not m:
+            return ""
+        vstart = m.start(1)
+        before = prose[max(0, vstart - 12):vstart].lower()
+        if re.search(r"\b(?:a|an|the|one|this|that|half|full|whole|unit)\s*$", before):
+            return ""                           # "a circle the size of..." -- the noun
+        said = " ".join(m.group(1).split())
+        obj = " ".join(prose[vstart:vstart + 60].split())
+        return ('your words tell the student to "{s}..." -- a visual mark -- and nothing '
+                "on the board is marked. Rule 7: what you describe on the board, you draw. "
+                "Add the mark with the ink tag, naming the EXACT text as it appears on the "
+                'board line: [[ink circle="3 × 2"]] (or underline= / box= / bang=), right '
+                "after the line it marks. Keep everything else the same. (You said: "
+                '"{o}")').format(s=said, o=obj)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[inkmissing] crashed (fail open): {exc}")
+        _event("referee_crash", "inkmissing", str(exc))
+        return ""
+
+
+_UA_ACK_RE = re.compile(
+    r"\b(?:yes|yep|yeah|right|correct|incorrect|exactly|precisely|true|works|nice|good|great|"
+    r"perfect|brilliant|bingo|spot\s+on|well\s+done|nailed|got\s+it|that'?s\s+it|there\s+it\s+is|"
+    r"you'?ve\s+got|not\s+quite|almost|close|nope|careful|hmm|wait|actually|check|let'?s\s+see|"
+    r"agreed?|indeed|nailed\s+it|✓|✗)\b", re.I)
+_UA_TAG_RE = re.compile(r"\[\[\s*(?:mark|check|quiz|verify|finalexam)\b", re.I)
+_UA_REQUEST_RE = re.compile(
+    r"\b(?:quiz\s+me|next|skip|show\s+me|again|repeat|help|hint|explain|why|how|what|"
+    r"i\s+don'?t\s+know|not\s+sure|no\s+idea|ready|go\s+on|continue|start|stop|wait|"
+    r"can\s+you|could\s+you|please)\b", re.I)
+
+
+def unacknowledged_answer_conflict(reply: str, student_message: str = "", prev_tutor=None):
+    """Return a description of a reply that neither confirms nor corrects the
+    answer the student just gave, or "". Silent when prev_tutor is None or asked
+    nothing, when the student's message is not an answer (no digit or equals sign,
+    a question, a request, or long), and whenever the reply engages it at all.
+    Never raises: fail open."""
+    try:
+        if prev_tutor is None or "?" not in str(prev_tutor):
+            return ""
+        msg = " ".join(str(student_message or "").split())
+        if not msg or len(msg) > 120 or "?" in msg:
+            return ""
+        if not re.search(r"\d|=", msg):
+            return ""
+        if _UA_REQUEST_RE.search(msg):
+            return ""
+        text = str(reply or "")
+        if _UA_TAG_RE.search(text):
+            return ""
+        prose = _spoken_only(text)
+        if not prose.strip():
+            return ""
+        if _UA_ACK_RE.search(prose):
+            return ""
+        low = prose.lower()
+        for n in re.findall(r"-?\d+(?:\.\d+)?", msg):
+            v = n.lstrip("-")
+            if re.search(r"(?<![\d.])" + re.escape(v) + r"(?![\d.])", low):
+                return ""                       # the reply echoes their number
+            try:
+                f = float(v)
+                w = _vp_number_words(int(f)) if f.is_integer() else ""
+                if w and re.search(r"\b" + re.escape(w).replace(r"\-", "[\\s-]") + r"\b", low):
+                    return ""
+            except Exception:  # noqa: BLE001
+                pass
+        return ('the student just answered "{a}" and your reply says nothing about it -- '
+                "no yes, no not-quite, not even their number said back. Rule 18: check "
+                "THEIR answer before you build on anything. Open with one sentence that "
+                'tells them whether "{a}" is right and why (or where it slipped), and only '
+                "then go on to whatever comes next. Keep everything else the same."
+                ).format(a=msg[:50])
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[unacked] crashed (fail open): {exc}")
+        _event("referee_crash", "unacked", str(exc))
+        return ""
+
+
+# (vp) colplace's second shape: the words place a digit ABOVE or BELOW another and the
+# [[column]] tag has them the other way round.
+_CP_TERMS_RE = re.compile(r'\[\[\s*column\b[^\]]*\bterms\s*=\s*"([^"]*)"', re.I)
+_CP_NUM = r"(?:\d|zero|one|two|three|four|five|six|seven|eight|nine)"
+_CP_ABOVE_RE = re.compile(
+    # ⚠️ NOT "over" / "under": "one over two" is a fraction and "zero over zero" a limit
+    # (both caught in the prompt sweep, PART 3ll); the position words are above / below.
+    r"\b(?:the\s+|a\s+)?(" + _CP_NUM + r")\s+(?:(?:is|sits|lives|goes|lands)\s+)?(above|below|on\s+top\s+of|beneath|underneath)\s+"
+    r"(?:it|(?:the\s+|that\s+)?(" + _CP_NUM + r"))\b", re.I)
+_CP_WORDS = {"zero": "0", "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
+             "six": "6", "seven": "7", "eight": "8", "nine": "9"}
+
+
+def _cp_digit(tok):
+    t = str(tok or "").lower()
+    return _CP_WORDS.get(t, t if t.isdigit() else "")
+
+
+def column_above_below_conflict(reply: str):
+    """Return a description of a digit said to sit above/below another when the
+    [[column]] tag stacks them the other way, or "". Never raises: fail open."""
+    try:
+        text = str(reply or "")
+        m = _CP_TERMS_RE.search(text)
+        if not m:
+            return ""
+        rows = [r.strip() for r in m.group(1).split("|") if r.strip()]
+        if len(rows) < 2:
+            return ""
+        prose = _spoken_only(text)
+        for sent in _KF_SENTENCE.findall(prose):
+            for am in _CP_ABOVE_RE.finditer(sent):
+                d = _cp_digit(am.group(1))
+                other = _cp_digit(am.group(3)) if am.group(3) else ""
+                if not other:
+                    # "the seven above IT": the referent is the nearest earlier number
+                    earlier = [_cp_digit(x) for x in re.findall(r"\b" + _CP_NUM + r"\b", sent[:am.start()], re.I)]
+                    earlier = [x for x in earlier if x]
+                    if not earlier:
+                        continue
+                    other = earlier[-1]
+                if not d or d == other:
+                    continue
+                rd = next((i for i, r in enumerate(rows) if d in r), None)
+                ro = next((i for i, r in enumerate(rows) if other in r), None)
+                if rd is None or ro is None or rd == ro:
+                    continue
+                if d in rows[ro] or other in rows[rd]:
+                    continue                    # both digits in both rows: undecidable
+                word = am.group(2).lower()
+                above = word in ("above", "on top of")
+                if (rd < ro) == above:
+                    continue                    # the words match the picture
+                return ('your words say "the {d} {w} the {o}" but your column tag stacks '
+                        '"{top}" over "{bot}", so on the board the {d} is {really} the {o}. '
+                        "Rule 63: say the stack as drawn. Either swap the words (\"the {d} "
+                        "{fix} the {o}\") or, if the picture is wrong, put the terms in the "
+                        "order you mean. Keep everything else the same."
+                        ).format(d=d, w=word, o=other, top=rows[0], bot=rows[1],
+                                 really=("below" if above else "above"),
+                                 fix=("below" if above else "above"))
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[colabove] crashed (fail open): {exc}")
+        _event("referee_crash", "colabove", str(exc))
+        return ""
+
+# =============================================================================
+# BUILD vq (2026-09-12) -- JIM'S TWO RULINGS ON THE 09-12 NIGHT WATCH: referees 96-97.
+# -----------------------------------------------------------------------------
+# 96 tape_pieces_conflict (rule 63) -- fractions-lost: "here's a chocolate bar cut into
+#    equal pieces, with some eaten already" over a [[tape]] of eight plain parts. The
+#    bar COULD not show an eaten piece (only the pie shaded), and sharespic rightly
+#    steers a bar story to the bar -- so the tutor was cornered. math-figures.js now
+#    draws shaded= (the pieces we have) and eaten= (the pieces gone) on the tape; this
+#    referee holds the words to the picture: pieces said to be eaten / gone / used /
+#    missing / shaded / coloured, and a [[tape]] (or an equal-parts [[pie]]) in the
+#    reply that marks nothing. ⚠️ NOT a bare "left": "the ellipse reaches 12 to the
+#    left" over a two-part tape (precalc's canon) is a direction, not a remainder.
+# 97 requested_step_conflict (rule 65) -- geometry-picture, HIGH: "Subtract 25 from
+#    both sides, so b² = 144. Can you show me that step?" and the reply wrote only
+#    b² = 144. The student named an operation on both sides AND asked to see it; the
+#    reply must carry that move on the board -- a line whose value has the number
+#    beside an operator (25 + b² − 25 = 169 − 25), a [[step op=]] line, a [[balance]]
+#    or a [[solve]]. Message-gated: reuses referee 88's operation and both-sides
+#    grammars and vischeck's asked-to-see grammar. The fourth rule-65 referee, by
+#    Jim's ruling (2026-09-12): refusedshow, postponedshow and vischeck judge
+#    whether a picture came at all; this one judges whether the RIGHT step did.
+# =============================================================================
+_TP_PIECE_RE = re.compile(
+    r"\b(?:piece|pieces|part|parts|slice|slices|square|squares|chunk|chunks|bit|bits|section|sections)\b"
+    r"[^.!?]{0,40}?\b(?:eaten|ate|gone|used(?:\s+up)?|missing|taken|shaded|colou?red(?:\s+in)?|"
+    r"filled(?:\s+in)?|crossed\s+out|left\s+over)\b"
+    r"|\b(?:eaten|ate|gone|used(?:\s+up)?|missing|taken|shaded|colou?red(?:\s+in)?|filled(?:\s+in)?|"
+    r"crossed\s+out)\b[^.!?]{0,40}?\b(?:piece|pieces|part|parts|slice|slices|square|squares|chunk|chunks|bit|bits|section|sections)\b",
+    re.I)
+_TP_TAPE_RE = re.compile(r"\[\[\s*tape\b([^\]]*)\]\]", re.I)
+_TP_PIE_RE = re.compile(r"\[\[\s*pie\b([^\]]*)\]\]", re.I)
+_TP_MARK_RE = re.compile(r"\b(?:shaded|eaten|gone|missing)\s*=\s*\"\s*\d", re.I)
+_TP_PARTS_RE = re.compile(r"\bparts\s*=\s*\"", re.I)
+
+
+def tape_pieces_conflict(reply: str):
+    """Return a description of a bar (or equal-parts pie) the words say has eaten /
+    shaded / missing pieces while the tag marks none, or "". Never raises: fail open."""
+    try:
+        text = str(reply or "")
+        tags = [(m.group(0), m.group(1)) for m in _TP_TAPE_RE.finditer(text)]
+        tags += [(m.group(0), m.group(1)) for m in _TP_PIE_RE.finditer(text) if _TP_PARTS_RE.search(m.group(1))]
+        if not tags:
+            return ""
+        if any(_TP_MARK_RE.search(attrs) for _tag, attrs in tags):
+            return ""                           # the picture marks its pieces
+        prose = _spoken_only(text)
+        if not prose.strip():
+            return ""
+        m = _TP_PIECE_RE.search(prose)
+        if not m:
+            return ""
+        said = " ".join(m.group(0).split())[:60]
+        tag = " ".join(tags[0][0].split())[:70]
+        return ('your words say "{s}" and your picture marks no piece at all: {t}. The '
+                "student is told to look at eaten or shaded pieces the drawing does not "
+                "show. Rule 63: the picture shows what the words say. Mark them on the same "
+                'tag -- shaded="N" fills the first N parts (the ones we have), eaten="N" '
+                "crosses out the last N (eaten, used, missing) -- or drop the claim. Keep "
+                "everything else the same.").format(s=said, t=tag)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[tapepieces] crashed (fail open): {exc}")
+        _event("referee_crash", "tapepieces", str(exc))
+        return ""
+
+
+_RS_SEE_RE = re.compile(
+    r"\b(?:show\s+me|can\s+(?:you|i)\s+see|could\s+(?:you|i)\s+see|let\s+me\s+see|walk\s+me\s+through|"
+    r"write\s+(?:it|that)\s+out|show\s+(?:that|the|this|me\s+that|me\s+the)\s+step|"
+    r"can\s+you\s+show|could\s+you\s+show|would\s+you\s+show|see\s+(?:that|the)\s+step)\b", re.I)
+_RS_OP_LINE_RE = re.compile(r"\bop\s*=\s*\"", re.I)
+_RS_WHOLE_RE = re.compile(r"\[\[\s*(?:solve|balance)\b", re.I)
+
+
+def requested_step_conflict(reply: str, student_message: str = ""):
+    """Return a description of a reply that skips the both-sides step the student
+    asked to SEE, or "". Silent without a student message, when the message names
+    no both-sides operation or no number, or when the board carries the move.
+    Never raises: fail open."""
+    try:
+        msg = " ".join(str(student_message or "").split())
+        if not msg or len(msg) > 300:
+            return ""
+        if not _RS_SEE_RE.search(msg):
+            return ""
+        if not (_WW_OPS_RE.search(msg) and _WW_BOTH_RE.search(msg)):
+            return ""
+        nums = [n for n in _WW_NUM_RE.findall(msg)]
+        vals = []
+        for n in nums:
+            try:
+                v = float(n) if re.match(r"^\d", n) else _numw.word_value(n)
+                if v is not None:
+                    vals.append(float(v))
+            except Exception:  # noqa: BLE001
+                pass
+        if not vals:
+            return ""
+        text = str(reply or "")
+        if _RS_WHOLE_RE.search(text):
+            return ""                           # a solve/balance shows the whole move
+        if _RS_OP_LINE_RE.search(text) and _WW_LINE_TAG_RE.search(text):
+            return ""                           # a [[step op="…"]] line IS the move drawn
+        for v in vals:
+            forms = [("%g" % v)]
+            w = _vp_number_words(int(v)) if float(v).is_integer() and 0 <= v <= 999 else ""
+            if w:
+                forms.append(w)
+            for val in _WW_EQ_RE.findall(text):
+                for f in forms:
+                    fe = re.escape(f).replace(r"\-", "[\\s-]")
+                    if re.search(r"[-−+×÷*/]\s*" + fe + r"(?![\d.])", val) or \
+                            re.search(r"(?<![\d.])" + fe + r"\s*[-−+×÷*/]", val):
+                        return ""               # the move is on a board line
+        op = _WW_OPS_RE.search(msg).group(0)
+        return ('the student asked to SEE the step -- "{m}" -- and your board never shows '
+                "it: no line carries the {op} on both sides, only what comes after. Rule 65: "
+                "when a student asks to see a step, that step goes on the board. Add the "
+                "line that does the move before the result -- e.g. [[step eq=\"25 + b² − 25 "
+                "= 169 − 25\"]] then [[step eq=\"b² = 144\"]] -- and read it aloud as you "
+                "write it. Keep everything else the same.").format(m=msg[:80], op=op.lower())
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[requestedstep] crashed (fail open): {exc}")
+        _event("referee_crash", "requestedstep", str(exc))
         return ""
 
 
@@ -10552,6 +11060,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         # build tx: SEVENTY-NINTH, beside it -- the caption agrees with the pie, and
         # now: is a PIE the right object for the story the words are telling? (rule 63,
         # the shares-picture half RULES.md admits is prompt-covered).
+        # (vq) NINETY-SIXTH -- the words say pieces are eaten or shaded and the bar (or
+        # equal-parts pie) marks none (rule 63); the tape can mark them now.
+        tapepieces = tape_pieces_conflict(reply)
+        if tapepieces:
+            _event("referee_fire", "tapepieces", tapepieces)
+            return tapepieces
         sharespic = shares_picture_conflict(reply)
         if sharespic:
             _event("referee_fire", "sharespic", sharespic)
@@ -10581,6 +11095,18 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if visual:
             _event("referee_fire", "vischeck", visual)
             return visual
+        # (vp) NINETY-THIRD -- a circle/underline/box the words describe and the board
+        # never shows (rule 7); the [[ink]] tag is the fix.
+        inkmissing = ink_missing_conflict(reply)
+        if inkmissing:
+            _event("referee_fire", "inkmissing", inkmissing)
+            return inkmissing
+        # (vq) NINETY-SEVENTH -- the both-sides step the student asked to SEE is not on
+        # the board (rule 65; Jim's ruling 2026-09-12). Message-gated.
+        reqstep = requested_step_conflict(reply, student_message)
+        if reqstep:
+            _event("referee_fire", "requestedstep", reqstep)
+            return reqstep
         pending = prose_pending_question_conflict(reply)
         if pending:
             _event("referee_fire", "pendcheck", pending)
@@ -10601,6 +11127,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if unspoken:
             _event("referee_fire", "unspoken", unspoken)
             return unspoken
+        # (vp) NINETY-SECOND -- its sibling for a QUESTION written in [[write]] that
+        # the spoken words never ask (rule 44); vl's own nudge caused the first one.
+        writtenq = written_question_conflict(reply)
+        if writtenq:
+            _event("referee_fire", "writtenq", writtenq)
+            return writtenq
         boardnote = board_notation_conflict(reply)
         if boardnote:
             _event("referee_fire", "boardnote", boardnote)
@@ -10919,6 +11451,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if tapped:
             _event("referee_fire", "tappedanswer", tapped)
             return tapped
+        # (vp) NINETY-FOURTH -- a typed or spoken answer the reply neither confirms nor
+        # corrects (rule 18); message-gated like tappedanswer.
+        unacked = unacknowledged_answer_conflict(reply, student_message, prev_tutor)
+        if unacked:
+            _event("referee_fire", "unacked", unacked)
+            return unacked
         # build jd: THIRTY-FOURTH -- a turn that runs past the spoken-length ceiling
         # (rule 19c). Reply-only and objective; measured from Jim's [voiceclip] probe.
         toolong = spoken_length_conflict(reply)
@@ -10946,6 +11484,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if colplace:
             _event("referee_fire", "colplace", colplace)
             return colplace
+        # (vp) colplace's second shape: a digit said to sit above/below another when the
+        # column tag stacks them the other way (rule 63).
+        colabove = column_above_below_conflict(reply)
+        if colabove:
+            _event("referee_fire", "colabove", colabove)
+            return colabove
         # build jl: THIRTY-SEVENTH -- an order-of-operations rule spoken as an
         # unconditional law (rule 61), from the 2026-08-20 night watch's only
         # confirmed finding. Reply-only. Silent the moment the reply names a

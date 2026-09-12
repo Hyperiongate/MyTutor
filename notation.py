@@ -2,6 +2,9 @@
 # notation.py  --  THE NOTATION REGISTRY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-12  BUILD vp -- the juxtapose row's note reads each bracket as THE
+#               QUANTITY (the 09-12 watch, limits-hole, rule 48: "x minus 3 times x plus
+#               3" can be heard as x - 3x + 3). tutor.py's fix sentence says the same.
 #   2026-09-12  BUILD vm -- TWO FORM ROWS (the 09-10 night watch's four rule-44/48
 #               findings, carried forward): "juxtapose" (2(4), (x − 2)(x − 3) -- a
 #               number or a bracket touching a bracket means times) and "blank-term"
@@ -322,7 +325,8 @@ NOTATIONS = [
      "wrote": r"(?<![\w.])\d+(?:\.\d+)?\(|\)\(",
      "heard": r"\btimes\b|\bmultipl|\bproduct\b|\bdistribut|\bfactor|\bFOIL\b|\bexpand",
      "note": "a number or a bracket touching a bracket -- (x + 2)(x + 3) -- means "
-             "TIMES; say 'times' the first time, exactly as for 2x"},
+             "TIMES; say 'times' the first time, exactly as for 2x, and read each bracket "
+             "as THE QUANTITY: 'the quantity x plus 2, times the quantity x plus 3'"},
 
     {"id": "blank-term", "shown": "4 + ? = 10", "spoken": "four plus what equals ten",
      "never": "four plus question mark",
