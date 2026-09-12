@@ -6,6 +6,18 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vm -- THE FORMS THE BOARD LEANS ON (the 09-10 night watch's four
+#               rule-44/48 findings, carried forward): the first-use gate (_NOTATIONS,
+#               referee 30) knew symbols and not FORMS. Three entries: a number
+#               written right against a parenthesis (2(4)), two parentheses side by
+#               side ((x − 2)(x − 3)), and a question mark standing as a TERM
+#               (? + 3 = 7; the sa entry covers only ?/10). Tight (they must touch;
+#               log2( is refused); the readings are the canon's own words; [[choices]]
+#               rows are answers, not notation (_NOTE_NOT_CHOICES; the hug/slash
+#               prose-is-a-reading rule is _NOTE_PROSE_READS). notation.py gained the
+#               twin rows, so rule 48's HOW-TO-SAY table hands the tutor the readings
+#               and PART 3f holds every authored board to them. Swept per lesson: 0
+#               fires. No referee count change (90). PART 3li.
 #   2026-09-11  BUILD vl -- REFEREES 89 AND 90, from the 09-11 night watch's last two
 #               closable findings. 89 caption_answer_conflict (rule 17): a caption on any
 #               tag states a value in answer form ("heading toward y=4", "closer to 50")
@@ -4592,7 +4604,60 @@ _NOTATIONS = (
      'That question mark is a BLANK -- we read ?/10 out loud as "what over '
      'ten": it holds the spot for the missing top number we are about to '
      "find together."),
+    # (vm, 2026-09-12) THE 09-10 WATCH'S FOUR RULE-44/48 FINDINGS, ONE DEFECT: the
+    # gate knew SYMBOLS and not FORMS. "2(4)" (a number touching a parenthesis),
+    # "(x − 2)(x − 3)" (two parentheses touching) and "? + 3 = 7" (a question mark
+    # standing as a TERM) each reached a student written and never read -- and the
+    # reviewer, by the 09-08 ruling, rightly refuted the re-uses of forms already
+    # taught. Three entries. ⚠️ TIGHT ON PURPOSE (the iz law: real notation hugs):
+    # "342 (three hundred forty-two)" is a parenthetical remark with a space, and
+    # "(1, 2) (3, 4)" two points -- neither touches, neither matches. The digit may
+    # not be the tail of a name (log2(8)): the lookbehind refuses a word character.
+    # ⚠️ The readings are the words the canon itself uses: "times"/"multiply"/
+    # "distribute"/"factor"/"product" for the products; for the blank, the canon
+    # says "3 times WHAT equals 12" and "x plus WHAT" -- so any question word IS the
+    # reading, and this entry fires only on a reply that writes the blank and asks
+    # nothing about it. Swept per LESSON (every earlier beat of the same lesson as
+    # heard_tutor, the conversation a scripted lesson actually is): 0 fires each;
+    # strictly with nothing heard, only end-of-lesson recaps of a form the lesson
+    # read earlier. PART 3li.
+    ("a number written right against a parenthesis",
+     re.compile(r"(?<![\w.])\d+(?:\.\d+)?\("),
+     re.compile(r"\btimes\b|\bmultipl|\bproduct\b|\bdistribut|\bfactor", re.I),
+     'A number written right up against a parenthesis -- like 2(4) -- means TIMES: '
+     '"two times four". Math drops the multiplication sign when a number touches a '
+     "bracket, the same way it does for 2x."),
+    ("two parentheses written side by side", re.compile(r"\)\("),
+     re.compile(r"\btimes\b|\bmultipl|\bproduct\b|\bdistribut|\bfactor|\bFOIL\b|"
+                r"\bexpand", re.I),
+     'Two brackets touching -- like (x + 2)(x + 3) -- means TIMES: "x plus two, '
+     'times, x plus three". When nothing sits between two brackets, the '
+     "multiplication sign is understood."),
+    ("a question-mark blank standing as a term",
+     # ⚠️ the class holds BOTH minus signs: the canon writes "? − 3 = 4" with U+2212.
+     # ⚠️ the slash and the dot must HUG the blank (?/5, ?·i): spaced, they are the
+     # separators of build iz's phantom class ("Ready? / 5 minutes left", "= ? · base 2").
+     re.compile(r"\?\s*[-−+×*÷^]|\?[/·]|[-−+×*÷^]\s*\?|[/·]\?"),
+     re.compile(r"\bwhat\b|\bwhich\b|\bhow\s+(?:many|much|far|big|long)\b|\bblank\b|"
+                r"\bmissing\b|\bfill\s+in\b|\bmystery\b|\bquestion\s+mark\b|"
+                r"\bunknown\b|\bsomething\b|\bhidden\b|\bfind\b", re.I),
+     'That question mark is a BLANK -- we read "? + 3 = 7" out loud as "what plus '
+     'three equals seven": it holds the spot for the number we are about to find.'),
 )
+# (vm) The entries whose PROSE is itself a reading (the voice lane reads digits, so a
+# spoken "2x" is "two x"), and the entries that judge only NON-[[choices]] tags (a
+# row of tappable answers is not board notation -- build iz's phantom class). The
+# three vm forms join the second set: a factoring quiz's answer buttons may well
+# carry (x + 2)(x + 3), and a "2(4)" among the options is an answer, not a lesson.
+_NOTE_PROSE_READS = frozenset({"a number hugging a letter", "the fraction slash"})
+_NOTE_FORMS = frozenset({
+    "a number written right against a parenthesis",
+    "two parentheses written side by side",
+    "a question-mark blank standing as a term"})
+_NOTE_NOT_CHOICES = _NOTE_PROSE_READS | _NOTE_FORMS
+# A form is met when the board has WRITTEN it before -- never by its reading word
+# alone in an earlier turn ("times" belongs to × and · too; "what" to every question).
+_NOTE_FORM_READ_NOW = _NOTE_FORMS
 _NOTE_TAG_RE = re.compile(r"\[\[([^\]]*)\]\]")
 _NOTE_VAL_RE = re.compile(r'"([^"]*)"')
 
@@ -4657,7 +4722,11 @@ def notation_intro_conflict(reply: str, heard=None, heard_tutor=None):
             # aloud last turn and writes f(2) this turn was accused of a first use.
             # Judged against the same tutor-only text, for the same reason -- a
             # student saying "f of x" is not evidence anyone taught it to them.
-            if spoken.search(base):
+            # (vm) ...except for the FORMS, whose readings are the commonest words in
+            # the room: "times" said ten turns ago about the × sign is not a reading of
+            # 2(4), and "what" is in every question ever asked. A form counts as met
+            # only when the board has WRITTEN it before; the words must come with it.
+            if spoken.search(base) and name not in _NOTE_FORM_READ_NOW:
                 continue                    # the tutor read it aloud earlier
             # The reading can live in the prose OR on the board itself -- the
             # authored f(x) script writes 'say it out loud: "f of x"' INSIDE the
@@ -4671,12 +4740,12 @@ def notation_intro_conflict(reply: str, heard=None, heard_tutor=None):
             # the reading regex silenced the entry entirely (caught in this
             # build's own dry run). Arrows and bars stay word-read: the voice
             # says nothing useful for "->".
-            if name in ("a number hugging a letter", "the fraction slash"):
-                if sym.search(prose):
-                    continue
-                # ...and ANSWER OPTIONS are not board notation: a [[choices]] row
-                # of "3/4 | 2/4 | 4/8" is a set of tappable answers (build iz's
-                # phantom class). These two entries judge only NON-choices tags.
+            if name in _NOTE_PROSE_READS and sym.search(prose):
+                continue
+            # ...and ANSWER OPTIONS are not board notation: a [[choices]] row
+            # of "3/4 | 2/4 | 4/8" is a set of tappable answers (build iz's
+            # phantom class). These entries judge only NON-choices tags.
+            if name in _NOTE_NOT_CHOICES:
                 nvals = [v for t in _NOTE_TAG_RE.findall(str(reply or ""))
                          if not t.strip().lower().startswith("choices")
                          for v in _NOTE_VAL_RE.findall(t)]

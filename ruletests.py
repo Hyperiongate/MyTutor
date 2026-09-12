@@ -6,6 +6,15 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vm -- PART 3li, THE FORMS THE BOARD LEANS ON: the first-use gate
+#               gains three FORM entries (2(4), (x − 2)(x − 3), ? + 3 = 7) and
+#               notation.py two twin rows; a form is met only by an earlier WRITTEN
+#               use; [[choices]] rows are answers. The canon is swept PER LESSON
+#               (every earlier beat of the same lesson as what the tutor has said):
+#               0 fires, after two authored beats were made to read the line they
+#               write. The 3kx/3ky speechmap pins move 1,940 -> 1,939 and 2,246 ->
+#               2,245 (the proportions line lost a digit-colon-digit forSpeech read
+#               as a ratio). No referee count change.
 #   2026-09-11  BUILD vl -- PART 3lh, REFEREES 89 AND 90: the caption does not answer
 #               the question (rule 17) and the blank on the board is the question in the
 #               words (rule 18). Both watch replies fire; the safe shapes stay silent;
@@ -15081,7 +15090,9 @@ def part3kx_the_next_line_is_already_loaded():
               # (vj) 1,943 -> 1,940: the three lines that carried "Place value to 1,000"
               # (the comma forSpeech tidies) were renamed; the history count moves with
               # the course, and the honest repair is to write the generator's number
-              n == 1940, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
+              # (vm) 1,940 -> 1,939: the proportions teach line lost its "by 2: 3 times"
+              # (forSpeech read the digit-colon-digit as a ratio, "2 to 3")
+              n == 1939, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
         check("  ⭐⭐ ...and not one of them is a mismatch any more: the label the server "
               "files under equals the label the page asks for, on every line",
               all(_M._spoken(t) == t or _M._spoken(t) != t for t in lines[:1])
@@ -15165,8 +15176,9 @@ def part3ky_one_label_for_every_clip():
         # LITERAL MOVES WITH THE COURSE: an authored edit that adds or removes a tidied
         # form changes it, and the honest repair is to read the new count off the
         # generator's own report line and write it here with the build that did it.
-        check("  ...and it still holds the differences it was built for (2,246 since vj; 2,249 at vc)",
-              len(mapping) == 2246 and scanned == 40275,
+        # (vm) 2,246 -> 2,245: the same proportions line, no longer tidied.
+        check("  ...and it still holds the differences it was built for (2,245 since vm; 2,246 at vj; 2,249 at vc)",
+              len(mapping) == 2245 and scanned == 40275,
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
@@ -16363,6 +16375,178 @@ def part3lh_the_caption_and_the_blank():
           "2026-09-11  BUILD vl" in notes("tutor.py") and "2026-09-11  BUILD vl" in notes("ruletests.py")
           and "2026-09-11  (vl) Tile 88 -> 90" in notes("static/methodology.html")
           and 'APP_BUILD -> "2026-09-11vl-' in notes("main.py"), "")
+
+
+def part3li_the_forms_the_board_leans_on():
+    """PART 3li (build vm, 2026-09-12) -- THE FORMS THE BOARD LEANS ON.
+
+    The 09-10 night watch's four rule-44/48 findings, one defect: the first-use gate
+    (_NOTATIONS, referee 30) knew SYMBOLS and not FORMS. 2(4), (x - 2)(x - 3) and
+    "? + 3 = 7" each reached a student written and never read; the reviewer refuted the
+    re-uses of forms already taught (the 09-08 ruling) and was right both times.
+    Three entries in tutor.py and two twin rows in notation.py (so the HOW-TO-SAY table
+    hands the tutor the reading and PART 3f holds every authored board to it):
+      - a number written right against a parenthesis      2(4), 3(x + 2)
+      - two parentheses written side by side              (x - 2)(x - 3), (a)(b)
+      - a question-mark blank standing as a term          ? + 3 = 7, 6 x ? = 36
+    ⚠️ TIGHT: they must touch ("342 (three hundred)" is a remark; "(1, 2) (3, 4)" two
+    points); log2( is a name; the bare "= ?" pending mark is rule 15's, not notation.
+    ⚠️ A FORM IS MET ONLY BY AN EARLIER WRITTEN USE (_NOTE_FORM_READ_NOW): its reading
+    words are the commonest in the room ("times" belongs to x and . too, "what" to every
+    question), so a reading in an earlier turn does not count -- the words come with the
+    line that writes it. [[choices]] rows are answers, not notation (_NOTE_NOT_CHOICES).
+    Swept PER LESSON (each beat judged with every earlier beat of its lesson as what the
+    tutor has said -- the conversation a scripted lesson actually is): 0 fires, after two
+    authored beats were made to read the line they write (prealgebra proportions'
+    "3/4 = ?/8", algebra1's "(x + 3)(x - 3)"). No referee count change (90)."""
+    print("\nPART 3li — the forms the board leans on (build vm)")
+    import os as _os
+    import re as _re
+    import tutor as T
+    import notation as NT
+    import foundations as FND
+    import lessonscripts as LS
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+
+    def N(r, heard=""):
+        return T.notation_intro_conflict(r, heard=heard, heard_tutor=heard)
+    # the older symbols in these fixtures (x², ×) are already met, so only the FORM is new
+    MET = 'earlier: x squared [[step eq="x² − 5x + 6"]] and two times three [[step eq="2 × 3 = 6"]] -- what is it?'
+    NAMES = ("a number written right against a parenthesis", "two parentheses written side by side",
+             "a question-mark blank standing as a term")
+    check("⭐ the three entries are on the list, after the fraction blank, and are the form set",
+          [n for n, *_ in T._NOTATIONS][-4:] == ["a question-mark blank in a fraction"] + list(NAMES)
+          and T._NOTE_FORMS == frozenset(NAMES) == T._NOTE_FORM_READ_NOW
+          and T._NOTE_NOT_CHOICES == T._NOTE_PROSE_READS | T._NOTE_FORMS, "")
+
+    # ---- 2(4) --------------------------------------------------------------------------
+    j = 'Plug in four and see what comes out. [[step eq="y = 2(4) + 1 = ?"]]'
+    check("⭐⭐ 2(4) written and never read FIRES, naming the line and dictating 'two times four'",
+          NAMES[0] in (N(j, MET) or "") and 'THE LINE THAT DOES IT: "y = 2(4) + 1 = ?"' in N(j, MET)
+          and "means TIMES" in N(j, MET) and "two times four" in N(j, MET), (N(j, MET) or "")[:90])
+    for label, r, h in (
+            ("the words say 'two times four'", 'Plug in four: two times four, plus one. [[step eq="y = 2(4) + 1 = ?"]]', MET),
+            ("'multiply' is a reading", 'Multiply first, then add one. [[step eq="y = 2(4) + 1 = ?"]]', MET),
+            ("the board WROTE the form in an earlier turn", j, MET + ' [[step eq="2(3) + 1 = 7"]]'),
+            ("a remark after a space is not the form", 'Here is the number. [[step eq="342 (three hundred forty-two)"]]', MET),
+            ("log2( is a name, not a number against a bracket", 'The log. [[write text="log2(8) = 3"]]', MET),
+            ("a decimal in a point, not a product", 'The point. [[write text="the point (2.5, 4)"]]', MET),
+            ("in a [[choices]] row it is an answer, not notation", 'Which one? [[choices opts="2(4) | 2 + 4 | 24"]]', MET)):
+        check("  silent: %s" % label, NAMES[0] not in (N(r, h) or ""), (N(r, h) or "")[:70])
+    check("  ⚠️ 'times' said in an EARLIER turn about the × sign is NOT a reading of 2(4) (the form rule)",
+          NAMES[0] in (N(j, MET + " two times three is six, times means groups of") or ""), "")
+    check("  3(x + 2) with a decimal coefficient too: 2.5(x + 2)",
+          NAMES[0] in (N('Here it is. [[step eq="2.5(x + 2) = ?"]]', MET) or ""), "")
+
+    # ---- (x − 2)(x − 3) ------------------------------------------------------------------
+    b = 'Here is the other way to write it. [[step eq="x² − 5x + 6 = (x − 2)(x − 3)"]]'
+    check("⭐⭐ (x − 2)(x − 3) written and never read FIRES with 'x plus two, times, x plus three'",
+          NAMES[1] in (N(b, MET) or "") and "Two brackets touching" in N(b, MET), (N(b, MET) or "")[:90])
+    for label, r, h in (
+            ("'x minus two, times, x minus three' in the words", 'The other way: x minus two, times, x minus three. [[step eq="x² − 5x + 6 = (x − 2)(x − 3)"]]', MET),
+            ("'factored' / 'the product' are readings", 'Here is the factored form, the product of two brackets. [[step eq="(x − 2)(x − 3)"]]', MET),
+            ("the board wrote two touching brackets before", b, MET + ' [[step eq="(x + 1)(x + 2) = x² + 3x + 2"]]'),
+            ("two points with a space between are not a product", 'Two points. [[write text="(1, 2) (3, 4)"]]', MET),
+            ("a factoring quiz's answer buttons", 'Which is it? [[choices opts="(x − 2)(x − 3) | (x + 2)(x + 3) | (x − 6)(x + 1)"]]', MET)):
+        check("  silent: %s" % label, NAMES[1] not in (N(r, h) or ""), (N(r, h) or "")[:70])
+    check("  (a)(b) is the same form", NAMES[1] in (N('Two brackets. [[step eq="(a)(b) = ab"]]', MET) or ""), "")
+
+    # ---- ? as a term -------------------------------------------------------------------
+    q = 'Add them up and see. [[step eq="4 + ? = 10"]]'
+    check("⭐⭐ '4 + ? = 10' written with nothing asked FIRES with 'what plus three equals seven'",
+          NAMES[2] in (N(q, MET) or "") and "what plus" in N(q, MET), (N(q, MET) or "")[:90])
+    for label, r, h in (
+            ("'four plus WHAT makes ten?' -- the canon's own reading", 'Four plus what makes ten? [[step eq="4 + ? = 10"]]', MET),
+            ("'how many more' / 'the missing number'", 'How many more do we need -- the missing number? [[step eq="4 + ? = 10"]]', MET),
+            ("'which two numbers' over ? × ? = 6", 'Which two numbers multiply to six? [[step eq="? × ? = 6"]]', MET),
+            ("the bare '= ?' pending mark is rule 15's, never notation", 'Add them up and see. [[step eq="4 + 6 = ?"]]', MET),
+            ("a spaced slash after a ? is a SEPARATOR (the iz law; the sa pin's own card)", 'Break time! [[card title="Ready? / 5 minutes left"]] Stretch.', MET),
+            ("a spaced dot after a ? is a separator too (the canon's '= ? · base 2')", 'The log. [[step eq="log 8^2 = ? · base 2"]]', MET),
+            ("the board wrote a blank term before", q, MET + ' [[step eq="? + 1 = 3"]]'),
+            ("'find' is a reading", 'Find the number that makes it true. [[step eq="4 + ? = 10"]]', MET)):
+        check("  silent: %s" % label, NAMES[2] not in (N(r, h) or ""), (N(r, h) or "")[:70])
+    check("  ?/10 is still the fraction-blank entry's (sa), which sits first",
+          "a question-mark blank in a fraction" in (N('Add them. [[step eq="3/5 = ?/10"]]', MET + ' one half [[step eq="1/2 = 2/4"]]') or ""), "")
+    check("  the blank's operator class holds the canon's U+2212 minus as well as the hyphen",
+          NAMES[2] in (N('Look. [[step eq="? − 3 = 4"]]', MET) or "") and NAMES[2] in (N('Look. [[step eq="? - 3 = 4"]]', MET) or "")
+          and "blank-term" in NT.written_in("? − 3 = 4"), "")
+    check("  '6 × ? = 36' with nothing asked fires; '? − 3 = 4' too",
+          NAMES[2] in (N('Look. [[step eq="6 × ? = 36"]]', MET) or "") and NAMES[2] in (N('Look. [[step eq="? − 3 = 4"]]', MET) or ""), "")
+    check("  never raises; nothing heard is silence; a tags-only fragment is silence",
+          T.notation_intro_conflict(None) == "" and N('[[step eq="2(4)"]]', MET) == "" and T.notation_intro_conflict(j) == "", "")
+
+    # ---- notation.py: the twin rows --------------------------------------------------------
+    jx, bt = NT.by_id("juxtapose"), NT.by_id("blank-term")
+    check("⭐ notation.py registers both forms, and each row recognises its own example",
+          jx and bt and _re.search(jx["wrote"], jx["shown"]) and _re.search(bt["wrote"], bt["shown"])
+          and _re.search(jx["heard"], jx["spoken"], _re.I) and _re.search(bt["heard"], bt["spoken"], _re.I), "")
+    check("  juxtapose sees 2(4), (x + 2)(x + 3) and (a)(b); not a remark, two points, or log2(",
+          NT.written_in("2(4)") == ["juxtapose"] and "juxtapose" in NT.written_in("(x + 2)(x + 3)")
+          and "juxtapose" in NT.written_in("(a)(b)") and "juxtapose" not in NT.written_in("342 (three hundred)")
+          and "juxtapose" not in NT.written_in("(1, 2) (3, 4)") and "juxtapose" not in NT.written_in("log2(8)"), "")
+    check("  blank-term sees 4 + ? = 10 and ? × ? = 6; never the bare '= ?'",
+          "blank-term" in NT.written_in("4 + ? = 10") and "blank-term" in NT.written_in("? × ? = 6")
+          and "blank-term" not in NT.written_in("4 + 6 = ?"), "")
+    check("  juxtapose is registered from prealgebra up; blank-term everywhere (entry writes 5 + ? = 11)",
+          set(jx["courses"]) == set(NT.SYMBOLIC) | {"prealgebra"} and set(bt["courses"]) == set(NT.ALL_COURSES), "")
+    check("  the HOW-TO-SAY table hands algebra1 both readings, and basic the blank's",
+          '2(4)' in NT.prompt_block("algebra1") and 'two times four' in NT.prompt_block("algebra1")
+          and 'four plus what equals ten' in NT.prompt_block("basic") and '2(4)' not in NT.prompt_block("basic"), "")
+
+    # ---- the canon sweep, PER LESSON -------------------------------------------------------
+    convs = []
+    for c, scr in FND.FOUNDATIONS.items():
+        for sc in (scr.values() if isinstance(scr, dict) else scr):
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                convs.append([t])
+    for les in LS.LESSONS:
+        beats = [(sp or "") + "\n" + (b or "") for sp, b in _authored_beats(les)]
+        for pr in les.get("pairs") or []:
+            w = pr.get("worked") or ("", ""); beats.append((w[0] or "") + "\n" + (w[1] or ""))
+            pp = pr.get("ask") or {}; ext = LS.OP_EXT.get(pp.get("op"))
+            if ext:
+                try:
+                    beats.append(ext["spoken"](pp) + "\n" + ext["board"](pp))
+                except Exception:  # noqa: BLE001
+                    pass
+        for pp in les.get("bank") or []:
+            ext = LS.OP_EXT.get(pp.get("op"))
+            if ext:
+                try:
+                    beats.append(ext["spoken"](pp) + "\n" + ext["board"](pp))
+                except Exception:  # noqa: BLE001
+                    pass
+        convs.append([t for t in beats if t.strip()])
+    total = sum(len(b) for b in convs)
+    fires = {n: [] for n in NAMES}
+    for beats in convs:
+        for i, t in enumerate(beats):
+            base = "\n".join(beats[:i])
+            r = T.notation_intro_conflict(t, heard=base, heard_tutor=base) or ""
+            for n in NAMES:
+                if n in r:
+                    fires[n].append(" ".join(t.split())[:80])
+    check(f"⭐ CANON SWEEP, PER LESSON: {total} authored beats, each judged after its own lesson's earlier beats -- zero fires from the three forms",
+          total >= 7000 and not any(fires.values()),
+          "; ".join(f"{n}: {len(v)} e.g. {v[:1]}" for n, v in fires.items() if v))
+    # the LOADED beats, not the source: the phrase may span a string-concat boundary
+    # (build nj's sixth spelling-not-behaviour lesson)
+    loaded = "\n".join(t for beats in convs for t in beats)
+    check("  the two beats the sweep found now read the line they write",
+          "3 over 4 equals WHAT over 8 — the question mark is the hole" in loaded
+          and "two brackets touching means times" in loaded
+          and "timesed by 2 as well — 3 times 2 equals 6" in loaded, "")
+
+    # ---- counted, noted --------------------------------------------------------------------
+    check("  no referee count change: still 90, truth class 11",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90 and len(T.TRUTH_REFEREES) == 11, "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-12  BUILD vm" in notes("tutor.py") and "2026-09-12  BUILD vm" in notes("notation.py")
+          and "2026-09-12  BUILD vm" in notes("ruletests.py") and "2026-09-12  BUILD vm" in notes("lessons/prealgebra.py")
+          and "2026-09-12  BUILD vm" in notes("lessons/algebra1.py")
+          and 'APP_BUILD -> "2026-09-12vm-' in notes("main.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -43177,6 +43361,7 @@ def main():
     part3lf_ready_and_four_basic_lines()
     part3lg_the_figures_words_fit_the_board()
     part3lh_the_caption_and_the_blank()
+    part3li_the_forms_the_board_leans_on()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

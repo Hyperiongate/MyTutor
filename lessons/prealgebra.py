@@ -2,6 +2,17 @@
 # lessons/prealgebra.py  --  PRE-ALGEBRA: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-12  BUILD vm -- ONE LINE READ AS IT IS WRITTEN. Unit "Filling in a
+#               proportion", teach[0]: the board writes [[step eq="3/4 = ?/8"]] and the
+#               words never read the blank in that beat (the picture beat before it
+#               asked "how many eighths?"). The first-use gate's new blank-as-a-term
+#               entry, swept per lesson, found it: the beat now says "3 over 4 equals
+#               WHAT over 8 -- the question mark is the hole" before explaining the
+#               move. ⚠️ AND A SPEECH TRAP the regeneration showed: the old line's
+#               "by 2: 3 times 2" was read by forSpeech's ratio rule as "by 2 to 3
+#               times 2" (digit-colon-digit is a ratio to the page). The line now
+#               says "by 2 as well -- 3 times 2 equals 6". One clip re-renders
+#               (pennies); speechmap regenerated (2,246 lines, unchanged count).
 #   2026-09-10  BUILD ux -- THE EXPRESSION COMES FIRST (Unit 9's two letter lessons),
 #               and a trap beat that draws its picture again (Unit 8's triangle).
 #               Jim's flag 22:43: "it should first show the equation, then the value
@@ -1773,8 +1784,9 @@ _PREALGEBRA_U6 = [
         ],
         "teach": [
             ("That is the rule, and it works exactly like the ratio rule: whatever "
-             "happened to the bottom happened to the top. The bottom went from 4 to "
-             "8 — timesed by 2. So the top is timesed by 2: 3 times 2 equals 6.",
+             "happened to the bottom happened to the top. On the board, 3 over 4 "
+             "equals WHAT over 8 — the question mark is the hole. The bottom went from "
+             "4 to 8 — timesed by 2. So the top is timesed by 2 as well — 3 times 2 equals 6.",
              '[[pie parts="4" shaded="3" caption="3/4"]][[pie parts="8" shaded="6" caption="6/8"]][[step eq="3/4 = ?/8"]][[step eq="4 × 2 = 8, so 3 × 2 = 6"]]'),
             ("Watch out for adding. The bottom went up by 4, but that does NOT mean "
              "the top goes up by 4. 3 over 4 is not 7 over 8. Ask what the bottom was "

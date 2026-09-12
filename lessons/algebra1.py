@@ -2,6 +2,14 @@
 # lessons/algebra1.py  --  ALGEBRA I: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-12  BUILD vm -- ONE LINE READ AS IT IS WRITTEN. "The vanishing middle",
+#               teach[0]: the board writes [[step eq="(x + 3)(x − 3) = x² − 9"]] -- the
+#               lesson's first two brackets side by side -- and the words of that beat
+#               never say what the touching brackets mean (the why beat, two beats up,
+#               had said "x plus 3, times x take away 3"). The first-use gate's new
+#               form entry, swept per lesson, found it: the beat now opens "x plus 3,
+#               times, x take away 3 -- two brackets touching means times". One clip
+#               re-renders (pennies); speechmap regenerated.
 #   2026-09-10  BUILD ux -- JIM'S FOUR FLAGS ON UNIT 1, 2026-09-09. two-steps-with-a-
 #               letter and two-letters: every teach beat, worked pair and reason
 #               question names the EXPRESSION before the value ("5 x plus 4, with x
@@ -2247,7 +2255,8 @@ _ALGEBRA1_U7 = [
              '[[areamodel rows="x,3" cols="x,-3" caption="(x + 3) by (x − 3) — the middles cancel: x² − 9"]]'),
         ],
         "teach": [
-            ("That is the method. Watch the middles: plus 3 x and take away 3 x. They "
+            ("That is the method: x plus 3, times, x take away 3 — two brackets "
+             "touching means times. Watch the middles: plus 3 x and take away 3 x. They "
              "cancel — land exactly on nothing. All that survives is x squared take "
              "away 9. The whole middle of the answer vanished.",
              '[[areamodel rows="x,3" cols="x,-3" caption="read the rooms"]][[step eq="+3x − 3x = 0"]][[step eq="(x + 3)(x − 3) = x² − 9"]]'),

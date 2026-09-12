@@ -2,6 +2,13 @@
 # notation.py  --  THE NOTATION REGISTRY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-12  BUILD vm -- TWO FORM ROWS (the 09-10 night watch's four rule-44/48
+#               findings, carried forward): "juxtapose" (2(4), (x − 2)(x − 3) -- a
+#               number or a bracket touching a bracket means times) and "blank-term"
+#               ("? + 3 = 7" -- a question mark standing as a term). The registry knew
+#               symbols and not forms, so rule 48's HOW-TO-SAY table had no reading to
+#               hand the tutor. tutor.py's first-use gate gained the matching entries
+#               the same build; PART 3f now holds every authored board to both rows.
 #   2026-09-11  BUILD vf -- THE ONE-SIDED LIMIT SIGN JOINS THE REGISTRY (the 09-11
 #               night watch, calculus, rule 48): "x→2⁻" reached a student with "from
 #               the left" in the words and nothing saying that the little raised
@@ -299,6 +306,33 @@ NOTATIONS = [
              "the BOTTOM number of the stacked form. Before using top/bottom language "
              "over a slash form, say that bridge once (a young student looking at 1/4 "
              "sees no bottom)"},
+
+    # (vm, 2026-09-12) THREE FORMS, not symbols -- the 09-10 night watch's four rule-48
+    # findings: 2(4), (x − 2)(x − 3) and "? + 3 = 7" each reached a student written
+    # and never read, and this registry had no row to hand the tutor a reading for
+    # any of them. `wrote` is tight: the number or bracket must TOUCH the bracket
+    # ("342 (three hundred forty-two)" is a remark; "(1, 2) (3, 4)" are two points;
+    # log2( is a name); the blank must sit beside an operator (the bare "= ?"
+    # pending mark is rule 15's, not notation), and a slash or dot must HUG it --
+    # spaced, they are separators ("Ready? / 5 minutes left", "= ? · base 2").
+    # Readings are the canon's own words.
+    {"id": "juxtapose", "shown": "2(4)", "spoken": "two times four",
+     "never": "two, four",
+     "courses": SYMBOLIC + ("prealgebra",),
+     "wrote": r"(?<![\w.])\d+(?:\.\d+)?\(|\)\(",
+     "heard": r"\btimes\b|\bmultipl|\bproduct\b|\bdistribut|\bfactor|\bFOIL\b|\bexpand",
+     "note": "a number or a bracket touching a bracket -- (x + 2)(x + 3) -- means "
+             "TIMES; say 'times' the first time, exactly as for 2x"},
+
+    {"id": "blank-term", "shown": "4 + ? = 10", "spoken": "four plus what equals ten",
+     "never": "four plus question mark",
+     "courses": ALL_COURSES,
+     "wrote": r"\?\s*[-−+×*÷^]|\?[/·]|[-−+×*÷^]\s*\?|[/·]\?",
+     "heard": r"\bwhat\b|\bwhich\b|\bhow\s+(?:many|much|far|big|long)\b|\bblank\b|"
+              r"\bmissing\b|\bfill\s+in\b|\bmystery\b|\bquestion\s+mark\b|"
+              r"\bunknown\b|\bsomething\b|\bhidden\b|\bfind\b",
+     "note": "the question mark IN the line is the blank you are asking for: read it "
+             "as 'what' and ask for it in the same breath"},
 
     {"id": "setbraces", "shown": "{ }", "spoken": "the set containing", "never": "curly things",
      "courses": ("algebra2", "precalc", "probstat", "diffeq"), "wrote": r"[{}]",

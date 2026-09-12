@@ -6,6 +6,11 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  APP_BUILD -> "2026-09-12vm-the-forms-the-board-leans-on".
+#               BUILD vm -- no change in this file beyond the stamp. tutor.py: three
+#               FORM entries in the first-use gate; notation.py: two twin rows;
+#               lessons/prealgebra.py + lessons/algebra1.py: one beat each reads the
+#               line it writes; speechmap.py regenerated. PART 3li.
 #   2026-09-11  APP_BUILD -> "2026-09-11vl-the-caption-and-the-blank".
 #               BUILD vl -- no change in this file beyond the stamp. tutor.py: referees
 #               89 (captionanswer) and 90 (divisorblank); methodology.html: 90. PART 3lh.
@@ -9268,7 +9273,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-11vl-the-caption-and-the-blank"
+APP_BUILD = "2026-09-12vm-the-forms-the-board-leans-on"
 
 
 @app.get("/health")
