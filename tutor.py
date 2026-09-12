@@ -6,6 +6,27 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vr -- THE 166, READ PER REASON. The week's 48 newest pass_through
+#               rows were read from system_events (43 on the watch's own AUDIT lane, 5
+#               live) and each reason judged nudge / rule / code. (1) THE CRITIC'S
+#               CHARTER, IN CODE: critic_objection_is_style() -- a livecritic verdict
+#               that CONCEDES the draft is right ("which is indeed correct, however..."),
+#               or is advice ("would be clearer", "could confuse", "risks feeling",
+#               "or better:") with no error word outside quotes, is a PASS: no retry,
+#               counted referee_soft · criticstyle. 8 of the week's 35 livecritic
+#               pass-throughs were this shape; each cost two retries and shipped
+#               anyway. _CRITIC_SYSTEM says the same in words (style is not a defect;
+#               the tutor holds the record and the gates; you see four turns only).
+#               (2) finiteanswer's NUDGE WAS WRONG: "three fifths or five eighths?" was
+#               captured as "fifths | five" and the model refused the nonsense buttons
+#               three times; _EITHER_OR_RE now carries a number word into each label.
+#               (3) danglingcolon: the detail now SAYS the fix, and repair_dangling_colon
+#               is a floor at the door (colon -> period, or "what's on the board" after
+#               a pointer word); 3 of the week's 13 prosecheck pass-throughs. (4)
+#               problemnumbers: a sub-one decimal read as cents / hundredths / "point
+#               four seven" IS read aloud (rule 44 says "the way a person says it");
+#               "0.47" only counted as "zero point four seven". No referee count change.
+#               PART 3ln.
 #   2026-09-12  BUILD vq -- THE BAR SHOWS THE EATEN PIECES; THE STEP YOU ASKED TO SEE IS
 #               ON THE BOARD (Jim's two rulings on the 09-12 watch, "Yes to both").
 #               REFEREE 96 tape_pieces_conflict (rule 63): words say pieces are eaten /
@@ -7489,10 +7510,19 @@ def board_parens_conflict(reply: str):
 # (qb) 2026-08-29 -- the alternatives may be NUMBERS. "Which is bigger, 3 or 5?"
 # slipped because both alternatives had to start with a letter. A number, a
 # decimal or a simple fraction now counts; the labels are the numbers themselves.
+# (vr) 2026-09-12 -- A SPELLED FRACTION IS TWO WORDS. The 09-12 watch: "Which is
+# bigger -- three fifths or five eighths?" was captured as "fifths | five", the nudge
+# asked for [[choices options="Fifths | Five"]], and the model refused the nonsense
+# three times -- a pass-through caused by our own nudge. A number word before an
+# alternative now rides into the label ("Three fifths | Five eighths"). Number words
+# ONLY (one..twenty, a-dozen shapes are not numbers): an article is not carried, so
+# "a square or a rectangle" is exactly as silent as before. Canon swept: 0 new fires.
+_EO_NUMWORD = (r"(?:(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
+               r"thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\s+)?")
 _EITHER_OR_RE = re.compile(
     r"\b(?:is|are|was|were|does|do|did|which|acute|call)\b[^.?!]*?"
-    r"(?<![\w.])([A-Za-z][\w-]{1,14}|-?\d{1,4}(?:[.,]\d{1,3})?(?:/\d{1,3})?)\s+or\s+"
-    r"([A-Za-z][\w-]{1,14}|-?\d{1,4}(?:[.,]\d{1,3})?(?:/\d{1,3})?)(?:\s+[a-z][\w-]{1,12})?\s*\?", re.I)
+    r"(?<![\w.])(" + _EO_NUMWORD + r"[A-Za-z][\w-]{1,14}|-?\d{1,4}(?:[.,]\d{1,3})?(?:/\d{1,3})?)\s+or\s+"
+    r"(" + _EO_NUMWORD + r"[A-Za-z][\w-]{1,14}|-?\d{1,4}(?:[.,]\d{1,3})?(?:/\d{1,3})?)(?:\s+[a-z][\w-]{1,12})?\s*\?", re.I)
 _YESNO_RE = re.compile(r"\byes or no\b", re.I)
 # (oh) a BARE ready-check ending the turn ("Ready to see how those work?").
 # Jim's flag: "has a binary answer yes or no. should have bubbles." Final
@@ -8059,11 +8089,66 @@ def dangling_colon_conflict(reply: str):
         if not m:
             return ""
         lead = text[max(0, m.start() - 60):m.start()].strip()
+        # (vr) the detail SAYS the fix. For three weeks it only described the defect,
+        # and the 09-12 window shows the model shipping the colon three times running
+        # on three lessons. A nudge that names the repair is the cheap fix; the floor
+        # below (repair_dangling_colon) is the guarantee.
         return ("a spoken colon points straight at a board tag (\"" + lead[-40:]
                 + ":\"), and the tags are stripped before the child hears it -- "
-                "so the colon promises something the ear never gets")
+                "so the colon promises something the ear never gets. Rule 48(d3): "
+                "end that sentence with a period instead (\"" + lead[-24:].rstrip(":")
+                + ".\"), or say what the board shows (\"here it is on the board.\"), "
+                "and put the tag after the full stop. Change nothing else.")
     except Exception:  # noqa: BLE001
         return ""
+
+
+# (vr) 2026-09-12 -- THE COLON FLOOR. Same door as the buttons, verdict, mark and
+# case floors: a shipped reply whose spoken colon still points at a board tag gets the
+# colon rewritten by CODE, because the fix is mechanical and lossless and the model
+# would not make it in three attempts (3 of the week's 13 prosecheck pass-throughs).
+# ":" becomes "." -- or, when the clause ends on a pointer word ("that's:", "we get:",
+# "which gives:"), " what's on the board." so the sentence still says something. The
+# repair is checked by re-running referee 57; if it still fires the reply ships
+# untouched and is counted unrepairable. Fail open, never a turn.
+_DC_POINTER_RE = re.compile(
+    r"\b(?:that's|here's|it's|this\s+is|is|are|be|becomes?|gives?|gets?|get|equals?|"
+    r"means?|so|like\s+this|like\s+so|as\s+follows|as)\s*$", re.I)
+
+
+def repair_dangling_colon(reply: str):
+    """(reply, status, detail): status is "" (nothing to do), "repaired" (every colon
+    that pointed at a tag now ends its sentence) or "unrepairable" (the referee still
+    fires after the rewrite -- counted, the reply ships untouched). Never raises."""
+    try:
+        text = str(reply or "")
+        if not _DC_COLON_TAG.search(text):
+            return text, "", ""
+        fixes = []
+
+        def _sub(m):
+            lead = text[max(0, m.start() - 40):m.start()]
+            if _DC_POINTER_RE.search(lead):
+                fixes.append("what's on the board")
+                return " what's on the board. " + m.group(0)[m.group(0).find("[["):]
+            fixes.append("period")
+            return ". " + m.group(0)[m.group(0).find("[["):]
+
+        fixed = _DC_COLON_TAG.sub(_sub, text)
+        if fixed == text:
+            return text, "", ""
+        still = dangling_colon_conflict(fixed)
+        if still:
+            return (text, "unrepairable",
+                    "a spoken colon still pointed at a board tag after the rewrite (%s)"
+                    % still[:60])
+        return (fixed, "repaired",
+                "a spoken colon pointed at a board tag; the sentence now ends before "
+                "the tag (%s)" % ", ".join(fixes))
+    except Exception as exc:  # noqa: BLE001 -- a repair must never cost a turn
+        print(f"[colonrepair] crashed (fail open): {exc}")
+        _event("referee_crash", "colonrepair", str(exc))
+        return str(reply or ""), "", ""
 
 
 # =============================================================================
@@ -10202,6 +10287,44 @@ def _pq_spoken_covers(prose: str, board_value: str) -> bool:
                         return True
                 except (TypeError, ValueError):
                     pass
+                # (vr) 2026-09-12 -- CENTS, HUNDREDTHS AND "POINT FOUR SEVEN" ARE
+                # READINGS. The 09-12 window: "The column adds 3.50 and 0.47, and the
+                # spoken words never say them" shipped three times -- because 0.47
+                # only ever counted as "zero point four seven", and the decimals
+                # lesson itself teaches "forty-seven hundredths" and "forty-seven
+                # cents". Rule 44 says "the way a person says it". Three more readings
+                # count now, each as narrow as gw's: the fractional digits as a number
+                # (word or digits) next to the unit their length names (tenths /
+                # hundredths or cents / thousandths); and, for a value under one
+                # only, "point" followed by the digits one by one. A whole part above
+                # zero still has to be said (the whole+point / dollars rule above).
+                try:
+                    _wh, _fr = d.split(".", 1)
+                    _unit = {1: "tenths?", 2: "hundredths?|cents?",
+                             3: "thousandths?"}.get(len(_fr))
+                    if _unit and _fr.isdigit():
+                        _fi = int(_fr)
+                        _whole_ok = (int(_wh) == 0) or bool(
+                            re.search(r"\b(?:%s)\b" % "|".join(forms), low))
+                        _fforms = [str(_fi)] + ([re.escape(_EQ_NUMWORD[_fi])]
+                                                if _fi in _EQ_NUMWORD else [])
+                        if _whole_ok and re.search(
+                                r"\b(?:%s)\b(?:\s+\w+)?\s+(?:%s)\b" % ("|".join(_fforms), _unit),
+                                low):
+                            return True
+                        if _whole_ok and _fi in spoken_words and re.search(
+                                r"\b(?:%s)\b" % _unit, low):
+                            return True
+                        if int(_wh) == 0:
+                            _digits = r"\s+".join(
+                                r"(?:%s|%s)" % (ch, re.escape(_EQ_NUMWORD.get(int(ch), "zero")))
+                                for ch in _fr)
+                            _more = (r"(?!\s+(?:zero|one|two|three|four|five|six|seven|"
+                                     r"eight|nine|\d)\b)")
+                            if re.search(r"\bpoint\s+" + _digits + r"\b" + _more, low):
+                                return True
+                except (TypeError, ValueError):
+                    pass
             return False        # a decimal problem, never read as a decimal
         nums = [int(n) for n in re.findall(r"\b\d{1,4}\b", board_value or "")]
         if not nums:
@@ -11733,6 +11856,14 @@ _CRITIC_SYSTEM = (
     "Teaching style, pacing, and choices you would merely have made differently "
     "are NOT defects -- pass them. Object ONLY when you are confident a child "
     "would be wrongly graded, misled, or confused by an actual error.\n\n"
+    # (vr) the week's pass-throughs, read: most livecritic objections that the tutor
+    # would not act on in three attempts were style wearing a defect's clothes.
+    "If the draft's mathematics is right, it passes: \"should show more work\", "
+    "\"would be clearer\", \"a warmer opening\", \"could confuse\", or a wording "
+    "you prefer is NOT a defect. The tutor holds the student's record and the "
+    "course's mastery gates: a quiz or exam it declines to unlock, and the unit "
+    "it chooses to teach, are facts, not defects. You see only the last four "
+    "turns, so a reference to something earlier is not a defect either.\n\n"
     'Answer with pure JSON and nothing else: {"ok": true} OR '
     '{"ok": false, "problem": "<one specific sentence a rewrite can act on>"}. '
     "ONE object only. Write nothing after its closing brace -- no explanation, "
@@ -11808,6 +11939,98 @@ def _is_model_not_found(exc) -> bool:
 # raw_decode reads exactly one JSON value from the first brace and reports where it
 # stopped; what follows is measured and discarded, never parsed. The prefilled form
 # ("{" + text) and the plain form both pass through here.
+# =============================================================================
+# (vr) 2026-09-12 -- THE CRITIC'S CHARTER, ENFORCED IN CODE.
+# -----------------------------------------------------------------------------
+# The week's 35 livecritic pass-throughs, read one by one: the tutor would not act
+# on the objection in three attempts, and in eight of them the reason is plain in
+# the objection's own words -- it CONCEDES the draft is right ("which is indeed
+# correct, so this claim is mathematically sound; however, the tutor should show the
+# work"), or it is advice ("to be clear, or better:", "could confuse the student",
+# "risks the explanation feeling abstract", "sounds like an arbitrary rule"). The
+# charter above says style is not a defect and to object only when confident. Each of
+# those objections cost two retries (10-20 s on the slowest lane, three drafts paid
+# for) and then shipped a draft anyway.
+#
+# THE SHAPE, mechanically: quoted spans are removed first (the critic quotes the
+# tutor, and "the tutor says '7 is correct' but..." must stay a real objection);
+# then any ERROR word outside the quotes -- wrong, incorrect, false, misleading,
+# ungraded, "should be", "pivots to", "different equation", "ignores the student" --
+# keeps the objection whatever else it says. Only then: a concession ("is correct",
+# "is indeed / actually / mathematically sound", "they work", "not wrong") that is not
+# itself part of a "verify / check whether it is correct" clause, or an advisory
+# phrase, marks the objection as style. A style verdict is a PASS, counted as
+# referee_soft · criticstyle with the critic's sentence, so the next watch can read
+# what was passed and say whether the classifier was right.
+# ⚠️ NARROW ON PURPOSE. "the tutor should acknowledge that the student is still doing
+# it wrong" is an objection (an error word); "the student may well be ready" is not
+# style by this shape (no concession, no advisory phrase) and still retries.
+# =============================================================================
+_CS_QUOTED_RE = re.compile(r"\"[^\"]*\"|'[^']*'|‘[^’]*’|“[^”]*”")
+_CS_HARD_RE = re.compile(
+    r"\b(?:incorrect|wrong|(?<!their )(?<!'s )(?<!own )(?<!that )(?<!this )errors?|erroneous|false|mistake|mistaken|misgrad\w*|ungraded|"
+    r"miscalculat\w*|mislead\w*|contradict\w*|inconsisten\w*|impossible|invalid|"
+    r"not\s+(?:correct|right|accurate|true|valid|equal)|"
+    r"(?:does|do|did)\s+not\s+(?:equal|match|add\s+up|acknowledge|grade|respond|address)|"
+    r"(?:doesn|don|didn)'t\s+(?:equal|match|add\s+up|acknowledge|grade|respond|address)|"
+    r"never\s+(?:acknowledg|grad|respond|address|explain)\w*|"
+    r"(?:ignores?|skips?|skipped|overrides?|dismisses)\s+(?:the\s+student|their|what\s+the\s+student)|"
+    r"(?:pivots?|jumps?|switches|moves\s+on)\s+(?:to|away)|"
+    r"different\s+(?:equation|problem|question|thread)|"
+    r"(?:an?\s+)?(?:actual|real)\s+(?:error|mistake)|should\s+be\b|actually\s+(?:equals?|is)\b)",
+    re.I)
+_CS_CONCEDES_RE = re.compile(
+    r"\b(?:is|are|was|were|remains?|(?:which|this|that)\s+is)\s+"
+    r"(?:indeed\s+|actually\s+|technically\s+|in\s+fact\s+|of\s+course\s+)?"
+    r"(?:correct|right|accurate|sound|valid|fine|true|mathematically\s+(?:correct|sound))\b"
+    r"|\bmathematically\s+(?:sound|correct)\b"
+    r"|\b(?:they|these|both|it|which)\s+(?:do\s+|does\s+)?works?\b"
+    r"|\bnot\s+(?:wrong|incorrect|an?\s+error)\b"
+    r"|\bcorrect\s+in\s+identifying\b",
+    re.I)
+_CS_ADVISORY_RE = re.compile(
+    r"\bwould\s+be\s+(?:clearer|better|more|helpful|stronger|warmer|nicer|kinder|ideal)\b"
+    r"|\b(?:or|even)\s+better\s*[:,]"
+    r"|\bbetter\s*:\s"
+    r"|\ba\s+(?:warmer|gentler|kinder|friendlier|clearer)\s+"
+    r"|\bconsider\s+(?:\w+ing|adding|showing|saying)\b"
+    r"|\b(?:could|may|might)\s+(?:confuse|be\s+confusing|feel|seem|come\s+across|sound|read\s+as|"
+    r"be\s+(?:misinterpreted|misread|perceived|taken))\b"
+    r"|\brisks?\s+(?:making|confusing|feeling|leaving|coming|sounding|the\s+\w+\s+feeling)\b"
+    r"|\bpotentially\s+(?:confus\w+|unclear|abstract|overwhelming)\b"
+    r"|\bfeel\s+(?:dismissed|rushed|talked\s+down)\b"
+    r"|\bsounds?\s+like\s+an?\s+(?:arbitrary|rule)\b"
+    r"|\bto\s+be\s+(?:clearer|clear|more\s+precise)\s*[,:]"
+    r"|\b(?:a\s+)?(?:stylistic|style|pacing|tone)\b"
+    r"|\bwould\s+(?:help|benefit|reinforce|strengthen)\b",
+    re.I)
+_CS_VERIFYING_RE = re.compile(
+    r"\b(?:verify|verifies|check|checks|confirm|confirms|ensure|ensures|whether|if|"
+    r"make\s+sure|assum\w+)\b", re.I)
+
+
+def critic_objection_is_style(problem: str) -> str:
+    """Why this critic objection is style rather than a defect, or "" when it names
+    (or may name) a real error. Never raises: any surprise is "" (the objection
+    stands, exactly as before this build)."""
+    try:
+        text = " ".join(str(problem or "").split())
+        if not text:
+            return ""
+        bare = _CS_QUOTED_RE.sub(" ", text)
+        if _CS_HARD_RE.search(bare):
+            return ""
+        c = _CS_CONCEDES_RE.search(bare)
+        if c and not _CS_VERIFYING_RE.search(bare[max(0, c.start() - 48):c.start()]):
+            return "the objection concedes the draft is right (\"%s\")" % c.group(0)
+        a = _CS_ADVISORY_RE.search(bare)
+        if a:
+            return "the objection is advice, not an error (\"%s\")" % a.group(0)
+        return ""
+    except Exception:  # noqa: BLE001 -- a classifier that throws changes nothing
+        return ""
+
+
 def _critic_verdict(text: str):
     """(verdict_dict, trailing_char_count) or (None, 0) when no JSON object can be
     read at all. Never raises."""
@@ -11917,6 +12140,18 @@ def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None,
         if v.get("ok") is True:
             return ""
         prob = str(v.get("problem", "")).strip()
+        # (vr) THE CHARTER, ENFORCED: an objection that concedes the draft is right,
+        # or that is advice with no error named, is a pass -- see
+        # critic_objection_is_style. Visible (referee_soft · criticstyle), never a
+        # retry: the week's rows show this shape costing two retries and shipping
+        # the first draft anyway.
+        _style = critic_objection_is_style(prob)
+        if _style:
+            print(f"[livecritic]{log_prefix} STYLE objection passed: {_style} -- "
+                  f"{prob[:120]}")
+            _event("referee_soft", "criticstyle", f"{_style}: {prob}"[:300],
+                   (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+            return ""
         return prob[:400]
     except Exception as exc:  # noqa: BLE001 -- the critic must never cost a turn
         if _is_model_not_found(exc) and _CRITIC_MODEL_FALLBACK["bad"] != model:
@@ -13118,6 +13353,16 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
         elif _cst == "unrepairable":
             print(f"[caserepair]{log_prefix} UNREPAIRABLE: {_cdet}")
             _event("pass_through", "varcase", _cdet, _code, _course)
+        # (vr) the colon floor, the 09-12 pass-through read: a spoken colon that still
+        # points at a board tag becomes a full stop (or "what's on the board.") at the
+        # door. Same guarantee, same counting, same fail-open.
+        reply, _kst, _kdet = repair_dangling_colon(reply)
+        if _kst == "repaired":
+            print(f"[colonrepair]{log_prefix} REPAIRED: {_kdet}")
+            _event("code_repair", "danglingcolon", _kdet, _code, _course)
+        elif _kst == "unrepairable":
+            print(f"[colonrepair]{log_prefix} UNREPAIRABLE: {_kdet}")
+            _event("pass_through", "danglingcolon", _kdet, _code, _course)
         return reply
 
     def _settle(kept):

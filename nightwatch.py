@@ -2,6 +2,16 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-12  BUILD vr -- THE PASS-THROUGHS GET THEIR REASONS. Since build ha the
+#               report has printed "replies shipped WITH a known finding: 166" and the
+#               offenders' NAMES, and never once a reason -- the "what they actually
+#               said" block asks recent_events for every alarming kind EXCEPT
+#               pass_through, so the biggest number on the page had no faces. Now:
+#               the newest 200 pass_through rows, split AUDIT (the watch's own
+#               scenarios) vs live students, grouped by the referee named in the
+#               detail (vg's parentheses; the event name before vg), each with its
+#               distinct reasons newest first and _age_line's ghost test. The 09-12
+#               read: 43 of the newest 48 were the watch's own lane.
 #   2026-09-11  BUILD vh -- the stamp also carries the code floors that REPAIRED the
 #               reply at the door (code_repair events on the turn), and the Shipped-as
 #               line says so on a pass-through: the critic reads the transcript the
@@ -403,6 +413,65 @@ def _ago(dt, now=None) -> str:
     if secs < 86400:
         return f"{int(secs // 3600)}h ago"
     return f"{int(secs // 86400)}d ago"
+
+
+_PT_DETAIL_RE = re.compile(r"^shipped attempt (\d) of \d\s*(?:\(([a-z0-9_]+)\))?:\s*(.*)$",
+                           re.S)
+
+
+def pass_through_lines(store, now=None, limit=200, per_referee=4) -> list:
+    """(vr) The report lines for the week's pass-throughs, grouped by referee. Reads
+    store.recent_events(kinds=["pass_through"]) -- the same rows /admin's card reads --
+    and never raises: an empty window returns []. Each referee gets its count, its
+    live-vs-AUDIT split, and up to `per_referee` distinct reasons, newest first, each
+    with _age_line's ghost test. The referee is the name in the detail's parentheses
+    (vg); a row from before vg falls back to the event's class name."""
+    try:
+        rows = store.recent_events(hours=24 * 7, limit=limit, kinds=["pass_through"])
+    except Exception:  # noqa: BLE001
+        rows = []
+    # a store that ignores `kinds` (a fake, an older backend) must not put a crash's
+    # reason under a referee's name: only pass_through rows are read
+    rows = [r for r in (rows or []) if isinstance(r, dict)
+            and (r.get("kind") or "pass_through") == "pass_through"]
+    if not rows:
+        return []
+    now = now or datetime.now(timezone.utc)
+    audit = sum(1 for r in rows if (r.get("code") or "") == "AUDIT")
+    live = len(rows) - audit
+    by = {}
+    for r in rows:
+        d = " ".join(str(r.get("detail") or "").split())
+        m = _PT_DETAIL_RE.match(d)
+        ref = (m.group(2) if m and m.group(2) else (r.get("name") or "(unnamed)"))
+        reason = ((m.group(3) if m else d) or "(no detail recorded)")[:220]
+        at = _parse_at(r.get("at"))
+        b = by.setdefault(ref, {"n": 0, "live": 0, "reasons": {}})
+        b["n"] += 1
+        if (r.get("code") or "") != "AUDIT":
+            b["live"] += 1
+        a = b["reasons"].setdefault(reason, {"n": 0, "newest": None, "oldest": None})
+        a["n"] += 1
+        if at:
+            if not a["newest"] or at > a["newest"]:
+                a["newest"] = at
+            if not a["oldest"] or at < a["oldest"]:
+                a["oldest"] = at
+    L = [f"  Shipped WITH a known finding -- the {len(rows)} newest rows, by referee "
+         f"({audit} on the watch's own scenarios (code AUDIT), {live} on live students):",
+         "  _A pass-through already has its referee. What it wants is a better nudge, "
+         "a code repair, or a ruling that the rule is wrong -- never a second referee._"]
+    for ref, b in sorted(by.items(), key=lambda kv: (-kv[1]["n"], kv[0])):
+        L.append(f"  - **{ref}**: {b['n']}x ({b['live']} live)")
+        ordered = sorted(b["reasons"].items(),
+                         key=lambda kv: (kv[1]["newest"] or _EPOCH), reverse=True)
+        for reason, a in ordered[:per_referee]:
+            L += [f"    - {reason}",
+                  "      " + _age_line(a["newest"], a["oldest"], a["n"], now)]
+        if len(ordered) > per_referee:
+            L.append(f"    - ...and {len(ordered) - per_referee} more distinct reason(s)")
+    L.append("")
+    return L
 
 
 def _age_line(newest, oldest, n, now=None) -> str:
@@ -1438,6 +1507,17 @@ def report_markdown(result, build="") -> str:
                       "eyes, not a quiet week.", ""]
         except Exception as _dex:  # noqa: BLE001 -- detail is a bonus, never a failure
             L += [f"  (crash reasons unavailable: {_dex})", ""]
+
+        # (vr) ⭐ THE PASS-THROUGHS, WITH THEIR REASONS. "replies shipped WITH a known
+        # finding: 166" has been the biggest number on this page for three weeks, and
+        # the block above never asked for its rows. Each row's detail carries the
+        # referee (in parentheses since vg) and the objection the tutor would not act
+        # on in three attempts. Grouped by referee, split by lane: a row whose code is
+        # AUDIT is the watch's own scenario, not a child. Wrapped like the block above.
+        try:
+            L += pass_through_lines(_store, nowdt)
+        except Exception as _pex:  # noqa: BLE001 -- a bonus, never a failure
+            L += [f"  (pass-through reasons unavailable: {_pex})", ""]
     except Exception as _exc:  # noqa: BLE001
         L += ["## The week's telemetry", "", f"- (unavailable: {_exc})", ""]
 

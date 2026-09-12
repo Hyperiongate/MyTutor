@@ -6,6 +6,14 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  APP_BUILD -> "2026-09-12vr-the-166-read-per-reason".
+#               BUILD vr -- /api/admin/events accepts ?kind=pass_through&limit=200 (one
+#               kind, up to store's cap of 200) so the week's pass-throughs can be
+#               read with their reasons instead of 50 mixed rows; with neither
+#               parameter the response is byte-identical to before. tutor.py: the
+#               critic's charter in code, finiteanswer's fraction labels, the colon
+#               floor, cents/hundredths readings. nightwatch.py: the pass-through
+#               reasons on the report. PART 3ln.
 #   2026-09-12  APP_BUILD -> "2026-09-12vq-the-bar-shows-the-eaten-pieces".
 #               BUILD vq -- no change in this file beyond the stamp. Jim's two rulings on
 #               the 09-12 watch: math-figures.js [[tape shaded= eaten=]]; prompts.py the
@@ -5016,19 +5024,25 @@ def admin_backup_status(key: str = "",
 # one-line count in the Render log. A governor whose reports are hard to reach is a
 # governor that gets ignored -- go's own header says so, and go proved it in twelve hours.
 @app.get("/api/admin/events")
-def admin_events(key: str = "",
+def admin_events(key: str = "", kind: str = "", limit: int = 0,
                  x_admin_key: str = Header(default="", alias="X-Admin-Key")):
     """build ha: the telemetry card's feed. 7- and 30-day event counts grouped
     kind -> name -> count, plus the newest alarming events (crashes, client errors,
-    pass-throughs) so a spike has faces, not just a number."""
+    pass-throughs) so a spike has faces, not just a number.
+    (vr) ?kind=pass_through narrows `recent` to ONE kind and ?limit= raises the row
+    cap (store caps it at 200) -- the 166 pass-throughs a week could not be read
+    through 50 mixed rows. Without either parameter the feed is exactly as before."""
     _require_admin(x_admin_key or key)
+    kinds = ["referee_crash", "clienterror", "pass_through", "failopen", "promptsize"]
+    kind = re.sub(r"[^a-z_]", "", (kind or "").strip().lower())[:24]
+    if kind:
+        kinds = [kind]
     return {
         "ok": True,
         "stats7": store.event_stats(7),
         "stats30": store.event_stats(30),
-        "recent": store.recent_events(hours=168, limit=50,
-                                      kinds=["referee_crash", "clienterror",
-                                             "pass_through", "failopen", "promptsize"]),
+        "recent": store.recent_events(hours=168, limit=max(1, min(int(limit or 50), 200)),
+                                      kinds=kinds),
     }
 
 
@@ -9297,7 +9311,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-12vq-the-bar-shows-the-eaten-pieces"
+APP_BUILD = "2026-09-12vr-the-166-read-per-reason"
 
 
 @app.get("/health")

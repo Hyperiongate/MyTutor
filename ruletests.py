@@ -6,6 +6,18 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vr -- PART 3ln, THE 166 READ PER REASON: the critic's charter in
+#               code (critic_objection_is_style -- a conceding or advisory livecritic
+#               verdict is a pass, counted referee_soft · criticstyle; the week's eight
+#               are fixtures, twelve real objections stay real, quoted text is never
+#               read); finiteanswer's labels carry a number word ("Three fifths | Five
+#               eighths"); the danglingcolon detail says the fix and the colon FLOOR
+#               (repair_dangling_colon) runs at the door; cents / hundredths / "point
+#               four seven" read a sub-one decimal aloud (gw's guard kept); the night
+#               watch report's pass-through block (pass_through_lines) with the AUDIT
+#               / live split; /api/admin/events ?kind= ?limit=. Canon swept for the two
+#               widened referees and the floor: 0 new fires, 0 authored strings touched.
+#               No referee count change (97).
 #   2026-09-12  BUILD vq -- PART 3lm, JIM'S TWO RULINGS ON THE 09-12 WATCH: [[tape]] draws
 #               shaded= and eaten= (rendered in node: five solid, three hatched and
 #               crossed, a bare tape unchanged); referee 96 tapepieces (words claim eaten
@@ -17208,6 +17220,268 @@ console.log(JSON.stringify({hatch: (a.match(/url\(#tapegone\)/g)||[]).length, so
           and "2026-09-12  BUILD vq" in notes("prompts.py") and "2026-09-12  BUILD vq" in notes("static/math-figures.js")
           and "2026-09-12  (vq) Tile 95 -> 97" in notes("static/methodology.html")
           and 'APP_BUILD -> "2026-09-12vq-' in notes("main.py"), "")
+
+
+def part3ln_the_166_read_per_reason():
+    """PART 3ln (build vr, 2026-09-12) -- THE 166, READ PER REASON.
+
+    The week's newest 48 pass_through rows were read from system_events: 43 on the
+    night watch's own AUDIT lane, 5 live; 35 livecritic, 13 prosecheck. Per reason:
+    ① THE CRITIC'S CHARTER, IN CODE. Eight of the 35 livecritic objections concede the
+      draft is right or are advice ("which is indeed correct; however, the tutor should
+      show the work", "to be clear, or better:", "could confuse", "risks the explanation
+      feeling abstract", "sounds like an arbitrary rule"). The charter says style is not
+      a defect; each of these cost two retries and shipped anyway. critic_objection_is_
+      style() passes them (referee_soft · criticstyle, the sentence kept). Quoted spans
+      are blind; an error word outside the quotes keeps the objection whatever else it
+      says; "verify ... is correct" is not a concession.
+    ② finiteanswer's NUDGE WAS WRONG: "three fifths or five eighths?" -> "Fifths | Five".
+      A number word rides into the label; an article still does not.
+    ③ danglingcolon (3 of 13 prosecheck): the detail names the fix, and the colon floor
+      rewrites ":" -> "." (or "what's on the board." after a pointer word) at the door.
+    ④ problemnumbers: 0.47 read as "forty-seven cents", "forty-seven hundredths" or
+      "point four seven" IS read aloud; gw's "ONE with a similar setup" stays unread.
+    ⑤ THE EYES: the report never printed a pass-through's reason (the crash block asked
+      for every alarming kind but that one); pass_through_lines groups the newest 200 by
+      referee with the AUDIT / live split. /api/admin/events takes ?kind= and ?limit=.
+    No referee count change (97)."""
+    print("\nPART 3ln — the 166, read per reason (build vr)")
+    import os as _os
+    import tutor as T
+    import nightwatch as NW
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    tsrc = code_only(rd("tutor.py"))
+    S = T.critic_objection_is_style
+
+    # ---- ① the charter, in code: the week's eight are style ----------------------------
+    STYLE = [
+        ("concedes: 'the explanation is correct in identifying'",
+         "The tutor explains 'In 2.30, the 3 is in the tenths column' — but the 5 in 1.45 "
+         "is actually in the hundredths place, so the explanation is correct in identifying "
+         "the places, but"),
+        ("advice: 'risks making the student feel dismissed' (the student's OWN error is not an error word)",
+         "The draft does not show the tutor checking the student's work or explaining where "
+         "16 came from before asking how they got it — this risks making the student feel "
+         "dismissed rather than helped to see their error."),
+        ("concedes: 'which is indeed correct ... mathematically sound; however'",
+         "The tutor states \"One half is correct\" but 2/3 × 3/4 = 6/12 = 1/2, which is "
+         "indeed correct, so this claim is mathematically sound; however, the tutor should "
+         "show the work"),
+        ("advice: 'to be clear, or better:'",
+         "The tutor says 'three ones, nine tenths, seven hundredths — that reads as three "
+         "point nine seven' but should say 'three ones, nine tenths, seven hundredths' to be "
+         "clear, or better: 'three ONES'"),
+        ("advice: 'potentially confusing'",
+         "The graph should show the simplified function y = x + 2 with a hole at x = 2, but "
+         "the caption says 'the curve runs right up to the gap from both sides' which doesn't "
+         "accurately convey that this is the *simplified* line — potentially confusing"),
+        ("advice: 'risks the explanation feeling abstract'",
+         "The draft introduces the concept of limits with sophisticated language "
+         "(\"approaches,\" \"heading\") without concrete examples — this risks the explanation "
+         "feeling abstract and leaving the student"),
+        ("advice: 'could confuse the student'",
+         "The phrase 'left-to-right **is** right when the operations are the same rank' could "
+         "confuse the student, since the student is already struggling"),
+        ("advice: 'sounds like an arbitrary rule'",
+         "The draft says \"There's a rule for the order to do things in, called the **order "
+         "of operations**\" without explaining what that rule is in plain language before "
+         "using it. The phrase \"There's a rule\" sounds like an arbitrary rule being imposed"),
+    ]
+    for label, prob in STYLE:
+        check(f"⭐ style, passed -- {label}", bool(S(prob)), repr(S(prob)))
+    REAL = [
+        ("pivots to a different equation",
+         "The draft pivots to a completely different equation (x² + 5x + 6 = 0) instead of "
+         "acknowledging and affirming the student's correct check of x = -3."),
+        ("'is correct' INSIDE the tutor's quoted words, 'wrong' outside them",
+         "The tutor says '7 is correct' but 3 + 5 is 8, so the student's answer was wrong."),
+        ("'should be' -- a corrected value",
+         "The draft says '(X - 2)(X - 3) = 0' but the student correctly identified -2 and -3; "
+         "the factored form should be '(X + 2)(X + 3) = 0'."),
+        ("ungraded answer (hasn't acknowledged or graded)",
+         "The tutor hasn't acknowledged or graded the student's answer—the student just "
+         "expressed a goal/request, not an answer to a math question."),
+        ("a symbol not explained (charter item 3)",
+         "The draft writes \"= (x-2)(x+2)/(x-2) = x + 2,   x ≠ 2\" but does not explain in "
+         "child-plain language what the \"≠\" symbol means."),
+        ("'they work, but ... misleading' -- the error word wins over the concession",
+         "The verification check shows (2-2)(2-3)=0 ✓ — they work, but the notation is "
+         "misleading because it doesn't clearly show that we're substituting"),
+        ("'still doing it wrong'",
+         "The tutor says 'Never the last digit' but the student just said they're going to "
+         "'line up the last digits again' — the tutor should acknowledge that the student is "
+         "still doing it wrong before moving on"),
+        ("the 30-cents objection (no concession, no advisory phrase)",
+         "The tutor says 'that 3 in the tenths spot is the 30 cents part', but 3 tenths is 30 "
+         "cents only when combined—the language conflates the digit's place value with the "
+         "monetary amount"),
+        ("'verify ... is actually correct' is NOT a concession",
+         "The tutor should verify the mixed number subtraction is actually correct before "
+         "marking it and moving forward — 5 1/4 − 2 3/4 requires regrouping."),
+        ("the picture does not match the question",
+         "The numberline caption says \"we've jumped 5, 10, 15, 20 — where does the next jump "
+         "land?\" but the points shown are \"5,10,15,20\" without showing 25, so the visual "
+         "doesn't match the question"),
+        ("a term introduced unexplained",
+         "The draft introduces the term \"denominator\" without explaining it in child-plain "
+         "language"),
+        ("overrides the student's request",
+         "The tutor overrides the student's explicit request to 'Stop for today' and tries to "
+         "persuade them to continue"),
+    ]
+    for label, prob in REAL:
+        check(f"  real, kept -- {label}", S(prob) == "", repr(S(prob)))
+    check("  empty and junk are not style", S("") == "" and S(None) == "" and S(123) == "", "")
+    check("  the verdict path calls it before returning the objection, and counts it",
+          "_style = critic_objection_is_style(prob)" in tsrc
+          and '_event("referee_soft", "criticstyle"' in tsrc
+          and tsrc.index("_style = critic_objection_is_style(prob)") < tsrc.index("return prob[:400]"), "")
+    check("  the charter says it in words too (style passes; the tutor holds the record; four turns)",
+          "If the draft's mathematics is right, it passes" in T._CRITIC_SYSTEM
+          and "holds the student's record" in T._CRITIC_SYSTEM
+          and "only the last four" in T._CRITIC_SYSTEM
+          and "nothing after its closing brace" in T._CRITIC_SYSTEM, "the px pin still holds")
+
+    # ---- ② the fraction labels ----------------------------------------------------------
+    d = T.finite_answer_conflict("Which is bigger — three fifths or five eighths?")
+    check("⭐ 'three fifths or five eighths?' asks for the buttons a child can read",
+          'options="Three fifths | Five eighths"' in d, d[-120:])
+    check("  a plain either-or keeps its old labels",
+          'options="Triangle | Square"' in T.finite_answer_conflict("Is it a triangle or square?"), "")
+    check("  numbers keep their old labels",
+          'options="6 | 9"' in T.finite_answer_conflict("Which is bigger, 6 or 9?"), "")
+    check("  an article is not a number word -- 'a triangle or a square?' is as silent as before",
+          T.finite_answer_conflict("Is that a triangle or a square?") == "", "")
+    check("  the nonsense the model refused three times is gone",
+          'options="Fifths | Five"' not in d, "")
+
+    # ---- ③ the colon: the detail says the fix, the floor makes it --------------------
+    JIM = ("if T is the object's temperature and the room is a constant 70, "
+           "that's: [[step eq=\"dT/dt = -k(T - 70)\"]] Notice the pattern")
+    det = T.dangling_colon_conflict(JIM)
+    check("⭐ 57's detail now NAMES the repair (a period, or 'here it is on the board')",
+          "end that sentence with a period" in det and "here it is on the board" in det
+          and "promises something the ear never gets" in det, det[-160:])
+    fixed, st, why = T.repair_dangling_colon(JIM)
+    check("⭐ the floor: 'that's:' becomes 'that's what's on the board.' and 57 is satisfied",
+          st == "repaired" and "that's what's on the board. [[step" in fixed
+          and T.dangling_colon_conflict(fixed) == "" and "what's on the board" in why, (st, fixed[:90]))
+    fixed2, st2, _ = T.repair_dangling_colon(
+        'We plug in our two legs, 3 and 4: [[step eq="3^2 + 4^2 = c^2"]] What do we get?')
+    check("  a plain clause ends with a period",
+          st2 == "repaired" and "3 and 4. [[step" in fixed2 and T.dangling_colon_conflict(fixed2) == "", fixed2[:80])
+    fixed3, st3, _ = T.repair_dangling_colon(
+        "one quarter plus one quarter, worked out: [[step eq=\"1/4 + 1/4 = 2/4\"]] See the whole group, "
+        "no numbers this time: [[objects kind=\"star\" count=\"5\"]]")
+    check("  every pointing colon in the reply is repaired, not only the first",
+          st3 == "repaired" and fixed3.count(": [[") == 0 and T.dangling_colon_conflict(fixed3) == "", fixed3[:120])
+    check("  do no harm: a healthy reply is untouched, byte for byte",
+          T.repair_dangling_colon('Step one: draw the line. [[step eq="x = 1"]]')
+          == ('Step one: draw the line. [[step eq="x = 1"]]', "", "")
+          and T.repair_dangling_colon("") == ("", "", "") and T.repair_dangling_colon(None) == ("", "", ""), "")
+    check("  the floor is wired at the door, after the case floor, and counted",
+          "reply, _kst, _kdet = repair_dangling_colon(reply)" in tsrc
+          and '_event("code_repair", "danglingcolon"' in tsrc
+          and '_event("pass_through", "danglingcolon"' in tsrc
+          and tsrc.index("repair_dangling_colon(reply)") > tsrc.index("repair_variable_case(reply)"), "")
+
+    # ---- ④ cents, hundredths, point four seven ------------------------------------------
+    PQ = T._pq_spoken_covers
+    for words in ("forty-seven cents", "forty seven hundredths", "point four seven", "47 cents",
+                  "three dollars and forty seven cents"):
+        check(f"⭐ 0.47 is read aloud as '{words}'", PQ(words, "0.47"), "")
+    check("  a whole part above zero still has to be said: 'forty-seven cents' does not read 3.47",
+          not PQ("forty-seven cents", "3.47") and PQ("three dollars and forty-seven cents", "3.47")
+          and PQ("three and forty-seven hundredths", "3.47"), "")
+    check("  'point four seven' reads 0.47 only -- not 1.47, not 0.4",
+          not PQ("point four seven", "1.47") and not PQ("point four seven", "0.4")
+          and not PQ("point four", "0.47"), "")
+    check("  gw's guard holds: 'ONE with a similar setup' does not read 2.6 + 1.35",
+          not PQ("Let's try ONE with a similar setup", "2.6 + 1.35"), "")
+    check("  the unit must match the digits: 'forty-seven tenths' does not read 0.47",
+          not PQ("forty-seven tenths", "0.47") and not PQ("forty-seven", "0.47"), "")
+    col = ('[[column terms="3.50 | 0.47" op="+"]] Three dollars fifty plus forty-seven cents -- '
+           "line up the decimal points. What do we get?")
+    check("⭐ the 09-12 column reply, read as money, satisfies rule 44's referee",
+          T.problem_numbers_unspoken_conflict(col) == "", T.problem_numbers_unspoken_conflict(col)[:80])
+    check("  ...and the same column with the numbers unsaid still fires",
+          bool(T.problem_numbers_unspoken_conflict(
+              '[[column terms="3.50 | 0.47" op="+"]] Line up the decimal points. What do we get?')), "")
+
+    # ---- ⑤ the eyes: the report prints the pass-through reasons -----------------------
+    from datetime import datetime as _dt, timezone as _tz, timedelta as _td
+    now = _dt.now(_tz.utc)
+
+    class _FakeStore:
+        def __init__(self, rows):
+            self.rows = rows
+            self.calls = []
+
+        def recent_events(self, hours=168, limit=50, kinds=None):
+            self.calls.append((hours, limit, tuple(kinds or ())))
+            return list(self.rows)
+
+    rows = [
+        {"kind": "pass_through", "name": "livecritic", "code": "AUDIT", "course": "algebra2",
+         "detail": "shipped attempt 3 of 3 (livecritic): The draft pivots to a different equation.",
+         "at": (now - _td(hours=2)).isoformat()},
+        {"kind": "pass_through", "name": "livecritic", "code": "AUDIT", "course": "algebra2",
+         "detail": "shipped attempt 3 of 3 (livecritic): The draft pivots to a different equation.",
+         "at": (now - _td(days=3)).isoformat()},
+        {"kind": "pass_through", "name": "prosecheck", "code": "0000", "course": "basic",
+         "detail": "shipped attempt 3 of 3 (danglingcolon): a spoken colon points straight at a board tag",
+         "at": (now - _td(hours=5)).isoformat()},
+        {"kind": "pass_through", "name": "prosecheck", "code": "AUDIT", "course": "geometry",
+         "detail": "shipped attempt 3 of 3: this ONE reply draws 7 board lines",   # pre-vg row
+         "at": (now - _td(days=2)).isoformat()},
+    ]
+    fs = _FakeStore(rows)
+    lines = NW.pass_through_lines(fs, now)
+    text = "\n".join(lines)
+    check("⭐ the block asks the store for pass_through rows only, 200 of them, a week deep",
+          fs.calls == [(168, 200, ("pass_through",))], str(fs.calls))
+    check("⭐ the AUDIT / live split is the first thing said",
+          "the 4 newest rows" in text and "3 on the watch's own scenarios (code AUDIT), 1 on live students" in text,
+          lines[:1])
+    check("  grouped by the referee in the parentheses, most first, with the live count",
+          "- **livecritic**: 2x (0 live)" in text and "- **danglingcolon**: 1x (1 live)" in text, text[:400])
+    check("  a pre-vg row (no parentheses) falls back to the event's class name",
+          "- **prosecheck**: 1x (0 live)" in text and "draws 7 board lines" in text, "")
+    check("  a repeated reason is one line with its count and the ghost test, newest first",
+          text.count("The draft pivots to a different equation.") == 1
+          and "2x" in text and "LIVE" in text, "")
+    check("  the law is printed under the heading",
+          "never a second referee" in text, "")
+    check("  an empty window prints nothing", NW.pass_through_lines(_FakeStore([]), now) == [], "")
+
+    class _Broken:
+        def recent_events(self, **kw):
+            raise RuntimeError("no db")
+    check("  a store that raises prints nothing and raises nothing",
+          NW.pass_through_lines(_Broken(), now) == [], "")
+    check("  a store that ignores `kinds` cannot put a crash's reason under a referee's name",
+          NW.pass_through_lines(_FakeStore([{"kind": "referee_crash", "name": "livecritic",
+                                             "detail": "model not found", "at": now.isoformat()}]),
+                                now) == [], "")
+    nsrc = code_only(rd("nightwatch.py"))
+    check("  the report calls it, wrapped, inside the telemetry section",
+          "L += pass_through_lines(_store, nowdt)" in nsrc
+          and "pass-through reasons unavailable" in nsrc, "")
+    msrc = code_only(rd("main.py"))
+    check("  /api/admin/events takes kind and limit, caps at 200, and defaults to the old feed",
+          'def admin_events(key: str = "", kind: str = "", limit: int = 0,' in msrc
+          and "kinds = [kind]" in msrc and "min(int(limit or 50), 200)" in msrc
+          and '["referee_crash", "clienterror", "pass_through", "failopen", "promptsize"]' in msrc, "")
+
+    # ---- counted, noted, clean ----------------------------------------------------------
+    check("  no referee count change: 97 conflict functions, 11 truth",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 97 and len(T.TRUTH_REFEREES) == 11, "")
+    check("  tutor.py holds no backspace byte (the nj scar)", "\x08" not in rd("tutor.py"), "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-12  BUILD vr" in notes("tutor.py") and "2026-09-12  BUILD vr" in notes("ruletests.py")
+          and "2026-09-12  BUILD vr" in notes("nightwatch.py")
+          and 'APP_BUILD -> "2026-09-12vr-' in notes("main.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -44029,6 +44303,7 @@ def main():
     part3lk_name_the_whole_gate()
     part3ll_the_first_stamps_answered()
     part3lm_the_bar_shows_the_eaten_pieces()
+    part3ln_the_166_read_per_reason()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
