@@ -6,6 +6,13 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vn -- PART 3lj, THE LAW IN THE OTHER ORDER, THE NAME OF THE MACHINE,
+#               AND THE SIXTEENTH VERSE: the precedence referee knows multiply-add-THEN-
+#               the-precedence-word and "anytime"; KNOWN_FALSEHOODS row 22 (f(x) is not
+#               the name of the machine -- and our own fix sentence said so until now);
+#               PROMPT_CEILING 209,000 -> 211,000 on Jim's ruling. Count pins 21 -> 22;
+#               the two ceiling-ledger pins carry the sixteenth line. 18,557 strings
+#               swept, 0 new fires. No referee count change.
 #   2026-09-12  BUILD vm -- PART 3li, THE FORMS THE BOARD LEANS ON: the first-use gate
 #               gains three FORM entries (2(4), (x − 2)(x − 3), ? + 3 = 7) and
 #               notation.py two twin rows; a form is met only by an earlier WRITTEN
@@ -11988,9 +11995,10 @@ def part3kj_the_truth_items_and_the_proven_holes():
         check(f"  silent (scoped or true): {s[:58]!r}", not T.known_falsehood_conflict(s), "")
     names = [r[0] for r in T.KNOWN_FALSEHOODS]
     # (vf) 20 -> 21: the square-root-of-a-number-is-positive row, PART 3lb.
-    check("  twenty-one named falsehoods since vf (twenty at ut, nineteen at un), the two un rows beside the division row",
-          len(T.KNOWN_FALSEHOODS) == 21 and "hundredths-place-is-two-digits" in names
-          and "parentheses-never-mean-multiply" in names and len(set(names)) == 21, str(len(names)))
+    # (vn) 21 -> 22: the f-of-x-is-the-name-of-the-machine row, PART 3lj.
+    check("  twenty-two named falsehoods since vn (twenty-one at vf, twenty at ut, nineteen at un), the two un rows beside the division row",
+          len(T.KNOWN_FALSEHOODS) == 22 and "hundredths-place-is-two-digits" in names
+          and "parentheses-never-mean-multiply" in names and len(set(names)) == 22, str(len(names)))
 
     # ---- #1 the story-units grammar ---------------------------------------------------------
     for s, want in (
@@ -13057,7 +13065,8 @@ def part3kp_the_first_watch_on_the_new_stack():
           and bool(T.known_falsehood_conflict("Twelve point five percent divided by a hundred is the decimal.")), "")
     names = [r[0] for r in T.KNOWN_FALSEHOODS]
     # (vf) 20 -> 21: the square-root-of-a-number-is-positive row, PART 3lb.
-    check("  twenty-one named falsehoods, unique (twenty at ut)", len(T.KNOWN_FALSEHOODS) == 21 and len(set(names)) == 21
+    # (vn) 21 -> 22: the f-of-x-is-the-name-of-the-machine row, PART 3lj.
+    check("  twenty-two named falsehoods, unique (twenty-one at vf, twenty at ut)", len(T.KNOWN_FALSEHOODS) == 22 and len(set(names)) == 22
           and "percent-divided-by-a-hundred" in names, str(len(names)))
 
     # ---- #2 the times sign in the registry ----------------------------------------------------------
@@ -14591,11 +14600,15 @@ def part3kv_a_picture_counts_one_kind_of_thing():
 
     # ---- the ceiling, and the cliff under it ----------------------------------------
     traw = rd("tutor.py")
-    check("⭐ the fifteenth ceiling raise carries its dated note, and the constant "
-          "matches it",
+    # (vn) the sixteenth raise, 209,000 -> 211,000, was Jim's decision ("raise ceiling
+    # and go", 2026-09-12) -- the shape the uz note asked for.
+    check("⭐ the fifteenth ceiling raise carries its dated note, the sixteenth was Jim's "
+          "decision, and the constant matches the newest",
           "2026-09-10 (build uz): RAISED 208,000 -> 209,000" in traw
-          and "PROMPT_CEILING = 209_000" in traw
-          and "Fifteenth verse, same discipline" in traw,
+          and "2026-09-12 (build vn): RAISED 209,000 -> 211,000" in traw
+          and "PROMPT_CEILING = 211_000" in traw
+          and "Fifteenth verse, same discipline" in traw
+          and "raise ceiling and go" in traw,
           "teaching is never trimmed to duck a tripwire")
     check("  ...and it names what fifteen verses are telling us: the deferral is "
           "one-shot, so this is a cliff and the answer has been \"raise it\" every time",
@@ -15557,8 +15570,9 @@ def part3lb_three_holes_from_the_09_11_watch():
             ("a specific number, not a generalisation", "The square root of 25 is the positive number 5.")):
         check("  silent: %s" % label, not K(s), s[:60])
     check("  the sibling row (two answers) is untouched", "always two answers" in (K("square root always gives you two answers, positive and negative") or ""), "")
-    check("  the table grew by exactly one row and every row is whole",
-          len(T.KNOWN_FALSEHOODS) == 21 and all(len(e) == 4 and e[2] and e[3] for e in T.KNOWN_FALSEHOODS),
+    # (vn) 21 -> 22: the f-of-x-is-the-name-of-the-machine row, PART 3lj.
+    check("  the table grew by exactly one row at vf (22 since vn) and every row is whole",
+          len(T.KNOWN_FALSEHOODS) == 22 and all(len(e) == 4 and e[2] and e[3] for e in T.KNOWN_FALSEHOODS),
           str(len(T.KNOWN_FALSEHOODS)))
 
     # ---- ③ seconds presuppose firsts --------------------------------------------------
@@ -16547,6 +16561,139 @@ def part3li_the_forms_the_board_leans_on():
           and "2026-09-12  BUILD vm" in notes("ruletests.py") and "2026-09-12  BUILD vm" in notes("lessons/prealgebra.py")
           and "2026-09-12  BUILD vm" in notes("lessons/algebra1.py")
           and 'APP_BUILD -> "2026-09-12vm-' in notes("main.py"), "")
+
+
+def part3lj_the_law_in_the_other_order_and_the_name_of_the_machine():
+    """PART 3lj (build vn, 2026-09-12) -- THE LAW IN THE OTHER ORDER, THE NAME OF THE
+    MACHINE, AND THE SIXTEENTH VERSE.
+
+    Two rows from the 09-10 night watch's triage, carried forward, plus Jim's ruling:
+      ① rule 61 (prealgebra): "anytime you see multiplication next to addition, you do
+        the multiplication first" -- the precedence referee (37) did not fire: its law
+        pattern knew only multiply-BEFORE-add (this sentence puts the precedence word
+        LAST) and "anytime" was not a universal. Both orders now; anytime / any time /
+        each time / as soon as join (b). Clause (c) unchanged: one grouping mention
+        anywhere still buys silence.
+      ② rule 13 (algebra1): "we read f(x) ... the name of a machine". The NAME is f;
+        f(x) is the output at x. KNOWN_FALSEHOODS row 22, and -- the part that matters
+        more -- our own _NOTATIONS fix sentence for f(x) DICTATED that falsehood ("the
+        name of a machine that takes x in") since build ih. Corrected the same build.
+      ③ PROMPT_CEILING 209,000 -> 211,000: the sixteenth raise, and the first that
+        was a decision rather than a reflex -- the uz note asked for exactly that, vm
+        left 83 characters of headroom without raising, and Jim ruled "raise ceiling
+        and go" (2026-09-12).
+    Swept: 18,557 authored strings (lessons, foundations, misconceptions, quiz sets,
+    prompts, the shared blocks) -- the widened referee and the new row add 0 fires (the
+    three standing fires are the division row's own NOT/BUT pair and the misconception
+    catalogue's quoted false sentence, both older than this build)."""
+    print("\nPART 3lj — the law in the other order, the name of the machine, and the sixteenth verse (build vn)")
+    import os as _os
+    import tutor as T
+    import foundations as FND
+    import lessonscripts as LS
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    P, K = T.overgeneralized_precedence_conflict, T.known_falsehood_conflict
+
+    # ---- ① the law in the other order ---------------------------------------------------
+    watch = "Anytime you see multiplication next to addition, you do the multiplication first."
+    check("⭐⭐ the 09-10 sentence FIRES: multiply, add, THEN the precedence word, under 'anytime'",
+          "Rule 61" in (P(watch) or "") and "Anytime you see multiplication" in (P(watch) or ""), (P(watch) or "")[:90])
+    check("  the old order still fires (the 08-20 sentence, the si pin's own)",
+          bool(P("Multiplying and dividing always happen before adding and subtracting.")), "")
+    for label, r in (
+            ("each time / beside / goes first", "Each time multiplication sits beside addition, multiplication goes first."),
+            ("any time, two words", "Any time you see times next to plus, do the times first."),
+            ("as soon as", "As soon as you see a times sign next to a plus, the multiplication comes first.")):
+        check("  fires: %s" % label, bool(P(r)), "")
+    for label, r in (
+            ("(c): one grouping mention anywhere buys silence", watch + " Unless there are parentheses, which come first."),
+            ("teaching, not a law: no universal", "Here, multiplication sits next to addition, so we do the multiplication first."),
+            ("the precedence word with no add word", "Anytime you see multiplication, do it first."),
+            ("the canon's 'no grouping symbols' sentence", "When there are no grouping symbols like parentheses, multiplication and division happen before addition and subtraction, every time."),
+            ("an unrelated 'anytime'", "Anytime you get stuck, tap the picture and we add the counts together first.")):
+        check("  silent: %s" % label, not P(r), (P(r) or "")[:70])
+    check("  the nudge still dictates the true sentence", "when there are no grouping symbols like parentheses" in P(watch), "")
+    check("  never raises", P(None) == "" and P(123) == "", "")
+
+    # ---- ② the name of the machine ----------------------------------------------------------
+    old_fix = 'We read f(x) out loud as "f of x" -- the name of a machine that takes x in and sends one number back out.'
+    check("⭐⭐ the watch's sentence -- and our own OLD f(x) fix sentence -- FIRES as row 22",
+          "f of x is the name of the machine" in (K(old_fix) or "") and "Rule 61" in (K(old_fix) or "")
+          and bool(K("We read f(x) as f of x -- the name of a machine.")), (K(old_fix) or "")[:90])
+    check("  the true form names the machine f and calls f(x) the output",
+          "the machine is named f" in K(old_fix) and "the output, not the name" in K(old_fix), "")
+    for label, r in (
+            ("the other order: 'the name of the machine is f(x)'", "The name of the machine is f(x)."),
+            ("'f of x is the name of the rule'", "f of x is the name of the rule we follow."),
+            ("'the name for the function is f(x)'", "So the name for the function is f(x), and we plug in.")):
+        check("  fires: %s" % label, bool(K(r)), "")
+    for label, r in (
+            ("the corrected fix sentence: f is the name, f(x) the number sent back",
+             'We read f(x) out loud as "f of x" -- f is the name of a machine that takes x in, and f(x) is the number it sends back out.'),
+            ("the dictated true sentence", "The function is named f; f(x) is its output at x."),
+            ("'the output of the machine named f'", "Here f(x) means the output of the machine named f."),
+            ("'we call the machine f'", "We call the machine f, and f(x) is what comes out."),
+            ("f(x) with no name talk at all", "Plug 3 into f(x) = 2x + 1 and read the output.")):
+        check("  silent: %s" % label, not K(r), (K(r) or "")[:70])
+    fx = [n for n, sym, spoken, fix in T._NOTATIONS if n == "function notation (f)"]
+    fix = [fix for n, sym, spoken, fix in T._NOTATIONS if n == "function notation (f)"][0]
+    check("⭐ the _NOTATIONS f(x) fix sentence no longer dictates the falsehood, and passes the row",
+          fx and "f is the name of a machine" in fix and "f(x) is the number it sends back out" in fix and not K(fix), fix[:80])
+    check("  the g and h sentences never said it", all(not K(fix) for n, _s, _p, fix in T._NOTATIONS if n.startswith("function notation")), "")
+    check("  row 22 is whole and last", T.KNOWN_FALSEHOODS[-1][0] == "f-of-x-is-the-name-of-the-machine"
+          and len(T.KNOWN_FALSEHOODS[-1]) == 4 and len(T.KNOWN_FALSEHOODS) == 22, "")
+    check("  never raises", K(None) == "" and K(123) == "", "")
+
+    # ---- ③ the sixteenth verse ---------------------------------------------------------------
+    traw = rd("tutor.py")
+    check("⭐ PROMPT_CEILING is 211,000, dated, and carries Jim's ruling in his words",
+          T.PROMPT_CEILING == 211_000 and "2026-09-12 (build vn): RAISED 209,000 -> 211,000" in traw
+          and 'Jim, 2026-09-12: "raise ceiling and go."' in traw and "THE SIXTEENTH VERSE, AND IT WAS A" in traw and "DECISION: build vm's two notation rows" in traw, "")
+    sizes = {c: len(T.build_system_prompt(dict(STUDENT), course=c)) for c in COURSES}
+    check("  every fresh-student prompt fits with room to spare (the all-heard shape is 3g's)",
+          max(sizes.values()) <= 211_000, str(max(sizes.values())))
+
+    # ---- the canon sweep: measured before enforcing -------------------------------------------
+    seen = 0; new_fires = []
+    def _sweep(t):
+        nonlocal seen
+        t = str(t or "")
+        if not t.strip():
+            return
+        seen += 1
+        r = P(t) or ""
+        k = K(t) or ""
+        if r or "f of x is the name of the machine" in k:
+            new_fires.append(t[:80])
+    def _walk(o):
+        if isinstance(o, str):
+            _sweep(o)
+        elif isinstance(o, dict):
+            for v in o.values():
+                _walk(v)
+        elif isinstance(o, (list, tuple)):
+            for v in o:
+                _walk(v)
+    _walk(LS.LESSONS)
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _walk(_scr)
+    try:
+        import misconceptions as _M, prompts as _PR
+        _walk(getattr(_M, "MISCONCEPTIONS", {}))
+        _walk({k: getattr(_PR, k) for k in dir(_PR) if k.isupper() and isinstance(getattr(_PR, k), (str, dict, list, tuple))})
+    except Exception:  # noqa: BLE001
+        pass
+    _walk({k: getattr(T, k) for k in ("GRAPH_TOOL_NOTE", "LESSON_TEMPLATES", "SESSION_OPENER_RULES", "GROUND_RULES") if hasattr(T, k)})
+    check(f"⭐ CANON SWEEP: {seen} authored strings, the widened precedence referee and row 22 add zero fires",
+          seen >= 15000 and not new_fires, "; ".join(new_fires[:3]))
+
+    # ---- counted, noted --------------------------------------------------------------------------
+    check("  no referee count change: still 90, truth class 11",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90 and len(T.TRUTH_REFEREES) == 11, "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-12  BUILD vn" in notes("tutor.py") and "2026-09-12  BUILD vn" in notes("ruletests.py")
+          and 'APP_BUILD -> "2026-09-12vn-' in notes("main.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -31567,8 +31714,9 @@ def part3jq_the_caption_the_sequence_and_the_definition():
               "Factoring means rewriting x^2 - 5x + 6 as two factors that multiply back "
               "to the original expression."), "")
     # (vf) 20 -> 21: the square-root-of-a-number-is-positive row, PART 3lb.
-    check("  the falsehood table holds twenty-one named falsehoods (seventeen here, two more in un, one in ut, one in vf)",
-          len(T.KNOWN_FALSEHOODS) == 21, len(T.KNOWN_FALSEHOODS))
+    # (vn) 21 -> 22: the f-of-x-is-the-name-of-the-machine row, PART 3lj.
+    check("  the falsehood table holds twenty-two named falsehoods (seventeen here, two more in un, one in ut, one in vf, one in vn)",
+          len(T.KNOWN_FALSEHOODS) == 22, len(T.KNOWN_FALSEHOODS))
 
     # ---- the truth class ---------------------------------------------------------
     check("⭐ both new referees are TRUTH-class (Jim's ruling 2026-09-07): a draft "
@@ -35140,11 +35288,12 @@ def part3hq_the_pencil_has_feelings_about_your_work():
     check("APP_BUILD is stamped rr or later", bool(_stamp) and _stamp.group(1) >= "2026-09-02rr", _stamp and _stamp.group(1))
     traw = rd("tutor.py")
     check("⭐ EVERY ceiling raise carries its dated note, and the constant matches the "
-          "newest one (fifteen verses of the same discipline)",
+          "newest one (sixteen verses; the sixteenth was Jim's decision)",
           "2026-09-02 (build rr): RAISED 205,000 -> 207,000" in traw
           and "2026-09-08 (build uo): RAISED 207,000 -> 208,000" in traw
           and "2026-09-10 (build uz): RAISED 208,000 -> 209,000" in traw
-          and "PROMPT_CEILING = 209_000" in traw,
+          and "2026-09-12 (build vn): RAISED 209,000 -> 211,000" in traw
+          and "PROMPT_CEILING = 211_000" in traw,
           "an undated raise is how the ledger's discipline dies")
     # (uz) ...and the raise now says out loud what fifteen of them are telling us: the
     # deferral is one-shot, so every course above Prealgebra sits behind a cliff and
@@ -43362,6 +43511,7 @@ def main():
     part3lg_the_figures_words_fit_the_board()
     part3lh_the_caption_and_the_blank()
     part3li_the_forms_the_board_leans_on()
+    part3lj_the_law_in_the_other_order_and_the_name_of_the_machine()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

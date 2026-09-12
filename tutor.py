@@ -6,6 +6,19 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vn -- THE LAW IN THE OTHER ORDER, THE NAME OF THE MACHINE, AND THE
+#               SIXTEENTH VERSE (the 09-10 watch's two table rows, carried forward, and
+#               Jim's ruling). ① overgeneralized_precedence_conflict (37): _PL_LAW knows
+#               the multiply-add-THEN-precedence-word order ("anytime you see
+#               multiplication next to addition, you do the multiplication first") and
+#               _PL_UNIVERSAL gains anytime / any time / each time / as soon as.
+#               ② KNOWN_FALSEHOODS row 22, f-of-x-is-the-name-of-the-machine (rule 13):
+#               the name is f, f(x) is the output -- and the _NOTATIONS f(x) fix
+#               sentence, which had dictated "the name of a machine" since ih, is
+#               corrected. ③ PROMPT_CEILING 209,000 -> 211,000 -- "raise ceiling and
+#               go" (Jim, 2026-09-12), the sixteenth verse, a decision this time.
+#               18,557 authored strings swept: 0 new fires. No referee count change.
+#               PART 3lj.
 #   2026-09-12  BUILD vm -- THE FORMS THE BOARD LEANS ON (the 09-10 night watch's four
 #               rule-44/48 findings, carried forward): the first-use gate (_NOTATIONS,
 #               referee 30) knew symbols and not FORMS. Three entries: a number
@@ -1437,7 +1450,15 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # ux's plain-words block and ox's elementary buttons both chose instead) is the
 # structural answer, and it is Jim's call, not a build's. Written down here so the
 # sixteenth verse is a decision rather than a reflex.
-PROMPT_CEILING = 209_000
+# 2026-09-12 (build vn): RAISED 209,000 -> 211,000. THE SIXTEENTH VERSE, AND IT WAS A
+# DECISION: build vm's two notation rows (the forms 2(4) and "? + 3 = 7" in rule 48's
+# HOW-TO-SAY table) left the all-heard Algebra II prompt at 208,917 -- 83 characters of
+# headroom -- and the build did not raise it, because the note above asked that this
+# one be Jim's call. Jim, 2026-09-12: "raise ceiling and go." Two thousand this time,
+# so the next clause is not the seventeenth verse the same week. The cliff underneath
+# is unchanged and still written down above: a second deferral tier or a per-course
+# rule block remains the structural answer.
+PROMPT_CEILING = 211_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -4506,8 +4527,11 @@ _NOTATIONS = (
     # "g of 2" or "g of x".
     ("function notation (f)", re.compile(r"\bf\s*\(\s*[-+\w.]{1,10}\s*\)"),
      re.compile(r"\bf\s+of\s+\w", re.I),
-     'We read f(x) out loud as "f of x" -- the name of a machine that takes x '
-     "in and sends one number back out."),
+     # (vn, 2026-09-12) this sentence used to say f(x) was "the name of a machine" --
+     # the very falsehood the 09-10 watch caught the live tutor saying (rule 13). The
+     # NAME is f; f(x) is what comes out. Our own advice must not dictate the error.
+     'We read f(x) out loud as "f of x" -- f is the name of a machine that takes x '
+     "in, and f(x) is the number it sends back out."),
     ("function notation (g)", re.compile(r"\bg\s*\(\s*[-+\w.]{1,10}\s*\)"),
      re.compile(r"\bg\s+of\s+\w", re.I),
      'We read g(2) out loud as "g of two" -- g is just a different name for a '
@@ -5034,8 +5058,16 @@ _PL_ADD = (r"(?:addition|adding|adds|add|"
            r"subtraction|subtracting|subtracts|subtract|plus|minus)")
 _PL_BEFORE = (r"(?:before|first|ahead of|outrank\w*|"
               r"come[s]? first|happen[s]? before|go(?:es)? before)")
-_PL_LAW = re.compile(_PL_MUL + r"[^.!?]{0,80}?" + _PL_BEFORE + r"[^.!?]{0,80}?" + _PL_ADD,
-                     re.I)
+# (vn, 2026-09-12) THE LAW IN THE OTHER ORDER. The 09-10 watch (prealgebra, rule 61):
+# "anytime you see multiplication next to addition, you do the multiplication first"
+# -- the multiply word, the add word, and THEN the precedence word. The pattern only
+# knew multiply-BEFORE-add, so the sentence walked past clause (a); and "anytime"
+# was not in the universal list, so it walked past (b) too. Both orders now; "anytime
+# / any time / each time / as soon as" join (b). Measured before widening (PART 3lj):
+# the whole referee over every authored string, zero false alarms.
+_PL_LAW = re.compile(r"(?:" + _PL_MUL + r"[^.!?]{0,80}?" + _PL_BEFORE + r"[^.!?]{0,80}?" + _PL_ADD
+                     + r"|" + _PL_MUL + r"[^.!?]{0,80}?" + _PL_ADD + r"[^.!?]{0,80}?" + _PL_BEFORE
+                     + r")", re.I)
 # (si, 2026-09-03) THE LAW WORE A DIFFERENT COSTUME. The 2026-09-03 night watch
 # confirmed, in the SAME prealgebra lesson the 08-20 watch found: "multiplication
 # actually has to happen before addition, NO MATTER WHICH ORDER they're written in."
@@ -5049,7 +5081,7 @@ _PL_LAW = re.compile(_PL_MUL + r"[^.!?]{0,80}?" + _PL_BEFORE + r"[^.!?]{0,80}?" 
 # on purpose, which already matched under "every time" before this build.
 _PL_UNIVERSAL = re.compile(
     r"\b(?:always|every time|all the time|never|whenever|no matter what|"
-    r"in every case|in all cases|"
+    r"in every case|in all cases|anytime|any time|each time|as soon as|"
     r"no matter (?:which|how|when|where)|no matter the|regardless of)\b", re.I)
 _PL_GROUPING = re.compile(r"parenthes|paren\b|parens|bracket|grouping", re.I)
 _PL_SENTENCE = re.compile(r"[^.!?\n]+[.!?]?")
@@ -5451,6 +5483,14 @@ def _plain_prose(text: str) -> str:
     hide inside **bold** or _italics_. Subscripts like x_1 are untouched."""
     plain = _KF_EMPHASIS.sub("", _spoken_only(str(text or "")))
     return _KF_UNDER_ITALIC.sub(r"\1", plain)
+# (vn) the f(x) row's false pattern, built once, above the table, so the two spellings of the
+# notation and the three names of the thing stay in one place: f(x) or "f of x", then
+# within the same sentence "the name of a machine" (or of a function / rule).
+_KF_FX_FALSE = re.compile(
+    r"(?:\bf\s*\(\s*x\s*\)|\bf\s+of\s+x\b)[^.!?]{0,60}?\bthe\s+name\s+(?:of|for)\s+"
+    r"(?:a|the|our|this|that|your)\s+(?:machine|function|rule)\b"
+    r"|\bthe\s+name\s+(?:of|for)\s+(?:a|the|our|this|that|your)\s+(?:machine|function|rule)\b"
+    r"[^.!?]{0,40}?\b(?:is|as)\s+(?:f\s*\(\s*x\s*\)|f\s+of\s+x\b)", re.I)
 KNOWN_FALSEHOODS = [
     # (name, the FALSE sentence, the condition that buys silence, the TRUE form)
     ("hypotenuse-is-always-c",
@@ -5707,6 +5747,23 @@ KNOWN_FALSEHOODS = [
      "for a positive number, the square root is the positive value that multiplies "
      "by itself to give that number -- here the square root of 25 is 5; the square "
      "root of zero is zero, and a negative number has no real square root"),
+    # (vn, 2026-09-12) THE 09-10 WATCH, algebra1, rule 13: "we read f(x) ... the name of
+    # a machine". The NAME is f. f(x) is the machine's OUTPUT at x -- a number, not a
+    # name -- and the difference is exactly what the function lessons teach (the
+    # foundations script says "the output of the machine"). Our own _NOTATIONS fix
+    # sentence dictated this falsehood until vn; corrected the same build. The false
+    # shape: f(x) / "f of x" and, within the sentence, "the name of a/the machine /
+    # function / rule". Escapes: the true sentence in any wording (f IS the name; the
+    # machine is NAMED f; f(x) is the output / what comes out / sends back out) --
+    # "sends back out" alone is not one, since the old advice had it beside the error.
+    ("f-of-x-is-the-name-of-the-machine",
+     _KF_FX_FALSE,
+     re.compile(r"\bf\s+is\s+(?:just\s+)?(?:the\s+)?name\b|\bnamed\s+f\b|\bcall(?:ed|s)?\s+(?:it\s+|the\s+machine\s+)?f\b|"
+                r"\bf\s+names\s+the\b|\bf\s*\(\s*x\s*\)\s+is\s+(?:the\s+|its\s+|what\s+)?(?:output|number|answer|result|value)\b|"
+                r"\bf\s+of\s+x\s+is\s+(?:the\s+|its\s+|what\s+)?(?:output|number|answer|result|value)\b|"
+                r"\bwhat\s+comes\s+out\b|\bthe\s+output\s+(?:of|at|when)\b", re.I),
+     "the machine is named f; f(x), read 'f of x', is the number it sends out when x "
+     "goes in -- the output, not the name"),
 ]
 
 

@@ -6,6 +6,10 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  APP_BUILD -> "2026-09-12vn-the-law-in-the-other-order".
+#               BUILD vn -- no change in this file beyond the stamp. tutor.py: the
+#               precedence law in both orders, KNOWN_FALSEHOODS row 22 (f(x) is the
+#               output, f is the name), PROMPT_CEILING 211,000 on Jim's ruling. PART 3lj.
 #   2026-09-12  APP_BUILD -> "2026-09-12vm-the-forms-the-board-leans-on".
 #               BUILD vm -- no change in this file beyond the stamp. tutor.py: three
 #               FORM entries in the first-use gate; notation.py: two twin rows;
@@ -9273,7 +9277,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-12vm-the-forms-the-board-leans-on"
+APP_BUILD = "2026-09-12vn-the-law-in-the-other-order"
 
 
 @app.get("/health")
