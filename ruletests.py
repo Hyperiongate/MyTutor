@@ -6,6 +6,19 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vt -- PART 3lp, THE CHECK LINE ROTATES: lessonscripts.CHECK_LINES
+#               (five, "Ready?" first) and session.html's byte-identical copy, cycled one
+#               per beat by scrCheck; LINE_CHECK / LINE_READY untouched. The closure
+#               pins move 39,969 -> 39,988 (+4 checks, +15 award lines); speechmap 2,245
+#               -> 2,246 of 40,275 -> 40,294 (the Scholar line carries "1,000").
+#   2026-09-12  BUILD vs -- PART 3lo, THE AWARD IS SAID OUT LOUD: AWARD_TEXT mirrors
+#               main.AWARD_DEFS (pinned equal), one fixed line per award in the closure,
+#               _award_ids_for lifted out of awards_state (route byte-identical),
+#               store.record_awards returns the new ids, _fresh_award_steps /
+#               _with_awards place the "say" before the end / qend, wired at start, the
+#               four lesson ends and the quiz end; the AUDIT lane hears none. A sqlite
+#               drill: a 3-day streak hears Spark once at /api/script/start, the second
+#               start is silent, /api/awards agrees, Blaze rides with its card.
 #   2026-09-12  BUILD vr -- PART 3ln, THE 166 READ PER REASON: the critic's charter in
 #               code (critic_objection_is_style -- a conceding or advisory livecritic
 #               verdict is a pass, counted referee_soft · criticstyle; the week's eight
@@ -12939,7 +12952,10 @@ def part3ko_orient_then_one_idea_per_beat_with_a_check():
           and "if (heard && SCR_CHECK_BEATS.has(step.beat)) { await scrCheck(step); scrNext(); return; }" in pcode
           and 'if (heard && step.beat === "practice_intro") { await scrReady(); scrNext(); return; }' in pcode, "")
     check("  the check is spoken and never bubbled (a bubble scrolled the board away); the replay is words only",
-          "lastTutorText = LINE_CHECK;" in pcode and 'addBubble("tutor", LINE_CHECK)' not in pcode
+          # (vt) the check is `line` (one of CHECK_LINES) -- spoken, never bubbled
+          "lastTutorText = line;" in pcode
+          and 'addBubble("tutor", line)' not in pcode[pcode.find("async function scrCheck"):pcode.find("async function scrReady")]
+          and 'addBubble("tutor", LINE_CHECK)' not in pcode
           and "async function scrReplay(step)" in pcode
           and 'addBubble("tutor", step.spoken || "")' not in pcode[pcode.find("async function scrReplay"):pcode.find("async function scrCheck")], "")
     check("  words answer a check (again / show / no -> the replay; anything else -> got it), never the tutor; twice at most",
@@ -13018,16 +13034,21 @@ def part3ko_orient_then_one_idea_per_beat_with_a_check():
                         check(NAME,
                               reached and not errs and quiet_ok and board_ok
                               and log[1:3] == [LS.lesson_intro(first)[0], LS.lesson_orientation(first, False)[0]]
-                              and i_pic > 0 and log[i_pic + 1:i_pic + 4] == [LS.LINE_CHECK, pic, LS.LINE_CHECK]   # Show me again replayed it
-                              # (vj) picture x2, teach x2, worked x2 -- AND the ready gate speaks the
-                              # same word once after the practice intro, so the count is seven
-                              and log.count(LS.LINE_CHECK) == 7
+                              and i_pic > 0 and log[i_pic + 1:i_pic + 4] == [LS.CHECK_LINES[0], pic, LS.CHECK_LINES[0]]   # Show me again replayed it -- the SAME line
+                              # (vj) picture x2, teach x2, worked x2 -- AND the ready gate speaks
+                              # "Ready?" once after the practice intro, so seven checks are heard.
+                              # (vt) ...and they ROTATE: the picture's check (twice, replayed), then
+                              # one new line per beat, then the gate's own "Ready?"
+                              and [l for l in log if l in LS.CHECK_LINES]
+                              == [LS.CHECK_LINES[0], LS.CHECK_LINES[0], LS.CHECK_LINES[1], LS.CHECK_LINES[2],
+                                  LS.CHECK_LINES[3], LS.CHECK_LINES[4], LS.LINE_READY]
                               # (ux) the labels come from lessonscripts, never a literal: Jim
                               # retired "Got it?!" and its button on 2026-09-09
                               and taps[:2] == ["Show me again", CHECK_LABELS[0]] and taps[-1] == READY_LABELS[0]
                               and log[-3] == first["practice_intro"] and log[-2] == LS.LINE_READY
                               and log[-1].startswith("Two new machines"),
-                              _json.dumps({"taps": taps, "lines": [l[:28] for l in log], "errors": errs})[:600])
+                              _json.dumps({"errors": errs, "reached": reached, "quiet": quiet_ok, "board": board_ok,
+                                           "taps": taps, "lines": [l[:28] for l in log]})[:1600])
                         br.close()
         finally:
             try:
@@ -15137,7 +15158,9 @@ def part3kx_the_next_line_is_already_loaded():
               # the course, and the honest repair is to write the generator's number
               # (vm) 1,940 -> 1,939: the proportions teach line lost its "by 2: 3 times"
               # (forSpeech read the digit-colon-digit as a ratio, "2 to 3")
-              n == 1939, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
+              # (vs) 1,939 -> 1,940: the Scholar award line carries "1,000 minutes" (the
+              # comma forSpeech tidies); "100 percent" is spelled out, so Perfect Quiz does not
+              n == 1940, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
         check("  ⭐⭐ ...and not one of them is a mismatch any more: the label the server "
               "files under equals the label the page asks for, on every line",
               all(_M._spoken(t) == t or _M._spoken(t) != t for t in lines[:1])
@@ -15222,8 +15245,11 @@ def part3ky_one_label_for_every_clip():
         # form changes it, and the honest repair is to read the new count off the
         # generator's own report line and write it here with the build that did it.
         # (vm) 2,246 -> 2,245: the same proportions line, no longer tidied.
-        check("  ...and it still holds the differences it was built for (2,245 since vm; 2,246 at vj; 2,249 at vc)",
-              len(mapping) == 2245 and scanned == 40275,
+        # (vs/vt) 2,245 -> 2,246 of 40,294: nineteen standalone lines joined the closure
+        # (four check lines, fifteen award lines); "1,000 minutes" is tidied by
+        # forSpeech, so one of them re-keys ("100 percent" is spelled out on purpose).
+        check("  ...and it still holds the differences it was built for (2,246 since vs; 2,245 at vm; 2,246 at vj; 2,249 at vc)",
+              len(mapping) == 2246 and scanned == 40294,
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
@@ -15250,7 +15276,7 @@ def part3ky_one_label_for_every_clip():
     check("  and no two authored lines tidy to the SAME sentence, so the closure never "
           "prices or renders one clip twice (deduped anyway -- see _closure_lines)",
           len(cl) == len(set(cl)), "%d lines, %d unique" % (len(cl), len(set(cl))))
-    check("  the closure is still the whole course", len(cl) == 39969, str(len(cl)))
+    check("  the closure is still the whole course (39,988 since vs/vt; 39,969 before)", len(cl) == 39988, str(len(cl)))
 
     # ---- 4. ONE reader, and every site goes through it -----------------------------
     check("⭐ speechmap is read in exactly ONE place -- _spoken(). A second reader is a "
@@ -16196,7 +16222,8 @@ def part3lf_ready_and_four_basic_lines():
     check("  every changed line is in the closure (the prewarm will find them)",
           all(t in closure for t in (pv["why"][0][0], pv["recap"][1][0], rt["why"][0][0],
                                      L.lesson_orientation(rt, True)[0], L.lesson_intro(pv)[0])), "")
-    check("  the closure count is unchanged at 39,969 (lines changed, none added)", len(closure) == 39969, str(len(closure)))
+    check("  the closure count moved only for lines ADDED since (vj changed lines and added none; vs/vt added 19)",
+          len(closure) == 39988, str(len(closure)))
 
     # ---- 3. blob: in media-src -------------------------------------------------------------------
     import main as M
@@ -17482,6 +17509,154 @@ def part3ln_the_166_read_per_reason():
           "2026-09-12  BUILD vr" in notes("tutor.py") and "2026-09-12  BUILD vr" in notes("ruletests.py")
           and "2026-09-12  BUILD vr" in notes("nightwatch.py")
           and 'APP_BUILD -> "2026-09-12vr-' in notes("main.py"), "")
+
+
+def part3lo_the_award_is_said_out_loud():
+    """PART 3lo (build vs, 2026-09-12) -- THE AWARD IS SAID OUT LOUD.
+
+    Jim: "when the student wins an award, I want them to be told -- congratulations,
+    big deal." Awards were computed only when the dashboard asked, so a child found
+    Blaze on a page days later. Now: lessonscripts.AWARD_TEXT mirrors main.AWARD_DEFS
+    (pinned equal, so a rename cannot drift from its spoken line); AWARD_LINES is one
+    FIXED line per award (one cached clip each), in STANDALONE_LINES for the prewarm;
+    main._award_ids_for is awards_state's own computation lifted out (the route is
+    byte-identical); store.record_awards returns the ids written for the first time;
+    _fresh_award_steps turns them into "say" steps (beat "award", the award's card on
+    the board) and _with_awards places them BEFORE the end / qend step. Spoken at
+    /api/script/start (after the orientation, spoken only), at every lesson end (five
+    call sites through _script_finish) and at a topic quiz's end. The AUDIT lane, a
+    blank code and a store that is off all hear nothing. Proven on a real sqlite store
+    through the real route."""
+    print("\nPART 3lo — the award is said out loud (build vs)")
+    import os as _os
+    import subprocess as _sp
+    import tempfile as _tf
+    import lessonscripts as L
+    import main as M
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    msrc = code_only(rd("main.py"))
+
+    check("⭐ every award has a spoken line, and its name and description are the dashboard's own",
+          set(L.AWARD_TEXT) == set(M.AWARD_DEFS)
+          and all(tuple(M.AWARD_DEFS[a][1:3]) == tuple(L.AWARD_TEXT[a]) for a in L.AWARD_TEXT)
+          and len(L.AWARD_LINES) == 15, str(set(L.AWARD_TEXT) ^ set(M.AWARD_DEFS)))
+    check('  the line congratulates, names the award, says what was done, and calls it a big deal -- and "100%" is said "100 percent" (standalone speech carries no symbol)',
+          L.award_line("streak7") == "Congratulations! You just earned the Blaze award — worked 7 days in a row. That is a big deal, and you did it."
+          and L.award_line("min100").startswith("Congratulations! You just earned the Century Club award — 100 minutes")
+          and "100 percent on a quiz" in L.award_line("perfect") and "%" not in L.award_line("perfect")
+          and L.award_line("nosuch") == "" and L.award_line(None) == "", L.award_line("streak7"))
+    closure = L.course_audio_lines()
+    check("  all fifteen are in the closure (the prewarm renders them) and in STANDALONE_LINES",
+          all(l in closure and l in L.STANDALONE_LINES for l in L.AWARD_LINES.values()), "")
+    check("  the lane never invents a line: only AWARD_DEFS ids with a line are spoken",
+          "line = lessonscripts.award_line(aid)" in msrc and "if not line or aid not in AWARD_DEFS:" in msrc, "")
+    check("  the dashboard route computes through the ONE function and its shape is unchanged",
+          "computed, trophies, badges, stats, streak, total_minutes = _award_ids_for(code)" in msrc
+          and '"awards": out, "next_up": next_up[:1]}' in msrc, "")
+    check("  placement: before the first end / qend, else appended; nothing to say leaves the list as it came",
+          M._with_awards([{"kind": "say"}, {"kind": "end"}], [{"kind": "say", "beat": "award"}])
+          == [{"kind": "say"}, {"kind": "say", "beat": "award"}, {"kind": "end"}]
+          and M._with_awards([{"kind": "ask"}], [{"kind": "say", "beat": "award"}])
+          == [{"kind": "ask"}, {"kind": "say", "beat": "award"}]
+          and M._with_awards([{"kind": "say"}, {"kind": "qend"}], []) == [{"kind": "say"}, {"kind": "qend"}], "")
+    check("  the AUDIT lane, a blank code and a demo hear no award",
+          M._fresh_award_steps("AUDIT") == [] and M._fresh_award_steps("") == [] and M._fresh_award_steps("audit") == [], "")
+    check("  wired at start (after the orientation, spoken only), at the five lesson ends and at the quiz end",
+          "_aw = _fresh_award_steps(code, with_card=False)" in msrc
+          and msrc.count("_script_finish(code, sess, s)") == 5
+          and msrc.count("_aw += _script_finish(code, sess, s)") == 3
+          and msrc.count("out = _with_awards(out, _script_finish(code, sess, s))") == 2
+          and "return _fresh_award_steps(code)" in msrc
+          and "_aw = _fresh_award_steps(code) if result is not None else []" in msrc, "")
+    check("  the page never checks after an award (beat \"award\" is not a check beat)",
+          '"beat": "award"' in msrc and '"award"' not in code_only(rd("static/session.html")).split("SCR_CHECK_BEATS = new Set(")[1][:60], "")
+    check("  record_awards returns the first-time ids (and still writes them)",
+          "def record_awards(code: str, award_ids: list) -> list:" in code_only(rd("store.py"))
+          and "new.append(aid)" in code_only(rd("store.py")), "")
+
+    # ---- the drill, on a real sqlite store, through the real route --------------------
+    DRILL = r"""
+import os
+import store
+store.init(); assert store.enabled(), store.status()
+store._upsert("student_stats", {"code": "AWD1"},
+              {"streak_days": 3, "last_active": store._streak_today(), "updated_at": store._now(),
+               "problems_practiced": 0, "correct_total": 0, "attempted_total": 0, "checks_taken": 0})
+store.record_topic("AWD1", 1, "warm", "learning", "basic")
+store.create_student_account("AWD1", "Awd", "p1")
+import main
+from fastapi.testclient import TestClient
+c = TestClient(main.app)
+ids = [l["id"] for l in main.lessonscripts.LESSONS if l["course"] == "basic"]
+r = c.post("/api/script/start", json={"code": "AWD1", "course": "basic", "lesson": ids[0]})
+assert r.status_code == 200, r.text
+steps = r.json()["steps"]
+aw = [s for s in steps if s.get("beat") == "award"]
+assert len(aw) == 1 and "Spark award" in aw[0]["spoken"] and aw[0]["board"] == "", steps[:4]
+assert steps.index(aw[0]) == 2 and steps[1].get("beat") == "orientation", [s.get("beat") for s in steps[:4]]
+assert store.get_awards("AWD1").get("streak3")
+r2 = c.post("/api/script/start", json={"code": "AWD1", "course": "basic", "lesson": ids[0]})
+assert not [s for s in r2.json()["steps"] if s.get("beat") == "award"], "said twice"
+r3 = c.get("/api/awards/AWD1"); assert r3.status_code == 200, r3.text
+j = r3.json(); got = [a for a in j["awards"] if a["id"] == "streak3"]
+assert j["tracking"] and got and got[0]["new"] and "next_up" in j and j["badges"], j
+store._upsert("student_stats", {"code": "AWD1"}, {"streak_days": 7, "updated_at": store._now()})
+fresh = main._fresh_award_steps("AWD1")
+assert len(fresh) == 1 and 'card title="🔥 Blaze" items="Worked 7 days in a row"' in fresh[0]["board"], fresh
+assert [s["kind"] for s in main._with_awards([{"kind": "say"}, {"kind": "end"}], fresh)] == ["say", "say", "end"]
+assert main._fresh_award_steps("AWD1") == []
+print("AWARD-DRILL-OK")
+"""
+    with _tf.TemporaryDirectory() as tmp:
+        drill = _os.path.join(tmp, "award_drill.py")
+        with open(drill, "w", encoding="utf-8") as fh:
+            fh.write(DRILL)
+        env = dict(_os.environ, DATABASE_URL=f"sqlite:///{_os.path.join(tmp, 'a.db')}",
+                   PYTHONPATH=here)
+        if dep_gate("⭐⭐ LIVE: a 3-day streak hears Spark ONCE at /api/script/start; the dashboard agrees; Blaze rides with its card",
+                    "sqlalchemy", "the drill runs a real sqlite store through the real route"):
+            r = _sp.run([sys.executable, drill], cwd=here, env=env, capture_output=True, text=True)
+            check("⭐⭐ LIVE: a 3-day streak hears Spark ONCE at /api/script/start; the dashboard agrees; Blaze rides with its card",
+                  r.returncode == 0 and "AWARD-DRILL-OK" in r.stdout, (r.stdout + r.stderr)[-400:])
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-12  BUILD vs" in notes("lessonscripts.py") and "2026-09-12  BUILD vs" in notes("main.py")
+          and "2026-09-12  BUILD vs" in notes("store.py") and "2026-09-12  BUILD vs" in notes("ruletests.py"), "")
+
+
+def part3lp_the_check_line_rotates():
+    """PART 3lp (build vt, 2026-09-12) -- THE CHECK LINE ROTATES.
+
+    Jim, a week into "Ready?" after every beat: "the 'ready!' bugs me after a while."
+    lessonscripts.CHECK_LINES is five checks -- "Ready?" first, so LINE_CHECK, LINE_READY
+    and every older pin are untouched -- and session.html's CHECK_LINES is byte-identical
+    (pinned here). scrCheck cycles them one per beat with SCR.checkN; a replay inside one
+    check repeats the same line. The four new lines are standalone clips in the closure."""
+    print("\nPART 3lp — the check line rotates (build vt)")
+    import os as _os
+    import lessonscripts as L
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    pcode = code_only(open(_os.path.join(here, "static", "session.html"), encoding="utf-8").read())
+    check('⭐ five checks, "Ready?" first, every one a question',
+          len(L.CHECK_LINES) == 5 and L.CHECK_LINES[0] == L.LINE_CHECK == "Ready?"
+          and all(c.endswith("?") for c in L.CHECK_LINES) and len(set(L.CHECK_LINES)) == 5, str(L.CHECK_LINES))
+    js = "const CHECK_LINES = [%s];" % ", ".join('"%s"' % c for c in L.CHECK_LINES)
+    check("⭐ the page's copy is byte-identical to the engine's", js in pcode, js)
+    check("  scrCheck cycles them one per beat and repeats the SAME line on a replay",
+          "SCR.checkN = (SCR.checkN || 0) + 1;" in pcode
+          and "const line = CHECK_LINES[(SCR.checkN - 1) % CHECK_LINES.length];" in pcode
+          and "await scrSay(line);" in pcode and "lastTutorText = line;" in pcode
+          and "await scrSay(LINE_CHECK);" not in pcode, "")
+    check("  the practice gate still speaks LINE_READY, unchanged",
+          L.LINE_READY == "Ready?" and "await scrSay(LINE_READY);" in pcode
+          and "const LINE_READY = LINE_CHECK;" in pcode, "")
+    closure = L.course_audio_lines()
+    check("  the four new lines are standalone clips in the closure; the first was already there",
+          all(c in closure and c in L.STANDALONE_LINES for c in L.CHECK_LINES)
+          and L.STANDALONE_LINES.count("Ready?") == 1, "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-12  BUILD vt" in notes("lessonscripts.py") and "2026-09-12  BUILD vt" in notes("ruletests.py")
+          and "(vt) 2026-09-12" in notes("static/session.html") and 'APP_BUILD -> "2026-09-12vt-' in notes("main.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -44304,6 +44479,8 @@ def main():
     part3ll_the_first_stamps_answered()
     part3lm_the_bar_shows_the_eaten_pieces()
     part3ln_the_166_read_per_reason()
+    part3lo_the_award_is_said_out_loud()
+    part3lp_the_check_line_rotates()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

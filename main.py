@@ -6,6 +6,20 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  APP_BUILD -> "2026-09-12vt-the-check-line-rotates".
+#               BUILD vt -- no change in this file beyond the stamp: lessonscripts
+#               CHECK_LINES and session.html rotate the check after a beat. PART 3lp.
+#   2026-09-12  BUILD vs -- THE AWARD IS SAID OUT LOUD (Jim). _award_ids_for(code) is
+#               the computation awards_state always did, lifted out so the scripted
+#               lane can run it too; store.record_awards now returns the ids it wrote
+#               for the first time; _fresh_award_steps(code) turns those into "say"
+#               steps (lessonscripts.award_line, the award's card on the board, beat
+#               "award") and _with_awards() places them BEFORE the end/qend step so the
+#               page plays them. Spoken at /api/script/start (after the orientation --
+#               a streak or minutes award earned since last time), at every lesson end
+#               (_script_finish returns the steps; five call sites) and at a topic
+#               quiz's end. Fail-open everywhere: a store hiccup speaks nothing.
+#               /api/awards/{code} is byte-identical. PART 3lo.
 #   2026-09-12  APP_BUILD -> "2026-09-12vr-the-166-read-per-reason".
 #               BUILD vr -- /api/admin/events accepts ?kind=pass_through&limit=200 (one
 #               kind, up to store's cap of 200) so the week's pass-throughs can be
@@ -2612,16 +2626,12 @@ AWARD_DEFS = {
 }
 
 
-@app.get("/api/awards/{code}")
-def awards_state(request: Request, code: str = Depends(_code_dep)):
-    """The student's trophy case: course trophies, per-course merit-badge counts, and
-    effort awards (persisted once earned). Honest {tracking:false} when the DB is off."""
-    _read_guard(request, code)            # F1: throttle read-by-code enumeration
-    _student_or_404(code)
-    code = code.strip()
-    if not store.enabled():
-        return {"tracking": False, "trophies": [], "badges": {}, "awards": []}
-
+def _award_ids_for(code: str):
+    """(vs) THE ONE COMPUTATION. Everything awards_state read and decided since
+    2026-07-30, lifted out unchanged so the scripted lane can ask the same question
+    mid-lesson. Returns (computed_ids, trophies, badges, stats, streak, total_minutes)
+    -- the ids are what the student has EARNED by the record right now; persistence
+    is the caller's (store.record_awards, which says which are new)."""
     trophies, badges = [], {}
     any_check = perfect = bounce = champion = False
     try:
@@ -2683,6 +2693,58 @@ def awards_state(request: Request, code: str = Depends(_code_dep)):
                                      "pathfinder": placed, "champion": champion}[aid]))
         if got:
             computed.add(aid)
+    return computed, trophies, badges, stats, streak, total_minutes
+
+
+def _fresh_award_steps(code: str, with_card: bool = True) -> list:
+    """(vs) The "say" steps for every award this student has JUST earned -- computed
+    from the record, persisted (so the dashboard agrees), and spoken once: an award
+    already on file is never announced again. Empty when the store is off, the code is
+    not a real student, or anything fails: the lane must never lose a beat to this."""
+    try:
+        code = (code or "").strip()
+        if not code or code.upper() == "AUDIT" or not store.enabled():
+            return []
+        computed = _award_ids_for(code)[0]
+        new = store.record_awards(code, sorted(computed)) or []
+        out = []
+        order = list(AWARD_DEFS.keys())
+        for aid in sorted(new, key=lambda a: order.index(a) if a in order else 99):
+            line = lessonscripts.award_line(aid)
+            if not line or aid not in AWARD_DEFS:
+                continue
+            ic, nm, ds, _f, _t = AWARD_DEFS[aid]
+            board = ('[[card title="%s %s" items="%s"]]' % (ic, nm, ds)) if with_card else ""
+            out.append({"kind": "say", "spoken": line, "board": board, "beat": "award"})
+        return out
+    except Exception as exc:  # noqa: BLE001 -- an award must never cost a turn
+        print(f"[awards] fresh-award check failed open: {exc}")
+        return []
+
+
+def _with_awards(cleaned: list, award_steps: list) -> list:
+    """(vs) Place the award steps BEFORE the first end / qend step (the page treats
+    that step as the lesson's last), else at the end. A list without awards is
+    returned as it came."""
+    if not award_steps:
+        return cleaned
+    for i, s in enumerate(cleaned):
+        if s.get("kind") in ("end", "qend"):
+            return cleaned[:i] + list(award_steps) + cleaned[i:]
+    return list(cleaned) + list(award_steps)
+
+
+@app.get("/api/awards/{code}")
+def awards_state(request: Request, code: str = Depends(_code_dep)):
+    """The student's trophy case: course trophies, per-course merit-badge counts, and
+    effort awards (persisted once earned). Honest {tracking:false} when the DB is off.
+    (vs) The computation is _award_ids_for; this route's answer is byte-identical."""
+    _read_guard(request, code)            # F1: throttle read-by-code enumeration
+    _student_or_404(code)
+    code = code.strip()
+    if not store.enabled():
+        return {"tracking": False, "trophies": [], "badges": {}, "awards": []}
+    computed, trophies, badges, stats, streak, total_minutes = _award_ids_for(code)
     try:
         store.record_awards(code, sorted(computed))
         earned = store.get_awards(code)          # union: persisted awards never un-earn
@@ -2712,6 +2774,7 @@ def awards_state(request: Request, code: str = Depends(_code_dep)):
     out.sort(key=lambda a: order.index(a["id"]))
 
     # "Next up" nudges for the tiered families -- the dashboard shows ONE.
+    practiced = int((stats or {}).get("problems_practiced") or 0)
     next_up = []
     for family, value, unit_label in (("streak", streak, "day streak"),
                                       ("minutes", total_minutes, "real minutes"),
@@ -5758,11 +5821,14 @@ def _script_session(code: str):
     return _SCRIPT_SESSIONS.get(code)
 
 
-def _script_finish(code: str, sess, end_step):
+def _script_finish(code: str, sess, end_step) -> list:
     """Record the outcome through the SAME store calls the live lanes use.
     (ue) A mastered end writes "taught" -- "Lesson done" on every page -- not
     "mastered": Jim's ruling (2026-09-07) keeps that word for the 90% Unit Quiz,
-    whose only writer is store.record_check. A still-learning end stays "learning"."""
+    whose only writer is store.record_check. A still-learning end stays "learning".
+    (vs) Returns the award steps for anything the record now says is earned (after
+    the outcome is written, so a lesson that completes an award is counted); the
+    caller places them before the end step with _with_awards. [] on any failure."""
     try:
         lesson = sess["lesson"]
         status = "taught" if end_step.get("mastered") else "learning"
@@ -5792,6 +5858,7 @@ def _script_finish(code: str, sess, end_step):
     except Exception as exc:  # noqa: BLE001
         print(f"[script] seam note failed (non-fatal): {exc}")
     _SCRIPT_SESSIONS.pop(code, None)
+    return _fresh_award_steps(code)
 
 
 def _script_note_ask(sess, steps):
@@ -5985,7 +6052,7 @@ def _script_deferred_run(code, sess, lesson, t0):
         out = _script_clean(steps, lesson["id"])
         for s in steps:
             if s["kind"] == "end":
-                _script_finish(code, sess, s)
+                out = _with_awards(out, _script_finish(code, sess, s))   # (vs)
     _script_note_ask(sess, out)
     _script_log(code, lesson["course"], t0)
     return out
@@ -6127,6 +6194,14 @@ def script_start(body: ScriptStartIn):
         steps.insert(1, {"kind": "say", "spoken": _osp, "board": _obd, "beat": "orientation"})
     except Exception as exc:  # noqa: BLE001 -- the orientation must never cost a lesson
         print(f"[script] orientation skipped (non-fatal): {exc}")
+    # (vs) AN AWARD EARNED SINCE LAST TIME IS SAID NOW -- a streak or minutes award
+    # lands between visits, and until this build the child found it on a page days
+    # later. After the orientation, before the lesson's first idea; spoken only (the
+    # orientation's card is already on the board). Fail-open: nothing on any error.
+    _aw = _fresh_award_steps(code, with_card=False)
+    if _aw:
+        _at = 2 if len(steps) >= 2 and (steps[1].get("beat") == "orientation") else 1
+        steps[_at:_at] = _aw
     _SCRIPT_SESSIONS[code] = {"state": state, "lesson": lesson, "mode": "script",
                               "ai_turns": 0, "history": [], "redo": None,
                               "t0": _time.monotonic()}
@@ -6278,11 +6353,12 @@ def script_answer(body: ScriptAnswerIn):
         steps, state = lessonscripts.step(lesson, state, ("answer", label))
         sess["state"] = state
         _script_note_ask(sess, steps)
+        _aw = []
         for s in steps:
             if s["kind"] == "end":
-                _script_finish(code, sess, s)
+                _aw += _script_finish(code, sess, s)          # (vs)
         _script_log(code, lesson["course"], t0)
-        resp = {"ok": True, "steps": _script_clean(steps, lesson["id"])}
+        resp = {"ok": True, "steps": _with_awards(_script_clean(steps, lesson["id"]), _aw)}
         if _streak:
             resp["streak"] = _streak
         return resp
@@ -6316,11 +6392,12 @@ def script_answer(body: ScriptAnswerIn):
                         history=[], redo=None)
             _script_note_ask(sess, steps)
             out = [{"kind": "say", "spoken": praise, "board": ""}]                 + _script_clean(steps, lesson["id"])
+            _aw = []
             for s in steps:
                 if s["kind"] == "end":
-                    _script_finish(code, sess, s)
+                    _aw += _script_finish(code, sess, s)      # (vs)
             _script_log(code, lesson["course"], t0)
-            resp = {"ok": True, "steps": out}
+            resp = {"ok": True, "steps": _with_awards(out, _aw)}
             if _streak:
                 resp["streak"] = _streak
             return resp
@@ -6360,11 +6437,12 @@ def script_answer(body: ScriptAnswerIn):
         steps, state = lessonscripts.step(lesson, state, ("resume",))
         sess.update(state=state, mode="script", ai_turns=0, history=[], redo=None)
         _script_note_ask(sess, steps)
+        _aw = []
         for s in steps:
             if s["kind"] == "end":
-                _script_finish(code, sess, s)
+                _aw += _script_finish(code, sess, s)          # (vs)
         _script_log(code, lesson["course"], t0)
-        resp = {"ok": True, "steps": _script_clean(steps, lesson["id"])}
+        resp = {"ok": True, "steps": _with_awards(_script_clean(steps, lesson["id"]), _aw)}
         if _streak:
             resp["streak"] = _streak
         return resp
@@ -6418,7 +6496,7 @@ def script_answer(body: ScriptAnswerIn):
         else:
             out.extend(_script_clean([s], lesson["id"]))
             if s["kind"] == "end":
-                _script_finish(code, sess, s)
+                out = _with_awards(out, _script_finish(code, sess, s))   # (vs)
     _script_note_ask(sess, out)          # (ue) whichever question is on screen now
     _script_log(code, lesson["course"], t0)
     resp = {"ok": True, "steps": out}
@@ -6596,7 +6674,9 @@ def script_quiz_answer(body: ScriptQuizAnswerIn):
         except Exception as exc:  # noqa: BLE001
             print(f"[quiz] outcome record failed (non-fatal): {exc}")
     _script_log(code, lesson["course"], t0, kind="quiz")
-    return {"ok": True, "steps": _quiz_clean(steps)}
+    # (vs) an award the quiz completed is said before the quiz's own last step
+    _aw = _fresh_award_steps(code) if result is not None else []
+    return {"ok": True, "steps": _with_awards(_quiz_clean(steps), _aw)}
 
 
 # =============================================================================
@@ -9311,7 +9391,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-12vr-the-166-read-per-reason"
+APP_BUILD = "2026-09-12vt-the-check-line-rotates"
 
 
 @app.get("/health")

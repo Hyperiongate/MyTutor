@@ -6,6 +6,9 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 61 entries; 5 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vs -- record_awards returns the ids it wrote for the FIRST time
+#               (it returned None; every older caller ignored it), so the scripted lane
+#               can say a newly earned award out loud exactly once.
 #   2026-09-08  BUILD uf -- THE PER-STUDENT VIEW (P2 of the deep look, second half).
 #               student_courses(code): every course a student has a trace in, one
 #               pass over five tables, for /api/admin/student to walk. Read-only; no
@@ -1520,14 +1523,19 @@ def get_awards(code: str) -> dict:
     return {r[0]: (r[1].isoformat() if r[1] else None) for r in rows}
 
 
-def record_awards(code: str, award_ids: list) -> None:
-    """Persist newly-earned awards (idempotent; existing rows keep their original earned_at)."""
+def record_awards(code: str, award_ids: list) -> list:
+    """Persist newly-earned awards (idempotent; existing rows keep their original
+    earned_at). (vs) Returns the ids written for the FIRST time, in the order given --
+    the lane speaks exactly those. Every older caller ignored the None this returned."""
     existing = get_awards(code)
     now = _now()
+    new = []
     for aid in award_ids:
         if aid in existing:
             continue
         _upsert("awards", {"code": code, "award_id": aid}, {"earned_at": now})
+        new.append(aid)
+    return new
 
 
 def purge_usage_log(days: int = 180) -> int:

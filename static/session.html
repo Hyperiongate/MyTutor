@@ -4,6 +4,12 @@
                 changelog/session.html.md -- moved out on 2026-09-08 (build ui) VERBATIM,
                 125 entries; 17 stay here. Keep adding new notes HERE, newest at top; roll
                 them out again (notes_rollout.py) when this header passes ~100 KB.
+    (vt) 2026-09-12 -- THE CHECK ROTATES. Jim, a week into "Ready?": "the 'ready!' bugs
+    me after a while." CHECK_LINES (byte-identical to lessonscripts.CHECK_LINES; the
+    battery pins it) is five checks the page cycles one per beat -- SCR.checkN counts
+    them -- every one answered by the same Yes / Show me again. A replay inside one
+    check repeats the SAME line (a cache hit, as before). LINE_CHECK is still the first
+    of them and the practice gate's LINE_READY is untouched. Four new clips: prewarm.
     (vj) 2026-09-11 -- THE CHECK SAYS "READY?", AND SO DOES THE GATE. Jim: "I prefer
     ready in place of with me so far." LINE_CHECK is "Ready?" (byte-identical to
     lessonscripts.LINE_CHECK, as before) and scrReady() now SPEAKS LINE_READY -- the
@@ -3631,6 +3637,7 @@
     const SCR_CHECK_BEATS = new Set(["picture", "teach", "worked"]);
     const LINE_CHECK = "Ready?";                                           // byte-identical to lessonscripts.LINE_CHECK
     const LINE_READY = LINE_CHECK;                                         // ...and LINE_READY (vj: one word, one clip)
+    const CHECK_LINES = ["Ready?", "Okay so far?", "Shall we keep going?", "Good so far?", "Ready for the next bit?"];  // (vt) byte-identical to lessonscripts.CHECK_LINES
     const CHECK_CHOICES = ["Yes", "Show me again"];                          // ...and CHECK_CHOICES
     const READY_CHOICES = ["I'm ready", "Show me that example again"];       // ...and READY_CHOICES
     // A row of big taps that RESOLVES with the label tapped (showSeamChoice's twin,
@@ -3668,9 +3675,12 @@
     }
     async function scrCheck(step) {
       if (step.beat === "worked") SCR.lastWorked = step;
+      // (vt) one check line per beat, in turn; the same line again on a replay
+      SCR.checkN = (SCR.checkN || 0) + 1;
+      const line = CHECK_LINES[(SCR.checkN - 1) % CHECK_LINES.length];
       for (let again = 0; again < 2; again++) {
-        lastTutorText = LINE_CHECK;             // spoken, not bubbled -- the board stays where it is
-        await scrSay(LINE_CHECK);
+        lastTutorText = line;                   // spoken, not bubbled -- the board stays where it is
+        await scrSay(line);
         const label = await scrChoice(CHECK_CHOICES);
         if (label !== CHECK_CHOICES[1]) return;
         await scrReplay(step);

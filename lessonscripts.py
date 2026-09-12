@@ -2,6 +2,20 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-12  BUILD vt -- THE CHECK LINE ROTATES. Jim, after a week of "Ready?" after
+#               every beat: "the 'ready!' bugs me after a while" -- rotate it. CHECK_LINES
+#               is five checks the page cycles through, one per beat, all answered by
+#               the same Yes / Show me again; LINE_CHECK stays "Ready?" (the first of
+#               them) and LINE_READY the practice gate's word, unchanged. The four new
+#               lines join STANDALONE_LINES (four clips; run the prewarm after the push).
+#   2026-09-12  BUILD vs -- THE AWARD IS SAID OUT LOUD. Jim: "when the student wins an
+#               award, tell them -- congratulations, big deal." Until now an award was
+#               computed only when the dashboard asked, and a child found Blaze on a
+#               page days later. AWARD_TEXT mirrors main.AWARD_DEFS (name, description;
+#               the battery pins them equal) and AWARD_LINES is one fixed spoken line per
+#               award, in STANDALONE_LINES so the prewarm renders them (fifteen clips).
+#               main.py speaks a newly earned award at a lesson's start, at its end and
+#               at a topic quiz's end, with its card on the board.
 #   2026-09-11  BUILD vj -- LINE_CHECK "With me so far?" -> "Ready?" (Jim: "I prefer
 #               ready in place of with me so far") and LINE_READY, the SAME string, for
 #               the ready gate after the practice intro, which build us left silent
@@ -15848,6 +15862,14 @@ def lesson_intro(lesson):
 LINE_CHECK = "Ready?"
 LINE_READY = LINE_CHECK
 CHECK_CHOICES = "Yes | Show me again"
+# (vt) 2026-09-12 -- THE CHECK ROTATES. One word after every beat wore on Jim inside a
+# week ("the 'ready!' bugs me after a while"); a child hears forty lessons of it. Five
+# checks, every one a question Yes / Show me again answers, cycled by the page one per
+# beat (session.html CHECK_LINES is byte-identical -- the battery pins it). LINE_CHECK
+# is still the first of them, so every older pin and the practice gate's LINE_READY are
+# untouched. Each is a standalone clip: the prewarm renders the four new ones.
+CHECK_LINES = ("Ready?", "Okay so far?", "Shall we keep going?", "Good so far?",
+               "Ready for the next bit?")
 READY_CHOICES = "I'm ready | Show me that example again"
 ORIENT_PLAN = "First the idea, then a picture, then the method — then your turn."
 
@@ -16639,6 +16661,54 @@ TOUR_LINES = (
     "Now look at the glowing map. It shows what we're learning today, and every piece turns gold as you learn it. After our tour it hides behind the little Progress button — tap that any time to peek.",
 )
 
+# =============================================================================
+# (vs) 2026-09-12 -- THE AWARD, SAID OUT LOUD. Jim: "when the student wins an award, I
+# want them to be told -- congratulations, big deal." AWARD_TEXT mirrors main.AWARD_DEFS
+# (id -> (name, description)) -- the battery pins the two equal, so a renamed award
+# cannot drift from its spoken line. One FIXED line per award (a fixed line is one
+# cached clip; a line that varied would be a live render every time), spoken with the
+# award's card on the board at the moment main.py sees it earned.
+# =============================================================================
+AWARD_TEXT = {
+    "streak3":    ("Spark",           "Worked 3 days in a row"),
+    "streak7":    ("Blaze",           "Worked 7 days in a row"),
+    "streak30":   ("Unstoppable",     "Worked 30 days in a row"),
+    "min100":     ("Century Club",    "100 minutes of real work"),
+    "min500":     ("500 Club",        "500 minutes of real work"),
+    "min1000":    ("Scholar",         "1,000 minutes of real work"),
+    "prac10":     ("First Ten",       "Practiced 10 problems"),
+    "prac50":     ("Workhorse",       "Practiced 50 problems"),
+    "prac100":    ("Centurion",       "Practiced 100 problems"),
+    "firstcheck": ("Brave Start",     "Took your first quiz"),
+    "perfect":    ("Perfect Quiz",    "Scored 100% on a quiz"),
+    "bounceback": ("Bounce Back",     "Mastered a unit after a tough first Unit Quiz"),
+    "explorer":   ("Explorer",        "Worked in two different courses"),
+    "pathfinder": ("Pathfinder",      "Completed a course assessment"),
+    "champion":   ("Course Champion", "Passed a course Final Exam"),
+}
+AWARD_LINE = ("Congratulations! You just earned the {name} award — {desc}. "
+              "That is a big deal, and you did it.")
+
+
+def _award_desc_spoken(desc: str) -> str:
+    """The description as a spoken clause: a lower-case first letter unless it opens
+    with a number ("100 minutes"; "Took" -> "took"), and no symbol a child would have
+    to be shown -- these lines are spoken with no board beside them, so "100%" is said
+    "100 percent" (the standalone-speech law, PART 3-something since build cc)."""
+    d = str(desc or "").replace("%", " percent").replace("  ", " ")
+    return (d[0].lower() + d[1:]) if d[:1].isalpha() else d
+
+
+AWARD_LINES = {aid: AWARD_LINE.format(name=name, desc=_award_desc_spoken(desc))
+               for aid, (name, desc) in AWARD_TEXT.items()}
+
+
+def award_line(award_id: str) -> str:
+    """The fixed spoken line for an award id, or "" for an id this file does not know
+    (main.py then says nothing rather than something unrendered)."""
+    return AWARD_LINES.get(str(award_id or ""), "")
+
+
 STANDALONE_LINES = (tuple(ABRABOT_INTRO)
                     + (CADABRA_HANDOFF_HELLO, CADABRA_HANDOFF_BYE)
                     # (rj) the seam line belongs to the course, not to any lesson
@@ -16651,6 +16721,10 @@ STANDALONE_LINES = (tuple(ABRABOT_INTRO)
                     + (LINE_THINKING, LINE_THINKING_MORE)
                     # (us) the check after a beat
                     + (LINE_CHECK,)
+                    # (vt) ...and the four it rotates with
+                    + tuple(c for c in CHECK_LINES if c != LINE_CHECK)
+                    # (vs) the fifteen award lines -- see AWARD_LINES above
+                    + tuple(AWARD_LINES[a] for a in sorted(AWARD_LINES))
                     # (uy) the demo lesson's own closing line -- see above
                     + (LINE_DEMO_LESSON_END,)
                     # (vb) the tour -- see TOUR_LINES above
