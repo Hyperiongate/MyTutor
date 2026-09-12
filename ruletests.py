@@ -6,6 +6,11 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vo -- PART 3lk, REFEREE 91, NAME THE WHOLE GATE (rule 50): a live
+#               reply that explains the locked Final Exam and names only some of the
+#               units below mastery. Every referee-count pin moves 90 -> 91 (26 pins);
+#               the methodology tile pins say 91. Canon swept under an all-unmastered
+#               record: 0 fires.
 #   2026-09-12  BUILD vn -- PART 3lj, THE LAW IN THE OTHER ORDER, THE NAME OF THE MACHINE,
 #               AND THE SIXTEENTH VERSE: the precedence referee knows multiply-add-THEN-
 #               the-precedence-word and "anytime"; KNOWN_FALSEHOODS row 22 (f(x) is not
@@ -11605,7 +11610,7 @@ def part3kg_the_mark_floor():
           "MATHCHECK_MAX_ATTEMPTS" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000]
           and "retry" not in tsrc[tsrc.find("def repair_missing_mark("):tsrc.find("def repair_missing_mark(") + 3000].lower(), "")
     check("  the referee count is ninety since vl (eighty-one since uo) -- uk added a floor, not a referee",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 90, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 91, "")
 
     # ---- through the real shipping door (3gb's stub harness) --------------------------------
     import mathcheck as _mc
@@ -12071,7 +12076,7 @@ def part3kj_the_truth_items_and_the_proven_holes():
           and tsrc.find('_event("referee_fire", "triangleletters"') > tsrc.find('_event("referee_fire", "triangleletter",') > 0, "")
     check("⭐ eighty referees at un, eighty-one since uo, eighty-four since ut, ninety since vl; the truth class still eleven (rule 14 is conduct; the rows ride "
           "referee 61's table)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90 and len(T.TRUTH_REFEREES) == 11, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweeps: nothing authored trips any of it --------------------------------------
     texts = []; pairs = []
@@ -12231,7 +12236,7 @@ def part3kk_one_name_per_function():
           and any("already introduced" in r["shape"] for r in rows if r["rule"] == 48), "")
 
     check("⭐ eighty-one referees at uo (ninety since vl; eighty-eight at vi); the truth class still eleven (rule 28 is conduct)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90 and len(T.TRUTH_REFEREES) == 11, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweep, CUMULATIVE: each beat against the beats before it ---------------------
     n = 0; fires = []; machine_reuse = []
@@ -12368,7 +12373,7 @@ def part3kl_a_new_machine_still_called_f():
     check("  a dot between two definitions on one board line separates them (fcmp's own step)",
           T._fr_definitions('[[step eq="f(x) = x + 2 · g(x) = 2x"]]') == [("f", "x", "x+2"), ("g", "x", "2x")], "")
     check("  the referee count is unchanged by up -- it widened the eighty-first's grammar (ninety since vl; eighty-eight at vi)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91, "")
 
     # ---- the cumulative canon sweep now SEES the definitions, and still fires 0 ---------------
     n = defs = 0; fires = []
@@ -13133,7 +13138,7 @@ def part3kp_the_first_watch_on_the_new_stack():
           tsrc.find('_event("referee_fire", "triangleletters"') < tsrc.find('_event("referee_fire", "arrowpointer"')
           < tsrc.find('_event("referee_fire", "pictured"') < tsrc.find('_event("referee_fire", "problemnumbers"'), "")
     check("⭐ ninety referees (vl; eighty-eight at vi); the truth class still eleven (the row rides referee 61's table; the three are conduct)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90 and len(T.TRUTH_REFEREES) == 11, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91 and len(T.TRUTH_REFEREES) == 11, "")
 
     # ---- the canon sweeps ---------------------------------------------------------------------------------
     texts = []; strict_times = []
@@ -13431,7 +13436,7 @@ def part3kr_the_board_keeps_up_with_the_voice():
     n_ref = sum(1 for n in dir(T) if n.endswith("_conflict"))
     check("⭐ the EIGHTY-FIFTH referee: board_silence_conflict (uv); the truth class still "
           "eleven -- a wall of talk teaches nothing false, it teaches nothing",
-          n_ref == 90 and hasattr(T, "board_silence_conflict") and len(T.TRUTH_REFEREES) == 11,
+          n_ref == 91 and hasattr(T, "board_silence_conflict") and len(T.TRUTH_REFEREES) == 11,
           f"{n_ref} *_conflict functions")
     check("  it rides the same sweep as the rest, next to its sibling spokenmath",
           'bsilence = board_silence_conflict(reply)' in rd("tutor.py")
@@ -13604,8 +13609,8 @@ def part3kr_the_board_keeps_up_with_the_voice():
     meth = rd("static/methodology.html")
     # (vi) 87 -> 88: referee 88, PART 3le. The pin reads the CURRENT count, as 3jz does.
     check("  methodology's tile and both data-referees spans say 90 (ux added referee 86; vi 88; vl 90)",
-          meth.count("<span data-referees>90</span>") == 2
-          and '<div class="num"><b>90</b>' in meth, "")
+          meth.count("<span data-referees>91</span>") == 2
+          and '<div class="num"><b>91</b>' in meth, "")
 
     # ---- LIVE: a whole lesson over HTTP, and the card in a real browser ---------------------
     NAME = "⭐ LIVE: a lesson driven to its end over HTTP ends on the card, and the card renders at 390x844"
@@ -14139,7 +14144,7 @@ def part3kt_the_expression_comes_first():
     check("⭐ referee 86 exists and is wired into the sweep (the count is ninety "
           "since uz added the picture-units referee)",
           hasattr(T, "hard_word_conflict")
-          and sum(1 for n in dir(T) if n.endswith("_conflict")) == 90
+          and sum(1 for n in dir(T) if n.endswith("_conflict")) == 91
           and "hard_word_conflict(reply, course)" in _insp.getsource(T.prose_board_conflict),
           "")
     check("⭐⭐ it fires on Jim's own word, in all three youngest courses, and NAMES the "
@@ -14494,7 +14499,7 @@ def part3kv_a_picture_counts_one_kind_of_thing():
           T.unit_picture_conflict(None) == "" and T.unit_picture_conflict(123) == "", "")
     check("⭐ wired into the sweep beside its two picture-truth siblings, and the count "
           "is ninety",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91
           and "unit_picture_conflict(reply)" in _insp.getsource(T.prose_board_conflict)
           and _insp.getsource(T.prose_board_conflict).index("unit_picture_conflict")
               > _insp.getsource(T.prose_board_conflict).index("shares_picture_conflict"), "")
@@ -14534,7 +14539,7 @@ def part3kv_a_picture_counts_one_kind_of_thing():
           and "Draw their way, THEN ask." in pr, "")
     check("  ...and it is a RULE, not a referee -- Jim's ruling. The count moved by "
           "exactly one this build, and that one is the picture referee",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91, "")
 
     # ---- ③ the assessment does not speak --------------------------------------------
     ch = rd("static/challenge.html")
@@ -15627,7 +15632,7 @@ def part3lb_three_holes_from_the_09_11_watch():
 
     # ---- counted, noted ------------------------------------------------------------------
     check("  no referee count change at vf: 87 then, 90 since vl; truth class still 11",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90 and len(T.TRUTH_REFEREES) == 11, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91 and len(T.TRUTH_REFEREES) == 11, "")
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-11  BUILD vf" in notes("tutor.py")
           and "2026-09-11  BUILD vf" in notes("notation.py")
@@ -15881,7 +15886,7 @@ def part3ld_the_case_floor():
           "def _vc_cases(" in tsrc and "board, prose = _vc_cases(text)" in tsrc
           and "_VC_BOARD_TAG_RE.findall(text)" in tsrc[tsrc.find("def _vc_cases("):tsrc.find("def _vc_cases(") + 1200], "")
     check("  no referee count change at vh: 87 then, 90 since vl -- vh added a floor, not a referee",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 90, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 91, "")
 
     # ---- through the real shipping door -------------------------------------------------------
     import mathcheck as _mc
@@ -16084,11 +16089,11 @@ def part3le_what_the_words_say_is_written_the_board_writes():
           and tsrc.find('_event("referee_fire", "spokenmath"') < tsrc.find('_event("referee_fire", "saidwritten"')
           < tsrc.find('_event("referee_fire", "boardsilence"'), "")
     check("⭐ ninety referees (88 at vi, 87 at uz); the truth class still eleven (this is conduct: nothing false is taught)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90 and len(T.TRUTH_REFEREES) == 11
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91 and len(T.TRUTH_REFEREES) == 11
           and "saidwritten" not in T.TRUTH_REFEREES, "")
     m = rd("static/methodology.html")
-    check("  the public page says 90 (vl; 88 at vi): the tile and both data-referees spans",
-          '<div class="num"><b>90</b>' in m and m.count('<span data-referees>90</span>') == 2, "")
+    check("  the public page says 91 (vo; 90 at vl; 88 at vi): the tile and both data-referees spans",
+          '<div class="num"><b>91</b>' in m and m.count('<span data-referees>91</span>') == 2, "")
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-11  BUILD vi" in notes("tutor.py") and "2026-09-11  BUILD vi" in notes("ruletests.py")
           and "2026-09-11  (vi) Tile 87 -> 88" in notes("static/methodology.html")
@@ -16381,10 +16386,10 @@ def part3lh_the_caption_and_the_blank():
           tsrc.find('_event("referee_fire", "shownanswer"') < tsrc.find('_event("referee_fire", "captionanswer"')
           < tsrc.find('_event("referee_fire", "divisorblank"') < tsrc.find('_event("referee_fire", "noproblem"'), "")
     check("⭐ ninety referees (88 at vi); the truth class still eleven (rule 17 and rule 18 are conduct)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90 and len(T.TRUTH_REFEREES) == 11
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91 and len(T.TRUTH_REFEREES) == 11
           and "captionanswer" not in T.TRUTH_REFEREES and "divisorblank" not in T.TRUTH_REFEREES, "")
     m = rd("static/methodology.html")
-    check("  the public page says 90", '<div class="num"><b>90</b>' in m and m.count('<span data-referees>90</span>') == 2, "")
+    check("  the public page says 91 (90 at vl)", '<div class="num"><b>91</b>' in m and m.count('<span data-referees>91</span>') == 2, "")
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-11  BUILD vl" in notes("tutor.py") and "2026-09-11  BUILD vl" in notes("ruletests.py")
           and "2026-09-11  (vl) Tile 88 -> 90" in notes("static/methodology.html")
@@ -16555,7 +16560,7 @@ def part3li_the_forms_the_board_leans_on():
 
     # ---- counted, noted --------------------------------------------------------------------
     check("  no referee count change: still 90, truth class 11",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90 and len(T.TRUTH_REFEREES) == 11, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91 and len(T.TRUTH_REFEREES) == 11, "")
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-12  BUILD vm" in notes("tutor.py") and "2026-09-12  BUILD vm" in notes("notation.py")
           and "2026-09-12  BUILD vm" in notes("ruletests.py") and "2026-09-12  BUILD vm" in notes("lessons/prealgebra.py")
@@ -16690,10 +16695,127 @@ def part3lj_the_law_in_the_other_order_and_the_name_of_the_machine():
 
     # ---- counted, noted --------------------------------------------------------------------------
     check("  no referee count change: still 90, truth class 11",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90 and len(T.TRUTH_REFEREES) == 11, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91 and len(T.TRUTH_REFEREES) == 11, "")
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-12  BUILD vn" in notes("tutor.py") and "2026-09-12  BUILD vn" in notes("ruletests.py")
           and 'APP_BUILD -> "2026-09-12vn-' in notes("main.py"), "")
+
+
+def part3lk_name_the_whole_gate():
+    """PART 3lk (build vo, 2026-09-12) -- REFEREE 91, NAME THE WHOLE GATE (rule 50).
+
+    The 09-10 night watch's finding 7: the locked Final Exam was explained by naming ONLY
+    Unit 4 while Unit 7 was also below mastery. The student who finishes Unit 4 finds the
+    door still shut on a later card -- the kind of defect that costs trust. The server's
+    own gate message lists every unit; this is the live reply's half.
+
+    DECIDABLE AND RECORD-DRIVEN. The exam unlocks only when every unit is mastered, so the
+    blockers are exactly the units not in the record's mastered set. exam_blockers_conflict
+    fires when a sentence explains the exam's lock, at least one blocking unit is named (by
+    number or by its course title), no phrase names the whole ("every unit", "all nine",
+    "the rest"), and some blocker goes unnamed. Silent without a record or a unit count
+    (the record's "units", which main._claim_record now carries; else the course's own
+    curriculum -- never the DEFAULT course, which units_for() would fall back to).
+    Dispatched right after recordclaim (20), its record-fed sibling. Count 90 -> 91;
+    conduct (nothing false is taught). Canon swept under an all-unmastered record: 0."""
+    print("\nPART 3lk — name the whole gate (build vo)")
+    import os as _os
+    import tutor as T
+    import foundations as FND
+    import lessonscripts as LS
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    E = T.exam_blockers_conflict
+    rec = {"best": {4: 80, 7: 70}, "last": {4: 80, 7: 60}, "quiz_pcts": [], "units": 9,
+           "mastered": [1, 2, 3, 5, 6, 8, 9], "touched": [1, 2, 3, 4, 5, 6, 7, 8, 9]}
+    watch = ("The Final Exam is locked because Unit 4 isn't mastered yet -- you're sitting at eighty "
+             "percent, one good quiz away. Let's review it and take a fresh Unit 4 quiz.")
+    r = E(watch, rec, "algebra1")
+    check("⭐⭐ 91 FIRES on the watch's shape: the lock explained, Unit 4 named, Unit 7 unnamed",
+          "names only Unit 4" in (r or "") and "Unit 7 (Polynomials & Factoring), best 70%" in (r or "")
+          and "Rule 50(g)/(h)" in (r or ""), (r or "")[:90])
+    check("  the nudge lists the WHOLE gate, nearest first, with best scores",
+          "Unit 4 (Linear Functions & Graphs), best 80%; Unit 7 (Polynomials & Factoring), best 70%" in r, "")
+    for label, reply, record, course in (
+            ("both blockers named", watch + " Unit 7 needs a run too.", rec, "algebra1"),
+            ("the whole named: 'every unit'", "The Final Exam stays locked until every unit is mastered. Unit 4 is the nearest -- eighty percent.", rec, "algebra1"),
+            ("the whole named: 'and the rest'", "The exam is locked; Unit 4 and the rest still need mastering.", rec, "algebra1"),
+            ("the whole named: 'all nine units'", "The Final Exam unlocks when all nine units are mastered.", rec, "algebra1"),
+            ("the rule, not the list (no unit named)", "The Final Exam is locked until you've mastered the units that are still under ninety.", rec, "algebra1"),
+            ("a unit named with no lock explained", "We're on Unit 4 today. Let's go.", rec, "algebra1"),
+            ("the blocker named by its TITLE", "The Final Exam is locked because Unit 4 and Polynomials & Factoring aren't mastered yet.", rec, "algebra1"),
+            ("no record: never guess", watch, None, "algebra1"),
+            ("no unit count and no course: never guess", watch, {"mastered": [1, 2, 3, 5, 6, 8, 9]}, ""),
+            ("an unknown course is not the default course", watch, {"mastered": [1, 2, 3, 5, 6, 8, 9]}, "no-such-course"),
+            ("everything mastered but Unit 4: the one named IS the gate", watch, dict(rec, mastered=[1, 2, 3, 5, 6, 7, 8, 9]), "algebra1"),
+            ("a tags-only fragment", '[[card title="Final Exam locked"]]', rec, "algebra1")):
+        check("  silent: %s" % label, not E(reply, record, course), (E(reply, record, course) or "")[:70])
+    check("  the count comes from the record's 'units' when the course is unknown",
+          "names only Unit 4" in (E(watch, {"mastered": [1, 2, 3, 5, 6, 8, 9], "units": 9}, "") or ""), "")
+    check("  ...and from the curriculum when the record has none (the legacy 'basicmath' spelling resolves)",
+          bool(E(watch, {"mastered": [1, 2, 3, 5, 6, 8, 9]}, "basicmath")), "")
+    check("  an untouched blocker is labelled 'not yet attempted'",
+          "not yet attempted" in (E(watch, {"mastered": [1, 2, 3, 5, 6, 8, 9], "units": 9, "best": {4: 80}}, "algebra1") or ""), "")
+    check("  the lock in the other order ('locked ... the exam') and 'stands between'",
+          bool(E("What's keeping the door locked on the exam is Unit 4.", rec, "algebra1"))
+          and bool(E("Unit 4 stands between you and the Final Exam.", rec, "algebra1")), "")
+    check("  never raises: junk in the record is skipped, not a crash (an unreadable mastered set is an empty one)",
+          E(None) == "" and E(123, 456, 789) == "" and isinstance(E(watch, {"mastered": "junk", "units": "x"}, "algebra1"), str), "")
+
+    # ---- the canon sweep, under a record with NOTHING mastered -----------------------------
+    texts = []
+    for c, scr in FND.FOUNDATIONS.items():
+        for sc in (scr.values() if isinstance(scr, dict) else scr):
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                texts.append((c, t))
+    for les in LS.LESSONS:
+        beats = [(sp or "") + "\n" + (b or "") for sp, b in _authored_beats(les)]
+        for pr in les.get("pairs") or []:
+            w = pr.get("worked") or ("", ""); beats.append((w[0] or "") + "\n" + (w[1] or ""))
+            pp = pr.get("ask") or {}; ext = LS.OP_EXT.get(pp.get("op"))
+            if ext:
+                try:
+                    beats.append(ext["spoken"](pp) + "\n" + ext["board"](pp))
+                except Exception:  # noqa: BLE001
+                    pass
+        for pp in les.get("bank") or []:
+            ext = LS.OP_EXT.get(pp.get("op"))
+            if ext:
+                try:
+                    beats.append(ext["spoken"](pp) + "\n" + ext["board"](pp))
+                except Exception:  # noqa: BLE001
+                    pass
+        texts.extend((les.get("course"), t) for t in beats if t.strip())
+    try:
+        import main as _main
+        for k in dir(_main):
+            v = getattr(_main, k)
+            if k.isupper() and isinstance(v, (list, tuple)):
+                texts.extend(("algebra1", str(x)) for x in v if isinstance(x, str))
+    except Exception:  # noqa: BLE001
+        pass
+    empty = {"mastered": [], "units": 9, "best": {}}
+    fires = [t[:80] for c, t in texts if E(t, empty, c or "algebra1")]
+    check(f"⭐ CANON SWEEP: {len(texts)} authored strings under an all-unmastered record, zero fires",
+          len(texts) >= 7000 and not fires, "; ".join(fires[:3]))
+
+    # ---- wired, counted, noted --------------------------------------------------------------
+    tsrc = rd("tutor.py")
+    check("⭐ wired right after recordclaim (20), with its own fire event, and handed the course",
+          tsrc.find('_event("referee_fire", "recordclaim"') < tsrc.find('_event("referee_fire", "examblockers"')
+          and "exam_blockers_conflict(reply, record, course)" in tsrc, "")
+    check("⭐ ninety-one referees (90 at vl); the truth class still eleven (rule 50 is conduct)",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91 and len(T.TRUTH_REFEREES) == 11
+          and "examblockers" not in T.TRUTH_REFEREES, "")
+    check("  main._claim_record carries the gate's size as 'units' (from _units_required)",
+          '"units": _units_required(course)' in rd("main.py"), "")
+    m = rd("static/methodology.html")
+    check("  the public page says 91", '<div class="num"><b>91</b>' in m and m.count('<span data-referees>91</span>') == 2, "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-12  BUILD vo" in notes("tutor.py") and "2026-09-12  BUILD vo" in notes("ruletests.py")
+          and "2026-09-12  (vo) Tile 90 -> 91" in notes("static/methodology.html")
+          and 'APP_BUILD -> "2026-09-12vo-' in notes("main.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -17698,7 +17820,7 @@ def part3hm_the_first_use_list_learns_lim_and_squared():
     # ---- 3. the referee count did NOT move (a widening, not a new referee) --
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged by rl -- it widened a gate (ninety since vl; eighty-eight at vi)",
-          n_ref == 90,
+          n_ref == 91,
           f"{n_ref} *_conflict functions -- rl must not have added or lost one")
 
 
@@ -17782,7 +17904,7 @@ def part3hn_credit_only_what_you_saw():
           == "", "")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged by rm -- it widened a gate (ninety since vl; eighty-eight at vi)",
-          n_ref == 90, f"{n_ref} *_conflict functions")
+          n_ref == 91, f"{n_ref} *_conflict functions")
 
 
 def part3ho_three_one_line_holes():
@@ -17859,7 +17981,7 @@ def part3ho_three_one_line_holes():
           "a widening must never narrow")
     n_ref = len([n for n in dir(T) if n.endswith("_conflict")])
     check("  the referee count is unchanged by rn -- it widened two gates (ninety since vl; eighty-eight at vi)",
-          n_ref == 90, f"{n_ref} *_conflict functions")
+          n_ref == 91, f"{n_ref} *_conflict functions")
 
 
 def part3dn_every_verdict_is_counted():
@@ -24277,7 +24399,7 @@ def part3fx_the_child_cannot_be_right():
     check("⭐ ninety referees now, counted from the code (62 + pz + qf + qm + qs + "
           "qv's two + re's factorclaim + rf's postponedshow + rg's columnwords + rz's varcase + "
           "se's boardflood + sf's spokenmath + sm's exprswap + tu's piecaption and approach + tw's opunspoken + tx's sharespic + un's triangleletters + uo's funcrename + ut's arrowpointer, pictured and problemnumbers)",
-          n_ref == 90, n_ref)
+          n_ref == 91, n_ref)
     page = open("static/methodology.html", encoding="utf-8").read()
     check("  ...and methodology.html's referee tile matches",
           "<b>%d</b>" % n_ref in page, "")
@@ -27628,7 +27750,7 @@ def part3ii_the_board_tells_the_truth_about_which_question():
 
     # ---- the count moved, and everything that pins it moved with it ----------------
     check("  ninety *_conflict referees (uo funcrename, ut three, uv boardsilence, ux hardword, uz unitpicture, vi saidwritten, vl captionanswer + divisorblank)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90, "")
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91, "")
     check("  tutor.py carries a dated sm note",
           "2026-09-04  BUILD sm" in notes("tutor.py"), "")
 
@@ -31895,7 +32017,7 @@ def part3jr_the_gate_learns_who_wrote_the_symbol():
 
     # ---- nothing else moved ---------------------------------------------------------
     check("  no new referee from tv (a gate correction; ninety since vl) and no new truth-class name",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tv notes",
           "2026-09-07  BUILD tv" in notes("tutor.py")
@@ -32051,7 +32173,7 @@ def part3js_the_say_it_then_write_it_family():
     # ---- the count, and the notes ----------------------------------------------------
     check("  ninety referees (vl; eighty-eight at vi), and the truth class unchanged at eleven (all three "
           "of tw's are conduct: nothing false is taught)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tw notes",
           "2026-09-07  BUILD tw" in notes("tutor.py")
@@ -32210,7 +32332,7 @@ def part3jt_the_words_and_the_picture_are_the_same_thing():
     check("  ninety referees (vl; eighty-eight at vi), truth class still eleven (F9 is conduct: nothing "
           "false is said, the figure is the wrong object for the story -- Jim may rule "
           "it truth, as he did for boardcount on 2026-09-04)",
-          sum(1 for n in dir(T) if n.endswith("_conflict")) == 90
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 91
           and len(T.TRUTH_REFEREES) == 11, "")
     check("  the changed files carry dated tx notes",
           "2026-09-07  BUILD tx" in notes("tutor.py")
@@ -34531,7 +34653,7 @@ def part3hx_the_question_mark_is_a_blank_said_so():
           and n >= 1900 and m >= 3000,
           str(hits[:4]))
     check("  the referee count is unchanged by sa -- a registry row on referee 31 (ninety since vl; eighty-eight at vi)",
-          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 90, "")
+          sum(1 for x in dir(_t) if x.endswith("_conflict")) == 91, "")
 
 
 def part3hw_a_variables_letter_keeps_its_case():
@@ -34680,7 +34802,7 @@ def part3hu_the_accepted_offer_is_honored():
               "can you show me how to find the hypotenuse?")),
           "the widening must not blunt the original blade")
     check("  the referee count is unchanged by rx -- it widened a gate (ninety since vl; eighty-eight at vi)",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 90, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 91, "")
 
     # ⭐ the standing sweep: consecutive canon scripts as (prev, reply) pairs
     import foundations as FND
@@ -34801,7 +34923,7 @@ def part3hv_the_verdict_is_proven():
           and MC.is_canonical_constant("4/6") is False
           and MC.is_canonical_constant("x/2") is None, "")
     check("  the referee count is unchanged by ry -- it widened a gate and added a floor (ninety since vl; eighty-eight at vi)",
-          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 90, "")
+          sum(1 for n in dir(_t) if n.endswith("_conflict")) == 91, "")
 
     # ⭐ the standing sweep: consecutive canon pairs, referee and floor both
     import foundations as FND
@@ -43512,6 +43634,7 @@ def main():
     part3lh_the_caption_and_the_blank()
     part3li_the_forms_the_board_leans_on()
     part3lj_the_law_in_the_other_order_and_the_name_of_the_machine()
+    part3lk_name_the_whole_gate()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

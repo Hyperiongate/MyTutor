@@ -6,6 +6,15 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vo -- REFEREE 91, NAME THE WHOLE GATE (rule 50; the 09-10 watch's
+#               finding 7, the last of that triage's builds). exam_blockers_conflict: a
+#               reply that explains the locked Final Exam and names at least one of the
+#               units below mastery but not all of them, with no whole-gate phrase
+#               ("every unit", "all nine", "the rest"). The blockers are exactly the
+#               units not in the record's mastered set; the gate's size comes from the
+#               record's new "units" key (main._claim_record) or the course's own
+#               curriculum -- never the default course. Dispatched right after
+#               recordclaim (20). REFEREE COUNT 90 -> 91; conduct. PART 3lk.
 #   2026-09-12  BUILD vn -- THE LAW IN THE OTHER ORDER, THE NAME OF THE MACHINE, AND THE
 #               SIXTEENTH VERSE (the 09-10 watch's two table rows, carried forward, and
 #               Jim's ruling). ① overgeneralized_precedence_conflict (37): _PL_LAW knows
@@ -8825,6 +8834,135 @@ def record_claim_conflict(reply: str, record=None):
 
 
 # =============================================================================
+# BUILD vo (2026-09-12) -- THE NINETY-FIRST REFEREE: NAME THE WHOLE GATE (rule 50).
+# -----------------------------------------------------------------------------
+# The 2026-09-10 night watch (rule 50): the locked Final Exam was explained by naming
+# ONLY Unit 4 while Unit 7 was also below mastery. The student fixes Unit 4, comes
+# back, and finds the door still locked -- the kind of defect that costs trust, because
+# the second blocker is discovered on a later card. The server's own gate message
+# (main._final_gate_message) lists every unit; this is the LIVE reply's half, where
+# the model explains the lock in conversation.
+#
+# DECIDABLE AND RECORD-DRIVEN: the exam unlocks only when every unit is mastered, so
+# the blockers are exactly the units NOT in the record's mastered set. The referee
+# fires when, in one reply,
+#   (a) a sentence explains the exam's LOCK (final exam / the final / the exam, with
+#       locked / unlock / holding / blocking / stands between / before you can take);
+#   (b) at least one blocking unit is NAMED (by number or by its course title), so the
+#       reply is giving the list rather than the rule;
+#   (c) no phrase says the whole ("every unit", "all nine", "each unit", "the rest",
+#       "the others", "all of them", "and the remaining") -- a reply that names the
+#       nearest and says "and every other unit" has named the gate; and
+#   (d) at least one blocker goes unnamed.
+# SILENT without a record (practice lanes, synthetic students, the DB off) or without
+# a unit count (the record's "units", else the course's curriculum) -- a referee that
+# cannot know must not guess. Mentions of units that are NOT blockers do no harm: an
+# over-full list is honest. Conduct, not truth (nothing false is taught).
+# =============================================================================
+_EB_LOCK_RE = re.compile(
+    r"\b(?:final\s+exam|the\s+final|the\s+exam|course\s+exam|exam\s+door)\b[^.!?]{0,80}?"
+    r"\b(?:locked|unlocks?|unlocked|unlocking|holding\s+it|holding\s+(?:the|that)\s+door|"
+    r"blocking|blocks|stands?\s+between|standing\s+between|before\s+you\s+can\s+take|"
+    r"isn'?t\s+open|is\s+not\s+open|not\s+(?:yet\s+)?(?:open|available)|stays\s+(?:locked|shut)|"
+    r"keeps?\s+it\s+(?:locked|shut))\b"
+    r"|\b(?:locked|unlocks?|unlocked|unlocking|holding|blocking|stands?\s+between|"
+    r"standing\s+between|keeps?\s+(?:it|the\s+door)\s+(?:locked|shut))\b[^.!?]{0,80}?"
+    r"\b(?:final\s+exam|the\s+final|the\s+exam|course\s+exam)\b", re.I)
+_EB_UNIT_RE = re.compile(r"\bunit\s+(\d)\b", re.I)
+_EB_WHOLE_RE = re.compile(
+    r"\b(?:every|each|all)\s+(?:(?:of\s+)?the\s+)?(?:\w+\s+)?units?\b|\ball\s+(?:nine|eight|seven|six|\d)\b|"
+    r"\bthe\s+rest\b|\bthe\s+others?\b|\ball\s+of\s+them\b|\bthe\s+remaining\b|\bthe\s+other\s+\w+\s+units?\b|"
+    r"\bevery\s+(?:one|single\s+one)\b|\bthe\s+whole\s+(?:course|list)\b", re.I)
+
+
+def _eb_unit_names(course):
+    """{unit: title} for the course, from the curriculum; {} when unknown."""
+    try:
+        import curriculum as _cur
+        c = _cur.canon(course)
+        if not c or c not in _cur.COURSES:
+            return {}          # units_for() would fall back to the DEFAULT course: a guess
+        out = {}
+        for i, u in enumerate(_cur.units_for(c)):
+            if isinstance(u, (list, tuple)) and len(u) >= 2:
+                out[int(u[0])] = str(u[1])
+            else:
+                out[i + 1] = str(u)
+        return out
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+def exam_blockers_conflict(reply: str, record=None, course: str = ""):
+    """Return a description of a locked-Final-Exam explanation that names only some
+    of the units still below mastery, or "". Silent when `record` is not a dict or
+    the unit count cannot be known. Never raises: fail open."""
+    try:
+        if not isinstance(record, dict):
+            return ""
+        prose = _spoken_only(str(reply or ""))
+        if not prose.strip():
+            return ""
+        if not _EB_LOCK_RE.search(prose):
+            return ""                                   # (a) no lock explained
+        if _EB_WHOLE_RE.search(prose):
+            return ""                                   # (c) the whole gate is named
+        names = _eb_unit_names(course)
+        try:
+            total = int(record.get("units") or 0)
+        except Exception:  # noqa: BLE001
+            total = 0
+        if total <= 0:
+            total = len(names)
+        if total <= 0:
+            return ""                                   # cannot know the gate
+        mastered = set()
+        for u in (record.get("mastered") or ()):
+            try:
+                mastered.add(int(u))
+            except Exception:  # noqa: BLE001
+                pass
+        blockers = [u for u in range(1, total + 1) if u not in mastered]
+        if not blockers:
+            return ""
+        named = {int(m.group(1)) for m in _EB_UNIT_RE.finditer(prose)}
+        low = prose.lower()
+        for u, title in names.items():
+            t = re.sub(r"\s+", " ", str(title or "")).strip().lower()
+            if len(t) >= 4 and t in low:
+                named.add(u)
+        if not (named & set(blockers)):
+            return ""                                   # (b) the rule, not the list
+        missing = [u for u in blockers if u not in named]
+        if not missing:
+            return ""                                   # (d) every blocker is named
+        best = record.get("best") or {}
+        def _label(u):
+            t = names.get(u)
+            lab = f"Unit {u}" + (f" ({t})" if t else "")
+            try:
+                b = best.get(u, best.get(str(u)))
+            except Exception:  # noqa: BLE001
+                b = None
+            return lab + (f", best {int(b)}%" if b not in (None, "") else ", not yet attempted")
+        return ("your reply explains why the Final Exam is locked and names only {n} -- "
+                "but the record shows {m} also still below mastery, and the exam unlocks "
+                "only when EVERY unit is mastered. A student who finishes {n} will find "
+                "the door still shut. Rule 50(g)/(h): name the WHOLE gate. In this same "
+                "reply, name every unit standing between them and the exam, nearest "
+                "first -- {all} -- or say plainly that every unit must be mastered and "
+                "name the nearest one to start on. Keep everything else the same."
+                ).format(n=", ".join(f"Unit {u}" for u in sorted(named & set(blockers))),
+                         m=", ".join(_label(u) for u in missing),
+                         all="; ".join(_label(u) for u in blockers))
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[examblockers] crashed (fail open): {exc}")
+        _event("referee_crash", "examblockers", str(exc))
+        return ""
+
+
+
+# =============================================================================
 # THE TRIANGLE-LETTER CHECK (2026-08-16, build gn) -- rule 63(d), born ENFORCED.
 # -----------------------------------------------------------------------------
 # Jim ran one Geometry lesson and read the first turn out loud: "a, b, and c are supposed
@@ -10943,6 +11081,13 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if recordclaim:
             _event("referee_fire", "recordclaim", recordclaim)
             return recordclaim
+        # (vo) NINETY-FIRST, its record-fed sibling: an explanation of the locked Final
+        # Exam that names only SOME of the units holding it shut (rule 50). Silent
+        # without a record, like recordclaim.
+        blockers = exam_blockers_conflict(reply, record, course)
+        if blockers:
+            _event("referee_fire", "examblockers", blockers)
+            return blockers
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
         labeled = {}

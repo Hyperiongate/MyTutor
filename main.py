@@ -6,6 +6,11 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  APP_BUILD -> "2026-09-12vo-name-the-whole-gate".
+#               BUILD vo -- REFEREE 91, exam_blockers_conflict (rule 50): a live reply
+#               that explains the locked Final Exam and names only SOME of the units
+#               below mastery. _claim_record gains "units" (the gate's size, from
+#               _units_required) so the referee never guesses a course. PART 3lk.
 #   2026-09-12  APP_BUILD -> "2026-09-12vn-the-law-in-the-other-order".
 #               BUILD vn -- no change in this file beyond the stamp. tutor.py: the
 #               precedence law in both orders, KNOWN_FALSEHOODS row 22 (f(x) is the
@@ -1618,6 +1623,7 @@ def _claim_record(code: str, course: str):
         quiz_pcts    -- topic-quiz best percentages (sorted, de-duplicated)
         mastered     -- units at/over the bar
         touched      -- units with any topic_progress row
+        units        -- (vo) how many units the Final Exam's gate holds
     Returns None when the DB is off or anything surprises -- the referee then stays
     silent rather than guessing (the gn property). Never raises."""
     if not store.enabled():
@@ -1637,8 +1643,12 @@ def _claim_record(code: str, course: str):
                           and 1 <= int(r.get("unit")) <= 9})
         quiz_pcts = sorted({int(q.get("best_pct") or 0)
                             for q in (store.get_topic_quizzes(code, course) or [])})
+        # (vo) the size of the Final Exam's gate, from the course's real unit list, so
+        # tutor.exam_blockers_conflict knows which units are NOT mastered without
+        # guessing a course.
         return {"best": best, "last": last, "quiz_pcts": quiz_pcts,
-                "mastered": mastered, "touched": touched}
+                "mastered": mastered, "touched": touched,
+                "units": _units_required(course)}
     except Exception as exc:  # noqa: BLE001 -- a silent referee beats a broken turn
         print(f"[claimrecord] degraded to None: {exc}")
         return None
@@ -9277,7 +9287,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-12vn-the-law-in-the-other-order"
+APP_BUILD = "2026-09-12vo-name-the-whole-gate"
 
 
 @app.get("/health")
