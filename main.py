@@ -6,6 +6,21 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-13  APP_BUILD -> "2026-09-13vw-the-demo-is-part-of-the-closure".
+#               BUILD vw -- Jim: "the marketing demo should all be prescripted. I don't
+#               know why anything in the marketing demo is not prescripted." It was
+#               scripted -- DEMO_VOICE_LINES, 254 fixed lines, 48,129 chars -- but NOT in
+#               the closure: no prewarm ever rendered them (each rendered live on its
+#               first play, 591 chars last week), the evictor did not protect them, and
+#               _tts_model_for voiced them on ELEVEN_MODEL rather than SCRIPT_TTS_MODEL
+#               -- a different voice on the front door than in the classroom whenever
+#               the script model is set. _closure_lines(None) now carries the demo's
+#               lines beside Abrabot's introduction (the un-narrowed closure only, as
+#               the standalone lines are), so the prewarm renders them, the evictor
+#               protects them, the model split treats them as the course, and a miss on
+#               one is "IN the closure" in vu's eyes. The closure is 40,242. One-time
+#               cost after the push: the 254 lines render under the script model (~48k
+#               chars, about $10) -- run the prewarm. PART 3ls.
 #   2026-09-13  APP_BUILD -> "2026-09-13vv-five-from-the-09-13-watch".
 #               BUILD vv -- no change in this file beyond the stamp. tutor.py: the
 #               critic classifier's "should acknowledge" leak closed; unspoken hears an
@@ -9414,7 +9429,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-13vv-five-from-the-09-13-watch"
+APP_BUILD = "2026-09-13vw-the-demo-is-part-of-the-closure"
 
 
 @app.get("/health")
@@ -11150,7 +11165,15 @@ def _closure_lines(lessons=None) -> list:
     # closure that listed one clip twice would price and render it twice. There are
     # no such pairs today (PART 3ky measures it at zero) -- this is what keeps it
     # harmless on the day there is one.
-    return sorted({_spoken(s) for s in lessonscripts.course_audio_lines(lessons)})
+    # (vw) THE DEMO BELONGS TO THE SITE the way Abrabot's introduction belongs to the
+    # course: 254 fixed lines every visitor hears, rendered live on first play and
+    # unprotected until this build. Un-narrowed closure only -- rendering one lesson
+    # must not re-price the front door -- and the demo page asks by index, never by a
+    # tidied label, so the lines ride through _spoken unchanged.
+    lines = {_spoken(s) for s in lessonscripts.course_audio_lines(lessons)}
+    if lessons is None:
+        lines |= {_spoken(s) for s in DEMO_VOICE_LINES if s}
+    return sorted(lines)
 
 
 def _tts_cache_path(text: str) -> Path:

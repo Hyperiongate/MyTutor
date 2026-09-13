@@ -6,6 +6,11 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-13  BUILD vw -- PART 3ls, THE DEMO IS PART OF THE CLOSURE: main._closure_lines
+#               (un-narrowed) carries DEMO_VOICE_LINES (254) beside the course, so the
+#               prewarm renders, the evictor protects, and the model split voices the
+#               front door as the classroom. The vc closure pin moves 39,988 -> 40,242;
+#               lessonscripts.course_audio_lines is unchanged at 39,988.
 #   2026-09-13  BUILD vv -- PART 3lr, FIVE FROM THE 09-13 WATCH: the critic classifier's
 #               "should acknowledge the student's answer" leak (one of the night's three
 #               style passes was a rule-18 objection) is a hard word now; unspoken hears
@@ -9458,7 +9463,10 @@ def part3di_standalone_speech():
           f"only {msrc.count('_closure_lines(')} call sites")
     check("  ...and the one owner still hands back a SORTED, deduped list, on the far "
           "side of the tidying as well",
-          "return sorted({_spoken(s) for s in lessonscripts.course_audio_lines(lessons)})" in msrc,
+          # (vw) the demo's lines join the set before the ONE sorted() -- same contract
+          "lines = {_spoken(s) for s in lessonscripts.course_audio_lines(lessons)}" in msrc
+          and "lines |= {_spoken(s) for s in DEMO_VOICE_LINES if s}" in msrc
+          and "return sorted(lines)" in msrc,
           "clip-bytes index N and the audit's line N must be the same line")
 
     full = set(L.course_audio_lines())
@@ -15293,7 +15301,8 @@ def part3ky_one_label_for_every_clip():
     check("  and no two authored lines tidy to the SAME sentence, so the closure never "
           "prices or renders one clip twice (deduped anyway -- see _closure_lines)",
           len(cl) == len(set(cl)), "%d lines, %d unique" % (len(cl), len(set(cl))))
-    check("  the closure is still the whole course (39,988 since vs/vt; 39,969 before)", len(cl) == 39988, str(len(cl)))
+    check("  the closure is the whole course AND the demo (40,242 since vw = 39,988 + 254 demo lines; 39,969 before vs/vt)",
+          len(cl) == 40242, str(len(cl)))
 
     # ---- 4. ONE reader, and every site goes through it -----------------------------
     check("⭐ speechmap is read in exactly ONE place -- _spoken(). A second reader is a "
@@ -17930,6 +17939,41 @@ def part3lr_five_from_the_09_13_watch():
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-13  BUILD vv" in notes("tutor.py") and "2026-09-13  BUILD vv" in notes("ruletests.py")
           and 'APP_BUILD -> "2026-09-13vv-' in notes("main.py"), "")
+
+
+def part3ls_the_demo_is_part_of_the_closure():
+    """PART 3ls (build vw, 2026-09-13) -- THE DEMO IS PART OF THE CLOSURE.
+
+    Jim: "the marketing demo should all be prescripted." It was -- DEMO_VOICE_LINES, 254
+    fixed lines -- but not in the closure: no prewarm rendered them (each rendered live
+    on its first play), the evictor did not protect them, and _tts_model_for voiced them
+    on ELEVEN_MODEL instead of SCRIPT_TTS_MODEL. _closure_lines(None) now carries them
+    beside Abrabot's introduction; a narrowed closure (one lesson) does not, exactly as
+    the standalone lines behave. course_audio_lines (the course's own list) is unchanged."""
+    print("\nPART 3ls — the demo is part of the closure (build vw)")
+    import os as _os
+    import main as M
+    import lessonscripts as L
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    cl = M._closure_lines()
+    demo = [x for x in M.DEMO_VOICE_LINES if x]
+    check("⭐ every demo line is in the un-narrowed closure, and the closure is the course plus the demo",
+          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40242
+          and len(demo) == 254, "%d closure, %d course, %d demo" % (len(cl), len(L.course_audio_lines()), len(demo)))
+    check("  a narrowed closure (one lesson) carries no demo line -- rendering one lesson does not re-price the front door",
+          not any(x in set(M._closure_lines(L.LESSONS[:1])) for x in demo), "")
+    check("  the course's own list is untouched (39,988)", len(L.course_audio_lines()) == 39988, str(len(L.course_audio_lines())))
+    check("⭐ the model split treats the demo as the course, and the miss eyes call a demo line IN the closure",
+          all(x in M._script_closure_texts() for x in demo)
+          and M._tts_model_for(demo[0]) == M._tts_model_for(L.LINE_CHECK), "")
+    check("  the demo page still asks by index, and the route still serves the whitelisted line",
+          "return _tts_stream_response(DEMO_VOICE_LINES[idx], mode=\"demo\")" in code_only(rd("main.py"))
+          and "demoAudio.src='/api/demo-audio/'+i" in rd("static/demo.html"), "")
+    check("  no demo line is tidied by the speech map (the page never asks by label)",
+          all(M._spoken(x) == x for x in demo), "")
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-13vw-' in notes("main.py") and "2026-09-13  BUILD vw" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -44026,7 +44070,9 @@ j = r.json()
 # lines fewer than the endpoint did. That is exactly the disagreement build mk went
 # looking for: six hand-built closures, one of which would eventually be wrong. The
 # test asks the same single owner the endpoint asks.
-course_closure = set(L.course_audio_lines())
+# (vw) ...and the one owner now carries the demo's 254 lines as well, so the test asks
+# main._closure_lines() -- the endpoint's own list -- not the course's list alone.
+course_closure = set(main._closure_lines())
 chk("script-prewarm dry run counts the whole course closure",
     j.get("to_render", 0) + j.get("already_cached", 0) == len(course_closure), str(j))
 
@@ -44757,6 +44803,7 @@ def main():
     part3lp_the_check_line_rotates()
     part3lq_the_voice_misses_get_faces()
     part3lr_five_from_the_09_13_watch()
+    part3ls_the_demo_is_part_of_the_closure()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
