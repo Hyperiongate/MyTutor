@@ -6,6 +6,13 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vu -- PART 3lq, THE VOICE MISSES GET FACES: a miss that will
+#               spend writes voice_miss (lane, size, in/outside the closure, a head of
+#               the line -- 80 chars for a closure line, six words otherwise, the
+#               student's name as [name]); a cached_only lane never writes one; the
+#               event lands before ElevenLabs is asked; store.usage_stats
+#               tts_serve_by_mode on a real sqlite ledger; the night watch block by
+#               lane; /api/admin/events' default feed carries voice_miss.
 #   2026-09-12  BUILD vt -- PART 3lp, THE CHECK LINE ROTATES: lessonscripts.CHECK_LINES
 #               (five, "Ready?" first) and session.html's byte-identical copy, cycled one
 #               per beat by scrCheck; LINE_CHECK / LINE_READY untouched. The closure
@@ -17499,7 +17506,7 @@ def part3ln_the_166_read_per_reason():
     check("  /api/admin/events takes kind and limit, caps at 200, and defaults to the old feed",
           'def admin_events(key: str = "", kind: str = "", limit: int = 0,' in msrc
           and "kinds = [kind]" in msrc and "min(int(limit or 50), 200)" in msrc
-          and '["referee_crash", "clienterror", "pass_through", "failopen", "promptsize"]' in msrc, "")
+          and '["referee_crash", "clienterror", "pass_through", "failopen", "promptsize",\n             "voice_miss"]' in msrc, "")   # (vu) voice_miss joined the feed
 
     # ---- counted, noted, clean ----------------------------------------------------------
     check("  no referee count change: 97 conflict functions, 11 truth",
@@ -17657,6 +17664,135 @@ def part3lp_the_check_line_rotates():
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-12  BUILD vt" in notes("lessonscripts.py") and "2026-09-12  BUILD vt" in notes("ruletests.py")
           and "(vt) 2026-09-12" in notes("static/session.html") and 'APP_BUILD -> "2026-09-12vt-' in notes("main.py"), "")
+
+
+def part3lq_the_voice_misses_get_faces():
+    """PART 3lq (build vu, 2026-09-12) -- THE VOICE MISSES GET FACES.
+
+    The cost epoch: 43% of the characters spoken to students since 08-26 were rendered
+    live by ElevenLabs -- the whole serving-side voice bill, ~$4 a student-hour -- on a
+    course whose every line is meant to be cached, and the ledger could not name one
+    (counts, not text; nothing split by page). Now every miss that will spend writes a
+    voice_miss event: the lane, the size, whether the line is IN the closure (a cache
+    or label defect) or outside it (a varying line, or a model's words), and a head of
+    the text -- 80 chars for a closure line, six words otherwise, the student's own
+    name replaced by [name]. A cached_only lane (drill) never spends and never writes
+    one. store.usage_stats gains tts_serve_by_mode. The night watch prints the misses
+    by lane with their lines; the admin feed carries the kind."""
+    print("\nPART 3lq — the voice misses get faces (build vu)")
+    import os as _os
+    import subprocess as _sp
+    import tempfile as _tf
+    import main as M
+    import store as ST
+    import nightwatch as NW
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    msrc = code_only(rd("main.py"))
+
+    # ---- the head rule ------------------------------------------------------------------
+    closure_line = ("Every number lives between two tens. Rounding just means: hop to the ten you are "
+                    "closer to. 47 is closer to 50, so 47 rounds to 50.")
+    check("⭐ a closure line keeps 80 characters -- enough to name it",
+          M._voice_miss_head(closure_line, "", True) == closure_line[:80], repr(M._voice_miss_head(closure_line, "", True)))
+    check("⭐ a line outside the closure keeps six words -- enough to say which KIND of line it is, no more",
+          M._voice_miss_head("Look what you did: 12 sits between 10 and 20. The ones digit is 2.", "", False)
+          == "Look what you did: 12 sits", "")
+    check("  junk is empty, never a raise",
+          M._voice_miss_head(None, None, False) == "" and M._voice_miss_head("", "X", True) == "", "")
+
+    # ---- the event, with the store's writers held ---------------------------------------
+    seen = []
+    _rec, _log, _key = ST.record_event, ST.log_usage, M.ELEVEN_API_KEY
+    try:
+        ST.record_event = lambda kind, name, detail="", code="", course="": seen.append((kind, name, detail, code))
+        ST.log_usage = lambda **k: None
+        M.ELEVEN_API_KEY = "test-key"
+        M._tts_stream_response("Some brand new line the cache never saw", 0, code="AWD1", mode="speak")
+        check("⭐ a miss that will spend writes voice_miss with the lane, the size, the closure verdict and the head",
+              seen == [("voice_miss", "speak", "39 chars, outside the closure: Some brand new line the cache", "AWD1")], str(seen))
+        seen.clear()
+        M._tts_stream_response(closure_line, 0, code="AWD1", mode="script")
+        check("  a closure line that missed says so -- IN the closure -- and keeps 80 characters",
+              len(seen) == 1 and seen[0][1] == "script" and "IN the closure: " + closure_line[:80] in seen[0][2], str(seen))
+        seen.clear()
+        M._tts_stream_response("Some brand new line", 0, code="D", mode="drill", cached_only=True)
+        check("  a cached_only lane never spends, so it never writes one", seen == [], str(seen))
+        check("  the event is written BEFORE ElevenLabs is asked, and only on a miss",
+              0 < msrc.index('store.record_event("voice_miss"')
+              < msrc.index('url = f"https://api.elevenlabs.io/v1/text-to-speech/', msrc.index('store.record_event("voice_miss"'))
+              and msrc.index("if cache_hit:\n            return Response(content=lead_silence") < msrc.index('store.record_event("voice_miss"'), "")
+    finally:
+        ST.record_event, ST.log_usage, M.ELEVEN_API_KEY = _rec, _log, _key
+
+    # ---- the report block ---------------------------------------------------------------
+    from datetime import datetime as _dt, timezone as _tz, timedelta as _td
+    now = _dt.now(_tz.utc)
+
+    class _Fake:
+        def __init__(self, rows):
+            self.rows, self.calls = rows, []
+
+        def recent_events(self, hours=168, limit=50, kinds=None):
+            self.calls.append((hours, limit, tuple(kinds or ())))
+            return list(self.rows)
+
+    rows = [
+        {"kind": "voice_miss", "name": "speak", "detail": "120 chars, outside the closure: Look what you did: 12 sits",
+         "code": "0000", "at": (now - _td(hours=1)).isoformat()},
+        {"kind": "voice_miss", "name": "speak", "detail": "120 chars, outside the closure: Look what you did: 12 sits",
+         "code": "0000", "at": (now - _td(hours=2)).isoformat()},
+        {"kind": "voice_miss", "name": "demo", "detail": "60 chars, IN the closure: Hi there! Welcome to algebra.",
+         "code": "", "at": (now - _td(days=2)).isoformat()},
+        {"kind": "referee_crash", "name": "livecritic", "detail": "model not found", "at": now.isoformat()},
+    ]
+    f = _Fake(rows)
+    text = "\n".join(NW.voice_miss_lines(f, now))
+    check("⭐ the block asks for voice_miss rows only, a week deep, and reads only that kind back",
+          f.calls == [(168, 200, ("voice_miss",))] and "model not found" not in text, str(f.calls))
+    check("  the heading carries the row and character totals and the law",
+          "3 newest rows, 300 characters" in text and "put the number on the board and the words stay fixed" in text, text[:300])
+    check("  lanes are ordered by characters, each with its closure split",
+          text.index("**speak**: 2x, 240 chars (0 in the closure, 2 outside)") < text.index("**demo**: 1x, 60 chars (1 in the closure, 0 outside)"), text)
+    check("  a repeated line is one entry with its count and the ghost test; a closure line is marked",
+          text.count("Look what you did: 12 sits") == 1 and "2x" in text and "LIVE" in text
+          and "[closure] Hi there! Welcome to algebra." in text, "")
+    check("  an empty window and a raising store both print nothing",
+          NW.voice_miss_lines(_Fake([]), now) == [] and NW.voice_miss_lines(type("B", (), {"recent_events": lambda self, **k: 1 / 0})(), now) == [], "")
+    nsrc = code_only(rd("nightwatch.py"))
+    check("  the report calls it, wrapped, and voice_miss is an alarm kind",
+          "L += voice_miss_lines(_store, nowdt)" in nsrc and '"voice_fallback", "voice_miss"' in nsrc, "")
+    check("  /api/admin/events' default feed carries voice_miss",
+          '"voice_miss"]' in msrc.split("def admin_events(")[1][:900], "")
+
+    # ---- usage_stats by lane, on a real sqlite ledger ----------------------------------
+    DRILL = r"""
+import store
+store.init(); assert store.enabled(), store.status()
+store.log_usage(kind="tts", code="A", mode="speak", model="m", tts_chars=100, tts_cache_hit=0)
+store.log_usage(kind="tts", code="A", mode="speak", model="m", tts_chars=40, tts_cache_hit=1)
+store.log_usage(kind="tts", code="A", mode="demo", model="m", tts_chars=25, tts_cache_hit=1)
+store.log_usage(kind="tts", code="", mode="script-prewarm", model="m", tts_chars=999, tts_cache_hit=0)
+u = store.usage_stats(7)
+bm = u["tts_serve_by_mode"]
+assert bm == {"speak": {"requests": 2, "chars_generated": 100, "chars_cached": 40},
+              "demo": {"requests": 1, "chars_generated": 0, "chars_cached": 25}}, bm
+assert u["tts_chars_serve"] == 100 and u["tts_chars_cached_serve"] == 65 and u["tts_requests_serve"] == 3, u
+assert u["tts_chars_build"] == 999, u
+print("BYMODE-DRILL-OK")
+"""
+    with _tf.TemporaryDirectory() as tmp:
+        drill = _os.path.join(tmp, "bymode.py")
+        with open(drill, "w", encoding="utf-8") as fh:
+            fh.write(DRILL)
+        env = dict(_os.environ, DATABASE_URL=f"sqlite:///{_os.path.join(tmp, 'b.db')}", PYTHONPATH=here)
+        NAME = "⭐ LIVE: tts_serve_by_mode splits the serve side by lane on a real sqlite ledger; the build lane stays out; every older key is unchanged"
+        if dep_gate(NAME, "sqlalchemy", "the drill records to a real database"):
+            r = _sp.run([sys.executable, drill], cwd=here, env=env, capture_output=True, text=True)
+            check(NAME, r.returncode == 0 and "BYMODE-DRILL-OK" in r.stdout, (r.stdout + r.stderr)[-400:])
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-12vu-' in notes("main.py") and "2026-09-12  BUILD vu" in notes("store.py")
+          and "2026-09-12  BUILD vu" in notes("nightwatch.py") and "2026-09-12  BUILD vu" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -28758,7 +28894,8 @@ def part3ik_the_mark_goes_away_and_the_voice_is_counted():
     nw = rd("nightwatch.py")
     check("  the watch prints, names and dates voice fallbacks",
           "browser-voice fallbacks" in nw
-          and '"floor",\n                     "voice_fallback")' in nw
+          # (vu) voice_miss joined the tuple; the membership is the pin
+          and '"floor",\n                     "voice_fallback", "voice_miss")' in nw
           and '"voice_fallback"])' in nw, "")
 
     # ---- (4) the closure's render state reaches the report -------------------------
@@ -44481,6 +44618,7 @@ def main():
     part3ln_the_166_read_per_reason()
     part3lo_the_award_is_said_out_loud()
     part3lp_the_check_line_rotates()
+    part3lq_the_voice_misses_get_faces()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

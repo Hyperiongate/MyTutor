@@ -6,6 +6,11 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 61 entries; 5 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-12  BUILD vu -- usage_stats gains tts_serve_by_mode: for every non-build
+#               lane, requests, characters rendered live and characters served from
+#               the cache, so /admin can say WHICH page spends the serving-side voice
+#               money (43% of served characters were live renders and nobody could
+#               say from where). Purely additive; every older key is unchanged.
 #   2026-09-12  BUILD vs -- record_awards returns the ids it wrote for the FIRST time
 #               (it returned None; every older caller ignored it), so the scripted lane
 #               can say a newly earned award out loud exactly once.
@@ -4195,6 +4200,7 @@ def usage_stats(days: int = 7, since=None) -> dict:
            "tts_chars_build": 0, "tts_chars_serve": 0,
            "tts_chars_cached_build": 0, "tts_chars_cached_serve": 0,
            "tts_requests_build": 0, "tts_requests_serve": 0,
+           "tts_serve_by_mode": {},
            # build jm -- the turn clock. timed_turns counts EVERY timed row in the
            # window; ms_sampled is how many of them the percentiles actually read.
            # build jp -- the SECOND OPINION, counted on its own. A critic row is
@@ -4295,6 +4301,16 @@ def usage_stats(days: int = 7, since=None) -> dict:
                 select(func.count()).where(tts & is_build)).scalar() or 0)
             out["tts_requests_serve"] = int(conn.execute(
                 select(func.count()).where(tts & ~is_build)).scalar() or 0)
+            # (vu) THE SERVE SIDE, BY LANE: which page's requests missed the cache.
+            for _mode, _hit, _n, _chars in conn.execute(
+                    select(U.c.mode, U.c.tts_cache_hit, func.count(),
+                           func.coalesce(func.sum(U.c.tts_chars), 0))
+                    .where(tts & ~is_build)
+                    .group_by(U.c.mode, U.c.tts_cache_hit)).fetchall():
+                _row = out["tts_serve_by_mode"].setdefault(
+                    _mode or "", {"requests": 0, "chars_generated": 0, "chars_cached": 0})
+                _row["requests"] += int(_n or 0)
+                _row["chars_cached" if int(_hit or 0) == 1 else "chars_generated"] += int(_chars or 0)
             # build jm: the turn clock. Only rows that were actually timed.
             timed = brain & (U.c.ms_total > 0)
             out["timed_turns"] = int(conn.execute(

@@ -2,6 +2,11 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-12  BUILD vu -- THE VOICE MISSES, BY LANE. voice_miss joins the alarm kinds
+#               and voice_miss_lines() prints the week's live renders grouped by lane
+#               (the event name), each with its distinct line heads newest first and
+#               the closure split -- a line IN the closure that missed is a cache or
+#               label defect; a line outside it is a varying line or a model's words.
 #   2026-09-12  BUILD vr -- THE PASS-THROUGHS GET THEIR REASONS. Since build ha the
 #               report has printed "replies shipped WITH a known finding: 166" and the
 #               offenders' NAMES, and never once a reason -- the "what they actually
@@ -470,6 +475,69 @@ def pass_through_lines(store, now=None, limit=200, per_referee=4) -> list:
                   "      " + _age_line(a["newest"], a["oldest"], a["n"], now)]
         if len(ordered) > per_referee:
             L.append(f"    - ...and {len(ordered) - per_referee} more distinct reason(s)")
+    L.append("")
+    return L
+
+
+_VM_DETAIL_RE = re.compile(r"^(\d+) chars, (IN the closure|outside the closure):\s*(.*)$", re.S)
+
+
+def voice_miss_lines(store, now=None, limit=200, per_lane=6) -> list:
+    """(vu) The report lines for the week's voice misses -- lines ElevenLabs rendered
+    LIVE for a student because the cache did not have them. Grouped by lane (the event
+    name), each with its character total, its closure split, and up to `per_lane`
+    distinct line heads newest first with _age_line's ghost test. Reads only
+    voice_miss rows (a store that ignores `kinds` cannot leak another kind in here);
+    never raises; [] on an empty window."""
+    try:
+        rows = store.recent_events(hours=24 * 7, limit=limit, kinds=["voice_miss"])
+    except Exception:  # noqa: BLE001
+        rows = []
+    rows = [r for r in (rows or []) if isinstance(r, dict)
+            and (r.get("kind") or "voice_miss") == "voice_miss"]
+    if not rows:
+        return []
+    now = now or datetime.now(timezone.utc)
+    by = {}
+    total_chars = 0
+    for r in rows:
+        d = " ".join(str(r.get("detail") or "").split())
+        m = _VM_DETAIL_RE.match(d)
+        chars = int(m.group(1)) if m else 0
+        inside = bool(m and m.group(2).startswith("IN"))
+        head = ((m.group(3) if m else d) or "(no line recorded)")[:120]
+        lane = r.get("name") or "(unnamed)"
+        b = by.setdefault(lane, {"n": 0, "chars": 0, "inside": 0, "heads": {}})
+        b["n"] += 1
+        b["chars"] += chars
+        total_chars += chars
+        if inside:
+            b["inside"] += 1
+        at = _parse_at(r.get("at"))
+        a = b["heads"].setdefault(head, {"n": 0, "chars": 0, "inside": inside,
+                                          "newest": None, "oldest": None})
+        a["n"] += 1
+        a["chars"] += chars
+        if at:
+            if not a["newest"] or at > a["newest"]:
+                a["newest"] = at
+            if not a["oldest"] or at < a["oldest"]:
+                a["oldest"] = at
+    L = [f"  Voice misses -- lines rendered LIVE for a student because the cache did not have "
+         f"them ({len(rows)} newest rows, {total_chars:,} characters), by lane:",
+         "  _A line IN the closure that missed is a cache or label defect (the course "
+         "already paid for it). A line outside the closure varies, or is a model's words -- "
+         "put the number on the board and the words stay fixed._"]
+    for lane, b in sorted(by.items(), key=lambda kv: (-kv[1]["chars"], kv[0])):
+        L.append(f"  - **{lane}**: {b['n']}x, {b['chars']:,} chars "
+                 f"({b['inside']} in the closure, {b['n'] - b['inside']} outside)")
+        ordered = sorted(b["heads"].items(),
+                         key=lambda kv: (kv[1]["newest"] or _EPOCH), reverse=True)
+        for head, a in ordered[:per_lane]:
+            L += [f"    - {'[closure] ' if a['inside'] else ''}{head}",
+                  "      " + _age_line(a["newest"], a["oldest"], a["n"], now)]
+        if len(ordered) > per_lane:
+            L.append(f"    - ...and {len(ordered) - per_lane} more distinct line(s)")
     L.append("")
     return L
 
@@ -1416,7 +1484,7 @@ def report_markdown(result, build="") -> str:
 
         alarm = []
         for kind in ("referee_crash", "clienterror", "pass_through", "floor",
-                     "voice_fallback"):
+                     "voice_fallback", "voice_miss"):                       # (vu)
             for nm, n in sorted((counts.get(kind) or {}).items(), key=lambda kv: -kv[1])[:5]:
                 alarm.append(f"  - {kind} · {nm}: {n}×")
         if alarm:
@@ -1518,6 +1586,11 @@ def report_markdown(result, build="") -> str:
             L += pass_through_lines(_store, nowdt)
         except Exception as _pex:  # noqa: BLE001 -- a bonus, never a failure
             L += [f"  (pass-through reasons unavailable: {_pex})", ""]
+        # (vu) the voice misses, by lane, with their lines
+        try:
+            L += voice_miss_lines(_store, nowdt)
+        except Exception as _vex:  # noqa: BLE001 -- a bonus, never a failure
+            L += [f"  (voice misses unavailable: {_vex})", ""]
     except Exception as _exc:  # noqa: BLE001
         L += ["## The week's telemetry", "", f"- (unavailable: {_exc})", ""]
 
