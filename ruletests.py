@@ -6,6 +6,16 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-13  BUILD vv -- PART 3lr, FIVE FROM THE 09-13 WATCH: the critic classifier's
+#               "should acknowledge the student's answer" leak (one of the night's three
+#               style passes was a rule-18 objection) is a hard word now; unspoken hears
+#               an imperative ask ("Simplify this fraction." over 10/15 = ?) and every
+#               denominator has a spoken name (_ordinal_word: "ten fifteenths" reads
+#               10/15); arrowpointer's colon pointer ("3/4 : denominator = ?") with a
+#               value-only LHS ("Step 1: hypotenuse = 13" is a label); pictured's dollars
+#               and tickets and "Picture this:"; the unearned-mark floor strips a [[mark]]
+#               that follows the reply's own question with no verdict before it. Canon
+#               (7,491) + prompts swept: 0 new fires, 0 marks touched. Count 97 unchanged.
 #   2026-09-12  BUILD vu -- PART 3lq, THE VOICE MISSES GET FACES: a miss that will
 #               spend writes voice_miss (lane, size, in/outside the closure, a head of
 #               the line -- 80 chars for a closure line, six words otherwise, the
@@ -17793,6 +17803,133 @@ print("BYMODE-DRILL-OK")
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-12vu-' in notes("main.py") and "2026-09-12  BUILD vu" in notes("store.py")
           and "2026-09-12  BUILD vu" in notes("nightwatch.py") and "2026-09-12  BUILD vu" in notes("ruletests.py"), "")
+
+
+def part3lr_five_from_the_09_13_watch():
+    """PART 3lr (build vv, 2026-09-13) -- FIVE FROM THE 09-13 WATCH, the first on vr's
+    critic pass (14 confirmed: 5 holes, 8 pass-throughs, 1 unplaced).
+
+    ① THE CLASSIFIER LEAKED. Three livecritic objections were passed as style; one was
+      "The tutor should acknowledge the student's answer and verify it is correct before
+      asking how they got it -- this may feel dismissive" -- a rule-18 objection, and the
+      night's unplaced decimal-alignment finding ("5 plus 4 is 9", never acknowledged) is
+      that turn. An instruction to grade is an error named: _CS_HARD_RE gains it.
+    ② unspoken (rule 44, HIGH) was deaf to an IMPERATIVE: "Question 1. Simplify this
+      fraction." over [[step eq="10/15 = ?"]] carried no "?" so the gate never opened.
+      And "ten fifteenths" would still have been unheard: 15 had no denominator word.
+      _PU_IMPERATIVE_RE (sentence-leading solving verbs) and _ordinal_word (2..99).
+    ③ arrowpointer (rule 13) learns the colon pointer "3/4 : denominator = ?" (a
+      livecritic pass-through three times); a word-led label's colon is a colon.
+    ④ pictured (rule 7): dollars, tickets, bills, cents; "Picture this: you have...".
+    ⑤ THE UNEARNED-MARK FLOOR (rule 18, a HOLE): "What do you get? [[mark correct="1"]]"
+      recorded an answer nobody gave. A mark after the reply's own question with no
+      verdict before it is stripped at the door, counted, never retried (uk's law).
+    Canon + prompts swept: 0 new fires; the floor touches 0 authored strings. Count 97."""
+    print("\nPART 3lr — five from the 09-13 watch (build vv)")
+    import os as _os
+    import tutor as T
+    import foundations as FND
+    import lessonscripts as LS
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    tsrc = code_only(rd("tutor.py"))
+    S, U, A, P, R = (T.critic_objection_is_style, T.prose_unspoken_problem_conflict,
+                     T.arrow_as_pointer_conflict, T.pictured_not_drawn_conflict, T.repair_unearned_mark)
+
+    # ---- ① the leak --------------------------------------------------------------------
+    check("⭐ the 09-13 leak is an objection again: 'should acknowledge the student's answer ... may feel'",
+          S("The tutor should acknowledge the student's answer and verify it is correct before asking how "
+            "they got it — this may feel dismissive rather than helpful") == "", "")
+    check("  ...and its cousins: should grade / address / respond to / confirm the answer",
+          all(S(x) == "" for x in (
+              "The tutor should grade their answer first; a warmer opening could help.",
+              "The draft should respond to what the student just said; it may seem abrupt.",
+              "The tutor should first confirm that answer before moving on — it risks feeling rushed.")), "")
+    check("  the night's two real style passes still pass",
+          bool(S("The draft asks the student to simplify 30/100 but doesn't explicitly ask them to write the "
+                 "answer down. A clearer ask would help."))
+          and bool(S("The draft claims '20/100 = 1/5' but the correct simplification is '20/100 = 1/5', "
+                     "which is mathematically correct, so no change is needed")), "")
+    check("  'should show the work' with no grading verb is still style-shaped (unchanged)",
+          bool(S("The tutor states 'One half is correct' but 2/3 × 3/4 = 1/2, which is indeed correct; however, "
+                 "the tutor should show the work")), "")
+
+    # ---- ② the imperative ask, and every denominator's name -------------------------------
+    check("⭐ HIGH: 'Question 1. Simplify this fraction.' over 10/15 = ? is an unspoken problem",
+          bool(U('Question 1. Simplify this fraction. [[step eq="10/15 = ?"]]')), "")
+    check("  ...read as 'ten fifteenths' it is spoken (15 has a name now)",
+          U('Question 1. Simplify ten fifteenths. [[step eq="10/15 = ?"]]') == ""
+          and U('Simplify ten over fifteen. [[step eq="10/15 = ?"]]') == "", "")
+    check("  a solving verb mid-sentence is not an ask; a plain statement stays silent",
+          U('We simplify by dividing top and bottom. [[step eq="10/15 = ?"]]') == ""
+          and U('The fraction is on the board. [[step eq="10/15 = ?"]]') == "", "")
+    check("  the other imperatives open the gate on a pending '= ?' line: solve, find, work out, try this",
+          all(bool(U(x)) for x in (
+              'Solve it. [[step eq="2x + 3 = ?"]]',
+              'Find the sum. [[step eq="47 + 25 = ?"]]',
+              'Work out the product. [[step eq="6 × 7 = ?"]]',
+              'Try this one. [[step eq="5 + 3 × 2 = ?"]]')), "")
+    check("  _ordinal_word: fifteenth, twentieth, twenty-first (either spelling), the hand table's rows kept, out of range empty",
+          T._ordinal_word(15) == "fifteenth" and T._ordinal_word(20) == "twentieth"
+          and T._ordinal_word(21) == r"twenty[\s-]first" and T._ordinal_word(4) == "fourth|quarter"
+          and T._ordinal_word(100) == "hundredth" and T._ordinal_word(0) == "" and T._ordinal_word("x") == "", "")
+    check("  'seven twentieths' reads 7/20 (and 'ten thirteenths' 10/13)",
+          T._pq_spoken_covers("Simplify seven twentieths.", "7/20 = ?")
+          and T._pq_spoken_covers("Simplify ten thirteenths.", "10/13 = ?"), "")
+
+    # ---- ③ the colon pointer ---------------------------------------------------------------
+    check("⭐ '3/4 : denominator = ?' is a pointer (rule 13)", bool(A('[[step eq="3/4 : denominator = ?"]]')), "")
+    check("  a label's colon is a colon: 'Step 1: hypotenuse = 13', 'the triangle: sides = ...'",
+          A('[[write text="Step 1: hypotenuse = 13"]]') == "" and A('[[write text="the triangle: sides = 3, 4, 5"]]') == "", "")
+    check("  the arrow shapes are as they were: 1/4 → denominator fires, 13² − 5² → leg = 12 does not",
+          bool(A('[[write text="1/4 → denominator = 4"]]')) and A('[[write text="13² − 5² → leg = 12"]]') == "", "")
+
+    # ---- ④ dollars and tickets -------------------------------------------------------------
+    check("⭐ 'Picture this: you have 4 dollars, plus 2 tickets...' with no figure fires (rule 7)",
+          bool(P('Picture this: you have 4 dollars, plus 2 tickets that cost 3 dollars each. [[step eq="4 + 2 × 3 = ?"]]')), "")
+    check("  ...and is silent once something is drawn",
+          P('Picture this: you have 4 dollars, plus 2 tickets. [[objects kind="coin" count="4"]]') == "", "")
+
+    # ---- ⑤ the unearned-mark floor ---------------------------------------------------------
+    bad = 'Now add them. What do you get? [[mark correct="1"]] [[step eq="1/2 + 1/3 = ?"]]'
+    out, st, why = R(bad)
+    check("⭐ a mark after the reply's own question with no verdict before it is stripped, and counted",
+          st == "repaired" and "[[mark" not in out and out == 'Now add them. What do you get? [[step eq="1/2 + 1/3 = ?"]]'
+          and "recorded an answer nobody had given" in why, (st, out))
+    check("  a mark that FOLLOWS a verdict is untouched wherever it sits",
+          R('[[mark correct="1"]] Right! Seven is correct. What do you get next?')[1] == ""
+          and R('Yes — that is right. What comes next? [[mark correct="1"]]')[1] == ""
+          and R('Not quite. Seven is off by one. What do you get now? [[mark correct="0"]]')[1] == "", "")
+    check("  do no harm: no mark, no question, junk -- untouched, byte for byte",
+          R("What do you get?") == ("What do you get?", "", "") and R('[[mark correct="1"]] Nine.') == ('[[mark correct="1"]] Nine.', "", "")
+          and R("") == ("", "", "") and R(None) == ("", "", ""), "")
+    check("  wired at the door AFTER the mark floor, and counted code_repair · unearnedmark",
+          "reply, _ust, _udet = repair_unearned_mark(reply)" in tsrc
+          and '_event("code_repair", "unearnedmark"' in tsrc
+          and tsrc.index("repair_unearned_mark(reply)") > tsrc.index("repair_missing_mark(\n            reply, prev_tutor"), "")
+
+    # ---- the sweep -------------------------------------------------------------------------
+    texts = []
+    for c, scr in FND.FOUNDATIONS.items():
+        for sc in (scr.values() if isinstance(scr, dict) else scr):
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                texts.append(t)
+    for les in LS.LESSONS:
+        beats = [(sp or "") + "\n" + (b or "") for sp, b in _authored_beats(les)]
+        for pr in les.get("pairs") or []:
+            w = pr.get("worked") or ("", ""); beats.append((w[0] or "") + "\n" + (w[1] or ""))
+        texts.extend(t for t in beats if t.strip())
+    fa = sum(1 for t in texts if A(t)); fp = sum(1 for t in texts if P(t)); fm = sum(1 for t in texts if R(t)[1])
+    fu = sum(1 for t in texts if U(t))
+    check(f"⭐ CANON SWEEP: {len(texts)} authored strings -- arrowpointer 0, pictured 0, the mark floor touches 0, unspoken no more than before (12)",
+          len(texts) >= 3000 and fa == 0 and fp == 0 and fm == 0 and fu <= 12, f"arrow {fa}, pictured {fp}, marks {fm}, unspoken {fu}")
+    check("  no referee count change: 97 / 11",
+          sum(1 for n in dir(T) if n.endswith("_conflict")) == 97 and len(T.TRUTH_REFEREES) == 11, "")
+    check("  tutor.py holds no backspace byte", "\x08" not in rd("tutor.py"), "")
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-09-13  BUILD vv" in notes("tutor.py") and "2026-09-13  BUILD vv" in notes("ruletests.py")
+          and 'APP_BUILD -> "2026-09-13vv-' in notes("main.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -44619,6 +44756,7 @@ def main():
     part3lo_the_award_is_said_out_loud()
     part3lp_the_check_line_rotates()
     part3lq_the_voice_misses_get_faces()
+    part3lr_five_from_the_09_13_watch()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

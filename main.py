@@ -6,6 +6,11 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-13  APP_BUILD -> "2026-09-13vv-five-from-the-09-13-watch".
+#               BUILD vv -- no change in this file beyond the stamp. tutor.py: the
+#               critic classifier's "should acknowledge" leak closed; unspoken hears an
+#               imperative ask; arrowpointer's colon; pictured's dollars and tickets;
+#               the unearned-mark floor. PART 3lr.
 #   2026-09-12  APP_BUILD -> "2026-09-12vu-the-voice-misses-get-faces".
 #               BUILD vu -- THE VOICE MISSES GET FACES. The cost epoch says 43% of the
 #               characters spoken to students since 08-26 (78,845 of 184,030) were
@@ -9409,7 +9414,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-12vu-the-voice-misses-get-faces"
+APP_BUILD = "2026-09-13vv-five-from-the-09-13-watch"
 
 
 @app.get("/health")

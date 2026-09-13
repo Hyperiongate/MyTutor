@@ -6,6 +6,29 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-13  BUILD vv -- FIVE FROM THE 09-13 WATCH (the first on vr's critic pass).
+#               (1) THE CLASSIFIER LEAKED ONCE IN THREE: "The tutor should acknowledge the
+#               student's answer and verify it is correct before asking how they..." was
+#               passed as style ("may feel") -- a rule-18 objection, and the night's
+#               unplaced decimal-alignment finding ("5 plus 4 is 9" never acknowledged) is
+#               almost certainly that turn. _CS_HARD_RE gains the "should acknowledge /
+#               grade / address / respond to / answer / confirm (the student's...)" shape:
+#               an instruction to grade IS an error named. (2) unspoken (rule 44) was
+#               deaf to an IMPERATIVE ask: "Question 1. Simplify this fraction." over
+#               [[step eq="10/15 = ?"]] carried no "?" so the referee never looked (HIGH,
+#               final-exam-locked). The gate now also opens on a sentence-leading
+#               imperative (simplify / solve / find / round / reduce / evaluate / factor /
+#               expand / compute / work out / calculate / add / subtract / multiply /
+#               divide / try this). Canon swept: 0 new fires. (3) arrowpointer (rule 13)
+#               learns the COLON pointer -- "3/4 : denominator = ?" (fractions-lost, a
+#               livecritic pass-through three times). (4) pictured (rule 7) learns
+#               dollars / tickets / bills / cents -- "Picture this: you have 4 dollars,
+#               plus 2 tickets..." drew nothing. (5) THE UNEARNED-MARK FLOOR:
+#               repair_unearned_mark strips a [[mark]] that sits AFTER the reply's own
+#               question with no verdict word before it ("What do you get? [[mark
+#               correct=1]]" -- rule 18, a mark that records an answer nobody gave, a
+#               HOLE tonight). Same door as the other floors; counted code_repair ·
+#               unearnedmark; no referee-count change. PART 3lr.
 #   2026-09-12  BUILD vr -- THE 166, READ PER REASON. The week's 48 newest pass_through
 #               rows were read from system_events (43 on the watch's own AUDIT lane, 5
 #               live) and each reason judged nudge / rule / code. (1) THE CRITIC'S
@@ -8595,6 +8618,44 @@ def _qm_strip_echo(prose: str, student_message: str) -> str:
     return prose
 
 
+# =============================================================================
+# (vv) 2026-09-13 -- THE UNEARNED-MARK FLOOR. The 09-13 watch (final-exam-locked, rule
+# 18, a HOLE): "What do you get? [[mark correct="1"]]" -- the tutor asked 1/2 + 1/3 and
+# marked it correct in the same breath, before any answer existed. A mark writes the
+# progress record; this one recorded an answer nobody gave. The shape is exact: a
+# [[mark]] that sits AFTER the reply's own question with no verdict word anywhere before
+# it. A reply that grades first and then asks ("Right! ... What do you get?") is
+# untouched, because the verdict precedes the mark wherever the mark sits. The mark is
+# STRIPPED (nothing false reaches the record), counted code_repair · unearnedmark, and
+# never retried -- uk's law for marks: build it, no retry. Fail open, never a turn.
+# =============================================================================
+_UM_MARK_RE = re.compile(r"\[\[\s*mark\b[^\]]*\]\]\s*", re.I)
+
+
+def repair_unearned_mark(reply: str):
+    """(reply, status, detail): status is "" (nothing to do) or "repaired" (a mark that
+    followed the reply's own question with no verdict before it is gone). Never raises."""
+    try:
+        text = str(reply or "")
+        out, removed = text, []
+        for m in list(_UM_MARK_RE.finditer(text)):
+            before = _spoken_only(text[:m.start()])
+            if "?" in before and not _UA_ACK_RE.search(before):
+                removed.append(m.group(0).strip())
+        if not removed:
+            return text, "", ""
+        for tag in removed:
+            out = out.replace(tag, "", 1)
+        out = re.sub(r"[ \t]{2,}", " ", out).strip()
+        return (out, "repaired",
+                "a mark followed the reply's own question with no verdict before it (%s); "
+                "it recorded an answer nobody had given, so it is gone" % ", ".join(removed)[:80])
+    except Exception as exc:  # noqa: BLE001 -- a repair must never cost a turn
+        print(f"[unearnedmark] crashed (fail open): {exc}")
+        _event("referee_crash", "unearnedmark", str(exc))
+        return str(reply or ""), "", ""
+
+
 def repair_missing_mark(reply: str, prev_tutor=None, student_message: str = ""):
     """(reply, status, detail): status is "" (not this floor's turn), "repaired"
     (the spoken verdict is now recorded as [[mark correct="1"|"0"]]) or
@@ -9776,8 +9837,11 @@ def function_redefined_conflict(reply: str, heard_tutor=None):
 # ⚠️ PARTS only, never RESULTS: "3, 5, 10 → median = 5" is a legitimate "gives" (the canon's
 # own median card) -- a list becomes its statistic. A fraction pointing at its own
 # denominator is the false shape. So: the parts of a thing, not the results of an operation.
+# (vv) ...and the COLON as a pointer: "3/4 : denominator = ?" (09-13 watch, fractions-
+# lost, a livecritic pass-through three times). A colon between a value and a property
+# is not notation a child has met; the same sentence form is the fix.
 _AP_POINTER = re.compile(
-    r"(?:->|→|⇒)\s*(?:the\s+|its\s+)?(denominator|numerator|top|bottom|hypotenuse|legs?|sides?|"
+    r"(?:->|→|⇒|:)\s*(?:the\s+|its\s+)?(denominator|numerator|top|bottom|hypotenuse|legs?|sides?|"
     r"slope|intercept|vertex|radius|diameter|coefficient|constant|exponent|base|height|width|"
     r"length|angle)\s*(?:=|\bis\b)", re.I)
 
@@ -9787,12 +9851,15 @@ _AP_POINTER = re.compile(
 # single VALUE on the left ("1/4", "x^2", "the triangle"), which has nothing to give.
 # So the left side must hold no operator: an operator makes it a computation, silent.
 _AP_LHS_OP = re.compile(r"[+×·÷=]|\s[-−–]\s|\d[-−]\d|\bplus\b|\bminus\b|\btimes\b|\bover\b", re.I)
+# (vv) what may stand before a POINTING colon: a fraction, a number, a short symbolic
+# value -- never a word-led label ("Step 1", "Question 2", "hint", "the triangle").
+_AP_COLON_LHS_RE = re.compile(r"(?=.*[\d/])(?!.*[A-Za-z]{2})[\d\s./()^a-zA-Z*+\-−]{1,16}")
 
 
 def _ap_lhs(val: str, at: int) -> str:
     """The text just before an arrow at `at`, back to the last separator."""
     seg = val[:at]
-    for sep in (":", ";", "\n", "|"):
+    for sep in (";", "\n", "|"):          # (vv) the colon is a pointer now, not a separator
         seg = seg.rsplit(sep, 1)[-1]
     return seg.strip()
 
@@ -9803,8 +9870,18 @@ def arrow_as_pointer_conflict(reply: str):
     try:
         for val in _note_tag_vals(str(reply or "")):
             m = _AP_POINTER.search(val)
-            if m and not _AP_LHS_OP.search(_ap_lhs(val, m.start())):
-                return ('the board writes "{v}" -- an arrow pointing at the {w}. The arrow is '
+            if not m:
+                continue
+            lhs = _ap_lhs(val, m.start())
+            if _AP_LHS_OP.search(lhs):
+                continue
+            # (vv) a COLON points only when a VALUE stands before it -- a fraction, a
+            # number, a short expression. "Step 1: hypotenuse = 13" and "Q2: sides = ..."
+            # are labels, and a label's colon is a colon.
+            if m.group(0).lstrip().startswith(":") and not _AP_COLON_LHS_RE.fullmatch(lhs):
+                continue
+            if True:
+                return ('the board writes "{v}" -- an arrow (or a colon) pointing at the {w}. The arrow is '
                         "read \"becomes\", and a fraction does not BECOME the statement of its "
                         "{w}; read that way the line is false (rule 13), and a student learns "
                         "the arrow means something it does not. Write the part as a sentence "
@@ -9820,13 +9897,17 @@ def arrow_as_pointer_conflict(reply: str):
 
 _PND_VERB = re.compile(
     r"\b(?:picture|imagine|visuali[sz]e|think\s+of|pretend)\s+"
+    r"(?:this\s*[:,]\s*)?"                         # (vv) "Picture this: you have..."
     r"(?:(?:that\s+)?(?:you\s+(?:have|see|hold|had)|we\s+(?:have|had)|there\s+(?:is|are|were))\s+)?"
     r"(?:a|an|the|some|two|three|four|five|six|seven|eight|nine|ten|\d+)\s+"
     r"(?:\w+\s+){0,3}?"
     r"(bars?|tapes?|strips?|number\s+lines?|pies?|pizzas?|circles?|cookies?|rectangles?|squares?|"
     r"grids?|arrays?|graphs?|curves?|triangles?|dots?|counters?|blocks?|coins?|pennies|dimes|"
     r"balances?|scales?|boxes?|bags?|jars?|thermometers?|ladders?|towers?|stacks?|rows?|"
-    r"columns?|charts?|tables?|pieces|slices|marbles|apples|candies|stars)\b", re.I)
+    r"columns?|charts?|tables?|pieces|slices|marbles|apples|candies|stars|"
+    # (vv) "Picture this: you have 4 dollars, plus 2 tickets that cost 3 dollars each"
+    # drew nothing (09-13 watch, rule 7). Money and tickets are [[objects]] too.
+    r"dollars?|tickets?|bills?|cents|dimes|quarters|nickels)\b", re.I)
 
 
 def pictured_not_drawn_conflict(reply: str):
@@ -10132,6 +10213,36 @@ _EQ_DENOM_WORD = {2: "half|halves", 3: "third", 4: "fourth|quarter", 5: "fifth",
                   12: "twelfth", 16: "sixteenth", 100: "hundredth"}
 
 
+def _ordinal_word(n: int) -> str:
+    """(vv) The spoken name of a fraction's bottom number for ANY n from 2 to 99 --
+    "fifteenth", "twentieth", "twenty-first" (hyphen or space) -- so "ten fifteenths"
+    reads 10/15 the way "three fourths" reads 3/4. The 09-13 watch's HIGH: "Simplify
+    ten fifteenths" would have been unheard by the rule-44 referee because 15 had no
+    entry. The hand table above still wins where it has a row (half, quarter).
+    Returns a regex alternation, or "" when n is out of range."""
+    try:
+        n = int(n)
+    except (TypeError, ValueError):
+        return ""
+    if n in _EQ_DENOM_WORD:
+        return _EQ_DENOM_WORD[n]
+    _irregular = {1: "first", 2: "second", 3: "third", 5: "fifth", 8: "eighth", 9: "ninth", 12: "twelfth"}
+    if 1 <= n < 20:
+        if n in _irregular:
+            return _irregular[n]
+        return _EQ_NUMWORD[n] + "th"
+    if 20 <= n <= 99:
+        tens, ones = (n // 10) * 10, n % 10
+        tens_word = _EQ_NUMWORD.get(tens, "")
+        if not tens_word:
+            return ""
+        if ones == 0:
+            return tens_word[:-1] + "ieth"                      # twenty -> twentieth
+        one_ord = _irregular.get(ones) or (_EQ_NUMWORD[ones] + "th")
+        return tens_word + r"[\s-]" + one_ord                     # twenty-first / twenty first
+    return ""
+
+
 # =============================================================================
 # BUILD jo (2026-08-20) -- THE SECOND PHANTOM: RULE 44 COULD NOT HEAR WORDS.
 # =============================================================================
@@ -10239,8 +10350,9 @@ def _pq_spoken_covers(prose: str, board_value: str) -> bool:
             # NOTE: _EQ_DENOM_WORD values are already alternations ("half|halves",
             # "fourth|quarter") -- group them, never escape them.
             bots = [re.escape(str(bot))]
-            if bot in _EQ_DENOM_WORD:
-                bots.append("(?:%s)" % _EQ_DENOM_WORD[bot])
+            _bw = _ordinal_word(bot)                 # (vv) every bottom number has a name
+            if _bw:
+                bots.append("(?:%s)" % _bw)
             if bot in _EQ_NUMWORD:
                 bots.append(re.escape(_EQ_NUMWORD[bot]))
             together = r"\b(?:%s)\b(?:\s+\w+){0,2}\s+(?:%s)s?\b" % (
@@ -10441,6 +10553,16 @@ def _pq_fragment_of_unspoken_whole(text: str, prose: str) -> str:
         return ""
 
 
+# (vv) a solving verb leading a sentence ("Simplify this fraction.", "Find the missing
+# leg.", "Round it to the nearest ten.", "Try this one."). Sentence-leading only, so
+# "we simplify by dividing" mid-sentence never counts; the board must still hold a
+# pending "= ?" line the words do not read, exactly as before.
+_PU_IMPERATIVE_RE = re.compile(
+    r"(?:^|[.!?]\s+)(?:now\s+|next,?\s+|okay,?\s+|so,?\s+)?"
+    r"(?:simplify|solve|find|round|reduce|evaluate|factor|expand|compute|work\s+out|calculate|"
+    r"add|subtract|multiply|divide|try\s+this|convert|rewrite|combine)\b", re.I)
+
+
 def prose_unspoken_problem_conflict(reply: str):
     """Return a description of a board problem the spoken words never read aloud,
     or "". Never raises: any unexpected input yields "" (fail open)."""
@@ -10448,7 +10570,11 @@ def prose_unspoken_problem_conflict(reply: str):
         text = str(reply or "")
         prose = _spoken_only(text)
         low = prose.lower()
-        if "?" not in prose and "your turn" not in low:
+        # (vv) an IMPERATIVE ask is an ask: "Question 1. Simplify this fraction." over
+        # [[step eq="10/15 = ?"]] carries no "?" and walked past this gate (09-13 watch,
+        # HIGH). A sentence that LEADS with a solving verb poses the board's problem
+        # exactly as a question would.
+        if "?" not in prose and "your turn" not in low and not _PU_IMPERATIVE_RE.search(prose):
             return ""
         # (pr) THE FRAGMENT PASS runs first: it catches the shape the pending-line
         # scan below cannot see, because the unspoken whole carries no "?" at all.
@@ -11977,7 +12103,13 @@ _CS_HARD_RE = re.compile(
     r"(?:ignores?|skips?|skipped|overrides?|dismisses)\s+(?:the\s+student|their|what\s+the\s+student)|"
     r"(?:pivots?|jumps?|switches|moves\s+on)\s+(?:to|away)|"
     r"different\s+(?:equation|problem|question|thread)|"
-    r"(?:an?\s+)?(?:actual|real)\s+(?:error|mistake)|should\s+be\b|actually\s+(?:equals?|is)\b)",
+    r"(?:an?\s+)?(?:actual|real)\s+(?:error|mistake)|should\s+be\b|actually\s+(?:equals?|is)\b|"
+    # (vv) an instruction to GRADE is an error named: the 09-13 watch passed "should
+    # acknowledge the student's answer and verify it is correct before asking..." as
+    # style on the strength of a "may feel" further down the sentence.
+    r"should\s+(?:first\s+|also\s+|explicitly\s+)?(?:acknowledge|grade|address|respond\s+to|answer|confirm|"
+    r"validate|recognize|recognise)\s+(?:the\s+student|their|what\s+the\s+student|that\s+answer|"
+    r"the\s+answer|this\s+answer|it\b))",
     re.I)
 _CS_CONCEDES_RE = re.compile(
     r"\b(?:is|are|was|were|remains?|(?:which|this|that)\s+is)\s+"
@@ -13363,6 +13495,14 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
         elif _kst == "unrepairable":
             print(f"[colonrepair]{log_prefix} UNREPAIRABLE: {_kdet}")
             _event("pass_through", "danglingcolon", _kdet, _code, _course)
+        # (vv) the unearned-mark floor: a mark after the reply's own question with no
+        # verdict before it recorded an answer nobody gave. Stripped at the door. Runs
+        # AFTER the mark floor (uk), which only ever adds a mark at the FRONT of a reply
+        # that opens with a verdict -- a mark this floor can never touch.
+        reply, _ust, _udet = repair_unearned_mark(reply)
+        if _ust == "repaired":
+            print(f"[unearnedmark]{log_prefix} REPAIRED: {_udet}")
+            _event("code_repair", "unearnedmark", _udet, _code, _course)
         return reply
 
     def _settle(kept):
