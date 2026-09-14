@@ -6,6 +6,12 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-14  APP_BUILD -> "2026-09-14vy-six-from-the-09-14-watch".
+#               BUILD vy -- no change in this file beyond the stamp. tutor.py carries
+#               three new referees (pendingzero, pythaglaw, firsttry), a widened
+#               unspoken and _FN_ASK, the not-equal sign in _NOTATIONS, and a tightened
+#               touching-brackets reading gate; lessons/algebra2.py carries the one
+#               authored line that gate was holding up.
 #   2026-09-14  APP_BUILD -> "2026-09-14vx-the-corrections-queue".
 #               BUILD vx -- no change in this file beyond the stamp. lessons/algebra1.py,
 #               lessons/prealgebra.py and lessonscripts.py carry Jim's twelve flags of
@@ -9435,7 +9441,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-14vx-the-corrections-queue"
+APP_BUILD = "2026-09-14vy-six-from-the-09-14-watch"
 
 
 @app.get("/health")

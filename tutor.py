@@ -6,6 +6,47 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-14  BUILD vy -- SIX FROM THE 09-14 WATCH, and five of them were holes.
+#               (1) THE PENDING ZERO, the night's HIGH (rule 15, algebra2): the board
+#               wrote "x - 2 = ? or x - 3 = ?" and asked which values of x make it true
+#               -- a question with no answer, because the zero-product step puts a ZERO
+#               where those question marks are. NEW referee pending_zero_conflict: two
+#               or more lettered factors written "= ?" in one board value while the
+#               words ask about values or what makes it true. An ordinary "3x + 2 = ?"
+#               can never match it.
+#               (2) THE LETTERED LAW (rule 61, geometry): "use a² + b² = c² to find a
+#               missing side" is true only when c is the hypotenuse, and the same lesson
+#               lettered a triangle with b across the right angle. NEW referee
+#               pythagorean_law_conflict, the precedence law's twin in another subject.
+#               The authored course never writes it ("leg squared plus leg squared
+#               equals hypotenuse squared"), so the canon is silent by construction.
+#               (3) THE ASK SAID IN WORDS (rule 16, algebra1): "what's f of two?" over a
+#               board still holding the f(5) work, and referee 38 never saw the ask --
+#               _FN_ASK required DIGITS. A voice classroom says its numbers in words.
+#               _FN_NUMWORDS + _fn_ask_number() read either spelling.
+#               (4) THE LETTER IS A BLANK TOO (rule 44, algebra2): [[step eq="x^2 = 25"]]
+#               went up with "What's x here?" and the twenty-five was never said. The
+#               unspoken referee read "?" as the mark of an unanswered line; in algebra
+#               the unknown is the LETTER. Widened, four ways tight: one "=", no
+#               parenthesis, a left side that is more than a bare letter, a numeric
+#               right side -- and the asking words must be SOLVING words, so a rotated
+#               check line over a board stays silent.
+#               (5) THE FIRST TRY THAT WAS NOT (prealgebra): "you nailed it on the first
+#               try" one turn after the tutor's own "not quite". NEW referee
+#               false_first_try_conflict, gated on prev_tutor -- a genuine first try on
+#               a NEW problem after an earlier miss is still silent.
+#               (6) "IT FACTORS INTO THOSE TWO PIECES" IS NOT A READING (rule 48,
+#               algebra2): (x - 2)(x - 3) = 0 shipped unread because \bfactor sat in the
+#               touching-brackets reading gate. "Factor" names the operation; the words
+#               that READ two brackets are the multiplication words. It left the set,
+#               and the one authored beat that leaned on it (the roots picture in
+#               alg2-u2-both-answers-count) now reads its own caption aloud.
+#               ⚠️ _NOTATIONS also gains the NOT-EQUAL SIGN: the 09-14 calculus watch
+#               put "x ≠ 2" on a board with nothing reading it, and ≠ was on no list.
+#               Its reading gate takes plain English as well as "not equal to" -- the
+#               probstat and algebra1 foundation scripts write "correlation ≠ causation"
+#               and say "Correlation is not causation", which IS the reading. Referee
+#               31's reach over the 306 foundation beats is unchanged at 83.
 #   2026-09-13  BUILD vv -- FIVE FROM THE 09-13 WATCH (the first on vr's critic pass).
 #               (1) THE CLASSIFIER LEAKED ONCE IN THREE: "The tutor should acknowledge the
 #               student's answer and verify it is correct before asking how they..." was
@@ -4660,6 +4701,27 @@ _NOTATIONS = (
     # percent-of-a-number example wrote [[step eq="20% of 80: 0.20 × 80 = 16"]] and no
     # word in the reply said "times" or "multiply". The 09-08 rule-48 ruling's own
     # boundary: a symbol this conversation has not introduced is a real first use.
+    # (vy, 2026-09-14) THE 09-14 WATCH, limits-hole (calculus), rule 14: the board
+    # wrote "= x + 2,   x ≠ 2" -- the first ≠ this conversation had ever shown -- and
+    # the words that read it ("x is not equal to three") came a LATER turn, not this
+    # one. The symbol was on no list. ⚠️ TIGHT: the sign itself only; "!=" is not a
+    # thing any board of ours writes, and the reading gate is broad on purpose (any
+    # spoken "not equal", "does not equal", "cannot equal", "isn't equal", "except"
+    # buys silence -- the cautious-grader law).
+    ("the not-equal sign", re.compile(r"≠"),
+     # ⚠️ the RHETORICAL use is read in plain English: the probstat and algebra1
+     # foundation scripts write "correlation ≠ causation" and say, in words,
+     # "Correlation is not causation." That IS the reading -- the sign says "is not
+     # the same as" as readily as "is not equal to" -- and a gate that demanded the
+     # word "equal" would have nudged two authored beats that read their own board.
+     re.compile(r"\bnot\s+equal\b|\bdoes\s*n[o']t\s+equal\b|\bdoesn't\s+equal\b|"
+                r"\bcan\s*not\s+equal\b|\bcannot\s+equal\b|\bcan't\s+equal\b|"
+                r"\bis\s*n[o']t\s+equal\b|\bnever\s+equals?\b|\bexcept\b|"
+                r"\bnot\s+allowed\s+to\s+be\b|\bevery\s+\w+\s+but\b|"
+                r"\bis\s+not\s+(?:the\s+same|a|an|\w+ation\b|\w+ing\b)|\bare\s+not\s+the\s+same\b|"
+                r"\bdoes\s+not\s+mean\b|\bis\s+never\b", re.I),
+     'That crossed-out equals sign means NOT EQUAL TO -- we read "x ≠ 2" out loud as '
+     '"x is not equal to two": every value x is allowed to be except that one.'),
     ("the times sign", re.compile(r"×"),
      re.compile(r"\btimes\b|\bmultipl|\bproduct\b", re.I),
      'That x-shaped sign means TIMES -- "0.20 × 80" is read "zero point two zero '
@@ -4729,8 +4791,17 @@ _NOTATIONS = (
      'A number written right up against a parenthesis -- like 2(4) -- means TIMES: '
      '"two times four". Math drops the multiplication sign when a number touches a '
      "bracket, the same way it does for 2x."),
+    # (vy, 2026-09-14) "\bfactor" LEFT THIS SET. The 09-14 watch, returning-student
+    # (algebra2), rule 48: the board wrote (x - 2)(x - 3) = 0 -- the first touching
+    # brackets of that conversation -- and the whole of the spoken words was "So it
+    # factors into those two pieces." That satisfied the gate and read NOTHING: a
+    # student cannot say the line back from it. "Factor" names the OPERATION; the
+    # words that read two brackets are the multiplication words. A sentence that
+    # really does read the form carries one of those anyway ("it factors into x minus
+    # two, TIMES x minus three"), which is why the canon does not move: swept per
+    # lesson, 0 fires.
     ("two parentheses written side by side", re.compile(r"\)\("),
-     re.compile(r"\btimes\b|\bmultipl|\bproduct\b|\bdistribut|\bfactor|\bFOIL\b|"
+     re.compile(r"\btimes\b|\bmultipl|\bproduct\b|\bdistribut|\bFOIL\b|"
                 r"\bexpand", re.I),
      # (vp) read each bracket as THE QUANTITY -- "x minus 3 times x plus 3" can be
      # heard as x − 3x + 3 (the 09-12 watch, limits-hole, rule 48).
@@ -6531,10 +6602,182 @@ def substitution_rewrite_conflict(reply: str):
 # needs the ask ("what is/would f(4)/f of 4") AND a board that shows neither that
 # same f(4) nor any rule of the form f(x)= -- the two things the finding's own fix
 # named. A worked f(3) is NEITHER: a different input is a different problem.
+# (vy, 2026-09-14) THE 09-14 WATCH'S RULE-16 FINDING, and it was one character class:
+# the tutor asked "Want to try one more on your own -- what's f of two?" over a board
+# still holding the f(5) work, and this gate never saw the ask at all, because the
+# number had to be DIGITS. A voice classroom says its numbers in words -- "f of two"
+# IS the ask -- so the word forms join, and _fn_ask_number() reads either spelling
+# back as an integer for the board test below. Zero through twenty and the round tens
+# cover every substitution the courses pose; anything larger is written as digits.
+_FN_NUMWORDS = {
+    "zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+    "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12,
+    "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17,
+    "eighteen": 18, "nineteen": 19, "twenty": 20, "thirty": 30, "forty": 40,
+    "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90,
+    "hundred": 100}
 _FN_ASK = re.compile(r"\bwhat(?:'s| is| would| will| do you get for)?\b[^.?!]{0,40}?"
-                     r"\b([fgh])\s*(?:of\s*)?\(?\s*(-?\d+)\s*\)?", re.I)
+                     r"\b([fgh])\s*(?:of\s*)?\(?\s*(-?\d+|"
+                     + "|".join(sorted(_FN_NUMWORDS, key=len, reverse=True))
+                     + r")\s*\)?", re.I)
+
+
+def _fn_ask_number(raw):
+    """The ask's number as a plain integer string, whether it was written 2 or "two".
+    Returns "" when it is neither (never raises)."""
+    try:
+        t = str(raw or "").strip().lower()
+        if re.fullmatch(r"-?\d+", t):
+            return t
+        if t in _FN_NUMWORDS:
+            return str(_FN_NUMWORDS[t])
+        return ""
+    except Exception:  # noqa: BLE001 -- fail open, always
+        return ""
+
 _FN_RULE = re.compile(r"\b[fgh]\s*\(\s*[a-z]\s*\)\s*=")
 
+
+
+# =============================================================================
+# BUILD vy (2026-09-14) -- THREE REFEREES FROM THE 09-14 NIGHT WATCH.
+# -----------------------------------------------------------------------------
+# (1) THE PENDING ZERO (rule 15, the watch's HIGH, returning-student/algebra2).
+#     The board wrote [[step eq="x - 2 = ? or x - 3 = ?"]] and the words asked
+#     "What are the two values of x that make this true?" -- and there is no answer
+#     to that question, because the line is not an equation the student can solve.
+#     The zero-product step SETS EACH FACTOR EQUAL TO ZERO; the "?" is where the 0
+#     belongs. Nothing objected: rule 15's machinery reads "= ?" as the ordinary
+#     pending-answer mark (it is, everywhere else), and no referee knew that a chain
+#     of factor equations joined by "or" is the one place the right-hand side is
+#     already known.
+#     NARROW: two or more "<expr> = ?" segments joined by or/and in ONE board value,
+#     every left side carrying a letter, and the words asking about the letter's
+#     VALUES or what makes it TRUE. A single "3x + 2 = ?" -- the ordinary ask -- can
+#     never match, and neither can a numbers-only chain.
+# (2) THE LETTERED LAW (rule 61, geometry-picture). "use a² + b² = c² to find a
+#     missing side" is only true when c is the hypotenuse, and the same lesson went
+#     on to letter a triangle with b across the right angle. The authored course
+#     never writes it: it says "leg squared plus leg squared equals hypotenuse
+#     squared" (canon 0 fires). This is the live tutor importing a textbook's letters
+#     without the textbook's condition -- rule 61, the same defect as the precedence
+#     law above, in a different subject.
+# (3) THE FIRST TRY THAT WAS NOT (order-of-operations, prealgebra). "you nailed it on
+#     the first try" one turn after the tutor's own "not quite" is a false statement
+#     about the child's own work, in the direction that costs most: praise a student
+#     knows they did not earn teaches them the praise is noise. Gated on prev_tutor
+#     (the tutor's immediately previous turn), so the FIRST problem of a session and
+#     a genuine first-try on a NEW problem after an earlier miss both stay silent --
+#     only a correction in the turn immediately before makes the claim false.
+# =============================================================================
+_PZ_CHAIN = re.compile(
+    r"([^=|]{1,24}?)=\s*\?\s*(?:or|and|,)\s*([^=|]{1,24}?)=\s*\?", re.I)
+_PZ_LETTER = re.compile(r"(?<![A-Za-z])[a-z](?![A-Za-z])")
+_PZ_ASK = re.compile(
+    r"\bvalues?\s+of\s+[a-z]\b|\bwhat\s+(?:two\s+)?(?:numbers?|values?)\b|"
+    r"\bmakes?\s+(?:this|it|that|the\s+\w+)\s+true\b|\btrue\b", re.I)
+
+
+def pending_zero_conflict(reply: str):
+    """Return a description of a factor chain written "= ?" where the zero belongs,
+    or "". Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        if "?" not in prose or not _PZ_ASK.search(prose):
+            return ""
+        for tag in re.findall(r"\[\[([^\]]*)\]\]", text):
+            for val in re.findall(r'"([^"]*)"', tag):
+                m = _PZ_CHAIN.search(val)
+                if not m:
+                    continue
+                if not (_PZ_LETTER.search(m.group(1)) and _PZ_LETTER.search(m.group(2))):
+                    continue
+                return ('your board writes "{v}" and your words ask which values make it '
+                        "true -- but a factor with a QUESTION MARK on the right is not "
+                        "something a student can solve. The zero-product step sets each "
+                        "factor equal to ZERO, and the zero is exactly what the question "
+                        "marks replaced. Rule 15: what a question needs must be visible "
+                        "when it is asked. Write the line with the zeros -- "
+                        '[[step eq="{f} = 0 or {g} = 0"]] -- and then ask for the two '
+                        "values of x.").format(v=" ".join(val.split())[:48],
+                                               f=" ".join(m.group(1).split()),
+                                               g=" ".join(m.group(2).split()))
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[pendingzero] crashed (fail open): {exc}")
+        _event("referee_crash", "pendingzero", str(exc))
+        return ""
+
+
+# ⚠️ the letters in order, either spelling of the square, on the board or in the words.
+_PY_LAW = re.compile(
+    r"(?<![A-Za-z])a\s*(?:\^\s*2|²|\s+squared)\s*\+\s*b\s*(?:\^\s*2|²|\s+squared)"
+    r"\s*(?:=|equals)\s*c\s*(?:\^\s*2|²|\s+squared)", re.I)
+# The CONDITION, in every shape a true sentence carries it: c tied to the hypotenuse,
+# or the hypotenuse written into the equation itself instead of a letter.
+_PY_CONDITION = re.compile(
+    r"\bc\b[^.!?]{0,40}?\bhypotenuse\b|\bhypotenuse\b[^.!?]{0,40}?\bc\b|"
+    r"\bhypotenuse\s*(?:\^\s*2|²|\s+squared)|\bc\s+is\s+the\s+longest\b|"
+    r"\blongest\s+side[^.!?]{0,20}\bc\b", re.I)
+
+
+def pythagorean_law_conflict(reply: str):
+    """Return a description of a^2 + b^2 = c^2 written as an unconditional law, or "".
+    Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        if not _PY_LAW.search(text):
+            return ""
+        if _PY_CONDITION.search(text):
+            return ""                      # the condition is somewhere in the reply
+        return ('this reply writes "a² + b² = c²" and nothing in it says which side c '
+                "is. That equation is true only when c is the HYPOTENUSE -- letter it "
+                "any other way (a triangle whose b is across the right angle, and this "
+                "lesson draws one) and the sentence is FALSE. Rule 61: a generalization "
+                "carries its condition. Say and write the version that is true however "
+                "the sides are lettered -- \"leg squared plus leg squared equals "
+                "hypotenuse squared\" -- or keep the letters and say the condition with "
+                'them: "a² + b² = c², when c is the hypotenuse."')
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[pythaglaw] crashed (fail open): {exc}")
+        _event("referee_crash", "pythaglaw", str(exc))
+        return ""
+
+
+_FT_CLAIM = re.compile(
+    r"\b(?:on|in)\s+(?:the|your)\s+(?:very\s+)?first\s+(?:try|go|attempt|shot)\b|"
+    r"\bfirst\s+(?:try|go|attempt|shot)\b[^.!?]{0,12}$", re.I)
+# ⚠️ the tutor's OWN correction words only -- and only the turn immediately before.
+_FT_CORRECTION = re.compile(
+    r"\bnot\s+quite\b|\bnot\s+right\b|\bnot\s+the\s+answer\b|\bthat'?s\s+not\s+it\b|"
+    r"\bisn'?t\s+right\b|\bisn'?t\s+the\s+answer\b|\blet'?s\s+try\s+(?:that\s+)?again\b|"
+    r"\btry\s+(?:that|it)\s+again\b|\bgive\s+it\s+another\s+(?:go|try)\b|"
+    r"\bnot\s+what\s+I\s+got\b|\bthat\s+is\s+not\s+it\b", re.I)
+
+
+def false_first_try_conflict(reply: str, prev_tutor=None):
+    """Return a description of first-try praise contradicted by the turn before it,
+    or "". Silent without prev_tutor. Never raises (fail open)."""
+    try:
+        if not prev_tutor:
+            return ""
+        prose = _spoken_only(str(reply or ""))
+        m = _FT_CLAIM.search(prose)
+        if not m:
+            return ""
+        if not _FT_CORRECTION.search(_spoken_only(str(prev_tutor))):
+            return ""
+        return ('you say "{q}" -- and your own previous turn told this student their '
+                "answer was not right, so the answer you are praising is the SECOND "
+                "one. A child who knows they missed it first hears praise that does not "
+                "match what happened, and learns to discount the praise. Say what they "
+                "actually did: \"you fixed it\" -- name the move that fixed it -- and "
+                "keep the credit real.").format(q=" ".join(m.group(0).split())[:48])
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[firsttry] crashed (fail open): {exc}")
+        _event("referee_crash", "firsttry", str(exc))
+        return ""
 
 def function_ask_rewrite_conflict(reply: str):
     """Return a description of an f(N) question whose reply shows neither f(N) nor
@@ -6552,7 +6795,9 @@ def function_ask_rewrite_conflict(reply: str):
                 break
         if not ask:
             return ""
-        letter, num = ask.group(1).lower(), ask.group(2)
+        letter, num = ask.group(1).lower(), _fn_ask_number(ask.group(2))
+        if not num:
+            return ""                      # (vy) a spelling this gate cannot place
         same = re.compile(r"\b%s\s*\(\s*%s\s*\)" % (re.escape(letter), re.escape(num)))
         ask_on_board = rule_on_board = False
         for attrs in _SUB_EQ_TAGS.findall(text):
@@ -10557,6 +10802,12 @@ def _pq_fragment_of_unspoken_whole(text: str, prose: str) -> str:
 # leg.", "Round it to the nearest ten.", "Try this one."). Sentence-leading only, so
 # "we simplify by dividing" mid-sentence never counts; the board must still hold a
 # pending "= ?" line the words do not read, exactly as before.
+# (vy) the words that make a question a question ABOUT THE BOARD. A rotated check
+# line ("Ready?", "Okay so far?") carries none of them.
+_PU_SOLVE_ASK = re.compile(
+    r"\bwhat\b|\bwhich\b|\bhow\s+(?:much|many|far|big|long)\b|\byour\s+turn\b|"
+    r"\bsolve\b|\bfind\b|\bwork\s+(?:it|this|that)\s+out\b|\bgive\s+it\s+a\s+(?:go|try)\b",
+    re.I)
 _PU_IMPERATIVE_RE = re.compile(
     r"(?:^|[.!?]\s+)(?:now\s+|next,?\s+|okay,?\s+|so,?\s+)?"
     r"(?:simplify|solve|find|round|reduce|evaluate|factor|expand|compute|work\s+out|calculate|"
@@ -10607,6 +10858,42 @@ def prose_unspoken_problem_conflict(reply: str):
                 spoken_here = _pq_spoken_covers(prose, val)
                 if not spoken_here:
                     pend.append(" ".join(val.split()))
+        # (vy, 2026-09-14) THE LETTER IS A BLANK TOO. The 09-14 watch, returning-
+        # student (algebra2), rule 44: [[step eq="x^2 = 25"]] went up with "What's x
+        # here?" and the twenty-five was never said -- the words called it "the same
+        # idea, slightly bigger number". The scan above reads "?" as the mark of an
+        # unanswered line, and in an algebra problem the UNKNOWN IS THE LETTER. So an
+        # equation posed as a problem counts as pending too.
+        # ⚠️ TIGHT, four ways at once, because the courses are full of equations that
+        # are ANSWERS and not asks: exactly one "=" (a worked chain has several); no
+        # parenthesis (function notation is referee 38's, not this one's); the left
+        # side is more than a bare letter ("x = 4" states a value, it does not ask
+        # for one); the right side is a plain number. And the asking words must be
+        # SOLVING words -- a rotated check line ("Okay so far?") over a board is not
+        # a question about the board.
+        if not pend and _PU_SOLVE_ASK.search(prose):
+            for tag in re.findall(r"\[\[\s*(?:" + "|".join(_PQ_BOARD_TAGS) + r")\b([^\]]*)\]\]",
+                                  text, re.I):
+                # ⚠️ a tag carrying op= is a MOVE being applied -- its eq is the RESULT
+                # of the working, not a problem posed to the student, and the numbers in
+                # it came from the line above. (Build jg's orphan-step referee owns that
+                # shape.) And only eq=/text= are read: a caption is not the problem.
+                if re.search(r'\bop\s*=\s*"', tag, re.I):
+                    continue
+                for val in re.findall(r'\b(?:eq|text)\s*=\s*"([^"]*)"', tag, re.I):
+                    if "?" in val or val.count("=") != 1 or "(" in val:
+                        continue
+                    lhs, rhs = [x.strip() for x in val.split("=")]
+                    if not re.fullmatch(r"-?\d+(?:\.\d+)?", rhs):
+                        continue
+                    if not _PZ_LETTER.search(lhs) or _PZ_LETTER.fullmatch(lhs):
+                        continue
+                    if _pq_spoken_covers(prose, val):
+                        continue
+                    pend.append(" ".join(val.split()))
+                    break
+                if pend:
+                    break
         if not pend:
             return ""
         return ('the board hands the student a problem -- "{p}" -- but the spoken words '
@@ -11472,6 +11759,23 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if notation:
             _event("referee_fire", "notation", notation)
             return notation
+        # (vy) THE 09-14 WATCH'S THREE. They sit here, after the first-use gate and
+        # before the function pair, because each one judges a reply that is WRONG
+        # rather than merely unread, and the sweep returns its first fire: a board
+        # the student cannot answer (15), a law without its condition (61), and a
+        # sentence about the child's own work that is not true.
+        pzero = pending_zero_conflict(reply)
+        if pzero:
+            _event("referee_fire", "pendingzero", pzero)
+            return pzero
+        pylaw = pythagorean_law_conflict(reply)
+        if pylaw:
+            _event("referee_fire", "pythaglaw", pylaw)
+            return pylaw
+        ftry = false_first_try_conflict(reply, prev_tutor=prev_tutor)
+        if ftry:
+            _event("referee_fire", "firsttry", ftry)
+            return ftry
         # (nj) referees 38-39, from the 2026-08-25 night watch: an f(N) ask whose
         # reply shows neither f(N) nor the rule (16); a NEW function rule written,
         # questioned, and never read aloud (44).

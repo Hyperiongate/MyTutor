@@ -2,6 +2,16 @@
 # lessons/algebra2.py  --  ALGEBRA II: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-14  BUILD vy -- THE ROOTS PICTURE READS ITS OWN CAPTION. alg2-u2-both-
+#               answers-count drew [[graph ... caption="y = (x − 2)(x − 5) ..."]] -- the
+#               first touching brackets of that lesson -- while the spoken words said
+#               only "Each factor donated one crossing". That passed the first-use gate
+#               on the word "factor" alone, which build vy removed from it (the 09-14
+#               watch caught the live tutor shipping (x - 2)(x - 3) = 0 the same way).
+#               The picture line now says "y equals x minus two, times x minus five --
+#               the two brackets side by side mean multiply" before it names the roots.
+#               Same id, same board, same lesson shape; one spoken line longer by a
+#               clause, so the prewarm owes it one clip.
 #   2026-09-08  BUILD uq -- THE PROBLEM IS ALWAYS ON THE BOARD (Jim's flag 21:40: "this
 #               entire way of explaining absolute value is ridiculous"). alg2-u1-inside-the-
 #               distance: INTEGERS, never "whole numbers" for the negatives (false in the US
@@ -464,9 +474,10 @@ _ALGEBRA2_U2 = [
              '[[goal text="Both answers count"]]'),
         ],
         "picture": [
-            ("Here is the curve, and the two places it crosses the ground are marked: "
-             "x equals 2 and x equals 5. Each factor donated one crossing. Those two "
-             "crossings are called the roots.",
+            ("Here is the curve for y equals x minus two, times x minus five — the "
+             "two brackets side by side mean multiply. It crosses the ground in two "
+             "places: x equals 2 and x equals 5. Each factor donated one crossing, "
+             "and those two crossings are called the roots.",
              '[[graph func="(x-2)*(x-5)" points="(2,0),(5,0)" range="-1..8" caption="y = (x − 2)(x − 5) — the roots, 2 and 5"]]'),
         ],
         "teach": [
