@@ -2,6 +2,16 @@
 # lessons/prealgebra.py  --  PRE-ALGEBRA: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-14  BUILD vx -- Unit 9's variable lines say "is equal to" (Jim's ruling on the
+#               algebra1 flag: never "x holds 4"); the lesson ids, topics and the idea
+#               sentence "A letter holds a number" are unchanged.
+#   2026-09-14  BUILD vx -- JIM'S CORRECTIONS QUEUE (09-13, "Times before add" and
+#               "Parentheses first"). The receipt's wrong answer is SHOWN, not named
+#               ("add first, 2 plus 3 is 5 packs, 5 times 4 is 20 dollars -- wrong");
+#               the rule beat shows how left to right reaches 20 (2 plus 3 is 5, 5
+#               times 4 is 20) with the wrong line on the board; the advance line stands
+#               on its own ("times before add, every time"); the parentheses why drops
+#               the cookies-and-candy story nothing drew.
 #   2026-09-12  BUILD vm -- ONE LINE READ AS IT IS WRITTEN. Unit "Filling in a
 #               proportion", teach[0]: the board writes [[step eq="3/4 = ?/8"]] and the
 #               words never read the blank in that beat (the picture beat before it
@@ -134,13 +144,14 @@ _PREALGEBRA_U1 = [
         "op": "tba", "max_value": 90,
         "levels": ("abstract",),
         "symbols": ("times", "plus", "equals"),
-        "advance_line": "Three in a row, and you can say why — you've got it! You do the times first, every time.",
+        "advance_line": "Three in a row, and you can say why — you've got it! On a line like these, the times goes first, then the plus.",
         "why": [
-            ("Why does the order matter? Because a line of math can hold two jobs at "
-             "once, and doing them in the wrong order gives a wrong answer. A shop "
-             "receipt says 2 dollars, plus 3 packs at 4 dollars each. Nobody pays 20 "
-             "dollars for that. The times has to happen before the plus.",
-             '[[goal text="Times before add"]]'),
+            ("Why does the order matter? Because a line of math can hold two jobs, "
+             "and the wrong order gives a wrong answer. A receipt says 2 dollars, "
+             "plus 3 packs at 4 dollars each. Add first: 2 plus 3 is 5 packs, 5 "
+             "times 4 is 20 dollars — wrong. Times first: 3 times 4 is 12, plus "
+             "the 2 is 14 dollars. The times has to happen before the plus.",
+             '[[goal text="Times before add"]][[step eq="2 + 3 × 4"]][[step eq="add first: 5 × 4 = 20 ✗"]][[step eq="times first: 2 + 12 = 14 ✓"]]'),
         ],
         "picture": [
             ("Here is 2 plus 3 times 4, worked down the board. First move: the times "
@@ -150,9 +161,10 @@ _PREALGEBRA_U1 = [
         ],
         "teach": [
             ("That is the rule. When a plus and a times share one line, the times "
-             "goes first. Always — and it is not left to right. If you had gone left "
-             "to right on that line you would have said 20, and 20 is wrong.",
-             '[[solve start="2 + 3 × 4" steps="times first : 2 + 12 | then add : 14" caption="the times first, then the add"]]'),
+             "goes first — and it is not left to right. Left to right on that line "
+             "would add 2 and 3 to get 5, then times 4 to get 20, and 20 is wrong. "
+             "Times first: 3 times 4 is 12, then 2 plus 12 is 14.",
+             '[[step eq="left to right: 2 + 3 = 5, 5 × 4 = 20 ✗"]][[solve start="2 + 3 × 4" steps="times first : 2 + 12 | then add : 14" caption="the times first, then the add"]]'),
             ("One more. 5 plus 2 times 6. Find the times: 2 times 6 equals 12. Then "
              "add: 5 plus 12 equals 17.",
              '[[solve start="5 + 2 × 6" steps="times first : 5 + 12 | then add : 17" caption="5 + 2 × 6 = 17"]]'),
@@ -211,9 +223,8 @@ _PREALGEBRA_U1 = [
         "advance_line": "Three in a row, and you can say why — you've got it! What is inside the parentheses goes first.",
         "why": [
             ("Why parentheses? Because sometimes you need the add to go first, and "
-             "the rule says the times wins. Three friends each get 2 cookies and 1 "
-             "candy — that is 2 plus 1, three times over. Parentheses are how you "
-             "tell the math: this part first.",
+             "the rule says the times wins. Parentheses are how you tell the math: "
+             "this part first, whatever the rule would have done.",
              '[[goal text="Parentheses first"]]'),
         ],
         "picture": [
@@ -2610,33 +2621,33 @@ _PREALGEBRA_U9 = [
         "why": [
             ("Why a letter? Because here is the biggest idea in all of algebra, and it "
              "is small enough to hold: a letter can stand for a number. When we write "
-             "x, we mean some number that x is holding for us. Tell me what x holds, "
+             "x, we mean some number that x is equal to. Tell me what x is equal to, "
              "and every question about x becomes a question about that number.",
              '[[goal text="A letter holds a number"]]'),
         ],
         "picture": [
             ("Here is x plus 3 as a bar: a piece for x and a piece of 3, with the "
-             "whole bar the question. Now x is holding 5. Swap the x piece for a 5 "
+             "whole bar the question. Now x is equal to 5. Swap the x piece for a 5 "
              "and the bar reads 5 plus 3, and the whole is 8.",
-             '[[tape parts="x | 3" total="?" caption="x + 3 — what is the whole?"]][[tape parts="5 | 3" total="8" caption="x holds 5: 5 + 3 = 8"]]'),
+             '[[tape parts="x | 3" total="?" caption="x + 3 — what is the whole?"]][[tape parts="5 | 3" total="8" caption="x = 5: 5 + 3 = 8"]]'),
         ],
         "teach": [
             ("That swap is the whole move. Take the question first: what is x plus 3? "
-             "Then take what x holds: 5. Swap the letter for its number, and x plus 3 "
+             "Then take what x is equal to: 5. Swap the letter for its number, and x plus 3 "
              "becomes 5 plus 3, which equals 8.",
              '[[tape parts="x | 3" total="?" caption="x + 3 — one x, then 3"]][[step eq="x = 5"]][[tape parts="5 | 3" total="8" caption="x + 3 = 5 + 3 = 8"]]'),
-            ("One careful thing. x plus 3 with x holding 5 is NOT fifty-three. The 5 "
+            ("One careful thing. x plus 3 with x equal to 5 is NOT fifty-three. The 5 "
              "and the 3 do not sit next to each other like digits — the plus keeps "
-             "them apart. Swap first, then add. One more: x plus 6, with x holding 4, "
+             "them apart. Swap first, then add. One more: x plus 6, with x equal to 4, "
              "becomes 4 plus 6, which equals 10.",
-             '[[step eq="5 + 3 = 8 ✓"]][[step eq="53 ✗ — those are digits, not a sum"]][[tape parts="4 | 6" total="10" caption="x + 6 with x holding 4: 4 + 6 = 10"]]'),
+             '[[step eq="5 + 3 = 8 ✓"]][[step eq="53 ✗ — those are digits, not a sum"]][[tape parts="4 | 6" total="10" caption="x + 6 with x equal to 4: 4 + 6 = 10"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. x plus 2, with x holding 7, "
+            {"worked": ("Here is one more, done for you. x plus 2, with x equal to 7, "
                         "becomes 7 plus 2, which equals 9.",
                         '[[step eq="x + 2"]][[step eq="x = 7"]][[tape parts="7 | 2" total="9" caption="x + 2 = 7 + 2 = 9"]]'),
              "ask": {'a': 5, 'b': 6, 'op': 'evx'}},
-            {"worked": ("One more together. x plus 7, with x holding 6, becomes 6 plus "
+            {"worked": ("One more together. x plus 7, with x equal to 6, becomes 6 plus "
                         "7, which equals 13.",
                         '[[step eq="x + 7"]][[step eq="x = 6"]][[tape parts="6 | 7" total="13" caption="x + 7 = 6 + 7 = 13"]]'),
              "ask": {'a': 8, 'b': 7, 'op': 'evx'}},
@@ -2646,16 +2657,16 @@ _PREALGEBRA_U9 = [
         "show_work_on_correct": True,
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. x plus 3 is 8, "
-                       "when x is holding 5. Tap the reason why."),
+                       "when x is equal to 5. Tap the reason why."),
             "choices": ("because you swap the x for the 5, then add the 3 | because x "
-                        "plus 3 is 8 whatever x is holding | because the letter x is "
+                        "plus 3 is 8 whatever x is equal to | because the letter x is "
                         "worth 8 in every sum"),
             "answer": "because you swap the x for the 5, then add the 3",
-            "board": '[[tape parts="5 | 3" total="8" caption="x + 3 with x holding 5: 5 + 3 = 8"]]',
+            "board": '[[tape parts="5 | 3" total="8" caption="x + 3 with x equal to 5: 5 + 3 = 8"]]',
         },
         "recap": [
             ("So, here it is again. A letter holds a number. To work out anything "
-             "about x, swap the letter for the number it is holding, then do the "
+             "about x, swap the letter for the number it is equal to, then do the "
              "sum. Swap first — the plus keeps the numbers apart.",
              '[[tape parts="5 | 3" total="8" caption="x = 5 · x + 3 = 5 + 3 = 8"]]'),
             ("And that is the doorway to algebra, one letter wide.",
@@ -2691,27 +2702,27 @@ _PREALGEBRA_U9 = [
         ],
         "picture": [
             ("Here is 3 x as a bar: three copies of x, side by side. Not one x with "
-             "a three beside it — three x's. Now x is holding 9, so every copy is a 9. Three "
+             "a three beside it — three x's. Now x is equal to 9, so every copy is a 9. Three "
              "nines: 3 times 9 equals 27.",
-             '[[tape parts="x | x | x" total="?" caption="3x — three copies of x"]][[tape parts="9 | 9 | 9" total="27" caption="x holds 9: 3 × 9 = 27"]]'),
+             '[[tape parts="x | x | x" total="?" caption="3x — three copies of x"]][[tape parts="9 | 9 | 9" total="27" caption="x = 9: 3 × 9 = 27"]]'),
         ],
         "teach": [
             ("That is the rule. Take the question first: what is 3 x? The number "
-             "against the letter means times. Then take what x holds: 9. So it is 3 "
+             "against the letter means times. Then take what x is equal to: 9. So it is 3 "
              "times 9, which equals 27.",
              '[[tape parts="x | x | x" total="?" caption="3x — 3 copies of x"]][[step eq="x = 9"]][[tape parts="9 | 9 | 9" total="27" caption="3x = 3 × 9 = 27"]]'),
             ("The trap is reading it as a plus — as if the number is just standing "
              "near the x. It is not standing near it; it is timesing it. 3 x "
-             "with x holding 9 equals 27, never 12. One more: 2 x, with x holding 5, "
+             "with x equal to 9 equals 27, never 12. One more: 2 x, with x equal to 5, "
              "is 2 times 5, which equals 10.",
-             '[[step eq="3x = 27 ✓"]][[step eq="3 + 9 = 12 ✗"]][[tape parts="5 | 5" total="10" caption="2x with x holding 5: 2 × 5 = 10"]]'),
+             '[[step eq="3x = 27 ✓"]][[step eq="3 + 9 = 12 ✗"]][[tape parts="5 | 5" total="10" caption="2x with x equal to 5: 2 × 5 = 10"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 4 x, with x holding 8, is 4 "
+            {"worked": ("Here is one more, done for you. 4 x, with x equal to 8, is 4 "
                         "times 8, which equals 32.",
                         '[[step eq="4x"]][[step eq="x = 8"]][[tape parts="8 | 8 | 8 | 8" total="32" caption="4x = 4 × 8 = 32"]]'),
              "ask": {'a': 4, 'b': 5, 'op': 'mlx'}},
-            {"worked": ("One more together. 5 x, with x holding 2, is 5 times 2, which "
+            {"worked": ("One more together. 5 x, with x equal to 2, is 5 times 2, which "
                         "equals 10.",
                         '[[step eq="5x"]][[step eq="x = 2"]][[tape parts="2 | 2 | 2 | 2 | 2" total="10" caption="5x = 5 × 2 = 10"]]'),
              "ask": {'a': 7, 'b': 3, 'op': 'mlx'}},
@@ -2730,7 +2741,7 @@ _PREALGEBRA_U9 = [
         },
         "recap": [
             ("So, here it is again. A number written against a letter means times — "
-             "that many copies of the letter. 3 x is three x's, and with x holding 9 "
+             "that many copies of the letter. 3 x is three x's, and with x equal to 9 "
              "it is 27. The times sign is invisible, but it is there.",
              '[[tape parts="9 | 9 | 9" total="27" caption="3x = 3 × 9 = 27"]]'),
             ("And that is the shorthand every line of algebra is written in.",
@@ -2772,7 +2783,7 @@ _PREALGEBRA_U9 = [
         ],
         "teach": [
             ("That is the rule. 3 x plus 2 x: count them. 3 of them plus 2 of them "
-             "equals 5 of them, so 3 x plus 2 x equals 5 x — whatever x is holding.",
+             "equals 5 of them, so 3 x plus 2 x equals 5 x — whatever x is equal to.",
              '[[tape parts="x | x | x | x | x" total="5x" caption="3 of them + 2 of them"]][[step eq="3x + 2x"]][[step eq="3 of them + 2 of them = 5 of them"]]'),
             ("Careful — the counts ADD. Do not times them. 3 x plus 2 x is 5 x, not "
              "6 x. The invisible times lives between a number and its own letter, not "

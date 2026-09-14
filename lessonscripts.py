@@ -2,6 +2,11 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-14  BUILD vx -- Jim (corrections queue): "instead of saying 'X holds 4' we
+#               should be saying 'X is equal to 4'". The ev1 / ev2 / evx / mlx / clt /
+#               un1 generators say "is equal to" ("What is 2 x plus 3, when x is equal
+#               to 3?"; "with x equal to 5"; "x is equal to 7"). A whole that holds
+#               three fifths, a box that holds the middle half: physical, unchanged.
 #   2026-09-12  BUILD vt -- THE CHECK LINE ROTATES. Jim, after a week of "Ready?" after
 #               every beat: "the 'ready!' bugs me after a while" -- rotate it. CHECK_LINES
 #               is five checks the page cycles through, one per beat, all answered by
@@ -2779,7 +2784,7 @@ def _evx_worked(p):
     # (ux) the walk-back SHOWS what x was holding -- Jim, 2026-09-09: "This didn't
     # show x=3 on the visible board" -- and reads expression, value, answer.
     a, b = p["a"], p["b"]
-    return (f"Look what you did: x plus {b}, with x holding {a} — swap the letter for its "
+    return (f"Look what you did: x plus {b}, with x equal to {a} — swap the letter for its "
             f"number and it becomes {a} plus {b}, which equals {a + b}. A sum, not two "
             f"digits side by side.",
             f'[[step eq="x + {b}"]][[step eq="x = {a}"]]'
@@ -2796,7 +2801,7 @@ def _mlx_board(p):
 def _mlx_worked(p):
     a, b = p["a"], p["b"]
     return (f"Look what you did: {b} x means {b} times x — {b} copies of it, not {b} beside "
-            f"it. With x holding {a}, that is {b} times {a}, which equals {a * b}.",
+            f"it. With x equal to {a}, that is {b} times {a}, which equals {a * b}.",
             f'[[step eq="{b}x"]][[step eq="x = {a}"]]'
             f'[[tape parts="{" | ".join([str(a)] * b)}" total="{a * b}" '
             f'caption="{b}x = {b} × {a} = {a * b}"]]')
@@ -2822,7 +2827,7 @@ def _clt_worked(p):
     a, b = p["a"], p["b"]
     return (f"Look what you did: {a} of them and {b} more of them — count them, do not times "
             f"them. {a} plus {b} equals {a + b}, so {a} x plus {b} x equals {a + b} x, "
-            f"whatever x is holding.",
+            f"whatever x is equal to.",
             _clt_tape(a, b, f"{a + b}x") + f'caption="{a}x + {b}x = {a + b}x"]]')
 
 
@@ -2929,7 +2934,7 @@ def _un1_board(p):
 def _un1_worked(p):
     a, b = p["a"], p["b"]
     return (f"Look what you did: {a} came off both sides, so the scale stayed level. {b} "
-            f"take away {a} equals {b - a}, and x is holding {b - a}. Put it back to check: "
+            f"take away {a} equals {b - a}, and x is equal to {b - a}. Put it back to check: "
             f"{b - a} plus {a} equals {b}. Level.",
             f'[[balance left="x" right="{b - a}" caption="{a} off both sides: x = {b - a}"]]'
             f'[[step eq="{b - a} + {a} = {b} ✓"]]')
@@ -8602,10 +8607,10 @@ OP_EXT = {
         # then the value of x, not the other way around." A child who hears a number
         # before there is a question to put it in has nowhere to hold it.
         "spoken": lambda p: (f"What is x plus {p['b']}, "
-                             f"when the letter x is holding {p['a']}?"),
+                             f"when x is equal to {p['a']}?"),
         "board": _evx_board,          # (te) x and the number as a bar, the total asked
         "worked": _evx_worked,        # (te) the letter swapped for its number
-        "praise": lambda p: (f"x plus {p['b']}, with x holding {p['a']}, is {p['a']} plus "
+        "praise": lambda p: (f"x plus {p['b']}, with x equal to {p['a']}, is {p['a']} plus "
                              f"{p['b']}, which equals {p['a'] + p['b']}."),
         "key": lambda p: p["a"] + p["b"],
         # THE first-variable error is CONCATENATION: x holds 5, so "x + 3" is read as
@@ -8623,7 +8628,7 @@ OP_EXT = {
         # A scaffold repeated in every one of twelve asks is a scaffold that never
         # fades, and fading it is what practice is for.
         "spoken": lambda p: (f"What is {p['b']} x, "
-                             f"when the letter x is holding {p['a']}?"),
+                             f"when x is equal to {p['a']}?"),
         "board": _mlx_board,          # (te) b copies of x as a bar
         "worked": _mlx_worked,        # (te) every copy is a, the total bracketed
         "praise": lambda p: (f"{p['b']} x means {p['b']} times x, and {p['b']} times "
@@ -8695,7 +8700,7 @@ OP_EXT = {
     "ev2": {   # x holds a -- what is bx + c?
         "ans": lambda p: p["a"] * p["b"] + p["c"],
         "spoken": lambda p: (f"What is {p['b']} x plus {p['c']}, "
-                             f"when the letter x is holding {p['a']}?"),
+                             f"when x is equal to {p['a']}?"),
         "board": _ev2_board,          # (tf) b copies of x and the c, the whole withheld
         "worked": _ev2_worked,        # (tf) every copy the number, the whole bracketed
         "praise": lambda p: (f"{p['b']} x is {p['b']} times {p['a']}, which equals "
@@ -8720,8 +8725,8 @@ OP_EXT = {
         "ans": lambda p: p["a"] + p["c"] * p["b"],
         # No "two letters now" preamble in the ask -- the same scaffold-never-fades
         # defect mlx had in build kt. The teach beats introduce y; the ask just asks.
-        "spoken": lambda p: (f"What is x plus {p['c']} y, when x is holding {p['a']} "
-                             f"and y is holding {p['b']}?"),
+        "spoken": lambda p: (f"What is x plus {p['c']} y, when x is equal to {p['a']} "
+                             f"and y is equal to {p['b']}?"),
         "board": _evxy_board,         # (tf) one x and c copies of y
         "worked": _evxy_worked,       # (tf) each letter its own number
         "praise": lambda p: (f"{p['c']} y is {p['c']} times {p['b']}, which equals "
@@ -8793,7 +8798,7 @@ OP_EXT = {
     "un1": {   # x + a = b -- undo the plus
         "ans": lambda p: p["b"] - p["a"],
         "spoken": lambda p: (f"x plus {p['a']} equals {p['b']}. "
-                             f"What number is x holding?"),
+                             f"What number is x equal to?"),
         "board": _un1_board,          # (tf) the balance as given
         "worked": _un1_worked,        # (tf) the balance with the a off both sides, checked
         "praise": lambda p: (f"Take {p['a']} off both sides and the scale stays "
@@ -8811,7 +8816,7 @@ OP_EXT = {
     "un2": {   # ax = b -- undo the times
         "ans": lambda p: p["b"] // p["a"],
         "spoken": lambda p: (f"{p['a']} x equals {p['b']}. "
-                             f"What number is x holding?"),
+                             f"What number is x equal to?"),
         "board": _un2_board,          # (tf) the balance and the a copies of x as a bar
         "worked": _un2_worked,        # (tf) one x on the pan, the bar shared
         "praise": lambda p: (f"{p['a']} x's weigh {p['b']}, so one x weighs "
@@ -8832,7 +8837,7 @@ OP_EXT = {
     "un3": {   # ax + b = c -- two steps back, in reverse order
         "ans": lambda p: (p["c"] - p["b"]) // p["a"],
         "spoken": lambda p: (f"{p['a']} x plus {p['b']} equals {p['c']}. "
-                             f"What number is x holding?"),
+                             f"What number is x equal to?"),
         "board": _un3_board,          # (tf) the balance as given
         "worked": _un3_worked,        # (tf) the balance after each undo
         "praise": lambda p: (f"The {p['b']} went on last, so it comes off first: "

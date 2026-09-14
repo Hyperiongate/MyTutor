@@ -6,6 +6,12 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-14  APP_BUILD -> "2026-09-14vx-the-corrections-queue".
+#               BUILD vx -- no change in this file beyond the stamp. lessons/algebra1.py,
+#               lessons/prealgebra.py and lessonscripts.py carry Jim's twelve flags of
+#               09-13/14 ("is equal to", the receipt's 20 shown, the pause after the
+#               value, one tape per teach beat, no cookies story). speechmap regenerated.
+#               Prewarm owed: the changed lines.
 #   2026-09-13  APP_BUILD -> "2026-09-13vw-the-demo-is-part-of-the-closure".
 #               BUILD vw -- Jim: "the marketing demo should all be prescripted. I don't
 #               know why anything in the marketing demo is not prescripted." It was
@@ -9429,7 +9435,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-13vw-the-demo-is-part-of-the-closure"
+APP_BUILD = "2026-09-14vx-the-corrections-queue"
 
 
 @app.get("/health")

@@ -6,6 +6,10 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-14  BUILD vx -- JIM'S CORRECTIONS QUEUE: "is equal to" replaces "is holding" in
+#               the letter lessons (Prealgebra Unit 9, Algebra I Units 1-2) and the ev1 /
+#               ev2 / evx / evxy / mlx / clt / un1 generators; the 3kk pins quote the new
+#               asks and VALUE knows both phrasings; speechmap 2,246 -> 2,244.
 #   2026-09-13  BUILD vw -- PART 3ls, THE DEMO IS PART OF THE CLOSURE: main._closure_lines
 #               (un-narrowed) carries DEMO_VOICE_LINES (254) beside the course, so the
 #               prewarm renders, the evictor protects, and the model split voices the
@@ -14090,7 +14094,9 @@ def part3kt_the_expression_comes_first():
            "alg1-u1-two-steps-with-a-letter", "alg1-u1-two-letters"]
 
     # ---- 1. flag 22:43 -- the expression is named before the value, everywhere ------
-    VALUE = _re.compile(r"\b[xy]\s+(?:is\s+holding|holds)\s*:?\s*(?:the\s+number\s+)?\d")
+    # (vx) "is equal to" is the phrasing now (Jim, 09-14: never "x holds 4"); the old
+    # forms stay in the grammar so the control sentences below still tell the two apart
+    VALUE = _re.compile(r"\b[xy]\s+(?:is\s+holding|holds|is\s+equal\s+to|equal\s+to|equals)\s*:?\s*(?:the\s+number\s+)?\d")
     EXPR = _re.compile(r"\b(?:\d+\s*[xy]\b|[xy]\s+plus\b)")
 
     def _out_of_order(text):
@@ -14126,15 +14132,15 @@ def part3kt_the_expression_comes_first():
           and _out_of_order("The letter x is holding the number 5. What is x plus 3?")
           and not _out_of_order("What is x plus 3, when the letter x is holding 5?"), "")
     check("  the four asks are ONE sentence with the question first: \"What is "
-          "<expression>, when <letter> is holding <number>?\"",
+          "<expression>, when <letter> is equal to <number>?\" (vx: \"is equal to\", never \"holding\")",
           L.spoken_for({"a": 5, "b": 3, "op": "evx"}, "abstract")
-          == "What is x plus 3, when the letter x is holding 5?"
+          == "What is x plus 3, when x is equal to 5?"
           and L.spoken_for({"a": 4, "b": 3, "op": "mlx"}, "abstract")
-          == "What is 3 x, when the letter x is holding 4?"
+          == "What is 3 x, when x is equal to 4?"
           and L.spoken_for({"a": 4, "b": 3, "c": 2, "op": "ev2"}, "abstract")
-          == "What is 3 x plus 2, when the letter x is holding 4?"
+          == "What is 3 x plus 2, when x is equal to 4?"
           and L.spoken_for({"a": 3, "b": 4, "c": 2, "op": "evxy"}, "abstract")
-          == "What is x plus 2 y, when x is holding 3 and y is holding 4?",
+          == "What is x plus 2 y, when x is equal to 3 and y is equal to 4?",
           L.spoken_for({"a": 5, "b": 3, "op": "evx"}, "abstract"))
 
     # ---- 2. flag 22:42 -- every board runs expression, value, then the working ------
@@ -15185,7 +15191,11 @@ def part3kx_the_next_line_is_already_loaded():
               # (forSpeech read the digit-colon-digit as a ratio, "2 to 3")
               # (vs) 1,939 -> 1,940: the Scholar award line carries "1,000 minutes" (the
               # comma forSpeech tidies); "100 percent" is spelled out, so Perfect Quiz does not
-              n == 1940, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
+              # (vx) 1,940 -> 1,938: the two algebra1 worked lines said "with x holding 3: 5
+              # times 3 ..." and forSpeech read the digit-colon-digit as a ratio -- which is
+              # the very run-together Jim heard ("holding 3 five times 3"). They now say
+              # "with x equal to 5. Times first: ..." and carry nothing to tidy.
+              n == 1938, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
         check("  ⭐⭐ ...and not one of them is a mismatch any more: the label the server "
               "files under equals the label the page asks for, on every line",
               all(_M._spoken(t) == t or _M._spoken(t) != t for t in lines[:1])
@@ -15273,8 +15283,10 @@ def part3ky_one_label_for_every_clip():
         # (vs/vt) 2,245 -> 2,246 of 40,294: nineteen standalone lines joined the closure
         # (four check lines, fifteen award lines); "1,000 minutes" is tidied by
         # forSpeech, so one of them re-keys ("100 percent" is spelled out on purpose).
-        check("  ...and it still holds the differences it was built for (2,246 since vs; 2,245 at vm; 2,246 at vj; 2,249 at vc)",
-              len(mapping) == 2246 and scanned == 40294,
+        # (vx) 2,246 -> 2,244: two Unit-9 lines whose "x holds 5" caption was tidied
+        # now read "x = 5" and no longer re-key.
+        check("  ...and it still holds the differences it was built for (2,244 since vx; 2,246 at vs; 2,245 at vm; 2,249 at vc)",
+              len(mapping) == 2244 and scanned == 40294,
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
