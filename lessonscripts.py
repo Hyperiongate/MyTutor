@@ -2,6 +2,42 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-14  BUILD vz -- PHASE A: THE SCRIPTED SECOND EXPLANATION (Jim's design,
+#               2026-09-13: "everything should be scripted the first time around...
+#               somebody gives a wrong answer, explain what we just explained slightly
+#               differently... only then if they miss the second time do we need to
+#               bring the AI in").
+#               THE FIRST MISS IN A ROW is now answered by the ENGINE: the worked
+#               solution of the very problem they missed -- the same (spoken, board)
+#               pair the walk-back has always drawn -- and then a FRESH problem of the
+#               same shape from the bank (the 09-13 ruling: never the one they have
+#               just watched solved). The AI's door opens on the SECOND miss in a row,
+#               and a right answer puts the counter back to zero.
+#               ⚠️ IT SITS ABOVE THE LADDER. `interventions` counts the times the MODEL
+#               had to step in -- which is what it was always named for -- so a student
+#               who misses and recovers costs the ladder nothing. A student who keeps
+#               missing still reaches the AI every second miss, still drops a level
+#               every second AI turn, and still meets the warm close; MAX_PROBLEMS is
+#               the hard floor under all of it (at the cap there is no fresh problem,
+#               so the old path runs and `resume` ends the practice, exactly as before).
+#               Measured on an all-wrong walk: 4 turns and ONE AI turn where the old
+#               engine spent two.
+#               ⚠️ THE OPENER MOVED, IN ALL 320 GENERATORS: "Look what you did: " ->
+#               "Here it is, step by step: ". The same worked line is now the answer to
+#               a WRONG answer as well, and "look what you did" is false there -- the
+#               engine already knew it, and said so in _table_miss's own docstring
+#               ("Never 'Look what you did' -- the student did not"). The praise line
+#               above the walk-back still does the celebrating on a right answer, which
+#               is where the credit always lived. Same line count, same clips
+#               re-rendered -- the voice cache does not grow.
+#               ⚠️ NO NEW AUDIO FOR THE WORKED LINES. Measured when this shipped: the
+#               48 lessons without show_work_on_correct are EXACTLY the 48 whose ops
+#               have no worked generator, so every worked line the second explanation
+#               can speak was already in the closure. audio_lines now adds them
+#               unconditionally anyway -- the closure should say what CAN be spoken,
+#               not what one lesson flag happens to speak. The six frame lines
+#               (SECOND_LOOK_LINES + FRESH_ONE_LINES) are the only additions:
+#               39,988 -> 39,994 course lines, 40,242 -> 40,248 in the closure.
 #   2026-09-14  BUILD vx -- Jim (corrections queue): "instead of saying 'X holds 4' we
 #               should be saying 'X is equal to 4'". The ev1 / ev2 / evx / mlx / clt /
 #               un1 generators say "is equal to" ("What is 2 x plus 3, when x is equal
@@ -1082,6 +1118,44 @@ PRAISE_PREFIXES = ("That's it!", "You got it!", "Nice work!",       # (uq) "Nice
 
 # fixed one-line scripts (every one of these is pre-rendered once)
 LINE_WRONG = "Not quite — let's look at it together."
+# =============================================================================
+# (vz, 2026-09-14) PHASE A -- THE SCRIPTED SECOND EXPLANATION. Jim's design, in his
+# own words (2026-09-13): "everything should be scripted the first time around...
+# somebody gives a wrong answer, explain what we just explained slightly
+# differently... only then if they miss the second time do we need to bring the AI
+# in." And the 09-13 ruling: the redo is a FRESH problem of the same shape, never
+# the one they have just watched solved.
+#
+# THE FRAMES. Two rotations, so the second look does not become a catchphrase, and
+# neither one carries a number -- one clip each serves all 360 lessons, and the
+# working itself is the worked line the closure already holds.
+# ⚠️ No "close" and no "almost": the engine cannot know whether a wrong answer was
+# near, and a tutor that says so when it was not is saying something false.
+LINE_SECOND_LOOK = "Not quite. Here it is again, explained a different way."
+SECOND_LOOK_LINES = (
+    LINE_SECOND_LOOK,
+    "Not quite. Let's walk that one all the way through.",
+    "Not this time. Here is that same problem, worked out.",
+)
+LINE_FRESH_ONE = "Now one just like it, and this one is yours."
+FRESH_ONE_LINES = (
+    LINE_FRESH_ONE,
+    "Your turn — here is a new one of the same kind.",
+    "Here is another like it. Take this one.",
+)
+
+
+def _second_look_line(state):
+    """The frame for the worked walk-through, rotated per lesson sitting."""
+    i = int(state.get("second_look_i", 0) or 0)
+    return SECOND_LOOK_LINES[i % len(SECOND_LOOK_LINES)]
+
+
+def _fresh_one_line(state):
+    """The hand-over to the fresh problem, rotated with its partner."""
+    i = int(state.get("second_look_i", 0) or 0)
+    return FRESH_ONE_LINES[i % len(FRESH_ONE_LINES)]
+
 # (ur, 2026-09-08) THE WAIT IS SPOKEN. Jim's flag 21:41: "more than 30 second wait after a
 # wrong answer". The page speaks LINE_WRONG the moment the answer is graded (the model's
 # re-teach is fetched separately now) and, if that re-teach is still coming five seconds
@@ -1452,7 +1526,7 @@ def _r100_walkback(a):
     where = ("below halfway" if d < 5 else
              "right at halfway" if d == 5 else "past halfway")
     way = "down" if d < 5 else "up"
-    return (f"Look what you did: {a} sits between {lo} and {hi}. The tens digit "
+    return (f"Here it is, step by step: {a} sits between {lo} and {hi}. The tens digit "
             f"is {d} — {where} — so it hops {way} to {near}.")
 
 
@@ -1466,20 +1540,20 @@ def _col_add(a, b):
         if ones > 9:
             board = (f'[[column terms="{a}|{b}" op="+" carries="1_" result="{total}" '
                      f'caption="{a % 10} + {b % 10} = {ones}: write {ones % 10}, carry one ten"]]')
-            spoken = (f"Look what you did: ones first — {a % 10} plus {b % 10} equals "
+            spoken = (f"Here it is, step by step: ones first — {a % 10} plus {b % 10} equals "
                       f"{ones}, over nine, so you wrote {ones % 10} and carried one ten. "
                       f"Tens: {a // 10} plus {b // 10} plus the 1 equals {total // 10}. "
                       f"{a} plus {b} equals {total}.")
         else:
             board = (f'[[column terms="{a}|{b}" op="+" result="{total}" '
                      f'caption="ones {a % 10} + {b % 10}, tens {a // 10} + {b // 10}"]]')
-            spoken = (f"Look what you did: ones first — {a % 10} plus {b % 10} equals "
+            spoken = (f"Here it is, step by step: ones first — {a % 10} plus {b % 10} equals "
                       f"{ones}. Tens: {a // 10} plus {b // 10} equals {total // 10}. "
                       f"{a} plus {b} equals {total}.")
         return (spoken, board)
     board = (f'[[objects emoji="⭐" groups="{a}" add="{b}" caption="{a} + {b} = {total}"]]'
              f'[[step eq="{a} + {b} = {total}"]]')
-    return (f"Look what you did: {a} and {b} more — {a} plus {b} equals {total}.", board)
+    return (f"Here it is, step by step: {a} and {b} more — {a} plus {b} equals {total}.", board)
 
 
 def _col_sub(a, b):
@@ -1488,25 +1562,25 @@ def _col_sub(a, b):
         if a % 10 < b % 10:
             board = (f'[[column terms="{a}|{b}" op="−" borrows="{a // 10 - 1}|{a % 10 + 10}" '
                      f'result="{left}" caption="{a % 10} is too small: regroup one ten into ten ones"]]')
-            spoken = (f"Look what you did: {a % 10} is too small to take {b % 10} away, so "
+            spoken = (f"Here it is, step by step: {a % 10} is too small to take {b % 10} away, so "
                       f"you regrouped — one ten became ten ones. {a % 10 + 10} take away "
                       f"{b % 10} equals {a % 10 + 10 - b % 10}; {a // 10 - 1} take away "
                       f"{b // 10} equals {left // 10}. {a} take away {b} equals {left}.")
         else:
             board = (f'[[column terms="{a}|{b}" op="−" result="{left}" '
                      f'caption="ones {a % 10} − {b % 10}, tens {a // 10} − {b // 10}"]]')
-            spoken = (f"Look what you did: ones first — {a % 10} take away {b % 10} equals "
+            spoken = (f"Here it is, step by step: ones first — {a % 10} take away {b % 10} equals "
                       f"{a % 10 - b % 10}. Tens: {a // 10} take away {b // 10} equals "
                       f"{left // 10}. {a} take away {b} equals {left}.")
         return (spoken, board)
     board = (f'[[objects emoji="⭐" groups="{a}" take="{b}" caption="{a} − {b} = {left}"]]'
              f'[[step eq="{a} − {b} = {left}"]]')
-    return (f"Look what you did: {a}, take {b} away — {left} are left.", board)
+    return (f"Here it is, step by step: {a}, take {b} away — {left} are left.", board)
 
 
 def _tens_ones_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: {_plural(a, 'ten')} and {_plural(b, 'one')} — that is "
+    return (f"Here it is, step by step: {_plural(a, 'ten')} and {_plural(b, 'one')} — that is "
             f"{10 * a + b}.",
             f'[[placevalue t="{a}" o="{b}" caption="{a} tens and {b} ones = {10 * a + b}"]]')
 
@@ -1539,24 +1613,24 @@ def _mul_worked(p):
     if p.get("story") and a <= 9 and b <= 9:
         rows, cols = _mul_rows_cols(p)
         chain = " plus ".join([str(cols)] * rows)
-        return (f"Look what you did: {rows} groups of {cols} — {chain} equals {a * b}. "
+        return (f"Here it is, step by step: {rows} groups of {cols} — {chain} equals {a * b}. "
                 f"{a} times {b} equals {a * b}.",
                 f'[[array rows="{rows}" cols="{cols}" view="groups" caption="{rows} groups of {cols} = {a * b}"]]')
     if a >= 10 and b <= 9:
         tens, ones = a // 10 * 10, a % 10
         board = (f'[[areamodel rows="{b}" cols="{tens},{ones}" '
                  f'caption="{a} × {b}: {tens} × {b} = {tens * b}, {ones} × {b} = {ones * b}"]]')
-        spoken = (f"Look what you did: split {a} into {tens} and {ones}. {tens} times "
+        spoken = (f"Here it is, step by step: split {a} into {tens} and {ones}. {tens} times "
                   f"{b} equals {tens * b}; {ones} times {b} equals {ones * b}. "
                   f"{tens * b} plus {ones * b} equals {a * b}.")
         return (spoken, board)
     board = f'[[array rows="{a}" cols="{b}" caption="{a} rows of {b} = {a * b}"]]'
     if a <= 5:
         chain = " plus ".join([str(b)] * a)
-        spoken = (f"Look what you did: {a} groups of {b} — {chain} equals {a * b}. "
+        spoken = (f"Here it is, step by step: {a} groups of {b} — {chain} equals {a * b}. "
                   f"{a} times {b} equals {a * b}.")
     else:
-        spoken = (f"Look what you did: {a} rows of {b} is {a * b}. {a} times {b} "
+        spoken = (f"Here it is, step by step: {a} rows of {b} is {a * b}. {a} times {b} "
                   f"equals {a * b}.")
     return (spoken, board)
 
@@ -1582,14 +1656,14 @@ def _mtz_worked(p):
         moved = (f"the {_plural(ones, 'one')} became {_plural(ones, 'ten')}" if a < 10 else
                  f"the {_plural(tens, 'ten')} became {_plural(tens, 'hundred')} and the "
                  f"{_plural(ones, 'one')} became {_plural(ones, 'ten')}")
-        spoken = (f"Look what you did: every digit moved up one place — {moved} — and "
+        spoken = (f"Here it is, step by step: every digit moved up one place — {moved} — and "
                   f"a zero holds the ones. {a} times 10 equals {a * 10}.")
         cap = f"{a} × 10 = {a * 10}: every digit up one place"
     else:
         moved = (f"the {_plural(ones, 'one')} became {_plural(ones, 'hundred')}" if a < 10 else
                  f"the {_plural(tens, 'ten')} became {_plural(tens, 'thousand')} and the "
                  f"{_plural(ones, 'one')} became {_plural(ones, 'hundred')}")
-        spoken = (f"Look what you did: every digit moved up two places — {moved} — and "
+        spoken = (f"Here it is, step by step: every digit moved up two places — {moved} — and "
                   f"two zeros hold the tens and the ones. {a} times 100 equals {a * 100}.")
         cap = f"{a} × 100 = {a * 100}: every digit up two places"
     return (spoken, f'[[placevalue n="{a * b}" caption="{cap}"]]')
@@ -1619,17 +1693,17 @@ def _div_worked(p):
     if a >= 20 and not _div_small(a, b) and tens % b == 0 and ones % b == 0 and b <= 9:
         board = (f'[[areamodel rows="{b}" cols="{tens // b},{ones // b}" '
                  f'caption="{a} ÷ {b}: {tens} ÷ {b} = {tens // b}, {ones} ÷ {b} = {ones // b}"]]')
-        spoken = (f"Look what you did: split {a} into {tens} and {ones}. {tens} divided by "
+        spoken = (f"Here it is, step by step: split {a} into {tens} and {ones}. {tens} divided by "
                   f"{b} equals {tens // b}; {ones} divided by {b} equals {ones // b}. "
                   f"{tens // b} plus {ones // b} equals {q}.")
         return (spoken, board)
     if b <= 10 and q <= 12:
         board = (f'[[array rows="{b}" cols="{q}" view="groups" eq="{a} ÷ {b} = {q}" '
                  f'caption="{a} shared into {b} equal groups: {q} in each"]]')
-        spoken = (f"Look what you did: share {a} into {b} equal groups — {q} in each. "
+        spoken = (f"Here it is, step by step: share {a} into {b} equal groups — {q} in each. "
                   f"{a} divided by {b} equals {q}.")
         return (spoken, board)
-    return (f"Look what you did: {a} divided by {b} equals {q}.",
+    return (f"Here it is, step by step: {a} divided by {b} equals {q}.",
             f'[[step eq="{a} ÷ {b} = {q}"]]')
 
 
@@ -1646,7 +1720,7 @@ def _rem_worked(p):
     q, r = a // b, a % b
     board = (f'[[array rows="{q}" cols="{b}" extra="{r}" eq="{a} ÷ {b} = {q} left over {r}" '
              f'caption="{_plural(q, "group")} of {b}, {r} left over"]]')
-    spoken = (f"Look what you did: {a} shared into groups of {b} fills "
+    spoken = (f"Here it is, step by step: {a} shared into groups of {b} fills "
               f"{_plural(q, 'group')} — {q} times {b} equals {q * b} — and "
               f"{a} take away {q * b} leaves {r}. So {r} {'is' if r == 1 else 'are'} left over.")
     return (spoken, board)
@@ -1678,7 +1752,7 @@ def _mf_worked(p):
                  f'caption="{b} groups of {q} reach {a}"]]')
     else:
         board = f'[[areamodel rows="{b}" cols="{q}" caption="{b} × {q} = {a}"]]'
-    return (f"Look what you did: {b} groups of what reach {a}? Share {a} into {b} "
+    return (f"Here it is, step by step: {b} groups of what reach {a}? Share {a} into {b} "
             f"groups — {q} in each. {b} times {q} equals {a}, so the missing factor is {q}.",
             board)
 
@@ -1699,7 +1773,7 @@ def _fpr_worked(p):
                  f'caption="{b} and {q} are a factor pair of {a}"]]')
     else:
         board = f'[[areamodel rows="{b}" cols="{q}" caption="a {b} by {q} rectangle holds {a}"]]'
-    return (f"Look what you did: {a} shared into {b} groups is {q}, and {b} times {q} "
+    return (f"Here it is, step by step: {a} shared into {b} groups is {q}, and {b} times {q} "
             f"comes straight back to {a}. So {b} and {q} are a factor pair of {a}.",
             board)
 
@@ -1714,7 +1788,7 @@ def _gcf_worked(p):
     j = lambda xs: ", ".join(str(x) for x in xs)
     board = (f'[[venn left="Factors of {a}" right="Factors of {b}" a="{j(only_a)}" '
              f'both="{j(both)}" b="{j(only_b)}" caption="they share {j(both)} — the greatest is {g}"]]')
-    return (f"Look what you did: factors of {a}: {j(fa)}. Factors of {b}: {j(fb)}. "
+    return (f"Here it is, step by step: factors of {a}: {j(fa)}. Factors of {b}: {j(fb)}. "
             f"They share {j(both)}, and the greatest of those is {g}.", board)
 
 
@@ -1743,7 +1817,7 @@ def _lcm_worked(p):
     m = a * b // _gcd(a, b)
     ca = ", ".join(str(k * a) for k in range(1, m // a + 1))
     cb = ", ".join(str(k * b) for k in range(1, m // b + 1))
-    return (f"Look what you did: count by {a}: {ca}. Count by {b}: {cb}. The first "
+    return (f"Here it is, step by step: count by {a}: {ca}. Count by {b}: {cb}. The first "
             f"number on both lists is {m} — the least common multiple.",
             _lcm_lines(a, b, hops=True))
 
@@ -1769,7 +1843,7 @@ def _nl_board(p):
 
 def _nl_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the line from 0 to 1 is cut into {b} equal hops, so "
+    return (f"Here it is, step by step: the line from 0 to 1 is cut into {b} equal hops, so "
             f"each hop is one {_FRACWORD.get(b, (str(b) + 'th',))[0]}. {_plural(a, 'hop')} "
             f"from 0 land on {a} out of {b}.",
             _frac_line(b, hops_to=a, point=a) + f' caption="{_plural(a, "hop")} land on {a}/{b}"]]')
@@ -1783,7 +1857,7 @@ def _nlw_board(p):
 
 def _nlw_worked(p):
     b = p["b"]
-    return (f"Look what you did: {b} hops of one {_FRACWORD.get(b, (str(b) + 'th',))[0]} "
+    return (f"Here it is, step by step: {b} hops of one {_FRACWORD.get(b, (str(b) + 'th',))[0]} "
             f"each — all {b} together — reach 1 whole. {b} out of {b} equals 1.",
             _frac_line(b, hops_to=b, point=b) + f' caption="all {b} hops reach 1 whole"]]')
 
@@ -1800,7 +1874,7 @@ def _of_worked(p):
     a, b = p["a"], p["b"]
     q = a // b
     w = _FRACWORD[b][0]
-    return (f"Look what you did: one {w} of {a} — share {a} into {b} equal parts, {q} "
+    return (f"Here it is, step by step: one {w} of {a} — share {a} into {b} equal parts, {q} "
             f"in each part. One part is one {w}. One {w} of {a} equals {q}.",
             f'[[array rows="{b}" cols="{q}" view="groups" eq="1/{b} of {a} = {q}" '
             f'caption="{b} equal parts of {a} — one part is {q}"]]')
@@ -1816,7 +1890,7 @@ def _eqf_board(p):
 def _eqf_worked(p):
     b, c = p["b"], p["c"]
     k = c // b
-    return (f"Look what you did: cut every {_FRACWORD[b][0]} into {_NUMWORD[k]} pieces "
+    return (f"Here it is, step by step: cut every {_FRACWORD[b][0]} into {_NUMWORD[k]} pieces "
             f"and the whole is in {_FRACWORD[c][1]}. One {_FRACWORD[b][0]} became "
             f"{_NUMWORD[k]} {_FRACWORD[c][1]} — {k} out of {c} — the same amount, cut smaller.",
             f'[[pie parts="{b}" shaded="1" caption="one {_FRACWORD[b][0]}"]]'
@@ -1839,7 +1913,7 @@ def _simp_worked(p):
     if b <= 12:
         board += f'[[pie parts="{b}" shaded="{a}" caption="{a} out of {b}"]]'
     board += f'[[pie parts="{nb}" shaded="{na}" caption="{na} out of {nb} — the same amount, simplest form"]]'
-    return (f"Look what you did: {a} and {b} both share {g}, so divide both by {g}. "
+    return (f"Here it is, step by step: {a} and {b} both share {g}, so divide both by {g}. "
             f"{a} out of {b} is {na} out of {nb} — the same amount, in its simplest form.",
             board)
 
@@ -1866,7 +1940,7 @@ def _fa_board(p):
 
 def _fa_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: the pieces are all {_FRACWORD[c][1]}, so you just "
+    return (f"Here it is, step by step: the pieces are all {_FRACWORD[c][1]}, so you just "
             f"counted. Start at {_fw(a, c)}, hop {b} more — {a} plus {b} equals {a + b}. "
             f"{_fw(a, c)} plus {_fw(b, c)} equals {_fw(a + b, c)}.",
             _fl(c, hops=[0, a, a + b], points=[a + b],
@@ -1881,7 +1955,7 @@ def _fs_board(p):
 
 def _fs_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: the pieces are all {_FRACWORD[c][1]}, so you just "
+    return (f"Here it is, step by step: the pieces are all {_FRACWORD[c][1]}, so you just "
             f"counted back. Start at {_fw(a, c)}, hop back {b} — {a} take away {b} "
             f"equals {a - b}. {_fw(a, c)} take away {_fw(b, c)} equals {_fw(a - b, c)}.",
             _fl(c, hops=[a, a - b], points=[a - b],
@@ -1898,7 +1972,7 @@ def _fu_board(p):
 def _fu_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     k = c // b
-    return (f"Look what you did: on a line cut into {_FRACWORD[c][1]}, one "
+    return (f"Here it is, step by step: on a line cut into {_FRACWORD[c][1]}, one "
             f"{_FRACWORD[b][0]} sits at {_fw(k, c)}. Now both are {_FRACWORD[c][1]}: hop "
             f"{a} more — {k} plus {a} equals {k + a}. One {_FRACWORD[b][0]} plus "
             f"{_fw(a, c)} equals {_fw(k + a, c)}.",
@@ -1916,7 +1990,7 @@ def _fus_board(p):
 def _fus_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     k = c // b
-    return (f"Look what you did: on a line cut into {_FRACWORD[c][1]}, one "
+    return (f"Here it is, step by step: on a line cut into {_FRACWORD[c][1]}, one "
             f"{_FRACWORD[b][0]} sits at {_fw(k, c)}. Now both are {_FRACWORD[c][1]}: hop "
             f"back {a} — {k} take away {a} equals {k - a}. One {_FRACWORD[b][0]} take "
             f"away {_fw(a, c)} equals {_fw(k - a, c)}.",
@@ -1936,7 +2010,7 @@ def _dt_board(p):
 
 def _dt_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: tenths are tenths, so you counted them. Start at "
+    return (f"Here it is, step by step: tenths are tenths, so you counted them. Start at "
             f"0.{a}, hop {b} more tenths — {a} plus {b} equals {a + b}. {_fw(a, 10)} plus "
             f"{_fw(b, 10)} equals {_fw(a + b, 10)}, written 0.{a + b}.",
             f'[[numberline min="0" max="1" hops="0,{a / 10},{(a + b) / 10}" points="{(a + b) / 10}" '
@@ -1951,7 +2025,7 @@ def _dh_board(p):
 
 def _dh_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: hundredths are hundredths, so you counted the cells. "
+    return (f"Here it is, step by step: hundredths are hundredths, so you counted the cells. "
             f"{a} shaded, then {b} more — {a} plus {b} equals {a + b}. {a} hundredths "
             f"plus {b} hundredths equals {a + b} hundredths, written 0.{a + b:02d}.",
             f'[[hundredgrid shaded="{a}" plus="{b}" caption="0.{a:02d} + 0.{b:02d} = 0.{a + b:02d}"]]')
@@ -1965,7 +2039,7 @@ def _m_board(p):
 
 def _m_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: dimes are tens and pennies are ones. {_plural(a, 'dime')} "
+    return (f"Here it is, step by step: dimes are tens and pennies are ones. {_plural(a, 'dime')} "
             f"bring {10 * a} cents, {_irr(b, 'penny', 'pennies')} bring {b} more. {10 * a} "
             f"plus {b} equals {10 * a + b} cents.",
             f'[[placevalue t="{a}" o="{b}" caption="{a} dimes + {b} pennies = {10 * a + b} cents"]]')
@@ -1980,7 +2054,7 @@ def _t2h_board(p):
 
 def _t2h_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: a tenth is a full row of ten hundredths, so "
+    return (f"Here it is, step by step: a tenth is a full row of ten hundredths, so "
             f"{_plural(a, 'tenth')} is {10 * a} hundredths — {a} full rows. Then {b} "
             f"more. {10 * a} plus {b} equals {10 * a + b} hundredths.",
             f'[[hundredgrid shaded="{10 * a}" plus="{b}" '
@@ -2005,7 +2079,7 @@ def _wpc_worked(p):
     a, b = p["a"], p["b"]
     k = 100 // b
     pct = 100 * a // b
-    return (f"Look what you did: percent means out of a hundred. {b} times {k} is a "
+    return (f"Here it is, step by step: percent means out of a hundred. {b} times {k} is a "
             f"hundred, so do the same to the top — {a} times {k} is {pct}. {a} out of "
             f"{b} is {pct} percent.",
             f'[[hundredgrid shaded="{pct}" unit="percent" caption="{a} out of {b} = {pct} out of 100 = {pct}%"]]')
@@ -2024,7 +2098,7 @@ def _pc_worked(p):
     parts = 100 // a
     q = a * b // 100
     name = {2: "one half", 4: "one fourth", 10: "one tenth"}.get(parts, f"one of {parts}")
-    return (f"Look what you did: {a} percent is {name}. Share {b} into {parts} equal parts "
+    return (f"Here it is, step by step: {a} percent is {name}. Share {b} into {parts} equal parts "
             f"and take one — {q}. {a} percent of {b} equals {q}.",
             f'[[array rows="{parts}" cols="{q}" view="groups" eq="{a}% of {b} = {q}" '
             f'caption="{a}% = {name} — one of the {parts} parts is {q}"]]')
@@ -2041,7 +2115,7 @@ def _poff_worked(p):
     a, b = p["a"], p["b"]
     d = a * b // 100
     pay = a - d
-    return (f"Look what you did: two steps. The discount first — {b} percent of {a} is "
+    return (f"Here it is, step by step: two steps. The discount first — {b} percent of {a} is "
             f"{d}. Then take it away: {a} take away {d} is {pay}. You pay {pay} dollars; "
             f"the {d} is what you saved.",
             f'[[tape parts="{d} | {pay}" total="{a}" caption="discount {d} — you pay {pay}"]]')
@@ -2057,7 +2131,7 @@ def _rate_board(p):
 def _rate_worked(p):
     a, b = p["a"], p["b"]
     q = a // b
-    return (f"Look what you did: {a} dollars shared over {b} apples — {q} each. {a} "
+    return (f"Here it is, step by step: {a} dollars shared over {b} apples — {q} each. {a} "
             f"divided by {b} equals {q}. One apple costs {q} dollars.",
             f'[[array rows="{b}" cols="{q}" view="groups" eq="{a} ÷ {b} = {q}" '
             f'caption="each apple costs {q} dollars"]]')
@@ -2075,7 +2149,7 @@ def _peri_board(p):
 
 def _peri_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: you walked all four sides — long, wide, long, wide. "
+    return (f"Here it is, step by step: you walked all four sides — long, wide, long, wide. "
             f"{a} plus {b} plus {a} plus {b} equals {2 * (a + b)}. The perimeter is "
             f"{2 * (a + b)}.",
             f'[[rectangle w="{a}" h="{b}" show="perimeter" caption="around the outside: {2 * (a + b)}"]]')
@@ -2089,7 +2163,7 @@ def _area_board(p):
 
 def _area_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the inside is {_plural(b, 'row')} of {_plural(a, 'square')}. "
+    return (f"Here it is, step by step: the inside is {_plural(b, 'row')} of {_plural(a, 'square')}. "
             f"{a} times {b} equals {a * b}. The area is {a * b} squares.",
             f'[[rectangle w="{a}" h="{b}" show="area" caption="{b} rows of {a} = {a * b} squares"]]')
 
@@ -2102,7 +2176,7 @@ def _ang_board(p):
 
 def _ang_worked(p):
     a = p["a"]
-    return (f"Look what you did: each quarter of the circle is 90 degrees, and you "
+    return (f"Here it is, step by step: each quarter of the circle is 90 degrees, and you "
             f"counted {a} of them — {a} times 90 equals {90 * a}. {a} quarter "
             f"turn{'' if a == 1 else 's'} is {90 * a} degrees.",
             f'[[pie parts="4" shaded="{a}" caption="{a} × 90° = {90 * a}°"]]')
@@ -2118,7 +2192,7 @@ def _angq_worked(p):
     a = p["a"]
     q = a // 90
     counts = ", ".join(str(90 * k) for k in range(1, q + 1))
-    return (f"Look what you did: count by 90 — {counts} — that is {q} "
+    return (f"Here it is, step by step: count by 90 — {counts} — that is {q} "
             f"count{'' if q == 1 else 's'}. {a} degrees is {q} quarter "
             f"turn{'' if q == 1 else 's'}.",
             f'[[pie parts="4" shaded="{q}" caption="{a}° = {q} quarter turn{"" if q == 1 else "s"}"]]')
@@ -2133,7 +2207,7 @@ def _vol_board(p):
 def _vol_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     layer = a * b
-    return (f"Look what you did: one layer is {a} times {b} — {_plural(layer, 'cube')}. "
+    return (f"Here it is, step by step: one layer is {a} times {b} — {_plural(layer, 'cube')}. "
             f"There {'is' if c == 1 else 'are'} {_plural(c, 'layer')}. {layer} times {c} "
             f"equals {layer * c} cubes.",
             f'[[array rows="{b}" cols="{a}" caption="one layer: {a} × {b} = {layer} cubes"]]'
@@ -2148,7 +2222,7 @@ def _vol_worked(p):
 # picture of a to-the-power-3 the course has had.
 def _tba_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: the times first — {b} times {c} equals {b * c}. Then the "
+    return (f"Here it is, step by step: the times first — {b} times {c} equals {b * c}. Then the "
             f"add — {a} plus {b * c} equals {a + b * c}.",
             f'[[solve start="{a} + {b} × {c}" steps="times first : {a} + {b * c} | '
             f'then add : {a + b * c}" caption="{a} + {b} × {c} = {a + b * c}"]]')
@@ -2157,7 +2231,7 @@ def _tba_worked(p):
 def _parf_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     s = a + b
-    return (f"Look what you did: inside the parentheses first — {a} plus {b} equals {s}. "
+    return (f"Here it is, step by step: inside the parentheses first — {a} plus {b} equals {s}. "
             f"Then the times — {s} times {c} equals {s * c}.",
             f'[[solve start="({a} + {b}) × {c}" steps="inside first : {s} × {c} | '
             f'then times : {s * c}" caption="({a} + {b}) × {c} = {s * c}"]]')
@@ -2166,10 +2240,10 @@ def _parf_worked(p):
 def _expn_worked(p):
     a, b = p["a"], p["b"]
     if b == 2:
-        return (f"Look what you did: {a} squared is two {a}s multiplied — {a} times {a} "
+        return (f"Here it is, step by step: {a} squared is two {a}s multiplied — {a} times {a} "
                 f"equals {a * a}. {a} rows of {a} really do make a square.",
                 f'[[areamodel rows="{a}" cols="{a}" caption="{a}² = {a} × {a} = {a * a}"]]')
-    return (f"Look what you did: {a} to the power 3 is three {a}s multiplied — {a} times "
+    return (f"Here it is, step by step: {a} to the power 3 is three {a}s multiplied — {a} times "
             f"{a} times {a} equals {a ** 3}. A {a} by {a} by {a} block of cubes holds "
             f"{a ** 3}.",
             f'[[solid kind="prism" w="{a}" d="{a}" h="{a}" caption="{a}³ = {a} × {a} × {a} = {a ** 3}"]]')
@@ -2178,7 +2252,7 @@ def _expn_worked(p):
 def _exo_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     sq, pr = a * a, b * c
-    return (f"Look what you did: the power first — {a} squared equals {sq}. The times next "
+    return (f"Here it is, step by step: the power first — {a} squared equals {sq}. The times next "
             f"— {b} times {c} equals {pr}. The add last — {sq} plus {pr} equals {sq + pr}.",
             f'[[solve start="{a}² + {b} × {c}" steps="power first : {sq} + {b} × {c} | '
             f'times next : {sq} + {pr} | add last : {sq + pr}" caption="{a}² + {b} × {c} = {sq + pr}"]]')
@@ -2208,7 +2282,7 @@ def _nfac_worked(p):
     said = ", ".join(f"{d} and {q}" for d, q in pairs)
     j = ", ".join(str(x) for x in facs)
     ex = pairs[len(pairs) // 2]
-    return (f"Look what you did: the factor pairs of {n} are {said}. Write every number "
+    return (f"Here it is, step by step: the factor pairs of {n} are {said}. Write every number "
             f"in them once — {j} — and that is {len(facs)} factors.",
             f'[[write lines="{lines}" caption="the factors of {n}: {j} — {len(facs)} of them"]]'
             + _pair_board(ex[0], ex[1], f"{ex[0]} × {ex[1]} = {n}"))
@@ -2220,7 +2294,7 @@ def _spf_worked(p):
     tries = [t for t in (2, 3, 5, 7) if t < d]
     lines = " | ".join(f"{n} ÷ {t} leaves {n % t} ✗" for t in tries) + (" | " if tries else "") + f"{n} ÷ {d} = {n // d} ✓"
     said = ("" if not tries else " and ".join(f"{t} leaves {n % t} over" for t in tries) + ", so no. ")
-    return (f"Look what you did: try the small numbers in order. {said}{d} divides {n} "
+    return (f"Here it is, step by step: try the small numbers in order. {said}{d} divides {n} "
             f"exactly — {n} is {d} rows of {n // d}. The smallest factor above 1 is {d}.",
             f'[[write lines="{lines}" caption="the first one that fits is {d}"]]'
             + _pair_board(d, n // d, f"{d} × {n // d} = {n}"))
@@ -2241,7 +2315,7 @@ def _npf_worked(p):
     n = p["a"]
     rungs, primes = _npf_ladder(n)
     chain = " × ".join(str(x) for x in primes)
-    return (f"Look what you did: pull out the smallest factor and keep going until only "
+    return (f"Here it is, step by step: pull out the smallest factor and keep going until only "
             f"primes are left. {n} equals {chain} — {_plural(len(primes), 'prime')}.",
             f'[[solve start="{n}" steps="{" | ".join(rungs)}" caption="{n} = {chain}: {len(primes)} primes"]]')
 
@@ -2250,7 +2324,7 @@ def _bfac_worked(p):
     n = p["a"]
     d = _spf(n)
     q = n // d
-    return (f"Look what you did: the smallest factor of {n} above 1 is {d}. Divide — {n} "
+    return (f"Here it is, step by step: the smallest factor of {n} above 1 is {d}. Divide — {n} "
             f"divided by {d} equals {q} — and {q} is the biggest factor below {n}, because "
             f"the smallest factor is always paired with the biggest.",
             f'[[step eq="{n} = {d} × {q}"]]' + _pair_board(d, q, f"smallest {d}, biggest {q}"))
@@ -2280,7 +2354,7 @@ def _cbz_board(p):
 def _cbz_worked(p):
     a, b = p["a"], p["b"]
     r = a - b
-    return (f"Look what you did: start at {a} and hop {b} to the left. {a} steps reach "
+    return (f"Here it is, step by step: start at {a} and hop {b} to the left. {a} steps reach "
             f"zero, and {b - a} more carry on past it. You land on negative {b - a}.",
             f'[[numberline {_int_range(r - 3, a + 3)} points="{a}" hops="{a},{r}" caption="{a} − {b} = {_neg(r)}"]]')
 
@@ -2294,7 +2368,7 @@ def _addneg_board(p):
 def _addneg_worked(p):
     a, b = p["a"], p["b"]
     r = a - b
-    return (f"Look what you did: adding negative {b} is a hop of {b} to the left. Start at "
+    return (f"Here it is, step by step: adding negative {b} is a hop of {b} to the left. Start at "
             f"{a}, hop {b} left — {a} steps reach zero, {b - a} more pass it — and you land "
             f"on negative {b - a}.",
             f'[[numberline {_int_range(r - 3, a + 3)} points="{a}" hops="{a},{r}" caption="{a} + (−{b}) = {_neg(r)}"]]')
@@ -2309,7 +2383,7 @@ def _subneg_board(p):
 def _subneg_worked(p):
     a, b = p["a"], p["b"]
     r = a + b
-    return (f"Look what you did: taking away negative {b} is a hop of {b} to the RIGHT. "
+    return (f"Here it is, step by step: taking away negative {b} is a hop of {b} to the RIGHT. "
             f"Start at {a}, hop {b} right, and you land on {r}. {a} take away negative {b} "
             f"equals {a} plus {b}.",
             f'[[numberline {_int_range(-5, r + 3)} points="{a}" hops="{a},{r}" caption="{a} − (−{b}) = {r}"]]')
@@ -2319,7 +2393,7 @@ def _mulneg_worked(p):
     a, b = p["a"], p["b"]
     r = -(a * b)
     hops = ",".join(str(-a * i) for i in range(0, b + 1))
-    return (f"Look what you did: negative {a} times {b} is {b} hops of {a} to the left, "
+    return (f"Here it is, step by step: negative {a} times {b} is {b} hops of {a} to the left, "
             f"one after another, starting at zero. {a} times {b} equals {a * b}, and every "
             f"hop went left — so you land on negative {a * b}.",
             f'[[numberline {_int_range(r - 5, 5)} hops="{hops}" caption="(−{a}) × {b} = {_neg(r)}"]]')
@@ -2342,7 +2416,7 @@ def _nuf_board(p):
 def _nuf_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     q = c // b
-    return (f"Look what you did: cut {c} into {b} equal parts — {c} divided by {b} equals "
+    return (f"Here it is, step by step: cut {c} into {b} equal parts — {c} divided by {b} equals "
             f"{q} in each part. Take {a} of them: {q} times {a} equals {q * a}. "
             f"{_frac_words(a, b).capitalize()} of {c} is {q * a}.",
             f'[[tape parts="{" | ".join([str(q)] * b)}" total="{c}" '
@@ -2360,7 +2434,7 @@ def _uic_board(p):
 def _uic_worked(p):
     a, b = p["a"], p["b"]
     word = _FRAC_BOTTOM.get(a, "part")
-    return (f"Look what you did: each whole holds {a} {word}s, and there are {b} wholes. "
+    return (f"Here it is, step by step: each whole holds {a} {word}s, and there are {b} wholes. "
             f"{b} times {a} equals {a * b}. There are {a * b} {word}s in {b} wholes.",
             f'[[tape parts="{" | ".join([str(a)] * b)}" total="{b} wholes" '
             f'caption="{b} × {a} = {a * b} {word}s"]]')
@@ -2387,12 +2461,12 @@ def _dbf_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     n = c * b // a
     if n <= 8 and c * b <= 30:
-        return (f"Look what you did: dividing asks how many {_frac_words(a, b)} fit in {c}. "
+        return (f"Here it is, step by step: dividing asks how many {_frac_words(a, b)} fit in {c}. "
                 f"Hop by {_frac_words(a, b)} from zero — {n} hops reach {c} exactly. "
                 f"{c} divided by {_frac_words(a, b)} equals {n}.",
                 f'[[numberline min="0" max="{c}" denom="{b}" hops="{_dbf_hops(c, a, b)}" '
                 f'caption="{n} hops of {a}/{b} reach {c}: {c} ÷ ({a}/{b}) = {n}"]]')
-    return (f"Look what you did: flip the fraction and times. {c} divided by "
+    return (f"Here it is, step by step: flip the fraction and times. {c} divided by "
             f"{_frac_words(a, b)} is {c} times {b} over {a}: {c} times {b} equals {c * b}, "
             f"and {c * b} divided by {a} equals {n}.",
             f'[[solve start="{c} ÷ ({a}/{b})" steps="flip and times : {c} × {b}/{a} | '
@@ -2413,7 +2487,7 @@ def _imp_worked(p):
     w, r = a // b, a % b
     hops = ",".join(str(i) for i in range(0, w + 1)) + f",{round(a / b, 2)}"
     word = _FRAC_BOTTOM.get(b, "part")
-    return (f"Look what you did: {b} {word}s fill one whole, so hop a whole at a time. "
+    return (f"Here it is, step by step: {b} {word}s fill one whole, so hop a whole at a time. "
             f"{w} whole hops use {w * b} {word}s, and {r} {word}{'s' if r != 1 else ''} "
             f"{'are' if r != 1 else 'is'} left over. {a} {word}s is {w} whole ones and "
             f"{r} {word}{'s' if r != 1 else ''}.",
@@ -2433,7 +2507,7 @@ def _hun_worked(p):
     n = 10 * a + b
     more = (f"and {b} more square{'s' if b != 1 else ''} on the next row. {10 * a} plus {b} "
             f"equals {n}." if b else "and no more.")
-    return (f"Look what you did: {_plural(a, 'tenth')} {'are' if a != 1 else 'is'} "
+    return (f"Here it is, step by step: {_plural(a, 'tenth')} {'are' if a != 1 else 'is'} "
             f"{_plural(a, 'full row')} — {10 * a} hundredths — {more} 0 point {a}{b} is {n} "
             f"hundredths.",
             f'[[hundredgrid shaded="{n}" eq="0.{a}{b} = {n} hundredths" '
@@ -2448,7 +2522,7 @@ def _x10_board(p):
 
 def _x10_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: times 10 moves every digit one place to the left. The "
+    return (f"Here it is, step by step: times 10 moves every digit one place to the left. The "
             f"{_plural(b, 'tenth')} became {_plural(b, 'one')}, and the {_plural(a, 'one')} "
             f"became {_plural(a, 'ten')}. {a} point {b} times 10 equals {10 * a + b}.",
             f'[[placevalue t="{a}" o="{b}" d="0" caption="{a}.{b} × 10 = {10 * a + b}: every digit one place left"]]')
@@ -2478,7 +2552,7 @@ def _dth_worked(p):
     else:
         pic = (f'[[array rows="{b}" cols="{a}" view="groups" eq="{a} × {b} = {n}" label="tenths" '
                f'caption="{b} groups of {a} tenths = {n} tenths"]]')
-    return (f"Look what you did: 0 point {a} is {a} tenths, and {b} lots of {a} tenths are "
+    return (f"Here it is, step by step: 0 point {a} is {a} tenths, and {b} lots of {a} tenths are "
             f"{n} tenths. {a} times {b} equals {n}, and the parts stay tenths — {n} tenths.",
             pic)
 
@@ -2506,7 +2580,7 @@ def _dsh_worked(p):
     else:
         pic = (f'[[tape parts="{" | ".join([str(q)] * c)}" total="{n} tenths" '
                f'caption="{n} tenths shared {c} ways: {q} tenths each"]]')
-    return (f"Look what you did: {a} point {b} is {n} tenths. Share {n} tenths into {c} equal "
+    return (f"Here it is, step by step: {a} point {b} is {n} tenths. Share {n} tenths into {c} equal "
             f"groups — {q} tenths in each. {n} divided by {c} equals {q}, so each share is "
             f"{q} tenths.",
             pic)
@@ -2522,7 +2596,7 @@ def _rat_board(p):
 def _rat_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     k = c // a
-    return (f"Look what you did: {c} cups of flour is {k} batches, because {c} divided by "
+    return (f"Here it is, step by step: {c} cups of flour is {k} batches, because {c} divided by "
             f"{a} equals {k}. The milk grows the same way — {k} batches of {b} cups: {k} "
             f"times {b} equals {k * b}. Both sides were timesed by {k}.",
             f'[[tape parts="{a} | {b}" caption="one batch: {a} : {b}"]]'
@@ -2539,7 +2613,7 @@ def _rte_board(p):
 def _rte_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     r = c // b
-    return (f"Look what you did: one hour first — {c} bottles over {b} hours is {r} an hour, "
+    return (f"Here it is, step by step: one hour first — {c} bottles over {b} hours is {r} an hour, "
             f"because {c} divided by {b} equals {r}. Then {a} hours of that: {r} times {a} "
             f"equals {r * a}.",
             f'[[array rows="{b}" cols="{r}" view="groups" eq="{c} ÷ {b} = {r}" label="hours" '
@@ -2563,18 +2637,18 @@ def _prop_worked(p):
     n = a * c // b
     if b <= 12 and c <= 12 and c % b == 0:
         k = c // b
-        return (f"Look what you did: the bottom was timesed by {k} — {b} times {k} equals {c} "
+        return (f"Here it is, step by step: the bottom was timesed by {k} — {b} times {k} equals {c} "
                 f"— so the top is timesed by {k} too: {a} times {k} equals {n}. Both pies hold "
                 f"the same amount, cut two ways.",
                 f'[[pie parts="{b}" shaded="{a}" caption="{a}/{b}"]]'
                 f'[[pie parts="{c}" shaded="{n}" caption="{n}/{c} — the same amount"]]')
     if c % b == 0:
         k = c // b
-        return (f"Look what you did: the bottom was timesed by {k} — {b} times {k} equals {c} "
+        return (f"Here it is, step by step: the bottom was timesed by {k} — {b} times {k} equals {c} "
                 f"— so the top is timesed by {k} too: {a} times {k} equals {n}.",
                 f'[[solve start="{a}/{b} = ?/{c}" steps="the bottom : {b} × {k} = {c} | '
                 f'so the top : {a} × {k} = {n}" caption="{a}/{b} = {n}/{c}"]]')
-    return (f"Look what you did: {c} is not a whole number of {b}s, so go through 1 — times "
+    return (f"Here it is, step by step: {c} is not a whole number of {b}s, so go through 1 — times "
             f"the top by {c} and divide by {b}: {a} times {c} equals {a * c}, and {a * c} "
             f"divided by {b} equals {n}.",
             f'[[solve start="{a}/{b} = ?/{c}" steps="times the top by {c} : {a * c} ÷ {b} | '
@@ -2593,7 +2667,7 @@ def _shr_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     n = a + b
     q = c // n
-    return (f"Look what you did: count the parts first — {a} and {b} are {n} parts. {c} "
+    return (f"Here it is, step by step: count the parts first — {a} and {b} are {n} parts. {c} "
             f"divided by {n} equals {q} in each part. The first share is {a} parts: {q} "
             f"times {a} equals {q * a}. And {q * a} plus {q * b} puts the {c} back together.",
             f'[[tape parts="{q * a} | {q * b}" total="{c}" '
@@ -2622,7 +2696,7 @@ def _pcn_board(p):
 def _pcn_worked(p):
     a, b = p["a"], p["b"]
     n, part, ans = a // 10, b // 10, a * b // 100
-    return (f"Look what you did: ten percent of {b} is {part} — one of the ten parts. "
+    return (f"Here it is, step by step: ten percent of {b} is {part} — one of the ten parts. "
             f"{a} percent is {n} of those parts: {n} times {part} equals {ans}.",
             _ten_tape(b, caption=f"ten parts of {part} — 10% each")
             + f'[[tape parts="{ans} | {b - ans}" total="{b}" caption="{n} parts: {a}% of {b} = {ans}"]]')
@@ -2648,10 +2722,10 @@ def _asp_worked(p):
            f'caption="{ans} out of 100 — the same share"]]')
     if 100 % b == 0:
         k = 100 // b
-        return (f"Look what you did: the bottom went from {b} to 100 — timesed by {k} — so "
+        return (f"Here it is, step by step: the bottom went from {b} to 100 — timesed by {k} — so "
                 f"the top is timesed by {k} too: {a} times {k} equals {ans}. {a} out of {b} "
                 f"is {ans} percent.", pic)
-    return (f"Look what you did: 100 is not a whole number of {b}s, so go through 1 — {a} "
+    return (f"Here it is, step by step: 100 is not a whole number of {b}s, so go through 1 — {a} "
             f"times 100 equals {a * 100}, and {a * 100} divided by {b} equals {ans}. {a} out "
             f"of {b} is {ans} percent.", pic)
 
@@ -2667,7 +2741,7 @@ def _pwh_board(p):
 def _pwh_worked(p):
     a, b = p["a"], p["b"]
     n, part, whole = a // 10, b // (a // 10), b * 100 // a
-    return (f"Look what you did: {a} percent is {n} tens, so ten percent is {b} divided by "
+    return (f"Here it is, step by step: {a} percent is {n} tens, so ten percent is {b} divided by "
             f"{n}, which equals {part}. The whole is ten of those: {part} times 10 equals "
             f"{whole}. And {whole} is bigger than {b}, as the whole has to be.",
             _ten_tape(whole, caption=f"ten parts of {part} — {n} of them are the {b}, all ten are {whole}")
@@ -2689,10 +2763,10 @@ def _pup_worked(p):
     ch = a * b // 100
     new = b + ch if up else b - ch
     if up:
-        return (f"Look what you did: {a} percent of {b} is {ch} dollars — that is the change, "
+        return (f"Here it is, step by step: {a} percent of {b} is {ch} dollars — that is the change, "
                 f"not {a}. The price goes up, so put it on: {b} plus {ch} equals {new} dollars.",
                 f'[[tape parts="{b} | {ch}" total="{new}" caption="{b} + {ch} = {new} dollars"]]')
-    return (f"Look what you did: {a} percent of {b} is {ch} dollars — that is the change, "
+    return (f"Here it is, step by step: {a} percent of {b} is {ch} dollars — that is the change, "
             f"not {a}. The price goes down, so take it off: {b} take away {ch} equals {new} "
             f"dollars.",
             f'[[tape parts="{new} | {ch}" total="{b}" caption="{b} − {ch} = {new} dollars"]]')
@@ -2714,7 +2788,7 @@ def _cnv_board(p):
 def _cnv_worked(p):
     a, b = p["a"], p["b"]
     big, fact, bigs, smalls = _CNV_UNITS[b]
-    return (f"Look what you did: one {big} is {b} {smalls}, so {a} {bigs} are {a} lots of "
+    return (f"Here it is, step by step: one {big} is {b} {smalls}, so {a} {bigs} are {a} lots of "
             f"{b}. {a} times {b} equals {a * b} {smalls}.",
             f'[[tape parts="{" | ".join([str(b)] * a)}" total="{a * b}" '
             f'caption="{a} × {b} = {a * b} {smalls}"]]')
@@ -2730,7 +2804,7 @@ def _tri_board(p):
 
 def _tri_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the rectangle round the triangle is {a} times {b}, which "
+    return (f"Here it is, step by step: the rectangle round the triangle is {a} times {b}, which "
             f"equals {a * b} squares. The triangle is half of it — the diagonal cuts the "
             f"rectangle into two of them — and half of {a * b} is {a * b // 2}.",
             f'[[rectangle w="{a}" h="{b}" half="1" caption="{a} × {b} = {a * b} · half is {a * b // 2}"]]')
@@ -2744,7 +2818,7 @@ def _sla_board(p):
 
 def _sla_worked(p):
     a = p["a"]
-    return (f"Look what you did: the two angles together fill the straight line, and a "
+    return (f"Here it is, step by step: the two angles together fill the straight line, and a "
             f"straight line is 180 degrees. 180 take away {a} equals {180 - a}, and {a} "
             f"plus {180 - a} puts the 180 back.",
             f'[[angle deg="180" split="{a},{180 - a}" caption="{a}° + {180 - a}° = 180°"]]')
@@ -2763,7 +2837,7 @@ def _tri3_worked(p):
     a, b = p["a"], p["b"]
     c = 180 - a - b
     right = ' right="A"' if a == 90 else ' right="B"' if b == 90 else ' right="C"' if c == 90 else ""
-    return (f"Look what you did: the two you were given come to {a} plus {b}, which equals "
+    return (f"Here it is, step by step: the two you were given come to {a} plus {b}, which equals "
             f"{a + b}. The three angles of any triangle come to 180, so the third is 180 take "
             f"away {a + b}, which equals {c}.",
             f'[[triangle v="A,B,C"{right} angles="{a},{b},{c}" '
@@ -2784,7 +2858,7 @@ def _evx_worked(p):
     # (ux) the walk-back SHOWS what x was holding -- Jim, 2026-09-09: "This didn't
     # show x=3 on the visible board" -- and reads expression, value, answer.
     a, b = p["a"], p["b"]
-    return (f"Look what you did: x plus {b}, with x equal to {a} — swap the letter for its "
+    return (f"Here it is, step by step: x plus {b}, with x equal to {a} — swap the letter for its "
             f"number and it becomes {a} plus {b}, which equals {a + b}. A sum, not two "
             f"digits side by side.",
             f'[[step eq="x + {b}"]][[step eq="x = {a}"]]'
@@ -2800,7 +2874,7 @@ def _mlx_board(p):
 
 def _mlx_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: {b} x means {b} times x — {b} copies of it, not {b} beside "
+    return (f"Here it is, step by step: {b} x means {b} times x — {b} copies of it, not {b} beside "
             f"it. With x equal to {a}, that is {b} times {a}, which equals {a * b}.",
             f'[[step eq="{b}x"]][[step eq="x = {a}"]]'
             f'[[tape parts="{" | ".join([str(a)] * b)}" total="{a * b}" '
@@ -2825,7 +2899,7 @@ def _clt_board(p):
 
 def _clt_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: {a} of them and {b} more of them — count them, do not times "
+    return (f"Here it is, step by step: {a} of them and {b} more of them — count them, do not times "
             f"them. {a} plus {b} equals {a + b}, so {a} x plus {b} x equals {a + b} x, "
             f"whatever x is equal to.",
             _clt_tape(a, b, f"{a + b}x") + f'caption="{a}x + {b}x = {a + b}x"]]')
@@ -2840,7 +2914,7 @@ def _dst_board(p):
 
 def _dst_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the {a} reaches both rooms. One room is {a} times x — {a} x. "
+    return (f"Here it is, step by step: the {a} reaches both rooms. One room is {a} times x — {a} x. "
             f"The other is {a} times {b}, which equals {a * b}. Both rooms together: {a} x "
             f"plus {a * b}.",
             f'[[areamodel rows="{a}" cols="x,{b}" caption="{a}(x + {b}) = {a}x + {a * b}"]]')
@@ -2860,7 +2934,7 @@ def _ev2_board(p):
 
 def _ev2_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: times first — {b} x is {b} copies of {a}, and {b} times {a} "
+    return (f"Here it is, step by step: times first — {b} x is {b} copies of {a}, and {b} times {a} "
             f"equals {a * b}. Then the add: {a * b} plus {c} equals {a * b + c}. The plus "
             f"waited its turn.",
             f'[[step eq="{b}x + {c}"]][[step eq="x = {a}"]]'
@@ -2878,7 +2952,7 @@ def _evxy_board(p):
 
 def _evxy_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: each letter kept its own number. {c} y is {c} copies of "
+    return (f"Here it is, step by step: each letter kept its own number. {c} y is {c} copies of "
             f"{b}, which is {b * c}. Then x plus that: {a} plus {b * c} equals {a + b * c}. "
             f"The {c} belonged to the y and never touched the x.",
             f'[[step eq="x + {c}y"]][[step eq="x = {a} · y = {b}"]]'
@@ -2904,7 +2978,7 @@ def _cl2_board(p):
 
 def _cl2_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: only the same letter collects. The x parts are {a} and "
+    return (f"Here it is, step by step: only the same letter collects. The x parts are {a} and "
             f"{c}, and {a} plus {c} equals {a + c} — so {a + c} x. The {b} y is a different "
             f"thing; it walked past and stayed as it was. {a + c} x plus {b} y.",
             f'[[tape parts="{a + c}x | {b}y" caption="the x\'s collected: {a + c}x + {b}y"]]')
@@ -2919,7 +2993,7 @@ def _dstm_board(p):
 
 def _dstm_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the {a} reaches both rooms, minus and all. One room is {a} "
+    return (f"Here it is, step by step: the {a} reaches both rooms, minus and all. One room is {a} "
             f"times x — {a} x. The other is {a} times {b}, which equals {a * b}, and that "
             f"room is taken away. So it is {a} x take away {a * b} — not {b}.",
             f'[[areamodel rows="{a}" cols="x,-{b}" caption="{a}(x − {b}) = {a}x − {a * b}"]]')
@@ -2933,7 +3007,7 @@ def _un1_board(p):
 
 def _un1_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: {a} came off both sides, so the scale stayed level. {b} "
+    return (f"Here it is, step by step: {a} came off both sides, so the scale stayed level. {b} "
             f"take away {a} equals {b - a}, and x is equal to {b - a}. Put it back to check: "
             f"{b - a} plus {a} equals {b}. Level.",
             f'[[balance left="x" right="{b - a}" caption="{a} off both sides: x = {b - a}"]]'
@@ -2951,7 +3025,7 @@ def _un2_board(p):
 def _un2_worked(p):
     a, b = p["a"], p["b"]
     q = b // a
-    return (f"Look what you did: {a} copies of x weigh {b}, so one x is {b} shared between "
+    return (f"Here it is, step by step: {a} copies of x weigh {b}, so one x is {b} shared between "
             f"{a}, which equals {q}. Nothing was added, so nothing was taken away — the undo "
             f"of a times is a share. Check: {a} times {q} equals {b}. Level.",
             f'[[balance left="x" right="{q}" caption="shared between {a}: x = {q}"]]'
@@ -2969,7 +3043,7 @@ def _un3_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     m = c - b
     q = m // a
-    return (f"Look what you did: two undos, last on first off. The {b} came off both sides: "
+    return (f"Here it is, step by step: two undos, last on first off. The {b} came off both sides: "
             f"{a} x equals {m}. Then the share: {m} shared between {a} equals {q}. Check: "
             f"{a} times {q} is {a * q}, plus {b} is {c}. Level.",
             f'[[balance left="{a}x" right="{m}" caption="{b} off both sides"]]'
@@ -2988,7 +3062,7 @@ def _ineq_board(p):
 def _ineq_worked(p):
     a, b = p["a"], p["b"]
     n = b - a
-    return (f"Look what you did: take {a} off both sides and x is less than {n}. Less than "
+    return (f"Here it is, step by step: take {a} off both sides and x is less than {n}. Less than "
             f"shuts the door on {n} itself — {n} plus {a} is {b}, not under {b}. The biggest "
             f"whole number under {n} is {n - 1}: {n - 1} plus {a} equals {n - 1 + a}, and "
             f"that is under {b}.",
@@ -3005,7 +3079,7 @@ def _fm1_board(p):
 
 def _fm1_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: {c} went in and the rule ran in order. Times by {a} first: "
+    return (f"Here it is, step by step: {c} went in and the rule ran in order. Times by {a} first: "
             f"{a} times {c} equals {a * c}. Then add {b}: {a * c} plus {b} equals "
             f"{a * c + b}. Out came {a * c + b}.",
             f'[[machine input="{c}" rule="{a}x + {b}" output="{a * c + b}" '
@@ -3022,7 +3096,7 @@ def _fnot_board(p):
 
 def _fnot_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: f of {b} means feed the machine {b} — nothing is timesed. "
+    return (f"Here it is, step by step: f of {b} means feed the machine {b} — nothing is timesed. "
             f"{b} plus {a} equals {a + b}, so f of {b} equals {a + b}.",
             f'[[machine input="{b}" rule="x + {a}" output="{a + b}" fname="f" '
             f'caption="f({b}) = {b} + {a} = {a + b}"]]')
@@ -3039,7 +3113,7 @@ def _fm2_board(p):
 def _fm2_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     m = c + a
-    return (f"Look what you did: first machine first. {c} plus {a} equals {m}, and that {m} "
+    return (f"Here it is, step by step: first machine first. {c} plus {a} equals {m}, and that {m} "
             f"went straight into machine two: {m} times {b} equals {m * b}. Add first, then "
             f"times — because that is the order the machines stand in.",
             f'[[machine input="{c}" rule="x + {a}" output="{m}" caption="in {c}, out {m}"]]'
@@ -3056,7 +3130,7 @@ def _fback_board(p):
 
 def _fback_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the machine added {a} and put out {b}, so undo the add — "
+    return (f"Here it is, step by step: the machine added {a} and put out {b}, so undo the add — "
             f"{b} take away {a} equals {b - a}. The input was {b - a}. Run it forwards to "
             f"check: {b - a} plus {a} equals {b}. It fits.",
             f'[[machine input="{b - a}" rule="x + {a}" output="{b}" fname="f" '
@@ -3085,7 +3159,7 @@ def _lny_board(p):
 
 def _lny_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: find {b} along the bottom, climb straight up to the line, and "
+    return (f"Here it is, step by step: find {b} along the bottom, climb straight up to the line, and "
             f"read the height — {b} plus {a} equals {b + a}. The point is {b} comma {b + a}: the "
             f"x you were given, standing under the y you found.",
             f'[[graph lines="y=x+{a}" points="({b},{b + a})" range="0..{b + a + 2}" '
@@ -3101,7 +3175,7 @@ def _slp_board(p):
 
 def _slp_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: x stepped once, from {b} to {b + 1}, and y climbed from {c} "
+    return (f"Here it is, step by step: x stepped once, from {b} to {b + 1}, and y climbed from {c} "
             f"to {c + a} — a climb of {a}, because {c + a} take away {c} equals {a}. That "
             f"climb per step is the slope, and it is {a} all the way along the line.",
             f'[[graph lines="{_line_spec(a, c - a * b)}" points="({b},{c}),({b + 1},{c + a})" '
@@ -3118,7 +3192,7 @@ def _yint_board(p):
 
 def _yint_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: at x equals zero, {a} times zero is zero — the whole times "
+    return (f"Here it is, step by step: at x equals zero, {a} times zero is zero — the whole times "
             f"part vanishes — and all that is left is the plus {b}. The line starts at height "
             f"{b} and does its climbing from there.",
             f'[[graph lines="y={a}x+{b}" points="(0,{b})" range="0..5" '
@@ -3135,7 +3209,7 @@ def _lin2_board(p):
 
 def _lin2_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: start at {b}, then climb {a} for each of the {c} steps — {a} "
+    return (f"Here it is, step by step: start at {b}, then climb {a} for each of the {c} steps — {a} "
             f"times {c} equals {a * c} of climbing. {a * c} plus {b} equals {a * c + b}. The "
             f"line stands at height {a * c + b} over x equals {c}.",
             f'[[graph lines="y={a}x+{b}" points="({c},{a * c + b})" range="0..{c + 2}" '
@@ -3155,7 +3229,7 @@ def _sys1_worked(p):
     a, b = p["a"], p["b"]
     x0 = a // (b - 1)
     y0 = b * x0
-    return (f"Look what you did: the lines cross once, and at the crossing both rules give the "
+    return (f"Here it is, step by step: the lines cross once, and at the crossing both rules give the "
             f"same y. At x equals {x0}, the first rule says {x0} plus {a}, which is {y0}, and "
             f"the second says {b} times {x0}, which is {y0}. They agree — and the x asked for "
             f"is {x0}, not the height {y0}.",
@@ -3176,7 +3250,7 @@ def _sys2_board(p):
 def _sys2_worked(p):
     a, b = p["a"], p["b"]
     x0 = (b - a) // 2
-    return (f"Look what you did: swap y for what it equals and the bar holds two x's and a {a}. "
+    return (f"Here it is, step by step: swap y for what it equals and the bar holds two x's and a {a}. "
             f"Take the {a} off: two x's are {b - a}, so one x is {x0}. And y is {x0} plus {a}, "
             f"which is {x0 + a} — the OTHER letter. Check: {x0} plus {x0 + a} equals {b}.",
             f'[[tape parts="{x0} | {x0} | {a}" total="{b}" caption="x = {x0} · y = {x0 + a} · {x0} + {x0 + a} = {b}"]]')
@@ -3195,7 +3269,7 @@ def _sumd_worked(p):
     a, b = p["a"], p["b"]
     big = (a + b) // 2
     small = (a - b) // 2
-    return (f"Look what you did: add the two clues and the smaller cancels itself away — two "
+    return (f"Here it is, step by step: add the two clues and the smaller cancels itself away — two "
             f"bigs equal {a} plus {b}, which is {a + b}, so the bigger is {big}. The smaller "
             f"is what is left: {small}. Check both: {big} plus {small} is {a}, and {big} take "
             f"away {small} is {b}.",
@@ -3215,7 +3289,7 @@ def _elim_worked(p):
     a, b = p["a"], p["b"]
     pen = a - b
     er = b - pen
-    return (f"Look what you did: take trip two away from trip one. The eraser is in both, so "
+    return (f"Here it is, step by step: take trip two away from trip one. The eraser is in both, so "
             f"it vanishes, and one pencil is left over against {a} take away {b} — {pen} "
             f"cents. The eraser is {b} take away {pen}, which is {er} — the other unknown, "
             f"not yours.",
@@ -3234,7 +3308,7 @@ def _exadd_board(p):
 
 def _exadd_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: {a} x's joined by {b} more x's — count them on the page, and "
+    return (f"Here it is, step by step: {a} x's joined by {b} more x's — count them on the page, and "
             f"there are {a + b}. Two piles joined, so the counts ADD: x to the power {a + b}.",
             f'[[tape parts="{" | ".join(["x"] * (a + b))}" total="x{_sup(a + b)}" '
             f'caption="{a} + {b} = {a + b} x\'s — x{_sup(a + b)}"]]')
@@ -3251,7 +3325,7 @@ def _exmul_board(p):
 
 def _exmul_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: {b} copies of the whole thing, and each copy is {a} x's — "
+    return (f"Here it is, step by step: {b} copies of the whole thing, and each copy is {a} x's — "
             f"{b} groups of {a} is {a} times {b}, which equals {a * b} x's. Copies of copies "
             f"TIMES: x to the power {a * b}.",
             f'[[tape parts="{" | ".join(["x" + _sup(a)] * b)}" total="x{_sup(a * b)}" '
@@ -3268,7 +3342,7 @@ def _sci_board(p):
 def _sci_worked(p):
     a, b = p["a"], p["b"]
     n = b * 10 ** a
-    return (f"Look what you did: 10 to the power {a} is a 1 with {a} zeros, so {b} times it "
+    return (f"Here it is, step by step: 10 to the power {a} is a 1 with {a} zeros, so {b} times it "
             f"moves the {b} up {a} places — {n}, the {b} with {a} zeros marching behind it. "
             f"The power counts the zeros; it is not a number to times by.",
             f'[[placevalue n="{n}" caption="{b} × 10{_sup(a)} = {n}"]]')
@@ -3288,7 +3362,7 @@ def _dbl_worked(p):
     n = b * 2 ** a
     alld = " | ".join(f"day {d}:{b * 2 ** d}" for d in range(a + 1))
     seq = ", then ".join(str(b * 2 ** d) for d in range(1, a + 1))
-    return (f"Look what you did: doubling {a} times — {seq}. After {a} days the pond holds "
+    return (f"Here it is, step by step: doubling {a} times — {seq}. After {a} days the pond holds "
             f"{n} pads, because {b} times 2 to the power {a} is {n}. Each day doubled "
             f"everything there was, not just the start — look how the bars pull away.",
             f'[[bars data="{alld}" caption="{b} × 2{_sup(a)} = {n} pads after {a} days"]]')
@@ -3309,7 +3383,7 @@ def _foil_board(p):
 
 def _foil_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the two middle rooms are {b} x and {a} x, and middles ADD — "
+    return (f"Here it is, step by step: the two middle rooms are {b} x and {a} x, and middles ADD — "
             f"{a} plus {b} equals {a + b}, so {a + b} x. The corner times: {a} times {b} is "
             f"{a * b}. x squared, plus {a + b} x, plus {a * b}.",
             f'[[areamodel rows="x,{a}" cols="x,{b}" caption="(x + {a})(x + {b}) = x² + {a + b}x + {a * b}"]]')
@@ -3326,7 +3400,7 @@ def _fnum_board(p):
 
 def _fnum_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the hidden number has to fit both clues. {a} plus {b} equals "
+    return (f"Here it is, step by step: the hidden number has to fit both clues. {a} plus {b} equals "
             f"{a + b} — the x count. {a} times {b} equals {a * b} — the corner. {b} fits both, "
             f"so the other side is x plus {b}. Multiply the sides back out and the sum comes "
             f"back.",
@@ -3344,7 +3418,7 @@ def _gcfx_board(p):
 
 def _gcfx_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: the {c} came out of BOTH rooms. {c * a} x is {c} times {a} x, "
+    return (f"Here it is, step by step: the {c} came out of BOTH rooms. {c * a} x is {c} times {a} x, "
             f"and {c * b} is {c} times {b} — so inside the parentheses is {a} x plus {b}. Check "
             f"it forwards: {c} times {a} x is {c * a} x, and {c} times {b} is {c * b}.",
             f'[[areamodel rows="{c}" cols="{a}x,{b}" caption="{c * a}x + {c * b} = {c}({a}x + {b}) ✓"]]')
@@ -3361,7 +3435,7 @@ def _dsq_board(p):
 
 def _dsq_worked(p):
     a = p["a"]
-    return (f"Look what you did: the middle rooms are plus {a} x and take away {a} x — they "
+    return (f"Here it is, step by step: the middle rooms are plus {a} x and take away {a} x — they "
             f"cancel to nothing. The corner is {a} times {a}, which is {a * a}, taken away. "
             f"x squared take away {a * a}: the square of {a}, not {a} and not {2 * a}.",
             f'[[areamodel rows="x,{a}" cols="x,-{a}" caption="(x + {a})(x − {a}) = x² − {a * a}"]]')
@@ -3376,7 +3450,7 @@ def _sqy_board(p):
 
 def _sqy_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: {a} squared is {a} times itself — {a * a}, not {2 * a}. Then "
+    return (f"Here it is, step by step: {a} squared is {a} times itself — {a * a}, not {2 * a}. Then "
             f"plus {b}: {a * a} plus {b} equals {a * a + b}. The curve stands at height "
             f"{a * a + b} over x equals {a}.",
             f'[[graph func="x^2+{b}" points="({a},{a * a + b})" range="-{a + 1}..{a + 1}" '
@@ -3397,7 +3471,7 @@ def _roots_board(p):
 def _roots_worked(p):
     a, b = p["a"], p["b"]
     hi = max(a, b) + 2
-    return (f"Look what you did: a product is zero only when a factor is zero. x equals {a} "
+    return (f"Here it is, step by step: a product is zero only when a factor is zero. x equals {a} "
             f"turns the first bracket to zero, and x equals {b} turns the second to zero — "
             f"so the curve touches the ground at {a} and at {b}. Two answers, one per bracket, "
             f"and nobody added or timesed them.",
@@ -3417,7 +3491,7 @@ def _vtx_board(p):
 
 def _vtx_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: a square is never below zero, so the squared part bottoms "
+    return (f"Here it is, step by step: a square is never below zero, so the squared part bottoms "
             f"out at 0 — right at x equals {a}. There y is 0 plus {b}, which is {b}. The {a} "
             f"says where the low point sits; the {b} says how low it goes.",
             f'[[graph func="(x-{a})^2+{b}" points="({a},{b})" range="{a - 3}..{a + 3}" '
@@ -3435,7 +3509,7 @@ def _hitg_board(p):
 
 def _hitg_worked(p):
     a = p["a"]
-    return (f"Look what you did: the height is zero when x squared equals {a * a}, and the "
+    return (f"Here it is, step by step: the height is zero when x squared equals {a * a}, and the "
             f"number that squares to {a * a} is {a} — {a} times {a}. The ball lands at x "
             f"equals {a}. {a} is the square root of {a * a}; it is not half of {a * a}.",
             f'[[graph func="{a * a}-x^2" points="(0,{a * a}),({a},0)" range="0..{a + 1}" '
@@ -3453,7 +3527,7 @@ def _mean_board(p):
 
 def _mean_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: pile everything together — {a * b} in all — then share it "
+    return (f"Here it is, step by step: pile everything together — {a * b} in all — then share it "
             f"equally between the {a}. {a * b} shared between {a} is {b} each. The mean is "
             f"{b}: what everybody would have if it were shared out evenly.",
             f'[[tape parts="{" | ".join([str(b)] * a)}" total="{a * b}" '
@@ -3469,7 +3543,7 @@ def _medn_board(p):
 
 def _medn_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: {2 * a + 1} numbers, already in order. Walk in from both "
+    return (f"Here it is, step by step: {2 * a + 1} numbers, already in order. Walk in from both "
             f"ends at once and you meet at {b}, with {a} below it and {a} above it. The median "
             f"is {b} — the middle number, not the middle of the ends.",
             f'[[dotplot values="{_medlist(p)}" caption="{a} below · {b} · {a} above — the median is {b}"]]'
@@ -3485,7 +3559,7 @@ def _rnge_board(p):
 
 def _rnge_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the range is how far the data stretches, from the smallest "
+    return (f"Here it is, step by step: the range is how far the data stretches, from the smallest "
             f"to the biggest. {b} take away {a} equals {b - a}. Not {a + b} — the ends are "
             f"not added, the gap between them is measured.",
             f'[[numberline min="0" max="{b + 2}" points="{a},{b}" '
@@ -3504,7 +3578,7 @@ def _outl_board(p):
 def _outl_worked(p):
     b, c = p["b"], p["c"]
     m = (4 * b + c) // 5
-    return (f"Look what you did: line them up and walk in from both ends — the middle child "
+    return (f"Here it is, step by step: line them up and walk in from both ends — the middle child "
             f"still has {b}, so the median is {b}. The mean was dragged to {m} by the one "
             f"with {c}, and nobody in the room has {m}. One unusual number moves the mean and "
             f"leaves the median standing.",
@@ -3524,7 +3598,7 @@ def _comp_board(p):
 
 def _comp_worked(p):
     a = p["a"]
-    return (f"Look what you did: the two angles fill a square corner, and a square corner is "
+    return (f"Here it is, step by step: the two angles fill a square corner, and a square corner is "
             f"90 degrees — not 180. 90 take away {a} equals {90 - a}, and {a} plus {90 - a} "
             f"puts the corner back together.",
             f'[[angle deg="90" split="{a},{90 - a}" caption="{a}° + {90 - a}° = 90°"]]')
@@ -3539,7 +3613,7 @@ def _vert_board(p):
 
 def _vert_worked(p):
     a = p["a"]
-    return (f"Look what you did: the angle next to {a} sits with it on one straight line, "
+    return (f"Here it is, step by step: the angle next to {a} sits with it on one straight line, "
             f"and a straight line is 180. 180 take away {a} equals {180 - a}. The angle "
             f"opposite is {a} again — the twin — but next to was what was asked.",
             f'[[angle deg="180" split="{a},{180 - a}" caption="on one straight line: {a}° + {180 - a}° = 180°"]]')
@@ -3553,7 +3627,7 @@ def _circ_board(p):
 
 def _circ_worked(p):
     a = p["a"]
-    return (f"Look what you did: the diameter goes all the way across through the middle — "
+    return (f"Here it is, step by step: the diameter goes all the way across through the middle — "
             f"two radiuses laid end to end. 2 times {a} equals {2 * a}. Doubling goes radius "
             f"to diameter; halving would have gone the wrong way.",
             f'[[circle center="O" r="{a}" d="{2 * a}" caption="two radiuses end to end: 2 × {a} = {2 * a}"]]')
@@ -3569,7 +3643,7 @@ def _mid_board(p):
 def _mid_worked(p):
     a, b = p["a"], p["b"]
     m = (a + b) // 2
-    return (f"Look what you did: both ends go in. {a} plus {b} equals {a + b}, shared by two "
+    return (f"Here it is, step by step: both ends go in. {a} plus {b} equals {a + b}, shared by two "
             f"is {m}. Check it: {m} is {m - a} away from {a} and {b - m} away from {b} — the "
             f"same both ways, so {m} is the midpoint.",
             f'[[numberline min="{a - 1}" max="{b + 1}" points="{a},{m},{b}" mid="{m}" '
@@ -3585,7 +3659,7 @@ def _tran_board(p):
 
 def _tran_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: a slide to the right touches only x. {a} plus {c} equals "
+    return (f"Here it is, step by step: a slide to the right touches only x. {a} plus {c} equals "
             f"{a + c}, and y stayed at {b} — it never heard about the move. The point landed "
             f"at {a + c} across, {b} up.",
             f'[[graph points="({a},{b}),({a + c},{b})" range="0..14" yrange="0..10" '
@@ -3601,7 +3675,7 @@ def _refl_board(p):
 
 def _refl_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: across the y line the point keeps its height and its "
+    return (f"Here it is, step by step: across the y line the point keeps its height and its "
             f"distance from the mirror — only the side changes. x goes from {a} to negative "
             f"{a}, and y stays {b}.",
             f'[[graph lines="x=0" points="({a},{b}),(-{a},{b})" range="-9..9" yrange="0..10" '
@@ -3617,7 +3691,7 @@ def _htrn_board(p):
 
 def _htrn_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: a half turn around the middle carries the point to the "
+    return (f"Here it is, step by step: a half turn around the middle carries the point to the "
             f"exact opposite spot — both signs change. x goes from {a} to negative {a}, and "
             f"y goes from {b} to negative {b}. One sign alone would have been a flip.",
             f'[[graph points="({a},{b}),(-{a},-{b})" range="-9..9" yrange="-9..9" '
@@ -3638,7 +3712,7 @@ def _rota_worked(p):
     pic = (f'[[pie parts="{a}" caption="{a} equal parts — each is {d}° of the full turn"]]'
            if a <= 12 else
            f'[[write lines="one full turn = 360° | {a} equal parts | 360° ÷ {a} = {d}°"]]')
-    return (f"Look what you did: one full turn is 360 degrees, and {a} equal parts share it "
+    return (f"Here it is, step by step: one full turn is 360 degrees, and {a} equal parts share it "
             f"— 360 divided by {a} equals {d}. Turn the wheel {d} degrees and every part lands "
             f"on the next one; the wheel looks untouched.",
             pic + f'[[step eq="360° ÷ {a} = {d}°"]]')
@@ -3652,7 +3726,7 @@ def _cong_board(p):
 
 def _cong_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: the letters name the matching parts. F matches C and D "
+    return (f"Here it is, step by step: the letters name the matching parts. F matches C and D "
             f"matches A, so side FD matches side CA — {c}. Not the side that looks right on "
             f"the page; the copy may be turned.",
             f'[[triangle v="A,B,C" sides="{a},{b},{c}" caption="ABC — CA is {c}"]]'
@@ -3668,7 +3742,7 @@ def _isos_board(p):
 
 def _isos_worked(p):
     a = p["a"]
-    return (f"Look what you did: both base angles go in before the top comes out. {a} and "
+    return (f"Here it is, step by step: both base angles go in before the top comes out. {a} and "
             f"{a} use {2 * a} of the 180, so the top is 180 take away {2 * a}, which is "
             f"{180 - 2 * a}. Take away only one and the twin is still sitting inside.",
             f'[[triangle v="A,B,C" ticks="BC,CA" angles="{a},{a},{180 - 2 * a}" '
@@ -3686,7 +3760,7 @@ def _extr_board(p):
 def _extr_worked(p):
     a, b = p["a"], p["b"]
     c = 180 - a - b
-    return (f"Look what you did: the inside corner is 180 take away {a} and {b}, which is "
+    return (f"Here it is, step by step: the inside corner is 180 take away {a} and {b}, which is "
             f"{c}. The exterior angle sits with it on a straight line, so it is 180 take away "
             f"{c} — {a + b}. And {a + b} is exactly the two far angles put together.",
             f'[[triangle v="A,B,C" angles="{a},{b},{c}" '
@@ -3704,7 +3778,7 @@ def _chas_worked(p):
     a = p["a"]
     r = 180 - a
     e = r // 2
-    return (f"Look what you did: take the apex out first — 180 take away {a} leaves {r} for "
+    return (f"Here it is, step by step: take the apex out first — 180 take away {a} leaves {r} for "
             f"the two base angles. They are equal, so they share it evenly: {r} divided by 2 "
             f"equals {e} each.",
             f'[[triangle v="A,B,C" ticks="BC,CA" angles="{e},{e},{a}" '
@@ -3723,7 +3797,7 @@ def _scal_board(p):
 
 def _scal_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: a scale factor is a times, never an add. {a} times {b} "
+    return (f"Here it is, step by step: a scale factor is a times, never an add. {a} times {b} "
             f"equals {a * b}, and every other side of the copy is timesed by {b} too — that is "
             f"why the copy keeps its shape.",
             f'[[triangle v="A,B,C" sides="{a},," caption="small: {a}"]]'
@@ -3739,7 +3813,7 @@ def _sfac_board(p):
 def _sfac_worked(p):
     a, b = p["a"], p["b"]
     k = b // a
-    return (f"Look what you did: the factor is the big side divided by the side it matches — "
+    return (f"Here it is, step by step: the factor is the big side divided by the side it matches — "
             f"{b} divided by {a} equals {k}. Check it backwards: {a} times {k} equals {b}. Not "
             f"the difference, {b - a}; similar shapes share a times.",
             f'[[bars data="small:{a} | big:{b}" caption="{b} ÷ {a} = {k} — the big side is {k} times the small"]]'
@@ -3754,7 +3828,7 @@ def _mside_board(p):
 
 def _mside_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: divide to find the factor — {a * c} divided by {a} is {c} — "
+    return (f"Here it is, step by step: divide to find the factor — {a * c} divided by {a} is {c} — "
             f"then times to cross over: {b} times {c} equals {b * c}. Not {b} plus "
             f"{a * c - a}; adding the same difference bends the shape.",
             f'[[triangle v="A,B,C" sides="{a},{b}," caption="small: {a} and {b}"]]'
@@ -3770,7 +3844,7 @@ def _sare_board(p):
 
 def _sare_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: area lives in two directions, and the factor strikes both. "
+    return (f"Here it is, step by step: area lives in two directions, and the factor strikes both. "
             f"Every one square becomes {b} by {b} — {b * b} squares — so {a} times {b} times "
             f"{b} equals {a * b * b}. Length pays the factor once; area pays it twice.",
             f'[[rectangle w="{b}" h="{b}" caption="one square scaled by {b}: {b * b} squares"]]'
@@ -3785,7 +3859,7 @@ def _pyth_board(p):
 
 def _pyth_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: {a} squared is {a * a} and {b} squared is {b * b}; put "
+    return (f"Here it is, step by step: {a} squared is {a * a} and {b} squared is {b * b}; put "
             f"together, {a * a + b * b}. Which number times itself is {a * a + b * b}? {c} — "
             f"so the hypotenuse is {c}. Not {a + b}, the walk around the corner, and not "
             f"{a * a + b * b}, the square of the side.",
@@ -3801,7 +3875,7 @@ def _leg_board(p):
 
 def _leg_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: the rule speaks in squares. {c} squared is {c * c}, take "
+    return (f"Here it is, step by step: the rule speaks in squares. {c} squared is {c * c}, take "
             f"away {a} squared, {a * a}, leaves {c * c - a * a} — and {b} times {b} is "
             f"{b * b}, so the other leg is {b}. Not {c - a}: the lengths are never taken "
             f"away, the squares are.",
@@ -3817,7 +3891,7 @@ def _tang_board(p):
 
 def _tang_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the tangent is opposite divided by adjacent — {b} divided "
+    return (f"Here it is, step by step: the tangent is opposite divided by adjacent — {b} divided "
             f"by {a} equals {b // a}. For every 1 across, the angle climbs {b // a}. A pure "
             f"number, no length: not {b}, and not {b - a}.",
             f'[[righttriangle adj="{a}" opp="{b}" caption="tan = {b} ÷ {a} = {b // a} — climbs {b // a} for every 1 across"]]'
@@ -3832,7 +3906,7 @@ def _topp_board(p):
 
 def _topp_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: a tangent of {b} climbs {b} for every one across. Walk {a} "
+    return (f"Here it is, step by step: a tangent of {b} climbs {b} for every one across. Walk {a} "
             f"across and it climbs {b}, {a} times over: {a} times {b} equals {a * b}. The "
             f"tangent is a times, not an add — and never the answer itself.",
             f'[[righttriangle adj="{a}" opp="{a * b}" caption="adjacent {a}, tangent {b} — opposite {a * b}"]]'
@@ -3847,7 +3921,7 @@ def _cent_board(p):
 
 def _cent_worked(p):
     a = p["a"]
-    return (f"Look what you did: a circle is a full turn, and a full turn is 360 — not a "
+    return (f"Here it is, step by step: a circle is a full turn, and a full turn is 360 — not a "
             f"line\'s 180. 360 take away {a} equals {360 - a}, and {a} plus {360 - a} puts "
             f"the whole circle back.",
             f'[[pie data="the arc {a}°:{a} | the rest {360 - a}°:{360 - a}" caption="{a}° + {360 - a}° = 360°"]]'
@@ -3862,7 +3936,7 @@ def _insc_board(p):
 
 def _insc_worked(p):
     a = p["a"]
-    return (f"Look what you did: from the rim the arc looks half. {a} divided by 2 equals "
+    return (f"Here it is, step by step: from the rim the arc looks half. {a} divided by 2 equals "
             f"{a // 2} degrees. From the middle the same arc would be {a}; the rim is farther "
             f"away, and from farther away it looks exactly half.",
             f'[[circle center="O" inscribed="{a}" caption="arc {a}° — from the rim it looks {a // 2}°"]]'
@@ -3877,7 +3951,7 @@ def _iarc_board(p):
 
 def _iarc_worked(p):
     a = p["a"]
-    return (f"Look what you did: from angle to arc you double. 2 times {a} equals {2 * a} "
+    return (f"Here it is, step by step: from angle to arc you double. 2 times {a} equals {2 * a} "
             f"degrees — and check it forwards: half of {2 * a} is {a}. The arc is the bigger "
             f"one; halving would have gone the wrong way.",
             f'[[circle center="O" inscribed="{2 * a}" caption="angle {a}° on the rim — arc 2 × {a}° = {2 * a}°"]]'
@@ -3895,7 +3969,7 @@ def _alen_board(p):
 def _alen_worked(p):
     a, b = p["a"], p["b"]
     n = 360 // a
-    return (f"Look what you did: {a} degrees goes into 360 {n} times, so the circle is {n} "
+    return (f"Here it is, step by step: {a} degrees goes into 360 {n} times, so the circle is {n} "
             f"equal parts and the arc is one of them. The whole distance around is {b}, so "
             f"the arc is {b} divided by {n} — {b // n}. Degrees say how far it turns; the "
             f"length says how far it runs.",
@@ -3917,7 +3991,7 @@ def _vseg_board(p):
 
 def _vseg_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: the length is the gap between the heights, {c} take away "
+    return (f"Here it is, step by step: the length is the gap between the heights, {c} take away "
             f"{b}, which equals {c - b}. Count the steps, never the dots — a fence with "
             f"{c - b + 1} posts has {c - b} rails.",
             f'[[graph points="({a},{b}),({a},{c})" range="0..10" yrange="0..10" caption="{c} − {b} = {c - b} steps"]]'
@@ -3933,7 +4007,7 @@ def _dist_board(p):
 
 def _dist_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: a right triangle sits under the slant — across {3 * c}, up "
+    return (f"Here it is, step by step: a right triangle sits under the slant — across {3 * c}, up "
             f"{4 * c}. {9 * c * c} plus {16 * c * c} is {25 * c * c}, and {5 * c} times "
             f"{5 * c} squares back to it: the straight path is {5 * c}. Walking the grid "
             f"would cost {7 * c}.",
@@ -3950,7 +4024,7 @@ def _mid2_board(p):
 def _mid2_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     m = (a + c) // 2
-    return (f"Look what you did: the x\'s are {a} and {c} — put together {a + c}, shared by "
+    return (f"Here it is, step by step: the x\'s are {a} and {c} — put together {a + c}, shared by "
             f"two is {m}. The middle sits halfway across, at x equals {m}; its y is its own "
             f"little average, {b + 2}.",
             f'[[graph points="({a},{b}),({m},{b + 2}),({c},{b + 4})" range="0..14" yrange="0..14" caption="the midpoint ({m}, {b + 2}) — x: ({a} + {c}) ÷ 2 = {m}"]]'
@@ -3965,7 +4039,7 @@ def _corn_board(p):
 
 def _corn_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: the fourth corner sits straight above ({c}, {b}), so it "
+    return (f"Here it is, step by step: the fourth corner sits straight above ({c}, {b}), so it "
             f"shares that x — {c}. It sits level with ({a}, {b + 3}), so its y is {b + 3}: the "
             f"corner is ({c}, {b + 3}), and the box is closed.",
             f'[[graph points="({a},{b}),({c},{b}),({a},{b + 3}),({c},{b + 3})" range="0..14" yrange="0..14" caption="the four corners — the fourth is ({c}, {b + 3})"]]'
@@ -3980,7 +4054,7 @@ def _para_board(p):
 
 def _para_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: base times height — {a} times {b} equals {a * b}. Push the "
+    return (f"Here it is, step by step: base times height — {a} times {b} equals {a * b}. Push the "
             f"leaning stack straight and it is a rectangle {a} long and {b} tall; the slanted "
             f"{c} was never how tall it stood.",
             f'[[rectangle w="{a}" h="{b}" caption="pushed straight: {a} by {b} — area {a * b}"]]'
@@ -3996,7 +4070,7 @@ def _lshp_board(p):
 
 def _lshp_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: cut, measure, put together. One room is {a} times {b}, "
+    return (f"Here it is, step by step: cut, measure, put together. One room is {a} times {b}, "
             f"{a * b}; the other is {c} times {b}, {c * b}. {a * b} plus {c * b} equals "
             f"{b * (a + c)} — areas add to areas; lengths never do.",
             f'[[rectangle w="{a}" h="{b}" caption="{a} × {b} = {a * b}"]]'
@@ -4012,7 +4086,7 @@ def _surf_board(p):
 
 def _surf_worked(p):
     a = p["a"]
-    return (f"Look what you did: six faces, all alike — top, bottom, and four around the "
+    return (f"Here it is, step by step: six faces, all alike — top, bottom, and four around the "
             f"sides. 6 times {a} equals {6 * a} square units. Four walls alone would be "
             f"{4 * a}, an open box; the floor and the ceiling are faces too.",
             f'[[bars data="top:{a} | bottom:{a} | front:{a} | back:{a} | left:{a} | right:{a}" caption="six faces of {a} — 6 × {a} = {6 * a}"]]'
@@ -4028,7 +4102,7 @@ def _svol_board(p):
 
 def _svol_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the box grows {b} times as long, {b} times as wide and {b} "
+    return (f"Here it is, step by step: the box grows {b} times as long, {b} times as wide and {b} "
             f"times as tall — {b} times {b} times {b} is {b ** 3} times the room. {a} times "
             f"{b ** 3} equals {a * b ** 3} cubic units. Length pays once, area twice, volume "
             f"three times.",
@@ -4044,7 +4118,7 @@ def _poft_board(p):
 
 def _poft_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the pick lands on one of ALL the marbles. {a} reds plus "
+    return (f"Here it is, step by step: the pick lands on one of ALL the marbles. {a} reds plus "
             f"{b} blues is {a + b} in the bag, so red is {a} out of {a + b} — not out of "
             f"{b}; the blues are not the whole bag.",
             f'[[pie data="red:{a} | blue:{b}" caption="the whole bag: {a} + {b} = {a + b} — red is {a} out of {a + b}"]]'
@@ -4059,7 +4133,7 @@ def _notp_board(p):
 
 def _notp_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: every chance belongs to somebody. {b} take away {a} leaves "
+    return (f"Here it is, step by step: every chance belongs to somebody. {b} take away {a} leaves "
             f"{b - a} out of {b} for no rain — and {a} plus {b - a} puts the whole {b} back.",
             f'[[bars data="rain:{a} | no rain:{b - a}" caption="{a} + {b - a} = {b} — every chance spoken for"]]'
             f'[[step eq="{b} − {a} = {b - a}"]]')
@@ -4073,7 +4147,7 @@ def _outc_board(p):
 
 def _outc_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: for every shirt, every one of the hats is still open — "
+    return (f"Here it is, step by step: for every shirt, every one of the hats is still open — "
             f"choices times up. {a} rows of {b} boxes is {a} times {b}, which equals "
             f"{a * b} outfits. Adding gives {a + b} things, not outfits.",
             f'[[array rows="{a}" cols="{b}" caption="{a} × {b} = {a * b} outfits"]]'
@@ -4088,7 +4162,7 @@ def _twop_board(p):
 
 def _twop_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: the girls row is the second row; slide along to the art "
+    return (f"Here it is, step by step: the girls row is the second row; slide along to the art "
             f"column, and the box where they cross holds {c + 2}. The next-door boxes were "
             f"the traps — {b} is the boys with art, {c} is the girls with soccer.",
             f'[[twoway rowlabels="boys,girls" collabels="soccer,art" data="{a},{b}|{c},{c + 2}" caption="girls row, art column — the crossing holds {c + 2}"]]'
@@ -4109,7 +4183,7 @@ def _absv_board(p):
 
 def _absv_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: {a} take away {b} lands on negative {b - a} — but the bars "
+    return (f"Here it is, step by step: {a} take away {b} lands on negative {b - a} — but the bars "
             f"ask how FAR, and a distance is a plain count of steps. From {a} to {b} is "
             f"{b - a} steps: keep the size, drop the sign.",
             f'[[numberline min="{a - 2}" max="{b + 2}" points="{a},{b}" hops="{a},{b}" caption="from {a} to {b}: {b - a} steps — |{a} − {b}| = {b - a}"]]'
@@ -4132,7 +4206,7 @@ def _absc_board(p):
 
 def _absc_worked(p):
     a = p["a"]
-    return (f"Look what you did: count the dots one side at a time. Left of zero, negative "
+    return (f"Here it is, step by step: count the dots one side at a time. Left of zero, negative "
             f"{a - 1} up to negative 1: {a - 1} dots. Right of zero, 1 up to {a - 1}: {a - 1} "
             f"more. And zero in the middle. {a - 1} plus {a - 1} plus 1 is {2 * a - 1} "
             f"integers. The fence posts stay out — {a} is not less than {a}.",
@@ -4150,7 +4224,7 @@ def _el2_board(p):
 
 def _el2_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: take the small trip away from the big one and the bananas "
+    return (f"Here it is, step by step: take the small trip away from the big one and the bananas "
             f"vanish. 3 apples take away 1 apple leaves 2 apples, costing {a} take away "
             f"{b} — {a - b}. Two apples for {a - b}: share, and one apple is "
             f"{(a - b) // 2} cents. Vanish, then share.",
@@ -4169,7 +4243,7 @@ def _sys3_board(p):
 def _sys3_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     t = a + b + c
-    return (f"Look what you did: put the three clues together — {t} — but every friend "
+    return (f"Here it is, step by step: put the three clues together — {t} — but every friend "
             f"stood on the scale twice, so {t} counts everybody two times. Halve it: all "
             f"three together weigh {t // 2}. Not {t}, and not a pair\'s typical weight.",
             f'[[bars data="all three clues:{t} | everyone once:{t // 2}" caption="{a} + {b} + {c} = {t} — everyone twice — so all three weigh {t // 2}"]]'
@@ -4185,7 +4259,7 @@ def _vtx2_board(p):
 
 def _vtx2_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the squared part bottoms out where x take away {a} is "
+    return (f"Here it is, step by step: the squared part bottoms out where x take away {a} is "
             f"zero — at x equals {a}, positive {a}. The minus points opposite. And the "
             f"plus {b} is a different fact: how high the turn floats, not where.",
             f'[[graph func="(x-{a})^2+{b}" points="({a},{b})" range="{a - 4}..{a + 4}" caption="the turn at x = {a} — the vertex ({a}, {b})"]]'
@@ -4201,7 +4275,7 @@ def _rsum_board(p):
 
 def _rsum_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: each factor donates one answer — x equals {a} and x "
+    return (f"Here it is, step by step: each factor donates one answer — x equals {a} and x "
             f"equals {b}, the two crossings. Put together, {a} plus {b} equals {a + b}. "
             f"Not the product, and not one answer of two.",
             f'[[graph func="(x-{a})*(x-{b})" points="({a},0),({b},0)" range="-1..{a + b}" caption="crossings at {a} and {b} — {a} + {b} = {a + b}"]]'
@@ -4215,7 +4289,7 @@ def _disc_worked(p):
                "exactly zero — the curve touches the x line once" if sq == fb else
                "below zero — the curve never reaches the x line")
     n = 2 if sq > fb else 1 if sq == fb else 0
-    return (f"Look what you did: {a} squared is {sq}, and 4 times {b} is {fb}. The test "
+    return (f"Here it is, step by step: {a} squared is {sq}, and 4 times {b} is {fb}. The test "
             f"number is {verdict}. You never report the test number, only its sign: "
             f"{n} crossings.",
             f'[[bars data="{a}²:{sq} | 4 · {b}:{fb}" caption="{sq} against {fb} — the test number is {verdict.split(" — ")[0]}"]]'
@@ -4232,7 +4306,7 @@ def _imag_board(p):
 def _imag_worked(p):
     a = p["a"]
     k = round(a ** 0.5)
-    return (f"Look what you did: the i carries the minus, so the number in front of it is "
+    return (f"Here it is, step by step: the i carries the minus, so the number in front of it is "
             f"what SQUARED gives {a} — {k}, because {k} times {k} is {a}. Check: {k} i "
             f"times {k} i is {a} times i squared, negative {a}. So x is {k} i.",
             (f'[[array rows="{k}" cols="{k}" caption="{k} × {k} = {a} — so x = {k}i"]]' if k <= 10 else
@@ -4248,7 +4322,7 @@ def _pdeg_board(p):
 
 def _pdeg_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the top powers join, and joining piles of x\'s ADDS the "
+    return (f"Here it is, step by step: the top powers join, and joining piles of x\'s ADDS the "
             f"counts — x to the {a} times x to the {b} is x to the {a + b}. Degree {a} "
             f"times degree {b} lands on degree {a + b}. Not {a * b}: degrees do not times.",
             f'[[bars data="x{_sup(a)}:{a} | x{_sup(b)}:{b} | joined x{_sup(a + b)}:{a + b}" caption="{a} + {b} = {a + b}"]]'
@@ -4257,7 +4331,7 @@ def _pdeg_worked(p):
 
 def _turnc_worked(p):
     a = p["a"]
-    return (f"Look what you did: every turn spends a climb or a fall, and the last stretch "
+    return (f"Here it is, step by step: every turn spends a climb or a fall, and the last stretch "
             f"runs off to the horizon without turning back — so a degree {a} curve turns "
             f"at most {a - 1} times, one fewer than its degree. A ceiling, not a schedule.",
             f'[[bars data="degree:{a} | turns, at most:{a - 1}" caption="degree {a} → at most {a - 1} turns"]]'
@@ -4272,7 +4346,7 @@ def _rsum3_board(p):
 
 def _rsum3_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: three factors, three crossings — {a}, {b} and {c}. Put "
+    return (f"Here it is, step by step: three factors, three crossings — {a}, {b} and {c}. Put "
             f"together, {a} plus {b} plus {c} equals {a + b + c}. Not the product, and not "
             f"two of three: a cubic has three answers.",
             f'[[graph func="(x-{a})*(x-{b})*(x-{c})" points="({a},0),({b},0),({c},0)" range="-1..{c + 2}" caption="crossings at {a}, {b} and {c} — {a} + {b} + {c} = {a + b + c}"]]'
@@ -4290,7 +4364,7 @@ def _pval_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     cube = c ** 3
     y = cube - a * c + b
-    return (f"Look what you did: {c} CUBED is {cube} — not 3 times {c}. Take away {a} "
+    return (f"Here it is, step by step: {c} CUBED is {cube} — not 3 times {c}. Take away {a} "
             f"times {c}, {a * c}, leaves {cube - a * c}; plus {b} equals {y}. Read the "
             f"power, keep the sign.",
             f'[[machine input="{c}" rule="x³ − {a}x + {b}" output="{y}" caption="{c}³ − {a}·{c} + {b} = {y}"]]'
@@ -4314,7 +4388,7 @@ def _rdiv_board(p):
 
 def _rdiv_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: {a} shared among {b} is {a} divided by {b}, which equals "
+    return (f"Here it is, step by step: {a} shared among {b} is {a} divided by {b}, which equals "
             f"{a // b}. The word is DIVIDED — not take away, not times. The bigger the "
             f"crowd, the smaller each share.",
             f'[[graph func="{a}/x" points="({b},{a // b})" range="0..{a + 2}" caption="at x = {b}, y = {a} ÷ {b} = {a // b}"]]'
@@ -4331,7 +4405,7 @@ def _rsol_board(p):
 
 def _rsol_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: x times {b} must rebuild {a}, so x is {a} divided by {b} — "
+    return (f"Here it is, step by step: x times {b} must rebuild {a}, so x is {a} divided by {b} — "
             f"{a // b}. Check it forward: {a} divided by {a // b} is {b}. Rebuild, then "
             f"divide; times is not this undo.",
             f'[[machine input="{a // b}" rule="{a} ÷ x" output="{b}" caption="x = {a} ÷ {b} = {a // b} — check: {a} ÷ {a // b} = {b}"]]'
@@ -4347,7 +4421,7 @@ def _excl_board(p):
 
 def _excl_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the bottom, x take away {a}, is zero exactly at x equals "
+    return (f"Here it is, step by step: the bottom, x take away {a}, is zero exactly at x equals "
             f"{a} — and dividing by zero is the one thing mathematics never allows. Look at "
             f"the curve: it flies off at x equals {a} and never lands. Every other x is "
             f"welcome.",
@@ -4364,7 +4438,7 @@ def _rasy_board(p):
 
 def _rasy_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: split the top — {a} x over x is just {a}, and {b} over x "
+    return (f"Here it is, step by step: split the top — {a} x over x is just {a}, and {b} over x "
             f"is the fading part. As x grows huge the {b} share dies toward zero and the "
             f"{a} stands untouched: y settles toward {a}, the level line.",
             f'[[graph func="({a}*x+{b})/x" lines="y={a}" range="0..20" caption="y = {a} + {b} ÷ x — the fading part dies, y settles toward the line y = {a}"]]'
@@ -4383,7 +4457,7 @@ def _sq_figure(k, total, cap):
 def _rmul_worked(p):
     a, b = p["a"], p["b"]
     k = round((a * b) ** 0.5)
-    return (f"Look what you did: under one roof, {a} times {b} is {a * b} — and {a * b} is "
+    return (f"Here it is, step by step: under one roof, {a} times {b} is {a * b} — and {a * b} is "
             f"a perfect square: {k} times {k}. Two ragged roots, one clean answer, {k}. "
             f"Not {a * b}, still under the roof; and roots never add.",
             _sq_figure(k, a * b, f"√{a} · √{b} = √{a * b} — and {a * b} is {k} × {k}")
@@ -4393,7 +4467,7 @@ def _rmul_worked(p):
 def _rpow_worked(p):
     a = p["a"]
     k = round(a ** 0.5)
-    return (f"Look what you did: a one-half power is a square root, never a halving. The "
+    return (f"Here it is, step by step: a one-half power is a square root, never a halving. The "
             f"root of {a} is {k}, because {k} times {k} is {a}. Half of {a} would be "
             f"{a // 2} — and {a // 2} times itself is nowhere near {a}.",
             f'[[bars data="√{a} = {k}:{k} | half of {a}:{a // 2}" caption="the root, {k}, beside the halving trap, {a // 2}"]]'
@@ -4409,7 +4483,7 @@ def _rsq_board(p):
 
 def _rsq_worked(p):
     a = p["a"]
-    return (f"Look what you did: the root\'s undo is the square. {a} times {a} equals "
+    return (f"Here it is, step by step: the root\'s undo is the square. {a} times {a} equals "
             f"{a * a}, so x is {a * a}. Check it forward: the square root of {a * a} is "
             f"{a}. Not double — doubling undoes halving, not rooting.",
             f'[[machine input="{a * a}" rule="√x" output="{a}" caption="x = {a}² = {a * a} — check: √{a * a} = {a}"]]'
@@ -4431,7 +4505,7 @@ def _rbet_worked(p):
     lo = int(a ** 0.5)
     hi = lo + 1
     near = lo if a - lo * lo < hi * hi - a else hi
-    return (f"Look what you did: {a} sits {a - lo * lo} past {lo * lo} and {hi * hi - a} "
+    return (f"Here it is, step by step: {a} sits {a - lo * lo} past {lo * lo} and {hi * hi - a} "
             f"short of {hi * hi}, so it leans toward {near * near} — the root of {a} is "
             f"closest to {near}. Square the neighbours, then see who is nearer; never "
             f"halve.",
@@ -4449,7 +4523,7 @@ def _hlfl_worked(p):
     a, b = p["a"], p["b"]
     days = " | ".join(f"day {d}:{a // 2 ** d}" for d in range(b + 1))
     chain = " → ".join(str(a // 2 ** d) for d in range(b + 1))
-    return (f"Look what you did: a divide each day, never a take away. {chain} — halving "
+    return (f"Here it is, step by step: a divide each day, never a take away. {chain} — halving "
             f"{b} times divides by {2 ** b}, and {a} divided by {2 ** b} equals "
             f"{a // 2 ** b} grams. Big numbers fall fast when the fall is a times.",
             f'[[bars data="{days}" caption="{chain}"]]'
@@ -4465,7 +4539,7 @@ def _logb_board(p):
 def _logb_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     layers = " | ".join(f"{b}{_sup(i)}:{b ** i}" for i in range(1, c + 1))
-    return (f"Look what you did: count the layers — {b} stacks {c} times to build {a}. "
+    return (f"Here it is, step by step: count the layers — {b} stacks {c} times to build {a}. "
             f"The logarithm is the hidden exponent, {c}: the count of the layers, not one "
             f"divide, and not the base itself.",
             f'[[bars data="{layers}" caption="{c} layers of {b} reach {a} — the logarithm is {c}"]]'
@@ -4484,7 +4558,7 @@ def _logm_board(p):
 def _logm_worked(p):
     a, b = p["a"], p["b"]
     la, lb = a.bit_length() - 1, b.bit_length() - 1
-    return (f"Look what you did: when values times, their logs add. {la} doublings joined "
+    return (f"Here it is, step by step: when values times, their logs add. {la} doublings joined "
             f"with {lb} doublings is {la + lb} doublings — the log of {a * b} is {la} plus "
             f"{lb}, which equals {la + lb}. Values times; logs add.",
             f'[[bars data="log {a}:{la} | log {b}:{lb} | log {a * b}:{la + lb}" caption="{la} + {lb} = {la + lb}"]]'
@@ -4504,7 +4578,7 @@ def _lbet_worked(p):
     lo = a.bit_length() - 1
     hi = lo + 1
     near = lo if a - 2 ** lo < 2 ** hi - a else hi
-    return (f"Look what you did: {a} sits {a - 2 ** lo} past {2 ** lo} and {2 ** hi - a} "
+    return (f"Here it is, step by step: {a} sits {a - 2 ** lo} past {2 ** lo} and {2 ** hi - a} "
             f"short of {2 ** hi}, so it leans toward {2 ** near} — the logarithm of {a} is "
             f"closest to {near}. Power the neighbours, then see who is nearer; never halve.",
             f'[[bars data="2{_sup(lo)}:{2 ** lo} | {a}:{a} | 2{_sup(hi)}:{2 ** hi}" caption="{a} − {2 ** lo} = {a - 2 ** lo} · {2 ** hi} − {a} = {2 ** hi - a} — nearer {2 ** near}, so log {a} → {near}"]]'
@@ -4530,7 +4604,7 @@ def _anth_board(p):
 def _anth_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     terms = " | ".join(f"term {i}:{a + (i - 1) * b}" for i in range(1, c + 1))
-    return (f"Look what you did: term 1 is already standing at the start, so term {c} is "
+    return (f"Here it is, step by step: term 1 is already standing at the start, so term {c} is "
             f"{c - 1} steps away — not {c}. {a} plus {c - 1} steps of {b} is {a} plus "
             f"{(c - 1) * b}, which equals {a + (c - 1) * b}.",
             f'[[bars data="{terms}" caption="{c - 1} steps of {b} from {a} — term {c} is {a + (c - 1) * b}"]]'
@@ -4547,7 +4621,7 @@ def _gnth_board(p):
 def _gnth_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     terms = " | ".join(f"term {i}:{a * b ** (i - 1)}" for i in range(1, c + 1))
-    return (f"Look what you did: a ratio is a times, never an add. Term {c} is {c - 1} "
+    return (f"Here it is, step by step: a ratio is a times, never an add. Term {c} is {c - 1} "
             f"leaps of times {b} from {a} — {a} times {b ** (c - 1)}, which equals "
             f"{a * b ** (c - 1)}. Adding {b} each time would only have strolled to "
             f"{a + b * (c - 1)}.",
@@ -4567,7 +4641,7 @@ def _gaus_worked(p):
     fig = (f'[[rectangle w="{a + 1}" h="{a}" half="1" caption="{a} rows of {a + 1} — half of {a * (a + 1)} is {total}"]]'
            if a + 1 <= 20 else
            f'[[bars data="{a} × {a + 1}:{a * (a + 1)} | halved:{total}" caption="{a} × {a + 1} = {a * (a + 1)}, halved: {total}"]]')
-    return (f"Look what you did: pair the ends — 1 with {a}, 2 with {a - 1}, and on — and "
+    return (f"Here it is, step by step: pair the ends — 1 with {a}, 2 with {a - 1}, and on — and "
             f"every pair is {a + 1}. That is {a} times {a + 1}, halved: {total}. Not "
             f"{a * a}, which overshoots, and not {a}, the last footstep only.",
             fig + f'[[step eq="{a} × {a + 1} ÷ 2 = {total}"]]')
@@ -4583,7 +4657,7 @@ def _reca_worked(p):
     a, b = p["a"], p["b"]
     t2 = 2 * a - b
     t3 = 2 * t2 - b
-    return (f"Look what you did: walk the whole rule, every term. Term 2: 2 times {a} take "
+    return (f"Here it is, step by step: walk the whole rule, every term. Term 2: 2 times {a} take "
             f"away {b} is {t2}. Term 3: 2 times {t2} take away {b} is {t3}. Not {t2}, "
             f"stopping early; and the take away happens every time.",
             f'[[machine input="{a}" rule="2x − {b}" output="{t2}" caption="term 2: 2 × {a} − {b} = {t2}"]]'
@@ -4606,7 +4680,7 @@ def _sinp_worked(p):
     h = {0: 0, 90: 1, 180: 0, 270: -1}[base]
     hs = {1: "1", 0: "0", -1: "negative 1"}[h]
     strip = (f"{a} is {spins} full spin{'s' if spins > 1 else ''} plus {base}, so " if spins else "")
-    return (f"Look what you did: {strip}the arrow points {_COMPASS[base]}. The sine is the "
+    return (f"Here it is, step by step: {strip}the arrow points {_COMPASS[base]}. The sine is the "
             f"height of its tip — {hs}. Strip away the full turns, point the arrow, read "
             f"the height.",
             f'[[unitcircle angle="{a}" caption="{a}° — the arrow points {_COMPASS[base]}: height {hs.replace("negative ", "−")}"]]'
@@ -4625,7 +4699,7 @@ def _cosp_worked(p):
     c = {0: 1, 90: 0, 180: -1, 270: 0}[base]
     cs = {1: "1", 0: "0", -1: "negative 1"}[c]
     strip = (f"{a} is {spins} full spin{'s' if spins > 1 else ''} plus {base}, so " if spins else "")
-    return (f"Look what you did: {strip}the arrow points {_COMPASS[base]}. The cosine is "
+    return (f"Here it is, step by step: {strip}the arrow points {_COMPASS[base]}. The cosine is "
             f"the across of its tip — {cs}. Same arrow as the sine; read across, not up.",
             f'[[unitcircle angle="{a}" caption="{a}° — the arrow points {_COMPASS[base]}: across {cs.replace("negative ", "−")}"]]'
             f'[[step eq="{a}° → {_COMPASS[base]} → cosine {cs.replace("negative ", "−")}"]]')
@@ -4639,7 +4713,7 @@ def _spin_board(p):
 
 def _spin_worked(p):
     a = p["a"]
-    return (f"Look what you did: a full turn is 360, so {a} plus 360 equals {a + 360} — and "
+    return (f"Here it is, step by step: a full turn is 360, so {a} plus 360 equals {a + 360} — and "
             f"the arrow points exactly where it began: same direction, same sine, same "
             f"cosine. A half turn would land opposite; 360 take away {a} is a mirror.",
             f'[[unitcircle angle="{a + 360}" values="0" caption="{a + 360}° — the same arrow as {a}°"]]'
@@ -4654,7 +4728,7 @@ def _ampl_board(p):
 
 def _ampl_worked(p):
     a = p["a"]
-    return (f"Look what you did: the plain sine tops out at 1, and the {a} out front "
+    return (f"Here it is, step by step: the plain sine tops out at 1, and the {a} out front "
             f"stretches every height by {a} — the wave crests at {a} and dips to negative "
             f"{a}. The amplitude is {a}: not {2 * a}, crest to trough, and not 1.",
             f'[[graph func="{a}*sin(x)" lines="y={a}" range="-7..7" caption="the crest line y = {a} — amplitude {a}"]]'
@@ -4671,7 +4745,7 @@ def _wavg_board(p):
 def _wavg_worked(p):
     a, b = p["a"], p["b"]
     m = (3 * a + 2 * b) // 5
-    return (f"Look what you did: all five scores go in. Three {a}s are {3 * a}; two {b}s "
+    return (f"Here it is, step by step: all five scores go in. Three {a}s are {3 * a}; two {b}s "
             f"are {2 * b}; put together, {3 * a + 2 * b}, shared by 5 — the mean is {m}. "
             f"It sits nearer the {a}s, because they count three times.",
             f'[[bars data="quiz 1:{a} | quiz 2:{a} | quiz 3:{a} | quiz 4:{b} | quiz 5:{b} | mean:{m}" caption="({3 * a} + {2 * b}) ÷ 5 = {m} — nearer the three {a}s"]]'
@@ -4687,7 +4761,7 @@ def _cnt3_board(p):
 
 def _cnt3_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: slot by slot, the times keeps rolling. {a} times {b} is "
+    return (f"Here it is, step by step: slot by slot, the times keeps rolling. {a} times {b} is "
             f"{a * b} shirt-and-pants pairs, and each pair takes any of {c} hats: {a * b} "
             f"times {c} is {a * b * c} outfits. Not added, and not stopped at two slots.",
             f'[[array rows="{a}" cols="{b}" caption="{a} × {b} = {a * b} pairs — each with {c} hats: {a * b * c}"]]'
@@ -4703,7 +4777,7 @@ def _expv_board(p):
 
 def _expv_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: count the paying plays first — about {a} of the {b} — "
+    return (f"Here it is, step by step: count the paying plays first — about {a} of the {b} — "
             f"then times by the prize: {a} wins of {c} tokens is {a * c} tokens. Not "
             f"{b * c}, as if every play paid; and not {c}, one win only.",
             f'[[array rows="{a}" cols="{c}" caption="{a} wins of {c} tokens — {a} × {c} = {a * c}"]]'
@@ -4719,7 +4793,7 @@ def _samp_board(p):
 
 def _samp_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: the school is {c} samples wide — {a * c} is {c} times "
+    return (f"Here it is, step by step: the school is {c} samples wide — {a * c} is {c} times "
             f"{a}. If each sample behaves like the one we asked, each holds about {b}: "
             f"{b} times {c} is about {b * c}. Scale the sample, and keep the word about.",
             f'[[bars data="one sample:{b} | the school, {c} samples wide:{b * c}" caption="{b} × {c} = about {b * c}"]]'
@@ -4745,7 +4819,7 @@ def _fcmp_board(p):
 
 def _fcmp_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: inside first — g of {c} is {b} times {c}, {b * c}. Then the "
+    return (f"Here it is, step by step: inside first — g of {c} is {b} times {c}, {b * c}. Then the "
             f"outer machine: f of {b * c} is {b * c} plus {a}, which equals {b * c + a}. The "
             f"inner machine runs before the outer; run f first and the number is different.",
             f'[[machine input="{c}" rule="{b}x" output="{b * c}" fname="g" caption="g({c}) = {b * c}"]]'
@@ -4766,7 +4840,7 @@ def _fshf_board(p):
 def _fshf_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     hi = b + a + 2
-    return (f"Look what you did: the minus inside points opposite — take away {a} inside "
+    return (f"Here it is, step by step: the minus inside points opposite — take away {a} inside "
             f"slides the whole graph RIGHT by {a}. The point keeps its height, {c}, and "
             f"lands at x equals {b} plus {a}, which is {b + a}. Not {b - a}: that is the "
             f"literal minus.",
@@ -4776,7 +4850,7 @@ def _fshf_worked(p):
 
 def _fdom_worked(p):
     a = p["a"]
-    return (f"Look what you did: below {a}, x take away {a} goes negative and the root "
+    return (f"Here it is, step by step: below {a}, x take away {a} goes negative and the root "
             f"refuses. At x equals {a} the inside is exactly zero — and zero under a root "
             f"is welcome. The doorway is {a}, and the curve starts right there. Not "
             f"negative {a}: that is the flip.",
@@ -4794,12 +4868,12 @@ def _fpie_board(p):
 def _fpie_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     if c < 5:
-        return (f"Look what you did: {c} lives below 5, so the FIRST rule runs and no other — "
+        return (f"Here it is, step by step: {c} lives below 5, so the FIRST rule runs and no other — "
                 f"{c} plus {a}, which equals {c + a}. The other rule sleeps; check the "
                 f"neighborhood, then compute.",
                 f'[[numberline min="0" max="10" points="5,{c}" caption="{c} is below 5 — the first rule runs: {c} + {a} = {c + a}"]]'
                 f'[[step eq="{c} < 5 → {c} + {a} = {c + a}"]]')
-    return (f"Look what you did: {c} is 5 or more, so the SECOND rule runs and no other — "
+    return (f"Here it is, step by step: {c} is 5 or more, so the SECOND rule runs and no other — "
             f"{b} times {c}, which equals {b * c}. The other rule sleeps; check the "
             f"neighborhood, then compute.",
             f'[[numberline min="0" max="10" points="5,{c}" caption="{c} is 5 or more — the second rule runs: {b} × {c} = {b * c}"]]'
@@ -4811,12 +4885,12 @@ def _negp_worked(p):
     pairs, left = a // 2, a % 2
     extra = f' extra="{left}"' if left else ""
     if left:
-        return (f"Look what you did: {a} minus signs pair up — {pairs} pairs, and one lone "
+        return (f"Here it is, step by step: {a} minus signs pair up — {pairs} pairs, and one lone "
                 f"minus sign left over at the end of the parade. The pairs cancel; the "
                 f"survivor stays. Odd power, answer negative 1.",
                 f'[[array rows="2" cols="{pairs}"{extra} caption="{a} minus signs — {pairs} pairs cancel, one survives: −1"]]'
                 f'[[step eq="(−1)^{a} = −1"]]')
-    return (f"Look what you did: {a} minus signs pair up — {pairs} pairs, none left over — "
+    return (f"Here it is, step by step: {a} minus signs pair up — {pairs} pairs, none left over — "
             f"and every pair cancels. Even power, answer 1: the minus is wiped away "
             f"completely.",
             f'[[array rows="2" cols="{pairs}" caption="{a} minus signs — {pairs} pairs, all cancel: 1"]]'
@@ -4833,7 +4907,7 @@ def _remt_board(p):
 def _remt_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     r = a * a + a * b + c
-    return (f"Look what you did: plug in {a} — {a} squared is {a * a}, plus {b} times {a} is "
+    return (f"Here it is, step by step: plug in {a} — {a} squared is {a * a}, plus {b} times {a} is "
             f"{a * b}, plus {c}: in all, {r}. That is exactly what long division would have "
             f"left over, and you never divided. Plug in the {a} from x take away {a}.",
             f'[[machine input="{a}" rule="x² + {b}x + {c}" output="{r}" caption="{a}² + {b}·{a} + {c} = {r} — the leftover"]]'
@@ -4849,7 +4923,7 @@ def _vprd_board(p):
 
 def _vprd_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the corner room is negative {a} times negative {b} — "
+    return (f"Here it is, step by step: the corner room is negative {a} times negative {b} — "
             f"{a * b}. The end number is the product of the roots. The middle number is "
             f"their sum, {a + b}, worn with a minus: sum sits in the middle, product at the "
             f"end.",
@@ -4861,12 +4935,12 @@ def _vasy_worked(p):
     a, b = p["a"], p["b"]
     if a != b:
         lo, hi = min(a, b), max(a, b)
-        return (f"Look what you did: each factor dies at its own x — {a} zeroes the first, "
+        return (f"Here it is, step by step: each factor dies at its own x — {a} zeroes the first, "
                 f"{b} the second — and either one alone flattens the whole bottom. Look at "
                 f"the curve: it flies off twice. Two different zeros — the count is 2.",
                 f'[[graph func="1/((x-{a})*(x-{b}))" range="{lo - 2}..{hi + 2}" yrange="-6..6" caption="y = 1 ÷ (x − {a})(x − {b}) — flies off at {a} and at {b}: two forbidden x\'s"]]'
                 f'[[step eq="x = {a} ✗ · x = {b} ✗ — count 2"]]')
-    return (f"Look what you did: two factors, but both die at the SAME x — only {a} zeroes "
+    return (f"Here it is, step by step: two factors, but both die at the SAME x — only {a} zeroes "
             f"the bottom. Look at the curve: it flies off once. Count the different zeros, "
             f"never the factors: the count is 1.",
             f'[[graph func="1/((x-{a})*(x-{a}))" range="{a - 3}..{a + 3}" yrange="-6..6" caption="y = 1 ÷ (x − {a})(x − {a}) — flies off once, at {a}: one forbidden x"]]'
@@ -4876,7 +4950,7 @@ def _vasy_worked(p):
 def _logp_worked(p):
     a, b = p["a"], p["b"]
     j = a.bit_length() - 1
-    return (f"Look what you did: log base 2 of {a} is {j} — {j} layers. The power rule "
+    return (f"Here it is, step by step: log base 2 of {a} is {j} — {j} layers. The power rule "
             f"brings the exponent {b} down front: {b} times {j}, which equals {b * j}. "
             f"Not {j ** b}, the log raised to the power — that is the wrong kind of growth.",
             f'[[bars data="log {a}:{j} | log {a}^{b}:{b * j}" caption="the exponent {b} comes down front: {b} × {j} = {b * j}"]]'
@@ -4892,7 +4966,7 @@ def _lsol_board(p):
 def _lsol_worked(p):
     a, b = p["a"], p["b"]
     layers = " | ".join(f"{a}{_sup(i)}:{a ** i}" for i in range(1, b + 1))
-    return (f"Look what you did: the log counted {b} layers of {a}, so rebuild the number by "
+    return (f"Here it is, step by step: the log counted {b} layers of {a}, so rebuild the number by "
             f"stacking them again — {a} multiplied out {b} times is {a ** b}. Not {a * b}: "
             f"a single times cannot reach {b} whole layers.",
             f'[[bars data="{layers}" caption="{b} layers of {a} — the mystery number is {a ** b}"]]'
@@ -4911,7 +4985,7 @@ def _hcnt_worked(p):
     k = (a // b).bit_length() - 1
     days = " | ".join(f"day {i}:{a >> i}" for i in range(k + 1))
     chain = " → ".join(str(a >> i) for i in range(k + 1))
-    return (f"Look what you did: halve and count — {chain}. That is {k} halvings, {k} days. "
+    return (f"Here it is, step by step: halve and count — {chain}. That is {k} halvings, {k} days. "
             f"The ratio, {a // b}, says how many times bigger {a} is — never how many "
             f"days; ask how many 2s multiply up to it.",
             f'[[bars data="{days}" caption="{chain} — {k} halvings"]]'
@@ -4929,7 +5003,7 @@ def _cmpd_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     years = " | ".join(f"year {a * i}:{c * 2 ** i}" for i in range(b + 1))
     chain = " → ".join(str(c * 2 ** i) for i in range(b + 1))
-    return (f"Look what you did: count the doublings first — {a * b} divided by {a} is {b}. "
+    return (f"Here it is, step by step: count the doublings first — {a * b} divided by {a} is {b}. "
             f"Then double {b} times: {chain}. {c * 2 ** b} dollars. Steady adding would "
             f"have stalled at {c * (1 + b)}; doubling pulls away.",
             f'[[bars data="{years}" caption="{b} doublings: {chain}"]]'
@@ -4957,7 +5031,7 @@ def _rad1_worked(p):
     else:
         fig = (f'[[numberline min="0" max="{deg}" hops="{",".join(str(180 * i) for i in range(a + 1))}" '
                f'caption="{a} hops of 180 — {deg}° = {a}π rad"]]')
-    return (f"Look what you did: 180 degrees is one half turn, one pi. Count how many fit in "
+    return (f"Here it is, step by step: 180 degrees is one half turn, one pi. Count how many fit in "
             f"{deg}: {deg} divided by 180 equals {a} — {a} pi radians. Quarter turns would "
             f"say {2 * a}, and the degrees themselves were never the answer.",
             fig + f'[[step eq="{deg} ÷ 180 = {a}"]][[step eq="{deg}° = {a}π rad"]]')
@@ -4971,7 +5045,7 @@ def _nspn_board(p):
 
 def _nspn_worked(p):
     a = p["a"]
-    return (f"Look what you did: a full turn is 360, so negative {a} plus 360 equals "
+    return (f"Here it is, step by step: a full turn is 360, so negative {a} plus 360 equals "
             f"{360 - a}. The same arrow, named forwards — it hangs {a} below flat right "
             f"either way. Dropping the minus would say {a}, the mirror image above the line.",
             f'[[unitcircle angle="{360 - a}" values="0" caption="the same arrow: −{a}° is {360 - a}° forwards"]]'
@@ -4986,7 +5060,7 @@ def _refq_board(p):
 
 def _refq_worked(p):
     a = p["a"]
-    return (f"Look what you did: flat left is 180 and the arrow sits at {a}, so the gap is "
+    return (f"Here it is, step by step: flat left is 180 and the arrow sits at {a}, so the gap is "
             f"180 take away {a} — {180 - a} degrees. Measured from straight up it would be "
             f"{a - 90}, but the reference angle hugs the FLAT line, always.",
             f'[[angle deg="180" split="{a},{180 - a}" caption="180 − {a} = {180 - a}° — the gap to flat left"]]'
@@ -5003,7 +5077,7 @@ def _wper_board(p):
 
 def _wper_worked(p):
     a = p["a"]; per = 360 // a
-    return (f"Look what you did: divide — 360 divided by {a} equals {per}. This wave tells "
+    return (f"Here it is, step by step: divide — 360 divided by {a} equals {per}. This wave tells "
             f"its whole story in {per} degrees, then starts again. Faster means SOONER: "
             f"stretching to {360 * a} points the wrong way.",
             f'[[graph func="sin({a}*x*pi/180)" names="sin {a}x" lines="x={per}" range="0..360" yrange="-1.5..1.5" '
@@ -5020,7 +5094,7 @@ def _pyid_board(p):
 
 def _pyid_worked(p):
     a = p["a"]
-    return (f"Look what you did: sine squared plus cosine squared equals 1 — the whole "
+    return (f"Here it is, step by step: sine squared plus cosine squared equals 1 — the whole "
             f"hundred. 100 take away {a} equals {100 - a}: cosine squared is {100 - a} "
             f"hundredths. The pair always splits one whole between them.",
             f'[[hundredgrid shaded="{a}" eq="{a} + {100 - a} = 100" caption="sin² {a} shaded, cos² {100 - a} left — one whole between them"]]'
@@ -5035,7 +5109,7 @@ def _cofn_board(p):
 
 def _cofn_worked(p):
     a = p["a"]
-    return (f"Look what you did: {a} plus {90 - a} equals 90, so the sine of {a} equals the "
+    return (f"Here it is, step by step: {a} plus {90 - a} equals 90, so the sine of {a} equals the "
             f"cosine of {90 - a}. One triangle, two sharp corners — what one corner calls "
             f"height, the other calls across.",
             f'[[triangle v="A,B,C" right="B" angles="{a},90,{90 - a}" caption="{a} + {90 - a} = 90 — partners across ninety"]]'
@@ -5054,12 +5128,12 @@ def _negf_worked(p):
     strip = (f"{a} back is {spins} full spin{'s' if spins > 1 else ''} and {a - 360 * spins} more, so the arrow"
              if spins else "The arrow")
     if c == 0:
-        spoken = (f"Look what you did: the mirror flips height, never across. {strip} "
+        spoken = (f"Here it is, step by step: the mirror flips height, never across. {strip} "
                   f"points {_COMPASS[base]}, and its across is {vs}. The cosine of negative "
                   f"{a} equals the cosine of {a} — even: the minus vanishes.")
         tail = f"cosine = across = {vb}"
     else:
-        spoken = (f"Look what you did: the mirror flips the height. {strip} points "
+        spoken = (f"Here it is, step by step: the mirror flips the height. {strip} points "
                   f"{_COMPASS[base]}, and its height is {vs}. The sine of negative {a} is the "
                   f"opposite of the sine of {a} — odd: one minus survives.")
         tail = f"sine = height = {vb}"
@@ -5098,7 +5172,7 @@ def _sols_worked(p):
     pts = ",".join(f"({x},{a})" for x in xs)
     turns = f"{b} turn{'s' if b > 1 else ''}"
     tail = (f"{b} turns, {base} each: {ans}." if b > 1 else f"One turn, so the count is {base}.")
-    return (f"Look what you did: each turn, the {word} equals {tw} "
+    return (f"Here it is, step by step: each turn, the {word} equals {tw} "
             f"{'twice' if base == 2 else 'once'} — {place}. {tail} Skip the start, keep the "
             f"finish, and never say 4 just because there are four quarters.",
             f'[[graph func="{fn}(x*pi/180)" names="{word}" lines="y={a}" points="{pts}" range="0..{360 * b}" yrange="-1.5..1.5" '
@@ -5118,13 +5192,13 @@ def _arsn_worked(p):
     prod = a * b
     if c == 90:
         ans = prod // 2
-        spoken = (f"Look what you did: the sine of 90 degrees is 1, so the area is half of "
+        spoken = (f"Here it is, step by step: the sine of 90 degrees is 1, so the area is half of "
                   f"{a} times {b} — half of {prod}, {ans}. The whole {prod} is the rectangle "
                   f"around it, and a triangle takes half.")
         steps = f'[[step eq="sin 90° = 1"]][[step eq="½ · {a} · {b} · 1 = {ans}"]]'
     else:
         ans = prod // 4
-        spoken = (f"Look what you did: the sine of {c} degrees is one half, so half the "
+        spoken = (f"Here it is, step by step: the sine of {c} degrees is one half, so half the "
                   f"product is halved again — a quarter of {a} times {b}, a quarter of {prod}, "
                   f"which is {ans}."
                   + (" And 150 shares its sine with 30: the wide triangle covers what the "
@@ -5143,7 +5217,7 @@ def _ramp_board(p):
 
 def _ramp_worked(p):
     a = p["a"]; h = a // 2
-    return (f"Look what you did: the sine of 30 degrees is one half, so the ramp climbs half "
+    return (f"Here it is, step by step: the sine of 30 degrees is one half, so the ramp climbs half "
             f"its length — half of {a} is {h} feet. The {a} is how far you walk up the slope, "
             f"and doubling would say {2 * a}, taller than the ramp is long.",
             f'[[triangle v="A,B,C" right="B" sides=",{h},{a}" angles="30,," caption="half of {a} — the top end sits {h} feet up"]]'
@@ -5158,7 +5232,7 @@ def _brng_board(p):
 
 def _brng_worked(p):
     a, b = p["a"], p["b"]; tot = a + b; ans = tot - 360
-    return (f"Look what you did: {a} plus {b} equals {tot} — past a full turn, so take away "
+    return (f"Here it is, step by step: {a} plus {b} equals {tot} — past a full turn, so take away "
             f"360: the new bearing is {ans} degrees. The ship swung around through north. "
             f"{tot} names no bearing, and {a - b} is where the backwards turn would point.",
             f'[[unitcircle bearing="{ans}" caption="{a} + {b} = {tot}, past 360 — the new bearing is {ans}°"]]'
@@ -5173,7 +5247,7 @@ def _vmag_board(p):
 
 def _vmag_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; sq = a * a + b * b
-    return (f"Look what you did: right {a} and up {b} meet at a right angle, so the arrow is "
+    return (f"Here it is, step by step: right {a} and up {b} meet at a right angle, so the arrow is "
             f"the hypotenuse. {a} squared is {a * a}, {b} squared is {b * b}, put together "
             f"{sq} — and {c} times {c} squares back to it. The arrow is {c}: longer than "
             f"either step, shorter than walking both, {a + b}.",
@@ -5197,7 +5271,7 @@ def _crad_board(p):
 
 def _crad_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: the number on the right is the radius SQUARED. Un-square "
+    return (f"Here it is, step by step: the number on the right is the radius SQUARED. Un-square "
             f"{c * c} and the radius is {c} — the circle reaches {c} in every direction "
             f"from its middle. The {a} and the {b} say where it sits, never how big it is.",
             f'[[conic type="circle" r="{c}" cx="{a}" cy="{b}" caption="middle ({a}, {b}) — the circle reaches {c} every way: radius {c}"]]'
@@ -5213,7 +5287,7 @@ def _cctr_board(p):
 
 def _cctr_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: x take away {a} is zero exactly at x equals {a}, and the "
+    return (f"Here it is, step by step: x take away {a} is zero exactly at x equals {a}, and the "
             f"middle sits where the squared pieces go quiet — the center's x is {a}. The "
             f"minus points opposite: take away {a} means positive {a}. The {b} is the y.",
             f'[[conic type="circle" r="{c}" cx="{a}" cy="{b}" caption="the middle sits at ({a}, {b}) — center x = {a}"]]'
@@ -5229,7 +5303,7 @@ def _elax_board(p):
 
 def _elax_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the number under x squared is the half-width SQUARED. "
+    return (f"Here it is, step by step: the number under x squared is the half-width SQUARED. "
             f"Un-square {a * a} and the ellipse reaches {a} each way from the middle; edge "
             f"to edge is double that — {2 * a}. The {b * b} does the same work upward: "
             f"{b} each way.",
@@ -5250,7 +5324,7 @@ def _parm_board(p):
 def _parm_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     h = round((a * a + b * b) ** 0.5)
-    return (f"Look what you did: at {c} seconds x is {a * c} and y is {b * c} — the two legs. "
+    return (f"Here it is, step by step: at {c} seconds x is {a * c} and y is {b * c} — the two legs. "
             f"The straight distance is the hypotenuse: {h * c}. Each second covers {h}, so "
             f"{h} alone is one second's worth, and {(a + b) * c} walks the corner.",
             f'[[vector v="{a * c},{b * c}" caption="at t = {c}: ({a * c}, {b * c}) — {h * c} from the start"]]'
@@ -5273,7 +5347,7 @@ def _gsum_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     t = _gsum_terms(p); tot = sum(t)
     bars = " | ".join(f"term {i + 1}:{v}" for i, v in enumerate(t))
-    return (f"Look what you did: the terms are {', '.join(str(v) for v in t)} — put together, "
+    return (f"Here it is, step by step: the terms are {', '.join(str(v) for v in t)} — put together, "
             f"{tot}. The last term alone is only {t[-1]}, and a pattern that never grew "
             f"would have stopped at {a * c}.",
             f'[[bars data="{bars}" caption="{" + ".join(str(v) for v in t)} = {tot}"]]'
@@ -5290,7 +5364,7 @@ def _sigm_worked(p):
     a, b = p["a"], p["b"]
     bare = b * (b + 1) // 2; tot = a * bare
     bars = " | ".join(f"k={k}:{a * k}" for k in range(1, b + 1))
-    return (f"Look what you did: every term carries the {a}, so pull it out front. 1 up to "
+    return (f"Here it is, step by step: every term carries the {a}, so pull it out front. 1 up to "
             f"{b} sums to {bare}, and {a} times {bare} equals {tot}. The bare sum {bare} "
             f"forgot the {a}, and {a * b} is only the last term.",
             f'[[bars data="{bars}" caption="{b} terms, each {a} times its k — {a} × {bare} = {tot}"]]'
@@ -5307,7 +5381,7 @@ def _pasc_board(p):
 def _pasc_worked(p):
     a, b = p["a"], p["b"]
     npr, f, ncr = _npr(a, b), _fact(b), _ncr(a, b)
-    return (f"Look what you did: picking in order would give {npr} line-ups, but every "
+    return (f"Here it is, step by step: picking in order would give {npr} line-ups, but every "
             f"team of {b} shows up {f} times in that list — once per order. Divide: {npr} "
             f"divided by {f} equals {ncr} teams.",
             f'[[bars data="line-ups:{npr} | teams:{ncr}" caption="{npr} line-ups ÷ {f} orders = {ncr} teams"]]'
@@ -5324,7 +5398,7 @@ def _gser_board(p):
 def _gser_worked(p):
     a = p["a"]
     hops = ",".join(f"{v:g}" for v in (0, a, a * 1.5, a * 1.75, a * 1.875))
-    return (f"Look what you did: add forever and it still settles. {a} plus {a // 2} plus "
+    return (f"Here it is, step by step: add forever and it still settles. {a} plus {a // 2} plus "
             f"{a // 4}, on and on, closes in on {2 * a} — twice the first bounce, and never "
             f"a foot more. Each hop covers half of what is left.",
             f'[[numberline min="0" max="{2 * a}" hops="{hops}" points="{2 * a}" caption="each hop covers half of what is left — in all, {2 * a}"]]'
@@ -5340,7 +5414,7 @@ def _lsub_board(p):
 
 def _lsub_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; v = a * b + c
-    return (f"Look what you did: nothing breaks at x equals {a}, so the value walks in with "
+    return (f"Here it is, step by step: nothing breaks at x equals {a}, so the value walks in with "
             f"x — {b} times {a} is {a * b}, plus {c} is {v}. For a line, the limit is "
             f"simply where the line already is.",
             f'[[graph lines="y={b}x+{c}" points="({a},{v})" range="0..{a + 3}" caption="walk x in to {a} — y walks in to {v}"]]'
@@ -5356,7 +5430,7 @@ def _lhol_board(p):
 
 def _lhol_worked(p):
     a = p["a"]
-    return (f"Look what you did: everywhere except {a}, that fraction quietly equals x plus "
+    return (f"Here it is, step by step: everywhere except {a}, that fraction quietly equals x plus "
             f"{a} — a straight line with one hole. As x creeps toward {a}, y creeps toward "
             f"{2 * a}. The function never reaches it; the limit says where it was headed.",
             f'[[graph func="(x^2-{a * a})/(x-{a})" hole="{a}" range="{a - 3}..{a + 3}" yrange="{2 * a - 6}..{2 * a + 6}" caption="a straight line with a hole at x = {a} — headed for {2 * a}"]]'
@@ -5374,12 +5448,12 @@ def _lsid_board(p):
 def _lsid_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     if c == 0:
-        spoken = (f"Look what you did: from the left, every x you pass is below 6, so y "
+        spoken = (f"Here it is, step by step: from the left, every x you pass is below 6, so y "
                   f"reads {a} the whole way in — the limit from that side is {a}. The other "
                   f"side would say {b}, and the two do not have to agree.")
         pts, v, side = f"(3,{a}),(4,{a}),(5,{a})", a, "left"
     else:
-        spoken = (f"Look what you did: from the right, every x you pass is 6 or more, so y "
+        spoken = (f"Here it is, step by step: from the right, every x you pass is 6 or more, so y "
                   f"reads {b} the whole way in — the limit from that side is {b}. The other "
                   f"side would say {a}, and the two do not have to agree.")
         pts, v, side = f"(9,{b}),(8,{b}),(7,{b})", b, "right"
@@ -5398,7 +5472,7 @@ def _avgr_board(p):
 def _avgr_worked(p):
     a, b = p["a"], p["b"]
     rise, run, r = b * b - a * a, b - a, a + b
-    return (f"Look what you did: y climbs from {a * a} to {b * b} — a rise of {rise} — while "
+    return (f"Here it is, step by step: y climbs from {a * a} to {b * b} — a rise of {rise} — while "
             f"x moves {run}. Divide: {r} per step, which is simply {a} plus {b}. The rise "
             f"alone and the run alone are only halves of the story.",
             f'[[graph func="x^2" lines="y={r}x-{a * b}" points="({a},{a * a}),({b},{b * b})" range="0..{b + 1}" yrange="0..{b * b + 10}" caption="the straight line through the two points climbs {r} per step"]]'
@@ -5419,7 +5493,7 @@ def _dotm_board(p):
 
 def _dotm_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the tallest stack sits over {a}, {b} dots high — so {b} "
+    return (f"Here it is, step by step: the tallest stack sits over {a}, {b} dots high — so {b} "
             f"students read {a} books each. The mode is the value UNDER the stack, {a}. "
             f"Read down to the number line, never across to how many.",
             f'[[dotplot values="{_dotmode(p)}" caption="the tallest stack, {b} dots, stands over {a} — the mode is {a}"]]'
@@ -5434,7 +5508,7 @@ def _dcnt_board(p):
 
 def _dcnt_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: count only the dots to the right of {a} — there are {b}. "
+    return (f"Here it is, step by step: count only the dots to the right of {a} — there are {b}. "
             f"The dot standing exactly on {a} does not join them, because {a} is not more "
             f"than {a}, and the {c} dots below answer the opposite question.",
             f'[[dotplot values="{_dotcut(p)}" caption="{b} dots past {a}; the one on {a} stays out"]]'
@@ -5448,7 +5522,7 @@ def _htot_board(p):
 
 def _htot_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; t = a + b + c
-    return (f"Look what you did: add the bars — {a} plus {b} plus {c} equals {t} scores in "
+    return (f"Here it is, step by step: add the bars — {a} plus {b} plus {c} equals {t} scores in "
             f"all. The tallest bar alone holds only {max(a, b, c)}, and the number of "
             f"bars is not the number of scores.",
             f'[[histogram values="{_histvals(p)}" caption="{a} + {b} + {c} = {t} in all"]]'
@@ -5462,7 +5536,7 @@ def _farv_board(p):
 
 def _farv_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: nearly every dot crowds around {a}, and one sits alone out "
+    return (f"Here it is, step by step: nearly every dot crowds around {a}, and one sits alone out "
             f"at {b} — that stray is the outlier. {a} is where the crowd is, and {b - a} is "
             f"only how far the stray sits from it.",
             f'[[dotplot values="{_farlist(p)}" caption="the crowd near {a}; the stray at {b} — the outlier is {b}"]]'
@@ -5478,7 +5552,7 @@ def _medv_board(p):
 def _medv_worked(p):
     a, b = p["a"], p["b"]; lo, hi, m = b, b + 2, b + 1
     vals = _evenlist(p)
-    return (f"Look what you did: {2 * a} numbers, so {a} sit either side and the middles "
+    return (f"Here it is, step by step: {2 * a} numbers, so {a} sit either side and the middles "
             f"are {lo} and {hi}. The median is halfway between them: {lo} plus {hi} is "
             f"{lo + hi}, halved is {m}. Neither middle on its own will do.",
             f'[[numberline min="{vals[0] - 1}" max="{vals[-1] + 1}" points="{lo},{hi}" mid="{m}" caption="the two middles, {lo} and {hi} — halfway between them is {m}"]]'
@@ -5493,7 +5567,7 @@ def _iqrw_board(p):
 
 def _iqrw_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; w = b - a
-    return (f"Look what you did: the box holds the middle half, from {a} to {b} — {b} take "
+    return (f"Here it is, step by step: the box holds the middle half, from {a} to {b} — {b} take "
             f"away {a} equals {w}. Whisker tip to whisker tip is {b + c - (a - c)}, the "
             f"whole stretch, a different measurement; and {b} alone is just the right edge.",
             f'[[boxplot five="{a - c},{a},{(a + b) // 2},{b},{b + c}" caption="the box runs {a} to {b} — {w} wide"]]'
@@ -5510,7 +5584,7 @@ def _madv_worked(p):
     a, b = p["a"], p["b"]
     vals = _madlist(p)
     bars = " | ".join(f"{v}:{abs(v - a)}" for v in vals)
-    return (f"Look what you did: the four distances from {a} are {3 * b}, {b}, {b} and "
+    return (f"Here it is, step by step: the four distances from {a} are {3 * b}, {b}, {b} and "
             f"{3 * b} — put together {8 * b}, shared between 4: {2 * b}. The farthest sits "
             f"{3 * b} away and the nearest {b}, so the average distance lies between them.",
             f'[[bars data="{bars}" caption="each number\'s distance from the mean — {8 * b} in all, shared four ways: {2 * b}"]]'
@@ -5526,7 +5600,7 @@ def _pctl_board(p):
 
 def _pctl_worked(p):
     a, b = p["a"], p["b"]; n = a * b // 100
-    return (f"Look what you did: {b} percent of {a} is {n}, so she beat {n} of them. The "
+    return (f"Here it is, step by step: {b} percent of {a} is {n}, so she beat {n} of them. The "
             f"{b} is a PERCENT, never a headcount — and the other {a - n} finished ahead of her.",
             f'[[bars data="beaten:{n} | ahead of her:{a - n}" caption="{b}% of {a} = {n} beaten, {a - n} ahead"]]'
             f'[[step eq="{b}% of {a} = {n}"]]')
@@ -5540,7 +5614,7 @@ def _spnt_board(p):
 
 def _spnt_worked(p):
     a = p["a"]; y = _scat_at(p); nxt = _scat_next(p)
-    return (f"Look what you did: find {a} along the bottom, go straight up to the dot, then "
+    return (f"Here it is, step by step: find {a} along the bottom, go straight up to the dot, then "
             f"straight across — {y} points. The {a} is how long the student practiced, "
             f"across, not up; and {nxt} belongs to the neighbouring dot.",
             f'[[scatter points="{_scat_points(p)}" caption="the dot at {a} hours sits level with {y} points"]]'
@@ -5556,7 +5630,7 @@ def _sslp_board(p):
 
 def _sslp_worked(p):
     a, b = p["a"], p["b"]; t = a * b
-    return (f"Look what you did: the slope is a rate — {a} points EACH hour, so {b} hours "
+    return (f"Here it is, step by step: the slope is a rate — {a} points EACH hour, so {b} hours "
             f"brings {b} times {a}, {t} points. {a} alone is one hour's worth, and adding "
             f"the two numbers treats a rate like a total.",
             f'[[graph lines="y={a}x" names="{a} points per hour" points="({b},{t})" range="0..{b + 2}" yrange="0..{t + 10}" caption="the line climbs {a} every hour — {b} hours up is {t} points"]]'
@@ -5574,7 +5648,7 @@ def _resd_worked(p):
     a, b = p["a"], p["b"]; g = abs(b - a)
     lo, hi = min(a, b), max(a, b)
     way = "low" if b > a else "high"
-    return (f"Look what you did: the gap between {a} and {b} is {g} — the line guessed "
+    return (f"Here it is, step by step: the gap between {a} and {b} is {g} — the line guessed "
             f"{g} points {way}. That gap is the residual, and every dot has one. {b} is "
             f"what the student scored, not how far the line missed by.",
             f'[[numberline min="{max(0, lo - 5)}" max="{hi + 5}" hops="{a},{b}" caption="from predicted {a} to actual {b} — a gap of {g}"]]'
@@ -5590,7 +5664,7 @@ def _sblw_board(p):
 
 def _sblw_worked(p):
     a, b = p["a"], p["b"]; n = a - b
-    return (f"Look what you did: the line runs THROUGH the cloud, so every dot is on one "
+    return (f"Here it is, step by step: the line runs THROUGH the cloud, so every dot is on one "
             f"side or the other — {a} take away {b} leaves {n} below. {b} is the side you "
             f"were told about, and {a} is every dot on the plot.",
             f'[[tape parts="{b} above|{n} below" total="{a} dots" caption="{a} − {b} = {n} below the line"]]'
@@ -5616,7 +5690,7 @@ def _strf_board(p):
 
 def _strf_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; g = c * a // (a + b)
-    return (f"Look what you did: girls are {a} of the {a + b} in the school, so the sample "
+    return (f"Here it is, step by step: girls are {a} of the {a + b} in the school, so the sample "
             f"keeps that share — {c} times {a}, divided by {a + b}, is {g} girls, leaving "
             f"{c - g} boys. Half and half would give {c // 2}, which matches only a school "
             f"that is half and half, and {a} copies the school's own count into the sample.",
@@ -5633,7 +5707,7 @@ def _resp_board(p):
 
 def _resp_worked(p):
     a, b = p["a"], p["b"]; r = 100 * b // a
-    return (f"Look what you did: {b} out of {a} is {r} percent — the response rate. {b} is "
+    return (f"Here it is, step by step: {b} out of {a} is {r} percent — the response rate. {b} is "
             f"a count of surveys and {a - b} is how many never came back; the rate is the "
             f"percent, and a low one warns that the silent may not think like the answerers.",
             f'[[hundredgrid shaded="{r}" unit="percent" eq="{b} of {a} → {r}%" caption="{r} of every 100 surveys came back"]]'
@@ -5649,7 +5723,7 @@ def _bias_board(p):
 
 def _bias_worked(p):
     a, b = p["a"], p["b"]; n = b - a
-    return (f"Look what you did: {b} take away {a} leaves {n} who never had a chance — not "
+    return (f"Here it is, step by step: {b} take away {a} leaves {n} who never had a chance — not "
             f"{n} who said no, {n} who were never asked at all. {a} is the crowd that WAS "
             f"asked and {b} is everyone; the gap between them is the survey's blind spot.",
             f'[[tape parts="{a} asked|{n} never asked" total="school of {b}" caption="{b} − {a} = {n} never had a chance"]]'
@@ -5665,7 +5739,7 @@ def _merr_board(p):
 
 def _merr_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: four times {a} is {4 * a} people. Doubling to {2 * a} does "
+    return (f"Here it is, step by step: four times {a} is {4 * a} people. Doubling to {2 * a} does "
             f"not halve the margin — it only shaves it — and {b} is the margin itself, not a "
             f"headcount. Every extra bit of certainty costs far more people than the last.",
             f'[[bars data="now:{a} | four times:{4 * a}" caption="{a} people to {4 * a} — and the margin of {b} points halves"]]'
@@ -5681,7 +5755,7 @@ def _ppct_board(p):
 
 def _ppct_worked(p):
     a, b = p["a"], p["b"]; r = 100 * a // b
-    return (f"Look what you did: {a} out of {b} is {r} percent — a chance on the scale from "
+    return (f"Here it is, step by step: {a} out of {b} is {r} percent — a chance on the scale from "
             f"0, never, to 100, always. {a} is a count of marbles and {b - a} is how many are "
             f"not red; the question asked for the percent.",
             f'[[hundredgrid shaded="{r}" unit="percent" eq="{a} of {b} → {r}%" caption="{r} of every 100 picks would be red"]]'
@@ -5696,7 +5770,7 @@ def _por_board(p):
 
 def _por_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: a marble cannot be red and blue at once, so the two piles "
+    return (f"Here it is, step by step: a marble cannot be red and blue at once, so the two piles "
             f"join — {a} plus {b} is {a + b} winners out of {a + b + c}. Timesing gives "
             f"{a * b}, which counts pairs of marbles, and {a + b + c} counts the green losers in.",
             f'[[tape parts="{a} red|{b} blue|{c} green" total="{a + b + c} marbles" caption="the red and blue parts side by side — {a + b} winners"]]'
@@ -5713,7 +5787,7 @@ def _pand_board(p):
 
 def _pand_worked(p):
     a, b = p["a"], p["b"]; t = a * b
-    return (f"Look what you did: one day in {a} is rainy, and on that day one bus in {b} is "
+    return (f"Here it is, step by step: one day in {a} is rainy, and on that day one bus in {b} is "
             f"late. So both together turn up one time in {a} times {b} — one in {t}. Wanting "
             f"both is rarer, never one in {a + b}, and never one in {max(a, b)} on its own.",
             f'[[array rows="{min(a, b)}" cols="{max(a, b)}" caption="{a} kinds of day by {b} kinds of bus — {t} squares, and only one is rainy AND late"]]'
@@ -5729,7 +5803,7 @@ def _ptre_board(p):
 
 def _ptre_worked(p):
     a, b = p["a"], p["b"]; t = b * b
-    return (f"Look what you did: each of the {b} winning first spins can be followed by each "
+    return (f"Here it is, step by step: each of the {b} winning first spins can be followed by each "
             f"of the {b} winning second spins. So {b} times {b} is {t} paths that win both "
             f"times, out of {a * a}. {b * a} leaves the second spin free, and {2 * b} adds "
             f"two spins together.",
@@ -5746,7 +5820,7 @@ def _cbse_board(p):
 
 def _cbse_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; g = a + b; t = 2 * c + 3 + a + b
-    return (f"Look what you did: asking about the girls only sends the boys away — {a} plus "
+    return (f"Here it is, step by step: asking about the girls only sends the boys away — {a} plus "
             f"{b} is {g} girls, so every chance from here is out of {g}. The whole class of "
             f"{t} answers a different question, and {a} alone is the soccer girls.",
             f'[[twoway rowlabels="girls,boys" collabels="soccer,art" data="{a},{b}|{c},{c + 3}" caption="the girls\' row adds to {g} — that is the whole now"]]'
@@ -5762,7 +5836,7 @@ def _ccnt_board(p):
 
 def _ccnt_worked(p):
     a, b = p["a"], p["b"]; g = a + b; r = 100 * a // g
-    return (f"Look what you did: the girls are the whole world now — {a} plus {b} is {g} — "
+    return (f"Here it is, step by step: the girls are the whole world now — {a} plus {b} is {g} — "
             f"and {a} of them chose soccer: {r} percent. The other {100 - r} percent is the "
             f"art share, and {a} is a headcount, not a percent.",
             f'[[hundredgrid shaded="{r}" unit="percent" eq="{a} of {g} → {r}%" caption="{r} of every 100 girls chose soccer"]]'
@@ -5778,7 +5852,7 @@ def _indp_board(p):
 
 def _indp_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: independent means the left-handers would look just like the "
+    return (f"Here it is, step by step: independent means the left-handers would look just like the "
             f"school — {a} percent, whether there are {b} of them or 200. They came in at "
             f"{c}, so the two are not independent, and {b} is a headcount, not a rate.",
             f'[[bars data="school:{a} | if independent:{a} | measured:{c}" caption="independence predicts {a}% — the measured {c}% breaks the promise"]]'
@@ -5794,7 +5868,7 @@ def _wout_board(p):
 
 def _wout_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Look what you did: the marble did not go back, so the bag is smaller — {b} take "
+    return (f"Here it is, step by step: the marble did not go back, so the bag is smaller — {b} take "
             f"away 1 leaves {b - 1}. The reds shrank too, to {a - 1}, but that is the top of "
             f"the chance, not the bottom; answering {b} forgets that anything was taken at all.",
             f'[[tape parts="{a - 1} red|{b - a} other" total="{b - 1} marbles" caption="{b} − 1 = {b - 1} marbles left for the next pick"]]'
@@ -5822,7 +5896,7 @@ def _pdis_board(p):
 
 def _pdis_worked(p):
     a, b = p["a"], p["b"]; c = 100 - a - b
-    return (f"Look what you did: {a} and {b} together fill {a + b} of the hundred, so large "
+    return (f"Here it is, step by step: {a} and {b} together fill {a + b} of the hundred, so large "
             f"takes the {c} that are left. Something happens every single play, and these "
             f"three are the only doors. {a + b} is the two you were given, not the one "
             f"asked for, and 100 is all three together.",
@@ -5839,7 +5913,7 @@ def _evwa_board(p):
 
 def _evwa_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; big = a * c; small = b * (100 - c); v = (big + small) // 100
-    return (f"Look what you did: {c} plays at {a} tokens is {big}, and {100 - c} plays at "
+    return (f"Here it is, step by step: {c} plays at {a} tokens is {big}, and {100 - c} plays at "
             f"{b} is {small}. Together that is {big + small} tokens across 100 plays, so one "
             f"play is worth {v}. The plain average, {(a + b) // 2}, would need both prizes "
             f"to come up equally often.",
@@ -5857,7 +5931,7 @@ def _fair_board(p):
 
 def _fair_worked(p):
     a, b = p["a"], p["b"]; pot = 100 * a; prize = pot // b
-    return (f"Look what you did: 100 plays at {a} tokens each is {pot} tokens paid in, and "
+    return (f"Here it is, step by step: 100 plays at {a} tokens each is {pot} tokens paid in, and "
             f"only {b} of those plays win. Fair means the whole {pot} comes back across "
             f"those {b} wins — {pot} shared by {b} is {prize} a prize. Just your stake "
             f"back, {a}, still loses you every play you do not win.",
@@ -5874,7 +5948,7 @@ def _hedg_board(p):
 
 def _hedg_worked(p):
     a, b = p["a"], p["b"]; g = a - b
-    return (f"Look what you did: {a} out and {b} back leaves {g} tokens gone on every play. "
+    return (f"Here it is, step by step: {a} out and {b} back leaves {g} tokens gone on every play. "
             f"That gap hides inside any single play and shows up with perfect reliability "
             f"over hundreds — it is how the machine stays open. {b} is what comes back, "
             f"and adding the two is nothing a play ever costs.",
@@ -5891,7 +5965,7 @@ def _n68_board(p):
 
 def _n68_worked(p):
     a = p["a"]; n = 68 * a // 100
-    return (f"Look what you did: 68 percent of {a} is {n} — that is how many of the group "
+    return (f"Here it is, step by step: 68 percent of {a} is {n} — that is how many of the group "
             f"sit no further than one deviation from the middle. The 68 is a percent and "
             f"never a headcount, and {a} is everybody, middle and ends together.",
             f'[[hundredgrid shaded="68" unit="percent" eq="68% of {a} → {n}" caption="68 of every 100 — and 68 percent of {a} is {n}"]]'
@@ -5908,7 +5982,7 @@ def _zsco_board(p):
 def _zsco_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; k = (c - a) // b
     hops = ",".join(str(a + i * b) for i in range(k + 1))
-    return (f"Look what you did: {c} sits {c - a} above the mean, and each deviation is a "
+    return (f"Here it is, step by step: {c} sits {c - a} above the mean, and each deviation is a "
             f"step of {b} — so that gap holds {k} of them. Counting steps instead of raw "
             f"units is what lets a height and a test score be compared at all. {c - a} is "
             f"the raw gap, and {b} is one step.",
@@ -5925,7 +5999,7 @@ def _zval_board(p):
 
 def _zval_worked(p):
     a, b = p["a"], p["b"]; v = a + 2 * b
-    return (f"Look what you did: two deviations is {b} twice — {2 * b} — and the distance "
+    return (f"Here it is, step by step: two deviations is {b} twice — {2 * b} — and the distance "
             f"starts from the mean, so {a} plus {2 * b} is {v}. {a + b} is one hop only, "
             f"and {2 * b} is the distance with nowhere to start from.",
             f'[[numberline min="{a - b}" max="{a + 3 * b}" points="{a},{v}" hops="{a},{a + b},{v}" caption="two hops of {b} from {a} land on {v}"]]'
@@ -5941,7 +6015,7 @@ def _ntal_board(p):
 
 def _ntal_worked(p):
     a = p["a"]; ends = a // 20; top = a // 40
-    return (f"Look what you did: 5 percent of {a} is {ends} out at the ends, and the bell "
+    return (f"Here it is, step by step: 5 percent of {a} is {ends} out at the ends, and the bell "
             f"is symmetric, so they split evenly — {top} above two deviations and {top} "
             f"below. {ends} counts both ends when the question asked for one.",
             f'[[tape parts="{top} bottom end|{a - ends} middle|{top} top end" total="{a} in all" caption="the two ends hold {ends} between them — {top} at each"]]'
@@ -5957,7 +6031,7 @@ def _cint_board(p):
 
 def _cint_worked(p):
     a, b = p["a"], p["b"]; lo = a - b
-    return (f"Look what you did: give or take {b} means {b} either way, so the low end is "
+    return (f"Here it is, step by step: give or take {b} means {b} either way, so the low end is "
             f"{a} take away {b} — {lo} percent. {a + b} is the high end, the same step in "
             f"the other direction, and {b} on its own is only the size of the step.",
             f'[[numberline min="{a - 2 * b}" max="{a + 2 * b}" points="{lo},{a},{a + b}" hops="{a},{lo}" caption="one step of {b} down from {a} lands on {lo}"]]'
@@ -5973,7 +6047,7 @@ def _cwid_board(p):
 
 def _cwid_worked(p):
     a, b = p["a"], p["b"]; w = 2 * b
-    return (f"Look what you did: the range runs {b} below and {b} above, so it is {b} twice "
+    return (f"Here it is, step by step: the range runs {b} below and {b} above, so it is {b} twice "
             f"— {w} points wide, from {a - b} to {a + b}. The margin {b} is one side of the "
             f"middle, and {a} is the middle itself.",
             f'[[tape parts="{b} down|{b} up" total="{w} points wide" caption="{b} and {b} — the whole range from {a - b} to {a + b} is {w} points across"]]'
@@ -5989,7 +6063,7 @@ def _inci_board(p):
 
 def _inci_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; top = a + b; g = c - top
-    return (f"Look what you did: your range reaches {top} at the very most, and they claim "
+    return (f"Here it is, step by step: your range reaches {top} at the very most, and they claim "
             f"{c} — that is {g} points past anything your poll can support. Measuring from "
             f"{a} instead gives {c - a} and pretends your estimate is exact, and {b} is the "
             f"size of your doubt, not the size of the disagreement.",
@@ -6006,7 +6080,7 @@ def _npop_board(p):
 
 def _npop_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; lo = a - b; n = lo * c // 100
-    return (f"Look what you did: the low end of the range is {lo} percent, and {lo} percent "
+    return (f"Here it is, step by step: the low end of the range is {lo} percent, and {lo} percent "
             f"of {c} is {n}. Using {a} percent gives {a * c // 100} and quietly drops the "
             f"give-or-take — a sample that does not know exactly should never be reported "
             f"as though it did.",
@@ -6036,7 +6110,7 @@ def _llaw_board(p):
 
 def _llaw_worked(p):
     a, b = p["a"], p["b"]; t = a * b
-    return (f"Look what you did: f is heading for {a} and g for {b}, and the limit passes "
+    return (f"Here it is, step by step: f is heading for {a} and g for {b}, and the limit passes "
             f"straight through the times sign — {a} times {b} is {t}, so f times g heads "
             f"for {t}. Adding would give {a + b}, which answers a different question, and "
             f"{max(a, b)} is only the bigger of the two.",
@@ -6053,7 +6127,7 @@ def _linf_board(p):
 
 def _linf_worked(p):
     a, b = p["a"], p["b"]; c = a // b
-    return (f"Look what you did: the x squareds grow at the very same speed and cancel "
+    return (f"Here it is, step by step: the x squareds grow at the very same speed and cancel "
             f"exactly, whatever x is — so {a} over {b} is what survives, and that is {c}. "
             f"The curve flattens onto {c} and stays there. {a - b} takes one from the "
             f"other and {a * b} times them, and neither describes what the fraction does.",
@@ -6070,7 +6144,7 @@ def _jump_board(p):
 
 def _jump_worked(p):
     a, b = p["a"], p["b"]; j = b - a
-    return (f"Look what you did: from the left the curve heads for {a} and from the right "
+    return (f"Here it is, step by step: from the left the curve heads for {a} and from the right "
             f"for {b}, so it leaps {j} in no distance at all — a jump of {j}. {b} is only "
             f"where it lands, and {a + b} adds two heights that the curve never adds.",
             f'[[graph func="{a} for x<6; {b} for x>=6" lines="x=6" points="(6,{a}),(6,{b})" range="0..12" yrange="0..{b + 4}" caption="the leap at x = 6 — from {a} up to {b} is {j}"]]'
@@ -6086,7 +6160,7 @@ def _cfix_board(p):
 
 def _cfix_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; v = c + a; top = max(b, v) + 4
-    return (f"Look what you did: walk the sloping piece right up to {c} and it arrives at "
+    return (f"Here it is, step by step: walk the sloping piece right up to {c} and it arrives at "
             f"{c} plus {a}, which is {v}. Set the flat piece to {v} and the two ends meet — "
             f"no jump, no hole, nothing to lift the pencil for. {b} is the value that does "
             f"not fit, and {a} is only the slope\'s own number.",
@@ -6103,7 +6177,7 @@ def _derv_board(p):
 
 def _derv_worked(p):
     a = p["a"]; m = 2 * a; r = a + 2
-    return (f"Look what you did: the average rate is the two x\'s put together, so sliding "
+    return (f"Here it is, step by step: the average rate is the two x\'s put together, so sliding "
             f"both onto {a} gives {m} — the derivative at {a}, the slope of the curve at "
             f"that single point. {a * a} is how high the curve sits there, not how steep.",
             f'[[graph func="x^2" names="y = x²" lines="y={m}x-{a * a}" points="({a},{a * a})" range="0..{r}" yrange="0..{r * r}" caption="the tangent at x = {a} climbs {m} for every step across"]]'
@@ -6119,7 +6193,7 @@ def _pwrc_board(p):
 
 def _pwrc_worked(p):
     a, b = p["a"], p["b"]; t = a * b
-    return (f"Look what you did: the {a} comes down and meets the {b} standing there — {a} "
+    return (f"Here it is, step by step: the {a} comes down and meets the {b} standing there — {a} "
             f"times {b} is {t} — and the power drops to {a - 1}. So the derivative is {t} x "
             f"to the {a - 1}. {a + b} adds the two, which no rule does, and {b} left the "
             f"exponent up where it was.",
@@ -6137,7 +6211,7 @@ def _cnst_board(p):
 
 def _cnst_worked(p):
     a, b = p["a"], p["b"]; top = 4 * a + b + 2
-    return (f"Look what you did: the line climbs {a} for every step across, at every point "
+    return (f"Here it is, step by step: the line climbs {a} for every step across, at every point "
             f"on it, so its derivative is {a} — one number, true everywhere. The {b} only "
             f"lifts the whole line up the page and never tilts it, and {a + b} adds a height "
             f"to a slope.",
@@ -6154,7 +6228,7 @@ def _evat_board(p):
 
 def _evat_worked(p):
     a, c = p["a"], p["c"]; m = 2 * a * c; h = a * c * c; r = c + 2
-    return (f"Look what you did: the derivative is a machine of its own — feed it {c} and "
+    return (f"Here it is, step by step: the derivative is a machine of its own — feed it {c} and "
             f"it hands back {2 * a} times {c}, which is {m}. That is the slope right at that "
             f"point. {h} is how high the curve sits there, and {2 * a} is the machine\'s "
             f"front number before any x went in.",
@@ -6172,7 +6246,7 @@ def _prod_board(p):
 
 def _prod_worked(p):
     a, c = p["a"], p["c"]; m = 2 * c + a; h = c * (c + a); r = c + 2
-    return (f"Look what you did: feed {c} into 2 x plus {a} — {2 * c} plus {a} is {m}, the "
+    return (f"Here it is, step by step: feed {c} into 2 x plus {a} — {2 * c} plus {a} is {m}, the "
             f"slope at that point. The product rule gives the same without expanding first. "
             f"{h} is the curve\'s height there, and {2 * c} is half the derivative with the "
             f"second piece forgotten.",
@@ -6189,7 +6263,7 @@ def _chan_board(p):
 
 def _chan_worked(p):
     a, b = p["a"], p["b"]; t = a * b
-    return (f"Look what you did: two things come down — the power {b}, and the inside\'s "
+    return (f"Here it is, step by step: two things come down — the power {b}, and the inside\'s "
             f"derivative {a} — and {b} times {a} is {t}. Forgetting the inside leaves {b}, "
             f"the commonest mistake in Calculus, and {a + b} adds what should be timesed.",
             f'[[machine input="{b}" rule="× {a}" output="{t}" caption="the power {b} meets the inside\'s {a} — {t}"]]'
@@ -6206,7 +6280,7 @@ def _chev_board(p):
 
 def _chev_worked(p):
     a, b = p["a"], p["b"]; m = 2 * a * b; h = b * b; top = (2 * a + b) ** 2
-    return (f"Look what you did: at x equals zero the inside is just {b}, so the slope is 2 "
+    return (f"Here it is, step by step: at x equals zero the inside is just {b}, so the slope is 2 "
             f"times {b} times {a} — {m}. {h} is the curve\'s height there, the inside "
             f"squared, and {2 * b} drops the inside\'s derivative, which is the whole point "
             f"of the chain rule.",
@@ -6223,7 +6297,7 @@ def _quot_board(p):
 
 def _quot_worked(p):
     a, b = p["a"], p["b"]; d = 2 * a; t = d // b
-    return (f"Look what you did: the power rule doubles the {a} to {d}, and the {b} "
+    return (f"Here it is, step by step: the power rule doubles the {a} to {d}, and the {b} "
             f"underneath divides it — {d} over {b} is {t}. A plain number on the bottom "
             f"needs no quotient rule; it just comes along for the ride. {a // b} forgot the "
             f"doubling, and {a * b} timesed what should be divided.",
@@ -6252,7 +6326,7 @@ def _vsol_board(p):
 
 def _vsol_worked(p):
     a, b = p["a"], p["b"]; m = 2 * a; t = b // m; r = t + 2
-    return (f"Look what you did: the speed is {m} t, so set it equal to {b} — {m} t equals "
+    return (f"Here it is, step by step: the speed is {m} t, so set it equal to {b} — {m} t equals "
             f"{b}, and t is {b} over {m}, which is {t} seconds. That is the moment the line "
             f"reaches the height {b}. {b} is the speed itself, not a time, and {b // a} "
             f"divides by the distance's number instead of the speed's.",
@@ -6270,7 +6344,7 @@ def _mrat_board(p):
 
 def _mrat_worked(p):
     a, b = p["a"], p["b"]; r = a + 3; m = 2 * a; g = 2 * a * b
-    return (f"Look what you did: area is side squared, so its rate is 2 times the side times "
+    return (f"Here it is, step by step: area is side squared, so its rate is 2 times the side times "
             f"the side's rate — 2 times {a} times {b} is {g} square centimetres a second. "
             f"The tangent at {a} climbs {m} a centimetre, and the side adds {b} of those a "
             f"second. {b} is the side's rate alone, and {a * a} is the area itself, not "
@@ -6288,7 +6362,7 @@ def _crit_board(p):
 
 def _crit_worked(p):
     a = p["a"]; h = a // 2; pad = max(2, h * h // 4)
-    return (f"Look what you did: set the slope to zero — 2 x take away {a} equals zero, so "
+    return (f"Here it is, step by step: set the slope to zero — 2 x take away {a} equals zero, so "
             f"2 x is {a} and x is {h}. There the curve is flat for an instant, the bottom of "
             f"its valley, {h * h} below the axis. {a} is the number in the slope, not the x "
             f"that solves it, and {2 * a} doubles when the equation halves.",
@@ -6306,7 +6380,7 @@ def _acce_board(p):
 
 def _acce_worked(p):
     a = p["a"]; m = 2 * a
-    return (f"Look what you did: the speed {m} t is a line, and a line's derivative is its "
+    return (f"Here it is, step by step: the speed {m} t is a line, and a line's derivative is its "
             f"front number — {m}. So the acceleration is {m}, the same at every moment: one "
             f"second on, the speed is {m} higher. {a} is the distance's number, one "
             f"differentiation short, and {4 * a} doubles once too often.",
@@ -6323,7 +6397,7 @@ def _optr_board(p):
 
 def _optr_worked(p):
     a = p["a"]; q = a // 4
-    return (f"Look what you did: the area is biggest when the rectangle is a square, so the "
+    return (f"Here it is, step by step: the area is biggest when the rectangle is a square, so the "
             f"{a} metres of fence are shared four ways — {a} over 4 is {q} metres a side. "
             f"Walk round it: {q} plus {q} plus {q} plus {q} uses the fence exactly. "
             f"{a // 2} is half the fence, two sides at once, and {a} is the whole fence "
@@ -6341,7 +6415,7 @@ def _maxa_board(p):
 
 def _maxa_worked(p):
     a = p["a"]; q = a // 4; A = q * q
-    return (f"Look what you did: a square of side {q} encloses {q} times {q} — {A} square "
+    return (f"Here it is, step by step: a square of side {q} encloses {q} times {q} — {A} square "
             f"metres, every unit square on the grid counted. No other rectangle with {a} "
             f"metres of fence can beat it. {q} is the side, not the ground, and {a} is the "
             f"fence you started with.",
@@ -6358,7 +6432,7 @@ def _sumx_board(p):
 
 def _sumx_worked(p):
     a = p["a"]; h = a // 2; P = h * h; top = P + max(4, P // 5)
-    return (f"Look what you did: equal halves win — {h} and {h} give {P}, the top of the "
+    return (f"Here it is, step by step: equal halves win — {h} and {h} give {P}, the top of the "
             f"hump. Pull the pair apart and the product falls away on both sides: 1 and "
             f"{a - 1} give only {a - 1}. {h} is one of the halves, not their product, and "
             f"{a} is the sum you started with.",
@@ -6375,7 +6449,7 @@ def _infl_board(p):
 
 def _infl_worked(p):
     a = p["a"]; x0 = a // 3; lo = -(4 * a * a * a) // 27; lo = lo - max(4, (-lo) // 8); top = max(4, (-lo) // 6)
-    return (f"Look what you did: set the second derivative to zero — 6 x take away {2 * a} "
+    return (f"Here it is, step by step: set the second derivative to zero — 6 x take away {2 * a} "
             f"equals zero, so 6 x is {2 * a} and x is {x0}. There the curve stops bending "
             f"like a dome and starts bending like a cup: the inflection point. {a // 2} "
             f"halves out of the first-derivative habit, and {a} is the equation's own "
@@ -6394,7 +6468,7 @@ def _anti_board(p):
 
 def _anti_worked(p):
     a = p["a"]; h = a // 2
-    return (f"Look what you did: forwards, {h} x squared drops its 2 down the front and gives "
+    return (f"Here it is, step by step: forwards, {h} x squared drops its 2 down the front and gives "
             f"{a} x; so backwards from {a} x you halve — {a} over 2 is {h}, and the power "
             f"climbs back up to squared. {a} copies the number straight over, and {2 * a} "
             f"runs the forward rule the wrong way.",
@@ -6412,7 +6486,7 @@ def _antp_board(p):
 
 def _antp_worked(p):
     a, b = p["a"], p["b"]; n = a + 1; k = b // n
-    return (f"Look what you did: the power {a} climbs to {n}, and the front number is divided "
+    return (f"Here it is, step by step: the power {a} climbs to {n}, and the front number is divided "
             f"by it — {b} over {n} is {k}. So {k} x to the {n} is the answer; check it "
             f"forwards, and the {n} comes down onto the {k} to give {b} back. {b} hands the "
             f"front number back undivided, and {n} is the exponent, not the front number.",
@@ -6434,7 +6508,7 @@ def _plusc_worked(p):
     a, b = p["a"], p["b"]; k = a - 16; kk = k + b
     lo = f"x^2+{k}" if k >= 0 else f"x^2-{-k}"; hi = f"x^2+{kk}" if kk >= 0 else f"x^2-{-kk}"
     ymin = min(0, k) - 2; top = 36 + kk + 4
-    return (f"Look what you did: the two curves run parallel, {b} apart at every single x, "
+    return (f"Here it is, step by step: the two curves run parallel, {b} apart at every single x, "
             f"so above the lower one's {a} the higher one reads {a} plus {b} — {a + b}. "
             f"That gap is the plus C: an antiderivative is a whole family, stacked up the "
             f"page. {a - b} takes the gap away and lands below the curve you were given, "
@@ -6452,7 +6526,7 @@ def _init_board(p):
 
 def _init_worked(p):
     a, c = p["a"], p["c"]; r = c + 1; q = c * c; ans = q + a
-    return (f"Look what you did: slope 2 x comes from x squared plus a constant, and at x "
+    return (f"Here it is, step by step: slope 2 x comes from x squared plus a constant, and at x "
             f"equals zero the x squared is nothing, so the constant is the starting height, "
             f"{a}. Then at x equals {c}: {c} squared is {q}, plus {a} — {ans}. {q} forgets "
             f"the constant the point gave you, and {a} pretends the curve never climbed.",
@@ -6479,7 +6553,7 @@ def _defi_board(p):
 
 def _defi_worked(p):
     a, b = p["a"], p["b"]; d = a * b
-    return (f"Look what you did: the speed line sits at {a} for {b} seconds, so the shape under "
+    return (f"Here it is, step by step: the speed line sits at {a} for {b} seconds, so the shape under "
             f"it is a rectangle {a} tall and {b} wide — {a} times {b} is {d}, and {d} metres "
             f"is how far the car went. The area MEANS the distance. {a + b} adds metres to "
             f"seconds, and {b} is the time you were told.",
@@ -6496,7 +6570,7 @@ def _triz_board(p):
 
 def _triz_worked(p):
     a = p["a"]; d = a * a // 2
-    return (f"Look what you did: after {a} seconds the triangle is {a} wide and {a} tall, and "
+    return (f"Here it is, step by step: after {a} seconds the triangle is {a} wide and {a} tall, and "
             f"a triangle takes half the rectangle round it — {a} times {a} halved is {d} "
             f"metres. {a * a} forgets the half and claims the whole rectangle, as if the car "
             f"had gone flat out from the first second, and {a} is the time, not a distance.",
@@ -6513,7 +6587,7 @@ def _ftc_board(p):
 
 def _ftc_worked(p):
     a, b = p["a"], p["b"]; d = b * b - a * a
-    return (f"Look what you did: 2 x comes from x squared, so work x squared out at both ends "
+    return (f"Here it is, step by step: 2 x comes from x squared, so work x squared out at both ends "
             f"and take one from the other — {b} squared is {b * b}, {a} squared is {a * a}, "
             f"and {b * b} take away {a * a} is {d}. That is the shaded strip's area, end "
             f"take away start. {(b - a) * (b - a)} squares the gap instead, and {b - a} is "
@@ -6531,7 +6605,7 @@ def _avgv_board(p):
 
 def _avgv_worked(p):
     a, b = p["a"], p["b"]; h = a // b; amp = h / 2; top = int(h * 1.6) + 2
-    return (f"Look what you did: spread {a} of area evenly across a width of {b} and it stands "
+    return (f"Here it is, step by step: spread {a} of area evenly across a width of {b} and it stands "
             f"{a} over {b} high — {h}. That flat line is the curve's average height: the hump "
             f"above it and the dip below it trade places exactly. {a} is the area, not a "
             f"height, and {b} is only the width.",
@@ -6548,7 +6622,7 @@ def _btwn_board(p):
 
 def _btwn_worked(p):
     a, b = p["a"], p["b"]; ta = a / 10; tb = b / 10; top = int(ta * 1.5) + 3; d = a - b
-    return (f"Look what you did: the {b} under the bottom curve is already counted inside the "
+    return (f"Here it is, step by step: the {b} under the bottom curve is already counted inside the "
             f"{a} under the top one, so take it away — {a} take away {b} is {d}, the strip "
             f"between them. Top take away bottom, always in that order. {a + b} counts the "
             f"lower region twice over, and {a} is the whole slab, not the gap.",
@@ -6565,7 +6639,7 @@ def _trap_board(p):
 
 def _trap_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; d = (a + b) * c // 2; mid = (a + b) / 2
-    return (f"Look what you did: the speed climbs steadily, so its average is halfway between "
+    return (f"Here it is, step by step: the speed climbs steadily, so its average is halfway between "
             f"{a} and {b} — {mid:g} — and {mid:g} metres a second for {c} seconds is {d} "
             f"metres. The halfway line cuts the trapezium into a rectangle of the same area. "
             f"{(a + b) * c} forgets the halving and holds both speeds at once, and {b * c} "
@@ -6583,7 +6657,7 @@ def _accu_board(p):
 
 def _accu_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; g = a * b; t = c + g
-    return (f"Look what you did: {a} litres a minute for {b} minutes is {g} litres — the area "
+    return (f"Here it is, step by step: {a} litres a minute for {b} minutes is {g} litres — the area "
             f"under the flow graph. But the tank was not empty, so those {g} land on top of the "
             f"{c} already there: {c} plus {g} is {t}. The amount line starts at {c} and climbs "
             f"to {t}. {g} forgets the water that was there, and {c + a + b} adds three numbers "
@@ -6602,7 +6676,7 @@ def _revo_board(p):
 
 def _revo_worked(p):
     a, b = p["a"], p["b"]; q = a * a; v = q * b
-    return (f"Look what you did: every slice through the cylinder is a circle of radius {a}, "
+    return (f"Here it is, step by step: every slice through the cylinder is a circle of radius {a}, "
             f"and its area is pi times {a} squared — {q} pi. Stack {b} lengths of that and "
             f"the volume is {v} pi. Squaring the radius is what turns a flat area into a "
             f"solid: {a * b} leaves the squaring out, and {2 * a * b} doubles the radius "
@@ -6621,7 +6695,7 @@ def _dfeq_board(p):
 
 def _dfeq_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; g = b * c; left = a - g
-    return (f"Look what you did: the rate has to meet the clock — {b} litres a minute for {c} "
+    return (f"Here it is, step by step: the rate has to meet the clock — {b} litres a minute for {c} "
             f"minutes is {g} gone, and {a} take away {g} leaves {left}. The line drops from "
             f"{a} to {left} over the {c} minutes. {a - b} takes away only one minute's worth, "
             f"and {g} is what drained, not what is left in the tank.",
@@ -6639,7 +6713,7 @@ def _mixr_board(p):
 
 def _mixr_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; n = a - b; t = n * c
-    return (f"Look what you did: settle the fight first — {a} in and {b} out means the tank "
+    return (f"Here it is, step by step: settle the fight first — {a} in and {b} out means the tank "
             f"truly gains {n} litres a minute, the net rate. Then let the clock work on that "
             f"one number: {n} times {c} is {t} litres. {(a + b) * c} adds the two rates as if "
             f"the drain were helping, and {a * c} counts the inflow alone.",
@@ -6657,7 +6731,7 @@ def _pgrw_board(p):
 
 def _pgrw_worked(p):
     a, b = p["a"], p["b"]; r = a + 4; g = a * b
-    return (f"Look what you did: every one of the {a} bacteria contributes {b} a minute, so the "
+    return (f"Here it is, step by step: every one of the {a} bacteria contributes {b} a minute, so the "
             f"rate right now is {a} times {b} — {g} a minute, the height of the line at P "
             f"equals {a}. And it will not stay there: the growing feeds the growing. {a + b} "
             f"adds where it should multiply, and {b} pretends the colony's size does not "
@@ -6675,7 +6749,7 @@ def _eqbm_board(p):
 
 def _eqbm_worked(p):
     a, b = p["a"], p["b"]; q = a // b
-    return (f"Look what you did: set the rate to zero — {b} P has to equal {a}, so P is {a} "
+    return (f"Here it is, step by step: set the rate to zero — {b} P has to equal {a}, so P is {a} "
             f"over {b}, which is {q}. That is where the line crosses the axis: sit the "
             f"population there and nothing moves. Above it the rate is negative and pulls "
             f"down; below it the rate pushes up. {a - b} takes away instead of dividing, and "
@@ -6742,7 +6816,7 @@ def _col3_add(a, b):
     ⚠️ NOT _col_add: that one speaks a // 10 as "the tens", which is true of a
     two-digit number and false of a three-digit one (125's a // 10 is 12)."""
     total = a + b
-    return (f"Look what you did: ones first — {_d_ones(a)} plus {_d_ones(b)} equals "
+    return (f"Here it is, step by step: ones first — {_d_ones(a)} plus {_d_ones(b)} equals "
             f"{_d_ones(total)}. Tens: {_d_tens(a)} plus {_d_tens(b)} equals "
             f"{_d_tens(total)}. Hundreds: {_d_hund(a)} plus {_d_hund(b)} equals "
             f"{_d_hund(total)}. {a} plus {b} equals {total}.",
@@ -6754,7 +6828,7 @@ def _col3_sub(a, b):
     """(va) Three digits, no regrouping -- s3d's check guarantees every column can
     take its own away, so the walk-back reads the three columns in order."""
     left = a - b
-    return (f"Look what you did: ones first — {_d_ones(a)} take away {_d_ones(b)} "
+    return (f"Here it is, step by step: ones first — {_d_ones(a)} take away {_d_ones(b)} "
             f"equals {_d_ones(left)}. Tens: {_d_tens(a)} take away {_d_tens(b)} equals "
             f"{_d_tens(left)}. Hundreds: {_d_hund(a)} take away {_d_hund(b)} equals "
             f"{_d_hund(left)}. {a} take away {b} equals {left}.",
@@ -6853,7 +6927,7 @@ def _nick_worked(p):
     total = 5 * a + b
     _parts, tape = _coin_tape(a, 5, b, "nickel", str(total))
     counts = ", ".join(str(5 * (i + 1)) for i in range(a))
-    return (f"Look what you did: a nickel is five cents, so you counted by fives — "
+    return (f"Here it is, step by step: a nickel is five cents, so you counted by fives — "
             f"{counts}. Then {_irr(b, 'penny', 'pennies')}, one at a time, brings it "
             f"to {total} cents.", tape)
 
@@ -6868,7 +6942,7 @@ def _qtr_worked(p):
     total = 25 * a + b
     _parts, tape = _coin_tape(a, 25, b, "quarter", str(total))
     counts = ", ".join(str(25 * (i + 1)) for i in range(a))
-    return (f"Look what you did: a quarter is twenty-five cents, so you counted by "
+    return (f"Here it is, step by step: a quarter is twenty-five cents, so you counted by "
             f"twenty-fives — {counts}. Then {_irr(b, 'penny', 'pennies')} brings it to "
             f"{total} cents.", tape)
 
@@ -6882,7 +6956,7 @@ def _chg_board(p):
 def _chg_worked(p):
     a, b = p["a"], p["b"]
     left = a - b
-    return (f"Look what you did: the {a} cents you paid splits into two pieces — the "
+    return (f"Here it is, step by step: the {a} cents you paid splits into two pieces — the "
             f"{b} the toy took, and the rest. {a} take away {b} equals {left}, so "
             f"{_plural(left, 'cent')} comes back.",
             f'[[tape parts="{b} | {left}" total="{a}" caption="{b} for the toy, '
@@ -6899,7 +6973,7 @@ def _dbe_worked(p):
     a = p["a"]
     # ⚠️ NOT "makes": the vocabulary canon says a sum EQUALS its total, and the
     # validator holds every authored line to it -- including this one, which it caught.
-    return (f"Look what you did: {a} and {a} more. The two pieces are the same size — "
+    return (f"Here it is, step by step: {a} and {a} more. The two pieces are the same size — "
             f"that is what a double IS — and together they equal {2 * a}.",
             f'[[tape parts="{a} | {a}" total="{2 * a}" caption="a double: {a} + {a} = '
             f'{2 * a}"]]')
@@ -6913,7 +6987,7 @@ def _add3_board(p):
 
 def _add3_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Look what you did: two at a time. {a} plus {b} equals {a + b}, and "
+    return (f"Here it is, step by step: two at a time. {a} plus {b} equals {a + b}, and "
             f"{a + b} plus {c} equals {a + b + c}. Three pieces, one length.",
             f'[[tape parts="{a} | {b} | {c}" total="{a + b + c}" '
             f'caption="{a} + {b} = {a + b}, then + {c} = {a + b + c}"]]')
@@ -6928,7 +7002,7 @@ def _msp_board(p):
 def _msp_worked(p):
     a, b = p["a"], p["b"]
     gap = b - a
-    return (f"Look what you did: the whole is {b} and one piece is {a}, so the piece "
+    return (f"Here it is, step by step: the whole is {b} and one piece is {a}, so the piece "
             f"you were looking for is what fills the gap — {gap}. The answer is the "
             f"SIZE of the hop, not where it lands.",
             f'[[numberline min="0" max="{b}" hops="{a},{b}" '
@@ -6946,7 +7020,7 @@ def _t10_worked(p):
     a = p["a"]
     # ⚠️ _plural, NOT an f-string count: "1 ones" is the exact shape the battery
     # sweeps all 360 lessons for, and it caught this line.
-    return (f"Look what you did: one more ten-stick, and the ones never moved — the "
+    return (f"Here it is, step by step: one more ten-stick, and the ones never moved — the "
             f"ones column still shows {_plural(a % 10, 'one')}. Only the tens changed, "
             f"so ten more than {a} is {a + 10}.",
             f'[[placevalue t="{a // 10 + 1}" o="{a % 10}" '
@@ -6963,7 +7037,7 @@ def _wor_board(p):
 def _wor_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     n = 100 * a + 10 * b + c
-    return (f"Look what you did: you found the column first. The {b} is in the tens "
+    return (f"Here it is, step by step: you found the column first. The {b} is in the tens "
             f"column, and a block in the tens column is a whole stick of ten — so {b} "
             f"of them is worth {10 * b}.",
             f'[[placevalue h="{a}" t="{b}" o="{c}" caption="the {b} is {b} tens = '
@@ -6985,7 +7059,7 @@ def _r10_walkback(a):
     where = ("below halfway" if d < 5 else
              "right at halfway" if d == 5 else "past halfway")
     way = "down" if d < 5 else "up"
-    return (f"Look what you did: {a} sits between {lo} and {hi}. The ones digit "
+    return (f"Here it is, step by step: {a} sits between {lo} and {hi}. The ones digit "
             f"is {d} — {where} — so it hops {way} to {near}.")
 
 
@@ -7487,7 +7561,7 @@ OP_EXT = {
                             f'caption="count the blocks in each place"]]'
                             f'[[step eq="{p["a"]} hundreds + {p["b"]} tens + '
                             f'{p["c"]} ones = ?"]]'),
-        "worked": lambda p: (f"Look what you did: {_plural(p['a'], 'hundred')} is "
+        "worked": lambda p: (f"Here it is, step by step: {_plural(p['a'], 'hundred')} is "
                              f"{100 * p['a']}, {_plural(p['b'], 'ten')} is {10 * p['b']}, "
                              f"and {_plural(p['c'], 'one')} is {p['c']}. Put together: "
                              f"{100 * p['a'] + 10 * p['b'] + p['c']}.",
@@ -15784,6 +15858,11 @@ def start(lesson, seed=None):
             "retest": None, "finished": False,
             # (sp) the reason question: how many times it has been missed
             "reason_tries": 0,
+            # (vz) PHASE A: misses IN A ROW. 0 -> the next miss gets the engine's own
+            # worked solution and a fresh problem; 1 -> the next miss is the AI's.
+            # A right answer puts it back to 0. Read with .get everywhere, so a
+            # session stored before this build plays on without a migration.
+            "consec_miss": 0, "second_look_i": 0,
             # (sz) the times-table pass: the shuffle seed, which pass this is, the
             # dealt order, the fact the student is on, and the sitting's slips
             "table_seed": int(seed or 0), "table_pass": 0, "table_order": [],
@@ -15982,7 +16061,12 @@ def _worked_for(p):
 
 def _correct_beats(lesson, p, idx):
     """What a right answer earns: the praise line, then -- ruling ⑤, in a lesson that
-    says so -- the walk-back: "Look what you did..." over the worked board."""
+    says so -- the walk-back: "Here it is, step by step..." over the worked board.
+
+    (vz) The opener used to be "Look what you did:", and PHASE A is why it is not:
+    the same worked line is now the engine's answer to a WRONG answer as well, and
+    "look what you did" is false there. The praise line above it still does the
+    celebrating on a right answer -- that was always where the credit lived."""
     out = [{"kind": "say", "spoken": praise_for(p, idx), "board": ""}]
     if lesson.get("show_work_on_correct"):
         w = _worked_for(p)
@@ -16152,7 +16236,8 @@ def _table_board(p, pass_n, n):
 
 def _table_miss(p):
     """What a slipped fact earns: its picture, counted down the rows, and the fact
-    said whole. Never "Look what you did" -- the student did not."""
+    said whole. Never "Look what you did" -- the student did not. (vz: and since
+    this build no worked line says it anywhere, for exactly this reason.)"""
     a, b = p["a"], p["b"]
     counts = ", ".join(str(b * i) for i in range(1, a + 1))
     return (f"Not that one. {_plural(a, 'row')} of {b} — count by {_BY_WORDS[b]}: "
@@ -16279,6 +16364,9 @@ def step(lesson, state, event):
         if not guided:
             state["done"] += 1
             state["streak"] += 1
+        # (vz) the run of misses is broken -- the next miss earns the scripted
+        # second explanation again, not the AI.
+        state["consec_miss"] = 0
         # ---- where next? ----
         if state["phase"] == "pair-0":
             pair = lesson["pairs"][1]
@@ -16351,10 +16439,51 @@ def step(lesson, state, event):
         out.append(_table_ask(state))
         return (out, state)
 
-    # ---- wrong answer: the ONE doorway to the AI ----
+    # ---- wrong answer ----
     state["streak"] = 0
     if not guided:
         state["done"] += 1
+
+    # ---- (vz, 2026-09-14) PHASE A: THE SCRIPTED SECOND EXPLANATION ----------
+    # Jim's design, in his own words (2026-09-13): "everything should be scripted the
+    # first time around... somebody gives a wrong answer, explain what we just
+    # explained slightly differently... only then if they miss the second time do we
+    # need to bring the AI in." So the FIRST miss in a row is answered by the ENGINE:
+    # the worked solution of the very problem they missed, drawn in the same picture
+    # the worked examples use, and then a FRESH problem of the same shape -- the
+    # 09-13 ruling, never the one they have just watched solved.
+    #
+    # ⚠️ IT SITS ABOVE THE LADDER ON PURPOSE. `interventions` counts the times the
+    # MODEL had to step in, and that is what it has always been named for; a scripted
+    # explanation is not one. So a student who misses and then recovers costs the
+    # ladder nothing, exactly as a student who never missed. A student who keeps
+    # missing still reaches the AI (every second miss), still drops a level (every
+    # second AI turn), and still meets the warm close -- and MAX_PROBLEMS is the hard
+    # floor under all of it: at the cap there is no fresh problem, so the old path
+    # runs and `resume` ends the practice, precisely as before this build.
+    #
+    # ⚠️ THREE CONDITIONS, each falling back to the old path:
+    #   - no miss immediately before this one (consec_miss == 0);
+    #   - the engine HAS a worked solution for this op -- the 48 lessons whose ops
+    #     have none are untouched, and they are exactly the 48 that never showed
+    #     work on a right answer either (measured when this shipped);
+    #   - the practice cap has room for one more problem.
+    # The error is corrected either way: a child never leaves a wrong answer behind.
+    if (state.get("consec_miss", 0) == 0 and state["done"] < MAX_PROBLEMS
+            and _worked_for(p) is not None):
+        w = _worked_for(p)
+        fresh = _next_bank_problem(lesson, state)
+        state["consec_miss"] = 1
+        state["retest"] = None            # asked here and now, not through `resume`
+        out.append({"kind": "say", "spoken": _second_look_line(state), "board": ""})
+        out.append({"kind": "say", "spoken": w[0], "board": w[1]})
+        out.append({"kind": "say", "spoken": _fresh_one_line(state), "board": ""})
+        out.append(_ask(state, fresh))
+        state["second_look_i"] = int(state.get("second_look_i", 0) or 0) + 1
+        return (out, state)
+
+    # ---- the second miss in a row: the ONE doorway to the AI ----
+    state["consec_miss"] = 0
     state["interventions"] += 1
     if state["interventions"] >= DROP_AFTER_INTERVENTIONS:
         lv = lesson.get("levels", LEVELS)
@@ -16489,12 +16618,24 @@ def audio_lines(lesson):
         for i in range(len(PRAISE_PREFIXES)):
             lines.add(praise_for(p, i))
         # (sp) the walk-back after a right answer, one per problem
-        if lesson.get("show_work_on_correct"):
-            w = _worked_for(p)
-            if w:
-                lines.add(w[0])
+        # (vz) ...and after a WRONG one: the scripted second explanation speaks the
+        # same worked line, in every lesson whose op has a worked generator, whether
+        # or not that lesson shows the work on a correct answer. Measured when this
+        # shipped: the 48 lessons without show_work_on_correct are exactly the 48
+        # whose ops have no worked generator at all, so this moved no count and cost
+        # no clip -- but the closure now says what CAN be spoken, not what one
+        # lesson flag happens to speak.
+        w = _worked_for(p)
+        if w:
+            lines.add(w[0])
     lines.update([LINE_WRONG, LINE_TAP, LINE_END_GRACEFUL,
                   lesson["advance_line"]])
+    # (vz) PHASE A's two frames. They sit HERE and not among the standalone lines,
+    # for the same reason LINE_WRONG does: they are spoken INSIDE a lesson, so
+    # rendering one lesson must render them. Six short lines, no numbers in any of
+    # them, so the six clips serve all 360.
+    lines.update(SECOND_LOOK_LINES)
+    lines.update(FRESH_ONE_LINES)
     # (sz) the times-table pass: every one of the 81 facts asked and re-asked, its one
     # praise line, its slip picture's words, and the pass's two standing lines
     if lesson.get("mastery") == "table":

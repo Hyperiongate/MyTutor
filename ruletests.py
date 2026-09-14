@@ -6,6 +6,14 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-14  BUILD vz -- PART 3lu, PHASE A: THE SCRIPTED SECOND EXPLANATION. The
+#               first miss in a row is the ENGINE's (worked solution + a fresh problem
+#               of the same shape); the AI's door opens on the second. `interventions`
+#               now counts AI turns only, so the ladder means what it is named for.
+#               The walk-back opener moved in all 320 generators ("Look what you did: "
+#               -> "Here it is, step by step: ") because the same line now answers a
+#               WRONG answer too. Pins: course 39,988 -> 39,994; closure 40,242 ->
+#               40,248; speechmap 2,244 of 40,294 -> 40,300.
 #   2026-09-14  BUILD vy -- PART 3lt, SIX FROM THE 09-14 WATCH: three new referees
 #               (pendingzero, pythaglaw, firsttry -- the count pins move 97 -> 100 here
 #               and on the public page), a widened unspoken (an algebra problem's
@@ -12554,6 +12562,12 @@ def part3km_the_problem_is_always_on_the_board():
             r = c.post("/api/script/start", json={"code": "1234", "course": "precalc", "lesson": "pc-u1-machines-in-a-row"})
             steps = r.json().get("steps", [])
             first_ask = next((s for s in steps if s.get("kind") == "ask"), {})
+            # (vz) PHASE A: the first miss is the ENGINE's own worked solution and a
+            # fresh problem, so the model's door is the SECOND miss in a row -- and the
+            # ask whose board must ride through it is the one the child is looking at
+            # THEN, which is the fresh problem's.
+            c.post("/api/script/answer", json={"code": "1234", "value": 999})
+            first_ask = ((M._SCRIPT_SESSIONS["1234"]["state"].get("pending")) or {})
             r2 = c.post("/api/script/answer", json={"code": "1234", "value": 999})
             ai = next((s for s in r2.json().get("steps", []) if s.get("kind") == "ai"), {})
             check("⭐ LIVE: a wrong tap, the model's re-ask with only a choices row -- the ai step reaches the page "
@@ -12712,8 +12726,19 @@ def part3kn_the_wrong_answer_is_answered_at_once():
             calls.append(len(history)) or 'Slow down. Now try it yourself. [[choices options="10 | 12 | 8"]]')
         c = TestClient(M.app)
         def fresh():
+            """(vz) ...and PRIME it past PHASE A's first miss.
+
+            Since build vz the FIRST miss in a row is answered by the engine itself --
+            its own worked solution, then a fresh problem -- and no model is fetched.
+            This part is about what happens when the model IS fetched, so the session
+            is primed with one scripted miss first. `calls` is cleared afterwards, so
+            every count below still means "model turns since this session began"."""
             M._SCRIPT_SESSIONS.pop("1234", None)
             c.post("/api/script/start", json={"code": "1234", "course": "precalc", "lesson": "pc-u1-machines-in-a-row"})
+            prime = c.post("/api/script/answer", json={"code": "1234", "said": "999"}).json()
+            assert not any(st.get("kind") in ("ai", "ai_pending") for st in prime.get("steps", [])), \
+                "the priming miss must be the ENGINE's, not the model's"
+            del calls[:]
             return M._SCRIPT_SESSIONS["1234"]
         try:
             sess = fresh()
@@ -15290,13 +15315,16 @@ def part3ky_one_label_for_every_clip():
         # form changes it, and the honest repair is to read the new count off the
         # generator's own report line and write it here with the build that did it.
         # (vm) 2,246 -> 2,245: the same proportions line, no longer tidied.
+        # (vz) 2,244 of 40,294 -> of 40,300: PHASE A's six frame lines joined the
+        # closure, and none of the six re-keys (no number, no comma, no colon in any
+        # of them -- that is why they are six clips and not six hundred)
         # (vs/vt) 2,245 -> 2,246 of 40,294: nineteen standalone lines joined the closure
         # (four check lines, fifteen award lines); "1,000 minutes" is tidied by
         # forSpeech, so one of them re-keys ("100 percent" is spelled out on purpose).
         # (vx) 2,246 -> 2,244: two Unit-9 lines whose "x holds 5" caption was tidied
         # now read "x = 5" and no longer re-key.
         check("  ...and it still holds the differences it was built for (2,244 since vx; 2,246 at vs; 2,245 at vm; 2,249 at vc)",
-              len(mapping) == 2244 and scanned == 40294,
+              len(mapping) == 2244 and scanned == 40300,
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
@@ -15323,8 +15351,8 @@ def part3ky_one_label_for_every_clip():
     check("  and no two authored lines tidy to the SAME sentence, so the closure never "
           "prices or renders one clip twice (deduped anyway -- see _closure_lines)",
           len(cl) == len(set(cl)), "%d lines, %d unique" % (len(cl), len(set(cl))))
-    check("  the closure is the whole course AND the demo (40,242 since vw = 39,988 + 254 demo lines; 39,969 before vs/vt)",
-          len(cl) == 40242, str(len(cl)))
+    check("  the closure is the whole course AND the demo (40,248 since vz = 39,994 + 254 demo lines; 40,242 at vw)",
+          len(cl) == 40248, str(len(cl)))
 
     # ---- 4. ONE reader, and every site goes through it -----------------------------
     check("⭐ speechmap is read in exactly ONE place -- _spoken(). A second reader is a "
@@ -16271,7 +16299,7 @@ def part3lf_ready_and_four_basic_lines():
           all(t in closure for t in (pv["why"][0][0], pv["recap"][1][0], rt["why"][0][0],
                                      L.lesson_orientation(rt, True)[0], L.lesson_intro(pv)[0])), "")
     check("  the closure count moved only for lines ADDED since (vj changed lines and added none; vs/vt added 19)",
-          len(closure) == 39988, str(len(closure)))
+          len(closure) == 39994, str(len(closure)))
 
     # ---- 3. blob: in media-src -------------------------------------------------------------------
     import main as M
@@ -17981,11 +18009,11 @@ def part3ls_the_demo_is_part_of_the_closure():
     cl = M._closure_lines()
     demo = [x for x in M.DEMO_VOICE_LINES if x]
     check("⭐ every demo line is in the un-narrowed closure, and the closure is the course plus the demo",
-          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40242
+          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40248
           and len(demo) == 254, "%d closure, %d course, %d demo" % (len(cl), len(L.course_audio_lines()), len(demo)))
     check("  a narrowed closure (one lesson) carries no demo line -- rendering one lesson does not re-price the front door",
           not any(x in set(M._closure_lines(L.LESSONS[:1])) for x in demo), "")
-    check("  the course's own list is untouched (39,988)", len(L.course_audio_lines()) == 39988, str(len(L.course_audio_lines())))
+    check("  the course's own list is 39,994 (vz added the six frame lines; 39,988 at vw)", len(L.course_audio_lines()) == 39994, str(len(L.course_audio_lines())))
     check("⭐ the model split treats the demo as the course, and the miss eyes call a demo line IN the closure",
           all(x in M._script_closure_texts() for x in demo)
           and M._tts_model_for(demo[0]) == M._tts_model_for(L.LINE_CHECK), "")
@@ -18179,6 +18207,160 @@ def part3lt_six_from_the_09_14_watch():
           and "2026-09-14  BUILD vy" in notes("tutor.py")
           and "2026-09-14  BUILD vy" in notes("lessons/algebra2.py")
           and "2026-09-14  BUILD vy" in notes("ruletests.py"), "")
+
+
+def part3lu_the_scripted_second_explanation():
+    """PART 3lu (build vz, 2026-09-14) -- PHASE A: THE SCRIPTED SECOND EXPLANATION.
+
+    Jim, 2026-09-13: "everything should be scripted the first time around... somebody
+    gives a wrong answer, explain what we just explained slightly differently... only
+    then if they miss the second time do we need to bring the AI in." And the 09-13
+    ruling: the redo is a FRESH problem of the same shape, never the one the student
+    has just watched solved.
+
+    This part holds the whole contract: WHO answers a first miss, WHO answers a second,
+    what the ladder counts, that the error is corrected either way, that a struggling
+    child still reaches the warm close, and that the opener no longer tells a child who
+    got it wrong to look at what they did."""
+    print("\nPART 3lu — the scripted second explanation (build vz, Phase A)")
+    import os as _os
+    import lessonscripts as L
+    _here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(_here, fn), encoding="utf-8").read()  # noqa: E731
+
+    LID = "pre-u1-times-before-add"
+    les = [x for x in L.LESSONS if x["id"] == LID][0]
+
+    def fresh():
+        st = L.start(les, seed=3)
+        _o, st = L.step(les, st, ("begin",))
+        return st
+
+    def answer(st, right):
+        p = (st.get("pending") or {})["problem"]
+        v = L.ans(p) if right else (L.ans(p) or 0) + 777
+        return L.step(les, st, ("answer", v))
+
+    # ---- ⭐ the first miss is the ENGINE's ------------------------------------
+    st = fresh()
+    missed = (st.get("pending") or {})["problem"]
+    out, st = answer(st, False)
+    kinds = [o["kind"] for o in out]
+    check("⭐ THE FIRST MISS IS ANSWERED BY THE ENGINE: no intervene, and the child is "
+          "left holding a question (say, say, say, ask)",
+          kinds == ["say", "say", "say", "ask"], str(kinds))
+    check("  ...the middle beat is the WORKED SOLUTION OF THE PROBLEM THEY MISSED, "
+          "with its board",
+          out[1]["spoken"] == L._worked_for(missed)[0]
+          and out[1]["board"] == L._worked_for(missed)[1], out[1]["spoken"][:60])
+    check("⭐ ...and the redo is a FRESH problem, never the one just solved (the 09-13 "
+          "ruling)", out[3]["problem"] != missed,
+          "%s vs %s" % (out[3]["problem"], missed))
+    check("  the two frames are the authored ones, and both are in THIS LESSON's own "
+          "closure -- where LINE_WRONG has always lived, because rendering one lesson "
+          "must render every line that lesson can speak",
+          out[0]["spoken"] in L.SECOND_LOOK_LINES
+          and out[2]["spoken"] in L.FRESH_ONE_LINES
+          and out[0]["spoken"] in set(L.audio_lines(les))
+          and out[2]["spoken"] in set(L.audio_lines(les)), "")
+    check("  the ladder counted NOTHING -- `interventions` is the count of times the "
+          "MODEL stepped in, and it did not",
+          st["interventions"] == 0 and st["consec_miss"] == 1, str(st["interventions"]))
+
+    # ---- ⭐ the second miss in a row is the AI's ------------------------------
+    out, st = answer(st, False)
+    kinds = [o["kind"] for o in out]
+    check("⭐ THE SECOND MISS IN A ROW OPENS THE AI'S DOOR, exactly as it always did",
+          kinds == ["say", "intervene"], str(kinds))
+    check("  ...and THAT is what the ladder counts",
+          st["interventions"] == 1 and st["consec_miss"] == 0, str(st["interventions"]))
+    check("  the intervene step still carries everything the model turn needs",
+          all(k in out[1] for k in ("reason", "problem", "expected", "got",
+                                    "vocabulary", "level", "retest", "board")), "")
+    _o, st = L.step(les, st, ("resume",))
+    check("  ...and `resume` still asks the engine's own retest",
+          [o["kind"] for o in _o] == ["ask"], str([o["kind"] for o in _o]))
+
+    # ---- ⭐ a right answer clears the run ------------------------------------
+    st = fresh()
+    _o, st = answer(st, False)
+    _o, st = answer(st, True)
+    check("⭐ a right answer puts the counter back to zero -- the NEXT miss is the "
+          "engine's again, not the model's", st["consec_miss"] == 0, "")
+    out, st = answer(st, False)
+    check("  ...proved: miss, recover, miss -> the engine answers the second one too",
+          [o["kind"] for o in out] == ["say", "say", "say", "ask"], "")
+
+    # ---- ⭐ the lessons with no worked solution are untouched -----------------
+    ent = [x for x in L.LESSONS if x["id"] == "entry-u1-counting-to-10"][0]
+    st2 = L.start(ent, seed=3)
+    _o, st2 = L.step(ent, st2, ("begin",))
+    p2 = (st2.get("pending") or {})["problem"]
+    check("  a lesson whose op has NO worked generator keeps the old path on the very "
+          "first miss -- and the 48 that have none are exactly the 48 that never "
+          "showed work on a right answer",
+          L._worked_for(p2) is None
+          and [o["kind"] for o in L.step(ent, st2, ("answer", (L.ans(p2) or 0) + 777))[0]]
+              == ["say", "intervene"], "")
+    _noworked = [x["id"] for x in L.LESSONS
+                 if any(L._worked_for(q) is None
+                        for q in list(x["bank"]) + [y["ask"] for y in x["pairs"]])]
+    _noflag = [x["id"] for x in L.LESSONS if not x.get("show_work_on_correct")]
+    check("⭐ ...and that is why PHASE A COST NO NEW CLIP: the two sets are the same 48",
+          sorted(_noworked) == sorted(_noflag) and len(_noflag) == 48,
+          "%d without a generator, %d without the flag" % (len(_noworked), len(_noflag)))
+
+    # ---- ⭐ a child who keeps missing still reaches the warm close ------------
+    st3 = L.start(les, seed=3)
+    _o, st3 = L.step(les, st3, ("begin",))
+    turns = ai = 0
+    ended = False
+    while turns < 60:
+        pend = (st3.get("pending") or {}).get("problem")
+        if pend is None:
+            break
+        steps, st3 = L.step(les, st3, ("answer", (L.ans(pend) or 0) + 777))
+        turns += 1
+        if any(o["kind"] == "intervene" for o in steps):
+            ai += 1
+            steps, st3 = L.step(les, st3, ("resume",))
+        if any(o["kind"] == "end" for o in steps) or st3.get("finished"):
+            ended = True
+            break
+    check("⭐ AN ALL-WRONG LESSON STILL ENDS, WARMLY AND SOON -- and it now spends ONE "
+          "model turn where the old engine spent two",
+          ended and turns <= 8 and ai == 1, "turns=%d ai=%d ended=%s" % (turns, ai, ended))
+
+    # ---- ⭐ the opener ---------------------------------------------------------
+    openers = set()
+    for _les in L.LESSONS:
+        for q in list(_les["bank"]) + [y["ask"] for y in _les["pairs"]]:
+            w = L._worked_for(q)
+            if w:
+                openers.add(" ".join(w[0].split()[:6])[:26])
+    check("⭐ NOT ONE worked line still says \"Look what you did\" -- the same line now "
+          "answers a wrong answer, and that sentence is false there",
+          not any(o.startswith("Look what you did") for o in openers),
+          str(sorted(openers)[:3]))
+    check("  ...the engine said so itself long before this build, in _table_miss's own "
+          "docstring, and the generators now agree with it",
+          'Never "Look what you did" -- the student did not' in rd("lessonscripts.py")
+          and rd("lessonscripts.py").count("Here it is, step by step: ") >= 320, "")
+    check("  the praise line is still what celebrates a right answer -- the walk-back "
+          "never was the credit",
+          L.praise_for(missed, 0) and not L.praise_for(missed, 0).startswith("Here it is"), "")
+
+    # ---- the counts ------------------------------------------------------------
+    check("  the six frame lines are the ONLY audio this build added (39,988 -> 39,994)",
+          len(L.course_audio_lines()) == 39994
+          and len(set(L.SECOND_LOOK_LINES + L.FRESH_ONE_LINES)) == 6, "")
+    check("  no frame line carries a number, so six clips serve all 360 lessons",
+          not any(any(ch.isdigit() for ch in x)
+                  for x in L.SECOND_LOOK_LINES + L.FRESH_ONE_LINES), "")
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-14vz-' in notes("main.py")
+          and "2026-09-14  BUILD vz" in notes("lessonscripts.py")
+          and "2026-09-14  BUILD vz" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -29370,7 +29552,7 @@ def part3il_the_lesson_learns_to_teach():
         p = st["pending"]["problem"]
         outs, st = L.step(les, st, ("answer", L.ans(p)))
         heard.extend(o["spoken"] for o in outs)
-        wb = [o for o in outs if o["kind"] == "say" and o["spoken"].startswith("Look what you did:")]
+        wb = [o for o in outs if o["kind"] == "say" and o["spoken"].startswith("Here it is, step by step:")]
         if wb and (f'hops="{p["a"]},{L.ans(p)}"' in wb[0]["board"]
                    and str(L.ans(p)) in wb[0]["spoken"] and str(p["a"]) in wb[0]["spoken"]):
             walkbacks += 1
@@ -29619,7 +29801,7 @@ def part3im_basic_unit_one_to_the_shape():
             p = st["pending"]["problem"]
             outs, st = L.step(les, st, ("answer", L.ans(p)))
             heard.extend(o["spoken"] for o in outs)
-            w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
+            w = [o for o in outs if o["spoken"].startswith("Here it is, step by step:")]
             if w and str(L.ans(p)) in w[0]["spoken"] and re.search(r"\[\[(numberline|placevalue|column)\b", w[0]["board"]):
                 wb += 1
         ask = outs[-1]
@@ -29763,7 +29945,7 @@ def part3in_basic_unit_two_to_the_shape():
             p = st["pending"]["problem"]
             outs, st = L.step(les, st, ("answer", L.ans(p)))
             heard.extend(o["spoken"] for o in outs)
-            w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
+            w = [o for o in outs if o["spoken"].startswith("Here it is, step by step:")]
             if w and str(L.ans(p)) in w[0]["spoken"] and re.search(r"\[\[(array|areamodel|placevalue)\b", w[0]["board"]):
                 wb += 1
         ask = outs[-1]
@@ -29882,7 +30064,7 @@ def part3io_basic_unit_three_to_the_shape():
             p = st["pending"]["problem"]
             outs, st = L.step(les, st, ("answer", L.ans(p)))
             heard.extend(o["spoken"] for o in outs)
-            w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
+            w = [o for o in outs if o["spoken"].startswith("Here it is, step by step:")]
             if w and str(L.ans(p)) in w[0]["spoken"] and re.search(r"\[\[(array|areamodel)\b", w[0]["board"]):
                 wb += 1
         ask = outs[-1]
@@ -29991,7 +30173,7 @@ def part3ip_basic_unit_four_to_the_shape():
             p = st["pending"]["problem"]
             outs, st = L.step(les, st, ("answer", L.ans(p)))
             heard.extend(o["spoken"] for o in outs)
-            w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
+            w = [o for o in outs if o["spoken"].startswith("Here it is, step by step:")]
             if w and str(L.ans(p)) in w[0]["spoken"] and re.search(PIC, w[0]["board"]):
                 wb += 1
         ask = outs[-1]
@@ -30082,7 +30264,7 @@ def part3iq_basic_unit_five_to_the_shape():
             p = st["pending"]["problem"]
             outs, st = L.step(les, st, ("answer", L.ans(p)))
             heard.extend(o["spoken"] for o in outs)
-            w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
+            w = [o for o in outs if o["spoken"].startswith("Here it is, step by step:")]
             if w and str(L.ans(p)) in w[0]["spoken"] and re.search(PIC, w[0]["board"]):
                 wb += 1
         ask = outs[-1]
@@ -30179,7 +30361,7 @@ def _shape_unit_checks(unit_ids, pic_regex):
                 break
             outs, st = L.step(les, st, ("answer", L.ans(p)))
             heard.extend(o["spoken"] for o in outs)
-            w = [o for o in outs if o["spoken"].startswith("Look what you did:")]
+            w = [o for o in outs if o["spoken"].startswith("Here it is, step by step:")]
             if w and _names(L.ans(p), w[0]["spoken"]) and re.search(pic_regex, w[0]["board"]):
                 wb += 1
         ask = outs[-1]
@@ -30559,7 +30741,7 @@ def part3iv_the_times_table_is_a_pass():
         outs, st = L.step(les, st, _ans(st))
         n += 1
         heard.extend(o["spoken"] for o in outs if o.get("spoken"))
-        wbs += sum(1 for o in outs if o["spoken"].startswith("Look what you did:"))
+        wbs += sum(1 for o in outs if o["spoken"].startswith("Here it is, step by step:"))
         ints += sum(1 for o in outs if o["kind"] == "intervene")
         ended = next((o for o in outs if o["kind"] == "end"), None)
         if ended:
@@ -30707,7 +30889,7 @@ def part3iv_the_times_table_is_a_pass():
     # ---- 10. the audit, the source and the notes --------------------------------------
     src = rd("lessonscripts.py")
     check("  the slip never enters the AI doorway (its branch sits above it in step)",
-          0 < src.find('if state["phase"] == "table":\n        state["streak"] = 0') < src.find("# ---- wrong answer: the ONE doorway to the AI ----"), "")
+          0 < src.find('if state["phase"] == "table":\n        state["streak"] = 0') < src.find("# ---- the second miss in a row: the ONE doorway to the AI ----"), "")
     # (tk, 2026-09-06) the header grew past 20,000 characters (every build to the
     # shape adds a note above this one); the pin reads 60,000, as the sp...td pins do.
     check("  the changed files carry dated sz notes",
@@ -30820,6 +31002,11 @@ def part3iw_the_tutor_sees_the_board():
     les = L.LESSON_BY_ID["basic-u1-rounding-tens"]
     st = L.start(les, seed=1)
     L.step(les, st, ("begin",))
+    # (vz) PHASE A: the FIRST miss is the engine's own worked solution and a fresh
+    # problem, so the model's door -- and the board that rides through it -- is the
+    # SECOND miss in a row. The board asserted below is therefore the board of the
+    # problem the child is looking at when the model is finally fetched.
+    L.step(les, st, ("answer", 999))
     pend_board = (st["pending"] or {}).get("board", "")
     outs, st = L.step(les, st, ("answer", 999))
     iv = next((o for o in outs if o["kind"] == "intervene"), {})
@@ -34088,7 +34275,7 @@ def part3jw_calculus_units_four_to_six_to_the_shape():
           and 'lines="y=22x-121" points="(11,121)"' in _W(mrat)[1]
           and "2 times 11 times 2 is 44 square centimetres a second" in _W(mrat)[0]
           and L.praise_for(mrat, 0).count("2 times 11 times 2") == 1
-          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u4-one-rate-drives-another"])) <= 24500, "")
+          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u4-one-rate-drives-another"])) <= 25000, "")
     crit = {"a": 24, "b": 0, "op": "crit"}
     check("⭐ where the curve levels off: the valley alone on the ask (no point, no tangent); the flat tangent y = -144 and the point at the bottom in the walk-back",
           '[[graph func="x^2-24*x" names="y = x² − 24x" range="0..24" yrange="-180..36" caption=' in L.board_for(crit, "abstract")
@@ -34200,8 +34387,8 @@ def part3jw_calculus_units_four_to_six_to_the_shape():
           not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
                   for l in C4 + C5 + C6)
           and all(len(o.split()) <= 12 for l in C4 + C5 + C6 for o in L.LESSON_BY_ID[l]["explain"]["choices"].split("|")), "")
-    check("  every lesson's closure stays under the 24,500-character audio ceiling (24,000 until us)",
-          all(sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID[l])) <= 24500 for l in C4 + C5 + C6), "")
+    check("  every lesson's closure stays under the 25,000-character audio ceiling (24,500 until vz, 24,000 until us)",
+          all(sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID[l])) <= 25000 for l in C4 + C5 + C6), "")
     _FRAG = {"calc-u4-when-is-it-going-that-fast": "162 over 18",
              "calc-u4-one-rate-drives-another": "2 times 9 times 5",
              "calc-u4-where-the-curve-levels-off": "2 x equals 34",
@@ -34272,7 +34459,7 @@ def part3jx_calculus_units_seven_to_nine_to_the_shape():
           and '[[step eq="area under the graph = ? metres"]]' in L.board_for(defi, "abstract")
           and 'shade="0..5" label="55"' in _W(defi)[1]
           and "11 times 5 is 55, and 55 metres is how far the car went" in _W(defi)[0]
-          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u7-the-area-is-the-answer"])) <= 24500, "")
+          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u7-the-area-is-the-answer"])) <= 25000, "")
     triz = {"a": 28, "b": 0, "op": "triz"}
     check("  when the graph is a ramp: the triangle under y = x shaded with \"?\" on the ask; \"392\" on the walk-back",
           '[[graph lines="y=x" names="speed = t" shade="0..28" label="?" range="0..30" yrange="0..30" caption=' in L.board_for(triz, "abstract")
@@ -34319,7 +34506,7 @@ def part3jx_calculus_units_seven_to_nine_to_the_shape():
           and '[[step eq="volume = ? × π"]]' in L.board_for(revo, "abstract")
           and '[[step eq="5² = 25"]][[step eq="25 × 8 = 200"]]' in _W(revo)[1]
           and "Stack 8 lengths of that and the volume is 200 pi" in _W(revo)[0]
-          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u8-spin-it-into-a-solid"])) <= 24500, "")
+          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u8-spin-it-into-a-solid"])) <= 25000, "")
 
     # ---- Unit 9 ------------------------------------------------------------------------
     dfeq = {"a": 155, "b": 8, "c": 5, "op": "dfeq"}
@@ -34341,7 +34528,7 @@ def part3jx_calculus_units_seven_to_nine_to_the_shape():
           and '[[step eq="P = 28 · rate = ?"]]' in L.board_for(pgrw, "abstract")
           and 'points="(28,112)"' in _W(pgrw)[1]
           and "28 times 4 — 112 a minute" in _W(pgrw)[0]
-          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u9-when-the-rate-depends-on-the-amount"])) <= 24500, "")
+          and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u9-when-the-rate-depends-on-the-amount"])) <= 25000, "")
     eqbm = {"a": 144, "b": 6, "op": "eqbm"}
     check("  where the change stops: the rate line falling toward zero with no point on the ask; the crossing (24, 0) on the walk-back",
           '[[graph lines="y=-6x+144" names="rate = 144 − 6P" range="0..26" yrange="-12..150" caption=' in L.board_for(eqbm, "abstract")
@@ -34384,8 +34571,8 @@ def part3jx_calculus_units_seven_to_nine_to_the_shape():
           not any(tutor.spoken_math_unwritten_conflict(L.LESSON_BY_ID[l]["explain"]["choices"], heard="prior turn, no tags")
                   for l in C7 + C8 + C9)
           and all(len(o.split()) <= 12 for l in C7 + C8 + C9 for o in L.LESSON_BY_ID[l]["explain"]["choices"].split("|")), "")
-    check("  every lesson's closure stays under the 24,500-character audio ceiling (24,000 until us)",
-          all(sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID[l])) <= 24500 for l in C7 + C8 + C9), "")
+    check("  every lesson's closure stays under the 25,000-character audio ceiling (24,500 until vz, 24,000 until us)",
+          all(sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID[l])) <= 25000 for l in C7 + C8 + C9), "")
     _FRAG = {"calc-u7-the-area-is-the-answer": "9 times 6",
              "calc-u7-flatten-it-out": "150 divided by 10",
              "calc-u8-the-gap-between-two-curves": "160 take away 38",
@@ -43068,15 +43255,27 @@ def part3cv_scripted_engine():
           f"done={st['done']} int={n_int} -- the happy path must never wake the model, "
           "and 'three right answers in a row and we're done' must mean THREE")
 
-    # ---- 4. one miss: ONE intervention, engine-chosen retest, still masterable ----
+    # ---- 4. the misses: the ENGINE answers the first, the AI the second ----------
+    # (vz, 2026-09-14) PHASE A moved this contract, and this is where it is written
+    # down. Until vz a single wrong answer opened the model's door. Now the FIRST
+    # miss in a row is answered by the engine itself -- the worked solution of the
+    # problem they missed, then a fresh problem of the same shape -- and the model is
+    # fetched on the SECOND miss in a row. Everything below the first miss is the
+    # same intervention contract it always was, and PART 3lu holds the new half.
     st = L.start(_WALK)
     L.step(_WALK, st, ("begin",))
     L.step(_WALK, st, answers(st))          # pair 0
     L.step(_WALK, st, answers(st))          # pair 1
     L.step(_WALK, st, answers(st))          # practice 1 right
+    first, _ = L.step(_WALK, st, ("answer", 99))
+    check("⭐ the FIRST miss wakes NO model: the engine answers it and asks a fresh one",
+          not any(o["kind"] == "intervene" for o in first)
+          and [o["kind"] for o in first] == ["say", "say", "say", "ask"],
+          str([o["kind"] for o in first]))
     outs, _ = L.step(_WALK, st, ("answer", 99))
     inter = [o for o in outs if o["kind"] == "intervene"]
-    check("a wrong answer emits exactly one intervention, prefixed by the scripted line",
+    check("a SECOND wrong answer in a row emits exactly one intervention, prefixed by "
+          "the scripted line",
           len(inter) == 1 and any(o.get("spoken") == L.LINE_WRONG for o in outs),
           str([o["kind"] for o in outs]))
     check("⭐ the RETEST is chosen by the engine before the AI ever speaks",
@@ -43225,8 +43424,16 @@ def part3cv_scripted_engine():
         #   Measured, not guessed; the bar is raised, the lessons are not cut.
         # (us, 2026-09-09) the ceiling 24,000 -> 24,500: every lesson's closure gained its two
         # orientation lines (~200 chars); three calculus closures sat 60 chars under 24,000.
+        # (vz, 2026-09-14) 24,500 -> 25,000. PHASE A's two frames (six short lines, ~290
+        # chars) are spoken INSIDE a lesson, so they belong to every lesson's closure the
+        # way LINE_WRONG always has -- and the same three calculus closures that the us
+        # note names crossed again: 24,577 / 24,562 / 24,560 against 24,500. The DOLLAR
+        # bar did not move and did not need to: the worst lesson is $5.41 against the
+        # same $5.50. The law is the one this ledger was written for -- a lesson is never
+        # trimmed to duck a tripwire; the tripwire is raised deliberately, in writing,
+        # with the reason. Measured, not guessed.
         check(f"{_les['id']}: the closure is priceable and small",
-              0 < est2["chars"] < 24500 and est2["usd"] < 5.5, str(est2))
+              0 < est2["chars"] < 25000 and est2["usd"] < 5.5, str(est2))
 
     # ---- 9. ⭐ THE CLOSURE: everything ever spoken is pre-renderable ----
     missing = sorted({s for s in heard if s and s not in closure})
@@ -44221,18 +44428,29 @@ c.post("/api/script/start", json={"code": "KID2", "lesson": "entry-u2-add-single
 def a2(v, unheard=False):
     return c.post("/api/script/answer", json={"code": "KID2", "value": v, "unheard": unheard}).json()
 a2(5); a2(6)                     # pairs
-j = a2(99)                       # wrong on bank 2+1
+# (vz) PHASE A: the FIRST miss is the ENGINE's -- its own worked solution of the
+# problem missed, then a fresh one of the same shape. No model is woken.
+j = a2(99)                       # first miss
 kinds = [s["kind"] for s in j["steps"]]
-chk("wrong answer: scripted line then AI step", "ai" in kinds and any(
+chk("first miss: the engine answers it, no AI step and no model call",
+    "ai" not in kinds and kinds == ["say", "say", "say", "ask"] and calls["n"] == 0,
+    "%s calls=%d" % (kinds, calls["n"]))
+j = a2(98)                       # second miss in a row -> the model's door
+kinds = [s["kind"] for s in j["steps"]]
+chk("second miss in a row: scripted line then AI step", "ai" in kinds and any(
     s.get("spoken") == L.LINE_WRONG for s in j["steps"]), str(kinds))
 chk("exactly one AI call so far", calls["n"] == 1)
-j = a2(3)                        # redo of 2+1 -> correct, graded BY CODE
+# (vz) the redo's problem is whatever the engine chose after the second miss, so the
+# drive reads it from the session rather than hard-coding the old walk's 2 + 1.
+def right2():
+    return L.ans(main._script_session("KID2")["state"]["pending"]["problem"])
+j = a2(right2())                 # redo -> correct, graded BY CODE
 kinds = [s["kind"] for s in j["steps"]]
 chk("correct redo: praise + engine retest, no second AI call",
     kinds[0] == "say" and "ask" in kinds and calls["n"] == 1, str(kinds))
-# finish KID2: retest was 1+3=4 then continue rights
-for v in (4, 4, 5, 5, 7):
-    j = a2(v)
+# finish KID2: keep answering correctly until the lesson ends
+for _i in range(10):
+    j = a2(right2())
     if any(s["kind"] == "end" for s in j["steps"]): break
 chk("corrected child still reaches an end", any(s["kind"] == "end" for s in j["steps"]) or True)
 
@@ -44242,7 +44460,8 @@ def a3(v, unheard=False):
     return c.post("/api/script/answer", json={"code": "KID3", "value": v, "unheard": unheard}).json()
 a3(5); a3(6)
 before = calls["n"]
-a3(99)                            # -> AI turn 1
+a3(99)                            # (vz) first miss -> the ENGINE's own explanation
+a3(99)                            # second miss in a row -> AI turn 1
 a3(98)                            # wrong redo -> AI turn 2
 a3(97)                            # wrong redo -> AI turn 3
 j = a3(96)                        # wrong redo, budget exhausted -> scripted resume
@@ -44255,7 +44474,8 @@ main._script_intervene = lambda *a, **k: ""
 c.post("/api/script/start", json={"code": "KID4", "lesson": "entry-u2-add-single-digit"})
 def a4(v): return c.post("/api/script/answer", json={"code": "KID4", "value": v}).json()
 a4(5); a4(6)
-j = a4(99)
+a4(99)                            # (vz) the first miss never reaches the model at all
+j = a4(99)                        # the second does -- and this one is dead
 chk("a dead model never bricks the lesson: scripted retest arrives",
     any(s["kind"] == "ask" for s in j["steps"]) and all(s["kind"] != "ai" for s in j["steps"]),
     str([s["kind"] for s in j["steps"]]))
@@ -45010,6 +45230,7 @@ def main():
     part3lr_five_from_the_09_13_watch()
     part3ls_the_demo_is_part_of_the_closure()
     part3lt_six_from_the_09_14_watch()
+    part3lu_the_scripted_second_explanation()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
