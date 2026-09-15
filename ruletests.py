@@ -6,6 +6,12 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-15  BUILD wb -- PART 3lw, THE SWEEP SITS IN THE NIGHT WATCH'S SEAT. The first
+#               sweep read 1 lesson in 36: the Anthropic judge returned no text (budget
+#               spent thinking) and handed "" up as an answer. Pins: the Anthropic seat's
+#               new empty-reply guard (retry roomy, then a named error), the sweep's seat
+#               selection (the night watch's by default, COURSESWEEP_JUDGE overrides), the
+#               key check following the seat, and the report naming who read it.
 #   2026-09-15  BUILD wa -- PART 3lv, THE COURSE SWEEP (project 1 of the 09-14 deep dive).
 #               NEW coursesweep.py: the reviewer over the SCRIPTED course. This part pins
 #               the walk (every one of the 360 lessons, deterministic, one deliberate miss
@@ -18501,6 +18507,7 @@ def part3lv_the_course_sweep():
     else:
         _oldkey = _os.environ.get("FORUM_MOD_KEY")
         _oldanth = _os.environ.get("ANTHROPIC_API_KEY")
+        _oldoai = _os.environ.get("OPENAI_API_KEY")      # (wb) the seat's key follows the seat
         _olddata = M.DATA_DIR
         _oldjudge = M._sweep_judge
         _os.environ["FORUM_MOD_KEY"] = "3lv-key"
@@ -18517,10 +18524,12 @@ def part3lv_the_course_sweep():
                       c.post("/api/admin/coursesweep/start", json={"course": "nope"}, headers=H).status_code == 400
                       and c.get("/api/admin/coursesweep/status").status_code == 401, "")
                 _os.environ["ANTHROPIC_API_KEY"] = ""
-                check("  a run with no ANTHROPIC_API_KEY is refused with a 503 that names it",
+                _os.environ["OPENAI_API_KEY"] = ""
+                check("  a run with no key for the seat is refused with a 503 that names it",
                       c.post("/api/admin/coursesweep/start", json={"course": "entry", "dry_run": False},
                              headers=H).status_code == 503, "")
                 _os.environ["ANTHROPIC_API_KEY"] = "3lv-fake"
+                _os.environ["OPENAI_API_KEY"] = "3lv-fake"
                 M._sweep_judge = lambda msgs, max_tokens=2000, want_json=False: (
                     _json.dumps({"findings": [], "clean": True, "note": ""}), None)
                 r = c.post("/api/admin/coursesweep/start", json={"course": "entry", "limit": 2, "dry_run": False}, headers=H)
@@ -18552,6 +18561,10 @@ def part3lv_the_course_sweep():
                 _os.environ.pop("ANTHROPIC_API_KEY", None)
             else:
                 _os.environ["ANTHROPIC_API_KEY"] = _oldanth
+            if _oldoai is None:
+                _os.environ.pop("OPENAI_API_KEY", None)
+            else:
+                _os.environ["OPENAI_API_KEY"] = _oldoai
 
     # ---- the wiring and the card ------------------------------------------------
     msrc = code_only(rd("main.py"))
@@ -18569,6 +18582,123 @@ def part3lv_the_course_sweep():
           'APP_BUILD -> "2026-09-15wa-' in notes("main.py") and "2026-09-15  BUILD wa" in notes("ruletests.py")
           and "(wa) 2026-09-15" in notes("static/admin.html")
           and "2026-09-15  BUILD wa -- BORN" in notes("coursesweep.py"), "")
+
+
+def part3lw_the_sweep_sits_in_the_night_watchs_seat():
+    """PART 3lw (build wb, 2026-09-15) -- THE SWEEP SITS IN THE NIGHT WATCH'S SEAT.
+
+    Jim's first course sweep: "1 of 36 lessons read ... 35 unread ... reviewer did not
+    return JSON: " -- thirty-five EMPTY replies. The Anthropic judge transport spent its
+    2,000-token budget thinking, returned a message with no text block, and the seat
+    returned "" as if that were an answer. _openai has guarded the same quiet failure
+    since build fe. This part pins the guard on the Anthropic seat, and that the sweep
+    now sits in whichever seat the night watch trusts."""
+    print("\nPART 3lw — the sweep sits in the night watch's seat (build wb)")
+    import os as _os, sys as _sys, types as _types, json as _json, tempfile as _tf
+    import lessonaudit as LA
+    _here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(_here, fn), encoding="utf-8").read()  # noqa: E731
+
+    # ---- a fake Anthropic SDK: first reply EMPTY (stop max_tokens), second has text ----
+    calls = []
+    class _Block:
+        def __init__(self, t): self.type = "text"; self.text = t
+    class _Resp:
+        def __init__(self, text, stop): self.content = ([_Block(text)] if text else []); self.stop_reason = stop
+    class _Messages:
+        def __init__(self, script): self.script = script
+        def create(self, **kw):
+            calls.append(kw.get("max_tokens"))
+            text, stop = self.script.pop(0)
+            return _Resp(text, stop)
+    class _Client:
+        script = []
+        def __init__(self, **kw): self.messages = _Messages(_Client.script)
+    fake = _types.ModuleType("anthropic"); fake.Anthropic = _Client
+    _old_mod = _sys.modules.get("anthropic")
+    _old_key = _os.environ.get("ANTHROPIC_API_KEY")
+    _sys.modules["anthropic"] = fake
+    _os.environ["ANTHROPIC_API_KEY"] = "3lw-fake"
+    try:
+        _Client.script = [("", "max_tokens"), ('{"findings": []}', "end_turn")]
+        text, err = LA._anthropic_judge([{"role": "system", "content": "s"}, {"role": "user", "content": "u"}],
+                                        max_tokens=2000, want_json=True)
+        check("⭐ an EMPTY reply from the Anthropic seat is RETRIED once with a roomy budget, and "
+              "the second reply is the answer",
+              text == '{"findings": []}' and err is None and calls == [2000, 8000], f"calls={calls} err={err}")
+        del calls[:]
+        _Client.script = [("", "max_tokens"), ("", "max_tokens")]
+        text, err = LA._anthropic_judge([{"role": "user", "content": "u"}], max_tokens=2000)
+        check("  ...and two empty replies are a NAMED failure, never an empty success",
+              text is None and err and "returned no text" in err and "max_tokens" in err
+              and "ANTHROPIC_JUDGE_MODEL" in err, str(err)[:120])
+        del calls[:]
+        _Client.script = [('{"ok": 1}', "end_turn")]
+        text, err = LA._anthropic_judge([{"role": "user", "content": "u"}], max_tokens=2000)
+        check("  a reply with text is returned as before, first time, no retry",
+              text == '{"ok": 1}' and calls == [2000], "")
+    finally:
+        if _old_mod is None:
+            _sys.modules.pop("anthropic", None)
+        else:
+            _sys.modules["anthropic"] = _old_mod
+        if _old_key is None:
+            _os.environ.pop("ANTHROPIC_API_KEY", None)
+        else:
+            _os.environ["ANTHROPIC_API_KEY"] = _old_key
+
+    # ---- the sweep's seat -------------------------------------------------------
+    try:
+        import main as M
+        from fastapi.testclient import TestClient
+    except Exception as exc:  # noqa: BLE001
+        skip("course-sweep seat", f"fastapi not importable here: {exc}")
+        return
+    _oldenv = {k: _os.environ.get(k) for k in ("COURSESWEEP_JUDGE", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "FORUM_MOD_KEY")}
+    _oldprov = LA.JUDGE_PROVIDER
+    try:
+        _os.environ.pop("COURSESWEEP_JUDGE", None)
+        LA.JUDGE_PROVIDER = "openai"
+        check("⭐ by default the sweep sits in the NIGHT WATCH's seat (openai, the transport that "
+              "has marked every night since iu)", M._sweep_seat() == "openai" and M._sweep_model() == LA.AUDIT_MODEL, M._sweep_seat())
+        LA.JUDGE_PROVIDER = "anthropic"
+        check("  ...and follows it when the night watch moves", M._sweep_seat() == "anthropic", "")
+        _os.environ["COURSESWEEP_JUDGE"] = "openai"
+        check("  COURSESWEEP_JUDGE overrides the seat for the sweep alone", M._sweep_seat() == "openai", "")
+        _os.environ.pop("COURSESWEEP_JUDGE", None)
+        LA.JUDGE_PROVIDER = "openai"
+        _os.environ["FORUM_MOD_KEY"] = "3lw-key"
+        H = {"X-Admin-Key": "3lw-key"}
+        c = TestClient(M.app)
+        _os.environ["OPENAI_API_KEY"] = ""
+        _os.environ["ANTHROPIC_API_KEY"] = "present"
+        r = c.post("/api/admin/coursesweep/start", json={"course": "entry", "dry_run": True}, headers=H)
+        check("  the price line names the seat and the model, and the key check FOLLOWS THE SEAT "
+              "(an Anthropic key does not satisfy an OpenAI seat)",
+              r.status_code == 200 and r.json()["seat"] == "openai" and r.json()["model"] == LA.AUDIT_MODEL
+              and r.json()["have_key"] is False, str(r.json())[:160])
+        r = c.post("/api/admin/coursesweep/start", json={"course": "entry", "dry_run": False}, headers=H)
+        check("  ...and a run without THAT key is refused with a 503 that names it",
+              r.status_code == 503 and "OPENAI_API_KEY" in r.json().get("detail", ""), str(r.json())[:120])
+        check("  the sweep's own budget is 4,000 tokens -- a whole lesson's findings, not a night's",
+              "max(max_tokens, 4000)" in code_only(rd("main.py")), "")
+    finally:
+        LA.JUDGE_PROVIDER = _oldprov
+        for k, v in _oldenv.items():
+            if v is None:
+                _os.environ.pop(k, None)
+            else:
+                _os.environ[k] = v
+
+    # ---- the report says who read it -------------------------------------------
+    import coursesweep as C
+    md = C.report_markdown({"course": "entry", "when": "now", "ran": 0, "asked": 0, "findings": [],
+                            "seat": "openai · gpt-4.1", "not_covered": []})
+    check("  the report names the seat that read it", "_Read by: openai · gpt-4.1_" in md, "")
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-15wb-' in notes("main.py") and "2026-09-15  BUILD wb" in notes("lessonaudit.py")
+          and "2026-09-15  BUILD wb" in notes("coursesweep.py") and "(wb) 2026-09-15" in notes("static/admin.html")
+          and "2026-09-15  BUILD wb" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -45440,6 +45570,7 @@ def main():
     part3lt_six_from_the_09_14_watch()
     part3lu_the_scripted_second_explanation()
     part3lv_the_course_sweep()
+    part3lw_the_sweep_sits_in_the_night_watchs_seat()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

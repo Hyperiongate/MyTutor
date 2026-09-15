@@ -6,6 +6,17 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-15  APP_BUILD -> "2026-09-15wb-the-sweep-sits-in-the-night-watchs-seat".
+#               BUILD wb -- THE FIRST SWEEP READ ONE LESSON IN 36. wa hard-wired the
+#               Anthropic judge transport; the model spent its 2,000-token budget
+#               thinking and returned no text, and that seat handed "" up as an answer
+#               (35 x "reviewer did not return JSON: "). Now _sweep_judge sits in the
+#               NIGHT WATCH's seat (lessonaudit.JUDGE_PROVIDER -- OpenAI by default, the
+#               transport that has marked every night since build iu and has guarded the
+#               empty reply since fe), COURSESWEEP_JUDGE=anthropic|openai overrides it,
+#               the budget is 4,000 tokens, the key check follows the seat, and the
+#               report says which seat and model read it. lessonaudit's Anthropic seat
+#               gains the same empty-reply guard (see its wb note).
 #   2026-09-15  APP_BUILD -> "2026-09-15wa-the-course-sweep".
 #               BUILD wa -- THE COURSE SWEEP (project 1 of the 09-14 deep dive, "The
 #               Forever War"). NEW coursesweep.py: the reviewer over the SCRIPTED course --
@@ -5412,11 +5423,45 @@ def _sweep_snapshot() -> dict:
                                                    "note": "No sweep has been started."}
 
 
-def _sweep_judge(messages, max_tokens=2000, want_json=False):
-    """The judge seat, lent from lessonaudit. Never raises; (None, err) on any failure."""
+def _sweep_seat() -> str:
+    """Which vendor reads the course: COURSESWEEP_JUDGE (anthropic|openai) if set,
+    otherwise the night watch's own seat (lessonaudit.JUDGE_PROVIDER, openai by
+    default -- the seat that has marked every night's transcripts since build iu)."""
+    want = os.environ.get("COURSESWEEP_JUDGE", "").strip().lower()
+    if want in ("anthropic", "openai"):
+        return want
     try:
         import lessonaudit
-        return lessonaudit._anthropic_judge(messages, max_tokens=max_tokens, want_json=want_json)
+        return "anthropic" if lessonaudit.JUDGE_PROVIDER == "anthropic" else "openai"
+    except Exception:  # noqa: BLE001
+        return "openai"
+
+
+def _sweep_model() -> str:
+    try:
+        import lessonaudit
+        if _sweep_seat() == "anthropic":
+            return os.environ.get("ANTHROPIC_JUDGE_MODEL", "claude-sonnet-5")
+        return lessonaudit.AUDIT_MODEL
+    except Exception:  # noqa: BLE001
+        return "?"
+
+
+def _sweep_judge(messages, max_tokens=2000, want_json=False):
+    """The judge seat, lent from lessonaudit. (wb) THE NIGHT WATCH'S SEAT, not a seat of
+    its own: wa hard-wired the Anthropic transport and the first sweep got 35 empty
+    replies in 36 (see lessonaudit's wb note). The seat the night watch has marked every
+    night's transcripts with is the proven one, so the sweep sits in it -- and either
+    vendor's transport now guards the empty reply. Never raises; (None, err) on any
+    failure. 4,000 tokens: a full lesson's findings are longer than a night's."""
+    try:
+        import lessonaudit
+        seat = _sweep_seat()
+        if seat == "anthropic":
+            return lessonaudit._anthropic_judge(messages, max_tokens=max(max_tokens, 4000),
+                                                want_json=want_json)
+        return lessonaudit._openai(messages, max_tokens=max(max_tokens, 4000),
+                                   want_json=want_json)
     except Exception as exc:  # noqa: BLE001
         return None, f"judge unavailable: {exc}"
 
@@ -5429,6 +5474,7 @@ def _sweep_worker(job_id: str, course: str, limit) -> None:
     try:
         result = coursesweep.run_sweep(DATA_DIR, course, _sweep_judge, limit=limit,
                                        progress=progress)
+        result["seat"] = f"{_sweep_seat()} · {_sweep_model()}"
         name = coursesweep.write_report(DATA_DIR, result, APP_BUILD)
         with _SWEEP_LOCK:
             if _SWEEP_JOB.get("id") == job_id:
@@ -5470,12 +5516,16 @@ def admin_coursesweep_start(body: CourseSweepIn, key: str = "",
     if limit:
         est["lessons"] = min(est["lessons"], limit)
         est["estimated_usd"] = round(est["lessons"] * coursesweep.EST_USD_PER_LESSON, 2)
+    seat = _sweep_seat()
+    keyname = "ANTHROPIC_API_KEY" if seat == "anthropic" else "OPENAI_API_KEY"
+    have_key = bool(os.environ.get(keyname, "").strip())
     if body.dry_run:
         return {"ok": True, "dry_run": True, **est,
-                "have_anthropic_key": bool(os.environ.get("ANTHROPIC_API_KEY", "").strip()),
+                "seat": seat, "model": _sweep_model(), "have_key": have_key,
+                "have_anthropic_key": have_key,     # (wa) the card's old field name
                 "note": "Nothing was spent. POST again with dry_run=false to run."}
-    if not os.environ.get("ANTHROPIC_API_KEY", "").strip():
-        raise HTTPException(status_code=503, detail="ANTHROPIC_API_KEY is not set on this deploy.")
+    if not have_key:
+        raise HTTPException(status_code=503, detail=f"{keyname} is not set on this deploy.")
     with _SWEEP_LOCK:
         if _SWEEP_JOB.get("state") == "running":
             raise HTTPException(status_code=409, detail=(
@@ -9594,7 +9644,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-15wa-the-course-sweep"
+APP_BUILD = "2026-09-15wb-the-sweep-sits-in-the-night-watchs-seat"
 
 
 @app.get("/health")

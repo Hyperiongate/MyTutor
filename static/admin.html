@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+    (wb) 2026-09-15 -- the price line says which judge seat and model will read the
+    course, and the key warning follows that seat (the sweep sits in the night watch's
+    seat now -- see main.py's wb note).
+
     (wa) 2026-09-15 -- THE COURSE SWEEP CARD (project 1 of the 09-14 deep dive, "The
     Forever War"). A new card under the night watch: pick a course, (1) price it FREE,
     (2) run it (SPENDS), follow the job, read the report. POST /api/admin/coursesweep/
@@ -2035,7 +2039,8 @@
     try {
       var d = await api("/api/admin/coursesweep/start", { method: "POST", body: csBody(true) });
       csMsg("FREE — nothing spent. " + d.lessons + " lesson(s), " + d.chars.toLocaleString() + " characters to read, about $"
-            + d.estimated_usd + " (" + d.estimate_note + ")" + (d.have_anthropic_key ? "" : " ⚠️ ANTHROPIC_API_KEY is not set — the run would be refused."), "ok");
+            + d.estimated_usd + " — read by " + d.seat + " (" + d.model + "). " + d.estimate_note
+            + (d.have_key ? "" : " ⚠️ the " + d.seat + " key is not set — the run would be refused."), "ok");
     } catch (e) { csMsg(e.message); }
   });
   $("csRun").addEventListener("click", async function () {

@@ -2,6 +2,14 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-15  BUILD wb -- THE ANTHROPIC JUDGE SEAT GETS THE EMPTY-REPLY GUARD. The
+#               first course sweep (wa) chose this seat and read 36 Entry lessons; 35
+#               came back 200 with no text block -- the 2,000-token budget spent on
+#               thinking -- and the seat returned "" as if that were an answer. _openai
+#               has guarded the same quiet failure since build fe. Now _anthropic_judge
+#               retries an empty reply once with a roomy budget (4x, at least +6000) and
+#               otherwise returns an error that names the model and the stop reason.
+#               The night watch's OpenAI seat is untouched.
 #   2026-09-11  BUILD vg -- run_scenario(..., turn_events=None): when the caller passes
 #               a list, one entry per assistant turn holds the tutor events raised
 #               while that reply was made (fires, pass-throughs, floors), read in-
@@ -570,9 +578,10 @@ def _openai_model_names(key):
 JUDGE_PROVIDER = "openai"          # set by main() from --judge
 
 
-def _anthropic_judge(messages, max_tokens=2000, want_json=False):
+def _anthropic_judge(messages, max_tokens=2000, want_json=False, _retry_roomy=True):
     """One Anthropic call in the judge seat. Same (text, error) contract as
-    _openai(). Never raises, never logs the key."""
+    _openai(). Never raises, never logs the key. (wb) An EMPTY reply is retried
+    once with a roomy budget, then reported as the failure it is."""
     key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     if not key:
         return None, ("no ANTHROPIC_API_KEY in the environment -- the anthropic "
@@ -597,6 +606,25 @@ def _anthropic_judge(messages, max_tokens=2000, want_json=False):
                                           system=sys_text, messages=convo)
             text = "".join(b.text for b in resp.content
                            if getattr(b, "type", None) == "text")
+            # (wb, 2026-09-15) THE QUIET FAILURE, PORTED FROM THE OPENAI SEAT. The
+            # first course sweep read 36 lessons and got JSON back for ONE: the other
+            # 35 came back 200 with NO text block at all -- the whole 2,000-token
+            # budget spent on thinking, and this seat handed "" up as a success.
+            # _openai has guarded exactly this since build fe (finish_reason=length,
+            # empty message -> one retry with a roomy budget). Same guard here: an
+            # empty reply is not an answer, and a stop of max_tokens says why.
+            stop = getattr(resp, "stop_reason", None)
+            if not (text or "").strip():
+                if _retry_roomy and (stop == "max_tokens" or stop is None):
+                    roomy = max(max_tokens * 4, max_tokens + 6000)
+                    print(f"[audit] anthropic judge returned no text (stop={stop}); "
+                          f"retrying once with {roomy} tokens")
+                    return _anthropic_judge(messages, roomy, want_json, _retry_roomy=False)
+                return None, (f"the Anthropic judge ({model}) returned no text "
+                              f"(stop_reason={stop}) -- the output budget was spent "
+                              f"before a word was written. Set ANTHROPIC_JUDGE_MODEL "
+                              f"to a model without a thinking budget, or hold the "
+                              f"judge seat with OpenAI.")
             return text, None
         except Exception as exc:  # noqa: BLE001
             last_exc = exc

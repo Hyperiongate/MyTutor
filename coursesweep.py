@@ -3,6 +3,8 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-15  BUILD wb -- the report names the seat that read it ("Read by: openai ·
+#               gpt-4.1"), so a run that came back empty says which model to blame.
 #   2026-09-15  BUILD wa -- BORN. Project 1 of the 2026-09-14 deep dive ("The Forever
 #               War"). The night watch audits the LIVE AI lane every night; nothing
 #               audits the SCRIPTED course -- the lane a child actually spends their
@@ -373,6 +375,8 @@ def report_markdown(result, build="") -> str:
     auth = [f for f in fs if f["owner"].startswith("lesson:")]
     L = [f"# Course sweep -- {result.get('course')} -- {result.get('when')}"
          + (f"  (build {build})" if build else ""),
+         "",
+         f"_Read by: {result.get('seat') or 'the judge seat'}_",
          "",
          f"{result.get('ran', 0)} of {result.get('asked', 0)} lessons read · "
          f"**{len(fs)} findings** ({len(gen)} on generators, {len(auth)} on authored beats) · "
