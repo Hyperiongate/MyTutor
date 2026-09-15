@@ -3,6 +3,9 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-15  BUILD wg -- ONE CHARTER LINE: a why beat is a story over the goal card, by
+#               design; its having no picture is not a finding (two of the fourth sweep's
+#               fourteen asked for one).
 #   2026-09-15  BUILD wf -- THE PROBLEM SPACE ON THE PAGE. The third Entry sweep (15
 #               findings) was half objections to cases the lesson cannot ask. The
 #               transcript now opens with a PROBLEM SPACE line -- the bank's ranges, the
@@ -307,7 +310,8 @@ practices" a number or a case you did not happen to see -- and never judge the c
 line ("You can count to ten") by which problems the sample happened to ask.
 
 Do NOT report: style preferences; the choice of numbers; the lesson being short; the
-absence of things outside its topic; the rule index's own wording; the "Your turn" card's
+absence of things outside its topic; a WHY beat (the lesson's opening story) having no
+picture -- it is told over the goal card by design, and the pictures start on the next beat; the rule index's own wording; the "Your turn" card's
 tap/say/type hints (screen instructions, deliberately unspoken); a topic word in the lesson's
 own title line; "over nine" for a sum of ten or more (the course's one chosen wording); a
 rule stated for the numbers this lesson uses, at this level, UNLESS the lesson itself later

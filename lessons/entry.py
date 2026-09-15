@@ -2,6 +2,19 @@
 # lessons/entry.py  --  ENTRY-LEVEL MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-15  BUILD wg -- THE FOURTH CLEAN SWEEP: 14 findings after wf, 26 lessons clean.
+#               Twelve answered: add-past-ten's recap carries its condition ("either one,
+#               if they are the same") and SAYS its example; take-away-bigger's recap says
+#               its example; tens-and-ones' recap says "when the two digits are
+#               different"; hundreds says "a hundred is ten tens, and a ten is ten ones"
+#               (not "each place is worth ten of the place on its right" -- there is
+#               nothing right of the ones here); ten-more's why says "a sum", not "the
+#               one sum"; the story why says finding the sign is the FIRST job; crossing
+#               a hundred's rule is three short sentences; the regrouping lesson names its
+#               units in all four lines ("the 5 tens become 4 tens"); the dimes beat puts
+#               the nickel it mentions on the board. Two were the reviewer asking a WHY
+#               beat for a picture -- a why is a story over the goal card, in every
+#               course, by design -- and that is a charter line now (coursesweep.py).
 #   2026-09-15  BUILD wf -- THE THIRD CLEAN SWEEP: 15 findings after we, 24 lessons clean.
 #               Nine answered here: doubles' why defines a double before it uses the word,
 #               and its recap no longer calls doubles "the quickest sums there are"; the
@@ -331,9 +344,10 @@ _ENTRY_PILOT = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "recap": [
-            ("So, here it is again. To add past ten, start at the bigger number and "
-             "count on once for each one in the other group. Do not go back to one, "
-             "and do not say the starting number twice.",
+            ("So, here it is again. To add past ten, start at the bigger number — "
+             "either one, if they are the same — and count on once for each one in "
+             "the other group. Nine plus four: nine — ten, eleven, twelve, thirteen. "
+             "Do not go back to one, and do not say the starting number twice.",
              '[[objects emoji="⭐" groups="9" add="4" caption="start at nine — ten, eleven, twelve, thirteen"]]'),
             ("And that is how the answers keep going past ten — nine plus four "
              "equals thirteen.",
@@ -398,8 +412,8 @@ _ENTRY_PILOT = [
         "show_work_on_correct": True,
         "recap": [
             ("So, here it is again. Start at the number you begin with — the big one "
-             "— and count back once for each one taken away. Never count the starting "
-             "number itself.",
+             "— and count back once for each one taken away. Thirteen, count back "
+             "five: eight are left. Never count the starting number itself.",
              '[[objects emoji="⭐" groups="13" take="5" caption="thirteen, count back five — eight are left"]]'),
             ("And that is taking away, however big the number you start with — "
              "thirteen minus five equals eight.",
@@ -475,9 +489,9 @@ _ENTRY_PILOT = [
         "recap": [
             ("So, here it is again. A two-digit number is bundles of ten and the loose "
              "ones left over. The first digit counts the tens, the second counts the "
-             "ones — one ten and four ones is fourteen. Read the two digits the other "
-             "way round and you can name a different number — nineteen is not "
-             "ninety-one.",
+             "ones — one ten and four ones is fourteen. When the two digits are "
+             "different, reading them the other way round names a different number "
+             "— nineteen is not ninety-one.",
              '[[objects emoji="⭐" groups="10" add="4" caption="one ten and four ones — fourteen"]][[step eq="19 is not 91"]]'),
             ("And that is what the two digits have been telling you all along — "
              "fourteen is one ten and four ones.",
@@ -741,6 +755,7 @@ _ENTRY_MORE = [
              "worth 10 cents. Dimes are counted by ten, and counting by ten is "
              "the easiest count there is.",
              '[[goal text="Dimes and pennies"]]'
+             '[[step eq="1 nickel = 5 cents — you know this one"]]'
              '[[step eq="1 penny = 1 cent"]][[step eq="1 dime = 10 cents"]]'),
             ("Watch me count 3 dimes and 4 pennies. Dimes first, count by ten: 10, "
              "20, 30. Then the pennies, counting on: 31, 32, 33, 34. That is 34 "
@@ -866,8 +881,8 @@ _ENTRY_MORE = [
         "teach": [
             ("That is the rule: hundreds, then tens, then ones, always in that order. "
              "Say the hundreds first — three hundred — then the tens and ones together "
-             "— forty-six. Three hundred forty-six. Each digit counts its own place, "
-             "and each place is worth ten of the place on its right.",
+             "— forty-six. Three hundred forty-six. Each digit counts its own place: "
+             "a hundred is ten tens, and a ten is ten ones.",
              '[[placevalue h="3" t="4" o="6" caption="biggest place first"]][[step eq="300 + 40 + 6 = 346"]]'),
             ("Here is the trap. Read the digits left to right, in the order they "
              "stand. Three hundreds, four tens and six ones is three hundred "
@@ -916,8 +931,8 @@ _ENTRY_MORE = [
         "levels": ("abstract",), "symbols": ("tens digit",),
         "advance_line": "Three in a row — you've got it! You can add ten in your head.",
         "why": [
-            ("Why practise adding ten? Because it is the one sum you never have to "
-             "work out. Ten more pence, ten more days, ten more steps. Once you see "
+            ("Why practise adding ten? Because it is a sum you never have to count "
+             "out. Ten more pence, ten more days, ten more steps. Once you see "
              "what ten does to a number, you can say the answer before you have "
              "finished hearing the question.",
              '[[goal text="Ten more"]]'),
@@ -1097,8 +1112,8 @@ _ENTRY_MORE = [
         "advance_line": "Three in a row — you've got it! You can add past one hundred.",
         "teach": [
             ("You already carry into the tens. Today both numbers are two-digit, and "
-             "the tens themselves fill up. When the tens, with any carried ten, add up "
-             "to over nine, ten of those tens become one hundred, and the answer gets "
+             "the tens themselves fill up. Add the tens and the carried ten. If that "
+             "comes to over nine tens, ten of them become one hundred. The answer gets "
              "a hundreds digit at the front.",
              '[[goal text="Crossing a hundred"]]'),
             ("Watch me add 68 plus 47. Ones: 8 plus 7 equals 15 — over nine, write "
@@ -1437,14 +1452,14 @@ _ENTRY_MORE = [
              '[[goal text="Taking away with regrouping"]]'),
             ('Watch me take 17 away from 42. Ones: 2 is too small to take 7 away from. Regroup — one ten becomes ten ones, so the 2 ones become 12 ones, and the 4 tens become 3 tens. Ones: 12 take away 7 equals 5. Tens: 3 take away 1 equals 2. So 42 take away 17 equals 25.',
              '[[step eq="42 − 17"]][[step eq="regroup: 42 = 3 tens and 12 ones"]][[step eq="ones: 12 − 7 = 5"]][[step eq="tens: 3 − 1 = 2"]][[step eq="42 − 17 = 25"]]'),
-            ('One more, watch. 53 take away 28. Ones: 3 is too small — regroup, 3 becomes 13, and 5 tens become 4. Ones: 13 take away 8 equals 5. Tens: 4 take away 2 equals 2. So 53 take away 28 equals 25.',
+            ('One more, watch. 53 take away 28. Ones: 3 is too small — regroup, the 3 ones become 13 ones, and the 5 tens become 4 tens. Ones: 13 take away 8 equals 5. Tens: 4 take away 2 equals 2. So 53 take away 28 equals 25.',
              '[[step eq="53 − 28"]][[step eq="regroup: 53 = 4 tens and 13 ones"]][[step eq="ones: 13 − 8 = 5"]][[step eq="tens: 4 − 2 = 2"]][[step eq="53 − 28 = 25"]]'),
         ],
         "pairs": [
-            {"worked": ('Here is one more, done for you. 61 take away 35. Ones: 1 is too small — regroup, 1 becomes 11, 6 tens become 5. Ones: 11 take away 5 equals 6. Tens: 5 take away 3 equals 2. So 61 take away 35 equals 26.',
+            {"worked": ('Here is one more, done for you. 61 take away 35. Ones: 1 is too small — regroup, the 1 one becomes 11 ones, and the 6 tens become 5 tens. Ones: 11 take away 5 equals 6. Tens: 5 take away 3 equals 2. So 61 take away 35 equals 26.',
                         '[[step eq="61 − 35"]][[step eq="regroup: 61 = 5 tens and 11 ones"]][[step eq="ones: 11 − 5 = 6"]][[step eq="tens: 5 − 3 = 2"]][[step eq="61 − 35 = 26"]]'),
              "ask": {'a': 62, 'b': 35, 'op': '-'}},
-            {"worked": ('One more together. 74 take away 46. Ones: 4 is too small — regroup, 4 becomes 14, 7 tens become 6. Ones: 14 take away 6 equals 8. Tens: 6 take away 4 equals 2. So 74 take away 46 equals 28.',
+            {"worked": ('One more together. 74 take away 46. Ones: 4 is too small — regroup, the 4 ones become 14 ones, and the 7 tens become 6 tens. Ones: 14 take away 6 equals 8. Tens: 6 take away 4 equals 2. So 74 take away 46 equals 28.',
                         '[[step eq="74 − 46"]][[step eq="regroup: 74 = 6 tens and 14 ones"]][[step eq="ones: 14 − 6 = 8"]][[step eq="tens: 6 − 4 = 2"]][[step eq="74 − 46 = 28"]]'),
              "ask": {'a': 73, 'b': 45, 'op': '-'}},
         ],
@@ -1595,7 +1610,7 @@ _ENTRY_MORE = [
             ("Why story problems? Because outside this lesson nobody hands you a sum. "
              "They hand you a story — someone got some more, someone ate three, some "
              "flew away — and a plus or a minus is hiding inside it. Finding which "
-             "one is the whole job.",
+             "one is the first job; then you do the sum.",
              '[[goal text="Story problems"]]'),
         ],
         "picture": [

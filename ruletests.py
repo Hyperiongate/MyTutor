@@ -6,6 +6,8 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-15  BUILD wg -- PART 3mb, THE FOURTH CLEAN SWEEP (14 findings, 26 clean):
+#               twelve authored answers pinned by class, one charter line. No count moved.
 #   2026-09-15  BUILD wf -- PART 3ma, THE PROBLEM SPACE ON THE PAGE. The transcript opens
 #               with the lesson's problem space (coursesweep.problem_space) and the charter
 #               says a case outside it is not a finding; nine authored answers from the
@@ -18905,7 +18907,7 @@ def part3ly_the_authored_pile_from_the_clean_sweep():
     c2 = E("entry-u5-crossing-a-hundred")
     check("  crossing-a-hundred says WHEN the hundreds digit appears (the tens add up to over nine) "
           "in the canon's own words",
-          "over nine, ten of those tens become one hundred" in c2["teach"][0][0]
+          "over nine tens, ten of them become one hundred" in c2["teach"][0][0]   # (wg) short sentences
           and "more than nine" not in spoken(c2) and "ten or more" not in spoken(c2), "")
     a1 = E("entry-u2-add-single-digit")
     check("  add-single-digit: 'equals' means both sides are the same amount, not 'how many in all'",
@@ -19105,7 +19107,7 @@ def part3lz_the_second_clean_sweep():
     check("⭐ rules with their condition: under a hundred; no column over nine; the carried ten; the long hand at 12; closed shapes; a NUMBER pattern; count each thing once",
           "Every number today stays under a hundred" in spoken(E("entry-u4-ten-more"))
           and "No column goes over nine today" in spoken(E("entry-u5-adding-three-digit-numbers"))
-          and "with any carried ten" in spoken(E("entry-u5-crossing-a-hundred"))
+          and "Add the tens and the carried ten" in spoken(E("entry-u5-crossing-a-hundred"))   # (wg) split into short sentences
           and "When the long hand is at 12" in spoken(E("entry-u8-later-on-the-clock"))
           and "joined all the way round" in spoken(E("entry-u9-sides-and-corners"))
           and "A number pattern is a list of numbers" in spoken(E("entry-u9-what-comes-next"))
@@ -19203,6 +19205,45 @@ def part3ma_the_problem_space_on_the_page():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-15wf-' in notes("main.py") and "2026-09-15  BUILD wf" in notes("coursesweep.py")
           and "2026-09-15  BUILD wf" in notes("lessons/entry.py") and "2026-09-15  BUILD wf" in notes("ruletests.py"), "")
+
+
+def part3mb_the_fourth_clean_sweep():
+    """PART 3mb (build wg, 2026-09-15) -- THE FOURTH CLEAN SWEEP: 14 findings, 26 clean.
+    Twelve authored answers and one charter line (a why beat is a story, unpictured by
+    design)."""
+    print("\nPART 3mb — the fourth clean sweep (build wg)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    check("⭐ the regrouping lesson names its units in every line: no bare '5 tens become 4'",
+          "5 tens become 4 tens" in spoken(E("entry-u6-take-away-with-regrouping"))
+          and "6 tens become 5 tens" in spoken(E("entry-u6-take-away-with-regrouping"))
+          and "7 tens become 6 tens" in spoken(E("entry-u6-take-away-with-regrouping"))
+          and not any(x in spoken(E("entry-u6-take-away-with-regrouping"))
+                      for x in ("tens become 4.", "tens become 5.", "tens become 6.", "tens become 3.")), "")
+    check("  hundreds: 'a hundred is ten tens, and a ten is ten ones' -- nothing stands right of the ones here",
+          "a hundred is ten tens, and a ten is ten ones" in spoken(E("entry-u4-hundreds-tens-and-ones"))
+          and "ten of the place on its right" not in spoken(E("entry-u4-hundreds-tens-and-ones")), "")
+    check("  the two recaps that drew an example now SAY it, and add-past-ten's carries its condition",
+          "Nine plus four: nine — ten, eleven, twelve, thirteen" in E("entry-u2-add-past-ten")["recap"][0][0]
+          and "either one, if they are the same" in E("entry-u2-add-past-ten")["recap"][0][0]
+          and "Thirteen, count back five: eight are left" in E("entry-u3-take-away-bigger")["recap"][0][0], "")
+    check("  tens-and-ones: 'when the two digits are different'; ten-more: 'a sum', not 'the one sum'; "
+          "story: the first job; crossing a hundred in three short sentences; the nickel on the board",
+          "When the two digits are different" in spoken(E("entry-u4-tens-and-ones"))
+          and "the one sum" not in spoken(E("entry-u4-ten-more"))
+          and "is the first job; then you do the sum" in spoken(E("entry-u3-story-problems"))
+          and "Add the tens and the carried ten. If that comes to over nine tens" in spoken(E("entry-u5-crossing-a-hundred"))
+          and "1 nickel = 5 cents" in E("entry-u7-dimes-and-pennies")["teach"][0][1], "")
+    check("  the charter: a why beat is a story over the goal card, unpictured by design",
+          "a WHY beat (the lesson's opening story) having no\npicture" in C.SWEEP_SYSTEM, "")
+    check("  no voice line added (39,996) and every Entry lesson validates",
+          len(L.course_audio_lines()) == 39996
+          and all(ok for les in L.LESSONS if les["course"] == "entry" for ok, _l, _d in L.validate(les)), "")
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-15wg-' in notes("main.py") and "2026-09-15  BUILD wg" in notes("coursesweep.py")
+          and "2026-09-15  BUILD wg" in notes("lessons/entry.py") and "2026-09-15  BUILD wg" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -46084,6 +46125,7 @@ def main():
     part3ly_the_authored_pile_from_the_clean_sweep()
     part3lz_the_second_clean_sweep()
     part3ma_the_problem_space_on_the_page()
+    part3mb_the_fourth_clean_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
