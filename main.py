@@ -6,6 +6,12 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-15  APP_BUILD -> "2026-09-15wc-the-sweep-calibrated-and-the-generator-class".
+#               BUILD wc -- no change in this file beyond the stamp. coursesweep.py is
+#               calibrated on the first course (the transcript shows the STUDENT, the
+#               charter knows the rulings); lessonscripts.py carries the generator class
+#               the Entry sweep named (board plurals, the answer on the board, the worked
+#               lines in the method voice). See both files' wc notes.
 #   2026-09-15  APP_BUILD -> "2026-09-15wb-the-sweep-sits-in-the-night-watchs-seat".
 #               BUILD wb -- THE FIRST SWEEP READ ONE LESSON IN 36. wa hard-wired the
 #               Anthropic judge transport; the model spent its 2,000-token budget
@@ -9644,7 +9650,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-15wb-the-sweep-sits-in-the-night-watchs-seat"
+APP_BUILD = "2026-09-15wc-the-sweep-calibrated-and-the-generator-class"
 
 
 @app.get("/health")

@@ -2,6 +2,28 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-15  BUILD wc -- THE GENERATOR CLASS FROM THE FIRST COURSE SWEEP (Entry, 219
+#               findings, ~25 of them real and generator-owned). (1) THE BOARDS GET THE
+#               PLURALS mo GAVE THE VOICE: nick/qtr/m/cube/dwd/hrl/t/pv and the place-
+#               value captions write "1 nickel", "1 week", "1 hour", "1 ten" through
+#               _plural/_irr -- the voice had it since mo, the boards never did. A new
+#               validator check (8b) makes it permanent: a bare 1 takes a singular unit
+#               noun, in what is said and in what is drawn. (2) THE ANSWER LANDS ON THE
+#               BOARD: in a lesson with no walk-back (12 Entry + 36 Diffeq) the praise
+#               beat carried no board, so the child heard "That's it! 4" over "2 groups
+#               of 2 = ?". NEW answered_board(p, level): the ask's last pending step with
+#               the blank answered, suffix and all; _correct_beats puts it on the praise
+#               beat when there is no walk-back. (3) THE WORKED LINES SAY THE METHOD:
+#               since vz the walk-back answers a WRONG answer too, and "so you wrote 2
+#               and carried", "you regrouped", "you found the column first", "you counted
+#               by fives" are false there. Eleven lines now say "write 2 and carry", "find
+#               the column first", "count by fives". (4) c2h's caption says "reaches a
+#               hundred" when the sum IS 100 (10 + 90 does not go past it). (5) m's
+#               walk-back: "1 dime bring" -> "1 dime is 10 cents"; min5q's praise: "55
+#               minutes is the 11" -> "the minute hand points to the 11"; hrl's caption
+#               names the short hand AND the hour hand. "over nine" stays: it is the
+#               course's one chosen wording (VOCABULARY, build jy) and the validator
+#               guards it -- the sweep's reviewer is told so.
 #   2026-09-14  BUILD vz -- PHASE A: THE SCRIPTED SECOND EXPLANATION (Jim's design,
 #               2026-09-13: "everything should be scripted the first time around...
 #               somebody gives a wrong answer, explain what we just explained slightly
@@ -1541,7 +1563,7 @@ def _col_add(a, b):
             board = (f'[[column terms="{a}|{b}" op="+" carries="1_" result="{total}" '
                      f'caption="{a % 10} + {b % 10} = {ones}: write {ones % 10}, carry one ten"]]')
             spoken = (f"Here it is, step by step: ones first — {a % 10} plus {b % 10} equals "
-                      f"{ones}, over nine, so you wrote {ones % 10} and carried one ten. "
+                      f"{ones}, over nine, so write {ones % 10} and carry one ten. "
                       f"Tens: {a // 10} plus {b // 10} plus the 1 equals {total // 10}. "
                       f"{a} plus {b} equals {total}.")
         else:
@@ -1563,7 +1585,7 @@ def _col_sub(a, b):
             board = (f'[[column terms="{a}|{b}" op="−" borrows="{a // 10 - 1}|{a % 10 + 10}" '
                      f'result="{left}" caption="{a % 10} is too small: regroup one ten into ten ones"]]')
             spoken = (f"Here it is, step by step: {a % 10} is too small to take {b % 10} away, so "
-                      f"you regrouped — one ten became ten ones. {a % 10 + 10} take away "
+                      f"regroup — one ten becomes ten ones. {a % 10 + 10} take away "
                       f"{b % 10} equals {a % 10 + 10 - b % 10}; {a // 10 - 1} take away "
                       f"{b // 10} equals {left // 10}. {a} take away {b} equals {left}.")
         else:
@@ -1582,7 +1604,7 @@ def _tens_ones_worked(p):
     a, b = p["a"], p["b"]
     return (f"Here it is, step by step: {_plural(a, 'ten')} and {_plural(b, 'one')} — that is "
             f"{10 * a + b}.",
-            f'[[placevalue t="{a}" o="{b}" caption="{a} tens and {b} ones = {10 * a + b}"]]')
+            f'[[placevalue t="{a}" o="{b}" caption="{_plural(a, "ten")} and {_plural(b, "one")} = {10 * a + b}"]]')
 
 
 # (sr, 2026-09-05) MULTIPLYING'S PICTURES. Small facts are an ARRAY (rows of dots
@@ -1940,8 +1962,8 @@ def _fa_board(p):
 
 def _fa_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Here it is, step by step: the pieces are all {_FRACWORD[c][1]}, so you just "
-            f"counted. Start at {_fw(a, c)}, hop {b} more — {a} plus {b} equals {a + b}. "
+    return (f"Here it is, step by step: the pieces are all {_FRACWORD[c][1]}, so just "
+            f"count. Start at {_fw(a, c)}, hop {b} more — {a} plus {b} equals {a + b}. "
             f"{_fw(a, c)} plus {_fw(b, c)} equals {_fw(a + b, c)}.",
             _fl(c, hops=[0, a, a + b], points=[a + b],
                 caption=f"{a}/{c} + {b}/{c} = {a + b}/{c}"))
@@ -1955,8 +1977,8 @@ def _fs_board(p):
 
 def _fs_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Here it is, step by step: the pieces are all {_FRACWORD[c][1]}, so you just "
-            f"counted back. Start at {_fw(a, c)}, hop back {b} — {a} take away {b} "
+    return (f"Here it is, step by step: the pieces are all {_FRACWORD[c][1]}, so just "
+            f"count back. Start at {_fw(a, c)}, hop back {b} — {a} take away {b} "
             f"equals {a - b}. {_fw(a, c)} take away {_fw(b, c)} equals {_fw(a - b, c)}.",
             _fl(c, hops=[a, a - b], points=[a - b],
                 caption=f"{a}/{c} − {b}/{c} = {a - b}/{c}"))
@@ -2010,7 +2032,7 @@ def _dt_board(p):
 
 def _dt_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Here it is, step by step: tenths are tenths, so you counted them. Start at "
+    return (f"Here it is, step by step: tenths are tenths, so count them. Start at "
             f"0.{a}, hop {b} more tenths — {a} plus {b} equals {a + b}. {_fw(a, 10)} plus "
             f"{_fw(b, 10)} equals {_fw(a + b, 10)}, written 0.{a + b}.",
             f'[[numberline min="0" max="1" hops="0,{a / 10},{(a + b) / 10}" points="{(a + b) / 10}" '
@@ -2025,7 +2047,7 @@ def _dh_board(p):
 
 def _dh_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Here it is, step by step: hundredths are hundredths, so you counted the cells. "
+    return (f"Here it is, step by step: hundredths are hundredths, so count the cells. "
             f"{a} shaded, then {b} more — {a} plus {b} equals {a + b}. {a} hundredths "
             f"plus {b} hundredths equals {a + b} hundredths, written 0.{a + b:02d}.",
             f'[[hundredgrid shaded="{a}" plus="{b}" caption="0.{a:02d} + 0.{b:02d} = 0.{a + b:02d}"]]')
@@ -2034,15 +2056,15 @@ def _dh_worked(p):
 def _m_board(p):
     a, b = p["a"], p["b"]
     return (f'[[placevalue t="{a}" o="{b}" ask="1" caption="dimes are tens, pennies are ones"]]'
-            f'[[step eq="{a} dimes + {b} pennies = ? cents"]]')
+            f'[[step eq="{_plural(a, "dime")} + {_irr(b, "penny", "pennies")} = ? cents"]]')
 
 
 def _m_worked(p):
     a, b = p["a"], p["b"]
     return (f"Here it is, step by step: dimes are tens and pennies are ones. {_plural(a, 'dime')} "
-            f"bring {10 * a} cents, {_irr(b, 'penny', 'pennies')} bring {b} more. {10 * a} "
-            f"plus {b} equals {10 * a + b} cents.",
-            f'[[placevalue t="{a}" o="{b}" caption="{a} dimes + {b} pennies = {10 * a + b} cents"]]')
+            f"{'is' if a == 1 else 'are'} {10 * a} cents, {_irr(b, 'penny', 'pennies')} "
+            f"{'is' if b == 1 else 'are'} {b} more. {10 * a} plus {b} equals {10 * a + b} cents.",
+            f'[[placevalue t="{a}" o="{b}" caption="{_plural(a, "dime")} + {_irr(b, "penny", "pennies")} = {10 * a + b} cents"]]')
 
 
 def _t2h_board(p):
@@ -2149,7 +2171,7 @@ def _peri_board(p):
 
 def _peri_worked(p):
     a, b = p["a"], p["b"]
-    return (f"Here it is, step by step: you walked all four sides — long, wide, long, wide. "
+    return (f"Here it is, step by step: walk all four sides — long, wide, long, wide. "
             f"{a} plus {b} plus {a} plus {b} equals {2 * (a + b)}. The perimeter is "
             f"{2 * (a + b)}.",
             f'[[rectangle w="{a}" h="{b}" show="perimeter" caption="around the outside: {2 * (a + b)}"]]')
@@ -2176,8 +2198,8 @@ def _ang_board(p):
 
 def _ang_worked(p):
     a = p["a"]
-    return (f"Here it is, step by step: each quarter of the circle is 90 degrees, and you "
-            f"counted {a} of them — {a} times 90 equals {90 * a}. {a} quarter "
+    return (f"Here it is, step by step: each quarter of the circle is 90 degrees, and there "
+            f"are {a} of them — {a} times 90 equals {90 * a}. {a} quarter "
             f"turn{'' if a == 1 else 's'} is {90 * a} degrees.",
             f'[[pie parts="4" shaded="{a}" caption="{a} × 90° = {90 * a}°"]]')
 
@@ -6862,7 +6884,8 @@ def _coin_tape(count, value, pennies, coin, total):
 
 # ---- (va) the thirteen walk-backs, and the thirteen ask pictures --------------------
 def _c2h_board(p):
-    return (_col_ask(p["a"], p["b"], "+", "line up the ones — this one goes past a hundred")
+    return (_col_ask(p["a"], p["b"], "+", "line up the ones — this one "
+                     + ("reaches a hundred" if p["a"] + p["b"] == 100 else "goes past a hundred"))
             + f'[[step eq="{p["a"]} + {p["b"]} = ?"]]')
 
 
@@ -6919,7 +6942,7 @@ def _chk_worked(p):
 
 def _nick_board(p):
     _parts, tape = _coin_tape(p["a"], 5, p["b"], "nickel", "?")
-    return tape + f'[[step eq="{p["a"]} nickels + {p["b"]} pennies = ? cents"]]'
+    return tape + f'[[step eq="{_plural(p["a"], "nickel")} + {_irr(p["b"], "penny", "pennies")} = ? cents"]]'
 
 
 def _nick_worked(p):
@@ -6927,14 +6950,14 @@ def _nick_worked(p):
     total = 5 * a + b
     _parts, tape = _coin_tape(a, 5, b, "nickel", str(total))
     counts = ", ".join(str(5 * (i + 1)) for i in range(a))
-    return (f"Here it is, step by step: a nickel is five cents, so you counted by fives — "
+    return (f"Here it is, step by step: a nickel is five cents, so count by fives — "
             f"{counts}. Then {_irr(b, 'penny', 'pennies')}, one at a time, brings it "
             f"to {total} cents.", tape)
 
 
 def _qtr_board(p):
     _parts, tape = _coin_tape(p["a"], 25, p["b"], "quarter", "?")
-    return tape + f'[[step eq="{p["a"]} quarters + {p["b"]} pennies = ? cents"]]'
+    return tape + f'[[step eq="{_plural(p["a"], "quarter")} + {_irr(p["b"], "penny", "pennies")} = ? cents"]]'
 
 
 def _qtr_worked(p):
@@ -6942,7 +6965,7 @@ def _qtr_worked(p):
     total = 25 * a + b
     _parts, tape = _coin_tape(a, 25, b, "quarter", str(total))
     counts = ", ".join(str(25 * (i + 1)) for i in range(a))
-    return (f"Here it is, step by step: a quarter is twenty-five cents, so you counted by "
+    return (f"Here it is, step by step: a quarter is twenty-five cents, so count by "
             f"twenty-fives — {counts}. Then {_irr(b, 'penny', 'pennies')} brings it to "
             f"{total} cents.", tape)
 
@@ -7037,10 +7060,10 @@ def _wor_board(p):
 def _wor_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     n = 100 * a + 10 * b + c
-    return (f"Here it is, step by step: you found the column first. The {b} is in the tens "
+    return (f"Here it is, step by step: find the column first. The {b} is in the tens "
             f"column, and a block in the tens column is a whole stick of ten — so {b} "
             f"of them is worth {10 * b}.",
-            f'[[placevalue h="{a}" t="{b}" o="{c}" caption="the {b} is {b} tens = '
+            f'[[placevalue h="{a}" t="{b}" o="{c}" caption="the {b} is {_plural(b, "ten")} = '
             f'{10 * b}"]]')
 
 
@@ -7559,8 +7582,8 @@ OP_EXT = {
         # the blocks. The walk-back shows the same chart with the digits and the sum.
         "board": lambda p: (f'[[placevalue h="{p["a"]}" t="{p["b"]}" o="{p["c"]}" ask="1" '
                             f'caption="count the blocks in each place"]]'
-                            f'[[step eq="{p["a"]} hundreds + {p["b"]} tens + '
-                            f'{p["c"]} ones = ?"]]'),
+                            f'[[step eq="{_plural(p["a"], "hundred")} + {_plural(p["b"], "ten")} + '
+                            f'{_plural(p["c"], "one")} = ?"]]'),
         "worked": lambda p: (f"Here it is, step by step: {_plural(p['a'], 'hundred')} is "
                              f"{100 * p['a']}, {_plural(p['b'], 'ten')} is {10 * p['b']}, "
                              f"and {_plural(p['c'], 'one')} is {p['c']}. Put together: "
@@ -7779,8 +7802,8 @@ OP_EXT = {
         # Entry-wide presweep this build ran is what found it. A caption names what to
         # NOTICE, and on a clock line that is where you are starting from.
         "board": lambda p: (f'[[numberline min="1" max="12" points="{p["a"]}" '
-                            f'caption="the hour hand is at {p["a"]} — count {p["b"]} hours on"]]'
-                            f'[[step eq="{p["a"]} o\'clock, {p["b"]} hours later = ?"]]'),
+                            f'caption="the short hand — the hour hand — is at {p["a"]}; count {_plural(p["b"], "hour")} on"]]'
+                            f'[[step eq="{p["a"]} o\'clock, {_plural(p["b"], "hour")} later = ?"]]'),
         "praise": lambda p: (f"{_plural(p['b'], 'hour')} after {p['a']} o'clock "
                              f"is {p['a'] + p['b']} o'clock."),
         "key": lambda p: p["a"] + p["b"],
@@ -7823,8 +7846,8 @@ OP_EXT = {
                              f"Which clock number is it pointing to?"),
         "board": lambda p: (f'[[step eq="{p["a"]} minutes, five minutes each '
                             f'= ? on the clock"]]'),
-        "praise": lambda p: (f"{p['a']} minutes is the {p['a'] // 5} on the "
-                             f"clock — five minutes for each number."),
+        "praise": lambda p: (f"{p['a']} minutes past — the minute hand points to the "
+                             f"{p['a'] // 5}, five minutes for each number."),
         "key": lambda p: p["a"] // 5,
         "check": lambda p: (5 <= p["a"] <= 55 and p["a"] % 5 == 0
                             and p.get("b", 0) == 0,
@@ -7837,7 +7860,7 @@ OP_EXT = {
         "spoken": lambda p: (f"How many days are in {p['a']} "
                              f"{'week' if p['a'] == 1 else 'weeks'} and "
                              f"{p['b']} {'day' if p['b'] == 1 else 'days'}?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} weeks and {p["b"]} days '
+        "board": lambda p: (f'[[step eq="{_plural(p["a"], "week")} and {_plural(p["b"], "day")} '
                             f'= ? days"]]'),
         "praise": lambda p: (f"{_plural(p['a'], 'week')} and "
                              f"{_plural(p['b'], 'day')} equals "
@@ -7855,7 +7878,7 @@ OP_EXT = {
         # (va) ⚠️ RULE 41, same as hrl above -- uncaptioned since it was written.
         "board": lambda p: (f'[[bars data="pencil:{p["a"]} | crayon:{p["b"]}" '
                             f'caption="two bars side by side — how much longer is the pencil?"]]'
-                            f'[[step eq="{p["a"]} cubes − {p["b"]} cubes = ?"]]'),
+                            f'[[step eq="{_plural(p["a"], "cube")} − {_plural(p["b"], "cube")} = ?"]]'),
         "praise": lambda p: (f"{_plural(p['a'], 'cube')} take away "
                              f"{_plural(p['b'], 'cube')} — the pencil is "
                              f"{_plural(p['a'] - p['b'], 'cube')} longer."),
@@ -15648,11 +15671,11 @@ def board_for(p, level):
     if p.get("op") in OP_EXT:
         return OP_EXT[p["op"]]["board"](p)
     if p.get("op") == "t":
-        step = f'[[step eq="{a} ten and {b} ones = ?"]]'
+        step = f'[[step eq="{a} ten and {_plural(b, "one")} = ?"]]'
         if level == "abstract":
             return step
         stars = (f'[[objects emoji="⭐" groups="10" add="{b}" '
-                 f'caption="one ten and {b} ones"]]')
+                 f'caption="one ten and {_plural(b, "one")}"]]')
         return stars + step
     # (sq, 2026-09-05) TWO-DIGIT NUMBERS ARE ASKED ON THE COLUMN. Jim's flags
     # 22:35/22:36: carrying and regrouping were taught over a flat line. A problem
@@ -16059,19 +16082,62 @@ def _worked_for(p):
     return (spoken, board)
 
 
-def _correct_beats(lesson, p, idx):
+_AB_STEP_RE = re.compile(r'\[\[\s*step\b[^\]]*?\beq="([^"]*\?[^"]*)"[^\]]*\]\]')
+
+
+def answered_board(p, level):
+    """(wc, 2026-09-15) THE ANSWER LANDS ON THE BOARD. The 09-15 Entry sweep, in the
+    lessons that have no walk-back (the 12 Entry and 36 Diffeq lessons whose ops have
+    no worked generator): the child hears "That's it! 4" while the board still says
+    "2 groups of 2 = ?". The praise line was the only beat, and it carried no board.
+
+    This is the ask's own board with the question mark answered: the LAST pending
+    [[step eq="... ?"]] becomes the same line with the answer in the blank, suffix and
+    all ("? days" -> "11 days", "2, ?" -> "2, 3", "? sides" -> "6 sides"). A board with
+    no pending step (a counted picture, a number line) gets a one-line
+    [[step eq="<answer> ✓"]]. Never raises: any surprise yields "", which is exactly
+    the board the praise beat carried before this build."""
+    try:
+        a = ans(p)
+        if a is None:
+            return ""
+        a_txt = str(a)
+        b = board_for(p, level) or ""
+        ms = list(_AB_STEP_RE.finditer(b))
+        if not ms:
+            return f'[[step eq="{a_txt} ✓"]]'
+        eq = ms[-1].group(1)
+        i = eq.rfind("?")
+        head, tail = eq[:i], eq[i + 1:]
+        if head and not head.endswith(" ") and head[-1] not in "=,(":
+            head += " "
+        # a bare 1 takes a singular unit: "= ? hops" answered 1 is "1 hop", not "1 hops"
+        if a_txt == "1":
+            tail = re.sub(r"^( )([a-z]+)s\b",
+                          lambda m: m.group(1) + ("penny" if m.group(2) == "pennie" else m.group(2)),
+                          tail, count=1)
+        return f'[[step eq="{head}{a_txt}{tail}"]]'
+    except Exception:  # noqa: BLE001 -- fail open: the empty board it always had
+        return ""
+
+
+def _correct_beats(lesson, p, idx, level=None):
     """What a right answer earns: the praise line, then -- ruling ⑤, in a lesson that
     says so -- the walk-back: "Here it is, step by step..." over the worked board.
 
     (vz) The opener used to be "Look what you did:", and PHASE A is why it is not:
     the same worked line is now the engine's answer to a WRONG answer as well, and
     "look what you did" is false there. The praise line above it still does the
-    celebrating on a right answer -- that was always where the credit lived."""
-    out = [{"kind": "say", "spoken": praise_for(p, idx), "board": ""}]
-    if lesson.get("show_work_on_correct"):
-        w = _worked_for(p)
-        if w:
-            out.append({"kind": "say", "spoken": w[0], "board": w[1]})
+    celebrating on a right answer -- that was always where the credit lived.
+
+    (wc) In a lesson with NO walk-back the praise beat now carries answered_board(),
+    so the answer the child just gave lands on the board as it is praised. A lesson
+    WITH a walk-back is unchanged: its worked board follows a beat later, as before."""
+    walk = _worked_for(p) if lesson.get("show_work_on_correct") else None
+    praise_board = "" if walk else (answered_board(p, level) if level else "")
+    out = [{"kind": "say", "spoken": praise_for(p, idx), "board": praise_board}]
+    if walk:
+        out.append({"kind": "say", "spoken": walk[0], "board": walk[1]})
     return out
 
 
@@ -16360,7 +16426,7 @@ def step(lesson, state, event):
             out.append({"kind": "say", "spoken": praise_for(p, _table_praise_index(p)),
                         "board": ""})
         else:
-            out.extend(_correct_beats(lesson, p, idx))  # (sp) praise, then the walk-back
+            out.extend(_correct_beats(lesson, p, idx, level=state["level"]))  # (sp) praise, then the walk-back
         if not guided:
             state["done"] += 1
             state["streak"] += 1
@@ -17141,6 +17207,27 @@ def validate(lesson, board_tag_names=None):
             for name in _TAG_RE.findall(b):
                 ck(name in board_tag_names,
                    f"{lid}: board tag [[{name}]] exists in the registry", b[:60])
+
+    # 8b. (wc, 2026-09-15) "1 nickels" -- THE PLURAL THE VALIDATOR COULD NOT SEE, NOW
+    # SEEN. Build mo's note above _plural says it plainly: grammar is not arithmetic,
+    # and no bound or vocabulary rule catches "1 cubes". mo fixed the VOICE; the 09-15
+    # Entry sweep found the BOARDS still said "1 nickels", "1 quarters", "1 weeks",
+    # "1 hours", "1 ones". A unit noun after a bare 1 must be singular, in what is
+    # said and in what is drawn. The noun list is explicit on purpose: "1 plus" and
+    # "1 is" are not plurals, and a sweep for every s-word would burn on them.
+    _unit_plural = re.compile(
+        r"(?<![\d.])1 (nickels|pennies|quarters|dimes|cubes|weeks|days|hours|minutes|"
+        r"ones|tens|hundreds|groups|stars|sides|corners|coins|dollars|cents|pieces|"
+        r"slices|blocks|sticks|hops|jumps|steps|rows|columns|counts)\b")
+    _drawn = ([b for _s, b in lesson["teach"]] + [pr["worked"][1] for pr in lesson["pairs"]]
+              + [board_for(p, lv) for p in problems for lv in lesson.get("levels", LEVELS)]
+              + [b for _s, b in _shape_beats] + [_explain.get("board", "")]
+              + [(_worked_for(p) or ("", ""))[1] for p in problems]
+              + [answered_board(p, lv) for p in problems for lv in lesson.get("levels", LEVELS)])
+    for txt in list(audio_lines(lesson)) + _drawn:
+        m = _unit_plural.search(txt or "")
+        ck(not m, f"{lid}: a bare 1 takes a singular unit noun ('1 {m.group(1) if m else ''}')",
+           (txt or "")[:70])
 
     # 9. praise pool sanity
     ck(len(PRAISE_PREFIXES) >= 3, "at least 3 praise variants", "")

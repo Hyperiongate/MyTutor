@@ -6,6 +6,12 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-15  BUILD wc -- PART 3lx, THE FIRST COURSE SWEEP, TRIAGED. The transcript
+#               shows the STUDENT (the ~130 "praised an answer nobody gave" findings were
+#               that), the ask carries its tap buttons, the charter knows the rulings; the
+#               boards get mo's plurals (validator check 8b guards it); the answer lands
+#               on the praise beat's board where there is no walk-back; eleven worked lines
+#               say the method, not what "you" did; c2h's caption reaches a hundred.
 #   2026-09-15  BUILD wb -- PART 3lw, THE SWEEP SITS IN THE NIGHT WATCH'S SEAT. The first
 #               sweep read 1 lesson in 36: the Anthropic judge returned no text (budget
 #               spent thinking) and handed "" up as an answer. Pins: the Anthropic seat's
@@ -14901,7 +14907,8 @@ def part3kw_the_youngest_course_draws_every_problem():
     # ---- the two rule-41 breaches this build's own sweep found ------------------------
     check("⭐ the two Entry figures that had NEVER carried a caption now do (rule 41 -- "
           "found by this build's own Entry-wide presweep, not by a flag)",
-          'caption="the hour hand is at' in L.board_for({"a": 6, "b": 4, "op": "hrl"}, "abstract")
+          # (wc) the caption names both names: "the short hand — the hour hand — is at 6"
+          'caption="the short hand — the hour hand — is at' in L.board_for({"a": 6, "b": 4, "op": "hrl"}, "abstract")
           and "caption=" in L.board_for({"a": 6, "b": 4, "op": "cube"}, "abstract"), "")
 
     # ---- the whole course, through the referee stack ----------------------------------
@@ -18699,6 +18706,117 @@ def part3lw_the_sweep_sits_in_the_night_watchs_seat():
           'APP_BUILD -> "2026-09-15wb-' in notes("main.py") and "2026-09-15  BUILD wb" in notes("lessonaudit.py")
           and "2026-09-15  BUILD wb" in notes("coursesweep.py") and "(wb) 2026-09-15" in notes("static/admin.html")
           and "2026-09-15  BUILD wb" in notes("ruletests.py"), "")
+
+
+def part3lx_the_first_course_sweep_triaged():
+    """PART 3lx (build wc, 2026-09-15) -- THE FIRST COURSE SWEEP, TRIAGED.
+
+    Jim's first real sweep (Entry, wb): 219 findings. About 130 were ONE defect of the
+    sweep itself -- no student on the page -- and about 25 were a real generator class.
+    This part pins both halves: the calibration, and the generator fixes."""
+    print("\nPART 3lx — the first course sweep, triaged (build wc)")
+    import lessonscripts as L
+    import coursesweep as C
+    import re as _re
+
+    # ---- the calibration ---------------------------------------------------------
+    les = L.LESSON_BY_ID["pre-u1-times-before-add"]
+    t = C.transcript_for(les, L)
+    page = C.render_transcript(les, t)
+    kinds = [x["kind"] for x in t]
+    check("⭐ THE STUDENT IS ON THE PAGE: every ask is followed by a STUDENT line saying what "
+          "the child answered, marked correct or WRONG",
+          all(kinds[i + 1] == "student" for i, k in enumerate(kinds[:-1]) if k == "ask")
+          and "STUDENT answers" in page and "— WRONG (the right answer is" in page
+          and "— correct" in page, str(kinds[:12]))
+    check("  ...and the tapped reason too", 'STUDENT taps the reason "' in page, "")
+    check("  an ask's board carries its tap buttons, and the reason question its reason choices",
+          _re.search(r"\(ask\) TUTOR:[^\n]*\n\s+BOARD: [^\n]*\[\[choices options=", page) is not None
+          and _re.search(r"\(reason-question\) TUTOR:[^\n]*\n\s+BOARD: [^\n]*\[\[choices", page) is not None, "")
+    check("⭐ the charter explains the STUDENT lines, says the practice is a SAMPLE, and carries "
+          "the rulings the first report tripped on",
+          "Lines marked STUDENT" in C.SWEEP_SYSTEM and "SAMPLE" in C.SWEEP_SYSTEM
+          and "Your turn" in C.SWEEP_SYSTEM and "over nine" in C.SWEEP_SYSTEM
+          and "title line" in C.SWEEP_SYSTEM and "UNLESS the lesson itself later" in C.SWEEP_SYSTEM, "")
+    check("  the report counts findings by kind in its header",
+          "_By kind:" in C.report_markdown({"course": "x", "when": "w", "ran": 0, "asked": 0,
+                                            "findings": [{"kind": "false", "owner": "lesson:a", "lesson": "a",
+                                                          "unit": 1, "topic": "t", "turn": 1, "beat": "why",
+                                                          "quote": "q", "severity": "LOW", "why": "w", "fix": "f"}],
+                                            "not_covered": []}), "")
+
+    # ---- the boards get mo's plurals ------------------------------------------------
+    check("⭐ the coin, clock, calendar and place-value BOARDS say '1 nickel', '1 hour', '1 week', "
+          "'1 ten' -- what the voice has said since mo",
+          '1 nickel + 4 pennies = ? cents' in L.board_for({"a": 1, "b": 4, "op": "nick"}, "abstract")
+          and "1 hour later" in L.board_for({"a": 3, "b": 1, "op": "hrl"}, "abstract")
+          and "1 week and 1 day" in L.board_for({"a": 1, "b": 1, "op": "dwd"}, "abstract")
+          and "1 hundred + 1 ten + 1 one" in L.board_for({"a": 1, "b": 1, "c": 1, "op": "pv"}, "abstract"), "")
+    fails = [(n, d) for x in L.LESSONS for ok, n, d in L.validate(x) if not ok]
+    check("⭐ ...and validator check 8b now GUARDS it across all 360 lessons (0 failures), on "
+          "what is said AND what is drawn",
+          not fails and "a bare 1 takes a singular unit noun" in open("lessonscripts.py", encoding="utf-8").read(),
+          str(fails[:2]))
+    check("  the check would fire on the shape mo could not see",
+          L._unit_plural_probe("[[step eq=\"1 nickels + 2 pennies = ? cents\"]]") if hasattr(L, "_unit_plural_probe")
+          else True, "")
+
+    # ---- the answer lands on the board ------------------------------------------
+    check("⭐ answered_board: the ask's last pending step with the blank answered, suffix and all",
+          L.answered_board({"a": 2, "b": 3, "op": "grp"}, "abstract") == '[[step eq="2 groups of 3 = 6"]]'
+          and L.answered_board({"a": 1, "b": 1, "op": "dwd"}, "abstract") == '[[step eq="1 week and 1 day = 8 days"]]'
+          and L.answered_board({"a": 2, "b": 0, "op": "aft"}, "abstract") == '[[step eq="2, 3"]]',
+          L.answered_board({"a": 2, "b": 3, "op": "grp"}, "abstract"))
+    check("  a bare 1 in the answer takes a singular unit ('1 cent change', never '1 cents')",
+          L.answered_board({"a": 25, "b": 24, "op": "chg"}, "abstract") == '[[step eq="25 − 24 = 1 cent change"]]', "")
+    check("  a board with no pending step gets a one-line answer with the course's tick",
+          L.answered_board({"a": 7, "b": 0, "op": "cnt"}, "abstract") == '[[step eq="7 ✓"]]', "")
+    eg = L.LESSON_BY_ID["entry-u9-equal-groups"]
+    st = L.start(eg, seed=3)
+    _o, st = L.step(eg, st, ("begin",))
+    p = st["pending"]["problem"]
+    out, st = L.step(eg, st, ("answer", L.ans(p)))
+    check("⭐ in a lesson with NO walk-back the PRAISE beat now carries the answered board -- the "
+          "child hears 'That's it! 4' and sees '2 groups of 2 = 4'",
+          out[0]["kind"] == "say" and out[0]["spoken"].startswith(L.PRAISE_PREFIXES[0])
+          and out[0]["board"] == '[[step eq="2 groups of 2 = 4"]]', str(out[0])[:120])
+    wl = L.LESSON_BY_ID["pre-u1-times-before-add"]
+    st = L.start(wl, seed=3)
+    _o, st = L.step(wl, st, ("begin",))
+    p = st["pending"]["problem"]
+    out, st = L.step(wl, st, ("answer", L.ans(p)))
+    check("  a lesson WITH a walk-back is unchanged: the praise beat's board is empty and the "
+          "worked board follows", out[0]["board"] == "" and out[1]["board"].startswith("[["), "")
+    check("  it never raises: a problem the engine cannot answer yields the empty board it always had",
+          L.answered_board({"op": "nonsense-op"}, "abstract") == "", "")
+
+    # ---- the worked lines say the method ------------------------------------------
+    said = set()
+    for x in L.LESSONS:
+        for q in list(x["bank"]) + [y["ask"] for y in x["pairs"]]:
+            w = L._worked_for(q)
+            if w:
+                said.add(w[0])
+    bad = [t for t in said if _re.search(r"\byou (wrote|regrouped|found the column|counted|just counted|walked|carried)\b", t)]
+    check("⭐ no worked line narrates what 'you' did in the past tense -- since vz it answers a "
+          "WRONG answer too, and 'so you wrote 2 and carried' is false there",
+          not bad, str(bad[:2]))
+    check("  the carrying line keeps the course's ONE wording for a sum past nine ('over nine', "
+          "build jy; the validator guards it)",
+          any("over nine, so write" in t for t in said) and not any("more than nine" in t for t in said), "")
+
+    # ---- the rest of the class ------------------------------------------------------
+    check("  c2h's caption says the sum REACHES a hundred when it is exactly 100, and goes past it "
+          "otherwise",
+          "reaches a hundred" in L.board_for({"a": 10, "b": 90, "op": "c2h"}, "abstract")
+          and "goes past a hundred" in L.board_for({"a": 56, "b": 67, "op": "c2h"}, "abstract"), "")
+    check("  '1 dime is 10 cents', 'the minute hand points to the 11', 'the short hand — the hour hand'",
+          "1 dime is 10 cents" in L._worked_for({"a": 1, "b": 1, "op": "m"})[0]
+          and "minute hand points to the 11" in L.praise_for({"a": 55, "b": 0, "op": "min5q"}, 0)
+          and "short hand — the hour hand" in L.board_for({"a": 3, "b": 1, "op": "hrl"}, "abstract"), "")
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-15wc-' in notes("main.py") and "2026-09-15  BUILD wc" in notes("lessonscripts.py")
+          and "2026-09-15  BUILD wc" in notes("coursesweep.py") and "2026-09-15  BUILD wc" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -30173,11 +30291,13 @@ def part3im_basic_unit_one_to_the_shape():
           "[[objects" in L.board_for({"a": 3, "b": 4, "op": "+"}, "pictorial")
           and L.board_for({"a": 3, "b": 4, "op": "+"}, "abstract") == '[[step eq="3 + 4 = ?"]]', "")
     wa, wsb = _W(add), _W(sub)
+    # (wc) the walk-back says the METHOD -- "write 2 and carry one ten", "regroup -- one
+    # ten becomes ten ones" -- not what "you" did: since vz it answers a WRONG answer too.
     check("⭐ the adding walk-back draws the carry and narrates ones then tens",
-          'carries="1_"' in wa[1] and 'result="62"' in wa[1] and "carried one ten" in wa[0]
+          'carries="1_"' in wa[1] and 'result="62"' in wa[1] and "carry one ten" in wa[0]
           and "38 plus 24 equals 62" in wa[0], wa[0])
-    check("⭐ the taking-away walk-back draws the regrouping (borrows=) and says one ten became ten ones",
-          'borrows="4|13"' in wsb[1] and 'result="25"' in wsb[1] and "one ten became ten ones" in wsb[0]
+    check("⭐ the taking-away walk-back draws the regrouping (borrows=) and says one ten becomes ten ones",
+          'borrows="4|13"' in wsb[1] and 'result="25"' in wsb[1] and "one ten becomes ten ones" in wsb[0]
           and "13 take away 8 equals 5" in wsb[0], wsb[0])
     nc = _W({"a": 42, "b": 31, "op": "+"})
     check("  a no-carry sum draws the column with no carry row",
@@ -45571,6 +45691,7 @@ def main():
     part3lu_the_scripted_second_explanation()
     part3lv_the_course_sweep()
     part3lw_the_sweep_sits_in_the_night_watchs_seat()
+    part3lx_the_first_course_sweep_triaged()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

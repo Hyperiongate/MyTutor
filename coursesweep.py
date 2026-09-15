@@ -3,6 +3,19 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-15  BUILD wc -- CALIBRATED ON THE FIRST COURSE. Jim's Entry sweep came back
+#               with 219 findings and ~130 of them were one defect of THIS file: the
+#               transcript had no student in it, so the reviewer read a fixed monologue
+#               that praised answers nobody gave and corrected misses nobody made. Now
+#               (1) the walk writes a STUDENT line after every ask -- the answer, marked
+#               correct or WRONG, or the tapped reason; (2) an ask's board carries its
+#               [[choices]] buttons and the reason question its reason choices, so "tap
+#               the reason" is answerable on the page; (3) the charter explains the
+#               STUDENT lines, says the practice is a SAMPLE of the bank, and adds the
+#               rulings the first report tripped on: the "Your turn" card's unspoken
+#               hints, a topic word in the title line, "over nine" (the course's chosen
+#               wording), and a level-appropriate rule that the lesson does not itself
+#               contradict; (4) the report header counts findings by kind.
 #   2026-09-15  BUILD wb -- the report names the seat that read it ("Read by: openai ·
 #               gpt-4.1"), so a run that came back empty says which model to blame.
 #   2026-09-15  BUILD wa -- BORN. Project 1 of the 2026-09-14 deep dive ("The Forever
@@ -126,11 +139,30 @@ def transcript_for(lesson, L=None):
     def take(steps):
         for s in steps:
             p = s.get("problem") or {}
+            board = s.get("board") or ""
+            # (wc) an ask carries its tap buttons: they are on the child's screen, and a
+            # reviewer that cannot see them reports "tap the reason" as unanswerable.
+            if s.get("kind") == "ask":
+                if s.get("choices"):
+                    board += str(s["choices"])
+                elif s.get("reason"):
+                    try:
+                        board += L.reason_choices_for(lesson)
+                    except Exception:  # noqa: BLE001
+                        pass
             turns.append({"n": len(turns) + 1,
                           "kind": _kind_of(s.get("spoken"), kind_idx, L, s),
                           "spoken": s.get("spoken") or "",
-                          "board": s.get("board") or "",
+                          "board": board,
                           "op": p.get("op", "") if s.get("kind") == "ask" else ""})
+
+    def student(text):
+        """(wc) THE STUDENT'S TURN. The first sweep read a transcript with no student
+        in it and reported 130 times that the tutor praised an answer nobody gave and
+        corrected a miss nobody made. The walk always knew what the child said; now
+        the page says it too."""
+        turns.append({"n": len(turns) + 1, "kind": "student", "spoken": text,
+                      "board": "", "op": ""})
 
     out, st = L.step(lesson, st, ("begin",))
     take(out)
@@ -139,7 +171,9 @@ def transcript_for(lesson, L=None):
             break
         pend = st.get("pending") or {}
         if pend.get("reason"):
-            out, st = L.step(lesson, st, ("answer", (lesson.get("explain") or {}).get("answer", "")))
+            reason = (lesson.get("explain") or {}).get("answer", "")
+            student(f'taps the reason "{reason}" — correct')
+            out, st = L.step(lesson, st, ("answer", reason))
             take(out)
             continue
         p = pend.get("problem")
@@ -159,12 +193,15 @@ def transcript_for(lesson, L=None):
         if (st.get("phase") == "practice" and not missed
                 and not pend.get("guided") and L._worked_for(p) is not None):
             missed = True
-            out, st = L.step(lesson, st, ("answer", (right or 0) + 777))
+            wrong = (right or 0) + 777
+            student(f"answers {wrong} — WRONG (the right answer is {right})")
+            out, st = L.step(lesson, st, ("answer", wrong))
             take(out)
             if any(s.get("kind") == "intervene" for s in out):
                 out, st = L.step(lesson, st, ("resume",))
                 take(out)
             continue
+        student(f"answers {right} — correct")
         out, st = L.step(lesson, st, ("answer", right))
         take(out)
     return turns
@@ -177,7 +214,10 @@ def render_transcript(lesson, turns) -> str:
             f"-- \"{lesson.get('topic')}\" -- levels {'/'.join(lesson.get('levels') or ())}")
     lines = [head, ""]
     for t in turns:
-        lines.append(f"[{t['n']}] ({t['kind']}) TUTOR: {t['spoken']}")
+        if t["kind"] == "student":
+            lines.append(f"[{t['n']}] STUDENT {t['spoken']}")
+        else:
+            lines.append(f"[{t['n']}] ({t['kind']}) TUTOR: {t['spoken']}")
         if t["board"]:
             lines.append(f"      BOARD: {t['board']}")
         lines.append("")
@@ -206,8 +246,20 @@ would flag, in this order of importance:
   6. A beat that repeats the previous beat without adding anything.
   7. Tone: anything that blames, hurries, or praises what the child did not do.
 
+HOW TO READ THE PAGE. Lines marked STUDENT are what the child did: an answer, marked
+correct or WRONG, or a tapped reason. The tutor's praise, "Not quite", "three in a row" and
+"that is the reason" always follow a STUDENT line and are earned by it -- never report them
+as praising or correcting an answer that was not given. The BOARD line under an ask includes
+the [[choices ...]] tap buttons the child sees. The practice you see is a SAMPLE of the
+lesson's problem bank (three right answers end it), so never conclude that a lesson "never
+practices" a number or a case you did not happen to see.
+
 Do NOT report: style preferences; the choice of numbers; the lesson being short; the
-absence of things outside its topic; the rule index's own wording. A quote must be COPIED
+absence of things outside its topic; the rule index's own wording; the "Your turn" card's
+tap/say/type hints (screen instructions, deliberately unspoken); a topic word in the lesson's
+own title line; "over nine" for a sum of ten or more (the course's one chosen wording); a
+rule stated for the numbers this lesson uses, at this level, UNLESS the lesson itself later
+contradicts it or a child could misapply it within the same unit. A quote must be COPIED
 EXACTLY from a TUTOR line or a BOARD line. Give at most %d findings, the worst first, and if
 the lesson is clean say so with an empty list.
 
@@ -373,10 +425,16 @@ def report_markdown(result, build="") -> str:
     fs = result.get("findings") or []
     gen = [f for f in fs if f["owner"].startswith("generator:")]
     auth = [f for f in fs if f["owner"].startswith("lesson:")]
+    kinds = {}
+    for f in fs:
+        kinds[f.get("kind") or "?"] = kinds.get(f.get("kind") or "?", 0) + 1
     L = [f"# Course sweep -- {result.get('course')} -- {result.get('when')}"
          + (f"  (build {build})" if build else ""),
          "",
          f"_Read by: {result.get('seat') or 'the judge seat'}_",
+         "",
+         "_By kind: " + (", ".join(f"{k} {n}" for k, n in sorted(kinds.items(), key=lambda kv: -kv[1]))
+                         or "none") + "_",
          "",
          f"{result.get('ran', 0)} of {result.get('asked', 0)} lessons read · "
          f"**{len(fs)} findings** ({len(gen)} on generators, {len(auth)} on authored beats) · "
