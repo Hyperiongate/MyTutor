@@ -2,6 +2,54 @@
 # lessons/entry.py  --  ENTRY-LEVEL MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-15  BUILD wd -- THE AUTHORED PILE FROM THE FIRST CLEAN COURSE SWEEP. The
+#               09-15 Entry sweep (build wc's calibrated reviewer, 70 findings, 61 of
+#               them authored) read every one of these 36 lessons as a student would
+#               hear and see it. What it found, and what changed, in four kinds:
+#                 * RULES SPOKEN AS LAWS THAT ARE NOT LAWS. "The tens digit goes first,
+#                   always"; "swapping the two digits is a different number entirely"
+#                   (11 is 11 either way); "never the bare digit" (in the ones place
+#                   it IS the bare digit); "every flat shape" has straight sides (a
+#                   circle does not); "only the tens digit goes up" (95 + 10 does
+#                   not); "the change is always smaller"; "listen for the word that
+#                   tells you the sign" (a keyword method the sweep rightly called
+#                   unreliable -- the beat now asks what happened to the PILE); "a
+#                   new digit appears"; "most things come in more than ten"; the
+#                   pattern rule now says the jump is the SAME jump in today's
+#                   patterns; "start with the bigger number" now covers 6 + 6.
+#                   Each is now said with its condition, or said of the numbers in
+#                   the lesson, and the trap beats show the case they warn about
+#                   (574 - 302 with its tens written; 638 for 368).
+#                 * THE BOARD SAYS WHAT THE WORDS SAY. Ten-more's picture drew three
+#                   ten-sticks while the words said four (now two pictures: before and
+#                   after). Before-and-after spoke a hop back it never drew (the hop
+#                   back is its own beat now, on its own line). The column lessons put
+#                   "58 - 23 = ?" on the board a beat BEFORE the words said 58 or 23
+#                   (five lessons; the sum now appears on the beat that speaks it).
+#                   Every recap's closing board is now spoken ("4 + 4 = 8" under
+#                   words that never said four plus four). Weeks-and-days puts its
+#                   count-by-sevens on the board; equal groups and sharing fairly
+#                   draw the ARRAY (view="groups") they had only been describing;
+#                   the two clock lessons draw a CLOCK ([[clock]]) where they had a
+#                   number line captioned "the hand at 3"; sides-and-corners draws
+#                   the POLYGON it counts, and its names beat says pentagon, hexagon,
+#                   heptagon, octagon, decagon with their side counts BEFORE the
+#                   practice asks for one by name; what-comes-next writes the answer
+#                   under the "?" line; take-away-single-digit's trap draws its eight
+#                   stars. Counting-past-ten's fast-way beat now counts to twenty, so
+#                   seventeen through twenty are heard before nineteen is asked.
+#                 * TERMS BEFORE THEY ARE TAUGHT. "digit" is now defined in
+#                   tens-and-ones' why (a mark, and there are two); "column" is
+#                   defined where it first appears (adding three-digit numbers:
+#                   "each of those up-and-down lines is a column"); "regrouping"
+#                   is gone from the no-regrouping lesson that comes BEFORE the
+#                   regrouping lesson; "equals" is what it means (both sides the same
+#                   amount), not "how many in all".
+#                 * THE ADVANCE LINE CLAIMS WHAT WAS TAUGHT. "You can add two-digit
+#                   numbers" -> "...when nothing carries"; "read the minutes on a
+#                   clock" -> "count the minutes past the hour by fives".
+#               L.validate over all 360 lessons: 0 failures. ⚠️ Every rewritten line
+#               is a new voice line -- the prewarm lists them after the push.
 #   2026-09-10  BUILD va -- THE WALK-BACK IS SWITCHED ON in seventeen lessons. Their
 #               ops draw a picture after a right answer now (see lessonscripts.py's
 #               note), and a walk-back nobody can reach is not a fix: every one of these
@@ -100,9 +148,9 @@ _ENTRY_PILOT = [
         "teach": [
             ("That is how adding works, and today both groups are single-digit numbers — "
              "one through nine. Adding has two signs of its very own. Putting "
-             "together is written with a plus sign, and we say it plus. How many in "
-             "all is written with an equals sign, and we say it equals. Four plus "
-             "four equals eight.",
+             "together is written with a plus sign, and we say it plus. Then comes an "
+             "equals sign, and we say it equals — it means both sides are the same "
+             "amount. Four plus four equals eight.",
              '[[objects emoji="⭐" groups="4" add="4" count="1" caption="four stars and four more"]][[step eq="4 + 4 = 8"]]'),
             ("Here is the trap. Count every star in both groups, not only the new "
              "ones. Five stars and three more is eight, not three. Start at one, and "
@@ -128,7 +176,8 @@ _ENTRY_PILOT = [
              "how many there are in all. Count every star in both groups, and the last "
              "number you say is your answer.",
              '[[objects emoji="⭐" groups="4" add="4" count="1" caption="four and four more — eight in all"]]'),
-            ("And that is how you always know how many you have in all.",
+            ("And that is how you always know how many you have in all — four plus "
+             "four equals eight.",
              '[[step eq="4 + 4 = 8"]]'),
         ],
         "bank": [
@@ -168,6 +217,7 @@ _ENTRY_PILOT = [
             ("Here is the trap. Your answer is what is LEFT, not what went away. Eight "
              "stars, take two away, and six are left — the answer is six, not two. "
              "Count the ones still standing, never the ones you crossed off.",
+             '[[objects emoji="⭐" groups="8" take="2" caption="eight, take two away — six still standing"]]'
              '[[step eq="8 − 2 = 6 ✓"]][[step eq="2 ✗ that is what went away, not what is left"]]'),
         ],
         "pairs": [
@@ -189,7 +239,8 @@ _ENTRY_PILOT = [
              "away, and counts what is left. The ones you crossed off are gone — only "
              "the ones still standing are your answer.",
              '[[objects emoji="⭐" groups="6" take="4" caption="two are left"]]'),
-            ("And that is how you know how many you have left.",
+            ("And that is how you know how many you have left — six minus four "
+             "equals two.",
              '[[step eq="6 − 4 = 2"]]'),
         ],
         "bank": [
@@ -223,8 +274,9 @@ _ENTRY_PILOT = [
         ],
         "teach": [
             ("That is the method, and it has a shortcut. Start with the bigger number "
-             "and count on from there — it is fewer numbers to say. Eight plus three: "
-             "start at eight, then nine, ten, eleven. Eight plus three equals eleven.",
+             "and count on from there — it is fewer numbers to say. If the two numbers "
+             "are the same, start with either one. Eight plus three: start at eight, "
+             "then nine, ten, eleven. Eight plus three equals eleven.",
              '[[objects emoji="⭐" groups="8" add="3" count="1" caption="start at eight — nine, ten, eleven"]][[step eq="8 + 3 = 11"]]'),
             ("Here is the trap. When you count on, do not say the starting number "
              "again. Seven plus five: the first new number is eight, not seven. Say "
@@ -252,7 +304,8 @@ _ENTRY_PILOT = [
              "count on once for each one in the other group. Do not go back to one, "
              "and do not say the starting number twice.",
              '[[objects emoji="⭐" groups="9" add="4" caption="start at nine — ten, eleven, twelve, thirteen"]]'),
-            ("And that is how the answers keep going past ten.",
+            ("And that is how the answers keep going past ten — nine plus four "
+             "equals thirteen.",
              '[[step eq="9 + 4 = 13"]]'),
         ],
         "bank": [
@@ -315,7 +368,8 @@ _ENTRY_PILOT = [
             ("So, here it is again. Start at the bigger number and count back once for "
              "each one taken away — and never count the starting number itself.",
              '[[objects emoji="⭐" groups="13" take="5" caption="thirteen, count back five — eight are left"]]'),
-            ("And that is taking away, however big the number you start with.",
+            ("And that is taking away, however big the number you start with — "
+             "thirteen minus five equals eight.",
              '[[step eq="13 − 5 = 8"]]'),
         ],
         "bank": [
@@ -337,8 +391,9 @@ _ENTRY_PILOT = [
         "why": [
             ("Why learn tens and ones? Because counting one at a time gets slow. Nobody "
              "counts a box of eggs one by one — they see two rows of six. Numbers are "
-             "packed the same way: in tens, with the leftovers beside them. That is "
-             "what the two digits are telling you.",
+             "packed the same way: in tens, with the leftovers beside them. A number "
+             "like fourteen is written with two marks, a 1 and a 4. Each mark is called "
+             "a digit, and the digits are telling you how it is packed.",
              '[[goal text="Tens and ones"]]'),
         ],
         "picture": [
@@ -355,8 +410,8 @@ _ENTRY_PILOT = [
              "how many of its own kind there are.",
              '[[objects emoji="⭐" groups="10" add="4" caption="1 ten and 4 ones"]][[step eq="14 = 1 ten and 4 ones"]]'),
             ("Here is the trap. The order of the digits is the whole meaning. One ten "
-             "and nine ones is nineteen, not ninety-one. The tens digit goes first, "
-             "always, because a ten is the bigger bundle.",
+             "and nine ones is nineteen, not ninety-one. In a two-digit number the "
+             "tens digit is written first, because a ten is the bigger bundle.",
              '[[step eq="1 ten and 9 ones = 19 ✓"]][[step eq="91 ✗ the digits were swapped"]]'),
         ],
         "pairs": [
@@ -386,9 +441,12 @@ _ENTRY_PILOT = [
         "recap": [
             ("So, here it is again. A two-digit number is bundles of ten and the loose "
              "ones left over. The first digit counts the tens, the second counts the "
-             "ones, and swapping the two digits is a different number entirely.",
+             "ones — one ten and four ones is fourteen. Read the two digits the other "
+             "way round and you can name a different number — nineteen is not "
+             "ninety-one.",
              '[[objects emoji="⭐" groups="10" add="4" caption="one ten and four ones — fourteen"]]'),
-            ("And that is what the two digits have been telling you all along.",
+            ("And that is what the two digits have been telling you all along — "
+             "fourteen is one ten and four ones.",
              '[[step eq="14 = 1 ten and 4 ones"]]'),
         ],
         "bank": [
@@ -464,7 +522,7 @@ _ENTRY_PILOT = [
         "levels": ("abstract",),   # dropping to counting 37 stars would not be help
         "symbols": ("plus", "equals"),
         "advance_line": ("Three in a row — you've got it! "
-                         "You can add two-digit numbers."),
+                         "You can add two-digit numbers when nothing carries."),
         "teach": [
             ("Today we are adding two-digit numbers. A two-digit number has a "
              "tens digit and a ones digit. We add the ones first, then the tens.",
@@ -526,12 +584,12 @@ _ENTRY_MORE = [
         "advance_line": "Three in a row — you've got it! You can take away two-digit numbers.",
         "teach": [
             ("Taking away two-digit numbers works column by column, the same as "
-             "adding. Start on the right. Ones first, then tens. Today every ones "
-             "digit on top is big enough, so nothing needs regrouping.",
-             '[[goal text="Taking away two-digit numbers"]]'
-             '[[step eq="58 − 23 = ?"]]'),
+             "adding. Start on the right. Ones first, then tens. Today the ones "
+             "digit on top is always big enough to take the bottom one away from.",
+             '[[goal text="Taking away two-digit numbers"]]'),
             ("Watch me take 23 away from 58. Ones: 8 take away 3 equals 5. Tens: 5 "
              "take away 2 equals 3. So 58 take away 23 equals 35.",
+             '[[step eq="58 − 23"]]'
              '[[step eq="ones: 8 − 3 = 5"]]'
              '[[step eq="tens: 5 − 2 = 3"]]'
              '[[step eq="58 − 23 = 35"]]'),
@@ -566,20 +624,21 @@ _ENTRY_MORE = [
         "teach": [
             ("Three columns now instead of two, and not one new idea. Ones first, "
              "then tens, then hundreds, always starting on the right.",
-             '[[goal text="Taking away three-digit numbers"]]'
-             '[[step eq="876 − 321 = ?"]]'),
+             '[[goal text="Taking away three-digit numbers"]]'),
             ("Watch me take 321 away from 876. Ones: 6 take away 1 equals 5. Tens: "
              "7 take away 2 equals 5. Hundreds: 8 take away 3 equals 5. So 876 "
              "take away 321 equals 555.",
+             '[[step eq="876 − 321"]]'
              '[[step eq="ones: 6 − 1 = 5"]]'
              '[[step eq="tens: 7 − 2 = 5"]]'
              '[[step eq="hundreds: 8 − 3 = 5"]]'
              '[[step eq="876 − 321 = 555"]]'),
             ("Here is the trap, and it is a quiet one. Do not skip a column just "
-             "because it looks easy. Every column gets worked, even one where the "
-             "bottom digit is 0, because its answer still has to be written down.",
-             '[[step eq="876 − 321 = 555 ✓"]]'
-             '[[step eq="a skipped column leaves a hole in the answer"]]'),
+             "because it looks easy. In 574 take away 302 the tens are 7 take away "
+             "0. That is still 7, and the 7 has to be written in the tens place, or "
+             "the answer has a hole where its tens should be.",
+             '[[step eq="574 − 302 = 272 ✓ tens: 7 − 0 = 7, written"]]'
+             '[[step eq="skip the tens and the 7 is missing"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 597 take away 243. Ones: "
@@ -720,15 +779,16 @@ _ENTRY_MORE = [
         "teach": [
             ("When you pay with more than a thing costs, you get change. Change is "
              "what is left of your money after the price has been taken away.",
-             '[[goal text="Making change"]]'
-             '[[step eq="you pay 50 − it costs 35 = ? change"]]'),
+             '[[goal text="Making change"]]'),
             ("Watch me. A toy costs 35 cents and you pay 50 cents. Take the price "
              "away from what you paid: 50 take away 35 equals 15. Your change is "
              "15 cents.",
+             '[[step eq="you pay 50, it costs 35"]]'
              '[[step eq="50 − 35 = 15 cents change"]]'),
             ("Here is the trap. Do not add the two amounts. You are not spending "
-             "85 cents. The change is always SMALLER than what you handed over, so "
-             "if your answer is bigger, something has gone wrong.",
+             "85 cents. The price came out of your money, so the change is SMALLER "
+             "than what you handed over. If your answer is bigger, something has "
+             "gone wrong.",
              '[[step eq="50 − 35 = 15 ✓"]]'
              '[[step eq="85 ✗ that is the two amounts added"]]'),
         ],
@@ -809,7 +869,8 @@ _ENTRY_MORE = [
              "biggest first. Say the hundreds, then the rest — and never read the "
              "digits backwards.",
              '[[placevalue h="3" t="4" o="6" caption="3 hundreds, 4 tens, 6 ones — 346"]]'),
-            ("And that is how you read any number up to nine hundred ninety-nine.",
+            ("And that is how you read any number up to nine hundred ninety-nine — "
+             "three hundred plus forty plus six equals three hundred forty-six.",
              '[[step eq="300 + 40 + 6 = 346"]]'),
         ],
         "bank": [{"a": 1, "b": 1, "c": 1, "op": "pv"}, {"a": 2, "b": 1, "c": 1, "op": "pv"}, {"a": 3, "b": 1, "c": 1, "op": "pv"}, {"a": 4, "b": 1, "c": 1, "op": "pv"}, {"a": 5, "b": 1, "c": 1, "op": "pv"}, {"a": 5, "b": 9, "c": 9, "op": "pv"}, {"a": 6, "b": 9, "c": 9, "op": "pv"}, {"a": 7, "b": 9, "c": 9, "op": "pv"}, {"a": 8, "b": 9, "c": 9, "op": "pv"}, {"a": 9, "b": 9, "c": 9, "op": "pv"}],
@@ -828,15 +889,16 @@ _ENTRY_MORE = [
         ],
         "picture": [
             ("Here is thirty-four in blocks: three ten-sticks and four ones. Now add "
-             "one more ten-stick. The four loose ones have not been touched — nobody "
-             "moved them. There are simply four ten-sticks now instead of three. "
-             "Thirty-four becomes forty-four.",
-             '[[placevalue t="3" o="4" caption="34 — three tens and four ones, and one more ten arrives"]]'),
+             "one more ten-stick — that is the second picture. The four loose ones "
+             "have not been touched; nobody moved them. There are simply four "
+             "ten-sticks now instead of three. Thirty-four becomes forty-four.",
+             '[[placevalue t="3" o="4" caption="34 — three tens and four ones"]]'
+             '[[placevalue t="4" o="4" caption="one more ten-stick arrives — four tens and the same four ones: 44"]]'),
         ],
         "teach": [
             ("That is the rule, and it is why this one is free. Ten more adds one ten "
-             "and leaves the ones exactly as they were. The four stays a four, and only "
-             "the tens digit goes up by one. Thirty-four plus ten is forty-four, with "
+             "and leaves the ones exactly as they were. The four stays a four, and the "
+             "tens digit goes up by one. Thirty-four plus ten is forty-four, with "
              "no counting at all.",
              '[[step eq="3 tens 4 ones → 4 tens 4 ones"]][[step eq="34 + 10 = 44"]]'),
             ("Here is the trap. Adding ten is not adding one. Ten more than "
@@ -871,7 +933,8 @@ _ENTRY_MORE = [
              "nothing else. The ones digit stays exactly where it was, so a ones "
              "digit that has moved means the answer is not ten more.",
              '[[placevalue t="3" o="4" caption="the ones never move when you add ten"]]'),
-            ("And that is a sum you can do in your head for the rest of your life.",
+            ("And that is a sum you can do in your head for the rest of your life — "
+             "thirty-four plus ten is forty-four.",
              '[[step eq="34 + 10 = 44"]]'),
         ],
         # (va) the walk-back is ON: this lesson's op draws a picture after a
@@ -903,9 +966,10 @@ _ENTRY_MORE = [
              "that many of THAT place is worth. In three hundred seventy-four, the "
              "seven is in the tens place, so it is worth seventy.",
              '[[placevalue h="3" t="7" o="4" caption="ones, tens, hundreds — from the right"]][[step eq="the 7 in 374 is worth 70"]]'),
-            ("Here is the trap. Do not answer with the digit by itself. In three "
-             "hundred seventy-four the seven is not worth seven. Find its place first, "
-             "and then say the whole amount that place is worth.",
+            ("Here is the trap. Do not answer with the digit by itself unless it "
+             "stands in the ones place. In three hundred seventy-four the seven is in "
+             "the tens place, so it is not worth seven. Find its place first, and then "
+             "say the whole amount that place is worth.",
              '[[step eq="the 7 in 374 is worth 70 ✓"]][[step eq="7 ✗ that is the digit, not what it is worth"]]'),
         ],
         "pairs": [
@@ -933,9 +997,11 @@ _ENTRY_MORE = [
         "recap": [
             ("So, here it is again. A digit is worth what its PLACE says it is worth. "
              "Count the places from the right, find the one your digit stands in, and "
-             "say that whole amount — never the bare digit.",
+             "say that whole amount. In the ones place a digit is worth itself; in the "
+             "tens place it is worth ten of itself.",
              '[[placevalue h="3" t="7" o="4" caption="the 7 is worth seventy"]]'),
-            ("And that is why the same digit can be worth so many different amounts.",
+            ("And that is why the same digit can be worth so many different amounts — "
+             "the seven in three hundred seventy-four is worth seventy.",
              '[[step eq="the 7 in 374 is worth 70"]]'),
         ],
         # (va) the walk-back is ON: this lesson's op draws a picture after a
@@ -949,22 +1015,25 @@ _ENTRY_MORE = [
         "levels": ("abstract",), "symbols": ("column",),
         "advance_line": "Three in a row — you've got it! You can add three-digit numbers.",
         "teach": [
-            ("Three-digit numbers add the same way two-digit ones do. Work one "
+            ("Three-digit numbers add the same way two-digit ones do. Write one "
+             "number under the other, so the ones sit under the ones and the tens "
+             "under the tens. Each of those up-and-down lines is a column. Work one "
              "column at a time, and always start on the right. Ones first, then "
              "tens, then hundreds.",
-             '[[goal text="Adding three-digit numbers"]]'
-             '[[step eq="243 + 125 = ?"]]'),
+             '[[goal text="Adding three-digit numbers"]]'),
             ("Watch me add 243 plus 125. Ones: 3 plus 5 equals 8. Tens: 4 plus 2 "
              "equals 6. Hundreds: 2 plus 1 equals 3. So 243 plus 125 equals 368.",
+             '[[step eq="243 + 125"]]'
              '[[step eq="ones: 3 + 5 = 8"]]'
              '[[step eq="tens: 4 + 2 = 6"]]'
              '[[step eq="hundreds: 2 + 1 = 3"]]'
              '[[step eq="243 + 125 = 368"]]'),
-            ("Here is the trap. Keep each column in its own place. The tens answer "
-             "goes under the tens, and the hundreds answer under the hundreds. If "
-             "a column slides across, every digit after it is wrong.",
+            ("Here is the trap. Keep each answer in its own column: the ones answer "
+             "under the ones, the tens answer under the tens, the hundreds answer "
+             "under the hundreds. Write a digit in the wrong column and the whole "
+             "number reads wrong — 638 instead of 368.",
              '[[step eq="243 + 125 = 368 ✓"]]'
-             '[[step eq="638 ✗ the columns were written in the wrong places"]]'),
+             '[[step eq="638 ✗ the same digits, written in the wrong columns"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 312 plus 246. Ones: 2 "
@@ -991,13 +1060,13 @@ _ENTRY_MORE = [
         "advance_line": "Three in a row — you've got it! You can add past one hundred.",
         "teach": [
             ("You already carry into the tens. Today the tens themselves fill up. "
-             "When ten tens are made, they become one hundred, and a new digit "
-             "appears at the front.",
-             '[[goal text="Crossing a hundred"]]'
-             '[[step eq="68 + 47 = ?"]]'),
+             "When the tens add up to over nine, ten of those tens become one "
+             "hundred, and the answer gets a hundreds digit at the front.",
+             '[[goal text="Crossing a hundred"]]'),
             ("Watch me add 68 plus 47. Ones: 8 plus 7 equals 15 — over nine, write "
              "the 5 and carry one ten. Tens: 6 plus 4 equals 10, plus the carried "
              "one is 11 tens. Eleven tens is one hundred and one ten. So 115.",
+             '[[step eq="68 + 47"]]'
              '[[step eq="ones: 8 + 7 = 15, carry 1"]]'
              '[[step eq="tens: 6 + 4 + 1 = 11 tens"]]'
              '[[step eq="68 + 47 = 115"]]'),
@@ -1034,7 +1103,7 @@ _ENTRY_MORE = [
         "levels": ("concrete",), "symbols": ("count",),
         "advance_line": "Three in a row — you've got it! You can count past ten.",
         "why": [
-            ("Why count past ten? Because most things come in more than ten. "
+            ("Why count past ten? Because lots of things come in more than ten. "
              "The crayons in a box, the steps to your door, the days until a "
              "birthday. Ten fingers run out fast, and the numbers keep going.",
              '[[goal text="Counting past ten"]]'),
@@ -1055,9 +1124,14 @@ _ENTRY_MORE = [
             # count itself. (The 40-odd "Here is the trap" lines in OTHER courses
             # are the house pattern and are deliberately untouched -- his flag was
             # this entry-course line; a wider ruling is his to make.)
-            ("Here is a faster way. Count the first ten, then count on from ten. "
-             "Ten — eleven, twelve, thirteen, fourteen. Fourteen stars.",
-             '[[objects emoji="⭐" groups="14" caption="ten, then count on: 11, 12, 13, 14"]]'),
+            # (wd, 2026-09-15) the count goes all the way to twenty here, so every
+            # number word the practice can ask for -- seventeen, eighteen, nineteen,
+            # twenty -- has been said before the student is asked to say it.
+            ("Here is a faster way, and here are all the numbers up to twenty. Count "
+             "the first ten, then count on from ten. Ten — eleven, twelve, thirteen, "
+             "fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty. "
+             "Twenty stars.",
+             '[[objects emoji="⭐" groups="20" caption="ten, then count on: 11, 12, 13, 14, 15, 16, 17, 18, 19, 20"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Ten, then count on: "
@@ -1134,7 +1208,7 @@ _ENTRY_MORE = [
              "number is the one you reach later when you count. Not the two "
              "added up — just the one that comes later.",
              '[[numberline min="1" max="10" points="3,8" caption="you reach 8 later — 8 is bigger"]]'),
-            ("And that is how you tell who has more.",
+            ("And that is how you tell who has more — 8 is bigger than 3.",
              '[[step eq="3 or 8 → 8"]]'),
         ],
         "bank": [{"a": 1, "b": 2, "op": "big"}, {"a": 3, "b": 6, "op": "big"}, {"a": 5, "b": 10, "op": "big"}, {"a": 7, "b": 14, "op": "big"}, {"a": 9, "b": 18, "op": "big"}, {"a": 12, "b": 3, "op": "big"}, {"a": 14, "b": 7, "op": "big"}, {"a": 16, "b": 11, "op": "big"}, {"a": 18, "b": 15, "op": "big"}, {"a": 20, "b": 19, "op": "big"}],
@@ -1182,7 +1256,7 @@ _ENTRY_MORE = [
                            "done — here comes the first one."),
         "recap": [
             ("So, here it is again. A double is a number added to itself — the same "
-             "number twice, never one more. Four and four is eight.",
+             "number twice, not the number and one more. Four and four is eight.",
              '[[objects emoji="⭐" groups="4" add="4" count="1" caption="the same number, twice"]]'),
             ("And doubles are worth knowing by heart, because they are the quickest "
              "sums there are.",
@@ -1241,8 +1315,8 @@ _ENTRY_MORE = [
              "then add the third to what you got — and never stop before the third one "
              "is in.",
              '[[tape parts="2|3|4" total="9 in all" caption="add the first two, then the third"]]'),
-            ("And if two of them make ten, start with those — ten is an easy number to "
-             "add to.",
+            ("And if two of them make ten, start with those — six and four make ten, "
+             "then ten plus three equals thirteen. Ten is an easy number to add to.",
              '[[step eq="6 + 4 = 10, then 10 + 3 = 13"]]'),
         ],
         # (va) the walk-back is ON: this lesson's op draws a picture after a
@@ -1275,7 +1349,7 @@ _ENTRY_MORE = [
              '[[numberline min="0" max="10" hops="7,10" caption="count the steps in the hop — three"]][[step eq="7 + 3 = 10"]]'),
             ("Here is the trap. Do not answer with the finish. The question is not what "
              "number we end on. It asks how many MORE, so your answer is the size of "
-             "the jump, never the number you landed on.",
+             "the jump, not the number you landed on.",
              '[[step eq="7 + 3 = 10 ✓ the jump is 3"]][[step eq="10 ✗ that is where we finished, not how many more"]]'),
         ],
         "pairs": [
@@ -1297,7 +1371,8 @@ _ENTRY_MORE = [
              "be, and the answer is how many counts it took — the size of the hop, not "
              "the place it lands.",
              '[[numberline min="0" max="10" hops="7,10" caption="the hop is the answer"]]'),
-            ("And that is how you work out how many more you need.",
+            ("And that is how you work out how many more you need — seven and three "
+             "more make ten.",
              '[[step eq="7 + 3 = 10"]]'),
         ],
         # (va) the walk-back is ON: this lesson's op draws a picture after a
@@ -1420,14 +1495,14 @@ _ENTRY_MORE = [
         ],
         "picture": [
             ("Here are the numbers standing in their line. Find 5. Take one hop "
-             "up the line and you land on 6 — so 6 comes right after 5. Now find "
-             "6 and take one hop back: you land on 5 — so 5 comes right before 6.",
+             "up the line and you land on 6 — so 6 comes right after 5. The number "
+             "right after is always one hop up.",
              '[[numberline min="1" max="10" points="5" hops="5,6" caption="one hop up: 6 comes right after 5"]]'),
         ],
         "teach": [
-            ("That is the whole idea. The number right after is one hop up the "
-             "line — count up one. The number right before is one hop back — "
-             "count back one.",
+            ("Now the other way. Find 6 and take one hop back: you land on 5 — so 5 "
+             "comes right before 6. That is the whole idea. The number right after "
+             "is one hop up the line, and the number right before is one hop back.",
              '[[numberline min="1" max="10" points="6" hops="6,5" caption="one hop back: 5 comes right before 6"]]'),
             ("Watch me. What comes right after 9? Find 9, hop up one, and you "
              "land on 10. 10 comes right after 9.",
@@ -1450,7 +1525,7 @@ _ENTRY_MORE = [
              "before is one hop back.",
              '[[numberline min="1" max="10" points="5" hops="5,6" caption="one hop up: right after"]]'),
             ("And knowing who stands next to who lets you count on from any "
-             "number.",
+             "number — four, five, six.",
              '[[step eq="4, 5, 6"]]'),
         ],
         "bank": [
@@ -1486,11 +1561,11 @@ _ENTRY_MORE = [
              '[[objects emoji="⭐" groups="4" add="1" count="1" caption="four stickers, and one more arrives — a plus story"]]'),
         ],
         "teach": [
-            ("That is the method: listen for the word that tells you which sign it is. "
-             "Gets, finds, buys, more — those put together, and that is plus. Eats, "
-             "loses, gives away, fly off — those take away, and that is minus. Find "
-             "the word, then do the sum.",
-             '[[step eq="gets more · finds · buys → +"]][[step eq="eats · loses · flies away → −"]]'),
+            ("That is the method: ask what happened to the pile. Did it grow — "
+             "someone gets more, finds some, buys some? Then it is plus. Did it "
+             "shrink — some were eaten, lost, given away, flew off? Then it is minus. "
+             "Decide which, then do the sum.",
+             '[[step eq="the pile grew → +"]][[step eq="the pile shrank → −"]]'),
             ("Here is the trap. Do not add just because there are two numbers in the "
              "story. Ben has nine grapes and eats three: he does not have twelve, he "
              "has six. Ask yourself whether the story made the pile bigger or smaller.",
@@ -1513,10 +1588,10 @@ _ENTRY_MORE = [
         "show_work_on_correct": True,
         "recap": [
             ("So, here it is again. A story problem hides a plus or a minus inside it. "
-             "Listen for the word that says whether the pile grew or shrank, write "
-             "that sum, and then do the sum you already know how to do.",
-             '[[step eq="gets more · finds · buys → +"]][[step eq="eats · loses · flies away → −"]]'),
-            ("And that is how a story turns into a sum.",
+             "Ask whether the pile grew or shrank, write that sum, and then do the "
+             "sum you already know how to do.",
+             '[[step eq="the pile grew → +"]][[step eq="the pile shrank → −"]]'),
+            ("And that is how a story turns into a sum — four plus one equals five.",
              '[[step eq="4 + 1 = 5"]]'),
         ],
         "bank": [
@@ -1621,23 +1696,25 @@ _ENTRY_MORE = [
             ("The short hand on a clock tells the hour. When it points at 3, we "
              "say it is 3 o'clock.",
              '[[goal text="Later on the clock"]]'
-             '[[numberline min="1" max="12" points="3" caption="the clock hours — the hand at 3"]]'),
+             '[[clock time="3:00" caption="the short hand points at 3 — it is 3 o\'clock"]]'),
             ("Watch me. It is 9 o'clock now. Two hours later, count on: 10, 11. "
              "It is 11 o'clock.",
-             '[[numberline min="1" max="12" points="11" caption="the clock hours — the hand at 11"]]'
+             '[[clock time="9:00" caption="it is 9 o\'clock — the short hand moves on two: 10, 11"]]'
              '[[step eq="9 o\'clock, 2 hours later = 11"]]'),
             ("One more, watch. It is 5 o'clock. Four hours later, count on: 6, "
              "7, 8, 9. It is 9 o'clock.",
-             '[[numberline min="1" max="12" points="9" caption="the clock hours — the hand at 9"]]'
+             '[[clock time="5:00" caption="it is 5 o\'clock — the short hand moves on four: 6, 7, 8, 9"]]'
              '[[step eq="5 o\'clock, 4 hours later = 9"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. It is 7 o'clock. Three "
                         "hours later, count on: 8, 9, 10. It is 10 o'clock.",
+                        '[[clock time="7:00" caption="7 o\'clock — count on three: 8, 9, 10"]]'
                         '[[step eq="7 o\'clock, 3 hours later = 10"]]'),
              "ask": {"a": 3, "b": 1, "op": "hrl"}},
             {"worked": ("One more together. It is 10 o'clock. One hour later is "
                         "11 o'clock.",
+                        '[[clock time="10:00" caption="10 o\'clock — one hour on is 11"]]'
                         '[[step eq="10 o\'clock, 1 hour later = 11"]]'),
              "ask": {"a": 5, "b": 2, "op": "hrl"}},
         ],
@@ -1659,28 +1736,33 @@ _ENTRY_MORE = [
         "levels": ("abstract",),
         "symbols": ("minute hand",),
         "advance_line": ("Three in a row — you've got it! "
-                         "You can read the minutes on a clock."),
+                         "You can count the minutes past the hour by fives."),
         "teach": [
             ("The long hand is the minute hand, and it moves faster than the "
              "short one. From one number to the next is five minutes.",
-             '[[goal text="Minutes past the hour"]]'),
+             '[[goal text="Minutes past the hour"]]'
+             '[[clock time="12:05" caption="the long hand is the minute hand — from 12 to 1 is five minutes"]]'),
             ("Watch me. The minute hand points to 6. Count by five: 5, 10, 15, "
              "20, 25, 30. That is 30 minutes past the hour.",
-             '[[step eq="6 numbers past 12, five minutes each = 30"]]'),
+             '[[clock time="12:30" caption="the minute hand points to 6"]]'
+             '[[step eq="5, 10, 15, 20, 25, 30 — 6 numbers past 12 = 30 minutes"]]'),
             ("Now the other way, watch. It is 20 minutes past. Count by five "
              "until you reach 20: 5, 10, 15, 20. That is four numbers, so the "
              "minute hand points to 4.",
-             '[[step eq="20 minutes, five minutes each = 4 on the clock"]]'),
+             '[[step eq="5, 10, 15, 20 — four numbers"]]'
+             '[[clock time="12:20" caption="20 minutes past — the minute hand points to 4"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. The minute hand points "
                         "to 9. Count by five: 5, 10, 15, 20, 25, 30, 35, 40, 45. "
                         "That is 45 minutes.",
-                        '[[step eq="9 numbers past 12, five minutes each = 45"]]'),
+                        '[[clock time="12:45" caption="the minute hand points to 9"]]'
+                        '[[step eq="5, 10, 15, 20, 25, 30, 35, 40, 45 — 9 numbers past 12 = 45 minutes"]]'),
              "ask": {"a": 10, "b": 0, "op": "min5"}},
             {"worked": ("One more together. It is 15 minutes past. Count by "
                         "five: 5, 10, 15. Three numbers, so the hand points to 3.",
-                        '[[step eq="15 minutes, five minutes each = 3 on the clock"]]'),
+                        '[[step eq="5, 10, 15 — three numbers"]]'
+                        '[[clock time="12:15" caption="15 minutes past — the minute hand points to 3"]]'),
              "ask": {"a": 55, "b": 0, "op": "min5q"}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and "
@@ -1720,18 +1802,22 @@ _ENTRY_MORE = [
              '[[goal text="Weeks and days"]]'),
             ("Watch me. 2 weeks and 2 days. Count the weeks by seven: 7, 14. "
              "Then count the loose days on: 15, 16. That is 16 days.",
+             '[[step eq="7, 14 — 15, 16"]]'
              '[[step eq="2 weeks and 2 days = 16 days"]]'),
             ("One more, watch. 3 weeks and 4 days. By seven: 7, 14, 21. Then "
              "on: 22, 23, 24, 25. That is 25 days.",
+             '[[step eq="7, 14, 21 — 22, 23, 24, 25"]]'
              '[[step eq="3 weeks and 4 days = 25 days"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 1 week and 6 days. "
                         "Seven, then on: 8, 9, 10, 11, 12, 13. That is 13 days.",
+                        '[[step eq="7 — 8, 9, 10, 11, 12, 13"]]'
                         '[[step eq="1 week and 6 days = 13 days"]]'),
              "ask": {"a": 1, "b": 4, "op": "dwd"}},
             {"worked": ("One more together. 4 weeks and 1 day. By seven: 7, 14, "
                         "21, 28. One more day: 29 days.",
+                        '[[step eq="7, 14, 21, 28 — 29"]]'
                         '[[step eq="4 weeks and 1 day = 29 days"]]'),
              "ask": {"a": 2, "b": 6, "op": "dwd"}},
         ],
@@ -1817,25 +1903,39 @@ _ENTRY_MORE = [
         "advance_line": ("Three in a row — you've got it! "
                          "You can count the sides and corners on a shape."),
         "teach": [
-            ("Every flat shape is made of straight sides, and the place where "
-             "two sides meet is a corner of the shape.",
-             '[[goal text="Sides and corners"]]'),
-            ("Watch me count a triangle. Side, side, side — 3 sides. Its name "
-             "even says so: tri means three.",
-             '[[step eq="triangle → 3 sides"]]'),
-            ("Now its corners, watch. Corner, corner, corner — 3 corners. A "
-             "triangle has 3 sides and 3 corners. Every flat shape is like that: "
-             "it has just as many corners as sides.",
-             '[[step eq="triangle → 3 corners, the same as its sides"]]'),
+            # (wd, 2026-09-15) THE SHAPES ARE DRAWN AND NAMED BEFORE THEY ARE ASKED.
+            # The 09-15 Entry sweep: "watch me count" over a bare step line, and a
+            # pentagon asked for by name when only the triangle and square had been
+            # named. The polygon figure draws every one; the first beat lists the
+            # names the practice will use, with their side counts.
+            ("Today's shapes are flat shapes with straight sides, and the place "
+             "where two sides meet is a corner of the shape. Here is a triangle: "
+             "three straight sides, three corners.",
+             '[[goal text="Sides and corners"]]'
+             '[[polygon sides="3" name="triangle" caption="a triangle — three straight sides, three corners"]]'),
+            ("Watch me count a triangle's sides. Side, side, side — 3 sides. Its "
+             "name even says so: tri means three. Now its corners: corner, corner, "
+             "corner — 3 corners. A triangle has 3 sides and 3 corners, and every "
+             "shape with straight sides is like that: as many corners as sides.",
+             '[[polygon sides="3" name="triangle" caption="count the sides, then the corners"]]'
+             '[[step eq="triangle → 3 sides, 3 corners"]]'),
+            ("The shapes get their names from their sides. A pentagon has 5 sides. "
+             "A hexagon has 6. A heptagon has 7, an octagon has 8, and a decagon "
+             "has 10. Here is a pentagon — count its five sides with me: side, "
+             "side, side, side, side.",
+             '[[polygon sides="5" name="pentagon" caption="a pentagon — count its five sides"]]'
+             '[[step eq="pentagon 5 · hexagon 6 · heptagon 7 · octagon 8 · decagon 10"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. A square. Side, side, "
                         "side, side — 4 sides.",
+                        '[[polygon sides="4" name="square" caption="a square — count its sides"]]'
                         '[[step eq="square → 4 sides"]]'),
              "ask": {"a": 5, "b": 0, "op": "sid"}},
             {"worked": ("One more together. A square again, but its corners "
                         "this time. Corner, corner, corner, corner — 4 corners, "
                         "the same as its sides.",
+                        '[[polygon sides="4" name="square" caption="a square — count its corners"]]'
                         '[[step eq="square → 4 corners"]]'),
              "ask": {"a": 5, "b": 0, "op": "cor"}},
         ],
@@ -1862,24 +1962,30 @@ _ENTRY_MORE = [
         "advance_line": ("Three in a row — you've got it! "
                          "You can find what comes next in a pattern."),
         "teach": [
-            ("A pattern is numbers that follow a rule. Find the jump from one "
-             "number to the next, then use that jump again.",
+            ("A pattern is numbers that follow a rule. In today's patterns the "
+             "rule is a jump that stays the same. Find the jump from one number to "
+             "the next, check that it is the same jump every time, then use it once "
+             "more.",
              '[[goal text="What comes next"]]'),
             ("Watch me. 4, 7, 10, 13. From 4 to 7 is a jump of 3. Check it: 7 "
              "to 10 is 3, and 10 to 13 is 3. So next is 13 and 3 more — 16.",
-             '[[step eq="4, 7, 10, 13, ? — jump of 3"]]'),
+             '[[step eq="4, 7, 10, 13, ? — jump of 3"]]'
+             '[[step eq="13 + 3 = 16, so the next is 16"]]'),
             ("One more, watch. 9, 14, 19, 24. The jump is 5 every time, so next "
              "is 24 and 5 more — 29.",
-             '[[step eq="9, 14, 19, 24, ? — jump of 5"]]'),
+             '[[step eq="9, 14, 19, 24, ? — jump of 5"]]'
+             '[[step eq="24 + 5 = 29, so the next is 29"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 3, 7, 11, 15. The jump "
                         "is 4 every time, so next is 15 and 4 more — 19.",
-                        '[[step eq="3, 7, 11, 15, ? — jump of 4"]]'),
+                        '[[step eq="3, 7, 11, 15, ? — jump of 4"]]'
+                        '[[step eq="15 + 4 = 19, so the next is 19"]]'),
              "ask": {"a": 3, "b": 2, "op": "pat"}},
             {"worked": ("One more together. 6, 8, 10, 12. The jump is 2, so "
                         "next is 12 and 2 more — 14.",
-                        '[[step eq="6, 8, 10, 12, ? — jump of 2"]]'),
+                        '[[step eq="6, 8, 10, 12, ? — jump of 2"]]'
+                        '[[step eq="12 + 2 = 14, so the next is 14"]]'),
              "ask": {"a": 7, "b": 4, "op": "pat"}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and "
@@ -1913,19 +2019,23 @@ _ENTRY_MORE = [
              '[[goal text="Equal groups"]]'),
             ("Watch me. 3 groups with 5 stars in each. Count by five: 5, 10, "
              "15. That is 15 stars in all.",
+             '[[array rows="3" cols="5" view="groups" eq="15 in all" caption="3 groups of 5 — count by five: 5, 10, 15"]]'
              '[[step eq="3 groups of 5 = 15"]]'),
             ("One more, watch. 4 groups with 2 stars in each. Count by two: 2, "
              "4, 6, 8. That is 8 stars in all.",
+             '[[array rows="4" cols="2" view="groups" eq="8 in all" caption="4 groups of 2 — count by two: 2, 4, 6, 8"]]'
              '[[step eq="4 groups of 2 = 8"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 5 groups with 4 stars "
                         "in each. Count by four: 4, 8, 12, 16, 20. That is 20 "
                         "stars in all.",
+                        '[[array rows="5" cols="4" view="groups" eq="20 in all" caption="5 groups of 4 — 4, 8, 12, 16, 20"]]'
                         '[[step eq="5 groups of 4 = 20"]]'),
              "ask": {"a": 2, "b": 2, "op": "grp"}},
             {"worked": ("One more together. 2 groups with 5 stars in each. 5, "
                         "10. That is 10 stars in all.",
+                        '[[array rows="2" cols="5" view="groups" eq="10 in all" caption="2 groups of 5 — 5, 10"]]'
                         '[[step eq="2 groups of 5 = 10"]]'),
              "ask": {"a": 3, "b": 4, "op": "grp"}},
         ],
@@ -1954,18 +2064,22 @@ _ENTRY_MORE = [
              '[[goal text="Sharing fairly"]]'),
             ("Watch me. 12 stars shared into 4 groups. Deal them out one at a "
              "time, round and round. Every group ends with 3.",
+             '[[array rows="4" cols="3" view="groups" eq="3 in each group" caption="12 dealt round and round into 4 groups — 3 in each"]]'
              '[[step eq="12 shared into 4 equal groups = 3 each"]]'),
             ("One more, watch. 15 stars shared into 5 groups. Deal them round "
              "and round, and every group ends with 3.",
+             '[[array rows="5" cols="3" view="groups" eq="3 in each group" caption="15 dealt into 5 groups — 3 in each"]]'
              '[[step eq="15 shared into 5 equal groups = 3 each"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 20 stars shared into 4 "
                         "groups. Deal them round and round — 5 in each group.",
+                        '[[array rows="4" cols="5" view="groups" eq="5 in each group" caption="20 dealt into 4 groups — 5 in each"]]'
                         '[[step eq="20 shared into 4 equal groups = 5 each"]]'),
              "ask": {"a": 6, "b": 2, "op": "eqs"}},
             {"worked": ("One more together. 25 stars shared into 5 groups. "
                         "Every group ends with 5.",
+                        '[[array rows="5" cols="5" view="groups" eq="5 in each group" caption="25 dealt into 5 groups — 5 in each"]]'
                         '[[step eq="25 shared into 5 equal groups = 5 each"]]'),
              "ask": {"a": 9, "b": 3, "op": "eqs"}},
         ],

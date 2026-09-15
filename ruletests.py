@@ -6,6 +6,13 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-15  BUILD wd -- PART 3ly, THE AUTHORED PILE FROM THE FIRST CLEAN SWEEP. Pins
+#               the classes of the 61 authored Entry findings (rules with their condition,
+#               boards matching words, terms before use, honest advance lines) and the
+#               nine generator items (polygon/array/clock on the ask, the count-on plus
+#               walk-back, msp/wor walk-backs, LINE_FRESH_OTHER in mixed review, the end
+#               card's "N right"). Pins moved: course 39,994 -> 39,995; closure 40,248 ->
+#               40,249; speechmap 2,244 of 40,300 -> of 40,301.
 #   2026-09-15  BUILD wc -- PART 3lx, THE FIRST COURSE SWEEP, TRIAGED. The transcript
 #               shows the STUDENT (the ~130 "praised an answer nobody gave" findings were
 #               that), the ask carries its tap buttons, the charter knows the rulings; the
@@ -14005,10 +14012,13 @@ def part3ks_entry_units_two_to_four_to_the_shape():
           "answering with where the hop lands",
           'hops="7,10"' in L.LESSON_BY_ID["entry-u3-the-missing-part"]["picture"][0][1]
           and "where we finished" in L.LESSON_BY_ID["entry-u3-the-missing-part"]["teach"][1][1], "")
-    check("  story problems teach the WORD that decides the sign, and the trap is adding "
-          "just because there are two numbers",
-          "gets more" in L.LESSON_BY_ID["entry-u3-story-problems"]["teach"][0][1]
-          and "flies away" in L.LESSON_BY_ID["entry-u3-story-problems"]["teach"][0][1]
+    # (wd) the keyword method is gone -- the 09-15 sweep called it unreliable, rightly
+    # ("how many more" is a plus story with a minus word). The beat asks what happened
+    # to the PILE; the trap is unchanged.
+    check("  story problems teach what happened to the PILE (grew or shrank), and the trap is "
+          "adding just because there are two numbers",
+          "the pile grew → +" in L.LESSON_BY_ID["entry-u3-story-problems"]["teach"][0][1]
+          and "the pile shrank → −" in L.LESSON_BY_ID["entry-u3-story-problems"]["teach"][0][1]
           and "put together" in L.LESSON_BY_ID["entry-u3-story-problems"]["teach"][1][1], "")
     check("  ...and both its worked pairs keep their own story on the ask",
           all("story" in pr["ask"] for pr in L.LESSON_BY_ID["entry-u3-story-problems"]["pairs"]), "")
@@ -14729,10 +14739,16 @@ def part3kv_a_picture_counts_one_kind_of_thing():
           WA.numbers("Six plus six equals twelve") == [6, 6, 12]
           and WA.numbers("twenty-five") == [25]
           and WA.numbers("Here is one more, done for you. One ten") == [1, 10], "")
-    check("  what is LEFT is the exhausted problem spaces and three honest beats -- "
-          "eighteen candidates in eight lessons, every one of them read",
-          len(rows) == 18 and ids == {
+    # (wd) two more HONEST beats, both from the 09-15 sweep's "asked before taught":
+    # counting-past-ten now counts to twenty (the number words the practice asks for
+    # are said first; the picture is still the problem, as with counting-to-10), and
+    # sides-and-corners names the five shapes with their side counts before a pentagon
+    # is asked for by name (the polygon is drawn, and the student counts it).
+    check("  what is LEFT is the exhausted problem spaces and five honest beats -- "
+          "twenty-one candidates in ten lessons, every one of them read",
+          len(rows) == 21 and ids == {
               "entry-u1-counting-to-10", "entry-u2-doubles", "entry-u8-minutes-past-the-hour",
+              "entry-u1-counting-past-ten", "entry-u9-sides-and-corners",
               "basic-u2-times-tables", "basic-u9-quarter-turns",
               "pre-u1-exponents-are-repeated-times", "alg1-u3-two-machines",
               "alg1-u4-the-climb"},
@@ -15345,8 +15361,12 @@ def part3ky_one_label_for_every_clip():
         # forSpeech, so one of them re-keys ("100 percent" is spelled out on purpose).
         # (vx) 2,246 -> 2,244: two Unit-9 lines whose "x holds 5" caption was tidied
         # now read "x = 5" and no longer re-key.
+        # (wd) 2,244 of 40,300 -> of 40,301: LINE_FRESH_OTHER joined the closure and
+        # does not re-key. (The first draft of msp's new walk-back said "count up to
+        # 11: 6, 7" and SIX lines re-keyed -- the digit-colon-digit ratio read, vx's
+        # "holding 3: 5" defect, caught here by the count moving. It says "11 — 6, 7".)
         check("  ...and it still holds the differences it was built for (2,244 since vx; 2,246 at vs; 2,245 at vm; 2,249 at vc)",
-              len(mapping) == 2244 and scanned == 40300,
+              len(mapping) == 2244 and scanned == 40301,
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
@@ -15373,8 +15393,8 @@ def part3ky_one_label_for_every_clip():
     check("  and no two authored lines tidy to the SAME sentence, so the closure never "
           "prices or renders one clip twice (deduped anyway -- see _closure_lines)",
           len(cl) == len(set(cl)), "%d lines, %d unique" % (len(cl), len(set(cl))))
-    check("  the closure is the whole course AND the demo (40,248 since vz = 39,994 + 254 demo lines; 40,242 at vw)",
-          len(cl) == 40248, str(len(cl)))
+    check("  the closure is the whole course AND the demo (40,249 since wd = 39,995 + 254 demo lines; 40,248 at vz)",
+          len(cl) == 40249, str(len(cl)))
 
     # ---- 4. ONE reader, and every site goes through it -----------------------------
     check("⭐ speechmap is read in exactly ONE place -- _spoken(). A second reader is a "
@@ -16320,8 +16340,8 @@ def part3lf_ready_and_four_basic_lines():
     check("  every changed line is in the closure (the prewarm will find them)",
           all(t in closure for t in (pv["why"][0][0], pv["recap"][1][0], rt["why"][0][0],
                                      L.lesson_orientation(rt, True)[0], L.lesson_intro(pv)[0])), "")
-    check("  the closure count moved only for lines ADDED since (vj changed lines and added none; vs/vt added 19)",
-          len(closure) == 39994, str(len(closure)))
+    check("  the closure count moved only for lines ADDED since (vj changed lines and added none; vs/vt added 19; wd added LINE_FRESH_OTHER)",
+          len(closure) == 39995, str(len(closure)))
 
     # ---- 3. blob: in media-src -------------------------------------------------------------------
     import main as M
@@ -18031,11 +18051,11 @@ def part3ls_the_demo_is_part_of_the_closure():
     cl = M._closure_lines()
     demo = [x for x in M.DEMO_VOICE_LINES if x]
     check("⭐ every demo line is in the un-narrowed closure, and the closure is the course plus the demo",
-          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40248
+          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40249
           and len(demo) == 254, "%d closure, %d course, %d demo" % (len(cl), len(L.course_audio_lines()), len(demo)))
     check("  a narrowed closure (one lesson) carries no demo line -- rendering one lesson does not re-price the front door",
           not any(x in set(M._closure_lines(L.LESSONS[:1])) for x in demo), "")
-    check("  the course's own list is 39,994 (vz added the six frame lines; 39,988 at vw)", len(L.course_audio_lines()) == 39994, str(len(L.course_audio_lines())))
+    check("  the course's own list is 39,995 (wd added LINE_FRESH_OTHER; 39,994 at vz; 39,988 at vw)", len(L.course_audio_lines()) == 39995, str(len(L.course_audio_lines())))
     check("⭐ the model split treats the demo as the course, and the miss eyes call a demo line IN the closure",
           all(x in M._script_closure_texts() for x in demo)
           and M._tts_model_for(demo[0]) == M._tts_model_for(L.LINE_CHECK), "")
@@ -18373,8 +18393,8 @@ def part3lu_the_scripted_second_explanation():
           L.praise_for(missed, 0) and not L.praise_for(missed, 0).startswith("Here it is"), "")
 
     # ---- the counts ------------------------------------------------------------
-    check("  the six frame lines are the ONLY audio this build added (39,988 -> 39,994)",
-          len(L.course_audio_lines()) == 39994
+    check("  the six frame lines are the ONLY audio this build added (39,988 -> 39,994; wd's LINE_FRESH_OTHER made it 39,995)",
+          len(L.course_audio_lines()) == 39995
           and len(set(L.SECOND_LOOK_LINES + L.FRESH_ONE_LINES)) == 6, "")
     check("  no frame line carries a number, so six clips serve all 360 lessons",
           not any(any(ch.isdigit() for ch in x)
@@ -18817,6 +18837,200 @@ def part3lx_the_first_course_sweep_triaged():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-15wc-' in notes("main.py") and "2026-09-15  BUILD wc" in notes("lessonscripts.py")
           and "2026-09-15  BUILD wc" in notes("coursesweep.py") and "2026-09-15  BUILD wc" in notes("ruletests.py"), "")
+
+
+def part3ly_the_authored_pile_from_the_clean_sweep():
+    """PART 3ly (build wd, 2026-09-15) -- THE AUTHORED PILE FROM THE FIRST CLEAN SWEEP.
+
+    The calibrated Entry sweep (wc) came back with 70 findings: 61 authored, 9 generator.
+    This part pins the classes, not every sentence: rules said with their condition, the
+    board saying what the words say, terms defined before they are used, advance lines
+    that claim only what was taught -- and the nine generator items."""
+    print("\nPART 3ly — the authored pile from the first clean sweep (build wd)")
+    import lessonscripts as L
+    import re as _re
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join([b for _s, b in les["teach"]] + [pr["worked"][1] for pr in les["pairs"]]
+                                  + [b for f in ("why", "picture", "recap") for _s, b in (les.get(f) or [])])
+
+    # ---- rules said with their condition ----------------------------------------------
+    t1 = E("entry-u4-tens-and-ones")
+    check("⭐ tens-and-ones no longer says the tens digit goes first 'always', nor that swapping "
+          "the digits is 'a different number entirely' (11 is 11 either way)",
+          "always" not in spoken(t1) and "different number entirely" not in spoken(t1)
+          and "nineteen is not ninety-one" in spoken(t1), "")
+    check("  ...and 'digit' is defined in its why before the teach beat leans on it",
+          "called a digit" in t1["why"][0][0], "")
+    w = E("entry-u4-what-a-digit-is-worth")
+    check("  what-a-digit-is-worth: 'never the bare digit' is gone -- in the ones place it IS the bare digit",
+          "never the bare digit" not in spoken(w) and "In the ones place a digit is worth itself" in spoken(w)
+          and "unless it stands in the ones place" in spoken(w), "")
+    sc = E("entry-u9-sides-and-corners")
+    check("  sides-and-corners: not 'every flat shape' (a circle is flat) -- shapes WITH STRAIGHT SIDES",
+          "Every flat shape" not in spoken(sc) and "every shape with straight sides" in spoken(sc), "")
+    check("⭐ ...and the five shapes the practice asks for BY NAME are named, with their side counts, "
+          "before the first ask",
+          all(n in sc["teach"][2][0] for n in ("pentagon", "hexagon", "heptagon", "octagon", "decagon"))
+          and "decagon has 10" in sc["teach"][2][0], "")
+    pat = E("entry-u9-what-comes-next")
+    check("  what-comes-next says the jump is the SAME jump in today's patterns, not a law about every pattern",
+          "In today's patterns" in pat["teach"][0][0] and "same jump every time" in pat["teach"][0][0], "")
+    tm = E("entry-u4-ten-more")
+    check("  ten-more no longer says 'only the tens digit' (95 + 10 says otherwise)",
+          "only the tens digit" not in " ".join(s for s, _b in tm["teach"]), "")
+    ch = E("entry-u7-making-change")
+    check("  making-change: the change is smaller BECAUSE the price came out of it, not 'always'",
+          "always SMALLER" not in spoken(ch) and "The price came out of your money" in spoken(ch), "")
+    sp = E("entry-u3-story-problems")
+    check("⭐ story-problems drops the keyword method: the beat asks what happened to the PILE",
+          "listen for the word" not in spoken(sp).lower() and "ask what happened to the pile" in spoken(sp)
+          and 'the pile grew → +' in boards(sp) and "gets more · finds" not in boards(sp), "")
+    ap = E("entry-u2-add-past-ten")
+    check("  add-past-ten covers 6 + 6: 'If the two numbers are the same, start with either one'",
+          "start with either one" in ap["teach"][0][0], "")
+    c2 = E("entry-u5-crossing-a-hundred")
+    check("  crossing-a-hundred says WHEN the hundreds digit appears (the tens add up to over nine) "
+          "in the canon's own words",
+          "over nine, ten of those tens become one hundred" in c2["teach"][0][0]
+          and "more than nine" not in spoken(c2) and "ten or more" not in spoken(c2), "")
+    a1 = E("entry-u2-add-single-digit")
+    check("  add-single-digit: 'equals' means both sides are the same amount, not 'how many in all'",
+          "both sides are the same amount" in a1["teach"][0][0]
+          and "How many in all is written" not in a1["teach"][0][0], "")
+    check("  doubles: 'never one more' -> 'not the number and one more'; missing-part: 'never' -> 'not'; "
+          "counting-past-ten: 'most things' -> 'lots of things'",
+          "never one more" not in spoken(E("entry-u2-doubles"))
+          and "never the number you landed on" not in spoken(E("entry-u3-the-missing-part"))
+          and "most things come" not in spoken(E("entry-u1-counting-past-ten")), "")
+
+    # ---- the board says what the words say ---------------------------------------------
+    check("⭐ ten-more's picture matches its words: before (3 tens) AND after (4 tens, the same 4 ones)",
+          'placevalue t="3" o="4"' in tm["picture"][0][1] and 'placevalue t="4" o="4"' in tm["picture"][0][1], "")
+    ba = E("entry-u1-numbers-before-and-after")
+    check("  before-and-after: the hop BACK is spoken on the beat that draws it, and only there",
+          "hop back" not in ba["picture"][0][0] and "one hop back" in ba["teach"][0][0]
+          and 'hops="6,5"' in ba["teach"][0][1], "")
+    for lid, first in (("entry-u6-take-away-two-digit", "58 − 23"), ("entry-u6-take-away-three-digit", "876 − 321"),
+                       ("entry-u7-making-change", "you pay 50, it costs 35"), ("entry-u5-adding-three-digit-numbers", "243 + 125"),
+                       ("entry-u5-crossing-a-hundred", "68 + 47")):
+        les = E(lid)
+        # (the sum is posed WITHOUT "= ?": the same beat works it to its answer, and a
+        # board that asks "= ?" under its own answer is rule 17's defect -- the referee
+        # sweep in the battery caught the first draft)
+        check("  %s: the sum is on the board of the beat that SPEAKS it, not the beat before, posed without '= ?'" % lid.split("-", 2)[2],
+              first not in les["teach"][0][1] and first in les["teach"][1][1] and first + " = ?" not in les["teach"][1][1], "")
+    recap_pairs = (("entry-u2-add-single-digit", "four plus four equals eight"), ("entry-u3-take-away-single-digit", "six minus four equals two"),
+                   ("entry-u2-add-past-ten", "nine plus four equals thirteen"), ("entry-u3-take-away-bigger", "thirteen minus five equals eight"),
+                   ("entry-u4-ten-more", "thirty-four plus ten is forty-four"), ("entry-u1-which-is-bigger", "8 is bigger than 3"),
+                   ("entry-u3-the-missing-part", "seven and three more make ten"), ("entry-u3-story-problems", "four plus one equals five"),
+                   ("entry-u1-numbers-before-and-after", "four, five, six"))
+    check("⭐ every recap's closing board is SPOKEN -- the numbers on the last line are in the last words",
+          all(words in E(lid)["recap"][1][0] for lid, words in recap_pairs), str([lid for lid, words in recap_pairs if words not in E(lid)["recap"][1][0]]))
+    check("  weeks-and-days puts its count-by-sevens on the board; equal groups and sharing fairly draw the array",
+          'step eq="7, 14 — 15, 16"' in boards(E("entry-u8-weeks-and-days"))
+          and boards(E("entry-u9-equal-groups")).count('[[array') == 4
+          and boards(E("entry-u9-sharing-fairly")).count('[[array') == 4, "")
+    hr = E("entry-u8-later-on-the-clock"); mn = E("entry-u8-minutes-past-the-hour")
+    check("⭐ the clock lessons draw a CLOCK, and no number line is captioned as a hand any more",
+          boards(hr).count("[[clock") == 5 and "[[numberline" not in boards(hr)
+          and boards(mn).count("[[clock") == 5, "")
+    check("  sides-and-corners draws the polygon it counts, on every beat that counts one",
+          boards(sc).count("[[polygon") == 5, "")
+    check("  what-comes-next writes the answer under the '?' line",
+          "13 + 3 = 16, so the next is 16" in boards(pat) and "12 + 2 = 14" in boards(pat), "")
+    ts = E("entry-u3-take-away-single-digit")
+    check("  take-away-single-digit's trap draws the eight stars it talks about",
+          'groups="8" take="2"' in ts["teach"][1][1], "")
+    cp = E("entry-u1-counting-past-ten")
+    check("  counting-past-ten says seventeen, eighteen, nineteen, twenty BEFORE nineteen is asked",
+          all(n in cp["teach"][1][0] for n in ("seventeen", "eighteen", "nineteen", "twenty"))
+          and cp["pairs"][0]["ask"]["a"] == 19, "")
+
+    # ---- terms before they are taught; advance lines ------------------------------------
+    check("  'column' is defined where it first appears (adding three-digit numbers), and "
+          "'regrouping' is out of the lesson that comes before regrouping is taught",
+          "is a column" in E("entry-u5-adding-three-digit-numbers")["teach"][0][0]
+          and "regroup" not in spoken(E("entry-u6-take-away-two-digit")).lower(), "")
+    check("  the advance lines claim what was taught: 'when nothing carries'; 'count the minutes past the hour by fives'",
+          "when nothing carries" in E("entry-u5-add-two-digit-no-carry")["advance_line"]
+          and "by fives" in mn["advance_line"], "")
+    check("  every Entry lesson still validates (0 failures) and every beat is under the caps",
+          all(ok for les in L.LESSONS if les["course"] == "entry" for ok, _l, _d in L.validate(les)), "")
+
+    # ---- the nine generator items -------------------------------------------------------
+    check("⭐ sid/cor draw the polygon on the ask; grp the groups (total withheld); eqs the unshared pile; "
+          "hrl and min5 a clock; min5q stays bare",
+          '[[polygon sides="6" name="hexagon" caption="a hexagon — count its sides"]]' in L.board_for({"a": 6, "b": 0, "op": "sid"}, "abstract")
+          and '[[polygon sides="7"' in L.board_for({"a": 7, "b": 0, "op": "cor"}, "abstract")
+          and 'view="groups" ask="1"' in L.board_for({"a": 3, "b": 4, "op": "grp"}, "abstract")
+          and '[[array total="9" rows="3" ask="1"' in L.board_for({"a": 9, "b": 3, "op": "eqs"}, "abstract")
+          and '[[clock time="3:00"' in L.board_for({"a": 3, "b": 1, "op": "hrl"}, "abstract")
+          and '[[clock time="12:50"' in L.board_for({"a": 10, "b": 0, "op": "min5"}, "abstract")
+          and "[[clock" not in L.board_for({"a": 25, "b": 0, "op": "min5q"}, "abstract"), "")
+    check("  ...and the answer still lands on the praise board after the picture (answered_board reads the last step)",
+          L.answered_board({"a": 6, "b": 0, "op": "sid"}, "abstract") == '[[step eq="hexagon → 6 sides"]]'
+          and L.answered_board({"a": 3, "b": 4, "op": "grp"}, "abstract") == '[[step eq="3 groups of 4 = 12"]]', "")
+    wp = L._worked_for({"a": 2, "b": 3, "op": "+"})
+    check("⭐ the plus walk-back COUNTS ON from the bigger number: 'start at 3 and count on 2 more: 4, 5'",
+          wp[0] == "Here it is, step by step: start at 3 and count on 2 more: 4, 5. 2 plus 3 equals 5."
+          and 'caption="start at 3 and count on: 4, 5"' in wp[1], wp[0])
+    check("  ...a two-digit sum still walks its columns (the count-on is for a digit's worth of counting)",
+          "ones first" in L._worked_for({"a": 27, "b": 15, "op": "+"})[0], "")
+    wm = L._worked_for({"a": 5, "b": 11, "op": "msp"})
+    check("  msp's walk-back counts up, briefly, with a DASH before the counts (a digit-colon-digit "
+          "is read as a ratio -- vx's lesson)",
+          wm[0].startswith("Here it is, step by step: start at 5 and count up to 11 — 6, 7, 8, 9, 10, 11. That took 6 counts")
+          and not _re.search(r"\d: \d", wm[0])
+          and "That takes 19 counts" in L._worked_for({"a": 1, "b": 20, "op": "msp"})[0], wm[0])
+    check("  msp's shortest hop says '1 count', singular",
+          "That took 1 count," in L._worked_for({"a": 1, "b": 2, "op": "msp"})[0], "")
+    ww = L._worked_for({"a": 4, "b": 6, "c": 1, "op": "wor"})
+    check("  wor says 'place' (its lesson's word) and never 'column' (Unit 5's), on the board and in the walk-back",
+          "column" not in ww[0] and "column" not in ww[1]
+          and "column" not in L.board_for({"a": 4, "b": 6, "c": 1, "op": "wor"}, "abstract")
+          and "The 6 stands in the tens place" in ww[0], "")
+
+    # ---- Phase A in a mixed-review lesson -------------------------------------------------
+    st = L.start(sp, seed=3)
+    out, st = L.step(sp, st, ("begin",))
+    # two guided pairs right, one bank problem right (Jo's plus story), then MISS the
+    # minus story (Ed's kites); the bank's next problem is Ana's PLUS story
+    for _i in range(3):
+        out, st = L.step(sp, st, ("answer", L.ans(st["pending"]["problem"])))
+    check("  the drive is where it thinks it is: practice, one right, holding a MINUS story",
+          st["phase"] == "practice" and st["done"] == 1 and st.get("right") == 1
+          and st["pending"]["problem"]["op"] == "-", str(st["pending"]["problem"]))
+    missed = st["pending"]["problem"]
+    out, st = L.step(sp, st, ("answer", -999))
+    kinds = [o["kind"] for o in out]
+    fresh = out[-1]["problem"] if kinds and kinds[-1] == "ask" else None
+    same = fresh is not None and fresh.get("op", "+") == missed.get("op", "+")
+    check("⭐ story-problems' first miss is answered by the engine, and the hand-over promises 'like it' "
+          "ONLY when the fresh story has the same sign",
+          kinds == ["say", "say", "say", "ask"]
+          and (out[2]["spoken"] in L.FRESH_ONE_LINES if same else out[2]["spoken"] == L.LINE_FRESH_OTHER),
+          "%s / same=%s / %s" % (kinds, same, out[2]["spoken"] if len(out) > 2 else ""))
+    check("  LINE_FRESH_OTHER is in the closure of every mixed-review lesson and of no other",
+          all((L.LINE_FRESH_OTHER in set(L.audio_lines(x))) == bool(x.get("mixed_review")) for x in L.LESSONS)
+          and sum(1 for x in L.LESSONS if x.get("mixed_review")) == 3, "")
+    check("  ...it carries no number and the six frame lines are untouched",
+          not any(ch.isdigit() for ch in L.LINE_FRESH_OTHER)
+          and len(set(L.SECOND_LOOK_LINES + L.FRESH_ONE_LINES)) == 6, "")
+
+    # ---- the end card says how many were right --------------------------------------------
+    les = E("entry-u2-doubles")
+    check("⭐ the end card says how many were RIGHT: '4 problems answered | 3 right'",
+          L._end_board(les, {"done": 4, "right": 3}, True)
+          == '[[card title="Lesson done" items="Doubles | 4 problems answered | 3 right"]]', "")
+    check("  a session stored before this build (no `right`) shows the card it always did",
+          L._end_board(les, {"done": 3}, True)
+          == '[[card title="Lesson done" items="Doubles | 3 problems answered"]]', "")
+    check("  start() counts `right` from zero, a right bank answer moves it, and a guided pair does not",
+          L.start(les).get("right") == 0, "")
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-15wd-' in notes("main.py") and "2026-09-15  BUILD wd" in notes("lessonscripts.py")
+          and "2026-09-15  BUILD wd" in notes("lessons/entry.py") and "2026-09-15  BUILD wd" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -27710,7 +27924,7 @@ def part3fj_the_first_course_read_for_sense():
 
     shapes = say([l for l in entry if l["id"] == "entry-u9-sides-and-corners"][0])
     check("⭐ the shapes lesson says the COUNTS MATCH, not '3 of each' for everything",
-          "3 of each" not in shapes and "just as many corners as sides" in shapes,
+          "3 of each" not in shapes and "as many corners as sides" in shapes,   # (wd) "...is like that: as many corners as sides"
           "'that is true for every flat shape' parsed as 'every shape has 3'")
 
     both = " ".join(say(l) for l in entry)
@@ -35914,7 +36128,10 @@ def part3ib_five_flags_from_jims_queue():
     import lessonscripts as LS
     lsrc = lessons_src()     # (uj) the authored text lives in lessons/<course>.py now
     check("⭐ ① the entry count-on line ends on the count -- no 'trap' sentence",
-          '"Ten — eleven, twelve, thirteen, fourteen. Fourteen stars.",' in lsrc
+          # (wd) the count runs to twenty now, so the words the practice asks for are
+          # all heard first -- and it still ends on the count, no trap sentence
+          '"fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty. "\n'
+          '             "Twenty stars.",' in lsrc
           and "The trap is starting again at one after ten" not in lsrc,
           "Jim: drop the term 'trap' and everything after it")
     check("  ...the other courses' 'Here is the trap' lines are untouched",
@@ -45692,6 +45909,7 @@ def main():
     part3lv_the_course_sweep()
     part3lw_the_sweep_sits_in_the_night_watchs_seat()
     part3lx_the_first_course_sweep_triaged()
+    part3ly_the_authored_pile_from_the_clean_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -2,6 +2,28 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-15  BUILD wd -- THE GENERATOR ITEMS FROM THE FIRST CLEAN SWEEP (Entry, 70
+#               findings, 9 generator-owned), the authored pile being lessons/entry.py's.
+#               (1) THE ASK DRAWS THE THING IT ASKS ABOUT: sid/cor draw the [[polygon]]
+#               (a pentagon's sides can be counted on it, and the lesson now names the
+#               shapes first); grp draws the [[array view="groups"]] with the total
+#               withheld, eqs the unshared pile; hrl and min5 draw a [[clock]] with
+#               honest hands where a number line had been captioned "the hand at 3"
+#               (min5q stays bare -- a drawn hand would answer it). (2) THE PLUS
+#               WALK-BACK COUNTS ON: "start at 7 and count on 3: 8, 9, 10", the method
+#               the adding lessons teach, wherever the smaller number is a digit; the
+#               old restatement stays for anything bigger. (3) msp's walk-back is
+#               shorter and counts up; wor says "place", the word its lesson teaches,
+#               never "column" (Unit 5's word). (4) PHASE A IN A MIXED-REVIEW LESSON:
+#               "one just like it" was said before a MINUS story following a missed
+#               PLUS story. LINE_FRESH_OTHER ("Now a new one, and this one is yours.")
+#               is spoken when the fresh problem's op differs; it enters only the
+#               closure of a lesson with mixed_review (three lessons, one clip).
+#               (5) THE END CARD SAYS HOW MANY WERE RIGHT: state["right"] is counted
+#               from this build (read with .get, so stored sessions play on), and the
+#               card reads "4 problems answered | 3 right".
+#               ⚠️ Voice: the + and msp walk-backs and wor's are re-rendered lines;
+#               the boards (polygon, array, clock) cost no clip.
 #   2026-09-15  BUILD wc -- THE GENERATOR CLASS FROM THE FIRST COURSE SWEEP (Entry, 219
 #               findings, ~25 of them real and generator-owned). (1) THE BOARDS GET THE
 #               PLURALS mo GAVE THE VOICE: nick/qtr/m/cube/dwd/hrl/t/pv and the place-
@@ -1165,6 +1187,12 @@ FRESH_ONE_LINES = (
     "Your turn — here is a new one of the same kind.",
     "Here is another like it. Take this one.",
 )
+# (wd, 2026-09-15) ...AND ONE THAT PROMISES NOTHING ABOUT THE SHAPE. In a mixed-review
+# lesson (Entry's story problems, Basic's two) the fresh problem can be a MINUS story
+# after a PLUS one was missed, and "one just like it" would be false. The 09-15 sweep
+# caught it. When the fresh problem's op differs from the missed one's, this line is
+# spoken instead; it carries no number, so one clip serves every lesson that can say it.
+LINE_FRESH_OTHER = "Now a new one, and this one is yours."
 
 
 def _second_look_line(state):
@@ -1173,8 +1201,11 @@ def _second_look_line(state):
     return SECOND_LOOK_LINES[i % len(SECOND_LOOK_LINES)]
 
 
-def _fresh_one_line(state):
-    """The hand-over to the fresh problem, rotated with its partner."""
+def _fresh_one_line(state, same_shape=True):
+    """The hand-over to the fresh problem, rotated with its partner. (wd) A fresh
+    problem of a DIFFERENT op is handed over without the "like it" promise."""
+    if not same_shape:
+        return LINE_FRESH_OTHER
     i = int(state.get("second_look_i", 0) or 0)
     return FRESH_ONE_LINES[i % len(FRESH_ONE_LINES)]
 
@@ -1573,6 +1604,19 @@ def _col_add(a, b):
                       f"{ones}. Tens: {a // 10} plus {b // 10} equals {total // 10}. "
                       f"{a} plus {b} equals {total}.")
         return (spoken, board)
+    # (wd, 2026-09-15) THE WALK-BACK COUNTS ON. The 09-15 Entry sweep: "a and b more
+    # -- a plus b equals total" restated the answer and showed no method. The method
+    # the two adding lessons teach is COUNT ON from the bigger number, so the walk-back
+    # says the counts: "start at 7 and count on 3: 8, 9, 10". Only where the smaller
+    # number is a single digit -- past that the list is not a method, it is a chore.
+    big, small = max(a, b), min(a, b)
+    if 1 <= small <= 9:
+        counts = ", ".join(str(big + i) for i in range(1, small + 1))
+        board = (f'[[objects emoji="⭐" groups="{a}" add="{b}" '
+                 f'caption="start at {big} and count on: {counts}"]]'
+                 f'[[step eq="{a} + {b} = {total}"]]')
+        return (f"Here it is, step by step: start at {big} and count on {small} more: "
+                f"{counts}. {a} plus {b} equals {total}.", board)
     board = (f'[[objects emoji="⭐" groups="{a}" add="{b}" caption="{a} + {b} = {total}"]]'
              f'[[step eq="{a} + {b} = {total}"]]')
     return (f"Here it is, step by step: {a} and {b} more — {a} plus {b} equals {total}.", board)
@@ -7025,12 +7069,25 @@ def _msp_board(p):
 def _msp_worked(p):
     a, b = p["a"], p["b"]
     gap = b - a
-    return (f"Here it is, step by step: the whole is {b} and one piece is {a}, so the piece "
-            f"you were looking for is what fills the gap — {gap}. The answer is the "
-            f"SIZE of the hop, not where it lands.",
+    # (wd, 2026-09-15) shorter, and it does what the lesson teaches: count up from a
+    # to b and the answer is how many counts it took. The counts are said when there
+    # are few enough to follow by ear; a long hop is named by its size.
+    if gap <= 6:
+        counts = ", ".join(str(a + i) for i in range(1, gap + 1))
+        # (a dash, not a colon: "up to 11: 6" would be read as a ratio by the page's
+        # speech tidier -- the vx defect, "holding 3: 5")
+        spoken = (f"Here it is, step by step: start at {a} and count up to {b} — {counts}. "
+                  f"That took {_plural(gap, 'count')}, so the missing part is {gap}.")
+    else:
+        spoken = (f"Here it is, step by step: start at {a} and count up to {b}. That "
+                  f"takes {gap} counts, so the missing part is {gap} — the size of the "
+                  f"hop, not where it lands.")
+    return (spoken,
             f'[[numberline min="0" max="{b}" hops="{a},{b}" '
             f'caption="from {a} up to {b} is a hop of {gap}"]]'
-            f'[[tape parts="{a} | {gap}" total="{b}" caption="{a} + {gap} = {b}"]]')
+            # shaded="1": the piece we HAVE is filled, so the unfilled piece is the
+            # missing part the words name (rule 63 -- the referee asked for it)
+            f'[[tape parts="{a} | {gap}" total="{b}" shaded="1" caption="{a} + {gap} = {b}"]]')
 
 
 def _t10_board(p):
@@ -7053,16 +7110,17 @@ def _t10_worked(p):
 def _wor_board(p):
     a, b, c = p["a"], p["b"], p["c"]
     n = 100 * a + 10 * b + c
-    return (f'[[placevalue h="{a}" t="{b}" o="{c}" caption="{n} — find the column the '
+    # (wd, 2026-09-15) "place", not "column": the lesson teaches PLACE (ones, tens,
+    # hundreds) and "column" is not introduced until Unit 5.
+    return (f'[[placevalue h="{a}" t="{b}" o="{c}" caption="{n} — find the place the '
             f'{b} is standing in"]][[step eq="{n} → the {b} is worth ?"]]')
 
 
 def _wor_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     n = 100 * a + 10 * b + c
-    return (f"Here it is, step by step: find the column first. The {b} is in the tens "
-            f"column, and a block in the tens column is a whole stick of ten — so {b} "
-            f"of them is worth {10 * b}.",
+    return (f"Here it is, step by step: find the place first. The {b} stands in the tens "
+            f"place. One ten is 10, so {_plural(b, 'ten')} is {10 * b}.",
             f'[[placevalue h="{a}" t="{b}" o="{c}" caption="the {b} is {_plural(b, "ten")} = '
             f'{10 * b}"]]')
 
@@ -7726,7 +7784,10 @@ OP_EXT = {
     "sid": {   # how many sides does a <shape> have?
         "ans": lambda p: p["a"],
         "spoken": lambda p: f"How many sides does a {_SHAPE[p['a']]} have?",
-        "board": lambda p: f'[[step eq="{_SHAPE[p["a"]]} → ? sides"]]',
+        # (wd, 2026-09-15) the shape is DRAWN, so the sides can be counted on it
+        "board": lambda p: (f'[[polygon sides="{p["a"]}" name="{_SHAPE[p["a"]]}" '
+                            f'caption="a {_SHAPE[p["a"]]} — count its sides"]]'
+                            f'[[step eq="{_SHAPE[p["a"]]} → ? sides"]]'),
         "praise": lambda p: f"A {_SHAPE[p['a']]} has {p['a']} sides.",
         "key": lambda p: p["a"],
         "check": lambda p: (p["a"] in _SHAPE and p.get("b", 0) == 0,
@@ -7740,7 +7801,9 @@ OP_EXT = {
                # is the lesson: a child who notices never has to count twice
         "ans": lambda p: p["a"],
         "spoken": lambda p: f"How many corners does a {_SHAPE[p['a']]} have?",
-        "board": lambda p: f'[[step eq="{_SHAPE[p["a"]]} → ? corners"]]',
+        "board": lambda p: (f'[[polygon sides="{p["a"]}" name="{_SHAPE[p["a"]]}" '
+                            f'caption="a {_SHAPE[p["a"]]} — count its corners"]]'
+                            f'[[step eq="{_SHAPE[p["a"]]} → ? corners"]]'),
         "praise": lambda p: (f"A {_SHAPE[p['a']]} has {p['a']} corners — the same "
                              f"as its sides."),
         "key": lambda p: p["a"],
@@ -7767,7 +7830,11 @@ OP_EXT = {
         "ans": lambda p: p["a"] * p["b"],
         "spoken": lambda p: (f"There are {p['a']} groups with {p['b']} stars in "
                              f"each group. How many stars are there in all?"),
-        "board": lambda p: f'[[step eq="{p["a"]} groups of {p["b"]} = ?"]]',
+        # (wd, 2026-09-15) the groups are drawn (view="groups", total withheld)
+        # (eq= is set, so the picture never writes "3 × 4": Unit 9 never says "times")
+        "board": lambda p: (f'[[array rows="{p["a"]}" cols="{p["b"]}" view="groups" ask="1" '
+                            f'eq="? in all" caption="{p["a"]} groups of {p["b"]} — count by {p["b"]}"]]'
+                            f'[[step eq="{p["a"]} groups of {p["b"]} = ?"]]'),
         "praise": lambda p: (f"{p['a']} groups of {p['b']} is {p['a'] * p['b']} "
                              f"stars in all."),
         "key": lambda p: p["a"] * p["b"],
@@ -7778,7 +7845,11 @@ OP_EXT = {
         "ans": lambda p: p["a"] // p["b"],
         "spoken": lambda p: (f"{p['a']} stars are shared fairly into {p['b']} "
                              f"equal groups. How many stars are in each group?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} shared into {p["b"]} equal '
+        # (wd, 2026-09-15) the pile is drawn, unshared, above the question
+        "board": lambda p: (f'[[array total="{p["a"]}" rows="{p["b"]}" ask="1" '
+                            f'eq="? in each group" '
+                            f'caption="{p["a"]} stars to share into {p["b"]} equal groups"]]'
+                            f'[[step eq="{p["a"]} shared into {p["b"]} equal '
                             f'groups = ? each"]]'),
         "praise": lambda p: (f"{p['a']} shared into {p['b']} equal groups is "
                              f"{p['a'] // p['b']} in each group."),
@@ -7801,7 +7872,10 @@ OP_EXT = {
         # (va) ⚠️ RULE 41, and it had been uncaptioned since the lesson was written -- the
         # Entry-wide presweep this build ran is what found it. A caption names what to
         # NOTICE, and on a clock line that is where you are starting from.
-        "board": lambda p: (f'[[numberline min="1" max="12" points="{p["a"]}" '
+        # (wd, 2026-09-15) a CLOCK. The 09-15 sweep: the words described a short hand
+        # over a picture that had no hands -- it was a number line captioned "the hand
+        # at 3". [[clock]] has honest hands, and the caption says what to notice.
+        "board": lambda p: (f'[[clock time="{p["a"]}:00" '
                             f'caption="the short hand — the hour hand — is at {p["a"]}; count {_plural(p["b"], "hour")} on"]]'
                             f'[[step eq="{p["a"]} o\'clock, {_plural(p["b"], "hour")} later = ?"]]'),
         "praise": lambda p: (f"{_plural(p['b'], 'hour')} after {p['a']} o'clock "
@@ -7818,7 +7892,12 @@ OP_EXT = {
         "ans": lambda p: 5 * p["a"],
         "spoken": lambda p: (f"The minute hand points to {p['a']}. How many "
                              f"minutes past the hour is that?"),
-        "board": lambda p: (f'[[step eq="{p["a"]} numbers past 12, five minutes '
+        # (wd, 2026-09-15) the clock is drawn with the minute hand on the number the
+        # question names; the reverse form (min5q) stays bare, because a drawn hand
+        # would answer it.
+        "board": lambda p: (f'[[clock time="12:{5 * p["a"]:02d}" '
+                            f'caption="the long hand — the minute hand — points to {p["a"]}"]]'
+                            f'[[step eq="{p["a"]} numbers past 12, five minutes '
                             f'each = ? minutes"]]'),
         "praise": lambda p: (f"{p['a']} times five equals {5 * p['a']} minutes."),
         "key": lambda p: p["a"],
@@ -15877,6 +15956,7 @@ def start(lesson, seed=None):
     return {"phase": "teach", "i": 0,
             "level": lesson.get("levels", LEVELS)[0],
             "bank_i": 0, "done": 0, "streak": 0,
+            "right": 0,   # (wd) bank problems answered correctly -- the end card says it
             "interventions": 0, "unheard": 0, "pending": None,
             "retest": None, "finished": False,
             # (sp) the reason question: how many times it has been missed
@@ -16229,6 +16309,13 @@ def _end_board(lesson, state, mastered):
     done = int(state.get("done") or 0)
     if done:
         items.append("%d problem%s answered" % (done, "" if done == 1 else "s"))
+        # (wd, 2026-09-15) ...and how many of them were RIGHT. The 09-15 sweep read
+        # "4 problems answered" on a "Lesson done" card after three in a row and one
+        # miss, and asked what the 4 meant. `right` is counted from this build on
+        # (.get, so a session stored before it plays on: it simply shows no count).
+        right = state.get("right")
+        if right is not None:
+            items.append("%d right" % int(right))
     return '[[card title="%s" items="%s"]]' % (
         "Lesson done" if mastered else "Where we got to",
         " | ".join(i for i in items if i))
@@ -16430,6 +16517,7 @@ def step(lesson, state, event):
         if not guided:
             state["done"] += 1
             state["streak"] += 1
+            state["right"] = int(state.get("right", 0) or 0) + 1   # (wd) for the end card
         # (vz) the run of misses is broken -- the next miss earns the scripted
         # second explanation again, not the AI.
         state["consec_miss"] = 0
@@ -16543,7 +16631,10 @@ def step(lesson, state, event):
         state["retest"] = None            # asked here and now, not through `resume`
         out.append({"kind": "say", "spoken": _second_look_line(state), "board": ""})
         out.append({"kind": "say", "spoken": w[0], "board": w[1]})
-        out.append({"kind": "say", "spoken": _fresh_one_line(state), "board": ""})
+        out.append({"kind": "say",
+                    "spoken": _fresh_one_line(
+                        state, same_shape=(fresh.get("op", "+") == p.get("op", "+"))),
+                    "board": ""})
         out.append(_ask(state, fresh))
         state["second_look_i"] = int(state.get("second_look_i", 0) or 0) + 1
         return (out, state)
@@ -16702,6 +16793,9 @@ def audio_lines(lesson):
     # them, so the six clips serve all 360.
     lines.update(SECOND_LOOK_LINES)
     lines.update(FRESH_ONE_LINES)
+    # (wd) the shape-neutral hand-over, only where two ops share a bank
+    if lesson.get("mixed_review"):
+        lines.add(LINE_FRESH_OTHER)
     # (sz) the times-table pass: every one of the 81 facts asked and re-asked, its one
     # praise line, its slip picture's words, and the pass's two standing lines
     if lesson.get("mastery") == "table":

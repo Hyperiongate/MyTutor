@@ -6,6 +6,15 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-15  APP_BUILD -> "2026-09-15wd-the-authored-pile-from-the-clean-sweep".
+#               BUILD wd -- no change in this file beyond the stamp. lessons/entry.py
+#               answers the 61 authored findings of the first clean Entry sweep (rules
+#               said with their condition, boards that say what the words say, terms
+#               defined before use, honest advance lines); lessonscripts.py the nine
+#               generator items (polygon/array/clock on the ask, the count-on walk-back,
+#               LINE_FRESH_OTHER for a mixed-review lesson, the end card's "N right").
+#               After the push: run the prewarm -- the rewritten Entry lines and the
+#               + / msp / wor walk-backs are new voice lines.
 #   2026-09-15  APP_BUILD -> "2026-09-15wc-the-sweep-calibrated-and-the-generator-class".
 #               BUILD wc -- no change in this file beyond the stamp. coursesweep.py is
 #               calibrated on the first course (the transcript shows the STUDENT, the
@@ -9650,7 +9659,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-15wc-the-sweep-calibrated-and-the-generator-class"
+APP_BUILD = "2026-09-15wd-the-authored-pile-from-the-clean-sweep"
 
 
 @app.get("/health")
