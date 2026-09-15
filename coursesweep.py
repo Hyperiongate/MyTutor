@@ -3,6 +3,12 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-15  BUILD wf -- THE PROBLEM SPACE ON THE PAGE. The third Entry sweep (15
+#               findings) was half objections to cases the lesson cannot ask. The
+#               transcript now opens with a PROBLEM SPACE line -- the bank's ranges, the
+#               ops, and each op's constraint in the engine's own words ("two different
+#               numbers inside the counting range") -- and the charter says a case outside
+#               it is not a finding. problem_space(lesson) is the new function.
 #   2026-09-15  BUILD we -- TWO SMALL THINGS FROM THE SECOND CLEAN SWEEP (47 findings).
 #               (1) The charter says the practice is a SAMPLE, and now also says not to
 #               judge the closing line by which problems the sample asked ("You can count
@@ -217,12 +223,47 @@ def transcript_for(lesson, L=None):
     return turns
 
 
+def problem_space(lesson, L=None) -> str:
+    """(wf, 2026-09-15) THE PROBLEM SPACE, ON THE PAGE. The third Entry sweep still objected
+    to cases the lesson cannot ask -- two equal numbers in "which is bigger" (its check
+    forbids them), 5 − 8 in a course that never takes a bigger number away, a zero digit,
+    a hundreds column in a two-digit lesson. The charter told the reviewer not to; it could
+    not obey, because it could not SEE the space. Now it can: one line, computed from the
+    bank and the worked pairs, plus the op's own constraint in the engine's words."""
+    if L is None:
+        import lessonscripts as L  # noqa: N812
+    probs = list(lesson.get("bank") or []) + [pr["ask"] for pr in (lesson.get("pairs") or [])]
+    if not probs:
+        return "PROBLEM SPACE: (none -- a table pass)"
+    parts = []
+    for k in ("a", "b", "c"):
+        vals = [p[k] for p in probs if isinstance(p.get(k), int)]
+        if vals:
+            parts.append(f"{k} from {min(vals)} to {max(vals)}")
+    ops = sorted({str(p.get("op", "+")) for p in probs})
+    rules = []
+    for op in ops:
+        chk = (L.OP_EXT.get(op) or {}).get("check")
+        if chk:
+            try:
+                r = chk(probs[0] if probs[0].get("op", "+") == op else next(p for p in probs if p.get("op", "+") == op))
+                if isinstance(r, tuple) and len(r) == 2 and r[1]:
+                    rules.append(f"{op}: {r[1]}")
+            except Exception:  # noqa: BLE001
+                pass
+    line = (f"PROBLEM SPACE: {len(probs)} problems; " + "; ".join(parts)
+            + f"; op {'/'.join(ops)}")
+    if rules:
+        line += "; every problem satisfies -- " + " | ".join(rules)
+    return line + ". A rule is judged against THESE problems, not against numbers this lesson cannot ask."
+
+
 def render_transcript(lesson, turns) -> str:
     """The transcript as the reviewer reads it: one numbered turn per beat, the words
     and then the board, tags left in (the rule index explains every tag)."""
     head = (f"LESSON {lesson.get('id')} -- {lesson.get('course')} unit {lesson.get('unit')} "
             f"-- \"{lesson.get('topic')}\" -- levels {'/'.join(lesson.get('levels') or ())}")
-    lines = [head, ""]
+    lines = [head, problem_space(lesson), ""]
     for t in turns:
         if t["kind"] == "student":
             lines.append(f"[{t['n']}] STUDENT {t['spoken']}")
@@ -270,7 +311,10 @@ absence of things outside its topic; the rule index's own wording; the "Your tur
 tap/say/type hints (screen instructions, deliberately unspoken); a topic word in the lesson's
 own title line; "over nine" for a sum of ten or more (the course's one chosen wording); a
 rule stated for the numbers this lesson uses, at this level, UNLESS the lesson itself later
-contradicts it or a child could misapply it within the same unit. A quote must be COPIED
+contradicts it or a child could misapply it within the same unit -- and the PROBLEM SPACE
+line under the lesson's title is what "the numbers this lesson uses" means: a case outside it
+(two equal numbers where the space says they differ; a hundreds column where every number is
+two-digit; a zero where no digit is zero) is NOT a finding. A quote must be COPIED
 EXACTLY from a TUTOR line or a BOARD line. Give at most %d findings, the worst first, and if
 the lesson is clean say so with an empty list.
 

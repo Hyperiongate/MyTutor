@@ -6,6 +6,10 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-15  BUILD wf -- PART 3ma, THE PROBLEM SPACE ON THE PAGE. The transcript opens
+#               with the lesson's problem space (coursesweep.problem_space) and the charter
+#               says a case outside it is not a finding; nine authored answers from the
+#               15-finding sweep pinned by class. No count moved.
 #   2026-09-15  BUILD we -- PART 3lz, THE SECOND CLEAN SWEEP (47 findings after wd). Pins
 #               min5q's wording, the count-all walk-back inside ten (count-on past it),
 #               the regroup caption, the dimes caption, practice_intro_line (258 lessons
@@ -18877,7 +18881,7 @@ def part3ly_the_authored_pile_from_the_clean_sweep():
           and "unless it stands in the ones place" in spoken(w), "")
     sc = E("entry-u9-sides-and-corners")
     check("  sides-and-corners: not 'every flat shape' (a circle is flat) -- shapes WITH STRAIGHT SIDES",
-          "Every flat shape" not in spoken(sc) and "every shape made of straight sides joined all the way round" in spoken(sc), "")   # (we) closed
+          "Every flat shape" not in spoken(sc) and "Every shape made of straight sides joined all the way round" in spoken(sc), "")   # (we) closed; (wf) its own sentence
     check("⭐ ...and the five shapes the practice asks for BY NAME are named, with their side counts, "
           "before the first ask",
           all(n in sc["teach"][2][0] for n in ("pentagon", "hexagon", "heptagon", "octagon", "decagon"))
@@ -19136,6 +19140,69 @@ def part3lz_the_second_clean_sweep():
           'APP_BUILD -> "2026-09-15we-' in notes("main.py") and "2026-09-15  BUILD we" in notes("lessonscripts.py")
           and "2026-09-15  BUILD we" in notes("lessons/entry.py") and "2026-09-15  BUILD we" in notes("coursesweep.py")
           and "2026-09-15  BUILD we" in notes("ruletests.py"), "")
+
+
+def part3ma_the_problem_space_on_the_page():
+    """PART 3ma (build wf, 2026-09-15) -- THE PROBLEM SPACE ON THE PAGE.
+
+    The third Entry sweep: 15 findings, 24 lessons clean. Half were objections to cases
+    the lesson cannot ask. The transcript now opens with the lesson's PROBLEM SPACE, and
+    the charter says a case outside it is not a finding. The other half are authored
+    fixes, pinned here by class."""
+    print("\nPART 3ma — the problem space on the page (build wf)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+
+    ps = C.problem_space(E("entry-u1-which-is-bigger"))
+    check("⭐ the PROBLEM SPACE line carries the bank's ranges, the op, and the op's own constraint",
+          ps.startswith("PROBLEM SPACE: 12 problems; a from 1 to 20; b from 2 to 19; op big")
+          and "two different numbers inside the counting range" in ps
+          and ps.endswith("not against numbers this lesson cannot ask."), ps)
+    check("  a mixed-review lesson lists both ops; a table lesson says so instead of failing",
+          "op +/-" in C.problem_space(E("entry-u3-story-problems"))
+          and C.problem_space({"bank": [], "pairs": []}).startswith("PROBLEM SPACE: (none"), "")
+    t = C.transcript_for(E("entry-u1-which-is-bigger"), L)
+    page = C.render_transcript(E("entry-u1-which-is-bigger"), t)
+    check("  ...and it is the second line of every transcript the reviewer reads",
+          page.split("\n")[1].startswith("PROBLEM SPACE:"), page.split("\n")[1][:60])
+    check("  the charter names it: a case outside the space is NOT a finding",
+          "the PROBLEM SPACE\nline under the lesson's title" in C.SWEEP_SYSTEM
+          and "is NOT a finding" in C.SWEEP_SYSTEM, "")
+    check("  every one of the 360 lessons renders a problem-space line without raising",
+          all(C.problem_space(x).startswith("PROBLEM SPACE:") for x in L.LESSONS), "")
+
+    # ---- the nine authored answers ------------------------------------------------
+    check("⭐ doubles defines a double before it uses the word, and no longer calls doubles the quickest sums there are",
+          "A double is the same number twice" in E("entry-u2-doubles")["why"][0][0]
+          and "quickest sums there are" not in spoken(E("entry-u2-doubles")), "")
+    check("  the story recap says THESE story problems; take-away-bigger's recap starts at the number you begin with",
+          "Each of these story problems" in spoken(E("entry-u3-story-problems"))
+          and "Start at the number you begin with" in spoken(E("entry-u3-take-away-bigger")), "")
+    check("  ten-more's recap draws 34 and 44; take-away-two-digit draws the stacked layout it describes",
+          'placevalue t="4" o="4"' in E("entry-u4-ten-more")["recap"][0][1]
+          and '[[column terms="58|23" op="−"' in E("entry-u6-take-away-two-digit")["teach"][0][1], "")
+    check("  tens-and-ones' reason says 'in a two-digit number' and still fits a button",
+          E("entry-u4-tens-and-ones")["explain"]["answer"].startswith("because in a two-digit number")
+          and len(E("entry-u4-tens-and-ones")["explain"]["answer"].split()) <= 12, "")
+    check("  crossing a hundred says both numbers are two-digit; adding three-digit's trap is split",
+          "Today both numbers are two-digit" in spoken(E("entry-u5-crossing-a-hundred"))
+          and "Ones under the ones, tens under the tens, hundreds under the hundreds." in spoken(E("entry-u5-adding-three-digit-numbers")), "")
+    cubes = E("entry-u8-how-much-longer")
+    check("  how-much-longer: the cubes are the same size and touching, and every board carries the unit",
+          "all the same size and touching end to end" in spoken(cubes)
+          and all("cubes = " in b and "= 9\"" not in b for _s, b in cubes["teach"][1:])
+          and "= 9 cubes" in cubes["teach"][1][1], "")
+    check("  sides-and-corners: the long line is split, and the names line says TODAY's shape names",
+          "A triangle has 3 sides and 3 corners. Every shape" in spoken(E("entry-u9-sides-and-corners"))
+          and "Today's shape names tell you how many sides" in spoken(E("entry-u9-sides-and-corners")), "")
+    check("  no voice line was added (39,996 since we) and every Entry lesson validates",
+          len(L.course_audio_lines()) == 39996
+          and all(ok for les in L.LESSONS if les["course"] == "entry" for ok, _l, _d in L.validate(les)), "")
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-15wf-' in notes("main.py") and "2026-09-15  BUILD wf" in notes("coursesweep.py")
+          and "2026-09-15  BUILD wf" in notes("lessons/entry.py") and "2026-09-15  BUILD wf" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -46016,6 +46083,7 @@ def main():
     part3lx_the_first_course_sweep_triaged()
     part3ly_the_authored_pile_from_the_clean_sweep()
     part3lz_the_second_clean_sweep()
+    part3ma_the_problem_space_on_the_page()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

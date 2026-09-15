@@ -2,6 +2,21 @@
 # lessons/entry.py  --  ENTRY-LEVEL MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-15  BUILD wf -- THE THIRD CLEAN SWEEP: 15 findings after we, 24 lessons clean.
+#               Nine answered here: doubles' why defines a double before it uses the word,
+#               and its recap no longer calls doubles "the quickest sums there are"; the
+#               story recap says "each of THESE story problems"; take-away-bigger's recap
+#               starts "at the number you begin with"; ten-more's recap draws 34 AND 44;
+#               tens-and-ones' reason says "in a two-digit number"; adding three-digit
+#               numbers' trap is split; crossing a hundred says "both numbers are
+#               two-digit"; take-away-two-digit draws the stacked layout its words
+#               describe; how-much-longer says the cubes are the same size and touching,
+#               and its boards carry the unit ("= 9 cubes"); sides-and-corners splits its
+#               long line and says "today's shape names tell you how many sides". The other
+#               six were objections to cases the lesson cannot ask (equal numbers, 5 − 8, a
+#               zero digit, a hundreds column) -- coursesweep.py now puts the PROBLEM SPACE
+#               on the page it reads, and the charter says a case outside it is not a
+#               finding.
 #   2026-09-15  BUILD we -- THE SECOND CLEAN SWEEP: 47 findings after wd (41 authored),
 #               12 lessons clean. The same four kinds, smaller: rules with their
 #               condition ("every number today stays under a hundred, so the tens digit
@@ -382,8 +397,9 @@ _ENTRY_PILOT = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "recap": [
-            ("So, here it is again. Start at the bigger number and count back once for "
-             "each one taken away — and never count the starting number itself.",
+            ("So, here it is again. Start at the number you begin with — the big one "
+             "— and count back once for each one taken away. Never count the starting "
+             "number itself.",
              '[[objects emoji="⭐" groups="13" take="5" caption="thirteen, count back five — eight are left"]]'),
             ("And that is taking away, however big the number you start with — "
              "thirteen minus five equals eight.",
@@ -450,10 +466,10 @@ _ENTRY_PILOT = [
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. One ten and four "
                        "ones is fourteen. Tap the reason why."),
-            "choices": ("because the first digit counts tens and the second counts ones | "
+            "choices": ("because in a two-digit number, tens come first and ones second | "
                         "because the digits are written in the order you say them | "
                         "because both digits are worth the same amount"),
-            "answer": "because the first digit counts tens and the second counts ones",
+            "answer": "because in a two-digit number, tens come first and ones second",
             "board": '[[objects emoji="⭐" groups="10" add="4" caption="one ten, four ones"]][[step eq="14 = 1 ten and 4 ones"]]',
         },
         "recap": [
@@ -604,7 +620,8 @@ _ENTRY_MORE = [
             ("Taking away two-digit numbers works column by column, the same as "
              "adding. Start on the right. Ones first, then tens. Today the ones "
              "digit on top is always big enough to take the bottom one away from.",
-             '[[goal text="Taking away two-digit numbers"]]'),
+             '[[goal text="Taking away two-digit numbers"]]'
+             '[[column terms="58|23" op="−" caption="the top number, the bottom number — ones under ones, tens under tens"]]'),
             ("Watch me take 23 away from 58. Ones: 8 take away 3 equals 5. Tens: 5 "
              "take away 2 equals 3. So 58 take away 23 equals 35.",
              '[[step eq="58 − 23"]]'
@@ -950,7 +967,8 @@ _ENTRY_MORE = [
             ("So, here it is again. Ten more puts one more ten-stick down and leaves "
              "the ones alone. The ones digit stays exactly where it was, so a ones "
              "digit that has moved means the answer is not ten more.",
-             '[[placevalue t="3" o="4" caption="the ones never move when you add ten"]]'),
+             '[[placevalue t="3" o="4" caption="34 — three tens and four ones"]]'
+             '[[placevalue t="4" o="4" caption="one more ten-stick: 44 — the ones never move"]]'),
             ("And that is a sum you can do in your head for the rest of your life — "
              "thirty-four plus ten is forty-four.",
              '[[step eq="34 + 10 = 44"]]'),
@@ -1048,9 +1066,9 @@ _ENTRY_MORE = [
              '[[step eq="hundreds: 2 + 1 = 3"]]'
              '[[step eq="243 + 125 = 368"]]'),
             ("Here is the trap. No column goes over nine today, so each answer keeps "
-             "to its own column: the ones answer under the ones, the tens answer under "
-             "the tens, the hundreds answer under the hundreds. Write a digit in the "
-             "wrong column and the whole number reads wrong — 638 instead of 368.",
+             "to its own column. Ones under the ones, tens under the tens, hundreds "
+             "under the hundreds. Write a digit in the wrong column and the whole "
+             "number reads wrong — 638 instead of 368.",
              '[[step eq="243 + 125 = 368 ✓"]]'
              '[[step eq="638 ✗ the same digits, written in the wrong columns"]]'),
         ],
@@ -1078,10 +1096,10 @@ _ENTRY_MORE = [
         "levels": ("abstract",), "symbols": ("hundred",),
         "advance_line": "Three in a row — you've got it! You can add past one hundred.",
         "teach": [
-            ("You already carry into the tens. Today the tens themselves fill up. "
-             "When the tens, with any carried ten, add up to over nine, ten of those "
-             "tens become one hundred, and the answer gets a hundreds digit at the "
-             "front.",
+            ("You already carry into the tens. Today both numbers are two-digit, and "
+             "the tens themselves fill up. When the tens, with any carried ten, add up "
+             "to over nine, ten of those tens become one hundred, and the answer gets "
+             "a hundreds digit at the front.",
              '[[goal text="Crossing a hundred"]]'),
             ("Watch me add 68 plus 47. Ones: 8 plus 7 equals 15 — over nine, write "
              "the 5 and carry one ten. Tens: 6 plus 4 equals 10, plus the carried "
@@ -1243,8 +1261,9 @@ _ENTRY_MORE = [
         "levels": ("abstract",), "symbols": ("double",),
         "advance_line": "Three in a row — you've got it! You know your doubles.",
         "why": [
-            ("Why learn doubles? Because a double is quick, and quick helps "
-             "everywhere. Two hands with five fingers each. Two rows of six seats. "
+            ("Why learn doubles? A double is the same number twice — five and five, "
+             "six and six. A double is quick, and quick helps everywhere. Two hands "
+             "with five fingers each. Two rows of six seats. "
              "When you know a double by heart, you do not have to count it at all.",
              '[[goal text="Doubles"]]'),
         ],
@@ -1282,8 +1301,8 @@ _ENTRY_MORE = [
             ("So, here it is again. A double is a number added to itself — the same "
              "number twice, not the number and one more. Four and four is eight.",
              '[[objects emoji="⭐" groups="4" add="4" count="1" caption="the same number, twice"]]'),
-            ("And doubles are worth knowing by heart, because they are the quickest "
-             "sums there are.",
+            ("And doubles are worth knowing by heart, because a double you know is "
+             "a sum you never have to count.",
              '[[step eq="4 + 4 = 8"]]'),
         ],
         # (va) the walk-back is ON: this lesson's op draws a picture after a
@@ -1613,7 +1632,7 @@ _ENTRY_MORE = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "recap": [
-            ("So, here it is again. A story problem hides a plus or a minus inside it. "
+            ("So, here it is again. Each of these story problems hides a plus or a minus inside it. "
              "Ask whether the pile grew or shrank, write that sum, and then do the "
              "sum you already know how to do.",
              '[[step eq="the pile grew → +"]][[step eq="the pile shrank → −"]]'),
@@ -1868,28 +1887,29 @@ _ENTRY_MORE = [
         "advance_line": ("Three in a row — you've got it! "
                          "You can measure and compare with cubes."),
         "teach": [
-            ("We can measure with cubes. Line them up under the pencil, start "
-             "at the very end, and count. More cubes means longer than fewer.",
+            ("We can measure with cubes. Line them up under the pencil, all the same "
+             "size and touching end to end. Start at the very end, and count. Lined "
+             "up like that, more cubes means longer.",
              '[[goal text="How much longer"]]'),
             ("Watch me. The pencil is 13 cubes. The crayon is 4 cubes. 13 take "
              "away 4 equals 9, so the pencil is 9 cubes longer.",
              '[[bars data="pencil:13 | crayon:4" caption="pencil 13 and crayon 4"]]'
-             '[[step eq="13 cubes − 4 cubes = 9"]]'),
+             '[[step eq="13 cubes − 4 cubes = 9 cubes"]]'),
             ("One more, watch. The pencil is 17 cubes. The crayon is 9 cubes. "
              "17 take away 9 equals 8, so the pencil is 8 cubes longer.",
              '[[bars data="pencil:17 | crayon:9" caption="pencil 17 and crayon 9"]]'
-             '[[step eq="17 cubes − 9 cubes = 8"]]'),
+             '[[step eq="17 cubes − 9 cubes = 8 cubes"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. The pencil is 19 "
                         "cubes. The crayon is 12 cubes. 19 take away 12 equals "
                         "7, so the pencil is 7 cubes longer.",
-                        '[[step eq="19 cubes − 12 cubes = 7"]]'),
+                        '[[step eq="19 cubes − 12 cubes = 7 cubes"]]'),
              "ask": {"a": 11, "b": 5, "op": "cube"}},
             {"worked": ("One more together. The pencil is 20 cubes. The crayon "
                         "is 13 cubes. 20 take away 13 equals 7, so the pencil is "
                         "7 cubes longer.",
-                        '[[step eq="20 cubes − 13 cubes = 7"]]'),
+                        '[[step eq="20 cubes − 13 cubes = 7 cubes"]]'),
              "ask": {"a": 15, "b": 6, "op": "cube"}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and "
@@ -1942,12 +1962,12 @@ _ENTRY_MORE = [
              '[[polygon sides="3" name="triangle" caption="a triangle — three straight sides, three corners"]]'),
             ("Watch me count a triangle's sides. Side, side, side — 3 sides. Its "
              "name even says so: tri means three. Now its corners: corner, corner, "
-             "corner — 3 corners. A triangle has 3 sides and 3 corners, and every "
-             "shape made of straight sides joined all the way round is like that: as "
-             "many corners as sides.",
+             "corner — 3 corners. A triangle has 3 sides and 3 corners. Every shape "
+             "made of straight sides joined all the way round is like that: as many "
+             "corners as sides.",
              '[[polygon sides="3" name="triangle" caption="count the sides, then the corners"]]'
              '[[step eq="triangle → 3 sides, 3 corners"]]'),
-            ("The shapes get their names from their sides. A pentagon has 5 sides. "
+            ("Today's shape names tell you how many sides. A pentagon has 5 sides. "
              "A hexagon has 6. A heptagon has 7, an octagon has 8, and a decagon "
              "has 10. Here is a pentagon — count its five sides with me: side, "
              "side, side, side, side.",
