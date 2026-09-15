@@ -2,6 +2,19 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-15  BUILD we -- THE SECOND CLEAN SWEEP (Entry, 47 findings after wd, 6 of them
+#               generator-owned). (1) min5q asks the honest way round: "It is 55 minutes
+#               past the hour. Which clock number is the minute hand pointing to?" -- the
+#               TIME is past the hour, the hand is not. (2) THE PLUS WALK-BACK COUNTS ALL
+#               inside ten ("count every star, both groups — 1, 2, 3, 4, 5"), the method
+#               the single-digit lesson teaches; counting on starts past ten, where it is
+#               taught. (3) The regrouping walk-back's caption carries both column steps,
+#               so "1 take away 1 equals 0" is drawn. (4) The dimes ask's caption says
+#               what the question says, not the rule the teach beat owns. (5) THE
+#               PRACTICE INTRO KEEPS ITS PROMISE: practice_intro_line() speaks "...then one
+#               reason to tap, and we're done" in a lesson that carries a reason question
+#               and uses the house intro (258 of the 292); one new clip. Authored pile:
+#               lessons/entry.py's note.
 #   2026-09-15  BUILD wd -- THE GENERATOR ITEMS FROM THE FIRST CLEAN SWEEP (Entry, 70
 #               findings, 9 generator-owned), the authored pile being lessons/entry.py's.
 #               (1) THE ASK DRAWS THE THING IT ASKS ABOUT: sid/cor draw the [[polygon]]
@@ -1218,6 +1231,26 @@ LINE_THINKING_MORE = "Still working on it — one more moment."
 # (uq, 2026-09-08) Jim's flag 22:02: "There is no visual. Only audio." -- the practice
 # intro spoke over a board that had scrolled away. It carries this card now.
 PRACTICE_INTRO_BOARD = '[[card title="Your turn" items="Three right answers in a row | Tap an answer, say it, or type it | I\'m not sure is always a fair answer"]]'
+# (we, 2026-09-15) THE PROMISE MATCHES THE SHAPE. The house practice intro says "three
+# right answers in a row and we're done" -- and in the 292 lessons that carry a reason
+# question, it is not done: the reason question follows. The 09-15 re-sweep caught it.
+# A lesson whose practice_intro IS the house line, and which has an explain block,
+# speaks the second form; a lesson with its own intro speaks its own (34 of them --
+# their courses' sweeps will list any that make the same promise). One new clip.
+PRACTICE_INTRO_STANDARD = ("Now it's your turn. Three right answers in a row and we're "
+                           "done — here comes the first one.")
+PRACTICE_INTRO_REASON = ("Now it's your turn. Three right answers in a row, then one "
+                         "reason to tap, and we're done — here comes the first one.")
+
+
+def practice_intro_line(lesson):
+    """The practice intro this lesson SPEAKS: its own, unless it is the house line in a
+    lesson with a reason question, where the honest form is spoken instead."""
+    line = lesson.get("practice_intro") or ""
+    if lesson.get("explain") and line == PRACTICE_INTRO_STANDARD:
+        return PRACTICE_INTRO_REASON
+    return line
+
 LINE_REASK = "Let me say that again."
 LINE_TAP = "Tap the answer you think is right."
 LINE_END_GRACEFUL = ("We did some strong thinking today. We'll practice this again "
@@ -1610,6 +1643,17 @@ def _col_add(a, b):
     # says the counts: "start at 7 and count on 3: 8, 9, 10". Only where the smaller
     # number is a single digit -- past that the list is not a method, it is a chore.
     big, small = max(a, b), min(a, b)
+    # (we, 2026-09-15) ...and INSIDE TEN it counts ALL, from one: that is the method the
+    # single-digit lesson teaches ("start at one and touch every star"), and the 09-15
+    # re-sweep caught a count-on walk-back in a lesson that had not taught counting on.
+    # Counting on is the NEXT lesson's method (adding past ten), so it starts past ten.
+    if 1 <= small and total <= 10:
+        counts = ", ".join(str(i) for i in range(1, total + 1))
+        board = (f'[[objects emoji="⭐" groups="{a}" add="{b}" count="1" '
+                 f'caption="count every star: {counts}"]]'
+                 f'[[step eq="{a} + {b} = {total}"]]')
+        return (f"Here it is, step by step: count every star, both groups — "
+                f"{counts}. {a} plus {b} equals {total}.", board)
     if 1 <= small <= 9:
         counts = ", ".join(str(big + i) for i in range(1, small + 1))
         board = (f'[[objects emoji="⭐" groups="{a}" add="{b}" '
@@ -1626,8 +1670,10 @@ def _col_sub(a, b):
     left = a - b
     if a >= 10 and b >= 10:
         if a % 10 < b % 10:
+            # (we) the caption carries BOTH column steps, so "1 take away 1 equals 0" is drawn
             board = (f'[[column terms="{a}|{b}" op="−" borrows="{a // 10 - 1}|{a % 10 + 10}" '
-                     f'result="{left}" caption="{a % 10} is too small: regroup one ten into ten ones"]]')
+                     f'result="{left}" caption="{a % 10} is too small: regroup one ten into ten ones — '
+                     f'ones {a % 10 + 10} − {b % 10} = {a % 10 + 10 - b % 10}, tens {a // 10 - 1} − {b // 10} = {left // 10}"]]')
             spoken = (f"Here it is, step by step: {a % 10} is too small to take {b % 10} away, so "
                       f"regroup — one ten becomes ten ones. {a % 10 + 10} take away "
                       f"{b % 10} equals {a % 10 + 10 - b % 10}; {a // 10 - 1} take away "
@@ -2099,7 +2145,8 @@ def _dh_worked(p):
 
 def _m_board(p):
     a, b = p["a"], p["b"]
-    return (f'[[placevalue t="{a}" o="{b}" ask="1" caption="dimes are tens, pennies are ones"]]'
+    # (we) the caption says what the question says -- the tens/ones rule is the teach beat's
+    return (f'[[placevalue t="{a}" o="{b}" ask="1" caption="{_plural(a, "dime")} and {_irr(b, "penny", "pennies")}"]]'
             f'[[step eq="{_plural(a, "dime")} + {_irr(b, "penny", "pennies")} = ? cents"]]')
 
 
@@ -7921,8 +7968,9 @@ OP_EXT = {
         # better teaching: a child who can only go one direction has memorised a
         # list, not learned to read a clock.
         "ans": lambda p: p["a"] // 5,
-        "spoken": lambda p: (f"The minute hand is {p['a']} minutes past the hour. "
-                             f"Which clock number is it pointing to?"),
+        # (we, 2026-09-15) the TIME is so many minutes past the hour; the hand is not
+        "spoken": lambda p: (f"It is {p['a']} minutes past the hour. "
+                             f"Which clock number is the minute hand pointing to?"),
         "board": lambda p: (f'[[step eq="{p["a"]} minutes, five minutes each '
                             f'= ? on the clock"]]'),
         "praise": lambda p: (f"{p['a']} minutes past — the minute hand points to the "
@@ -16136,7 +16184,7 @@ def beat_of(lesson, spoken):
             return field
     if any((pr.get("worked") or ("",))[0] == s for pr in (lesson.get("pairs") or [])):
         return "worked"
-    if s == lesson.get("practice_intro"):
+    if s == lesson.get("practice_intro") or s == practice_intro_line(lesson):
         return "practice_intro"
     if s == (lesson.get("explain") or {}).get("spoken"):
         return "explain"
@@ -16530,7 +16578,7 @@ def step(lesson, state, event):
             state["phase"] = "pair-1"
             return (out, state)
         if state["phase"] == "pair-1":
-            out.append({"kind": "say", "spoken": lesson["practice_intro"],   # (uq) a card, never a blank board
+            out.append({"kind": "say", "spoken": practice_intro_line(lesson),   # (uq) a card, never a blank board
                         "board": PRACTICE_INTRO_BOARD})
             if lesson.get("mastery") == "table":
                 # (sz) the table lesson practices as a PASS, not a streak
@@ -16766,7 +16814,7 @@ def audio_lines(lesson):
             lines.add(spoken)
     for pair in lesson["pairs"]:
         lines.add(pair["worked"][0])
-    lines.add(lesson["practice_intro"])
+    lines.add(practice_intro_line(lesson))   # (we) the form this lesson speaks
     problems = list(lesson["bank"]) + [pair["ask"] for pair in lesson["pairs"]]
     for p in problems:
         for level in lesson.get("levels", LEVELS):

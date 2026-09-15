@@ -3,6 +3,12 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-15  BUILD we -- TWO SMALL THINGS FROM THE SECOND CLEAN SWEEP (47 findings).
+#               (1) The charter says the practice is a SAMPLE, and now also says not to
+#               judge the closing line by which problems the sample asked ("You can count
+#               to ten" was flagged because the walk happened to ask 1, 3 and 5). (2) The
+#               practice intro a lesson with a reason question SPEAKS (lessonscripts'
+#               practice_intro_line) is labelled "practice-intro" too, so its quote places.
 #   2026-09-15  BUILD wc -- CALIBRATED ON THE FIRST COURSE. Jim's Entry sweep came back
 #               with 219 findings and ~130 of them were one defect of THIS file: the
 #               transcript had no student in it, so the reviewer read a fixed monologue
@@ -89,6 +95,10 @@ def _kind_index(lesson, L):
     for pair in lesson.get("pairs") or []:
         put(pair["worked"][0], "worked-example")
     put(lesson.get("practice_intro"), "practice-intro")
+    # (we) the form a lesson with a reason question actually speaks
+    _pil = getattr(L, "practice_intro_line", None)
+    if _pil:
+        put(_pil(lesson), "practice-intro")
     put(lesson.get("advance_line"), "advance")
     ex = lesson.get("explain") or {}
     put(ex.get("spoken"), "reason-question")
@@ -252,7 +262,8 @@ correct or WRONG, or a tapped reason. The tutor's praise, "Not quite", "three in
 as praising or correcting an answer that was not given. The BOARD line under an ask includes
 the [[choices ...]] tap buttons the child sees. The practice you see is a SAMPLE of the
 lesson's problem bank (three right answers end it), so never conclude that a lesson "never
-practices" a number or a case you did not happen to see.
+practices" a number or a case you did not happen to see -- and never judge the closing
+line ("You can count to ten") by which problems the sample happened to ask.
 
 Do NOT report: style preferences; the choice of numbers; the lesson being short; the
 absence of things outside its topic; the rule index's own wording; the "Your turn" card's

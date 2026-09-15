@@ -6,6 +6,12 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-15  APP_BUILD -> "2026-09-15we-the-second-clean-sweep".
+#               BUILD we -- no change in this file beyond the stamp. The 47-finding Entry
+#               re-sweep answered: lessons/entry.py (41), lessonscripts.py (min5q's wording,
+#               the count-all walk-back inside ten, the regroup caption, the dimes caption,
+#               the practice intro that keeps its promise), coursesweep.py (charter).
+#               After the push: prewarm, then re-run the Entry sweep.
 #   2026-09-15  APP_BUILD -> "2026-09-15wd-the-authored-pile-from-the-clean-sweep".
 #               BUILD wd -- no change in this file beyond the stamp. lessons/entry.py
 #               answers the 61 authored findings of the first clean Entry sweep (rules
@@ -9659,7 +9665,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-15wd-the-authored-pile-from-the-clean-sweep"
+APP_BUILD = "2026-09-15we-the-second-clean-sweep"
 
 
 @app.get("/health")

@@ -6,6 +6,12 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-15  BUILD we -- PART 3lz, THE SECOND CLEAN SWEEP (47 findings after wd). Pins
+#               min5q's wording, the count-all walk-back inside ten (count-on past it),
+#               the regroup caption, the dimes caption, practice_intro_line (258 lessons
+#               speak the reason form), the authored classes, and the charter's sample
+#               rule. Pins moved: course 39,995 -> 39,996; closure 40,249 -> 40,250;
+#               speechmap of 40,301 -> 40,302.
 #   2026-09-15  BUILD wd -- PART 3ly, THE AUTHORED PILE FROM THE FIRST CLEAN SWEEP. Pins
 #               the classes of the 61 authored Entry findings (rules with their condition,
 #               boards matching words, terms before use, honest advance lines) and the
@@ -13135,7 +13141,9 @@ def part3ko_orient_then_one_idea_per_beat_with_a_check():
                               # (ux) the labels come from lessonscripts, never a literal: Jim
                               # retired "Got it?!" and its button on 2026-09-09
                               and taps[:2] == ["Show me again", CHECK_LABELS[0]] and taps[-1] == READY_LABELS[0]
-                              and log[-3] == first["practice_intro"] and log[-2] == LS.LINE_READY
+                              # (we) the intro this lesson SPEAKS -- it has a reason question, so the
+                              # honest form ("...then one reason to tap, and we're done")
+                              and log[-3] == LS.practice_intro_line(first) and log[-2] == LS.LINE_READY
                               and log[-1].startswith("Two new machines"),
                               _json.dumps({"errors": errs, "reached": reached, "quiet": quiet_ok, "board": board_ok,
                                            "taps": taps, "lines": [l[:28] for l in log]})[:1600])
@@ -15365,8 +15373,9 @@ def part3ky_one_label_for_every_clip():
         # does not re-key. (The first draft of msp's new walk-back said "count up to
         # 11: 6, 7" and SIX lines re-keyed -- the digit-colon-digit ratio read, vx's
         # "holding 3: 5" defect, caught here by the count moving. It says "11 — 6, 7".)
+        # (we) of 40,302: PRACTICE_INTRO_REASON joined the closure; it does not re-key.
         check("  ...and it still holds the differences it was built for (2,244 since vx; 2,246 at vs; 2,245 at vm; 2,249 at vc)",
-              len(mapping) == 2244 and scanned == 40301,
+              len(mapping) == 2244 and scanned == 40302,
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
@@ -15393,8 +15402,8 @@ def part3ky_one_label_for_every_clip():
     check("  and no two authored lines tidy to the SAME sentence, so the closure never "
           "prices or renders one clip twice (deduped anyway -- see _closure_lines)",
           len(cl) == len(set(cl)), "%d lines, %d unique" % (len(cl), len(set(cl))))
-    check("  the closure is the whole course AND the demo (40,249 since wd = 39,995 + 254 demo lines; 40,248 at vz)",
-          len(cl) == 40249, str(len(cl)))
+    check("  the closure is the whole course AND the demo (40,250 since we = 39,996 + 254 demo lines; 40,249 at wd)",
+          len(cl) == 40250, str(len(cl)))
 
     # ---- 4. ONE reader, and every site goes through it -----------------------------
     check("⭐ speechmap is read in exactly ONE place -- _spoken(). A second reader is a "
@@ -16340,8 +16349,8 @@ def part3lf_ready_and_four_basic_lines():
     check("  every changed line is in the closure (the prewarm will find them)",
           all(t in closure for t in (pv["why"][0][0], pv["recap"][1][0], rt["why"][0][0],
                                      L.lesson_orientation(rt, True)[0], L.lesson_intro(pv)[0])), "")
-    check("  the closure count moved only for lines ADDED since (vj changed lines and added none; vs/vt added 19; wd added LINE_FRESH_OTHER)",
-          len(closure) == 39995, str(len(closure)))
+    check("  the closure count moved only for lines ADDED since (vj changed lines and added none; vs/vt added 19; wd added LINE_FRESH_OTHER; we PRACTICE_INTRO_REASON)",
+          len(closure) == 39996, str(len(closure)))
 
     # ---- 3. blob: in media-src -------------------------------------------------------------------
     import main as M
@@ -18051,11 +18060,11 @@ def part3ls_the_demo_is_part_of_the_closure():
     cl = M._closure_lines()
     demo = [x for x in M.DEMO_VOICE_LINES if x]
     check("⭐ every demo line is in the un-narrowed closure, and the closure is the course plus the demo",
-          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40249
+          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40250
           and len(demo) == 254, "%d closure, %d course, %d demo" % (len(cl), len(L.course_audio_lines()), len(demo)))
     check("  a narrowed closure (one lesson) carries no demo line -- rendering one lesson does not re-price the front door",
           not any(x in set(M._closure_lines(L.LESSONS[:1])) for x in demo), "")
-    check("  the course's own list is 39,995 (wd added LINE_FRESH_OTHER; 39,994 at vz; 39,988 at vw)", len(L.course_audio_lines()) == 39995, str(len(L.course_audio_lines())))
+    check("  the course's own list is 39,996 (we added PRACTICE_INTRO_REASON; 39,995 at wd; 39,994 at vz)", len(L.course_audio_lines()) == 39996, str(len(L.course_audio_lines())))
     check("⭐ the model split treats the demo as the course, and the miss eyes call a demo line IN the closure",
           all(x in M._script_closure_texts() for x in demo)
           and M._tts_model_for(demo[0]) == M._tts_model_for(L.LINE_CHECK), "")
@@ -18393,8 +18402,8 @@ def part3lu_the_scripted_second_explanation():
           L.praise_for(missed, 0) and not L.praise_for(missed, 0).startswith("Here it is"), "")
 
     # ---- the counts ------------------------------------------------------------
-    check("  the six frame lines are the ONLY audio this build added (39,988 -> 39,994; wd's LINE_FRESH_OTHER made it 39,995)",
-          len(L.course_audio_lines()) == 39995
+    check("  the six frame lines are the ONLY audio this build added (39,988 -> 39,994; wd's LINE_FRESH_OTHER 39,995; we's PRACTICE_INTRO_REASON 39,996)",
+          len(L.course_audio_lines()) == 39996
           and len(set(L.SECOND_LOOK_LINES + L.FRESH_ONE_LINES)) == 6, "")
     check("  no frame line carries a number, so six clips serve all 360 lessons",
           not any(any(ch.isdigit() for ch in x)
@@ -18868,7 +18877,7 @@ def part3ly_the_authored_pile_from_the_clean_sweep():
           and "unless it stands in the ones place" in spoken(w), "")
     sc = E("entry-u9-sides-and-corners")
     check("  sides-and-corners: not 'every flat shape' (a circle is flat) -- shapes WITH STRAIGHT SIDES",
-          "Every flat shape" not in spoken(sc) and "every shape with straight sides" in spoken(sc), "")
+          "Every flat shape" not in spoken(sc) and "every shape made of straight sides joined all the way round" in spoken(sc), "")   # (we) closed
     check("⭐ ...and the five shapes the practice asks for BY NAME are named, with their side counts, "
           "before the first ask",
           all(n in sc["teach"][2][0] for n in ("pentagon", "hexagon", "heptagon", "octagon", "decagon"))
@@ -18953,7 +18962,7 @@ def part3ly_the_authored_pile_from_the_clean_sweep():
           "is a column" in E("entry-u5-adding-three-digit-numbers")["teach"][0][0]
           and "regroup" not in spoken(E("entry-u6-take-away-two-digit")).lower(), "")
     check("  the advance lines claim what was taught: 'when nothing carries'; 'count the minutes past the hour by fives'",
-          "when nothing carries" in E("entry-u5-add-two-digit-no-carry")["advance_line"]
+          "when the ones never go over nine" in E("entry-u5-add-two-digit-no-carry")["advance_line"]   # (we) "carries" was untaught
           and "by fives" in mn["advance_line"], "")
     check("  every Entry lesson still validates (0 failures) and every beat is under the caps",
           all(ok for les in L.LESSONS if les["course"] == "entry" for ok, _l, _d in L.validate(les)), "")
@@ -18971,10 +18980,10 @@ def part3ly_the_authored_pile_from_the_clean_sweep():
     check("  ...and the answer still lands on the praise board after the picture (answered_board reads the last step)",
           L.answered_board({"a": 6, "b": 0, "op": "sid"}, "abstract") == '[[step eq="hexagon → 6 sides"]]'
           and L.answered_board({"a": 3, "b": 4, "op": "grp"}, "abstract") == '[[step eq="3 groups of 4 = 12"]]', "")
-    wp = L._worked_for({"a": 2, "b": 3, "op": "+"})
-    check("⭐ the plus walk-back COUNTS ON from the bigger number: 'start at 3 and count on 2 more: 4, 5'",
-          wp[0] == "Here it is, step by step: start at 3 and count on 2 more: 4, 5. 2 plus 3 equals 5."
-          and 'caption="start at 3 and count on: 4, 5"' in wp[1], wp[0])
+    wp = L._worked_for({"a": 7, "b": 6, "op": "+"})
+    check("⭐ the plus walk-back COUNTS ON from the bigger number past ten: 'start at 7 and count on 6 more: 8, 9, 10, 11, 12, 13' (we: inside ten it counts all -- PART 3lz)",
+          wp[0] == "Here it is, step by step: start at 7 and count on 6 more: 8, 9, 10, 11, 12, 13. 7 plus 6 equals 13."
+          and 'caption="start at 7 and count on: 8, 9, 10, 11, 12, 13"' in wp[1], wp[0])
     check("  ...a two-digit sum still walks its columns (the count-on is for a digit's worth of counting)",
           "ones first" in L._worked_for({"a": 27, "b": 15, "op": "+"})[0], "")
     wm = L._worked_for({"a": 5, "b": 11, "op": "msp"})
@@ -19031,6 +19040,102 @@ def part3ly_the_authored_pile_from_the_clean_sweep():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-15wd-' in notes("main.py") and "2026-09-15  BUILD wd" in notes("lessonscripts.py")
           and "2026-09-15  BUILD wd" in notes("lessons/entry.py") and "2026-09-15  BUILD wd" in notes("ruletests.py"), "")
+
+
+def part3lz_the_second_clean_sweep():
+    """PART 3lz (build we, 2026-09-15) -- THE SECOND CLEAN SWEEP.
+
+    The Entry sweep re-run after wd: 47 findings (from 70), 12 lessons clean (from 9).
+    Six generator, forty-one authored. This part pins the generator items and the
+    authored classes, and the one charter line the reviewer earned."""
+    print("\nPART 3lz — the second clean sweep (build we)")
+    import os as _os
+    import lessonscripts as L
+    import coursesweep as C
+    _here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(_here, fn), encoding="utf-8").read()  # noqa: E731
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+
+    # ---- the generator items --------------------------------------------------------
+    check("⭐ min5q asks the honest way round: the TIME is past the hour, the hand points",
+          L.spoken_for({"a": 55, "b": 0, "op": "min5q"}, "abstract")
+          == "It is 55 minutes past the hour. Which clock number is the minute hand pointing to?", "")
+    w = L._worked_for({"a": 2, "b": 3, "op": "+"})
+    check("⭐ the plus walk-back COUNTS ALL inside ten -- the single-digit lesson's own method",
+          w[0] == "Here it is, step by step: count every star, both groups — 1, 2, 3, 4, 5. 2 plus 3 equals 5."
+          and 'count="1" caption="count every star: 1, 2, 3, 4, 5"' in w[1], w[0])
+    check("  ...and counts ON past ten, where counting on is taught (5 + 6, 9 + 4)",
+          "start at 6 and count on 5 more" in L._worked_for({"a": 5, "b": 6, "op": "+"})[0]
+          and "start at 9 and count on 4 more" in L._worked_for({"a": 9, "b": 4, "op": "+"})[0], "")
+    check("  the regrouping walk-back draws both column steps, the tens' zero included",
+          "tens 1 − 1 = 0" in L._worked_for({"a": 21, "b": 13, "op": "-"})[1], "")
+    check("  the dimes ask's caption says what the question says, not the teach beat's rule",
+          'caption="3 dimes and 4 pennies"' in L.board_for({"a": 3, "b": 4, "op": "m"}, "abstract")
+          and "dimes are tens" not in L.board_for({"a": 3, "b": 4, "op": "m"}, "abstract"), "")
+
+    # ---- the practice intro keeps its promise ---------------------------------------
+    t1 = E("entry-u4-tens-and-ones"); a1 = E("entry-u2-add-single-digit")
+    check("⭐ a lesson WITH a reason question speaks 'then one reason to tap, and we're done'; one without speaks the house line",
+          L.practice_intro_line(t1) == L.PRACTICE_INTRO_REASON
+          and L.practice_intro_line(a1) == L.PRACTICE_INTRO_STANDARD
+          and L.PRACTICE_INTRO_REASON in set(L.audio_lines(t1))
+          and L.PRACTICE_INTRO_REASON not in set(L.audio_lines(a1)), "")
+    st = L.start(t1, seed=3)
+    _o, st = L.step(t1, st, ("begin",))
+    for _i in range(2):
+        out, st = L.step(t1, st, ("answer", L.ans(st["pending"]["problem"])))
+    said = [o.get("spoken") for o in out if o["kind"] == "say"]
+    check("  ...and the engine SPEAKS that form on the way into practice, over the same card",
+          L.PRACTICE_INTRO_REASON in said and any(o.get("board") == L.PRACTICE_INTRO_BOARD for o in out), str(said)[:120])
+    check("  a lesson with its own intro speaks its own (the engine never rewrites authored text)",
+          all(L.practice_intro_line(x) == x["practice_intro"] for x in L.LESSONS
+              if x["practice_intro"] != L.PRACTICE_INTRO_STANDARD), "")
+    check("  the sweep labels the spoken form 'practice-intro' too, so its quote places",
+          '_pil = getattr(L, "practice_intro_line", None)' in rd("coursesweep.py"), "")
+    n_reason = sum(1 for x in L.LESSONS if L.practice_intro_line(x) == L.PRACTICE_INTRO_REASON)
+    check("  258 lessons speak the reason form (292 carry a reason question; 34 have their own intro)",
+          n_reason == 258, str(n_reason))
+
+    # ---- the authored classes ---------------------------------------------------------
+    check("⭐ rules with their condition: under a hundred; no column over nine; the carried ten; the long hand at 12; closed shapes; a NUMBER pattern; count each thing once",
+          "Every number today stays under a hundred" in spoken(E("entry-u4-ten-more"))
+          and "No column goes over nine today" in spoken(E("entry-u5-adding-three-digit-numbers"))
+          and "with any carried ten" in spoken(E("entry-u5-crossing-a-hundred"))
+          and "When the long hand is at 12" in spoken(E("entry-u8-later-on-the-clock"))
+          and "joined all the way round" in spoken(E("entry-u9-sides-and-corners"))
+          and "A number pattern is a list of numbers" in spoken(E("entry-u9-what-comes-next"))
+          and "always know how many" not in spoken(E("entry-u1-counting-to-10")), "")
+    check("⭐ the counts are SAID where the words had skipped them",
+          "fourteen, thirteen, twelve, eleven, ten, nine" in spoken(E("entry-u3-take-away-bigger"))
+          and "eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen" in spoken(E("entry-u4-tens-and-ones"))
+          and "nine, ten, eleven, twelve, thirteen, fourteen, fifteen — seven counts" in spoken(E("entry-u3-the-missing-part"))
+          and "Say seven again — seven, eight, nine, ten, eleven" in spoken(E("entry-u2-add-past-ten")), "")
+    bd = lambda les: " ".join([b for _s, b in les["teach"]] + [pr["worked"][1] for pr in les["pairs"]]
+                              + [b for f in ("why", "picture", "recap") for _s, b in (les.get(f) or [])])
+    check("  boards draw what is said: the stacked column, 14's digits, 19 is not 91, coin values, the hop back, the carrying steps",
+          '[[column terms="243|125" op="+"' in bd(E("entry-u5-adding-three-digit-numbers"))
+          and "14 — two digits: 1 and 4" in bd(E("entry-u4-tens-and-ones")) and "19 is not 91" in bd(E("entry-u4-tens-and-ones"))
+          and "1 penny = 1 cent" in bd(E("entry-u7-counting-coins")) and "1 penny = 1 cent" in bd(E("entry-u7-dimes-and-pennies"))
+          and 'hops="6,5" caption="one hop back: right before"' in bd(E("entry-u1-numbers-before-and-after"))
+          and "ones: 5 + 8 = 13, write 3, carry 1" in bd(E("entry-u5-crossing-a-hundred")), "")
+    check("  four advance lines claim only what was taught",
+          "when the ones never go over nine" in E("entry-u5-add-two-digit-no-carry")["advance_line"]
+          and "when no column goes over nine" in E("entry-u5-adding-three-digit-numbers")["advance_line"]
+          and "when every top digit is big enough" in E("entry-u6-take-away-two-digit")["advance_line"]
+          and "when every top digit is big enough" in E("entry-u6-take-away-three-digit")["advance_line"], "")
+    check("  'carries' is out of the no-carry lesson; the regrouping beat names its units; making change says bigger than WHAT",
+          "carr" not in spoken(E("entry-u5-add-two-digit-no-carry")).lower()
+          and "the 2 ones become 12 ones, and the 4 tens become 3 tens" in spoken(E("entry-u6-take-away-with-regrouping"))
+          and "bigger than what you paid" in spoken(E("entry-u7-making-change")), "")
+    check("  the charter: the practice is a sample, and the closing line is not judged by it",
+          "never judge the closing" in C.SWEEP_SYSTEM, "")
+    check("  every Entry lesson still validates",
+          all(ok for les in L.LESSONS if les["course"] == "entry" for ok, _l, _d in L.validate(les)), "")
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-15we-' in notes("main.py") and "2026-09-15  BUILD we" in notes("lessonscripts.py")
+          and "2026-09-15  BUILD we" in notes("lessons/entry.py") and "2026-09-15  BUILD we" in notes("coursesweep.py")
+          and "2026-09-15  BUILD we" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -45910,6 +46015,7 @@ def main():
     part3lw_the_sweep_sits_in_the_night_watchs_seat()
     part3lx_the_first_course_sweep_triaged()
     part3ly_the_authored_pile_from_the_clean_sweep()
+    part3lz_the_second_clean_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
