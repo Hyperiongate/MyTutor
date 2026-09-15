@@ -6,6 +6,15 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-15  BUILD wa -- PART 3lv, THE COURSE SWEEP (project 1 of the 09-14 deep dive).
+#               NEW coursesweep.py: the reviewer over the SCRIPTED course. This part pins
+#               the walk (every one of the 360 lessons, deterministic, one deliberate miss
+#               so the second explanation is read; the table lesson shows six facts and
+#               says so), the beat labelling, the placement law (a quote not in the
+#               transcript is dropped; a slipped turn number is recovered by its quote),
+#               the ownership split (generator op vs authored lesson), the report, the
+#               name validation, and the three endpoints through the TestClient with the
+#               judge stubbed. No audio, no closure, no referee count moves.
 #   2026-09-14  BUILD vz -- PART 3lu, PHASE A: THE SCRIPTED SECOND EXPLANATION. The
 #               first miss in a row is the ENGINE's (worked solution + a fresh problem
 #               of the same shape); the AI's door opens on the second. `interventions`
@@ -18361,6 +18370,205 @@ def part3lu_the_scripted_second_explanation():
           'APP_BUILD -> "2026-09-14vz-' in notes("main.py")
           and "2026-09-14  BUILD vz" in notes("lessonscripts.py")
           and "2026-09-14  BUILD vz" in notes("ruletests.py"), "")
+
+
+def part3lv_the_course_sweep():
+    """PART 3lv (build wa, 2026-09-15) -- THE COURSE SWEEP.
+
+    The 09-14 deep dive's first project: the night watch audits the live AI lane every
+    night, and nothing audited the scripted course -- the lane a child is actually on --
+    except Jim's playtests, one lesson at a time. coursesweep.py points the same reviewer
+    at a whole course. Pinned here: the walk, the labelling, the placement law, the
+    ownership split, the report, and the endpoints -- all with the judge stubbed, so this
+    part spends nothing and needs no key."""
+    print("\nPART 3lv — the course sweep (build wa)")
+    import os as _os, json as _json, tempfile as _tf, time as _time
+    import lessonscripts as L
+    import coursesweep as C
+    _here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(_here, fn), encoding="utf-8").read()  # noqa: E731
+
+    # ---- the walk ---------------------------------------------------------------
+    les = L.LESSON_BY_ID["pre-u1-times-before-add"]
+    t1 = C.transcript_for(les, L)
+    t2 = C.transcript_for(les, L)
+    kinds = [x["kind"] for x in t1]
+    check("⭐ the walk is DETERMINISTIC -- the same lesson reads the same twice, so a finding "
+          "can be matched to the same beat next time", t1 == t2, "")
+    check("  ...and it is the lesson as a child hears it: intro, why, picture, teach, the two "
+          "worked examples, practice, and the end",
+          kinds[:4] == ["intro", "why", "picture", "teach"] and "worked-example" in kinds
+          and "practice-intro" in kinds and kinds[-1] == "advance", str(kinds[:6]))
+    check("⭐ it MISSES once on purpose, so the scripted second explanation (vz) is read too",
+          "second-look" in kinds and "fresh-one" in kinds
+          and kinds.index("second-look") < kinds.index("fresh-one")
+          and "walk-back" in kinds, "")
+    check("  every ask is labelled with its OP (the generator that made it)",
+          all(x["op"] for x in t1 if x["kind"] == "ask"), "")
+    ok = 0
+    second = 0
+    for x in L.LESSONS:
+        try:
+            tt = C.transcript_for(x, L)
+            ok += 1
+            if any(y["kind"] == "second-look" for y in tt):
+                second += 1
+        except Exception:  # noqa: BLE001
+            pass
+    check(f"⭐ every one of the {len(L.LESSONS)} lessons walks to a transcript, and {second} of "
+          "them read the second explanation (every lesson with a worked generator except "
+          "the table lesson, which practices as a pass)",
+          ok == len(L.LESSONS) and second == 311, "%d walked, %d with a second look" % (ok, second))
+    tab = [x for x in L.LESSONS if x.get("mastery") == "table"]
+    if tab:
+        tt = C.transcript_for(tab[0], L)
+        check("  the times-table lesson shows its first six facts and SAYS the pass continues",
+              sum(1 for y in tt if y["kind"] == "ask") <= C.TABLE_FACTS_SHOWN + 2
+              and any(y["kind"] == "note" and "81 facts" in y["spoken"] for y in tt), "")
+
+    # ---- the reviewer's page ----------------------------------------------------
+    body = C.render_transcript(les, t1)
+    check("  the transcript the reviewer reads numbers every turn, names its beat, and keeps "
+          "the board tags (the rule index explains them)",
+          "[1] (intro) TUTOR:" in body and "BOARD: [[" in body and "(second-look)" in body, "")
+    check("  the reviewer is told what NOT to report, asked for exact quotes, and capped",
+          "Do NOT report" in C.SWEEP_SYSTEM and "COPIED\nEXACTLY" in C.SWEEP_SYSTEM
+          and str(C.MAX_FINDINGS_PER_LESSON) in C.SWEEP_SYSTEM, "")
+
+    # ---- placement: the night watch's law, applied ------------------------------
+    ask = next(x for x in t1 if x["kind"] == "ask")
+    why = next(x for x in t1 if x["kind"] == "why")
+    data = {"findings": [
+        {"turn": ask["n"], "quote": ask["spoken"][:30], "kind": "unclear", "severity": "LOW",
+         "why": "w", "fix": "f"},
+        {"turn": 99, "quote": why["spoken"][10:50], "kind": "false", "severity": "HIGH",
+         "why": "w", "fix": "f"},
+        {"turn": 1, "quote": "these words are nowhere in the lesson", "kind": "tone",
+         "severity": "LOW", "why": "w", "fix": "f"}]}
+    placed, unplaced = C.place_findings(les, t1, data)
+    check("⭐ a quote that is NOT in the transcript is DROPPED as unplaced -- the reviewer "
+          "paraphrased, exactly as the night watch treats it",
+          unplaced == 1 and len(placed) == 2, "%d placed, %d unplaced" % (len(placed), unplaced))
+    check("  a slipped turn number is RECOVERED by its quote",
+          any(f["turn"] == why["n"] for f in placed), "")
+    check("⭐ OWNERSHIP: a finding on an ask belongs to the GENERATOR op; a finding on the why "
+          "beat belongs to the LESSON",
+          any(f["owner"] == "generator:" + ask["op"] for f in placed)
+          and any(f["owner"] == "lesson:" + les["id"] for f in placed), str([f["owner"] for f in placed]))
+    check("  fenced JSON and bare JSON both parse; garbage does not",
+          C._parse_json("```json\n{\"a\": 1}\n```") == {"a": 1}
+          and C._parse_json("{\"a\": 2}") == {"a": 2} and C._parse_json("nope") is None, "")
+
+    # ---- the run, the report, the files ----------------------------------------
+    def stub(msgs, max_tokens, want_json):
+        b = msgs[1]["content"]
+        import re as _re
+        m = _re.search(r"\[(\d+)\] \(ask\) TUTOR: ([^\n]{10,40})", b)
+        return _json.dumps({"findings": [{"turn": int(m.group(1)), "quote": m.group(2),
+                                          "kind": "unclear", "severity": "LOW",
+                                          "why": "w", "fix": "f"}],
+                            "clean": False, "note": ""}), None
+    with _tf.TemporaryDirectory() as d:
+        r = C.run_sweep(d, "prealgebra", stub, limit=3, L=L)
+        check("⭐ a sweep of three lessons reads three, places its findings, and says what it "
+              "did not cover", r["ran"] == 3 and len(r["findings"]) == 3
+              and any("quiz" in x for x in r["not_covered"]), str(r["errors"]))
+        name = C.write_report(d, r, build="wa")
+        md = C.read_report(d, name)
+        check("  the report groups GENERATOR findings by op with the lessons they touch, and "
+              "ends with the closing line",
+              "## Generator findings" in md and "### op `" in md
+              and md.rstrip().endswith("I did no harm and this file is not truncated.*"), "")
+        check("  it is listed, and a second sweep the same day gets its own name",
+              C.list_reports(d)[0]["name"] == name and C.write_report(d, r, build="wa") != name, "")
+        check("  no path can be traversed from a report name",
+              C.read_report(d, "../ruletests") == "" and C.read_report(d, "x/y") == "", "")
+        def dead(msgs, max_tokens, want_json):
+            return None, "no key"
+        r2 = C.run_sweep(d, "entry", dead, limit=2, L=L)
+        check("  a judge that cannot answer is recorded per lesson and the sweep goes on",
+              r2["ran"] == 0 and len(r2["errors"]) == 2, "")
+    est = C.estimate("entry", L)
+    check("  pricing is FREE and honest about being an estimate",
+          est["lessons"] == 36 and est["chars"] > 100000 and "ESTIMATE ONLY" in est["estimate_note"], "")
+
+    # ---- the endpoints, judge stubbed ------------------------------------------
+    try:
+        import main as M
+        from fastapi.testclient import TestClient
+    except Exception as exc:  # noqa: BLE001
+        skip("course-sweep endpoints", f"fastapi not importable here: {exc}")
+    else:
+        _oldkey = _os.environ.get("FORUM_MOD_KEY")
+        _oldanth = _os.environ.get("ANTHROPIC_API_KEY")
+        _olddata = M.DATA_DIR
+        _oldjudge = M._sweep_judge
+        _os.environ["FORUM_MOD_KEY"] = "3lv-key"
+        H = {"X-Admin-Key": "3lv-key"}
+        try:
+            with _tf.TemporaryDirectory() as d:
+                from pathlib import Path as _P
+                M.DATA_DIR = _P(d)
+                c = TestClient(M.app)
+                r = c.post("/api/admin/coursesweep/start", json={"course": "prealgebra", "dry_run": True}, headers=H)
+                check("⭐ dry_run prices the sweep and spends NOTHING (the default)",
+                      r.status_code == 200 and r.json()["dry_run"] and r.json()["lessons"] == 36, str(r.json())[:120])
+                check("  an unknown course is a 400, and no key at all is a 401",
+                      c.post("/api/admin/coursesweep/start", json={"course": "nope"}, headers=H).status_code == 400
+                      and c.get("/api/admin/coursesweep/status").status_code == 401, "")
+                _os.environ["ANTHROPIC_API_KEY"] = ""
+                check("  a run with no ANTHROPIC_API_KEY is refused with a 503 that names it",
+                      c.post("/api/admin/coursesweep/start", json={"course": "entry", "dry_run": False},
+                             headers=H).status_code == 503, "")
+                _os.environ["ANTHROPIC_API_KEY"] = "3lv-fake"
+                M._sweep_judge = lambda msgs, max_tokens=2000, want_json=False: (
+                    _json.dumps({"findings": [], "clean": True, "note": ""}), None)
+                r = c.post("/api/admin/coursesweep/start", json={"course": "entry", "limit": 2, "dry_run": False}, headers=H)
+                check("⭐ a real run starts as a BACKGROUND job and answers at once",
+                      r.status_code == 200 and r.json().get("started") and r.json()["lessons"] == 2, str(r.json())[:120])
+                st = {}
+                for _ in range(100):
+                    st = c.get("/api/admin/coursesweep/status", headers=H).json().get("job", {})
+                    if st.get("state") in ("done", "failed"):
+                        break
+                    _time.sleep(0.1)
+                check("  ...the card can follow it to done, and the report is named",
+                      st.get("state") == "done" and st.get("report", "").startswith("entry_"), str(st)[:160])
+                rep = c.get("/api/admin/coursesweep/report", params={"name": st.get("report", "")}, headers=H)
+                check("  ...and read back", rep.status_code == 200 and "# Course sweep -- entry" in rep.json()["markdown"], "")
+                check("  a traversal in the name is a 404, never a file",
+                      c.get("/api/admin/coursesweep/report", params={"name": "../../main"}, headers=H).status_code == 404, "")
+                lst = c.get("/api/admin/coursesweep/status", headers=H).json()
+                check("  the status lists the ten courses and the reports on disk",
+                      len(lst.get("courses", [])) == 10 and lst.get("reports") and lst["reports"][0]["course"] == "entry", "")
+        finally:
+            M.DATA_DIR = _olddata
+            M._sweep_judge = _oldjudge
+            if _oldkey is None:
+                _os.environ.pop("FORUM_MOD_KEY", None)
+            else:
+                _os.environ["FORUM_MOD_KEY"] = _oldkey
+            if _oldanth is None:
+                _os.environ.pop("ANTHROPIC_API_KEY", None)
+            else:
+                _os.environ["ANTHROPIC_API_KEY"] = _oldanth
+
+    # ---- the wiring and the card ------------------------------------------------
+    msrc = code_only(rd("main.py"))
+    adm = rd("static/admin.html")
+    check("  main.py imports coursesweep DEFENSIVELY -- a deploy without it still teaches",
+          "import coursesweep" in msrc and "coursesweep = None" in msrc, "")
+    check("  the sweep never touches a lesson: coursesweep.py has no write to lessons/ and "
+          "no import of store",
+          "lessons/" not in code_only(rd("coursesweep.py")) and "import store" not in rd("coursesweep.py"), "")
+    check("  the admin card is there, initialised with the others, and its calls carry the key "
+          "in the HEADER (never a URL)",
+          'id="csRun"' in adm and "csStatus();" in adm and "/api/admin/coursesweep/start" in adm
+          and "coursesweep/start?key" not in adm, "")
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-15wa-' in notes("main.py") and "2026-09-15  BUILD wa" in notes("ruletests.py")
+          and "(wa) 2026-09-15" in notes("static/admin.html")
+          and "2026-09-15  BUILD wa -- BORN" in notes("coursesweep.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -45231,6 +45439,7 @@ def main():
     part3ls_the_demo_is_part_of_the_closure()
     part3lt_six_from_the_09_14_watch()
     part3lu_the_scripted_second_explanation()
+    part3lv_the_course_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

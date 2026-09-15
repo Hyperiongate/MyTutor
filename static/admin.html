@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+    (wa) 2026-09-15 -- THE COURSE SWEEP CARD (project 1 of the 09-14 deep dive, "The
+    Forever War"). A new card under the night watch: pick a course, (1) price it FREE,
+    (2) run it (SPENDS), follow the job, read the report. POST /api/admin/coursesweep/
+    start, GET .../status, GET .../report?name= on the same key this page holds. The
+    reviewer reads the SCRIPTED course -- the lane a child is actually on -- and its
+    findings come back grouped by generator and by authored beat. Nothing here changes a
+    lesson.
+
     (uf) 2026-09-08 -- ONE STUDENT (P2 of the deep look, second half). The review's
     finding: "the admin is an operator console with no per-student learning view".
     A new card under the board: type a student code, see everything about that one
@@ -766,6 +774,41 @@
     <p class="note" style="margin-top:12px">It never touches a live lesson &mdash; it teaches an
       audit student in the background. Turn it off with <b>NIGHTWATCH=off</b> in Render.
       The rendered <i>screen</i> is checked separately, by <b>screencheck.py</b>, on every push.</p>
+  </div></section>
+
+  <!-- 2026-09-15 (build wa). THE COURSE SWEEP -- project 1 of the 09-14 deep dive. The
+       night watch above audits the LIVE AI lane; nothing audited the SCRIPTED course --
+       the lane a student spends their minutes on -- except Jim's own playtests, one lesson
+       at a time. This card points the same reviewer at one whole course: every lesson
+       walked by the engine, read once, findings grouped by GENERATOR (fix once, fixes
+       many) and by AUTHORED beat. Same two-button discipline as the prewarm: (1) is FREE,
+       (2) SPENDS. It never touches a lesson. -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#128269; Course sweep</h2>
+      <span class="note">The reviewer over the <b>scripted</b> course, one course at a time:
+        every lesson as a student hears it, including the second explanation after a miss.
+        Findings come back grouped by <b>generator</b> (one fix lands in every lesson that
+        shares it) and by <b>authored beat</b>. Read the report, then flag what you agree
+        with &mdash; nothing here changes a lesson.</span></div>
+    <div class="note" id="csLine">reading&hellip;</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
+      <select id="csCourse" class="btn" style="max-width:220px"></select>
+      <input id="csLimit" class="btn" type="number" min="1" max="36" placeholder="lessons (blank = all)" style="max-width:190px">
+      <button class="btn" id="csEstimate" type="button">&#9312; Price it &mdash; FREE</button>
+      <button class="btn btn-primary" id="csRun" type="button">&#9313; Run the sweep &mdash; SPENDS</button>
+    </div>
+    <div class="msg" id="csMsg"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
+      <select id="csPick" class="btn" style="max-width:260px"></select>
+      <button class="btn" id="csRead" type="button">&#128196; Read that report</button>
+    </div>
+    <pre id="csReport" style="display:none;white-space:pre-wrap;background:#0f172a;color:#e6edf7;
+         padding:14px;border-radius:10px;margin-top:12px;font-size:12.5px;line-height:1.5;
+         max-height:520px;overflow:auto"></pre>
+    <p class="note" style="margin-top:12px">One course is about 36 judge reads &mdash; the price
+      button says exactly what, before anything is spent. The job runs in the background and
+      this card follows it; a deploy mid-sweep ends the job, and whatever it had read is lost
+      (nothing was cached, nothing was changed &mdash; run it again).</p>
   </div></section>
 
   <!-- Telemetry (build ha -- EYES, Phase 1 of the 2026-08-17 full-app review) -->
@@ -1945,6 +1988,76 @@
     } catch (e) { nwMsg(e.message); }
   });
 
+  // ---------- course sweep (build wa) ----------
+  function csMsg(t, kind) { var e = $("csMsg"); e.textContent = t || ""; e.className = "msg" + (kind ? " " + kind : ""); }
+  var csPoll = null;
+  async function csStatus() {
+    try {
+      var d = await api("/api/admin/coursesweep/status");
+      if (!d.enabled) { $("csLine").textContent = d.note || "the course sweep is not deployed on this build"; return; }
+      var pick = $("csCourse");
+      if (!pick.options.length) {
+        (d.courses || []).forEach(function (c) {
+          var o = document.createElement("option"); o.value = c; o.textContent = c; pick.appendChild(o);
+        });
+      }
+      var j = d.job || {};
+      var line;
+      if (j.state === "running") {
+        line = "sweeping " + j.course + " — " + (j.done || 0) + " of " + (j.total || "?") + " lessons"
+             + (j.current ? " · reading " + j.current : "");
+        if (!csPoll) csPoll = setInterval(csStatus, 4000);
+      } else {
+        if (csPoll) { clearInterval(csPoll); csPoll = null; }
+        if (j.state === "done") line = "last sweep: " + j.course + " — " + j.findings + " finding(s) in "
+                                       + j.total + " lessons, " + j.seconds + "s → report " + j.report;
+        else if (j.state === "failed") line = "⚠️ the last sweep failed: " + (j.error || "");
+        else line = j.note || "no sweep has run in this process";
+      }
+      $("csLine").textContent = line;
+      var rp = $("csPick"); rp.innerHTML = "";
+      (d.reports || []).forEach(function (r) {
+        var o = document.createElement("option"); o.value = r.name;
+        o.textContent = r.name + (r.findings !== undefined ? " · " + r.findings + " finding(s)" : "");
+        rp.appendChild(o);
+      });
+      var none = !(d.reports || []).length;
+      rp.disabled = none; $("csRead").disabled = none;
+      $("csRun").disabled = (j.state === "running");
+    } catch (e) { $("csLine").textContent = "could not read the course sweep: " + e.message; }
+  }
+  function csBody(dry) {
+    var lim = parseInt($("csLimit").value, 10);
+    return JSON.stringify({ course: $("csCourse").value, limit: (lim > 0 ? lim : null), dry_run: dry });
+  }
+  $("csEstimate").addEventListener("click", async function () {
+    csMsg("Pricing…", "ok");
+    try {
+      var d = await api("/api/admin/coursesweep/start", { method: "POST", body: csBody(true) });
+      csMsg("FREE — nothing spent. " + d.lessons + " lesson(s), " + d.chars.toLocaleString() + " characters to read, about $"
+            + d.estimated_usd + " (" + d.estimate_note + ")" + (d.have_anthropic_key ? "" : " ⚠️ ANTHROPIC_API_KEY is not set — the run would be refused."), "ok");
+    } catch (e) { csMsg(e.message); }
+  });
+  $("csRun").addEventListener("click", async function () {
+    if (!confirm("Run the sweep on " + $("csCourse").value + "? This SPENDS model time (see the price button).")) return;
+    csMsg("Starting…", "ok");
+    try {
+      var d = await api("/api/admin/coursesweep/start", { method: "POST", body: csBody(false) });
+      csMsg("Started — " + d.lessons + " lesson(s), about $" + d.estimated_usd + ". This card follows it.", "ok");
+      csStatus();
+    } catch (e) { csMsg(e.message); }
+  });
+  $("csRead").addEventListener("click", async function () {
+    var name = $("csPick").value;
+    if (!name) { csMsg("There are no reports to read yet."); return; }
+    csMsg("Opening " + name + "…", "ok");
+    try {
+      var d = await api("/api/admin/coursesweep/report?name=" + encodeURIComponent(name));
+      var pre = $("csReport"); pre.textContent = d.markdown || "(empty report)";
+      pre.style.display = "block"; csMsg("");
+    } catch (e) { csMsg(e.message); }
+  });
+
   // ---------- backups (build dj) ----------
   // The download goes through fetch so the admin key rides in the header (build dg
   // discipline: the key never appears in a URL), then a blob link hands the file to
@@ -2453,7 +2566,7 @@
       renderBoard(payload);
       renderLinks();
       try { renderTable((await api("/api/beta/list")).codes); } catch (e) {}
-      try { bkStatus(); nwStatus(); tmStatus(); fgStatus(); fgPaintDevice(); } catch (e) {}   // build dj backups + gp night watch + ha telemetry + nq flags
+      try { bkStatus(); nwStatus(); csStatus(); tmStatus(); fgStatus(); fgPaintDevice(); } catch (e) {}   // build dj backups + gp night watch + wa course sweep + ha telemetry + nq flags
       // BUILD kq: an interrupted render used to be invisible -- the page came back
       // clean and Jim had no way to know a job had died mid-way. Ask once, on load.
       try {

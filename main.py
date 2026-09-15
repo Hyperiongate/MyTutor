@@ -6,6 +6,18 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-15  APP_BUILD -> "2026-09-15wa-the-course-sweep".
+#               BUILD wa -- THE COURSE SWEEP (project 1 of the 09-14 deep dive, "The
+#               Forever War"). NEW coursesweep.py: the reviewer over the SCRIPTED course --
+#               every lesson walked by the engine (one deliberate miss, so the scripted
+#               second explanation is read too), the whole transcript read once by the
+#               judge seat, findings placed against the transcript (an unmatched quote is
+#               dropped as unplaced) and grouped by GENERATOR op vs AUTHORED beat. Here:
+#               the guarded import, a prewarm-shaped background job (_SWEEP_JOB, one at a
+#               time), POST /api/admin/coursesweep/start (dry_run=True prices it FREE;
+#               dry_run=false spends), GET .../status, GET .../report?name=. The judge
+#               transport is lessonaudit._anthropic_judge (ANTHROPIC_API_KEY on Render).
+#               Never touches a lesson. /admin gains the "Course sweep" card.
 #   2026-09-14  APP_BUILD -> "2026-09-14vz-the-scripted-second-explanation".
 #               BUILD vz -- PHASE A. No change in this file beyond the stamp and one
 #               stale illustration in a comment: the engine answers a first miss
@@ -1063,6 +1075,14 @@ try:
 except Exception as _nw_exc:  # noqa: BLE001
     nightwatch = None
     print(f"[nightwatch] module unavailable, the night watch is off: {_nw_exc}")
+# (wa, 2026-09-15) THE COURSE SWEEP -- the reviewer over the scripted course. Same law
+# as the night watch: offline tooling, imported defensively, a deploy without it still
+# teaches children.
+try:
+    import coursesweep
+except Exception as _cs_exc:  # noqa: BLE001
+    coursesweep = None
+    print(f"[coursesweep] module unavailable, the course sweep is off: {_cs_exc}")
 import time
 import uuid
 from collections import defaultdict, deque
@@ -5371,6 +5391,133 @@ def admin_nightwatch_report(date: str = "", key: str = "",
     return {"ok": True, "date": date, "markdown": text}
 
 
+# =============================================================================
+# THE COURSE SWEEP (2026-09-15, build wa) -- PROJECT 1 OF THE 09-14 DEEP DIVE
+# -----------------------------------------------------------------------------
+# The night watch audits the LIVE AI lane every night. Nothing audits the SCRIPTED
+# course -- the lane a child spends their minutes on -- except Jim's own playtests, one
+# lesson at a time. This is the reviewer pointed at the course: one course per job, every
+# lesson walked by the engine itself and read whole by the judge seat, findings grouped by
+# GENERATOR (fix once, fixes many) and by AUTHORED beat. Priced first (FREE), then run as
+# a background job exactly the way the prewarm runs (the request returns at once; the
+# card polls), and the report is read back from data/coursesweep/. It never touches a
+# lesson. Judge transport: lessonaudit's Anthropic seat (ANTHROPIC_API_KEY is on Render).
+_SWEEP_LOCK = threading.Lock()
+_SWEEP_JOB: dict = {}
+
+
+def _sweep_snapshot() -> dict:
+    with _SWEEP_LOCK:
+        return dict(_SWEEP_JOB) if _SWEEP_JOB else {"state": "idle",
+                                                   "note": "No sweep has been started."}
+
+
+def _sweep_judge(messages, max_tokens=2000, want_json=False):
+    """The judge seat, lent from lessonaudit. Never raises; (None, err) on any failure."""
+    try:
+        import lessonaudit
+        return lessonaudit._anthropic_judge(messages, max_tokens=max_tokens, want_json=want_json)
+    except Exception as exc:  # noqa: BLE001
+        return None, f"judge unavailable: {exc}"
+
+
+def _sweep_worker(job_id: str, course: str, limit) -> None:
+    def progress(i, n, lid):
+        with _SWEEP_LOCK:
+            if _SWEEP_JOB.get("id") == job_id:
+                _SWEEP_JOB.update(done=i, total=n, current=lid)
+    try:
+        result = coursesweep.run_sweep(DATA_DIR, course, _sweep_judge, limit=limit,
+                                       progress=progress)
+        name = coursesweep.write_report(DATA_DIR, result, APP_BUILD)
+        with _SWEEP_LOCK:
+            if _SWEEP_JOB.get("id") == job_id:
+                _SWEEP_JOB.update(state="done", done=result.get("asked", 0),
+                                  total=result.get("asked", 0), report=name,
+                                  findings=len(result.get("findings") or []),
+                                  errors=len(result.get("errors") or []),
+                                  seconds=result.get("seconds", 0))
+        store.record_event("ops_pass", "coursesweep",
+                           f"{course}: {result.get('ran', 0)} lessons, "
+                           f"{len(result.get('findings') or [])} findings, "
+                           f"{result.get('seconds', 0)}s -> {name}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[coursesweep] job failed: {exc}")
+        with _SWEEP_LOCK:
+            if _SWEEP_JOB.get("id") == job_id:
+                _SWEEP_JOB.update(state="failed", error=str(exc)[:300])
+
+
+class CourseSweepIn(BaseModel):
+    course: str = ""
+    limit: int | None = None
+    dry_run: bool = True
+
+
+@app.post("/api/admin/coursesweep/start")
+def admin_coursesweep_start(body: CourseSweepIn, key: str = "",
+                            x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """dry_run=True (the default) PRICES the sweep and spends nothing. dry_run=False
+    starts one course as a background job; a second concurrent job is refused."""
+    _require_admin(x_admin_key or key)
+    if coursesweep is None:
+        raise HTTPException(status_code=404, detail="coursesweep.py is not deployed")
+    course = (body.course or "").strip().lower()
+    if course not in {les.get("course") for les in lessonscripts.LESSONS}:
+        raise HTTPException(status_code=400, detail=f"unknown course {course!r}")
+    limit = int(body.limit) if body.limit and int(body.limit) > 0 else None
+    est = coursesweep.estimate(course)
+    if limit:
+        est["lessons"] = min(est["lessons"], limit)
+        est["estimated_usd"] = round(est["lessons"] * coursesweep.EST_USD_PER_LESSON, 2)
+    if body.dry_run:
+        return {"ok": True, "dry_run": True, **est,
+                "have_anthropic_key": bool(os.environ.get("ANTHROPIC_API_KEY", "").strip()),
+                "note": "Nothing was spent. POST again with dry_run=false to run."}
+    if not os.environ.get("ANTHROPIC_API_KEY", "").strip():
+        raise HTTPException(status_code=503, detail="ANTHROPIC_API_KEY is not set on this deploy.")
+    with _SWEEP_LOCK:
+        if _SWEEP_JOB.get("state") == "running":
+            raise HTTPException(status_code=409, detail=(
+                f"a sweep of {_SWEEP_JOB.get('course')} is already running "
+                f"({_SWEEP_JOB.get('done', 0)} of {_SWEEP_JOB.get('total', '?')})"))
+        job_id = uuid.uuid4().hex[:12]
+        _SWEEP_JOB.clear()
+        _SWEEP_JOB.update(id=job_id, state="running", course=course, done=0,
+                          total=est["lessons"], current="",
+                          started=time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()))
+    threading.Thread(target=_sweep_worker, args=(job_id, course, limit),
+                     name="coursesweep", daemon=True).start()
+    return {"ok": True, "started": True, "job_id": job_id, "course": course,
+            "lessons": est["lessons"], "estimated_usd": est["estimated_usd"]}
+
+
+@app.get("/api/admin/coursesweep/status")
+def admin_coursesweep_status(key: str = "",
+                             x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    _require_admin(x_admin_key or key)
+    if coursesweep is None:
+        return {"ok": False, "enabled": False, "job": {}, "reports": [],
+                "note": "coursesweep.py is not deployed on this build"}
+    return {"ok": True, "enabled": True, "job": _sweep_snapshot(),
+            "courses": sorted({les.get("course") for les in lessonscripts.LESSONS}),
+            "reports": coursesweep.list_reports(DATA_DIR)}
+
+
+@app.get("/api/admin/coursesweep/report")
+def admin_coursesweep_report(name: str = "", key: str = "",
+                             x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """One sweep's markdown. `name` is validated by coursesweep.read_report against a
+    strict pattern, so no path can be traversed from here."""
+    _require_admin(x_admin_key or key)
+    if coursesweep is None:
+        raise HTTPException(status_code=404, detail="coursesweep.py is not deployed")
+    text = coursesweep.read_report(DATA_DIR, name)
+    if not text:
+        raise HTTPException(status_code=404, detail=f"no course-sweep report {name!r}")
+    return {"ok": True, "name": name, "markdown": text}
+
+
 @app.get("/api/admin/backup")
 def admin_backup_download(key: str = "",
                           x_admin_key: str = Header(default="", alias="X-Admin-Key")):
@@ -9447,7 +9594,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-14vz-the-scripted-second-explanation"
+APP_BUILD = "2026-09-15wa-the-course-sweep"
 
 
 @app.get("/health")
