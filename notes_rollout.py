@@ -3,6 +3,11 @@
 # notes_rollout.py  --  ROLL THE OLDER CHANGE NOTES OUT OF A HEADER  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wp -- second roll-out (ruletests.py and lessonscripts.py passed
+#               100 KB; cutoff 2026-09-10). A stacked block now KEEPS the earlier block's
+#               preamble under the "---" rule (the first version dropped it, so the older
+#               block no longer said its own cutoff and count); PART 3ke reads the blocks
+#               and their preambles in order and checks each against its own cutoff.
 #   2026-09-08  BUILD ui -- first version. Jim (09-08): main.py was 48% change notes,
 #               tutor.py 27%, session.html 27%. This tool moves every header note dated
 #               before a cutoff into changelog/<name>.md VERBATIM and leaves the newest
@@ -182,9 +187,11 @@ def rollout(root, rel, cutoff, today, build, apply):
         cl_path = os.path.join(root, "changelog", name + ".md")
         if os.path.exists(cl_path):
             old = open(cl_path, encoding="utf-8").read()
-            # a second roll-out stacks its block ABOVE the earlier one
-            head, sep, tail = old.partition(fence + "text\n")
-            changelog = changelog.rstrip("\n").rsplit("\n\nI did no harm", 1)[0] + "\n\n---\n\n" + sep + tail
+            # a second roll-out stacks its block ABOVE the earlier one -- and keeps the
+            # earlier block's own preamble ("Moved out ... before <cutoff> -- N entries")
+            # under the rule, so every block still says its cutoff and count (wp)
+            earlier = old.split("\n", 1)[1].lstrip("\n") if old.startswith("# CHANGELOG -- ") else old
+            changelog = changelog.rstrip("\n").rsplit("\n\nI did no harm", 1)[0] + "\n\n---\n\n" + earlier
         open(cl_path, "w", encoding="utf-8").write(changelog)
         open(path, "w", encoding="utf-8").write(new_text)
         # re-read and prove it

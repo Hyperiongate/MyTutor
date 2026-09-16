@@ -4,17 +4,19 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk, the newest: **`2026-09-16wo-the-first-calculus-sweep-half`**. Battery
-12,599 passed, 0 failed, 3 skipped (frozen copy, 2026-09-16). Today's chain: `wh` (Basic sweep, 12,496) → `wi`
+On Jim's disk, the newest: **`2026-09-16wp-the-first-diffeq-sweep`**. Battery
+12,612 passed, 0 failed, 3 skipped (frozen copy, 2026-09-16). Today's chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
-half, 12,599). Jim pushes and prewarms each; check `/health`.
+half, 12,599) → `wp` (Diffeq, 12,612). Jim pushes and prewarms each; check `/health`.
 
-**OpenAI credits ran out at 17:12 UTC** mid-sweep (429 "no credits remaining"). The course
-sweep and the night watch both use that seat; until Jim adds credits, both fail.
+**OpenAI credits ran out at 17:12 UTC** mid-Calculus-sweep (429 "no credits remaining") and
+were evidently topped up — the Diffeq sweep ran at 21:14. The course sweep and the night
+watch both use that seat.
 
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
-`Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…` (all `_2026-09-16.md`).
+`Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
+`_2026-09-16.md`).
 
 | course | sweeps so far | last result |
 |---|---|---|
@@ -26,16 +28,17 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 | Algebra II | wk (73) → wm fixes, unswept | 73 findings |
 | Pre-Calc | wl (76) → wn fixes, unswept | 76 findings, 5 clean |
 | Calculus | wm (46, 19 of 36 read) → wo fixes; 17 lessons never read | 46 findings, 2 clean |
-| Prob/Stat, Diffeq | not yet | — |
+| Diffeq | wo (119) → wp fixes, unswept | 119 findings, 0 clean |
+| Prob/Stat | not yet | — |
 
 ## What to do next
 
-1. Jim pushes `wo` (wm, wn and wo may all be uncommitted — one diff), confirms `/health`,
-   runs the **prewarm** (Calculus's sixty rewrites plus seventy generated lines, on top of
-   wn's and wm's).
-2. **Add OpenAI credits.** Then rerun the Calculus sweep (the 17 unread lessons: U5's
-   where-the-bend-changes, all of U6–U9) and paste it — `wp`. Then Prob/Stat, Diffeq. The
-   eight swept courses wait for the weekly deep dive.
+1. Jim pushes `wp` (wm, wn, wo and wp may all be uncommitted — one diff), confirms
+   `/health`, runs the **prewarm** (Diffeq's ninety rewrites plus fourteen generator lines, on
+   top of wo's, wn's and wm's).
+2. Rerun the Calculus sweep (the 17 unread lessons: U5's where-the-bend-changes, all of
+   U6–U9) and paste it — `wq`. Then Prob/Stat, the last unswept course — `wr`. The nine swept
+   courses wait for the weekly deep dive.
 3. Triage the same way: generate the course's transcripts locally, read each quoted turn in
    context; generator first, then authored by kind in `lessons/<course>.py`; a reviewer
    mistake becomes a charter line in `coursesweep.py` (wk added two: `[[graph]]` range= is the
@@ -50,18 +53,28 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
    `√a · √b` are one product each and stay). Pre-Calc's class: a standard-form rule stated
    as a law ("un-square the right-hand number, every time") — say "in this form".
    Calculus's class (half seen): calculus *named* but not done ("calculus finds the best
-   where the slope is zero" over a board that divided 40 by 4) — write the derivative line. Algebra II's own class, which the upper courses
-   will share: a law stated for today's numbers as if it were the whole truth — scope it
-   ("in these examples", "for numbers in the same base", "the POSITIVE number that squares
-   to").
+   where the slope is zero" over a board that divided 40 by 4) — write the derivative line.
+   Algebra II's own class, which the upper courses share: a law stated for today's numbers
+   as if it were the whole truth — scope it ("in these examples", "for numbers in the same
+   base", "the POSITIVE number that squares to"). Diffeq's version, the biggest pile yet
+   (64 of 119): a law stated for the lesson's *model* as the whole truth ("every object on
+   earth has a natural frequency", "Euler always lags", "both below zero and it spirals in")
+   — say the model's condition ("in this undamped model", "in this forward walk", "for the
+   single real poles in this lesson"). Expect Prob/Stat to be the same shape.
 5. The night watch: paste any report; truth/HIGH gets built, the rest goes to the triage
    doc's ledger. `wj` added referee 101 (`aligndemo`, truth) and pendingzero's second shape.
 
 ## House decisions still open
 
-- **The " · " between two equations** is gone from the eight swept courses (the pin checks
+- **The " · " between two equations** is gone from the nine swept courses (the pin checks
   rendered transcripts, generated lines included; Calculus's 17 unread lessons were split
-  too). Prob/Stat and Diffeq carry a handful of authored lines and the generator's.
+  too). Prob/Stat carries a handful of authored lines and the generator's.
+- **Twenty pre-existing referee refusals on Diffeq's generators** (the walked slope field's
+  "What height?" with no h(x) on the board, the pond's "now 30 · how many more?" — a question
+  inside a step tag — and damping's "√ then ÷ 2 = ?" that the words never read). They were
+  there before wp; wp fixed the three it caused (sepv, sepr, lder). A generator pile for a
+  quiet day, not a sweep finding — the referees wrap the model's replies (`_create_verified`),
+  not the scripted lane, so nothing a student sees is blocked by them.
 - **"Times the whole of"** as the house phrase for a spoken bracket — worth a canon line if
   Jim agrees (wk used it in Algebra I).
 - **`pendingzero` truth or conduct** — a board that poses a different equation from the
@@ -87,12 +100,21 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 - **New trap (referees):** the canon's referee sweep (PART 3eu) refuses an arrow after an
   equals on a step line (`20 − 2x = 0 → x = 10`) and more than six lines on one teach
   board. Run `TT.prose_board_conflict` over the edited course before the battery — it
-  cost wn a rerun until it was part of the pre-flight.
+  cost wn a rerun until it was part of the pre-flight. Feed it `spoken + "\n" + board`
+  (with `heard=` the same and `course=`), skip the three exempt phrases, and **diff against
+  the frozen copy** — the referee returns only its FIRST finding per beat, so fixing one
+  refusal can reveal the next behind it (wp's sepv: the chained equals hid an arrow, the
+  arrow hid a "height" with no h(x)). Pre-existing refusals are not the build's to fix.
 - **New trap (D: drive):** the device bridge lost D:\MyTutor twice on 09-16 ("could not
   stat", then "does not exist") for a few minutes each time; a write that times out has NOT
   landed — list the folder and compare sizes before retrying, and never `force`.
 - **New trap (forSpeech):** "up 12: 25 plus 144" re-keys as a ratio (digit-colon-digit) and
   moves the speechmap and drift pins by one each — use a dash, not a colon, before a number.
+- **New trap (headers):** PART 3ke fails a file whose header passes 100 KB. wp rolled
+  `ruletests.py` and `lessonscripts.py` out a second time (`python3 notes_rollout.py --root
+  . --cutoff 2026-09-10 --build xx --apply FILE`); 3ke now reads each header's newest pointer
+  and checks every fenced block against its own cutoff, so a third roll-out needs no pin
+  change. `main.py` is at 92.7 KB — it goes next, with whatever cutoff leaves ~30 KB.
 - **New trap:** a pin can quote an authored sentence *split across two source lines* — grep
   the first half AND the last half in `ruletests.py`. Two such pins bit this build (the
   rounding closure line; "a lesson with its own intro speaks its own").

@@ -2,6 +2,55 @@
 # lessons/diffeq.py  --  DIFFERENTIAL EQUATIONS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wp -- THE FIRST DIFFEQ SWEEP (119 findings, 105 authored, 0 of 36
+#               lessons clean; 87 edits here). This course teaches in three beats and two
+#               worked lines, so nearly every finding was a LAW STATED FOR THE LESSON'S MODEL
+#               AS IF IT WERE THE WHOLE TRUTH: the order of an equation is the DEEPEST
+#               derivative, not a count (HIGH); "every dash swings" -> the dashes swing; the
+#               isocline rule and the solution-curve rule carry their equation / their
+#               "every dash the same" condition (HIGH x2, advance lines); "separable and
+#               linear are the two halves of first order" (HIGH) -> another important kind;
+#               Newton's law is in PROPORTION to the gap, with a constant (HIGH); the tank's
+#               single number is scoped to these examples, and the outflow carries the
+#               concentration per litre (HIGH x2); the logistic peak-at-half and peak-size
+#               rules say "for this logistic law / our logistic pond" (HIGH); Euler "always
+#               lags" -> lands low in this forward walk; "exactly proportional" and "not a
+#               scrap more" -> the MAIN error, about a tenth (HIGH x2); RK4's sixteen is
+#               "about"; "nobody accepts it / everybody uses RK4 / a thousand times the
+#               steps" softened; the characteristic quadratic is for these constant-number
+#               equations and is written "= 0"; the door closer's rule was REVERSED (HIGH --
+#               below the knife-edge it crawls, above it bounces); "every object on earth" ->
+#               many objects; a steady push has a steady PARTICULAR solution (HIGH) and the
+#               method is "for these steady pushes"; the transient fades "with damping" and
+#               "in these damped, settling problems" (HIGH x2); resonance grows "in this
+#               undamped model", and the advance line says "squared frequencies"; the
+#               derivative rule keeps its "minus y(0)" everywhere it is summarised (HIGH);
+#               the final-value theorem is "for settling transforms like these"; poles are
+#               "for the single real poles in this lesson" (HIGH); the determinant does "a
+#               lot of the classifying"; eigenvalues decide "the kind of picture", both below
+#               zero moves IN (not "spirals" -- HIGH), every path "except the origin"; the
+#               nullcline is where one PART of the arrow is zero, arrows vertical "except at
+#               one point"; linearisation is for a SMOOTH curve, the slope of 9 − P² is −2P
+#               (HIGH) and 24 is the estimate; the rabbit lesson is "one slice" of the
+#               model, "the rabbit half of a balance point" (HIGH x2); the cycle starts ON
+#               the balance point and stays, "in this model" it loops, "in this lesson's
+#               tidy cycle" the foxes lag a quarter (HIGH x2); sensitive dependence is about
+#               a start only ALMOST known, "in this example system" (HIGH x2). WORDS-BOARD:
+#               every board that showed numbers before the words said them now has the
+#               words (the cup, the pond, the unstable point, the transient, the bridge,
+#               the shift, the ending, the cycle, one-number-decides, damping); the worked
+#               lines write their setups (the cup's 95 − 14, the pond's ceiling, the
+#               halvings 168 ÷ 2, the spring's y″ + 256y = 0, the s-world's (s + 2)Y =
+#               228, the ending's Y = 180/(s(s + 12)), the knife-edge's 32² = 1024); the
+#               separable lessons write dy/dx, y = ..., y(0) and the substitution; the
+#               slope-field opener draws a walked field; the two-things-at-once lesson has
+#               a y′ rule and draws the arrow (HIGH x2); resonance's board writes the gap-3
+#               and gap-1 lines and keeps the ✗ line separate (HIGH); "88 takes the 8
+#               away". UNCLEAR: "the transforming left" -> the transform leaves; "180
+#               underneath a lone s" -> Y is 180 over a lone s times s plus 12; five long
+#               sentences split. THE DOT: fourteen authored step lines are two [[step]]
+#               tags each (4×25 − 8² = 36 · √36 ÷ 2 = 3 was a HIGH). Generator items:
+#               lessonscripts.py (wp).
 #   2026-09-08  BUILD uj -- ONE FILE PER COURSE. Split out of lessonscripts.py (Jim's
 #               housekeeping, second half). Every lesson below is the text that sat in
 #               lessonscripts.py, moved whole -- the unit lists keep their names, and
@@ -33,11 +82,11 @@ _DIFFEQ_U1 = [
         "symbols": ("slope field", "order"),
         "advance_line": "Three in a row — you've got it! Feed the point into the equation and read the slope.",
         "teach": [
-            ["A differential equation is named by how deep its derivatives go: one derivative is first order, two is second. This whole first unit stays first order — and asks what such an equation LOOKS like.",
+            ["A differential equation is named by the deepest derivative in it: d y d x alone is first order, a d two y d x squared is second order. This whole first unit stays first order — and asks what such an equation LOOKS like. Here is one: d y d x equals x plus y.",
              '[[goal text="A dash at every point"]][[step eq="dy/dx = x + y"]]'],
-            ["Here is the trick that turns it into a picture. Take d y d x equals x plus y, pick any point — say x is 7 and y is 5 — and the equation hands you a number: 12. Draw a tiny dash there leaning at that steepness.",
-             '[[graph points="(7,5)" caption="the dash lives at (7, 5), leaning 12 steep"]][[step eq="at (7, 5) · slope 7 + 5 = 12"]]'],
-            ["Do that at every point and a slope field appears. So add the two coordinates, exactly as the equation says. Taking them away reaches 2, and using the x on its own throws half the point away.",
+            ["Here is the trick that turns it into a picture. Take d y d x equals x plus y. Pick a point: x is 7 and y is 5. The equation hands you a number: 7 plus 5 is 12. The dash at that point would lean 12 steep — the board marks where it goes.",
+             '[[graph points="(7,5)" caption="the dash lives at (7, 5), leaning 12 steep"]][[step eq="at (7, 5): slope 7 + 5 = 12"]]'],
+            ["Doing that at every point would make a slope field. So add the two coordinates, exactly as the equation says. Taking them away reaches 2, and using the x on its own throws half the point away.",
              '[[step eq="12 ✓"]][[step eq="2 ✗ taken away · 7 ✗ only the x"]]'],
         ],
         "pairs": [
@@ -62,7 +111,7 @@ _DIFFEQ_U1 = [
         "symbols": ("law", "field"),
         "advance_line": "Three in a row — you've got it! Square the x first, then take the y off it.",
         "teach": [
-            ["The plane never changes. The points never change. Change the equation, though, and every dash on it swings to a new angle — so the field is a picture of the law, not of the paper.",
+            ["The plane never changes. The points never change. Change the equation, though, and the dashes swing to new angles — so the field is a picture of the law drawn on that plane, not of the paper.",
              '[[goal text="Change the law, change the field"]][[step eq="dy/dx = x² − y"]]'],
             ["This one says d y d x equals x squared, take away y. At the point where x is 5 and y is 9: square the 5 first, giving 25, then take the 9 off it. The dash there has slope 16.",
              '[[step eq="5² − 9 = 25 − 9 = 16"]]'],
@@ -89,12 +138,12 @@ _DIFFEQ_U1 = [
         "op": "isoc", "max_value": 80,
         "levels": ("abstract",),
         "symbols": ("isocline", "same"),
-        "advance_line": "Three in a row — you've got it! Take the x off the slope and what's left is y.",
+        "advance_line": "Three in a row — you've got it! For d y d x equals x plus y, take the x off the slope and what's left is y.",
         "teach": [
             ["Drawing a field dash by dash is slow. Here is how it is really done: instead of asking what slope sits at a point, ask where all the points with the SAME slope are.",
              '[[goal text="Reading the field backwards"]][[step eq="dy/dx = x + y = 14"]]'],
             ["In d y d x equals x plus y, every dash leaning at 14 sits where x plus y comes to 14 — a straight line. At x equals 5 on that line, y has to be 9. Such a line is called an isocline.",
-             '[[step eq="x + y = 14 · at x = 5"]] [[step eq="y = 9"]]'],
+             '[[step eq="x + y = 14"]][[step eq="at x = 5: y = 9"]]'],
             ["So take the x off the slope. Adding them instead lands at 19, nowhere near the line, and answering 5 hands back the x you were already given.",
              '[[step eq="9 ✓"]][[step eq="19 ✗ added · 5 ✗ the x again"]]'],
         ],
@@ -118,12 +167,12 @@ _DIFFEQ_U1 = [
         "op": "fldc", "max_value": 170,
         "levels": ("abstract",),
         "symbols": ("solution", "curve"),
-        "advance_line": "Three in a row — you've got it! Climb by the slope for every step across, then add the start.",
+        "advance_line": "Three in a row — you've got it! When every dash leans the same way, climb by the slope for every step across, then add the start.",
         "teach": [
-            ["Now the payoff. A solution of a differential equation is not a number. It is a whole curve, and on a slope field you can see it. Start somewhere and walk, always following the dash under your feet.",
-             '[[goal text="Joining the dashes"]][[step eq="start at y = 5 · slope 3 all the way"]]'],
+            ["Now the payoff. A solution of a differential equation is not a number. It is a whole curve, and on a slope field you can see it: start somewhere and walk, always following the dash under your feet. Here is the easiest field there is — every dash leans at 3 — with a walk drawn on it.",
+             '[[goal text="Joining the dashes"]][[graph lines="y=3x+5" points="(0,5),(4,17)" range="0..5" yrange="0..20" caption="every dash leans at 3 — start at height 5 and walk 4 across"]][[step eq="start at y = 5, slope 3 all the way"]]'],
             ["Take an easy field where every dash leans at 3. Start at height 5 and walk 4 across: a slope of 3 climbs 3 for every 1 across, so 4 across is 12 of climb, landing at 17.",
-             '[[step eq="3 × 4 = 12 · 5 + 12 = 17"]]'],
+             '[[step eq="3 × 4 = 12"]][[step eq="5 + 12 = 17"]]'],
             ["The dashes were never a picture OF a solution — joining them is what creates one. Answering 12 gives the climb with no starting height, and 8 climbs a single step and stops.",
              '[[step eq="17 ✓"]][[step eq="12 ✗ climb only · 8 ✗ one step"]]'],
         ],
@@ -162,19 +211,19 @@ _DIFFEQ_U2 = [
         "symbols": ("separable", "integrate"),
         "advance_line": "Three in a row — you've got it! Halve the front number, times 9, then add the C.",
         "teach": [
-            ["Unit 1 drew the equation. This unit solves one. The first method is the oldest: if every x can be herded to one side and every y to the other, the equation is separable and you integrate each side on its own.",
+            ["Unit 1 drew the equation. This unit solves one. The first method is the oldest: if every x can be herded to one side and every y to the other, the equation is separable and you integrate each side on its own. Here is one: d y d x equals 8 x.",
              '[[goal text="Splitting the letters apart"]][[step eq="dy/dx = 8x"]]'],
-            ["Take d y d x equals 8 x. Separate and integrate and the 8 halves: y equals 4 x squared, plus C. If the curve sits at height 5 when x is zero, then C is 5, and at x equals 3 the x part is 4 times 9 — 36, plus 5 is 41.",
-             '[[step eq="y = 4x² + 5 · at x = 3"]] [[step eq="36 + 5 = 41"]]'],
+            ["Take d y d x equals 8 x. Separate and integrate, and the 8 halves: y equals 4 x squared, plus C. The curve sits at height 5 when x is zero, so C is 5. At x equals 3 the x part is 4 times 9 — 36, and plus 5 is 41.",
+             '[[step eq="dy/dx = 8x"]][[step eq="y = 4x² + C"]][[step eq="y(0) = 5, so C = 5"]][[step eq="at x = 3: 36 + 5 = 41"]]'],
             ["So halve, times nine, add the C. Dropping the C leaves 36 and forgets which curve of the family you were on; skipping the halving runs to 77, integrating as though the rule were the derivative rule.",
              '[[step eq="41 ✓"]][[step eq="36 ✗ no C · 77 ✗ not halved"]]'],
         ],
         "pairs": [
             {"worked": ["Here is one more, done for you. d y d x equals 6 x with C of 30: 3 times 9 is 27, plus 30 is 57.",
-                        '[[step eq="3 × 9 + 30 = 57"]]'],
+                        '[[step eq="dy/dx = 6x"]][[step eq="y = 3x² + 30"]][[step eq="3 × 9 + 30 = 57"]]'],
              "ask": {"a": 10, "b": 39, "op": "sepv"}},
             {"worked": ["One more together. 8 x with C of 33: 4 times 9 is 36, plus 33 is 69.",
-                        '[[step eq="4 × 9 + 33 = 69"]]'],
+                        '[[step eq="dy/dx = 8x"]][[step eq="y = 4x² + 33"]][[step eq="4 × 9 + 33 = 69"]]'],
              "ask": {"a": 14, "b": 40, "op": "sepv"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
@@ -191,19 +240,19 @@ _DIFFEQ_U2 = [
         "symbols": ("separating", "square root"),
         "advance_line": "Three in a row — you've got it! Work out y squared first, then take its square root.",
         "teach": [
-            ["Separating earns its keep when the y refuses to sit quietly on the right. Take d y d x equals 3 over y — the y is underneath, so multiply both sides by it and every y is on the left.",
+            ["Separating earns its keep when the y refuses to sit quietly on the right. Take d y d x equals 3 over y — the y is underneath, so multiply both sides by y and by d x, and you have y d y equals 3 d x.",
              '[[goal text="When the y is underneath"]][[step eq="dy/dx = 3/y"]] [[step eq="y dy = 3 dx"]]'],
             ["Integrating gives y squared over 2 equals 3 x plus a constant, so y squared equals 6 x plus C. Start the curve at height 4 when x is zero and C is 16. At x equals 8: 48 plus 16 is 64, and y is the square root of that — 8.",
-             '[[step eq="y² = 6x + 16 · at x = 8"]] [[step eq="64"]] [[step eq="y = 8"]]'],
-            ["Two traps sit here. Stopping at 64 answers y SQUARED where a height was asked for. Guessing a straight climb from 4 gives 28. But the curve does not climb in a straight line, and only separating tells you so.",
+             '[[step eq="y² = 6x + C"]][[step eq="y(0) = 4, so C = 16"]][[step eq="at x = 8: 48 + 16 = 64"]][[step eq="y = 8"]]'],
+            ["Two traps sit here. Stopping at 64 answers y SQUARED where a height was asked for. Guessing a straight climb from 4 gives 28. But the curve does not climb in a straight line, and separating shows you why.",
              '[[step eq="8 ✓"]][[step eq="64 ✗ that is y² · 28 ✗ a straight guess"]]'],
         ],
         "pairs": [
             {"worked": ["Here is one more, done for you. d y d x equals 2 over y from height 11, at x equals 12: y squared is 48 plus 121, which is 169, so y is 13.",
-                        '[[step eq="y² = 169"]] [[step eq="y = 13"]]'],
+                        '[[step eq="dy/dx = 2/y, y(0) = 11"]][[step eq="at x = 12: y² = 48 + 121 = 169"]][[step eq="y = 13"]]'],
              "ask": {"a": 6, "b": 10, "c": 8, "op": "sepr"}},
             {"worked": ["One more together. 8 over y from height 9, at x equals 9: y squared is 144 plus 81, which is 225, so y is 15.",
-                        '[[step eq="y² = 225"]] [[step eq="y = 15"]]'],
+                        '[[step eq="dy/dx = 8/y, y(0) = 9"]][[step eq="at x = 9: y² = 144 + 81 = 225"]][[step eq="y = 15"]]'],
              "ask": {"a": 6, "b": 9, "c": 12, "op": "sepr"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
@@ -221,19 +270,19 @@ _DIFFEQ_U2 = [
         "symbols": ("cooling", "gap"),
         "advance_line": "Three in a row — you've got it! Find the gap, then share it out.",
         "teach": [
-            ["Separable equations are one half of first order. The other half are the LINEAR ones, and here is the linear equation everybody meets first: a hot drink cooling in a room.",
+            ["Separable equations were the first kind. Now another important kind: the LINEAR ones, and here is the situation the first linear equation everybody meets describes — a hot drink cooling in a room. Coffee at 50 degrees, a room at 20.",
              '[[goal text="The cooling cup"]][[step eq="coffee 50° · room 20°"]]'],
-            ["Newton's law of cooling says the speed depends on the gap — nothing else. Say the coffee drops 1 degree a minute for every 5 degrees it stands above the room. Coffee at 50 in a room at 20 has a gap of 30, so it is cooling at 6 degrees a minute.",
-             '[[step eq="50 − 20 = 30 · 30 ÷ 5 = 6"]]'],
+            ["Newton's law of cooling says the speed is in proportion to the gap: a constant tells you how fast each degree of gap cools. Say the coffee drops 1 degree a minute for every 5 degrees it stands above the room. Coffee at 50 in a room at 20 has a gap of 30, so it is cooling at 6 degrees a minute.",
+             '[[step eq="50 − 20 = 30"]][[step eq="30 ÷ 5 = 6"]]'],
             ["Now notice what that means. As it cools the gap shrinks, so the cooling itself slows — which is why coffee goes lukewarm quickly and then sits there. Answering 30 hands back the gap, and 5 is only the constant.",
              '[[step eq="6 ✓"]][[step eq="30 ✗ the gap · 5 ✗ the constant"]]'],
         ],
         "pairs": [
             {"worked": ["Here is one more, done for you. Coffee at 95 in a room at 14, dropping 1 degree for every 3 of gap: a gap of 81, so 27 degrees a minute.",
-                        '[[step eq="81 ÷ 3 = 27"]]'],
+                        '[[step eq="95 − 14 = 81"]][[step eq="81 ÷ 3 = 27"]]'],
              "ask": {"a": 91, "b": 16, "c": 3, "op": "newt"}},
             {"worked": ["One more together. 89 degrees, room 27, one for every 2: the gap is 62, and 62 shared by 2 is a rate of 31.",
-                        '[[step eq="62 ÷ 2 = 31"]]'],
+                        '[[step eq="89 − 27 = 62"]][[step eq="62 ÷ 2 = 31"]]'],
              "ask": {"a": 79, "b": 21, "c": 2, "op": "newt"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
@@ -251,11 +300,11 @@ _DIFFEQ_U2 = [
         "symbols": ("concentration", "litre"),
         "advance_line": "Three in a row — you've got it! Share the grams out over the litres.",
         "teach": [
-            ["The other famous linear equation is a tank of salty water with fresh brine running in and the mixture running out. Every one of them turns on a single number, and it is not the salt.",
+            ["The other famous linear equation is a tank of salty water with fresh brine running in and the mixture running out. In these examples the key number for the outflow is not the salt on its own.",
              '[[goal text="The tank of brine"]][[step eq="45 g of salt · 3 L of water"]]'],
-            ["It is the concentration: how much salt rides in each litre. Stir 45 grams evenly into 3 litres and every litre carries 15 grams. That is the number the outflow pipe takes away with it.",
+            ["It is the concentration: how much salt rides in each litre. Stir 45 grams evenly into 3 litres and every litre carries 15 grams. Every litre the outflow pipe takes away carries 15 grams with it.",
              '[[step eq="45 ÷ 3 = 15 g per litre"]]'],
-            ["Which is why the equation has the salt DIVIDED by the volume inside it. Taking the litres off the grams reaches 42 and muddles two different measurements, and 3 is the size of the tank, not the strength of the brine.",
+            ["Which is why the equation has the salt DIVIDED by the volume inside it. Taking the litres off the grams reaches 42, and that muddles two different measurements. And 3 is the size of the tank, not the strength of the brine.",
              '[[step eq="15 ✓"]][[step eq="42 ✗ taken away · 3 ✗ the litres"]]'],
         ],
         "pairs": [
@@ -293,7 +342,7 @@ _DIFFEQ_U3 = [
         "symbols": ("logistic", "ceiling"),
         "advance_line": "Three in a row — you've got it! Fish times room left, then divide.",
         "teach": [
-            ["Unit 2 solved equations. This unit refuses to, and finds out the shape anyway. Start with the most useful rate law in biology: growth that runs into a ceiling.",
+            ["Unit 2 solved equations. This unit refuses to, and finds out the shape anyway. Start with the most useful rate law in biology: growth that runs into a ceiling. A pond with a ceiling of 40, 10 fish in it, and a constant of 5.",
              '[[goal text="The crowded pond"]][[step eq="ceiling 40 · 10 fish · ÷ 5"]]'],
             ["A pond holds at most 40 fish. Logistic growth says the rate is the fish times the room still left, divided by some constant — say 5. With 10 fish there is room for 30, so the rate is 10 times 30 over 5: 60.",
              '[[step eq="10 × 30 ÷ 5 = 60"]]'],
@@ -302,10 +351,10 @@ _DIFFEQ_U3 = [
         ],
         "pairs": [
             {"worked": ["Here is one more, done for you. Ceiling 41, 22 fish, divided by 11: room is 19, so 22 times 19 over 11 is 38.",
-                        '[[step eq="22 × 19 ÷ 11 = 38"]]'],
+                        '[[step eq="ceiling 41 · now 22 · room 19"]][[step eq="22 × 19 ÷ 11 = 38"]]'],
              "ask": {"a": 27, "b": 16, "c": 4, "op": "logi"}},
             {"worked": ["One more together. Ceiling 34, 10 fish, over 4: room is 24, and 10 times 24 over 4 is 60.",
-                        '[[step eq="10 × 24 ÷ 4 = 60"]]'],
+                        '[[step eq="ceiling 34 · now 10 · room 24"]][[step eq="10 × 24 ÷ 4 = 60"]]'],
              "ask": {"a": 43, "b": 24, "c": 8, "op": "logi"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
@@ -323,7 +372,7 @@ _DIFFEQ_U3 = [
         "symbols": ("halfway", "fastest"),
         "advance_line": "Three in a row — you've got it! Halve the ceiling, then take off what's already there.",
         "teach": [
-            ["Since the rate dies at both ends, it must peak somewhere in between — and here is the fact almost everybody gets wrong. It peaks exactly halfway to the ceiling, not near the top.",
+            ["Since the rate dies at both ends, it must peak somewhere in between — and here is the fact almost everybody gets wrong. For this logistic law, it peaks exactly halfway to the ceiling, not near the top.",
              '[[goal text="Where growth peaks"]][[step eq="ceiling 60 · fastest at 30"]]'],
             ["A pond with a ceiling of 60 grows fastest when it holds 30. If it holds 22 today, then 8 more fish take it to its fastest-growing size — and after that the pond keeps filling but the filling slows.",
              '[[step eq="30 − 22 = 8 more"]]'],
@@ -332,10 +381,10 @@ _DIFFEQ_U3 = [
         ],
         "pairs": [
             {"worked": ["Here is one more, done for you. Ceiling 168 with 57 fish: half is 84, so 27 more.",
-                        '[[step eq="84 − 57 = 27"]]'],
+                        '[[step eq="168 ÷ 2 = 84"]][[step eq="84 − 57 = 27"]]'],
              "ask": {"a": 130, "b": 30, "op": "carr"}},
             {"worked": ["One more together. Ceiling 166, 11 fish: half is 83, and taking the 11 off leaves 72 more.",
-                        '[[step eq="83 − 11 = 72"]]'],
+                        '[[step eq="166 ÷ 2 = 83"]][[step eq="83 − 11 = 72"]]'],
              "ask": {"a": 176, "b": 25, "op": "carr"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
@@ -352,8 +401,8 @@ _DIFFEQ_U3 = [
         "symbols": ("peak", "quarter"),
         "advance_line": "Three in a row — you've got it! Ceiling times constant, then a quarter of it.",
         "teach": [
-            ["Knowing WHERE the peak sits is half of it. The other half is how big that peak is, and the answer is one of the tidiest in the subject: the ceiling times the growth constant, divided by 4.",
-             '[[goal text="How big the peak is"]][[step eq="ceiling 40 · constant 4"]]'],
+            ["Knowing WHERE the peak sits is half of it. The other half is how big that peak is, and for our logistic pond the answer is one of the tidiest in the subject: the ceiling times the growth constant, divided by 4.",
+             '[[goal text="How big the peak is"]][[step eq="peak rate = ceiling × constant ÷ 4"]][[step eq="ceiling 40 · constant 4"]]'],
             ["A ceiling of 40 with a growth constant of 4: 40 times 4 is 160, and a quarter of that is 40 fish a year at the very fastest moment.",
              '[[step eq="40 × 4 ÷ 4 = 40"]]'],
             ["Where does the quarter come from? Two halvings at once — half the fish and half the room, at the same instant. Never taking the quarter leaves 160, and halving only once gives 80.",
@@ -381,10 +430,10 @@ _DIFFEQ_U3 = [
         "symbols": ("unstable", "balance"),
         "advance_line": "Three in a row — you've got it! Distance from the equilibrium, times the push.",
         "teach": [
-            ["Every equilibrium so far has pulled things back toward it. Those are the stable ones. But an equilibrium can just as easily PUSH — a balance so delicate that the smallest nudge sends you away for good.",
+            ["Every equilibrium so far has pulled things back toward it. Those are the stable ones. But an equilibrium can just as easily PUSH — a balance so delicate that the smallest nudge sends you away for good. Say it sits at 20, and the population is at 35.",
              '[[goal text="The one that pushes away"]][[step eq="unstable at 20 · now 35"]]'],
-            ["Say the unstable point sits at 20, and anything off it moves at 4 for every 1 of distance. A population of 35 stands 15 above, so it is racing away at 60 — and climbing, because the further it goes the harder it is pushed.",
-             '[[step eq="35 − 20 = 15 · 15 × 4 = 60"]]'],
+            ["Say the unstable point sits at 20, and anything off it moves at 4 for every 1 of distance. A population of 35 stands 15 above, so it is racing away at 60 — and climbing, because in this model the further it goes the harder it is pushed.",
+             '[[step eq="35 − 20 = 15"]][[step eq="15 × 4 = 60"]]'],
             ["That runaway is what unstable means, and it is why a pencil will not stand on its point. Answering 15 hands back the distance, and 35 is where it is standing, not how fast it is leaving.",
              '[[step eq="60 ✓"]][[step eq="15 ✗ the distance · 35 ✗ where it stands"]]'],
         ],
@@ -422,13 +471,13 @@ _DIFFEQ_U4 = [
         "op": "eulr", "max_value": 180,
         "levels": ("abstract",),
         "symbols": ("method", "step"),
-        "advance_line": "Three in a row — you've got it! Nothing on the first step, then twice the step squared.",
+        "advance_line": "Three in a row — you've got it! For d y d x equals 2 x from zero: nothing on the first step, then twice the step squared.",
         "teach": [
             ["Most differential equations cannot be solved on paper at all. So a computer does what Unit 1 did by eye: it walks the slope field. The oldest such method is Euler's, and it is exactly that walk.",
              '[[goal text="Walking it in straight steps"]][[step eq="dy/dx = 2x · start 5 · steps of 3"]]'],
             ["Here is Euler's one rule: read the slope at the START of a step, then hold it for the whole width. Take d y d x equals 2 x from height 5, in two steps of 3. The first step starts at x equals zero, where the slope is nothing, so it climbs nothing.",
              '[[step eq="step 1: slope 0 → no climb"]]'],
-            ["The second step starts at 3, where the slope is 6, and holding 6 across a width of 3 climbs 18 — landing at 23. But the true curve reaches 41, because the slope kept rising while Euler was using an old one. Euler always lags on a curve that bends upward.",
+            ["The second step starts at 3, where the slope is 6, and holding 6 across a width of 3 climbs 18 — landing at 23. But the true curve reaches 41, because the slope kept rising while Euler was using an old one. In a forward walk like this, Euler lands low when the slope keeps rising.",
              '[[step eq="23 ✓"]][[step eq="41 ✗ the true curve · 18 ✗ climb only"]]'],
         ],
         "pairs": [
@@ -453,11 +502,11 @@ _DIFFEQ_U4 = [
         "symbols": ("first order", "proportional"),
         "advance_line": "Three in a row — you've got it! Scale the error by the same factor as the step.",
         "teach": [
-            ["Euler lags, so the obvious repair is smaller steps. The question is what that buys — and there is an exact answer, which is why Euler is called a first order method.",
+            ["Euler carries an error, so the obvious repair is smaller steps. The question is what that buys — and there is a clean answer, which is why Euler is called a first order method.",
              '[[goal text="The deal Euler offers"]][[step eq="step 10 → error 90"]]'],
-            ["First order means the error is proportional to the step size. Not roughly — exactly. A step of 10 left an error of 90; go to a step of 4 and the error follows it down by the same factor, to 36.",
+            ["First order means the main part of the error is proportional to the step size, and in this lesson we scale the error by exactly that. A step of 10 left an error of 90; go to a step of 4 and the error follows it down by the same factor, to 36.",
              '[[step eq="90 × 4 ÷ 10 = 36"]]'],
-            ["So ten times the work buys a tenth of the error, and not a scrap more. Leaving the error at 90 pretends smaller steps are free of any gain, and halving it to 45 out of habit ignores what the step actually did.",
+            ["So for a first order estimate, ten times the work buys about a tenth of the error. Leaving the error at 90 pretends smaller steps are free of any gain, and halving it to 45 out of habit ignores what the step actually did.",
              '[[step eq="36 ✓"]][[step eq="90 ✗ unchanged · 45 ✗ halved by habit"]]'],
         ],
         "pairs": [
@@ -483,11 +532,11 @@ _DIFFEQ_U4 = [
         "symbols": ("fourth order", "sixteen"),
         "advance_line": "Three in a row — you've got it! Divide the error by sixteen.",
         "teach": [
-            ["A tenth of the error for ten times the work is a poor bargain, and nobody accepts it. The method everybody actually uses is fourth order Runge-Kutta, and the word fourth is the whole story.",
+            ["A tenth of the error for ten times the work is a poor bargain. The usual improvement is fourth order Runge-Kutta, and the word fourth is the whole story.",
              '[[goal text="Sixteen instead of two"]][[step eq="halve the step"]]'],
-            ["Halve the step and Euler's error halves. Halve it for Runge-Kutta and the error divides by sixteen, because that same halving of the error happens four times over. So an error of 208 drops to 13 in one stroke.",
+            ["Halve the step and Euler's main error about halves. Halve it for fourth order Runge-Kutta and the main error divides by about sixteen, because that same halving happens four times over. So an error of 208 drops to 13 in one stroke.",
              '[[step eq="208 ÷ 16 = 13"]]'],
-            ["The three wrong instincts are the three orders themselves: halving is first order, quartering is second, and sixteen is fourth. Which is why a fourth order method reaches an accuracy Euler could not buy with a thousand times the steps.",
+            ["The three wrong instincts are the three orders themselves: halving 208 gives 104, first order; quartering gives 52, second; and sixteen is fourth, 13. Which is why a fourth order method can often reach an accuracy Euler would need far, far more steps to match.",
              '[[step eq="13 ✓"]][[step eq="104 ✗ halved · 52 ✗ quartered"]]'],
         ],
         "pairs": [
@@ -511,7 +560,7 @@ _DIFFEQ_U4 = [
         "symbols": ("evaluations", "cost"),
         "advance_line": "Three in a row — you've got it! Four for every Runge-Kutta step, then take that off Euler's bill.",
         "teach": [
-            ["Runge-Kutta is not magic, and this last lesson is the fine print. It reads the slope FOUR times inside every step — once at the start, twice in the middle, once at the end — and averages them.",
+            ["Runge-Kutta is not magic, and this last lesson is the fine print. The fourth order method reads the slope FOUR times inside every step — once at the start, twice in the middle, once at the end — and averages them.",
              '[[goal text="What accuracy costs"]][[step eq="Euler 100 × 1 · RK4 9 × 4"]]'],
             ["So count the slope evaluations, which is what a method really costs. Euler needs 100 steps at one evaluation each: 100. Runge-Kutta gets there in 9 steps, but pays 4 each — 36. It saves 64.",
              '[[step eq="100 − 36 = 64"]]'],
@@ -552,8 +601,8 @@ _DIFFEQ_U5 = [
         "symbols": ("characteristic", "damping"),
         "advance_line": "Three in a row — you've got it! Square the middle number, then take off four times the last.",
         "teach": [
-            ["Second-order equations have a second derivative in them, and they describe everything that swings, rocks or wobbles. Each one hides a quadratic — its characteristic equation — and Algebra II already taught you to test one.",
-             '[[goal text="One number decides"]][[step eq="y″ + 6y′ + 5y = 0"]] [[step eq="r² + 6r + 5"]]'],
+            ["Second-order equations have a second derivative in them, and they describe everything that swings, rocks or wobbles. Each constant-number equation in this lesson hides a quadratic — its characteristic equation — and Algebra II already taught you to test one. For y double-prime plus 6 y prime plus 5 y equals zero, it is r squared plus 6 r plus 5, equals zero.",
+             '[[goal text="One number decides"]][[step eq="y″ + 6y′ + 5y = 0"]] [[step eq="r² + 6r + 5 = 0"]]'],
             ["The test has not changed: the middle number squared, take away 4 times the last. For 6 and 5 that is 36 take away 20 — 16. What has changed is what the answer MEANS.",
              '[[step eq="6² − 4×5 = 16"]]'],
             ["Above zero, as here, the damping wins and the door closes slowly without a wobble. Below zero it rocks. Forgetting the 4 gives 31, and adding instead of taking away gives 56 — and each wrong number would describe a different world.",
@@ -584,13 +633,13 @@ _DIFFEQ_U5 = [
             ["Between wobbling and crawling there is one exact setting, and every good door closer is built to sit on it. It is called critically damped: the fastest close with no bounce at all.",
              '[[goal text="The knife-edge"]][[step eq="test number exactly 0"]]'],
             ["It happens when that test number is exactly zero — so the middle squared must equal 4 times the last. With 30 in the middle, 30 squared is 900, and a quarter of that is 225. Set the last term to 225 and you are on the edge.",
-             '[[step eq="30² = 900 · 900 ÷ 4 = 225"]]'],
-            ["A hair below 225 and the door bounces past the frame; a hair above and it crawls shut. Handing back 900 skips the quarter, and halving instead of quartering gives 450 — a door that overshoots every time.",
+             '[[step eq="30² = 900"]][[step eq="900 ÷ 4 = 225"]]'],
+            ["A hair below 225 and the door crawls shut; a hair above and it bounces past the frame. Handing back 900 skips the quarter, and halving instead of quartering gives 450 — a door that bounces every time.",
              '[[step eq="225 ✓"]][[step eq="900 ✗ no quarter · 450 ✗ halved"]]'],
         ],
         "pairs": [
             {"worked": ["Here is one more, done for you. With 32 in the middle: 1024, and a quarter of that is 256.",
-                        '[[step eq="32² ÷ 4 = 256"]]'],
+                        '[[step eq="32² = 1024"]][[step eq="1024 ÷ 4 = 256"]]'],
              "ask": {"a": 26, "b": 0, "op": "cdmp"}},
             {"worked": ["One more together. 34 in the middle: 1156 quartered is 289.",
                         '[[step eq="34² ÷ 4 = 289"]]'],
@@ -613,15 +662,15 @@ _DIFFEQ_U5 = [
              '[[goal text="The spring that never stops"]][[step eq="y″ + 9y = 0"]]'],
             ["Such a spring rocks at one particular speed, its natural frequency, and that frequency is simply the square root of the number sitting on the y. For 9 the frequency is 3 — 3 radians a second, for ever.",
              '[[step eq="√9 = 3 radians a second"]]'],
-            ["Every object on earth has a frequency like this: a bridge, a wine glass, a building. Handing back 9 forgets the root, and doubling it to 6 undoes a square the wrong way. The next unit is about what happens when something else finds that number.",
+            ["Many objects have natural frequencies like this: a bridge, a wine glass, a building. Handing back 9 forgets the root, and doubling it to 6 undoes a square the wrong way. The next unit is about what happens when something else finds that number.",
              '[[step eq="3 ✓"]][[step eq="9 ✗ not rooted · 6 ✗ doubled"]]'],
         ],
         "pairs": [
             {"worked": ["Here is one more, done for you. y double-prime plus 256 y: the square root of 256 is 16.",
-                        '[[step eq="√256 = 16"]]'],
+                        '[[step eq="y″ + 256y = 0"]][[step eq="√256 = 16"]]'],
              "ask": {"a": 196, "b": 0, "op": "natf"}},
             {"worked": ["One more together. With 289 on the y, the square root of 289 is 17 — that is the frequency.",
-                        '[[step eq="√289 = 17"]]'],
+                        '[[step eq="y″ + 289y = 0"]][[step eq="√289 = 17"]]'],
              "ask": {"a": 225, "b": 0, "op": "natf"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
@@ -637,10 +686,10 @@ _DIFFEQ_U5 = [
         "symbols": ("damped", "slower"),
         "advance_line": "Three in a row — you've got it! Four times the last, take off the middle squared, root it, halve it.",
         "teach": [
-            ["Put a little damping back — not enough to stop the rocking, only enough to shrink it. Everyone expects the swing to get smaller. Almost nobody expects the rocking to get slower, but it does.",
+            ["Put a little damping back — not enough to stop the rocking, only enough to shrink it. Everyone expects the swing to get smaller. Almost nobody expects the rocking to get slower, but it does. Take y double-prime plus 8 y prime plus 25 y equals zero.",
              '[[goal text="Damping slows the rocking"]][[step eq="y″ + 8y′ + 25y = 0"]]'],
             ["The damped frequency is 4 times the last number, take away the middle squared, then rooted and halved. For 8 and 25: 100 take away 64 is 36, whose root is 6, and half of that is 3.",
-             '[[step eq="4×25 − 8² = 36 · √36 ÷ 2 = 3"]]'],
+             '[[step eq="4×25 − 8² = 36"]][[step eq="√36 ÷ 2 = 3"]]'],
             ["Undamped it would have rocked at the root of 25 — that is 5 — so the damping really did slow it, from 5 down to 3. Skipping the halving gives 6, and 4 is half the damping, which is a real number here but not this one.",
              '[[step eq="3 ✓"]][[step eq="6 ✗ not halved · 4 ✗ half the damping"]]'],
         ],
@@ -681,9 +730,9 @@ _DIFFEQ_U6 = [
         "teach": [
             ["Every equation so far has had a zero on the right — nobody pushing, the spring left to itself. Put a number there instead and somebody is leaning on it. That changes where it ends up.",
              '[[goal text="Somebody is pushing"]][[step eq="y″ + 5y = 40"]]'],
-            ["Guess that the answer is steady — a flat height that never moves. A flat height has no curvature, so the y double-prime is nothing, and 5 y has to equal 40 all by itself. So y is 8.",
+            ["Guess that one particular solution is steady — a flat height that never moves. A flat height has no curvature, so the y double-prime is nothing, and 5 y has to equal 40 all by itself. So y is 8.",
              '[[step eq="5y = 40"]] [[step eq="y = 8"]]'],
-            ["That is a particular solution, and the method is always the same: guess the SHAPE the push has, then let the equation fix the size. Timesing instead of sharing gives 200, and 40 is the push, not a height.",
+            ["That is a particular solution, and for these steady pushes the method is the same every time: guess the SHAPE the push has, then let the equation fix the size. Timesing instead of sharing gives 200, and 40 is the push, not a height.",
              '[[step eq="8 ✓"]][[step eq="200 ✗ timesed · 40 ✗ the push"]]'],
         ],
         "pairs": [
@@ -708,11 +757,11 @@ _DIFFEQ_U6 = [
         "symbols": ("transient", "forgets"),
         "advance_line": "Three in a row — you've got it! Start take away steady is the part that fades.",
         "teach": [
-            ["A pushed spring does two things at once, and this is the shape of every answer in the unit: a steady part that stays, plus a transient part that fades away to nothing.",
+            ["A pushed spring with damping does two things at once. This is the shape of the answers in this lesson: a steady part that stays, plus a transient part that fades away to nothing. Here, the steady part is 40 and the spring starts at 65.",
              '[[goal text="The part that fades"]][[step eq="steady 40 · starts at 65"]]'],
             ["Suppose it settles at 40 in the long run but you let it go from 65. The steady part only explains 40 of that, so the other 25 must be the transient — and 25 is exactly how much has to die away.",
              '[[step eq="65 − 40 = 25"]]'],
-            ["Wait long enough and that piece is gone, leaving 40 no matter where you let go from. A spring forgets how it started. Adding gives 105, and 40 is the part that stays, not the part that goes.",
+            ["In these damped, settling problems, wait long enough and that piece is gone, leaving 40 no matter where you let go from. A damped spring forgets how it started. Adding gives 105, and 40 is the part that stays, not the part that goes.",
              '[[step eq="25 ✓"]][[step eq="105 ✗ added · 40 ✗ the steady part"]]'],
         ],
         "pairs": [
@@ -735,14 +784,14 @@ _DIFFEQ_U6 = [
         "op": "reso", "max_value": 200,
         "levels": ("abstract",),
         "symbols": ("resonance", "gap"),
-        "advance_line": "Three in a row — you've got it! Share the force out over the gap between the two frequencies.",
+        "advance_line": "Three in a row — you've got it! Share the force out over the gap between the two squared frequencies.",
         "teach": [
-            ["Unit 5 gave every object its own natural frequency. This lesson is what happens when a push arrives at that very frequency — and it is the reason soldiers break step before crossing a bridge.",
+            ["Unit 5 gave every object its own natural frequency. This lesson is what happens when a push arrives close to that frequency, and then at it — and it is the reason soldiers break step before crossing a bridge. Start with a push that is not there yet: natural squared 9, driver squared 3.",
              '[[goal text="Why soldiers break step"]][[step eq="natural² 9 · driver² 3"]]'],
             ["The swing that builds up is the force shared out over the gap between the two frequencies squared. Natural 9 against a driver of 3 leaves a gap of 6, so a force of 42 builds a swing of 7.",
              '[[step eq="42 ÷ (9 − 3) = 7"]]'],
-            ["Now close that gap and watch. A gap of 3 doubles the swing; a gap of 1 gives 42; and at a gap of nothing there is no size left to name — the swing simply grows without stopping. That is resonance. Dividing by the driver instead reaches 14.",
-             '[[step eq="7 ✓"]][[step eq="14 ✗ divided by the driver · 42 ✗ the force"]]'],
+            ["Now close that gap and watch. A gap of 3 doubles the swing to 14, and a gap of 1 gives 42. At a gap of nothing there is no size left to name — in this undamped model the swing simply grows without stopping. That is resonance. Dividing by the driver instead of the gap also reaches 14, by accident.",
+             '[[step eq="gap 3: 42 ÷ 3 = 14"]][[step eq="gap 1: 42 ÷ 1 = 42"]][[step eq="gap 0: no size — resonance"]][[step eq="7 ✓ at gap 6"]][[step eq="14 ✗ divided by the driver · 42 ✗ the force"]]'],
         ],
         "pairs": [
             {"worked": ["Here is one more, done for you. Natural squared 15, driver squared 5, force 110: a gap of 10, so a swing of 11.",
@@ -767,7 +816,7 @@ _DIFFEQ_U6 = [
         "symbols": ("damping", "endless"),
         "advance_line": "Three in a row — you've got it! Damping times frequency, and share the force over that.",
         "teach": [
-            ["A swing with no size at all is not something the world actually does, so something must be missing from that picture. What is missing is damping — and it is the last idea in the unit.",
+            ["A swing that grows without bound is not something real bridges do, so something must be missing from that picture. What is missing is damping — and it is the last idea in the unit. A force of 150, damping 5, frequency 3.",
              '[[goal text="What saves the bridge"]][[step eq="force 150 · damping 5 · frequency 3"]]'],
             ["At the exact resonant frequency the swing would be endless without it. With damping, the swing is the force shared over the damping times the frequency. A force of 150, damping 5, frequency 3: 5 times 3 is 15, and 150 over 15 is 10.",
              '[[step eq="150 ÷ (5 × 3) = 10"]]'],
@@ -809,11 +858,11 @@ _DIFFEQ_U7 = [
         "symbols": ("transform", "derivative"),
         "advance_line": "Three in a row — you've got it! s times Y, then take off the starting height.",
         "teach": [
-            ["Here is a completely different way to solve a differential equation: change it into something that is not one. The Laplace transform does exactly that, and this first rule is the whole reason it works.",
-             '[[goal text="Derivatives become timesing"]][[step eq="L{y′} = sY − y(0)"]]'],
-            ["Transform a derivative and you get s times Y, take away the starting height. The derivative is GONE — it has turned into a multiplication. If the curve started at 9, with s of 4 and Y of 5, that is 20 take away 9 — 11.",
+            ["Here is a completely different way to solve a differential equation: change it into something that is not one. The Laplace transform does exactly that, and this first rule is the whole reason it works. Read the board as: L of y prime equals s Y, minus y of zero.",
+             '[[goal text="Derivatives become s times Y, minus the start"]][[step eq="L{y′} = sY − y(0)"]]'],
+            ["Transform a derivative and you get s times Y, take away the starting height. The derivative is GONE — it has turned into a multiplication by s, with the starting height taken off. If the curve started at 9, with s of 4 and Y of 5, that is 20 take away 9 — 11.",
              '[[step eq="4 × 5 − 9 = 11"]]'],
-            ["Adding the start instead of taking it away gives 29, and 20 forgets that where you began matters at all. This one line is what carries the whole unit: differentiating becomes timesing by s.",
+            ["Adding the start instead of taking it away gives 29, and 20 forgets that where you began matters at all. This one line is what carries the whole unit: differentiating becomes s times Y, then take off the starting height.",
              '[[step eq="11 ✓"]][[step eq="29 ✗ added · 20 ✗ start ignored"]]'],
         ],
         "pairs": [
@@ -839,19 +888,19 @@ _DIFFEQ_U7 = [
         "symbols": ("algebra", "solve"),
         "advance_line": "Three in a row — you've got it! Add the two on the bottom, then share the top over it.",
         "teach": [
-            ["Once every derivative has become a multiplication, look at what is left on the page. No derivatives. No integrals. Just letters and numbers — plain algebra, and you have been solving that since Algebra I.",
+            ["Once the transform has turned the equation into terms in s and Y, look at what is left on the page. No derivatives. No integrals. Just letters and numbers — plain algebra, and you have been solving that since Algebra I.",
              '[[goal text="And now it is just algebra"]][[step eq="(s + 6)Y = 96"]]'],
-            ["Say the transforming left s plus 6, all times Y, equals 96. Solve for Y the way you always would: Y is 96 over s plus 6. Then at s equals 2 the bottom is 8, and 96 over 8 is 12.",
-             '[[step eq="Y = 96/(s + 6) · at s = 2"]] [[step eq="96 ÷ 8 = 12"]]'],
+            ["Say the transform leaves s plus 6, all times Y, equals 96. Solve for Y the way you always would: Y is 96 over s plus 6. Then at s equals 2 the bottom is 8, and 96 over 8 is 12.",
+             '[[step eq="Y = 96/(s + 6)"]][[step eq="at s = 2: 96 ÷ 8 = 12"]]'],
             ["Taking the two bottom numbers away instead of adding gives 24, and 96 is the top, not the answer. Notice what did NOT happen anywhere in that: no calculus at all. The derivative left the problem the moment we transformed it.",
              '[[step eq="12 ✓"]][[step eq="24 ✗ taken away · 96 ✗ the top"]]'],
         ],
         "pairs": [
             {"worked": ["Here is one more, done for you. s plus 2, times Y, equals 228; at s equals 4 the bottom is 6, and 228 over 6 is 38.",
-                        '[[step eq="228 ÷ 6 = 38"]]'],
+                        '[[step eq="(s + 2)Y = 228"]][[step eq="Y = 228/(s + 2)"]][[step eq="at s = 4: 228 ÷ 6 = 38"]]'],
              "ask": {"a": 2, "b": 192, "c": 4, "op": "lalg"}},
             {"worked": ["One more together. 240 over s plus 2, at s equals 4: the bottom is 6, and 240 over 6 is 40.",
-                        '[[step eq="240 ÷ 6 = 40"]]'],
+                        '[[step eq="Y = 240/(s + 2)"]][[step eq="at s = 4: 240 ÷ 6 = 40"]]'],
              "ask": {"a": 4, "b": 210, "c": 2, "op": "lalg"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
@@ -869,11 +918,11 @@ _DIFFEQ_U7 = [
         "symbols": ("pole", "shift"),
         "advance_line": "Three in a row — you've got it! The pole slides right by the amount in the exponent.",
         "teach": [
-            ["The transform of a thing blows up at certain values of s, and those places have a name: poles. A pole is not bookkeeping — it is the answer in disguise, as the last beat will show.",
+            ["The transform of a thing blows up at certain values of s, and those places have a name: poles. A pole is not bookkeeping — it is the answer in disguise, as the last beat will show. Start with a pole at s equals 20, and multiply the original by e to the 6 t.",
              '[[goal text="The shift rule"]][[step eq="pole at s = 20 · × e^(6t)"]]'],
-            ["Here is the shift rule, the line of the table used most of all. Multiply the original by e to the 6 t, and every s in the transform becomes s take away 6 — so the whole picture slides 6 to the right. A pole at 20 moves to 26.",
+            ["Here is the shift rule, the line of the table used most of all. Multiply the original by e to the 6 t. In the transform, every s becomes s take away 6. So the whole picture slides 6 to the right, and a pole at 20 moves to 26.",
              '[[step eq="20 + 6 = 26"]]'],
-            ["Sliding the wrong way gives 14, and 20 is where the pole used to be. And now why poles matter: a pole to the right of zero means the answer GROWS, and one to the left means it dies away. The pole is the behaviour, written down.",
+            ["Sliding the wrong way gives 14, and 20 is where the pole used to be. And now why poles matter: for the single real poles in this lesson, a pole to the right of zero means the answer GROWS, and one to the left means it dies away. The pole is the behaviour, written down.",
              '[[step eq="26 ✓"]][[step eq="14 ✗ wrong way · 20 ✗ the old pole"]]'],
         ],
         "pairs": [
@@ -898,19 +947,19 @@ _DIFFEQ_U7 = [
         "symbols": ("final", "settles"),
         "advance_line": "Three in a row — you've got it! Share the top over the number beside the s.",
         "teach": [
-            ["The last idea of the unit is the one engineers reach for daily. Often you do not want the whole solution — you only want to know where it settles in the end. You can read that off without transforming back at all.",
+            ["The last idea of the unit is the one engineers reach for daily. Often you do not want the whole solution — you only want to know where it settles in the end. You can read that off without transforming back at all. Here: Y equals 96 over s times s plus 8.",
              '[[goal text="Reading the ending"]][[step eq="Y = 96/(s(s + 8))"]]'],
             ["Suppose Y is 96, with two things underneath it: a lone s, and s plus 8. Multiply by s, which clears that lone s, and then let s fall away to zero. The s plus 8 becomes just 8, and 96 over 8 is 12. That is the final value.",
-             '[[step eq="96 ÷ 8 = 12"]]'],
-            ["Handing back 96 answers with the top, and 88 takes the two away rather than sharing. The theorem is worth its weight: where a thing ends up, read straight off the transform, with no inverting at all.",
+             '[[step eq="Y = 96/(s(s + 8))"]][[step eq="s → 0: 96 ÷ 8 = 12"]]'],
+            ["Handing back 96 answers with the top, and 88 takes the 8 away rather than sharing. The theorem is worth its weight for settling transforms like these ones: where a thing ends up, read straight off the transform, with no inverting at all.",
              '[[step eq="12 ✓"]][[step eq="96 ✗ the top · 88 ✗ taken away"]]'],
         ],
         "pairs": [
-            {"worked": ["Here is one more, done for you. 180 underneath a lone s and an s plus 12: 180 over 12 is 15.",
-                        '[[step eq="180 ÷ 12 = 15"]]'],
+            {"worked": ["Here is one more, done for you. Y is 180 over a lone s times s plus 12: 180 over 12 is 15.",
+                        '[[step eq="Y = 180/(s(s + 12))"]][[step eq="180 ÷ 12 = 15"]]'],
              "ask": {"a": 4, "b": 132, "op": "lfin"}},
-            {"worked": ["One more together. 76 under a lone s and an s plus 2: 76 over 2 settles at 38.",
-                        '[[step eq="76 ÷ 2 = 38"]]'],
+            {"worked": ["One more together. Y is 76 over a lone s times s plus 2: 76 over 2 settles at 38.",
+                        '[[step eq="Y = 76/(s(s + 2))"]][[step eq="76 ÷ 2 = 38"]]'],
              "ask": {"a": 3, "b": 105, "op": "lfin"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
@@ -939,12 +988,12 @@ _DIFFEQ_U8 = [
         "symbols": ("system", "arrow"),
         "advance_line": "Three in a row — you've got it! The x part first, then take off the y.",
         "teach": [
-            ["Everything so far has followed one quantity. Now follow two at once, each one watching the other: rabbits and foxes, a spring in two directions, two tanks feeding each other. That is a system.",
-             '[[goal text="Two things at once"]][[step eq="x′ = 4x − y"]]'],
+            ["Everything so far has followed one quantity. Now follow two at once, each one watching the other: rabbits and foxes, a spring in two directions, two tanks feeding each other. That is a system — two rules, one for x and one for y. Here x prime is 4 x take away y, and y prime is x plus y.",
+             '[[goal text="Two things at once"]][[step eq="x′ = 4x − y"]][[step eq="y′ = x + y"]]'],
             ["Say x grows by 4 for every x it already has, and loses 1 for every y. At the point where x is 9 and y is 5: 4 times 9 is 36, and the 5 of y pulls it back to 31.",
              '[[step eq="4 × 9 − 5 = 31"]]'],
-            ["Do the same for y and you get an arrow at that point, pointing somewhere in the plane — Unit 1's slope field with two directions instead of one. Adding the y gives 41, and 36 pretends the foxes were not there.",
-             '[[step eq="31 ✓"]][[step eq="41 ✗ added · 36 ✗ no y"]]'],
+            ["Do the same for y: 9 plus 5 is 14. The pair, 31 across and 14 up, is an arrow at that point, pointing somewhere in the plane — Unit 1's slope field with two directions instead of one. Adding the y gives 41, and 36 pretends the foxes were not there.",
+             '[[step eq="y′ = 9 + 5 = 14"]][[step eq="the arrow: (31, 14)"]][[step eq="31 ✓"]][[step eq="41 ✗ added · 36 ✗ no y"]]'],
         ],
         "pairs": [
             {"worked": ["Here is one more, done for you. 6 for every x, at x of 15 with y of 51: 90 take away 51 is 39.",
@@ -969,11 +1018,11 @@ _DIFFEQ_U8 = [
         "symbols": ("nullcline", "cross"),
         "advance_line": "Three in a row — you've got it! Slope times x is where the line sits.",
         "teach": [
-            ["Drawing an arrow at every point is slow — the same problem Unit 1 solved with isoclines. Here the shortcut is even better: find the places where one of the two arrows goes completely flat.",
+            ["Drawing an arrow at every point is slow — the same problem Unit 1 solved with isoclines. Here the shortcut is even better: find the places where one part of the arrow — the x part or the y part — is zero.",
              '[[goal text="Where an arrow goes flat"]][[step eq="x′ = 0 where y = 5x"]]'],
             ["For our system x stops changing exactly where 5 x equals y. That is a straight line through the origin, and it is called a nullcline — the x one, since x is what has stopped. At x equals 12, it sits at y equals 60.",
              '[[step eq="5 × 12 = 60"]]'],
-            ["Along that whole line the arrows point straight up or straight down, since x is going nowhere. Adding gives 17, and 25 is the slope squared rather than a height. And where the x-nullcline and the y-nullcline cross, nothing moves at all — an equilibrium.",
+            ["Along that whole line the arrows point straight up or straight down, since x is going nowhere — except at one point. Adding gives 17, and 25 is the slope squared rather than a height. And where the x-nullcline and the y-nullcline cross, nothing moves at all — an equilibrium.",
              '[[step eq="60 ✓"]][[step eq="17 ✗ added · 25 ✗ slope squared"]]'],
         ],
         "pairs": [
@@ -998,11 +1047,11 @@ _DIFFEQ_U8 = [
         "symbols": ("determinant", "saddle"),
         "advance_line": "Three in a row — you've got it! Diagonal product, take away the corner squared.",
         "teach": [
-            ["A linear system is carried by four numbers arranged in a square, and out of those four comes one number that classifies the entire picture. It is called the determinant.",
+            ["A linear system is carried by four numbers arranged in a square, and out of those four comes one number that does a lot of the classifying. It is called the determinant.",
              '[[goal text="The number in the corner"]][[step eq="[9 4; 4 6]"]]'],
             ["Take 9 and 6 down the diagonal with 4 in both corners. The determinant is 9 times 6, take away 4 squared: 54 take away 16 is 38.",
              '[[step eq="9×6 − 4² = 38"]]'],
-            ["Now what it means. The determinant is the two eigenvalues times each other. So if it ever falls below zero, one of them must be positive and you have a saddle. A saddle pulls you in one way and flings you out the other. Adding the corners gives 70, and skipping the squaring gives 50.",
+            ["Now what it means. The determinant is the two eigenvalues times each other. So if it ever falls below zero, one of them must be positive and you have a saddle. A saddle pulls you in one way and flings you out the other. Adding the corner square instead gives 70, and skipping the squaring gives 50.",
              '[[step eq="38 ✓"]][[step eq="70 ✗ added · 50 ✗ not squared"]]'],
         ],
         "pairs": [
@@ -1032,7 +1081,7 @@ _DIFFEQ_U8 = [
              '[[goal text="Two numbers decide the picture"]][[step eq="trace 60 = λ₁ + λ₂"]]'],
             ["Suppose the trace is 60 and the work has already turned up one eigenvalue, 14. The two must add to 60, so the other is 46. No further algebra needed.",
              '[[step eq="60 − 14 = 46"]]'],
-            ["And those two numbers decide everything. Both above zero, as here, and every path races away from the origin. Both below and it all spirals in. One of each is a saddle. Adding gives 74, and 14 is the one you already had.",
+            ["And those two numbers decide the kind of picture. Both above zero, as here, and every path except the origin itself races away from it. Both below, and every path moves in toward the origin. One of each is a saddle. Adding gives 74, and 14 is the one you already had.",
              '[[step eq="46 ✓"]][[step eq="74 ✗ added · 14 ✗ the known one"]]'],
         ],
         "pairs": [
@@ -1069,13 +1118,13 @@ _DIFFEQ_U9 = [
         "op": "lnrz", "max_value": 190,
         "levels": ("abstract",),
         "symbols": ("nonlinear", "tangent"),
-        "advance_line": "Three in a row — you've got it! Double the equilibrium, then times the distance.",
+        "advance_line": "Three in a row — you've got it! The estimate: double the equilibrium, then times the distance.",
         "teach": [
             ["Almost nothing in the world is linear. Real rate laws bend, and Unit 8's neat straight-line systems look like a special case — until you notice the trick that rescues all of it.",
              '[[goal text="Up close it is a line"]][[step eq="rate = 9 − P²"]]'],
-            ["Zoom in far enough on any curve and it becomes its own tangent. The nonlinear law 9 take away P squared sits still at P equals 3, and near there it pulls back at 2 times 3 for every 1 of distance. Sitting 4 out, that is 24.",
-             '[[step eq="2×3 = 6 per 1 · × 4 = 24"]]'],
-            ["So close to an equilibrium, every curved law behaves like a straight one — which is exactly why the last unit was worth learning. Forgetting to double gives 12, and adding the two gives 7.",
+            ["Zoom in far enough on a smooth curve and it looks almost exactly like its own tangent. The nonlinear law 9 take away P squared sits still at P equals 3. Its slope there is negative 2 P — negative 6 — so near there the straight-line estimate pulls back at 2 times 3 for every 1 of distance. Sitting 4 out, that estimate is 24.",
+             '[[step eq="slope at P = 3: −2 × 3 = −6"]][[step eq="estimate: 6 per 1, × 4 = 24"]]'],
+            ["So close to a smooth equilibrium, a curved law behaves very nearly like a straight one — which is exactly why the last unit was worth learning. Forgetting to double gives 12, and adding the two gives 7.",
              '[[step eq="24 ✓"]][[step eq="12 ✗ not doubled · 7 ✗ added"]]'],
         ],
         "pairs": [
@@ -1099,13 +1148,13 @@ _DIFFEQ_U9 = [
         "op": "prey", "max_value": 190,
         "levels": ("abstract",),
         "symbols": ("predator", "balance"),
-        "advance_line": "Three in a row — you've got it! Count the new rabbits, then share them among the foxes.",
+        "advance_line": "Three in a row — you've got it! Count the new rabbits, then divide by the rabbits each fox eats.",
         "teach": [
-            ["Here is the most famous nonlinear system there is: a predator and its prey. Here is why it cannot be linear. Rabbits eat grass, foxes eat rabbits, and the eating depends on BOTH numbers at once.",
+            ["Here is the most famous nonlinear system there is: a predator and its prey. Rabbits eat grass, foxes eat rabbits, and in the full model the eating depends on both numbers at once. Today we take one slice of it: the rabbit count, held still.",
              '[[goal text="Rabbits and foxes"]][[step eq="20 rabbits · 3 born each · 5 eaten per fox"]]'],
-            ["Say a wood holds 20 rabbits, each adding 3 new ones a year — 60 new rabbits. If every fox eats 5 rabbits a year, then 12 foxes eat exactly those 60, and the rabbit number holds still. That is a balance point.",
+            ["Say a wood holds 20 rabbits, each adding 3 new ones a year — 60 new rabbits. If every fox eats 5 rabbits a year, then 12 foxes eat exactly those 60, and the rabbit number holds still. That is the rabbit half of a balance point.",
              '[[step eq="20 × 3 ÷ 5 = 12 foxes"]]'],
-            ["Notice neither number is steady on its own — each is held in place by the other. Answering 60 counts the births with nothing eating them, and 20 hands back the rabbits when foxes were asked for.",
+            ["Notice the rabbit number is not steady on its own — it is held in place by the foxes, and the fox half of the balance works the same way. Answering 60 counts the births with nothing eating them, and 20 hands back the rabbits when foxes were asked for.",
              '[[step eq="12 ✓"]][[step eq="60 ✗ nothing eating · 20 ✗ the rabbits"]]'],
         ],
         "pairs": [
@@ -1131,9 +1180,9 @@ _DIFFEQ_U9 = [
         "symbols": ("cycle", "quarter"),
         "advance_line": "Three in a row — you've got it! The foxes lag by a quarter of the cycle.",
         "teach": [
-            ["A balance point is not where rabbits and foxes actually go. Nudge them off it and they do something no straight-line system can do: they circle it, for ever, in a closed loop.",
+            ["Start rabbits and foxes exactly on the balance point and they stay there. Nudge them off it, and in this model they circle it, for ever, in a closed loop — one that takes, say, 60 months to go round.",
              '[[goal text="Round and round"]][[step eq="cycle 60 months"]]'],
-            ["And the loop has a shape. Plenty of rabbits feed more foxes; more foxes eat the rabbits down; fewer rabbits starve the foxes; fewer foxes let the rabbits back. So the foxes always peak a quarter of a cycle after the rabbits. In a 60-month cycle, that is 15 months.",
+            ["And the loop has a shape. Plenty of rabbits feed more foxes; more foxes eat the rabbits down; fewer rabbits starve the foxes; fewer foxes let the rabbits back. So in this lesson's tidy cycle, the foxes peak a quarter of a cycle after the rabbits. In a 60-month cycle, that is 15 months.",
              '[[step eq="60 ÷ 4 = 15 months"]]'],
             ["Halving instead of quartering gives 30 — half a cycle, which would put the foxes at their fewest just as the rabbits peak. And 60 is the whole loop, not the lag inside it.",
              '[[step eq="15 ✓"]][[step eq="30 ✗ halved · 60 ✗ the whole cycle"]]'],
@@ -1159,11 +1208,11 @@ _DIFFEQ_U9 = [
         "symbols": ("sensitive", "forecast"),
         "advance_line": "Three in a row — you've got it! The gap multiplies once for every day.",
         "teach": [
-            ["One last idea, and it is the strangest in the whole course. Everything you have learned says that if you know the equation and the starting point, you know the future. Here is where that quietly stops being true.",
+            ["One last idea, and it is the strangest in the whole course. Everything you have learned says that if you know the equation and the starting point exactly, you know the future. Here is what happens when the starting point is only ALMOST known.",
              '[[goal text="A perfectly known equation"]][[step eq="gap 4 · ×3 each day"]]'],
-            ["Two forecasts start 4 apart — almost the same, but not quite. In a sensitive system every day multiplies whatever gap there is by 3. After 3 days: 3 times 3 times 3 is 27, and 4 of those is a gap of 108.",
+            ["Two forecasts start 4 apart — almost the same, but not quite. This is a sensitive system: in this example every day multiplies whatever gap there is by 3. After 3 days: 3 times 3 times 3 is 27, and 4 of those is a gap of 108.",
              '[[step eq="4 × 3³ = 108"]]'],
-            ["Nothing was random and nothing was unknown. The equation is exact, and the gap simply multiplied its way out of sight — which is why a forecast a month ahead is not available to anyone, at any price. Timesing the days instead of powering gives 36, and 27 forgets the gap you started with.",
+            ["Nothing was random. The equation is exact, and a tiny starting gap simply multiplied its way out of sight — which is why a long forecast goes unreliable whenever the start is even slightly off. Timesing the days instead of powering gives 36, and 27 forgets the gap you started with.",
              '[[step eq="108 ✓"]][[step eq="36 ✗ timesed · 27 ✗ no start"]]'],
         ],
         "pairs": [

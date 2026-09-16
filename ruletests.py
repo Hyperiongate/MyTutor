@@ -2,10 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
-#   2026-09-08  OLDER NOTES (before 2026-09-01) live in
-#               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
-#               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
+#   2026-09-16  OLDER NOTES (before 2026-09-10) live in
+#               changelog/ruletests.py.md -- moved out on 2026-09-16 (build wp) VERBATIM,
+#               95 entries; 42 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-16  BUILD wp -- PART 3mk, THE FIRST DIFFEQ SWEEP (119 findings, 0 clean, 14
+#               generator-owned). Fourteen generator items (lnrz's sign and estimate, cdmp's
+#               reversed door, char's "equals zero", away, part, estp, newt, chao, slpq,
+#               isoc, logi, eign's "moves in", sepv's and lder's ask boards the referees
+#               accept), the dot pin grown to nine courses, the authored classes. No count
+#               moved; no old pin quoted a Diffeq generator line; one old authored pin (the
+#               chaos lesson's "not available to anyone, at any price", 3ft) moved to the
+#               scoped sentence. The headers of this file and lessonscripts.py passed
+#               100 KB this build, so notes_rollout.py rolled every note before 2026-09-10
+#               out to changelog/<file>.md (the 3ke pins check the header size).
 #   2026-09-16  BUILD wo -- PART 3mj, THE FIRST CALCULUS SWEEP, HALF (19 of 36 read; 46
 #               findings, 2 clean). Six generator items (linf's limit wording and matching
 #               board, acce's wrong turns, cfix's "without a jump", llaw's short walk-back,
@@ -324,856 +334,6 @@
 #               loaded code object's line numbers, and a 15-line insert had shifted
 #               them. Nothing was wrong with the code. Same law as the uv cp -r
 #               incident; the cost is a wasted 25-minute run and a false lead.
-#   2026-09-09  BUILD uw -- PART 3ks, ENTRY-LEVEL UNITS 2-4 TO THE SHAPE. Pins the
-#               twelve lessons' whole shape, ruling (c) BOTH ways (no reason question
-#               in Units 2-3, all four Unit 4 lessons carry it), the walk-back flag
-#               following whether the op HAS a picture rather than following the
-#               unit, every trap beat's check and cross, the per-lesson content, the
-#               word-aware giveaway audit (the only four hits are `doubles`, whose
-#               problem space is exhausted), the referee widening, captions, rule 44
-#               and the house words. _entry_unit_checks GAINS worked_ids: tb assumed
-#               one thing decided both the reason question and the walk-back, and
-#               Jim's 2026-09-09 rulings separate them; worked_ids=None keeps tb's
-#               behaviour, so the Unit 1 caller is untouched.
-#   2026-09-09  BUILD uv -- PART 3kr, THE BOARD KEEPS UP WITH THE VOICE. Pins the
-#               EIGHTY-FIFTH referee (board_silence_conflict) with its failability seam
-#               (lift the ceiling, the same reply goes silent), the canon sweep (not one
-#               authored beat in the course fires it), boardaudit.worst() under the
-#               referee's OWN ceiling read from tutor.py so the two cannot drift, the end
-#               card in both wordings across all 360 lessons, session.html drawing it
-#               (its end branch used to return before handleTags), and the orientation
-#               card's record with the SPOKEN line proven byte-identical to us -- the pin
-#               that keeps this build prewarm-free. Sixteen referee-count pins 84 -> 85.
-#               One live drive: a whole lesson to its end over real HTTP, then the two new
-#               cards rendered at 390x844 and measured for overflow.
-#   2026-09-09  BUILD uu -- THE FRONT DOOR, QUIETED. PART 3kq: the nav is one row (brand,
-#               Pricing, Sign in), no link row, no ribbon, site-nav.js not loaded; the hero
-#               is one sentence and three honest doors in order (/demo/lesson, /demo?tour=1,
-#               /login) with the mockup's guest door left out; the pencil portrait inline
-#               with breath and blink off under reduced motion; DO NO HARM on the window
-#               (the teach sample, the mini-lesson, the hidden canvas, the plain demo link),
-#               the seven sections, the FAQ and its JSON-LD twin, the parent button's words,
-#               the youngest-students sentence (moved to the Learn step, verbatim), "student"
-#               never "child"; the footer's link row carries every old nav link plus How we
-#               teach and the two college courses; LIVE at 1280x800 (three doors and the
-#               pencil above the fold, the teach button in view) and 390x844 (no sideways
-#               scroll), no page error. The older landing pins (3ad, 3gt, 3id, 3jz, rj, the
-#               Maya week) all still hold on the new page -- nothing moved.
-#   2026-09-09  BUILD ut -- THE FIRST WATCH ON THE NEW STACK. PART 3kp: the percent row
-#               fires on the watch's line and stays silent on the four true forms; the times
-#               sign is caught by referee 31 on first use and silent once said or once met;
-#               the arrow-as-pointer shape fires, the canon's median and leg cards do not;
-#               "Picture a bar" fires with nothing drawn and is silent with the tape drawn;
-#               the column's 0.47 and the triangle's 6 and 8 fire when the reply asks and
-#               are silent when said, when a number word says them, or when nothing is
-#               asked; fail-open; dispatch order; the count (84) and the truth class (11);
-#               the canon swept -- 7,455 authored strings, 0 fires from the row and the
-#               three; the times sign as heard 0, the strict ledger at most 30 captions.
-#               Every referee-count pin moved 81 -> 84 and both falsehood pins 19 -> 20.
-#   2026-09-09  BUILD us -- ORIENT, THEN ONE IDEA PER BEAT WITH A CHECK (the shape Jim
-#               chose). PART 3ko: lesson_orientation's two forms and prev_lesson;
-#               beat_of; both forms in every closure, LINE_CHECK a lane line; the
-#               engine's walk unchanged; the lane (the orientation second, the record's
-#               word, the store failing, the beat names); the page's check and ready
-#               gate, spoken never bubbled, words answering; LIVE end to end (a replay,
-#               six checks, two guided asks, the ready gate, the first practice
-#               question). The closure ceiling pins 24,000 -> 24,500 (the orientation
-#               lines).
-#   2026-09-09  BUILD ur -- THE WRONG ANSWER IS ANSWERED AT ONCE. PART 3kn: the deferred
-#               re-teach through the TestClient with the model stubbed (defer_ai, the
-#               ai_pending marker, /api/script/intervene, the wrong-again redo, the
-#               fail-safe, no model, the pilot shape, 409s); session.html's defer_ai,
-#               scrFetchIntervene, the ai_pending beat and the byte-identical thinking
-#               lines; LIVE in a browser with the re-teach delayed twelve seconds (the
-#               hold line within a second, the thinking line, the lesson goes on).
-#   2026-09-08  BUILD uq -- THE PROBLEM IS ALWAYS ON THE BOARD (Jim's corrections queue,
-#               13 flags). PART 3km: main._ai_board_floor (an intervention with no board
-#               tag gets the ask's own board -- pinned through the lane with the model
-#               stubbed); the practice-intro card; speech-text.js's quotation rule (run in
-#               node); fcmp's board order; the graph-slides lesson's two curves; inside-the-
-#               distance says integers and counts dots; 'Nice counting!' gone; the function
-#               lessons' recaps say 'back to our first machine'; the funcrename canon sweep
-#               in the lesson's REAL order (asks included). Three content pins moved.
-#   2026-09-08  BUILD up -- A NEW MACHINE, STILL CALLED f (uo's honest gap closed, Jim's
-#               word). PART 3kl: the four practice ops and the eight worked lines retire
-#               the name out loud; _fr_definitions reads [[machine fname= rule=]] cards;
-#               'new machine' is a retiring phrase; the cumulative canon sweep sees 36
-#               definitions and fires 0. 3kk's gap pin now reads the closure. Tile
-#               11,268 -> 11,290.
-#   2026-09-08  BUILD uo -- ONE NAME PER FUNCTION (Jim's three rulings on the 09-08 watch:
-#               #3 yes, #7 leave it, #8/#13 as recommended). PART 3kk: the EIGHTY-FIRST
-#               referee function_redefined_conflict (rule 28, fed heard_tutor), mathcheck's
-#               expressions_equal, the prompt's rule-28 clause, RULED_ALLOWED row seven
-#               (rule 48). Thirteen referee-count pins 80 -> 81; the row-six pin 6 -> 7;
-#               the tile 11,236 -> 11,268. Canon swept cumulatively, 0. The honest gap
-#               ([[machine fname=]] not read; five lessons reuse a letter) is pinned.
-#   2026-09-08  BUILD un -- THE TRUTH ITEMS AND THE PROVEN HOLES of the 2026-09-08 night
-#               watch (14 new confirmed on ug; the five needing no ruling). PART 3kj: the
-#               rule-61 referees read _plain_prose (markdown emphasis stripped -- the
-#               **division** dodge); two KNOWN_FALSEHOODS rows (the hundredths place is
-#               not two digits; parentheses do mean multiply in 3(5)); the story-units
-#               grammar reads 'two bags of candy with four pieces each' (third sighting);
-#               postponed_show's branch three (a figure asked for, only text tags landed);
-#               the EIGHTIETH referee triangle_letters_unspoken_conflict (rule 14). Canon
-#               sweeps 0. Twelve referee-count pins 79 -> 80; the falsehood pin 17 -> 19.
-#   2026-09-08  BUILD um -- THE TAP UNLOCKS THE SOUND. Jim, on his phone, the day the
-#               stack went live: the demo lesson had no sound. PART 3ki: demo-lesson.html's
-#               unlockSound() (warmUpAudio + a silent utterance) inside the level tap, the
-#               Next/Skip tap and the new Start door; ?course= shows the door instead of
-#               autostarting (start(want) only in the door's onclick); LIVE (playwright +
-#               a uvicorn subprocess): ?course=basic shows the door and no stage, the tap
-#               opens the stage with the audio context running, a plain level tap too.
-#               Tile 11,184 -> 11,190 (PART 3ki's 6).
-#   2026-09-08  BUILD ul -- THE LANDSCAPE PHONE (found by the release rehearsal of the
-#               unpushed stack). PART 3kh: the last-declared <=900px x <=520px block on
-#               session/practice/topic (one-line top row with the nav scrolling inside it,
-#               the tutor head beside the Curriculum row, a one-row dock with the hint
-#               hidden, the symbol strip one scrolling row, the welcome/entry cards
-#               scrolling from the top), cadabra.js rule 33's phone.maxHeight (the menu
-#               twins, version ul); LIVE at 844x390 (playwright + a uvicorn subprocess):
-#               the board >= 180px after the tour, the nav one row, mic + Pause + Type on
-#               one row, the pencil small and clear, no sideways scroll; practice's entry
-#               card scrolls and its board >= 120px with the strip one row. Also: 3kc's
-#               isPhone pin reads the width test that still leads; its menu pin reads
-#               the phone block by key. Tile 11,170 -> 11,184 (PART 3kh's 14).
-#   2026-09-08  BUILD uk -- THE MARK FLOOR (F4; Jim's 09-07 ruling: build it, no retry).
-#               PART 3kg: tutor.repair_missing_mark -- the watch case ("Correct" spoken,
-#               no mark -> [[mark correct="1"]] prepended, words untouched), "Not quite"
-#               -> "0", ten verdict words each way, rule 18(c)'s echo first, board-only
-#               numbering; the silences (a mark or nice already there, hedged openings
-#               counted and untouched, "The correct answer is", "Correct answer is", bare
-#               "Right,"/"Yes,", "Perfect squares", no verdict at all, not a numbered
-#               question, nobody answered, no previous turn); the repaired reply passes the
-#               verdict referee and the probe; ry's floor untouched and never marked twice;
-#               the one shipping door after ry, the events, no retry, the referee count
-#               still 79; zero touches across the canon pairs. Tile 11,130 -> 11,170 (PART 3kg's 40, three of them through _create_verified with a stub model).
-#   2026-09-08  BUILD uj -- ONE FILE PER COURSE (housekeeping, second half). The 360
-#               lessons moved from lessonscripts.py to lessons/<course>.py (ten pure-data
-#               files; lessons/__init__.py joins them). NEW HELPER lessons_src() = the
-#               engine plus the ten course files, for the pins that scan what the lessons
-#               SAY (op= as a column label, the pie canon sweep, the counting lessons'
-#               text); the 'is whole' pin now walks the ten files too; four .read(N) note
-#               windows that ui's sweep missed now read notes(). PART 3kf pins the
-#               package (pure data, 36 per course, ORDER slices), the engine's import and
-#               the data identity (LESSONS rebuilt from the files equals the engine's,
-#               COURSE_ORDER is the ORDERs joined, no duplicate ids, every lesson in the
-#               file of its course). Tile 11,091 -> 11,102 (the whole-file pin) -> 11,130
-#               (PART 3kf's 28).
-#   2026-09-08  BUILD ui -- THE NOTES MOVE OUT (housekeeping). THIS HEADER: every note
-#               dated before 2026-09-01 (241 of them) now lives in changelog/ruletests.py.md,
-#               verbatim -- the pointer above says so; same for main.py, tutor.py, store.py,
-#               lessonscripts.py, prompts.py and session/practice/topic/demo.html, moved by
-#               notes_rollout.py (new, repo root). NEW HELPER notes(<file>) = the header PLUS
-#               the changelog; the 222 dated-note pins that read a fixed slice of a file
-#               (rd("main.py")[:200000], rd("ruletests.py")[:40000], m[:200000], mf[:12000]
-#               ...) now read notes(<file>) -- a slice slides as notes are added above it
-#               (the reason the ruletests window was widened three times) and a roll-out
-#               empties it; "the dated note exists, at the top or in the changelog" is the
-#               fact. PART 3ke pins the tool, the helper, the ten headers and the ten
-#               changelogs. Tile 11,052 -> 11,091 (PART 3ke's 39).
-#   2026-09-08  BUILD uh -- THE DEMO TEACHES (P3 of the deep look). PART 3kd: the demo
-#               lesson lane in main.py (levels/start/answer on the real engine, the first
-#               authored lesson per course derived from COURSE_ORDER, a fixed seed,
-#               _script_clean and never an answer key, NO student / NO store write / NO
-#               model, opaque short-lived tokens, the eight-answer cap, per-visitor
-#               limits); speak-prep's "demo" lane (no code, rate-limited, the drill's
-#               closure-only cache-only twin); static/demo-lesson.html (the demo voice
-#               lane, the three routes, Skip to the question, the doors back, the pencil
-#               mounting when the stage opens, MTBoard's dark board); demo.html's front
-#               door (/demo/lesson first; ?tour=1 and ?views=1); the menu's demolesson
-#               roster entry (both copies, version uh or later -- ug's version pin now
-#               reads 'ug or later'); session.html's THREE-stop tour for Entry and Basic
-#               (no Course Assessment, no Final Exam, no layout words; the grand tour
-#               still eleven stops); the sitemap. LIVE (subprocess + TestClient +
-#               sqlite): levels, a start twice with the same opening, a wrong then right
-#               answers graded by the engine's own key with `right` reported and the key
-#               never shipped, the cap (429), a dead token (409), the voice lane (a
-#               closure line 200, a stranger 409, the drill lane still wants a code) --
-#               and every student table read back EMPTY. Tile 11,023 -> 11,052 (27 in PART 3kd, and 2 in
-#               PART 3p, which walks every page and now meets demo-lesson.html). TWO
-#               WINDOWS: the 45 'dated note' pins that read THIS file's header as [:28000]
-#               now read [:40000] (sp's and sq's notes had slid past 28,000 as the header
-#               grew -- the pins were true and the window was small); PART 3il's reason-door
-#               pin looks for read_answer AFTER the door (the demo lane calls it earlier).
-#   2026-09-08  BUILD ug -- THE PHONE CLASSROOM (P1 of the deep look). PART 3kc: on every
-#               screen <=900px the app is the viewport, the board column is bounded and
-#               the BOARD scrolls (the runaway pad found in ug's dry run -- 853,422px of
-#               board -- cannot recur), the dock is three short rows; <=640px the top row
-#               is one line, the icon nav one scrolling row, the bubbles clear of the
-#               pencil's corner, the lesson title wraps; the demo's board column leads
-#               with a one-row dock; cadabra.js rule 33 (the menu's phone block, both
-#               copies identical, version ug); the mic reads "Listen…" while dark on all
-#               three pages; the tour marks body.touring. LIVE (playwright + a uvicorn
-#               subprocess, skipped where playwright is absent): a 390x844 render of an
-#               Algebra I lesson measured -- board >= 380px and on screen, dock <= 260px,
-#               nav one row, pencil < 110px and clear of every word, no sideways scroll,
-#               mic beside Pause. Tile 10,994 -> 11,023.
-#   2026-09-08  BUILD uf -- THE PER-STUDENT VIEW (P2 of the deep look, second half). PART
-#               3kb: GET /api/admin/student (general tier, header only, rate-limited,
-#               404/400, read-only, no code-listing route anywhere), its payload shape
-#               in ue's words, store.student_courses, the One student card in admin.html
-#               (hidden until unlocked, no reset button, "student" never "child"); LIVE
-#               (subprocess + TestClient + sqlite): a lesson driven, then the route
-#               refused without the key / with a wrong key / with the key in the query,
-#               404 for an unknown code, 400 for none, and the payload read back whole
-#               (the masked code only, the unit "taught", the lesson, the answers newest
-#               first with their topic, the stats). Tile 10,977 -> 10,994.
-#   2026-09-07  BUILD ue -- THE AUTHORED LANE WRITES IT DOWN (P2 of the deep look, first
-#               half). PART 3ka: the script_answers table and its registry row; the
-#               ladder explored < learning < practiced < taught < mastered with
-#               record_check the one writer of "mastered"; the one-time migration; the
-#               lane's three grading points each writing a row with the star's verdict,
-#               unheard writing none, the question noted at the start and after every
-#               turn; the heartbeat still the ONE clock for minutes; lessons_done per
-#               unit in /api/topics and /api/records; the goal suggester; the three pages
-#               ("Lesson done" ranked under Mastered, tiles that ADD the lanes and say
-#               so, the records column, the admin tiles). LIVE (subprocess + TestClient
-#               + sqlite): the migration on planted rows, then one whole lesson with a
-#               wrong answer first -- rows, attempt numbers, stats, "taught" not
-#               "mastered", the dashboard/records/admin payloads. Tile 10,942 -> 10,977.
-#   2026-09-07  BUILD ud -- P0 OF THE DEEP LOOK. PART 3jz: the five public pages say the
-#               true order for the youngest (say it, type it, the buttons are there) and
-#               the eight stale sentences are gone; methodology's prose numbers sit in
-#               <span data-referees> pinned to the count in tutor.py; the sign-in page
-#               prints no test codes (they fill only from /api/site-flags) and the
-#               "no passwords" note is gone; the owner's tools (pilot.html and /pilot,
-#               the bench, demolab, the avatar stub, static/mockup/) answer 404 to the
-#               public through _OwnerGatedStatic and open for the owner cookie that
-#               POST /api/owner/unlock sets; practice/topic's "How to answer" line is
-#               the short form and session.html keeps the long one. PART 3jy's two
-#               shared-needle pins on that line are split by page. DO-NO-HARM pins on
-#               /drill (Abrabot stays, Jim's call) and the five page routes. Tile
-#               10,886 -> 10,942.
-#   2026-09-07  BUILD uc -- THE YOUNGEST SPEAK, AND THE MIC WAITS ITS TURN. PART 3jy pins
-#               both halves: the three teaching pages no longer send Entry-Level or Basic
-#               to the tap buttons first (four strings gone, four shared ones in, the
-#               symbol pads still hidden, the no-microphone branch still honest), and
-#               session.html holds the MICROPHONE alone while a scripted question is
-#               spoken -- the pin proves the taps and the typing box still open FIRST
-#               (nb/pd's rule, by index, not by hope), that micHold touches no other
-#               control, that setPhase clears "waiting", and that a hold cannot outlive
-#               its beat. Plus the things that did NOT change, pinned live: choices_for
-#               still builds a row for every course, referee 58 still fires without one,
-#               and prompts.py still carries the buttons guarantee.
-#               ALSO: the page-note windows. Four pins read the three pages' heads at
-#               [:800], [:900] and [:1000] -- each build had nudged its own up by 100,
-#               the one-at-a-time habit the ub note warned about -- and uc's note pushed
-#               sq, sr, sw and sy past them. All four are [:6000] now, together.
-#               Tile 10,861 -> 10,886.
-#   2026-09-07  BUILD ub -- CALCULUS UNITS 7-9 TO THE SHAPE. PART 3jx: _shape_unit_checks on
-#               the three units, the grapher's shade= (its three seams), the twelve named
-#               asks and walk-backs (every shaded ask writes "?" in its region and every
-#               shaded walk-back a number; the hump whose area is given; the cylinder; the
-#               bars), the giveaway audit, captions, legends, rule 44, no arrow-after-
-#               equals or question-in-step, the board-notation referee over every board,
-#               the one-thought-per-line referee over every ask (a legend with a trailing
-#               unit fired it), the joined options, the audio ceiling on all twelve, the
-#               six PART 3fs fixed fragments, ⭐ CALCULUS 36/36, and the notes in five
-#               files. Tile 10,769 -> 10,861.
-#               ALSO: two note windows. The lessonscripts.py pins read [:60000] and ub's
-#               own note pushed sp's (61,100) past it -- widened to [:90000], all of them
-#               at once. The methodology.html pins read [:20000] with (sp) at 19,633,
-#               one build from overflowing -- widened to [:30000] now, all at once.
-#   2026-09-07  BUILD ua -- CALCULUS UNITS 4-6 TO THE SHAPE. PART 3jw: _shape_unit_checks on
-#               the three units, the twelve named asks and walk-backs (the speed line
-#               alone, the valley alone, the hump alone, the cubic alone; the tape with
-#               every part blank, the metre grid with ask="1", the machines with output
-#               "?"), the grapher's left margin (the leftExt seam and the measured 5px a
-#               character), the giveaway audit, captions, legends, rule 44, no
-#               arrow-after-equals or question-in-step, the board-notation referee over
-#               every ask and walk-back board (twelve init asks were live hits), the
-#               joined options, the audio ceiling on all twelve, the eight PART 3fs
-#               fixed fragments, the best-rectangle bank floor, CALCULUS 24/36, and the
-#               notes in five files. Tile 10,678 -> 10,769.
-#               ALSO: the math-figures.js note window. Six pins read mf[:3000] (te, tf,
-#               tg, th, tn, tp) and ua's own note pushed te (3,211) and tf (3,042) past
-#               it. Widened to [:12000], all of them at once, the width the sp..td pins
-#               already used. And tz's "CALCULUS 12/36" pin was an exact count that
-#               fired on ua's own progress: a floor now (at least 12), as ua's is
-#               (at least 24) -- a count pin is a floor, never an equality.
-#   2026-09-07  BUILD tz -- CALCULUS UNITS 1-3 TO THE SHAPE. PART 3jv: _shape_unit_checks on
-#               the three units, the twelve named asks and walk-backs (the hole and the
-#               two shelves on the ask, the line and the tangent withheld until the
-#               walk-back, the power and chain rules as machines with output "?"), the
-#               names= legend on every raw-"*" graph, the giveaway audit, captions, rule
-#               44, no arrow-after-equals or question-in-step, the board-notation referee
-#               over every ask and walk-back board at every level, the joined options
-#               (no arithmetic, none over twelve words), the eight PART 3fs fixed
-#               fragments in each lesson's SECOND worked pair, CALCULUS 12/36, and the
-#               notes. Tile 10,590 -> 10,678.
-#   2026-09-07  BUILD ty -- PROBSTAT UNITS 7-9 TO THE SHAPE. PART 3ju: _shape_unit_checks on
-#               the three units, the twelve named asks and walk-backs (the two-dot number
-#               line with NO hops on the zsco ask, the tape with total="?", the pot and
-#               people machines), the giveaway audit (800 for the tails lesson), captions,
-#               rule 44, no arrow-after-equals or question-in-step (36 baseline presweep
-#               hits), rule 42 across every ask, walk-back and beat, the joined options, the
-#               nine PART 3ft ps_fixed fragments in each lesson's SECOND worked pair, and
-#               ⭐ PROBSTAT 36/36. Tile 10,503 -> 10,590.
-#   2026-09-07  BUILD tx -- THE WORDS AND THE PICTURE ARE THE SAME THING. PART 3jt pins
-#               the 79th referee with its three silences (both families drawn, both shapes
-#               named, no story noun at all), the widened count claim against the tag's own
-#               add= attribute, and RULED_ALLOWED at six rows. Both canon sweeps repeated.
-#               ⚠️ The sweep that mattered ran against the SHIPPED noun list, not the
-#               prototype's: "paths?" had drifted into the shipped one and fired on four
-#               authored probstat beats ("the paths that win both times", over the
-#               spinner's [[pie]]). Referees 78 -> 79 (ten pins moved). Tile 10,482 -> 10,503.
-#   2026-09-07  BUILD tw -- THE SAY-IT-THEN-WRITE-IT FAMILY. PART 3js pins the widened
-#               ask-lists with the sentences that only LOOK like asks ("that's a good
-#               example", "like what we did yesterday", "for example, 3 plus 4 is 7"), the
-#               78th referee with eighteen honest phrasings it must leave alone, and the
-#               arithmetic credit verbs with the six authored relative clauses that must
-#               stay silent ("the number you divided BY", "there you halved"). Both canon
-#               sweeps repeated here. Referees 77 -> 78 (nine pins moved). Truth class
-#               stays 11. Tile 10,450 -> 10,482.
-#               ALSO, the same note-pin drift tv met in tutor.py, now in
-#               methodology.html: the twenty-four pins reading
-#               rd("static/methodology.html")[:12000] overflowed when tu's, tv's and
-#               tw's own notes pushed the 09-05 ones past 12,000 ((tb) sat at 12,156
-#               and (ta) at 12,501). Widened to [:20000], all twenty-four at once,
-#               and the one tsrc[:12000] to [:24000] to match tutor.py's window. The
-#               pins check the same strings in the same files; only the window moved.
-#               And once more in ruletests.py's OWN notes, which tt widened to
-#               [:16000] two days ago: the sp note sat at 16,033. All
-#               34 rd("ruletests.py")[:16000] pins -> [:28000]. THE PATTERN IS THE
-#               POINT: three builds in a row have each pushed one file's oldest pinned
-#               note past its window, and each time the honest repair is to widen every
-#               pin on that file at once rather than meet them one build at a time.
-#   2026-09-07  BUILD tv -- THE FIRST-USE GATE LEARNS WHO WROTE THE SYMBOL. PART 3jr
-#               reconstructs the 09-06 F2 and 09-07 N6 silence in both places it hid (a
-#               [[write]] tag and a [[machine]] caption), pins that the tutor writing OR
-#               reading the notation earlier buys silence while the student doing either
-#               buys none, pins that heard_tutor reaches referee 31 AND NO OTHER, pins
-#               that _create_verified reads the assistant messages from the ORIGINAL list
-#               (build ia's law), and pins the fallback exactly: with no heard_tutor the
-#               referee's verdict is identical to before this build, across every
-#               foundation beat. Referees stay 77, truth class stays 11. Tile 10,433 -> 10,450.
-#               ALSO, the drift tt saw in ruletests.py, now in tutor.py: the five
-#               pins reading rd("tutor.py")[:8000] for the sq/sr/sw/sy/tj notes
-#               overflowed -- tu's and tv's own header notes pushed the 09-05 ones
-#               past 8,000 bytes (sy, the oldest, sat at 9,131). Widened to
-#               [:24000], all five at once, so the next build does not meet them
-#               one at a time. The pins still check the same strings in the same
-#               file; only the window moved.
-#   2026-09-07  BUILD tu -- THE TRUTH TRIO AND THE REVIEWER'S LIST. PART 3jq pins the
-#               76th referee (a pie's caption against the fraction it shades), the 77th
-#               (a listed sequence that moves away from the value it claims to approach),
-#               KNOWN_FALSEHOODS row 17 (factoring defined as pieces that multiply to
-#               zero), the truth class at 11, RULED_ALLOWED at five rows each carrying
-#               its boundary, and the critic's sixth discipline check. Both canon sweeps
-#               are repeated here so they cannot rot: 0 fires across the authored pie
-#               tags, 0 across the authored strings. Referees 75 -> 77. Tile 10,407 -> 10,433.
-#   2026-09-06  BUILD tt -- PART 3jp: Probstat Units 4-6 to the shape (12 lessons on
-#               the school as bars and the sample as a tape, the surveys back and
-#               silent, the asked and the never-asked, the people machine, the bag as
-#               bars and the chance on the hundred square, the three piles joined, two
-#               pies and the array of days by buses, the spinner and the tree of paths,
-#               the four groups and the two-way table, the girls' share, the school
-#               beside the group, the bag before and after a marble is kept); 12 asks
-#               captioned (rule 41); the undercoverage ask no longer asks "how many
-#               students" (rule 42, live); one pending line that was a question inside
-#               a step is a statement. Tile 10,322 -> 10,407.
-#   2026-09-06  BUILD ts -- PART 3jo: THE LESSON INTRODUCES ITSELF. Every lesson's
-#               intro line names its course (curriculum.py's title, "&" said as "and"),
-#               its unit and the unit's name, "Lesson i of n" (n = the unit's lessons in
-#               COURSE_ORDER), and its topic; is unique across the 360; sits in its own
-#               closure; and is the FIRST output of begin, on a [[write]] card, in every
-#               course. Swept through the referees: the only fire is rule 7 on a title
-#               that names a figure ("Fractions on the number line") -- a title, not a
-#               claim; pinned as the one.
-#   2026-09-06  BUILD tr -- PART 3jn: Probstat Units 1-3 to the shape (12 lessons on
-#               the dot plot, the histogram, the stray dot, the two middles with the
-#               halfway mark, the box, the four distances as bars, the hundred square
-#               as a percent, the scatter cloud, the rate machine, predicted beside
-#               actual, the dots as a tape); 96 asks captioned (rule 41); the mode and
-#               percentile asks no longer compare the student to "most children" or
-#               "other students" (rule 42, live); three pending lines that were
-#               questions inside a step are statements.
-#   2026-09-06  BUILD tq -- PART 3jm: Precalc Units 7-9 to the shape (12 lessons on the
-#               circle with its radius marked "?", the circle with its middle unnamed, the
-#               ellipse's two reaches as a tape, the path and the vector, the pattern's
-#               machine and the terms as bars, the sigma recipe, the crowd as an array,
-#               the bounces and the hops, the line that never breaks, the machine that
-#               jams at the hole and the line with its hole, the step with two shelves,
-#               the window on the curve); the course is 36/36; every figure an ask draws
-#               captioned; the sigma and step pending lines no longer put an arrow after
-#               an equals. THE CANON SWEEPS READ THE SHAPE: thirteen referee sweeps
-#               iterated les["teach"] only, so every why, picture, reason and recap beat
-#               written since sp went unswept by them -- _authored_beats(les) feeds them
-#               all five kinds now (the 1,900-card floor fired at 1,892 and said so);
-#               the strict function-notation ledger is 16 (four shape beats named).
-#   2026-09-06  BUILD tp -- PART 3jl: Precalc Units 4-6 to the shape (12 lessons on the
-#               bars, the unit circle wound backwards, the flat line split at the arrow,
-#               the wave on an axis in degrees, the hundred square, the right triangle's
-#               two sharp corners, the wave crossing its level line, the honest SAS
-#               triangle, the ramp, the compass and the vector); three renderer
-#               attributes pinned (triangle sas=, unitcircle bearing=/turn=, graph
-#               names=); every figure an ask draws captioned; the hundredths ask reads
-#               its 100 aloud; the crossings pending line is a statement. The per-lesson
-#               audio ceiling is raised in writing, 22,000 -> 24,000 chars and $5.00 ->
-#               $5.50 (the shape's walk-backs joined the closure; two Unit 6 lessons
-#               passed the old bar -- see the ledger beside the check).
-#   2026-09-06  BUILD to -- PART 3jk: Precalc Units 1-3 to the shape (12 lessons on two
-#               machines in a row, the grid, the number line, the minus parade on the
-#               array, the four rooms with the corner blank, the curve flying off, the
-#               log machine run backwards and the bars); every figure an ask draws
-#               captioned; the pieces pending line fixed.
-#   2026-09-06  BUILD tn -- PART 3jj: Algebra 2 Units 7-9 to the shape (12 lessons on the
-#               bars, the number line, the staircase rectangle, the machine run twice,
-#               the unit circle with its coordinates hidden, the wave with its crest
-#               line, the array and the pie); the course is 36/36; every figure an ask
-#               draws captioned; the unit-circle pending lines are statements; the
-#               sample ask no longer says "how many students" (rule 42).
-#               The methodology dated-note pins that read 6,000 characters now read 12,000:
-#               the page's own change notes outgrew them at tn (ta and tb fell past).
-#   2026-09-06  BUILD tm -- PART 3ji: Algebra 2 Units 4-6 to the shape (12 lessons on the
-#               grid with its point, its pole and its level line, the machine run
-#               backwards, the number line between two squares, the array and the bars);
-#               every figure an ask draws captioned; the logs-add and survivor pending
-#               lines fixed.
-#   2026-09-06  BUILD tl -- PART 3jh: Algebra 2 Units 1-3 to the shape (12 lessons on the
-#               number line with its hops, the bars, the tape, the grid with the vertex
-#               and the crossings marked, the array and the machine); every figure an ask
-#               draws captioned; the sys3 and imag pending lines fixed.
-#               Re-pinned: PART 3gh (the absolute-value opener is the why beat, the number
-#               line the picture beat) and PART 3gi (the ask board is captioned).
-#   2026-09-06  BUILD tk -- PART 3jg: Geometry Units 7-9 to the shape (12 lessons on the
-#               grid, the right triangle under the slant, the parallelogram with its true
-#               height drawn, the rooms, the cube, the box, the bars, the pie, the array
-#               and the two-way table); the course is 36/36; every figure an ask draws
-#               captioned; the two-rooms pending line spoken.
-#               The lessonscripts dated-note pins that read 20,000 characters (te...tk, sz)
-#               now read 60,000: the header outgrew them.
-#   2026-09-06  BUILD tj -- PART 3jf: Geometry Units 4-6 to the shape (12 lessons on the
-#               two triangles, the bars, the rectangle of squares, the right triangle and
-#               the pie of arcs); the second-triangle referee reads the v= names (tutor.py);
-#               every figure an ask draws captioned.
-#   2026-09-06  BUILD ti -- PART 3je: Geometry Units 1-3 to the shape (12 lessons on the
-#               angle, the circle with its diameter, the number line, the grid, the pie and
-#               the triangle); every figure an ask draws captioned.
-#   2026-09-06  BUILD th -- PART 3jd: Algebra 1 Units 7-9 to the shape (12 lessons on the
-#               area model with its new ask modes, the grid, the tape, the dotplot and the
-#               number line); the course is 36/36; every figure an ask draws captioned.
-#   2026-09-06  BUILD tg -- PART 3jc: Algebra 1 Units 4-6 to the shape (12 lessons on the
-#               grid, two lines with the crossing asked, bars, the place-value chart and
-#               the doubling bars); every graph ask captioned.
-#   2026-09-06  BUILD tf -- PART 3jb: Algebra 1 Units 1-3 to the shape (12 lessons on the
-#               bar, the area model, the balance, the number line and the machine); every
-#               machine and number-line ask captioned.
-#   2026-09-06  BUILD te -- PART 3ja: Prealgebra Units 7-9 to the shape (12 lessons on
-#               the tape, the hundred grid, the rectangle round the triangle, the split
-#               line, the triangle and the area model); every ask's pending line spoken.
-#   2026-09-06  BUILD td -- THE DATED-NOTE PINS READ A WIDER HEADER. Every file's change
-#               log grows from the top, so "BUILD sp is in the first 3,000 characters of
-#               math-figures.js" stopped being true the day td's note went above it. The
-#               windows are 12,000 (figures), 60,000 (lessonscripts), 16,000 (this file),
-#               8,000 (tags, tutor, pilot) -- the pins still say "the note is in the
-#               header", which is what they were for.
-#   2026-09-06  BUILD td -- PART 3iz: Prealgebra Units 4-6 to the shape (12 lessons on
-#               the tape, the fraction line, the hundred grid, the chart's new tenths
-#               column, two pies); the divisor fraction in parentheses.
-#   2026-09-05  BUILD tc -- PART 3iy: Prealgebra Units 1-3 to the shape (12 lessons on
-#               the ladder, the rectangle and the number line with hops); the integer
-#               asks mark the start, never the landing point.
-#   2026-09-05  BUILD tb -- PART 3ix: Entry Unit 1 to the shape. _entry_unit_checks: the
-#               unit checks for a course whose lessons may keep the quick praise
-#               (ruling ⑤) and carry no reason question (pre-readers).
-#   2026-09-05  BUILD ta -- PART 3iw: the tutor sees the board. The rule-7 referee's
-#               named-picture check (positive, negative, standing, cleared, imagined,
-#               fail-open), the canon sweep (0 hits), the intervene step's board, the
-#               note tutor.script_intervention writes (pipeline stubbed), the fallback.
-#   2026-09-05  BUILD sz -- PART 3iv: the times table is a pass, not a streak (rulings
-#               ⑥ ⑦). The real engine driven through a clean pass, a slip, five slips,
-#               an unheard answer in the pass, and the real API; neighbouring-fact
-#               buttons; the seed. RE-PINNED WITH NOTES: 3cv's perfect walk and 3in's
-#               Unit 2 walk now expect the table lesson to master in 81, not 3.
-#   2026-09-05  BUILD sy -- PART 3iu: Basic Unit 9 to the shape, and the pin that EVERY
-#               Basic lesson (36) is on it. [[rectangle]] drawn, exported and
-#               registered. kj's export pin reads the whole MathFigures block now.
-#   2026-09-05  BUILD sx -- PART 3it: Basic Unit 8 (percent) to the shape.
-#   2026-09-05  BUILD sw -- PART 3is: Basic Unit 7 to the shape; [[hundredgrid]] drawn,
-#               exported and registered everywhere. The short-second-example list is
-#               empty now (every Basic second example works its problem).
-#   2026-09-05  BUILD sv -- PART 3ir: Basic Unit 6 to the shape, on the fraction line.
-#               _shape_unit_checks: the unit-to-the-shape checks written once.
-#   2026-09-05  BUILD su -- PART 3iq: Basic Unit 5 to the shape. Fractions on the
-#               fraction line (denom=), the shared array and two pies; every lesson
-#               walks clean; no pie ever asks for more than twelve parts.
-#   2026-09-05  BUILD st -- PART 3ip: Basic Unit 4 to the shape. Factors and multiples
-#               on the array, the rectangle, the Venn and two number lines; every
-#               lesson walks clean; the Venn never overflows.
-#   2026-09-05  BUILD ss -- PART 3io: Basic Unit 3 to the shape. The four dividing
-#               lessons carry every beat and walk clean; the sharing question, the
-#               filled groups, the red left-overs and the area model backwards; a
-#               story problem's picture reads the story.
-#   2026-09-05  BUILD sr -- PART 3in: Basic Unit 2 to the shape. The four multiplying
-#               lessons carry every beat and walk clean on the array, the area model
-#               and the chart; [[array]] is drawn, exported and registered everywhere;
-#               the chart's Thousands column; "*" and "mtz" boards and walk-backs.
-#   2026-09-05  BUILD sq -- PART 3im: Basic Unit 1 to the shape. The three remaining
-#               Unit 1 lessons carry every beat and walk clean; the place-value chart
-#               ([[placevalue]]) is drawn, exported and registered on every page; two-
-#               digit sums are asked on the column; borrows= draws the regrouping.
-#   2026-09-05  BUILD sp -- PART 3il: the lesson learns to teach. The seven-beat shape
-#               (why / picture / teach / show / try + walk-back / say it / recap) as
-#               optional lesson fields, pinned BOTH ways: the rounding prototype plays
-#               every beat on the right, wrong and unheard paths inside its closure; a
-#               pre-shape lesson plays byte-for-byte as before. The reason question is
-#               graded by label through the real endpoint. The two all-lesson walks
-#               (3gu, 8b) learned to answer a reason ask.
-#   2026-09-04  BUILD so -- PART 3ik: the mark goes away and the voice is counted. Four
-#               of Jim's live flags: [[ink]] marks clear with the clean page on all three
-#               inking pages; the scripted answer door shows the thinking state around
-#               its fetch; the browser-voice fallback is filed as voice_fallback (voice.js
-#               -> MyTutorReport -> /api/client-error, whitelisted) and the watch counts,
-#               names and dates it; main.py counts unrendered closure lines and the watch
-#               says "run the prewarm" beside the number.
-#   2026-09-04  BUILD sn -- PART 3ij: the warm choice. Jim's ruling ③: a still-
-#               learning end offers "go on, or review?" with two buttons that start a
-#               lesson inside the scripted lane. The line is pre-rendered and byte-
-#               identical on the page; the server sets choice only when a next lesson
-#               exists; a course boundary still falls through (④). One sl pin re-pinned
-#               under the ruling: a still-learning end now CARRIES next_id, and choice
-#               is what stops it auto-advancing.
-#   2026-09-04  BUILD sm -- PART 3ii: the board tells the truth about which question
-#               it answers. Jim's ruling ①: board/words disagreement is truth-class.
-#               boardcount joins the truth class; the SEVENTY-FIFTH referee
-#               expression_swap_conflict promotes qx's probe (the 09-04 HIGH: board
-#               2 + 3 x 4 = 14, voice "three plus two times four" = 11). The double-
-#               starred checks are the BOUNDARY: same order, a value-keeping commute, a
-#               new example, a different operation, a comparison and an announced
-#               contrast all stay silent. Count pins 74 -> 75 (seven sites + label).
-#   2026-09-04  BUILD sl -- PART 3ih: the seam reads the course order. The 09-01
-#               "one-less reads as subtraction" bug's root cause: nothing at the
-#               scripted->live seam ever read lessonscripts.COURSE_ORDER, so the live
-#               tutor guessed the next topic. Server: _next_lesson_id + next_id on a
-#               MASTERED end step only (still-learning and a course boundary carry
-#               none -- Jim's rulings). Page: scriptStart(forcedId) and one line at
-#               the seam, fail-open to the live tutor. Pinned both ways, plus the
-#               scripted-first invariant that no answer ever reaches the client.
-#   2026-09-04  BUILD sk -- PART 3ie's env banner RE-PINNED OFF THE NEW DEFAULT.
-#               nightwatch's _DEFAULT_LESSONS is now 10, so a check that set
-#               NIGHTWATCH_LESSONS=10 was asserting a banner for a value that no longer
-#               overrides anything -- it would have started failing tonight, and it
-#               should have. The knob moves to 7 and the asserted default to 10. What is
-#               PINNED is unchanged: an env var that MOVES a budget default is bannered,
-#               and a watch running on the file's own defaults banners nothing.
-#   2026-09-03  BUILD sj -- PART 3ig: the floor. A draft every attempt of which carried
-#               a TRUTH-class finding no longer ships; the child gets the fallback line
-#               and a `floor` event names the referee. ONE px pin moves, deliberately
-#               and with the reasoning in place (3gb: three mathcheck-wrong drafts now
-#               ship nothing); every other px pin is re-asserted untouched. The truth
-#               class is data (tutor.TRUTH_REFEREES), each name checked against the
-#               dispatcher, and the name reaches the loop through a thread-local that
-#               the real _event sets -- pinned end to end, including the fail-OPEN case.
-#   2026-09-03  BUILD si -- PART 3if: the law wore a different costume. Both rule-61
-#               findings from the 09-03 watch, no new referee. The precedence law was
-#               found TWICE, fourteen days apart, in the same lesson -- and the first
-#               thing this PART pins is that the 37th referee was NOT dead (the 08-20
-#               sentence still fires), because assuming a miss is a dead referee is how
-#               pq nearly made three wrong fixes. The hole was one alternation. The HIGH
-#               becomes KNOWN_FALSEHOODS row 16, and the double-starred check is the
-#               BOUNDARY: the same claim said truthfully must stay silent, or the row
-#               burns three attempts on a correct reply (build iz's phantom).
-#   2026-09-03  BUILD sh -- PART 3ie: the watch says what it was told to do. Four
-#               report holes, each named by a triage that then gave up on it: the
-#               10-vs-12 question (asked three watches running -- the report printed
-#               only what HAPPENED, so a shrunken rotation, skipped slots and a changed
-#               constant all looked identical); 507 referee fires with no names; crash
-#               reasons with no clock, so a ghost and a live regression read the same;
-#               and a reviewer never told about Jim's 09-01 rule-42 ruling, which
-#               re-confirmed a shape settled two builds earlier. The ruling checks pin
-#               the BOUNDARY as hard as the ruling -- an entry here silences a class of
-#               finding, and nothing else would ever tell us it was written too wide.
-#   2026-09-02  BUILD sg -- PART 3id: the sweep stays out of the code. Jim live:
-#               "This opened and nothing happened. NO voice" -- the sd sweep had
-#               renamed feed.children to feed.students (3 pages), .children on
-#               /challenge and the lab, and 8 CSS :nth/:first/:last-child pseudo-
-#               classes across 6 pages. All 13 restored, each pinned byte-for-byte;
-#               a static-wide scan proves no swept identifier survives (comment
-#               lines quoting the defect as history are skipped -- the record law);
-#               scrNext's new crash net pinned (a crashed beat skips forward,
-#               rethrown async so telemetry stays loud). PART 3ia's own sweep
-#               check repaired to intent: it counted \bchild\b over whole bodies
-#               -- the same blindness that shipped the defect -- and now masks
-#               the platform's words (:first-child, .children, childNodes...).
-#   2026-09-02  BUILD sf -- PART 3ic: spoken math is written math. THE
-#               SEVENTY-FOURTH REFEREE spoken_math_unwritten_conflict, born from
-#               Jim's live algebra1 flag (a worked chain spoken over an empty
-#               board): fires on his exact reply, silent on a single-equation
-#               mention / any drawing tag / a standing-board recap / heard=None;
-#               sweep-wired (his exact text trips rule 15 FIRST -- first-match-
-#               wins, pinned as such); canon-swept clean across 9,000+ authored
-#               replies with scripted spoken+board pairs JOINED (the sa vacuous-
-#               sweep lesson, run in reverse). Count pins 73 -> 74 (seven sites)
-#               and the seat-count label gains sf's spokenmath.
-#   2026-09-02  BUILD se -- PART 3ib: five live flags from Jim's queue. The entry
-#               trap sentence cut (other courses' pattern untouched); rounding
-#               taught line-first (his KEEP flag, canonized in pedagogy); rule 19
-#               gains (d)'s never-past-an-un-narrated-example clause and the new
-#               (f) read-it-yourself clause; comma numbers spoken in WORDS
-#               (speech-text.js, node-proven in the PART; bare digits untouched so
-#               cached clips keep their keys; the money-comma bug found on the dry
-#               run fixed too); THE SEVENTY-THIRD REFEREE board_flood_conflict
-#               (7+ drawing tags = several beats in one turn's clothes; canon
-#               ceiling 5, measured first). Count pins 72 -> 73; both methodology
-#               tiles move.
-#   2026-09-02  BUILD sd -- PART 3ia: the student is a student. Jim's wording ruling
-#               ("refer to the student as the student or your student"), scope his
-#               call: ALL BUT LEGAL. 344 visible occurrences across 22 pages +
-#               llms.txt + main.py's voice twin and parent-visible strings;
-#               word-boundary sweeps (childhood survived); privacy/terms keep the
-#               legal word; historical header notes verbatim. Four pins repaired to
-#               intent with dated notes (the parents-door needle, the dashboard
-#               Owner helper, the parent button and its BUTTON const).
-#   2026-09-02  BUILD sc -- PART 3hz: the demo holds still and shows its boards.
-#               Jim's four demo rulings: page-scroll lock in the classroom (html+body,
-#               overscroll); "board" never "whiteboard" in the spoken lines; a new
-#               tour stop flips the board white and back (themePeek -- never writes
-#               storage, safety-timed); the four dashboard-tour Abrabot end-stops
-#               dropped (introduced once on the main tour, standalone button stays;
-#               the by-index HS/student-door overrides shrank in step). Plus the
-#               root-caused mouth fix: the demo page now declares the analyser trio
-#               cadabra.js's amplitude mouth has read since rt -- it never had them,
-#               so every demo line ran on the synthetic flap. Voice lists still
-#               byte-identical at 254 (theme line appended to both).
-#   2026-09-02  BUILD sb -- PART 3hy: the practice goal. Jim's design this day: a
-#               parent (/family) or teacher (/teacher) asks for minutes of daily
-#               practice; the child fills an honest problem ring (server-derived,
-#               un-idle-able), only ever with mastered material, never seeing who
-#               set it. The PART re-runs the store contract on a scratch DB (ticks
-#               from record_practice/record_drill, day roll, miss-never-docks,
-#               re-set keeps progress, code-move) and pins the one-validation two-
-#               door wiring, the ownership gates, the mark-response ring, and all
-#               three pages' halves. The live end-to-end ran 20/20 pre-PART.
-#   2026-09-02  BUILD sa -- PART 3hx: the question mark in a fraction is a blank,
-#               said so (the 09-02 watch's finding G, rule 14 -- its LAST buildable
-#               item). A first-use registry row on referee 31: ?/5 or 5/? (the hug)
-#               fires unread; bare "= ?" and spaced separators never match (iz law);
-#               readings are the canon's own spoken forms + the definitional words.
-#               Standing sweep in the PART: 2,109 cards + 3,699 bank boards WITH
-#               their spoken lines (a board-only bank sweep is vacuous -- tags-only
-#               fragments are ignored by design) + the demo, 0 fires. Count stays 72.
-#   2026-09-02  BUILD rz -- PART 3hw: a variable's letter keeps its case (the 09-02
-#               watch's finding E, rule 28, algebra2 -- words said "x squared minus
-#               five x", board wrote X^2 - 5X + 6 = 0). THE SEVENTY-SECOND REFEREE
-#               (variable_case_conflict): clean case split between board letters and
-#               prose variable-context letters -> fire; a/e/i/o never judged; mixed
-#               sides ambiguous and silent. prompts.py rule 28 gains the case clause
-#               (ps discipline). Canon measured 153 lowercase-x boards to 1 before
-#               building; swept 0 fires over 306 scripts + demo. Count pins 71 -> 72
-#               everywhere (the historical "unchanged" pins move with the tally, per
-#               the rf/rg precedent); methodology's reply-checks tile 71 -> 72.
-#   2026-09-02  BUILDS rx + ry -- PARTs 3hu + 3hv: the 09-02 watch's T3 findings C
-#               and D, delivered together.
-#               3hu (rx) THE ACCEPTED OFFER IS HONORED: offer to show -> "yes!" ->
-#               nothing drawn. Referee 70 gains the acceptance-turn branch
-#               (prev_tutor-gated, closed acceptance grammar, any board tag buys
-#               silence); count stays 71. Standing sweep: 296 canon pairs, 0 fires.
-#               3hv (ry) THE VERDICT IS PROVEN: quiz_verdict_conflict's numbered-
-#               question gate now reads board tag values both turns (the watch's
-#               Q1-in-a-write-tag hole), and -- Jim's ruling "Retry + code floor" --
-#               repair_missing_verdict at the shipping door speaks a PROVEN
-#               "Correct." + [[mark]] via mathcheck's new constant_equal /
-#               is_canonical_constant; never "Not quite", never unproven, never
-#               into a reply carrying mark/nice. Standing sweep: 0 fires, 0 floor
-#               touches across the canon pairs.
-#   2026-09-02  BUILDS rv + rw -- PARTs 3hs + 3ht: the 09-02 watch's two HIGHs, the
-#               same lane (false math on the board), delivered together.
-#               3hs (rv) THE HOLE IS DRAWN OPEN: the calculus limits lesson drew its
-#               own hole as a FILLED point ([[graph ... points="(2,4)"]] on a curve
-#               undefined at 2). mathcheck.check_graph_claims judges numeric points
-#               on single-piece func= curves: a point where substitution provably
-#               yields no value is "wrong", nudging hole= (the renderer has drawn it
-#               right since av). Cautious everywhere else -- declared holes, multi-
-#               piece, "for" domains, non-x funcs, and merely-off-curve points are
-#               never judged. Standing sweep in the PART: every authored graph tag
-#               (160 on ship day), zero false alarms.
-#               3ht (rw) THE OP TELLS THE TRUTH: op="+ 9 to both sides" over a line
-#               that silently also subtracted 5 -- equivalent equations, lying
-#               label. mathcheck.check_step_ops applies a closed-grammar numeric op
-#               to the previous step's sides and compares PER SIDE, either
-#               orientation; everything outside the grammar fails open. Plus
-#               KNOWN_FALSEHOODS row 15 ("turn ANY quadratic into a perfect
-#               square"), proven with the watch's own sentence; both row-count pins
-#               were already floors. Battery total rises 8,198 -> 8,235; the
-#               methodology tile and its pin are synced to 8,235.
-#   2026-09-02  BUILD ru -- PART 3hr: a comma makes a tuple, not an expression. The
-#               09-02 watch's newest crash reason (referee_crash · mathcheck,
-#               'tuple' object has no attribute 'free_symbols' ×4): parse_expr on
-#               comma-bearing text returns a plain PYTHON tuple and the board sweep
-#               touched .free_symbols outside its parse-guard -- the checker crashed
-#               and failed open, unjudging the reply. mathcheck._parse (the one
-#               owner) now raises on a result without free_symbols; the PART proves
-#               the crash shape fails open, ni's false chain still reads "wrong",
-#               verify tags and system answers unchanged.
-#   2026-09-02  BUILD rt -- his lips stopped mid-sentence (3hq, three pins). Jim, in the
-#               demo: after an expression with stars, the lips stopped while the voice
-#               went on. The bubble's end had been clearing the one speaking flag under
-#               a live voice; the quiet watchdog read a pause as the end. cadabra.js
-#               now keeps voiceOn and bubbleOn apart (OR-ed per frame) and retires
-#               both watchdogs once a page has announced mt:silent. Proved on the
-#               bench: voice on -> party -> bubble ends -> still speaking; 27 s into
-#               a line -> still speaking; mt:silent -> stops.
-#   2026-09-02  BUILD rs -- the demo, three things Jim saw (and one more): Abrabot's
-#               lines keep the pencil's mouth still (lastRobot -> mt:silent); the
-#               corner panel is gone (3hq pins it, statusEl guarded); the lesson no
-#               longer flows into an Abrabot section (nf's flow pin INVERTED with
-#               Jim's ruling; the standalone button stays pinned); the dashboard peek
-#               is a 75% MINIATURE of the real student dashboard with an APPENDED
-#               voice line (old line kept in the lists, no longer a stop). Found and fixed on
-#               the way: a stray </div> from the panel cut closed the sidebar early.
-#   2026-09-02  BUILD rr -- PART 3hq: the pencil has feelings about your work. Jim's
-#               behaviour list on the real layer: the word finder (a DOM Range, exact
-#               to the pixel; loose on the board's spacing/operators; rule 19 inside),
-#               three ink moves on one drive (underline by text, hand-drawn circle,
-#               bang), ink ANCHORED to its element and CLIPPED to the board; glance
-#               (silence-gated, cooldown, dice, never interrupts), comfort (listen,
-#               one warm line, STAY), party (kind-named lines), wave, think; voice.js
-#               mt:silent (the drift-freeze bug fixed); the pages' doorbells (stuck =
-#               two misses or 60 s after a question; milestones; mic; thinking;
-#               goodbye; the scripted lane rings at last); [[ink]] in tags.py and the
-#               prompts (x9); the demo's orb circle gone, its mouth wired. ri's exact
-#               lesson.start pin repaired to intent (enter + a SILENT wave; dated).
-#               Proof outside the battery: 50 circles on 50 named words in a real
-#               session board -- 50/50 found, enclosing, worst centre offset 2.9 px.
-#               Methodology tile NOT re-synced (needs a full run with keys).
-#   2026-09-01  BUILD rq -- PART 3hp widened: the pages' own CSS paints the board too.
-#               ALSO IN rq -- THE MENU ROSTER RESTORED. cadabra-script.json had been
-#               overwritten at 11:40 (rk, the demo build, from a parallel chat) with a
-#               demo-only menu at height 118: the pencil was OFF in session/topic/
-#               practice from then on. The menu is rj's again (all three lesson pages,
-#               146/26, jokes, nudges, tour) plus rk's demo block; the example copy is
-#               identical; 3hk's exact-version pin reads 'rj or later' with a dated
-#               note, and a new pin holds the four-page roster.
-#               rp's white/dark board tokenised the DRAWING files, and the battery's
-#               sweep stopped there; the first real dark render showed a tutor bubble
-#               as a light box with near-white text (session.html's <style>: #f2f4ff).
-#               Every board-content <style> rule on session/topic/practice/demo is a
-#               var(--bd-<hex>) token now (34+29+29+4 rules; the inline medal colour
-#               too), board-theme.css gained 31 identity+dark pairs, the identity block
-#               sits on :root, board-theme.css is linked in each head. The PART sweeps
-#               those rules by selector (class list collected from the rendered board),
-#               proves the sweep saw them, and pins the two dark-board readability
-#               rules (accent-as-text lifted; cream chips are light islands). Proof:
-#               board-only screenshot diff, pre-rp vs now, white board = 0 pixels.
-#               Housekeeping: rp's PART was numbered 3he, which rd already owned; it is
-#               3hp now (no test changed by the rename).
-#   2026-09-01  BUILD rn -- PART 3ho: cluster E -- two holes closed, one ruling.
-#               Rule 39's "See how that works?" (imperative-led bare check) and rule
-#               15's spoken-only function rule (referee 38's either/or gate was
-#               satisfied by the ask tag) are CLOSED -- two widenings, count stays
-#               71 (pinned). Rule 42's "trips a lot of people up": a first cut
-#               widened the ban and the battery's own pq pins pushed back (the
-#               people/folks cut was deliberate, reason pinned); PUT TO JIM -- his
-#               ruling: people-forms stay legal. Widening removed, finding
-#               dispositioned allowed-by-ruling, 3ho pins the ruling. The canon
-#               sweep caught the first cut of the rule-15 branch firing on the
-#               authored f(x) lesson's [[machine rule=...]] card -- exemption
-#               added, 0 canon fires after. Rule 44's ordering half + B's rule-4
-#               cousin deferred with paper trails in tutor.py's rn note.
-#   2026-09-01  BUILD rm -- PART 3hn: credit only what you saw. The 09-01 watch's
-#               cluster C (rules 43/47/62): "lined those up perfectly" praised with no
-#               work shown, and "we've already got solid <skill>" past the twentieth
-#               referee (its unit-state gate covers only "Unit N"). Referee 32's gate
-#               (back_reference_conflict) WIDENED -- count stays 71, pinned: ①
-#               alignment praise fires cold only (the classroom cannot receive
-#               alignment work; a conversation that taught "line up" exempts -- the
-#               canon does so in 42 places); ② "already got solid / already nailed
-#               <named skill>" fires when the stemmed term is nowhere in the
-#               conversation (idioms exempt). Phantom sweep: 0 canon lines match.
-#               The "two in a row unaided" finding is DEFERRED with reasons (needs
-#               turn-structured history; a flat-string streak referee would punish
-#               honest praise -- cautious-grader law).
-#   2026-09-01  BUILD rl -- PART 3hm: the first-use list learns lim and x². The 09-01
-#               watch's cluster B (rule 48 x2): "lim (x→2)" written before "the limit
-#               as x approaches" was said (lim on NO list), and "a² + b² = c²" on a
-#               card before "a squared" was said (the exponent entry matched only the
-#               caret, never real superscripts). A GATE WIDENING of referee 31
-#               (notation_intro_conflict) -- count stays 71 and the PART pins that.
-#               notation.py gains the limit registry row (precalc/calculus/diffeq);
-#               tutor.py's _NOTATIONS gains [²³] on exponent and "the limit" entry.
-#               Delta measured before shipping: 137 authored superscript cards / 44
-#               without a same-card reading / 0 lim cards; runtime exposure bounded to
-#               live first-use. Fire AND silence exercised both ways, limb-phantom
-#               guarded.
-#   2026-09-01  BUILD rk -- PART 3hl: the course remembers which lessons are done. Jim:
-#               "I keep logging in as student zero zero zero zero, and it keeps starting
-#               over from the beginning." Double root: scriptPick read quiz fields the
-#               payload never carried (best_pct/topic_name vs passed/name -- done-set
-#               always empty, `|| pool[0]` restarted lesson one), and no per-LESSON
-#               ledger existed at all (topic_progress is per UNIT; quizzes only fire on
-#               pilot.html). New store table script_done + record/get, shipped as
-#               progress.script_done, read by the rewritten scriptPick (null when the
-#               course is finished -> live opener). The lane driver walks it live:
-#               record by id -> a 'learning' rerun never un-masters -> /api/session
-#               carries the id.
-#   2026-09-01  BUILD rj -- PART 3hk: the orb retires and the seam is announced. Jim's
-#               three rulings after watching ri live: (1) the mastered-lesson handoff is
-#               ANNOUNCED (LINE_NEW_TOPIC spoken by the page; main.py's __script_done
-#               turn note makes the live tutor name the new topic first) -- his catch:
-#               "acted as if we had been working on subtraction. This is strange."
-#               (2) the pencil is 30% larger (menu height 146, handSize 26) with a
-#               slight always-on float (cadabra.js, reduced-motion-safe). (3) the ORB
-#               is GONE from session/topic/practice ("he is to be gone everywhere");
-#               the pencil layer is wired on topic+practice (rh's pattern), and the
-#               demo pages keep tutor-face.js until Jim retires the demos. Old pins
-#               repaired to intent with dated notes: 3u's six-page include loop split
-#               (demos must include, student pages must NOT), er's mark/nice ring pins
-#               now require the PENCIL's doorbells instead. The lane driver checks the
-#               seam note is left for the live tutor.
-#   2026-09-01  BUILD ri -- PART 3hj: three in a row means move on. Jim's live catch:
-#               "I gave three correct answers and it gave me a 4th question" (the gate
-#               demanded done >= MIN_PROBLEMS=4 on top of the promised 3-in-a-row) and
-#               "the pencil was floating around pointing at things that didn't match
-#               the voice" (the menu ran a joke + tour at lesson.start, over the real
-#               recorded opening; one tour stop targeted a data-cad name on no page).
-#               Jim's ruling made the promise the gate: streak >= ADVANCE_STREAK alone;
-#               MIN_PROBLEMS removed from lessonscripts.py. Menu lesson.start -> enter
-#               only, dead 'problem' targets -> 'board'. Three older pins updated to
-#               the ruling's intent, each with a dated note: the settings tuple (now
-#               also proves the floor STAYS gone), and both perfect-child pins
-#               (== ADVANCE_STREAK, was MIN_PROBLEMS).
-#   2026-09-01  BUILD rh -- PART 3hi: the pencil wakes up. Jim: "activate the pencil icon
-#               as Mr Cadabra." The Cadabra companion layer (cadabra.js, built in a
-#               parallel session, shipped dark) is wired into session.html -- the stage-4
-#               twelve-edit set RE-APPLIED onto the current page (the original wiring was
-#               written against an older copy and never landed on disk) -- and switched ON
-#               by creating static/cadabra-script.json from the example. The PART pins the
-#               switch (exists, parses, names the session page; the example survives), the
-#               layer (whole; carries the rule-19 fix), and the wiring (script order and
-#               not-deferred; four data-cad targets exactly once; ONE guarded cadFire door;
-#               doorbells ring AFTER their real work; guarded mount; 3ha's streak-chip
-#               literal untouched).
-#   2026-09-01  BUILD rg -- PART 3hh: the words point where the column put it. The watch
-#               (rule 63, prealgebra): "the six ended up under the five" said AND
-#               captioned over [[column terms="2.6 | 0.35"]], which draws 2.6 on top --
-#               the six is ABOVE the five. REFEREE 71, column_words_conflict (fracslash's
-#               sibling): every under/above claim, prose and captions, digits or number
-#               words, resolved to the ONE term containing each digit, fired only on a
-#               real contradiction of the tag's own term order. Cautious four ways (one
-#               column tag; unique resolution; same-term and non-digit claims never
-#               match). Canon swept 0 of 2,109. 3fx literal 70 -> 71; tiles synced.
-#   2026-09-01  BUILD rf -- PART 3hg: the asked-for picture is drawn now. The watch's
-#               other HIGH (geometry, rule 65): asked to be shown the hypotenuse, the
-#               tutor drew only a right angle and ENDED BY OFFERING the triangle ("want
-#               me to show a triangle with it marked?"). Rule 65's two siblings stayed
-#               rightly silent (something was drawn; nothing was handed back); REFEREE
-#               70, postponed_show_conflict, closes the third shape: asked-to-see gate
-#               REUSES prose_asked_to_see/_RD_ASKS (one grammar), the offer test runs on
-#               the reply's FINAL ask (_rb_final_ask, its fourth consumer), and offers of
-#               MORE ("another", "one more", "different") stay silent. Adversarial canon
-#               sweep (every card + a show-me message): 0 of 2,109. 3fx literal 69 -> 70.
-#   2026-09-01  BUILD re -- PART 3hf: the factors are checked by expanding them. The
-#               first watch on rd confirmed a HIGH (algebra2, rule 13): "the factors
-#               should be (x + 2) and (x + 3)" spoken beside x² - 5x + 6 -- the claim
-#               expands to the WRONG quadratic and mathcheck never saw it (prose, not an
-#               eq tag). Two doors, each proved with the watch's own sentence: KNOWN_
-#               FALSEHOODS row 14 (negative-numbers-make-plus-factors; escapes = the
-#               signed form "(x + (-2))" and the explicit negation) and REFEREE 69,
-#               factor_claim_conflict (expand the pair in integer arithmetic, compare to
-#               the reply's ONE quadratic; negated mentions and multi-quadratic replies
-#               buy silence). Canon swept both doors: 0 of 2,109. Referee literal in
-#               PART 3fx moves 68 -> 69; methodology tiles synced.
 # -----------------------------------------------------------------------------
 # WHAT IT IS
 #   A standalone test script. It is NEVER imported by the running app, so it cannot
@@ -11546,6 +10706,12 @@ def part3ke_the_notes_move_out():
           _july in notes("main.py") and _july not in rd("main.py"), "")
 
     # ---- the ten files ----------------------------------------------------------------------
+    # (wp) a header can be rolled out MORE THAN ONCE: the newest pointer in the header names
+    # the newest cutoff, and changelog/<name>.md stacks one fenced block per roll-out, newest
+    # first, each under its own preamble ("dated before <cutoff> -- N entries"). Every block
+    # is checked against ITS cutoff and count; the header against the newest. The earlier
+    # pointer moves into the newest block like any other dated note -- which is why the
+    # header is read for the newest pointer, not for the 09-01 one.
     for fn in ROLLED:
         name = os.path.basename(fn)
         src = rd(fn)
@@ -11559,26 +10725,38 @@ def part3ke_the_notes_move_out():
         ent = PY_ENTRY if py else HTML_ENTRY
         dates = ent.findall(head)
         flat = _re.sub(r"\s+", " ", head.replace("#", " "))          # the pointer wraps; read it flat
-        ptr = _re.search(r"OLDER NOTES \(before %s\) live in changelog/%s\.md" % (CUTOFF, _re.escape(name)), flat)
-        stated = _re.search(r"VERBATIM, (\d+) entries; (\d+) stay here", flat)
+        ptrs = _re.findall(r"OLDER NOTES \(before (20\d\d-\d\d-\d\d)\) live in changelog/%s\.md -- moved out on "
+                           r"20\d\d-\d\d-\d\d \(build \w+\) VERBATIM, (\d+) entries; (\d+) stay here" % _re.escape(name), flat)
+        newest = max(ptrs, key=lambda p: p[0]) if ptrs else None          # (cutoff, moved, kept)
+        cutoff = newest[0] if newest else CUTOFF
         cl_path = os.path.join(here, "changelog", name + ".md")
         cl = open(cl_path, encoding="utf-8").read() if os.path.exists(cl_path) else ""
-        fence = _re.search(r"\n(`{3,})text\n(.*?)\n\1\n", cl, _re.S)
-        body = fence.group(2) if fence else ""
-        body_dates = ent.findall(body)
+        # the blocks, newest first, each with the preamble that precedes it
+        blocks = []
+        for m in _re.finditer(r"dated before (20\d\d-\d\d-\d\d) -- (\d+) entries, VERBATIM.*?\n(`{3,})text\n(.*?)\n\3\n", cl, _re.S):
+            blocks.append((m.group(1), int(m.group(2)), m.group(4)))
+        body = blocks[0][2] if blocks else ""
         first_entry = next((l for l in body.split("\n") if ent.match(l)), None)
-        check(f"⭐ {fn}: the header keeps no note older than {CUTOFF}, carries the pointer, and is under 100 KB",
-              bool(dates) and min(dates) >= CUTOFF and ptr is not None and len(head) < 100_000,
-              f"{len(dates)} entries, oldest {min(dates) if dates else None}, header {len(head):,} B, pointer {bool(ptr)}")
-        check(f"  changelog/{name}.md: present, whole, fenced; every entry older than {CUTOFF}; the pointer's count",
+        check(f"⭐ {fn}: the header keeps no note older than {cutoff}, carries the pointer, and is under 100 KB",
+              bool(dates) and min(dates) >= cutoff and newest is not None and cutoff >= CUTOFF and len(head) < 100_000,
+              f"{len(dates)} entries, oldest {min(dates) if dates else None}, header {len(head):,} B, pointer {newest}")
+        check(f"  changelog/{name}.md: present, whole, fenced; every block's entries older than its cutoff; "
+              f"the counts the preambles and the pointer state ({len(blocks)} block{'s' if len(blocks) != 1 else ''})",
               bool(cl) and cl.rstrip().endswith("I did no harm and this file is not truncated.")
-              and fence is not None and body_dates and max(body_dates) < CUTOFF
-              and stated is not None and int(stated.group(1)) == len(body_dates)
-              and int(stated.group(2)) + 1 <= len(dates),          # the pointer itself is dated (+1); later builds add more
-              f"entries {len(body_dates)}, newest {max(body_dates) if body_dates else None}, "
-              f"stated {stated.groups() if stated else None}, header entries {len(dates)}")
+              and blocks and blocks[0][0] == cutoff and int(newest[1]) == blocks[0][1]
+              and all(ent.findall(b) and max(ent.findall(b)) < c and len(ent.findall(b)) == n for c, n, b in blocks)
+              and all(blocks[i][0] > blocks[i + 1][0] for i in range(len(blocks) - 1))     # newest first
+              and int(newest[2]) + 1 <= len(dates),          # the pointer itself is dated (+1); later builds add more
+              f"blocks {[(c, n, len(ent.findall(b)), max(ent.findall(b)) if ent.findall(b) else None) for c, n, b in blocks]}, "
+              f"pointer {newest}, header entries {len(dates)}")
         check(f"  {fn}: the moved notes are gone from the file and readable through notes()",
               first_entry is not None and first_entry not in src and first_entry in notes(fn), "")
+    check("  (wp) ruletests.py and lessonscripts.py were rolled out a second time (cutoff 2026-09-10): two blocks each, "
+          "the earlier block's preamble kept under the rule; the tool keeps it from now on",
+          rd("changelog/ruletests.py.md").count("```text") == 2 and rd("changelog/lessonscripts.py.md").count("```text") == 2
+          and "dated before 2026-09-01 -- 70 entries" in rd("changelog/lessonscripts.py.md")
+          and "dated before 2026-09-01 -- 241 entries" in rd("changelog/ruletests.py.md")
+          and 'earlier = old.split("\\n", 1)[1].lstrip("\\n") if old.startswith("# CHANGELOG -- ") else old' in tool, "")
 
     # ---- do no harm -------------------------------------------------------------------------
     m = rd("main.py")
@@ -20261,6 +19439,139 @@ def part3mj_the_first_calculus_sweep_half():
           and "2026-09-16  BUILD wo" in notes("lessons/calculus.py") and "2026-09-16  BUILD wo" in notes("ruletests.py"), "")
 
 
+def part3mk_the_first_diffeq_sweep():
+    """PART 3mk (build wp, 2026-09-16) -- THE FIRST DIFFEQ SWEEP: 119 findings, 0 of 36 clean,
+    14 generator-owned. Fourteen generator items, the dot gone from the ninth course, and the
+    authored classes -- almost all of them a law stated for the lesson's model as the whole
+    truth."""
+    print("\nPART 3mk — the first Diffeq sweep (build wp)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for _s, b in les["teach"]) + " ".join(pr["worked"][1] for pr in les["pairs"])
+    B = lambda p, lv="abstract": L.board_for(p, lv)
+    S = lambda p, lv="abstract": L.spoken_for(p, lv)
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+
+    # ---- the generator ---------------------------------------------------------
+    ln = {"a": 64, "b": 8, "c": 9, "op": "lnrz"}
+    check("⭐ lnrz: the slope of a − P² is NEGATIVE 2P, and 2 × 8 × 9 is the straight-line ESTIMATE (two HIGHs)",
+          "has slope negative 2 P" in S(ln) and "the straight-line estimate pulls back" in S(ln) and S(ln).endswith("By that estimate, how fast are you pulled back?")
+          and '[[step eq="equilibrium P = 8, slope −2P"]]' in B(ln) and '[[step eq="estimate = ?"]]' in B(ln)
+          and PR("lnrz", ln).startswith("The straight-line estimate is 2 times 8 times 9 — 144."), S(ln))
+    check("⭐ cdmp's door is the right way round: a hair less on the plain term crawls, a hair more bounces",
+          "A hair less on that term and the door crawls; a hair more and it bounces." in PR("cdmp", {"a": 26, "b": 0}), "")
+    check("  char says 'equals zero' and 'whether this spring wobbles'; part asks for a steady PARTICULAR solution; away, estp, newt and chao keep their conditions; eign's two negatives move IN (not 'spirals in')",
+          "r squared plus 12 r plus 16, equals zero" in S({"a": 12, "b": 16, "op": "char"})
+          and PR("char", {"a": 12, "b": 16}).endswith("That one number decides whether this spring wobbles.")
+          and "A steady push has a steady-height particular solution" in S({"a": 3, "b": 42, "op": "part"})
+          and "In this model the further it goes, the faster it moves away. Moving away from the balance point is what UNSTABLE means." in PR("away", {"a": 39, "b": 90, "c": 2})
+          and "for a first order method, the main error shrinks in step with the step itself" in PR("estp", {"a": 110, "b": 10, "c": 6})
+          and "in the model, the coffee creeps closer and closer to the room" in PR("newt", {"a": 91, "b": 16, "c": 3})
+          and "never quite gets cold" not in PR("newt", {"a": 91, "b": 16, "c": 3})
+          and "a tiny starting gap still wrecks a far-ahead forecast" in PR("chao", {"a": 5, "b": 5, "c": 2})
+          and "both below and everything moves in toward the origin" in PR("eign", {"a": 180, "b": 40})
+          and "spirals in" not in PR("eign", {"a": 180, "b": 40}), "")
+    check("  slpq says 'use this equation'; isoc's praise is short sentences; logi's board says fish",
+          S({"a": 11, "b": 42, "op": "slpq"}).startswith("Use this equation over the same plane")
+          and "That line is called an isocline. Every dash along it leans exactly the same way. Drawing whole lines" in PR("isoc", {"a": 26, "b": 2})
+          and '[[step eq="fish × room ÷ 4 = ?"]]' in B({"a": 27, "b": 16, "c": 4, "op": "logi"}), "")
+    check("⭐ THE DOT: no [[step eq]] in the nine swept courses (Diffeq since wp) -- authored OR generated -- joins two equations with ' · '",
+          not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', t["board"])
+                  for c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc", "calculus", "diffeq")
+                  for les in C.lessons_for(c, L) for t in C.transcript_for(les, L)), "")
+    check("  ...sepv, sepr, lder, lalg and eign write separate lines",
+          '[[step eq="dy/dx = 10x"]][[step eq="y = 5x² + C"]][[step eq="C = 39"]][[step eq="at x = 3: y = ?"]]' in B({"a": 10, "b": 39, "op": "sepv"})
+          and '[[step eq="y² = 2·6x + C"]][[step eq="C = 100"]][[step eq="at x = 8: y = ?"]]' in B({"a": 6, "b": 10, "c": 8, "op": "sepr"})
+          and '[[step eq="s = 14, Y = 10, y(0) = 29"]][[step eq="14 × 10 − 29 = ?"]]' in B({"a": 29, "b": 14, "c": 10, "op": "lder"})
+          and '[[step eq="Y = 12/(s + 2)"]][[step eq="at s = 4: Y = ?"]]' in B({"a": 2, "b": 12, "c": 4, "op": "lalg"})
+          and '[[step eq="λ₁ = 40"]][[step eq="λ₂ = ?"]]' in B({"a": 180, "b": 40, "op": "eign"}), "")
+    check("  ...and the canon's referees accept the sepv and lder asks (the old ones chained equals signs / read no number)",
+          not any(tutor.prose_board_conflict(S(p) + "\n" + B(p) + L.choices_for(p), heard=S(p) + "\n" + B(p) + L.choices_for(p), course="diffeq")
+                  for p in ({"a": 10, "b": 39, "op": "sepv"}, {"a": 4, "b": 2, "op": "sepv"},
+                            {"a": 29, "b": 14, "c": 10, "op": "lder"}, {"a": 2, "b": 3, "c": 5, "op": "lder"})), "")
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ laws with their condition (U1-U4): the deepest derivative; the dashes swing; the isocline and solution-curve rules; another important kind; in proportion, with a constant; these examples; this logistic law; lands low; the MAIN error",
+          "named by the deepest derivative in it" in spoken(E("diffeq-u1-a-dash-at-every-point"))
+          and "how deep its derivatives go" not in spoken(E("diffeq-u1-a-dash-at-every-point"))
+          and "the dashes swing to new angles" in spoken(E("diffeq-u1-change-the-law-change-the-field"))
+          and E("diffeq-u1-reading-the-field-backwards")["advance_line"].endswith("For d y d x equals x plus y, take the x off the slope and what's left is y.")
+          and E("diffeq-u1-joining-the-dashes")["advance_line"].endswith("When every dash leans the same way, climb by the slope for every step across, then add the start.")
+          and "Now another important kind: the LINEAR ones" in spoken(E("diffeq-u2-the-cooling-cup"))
+          and "one half of first order" not in spoken(E("diffeq-u2-the-cooling-cup"))
+          and "the speed is in proportion to the gap: a constant tells you" in spoken(E("diffeq-u2-the-cooling-cup"))
+          and "In these examples the key number for the outflow" in spoken(E("diffeq-u2-the-tank-of-brine"))
+          and "Every litre the outflow pipe takes away carries 15 grams" in spoken(E("diffeq-u2-the-tank-of-brine"))
+          and "For this logistic law, it peaks exactly halfway" in spoken(E("diffeq-u3-where-growth-peaks"))
+          and "for our logistic pond the answer is one of the tidiest" in spoken(E("diffeq-u3-how-big-the-peak-is"))
+          and "In a forward walk like this, Euler lands low when the slope keeps rising" in spoken(E("diffeq-u4-walking-it-in-straight-steps"))
+          and "Euler always lags" not in spoken(E("diffeq-u4-walking-it-in-straight-steps"))
+          and "the main part of the error is proportional to the step size" in spoken(E("diffeq-u4-the-deal-euler-offers"))
+          and "ten times the work buys about a tenth of the error" in spoken(E("diffeq-u4-the-deal-euler-offers"))
+          and "the main error divides by about sixteen" in spoken(E("diffeq-u4-sixteen-instead-of-two"))
+          and "nobody accepts it" not in spoken(E("diffeq-u4-sixteen-instead-of-two")), "")
+    check("⭐ laws with their condition (U5-U9): constant-number equations, '= 0'; the door the right way (HIGH); many objects; a steady PARTICULAR solution; the damped transient; this undamped model; squared frequencies; minus y(0) kept; settling transforms; single real poles; a lot of the classifying; moves IN; one part of the arrow; a smooth curve; the rabbit half; on the balance point it stays; a start only almost known",
+          "Each constant-number equation in this lesson hides a quadratic" in spoken(E("diffeq-u5-one-number-decides"))
+          and '[[step eq="r² + 6r + 5 = 0"]]' in boards(E("diffeq-u5-one-number-decides"))
+          and "A hair below 225 and the door crawls shut; a hair above and it bounces past the frame" in spoken(E("diffeq-u5-the-knife-edge"))
+          and "Many objects have natural frequencies like this" in spoken(E("diffeq-u5-the-spring-that-never-stops"))
+          and "Guess that one particular solution is steady" in spoken(E("diffeq-u6-somebody-is-pushing"))
+          and "for these steady pushes the method is the same every time" in spoken(E("diffeq-u6-somebody-is-pushing"))
+          and "A pushed spring with damping does two things at once" in spoken(E("diffeq-u6-the-part-that-fades"))
+          and "In these damped, settling problems, wait long enough" in spoken(E("diffeq-u6-the-part-that-fades"))
+          and "in this undamped model the swing simply grows without stopping" in spoken(E("diffeq-u6-why-soldiers-break-step"))
+          and E("diffeq-u6-why-soldiers-break-step")["advance_line"].endswith("the gap between the two squared frequencies.")
+          and "it has turned into a multiplication by s, with the starting height taken off" in spoken(E("diffeq-u7-derivatives-become-timesing"))
+          and "differentiating becomes s times Y, then take off the starting height" in spoken(E("diffeq-u7-derivatives-become-timesing"))
+          and "Read the board as: L of y prime equals s Y, minus y of zero" in spoken(E("diffeq-u7-derivatives-become-timesing"))
+          and "for settling transforms like these ones" in spoken(E("diffeq-u7-reading-the-ending"))
+          and "for the single real poles in this lesson, a pole to the right of zero" in spoken(E("diffeq-u7-the-shift-rule"))
+          and "one number that does a lot of the classifying" in spoken(E("diffeq-u8-the-number-in-the-corner"))
+          and "Both below, and every path moves in toward the origin" in spoken(E("diffeq-u8-two-numbers-decide-the-picture"))
+          and "spirals in" not in spoken(E("diffeq-u8-two-numbers-decide-the-picture"))
+          and "every path except the origin itself races away" in spoken(E("diffeq-u8-two-numbers-decide-the-picture"))
+          and "where one part of the arrow — the x part or the y part — is zero" in spoken(E("diffeq-u8-where-an-arrow-goes-flat"))
+          and "Zoom in far enough on a smooth curve" in spoken(E("diffeq-u9-up-close-it-is-a-line"))
+          and "Its slope there is negative 2 P — negative 6" in spoken(E("diffeq-u9-up-close-it-is-a-line"))
+          and "That is the rabbit half of a balance point" in spoken(E("diffeq-u9-rabbits-and-foxes"))
+          and "Start rabbits and foxes exactly on the balance point and they stay there" in spoken(E("diffeq-u9-round-and-round"))
+          and "no straight-line system can do" not in spoken(E("diffeq-u9-round-and-round"))
+          and "in this lesson's tidy cycle, the foxes peak a quarter" in spoken(E("diffeq-u9-round-and-round"))
+          and "Here is what happens when the starting point is only ALMOST known" in spoken(E("diffeq-u9-a-perfectly-known-equation"))
+          and "not available to anyone, at any price" not in spoken(E("diffeq-u9-a-perfectly-known-equation")), "")
+    check("⭐ words-board: the y′ rule and the arrow (HIGH x2); resonance's gap lines; the separable setups; the walked field; the worked setups; the boards' numbers spoken",
+          '[[step eq="x′ = 4x − y"]][[step eq="y′ = x + y"]]' in boards(E("diffeq-u8-two-things-at-once"))
+          and '[[step eq="y′ = 9 + 5 = 14"]][[step eq="the arrow: (31, 14)"]]' in boards(E("diffeq-u8-two-things-at-once"))
+          and '[[step eq="gap 3: 42 ÷ 3 = 14"]][[step eq="gap 1: 42 ÷ 1 = 42"]][[step eq="gap 0: no size — resonance"]][[step eq="7 ✓ at gap 6"]]' in boards(E("diffeq-u6-why-soldiers-break-step"))
+          and '[[step eq="dy/dx = 8x"]][[step eq="y = 4x² + C"]][[step eq="y(0) = 5, so C = 5"]][[step eq="at x = 3: 36 + 5 = 41"]]' in boards(E("diffeq-u2-splitting-the-letters-apart"))
+          and '[[step eq="dy/dx = 2/y, y(0) = 11"]][[step eq="at x = 12: y² = 48 + 121 = 169"]]' in boards(E("diffeq-u2-when-the-y-is-underneath"))
+          and 'lines="y=3x+5" points="(0,5),(4,17)"' in E("diffeq-u1-joining-the-dashes")["teach"][0][1]
+          and '[[step eq="95 − 14 = 81"]]' in boards(E("diffeq-u2-the-cooling-cup"))
+          and '[[step eq="ceiling 41 · now 22 · room 19"]]' in boards(E("diffeq-u3-the-crowded-pond"))
+          and '[[step eq="168 ÷ 2 = 84"]]' in boards(E("diffeq-u3-where-growth-peaks"))
+          and '[[step eq="peak rate = ceiling × constant ÷ 4"]]' in boards(E("diffeq-u3-how-big-the-peak-is"))
+          and '[[step eq="32² = 1024"]]' in boards(E("diffeq-u5-the-knife-edge"))
+          and '[[step eq="y″ + 256y = 0"]]' in boards(E("diffeq-u5-the-spring-that-never-stops"))
+          and '[[step eq="(s + 2)Y = 228"]][[step eq="Y = 228/(s + 2)"]]' in boards(E("diffeq-u7-and-now-it-is-just-algebra"))
+          and '[[step eq="Y = 180/(s(s + 12))"]]' in boards(E("diffeq-u7-reading-the-ending"))
+          and '[[step eq="slope at P = 3: −2 × 3 = −6"]]' in boards(E("diffeq-u9-up-close-it-is-a-line"))
+          and "Coffee at 50 degrees, a room at 20." in spoken(E("diffeq-u2-the-cooling-cup"))
+          and "Here, the steady part is 40 and the spring starts at 65" in spoken(E("diffeq-u6-the-part-that-fades"))
+          and "A force of 150, damping 5, frequency 3." in E("diffeq-u6-what-saves-the-bridge")["teach"][0][0]
+          and "one that takes, say, 60 months to go round" in spoken(E("diffeq-u9-round-and-round"))
+          and "88 takes the 8 away rather than sharing" in spoken(E("diffeq-u7-reading-the-ending"))
+          and "the transform leaves s plus 6" in spoken(E("diffeq-u7-and-now-it-is-just-algebra"))
+          and "Y is 180 over a lone s times s plus 12" in spoken(E("diffeq-u7-reading-the-ending")), "")
+    check("  every Diffeq lesson validates; the course list is 39,999 (no beat added)",
+          all(ok for les in L.LESSONS if les["course"] == "diffeq" for ok, _l, _d in L.validate(les))
+          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-16wp-' in notes("main.py") and "2026-09-16  BUILD wp" in notes("lessonscripts.py")
+          and "2026-09-16  BUILD wp" in notes("lessons/diffeq.py") and "2026-09-16  BUILD wp" in notes("ruletests.py"), "")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -28395,8 +27706,9 @@ def part3ft_the_curriculum_is_read():
     check("  logistic growth still peaks HALFWAY, not near the top",
           "halfway to the ceiling, not near the top"
           in teach("diffeq-u3-where-growth-peaks"), "")
-    check("  and chaos still ends on the forecast nobody can buy",
-          "not available to anyone, at any price"
+    check("  and chaos still ends on the long forecast going unreliable (wp: scoped -- "
+          "'not available to anyone, at any price' was a law for one example system)",
+          "a long forecast goes unreliable whenever the start is even slightly off"
           in teach("diffeq-u9-a-perfectly-known-equation"), "")
 
     # ---- THE CLOSING FACT ----
@@ -47150,6 +46462,7 @@ def main():
     part3mh_the_first_algebra2_sweep()
     part3mi_the_first_precalc_sweep()
     part3mj_the_first_calculus_sweep_half()
+    part3mk_the_first_diffeq_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

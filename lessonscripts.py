@@ -2,6 +2,39 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  OLDER NOTES (before 2026-09-10) live in
+#               changelog/lessonscripts.py.md -- moved out on 2026-09-16 (build wp)
+#               VERBATIM, 46 entries; 20 stay here. Keep adding new notes HERE, newest at
+#               top; roll them out again (notes_rollout.py) when this header passes ~100
+#               KB.
+#   2026-09-16  BUILD wp -- THE FIRST DIFFEQ SWEEP (119 findings, 14 generator-owned). (1)
+#               lnrz: "the law 64 − P² has slope 2P" (HIGH -- it is −2P) and "you are pulled
+#               back at 144" (HIGH -- the true rate at P = 17 is −225; 144 is the linearised
+#               ESTIMATE). The ask says slope negative 2P and asks for the straight-line
+#               estimate; the board writes the slope and the estimate on separate lines; the
+#               praise calls it the estimate. (2) cdmp's praise had the door REVERSED (HIGH):
+#               a hair less on the plain term crawls, a hair more bounces. (3) char's ask says
+#               "equals zero" and its praise says the number decides whether THIS spring
+#               wobbles. (4) away's praise: in this model the further it goes the faster it
+#               moves away; moving away is what unstable means. (5) part's ask: a steady push
+#               has a steady-height PARTICULAR solution. (6) estp's praise: for a first order
+#               method the MAIN error shrinks in step with the step. (7) newt's praise: in the
+#               model the coffee creeps closer to the room (it does get cold). (8) chao's
+#               praise: a perfectly known equation, and a tiny starting gap still wrecks a
+#               far-ahead forecast. (9) slpq's ask says "use this equation" (it is the
+#               lesson's own). (10) isoc's praise is short sentences. (11) logi's board says
+#               "fish", not an untaught P. (12) eign's praise: both eigenvalues below zero and
+#               "everything moves in toward the origin" (it said "spirals in" -- two real
+#               negatives are a node, not a spiral). (13) sepv's board: the arrow line is two
+#               lines (dy/dx = ax / y = (a/2)x² + C) and the question line is "at x = 3: y = ?"
+#               (the old "y at x = 3 = ?" chained two equals signs). (14) lder's question line
+#               writes the numbers the words say (b × c − a = ?), so the problem the board
+#               hands over is the one the prose reads. sepv and sepr ask "what is y at x
+#               equals c" (the referee's function-rule check took "height" for an unwritten
+#               h(x)). All three were the canon's own referees refusing the generated ask.
+#               The dot between two equations is gone from every
+#               generator line Diffeq's transcripts reach (isoc, sepv, sepr, away, part, lder,
+#               lalg, nucl, eign, lnrz, slpq, chao). Authored: lessons/diffeq.py.
 #   2026-09-16  BUILD wo -- THE FIRST CALCULUS SWEEP, HALF (19 of 36 read; 46 findings, 7
 #               generator-owned). (1) linf: the ask said "a x squared divided by b x squared"
 #               while the board drew a x² / (b x² + b), and the walk-back said the x
@@ -210,11 +243,6 @@
 #               (Jim: 'it says "here comes the first one" and then waits'). One closure
 #               clip replaces one; STANDALONE_LINES unchanged in count. Four Basic lines
 #               changed in lessons/basic.py the same build (see its header).
-#   2026-09-08  OLDER NOTES (before 2026-09-01) live in
-#               changelog/lessonscripts.py.md -- moved out on 2026-09-08 (build ui)
-#               VERBATIM, 70 entries; 39 stay here. Keep adding new notes HERE, newest at
-#               top; roll them out again (notes_rollout.py) when this header passes ~100
-#               KB.
 #   2026-09-10  BUILD vb -- TOUR_LINES: THE TOUR JOINS THE COURSE'S VOICE. The 29
 #               lines static/session.html speaks on a new student's very first visit
 #               -- ten course openers, the tour stops, the closings -- were in NO
@@ -308,883 +336,6 @@
 #               the exact text) and the battery pins the two copies equal.
 #               ⚠️ 211 NEW VOICE LINES (about $3.60): 210 from the re-ordering plus
 #               the new check. A PREWARM IS NEEDED after this push.
-#   2026-09-09  BUILD uv -- THE LESSON HAS A VISIBLE FINISH LINE, AND THE ORIENTATION
-#               CARD CARRIES THE RECORD. Two board-only repairs from Jim's 2026-09-09
-#               ruling ("wherever we can, we want to have graphics to support what we are
-#               saying"). NOT ONE SPOKEN WORD CHANGES in either, so no new voice line
-#               exists in this build and NO PREWARM IS NEEDED.
-#               (a) _end_board / _card_text, read by _end: every lesson now ends on a
-#                   card -- "Lesson done" (Jim's own word; his 2026-09-07 ruling reserves
-#                   "mastered" for the 90% Unit Quiz) or "Where we got to" for a
-#                   still-learning end -- carrying the topic and how many problems were
-#                   answered. A student who answered none is not handed a zero to look
-#                   at. boardaudit.py measured what the silent ending cost: 68 endings
-#                   across Entry-Level and Diffeq where a child answers the last question
-#                   and then hears 40-70 words with nothing new drawn, and ALL 23
-#                   stretches in the whole course that ran past referee 85's ceiling were
-#                   lesson endings. The worst run in the course: 69 words -> 53.
-#               (b) lesson_orientation(lesson, prev_done, last=None) + _last_time_item:
-#                   the orientation card now says what they did LAST TIME, WHEN, and HOW
-#                   IT WENT, from the record main.py prepares (_orientation_last). The
-#                   two SPOKEN variants are deliberately untouched -- they are
-#                   pre-rendered clips, and a per-student sentence would turn the second
-#                   beat of every lesson into a live text-to-speech call, a bill and a
-#                   wait on the one beat that has to land instantly. The board holds a
-#                   score better than the ear does. last=None returns byte-for-byte what
-#                   us shipped, and an absent or impossible field drops that part of the
-#                   line rather than guessing (rule 0).
-#   2026-09-09  BUILD us -- ORIENT, THEN ONE IDEA PER BEAT WITH A CHECK (the shape Jim
-#               chose, 2026-09-08). Three pure helpers, the engine's walk untouched:
-#               lesson_orientation(lesson, prev_done) -> (spoken, card) -- "Before this
-#               came <prev>, and you finished it. Today: <topic>. First the idea, then a
-#               picture, then the method -- then your turn." (the record's word) or the
-#               "Today:" form; prev_lesson(lesson) from COURSE_ORDER; beat_of(lesson,
-#               spoken) -> why/picture/teach/worked/practice_intro/explain/recap/"".
-#               LINE_CHECK ("Got it?"), CHECK_CHOICES and READY_CHOICES are the page's
-#               check and ready gate, byte-identical in session.html. Both orientation
-#               forms join every lesson's audio closure (the battery's ceiling 24,000 ->
-#               24,500); LINE_CHECK is a STANDALONE line. Run the prewarm after the push.
-#   2026-09-09  BUILD ur -- THE WRONG ANSWER IS ANSWERED AT ONCE. Two fixed lines join the
-#               audio closure: LINE_THINKING ("Give me a moment to work this one out with
-#               you.") and LINE_THINKING_MORE ("Still working on it -- one more moment."),
-#               spoken by session.html while a deferred re-teach is still coming (byte-
-#               identical there). They are STANDALONE_LINES -- the lane's, not any
-#               lesson's closure (three calculus closures sit 25 chars under the 24,000
-#               ceiling). Nothing else in this file changed. Run the prewarm.
-#   2026-09-08  BUILD uq -- THE PROBLEM IS ALWAYS ON THE BOARD (Jim's corrections queue).
-#               * PRACTICE_INTRO_BOARD: the practice intro ("Now it's your turn...") carries
-#                 a card now; it spoke over a scrolled-away board (flag 22:02).
-#               * _fcmp_board: the two rules FIRST, then the machines, then f(g(c)) = ?
-#                 (flag 21:57 "visuals backwards"); _fcmp_worked writes each machine's
-#                 line beside it (flag 21:59).
-#               * absc: INTEGERS, not "whole numbers" (false for the negatives); the
-#                 question, the board, the walk-back and the praise count DOTS on the
-#                 number line one side at a time (_absc_dots), not bars (flag 21:40).
-#               * PRAISE_PREFIXES: "Nice counting!" -> "Nice work!" (flag 22:05: it praised
-#                 a composition). New closure text: run the script-prewarm after the push.
-#   2026-09-08  BUILD up -- A NEW MACHINE, STILL CALLED f. Jim's 2026-09-08 ruling (rule
-#               28: one letter names one function, all conversation) reaches the practice
-#               sets, which give f a fresh rule every problem. The four function ops now
-#               open by retiring the name out loud: fnot and fback "A new machine, still
-#               called f.", fm2 "Two new machines in a row.", fcmp "Two new machines, still
-#               called f and g." -- rule 28's own escape clause, applied uniformly. Nothing
-#               else in the ops changed (answers, boards, choices, checks, praise).
-#   2026-09-08  BUILD uj -- ONE FILE PER COURSE. THIS FILE IS THE ENGINE NOW. The 360
-#               authored lessons -- 25,500 lines, 61% of this file -- moved to lessons/
-#               (entry.py, basic.py, prealgebra.py, algebra1.py, geometry.py, algebra2.py,
-#               precalc.py, probstat.py, calculus.py, diffeq.py), each course its own
-#               pure-data file with its unit lists, their build notes and its slice of
-#               COURSE_ORDER; lessons/__init__.py joins them in course order. This file
-#               does `from lessons import LESSONS, COURSE_ORDER` where the lists used to
-#               be and then exactly what it always did (the disagreement check, the
-#               reorder, LESSON_BY_ID, PILOT_LESSON). The split script proved the data
-#               deep-equal (types included) and every moved line present; PART 3kf pins
-#               it. 41,846 lines -> 16,280. Nothing the engine does changed. A new
-#               lesson goes in lessons/<course>.py -- see that file's note.
-#   2026-09-07  BUILD ub -- CALCULUS UNITS 7-9 TO THE SHAPE (12 lessons). Jim: "continue
-#               with updating the courses as far as how we're taught." ⭐ CALCULUS 36/36.
-#               THIS FILE:
-#                 * Unit 7 (the integral): the area under the graph SHADED on the ask
-#                   with "?" written in it ([[graph shade="lo..hi" label="?"]], new in
-#                   math-figures.js) and the area written on the walk-back -- the
-#                   rectangle under a steady speed, the triangle under the ramp y = x,
-#                   the strip under 2x from one end to the other; the hump whose area is
-#                   GIVEN (h + h/2 sin over one whole period, so the label is honest)
-#                   and the flat line it flattens to on the walk-back;
-#                 * Unit 8 (uses): the strip between two humps (between="1"); the
-#                   trapezium under a climbing speed and its halfway line on the
-#                   walk-back; the flow rectangle asked, the AMOUNT line from the start
-#                   on the walk-back; the cylinder ([[solid kind="cylinder"]]) a
-#                   rectangle sweeps out;
-#                 * Unit 9 (differential equations): the amount line falling from the
-#                   start, its end point on the walk-back; the two rates as bars, the
-#                   net line on the walk-back; the rate line against the amount, the
-#                   point on the walk-back; the rate line falling to zero, the crossing
-#                   on the walk-back.
-#               LEGENDS: "speed = 7 m/s" as a legend name fired the one-thought-per-line
-#               referee (an equation with a trailing unit) on 24 asks and walk-backs --
-#               "a steady 7 metres a second" and "6 litres a minute running in" now.
-#               THREE closures crossed the 24,000-character audio ceiling (defi 24,126,
-#               revo 25,361, pgrw 24,650): each praise says the arithmetic once and
-#               keeps the one idea its walk-back does not say. Trap lines kept in every
-#               lesson; "one idea wearing two hats" and "measures the CHANGE, never the
-#               amount" kept in their teaches. ENGINE: OP_EXT defi/triz/ftc/avgv/btwn/
-#               trap/accu/revo/dfeq/mixr/pgrw/eqbm gain "worked" (_defi_* ... _eqbm_*)
-#               and picture boards. The six PART 3fs fixed fragments survive in each
-#               lesson's second worked pair.
-#   2026-09-07  BUILD ua -- CALCULUS UNITS 4-6 TO THE SHAPE (12 lessons). Jim: "continue
-#               with updating the courses as far as how we're taught." CALCULUS 24/36.
-#               THIS FILE:
-#                 * Unit 4 (derivatives at work): the speed line ALONE on the ask (no
-#                   height, no crossing), the height and the crossing on the walk-back;
-#                   area against side with the point, the tangent there on the
-#                   walk-back; the valley alone, its flat bottom on the walk-back; the
-#                   speed line, one step up it on the walk-back;
-#                 * Unit 5 (optimisation): the fence shared four ways as a TAPE with
-#                   every part blank, the square walked round ([[rectangle
-#                   show="perimeter"]]) on the walk-back; the square on a metre grid
-#                   asked ([[rectangle show="area" ask="1"]]), counted on the
-#                   walk-back; the hump of every split, its peak on the walk-back; the
-#                   cubic whose bend changes, the line x = a/3 on the walk-back;
-#                 * Unit 6 (antiderivatives): the power rule run backwards as a
-#                   MACHINE (÷ 2, then ÷ the new exponent) with output "?", filled and
-#                   the function written on the walk-back; two parallel curves with
-#                   the lower one's point, both points on the walk-back; one member of
-#                   the family with its start, its height further on on the walk-back.
-#               RULE 15 IN THE ASK ITSELF, live: the one-point lesson wrote "y = 19 at
-#               x = 0 · y at x = 4 = ?" on every one of its twelve asks -- a chain of
-#               equals ending in "= ?" -- and writes "at x = 4 · y = ?" now. The
-#               acceleration ask's "differentiate again → ?" is "acceleration = ?".
-#               The halves lesson's teach splits 30 (20 was a bank ask); the related
-#               rates teach grows a side of 15 (10 at 2 was a bank ask); "the total"
-#               (canon "in all") and "makes" (canon "equals") are gone from the audio.
-#               The related-rates praise says the arithmetic once (its closure was
-#               24,652 characters, over the 24,000 audio ceiling; 19,612 now). ENGINE:
-#               OP_EXT vsol/mrat/crit/acce/optr/maxa/sumx/infl/anti/antp/plusc/init gain
-#               "worked" (_vsol_* ... _init_*) and picture boards; maxa's check keeps
-#               the fence at 80 or less (the grid draws sides to 20; 88 wanted 22).
-#               The eight PART 3fs fixed fragments survive in each lesson's second
-#               worked pair. FIGURES: math-figures.js keeps a five-digit y label whole.
-#   2026-09-07  BUILD tz -- CALCULUS UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "continue
-#               with updating the courses as far as how we're taught." CALCULUS 12/36.
-#               THIS FILE:
-#                 * Unit 1 (limits): f and g closing on the same x on one GRAPH with the
-#                   hole drawn (hole= on the first curve, names="f; g"), the product
-#                   withheld, walked back as the product curve closing on it; the
-#                   fraction flattening with NO line on the ask, the line y = a/b drawn
-#                   on the walk-back; two shelves with the open and closed dots at the
-#                   border (piecewise func="a for x<6; b for x>=6"), the leap marked on
-#                   the walk-back; the sloping piece climbing to a border the flat piece
-#                   misses, the flat piece raised to meet it on the walk-back;
-#                 * Unit 2 (the derivative): y = x squared with the point alone on the
-#                   ask, the tangent line on the walk-back; the power rule as a MACHINE
-#                   (the exponent goes in, rule "x the front number", output "?"), the
-#                   machine filled and the new power written on the walk-back; a line
-#                   alone on the ask, two steps marked on the walk-back; the derivative
-#                   as a machine fed an x, the curve with the point on the ask and the
-#                   tangent on the walk-back;
-#                 * Unit 3 (the rules): x times (x + a) with the point, the slope rule
-#                   as its OWN step, the tangent on the walk-back; the chain rule as a
-#                   machine (the power goes in, rule "x the inside's derivative"); the
-#                   chain rule at a point, the tangent on the walk-back; a plain number
-#                   underneath as a two-stage machine ("x 2, then / b").
-#               LEGENDS: every single-curve graph carries names= now -- the legend used
-#               to print the raw expression ("y=(36*x^2)/(3*x^2 + 3)"), and reads
-#               "y = 36x² / (3x² + 3)" instead (40 graphs across asks, walk-backs, beats).
-#               PENDING LINES: two boards wrote a chain of equals ending in "= ?" and
-#               are two steps now ("slope = 2x + 6" then "at x = 5 · slope = ?"); two
-#               piecewise boards wrote an arrow after an equals sign and use the colon
-#               form ("x < 6: y = 2 · x ≥ 6: y = 14"). The cnst lesson said "makes"
-#               (canon is "equals"). Trap lines kept in every lesson. ENGINE: OP_EXT
-#               llaw/linf/jump/cfix/derv/pwrc/cnst/evat/prod/chan/chev/quot gain
-#               "worked" (_llaw_* ... _quot_*) and picture boards. Demonstrated numbers
-#               kept out of the banks: the power rule teaches 6x^3 (a bank ask was
-#               3x^6), the chain rule (5x + 3)^6 and (4x + 7)^2. The eight PART 3fs
-#               fixed fragments survive in each lesson's second worked pair.
-#   2026-09-07  BUILD ty -- PROBSTAT UNITS 7-9 TO THE SHAPE (12 lessons). Jim: "continue
-#               with updating the courses as far as how we're taught." ⭐ PROBSTAT 36/36.
-#               THIS FILE:
-#                 * Unit 7 (expected value): the two known chances on the HUNDRED SQUARE
-#                   with large as the white cells (asked), the three prizes as BARS that
-#                   fill the hundred (walked back); the paying plays shaded on the hundred
-#                   square, walked back as two PILES of tokens as bars; the wins shaded on
-#                   the hundred square, walked back as the pot MACHINE (÷ the wins); what
-#                   you pay beside what comes back as bars, walked back as a TAPE of back
-#                   and gone;
-#                 * Unit 8 (the normal curve): the middle band on the BELL ([[normal]] on
-#                   the ask -- the answer is a headcount, not on its axis), walked back on
-#                   the hundred square; the mean and the value as two dots on a NUMBER
-#                   LINE with no hops on the ask (a hop prints its jump, and counting the
-#                   hops IS the answer), the hops of one deviation on the walk-back; ONE
-#                   hop shown on the ask and two walked; the top sliver of the bell on the
-#                   ask, the three parts of the group as a tape on the walk-back;
-#                 * Unit 9 (confidence): the estimate as a dot with the margin's reach on
-#                   the ask, the step down as a hop on the walk-back; the two halves of the
-#                   doubt as a tape with total="?" on the ask and the width on the
-#                   walk-back; the estimate, the ceiling and the claim as three dots, the
-#                   gap as a hop on the walk-back; the three percents as bars on the ask,
-#                   the people machine on the walk-back.
-#               RULE 42 IN THE ASK ITSELF, live: two asks said "how many students" (n68,
-#               npop) -- the comparison shape (tn's law) -- and are "how many of the whole
-#               group / the whole school" now; their praise counts no students. THREE ops
-#               wrote a QUESTION inside a step ("how many students = ?", "how many
-#               deviations above = ?" -- 36 baseline presweep hits) and write statements
-#               now ("the middle band holds ?", "deviations above the mean = ?"). Trap
-#               lines kept in every lesson. ENGINE: OP_EXT pdis/evwa/fair/hedg/n68/zsco/
-#               zval/ntal/cint/cwid/inci/npop gain "worked" (_pdis_* ... _npop_*) and
-#               picture boards. Demonstrated numbers kept out of the banks: the tails
-#               lesson teaches a group of 800 (400 was a bank ask). The nine PART 3ft
-#               ps_fixed fragments survive in each lesson's second worked pair.
-#   2026-09-06  BUILD tt -- PROBSTAT UNITS 4-6 TO THE SHAPE (12 lessons). Jim:
-#               "Continue with the probability and statistics."
-#               THIS FILE:
-#                 * Unit 4 (sampling): the school as bars and the sample as a TAPE cut
-#                   the same way (asked with both parts blank); the surveys back and
-#                   silent as a tape, walked back on the hundred square as a percent;
-#                   the asked and the never-asked as a tape with the second part blank;
-#                   the people MACHINE (rule x 4) with its output blank, walked back as
-#                   now beside four times;
-#                 * Unit 5 (probability): the bag as bars, the chance on the hundred
-#                   square; the three piles captioned (12 asks drew bars with none,
-#                   rule 41) and joined on a tape; two PIES with one slice each for two
-#                   chances, walked back as the ARRAY of days by buses (the array prints
-#                   its product -- walk-back only); the spinner as a pie with its winners
-#                   shaded, walked back as the TREE of paths (it prints every leaf's
-#                   product -- walk-back only);
-#                 * Unit 6 (conditional): the four groups as bars, walked back as the
-#                   TWO-WAY table (it prints the row totals -- walk-back only); the
-#                   girls' share on the hundred square; the school beside the group as
-#                   bars; the bag as a tape before and after a marble is kept.
-#               RULE 42 IN THE ASK ITSELF, live: the undercoverage ask said "How many
-#               students never had a chance to be asked?" -- "how many students" is the
-#               comparison shape (tn's law) -- and its praise counted "students it could
-#               never reach". The ask asks about "the whole school" now; the praise
-#               counts "the ones it could never reach". One pending line was a question
-#               inside a step ("how many winners?") -- a statement now. Trap lines kept
-#               in every lesson. ENGINE: OP_EXT strf/resp/bias/merr/ppct/por/pand/ptre/
-#               cbse/ccnt/indp/wout gain "worked" (_strf_* ... _wout_*) and boards.
-#               Demonstrated numbers kept out of the banks and pairs: the margin lesson
-#               teaches 60 -> 240 -> 960 (100 -> 400 was a bank ask); the AND lesson
-#               teaches one in 5 times one in 3 (4 times 3 was the (3, 4) bank ask);
-#               the GIVEN lesson counts 7 plus 5 girls (6 plus 4 was the (6, 4, 13)
-#               bank ask); independence predicts 45 percent (30 was a bank ask).
-#   2026-09-06  BUILD ts -- THE LESSON INTRODUCES ITSELF. Jim, back after a day away:
-#               "Welcome back -- let's pick up where you left off", then a Pre-Algebra
-#               why beat with no unit, no lesson, no name -- "I have no idea what it is
-#               referring to. I thought we fixed this." (the 22:16 "no introduction"
-#               flag, back in the shape's costume: the old teach openers named the
-#               unit, the why beat opens on the why). ENGINE: lesson_intro(lesson)
-#               makes one spoken line and one board card -- "Pre-Algebra, Unit 1:
-#               Number Sense and Order of Operations. Lesson 1 of 4: Order of
-#               operations." on a [[write]] card -- and step()'s begin speaks it
-#               BEFORE the why, for every lesson in every course, fresh start and
-#               return alike; audio_lines() carries it (360 new closure lines --
-#               prewarm). Pure: it reads the lesson and curriculum.py's titles.
-#   2026-09-06  BUILD tr -- PROBSTAT UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "go".
-#               THIS FILE:
-#                 * Unit 1 (exploring data): the dot plot, the dot plot with its line,
-#                   the histogram and the stray dot -- every ask captioned (96 asks in
-#                   these three units drew a figure with no caption, rule 41), walked
-#                   back with the stack, the count, the sum and the stray named;
-#                 * Unit 2 (describing distributions): the even list as a dot plot,
-#                   walked back as the two middles on the number line with the halfway
-#                   mark (mid=); the box plot; the four numbers as a dot plot, walked
-#                   back as their four distances as bars; the hundred square as a
-#                   percent, walked back as beaten beside ahead;
-#                 * Unit 3 (scatterplots): the scatter cloud captioned; the slope as a
-#                   rate MACHINE, walked back as the line climbing with the point
-#                   marked; predicted beside actual as bars, walked back as one hop on
-#                   the number line; the dots as a tape with the below part blank.
-#               RULE 42 IN THE ASKS THEMSELVES, live: the mode ask said "the most
-#               children" and the percentile ask "40 other students" -- the comparison
-#               shape. The mode ask now asks for "the number that happened most often";
-#               the percentile ask is a swimmer racing "40 others" (third person;
-#               "percentile" is exempt in probstat, "other students" never was). Two
-#               pending lines were questions inside a step ("how many players?", "how
-#               many scores in all?") and one more ("how many beaten = ?") -- all
-#               statements now. Trap lines kept in every lesson. ENGINE: OP_EXT dotm/
-#               dcnt/htot/farv/medv/iqrw/madv/pctl/spnt/sslp/resd/sblw gain "worked"
-#               (_dotm_* ... _sblw_*) and boards. Demonstrated numbers kept out of the
-#               banks and pairs: the mode teach stacks over 14 (every mode 5..13, 15,
-#               17, 18 is an ask); the even-list teach and worked pairs land on 7, 14
-#               and 10 (the old 9, 12 and 19 were asks); the scatter teach reads a
-#               cloud of its own (the old cloud WAS the slope-3 ask at 8 hours).
-#   2026-09-06  BUILD tq -- PRECALC UNITS 7-9 TO THE SHAPE (12 lessons). Jim: "go".
-#               PRECALC IS 36/36. THIS FILE:
-#                 * Unit 7 (conics, parametrics): the circle with its radius marked "?"
-#                   ([[circle r="?"]]) and the circle with its middle unnamed
-#                   ([[circle center="?"]]) on the asks -- the [[conic]] grid would let
-#                   the answer be counted, so it draws the walk-backs (cx= cy= at the
-#                   true middle); the ellipse's two reaches as a tape, both blank; the
-#                   ball's path with its t = 1 point, walked back as the vector at time t;
-#                 * Unit 8 (series): the pattern's machine on the ask (writing the terms
-#                   would do the adding), the terms as bars in the walk-back; the sigma
-#                   recipe machine, its terms as bars; the crowd as a one-row array,
-#                   line-ups beside teams as bars; the first three bounces as bars, walked
-#                   back as hops that each cover half of what is left. The sigma pending
-#                   line reads "k from 1 to 7" (the old "k = 1 → 7" was an arrow after an
-#                   equals, 12 asks, live);
-#                 * Unit 9 (limits): the line that never breaks; the machine that jams at
-#                   the hole on the ask (the curve's hole sits at the answer), the line
-#                   with its hole (hole=) in the walk-back; the step with its two shelves
-#                   (piecewise func=), the pending line "x < 6: y = 11 · x ≥ 6: y = 19"
-#                   (the old arrows after equals, 12 asks, live); the window on the curve
-#                   (lines="x=2; x=10"), walked back as the line through the two ends.
-#               Trap lines kept in every lesson. ENGINE: OP_EXT crad/cctr/elax/parm/gsum/
-#               sigm/pasc/gser/lsub/lhol/lsid/avgr gain "worked" (_crad_* ... _avgr_*)
-#               and boards. Demonstrated numbers kept out of the banks and pairs: every
-#               radius 2..12 and every center 2..12 is an ask, so the radius teach un-
-#               squares 225 (15) and the center teach and worked pairs sit at 15, 14, 13.
-#   2026-09-06  BUILD tp -- PRECALC UNITS 4-6 TO THE SHAPE (12 lessons). Jim: "go".
-#               THIS FILE:
-#                 * Unit 4 (trig functions): a half turn beside the angle as bars, walked
-#                   back as the half turns laid end to end (tape to ten, number-line hops
-#                   past it); the arrow wound backwards on the circle with its values
-#                   hidden, walked back as the same arrow named forwards; the flat line
-#                   split at the arrow with the gap blank ([[angle deg="180" split=]]),
-#                   walked back with both pieces; the plain sine beside the fast one on
-#                   an axis in DEGREES ([[graph names=]]), walked back with the first
-#                   repeat marked (lines="x=");
-#                 * Unit 5 (identities): the hundred square with sine squared shaded
-#                   ([[hundredgrid eq=]]) -- and the ask now SAYS "of the 100" (the old
-#                   "cos² = ?/100" was a board problem the spoken words never read, rule
-#                   44, 12 asks, live); the right triangle with its second sharp corner
-#                   blank; the mirror stays picture-free on the ask (the pointed arrow is
-#                   the answer) and walks back with the arrow and its values; the wave
-#                   through its turns with the level line, the pending line a statement
-#                   (the old "how many times?" was a question inside a step, 12 asks,
-#                   live), walked back with the touches marked (points=);
-#                 * Unit 6 (applications): the HONEST SAS triangle ([[triangle sas=]],
-#                   new in geo-figures.js -- the schematic layout drew 150 looking sharp,
-#                   which is why the old ask had words only); the ramp and the arrow's
-#                   triangle captioned (rule 41: 24 asks drew a figure with no caption);
-#                   THE COMPASS ([[unitcircle bearing= turn=]], new in math-figures.js)
-#                   with the turn arc's far end unnamed, walked back at the new bearing;
-#                   the arrow walked back as [[vector]] (it prints the length).
-#               Trap lines kept in every lesson. ENGINE: OP_EXT rad1/nspn/refq/wper/
-#               pyid/cofn/negf/sols/arsn/ramp/brng/vmag gain "worked" (_rad1_* ...
-#               _vmag_*) and, where a picture withholds the answer, boards. Demonstrated
-#               numbers kept out of the banks and pairs: the mirror lesson's bank asks
-#               (90, sine) and (180, cosine) were the teach's own demonstrations -- they
-#               are (360, sine) and (630, cosine) now; the crossings teach counts three
-#               turns (every one- and two-turn combination is an ask).
-#   2026-09-06  BUILD to -- PRECALC UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "go".
-#               THIS FILE:
-#                 * Unit 1 (functions): two MACHINES in a row on the ask, g first with
-#                   its output blank and f fed from it, both answered in the walk-back;
-#                   the old point on the grid, walked back with where it landed; the
-#                   root's doorway walked back as the curve of √(x − a) starting at the
-#                   door (no picture on the ask: the curve starts at the answer); the
-#                   border at 5 on the number line with x marked, walked back with the
-#                   side named -- and the ask's pending line is "x = c · y = ?" (the old
-#                   "x = c → ?" put an arrow after an equals, 12 asks, live);
-#                 * Unit 2 (polynomials): the minus parade walked back as the ARRAY in
-#                   two rows, the odd one left over (extra="1"; the pairing is the
-#                   answer, so walk-back only); the plug-in machine with its output blank;
-#                   the four rooms with the corner blank ([[areamodel ask="1"]] -- the
-#                   end number is the corner room); the bottom walked back as the curve
-#                   flying off at each zero (yrange=; the poles are the answer, so
-#                   walk-back only);
-#                 * Unit 3 (logs and exponentials): the log beside the log of the power
-#                   as bars; the log machine run backwards with its input blank, walked
-#                   back as the layers stacked and the machine answered; the tank halving
-#                   day by day and the pile doubling year by year on the bars.
-#               Trap lines kept in every lesson. ⚠️ no figure asks in these three units
-#               before this build (no captions to miss) -- the pieces pending line was
-#               the live find. ENGINE: OP_EXT fcmp/fshf/fdom/fpie/negp/remt/vprd/vasy/
-#               logp/lsol/hcnt/cmpd gain "worked" (_fcmp_* ... _cmpd_*) and, where a
-#               picture withholds the answer, boards. Demonstrated numbers kept out of
-#               the banks and pairs (every old teach and pair already was).
-#   2026-09-06  BUILD tn -- ALGEBRA 2 UNITS 7-9 TO THE SHAPE (12 lessons). THE COURSE IS
-#               36/36. THIS FILE:
-#                 * Unit 7 (patterns): the first three terms as BARS, walked back with
-#                   every term to the asked one (the ride, the leaps); 1 up to n on the
-#                   number line, walked back as the STAIRCASE RECTANGLE ([[rectangle
-#                   half="1"]] -- half of n rows of n + 1 is the sum; bars past 19); the
-#                   rule as a MACHINE with its output blank, walked back run twice;
-#                 * Unit 8 (the unit circle): the height and across asks stay
-#                   picture-free -- the renderer strips the spins and points the arrow,
-#                   which IS the answer -- and their pending lines are statements (the
-#                   old "where does the arrow point?" was a question inside a step, 24
-#                   asks); walked back with the arrow pointed; the spin ask draws the
-#                   arrow with its coordinates hidden ([[unitcircle values="0"]], new
-#                   this build in math-figures.js) and walks back with the SAME arrow
-#                   after the full turn; the wave walked back with its crest line;
-#                 * Unit 9 (statistics): the five scores as bars with the mean beside
-#                   them; shirts by pants as an array, then the hats; the plays as a pie
-#                   with the paying ones shaded, walked back as wins-of-tokens on the
-#                   array; the sample beside the school as bars.
-#               Trap lines kept in every lesson. ⚠️ 12 graph asks drew with no caption
-#               (rule 41), and the sample ask's spoken question -- "how many students in
-#               the school" -- was rule 42's shape (the comparison referee, 12 asks; it
-#               says "how many of the whole school" now). ENGINE: OP_EXT anth/gnth/gaus/
-#               reca/sinp/cosp/spin/ampl/wavg/cnt3/expv/samp gain "worked" (_anth_* ...
-#               _samp_*) and boards; _COMPASS names the four directions. Demonstrated
-#               numbers kept out of the banks and pairs (the old times-again pair walked
-#               (4, 2, 5) against the pair ask (4, 2, 4); the old pair-the-ends pair
-#               walked 1 to 6, a bank ask; the old height teach walked 270 and 450 and
-#               the across teach 810, all bank asks -- the height teaches on 90 and 630,
-#               the across on 0 and 450, the pairs on 540/1260 and 720/1260; the old
-#               stretched-wave teach drew 4·sin x, a bank ask, so it draws 20·sin x; the
-#               old heavier-mean pair repeated the teach and walks (9, 4) now).
-#   2026-09-06  BUILD tm -- ALGEBRA 2 UNITS 4-6 TO THE SHAPE (12 lessons). Jim: "go".
-#               THIS FILE:
-#                 * Unit 4 (division moves in): the sharing curve captioned, walked back
-#                   with the point marked; the MACHINE run backwards -- input "?", output
-#                   given -- and answered in the walk-back; the forbidden x asked on the
-#                   jammed machine (no curve on the ask: the pole sits at the answer),
-#                   walked back with the curve FLYING OFF at that x (yrange=); the
-#                   survivor's curve walked back with the level line drawn (lines="y=a"
-#                   beside func=);
-#                 * Unit 5 (roots): the two roots' square walked back as the array (to
-#                   10), the rectangle (to 20) or bars beyond -- walk-back only, its side
-#                   is the answer; the one-half power walked back as the root beside the
-#                   halving trap on the bars; the rooting machine with its input blank;
-#                   the number between two squares ON THE NUMBER LINE, walked back with
-#                   the hop to the nearer square;
-#                 * Unit 6 (decay and logs): the sample fading day by day on the bars;
-#                   the power machine with its exponent blank, walked back as the layers
-#                   stacked; the two stacks of doublings joined; the number between two
-#                   powers as three bars.
-#               Trap lines kept in every lesson. ⚠️ 24 graph asks drew with no caption
-#               (rule 41); under them, the logs-add pending line "a × b = ab · log ab =
-#               ?" read as a × b by the unanswerable-choices referee (6 asks -- now two
-#               lines), and the survivor's "which part survives? y → ?" was a question
-#               inside a step (12 asks). ENGINE: OP_EXT rdiv/rsol/excl/rasy/rmul/rpow/rsq/
-#               rbet/hlfl/logb/logm/lbet gain "worked" (_rdiv_* ... _lbet_*) and, where a
-#               picture withholds the answer, boards; _sq_figure(k, total, cap) picks the
-#               square's figure by its side. Demonstrated numbers kept out of the banks
-#               and pairs (the old hidden-exponent pairs walked 2^?=8 and 10^?=1000 --
-#               both pair asks -- so they walk 5^?=125 and 10^?=10,000; the old logs-add
-#               pair walked 4 and 8, a bank ask, so it walks 2 and 64).
-#   2026-09-06  BUILD tl -- ALGEBRA 2 UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "go".
-#               THIS FILE:
-#                 * Unit 1 (absolute value, two clues, three): the two spots on the
-#                   number line captioned, walked back with the steps between them hopped
-#                   (hops=); the fence on the line, walked back as negatives, zero and
-#                   positives on the BARS; the two shopping trips as TAPES (apple |
-#                   apple | apple | banana | banana), walked back with the pair of apples
-#                   left standing; the three clues as bars, walked back beside "everyone
-#                   once" -- and the sys3 ask gains the pending line x + y + z = ? (the
-#                   board-answers-the-question referee: the clues stood completed with
-#                   no line ending in "?");
-#                 * Unit 2 (the vertex, the roots, the test number, i): the curve
-#                   captioned and walked back with the vertex marked (points=); the
-#                   crossings marked; the test number walked back as two bars (a² against
-#                   4b) beside the curve -- no picture on the ask, a curve would count its
-#                   own crossings; x² = −a walked back as the square on the ARRAY (past a
-#                   side of 10, the rectangle -- its side is the answer, so walk-back
-#                   only), and the ask's pending line is its own line, "x = ? · i" (rule
-#                   44: the old "i² = −1 · x = ? · i" carried a number the ask never
-#                   spoke);
-#                 * Unit 3 (polynomials): the two piles of x's as bars, joined in the
-#                   walk-back; the degree beside its turns (no curve on the ask -- it
-#                   would show them); the cubic with its three crossings marked; the
-#                   MACHINE with its door blank, answered in the walk-back.
-#               Trap lines kept in every lesson. ⚠️ 60 figure asks drew with no caption
-#               (rule 41: graph 36, numberline 24). ENGINE: OP_EXT absv/absc/el2/sys3/vtx2/
-#               rsum/disc/imag/pdeg/turnc/rsum3/pval gain "worked" (_absv_* ... _pval_*)
-#               and, where a picture withholds the answer, boards. Demonstrated numbers
-#               kept out of the banks and pairs (the old inside-the-distance teach used 3
-#               -- a pair ask -- so it teaches on 5; the old wiggle-count why walked
-#               degree 3 to two turns -- the same -- so it walks degree 4 to three).
-#   2026-09-06  BUILD tk -- GEOMETRY UNITS 7-9 TO THE SHAPE (12 lessons). THE COURSE IS
-#               36/36. THIS FILE:
-#                 * Unit 7 (the grid): the up-and-down segment captioned and walked back
-#                   with its steps counted; the slant walked back with the RIGHT TRIANGLE
-#                   drawn under it on the grid and beside it as a [[righttriangle]]; the
-#                   midpoint marked on the walk-back; the three corners captioned (the
-#                   fourth never drawn) and the box closed in the walk-back;
-#                 * Unit 8 (area and volume): the parallelogram DRAWN with its true height
-#                   as a dashed line ([[polygon kind="parallelogram"]], new this build in
-#                   geo-figures.js) and walked back pushed straight into a rectangle; the
-#                   two rooms as two rectangles; the cube ([[solid kind="cube"]]) walked
-#                   back as six faces on the bars; the box with every edge timesed;
-#                 * Unit 9 (chance and counting): the bag as bars, walked back as the
-#                   whole bag on a pie; rain against all the chances, walked back beside
-#                   no rain; the outfit grid as an ARRAY (the area model would print the
-#                   product); the two-way table captioned and read at the crossing.
-#               Trap lines kept in every lesson. ⚠️ every figure ask in the three units
-#               drew with no caption (rule 41, 72 asks: graph, twoway, bars), and the
-#               two-rooms ask's pending line carried the room areas the ask never spoke
-#               (rule 44, 12 asks -- now "a × b + c × b = ?"). ENGINE: OP_EXT vseg/dist/
-#               mid2/corn/para/lshp/surf/svol/poft/notp/outc/twop gain boards and "worked"
-#               (_vseg_* ... _twop_*). Demonstrated numbers kept out of the banks and
-#               pairs (the old straight-up teach used (4, 2)-(4, 7) -- a bank ask -- so
-#               the lesson now teaches on (1, 3)-(1, 8)). "students", never "children",
-#               in the new prose.
-#   2026-09-06  BUILD tj -- GEOMETRY UNITS 4-6 TO THE SHAPE (12 lessons). Jim: "go".
-#               THIS FILE:
-#                 * Unit 4 (similar shapes): the small triangle ABC beside its enlarged
-#                   copy DEF with the asked side blank (sides="a,,"), walked back with
-#                   every side filled; the factor asked on the bars (small beside big);
-#                   the matching side on the two triangles; the area surprise on the
-#                   rectangle of squares ([[rectangle w=b h=b]]);
-#                 * Unit 5 (the right triangle): the hypotenuse asked on the triangle with
-#                   the two legs written and the long side blank, walked back on the
-#                   RIGHT TRIANGLE with adjacent/opposite/hypotenuse named; the missing
-#                   leg the same way round; the tangent on the captioned right triangle
-#                   (adjacent along the floor, opposite up the wall); the opposite side
-#                   from the tangent;
-#                 * Unit 6 (circles): the rest of the circle asked on the plain circle
-#                   and walked back as the two arcs on a PIE ([[pie data=]] -- "the arc
-#                   a° | the rest (360 - a)°"); the inscribed angle asked on the plain
-#                   circle (inscribed= is a giveaway there: the renderer prints the
-#                   answer) and walked back with the angle drawn on the rim; the arc
-#                   asked with the angle drawn (inscribed="2a" labels the GIVEN);
-#                   the arc length on the pie of equal parts, one shaded.
-#               Trap lines kept in every lesson. ⚠️ every figure ask in the three units
-#               drew with no caption (rule 41, 107 asks: triangle, righttriangle, bars,
-#               rectangle, circle, pie). TUTOR.PY (this build): referee 68 (the second
-#               triangle) read ABC beside DEF as one triangle redrawn -- it now reads the
-#               v= names, so a second, differently named triangle is a second triangle.
-#               ENGINE: OP_EXT scal/sfac/mside/sare/pyth/leg/tang/topp/cent/insc/iarc/
-#               alen gain boards and "worked" (_scal_* ... _alen_*). Demonstrated numbers
-#               kept out of the banks and pairs. Reason options that worked the
-#               arithmetic aloud ("25 plus 144 is 169") reworded -- the spoken-math
-#               referee sweeps the joined options.
-#   2026-09-06  BUILD ti -- GEOMETRY UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "start in
-#               on the geometry." THIS FILE:
-#                 * Unit 1 (angles, the circle, the midpoint): the square corner split and
-#                   walked back with both pieces labelled; two lines crossed as the X with
-#                   the twin labelled ([[angle cross=]]) and walked back on the straight
-#                   line the neighbours share; the circle with its radius, walked back with
-#                   the DIAMETER drawn edge to edge ([[circle d=]], new this build in
-#                   geo-figures.js); the midpoint on the number line with the halfway mark;
-#                 * Unit 2 (the three moves) on the GRID: the point captioned, then the
-#                   point and where it landed (a slide, a flip across the mirror on x = 0,
-#                   a half turn to the opposite spot); turn symmetry on the pie (past
-#                   twelve parts, a written line);
-#                 * Unit 3 (triangles): ABC beside its copy DEF (congruent); the ticked
-#                   triangle with its base angles and the top blank, then all three; two
-#                   angles with the third corner opened out; the apex with the base angles
-#                   blank. Trap lines kept in every lesson.
-#               ⚠️ every figure ask in the three units drew with no caption (rule 41, 138
-#               asks: triangle, graph, angle, numberline, circle, pie). The geometry
-#               vocabulary referee: an angle is never a "piece". Every lesson: why,
-#               picture, teach, pairs, walk-back, reason, recap. ENGINE: OP_EXT comp/vert/
-#               circ/mid/tran/refl/htrn/rota/cong/isos/extr/chas gain boards and "worked"
-#               (_comp_* ... _chas_*). Demonstrated numbers kept out of the banks (the old
-#               rota teach used 4 and 5 parts and the old isos teach 50 -- all asks; rota's
-#               twelve divisors of 360 leave only 6 and 12 free, so the lesson teaches on
-#               those two).
-#   2026-09-06  BUILD th -- ALGEBRA 1 UNITS 7-9 TO THE SHAPE (12 lessons). THE COURSE IS
-#               36/36. THIS FILE:
-#                 * Unit 7 (the four rooms) on the AREA MODEL with two new ask modes
-#                   (math-figures.js, this build): the four rooms asked with the MIDDLE
-#                   rooms blank and the corner given ([[areamodel ask="x"]]); factoring
-#                   and the common factor asked with one SIDE hidden and the sum left
-#                   whole (ask="side"); the difference of squares asked with the corner
-#                   blank and the middles showing, so the cancelling is seen;
-#                 * Unit 8 (curves) on the GRID: the curve with a vertical line at the
-#                   asked x; the bowl with one ground point marked and the other asked;
-#                   the lowest point asked and then marked; the falling ball marked at
-#                   its launch and its landing;
-#                 * Unit 9 (the three middles): the mean as a pile shared into hidden
-#                   parts on the TAPE; the median and the odd-one-out on the DOTPLOT,
-#                   captioned; the range as two bars, then the stretch on the NUMBER
-#                   LINE. Trap lines kept in every lesson.
-#               ⚠️ every graph, dotplot and bar-chart ask in the three units drew with
-#               no caption (rule 41, 72 asks); underneath, the vtx and outl asks ended on
-#               lines the spoken question never read ("... bottoms out at 0 — lowest y =
-#               ?", "mean = 13 · median = ?") -- split into a plain line and "lowest y =
-#               ?" / "median = ?". Every lesson: why, picture, teach, pairs, walk-back,
-#               reason, recap. ENGINE: OP_EXT foil/fnum/gcfx/dsq/sqy/roots/vtx/hitg/mean/
-#               medn/rnge/outl gain boards and "worked" (_foil_* ... _outl_*).
-#               Demonstrated numbers kept out of the banks (the old fnum teach worked
-#               (x + 2)(x + 3), the old gcfx pair 8x + 6, the old mean pairs 28-in-4 and
-#               54-in-6, the old medn pairs, the old outl pair 6-and-26: all bank or pair
-#               problems). hitg's every square from 9 to 196 is a bank ask; its teach
-#               keeps 25 (teachaudit reads the tuple, and the beat opens on 25, not 5).
-#   2026-09-06  BUILD tg -- ALGEBRA 1 UNITS 4-6 TO THE SHAPE (12 lessons). THIS FILE:
-#                 * Unit 4 (lines) on the GRID: reading the line asks with a vertical line
-#                   at the given x ("climb from x = 6 up to the line") and walks back with
-#                   the point marked; the climb asks with the two points and walks back
-#                   with the line drawn through them; the start asks the left wall and
-#                   marks (0, b); start-and-climb marks the point reached;
-#                 * Unit 5 (two rules): where-two-rules-agree asks on TWO LINES with the
-#                   crossing ringed but unlabelled ([[graph cross="ask"]], new this build
-#                   in math-figures.js -- the auto-label used to print the answer);
-#                   swapping-in, sum-and-difference and the eraser as BARS (two x's and
-#                   the a against b; bigger as smaller-and-more; the two trips side by
-#                   side, the difference one pencil);
-#                 * Unit 6 (powers): the x's written out as a bar and counted (joining
-#                   adds); b copies of x^a as a bar (copying times); a digit on the
-#                   PLACE-VALUE CHART moved up a places (times ten to a power); the
-#                   doubling pond as BARS one day short, then to the end. Trap lines kept.
-#               ⚠️ every graph ask in the three units drew with no caption (rule 41, 58
-#               asks), and the sys2 ask ended on "2x = 8 → x = ?" -- a line the spoken
-#               question never read AND an arrow after an equals sign; it is "2x + a = b"
-#               then "x = ?" now. Every lesson: why, picture, teach, pairs, walk-back,
-#               reason, recap. ENGINE: OP_EXT lny/slp/yint/lin2/sys1/sys2/sumd/elim/exadd/
-#               exmul/sci/dbl gain boards and "worked" (_lny_* ... _dbl_*, _line_spec).
-#               Demonstrated numbers kept out of the banks (the old lny teach worked
-#               y = x + 2 at x = 3 and the old sci teach 3 × 10², both bank problems; the
-#               old dbl pair worked 2 pads for 4 days, a bank problem).
-#   2026-09-06  BUILD tf -- ALGEBRA 1 UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "start on
-#               algebra." THIS FILE:
-#                 * Unit 1 (expressions) as BARS: bx + c is b copies of x then the c (the
-#                   plus waits its turn); x + cy is one x then c copies of y (each letter
-#                   its own number); ax + by + cx is the bar in the order written, the x
-#                   pieces counted past the y, then collected as two proportional parts;
-#                   a(x − b) on the AREA MODEL asked with the taken-away room blank
-#                   ([[areamodel ask="1"]] now keeps the sign: "= 4x - ?");
-#                 * Unit 2 (equations) on the BALANCE: x + a = b drawn level, a off both
-#                   sides, x alone against the answer, put back to check; ax = b as a
-#                   copies of x on the pan and as a bar shared; ax + b = c as the scale
-#                   after each undo (last on, first off); x + a < b on the number line
-#                   with the OPEN circle and the shaded ray, the biggest whole number
-#                   marked in the walk-back;
-#                 * Unit 3 (functions) on the MACHINE: the rule run in order with its
-#                   two steps written; f(b) with the output blank; two machines nose to
-#                   tail, the second's output blank; the input blank and found by undoing
-#                   the rule, then run forwards to check. Trap lines kept in every lesson.
-#               ⚠️ every machine and number-line ask in the three units drew with no
-#               caption (rule 41); every ask carries one now. Every lesson: why, picture,
-#               teach, pairs, walk-back, reason, recap. ENGINE: OP_EXT ev2/evxy/cl2/dstm/
-#               un1/un2/un3/ineq/fm1/fnot/fm2/fback gain boards and "worked" (_ev2_* ...
-#               _fback_*, _cl2_tape). Demonstrated numbers kept out of the banks (the old
-#               dstm pair worked 3(x − 4), a bank problem).
-#   2026-09-06  BUILD te -- PREALGEBRA UNITS 7-9 TO THE SHAPE (12 lessons). THIS FILE:
-#                 * Unit 7 (percent) on the TAPE: the number cut into ten equal parts --
-#                   ten percent is one part -- and the taken parts marked (any percent);
-#                   the share as a bar beside the HUNDRED GRID holding the same share
-#                   out of 100 (what percent); the ten parts found from the part
-#                   (finding the whole); the price and the change as one bar, put on or
-#                   taken off (a price up or down);
-#                 * Unit 8 (measurement, geometry): one bar part per big unit with the
-#                   small units in each (changing units); the RECTANGLE ROUND THE
-#                   TRIANGLE with its diagonal drawn and half filled ([[rectangle
-#                   half="1"]], new this build in math-figures.js) -- a right triangle
-#                   is half a rectangle, seen; the straight line split with both pieces
-#                   labelled; the triangle with its three angles;
-#                 * Unit 9 (the first letters): x + b as a bar of x and b, x swapped for
-#                   its number (a letter holds a number); bx as b COPIES of x side by
-#                   side (a number against a letter); ax + bx as one bar counted
-#                   (collecting); the AREA MODEL asked with the number room blank
-#                   ([[areamodel ask="1"]], new this build) and read filled (the times
-#                   reaches both). Trap lines kept in every lesson.
-#               ⚠️ the pcn/pwh/tri/tri3 asks ended on a line the spoken question never
-#               read ("3 × 3 = ?", "100% = 4 × 10 = ?", "24 ÷ 2 = ?", "180° − 110° = ?")
-#               -- rule 44 hits the old sweep never saw because rule 41 (no caption)
-#               fired first; the pending line now carries the numbers the ask speaks
-#               ("30% of 30 = ?", "12 is 30% of ?", "6 × 4 ÷ 2 = ?", "180° − (50° +
-#               60°) = ?"). The dst ask used to print the answer (12) in the area
-#               model's number room. Every lesson: why, picture, teach, pairs,
-#               walk-back, reason, recap. ENGINE: OP_EXT pcn/asp/pwh/pup/cnv/tri/sla/
-#               tri3/evx/mlx/clt/dst gain boards and "worked" (_pcn_* ... _dst_*,
-#               _ten_tape, _clt_tape, _CNV_UNITS). Demonstrated numbers kept out of the
-#               banks (the old pup teach worked 40 up 10%, a bank problem; tri now
-#               teaches 8 by 3, mlx x=9, dst 4(x + 3)).
-#   2026-09-06  BUILD td -- PREALGEBRA UNITS 4-6 TO THE SHAPE (12 lessons). THIS FILE:
-#                 * Unit 4 (fractions) on the TAPE (a fraction of a number: the whole cut
-#                   into the bottom's parts, the top's parts taken; parts in a whole) and
-#                   the FRACTION LINE (dividing by a fraction as HOPS of the fraction --
-#                   the measurement picture -- with the flip-and-times ladder when the
-#                   hops would be too many; fractions bigger than one hopped a whole at a
-#                   time with the left-over drawn);
-#                 * Unit 5 (decimals) on the HUNDRED GRID (hundredths: rows are tenths),
-#                   the place-value chart's new TENTHS column (times by ten moves the
-#                   digits across it), the tenths line with hops, and the array of
-#                   tenths shared out;
-#                 * Unit 6 (ratio) as TWO TAPES (the batch and the batches, both sides
-#                   timesed), sharing then groups on the array (a rate), TWO PIES cut
-#                   two ways (a proportion; the ladder when the pie would need more than
-#                   twelve parts), the tape cut into the counted parts (sharing in a
-#                   ratio). Trap lines kept (rat, prop).
-#               ⚠️ the old dbf asks wrote the FLIPPED form under the question -- the
-#               method, given away -- and "c ÷ a/b" is read by the choices referee as
-#               (c ÷ a)/b; a divisor fraction is written in parentheses now. Every lesson:
-#               why, picture, teach, pairs, walk-back, reason, recap. ENGINE: OP_EXT
-#               nuf/uic/dbf/imp/hun/x10/dth/dsh/rat/rte/prop/shr gain boards and "worked"
-#               (_nuf_* ... _shr_*, _dbf_hops). Demonstrated numbers kept out of the
-#               banks (nuf 2/5 of 10, uic sixths-in-2, dbf 4÷2/3, imp 7/3, hun 0.45 and
-#               0.5, dth 0.5×5, rte 18-in-3-for-5 were all bank problems).
-#   2026-09-05  BUILD tc -- PREALGEBRA UNITS 1-3 TO THE SHAPE (12 lessons). Jim: "leave
-#               basic aside from now and go to prealgebra." THIS FILE:
-#                 * Unit 1 (order of operations) on the LADDER -- [[solve]] marching the
-#                   moves down the board ("times first", "then add"); a square number on
-#                   the area model, a cube as a BLOCK OF CUBES ([[solid]]) -- the course's
-#                   first honest picture of a to-the-power-3;
-#                 * Unit 2 (factors) on RECTANGLES -- the factor pairs written and one
-#                   drawn (array, or the area model when wide); the smallest-factor hunt
-#                   as the tries in order, the first fit ticked; primes on the ladder
-#                   ("pull out 2"); the biggest factor as the smallest one's partner;
-#                 * Unit 3 (integers) on the NUMBER LINE with the move drawn as HOPS.
-#                   ⚠️ the cbz/addneg asks used to mark the LANDING POINT -- the answer
-#                   drawn on the question; they mark the START now (subneg too), and
-#                   the walk-back hops. Times with a negative is b hops of a from zero.
-#               Every lesson: why, picture, teach, pairs, walk-back, reason, recap; the
-#               trap line kept (bfac). ENGINE: OP_EXT tba/parf/expn/exo/nfac/spf/npf/bfac/
-#               mulneg gain "worked"; cbz/addneg/subneg gain boards and "worked"
-#               (_tba_worked ... _mulneg_worked; _factor_pairs, _pair_board, _npf_ladder,
-#               _int_range, _neg). validate: a negative answer may be named "negative 4".
-#   2026-09-05  BUILD tb -- ENTRY UNIT 1 TO THE SHAPE (the youngest students). Counting
-#               to 10 and past ten on the STARS counted one at a time; before-and-after
-#               and which-is-bigger on the NUMBER LINE (one hop up / back; the later
-#               number is bigger). Each lesson: why, picture, teach, pairs, recap.
-#               Ruling ⑤ keeps the quick praise for counting and comparing (no
-#               walk-back); NO reason question in this unit -- its options are text a
-#               student learning to count cannot read yet (open ruling). ENGINE: "big"
-#               asks draw the two numbers on the line (the comparing method IS the
-#               picture). Nothing else changed.
-#   2026-09-05  BUILD ta -- the `intervene` step carries "board": the ask's board as it
-#               was drawn (pending["board"], board_for as the fallback), so the model
-#               that steps in is told exactly what the student is looking at (flag
-#               22:31). Nothing else in the engine changed.
-#   2026-09-05  BUILD sz -- THE TIMES TABLE IS A PASS, NOT A STREAK. Jim's flag 22:40 and
-#               his rulings ⑥ ⑦: 1-9 times 1-9, complete on ONE clean pass, a slip
-#               restarts it. ENGINE: "mastery": "table" (TABLE_MAX / TABLE_SIZE /
-#               TABLE_MAX_MISSES settings); start(lesson, seed=None) seeds the shuffle;
-#               table_facts(), _table_order/_board/_miss/_begin/_ask/_praise_index;
-#               step(): pair-1 -> phase "table", a right fact earns praise and the
-#               next fact (no walk-back inside the pass), the 81st earns the reason
-#               question; a slip draws the fact's array counted down the rows, says
-#               LINE_TABLE_RESTART and deals a fresh shuffle; the fifth slip in a
-#               sitting says LINE_TABLE_REST and ends warmly. _ask() takes a board
-#               override and REMEMBERS the board in pending (a re-ask keeps the
-#               counter). "*" gains _mul_choices (neighbouring FACTS as distractors).
-#               audio_lines: the 81 facts asked/re-asked, one praise each, the slip
-#               lines, the two standing lines. validate #11: the table lesson's
-#               promises. LESSON: basic-u2-times-tables says "mastery": "table"; its
-#               practice intro and advance line say the pass, never "three in a row".
-#   2026-09-05  BUILD sy -- BASIC UNIT 9 TO THE SHAPE (measuring) -- AND WITH IT THE WHOLE
-#               BASIC COURSE, 36 LESSONS. THIS FILE: perimeter and area on the new
-#               RECTANGLE on a unit grid (the walk around traced; the squares inside
-#               filled); quarter turns on the CIRCLE cut into four; volume as one
-#               layer (an array) times the layers, beside the box ([[solid]]). ENGINE:
-#               OP_EXT peri / area / ang / angq / vol gain boards and "worked".
-#   2026-09-05  BUILD sx -- BASIC UNIT 8 TO THE SHAPE (percent). THIS FILE: what-percent
-#               on the HUNDREDTHS SQUARE in percent mode (the part asked as a pie or a
-#               bar); percent-of as the SHARING picture (50 percent is one of two equal
-#               parts); percent-off on the TAPE (the discount and what you pay, side by
-#               side under the price); what-one-costs as the dollars shared over the
-#               apples. Both trap lines kept. ENGINE: OP_EXT wpc / pc / poff / rate gain
-#               boards and "worked".
-#   2026-09-05  BUILD sw -- BASIC UNIT 7 TO THE SHAPE (decimals and money). THIS FILE:
-#               tenths on the 0-to-1 line (it already speaks in tenths); hundredths and
-#               tenths-meeting-hundredths on the new HUNDREDTHS SQUARE ([[hundredgrid]]
-#               -- a tenth is a full row); dimes and pennies on the PLACE-VALUE CHART
-#               (dimes are tens). The tenths-and-hundredths trap line kept. ENGINE:
-#               OP_EXT dt / dh / m / t2h gain boards and "worked".
-#   2026-09-05  BUILD sv -- BASIC UNIT 6 TO THE SHAPE (adding and taking away fractions).
-#               THIS FILE: all four lessons on the FRACTION LINE -- same bottom: start at
-#               the first fraction and hop by the second (back, for taking away);
-#               different bottoms: the first fraction found on the FINER line, then the
-#               hop. The unlike-bottoms trap line kept. ENGINE: OP_EXT fa / fs / fu / fus
-#               gain boards (the line with the start marked, the hop withheld) and
-#               "worked" (the hops drawn); _fl helper.
-#   2026-09-05  BUILD su -- BASIC UNIT 5 TO THE SHAPE (fractions). THIS FILE:
-#                 * fractions-on-the-number-line on the FRACTION LINE ([[numberline
-#                   denom=]] -- ticks and hops labelled in fourths), the hops drawn;
-#                 * fraction-of-a-group on the ARRAY shared into equal parts;
-#                 * equivalent-fractions and simplest-form on TWO PIES holding the same
-#                   amount cut two ways; the simplest-form trap line kept.
-#               ENGINE: OP_EXT nl / nlw / of / eqf / simp gain boards and "worked"
-#               (_nl_*, _nlw_*, _of_*, _eqf_*, _simp_*; _frac_line helper). A pie
-#               holds at most 12 parts, so simplest-form asks with a bigger bottom
-#               are bare and their walk-back draws the simplified pie only.
-#   2026-09-05  BUILD st -- BASIC UNIT 4 TO THE SHAPE (factors and multiples). THIS FILE:
-#                 * missing-factors on the ARRAY: b boxes, a dots -- the sharing question
-#                   in disguise -- then the boxes filled;
-#                 * factor-pairs as a RECTANGLE (rows of dots when small, the area model's
-#                   one cell with its sides labelled when big); the trap line kept;
-#                 * greatest-common-factor on the VENN: the two factor lists, the overlap
-#                   holding what they share;
-#                 * least-common-multiple on TWO NUMBER LINES: count-by hops on each, the
-#                   first shared landing marked.
-#               ENGINE: OP_EXT mf / fpr gain a board and a "worked" (_mf_*, _fpr_*); gcf
-#               gains _gcf_worked (the Venn); lcm gains _lcm_board (two bare count-by
-#               lines) and _lcm_worked (the hops). _factors(n) helper.
-#   2026-09-05  BUILD ss -- BASIC UNIT 3 TO THE SHAPE (the dividing unit). THIS FILE:
-#                 * what-dividing-means on the ARRAY read the other way -- the dots to
-#                   share and the empty boxes (the sharing question as a picture), then
-#                   the boxes filled;
-#                 * left-overs on the array with extra= (the red dots that did not fit);
-#                 * divide-two-digit on the AREA MODEL backwards (tens and ones shared);
-#                 * story-problems with BOTH pictures side by side -- groups put
-#                   together (times) and a pile shared out (divided by).
-#               ENGINE: OP_EXT "/" gains _div_board / _div_worked (sharing picture while
-#               small -- a <= 45, quotient <= 9; the area model for a split two-digit
-#               number); "rem" gains _rem_board / _rem_worked; a STORY problem's array
-#               reads the story (b groups of a) -- _mul_rows_cols.
-#   2026-09-05  BUILD sr -- BASIC UNIT 2 TO THE SHAPE (the multiplying unit). THIS FILE:
-#                 * what-multiplying-means on the ARRAY in equal-groups view;
-#                 * times-tables on the array (the ask stays bare -- recall, not
-#                   counting; every worked beat and walk-back draws it);
-#                 * multiply-two-digit on the AREA MODEL split into tens and ones;
-#                 * times-by-ten on the PLACE-VALUE CHART (which grew a Thousands
-#                   column) -- the digits are seen moving up a column.
-#               ENGINE: OP_EXT "*" gains _mul_board (the array on the ask only while
-#               both numbers are 5 or under -- the meaning lesson) and _mul_worked
-#               (array, or the area model for a two-digit number); "mtz" gains a chart
-#               ask board and _mtz_worked. The "Here is the trap" line in times-by-ten
-#               is kept verbatim (se: a wider ruling is Jim's).
-#   2026-09-05  BUILD sq -- BASIC UNIT 1 TO THE SHAPE. Jim, after running sp's rounding
-#               prototype: "This is exactly what I want. I would like all lessons to be
-#               taught this clearly and demonstrated this way using graphic." His
-#               rollout choice: Basic Unit 1, then the rest of Basic. THIS FILE:
-#                 * basic-u1-place-value-to-1000 rewritten to the shape on the new
-#                   [[placevalue]] chart (flats / rods / cubes, math-figures.js);
-#                 * basic-u1-rounding-hundreds rewritten on the number line, one
-#                   place over (_r100_line / _r100_walkback);
-#                 * basic-u1-multi-digit-review rewritten on the stacked COLUMN, the
-#                   carry drawn above (carries=) and the regrouping drawn over the
-#                   struck digits (borrows=, new in board.js); the old "terrible" teach
-#                   line is gone -- the rule is read off the two columns.
-#               ENGINE: BASE_WORKED gives the base ops (+, -, t) walk-back pictures --
-#               _col_add / _col_sub narrate the column from the ones up; tens-and-ones
-#               draws the chart -- and _worked_for consults it after OP_EXT. OP_EXT pv
-#               and r100 gain "worked"; their ask boards draw the chart (digits hidden)
-#               and the number line (no hop). board_for: a problem with TWO two-digit
-#               numbers is asked on [[column]] at every level (Jim's 22:35/22:36 flags:
-#               carrying and regrouping were taught over a flat line) -- four lessons.
-#   2026-09-05  BUILD sp -- THE LESSON LEARNS TO TEACH. Jim, after a live run through
-#               Entry and Basic: "there is not so much emphasis on teaching as there is
-#               on giving problems ... just saying something once doesn't mean that it
-#               has been learned ... are we really in the business here of teaching, or
-#               are we just trying to create a teaching app?" His choice: shape first,
-#               prototype on rounding. THE SHAPE (claude/Design_What_A_Lesson_Is): seven
-#               beats -- Why, Picture, Teach, Show, Try (with the WALK-BACK after a right
-#               answer), Say it (a REASON question, graded in code), Come back (the
-#               RECAP). Every one is an OPTIONAL lesson field, so the other 359 lessons
-#               play byte-for-byte as before:
-#                 "why"      [(spoken, board)...]  what the skill is FOR, before any rule
-#                 "picture"  [(spoken, board)...]  the representation, drawn BEFORE the rule;
-#                                                  replayed when the reason question misses
-#                 "show_work_on_correct": True     after every right answer the board shows
-#                                                  the work (OP_EXT[op]["worked"]) -- ruling ⑤
-#                 "explain"  {spoken, choices, answer, board}  asked ONCE, after the streak;
-#                                                  right -> mastered; a miss replays the
-#                                                  picture and asks again; two misses end
-#                                                  warmly as still-learning (the warm choice)
-#                 "recap"    [(spoken, board)...]  the rule and the why, said again before
-#                                                  EVERY end line
-#               The reason ask is an `ask` with reason=True, problem=None, tap_only=True
-#               and TEXT choices; main.py grades the tapped label in code (never the
-#               model). OP_EXT r10 gains "worked" (the number line with the hop) and its
-#               ask board now draws the number line -- Jim: "a number line anytime we talk
-#               about rounding". basic-u1-rounding-tens is rewritten to the shape (the
-#               prototype he will run). validate() and audio_lines() cover every new
-#               field, so the closure and the canon hold. PART 3il pins it both ways.
-#   2026-09-04  BUILD sn -- THE WARM CHOICE. Jim's ruling ③ (2026-09-04): at a still-
-#               learning lesson end the student picks -- "go on to the next lesson, or
-#               review this a bit more to get it solid?" -- instead of the page handing
-#               the seam to the live tutor. LINE_STILL_LEARNING_CHOICE, his words
-#               verbatim, joins STANDALONE_LINES beside rj's LINE_NEW_TOPIC so it is
-#               pre-rendered. The engine's end steps are untouched: main.py's
-#               _script_clean adds the pointer, session.html renders the two buttons.
-#   2026-09-02  BUILD se -- JIM'S FLAG on the entry count-on lesson: "Drop the term
-#               'trap' and everything after it." The teach line now ends on the
-#               count ("...Fourteen stars."). Its clip re-renders from the new text
-#               on first play. The 40-odd "Here is the trap" lines in OTHER courses
-#               are the house pattern and are deliberately untouched -- a wider
-#               ruling is Jim's to make.
-#   2026-09-01  BUILD rj -- THE SEAM IS ANNOUNCED. Jim, after watching ri live: the class
-#               "stopped after 3 in a row then thought for a bit and then acted as if we
-#               had been working on subtraction. This is strange." What he saw: a mastered
-#               scripted lesson hands the class to the LIVE tutor (__script_done__), which
-#               picked the next topic (one-less -- reads as subtraction) with no
-#               announcement; the "thought for a bit" was the model call. His ruling
-#               (asked): ANNOUNCE IT, THEN CONTINUE. One new course-level line,
-#               LINE_NEW_TOPIC, joins STANDALONE_LINES (pre-rendered like Abrabot's
-#               introduction; held to the same canon by PART 3di): session.html speaks it
-#               after a MASTERED end, and main.py now turns __script_done__ into a system
-#               note telling the live tutor to NAME the new topic first and put it on the
-#               board. Words only in this file -- one new spoken line, one prewarm render.
-#   2026-09-01  BUILD ri -- THREE IN A ROW MEANS MOVE ON. Jim's live catch (session,
-#               'Count the stars'): "I gave three correct answers and it gave me a
-#               4th question." Every lesson PROMISES "Three right answers in a row
-#               and we're done" (practice_intro, 49 copies) but the advance gate
-#               also demanded done >= MIN_PROBLEMS (4), so a perfect child was
-#               asked a 4th problem the words never warned about. Jim's ruling:
-#               "The three in a row is what it specifically states to demonstrate
-#               that we're ready to move on to the next stage." So the CODE now
-#               matches the WORDS: the gate is streak >= ADVANCE_STREAK alone, and
-#               MIN_PROBLEMS (the 2026-08-20 research ruling's DI-firming floor)
-#               is REMOVED -- Jim's ruling supersedes it. A child who misses still
-#               does more than three (the miss resets the streak), and MAX_PROBLEMS
-#               still caps every path. No spoken line changed -- NO TTS RE-RENDERS.
 # =============================================================================
 
 import re
@@ -14787,12 +13938,12 @@ OP_EXT = {
     },
     "slpq": {  # change the law and the whole field changes with it
         "ans": lambda p: p["a"] * p["a"] - p["b"],
-        "spoken": lambda p: (f"Here is a different equation over the same "
-                             f"plane: d y d x equals x squared, take away "
-                             f"y. At the point where x is {p['a']} and y is "
+        "spoken": lambda p: (f"Use this equation over the same plane: d y "
+                             f"d x equals x squared, take away y. At the "
+                             f"point where x is {p['a']} and y is "
                              f"{p['b']}, how steep is the dash?"),
         "board": lambda p: (f'[[step eq="dy/dx = x² − y"]]'
-                            f'[[step eq="at ({p["a"]}, {p["b"]}) · slope = '
+                            f'[[step eq="at ({p["a"]}, {p["b"]}): slope = '
                             f'?"]]'),
         "praise": lambda p: (f"Square the x first: {p['a']} squared is "
                              f"{p['a'] * p['a']}, and taking away the "
@@ -14820,13 +13971,13 @@ OP_EXT = {
                              f"line. Where that line crosses x equals "
                              f"{p['b']}, what is y?"),
         "board": lambda p: (f'[[step eq="dy/dx = x + y = {p["a"]}"]]'
-                            f'[[step eq="at x = {p["b"]} · y = ?"]]'),
+                            f'[[step eq="at x = {p["b"]}: y = ?"]]'),
         "praise": lambda p: (f"x plus y has to come to {p['a']}, and x is "
                              f"already {p['b']}, so y is "
                              f"{p['a'] - p['b']}. That line is called an "
-                             f"isocline — every dash along it leans exactly "
-                             f"the same way, and drawing whole lines at a "
-                             f"time is how a field gets built by hand."),
+                             f"isocline. Every dash along it leans exactly "
+                             f"the same way. Drawing whole lines at a time "
+                             f"is how a field gets built by hand."),
         "key": lambda p: p["a"] - p["b"],
         # The errors: the two added, and the x handed back as the y.
         "choices": lambda p: [p["a"] - p["b"], p["a"] + p["b"], p["b"]],
@@ -14874,10 +14025,11 @@ OP_EXT = {
                              f"separates and integrates to y equals half of "
                              f"{p['a']}, times x squared, plus C. The curve "
                              f"sits at height {p['b']} when x is zero. What "
-                             f"is its height at x equals 3?"),
-        "board": lambda p: (f'[[step eq="dy/dx = {p["a"]}x → y = '
-                            f'{p["a"] // 2}x² + C"]]'
-                            f'[[step eq="C = {p["b"]} · y at x = 3 = ?"]]'),
+                             f"is y at x equals 3?"),
+        "board": lambda p: (f'[[step eq="dy/dx = {p["a"]}x"]]'
+                            f'[[step eq="y = {p["a"] // 2}x² + C"]]'
+                            f'[[step eq="C = {p["b"]}"]]'
+                            f'[[step eq="at x = 3: y = ?"]]'),
         "praise": lambda p: (f"Half of {p['a']} is {p['a'] // 2}, and 3 "
                              f"squared is 9, so the x part is "
                              f"{9 * (p['a'] // 2)} — then the C of "
@@ -14904,11 +14056,11 @@ OP_EXT = {
                              f"{p['a']} over y. Separating gives y d y "
                              f"equals {p['a']} d x, so y squared equals 2 "
                              f"times {p['a']} times x, plus C. The height "
-                             f"is {p['b']} when x is zero. What is the "
-                             f"height at x equals {p['c']}?"),
-        "board": lambda p: (f'[[step eq="y² = 2·{p["a"]}x + C · C = '
-                            f'{p["b"] * p["b"]}"]]'
-                            f'[[step eq="at x = {p["c"]} · y = ?"]]'),
+                             f"is {p['b']} when x is zero. What is y at x "
+                             f"equals {p['c']}?"),
+        "board": lambda p: (f'[[step eq="y² = 2·{p["a"]}x + C"]]'
+                            f'[[step eq="C = {p["b"] * p["b"]}"]]'
+                            f'[[step eq="at x = {p["c"]}: y = ?"]]'),
         "praise": lambda p: (f"y squared climbs to "
                              f"{2 * p['a'] * p['c'] + p['b'] * p['b']}, and "
                              f"the height is the square root of that — "
@@ -14955,8 +14107,8 @@ OP_EXT = {
                              f"every {p['c']} of those is worth 1 degree a "
                              f"minute — so {(p['a'] - p['b']) // p['c']} a "
                              f"minute. The gap shrinks as it cools, so the "
-                             f"cooling slows, which is why coffee never "
-                             f"quite gets cold."),
+                             f"cooling slows — in the model, the coffee "
+                             f"creeps closer and closer to the room."),
         "key": lambda p: (p["a"] - p["b"]) // p["c"],
         # The errors: the gap handed back as though it were a rate, and the
         # cooling constant answered on its own.
@@ -15010,7 +14162,7 @@ OP_EXT = {
                              f"fast is the population growing?"),
         "board": lambda p: (f'[[step eq="ceiling {p["a"]} · now '
                             f'{p["b"]}"]]'
-                            f'[[step eq="P × room ÷ {p["c"]} = ?"]]'),
+                            f'[[step eq="fish × room ÷ {p["c"]} = ?"]]'),
         "praise": lambda p: (f"The room still left is {p['a']} take away "
                              f"{p['b']}, which is {p['a'] - p['b']}, so the "
                              f"rate is {p['b']} times that over {p['c']} — "
@@ -15108,13 +14260,14 @@ OP_EXT = {
                              f"away?"),
         "board": lambda p: (f'[[step eq="unstable at {p["a"]} · now '
                             f'{p["b"]}"]]'
-                            f'[[step eq="{p["c"]} per 1 of distance · rate '
-                            f'= ?"]]'),
+                            f'[[step eq="{p["c"]} per 1 of distance"]]'
+                            f'[[step eq="rate = ?"]]'),
         "praise": lambda p: (f"It stands {p['b'] - p['a']} above the "
                              f"equilibrium, and {p['c']} for each of those "
-                             f"is {p['c'] * (p['b'] - p['a'])}. And it only "
-                             f"gets worse — the further it goes the harder "
-                             f"it is pushed. That is what UNSTABLE means."),
+                             f"is {p['c'] * (p['b'] - p['a'])}. In this "
+                             f"model the further it goes, the faster it "
+                             f"moves away. Moving away from the balance "
+                             f"point is what UNSTABLE means."),
         "key": lambda p: p["c"] * (p["b"] - p["a"]),
         # The errors: the distance handed back as a rate, and the
         # population itself answered as though it were the speed.
@@ -15175,9 +14328,9 @@ OP_EXT = {
         "praise": lambda p: (f"The step shrank from {p['b']} to {p['c']}, "
                              f"and the error follows it exactly: {p['a']} "
                              f"becomes {p['a'] * p['c'] // p['b']}. That is "
-                             f"the deal Euler offers — the error only ever "
-                             f"shrinks in step with the step itself, never "
-                             f"faster."),
+                             f"the deal Euler offers — for a first order "
+                             f"method, the main error shrinks in step with "
+                             f"the step itself."),
         "key": lambda p: p["a"] * p["c"] // p["b"],
         # The errors: the error left unchanged, and the error halved out of
         # habit no matter what the step actually did.
@@ -15258,9 +14411,9 @@ OP_EXT = {
         "spoken": lambda p: (f"A damped spring obeys y double-prime, plus "
                              f"{p['a']} y prime, plus {p['b']} y, equals "
                              f"zero. Its characteristic equation is r "
-                             f"squared plus {p['a']} r plus {p['b']}. What "
-                             f"is {p['a']} squared, take away 4 times "
-                             f"{p['b']}?"),
+                             f"squared plus {p['a']} r plus {p['b']}, "
+                             f"equals zero. What is {p['a']} squared, take "
+                             f"away 4 times {p['b']}?"),
         "board": lambda p: (f'[[step eq="r² + {p["a"]}r + {p["b"]} = 0"]]'
                             f'[[step eq="{p["a"]}² − 4×{p["b"]} = ?"]]'),
         "praise": lambda p: (f"{p['a']} squared is {p['a'] * p['a']}, and 4 "
@@ -15268,7 +14421,7 @@ OP_EXT = {
                              f"{p['a'] * p['a'] - 4 * p['b']}. Above zero "
                              f"means two real roots and no wobble at all — "
                              f"the door closes slowly and stops. That one "
-                             f"number decides how the whole spring behaves."),
+                             f"number decides whether this spring wobbles."),
         "key": lambda p: p["a"] * p["a"] - 4 * p["b"],
         # The errors: the 4 forgotten, and the two added instead of taken
         # away.
@@ -15297,8 +14450,8 @@ OP_EXT = {
                              f"quarter of that is "
                              f"{p['a'] * p['a'] // 4} — set the plain term "
                              f"there and the test number is exactly zero. A "
-                             f"hair less and the door bounces; a hair more "
-                             f"and it crawls."),
+                             f"hair less on that term and the door crawls; "
+                             f"a hair more and it bounces."),
         "key": lambda p: p["a"] * p["a"] // 4,
         # The errors: the square itself, and halved rather than quartered.
         "choices": lambda p: [p["a"] * p["a"] // 4, p["a"] * p["a"],
@@ -15393,11 +14546,11 @@ OP_EXT = {
                              f"nobody pushing. Now someone leans on the "
                              f"spring with a steady force: y double-prime "
                              f"plus {p['a']} y equals {p['b']}. A steady "
-                             f"push settles at a steady height. What "
-                             f"height?"),
+                             f"push has a steady-height particular "
+                             f"solution. What height?"),
         "board": lambda p: (f'[[step eq="y″ + {p["a"]}y = {p["b"]}"]]'
-                            f'[[step eq="steady y · {p["a"]}y = {p["b"]} · '
-                            f'y = ?"]]'),
+                            f'[[step eq="steady y: {p["a"]}y = {p["b"]}"]]'
+                            f'[[step eq="y = ?"]]'),
         "praise": lambda p: (f"A steady answer has no curvature, so the y "
                              f"double-prime is nothing and {p['a']} y has "
                              f"to equal {p['b']} on its own, so y is "
@@ -15520,8 +14673,9 @@ OP_EXT = {
                              f"and Y equal to {p['c']}, what does y prime "
                              f"become?"),
         "board": lambda p: (f'[[step eq="L{{y′}} = sY − y(0)"]]'
-                            f'[[step eq="s={p["b"]} · Y={p["c"]} · y(0)='
-                            f'{p["a"]} · = ?"]]'),
+                            f'[[step eq="s = {p["b"]}, Y = {p["c"]}, y(0) = '
+                            f'{p["a"]}"]]'
+                            f'[[step eq="{p["b"]} × {p["c"]} − {p["a"]} = ?"]]'),
         "praise": lambda p: (f"{p['b']} times {p['c']} is "
                              f"{p['b'] * p['c']}, take away the starting "
                              f"{p['a']} — {p['b'] * p['c'] - p['a']}. That "
@@ -15551,8 +14705,8 @@ OP_EXT = {
                              f"is {p['b']} over s plus {p['a']}. What is Y "
                              f"when s is {p['c']}?"),
         "board": lambda p: (f'[[step eq="(s + {p["a"]})Y = {p["b"]}"]]'
-                            f'[[step eq="Y = {p["b"]}/(s + {p["a"]}) · at s '
-                            f'= {p["c"]} · = ?"]]'),
+                            f'[[step eq="Y = {p["b"]}/(s + {p["a"]})"]]'
+                            f'[[step eq="at s = {p["c"]}: Y = ?"]]'),
         "praise": lambda p: (f"The bottom is {p['c']} plus {p['a']}, which "
                              f"is {p['c'] + p['a']}, and {p['b']} over that "
                              f"is {p['b'] // (p['a'] + p['c'])}. Notice "
@@ -15672,7 +14826,7 @@ OP_EXT = {
                              f"line is called the x-nullcline. Where x is "
                              f"{p['b']}, what is y on it?"),
         "board": lambda p: (f'[[step eq="x′ = 0 where y = {p["a"]}x"]]'
-                            f'[[step eq="at x = {p["b"]} · y = ?"]]'),
+                            f'[[step eq="at x = {p["b"]}: y = ?"]]'),
         "praise": lambda p: (f"{p['a']} times {p['b']} is "
                              f"{p['a'] * p['b']}, so the nullcline passes "
                              f"through there. Along that whole line the "
@@ -15737,13 +14891,14 @@ OP_EXT = {
                              f"turned out to be {p['b']}. What is the "
                              f"other?"),
         "board": lambda p: (f'[[step eq="trace {p["a"]} = λ₁ + λ₂"]]'
-                            f'[[step eq="λ₁ = {p["b"]} · λ₂ = ?"]]'),
+                            f'[[step eq="λ₁ = {p["b"]}"]][[step eq="λ₂ = ?"]]'),
         "praise": lambda p: (f"They have to add to {p['a']}, and one is "
                              f"{p['b']}, so the other is "
                              f"{p['a'] - p['b']}. Both above zero and "
                              f"everything races away from the origin; both "
-                             f"below and it spirals in; one of each is a "
-                             f"saddle. Two numbers decide the picture."),
+                             f"below and everything moves in toward the "
+                             f"origin; one of each is a saddle. Two numbers "
+                             f"decide the picture."),
         "key": lambda p: p["a"] - p["b"],
         # The errors: the two added, and the known eigenvalue handed back.
         "choices": lambda p: [p["a"] - p["b"], p["a"] + p["b"], p["b"]],
@@ -15759,21 +14914,22 @@ OP_EXT = {
         "ans": lambda p: 2 * p["b"] * p["c"],
         "spoken": lambda p: (f"A nonlinear rate law is a curve, but up "
                              f"close it is very nearly a straight line. The "
-                             f"law {p['a']} take away P squared has slope 2 "
-                             f"P, so at the equilibrium P equals {p['b']} "
-                             f"it pulls back at 2 times {p['b']} for every "
-                             f"1 of distance. You are {p['c']} away. How "
-                             f"fast are you pulled back?"),
-        "board": lambda p: (f'[[step eq="rate = {p["a"]} − P² · '
-                            f'equilibrium P = {p["b"]}"]]'
-                            f'[[step eq="2×{p["b"]} per 1 · {p["c"]} away · '
-                            f'= ?"]]'),
-        "praise": lambda p: (f"2 times {p['b']} is {2 * p['b']} for every 1 "
-                             f"of distance, and you are {p['c']} out — "
+                             f"law {p['a']} take away P squared has slope "
+                             f"negative 2 P. At the equilibrium P equals "
+                             f"{p['b']}, the straight-line estimate pulls "
+                             f"back at 2 times {p['b']} for every 1 of "
+                             f"distance. You are {p['c']} away. By that "
+                             f"estimate, how fast are you pulled back?"),
+        "board": lambda p: (f'[[step eq="rate = {p["a"]} − P²"]]'
+                            f'[[step eq="equilibrium P = {p["b"]}, slope −2P"]]'
+                            f'[[step eq="pull-back ≈ 2×{p["b"]} per 1, {p["c"]} away"]]'
+                            f'[[step eq="estimate = ?"]]'),
+        "praise": lambda p: (f"The straight-line estimate is 2 times "
+                             f"{p['b']} times {p['c']} — "
                              f"{2 * p['b'] * p['c']}. That is "
-                             f"linearisation: close to an equilibrium, "
-                             f"every curved law behaves like a straight "
-                             f"one."),
+                             f"linearisation: close to a smooth "
+                             f"equilibrium, a curved law behaves very "
+                             f"nearly like a straight one."),
         "key": lambda p: 2 * p["b"] * p["c"],
         # The errors: the doubling forgotten, and the two numbers added.
         "choices": lambda p: [2 * p["b"] * p["c"], p["b"] * p["c"],
@@ -15860,13 +15016,14 @@ OP_EXT = {
                              f"how far apart are they?"),
         "board": lambda p: (f'[[step eq="gap {p["a"]} · ×{p["b"]} each '
                             f'day"]]'
-                            f'[[step eq="after {p["c"]} days · = ?"]]'),
+                            f'[[step eq="after {p["c"]} days: gap = ?"]]'),
         "praise": lambda p: (f"{p['b']} to the power {p['c']} is "
                              f"{p['b'] ** p['c']}, and {p['a']} of those is "
                              f"{p['a'] * p['b'] ** p['c']}. Nothing was "
                              f"random and nothing was unknown — the gap "
                              f"just multiplied its way out of sight. A "
-                             f"perfectly known equation, and still no "
+                             f"perfectly known equation, and a tiny "
+                             f"starting gap still wrecks a far-ahead "
                              f"forecast."),
         "key": lambda p: p["a"] * p["b"] ** p["c"],
         # The errors: the days timesed instead of powered -- the guess that
