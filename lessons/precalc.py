@@ -2,6 +2,51 @@
 # lessons/precalc.py  --  TRIG / PRE-CALC: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wn -- THE FIRST PRE-CALC SWEEP (76 findings, 71 authored; 80 edits
+#               here). LAWS WITH THEIR CONDITION: "a root refuses negatives, so its domain
+#               starts where the inside hits zero" and "reads it straight off the formula"
+#               -> these square-root functions / these formula-only problems; "a function in
+#               pieces has a border" -> in these examples, one border; Vieta -> a puzzle
+#               that starts with a plain x squared (teach, recap; the ask in
+#               lessonscripts.py); the log power rule -> for a positive number, in one base;
+#               "radians measure in half turns" -> for these angles, count half turns, and
+#               never count quarter turns AS pi's; reference angles -> every arrow that
+#               leans off the flat line, and "in this second quarter" for the two nevers;
+#               "to count the answers of a trig equation" -> for these sine and cosine
+#               equations, once the target height is known, count the TOUCHES (sin = 1
+#               grazes); cofunctions -> any SHARP angle, and the identity carries its degree
+#               marks (sin a° = cos (90 − a)°); "un-square the right-hand number, every
+#               time" and "a sign always points opposite" -> in this form; "the widest
+#               measurement the shape has" -> for these ellipses, the left-to-right width;
+#               "doubling sums always land one short of the next term" -> a doubling run
+#               that STARTS AT 1 (the bank starts at 2, 3, 4, 5 too -- HIGH ×2). TRUE
+#               STATEMENTS: the square root of x is the curve that starts at the corner,
+#               not "the lower curve" (HIGH); "the smallest polynomial that bites" -> power
+#               pattern; "distances arrive squared" -> this form carries the distance
+#               squared; "the sine of 90 is 1" says degrees (three times); "6 is not the
+#               heading" -> not the y-value: 3 from the left, 9 from the right; "360 take
+#               away the backwards one" -> the backwards amount, 45; (x−5)(x+5) ÷ (x−5) =
+#               x + 5 says "for x ≠ 5"; "these machines do not commute" -> give different
+#               answers when you switch the order; "Gauss's bare sum" spelled out; "sum 1 up
+#               to n" -> up to the top number. WORDS-BOARD: the logs in rebuild-the-number
+#               carry their base on the board (log₂ 1024 = 10; log₁₀ ? = 4, ? = 10000); the
+#               vasy boards group the whole bottom, 1 ÷ ((x − 3)(x − 7)); the shrinking
+#               window's picture draws the line joining the two ends, its teach writes the
+#               3-to-5 window, its recap draws the window shrinking onto 4; the bearings
+#               reason draws 350 turning 40; the circle worked lines write the whole
+#               equation; the center's recap draws the circle with its equation; the
+#               ellipse's teach writes the 25 -> 5 -> 10 tall and its worked line writes
+#               the whole equation; the arrow's trap writes 5² + 12² = 169 and √169 = 13,
+#               and its "5 > 4 and 5 > 3"; the parametric worked lines say and write the
+#               root; money-doubles' trap board carries the 32 and 64 the words say; the
+#               sigma why says the board writes the start and stop in words; the team
+#               worked lines write the line-up products and the recap writes "pair: divide
+#               by 2 — trio: divide by 6"; the reason for the slide says "f of: x take away
+#               3"; the arrow's why speaks its equation; eight closing beats speak the
+#               equation their board writes. THE DOT: fourteen authored step lines that
+#               joined two equations with " · " are two [[step]] tags each. One forSpeech
+#               trap dodged on the way: "up 12: 25 plus 144" read as a ratio (12 to 25) --
+#               the colon became a dash. Generator items: lessonscripts.py (wn).
 #   2026-09-08  BUILD uq -- THE PROBLEM IS ALWAYS ON THE BOARD (Jim's flags 22:09/22:10,
 #               21:56, 22:08). pc-u1-the-graph-slides: a concrete f (the square root), BOTH
 #               curves drawn in the why, picture, trap, reason and recap beats, the method
@@ -63,12 +108,13 @@ _PRECALC_U1 = [
              "of 10 is 13. The parentheses are a map: whatever sits deepest goes first.",
              '[[machine input="5" rule="2x" output="10" fname="g" caption="g(5) = 10"]][[machine input="10" rule="x + 3" output="13" fname="f" caption="f(10) = 13"]][[step eq="g(5) = 10"]][[step eq="f(10) = 13"]]'),
             ("The trap is running f first: f of 5 is 8, then g gives 16 — a different "
-             "number entirely, because these machines do not commute. Order is "
+             "number entirely, because these machines give different answers when you "
+             "switch the order. Order is "
              "everything in a kitchen and in a composition: the INSIDE machine cooks "
              "first.",
              # (uq) Jim's flag 21:56: "without being able to see the original functions
              # unless I scrolled up" -- the two rules ride this beat's board too.
-             '[[step eq="f(x) = x + 3 · g(x) = 2x"]][[step eq="f(g(5)) = 13 ✓"]][[step eq="g(f(5)) = 16 ✗ — the order flipped"]]'),
+             '[[step eq="f(x) = x + 3"]][[step eq="g(x) = 2x"]][[step eq="f(g(5)) = 13 ✓"]][[step eq="g(f(5)) = 16 ✗ — the order flipped"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you — two new machines, still called f and g. f adds 4, g times by 3. f of g of "
@@ -128,8 +174,8 @@ _PRECALC_U1 = [
         # curves on the board in every beat, and the method in plain words.
         "why": [
             ("Why does the graph slide? Because one rule moves every graph ever drawn, "
-             "and the board shows it. The lower curve is one you know: y equals the "
-             "square root of x — call that rule f. The other curve is the SAME rule "
+             "and the board shows it. The curve that starts at the corner, at zero, is "
+             "one you know: y equals the square root of x — call that rule f. The other curve is the SAME rule "
              "with one change inside the parentheses: y equals f of x take away 3. The "
              "whole curve slid 3 to the RIGHT. Not up, not left — right.",
              '[[graph func="sqrt(x) | sqrt(x-3)" names="y = f(x) | y = f(x − 3)" range="0..12" yrange="0..4" caption="the same curve, slid 3 to the right"]][[goal text="The graph slides"]]'),
@@ -169,8 +215,8 @@ _PRECALC_U1 = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. Under y equals f of x "
-                       "take away 3, the point (4, 2) lands at (7, 2). Tap the reason "
+            "spoken": ("One more thing — not the answer, the reason. Under y equals f of: "
+                       "x take away 3, the point (4, 2) lands at (7, 2). Tap the reason "
                        "why."),
             "choices": ("because the minus inside is a delay, so the graph slides right | "
                         "because the minus inside means left, so the graph slides left | "
@@ -210,8 +256,8 @@ _PRECALC_U1 = [
         "advance_line": "Three in a row, and you can say why — you've got it! The doorway is where the inside hits zero — and it is welcome.",
         "why": [
             ("Why a doorway? Because not every x may enter every function. The set of "
-             "allowed x\'s is the function\'s domain, and Pre-Calculus reads it "
-             "straight off the formula. y equals the square root of: x take away 13 — "
+             "allowed x\'s is the function\'s domain, and in these formula-only "
+             "problems Pre-Calculus reads it straight off the formula. y equals the square root of: x take away 13 — "
              "roots refuse negatives, so the inside must stay at zero or above.",
              '[[goal text="The doorway"]][[step eq="√(x − 13): the inside must not go negative"]]'),
         ],
@@ -259,9 +305,10 @@ _PRECALC_U1 = [
             "board": '[[graph func="sqrt(x-13)" points="(13,0)" range="10..22" yrange="0..4" caption="the door at 13, welcome"]]',
         },
         "recap": [
-            ("So, here it is again. A root refuses negatives, so its domain starts "
-             "where the inside hits zero — and that doorway is welcome, because the "
-             "root of zero is zero. Division bans its zero; the root keeps it. And the "
+            ("So, here it is again. These square-root functions have x take away a "
+             "number inside. The root refuses negatives, so the domain starts where "
+             "the inside hits zero — and that doorway is welcome, because the root of "
+             "zero is zero. Division bans its zero; the root keeps it. And the "
              "door sits at the number itself, never its flip.",
              '[[graph func="sqrt(x-13)" points="(13,0)" range="10..22" yrange="0..4" caption="the doorway is where the inside hits zero"]]'),
             ("And that is a domain, read straight off the formula.",
@@ -293,7 +340,7 @@ _PRECALC_U1 = [
              "own stretch of x — a piecewise function. Say: y equals x plus 4 when x is "
              "below 5, and y equals 3 times x when x is 5 or more. One function, two "
              "rules, and a border at 5.",
-             '[[goal text="A function in pieces"]][[step eq="x < 5 → x + 4 · x ≥ 5 → 3x"]]'),
+             '[[goal text="A function in pieces"]][[step eq="x < 5 → x + 4"]][[step eq="x ≥ 5 → 3x"]]'),
         ],
         "picture": [
             ("Here is the number line with the border marked at 5. Everything to the "
@@ -338,12 +385,12 @@ _PRECALC_U1 = [
             "board": '[[numberline min="0" max="10" points="5,6" caption="6 is past 5 — 3 × 6 = 18"]]',
         },
         "recap": [
-            ("So, here it is again. A function in pieces has a border, and each rule "
-             "owns one side of it. Find which side x lives on, then run that rule and "
+            ("So, here it is again. In these examples the function has one border, and "
+             "each rule owns one side of it. Find which side x lives on, then run that rule and "
              "no other — and read from the words which side owns the border itself.",
              '[[numberline min="0" max="10" points="5" caption="check the neighborhood, then compute"]]'),
             ("And that is one function with two rules.",
-             '[[step eq="x < 5 → x + 4 · x ≥ 5 → 3x"]]'),
+             '[[step eq="x < 5 → x + 4"]][[step eq="x ≥ 5 → 3x"]]'),
         ],
         "bank": [
             {"a": 3, "b": 2, "c": 2, "op": "fpie"},
@@ -427,8 +474,8 @@ _PRECALC_U2 = [
              "counted in pairs. An even power pairs them all, and the answer is 1; an "
              "odd power leaves one minus sign standing, and the answer is negative 1.",
              '[[array rows="2" cols="7" extra="1" caption="even → 1 · odd → −1"]]'),
-            ("And that is the smallest polynomial that bites.",
-             '[[step eq="(−1)^14 = 1 · (−1)^15 = −1"]]'),
+            ("And that is the smallest power pattern that bites.",
+             '[[step eq="(−1)^14 = 1"]][[step eq="(−1)^15 = −1"]]'),
         ],
         "bank": [
             {"a": 2, "b": 0, "op": "negp"},
@@ -547,9 +594,10 @@ _PRECALC_U2 = [
              "away 2, times x take away 6. Multiply it out: x squared, take away 8 x, "
              "plus 12. The middle 8 is 2 plus 6. The end 12 is 2 times 6 — the product "
              "of the roots.",
-             '[[areamodel rows="x,-2" cols="x,-6" caption="x² − 8x + 12"]][[step eq="(x − 2)(x − 6) = x² − 8x + 12"]][[step eq="2 + 6 = 8 · 2 × 6 = 12"]]'),
-            ("So a puzzle hands over its numbers without any solving: the end number "
-             "is the roots\' product, the middle is their sum. The trap runs backwards "
+             '[[areamodel rows="x,-2" cols="x,-6" caption="x² − 8x + 12"]][[step eq="(x − 2)(x − 6) = x² − 8x + 12"]][[step eq="2 + 6 = 8"]][[step eq="2 × 6 = 12"]]'),
+            ("So a puzzle that starts with a plain x squared hands over its numbers "
+             "without any solving: the end number is the roots\' product, the middle "
+             "is their sum. The trap runs backwards "
              "too — asked for the end number, do not ADD the roots. Sum sits in the "
              "middle; product sits at the end.",
              '[[step eq="end = product ✓ · sum ✗ — that is the middle"]]'),
@@ -577,13 +625,14 @@ _PRECALC_U2 = [
             "board": '[[areamodel rows="x,-2" cols="x,-6" caption="the corner room: 2 × 6 = 12"]]',
         },
         "recap": [
-            ("So, here it is again. A puzzle\'s two roots write the whole puzzle: "
-             "their sum is the middle number, worn with a minus, and their product is "
-             "the plain end number — the corner room of the four. Sum in the middle, "
+            ("So, here it is again. For a puzzle that starts with a plain x squared, "
+             "its two roots write the whole puzzle. Their sum is the middle number, "
+             "worn with a minus, and their product is the plain end number — the "
+             "corner room of the four. Sum in the middle, "
              "product at the end.",
              '[[areamodel rows="x,-2" cols="x,-6" caption="sum in the middle, product at the end"]]'),
             ("And that is the promise Algebra Two made, paid.",
-             '[[step eq="2 + 6 = 8 · 2 × 6 = 12"]]'),
+             '[[step eq="2 + 6 = 8"]][[step eq="2 × 6 = 12"]]'),
         ],
         "bank": [
             {"a": 2, "b": 3, "op": "vprd"},
@@ -611,19 +660,19 @@ _PRECALC_U2 = [
              "zeroes a bottom. Pre-Calculus bottoms come factored: 1 divided by, x take "
              "away 3, times x take away 7. TWO factors now — so how many x\'s are "
              "forbidden? Count the zeros, and count carefully.",
-             '[[goal text="Twice forbidden"]][[step eq="y = 1 ÷ (x − 3)(x − 7)"]]'),
+             '[[goal text="Twice forbidden"]][[step eq="y = 1 ÷ ((x − 3)(x − 7))"]]'),
         ],
         "picture": [
             ("Here is the curve of 1 divided by x take away 3, times x take away 7. "
              "Watch it fly off the picture twice — once at x equals 3 and once at x "
              "equals 7. Two places the curve can never touch: two forbidden x\'s.",
-             '[[graph func="1/((x-3)*(x-7))" range="1..9" yrange="-6..6" caption="y = 1 ÷ (x − 3)(x − 7) — flies off at 3 and at 7"]]'),
+             '[[graph func="1/((x-3)*(x-7))" range="1..9" yrange="-6..6" caption="y = 1 ÷ ((x − 3)(x − 7)) — flies off at 3 and at 7"]]'),
         ],
         "teach": [
             ("That is the method. Each factor dies at its own x: x equals 3 zeroes the "
              "first, x equals 7 zeroes the second, and either one alone flattens the "
              "whole bottom. Two different zeros — two forbidden x\'s. The count is 2.",
-             '[[graph func="1/((x-3)*(x-7))" range="1..9" yrange="-6..6" caption="two zeros, two forbidden x\'s — count 2"]][[step eq="x = 3 ✗ · x = 7 ✗ — two forbidden"]]'),
+             '[[graph func="1/((x-3)*(x-7))" range="1..9" yrange="-6..6" caption="two zeros, two forbidden x\'s — count 2"]][[step eq="x = 3 ✗"]][[step eq="x = 7 ✗ — two forbidden"]]'),
             ("But factors can repeat: 1 divided by, x take away 8, times x take away "
              "8. Two factors, yet both die at the SAME x. Only x equals 8 is forbidden "
              "— the count is 1. Count the different zeros, never the factors.",
@@ -659,7 +708,7 @@ _PRECALC_U2 = [
              "one.",
              '[[graph func="1/((x-3)*(x-7))" range="1..9" yrange="-6..6" caption="count the different zeros"]]'),
             ("And that is the forbidden x, twice over.",
-             '[[step eq="x = 3 ✗ · x = 7 ✗ — count 2"]]'),
+             '[[step eq="x = 3 ✗"]][[step eq="x = 7 ✗ — count 2"]]'),
         ],
         "bank": [
             {"a": 2, "b": 2, "op": "vasy"},
@@ -717,7 +766,7 @@ _PRECALC_U3 = [
             ("Feel the size of the shortcut: 1024 to the power 2 is past a MILLION, and "
              "you never touched it. The trap: the exponent TIMES the log, never the log "
              "raised to the exponent — that would say 100, wildly wrong.",
-             '[[step eq="2 × 10 = 20 ✓ · 10^2 = 100 ✗"]]'),
+             '[[step eq="2 × 10 = 20 ✓"]][[step eq="10^2 = 100 ✗"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Log base 2 of 256 to the power 3: "
@@ -743,8 +792,8 @@ _PRECALC_U3 = [
         },
         "recap": [
             ("So, here it is again. The logarithm of a power lets the exponent step "
-             "down in front as a times: the log of a number to the n is n times the "
-             "log of the number. Never raise the log to the power — the exponent "
+             "down in front as a times. For a positive number, in one base, the log "
+             "of the number to the n is n times the log of the number. Never raise the log to the power — the exponent "
              "times it.",
              '[[bars data="log 1024:10 | log 1024²:20" caption="the power comes down"]]'),
             ("And that is a million-sized number, never built.",
@@ -789,11 +838,11 @@ _PRECALC_U3 = [
              "1024. The mystery number is 1024 — the exponential un-did the logarithm. "
              "Check it forward: log base 2 of 1024 is indeed 10. Rebuilt, and "
              "confirmed.",
-             '[[bars data="2¹:2 | 2²:4 | 2³:8 | 2⁴:16 | 2⁵:32 | 2⁶:64 | 2⁷:128 | 2⁸:256 | 2⁹:512 | 2¹⁰:1024" caption="10 layers of 2 — the mystery number is 1024"]][[step eq="? = 2 stacked 10 times = 1024"]][[step eq="log 1024 = 10 ✓"]]'),
+             '[[bars data="2¹:2 | 2²:4 | 2³:8 | 2⁴:16 | 2⁵:32 | 2⁶:64 | 2⁷:128 | 2⁸:256 | 2⁹:512 | 2¹⁰:1024" caption="10 layers of 2 — the mystery number is 1024"]][[step eq="? = 2 stacked 10 times = 1024"]][[step eq="log₂ 1024 = 10 ✓"]]'),
             ("The base matters: log base 10 of the mystery equals 4 rebuilds to 10 "
              "thousand — never 40. The trap is timesing base and answer when the base "
              "must STACK: layers power upward; a single times cannot reach them.",
-             '[[step eq="base 10, log 4 → 10000 ✓ · 10 × 4 = 40 ✗"]]'),
+             '[[step eq="log₁₀ ? = 4"]][[step eq="? = 10000 ✓"]][[step eq="10 × 4 = 40 ✗"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Log base 3 of the mystery equals "
@@ -815,7 +864,7 @@ _PRECALC_U3 = [
             "choices": ("because ten layers of 2 stack up to 1024 | because 2 times 10 "
                         "rebuilds the number | because 2 plus 10 rebuilds the number"),
             "answer": "because ten layers of 2 stack up to 1024",
-            "board": '[[machine input="1024" rule="log base 2 of x" output="10" caption="log 1024 = 10 ✓"]]',
+            "board": '[[machine input="1024" rule="log base 2 of x" output="10" caption="log₂ 1024 = 10 ✓"]]',
         },
         "recap": [
             ("So, here it is again. A log inside an equation is solved by running it "
@@ -947,7 +996,7 @@ _PRECALC_U3 = [
              "stalls. Doubling reaches 16, then 32, then 64, pulling away faster every "
              "step. Exponential growth beats steady adding every time, given enough "
              "years.",
-             '[[step eq="16 ✓ doubling · 12 ✗ steady adding"]]'),
+             '[[step eq="16 ✓ doubling — then 32, then 64"]][[step eq="12 ✗ steady adding"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 3 dollars doubling every 2 years, "
@@ -978,7 +1027,8 @@ _PRECALC_U3 = [
              "and then doubling that many times. Exponential growth pulls away from "
              "steady adding every time.",
              '[[bars data="year 0:4 | year 3:8 | year 6:16" caption="count the doublings first, then double"]]'),
-            ("And that is the exponential, at home.",
+            ("And that is the exponential, at home: 6 divided by 3 is 2 doublings — 4, "
+             "8, 16.",
              '[[step eq="6 ÷ 3 = 2 doublings"]][[step eq="4 → 8 → 16"]]'),
         ],
         "bank": [
@@ -1016,7 +1066,7 @@ _PRECALC_U4 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Count the half turns — that is the pi's.",
         "why": [
             ("Why a second language for the circle? Unit Four hands the circle a new "
-             "way to measure. Degrees chop a turn into 360 thin slices; mathematicians "
+             "way to measure. Degrees chop a turn into 360 thin slices. Mathematicians "
              "also measure in radians, and the dictionary has one entry: a half turn — "
              "180 degrees — is exactly pi radians. Pi, the circle number, near 3.14.",
              '[[goal text="The half-turn language"]][[step eq="180° = π rad"]]'),
@@ -1063,10 +1113,10 @@ _PRECALC_U4 = [
             "board": '[[bars data="a half turn:180 | 3600°:3600" caption="20 half turns — 20π"]]',
         },
         "recap": [
-            ("So, here it is again. Radians measure in half turns: a half turn of 180 "
-             "degrees is one pi, so divide the degrees by 180 and the count of half "
-             "turns is the number of pi's. Never count quarter turns, and never hand "
-             "the degrees back.",
+            ("So, here it is again. For these angles, count half turns: each half turn "
+             "of 180 degrees is one pi, so divide the degrees by 180 and the count of "
+             "half turns is the number in front of pi. Never count quarter turns as "
+             "pi's, and never hand the degrees back.",
              '[[bars data="a half turn:180 | 3600°:3600" caption="count the half turns"]]'),
             ("And that is the circle's second language.",
              '[[step eq="180° = π rad"]][[step eq="3600° = 20π rad"]]'),
@@ -1110,7 +1160,7 @@ _PRECALC_U4 = [
             ("That is the method: to find it, add one full turn. Negative 45 plus 360 "
              "equals 315. Check with your arms: 45 down from flat right, or 315 the long "
              "way around — the SAME arrow. One direction, two names, and the positive "
-             "name is 360 take away the backwards one.",
+             "name is 360 take away the backwards amount, 45.",
              '[[unitcircle angle="315" values="0" caption="315° — the same arrow, named forwards"]][[step eq="−45° + 360° = 315°"]]'),
             ("Two traps. Dropping the minus says 45 — the mirror image, above the line "
              "when the arrow hangs below. And adding only a half turn — 135 here — parks "
@@ -1169,9 +1219,9 @@ _PRECALC_U4 = [
         "symbols": ("reference", "gap"),
         "advance_line": "Three in a row, and you can say why — you've got it! The gap to the flat line — that is the reference.",
         "why": [
-            ("Why hug the flat line? Every arrow, wherever it lands, has a reference "
-             "angle: the small gap between the arrow and the flat line through the "
-             "circle's middle. This lesson lives in the second quarter — past straight "
+            ("Why hug the flat line? Every arrow that leans off the flat line has a "
+             "reference angle: the small gap between the arrow and the flat line "
+             "through the circle's middle. This lesson lives in the second quarter — past straight "
              "up, short of flat left — where that gap is measured to 180.",
              '[[goal text="Hug the flat line"]][[step eq="reference = the gap to the flat line"]]'),
         ],
@@ -1219,10 +1269,11 @@ _PRECALC_U4 = [
         "recap": [
             ("So, here it is again. The reference angle is the small gap between the "
              "arrow and the flat line — in the second quarter, 180 take away the "
-             "angle. Never measure from straight up, and never hand back the angle "
-             "itself.",
+             "angle. In this second quarter, never measure from straight up, and never "
+             "hand back the angle itself.",
              '[[angle deg="180" split="175,5" caption="hug the flat line"]]'),
-            ("And that is why the circle reuses its first quarter everywhere.",
+            ("And that is how the second quarter echoes the first — the signs come "
+             "later.",
              '[[step eq="175° → 180 − 175 = 5°"]]'),
         ],
         "bank": [
@@ -1294,12 +1345,12 @@ _PRECALC_U4 = [
             "board": '[[graph func="sin(30*x*pi/180)" names="sin 30x" lines="x=12" range="0..360" yrange="-1.5..1.5" caption="360 ÷ 30 = 12°"]]',
         },
         "recap": [
-            ("So, here it is again. The plain sine repeats every 360 degrees; a "
-             "multiplier on x speeds the wave up, and faster means sooner — the "
-             "period is 360 divided by the multiplier. Never times it, and never keep "
+            ("So, here it is again. The plain sine repeats every 360 degrees. A "
+             "multiplier on x speeds the wave up, and faster means sooner: the period "
+             "is 360 divided by the multiplier. Never times it, and never keep "
              "the plain 360.",
              '[[graph func="sin(x*pi/180); sin(2*x*pi/180)" names="sin x; sin 2x" range="0..360" yrange="-1.5..1.5" caption="divide 360 by the multiplier"]]'),
-            ("And that is a wave that bends to its multiplier.",
+            ("And that is a wave that bends to its multiplier: 360 divided by 30 is 12.",
              '[[step eq="period = 360 ÷ 30 = 12°"]]'),
         ],
         "bank": [
@@ -1353,7 +1404,7 @@ _PRECALC_U5 = [
             ("That is the method: split the whole into hundredths and take the share "
              "from 100. If sine squared takes 20 of them, cosine squared holds the rest "
              "— 100 take away 20 is 80. The pair splits one whole between them, "
-             "wherever the arrow points.",
+             "whatever the angle.",
              '[[hundredgrid shaded="20" eq="20 + 80 = 100" caption="sin² 20 shaded, cos² 80 left"]][[step eq="sin² = 20/100"]] [[step eq="cos² = 80/100"]]'),
             ("Two traps. Copying sine's share hands back the number you were given — "
              "the question asked for the PARTNER. And answering 100 forgets that sine "
@@ -1415,10 +1466,10 @@ _PRECALC_U5 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Partners finish 90 together.",
         "why": [
             ("Why are sine and cosine partners? The CO in cosine says so. Take any "
-             "angle and its partner across 90: the two sharp corners of one right "
-             "triangle. The sine of one equals the cosine of the other, exactly, every "
+             "sharp angle, under 90, and its partner across 90: the two sharp corners "
+             "of one right triangle. The sine of one equals the cosine of the other, exactly, every "
              "time.",
-             '[[goal text="Partners across ninety"]][[step eq="sin a = cos (90 − a)"]]'),
+             '[[goal text="Partners across ninety"]][[step eq="sin a° = cos (90 − a)°"]]'),
         ],
         "picture": [
             ("Here is one right triangle with its two sharp corners: 35 degrees at one, "
@@ -1432,7 +1483,7 @@ _PRECALC_U5 = [
              "the cosine of 55, because 35 plus 55 equals 90. One triangle, two sharp "
              "corners; what one corner calls height, the other calls across. Swap the "
              "name, swap the angle — across 90.",
-             '[[triangle v="A,B,C" right="B" angles="35,90,55" caption="35 + 55 = 90 — sin 35° = cos 55°"]][[step eq="sin 35° = cos 55° · 35 + 55 = 90"]]'),
+             '[[triangle v="A,B,C" right="B" angles="35,90,55" caption="35 + 55 = 90 — sin 35° = cos 55°"]][[step eq="sin 35° = cos 55°"]][[step eq="35 + 55 = 90"]]'),
             ("Two traps. Keeping the SAME angle — the sine of 35 does not equal the "
              "cosine of 35. And adding 90 overshoots: the partner of 35 is 55, never "
              "125. Partners share the 90; together they finish it.",
@@ -1466,7 +1517,7 @@ _PRECALC_U5 = [
              "one right triangle. Never keep the same angle, and never add 90.",
              '[[triangle v="A,B,C" right="B" angles="35,90,55" caption="partners finish 90 together"]]'),
             ("And that is what the CO in cosine means.",
-             '[[step eq="sin a = cos (90 − a)"]]'),
+             '[[step eq="sin a° = cos (90 − a)°"]]'),
         ],
         "bank": [
             {"a": 10, "b": 0, "op": "cofn"},
@@ -1545,7 +1596,7 @@ _PRECALC_U5 = [
              "knows which is which.",
              '[[unitcircle angle="-45" values="0" caption="the mirror flips height, never across"]]'),
             ("And that is the minus parade, on the circle.",
-             '[[step eq="cos(−a) = cos a · sin(−a) = −sin a"]]'),
+             '[[step eq="cos(−a) = cos a"]][[step eq="sin(−a) = −sin a"]]'),
         ],
         "bank": [
             {"a": 90, "b": 0, "c": 0, "op": "negf"},
@@ -1590,7 +1641,8 @@ _PRECALC_U5 = [
             ("Now sine equal 1 across the same three turns: only straight up, once a "
              "turn — 3. The ends of the swing get touched once each. The trap answers "
              "4 per turn, one per quarter — but the ends of the swing live in ONE spot "
-             "each. Count the true crossings, then times the turns.",
+             "each. Count the true touches — a crossing or a graze — then times the "
+             "turns.",
              '[[graph func="sin(x*pi/180)" names="sine" lines="y=1" points="(90,1),(450,1),(810,1)" range="0..1080" yrange="-1.5..1.5" caption="3 touches — once each turn, at straight up"]][[step eq="3 turns · sin = 1"]][[step eq="1 × 3 = 3"]][[step eq="4 per turn ✗ one-per-quarter"]]'),
         ],
         "pairs": [
@@ -1616,13 +1668,15 @@ _PRECALC_U5 = [
             "board": '[[graph func="sin(x*pi/180)" names="sine" lines="y=1" points="(90,1),(450,1),(810,1)" range="0..1080" yrange="-1.5..1.5" caption="once each turn"]]',
         },
         "recap": [
-            ("So, here it is again. To count the answers of a trig equation, sweep one "
-             "turn and count the crossings — the middle value twice, the ends of the "
-             "swing once. Skip the start, keep the finish, then times the turns. Never "
+            ("So, here it is again. For these sine and cosine equations, once you know "
+             "the target height, sweep one turn and count the touches — the middle "
+             "value twice, the ends of the swing once. Skip the start, keep the "
+             "finish, then times the turns. Never "
              "say four just because there are four quarters.",
              '[[graph func="sin(x*pi/180)" names="sine" lines="y=0" range="0..1080" yrange="-1.5..1.5" caption="count one turn\'s crossings, then times the turns"]]'),
-            ("And that is solving, by counting.",
-             '[[step eq="sin = 0: 2 each turn · sin = 1: 1 each turn"]]'),
+            ("And that is solving, by counting: the sine equals 0 twice each turn, and "
+             "equals 1 once.",
+             '[[step eq="sin = 0: 2 each turn"]][[step eq="sin = 1: 1 each turn"]]'),
         ],
         "bank": [
             {"a": 1, "b": 1, "c": 0, "op": "sols"},
@@ -1707,8 +1761,8 @@ _PRECALC_U6 = [
         "recap": [
             ("So, here it is again. Two sides and the angle between them give the "
              "area: half of one side, times the other, times the sine of the angle. The "
-             "sine of 90 is 1 and the sine of 30 is a half — and 150 shares it. Never "
-             "forget the half.",
+             "sine of 90 degrees is 1, the sine of 30 degrees is a half, and the sine "
+             "of 150 degrees is a half too. Never forget the half.",
              '[[triangle v="A,B,C" sas="10,4,150" sides="10,,4" angles="150,," caption="half the product, times the sine"]]'),
             ("And that is area without a height.",
              '[[step eq="area = ½ · side · side · sin(angle)"]]'),
@@ -1857,7 +1911,7 @@ _PRECALC_U6 = [
                         "because a clockwise turn is taken away from the bearing | because "
                         "a bearing can climb past 360"),
             "answer": "because the compass wraps at 360 and starts again from zero",
-            "board": '[[unitcircle bearing="30" caption="390 − 360 = 30"]]',
+            "board": '[[unitcircle bearing="350" turn="40" caption="350 + 40 = 390, then 390 − 360 = 30"]]',
         },
         "recap": [
             ("So, here it is again. A bearing is measured clockwise from north, 0 to "
@@ -1893,7 +1947,8 @@ _PRECALC_U6 = [
             ("Why is an arrow a hypotenuse? An arrow on a grid is described by its "
              "steps: so many to the right, so many up. Those two steps meet at a right "
              "angle — so the arrow itself is a hypotenuse, and Geometry's Pythagoras "
-             "measures it without a ruler.",
+             "measures it without a ruler: arrow squared equals right squared plus up "
+             "squared.",
              '[[goal text="The arrow and its steps"]][[step eq="arrow² = right² + up²"]]'),
         ],
         "picture": [
@@ -1907,11 +1962,12 @@ _PRECALC_U6 = [
             ("That is the method. Right 3 and up 4: 9 put together with 16 is 25, and "
              "5 times 5 squares back to it. The arrow is 5 long — farther than either "
              "step on its own, and shorter than walking 3 and then 4, which is 7.",
-             '[[triangle v="A,B,C" right="B" sides="3,4,5" caption="the two steps and the arrow: 3, 4, 5"]][[step eq="3² + 4² = 25"]] [[step eq="√25 = 5"]][[step eq="5 > 4 · 5 < 3 + 4"]]'),
+             '[[triangle v="A,B,C" right="B" sides="3,4,5" caption="the two steps and the arrow: 3, 4, 5"]][[step eq="3² + 4² = 25"]] [[step eq="√25 = 5"]][[step eq="5 > 4 and 5 > 3"]][[step eq="5 < 3 + 4"]]'),
             ("Those two bounds catch both traps. An arrow is never as long as its "
              "steps added, and never as short as its biggest step alone. Right 5 and "
-             "up 12 gives 13 — not 17, and not 12.",
-             '[[vector v="5,12" caption="5 across, 12 up — the arrow is 13"]][[step eq="13 ✓ · 17 ✗ added · 12 ✗ the big step alone"]]'),
+             "up 12 — 25 plus 144 is 169, and 13 squares back to it. So 13, not 17, and "
+             "not 12.",
+             '[[vector v="5,12" caption="5 across, 12 up — the arrow is 13"]][[step eq="5² + 12² = 169"]][[step eq="√169 = 13 ✓"]][[step eq="17 ✗ added · 12 ✗ the big step alone"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Right 9 and up 40: 81 put "
@@ -1942,7 +1998,8 @@ _PRECALC_U6 = [
              "un-square. It is longer than either step and shorter than both added — "
              "never the sum, never the big step alone.",
              '[[vector v="3,4" caption="the arrow is the hypotenuse of its two steps"]]'),
-            ("And that is Pythagoras, wearing vector clothes.",
+            ("And that is Pythagoras, wearing vector clothes: 9 plus 16 is 25, and the "
+             "root of 25 is 5.",
              '[[step eq="3² + 4² = 25"]][[step eq="√25 = 5"]]'),
         ],
         "bank": [
@@ -1997,21 +2054,21 @@ _PRECALC_U7 = [
             ("That is the method: the right-hand number is the radius SQUARED. "
              "Un-square 225 and the radius is 15 — the circle reaches 15 in every "
              "direction from its middle. The distance formula built this equation, and "
-             "distances arrive squared; un-squaring gets them back.",
+             "this form carries the distance squared; un-squaring gets it back.",
              '[[conic type="circle" r="15" cx="2" cy="9" caption="the circle reaches 15 every way — radius 15"]][[step eq="un-square 225 = 15"]][[step eq="radius = 15"]]'),
             ("Two grabs to resist: answering 225, which is still squared; and "
              "answering 2 or 9, which say WHERE the circle sits and nothing about its "
-             "size. Un-square the right-hand number — that is the radius, every time.",
-             '[[step eq="15 ✓"]][[step eq="225 ✗ still squared · 2 ✗ the center"]]'),
+             "size. In this form, un-square the right-hand number — that is the radius.",
+             '[[step eq="15 ✓"]][[step eq="225 ✗ still squared · 2 or 9 ✗ the center numbers"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. x take away 5, squared, plus y "
                         "take away 5, squared, equals 169: un-square 169 — the radius is "
                         "13.",
-                        '[[conic type="circle" r="13" cx="5" cy="5" caption="un-square 169 — radius 13"]][[step eq="= 169"]] [[step eq="radius = 13"]]'),
+                        '[[conic type="circle" r="13" cx="5" cy="5" caption="un-square 169 — radius 13"]][[step eq="(x − 5)² + (y − 5)² = 169"]] [[step eq="radius = 13"]]'),
              "ask": {'a': 8, 'b': 3, 'c': 12, 'op': 'crad'}},
-            {"worked": ("One more together. That same shape ending in 196: un-square 196 "
-                        "— the radius is 14.",
+            {"worked": ("One more together. The same kind of equation, ending in 196: "
+                        "un-square 196 — the radius is 14.",
                         '[[circle center="O" r="14" caption="un-square 196 — radius 14"]][[step eq="= 196"]] [[step eq="radius = 14"]]'),
              "ask": {'a': 6, 'b': 11, 'c': 10, 'op': 'crad'}},
         ],
@@ -2028,8 +2085,8 @@ _PRECALC_U7 = [
             "board": '[[conic type="circle" r="15" cx="2" cy="9" caption="radius 15"]]',
         },
         "recap": [
-            ("So, here it is again. A circle's equation ends in the radius SQUARED, "
-             "because distances arrive squared. Un-square the right-hand number and "
+            ("So, here it is again. A circle's equation in this form ends in the radius "
+             "SQUARED, because the form carries the distance squared. Un-square the right-hand number and "
              "that is the radius. Never hand back the squared number, and never grab "
              "a center number.",
              '[[circle center="O" r="15" caption="un-square the right-hand number"]]'),
@@ -2077,8 +2134,8 @@ _PRECALC_U7 = [
              "x is 15 — positive 15, even though a minus sign is what your eye reads "
              "on the page.",
              '[[conic type="circle" r="5" cx="15" cy="2" caption="the middle sits at (15, 2) — center x = 15"]][[step eq="x − 15 = 0 at x = 15"]] [[step eq="center x = 15"]]'),
-            ("Inside the parentheses, a sign always points opposite — the rule the "
-             "parabola\'s turn obeyed, and the doorway before that. Take away 15 "
+            ("In this form, the sign inside the parentheses points opposite — the rule "
+             "the parabola\'s turn obeyed, and the doorway before that. Take away 15 "
              "means positive 15, never negative 15. And the 2 is the OTHER "
              "coordinate: answer the one you were asked for.",
              '[[step eq="15 ✓"]][[step eq="−15 ✗ the flip · 2 ✗ the y"]]'),
@@ -2086,11 +2143,11 @@ _PRECALC_U7 = [
         "pairs": [
             {"worked": ("Here is one more, done for you. x take away 14, squared, plus y "
                         "take away 1, squared, equals 16: the center\'s x is 14.",
-                        '[[conic type="circle" r="4" cx="14" cy="1" caption="the middle sits at (14, 1)"]][[step eq="(x − 14)² · center x = 14"]]'),
+                        '[[conic type="circle" r="4" cx="14" cy="1" caption="the middle sits at (14, 1)"]][[step eq="(x − 14)² + (y − 1)² = 16"]][[step eq="center x = 14"]]'),
              "ask": {'a': 12, 'b': 7, 'c': 5, 'op': 'cctr'}},
             {"worked": ("One more together. x take away 13, squared, plus y take away 6, "
                         "squared: the center\'s x is 13.",
-                        '[[conic type="circle" r="4" cx="13" cy="6" caption="the middle sits at (13, 6)"]][[step eq="(x − 13)² · center x = 13"]]'),
+                        '[[conic type="circle" r="4" cx="13" cy="6" caption="the middle sits at (13, 6)"]][[step eq="(x − 13)² + (y − 6)² = 16"]][[step eq="center x = 13"]]'),
              "ask": {'a': 7, 'b': 11, 'c': 8, 'op': 'cctr'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
@@ -2111,7 +2168,7 @@ _PRECALC_U7 = [
              "flipped: x take away 15 means the middle sits at positive 15, where that "
              "squared piece goes quiet. Never flip it the wrong way, and never answer "
              "the other coordinate.",
-             '[[circle center="?" caption="the sign inside points opposite"]]'),
+             '[[conic type="circle" r="5" cx="15" cy="2" caption="(x − 15)² + (y − 2)² = 25 — the middle at x = 15"]]'),
             ("And that is where the circle sits.",
              '[[step eq="(x − 15)² + (y − 2)² = 25"]][[step eq="center x = 15"]]'),
         ],
@@ -2155,16 +2212,16 @@ _PRECALC_U7 = [
              "reaches 12 to the left and 12 to the right of its middle. From the left "
              "edge to the right edge is double that — 24 across. The 25 does the same "
              "work upward: 5 each way, so 10 tall.",
-             '[[tape parts="12|12" total="24" caption="two reaches of 12 — 24 across"]][[step eq="un-square 144 = 12 each way"]][[step eq="12 + 12 = 24 across"]]'),
+             '[[tape parts="12|12" total="24" caption="two reaches of 12 — 24 across"]][[step eq="un-square 144 = 12 each way"]][[step eq="12 + 12 = 24 across"]][[step eq="un-square 25 = 5 each way"]][[step eq="5 + 5 = 10 tall"]]'),
             ("Two half-answers wait here. 12 is the reach ONE way, not the full "
              "width; and 144 is the printed number, still squared. Un-square, then "
-             "double — and the answer is always the widest measurement the shape has.",
+             "double — and for these ellipses, that is the left-to-right width.",
              '[[step eq="24 ✓"]][[step eq="12 ✗ half of it · 144 ✗ still squared"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. x squared over 121, plus y "
                         "squared over 16: un-square 121 — 11 each way, so 22 across.",
-                        '[[tape parts="11|11" total="22" caption="121 → 11 each way → 22 across"]][[step eq="un-square 121 = 11 each way"]][[step eq="22 across"]]'),
+                        '[[step eq="x²/121 + y²/16 = 1"]][[tape parts="11|11" total="22" caption="121 → 11 each way → 22 across"]][[step eq="un-square 121 = 11 each way"]][[step eq="22 across"]]'),
              "ask": {'a': 7, 'b': 5, 'op': 'elax'}},
             {"worked": ("One more together. x squared over 196: 14 each way, so 28 "
                         "across.",
@@ -2189,7 +2246,8 @@ _PRECALC_U7 = [
              "edge to edge. Never stop at one reach, and never hand back the printed "
              "square.",
              '[[conic type="ellipse" a="12" b="5" caption="un-square, then double"]]'),
-            ("And that is a stretched circle, measured.",
+            ("And that is a stretched circle, measured: un-square 144 for 12 each way, "
+             "so 24 across.",
              '[[step eq="un-square 144 = 12 each way"]][[step eq="24 across"]]'),
         ],
         "bank": [
@@ -2218,7 +2276,7 @@ _PRECALC_U7 = [
              "x, tie BOTH of them to time: x equals 3 times t, y equals 4 times t. Hand "
              "it a moment and it hands back a position, so the curve becomes a path "
              "something travels.",
-             '[[goal text="Where you are at time t"]][[step eq="x = 3t · y = 4t"]]'),
+             '[[goal text="Where you are at time t"]][[step eq="x = 3t"]][[step eq="y = 4t"]]'),
         ],
         "picture": [
             ("Here is the path on the grid: a straight line out of the corner. At t "
@@ -2239,12 +2297,13 @@ _PRECALC_U7 = [
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. x equals 20 t, y equals 21 t. At 2 "
-                        "seconds: 40 and 42, and the straight distance is 58.",
-                        '[[vector v="40,42" caption="t = 2: (40, 42) — 58 from the start"]][[step eq="t = 2: point (40, 42), 58"]]'),
+                        "seconds: 40 and 42, and the straight distance is the square "
+                        "root of 40 squared plus 42 squared — 58.",
+                        '[[vector v="40,42" caption="t = 2: (40, 42) — 58 from the start"]][[step eq="t = 2: point (40, 42)"]][[step eq="√(40² + 42²) = 58"]]'),
              "ask": {'a': 5, 'b': 12, 'c': 3, 'op': 'parm'}},
             {"worked": ("One more together. x equals 7 t, y equals 24 t. At 2 seconds: 14 "
-                        "and 48 — 50 away.",
-                        '[[vector v="14,48" caption="t = 2: (14, 48) — 50 from the start"]][[step eq="t = 2: point (14, 48), 50"]]'),
+                        "and 48 — the root of 14 squared plus 48 squared is 50.",
+                        '[[vector v="14,48" caption="t = 2: (14, 48) — 50 from the start"]][[step eq="t = 2: point (14, 48)"]][[step eq="√(14² + 48²) = 50"]]'),
              "ask": {'a': 6, 'b': 8, 'c': 4, 'op': 'parm'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
@@ -2265,7 +2324,8 @@ _PRECALC_U7 = [
              "measure straight across with Pythagoras. Never stop at one second\'s "
              "worth, and never walk the corner.",
              '[[graph lines="y=1.33333x" names="the path" points="(3,4)" range="0..12" caption="plug the time in first, then measure straight"]]'),
-            ("And that is a curve something travels.",
+            ("And that is a curve something travels: at 10 seconds, the root of 30 "
+             "squared plus 40 squared is 50.",
              '[[step eq="t = 10: (30, 40)"]][[step eq="√(30² + 40²) = 50"]]'),
         ],
         "bank": [
@@ -2314,8 +2374,9 @@ _PRECALC_U8 = [
         ],
         "teach": [
             ("That is the method: write the terms out as they stand, then add. Look "
-             "at what happened: 15 is one short of 16, the NEXT double. Doubling sums "
-             "always land one short of the next term — 1, 2, 4, 8, 16 sums to 31. The "
+             "at what happened: 15 is one short of 16, the NEXT double. A doubling run "
+             "that starts at 1 lands one short of the next double — 1, 2, 4, 8, 16 "
+             "sums to 31. The "
              "whole run adds up to a little less than double its biggest piece.",
              '[[bars data="1:1 | 2:2 | 4:4 | 8:8 | 16:16" caption="1 + 2 + 4 + 8 + 16 = 31 — one short of 32"]][[step eq="1+2+4+8+16 = 31 — one short of 32"]]'),
             ("Two traps. The last term alone — 8 in that first run — is the biggest "
@@ -2349,8 +2410,8 @@ _PRECALC_U8 = [
         "recap": [
             ("So, here it is again. To sum a pattern, write the terms out as they "
              "stand and add every one — the whole run, which is more than the last "
-             "term and far more than the start repeated. A doubling run lands one "
-             "short of the next double.",
+             "term and far more than the start repeated. A doubling run that starts at "
+             "1 lands one short of the next double.",
              '[[bars data="term 1:1 | term 2:2 | term 3:4 | term 4:8" caption="add the whole run"]]'),
             ("And that is a pattern, added up.",
              '[[step eq="1 + 2 + 4 + 8 = 15"]]'),
@@ -2375,12 +2436,13 @@ _PRECALC_U8 = [
         "op": "sigm", "max_value": 200,
         "levels": ("abstract",),
         "symbols": ("sigma", "instruction"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Pull the multiplier out, then sum 1 up to n.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Pull the multiplier out, then sum 1 up to the top number.",
         "why": [
             ("Why a big Greek S? Mathematics writes long sums in shorthand: sigma, with "
              "a start below it and a stop above. It is not a new idea, only an "
              "instruction: run k from the bottom number to the top one, work out the "
-             "recipe each time, and put every result together.",
+             "recipe each time, and put every result together. The board writes the "
+             "start and the stop in words: k from 1 to 5.",
              '[[goal text="The instruction called sigma"]][[step eq="Σ (k from 1 to 5) of k = 1+2+3+4+5 = 15"]]'),
         ],
         "picture": [
@@ -2394,8 +2456,8 @@ _PRECALC_U8 = [
              "10, 20, 30, 40, 50 — and every term carries the 10, so pull it out front. "
              "1 up to 5 sums to 15, and 10 times 15 is 150.",
              '[[bars data="k=1:10 | k=2:20 | k=3:30 | k=4:40 | k=5:50" caption="10 × (1 + 2 + 3 + 4 + 5) = 10 × 15 = 150"]][[step eq="1 + 2 + 3 + 4 + 5 = 15"]][[step eq="10 × 15 = 150"]]'),
-            ("The two slips are opposite. Dropping the multiplier answers 15 — "
-             "Gauss\'s bare sum, the right shape but the wrong size. And answering 50 "
+            ("The two slips are opposite. Dropping the multiplier answers 15 — just 1 "
+             "plus 2 plus 3 plus 4 plus 5, the bare sum without the 10. And answering 50 "
              "gives the LAST term only, the biggest single piece. Sum first, then times "
              "the multiplier.",
              '[[step eq="150 ✓"]][[step eq="15 ✗ multiplier dropped · 50 ✗ last term"]]'),
@@ -2481,11 +2543,11 @@ _PRECALC_U8 = [
         "pairs": [
             {"worked": ("Here is one more, done for you. Choose 2 from 11: 11 times 10 is "
                         "110 line-ups, halved — 55 teams.",
-                        '[[bars data="line-ups:110 | teams:55" caption="110 ÷ 2 = 55 teams"]][[step eq="110 ÷ 2 = 55 teams"]]'),
+                        '[[bars data="line-ups:110 | teams:55" caption="110 ÷ 2 = 55 teams"]][[step eq="11 × 10 = 110 line-ups"]][[step eq="110 ÷ 2 = 55 teams"]]'),
              "ask": {'a': 8, 'b': 3, 'op': 'pasc'}},
             {"worked": ("One more together. Choose 3 from 11: 990 line-ups, divided by 6 — "
                         "165 teams.",
-                        '[[bars data="line-ups:990 | teams:165" caption="990 ÷ 6 = 165 teams"]][[step eq="990 ÷ 6 = 165 teams"]]'),
+                        '[[bars data="line-ups:990 | teams:165" caption="990 ÷ 6 = 165 teams"]][[step eq="11 × 10 × 9 = 990 line-ups"]][[step eq="990 ÷ 6 = 165 teams"]]'),
              "ask": {'a': 9, 'b': 3, 'op': 'pasc'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
@@ -2505,8 +2567,9 @@ _PRECALC_U8 = [
              "first, then divide by the number of orders a team can stand in — 2 for "
              "a pair, 6 for a trio. Never hand back the line-ups, and never hand back "
              "the crowd.",
-             '[[array rows="1" cols="3" caption="count the line-ups, then divide the orders away"]]'),
-            ("And that is choosing, not lining up.",
+             '[[array rows="1" cols="3" caption="count the line-ups, then divide the orders away"]][[step eq="a pair: divide by 2 — a trio: divide by 6"]]'),
+            ("And that is choosing, not lining up: 6 line-ups, divided by 2 orders, is "
+             "3 teams.",
              '[[step eq="6 line-ups ÷ 2 orders = 3 teams"]]'),
         ],
         "bank": [
@@ -2702,7 +2765,7 @@ _PRECALC_U9 = [
              "away 25, all divided by x take away 5. At x equals 5 the bottom is zero, "
              "so the function is undefined there — a hole in the curve, one point "
              "missing.",
-             '[[goal text="The hole in the curve"]][[step eq="y = (x² − 25) ÷ (x − 5) · x = 5 forbidden"]]'),
+             '[[goal text="The hole in the curve"]][[step eq="y = (x² − 25) ÷ (x − 5)"]][[step eq="x = 5 forbidden"]]'),
         ],
         "picture": [
             ("Here is the machine with 5 fed in: the bottom turns to zero and the "
@@ -2716,7 +2779,7 @@ _PRECALC_U9 = [
              "5, times x plus 5 — and the take-aways cancel. So away from the hole "
              "this curve IS x plus 5. As x creeps toward 5, y creeps toward 10, "
              "calmly, from both sides.",
-             '[[graph func="(x^2-25)/(x-5)" hole="5" range="2..8" yrange="4..16" caption="headed for 10 from both sides — the hole sits right there"]][[step eq="(x−5)(x+5) ÷ (x−5) = x + 5"]][[step eq="x → 5 · y → 10"]]'),
+             '[[graph func="(x^2-25)/(x-5)" hole="5" range="2..8" yrange="4..16" caption="headed for 10 from both sides — the hole sits right there"]][[step eq="for x ≠ 5: (x−5)(x+5) ÷ (x−5) = x + 5"]][[step eq="x → 5 · y → 10"]]'),
             ("That is the whole point of a limit: it reports where the curve was "
              "HEADED, and never asks what happens at the point itself. The function "
              "truly has no value at 5. It still has a heading — 10 — and 5 is only "
@@ -2782,7 +2845,7 @@ _PRECALC_U9 = [
              "Watch what limits do to one. Say y is 3 when x is below 6, and 9 when x "
              "is 6 or more — a step. Creep up on 6 and the answer depends entirely on "
              "which side you approach from.",
-             '[[goal text="The two sides disagree"]][[step eq="x < 6: y = 3 · x ≥ 6: y = 9"]]'),
+             '[[goal text="The two sides disagree"]][[step eq="x < 6: y = 3"]][[step eq="x ≥ 6: y = 9"]]'),
         ],
         "picture": [
             ("Here is the step on the grid: a low shelf at 3 for every x below 6, and "
@@ -2798,8 +2861,8 @@ _PRECALC_U9 = [
              "reads 9 all the way in. Two sides, two different headings.",
              '[[graph func="3 for x<6; 9 for x>=6" points="(4,3),(5,3),(7,9),(8,9)" range="0..12" yrange="0..13" caption="from the left y reads 3 all the way; from the right, 9"]][[step eq="from the left → 3"]][[step eq="from the right → 9"]]'),
             ("When the sides disagree the curve has no single limit there — and the "
-             "answer is never the middle. 6 is not the heading from either side; "
-             "nobody approaching that step ever sees 6. Read which side you were "
+             "answer is never the middle. 6 is not the y-value from either side: from "
+             "the left y is 3, and from the right y is 9. Read which side you were "
              "asked for, and report what that side sees.",
              '[[step eq="3 ✓ from the left"]][[step eq="9 ✗ other side · 6 ✗ split the difference"]]'),
         ],
@@ -2868,14 +2931,14 @@ _PRECALC_U9 = [
              "2 to x equals 6. Between those two walls the curve climbs — and the "
              "straight line joining the two ends is the average climb across the "
              "window. Its steepness is the number we want.",
-             '[[graph func="x^2" lines="x=2; x=6" range="0..7" yrange="0..50" caption="y = x² — the window from x = 2 to x = 6"]]'),
+             '[[graph func="x^2" lines="x=2; x=6; y=8x-12" points="(2,4),(6,36)" range="0..7" yrange="0..50" caption="y = x² — the window from x = 2 to x = 6, and the line joining its two ends"]]'),
         ],
         "teach": [
             ("That is the method: rise divided by run. And 8 is simply 2 plus 6. On "
              "this curve the average rate is always the two x\'s put together — try 3 "
              "to 5: rise 16, run 2, and 8 again, which is 3 plus 5. A tidy shortcut, "
              "and it is about to do something remarkable.",
-             '[[graph func="x^2" lines="y=8x-12" points="(2,4),(6,36)" range="0..7" yrange="0..50" caption="the line through the two ends climbs 8 per step — 2 + 6"]][[step eq="rise 32 ÷ run 4 = 8"]][[step eq="2 + 6 = 8 · 3 + 5 = 8"]]'),
+             '[[graph func="x^2" lines="y=8x-12" points="(2,4),(6,36)" range="0..7" yrange="0..50" caption="the line through the two ends climbs 8 per step — 2 + 6"]][[step eq="rise 32 ÷ run 4 = 8"]][[step eq="2 + 6 = 8"]][[step eq="3 → 5: rise 16 ÷ run 2 = 8"]][[step eq="3 + 5 = 8"]]'),
             ("Shrink the window toward a single point. From 4 to 5 the rate is 9; "
              "from 4 to 4 point 1, about 8 point 1; closer still, 8 point 0 1. The "
              "rates creep toward 8 — twice the 4. That limit is called the "
@@ -2909,7 +2972,7 @@ _PRECALC_U9 = [
              "by run — and on y equals x squared it is the two x\'s put together. "
              "Shrink the window and the rates creep toward a limit: the derivative, "
              "where Calculus begins. Never answer the rise or the run alone.",
-             '[[graph func="x^2" lines="x=2; x=6" range="0..7" yrange="0..50" caption="the shrinking window"]]'),
+             '[[graph func="x^2" lines="x=4; x=5" range="0..7" yrange="0..50" caption="the window shrinking onto x = 4"]]'),
             ("And that is Pre-Calculus, handing its question forward.",
              '[[step eq="rise 32 ÷ run 4 = 8 = 2 + 6"]]'),
         ],

@@ -6,6 +6,9 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-16  APP_BUILD -> "2026-09-16wn-the-first-precalc-sweep". The first Pre-Calc
+#               sweep: five generator items in lessonscripts.py, 80 authored edits in
+#               lessons/precalc.py, PART 3mi.
 #   2026-09-16  APP_BUILD -> "2026-09-16wm-the-first-algebra2-sweep". The first Algebra II
 #               sweep: six generator items in lessonscripts.py, 76 authored edits in
 #               lessons/algebra2.py, two charter lines in coursesweep.py, PART 3mh.
@@ -9701,7 +9704,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-16wm-the-first-algebra2-sweep"
+APP_BUILD = "2026-09-16wn-the-first-precalc-sweep"
 
 
 @app.get("/health")

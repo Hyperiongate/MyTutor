@@ -2,6 +2,18 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wn -- THE FIRST PRE-CALC SWEEP (76 findings, 5 generator-owned). (1)
+#               vasy's board groups the whole bottom: y = 1 ÷ ((x − 2)(x − 4)) -- the old
+#               1 ÷ (x − 2)(x − 4) reads as (1 ÷ (x − 2)) · (x − 4) (HIGH); the walk-back's
+#               caption too. (2) vmag's praise says the result and the reason and leaves the
+#               squares to the walk-back, which draws them a beat later (the praise carried
+#               numbers no board showed). (3) vprd's ask says "a puzzle starting with a plain
+#               x squared" -- roots alone do not fix the puzzle. (4) wper's praise: "a faster
+#               wave's first repeat comes SOONER, not later" (a periodic wave repeats at later
+#               multiples too). (5) parm's walk-back speaks the root line its board writes.
+#               The dot between two equations is gone from every generator line Pre-Calc's
+#               transcripts reach (fcmp, fpie, sols, parm, lsid, vasy). Authored:
+#               lessons/precalc.py.
 #   2026-09-16  BUILD wm -- THE FIRST ALGEBRA II SWEEP (73 findings, 9 generator-owned). (1)
 #               gnth's ask drew term 3 and asked for term 3 (three HIGHs, rule 17): the bars
 #               and the sequence now stop one term short of the one asked. (2) sinp's and
@@ -5026,7 +5038,7 @@ def _fcmp_board(p):
     # (uq) Jim's flag 21:57: "show the two functions first, then ask the question, then
     # use the graphic to solve". The rules lead, the machines follow, the question last.
     a, b, c = p["a"], p["b"], p["c"]
-    return (f'[[step eq="f(x) = x + {a} · g(x) = {b}x"]]'
+    return (f'[[step eq="f(x) = x + {a}"]][[step eq="g(x) = {b}x"]]'
             f'[[machine input="{c}" rule="{b}x" output="?" fname="g" caption="g runs first: {c} goes in"]]'
             f'[[machine input="?" rule="x + {a}" output="?" fname="f" caption="then f eats what g made — what comes out?"]]'
             f'[[step eq="f(g({c})) = ?"]]')
@@ -5076,8 +5088,8 @@ def _fdom_worked(p):
 def _fpie_board(p):
     a, b, c = p["a"], p["b"], p["c"]
     return (f'[[numberline min="0" max="10" points="5,{c}" caption="the border at 5 — which side does x = {c} live on?"]]'
-            f'[[step eq="x < 5 → x + {a} · x ≥ 5 → {b}x"]]'
-            f'[[step eq="x = {c} · y = ?"]]')
+            f'[[step eq="x < 5 → x + {a}"]][[step eq="x ≥ 5 → {b}x"]]'
+            f'[[step eq="x = {c}: y = ?"]]')
 
 
 def _fpie_worked(p):
@@ -5153,8 +5165,8 @@ def _vasy_worked(p):
         return (f"Here it is, step by step: each factor dies at its own x — {a} zeroes the first, "
                 f"{b} the second — and either one alone flattens the whole bottom. Look at "
                 f"the curve: it flies off twice. Two different zeros — the count is 2.",
-                f'[[graph func="1/((x-{a})*(x-{b}))" range="{lo - 2}..{hi + 2}" yrange="-6..6" caption="y = 1 ÷ (x − {a})(x − {b}) — flies off at {a} and at {b}: two forbidden x\'s"]]'
-                f'[[step eq="x = {a} ✗ · x = {b} ✗ — count 2"]]')
+                f'[[graph func="1/((x-{a})*(x-{b}))" range="{lo - 2}..{hi + 2}" yrange="-6..6" caption="y = 1 ÷ ((x − {a})(x − {b})) — flies off at {a} and at {b}: two forbidden x\'s"]]'
+                f'[[step eq="x = {a} ✗"]][[step eq="x = {b} ✗ — count 2"]]')
     return (f"Here it is, step by step: two factors, but both die at the SAME x — only {a} zeroes "
             f"the bottom. Look at the curve: it flies off once. Count the different zeros, "
             f"never the factors: the count is 1.",
@@ -5370,7 +5382,7 @@ def _sols_board(p):
     turns = f"{b} turn{'s' if b > 1 else ''}"
     return (f'[[graph func="{fn}(x*pi/180)" names="{word}" lines="y={a}" range="0..{360 * b}" yrange="-1.5..1.5" '
             f'caption="the {word} through {turns} and the line y = {tv} — count the touches after the start"]]'
-            f'[[step eq="{turns} · {fn} = {tv} · count = ?"]]')
+            f'[[step eq="{fn} = {tv}, {turns}"]][[step eq="count = ?"]]')
 
 
 def _sols_worked(p):
@@ -5532,18 +5544,19 @@ def _parm_board(p):
     slope = b / a
     sl = f"{slope:g}"
     return (f'[[graph lines="y={sl}x" names="the path" points="({a},{b})" range="0..{max(a, b) + 2}" caption="the path — at t = 1 the ball sits at ({a}, {b}); at t = {c} it is farther along the same line"]]'
-            f'[[step eq="x = {a}t · y = {b}t"]]'
-            f'[[step eq="at t = {c} · distance from the start = ?"]]')
+            f'[[step eq="x = {a}t"]][[step eq="y = {b}t"]]'
+            f'[[step eq="at t = {c}: distance from the start = ?"]]')
 
 
 def _parm_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     h = round((a * a + b * b) ** 0.5)
     return (f"Here it is, step by step: at {c} seconds x is {a * c} and y is {b * c} — the two legs. "
-            f"The straight distance is the hypotenuse: {h * c}. Each second covers {h}, so "
+            f"The straight distance is the hypotenuse: the square root of {a * c} squared plus "
+            f"{b * c} squared, which is {h * c}. Each second covers {h}, so "
             f"{h} alone is one second's worth, and {(a + b) * c} walks the corner.",
             f'[[vector v="{a * c},{b * c}" caption="at t = {c}: ({a * c}, {b * c}) — {h * c} from the start"]]'
-            f'[[step eq="t = {c}: x = {a * c} · y = {b * c}"]][[step eq="√({a * c}² + {b * c}²) = {h * c}"]]')
+            f'[[step eq="t = {c}: x = {a * c}"]][[step eq="y = {b * c}"]][[step eq="√({a * c}² + {b * c}²) = {h * c}"]]')
 
 
 def _gsum_terms(p):
@@ -5656,8 +5669,8 @@ def _lsid_board(p):
     a, b, c = p["a"], p["b"], p["c"]
     side = "left" if c == 0 else "right"
     return (f'[[graph func="{a} for x<6; {b} for x>=6" range="0..12" yrange="0..{max(a, b) + 4}" caption="a step at 6 — come in from the {side}"]]'
-            f'[[step eq="x < 6: y = {a} · x ≥ 6: y = {b}"]]'
-            f'[[step eq="from the {side} · y → ?"]]')
+            f'[[step eq="x < 6: y = {a}"]][[step eq="x ≥ 6: y = {b}"]]'
+            f'[[step eq="from the {side}: y → ?"]]')
 
 
 def _lsid_worked(p):
@@ -11924,9 +11937,10 @@ OP_EXT = {
     },
     "vprd": {  # Vieta: roots a and b -- the end number is their product
         "ans": lambda p: p["a"] * p["b"],
-        "spoken": lambda p: (f"A puzzle's roots are {p['a']} and {p['b']}, "
-                             f"so it equals x take away {p['a']}, times x "
-                             f"take away {p['b']}. Multiplied out, it ends "
+        "spoken": lambda p: (f"A puzzle starting with a plain x squared has "
+                             f"roots {p['a']} and {p['b']}, so it equals x "
+                             f"take away {p['a']}, times x take away "
+                             f"{p['b']}. Multiplied out, it ends "
                              f"in a plain number. What is that END number?"),
         "board": _vprd_board,         # (to) the four rooms with the corner blank
         "worked": _vprd_worked,       # (to) the four rooms filled
@@ -11952,8 +11966,8 @@ OP_EXT = {
                              f"times x take away {p['b']}. Division forbids "
                              f"any x that turns the bottom into zero. How "
                              f"many x's are forbidden?"),
-        "board": lambda p: (f'[[step eq="y = 1 ÷ (x − {p["a"]})'
-                            f'(x − {p["b"]})"]]'
+        "board": lambda p: (f'[[step eq="y = 1 ÷ ((x − {p["a"]})'
+                            f'(x − {p["b"]}))"]]'
                             f'[[step eq="forbidden x count = ?"]]'),
         "worked": _vasy_worked,       # (to) the curve flying off (its poles are the answer -- walk-back only)
         "praise": lambda p: ((f"Two factors, two different zeros: x equals "
@@ -12166,8 +12180,9 @@ OP_EXT = {
         "praise": lambda p: (f"Divide: 360 divided by {p['a']} equals "
                              f"{360 // p['a']} — this wave tells its whole "
                              f"story in {360 // p['a']} degrees. Stretching "
-                             f"to {360 * p['a']} points the wrong way: "
-                             f"faster waves repeat SOONER, never later."),
+                             f"to {360 * p['a']} points the wrong way: a "
+                             f"faster wave's first repeat comes SOONER, "
+                             f"not later."),
         "key": lambda p: p["a"],
         # The errors: multiplied instead (faster read as longer), and the
         # plain sine's 360 kept.
@@ -12411,13 +12426,9 @@ OP_EXT = {
         "worked": _vmag_worked,       # (tp) the arrow drawn with its length
         "praise": lambda p: (f"Right {p['a']} and up {p['b']} meet at a "
                              f"right angle, so the arrow is the "
-                             f"hypotenuse: {p['a']} squared is "
-                             f"{p['a'] * p['a']}, {p['b']} squared is "
-                             f"{p['b'] * p['b']}, put together "
-                             f"{p['a'] * p['a'] + p['b'] * p['b']} — and "
-                             f"{p['c']} times {p['c']} squares back to it. "
-                             f"The arrow is {p['c']}: longer than either "
-                             f"step, shorter than walking both."),
+                             f"hypotenuse. The arrow is {p['c']}: longer "
+                             f"than either step, shorter than walking "
+                             f"both. Watch the squares on the board."),
         "key": lambda p: p["c"],
         # The errors: the two steps added (walking the corner), and the
         # bigger step alone ("it is mostly up").

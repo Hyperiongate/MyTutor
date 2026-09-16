@@ -6,6 +6,11 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-16  BUILD wn -- PART 3mi, THE FIRST PRE-CALC SWEEP (76 findings, 5 clean). Five
+#               generator items (vasy's grouped bottom, vmag's praise, vprd's plain x squared,
+#               wper's first repeat, parm's spoken root), the dot pin grown to seven courses,
+#               the authored classes. No count moved; four pins moved to split boards (the
+#               fcmp teach and ask lines, sols's and lsid's asks).
 #   2026-09-16  BUILD wm -- PART 3mh, THE FIRST ALGEBRA II SWEEP (73 findings, 9 clean). Six
 #               generator items (gnth stops a term short, sinp/cosp say the spins, absc's
 #               fence, el2 asks for one apple, imag asks for the positive number, turnc's
@@ -12692,13 +12697,13 @@ def part3km_the_problem_is_always_on_the_board():
     p = {"a": 2, "b": 2, "c": 4, "op": "fcmp"}
     b = LS.OP_EXT["fcmp"]["board"](p); w = LS.OP_EXT["fcmp"]["worked"](p)[1]
     check("⭐ fcmp: the two rules first, then the machines, then the question (flag 21:57)",
-          b.index('[[step eq="f(x) = x + 2 · g(x) = 2x"]]') < b.index("[[machine") < b.index('[[step eq="f(g(4)) = ?"]]'), b[:80])
+          b.index('[[step eq="f(x) = x + 2"]][[step eq="g(x) = 2x"]]') < b.index("[[machine") < b.index('[[step eq="f(g(4)) = ?"]]'), b[:80])  # (wn) two lines
     check("  fcmp worked: each machine's line is written beside it (flag 21:59)",
           w.index('caption="g(4) = 8"') < w.index('[[step eq="g(4) = 2 × 4 = 8"]]') < w.index('caption="f(8) = 10"')
           < w.index('[[step eq="f(8) = 8 + 2 = 10"]]') < w.index('[[step eq="f(g(4)) = 10"]]'), "")
     les = byid["pc-u1-machines-in-a-row"]
     check("  the trap beat keeps the two rules on the board (flag 21:56); the advance line names composition",
-          '[[step eq="f(x) = x + 3 · g(x) = 2x"]]' in les["teach"][1][1]
+          '[[step eq="f(x) = x + 3"]][[step eq="g(x) = 2x"]]' in les["teach"][1][1]  # (wn) two lines
           and "In a composition, the inside function runs first" in les["advance_line"], "")
 
     # ---- the graph slides: both curves, every beat ----------------------------------------------------
@@ -20012,6 +20017,137 @@ def part3mh_the_first_algebra2_sweep():
           'APP_BUILD -> "2026-09-16wm-' in notes("main.py") and "2026-09-16  BUILD wm" in notes("lessonscripts.py")
           and "2026-09-16  BUILD wm" in notes("lessons/algebra2.py") and "2026-09-16  BUILD wm" in notes("ruletests.py")
           and "2026-09-16  BUILD wm" in notes("coursesweep.py"), "")
+
+
+def part3mi_the_first_precalc_sweep():
+    """PART 3mi (build wn, 2026-09-16) -- THE FIRST PRE-CALC SWEEP: 76 findings, 5 clean,
+    5 generator-owned. Five generator items, the dot gone from the seventh course, and
+    the authored classes."""
+    print("\nPART 3mi — the first Pre-Calc sweep (build wn)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for f in ("why", "picture", "teach", "recap")
+                                  for _s, b in (les.get(f) or [])) + \
+                         " ".join(pr["worked"][1] for pr in les["pairs"]) + \
+                         (les.get("explain") or {}).get("board", "")
+    _W = lambda p: L._worked_for(p) or ("", "")
+    B = lambda p, lv="abstract": L.board_for(p, lv)
+    S = lambda p, lv="abstract": L.spoken_for(p, lv)
+
+    # ---- the generator ---------------------------------------------------------
+    v = {"a": 2, "b": 4, "op": "vasy"}
+    check("⭐ vasy groups the whole bottom on the ask and in the walk-back's caption (1 ÷ (x − 2)(x − 4) read as a product -- HIGH); its ✗ pair is two lines",
+          '[[step eq="y = 1 ÷ ((x − 2)(x − 4))"]]' in B(v) and "1 ÷ ((x − 2)(x − 4)) — flies off" in _W(v)[1]
+          and '[[step eq="x = 2 ✗"]][[step eq="x = 4 ✗ — count 2"]]' in _W(v)[1], B(v))
+    check("⭐ vmag's praise leaves the squares to the walk-back, which draws them",
+          L.OP_EXT["vmag"]["praise"]({"a": 12, "b": 35, "c": 37}) == "Right 12 and up 35 meet at a right angle, so the arrow is the hypotenuse. The arrow is 37: longer than either step, shorter than walking both. Watch the squares on the board."
+          and '[[step eq="12² + 35² = 1369"]][[step eq="√1369 = 37"]]' in _W({"a": 12, "b": 35, "c": 37, "op": "vmag"})[1], "")
+    check("  vprd asks about a puzzle starting with a plain x squared; wper's praise says the FIRST repeat comes sooner; parm's walk-back speaks its root line",
+          S({"a": 2, "b": 8, "op": "vprd"}).startswith("A puzzle starting with a plain x squared has roots 2 and 8")
+          and L.OP_EXT["wper"]["praise"]({"a": 20, "b": 0}).endswith("a faster wave's first repeat comes SOONER, not later.")
+          and "the square root of 15 squared plus 36 squared, which is 39" in _W({"a": 5, "b": 12, "c": 3, "op": "parm"})[0]
+          and '[[step eq="√(15² + 36²) = 39"]]' in _W({"a": 5, "b": 12, "c": 3, "op": "parm"})[1], "")
+    check("⭐ THE DOT: no [[step eq]] in the seven swept courses (Pre-Calc since wn) -- authored OR generated -- joins two equations with ' · '",
+          not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', t["board"])
+                  for c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc")
+                  for les in C.lessons_for(c, L) for t in C.transcript_for(les, L)), "")
+    check("  ...fcmp, fpie, sols, parm and lsid write separate lines",
+          '[[step eq="f(x) = x + 2"]][[step eq="g(x) = 2x"]]' in B({"a": 2, "b": 2, "c": 4, "op": "fcmp"})
+          and '[[step eq="x < 5 → x + 4"]][[step eq="x ≥ 5 → 2x"]][[step eq="x = 6: y = ?"]]' in B({"a": 4, "b": 2, "c": 6, "op": "fpie"})
+          and '[[step eq="sin = −1, 2 turns"]][[step eq="count = ?"]]' in B({"a": -1, "b": 2, "c": 0, "op": "sols"})
+          and '[[step eq="x = 3t"]][[step eq="y = 4t"]][[step eq="at t = 3: distance from the start = ?"]]' in B({"a": 3, "b": 4, "c": 3, "op": "parm"})
+          and '[[step eq="t = 3: x = 9"]][[step eq="y = 12"]]' in _W({"a": 3, "b": 4, "c": 3, "op": "parm"})[1]
+          and '[[step eq="x < 6: y = 11"]][[step eq="x ≥ 6: y = 19"]][[step eq="from the right: y → ?"]]' in B({"a": 11, "b": 19, "c": 1, "op": "lsid"}), "")
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ laws with their condition (U1-U3): these square-root functions; formula-only problems; one border; a plain x squared; a positive number in one base; a doubling run that starts at 1",
+          "These square-root functions have x take away a number inside. The root refuses negatives" in spoken(E("pc-u1-the-doorway"))
+          and "in these formula-only problems Pre-Calculus reads it straight off the formula" in spoken(E("pc-u1-the-doorway"))
+          and "In these examples the function has one border" in spoken(E("pc-u1-a-function-in-pieces"))
+          and "So a puzzle that starts with a plain x squared hands over its numbers" in spoken(E("pc-u2-the-roots-secret"))
+          and "For a puzzle that starts with a plain x squared, its two roots write the whole puzzle" in spoken(E("pc-u2-the-roots-secret"))
+          and "For a positive number, in one base, the log of the number to the n is n times the log of the number" in spoken(E("pc-u3-the-power-comes-down"))
+          and spoken(E("pc-u8-add-the-whole-run")).count("A doubling run that starts at 1 lands one short of the next double") == 2
+          and "Doubling sums always" not in spoken(E("pc-u8-add-the-whole-run")), "")
+    check("⭐ laws with their condition (U4-U7): count half turns for these angles; an arrow that leans off the flat line, 'in this second quarter'; touches for these sine and cosine equations; any SHARP angle; 'in this form' (x2); for these ellipses",
+          "For these angles, count half turns: each half turn of 180 degrees is one pi" in spoken(E("pc-u4-the-half-turn-language"))
+          and "Never count quarter turns as pi's" in spoken(E("pc-u4-the-half-turn-language"))
+          and "Radians measure in half turns" not in spoken(E("pc-u4-the-half-turn-language"))
+          and "Every arrow that leans off the flat line has a reference angle" in spoken(E("pc-u4-hug-the-flat-line"))
+          and "In this second quarter, never measure from straight up" in spoken(E("pc-u4-hug-the-flat-line"))
+          and "reuses its first quarter everywhere" not in spoken(E("pc-u4-hug-the-flat-line"))
+          and "For these sine and cosine equations, once you know the target height, sweep one turn and count the touches" in spoken(E("pc-u5-count-the-crossings"))
+          and "Count the true touches — a crossing or a graze — then times the turns" in spoken(E("pc-u5-count-the-crossings"))
+          and "Take any sharp angle, under 90, and its partner across 90" in spoken(E("pc-u5-partners-across-ninety"))
+          and "In this form, un-square the right-hand number — that is the radius." in spoken(E("pc-u7-un-square-the-radius"))
+          and "every time" not in spoken(E("pc-u7-un-square-the-radius"))
+          and "In this form, the sign inside the parentheses points opposite" in spoken(E("pc-u7-where-the-circle-sits"))
+          and "for these ellipses, that is the left-to-right width" in spoken(E("pc-u7-edge-to-edge")), "")
+    check("⭐ true statements: the root curve starts at the corner; a power pattern; this form carries the distance squared; degrees said (x3); the y-value from each side; the backwards amount; for x ≠ 5; different answers when you switch the order",
+          "The curve that starts at the corner, at zero, is one you know: y equals the square root of x" in spoken(E("pc-u1-the-graph-slides"))
+          and "The lower curve" not in spoken(E("pc-u1-the-graph-slides"))
+          and "Under y equals f of: x take away 3, the point (4, 2)" in E("pc-u1-the-graph-slides")["explain"]["spoken"]
+          and "the smallest power pattern that bites" in spoken(E("pc-u2-the-minus-parade"))
+          and "this form carries the distance squared; un-squaring gets it back" in spoken(E("pc-u7-un-square-the-radius"))
+          and "distances arrive squared" not in spoken(E("pc-u7-un-square-the-radius"))
+          and "The sine of 90 degrees is 1, the sine of 30 degrees is a half, and the sine of 150 degrees is a half too" in spoken(E("pc-u6-two-sides-and-the-angle"))
+          and "6 is not the y-value from either side: from the left y is 3, and from the right y is 9" in spoken(E("pc-u9-the-two-sides-disagree"))
+          and "360 take away the backwards amount, 45" in spoken(E("pc-u4-the-backwards-spin"))
+          and '[[step eq="for x ≠ 5: (x−5)(x+5) ÷ (x−5) = x + 5"]]' in boards(E("pc-u9-the-hole-in-the-curve"))
+          and "give different answers when you switch the order" in spoken(E("pc-u1-machines-in-a-row"))
+          and "commute" not in spoken(E("pc-u1-machines-in-a-row"))
+          and "just 1 plus 2 plus 3 plus 4 plus 5, the bare sum without the 10" in spoken(E("pc-u8-the-instruction-called-sigma"))
+          and E("pc-u8-the-instruction-called-sigma")["advance_line"].endswith("then sum 1 up to the top number."), "")
+    check("⭐ words-board: the logs carry their base; the vasy boards group the bottom; the identity carries its degree marks; the secant line, the 3-to-5 window and the shrinking window; the bearings reason draws the turn; the circle and ellipse boards write the whole equation",
+          '[[step eq="log₂ 1024 = 10 ✓"]]' in boards(E("pc-u3-rebuild-the-number"))
+          and '[[step eq="log₁₀ ? = 4"]][[step eq="? = 10000 ✓"]][[step eq="10 × 4 = 40 ✗"]]' in boards(E("pc-u3-rebuild-the-number"))
+          and 'caption="log₂ 1024 = 10 ✓"' in E("pc-u3-rebuild-the-number")["explain"]["board"]
+          and boards(E("pc-u2-twice-forbidden")).count("1 ÷ ((x − 3)(x − 7))") == 2 and "1 ÷ (x − 3)(x − 7)" not in boards(E("pc-u2-twice-forbidden"))
+          and boards(E("pc-u5-partners-across-ninety")).count('[[step eq="sin a° = cos (90 − a)°"]]') == 2
+          and 'lines="x=2; x=6; y=8x-12" points="(2,4),(6,36)"' in E("pc-u9-the-shrinking-window")["picture"][0][1]
+          and '[[step eq="3 → 5: rise 16 ÷ run 2 = 8"]]' in boards(E("pc-u9-the-shrinking-window"))
+          and 'lines="x=4; x=5"' in E("pc-u9-the-shrinking-window")["recap"][0][1]
+          and E("pc-u6-past-the-full-turn")["explain"]["board"] == '[[unitcircle bearing="350" turn="40" caption="350 + 40 = 390, then 390 − 360 = 30"]]'
+          and '[[step eq="(x − 5)² + (y − 5)² = 169"]]' in boards(E("pc-u7-un-square-the-radius"))
+          and '[[step eq="(x − 14)² + (y − 1)² = 16"]][[step eq="center x = 14"]]' in boards(E("pc-u7-where-the-circle-sits"))
+          and '[[step eq="(x − 13)² + (y − 6)² = 16"]][[step eq="center x = 13"]]' in boards(E("pc-u7-where-the-circle-sits"))
+          and 'caption="(x − 15)² + (y − 2)² = 25 — the middle at x = 15"' in E("pc-u7-where-the-circle-sits")["recap"][0][1]
+          and '[[step eq="x²/121 + y²/16 = 1"]]' in boards(E("pc-u7-edge-to-edge"))
+          and '[[step eq="un-square 25 = 5 each way"]][[step eq="5 + 5 = 10 tall"]]' in boards(E("pc-u7-edge-to-edge")), "")
+    check("  words-board (the rest): the arrow's squares and both bounds; the parametric roots said and written; 32 and 64 on the board; the sigma board's words; the line-up products; 2 or 9 on the trap board",
+          '[[step eq="5² + 12² = 169"]][[step eq="√169 = 13 ✓"]]' in boards(E("pc-u6-the-arrow-and-its-steps"))
+          and '[[step eq="5 > 4 and 5 > 3"]][[step eq="5 < 3 + 4"]]' in boards(E("pc-u6-the-arrow-and-its-steps"))
+          and "arrow squared equals right squared plus up squared" in spoken(E("pc-u6-the-arrow-and-its-steps"))
+          and "up 12 — 25 plus 144 is 169, and 13 squares back to it" in spoken(E("pc-u6-the-arrow-and-its-steps"))
+          and "the square root of 40 squared plus 42 squared — 58" in spoken(E("pc-u7-where-you-are-at-time-t"))
+          and '[[step eq="√(40² + 42²) = 58"]]' in boards(E("pc-u7-where-you-are-at-time-t"))
+          and '[[step eq="√(14² + 48²) = 50"]]' in boards(E("pc-u7-where-you-are-at-time-t"))
+          and '[[step eq="16 ✓ doubling — then 32, then 64"]]' in boards(E("pc-u3-money-doubles"))
+          and "The board writes the start and the stop in words: k from 1 to 5" in spoken(E("pc-u8-the-instruction-called-sigma"))
+          and '[[step eq="11 × 10 = 110 line-ups"]]' in boards(E("pc-u8-when-order-does-not-matter"))
+          and '[[step eq="11 × 10 × 9 = 990 line-ups"]]' in boards(E("pc-u8-when-order-does-not-matter"))
+          and '[[step eq="a pair: divide by 2 — a trio: divide by 6"]]' in boards(E("pc-u8-when-order-does-not-matter"))
+          and "2 or 9 ✗ the center numbers" in boards(E("pc-u7-un-square-the-radius"))
+          and "The same kind of equation, ending in 196" in spoken(E("pc-u7-un-square-the-radius"))
+          and "whatever the angle" in spoken(E("pc-u5-one-whole-between-them")), "")
+    _second = {"pc-u3-money-doubles": "6 divided by 3 is 2 doublings", "pc-u4-the-faster-wave": "360 divided by 30 is 12",
+               "pc-u5-count-the-crossings": "the sine equals 0 twice each turn, and equals 1 once",
+               "pc-u6-the-arrow-and-its-steps": "9 plus 16 is 25, and the root of 25 is 5",
+               "pc-u7-edge-to-edge": "un-square 144 for 12 each way, so 24 across",
+               "pc-u7-where-you-are-at-time-t": "the root of 30 squared plus 40 squared is 50",
+               "pc-u8-when-order-does-not-matter": "6 line-ups, divided by 2 orders, is 3 teams",
+               "pc-u4-hug-the-flat-line": "the second quarter echoes the first"}
+    check("  eight closing beats speak the equation their board writes (or say what it means)",
+          all(v in E(k)["recap"][-1][0] for k, v in _second.items()),
+          str([k for k, v in _second.items() if v not in E(k)["recap"][-1][0]]))
+    check("  every Pre-Calc lesson validates and the counts did not move (39,999; speechmap 2,246; no beat added)",
+          all(ok for les in L.LESSONS if les["course"] == "precalc" for ok, _l, _d in L.validate(les))
+          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-16wn-' in notes("main.py") and "2026-09-16  BUILD wn" in notes("lessonscripts.py")
+          and "2026-09-16  BUILD wn" in notes("lessons/precalc.py") and "2026-09-16  BUILD wn" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -34205,7 +34341,7 @@ def part3jk_precalc_units_one_to_three_to_the_shape():
     fpie = {"a": 4, "b": 2, "c": 2, "op": "fpie"}
     check("⭐ a function in pieces: the border and x on the number line, and a pending line with no arrow after an equals (12 asks had one); the side named in the walk-back",
           '[[numberline min="0" max="10" points="5,2" caption=' in L.board_for(fpie, "abstract")
-          and '[[step eq="x = 2 · y = ?"]]' in L.board_for(fpie, "abstract") and "→" not in L.board_for(fpie, "abstract").split("[[step eq=\"x = 2")[1]
+          and '[[step eq="x = 2: y = ?"]]' in L.board_for(fpie, "abstract") and "→" not in L.board_for(fpie, "abstract").split("[[step eq=\"x = 2")[1]
           and 'caption="2 is below 5 — the first rule runs: 2 + 4 = 6"' in _W(fpie)[1]
           and "the SECOND rule runs" in _W({"a": 4, "b": 4, "c": 6, "op": "fpie"})[0], "")
 
@@ -34398,7 +34534,7 @@ def part3jl_precalc_units_four_to_six_to_the_shape():
     sols = {"a": -1, "b": 2, "c": 0, "op": "sols"}
     check("⭐ count the crossings: the wave through its turns with the level line on the ask, the pending line a statement (12 asks had a question inside a step); the touches marked in the walk-back",
           '[[graph func="sin(x*pi/180)" names="sine" lines="y=-1" range="0..720"' in L.board_for(sols, "abstract")
-          and '[[step eq="2 turns · sin = −1 · count = ?"]]' in L.board_for(sols, "abstract")
+          and '[[step eq="sin = −1, 2 turns"]][[step eq="count = ?"]]' in L.board_for(sols, "abstract")  # (wn) two lines
           and 'points="(270,-1),(630,-1)"' in _W(sols)[1]
           and 'points="(90,0),(270,0)"' in _W({"a": 0, "b": 1, "c": 1, "op": "sols"})[1]
           and "2 turns, 1 each: 2" in _W(sols)[0], "")
@@ -34570,7 +34706,7 @@ def part3jm_precalc_units_seven_to_nine_to_the_shape():
     lsid = {"a": 11, "b": 19, "c": 1, "op": "lsid"}
     check("⭐ the two sides disagree: the step with two shelves on the ask and a pending line with no arrow after an equals (12 asks had two); the approach marked in the walk-back",
           '[[graph func="11 for x<6; 19 for x>=6" range="0..12" yrange="0..23" caption=' in L.board_for(lsid, "abstract")
-          and '[[step eq="x < 6: y = 11 · x ≥ 6: y = 19"]]' in L.board_for(lsid, "abstract")
+          and '[[step eq="x < 6: y = 11"]][[step eq="x ≥ 6: y = 19"]]' in L.board_for(lsid, "abstract")  # (wn) two lines
           and 'points="(9,19),(8,19),(7,19)"' in _W(lsid)[1]
           and 'points="(3,13),(4,13),(5,13)"' in _W({"a": 13, "b": 21, "c": 0, "op": "lsid"})[1]
           and "the limit from that side is 19" in _W(lsid)[0], "")
@@ -46901,6 +47037,7 @@ def main():
     part3mf_the_first_algebra1_sweep()
     part3mg_the_first_geometry_sweep()
     part3mh_the_first_algebra2_sweep()
+    part3mi_the_first_precalc_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
