@@ -1267,7 +1267,6 @@ MAP = {
     "One more together. 76 under a lone s and an s plus 2: 76 over 2 settles at 38.": "One more together. 76 under a lone s and an s plus 2 to 76 over 2 settles at 38.",
     "One more together. 8 x with C of 33: 4 times 9 is 36, plus 33 is 69.": "One more together. 8 x with C of 33 to 4 times 9 is 36, plus 33 is 69.",
     "One more together. A ceiling of 50 with a claim of 58: 58 take away 50 — 8 points outside.": "One more together. A ceiling of 50 with a claim of 58 to 58 take away 50 — 8 points outside.",
-    "One more together. A side of 9 growing at 5: 2 times 9 times 5 — 90 square centimetres a second, read off the tangent at 9.": "One more together. A side of 9 growing at 5 to 2 times 9 times 5 — 90 square centimetres a second, read off the tangent at 9.",
     "One more together. Apex 48: 180 take away 48 is 132, shared by two is 66 degrees.": "One more together. Apex 48 to 180 take away 48 is 132, shared by two is 66 degrees.",
     "One more together. Area 2, scale factor 3: 2 times 3 times 3 equals 18.": "One more together. Area 2, scale factor 3 to 2 times 3 times 3 equals 18.",
     "One more together. At x equals 13, y equals 23: 169 take away 23 is 146.": "One more together. At x equals 13, y equals 23 to 169 take away 23 is 146.",

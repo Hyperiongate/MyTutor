@@ -2,6 +2,23 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wo -- THE FIRST CALCULUS SWEEP, HALF (19 of 36 read; 46 findings, 7
+#               generator-owned). (1) linf: the ask said "a x squared divided by b x squared"
+#               while the board drew a x² / (b x² + b), and the walk-back said the x
+#               squareds "cancel exactly, whatever x is" (HIGH -- the fraction only TENDS to
+#               a/b). The words, caption, step, praise and walk-back now name the drawn
+#               function and use limit wording: far out the plus b is nothing beside b x²,
+#               the leaders decide it, the curve flattens toward a/b and never lands. (2)
+#               acce's walk-back: a is "the distance's own front number, never
+#               differentiated" (one differentiation short of the acceleration would be the
+#               SPEED). (3) cfix asks for the curve to "join up without a jump" (the mended
+#               join is continuous, not smooth -- the slope changes 1 -> 0). (4) llaw's
+#               walk-back is short sentences. (5) maxa's praise: "every other RECTANGLE with
+#               the same fence encloses less" (a circle encloses more). (6) pwrc's praise:
+#               "adding those two numbers is not the power-rule move" (adding is a rule
+#               elsewhere). The dot between two equations is gone from every generator line
+#               Calculus's transcripts reach (jump, cfix, derv, evat, prod, chev, init, pgrw,
+#               llaw, acce). Authored: lessons/calculus.py.
 #   2026-09-16  BUILD wn -- THE FIRST PRE-CALC SWEEP (76 findings, 5 generator-owned). (1)
 #               vasy's board groups the whole bottom: y = 1 ÷ ((x − 2)(x − 4)) -- the old
 #               1 ÷ (x − 2)(x − 4) reads as (1 ÷ (x − 2)) · (x − 4) (HIGH); the walk-back's
@@ -6332,14 +6349,14 @@ def _npop_worked(p):
 def _llaw_board(p):
     a, b = p["a"], p["b"]; top = max(a, b) + 3
     return (f'[[graph func="{a} + (x-4)^2/8; {b} - (x-4)^2/8" hole="4" lines="x=4" names="f; g" range="0..8" yrange="0..{top}" caption="f closes on {a} at x = 4 and g closes on {b} — their product closes on a number too"]]'
-            f'[[step eq="f → {a} · g → {b}"]]'
+            f'[[step eq="f → {a}"]][[step eq="g → {b}"]]'
             f'[[step eq="f × g → ?"]]')
 
 
 def _llaw_worked(p):
     a, b = p["a"], p["b"]; t = a * b
-    return (f"Here it is, step by step: f is heading for {a} and g for {b}, and the limit passes "
-            f"straight through the times sign — {a} times {b} is {t}, so f times g heads "
+    return (f"Here it is, step by step: f is heading for {a}. g is heading for {b}. For a "
+            f"product, multiply the two limits: {a} times {b} is {t}, so f times g heads "
             f"for {t}. Adding would give {a + b}, which answers a different question, and "
             f"{max(a, b)} is only the bigger of the two.",
             f'[[graph func="({a} + (x-4)^2/8)*({b} - (x-4)^2/8)" hole="4" lines="x=4" names="f × g" range="0..8" yrange="0..{t + 6}" caption="the product curve closes on {t} at x = 4 — {a} times {b}"]]'
@@ -6348,25 +6365,26 @@ def _llaw_worked(p):
 
 def _linf_board(p):
     a, b = p["a"], p["b"]; c = a // b
-    return (f'[[graph func="({a}*x^2)/({b}*x^2 + {b})" names="y = {a}x² / ({b}x² + {b})" range="0..12" yrange="0..{c + 2}" caption="{a} x squared over {b} x squared — as x grows the curve flattens toward one number"]]'
-            f'[[step eq="y = {a}x² ÷ {b}x²"]]'
-            f'[[step eq="x grows huge · y → ?"]]')
+    return (f'[[graph func="({a}*x^2)/({b}*x^2 + {b})" names="y = {a}x² / ({b}x² + {b})" range="0..12" yrange="0..{c + 2}" caption="{a} x squared over {b} x squared plus {b} — as x grows the curve flattens toward one number"]]'
+            f'[[step eq="y = {a}x² ÷ ({b}x² + {b})"]]'
+            f'[[step eq="x grows huge: y → ?"]]')
 
 
 def _linf_worked(p):
     a, b = p["a"], p["b"]; c = a // b
-    return (f"Here it is, step by step: the x squareds grow at the very same speed and cancel "
-            f"exactly, whatever x is — so {a} over {b} is what survives, and that is {c}. "
-            f"The curve flattens onto {c} and stays there. {a - b} takes one from the "
-            f"other and {a * b} times them, and neither describes what the fraction does.",
-            f'[[graph func="({a}*x^2)/({b}*x^2 + {b})" names="y = {a}x² / ({b}x² + {b})" lines="y={c}" range="0..12" yrange="0..{c + 2}" caption="the curve settles onto the line y = {c} — {a} over {b}"]]'
-            f'[[step eq="{a} ÷ {b} = {c}"]]')
+    return (f"Here it is, step by step: far out, the plus {b} is nothing beside {b} x squared, "
+            f"so the leaders decide it. {a} x squared over {b} x squared is {a} over {b}, "
+            f"which is {c}. The curve flattens toward {c} and never quite lands on it. "
+            f"{a - b} takes one from the other and {a * b} times them, and neither "
+            f"describes what the fraction does.",
+            f'[[graph func="({a}*x^2)/({b}*x^2 + {b})" names="y = {a}x² / ({b}x² + {b})" lines="y={c}" range="0..12" yrange="0..{c + 2}" caption="the curve settles toward the line y = {c} — {a} over {b}"]]'
+            f'[[step eq="far out: {a}x² ÷ {b}x²"]][[step eq="{a} ÷ {b} = {c}"]]')
 
 
 def _jump_board(p):
     a, b = p["a"], p["b"]
     return (f'[[graph func="{a} for x<6; {b} for x>=6" range="0..12" yrange="0..{b + 4}" caption="two shelves at the border x = 6 — the open dot at {a}, the closed dot at {b}, and a leap between them"]]'
-            f'[[step eq="x < 6: y = {a} · x ≥ 6: y = {b}"]]'
+            f'[[step eq="x < 6: y = {a}"]][[step eq="x ≥ 6: y = {b}"]]'
             f'[[step eq="the jump measures ?"]]')
 
 
@@ -6382,8 +6400,8 @@ def _jump_worked(p):
 def _cfix_board(p):
     a, b, c = p["a"], p["b"], p["c"]; top = max(b, c + a) + 4
     return (f'[[graph func="x+{a} for x<{c}; {b} for x>={c}" range="0..{c + 4}" yrange="0..{top}" caption="the sloping piece climbs to the border at x = {c} and the flat piece sits at {b} — walk the slope to the border and see where it arrives"]]'
-            f'[[step eq="x < {c}: y = x + {a} · x ≥ {c}: y = {b}"]]'
-            f'[[step eq="join up smoothly · flat value = ?"]]')
+            f'[[step eq="x < {c}: y = x + {a}"]][[step eq="x ≥ {c}: y = {b}"]]'
+            f'[[step eq="join up without a jump: flat value = ?"]]')
 
 
 def _cfix_worked(p):
@@ -6399,7 +6417,7 @@ def _cfix_worked(p):
 def _derv_board(p):
     a = p["a"]; r = a + 2
     return (f'[[graph func="x^2" names="y = x²" points="({a},{a * a})" range="0..{r}" yrange="0..{r * r}" caption="y = x squared with the point at x = {a} — the slope right there, at that one point, is the derivative"]]'
-            f'[[step eq="y = x² · window shrinking onto x = {a}"]]'
+            f'[[step eq="y = x²"]][[step eq="window shrinking onto x = {a}"]]'
             f'[[step eq="the rate closes in on ?"]]')
 
 
@@ -6450,8 +6468,8 @@ def _cnst_worked(p):
 def _evat_board(p):
     a, c = p["a"], p["c"]; r = c + 2
     return (f'[[graph func="{a}*x^2" names="y = {a}x²" points="({c},{a * c * c})" range="0..{r}" yrange="0..{a * r * r}" caption="y = {a} x squared with the point at x = {c} — the slope right there is what the derivative hands back"]]'
-            f'[[step eq="y = {a}x² · slope = {2 * a}x"]]'
-            f'[[step eq="at x = {c} · slope = ?"]]')
+            f'[[step eq="y = {a}x²"]][[step eq="slope = {2 * a}x"]]'
+            f'[[step eq="at x = {c}: slope = ?"]]')
 
 
 def _evat_worked(p):
@@ -6469,7 +6487,7 @@ def _prod_board(p):
     return (f'[[graph func="x*(x+{a})" names="y = x(x + {a})" points="({c},{c * (c + a)})" range="0..{r}" yrange="0..{r * (r + a)}" caption="y = x times (x + {a}) with the point at x = {c} — the slope right there"]]'
             f'[[step eq="y = x(x + {a}) = x² + {a}x"]]'
             f'[[step eq="slope = 2x + {a}"]]'
-            f'[[step eq="at x = {c} · slope = ?"]]')
+            f'[[step eq="at x = {c}: slope = ?"]]')
 
 
 def _prod_worked(p):
@@ -6503,7 +6521,7 @@ def _chev_board(p):
     return (f'[[graph func="({a}*x+{b})^2" names="y = ({a}x + {b})²" points="(0,{b * b})" range="-1..2" yrange="0..{top}" caption="y = ({a}x + {b}) squared with the point at x = 0 — the slope right there"]]'
             f'[[step eq="y = ({a}x + {b})²"]]'
             f'[[step eq="slope = 2({a}x + {b})·{a}"]]'
-            f'[[step eq="at x = 0 · slope = ?"]]')
+            f'[[step eq="at x = 0: slope = ?"]]')
 
 
 def _chev_worked(p):
@@ -6602,7 +6620,7 @@ def _crit_worked(p):
 def _acce_board(p):
     a = p["a"]; m = 2 * a
     return (f'[[graph lines="y={m}x" names="speed = {m}t" range="0..5" yrange="0..{m * 5}" caption="the speed line — it climbs the same amount every second, and that steady climb is the acceleration"]]'
-            f'[[step eq="fallen {a}t² · speed {m}t"]]'
+            f'[[step eq="fallen {a}t²"]][[step eq="speed {m}t"]]'
             f'[[step eq="acceleration = ?"]]')
 
 
@@ -6610,8 +6628,8 @@ def _acce_worked(p):
     a = p["a"]; m = 2 * a
     return (f"Here it is, step by step: the speed {m} t is a line, and a line's derivative is its "
             f"front number — {m}. So the acceleration is {m}, the same at every moment: one "
-            f"second on, the speed is {m} higher. {a} is the distance's number, one "
-            f"differentiation short, and {4 * a} doubles once too often.",
+            f"second on, the speed is {m} higher. {a} is the distance's own front number, "
+            f"never differentiated, and {4 * a} doubles once too often.",
             f'[[graph lines="y={m}x" names="speed = {m}t" points="(1,{m}),(2,{2 * m})" range="0..5" yrange="0..{m * 5}" caption="one second on, {m} faster — the acceleration is {m}"]]'
             f'[[step eq="{a}t² → {m}t → {m}"]]')
 
@@ -6749,7 +6767,7 @@ def _init_board(p):
     a, c = p["a"], p["c"]; r = c + 1
     return (f'[[graph func="x^2+{a}" names="y = x² + {a}" points="(0,{a})" range="0..{r}" yrange="0..{r * r + a + 2}" caption="slope 2x through the height {a} at x = 0 — one curve out of the family, and it keeps climbing"]]'
             f'[[step eq="slope 2x → y = x² + C"]]'
-            f'[[step eq="y = {a} at x = 0 · at x = {c} · y = ?"]]')
+            f'[[step eq="y = {a} at x = 0"]][[step eq="at x = {c}: y = ?"]]')
 
 
 def _init_worked(p):
@@ -6954,7 +6972,7 @@ def _pgrw_board(p):
     a, b = p["a"], p["b"]; r = a + 4
     return (f'[[graph lines="y={b}x" names="rate = {b}P" range="0..{r}" yrange="0..{b * r}" caption="the rate against the amount — the bigger the colony, the faster it grows; read the line at P = {a}"]]'
             f'[[step eq="dP/dt = {b}P"]]'
-            f'[[step eq="P = {a} · rate = ?"]]')
+            f'[[step eq="P = {a}: rate = ?"]]')
 
 
 def _pgrw_worked(p):
@@ -13805,16 +13823,18 @@ OP_EXT = {
     "linf": {  # far out, only the leading terms matter
         "ans": lambda p: p["a"] // p["b"],
         "spoken": lambda p: (f"As x grows huge, what number does {p['a']} x "
-                             f"squared, divided by {p['b']} x squared, "
-                             f"settle toward?"),
+                             f"squared, divided by {p['b']} x squared plus "
+                             f"{p['b']}, settle toward?"),
         "board": _linf_board,         # (tz) the ask picture, answer withheld
         "worked": _linf_worked,       # (tz) the walk-back, filled in
-        "praise": lambda p: (f"The x squareds cancel however big x gets, "
-                             f"leaving {p['a']} over {p['b']} — "
+        "praise": lambda p: (f"Far out, the plus {p['b']} is nothing beside "
+                             f"{p['b']} x squared, so the leaders decide "
+                             f"it: {p['a']} over {p['b']} — "
                              f"{p['a'] // p['b']}. Algebra Two's asymptote "
                              f"lesson split a fraction to find its "
-                             f"survivor; here both parts grow at the same "
-                             f"speed, so the ratio is what survives."),
+                             f"survivor; here both leaders grow at the "
+                             f"same speed, so their ratio is what "
+                             f"survives."),
         "key": lambda p: p["a"] // p["b"],
         # The errors: the coefficients subtracted, and timesed.
         "choices": lambda p: [p["a"] // p["b"], p["a"] - p["b"],
@@ -13859,7 +13879,7 @@ OP_EXT = {
                              f"{p['c']}, and a flat {p['b']} once x reaches "
                              f"{p['c']}. Right now it jumps. What would "
                              f"that flat value have to be for the curve to "
-                             f"join up smoothly?"),
+                             f"join up without a jump?"),
         "board": _cfix_board,         # (tz) the ask picture, answer withheld
         "worked": _cfix_worked,       # (tz) the walk-back, filled in
         "praise": lambda p: (f"Walk the sloping piece right up to "
@@ -13920,8 +13940,8 @@ OP_EXT = {
                              f"times {p['b']} equals {p['a'] * p['b']}, and "
                              f"the power drops to {p['a'] - 1}. So the "
                              f"derivative is {p['a'] * p['b']} x to the "
-                             f"{p['a'] - 1}. Adding the two numbers is not "
-                             f"a rule anything obeys."),
+                             f"{p['a'] - 1}. Adding those two numbers is "
+                             f"not the power-rule move."),
         "key": lambda p: p["a"] * p["b"],
         # The errors: the two numbers ADDED, and the front number left
         # alone (the exponent never brought down).
@@ -14244,8 +14264,8 @@ OP_EXT = {
                              f"{(p['a'] // 4) * (p['a'] // 4)} square "
                              f"metres. That is the most any rectangle can "
                              f"get from {p['a']} metres of fence; every "
-                             f"other shape with the same fence encloses "
-                             f"less."),
+                             f"other rectangle with the same fence "
+                             f"encloses less."),
         "key": lambda p: (p["a"] // 4) * (p["a"] // 4),
         # The errors: the SIDE answered instead of the area, and the fence.
         "choices": lambda p: [(p["a"] // 4) * (p["a"] // 4), p["a"] // 4,

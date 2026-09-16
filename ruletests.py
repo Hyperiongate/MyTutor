@@ -6,6 +6,14 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-16  BUILD wo -- PART 3mj, THE FIRST CALCULUS SWEEP, HALF (19 of 36 read; 46
+#               findings, 2 clean). Six generator items (linf's limit wording and matching
+#               board, acce's wrong turns, cfix's "without a jump", llaw's short walk-back,
+#               maxa's "every other rectangle", pwrc's praise), the dot pin grown to eight
+#               courses, the authored classes. Pins moved: speechmap 2,246 -> 2,245 and drift
+#               1,940 -> 1,939 (the related-rates second worked line no longer says "2 times
+#               9 times 5"); ten generator pins moved to split boards; the 3fs fragment for
+#               one-rate-drives-another is "times the side's rate 5".
 #   2026-09-16  BUILD wn -- PART 3mi, THE FIRST PRE-CALC SWEEP (76 findings, 5 clean). Five
 #               generator items (vasy's grouped bottom, vmag's praise, vprd's plain x squared,
 #               wper's first repeat, parm's spoken root), the dot pin grown to seven courses,
@@ -15330,7 +15338,9 @@ def part3kx_the_next_line_is_already_loaded():
               # moved speechmap 2,244 -> 2,245.
               # (wl) 1,939 -> 1,940: the fourth corner's second picture beat, "at (7, 6) —
               # and the box closes" (the coordinates are tidied); speechmap 2,245 -> 2,246.
-              n == 1940, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
+              # (wo) 1,940 -> 1,939: the related-rates second worked line no longer says "2 times
+              # 9 times 5" (a digit-times-digit forSpeech tidies); speechmap 2,246 -> 2,245.
+              n == 1939, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
         check("  ⭐⭐ ...and not one of them is a mismatch any more: the label the server "
               "files under equals the label the page asks for, on every line",
               all(_M._spoken(t) == t or _M._spoken(t) != t for t in lines[:1])
@@ -15435,7 +15445,7 @@ def part3ky_one_label_for_every_clip():
         # (wl) 2,246 of 40,305: the fourth corner's second picture beat ("at (7, 6) — and the
         # box closes") joined the closure, and its coordinates re-key.
         check("  ...and it still holds the differences it was built for (2,246 since wl; 2,245 at wh; 2,244 at vx; 2,246 at vs; 2,245 at vm; 2,249 at vc)",
-              len(mapping) == 2246 and scanned == 40305,
+              len(mapping) == 2245 and scanned == 40305,  # (wo) 2,246 -> 2,245: the related-rates second worked line lost its "2 times 9 times 5"
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
@@ -20148,6 +20158,107 @@ def part3mi_the_first_precalc_sweep():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-16wn-' in notes("main.py") and "2026-09-16  BUILD wn" in notes("lessonscripts.py")
           and "2026-09-16  BUILD wn" in notes("lessons/precalc.py") and "2026-09-16  BUILD wn" in notes("ruletests.py"), "")
+
+
+def part3mj_the_first_calculus_sweep_half():
+    """PART 3mj (build wo, 2026-09-16) -- THE FIRST CALCULUS SWEEP, HALF: 19 of 36 lessons
+    read (OpenAI credits ran out), 46 findings, 2 clean, 7 generator-owned. Six generator
+    items, the dot gone from the eighth course (all 36 lessons), and the authored classes."""
+    print("\nPART 3mj — the first Calculus sweep, half (build wo)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for f in ("why", "picture", "teach", "recap")
+                                  for _s, b in (les.get(f) or [])) + \
+                         " ".join(pr["worked"][1] for pr in les["pairs"]) + \
+                         (les.get("explain") or {}).get("board", "")
+    _W = lambda p: L._worked_for(p) or ("", "")
+    B = lambda p, lv="abstract": L.board_for(p, lv)
+    S = lambda p, lv="abstract": L.spoken_for(p, lv)
+
+    # ---- the generator ---------------------------------------------------------
+    li = {"a": 36, "b": 3, "op": "linf"}
+    check("⭐ linf: the words name the drawn function (a x² over b x² + b) and the walk-back uses limit wording (the x squareds do not cancel exactly -- HIGH)",
+          S(li).startswith("As x grows huge, what number does 36 x squared, divided by 3 x squared plus 3, settle toward?")
+          and '[[step eq="y = 36x² ÷ (3x² + 3)"]]' in B(li) and "over 3 x squared plus 3 —" in B(li)
+          and "far out, the plus 3 is nothing beside 3 x squared, so the leaders decide it" in _W(li)[0]
+          and "flattens toward 12 and never quite lands on it" in _W(li)[0] and "cancel" not in _W(li)[0]
+          and '[[step eq="far out: 36x² ÷ 3x²"]][[step eq="36 ÷ 3 = 12"]]' in _W(li)[1]
+          and "Far out, the plus 3 is nothing beside 3 x squared" in L.OP_EXT["linf"]["praise"](li), B(li))
+    check("  acce's wrong turns; cfix asks for 'without a jump'; llaw's walk-back is short; maxa says every other RECTANGLE; pwrc's adding is not the power-rule move",
+          "12 is the distance's own front number, never differentiated, and 48 doubles once too often" in _W({"a": 12, "b": 0, "op": "acce"})[0]
+          and "join up without a jump?" in S({"a": 6, "b": 2, "c": 9, "op": "cfix"}) and "smoothly" not in S({"a": 6, "b": 2, "c": 9, "op": "cfix"})
+          and "f is heading for 2. g is heading for 11. For a product, multiply the two limits: 2 times 11 is 22" in _W({"a": 2, "b": 11, "op": "llaw"})[0]
+          and L.OP_EXT["maxa"]["praise"]({"a": 60, "b": 0}).endswith("every other rectangle with the same fence encloses less.")
+          and L.OP_EXT["pwrc"]["praise"]({"a": 2, "b": 11}).endswith("Adding those two numbers is not the power-rule move."), "")
+    check("⭐ THE DOT: no [[step eq]] in the eight swept courses (Calculus since wo, all 36 lessons) -- authored OR generated -- joins two equations with ' · '",
+          not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', t["board"])
+                  for c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc", "calculus")
+                  for les in C.lessons_for(c, L) for t in C.transcript_for(les, L)), "")
+    check("  ...jump, cfix, derv, evat, init and pgrw write separate lines",
+          '[[step eq="x < 6: y = 2"]][[step eq="x ≥ 6: y = 14"]]' in B({"a": 2, "b": 14, "op": "jump"})
+          and '[[step eq="x < 9: y = x + 6"]][[step eq="x ≥ 9: y = 2"]][[step eq="join up without a jump: flat value = ?"]]' in B({"a": 6, "b": 2, "c": 9, "op": "cfix"})
+          and '[[step eq="y = x²"]][[step eq="window shrinking onto x = 13"]]' in B({"a": 13, "b": 0, "op": "derv"})
+          and '[[step eq="y = 3x²"]][[step eq="slope = 6x"]][[step eq="at x = 7: slope = ?"]]' in B({"a": 3, "b": 0, "c": 7, "op": "evat"})
+          and '[[step eq="y = 19 at x = 0"]][[step eq="at x = 4: y = ?"]]' in B({"a": 19, "b": 0, "c": 4, "op": "init"})
+          and '[[step eq="P = 28: rate = ?"]]' in B({"a": 28, "b": 4, "op": "pgrw"}), "")
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ laws with their condition: limits when each has a limit (x2); a line written y = m x + b; a squared quantity (recap, advance); this square; this problem / these valleys; a fixed fence; a jump has a size; lower from higher",
+          spoken(E("calc-u1-limits-pass-through")).count("each function has a limit") == 2
+          and "Whatever you do to the functions" not in spoken(E("calc-u1-limits-pass-through"))
+          and "A line written y equals a number times x, plus a number, has one slope" in spoken(E("calc-u2-a-line-has-one-slope"))
+          and "The chain rule at a point, for a squared quantity" in spoken(E("calc-u3-the-chain-rule-at-a-point"))
+          and E("calc-u3-the-chain-rule-at-a-point")["advance_line"].endswith("For a squared quantity: twice the inside, times the inside's derivative.")
+          and "For this square, as its side grows the area grows too" in spoken(E("calc-u4-one-rate-drives-another"))
+          and "For the valleys in this lesson, find that point and you have found the bottom" in spoken(E("calc-u4-where-the-curve-levels-off"))
+          and "the ends of a stretch get checked separately" in spoken(E("calc-u4-where-the-curve-levels-off"))
+          and "For this fence problem the best sits inside the range, where the slope is zero" in spoken(E("calc-u5-the-best-rectangle"))
+          and "For a fixed amount of fence the best rectangle is a square" in spoken(E("calc-u5-and-how-much-ground-that-wins"))
+          and "Now this kind of break gets measured, because a jump has a size" in spoken(E("calc-u1-how-big-is-the-break"))
+          and "take the lower side from the higher one" in spoken(E("calc-u1-how-big-is-the-break"))
+          and "not a measurement of the jump" in spoken(E("calc-u1-how-big-is-the-break"))
+          and "adding them is not the move" in spoken(E("calc-u2-the-power-comes-down-front")), "")
+    check("⭐ true statements: the far-out lesson names 8x² over 2x² + 2 and never says the x squareds cancel; the derivative is where the rates settle; the plus number; the 2x part; 5 never differentiated; 300 at a side of 50; the tangent climbs 18",
+          "8 x squared over 2 x squared plus 2" in spoken(E("calc-u1-far-out-only-the-leaders-matter"))
+          and "cancel" not in spoken(E("calc-u1-far-out-only-the-leaders-matter"))
+          and "flattens toward the line y equals 4 and never quite lands on it" in spoken(E("calc-u1-far-out-only-the-leaders-matter"))
+          and E("calc-u1-far-out-only-the-leaders-matter")["symbols"] == ("infinity", "leaders")
+          and "the number the average rates settle on as the window closes" in spoken(E("calc-u2-the-window-closes"))
+          and "nothing before Calculus" not in spoken(E("calc-u2-the-window-closes"))
+          and "2 is only the plus number in the sloping piece" in spoken(E("calc-u1-mend-the-curve"))
+          and "10 is only the 2 x part, with the plus 4 forgotten" in spoken(E("calc-u3-two-things-multiplied"))
+          and "5 is the distance's own front number, never differentiated at all" in spoken(E("calc-u4-differentiate-twice"))
+          and "one differentiation too many" not in spoken(E("calc-u4-differentiate-twice"))
+          and "the area gains 2 times 50 times 3 — 300 a second" in spoken(E("calc-u4-one-rate-drives-another"))
+          and '[[step eq="at a side of 50: 2 × 50 × 3 = 300"]]' in boards(E("calc-u4-one-rate-drives-another"))
+          and "the tangent at 9 climbs 18, and times the side's rate 5 that is 90" in spoken(E("calc-u4-one-rate-drives-another"))
+          and "A derivative hands you a rate formula, and a formula set equal to a target is an equation you can solve" in spoken(E("calc-u4-when-is-it-going-that-fast"))
+          and "That speed came from a distance of 4 t squared" in spoken(E("calc-u4-when-is-it-going-that-fast"))
+          and "y equals x times the quantity x plus 9" in spoken(E("calc-u3-two-things-multiplied")), "")
+    check("⭐ unsupported, now shown: the product rule stated and applied; the fence problem's area, slope and zero; equal-halves' one calculus line and the spoken products",
+          "the first's derivative times the second, plus the first times the second's derivative" in spoken(E("calc-u3-two-things-multiplied"))
+          and '[[step eq="product rule: 1·(x + 4) + x·1 = 2x + 4"]]' in boards(E("calc-u3-two-things-multiplied"))
+          and '[[step eq="area = x(20 − x)"]][[step eq="slope = 20 − 2x"]][[step eq="20 − 2x = 0"]][[step eq="x = 10"]]' in boards(E("calc-u5-the-best-rectangle"))
+          and "the area is x times 20 take away x. Differentiate: 20 take away 2 x" in spoken(E("calc-u5-the-best-rectangle"))
+          and '[[rectangle w="18" h="2" caption=' in E("calc-u5-the-best-rectangle")["picture"][0][1]
+          and "so its slope is 30 take away 2 x — and that is zero exactly at 15" in spoken(E("calc-u5-equal-halves-win"))
+          and '[[step eq="1 × 29 = 29, 5 × 25 = 125, 14 × 16 = 224"]]' in boards(E("calc-u5-equal-halves-win"))
+          and '[[step eq="slope = 30 − 2x"]][[step eq="30 − 2x = 0 at x = 15"]]' in boards(E("calc-u5-equal-halves-win")), "")
+    check("  words-board: the chain-rule boards write the expression (x4); the line lesson writes its power-rule step; two closing beats speak their board",
+          boards(E("calc-u3-do-not-forget-the-inside")).count('[[write text="y = (5x + 3)^6"]]') == 3
+          and '[[write text="y = (7x + 3)^5"]]' in boards(E("calc-u3-do-not-forget-the-inside"))
+          and '[[write text="y = (6x + 3)^7"]]' in boards(E("calc-u3-do-not-forget-the-inside"))
+          and '[[step eq="power rule: 3x¹ → 1 × 3 = 3"]]' in boards(E("calc-u2-a-line-has-one-slope"))
+          and "40 shared four ways is 10" in E("calc-u5-the-best-rectangle")["recap"][-1][0]
+          and "15 times 15 is 225" in E("calc-u5-equal-halves-win")["recap"][-1][0], "")
+    check("  every Calculus lesson validates; the course list is 39,999 (no beat added)",
+          all(ok for les in L.LESSONS if les["course"] == "calculus" for ok, _l, _d in L.validate(les))
+          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-16wo-' in notes("main.py") and "2026-09-16  BUILD wo" in notes("lessonscripts.py")
+          and "2026-09-16  BUILD wo" in notes("lessons/calculus.py") and "2026-09-16  BUILD wo" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -28354,7 +28465,7 @@ def part3fs_calculus_read_for_sense():
         "calc-u3-the-chain-rule-at-a-point": "2 times 7 times 5",
         "calc-u3-a-number-underneath": "110 over 11",
         "calc-u4-when-is-it-going-that-fast": "162 over 18",
-        "calc-u4-one-rate-drives-another": "2 times 9 times 5",
+        "calc-u4-one-rate-drives-another": "times the side's rate 5",  # (wo) the tangent climbs 18 first
         "calc-u4-where-the-curve-levels-off": "2 x equals 34",
         "calc-u4-differentiate-twice": "speed 80 t",
         "calc-u5-the-best-rectangle": "shared four ways",
@@ -35880,26 +35991,26 @@ def part3jv_calculus_units_one_to_three_to_the_shape():
     llaw = {"a": 2, "b": 11, "op": "llaw"}
     check("⭐ limits pass through: f and g closing on x = 4 with the hole drawn on the ask, the product withheld; the product curve closing on 22 in the walk-back",
           '[[graph func="2 + (x-4)^2/8; 11 - (x-4)^2/8" hole="4" lines="x=4" names="f; g" range="0..8" yrange="0..14" caption=' in L.board_for(llaw, "abstract")
-          and '[[step eq="f → 2 · g → 11"]][[step eq="f × g → ?"]]' in L.board_for(llaw, "abstract")
+          and '[[step eq="f → 2"]][[step eq="g → 11"]][[step eq="f × g → ?"]]' in L.board_for(llaw, "abstract")
           and '[[graph func="(2 + (x-4)^2/8)*(11 - (x-4)^2/8)" hole="4" lines="x=4" names="f × g" range="0..8" yrange="0..28" caption=' in _W(llaw)[1]
           and "2 times 11 is 22, so f times g heads for 22" in _W(llaw)[0], "")
     linf = {"a": 36, "b": 3, "op": "linf"}
     check("⭐ far out only the leaders matter: the fraction flattening with NO line on the ask and a names= legend; the line y = 12 drawn in the walk-back",
           '[[graph func="(36*x^2)/(3*x^2 + 3)" names="y = 36x² / (3x² + 3)" range="0..12" yrange="0..14" caption=' in L.board_for(linf, "abstract")
           and "lines=" not in L.board_for(linf, "abstract")
-          and '[[step eq="x grows huge · y → ?"]]' in L.board_for(linf, "abstract")
+          and '[[step eq="x grows huge: y → ?"]]' in L.board_for(linf, "abstract")  # (wo) a colon, not a dot
           and 'names="y = 36x² / (3x² + 3)" lines="y=12"' in _W(linf)[1]
-          and "36 over 3 is what survives, and that is 12" in _W(linf)[0], "")
+          and "36 x squared over 3 x squared is 36 over 3, which is 12" in _W(linf)[0], "")  # (wo) limit wording
     jump = {"a": 2, "b": 14, "op": "jump"}
     check("⭐ how big is the break: two shelves with the open and closed dots at x = 6 on the ask, the pending line a statement in colon form (no arrow after an equals sign); the leap marked in the walk-back",
           '[[graph func="2 for x<6; 14 for x>=6" range="0..12" yrange="0..18" caption=' in L.board_for(jump, "abstract")
-          and '[[step eq="x < 6: y = 2 · x ≥ 6: y = 14"]][[step eq="the jump measures ?"]]' in L.board_for(jump, "abstract")
+          and '[[step eq="x < 6: y = 2"]][[step eq="x ≥ 6: y = 14"]][[step eq="the jump measures ?"]]' in L.board_for(jump, "abstract")
           and '[[graph func="2 for x<6; 14 for x>=6" lines="x=6" points="(6,2),(6,14)" range="0..12" yrange="0..18" caption=' in _W(jump)[1]
           and "it leaps 12 in no distance at all" in _W(jump)[0], "")
     cfix = {"a": 6, "b": 2, "c": 9, "op": "cfix"}
     check("  mend the curve: the sloping piece climbing to the border the flat piece misses on the ask; the flat piece raised to 15 and the ends meeting in the walk-back",
           '[[graph func="x+6 for x<9; 2 for x>=9" range="0..13" yrange="0..19" caption=' in L.board_for(cfix, "abstract")
-          and '[[step eq="x < 9: y = x + 6 · x ≥ 9: y = 2"]][[step eq="join up smoothly · flat value = ?"]]' in L.board_for(cfix, "abstract")
+          and '[[step eq="x < 9: y = x + 6"]][[step eq="x ≥ 9: y = 2"]][[step eq="join up without a jump: flat value = ?"]]' in L.board_for(cfix, "abstract")
           and '[[graph func="x+6 for x<9; 15 for x>=9" points="(9,15)" range="0..13" yrange="0..19" caption=' in _W(cfix)[1]
           and "arrives at 9 plus 6, which is 15" in _W(cfix)[0], "")
 
@@ -35930,7 +36041,7 @@ def part3jv_calculus_units_one_to_three_to_the_shape():
     check("  feed the derivative an x: the curve with the point on the ask, the tangent withheld; the tangent y = 42x - 147 in the walk-back",
           '[[graph func="3*x^2" names="y = 3x²" points="(7,147)" range="0..9" yrange="0..243" caption=' in L.board_for(evat, "abstract")
           and "lines=" not in L.board_for(evat, "abstract")
-          and '[[step eq="y = 3x² · slope = 6x"]][[step eq="at x = 7 · slope = ?"]]' in L.board_for(evat, "abstract")
+          and '[[step eq="y = 3x²"]][[step eq="slope = 6x"]][[step eq="at x = 7: slope = ?"]]' in L.board_for(evat, "abstract")
           and 'lines="y=42x-147" points="(7,147)"' in _W(evat)[1]
           and "6 times 7, which is 42" in _W(evat)[0], "")
 
@@ -35938,7 +36049,7 @@ def part3jv_calculus_units_one_to_three_to_the_shape():
     prod = {"a": 6, "b": 0, "c": 5, "op": "prod"}
     check("⭐ two things multiplied: the product curve with the point on the ask and the slope rule as its OWN step (no chain of equals ending in = ?); the tangent in the walk-back",
           '[[graph func="x*(x+6)" names="y = x(x + 6)" points="(5,55)" range="0..7" yrange="0..91" caption=' in L.board_for(prod, "abstract")
-          and '[[step eq="y = x(x + 6) = x² + 6x"]][[step eq="slope = 2x + 6"]][[step eq="at x = 5 · slope = ?"]]' in L.board_for(prod, "abstract")
+          and '[[step eq="y = x(x + 6) = x² + 6x"]][[step eq="slope = 2x + 6"]][[step eq="at x = 5: slope = ?"]]' in L.board_for(prod, "abstract")
           and not tutor.board_notation_conflict(L.board_for(prod, "abstract"))
           and 'lines="y=16x-25" points="(5,55)"' in _W(prod)[1]
           and "10 plus 6 is 16, the slope at that point" in _W(prod)[0], "")
@@ -35953,7 +36064,7 @@ def part3jv_calculus_units_one_to_three_to_the_shape():
     chev = {"a": 8, "b": 3, "op": "chev"}
     check("  the chain rule at a point: the squared curve with the point at x = 0 on the ask; the tangent y = 48x + 9 in the walk-back; the teach's (4x + 7)² is not a bank ask",
           '[[graph func="(8*x+3)^2" names="y = (8x + 3)²" points="(0,9)" range="-1..2" yrange="0..361" caption=' in L.board_for(chev, "abstract")
-          and '[[step eq="slope = 2(8x + 3)·8"]][[step eq="at x = 0 · slope = ?"]]' in L.board_for(chev, "abstract")
+          and '[[step eq="slope = 2(8x + 3)·8"]][[step eq="at x = 0: slope = ?"]]' in L.board_for(chev, "abstract")
           and 'lines="y=48x+9" points="(0,9)"' in _W(chev)[1]
           and "2 times 3 times 8 — 48" in _W(chev)[0]
           and not any(p["a"] == 4 and p["b"] == 7 for p in _asks("calc-u3-the-chain-rule-at-a-point")), "")
@@ -36076,7 +36187,7 @@ def part3jw_calculus_units_four_to_six_to_the_shape():
     acce = {"a": 12, "b": 0, "op": "acce"}
     check("  differentiate twice: the speed line alone on the ask, the pending line a statement (\"differentiate again → ?\" was live); one step up the line in the walk-back",
           '[[graph lines="y=24x" names="speed = 24t" range="0..5" yrange="0..120" caption=' in L.board_for(acce, "abstract")
-          and '[[step eq="fallen 12t² · speed 24t"]][[step eq="acceleration = ?"]]' in L.board_for(acce, "abstract")
+          and '[[step eq="fallen 12t²"]][[step eq="speed 24t"]][[step eq="acceleration = ?"]]' in L.board_for(acce, "abstract")
           and 'points="(1,24),(2,48)"' in _W(acce)[1]
           and '[[step eq="12t² → 24t → 24"]]' in _W(acce)[1]
           and "one second on, the speed is 24 higher" in _W(acce)[0], "")
@@ -36137,7 +36248,7 @@ def part3jw_calculus_units_four_to_six_to_the_shape():
     init = {"a": 19, "b": 0, "c": 4, "op": "init"}
     check("⭐ one point picks one curve: the pending line is two statements (\"y at x = 4 = ?\" was a chain of equals ending in = ? on all twelve asks, rule 15); the curve with its start on the ask, both points in the walk-back",
           '[[graph func="x^2+19" names="y = x² + 19" points="(0,19)" range="0..5" yrange="0..46" caption=' in L.board_for(init, "abstract")
-          and '[[step eq="y = 19 at x = 0 · at x = 4 · y = ?"]]' in L.board_for(init, "abstract")
+          and '[[step eq="y = 19 at x = 0"]][[step eq="at x = 4: y = ?"]]' in L.board_for(init, "abstract")
           and not tutor.board_notation_conflict(L.board_for(init, "abstract"))
           and 'points="(0,19),(4,35)"' in _W(init)[1]
           and "4 squared is 16, plus 19 — 35" in _W(init)[0], "")
@@ -36180,7 +36291,7 @@ def part3jw_calculus_units_four_to_six_to_the_shape():
     check("  every lesson's closure stays under the 25,000-character audio ceiling (24,500 until vz, 24,000 until us)",
           all(sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID[l])) <= 25000 for l in C4 + C5 + C6), "")
     _FRAG = {"calc-u4-when-is-it-going-that-fast": "162 over 18",
-             "calc-u4-one-rate-drives-another": "2 times 9 times 5",
+             "calc-u4-one-rate-drives-another": "times the side's rate 5",  # (wo) the tangent climbs 18 first
              "calc-u4-where-the-curve-levels-off": "2 x equals 34",
              "calc-u4-differentiate-twice": "speed 80 t",
              "calc-u5-the-best-rectangle": "shared four ways",
@@ -36315,7 +36426,7 @@ def part3jx_calculus_units_seven_to_nine_to_the_shape():
     check("  when the rate depends on the amount: the rate line against P with no point on the ask; the point (28, 112) on the walk-back; the praise says the arithmetic once (the closure was 24,650)",
           '[[graph lines="y=4x" names="rate = 4P" range="0..32" yrange="0..128" caption=' in L.board_for(pgrw, "abstract")
           and "points=" not in L.board_for(pgrw, "abstract")
-          and '[[step eq="P = 28 · rate = ?"]]' in L.board_for(pgrw, "abstract")
+          and '[[step eq="P = 28: rate = ?"]]' in L.board_for(pgrw, "abstract")
           and 'points="(28,112)"' in _W(pgrw)[1]
           and "28 times 4 — 112 a minute" in _W(pgrw)[0]
           and sum(len(x) for x in L.audio_lines(L.LESSON_BY_ID["calc-u9-when-the-rate-depends-on-the-amount"])) <= 25000, "")
@@ -47038,6 +47149,7 @@ def main():
     part3mg_the_first_geometry_sweep()
     part3mh_the_first_algebra2_sweep()
     part3mi_the_first_precalc_sweep()
+    part3mj_the_first_calculus_sweep_half()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

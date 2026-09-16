@@ -4,14 +4,17 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk, the newest: **`2026-09-16wn-the-first-precalc-sweep`**. Battery 12,589
-passed, 0 failed, 3 skipped (frozen copy, 2026-09-16). Today's chain: `wh` (Basic sweep, 12,496) → `wi` (Pre-Algebra,
-12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl` (Geometry,
-12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589). Jim pushes and
-prewarms each; check `/health`.
+On Jim's disk, the newest: **`2026-09-16wo-the-first-calculus-sweep-half`**. Battery
+12,599 passed, 0 failed, 3 skipped (frozen copy, 2026-09-16). Today's chain: `wh` (Basic sweep, 12,496) → `wi`
+(Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
+(Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
+half, 12,599). Jim pushes and prewarms each; check `/health`.
+
+**OpenAI credits ran out at 17:12 UTC** mid-sweep (429 "no credits remaining"). The course
+sweep and the night watch both use that seat; until Jim adds credits, both fail.
 
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
-`Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…` (all `_2026-09-16.md`).
+`Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…` (all `_2026-09-16.md`).
 
 | course | sweeps so far | last result |
 |---|---|---|
@@ -22,15 +25,17 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 | Geometry | wk (63) → wl fixes, unswept | 63 findings, 7 clean |
 | Algebra II | wk (73) → wm fixes, unswept | 73 findings |
 | Pre-Calc | wl (76) → wn fixes, unswept | 76 findings, 5 clean |
-| Calculus, Prob/Stat, Diffeq | not yet | — |
+| Calculus | wm (46, 19 of 36 read) → wo fixes; 17 lessons never read | 46 findings, 2 clean |
+| Prob/Stat, Diffeq | not yet | — |
 
 ## What to do next
 
-1. Jim pushes `wn` (`wm` went to disk at 16:55 after the D: drive came back; both are
-   uncommitted), confirms `/health`, runs the **prewarm** (about ninety Pre-Calc rewrites
-   plus eighty generated lines, on top of wm's hundred-and-eighty).
-2. **Paste the Calculus report** — it becomes `wo`. Then Prob/Stat, Diffeq. The seven swept
-   courses wait for the weekly deep dive.
+1. Jim pushes `wo` (wm, wn and wo may all be uncommitted — one diff), confirms `/health`,
+   runs the **prewarm** (Calculus's sixty rewrites plus seventy generated lines, on top of
+   wn's and wm's).
+2. **Add OpenAI credits.** Then rerun the Calculus sweep (the 17 unread lessons: U5's
+   where-the-bend-changes, all of U6–U9) and paste it — `wp`. Then Prob/Stat, Diffeq. The
+   eight swept courses wait for the weekly deep dive.
 3. Triage the same way: generate the course's transcripts locally, read each quoted turn in
    context; generator first, then authored by kind in `lessons/<course>.py`; a reviewer
    mistake becomes a charter line in `coursesweep.py` (wk added two: `[[graph]]` range= is the
@@ -41,9 +46,11 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
    describing the *before* over the *after* board; the second-recap board (speak it); from
    Algebra I up, **"the whole of"** for a spoken bracket ("3 times the whole of 2 x plus 3")
    and **the dot between two equations** (split into two `[[step]]` tags; the pin now covers
-   Entry–Pre-Calc by rendered transcript, generated lines included; `x³ · x² = x⁵` and
+   Entry–Calculus by rendered transcript, generated lines included; `x³ · x² = x⁵` and
    `√a · √b` are one product each and stay). Pre-Calc's class: a standard-form rule stated
-   as a law ("un-square the right-hand number, every time") — say "in this form". Algebra II's own class, which the upper courses
+   as a law ("un-square the right-hand number, every time") — say "in this form".
+   Calculus's class (half seen): calculus *named* but not done ("calculus finds the best
+   where the slope is zero" over a board that divided 40 by 4) — write the derivative line. Algebra II's own class, which the upper courses
    will share: a law stated for today's numbers as if it were the whole truth — scope it
    ("in these examples", "for numbers in the same base", "the POSITIVE number that squares
    to").
@@ -52,9 +59,9 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 
 ## House decisions still open
 
-- **The " · " between two equations** is gone from the seven swept courses (the pin checks
-  rendered transcripts, generated lines included). Calculus, Prob/Stat and Diffeq carry
-  roughly twenty authored lines and the generator's. Per-sweep is working.
+- **The " · " between two equations** is gone from the eight swept courses (the pin checks
+  rendered transcripts, generated lines included; Calculus's 17 unread lessons were split
+  too). Prob/Stat and Diffeq carry a handful of authored lines and the generator's.
 - **"Times the whole of"** as the house phrase for a spoken bracket — worth a canon line if
   Jim agrees (wk used it in Algebra I).
 - **`pendingzero` truth or conduct** — a board that poses a different equation from the
@@ -75,8 +82,12 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
   build doc FIRST.
 - Asserted string replacements (`assert s.count(a) == 1`) into `lessons/<course>.py` and
   `lessonscripts.py`; `L.validate` all 360; `python3 tools/genspeechmap.py`; note the counts
-  (course **39,999**; closure 40,253; speechmap 2,246 of 40,305; forSpeech drift 1,940;
+  (course **39,999**; closure 40,253; speechmap 2,245 of 40,305; forSpeech drift 1,939;
   referees **101**, truth class **12**, falsehood rows **25**; methodology tile 101).
+- **New trap (referees):** the canon's referee sweep (PART 3eu) refuses an arrow after an
+  equals on a step line (`20 − 2x = 0 → x = 10`) and more than six lines on one teach
+  board. Run `TT.prose_board_conflict` over the edited course before the battery — it
+  cost wn a rerun until it was part of the pre-flight.
 - **New trap (D: drive):** the device bridge lost D:\MyTutor twice on 09-16 ("could not
   stat", then "does not exist") for a few minutes each time; a write that times out has NOT
   landed — list the folder and compare sizes before retrying, and never `force`.
