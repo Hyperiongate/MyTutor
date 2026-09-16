@@ -3,6 +3,10 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wm -- TWO CHARTER LINES from the first Algebra II sweep: a ✗ on a [[step]]
+#               line marks the wrong path a child might take, never a false equation the tutor
+#               asserts ("3 × 5 = 15 ✗" was read as the tutor denying that 3 × 5 is 15); and a
+#               bare "log" on a board in the Algebra II log lessons is base 2, said in the words.
 #   2026-09-16  BUILD wl -- ONE CHARTER LINE: "square back" is Geometry's chosen verb for the
 #               square root (the longest-side lesson teaches it; four beats and three
 #               generators lean on it). The first Geometry sweep called it nonstandard twice.
@@ -353,7 +357,10 @@ range="0..5" grid IS visible; a walk-back's "not N" line (the second explanation
 COMMON wrong answer for that problem, by design -- it is scripted per problem and cannot know the
 number on the STUDENT line, so it is not a finding when the two differ; "square back" -- Geometry's
 chosen verb for finding the number whose square is a total (taught in the longest-side lesson and
-used from there on) -- is not an unclear phrase; a topic word in the lesson's
+used from there on) -- is not an unclear phrase; a ✗ on a [[step]] line marks the WRONG
+PATH a child might take (its number and its short label, like "24 ✗ one day only"), never a false
+equation the tutor asserts; a bare "log" on a board in the Algebra II logarithm lessons is base 2
+unless the same board shows another base beside it (the lesson says so in its words); a topic word in the lesson's
 own title line; "over nine" for a sum of ten or more (the course's one chosen wording); a
 rule stated for the numbers this lesson uses, at this level, UNLESS the lesson itself later
 contradicts it or a child could misapply it within the same unit -- and the PROBLEM SPACE

@@ -2,6 +2,18 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wm -- THE FIRST ALGEBRA II SWEEP (73 findings, 9 generator-owned). (1)
+#               gnth's ask drew term 3 and asked for term 3 (three HIGHs, rule 17): the bars
+#               and the sequence now stop one term short of the one asked. (2) sinp's and
+#               cosp's praise say the spins AND the rest ("After 2 full spins and 270 more,
+#               the arrow points straight down"). (3) absc's ask says "count every integer
+#               strictly inside the fence" and, past a fence of 10, the caption says the line
+#               is compressed and which dots are drawn. (4) el2's board asks for ONE apple,
+#               as the words do ("2 apples = 25 − 9", "1 apple = ?"). (5) imag asks for the
+#               POSITIVE number in front of i -- −4i squares to −16 too, so −4 was never a
+#               wrong answer; the third button is now the double. (6) turnc's walk-back is
+#               short sentences. The dot between two equations is gone from every generator
+#               line Algebra II's transcripts reach. Authored: lessons/algebra2.py.
 #   2026-09-16  BUILD wl -- THE FIRST GEOMETRY SWEEP (63 findings, 6 generator-owned). (1) mid
 #               and mid2 ask about "a line segment" -- a line has no ends and no midpoint. (2)
 #               cent's ask DRAWS the two arcs ([[pie]] with the rest unnumbered) instead of a
@@ -4395,8 +4407,11 @@ def _absc_dots(a):
 
 def _absc_board(p):
     a = p["a"]
-    return (f'[[numberline min="{-a}" max="{a}" points="{_absc_dots(a)}" caption="the fence at −{a} and {a} — count every integer strictly inside it"]]'
-            f'[[step eq="|x| < {a} · integers inside the fence = ?"]]')
+    # (wm) past a fence of 10 the line is compressed: the caption says which dots are drawn
+    cap = ("count every integer strictly inside it" if a <= 10 else
+           f"the innermost dots, zero and the outermost are marked — every integer from −{a - 1} to {a - 1} counts")
+    return (f'[[numberline min="{-a}" max="{a}" points="{_absc_dots(a)}" caption="the fence at −{a} and {a} — {cap}"]]'
+            f'[[step eq="|x| < {a}"]][[step eq="integers inside the fence = ?"]]')
 
 
 def _absc_worked(p):
@@ -4413,8 +4428,8 @@ def _el2_board(p):
     a, b = p["a"], p["b"]
     return (f'[[tape parts="apple | apple | apple | banana | banana" total="{a}" caption="the big trip: 3 apples and 2 bananas, {a} cents"]]'
             f'[[tape parts="apple | banana | banana" total="{b}" caption="the small trip: 1 apple and the same 2 bananas, {b} cents — one apple costs?"]]'
-            f'[[step eq="3 apples + 2 bananas = {a} · 1 apple + 2 bananas = {b}"]]'
-            f'[[step eq="the bananas cancel: 2 apples = ?"]]')
+            f'[[step eq="3 apples + 2 bananas = {a}"]][[step eq="1 apple + 2 bananas = {b}"]]'
+            f'[[step eq="the bananas cancel: 2 apples = {a} − {b}"]][[step eq="1 apple = ?"]]')   # (wm) one apple, as asked
 
 
 def _el2_worked(p):
@@ -4424,13 +4439,13 @@ def _el2_worked(p):
             f"{b} — {a - b}. Two apples for {a - b}: share, and one apple is "
             f"{(a - b) // 2} cents. Vanish, then share.",
             f'[[tape parts="apple | apple" total="{a - b}" caption="what is left standing: 2 apples = {a} − {b} = {a - b}"]]'
-            f'[[step eq="2 apples = {a - b} · 1 apple = {(a - b) // 2}"]]')
+            f'[[step eq="2 apples = {a - b}"]][[step eq="1 apple = {(a - b) // 2}"]]')
 
 
 def _sys3_board(p):
     a, b, c = p["a"], p["b"], p["c"]
     return (f'[[bars data="x + y:{a} | y + z:{b} | x + z:{c}" caption="three clues, each about a pair — every friend stands in two of them"]]'
-            f'[[step eq="x + y = {a} · y + z = {b} · x + z = {c}"]]'
+            f'[[step eq="x + y = {a}"]][[step eq="y + z = {b}"]][[step eq="x + z = {c}"]]'
             f'[[step eq="every friend is in exactly two clues"]]'
             f'[[step eq="x + y + z = ?"]]')
 
@@ -4495,7 +4510,7 @@ def _imag_board(p):
     a = p["a"]
     return (f'[[step eq="x² = −{a}"]]'
             f'[[step eq="i² = −1"]]'
-            f'[[step eq="x = ? · i"]]')
+            f'[[step eq="x = ? × i, with ? positive"]]')   # (wm) the positive root is asked
 
 
 def _imag_worked(p):
@@ -4506,7 +4521,7 @@ def _imag_worked(p):
             f"times {k} i is {a} times i squared, negative {a}. So x is {k} i.",
             (f'[[array rows="{k}" cols="{k}" caption="{k} × {k} = {a} — so x = {k}i"]]' if k <= 10 else
              f'[[rectangle w="{k}" h="{k}" caption="{k} × {k} = {a} — so x = {k}i"]]')
-            + f'[[step eq="({k}i)² = {a} · i² = −{a} ✓"]]')
+            + f'[[step eq="({k}i)² = {a} × i²"]][[step eq="{a} × (−1) = −{a} ✓"]]')
 
 
 def _pdeg_board(p):
@@ -4526,8 +4541,8 @@ def _pdeg_worked(p):
 
 def _turnc_worked(p):
     a = p["a"]
-    return (f"Here it is, step by step: every turn spends a climb or a fall, and the last stretch "
-            f"runs off to the horizon without turning back — so a degree {a} curve turns "
+    return (f"Here it is, step by step: every turn spends a climb or a fall. The last stretch "
+            f"runs off to the horizon without turning back. So a degree {a} curve turns "
             f"at most {a - 1} times, one fewer than its degree. A ceiling, not a schedule.",
             f'[[bars data="degree:{a} | turns, at most:{a - 1}" caption="degree {a} → at most {a - 1} turns"]]'
             f'[[step eq="degree {a} → at most {a - 1} turns"]]')
@@ -4691,7 +4706,7 @@ def _rbet_board(p):
     lo = int(a ** 0.5)
     hi = lo + 1
     return (f'[[numberline min="{lo * lo}" max="{hi * hi}" points="{a}" caption="{a} between the squares {lo * lo} and {hi * hi} — nearer which one?"]]'
-            f'[[step eq="{lo}² = {lo * lo} · {hi}² = {hi * hi}"]]'
+            f'[[step eq="{lo}² = {lo * lo}"]][[step eq="{hi}² = {hi * hi}"]]'
             f'[[step eq="{a} sits between — closest to?"]]')
 
 
@@ -4704,7 +4719,7 @@ def _rbet_worked(p):
             f"short of {hi * hi}, so it leans toward {near * near} — the root of {a} is "
             f"closest to {near}. Square the neighbours, then see who is nearer; never "
             f"halve.",
-            f'[[numberline min="{lo * lo}" max="{hi * hi}" points="{a}" hops="{near * near},{a}" caption="{a} − {lo * lo} = {a - lo * lo} · {hi * hi} − {a} = {hi * hi - a} — nearer {near * near}, so √{a} → {near}"]]'
+            f'[[numberline min="{lo * lo}" max="{hi * hi}" points="{a}" hops="{near * near},{a}" caption="{a} − {lo * lo} = {a - lo * lo} and {hi * hi} − {a} = {hi * hi - a} — nearer {near * near}, so √{a} → {near}"]]'
             f'[[step eq="√{a} → closest to {near}"]]')
 
 
@@ -4738,14 +4753,14 @@ def _logb_worked(p):
             f"The logarithm is the hidden exponent, {c}: the count of the layers, not one "
             f"divide, and not the base itself.",
             f'[[bars data="{layers}" caption="{c} layers of {b} reach {a} — the logarithm is {c}"]]'
-            f'[[step eq="{b}^{c} = {a} · log = {c}"]]')
+            f'[[step eq="{b}^{c} = {a}"]][[step eq="log = {c}"]]')
 
 
 def _logm_board(p):
     a, b = p["a"], p["b"]
     la, lb = a.bit_length() - 1, b.bit_length() - 1
     return (f'[[bars data="log {a}:{la} | log {b}:{lb}" caption="two stacks of doublings — {la} and {lb}; join them"]]'
-            f'[[step eq="log {a} = {la} · log {b} = {lb}"]]'
+            f'[[step eq="log {a} = {la}"]][[step eq="log {b} = {lb}"]]'
             f'[[step eq="{a} × {b} = {a * b}"]]'
             f'[[step eq="log {a * b} = ?"]]')
 
@@ -4764,7 +4779,7 @@ def _lbet_board(p):
     a = p["a"]
     lo = a.bit_length() - 1
     return (f'[[bars data="2{_sup(lo)}:{2 ** lo} | {a}:{a} | 2{_sup(lo + 1)}:{2 ** (lo + 1)}" caption="{a} between the powers {2 ** lo} and {2 ** (lo + 1)} — nearer which one?"]]'
-            f'[[step eq="2^{lo} = {2 ** lo} · 2^{lo + 1} = {2 ** (lo + 1)}"]]'
+            f'[[step eq="2^{lo} = {2 ** lo}"]][[step eq="2^{lo + 1} = {2 ** (lo + 1)}"]]'
             f'[[step eq="{a} sits between — closest to?"]]')
 
 
@@ -4776,7 +4791,7 @@ def _lbet_worked(p):
     return (f"Here it is, step by step: {a} sits {a - 2 ** lo} past {2 ** lo} and {2 ** hi - a} "
             f"short of {2 ** hi}, so it leans toward {2 ** near} — the logarithm of {a} is "
             f"closest to {near}. Power the neighbours, then see who is nearer; never halve.",
-            f'[[bars data="2{_sup(lo)}:{2 ** lo} | {a}:{a} | 2{_sup(hi)}:{2 ** hi}" caption="{a} − {2 ** lo} = {a - 2 ** lo} · {2 ** hi} − {a} = {2 ** hi - a} — nearer {2 ** near}, so log {a} → {near}"]]'
+            f'[[bars data="2{_sup(lo)}:{2 ** lo} | {a}:{a} | 2{_sup(hi)}:{2 ** hi}" caption="{a} − {2 ** lo} = {a - 2 ** lo} and {2 ** hi} − {a} = {2 ** hi - a} — nearer {2 ** near}, so log {a} → {near}"]]'
             f'[[step eq="log {a} → closest to {near}"]]')
 
 
@@ -4808,8 +4823,13 @@ def _anth_worked(p):
 
 def _gnth_board(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f'[[bars data="term 1:{a} | term 2:{a * b} | term 3:{a * b * b}" caption="start {a}, each term {b} times the one before — leap on to term {c}"]]'
-            f'[[step eq="{a}, {a * b}, {a * b * b}, …"]]'
+    # (wm, 2026-09-16) the ask drew term 3 and then asked for term 3 (rule 17). The bars and
+    # the sequence stop one term SHORT of the one asked -- at most the first two when c is 3.
+    shown = min(c - 1, 3)
+    bars = " | ".join(f"term {i}:{a * b ** (i - 1)}" for i in range(1, shown + 1))
+    seq = ", ".join(str(a * b ** (i - 1)) for i in range(1, shown + 1))
+    return (f'[[bars data="{bars}" caption="start {a}, each term {b} times the one before — leap on to term {c}"]]'
+            f'[[step eq="{seq}, …"]]'
             f'[[step eq="term {c} = ?"]]')
 
 
@@ -4927,7 +4947,7 @@ def _ampl_worked(p):
             f"stretches every height by {a} — the wave crests at {a} and dips to negative "
             f"{a}. The amplitude is {a}: not {2 * a}, crest to trough, and not 1.",
             f'[[graph func="{a}*sin(x)" lines="y={a}" range="-7..7" caption="the crest line y = {a} — amplitude {a}"]]'
-            f'[[step eq="crest = {a} · trough = −{a}"]]')
+            f'[[step eq="crest = {a}"]][[step eq="trough = −{a}"]]')
 
 
 def _wavg_board(p):
@@ -4960,7 +4980,7 @@ def _cnt3_worked(p):
             f"{a * b} shirt-and-pants pairs, and each pair takes any of {c} hats: {a * b} "
             f"times {c} is {a * b * c} outfits. Not added, and not stopped at two slots.",
             f'[[array rows="{a}" cols="{b}" caption="{a} × {b} = {a * b} pairs — each with {c} hats: {a * b * c}"]]'
-            f'[[step eq="{a} × {b} = {a * b} · {a * b} × {c} = {a * b * c}"]]')
+            f'[[step eq="{a} × {b} = {a * b}"]][[step eq="{a * b} × {c} = {a * b * c}"]]')
 
 
 def _expv_board(p):
@@ -4992,7 +5012,7 @@ def _samp_worked(p):
             f"{a}. If each sample behaves like the one we asked, each holds about {b}: "
             f"{b} times {c} is about {b * c}. Scale the sample, and keep the word about.",
             f'[[bars data="one sample:{b} | the school, {c} samples wide:{b * c}" caption="{b} × {c} = about {b * c}"]]'
-            f'[[step eq="{a * c} = {c} × {a} · {b} × {c} = about {b * c}"]]')
+            f'[[step eq="{a * c} = {c} × {a}"]][[step eq="{b} × {c} = about {b * c}"]]')
 
 
 
@@ -10758,7 +10778,7 @@ OP_EXT = {
     "absc": {  # how many INTEGERS have |x| < a: the zero counts too (uq: "whole numbers" was wrong)
         "ans": lambda p: 2 * p["a"] - 1,
         "spoken": lambda p: (f"How many integers x have an absolute value less than "
-                             f"{p['a']}? Count every dot inside the fence."),
+                             f"{p['a']}? Count every integer strictly inside the fence."),   # (wm)
         "board": _absc_board,         # (tl) the ends on the line, captioned
         "worked": _absc_worked,       # (tl) negatives, zero, positives as bars
         # "{n} on each side" stays grammatical at n = 1 ("1 negatives" would
@@ -10931,8 +10951,8 @@ OP_EXT = {
     "imag": {  # x^2 = -a (a a perfect square): a new number catches the answer
         "ans": lambda p: round(p["a"] ** 0.5),
         "spoken": lambda p: (f"x squared equals negative {p['a']}. Written "
-                             f"with i, x is a number times i. What is that "
-                             f"number?"),
+                             f"with i, x is a number times i. What is the "
+                             f"positive number?"),   # (wm) −4i squares to −16 too
         "board": _imag_board,         # (tl) the question, i's one job, and the blank on its own line (rule 44)
         "worked": _imag_worked,       # (tl) the square as an array, past 10 a rectangle (its side is the answer -- walk-back only)
         "praise": lambda p: (f"The i carries the minus: {round(p['a'] ** 0.5)} "
@@ -10940,10 +10960,12 @@ OP_EXT = {
                              f"{p['a']} times i squared — negative {p['a']}. "
                              f"So x is {round(p['a'] ** 0.5)} i."),
         "key": lambda p: round(p["a"] ** 0.5),
-        # The errors: forgetting the ROOT entirely, and dragging the minus onto
-        # the answer -- the minus lives inside i squared, not in front.
+        # The errors: forgetting the ROOT entirely, and doubling instead of rooting
+        # (wm; before it, the minus on the answer -- which is a real second root).
+        # (wm) −4 was a distractor for x² = −16, but −4i squares to −16 too: the ask now
+        # says "the positive number", and the third button is the DOUBLE (root of 2a).
         "choices": lambda p: [round(p["a"] ** 0.5), p["a"],
-                              -round(p["a"] ** 0.5)],
+                              2 * round(p["a"] ** 0.5)],
         "speaks": lambda p, sp: str(p["a"]) in sp,
         # Problems run k = 4..15; the canonical x² = −9 belongs to the TEACH
         # beats (collision rule: teach numbers never reappear as problems).
@@ -11530,9 +11552,10 @@ OP_EXT = {
         # The no-spin branch must start with a CAPITAL (the praise prefix ends
         # in "!", so a lowercase opener reads broken -- caught out loud).
         "praise": lambda p: (lambda spins, base:
-                             ((("After " + ("a full spin, "
+                             ((("After " + ("a full spin"
                                             if spins == 1 else
-                                            f"{spins} full spins, "))
+                                            f"{spins} full spins")
+                                + (f" and {base} more, " if base else ", "))   # (wm) the rest is said
                                + "the arrow points ")
                               if spins else "The arrow points ")
                              + {0: "flat to the right — height 0",
@@ -11556,9 +11579,10 @@ OP_EXT = {
         "board": _cosp_board,         # (tn) statement lines only -- no question inside a step, no picture (the pointed arrow is the answer)
         "worked": _cosp_worked,       # (tn) the arrow pointed
         "praise": lambda p: (lambda spins, base:
-                             ((("After " + ("a full spin, "
+                             ((("After " + ("a full spin"
                                             if spins == 1 else
-                                            f"{spins} full spins, "))
+                                            f"{spins} full spins")
+                                + (f" and {base} more, " if base else ", "))   # (wm) the rest is said
                                + "the arrow points ")
                               if spins else "The arrow points ")
                              + {0: "flat to the right — across 1",

@@ -4,13 +4,13 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk, the newest: **`2026-09-16wl-the-first-geometry-sweep`**. Battery 12,558
-passed, 0 failed, 3 skipped (frozen copy, 2026-09-16). Today's chain: `wh` (Basic sweep,
-12,496) → `wi` (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra
-I, 12,545) → `wl` (Geometry, 12,558). Jim pushes and prewarms each; check `/health`.
+On Jim's disk, the newest: **`2026-09-16wm-the-first-algebra2-sweep`**. Battery 12,576
+passed, 0 failed, 3 skipped (frozen copy, 2026-09-16). Today's chain: `wh` (Basic sweep, 12,496) → `wi` (Pre-Algebra,
+12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl` (Geometry,
+12,558) → `wm` (Algebra II, 12,576). Jim pushes and prewarms each; check `/health`.
 
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
-`Build_wk_…`, `Build_wl_…` (all `_2026-09-16.md`).
+`Build_wk_…`, `Build_wl_…`, `Build_wm_…` (all `_2026-09-16.md`).
 
 | course | sweeps so far | last result |
 |---|---|---|
@@ -19,34 +19,40 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 | Pre-Algebra | wh (69) → wi fixes, unswept | 69 findings, 6 clean |
 | Algebra I | wi (72) → wk fixes, unswept | 72 findings, 8 clean |
 | Geometry | wk (63) → wl fixes, unswept | 63 findings, 7 clean |
-| Algebra II | run on wk, report not yet pasted | — |
+| Algebra II | wk (73) → wm fixes, unswept | 73 findings |
 | Pre-Calc, Calculus, Prob/Stat, Diffeq | not yet | — |
 
 ## What to do next
 
-1. Jim pushes `wl`, confirms `/health`, runs the **prewarm** (about a hundred lines: sixty
-   Geometry rewrites plus the `mid`/`mid2` asks that now say "line segment").
-2. **Paste the Algebra II report** (Jim ran it on `wk`) — it becomes `wm`. Then Pre-Calc,
-   Calculus, Prob/Stat, Diffeq. The five swept courses wait for the weekly deep dive.
+1. Jim pushes `wm`, confirms `/health`, runs the **prewarm** (roughly eighty Algebra II
+   rewrites plus about a hundred generated lines: the `gnth`, `absc` and `imag` asks and the
+   `sinp`/`cosp` praise).
+2. **Paste the Pre-Calc report** — it becomes `wn`. Then Calculus, Prob/Stat, Diffeq. The six
+   swept courses wait for the weekly deep dive.
 3. Triage the same way: generate the course's transcripts locally, read each quoted turn in
    context; generator first, then authored by kind in `lessons/<course>.py`; a reviewer
    mistake becomes a charter line in `coursesweep.py` (wk added two: `[[graph]]` range= is the
    x-window; a walk-back's "not N" names the common wrong answer; wl one: "square back" is
-   Geometry's verb for the square root).
+   Geometry's verb for the square root; wm two: a ✗ on a step marks the wrong path, never a
+   false equation; a bare "log" on an Algebra II board is base 2).
 4. Patterns every remaining course will show: laws without their condition; a picture beat
    describing the *before* over the *after* board; the second-recap board (speak it); from
    Algebra I up, **"the whole of"** for a spoken bracket ("3 times the whole of 2 x plus 3")
    and **the dot between two equations** (split into two `[[step]]` tags; the pin now covers
-   Entry–Algebra I by rendered transcript, generated lines included; `x³ · x² = x⁵` is one
-   product and stays).
+   Entry–Algebra II by rendered transcript, generated lines included; `x³ · x² = x⁵` and
+   `√a · √b` are one product each and stay). Algebra II's own class, which the upper courses
+   will share: a law stated for today's numbers as if it were the whole truth — scope it
+   ("in these examples", "for numbers in the same base", "the POSITIVE number that squares
+   to").
 5. The night watch: paste any report; truth/HIGH gets built, the rest goes to the triage
    doc's ledger. `wj` added referee 101 (`aligndemo`, truth) and pendingzero's second shape.
 
 ## House decisions still open
 
-- **The " · " between two equations** is gone from the five swept courses (the pin checks
-  rendered transcripts, generated lines included). Algebra II carries 83 such lines; the
-  three courses after it fewer. Per-sweep is working; one pass is still Jim's option.
+- **The " · " between two equations** is gone from the six swept courses (the pin checks
+  rendered transcripts, generated lines included). Pre-Calc, Calculus, Prob/Stat and Diffeq
+  carry roughly thirty authored lines and the generator's. Per-sweep is working; one pass is
+  still Jim's option.
 - **"Times the whole of"** as the house phrase for a spoken bracket — worth a canon line if
   Jim agrees (wk used it in Algebra I).
 - **`pendingzero` truth or conduct** — a board that poses a different equation from the
@@ -62,7 +68,9 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 
 - Read the pasted report; generate the course's transcripts locally
   (`coursesweep.transcript_for` + `render_transcript`) to read each quoted turn in context
-  before deciding real / generator / ruling.
+  before deciding real / generator / ruling. The pasted report itself does not survive a
+  context compaction — copy its header line (findings, clean, unplaced, minutes) into the
+  build doc FIRST.
 - Asserted string replacements (`assert s.count(a) == 1`) into `lessons/<course>.py` and
   `lessonscripts.py`; `L.validate` all 360; `python3 tools/genspeechmap.py`; note the counts
   (course **39,999**; closure 40,253; speechmap 2,246 of 40,305; forSpeech drift 1,940;
