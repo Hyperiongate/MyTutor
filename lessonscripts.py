@@ -2,6 +2,17 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wh -- THE FIRST BASIC SWEEP (67 findings, 3 generator-owned, plus two
+#               generator classes the authored pile pointed at). (1) The rounding-to-hundreds
+#               walk-back says "just past halfway" for 253 -- "right at halfway" is only
+#               true when the ones digit is 0. (2) The split walk-backs (43 × 2, 84 ÷ 4)
+#               draw the final sum they speak in the caption. (3) "1 full rows" is "1 full
+#               row" (t2h's board and walk-back). (4) THE PROMISE, AGAIN: practice_intro_line
+#               corrects "Three right answers in a row and we're done" inside a lesson's
+#               OWN intro when a reason question follows (33 lessons, all Basic) -- the
+#               lesson keeps its hint sentence. (5) The times-table lesson's practice card
+#               says "All 81 facts, one after another", not "Three right answers in a row"
+#               (PRACTICE_INTRO_BOARD_TABLE). Authored pile: lessons/basic.py's note.
 #   2026-09-15  BUILD we -- THE SECOND CLEAN SWEEP (Entry, 47 findings after wd, 6 of them
 #               generator-owned). (1) min5q asks the honest way round: "It is 55 minutes
 #               past the hour. Which clock number is the minute hand pointing to?" -- the
@@ -1241,6 +1252,13 @@ PRACTICE_INTRO_STANDARD = ("Now it's your turn. Three right answers in a row and
                            "done — here comes the first one.")
 PRACTICE_INTRO_REASON = ("Now it's your turn. Three right answers in a row, then one "
                          "reason to tap, and we're done — here comes the first one.")
+# (wh, 2026-09-16) the promise itself, so a lesson's OWN intro can keep it too
+PRACTICE_PROMISE = "Three right answers in a row and we're done"
+PRACTICE_PROMISE_REASON = "Three right answers in a row, then one reason to tap, and we're done"
+# (wh, 2026-09-16) THE TABLE LESSON'S CARD. Its intro says "all 81 facts, one after
+# another"; the house card said "Three right answers in a row" under it. The Basic sweep's
+# one HIGH words-board finding. The pass has no "I'm not sure" -- a slip restarts it.
+PRACTICE_INTRO_BOARD_TABLE = '[[card title="Your turn" items="All 81 facts, one after another | Tap an answer, say it, or type it | A slip means we look at its picture, then start again"]]'
 
 
 def practice_intro_line(lesson):
@@ -1249,6 +1267,12 @@ def practice_intro_line(lesson):
     line = lesson.get("practice_intro") or ""
     if lesson.get("explain") and line == PRACTICE_INTRO_STANDARD:
         return PRACTICE_INTRO_REASON
+    # (wh, 2026-09-16) a lesson with its OWN intro that ends on the house promise ("Three
+    # right answers in a row and we're done") makes the same broken promise before its
+    # reason question -- 33 of them, all Basic, the ones we said the sweeps would list.
+    # The lesson keeps its own hint sentence; only the promise is corrected.
+    if lesson.get("explain") and PRACTICE_PROMISE in line:
+        return line.replace(PRACTICE_PROMISE, PRACTICE_PROMISE_REASON)
     return line
 
 LINE_REASK = "Let me say that again."
@@ -1609,8 +1633,11 @@ def _r100_walkback(a):
     hi = lo + 100
     d = (a // 10) % 10
     near = (a + 50) // 100 * 100
+    # (wh, 2026-09-16) 253 is NOT "right at halfway": halfway is 250, and a tens digit
+    # of 5 is only exactly halfway when the ones digit is 0. The Basic sweep caught it.
     where = ("below halfway" if d < 5 else
-             "right at halfway" if d == 5 else "past halfway")
+             "right at halfway" if a % 100 == 50 else
+             "just past halfway" if d == 5 else "past halfway")
     way = "down" if d < 5 else "up"
     return (f"Here it is, step by step: {a} sits between {lo} and {hi}. The tens digit "
             f"is {d} — {where} — so it hops {way} to {near}.")
@@ -1730,8 +1757,10 @@ def _mul_worked(p):
                 f'[[array rows="{rows}" cols="{cols}" view="groups" caption="{rows} groups of {cols} = {a * b}"]]')
     if a >= 10 and b <= 9:
         tens, ones = a // 10 * 10, a % 10
+        # (wh, 2026-09-16) the caption carries the final sum the words speak
         board = (f'[[areamodel rows="{b}" cols="{tens},{ones}" '
-                 f'caption="{a} × {b}: {tens} × {b} = {tens * b}, {ones} × {b} = {ones * b}"]]')
+                 f'caption="{a} × {b}: {tens} × {b} = {tens * b}, {ones} × {b} = {ones * b}, '
+                 f'{tens * b} + {ones * b} = {a * b}"]]')
         spoken = (f"Here it is, step by step: split {a} into {tens} and {ones}. {tens} times "
                   f"{b} equals {tens * b}; {ones} times {b} equals {ones * b}. "
                   f"{tens * b} plus {ones * b} equals {a * b}.")
@@ -1803,8 +1832,10 @@ def _div_worked(p):
     q = a // b
     tens, ones = a // 10 * 10, a % 10
     if a >= 20 and not _div_small(a, b) and tens % b == 0 and ones % b == 0 and b <= 9:
+        # (wh, 2026-09-16) the caption carries the final sum the words speak
         board = (f'[[areamodel rows="{b}" cols="{tens // b},{ones // b}" '
-                 f'caption="{a} ÷ {b}: {tens} ÷ {b} = {tens // b}, {ones} ÷ {b} = {ones // b}"]]')
+                 f'caption="{a} ÷ {b}: {tens} ÷ {b} = {tens // b}, {ones} ÷ {b} = {ones // b}, '
+                 f'{tens // b} + {ones // b} = {q}"]]')
         spoken = (f"Here it is, step by step: split {a} into {tens} and {ones}. {tens} divided by "
                   f"{b} equals {tens // b}; {ones} divided by {b} equals {ones // b}. "
                   f"{tens // b} plus {ones // b} equals {q}.")
@@ -2161,14 +2192,14 @@ def _m_worked(p):
 def _t2h_board(p):
     a, b = p["a"], p["b"]
     return (f'[[hundredgrid shaded="{10 * a}" plus="{b}" ask="1" '
-            f'caption="{_plural(a, "tenth")} — full rows — then {_plural(b, "hundredth")}"]]'
+            f'caption="{_plural(a, "tenth")} — {"a full row" if a == 1 else "full rows"} — then {_plural(b, "hundredth")}"]]'
             f'[[step eq="{_plural(a, "tenth")} + {_plural(b, "hundredth")} = ? hundredths"]]')
 
 
 def _t2h_worked(p):
     a, b = p["a"], p["b"]
     return (f"Here it is, step by step: a tenth is a full row of ten hundredths, so "
-            f"{_plural(a, 'tenth')} is {10 * a} hundredths — {a} full rows. Then {b} "
+            f"{_plural(a, 'tenth')} is {10 * a} hundredths — {_plural(a, 'full row')}. Then {b} "
             f"more. {10 * a} plus {b} equals {10 * a + b} hundredths.",
             f'[[hundredgrid shaded="{10 * a}" plus="{b}" '
             f'caption="{_plural(a, "tenth")} = {10 * a} hundredths, + {b} = {10 * a + b}"]]')
@@ -16579,7 +16610,8 @@ def step(lesson, state, event):
             return (out, state)
         if state["phase"] == "pair-1":
             out.append({"kind": "say", "spoken": practice_intro_line(lesson),   # (uq) a card, never a blank board
-                        "board": PRACTICE_INTRO_BOARD})
+                        "board": PRACTICE_INTRO_BOARD if lesson.get("mastery") != "table"
+                        else PRACTICE_INTRO_BOARD_TABLE})   # (wh) the pass says what it is
             if lesson.get("mastery") == "table":
                 # (sz) the table lesson practices as a PASS, not a streak
                 state["phase"] = "table"

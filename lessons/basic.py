@@ -2,6 +2,51 @@
 # lessons/basic.py  --  BASIC MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wh -- THE FIRST BASIC SWEEP: 64 authored findings read, 52 answered
+#               here (the rest were the generator's -- lessonscripts.py's note -- or the
+#               reviewer's, ruled in coursesweep.py). By class:
+#               * FALSE, fixed: factor pairs' "the partner is what you DIVIDE by" (it is
+#                 what you GET); tenths-and-hundredths' "a tenth is ten times the bigger
+#                 coin" (a tenth IS the bigger coin, ten times a hundredth); simplest
+#                 form's "whatever you do to the top" (DIVIDE), its recap (the BIGGEST
+#                 shared number, or divide again) and "nothing divides 3 and 4" (nothing
+#                 but 1); the number line's "top and bottom the same means the whole
+#                 line" (one whole, the point 1); the LCM caption "count by 3 lands on 6
+#                 first" (before 12); times-by-ten's trap ("count your zeros" taught the
+#                 wrong reason the lesson's own reason question rejects -- the zeros HOLD
+#                 the empty places); the halfway condition on both rounding rules; the
+#                 different-bottoms recap (the method is for one bottom fitting inside
+#                 the other, which is this lesson's whole space) and its reason answer
+#                 ("only ADD pieces that are the same size"); "counting one at a time
+#                 stops working" (gets slow); "every bigger sum you will ever do"; "one
+#                 fact learned is two facts known" (6 × 7 and 7 × 6, said); "the times
+#                 tables stop at nine" / "no times table goes that far" (the ones you
+#                 know); "count the rows: 3, 6, 9" (count by threes); area "is the carpet"
+#                 (is how much carpet covers); the dividing recap's tens-and-ones law
+#                 (pieces you know how to divide); percent-of's "take one" scoped to the
+#                 three percents the lesson uses; "not 7 of anything" (not 7 tenths and
+#                 not 7 hundredths).
+#               * WORDS-BOARD, fixed: twelve second-recap beats now SPEAK the equation
+#                 their board writes (divide-two-digit, story problems, factor pairs,
+#                 missing factors, fraction of a group, number line, different bottoms,
+#                 hundredths, tenths-and-hundredths, one costs, percent-of, percent-off,
+#                 area, quarter turns); times-by-ten's picture draws 46 BEFORE 460 (two
+#                 beats now); what-percent's
+#                 worked example draws its times-20 steps; the quarter-turn caption names
+#                 90, 180 and 360; unlike-bottoms' trap names the 3/7 the board crosses
+#                 out; what-dividing-means' picture no longer says "4" over the un-dealt
+#                 board. THE DOT: "4 × 3 = 12 · 12 ÷ 3 = 4" reads as 12 times 12 -- every
+#                 step line in this file that joined two equations with " · " is now two
+#                 [[step]] tags (story problems, times-by-ten, times tables, percent-of).
+#               * UNTAUGHT / UNCLEAR, fixed: "finer line" -> "the line with the smaller
+#                 pieces" (four places, two lessons); "unit squares" defined on first
+#                 use; "real numbers" -> "many numbers"; "40%" -> "40 percent" before
+#                 the sign is taught; "three digits say it all: 3, 4, 2"; long sentences
+#                 split (multi-digit review's regrouping, place value's recap, GCF's
+#                 why, the number line's why and teach, story problems' why,
+#                 divide-two-digit's picture, percent-off's trap); two reason distractors
+#                 that were true replaced ("9 is half of 18", "3 plus 4 is less than 10").
+#               Every touched spoken line re-renders on the next prewarm.
 #   2026-09-11  BUILD vj -- FOUR OF JIM'S SIX FLAGS FROM A LIVE BASIC LESSON.
 #               (1) basic-u1-place-value-to-1000: the TOPIC "Place value to 1,000" ->
 #               "Place value: hundreds, tens and ones". The lesson never shows a
@@ -50,10 +95,13 @@ _BASIC_MORE = [
              '[[goal text="Times by ten and a hundred"]]'),
         ],
         "picture": [
-            ("Here is 46 on the chart: 4 tens, 6 ones. Now times it by ten. Every "
-             "digit slides up one column — the 4 tens become 4 hundreds, the 6 "
-             "ones become 6 tens — and the ones column is empty, so a zero holds "
-             "it open. 460.",
+            # (wh, 2026-09-16) the words promised 46 on the chart and the board drew
+            # 460; now 46 is drawn first, and the move is the second picture.
+            ("Here is 46 on the chart: 4 tens, 6 ones.",
+             '[[placevalue n="46" caption="46: 4 tens, 6 ones"]]'),
+            ("Now times it by ten. Every digit slides up one column — the 4 tens "
+             "become 4 hundreds, the 6 ones become 6 tens — and the ones column "
+             "is empty, so a zero holds it open. 460.",
              '[[placevalue n="460" caption="46 × 10 = 460: every digit up one place"]]'),
         ],
         "teach": [
@@ -62,9 +110,10 @@ _BASIC_MORE = [
              "places, and two zeros hold the tens and the ones. 46 times 100 is "
              "4,600.",
              '[[placevalue n="4600" caption="46 × 100 = 4600: every digit up two places"]]'),
-            ("Here is the trap. Count your zeros against the number you timesed "
-             "by. Ten has one zero, so one zero is added. A hundred has two zeros, "
-             "so two are added. An extra zero leaves the answer ten times too big.",
+            ("Here is the trap. The zeros are not copied from the ten — they hold "
+             "the empty places. Times ten moves every digit up one place, so one "
+             "zero holds the ones. Times a hundred moves them up two, so two zeros "
+             "hold the places. An extra zero leaves the answer ten times too big.",
              '[[step eq="46 × 100 = 4600 ✓ two zeros"]]'
              '[[step eq="46000 ✗ three zeros — that is times a thousand"]]'),
         ],
@@ -98,7 +147,7 @@ _BASIC_MORE = [
              '[[placevalue n="4600" caption="46 × 100 = 4600"]]'),
             ("And it works for every number, because the whole system is built on "
              "ten.",
-             '[[step eq="46 × 10 = 460 · 46 × 100 = 4600"]]'),
+             '[[step eq="46 × 10 = 460"]][[step eq="46 × 100 = 4600"]]'),
         ],
         "bank": [{"a": 2, "b": 10, "op": "mtz"}, {"a": 23, "b": 10, "op": "mtz"}, {"a": 42, "b": 10, "op": "mtz"}, {"a": 62, "b": 10, "op": "mtz"}, {"a": 82, "b": 10, "op": "mtz"}, {"a": 12, "b": 100, "op": "mtz"}, {"a": 34, "b": 100, "op": "mtz"}, {"a": 56, "b": 100, "op": "mtz"}, {"a": 77, "b": 100, "op": "mtz"}, {"a": 99, "b": 100, "op": "mtz"}],
     },
@@ -128,8 +177,8 @@ _BASIC_MORE = [
             ("So: 18 is 2 times what? Share 18 into 2 rows — 9 in each. 2 and 9 "
              "are a factor pair of 18, and finding one handed me the other.",
              '[[array rows="2" cols="9" view="groups" eq="18 ÷ 2 = 9" caption="2 and 9 are a pair"]]'),
-            ("Here is the trap. The partner is what you DIVIDE by to get there, "
-             "not what you take away. For 18 and 2 the partner is 9, not 16. "
+            ("Here is the trap. The partner is what you GET when you divide, not "
+             "what you get when you take away. For 18 and 2 the partner is 9, not 16. "
              "Check yourself every time: your answer times the factor should come "
              "straight back to the number you started with.",
              '[[step eq="2 × 9 = 18 ✓"]]'
@@ -152,7 +201,7 @@ _BASIC_MORE = [
             "spoken": ("One more thing — not the answer, the reason. For 18 and 2, "
                        "the partner is 9 and not 16. Tap the reason why."),
             "choices": ("because 2 times 9 comes straight back to 18 | because 16 "
-                        "is too big to be a factor | because 9 is half of 18"),
+                        "is too big to be a factor | because 18 take away 9 leaves 9"),
             "answer": "because 2 times 9 comes straight back to 18",
             "board": '[[array rows="2" cols="9" view="groups" eq="2 × 9 = 18" caption="2 and 9 are a pair"]]',
         },
@@ -161,8 +210,8 @@ _BASIC_MORE = [
              "other make the number — the two sides of a rectangle that holds it. "
              "Divide to find the partner, and check with times.",
              '[[array rows="2" cols="9" view="groups" eq="2 × 9 = 18" caption="the sides of the rectangle are the pair"]]'),
-            ("And pairs are what you will reach for to simplify fractions and share "
-             "things out.",
+            ("18 has three pairs — 2 and 9, 3 and 6, 1 and 18 — and pairs are what "
+             "you will reach for to simplify fractions and share things out.",
              '[[step eq="18 = 2 × 9 = 3 × 6 = 1 × 18"]]'),
         ],
         "bank": [{"a": 12, "b": 2, "op": "fpr"}, {"a": 27, "b": 3, "op": "fpr"}, {"a": 38, "b": 19, "op": "fpr"}, {"a": 48, "b": 12, "op": "fpr"}, {"a": 58, "b": 29, "op": "fpr"}, {"a": 68, "b": 2, "op": "fpr"}, {"a": 76, "b": 19, "op": "fpr"}, {"a": 84, "b": 28, "op": "fpr"}, {"a": 92, "b": 46, "op": "fpr"}, {"a": 100, "b": 50, "op": "fpr"}],
@@ -189,10 +238,10 @@ _BASIC_MORE = [
         ],
         "teach": [
             ("Here is how to find the shortest name. 9 and 12 both share 3, so "
-             "divide both by 3: 9 becomes 3 and 12 becomes 4. Nothing divides 3 "
-             "and 4 together, so 3 out of 4 is as short as it goes.",
+             "divide both by 3: 9 becomes 3 and 12 becomes 4. Nothing but 1 "
+             "divides 3 and 4 together, so 3 out of 4 is as short as it goes.",
              '[[pie parts="12" shaded="9" caption="9/12"]][[pie parts="4" shaded="3" caption="÷ 3 top and bottom → 3/4"]]'),
-            ("Here is the trap. Whatever you do to the top, do to the bottom. "
+            ("Here is the trap. Whatever you divide the top by, divide the bottom by too. "
              "Halving only the top turns the fraction into a different amount "
              "entirely. Simplest form renames the fraction. It never changes how "
              "much it is worth.",
@@ -206,7 +255,7 @@ _BASIC_MORE = [
              "ask": {"a": 3, "b": 9, "op": "simp"}},
             {"worked": ("One more together. 10 out of 16. Both share 2, so divide "
                         "both by 2. That is 5 out of 8.",
-                        '[[step eq="10/16 ÷ 2 → 5/8"]][[pie parts="8" shaded="5" caption="5/8 — the same amount, simplest form"]]'),
+                        '[[step eq="10/16 → 5/8, both divided by 2"]][[pie parts="8" shaded="5" caption="5/8 — the same amount, simplest form"]]'),
              "ask": {"a": 14, "b": 21, "op": "simp"}},
         ],
         "practice_intro": "Now it's your turn. Find what the top and bottom share, and divide both. Three right answers in a row and we're done — here comes the first one.",
@@ -221,9 +270,10 @@ _BASIC_MORE = [
             "board": '[[pie parts="12" shaded="9" caption="9/12"]][[pie parts="4" shaded="3" caption="3/4"]]',
         },
         "recap": [
-            ("So, here it is again. Find what the top and the bottom share, divide "
-             "both by it, and you have the shortest name for the same amount. Do "
-             "it to both, never to one.",
+            ("So, here it is again. Find the biggest number the top and the bottom "
+             "share, divide both by it, and you have the shortest name for the "
+             "same amount. If they still share something, divide again. Do it to "
+             "both, never to one.",
              '[[pie parts="12" shaded="9" caption="9/12"]][[pie parts="4" shaded="3" caption="3/4 — the same amount"]]'),
             ("And the shortest name is the one we write, because it is the easiest "
              "to read and compare.",
@@ -258,8 +308,9 @@ _BASIC_MORE = [
              '[[step eq="1/2 = 4/8"]][[numberline min="0" max="1" denom="8" hops="0.5,0.375" points="0.375" caption="4/8 − 1/8 = 3/8"]]'),
             ("Here is the trap. Once both bottoms MATCH, the bottom stops "
              "changing: eighths take away eighths leaves eighths, and only the top "
-             "numbers do the taking away. That holds only after they match, which "
-             "is why renaming comes first.",
+             "numbers do the taking away. Take the bottoms away too and you land "
+             "on 3 sevenths — a different fraction. That holds only after they "
+             "match, which is why renaming comes first.",
              '[[step eq="4/8 − 1/8 = 3/8 ✓"]]'
              '[[step eq="3/7 ✗ the bottoms were taken away from as well"]]'),
         ],
@@ -274,7 +325,7 @@ _BASIC_MORE = [
                         '[[numberline min="0" max="1" denom="8" hops="0.25,0.125" points="0.125" caption="1/4 = 2/8, then − 1/8 = 1/8"]]'),
              "ask": {"a": 3, "b": 2, "c": 8, "op": "fus"}},
         ],
-        "practice_intro": "Now it's your turn. Find the first fraction on the finer line, then hop back. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": "Now it's your turn. Find the first fraction on the line with the smaller pieces, then hop back. Three right answers in a row and we're done — here comes the first one.",
         "show_work_on_correct": True,
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. Four eighths "
@@ -288,7 +339,7 @@ _BASIC_MORE = [
         "recap": [
             ("So, here it is again. Rename one fraction until the bottoms match, "
              "then take away the tops and keep the bottom. On the line: find the "
-             "first fraction on the finer line, then hop back.",
+             "first fraction on the line with the smaller pieces, then hop back.",
              '[[numberline min="0" max="1" denom="8" hops="0.5,0.375" points="0.375" caption="1/2 − 1/8 = 3/8"]]'),
             ("And it is the same move adding used — match first, then count.",
              '[[step eq="1/2 − 1/8 = 4/8 − 1/8 = 3/8"]]'),
@@ -304,7 +355,7 @@ _BASIC_MORE = [
         "advance_line": "Three in a row, and you can say why — you've got it! A tenth is ten hundredths.",
         "why": [
             ("You have met tenths, and you have met hundredths. Today they meet "
-             "each other — because real numbers mix them: 0.43 is 4 tenths and 3 "
+             "each other — because many numbers mix them: 0.43 is 4 tenths and 3 "
              "hundredths. The rule that joins them is small and it is the whole "
              "lesson: one tenth is ten hundredths.",
              '[[goal text="Tenths and hundredths"]]'),
@@ -322,8 +373,8 @@ _BASIC_MORE = [
              '[[step eq="4 tenths = 40 hundredths"]][[hundredgrid shaded="40" plus="3" caption="40 + 3 = 43 hundredths"]]'),
             ("Here is the trap, and it is the same one place value always sets. Do "
              "not add the digits as though they were the same size. 4 tenths plus "
-             "3 hundredths is not 7 of anything. A tenth is ten times the bigger "
-             "coin.",
+             "3 hundredths is not 7 tenths and not 7 hundredths. A tenth is the "
+             "bigger coin — ten times a hundredth.",
              '[[step eq="4 tenths + 3 hundredths = 43 hundredths ✓"]]'
              '[[step eq="7 ✗ the two digits added as if they matched"]]'),
         ],
@@ -354,8 +405,8 @@ _BASIC_MORE = [
              "the square. To add tenths and hundredths, turn the tenths into "
              "hundredths first, then count.",
              '[[hundredgrid shaded="40" plus="3" caption="4 tenths + 3 hundredths = 43 hundredths"]]'),
-            ("And that is how a number like 0.43 is built — tenths and hundredths, "
-             "each in its own place.",
+            ("And that is how a number like 0.43 is built — 4 tenths and 3 "
+             "hundredths, 43 hundredths, each digit in its own place.",
              '[[step eq="4 tenths + 3 hundredths = 43 hundredths"]]'),
         ],
         "bank": [{"a": 1, "b": 1, "op": "t2h"}, {"a": 2, "b": 1, "op": "t2h"}, {"a": 3, "b": 1, "op": "t2h"}, {"a": 4, "b": 1, "op": "t2h"}, {"a": 5, "b": 1, "op": "t2h"}, {"a": 5, "b": 9, "op": "t2h"}, {"a": 6, "b": 9, "op": "t2h"}, {"a": 7, "b": 9, "op": "t2h"}, {"a": 8, "b": 9, "op": "t2h"}, {"a": 9, "b": 9, "op": "t2h"}],
@@ -397,7 +448,10 @@ _BASIC_MORE = [
             {"worked": ("Here is one more, done for you. 2 out of 5. Five times 20 "
                         "is a hundred, so 2 times 20 is 40. That is 40 percent — 40 "
                         "of the hundred cells.",
-                        '[[hundredgrid shaded="40" unit="percent" caption="2 out of 5 = 40 out of 100 = 40%"]]'),
+                        # (wh, 2026-09-16) the times-20 steps are drawn, and the
+                        # caption says "percent" -- the sign is not taught yet
+                        '[[step eq="5 × 20 = 100"]][[step eq="2 × 20 = 40, so 40 percent"]]'
+                        '[[hundredgrid shaded="40" unit="percent" caption="2 out of 5 = 40 out of 100 = 40 percent"]]'),
              "ask": {"a": 7, "b": 10, "op": "wpc"}},
             {"worked": ("One more together. 13 out of 20. Twenty times 5 is a "
                         "hundred, so 13 times 5 is 65. 65 percent.",
@@ -452,8 +506,8 @@ _BASIC_MORE = [
              '[[step eq="25% of 60 = 15"]][[step eq="60 − 15 = 45"]][[tape parts="15 | 45" total="60" caption="discount 15 — you pay 45"]]'),
             ("Here is the trap, and shops rely on it. The discount is not the "
              "answer. 15 is what you SAVE. The question asks what you pay, so the "
-             "second step is the one that matters, and your answer is always "
-             "smaller than the price but bigger than the discount.",
+             "second step is the one that matters. Your answer is always smaller "
+             "than the price, but bigger than the discount.",
              '[[step eq="you pay 45 ✓"]]'
              '[[step eq="15 ✗ that is the saving, not the price"]]'),
         ],
@@ -484,8 +538,8 @@ _BASIC_MORE = [
              "percent of the price — then take it away. The bar shows both parts; "
              "you pay the big one.",
              '[[tape parts="15 | 45" total="60" caption="price 60 = discount 15 + you pay 45"]]'),
-            ("And knowing what you pay, not what you save, is what keeps the till "
-             "from surprising you.",
+            ("And knowing what you pay — 60 take away 15 is 45 — not what you "
+             "save, is what keeps the till from surprising you.",
              '[[step eq="60 − 15 = 45"]]'),
         ],
         "bank": [{"a": 10, "b": 20, "op": "poff"}, {"a": 30, "b": 20, "op": "poff"}, {"a": 55, "b": 20, "op": "poff"}, {"a": 70, "b": 10, "op": "poff"}, {"a": 104, "b": 25, "op": "poff"}, {"a": 120, "b": 20, "op": "poff"}, {"a": 148, "b": 25, "op": "poff"}, {"a": 168, "b": 25, "op": "poff"}, {"a": 180, "b": 20, "op": "poff"}, {"a": 200, "b": 10, "op": "poff"}],
@@ -529,8 +583,8 @@ _BASIC_MORE = [
                         '[[array rows="4" cols="2" view="groups" caption="4 groups of 2 = 8"]]'),
              "ask": {'a': 3, 'b': 2, 'op': '*'}},
             {"worked": ("One more together. Five times three is five groups of three. "
-                        "Count the rows: 3, 6, 9, 12, 15. Five times three equals "
-                        "fifteen.",
+                        "Count by threes, one group at a time: 3, 6, 9, 12, 15. Five "
+                        "times three equals fifteen.",
                         '[[array rows="5" cols="3" view="groups" caption="5 groups of 3 = 15"]]'),
              "ask": {'a': 4, 'b': 3, 'op': '*'}},
         ],
@@ -576,7 +630,7 @@ _BASIC_MORE = [
         "advance_line": "Every fact right in one pass, and you can say why — the times tables are yours!",
         "why": [
             ("Why learn the times tables by heart? Because you use them constantly "
-             "— sharing out, working out a bill, every bigger sum you will ever do. "
+             "— sharing out, working out a bill, nearly every bigger sum you do. "
              "Knowing 6 times 7 the way you know your own name means the hard part "
              "of a problem never has to wait for the easy part.",
              '[[goal text="Times tables"]]'),
@@ -594,7 +648,8 @@ _BASIC_MORE = [
              '[[array rows="6" cols="7" caption="6 × 7 = 42"]]'),
             ("A helpful trick: turn the picture on its side. Seven rows of six is "
              "the same dots, so seven times six is the same 42. The order does not "
-             "change the answer — one fact learned is two facts known.",
+             "change the answer — learn six times seven and you know seven times "
+             "six as well.",
              '[[array rows="7" cols="6" caption="7 × 6 = 42, the same dots"]]'),
         ],
         "pairs": [
@@ -628,7 +683,7 @@ _BASIC_MORE = [
              "learned is two facts known.",
              '[[array rows="6" cols="7" caption="6 × 7 = 42"]]'),
             ("And knowing them by heart is what lets every bigger sum go quickly.",
-             '[[step eq="6 × 7 = 42 · 7 × 6 = 42"]]'),
+             '[[step eq="6 × 7 = 42"]][[step eq="7 × 6 = 42"]]'),
         ],
         "bank": [{'a': 3, 'b': 6, 'op': '*'}, {'a': 4, 'b': 6, 'op': '*'}, {'a': 5, 'b': 6, 'op': '*'}, {'a': 6, 'b': 6, 'op': '*'}, {'a': 6, 'b': 7, 'op': '*'}, {'a': 7, 'b': 7, 'op': '*'}, {'a': 8, 'b': 7, 'op': '*'}, {'a': 8, 'b': 8, 'op': '*'}, {'a': 9, 'b': 8, 'op': '*'}, {'a': 9, 'b': 9, 'op': '*'}],
     },
@@ -652,7 +707,7 @@ _BASIC_MORE = [
         "picture": [
             ("Here are 12 dots to share, and 3 empty boxes. Deal them out: one to "
              "each box, then another, then another, until they are gone. Every box "
-             "ends up with 4.",
+             "gets the same number — the next picture shows how many.",
              '[[array total="12" rows="3" ask="1" caption="12 to share, 3 equal groups"]]'),
         ],
         "teach": [
@@ -829,7 +884,7 @@ _BASIC_MORE = [
              "hidden factor. Then the times fact checks it.",
              '[[array rows="3" cols="4" view="groups" eq="3 × 4 = 12" caption="3 groups of 4 reach 12"]]'),
             ("And it is for the questions that hand you the answer and hide a "
-             "factor — which is most of them.",
+             "factor: 3 times what is 12? Share 12 into 3 — 12 divided by 3 is 4.",
              '[[step eq="3 × ? = 12"]][[step eq="12 ÷ 3 = 4"]]'),
         ],
         "bank": [{'a': 6, 'b': 2, 'op': 'mf'}, {'a': 12, 'b': 3, 'op': 'mf'}, {'a': 15, 'b': 3, 'op': 'mf'}, {'a': 24, 'b': 4, 'op': 'mf'}, {'a': 30, 'b': 5, 'op': 'mf'}, {'a': 35, 'b': 5, 'op': 'mf'}, {'a': 48, 'b': 6, 'op': 'mf'}, {'a': 56, 'b': 7, 'op': 'mf'}, {'a': 63, 'b': 9, 'op': 'mf'}, {'a': 72, 'b': 8, 'op': 'mf'}],
@@ -848,8 +903,8 @@ _BASIC_MORE = [
         "why": [
             ("Two numbers can share factors. 12 and 18 are both made of 2s and 3s. "
              "Knowing the biggest thing two numbers share is how you cut a "
-             "fraction down to its simplest form, and how you split two piles "
-             "into the biggest equal groups possible. Today we find it.",
+             "fraction down to its simplest form. It is also how you split two "
+             "piles into the biggest equal groups possible. Today we find it.",
              '[[goal text="The greatest common factor"]]'),
         ],
         "picture": [
@@ -966,7 +1021,7 @@ _BASIC_MORE = [
              "third of 12 is 4.",
              '[[array rows="3" cols="4" view="groups" eq="1/3 of 12 = 4" caption="share into 3, take one part"]]'),
             ("And that is how fractions show up in real life — a fraction of a "
-             "group of things.",
+             "group of things: one third of 12 is 12 divided by 3, which is 4.",
              '[[step eq="1/3 of 12 = 12 ÷ 3 = 4"]]'),
         ],
         "bank": [{'a': 4, 'b': 2, 'op': 'of'}, {'a': 6, 'b': 2, 'op': 'of'}, {'a': 6, 'b': 3, 'op': 'of'}, {'a': 10, 'b': 2, 'op': 'of'}, {'a': 9, 'b': 3, 'op': 'of'}, {'a': 12, 'b': 2, 'op': 'of'}, {'a': 12, 'b': 3, 'op': 'of'}, {'a': 16, 'b': 4, 'op': 'of'}, {'a': 20, 'b': 5, 'op': 'of'}, {'a': 24, 'b': 6, 'op': 'of'}],
@@ -1223,8 +1278,8 @@ _BASIC_MORE = [
             "spoken": ("One more thing — not the answer, the reason. 0.3 plus 0.4 is "
                        "0.7, and the point did not move. Tap the reason why."),
             "choices": ("because we counted tenths, and tenths stay in the tenths "
-                        "place | because the point is just decoration | because 3 "
-                        "plus 4 is less than 10"),
+                        "place | because the point is just decoration | because 0.3 "
+                        "and 0.4 are both small numbers"),
             "answer": "because we counted tenths, and tenths stay in the tenths place",
             "board": '[[numberline min="0" max="1" hops="0,0.3,0.7" points="0.7" caption="the point stays put"]]',
         },
@@ -1327,9 +1382,10 @@ _BASIC_MORE = [
              '[[array rows="2" cols="4" view="groups" eq="50% of 8 = 4" caption="one of 2 equal parts of 8"]]'),
         ],
         "teach": [
-            ("So a percent of a number is a share: turn the percent into its "
-             "fraction, share into that many equal parts, take one. 50 percent is "
-             "one half, and one half of 8 equals 4.",
+            ("So a percent of a number is a share. For the percents we use today "
+             "— 50, 25 and 10 — turn the percent into its fraction, share into "
+             "that many equal parts, take one. 50 percent is one half, and one "
+             "half of 8 equals 4.",
              '[[array rows="2" cols="4" view="groups" eq="50% of 8 = 4" caption="50% = one half"]]'),
             ("One more, watch. 10 percent of 40. Ten percent is one tenth — one of "
              "ten equal parts. Share 40 into 10 parts, take one: 4. So 10 percent "
@@ -1361,10 +1417,11 @@ _BASIC_MORE = [
         "recap": [
             ("So, here it is again. Percent means out of a hundred: 50 percent is a "
              "half, 25 a fourth, 10 a tenth. A percent of a number is that share of "
-             "it — split into equal parts and take one.",
+             "it — for these three, split into equal parts and take one.",
              '[[hundredgrid shaded="25" unit="percent" caption="25% is one fourth of the square"]]'),
-            ("And it is how you work out a tip, a tax, or the battery left.",
-             '[[step eq="50% of 8 = 4 · 25% of 8 = 2 · 10% of 40 = 4"]]'),
+            ("And it is how you work out a tip, a tax, or the battery left: 50 "
+             "percent of 8 is 4, 25 percent of 8 is 2, 10 percent of 40 is 4.",
+             '[[step eq="50% of 8 = 4"]][[step eq="25% of 8 = 2"]][[step eq="10% of 40 = 4"]]'),
         ],
         "bank": [{'a': 50, 'b': 2, 'op': 'pc'}, {'a': 50, 'b': 4, 'op': 'pc'}, {'a': 25, 'b': 4, 'op': 'pc'}, {'a': 50, 'b': 6, 'op': 'pc'}, {'a': 50, 'b': 10, 'op': 'pc'}, {'a': 25, 'b': 16, 'op': 'pc'}, {'a': 50, 'b': 18, 'op': 'pc'}, {'a': 10, 'b': 20, 'op': 'pc'}, {'a': 10, 'b': 30, 'op': 'pc'}, {'a': 10, 'b': 50, 'op': 'pc'}],
     },
@@ -1422,7 +1479,9 @@ _BASIC_MORE = [
             ("So, here it is again. What one costs is the whole price shared over "
              "how many — divide. Six apples for twelve dollars is two dollars each.",
              '[[array rows="6" cols="2" view="groups" eq="12 ÷ 6 = 2" caption="12 ÷ 6 = 2 dollars each"]]'),
-            ("And it is how you compare two prices honestly.",
+            ("And it is how you compare two prices honestly: 12 divided by 6 is 2 "
+             "dollars for one apple, and the other shop's price for one goes next "
+             "to it.",
              '[[step eq="12 ÷ 6 = 2"]]'),
         ],
         "bank": [{'a': 6, 'b': 2, 'op': 'rate'}, {'a': 10, 'b': 2, 'op': 'rate'}, {'a': 12, 'b': 4, 'op': 'rate'}, {'a': 15, 'b': 3, 'op': 'rate'}, {'a': 16, 'b': 4, 'op': 'rate'}, {'a': 20, 'b': 5, 'op': 'rate'}, {'a': 24, 'b': 6, 'op': 'rate'}, {'a': 28, 'b': 7, 'op': 'rate'}, {'a': 32, 'b': 8, 'op': 'rate'}, {'a': 36, 'b': 9, 'op': 'rate'}],
@@ -1505,9 +1564,9 @@ _BASIC_MORE = [
              '[[goal text="Area"]]'),
         ],
         "picture": [
-            ("Here is a rectangle 5 long and 3 wide, filled with unit squares. "
-             "Count them by rows: 3 rows, 5 squares in each — 5, 10, 15. The area "
-             "is 15 squares.",
+            ("Here is a rectangle 5 long and 3 wide, filled with unit squares — "
+             "squares one across and one up. Count them by rows: 3 rows, 5 "
+             "squares in each — 5, 10, 15. The area is 15 squares.",
              '[[rectangle w="5" h="3" show="area" caption="3 rows of 5 = 15 squares"]]'),
         ],
         "teach": [
@@ -1547,7 +1606,8 @@ _BASIC_MORE = [
              "for a rectangle, long times wide — the rows times the squares in "
              "each row.",
              '[[rectangle w="5" h="3" show="area" caption="5 × 3 = 15 squares"]]'),
-            ("And it is the carpet on the floor, the paint on the wall.",
+            ("And it is how much carpet covers the floor, how much paint covers "
+             "the wall: 5 times 3, 15 squares.",
              '[[step eq="5 × 3 = 15 squares"]]'),
         ],
         "bank": [{'a': 5, 'b': 2, 'op': 'area'}, {'a': 4, 'b': 3, 'op': 'area'}, {'a': 6, 'b': 3, 'op': 'area'}, {'a': 7, 'b': 3, 'op': 'area'}, {'a': 6, 'b': 4, 'op': 'area'}, {'a': 8, 'b': 4, 'op': 'area'}, {'a': 9, 'b': 5, 'op': 'area'}, {'a': 8, 'b': 6, 'op': 'area'}, {'a': 9, 'b': 7, 'op': 'area'}, {'a': 12, 'b': 8, 'op': 'area'}],
@@ -1563,10 +1623,10 @@ _BASIC_MORE = [
         "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You can read hundreds, tens and ones."),
         "why": [
-            ("Why do we have places at all? Because counting one at a time stops "
-             "working. If a school has 342 students, nobody counts them one by "
+            ("Why do we have places at all? Because counting one at a time gets "
+             "slow. If a school has 342 students, nobody counts them one by "
              "one. We count in hundreds, then tens, then ones — and three digits "
-             "say it all.",
+             "say it all: 3, 4, 2.",
              '[[goal text="Place value: hundreds, tens and ones"]]'),
         ],
         "picture": [
@@ -1611,8 +1671,8 @@ _BASIC_MORE = [
         },
         "recap": [
             ("So, here it is again. A three-digit number has three columns — "
-             "hundreds, tens, ones — and a digit means what its column says: the "
-             "3 is three hundred, the 4 is forty, the 2 is two.",
+             "hundreds, tens, ones. A digit means what its column says. In 342, "
+             "the 3 is three hundred, the 4 is forty, the 2 is two.",
              '[[placevalue n="342" caption="300 + 40 + 2 = 342"]]'),
             ("And places save the counting: three digits tell you three hundred "
              "and forty-two without counting one by one.",
@@ -1663,7 +1723,8 @@ _BASIC_MORE = [
         # 3 · TEACH -- the idea read off the picture, then the quick rule
         "teach": [
             ("Every number lives between two tens. Rounding just means: hop to "
-             "the ten you are closer to. 47 is closer to 50, so 47 rounds to 50.",
+             "the ten you are closer to — and at halfway, hop up. 47 is closer "
+             "to 50, so 47 rounds to 50.",
              '[[numberline min="40" max="50" mid="45" points="47" hops="47,50" '
              'caption="47 rounds to 50"]]'),
             ("Here is the quick way to tell, in your head. Look at the ones "
@@ -1707,8 +1768,8 @@ _BASIC_MORE = [
         # 7 · COME BACK -- the rule and the why, said again before the end line
         "recap": [
             ("So, here it is again. Every number sits between two tens, and "
-             "rounding hops to the closer one. Ones digit 4 or smaller hops "
-             "down; 5 or bigger hops up.",
+             "rounding hops to the closer one — at halfway, up. Ones digit 4 or "
+             "smaller hops down; 5 or bigger hops up.",
              '[[step eq="ones 0–4 → hop down · ones 5–9 → hop up"]]'),
             ("And rounding is for when about is good enough — like about 50 "
              "marbles in the jar.",
@@ -1789,8 +1850,8 @@ _BASIC_MORE = [
         },
         "recap": [
             ("So, here it is again. Every number sits between two hundreds, and "
-             "rounding hops to the closer one. Tens digit 4 or smaller hops "
-             "down; 5 or bigger hops up.",
+             "rounding hops to the closer one — at halfway, up. Tens digit 4 or "
+             "smaller hops down; 5 or bigger hops up.",
              '[[step eq="tens 0–4 → hop down · tens 5–9 → hop up"]]'),
             ("And it is for when about is good enough — about 500 people in the "
              "stadium.",
@@ -1840,8 +1901,8 @@ _BASIC_MORE = [
              "ones.",
              '[[step eq="carry: ones over nine"]][[step eq="regroup: ones too small"]]'),
             ("Watch the regrouping. 53 take away 28. 3 is too small to take 8 "
-             "away, so one ten comes across: the 5 becomes 4 and the 3 becomes "
-             "13 — see them written above, in red. 13 take away 8 equals 5; 4 "
+             "away, so one ten comes across. The 5 becomes 4 and the 3 becomes "
+             "13 — both written above, in red. 13 take away 8 equals 5; 4 "
              "take away 2 equals 2. 25.",
              '[[column terms="53|28" op="−" borrows="4|13" result="25" '
              'caption="3 is too small: one ten becomes ten ones"]]'),
@@ -1905,7 +1966,7 @@ _BASIC_MORE = [
         "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You can multiply bigger numbers."),
         "why": [
-            ("The times tables stop at nine. But the world does not: 34 tickets at "
+            ("The times tables you know stop at nine. But the world does not: 34 tickets at "
              "2 dollars each, 23 rows of 3 chairs. Today we multiply a two-digit "
              "number — and the whole trick is that you already know how, in "
              "pieces.",
@@ -1979,15 +2040,15 @@ _BASIC_MORE = [
                          "You can divide bigger numbers."),
         "why": [
             ("Sharing 12 into 3 is a times table fact turned around. But 84 into 4? "
-             "No times table goes that far. Today we divide a two-digit number — "
+             "No times table you know goes that far. Today we divide a two-digit number — "
              "and the trick is the one multiplying used: you already know how, in "
              "pieces.",
              '[[goal text="Dividing bigger numbers"]]'),
         ],
         "picture": [
             ("Here is 84 divided by 4 as a picture. A box 4 tall holding 84. Cut "
-             "the 84 into 80 and 4, and the box splits in two: 80 shared by 4 is "
-             "20 across, and 4 shared by 4 is 1 across. Side by side, 21.",
+             "the 84 into 80 and 4, and the box splits in two. 80 shared by 4 is "
+             "20 across. 4 shared by 4 is 1 across. Side by side, 21.",
              '[[areamodel rows="4" cols="20,1" caption="84 ÷ 4: 80 ÷ 4 = 20, 4 ÷ 4 = 1"]]'),
         ],
         "teach": [
@@ -2026,11 +2087,12 @@ _BASIC_MORE = [
         },
         "recap": [
             ("So, here it is again. A two-digit number divided by a digit: split it "
-             "into tens and ones, divide each piece — those are facts you know — "
-             "then put the answers together.",
+             "into pieces you know how to divide — here, the tens and the ones — "
+             "divide each piece, then put the answers together.",
              '[[areamodel rows="4" cols="20,1" caption="84 ÷ 4 = 20 + 1 = 21"]]'),
             ("And that is how dividing reaches past the times tables — in pieces, "
-             "the same way multiplying did.",
+             "the same way multiplying did: 84 divided by 4 is 80 divided by 4 "
+             "plus 4 divided by 4, 21.",
              '[[step eq="84 ÷ 4 = 80 ÷ 4 + 4 ÷ 4 = 21"]]'),
         ],
         "bank": [
@@ -2052,10 +2114,11 @@ _BASIC_MORE = [
         "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "A fraction is a number with its own home on the line."),
         "why": [
-            ("A fraction is not just a piece of pizza. A fraction is a NUMBER — it "
-             "can be bigger or smaller than another, it has a place in order, and "
-             "every number has a home on the number line. Once you can see where a "
-             "fraction lives, comparing and adding fractions stop being a mystery.",
+            ("A fraction is not just a piece of pizza. A fraction is a NUMBER. It "
+             "can be bigger or smaller than another number. It has a place in "
+             "order. And every number has a home on the number line. Once you can "
+             "see where a fraction lives, comparing and adding fractions stop "
+             "being a mystery.",
              '[[goal text="Fractions live on the number line"]]'),
         ],
         "picture": [
@@ -2066,11 +2129,11 @@ _BASIC_MORE = [
         ],
         "teach": [
             ("So the bottom number says how many equal hops the line from 0 to 1 "
-             "is cut into, and the top number says how many hops to take. 3 out "
+             "is cut into. The top number says how many hops to take. 3 out "
              "of 4: four hops to a whole, take three.",
              '[[numberline min="0" max="1" denom="4" hops="0,0.25,0.5,0.75" points="0.75" caption="bottom: 4 hops to 1 · top: take 3"]]'),
             ("And if you take ALL 4 hops, you reach 1 whole. Four fourths equals "
-             "one — the top and bottom the same means the whole line.",
+             "one — the top and bottom the same means one whole, the point 1.",
              '[[numberline min="0" max="1" denom="4" hops="0,0.25,0.5,0.75,1" points="1" caption="4 hops → 4/4 = 1"]]'),
         ],
         "pairs": [
@@ -2101,8 +2164,8 @@ _BASIC_MORE = [
              "cuts 0 to 1 into equal hops, the top says how many hops to take, and "
              "top equals bottom means the whole line.",
              '[[numberline min="0" max="1" denom="4" hops="0,0.25,0.5,0.75,1" points="0.75,1" caption="3/4 and 4/4 = 1"]]'),
-            ("And once you can see where a fraction lives, comparing and adding "
-             "fractions stop being a mystery.",
+            ("And once you can see where a fraction lives — 3 out of 4 is 3 hops "
+             "of one fourth — comparing and adding fractions stop being a mystery.",
              '[[step eq="3/4 → 3 hops of 1/4"]]'),
         ],
         "bank": [
@@ -2127,9 +2190,8 @@ _BASIC_MORE = [
         "why": [
             ("Nobody hands you a times sign in real life. They hand you a story: "
              "three boxes of crayons, twelve cookies for three friends. The skill "
-             "is hearing which picture the story is — groups put together, or a "
-             "pile shared out — and that tells you whether it is times or "
-             "divided by.",
+             "is hearing which picture the story is. Groups put together — that "
+             "is times. A pile shared out — that is divided by.",
              '[[goal text="Story problems — multiplying and dividing"]]'),
         ],
         "picture": [
@@ -2186,8 +2248,10 @@ _BASIC_MORE = [
              "is, and the sign follows.",
              '[[array rows="3" cols="4" view="groups" caption="groups put together — times"]]'
              '[[array total="12" rows="3" ask="1" caption="a pile shared out — divided by"]]'),
-            ("And that is the skill real life actually asks for.",
-             '[[step eq="4 × 3 = 12 · 12 ÷ 3 = 4"]]'),
+            ("And that is the skill real life actually asks for: three boxes of "
+             "four is 4 times 3, twelve; twelve cookies in three bags is 12 "
+             "divided by 3, four.",
+             '[[step eq="4 × 3 = 12"]][[step eq="12 ÷ 3 = 4"]]'),
         ],
         "bank": [
             {"a": 2, "b": 3, "op": "*",
@@ -2282,7 +2346,7 @@ _BASIC_MORE = [
                         "because 12 is too big | because 2 and 3 and 1 add up to 6"),
             "answer": "because 6 is the first number both counts land on",
             "board": ('[[numberline min="0" max="12" hops="0,2,4,6,8,10,12" points="6,12" caption="count by 2 lands on 6 and on 12"]]'
-                      '[[numberline min="0" max="12" hops="0,3,6,9,12" points="6,12" caption="count by 3 lands on 6 first"]]'),
+                      '[[numberline min="0" max="12" hops="0,3,6,9,12" points="6,12" caption="count by 3 lands on 6 before 12"]]'),
         },
         "recap": [
             ("So, here it is again. Count by each number — hop along the line — "
@@ -2348,27 +2412,28 @@ _BASIC_MORE = [
                         '[[numberline min="0" max="1" denom="8" hops="0,0.25,0.375" points="0.375" caption="1/4 = 2/8, then + 1/8 = 3/8"]]'),
              "ask": {"a": 1, "b": 3, "c": 6, "op": "fu"}},
         ],
-        "practice_intro": ("Now it's your turn. Find the first fraction on the finer "
-                           "line, then hop. Three right answers in a row and we're "
-                           "done — here comes the first one."),
+        "practice_intro": ("Now it's your turn. Find the first fraction on the line "
+                           "with the smaller pieces, then hop. Three right answers in "
+                           "a row and we're done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. To add one half "
                        "and one fourth, we first write one half as two fourths. Tap "
                        "the reason why."),
-            "choices": ("because you can only count pieces that are the same size | "
+            "choices": ("because you can only add pieces that are the same size | "
                         "because fourths are smaller than halves | because 2 plus 4 "
                         "makes 6"),
-            "answer": "because you can only count pieces that are the same size",
+            "answer": "because you can only add pieces that are the same size",
             "board": '[[numberline min="0" max="1" denom="4" hops="0,0.5,0.75" points="0.75" caption="both in fourths first"]]',
         },
         "recap": [
             ("So, here it is again. Different bottoms mean different-sized pieces: "
              "rename one fraction until the bottoms match, then add the tops. On "
-             "the line, find the first fraction on the finer line, then hop.",
+             "the line, find the first fraction on the line with the smaller "
+             "pieces, then hop.",
              '[[numberline min="0" max="1" denom="4" hops="0,0.5,0.75" points="0.75" caption="1/2 + 1/4 = 3/4"]]'),
-            ("And it is for every time the pieces do not match — which is most of "
-             "the time.",
+            ("And it is for every time one bottom fits inside the other: one half "
+             "plus one fourth is two fourths plus one fourth — three fourths.",
              '[[step eq="1/2 + 1/4 = 2/4 + 1/4 = 3/4"]]'),
         ],
         "bank": [
@@ -2446,7 +2511,8 @@ _BASIC_MORE = [
              "two places after the point. Adding hundredths is counting cells — "
              "add the counts, and the point stays put.",
              '[[hundredgrid shaded="25" plus="13" caption="0.25 + 0.13 = 0.38"]]'),
-            ("And hundredths are how money writes its cents.",
+            ("And hundredths are how money writes its cents: 25 cents and 13 cents "
+             "is 0.25 plus 0.13 — 0.38, thirty-eight cents.",
              '[[step eq="0.25 + 0.13 = 0.38"]]'),
         ],
         "bank": [
@@ -2478,7 +2544,7 @@ _BASIC_MORE = [
             ("Here is the circle cut into four quarters. One quarter turn is 90 "
              "degrees. Two quarters shaded — two quarter turns — is 180 degrees, "
              "half the way around. Four quarters is all the way round: 360.",
-             '[[pie parts="4" shaded="2" caption="2 quarter turns = 180°"]]'),
+             '[[pie parts="4" shaded="2" caption="1 quarter turn 90°, 2 quarter turns 180°, all 4 round 360°"]]'),
         ],
         "teach": [
             ("So there are 90 degrees in one quarter turn, and you count by 90 for "
@@ -2518,7 +2584,7 @@ _BASIC_MORE = [
              "back.",
              '[[pie parts="4" shaded="4" caption="4 × 90° = 360° — all the way round"]]'),
             ("And it is how we say how far anything has turned — a door, a dial, "
-             "you.",
+             "you: one quarter turn is 90 degrees.",
              '[[step eq="1 quarter turn = 90°"]]'),
         ],
         "bank": [

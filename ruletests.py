@@ -6,6 +6,15 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-16  BUILD wh -- PART 3mc, THE FIRST BASIC SWEEP (67 findings, 7 clean). Pins
+#               the three generator items (r100's "just past halfway", the split walk-
+#               backs' final sum, "1 full row"), the two generator classes the authored
+#               pile pointed at (practice_intro_line keeps the promise inside a lesson's
+#               OWN intro -- 33 Basic lessons; the table lesson's practice card), the
+#               problem space listed by value, the " · " between two equations gone from
+#               Entry/Basic/Pre-Algebra step lines, and the authored classes. Pins moved:
+#               course 39,996 -> 39,997; closure 40,250 -> 40,251; speechmap 2,244 of
+#               40,302 -> 2,245 of 40,303.
 #   2026-09-15  BUILD wg -- PART 3mb, THE FOURTH CLEAN SWEEP (14 findings, 26 clean):
 #               twelve authored answers pinned by class, one charter line. No count moved.
 #   2026-09-15  BUILD wf -- PART 3ma, THE PROBLEM SPACE ON THE PAGE. The transcript opens
@@ -15282,7 +15291,10 @@ def part3kx_the_next_line_is_already_loaded():
               # times 3 ..." and forSpeech read the digit-colon-digit as a ratio -- which is
               # the very run-together Jim heard ("holding 3 five times 3"). They now say
               # "with x equal to 5. Times first: ..." and carry nothing to tidy.
-              n == 1938, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
+              # (wh) 1,938 -> 1,939: the hundredths recap now says "0.25 plus 0.13 —
+              # 0.38, thirty-eight cents" (the decimals are tidied); the same line that
+              # moved speechmap 2,244 -> 2,245.
+              n == 1939, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
         check("  ⭐⭐ ...and not one of them is a mismatch any more: the label the server "
               "files under equals the label the page asks for, on every line",
               all(_M._spoken(t) == t or _M._spoken(t) != t for t in lines[:1])
@@ -15380,8 +15392,11 @@ def part3ky_one_label_for_every_clip():
         # 11: 6, 7" and SIX lines re-keyed -- the digit-colon-digit ratio read, vx's
         # "holding 3: 5" defect, caught here by the count moving. It says "11 — 6, 7".)
         # (we) of 40,302: PRACTICE_INTRO_REASON joined the closure; it does not re-key.
-        check("  ...and it still holds the differences it was built for (2,244 since vx; 2,246 at vs; 2,245 at vm; 2,249 at vc)",
-              len(mapping) == 2244 and scanned == 40302,
+        # (wh) 2,245 of 40,303: times-by-ten's picture became two beats (one line
+        # added), and the hundredths recap now says "0.25 plus 0.13 — 0.38, thirty-
+        # eight cents", which forSpeech tidies (the decimals), so it re-keys.
+        check("  ...and it still holds the differences it was built for (2,245 since wh; 2,244 at vx; 2,246 at vs; 2,245 at vm; 2,249 at vc)",
+              len(mapping) == 2245 and scanned == 40303,
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
@@ -15408,8 +15423,8 @@ def part3ky_one_label_for_every_clip():
     check("  and no two authored lines tidy to the SAME sentence, so the closure never "
           "prices or renders one clip twice (deduped anyway -- see _closure_lines)",
           len(cl) == len(set(cl)), "%d lines, %d unique" % (len(cl), len(set(cl))))
-    check("  the closure is the whole course AND the demo (40,250 since we = 39,996 + 254 demo lines; 40,249 at wd)",
-          len(cl) == 40250, str(len(cl)))
+    check("  the closure is the whole course AND the demo (40,251 since wh = 39,997 + 254 demo lines; 40,250 at we)",
+          len(cl) == 40251, str(len(cl)))
 
     # ---- 4. ONE reader, and every site goes through it -----------------------------
     check("⭐ speechmap is read in exactly ONE place -- _spoken(). A second reader is a "
@@ -16355,8 +16370,8 @@ def part3lf_ready_and_four_basic_lines():
     check("  every changed line is in the closure (the prewarm will find them)",
           all(t in closure for t in (pv["why"][0][0], pv["recap"][1][0], rt["why"][0][0],
                                      L.lesson_orientation(rt, True)[0], L.lesson_intro(pv)[0])), "")
-    check("  the closure count moved only for lines ADDED since (vj changed lines and added none; vs/vt added 19; wd added LINE_FRESH_OTHER; we PRACTICE_INTRO_REASON)",
-          len(closure) == 39996, str(len(closure)))
+    check("  the closure count moved only for lines ADDED since (vj changed lines and added none; vs/vt added 19; wd added LINE_FRESH_OTHER; we PRACTICE_INTRO_REASON; wh one picture beat)",
+          len(closure) == 39997, str(len(closure)))
 
     # ---- 3. blob: in media-src -------------------------------------------------------------------
     import main as M
@@ -17817,8 +17832,9 @@ def part3lq_the_voice_misses_get_faces():
     msrc = code_only(rd("main.py"))
 
     # ---- the head rule ------------------------------------------------------------------
+    # (wh) the line moved with the course: "— and at halfway, hop up" rides the rule now
     closure_line = ("Every number lives between two tens. Rounding just means: hop to the ten you are "
-                    "closer to. 47 is closer to 50, so 47 rounds to 50.")
+                    "closer to — and at halfway, hop up. 47 is closer to 50, so 47 rounds to 50.")
     check("⭐ a closure line keeps 80 characters -- enough to name it",
           M._voice_miss_head(closure_line, "", True) == closure_line[:80], repr(M._voice_miss_head(closure_line, "", True)))
     check("⭐ a line outside the closure keeps six words -- enough to say which KIND of line it is, no more",
@@ -18066,11 +18082,11 @@ def part3ls_the_demo_is_part_of_the_closure():
     cl = M._closure_lines()
     demo = [x for x in M.DEMO_VOICE_LINES if x]
     check("⭐ every demo line is in the un-narrowed closure, and the closure is the course plus the demo",
-          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40250
+          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40251
           and len(demo) == 254, "%d closure, %d course, %d demo" % (len(cl), len(L.course_audio_lines()), len(demo)))
     check("  a narrowed closure (one lesson) carries no demo line -- rendering one lesson does not re-price the front door",
           not any(x in set(M._closure_lines(L.LESSONS[:1])) for x in demo), "")
-    check("  the course's own list is 39,996 (we added PRACTICE_INTRO_REASON; 39,995 at wd; 39,994 at vz)", len(L.course_audio_lines()) == 39996, str(len(L.course_audio_lines())))
+    check("  the course's own list is 39,997 (wh split times-by-ten's picture; 39,996 at we; 39,995 at wd)", len(L.course_audio_lines()) == 39997, str(len(L.course_audio_lines())))
     check("⭐ the model split treats the demo as the course, and the miss eyes call a demo line IN the closure",
           all(x in M._script_closure_texts() for x in demo)
           and M._tts_model_for(demo[0]) == M._tts_model_for(L.LINE_CHECK), "")
@@ -18408,8 +18424,8 @@ def part3lu_the_scripted_second_explanation():
           L.praise_for(missed, 0) and not L.praise_for(missed, 0).startswith("Here it is"), "")
 
     # ---- the counts ------------------------------------------------------------
-    check("  the six frame lines are the ONLY audio this build added (39,988 -> 39,994; wd's LINE_FRESH_OTHER 39,995; we's PRACTICE_INTRO_REASON 39,996)",
-          len(L.course_audio_lines()) == 39996
+    check("  the six frame lines are the ONLY audio this build added (39,988 -> 39,994; wd's LINE_FRESH_OTHER 39,995; we's PRACTICE_INTRO_REASON 39,996; wh's picture beat 39,997)",
+          len(L.course_audio_lines()) == 39997
           and len(set(L.SECOND_LOOK_LINES + L.FRESH_ONE_LINES)) == 6, "")
     check("  no frame line carries a number, so six clips serve all 360 lessons",
           not any(any(ch.isdigit() for ch in x)
@@ -19094,9 +19110,13 @@ def part3lz_the_second_clean_sweep():
     said = [o.get("spoken") for o in out if o["kind"] == "say"]
     check("  ...and the engine SPEAKS that form on the way into practice, over the same card",
           L.PRACTICE_INTRO_REASON in said and any(o.get("board") == L.PRACTICE_INTRO_BOARD for o in out), str(said)[:120])
-    check("  a lesson with its own intro speaks its own (the engine never rewrites authored text)",
+    # (wh) narrowed: a lesson with its own intro AND a reason question now has the house
+    # promise inside it corrected (PART 3mc); everything else of its own text is untouched
+    check("  a lesson with its own intro speaks its own (the engine rewrites nothing but the promise, and only before a reason question)",
           all(L.practice_intro_line(x) == x["practice_intro"] for x in L.LESSONS
-              if x["practice_intro"] != L.PRACTICE_INTRO_STANDARD), "")
+              if x["practice_intro"] != L.PRACTICE_INTRO_STANDARD and not x.get("explain"))
+          and all(L.practice_intro_line(x).replace(L.PRACTICE_PROMISE_REASON, L.PRACTICE_PROMISE) == x["practice_intro"]
+                  for x in L.LESSONS if x["practice_intro"] != L.PRACTICE_INTRO_STANDARD and x.get("explain")), "")
     check("  the sweep labels the spoken form 'practice-intro' too, so its quote places",
           '_pil = getattr(L, "practice_intro_line", None)' in rd("coursesweep.py"), "")
     n_reason = sum(1 for x in L.LESSONS if L.practice_intro_line(x) == L.PRACTICE_INTRO_REASON)
@@ -19158,8 +19178,8 @@ def part3ma_the_problem_space_on_the_page():
     spoken = lambda les: " ".join(L.audio_lines(les))
 
     ps = C.problem_space(E("entry-u1-which-is-bigger"))
-    check("⭐ the PROBLEM SPACE line carries the bank's ranges, the op, and the op's own constraint",
-          ps.startswith("PROBLEM SPACE: 12 problems; a from 1 to 20; b from 2 to 19; op big")
+    check("⭐ the PROBLEM SPACE line carries the bank's values (wh: listed, not ranged), the op, and the op's own constraint",
+          ps.startswith("PROBLEM SPACE: 12 problems; a is one of ") and "; op big" in ps
           and "two different numbers inside the counting range" in ps
           and ps.endswith("not against numbers this lesson cannot ask."), ps)
     check("  a mixed-review lesson lists both ops; a table lesson says so instead of failing",
@@ -19199,8 +19219,8 @@ def part3ma_the_problem_space_on_the_page():
     check("  sides-and-corners: the long line is split, and the names line says TODAY's shape names",
           "A triangle has 3 sides and 3 corners. Every shape" in spoken(E("entry-u9-sides-and-corners"))
           and "Today's shape names tell you how many sides" in spoken(E("entry-u9-sides-and-corners")), "")
-    check("  no voice line was added (39,996 since we) and every Entry lesson validates",
-          len(L.course_audio_lines()) == 39996
+    check("  no voice line was added (39,996 since we; 39,997 since wh) and every Entry lesson validates",
+          len(L.course_audio_lines()) == 39997
           and all(ok for les in L.LESSONS if les["course"] == "entry" for ok, _l, _d in L.validate(les)), "")
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-15wf-' in notes("main.py") and "2026-09-15  BUILD wf" in notes("coursesweep.py")
@@ -19238,12 +19258,151 @@ def part3mb_the_fourth_clean_sweep():
           and "1 nickel = 5 cents" in E("entry-u7-dimes-and-pennies")["teach"][0][1], "")
     check("  the charter: a why beat is a story over the goal card, unpictured by design",
           "a WHY beat (the lesson's opening story) having no\npicture" in C.SWEEP_SYSTEM, "")
-    check("  no voice line added (39,996) and every Entry lesson validates",
-          len(L.course_audio_lines()) == 39996
+    check("  no voice line added (39,996; 39,997 since wh) and every Entry lesson validates",
+          len(L.course_audio_lines()) == 39997
           and all(ok for les in L.LESSONS if les["course"] == "entry" for ok, _l, _d in L.validate(les)), "")
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-15wg-' in notes("main.py") and "2026-09-15  BUILD wg" in notes("coursesweep.py")
           and "2026-09-15  BUILD wg" in notes("lessons/entry.py") and "2026-09-15  BUILD wg" in notes("ruletests.py"), "")
+
+
+def part3mc_the_first_basic_sweep():
+    """PART 3mc (build wh, 2026-09-16) -- THE FIRST BASIC SWEEP: 67 findings, 7 clean.
+    Three generator items plus two generator classes the authored pile pointed at, the
+    problem space listed by value, and the authored answers pinned by class."""
+    print("\nPART 3mc — the first Basic sweep (build wh)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for f in ("why", "picture", "teach", "recap")
+                                  for _s, b in (les.get(f) or [])) + \
+                         " ".join(pr["worked"][1] for pr in les["pairs"]) + \
+                         (les.get("explain") or {}).get("board", "")
+    _W = lambda p: L._worked_for(p) or ("", "")
+
+    # ---- the generator ---------------------------------------------------------
+    check("⭐ rounding to hundreds: 253 is 'just past halfway', 350 'right at halfway', 662 'past halfway'",
+          "5 — just past halfway — so it hops up to 300" in L._r100_walkback(253)
+          and "5 — right at halfway — so it hops up to 400" in L._r100_walkback(350)
+          and "6 — past halfway — so it hops up to 700" in L._r100_walkback(662)
+          and "below halfway" in L._r100_walkback(120), L._r100_walkback(253))
+    check("  ...and rounding to tens is untouched (the ones digit 5 IS halfway)",
+          "5 — right at halfway — so it hops up to 40" in L._r10_walkback(35), "")
+    check("⭐ the split walk-backs draw the final sum they speak",
+          '80 + 6 = 86"' in _W({"a": 43, "b": 2, "op": "*"})[1]
+          and '20 + 1 = 21"' in _W({"a": 84, "b": 4, "op": "/"})[1], _W({"a": 43, "b": 2, "op": "*"})[1])
+    check("  '1 full row', never '1 full rows' (t2h's board and walk-back)",
+          "1 full row." in _W({"a": 1, "b": 1, "op": "t2h"})[0]
+          and "a full row" in L._t2h_board({"a": 1, "b": 1})
+          and "3 full rows" in _W({"a": 3, "b": 1, "op": "t2h"})[0]
+          and "full rows —" in L._t2h_board({"a": 3, "b": 1}), "")
+    check("⭐ a lesson with its OWN practice intro keeps the promise when a reason question follows (33 Basic lessons)",
+          L.practice_intro_line(E("basic-u4-missing-factors")).startswith("Now it's your turn. Share the dots")
+          and "then one reason to tap, and we're done" in L.practice_intro_line(E("basic-u4-missing-factors"))
+          and L.practice_intro_line(E("basic-u1-multi-digit-review")).endswith("then one reason to tap, and we're done.")
+          and not any("in a row and we're done" in L.practice_intro_line(x)
+                      for x in L.LESSONS if x.get("explain")), "")
+    check("  ...a lesson without a reason question still speaks its own intro unchanged",
+          all(L.practice_intro_line(x) == x["practice_intro"] for x in L.LESSONS if not x.get("explain")), "")
+    _tt = E("basic-u2-times-tables")
+    _st = L.start(_tt, seed=11)
+    _out, _st = L.step(_tt, _st, ("begin",))
+    for _ in range(6):
+        _p = (_st.get("pending") or {}).get("problem")
+        if _p is None:
+            break
+        _out, _st = L.step(_tt, _st, ("answer", L.ans(_p)))
+        if any(o.get("board") == L.PRACTICE_INTRO_BOARD_TABLE for o in _out):
+            break
+    check("⭐ the times-table lesson's practice card says 'All 81 facts', not 'Three right answers in a row'",
+          any(o.get("board") == L.PRACTICE_INTRO_BOARD_TABLE for o in _out)
+          and "All 81 facts" in L.PRACTICE_INTRO_BOARD_TABLE
+          and "Three right answers" not in L.PRACTICE_INTRO_BOARD_TABLE
+          and "I'm not sure" not in L.PRACTICE_INTRO_BOARD_TABLE, str([o.get("board", "")[:40] for o in _out]))
+
+    # ---- the sweep: the problem space lists its values ---------------------------
+    ps = C.problem_space(E("basic-u8-percent-of"))
+    check("⭐ the PROBLEM SPACE line lists a field's values when there are 12 or fewer ('a is one of 10, 25, 50')",
+          "a is one of 10, 25, 50;" in ps and "from 10 to 50" not in ps, ps)
+    check("  ...a padding field (b always 0) is not listed, and a wide field is still a range",
+          "b is one of 0" not in C.problem_space(E("basic-u1-rounding-hundreds"))
+          and " from " in C.problem_space({"bank": [{"a": i, "b": 0, "op": "+"} for i in range(1, 30)], "pairs": []}), "")
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ FALSE, fixed: the partner is what you GET when you divide; a tenth is ten times a hundredth; divide the top, divide the bottom",
+          "The partner is what you GET when you divide" in spoken(E("basic-u4-factor-pairs"))
+          and "ten times a hundredth" in spoken(E("basic-u7-tenths-and-hundredths"))
+          and "ten times the bigger coin" not in spoken(E("basic-u7-tenths-and-hundredths"))
+          and "Whatever you divide the top by, divide the bottom by too" in spoken(E("basic-u5-simplest-form")), "")
+    check("  simplest form: the BIGGEST shared number or divide again; 'nothing but 1 divides 3 and 4'; 10/16 → 5/8 is not '÷ 2'",
+          "Find the biggest number the top and the bottom share" in spoken(E("basic-u5-simplest-form"))
+          and "If they still share something, divide again" in spoken(E("basic-u5-simplest-form"))
+          and "Nothing but 1 divides 3 and 4" in spoken(E("basic-u5-simplest-form"))
+          and "10/16 ÷ 2" not in boards(E("basic-u5-simplest-form")), "")
+    check("  the halfway condition rides both rounding rules; 'the times tables you know'; four fourths is the point 1",
+          "and at halfway, hop up" in spoken(E("basic-u1-rounding-tens"))
+          and "at halfway, up" in spoken(E("basic-u1-rounding-tens"))
+          and "at halfway, up" in spoken(E("basic-u1-rounding-hundreds"))
+          and "The times tables you know stop at nine" in spoken(E("basic-u2-multiply-two-digit"))
+          and "No times table you know goes that far" in spoken(E("basic-u3-divide-two-digit"))
+          and "one whole, the point 1" in spoken(E("basic-u5-fractions-on-the-number-line")), "")
+    check("  times-by-ten: the zeros HOLD the empty places (the trap no longer teaches the reason its own question rejects), and 46 is drawn before 460",
+          "The zeros are not copied from the ten" in spoken(E("basic-u2-times-by-ten"))
+          and "Ten has one zero, so one zero is added" not in spoken(E("basic-u2-times-by-ten"))
+          and E("basic-u2-times-by-ten")["picture"][0][1].startswith('[[placevalue n="46"')
+          and 'n="460"' in E("basic-u2-times-by-ten")["picture"][1][1], "")
+    check("  different bottoms: the recap says one bottom fits inside the other, and the reason answer says ADD",
+          "one bottom fits inside the other" in spoken(E("basic-u6-add-fractions-different-bottoms"))
+          and E("basic-u6-add-fractions-different-bottoms")["explain"]["answer"] == "because you can only add pieces that are the same size", "")
+    check("  percent-of is scoped to its three percents; the LCM caption says 'before 12'; area is how much carpet COVERS",
+          "For the percents we use today" in spoken(E("basic-u8-percent-of"))
+          and "for these three, split into equal parts and take one" in spoken(E("basic-u8-percent-of"))
+          and "count by 3 lands on 6 before 12" in boards(E("basic-u4-least-common-multiple"))
+          and "how much carpet covers the floor" in spoken(E("basic-u9-area")), "")
+    check("⭐ WORDS-BOARD: no [[step eq]] in Entry, Basic or Pre-Algebra joins two equations with ' · ' between numbers",
+          not any(re.search(r'\[\[step eq="[^"]*\d · \d', b)
+                  for x in L.LESSONS if x["course"] in ("entry", "basic", "prealgebra")
+                  for b in [boards(x)]), "")
+    _second = {"basic-u3-divide-two-digit": "84 divided by 4 is 80 divided by 4",
+               "basic-u3-story-problems": "12 divided by 3, four",
+               "basic-u4-factor-pairs": "2 and 9, 3 and 6, 1 and 18",
+               "basic-u4-missing-factors": "12 divided by 3 is 4",
+               "basic-u5-fraction-of-a-group": "12 divided by 3, which is 4",
+               "basic-u5-fractions-on-the-number-line": "3 out of 4 is 3 hops of one fourth",
+               "basic-u6-add-fractions-different-bottoms": "two fourths plus one fourth — three fourths",
+               "basic-u7-hundredths": "0.25 plus 0.13 — 0.38",
+               "basic-u7-tenths-and-hundredths": "4 tenths and 3 hundredths, 43 hundredths",
+               "basic-u8-one-costs": "12 divided by 6 is 2",
+               "basic-u8-percent-of": "50 percent of 8 is 4, 25 percent of 8 is 2, 10 percent of 40 is 4",
+               "basic-u8-percent-off": "60 take away 15 is 45",
+               "basic-u9-area": "5 times 3, 15 squares",
+               "basic-u9-quarter-turns": "one quarter turn is 90 degrees"}
+    check("⭐ fourteen second-recap beats SPEAK the equation their board writes",
+          all(v in E(k)["recap"][-1][0] for k, v in _second.items()),
+          str([k for k, v in _second.items() if v not in E(k)["recap"][-1][0]]))
+    check("  the charter: a number line's tick labels are the figure's own (hops= are jumps, not ticks)",
+          "hops= and points= are the jumps and the marked spots, NOT the ticks" in C.SWEEP_SYSTEM, "")
+    check("  what-percent draws its times-20 steps and says 'percent'; the quarter-turn caption names 90, 180, 360",
+          '[[step eq="5 × 20 = 100"]]' in E("basic-u8-what-percent-is-it")["pairs"][0]["worked"][1]
+          and "40%" not in E("basic-u8-what-percent-is-it")["pairs"][0]["worked"][1]
+          and "90°, 2 quarter turns 180°, all 4 round 360°" in E("basic-u9-quarter-turns")["picture"][0][1], "")
+    check("  unlike bottoms names the 3/7 its board crosses out; what-dividing-means does not say 4 over the un-dealt board",
+          "3 sevenths — a different fraction" in spoken(E("basic-u6-take-away-unlike-bottoms"))
+          and "Every box ends up with 4" not in E("basic-u3-what-dividing-means")["picture"][0][0], "")
+    check("  UNTAUGHT: 'finer line' is gone from Basic; unit squares defined; 'many numbers'; the reason distractors that were true are not",
+          not any("finer line" in spoken(x) for x in L.LESSONS if x["course"] == "basic")
+          and "squares one across and one up" in spoken(E("basic-u9-area"))
+          and "real numbers" not in spoken(E("basic-u7-tenths-and-hundredths"))
+          and "9 is half of 18" not in E("basic-u4-factor-pairs")["explain"]["choices"]
+          and "less than 10" not in E("basic-u7-tenths")["explain"]["choices"], "")
+    check("  every Basic lesson validates and the course list is 39,997 (one picture beat added)",
+          all(ok for les in L.LESSONS if les["course"] == "basic" for ok, _l, _d in L.validate(les))
+          and len(L.course_audio_lines()) == 39997, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-16wh-' in notes("main.py") and "2026-09-16  BUILD wh" in notes("coursesweep.py")
+          and "2026-09-16  BUILD wh" in notes("lessons/basic.py") and "2026-09-16  BUILD wh" in notes("lessonscripts.py")
+          and "2026-09-16  BUILD wh" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -46126,6 +46285,7 @@ def main():
     part3lz_the_second_clean_sweep()
     part3ma_the_problem_space_on_the_page()
     part3mb_the_fourth_clean_sweep()
+    part3mc_the_first_basic_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

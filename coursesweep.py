@@ -3,6 +3,17 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wh -- THE PROBLEM SPACE LISTS ITS VALUES. The first Basic sweep (67
+#               findings) objected five times to cases the bank does not hold but the
+#               RANGE admitted: 30 percent in a lesson whose percents are 10, 25 and 50
+#               (two HIGHs), 52 ÷ 4 where every tens digit divides, an exact hundred in
+#               rounding. problem_space() now lists a field's distinct values when there
+#               are PROBLEM_SPACE_LIST_MAX (12) or fewer, and gives the range only past
+#               that. One charter line: a [[numberline]] draws its own tick labels between
+#               min= and max= (the tenths lesson was asked to "draw the ten tenth marks"
+#               that the figure already draws). The other rulings the reviewer tripped on
+#               (a why beat's picture, a case outside the space) were already there; it
+#               could not see the space finely enough to obey.
 #   2026-09-15  BUILD wg -- ONE CHARTER LINE: a why beat is a story over the goal card, by
 #               design; its having no picture is not a finding (two of the fourth sweep's
 #               fourteen asked for one).
@@ -79,6 +90,9 @@ MAX_FINDINGS_PER_LESSON = 8
 # prices (~10k tokens in, ~1k out). Corrected from the billing dashboard, never guessed
 # twice.
 EST_USD_PER_LESSON = 0.05
+# (wh) a field with this many distinct values or fewer is LISTED on the problem-space
+# line ("a is one of 10, 25, 50"); more than this and it is given as a range.
+PROBLEM_SPACE_LIST_MAX = 12
 
 
 # =============================================================================
@@ -241,7 +255,18 @@ def problem_space(lesson, L=None) -> str:
     parts = []
     for k in ("a", "b", "c"):
         vals = [p[k] for p in probs if isinstance(p.get(k), int)]
-        if vals:
+        if not vals:
+            continue
+        # (wh, 2026-09-16) THE VALUES, NOT THE RANGE, when there are few enough to list.
+        # "a from 10 to 50" invited the Basic reviewer to object that 30 percent breaks
+        # the percent-of rule -- the bank is 10, 25 and 50 and nothing else. A range
+        # says what the lesson COULD ask; the list says what it DOES.
+        distinct = sorted(set(vals))
+        if distinct == [0] and k != "a":
+            continue                                   # a padding field, not a value
+        if len(distinct) <= PROBLEM_SPACE_LIST_MAX:
+            parts.append(f"{k} is one of " + ", ".join(str(v) for v in distinct))
+        else:
             parts.append(f"{k} from {min(vals)} to {max(vals)}")
     ops = sorted({str(p.get("op", "+")) for p in probs})
     rules = []
@@ -312,7 +337,9 @@ line ("You can count to ten") by which problems the sample happened to ask.
 Do NOT report: style preferences; the choice of numbers; the lesson being short; the
 absence of things outside its topic; a WHY beat (the lesson's opening story) having no
 picture -- it is told over the goal card by design, and the pictures start on the next beat; the rule index's own wording; the "Your turn" card's
-tap/say/type hints (screen instructions, deliberately unspoken); a topic word in the lesson's
+tap/say/type hints (screen instructions, deliberately unspoken); a [[numberline]]'s tick marks
+and labels between min= and max= -- the drawing puts them in on its own (0.1, 0.2, ... on a
+line from 0 to 1), and hops= and points= are the jumps and the marked spots, NOT the ticks; a topic word in the lesson's
 own title line; "over nine" for a sum of ten or more (the course's one chosen wording); a
 rule stated for the numbers this lesson uses, at this level, UNLESS the lesson itself later
 contradicts it or a child could misapply it within the same unit -- and the PROBLEM SPACE

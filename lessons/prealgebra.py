@@ -2,6 +2,12 @@
 # lessons/prealgebra.py  --  PRE-ALGEBRA: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wh -- THE DOT BETWEEN TWO EQUATIONS. The Basic sweep read "4 × 3 = 12
+#               · 12 ÷ 3 = 4" as 12 times 12 -- a fair reading in a course where the dot
+#               is not yet a times sign, and a WRONG reading in this one, where it is.
+#               Four step lines that joined two equations with " · " are now two [[step]]
+#               tags each (decimals compared, twice; rate; percent of a price). No spoken
+#               line changes.
 #   2026-09-14  BUILD vx -- Unit 9's variable lines say "is equal to" (Jim's ruling on the
 #               algebra1 flag: never "x holds 4"); the lesson ids, topics and the idea
 #               sentence "A letter holds a number" are unchanged.
@@ -1339,7 +1345,7 @@ _PREALGEBRA_U5 = [
             ("Here is why that matters. Which is bigger, 0 point 6 or 0 point 3 7? "
              "Count them the same way: 0 point 6 is 60 hundredths, 0 point 3 7 is 37 "
              "hundredths. 60 beats 37. More digits do NOT mean a bigger number.",
-             '[[hundredgrid shaded="60" caption="0.6 = 60 hundredths — six full rows"]][[step eq="0.6 = 60 hundredths · 0.37 = 37 hundredths"]]'),
+             '[[hundredgrid shaded="60" caption="0.6 = 60 hundredths — six full rows"]][[step eq="0.6 = 60 hundredths"]][[step eq="0.37 = 37 hundredths"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 0 point 3 2. Three full rows "
@@ -1369,7 +1375,7 @@ _PREALGEBRA_U5 = [
              "Count any decimal as hundredths and you can compare it with any other.",
              '[[hundredgrid shaded="37" caption="0.37 = 37 hundredths"]]'),
             ("And that is why 0 point 6 beats 0 point 3 7, digits or no digits.",
-             '[[step eq="0.6 = 60 hundredths · 0.37 = 37 hundredths"]]'),
+             '[[step eq="0.6 = 60 hundredths"]][[step eq="0.37 = 37 hundredths"]]'),
         ],
         "bank": [
             {"a": 1, "b": 8, "op": "hun"},
@@ -1756,7 +1762,7 @@ _PREALGEBRA_U6 = [
              "Then times by the hours you were asked about. Two steps, that order.",
              '[[array rows="3" cols="6" view="groups" eq="18 ÷ 3 = 6" label="hours" caption="18 ÷ 3 = 6 an hour, then 6 × 4 = 24"]]'),
             ("And that is how every price per hour, and every speed, gets used.",
-             '[[step eq="18 ÷ 3 = 6 · 6 × 4 = 24"]]'),
+             '[[step eq="18 ÷ 3 = 6"]][[step eq="6 × 4 = 24"]]'),
         ],
         "bank": [
             {"a": 2, "b": 3, "c": 12, "op": "rte"},
@@ -2240,7 +2246,7 @@ _PREALGEBRA_U7 = [
              "off. The percent is never dollars on its own.",
              '[[tape parts="60 | 6" total="66" caption="10% of 60 = 6 · 60 + 6 = 66"]]'),
             ("And that is the sale sign turned into the price you pay.",
-             '[[step eq="60 + 6 = 66 · 60 − 6 = 54"]]'),
+             '[[step eq="60 + 6 = 66"]][[step eq="60 − 6 = 54"]]'),
         ],
         "bank": [
             {"a": 10, "b": 20, "c": 1, "op": "pup"},

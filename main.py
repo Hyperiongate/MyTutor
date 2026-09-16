@@ -6,6 +6,13 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-16  APP_BUILD -> "2026-09-16wh-the-first-basic-sweep".
+#               BUILD wh -- no change in this file beyond the stamp. The first Basic
+#               sweep (67 findings): lessonscripts.py takes the generator items and two
+#               generator classes (the practice promise inside a lesson's own intro; the
+#               table lesson's card), lessons/basic.py the authored pile, coursesweep.py
+#               lists the problem space by value, lessons/prealgebra.py loses the dot
+#               between two equations.
 #   2026-09-15  APP_BUILD -> "2026-09-15wg-the-fourth-clean-sweep".
 #               BUILD wg -- no change in this file beyond the stamp. lessons/entry.py
 #               answers twelve of the fourth sweep's fourteen; coursesweep.py's charter
@@ -9675,7 +9682,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-15wg-the-fourth-clean-sweep"
+APP_BUILD = "2026-09-16wh-the-first-basic-sweep"
 
 
 @app.get("/health")
