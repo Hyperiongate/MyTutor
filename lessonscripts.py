@@ -2,6 +2,19 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wi -- THE FIRST PRE-ALGEBRA SWEEP (69 findings, 13 generator-owned).
+#               (1) pup's board said "20% = 8"; it says "20% of 40 = 8" (and pwh's "10% of
+#               the whole = ..."). (2) asp and prop walk-backs said "go through 1" -- the
+#               method's nickname, not a method; they say "go the long way — times the top
+#               by 100, then divide", and asp draws both steps. (3) A [[pie]] cannot hold
+#               5/3 (it clamps shaded to parts and drew a full pie captioned 5/3): prop's
+#               board and walk-back use pies only for a PROPER fraction. (4) "halfs" is
+#               "halves" (_fpl; uic's ask, board, walk-back). (5) bfac's praise and npf's
+#               walk-back say "smallest factor above 1" -- 1 is the smallest factor of
+#               everything, the rule-13 class again. (6) hun's caption says "1 full row".
+#               (7) evx's walk-back is two sentences. (8) rte's ask caption names its
+#               first step instead of asking a different question. Authored pile:
+#               lessons/prealgebra.py's note.
 #   2026-09-16  BUILD wh -- THE FIRST BASIC SWEEP (67 findings, 3 generator-owned, plus two
 #               generator classes the authored pile pointed at). (1) The rounding-to-hundreds
 #               walk-back says "just past halfway" for 253 -- "right at halfway" is only
@@ -1396,6 +1409,13 @@ def _gcd(x, y):
 
 _FRAC_BOTTOM = {2: "half", 3: "third", 4: "fourth", 5: "fifth", 6: "sixth",
                 7: "seventh", 8: "eighth", 9: "ninth", 10: "tenth", 12: "twelfth"}
+def _fpl(bottom):
+    """(wi) The PLURAL name of a 1/bottom piece -- 'halves', never 'halfs'."""
+    if bottom in _FRACWORD:
+        return _FRACWORD[bottom][1]
+    return _FRAC_BOTTOM.get(bottom, "part") + "s"
+
+
 _FRAC_TOP = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
              7: "seven", 8: "eight", 9: "nine", 10: "ten"}
 
@@ -2459,7 +2479,7 @@ def _npf_worked(p):
     n = p["a"]
     rungs, primes = _npf_ladder(n)
     chain = " × ".join(str(x) for x in primes)
-    return (f"Here it is, step by step: pull out the smallest factor and keep going until only "
+    return (f"Here it is, step by step: pull out the smallest factor above 1 and keep going until only "
             f"primes are left. {n} equals {chain} — {_plural(len(primes), 'prime')}.",
             f'[[solve start="{n}" steps="{" | ".join(rungs)}" caption="{n} = {chain}: {len(primes)} primes"]]')
 
@@ -2569,19 +2589,19 @@ def _nuf_worked(p):
 
 def _uic_board(p):
     a, b = p["a"], p["b"]
-    word = _FRAC_BOTTOM.get(a, "part")
-    return (f'[[tape parts="{" | ".join([str(a) + " " + word + "s"] * b)}" total="{b} wholes" '
-            f'caption="each whole holds {a} {word}s — how many in all?"]]'
+    word = _fpl(a)   # (wi) halves
+    return (f'[[tape parts="{" | ".join([str(a) + " " + word] * b)}" total="{b} wholes" '
+            f'caption="each whole holds {a} {word} — how many in all?"]]'
             f'[[step eq="{b} wholes = {b} × {a} = ?"]]')
 
 
 def _uic_worked(p):
     a, b = p["a"], p["b"]
-    word = _FRAC_BOTTOM.get(a, "part")
-    return (f"Here it is, step by step: each whole holds {a} {word}s, and there are {b} wholes. "
-            f"{b} times {a} equals {a * b}. There are {a * b} {word}s in {b} wholes.",
+    word = _fpl(a)   # (wi) halves
+    return (f"Here it is, step by step: each whole holds {a} {word}, and there are {b} wholes. "
+            f"{b} times {a} equals {a * b}. There are {a * b} {word} in {b} wholes.",
             f'[[tape parts="{" | ".join([str(a)] * b)}" total="{b} wholes" '
-            f'caption="{b} × {a} = {a * b} {word}s"]]')
+            f'caption="{b} × {a} = {a * b} {word}"]]')
 
 
 def _dbf_hops(c, a, b):
@@ -2655,7 +2675,7 @@ def _hun_worked(p):
             f"{_plural(a, 'full row')} — {10 * a} hundredths — {more} 0 point {a}{b} is {n} "
             f"hundredths.",
             f'[[hundredgrid shaded="{n}" eq="0.{a}{b} = {n} hundredths" '
-            f'caption="{a} full rows{" and " + str(b) + " more" if b else ""}: {n} hundredths"]]')
+            f'caption="{_plural(a, "full row")}{" and " + str(b) + " more" if b else ""}: {n} hundredths"]]')   # (wi) "1 full row"
 
 
 def _x10_board(p):
@@ -2750,7 +2770,7 @@ def _rat_worked(p):
 def _rte_board(p):
     a, b, c = p["a"], p["b"], p["c"]
     return (f'[[array total="{c}" rows="{b}" ask="1" label="hours" '
-            f'caption="{c} bottles over {b} hours — how many in one hour?"]]'
+            f'caption="{c} bottles over {b} hours — step one: how many in one hour"]]'   # (wi)
             f'[[step eq="{c} ÷ {b} = {c // b} per hour"]][[step eq="{c // b} × {a} = ?"]]')
 
 
@@ -2768,7 +2788,9 @@ def _rte_worked(p):
 
 def _prop_board(p):
     a, b, c = p["a"], p["b"], p["c"]
-    if b <= 12 and c <= 12:
+    # (wi, 2026-09-16) a pie cannot hold 5/3 -- [[pie]] clamps shaded to its parts and drew
+    # a full pie captioned 5/3. An improper fraction takes the written form.
+    if b <= 12 and c <= 12 and a < b:
         return (f'[[pie parts="{b}" shaded="{a}" caption="{a}/{b}"]]'
                 f'[[pie parts="{c}" shaded="0" caption="cut into {c}: how many is the same amount?"]]'
                 f'[[step eq="{a}/{b} = ?/{c}"]]')
@@ -2779,7 +2801,7 @@ def _prop_board(p):
 def _prop_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     n = a * c // b
-    if b <= 12 and c <= 12 and c % b == 0:
+    if b <= 12 and c <= 12 and c % b == 0 and a < b:   # (wi) pies only for a proper fraction
         k = c // b
         return (f"Here it is, step by step: the bottom was timesed by {k} — {b} times {k} equals {c} "
                 f"— so the top is timesed by {k} too: {a} times {k} equals {n}. Both pies hold "
@@ -2792,8 +2814,8 @@ def _prop_worked(p):
                 f"— so the top is timesed by {k} too: {a} times {k} equals {n}.",
                 f'[[solve start="{a}/{b} = ?/{c}" steps="the bottom : {b} × {k} = {c} | '
                 f'so the top : {a} × {k} = {n}" caption="{a}/{b} = {n}/{c}"]]')
-    return (f"Here it is, step by step: {c} is not a whole number of {b}s, so go through 1 — times "
-            f"the top by {c} and divide by {b}: {a} times {c} equals {a * c}, and {a * c} "
+    return (f"Here it is, step by step: {c} is not a whole number of {b}s, so go the long way — "
+            f"times the top by {c}, then divide by {b}: {a} times {c} equals {a * c}, and {a * c} "
             f"divided by {b} equals {n}.",
             f'[[solve start="{a}/{b} = ?/{c}" steps="times the top by {c} : {a * c} ÷ {b} | '
             f'divide : {n}" caption="{a}/{b} = {n}/{c}"]]')
@@ -2869,16 +2891,19 @@ def _asp_worked(p):
         return (f"Here it is, step by step: the bottom went from {b} to 100 — timesed by {k} — so "
                 f"the top is timesed by {k} too: {a} times {k} equals {ans}. {a} out of {b} "
                 f"is {ans} percent.", pic)
-    return (f"Here it is, step by step: 100 is not a whole number of {b}s, so go through 1 — {a} "
-            f"times 100 equals {a * 100}, and {a * 100} divided by {b} equals {ans}. {a} out "
-            f"of {b} is {ans} percent.", pic)
+    # (wi) "go through 1" was the method's name, not its explanation; the long way is
+    # said as two steps and both are drawn.
+    return (f"Here it is, step by step: 100 is not a whole number of {b}s, so go the long way — "
+            f"times the top by 100, then divide by {b}. {a} times 100 equals {a * 100}, and "
+            f"{a * 100} divided by {b} equals {ans}. {a} out of {b} is {ans} percent.",
+            pic + f'[[step eq="{a} × 100 = {a * 100}"]][[step eq="{a * 100} ÷ {b} = {ans}"]]')
 
 
 def _pwh_board(p):
     a, b = p["a"], p["b"]
     n, part = a // 10, b // (a // 10)
     return (f'[[tape parts="{b} | ?" total="?" caption="{b} is {a}% — the whole is the question"]]'
-            f'[[step eq="10% = {b} ÷ {n} = {part}"]]'
+            f'[[step eq="10% of the whole = {b} ÷ {n} = {part}"]]'   # (wi) of WHAT
             f'[[step eq="{b} is {a}% of ?"]]')
 
 
@@ -2898,7 +2923,7 @@ def _pup_board(p):
     pic = (f'[[tape parts="{b} | {ch}" total="?" caption="the price and the change put on"]]' if up
            else f'[[tape parts="? | {ch}" total="{b}" caption="the price with the change taken off"]]')
     return (pic + f'[[step eq="10% of {b} = {b // 10}"]]'
-            + (f'[[step eq="{a}% = {ch}"]]' if a != 10 else "")
+            + (f'[[step eq="{a}% of {b} = {ch}"]]' if a != 10 else "")   # (wi) of WHAT
             + f'[[step eq="{b} {"+" if up else "−"} {ch} = ?"]]')
 
 
@@ -3002,9 +3027,8 @@ def _evx_worked(p):
     # (ux) the walk-back SHOWS what x was holding -- Jim, 2026-09-09: "This didn't
     # show x=3 on the visible board" -- and reads expression, value, answer.
     a, b = p["a"], p["b"]
-    return (f"Here it is, step by step: x plus {b}, with x equal to {a} — swap the letter for its "
-            f"number and it becomes {a} plus {b}, which equals {a + b}. A sum, not two "
-            f"digits side by side.",
+    return (f"Here it is, step by step: x plus {b}, with x equal to {a}. Swap the letter for its "
+            f"number: {a} plus {b} equals {a + b}. A sum, not two digits side by side.",
             f'[[step eq="x + {b}"]][[step eq="x = {a}"]]'
             f'[[tape parts="{a} | {b}" total="{a + b}" caption="x + {b} = {a} + {b} = {a + b}"]]')
 
@@ -7350,8 +7374,8 @@ OP_EXT = {
                              f"exactly, apart from {p['a']} itself?"),
         "board": lambda p: f'[[step eq="{p["a"]} → biggest factor below it = ?"]]',
         "worked": _bfac_worked,       # (tc) the pair drawn: smallest with biggest
-        "praise": lambda p: (f"Dividing {p['a']} by its smallest factor "
-                             f"{_spf(p['a'])} gives {p['a'] // _spf(p['a'])} — the "
+        "praise": lambda p: (f"Dividing {p['a']} by {_spf(p['a'])}, its smallest factor "   # (wi) the condition
+                             f"above 1, gives {p['a'] // _spf(p['a'])} — the "
                              f"biggest one there is."),
         "key": lambda p: p["a"] // _spf(p["a"]),
         "check": lambda p: (4 <= p["a"] <= 99 and _spf(p["a"]) != p["a"],
@@ -8401,7 +8425,7 @@ OP_EXT = {
     },
     "uic": {   # how many 1/a fit inside b wholes
         "ans": lambda p: p["a"] * p["b"],
-        "spoken": lambda p: (f"How many {_FRAC_BOTTOM.get(p['a'], 'parts')}s are "
+        "spoken": lambda p: (f"How many {_fpl(p['a'])} are "   # (wi) halves
                              f"there in {p['b']} wholes?"),
         "board": _uic_board,       # (td) the picture, the answer withheld
         "worked": _uic_worked,     # (td) the picture filled in

@@ -2,6 +2,43 @@
 # lessons/prealgebra.py  --  PRE-ALGEBRA: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wi -- THE FIRST PRE-ALGEBRA SWEEP: 56 authored findings, 52 answered
+#               here (the generator's are in lessonscripts.py's note). By class:
+#               * "SMALLEST FACTOR" MEANS ABOVE 1 -- the rule-13 class, eleven places in
+#                 Unit 2 (the biggest factor's why, trap, both worked lines, recap and
+#                 advance line; breaking-into-primes' why, method and advance line; the
+#                 smallest factor's teach and recap). 1 divides everything; the lessons
+#                 now say so.
+#               * FALSE, fixed: "the exponent goes first of all" (it goes right after
+#                 the parentheses); "factors are the ways a number can be split" (they
+#                 are the row sizes); "only 1 row of 11 works" (or 11 rows of 1, the same
+#                 pair turned round); "five 3s equal 15 — three hops of 5" and its two
+#                 siblings (three 5s); "any decimal can be counted as hundredths" (any
+#                 TWO-PLACE decimal, three places); "across the decimal point" (on the
+#                 chart); "adding breaks the ratio" (adding the same number to both
+#                 sides); "every percent of every number" (every whole-tens percent);
+#                 "cannot be compared" (are hard to compare); "the one right way through
+#                 any formula"; "anything about x"; "every line of algebra"; "what is
+#                 left is the fraction part" (goes on top of the same bottom); "two
+#                 steps, always in that order" (that order keeps the numbers whole);
+#                 "every price per hour, and every speed" (when you know the hours);
+#                 "12 dollars is 30 percent off" (the shop takes 12 off and says that is
+#                 30 percent). Two reason options that were true or false replaced
+#                 ("add 3 cups of milk for every batch"; "the first share is 2" -> "gets
+#                 2 parts").
+#               * WORDS-BOARD, fixed: the flour story is two cups (the board's 2 ÷ 2/3);
+#                 the pizza is eight slices (the board's 8/3); times-by-ten draws 3.7
+#                 BEFORE the move (two picture beats); parentheses-first draws the
+#                 14-without-the-marks; the triangle's second example and the line's
+#                 wrong subtractions are drawn; changing units draws all three unit
+#                 facts; "adding negative 3" is "adding negative 7", the board's number;
+#                 six second-recap beats speak their board (tenths times, keeping a
+#                 ratio, scaling a rate, sharing in a ratio, what percent, changing
+#                 units, the rope's 37 metres); what-percent's recap actually compares
+#                 the two scores (21/30 = 70%). The times-before-add reason board no
+#                 longer shows "times first" -- that was the answer.
+#               * UNCLEAR, fixed: "the exponent" defined as the small raised number;
+#                 changing units' why split; "a hole" -> "a hole to fill".
 #   2026-09-16  BUILD wh -- THE DOT BETWEEN TWO EQUATIONS. The Basic sweep read "4 × 3 = 12
 #               · 12 ÷ 3 = 4" as 12 times 12 -- a fair reading in a course where the dot
 #               is not yet a times sign, and a WRONG reading in this one, where it is.
@@ -63,12 +100,12 @@ _PREALGEBRA_MORE = [
         "id": "pre-u2-the-biggest-factor", "course": "prealgebra", "unit": 2,
         "topic": "The biggest factor below the number", "op": "bfac", "max_value": 99,
         "levels": ("abstract",), "symbols": ("factor", "prime"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Divide by the smallest factor to find the biggest.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Divide by the smallest factor above 1 to find the biggest.",
         "why": [
             ("Why the biggest factor? Because it is the other end of the same "
-             "question. Forty-five people into the fewest equal groups gave you 3 "
-             "groups — and the biggest group you could make is what is left when you "
-             "divide. Smallest and biggest are a pair, and one hands you the other.",
+             "question. Forty-five people into the fewest equal groups — more than one "
+             "— gave you 3 groups, and the biggest group you could make is what is left "
+             "when you divide. Smallest and biggest are a pair, and one hands you the other.",
              '[[goal text="The biggest factor below the number"]]'),
         ],
         "picture": [
@@ -86,17 +123,18 @@ _PREALGEBRA_MORE = [
              '[[step eq="45 = 3 × 15"]][[step eq="smallest factor 3 → biggest factor 15"]]'),
             ("Here is the trap. Do not hand back the number just below. For 45 the "
              "answer is not 44, and it is not 9 either — 9 divides 45, but 15 is "
-             "bigger. Find the smallest factor, divide by it, and the biggest one "
+             "bigger. Find the smallest factor above 1, divide by it, and the biggest one "
              "arrives in a single step. A prime number has no factor below it at all "
              "except 1, so these questions never hand you one.",
-             '[[step eq="45 → 15 ✓"]][[step eq="44 ✗ close to 45, but it does not divide it at all"]]'),
+             '[[step eq="45 → 15 ✓"]][[step eq="44 ✗ close to 45, but it does not divide it at all"]]'
+             '[[step eq="9 ✗ divides 45, but 15 is bigger"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 26. Its smallest factor is 2, "
+            {"worked": ("Here is one more, done for you. 26. Its smallest factor above 1 is 2, "
                         "and 26 divided by 2 is 13 — 2 rows of 13.",
                         '[[step eq="26 = 2 × 13"]][[areamodel rows="2" cols="13" caption="smallest 2, biggest 13"]]'),
              "ask": {'a': 51, 'b': 0, 'op': 'bfac'}},
-            {"worked": ("One more together. 63. Its smallest factor is 3, and 63 "
+            {"worked": ("One more together. 63. Its smallest factor above 1 is 3, and 63 "
                         "divided by 3 is 21 — 3 rows of 21.",
                         '[[step eq="63 = 3 × 21"]][[areamodel rows="3" cols="21" caption="smallest 3, biggest 21"]]'),
              "ask": {'a': 85, 'b': 0, 'op': 'bfac'}},
@@ -115,8 +153,8 @@ _PREALGEBRA_MORE = [
         },
         "recap": [
             ("So, here it is again. The smallest factor and the biggest are a pair — "
-             "the two sides of one rectangle. Find the smallest, divide by it, and "
-             "you are holding the biggest.",
+             "the two sides of one rectangle. Find the smallest factor above 1, divide "
+             "by it, and you are holding the biggest.",
              '[[areamodel rows="3" cols="15" caption="3 × 15 = 45"]]'),
             ("And never the number just below — that one almost never divides at all.",
              '[[step eq="45 = 3 × 15"]]'),
@@ -196,7 +234,8 @@ _PREALGEBRA_U1 = [
             "choices": ("because the times is done before the add | because you work "
                         "it left to right | because the add is done before the times"),
             "answer": "because the times is done before the add",
-            "board": '[[solve start="2 + 3 × 4" steps="times first : 2 + 12 | then add : 14" caption="2 + 3 × 4 = 14"]]',
+            # (wi) the reason board no longer shows "times first" -- that is the answer
+            "board": '[[step eq="2 + 3 × 4 = 14"]]',
         },
         "recap": [
             ("So, here it is again. When a plus and a times share a line, the times "
@@ -243,7 +282,8 @@ _PREALGEBRA_U1 = [
             ("That is the rule. Whatever sits inside parentheses goes first — even an "
              "add, even when a times is waiting. Without the parentheses that same "
              "line would be 14, so the marks change the answer.",
-             '[[solve start="(2 + 3) × 4" steps="inside first : 5 × 4 | then times : 20" caption="inside first, then the times"]]'),
+             '[[solve start="(2 + 3) × 4" steps="inside first : 5 × 4 | then times : 20" caption="inside first, then the times"]]'
+             '[[step eq="2 + 3 × 4 = 14 — without the marks"]]'),
             ("One more. 1 plus 6, in parentheses, times 3. Inside: 1 plus 6 equals 7. "
              "Then 7 times 3 equals 21.",
              '[[solve start="(1 + 6) × 3" steps="inside first : 7 × 3 | then times : 21" caption="(1 + 6) × 3 = 21"]]'),
@@ -301,8 +341,8 @@ _PREALGEBRA_U1 = [
         "why": [
             ("Why exponents? Because multiplying the same number again and again is "
              "slow to write. A square floor 3 tiles by 3 tiles; a box 2 cubes wide, 2 "
-             "deep, 2 high. The exponent is the short way to say: multiply this "
-             "number by itself, this many times.",
+             "deep, 2 high. A power — a number with a small raised exponent — is the "
+             "short way to say: multiply this number by itself, this many times.",
              '[[goal text="Exponents are repeated times"]]'),
         ],
         "picture": [
@@ -349,7 +389,8 @@ _PREALGEBRA_U1 = [
              "a small 2 is two copies, a square; a small 3 is three copies, a cube. "
              "It is never a times.",
              '[[areamodel rows="3" cols="3" caption="3² = 9"]][[step eq="2³ = 2 × 2 × 2 = 8"]]'),
-            ("And it is the short way to write multiplying a number by itself.",
+            ("And a power like 3 squared is the short way to write multiplying a "
+             "number by itself.",
              '[[step eq="3 × 3 = 3²"]]'),
         ],
         "bank": [
@@ -387,8 +428,8 @@ _PREALGEBRA_U1 = [
         ],
         "teach": [
             ("That is the whole order. You know two rules: the times goes before the "
-             "add, and parentheses go before everything. The exponent joins them, and "
-             "it goes first of all. Power first, then times, then add.",
+             "add, and parentheses go before everything. The power joins them, right "
+             "after the parentheses. Parentheses, then power, then times, then add.",
              '[[solve start="3² + 2 × 4" steps="power first : 9 + 2 × 4 | times next : 9 + 8 | add last : 17" caption="power, then times, then add"]]'),
             ("One more. 2 squared plus 5 times 3. The power gives 4. The times gives "
              "15. 4 plus 15 equals 19.",
@@ -420,7 +461,7 @@ _PREALGEBRA_U1 = [
             ("So, here it is again. One order for the whole line: parentheses, then "
              "the power, then the times, then the add.",
              '[[solve start="3² + 2 × 4" steps="power first : 9 + 2 × 4 | times next : 9 + 8 | add last : 17" caption="power, times, add"]]'),
-            ("And it is the one right way through any formula that mixes them.",
+            ("And it is the order to take through any line that mixes them.",
              '[[step eq="3² + 2 × 4 = 17"]]'),
         ],
         "bank": [
@@ -461,8 +502,8 @@ _PREALGEBRA_U23 = [
         "symbols": ("factor", "divides"),
         "advance_line": "Three in a row, and you can say why — you've got it! You can count a number's factors.",
         "why": [
-            ("Why count factors? Because factors are the ways a number can be split "
-             "into equal rows. Twelve chairs can stand in 1 row of 12, 2 rows of 6, "
+            ("Why count factors? Because the factors are the row sizes that split a "
+             "number into equal rows. Twelve chairs can stand in 1 row of 12, 2 rows of 6, "
              "or 3 rows of 4 — and knowing every way is what lets you share, arrange "
              "and simplify without guessing.",
              '[[goal text="How many factors a number has"]]'),
@@ -479,8 +520,8 @@ _PREALGEBRA_U23 = [
              "the number itself are always factors. To count them, find every pair "
              "and write each number once.",
              '[[write lines="1 × 6 | 2 × 3" caption="every pair, each number written once"]]'),
-            ("Now 11. Only 1 row of 11 works — nothing else fits. So 11 has just two "
-             "factors. Numbers with exactly two are special, and they have a name "
+            ("Now 11. Only 1 row of 11 works — or 11 rows of 1, the same pair turned "
+             "round. Nothing else fits. So 11 has just two factors. Numbers with exactly two are special, and they have a name "
              "you will meet next lesson.",
              '[[write lines="1 × 11" caption="the factors of 11: 1, 11 — two"]][[array rows="1" cols="11" caption="1 row of 11"]]'),
         ],
@@ -510,7 +551,7 @@ _PREALGEBRA_U23 = [
              "side of a rectangle that holds it. Find every pair, write each number "
              "once, and count.",
              '[[write lines="1 × 6 | 2 × 3" caption="1, 2, 3, 6 — four factors"]]'),
-            ("And the factors are every way to arrange that many in equal rows.",
+            ("And the factors are every row size that arranges that many in equal rows.",
              '[[array rows="2" cols="3" caption="2 rows of 3"]]'),
         ],
         "bank": [
@@ -551,7 +592,7 @@ _PREALGEBRA_U23 = [
             ("That is the method. Go up in order — 2, then 3, then 5, then 7 — and "
              "stop at the first one that divides exactly. A number with exactly two "
              "factors, just 1 and itself, is a prime number: 2, 3, 5 and 7 are primes. "
-             "Every other number has a smaller factor to find.",
+             "Every other number above 1 has a smaller factor to find.",
              '[[write lines="try 2, then 3, then 5, then 7" caption="stop at the first one that fits"]]'),
             ("Take 85. Try 2 — no. Try 3 — no. Try 5 — yes, 85 is five 17s. The "
              "smallest factor of 85 above 1 is 5.",
@@ -582,7 +623,7 @@ _PREALGEBRA_U23 = [
         "recap": [
             ("So, here it is again. To find the smallest factor above 1, try 2, then "
              "3, then 5, then 7, and stop at the first one that divides exactly. A "
-             "prime has none — only 1 and itself.",
+             "prime has no smaller one — its only factors are 1 and itself.",
              '[[write lines="try 2, then 3, then 5, then 7" caption="stop at the first one that fits"]]'),
             ("And that first way in is the first step of breaking a number down.",
              '[[array rows="3" cols="9" caption="3 × 9 = 27"]]'),
@@ -607,10 +648,10 @@ _PREALGEBRA_U23 = [
         "op": "npf", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("prime", "factor"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Every number breaks down into primes.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Every number above 1 breaks down into primes.",
         "why": [
             ("Why break a number into primes? Because primes are the building blocks "
-             "— every whole number is primes multiplied, and there is only one way "
+             "— every whole number above 1 is primes multiplied, and there is only one way "
              "to do it. Once you can see the blocks, sharing fractions, finding what "
              "two numbers have in common and simplifying all get easier.",
              '[[goal text="Breaking a number into primes"]]'),
@@ -623,7 +664,7 @@ _PREALGEBRA_U23 = [
              '[[solve start="24" steps="pull out 2 : 2 × 12 | pull out 2 : 2 × 2 × 6 | pull out 2 : 2 × 2 × 2 × 3" caption="24 = 2 × 2 × 2 × 3: 4 primes"]]'),
         ],
         "teach": [
-            ("That is the method. Keep pulling out the smallest factor until only "
+            ("That is the method. Keep pulling out the smallest factor above 1 until only "
              "primes are left, then count them. A prime that appears more than once "
              "counts every time — 24 needed three 2s.",
              '[[solve start="24" steps="pull out 2 : 2 × 12 | pull out 2 : 2 × 2 × 6 | pull out 2 : 2 × 2 × 2 × 3" caption="stop when every number is prime"]]'),
@@ -774,8 +815,8 @@ _PREALGEBRA_U23 = [
         ],
         "teach": [
             ("That is the rule. Adding a negative number moves you LEFT along the "
-             "line — exactly what counting back does. Adding negative 3 does what "
-             "counting back 3 does. The plus sign does not stop you going left; the "
+             "line — exactly what counting back does. Adding negative 7 does what "
+             "counting back 7 does. The plus sign does not stop you going left; the "
              "negative decides the direction.",
              '''[[numberline min="-10" max="10" points="5" hops="5,-2" caption="plus a negative: hop left"]][[step eq="5 + (−7) = −2"]]'''),
             ("Another: 3 plus negative 6. Start at 3, hop 6 left. Three steps reach "
@@ -932,17 +973,17 @@ _PREALGEBRA_U23 = [
              "hop went left, and the answer is negative. Negative 3 times 4 equals "
              "negative 12.",
              '[[numberline min="-17" max="5" hops="0,-3,-6,-9,-12" caption="four hops of 3 to the left"]][[step eq="(−3) × 4 = −12"]]'),
-            ("Another: negative 5 times 3. Five 3s equal 15 — three hops of 5 to "
+            ("Another: negative 5 times 3. Three 5s equal 15 — three hops of 5 to "
              "the left — and one negative sign turns it negative 15.",
              '[[numberline min="-20" max="5" hops="0,-5,-10,-15" caption="(−5) × 3 = −15"]][[step eq="(−5) × 3 = −15"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. Negative 2 times 7. Two 7s "
+            {"worked": ("Here is one more, done for you. Negative 2 times 7. Seven 2s "
                         "equal 14 — seven hops of 2 to the left — and one negative "
                         "turns it negative 14.",
                         '[[numberline min="-19" max="5" hops="0,-2,-4,-6,-8,-10,-12,-14" caption="(−2) × 7 = −14"]][[step eq="(−2) × 7 = −14"]]'),
              "ask": {'a': 4, 'b': 6, 'op': 'mulneg'}},
-            {"worked": ("One more together. Negative 6 times 4. Six 4s equal 24 — four "
+            {"worked": ("One more together. Negative 6 times 4. Four 6s equal 24 — four "
                         "hops of 6 to the left — so the answer is negative 24.",
                         '[[numberline min="-29" max="5" hops="0,-6,-12,-18,-24" caption="(−6) × 4 = −24"]][[step eq="(−6) × 4 = −24"]]'),
              "ask": {'a': 8, 'b': 5, 'op': 'mulneg'}},
@@ -1054,8 +1095,8 @@ _PREALGEBRA_U4 = [
         },
         "recap": [
             ("So, here it is again. Divide by the bottom to find one part, then "
-             "times by the top to take that many parts. Two steps, always in that "
-             "order.",
+             "times by the top to take that many parts. Two steps, and that order "
+             "keeps the numbers whole.",
              '[[tape parts="4 | 4 | 4" total="12" caption="12 ÷ 3 = 4, then 4 × 2 = 8"]]'),
             ("And that is how you find the whole share, not just one slice.",
              '[[step eq="2/3 of 12 = 8"]]'),
@@ -1156,7 +1197,7 @@ _PREALGEBRA_U4 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Flip the fraction, then times.",
         "why": [
             ("Why divide by a fraction? Because you often need to know how many small "
-             "pieces fit. Four cups of flour, and the scoop holds two thirds of a cup "
+             "pieces fit. Two cups of flour, and the scoop holds two thirds of a cup "
              "— how many scoops? A ribbon cut into pieces two thirds of a metre long. "
              "Dividing asks how many of these fit inside that.",
              '[[goal text="Dividing by a fraction"]]'),
@@ -1208,7 +1249,7 @@ _PREALGEBRA_U4 = [
              "fit — and small pieces fit many times, so the answer grows. The quick "
              "rule: flip the fraction, then times.",
              '[[solve start="2 ÷ (2/3)" steps="flip and times : 2 × 3/2 | times the top : 6 ÷ 2 | divide : 3" caption="flip, then times"]]'),
-            ("And that is how many scoops a bag of flour holds.",
+            ("And that is how many scoops two cups of flour hold — three.",
              '[[step eq="2 ÷ (2/3) = 3"]]'),
         ],
         "bank": [
@@ -1234,7 +1275,7 @@ _PREALGEBRA_U4 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Count how many times the bottom fits into the top.",
         "why": [
             ("Why fractions bigger than one? Because a pizza cut into 3 does not stop "
-             "you eating 7 slices — that is more than two whole pizzas. Seven thirds "
+             "you eating 8 slices — that is more than two whole pizzas. Eight thirds "
              "is not a mistake. It is a real amount, and you need to know how many "
              "whole ones are hiding inside it.",
              '[[goal text="Fractions bigger than one"]]'),
@@ -1280,9 +1321,11 @@ _PREALGEBRA_U4 = [
         "recap": [
             ("So, here it is again. A fraction can be bigger than one — it is a real "
              "place past the whole numbers. To find the whole ones, count how many "
-             "times the bottom fits into the top; what is left is the fraction part.",
+             "times the bottom fits into the top; what is left goes on top of the "
+             "same bottom — the fraction part.",
              '[[numberline min="0" max="3" denom="3" hops="0,1,2,2.67" caption="8/3 = 2 and 2/3"]]'),
-            ("And that is how many pizzas seven slices really are.",
+            ("And that is how many pizzas eight slices really are — two whole ones "
+             "and two thirds.",
              '[[step eq="8 ÷ 3 = 2 whole ones, 2 left"]]'),
         ],
         "bank": [
@@ -1322,7 +1365,7 @@ _PREALGEBRA_U5 = [
         "op": "hun", "max_value": 99,
         "levels": ("abstract",),
         "symbols": ("decimal point", "hundredths"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Count a decimal as hundredths and you can compare any two.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Count a two-place decimal as hundredths and you can compare any two.",
         "why": [
             ("Why count hundredths? Because money is hundredths — 0 point 3 7 dollars "
              "is 37 cents — and so are most measurements you will meet. And because "
@@ -1340,7 +1383,8 @@ _PREALGEBRA_U5 = [
             ("That is how a decimal is built. A decimal point separates the whole "
              "ones from the parts. The first place after it counts tenths — full "
              "rows — and the second counts hundredths — single squares. Ten "
-             "hundredths make one tenth, so any decimal can be counted as hundredths.",
+             "hundredths make one tenth, so any decimal with two places can be "
+             "counted as hundredths.",
              '[[hundredgrid shaded="37" caption="tenths are rows, hundredths are squares"]][[step eq="0.37 = 30 + 7 = 37 hundredths"]]'),
             ("Here is why that matters. Which is bigger, 0 point 6 or 0 point 3 7? "
              "Count them the same way: 0 point 6 is 60 hundredths, 0 point 3 7 is 37 "
@@ -1372,7 +1416,8 @@ _PREALGEBRA_U5 = [
         "recap": [
             ("So, here it is again. After the point, the first place is tenths — "
              "full rows on the grid — and the second is hundredths — single squares. "
-             "Count any decimal as hundredths and you can compare it with any other.",
+             "Count a two-place decimal as hundredths and you can compare it with "
+             "any other.",
              '[[hundredgrid shaded="37" caption="0.37 = 37 hundredths"]]'),
             ("And that is why 0 point 6 beats 0 point 3 7, digits or no digits.",
              '[[step eq="0.6 = 60 hundredths"]][[step eq="0.37 = 37 hundredths"]]'),
@@ -1406,16 +1451,18 @@ _PREALGEBRA_U5 = [
              '[[goal text="Timesing a decimal by ten"]]'),
         ],
         "picture": [
+            # (wi, 2026-09-16) 3.7 is drawn BEFORE the move; the result is the second picture
             ("Here is 3 point 7 on the place-value chart: 3 in the ones, 7 in the "
-             "tenths — seven slices of one. Times 10, and every digit moves one place "
-             "to the left. The 7 tenths become 7 ones. The 3 ones become 3 tens. "
-             "Read the chart: 37.",
+             "tenths — seven slices of one.",
+             '[[placevalue o="3" d="7" caption="3.7: three ones and seven tenths"]]'),
+            ("Times 10, and every digit moves one place to the left. The 7 tenths "
+             "become 7 ones. The 3 ones become 3 tens. Read the chart: 37.",
              '[[placevalue t="3" o="7" d="0" caption="3.7 × 10 = 37: every digit one place left"]]'),
         ],
         "teach": [
             ("That is the rule. Timesing by ten moves every digit one place to the "
-             "left across the decimal point — the tenths become ones, the ones "
-             "become tens. Nothing is dropped and nothing is invented.",
+             "left on the chart — the tenths cross the decimal point to become ones, "
+             "the ones become tens. Nothing is dropped and nothing is invented.",
              '[[placevalue o="3" d="7" caption="3.7: three ones and seven tenths"]][[step eq="3.7 × 10 = 37"]]'),
             ("One more. 5 point 2 times 10 equals 52. Careful — the answer is not 50. "
              "The tenths digit moves too; it does not get left behind.",
@@ -1448,7 +1495,8 @@ _PREALGEBRA_U5 = [
              "on the chart — tenths to ones, ones to tens. The tenths digit moves "
              "too.",
              '[[placevalue t="3" o="7" d="0" caption="3.7 × 10 = 37"]]'),
-            ("And that is ten pieces of rope, with no long working at all.",
+            ("And that is ten pieces of rope — 37 metres in all — with no long "
+             "working at all.",
              '[[step eq="3.7 × 10 = 37"]]'),
         ],
         "bank": [
@@ -1521,8 +1569,8 @@ _PREALGEBRA_U5 = [
             ("So, here it is again. Say the decimal as tenths, times the tenths like "
              "whole numbers, and the answer stays in tenths.",
              '[[numberline min="0" max="2" denom="10" hops="0,0.3,0.6,0.9,1.2" caption="3 tenths × 4 = 12 tenths"]]'),
-            ("And that is four bags of 0 point 3 of a kilo, using a times table you "
-             "already know.",
+            ("And that is four bags of 0 point 3 of a kilo — 3 tenths times 4, 12 "
+             "tenths — using a times table you already know.",
              '[[step eq="3 tenths × 4 = 12 tenths"]]'),
         ],
         "bank": [
@@ -1656,8 +1704,8 @@ _PREALGEBRA_U6 = [
              "by adding. Find how many batches, then times the other side by that.",
              '[[tape parts="2 | 3" caption="2 : 3"]][[step eq="6 ÷ 2 = 3 batches"]][[step eq="3 × 3 = 9"]]'),
             ("Careful with the tempting wrong move. 6 cups of flour does NOT mean 7 "
-             "cups of milk just because 3 is one more than 2. Adding breaks the "
-             "ratio; timesing keeps it.",
+             "cups of milk just because 3 is one more than 2. Adding the same number "
+             "to both sides breaks the ratio; timesing both by the same number keeps it.",
              '[[step eq="2 : 3 → 6 : 9 ✓"]][[step eq="2 : 3 → 6 : 7 ✗"]]'),
         ],
         "pairs": [
@@ -1678,8 +1726,7 @@ _PREALGEBRA_U6 = [
             "spoken": ("One more thing — not the answer, the reason. 2 to 3, with 6 "
                        "cups of flour, needs 9 cups of milk. Tap the reason why."),
             "choices": ("because both sides were timesed by 3 | because 3 is one more "
-                        "than 2, so 6 needs 7 | because you add 3 cups of milk for "
-                        "every batch of flour"),
+                        "than 2, so 6 needs 7 | because you add 3 to both sides"),
             "answer": "because both sides were timesed by 3",
             "board": '[[tape parts="2 | 3" caption="one batch: 2 : 3"]][[tape parts="6 | 9" caption="3 batches: 6 : 9"]]',
         },
@@ -1688,7 +1735,8 @@ _PREALGEBRA_U6 = [
              "same times. Find how many batches, then times the other side by that "
              "— never add.",
              '[[tape parts="2 | 3" caption="2 : 3"]][[tape parts="6 | 9" caption="6 : 9 — both sides times 3"]]'),
-            ("And that is a recipe for twelve that still tastes right.",
+            ("And that is a recipe for twelve that still tastes right — 2 to 3, made "
+             "three times bigger, is 6 to 9.",
              '[[step eq="2 : 3 = 6 : 9"]]'),
         ],
         "bank": [
@@ -1761,7 +1809,8 @@ _PREALGEBRA_U6 = [
             ("So, here it is again. Divide to reach one hour — that is the rate. "
              "Then times by the hours you were asked about. Two steps, that order.",
              '[[array rows="3" cols="6" view="groups" eq="18 ÷ 3 = 6" label="hours" caption="18 ÷ 3 = 6 an hour, then 6 × 4 = 24"]]'),
-            ("And that is how every price per hour, and every speed, gets used.",
+            ("And that is how a price per hour, or a speed, is used when you know the "
+             "hours: 18 divided by 3 is 6, then 6 times 4 is 24.",
              '[[step eq="18 ÷ 3 = 6"]][[step eq="6 × 4 = 24"]]'),
         ],
         "bank": [
@@ -1789,7 +1838,8 @@ _PREALGEBRA_U6 = [
             ("Why proportions? Because 3 out of 4 and 6 out of 8 are the same share "
              "— the same slice of pie, cut finer. You move between them all the "
              "time: making a photo bigger, reading a map, scaling a recipe. A "
-             "proportion is two fractions worth the same, and one of them has a hole.",
+             "proportion is two fractions worth the same — and today, one of them has "
+             "a hole to fill.",
              '[[goal text="Filling in a proportion"]]'),
         ],
         "picture": [
@@ -1903,10 +1953,10 @@ _PREALGEBRA_U6 = [
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. Sharing 20 in the "
                        "ratio 2 to 3 gives the first share 8. Tap the reason why."),
-            "choices": ("because 5 parts of 4 each, and the first share is 2 | "
+            "choices": ("because 5 parts of 4 each, and the first gets 2 parts | "
                         "because you share 20 by the first number, 2 | because the "
                         "first share is always the smaller half"),
-            "answer": "because 5 parts of 4 each, and the first share is 2",
+            "answer": "because 5 parts of 4 each, and the first gets 2 parts",
             "board": '[[tape parts="8 | 12" total="20" caption="2 parts : 3 parts = 8 : 12"]]',
         },
         "recap": [
@@ -1914,8 +1964,8 @@ _PREALGEBRA_U6 = [
              "ratio added. Share the amount by that count to find one part, then "
              "give each side its parts, and check they put back together.",
              '[[tape parts="8 | 12" total="20" caption="20 ÷ 5 = 4 · 4 × 2 = 8 · 4 × 3 = 12"]]'),
-            ("And that is prize money split fairly, and a bill shared by who ate "
-             "what.",
+            ("And that is prize money split fairly — 8 and 12 make the 20 — and a "
+             "bill shared by who ate what.",
              '[[step eq="8 + 12 = 20"]]'),
         ],
         "bank": [
@@ -1962,7 +2012,7 @@ _PREALGEBRA_U7 = [
             ("Why any percent? Because you already know 50 percent is half and 10 "
              "percent is a tenth — but sale signs say 30 percent off, and a test says "
              "70 percent. Half and a fourth are no help there. Here is one way that "
-             "works for every percent of every number.",
+             "works for every percent made of whole tens, of every number.",
              '[[goal text="Any percent, ten at a time"]]'),
         ],
         "picture": [
@@ -2005,7 +2055,7 @@ _PREALGEBRA_U7 = [
             "board": '[[tape parts="12 | 28" total="40" caption="3 parts of 4: 30% of 40 = 12"]]',
         },
         "recap": [
-            ("So, here it is again. Any percent of any number: find ten percent "
+            ("So, here it is again. Any whole-tens percent of any number: find ten percent "
              "first — a tenth — then count how many tens the percent is, and times "
              "by that. Two steps, and the first one is not the answer.",
              '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40" caption="10% of 40 = 4 · 30% = 3 × 4 = 12"]]'),
@@ -2035,7 +2085,7 @@ _PREALGEBRA_U7 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Percent means out of a hundred.",
         "why": [
             ("Why turn a score into a percent? Because 15 out of 20 on one test and 21 "
-             "out of 30 on another cannot be compared as they stand. Percent means out "
+             "out of 30 on another are hard to compare as they stand. Percent means out "
              "of a hundred — put both scores out of a hundred and you can see which is "
              "better at a glance.",
              '[[goal text="What percent is that"]]'),
@@ -2086,8 +2136,9 @@ _PREALGEBRA_U7 = [
              "of 100: whatever the bottom was timesed by to reach 100, times the top "
              "by the same. And answer with the part you HAD, not the part you missed.",
              '[[tape parts="15 | 5" total="20" caption="15 out of 20"]][[hundredgrid shaded="75" unit="percent" caption="15/20 = 75/100"]]'),
-            ("And that is two test scores, compared at a glance.",
-             '[[step eq="15/20 = 75%"]]'),
+            ("And that is two test scores, compared at a glance: 15 out of 20 is 75 "
+             "percent, 21 out of 30 is 70 percent — the first test went better.",
+             '[[step eq="15/20 = 75%"]][[step eq="21/30 = 70%"]]'),
         ],
         "bank": [
             {"a": 1, "b": 10, "op": "asp"},
@@ -2112,7 +2163,8 @@ _PREALGEBRA_U7 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Step down to ten percent, then up to the whole.",
         "why": [
             ("Why find the whole? Because sometimes the whole is what is missing. A "
-             "shop says 12 dollars is 30 percent off — what was the full price? A "
+             "shop takes 12 dollars off and says that is 30 percent — what was the "
+             "full price? A "
              "class says 12 students is 30 percent of the school — how big is the "
              "school? You are told a part and its percent, and the whole is the "
              "question.",
@@ -2291,9 +2343,9 @@ _PREALGEBRA_U8 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Say the unit fact first, then times by it.",
         "why": [
             ("Why change units? Because a ruler reads in centimetres, a map reads in "
-             "metres and a recipe reads in grams — and the same length or the same "
-             "weight has to move between them. Measuring in a smaller unit takes MORE "
-             "of them, and how many more is one fact per unit.",
+             "metres and a recipe reads in grams. The same length, or the same weight, "
+             "has to move from one unit to another. Measuring in a smaller unit takes "
+             "MORE of them, and how many more is one fact per unit.",
              '[[goal text="Changing units"]]'),
         ],
         "picture": [
@@ -2308,7 +2360,8 @@ _PREALGEBRA_U8 = [
              "millimetres, one metre is 100 centimetres, one kilogram is 1000 grams. "
              "Then times by it. 3 metres: one metre is 100 centimetres, and 3 times "
              "100 equals 300.",
-             '[[tape parts="100 | 100 | 100" total="300" caption="3 metres"]][[step eq="1 m = 100 cm"]][[step eq="3 × 100 = 300"]]'),
+             '[[step eq="1 cm = 10 mm"]][[step eq="1 m = 100 cm"]][[step eq="1 kg = 1000 g"]]'
+             '[[tape parts="100 | 100 | 100" total="300" caption="3 metres"]][[step eq="3 × 100 = 300"]]'),
             ("The hard part is never the timesing — it is knowing HOW MANY zeros. 3 "
              "metres is not 30 centimetres; that would be using ten when the unit "
              "needs a hundred. One more: 6 centimetres in millimetres. One centimetre "
@@ -2342,8 +2395,8 @@ _PREALGEBRA_U8 = [
              "out loud — 10, 100 or 1000 — then times by it. The number of zeros is "
              "the whole question, and the unit fact answers it.",
              '[[tape parts="100 | 100 | 100" total="300" caption="1 m = 100 cm · 3 × 100 = 300"]]'),
-            ("And that is the ruler, the map and the recipe all speaking the same "
-             "length.",
+            ("And that is the ruler, the map and the recipe all speaking in units you "
+             "can move between — 3 metres is 300 centimetres.",
              '[[step eq="3 m = 300 cm"]]'),
         ],
         "bank": [
@@ -2465,9 +2518,11 @@ _PREALGEBRA_U8 = [
              '[[angle deg="180" split="130" caption="a straight line — 130° and the rest"]][[step eq="180° − 130° = 50°"]]'),
             ("Watch which number you take away from. It is 180 — not 90 and not 360. "
              "90 is a quarter turn and 360 is the whole way round; neither of them is "
-             "a straight line. One more: an angle of 120 on the line leaves 180 take "
-             "away 120, which equals 60 degrees.",
-             '[[step eq="180° − 130° = 50° ✓"]][[step eq="360° − 130° = 230° ✗"]][[angle deg="180" split="120,60" caption="120° + 60° = 180°"]]'),
+             "a straight line. 360 take away 130 would give 230 — far too big. One "
+             "more: an angle of 120 on the line leaves 180 take away 120, which "
+             "equals 60 degrees.",
+             '[[step eq="180° − 130° = 50° ✓"]][[step eq="90° ✗ a quarter turn, not a line"]]'
+             '[[step eq="360° − 130° = 230° ✗ the whole way round"]][[angle deg="180" split="120,60" caption="120° + 60° = 180°"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. One angle on the line is 45 "
@@ -2547,7 +2602,9 @@ _PREALGEBRA_U8 = [
              "were GIVEN come to. The one you were asked for is what is left of the "
              "180 after them. One more: 35 and 65 come to 100, and 180 take away 100 "
              "equals 80 degrees.",
-             '[[step eq="180° − 110° = 70° ✓"]][[step eq="110° ✗ — that is the two you were given"]][[triangle v="A,B,C" angles="35,65,80" caption="35° + 65° + 80° = 180°"]]'),
+             '[[step eq="180° − 110° = 70° ✓"]][[step eq="110° ✗ — that is the two you were given"]]'
+             '[[step eq="35° + 65° = 100°"]][[step eq="180° − 100° = 80°"]]'
+             '[[triangle v="A,B,C" angles="35,65,80" caption="35° + 65° + 80° = 180°"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Two angles are 20 and 30. "
@@ -2671,8 +2728,8 @@ _PREALGEBRA_U9 = [
             "board": '[[tape parts="5 | 3" total="8" caption="x + 3 with x equal to 5: 5 + 3 = 8"]]',
         },
         "recap": [
-            ("So, here it is again. A letter holds a number. To work out anything "
-             "about x, swap the letter for the number it is equal to, then do the "
+            ("So, here it is again. A letter holds a number. To work out a sum with "
+             "x in it, swap the letter for the number it is equal to, then do the "
              "sum. Swap first — the plus keeps the numbers apart.",
              '[[tape parts="5 | 3" total="8" caption="x = 5 · x + 3 = 5 + 3 = 8"]]'),
             ("And that is the doorway to algebra, one letter wide.",
@@ -2750,7 +2807,7 @@ _PREALGEBRA_U9 = [
              "that many copies of the letter. 3 x is three x's, and with x equal to 9 "
              "it is 27. The times sign is invisible, but it is there.",
              '[[tape parts="9 | 9 | 9" total="27" caption="3x = 3 × 9 = 27"]]'),
-            ("And that is the shorthand every line of algebra is written in.",
+            ("And that is a shorthand you will see on nearly every line of algebra.",
              '[[step eq="3x = 3 × x"]]'),
         ],
         "bank": [

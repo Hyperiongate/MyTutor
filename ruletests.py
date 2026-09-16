@@ -6,6 +6,14 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-16  BUILD wi -- PART 3md, THE FIRST PRE-ALGEBRA SWEEP (69 findings, 6 clean).
+#               Pins the eight generator items (pup's "20% of 40", asp's long way drawn,
+#               no pie for an improper fraction, "halves", "smallest factor above 1" in
+#               bfac and npf, hun's caption, evx's two sentences, rte's caption) and the
+#               authored classes (above-1 through Unit 2, the negative-times hops, the
+#               two-place decimals, the ratio and percent conditions, the drawn boards).
+#               Pins moved: course 39,997 -> 39,998; closure 40,251 -> 40,252; speechmap
+#               of 40,303 -> of 40,304.
 #   2026-09-16  BUILD wh -- PART 3mc, THE FIRST BASIC SWEEP (67 findings, 7 clean). Pins
 #               the three generator items (r100's "just past halfway", the split walk-
 #               backs' final sum, "1 full row"), the two generator classes the authored
@@ -15395,8 +15403,9 @@ def part3ky_one_label_for_every_clip():
         # (wh) 2,245 of 40,303: times-by-ten's picture became two beats (one line
         # added), and the hundredths recap now says "0.25 plus 0.13 — 0.38, thirty-
         # eight cents", which forSpeech tidies (the decimals), so it re-keys.
+        # (wi) of 40,304: times-by-ten (Pre-Algebra) became two picture beats; nothing new re-keys.
         check("  ...and it still holds the differences it was built for (2,245 since wh; 2,244 at vx; 2,246 at vs; 2,245 at vm; 2,249 at vc)",
-              len(mapping) == 2245 and scanned == 40303,
+              len(mapping) == 2245 and scanned == 40304,
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
@@ -15423,8 +15432,8 @@ def part3ky_one_label_for_every_clip():
     check("  and no two authored lines tidy to the SAME sentence, so the closure never "
           "prices or renders one clip twice (deduped anyway -- see _closure_lines)",
           len(cl) == len(set(cl)), "%d lines, %d unique" % (len(cl), len(set(cl))))
-    check("  the closure is the whole course AND the demo (40,251 since wh = 39,997 + 254 demo lines; 40,250 at we)",
-          len(cl) == 40251, str(len(cl)))
+    check("  the closure is the whole course AND the demo (40,252 since wi = 39,998 + 254 demo lines; 40,251 at wh)",
+          len(cl) == 40252, str(len(cl)))
 
     # ---- 4. ONE reader, and every site goes through it -----------------------------
     check("⭐ speechmap is read in exactly ONE place -- _spoken(). A second reader is a "
@@ -16370,8 +16379,8 @@ def part3lf_ready_and_four_basic_lines():
     check("  every changed line is in the closure (the prewarm will find them)",
           all(t in closure for t in (pv["why"][0][0], pv["recap"][1][0], rt["why"][0][0],
                                      L.lesson_orientation(rt, True)[0], L.lesson_intro(pv)[0])), "")
-    check("  the closure count moved only for lines ADDED since (vj changed lines and added none; vs/vt added 19; wd added LINE_FRESH_OTHER; we PRACTICE_INTRO_REASON; wh one picture beat)",
-          len(closure) == 39997, str(len(closure)))
+    check("  the closure count moved only for lines ADDED since (vj changed lines and added none; vs/vt added 19; wd added LINE_FRESH_OTHER; we PRACTICE_INTRO_REASON; wh one picture beat; wi one more)",
+          len(closure) == 39998, str(len(closure)))
 
     # ---- 3. blob: in media-src -------------------------------------------------------------------
     import main as M
@@ -18082,11 +18091,11 @@ def part3ls_the_demo_is_part_of_the_closure():
     cl = M._closure_lines()
     demo = [x for x in M.DEMO_VOICE_LINES if x]
     check("⭐ every demo line is in the un-narrowed closure, and the closure is the course plus the demo",
-          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40251
+          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40252
           and len(demo) == 254, "%d closure, %d course, %d demo" % (len(cl), len(L.course_audio_lines()), len(demo)))
     check("  a narrowed closure (one lesson) carries no demo line -- rendering one lesson does not re-price the front door",
           not any(x in set(M._closure_lines(L.LESSONS[:1])) for x in demo), "")
-    check("  the course's own list is 39,997 (wh split times-by-ten's picture; 39,996 at we; 39,995 at wd)", len(L.course_audio_lines()) == 39997, str(len(L.course_audio_lines())))
+    check("  the course's own list is 39,998 (wi split Pre-Algebra's times-by-ten picture; 39,997 at wh; 39,996 at we)", len(L.course_audio_lines()) == 39998, str(len(L.course_audio_lines())))
     check("⭐ the model split treats the demo as the course, and the miss eyes call a demo line IN the closure",
           all(x in M._script_closure_texts() for x in demo)
           and M._tts_model_for(demo[0]) == M._tts_model_for(L.LINE_CHECK), "")
@@ -18424,8 +18433,8 @@ def part3lu_the_scripted_second_explanation():
           L.praise_for(missed, 0) and not L.praise_for(missed, 0).startswith("Here it is"), "")
 
     # ---- the counts ------------------------------------------------------------
-    check("  the six frame lines are the ONLY audio this build added (39,988 -> 39,994; wd's LINE_FRESH_OTHER 39,995; we's PRACTICE_INTRO_REASON 39,996; wh's picture beat 39,997)",
-          len(L.course_audio_lines()) == 39997
+    check("  the six frame lines are the ONLY audio this build added (39,988 -> 39,994; wd's LINE_FRESH_OTHER 39,995; we's PRACTICE_INTRO_REASON 39,996; wh's picture beat 39,997; wi's 39,998)",
+          len(L.course_audio_lines()) == 39998
           and len(set(L.SECOND_LOOK_LINES + L.FRESH_ONE_LINES)) == 6, "")
     check("  no frame line carries a number, so six clips serve all 360 lessons",
           not any(any(ch.isdigit() for ch in x)
@@ -19219,8 +19228,8 @@ def part3ma_the_problem_space_on_the_page():
     check("  sides-and-corners: the long line is split, and the names line says TODAY's shape names",
           "A triangle has 3 sides and 3 corners. Every shape" in spoken(E("entry-u9-sides-and-corners"))
           and "Today's shape names tell you how many sides" in spoken(E("entry-u9-sides-and-corners")), "")
-    check("  no voice line was added (39,996 since we; 39,997 since wh) and every Entry lesson validates",
-          len(L.course_audio_lines()) == 39997
+    check("  no voice line was added (39,996 since we; 39,997 since wh; 39,998 since wi) and every Entry lesson validates",
+          len(L.course_audio_lines()) == 39998
           and all(ok for les in L.LESSONS if les["course"] == "entry" for ok, _l, _d in L.validate(les)), "")
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-15wf-' in notes("main.py") and "2026-09-15  BUILD wf" in notes("coursesweep.py")
@@ -19258,8 +19267,8 @@ def part3mb_the_fourth_clean_sweep():
           and "1 nickel = 5 cents" in E("entry-u7-dimes-and-pennies")["teach"][0][1], "")
     check("  the charter: a why beat is a story over the goal card, unpictured by design",
           "a WHY beat (the lesson's opening story) having no\npicture" in C.SWEEP_SYSTEM, "")
-    check("  no voice line added (39,996; 39,997 since wh) and every Entry lesson validates",
-          len(L.course_audio_lines()) == 39997
+    check("  no voice line added (39,996; 39,997 since wh; 39,998 since wi) and every Entry lesson validates",
+          len(L.course_audio_lines()) == 39998
           and all(ok for les in L.LESSONS if les["course"] == "entry" for ok, _l, _d in L.validate(les)), "")
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-15wg-' in notes("main.py") and "2026-09-15  BUILD wg" in notes("coursesweep.py")
@@ -19396,13 +19405,140 @@ def part3mc_the_first_basic_sweep():
           and "real numbers" not in spoken(E("basic-u7-tenths-and-hundredths"))
           and "9 is half of 18" not in E("basic-u4-factor-pairs")["explain"]["choices"]
           and "less than 10" not in E("basic-u7-tenths")["explain"]["choices"], "")
-    check("  every Basic lesson validates and the course list is 39,997 (one picture beat added)",
+    check("  every Basic lesson validates and the course list is 39,998 (wh added one picture beat; wi one more)",
           all(ok for les in L.LESSONS if les["course"] == "basic" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39997, str(len(L.course_audio_lines())))
+          and len(L.course_audio_lines()) == 39998, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-16wh-' in notes("main.py") and "2026-09-16  BUILD wh" in notes("coursesweep.py")
           and "2026-09-16  BUILD wh" in notes("lessons/basic.py") and "2026-09-16  BUILD wh" in notes("lessonscripts.py")
           and "2026-09-16  BUILD wh" in notes("ruletests.py"), "")
+
+
+def part3md_the_first_prealgebra_sweep():
+    """PART 3md (build wi, 2026-09-16) -- THE FIRST PRE-ALGEBRA SWEEP: 69 findings, 6 clean,
+    13 generator-owned. The generator items, then the authored classes."""
+    print("\nPART 3md — the first Pre-Algebra sweep (build wi)")
+    import lessonscripts as L
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for f in ("why", "picture", "teach", "recap")
+                                  for _s, b in (les.get(f) or [])) + \
+                         " ".join(pr["worked"][1] for pr in les["pairs"]) + \
+                         (les.get("explain") or {}).get("board", "")
+    _W = lambda p: L._worked_for(p) or ("", "")
+    B = lambda p, lv="abstract": L.board_for(p, lv)
+
+    # ---- the generator ---------------------------------------------------------
+    check("⭐ a percent OF something: pup's board says '20% of 40 = 8', pwh's '10% of the whole = ...'",
+          '[[step eq="20% of 40 = 8"]]' in B({"a": 20, "b": 40, "c": 0, "op": "pup"})
+          and '"20% = 8"' not in B({"a": 20, "b": 40, "c": 0, "op": "pup"})
+          and '10% of the whole = 12 ÷ 3 = 4' in B({"a": 30, "b": 12, "op": "pwh"}), B({"a": 20, "b": 40, "c": 0, "op": "pup"}))
+    asp = {"a": 22, "b": 40, "op": "asp"}
+    check("⭐ asp's long way is said as two steps and drawn as two steps; 'go through 1' is gone from asp and prop",
+          "go the long way — times the top by 100, then divide by 40" in _W(asp)[0]
+          and '[[step eq="22 × 100 = 2200"]][[step eq="2200 ÷ 40 = 55"]]' in _W(asp)[1]
+          and "go through 1" not in _W(asp)[0]
+          and "go through 1" not in _W({"a": 2, "b": 3, "c": 8, "op": "prop"})[0], _W(asp)[0])
+    check("⭐ a [[pie]] never holds an improper fraction: prop's 5/3 = ?/9 takes the written form; 2/3 = ?/6 keeps its pies",
+          "[[pie" not in B({"a": 5, "b": 3, "c": 9, "op": "prop"})
+          and "[[pie" not in _W({"a": 5, "b": 3, "c": 9, "op": "prop"})[1]
+          and '[[solve start="5/3 = ?/9"' in _W({"a": 5, "b": 3, "c": 9, "op": "prop"})[1]
+          and 'pie parts="3" shaded="2"' in B({"a": 2, "b": 3, "c": 6, "op": "prop"})
+          and "Both pies hold" in _W({"a": 2, "b": 3, "c": 6, "op": "prop"})[0], "")
+    check("  'halves', never 'halfs' (uic's ask, board and walk-back); fourths and thirds unchanged",
+          L.OP_EXT["uic"]["spoken"]({"a": 2, "b": 3}) == "How many halves are there in 3 wholes?"
+          and "halfs" not in B({"a": 2, "b": 3, "op": "uic"}) and "2 halves" in B({"a": 2, "b": 3, "op": "uic"})
+          and "8 halves in 4 wholes" in _W({"a": 2, "b": 4, "op": "uic"})[0]
+          and "4 fourths" in _W({"a": 4, "b": 2, "op": "uic"})[0] and L._fpl(3) == "thirds" and L._fpl(7) == "sevenths", "")
+    check("⭐ bfac's praise and npf's walk-back say 'smallest factor above 1'",
+          L.OP_EXT["bfac"]["praise"]({"a": 51}) == "Dividing 51 by 3, its smallest factor above 1, gives 17 — the biggest one there is."
+          and "pull out the smallest factor above 1" in _W({"a": 24, "b": 3, "op": "npf"})[0], L.OP_EXT["bfac"]["praise"]({"a": 51}))
+    check("  hun's caption says '1 full row'; evx's walk-back is two sentences; rte's caption names its first step",
+          '"1 full row and 8 more: 18 hundredths"' in _W({"a": 1, "b": 8, "op": "hun"})[1]
+          and "3 full rows and 7 more" in _W({"a": 3, "b": 7, "op": "hun"})[1]
+          and "with x equal to 5. Swap the letter for its number: 5 plus 6 equals 11." in _W({"a": 5, "b": 6, "op": "evx"})[0]
+          and "step one: how many in one hour" in B({"a": 4, "b": 5, "c": 20, "op": "rte"})
+          and "how many in one hour?" not in B({"a": 4, "b": 5, "c": 20, "op": "rte"}), "")
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ 'smallest factor' means ABOVE 1 everywhere in Unit 2 (no bare 'smallest factor is N' or 'find the smallest, divide')",
+          not any(re.search(r"smallest factor is \d", spoken(E(l))) for l in
+                  ("pre-u2-the-biggest-factor", "pre-u2-the-smallest-factor", "pre-u2-breaking-into-primes"))
+          and "Find the smallest factor above 1, divide by it" in spoken(E("pre-u2-the-biggest-factor"))
+          and "Divide by the smallest factor above 1 to find the biggest" in E("pre-u2-the-biggest-factor")["advance_line"]
+          and "Keep pulling out the smallest factor above 1" in spoken(E("pre-u2-breaking-into-primes"))
+          and "every whole number above 1 is primes multiplied" in spoken(E("pre-u2-breaking-into-primes"))
+          and "Every number above 1 breaks down" in E("pre-u2-breaking-into-primes")["advance_line"]
+          and "Every other number above 1 has a smaller factor" in spoken(E("pre-u2-the-smallest-factor"))
+          and "A prime has no smaller one — its only factors are 1 and itself" in spoken(E("pre-u2-the-smallest-factor")), "")
+    check("  factors are ROW SIZES, not ways; 11 rows of 1 is the same pair turned round; the fewest groups are more than one",
+          "the factors are the row sizes that split a number" in spoken(E("pre-u2-how-many-factors"))
+          and "every row size that arranges" in spoken(E("pre-u2-how-many-factors"))
+          and "or 11 rows of 1, the same pair turned round" in spoken(E("pre-u2-how-many-factors"))
+          and "fewest equal groups — more than one —" in spoken(E("pre-u2-the-biggest-factor"))
+          and '[[step eq="9 ✗ divides 45, but 15 is bigger"]]' in boards(E("pre-u2-the-biggest-factor")), "")
+    check("⭐ the power goes right after the parentheses, not 'first of all'; the exponent is named as the small raised number",
+          "The power joins them, right after the parentheses. Parentheses, then power, then times, then add." in spoken(E("pre-u1-power-then-times-then-add"))
+          and "first of all" not in spoken(E("pre-u1-power-then-times-then-add"))
+          and "the one right way" not in spoken(E("pre-u1-power-then-times-then-add"))
+          and "A power — a number with a small raised exponent —" in spoken(E("pre-u1-exponents-are-repeated-times"))
+          and "a power like 3 squared is the short way" in spoken(E("pre-u1-exponents-are-repeated-times")), "")
+    check("  the times-before-add reason board does not show 'times first'; parentheses-first draws the 14 without the marks",
+          E("pre-u1-times-before-add")["explain"]["board"] == '[[step eq="2 + 3 × 4 = 14"]]'
+          and "without the marks" in boards(E("pre-u1-parentheses-first")), "")
+    check("⭐ 'three 5s equal 15 — three hops of 5' (the words match the hops in all three negative-times lines)",
+          "Three 5s equal 15 — three hops of 5" in spoken(E("pre-u3-times-with-a-negative"))
+          and "Seven 2s equal 14 — seven hops of 2" in spoken(E("pre-u3-times-with-a-negative"))
+          and "Four 6s equal 24 — four hops of 6" in spoken(E("pre-u3-times-with-a-negative"))
+          and "Adding negative 7 does what counting back 7 does" in spoken(E("pre-u3-adding-a-negative")), "")
+    check("  the flour is two cups (the board's 2 ÷ 2/3 = 3); the pizza is eight slices (the board's 8/3); what is left goes over the same bottom",
+          "Two cups of flour" in spoken(E("pre-u4-dividing-by-a-fraction"))
+          and "two cups of flour hold — three" in spoken(E("pre-u4-dividing-by-a-fraction"))
+          and "eating 8 slices" in spoken(E("pre-u4-fractions-bigger-than-one"))
+          and "eight slices really are — two whole ones and two thirds" in spoken(E("pre-u4-fractions-bigger-than-one"))
+          and "goes on top of the same bottom" in spoken(E("pre-u4-fractions-bigger-than-one"))
+          and "that order keeps the numbers whole" in spoken(E("pre-u4-a-fraction-of-a-number")), "")
+    check("  hundredths: 'a two-place decimal', three times; times-by-ten draws 3.7 before the move, and still names the decimal point",
+          spoken(E("pre-u5-how-many-hundredths")).count("two-place decimal") >= 2
+          and "any decimal with two places" in spoken(E("pre-u5-how-many-hundredths"))
+          and "two-place decimal" in E("pre-u5-how-many-hundredths")["advance_line"]
+          and E("pre-u5-times-by-ten")["picture"][0][1].startswith('[[placevalue o="3" d="7"')
+          and 't="3" o="7" d="0"' in E("pre-u5-times-by-ten")["picture"][1][1]
+          and "cross the decimal point to become ones" in spoken(E("pre-u5-times-by-ten"))
+          and "37 metres in all" in spoken(E("pre-u5-times-by-ten"))
+          and "3 tenths times 4, 12 tenths" in spoken(E("pre-u5-tenths-times-a-number")), "")
+    check("  ratios: adding THE SAME NUMBER to both sides; the true distractor replaced; the recaps speak their boards",
+          "Adding the same number to both sides breaks the ratio; timesing both by the same number keeps it" in spoken(E("pre-u6-keeping-a-ratio"))
+          and "add 3 cups of milk" not in E("pre-u6-keeping-a-ratio")["explain"]["choices"]
+          and "because you add 3 to both sides" in E("pre-u6-keeping-a-ratio")["explain"]["choices"]
+          and "2 to 3, made three times bigger, is 6 to 9" in spoken(E("pre-u6-keeping-a-ratio"))
+          and "18 divided by 3 is 6, then 6 times 4 is 24" in spoken(E("pre-u6-scaling-a-rate"))
+          and E("pre-u6-sharing-in-a-ratio")["explain"]["answer"] == "because 5 parts of 4 each, and the first gets 2 parts"
+          and "8 and 12 make the 20" in spoken(E("pre-u6-sharing-in-a-ratio"))
+          and "a hole to fill" in spoken(E("pre-u6-filling-in-a-proportion")), "")
+    check("  percents: whole tens, said twice; the shop TAKES 12 off; the two scores are actually compared (21/30 = 70%)",
+          "every percent made of whole tens" in spoken(E("pre-u7-any-percent"))
+          and "Any whole-tens percent of any number" in spoken(E("pre-u7-any-percent"))
+          and "shop takes 12 dollars off and says that is 30 percent" in spoken(E("pre-u7-finding-the-whole"))
+          and "are hard to compare as they stand" in spoken(E("pre-u7-what-percent-is-that"))
+          and "21 out of 30 is 70 percent — the first test went better" in spoken(E("pre-u7-what-percent-is-that"))
+          and '[[step eq="21/30 = 70%"]]' in boards(E("pre-u7-what-percent-is-that")), "")
+    check("  Unit 8: the triangle's second example and the line's wrong subtractions are drawn; all three unit facts are drawn; 'units you can move between'",
+          '[[step eq="35° + 65° = 100°"]][[step eq="180° − 100° = 80°"]]' in boards(E("pre-u8-angles-in-a-triangle"))
+          and '90° ✗ a quarter turn, not a line' in boards(E("pre-u8-angles-on-a-line"))
+          and "360 take away 130 would give 230 — far too big" in spoken(E("pre-u8-angles-on-a-line"))
+          and '[[step eq="1 cm = 10 mm"]][[step eq="1 m = 100 cm"]][[step eq="1 kg = 1000 g"]]' in boards(E("pre-u8-changing-units"))
+          and "3 metres is 300 centimetres" in spoken(E("pre-u8-changing-units"))
+          and "speaking the same length" not in spoken(E("pre-u8-changing-units")), "")
+    check("  Unit 9: 'a sum with x in it', 'a shorthand you will see on nearly every line'",
+          "To work out a sum with x in it" in spoken(E("pre-u9-a-letter-holds-a-number"))
+          and "a shorthand you will see on nearly every line of algebra" in spoken(E("pre-u9-a-number-against-a-letter")), "")
+    check("  every Pre-Algebra lesson validates and the course list is 39,998",
+          all(ok for les in L.LESSONS if les["course"] == "prealgebra" for ok, _l, _d in L.validate(les))
+          and len(L.course_audio_lines()) == 39998, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-16wi-' in notes("main.py") and "2026-09-16  BUILD wi" in notes("lessonscripts.py")
+          and "2026-09-16  BUILD wi" in notes("lessons/prealgebra.py") and "2026-09-16  BUILD wi" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -46286,6 +46422,7 @@ def main():
     part3ma_the_problem_space_on_the_page()
     part3mb_the_fourth_clean_sweep()
     part3mc_the_first_basic_sweep()
+    part3md_the_first_prealgebra_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
