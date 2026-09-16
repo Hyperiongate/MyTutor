@@ -2,6 +2,19 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wj -- THE 09-15 WATCH: four HIGHs, three seats. (1) REFEREE 101,
+#               alignment_demo_conflict (rule 13, TRUTH): decimal-alignment demonstrated
+#               "why last-digit alignment fails" with 2.60 + 0.35 and 1.05 + 2.40 -- same
+#               decimal lengths, so the columns DID hold one place each and the words
+#               ("the 6 and the 3 ... different kinds of cents"; "the 0 (tenths)") were
+#               false. Fires on a [[column align="last"]] whose terms share one decimal
+#               length plus a different-places-share-a-column claim; nudges to unequal
+#               lengths (2.6 + 0.35) or an honest caption. Joins TRUTH_REFEREES (twelve).
+#               (2) pendingzero's SECOND SHAPE: "set each factor equal to zero" spoken
+#               over two SEPARATE [[step eq="x - 2 = ?"]] lines (vy's chain needed one
+#               value). (3) KNOWN_FALSEHOODS row "hypotenuse-always-c": "the one we always
+#               label lowercase c" -- a convention spoken as a law (rule 61). The twelve
+#               MEDIUM/LOW conduct items go to the ledger, by the 09-14 policy.
 #   2026-09-08  OLDER NOTES (before 2026-09-01) live in changelog/tutor.py.md
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 191 entries; 27 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
@@ -5950,6 +5963,22 @@ KNOWN_FALSEHOODS = [
                 r"line\s+(?:them\s+)?up|match|trade)\b|\bfirst\b|\bstraight\s+across\b|\bin\s+one\s+column\b", re.I),
      "pieces of different sizes cannot be added AS IF they were the same size -- line them "
      "up by place value, or convert them to the same size first, and then they add"),
+    # (wj, 2026-09-16) THE 09-15 WATCH, geometry-picture, rule 61 (HIGH): "That's the one
+    # we always label lowercase c." The hypotenuse is ALWAYS across from the right angle;
+    # calling it c is a convention chosen for the Pythagorean formula, and the same lesson
+    # has lettered a triangle with b across the right angle (vy's lettered law). Escape:
+    # usually / often / convention / choose / in the formula / for the theorem.
+    ("hypotenuse-always-c",
+     re.compile(r"\b(?:always|every\s+time|all\s+the\s+time)\b[^.!?]{0,40}?"
+                r"\b(?:label|labell?ed|call|called|name|named|write|written|mark|marked)\b"
+                r"[^.!?]{0,25}?\b(?:lowercase\s+|little\s+|small\s+)?c\b"
+                r"|\b(?:hypotenuse|longest\s+side)\b[^.!?]{0,40}?\bis\s+always\s+"
+                r"(?:(?:the\s+)?(?:letter|side)\s+)?(?:lowercase\s+)?c\b", re.I),
+     re.compile(r"\busually\b|\boften\b|\bconvention\b|\bchoose\b|\bchosen\b|\bwe\s+pick\b|"
+                r"\bin\s+(?:the|this|that)\s+(?:formula|theorem|rule)\b|\bfor\s+the\s+(?:formula|theorem)\b|"
+                r"\bby\s+habit\b|\bnot\s+always\b", re.I),
+     "the hypotenuse is always the side across from the right angle; calling it c is a "
+     "convention we choose so the formula reads a squared plus b squared equals c squared"),
 ]
 
 
@@ -6676,6 +6705,16 @@ _PZ_LETTER = re.compile(r"(?<![A-Za-z])[a-z](?![A-Za-z])")
 _PZ_ASK = re.compile(
     r"\bvalues?\s+of\s+[a-z]\b|\bwhat\s+(?:two\s+)?(?:numbers?|values?)\b|"
     r"\bmakes?\s+(?:this|it|that|the\s+\w+)\s+true\b|\btrue\b", re.I)
+# (wj, 2026-09-16) THE SECOND SHAPE, from the 09-15 watch (returning-student, HIGH): the
+# words said "set each factor equal to zero" and the board wrote the factors as two
+# SEPARATE lines -- [[step eq="x - 2 = ?"]] [[step eq="x - 3 = ?"]] -- so vy's one-value
+# chain never matched and pendcheck was satisfied by the question marks. The zero was
+# spoken and never written. Two or more whole board values of the form "<letter expr> = ?"
+# in one reply, plus the words saying ZERO, is the same defect in two tags.
+_PZ_ZERO_SAID = re.compile(
+    r"\b(?:equal(?:s)?\s+(?:to\s+)?zero|=\s*0\b|set\s+[^.!?]{0,40}?\bzero\b|"
+    r"\bzero[- ]product\b)", re.I)
+_PZ_ONE = re.compile(r"^\s*([^=]{1,24}?)\s*=\s*\?\s*$")
 
 
 def pending_zero_conflict(reply: str):
@@ -6684,9 +6723,10 @@ def pending_zero_conflict(reply: str):
     try:
         text = str(reply or "")
         prose = _spoken_only(text)
-        if "?" not in prose or not _PZ_ASK.search(prose):
+        asked = "?" in prose and bool(_PZ_ASK.search(prose))
+        if not asked and not _PZ_ZERO_SAID.search(prose):
             return ""
-        for tag in re.findall(r"\[\[([^\]]*)\]\]", text):
+        for tag in re.findall(r"\[\[([^\]]*)\]\]", text) if asked else ():
             for val in re.findall(r'"([^"]*)"', tag):
                 m = _PZ_CHAIN.search(val)
                 if not m:
@@ -6703,6 +6743,22 @@ def pending_zero_conflict(reply: str):
                         "values of x.").format(v=" ".join(val.split())[:48],
                                                f=" ".join(m.group(1).split()),
                                                g=" ".join(m.group(2).split()))
+        # (wj) the second shape: the factors on SEPARATE lines, the zero only spoken
+        if _PZ_ZERO_SAID.search(prose):
+            singles = []
+            for tag in re.findall(r"\[\[([^\]]*)\]\]", text):
+                for val in re.findall(r'"([^"]*)"', tag):
+                    m1 = _PZ_ONE.match(val)
+                    if m1 and _PZ_LETTER.search(m1.group(1)) and re.search(r"[-+]", m1.group(1)):
+                        singles.append(" ".join(m1.group(1).split()))
+            if len(singles) >= 2:
+                return ('your words set each factor equal to ZERO, and your board writes '
+                        '"{f} = ?" and "{g} = ?" -- the zero you said is exactly what the '
+                        "question marks replaced, so the student is asked to solve equations "
+                        "that were never written. Rule 15: what a question needs must be "
+                        'visible when it is asked. Write [[step eq="{f} = 0"]] and '
+                        '[[step eq="{g} = 0"]], then ask for the value of x in each.'
+                        ).format(f=singles[0], g=singles[1])
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[pendingzero] crashed (fail open): {exc}")
@@ -9734,6 +9790,85 @@ def column_above_below_conflict(reply: str):
         return ""
 
 # =============================================================================
+# BUILD wj (2026-09-16) -- THE 09-15 WATCH'S TWO decimal-alignment HIGHS: referee 101.
+# -----------------------------------------------------------------------------
+# 101 alignment_demo_conflict (rule 13; TRUTH) -- the tutor demonstrates WHY lining
+#     decimals up by their last digit fails, and picks two numbers with the SAME number
+#     of decimal places to do it: 2.60 + 0.35, 1.05 + 2.40. Lined up by the last digit,
+#     those ARE lined up by the decimal point, every column holds one place value, and
+#     the words then say something false about the picture -- "the 6 and the 3 land in
+#     the same column, even though they're different kinds of cents" (they are both
+#     tenths); "the 5 (hundredths) lands under the 0 (tenths)" (the 0 of 2.40 is
+#     hundredths). One HIGH shipped as a livecritic pass-through, the other as a hole.
+#     The demonstration is only true with numbers of DIFFERENT decimal lengths (2.6 +
+#     0.35: the 6 tenths really does land over the 5 hundredths).
+#     NARROW: a [[column]] tag with align="last" whose terms all carry the same number of
+#     decimal places (at least one), AND the reply -- prose or caption -- claims that
+#     different places / sizes / kinds share (land in, sit in, line up in) a column.
+#     Rule 27's ruled-allowed shape (writing 3.5 as 3.50 to line up) is untouched: padding
+#     is fine; CLAIMING a mismatch after padding is the falsehood.
+# =============================================================================
+_AD_COLUMN_RE = re.compile(r'\[\[\s*column\b([^\]]*)\]\]', re.I)
+_AD_TERMS_RE = re.compile(r'\bterms\s*=\s*"([^"]*)"', re.I)
+_AD_ALIGN_RE = re.compile(r'\balign\s*=\s*"last"', re.I)
+_AD_CAPTION_RE = re.compile(r'\bcaption\s*=\s*"([^"]*)"', re.I)
+_AD_CLAIM_RE = re.compile(
+    r"\bdifferent(?:[- ]sized?)?\s+(?:kinds?|sizes?|places?|pieces|parts|columns?|units)\b"
+    r"[^.!?]{0,80}?\b(?:shar(?:e|es|ing)|same\s+column|one\s+column|land(?:s|ing|ed)?\s+(?:in|under|over|on)|"
+    r"lined?\s+up|sits?\s+(?:under|over|in)|end(?:s|ed)?\s+up\s+(?:in|under|over|sharing))\b"
+    r"|\b(?:same|one)\s+column\b[^.!?]{0,60}?\bdifferent\b"
+    r"|\b(?:shar(?:e|es|ing)|sharing)\s+(?:a|the\s+same|one)\s+column\b", re.I)
+
+
+def alignment_demo_conflict(reply: str):
+    """Return a description of a last-digit alignment demonstration built from decimals
+    of the SAME length -- where the words claim different places share a column and the
+    picture shows nothing of the kind -- or "". Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        for cm in _AD_COLUMN_RE.finditer(text):
+            attrs = cm.group(1)
+            if not _AD_ALIGN_RE.search(attrs):
+                continue
+            tm = _AD_TERMS_RE.search(attrs)
+            if not tm:
+                continue
+            terms = [t.strip() for t in tm.group(1).split("|") if t.strip()]
+            if len(terms) < 2:
+                continue
+            places = []
+            for t in terms:
+                mm = re.fullmatch(r"[-+]?\$?\s*\d+(?:\.(\d+))?", t)
+                if not mm:
+                    places = []
+                    break
+                places.append(len(mm.group(1) or ""))
+            if not places or len(set(places)) != 1 or places[0] == 0:
+                continue                        # different lengths (the honest demo), or not decimals
+            cap = _AD_CAPTION_RE.search(attrs)
+            claim_text = (cap.group(1) + " " if cap else "") + _plain_prose(text)
+            claim = _AD_CLAIM_RE.search(claim_text)
+            if not claim:
+                continue
+            said = " ".join(claim.group(0).split())[:70]
+            return ('your column lines up "{a}" and "{b}" by their LAST digit, and both have '
+                    "{n} decimal place(s) -- so their decimal points are lined up too, every "
+                    'column holds ONE place value, and "{s}" is false as drawn. Rule 13: '
+                    "the picture must show what the words claim. To show why last-digit "
+                    "alignment fails, use two numbers with DIFFERENT decimal lengths (2.6 "
+                    "and 0.35, unpadded), so a tenths digit really does land over a "
+                    "hundredths digit; or keep these numbers and say plainly that with "
+                    "the same number of decimal places the last-digit rule happens to "
+                    "work. Keep everything else the same."
+                    ).format(a=terms[0], b=terms[1], n=places[0], s=said)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[aligndemo] crashed (fail open): {exc}")
+        _event("referee_crash", "aligndemo", str(exc))
+        return ""
+
+
+# =============================================================================
 # BUILD vq (2026-09-12) -- JIM'S TWO RULINGS ON THE 09-12 NIGHT WATCH: referees 96-97.
 # -----------------------------------------------------------------------------
 # 96 tape_pieces_conflict (rule 63) -- fractions-lost: "here's a chocolate bar cut into
@@ -12043,6 +12178,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if colabove:
             _event("referee_fire", "colabove", colabove)
             return colabove
+        # (wj) referee 101, TRUTH: the last-digit alignment demonstration built from
+        # decimals of the same length, with words claiming a column mixes places.
+        aligndemo = alignment_demo_conflict(reply)
+        if aligndemo:
+            _event("referee_fire", "aligndemo", aligndemo)
+            return aligndemo
         # build jl: THIRTY-SEVENTH -- an order-of-operations rule spoken as an
         # unconditional law (rule 61), from the 2026-08-20 night watch's only
         # confirmed finding. Reply-only. Silent the moment the reply names a
@@ -13648,6 +13789,9 @@ TRUTH_REFEREES = {
     # thing a student would be SHOWN or TOLD, which is sj's own test for this list.
     "piecaption":    "a pie's caption names a fraction the drawing does not show (tu)",
     "approach":      "a listed sequence said to move toward a value its own numbers move away from (tu)",
+    # (wj) 2026-09-16: a false place-value claim SHOWN to the child over a column whose
+    # picture contradicts it -- sj's own test, and the 09-15 watch's two HIGHs.
+    "aligndemo":     "a last-digit alignment demo built from same-length decimals, claiming a column mixes places (wj)",
 }
 # Considered and NOT included, so the next reader does not re-argue them from scratch:
 #   recordclaim (false about the record, rule 62 family, not about maths) ·

@@ -6,6 +6,10 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-16  APP_BUILD -> "2026-09-16wj-four-highs-from-the-09-15-watch".
+#               BUILD wj -- no change in this file beyond the stamp. tutor.py takes the
+#               09-15 watch's four HIGHs (referee 101 aligndemo, pendingzero's second
+#               shape, the hypotenuse-always-c falsehood row).
 #   2026-09-16  APP_BUILD -> "2026-09-16wi-the-first-prealgebra-sweep".
 #               BUILD wi -- no change in this file beyond the stamp. The first Pre-Algebra
 #               sweep (69 findings): lessonscripts.py takes the eight generator items,
@@ -9686,7 +9690,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-16wi-the-first-prealgebra-sweep"
+APP_BUILD = "2026-09-16wj-four-highs-from-the-09-15-watch"
 
 
 @app.get("/health")
