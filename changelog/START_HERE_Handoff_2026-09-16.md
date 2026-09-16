@@ -4,13 +4,13 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk, the newest: **`2026-09-16wk-the-first-algebra1-sweep`**. Battery 12,545
+On Jim's disk, the newest: **`2026-09-16wl-the-first-geometry-sweep`**. Battery 12,558
 passed, 0 failed, 3 skipped (frozen copy, 2026-09-16). Today's chain: `wh` (Basic sweep,
-12,496) → `wi` (Pre-Algebra sweep, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk`
-(Algebra I sweep, 12,545). Jim pushes and prewarms each; check `/health` for the stamp.
+12,496) → `wi` (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra
+I, 12,545) → `wl` (Geometry, 12,558). Jim pushes and prewarms each; check `/health`.
 
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
-`Build_wk_…` (all `_2026-09-16.md`).
+`Build_wk_…`, `Build_wl_…` (all `_2026-09-16.md`).
 
 | course | sweeps so far | last result |
 |---|---|---|
@@ -18,18 +18,21 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 | Basic | wg (67) → wh fixes, unswept | 67 findings, 7 clean |
 | Pre-Algebra | wh (69) → wi fixes, unswept | 69 findings, 6 clean |
 | Algebra I | wi (72) → wk fixes, unswept | 72 findings, 8 clean |
-| Geometry … Diffeq | not yet | — |
+| Geometry | wk (63) → wl fixes, unswept | 63 findings, 7 clean |
+| Algebra II | run on wk, report not yet pasted | — |
+| Pre-Calc, Calculus, Prob/Stat, Diffeq | not yet | — |
 
 ## What to do next
 
-1. Jim pushes `wk` (with `wj` if not yet), confirms `/health`, runs the **prewarm** (about
-   seventy rewritten Algebra I lines).
-2. **Run Geometry** from the Course sweep card (price, run, paste whole). The four swept
-   courses wait for the weekly deep dive.
+1. Jim pushes `wl`, confirms `/health`, runs the **prewarm** (about a hundred lines: sixty
+   Geometry rewrites plus the `mid`/`mid2` asks that now say "line segment").
+2. **Paste the Algebra II report** (Jim ran it on `wk`) — it becomes `wm`. Then Pre-Calc,
+   Calculus, Prob/Stat, Diffeq. The five swept courses wait for the weekly deep dive.
 3. Triage the same way: generate the course's transcripts locally, read each quoted turn in
-   context; generator first, then authored by kind in `lessons/geometry.py`; a reviewer
+   context; generator first, then authored by kind in `lessons/<course>.py`; a reviewer
    mistake becomes a charter line in `coursesweep.py` (wk added two: `[[graph]]` range= is the
-   x-window; a walk-back's "not N" names the common wrong answer).
+   x-window; a walk-back's "not N" names the common wrong answer; wl one: "square back" is
+   Geometry's verb for the square root).
 4. Patterns every remaining course will show: laws without their condition; a picture beat
    describing the *before* over the *after* board; the second-recap board (speak it); from
    Algebra I up, **"the whole of"** for a spoken bracket ("3 times the whole of 2 x plus 3")
@@ -41,8 +44,9 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 
 ## House decisions still open
 
-- **The " · " between two equations** is gone from the four swept courses. Six remain
-  (~60 authored lines, ~44 generator lines). Per-sweep, or one pass — Jim's call.
+- **The " · " between two equations** is gone from the five swept courses (the pin checks
+  rendered transcripts, generated lines included). Algebra II carries 83 such lines; the
+  three courses after it fewer. Per-sweep is working; one pass is still Jim's option.
 - **"Times the whole of"** as the house phrase for a spoken bracket — worth a canon line if
   Jim agrees (wk used it in Algebra I).
 - **`pendingzero` truth or conduct** — a board that poses a different equation from the
@@ -61,7 +65,7 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
   before deciding real / generator / ruling.
 - Asserted string replacements (`assert s.count(a) == 1`) into `lessons/<course>.py` and
   `lessonscripts.py`; `L.validate` all 360; `python3 tools/genspeechmap.py`; note the counts
-  (course **39,998**; closure 40,252; speechmap 2,245 of 40,304; forSpeech drift 1,939;
+  (course **39,999**; closure 40,253; speechmap 2,246 of 40,305; forSpeech drift 1,940;
   referees **101**, truth class **12**, falsehood rows **25**; methodology tile 101).
 - **New trap:** a pin can quote an authored sentence *split across two source lines* — grep
   the first half AND the last half in `ruletests.py`. Two such pins bit this build (the
@@ -76,6 +80,9 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 - A new PART's checks can be smoke-run alone before the 20-minute battery: exec the
   function's source with a stub `check` and `notes` (scratch pattern in this session). It
   caught a missing `rd` and a wrong op name before they cost a run.
+- **New trap (counts):** a new beat with coordinates or decimals moves THREE counts —
+  course lines, speechmap re-keys, and the forSpeech drift pin (`n == 1939`, PART 3ky's
+  neighbour) — the third is easy to forget; it cost wl one battery run.
 - **New trap (referees):** adding a `*_conflict` function moves ~30 count pins (`== 100`,
   `n_ref == 100`, `len(T.TRUTH_REFEREES) == 11`), the falsehood-row pins (`== 24`, the
   "last two are vp's" order pin), and `static/methodology.html`'s tile + both

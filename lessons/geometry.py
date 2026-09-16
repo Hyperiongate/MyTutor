@@ -2,6 +2,50 @@
 # lessons/geometry.py  --  GEOMETRY: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wl -- THE FIRST GEOMETRY SWEEP: 57 authored findings, 55 answered here
+#               (the generator's in lessonscripts.py's note). By class:
+#               * FALSE, fixed: "a straight line is 180" -> the angles along a straight
+#                 line make 180 (three lessons); "every line has an exact middle" -> every
+#                 line SEGMENT; "every point travels to the opposite spot" -> every point
+#                 except the middle; "a slide changes one number; a flip changes one sign"
+#                 -> the slides we used; a flip across an axis; turn symmetry "comes back"
+#                 -> before the full turn is done, and the wheel's parts are all alike;
+#                 the base-angle rule and its advance line say "in an isosceles triangle";
+#                 the exterior-angle shortcut carries its proof (a straight line and the
+#                 triangle's 180 share the inside corner) instead of "proved once"; "one
+#                 matching pair is all it ever takes" -> when the shapes are similar; "the
+#                 other sides do not each grow by 8" -> a scale factor is a times; "one
+#                 division, and the whole enlargement" -> the scale factor; "a rule read
+#                 forwards can be read back" -> this rule; an inscribed angle's corner is
+#                 on the circle WITH both arms reaching it; "slide the corner anywhere" ->
+#                 along the far side of the rim; "from farther away things look smaller:
+#                 exactly half" (not the reason) -> an angle on the rim opening onto the
+#                 same arc is half; the fourth corner's law says "in these puzzles" / "for
+#                 these grid-lined rectangles"; "the height is measured straight up" ->
+#                 from the base, at a right angle; "any shape built from rectangles" ->
+#                 cut into rectangles that do not overlap; "lengths never add" -> lengths
+#                 add to lengths, never to areas; "choices times up, never add" and "adding
+#                 counts things, never outfits" -> here / adding only counts the things;
+#                 "2 is a closet" -> 2 counts shirts, not outfits; a class chose
+#                 ACTIVITIES (art is not a sport).
+#               * WORDS-BOARD, fixed: the fourth corner is two picture beats (three
+#                 corners, then the fourth); the halfway trap board says "answer 8 ✗ — the
+#                 length, not the midpoint" (it crossed out the true length); the radius
+#                 trap board says "halved ✗" (not "2 or 3"); the L-floor is "two rooms of
+#                 one floor, drawn apart"; the enlarging copy writes 5 + 2 = 7 ✗; the
+#                 arc-length picture writes 12 ÷ 4 = 3 and the 180° arc is named beside
+#                 the "6 ✗"; the two-way table board reads "girls row → soccer column →
+#                 2"; six closing beats speak their board (the cube's 6 × 7, the volume
+#                 story's 9 × 8, the corner's 90 − 30, the enlargement's 3 × 2, the arc's
+#                 2 × 40, the chance's 3 out of 5, the circle's 2 × 5, one of the six
+#                 matching facts). THE DOT: every step line joining two equations with
+#                 " · " is two [[step]] tags.
+#               * UNCLEAR / UNTAUGHT, fixed: "ray" -> a line drawn out from the corner;
+#                 "far angles" defined at first use; "squares back" -> the number whose
+#                 square is the result (two lessons); "stand at an angle" -> when you
+#                 stand at an angle; "the first number of chance" spelled out; "in the
+#                 straight-line lesson" -> with the angles along a straight line; nine
+#                 long sentences split. One picture beat added (the fourth corner).
 #   2026-09-08  BUILD uj -- ONE FILE PER COURSE. Split out of lessonscripts.py (Jim's
 #               housekeeping, second half). Every lesson below is the text that sat in
 #               lessonscripts.py, moved whole -- the unit lists keep their names, and
@@ -40,14 +84,14 @@ _GEOMETRY_U1 = [
         "advance_line": "Three in a row, and you can say why — you've got it! A right angle is 90, so the pair adds to 90.",
         "why": [
             ("Welcome to geometry. Why start with a corner? Because you already know "
-             "two totals: a right angle is 90 degrees, and a straight line is 180. "
-             "Today\'s angles share the smaller one — two angles that together make a "
-             "right angle, a perfect square corner — and corners are everywhere: "
-             "walls, pages, the frame of a door.",
+             "two totals: a right angle is 90 degrees, and the angles along a "
+             "straight line make 180. Today we use the smaller total: two angles "
+             "that together make a right angle, a perfect square corner. Corners are "
+             "everywhere: walls, pages, the frame of a door.",
              '[[goal text="Two angles make a right angle"]]'),
         ],
         "picture": [
-            ("Here is a right angle with a ray drawn inside it, splitting it into two "
+            ("Here is a right angle with a line drawn out from its corner, splitting it into two "
              "angles. One angle is 30 degrees. The two fill the square corner, so "
              "together they are 90 — and the other angle is 90 take away 30, which "
              "is 60. Both labelled, they add back to the corner.",
@@ -59,7 +103,7 @@ _GEOMETRY_U1 = [
              "equals 60.",
              '[[angle deg="90" split="30" caption="a square corner split — 30° and the rest"]][[step eq="90° − 30° = 60°"]]'),
             ("Angles that pair up to 90 have a name: complementary. And here is the "
-             "trap — you met 180 first, in the straight-line lesson, and 180 sticks. "
+             "trap — you met 180 first, with the angles along a straight line, and 180 sticks. "
              "Ask which corner you are inside. A square corner is 90.",
              '[[angle deg="90" split="30" caption="inside a square corner"]][[step eq="90 − 30 = 60 ✓"]][[step eq="180 − 30 = 150 ✗ — that is a straight line, not a corner"]]'),
         ],
@@ -91,7 +135,7 @@ _GEOMETRY_U1 = [
              "they are complementary. Take the one you know from 90, not from 180, "
              "and the other is what is left.",
              '[[angle deg="90" split="30,60" caption="90° − 30° = 60°"]]'),
-            ("And that is a corner, split and put back together.",
+            ("And that is a corner, split and put back together: 90 take away 30 is 60.",
              '[[step eq="90° − 30° = 60°"]]'),
         ],
         "bank": [
@@ -130,8 +174,8 @@ _GEOMETRY_U1 = [
              '[[angle deg="50" cross="50" caption="two lines cross — the 50° angle and its twin opposite"]][[angle deg="180" split="50,130" caption="next to it, on one straight line: 50° + 130° = 180°"]]'),
         ],
         "teach": [
-            ("That is the method. Say one angle measures 50 degrees, and remember a "
-             "straight line is 180. The angle NEXT to it sits with it on that "
+            ("That is the method. Say one angle measures 50 degrees, and remember the "
+             "angles along a straight line make 180. The angle NEXT to it sits with it on that "
              "straight line, so the two make 180: it is 180 take away 50, which "
              "equals 130. And the angle straight OPPOSITE the 50 is 50 again.",
              '[[angle deg="180" split="50" caption="a straight line split — 50° and the rest"]][[step eq="next to it: 180° − 50° = 130°"]][[step eq="opposite: 50° again"]]'),
@@ -212,8 +256,9 @@ _GEOMETRY_U1 = [
              '[[circle center="O" r="5" d="10" caption="2 × 5 = 10"]][[step eq="diameter = 2 × 5 = 10"]]'),
             ("Two words, one relationship, and the danger is which way round. The "
              "diameter is the BIG one — all the way across. The radius is the small "
-             "one — halfway. Doubling goes radius to diameter; halving comes back.",
-             '[[step eq="radius 5 → diameter 10 ✓"]][[step eq="radius 5 → 2 or 3 ✗ — that is going the wrong way"]]'),
+             "one — halfway. Doubling goes radius to diameter; halving comes back. "
+             "Halve the radius and you are going the wrong way.",
+             '[[step eq="radius 5 → diameter 10 ✓"]][[step eq="radius 5 → halved ✗ — that is going the wrong way"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. A radius of 9 gives a diameter "
@@ -242,8 +287,8 @@ _GEOMETRY_U1 = [
              "all the way across through the middle, and it is two radiuses. Double "
              "to go out, halve to come back.",
              '[[circle center="O" r="5" d="10" caption="diameter = 2 × radius"]]'),
-            ("And that is the circle\'s one measurement, and the first thing built "
-             "from it.",
+            ("And that is the radius, the circle\'s one measurement, and the diameter, "
+             "the first thing built from it: 2 times 5 is 10.",
              '[[step eq="diameter = 2 × 5 = 10"]]'),
         ],
         "bank": [
@@ -268,10 +313,10 @@ _GEOMETRY_U1 = [
         "symbols": ("midpoint", "halfway"),
         "advance_line": "Three in a row, and you can say why — you've got it! Add the two ends and share by two.",
         "why": [
-            ("Why the midpoint? Because every line has an exact middle — the point "
-             "halfway along, the same distance from both ends. Finding it is the "
-             "first real construction in geometry, and every shape you will ever "
-             "cut in half starts there.",
+            ("Why the midpoint? Because every line segment — a line with two ends — "
+             "has an exact middle: the point halfway along, the same distance from "
+             "both ends. Finding it is the first real construction in geometry, and "
+             "cutting a shape in half starts there.",
              '[[goal text="The midpoint"]]'),
         ],
         "picture": [
@@ -289,7 +334,7 @@ _GEOMETRY_U1 = [
              "middle of this line — it only would be if the line started at zero. "
              "And do not answer with the LENGTH: the line is 8 long, but it is 6 "
              "that sits halfway.",
-             '[[step eq="midpoint = 6 ✓"]][[step eq="10 ÷ 2 = 5 ✗ · length 8 ✗"]]'),
+             '[[step eq="midpoint = 6 ✓"]][[step eq="10 ÷ 2 = 5 ✗"]][[step eq="answer 8 ✗ — that is the length, not the midpoint"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. From 3 to 13. Add: 16. Share by "
@@ -517,14 +562,14 @@ _GEOMETRY_U2 = [
             ("Why a turn? Because the third move spins the grid. Today\'s turn is "
              "the simplest and the strongest: a half turn — spin the grid half way "
              "around the middle point (0, 0), like turning a page upside down. Every "
-             "point travels to the exact opposite spot.",
+             "point except the middle travels to the exact opposite spot.",
              '[[goal text="The half turn"]]'),
         ],
         "picture": [
             ("Here is the point 4 across, 3 up, and the middle of the grid at (0, "
-             "0). Turn the whole grid half way around that middle, and the point "
-             "lands at the second dot: 4 the OTHER way across and 3 the OTHER way "
-             "up — negative 4, negative 3. The exact opposite spot.",
+             "0). Turn the whole grid half way around that middle. The point lands "
+             "at the second dot: 4 the OTHER way across and 3 the OTHER way up — "
+             "negative 4, negative 3. The exact opposite spot.",
              '[[graph points="(4,3),(-4,-3)" range="-9..9" yrange="-9..9" caption="from (4, 3) to (−4, −3) — a half turn around (0, 0)"]]'),
         ],
         "teach": [
@@ -533,8 +578,8 @@ _GEOMETRY_U2 = [
              "numbers keep their size and change their sign. It lands at negative 4 "
              "across, negative 3 up.",
              '[[graph points="(4,3),(-4,-3)" range="-9..9" yrange="-9..9" caption="from (4, 3) to (−4, −3)"]][[step eq="(4, 3) → (−4, −3)"]]'),
-            ("Compare the moves you know. A slide changes one number by adding. A "
-             "flip changes ONE sign. The half turn changes BOTH signs — x and y each "
+            ("Compare the moves you know. The slides we used changed a number by "
+             "adding. A flip across an axis changes ONE sign. The half turn changes BOTH signs — x and y each "
              "cross to the other side. Changing only one sign is a flip, not a turn "
              "— that is the trap.",
              '[[step eq="half turn: both signs change ✓"]][[step eq="only one sign ✗ — that is a flip"]]'),
@@ -642,11 +687,12 @@ _GEOMETRY_U2 = [
             "board": '[[pie parts="6" caption="360° ÷ 6 = 60°"]]',
         },
         "recap": [
-            ("So, here it is again. A wheel of equal parts lands on itself once per "
+            ("So, here it is again. A wheel of equal, all-alike parts lands on itself once per "
              "part, so the smallest turn is the full 360 shared between the parts. "
              "Not 180 by habit, and not the count of parts — degrees.",
              '[[pie parts="6" caption="360° ÷ 6 = 60°"]]'),
-            ("And that is turn symmetry: a shape that comes back.",
+            ("And that is turn symmetry: a shape that comes back before the full "
+             "turn is done.",
              '[[step eq="360° ÷ 6 = 60°"]]'),
         ],
         "bank": [
@@ -685,9 +731,9 @@ _GEOMETRY_U3 = [
         "why": [
             ("Why congruent? Because two shapes are congruent when one is an exact "
              "copy of the other — every side the same length, every angle the same "
-             "size. The word does real work in proofs: say two triangles are "
-             "congruent and you have said six things at once, three sides and three "
-             "angles, all matching.",
+             "size. The word does real work in proofs. Say two triangles are "
+             "congruent and you have said six things at once: three sides match, "
+             "and three angles match.",
              '[[goal text="Matching parts"]]'),
         ],
         "picture": [
@@ -738,7 +784,8 @@ _GEOMETRY_U3 = [
              "name the matching parts in order. Spell the side you want, swap each "
              "letter for its partner, and read the length — never match by eye.",
              '[[triangle v="A,B,C" sides="4,7,5" caption="A↔D · B↔E · C↔F"]]'),
-            ("And that is six facts said in one word.",
+            ("And that is six facts said in one word — here is one of them: FD "
+             "matches CA, and it is 5.",
              '[[step eq="FD ↔ CA = 5"]]'),
         ],
         "bank": [
@@ -773,14 +820,14 @@ _GEOMETRY_U3 = [
         "picture": [
             ("Here is an isosceles triangle, the two equal sides ticked, with base "
              "angles of 52 and 52. Every triangle\'s three angles come to 180, so the "
-             "top gets what the pair leaves: 52 and 52 use 104, and 180 take away "
+             "top gets what the pair leaves. 52 and 52 use 104. 180 take away "
              "104 is 76. The top angle is 76.",
              '[[triangle v="A,B,C" ticks="BC,CA" angles="52,52,76" caption="base angles 52° and 52° — the top is 76°"]]'),
         ],
         "teach": [
             ("That is the method. Every triangle\'s three angles put together are 180 "
              "degrees — you proved that back in prealgebra. So if each base angle is "
-             "52, the two of them use 104, and the top angle gets what is left over: "
+             "52, the two of them use 104. The top angle gets what is left over: "
              "180 take away 104 equals 76 degrees.",
              '[[triangle v="A,B,C" ticks="BC,CA" angles="52,52," caption="base angles 52° — the top is waiting"]][[step eq="52° + 52° + ? = 180°"]][[step eq="180° − 104° = 76°"]]'),
             ("The trap is forgetting there are TWO base angles. Take away only one 52 "
@@ -842,18 +889,20 @@ _GEOMETRY_U3 = [
         "symbols": ("exterior", "straight line"),
         "advance_line": "Three in a row, and you can say why — you've got it! The exterior angle equals the two far angles put together.",
         "why": [
-            ("Why open a door? Because take any triangle and stretch one side out "
-             "past the corner, like opening a door, and the new angle outside the "
-             "triangle is called the exterior angle. It comes with the first little "
-             "proof of this course — and you already own both facts it needs: a "
-             "straight line is 180, and so are the three angles inside a triangle.",
+            ("Why open a door? Take any triangle and stretch one side out past the "
+             "corner, like opening a door. The new angle outside the triangle is "
+             "called the exterior angle. It comes with the first little proof of "
+             "this course, and you already own both facts it needs. The angles "
+             "along a straight line make 180, and so do the three angles inside a "
+             "triangle.",
              '[[goal text="The outside angle"]]'),
         ],
         "picture": [
             ("Here is a triangle with angles of 40, 60 and 80 — the 80 is the inside "
              "corner where the door opens. The exterior angle sits with that 80 on "
              "one straight line, so it is 180 take away 80: 100. And look — 100 is "
-             "exactly 40 plus 60, the two far angles put together.",
+             "exactly 40 plus 60: the two far angles, the inside angles away from "
+             "the opened corner, put together.",
              '[[triangle v="A,B,C" angles="40,60,80" caption="inside corner 80° — the exterior is 180° − 80° = 100° = 40° + 60°"]]'),
         ],
         "teach": [
@@ -862,8 +911,10 @@ _GEOMETRY_U3 = [
              "sit together on one straight line, so the exterior is 180 take away "
              "80 — 100 degrees. And 100 is exactly 40 plus 60.",
              '[[triangle v="A,B,C" angles="40,60," caption="angles 40° and 60° — the third corner opened out"]][[step eq="inside: 180 − 40 − 60 = 80"]][[step eq="exterior: 180 − 80 = 100 = 40 + 60"]]'),
-            ("That is the shortcut, proved once and yours forever: the exterior "
-             "angle equals the two FAR angles put together. The trap is answering "
+            ("That is the shortcut, and the proof works for every triangle. The "
+             "inside corner and the exterior fill a straight line: 180. The inside "
+             "corner and the two far angles fill 180 too. So the exterior angle "
+             "equals the two FAR angles put together. The trap is answering "
              "with the inside corner instead — 80 sits inside the triangle, and the "
              "question points outside.",
              '[[step eq="exterior = the two far angles put together"]][[step eq="the inside corner ✗ — that is the exterior\'s neighbour"]]'),
@@ -920,7 +971,7 @@ _GEOMETRY_U3 = [
         "op": "chas", "max_value": 180,
         "levels": ("abstract",),
         "symbols": ("apex", "base angles"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Take the apex out first, then share the rest.",
+        "advance_line": "Three in a row, and you can say why — you've got it! In an isosceles triangle, take the apex out first, then share the rest.",
         "why": [
             ("Why the other direction? Because yesterday\'s triangle ran base to top. "
              "Today runs top to base — given the apex, the single angle up where the "
@@ -973,7 +1024,7 @@ _GEOMETRY_U3 = [
             "board": '[[triangle v="A,B,C" ticks="BC,CA" angles="70,70,40" caption="(180° − 40°) ÷ 2 = 70°"]]',
         },
         "recap": [
-            ("So, here it is again. Given the apex, take it out of 180 first, then "
+            ("So, here it is again. In an isosceles triangle, given the apex, take it out of 180 first, then "
              "share what is left equally between the two base angles. Apex out, "
              "then share — never the other way round.",
              '[[triangle v="A,B,C" ticks="BC,CA" angles="70,70,40" caption="(180° − 40°) ÷ 2 = 70°"]]'),
@@ -1038,7 +1089,7 @@ _GEOMETRY_U4 = [
             ("The trap: scale factor 2 does not ADD 2. Adding 2 turns the 3 into a 5 "
              "and the 5 into a 7 — and the copy comes out the WRONG shape, squashed "
              "where the short sides grew too much. Scaling is times.",
-             '[[step eq="3 × 2 = 6 ✓"]][[step eq="3 + 2 = 5 ✗ — adding bends the shape"]]'),
+             '[[step eq="3 × 2 = 6 ✓"]][[step eq="3 + 2 = 5 ✗ — adding bends the shape"]][[step eq="5 + 2 = 7 ✗ — the short side grew too much"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Scale factor 3, a side of 5: 5 "
@@ -1067,7 +1118,8 @@ _GEOMETRY_U4 = [
              "size, and the scale factor is a times — every side timesed by the same "
              "number. Never an add; adding bends the shape.",
              '[[triangle v="A,B,C" sides="3,5,4" caption="small"]][[triangle v="D,E,F" sides="6,10,8" caption="× 2"]]'),
-            ("And that is a similar shape: the same shape in a new size.",
+            ("And that is a similar shape: the same shape in a new size, every side "
+             "timesed by 2 — 3 times 2 is 6.",
              '[[step eq="3 × 2 = 6"]]'),
         ],
         "bank": [
@@ -1108,12 +1160,12 @@ _GEOMETRY_U4 = [
         "teach": [
             ("That is the method. A side of 4 in the small shape matches a side of "
              "12 in the big one. The factor is 12 divided by 4 — 3. Check it the "
-             "other way: 4 times 3 equals 12. One matching pair of sides is all it "
-             "ever takes.",
+             "other way: 4 times 3 equals 12. When the shapes are similar, one "
+             "matching pair of sides is all it takes.",
              '[[bars data="small:4 | big:12" caption="matching sides: 4 and 12"]][[step eq="12 ÷ 4 = 3"]]'),
             ("The trap is the difference. From 4 to 12 is 8 more — but 8 is not the "
-             "factor, because the other sides do not each grow by 8; they each grow "
-             "by times 3. Similar shapes share a times, never an add.",
+             "factor, because a scale factor is a times, not an add: every side is "
+             "timesed by 3. Similar shapes share a times, never an add.",
              '[[step eq="12 ÷ 4 = 3 ✓"]][[step eq="12 − 4 = 8 ✗ — a difference, not a factor"]]'),
         ],
         "pairs": [
@@ -1145,7 +1197,7 @@ _GEOMETRY_U4 = [
              "The difference between them is not the factor — similar shapes share "
              "a times.",
              '[[bars data="small:4 | big:12" caption="12 ÷ 4 = 3 · 4 × 3 = 12"]]'),
-            ("And that is one division, and the whole enlargement is known.",
+            ("And that is one division, and the scale factor is known.",
              '[[step eq="12 ÷ 4 = 3"]]'),
         ],
         "bank": [
@@ -1388,7 +1440,7 @@ _GEOMETRY_U5 = [
         "recap": [
             ("So, here it is again. In a right triangle, leg squared plus leg "
              "squared equals hypotenuse squared. Square the legs, add, then find the "
-             "number that squares back — the straight path, not the walk around.",
+             "number whose square is that total — the straight path, not the walk around.",
              '[[righttriangle adj="12" opp="5" hyp="13" caption="5² + 12² = 169 = 13²"]]'),
             ("And that is an equation two thousand years old, still true in every "
              "corner.",
@@ -1437,8 +1489,8 @@ _GEOMETRY_U5 = [
              '[[righttriangle adj="12" opp="5" hyp="13" caption="legs 5 and 12, hypotenuse 13"]][[step eq="13² − 5² = 169 − 25 = 144"]][[step eq="12 × 12 = 144"]][[step eq="leg = 12"]]'),
             ("The trap is taking away the LENGTHS instead of the squares: 13 take "
              "away 5 equals 8, and 8 is wrong — the rule speaks in squares, never in "
-             "plain sides. Square first, then take away, then find the number that "
-             "squares back.",
+             "plain sides. Square first, then take away, then find the number whose "
+             "square is the result.",
              '[[step eq="13² − 5² → leg = 12 ✓"]][[step eq="13 − 5 = 8 ✗ — the rule speaks in squares"]]'),
         ],
         "pairs": [
@@ -1495,8 +1547,8 @@ _GEOMETRY_U5 = [
         "symbols": ("tangent", "opposite"),
         "advance_line": "Three in a row, and you can say why — you've got it! Tangent is opposite divided by adjacent.",
         "why": [
-            ("Why does the angle start talking? Because stand at an angle in a right "
-             "triangle: the leg touching it is the adjacent side, and the leg across "
+            ("Why does the angle start talking? Because when you stand at an angle in a right "
+             "triangle, the leg touching it is the adjacent side, and the leg across "
              "from it is the opposite side. Their ratio — opposite divided by "
              "adjacent — is called the tangent, and it measures how steeply the "
              "angle climbs.",
@@ -1667,8 +1719,8 @@ _GEOMETRY_U6 = [
         "advance_line": "Three in a row, and you can say why — you've got it! A circle's arcs share 360.",
         "why": [
             ("Why the rest of the circle? Because a circle can be cut. Draw two "
-             "radiuses from the middle and the rim splits into two arcs, and every arc "
-             "is measured in degrees — by the angle it opens at the middle. All the way "
+             "radiuses from the middle and the rim splits into two arcs. Every arc "
+             "is measured in degrees, by the angle it opens at the middle. All the way "
              "around is one full turn: 360 degrees. The two arcs always share exactly "
              "360.",
              '[[goal text="The rest of the circle"]]'),
@@ -1746,16 +1798,17 @@ _GEOMETRY_U6 = [
         "advance_line": "Three in a row, and you can say why — you've got it! From the rim, the arc looks half.",
         "why": [
             ("Why half? Because an angle can stand at the middle of a circle — or on "
-             "the rim itself. An angle whose corner sits ON the circle is called an "
-             "inscribed angle, and it opens onto an arc across from it. Here is the "
+             "the rim itself. An angle whose corner sits ON the circle, with both "
+             "arms reaching the circle, is called an inscribed angle, and it opens "
+             "onto an arc across from it. Here is the "
              "circle\'s most famous rule: an inscribed angle is HALF its arc.",
              '[[goal text="Half the arc"]]'),
         ],
         "picture": [
             ("Here is an angle standing on the rim, opening onto the arc across from "
              "it. The arc measures 80 degrees, and the angle on the rim measures 40 — "
-             "half. Slide the corner anywhere along the rim and the angle stays 40: "
-             "the arc rules the angle from anywhere on the circle.",
+             "half. Slide the corner anywhere along the far side of the rim and the "
+             "angle stays 40: the arc rules the angle from everywhere across from it.",
              '[[circle center="O" inscribed="80" caption="an inscribed angle on the rim — the arc across is 80°, the angle is 40°"]]'),
         ],
         "teach": [
@@ -1764,9 +1817,8 @@ _GEOMETRY_U6 = [
              "the rim, an arc of 80 looks like 40.",
              '[[circle center="O" inscribed="80" caption="arc 80°, inscribed angle 40°"]][[step eq="80° ÷ 2 = 40°"]]'),
             ("The trap is treating them as twins. The angle at the MIDDLE equals its "
-             "arc — but the rim is farther away, and from farther away things look "
-             "smaller: exactly half. Same arc, two views: from the middle, 80; from "
-             "the rim, 40.",
+             "arc — but an angle on the RIM, opening onto the same arc, is exactly "
+             "half of it. Same arc, two views: from the middle, 80; from the rim, 40.",
              '[[step eq="from the middle: 80°"]][[step eq="from the rim: 80° ÷ 2 = 40°"]]'),
         ],
         "pairs": [
@@ -1822,10 +1874,10 @@ _GEOMETRY_U6 = [
         "symbols": ("inscribed", "arc"),
         "advance_line": "Three in a row, and you can say why — you've got it! From angle to arc, you double.",
         "why": [
-            ("Why double? Because a rule read forwards can be read back. You stand on "
+            ("Why double? Because this rule, read forwards, can be read back. You stand on "
              "the rim, you measure the inscribed angle — and the arc across from you "
              "is waiting to be found. If the angle is half the arc, then the arc is "
-             "DOUBLE the angle. One rule, two directions, like every good rule in "
+             "DOUBLE the angle. One rule, two directions, like many rules in "
              "this course.",
              '[[goal text="Double it back"]]'),
         ],
@@ -1874,7 +1926,8 @@ _GEOMETRY_U6 = [
              "is double the angle. From arc to angle you halve; from angle to arc you "
              "double — one rule, read in either direction.",
              '[[circle center="O" inscribed="80" caption="angle 40°, arc 2 × 40° = 80°"]]'),
-            ("And that is the same picture, read both ways.",
+            ("And that is the same rule, read the other way: the arc is 2 times 40, "
+             "80.",
              '[[step eq="arc = 2 × 40° = 80°"]]'),
         ],
         "bank": [
@@ -1910,7 +1963,7 @@ _GEOMETRY_U6 = [
              "angle of 90 degrees cuts it that way, because 90 goes into 360 four times. "
              "If the whole distance around is 12, the shaded arc is one of four equal "
              "parts of 12 — it is 3 long.",
-             '[[pie parts="4" shaded="1" caption="4 equal parts, 1 shaded — one quarter of the distance around"]]'),
+             '[[pie parts="4" shaded="1" caption="4 equal parts, 1 shaded — one quarter of the distance around"]][[step eq="12 ÷ 4 = 3"]]'),
         ],
         "teach": [
             ("That is the method. The distance around the circle is 12, and the arc "
@@ -1922,7 +1975,7 @@ _GEOMETRY_U6 = [
              "under 90 degrees is not 90 steps long: 90 says how far it TURNS, not "
              "how far it runs. And not every arc is half the circle; half only happens "
              "under a straight 180.",
-             '[[step eq="12 ÷ 4 = 3 ✓"]][[step eq="90 ✗ degrees are not steps · 6 ✗ that is half the circle"]]'),
+             '[[step eq="12 ÷ 4 = 3 ✓"]][[step eq="90 ✗ degrees are not steps"]][[step eq="6 ✗ that is half the circle — only a 180° arc is half"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Distance around: 18. Central "
@@ -2121,8 +2174,9 @@ _GEOMETRY_U7 = [
         },
         "recap": [
             ("So, here it is again. To find the straight distance between two points, "
-             "drop a right triangle under the slant: count the across, count the up, "
-             "square both, add, and square back. The straight path is the hypotenuse — "
+             "drop a right triangle under the slant. Count the across, count the up, "
+             "square both and add. Then find the number whose square is that total. "
+             "The straight path is the hypotenuse — "
              "always shorter than walking the grid.",
              '[[righttriangle adj="3" opp="4" hyp="5" caption="across 3, up 4 — straight 5"]]'),
             ("And that is Pythagoras, come to the grid.",
@@ -2169,11 +2223,11 @@ _GEOMETRY_U7 = [
              "same way: 3 and 7 land on 5. The middle sits at (5, 5), balanced both "
              "ways.",
              '[[graph points="(2,3),(5,5),(8,7)" range="0..12" yrange="0..12" caption="x: (2 + 8) ÷ 2 = 5 · y: (3 + 7) ÷ 2 = 5"]][[step eq="x: (2 + 8) ÷ 2 = 5"]]'),
-            ("Two traps. Answer the coordinate you were ASKED for — the x and the y "
+            ("Two traps. Answer the coordinate you were ASKED for. The x and the y "
              "each have their own middle, and handing back the y is the grid\'s "
              "oldest mix-up. And the RUN — 8 take away 2, six — is how far the segment "
              "reaches, not where its middle sits.",
-             '[[step eq="x of the midpoint: 5 ✓"]][[step eq="the y instead ✗ · the run 6 ✗ — a length, not a place"]]'),
+             '[[step eq="x of the midpoint: 5 ✓"]][[step eq="the y instead ✗"]][[step eq="the run 6 ✗ — a length, not a place"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. From (3, 2) to (7, 6): the "
@@ -2231,15 +2285,18 @@ _GEOMETRY_U7 = [
         "why": [
             ("Why the fourth corner? Because it is a puzzle the grid can solve. A "
              "rectangle has four corners — but you are given only three. The grid "
-             "holds the missing one, because a rectangle\'s sides run straight along "
-             "the grid: every corner shares its x with one neighbour and its y with "
-             "the other.",
+             "holds the missing one, because in these puzzles the rectangle\'s sides "
+             "run straight along the grid: every corner shares its x with one "
+             "neighbour and its y with the other.",
              '[[goal text="The fourth corner"]]'),
         ],
         "picture": [
+            # (wl, 2026-09-16) the three given corners FIRST, the fourth on the next beat
             ("Here are three corners of a rectangle: (2, 2), (7, 2), and (2, 6). Look "
              "at the empty spot where the box should close — straight above (7, 2) and "
-             "level with (2, 6). The fourth corner sits there, at (7, 6).",
+             "level with (2, 6).",
+             '[[graph points="(2,2),(7,2),(2,6)" range="0..12" yrange="0..12" caption="three corners — where does the box close?"]]'),
+            ("The fourth corner sits there, at (7, 6) — and the box closes.",
              '[[graph points="(2,2),(7,2),(2,6),(7,6)" range="0..12" yrange="0..12" caption="the four corners — the fourth, (7, 6), closes the box"]]'),
         ],
         "teach": [
@@ -2279,8 +2336,8 @@ _GEOMETRY_U7 = [
             "board": '[[graph points="(2,2),(7,2),(2,6),(7,6)" range="0..12" yrange="0..12" caption="above (7, 2) → x = 7"]]',
         },
         "recap": [
-            ("So, here it is again. A rectangle\'s sides run along the grid, so its "
-             "fourth corner sits straight above one given corner and level with "
+            ("So, here it is again. For these grid-lined rectangles, the sides run "
+             "along the grid, so the fourth corner sits straight above one given corner and level with "
              "another. It takes its x from the corner below it and its y from the "
              "corner beside it — never from the corner diagonal to it.",
              '[[graph points="(2,2),(7,2),(2,6),(7,6)" range="0..12" yrange="0..12" caption="the fourth corner is (7, 6)"]]'),
@@ -2325,8 +2382,9 @@ _GEOMETRY_U8 = [
         "why": [
             ("Why the true height? Because a parallelogram is a pushed-over rectangle "
              "— same base, same height, just leaning — and its area is still base "
-             "times height. But watch the words: the height is measured straight up, "
-             "and the leaning side is NOT the height.",
+             "times height. But watch the words: the height is measured straight up "
+             "from the base, at a right angle to it, and the leaning side is NOT the "
+             "height.",
              '[[goal text="The true height"]]'),
         ],
         "picture": [
@@ -2409,7 +2467,7 @@ _GEOMETRY_U8 = [
              '[[goal text="Two rooms"]]'),
         ],
         "picture": [
-            ("Here are the two rooms the L is cut into. One is 5 long and 3 wide; the "
+            ("Here are the two rooms one floor is cut into, drawn apart. One is 5 long and 3 wide; the "
              "other is 2 long and 3 wide. Each room is a rectangle you already know how "
              "to measure — and the whole floor is simply the two of them side by "
              "side.",
@@ -2418,13 +2476,14 @@ _GEOMETRY_U8 = [
         "teach": [
             ("That is the method. One part is 5 long and 3 wide: area 15. The other is "
              "2 long and 3 wide: area 6. The whole floor is 15 plus 6, which equals 21 "
-             "— cut, measure, put together. Any shape built from rectangles gives in "
-             "to this.",
+             "— cut, measure, put together. Any shape cut into rectangles that do "
+             "not overlap gives in to this.",
              '[[rectangle w="5" h="3" caption="5 × 3 = 15"]][[rectangle w="2" h="3" caption="2 × 3 = 6"]][[step eq="15 + 6 = 21"]]'),
             ("Two traps. Stopping after one rectangle — 15 is only part of the floor. "
              "And adding the LENGTHS — 5 plus 3 plus 2 is 10, but lengths added give "
-             "edges, not floor. Areas add to areas; lengths never do.",
-             '[[step eq="15 + 6 = 21 ✓"]][[step eq="15 ✗ one room only · 5 + 3 + 2 = 10 ✗ lengths are not areas"]]'),
+             "edges, not floor. Areas add to areas; lengths add to lengths, never to "
+             "areas.",
+             '[[step eq="15 + 6 = 21 ✓"]][[step eq="15 ✗ one room only"]][[step eq="5 + 3 + 2 = 10 ✗ lengths are not areas"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Rooms of 3 by 4 and 2 by 4: "
@@ -2530,7 +2589,7 @@ _GEOMETRY_U8 = [
              "plus the top and the bottom. Know one face, and the surface area is six "
              "of it.",
              '[[solid kind="cube" caption="six equal faces"]]'),
-            ("And that is a cube, wrapped and measured.",
+            ("And that is a cube, wrapped and measured: 6 faces of 7, 42.",
              '[[step eq="6 × 7 = 42"]]'),
         ],
         "bank": [
@@ -2555,8 +2614,8 @@ _GEOMETRY_U8 = [
         "symbols": ("volume", "cubic"),
         "advance_line": "Three in a row, and you can say why — you've got it! Length once, area twice — volume three times.",
         "why": [
-            ("Why a surprise? Because the last measure is volume — the room inside a "
-             "box, counted in cubic units — and you already know the scaling story: "
+            ("Why a surprise? Because the last measure is volume: the room inside a "
+             "box, counted in cubic units. You already know the scaling story: "
              "length pays the factor once, area pays it twice. Volume lives in THREE "
              "directions — long, wide AND tall — so volume pays the factor three "
              "times.",
@@ -2578,7 +2637,7 @@ _GEOMETRY_U8 = [
              "LENGTH habit. Times 2 twice — 36 — is the AREA habit from the similarity "
              "unit. Volume has one more direction waiting: times 2 three times, 72. "
              "Count the directions before you scale.",
-             '[[step eq="9 × 2 × 2 × 2 = 72 ✓"]][[step eq="9 × 2 = 18 ✗ length habit · 9 × 4 = 36 ✗ area habit"]]'),
+             '[[step eq="9 × 2 × 2 × 2 = 72 ✓"]][[step eq="9 × 2 = 18 ✗ length habit"]][[step eq="9 × 4 = 36 ✗ area habit"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. A box of 12, factor 2: 12 times "
@@ -2609,7 +2668,7 @@ _GEOMETRY_U8 = [
              "Length once, area twice, volume three times: count the directions "
              "before you scale.",
              '[[solid kind="prism" w="×2" d="×2" h="×2" caption="2 × 2 × 2 = 8 times the room"]]'),
-            ("And that is the scaling story, told all the way up.",
+            ("And that is the scaling story, told all the way up: 9 times 8 is 72.",
              '[[step eq="9 × 8 = 72"]]'),
         ],
         "bank": [
@@ -2701,8 +2760,9 @@ _GEOMETRY_U9 = [
              "first number counts the team, the second counts everything in all. "
              "Never the reds against the blues — out of means out of everything.",
              '[[pie data="red:3 | blue:2" caption="3 out of 5"]]'),
-            ("And that is the first number of chance.",
-             '[[step eq="3 + 2 = 5 · red: 3 out of 5"]]'),
+            ("And that is the first number of chance: the reds, 3, out of everything "
+             "in the bag, 5.",
+             '[[step eq="3 + 2 = 5"]][[step eq="red: 3 out of 5"]]'),
         ],
         "bank": [
             {"a": 2, "b": 3, "op": "poft"},
@@ -2802,7 +2862,7 @@ _GEOMETRY_U9 = [
         "op": "outc", "max_value": 28,
         "levels": ("abstract",),
         "symbols": ("choice", "times"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Choices times up, never add.",
+        "advance_line": "Three in a row, and you can say why — you've got it! When choices stack, times up — adding only counts the things.",
         "why": [
             ("Why count the ways? Because counting comes back, one last time. Say you "
              "own 2 shirts and 3 hats. Getting dressed is one choice, then another — "
@@ -2824,7 +2884,7 @@ _GEOMETRY_U9 = [
              '[[array rows="2" cols="3" caption="2 × 3 = 6 outfits"]][[step eq="2 × 3 = 6 outfits"]]'),
             ("The trap is adding: 2 shirts plus 3 hats is 5 THINGS, but things are "
              "not outfits — each outfit uses one of each. And do not stop at the "
-             "shirts: 2 is a closet, not a count of ways. When choices stack, times; "
+             "shirts: 2 counts shirts, not outfits. When choices stack, times; "
              "when piles pour into one pile, add.",
              '[[step eq="2 × 3 = 6 ✓"]][[step eq="2 + 3 = 5 ✗ — that counts things, not outfits"]]'),
         ],
@@ -2853,7 +2913,7 @@ _GEOMETRY_U9 = [
         "recap": [
             ("So, here it is again. When one choice stacks on another, the ways times "
              "up — a row for each of the first, a column for each of the second, and "
-             "every box is one way. Adding counts things, never outfits.",
+             "every box is one way. Here, adding counts things, not outfits.",
              '[[array rows="2" cols="3" caption="2 × 3 = 6"]]'),
             ("And that is choices, timesed up.",
              '[[step eq="2 × 3 = 6"]]'),
@@ -2880,7 +2940,7 @@ _GEOMETRY_U9 = [
         "symbols": ("table", "row"),
         "advance_line": "Three in a row, and you can say why — you've got it! The right row, the right column, the box where they cross.",
         "why": [
-            ("Why a table? Because numbers love one. A class chose sports: the boys\' "
+            ("Why a table? Because numbers love one. A class chose activities: the boys\' "
              "counts sit in one row, the girls\' in another; soccer fills one column, "
              "art the next. Every student lands in exactly one box, and reading the "
              "right box answers most questions before any arithmetic starts.",
@@ -2900,10 +2960,10 @@ _GEOMETRY_U9 = [
              "address, like a point on the grid.",
              '[[twoway rowlabels="boys,girls" collabels="soccer,art" data="4,3|2,6" caption="girls row, soccer column — the crossing holds 2"]][[step eq="girls row → soccer column → 2"]]'),
             ("The traps are the next-door boxes. Stay in the soccer column but drift "
-             "to the boys row: 4 — right sport, wrong students. Stay with the girls but "
-             "slide to art: 6 — right students, wrong sport. Cross the RIGHT row with "
+             "to the boys row: 4 — right activity, wrong students. Stay with the girls but "
+             "slide to art: 6 — right students, wrong activity. Cross the RIGHT row with "
              "the RIGHT column, every time.",
-             '[[step eq="girls + soccer = 2 ✓"]][[step eq="4 ✗ wrong row · 6 ✗ wrong column"]]'),
+             '[[step eq="girls row → soccer column → 2 ✓"]][[step eq="4 ✗ wrong row"]][[step eq="6 ✗ wrong column"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. How many girls chose art here? "

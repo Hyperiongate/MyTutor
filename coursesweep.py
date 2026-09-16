@@ -3,6 +3,9 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wl -- ONE CHARTER LINE: "square back" is Geometry's chosen verb for the
+#               square root (the longest-side lesson teaches it; four beats and three
+#               generators lean on it). The first Geometry sweep called it nonstandard twice.
 #   2026-09-16  BUILD wk -- TWO CHARTER LINES from the first Algebra I sweep: a [[graph]]'s
 #               range= is the x-window (the y-window fits the line; "y = 6x + 8 starts
 #               outside a 0..5 grid" was not so), and a walk-back's "not N" names the
@@ -348,7 +351,9 @@ line from 0 to 1), and hops= and points= are the jumps and the marked spots, NOT
 x-window only -- the y-window fits the drawn lines on its own, so a line starting at y = 8 on a
 range="0..5" grid IS visible; a walk-back's "not N" line (the second explanation after a miss) names the
 COMMON wrong answer for that problem, by design -- it is scripted per problem and cannot know the
-number on the STUDENT line, so it is not a finding when the two differ; a topic word in the lesson's
+number on the STUDENT line, so it is not a finding when the two differ; "square back" -- Geometry's
+chosen verb for finding the number whose square is a total (taught in the longest-side lesson and
+used from there on) -- is not an unclear phrase; a topic word in the lesson's
 own title line; "over nine" for a sum of ten or more (the course's one chosen wording); a
 rule stated for the numbers this lesson uses, at this level, UNLESS the lesson itself later
 contradicts it or a child could misapply it within the same unit -- and the PROBLEM SPACE

@@ -2,6 +2,18 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wl -- THE FIRST GEOMETRY SWEEP (63 findings, 6 generator-owned). (1) mid
+#               and mid2 ask about "a line segment" -- a line has no ends and no midpoint. (2)
+#               cent's ask DRAWS the two arcs ([[pie]] with the rest unnumbered) instead of a
+#               bare circle. (3) alen's walk-back writes 360° ÷ 90° = 4 parts beside the
+#               length step; mid's writes (2 + 18) ÷ 2 = 10. (4) topp's board is two lines
+#               ("tangent = 2", "opposite = 6 × 2 = ?") -- the dot read as a chained product.
+#               (5) poft's walk-back is three sentences. (6) twop asks about the ACTIVITY each
+#               child chose (art is not a sport). (7) lshp's walk-back: "lengths add to
+#               lengths, never to areas" (lengths DO add). (8) sla's walk-back and praise and
+#               vert's walk-back say "the angles along a straight line make 180" -- a line
+#               has no degrees. The dot between two equations is gone from
+#               every generator line Geometry's transcripts reach. Authored: lessons/geometry.py.
 #   2026-09-16  BUILD wk -- THE FIRST ALGEBRA I SWEEP (72 findings, 9 generator-owned, 7
 #               answered here). (1) sys1's praise says "the x of that crossing is the
 #               answer" -- the crossing is a point, the question asked for x. (2) sys2's
@@ -3000,8 +3012,8 @@ def _sla_board(p):
 
 def _sla_worked(p):
     a = p["a"]
-    return (f"Here it is, step by step: the two angles together fill the straight line, and a "
-            f"straight line is 180 degrees. 180 take away {a} equals {180 - a}, and {a} "
+    return (f"Here it is, step by step: the two angles together fill the straight line, and the "
+            f"angles along a straight line make 180 degrees. 180 take away {a} equals {180 - a}, and {a} "
             f"plus {180 - a} puts the 180 back.",
             f'[[angle deg="180" split="{a},{180 - a}" caption="{a}° + {180 - a}° = 180°"]]')
 
@@ -3795,7 +3807,7 @@ def _vert_board(p):
 def _vert_worked(p):
     a = p["a"]
     return (f"Here it is, step by step: the angle next to {a} sits with it on one straight line, "
-            f"and a straight line is 180. 180 take away {a} equals {180 - a}. The angle "
+            f"and the angles along a straight line make 180. 180 take away {a} equals {180 - a}. The angle "
             f"opposite is {a} again — the twin — but next to was what was asked.",
             f'[[angle deg="180" split="{a},{180 - a}" caption="on one straight line: {a}° + {180 - a}° = 180°"]]')
 
@@ -3828,7 +3840,8 @@ def _mid_worked(p):
             f"is {m}. Check it: {m} is {m - a} away from {a} and {b - m} away from {b} — the "
             f"same both ways, so {m} is the midpoint.",
             f'[[numberline min="{a - 1}" max="{b + 1}" points="{a},{m},{b}" mid="{m}" '
-            f'caption="ends {a} and {b}, middle {m} — {m - a} each way"]]')
+            f'caption="ends {a} and {b}, middle {m} — {m - a} each way"]]'
+            f'[[step eq="({a} + {b}) ÷ 2 = {m}"]]')   # (wl) the calculation the words say
 
 
 def _tran_board(p):
@@ -3998,7 +4011,7 @@ def _sfac_worked(p):
             f"{b} divided by {a} equals {k}. Check it backwards: {a} times {k} equals {b}. Not "
             f"the difference, {b - a}; similar shapes share a times.",
             f'[[bars data="small:{a} | big:{b}" caption="{b} ÷ {a} = {k} — the big side is {k} times the small"]]'
-            f'[[step eq="{b} ÷ {a} = {k} · {a} × {k} = {b} ✓"]]')
+            f'[[step eq="{b} ÷ {a} = {k}"]][[step eq="{a} × {k} = {b} ✓"]]')   # (wl) two lines, no dot
 
 
 def _mside_board(p):
@@ -4082,7 +4095,7 @@ def _tang_worked(p):
 def _topp_board(p):
     a, b = p["a"], p["b"]
     return (f'[[triangle v="A,B,C" right="B" sides="{a},," caption="adjacent {a}, tangent {b} — the opposite side is the question"]]'
-            f'[[step eq="tan = {b} · opposite = {a} × {b} = ?"]]')
+            f'[[step eq="tangent = {b}"]][[step eq="opposite = {a} × {b} = ?"]]')   # (wl) two lines, no dot
 
 
 def _topp_worked(p):
@@ -4096,7 +4109,8 @@ def _topp_worked(p):
 
 def _cent_board(p):
     a = p["a"]
-    return (f'[[circle center="O" caption="two radiuses cut the circle — the small arc opens at {a}°; how much is the rest?"]]'
+    # (wl) the ask DRAWS the two arcs (the rest unnumbered), not a bare circle
+    return (f'[[pie data="the small arc {a}°:{a} | the rest:{360 - a}" caption="two radiuses cut the circle — the small arc opens at {a}°; how much is the rest?"]]'
             f'[[step eq="360° − {a}° = ?"]]')
 
 
@@ -4155,7 +4169,7 @@ def _alen_worked(p):
             f"the arc is {b} divided by {n} — {b // n}. Degrees say how far it turns; the "
             f"length says how far it runs.",
             f'[[pie parts="{n}" shaded="1" caption="{n} equal parts of {b} — the arc is {b // n}"]]'
-            f'[[step eq="{b} ÷ {n} = {b // n}"]]')
+            f'[[step eq="360° ÷ {a}° = {n} parts"]][[step eq="{b} ÷ {n} = {b // n}"]]')   # (wl) both steps drawn
 
 
 
@@ -4253,7 +4267,7 @@ def _lshp_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     return (f"Here it is, step by step: cut, measure, put together. One room is {a} times {b}, "
             f"{a * b}; the other is {c} times {b}, {c * b}. {a * b} plus {c * b} equals "
-            f"{b * (a + c)} — areas add to areas; lengths never do.",
+            f"{b * (a + c)} — areas add to areas; lengths add to lengths, never to areas.",   # (wl)
             f'[[rectangle w="{a}" h="{b}" caption="{a} × {b} = {a * b}"]]'
             f'[[rectangle w="{c}" h="{b}" caption="{c} × {b} = {c * b}"]]'
             f'[[step eq="{a * b} + {c * b} = {b * (a + c)}"]]')
@@ -4300,8 +4314,8 @@ def _poft_board(p):
 def _poft_worked(p):
     a, b = p["a"], p["b"]
     return (f"Here it is, step by step: the pick lands on one of ALL the marbles. {a} reds plus "
-            f"{b} blues is {a + b} in the bag, so red is {a} out of {a + b} — not out of "
-            f"{b}; the blues are not the whole bag.",
+            f"{b} blues is {a + b} in the bag. So red is {a} out of {a + b}. Not out of "
+            f"{b} — the blues are not the whole bag.",
             f'[[pie data="red:{a} | blue:{b}" caption="the whole bag: {a} + {b} = {a + b} — red is {a} out of {a + b}"]]'
             f'[[step eq="{a} + {b} = {a + b}"]]')
 
@@ -8845,7 +8859,7 @@ OP_EXT = {
         # scripted lesson had ever used it: the straight line IS the 180, drawn.
         "board": _sla_board,          # (te) the straight line split, the rest asked
         "worked": _sla_worked,        # (te) both pieces labelled, put back to 180
-        "praise": lambda p: (f"A straight line is 180 degrees, and 180 take away "
+        "praise": lambda p: (f"The angles along a straight line make 180 degrees, and 180 take away "
                              f"{p['a']} equals {180 - p['a']}."),
         "key": lambda p: 180 - p["a"],
         # The two real errors: using a RIGHT ANGLE'S 90 or a FULL TURN'S 360 in place of
@@ -9876,7 +9890,7 @@ OP_EXT = {
     },
     "mid": {   # midpoint of a segment from a to b on a number line
         "ans": lambda p: (p["a"] + p["b"]) // 2,
-        "spoken": lambda p: (f"A line runs from {p['a']} to {p['b']}. "
+        "spoken": lambda p: (f"A line segment runs from {p['a']} to {p['b']}. "   # (wl) a segment has ends
                              f"What number is exactly halfway along it?"),
         "board": _mid_board,          # (ti) the two ends, captioned
         "worked": _mid_worked,        # (ti) the middle marked with the halfway line
@@ -10462,7 +10476,7 @@ OP_EXT = {
     },
     "mid2": {  # midpoint on the grid: (a,b) to (c,b+4), asked for the x
         "ans": lambda p: (p["a"] + p["c"]) // 2,
-        "spoken": lambda p: (f"A line runs from ({p['a']}, {p['b']}) up to "
+        "spoken": lambda p: (f"A line segment runs from ({p['a']}, {p['b']}) up to "   # (wl)
                              f"({p['c']}, {p['b'] + 4}). What is the x "
                              f"coordinate of its midpoint?"),
         "board": _mid2_board,         # (tk) the two ends, captioned
@@ -10695,7 +10709,7 @@ OP_EXT = {
         "ans": lambda p: p["c"] + 2,
         # The numbers live ON THE TABLE, not in the voice -- the cnt precedent:
         # speaks is always satisfied, because reading the board IS the skill.
-        "spoken": lambda p: ("The table shows a class and the sport each child "
+        "spoken": lambda p: ("The table shows a class and the activity each child "   # (wl) art is not a sport
                              "chose. How many girls chose art?"),
         "board": _twop_board,         # (tk) the table, captioned
         "worked": _twop_worked,       # (tk) the crossing named
