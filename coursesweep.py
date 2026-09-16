@@ -3,6 +3,11 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wk -- TWO CHARTER LINES from the first Algebra I sweep: a [[graph]]'s
+#               range= is the x-window (the y-window fits the line; "y = 6x + 8 starts
+#               outside a 0..5 grid" was not so), and a walk-back's "not N" names the
+#               COMMON wrong answer, not the number the STUDENT line gave (the walk-back is
+#               scripted per problem; the sweep's miss is synthetic).
 #   2026-09-16  BUILD wh -- THE PROBLEM SPACE LISTS ITS VALUES. The first Basic sweep (67
 #               findings) objected five times to cases the bank does not hold but the
 #               RANGE admitted: 30 percent in a lesson whose percents are 10, 25 and 50
@@ -339,7 +344,11 @@ absence of things outside its topic; a WHY beat (the lesson's opening story) hav
 picture -- it is told over the goal card by design, and the pictures start on the next beat; the rule index's own wording; the "Your turn" card's
 tap/say/type hints (screen instructions, deliberately unspoken); a [[numberline]]'s tick marks
 and labels between min= and max= -- the drawing puts them in on its own (0.1, 0.2, ... on a
-line from 0 to 1), and hops= and points= are the jumps and the marked spots, NOT the ticks; a topic word in the lesson's
+line from 0 to 1), and hops= and points= are the jumps and the marked spots, NOT the ticks; a [[graph]]'s range= is its
+x-window only -- the y-window fits the drawn lines on its own, so a line starting at y = 8 on a
+range="0..5" grid IS visible; a walk-back's "not N" line (the second explanation after a miss) names the
+COMMON wrong answer for that problem, by design -- it is scripted per problem and cannot know the
+number on the STUDENT line, so it is not a finding when the two differ; a topic word in the lesson's
 own title line; "over nine" for a sum of ten or more (the course's one chosen wording); a
 rule stated for the numbers this lesson uses, at this level, UNLESS the lesson itself later
 contradicts it or a child could misapply it within the same unit -- and the PROBLEM SPACE

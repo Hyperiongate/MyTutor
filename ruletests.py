@@ -6,6 +6,10 @@
 #               changelog/ruletests.py.md -- moved out on 2026-09-08 (build ui) VERBATIM,
 #               241 entries; 79 stay here. Keep adding new notes HERE, newest at top; roll
 #               them out again (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-16  BUILD wk -- PART 3mf, THE FIRST ALGEBRA I SWEEP (72 findings, 8 clean).
+#               Seven generator items, two charter lines, the dot between two equations
+#               gone from four courses (authored and generated, by transcript), the
+#               authored classes. No count moved (the ev2 pin moved to two lines).
 #   2026-09-16  BUILD wj -- PART 3me, FOUR HIGHs FROM THE 09-15 WATCH. Referee 101
 #               (aligndemo, truth -- the twelfth name), pendingzero's second shape, the
 #               "hypotenuse-always-c" falsehood row; canon sweep zero. Count pins moved:
@@ -14262,7 +14266,7 @@ def part3kt_the_expression_comes_first():
               for w in (_W(p)[1] for p in ASKS)),
           str([_W(p)[1][:60] for p in ASKS]))
     check("  ...both letters, on the two-letter op",
-          '[[step eq="x + 2y"]][[step eq="x = 3 · y = 4"]]' in _W(ASKS[3])[1], _W(ASKS[3])[1])
+          '[[step eq="x + 2y"]][[step eq="x = 3"]][[step eq="y = 4"]]' in _W(ASKS[3])[1], _W(ASKS[3])[1])   # (wk) two lines
     check("  the ask boards still end on the pending line, which rule 44 reads aloud",
           all(L.board_for(p, "abstract").endswith('= ?\"]]') for p in ASKS), "")
 
@@ -19618,6 +19622,118 @@ def part3me_four_highs_from_the_09_15_watch():
           sum(1 for n in dir(T) if n.endswith("_conflict")) == 101
           and "2026-09-16  BUILD wj" in notes("tutor.py") and 'APP_BUILD -> "2026-09-16wj-' in notes("main.py")
           and "2026-09-16  BUILD wj" in notes("ruletests.py"), "")
+
+
+def part3mf_the_first_algebra1_sweep():
+    """PART 3mf (build wk, 2026-09-16) -- THE FIRST ALGEBRA I SWEEP: 72 findings, 8 clean,
+    9 generator-owned. Seven generator items, two charter lines, the dot between two
+    equations gone from the first course where it is a times sign, and the authored classes."""
+    print("\nPART 3mf — the first Algebra I sweep (build wk)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for f in ("why", "picture", "teach", "recap")
+                                  for _s, b in (les.get(f) or [])) + \
+                         " ".join(pr["worked"][1] for pr in les["pairs"]) + \
+                         (les.get("explain") or {}).get("board", "")
+    _W = lambda p: L._worked_for(p) or ("", "")
+    B = lambda p, lv="abstract": L.board_for(p, lv)
+
+    # ---- the generator ---------------------------------------------------------
+    s1 = {"a": 8, "b": 5, "op": "sys1"}
+    check("⭐ sys1's praise answers with the x of the crossing; its walk-back is short sentences",
+          L.OP_EXT["sys1"]["praise"](s1).endswith("the x of that crossing is the answer.")
+          and "which is 10. The second says 5 times 2, which is 10. They agree. The x asked for is 2" in _W(s1)[0], _W(s1)[0])
+    check("⭐ sys2's label says what is swapped in for what",
+          'swap x + 5 in for y: x + (x + 5) = 13' in B({"a": 5, "b": 13, "op": "sys2"})
+          and "swap y in" not in B({"a": 5, "b": 13, "op": "sys2"}), B({"a": 5, "b": 13, "op": "sys2"}))
+    check("  exmul says 4 times 3 in the board's order; hitg, sci and slp walk-backs are split",
+          "4 groups of 3 is 4 times 3" in _W({"a": 3, "b": 4, "op": "exmul"})[0]
+          and "equals 169. The number that squares to 169 is 13, because 13 times 13 is 169." in _W({"a": 13, "op": "hitg"})[0]
+          and "is a 1 with 2 zeros. So 4 times 10 to the power 2 moves the 4 up 2 places: 400" in _W({"a": 2, "b": 4, "op": "sci"})[0]
+          and "climbed from 5 to 8. That is a climb of 3, because 8 take away 5 equals 3." in _W({"a": 3, "b": 2, "c": 5, "op": "slp"})[0], "")
+    check("⭐ gcfx's ask says 'times the whole of' -- the bracket is heard",
+          "3 times the whole of, 2 x plus what?" in L.OP_EXT["gcfx"]["spoken"]({"a": 2, "b": 3, "c": 3}), "")
+    check("⭐ THE DOT: no [[step eq]] in Entry, Basic, Pre-Algebra or Algebra I -- authored OR generated -- joins two equations with ' · '",
+          not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', t["board"])
+                  for c in ("entry", "basic", "prealgebra", "algebra1")
+                  for les in C.lessons_for(c, L) for t in C.transcript_for(les, L)), "")
+    check("  ...evxy, the factoring side (fnum) and the odd-one-out (outl) write two lines; x³ · x² = x⁵ (one product) is untouched",
+          '[[step eq="x = 3"]][[step eq="y = 4"]]' in _W({"a": 3, "b": 4, "c": 2, "op": "evxy"})[1]
+          and '[[step eq="3 + ? = 5"]][[step eq="3 × ? = 6"]]' in B({"a": 3, "b": 2, "c": 0, "op": "fnum"})
+          and '[[step eq="median = 2"]][[step eq="mean = ' in _W({"a": 4, "b": 2, "c": 22, "op": "outl"})[1]
+          and 'x³ · x² = x⁵' in boards(E("alg1-u6-counting-the-copies")), "")
+    check("  the charter: a [[graph]]'s range= is the x-window; a walk-back's 'not N' names the common wrong answer",
+          "range= is its\nx-window only" in C.SWEEP_SYSTEM and "names the\nCOMMON wrong answer" in C.SWEEP_SYSTEM, "")
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ 'the whole of': a times over a bracket is heard as one (minus-goes-through, the common factor x3, gcfx)",
+          "4 times the whole of x take away 3 is 4 x take away 12" in spoken(E("alg1-u1-minus-goes-through"))
+          and spoken(E("alg1-u7-the-common-factor")).count("3 times the whole of 2 x plus") >= 3
+          and "3 times, 2 x" not in spoken(E("alg1-u7-the-common-factor")), "")
+    check("⭐ the eraser law carries its condition (the same AMOUNT of one unknown), recap and advance line",
+          "the same amount of one unknown in both" in spoken(E("alg1-u5-the-eraser-vanishes"))
+          and E("alg1-u5-the-eraser-vanishes")["advance_line"].endswith("in both buys the same amount, take one buy away from the other and it vanishes.")
+          and '[[step eq="1 pencil = 14 − 9 = 5"]]' in boards(E("alg1-u5-the-eraser-vanishes"))
+          and 'parts="5 | 5 | eraser"' in boards(E("alg1-u5-the-eraser-vanishes"))
+          and 'parts="5 | 4" total="9"' in boards(E("alg1-u5-the-eraser-vanishes")), "")
+    check("  laws with their condition: not-parallel lines, two-piece brackets (x3), a whole-number power, a plus in a less-than, all the x's",
+          "Two straight-line rules that are not parallel cross once" in spoken(E("alg1-u5-where-two-rules-agree"))
+          and spoken(E("alg1-u7-the-four-rooms")).count("two-piece brackets like these") == 2
+          and "Two brackets, each x plus a number, make" in spoken(E("alg1-u7-the-four-rooms"))
+          and "10 to a whole-number power is a 1" in spoken(E("alg1-u6-times-ten-again"))
+          and "Undo a plus in a less-than exactly like an equation" in spoken(E("alg1-u2-the-biggest-x"))
+          and "what all the x's weigh together" in spoken(E("alg1-u2-two-steps-back"))
+          and "each picture after the first is one undo" in spoken(E("alg1-u2-two-steps-back"))
+          and "For a line like this one, with no brackets: two moves, in that order" in spoken(E("alg1-u1-two-steps-with-a-letter")), "")
+    check("  the pond: the number of days is the POWER on the 2; the multiplier is a power of 2; the reason says 3 times 2 times 2 times 2",
+          "the number of days is the power on the 2" in spoken(E("alg1-u6-the-doubling-pond"))
+          and "the multiplier is a power of 2" in spoken(E("alg1-u6-the-doubling-pond"))
+          and "the days are a power of 2" not in spoken(E("alg1-u6-the-doubling-pond"))
+          and E("alg1-u6-the-doubling-pond")["explain"]["answer"] == "because each day doubles everything: 3 times 2 times 2 times 2"
+          and "3 → 5 → 7 → 9 ✗" in boards(E("alg1-u6-the-doubling-pond"))
+          and "pull away from a straight line" not in spoken(E("alg1-u6-the-doubling-pond")), "")
+    check("  zero-product: a product lands on zero only when a factor is zero; the worked line says 'equals zero'; the square root is the POSITIVE number",
+          "a product only ever lands on zero when one of the things multiplied is zero" in spoken(E("alg1-u8-two-answers"))
+          and "NOTHING ELSE" not in spoken(E("alg1-u8-two-answers"))
+          and "times x take away 7, equals zero: the answers are 4 and 7" in spoken(E("alg1-u8-two-answers"))
+          and "the positive number that squares to it" in spoken(E("alg1-u8-the-ball-comes-down"))
+          and "x is a distance, so we keep the positive one" in spoken(E("alg1-u8-the-ball-comes-down"))
+          and spoken(E("alg1-u8-the-ball-comes-down")).count("equals the starting height") >= 1
+          and "starting height" in E("alg1-u8-the-ball-comes-down")["advance_line"], "")
+    check("  three reason distractors that were true (or the answer by coincidence) replaced",
+          "because the 4 just disappears on its own" in E("alg1-u2-undoing-a-plus")["explain"]["choices"]
+          and "right pan" not in E("alg1-u2-undoing-a-plus")["explain"]["choices"]
+          and "the height of the first point, 3" in E("alg1-u4-the-climb")["explain"]["choices"]
+          and "because 6 comes right after 5 in the list" in E("alg1-u9-the-median")["explain"]["choices"]
+          and "halfway between" not in E("alg1-u9-the-median")["explain"]["choices"], "")
+    check("  words-board: the sum bar is drawn AGAIN; x + 5 < 14 is written; 2 + 3 = 5 ✗; the 65 and 65 ÷ 5; the machine's rule is read",
+          "here is the same bar again, with the bigger one drawn as the smaller one and 4 more" in spoken(E("alg1-u5-sum-and-difference"))
+          and '[[step eq="x + 5 < 14"]][[step eq="x < 14 − 5 = 9"]]' in boards(E("alg1-u2-the-biggest-x"))
+          and '[[step eq="2 + 3 = 5 ✗"]]' in boards(E("alg1-u7-factoring-backwards"))
+          and '[[step eq="5 + 5 + 5 + 5 + 45 = 65"]][[step eq="65 ÷ 5 = 13"]]' in boards(E("alg1-u9-the-odd-one-out"))
+          and "written two x plus one, where x is whatever goes in" in spoken(E("alg1-u3-the-number-machine"))
+          and "the brackets on the board mean 4 plus 2 was done first" in spoken(E("alg1-u1-two-steps-with-a-letter")), "")
+    _second = {"alg1-u3-the-number-machine": "2 times 4 plus 1 is 9",
+               "alg1-u3-two-machines": "add 2, then times 3, 18",
+               "alg1-u5-sum-and-difference": "10 plus 4, shared by 2 — 7",
+               "alg1-u6-counting-the-copies": "x cubed times x squared is x to the power 5",
+               "alg1-u8-two-answers": "equals zero, so x is 3 or x is 5"}
+    check("  five closing beats speak the equation their board writes",
+          all(v in E(k)["recap"][-1][0] for k, v in _second.items()),
+          str([k for k, v in _second.items() if v not in E(k)["recap"][-1][0]]))
+    check("  tone: 'tempting', 'we saw in the curve lesson', 'the first kind of equation you solved today'",
+          "The tempting answer is 5" in spoken(E("alg1-u5-sum-and-difference"))
+          and "we saw in the curve lesson" in spoken(E("alg1-u8-the-ball-comes-down"))
+          and "the first kind of equation you solved today" in spoken(E("alg1-u2-undoing-a-plus")), "")
+    check("  every Algebra I lesson validates and the course list is still 39,998 (no beat added)",
+          all(ok for les in L.LESSONS if les["course"] == "algebra1" for ok, _l, _d in L.validate(les))
+          and len(L.course_audio_lines()) == 39998, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-16wk-' in notes("main.py") and "2026-09-16  BUILD wk" in notes("lessonscripts.py")
+          and "2026-09-16  BUILD wk" in notes("lessons/algebra1.py") and "2026-09-16  BUILD wk" in notes("coursesweep.py")
+          and "2026-09-16  BUILD wk" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -46504,6 +46620,7 @@ def main():
     part3mc_the_first_basic_sweep()
     part3md_the_first_prealgebra_sweep()
     part3me_four_highs_from_the_09_15_watch()
+    part3mf_the_first_algebra1_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

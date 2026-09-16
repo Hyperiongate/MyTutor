@@ -2,6 +2,19 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-16  BUILD wk -- THE FIRST ALGEBRA I SWEEP (72 findings, 9 generator-owned, 7
+#               answered here). (1) sys1's praise says "the x of that crossing is the
+#               answer" -- the crossing is a point, the question asked for x. (2) sys2's
+#               board label says what is swapped in for what ("swap x + 5 in for y"), not
+#               "swap y in". (3) exmul's walk-back says "4 times 3" in the order the board
+#               writes it. (4) Four walk-backs are shorter sentences (sys1, hitg, sci, slp).
+#               Not changed, by ruling in coursesweep.py: rnge's "not 7" names the COMMON
+#               wrong answer, as every walk-back does; yint's graph range is the x-window
+#               and the y-window fits the line on its own. (5) THE DOT, in the first course
+#               where it is a times sign: ev2's "x = 3 · y = 4", gcfx-side's "2 + ? = 6 · 2 × ? = 8"
+#               and odd's "median = 4 · mean = 10" are two [[step]] lines each. (6) gcfx's ask
+#               says "3 times the whole of, 2 x plus what?" -- the voice cannot say a bracket.
+#               Authored pile: lessons/algebra1.py.
 #   2026-09-16  BUILD wi -- THE FIRST PRE-ALGEBRA SWEEP (69 findings, 13 generator-owned).
 #               (1) pup's board said "20% = 8"; it says "20% of 40 = 8" (and pwh's "10% of
 #               the whole = ..."). (2) asp and prop walk-backs said "go through 1" -- the
@@ -3114,7 +3127,7 @@ def _evxy_board(p):
     a, b, c = p["a"], p["b"], p["c"]
     return (f'[[tape parts="x | {" | ".join(["y"] * c)}" total="?" '
             f'caption="x + {c}y — one x, then {c} copies of y"]]'
-            f'[[step eq="x = {a} · y = {b}"]]'
+            f'[[step eq="x = {a}"]][[step eq="y = {b}"]]'   # (wk) two lines, no dot
             f'[[step eq="x + {c}y = {a} + {c} × {b} = ?"]]')
 
 
@@ -3123,7 +3136,7 @@ def _evxy_worked(p):
     return (f"Here it is, step by step: each letter kept its own number. {c} y is {c} copies of "
             f"{b}, which is {b * c}. Then x plus that: {a} plus {b * c} equals {a + b * c}. "
             f"The {c} belonged to the y and never touched the x.",
-            f'[[step eq="x + {c}y"]][[step eq="x = {a} · y = {b}"]]'
+            f'[[step eq="x + {c}y"]][[step eq="x = {a}"]][[step eq="y = {b}"]]'   # (wk) two lines, no dot
             f'[[tape parts="{a} | {" | ".join([str(b)] * c)}" total="{a + b * c}" '
             f'caption="x + {c}y = {a} + {b * c} = {a + b * c}"]]')
 
@@ -3344,7 +3357,7 @@ def _slp_board(p):
 def _slp_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     return (f"Here it is, step by step: x stepped once, from {b} to {b + 1}, and y climbed from {c} "
-            f"to {c + a} — a climb of {a}, because {c + a} take away {c} equals {a}. That "
+            f"to {c + a}. That is a climb of {a}, because {c + a} take away {c} equals {a}. The "
             f"climb per step is the slope, and it is {a} all the way along the line.",
             f'[[graph lines="{_line_spec(a, c - a * b)}" points="({b},{c}),({b + 1},{c + a})" '
             f'range="0..{b + 3}" caption="one step right, {a} up — slope {a}"]]'
@@ -3398,8 +3411,8 @@ def _sys1_worked(p):
     x0 = a // (b - 1)
     y0 = b * x0
     return (f"Here it is, step by step: the lines cross once, and at the crossing both rules give the "
-            f"same y. At x equals {x0}, the first rule says {x0} plus {a}, which is {y0}, and "
-            f"the second says {b} times {x0}, which is {y0}. They agree — and the x asked for "
+            f"same y. At x equals {x0}, the first rule says {x0} plus {a}, which is {y0}. The "
+            f"second says {b} times {x0}, which is {y0}. They agree. The x asked for "
             f"is {x0}, not the height {y0}.",
             f'[[graph lines="y=x+{a}; y={b}x" range="0..{x0 + 3}" '
             f'caption="they cross at ({x0}, {y0}) — the x is {x0}"]]'
@@ -3411,7 +3424,7 @@ def _sys2_board(p):
     return (f'[[tape parts="x | x | {a}" total="{b}" '
             f'caption="x + y = {b}, and y is x + {a} — two x\'s and the {a}"]]'
             f'[[step eq="x + y = {b}"]]'
-            f'[[step eq="swap y in: x + (x + {a}) = {b}"]]'
+            f'[[step eq="swap x + {a} in for y: x + (x + {a}) = {b}"]]'   # (wk) what goes in, for what
             f'[[step eq="2x + {a} = {b}"]][[step eq="x = ?"]]')
 
 
@@ -3494,7 +3507,7 @@ def _exmul_board(p):
 def _exmul_worked(p):
     a, b = p["a"], p["b"]
     return (f"Here it is, step by step: {b} copies of the whole thing, and each copy is {a} x's — "
-            f"{b} groups of {a} is {a} times {b}, which equals {a * b} x's. Copies of copies "
+            f"{b} groups of {a} is {b} times {a}, which equals {a * b} x's. Copies of copies "
             f"TIMES: x to the power {a * b}.",
             f'[[tape parts="{" | ".join(["x" + _sup(a)] * b)}" total="x{_sup(a * b)}" '
             f'caption="{b} × {a} = {a * b} x\'s — x{_sup(a * b)}"]]')
@@ -3510,9 +3523,9 @@ def _sci_board(p):
 def _sci_worked(p):
     a, b = p["a"], p["b"]
     n = b * 10 ** a
-    return (f"Here it is, step by step: 10 to the power {a} is a 1 with {a} zeros, so {b} times it "
-            f"moves the {b} up {a} places — {n}, the {b} with {a} zeros marching behind it. "
-            f"The power counts the zeros; it is not a number to times by.",
+    return (f"Here it is, step by step: 10 to the power {a} is a 1 with {a} zeros. So {b} times "
+            f"10 to the power {a} moves the {b} up {a} places: {n}, the {b} with {a} zeros marching "
+            f"behind it. The power counts the zeros; it is not a number to times by.",
             f'[[placevalue n="{n}" caption="{b} × 10{_sup(a)} = {n}"]]')
 
 
@@ -3563,7 +3576,7 @@ def _fnum_board(p):
             f'caption="the rooms add up to x² + {a + b}x + {a * b} — one side is x + {a}: what is the other?"]]'
             f'[[step eq="x² + {a + b}x + {a * b}"]]'
             f'[[step eq="= (x + {a})(x + ?)"]]'
-            f'[[step eq="{a} + ? = {a + b} · {a} × ? = {a * b}"]]')
+            f'[[step eq="{a} + ? = {a + b}"]][[step eq="{a} × ? = {a * b}"]]')   # (wk) two lines, no dot
 
 
 def _fnum_worked(p):
@@ -3677,9 +3690,9 @@ def _hitg_board(p):
 
 def _hitg_worked(p):
     a = p["a"]
-    return (f"Here it is, step by step: the height is zero when x squared equals {a * a}, and the "
-            f"number that squares to {a * a} is {a} — {a} times {a}. The ball lands at x "
-            f"equals {a}. {a} is the square root of {a * a}; it is not half of {a * a}.",
+    return (f"Here it is, step by step: the height is zero when x squared equals {a * a}. The "
+            f"number that squares to {a * a} is {a}, because {a} times {a} is {a * a}. The ball "
+            f"lands at x equals {a}. {a} is the square root of {a * a}; it is not half of {a * a}.",
             f'[[graph func="{a * a}-x^2" points="(0,{a * a}),({a},0)" range="0..{a + 1}" '
             f'caption="from height {a * a} down to the ground at x = {a}"]]'
             f'[[step eq="x² = {a * a}, so x = {a}"]]')
@@ -3751,7 +3764,7 @@ def _outl_worked(p):
             f"with {c}, and nobody in the room has {m}. One unusual number moves the mean and "
             f"leaves the median standing.",
             f'[[dotplot values="{b},{b},{b},{b},{c}" caption="median {b} — the room · mean {m} — nobody"]]'
-            f'[[step eq="median = {b} · mean = {m}"]]')
+            f'[[step eq="median = {b}"]][[step eq="mean = {m}"]]')   # (wk) two lines, no dot
 
 
 
@@ -9350,7 +9363,7 @@ OP_EXT = {
         "worked": _sys1_worked,       # (tg) the crossing labelled
         "praise": lambda p: (f"At x equals {p['a'] // (p['b'] - 1)}, both rules say "
                              f"y equals {p['b'] * (p['a'] // (p['b'] - 1))} — the "
-                             f"lines cross there, and that crossing is the answer."),
+                             f"lines cross there, and the x of that crossing is the answer."),   # (wk)
         "key": lambda p: p["a"] // (p["b"] - 1),
         # U4's swapped-partner error comes back: tapping the Y where the lines meet
         # instead of the x that was asked for. The third is the rule's own plus number.
@@ -9586,7 +9599,7 @@ OP_EXT = {
     "gcfx": {  # (c·a)x + (c·b) = c(ax + ?)
         "ans": lambda p: p["b"],
         "spoken": lambda p: (f"{p['c'] * p['a']} x plus {p['c'] * p['b']} equals: "
-                             f"{p['c']} times, {p['a']} x plus what?"),
+                             f"{p['c']} times the whole of, {p['a']} x plus what?"),   # (wk) the bracket is heard
         "board": _gcfx_board,         # (th) c tall, the second width hidden
         "worked": _gcfx_worked,       # (th) the width found, checked forwards
         "praise": lambda p: (f"The {p['c']} was pulled out of BOTH parts: "

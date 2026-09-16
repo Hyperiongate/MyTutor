@@ -1,50 +1,58 @@
-# START HERE — Handoff, 2026-09-16 (evening)
+# START HERE — Handoff, 2026-09-16 (night)
 
 Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk (wh pushed and deployed; wi written, awaiting his `git diff` and push):
-**`2026-09-16wi-the-first-prealgebra-sweep`**. Battery 12,515 passed, 0 failed, 3 skipped
-(frozen copy, 2026-09-16). Before it: `wh` (12,496 / 0 / 3), `wg` (12,477 / 0 / 3).
+On Jim's disk, the newest: **`2026-09-16wk-the-first-algebra1-sweep`**. Battery 12,545
+passed, 0 failed, 3 skipped (frozen copy, 2026-09-16). Today's chain: `wh` (Basic sweep,
+12,496) → `wi` (Pre-Algebra sweep, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk`
+(Algebra I sweep, 12,545). Jim pushes and prewarms each; check `/health` for the stamp.
 
-Two course sweeps were answered today, one build each:
-`claude/Build_wh_The_First_Basic_Sweep_2026-09-16.md` and
-`claude/Build_wi_The_First_PreAlgebra_Sweep_2026-09-16.md`.
+Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
+`Build_wk_…` (all `_2026-09-16.md`).
 
 | course | sweeps so far | last result |
 |---|---|---|
 | Entry | wa (219) → wc (70) → wd (47) → we (15) → wf (14) → wg fixes, unswept | 14 findings, 26 clean |
 | Basic | wg (67) → wh fixes, unswept | 67 findings, 7 clean |
 | Pre-Algebra | wh (69) → wi fixes, unswept | 69 findings, 6 clean |
-| Algebra I … Diffeq | not yet | — |
+| Algebra I | wi (72) → wk fixes, unswept | 72 findings, 8 clean |
+| Geometry … Diffeq | not yet | — |
 
 ## What to do next
 
-1. Jim pushes `wi`, confirms the stamp at `/health`, runs the **prewarm** (about seventy
-   rewritten Pre-Algebra lines).
-2. **Run Algebra I** from the Course sweep card (price, run, paste whole). Entry, Basic and
-   Pre-Algebra all wait for the weekly deep dive.
-3. Triage the same way: generator first (grep the quote in `lessonscripts.py`; generate the
-   course's transcripts locally to read each quoted turn in context), then authored by kind
-   in `lessons/algebra1.py`; a reviewer mistake becomes a charter line in `coursesweep.py`.
-   `wi` needed none — the problem-space listing from `wh` held.
-4. Two patterns every remaining course will show: a claim true only *above 1* ("the smallest
-   factor", "nothing divides both") — one-word fixes; and a picture beat that describes the
-   *before* over a board that draws the *after* — split the beat. The second-recap board
-   class (the closing beat writes an equation over a real-life sentence) is being answered
-   course by course by speaking the equation; Entry, Basic and Pre-Algebra do now.
+1. Jim pushes `wk` (with `wj` if not yet), confirms `/health`, runs the **prewarm** (about
+   seventy rewritten Algebra I lines).
+2. **Run Geometry** from the Course sweep card (price, run, paste whole). The four swept
+   courses wait for the weekly deep dive.
+3. Triage the same way: generate the course's transcripts locally, read each quoted turn in
+   context; generator first, then authored by kind in `lessons/geometry.py`; a reviewer
+   mistake becomes a charter line in `coursesweep.py` (wk added two: `[[graph]]` range= is the
+   x-window; a walk-back's "not N" names the common wrong answer).
+4. Patterns every remaining course will show: laws without their condition; a picture beat
+   describing the *before* over the *after* board; the second-recap board (speak it); from
+   Algebra I up, **"the whole of"** for a spoken bracket ("3 times the whole of 2 x plus 3")
+   and **the dot between two equations** (split into two `[[step]]` tags; the pin now covers
+   Entry–Algebra I by rendered transcript, generated lines included; `x³ · x² = x⁵` is one
+   product and stays).
+5. The night watch: paste any report; truth/HIGH gets built, the rest goes to the triage
+   doc's ledger. `wj` added referee 101 (`aligndemo`, truth) and pendingzero's second shape.
 
-## Two house decisions still open (from wh)
+## House decisions still open
 
-- **The " · " between two equations.** Removed from Entry/Basic/Pre-Algebra step lines (a
-  pin forbids `<digit> · <digit>` there). The upper courses use it ~350 times, where the dot
-  *is* a times sign. Splitting those into two `[[step]]` tags is mechanical; it is a ruling
-  for Jim. The Algebra I sweep will probably raise it — that is the moment to decide.
+- **The " · " between two equations** is gone from the four swept courses. Six remain
+  (~60 authored lines, ~44 generator lines). Per-sweep, or one pass — Jim's call.
+- **"Times the whole of"** as the house phrase for a spoken bracket — worth a canon line if
+  Jim agrees (wk used it in Algebra I).
+- **`pendingzero` truth or conduct** — a board that poses a different equation from the
+  words (the 09-15 HIGH). `exprswap` (09-04) is the precedent for truth. One-line move.
 - **The night watch's cost.** Jim says ~$10 a night. The cost lever is `NIGHTWATCH_LESSONS`
   in Render (10 now; each lesson is roughly a dollar). During sweep weeks I recommended 2;
   `NIGHTWATCH=off` stops it entirely; leave `NIGHTWATCH_VERIFY` on. The morning report will
   print a "budget moved" banner — expected.
+- **Render settings Jim changed 2026-09-16:** disk 15 GB; `TTS_CACHE_MAX_MB=10000` (read at
+  startup — takes effect on the next deploy; the /admin cache line should say 10,000 MB).
 
 ## The method (unchanged from 09-15, two additions)
 
@@ -53,7 +61,8 @@ Two course sweeps were answered today, one build each:
   before deciding real / generator / ruling.
 - Asserted string replacements (`assert s.count(a) == 1`) into `lessons/<course>.py` and
   `lessonscripts.py`; `L.validate` all 360; `python3 tools/genspeechmap.py`; note the counts
-  (course **39,998**; closure 40,252; speechmap 2,245 of 40,304; forSpeech drift 1,939).
+  (course **39,998**; closure 40,252; speechmap 2,245 of 40,304; forSpeech drift 1,939;
+  referees **101**, truth class **12**, falsehood rows **25**; methodology tile 101).
 - **New trap:** a pin can quote an authored sentence *split across two source lines* — grep
   the first half AND the last half in `ruletests.py`. Two such pins bit this build (the
   rounding closure line; "a lesson with its own intro speaks its own").
@@ -64,8 +73,13 @@ Two course sweeps were answered today, one build each:
   phrase went back in, truer.
 - **New trap:** `[[pie parts=N shaded=K]]` clamps K to N — it cannot draw an improper
   fraction. Use the written form.
-- PART 3md's checks can be smoke-run alone before the 20-minute battery: exec the function's
-  source with a stub `check` (scratch pattern in this session). Cheap insurance.
+- A new PART's checks can be smoke-run alone before the 20-minute battery: exec the
+  function's source with a stub `check` and `notes` (scratch pattern in this session). It
+  caught a missing `rd` and a wrong op name before they cost a run.
+- **New trap (referees):** adding a `*_conflict` function moves ~30 count pins (`== 100`,
+  `n_ref == 100`, `len(T.TRUTH_REFEREES) == 11`), the falsehood-row pins (`== 24`, the
+  "last two are vp's" order pin), and `static/methodology.html`'s tile + both
+  `data-referees` spans. Move them all in one regex pass, then the order pin by hand.
 - Render new board tags headlessly (`window.__drawBoard` on `static/demo-lesson.html`,
   capture `window.boardWarn`) — scratch script pattern in this session: a stub
   `http.server` on the repo root + Playwright.
