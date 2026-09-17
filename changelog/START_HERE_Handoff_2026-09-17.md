@@ -4,13 +4,13 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk, the newest: **`2026-09-17wq-the-first-probstat-sweep`**. Battery
-12,626 passed, 0 failed, 3 skipped (frozen copy, 2026-09-17). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
+On Jim's disk, the newest: **`2026-09-17wr-the-second-calculus-sweep`**. Battery
+12,638 passed, 0 failed, 3 skipped (frozen copy, 2026-09-17). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
-half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17). Jim pushes
-and prewarms each; check `/health`. **Every course has now had its first sweep**; only
-Calculus's 17 unread lessons (U6–U9 and U5's where-the-bend-changes) remain unread.
+half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
+whole, 12,638, 09-17). Jim pushes and prewarms each; check `/health`. **The first
+round is over: every lesson in every course has been read once.**
 
 **OpenAI credits ran out at 17:12 UTC** mid-Calculus-sweep (429 "no credits remaining") and
 were evidently topped up — the Diffeq sweep ran at 21:14. The course sweep and the night
@@ -18,7 +18,8 @@ watch both use that seat.
 
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
-`_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`.
+`_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`.
 
 | course | sweeps so far | last result |
 |---|---|---|
@@ -29,19 +30,18 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 | Geometry | wk (63) → wl fixes, unswept | 63 findings, 7 clean |
 | Algebra II | wk (73) → wm fixes, unswept | 73 findings |
 | Pre-Calc | wl (76) → wn fixes, unswept | 76 findings, 5 clean |
-| Calculus | wm (46, 19 of 36 read) → wo fixes; 17 lessons never read | 46 findings, 2 clean |
+| Calculus | wm (46, 19 of 36) → wo fixes → wq (88, all 36) → wr fixes, unswept | 88 findings, 4 clean |
 | Diffeq | wo (119) → wp fixes, unswept | 119 findings, 0 clean |
 | Prob/Stat | wo (92) → wq fixes, unswept | 92 findings, 1 clean |
 
 ## What to do next
 
-1. Jim pushes `wq` (wm through wq may all be uncommitted — one diff), confirms `/health`,
-   runs the **prewarm** (Prob/Stat's hundred rewrites plus fourteen generator lines, on top
-   of wp's, wo's, wn's and wm's).
-2. Rerun the Calculus sweep (the 17 unread lessons: U5's where-the-bend-changes, all of
-   U6–U9) and paste it — `wr`. Then every lesson has been read once and the second round
-   starts on Entry (`wg`'s 14 findings are the floor to beat). The swept courses wait for
-   the weekly deep dive.
+1. Jim pushes `wr` (wm through wr may all be uncommitted — one diff), confirms `/health`,
+   runs the **prewarm** (Calculus's seventy rewrites plus thirteen ops' lines, on top of
+   wq's, wp's, wo's, wn's and wm's).
+2. The second round. Start on Entry (`wg`'s 14 findings, 26 clean, is the floor to beat);
+   Pre-Calc and Algebra II ran on older builds (`wm`, `wk`) and are the other candidates.
+   Each rerun is a new letter. The weekly deep dive can wait for two or three of those.
 3. Triage the same way: generate the course's transcripts locally, read each quoted turn in
    context; generator first, then authored by kind in `lessons/<course>.py`; a reviewer
    mistake becomes a charter line in `coursesweep.py` (wk added two: `[[graph]]` range= is the
@@ -75,6 +75,9 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 
 - **The " · " between two equations** is gone from all ten courses (the pin checks rendered
   transcripts, generated lines included). Closed.
+- **The admin card's report list is newest first** (wr) — by the sweep's own time, so the
+  report to paste is always at the top of the dropdown. While a sweep is running the card's
+  status line says so; the new report appears in the list only when it finishes.
 - **`[[dotplot mark="8"]]`** (wq) draws the line a count-past-the-line beat talks about —
   the same idea as `[[numberline mid=]]`. If another figure's words ever "draw a line in
   your mind", give the figure the attribute rather than rewording the beat.
@@ -106,6 +109,10 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
   `lessonscripts.py`; `L.validate` all 360; `python3 tools/genspeechmap.py`; note the counts
   (course **39,999**; closure 40,253; speechmap 2,245 of 40,305; forSpeech drift 1,939;
   referees **101**, truth class **12**, falsehood rows **25**; methodology tile 101).
+- **New trap (walk-backs):** a generated walk-back must open with the literal
+  `Here it is, step by step: ` — colon and space. The engine's walk-back detection and a
+  count pin (≥ 320 in `lessonscripts.py`) key on it; wr's first battery failed six lessons
+  for a full stop in that place. Split the sentence AFTER the colon, never at it.
 - **New trap (referees):** the canon's referee sweep (PART 3eu) refuses an arrow after an
   equals on a step line (`20 − 2x = 0 → x = 10`) and more than six lines on one teach
   board. Run `TT.prose_board_conflict` over the edited course before the battery — it

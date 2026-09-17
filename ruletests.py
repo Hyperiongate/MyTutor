@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD wr -- PART 3mm, THE SECOND CALCULUS SWEEP, WHOLE (88 findings, 4 clean,
+#               20 generator-owned on 13 ops). ftc's end-take-away-start, avgv's height,
+#               anti's pending line, chan/prod/cfix/trap/pgrw/dfeq and seven short
+#               walk-backs; coursesweep.list_reports newest first (pinned on a temp dir);
+#               the authored classes for all 36 lessons. No count moved; five old pins
+#               (3mj's differentiate-twice wording, 3fs's and 3jw's accumulation line,
+#               3jw's anti pending line, 3mj's acce comment) moved to the new wording.
 #   2026-09-17  BUILD wq -- PART 3ml, THE FIRST PROB/STAT SWEEP (92 findings, 1 clean, 11
 #               generator-owned). Fourteen generator items (farv's collision check, hedg's
 #               average gap, por's AND-rule line, inci, ntal's two lines, wout's caption,
@@ -19372,7 +19379,7 @@ def part3mj_the_first_calculus_sweep_half():
           and '[[step eq="far out: 36x² ÷ 3x²"]][[step eq="36 ÷ 3 = 12"]]' in _W(li)[1]
           and "Far out, the plus 3 is nothing beside 3 x squared" in L.OP_EXT["linf"]["praise"](li), B(li))
     check("  acce's wrong turns; cfix asks for 'without a jump'; llaw's walk-back is short; maxa says every other RECTANGLE; pwrc's adding is not the power-rule move",
-          "12 is the distance's own front number, never differentiated, and 48 doubles once too often" in _W({"a": 12, "b": 0, "op": "acce"})[0]
+          "12 is the distance's own front number, never differentiated, and 48 doubles once too often" in _W({"a": 12, "b": 0, "op": "acce"})[0]   # (the generator's line; the authored beat says "original front number" since wr)
           and "join up without a jump?" in S({"a": 6, "b": 2, "c": 9, "op": "cfix"}) and "smoothly" not in S({"a": 6, "b": 2, "c": 9, "op": "cfix"})
           and "f is heading for 2. g is heading for 11. For a product, multiply the two limits: 2 times 11 is 22" in _W({"a": 2, "b": 11, "op": "llaw"})[0]
           and L.OP_EXT["maxa"]["praise"]({"a": 60, "b": 0}).endswith("every other rectangle with the same fence encloses less.")
@@ -19414,7 +19421,7 @@ def part3mj_the_first_calculus_sweep_half():
           and "nothing before Calculus" not in spoken(E("calc-u2-the-window-closes"))
           and "2 is only the plus number in the sloping piece" in spoken(E("calc-u1-mend-the-curve"))
           and "10 is only the 2 x part, with the plus 4 forgotten" in spoken(E("calc-u3-two-things-multiplied"))
-          and "5 is the distance's own front number, never differentiated at all" in spoken(E("calc-u4-differentiate-twice"))
+          and "5 is the distance's original front number, before any differentiating" in spoken(E("calc-u4-differentiate-twice"))   # (wr wording)
           and "one differentiation too many" not in spoken(E("calc-u4-differentiate-twice"))
           and "the area gains 2 times 50 times 3 — 300 a second" in spoken(E("calc-u4-one-rate-drives-another"))
           and '[[step eq="at a side of 50: 2 × 50 × 3 = 300"]]' in boards(E("calc-u4-one-rate-drives-another"))
@@ -19739,6 +19746,146 @@ def part3ml_the_first_probstat_sweep():
           'APP_BUILD -> "2026-09-17wq-' in notes("main.py") and "2026-09-17  BUILD wq" in notes("lessonscripts.py")
           and "2026-09-17  BUILD wq" in notes("lessons/probstat.py") and "2026-09-17  BUILD wq" in notes("ruletests.py")
           and "2026-09-17  BUILD wq" in notes("static/math-figures.js"), "")
+
+
+def part3mm_the_second_calculus_sweep():
+    """PART 3mm (build wr, 2026-09-17) -- THE SECOND CALCULUS SWEEP, WHOLE: 88 findings, 4 of 36
+    clean, 20 generator-owned on 13 ops. The 17 lessons wo never read, read; the admin card's
+    report list newest first. With this sweep every lesson in every course has been read once."""
+    print("\nPART 3mm — the second Calculus sweep, whole (build wr)")
+    import lessonscripts as L
+    import coursesweep as C
+    import tempfile as _tf, json as _j
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for _s, b in les["teach"]) + " ".join(pr["worked"][1] for pr in les["pairs"])
+    B = lambda p, lv="abstract": L.board_for(p, lv)
+    S = lambda p, lv="abstract": L.spoken_for(p, lv)
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+    W = lambda p: L._worked_for(p)
+
+    # ---- the generator ---------------------------------------------------------
+    check("⭐ ftc's praise: END take away start (HIGH -- 'taking end from start' was start minus end)",
+          "ANTIDIFFERENTIATING, then end take away start" in PR("ftc", {"a": 3, "b": 5})
+          and "taking end from start" not in PR("ftc", {"a": 3, "b": 5}), "")
+    check("⭐ avgv's praise speaks a HEIGHT, not a line the praise beat never draws (five MEDIUMs, one line)",
+          "Some of the curve stands above that height and some falls below it, and the two trade places exactly." in PR("avgv", {"a": 60, "b": 5})
+          and "that line" not in PR("avgv", {"a": 60, "b": 5}), "")
+    check("⭐ anti's pending line runs the right way (44x came from ?x²); chan multiplies the inside's derivative in; prod's 2c is one PIECE; cfix's a is the plus number",
+          '[[step eq="44x came from ?x²"]]' in B({"a": 44, "b": 0, "op": "anti"})
+          and "Two things are multiplied: the power 3 comes down, and the inside's derivative 8 comes out to meet it" in PR("chan", {"a": 8, "b": 3})
+          and "two things are multiplied — the power 3 comes down" in W({"a": 8, "b": 3, "op": "chan"})[0]
+          and "10 is one piece of the derivative, with the plus 6 forgotten" in W({"a": 6, "b": 0, "c": 5, "op": "prod"})[0]
+          and "half the derivative" not in W({"a": 6, "b": 0, "c": 5, "op": "prod"})[0]
+          and "6 is only the plus number in the sloping piece" in W({"a": 6, "b": 2, "c": 9, "op": "cfix"})[0], "")
+    check("  trap: 'use that average speed'; the halfway speed is the HEIGHT of an equal-area rectangle; the two wrong answers are two beats",
+          "Use that average speed for the 10 seconds: 110 metres." in PR("trap", {"a": 6, "b": 16, "c": 10})
+          and "The halfway speed is the height of an equal-area rectangle." in W({"a": 6, "b": 16, "c": 10, "op": "trap"})[0]
+          and "holds both speeds at once. And 160 holds the top speed" in W({"a": 6, "b": 16, "c": 10, "op": "trap"})[0], "")
+    check("  pgrw's ask names P and reads dP/dt; dfeq's ask reads dV/dt (two untaught terms)",
+          "Call the colony's size P; the board writes d P d t equals 4 P — the rate is 4 times the amount." in S({"a": 28, "b": 4, "op": "pgrw"})
+          and "written d V d t equals negative 8, the rate the volume V changes with time" in S({"a": 155, "b": 8, "c": 5, "op": "dfeq"}), "")
+    check("  seven walk-backs in short beats (anti, pgrw, btwn, defi, mrat, pwrc, trap) -- and pwrc's 'which no rule does' is gone",
+          "forwards, 22 x squared drops its 2 down the front and gives 44 x. So backwards, from 44 x, you halve: 44 over 2 is 22." in W({"a": 44, "b": 0, "op": "anti"})[0]
+          and "every one of the 28 bacteria contributes 4 a minute. So the rate right now is 28 times 4 — 112 a minute." in W({"a": 28, "b": 4, "op": "pgrw"})[0]
+          and "the 31 is under the bottom curve. It is already inside the 150 under the top one. So take it away: 150 take away 31 is 119" in W({"a": 150, "b": 31, "op": "btwn"})[0]
+          and "When one curve stays on top the whole way, it is top take away bottom." in W({"a": 150, "b": 31, "op": "btwn"})[0]
+          and "the speed line sits at 11 for 5 seconds. The shape under it is a rectangle 11 tall and 5 wide. 11 times 5 is 55, and 55 metres" in W({"a": 11, "b": 5, "op": "defi"})[0]
+          and "area is side squared. So its rate is 2 times the side, times the side's rate: 2 times 11 times 2 is 44" in W({"a": 11, "b": 2, "op": "mrat"})[0]
+          and "the 2 comes down and meets the 11 standing there. 2 times 11 is 22, and the power drops to 1." in W({"a": 2, "b": 11, "op": "pwrc"})[0]
+          and "which no rule does" not in W({"a": 2, "b": 11, "op": "pwrc"})[0], "")
+    with _tf.TemporaryDirectory() as _d:
+        _rd = C._dir(_d); os.makedirs(_rd, exist_ok=True)
+        for _n, _w in (("probstat_2026-09-16", "2026-09-16 23:19 UTC"), ("calculus_2026-09-16", "2026-09-16 17:12 UTC"),
+                       ("calculus_2026-09-17", "2026-09-17 02:14 UTC"), ("diffeq_2026-09-16", "2026-09-16 21:14 UTC"),
+                       ("basic_2026-09-15_1030", None)):
+            with open(os.path.join(_rd, _n + ".md"), "w", encoding="utf-8") as _fh:
+                _fh.write("x")
+            if _w:
+                with open(os.path.join(_rd, _n + ".json"), "w", encoding="utf-8") as _fh:
+                    _j.dump({"course": _n.split("_")[0], "findings": [], "ran": 1, "when": _w}, _fh)
+        _order = [x["name"] for x in C.list_reports(_d)]
+    check("⭐ coursesweep.list_reports is NEWEST FIRST by the sweep's own time, whatever the course (the dropdown offered yesterday's Calculus above today's); a report with no .json keys on its name",
+          _order == ["calculus_2026-09-17", "probstat_2026-09-16", "diffeq_2026-09-16", "calculus_2026-09-16", "basic_2026-09-15_1030"], str(_order))
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ laws with their condition (U1-U5): sums and products with a limit each; y = mx + b (HIGH); not JUST one number; the dome (HIGH); a rectangle this way; the square-wins fact named; for these cubics, then check (HIGH); the pattern you met; the change in slope; the equation used backwards; a distance-after-time formula; straight down; the original front number; in this model; not the height at the border (HIGH); the quantity (HIGH)",
+          "for sums and products, when each function has a limit of its own, the limit passes straight through the arithmetic" in spoken(E("calc-u1-limits-pass-through"))
+          and "A line written y equals a number times x, plus a number, has the same steepness at every point on it" in spoken(E("calc-u2-a-line-has-one-slope"))
+          and "A derivative is not just one number" in spoken(E("calc-u2-feed-the-derivative-an-x"))
+          and "the area curve is a dome, rising to 10 and falling after" in spoken(E("calc-u5-the-best-rectangle"))
+          and "Every fixed fence used for a rectangle this way wants a square" in spoken(E("calc-u5-the-best-rectangle"))
+          and "The last lesson showed the square wins for a fixed fence, and here is one rival" in spoken(E("calc-u5-and-how-much-ground-that-wins"))
+          and "That is the method, for these cubics: set the second derivative to zero, then check the bend changes sides there" in spoken(E("calc-u5-where-the-bend-changes"))
+          and E("calc-u5-where-the-bend-changes")["advance_line"].endswith("Set the second derivative to zero, and check the bend changes sides.")
+          and "the critical-point pattern you met" in spoken(E("calc-u5-where-the-bend-changes"))
+          and "a zero slope does not tell you where; the change in the slope does" in spoken(E("calc-u5-where-the-bend-changes"))
+          and "That is the derivative's equation used backwards: from a speed value to the time that gives it" in spoken(E("calc-u4-when-is-it-going-that-fast"))
+          and "For a distance-after-time formula, the derivative gives the speed formula" in spoken(E("calc-u4-when-is-it-going-that-fast"))
+          and "For a stone falling straight down, distance differentiates into speed" in spoken(E("calc-u4-differentiate-twice"))
+          and "In this model that constant is gravity" in spoken(E("calc-u4-differentiate-twice"))
+          and "plus number in the sloping piece is not the height at the border" in spoken(E("calc-u1-mend-the-curve"))
+          and "because the flat piece keeps the value it was given" in E("calc-u1-mend-the-curve")["explain"]["choices"]
+          and "For the quantity 4 x plus 7, squared, the slope at zero is 56" in E("calc-u3-the-chain-rule-at-a-point")["explain"]["spoken"], "")
+    check("⭐ laws with their condition (U6-U9): COULD have come from (HIGH); the powers in this lesson and x⁻¹ named (HIGH x2); ONE function, plus any constant; a whole FAMILY (HIGH); the GENERAL antiderivative (HIGH); because they share a derivative; the curve the condition picks (HIGH); above the axis; this ramp; end take away start (HIGH); one curve on top; the HEIGHT of a rectangle (HIGH); a flow rate (HIGH); straight across, these rectangles (HIGH x2); MOST equations (HIGH); the start says where (HIGH); starting empty (HIGH); in this lesson; the EQUILIBRIUM population (HIGH); a POPULATION stops changing (HIGH)",
+          "what function could it have come from? Such a function is called an antiderivative — there is more than one, a constant apart" in spoken(E("calc-u6-the-rule-run-backwards"))
+          and "For the whole-number powers in this lesson the reverse move is the same shape" in spoken(E("calc-u6-raise-then-divide"))
+          and "x to the negative 1, waits for a later course" in spoken(E("calc-u6-raise-then-divide"))
+          and "To reverse the power rule on the powers in this lesson" in spoken(E("calc-u6-raise-then-divide"))
+          and "So 6 x to the fourth is one function it came from — plus any constant" in spoken(E("calc-u6-raise-then-divide"))
+          and "it gives a whole family of antiderivatives, a constant apart" in spoken(E("calc-u6-a-whole-family"))
+          and "And that is why the general antiderivative is written with plus C: 12 plus 5 is 17" in spoken(E("calc-u6-a-whole-family"))
+          and "Because these curves share one derivative, being 5 apart at one x means 5 apart at every x" in spoken(E("calc-u6-a-whole-family"))
+          and "And that is the one curve the initial condition picks" in spoken(E("calc-u6-one-point-picks-one-curve"))
+          and '[[step eq="y(0) = 7"]][[step eq="y = x² + 7"]]' in E("calc-u6-one-point-picks-one-curve")["recap"][1][1]
+          and "For a speed graph above the axis, that is what the integral is" in spoken(E("calc-u7-the-area-is-the-answer"))
+          and "puts metres a second and seconds together" in spoken(E("calc-u7-the-area-is-the-answer"))
+          and "Under this ramp, starting at zero with speed equal to t" in spoken(E("calc-u7-when-the-graph-is-a-ramp"))
+          and E("calc-u7-when-the-graph-is-a-ramp")["advance_line"].endswith("For this speed-equals-t ramp: square the time, then halve it.")
+          and E("calc-u7-end-take-away-start")["advance_line"].endswith("Work the antiderivative out at both ends, then end take away start.")
+          and "under a graph that stays above the axis" in spoken(E("calc-u7-end-take-away-start"))
+          and "When one curve stays on top the whole way across the stretch" in spoken(E("calc-u8-the-gap-between-two-curves"))
+          and "On the same stretch, when one curve stays above the other" in spoken(E("calc-u8-the-gap-between-two-curves"))
+          and "The halfway speed is the height of a rectangle with the same area as the trapezium" in spoken(E("calc-u8-a-speed-that-climbs"))
+          and "because we are integrating a flow rate, the integral measures the CHANGE" in spoken(E("calc-u8-adding-on-to-what-was-there"))
+          and "Every slice straight across that cylinder is a circle of radius 3" in spoken(E("calc-u8-spin-it-into-a-solid"))
+          and "For these rectangles spun about the line beneath them, every slice straight across is a circle" in spoken(E("calc-u8-spin-it-into-a-solid"))
+          and "Most equations you have met describe an AMOUNT" in spoken(E("calc-u9-an-equation-about-a-rate"))
+          and "it is the starting 60 that lets the line show how much is in there" in spoken(E("calc-u9-an-equation-about-a-rate"))
+          and "Starting empty, over 7 minutes it gains 35 litres" in spoken(E("calc-u9-two-rates-at-once"))
+          and "In this lesson the differential equation tells you how fast a population changes" in spoken(E("calc-u9-where-the-change-stops"))
+          and "40 is not the equilibrium population" in spoken(E("calc-u9-where-the-change-stops"))
+          and "A population whose rate is 45 take away 5 P stops changing at 9, not 40" in E("calc-u9-where-the-change-stops")["explain"]["spoken"], "")
+    check("⭐ words-board: the closing beats read their boards; x² → 2x, 2x = 6, the 8, y(0) = 7 and P drawn or said; the 9x⁴ power drops; the ramp keeps its picture; the FLOW graph on the accumulation recap; the flat top comes next; the volume's false closing equation is two lines (HIGH)",
+          "10 take away 4, a jump of 6" in spoken(E("calc-u1-how-big-is-the-break"))
+          and "continuity as a repair job: 5 plus 2 is 7" in spoken(E("calc-u1-mend-the-curve"))
+          and "evaluating a derivative: 10 times 6 is 60" in spoken(E("calc-u2-feed-the-derivative-an-x"))
+          and "the front-number part of the power rule: 3 times 6 is 18" in spoken(E("calc-u2-the-power-comes-down-front"))
+          and '[[step eq="x² → 2x"]]' in boards(E("calc-u2-the-power-comes-down-front"))
+          and "and the power drops to 3, so the derivative is 36 x to the power 3" in spoken(E("calc-u2-the-power-comes-down-front"))
+          and "Adding the slope to the lift — the crossed-out 8 — is not the derivative either" in spoken(E("calc-u2-a-line-has-one-slope"))
+          and '[[step eq="2x − 6 = 0"]][[step eq="2x = 6"]][[step eq="x = 3"]]' in boards(E("calc-u4-where-the-curve-levels-off"))
+          and "how much the best rectangle wins: 10 times 10, 100 square" in spoken(E("calc-u5-and-how-much-ground-that-wins"))
+          and "an inflection point: 6 x take away 12 is zero, so x is 2" in spoken(E("calc-u5-where-the-bend-changes"))
+          and '[[graph lines="y=x" names="speed = t" shade="0..6" label="18" range="0..8" yrange="0..8" caption="the triangle under the ramp"]][[step eq="6 × 6 ÷ 2 = 18"]]' in E("calc-u7-when-the-graph-is-a-ramp")["recap"][1][1]
+          and "the next board draws that flat top" in spoken(E("calc-u7-flatten-it-out"))
+          and '[[graph lines="y=6" names="6 litres a minute running in" shade="0..5" label="30"' in E("calc-u8-adding-on-to-what-was-there")["recap"][0][1]
+          and "a climbing speed: 4 plus 10, halved, times 5 — 35" in spoken(E("calc-u8-a-speed-that-climbs"))
+          and '[[step eq="3² × 4 = 36"]][[step eq="volume = 36π"]]' in E("calc-u8-spin-it-into-a-solid")["recap"][1][1]
+          and "36 · 36π" not in E("calc-u8-spin-it-into-a-solid")["recap"][1][1]
+          and "a volume of revolution: 3 squared times 4 is 36, so 36 pi" in spoken(E("calc-u8-spin-it-into-a-solid"))
+          and '[[step eq="dV/dt = −4, start 60"]][[step eq="60 − 4 × 7 = 32"]]' in E("calc-u9-an-equation-about-a-rate")["recap"][1][1]
+          and "a net rate: 9 take away 4, times 7, is 35" in spoken(E("calc-u9-two-rates-at-once"))
+          and "Call the colony's size P: for every bacterium in the dish" in spoken(E("calc-u9-when-the-rate-depends-on-the-amount"))
+          and "the end of the course: 5 P equals 45, so P is 9" in spoken(E("calc-u9-where-the-change-stops"))
+          and '[[step eq="3x² → 6x"]][[step eq="6x → 3x²"]]' in boards(E("calc-u6-the-rule-run-backwards")), "")
+    check("  every Calculus lesson validates; the course list is 39,999 (no beat added)",
+          all(ok for les in L.LESSONS if les["course"] == "calculus" for ok, _l, _d in L.validate(les))
+          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-17wr-' in notes("main.py") and "2026-09-17  BUILD wr" in notes("lessonscripts.py")
+          and "2026-09-17  BUILD wr" in notes("lessons/calculus.py") and "2026-09-17  BUILD wr" in notes("ruletests.py")
+          and "2026-09-17  BUILD wr" in notes("coursesweep.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -27971,8 +28118,8 @@ def part3fs_calculus_read_for_sense():
     # the teaching worth guarding: the lines that make this course good
     check("⭐ the Fundamental Theorem still arrives as one idea in two hats",
           "one idea wearing two hats" in teach("calc-u7-end-take-away-start"), "")
-    check("  accumulation still says an integral measures CHANGE, not amount",
-          "measures the CHANGE, never the amount"
+    check("  accumulation still says the integral of a flow rate measures CHANGE, not amount (wr: with its condition)",
+          "the integral measures the CHANGE, not the amount already there"
           in teach("calc-u8-adding-on-to-what-was-there"), "")
     check("  and the chain rule still names its own commonest mistake",
           "commonest mistake in all of Calculus"
@@ -35710,7 +35857,7 @@ def part3jw_calculus_units_four_to_six_to_the_shape():
     anti = {"a": 44, "b": 0, "op": "anti"}
     check("⭐ the rule run backwards: the derivative written and the front number fed into the MACHINE (÷ 2) with its output blank on the ask; the machine filled and 22x² written in the walk-back",
           '[[write text="derivative = 44x"]][[machine input="44" rule="÷ 2" output="?" caption=' in L.board_for(anti, "abstract")
-          and '[[step eq="? x² came from it"]]' in L.board_for(anti, "abstract")
+          and '[[step eq="44x came from ?x²"]]' in L.board_for(anti, "abstract")   # (wr: the old "? x² came from it" had it backwards)
           and '[[machine input="44" rule="÷ 2" output="22" caption=' in _W(anti)[1]
           and '[[write text="22x²"]]' in _W(anti)[1]
           and "44 over 2 is 22" in _W(anti)[0], "")
@@ -35877,12 +36024,12 @@ def part3jx_calculus_units_seven_to_nine_to_the_shape():
           and 'names="speed; the halfway speed, 11" lines="y=11" shade="0..10" label="110"' in _W(trap)[1]
           and "11 metres a second for 10 seconds is 110 metres" in _W(trap)[0], "")
     accu = {"a": 6, "b": 9, "c": 36, "op": "accu"}
-    check("⭐ adding on to what was there: the flow rectangle shaded with \"?\" on the ask; the AMOUNT line from 36 up to 90 on the walk-back; the teach keeps \"measures the CHANGE, never the amount\"",
+    check("⭐ adding on to what was there: the flow rectangle shaded with \"?\" on the ask; the AMOUNT line from 36 up to 90 on the walk-back; the teach keeps \"the integral measures the CHANGE, not the amount already there\" (wr wording)",
           '[[graph lines="y=6" names="6 litres a minute running in" shade="0..9" label="?" range="0..11" yrange="0..8" caption=' in L.board_for(accu, "abstract")
           and '[[step eq="starts with 36 L"]]' in L.board_for(accu, "abstract")
           and '[[graph lines="y=6x+36" names="litres in the tank" points="(0,36),(9,90)" range="0..10" yrange="0..100" caption=' in _W(accu)[1]
           and "36 plus 54 is 90" in _W(accu)[0]
-          and any("measures the CHANGE, never the amount" in s for s, _b in L.LESSON_BY_ID["calc-u8-adding-on-to-what-was-there"]["teach"]), "")
+          and any("the integral measures the CHANGE, not the amount already there" in s for s, _b in L.LESSON_BY_ID["calc-u8-adding-on-to-what-was-there"]["teach"]), "")
     revo = {"a": 5, "b": 8, "op": "revo"}
     check("  spin it into a solid: the cylinder ([[solid kind=\"cylinder\"]]) with its radius and length on the ask; the slice's area and the stack in the walk-back; the praise says the arithmetic once (the closure was 25,361)",
           '[[solid kind="cylinder" r="5" h="8" caption=' in L.board_for(revo, "abstract")
@@ -46634,6 +46781,7 @@ def main():
     part3mj_the_first_calculus_sweep_half()
     part3mk_the_first_diffeq_sweep()
     part3ml_the_first_probstat_sweep()
+    part3mm_the_second_calculus_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

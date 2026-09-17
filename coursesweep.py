@@ -3,6 +3,13 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD wr -- THE REPORT LIST IS NEWEST FIRST. list_reports sorted by file
+#               name, and names begin with the course, so the admin card's dropdown put
+#               probstat_2026-09-16 above calculus_2026-09-17 and the two Calculus reports
+#               side by side -- Jim opened yesterday's by mistake while today's was still
+#               running. Now sorted by the sweep's own "when" (newest first; a report with
+#               no .json keys on its name's date; ties keep the name order). Nothing else
+#               in the file changed.
 #   2026-09-16  BUILD wm -- TWO CHARTER LINES from the first Algebra II sweep: a ✗ on a [[step]]
 #               line marks the wrong path a child might take, never a false equation the tutor
 #               asserts ("3 × 5 = 15 ✗" was read as the tutor denying that 3 × 5 is 15); and a
@@ -628,13 +635,20 @@ def write_report(data_dir, result, build="", now=None) -> str:
 
 
 def list_reports(data_dir) -> list:
+    """Every report, NEWEST FIRST -- by the sweep's own timestamp, whatever the course.
+
+    (wr) Until wr the list was sorted by NAME, and names begin with the course, so
+    probstat_2026-09-16 sat above calculus_2026-09-17 and the two Calculus reports sat
+    side by side with yesterday's easy to grab (Jim did, on 09-17). The "when" the
+    sweep wrote into its .json is the order that matters; a report with no .json
+    falls back to its name's date, and ties keep the name order."""
     d = _dir(data_dir)
     try:
         names = sorted(f[:-3] for f in os.listdir(d) if f.endswith(".md"))
     except OSError:
         return []
     out = []
-    for n in reversed(names):
+    for n in names:
         row = {"name": n}
         try:
             with open(os.path.join(d, n + ".json"), encoding="utf-8") as fh:
@@ -644,6 +658,14 @@ def list_reports(data_dir) -> list:
         except Exception:  # noqa: BLE001
             pass
         out.append(row)
+    # "YYYY-MM-DD HH:MM UTC" sorts as text; a name-only row keys on the date in its name
+    def _key(row):
+        w = row.get("when") or ""
+        if not w:
+            m = re.search(r"_(\d{4}-\d{2}-\d{2})(?:_(\d{4}))?$", row["name"])
+            w = (m.group(1) + " " + (m.group(2)[:2] + ":" + m.group(2)[2:] if m.group(2) else "00:00")) if m else ""
+        return (w, row["name"])
+    out.sort(key=_key, reverse=True)
     return out
 
 
