@@ -2,6 +2,23 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD wu -- THE SECOND PRE-CALC SWEEP (34 findings on 27 of 36 lessons -- the
+#               reader's credits ran out at U7; 10 generator-owned on four ops; the first
+#               sweep was 76). (1) vmag's walk-back (six MEDIUMs): "shorter than walking
+#               both, 47" dangled after the answer -- now "walking both — 12 plus 35 is
+#               47", drawn as [[step eq="walking both: 12 + 35 = 47"]]; the praise's "Watch
+#               the squares on the board" (the praise board is the answered line since wt)
+#               -> "The squares come next." (2) arsn's 90-degree praise and walk-back
+#               explained the half from "the rectangle around it" that nothing drew -- now
+#               from the right angle: base, height, half of base times height. (3) cofn's
+#               30-word praise is two sentences; its walk-back says the shared side plainly
+#               ("the side opposite one corner sits beside the other"), matching the
+#               authored teach. (4) fshf's praise dropped "exactly as the vertex lesson
+#               said" -- a lesson this course has not had. (5) fpie's walk-back: "check the
+#               neighborhood" -> "check the side" (the untaught term the sweep found in the
+#               authored teach lives here too). Counts: course 39,999; speechmap 2,245 ->
+#               2,244 and drift 1,939 -> 1,938 (the ellipse's "over 196: 14" ratio-tidy is
+#               gone -- the line reads the whole equation now; lessons/precalc.py).
 #   2026-09-17  BUILD wt -- THE REFEREE PILE. The canon's referees, run over every scripted
 #               beat of all ten courses, refused 56 beats; 45 were praise lines ("so x is
 #               12", "5 plus 2 equals 7") over an EMPTY board, because a lesson with a
@@ -4348,12 +4365,12 @@ def _fpie_worked(p):
     if c < 5:
         return (f"Here it is, step by step: {c} lives below 5, so the FIRST rule runs and no other — "
                 f"{c} plus {a}, which equals {c + a}. The other rule sleeps; check the "
-                f"neighborhood, then compute.",
+                f"side, then compute.",
                 f'[[numberline min="0" max="10" points="5,{c}" caption="{c} is below 5 — the first rule runs: {c} + {a} = {c + a}"]]'
                 f'[[step eq="{c} < 5 → {c} + {a} = {c + a}"]]')
     return (f"Here it is, step by step: {c} is 5 or more, so the SECOND rule runs and no other — "
             f"{b} times {c}, which equals {b * c}. The other rule sleeps; check the "
-            f"neighborhood, then compute.",
+            f"side, then compute.",
             f'[[numberline min="0" max="10" points="5,{c}" caption="{c} is 5 or more — the second rule runs: {b} × {c} = {b * c}"]]'
             f'[[step eq="{c} ≥ 5 → {b} × {c} = {b * c}"]]')
 
@@ -4588,8 +4605,8 @@ def _cofn_board(p):
 def _cofn_worked(p):
     a = p["a"]
     return (f"Here it is, step by step: {a} plus {90 - a} equals 90, so the sine of {a} equals the "
-            f"cosine of {90 - a}. One triangle, two sharp corners — what one corner calls "
-            f"height, the other calls across.",
+            f"cosine of {90 - a}. One triangle, two sharp corners — the side opposite one "
+            f"corner sits beside the other.",
             f'[[triangle v="A,B,C" right="B" angles="{a},90,{90 - a}" caption="{a} + {90 - a} = 90 — partners across ninety"]]'
             f'[[step eq="sin {a}° = cos {90 - a}°"]]')
 
@@ -4671,8 +4688,8 @@ def _arsn_worked(p):
     if c == 90:
         ans = prod // 2
         spoken = (f"Here it is, step by step: the sine of 90 degrees is 1, so the area is half of "
-                  f"{a} times {b} — half of {prod}, {ans}. The whole {prod} is the rectangle "
-                  f"around it, and a triangle takes half.")
+                  f"{a} times {b} — half of {prod}, {ans}. With the right angle between them, {a} is "
+                  f"the base and {b} is the height, and a triangle's area is half of base times height.")
         steps = f'[[step eq="sin 90° = 1"]][[step eq="½ · {a} · {b} · 1 = {ans}"]]'
     else:
         ans = prod // 4
@@ -4728,9 +4745,10 @@ def _vmag_worked(p):
     return (f"Here it is, step by step: right {a} and up {b} meet at a right angle, so the arrow is "
             f"the hypotenuse. {a} squared is {a * a}, {b} squared is {b * b}, put together "
             f"{sq} — and {c} times {c} squares back to it. The arrow is {c}: longer than "
-            f"either step, shorter than walking both, {a + b}.",
+            f"either step, shorter than walking both — {a} plus {b} is {a + b}.",
             f'[[vector v="{a},{b}" caption="right {a}, up {b} — the arrow is {c} long"]]'
-            f'[[step eq="{a}² + {b}² = {sq}"]][[step eq="√{sq} = {c}"]]')
+            f'[[step eq="{a}² + {b}² = {sq}"]][[step eq="√{sq} = {c}"]]'
+            f'[[step eq="walking both: {a} + {b} = {a + b}"]]')
 
 
 
@@ -11061,10 +11079,9 @@ OP_EXT = {
                              f"to a new spot. What is its new x?"),
         "board": _fshf_board,         # (to) the old point on the grid, captioned
         "worked": _fshf_worked,       # (to) the point and where it landed
-        "praise": lambda p: (f"The minus points OPPOSITE, exactly as the "
-                             f"vertex lesson said: take away {p['a']} inside "
-                             f"slides the graph RIGHT — the point lands at x "
-                             f"equals {p['b'] + p['a']}."),
+        "praise": lambda p: (f"The minus points OPPOSITE: take away "
+                             f"{p['a']} inside slides the graph RIGHT — the "
+                             f"point lands at x equals {p['b'] + p['a']}."),
         "key": lambda p: p["b"] + p["a"],
         # The errors: reading the minus literally (slid left), and not
         # sliding at all.
@@ -11478,8 +11495,8 @@ OP_EXT = {
         "praise": lambda p: (f"Sine and cosine are partners across 90: "
                              f"{p['a']} plus {90 - p['a']} equals 90, so "
                              f"the sine of {p['a']} equals the cosine of "
-                             f"{90 - p['a']} — a right angle's two sharp "
-                             f"corners, finishing 90 together."),
+                             f"{90 - p['a']}. A right angle's two sharp "
+                             f"corners finish 90 together."),
         "key": lambda p: p["a"],
         # The errors: the same angle kept, and 90 ADDED instead of shared.
         "choices": lambda p: [90 - p["a"], p["a"], 90 + p["a"]],
@@ -11587,9 +11604,10 @@ OP_EXT = {
         "worked": _arsn_worked,       # (tp) the same triangle with its area
         "praise": lambda p: ((f"The sine of 90 degrees is 1, so the area is "
                               f"half of {p['a']} times {p['b']} — "
-                              f"{p['a'] * p['b'] // 2}. The whole "
-                              f"{p['a'] * p['b']} is the rectangle around "
-                              f"it, and a triangle takes half.")
+                              f"{p['a'] * p['b'] // 2}. With the right "
+                              f"angle between them, {p['a']} is the base and "
+                              f"{p['b']} is the height, and a triangle's "
+                              f"area is half of base times height.")
                              if p["c"] == 90 else
                              (f"The sine of {p['c']} degrees is one half, "
                               f"so half the product is halved again — a "
@@ -11683,7 +11701,7 @@ OP_EXT = {
                              f"right angle, so the arrow is the "
                              f"hypotenuse. The arrow is {p['c']}: longer "
                              f"than either step, shorter than walking "
-                             f"both. Watch the squares on the board."),
+                             f"both. The squares come next."),
         "key": lambda p: p["c"],
         # The errors: the two steps added (walking the corner), and the
         # bigger step alone ("it is mostly up").
