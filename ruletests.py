@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD wq -- PART 3ml, THE FIRST PROB/STAT SWEEP (92 findings, 1 clean, 11
+#               generator-owned). Fourteen generator items (farv's collision check, hedg's
+#               average gap, por's AND-rule line, inci, ntal's two lines, wout's caption,
+#               zsco, resd's size, n68, dcnt's mark=, four short walk-backs), [[dotplot
+#               mark=]] pinned in math-figures.js, the dot pin grown to all ten courses,
+#               the authored classes. No count moved; two old generator pins (3jn: dcnt's
+#               captions; 3jp: cbse's walk-back sentence) moved to the new wording.
 #   2026-09-16  OLDER NOTES (before 2026-09-10) live in
 #               changelog/ruletests.py.md -- moved out on 2026-09-16 (build wp) VERBATIM,
 #               95 entries; 42 stay here. Keep adding new notes HERE, newest at top; roll
@@ -19572,6 +19579,168 @@ def part3mk_the_first_diffeq_sweep():
           and "2026-09-16  BUILD wp" in notes("lessons/diffeq.py") and "2026-09-16  BUILD wp" in notes("ruletests.py"), "")
 
 
+def part3ml_the_first_probstat_sweep():
+    """PART 3ml (build wq, 2026-09-17) -- THE FIRST PROB/STAT SWEEP: 92 findings, 1 of 36 clean,
+    11 generator-owned. Fourteen generator items, [[dotplot mark=]], the dot gone from the
+    tenth course, and the authored class -- a rule of thumb stated as a law of nature. With
+    this sweep every course has had its first."""
+    print("\nPART 3ml — the first Prob/Stat sweep (build wq)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for _s, b in les["teach"]) + " ".join(pr["worked"][1] for pr in les["pairs"])
+    B = lambda p, lv="abstract": L.board_for(p, lv)
+    S = lambda p, lv="abstract": L.spoken_for(p, lv)
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+    W = lambda p: L._worked_for(p)
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+
+    # ---- the generator ---------------------------------------------------------
+    check("⭐ farv: the 'distance' tap may not also be a dot on the plot (12, 25 put 13 on both), and the bank moved off the two collisions",
+          not L.OP_EXT["farv"]["check"]({"a": 12, "b": 25})[0] and not L.OP_EXT["farv"]["check"]({"a": 15, "b": 29})[0]
+          and L.OP_EXT["farv"]["check"]({"a": 12, "b": 27})[0] and L.OP_EXT["farv"]["check"]({"a": 15, "b": 28})[0]
+          and all(not (p["a"] - 1 <= p["b"] - p["a"] <= p["a"] + 2)
+                  for p in E("ps-u1-the-one-that-sits-alone")["bank"] + [pr["ask"] for pr in E("ps-u1-the-one-that-sits-alone")["pairs"]]), "")
+    check("⭐ hedg: the gap is an average -- one play bounces, many plays settle (HIGH); nothing arrives 'with perfect reliability'",
+          "One play can bounce either way, but over many plays the average gap is what keeps the machine open." in PR("hedg", {"a": 10, "b": 7})
+          and "perfect reliability" not in W({"a": 10, "b": 7, "op": "hedg"})[0]
+          and "over many plays the average gap is what keeps the machine open" in W({"a": 10, "b": 7, "op": "hedg"})[0], "")
+    check("⭐ por: timesing belongs to the AND rule for separate events, not to this OR question (HIGH)",
+          "timesing belongs to the AND rule for separate events, not to this OR question" in PR("por", {"a": 7, "b": 9, "c": 8})
+          and "timesing is what AND does" not in PR("por", {"a": 7, "b": 9, "c": 8}), "")
+    check("  inci says the highest the poll allows; ntal's walk-back writes 5% then the halving; wout's tape is the bag BEFORE the pick",
+          "so the highest it allows is 22" in S({"a": 20, "b": 2, "c": 34, "op": "inci"})
+          and "anything up to" not in S({"a": 20, "b": 2, "c": 34, "op": "inci"})
+          and '[[step eq="5% of 600 = 30"]][[step eq="30 ÷ 2 = 15"]]' in W({"a": 600, "b": 0, "op": "ntal"})[1]
+          and "÷ 40" not in W({"a": 600, "b": 0, "op": "ntal"})[1]
+          and 'caption="the bag BEFORE the pick' in B({"a": 19, "b": 39, "op": "wout"}), "")
+    check("  zsco gives a common scale (not the only way); resd's gap is the SIZE of the residual; n68's 68 is the percent to take",
+          "a common scale: how far each sits from its own mean" in PR("zsco", {"a": 70, "b": 6, "c": 82})
+          and "compared at all" not in PR("zsco", {"a": 70, "b": 6, "c": 82}) and "compared at all" not in W({"a": 70, "b": 6, "c": 82, "op": "zsco"})[0]
+          and "that is the size of the residual, actual take away predicted" in PR("resd", {"a": 30, "b": 36})
+          and "the size of the residual — actual take away predicted" in W({"a": 30, "b": 36, "op": "resd"})[0]
+          and "the percent to take, not the headcount" in PR("n68", {"a": 200, "b": 0})
+          and "never a headcount" not in W({"a": 200, "b": 0, "op": "n68"})[0], "")
+    check("  bias, cbse and strf walk-backs and resp's praise are short sentences (four LOWs)",
+          "Those 20 did not say no. They were never asked at all." in W({"a": 30, "b": 50, "op": "bias"})[0]
+          and "sends the boys away. Add the girls: 16 plus 18 is 34. So every chance from here is out of 34." in W({"a": 16, "b": 18, "c": 5, "op": "cbse"})[0]
+          and "keeps that share. 10 times 20, divided by 100, is 2 girls. That leaves 8 boys." in W({"a": 20, "b": 80, "c": 10, "op": "strf"})[0]
+          and "72 out of 90 is 80 percent. That is the response rate. A low one is a warning:" in PR("resp", {"a": 90, "b": 72}), "")
+    check("⭐ [[dotplot mark=]]: a dashed, labelled line at the value, drawn before the dots, with headroom; plots without it untouched; dcnt's ask and walk-back use it",
+          'var markv = (a.mark !== undefined && a.mark !== "") ? parseFloat(a.mark) : NaN;' in rd("static/math-figures.js")
+          and "var H = 38 + 11 + tallest * 14 + 18 + (isFinite(markv) ? 18 : 0);" in rd("static/math-figures.js")
+          and 'stroke-dasharray="5,4"/>\';\n      s += tspan(kx, 13, String(trimnum(markv)), "var(--bd-5b5bd6)", 12, 700);' in rd("static/math-figures.js")
+          and rd("static/math-figures.js").index("if (isFinite(markv) && markv >= min && markv <= max)") < rd("static/math-figures.js").index("var counts = {};")
+          and 'mark="13"' in B({"a": 13, "b": 8, "c": 7, "op": "dcnt"}) and 'mark="13"' in W({"a": 13, "b": 8, "c": 7, "op": "dcnt"})[1], "")
+    check("⭐ THE DOT: no [[step eq]] in ALL TEN courses (Prob/Stat since wq) -- authored OR generated -- joins two equations with ' · '",
+          not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', t["board"])
+                  for c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc", "calculus", "diffeq", "probstat")
+                  for les in C.lessons_for(c, L) for t in C.transcript_for(les, L)), "")
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ a rule of thumb with its condition (U1-U4): the count comes back; the TALLEST stack; the halfway point; the box and the whiskers; variance averages the squares; the residual's sign and size; best fit overall; no dot on the line (HIGH x3); the strongest opinions; a number to check; may be more likely; why a thousand",
+          "adding the counts tells you how many values there are in all" in spoken(E("ps-u1-add-the-bars"))
+          and "brings them all back" not in spoken(E("ps-u1-add-the-bars"))
+          and E("ps-u1-under-the-tallest-stack")["advance_line"].endswith("The mode is the value under the tallest stack.")
+          and "7 is the halfway point between them, with three numbers below and three above" in spoken(E("ps-u2-no-single-middle"))
+          and "the only number" not in spoken(E("ps-u2-no-single-middle"))
+          and "a wild extreme moves the box far less than it moves the range" in spoken(E("ps-u2-the-middle-half"))
+          and "its width is the right edge take away the left edge" in spoken(E("ps-u2-the-middle-half"))
+          and "The box is 10 wide, and here are two ways to miss it" in spoken(E("ps-u2-the-middle-half"))
+          and "Square the distances and average those squares instead" in spoken(E("ps-u2-how-far-from-the-middle"))
+          and "the residual — actual take away predicted" in spoken(E("ps-u3-how-far-off-the-line"))
+          and "positive when the dot sits above the line, negative when below, and its size is how far the line missed by" in spoken(E("ps-u3-how-far-off-the-line"))
+          and "it keeps the squared gaps, all added up, as small as any line can" in spoken(E("ps-u3-how-far-off-the-line"))
+          and "when no dot lands exactly on it, every dot is on one side or the other" in spoken(E("ps-u3-through-the-middle-of-the-cloud"))
+          and E("ps-u3-through-the-middle-of-the-cloud")["advance_line"].endswith("With no dot on the line, every dot is on one side or the other.")
+          and "With 14 dots, none on the line, and 6 above it, 8 sit below" in E("ps-u3-through-the-middle-of-the-cloud")["explain"]["spoken"]
+          and "they may well think differently about school lunches" in spoken(E("ps-u4-the-ones-you-never-asked"))
+          and "It is a number a statistician checks before trusting the results" in spoken(E("ps-u4-who-actually-answered"))
+          and "People with strong feelings may be more likely to reply; the contented may shrug and bin it" in spoken(E("ps-u4-who-actually-answered"))
+          and "at that size the margin is only about 3 points" in spoken(E("ps-u4-the-price-of-accuracy"))
+          and "A tempting shortcut is splitting the sample down the middle" in spoken(E("ps-u4-a-sample-that-matches")), "")
+    check("⭐ a rule of thumb with its condition (U5-U9): hard to compare until on one scale (HIGH); like 30 of 100; one in 8 is RARER (HIGH); one common way; the chance picture (HIGH); exactly one missing; what a play is WORTH (HIGH); on average level (HIGH); the POT (HIGH); the same cost; many paid machines; the average settles (HIGH); the bell's group (HIGH x2); the percent to take; the tail fact; compared with the spread; the estimate with a range (HIGH); does not support; for the group the claim names",
+          "are hard to compare until they sit on the same scale" in spoken(E("ps-u5-chance-on-a-scale"))
+          and "it is like 30 out of 100 — in the long run, about 30 of every 100 picks come up red" in spoken(E("ps-u5-chance-on-a-scale"))
+          and "is a bigger one-in than either, but adding is the OR rule's move; the AND rule times, and one in 15 is the answer" in spoken(E("ps-u5-both-at-once"))
+          and "more common than rain alone" not in spoken(E("ps-u5-both-at-once"))
+          and "One common way to want two things is this" in spoken(E("ps-u5-either-one-wins"))
+          and "Here is the hundred square as a picture of the chances. Small has a 25 percent chance, so 25 cells" in spoken(E("ps-u7-the-chances-fill-the-hundred"))
+          and "when every outcome is listed and just one chance is missing, it can be found" in spoken(E("ps-u7-the-chances-fill-the-hundred"))
+          and "Because the best prize is not what one play is worth, and the worst is not either" in spoken(E("ps-u7-what-one-play-is-worth"))
+          and "play it many times and, on average, you expect to end up level" in spoken(E("ps-u7-what-would-be-fair"))
+          and E("ps-u7-what-would-be-fair")["advance_line"].endswith("Spread the whole pot over the wins.")
+          and "For the same cost to play, the rarer the win, the bigger the prize has to be" in spoken(E("ps-u7-what-would-be-fair"))
+          and "A fair game is expected to return exactly what it takes in" in spoken(E("ps-u7-what-would-be-fair"))
+          and "Because many paid game machines are not fair" in spoken(E("ps-u7-why-the-machine-stays-open"))
+          and "play many times and the average cost tends to settle closer and closer to 3 a play" in spoken(E("ps-u7-why-the-machine-stays-open"))
+          and "perfect reliability" not in spoken(E("ps-u7-why-the-machine-stays-open"))
+          and "the picture often comes out roughly the same shape" in spoken(E("ps-u8-the-crowded-middle"))
+          and "when a group follows a bell curve, about 68 percent of it sits in the middle band" in spoken(E("ps-u8-the-crowded-middle"))
+          and "In these problems the 68 is the percent to take, not the final headcount" in spoken(E("ps-u8-the-crowded-middle"))
+          and "On a bell curve only about 2 in a hundred sit that far up — this unit's last lesson counts them" in spoken(E("ps-u8-how-far-out-is-that"))
+          and "12 points might be large or small compared with the spread" in spoken(E("ps-u8-how-far-out-is-that"))
+          and "A matching sliver would sit at the bottom end, below 80; this picture shades only the top one" in spoken(E("ps-u8-almost-nobody-out-there"))
+          and "When a poll says give or take, its estimate comes with a range around it" in spoken(E("ps-u9-give-or-take"))
+          and "ellipse" not in spoken(E("ps-u9-how-wide-is-the-doubt"))
+          and "Your sample does not support it" in spoken(E("ps-u9-can-that-claim-survive"))
+          and "With an estimate of 40, a ceiling of 46 and a claim of 55" in E("ps-u9-can-that-claim-survive")["explain"]["spoken"]
+          and "independence predicts the overall rate for the group the claim names" in spoken(E("ps-u6-what-independent-claims"))
+          and E("ps-u6-what-independent-claims")["advance_line"].endswith("Independent means the group's rate for this matches everyone's.")
+          and "GIVEN is the word that limits a question to one group" in spoken(E("ps-u6-inside-the-smaller-world"))
+          and "The number after OUT OF is what the question asks for" in spoken(E("ps-u6-the-bag-remembers")), "")
+    check("⭐ count-the-winning-paths: 3 winners of 4, so 3 × 3 = 9 is not also 3 + 3 (HIGH); four KINDS of branch; the recap draws its tree",
+          '[[pie parts="4" shaded="3" caption="4 equal parts, 3 winners"]][[tree stage1="W:3,L:1" stage2="W:3,L:1"' in E("ps-u5-count-the-winning-paths")["picture"][0][1]
+          and "Four KINDS of finished branch — win-then-win, win-then-lose, lose-then-win, lose-then-lose" in spoken(E("ps-u5-count-the-winning-paths"))
+          and '[[step eq="3 × 3 = 9 winning paths of 16"]]' in boards(E("ps-u5-count-the-winning-paths"))
+          and '[[step eq="9 ✓"]][[step eq="12 ✗ second spin left free · 6 ✗ added"]]' in boards(E("ps-u5-count-the-winning-paths"))
+          and "3 winners, spun twice, has 9 paths that win both times" in E("ps-u5-count-the-winning-paths")["explain"]["spoken"]
+          and '[[tree stage1="W:3,L:1" stage2="W:3,L:1" caption="winners of the first spin times winners of the second"]][[step eq="3 × 3 = 9"]]' in E("ps-u5-count-the-winning-paths")["recap"][0][1]
+          and "W:2,L:2" not in lessons_src().split('"id": "ps-u5-count-the-winning-paths"')[1].split('"id": "ps-u6-')[0], "")
+    check("⭐ words-board: the line drawn (mark=); the closing beats read their boards; the ✓ lines spoken and unit-ed; the schools, counts and hops drawn; both ends on the range boards; the tails' two lines; the ÷ 40 gone",
+          all('mark="8"' in b for b in (E("ps-u1-count-the-ones-above")["picture"][0][1], E("ps-u1-count-the-ones-above")["teach"][0][1],
+                                       E("ps-u1-count-the-ones-above")["explain"]["board"], E("ps-u1-count-the-ones-above")["recap"][0][1]))
+          and "with a line drawn at 8" in spoken(E("ps-u1-count-the-ones-above"))
+          and "20 times 40 divided by 100 — 8 girls, a sample that matches" in spoken(E("ps-u4-a-sample-that-matches"))
+          and "300 take away 120 leaves 180" in spoken(E("ps-u4-the-ones-you-never-asked"))
+          and "60 times 4 is 240 people, for half the margin" in spoken(E("ps-u4-the-price-of-accuracy"))
+          and "4 per hour, times 2 hours, 8 points" in spoken(E("ps-u3-the-slope-is-a-rate"))
+          and "8 hours, up to the dot, across to 41 points" in spoken(E("ps-u3-one-dot-two-numbers"))
+          and "So 41 is the answer" in spoken(E("ps-u3-one-dot-two-numbers"))
+          and "a line that splits the cloud: 14 take away 6, 8 below" in spoken(E("ps-u3-through-the-middle-of-the-cloud"))
+          and "50 plus 2 times 8, 66" in spoken(E("ps-u8-which-value-sits-out-there"))
+          and 'points="50,66" hops="50,58,66"' in E("ps-u8-which-value-sits-out-there")["explain"]["board"]
+          and "46 take away 5, 41" in spoken(E("ps-u9-give-or-take"))
+          and 'hops="46,41" caption="why 41?"]][[step eq="46 − 5 = 41"]]' in E("ps-u9-give-or-take")["explain"]["board"]
+          and "5 percent of 800 is 40, halved, 20" in spoken(E("ps-u8-almost-nobody-out-there"))
+          and '[[step eq="5% of 800 = 40"]][[step eq="40 ÷ 2 = 20"]]' in E("ps-u8-almost-nobody-out-there")["recap"][1][1]
+          and '[[step eq="5% of 2000 = 100"]][[step eq="100 ÷ 2 = 50"]]' in boards(E("ps-u8-almost-nobody-out-there"))
+          and "÷ 40" not in boards(E("ps-u8-almost-nobody-out-there")) and "÷ 40" not in E("ps-u8-almost-nobody-out-there")["recap"][1][1]
+          and "20 percent of 400 is 80, 40 percent is 160" in spoken(E("ps-u9-the-range-in-real-people"))
+          and '[[step eq="20% of 400 = 80"]][[step eq="40% of 400 = 160"]][[step eq="80 to 160 walk"]]' in boards(E("ps-u9-the-range-in-real-people"))
+          and '[[step eq="45% − 5 points = 40%"]]' in boards(E("ps-u9-the-range-in-real-people"))
+          and "3 times 3, nine winning paths" in spoken(E("ps-u5-count-the-winning-paths"))
+          and '[[step eq="25% ✓"]]' in boards(E("ps-u4-who-actually-answered"))
+          and '12½ ✗ the prizes averaged' in boards(E("ps-u7-what-one-play-is-worth"))
+          and '[[bars data="girls:45 | boys:40"' in boards(E("ps-u4-a-sample-that-matches"))
+          and '[[step eq="21 + 14 = 35"]]' in boards(E("ps-u6-inside-the-smaller-world"))
+          and '[[bars data="soccer:9 | art:6" caption="9 soccer, 6 art — 15 girls"]]' in E("ps-u6-inside-the-smaller-world")["explain"]["board"]
+          and '[[step eq="20 or 200 left-handers → still 45%"]]' in boards(E("ps-u6-what-independent-claims"))
+          and "7 girls in soccer and 5 in art, 5 boys in soccer and 8 in art — 25 in all" in E("ps-u6-out-of-how-many-now")["explain"]["spoken"]
+          and "7 ✗ one box of the table" in boards(E("ps-u6-out-of-how-many-now"))
+          and "19 ✗ the distance" in boards(E("ps-u1-the-one-that-sits-alone"))
+          and "a distance like 19 — how far the stray sits from the crowd's centre at 7" in spoken(E("ps-u1-the-one-that-sits-alone")), "")
+    check("  every Prob/Stat lesson validates; the course list is 39,999 (no beat added)",
+          all(ok for les in L.LESSONS if les["course"] == "probstat" for ok, _l, _d in L.validate(les))
+          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-17wq-' in notes("main.py") and "2026-09-17  BUILD wq" in notes("lessonscripts.py")
+          and "2026-09-17  BUILD wq" in notes("lessons/probstat.py") and "2026-09-17  BUILD wq" in notes("ruletests.py")
+          and "2026-09-17  BUILD wq" in notes("static/math-figures.js"), "")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -34204,9 +34373,10 @@ def part3jn_probstat_units_one_to_three_to_the_shape():
           and "the tallest stack sits over 18, 5 dots high" in _W(dotm)[0] and 'caption="the tallest stack, 5 dots, stands over 18' in _W(dotm)[1], "")
     dcnt = {"a": 13, "b": 8, "c": 7, "op": "dcnt"}
     check("⭐ count the ones above: the dot plot captioned and the pending line a statement (the old \"how many players?\" was a question inside a step); the dots past the line counted in the walk-back",
-          'caption="one dot per player — count only the dots to the RIGHT of 13' in L.board_for(dcnt, "abstract")
+          # (wq) the plot draws the line at 13 (mark=), so the captions say "the line at 13"
+          'mark="13" caption="one dot per player — count only the dots to the RIGHT of the line at 13' in L.board_for(dcnt, "abstract")
           and '[[step eq="more than 13 · count = ?"]]' in L.board_for(dcnt, "abstract")
-          and "there are 8" in _W(dcnt)[0] and 'caption="8 dots past 13; the one on 13 stays out"' in _W(dcnt)[1], "")
+          and "there are 8" in _W(dcnt)[0] and 'caption="8 dots past the line at 13; the one on 13 stays out"' in _W(dcnt)[1], "")
     htot = {"a": 9, "b": 8, "c": 5, "op": "htot"}
     check("  add the bars: the histogram captioned and the pending line a statement (the old \"how many scores in all?\" was a question inside a step); the bars added in the walk-back",
           '[[histogram values=' in L.board_for(htot, "abstract") and 'caption="each bar carries its count' in L.board_for(htot, "abstract")
@@ -34450,7 +34620,7 @@ def part3jp_probstat_units_four_to_six_to_the_shape():
     check("⭐ out of how many now: the four groups as bars on the ask; the two-way table (it prints the row totals) in the walk-back; the teach counts 7 plus 5 girls (6 plus 4 was the (6, 4, 13) bank ask)",
           '[[bars data="girls soccer:16 | girls art:18 | boys soccer:5 | boys art:8" caption=' in L.board_for(cbse, "abstract")
           and '[[twoway rowlabels="girls,boys" collabels="soccer,art" data="16,18|5,8" caption=' in _W(cbse)[1]
-          and "16 plus 18 is 34 girls" in _W(cbse)[0]
+          and "Add the girls: 16 plus 18 is 34." in _W(cbse)[0]      # (wq) short sentences
           and not any("[[twoway" in L.board_for(p, "abstract") for p in L.LESSON_BY_ID["ps-u6-out-of-how-many-now"]["bank"])
           and 'data="7,5|5,8"' in L.LESSON_BY_ID["ps-u6-out-of-how-many-now"]["teach"][0][1], "")
     ccnt = {"a": 30, "b": 10, "op": "ccnt"}
@@ -46463,6 +46633,7 @@ def main():
     part3mi_the_first_precalc_sweep()
     part3mj_the_first_calculus_sweep_half()
     part3mk_the_first_diffeq_sweep()
+    part3ml_the_first_probstat_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

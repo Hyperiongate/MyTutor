@@ -2,6 +2,13 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-17  BUILD wq -- THE LINE THE WORDS DRAW. [[dotplot]] takes mark="8": a dashed
+                 vertical mark at that value, labelled, drawn before the dots (a dot ON
+                 the line sits on top of it). The Prob/Stat count-past-the-line lesson
+                 said "a line to draw in your mind at 8" over a plot with no line (the
+                 09-16 sweep); now the board draws it, on the authored beats and on the
+                 dcnt generator's ask and walk-back. Plots without mark= are untouched;
+                 the mark's label sits in the top margin the canvas already had.
      2026-09-12  BUILD vq -- [[tape]] gains shaded= (the first N parts filled solid: the
                  pieces we have) and eaten= / gone= / missing= (the last N parts faded,
                  hatched and crossed: the pieces that are gone). Jim's ruling on the 09-12
@@ -797,7 +804,10 @@
     // Size it to the tallest stack instead.
     var tallest = 1, seen = {};
     vals.forEach(function (v) { seen[v] = (seen[v] || 0) + 1; if (seen[v] > tallest) tallest = seen[v]; });
-    var H = 38 + 11 + tallest * 14 + 18;
+    // (wq) a marked plot gets 18px more headroom so the mark reads as a LINE
+    // above the dots, not a stub behind the top one
+    var markv = (a.mark !== undefined && a.mark !== "") ? parseFloat(a.mark) : NaN;
+    var H = 38 + 11 + tallest * 14 + 18 + (isFinite(markv) ? 18 : 0);
     var W = 680, left = 30, right = W - 30, axisY = H - 38, plotW = right - left;
     var mapX = function (v) { return left + (v - min) / (max - min) * plotW; };
     var s = svgOpen(W, H, 680);
@@ -816,6 +826,17 @@
       var x = mapX(t);
       s += '<line x1="' + x + '" y1="' + axisY + '" x2="' + x + '" y2="' + (axisY + 8) + '" stroke="var(--bd-9aa7b6)" stroke-width="1.5"/>';
       s += tspan(x, axisY + 24, String(trimnum(t)), "var(--bd-66707e)", 13, 600);
+    }
+    // (wq, 2026-09-17) mark="8": THE LINE THE WORDS DRAW. A count-past-the-line beat
+    // said "a line to draw in your mind at 8" over a plot with no line on it (the
+    // 09-16 Prob/Stat sweep). Same shape as [[numberline]]'s mid=: a dashed vertical
+    // mark at the value, labelled with the value, drawn BEFORE the dots so a dot
+    // standing exactly on the line sits on top of it. Plots without mark= are untouched.
+    if (isFinite(markv) && markv >= min && markv <= max) {
+      var kx = mapX(markv);
+      s += '<line x1="' + kx + '" y1="' + 20 + '" x2="' + kx + '" y2="' + (axisY + 8) +
+           '" stroke="var(--bd-5b5bd6)" stroke-width="2" stroke-dasharray="5,4"/>';
+      s += tspan(kx, 13, String(trimnum(markv)), "var(--bd-5b5bd6)", 12, 700);
     }
     var counts = {};
     vals.slice().sort(function (p, q) { return p - q; }).forEach(function (v) { var n = counts[v] || 0; counts[v] = n + 1; s += '<circle cx="' + mapX(v) + '" cy="' + (axisY - 11 - n * 14) + '" r="5.5" fill="' + COLORS[0] + '"/>'; });

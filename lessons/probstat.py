@@ -2,6 +2,71 @@
 # lessons/probstat.py  --  PROBABILITY & STATISTICS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD wq -- THE FIRST PROB/STAT SWEEP (92 findings, 81 authored, 1 of 36
+#               lessons clean; 101 edits here). Prob/Stat's own class: A RULE OF THUMB
+#               STATED AS A LAW OF NATURE -- "the bell always shares itself out the same
+#               way, so 68 percent of ANY group" (HIGH), "measure almost anything ... the
+#               same shape every time" (HIGH), "play it a thousand times and you end up
+#               level" (HIGH), "the 3 arrives with perfect reliability" (HIGH), "a fair
+#               game returns exactly what it takes in", "real games are not fair", "every
+#               dot is on one side or the other" (HIGH x3 -- unless one lands ON the line),
+#               "a missing chance can always be found", "independence predicts the overall
+#               rate for EVERY group", "a poll reports a range, not a point" (HIGH), "your
+#               sample flatly contradicts it", "the wild extremes cannot touch it", "people
+#               with strong feelings reply; the contented shrug and bin it", "the first
+#               number a statistician looks for", "the ones with the strongest opinions",
+#               "exactly two ways to want two things", "different wholes cannot be
+#               compared", "30 of every 100 picks WOULD be red", "small comes up 25 times
+#               in every hundred plays" (HIGH). Each now carries its condition (when a
+#               group follows a bell curve; on average, over many plays; when no dot lands
+#               on the line; for the group the claim names; for the same cost to play;
+#               like 30 of 100, in the long run). PLAIN ERRORS: "one in 8 is more common
+#               than rain alone" (HIGH -- it is rarer; the point is that adding is the OR
+#               move); "20, the size of the gap" (HIGH -- 26 − 9 is 17; it is a distance,
+#               19 from the crowd's centre at 7, and the ✗ says so); "7 is the only number
+#               with three below and three above" (6.5 is too -- 7 is the halfway point);
+#               "adding the counts brings the values back" (it brings the COUNT back);
+#               "square these distances and you get variance" (average the squares); the
+#               residual is actual take away predicted, and this lesson measures its SIZE
+#               (HIGH x2); best fit keeps the squared gaps small overall; "the mode is
+#               the value under the stack" (TALLEST stack); "the rarer the win, the bigger
+#               the prize" (for the same cost); "spread the whole STAKE" (the whole POT);
+#               "the best prize is not what you usually get, and the worst is not either"
+#               (HIGH -- the worst IS the usual one here; neither is what a play is
+#               WORTH); "the width is one edge taken away from the other" (right edge take
+#               away left); "12 points might be enormous or nothing at all" (large or
+#               small compared with the spread); "the 68 is never a headcount" (in a
+#               hundred it is one -- it is the percent to take); "2 people in a hundred
+#               beat that" is the bell's own fact, counted in the unit's last lesson;
+#               "a thousand is usually enough" says why (about 3 points); the ellipse is
+#               out of the width lesson; "cell" is "one box of the table"; GIVEN is glossed
+#               where it is first leaned on; "lazy" is "a tempting shortcut" (tone).
+#               COUNT-THE-WINNING-PATHS (HIGH): the 4-part spinner with 2 winners made
+#               2 × 2 and 2 + 2 the same 4, so the "added" trap could not be shown -- the
+#               lesson's spinner has 3 winners now (3 × 3 = 9 of 16; 12 leaves the second
+#               spin free; 6 adds), the tree draws four KINDS of finished branch, and the
+#               recap board draws the tree it talks about. WORDS-BOARD: the count-past-
+#               the-line lesson DRAWS its line ([[dotplot mark="8"]], new in
+#               math-figures.js); every closing beat whose board wrote an equation now
+#               reads it ("20 times 40 divided by 100 -- 8 girls"; "300 take away 120";
+#               "60 times 4 is 240"; "4 per hour, times 2 hours, 8"; "14 take away 6, 8
+#               below"; "50 plus 2 times 8, 66"; "46 take away 5, 41"; "5 percent of 800
+#               is 40, halved, 20"; "20 percent of 400 is 80, 40 percent is 160"; "3 times
+#               3, nine"); the ✓ lines are spoken ("the box is 10 wide", "so 41 is the
+#               answer") and carry their unit ("25% ✓"); the stratified worked line draws
+#               its 45-and-40 school; the conditional worked line and reason question draw
+#               the 14 and the 6; the 20-or-200 line is on the board; the reason boards
+#               draw the second hop (66) and the hop down (41); the range lesson's boards
+#               carry both ends (80 and 160) and the 45 − 5 step; the two-way reason
+#               question reads the whole table; the tails picture says it shades one end;
+#               the tail boards write "5% of 800 = 40" then "40 ÷ 2 = 20" (the ÷ 40
+#               shortcut the words never said). UNCLEAR: eight long sentences split. THE
+#               DOT: two authored step lines ("0 = never · 100 = always"; the tails teach
+#               line) are two tags each -- the tenth course, and the pin now covers all
+#               ten. farv's bank: (12, 25) and (15, 29) put the "distance" tap ON a crowd
+#               value (13 was a dot AND the gap); now (12, 27) and (15, 28), and the
+#               generator's check forbids the collision. Generator items: lessonscripts.py
+#               (wq).
 #   2026-09-08  BUILD uj -- ONE FILE PER COURSE. Split out of lessonscripts.py (Jim's
 #               housekeeping, second half). Every lesson below is the text that sat in
 #               lessonscripts.py, moved whole -- the unit lists keep their names, and
@@ -30,7 +95,7 @@ _PROBSTAT_U1 = [
         "op": "dotm", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("mode", "stack"),
-        "advance_line": "Three in a row, and you can say why — you've got it! The mode is the value under the stack.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The mode is the value under the tallest stack.",
         "why": [
             ("Why look before you count? Welcome to Probability and Statistics, where "
              "the first move is always to LOOK. A dot plot puts one dot above a number "
@@ -115,17 +180,17 @@ _PROBSTAT_U1 = [
              '[[goal text="Count the ones above"]]'),
         ],
         "picture": [
-            ("Here is a dot plot of goals, one dot per player, with a line to draw in "
-             "your mind at 8. Look at the three kinds of dot: the ones to the left of "
-             "8, the one standing exactly ON 8, and the ones to the right. More than 8 "
-             "means the right-hand kind only.",
-             '[[dotplot values="6,7,7,8,9,9,10,11" caption="one dot per player — left of 8, ON 8, and right of 8"]]'),
+            ("Here is a dot plot of goals, one dot per player, with a line drawn at 8. "
+             "Look at the three kinds of dot: the ones to the left of the line, the one "
+             "standing exactly ON it, and the ones to the right. More than 8 means the "
+             "right-hand kind only.",
+             '[[dotplot values="6,7,7,8,9,9,10,11" mark="8" caption="one dot per player — the line at 8: left of it, ON it, and right of it"]]'),
         ],
         "teach": [
             ("That is the method. Count how many are MORE than 8 here: 9, 9, 10 and "
              "11 — four dots to the right of 8. Work left to right and touch each dot "
              "once; a count you cannot repeat exactly is a count you should do again.",
-             '[[dotplot values="6,7,7,8,9,9,10,11" caption="four dots to the right of 8"]][[step eq="more than 8 → 9, 9, 10, 11 → 4"]]'),
+             '[[dotplot values="6,7,7,8,9,9,10,11" mark="8" caption="four dots to the right of the line at 8"]][[step eq="more than 8 → 9, 9, 10, 11 → 4"]]'),
             ("The dot standing exactly ON 8 is the whole trap. More than 8 does not "
              "include 8 itself, so that dot stays out and the answer is 4, not 5. And "
              "counting the other side answers a question nobody asked. Read the word, "
@@ -152,14 +217,14 @@ _PROBSTAT_U1 = [
                         "dot on the line counts for both sides | because more than 8 "
                         "means 8 and everything past it"),
             "answer": "because the dot standing on 8 is not more than 8",
-            "board": '[[dotplot values="6,7,7,8,9,9,10,11" caption="the dot on 8 stays out"]]',
+            "board": '[[dotplot values="6,7,7,8,9,9,10,11" mark="8" caption="the dot on the line at 8 stays out"]]',
         },
         "recap": [
             ("So, here it is again. To count part of a dot plot, draw the line, read "
              "the word, and count one side of it — touching each dot once. More than "
              "the line leaves the dot ON the line out, and never count the side that "
              "was not asked for.",
-             '[[dotplot values="6,7,7,8,9,9,10,11" caption="count only past the line"]]'),
+             '[[dotplot values="6,7,7,8,9,9,10,11" mark="8" caption="count only past the line"]]'),
             ("And that is a plot answering a second question.",
              '[[step eq="more than 8 → 4"]]'),
         ],
@@ -200,8 +265,8 @@ _PROBSTAT_U1 = [
         ],
         "teach": [
             ("That is the method: to find how many values there are in all, add the "
-             "bars. 3 plus 4 plus 2 equals 9 values. A histogram never shows you the "
-             "values themselves — adding the counts brings them all back.",
+             "bars. 3 plus 4 plus 2 equals 9 values. This histogram does not show each "
+             "value itself — adding the counts tells you how many values there are in all.",
              '[[histogram values="5,5,5,15,15,15,15,25,25" caption="3 + 4 + 2 = 9 in all"]][[step eq="3 + 4 + 2 = 9 values in all"]]'),
             ("Two easy misreads. The tallest bar, 4, is only the biggest group — it "
              "is not the whole. And counting the bars themselves gives 3, which is how "
@@ -235,7 +300,7 @@ _PROBSTAT_U1 = [
              "tallest bar is only the biggest group, and the number of bars is only the "
              "number of groups.",
              '[[histogram values="5,5,5,15,15,15,15,25,25" caption="add every bar"]]'),
-            ("And that is the values, brought back from their groups.",
+            ("And that is the count of values, brought back from their groups.",
              '[[step eq="3 + 4 + 2 = 9"]]'),
         ],
         "bank": [
@@ -268,9 +333,9 @@ _PROBSTAT_U1 = [
         ],
         "picture": [
             ("Here is a dot plot of minutes taken, one dot per student. Look at the "
-             "crowd huddled between 6 and 9 — and then look at the empty stretch to "
-             "the right of it, and the single dot out at 26 with nobody near it. That "
-             "lonely dot is the one we want.",
+             "crowd huddled between 6 and 9. Now look to the right of it: an empty "
+             "stretch, then a single dot out at 26 with nobody near it. That lonely "
+             "dot is the one we want.",
              '[[dotplot values="6,7,7,8,8,9,26" caption="a crowd from 6 to 9, a gap, and one dot alone at 26"]]'),
         ],
         "teach": [
@@ -280,10 +345,10 @@ _PROBSTAT_U1 = [
              "stack.",
              '[[dotplot values="6,7,7,8,8,9,26" caption="the stray sits above 26 — the outlier is 26"]][[step eq="crowd 6 to 9 · stray at 26"]][[step eq="outlier = 26"]]'),
             ("Two things not to hand back. 7, where the crowd is thickest, is the "
-             "mode — a different question. And 20, the size of the gap, tells you how "
-             "far out the stray is, not what it is. Point at the lonely dot and read "
-             "the number below it.",
-             '[[step eq="26 ✓"]][[step eq="7 ✗ the crowd · 20 ✗ the gap"]]'),
+             "mode — a different question. And a distance like 19 — how far the stray "
+             "sits from the crowd's centre at 7 — tells you how far out it is, not "
+             "what it is. Point at the lonely dot and read the number below it.",
+             '[[step eq="26 ✓"]][[step eq="7 ✗ the crowd · 19 ✗ the distance"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. The crowd sits near 10 and one "
@@ -303,15 +368,15 @@ _PROBSTAT_U1 = [
                        "crowd from 6 to 9, the outlier is 26. Tap the reason why."),
             "choices": ("because 26 sits under the dot far from the crowd | because the "
                         "outlier is the value where the crowd is thickest | because the "
-                        "outlier is the size of the gap"),
+                        "outlier is the distance from the crowd"),
             "answer": "because 26 sits under the dot far from the crowd",
             "board": '[[dotplot values="6,7,7,8,8,9,26" caption="the one that sits alone"]]',
         },
         "recap": [
             ("So, here it is again. An outlier is the value sitting alone, far from "
              "the crowd, with a gap between — read the number under that lonely dot. "
-             "Never hand back the crowd's value, and never hand back the size of the "
-             "gap.",
+             "Never hand back the crowd's value, and never hand back the distance "
+             "from the crowd.",
              '[[dotplot values="6,7,7,8,8,9,26" caption="the value under the lonely dot"]]'),
             ("And that is the stray, spotted before it drags anything.",
              '[[step eq="crowd 6 to 9 · outlier = 26"]]'),
@@ -320,10 +385,10 @@ _PROBSTAT_U1 = [
             {"a": 5, "b": 17, "op": "farv"},
             {"a": 9, "b": 21, "op": "farv"},
             {"a": 5, "b": 24, "op": "farv"},
-            {"a": 12, "b": 25, "op": "farv"},
+            {"a": 12, "b": 27, "op": "farv"},
             {"a": 8, "b": 27, "op": "farv"},
             {"a": 11, "b": 28, "op": "farv"},
-            {"a": 15, "b": 29, "op": "farv"},
+            {"a": 15, "b": 28, "op": "farv"},
             {"a": 8, "b": 31, "op": "farv"},
             {"a": 11, "b": 32, "op": "farv"},
             {"a": 14, "b": 33, "op": "farv"},
@@ -369,9 +434,9 @@ _PROBSTAT_U2 = [
              "list often is not in the list at all.",
              '[[numberline min="1" max="13" points="6,8" mid="7" caption="the two middles, 6 and 8 — halfway between them is 7"]][[step eq="middles 6 and 8"]][[step eq="(6 + 8) ÷ 2 = 7"]]'),
             ("Neither middle on its own will do. Answering 6 takes the lower one and 8 "
-             "takes the upper, and both leave half the data unbalanced — 7 is the only "
-             "number with three below it and three above. Find both middles, then go "
-             "halfway.",
+             "takes the upper, and each leaves the data unbalanced — 7 is the halfway "
+             "point between them, with three numbers below and three above. Find both "
+             "middles, then go halfway.",
              '[[step eq="7 ✓"]][[step eq="6 ✗ lower middle · 8 ✗ upper middle"]]'),
         ],
         "pairs": [
@@ -425,7 +490,7 @@ _PROBSTAT_U2 = [
         "op": "iqrw", "max_value": 60,
         "levels": ("abstract",),
         "symbols": ("box", "whiskers"),
-        "advance_line": "Three in a row, and you can say why — you've got it! The box is the middle half — take one edge away from the other.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The box is the middle half — take the left edge away from the right.",
         "why": [
             ("Why a box? A box plot draws five numbers: the smallest, the biggest, "
              "the median in the middle, and two more that cut the data into quarters. "
@@ -443,13 +508,14 @@ _PROBSTAT_U2 = [
         "teach": [
             ("That is the method: two edges, one take-away. This box runs from 10 to "
              "20, so the middle half of the data lies between them: its width is 20 "
-             "take away 10 — 10. Statisticians lean on that width because the wild "
-             "extremes cannot touch it.",
+             "take away 10 — 10. Statisticians lean on that width because the whisker "
+             "tips play no part in it: a wild extreme moves the box far less than it "
+             "moves the range.",
              '[[boxplot five="4,10,15,20,26" caption="the box runs 10 to 20 — 10 wide"]][[step eq="box: 10 to 20"]][[step eq="20 − 10 = 10"]]'),
-            ("Do not measure the whiskers by mistake. Tip to tip is 4 out to 26 — a "
-             "stretch of 22, the whole range, which one strange value can blow wide "
-             "open. And 20 alone is just the box\'s right edge. Two edges, one "
-             "take-away.",
+            ("The box is 10 wide, and here are two ways to miss it. Do not measure the "
+             "whiskers: tip to tip is 4 out to 26 — a stretch of 22, the whole range, "
+             "which one strange value can blow wide open. And 20 alone is just the "
+             "box\'s right edge. Two edges, one take-away.",
              '[[step eq="10 ✓ the box"]][[step eq="22 ✗ whisker to whisker · 20 ✗ one edge"]]'),
         ],
         "pairs": [
@@ -477,7 +543,7 @@ _PROBSTAT_U2 = [
         },
         "recap": [
             ("So, here it is again. The box of a box plot is the middle half of the "
-             "data, and its width is one edge taken away from the other. Never "
+             "data, and its width is the right edge take away the left edge. Never "
              "measure whisker to whisker — that is the whole range — and never hand "
              "back one edge as the width.",
              '[[boxplot five="4,10,15,20,26" caption="the box is the middle half"]]'),
@@ -525,8 +591,8 @@ _PROBSTAT_U2 = [
              '[[bars data="11:9 | 17:3 | 23:3 | 29:9" caption="the four distances — 24 in all, shared four ways: 6"]][[step eq="9 + 3 + 3 + 9 = 24"]] [[step eq="24 ÷ 4 = 6"]]'),
             ("The two temptations are the extremes. The farthest number is 9 away and "
              "the nearest only 3, so an average distance of 6 sits between them — as "
-             "an average must. Square these distances instead and you get variance, "
-             "which is another unit\'s business.",
+             "an average must. Square the distances and average those squares instead "
+             "and you get variance, which is another unit\'s business.",
              '[[step eq="6 ✓"]][[step eq="9 ✗ the farthest · 3 ✗ the nearest"]]'),
         ],
         "pairs": [
@@ -684,10 +750,10 @@ _PROBSTAT_U3 = [
              '[[goal text="One dot, two numbers"]]'),
         ],
         "picture": [
-            ("Here is a scatterplot of six students. Look at any one dot: slide "
-             "straight down from it and you land on the hours along the bottom; slide "
-             "straight across from it and you land on the points up the side. One "
-             "dot, two numbers — and the cloud rises from left to right.",
+            ("Here is a scatterplot of six students. Look at any one dot. Slide straight "
+             "down from it and you land on the hours along the bottom. Slide straight "
+             "across from it and you land on the points up the side. One dot, two "
+             "numbers — and the cloud rises from left to right.",
              '[[scatter points="(2,12),(4,22),(6,31),(8,41),(10,50),(12,62)" caption="each dot is one student — hours across, points up"]]'),
         ],
         "teach": [
@@ -696,10 +762,10 @@ _PROBSTAT_U3 = [
              "meet their dot, then straight across to the side. The student at 8 hours "
              "sits level with 41 — so 41 points.",
              '[[scatter points="(2,12),(4,22),(6,31),(8,41),(10,50),(12,62)" caption="8 along the bottom, up to the dot, across to 41"]][[step eq="8 hours → up to the dot → across → 41 points"]]'),
-            ("The mix-up to avoid is answering with the number you were GIVEN. 8 is "
-             "the hours, and hours live across the bottom; the points live up the "
-             "side. And it is easy to land on the dot next door — 50 belongs to the "
-             "student who practiced 10 hours, not 8.",
+            ("So 41 is the answer, and the mix-up to avoid is answering with the number "
+             "you were GIVEN. 8 is the hours, and hours live across the bottom; the "
+             "points live up the side. And it is easy to land on the dot next door — "
+             "50 belongs to the student one dot to the right, at 10 hours, not 8.",
              '[[step eq="41 ✓"]][[step eq="8 ✗ that is the hours · 50 ✗ the next dot"]]'),
         ],
         "pairs": [
@@ -725,12 +791,13 @@ _PROBSTAT_U3 = [
             "board": '[[scatter points="(2,12),(4,22),(6,31),(8,41),(10,50),(12,62)" caption="across, up, across"]]',
         },
         "recap": [
-            ("So, here it is again. Each dot on a scatterplot carries two numbers: "
-             "find the given one along the bottom, go straight up to the dot, then "
-             "straight across to the side for the other. Never hand back the number "
-             "you were given, and never read the dot next door.",
+            ("So, here it is again. Each dot on a scatterplot carries two numbers. When "
+             "you are given the hours, find them along the bottom, go straight up to "
+             "the dot, then straight across to the side for the points. Never hand "
+             "back the number you were given, and never read the dot next door.",
              '[[scatter points="(2,12),(4,22),(6,31),(8,41),(10,50),(12,62)" caption="one dot, two numbers"]]'),
-            ("And that is two measurements, seen together.",
+            ("And that is two measurements, seen together: 8 hours, up to the dot, "
+             "across to 41 points.",
              '[[step eq="8 hours → up → across → 41 points"]]'),
         ],
         "bank": [
@@ -807,7 +874,7 @@ _PROBSTAT_U3 = [
              "per extra hour — so times it by the hours to predict the extra points. "
              "Never hand back one hour\'s worth, and never add the rate to the hours.",
              '[[scatter points="(2,11),(4,17),(6,26),(8,34),(10,41),(12,51)" fit="true" caption="the slope is a rate"]]'),
-            ("And that is a line that predicts.",
+            ("And that is a line that predicts: 4 per hour, times 2 hours, 8 points.",
              '[[step eq="4 × 2 = 8"]]'),
         ],
         "bank": [
@@ -830,7 +897,7 @@ _PROBSTAT_U3 = [
         "op": "resd", "max_value": 60,
         "levels": ("abstract",),
         "symbols": ("residual", "predicted"),
-        "advance_line": "Three in a row, and you can say why — you've got it! The residual is the gap between predicted and actual.",
+        "advance_line": "Three in a row, and you can say why — you've got it! The residual is actual take away predicted — its size is the gap.",
         "why": [
             ("Why does a prediction miss? A best-fit line predicts, and predictions "
              "miss. Read the line at some student\'s hours and it names a score; look "
@@ -845,15 +912,16 @@ _PROBSTAT_U3 = [
              '[[bars data="predicted:30 | actual:36" caption="the line said 30, the student scored 36 — the gap is the residual"]]'),
         ],
         "teach": [
-            ("That is the method: the gap has a name, the residual. If the line "
-             "predicted 30 and the student scored 36, the residual is 6 — the line "
-             "was 6 points low. A dot above the line has the line guessing low; a dot "
-             "below has it guessing high.",
+            ("That is the method: the gap has a name, the residual — actual take away "
+             "predicted. If the line predicted 30 and the student scored 36, the "
+             "residual is 6 — the line was 6 points low. A dot above the line has a "
+             "positive residual; a dot below has a negative one, and here we measure "
+             "its size.",
              '[[numberline min="25" max="41" hops="30,36" caption="from predicted 30 to actual 36 — a gap of 6"]][[step eq="36 − 30 = 6"]] [[step eq="residual = 6"]]'),
-            ("The best-fit line is chosen to keep these gaps as small as they can be "
-             "across every dot at once — that is what BEST fit means. So do not hand "
-             "back 36, which is what the student scored, or 66, which puts two "
-             "unrelated numbers together.",
+            ("The best-fit line is chosen to keep the misses small overall — it keeps "
+             "the squared gaps, all added up, as small as any line can. That is what "
+             "BEST fit means. So do not hand back 36, which is what the student "
+             "scored, or 66, which puts two unrelated numbers together.",
              '[[step eq="6 ✓"]][[step eq="36 ✗ the actual score · 66 ✗ added"]]'),
         ],
         "pairs": [
@@ -873,17 +941,17 @@ _PROBSTAT_U3 = [
             "spoken": ("One more thing — not the answer, the reason. The line predicted 30, "
                        "the student scored 36, and the residual is 6. Tap the reason "
                        "why."),
-            "choices": ("because the residual is the gap between predicted and actual | "
+            "choices": ("because the residual's size is the gap between predicted and actual | "
                         "because the residual is the score the student got | because the "
                         "residual is predicted and actual put together"),
-            "answer": "because the residual is the gap between predicted and actual",
+            "answer": "because the residual's size is the gap between predicted and actual",
             "board": '[[bars data="predicted:30 | actual:36" caption="the gap between them"]]',
         },
         "recap": [
-            ("So, here it is again. A best-fit line predicts and the residual is how "
-             "far the truth sits from the prediction — the gap between predicted and "
-             "actual, low when the dot is above the line, high when below. Never hand "
-             "back the score, and never add the two.",
+            ("So, here it is again. A best-fit line predicts, and the residual is actual "
+             "take away predicted — positive when the dot sits above the line, "
+             "negative when below, and its size is how far the line missed by. Never "
+             "hand back the score, and never add the two.",
              '[[bars data="predicted:30 | actual:36" caption="how far off the line"]]'),
             ("And that is what best fit keeps small.",
              '[[step eq="36 − 30 = 6"]]'),
@@ -908,7 +976,7 @@ _PROBSTAT_U3 = [
         "op": "sblw", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("above", "below"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Every dot is on one side or the other.",
+        "advance_line": "Three in a row, and you can say why — you've got it! With no dot on the line, every dot is on one side or the other.",
         "why": [
             ("Why does the line run through the cloud? Here is a fact about the "
              "best-fit line that catches people out: it does not sit on top of the "
@@ -948,21 +1016,22 @@ _PROBSTAT_U3 = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. With 14 dots and 6 "
-                       "above the line, 8 sit below. Tap the reason why."),
-            "choices": ("because every dot is on one side or the other | because the "
-                        "same number sits on each side | because every dot on the plot "
-                        "sits below the line"),
-            "answer": "because every dot is on one side or the other",
+            "spoken": ("One more thing — not the answer, the reason. With 14 dots, none "
+                       "on the line, and 6 above it, 8 sit below. Tap the reason why."),
+            "choices": ("because each dot off the line is above it or below it | "
+                        "because the same number sits on each side | because every dot "
+                        "on the plot sits below the line"),
+            "answer": "because each dot off the line is above it or below it",
             "board": '[[tape parts="6 above|8 below" total="14 dots" caption="one side or the other"]]',
         },
         "recap": [
             ("So, here it is again. The best-fit line runs through the middle of the "
-             "cloud, so every dot is on one side or the other. Take the side you know "
-             "away from the whole for the side you do not. Never hand back the side "
-             "you were given, and never the whole cloud.",
+             "cloud, so when no dot lands exactly on it, every dot is on one side or "
+             "the other. Take the side you know away from the whole for the side you "
+             "do not. Never hand back the side you were given, and never the whole "
+             "cloud.",
              '[[scatter points="(2,12),(4,22),(6,31),(8,41),(10,50),(12,62)" fit="true" caption="through the middle of the cloud"]]'),
-            ("And that is a line that splits the crowd.",
+            ("And that is a line that splits the cloud: 14 take away 6, 8 below.",
              '[[step eq="14 − 6 = 8"]]'),
         ],
         "bank": [
@@ -1018,7 +1087,7 @@ _PROBSTAT_U4 = [
              "fifths girls — 20 times 40, divided by 100, is 8 girls, and the other 12 "
              "are boys.",
              '[[tape parts="8 girls|12 boys" total="sample of 20" caption="20 × 40 ÷ 100 = 8 girls"]][[step eq="20 × 40 ÷ 100 = 8 girls"]]'),
-            ("The lazy move is splitting the sample down the middle — 10 and 10 — "
+            ("A tempting shortcut is splitting the sample down the middle — 10 and 10 — "
              "which only matches a school that really is half and half. And copying "
              "40 straight across asks for more girls than the sample holds. Work out "
              "the share, then take it.",
@@ -1032,7 +1101,7 @@ _PROBSTAT_U4 = [
              "ask": {'a': 60, 'b': 35, 'c': 38, 'op': 'strf'}},
             {"worked": ("One more together. 45 girls and 40 boys, a sample of 34: girls "
                         "are 45 of the 85, and 34 times 45 divided by 85 is 18 girls.",
-                        '[[tape parts="18 girls|16 boys" total="sample of 34" caption="34 × 45 ÷ 85 = 18 girls"]][[step eq="34 × 45 ÷ 85 = 18 girls"]]'),
+                        '[[bars data="girls:45 | boys:40" caption="45 girls, 40 boys — 85 in the school"]][[tape parts="18 girls|16 boys" total="sample of 34" caption="34 × 45 ÷ 85 = 18 girls"]][[step eq="34 × 45 ÷ 85 = 18 girls"]]'),
              "ask": {'a': 75, 'b': 30, 'c': 28, 'op': 'strf'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
@@ -1054,7 +1123,8 @@ _PROBSTAT_U4 = [
              "share. Never split it half and half by habit, and never copy the "
              "group\'s own count into the sample.",
              '[[bars data="girls:40 | boys:60" caption="the school"]][[tape parts="8 girls|12 boys" total="sample of 20" caption="a sample that matches"]]'),
-            ("And that is a sample you can trust.",
+            ("And that is 20 times 40 divided by 100 — 8 girls, a sample that matches "
+             "this school's mix.",
              '[[step eq="20 × 40 ÷ 100 = 8"]]'),
         ],
         "bank": [
@@ -1081,8 +1151,8 @@ _PROBSTAT_U4 = [
         "why": [
             ("Why count the answers? Sending a survey is not the same as getting "
              "answers. Of everyone you ask, only some reply — and the percent who do "
-             "is called the response rate. It is the first number a statistician "
-             "looks for, before believing a word of the results.",
+             "is called the response rate. It is a number a statistician checks "
+             "before trusting the results.",
              '[[goal text="Who actually answered"]]'),
         ],
         "picture": [
@@ -1099,10 +1169,10 @@ _PROBSTAT_U4 = [
              "75 did not.",
              '[[hundredgrid shaded="25" unit="percent" eq="15 of 60 → 25%" caption="25 of every 100 came back"]][[step eq="15 ÷ 60 = 25%"]]'),
             ("Why it matters: the silent ones may differ from the answerers. People "
-             "with strong feelings reply; the contented shrug and bin it. So do not "
-             "hand back 15, which is a count of surveys, or 45, which is how many "
-             "stayed silent. The rate is the percent.",
-             '[[step eq="25 ✓"]][[step eq="15 ✗ a count · 45 ✗ the silent ones"]]'),
+             "with strong feelings may be more likely to reply; the contented may "
+             "shrug and bin it. So do not hand back 15, which is a count of surveys, "
+             "or 45, which is how many stayed silent. The rate is the percent.",
+             '[[step eq="25% ✓"]][[step eq="15 ✗ a count · 45 ✗ the silent ones"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 55 sent and 33 back: 33 out of "
@@ -1133,7 +1203,7 @@ _PROBSTAT_U4 = [
              "warning, because the silent may not think like the answerers. Never "
              "hand back a count, and never the silent ones.",
              '[[tape parts="15 back|45 silent" total="60 sent" caption="who actually answered"]]'),
-            ("And that is the first number to check.",
+            ("And that is a number to check first: 15 out of 60, 25 percent.",
              '[[step eq="15 ÷ 60 = 25%"]]'),
         ],
         "bank": [
@@ -1160,8 +1230,8 @@ _PROBSTAT_U4 = [
         "why": [
             ("Why can a well-run survey still be wrong? Because it asked the wrong "
              "crowd. Hand a lunch survey only to those eating in the cafeteria, and "
-             "everyone who brings lunch from home is invisible — and they are the "
-             "ones with the strongest opinions about school lunches.",
+             "everyone who brings lunch from home is invisible — and they may well "
+             "think differently about school lunches.",
              '[[goal text="The ones you never asked"]]'),
         ],
         "picture": [
@@ -1212,7 +1282,8 @@ _PROBSTAT_U4 = [
              "could never reach — that sample is biased. Never hand back the crowd "
              "asked, and never everybody.",
              '[[tape parts="120 asked|180 never asked" total="school of 300" caption="the ones you never asked"]]'),
-            ("And that is why everyone needs a chance.",
+            ("And that is why everyone needs a chance: 300 take away 120 leaves 180 "
+             "who never had one.",
              '[[step eq="300 − 120 = 180"]]'),
         ],
         "bank": [
@@ -1256,10 +1327,11 @@ _PROBSTAT_U4 = [
              "the margin halved again? Four times more still — 960 people to go from "
              "12 points to 3.",
              '[[bars data="sample:60 | halved once:240 | halved twice:960" caption="each halving of the margin needs four times the people"]][[step eq="60 × 4 = 240 halves it"]][[step eq="240 × 4 = 960 halves it again"]]'),
-            ("That is why national surveys stop around a thousand people. Going "
-             "further costs a fortune and buys very little. So the tap that says "
-             "double — 120 — is the honest-looking wrong answer, and the margin itself "
-             "is not a headcount at all.",
+            ("That is why many national surveys stop around a thousand people: at that "
+             "size the margin is only about 3 points, and going further costs a "
+             "fortune to buy very little. So the tap that says double — 120 — is the "
+             "honest-looking wrong answer, and the margin itself is not a headcount at "
+             "all.",
              '[[step eq="240 ✓"]][[step eq="120 ✗ doubling · 12 ✗ that is the margin"]]'),
         ],
         "pairs": [
@@ -1291,7 +1363,8 @@ _PROBSTAT_U4 = [
              "times more. Never double and expect half, and never hand back the "
              "margin as a headcount.",
              '[[machine input="60" rule="× 4" output="240" caption="the price of accuracy — 60 people to 240"]]'),
-            ("And that is why a thousand is usually enough.",
+            ("And that is the price of accuracy: 60 times 4 is 240 people, for half "
+             "the margin.",
              '[[step eq="60 × 4 = 240"]]'),
         ],
         "bank": [
@@ -1331,16 +1404,17 @@ _PROBSTAT_U5 = [
         "why": [
             ("Why put chance on a scale? Geometry counted a chance: 3 red marbles out "
              "of 10 is 3 out of 10. That is true, but two chances counted out of "
-             "different wholes cannot be compared. So probability puts every chance "
-             "on ONE scale, from 0 to 100.",
-             '[[goal text="Chance on a scale"]][[step eq="0 = never · 100 = always"]]'),
+             "different wholes are hard to compare until they sit on the same scale. "
+             "So probability puts every chance on ONE scale, from 0 to 100.",
+             '[[goal text="Chance on a scale"]][[step eq="0 = never"]][[step eq="100 = always"]]'),
         ],
         "picture": [
             ("Here is the bag as two bars: 3 red marbles and 7 that are not red. "
              "Look at the red bar against the whole bag of 10 — it is a bit less than "
              "a third. The hundred square underneath turns that share into a number "
-             "on the scale: 30 of every 100 picks would be red.",
-             '[[bars data="red:3 | not red:7" caption="the bag — 3 red out of 10"]][[hundredgrid shaded="30" unit="percent" eq="3 of 10 → 30%" caption="30 of every 100 picks would be red"]]'),
+             "on the scale: it is like 30 out of 100 — in the long run, about 30 of "
+             "every 100 picks come up red.",
+             '[[bars data="red:3 | not red:7" caption="the bag — 3 red out of 10"]][[hundredgrid shaded="30" unit="percent" eq="3 of 10 → 30%" caption="like 30 of every 100 — about that many picks come up red, in the long run"]]'),
         ],
         "teach": [
             ("That is the method: turn the count into a percent the ordinary way. 3 "
@@ -1377,10 +1451,10 @@ _PROBSTAT_U5 = [
             "board": '[[hundredgrid shaded="30" unit="percent" eq="3 of 10 → 30%" caption="chance on a scale"]]',
         },
         "recap": [
-            ("So, here it is again. A chance is a percent of the whole, on one scale "
-             "from 0, never, to 100, always — divide the count by the whole, then out "
-             "of a hundred. Never hand back the count of red, and never the count "
-             "that is not.",
+            ("So, here it is again. A chance is a percent of the whole. The scale runs "
+             "from 0, never, to 100, always. Divide the count by the whole, then write "
+             "it out of a hundred. Never hand back the count of red, and never the "
+             "count that is not.",
              '[[hundredgrid shaded="30" unit="percent" eq="3 of 10 → 30%" caption="chance on a scale"]]'),
             ("And that is a chance you can compare with any other.",
              '[[step eq="3 ÷ 10 = 30%"]]'),
@@ -1407,10 +1481,10 @@ _PROBSTAT_U5 = [
         "symbols": ("or", "winners"),
         "advance_line": "Three in a row, and you can say why — you've got it! Two piles that cannot overlap simply join.",
         "why": [
-            ("Why do chances join up? Because there are exactly two ways to want two "
-             "things, and this is the first: either one will do. A bag of red, blue "
-             "and green, where red OR blue wins — a marble cannot be both colours at "
-             "once, so the winners are two piles side by side.",
+            ("Why do chances join up? One common way to want two things is this: "
+             "either one will do. A bag of red, blue and green, where red OR blue "
+             "wins — a marble cannot be both colours at once, so the winners are two "
+             "piles side by side.",
              '[[goal text="Either one wins"]]'),
         ],
         "picture": [
@@ -1504,8 +1578,9 @@ _PROBSTAT_U5 = [
              '[[array rows="3" cols="5" caption="5 kinds of day by 3 kinds of bus — 15 squares, one of them rainy AND late"]][[step eq="1 in 5 × 1 in 3 → 1 in 15"]]'),
             ("Notice the direction: asking for both always leaves a chance rarer, so "
              "the answer must be a bigger one-in number than either you started with. "
-             "One in 8 — adding them — is more common than rain alone, which cannot "
-             "be right.",
+             "One in 8 — adding the two numbers — is a bigger one-in than either, "
+             "but adding is the OR rule's move; the AND rule times, and one in 15 is "
+             "the answer.",
              '[[step eq="1 in 15 ✓ rarer"]][[step eq="1 in 8 ✗ added · 1 in 5 ✗ the bus ignored"]]'),
         ],
         "pairs": [
@@ -1561,30 +1636,31 @@ _PROBSTAT_U5 = [
         "symbols": ("paths", "both"),
         "advance_line": "Three in a row, and you can say why — you've got it! Winners on the first spin, times winners on the second.",
         "why": [
-            ("Why draw the paths? Draw the two rules as a picture and you get a tree: "
-             "every first outcome branches into every second one, and each finished "
-             "branch is one path through the whole experiment. A spinner spun twice "
-             "is exactly that kind of picture.",
+            ("Why draw the paths? Draw the two stages of an experiment as a picture "
+             "and you get a tree. Every first outcome branches into every second one, "
+             "and each finished branch is one path through the whole experiment. A "
+             "spinner spun twice is exactly that kind of picture.",
              '[[goal text="Count the winning paths"]]'),
         ],
         "picture": [
-            ("Here is a spinner cut into 4 equal parts, 2 of them winners, and under "
+            ("Here is a spinner cut into 4 equal parts, 3 of them winners, and under "
              "it the tree for spinning it twice. Look at the branches: the first spin "
              "wins or loses, and each of those splits again for the second spin. Four "
-             "finished paths, and every one is win-then-something or lose-then-something.",
-             '[[pie parts="4" shaded="2" caption="4 equal parts, 2 winners"]][[tree stage1="W:2,L:2" stage2="W:2,L:2" caption="every path, stage by stage"]]'),
+             "KINDS of finished branch — win-then-win, win-then-lose, lose-then-win, "
+             "lose-then-lose.",
+             '[[pie parts="4" shaded="3" caption="4 equal parts, 3 winners"]][[tree stage1="W:3,L:1" stage2="W:3,L:1" caption="every kind of path, stage by stage"]]'),
         ],
         "teach": [
-            ("That is the method: count the paths that win BOTH times. Each of the 2 "
-             "winning first spins can be followed by each of the 2 winning second "
-             "spins. So 2 times 2 — four paths win twice, out of the 4 times 4, "
+            ("That is the method: count the paths that win BOTH times. Each of the 3 "
+             "winning first spins can be followed by each of the 3 winning second "
+             "spins. So 3 times 3 — nine paths win twice, out of the 4 times 4, "
              "sixteen paths in all. That is the AND rule again, counted on a picture.",
-             '[[tree stage1="W:2,L:2" stage2="W:2,L:2" caption="the win-then-win path counts 2 × 2"]][[step eq="2 × 2 = 4 winning paths of 16"]]'),
-            ("Two miscounts. 2 times 4 is 8 — that counts winning FIRST and then "
-             "anything at all, which is a different question. And 2 plus 2 treats two "
-             "spins as though they were one longer spin. Winners times winners, "
-             "always.",
-             '[[step eq="4 ✓"]][[step eq="8 ✗ second spin left free · 4 ✗ added"]]'),
+             '[[tree stage1="W:3,L:1" stage2="W:3,L:1" caption="the win-then-win path counts 3 × 3"]][[step eq="3 × 3 = 9 winning paths of 16"]]'),
+            ("Two miscounts. 3 times 4 is 12 — that counts winning FIRST and then "
+             "anything at all, which is a different question. And 3 plus 3 is 6, "
+             "which treats two spins as though they were one longer spin. Winners "
+             "times winners, always.",
+             '[[step eq="9 ✓"]][[step eq="12 ✗ second spin left free · 6 ✗ added"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. A 12-part spinner with 9 "
@@ -1601,22 +1677,22 @@ _PROBSTAT_U5 = [
         "show_work_on_correct": True,
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. A 4-part spinner with "
-                       "2 winners, spun twice, has 4 paths that win both times. Tap the "
+                       "3 winners, spun twice, has 9 paths that win both times. Tap the "
                        "reason why."),
             "choices": ("because every winning first spin pairs with every winning second "
                         "| because the second spin can land anywhere | because two spins "
                         "add their winners together"),
             "answer": "because every winning first spin pairs with every winning second",
-            "board": '[[tree stage1="W:2,L:2" stage2="W:2,L:2" caption="the winning paths"]]',
+            "board": '[[tree stage1="W:3,L:1" stage2="W:3,L:1" caption="the winning paths"]]',
         },
         "recap": [
             ("So, here it is again. A two-stage experiment is a tree, and the paths "
              "that win both times are the winners of the first spin times the winners "
              "of the second. Never leave the second spin free, and never add the two "
              "spins.",
-             '[[pie parts="4" shaded="2" caption="count the winning paths"]]'),
-            ("And that is the AND rule, drawn.",
-             '[[step eq="2 × 2 = 4"]]'),
+             '[[tree stage1="W:3,L:1" stage2="W:3,L:1" caption="winners of the first spin times winners of the second"]][[step eq="3 × 3 = 9"]]'),
+            ("And that is the AND rule, drawn: 3 times 3, nine winning paths.",
+             '[[step eq="3 × 3 = 9"]]'),
         ],
         "bank": [
             {"a": 4, "b": 3, "op": "ptre"},
@@ -1674,7 +1750,7 @@ _PROBSTAT_U6 = [
              "girls themselves — the group you are counting, not the group you are "
              "counting out of. Read which group the question names, and add up that "
              "group.",
-             '[[step eq="12 ✓"]][[step eq="25 ✗ everyone · 7 ✗ the cell"]]'),
+             '[[step eq="12 ✓"]][[step eq="25 ✗ everyone · 7 ✗ one box of the table"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 9 girls in soccer and 7 in art: "
@@ -1690,9 +1766,10 @@ _PROBSTAT_U6 = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. In a class of 25 with "
-                       "7 girls in soccer and 5 in art, a chance about the girls is out of "
-                       "12. Tap the reason why."),
+            "spoken": ("One more thing — not the answer, the reason. The table shows 7 "
+                       "girls in soccer and 5 in art, 5 boys in soccer and 8 in art — 25 "
+                       "in all — and a chance about the girls is out of 12. Tap the "
+                       "reason why."),
             "choices": ("because asking about the girls shrinks the whole to the girls | "
                         "because a chance is always out of the whole class | because the "
                         "whole is the soccer girls alone"),
@@ -1730,10 +1807,11 @@ _PROBSTAT_U6 = [
         "symbols": ("among", "percent"),
         "advance_line": "Three in a row, and you can say why — you've got it! Divide inside the smaller world, not the big one.",
         "why": [
-            ("Why work inside the smaller world? Once GIVEN has shrunk the whole, the "
-             "chance is worked out the ordinary way — just inside the smaller group. "
-             "Every girl in a class chose one club, and the question is asked among "
-             "the girls, so the boys never enter the arithmetic at all.",
+            ("Why work inside the smaller world? GIVEN is the word that limits a "
+             "question to one group. Once it has shrunk the whole, the chance is worked "
+             "out the ordinary way — just inside the smaller group. Every girl in a "
+             "class chose one club, and the question is asked among the girls, so the "
+             "boys never enter the arithmetic at all.",
              '[[goal text="Inside the smaller world"]]'),
         ],
         "picture": [
@@ -1761,7 +1839,7 @@ _PROBSTAT_U6 = [
              "ask": {'a': 30, 'b': 10, 'op': 'ccnt'}},
             {"worked": ("One more together. 21 in soccer and 14 in art: 21 out of 35 — 60 "
                         "percent.",
-                        '[[hundredgrid shaded="60" unit="percent" eq="21 of 35 → 60%" caption="60 of every 100 girls"]][[step eq="21 ÷ 35 = 60%"]]'),
+                        '[[hundredgrid shaded="60" unit="percent" eq="21 of 35 → 60%" caption="60 of every 100 girls"]][[step eq="21 + 14 = 35"]][[step eq="21 ÷ 35 = 60%"]]'),
              "ask": {'a': 14, 'b': 6, 'op': 'ccnt'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
@@ -1775,7 +1853,7 @@ _PROBSTAT_U6 = [
                         "the percent is the count of soccer girls | because the boys are "
                         "divided into the girls"),
             "answer": "because you divide by all the girls, not the class",
-            "board": '[[hundredgrid shaded="60" unit="percent" eq="9 of 15 → 60%" caption="inside the smaller world"]]',
+            "board": '[[bars data="soccer:9 | art:6" caption="9 soccer, 6 art — 15 girls"]][[hundredgrid shaded="60" unit="percent" eq="9 of 15 → 60%" caption="inside the smaller world"]]',
         },
         "recap": [
             ("So, here it is again. Inside the smaller world, a chance is worked out "
@@ -1806,7 +1884,7 @@ _PROBSTAT_U6 = [
         "op": "indp", "max_value": 90,
         "levels": ("abstract",),
         "symbols": ("independent", "rate"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Independent means the group looks just like everyone.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Independent means the group's rate for this matches everyone's.",
         "why": [
             ("Why is independence a claim? Two things are independent when knowing "
              "one tells you nothing about the other. That is a claim you can TEST, "
@@ -1822,11 +1900,12 @@ _PROBSTAT_U6 = [
              '[[bars data="whole school:45 | left-handers if independent:45" caption="percent who like maths — independence promises the same height"]]'),
         ],
         "teach": [
-            ("That is the method: independence predicts the overall rate for every "
-             "group. Say 45 percent of a school likes maths. If left-handedness were "
-             "independent of liking maths, then 45 percent of the left-handers would "
-             "like maths too — the same 45, whether there are 20 left-handers or 200.",
-             '[[bars data="school:45 | if independent:45" caption="the group would look just like the school"]][[step eq="school 45% · if independent, left-handers 45%"]]'),
+            ("That is the method: independence predicts the overall rate for the group "
+             "the claim names. Say 45 percent of a school likes maths. If "
+             "left-handedness were independent of liking maths, then 45 percent of the "
+             "left-handers would like maths too — the same 45, whether there are 20 "
+             "left-handers or 200.",
+             '[[bars data="school:45 | if independent:45" caption="the group would look just like the school"]][[step eq="school 45% · if independent, left-handers 45%"]][[step eq="20 or 200 left-handers → still 45%"]]'),
             ("Then you look. If the left-handers actually come in at 60 percent, the "
              "promise is broken and the two are NOT independent — something links "
              "them. The question asks what independence WOULD predict, so the "
@@ -1852,17 +1931,17 @@ _PROBSTAT_U6 = [
             "spoken": ("One more thing — not the answer, the reason. 45 percent of a school "
                        "likes maths, so independence would put the left-handers at 45 "
                        "percent too. Tap the reason why."),
-            "choices": ("because an independent group looks just like everyone | because "
+            "choices": ("because an independent group has everyone's rate for this | because "
                         "an independent group always scores higher | because the group\'s "
                         "headcount sets its rate"),
-            "answer": "because an independent group looks just like everyone",
+            "answer": "because an independent group has everyone's rate for this",
             "board": '[[bars data="school:45 | if independent:45" caption="what independent claims"]]',
         },
         "recap": [
             ("So, here it is again. Independent means the group\'s rate matches the "
-             "overall rate, so independence predicts the school\'s own percent for "
-             "any group — and a measured rate that differs breaks the claim. Never "
-             "hand back the measured rate, and never a headcount.",
+             "overall rate. So for the group the claim names, use the school\'s own "
+             "percent. If the measured rate differs, the claim breaks. Never hand back "
+             "the measured rate, and never a headcount.",
              '[[bars data="school:45 | if independent:45 | measured:60" caption="what independent claims"]]'),
             ("And that is a promise you can check.",
              '[[step eq="if independent: 45%"]]'),
@@ -1906,7 +1985,7 @@ _PROBSTAT_U6 = [
             ("That is the method: take the kept marble off the whole. 10 take away 1 "
              "leaves 9, so the next pick is out of 9. The reds moved too, 4 down to "
              "3, so the next chance of red is 3 out of 9 rather than 4 out of 10. The "
-             "bottom number is what the question asks for.",
+             "number after OUT OF is what the question asks for.",
              '[[tape parts="3 red|6 other" total="9 marbles" caption="10 − 1 = 9 marbles for the next pick"]][[step eq="10 − 1 = 9"]][[step eq="4 of 10 → 3 of 9"]]'),
             ("Answering 10 is the slip worth naming — it treats the bag as though the "
              "marble went back. And 3 is the reds left over, the TOP of the new "
@@ -1937,10 +2016,10 @@ _PROBSTAT_U6 = [
             "board": '[[tape parts="3 red|6 other" total="9 marbles" caption="the bag remembers"]]',
         },
         "recap": [
-            ("So, here it is again. Without replacement, the bag remembers: a marble "
-             "kept out leaves one fewer in the bag, so the next pick is out of a "
-             "smaller whole, and the top of the chance shrinks too. Never keep the "
-             "old bag, and never hand back the reds left as the whole.",
+            ("So, here it is again. Without replacement, the bag remembers. One kept "
+             "marble leaves one fewer in the bag, so the next pick is out of a smaller "
+             "whole. The top of the chance shrinks too. Never keep the old bag, and "
+             "never hand back the reds left as the whole.",
              '[[tape parts="3 red|6 other" total="9 marbles" caption="the bag remembers"]]'),
             ("And that is the second pick\'s world.",
              '[[step eq="10 − 1 = 9"]]'),
@@ -1985,10 +2064,11 @@ _PROBSTAT_U7 = [
              '[[goal text="The chances fill the hundred"]]'),
         ],
         "picture": [
-            ("Here is the hundred square. Small comes up 25 times in every hundred plays, "
-             "so 25 cells. Medium comes up 40 times — 40 more cells. Look at what is still "
-             "white: every one of those cells is a play that must have been large.",
-             '[[hundredgrid shaded="25" plus="40" unit="percent" caption="25 for small, 40 more for medium — the white cells are every play that was large"]]'),
+            ("Here is the hundred square as a picture of the chances. Small has a 25 "
+             "percent chance, so 25 cells. Medium has 40 percent — 40 more cells. Look "
+             "at what is still white: every one of those cells is a chance that has "
+             "to belong to large.",
+             '[[hundredgrid shaded="25" plus="40" unit="percent" caption="25 cells for small, 40 more for medium — the white cells are large\'s chance"]]'),
         ],
         "teach": [
             ("That is the method: add the chances you know, and take them from 100. 25 plus "
@@ -2026,7 +2106,8 @@ _PROBSTAT_U7 = [
              "the chances fill the hundred because something happens every time. Add the "
              "ones you know, take them from 100, and the leftover is the missing one.",
              '[[hundredgrid shaded="25" plus="40" unit="percent" caption="the chances fill the hundred"]]'),
-            ("And that is why a missing chance can always be found.",
+            ("And that is why, when every outcome is listed and just one chance is "
+             "missing, it can be found: 100 take away 25 take away 40 is 35.",
              '[[step eq="100 − 25 − 40 = 35"]]'),
         ],
         "bank": [
@@ -2052,9 +2133,9 @@ _PROBSTAT_U7 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Weigh each payout by how often it comes.",
         "why": [
             ("Why would anyone want to know what one play is worth? Because the best prize "
-             "is not what you usually get, and the worst is not either. A machine that pays "
-             "20 tokens sometimes and 5 tokens most of the time is worth something in "
-             "between — pulled toward whichever turns up more often.",
+             "is not what one play is worth, and the worst is not either. A machine that "
+             "pays 20 tokens sometimes and 5 tokens most of the time is worth something "
+             "in between — pulled toward whichever turns up more often.",
              '[[goal text="What one play is worth"]]'),
         ],
         "picture": [
@@ -2072,7 +2153,7 @@ _PROBSTAT_U7 = [
             ("The trap is averaging the two prizes and stopping. 20 and 5 average to 12 "
              "and a half, which is only right if both come up equally often — and they do "
              "not. And 20 alone is the big prize, not what a play is worth.",
-             '[[step eq="11 ✓"]][[step eq="12 or 13 ✗ the prizes averaged · 20 ✗ the big prize"]]'),
+             '[[step eq="11 ✓"]][[step eq="12½ ✗ the prizes averaged · 20 ✗ the big prize"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 30 tokens 20 percent of the time and "
@@ -2126,12 +2207,12 @@ _PROBSTAT_U7 = [
         "op": "fair", "max_value": 200,
         "levels": ("abstract",),
         "symbols": ("fair", "prize"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Spread the whole stake over the wins.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Spread the whole pot over the wins.",
         "why": [
             ("Why would you run expected value backwards? To design a game. A fair game is "
-             "worth exactly what it costs — play it a thousand times and you end up level, "
-             "neither up nor down. So the question turns around: what prize would make this "
-             "game fair?",
+             "worth exactly what it costs — play it many times and, on average, you "
+             "expect to end up level, neither up nor down. So the question turns "
+             "around: what prize would make this game fair?",
              '[[goal text="What would be fair"]]'),
         ],
         "picture": [
@@ -2143,7 +2224,8 @@ _PROBSTAT_U7 = [
         "teach": [
             ("That is the method: work out the pot, then share it over the wins. 100 plays "
              "at 5 tokens is 500 in the pot. Shared over 20 wins, that is 25 tokens a "
-             "prize. The rarer the win, the bigger the prize has to be.",
+             "prize. For the same cost to play, the rarer the win, the bigger the "
+             "prize has to be.",
              '[[machine input="500" rule="÷ 20" output="25" caption="the pot of 500 shared over 20 wins — 25 tokens a prize"]][[step eq="500 ÷ 20 = 25"]]'),
             ("A prize of 5 — your money back — sounds fair and is not: you only collect it "
              "one play in five, and the other four are gone. And 20 is the percent of wins, "
@@ -2173,10 +2255,10 @@ _PROBSTAT_U7 = [
             "board": '[[hundredgrid shaded="20" unit="percent" caption="why 25 and not 5?"]]',
         },
         "recap": [
-            ("So, here it is again. A fair game returns exactly what it takes in. Every "
-             "play pays into the pot, only the wins pay out of it, so the fair prize is the "
-             "whole pot shared over the wins. Your stake back is not fair, and the percent "
-             "is not a prize.",
+            ("So, here it is again. A fair game is expected to return exactly what it "
+             "takes in. Every play pays into the pot, only the wins pay out of it, so "
+             "the fair prize is the whole pot shared over the wins. Your stake back is "
+             "not fair, and the percent is not a prize.",
              '[[machine input="500" rule="÷ 20" output="25" caption="the pot shared over the wins"]]'),
             ("And that is how a game is designed.",
              '[[step eq="500 ÷ 20 = 25"]]'),
@@ -2203,10 +2285,11 @@ _PROBSTAT_U7 = [
         "symbols": ("long run", "back"),
         "advance_line": "Three in a row, and you can say why — you've got it! Paid out take away paid back — that is the real cost.",
         "why": [
-            ("Why is the machine still standing there? Because real games are not fair, "
-             "and the gap is the whole business. You pay a fixed price each play, and "
-             "expected value says what comes back on average. The difference is what a "
-             "play really costs you in the long run, and it is small on purpose.",
+            ("Why is the machine still standing there? Because many paid game machines "
+             "are not fair, and the gap is the whole business. You pay a fixed price "
+             "each play, and expected value says what comes back on average. The "
+             "difference is what a play really costs you in the long run, and it is "
+             "small on purpose.",
              '[[goal text="Why the machine stays open"]]'),
         ],
         "picture": [
@@ -2218,7 +2301,8 @@ _PROBSTAT_U7 = [
         "teach": [
             ("That is the method: take what comes back away from what you pay. 10 take "
              "away 7 is 3 — each play quietly costs 3 tokens. Play once and you might walk "
-             "away up; play four hundred times and the 3 arrives with perfect reliability.",
+             "away up; play many times and the average cost tends to settle closer and "
+             "closer to 3 a play.",
              '[[tape parts="7 back|3 gone" total="10 paid" caption="of the 10 you pay, 7 comes back and 3 is gone for good"]][[step eq="10 − 7 = 3 a play"]]'),
             ("Keep the two numbers apart. 7 is what comes back, not what it costs. And "
              "adding them is nothing at all — no play ever costs you 17.",
@@ -2248,9 +2332,9 @@ _PROBSTAT_U7 = [
         },
         "recap": [
             ("So, here it is again. A play costs what you pay take away what comes back on "
-             "average. The gap hides in any single play and shows up over hundreds — that "
-             "is the business model. What comes back is not the cost, and adding the two "
-             "means nothing.",
+             "average. One play can bounce either way; over many plays the average gap "
+             "is what the business runs on. What comes back is not the cost, and "
+             "adding the two means nothing.",
              '[[bars data="you pay:10 | comes back:7" caption="the gap is the real cost"]]'),
             ("And that is why the machine stays open.",
              '[[step eq="10 − 7 = 3"]]'),
@@ -2290,11 +2374,11 @@ _PROBSTAT_U8 = [
         "symbols": ("bell curve", "standard deviation"),
         "advance_line": "Three in a row, and you can say why — you've got it! About 68 in every hundred sit in the middle band.",
         "why": [
-            ("Why does one curve matter so much? Measure almost anything about a big group "
-             "— heights, test scores, how long the walk to school takes — and the picture "
-             "comes out the same shape every time. Crowded in the middle, thin at both "
-             "ends. Once you know the shape, you know how a group is spread out before you "
-             "count it.",
+            ("Why does one curve matter so much? Measure many common things about a big "
+             "group — heights, test scores, how long the walk to school takes — and the "
+             "picture often comes out roughly the same shape. Crowded in the middle, "
+             "thin at both ends. Once you know the shape, you know how a group is "
+             "spread out before you count it.",
              '[[goal text="The crowded middle"]]'),
         ],
         "picture": [
@@ -2304,13 +2388,14 @@ _PROBSTAT_U8 = [
              '[[normal mean="100" sd="10" lo="90" hi="110" caption="the middle band, one deviation each way — about 68 of every 100 sit inside it"]]'),
         ],
         "teach": [
-            ("That is the method: the bell always shares itself out the same way, so 68 "
-             "percent of any group sits in the middle band. In a school of 200, 68 percent "
-             "is 136 — that many sit no further than one deviation from the average height.",
+            ("That is the method: when a group follows a bell curve, about 68 percent of "
+             "it sits in the middle band, because the bell always shares itself out the "
+             "same way. In a school of 200, 68 percent is 136 — that many sit no further "
+             "than one deviation from the average height.",
              '[[hundredgrid shaded="68" unit="percent" eq="68% of 200 → 136" caption="68 of every 100 — and 68 percent of 200 is 136"]][[step eq="68% of 200 = 136"]]'),
-            ("The 68 is a percent and never a headcount, so answering 68 counts nobody. "
-             "And 200 is everybody — middle and ends together. Take the percent of the "
-             "group, and that is the middle band.",
+            ("In these problems the 68 is the percent to take, not the final headcount — "
+             "answering 68 skips the step. And 200 is everybody — middle and ends "
+             "together. Take the percent of the group, and that is the middle band.",
              '[[step eq="136 ✓"]][[step eq="68 ✗ a percent · 200 ✗ everyone"]]'),
         ],
         "pairs": [
@@ -2336,10 +2421,11 @@ _PROBSTAT_U8 = [
             "board": '[[normal mean="100" sd="10" lo="90" hi="110" caption="why 136 of 200?"]]',
         },
         "recap": [
-            ("So, here it is again. A bell curve is crowded in the middle, and it always "
-             "shares itself out the same way: about 68 percent sit inside one standard "
-             "deviation of the mean. Take 68 percent of the group and that is the middle "
-             "band — the 68 is never a headcount, and the whole group is never the answer.",
+            ("So, here it is again. A bell curve is crowded in the middle, and a group "
+             "that follows it shares itself out the same way: about 68 percent sit "
+             "inside one standard deviation of the mean. Take 68 percent of the group "
+             "and that is the middle band — the 68 is the percent to take, and the whole "
+             "group is never the answer.",
              '[[normal mean="100" sd="10" lo="90" hi="110" caption="68 of every 100, in the middle band"]]'),
             ("And that is the 68 percent rule.",
              '[[step eq="68% of 200 = 136"]]'),
@@ -2381,12 +2467,12 @@ _PROBSTAT_U8 = [
         "teach": [
             ("That is the method: find the raw gap, then count how many deviations fit in "
              "it. 82 take away 70 is 12, and 12 holds two sixes — so 82 sits two deviations "
-             "above the mean. Roughly 2 people in a hundred beat that, which is why it is "
-             "impressive.",
+             "above the mean. On a bell curve only about 2 in a hundred sit that far up — "
+             "this unit's last lesson counts them — which is why it is impressive.",
              '[[numberline min="64" max="88" points="70,82" hops="70,76,82" caption="12 holds two sixes"]][[step eq="82 − 70 = 12"]][[step eq="12 ÷ 6 = 2 deviations"]]'),
             ("Answering 12 stops at the raw gap and never asks how big a step is — 12 "
-             "points might be enormous or nothing at all, depending on the spread. And 6 "
-             "is one step, not the count of them.",
+             "points might be large or small compared with the spread. And 6 is one "
+             "step, not the count of them.",
              '[[step eq="2 ✓"]][[step eq="12 ✗ the raw gap · 6 ✗ one step"]]'),
         ],
         "pairs": [
@@ -2485,7 +2571,7 @@ _PROBSTAT_U8 = [
                         "because 58 is below the mean | "
                         "because the deviation is always added twice to itself"),
             "answer": "because two deviations means two hops of 8 from the mean",
-            "board": '[[numberline min="42" max="74" points="50" hops="50,58" caption="why 66, and not 58?"]]',
+            "board": '[[numberline min="42" max="74" points="50,66" hops="50,58,66" caption="why 66, and not 58?"]]',
         },
         "recap": [
             ("So, here it is again. To find the value a named distance out, take that many "
@@ -2493,7 +2579,7 @@ _PROBSTAT_U8 = [
              "deviation, and the distance alone is not a value until it leaves from the "
              "middle.",
              '[[numberline min="42" max="74" points="50,66" hops="50,58,66" caption="two hops from the mean"]]'),
-            ("And that is reading the curve backwards.",
+            ("And that is reading the curve backwards: 50 plus 2 times 8, 66.",
              '[[step eq="50 + 2 × 8 = 66"]]'),
         ],
         "bank": [
@@ -2527,14 +2613,15 @@ _PROBSTAT_U8 = [
         "picture": [
             ("Here is the bell with the middle at 100 and a spread of 10. The shaded part "
              "is the top end — everything beyond two deviations, past 120. Look how thin "
-             "that sliver is. The same sliver sits at the bottom end, below 80.",
+             "that sliver is. A matching sliver would sit at the bottom end, below 80; "
+             "this picture shades only the top one.",
              '[[normal mean="100" sd="10" lo="120" hi="140" caption="the top end — the sliver beyond two deviations, about 2 or 3 of every 100"]]'),
         ],
         "teach": [
             ("That is the method: take 5 percent of the group for both ends, then halve it "
              "for one. In a group of 800, 5 percent is 40 out at the ends — so 20 sit above "
              "two deviations and 20 below. The bell is symmetric, so the split is even.",
-             '[[tape parts="20 bottom end|760 middle|20 top end" total="800 in all" caption="the two ends hold 40 between them — 20 at each"]][[step eq="5% of 800 = 40 · half at each end = 20"]]'),
+             '[[tape parts="20 bottom end|760 middle|20 top end" total="800 in all" caption="the two ends hold 40 between them — 20 at each"]][[step eq="5% of 800 = 40"]][[step eq="half at each end = 20"]]'),
             ("Forgetting the split is the slip — 40 counts both ends when the question "
              "asked for one. And a bell never has half its people out at the edges; that is "
              "what the shape is telling you.",
@@ -2547,7 +2634,7 @@ _PROBSTAT_U8 = [
              "ask": {"a": 600, "b": 0, "op": "ntal"}},
             {"worked": ("One more together. In a group of 2000: 5 percent is 100 at the ends, "
                         "so 50 sit beyond two deviations at the top.",
-                        '[[tape parts="50 bottom end|1900 middle|50 top end" total="2000 in all" caption="100 at the ends — 50 at each"]][[step eq="2000 ÷ 40 = 50"]]'),
+                        '[[tape parts="50 bottom end|1900 middle|50 top end" total="2000 in all" caption="100 at the ends — 50 at each"]][[step eq="5% of 2000 = 100"]][[step eq="100 ÷ 2 = 50"]]'),
              "ask": {"a": 560, "b": 0, "op": "ntal"}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
@@ -2569,8 +2656,9 @@ _PROBSTAT_U8 = [
              "halve it for one end. Both ends together is not one end, and the edges are "
              "never half the group.",
              '[[normal mean="100" sd="10" lo="120" hi="140" caption="the thin top sliver"]]'),
-            ("And that is why a value two deviations out is worth remarking on.",
-             '[[step eq="800 ÷ 40 = 20"]]'),
+            ("And that is why a value two deviations out is worth remarking on: 5 percent "
+             "of 800 is 40, halved, 20.",
+             '[[step eq="5% of 800 = 40"]][[step eq="40 ÷ 2 = 20"]]'),
         ],
         "bank": [
             {"a": 80, "b": 0, "op": "ntal"},
@@ -2646,15 +2734,15 @@ _PROBSTAT_U9 = [
                         "because a poll always rounds its answer down | "
                         "because 41 is the smallest percent a poll can report"),
             "answer": "because the margin steps the same distance down as up",
-            "board": '[[numberline min="36" max="56" points="46" caption="why 41?"]]',
+            "board": '[[numberline min="36" max="56" points="41,46,51" hops="46,41" caption="why 41?"]][[step eq="46 − 5 = 41"]]',
         },
         "recap": [
-            ("So, here it is again. A poll reports a range, not a point, and the margin "
-             "reaches the same distance each way from the estimate. The low end is the "
-             "estimate take away the margin; the high end is the same step up. The margin "
-             "alone is only the size of the step.",
+            ("So, here it is again. When a poll says give or take, its estimate comes with "
+             "a range around it, and the margin reaches the same distance each way from "
+             "the estimate. The low end is the estimate take away the margin; the high "
+             "end is the same step up. The margin alone is only the size of the step.",
              '[[numberline min="36" max="56" points="41,46,51" hops="46,41" caption="the margin steps down as well as up"]]'),
-            ("And that is what give or take means.",
+            ("And that is what give or take means: 46 take away 5, 41.",
              '[[step eq="46 − 5 = 41"]]'),
         ],
         "bank": [
@@ -2692,8 +2780,8 @@ _PROBSTAT_U9 = [
         ],
         "teach": [
             ("That is the method: the whole range is the margin counted twice, once each "
-             "way. 4 down plus 4 up is 8 points wide, from 46 to 54 — exactly the way an "
-             "ellipse's width was double its reach.",
+             "way. 4 down plus 4 up is 8 points wide, from 46 to 54 — the middle, plus "
+             "one margin's reach on each side.",
              '[[numberline min="42" max="58" points="46,50,54" caption="from 46 to 54 — 8 points, with 50 in the middle"]][[step eq="4 + 4 = 8 points wide"]]'),
             ("Answering 4 gives one side only. And 50 is the middle of the range, not its "
              "size. Edge to edge, it is the margin doubled.",
@@ -2765,7 +2853,7 @@ _PROBSTAT_U9 = [
         "teach": [
             ("That is the method. Measure from the EDGE, not the middle. Your range tops out "
              "at 46, and 55 take away 46 is 9 — the claim sits 9 points past the very best "
-             "your data can support. Your sample flatly contradicts it.",
+             "your data can support. Your sample does not support it.",
              '[[numberline min="32" max="58" points="40,46,55" hops="46,55" caption="from the ceiling at 46 to the claim at 55 is 9"]][[step eq="46 is your ceiling"]][[step eq="55 − 46 = 9 points past"]]'),
             ("Measuring from 40 gives 15 and pretends your estimate is exact, when the "
              "whole point of a range is that it is not. And the margin 6 is the size of "
@@ -2786,9 +2874,9 @@ _PROBSTAT_U9 = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. With a ceiling of 46 "
-                       "and a claim of 55, the disagreement is 9 points, not 15. Tap the "
-                       "reason why."),
+            "spoken": ("One more thing — not the answer, the reason. With an estimate of 40, "
+                       "a ceiling of 46 and a claim of 55, the disagreement is 9 points, not "
+                       "15. Tap the reason why."),
             "choices": ("because the gap starts at the edge of the range | "
                         "because a claim is always measured from zero | "
                         "because 15 is bigger than the margin"),
@@ -2842,7 +2930,7 @@ _PROBSTAT_U9 = [
             ("That is the method: take the low end of the percents first, then count the "
              "people. The low end is 20 percent, and 20 percent of 400 is 80. The high end, "
              "40 percent, gives 160 — so somewhere between 80 and 160 walk.",
-             '[[machine input="400" rule="× 20%" output="80" caption="the whole school of 400 goes in, the low end\'s 20 percent comes out — 80"]][[step eq="20% of 400 = 80"]]'),
+             '[[machine input="400" rule="× 20%" output="80" caption="the whole school of 400 goes in, the low end\'s 20 percent comes out — 80"]][[step eq="20% of 400 = 80"]][[step eq="40% of 400 = 160"]][[step eq="80 to 160 walk"]]'),
             ("The order matters. Using 30 percent gives 120 and quietly drops the doubt. "
              "And 160 is the high end, the other edge of the range.",
              '[[step eq="80 ✓"]][[step eq="120 ✗ the margin dropped · 160 ✗ the high end"]]'),
@@ -2850,7 +2938,7 @@ _PROBSTAT_U9 = [
         "pairs": [
             {"worked": ("Here is one more, done for you. 45 percent of 600 give or take 5: "
                         "the low end is 40 percent — 240.",
-                        '[[machine input="600" rule="× 40%" output="240" caption="600 in, the low end\'s 40 percent out — 240"]][[step eq="40% of 600 = 240"]]'),
+                        '[[machine input="600" rule="× 40%" output="240" caption="600 in, the low end\'s 40 percent out — 240"]][[step eq="45% − 5 points = 40%"]][[step eq="40% of 600 = 240"]]'),
              "ask": {"a": 30, "b": 5, "c": 400, "op": "npop"}},
             {"worked": ("One more together. 55 percent of 800 give or take 15 reaches down to "
                         "40 percent — 320.",
@@ -2874,8 +2962,9 @@ _PROBSTAT_U9 = [
              "low end of the percents first, then count. Using the estimate alone drops "
              "the doubt, and the high end is the other edge.",
              '[[bars data="low end:20 | estimate:30 | high end:40" caption="the low end first, then the people"]]'),
-            ("And that is a range carried onto real people.",
-             '[[step eq="20% of 400 = 80"]]'),
+            ("And that is a range carried onto real people: 20 percent of 400 is 80, 40 "
+             "percent is 160.",
+             '[[step eq="20% of 400 = 80"]][[step eq="40% of 400 = 160"]]'),
         ],
         "bank": [
             {"a": 20, "b": 10, "c": 200, "op": "npop"},

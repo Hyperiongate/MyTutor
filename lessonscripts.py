@@ -2,6 +2,30 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD wq -- THE FIRST PROB/STAT SWEEP (92 findings, 11 generator-owned; 14
+#               generator items here). (1) farv (MEDIUM): with a = 12, b = 25 the "distance"
+#               tap b − a = 13 was also a dot on the plot (the crowd is a−1 … a+2), so "13
+#               is only how far the stray sits" was false; the check now forbids b − a
+#               landing on a crowd value (two bank entries in lessons/probstat.py moved).
+#               (2) hedg (HIGH): the gap is an AVERAGE -- "one play can bounce either way,
+#               but over many plays the average gap is what keeps the machine open" (praise
+#               and walk-back; "never shows in one play, only over hundreds" and "perfect
+#               reliability" are gone). (3) por (HIGH): "timesing is what AND does, not OR"
+#               -> timesing belongs to the AND rule for separate events, not to this OR
+#               question (the praise is under the no-board word cap). (4) inci (MEDIUM):
+#               "anything up to a+b is possible" -> the highest the poll allows is a+b.
+#               (5) ntal (MEDIUM): the walk-back board writes the steps the words say --
+#               "5% of a = ends" then "ends ÷ 2 = top" -- not the ÷ 40 shortcut. (6) wout
+#               (MEDIUM): the ask tape is captioned as the bag BEFORE the pick. (7) zsco
+#               (LOW): counting deviations GIVES a common scale; it is not the only way to
+#               compare (praise and walk-back). (8) resd: the gap is the SIZE of the
+#               residual -- actual take away predicted -- in the praise and walk-back (the
+#               authored lesson says the same). (9) n68: "the 68 is a percent, never a
+#               headcount" -> the percent to take, not the headcount (in a group of 100 it
+#               IS one). (10) dcnt: the ask and walk-back plots draw the line at a
+#               ([[dotplot mark=]], new in math-figures.js). (11) bias, (12) cbse, (13)
+#               strf walk-backs and (14) resp's praise are short sentences (four LOWs).
+#               Authored: lessons/probstat.py.
 #   2026-09-16  OLDER NOTES (before 2026-09-10) live in
 #               changelog/lessonscripts.py.md -- moved out on 2026-09-16 (build wp)
 #               VERBATIM, 46 entries; 20 stay here. Keep adding new notes HERE, newest at
@@ -4898,7 +4922,7 @@ def _dotm_worked(p):
 
 def _dcnt_board(p):
     a = p["a"]
-    return (f'[[dotplot values="{_dotcut(p)}" caption="one dot per player — count only the dots to the RIGHT of {a}; the dot standing on {a} stays out"]]'
+    return (f'[[dotplot values="{_dotcut(p)}" mark="{a}" caption="one dot per player — count only the dots to the RIGHT of the line at {a}; the dot standing on {a} stays out"]]'
             f'[[step eq="more than {a} · count = ?"]]')
 
 
@@ -4907,7 +4931,7 @@ def _dcnt_worked(p):
     return (f"Here it is, step by step: count only the dots to the right of {a} — there are {b}. "
             f"The dot standing exactly on {a} does not join them, because {a} is not more "
             f"than {a}, and the {c} dots below answer the opposite question.",
-            f'[[dotplot values="{_dotcut(p)}" caption="{b} dots past {a}; the one on {a} stays out"]]'
+            f'[[dotplot values="{_dotcut(p)}" mark="{a}" caption="{b} dots past the line at {a}; the one on {a} stays out"]]'
             f'[[step eq="more than {a} = {b}"]]')
 
 
@@ -5045,8 +5069,9 @@ def _resd_worked(p):
     lo, hi = min(a, b), max(a, b)
     way = "low" if b > a else "high"
     return (f"Here it is, step by step: the gap between {a} and {b} is {g} — the line guessed "
-            f"{g} points {way}. That gap is the residual, and every dot has one. {b} is "
-            f"what the student scored, not how far the line missed by.",
+            f"{g} points {way}. That gap is the size of the residual — actual take away "
+            f"predicted — and every dot has one. {b} is what the student scored, not how "
+            f"far the line missed by.",
             f'[[numberline min="{max(0, lo - 5)}" max="{hi + 5}" hops="{a},{b}" caption="from predicted {a} to actual {b} — a gap of {g}"]]'
             f'[[step eq="{hi} − {lo} = {g}"]]')
 
@@ -5087,9 +5112,9 @@ def _strf_board(p):
 def _strf_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; g = c * a // (a + b)
     return (f"Here it is, step by step: girls are {a} of the {a + b} in the school, so the sample "
-            f"keeps that share — {c} times {a}, divided by {a + b}, is {g} girls, leaving "
+            f"keeps that share. {c} times {a}, divided by {a + b}, is {g} girls. That leaves "
             f"{c - g} boys. Half and half would give {c // 2}, which matches only a school "
-            f"that is half and half, and {a} copies the school's own count into the sample.",
+            f"that is half and half. And {a} copies the school's own count into the sample.",
             f'[[tape parts="{g} girls|{c - g} boys" total="sample of {c}" caption="{g} girls and {c - g} boys — the school\'s mix, {a} to {b}, inside {c}"]]'
             f'[[step eq="{c} × {a} ÷ {a + b} = {g} girls"]]')
 
@@ -5119,9 +5144,9 @@ def _bias_board(p):
 
 def _bias_worked(p):
     a, b = p["a"], p["b"]; n = b - a
-    return (f"Here it is, step by step: {b} take away {a} leaves {n} who never had a chance — not "
-            f"{n} who said no, {n} who were never asked at all. {a} is the crowd that WAS "
-            f"asked and {b} is everyone; the gap between them is the survey's blind spot.",
+    return (f"Here it is, step by step: {b} take away {a} leaves {n} who never had a chance. "
+            f"Those {n} did not say no. They were never asked at all. {a} is the crowd that "
+            f"WAS asked and {b} is everyone; the gap between them is the survey's blind spot.",
             f'[[tape parts="{a} asked|{n} never asked" total="school of {b}" caption="{b} − {a} = {n} never had a chance"]]'
             f'[[step eq="{b} − {a} = {n}"]]')
 
@@ -5216,9 +5241,9 @@ def _cbse_board(p):
 
 def _cbse_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; g = a + b; t = 2 * c + 3 + a + b
-    return (f"Here it is, step by step: asking about the girls only sends the boys away — {a} plus "
-            f"{b} is {g} girls, so every chance from here is out of {g}. The whole class of "
-            f"{t} answers a different question, and {a} alone is the soccer girls.",
+    return (f"Here it is, step by step: asking about the girls only sends the boys away. Add "
+            f"the girls: {a} plus {b} is {g}. So every chance from here is out of {g}. The "
+            f"whole class of {t} answers a different question, and {a} alone is the soccer girls.",
             f'[[twoway rowlabels="girls,boys" collabels="soccer,art" data="{a},{b}|{c},{c + 3}" caption="the girls\' row adds to {g} — that is the whole now"]]'
             f'[[step eq="{a} + {b} = {g}"]]')
 
@@ -5257,7 +5282,7 @@ def _indp_worked(p):
 
 def _wout_board(p):
     a, b = p["a"], p["b"]
-    return (f'[[tape parts="{a} red|{b - a} other" total="{b} marbles" caption="one red is taken and KEPT — the next pick faces a smaller bag"]]'
+    return (f'[[tape parts="{a} red|{b - a} other" total="{b} marbles" caption="the bag BEFORE the pick — one red is then taken and KEPT, and the next pick faces a smaller bag"]]'
             f'[[step eq="{b} marbles · {a} red · one red taken and kept"]]'
             f'[[step eq="next pick · out of ?"]]')
 
@@ -5345,8 +5370,8 @@ def _hedg_board(p):
 def _hedg_worked(p):
     a, b = p["a"], p["b"]; g = a - b
     return (f"Here it is, step by step: {a} out and {b} back leaves {g} tokens gone on every play. "
-            f"That gap hides inside any single play and shows up with perfect reliability "
-            f"over hundreds — it is how the machine stays open. {b} is what comes back, "
+            f"One play can bounce either way; over many plays the average gap is what keeps "
+            f"the machine open. {b} is what comes back, "
             f"and adding the two is nothing a play ever costs.",
             f'[[tape parts="{b} back|{g} gone" total="{a} paid" caption="of the {a} you pay, {b} comes back and {g} is gone for good"]]'
             f'[[step eq="{a} − {b} = {g}"]]')
@@ -5362,8 +5387,8 @@ def _n68_board(p):
 def _n68_worked(p):
     a = p["a"]; n = 68 * a // 100
     return (f"Here it is, step by step: 68 percent of {a} is {n} — that is how many of the group "
-            f"sit no further than one deviation from the middle. The 68 is a percent and "
-            f"never a headcount, and {a} is everybody, middle and ends together.",
+            f"sit no further than one deviation from the middle. The 68 is the percent to "
+            f"take, not the headcount, and {a} is everybody, middle and ends together.",
             f'[[hundredgrid shaded="68" unit="percent" eq="68% of {a} → {n}" caption="68 of every 100 — and 68 percent of {a} is {n}"]]'
             f'[[step eq="68% of {a} = {n}"]]')
 
@@ -5379,8 +5404,8 @@ def _zsco_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; k = (c - a) // b
     hops = ",".join(str(a + i * b) for i in range(k + 1))
     return (f"Here it is, step by step: {c} sits {c - a} above the mean, and each deviation is a "
-            f"step of {b} — so that gap holds {k} of them. Counting steps instead of raw "
-            f"units is what lets a height and a test score be compared at all. {c - a} is "
+            f"step of {b} — so that gap holds {k} of them. Counting steps gives a height and "
+            f"a test score a common scale: how far each sits from its own mean. {c - a} is "
             f"the raw gap, and {b} is one step.",
             f'[[numberline min="{a - b}" max="{c + b}" points="{a},{c}" hops="{hops}" caption="{k} hops of {b} carry the mean at {a} up to {c}"]]'
             f'[[step eq="({c} − {a}) ÷ {b} = {k} deviations"]]')
@@ -5415,7 +5440,7 @@ def _ntal_worked(p):
             f"is symmetric, so they split evenly — {top} above two deviations and {top} "
             f"below. {ends} counts both ends when the question asked for one.",
             f'[[tape parts="{top} bottom end|{a - ends} middle|{top} top end" total="{a} in all" caption="the two ends hold {ends} between them — {top} at each"]]'
-            f'[[step eq="{a} ÷ 40 = {top}"]]')
+            f'[[step eq="5% of {a} = {ends}"]][[step eq="{ends} ÷ 2 = {top}"]]')
 
 
 def _cint_board(p):
@@ -12051,10 +12076,12 @@ OP_EXT = {
         "choices": lambda p: [p["b"], p["a"], p["b"] - p["a"]],
         "speaks": lambda p, sp: True,
         "check": lambda p: (5 <= p["a"] <= 15 and p["a"] + 12 <= p["b"] <= 40
+                            and not (p["a"] - 1 <= p["b"] - p["a"] <= p["a"] + 2)
                             and len({p["b"], p["a"],
                                      p["b"] - p["a"]}) == 3,
-                            "a stray far enough out to be unmistakable, and "
-                            "three distinct taps"),
+                            "a stray far enough out to be unmistakable, a "
+                            "distance that is not also a crowd value (wq), "
+                            "and three distinct taps"),
     },
     # ---- build lq: Probability & Statistics U2 Describing Distributions ---
     "medv": {  # the median of an EVEN list: halfway between the two middles
@@ -12227,8 +12254,9 @@ OP_EXT = {
         "board": _resd_board,         # (tr) predicted beside actual as bars
         "worked": _resd_worked,       # (tr) the gap as a hop on the number line
         "praise": lambda p: (f"The gap between {p['a']} and {p['b']} is "
-                             f"{abs(p['b'] - p['a'])} — that gap has a "
-                             f"name, the residual, and every dot has one. "
+                             f"{abs(p['b'] - p['a'])} — that is the size of "
+                             f"the residual, actual take away predicted, "
+                             f"and every dot has one. "
                              f"{p['b']} is what Sam scored, not how far the "
                              f"line missed by, and putting the two numbers "
                              f"together answers nothing at all."),
@@ -12308,13 +12336,12 @@ OP_EXT = {
         "board": _resp_board,         # (tt) back and silent as a tape
         "worked": _resp_worked,       # (tt) the rate on the hundred square
         "praise": lambda p: (f"{p['b']} out of {p['a']} is "
-                             f"{100 * p['b'] // p['a']} percent — that is "
-                             f"the response rate, and a low one is a "
-                             f"warning: the people who never answer may not "
-                             f"think like the people who did. {p['b']} is a "
-                             f"count of surveys, and "
-                             f"{p['a'] - p['b']} is how many stayed out "
-                             f"there."),
+                             f"{100 * p['b'] // p['a']} percent. That is "
+                             f"the response rate. A low one is a warning: "
+                             f"the people who never answer may not think "
+                             f"like the people who did. {p['b']} is a count "
+                             f"of surveys, and {p['a'] - p['b']} is how "
+                             f"many stayed out there."),
         "key": lambda p: 100 * p["b"] // p["a"],
         # The errors: the COUNT returned given as a percent, and the count
         # that never came back.
@@ -12417,8 +12444,9 @@ OP_EXT = {
                              f"{p['b']} equals {p['a'] + p['b']} winners out "
                              f"of {p['a'] + p['b'] + p['c']}. Timesing them "
                              f"would say {p['a'] * p['b']}, which counts "
-                             f"PAIRS of marbles rather than marbles — and "
-                             f"timesing is what AND does, not OR."),
+                             f"PAIRS of marbles — timesing belongs to the "
+                             f"AND rule for separate events, not to this "
+                             f"OR question."),
         "key": lambda p: p["a"] + p["b"],
         # The errors: TIMESING (the and/or mix-up -- pand is the other half
         # of this pair), and counting the whole bag.
@@ -12703,9 +12731,9 @@ OP_EXT = {
         "worked": _hedg_worked,       # (ty) the walk-back, filled in
         "praise": lambda p: (f"Money out, money back: {p['a']} take away "
                              f"{p['b']} leaves {p['a'] - p['b']} tokens "
-                             f"gone a play. That gap never shows in one "
-                             f"play, only over hundreds — and it is how "
-                             f"the machine stays open."),
+                             f"gone a play. One play can bounce either way, "
+                             f"but over many plays the average gap is what "
+                             f"keeps the machine open."),
         "key": lambda p: p["a"],
         # The errors: the two amounts added, and the winnings read as the
         # cost.
@@ -12730,9 +12758,9 @@ OP_EXT = {
         "praise": lambda p: (f"68 percent of {p['a']} is "
                              f"{68 * p['a'] // 100} — most of a "
                              f"bell curve crowds close to the middle, and "
-                             f"that is what gives it the shape. The 68 is a "
-                             f"percent, never a headcount, and {p['a']} is "
-                             f"everybody."),
+                             f"that is what gives it the shape. The 68 is "
+                             f"the percent to take, not the headcount, and "
+                             f"{p['a']} is everybody."),
         "key": lambda p: p["a"],
         # The errors: the 68 answered as if it were people, and the whole
         # group.
@@ -12758,9 +12786,9 @@ OP_EXT = {
                              f"mean, and each standard deviation is "
                              f"{p['b']} — so that gap holds "
                              f"{(p['c'] - p['a']) // p['b']} of them. "
-                             f"Counting deviations instead of raw units is "
-                             f"what lets two different measurements be "
-                             f"compared at all."),
+                             f"Counting deviations gives two different "
+                             f"measurements a common scale: how far each "
+                             f"sits from its own mean."),
         "key": lambda p: p["a"],
         # The errors: the RAW gap (deviations never counted), and the
         # standard deviation itself.
@@ -12882,8 +12910,8 @@ OP_EXT = {
     "inci": {  # is a claim inside the range -- and if not, by how much?
         "ans": lambda p: p["c"] - (p["a"] + p["b"]),
         "spoken": lambda p: (f"Your poll says {p['a']} percent, give or "
-                             f"take {p['b']}, so anything up to "
-                             f"{p['a'] + p['b']} is possible. A company "
+                             f"take {p['b']}, so the highest it allows is "
+                             f"{p['a'] + p['b']}. A company "
                              f"claims {p['c']} percent. How many points "
                              f"ABOVE your highest possible value is their "
                              f"claim?"),
