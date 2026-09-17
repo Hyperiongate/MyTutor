@@ -4,12 +4,12 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk, the newest: **`2026-09-17ws-the-second-diffeq-sweep`**. Battery
-12,649 passed, 0 failed, 3 skipped (frozen copy, 2026-09-17). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
+On Jim's disk, the newest: **`2026-09-17wt-the-referee-pile`**. Battery
+12,658 passed, 0 failed, 3 skipped (frozen copy, 2026-09-17). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
 half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
-whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17). Jim pushes and prewarms
+whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17). Jim pushes and prewarms
 each; check `/health`. The first round is over: every lesson in every course has been read
 once. **The second round has begun, and the cycle converges: Diffeq went 119 → 62 findings,
 0 → 8 clean, on one fix build.**
@@ -23,7 +23,7 @@ before the next sweep.** The course sweep and the night watch both use that seat
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`.
 
 | course | sweeps so far | last result |
 |---|---|---|
@@ -40,10 +40,11 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 
 ## What to do next
 
-1. Jim pushes `ws`, confirms `/health`, runs the **prewarm** (Diffeq's fifty rewrites plus
-   nine ops' lines). **Then tops up the reader's credits** — $6.92 will not finish a sweep.
-2. The second round continues. Pre-Calc and Algebra II ran their first sweep on older builds
-   (`wm`, `wk`) and go next; then Entry (`wg`'s 14 findings, 26 clean, is the floor to beat);
+1. Jim pushes `wt` (on top of `ws`), confirms `/health`, runs the **prewarm** (Diffeq's
+   fifty rewrites plus the ops' lines; wt adds only oscf's asks and lhol's praise). The
+   credit cap was raised on 09-17 after ws.
+2. The second round continues. **The Pre-Calc rerun was running on `ws` as wt was built** —
+   its report becomes `wu`. Then Algebra II (first read on `wk`); then Entry (`wg`'s 14 findings, 26 clean, is the floor to beat);
    then the rest in first-round order. Each rerun is a new letter. Diffeq's rerun is the
    template: expect roughly half the findings, the same class one layer down, and a handful
    of clean lessons. The weekly deep dive can wait for two or three of those.
@@ -87,16 +88,18 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
   the same idea as `[[numberline mid=]]`. If another figure's words ever "draw a line in
   your mind", give the figure the attribute rather than rewording the beat.
 - **The `chao` praise board carries one line by design.** The ws sweep's LOW ("25 is not on
-  the praise board") was declined: a praise beat in a lesson with no walk-back shows the
-  ask's single answered line (`answered_board`, wc), so intermediate values never appear
-  there. Pinned in PART 3mn. Any future "N is not on the praise board" in a no-walk-back
-  lesson is the same ruling.
-- **Twenty pre-existing referee refusals on Diffeq's generators** (the walked slope field's
-  "What height?" with no h(x) on the board, the pond's "now 30 · how many more?" — a question
-  inside a step tag — and damping's "√ then ÷ 2 = ?" that the words never read). They were
-  there before wp; wp fixed the three it caused (sepv, sepr, lder). A generator pile for a
-  quiet day, not a sweep finding — the referees wrap the model's replies (`_create_verified`),
-  not the scripted lane, so nothing a student sees is blocked by them.
+  the praise board") was declined: a praise beat shows the ask's single answered line
+  (`answered_board`, wc; every lesson since wt), so intermediate values never appear
+  there. Pinned in PART 3mn. Any future "an intermediate value is not on the praise board"
+  is the same ruling; "the ANSWER is not on the praise board" cannot happen any more.
+- **The referee pile is gone (wt).** The canon's referees over every scripted beat of all
+  ten courses: 56 refusals → 1 (an intro title card naming "the number line"; rule 7 is
+  right in general, a title card is not a board claim — left alone). Two were referee
+  misreadings now fixed in `tutor.py` ("What height" read as h(eight); "40 = 8 × ?" judged
+  as if the blank were 40). **Every praise beat now carries the answered board**, walk-back
+  lessons included (wc gave it only to lessons without one) — so from here a sweep's "N is
+  not on the praise board" is a genuine finding, and PART 3mo re-runs the whole-canon
+  referee sweep every battery.
 - **"Times the whole of"** as the house phrase for a spoken bracket — worth a canon line if
   Jim agrees (wk used it in Algebra I).
 - **`pendingzero` truth or conduct** — a board that poses a different equation from the

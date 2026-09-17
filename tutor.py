@@ -2,6 +2,13 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD wt -- TWO REFEREE MISREADINGS, found by running the canon's referees
+#               over every scripted beat of all ten courses (56 refusals, 38 of them these
+#               two). (1) _FN_ASK read "What height?" as "what h(eight)" -- the letter
+#               class matched the h of "height" and the number-word branch took "eight";
+#               (?![a-z]) after the letter. (2) unanswerable_choices judged "40 = 8 × ?"
+#               and "0.1 + 0.3 = 0.?" as if the blank were the left side's value; only a
+#               bare "?" on the right is. Both fail open as before; no referee added.
 #   2026-09-16  BUILD wj -- THE 09-15 WATCH: four HIGHs, three seats. (1) REFEREE 101,
 #               alignment_demo_conflict (rule 13, TRUTH): decimal-alignment demonstrated
 #               "why last-digit alignment fails" with 2.60 + 0.35 and 1.05 + 2.40 -- same
@@ -5374,6 +5381,14 @@ def unanswerable_choices_conflict(reply: str):
                 lhs = p.split("=")[0].strip()
                 if not lhs:
                     continue
+                # (wt, 2026-09-17) ONLY A BARE "?" ON THE RIGHT IS THE LEFT SIDE'S VALUE.
+                # "40 = 8 × ?" asks for the factor (5) and "0.1 + 0.3 = 0.?" asks for a
+                # digit (4); this gate judged the buttons against 40 and 0.4 and called
+                # three Basic Math generators unanswerable, eighteen asks at a time. When
+                # the right side is anything but "?", the blank is not the value of the
+                # left side, and the buttons are not this gate's to judge.
+                if "=" not in p or p.split("=", 1)[1].strip() != "?":
+                    continue
                 # ⚠️ ONLY a left side that resolves to a NUMBER may be judged. The
                 # checker calls "2x + 1 = 5" WRONG (it "actually equals 2x + 1"), not
                 # unverifiable, so a symbolic question with perfectly good options
@@ -6645,8 +6660,15 @@ _FN_NUMWORDS = {
     "eighteen": 18, "nineteen": 19, "twenty": 20, "thirty": 30, "forty": 40,
     "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90,
     "hundred": 100}
+# (wt, 2026-09-17) THE LETTER STANDS ALONE. "What height do you land at?" was read as
+# "what h(eight)": the \b before [fgh] matched the h of "height" and the number-word
+# branch swallowed "eight" -- twenty scripted Diffeq and Calculus asks ("What height?",
+# "at what x does the height reach zero", "What is its height at x = 4?") were refused
+# by a referee about f(N). A function letter is followed by a space, a bracket, "of" or
+# the number itself -- never by another letter -- so (?![a-z]) after the letter is the
+# whole fix. "f(4)", "f of 4", "f 4", "g(two)" all still match.
 _FN_ASK = re.compile(r"\bwhat(?:'s| is| would| will| do you get for)?\b[^.?!]{0,40}?"
-                     r"\b([fgh])\s*(?:of\s*)?\(?\s*(-?\d+|"
+                     r"\b([fgh])(?![a-z])\s*(?:of\s*)?\(?\s*(-?\d+|"
                      + "|".join(sorted(_FN_NUMWORDS, key=len, reverse=True))
                      + r")\s*\)?", re.I)
 

@@ -2,6 +2,20 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD wt -- THE REFEREE PILE. The canon's referees, run over every scripted
+#               beat of all ten courses, refused 56 beats; 45 were praise lines ("so x is
+#               12", "5 plus 2 equals 7") over an EMPTY board, because a lesson with a
+#               walk-back left its praise beat bare (wc gave the board only to lessons
+#               without one). Now EVERY praise beat carries the ask's answered line
+#               (_correct_beats), and the times-table pass answers its own fact line,
+#               counter and all. Three generator lines: carr's board asked with a sentence
+#               ("now 30 · how many more?") -> "130 ÷ 2 − 30 = ?"; oscf's pending line
+#               "√ then ÷ 2 = ?" carries its number ("√576 ÷ 2 = ?") and the words read
+#               it ("The board has the inside: 576. Root it, then halve it."); lhol's
+#               praise carries the hole's condition ("the simplified x plus 14 is defined
+#               there, so it is a hole"), kept short enough for the hole lesson's closure
+#               to stay under 25,000. The other 20 refusals were two referee misreadings,
+#               fixed in tutor.py. Counts unchanged (course 39,999; speechmap 2,245).
 #   2026-09-17  BUILD ws -- THE SECOND DIFFEQ SWEEP (62 findings, 11 generator-owned on 9
 #               ops; the first sweep was 119). The rerun proves the cycle converges, and what
 #               it left on the generators was the same class as wp: a law said for this
@@ -11955,8 +11969,9 @@ OP_EXT = {
         "praise": lambda p: (f"Everywhere except {p['a']}, that fraction "
                              f"quietly equals x plus {p['a']} — so as x "
                              f"creeps toward {p['a']}, y creeps toward "
-                             f"{2 * p['a']}. The function has a hole there "
-                             f"and never reaches the value; the limit says "
+                             f"{2 * p['a']}. The simplified x plus {p['a']} "
+                             f"is defined there, so it is a hole: y never "
+                             f"reaches {2 * p['a']}, and the limit says "
                              f"where it was headed."),
         "key": lambda p: p["a"],
         # The errors: the forbidden x itself, and "undefined must mean
@@ -14280,7 +14295,7 @@ OP_EXT = {
                              f"fastest-growing size?"),
         "board": lambda p: (f'[[step eq="ceiling {p["a"]} · fastest at '
                             f'half"]]'
-                            f'[[step eq="now {p["b"]} · how many more?"]]'),
+                            f'[[step eq="{p["a"]} ÷ 2 − {p["b"]} = ?"]]'),
         "praise": lambda p: (f"Half of {p['a']} is {p['a'] // 2}, and it is "
                              f"already at {p['b']}, so {p['a'] // 2 - p['b']} "
                              f"more fish reach the fastest-growing size. "
@@ -14589,10 +14604,13 @@ OP_EXT = {
                              f"{p['b']} y, equals zero. It still rocks, but "
                              f"slower — at the square root of 4 times "
                              f"{p['b']} take away {p['a']} squared, all "
-                             f"halved. What is that?"),
+                             f"halved. The board has the inside: "
+                             f"{4 * p['b'] - p['a'] * p['a']}. Root it, "
+                             f"then halve it. What is that?"),
         "board": lambda p: (f'[[step eq="4×{p["b"]} − {p["a"]}² = '
                             f'{4 * p["b"] - p["a"] * p["a"]}"]]'
-                            f'[[step eq="√ then ÷ 2 = ?"]]'),
+                            f'[[step eq="√{4 * p["b"] - p["a"] * p["a"]} '
+                            f'÷ 2 = ?"]]'),
         "praise": lambda p: (f"4 times {p['b']} take away {p['a']} squared "
                              f"is {4 * p['b'] - p['a'] * p['a']}, whose "
                              f"root is "
@@ -15640,9 +15658,19 @@ def _correct_beats(lesson, p, idx, level=None):
 
     (wc) In a lesson with NO walk-back the praise beat now carries answered_board(),
     so the answer the child just gave lands on the board as it is praised. A lesson
-    WITH a walk-back is unchanged: its worked board follows a beat later, as before."""
+    WITH a walk-back is unchanged: its worked board follows a beat later, as before.
+
+    (wt, 2026-09-17) EVERY PRAISE BEAT CARRIES THE ANSWERED BOARD. Running the canon's
+    referees over every scripted beat of all ten courses found 50 refusals on praise
+    lines, 45 of them one shape: the praise says "so x is 12" (or works the sum in
+    words) over an EMPTY board, because the lesson has a walk-back and wc left those
+    praise beats bare. The walk-back's worked board arrives a beat later; for the beat
+    in between, the child's own answer was nowhere on the board. Now the praise beat
+    carries the ask's answered line in every lesson, and the walk-back follows with
+    the full working as before. Measured before the change: 50 praise refusals; after:
+    5 (all one Pre-Calc generator's law, fixed in the same build)."""
     walk = _worked_for(p) if lesson.get("show_work_on_correct") else None
-    praise_board = "" if walk else (answered_board(p, level) if level else "")
+    praise_board = answered_board(p, level) if level else ""
     out = [{"kind": "say", "spoken": praise_for(p, idx), "board": praise_board}]
     if walk:
         out.append({"kind": "say", "spoken": walk[0], "board": walk[1]})
@@ -15938,8 +15966,10 @@ def step(lesson, state, event):
         if state["phase"] == "table":
             # (sz) inside the pass a right answer earns the praise and the next fact --
             # no walk-back: the pass is recall, and 81 pictures would make it an hour
+            # (wt) the fact lands on the board as it is praised -- the pending ask
+            # board with its "?" answered ("4 × 7 = 28", counter and all)
             out.append({"kind": "say", "spoken": praise_for(p, _table_praise_index(p)),
-                        "board": ""})
+                        "board": str(pend.get("board") or "").replace("= ?", f"= {ans(p)}", 1)})
         else:
             out.extend(_correct_beats(lesson, p, idx, level=state["level"]))  # (sp) praise, then the walk-back
         if not guided:

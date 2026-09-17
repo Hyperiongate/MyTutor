@@ -6,6 +6,11 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-17  APP_BUILD -> "2026-09-17wt-the-referee-pile". The canon's referees run over
+#               every scripted beat of all ten courses: 56 refusals -> 1. Every praise beat
+#               now carries the answered board (lessonscripts.py); two referee misreadings
+#               fixed (tutor.py: "What height" is not h(eight); "40 = 8 × ?" is answerable);
+#               three generator lines; PART 3mo. Nothing in this file changed but the stamp.
 #   2026-09-17  APP_BUILD -> "2026-09-17ws-the-second-diffeq-sweep". The second Diffeq sweep
 #               (62 findings, 8 of 36 clean -- 119 and 0 at wp, so the sweep-and-fix cycle
 #               converges): nine generator ops in lessonscripts.py, 47 authored edits in
@@ -9727,7 +9732,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-17ws-the-second-diffeq-sweep"
+APP_BUILD = "2026-09-17wt-the-referee-pile"
 
 
 @app.get("/health")

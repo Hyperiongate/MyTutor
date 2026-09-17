@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD wt -- PART 3mo, THE REFEREE PILE: the canon's referees over every scripted
+#               beat of all ten courses, 56 refusals -> 1. Two referee misreadings pinned
+#               both ways (_FN_ASK's standalone letter; unanswerable_choices' bare "?");
+#               the praise beat carries the answered board in every lesson (the wc pin
+#               that asserted an empty board on a walk-back lesson moved); carr/oscf/lhol.
 #   2026-09-17  BUILD ws -- PART 3mn, THE SECOND DIFFEQ SWEEP (62 findings, 8 clean, 11
 #               generator-owned on 9 ops; 119 and 0 at wp). estp's MAIN error, rk4's
 #               halvings, conc/cycl/lder/natf/prey/sysx/eign; chao's LOW declined (the
@@ -18088,8 +18093,12 @@ def part3lx_the_first_course_sweep_triaged():
     _o, st = L.step(wl, st, ("begin",))
     p = st["pending"]["problem"]
     out, st = L.step(wl, st, ("answer", L.ans(p)))
-    check("  a lesson WITH a walk-back is unchanged: the praise beat's board is empty and the "
-          "worked board follows", out[0]["board"] == "" and out[1]["board"].startswith("[["), "")
+    # (wt, 2026-09-17) a lesson WITH a walk-back now carries the answered board on its praise
+    # beat too -- the child's answer is on the board while it is praised, and the worked
+    # board still follows a beat later. This pin used to assert the praise board was empty.
+    check("  a lesson WITH a walk-back: the praise beat carries the answered board (wt) and the "
+          "worked board follows", out[0]["board"].startswith('[[step eq="') and out[0]["board"].endswith(str(L.ans(p)) + '"]]')
+          and out[1]["board"].startswith("[["), str(out[0]["board"])[:120])
     check("  it never raises: a problem the engine cannot answer yields the empty board it always had",
           L.answered_board({"op": "nonsense-op"}, "abstract") == "", "")
 
@@ -20005,6 +20014,81 @@ def part3mn_the_second_diffeq_sweep():
           'APP_BUILD -> "2026-09-17ws-' in notes("main.py") and "2026-09-17  BUILD ws" in notes("lessonscripts.py")
           and "2026-09-17  BUILD ws" in notes("lessons/diffeq.py") and "2026-09-17  BUILD ws" in notes("ruletests.py")
           and "2026-09-17  BUILD ws" in notes("coursesweep.py"), "")
+
+
+def part3mo_the_referee_pile():
+    """PART 3mo (build wt, 2026-09-17) -- THE REFEREE PILE: the canon's referees run over every
+    scripted beat of all ten courses. 56 refusals before this build; 1 after (an intro card
+    that names the lesson's own title). Two were referee misreadings (38 refusals): "What
+    height" read as "what h(eight)", and "40 = 8 x ?" judged as if the blank were the left
+    side's value. One was the engine (45 praise refusals): a praise beat in a lesson with a
+    walk-back carried no board, so "so x is 12" stood over nothing -- now every praise beat
+    carries the answered line. Three were generator lines (carr, oscf, lhol)."""
+    print("\nPART 3mo — the referee pile (build wt)")
+    import lessonscripts as L
+    import coursesweep as C
+    B = lambda p, lv="abstract": L.board_for(p, lv)
+    S = lambda p, lv="abstract": L.spoken_for(p, lv)
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+    T = tutor
+
+    # ---- the two referee misreadings ----------------------------------------------
+    check("⭐ _FN_ASK: 'What height' is not 'what h(eight)' -- the function letter stands alone",
+          not T.function_ask_rewrite_conflict('Follow them for 6 across. What height do you land at? [[step eq="start at y = 19"]][[step eq="slope 9 · for 6 across · y = ?"]]')
+          and not T.function_ask_rewrite_conflict('A ball\'s height is y equals 169 take away x squared. At what x does the height reach zero? [[step eq="169 − x² = 0"]]')
+          and not T.function_ask_rewrite_conflict('What is its height at x equals 4? [[step eq="at x = 4: y = ?"]]'), "")
+    check("  ...and the real f(N) shapes still fire: f of two over an f(5) board, f(4) with no board, and the spoken-rule echo",
+          "f(2)" in T.function_ask_rewrite_conflict('Want to try one more on your own -- what\'s f of two? [[step eq="f(5) = 2·5 + 1 = 11"]]')
+          and bool(T.function_ask_rewrite_conflict("What is f(4)?"))
+          and "echo" in T.function_ask_rewrite_conflict('f of x equals 3 x take away 2. What is f(4)? [[step eq="f(4) = ?"]]')
+          and not T.function_ask_rewrite_conflict('Look. [[step eq="f(4) = ?"]] What is f of 4?'), "")
+    check("⭐ unanswerable_choices judges only a bare '?' on the right: '40 = 8 × ?' (factor 5) and '0.1 + 0.3 = 0.?' (digit 4) are answerable; '1 + 2 = ?' with 9 | 4 | 7 still is not; a line with no equals never crashes it",
+          not T.unanswerable_choices_conflict('40 is 8 times what number? [[step eq="40 = 8 × ?"]][[choices options="6 | 4 | 5"]]')
+          and not T.unanswerable_choices_conflict('How many tenths? [[step eq="0.1 + 0.3 = 0.?"]][[choices options="3 | 4 | 5"]]')
+          and bool(T.unanswerable_choices_conflict('[[step eq="1 + 2 = ?"]][[choices options="9 | 4 | 7"]]'))
+          and not T.unanswerable_choices_conflict('What comes next? [[step eq="2, 4, 6, ?"]][[choices options="7 | 8 | 9"]]'), "")
+
+    # ---- the engine: every praise beat carries the answered board ------------------
+    wl = L.LESSON_BY_ID["pre-u1-times-before-add"]
+    st = L.start(wl, seed=3)
+    _o, st = L.step(wl, st, ("begin",))
+    p = st["pending"]["problem"]
+    out, st = L.step(wl, st, ("answer", L.ans(p)))
+    check("⭐ a lesson WITH a walk-back: the praise beat carries the answered line, then the worked board follows",
+          out[0]["kind"] == "say" and out[0]["board"] == L.answered_board(p, st.get("level") or "abstract")
+          and out[0]["board"].startswith('[[step eq="') and out[1]["board"].startswith("[["), str(out[0]["board"])[:100])
+    check("  every praise beat in every course's transcript carries a board -- the times-table pass included (its fact, counter and all)",
+          all(t["board"] for c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc", "calculus", "diffeq", "probstat")
+              for les in C.lessons_for(c, L) for t in C.transcript_for(les, L) if t["kind"] == "praise")
+          and any(t["board"].startswith('[[step eq="') and 'caption="fact 1 of 81"' in t["board"] and "?" not in t["board"]
+                  for t in C.transcript_for(L.LESSON_BY_ID["basic-u2-times-tables"], L) if t["kind"] == "praise"), "")
+
+    # ---- the three generator lines ---------------------------------------------------
+    check("  carr's board asks with an equation (130 ÷ 2 − 30 = ?), not a sentence; oscf's pending line carries its number and the words read it; lhol's hole carries its condition",
+          '[[step eq="130 ÷ 2 − 30 = ?"]]' in B({"a": 130, "b": 30, "op": "carr"})
+          and "how many more?" not in B({"a": 130, "b": 30, "op": "carr"})
+          and '[[step eq="√576 ÷ 2 = ?"]]' in B({"a": 14, "b": 193, "op": "oscf"})
+          and "The board has the inside: 576. Root it, then halve it. What is that?" in S({"a": 14, "b": 193, "op": "oscf"})
+          and "The simplified x plus 14 is defined there, so it is a hole: y never reaches 28, and the limit says where it was headed." in PR("lhol", {"a": 14, "b": 0})
+          and L.audio_cost_estimate(L.LESSON_BY_ID["pc-u9-the-hole-in-the-curve"])["chars"] < 25000, "")
+
+    # ---- the measurement itself --------------------------------------------------------
+    skipph = ("keep talking", "puts no pending line", "already answers")
+    left = []
+    for c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc", "calculus", "diffeq", "probstat"):
+        for les in C.lessons_for(c, L):
+            for t in C.transcript_for(les, L):
+                txt = t["spoken"] + "\n" + t["board"]
+                r = T.prose_board_conflict(txt, heard=txt, course=c)
+                if r and not any(ph in r for ph in skipph):
+                    left.append((les["id"], t["n"], r[:60]))
+    check("⭐ THE PILE IS GONE: the canon's referees refuse at most the one intro card that names its own title, over every scripted beat of all ten courses (56 at wr)",
+          len(left) <= 1 and all(lid == "basic-u5-fractions-on-the-number-line" for lid, _n, _r in left), str(left[:3]))
+    check("  every lesson validates; the course list is 39,999",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-17wt-' in notes("main.py") and "2026-09-17  BUILD wt" in notes("lessonscripts.py")
+          and "2026-09-17  BUILD wt" in notes("tutor.py") and "2026-09-17  BUILD wt" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -46902,6 +46986,7 @@ def main():
     part3ml_the_first_probstat_sweep()
     part3mm_the_second_calculus_sweep()
     part3mn_the_second_diffeq_sweep()
+    part3mo_the_referee_pile()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
