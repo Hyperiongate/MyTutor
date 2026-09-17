@@ -2,6 +2,30 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD ws -- THE SECOND DIFFEQ SWEEP (62 findings, 11 generator-owned on 9
+#               ops; the first sweep was 119). The rerun proves the cycle converges, and what
+#               it left on the generators was the same class as wp: a law said for this
+#               model as the whole truth. (1) estp's ask and praise: it is the MAIN part of
+#               the error that is proportional to the step -- "for a first-order method
+#               like Euler, the main part of the error ... that main error shrinks by the
+#               same factor"; the praise "the main error scales the same way". (2) rk4:
+#               "the method everybody actually uses" -> "a very common method"; the praise
+#               counted "a thousand times the steps" -> "one more halving divides what is
+#               left by 16 again ... a few halvings buy an accuracy Euler needs vastly more
+#               steps to reach". (3) conc: "always turns on one number" -> "the first
+#               number a mixing problem needs is the concentration". (4) cycl's ask:
+#               "nudge this model off the balance point ... in this tidy cycle the foxes
+#               peak a quarter of a cycle after the rabbits" (the lag is this model's).
+#               (5) lder's praise: the rule is "for the equations in this unit". (6) natf's
+#               praise: "MANY objects have natural frequencies like this ... something
+#               else DRIVES one of them". (7) prey's praise claims only the rabbit half:
+#               "the rabbit number is not steady on its own -- it is held level by that
+#               many foxes". (8) sysx's praise: the answer is "the x part of the arrow at
+#               that point; the y rule gives the other part the same way". (9) eign's
+#               praise, the same class as the authored U8 line: "every path heads away
+#               from the origin", not "everything races away". chao's LOW (25 not on the
+#               praise board) was DECLINED: a praise board is the ask's one answered line
+#               by design (wc). No count moved (course 39,999; speechmap 2,245).
 #   2026-09-17  BUILD wr -- THE SECOND CALCULUS SWEEP, WHOLE (88 findings, 20 generator-owned
 #               on 13 ops). (1) ftc's praise (HIGH): "taking end from start" was start minus
 #               end -- "then end take away start". (2) avgv's praise (five MEDIUMs, one line):
@@ -14185,7 +14209,8 @@ OP_EXT = {
     },
     "conc": {  # the number every mixing problem is really about
         "ans": lambda p: p["a"] // p["b"],
-        "spoken": lambda p: (f"A mixing problem always turns on one number. "
+        "spoken": lambda p: (f"The first number a mixing problem needs is "
+                             f"the concentration. "
                              f"{p['a']} grams of salt are stirred evenly "
                              f"into {p['b']} litres of water. How many "
                              f"grams sit in each single litre?"),
@@ -14373,21 +14398,22 @@ OP_EXT = {
     },
     "estp": {  # what "first order" actually buys you
         "ans": lambda p: p["a"] * p["c"] // p["b"],
-        "spoken": lambda p: (f"Euler is called first order because its "
-                             f"error is proportional to the step size — "
-                             f"shrink the step and the error shrinks by the "
-                             f"very same factor. A step of {p['b']} left an "
-                             f"error of {p['a']}. What error does a step of "
+        "spoken": lambda p: (f"For a first-order method like Euler, the "
+                             f"main part of the error is proportional to "
+                             f"the step size — shrink the step and that "
+                             f"main error shrinks by the same factor. A "
+                             f"step of {p['b']} left an error of "
+                             f"{p['a']}. What error does a step of "
                              f"{p['c']} leave?"),
         "board": lambda p: (f'[[step eq="step {p["b"]} → error '
                             f'{p["a"]}"]]'
                             f'[[step eq="step {p["c"]} → error ?"]]'),
         "praise": lambda p: (f"The step shrank from {p['b']} to {p['c']}, "
-                             f"and the error follows it exactly: {p['a']} "
-                             f"becomes {p['a'] * p['c'] // p['b']}. That is "
-                             f"the deal Euler offers — for a first order "
-                             f"method, the main error shrinks in step with "
-                             f"the step itself."),
+                             f"and the main error scales the same way: "
+                             f"{p['a']} becomes "
+                             f"{p['a'] * p['c'] // p['b']}. That is the "
+                             f"deal a first-order method offers — the main "
+                             f"error shrinks in step with the step itself."),
         "key": lambda p: p["a"] * p["c"] // p["b"],
         # The errors: the error left unchanged, and the error halved out of
         # habit no matter what the step actually did.
@@ -14405,20 +14431,19 @@ OP_EXT = {
     },
     "rk4": {  # fourth order, and what that is worth
         "ans": lambda p: p["a"] // 16,
-        "spoken": lambda p: (f"Runge-Kutta of fourth order is the method "
-                             f"everybody actually uses. Halve the step and "
-                             f"Euler's error halves — but this one's error "
-                             f"divides by 16. Starting from an error of "
-                             f"{p['a']}, what is left after halving the "
-                             f"step once?"),
+        "spoken": lambda p: (f"Fourth-order Runge-Kutta is a very common "
+                             f"method. Halve the step and Euler's error "
+                             f"halves — but this one's error divides by "
+                             f"16. Starting from an error of {p['a']}, "
+                             f"what is left after halving the step once?"),
         "board": lambda p: (f'[[step eq="RK4 error {p["a"]} · halve the '
                             f'step"]]'
                             f'[[step eq="÷ 16 = ?"]]'),
         "praise": lambda p: (f"{p['a']} divided by 16 is {p['a'] // 16}. "
-                             f"Halving the step twice would divide by 16 "
-                             f"again — which is why a fourth-order method "
-                             f"reaches an accuracy Euler could not buy with "
-                             f"a thousand times the steps."),
+                             f"One more halving divides what is left by "
+                             f"16 again — which is why a few "
+                             f"halvings buy an accuracy Euler needs vastly "
+                             f"more steps to reach."),
         "key": lambda p: p["a"] // 16,
         # The errors: halving like Euler, and quartering like a second-order
         # method -- the three taps are the three convergence orders.
@@ -14538,10 +14563,10 @@ OP_EXT = {
         "praise": lambda p: (f"The square root of {p['a']} is "
                              f"{_isqrt(p['a'])}, so it rocks at "
                              f"{_isqrt(p['a'])} radians a second and keeps "
-                             f"rocking for ever. Every object has a "
-                             f"frequency like this one, and the next unit "
-                             f"is about what happens when something else "
-                             f"finds it."),
+                             f"rocking for ever. Many objects have natural "
+                             f"frequencies like this, and the next unit is "
+                             f"about what happens when something else "
+                             f"drives one of them."),
         "key": lambda p: _isqrt(p["a"]),
         # The errors: the number itself un-rooted, and the root doubled --
         # reaching for the other operation that undoes a square.
@@ -14735,10 +14760,11 @@ OP_EXT = {
                             f'[[step eq="{p["b"]} × {p["c"]} − {p["a"]} = ?"]]'),
         "praise": lambda p: (f"{p['b']} times {p['c']} is "
                              f"{p['b'] * p['c']}, take away the starting "
-                             f"{p['a']} — {p['b'] * p['c'] - p['a']}. That "
-                             f"one rule is the whole trick: differentiating "
-                             f"becomes timesing by s, so a differential "
-                             f"equation turns into ordinary algebra."),
+                             f"{p['a']} — {p['b'] * p['c'] - p['a']}. For "
+                             f"the equations in this unit, that rule turns "
+                             f"differentiating into timesing by s, so the "
+                             f"differential equation becomes ordinary "
+                             f"algebra."),
         "key": lambda p: p["b"] * p["c"] - p["a"],
         # The errors: the starting height added instead of taken away, and
         # the product handed back with the start ignored.
@@ -14857,10 +14883,10 @@ OP_EXT = {
         "praise": lambda p: (f"{p['a']} times {p['b']} is "
                              f"{p['a'] * p['b']}, and the {p['c']} of y "
                              f"pulls it back to "
-                             f"{p['a'] * p['b'] - p['c']}. Do that for y as "
-                             f"well and you have an arrow at that point — "
-                             f"a slope field with two directions instead of "
-                             f"one."),
+                             f"{p['a'] * p['b'] - p['c']}. That is the x "
+                             f"part of the arrow at that point; the y rule "
+                             f"gives the other part the same way — a slope "
+                             f"field with two directions instead of one."),
         "key": lambda p: p["a"] * p["b"] - p["c"],
         # The errors: the y added instead of taken away, and the x part
         # answered with the y ignored.
@@ -14952,7 +14978,7 @@ OP_EXT = {
         "praise": lambda p: (f"They have to add to {p['a']}, and one is "
                              f"{p['b']}, so the other is "
                              f"{p['a'] - p['b']}. Both above zero and "
-                             f"everything races away from the origin; both "
+                             f"every path heads away from the origin; both "
                              f"below and everything moves in toward the "
                              f"origin; one of each is a saddle. Two numbers "
                              f"decide the picture."),
@@ -15019,8 +15045,9 @@ OP_EXT = {
                              f"is {p['a'] * p['c']} new rabbits a year, and "
                              f"at {p['b']} eaten per fox that takes "
                              f"{p['a'] * p['c'] // p['b']} foxes to hold "
-                             f"level. Neither number is steady on its own — "
-                             f"each one is held in place by the other."),
+                             f"level. The rabbit number is not steady on "
+                             f"its own — it is held level by that many "
+                             f"foxes."),
         "key": lambda p: p["a"] * p["c"] // p["b"],
         # The errors: the births counted with nothing eating them, and the
         # rabbits handed back as a fox count.
@@ -15038,11 +15065,13 @@ OP_EXT = {
     },
     "cycl": {  # what a nonlinear system does that a linear one cannot
         "ans": lambda p: p["a"] // 4,
-        "spoken": lambda p: (f"Rabbits and foxes never settle — they go "
-                             f"round and round, and the foxes always peak a "
-                             f"quarter of a cycle after the rabbits do. If "
-                             f"the whole cycle takes {p['a']} months, how "
-                             f"long after the rabbits do the foxes peak?"),
+        "spoken": lambda p: (f"Nudge this model off the balance point and "
+                             f"rabbits and foxes never settle — they go "
+                             f"round and round, and in this tidy cycle the "
+                             f"foxes peak a quarter of a cycle after the "
+                             f"rabbits. If the whole cycle takes {p['a']} "
+                             f"months, how long after the rabbits do the "
+                             f"foxes peak?"),
         "board": lambda p: (f'[[step eq="cycle {p["a"]} months"]]'
                             f'[[step eq="foxes lag ¼ of it · = ?"]]'),
         "praise": lambda p: (f"A quarter of {p['a']} is "

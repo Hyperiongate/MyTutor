@@ -4,22 +4,26 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk, the newest: **`2026-09-17wr-the-second-calculus-sweep`**. Battery
-12,638 passed, 0 failed, 3 skipped (frozen copy, 2026-09-17). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
+On Jim's disk, the newest: **`2026-09-17ws-the-second-diffeq-sweep`**. Battery
+12,649 passed, 0 failed, 3 skipped (frozen copy, 2026-09-17). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
 half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
-whole, 12,638, 09-17). Jim pushes and prewarms each; check `/health`. **The first
-round is over: every lesson in every course has been read once.**
+whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17). Jim pushes and prewarms
+each; check `/health`. The first round is over: every lesson in every course has been read
+once. **The second round has begun, and the cycle converges: Diffeq went 119 → 62 findings,
+0 → 8 clean, on one fix build.**
 
-**OpenAI credits ran out at 17:12 UTC** mid-Calculus-sweep (429 "no credits remaining") and
-were evidently topped up — the Diffeq sweep ran at 21:14. The course sweep and the night
-watch both use that seat.
+**OpenAI credits: $6.92 left** on the 09-17 billing screenshot (September spend $97.83 of
+a $120 limit; 10.0 M tokens and 1,654 requests in seven days, 66.8% cache hits). Credits ran
+out once already at 17:12 UTC on 09-16 mid-sweep (429 "no credits remaining"). **Top up
+before the next sweep.** The course sweep and the night watch both use that seat, and a
+36-lesson sweep now estimates at about $5.40 (`EST_USD_PER_LESSON` 0.15, corrected in ws).
 
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`.
 
 | course | sweeps so far | last result |
 |---|---|---|
@@ -31,17 +35,18 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 | Algebra II | wk (73) → wm fixes, unswept | 73 findings |
 | Pre-Calc | wl (76) → wn fixes, unswept | 76 findings, 5 clean |
 | Calculus | wm (46, 19 of 36) → wo fixes → wq (88, all 36) → wr fixes, unswept | 88 findings, 4 clean |
-| Diffeq | wo (119) → wp fixes, unswept | 119 findings, 0 clean |
+| Diffeq | wo (119) → wp fixes → wr (62) → ws fixes, unswept | 62 findings, 8 clean (was 119, 0) |
 | Prob/Stat | wo (92) → wq fixes, unswept | 92 findings, 1 clean |
 
 ## What to do next
 
-1. Jim pushes `wr` (wm through wr may all be uncommitted — one diff), confirms `/health`,
-   runs the **prewarm** (Calculus's seventy rewrites plus thirteen ops' lines, on top of
-   wq's, wp's, wo's, wn's and wm's).
-2. The second round. Start on Entry (`wg`'s 14 findings, 26 clean, is the floor to beat);
-   Pre-Calc and Algebra II ran on older builds (`wm`, `wk`) and are the other candidates.
-   Each rerun is a new letter. The weekly deep dive can wait for two or three of those.
+1. Jim pushes `ws`, confirms `/health`, runs the **prewarm** (Diffeq's fifty rewrites plus
+   nine ops' lines). **Then tops up the reader's credits** — $6.92 will not finish a sweep.
+2. The second round continues. Pre-Calc and Algebra II ran their first sweep on older builds
+   (`wm`, `wk`) and go next; then Entry (`wg`'s 14 findings, 26 clean, is the floor to beat);
+   then the rest in first-round order. Each rerun is a new letter. Diffeq's rerun is the
+   template: expect roughly half the findings, the same class one layer down, and a handful
+   of clean lessons. The weekly deep dive can wait for two or three of those.
 3. Triage the same way: generate the course's transcripts locally, read each quoted turn in
    context; generator first, then authored by kind in `lessons/<course>.py`; a reviewer
    mistake becomes a charter line in `coursesweep.py` (wk added two: `[[graph]]` range= is the
@@ -81,6 +86,11 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 - **`[[dotplot mark="8"]]`** (wq) draws the line a count-past-the-line beat talks about —
   the same idea as `[[numberline mid=]]`. If another figure's words ever "draw a line in
   your mind", give the figure the attribute rather than rewording the beat.
+- **The `chao` praise board carries one line by design.** The ws sweep's LOW ("25 is not on
+  the praise board") was declined: a praise beat in a lesson with no walk-back shows the
+  ask's single answered line (`answered_board`, wc), so intermediate values never appear
+  there. Pinned in PART 3mn. Any future "N is not on the praise board" in a no-walk-back
+  lesson is the same ruling.
 - **Twenty pre-existing referee refusals on Diffeq's generators** (the walked slope field's
   "What height?" with no h(x) on the board, the pond's "now 30 · how many more?" — a question
   inside a step tag — and damping's "√ then ÷ 2 = ?" that the words never read). They were
@@ -106,7 +116,8 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
   context compaction — copy its header line (findings, clean, unplaced, minutes) into the
   build doc FIRST.
 - Asserted string replacements (`assert s.count(a) == 1`) into `lessons/<course>.py` and
-  `lessonscripts.py`; `L.validate` all 360; `python3 tools/genspeechmap.py`; note the counts
+  `lessonscripts.py`; `L.validate` all 360 (the validator's canon: "what is left", never
+  "remain"; a lesson's `symbols` must appear as the bare word — "cross", not "crossing"); `python3 tools/genspeechmap.py`; note the counts
   (course **39,999**; closure 40,253; speechmap 2,245 of 40,305; forSpeech drift 1,939;
   referees **101**, truth class **12**, falsehood rows **25**; methodology tile 101).
 - **New trap (walk-backs):** a generated walk-back must open with the literal
@@ -130,7 +141,7 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
   `ruletests.py` and `lessonscripts.py` out a second time (`python3 notes_rollout.py --root
   . --cutoff 2026-09-10 --build xx --apply FILE`); 3ke now reads each header's newest pointer
   and checks every fenced block against its own cutoff, so a third roll-out needs no pin
-  change. `main.py` is at 92.7 KB — it goes next, with whatever cutoff leaves ~30 KB.
+  change. `main.py` is at 94.0 KB — it goes next, with whatever cutoff leaves ~30 KB.
 - **New trap:** a pin can quote an authored sentence *split across two source lines* — grep
   the first half AND the last half in `ruletests.py`. Two such pins bit this build (the
   rounding closure line; "a lesson with its own intro speaks its own").
@@ -169,7 +180,6 @@ with the "done for the day" ruling; watch policy in code (lead with truth/HIGH, 
 "nothing actionable"); the watch's `__open__` turn; screencheck rules (below the fold,
 figure sizes); the pencil in the scripted lane; the child-mode skin; Phase C (worked
 generators for the 48 lessons without one); Phase B deferred; the prefetch-shelf counter;
-the tour button; `EST_USD_PER_LESSON` in `coursesweep.py` still the assumed $0.05 — correct
-it from the billing page now that two courses have run.
+the tour button. (`EST_USD_PER_LESSON` corrected to 0.15 in ws — closed.)
 
 I did no harm and this file is not truncated.

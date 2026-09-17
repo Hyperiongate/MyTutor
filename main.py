@@ -6,6 +6,12 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-17  APP_BUILD -> "2026-09-17ws-the-second-diffeq-sweep". The second Diffeq sweep
+#               (62 findings, 8 of 36 clean -- 119 and 0 at wp, so the sweep-and-fix cycle
+#               converges): nine generator ops in lessonscripts.py, 47 authored edits in
+#               lessons/diffeq.py, the cost estimate read off the bill in coursesweep.py
+#               (0.15 a lesson), PART 3mn. No count moved. Nothing in this file changed but
+#               the stamp.
 #   2026-09-17  APP_BUILD -> "2026-09-17wr-the-second-calculus-sweep". The second Calculus
 #               sweep, whole (88 findings, all 36 read, 4 clean): thirteen generator ops in
 #               lessonscripts.py, 72 authored edits in lessons/calculus.py, the admin card's
@@ -9721,7 +9727,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-17wr-the-second-calculus-sweep"
+APP_BUILD = "2026-09-17ws-the-second-diffeq-sweep"
 
 
 @app.get("/health")

@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD ws -- PART 3mn, THE SECOND DIFFEQ SWEEP (62 findings, 8 clean, 11
+#               generator-owned on 9 ops; 119 and 0 at wp). estp's MAIN error, rk4's
+#               halvings, conc/cycl/lder/natf/prey/sysx/eign; chao's LOW declined (the
+#               answered board is one line, pinned); EST_USD_PER_LESSON 0.15 pinned; the
+#               authored classes; the referees re-run over six touched lessons. No count
+#               moved. Seven PART 3mk pins moved to the new wording (the highest
+#               derivative, the dash swings, "Then read the board", the split pole
+#               sentence, "heads away from it overall", "the quantity s plus 12", estp's
+#               praise) and one 3ft pin (chaos's "when the start is even slightly off") --
+#               each marked "(ws)" in place.
 #   2026-09-17  BUILD wr -- PART 3mm, THE SECOND CALCULUS SWEEP, WHOLE (88 findings, 4 clean,
 #               20 generator-owned on 13 ops). ftc's end-take-away-start, avgv's height,
 #               anti's pending line, chan/prod/cfix/trap/pgrw/dfeq and seven short
@@ -19481,7 +19491,7 @@ def part3mk_the_first_diffeq_sweep():
           and PR("char", {"a": 12, "b": 16}).endswith("That one number decides whether this spring wobbles.")
           and "A steady push has a steady-height particular solution" in S({"a": 3, "b": 42, "op": "part"})
           and "In this model the further it goes, the faster it moves away. Moving away from the balance point is what UNSTABLE means." in PR("away", {"a": 39, "b": 90, "c": 2})
-          and "for a first order method, the main error shrinks in step with the step itself" in PR("estp", {"a": 110, "b": 10, "c": 6})
+          and "the main error shrinks in step with the step itself" in PR("estp", {"a": 110, "b": 10, "c": 6})  # (ws) "a first-order method offers"
           and "in the model, the coffee creeps closer and closer to the room" in PR("newt", {"a": 91, "b": 16, "c": 3})
           and "never quite gets cold" not in PR("newt", {"a": 91, "b": 16, "c": 3})
           and "a tiny starting gap still wrecks a far-ahead forecast" in PR("chao", {"a": 5, "b": 5, "c": 2})
@@ -19508,9 +19518,9 @@ def part3mk_the_first_diffeq_sweep():
 
     # ---- the authored pile, by class ---------------------------------------------
     check("⭐ laws with their condition (U1-U4): the deepest derivative; the dashes swing; the isocline and solution-curve rules; another important kind; in proportion, with a constant; these examples; this logistic law; lands low; the MAIN error",
-          "named by the deepest derivative in it" in spoken(E("diffeq-u1-a-dash-at-every-point"))
+          "classified by its highest derivative" in spoken(E("diffeq-u1-a-dash-at-every-point"))  # (ws) was "named by the deepest derivative in it"
           and "how deep its derivatives go" not in spoken(E("diffeq-u1-a-dash-at-every-point"))
-          and "the dashes swing to new angles" in spoken(E("diffeq-u1-change-the-law-change-the-field"))
+          and "the dash swings to a new angle" in spoken(E("diffeq-u1-change-the-law-change-the-field"))  # (ws) was "the dashes swing to new angles"
           and E("diffeq-u1-reading-the-field-backwards")["advance_line"].endswith("For d y d x equals x plus y, take the x off the slope and what's left is y.")
           and E("diffeq-u1-joining-the-dashes")["advance_line"].endswith("When every dash leans the same way, climb by the slope for every step across, then add the start.")
           and "Now another important kind: the LINEAR ones" in spoken(E("diffeq-u2-the-cooling-cup"))
@@ -19539,13 +19549,13 @@ def part3mk_the_first_diffeq_sweep():
           and E("diffeq-u6-why-soldiers-break-step")["advance_line"].endswith("the gap between the two squared frequencies.")
           and "it has turned into a multiplication by s, with the starting height taken off" in spoken(E("diffeq-u7-derivatives-become-timesing"))
           and "differentiating becomes s times Y, then take off the starting height" in spoken(E("diffeq-u7-derivatives-become-timesing"))
-          and "Read the board as: L of y prime equals s Y, minus y of zero" in spoken(E("diffeq-u7-derivatives-become-timesing"))
+          and "Then read the board as: L of y prime equals s Y, minus y of zero" in spoken(E("diffeq-u7-derivatives-become-timesing"))  # (ws) Y is defined first
           and "for settling transforms like these ones" in spoken(E("diffeq-u7-reading-the-ending"))
-          and "for the single real poles in this lesson, a pole to the right of zero" in spoken(E("diffeq-u7-the-shift-rule"))
+          and "for the single real poles in this lesson. A pole to the right of zero" in spoken(E("diffeq-u7-the-shift-rule"))  # (ws) the sentence split
           and "one number that does a lot of the classifying" in spoken(E("diffeq-u8-the-number-in-the-corner"))
           and "Both below, and every path moves in toward the origin" in spoken(E("diffeq-u8-two-numbers-decide-the-picture"))
           and "spirals in" not in spoken(E("diffeq-u8-two-numbers-decide-the-picture"))
-          and "every path except the origin itself races away" in spoken(E("diffeq-u8-two-numbers-decide-the-picture"))
+          and "every path except the origin itself heads away from it overall" in spoken(E("diffeq-u8-two-numbers-decide-the-picture"))  # (ws) was "races away"
           and "where one part of the arrow — the x part or the y part — is zero" in spoken(E("diffeq-u8-where-an-arrow-goes-flat"))
           and "Zoom in far enough on a smooth curve" in spoken(E("diffeq-u9-up-close-it-is-a-line"))
           and "Its slope there is negative 2 P — negative 6" in spoken(E("diffeq-u9-up-close-it-is-a-line"))
@@ -19577,7 +19587,7 @@ def part3mk_the_first_diffeq_sweep():
           and "one that takes, say, 60 months to go round" in spoken(E("diffeq-u9-round-and-round"))
           and "88 takes the 8 away rather than sharing" in spoken(E("diffeq-u7-reading-the-ending"))
           and "the transform leaves s plus 6" in spoken(E("diffeq-u7-and-now-it-is-just-algebra"))
-          and "Y is 180 over a lone s times s plus 12" in spoken(E("diffeq-u7-reading-the-ending")), "")
+          and "Y is 180 over a lone s times the quantity s plus 12" in spoken(E("diffeq-u7-reading-the-ending")), "")  # (ws) "the quantity"
     check("  every Diffeq lesson validates; the course list is 39,999 (no beat added)",
           all(ok for les in L.LESSONS if les["course"] == "diffeq" for ok, _l, _d in L.validate(les))
           and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
@@ -19886,6 +19896,115 @@ def part3mm_the_second_calculus_sweep():
           'APP_BUILD -> "2026-09-17wr-' in notes("main.py") and "2026-09-17  BUILD wr" in notes("lessonscripts.py")
           and "2026-09-17  BUILD wr" in notes("lessons/calculus.py") and "2026-09-17  BUILD wr" in notes("ruletests.py")
           and "2026-09-17  BUILD wr" in notes("coursesweep.py"), "")
+
+
+def part3mn_the_second_diffeq_sweep():
+    """PART 3mn (build ws, 2026-09-17) -- THE SECOND DIFFEQ SWEEP: 62 findings, 8 of 36 clean,
+    11 generator-owned on 9 ops. The first rerun of a swept course: 119 -> 62, 0 -> 8 clean,
+    so a sweep-and-fix cycle CONVERGES. Eight generator ops reworded (chao's LOW declined:
+    a praise board is the single answered line by design); 47 authored edits, most of them
+    the same class as wp -- a law said for this model as the whole truth -- plus the words
+    on the boards; the cost estimate corrected from the bill."""
+    print("\nPART 3mn — the second Diffeq sweep (build ws)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for _s, b in les["teach"]) + " ".join(pr["worked"][1] for pr in les["pairs"])
+    S = lambda p, lv="abstract": L.spoken_for(p, lv)
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+
+    # ---- the generator ---------------------------------------------------------
+    check("⭐ estp: it is the MAIN part of the error that scales with the step (ask and praise); rk4 is 'very common' and counts halvings, never 'a thousand times'",
+          S({"a": 110, "b": 10, "c": 6, "op": "estp"}).startswith("For a first-order method like Euler, the main part of the error is proportional to the step size — shrink the step and that main error shrinks by the same factor.")
+          and "and the main error scales the same way: 110 becomes 66" in PR("estp", {"a": 110, "b": 10, "c": 6})
+          and "the error follows it exactly" not in PR("estp", {"a": 110, "b": 10, "c": 6})
+          and S({"a": 80, "b": 0, "op": "rk4"}).startswith("Fourth-order Runge-Kutta is a very common method.")
+          and "everybody actually uses" not in S({"a": 80, "b": 0, "op": "rk4"})
+          and "One more halving divides what is left by 16 again — which is why a few halvings buy an accuracy Euler needs vastly more steps to reach." in PR("rk4", {"a": 80, "b": 0})
+          and "thousand" not in PR("rk4", {"a": 80, "b": 0}), "")
+    check("  conc: the concentration is the FIRST number a mixing problem needs; cycl nudges THIS model off the balance point and speaks of this tidy cycle",
+          S({"a": 120, "b": 6, "op": "conc"}).startswith("The first number a mixing problem needs is the concentration.")
+          and "always turns on one number" not in S({"a": 120, "b": 6, "op": "conc"})
+          and S({"a": 60, "b": 0, "op": "cycl"}).startswith("Nudge this model off the balance point and rabbits and foxes never settle — they go round and round, and in this tidy cycle the foxes peak a quarter of a cycle after the rabbits.")
+          and "always peak" not in S({"a": 60, "b": 0, "op": "cycl"}), "")
+    check("  lder's rule is for the equations in this unit; natf: MANY objects, and something DRIVES one; prey claims only the rabbit half; sysx's answer is the x PART of the arrow",
+          "For the equations in this unit, that rule turns differentiating into timesing by s, so the differential equation becomes ordinary algebra." in PR("lder", {"a": 29, "b": 14, "c": 10})
+          and "the whole trick" not in PR("lder", {"a": 29, "b": 14, "c": 10})
+          and "Many objects have natural frequencies like this, and the next unit is about what happens when something else drives one of them." in PR("natf", {"a": 256, "b": 0})
+          and "Every object" not in PR("natf", {"a": 256, "b": 0})
+          and "The rabbit number is not steady on its own — it is held level by that many foxes." in PR("prey", {"a": 3, "b": 5, "c": 20})
+          and "each one is held in place by the other" not in PR("prey", {"a": 3, "b": 5, "c": 20})
+          and "That is the x part of the arrow at that point; the y rule gives the other part the same way" in PR("sysx", {"a": 4, "b": 9, "c": 5})
+          and "Do that for y as well" not in PR("sysx", {"a": 4, "b": 9, "c": 5}), "")
+    check("  chao's praise still carries its condition (the LOW on its board was declined: a praise board is the one answered line, by design since wc)",
+          "a tiny starting gap still wrecks a far-ahead forecast" in PR("chao", {"a": 5, "b": 5, "c": 2})
+          and L.answered_board({"a": 5, "b": 5, "c": 2, "op": "chao"}, "abstract") == '[[step eq="after 2 days: gap = 125"]]', "")
+    check("  the cost estimate is read off the bill: EST_USD_PER_LESSON is 0.15 (was 0.05), so a 36-lesson sweep says about $5.40",
+          C.EST_USD_PER_LESSON == 0.15 and round(36 * C.EST_USD_PER_LESSON, 2) == 5.4, str(C.EST_USD_PER_LESSON))
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ laws with their condition (U1-U4): classified by its HIGHEST derivative, said plainly; for this comparison; three calculations; the share, not the rate; a ceiling of 60; a WEIGHTED average; this lesson's cost measure",
+          "classified by its highest derivative: an equation with d y d x is first order, and one with d squared y over d x squared is second order" in spoken(E("diffeq-u1-a-dash-at-every-point"))
+          and "deepest derivative" not in spoken(E("diffeq-u1-a-dash-at-every-point"))
+          and "For this comparison, keep the same plane and the same points." in spoken(E("diffeq-u1-change-the-law-change-the-field"))
+          and "Same point, three different calculations, and only one of them matches the equation" in spoken(E("diffeq-u1-change-the-law-change-the-field"))
+          and "Take the slope 14: every point where d y d x equals x plus y comes to 14." in spoken(E("diffeq-u1-reading-the-field-backwards"))
+          and "then changes more and more slowly as it nears the room" in spoken(E("diffeq-u2-the-cooling-cup"))
+          and "5 is only the degrees of gap it takes to cool 1 degree a minute — the share, not the rate" in spoken(E("diffeq-u2-the-cooling-cup"))
+          and "with a ceiling of 60, the fastest growth is at 30" in spoken(E("diffeq-u3-where-growth-peaks"))
+          and "Then it takes a weighted average, counting the two middle slopes twice." in spoken(E("diffeq-u4-what-accuracy-costs"))
+          and "in this lesson we count the cost by slope evaluations" in spoken(E("diffeq-u4-what-accuracy-costs")), "")
+    check("⭐ laws with their condition (U5-U9): y double-prime read aloud; equations in this form; the steady height it vibrates around (HIGH); our vibration model; Y defined before the rule (HIGH); the quantity s plus 8; the pole tells the behaviour; the other nullcline (HIGH); matching corners (HIGH); a source, heads away overall; MANY real laws (HIGH); the fox half unclaimed; the equations you have used; a SENSITIVE system (HIGH)",
+          "We write that as y double-prime plus 9 y equals zero" in spoken(E("diffeq-u5-the-spring-that-never-stops"))
+          and "For equations in this form" in spoken(E("diffeq-u5-the-spring-that-never-stops"))
+          and "changes the steady height the spring vibrates around" in spoken(E("diffeq-u6-somebody-is-pushing"))
+          and "In our vibration model" in spoken(E("diffeq-u6-why-soldiers-break-step"))
+          and "Write Y for the transform of y. Then read the board as" in spoken(E("diffeq-u7-derivatives-become-timesing"))
+          and "Y equals 96 over s times the quantity s plus 8" in spoken(E("diffeq-u7-reading-the-ending"))
+          and "it tells you how the answer behaves, as the last beat will say" in spoken(E("diffeq-u7-the-shift-rule"))
+          and "the number in front of t in the exponent" in E("diffeq-u7-the-shift-rule")["advance_line"]
+          and "except where it crosses the other nullcline, the y one" in spoken(E("diffeq-u8-where-an-arrow-goes-flat"))
+          and "the point where the two cross is where nothing moves at all" in spoken(E("diffeq-u8-where-an-arrow-goes-flat"))
+          and "For these squares with matching corners" in E("diffeq-u8-the-number-in-the-corner")["advance_line"]
+          and "in this lesson the two corner numbers always match" in spoken(E("diffeq-u8-the-number-in-the-corner"))
+          and "the origin is a source: every path except the origin itself heads away from it overall" in spoken(E("diffeq-u8-two-numbers-decide-the-picture"))
+          and "races away" not in spoken(E("diffeq-u8-two-numbers-decide-the-picture"))
+          and "Many real rate laws bend" in spoken(E("diffeq-u9-up-close-it-is-a-line"))
+          and "For these laws, a square take away P squared" in E("diffeq-u9-up-close-it-is-a-line")["advance_line"]
+          and "The fox half of the balance is another equation, for another day" in spoken(E("diffeq-u9-rabbits-and-foxes"))
+          and "For the equations you have used, knowing the equation and the starting point exactly fixes the future" in spoken(E("diffeq-u9-a-perfectly-known-equation"))
+          and "That is why, in a sensitive system like this, a long forecast goes unreliable" in spoken(E("diffeq-u9-a-perfectly-known-equation")), "")
+    check("⭐ words-board: the dash is DRAWN (HIGH); the arrow is drawn as a vector; the worked lines draw their setups (pushes-away, damping, the push, resonance, the corner, the rabbits); the resonance gap step",
+          '[[graph lines="y=12x-79" points="(7,5)" range="4..10" yrange="0..20"' in boards(E("diffeq-u1-a-dash-at-every-point"))
+          and '[[vector v="31,14" caption="the arrow at (9, 5): 31 across, 14 up"]]' in boards(E("diffeq-u8-two-things-at-once"))
+          and "This field has an x part and a y part" in spoken(E("diffeq-u8-two-things-at-once"))
+          and '[[step eq="88 − 60 = 28"]][[step eq="28 × 3 = 84"]]' in boards(E("diffeq-u3-the-one-that-pushes-away"))
+          and '[[step eq="58 − 20 = 38"]]' in boards(E("diffeq-u3-the-one-that-pushes-away"))
+          and '[[step eq="4×221 − 10² = 784"]]' in boards(E("diffeq-u5-damping-slows-the-rocking"))
+          and '[[step eq="4×205 − 6² = 784"]]' in boards(E("diffeq-u5-damping-slows-the-rocking"))
+          and '[[step eq="y″ + 4y = 52"]]' in boards(E("diffeq-u6-somebody-is-pushing"))
+          and '[[step eq="y″ + 2y = 34"]]' in boards(E("diffeq-u6-somebody-is-pushing"))
+          and '[[step eq="9 − 3 = 6"]]' in boards(E("diffeq-u6-why-soldiers-break-step"))
+          and '[[step eq="natural² 15 · driver² 5"]][[step eq="15 − 5 = 10"]]' in boards(E("diffeq-u6-why-soldiers-break-step"))
+          and "Natural squared 12, driver squared 8" in spoken(E("diffeq-u6-why-soldiers-break-step"))
+          and '[[step eq="[15 9; 9 9]"]]' in boards(E("diffeq-u8-the-number-in-the-corner"))
+          and '[[step eq="20 × 3 = 60 new rabbits"]]' in boards(E("diffeq-u9-rabbits-and-foxes"))
+          and '[[step eq="60 ÷ 5 = 12 foxes"]]' in boards(E("diffeq-u9-rabbits-and-foxes")), "")
+    check("  the referees still accept every Diffeq beat they accepted at wr (no new refusal from this build's wording)",
+          not any(tutor.prose_board_conflict(t["spoken"] + "\n" + t["board"], heard=t["spoken"] + "\n" + t["board"], course="diffeq")
+                  for lid in ("diffeq-u1-a-dash-at-every-point", "diffeq-u8-two-things-at-once", "diffeq-u8-the-number-in-the-corner",
+                              "diffeq-u6-why-soldiers-break-step", "diffeq-u9-rabbits-and-foxes", "diffeq-u7-reading-the-ending")
+                  for t in C.transcript_for(E(lid), L) if t["kind"] in ("teach", "worked-example")), "")
+    check("  every Diffeq lesson validates; the course list is 39,999 (no beat added); no dot joins two equations",
+          all(ok for les in L.LESSONS if les["course"] == "diffeq" for ok, _l, _d in L.validate(les))
+          and len(L.course_audio_lines()) == 39999
+          and not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', t["board"])
+                      for les in C.lessons_for("diffeq", L) for t in C.transcript_for(les, L)), str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-17ws-' in notes("main.py") and "2026-09-17  BUILD ws" in notes("lessonscripts.py")
+          and "2026-09-17  BUILD ws" in notes("lessons/diffeq.py") and "2026-09-17  BUILD ws" in notes("ruletests.py")
+          and "2026-09-17  BUILD ws" in notes("coursesweep.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -28024,7 +28143,7 @@ def part3ft_the_curriculum_is_read():
           in teach("diffeq-u3-where-growth-peaks"), "")
     check("  and chaos still ends on the long forecast going unreliable (wp: scoped -- "
           "'not available to anyone, at any price' was a law for one example system)",
-          "a long forecast goes unreliable whenever the start is even slightly off"
+          "a long forecast goes unreliable when the start is even slightly off"  # (ws) "in a sensitive system like this," before it
           in teach("diffeq-u9-a-perfectly-known-equation"), "")
 
     # ---- THE CLOSING FACT ----
@@ -46782,6 +46901,7 @@ def main():
     part3mk_the_first_diffeq_sweep()
     part3ml_the_first_probstat_sweep()
     part3mm_the_second_calculus_sweep()
+    part3mn_the_second_diffeq_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -3,6 +3,10 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD ws -- THE COST ESTIMATE MATCHES THE BILL. EST_USD_PER_LESSON 0.05 -> 0.15,
+#               read off the reader's billing dashboard (about $98 for September's ~520
+#               swept lessons and the night watch). The admin card's "estimated_usd" now
+#               says about $5.40 for a 36-lesson course, not $1.80. Nothing else changed.
 #   2026-09-17  BUILD wr -- THE REPORT LIST IS NEWEST FIRST. list_reports sorted by file
 #               name, and names begin with the course, so the admin card's dropdown put
 #               probstat_2026-09-16 above calculus_2026-09-17 and the two Calculus reports
@@ -105,10 +109,12 @@ SWEEP_SEED = 11
 # facts and the report says so (a pass is recall, and 81 facts would bury the lesson).
 TABLE_FACTS_SHOWN = 6
 MAX_FINDINGS_PER_LESSON = 8
-# ESTIMATE ONLY, like lessonaudit's: per-lesson cost of one judge read at Sonnet-class
-# prices (~10k tokens in, ~1k out). Corrected from the billing dashboard, never guessed
-# twice.
-EST_USD_PER_LESSON = 0.05
+# ESTIMATE ONLY, like lessonaudit's: per-lesson cost of one judge read. (ws) CORRECTED
+# FROM THE BILLING DASHBOARD, as the line below always promised: September's reader spend
+# was about $98 across roughly 520 swept lessons plus the night watch, which is about
+# $0.15 a lesson -- three times the 0.05 first guessed at Sonnet-class prices (the reader
+# is gpt-5.5, and a Diffeq transcript runs long). A 36-lesson sweep is about $5.40.
+EST_USD_PER_LESSON = 0.15
 # (wh) a field with this many distinct values or fewer is LISTED on the problem-space
 # line ("a is one of 10, 25, 50"); more than this and it is given as a range.
 PROBLEM_SPACE_LIST_MAX = 12
