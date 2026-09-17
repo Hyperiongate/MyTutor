@@ -6,6 +6,13 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-17  APP_BUILD -> "2026-09-17wv-the-sweep-says-why-it-stopped". A Pre-Calc sweep
+#               with the reader's credits at zero "finished" in 7.7 s and the card said "0
+#               findings in 36 lessons" -- read as a hung sweep. coursesweep.run_sweep now
+#               stops after three identical hard failures and says so; the job snapshot
+#               carries ran / stopped / first_error, and the admin card (static/admin.html)
+#               says "36 of 36 lessons could not be read: OpenAI 429 ..." and labels such a
+#               report "not read" in the dropdown. PART 3mq. Nothing else changed here.
 #   2026-09-17  APP_BUILD -> "2026-09-17wu-the-second-precalc-sweep". The second Pre-Calc
 #               sweep (34 findings on the 27 lessons the reader reached before its credits
 #               ran out; 8 clean; 76 and 5 at wl): four generator ops and a walk-back word
@@ -5575,6 +5582,10 @@ def _sweep_worker(job_id: str, course: str, limit) -> None:
                                   total=result.get("asked", 0), report=name,
                                   findings=len(result.get("findings") or []),
                                   errors=len(result.get("errors") or []),
+                                  ran=result.get("ran", 0),
+                                  # (wv) why lessons went unread, for the card's line
+                                  stopped=result.get("stopped") or None,
+                                  first_error=((result.get("errors") or [{}])[0].get("error") or "")[:200],
                                   seconds=result.get("seconds", 0))
         store.record_event("ops_pass", "coursesweep",
                            f"{course}: {result.get('ran', 0)} lessons, "
@@ -9737,7 +9748,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-17wu-the-second-precalc-sweep"
+APP_BUILD = "2026-09-17wv-the-sweep-says-why-it-stopped"
 
 
 @app.get("/health")

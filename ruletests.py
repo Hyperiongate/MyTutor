@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD wv -- PART 3mq, THE SWEEP SAYS WHY IT STOPPED: three identical hard
+#               failures end a sweep (dead seat, flaky seat, seat that dies mid-run, a clean
+#               report carries no banner); the listing's asked/errors/stopped; the card's
+#               "could not be read" line and NOT READ label.
 #   2026-09-17  BUILD wu -- PART 3mp, THE SECOND PRE-CALC SWEEP (34 findings on 27 read, 8
 #               clean, 10 generator-owned on four ops; 76 and 5 at wl). vmag/arsn/cofn/fshf
 #               and fpie's "side"; the authored classes. Pins moved: 3mi's half-turn recap
@@ -20175,6 +20179,67 @@ def part3mp_the_second_precalc_sweep():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-17wu-' in notes("main.py") and "2026-09-17  BUILD wu" in notes("lessonscripts.py")
           and "2026-09-17  BUILD wu" in notes("lessons/precalc.py") and "2026-09-17  BUILD wu" in notes("ruletests.py"), "")
+
+
+def part3mq_the_sweep_says_why_it_stopped():
+    """PART 3mq (build wv, 2026-09-17) -- THE SWEEP SAYS WHY IT STOPPED. With the reader's
+    credits at zero a Pre-Calc sweep "finished" in 7.7 s with 36 identical 429s and the card
+    said "0 findings in 36 lessons". Now: three identical hard failures in a row end the
+    sweep, the rest are listed as not attempted, the report carries a STOPPED banner, the
+    listing carries asked/errors/stopped, and the card says "could not be read"."""
+    print("\nPART 3mq — the sweep says why it stopped (build wv)")
+    import coursesweep as C
+    import lessonscripts as L
+    import tempfile as _tf
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    d = _tf.mkdtemp()
+    def dead(msgs, max_tokens, want_json):
+        return None, "OpenAI 429: You have no credits remaining. Add credits to continue using the API"
+    r = C.run_sweep(d, "precalc", dead, L=L)
+    check("⭐ a seat with no credits stops the sweep after three identical failures; the other 33 are listed as not attempted",
+          C.HARD_STOP_AFTER == 3 and r["ran"] == 0 and len(r["errors"]) == 36
+          and r["stopped"] == {"after": 3, "error": dead(None, 0, False)[1][:200]}
+          and r["errors"][2]["error"].startswith("OpenAI 429")
+          and r["errors"][3]["error"].startswith("not attempted -- the sweep stopped after 3 lessons in a row failed the same way: OpenAI 429")
+          and r["errors"][-1]["error"].startswith("not attempted"), str(r["stopped"]))
+    md = C.report_markdown(r, build="wv")
+    check("  ...and the report says so under its header, before the findings that are not there",
+          "⚠️ **STOPPED after 3 lesson(s)** -- 3 in a row failed the same way and the rest were not attempted: OpenAI 429" in md
+          and "Nothing here is a reading of the course; fix the seat and run it again." in md
+          and md.index("STOPPED after") < md.index("_A GENERATOR finding")
+          and md.rstrip().endswith("I did no harm and this file is not truncated.*"), "")
+    name = C.write_report(d, r, build="wv")
+    row = C.list_reports(d)[0]
+    check("  the listing carries asked, errors and stopped, so the card can label the report NOT READ",
+          row["name"] == name and row["asked"] == 36 and row["errors"] == 36 and row["ran"] == 0 and row["stopped"] is True, str(row))
+    def flaky(msgs, max_tokens, want_json):
+        flaky.n = getattr(flaky, "n", 0) + 1
+        return (None, "read timeout") if flaky.n % 2 else (None, "judge unavailable: boom")
+    r3 = C.run_sweep(d, "entry", flaky, limit=6, L=L)
+    check("  a reader that fails DIFFERENT ways is not cut short (the streak needs the same hard error), and a soft error never counts",
+          r3["stopped"] is None and len(r3["errors"]) == 6
+          and not C._HARD_ERROR_RE.search("read timeout") and C._HARD_ERROR_RE.search("OpenAI 429: no credits")
+          and C._HARD_ERROR_RE.search("OPENAI_API_KEY is not set") and C._HARD_ERROR_RE.search("insufficient_quota"), "")
+    def ok_then_dead(msgs, max_tokens, want_json):
+        ok_then_dead.n = getattr(ok_then_dead, "n", 0) + 1
+        if ok_then_dead.n <= 2:
+            return '{"findings": [], "clean": true}', None
+        return None, "OpenAI 429: You have no credits remaining."
+    r4 = C.run_sweep(d, "entry", ok_then_dead, limit=8, L=L)
+    check("  a sweep that read some lessons before the seat died keeps them: 2 read, stopped after 5, 6 unread",
+          r4["ran"] == 2 and r4["stopped"]["after"] == 5 and len(r4["errors"]) == 6 and len(r4["clean"]) == 2, str(r4["stopped"]))
+    check("  a report with no errors carries no banner",
+          "⚠️" not in C.report_markdown({"course": "x", "when": "w", "ran": 2, "asked": 2, "findings": [], "errors": [], "clean": ["a", "b"], "unplaced": 0, "seconds": 1}), "")
+    src = rd("main.py")
+    check("  the job snapshot carries ran, stopped and the first error; the card reads them",
+          'stopped=result.get("stopped") or None' in src and 'first_error=((result.get("errors") or [{}])[0].get("error") or "")[:200]' in src
+          and 'ran=result.get("ran", 0)' in src
+          and 'lessons could not be read: ' in rd("static/admin.html") and '" · NOT READ"' in rd("static/admin.html")
+          and 'stopped after " + j.stopped.after' in rd("static/admin.html"), "")
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-17wv-' in notes("main.py") and "2026-09-17  BUILD wv" in notes("coursesweep.py")
+          and "(wv) 2026-09-17" in notes("static/admin.html") and "2026-09-17  BUILD wv" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -47074,6 +47139,7 @@ def main():
     part3mn_the_second_diffeq_sweep()
     part3mo_the_referee_pile()
     part3mp_the_second_precalc_sweep()
+    part3mq_the_sweep_says_why_it_stopped()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

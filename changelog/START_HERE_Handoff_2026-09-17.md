@@ -4,26 +4,28 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk, the newest: **`2026-09-17wu-the-second-precalc-sweep`**. Battery
-12,666 passed, 0 failed, 3 skipped (frozen copy, 2026-09-17). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
+On Jim's disk, the newest: **`2026-09-17wv-the-sweep-says-why-it-stopped`**. Battery
+12,674 passed, 0 failed, 3 skipped (frozen copy, 2026-09-17). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
 half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
-whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17). Jim pushes and prewarms
+whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17). Jim pushes and prewarms
 each; check `/health`. The first round is over: every lesson in every course has been read
 once. **The second round has begun, and the cycle converges: Diffeq went 119 → 62 findings,
 0 → 8 clean, on one fix build; Pre-Calc 76 → 34 (on the 27 lessons read), 5 → 8 clean.**
 
-**OpenAI credits: $6.92 left** on the 09-17 billing screenshot (September spend $97.83 of
-a $120 limit; 10.0 M tokens and 1,654 requests in seven days, 66.8% cache hits). Credits ran
-out once already at 17:12 UTC on 09-16 mid-sweep (429 "no credits remaining"). **Top up
-before the next sweep.** The course sweep and the night watch both use that seat, and a
+**OpenAI credits are at ZERO** (evening of 09-17). The 16:44 Pre-Calc sweep ran them out at
+lesson 28, and the 20:41 run failed all 36 lessons in 7.7 s with the same 429. Jim raised
+the usage CAP, but the cap is not the balance — OpenAI's prepaid **credit balance** needs an
+"Add credits" top-up (Billing → Credit balance) before any sweep or night watch will read
+anything. Until then every run comes back "could not be read" in seconds (wv makes the card
+say so). The course sweep and the night watch both use that seat, and a
 36-lesson sweep now estimates at about $5.40 (`EST_USD_PER_LESSON` 0.15, corrected in ws).
 
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`.
 
 | course | sweeps so far | last result |
 |---|---|---|
@@ -40,11 +42,12 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 
 ## What to do next
 
-1. Jim pushes `wu` (on top of wt and ws if not yet pushed), confirms `/health`, runs the
-   **prewarm**. The credit cap was raised on 09-17 — the 16:44 Pre-Calc sweep still hit the
-   429 at lesson 28, so check the balance before the next run.
+1. Jim pushes `wv`, confirms `/health`, runs the **prewarm** (wu's Pre-Calc lines; wv
+   changes no lesson text). **Then adds OpenAI credits** — the balance, not the cap.
 2. **Re-run Pre-Calc** — nine lessons (pc-u7-where-you-are-at-time-t, all of U8 and U9) have
-   never been read on a fixed build; the report becomes `wv`. Then Algebra II (first read on
+   never been read on a fixed build; the report becomes `ww`. The card now ticks "N of 36 ·
+   reading …" every few seconds; if it instead says "could not be read", the seat is still
+   dead. Then Algebra II (first read on
    `wk`); then Entry (`wg`'s 14 findings, 26 clean, is the floor to beat);
    then the rest in first-round order. Each rerun is a new letter. Diffeq's rerun is the
    template: expect roughly half the findings, the same class one layer down, and a handful
@@ -82,6 +85,11 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 
 - **The " · " between two equations** is gone from all ten courses (the pin checks rendered
   transcripts, generated lines included). Closed.
+- **A sweep stops when the seat is dead (wv).** Three identical hard failures in a row
+  (429, 401/403, no credits, quota, key not set) end the sweep; the rest are "not
+  attempted", the report carries a STOPPED banner, the card says "N of N lessons could not
+  be read: …" and the dropdown labels the report NOT READ. A flaky reader (different
+  errors, or a timeout then an answer) is never cut short.
 - **The admin card's report list is newest first** (wr) — by the sweep's own time, so the
   report to paste is always at the top of the dropdown. While a sweep is running the card's
   status line says so; the new report appears in the list only when it finishes.

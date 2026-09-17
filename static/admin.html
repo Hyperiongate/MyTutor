@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+    (wv) 2026-09-17 -- THE SWEEP CARD SAYS WHY IT STOPPED. With the reader's credits at
+    zero a sweep "finished" in 7.7 s and this card said "0 finding(s) in 36 lessons" --
+    read as a hung sweep. The status line now says "36 of 36 lessons could not be read:
+    OpenAI 429 ..." when every lesson failed, "stopped after N of 36: ..." when the sweep
+    cut itself short, and "N finding(s) in R of T lessons (E unread)" otherwise; the
+    report dropdown labels an all-unread report "NOT READ" instead of "0 finding(s)".
+
     (wb) 2026-09-15 -- the price line says which judge seat and model will read the
     course, and the key warning follows that seat (the sweep sits in the night watch's
     seat now -- see main.py's wb note).
@@ -2013,8 +2020,16 @@
         if (!csPoll) csPoll = setInterval(csStatus, 4000);
       } else {
         if (csPoll) { clearInterval(csPoll); csPoll = null; }
-        if (j.state === "done") line = "last sweep: " + j.course + " — " + j.findings + " finding(s) in "
-                                       + j.total + " lessons, " + j.seconds + "s → report " + j.report;
+        if (j.state === "done" && j.errors && !j.ran)
+          /* (wv) every lesson failed -- say so, never "0 findings in 36 lessons" */
+          line = "⚠️ " + j.course + " — " + j.errors + " of " + j.total + " lessons could not be read: "
+               + (j.first_error || "the reader did not answer") + " → report " + j.report + " (not a reading of the course — fix the seat and run it again)";
+        else if (j.state === "done" && j.stopped)
+          line = "⚠️ " + j.course + " — stopped after " + j.stopped.after + " of " + j.total + " lessons: "
+               + (j.stopped.error || "") + " · " + j.findings + " finding(s) in the " + j.ran + " read → report " + j.report;
+        else if (j.state === "done") line = "last sweep: " + j.course + " — " + j.findings + " finding(s) in "
+                                       + j.ran + " of " + j.total + " lessons" + (j.errors ? " (" + j.errors + " unread)" : "")
+                                       + ", " + j.seconds + "s → report " + j.report;
         else if (j.state === "failed") line = "⚠️ the last sweep failed: " + (j.error || "");
         else line = j.note || "no sweep has run in this process";
       }
@@ -2022,7 +2037,9 @@
       var rp = $("csPick"); rp.innerHTML = "";
       (d.reports || []).forEach(function (r) {
         var o = document.createElement("option"); o.value = r.name;
-        o.textContent = r.name + (r.findings !== undefined ? " · " + r.findings + " finding(s)" : "");
+        /* (wv) a report whose lessons all went unread is labelled so, not "0 finding(s)" */
+        o.textContent = r.name + (r.errors && !r.ran ? " · NOT READ" : (r.stopped ? " · stopped" : ""))
+                      + (r.findings !== undefined && r.ran ? " · " + r.findings + " finding(s)" : "");
         rp.appendChild(o);
       });
       var none = !(d.reports || []).length;

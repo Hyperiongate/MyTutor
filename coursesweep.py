@@ -3,6 +3,15 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD wv -- THE SWEEP SAYS WHY IT STOPPED. With the reader's credits at zero,
+#               a Pre-Calc sweep "finished" in 7.7 s: 36 identical 429s, "0 findings in 36
+#               lessons" on the card, read as a hung sweep. run_sweep now stops after
+#               HARD_STOP_AFTER (3) lessons in a row fail with the same hard error (429,
+#               401/403, no credits, quota, key not set -- _HARD_ERROR_RE), lists the rest
+#               as not attempted, and returns "stopped"; report_markdown puts a STOPPED /
+#               NOT READ banner under the header; list_reports rows carry asked, errors
+#               and stopped so the card can label such a report. A slow reader that fails
+#               one lesson and answers the next is untouched (the streak resets).
 #   2026-09-17  BUILD ws -- THE COST ESTIMATE MATCHES THE BILL. EST_USD_PER_LESSON 0.05 -> 0.15,
 #               read off the reader's billing dashboard (about $98 for September's ~520
 #               swept lessons and the night watch). The admin card's "estimated_usd" now
@@ -118,6 +127,17 @@ EST_USD_PER_LESSON = 0.15
 # (wh) a field with this many distinct values or fewer is LISTED on the problem-space
 # line ("a is one of 10, 25, 50"); more than this and it is given as a range.
 PROBLEM_SPACE_LIST_MAX = 12
+# (wv) THE SWEEP STOPS WHEN THE SEAT IS DEAD. On 09-17 the reader's credits ran out and a
+# Pre-Calc sweep "finished" in 7.7 seconds: all 36 lessons failed with the same 429, the
+# card said "0 findings in 36 lessons", and Jim read it as a hung sweep. A failure that
+# will not change from one lesson to the next -- no credits, a bad or missing key, a
+# quota -- ends the sweep after this many lessons IN A ROW fail the same way; the rest
+# are listed as not attempted, and the report and the card say why it stopped. A judge
+# that times out on one long lesson and answers the next is not this (the error text
+# differs, or the run recovers), so a slow reader is never cut short.
+HARD_STOP_AFTER = 3
+_HARD_ERROR_RE = re.compile(r"\b(?:429|401|403)\b|no credits|insufficient_quota|quota|api key|"
+                            r"not set|unauthori[sz]ed|invalid.{0,20}key|judge unavailable", re.I)
 
 
 # =============================================================================
@@ -504,6 +524,7 @@ def run_sweep(data_dir, course, judge, limit=None, progress=None, L=None, now=No
     if limit:
         picked = picked[:int(limit)]
     findings, errors, clean, unplaced_total = [], [], [], 0
+    streak, stopped = [], None          # (wv) consecutive identical hard failures
     for i, les in enumerate(picked):
         if progress:
             try:
@@ -518,14 +539,28 @@ def run_sweep(data_dir, course, judge, limit=None, progress=None, L=None, now=No
         data, err = review_lesson(les, turns, judge)
         if err:
             errors.append({"lesson": les["id"], "error": err})
+            # (wv) the same hard error, lesson after lesson, will not change: stop
+            sig = str(err)[:200]
+            if _HARD_ERROR_RE.search(sig) and (not streak or streak[-1] == sig):
+                streak.append(sig)
+            else:
+                streak = [sig] if _HARD_ERROR_RE.search(sig) else []
+            if len(streak) >= HARD_STOP_AFTER:
+                stopped = {"after": i + 1, "error": sig}
+                for rest in picked[i + 1:]:
+                    errors.append({"lesson": rest["id"],
+                                   "error": f"not attempted -- the sweep stopped after "
+                                            f"{i + 1} lessons in a row failed the same way: {sig}"})
+                break
             continue
+        streak = []
         placed, unplaced = place_findings(les, turns, data)
         unplaced_total += unplaced
         if not placed and (data or {}).get("clean", not placed):
             clean.append(les["id"])
         findings.extend(placed)
     return {"course": course, "ran": len(picked) - len(errors), "asked": len(picked),
-            "findings": findings, "errors": errors, "clean": clean,
+            "findings": findings, "errors": errors, "clean": clean, "stopped": stopped,
             "unplaced": unplaced_total, "seconds": round(time.monotonic() - t0, 1),
             "when": (now or _dt.datetime.now(_dt.timezone.utc)).strftime("%Y-%m-%d %H:%M UTC"),
             "not_covered": [
@@ -561,6 +596,14 @@ def report_markdown(result, build="") -> str:
          f"{len(result.get('clean') or [])} lessons clean · {result.get('unplaced', 0)} unplaced · "
          f"{len(result.get('errors') or [])} unread · {result.get('seconds', 0)}s",
          "",
+         *(([f"⚠️ **STOPPED after {result['stopped'].get('after')} lesson(s)** -- "
+             f"{HARD_STOP_AFTER} in a row failed the same way and the rest were not attempted: "
+             f"{result['stopped'].get('error', '')[:200]}. Nothing here is a reading of the "
+             f"course; fix the seat and run it again.", ""]) if result.get("stopped") else []),
+         *(([f"⚠️ **NOT READ** -- every lesson failed: "
+             f"{(result.get('errors') or [{}])[0].get('error', '')[:200]}. Nothing here is a "
+             f"reading of the course; fix the seat and run it again.", ""])
+           if result.get("errors") and not result.get("ran") and not result.get("stopped") else []),
          "_A GENERATOR finding is on a line the engine makes for every lesson that shares the "
          "op -- fix the generator once and it is fixed everywhere. An AUTHORED finding is on "
          "this lesson's own words. Severity is the reviewer's; every quote was matched to the "
@@ -660,7 +703,9 @@ def list_reports(data_dir) -> list:
             with open(os.path.join(d, n + ".json"), encoding="utf-8") as fh:
                 j = json.load(fh)
             row.update({"course": j.get("course"), "findings": len(j.get("findings") or []),
-                        "ran": j.get("ran"), "when": j.get("when")})
+                        "ran": j.get("ran"), "when": j.get("when"),
+                        "asked": j.get("asked"), "errors": len(j.get("errors") or []),
+                        "stopped": bool(j.get("stopped"))})
         except Exception:  # noqa: BLE001
             pass
         out.append(row)
