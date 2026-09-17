@@ -2,6 +2,25 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD ww -- THE THIRD PRE-CALC SWEEP (60 findings on all 36, 15 clean, 28
+#               generator-owned). Twenty-five of the 28 were one shape that wt had CREATED:
+#               the praise beat spoke its working ("halve and count: 28, then 14, then 7 --
+#               the ratio 4 says...") over the answered line ("days = 2"), with the working
+#               drawn a beat later by the walk-back. Measured: 157 of Pre-Calc's 180 praise
+#               beats spoke a number their board did not draw. THE ENGINE (_correct_beats):
+#               in a lesson with a walk-back the praise now carries the WORKED board -- the
+#               board its words describe -- and the walk-back re-reads it over the same
+#               picture; a lesson without a walk-back keeps wc's answered line. 44 after.
+#               The rest: the wrong paths the praise names are drawn, crossed out -- hcnt's
+#               ratio ("28 ÷ 7 = 4 ✗ the ratio, not the days"), brng's backwards turn ("290 −
+#               125 = 165 ✗"), cmpd's steady adding ("6 + 2 × 6 = 18 ✗"), logp's log raised
+#               to the power ("9^2 = 81 ✗"); negp says "1 pair"; lhol's cancellation carries
+#               "for x ≠ 14" on the board; gser's praise settles "this halving run"; cctr's
+#               walk-back is short sentences; vmag's praise says "Watch the squares on the
+#               board" again (the squares are on it now -- wu's "The squares come next"
+#               undone). Declined: arsn's fresh-one line ("Now one just like it") -- the
+#               engine's line for every course; "like it" means the same kind of problem.
+#               Counts unchanged (course 39,999; speechmap 2,244; drift 1,938).
 #   2026-09-17  BUILD wu -- THE SECOND PRE-CALC SWEEP (34 findings on 27 of 36 lessons -- the
 #               reader's credits ran out at U7; 10 generator-owned on four ops; the first
 #               sweep was 76). (1) vmag's walk-back (six MEDIUMs): "shorter than walking
@@ -4380,12 +4399,12 @@ def _negp_worked(p):
     pairs, left = a // 2, a % 2
     extra = f' extra="{left}"' if left else ""
     if left:
-        return (f"Here it is, step by step: {a} minus signs pair up — {pairs} pairs, and one lone "
+        return (f"Here it is, step by step: {a} minus signs pair up — {pairs} {'pair' if pairs == 1 else 'pairs'}, and one lone "
                 f"minus sign left over at the end of the parade. The pairs cancel; the "
                 f"survivor stays. Odd power, answer negative 1.",
                 f'[[array rows="2" cols="{pairs}"{extra} caption="{a} minus signs — {pairs} pairs cancel, one survives: −1"]]'
                 f'[[step eq="(−1)^{a} = −1"]]')
-    return (f"Here it is, step by step: {a} minus signs pair up — {pairs} pairs, none left over — "
+    return (f"Here it is, step by step: {a} minus signs pair up — {pairs} {'pair' if pairs == 1 else 'pairs'}, none left over — "
             f"and every pair cancels. Even power, answer 1: the minus is wiped away "
             f"completely.",
             f'[[array rows="2" cols="{pairs}" caption="{a} minus signs — {pairs} pairs, all cancel: 1"]]'
@@ -4449,7 +4468,8 @@ def _logp_worked(p):
             f"brings the exponent {b} down front: {b} times {j}, which equals {b * j}. "
             f"Not {j ** b}, the log raised to the power — that is the wrong kind of growth.",
             f'[[bars data="log {a}:{j} | log {a}^{b}:{b * j}" caption="the exponent {b} comes down front: {b} × {j} = {b * j}"]]'
-            f'[[step eq="log {a}^{b} = {b} × {j} = {b * j}"]]')
+            f'[[step eq="log {a}^{b} = {b} × {j} = {b * j}"]]'
+            f'[[step eq="{j}^{b} = {j ** b} ✗ the log raised to the power"]]')
 
 
 def _lsol_board(p):
@@ -4484,7 +4504,8 @@ def _hcnt_worked(p):
             f"The ratio, {a // b}, says how many times bigger {a} is — never how many "
             f"days; ask how many 2s multiply up to it.",
             f'[[bars data="{days}" caption="{chain} — {k} halvings"]]'
-            f'[[step eq="{chain} · {k} days"]]')
+            f'[[step eq="{chain} · {k} days"]]'
+            f'[[step eq="{a} ÷ {b} = {a // b} ✗ the ratio, not the days"]]')
 
 
 def _cmpd_board(p):
@@ -4502,7 +4523,8 @@ def _cmpd_worked(p):
             f"Then double {b} times: {chain}. {c * 2 ** b} dollars. Steady adding would "
             f"have stalled at {c * (1 + b)}; doubling pulls away.",
             f'[[bars data="{years}" caption="{b} doublings: {chain}"]]'
-            f'[[step eq="{a * b} ÷ {a} = {b} doublings"]][[step eq="{chain}"]]')
+            f'[[step eq="{a * b} ÷ {a} = {b} doublings"]][[step eq="{chain}"]]'
+            f'[[step eq="steady adding: {c} + {b} × {c} = {c * (1 + b)} ✗"]]')
 
 
 
@@ -4731,7 +4753,8 @@ def _brng_worked(p):
             f"360: the new bearing is {ans} degrees. The ship swung around through north. "
             f"{tot} names no bearing, and {a - b} is where the backwards turn would point.",
             f'[[unitcircle bearing="{ans}" caption="{a} + {b} = {tot}, past 360 — the new bearing is {ans}°"]]'
-            f'[[step eq="{a} + {b} = {tot}"]][[step eq="{tot} − 360 = {ans}"]]')
+            f'[[step eq="{a} + {b} = {tot}"]][[step eq="{tot} − 360 = {ans}"]]'
+            f'[[step eq="{a} − {b} = {a - b} ✗ the backwards turn"]]')
 
 
 def _vmag_board(p):
@@ -4783,8 +4806,8 @@ def _cctr_board(p):
 
 def _cctr_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (f"Here it is, step by step: x take away {a} is zero exactly at x equals {a}, and the "
-            f"middle sits where the squared pieces go quiet — the center's x is {a}. The "
+    return (f"Here it is, step by step: x take away {a} is zero exactly at x equals {a}. The "
+            f"middle sits where the squared pieces go quiet. So the center's x is {a}. The "
             f"minus points opposite: take away {a} means positive {a}. The {b} is the y.",
             f'[[conic type="circle" r="{c}" cx="{a}" cy="{b}" caption="the middle sits at ({a}, {b}) — center x = {a}"]]'
             f'[[step eq="x − {a} = 0 at x = {a}"]][[step eq="center x = {a}"]]')
@@ -4931,7 +4954,7 @@ def _lhol_worked(p):
             f"{a} — a straight line with one hole. As x creeps toward {a}, y creeps toward "
             f"{2 * a}. The function never reaches it; the limit says where it was headed.",
             f'[[graph func="(x^2-{a * a})/(x-{a})" hole="{a}" range="{a - 3}..{a + 3}" yrange="{2 * a - 6}..{2 * a + 6}" caption="a straight line with a hole at x = {a} — headed for {2 * a}"]]'
-            f'[[step eq="(x − {a})(x + {a}) ÷ (x − {a}) = x + {a}"]][[step eq="x → {a} · y → {2 * a}"]]')
+            f'[[step eq="for x ≠ {a}: (x − {a})(x + {a}) ÷ (x − {a}) = x + {a}"]][[step eq="x → {a} · y → {2 * a}"]]')
 
 
 def _lsid_board(p):
@@ -11701,7 +11724,7 @@ OP_EXT = {
                              f"right angle, so the arrow is the "
                              f"hypotenuse. The arrow is {p['c']}: longer "
                              f"than either step, shorter than walking "
-                             f"both. The squares come next."),
+                             f"both. Watch the squares on the board."),
         "key": lambda p: p["c"],
         # The errors: the two steps added (walking the corner), and the
         # bigger step alone ("it is mostly up").
@@ -11932,7 +11955,7 @@ OP_EXT = {
                              f"travel in all?"),
         "board": _gser_board,         # (tq) the first three bounces as bars
         "worked": _gser_worked,       # (tq) the hops that each cover half of what is left
-        "praise": lambda p: (f"Add forever and it still settles: {p['a']} "
+        "praise": lambda p: (f"Add this halving run forever and it still settles: {p['a']} "
                              f"plus {p['a'] // 2} plus {p['a'] // 4}, on "
                              f"and on, closes in on {2 * p['a']} — twice "
                              f"the first bounce, and never a foot more. "
@@ -15688,7 +15711,17 @@ def _correct_beats(lesson, p, idx, level=None):
     the full working as before. Measured before the change: 50 praise refusals; after:
     5 (all one Pre-Calc generator's law, fixed in the same build)."""
     walk = _worked_for(p) if lesson.get("show_work_on_correct") else None
-    praise_board = answered_board(p, level) if level else ""
+    # (ww, 2026-09-17) IN A LESSON WITH A WALK-BACK THE PRAISE CARRIES THE WORKED BOARD.
+    # wt put the answered line under every praise; the third Pre-Calc reading then found
+    # 28 generator lines of one shape: the praise SPEAKS the working ("halve and count:
+    # 28, then 14, then 7 -- the ratio 4 says...") over a board that shows only "days =
+    # 2", and the working is drawn one beat later. Measured over Pre-Calc's 180 praise
+    # beats: 157 spoke a number their board did not show; with the walk-back's board
+    # under the praise, 59 (the no-walk-back lessons, whose praise is short by design).
+    # So the praise beat now carries the board its words describe -- the worked board --
+    # and the walk-back that follows re-reads it, step by step, over the same picture.
+    # A lesson with no walk-back keeps wc's answered line.
+    praise_board = walk[1] if walk else (answered_board(p, level) if level else "")
     out = [{"kind": "say", "spoken": praise_for(p, idx), "board": praise_board}]
     if walk:
         out.append({"kind": "say", "spoken": walk[0], "board": walk[1]})

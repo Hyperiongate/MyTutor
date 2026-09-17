@@ -6,6 +6,12 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-17  APP_BUILD -> "2026-09-17ww-the-third-precalc-sweep". The third Pre-Calc reading
+#               (60 findings on all 36, 15 clean): the praise beat in a walk-back lesson now
+#               carries the worked board (lessonscripts.py -- 25 of the 28 generator findings
+#               were the answered line wt put there, under words that spoke the working);
+#               four ops draw their crossed-out wrong paths; 29 authored edits in
+#               lessons/precalc.py; PART 3mr. Nothing in this file changed but the stamp.
 #   2026-09-17  APP_BUILD -> "2026-09-17wv-the-sweep-says-why-it-stopped". A Pre-Calc sweep
 #               with the reader's credits at zero "finished" in 7.7 s and the card said "0
 #               findings in 36 lessons" -- read as a hung sweep. coursesweep.run_sweep now
@@ -9748,7 +9754,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-17wv-the-sweep-says-why-it-stopped"
+APP_BUILD = "2026-09-17ww-the-third-precalc-sweep"
 
 
 @app.get("/health")

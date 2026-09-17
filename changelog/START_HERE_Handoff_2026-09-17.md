@@ -4,28 +4,25 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk, the newest: **`2026-09-17wv-the-sweep-says-why-it-stopped`**. Battery
-12,674 passed, 0 failed, 3 skipped (frozen copy, 2026-09-17). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
+On Jim's disk, the newest: **`2026-09-17ww-the-third-precalc-sweep`**. Battery
+12,685 passed, 0 failed, 3 skipped (frozen copy, 2026-09-17). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
 half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
-whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17). Jim pushes and prewarms
+whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17). Jim pushes and prewarms
 each; check `/health`. The first round is over: every lesson in every course has been read
 once. **The second round has begun, and the cycle converges: Diffeq went 119 → 62 findings,
 0 → 8 clean, on one fix build; Pre-Calc 76 → 34 (on the 27 lessons read), 5 → 8 clean.**
 
-**OpenAI credits are at ZERO** (evening of 09-17). The 16:44 Pre-Calc sweep ran them out at
-lesson 28, and the 20:41 run failed all 36 lessons in 7.7 s with the same 429. Jim raised
-the usage CAP, but the cap is not the balance — OpenAI's prepaid **credit balance** needs an
-"Add credits" top-up (Billing → Credit balance) before any sweep or night watch will read
-anything. Until then every run comes back "could not be read" in seconds (wv makes the card
-say so). The course sweep and the night watch both use that seat, and a
+**OpenAI credits were topped up on the evening of 09-17** (the cap is not the balance —
+an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes the card say
+"could not be read" when it happens again). The 22:48 Pre-Calc sweep read all 36. The course sweep and the night watch both use that seat, and a
 36-lesson sweep now estimates at about $5.40 (`EST_USD_PER_LESSON` 0.15, corrected in ws).
 
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`.
 
 | course | sweeps so far | last result |
 |---|---|---|
@@ -35,19 +32,20 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 | Algebra I | wi (72) → wk fixes, unswept | 72 findings, 8 clean |
 | Geometry | wk (63) → wl fixes, unswept | 63 findings, 7 clean |
 | Algebra II | wk (73) → wm fixes, unswept | 73 findings |
-| Pre-Calc | wl (76) → wn fixes → ws (34, 27 of 36 read) → wu fixes, unswept | 34 findings, 8 clean; 9 lessons (U7 last, U8, U9) never read on a fixed build |
+| Pre-Calc | wl (76) → wn fixes → ws (34, 27 of 36) → wu fixes → wv (60, all 36) → ww fixes, unswept | 60 findings (25 of them wt's praise-board shape, fixed in the engine), 15 clean |
 | Calculus | wm (46, 19 of 36) → wo fixes → wq (88, all 36) → wr fixes, unswept | 88 findings, 4 clean |
 | Diffeq | wo (119) → wp fixes → wr (62) → ws fixes, unswept | 62 findings, 8 clean (was 119, 0) |
 | Prob/Stat | wo (92) → wq fixes, unswept | 92 findings, 1 clean |
 
 ## What to do next
 
-1. Jim pushes `wv`, confirms `/health`, runs the **prewarm** (wu's Pre-Calc lines; wv
-   changes no lesson text). **Then adds OpenAI credits** — the balance, not the cap.
-2. **Re-run Pre-Calc** — nine lessons (pc-u7-where-you-are-at-time-t, all of U8 and U9) have
-   never been read on a fixed build; the report becomes `ww`. The card now ticks "N of 36 ·
-   reading …" every few seconds; if it instead says "could not be read", the seat is still
-   dead. Then Algebra II (first read on
+1. Jim pushes `ww`, confirms `/health`, runs the **prewarm** (the ops' lines and ~30 Pre-Calc
+   rewrites, plus wu's if not yet warmed).
+2. **Algebra II** next (first read on `wk`, fixed in `wm`); the report becomes `wx`. Then Entry
+   against `wg`'s 14. Expect the praise beats to read differently now: in a walk-back lesson
+   the praise carries the WORKED board (ww), so "the praise says N and the board shows only
+   the answer" should be gone everywhere — if a sweep still raises it, it is a wrong-path
+   number the worked board does not draw (draw it with a ✗, as ww did for four ops). Then Algebra II (first read on
    `wk`); then Entry (`wg`'s 14 findings, 26 clean, is the floor to beat);
    then the rest in first-round order. Each rerun is a new letter. Diffeq's rerun is the
    template: expect roughly half the findings, the same class one layer down, and a handful
@@ -96,11 +94,12 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 - **`[[dotplot mark="8"]]`** (wq) draws the line a count-past-the-line beat talks about —
   the same idea as `[[numberline mid=]]`. If another figure's words ever "draw a line in
   your mind", give the figure the attribute rather than rewording the beat.
-- **The `chao` praise board carries one line by design.** The ws sweep's LOW ("25 is not on
-  the praise board") was declined: a praise beat shows the ask's single answered line
-  (`answered_board`, wc; every lesson since wt), so intermediate values never appear
-  there. Pinned in PART 3mn. Any future "an intermediate value is not on the praise board"
-  is the same ruling; "the ANSWER is not on the praise board" cannot happen any more.
+- **What the praise beat's board is (ww).** A lesson WITH a walk-back: the worked board
+  (the walk-back's), so the praise's own working is drawn under it; the walk-back re-reads
+  the same board. A lesson WITHOUT a walk-back: the ask's single answered line (wc) — so
+  `chao`'s "25 is not on the praise board" (ws) stays declined, and any "intermediate value
+  not on the praise board" in a no-walk-back lesson is the same ruling. wt's "answered line
+  everywhere" lasted one build: it created 25 findings in one sweep.
 - **The referee pile is gone (wt).** The canon's referees over every scripted beat of all
   ten courses: 56 refusals → 1 (an intro title card naming "the number line"; rule 7 is
   right in general, a title card is not a board claim — left alone). Two were referee

@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-17  BUILD ww -- PART 3mr, THE THIRD PRE-CALC SWEEP (60 findings on all 36, 15
+#               clean). The praise beat carries the worked board in walk-back lessons (the
+#               wt/3mo pin and 3ke's wc pin moved to the new shape; the measurement pinned:
+#               at most 50 of 180 Pre-Calc praise beats speak an undrawn number); the ✗
+#               lines; negp/lhol/gser/cctr; the authored classes. 3mi pins moved: the
+#               crossings recap, the million-sized recap, the trimmed graph-slides why, and
+#               vmag's praise back to "Watch the squares on the board" (3mp too).
 #   2026-09-17  BUILD wv -- PART 3mq, THE SWEEP SAYS WHY IT STOPPED: three identical hard
 #               failures end a sweep (dead seat, flaky seat, seat that dies mid-run, a clean
 #               report carries no banner); the listing's asked/errors/stopped; the card's
@@ -18108,9 +18115,9 @@ def part3lx_the_first_course_sweep_triaged():
     # (wt, 2026-09-17) a lesson WITH a walk-back now carries the answered board on its praise
     # beat too -- the child's answer is on the board while it is praised, and the worked
     # board still follows a beat later. This pin used to assert the praise board was empty.
-    check("  a lesson WITH a walk-back: the praise beat carries the answered board (wt) and the "
-          "worked board follows", out[0]["board"].startswith('[[step eq="') and out[0]["board"].endswith(str(L.ans(p)) + '"]]')
-          and out[1]["board"].startswith("[["), str(out[0]["board"])[:120])
+    check("  a lesson WITH a walk-back: the praise beat carries the worked board (ww; the answered line at wt) and the "
+          "walk-back re-reads it", out[0]["board"] == L._worked_for(p)[1] and out[0]["board"].startswith("[[")
+          and out[1]["board"] == out[0]["board"], str(out[0]["board"])[:120])
     check("  it never raises: a problem the engine cannot answer yields the empty board it always had",
           L.answered_board({"op": "nonsense-op"}, "abstract") == "", "")
 
@@ -19275,7 +19282,7 @@ def part3mi_the_first_precalc_sweep():
           '[[step eq="y = 1 ÷ ((x − 2)(x − 4))"]]' in B(v) and "1 ÷ ((x − 2)(x − 4)) — flies off" in _W(v)[1]
           and '[[step eq="x = 2 ✗"]][[step eq="x = 4 ✗ — count 2"]]' in _W(v)[1], B(v))
     check("⭐ vmag's praise leaves the squares to the walk-back, which draws them",
-          L.OP_EXT["vmag"]["praise"]({"a": 12, "b": 35, "c": 37}) == "Right 12 and up 35 meet at a right angle, so the arrow is the hypotenuse. The arrow is 37: longer than either step, shorter than walking both. The squares come next."  # (wu) the praise board is the answered line, not the squares
+          L.OP_EXT["vmag"]["praise"]({"a": 12, "b": 35, "c": 37}) == "Right 12 and up 35 meet at a right angle, so the arrow is the hypotenuse. The arrow is 37: longer than either step, shorter than walking both. Watch the squares on the board."  # (wu) "The squares come next"; (ww) restored -- the praise carries the worked board, squares and all
           and '[[step eq="12² + 35² = 1369"]][[step eq="√1369 = 37"]]' in _W({"a": 12, "b": 35, "c": 37, "op": "vmag"})[1], "")
     check("  vprd asks about a puzzle starting with a plain x squared; wper's praise says the FIRST repeat comes sooner; parm's walk-back speaks its root line",
           S({"a": 2, "b": 8, "op": "vprd"}).startswith("A puzzle starting with a plain x squared has roots 2 and 8")
@@ -19311,7 +19318,7 @@ def part3mi_the_first_precalc_sweep():
           and "Every arrow that leans off the flat line has a reference angle" in spoken(E("pc-u4-hug-the-flat-line"))
           and "In this second quarter, never measure from straight up" in spoken(E("pc-u4-hug-the-flat-line"))
           and "reuses its first quarter everywhere" not in spoken(E("pc-u4-hug-the-flat-line"))
-          and "For these sine and cosine equations, once you know the target height, sweep one turn and count the touches" in spoken(E("pc-u5-count-the-crossings"))
+          and "For these sine and cosine equations, first find the target height. Then sweep one turn and count the touches" in spoken(E("pc-u5-count-the-crossings"))  # (ww) split
           and "Count the true touches — a crossing or a graze — then times the turns" in spoken(E("pc-u5-count-the-crossings"))
           and "Take any sharp angle, under 90, and its partner across 90" in spoken(E("pc-u5-partners-across-ninety"))
           and "In this form, un-square the right-hand number — that is the radius." in spoken(E("pc-u7-un-square-the-radius"))
@@ -19319,7 +19326,7 @@ def part3mi_the_first_precalc_sweep():
           and "In this form, the sign inside the parentheses points opposite" in spoken(E("pc-u7-where-the-circle-sits"))
           and "for these ellipses, that is the left-to-right width" in spoken(E("pc-u7-edge-to-edge")), "")
     check("⭐ true statements: the root curve starts at the corner; a power pattern; this form carries the distance squared; degrees said (x3); the y-value from each side; the backwards amount; for x ≠ 5; different answers when you switch the order",
-          "The curve that starts at the corner, at zero, is one you know: y equals the square root of x" in spoken(E("pc-u1-the-graph-slides"))
+          "The curve starting at the corner, at zero, is one you know: y equals the square root of x" in spoken(E("pc-u1-the-graph-slides"))  # (ww) trimmed under the 80-word beat cap
           and "The lower curve" not in spoken(E("pc-u1-the-graph-slides"))
           and "Under y equals f of: x take away 3, the point (4, 2)" in E("pc-u1-the-graph-slides")["explain"]["spoken"]
           and "the smallest power pattern that bites" in spoken(E("pc-u2-the-minus-parade"))
@@ -20066,9 +20073,9 @@ def part3mo_the_referee_pile():
     _o, st = L.step(wl, st, ("begin",))
     p = st["pending"]["problem"]
     out, st = L.step(wl, st, ("answer", L.ans(p)))
-    check("⭐ a lesson WITH a walk-back: the praise beat carries the answered line, then the worked board follows",
-          out[0]["kind"] == "say" and out[0]["board"] == L.answered_board(p, st.get("level") or "abstract")
-          and out[0]["board"].startswith('[[step eq="') and out[1]["board"].startswith("[["), str(out[0]["board"])[:100])
+    check("⭐ a lesson WITH a walk-back: the praise beat carries the WORKED board (ww; wt gave it the answered line), and the walk-back re-reads it",
+          out[0]["kind"] == "say" and out[0]["board"] == L._worked_for(p)[1] == out[1]["board"]
+          and out[0]["board"].startswith("[["), str(out[0]["board"])[:100])
     check("  every praise beat in every course's transcript carries a board -- the times-table pass included (its fact, counter and all)",
           all(t["board"] for c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc", "calculus", "diffeq", "probstat")
               for les in C.lessons_for(c, L) for t in C.transcript_for(les, L) if t["kind"] == "praise")
@@ -20124,8 +20131,8 @@ def part3mp_the_second_precalc_sweep():
           W(v)[0].endswith("shorter than walking both — 12 plus 35 is 47.")
           and W(v)[1].endswith('[[step eq="walking both: 12 + 35 = 47"]]')
           and '[[step eq="12² + 35² = 1369"]][[step eq="√1369 = 37"]]' in W(v)[1]
-          and PR("vmag", v).endswith("The squares come next.")
-          and "Watch the squares" not in PR("vmag", v), W(v)[0][-80:])
+          and PR("vmag", v).endswith("Watch the squares on the board.")  # (ww) the praise beat carries the worked board, so the squares ARE on it
+          and "come next" not in PR("vmag", v), W(v)[0][-80:])
     a9 = {"a": 6, "b": 10, "c": 90, "op": "arsn"}
     check("  arsn's half is explained from the right angle (base and height), not from a rectangle nobody drew -- praise and walk-back",
           "With the right angle between them, 6 is the base and 10 is the height, and a triangle's area is half of base times height." in PR("arsn", a9)
@@ -20149,7 +20156,7 @@ def part3mp_the_second_precalc_sweep():
           and "the corner room is (−2) × (−6) = 12" in E("pc-u2-the-roots-secret")["picture"][0][1]
           and "For these equations — log base a of x equals b — run the log backwards" in spoken(E("pc-u3-rebuild-the-number"))
           and "the exponential in the same base, each un-doing the other" in spoken(E("pc-u3-the-power-comes-down"))
-          and "And for 1024 squared, that million-sized number was never built." in spoken(E("pc-u3-the-power-comes-down"))
+          and "And for 1024 squared, that million-sized number was never built: log of 1024 squared is 2 times 10 — 20." in spoken(E("pc-u3-the-power-comes-down"))  # (ww) the board's numbers read
           and "add full turns of 360 until it comes out positive — for the angles in this lesson, one turn does it" in spoken(E("pc-u4-the-backwards-spin"))
           and "Every place the wave touches that line after the start is one answer." in spoken(E("pc-u5-count-the-crossings"))
           and "On the unit circle, height squared plus across squared — one whole, every single time." in spoken(E("pc-u5-one-whole-between-them")), "")
@@ -20240,6 +20247,100 @@ def part3mq_the_sweep_says_why_it_stopped():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-17wv-' in notes("main.py") and "2026-09-17  BUILD wv" in notes("coursesweep.py")
           and "(wv) 2026-09-17" in notes("static/admin.html") and "2026-09-17  BUILD wv" in notes("ruletests.py"), "")
+
+
+def part3mr_the_third_precalc_sweep():
+    """PART 3mr (build ww, 2026-09-17) -- THE THIRD PRE-CALC SWEEP: 60 findings on all 36, 15
+    clean, 28 generator-owned -- 25 of them one shape wt created: the praise SPEAKS the
+    working over a board that shows only the answered line, while the walk-back draws the
+    working a beat later. Now a lesson with a walk-back carries the worked board under its
+    praise (a lesson without one keeps wc's answered line); the wrong paths the praise
+    names are drawn, crossed out (hcnt, brng, cmpd, logp); negp's grammar; lhol's condition;
+    gser's "this halving run"; cctr's short sentences; 29 authored edits."""
+    print("\nPART 3mr — the third Pre-Calc sweep (build ww)")
+    import lessonscripts as L
+    import coursesweep as C
+    import re as _re
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for _s, b in les["teach"]) + " ".join(pr["worked"][1] for pr in les["pairs"])
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+    W = lambda p: L._worked_for(p)
+    nums = lambda t: set(_re.findall(r"(?<![\d.])\d+(?![\d.])", t))
+
+    # ---- the engine ------------------------------------------------------------------
+    ts = C.transcript_for(E("pc-u3-count-the-halvings"), L)
+    pr = [t for t in ts if t["kind"] == "praise"][0]
+    wb = [t for t in ts if t["kind"] == "walk-back"][0]
+    check("⭐ in a lesson with a walk-back the praise beat carries the WORKED board, and the walk-back re-reads the same board",
+          pr["board"] == wb["board"] and '[[bars data="day 0:' in pr["board"] and "Halve and count" in pr["spoken"], pr["board"][:80])
+    check("  ...and a lesson with no walk-back keeps the answered line (chao, wc)",
+          [t for t in C.transcript_for(E("diffeq-u9-a-perfectly-known-equation"), L) if t["kind"] == "praise"][0]["board"].startswith('[[step eq="after ')
+          and not any(t["kind"] == "walk-back" for t in C.transcript_for(E("diffeq-u9-a-perfectly-known-equation"), L)), "")
+    undrawn = [(les["id"], t["n"]) for les in C.lessons_for("precalc", L) for t in C.transcript_for(les, L)
+               if t["kind"] == "praise" and nums(t["spoken"]) - nums(t["board"])]
+    check("⭐ THE MEASUREMENT: at most 50 of Pre-Calc's 180 praise beats speak a number their board does not draw (157 at wv; 44 at ww -- the no-walk-back lessons and the wrong-path words)",
+          len(undrawn) <= 50, str(len(undrawn)))
+
+    # ---- the generator ---------------------------------------------------------------
+    check("  the wrong paths the praise names are drawn, crossed out: hcnt's ratio, brng's backwards turn, cmpd's steady adding, logp's log-to-the-power",
+          W({"a": 28, "b": 7, "op": "hcnt"})[1].endswith('[[step eq="28 ÷ 7 = 4 ✗ the ratio, not the days"]]')
+          and W({"a": 290, "b": 125, "op": "brng"})[1].endswith('[[step eq="290 − 125 = 165 ✗ the backwards turn"]]')
+          and W({"a": 2, "b": 2, "c": 6, "op": "cmpd"})[1].endswith('[[step eq="steady adding: 6 + 2 × 6 = 18 ✗"]]')
+          and W({"a": 512, "b": 2, "op": "logp"})[1].endswith('[[step eq="9^2 = 81 ✗ the log raised to the power"]]'), "")
+    check("  negp says '1 pair'; lhol's cancellation carries 'for x ≠ 14'; gser's praise settles THIS halving run; cctr's walk-back is short sentences",
+          "2 minus signs pair up — 1 pair, none left over" in W({"a": 2, "b": 0, "op": "negp"})[0]
+          and "3 minus signs pair up — 1 pair, and one lone" in W({"a": 3, "b": 0, "op": "negp"})[0]
+          and "4 minus signs pair up — 2 pairs, none left over" in W({"a": 4, "b": 0, "op": "negp"})[0]
+          and '[[step eq="for x ≠ 14: (x − 14)(x + 14) ÷ (x − 14) = x + 14"]]' in W({"a": 14, "b": 0, "op": "lhol"})[1]
+          and PR("gser", {"a": 16, "b": 0}).startswith("Add this halving run forever and it still settles")
+          and "x take away 2 is zero exactly at x equals 2. The middle sits where the squared pieces go quiet. So the center's x is 2." in W({"a": 2, "b": 7, "c": 5, "op": "cctr"})[0], "")
+    check("  vmag's praise says 'Watch the squares on the board' again -- the squares are on it now",
+          PR("vmag", {"a": 12, "b": 35, "c": 37}).endswith("Watch the squares on the board."), "")
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ laws with their condition: any graph written as y = f(x) (x2); a plain x squared for the product (HIGH); in this lesson the bottoms come factored; given enough doublings; for a triangle; the average-rate shortcut gets its algebra (HIGH); one case limits were made for",
+          "One rule moves any graph written as y equals f of x" in spoken(E("pc-u1-the-graph-slides"))
+          and "one rule for every graph written as y equals f of x" in spoken(E("pc-u1-the-graph-slides"))
+          and "every graph ever drawn" not in spoken(E("pc-u1-the-graph-slides"))
+          and "For a puzzle that starts with a plain x squared, the roots also multiply to something" in spoken(E("pc-u2-the-roots-secret"))
+          and "In this lesson the bottoms come factored" in spoken(E("pc-u2-twice-forbidden"))
+          and "Given enough doublings, exponential growth pulls away from steady adding." in spoken(E("pc-u3-money-doubles"))
+          and "For a triangle, two sides and the angle between them are enough" in spoken(E("pc-u6-two-sides-and-the-angle"))
+          and "because b squared take away a squared is b take away a, times b plus a — and the run divides out" in spoken(E("pc-u9-the-shrinking-window"))
+          and "Here is one case they were made for." in spoken(E("pc-u9-the-hole-in-the-curve"))
+          and "Why were limits invented" not in spoken(E("pc-u9-the-hole-in-the-curve")), "")
+    check("⭐ words and board: the reason boards write what they ask (sin 35° = cos 55°; the path's rules and time); the recap boards are read (roots, log, mirror, window); the wrong-way subtraction drawn; the million drawn; the circle picture shows its equation; the worked lines draw their rules",
+          E("pc-u5-partners-across-ninety")["explain"]["board"].startswith('[[step eq="sin 35° = cos 55°"]]')
+          and E("pc-u7-where-you-are-at-time-t")["explain"]["board"].startswith('[[step eq="x = 3t, y = 4t"]][[step eq="t = 10"]]')
+          and "roots 2 and 6 add to 8, and 2 times 6 is 12" in spoken(E("pc-u2-the-roots-secret"))
+          and 'caption="the corner room: (−2) × (−6) = 12"' in E("pc-u2-the-roots-secret")["explain"]["board"]
+          and "log of 1024 squared is 2 times 10 — 20" in spoken(E("pc-u3-the-power-comes-down"))
+          and '[[step eq="log 1024² = 2 × 10 = 20"]]' in E("pc-u3-the-power-comes-down")["recap"][-1][1]
+          and '[[step eq="1024² = 1,048,576 — past a million"]]' in boards(E("pc-u3-the-power-comes-down"))
+          and "cosine of negative a equals cosine of a, and sine of negative a equals negative sine of a" in spoken(E("pc-u5-the-mirror-knows"))
+          and "rise 32 over run 4 is 8, which is 2 plus 6" in spoken(E("pc-u9-the-shrinking-window"))
+          and '[[step eq="350 − 40 = 310 ✗ turned the wrong way"]]' in boards(E("pc-u6-past-the-full-turn"))
+          and '[[step eq="56 ÷ 7 = 8 = 2 × 2 × 2 · 3 halvings"]]' in E("pc-u3-count-the-halvings")["recap"][0][1]
+          and '[[step eq="(x − 15)² + (y − 2)² = 25"]]' in E("pc-u7-where-the-circle-sits")["picture"][0][1]
+          and '[[step eq="x = 20t, y = 21t"]]' in boards(E("pc-u7-where-you-are-at-time-t"))
+          and '[[step eq="x = 7t, y = 24t"]]' in boards(E("pc-u7-where-you-are-at-time-t")), "")
+    check("  unclear: the crossings, identity, whole-run, path and circle recaps in short sentences; heights, not headings; the plural forbidden x's; what to flip",
+          "first find the target height. Then sweep one turn" in spoken(E("pc-u5-count-the-crossings"))
+          and "Unit Five is about what is ALWAYS true. Here is trigonometry's most famous always" in spoken(E("pc-u5-one-whole-between-them"))
+          and "add every one. That is the whole run: more than the last term" in spoken(E("pc-u8-add-the-whole-run"))
+          and "for every moment. Plug the time into both rules for the two legs. Then measure straight across" in spoken(E("pc-u7-where-you-are-at-time-t"))
+          and "Use the opposite sign for the x-number, and never answer with the y-coordinate." in spoken(E("pc-u7-where-the-circle-sits"))
+          and "Two sides, two different heights." in spoken(E("pc-u9-the-two-sides-disagree"))
+          and "And those are the forbidden x's — two of them, counted." in spoken(E("pc-u2-twice-forbidden"))
+          and "In the first, the right angle stands the short side straight up. In the second, the sharp angle leans that short side forwards." in spoken(E("pc-u6-two-sides-and-the-angle")), "")
+    check("  every lesson validates; the course list is 39,999; no dot joins two equations in Pre-Calc",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 39999
+          and not any(_re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', t["board"])
+                      for les in C.lessons_for("precalc", L) for t in C.transcript_for(les, L)), str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-17ww-' in notes("main.py") and "2026-09-17  BUILD ww" in notes("lessonscripts.py")
+          and "2026-09-17  BUILD ww" in notes("lessons/precalc.py") and "2026-09-17  BUILD ww" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -47140,6 +47241,7 @@ def main():
     part3mo_the_referee_pile()
     part3mp_the_second_precalc_sweep()
     part3mq_the_sweep_says_why_it_stopped()
+    part3mr_the_third_precalc_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
