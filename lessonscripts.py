@@ -2,6 +2,23 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-18  BUILD xa -- THE SECOND PRE-ALGEBRA SWEEP (58 findings on all 36, 9 clean,
+#               14 generator-owned on five ops; 69 at wh). (1) THE NEAR-REPEAT CLASS. wy
+#               closed the praise that was its walk-back word for word; parf and tba were
+#               their walk-backs in OTHER words ("Inside first: 3 plus 3 equals 6. Then 6
+#               times 4 equals 24" against "inside the parentheses first -- 3 plus 3 equals
+#               6. Then the times -- 6 times 4 equals 24"), and measured at that looser
+#               bar the shape lived in 25 ops across six courses (rsol, evat, chev, refl,
+#               notp, fpie, vprd, refq, wper, brng, ramp, lsid, lsub, htot, dcnt, iqrw,
+#               spnt, sslp, sblw, resp, ccnt, wout, npop). Every one is a CREDIT LINE now
+#               -- the answer and its one reason, marked "(xa)" -- and the walk-back keeps
+#               the steps; PART 3mv pins the looser measurement. (2) asp's walk-back said
+#               one long sentence after a miss; four short ones now. (3) dbf's number-line
+#               walk-back board also writes "flip and times: 6 × 4/3 = 24/3 = 8", the
+#               words its praise says. (4) uic offered "6 | 6 | 8" for 2 halves in 4
+#               wholes (a×b−a met a+b): the third choice steps OVER when it would collide,
+#               and the check demands three different options. Course lines 40,010 ->
+#               40,005: the shorter praises share more text between lessons.
 #   2026-09-18  BUILD wz -- THE SECOND BASIC SWEEP (41 findings on all 36, 14 clean, 12
 #               generator-owned on four ops; 67 at wg). (1) wpc's walk-back promised steps
 #               and drew only the hundred grid: the two multiplications ("10 × 10 = 100",
@@ -2033,7 +2050,9 @@ def _dbf_worked(p):
                 f"Hop by {_frac_words(a, b)} from zero — {n} hops reach {c} exactly. "
                 f"{c} divided by {_frac_words(a, b)} equals {n}.",
                 f'[[numberline min="0" max="{c}" denom="{b}" hops="{_dbf_hops(c, a, b)}" '
-                f'caption="{n} hops of {a}/{b} reach {c}: {c} ÷ ({a}/{b}) = {n}"]]')
+                f'caption="{n} hops of {a}/{b} reach {c}: {c} ÷ ({a}/{b}) = {n}"]]'
+                # (xa) the praise says "flip the fraction and times", so it is written too
+                f'[[step eq="flip and times: {c} × {b}/{a} = {c * b}/{a} = {n}"]]')
     return (f"Here it is, step by step: flip the fraction and times. {c} divided by "
             f"{_frac_words(a, b)} is {c} times {b} over {a}: {c} times {b} equals {c * b}, "
             f"and {c * b} divided by {a} equals {n}.",
@@ -2292,9 +2311,10 @@ def _asp_worked(p):
            f'caption="{ans} out of 100 — the same share"]]')
     if 100 % b == 0:
         k = 100 // b
-        return (f"Here it is, step by step: the bottom went from {b} to 100 — timesed by {k} — so "
-                f"the top is timesed by {k} too: {a} times {k} equals {ans}. {a} out of {b} "
-                f"is {ans} percent.", pic)
+        # (xa) short sentences after a miss
+        return (f"Here it is, step by step: the bottom went from {b} to 100. That is timesed "
+                f"by {k}. So the top is timesed by {k} too: {a} times {k} equals {ans}. "
+                f"{a} out of {b} is {ans} percent.", pic)
     # (wi) "go through 1" was the method's name, not its explanation; the long way is
     # said as two steps and both are drawn.
     return (f"Here it is, step by step: 100 is not a whole number of {b}s, so go the long way — "
@@ -7625,9 +7645,10 @@ OP_EXT = {
         "spoken": lambda p: f"What is {p['a']} plus {p['b']} times {p['c']}?",
         "board": lambda p: f'[[step eq="{p["a"]} + {p["b"]} × {p["c"]} = ?"]]',
         "worked": _tba_worked,        # (tc) the order marches down the board
-        "praise": lambda p: (f"{p['b']} times {p['c']} equals {p['b'] * p['c']}, "
-                             f"and {p['a']} plus {p['b'] * p['c']} equals "
-                             f"{p['a'] + p['b'] * p['c']}."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{p['a'] + p['b'] * p['c']}. The times went first — "
+                             f"{p['b']} times {p['c']} is {p['b'] * p['c']} — and "
+                             f"the add came after."),
         "key": lambda p: p["b"] * p["c"],
         "choices": lambda p: [p["a"] + p["b"] * p["c"] - p["c"],
                               p["a"] + p["b"] * p["c"],
@@ -7642,9 +7663,10 @@ OP_EXT = {
                              f"times {p['c']}?"),
         "board": lambda p: f'[[step eq="({p["a"]} + {p["b"]}) × {p["c"]} = ?"]]',
         "worked": _parf_worked,       # (tc) inside first, then the times, marching down
-        "praise": lambda p: (f"Inside first: {p['a']} plus {p['b']} equals "
-                             f"{p['a'] + p['b']}. Then {p['a'] + p['b']} times "
-                             f"{p['c']} equals {(p['a'] + p['b']) * p['c']}."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{(p['a'] + p['b']) * p['c']}. The parentheses went "
+                             f"first, so {p['a']} plus {p['b']} became "
+                             f"{p['a'] + p['b']} before the times."),
         "key": lambda p: (p["a"] + p["b"]) * p["c"],
         "choices": lambda p: [(p["a"] + p["b"]) * p["c"],
                               p["a"] + p["b"] * p["c"],
@@ -7860,13 +7882,20 @@ OP_EXT = {
         "praise": lambda p: (f"Each whole holds {p['a']}, so {p['b']} wholes hold "
                              f"{p['a'] * p['b']}."),
         "key": lambda p: p["a"] * p["b"],
-        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"], p["a"] * p["b"] - p["a"]],
+        # (xa) the third option is one whole short -- unless that collides with a + b
+        # (2 halves in 4 wholes: 8, 6, 6), in which case it is one whole over
+        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"],
+                              p["a"] * p["b"] + p["a"] if p["a"] * p["b"] - p["a"] == p["a"] + p["b"]
+                              else p["a"] * p["b"] - p["a"]],
         "speaks": lambda p, sp: str(p["b"]) in sp,   # the bottom is said as a WORD
         "check": lambda p: (2 <= p["a"] <= 10 and 2 <= p["b"] <= 8
-                            and p["a"] * p["b"] != p["a"] + p["b"],
-                            "the parts are 2-10 and the wholes 2-8, and a×b never "
-                            "equals a+b -- at 2 and 2 they both give 4 and the child "
-                            "would be offered the answer twice"),
+                            and p["a"] * p["b"] != p["a"] + p["b"]
+                            and len({p["a"] * p["b"], p["a"] + p["b"],
+                                     p["a"] * p["b"] + p["a"] if p["a"] * p["b"] - p["a"] == p["a"] + p["b"]
+                                     else p["a"] * p["b"] - p["a"]}) == 3,
+                            "the parts are 2-10 and the wholes 2-8, and the three "
+                            "options differ -- at 2 and 2 a×b and a+b both give 4, and "
+                            "at 2 and 4 the one-short option was a+b"),
     },
     "dbf": {   # c divided by a/b -- flip and times
         "ans": lambda p: p["c"] * p["b"] // p["a"],
@@ -9343,10 +9372,9 @@ OP_EXT = {
                              f"y line. What is the new x coordinate?"),
         "board": _refl_board,         # (ti) the mirror and the point
         "worked": _refl_worked,       # (ti) both sides of the mirror
-        "praise": lambda p: (f"Across the y line the point keeps its height and its "
-                             f"distance — it only crosses over: x goes from "
-                             f"{p['a']} to negative {p['a']}, and y stays "
-                             f"{p['b']}."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"Negative {p['a']}, {p['b']}: the x flips its "
+                             f"sign across the y line, and the height stays."),
         "key": lambda p: p["a"],
         # The errors: leaving x alone (no flip happened), and flipping the WRONG
         # coordinate (the mirror does not change heights).
@@ -10068,10 +10096,10 @@ OP_EXT = {
                              f"{p['b']}?"),
         "board": _notp_board,         # (tk) rain against all the chances
         "worked": _notp_worked,       # (tk) rain beside no rain
-        "praise": lambda p: (f"Every chance belongs to somebody: {p['b']} take "
-                             f"away {p['a']} leaves {p['b'] - p['a']} out of "
-                             f"{p['b']} for no rain — and {p['a']} plus "
-                             f"{p['b'] - p['a']} puts the whole {p['b']} back."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{p['b'] - p['a']} out of {p['b']}: the rain "
+                             f"chance and the no-rain chance share the whole "
+                             f"{p['b']} between them."),
         "key": lambda p: p["b"] - p["a"],
         # The errors: the same chance copied (the complement ignored), and the
         # whole -- as if no-rain were certain.
@@ -10496,9 +10524,8 @@ OP_EXT = {
                              f"is x?"),
         "board": _rsol_board,         # (tm) the machine run backwards, its input blank
         "worked": _rsol_worked,       # (tm) the input found and checked
-        "praise": lambda p: (f"x times {p['b']} must rebuild {p['a']}, so x "
-                             f"is {p['a']} divided by {p['b']} — "
-                             f"{p['a'] // p['b']}. Check it forward: "
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"x is {p['a'] // p['b']}. Check it forward: "
                              f"{p['a']} divided by {p['a'] // p['b']} is "
                              f"{p['b']}."),
         "key": lambda p: p["a"],
@@ -11223,14 +11250,12 @@ OP_EXT = {
                              f"equals {p['c']}?"),
         "board": _fpie_board,         # (to) the border and x on the number line
         "worked": _fpie_worked,       # (to) the side named, the rule run
-        "praise": lambda p: ((f"x equals {p['c']} is below 5, so the FIRST "
-                              f"rule runs: {p['c']} plus {p['a']} equals "
-                              f"{p['c'] + p['a']}. The other rule sleeps.")
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: ((f"{p['c'] + p['a']} — the first rule, because "
+                              f"{p['c']} is below 5.")
                              if p["c"] < 5 else
-                             (f"x equals {p['c']} is 5 or more, so the "
-                              f"SECOND rule runs: {p['b']} times {p['c']} "
-                              f"equals {p['b'] * p['c']}. The other rule "
-                              f"sleeps.")),
+                             (f"{p['b'] * p['c']} — the second rule, because "
+                              f"{p['c']} is 5 or more.")),
         "key": lambda p: (p["c"] + p["a"] if p["c"] < 5
                           else p["b"] * p["c"]),
         # The errors: running the WRONG piece, and handing x back untouched.
@@ -11312,11 +11337,9 @@ OP_EXT = {
                              f"in a plain number. What is that END number?"),
         "board": _vprd_board,         # (to) the four rooms with the corner blank
         "worked": _vprd_worked,       # (to) the four rooms filled
-        "praise": lambda p: (f"The end number is the product of the roots: "
-                             f"{p['a']} times {p['b']} equals "
-                             f"{p['a'] * p['b']}. The middle number is "
-                             f"their sum, {p['a'] + p['b']}, worn with a "
-                             f"minus — the roots write the whole puzzle."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{p['a'] * p['b']} — the end number is the "
+                             f"roots multiplied, {p['a']} times {p['b']}."),
         "key": lambda p: p["a"] * p["b"],
         # The errors: the SUM (that is the middle number -- lh's promise,
         # paid), and the first root copied.
@@ -11524,11 +11547,9 @@ OP_EXT = {
                              f"that gap?"),
         "board": _refq_board,         # (tp) the flat line split at the arrow, the gap blank
         "worked": _refq_worked,       # (tp) both pieces labelled
-        "praise": lambda p: (f"Flat left is 180, and the arrow sits at "
-                             f"{p['a']}: the gap is 180 take away {p['a']} "
-                             f"— {180 - p['a']} degrees. Measured from "
-                             f"straight up it would be {p['a'] - 90}, but "
-                             f"reference angles hug the FLAT line, always."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{180 - p['a']} degrees — the gap from "
+                             f"{p['a']} to the flat line at 180."),
         "key": lambda p: p["a"],
         # The errors: measured from straight up, and the angle itself.
         "choices": lambda p: [180 - p["a"], p["a"] - 90, p["a"]],
@@ -11545,12 +11566,10 @@ OP_EXT = {
                              f"degrees until THIS wave repeats?"),
         "board": _wper_board,         # (tp) the plain sine beside the fast one, the axis in degrees
         "worked": _wper_worked,       # (tp) the fast wave with its first repeat marked
-        "praise": lambda p: (f"Divide: 360 divided by {p['a']} equals "
-                             f"{360 // p['a']} — this wave tells its whole "
-                             f"story in {360 // p['a']} degrees. Stretching "
-                             f"to {360 * p['a']} points the wrong way: a "
-                             f"faster wave's first repeat comes SOONER, "
-                             f"not later."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{360 // p['a']} degrees — 360 divided by "
+                             f"{p['a']}, because a faster wave's first repeat "
+                             f"comes SOONER, not later."),
         "key": lambda p: p["a"],
         # The errors: multiplied instead (faster read as longer), and the
         # plain sine's 360 kept.
@@ -11741,13 +11760,9 @@ OP_EXT = {
         # The figure carries the givens; the height is a question mark.
         "board": _ramp_board,         # (tp) the ramp triangle, captioned (it had no caption -- rule 41)
         "worked": _ramp_worked,       # (tp) the height filled in
-        "praise": lambda p: (f"The sine of 30 degrees is one half, so the "
-                             f"ramp climbs half its length: half of "
-                             f"{p['a']} equals {p['a'] // 2} feet. The "
-                             f"{p['a']} is how far you walk up the slope, "
-                             f"never how high you rise — and doubling "
-                             f"instead would say {2 * p['a']}, higher than "
-                             f"the ramp is long."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{p['a'] // 2} feet — half of {p['a']}, "
+                             f"because the sine of 30 degrees is one half."),
         "key": lambda p: p["a"],
         # The errors: the length handed back as the height, and doubling
         # where the half belongs.
@@ -11765,13 +11780,10 @@ OP_EXT = {
                              f"clockwise. What is its new bearing?"),
         "board": _brng_board,         # (tp) the compass: the ship's arrow and the turn arc, its far end unnamed
         "worked": _brng_worked,       # (tp) the compass at the new bearing
-        "praise": lambda p: (f"{p['a']} plus {p['b']} equals "
-                             f"{p['a'] + p['b']} — past a full turn, so "
-                             f"take away 360: the new bearing is "
-                             f"{p['a'] + p['b'] - 360} degrees. "
-                             f"{p['a'] + p['b']} names no bearing at all, "
-                             f"and {p['a'] - p['b']} is where a backwards "
-                             f"turn would have pointed."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{p['a'] + p['b'] - 360} degrees — the turn "
+                             f"went past a full circle, so 360 comes off "
+                             f"{p['a'] + p['b']}."),
         "key": lambda p: p["a"] + p["b"],
         # The errors: the wrap forgotten (a bearing past 360), and the turn
         # taken the wrong way round.
@@ -12045,12 +12057,10 @@ OP_EXT = {
                              f"creep toward?"),
         "board": _lsub_board,         # (tq) the line that never breaks
         "worked": _lsub_worked,       # (tq) the point walked in
-        "praise": lambda p: (f"Nothing breaks at x equals {p['a']}, so the "
-                             f"value walks in with x: {p['b']} times "
-                             f"{p['a']} is {p['a'] * p['b']}, plus "
-                             f"{p['c']} — {p['a'] * p['b'] + p['c']}. For a "
-                             f"line, the limit is simply where the line "
-                             f"already is."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{p['a'] * p['b'] + p['c']} — for a line, the "
+                             f"limit is where the line already is at x "
+                             f"equals {p['a']}."),
         "key": lambda p: p["a"] * p["b"] + p["c"],
         # The errors: x itself handed back, and the times read as a plus.
         "choices": lambda p: [p["a"] * p["b"] + p["c"], p["a"],
@@ -12099,17 +12109,12 @@ OP_EXT = {
                              + ", what value does y creep toward?"),
         "board": _lsid_board,         # (tq) the step with its two heights
         "worked": _lsid_worked,       # (tq) the approach marked
-        "praise": lambda p: ((f"From the left, every x is below 6, so y is "
-                              f"{p['a']} the whole way in — the limit from "
-                              f"that side is {p['a']}. The other side would "
-                              f"say {p['b']}, and the two do not have to "
-                              f"agree.")
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: ((f"{p['a']} — from the left, y reads {p['a']} "
+                              f"the whole way in.")
                              if p["c"] == 0 else
-                             (f"From the right, every x is 6 or more, so y "
-                              f"is {p['b']} the whole way in — the limit "
-                              f"from that side is {p['b']}. The other side "
-                              f"would say {p['a']}, and the two do not have "
-                              f"to agree.")),
+                             (f"{p['b']} — from the right, y reads {p['b']} "
+                              f"the whole way in.")),
         "key": lambda p: p["a"] + p["b"],
         # The errors: the OTHER side's value, and splitting the difference
         # -- a limit is not an average.
@@ -12182,11 +12187,10 @@ OP_EXT = {
                              f"{p['a']} goals?"),
         "board": _dcnt_board,         # (tr) the dot plot captioned; the pending line a statement (the old "how many players?" was a question inside a step)
         "worked": _dcnt_worked,       # (tr) the dots past the line counted
-        "praise": lambda p: (f"Count only the dots to the RIGHT of {p['a']}: "
-                             f"there are {p['b']}. The dot standing exactly "
-                             f"on {p['a']} does not join them — {p['a']} is "
-                             f"not more than {p['a']} — and the {p['c']} "
-                             f"dots below answer the opposite question."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{p['b']} — only the dots to the right of "
+                             f"{p['a']}; the one on {p['a']} is not more than "
+                             f"{p['a']}."),
         "key": lambda p: p["b"],
         # The errors: the dot ON the line counted too, and the other side
         # counted.
@@ -12205,12 +12209,9 @@ OP_EXT = {
                              "top. How many scores are shown in all?"),
         "board": _htot_board,         # (tr) the histogram captioned; the pending line a statement (the old "how many scores in all?" was a question inside a step)
         "worked": _htot_worked,       # (tr) the bars added
-        "praise": lambda p: (f"Add the bars: {p['a']} plus {p['b']} plus "
-                             f"{p['c']} equals {p['a'] + p['b'] + p['c']}. "
-                             f"The tallest bar alone holds only "
-                             f"{max(p['a'], p['b'], p['c'])}, and the "
-                             f"number of bars is not the number of "
-                             f"scores."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{p['a'] + p['b'] + p['c']} — every bar "
+                             f"added, because each bar is a count of scores."),
         "key": lambda p: p["a"] + p["b"] + p["c"],
         # The errors: the tallest bar answered, and the BARS counted instead
         # of what stands in them.
@@ -12281,13 +12282,9 @@ OP_EXT = {
                              f"data?"),
         "board": _iqrw_board,         # (tr) the box plot, captioned (it had no caption -- rule 41)
         "worked": _iqrw_worked,       # (tr) the box measured
-        "praise": lambda p: (f"The box holds the middle half, from {p['a']} "
-                             f"to {p['b']}: {p['b']} take away {p['a']} "
-                             f"equals {p['b'] - p['a']}. Whisker tip to "
-                             f"whisker tip is {p['b'] + p['c'] - p['a'] + p['c']} "
-                             f"— that is the whole stretch, a different "
-                             f"measurement, and {p['b']} alone is just the "
-                             f"box's right edge."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{p['b'] - p['a']} — the box's width, "
+                             f"{p['b']} take away {p['a']}, is the middle half."),
         "key": lambda p: p["b"] - p["a"],
         # The errors: the WHOLE range (whisker to whisker), and the box's
         # right edge read as its width.
@@ -12364,12 +12361,9 @@ OP_EXT = {
                              f"child score?"),
         "board": _spnt_board,         # (tr) the scatter cloud, captioned (it had no caption -- rule 41)
         "worked": _spnt_worked,       # (tr) the dot read
-        "praise": lambda p: (f"Find {p['a']} along the bottom, go straight "
-                             f"up to the dot, then straight across: "
-                             f"{_scat_at(p)} points. The {p['a']} is how "
-                             f"long the child practiced — across, not up — "
-                             f"and {_scat_next(p)} belongs to the "
-                             f"neighbouring dot."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{_scat_at(p)} points — up from {p['a']} on "
+                             f"the bottom to the dot, then across."),
         "key": lambda p: p["a"],
         # The errors: the x answered instead of the y (the axis mix-up), and
         # the dot next door read by mistake.
@@ -12392,12 +12386,9 @@ OP_EXT = {
                              f"you predict for Nadia?"),
         "board": _sslp_board,         # (tr) the rate machine
         "worked": _sslp_worked,       # (tr) the line climbing, the point marked
-        "praise": lambda p: (f"The slope is a rate: {p['a']} points EACH "
-                             f"hour, so {p['b']} hours brings {p['b']} "
-                             f"times {p['a']} — {p['a'] * p['b']} points. "
-                             f"{p['a']} alone is one hour's worth, and "
-                             f"adding the two numbers treats a rate like a "
-                             f"total."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{p['a'] * p['b']} points — {p['a']} each hour "
+                             f"for {p['b']} hours, because the slope is a rate."),
         "key": lambda p: p["a"] * p["b"],
         # The errors: one hour's worth handed back, and the rate ADDED to
         # the hours instead of timesed by them.
@@ -12442,12 +12433,10 @@ OP_EXT = {
                              f"sit above the line. How many sit below it?"),
         "board": _sblw_board,         # (tr) the dots as a tape, the below part blank
         "worked": _sblw_worked,       # (tr) both parts of the tape
-        "praise": lambda p: (f"The line runs THROUGH the cloud, so every "
-                             f"dot is on one side or the other: {p['a']} "
-                             f"take away {p['b']} leaves "
-                             f"{p['a'] - p['b']} below. {p['b']} is the "
-                             f"side you were told about, and {p['a']} is "
-                             f"every dot on the plot."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{p['a'] - p['b']} below — the {p['a']} dots "
+                             f"minus the {p['b']} above, since every dot is "
+                             f"on one side or the other."),
         "key": lambda p: p["a"],
         # The errors: the given side echoed back, and the whole cloud.
         "choices": lambda p: [p["a"] - p["b"], p["b"], p["a"]],
@@ -12498,13 +12487,10 @@ OP_EXT = {
                              f"back. What percent of them came back?"),
         "board": _resp_board,         # (tt) back and silent as a tape
         "worked": _resp_worked,       # (tt) the rate on the hundred square
-        "praise": lambda p: (f"{p['b']} out of {p['a']} is "
-                             f"{100 * p['b'] // p['a']} percent. That is "
-                             f"the response rate. A low one is a warning: "
-                             f"the people who never answer may not think "
-                             f"like the people who did. {p['b']} is a count "
-                             f"of surveys, and {p['a'] - p['b']} is how "
-                             f"many stayed out there."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{100 * p['b'] // p['a']} percent — "
+                             f"{p['b']} answered out of {p['a']} asked; that "
+                             f"share is the response rate."),
         "key": lambda p: 100 * p["b"] // p["a"],
         # The errors: the COUNT returned given as a percent, and the count
         # that never came back.
@@ -12716,15 +12702,10 @@ OP_EXT = {
                              f"soccer?"),
         "board": _ccnt_board,         # (tt) the girls' two clubs as bars
         "worked": _ccnt_worked,       # (tt) the share on the hundred square
-        "praise": lambda p: (f"The girls are the whole world now — "
-                             f"{p['a']} plus {p['b']} equals "
-                             f"{p['a'] + p['b']} of them — and {p['a']} of "
-                             f"those chose soccer: "
-                             f"{100 * p['a'] // (p['a'] + p['b'])} percent. "
-                             f"The other "
-                             f"{100 - 100 * p['a'] // (p['a'] + p['b'])} "
-                             f"percent chose art, and {p['a']} is a "
-                             f"headcount, not a percent."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{100 * p['a'] // (p['a'] + p['b'])} percent — "
+                             f"{p['a']} of the {p['a'] + p['b']} girls, "
+                             f"because the girls are the whole world now."),
         "key": lambda p: 100 * p["a"] // (p["a"] + p["b"]),
         # The errors: the count answered as a percent, and the OTHER club's
         # share.
@@ -12779,12 +12760,9 @@ OP_EXT = {
                              f"out of how many marbles now?"),
         "board": _wout_board,         # (tt) the bag as a tape before the marble is kept
         "worked": _wout_worked,       # (tt) the smaller bag
-        "praise": lambda p: (f"The marble did not go back, so the bag is "
-                             f"smaller: {p['b']} take away 1 leaves "
-                             f"{p['b'] - 1}. The reds shrank too, to "
-                             f"{p['a'] - 1} — but that is the top of the "
-                             f"chance, not the bottom. Answering {p['b']} "
-                             f"forgets that anything was taken at all."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{p['b'] - 1} — one marble stayed out, so "
+                             f"the bag holds {p['b']} take away 1."),
         "key": lambda p: p["b"],
         # The errors: the bag unchanged (the whole lesson), and the count of
         # reds left -- the other number that shrank.
@@ -13110,14 +13088,10 @@ OP_EXT = {
                              f"range, how many of the whole school is that?"),
         "board": _npop_board,         # (ty) the ask picture, answer withheld
         "worked": _npop_worked,       # (ty) the walk-back, filled in
-        "praise": lambda p: (f"The low end of the range is "
-                             f"{p['a'] - p['b']} percent, and "
-                             f"{p['a'] - p['b']} percent of {p['c']} is "
-                             f"{(p['a'] - p['b']) * p['c'] // 100}. "
-                             f"Using {p['a']} percent gives "
-                             f"{p['a'] * p['c'] // 100} and quietly drops "
-                             f"the give-or-take — the whole point of a "
-                             f"sample is that it does not know exactly."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{(p['a'] - p['b']) * p['c'] // 100} — the "
+                             f"low end, {p['a'] - p['b']} percent of "
+                             f"{p['c']}, keeps the give-or-take."),
         "key": lambda p: (p["a"] - p["b"]) * p["c"] // 100,
         # The errors: the estimate used with the margin forgotten, and the
         # HIGH end taken instead of the low.
@@ -13327,14 +13301,10 @@ OP_EXT = {
                              f"slope of the curve at x equals {p['c']}?"),
         "board": _evat_board,         # (tz) the ask picture, answer withheld
         "worked": _evat_worked,       # (tz) the walk-back, filled in
-        "praise": lambda p: (f"The derivative is a machine of its own: feed "
-                             f"it {p['c']} and it gives {2 * p['a']} times "
-                             f"{p['c']} — {2 * p['a'] * p['c']}. That is "
-                             f"the slope right at that point. "
-                             f"{p['a'] * p['c'] * p['c']} is how high the "
-                             f"curve sits there, and {2 * p['a']} is the "
-                             f"derivative's own front number, before any x "
-                             f"went in."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{2 * p['a'] * p['c']} — the slope right at "
+                             f"x equals {p['c']}, from feeding {p['c']} to "
+                             f"the derivative, {2 * p['a']} x."),
         "key": lambda p: 2 * p["a"] * p["c"],
         # The errors: the HEIGHT of the curve, and the derivative's front
         # number handed back un-fed.
@@ -13416,12 +13386,10 @@ OP_EXT = {
                              f"zero?"),
         "board": _chev_board,         # (tz) the ask picture, answer withheld
         "worked": _chev_worked,       # (tz) the walk-back, filled in
-        "praise": lambda p: (f"At x equals zero the inside is just "
-                             f"{p['b']}, so the slope is 2 times {p['b']} "
-                             f"times {p['a']} — {2 * p['a'] * p['b']}. "
-                             f"{p['b'] * p['b']} is the curve's height "
-                             f"there, and {2 * p['b']} drops the inside's "
-                             f"derivative — the chain rule's whole point."),
+        # (xa) a credit line; the walk-back has the steps
+        "praise": lambda p: (f"{2 * p['a'] * p['b']} — outside derivative "
+                             f"times inside derivative, with the inside "
+                             f"worth {p['b']} at x equals zero."),
         "key": lambda p: 2 * p["a"] * p["b"],
         # The errors: the HEIGHT at zero, and the chain factor dropped.
         "choices": lambda p: [2 * p["a"] * p["b"], p["b"] * p["b"],
