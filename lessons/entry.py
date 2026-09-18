@@ -2,6 +2,15 @@
 # lessons/entry.py  --  ENTRY-LEVEL MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-18  BUILD wy -- THE FIFTH ENTRY SWEEP (19 findings on all 36, 29 clean; 8 of
+#               them authored). add-past-ten: both worked captions draw the count-on the
+#               words say ("start at six and count on: 7, 8, 9, 10, 11"), and the recap is
+#               three short sentences. hundreds-tens-and-ones: the recap reads "a
+#               three-digit number", not "any number" (the lesson never reads 7 or 42
+#               this way). crossing-a-hundred: "add the carried ten if there is one" (10
+#               plus 90 carries nothing). dimes-and-pennies: the teach and both worked
+#               lines draw the count they say as one list ("10, 20, 30 -- then 31, 32,
+#               33, 34") above the cents lines.
 #   2026-09-15  BUILD wg -- THE FOURTH CLEAN SWEEP: 14 findings after wf, 26 lessons clean.
 #               Twelve answered: add-past-ten's recap carries its condition ("either one,
 #               if they are the same") and SAYS its example; take-away-bigger's recap says
@@ -332,21 +341,21 @@ _ENTRY_PILOT = [
             {"worked": ("Here is one more, done for you. Five stars, and six more. "
                         "Start at the bigger number, six, and count on: seven, eight, "
                         "nine, ten, eleven. Five plus six equals eleven.",
-                        '[[objects emoji="⭐" groups="5" add="6" count="1" caption="start at six and count on"]][[step eq="5 + 6 = 11"]]'),
+                        '[[objects emoji="⭐" groups="5" add="6" count="1" caption="start at six and count on: 7, 8, 9, 10, 11"]][[step eq="5 + 6 = 11"]]'),
              "ask": {'a': 7, 'b': 6, 'op': '+'}},
             {"worked": ("One more together. Nine stars, and six more. Start at nine and "
                         "count on — ten, eleven, twelve, thirteen, fourteen, fifteen. "
                         "Nine plus six equals fifteen.",
-                        '[[objects emoji="⭐" groups="9" add="6" caption="start at nine and count on"]][[step eq="9 + 6 = 15"]]'),
+                        '[[objects emoji="⭐" groups="9" add="6" caption="start at nine and count on: 10, 11, 12, 13, 14, 15"]][[step eq="9 + 6 = 15"]]'),
              "ask": {'a': 8, 'b': 6, 'op': '+'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "recap": [
-            ("So, here it is again. To add past ten, start at the bigger number — "
-             "either one, if they are the same — and count on once for each one in "
-             "the other group. Nine plus four: nine — ten, eleven, twelve, thirteen. "
+            ("So, here it is again. To add past ten, start at the bigger number. "
+             "If they are the same, start at either one. Then count on once for each "
+             "one in the other group. Nine plus four: nine — ten, eleven, twelve, thirteen. "
              "Do not go back to one, and do not say the starting number twice.",
              '[[objects emoji="⭐" groups="9" add="4" caption="start at nine — ten, eleven, twelve, thirteen"]]'),
             ("And that is how the answers keep going past ten — nine plus four "
@@ -760,6 +769,7 @@ _ENTRY_MORE = [
             ("Watch me count 3 dimes and 4 pennies. Dimes first, count by ten: 10, "
              "20, 30. Then the pennies, counting on: 31, 32, 33, 34. That is 34 "
              "cents.",
+             '[[step eq="10, 20, 30 — then 31, 32, 33, 34"]]'
              '[[step eq="3 dimes = 30 cents"]]'
              '[[step eq="30 + 4 pennies = 34 cents"]]'),
             ("Here is the trap. Do not count a dime as one. It is one coin, but it "
@@ -771,10 +781,12 @@ _ENTRY_MORE = [
         "pairs": [
             {"worked": ("Here is one more, done for you. 2 dimes and 5 pennies. By "
                         "ten: 10, 20. Then on: 21, 22, 23, 24, 25. That is 25 cents.",
+                        '[[step eq="10, 20 — then 21, 22, 23, 24, 25"]]'
                         '[[step eq="2 dimes + 5 pennies = 25 cents"]]'),
              "ask": {"a": 4, "b": 3, "op": "m"}},
             {"worked": ("One more together. 5 dimes and 2 pennies. By ten: 10, 20, "
                         "30, 40, 50. Then 51, 52. That is 52 cents.",
+                        '[[step eq="10, 20, 30, 40, 50 — then 51, 52"]]'
                         '[[step eq="5 dimes + 2 pennies = 52 cents"]]'),
              "ask": {"a": 6, "b": 8, "op": "m"}},
         ],
@@ -919,7 +931,7 @@ _ENTRY_MORE = [
              "biggest first. Say the hundreds, then the rest — and never read the "
              "digits backwards.",
              '[[placevalue h="3" t="4" o="6" caption="3 hundreds, 4 tens, 6 ones — 346"]]'),
-            ("And that is how you read any number up to nine hundred ninety-nine — "
+            ("And that is how you read a three-digit number, up to nine hundred ninety-nine — "
              "three hundred plus forty plus six equals three hundred forty-six.",
              '[[step eq="300 + 40 + 6 = 346"]]'),
         ],
@@ -1112,8 +1124,8 @@ _ENTRY_MORE = [
         "advance_line": "Three in a row — you've got it! You can add past one hundred.",
         "teach": [
             ("You already carry into the tens. Today both numbers are two-digit, and "
-             "the tens themselves fill up. Add the tens and the carried ten. If that "
-             "comes to over nine tens, ten of them become one hundred. The answer gets "
+             "the tens themselves fill up. Add the tens, and add the carried ten if there "
+             "is one. If that comes to over nine tens, ten of them become one hundred. The answer gets "
              "a hundreds digit at the front.",
              '[[goal text="Crossing a hundred"]]'),
             ("Watch me add 68 plus 47. Ones: 8 plus 7 equals 15 — over nine, write "

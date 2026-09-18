@@ -2,6 +2,18 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-18  BUILD wy -- PART 3mt, THE FIFTH ENTRY SWEEP (19 findings on all 36, 29 clean;
+#               14 at wf). The star walk-backs say what the stars stand for in a story
+#               problem ("each star stands for one of the rocks"); tens-and-ones' walk-back
+#               WORKS it (10 plus 2 equals 12) instead of repeating the praise; cube's
+#               answered line keeps its unit; five praise lines that were their walk-back
+#               word for word (gsum, pasc, avgr, farv, pctl) are credit lines now -- and the
+#               measurement is pinned: no praise beat equals its walk-back, any course. The
+#               authored classes. Counts moved: course 39,999 -> 40,010 (the eleven story
+#               walk-backs no longer share lines with the plain sums); closure 40,253 ->
+#               40,264; speechmap 2,244 of 40,305 -> of 40,316; drift 1,938 unchanged. Three
+#               wording pins moved (the carried ten "if there is one" x2; add-past-ten's
+#               recap), each marked "(wy)".
 #   2026-09-18  BUILD wx -- PART 3ms, THE SECOND ALGEBRA II SWEEP (43 findings on 35 of 36,
 #               14 clean; 73 at wk). disc's touch, expv's "about", gaus's reversed copy,
 #               rsol's forward check, rsum3's THIS cubic; the authored classes. Seven PART 3mh
@@ -14678,7 +14690,7 @@ def part3ky_one_label_for_every_clip():
         # (wl) 2,246 of 40,305: the fourth corner's second picture beat ("at (7, 6) — and the
         # box closes") joined the closure, and its coordinates re-key.
         check("  ...and it still holds the differences it was built for (2,246 since wl; 2,245 at wh; 2,244 at vx; 2,246 at vs; 2,245 at vm; 2,249 at vc)",
-              len(mapping) == 2244 and scanned == 40305,  # (wo) 2,246 -> 2,245: the related-rates second worked line lost its "2 times 9 times 5"; (wu) -> 2,244: the ellipse's "over 196: 14" ratio-tidy
+              len(mapping) == 2244 and scanned == 40316,  # (wy) of 40,305 -> 40,316: the story walk-backs; nothing new re-keys  # (wo) 2,246 -> 2,245: the related-rates second worked line lost its "2 times 9 times 5"; (wu) -> 2,244: the ellipse's "over 196: 14" ratio-tidy
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
@@ -14706,7 +14718,7 @@ def part3ky_one_label_for_every_clip():
           "prices or renders one clip twice (deduped anyway -- see _closure_lines)",
           len(cl) == len(set(cl)), "%d lines, %d unique" % (len(cl), len(set(cl))))
     check("  the closure is the whole course AND the demo (40,253 since wl = 39,999 + 254 demo lines; 40,252 at wi)",
-          len(cl) == 40253, str(len(cl)))
+          len(cl) == 40264, str(len(cl)))  # (wy) 40,253 -> 40,264: the eleven story walk-backs
 
     # ---- 4. ONE reader, and every site goes through it -----------------------------
     check("⭐ speechmap is read in exactly ONE place -- _spoken(). A second reader is a "
@@ -15654,7 +15666,7 @@ def part3lf_ready_and_four_basic_lines():
           all(t in closure for t in (pv["why"][0][0], pv["recap"][1][0], rt["why"][0][0],
                                      L.lesson_orientation(rt, True)[0], L.lesson_intro(pv)[0])), "")
     check("  the closure count moved only for lines ADDED since (vj changed lines and added none; vs/vt added 19; wd added LINE_FRESH_OTHER; we PRACTICE_INTRO_REASON; wh one picture beat; wi one more; wl one more)",
-          len(closure) == 39999, str(len(closure)))
+          len(closure) == 40010, str(len(closure)))  # (wy) 39,999 -> 40,010: the story walk-backs name their nouns
 
     # ---- 3. blob: in media-src -------------------------------------------------------------------
     import main as M
@@ -17365,11 +17377,11 @@ def part3ls_the_demo_is_part_of_the_closure():
     cl = M._closure_lines()
     demo = [x for x in M.DEMO_VOICE_LINES if x]
     check("⭐ every demo line is in the un-narrowed closure, and the closure is the course plus the demo",
-          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40253
+          all(x in set(cl) for x in demo) and len(cl) == len(L.course_audio_lines()) + len(set(demo)) == 40264  # (wy) 40,253 -> 40,264
           and len(demo) == 254, "%d closure, %d course, %d demo" % (len(cl), len(L.course_audio_lines()), len(demo)))
     check("  a narrowed closure (one lesson) carries no demo line -- rendering one lesson does not re-price the front door",
           not any(x in set(M._closure_lines(L.LESSONS[:1])) for x in demo), "")
-    check("  the course's own list is 39,999 (wl split Geometry's fourth-corner picture; 39,998 at wi; 39,997 at wh)", len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+    check("  the course's own list is 39,999 (wl split Geometry's fourth-corner picture; 39,998 at wi; 39,997 at wh)", len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
     check("⭐ the model split treats the demo as the course, and the miss eyes call a demo line IN the closure",
           all(x in M._script_closure_texts() for x in demo)
           and M._tts_model_for(demo[0]) == M._tts_model_for(L.LINE_CHECK), "")
@@ -17708,7 +17720,7 @@ def part3lu_the_scripted_second_explanation():
 
     # ---- the counts ------------------------------------------------------------
     check("  the six frame lines are the ONLY audio this build added (39,988 -> 39,994; wd's LINE_FRESH_OTHER 39,995; we's PRACTICE_INTRO_REASON 39,996; wh's picture beat 39,997; wi's 39,998; wl's 39,999)",
-          len(L.course_audio_lines()) == 39999
+          len(L.course_audio_lines()) == 40010  # (wy) 39,999 -> 40,010: the story walk-backs name their nouns
           and len(set(L.SECOND_LOOK_LINES + L.FRESH_ONE_LINES)) == 6, "")
     check("  no frame line carries a number, so six clips serve all 360 lessons",
           not any(any(ch.isdigit() for ch in x)
@@ -18414,7 +18426,7 @@ def part3lz_the_second_clean_sweep():
     check("⭐ rules with their condition: under a hundred; no column over nine; the carried ten; the long hand at 12; closed shapes; a NUMBER pattern; count each thing once",
           "Every number today stays under a hundred" in spoken(E("entry-u4-ten-more"))
           and "No column goes over nine today" in spoken(E("entry-u5-adding-three-digit-numbers"))
-          and "Add the tens and the carried ten" in spoken(E("entry-u5-crossing-a-hundred"))   # (wg) split into short sentences
+          and "add the carried ten if there is one" in spoken(E("entry-u5-crossing-a-hundred"))   # (wg) split into short sentences; (wy) "if there is one"
           and "When the long hand is at 12" in spoken(E("entry-u8-later-on-the-clock"))
           and "joined all the way round" in spoken(E("entry-u9-sides-and-corners"))
           and "A number pattern is a list of numbers" in spoken(E("entry-u9-what-comes-next"))
@@ -18507,7 +18519,7 @@ def part3ma_the_problem_space_on_the_page():
           "A triangle has 3 sides and 3 corners. Every shape" in spoken(E("entry-u9-sides-and-corners"))
           and "Today's shape names tell you how many sides" in spoken(E("entry-u9-sides-and-corners")), "")
     check("  no voice line was added (39,996 since we; 39,997 since wh; 39,998 since wi; 39,999 since wl) and every Entry lesson validates",
-          len(L.course_audio_lines()) == 39999
+          len(L.course_audio_lines()) == 40010  # (wy) 39,999 -> 40,010: the story walk-backs name their nouns
           and all(ok for les in L.LESSONS if les["course"] == "entry" for ok, _l, _d in L.validate(les)), "")
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-15wf-' in notes("main.py") and "2026-09-15  BUILD wf" in notes("coursesweep.py")
@@ -18534,19 +18546,19 @@ def part3mb_the_fourth_clean_sweep():
           and "ten of the place on its right" not in spoken(E("entry-u4-hundreds-tens-and-ones")), "")
     check("  the two recaps that drew an example now SAY it, and add-past-ten's carries its condition",
           "Nine plus four: nine — ten, eleven, twelve, thirteen" in E("entry-u2-add-past-ten")["recap"][0][0]
-          and "either one, if they are the same" in E("entry-u2-add-past-ten")["recap"][0][0]
+          and "If they are the same, start at either one." in E("entry-u2-add-past-ten")["recap"][0][0]   # (wy) short sentences
           and "Thirteen, count back five: eight are left" in E("entry-u3-take-away-bigger")["recap"][0][0], "")
     check("  tens-and-ones: 'when the two digits are different'; ten-more: 'a sum', not 'the one sum'; "
           "story: the first job; crossing a hundred in three short sentences; the nickel on the board",
           "When the two digits are different" in spoken(E("entry-u4-tens-and-ones"))
           and "the one sum" not in spoken(E("entry-u4-ten-more"))
           and "is the first job; then you do the sum" in spoken(E("entry-u3-story-problems"))
-          and "Add the tens and the carried ten. If that comes to over nine tens" in spoken(E("entry-u5-crossing-a-hundred"))
+          and "add the carried ten if there is one. If that comes to over nine tens" in spoken(E("entry-u5-crossing-a-hundred"))   # (wy)
           and "1 nickel = 5 cents" in E("entry-u7-dimes-and-pennies")["teach"][0][1], "")
     check("  the charter: a why beat is a story over the goal card, unpictured by design",
           "a WHY beat (the lesson's opening story) having no\npicture" in C.SWEEP_SYSTEM, "")
     check("  no voice line added (39,996; 39,997 since wh; 39,998 since wi; 39,999 since wl) and every Entry lesson validates",
-          len(L.course_audio_lines()) == 39999
+          len(L.course_audio_lines()) == 40010  # (wy) 39,999 -> 40,010: the story walk-backs name their nouns
           and all(ok for les in L.LESSONS if les["course"] == "entry" for ok, _l, _d in L.validate(les)), "")
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-15wg-' in notes("main.py") and "2026-09-15  BUILD wg" in notes("coursesweep.py")
@@ -18685,7 +18697,7 @@ def part3mc_the_first_basic_sweep():
           and "less than 10" not in E("basic-u7-tenths")["explain"]["choices"], "")
     check("  every Basic lesson validates and the course list is 39,999 (wh added one picture beat; wi one more; wl one more)",
           all(ok for les in L.LESSONS if les["course"] == "basic" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+          and len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-16wh-' in notes("main.py") and "2026-09-16  BUILD wh" in notes("coursesweep.py")
           and "2026-09-16  BUILD wh" in notes("lessons/basic.py") and "2026-09-16  BUILD wh" in notes("lessonscripts.py")
@@ -18813,7 +18825,7 @@ def part3md_the_first_prealgebra_sweep():
           and "a shorthand you will see on nearly every line of algebra" in spoken(E("pre-u9-a-number-against-a-letter")), "")
     check("  every Pre-Algebra lesson validates and the course list is 39,999 (39,998 at wi; wl's fourth corner)",
           all(ok for les in L.LESSONS if les["course"] == "prealgebra" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+          and len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-16wi-' in notes("main.py") and "2026-09-16  BUILD wi" in notes("lessonscripts.py")
           and "2026-09-16  BUILD wi" in notes("lessons/prealgebra.py") and "2026-09-16  BUILD wi" in notes("ruletests.py"), "")
@@ -18996,7 +19008,7 @@ def part3mf_the_first_algebra1_sweep():
           and "the first kind of equation you solved today" in spoken(E("alg1-u2-undoing-a-plus")), "")
     check("  every Algebra I lesson validates and the course list is 39,999 (39,998 at wk, no beat added then; wl's fourth corner)",
           all(ok for les in L.LESSONS if les["course"] == "algebra1" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+          and len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-16wk-' in notes("main.py") and "2026-09-16  BUILD wk" in notes("lessonscripts.py")
           and "2026-09-16  BUILD wk" in notes("lessons/algebra1.py") and "2026-09-16  BUILD wk" in notes("coursesweep.py")
@@ -19099,7 +19111,7 @@ def part3mg_the_first_geometry_sweep():
           and "the reds, 3, out of everything in the bag, 5" in spoken(E("geo-u9-out-of-all")), "")
     check("  every Geometry lesson validates and the course list is 39,999 (the fourth corner's second beat)",
           all(ok for les in L.LESSONS if les["course"] == "geometry" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+          and len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-16wl-' in notes("main.py") and "2026-09-16  BUILD wl" in notes("lessonscripts.py")
           and "2026-09-16  BUILD wl" in notes("lessons/geometry.py") and "2026-09-16  BUILD wl" in notes("ruletests.py")
@@ -19259,7 +19271,7 @@ def part3mh_the_first_algebra2_sweep():
           and "by the quantity x take away 4" in E("alg2-u4-the-forbidden-x")["explain"]["spoken"], "")
     check("  every Algebra II lesson validates and the counts did not move (39,999; no beat added)",
           all(ok for les in L.LESSONS if les["course"] == "algebra2" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+          and len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-16wm-' in notes("main.py") and "2026-09-16  BUILD wm" in notes("lessonscripts.py")
           and "2026-09-16  BUILD wm" in notes("lessons/algebra2.py") and "2026-09-16  BUILD wm" in notes("ruletests.py")
@@ -19391,7 +19403,7 @@ def part3mi_the_first_precalc_sweep():
           str([k for k, v in _second.items() if v not in E(k)["recap"][-1][0]]))
     check("  every Pre-Calc lesson validates and the counts did not move (39,999; speechmap 2,246; no beat added)",
           all(ok for les in L.LESSONS if les["course"] == "precalc" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+          and len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-16wn-' in notes("main.py") and "2026-09-16  BUILD wn" in notes("lessonscripts.py")
           and "2026-09-16  BUILD wn" in notes("lessons/precalc.py") and "2026-09-16  BUILD wn" in notes("ruletests.py"), "")
@@ -19492,7 +19504,7 @@ def part3mj_the_first_calculus_sweep_half():
           and "15 times 15 is 225" in E("calc-u5-equal-halves-win")["recap"][-1][0], "")
     check("  every Calculus lesson validates; the course list is 39,999 (no beat added)",
           all(ok for les in L.LESSONS if les["course"] == "calculus" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+          and len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-16wo-' in notes("main.py") and "2026-09-16  BUILD wo" in notes("lessonscripts.py")
           and "2026-09-16  BUILD wo" in notes("lessons/calculus.py") and "2026-09-16  BUILD wo" in notes("ruletests.py"), "")
@@ -19625,7 +19637,7 @@ def part3mk_the_first_diffeq_sweep():
           and "Y is 180 over a lone s times the quantity s plus 12" in spoken(E("diffeq-u7-reading-the-ending")), "")  # (ws) "the quantity"
     check("  every Diffeq lesson validates; the course list is 39,999 (no beat added)",
           all(ok for les in L.LESSONS if les["course"] == "diffeq" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+          and len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-16wp-' in notes("main.py") and "2026-09-16  BUILD wp" in notes("lessonscripts.py")
           and "2026-09-16  BUILD wp" in notes("lessons/diffeq.py") and "2026-09-16  BUILD wp" in notes("ruletests.py"), "")
@@ -19786,7 +19798,7 @@ def part3ml_the_first_probstat_sweep():
           and "a distance like 19 — how far the stray sits from the crowd's centre at 7" in spoken(E("ps-u1-the-one-that-sits-alone")), "")
     check("  every Prob/Stat lesson validates; the course list is 39,999 (no beat added)",
           all(ok for les in L.LESSONS if les["course"] == "probstat" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+          and len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-17wq-' in notes("main.py") and "2026-09-17  BUILD wq" in notes("lessonscripts.py")
           and "2026-09-17  BUILD wq" in notes("lessons/probstat.py") and "2026-09-17  BUILD wq" in notes("ruletests.py")
@@ -19926,7 +19938,7 @@ def part3mm_the_second_calculus_sweep():
           and '[[step eq="3x² → 6x"]][[step eq="6x → 3x²"]]' in boards(E("calc-u6-the-rule-run-backwards")), "")
     check("  every Calculus lesson validates; the course list is 39,999 (no beat added)",
           all(ok for les in L.LESSONS if les["course"] == "calculus" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+          and len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-17wr-' in notes("main.py") and "2026-09-17  BUILD wr" in notes("lessonscripts.py")
           and "2026-09-17  BUILD wr" in notes("lessons/calculus.py") and "2026-09-17  BUILD wr" in notes("ruletests.py")
@@ -20033,7 +20045,7 @@ def part3mn_the_second_diffeq_sweep():
                   for t in C.transcript_for(E(lid), L) if t["kind"] in ("teach", "worked-example")), "")
     check("  every Diffeq lesson validates; the course list is 39,999 (no beat added); no dot joins two equations",
           all(ok for les in L.LESSONS if les["course"] == "diffeq" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39999
+          and len(L.course_audio_lines()) == 40010  # (wy) 39,999 -> 40,010: the story walk-backs name their nouns
           and not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', t["board"])
                       for les in C.lessons_for("diffeq", L) for t in C.transcript_for(les, L)), str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
@@ -20111,7 +20123,7 @@ def part3mo_the_referee_pile():
     check("⭐ THE PILE IS GONE: the canon's referees refuse at most the one intro card that names its own title, over every scripted beat of all ten courses (56 at wr)",
           len(left) <= 1 and all(lid == "basic-u5-fractions-on-the-number-line" for lid, _n, _r in left), str(left[:3]))
     check("  every lesson validates; the course list is 39,999",
-          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 39999, str(len(L.course_audio_lines())))
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-17wt-' in notes("main.py") and "2026-09-17  BUILD wt" in notes("lessonscripts.py")
           and "2026-09-17  BUILD wt" in notes("tutor.py") and "2026-09-17  BUILD wt" in notes("ruletests.py"), "")
@@ -20188,7 +20200,7 @@ def part3mp_the_second_precalc_sweep():
           and "hands over its numbers without any solving. The end number is the roots' product" in spoken(E("pc-u2-the-roots-secret")), "")
     check("  every Pre-Calc lesson validates; the course list is 39,999 (no beat added); the hole lesson's closure stays under 25,000",
           all(ok for les in L.LESSONS if les["course"] == "precalc" for ok, _l, _d in L.validate(les))
-          and len(L.course_audio_lines()) == 39999
+          and len(L.course_audio_lines()) == 40010  # (wy) 39,999 -> 40,010: the story walk-backs name their nouns
           and L.audio_cost_estimate(E("pc-u9-the-hole-in-the-curve"))["chars"] < 25000, str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-17wu-' in notes("main.py") and "2026-09-17  BUILD wu" in notes("lessonscripts.py")
@@ -20342,7 +20354,7 @@ def part3mr_the_third_precalc_sweep():
           and "And those are the forbidden x's — two of them, counted." in spoken(E("pc-u2-twice-forbidden"))
           and "In the first, the right angle stands the short side straight up. In the second, the sharp angle leans that short side forwards." in spoken(E("pc-u6-two-sides-and-the-angle")), "")
     check("  every lesson validates; the course list is 39,999; no dot joins two equations in Pre-Calc",
-          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 39999
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40010  # (wy) 39,999 -> 40,010: the story walk-backs name their nouns
           and not any(_re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', t["board"])
                       for les in C.lessons_for("precalc", L) for t in C.transcript_for(les, L)), str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
@@ -20431,12 +20443,101 @@ def part3ms_the_second_algebra2_sweep():
           and "Here is the first pair of slots as a grid. A row for each of the 2 shirts" in spoken(E("alg2-u9-three-slots"))
           and "When two values are multiplied, their stacks of layers join" in spoken(E("alg2-u6-logs-add")), "")
     check("  every lesson validates; the course list is 39,999; no dot joins two equations in Algebra II",
-          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 39999
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40010  # (wy) 39,999 -> 40,010: the story walk-backs name their nouns
           and not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', b) for les in L.LESSONS if les["course"] == "algebra2"
                       for b in [boards(les), les["explain"]["board"]] + [r[1] for r in les.get("recap", [])]), str(len(L.course_audio_lines())))
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-18wx-' in notes("main.py") and "2026-09-18  BUILD wx" in notes("lessonscripts.py")
           and "2026-09-18  BUILD wx" in notes("lessons/algebra2.py") and "2026-09-18  BUILD wx" in notes("ruletests.py"), "")
+
+
+def part3mt_the_fifth_entry_sweep():
+    """PART 3mt (build wy, 2026-09-18) -- THE FIFTH ENTRY SWEEP: 19 findings on all 36, 29
+    clean (the most Entry has had), 11 generator-owned on three ops; the chain is wa 219 ->
+    wc 70 -> wd 47 -> we 15 -> wf 14 -> now 19 after ww's engine change. The generator's
+    class was REPEATS: since ww the praise beat carries the worked board, and where a
+    walk-back said only what the praise had said, the child heard one sentence twice over
+    one picture. Measured over every course: six ops. All six are distinct now, and the
+    measurement is pinned. The stars stand for something in a story; the cube keeps its
+    unit; the authored lines draw the count they say."""
+    print("\nPART 3mt — the fifth Entry sweep (build wy)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for _s, b in les["teach"]) + " ".join(pr["worked"][1] for pr in les["pairs"])
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+    W = lambda p: L._worked_for(p)
+
+    # ---- the generator ---------------------------------------------------------
+    story = {"a": 2, "b": 1, "op": "+", "story": "Jo has 2 rocks. She finds 1 more. How many rocks does she have in all?"}
+    check("⭐ the star walk-back says what the stars stand for in a STORY problem -- counting all, counting on, and taking away -- and reads exactly as before without one",
+          W(story)[0] == "Here it is, step by step: each star stands for one of the rocks. Count every star, both groups — 1, 2, 3. 2 plus 1 equals 3."
+          and W({"a": 9, "b": 4, "op": "+", "story": "Sam has 9 shells. He finds 4 more. How many shells does he have in all?"})[0]
+              == "Here it is, step by step: each star stands for one of the shells. Start at 9 and count on 4 more: 10, 11, 12, 13. 9 plus 4 equals 13."
+          and W({"a": 3, "b": 1, "op": "-", "story": "Ed has 3 kites. 1 blows away. How many kites are left?"})[0]
+              == "Here it is, step by step: each star stands for one of the kites. 3, take 1 away — 2 are left."
+          and W({"a": 2, "b": 1, "op": "+"})[0] == "Here it is, step by step: count every star, both groups — 1, 2, 3. 2 plus 1 equals 3."
+          and W({"a": 3, "b": 1, "op": "-"})[0] == "Here it is, step by step: 3, take 1 away — 2 are left."
+          and L._story_noun({"a": 1, "b": 1, "op": "+"}) == "" and L._story_noun({"story": "Nobody counts anything here."}) == "", "")
+    check("  every story problem in the story lesson yields a noun, and the picture (the board) is unchanged",
+          all(L._story_noun(p) for p in E("entry-u3-story-problems")["bank"])
+          and all(L._story_noun(pr["ask"]) for pr in E("entry-u3-story-problems")["pairs"])
+          and W(story)[1] == W({"a": 2, "b": 1, "op": "+"})[1], str([p for p in E("entry-u3-story-problems")["bank"] if not L._story_noun(p)])[:120])
+    check("⭐ tens-and-ones' walk-back WORKS it -- '1 ten is 10. Then 2 ones: 10 plus 2 equals 12' over the place-value blocks AND the sum -- and is no longer the praise line said again",
+          W({"a": 1, "b": 2, "op": "t"})[0] == "Here it is, step by step: 1 ten is 10. Then 2 ones: 10 plus 2 equals 12."
+          and W({"a": 1, "b": 1, "op": "t"})[0] == "Here it is, step by step: 1 ten is 10. Then 1 one: 10 plus 1 equals 11."
+          and W({"a": 1, "b": 2, "op": "t"})[1] == '[[placevalue t="1" o="2" caption="1 ten and 2 ones = 12"]][[step eq="10 + 2 = 12"]]'
+          and L.praise_for({"a": 1, "b": 2, "op": "t"}, 0).endswith("1 ten and 2 ones — that is 12."), "")
+    check("⭐ cube's answered line keeps its unit: '11 cubes − 5 cubes = 6 cubes', and '3 cubes − 1 cube = 2 cubes'",
+          L.answered_board({"a": 11, "b": 5, "op": "cube"}, "abstract") == '[[step eq="11 cubes − 5 cubes = 6 cubes"]]'
+          and L.answered_board({"a": 3, "b": 1, "op": "cube"}, "abstract") == '[[step eq="3 cubes − 1 cube = 2 cubes"]]'
+          and L.answered_board({"a": 2, "b": 1, "op": "cube"}, "abstract") == '[[step eq="2 cubes − 1 cube = 1 cube"]]', "")
+    check("⭐ the five praise lines that were their walk-back word for word are CREDIT lines now -- the answer and the one reason, every number on the worked board",
+          PR("gsum", {"a": 2, "b": 2, "c": 5}) == "The whole run, added together: 62. The last term alone, 32, is only one piece of it."
+          and PR("pasc", {"a": 8, "b": 3}) == "56 teams. Order does not matter, so the 336 line-ups collapse: every team was counted 6 times."
+          and PR("avgr", {"a": 2, "b": 10}) == "12 per step — rise 96 over run 8, and that is simply 2 plus 10."
+          and PR("farv", {"a": 15, "b": 38}) == "The outlier is 38 — the one dot sitting alone, far from the crowd at 15."
+          and PR("pctl", {"a": 40, "b": 85}) == "34. 85 percent of 40 is 34, so that is how many she beat — a percent, not a headcount."
+          and all(str(n) in W(p)[1] for p, ns in (({"a": 2, "b": 2, "c": 5, "op": "gsum"}, (62, 32)), ({"a": 8, "b": 3, "op": "pasc"}, (56, 336, 6)),
+                                                    ({"a": 2, "b": 10, "op": "avgr"}, (12, 96, 8)), ({"a": 15, "b": 38, "op": "farv"}, (38, 15)),
+                                                    ({"a": 40, "b": 85, "op": "pctl"}, (34, 85, 40))) for n in ns), "")
+    # ---- the measurement: no praise beat equals its walk-back, any course --------------
+    same = []
+    for les in L.LESSONS:
+        T = C.transcript_for(les, L)
+        for i, t in enumerate(T):
+            if t["kind"] == "praise" and i + 1 < len(T) and T[i + 1]["kind"] == "walk-back":
+                p = t["spoken"]
+                for x in L.PRAISE_PREFIXES:
+                    if p.startswith(x):
+                        p = p[len(x):].strip()
+                w = T[i + 1]["spoken"].replace("Here it is, step by step: ", "").strip()
+                if p.lower().rstrip(".") == w.lower().rstrip("."):
+                    same.append((les["id"], t.get("op")))
+    check("⭐⭐ THE REPEATS ARE GONE: no praise beat is its walk-back word for word, in any lesson of any course (six ops at wx: t, gsum, pasc, avgr, farv, pctl)",
+          not same, str(sorted(set(same))[:6]))
+
+    # ---- the authored pile ---------------------------------------------------------
+    check("⭐ add-past-ten's two worked captions draw the count-on the words say, and the recap is in short sentences",
+          'caption="start at six and count on: 7, 8, 9, 10, 11"' in boards(E("entry-u2-add-past-ten"))
+          and 'caption="start at nine and count on: 10, 11, 12, 13, 14, 15"' in boards(E("entry-u2-add-past-ten"))
+          and "start at the bigger number. If they are the same, start at either one. Then count on once" in E("entry-u2-add-past-ten")["recap"][0][0], "")
+    check("⭐ hundreds' recap reads a THREE-DIGIT number; crossing-a-hundred adds the carried ten IF THERE IS ONE",
+          "how you read a three-digit number, up to nine hundred ninety-nine" in spoken(E("entry-u4-hundreds-tens-and-ones"))
+          and "any number up to" not in spoken(E("entry-u4-hundreds-tens-and-ones"))
+          and "Add the tens, and add the carried ten if there is one." in spoken(E("entry-u5-crossing-a-hundred")), "")
+    check("⭐ dimes-and-pennies draws the count it says -- the teach and both worked lines -- as one list each, no dot joining equations",
+          '[[step eq="10, 20, 30 — then 31, 32, 33, 34"]][[step eq="3 dimes = 30 cents"]]' in boards(E("entry-u7-dimes-and-pennies"))
+          and '[[step eq="10, 20 — then 21, 22, 23, 24, 25"]][[step eq="2 dimes + 5 pennies = 25 cents"]]' in boards(E("entry-u7-dimes-and-pennies"))
+          and '[[step eq="10, 20, 30, 40, 50 — then 51, 52"]][[step eq="5 dimes + 2 pennies = 52 cents"]]' in boards(E("entry-u7-dimes-and-pennies"))
+          and not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', b) for les in L.LESSONS if les["course"] == "entry"
+                      for b in [boards(les)] + [r[1] for r in les.get("recap", [])]), "")
+    check("  every lesson validates; the course list is 40,010 (39,999 + the eleven story walk-backs, which no longer share a line with the plain sums)",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40010, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-18wy-' in notes("main.py") and "2026-09-18  BUILD wy" in notes("lessonscripts.py")
+          and "2026-09-18  BUILD wy" in notes("lessons/entry.py") and "2026-09-18  BUILD wy" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -47339,6 +47440,7 @@ def main():
     part3mq_the_sweep_says_why_it_stopped()
     part3mr_the_third_precalc_sweep()
     part3ms_the_second_algebra2_sweep()
+    part3mt_the_fifth_entry_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

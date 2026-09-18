@@ -2,6 +2,23 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-18  BUILD wy -- THE FIFTH ENTRY SWEEP (19 findings on all 36, 29 clean, 11
+#               generator-owned on three ops; 14 at wf). (1) The star walk-backs said
+#               "count every star" for a story about rocks or shells: _story_noun reads
+#               the story's first counted noun and _col_add/_col_sub take it, so the
+#               walk-back opens "each star stands for one of the rocks" (BASE_WORKED
+#               passes it; every other caller is unchanged). (2) tens-and-ones' walk-back
+#               was the praise line word for word ("1 ten and 2 ones -- that is 12"), and
+#               since ww the praise carries the worked board too, so the child heard it
+#               twice: it WORKS it now ("1 ten is 10. Then 2 ones: 10 plus 2 equals 12")
+#               with the sum drawn under the blocks. (3) cube's pending line ends "= ?
+#               cubes" so the answered line keeps its unit ("6 cubes", "1 cube").
+#               (4) Measured over every course, the same repeat lived in five more ops --
+#               gsum, pasc, avgr, farv, pctl -- whose praise WAS the walk-back; each is a
+#               credit line now (the answer and its one reason, every number on the
+#               worked board), the walk-back keeps the steps, and PART 3mt pins that no
+#               praise equals its walk-back anywhere. Course lines 39,999 -> 40,010 (the
+#               eleven story walk-backs no longer share a line with the plain sums).
 #   2026-09-18  BUILD wx -- THE SECOND ALGEBRA II SWEEP (43 findings on 35 of 36, 14 clean, 5
 #               generator-owned on five ops; the first sweep was 73). (1) disc's walk-back
 #               said "1 crossings" for a zero test number -- a TOUCH, and no grammar; the
@@ -1015,7 +1032,25 @@ def _r100_walkback(a):
 # (sq) THE COLUMN, DRAWN AND READ BACK. The walk-back for adding and taking away
 # two-digit numbers: the stacked column with the carry (or the regrouping) shown,
 # and the words reading the column from the ones up, the way it is worked on paper.
-def _col_add(a, b):
+def _story_noun(p):
+    """(wy, 2026-09-18) THE STARS STAND FOR SOMETHING. A story problem ("Jo has 2
+    rocks. She finds 1 more.") is answered on the star board, and its walk-back
+    said "count every star" as if the rocks were stars. This reads the story's
+    first counted noun ("rocks") so the walk-back can say what each star stands
+    for. A problem with no story, or a story with no counted noun, yields "" and
+    the walk-back reads exactly as before."""
+    story = p.get("story") or ""
+    m = re.search(r"\b\d+ ([a-z]+)", story)
+    return m.group(1) if m else ""
+
+
+def _stars_stand_for(noun, then):
+    """The walk-back's opening: "each star stands for one of the rocks. Count ..." in a
+    story, and exactly the old "count ..." (lower case) without one."""
+    return f"each star stands for one of the {noun}. {then[0].upper()}{then[1:]}" if noun else then
+
+
+def _col_add(a, b, noun=""):
     total = a + b
     ones = a % 10 + b % 10
     if a >= 10 and b >= 10:
@@ -1048,21 +1083,22 @@ def _col_add(a, b):
         board = (f'[[objects emoji="⭐" groups="{a}" add="{b}" count="1" '
                  f'caption="count every star: {counts}"]]'
                  f'[[step eq="{a} + {b} = {total}"]]')
-        return (f"Here it is, step by step: count every star, both groups — "
-                f"{counts}. {a} plus {b} equals {total}.", board)
+        return (f"Here it is, step by step: {_stars_stand_for(noun, 'count every star, ')}"
+                f"both groups — {counts}. {a} plus {b} equals {total}.", board)
     if 1 <= small <= 9:
         counts = ", ".join(str(big + i) for i in range(1, small + 1))
         board = (f'[[objects emoji="⭐" groups="{a}" add="{b}" '
                  f'caption="start at {big} and count on: {counts}"]]'
                  f'[[step eq="{a} + {b} = {total}"]]')
-        return (f"Here it is, step by step: start at {big} and count on {small} more: "
-                f"{counts}. {a} plus {b} equals {total}.", board)
+        return (f"Here it is, step by step: {_stars_stand_for(noun, f'start at {big} and ')}"
+                f"count on {small} more: {counts}. {a} plus {b} equals {total}.", board)
     board = (f'[[objects emoji="⭐" groups="{a}" add="{b}" caption="{a} + {b} = {total}"]]'
              f'[[step eq="{a} + {b} = {total}"]]')
-    return (f"Here it is, step by step: {a} and {b} more — {a} plus {b} equals {total}.", board)
+    return (f"Here it is, step by step: {_stars_stand_for(noun, f'{a} and {b} more — ')}"
+            f"{a} plus {b} equals {total}.", board)
 
 
-def _col_sub(a, b):
+def _col_sub(a, b, noun=""):
     left = a - b
     if a >= 10 and b >= 10:
         if a % 10 < b % 10:
@@ -1083,14 +1119,20 @@ def _col_sub(a, b):
         return (spoken, board)
     board = (f'[[objects emoji="⭐" groups="{a}" take="{b}" caption="{a} − {b} = {left}"]]'
              f'[[step eq="{a} − {b} = {left}"]]')
-    return (f"Here it is, step by step: {a}, take {b} away — {left} are left.", board)
+    return (f"Here it is, step by step: {_stars_stand_for(noun, f'{a}, take {b} away — ')}"
+            f"{left} are left.", board)
 
 
 def _tens_ones_worked(p):
+    # (wy, 2026-09-18) THE WALK-BACK WORKS IT. It used to say "1 ten and 2 ones --
+    # that is 12", which is the praise line word for word; since ww the praise
+    # carries this board too, so the child heard the same sentence twice over the
+    # same picture. Now the walk-back turns the ten into 10 and adds the ones.
     a, b = p["a"], p["b"]
-    return (f"Here it is, step by step: {_plural(a, 'ten')} and {_plural(b, 'one')} — that is "
-            f"{10 * a + b}.",
-            f'[[placevalue t="{a}" o="{b}" caption="{_plural(a, "ten")} and {_plural(b, "one")} = {10 * a + b}"]]')
+    return (f"Here it is, step by step: {_plural(a, 'ten')} is {10 * a}. Then "
+            f"{_plural(b, 'one')}: {10 * a} plus {b} equals {10 * a + b}.",
+            f'[[placevalue t="{a}" o="{b}" caption="{_plural(a, "ten")} and {_plural(b, "one")} = {10 * a + b}"]]'
+            f'[[step eq="{10 * a} + {b} = {10 * a + b}"]]')
 
 
 # (sr, 2026-09-05) MULTIPLYING'S PICTURES. Small facts are an ARRAY (rows of dots
@@ -6599,8 +6641,8 @@ def _wor_worked(p):
 
 
 BASE_WORKED = {
-    "+": lambda p: _col_add(p["a"], p["b"]),
-    "-": lambda p: _col_sub(p["a"], p["b"]),
+    "+": lambda p: _col_add(p["a"], p["b"], _story_noun(p)),
+    "-": lambda p: _col_sub(p["a"], p["b"], _story_noun(p)),
     "t": _tens_ones_worked,
 }
 
@@ -7431,7 +7473,7 @@ OP_EXT = {
         # (va) ⚠️ RULE 41, same as hrl above -- uncaptioned since it was written.
         "board": lambda p: (f'[[bars data="pencil:{p["a"]} | crayon:{p["b"]}" '
                             f'caption="two bars side by side — how much longer is the pencil?"]]'
-                            f'[[step eq="{_plural(p["a"], "cube")} − {_plural(p["b"], "cube")} = ?"]]'),
+                            f'[[step eq="{_plural(p["a"], "cube")} − {_plural(p["b"], "cube")} = ? cubes"]]'),
         "praise": lambda p: (f"{_plural(p['a'], 'cube')} take away "
                              f"{_plural(p['b'], 'cube')} — the pencil is "
                              f"{_plural(p['a'] - p['b'], 'cube')} longer."),
@@ -11876,15 +11918,12 @@ OP_EXT = {
         # the adding for them.
         "board": _gsum_board,         # (tq) the pattern's machine (writing the terms would do the adding)
         "worked": _gsum_worked,       # (tq) the terms as bars, added
-        "praise": lambda p: (f"The terms are "
-                             + ", ".join(str(p["a"] * p["b"] ** i)
-                                         for i in range(p["c"]))
-                             + f" — put together, "
+        # (wy) a credit line; the walk-back lists the terms and adds them
+        "praise": lambda p: (f"The whole run, added together: "
                              f"{p['a'] * (p['b'] ** p['c'] - 1) // (p['b'] - 1)}. "
-                             f"The last term alone is only "
-                             f"{p['a'] * p['b'] ** (p['c'] - 1)}, and a "
-                             f"pattern that never grew would have stopped "
-                             f"at {p['a'] * p['c']}."),
+                             f"The last term alone, "
+                             f"{p['a'] * p['b'] ** (p['c'] - 1)}, is only one "
+                             f"piece of it."),
         "key": lambda p: (p["a"] * (p["b"] ** p["c"] - 1) // (p["b"] - 1)),
         # The errors: the LAST TERM handed back as the sum, and the
         # arithmetic habit -- the start counted c times.
@@ -11942,14 +11981,11 @@ OP_EXT = {
                              f"are possible?"),
         "board": _pasc_board,         # (tq) the crowd as an array
         "worked": _pasc_worked,       # (tq) line-ups beside teams
-        "praise": lambda p: (f"Picking in order would give "
-                             f"{_npr(p['a'], p['b'])} line-ups, but every "
-                             f"team of {p['b']} shows up "
-                             f"{_fact(p['b'])} times in that list — once "
-                             f"per order. Divide: "
-                             f"{_npr(p['a'], p['b'])} divided by "
-                             f"{_fact(p['b'])} equals "
-                             f"{_ncr(p['a'], p['b'])} teams."),
+        # (wy) a credit line; the walk-back does the divide
+        "praise": lambda p: (f"{_ncr(p['a'], p['b'])} teams. Order does not "
+                             f"matter, so the {_npr(p['a'], p['b'])} line-ups "
+                             f"collapse: every team was counted "
+                             f"{_fact(p['b'])} times."),
         "key": lambda p: _ncr(p["a"], p["b"]),
         # The errors: ORDER counted (the line-up count), and the crowd size
         # handed back.
@@ -12082,14 +12118,11 @@ OP_EXT = {
                              f"x, how much does y rise on average?"),
         "board": _avgr_board,         # (tq) the window on the curve
         "worked": _avgr_worked,       # (tq) the line through the two points
-        "praise": lambda p: (f"y climbs from {p['a'] * p['a']} to "
-                             f"{p['b'] * p['b']} — a rise of "
-                             f"{p['b'] * p['b'] - p['a'] * p['a']} — while "
-                             f"x moves {p['b'] - p['a']}. Divide: "
-                             f"{p['a'] + p['b']} per step, which is simply "
-                             f"{p['a']} plus {p['b']}. The rise alone and "
-                             f"the run alone are only halves of the "
-                             f"story."),
+        # (wy) a credit line; the walk-back climbs the curve
+        "praise": lambda p: (f"{p['a'] + p['b']} per step — rise "
+                             f"{p['b'] * p['b'] - p['a'] * p['a']} over run "
+                             f"{p['b'] - p['a']}, and that is simply "
+                             f"{p['a']} plus {p['b']}."),
         "key": lambda p: p["a"] + p["b"],
         # The errors: the RUN alone, and the RISE alone -- the two halves of
         # a slope, each mistaken for the whole.
@@ -12185,11 +12218,9 @@ OP_EXT = {
                              "value?"),
         "board": _farv_board,         # (tr) the dot plot, captioned (it had no caption -- rule 41)
         "worked": _farv_worked,       # (tr) the stray named
-        "praise": lambda p: (f"Nearly every dot crowds around {p['a']}, and "
-                             f"one sits alone out at {p['b']} — that stray "
-                             f"is the outlier. {p['a']} is where the crowd "
-                             f"is, and {p['b'] - p['a']} is only how far "
-                             f"the stray sits from it."),
+        # (wy) a credit line; the walk-back points at the crowd and the gap
+        "praise": lambda p: (f"The outlier is {p['b']} — the one dot sitting "
+                             f"alone, far from the crowd at {p['a']}."),
         "key": lambda p: p["b"],
         # The errors: the CROWD's value, and the GAP between them.
         "choices": lambda p: [p["b"], p["a"], p["b"] - p["a"]],
@@ -12290,13 +12321,11 @@ OP_EXT = {
                              f"{p['a']} did she beat?"),
         "board": _pctl_board,         # (tr) the hundred square as a percent; the pending line a statement (the old "how many beaten = ?" was a question inside a step)
         "worked": _pctl_worked,       # (tr) beaten beside above
-        "praise": lambda p: (f"{p['b']} percent of {p['a']} is "
-                             f"{p['a'] * p['b'] // 100}, so she beat "
-                             f"{p['a'] * p['b'] // 100} of them. The "
-                             f"{p['b']} is a PERCENT, never a headcount — "
-                             f"and the other "
-                             f"{p['a'] - p['a'] * p['b'] // 100} finished "
-                             f"ahead of her."),
+        # (wy) a credit line; the walk-back counts both sides of her
+        "praise": lambda p: (f"{p['a'] * p['b'] // 100}. {p['b']} percent of "
+                             f"{p['a']} is {p['a'] * p['b'] // 100}, so that "
+                             f"is how many she beat — a percent, not a "
+                             f"headcount."),
         "key": lambda p: p["a"] * p["b"] // 100,
         # The errors: the percentile read as a count of people, and the
         # OTHER side of the class counted.
