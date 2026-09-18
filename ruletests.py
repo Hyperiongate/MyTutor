@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-18  BUILD wx -- PART 3ms, THE SECOND ALGEBRA II SWEEP (43 findings on 35 of 36,
+#               14 clean; 73 at wk). disc's touch, expv's "about", gaus's reversed copy,
+#               rsol's forward check, rsum3's THIS cubic; the authored classes. Seven PART 3mh
+#               pins moved to the new wording (the test number's meetings, the slots, i's two
+#               lines, the which-x closing beat, the forbidden-x "hole" pin now covers the
+#               reason board, rsum3's walk-back) and two tl pins on disc's walk-back ("only
+#               what its sign says"; "1 touch"), each marked "(wx)".
 #   2026-09-17  BUILD ww -- PART 3mr, THE THIRD PRE-CALC SWEEP (60 findings on all 36, 15
 #               clean). The praise beat carries the worked board in walk-back lessons (the
 #               wt/3mo pin and 3ke's wc pin moved to the new shape; the measurement pinned:
@@ -19168,7 +19175,7 @@ def part3mh_the_first_algebra2_sweep():
           and "this cubic has THREE answers, one for each of its three different factors" in spoken(E("alg2-u3-three-crossings"))
           and "Every different factor donates one root, so three different factors make three crossings" in spoken(E("alg2-u3-three-crossings"))
           and "For today's curves — x squared, plus some x's, plus a plain number — the test number is" in spoken(E("alg2-u2-the-test-number"))
-          and "you never report it; its sign tells you how many crossings to report" in spoken(E("alg2-u2-the-test-number"))
+          and "you never report it; its sign tells you how many times the curve meets the x line" in spoken(E("alg2-u2-the-test-number"))  # (wx) a touch is not a crossing
           and "For the positive x's we used, y equals a number divided by x" in spoken(E("alg2-u4-sharing-shrinks"))
           and "and x itself is never zero" in spoken(E("alg2-u4-sharing-shrinks"))
           and "For today's functions, with a bottom like x take away a number, the one forbidden x" in spoken(E("alg2-u4-the-forbidden-x"))
@@ -19184,7 +19191,7 @@ def part3mh_the_first_algebra2_sweep():
           and "For today's numbers, power the neighbours" in spoken(E("alg2-u6-between-the-powers"))
           and "sits a little below the middle, so this is a guide, not a law" in spoken(E("alg2-u6-between-the-powers"))
           and "In these problems, each day the sample drops to half" in spoken(E("alg2-u6-the-fading-half"))
-          and "slots TIMES together when every choice in one slot can go with every choice in the next" in spoken(E("alg2-u9-three-slots"))
+          and "The choices in each slot TIMES together when every choice in one slot can go with every choice in the next" in spoken(E("alg2-u9-three-slots"))  # (wx) a category is a slot
           and "you win about 2 times out of every 6 plays" in spoken(E("alg2-u9-what-to-expect"))
           and "center of gravity" not in spoken(E("alg2-u9-what-to-expect"))
           and spoken(E("alg2-u9-what-to-expect")).count("a long-run average") == 2
@@ -19194,8 +19201,8 @@ def part3mh_the_first_algebra2_sweep():
     check("⭐ true statements: |−5| is 5; both answers 3i and −3i, the positive one taken; x times x times x; sine AND cosine flip; the mirror angle; USUALLY the biggest survives; roots never add to √51",
           "negative 5 sits 5 steps from zero — not less than 5 either" in spoken(E("alg2-u1-inside-the-distance"))
           and "neither is negative" not in spoken(E("alg2-u1-inside-the-distance"))
-          and "one answer is 3 times i, and the other is negative 3 times i. Today we take the positive one" in spoken(E("alg2-u2-a-new-number"))
-          and "solved by plus or minus the root of that number, times i — today we report the positive one" in spoken(E("alg2-u2-a-new-number"))
+          and "one answer is 3 times i, and the other is negative 3 times i. Today we take the one with the positive number in front of i" in spoken(E("alg2-u2-a-new-number"))  # (wx)
+          and "x squared equals negative a, for a positive a, is solved by plus or minus the root of a, times i — today we report the one with the positive number in front" in spoken(E("alg2-u2-a-new-number"))  # (wx) the root of the POSITIVE part
           and "cubed means three copies timesed together, x times x times x, never 3 times x" in spoken(E("alg2-u3-feed-the-cube"))
           and "lands opposite: sine and cosine flip sign" in spoken(E("alg2-u8-spin-once-more"))
           and "360 take away the angle is the mirror angle, not a full turn added" in spoken(E("alg2-u8-spin-once-more"))
@@ -19220,7 +19227,7 @@ def part3mh_the_first_algebra2_sweep():
           and "x cubed times x squared is x to the fifth" in spoken(E("alg2-u3-degrees-add"))
           and "64 times 128 is 8192, and the log of 8192 is 6 plus 7 — 13" in spoken(E("alg2-u6-logs-add")), "")
     _second = {"alg2-u2-where-it-turns": "the vertex's x, read straight off", "alg2-u2-both-answers-count": "2 plus 5 is 7",
-               "alg2-u4-sharing-shrinks": "14 shared by 2 is 7", "alg2-u4-which-x-was-fed": "the undo of dividing by x: one more divide",
+               "alg2-u4-sharing-shrinks": "14 shared by 2 is 7", "alg2-u4-which-x-was-fed": "when a number divided by x equals an answer, divide the number by the answer",  # (wx)
                "alg2-u4-the-forbidden-x": "an x this function refuses", "alg2-u5-between-the-squares": "one that is not whole",
                "alg2-u6-the-fading-half": "48 divided by 2, by 2, by 2 is 6"}
     check("  seven closing beats speak the equation their board writes (or say what the board means)",
@@ -19248,7 +19255,7 @@ def part3mh_the_first_algebra2_sweep():
     check("  the forbidden x is 'one forbidden x on an endless road' (teach and recap caption); the reason says 'the quantity'; 'one hole' is gone",
           "One forbidden x on an endless road" in spoken(E("alg2-u4-the-forbidden-x"))
           and 'caption="one forbidden x on an endless road"' in boards(E("alg2-u4-the-forbidden-x"))
-          and "hole" not in spoken(E("alg2-u4-the-forbidden-x")) and "hole" not in boards(E("alg2-u4-the-forbidden-x")).replace("the hole at x = 4", "")
+          and "hole" not in spoken(E("alg2-u4-the-forbidden-x")) and "hole" not in boards(E("alg2-u4-the-forbidden-x")) and "hole" not in E("alg2-u4-the-forbidden-x")["explain"]["board"]  # (wx) the reason caption said "hole" too -- it breaks
           and "by the quantity x take away 4" in E("alg2-u4-the-forbidden-x")["explain"]["spoken"], "")
     check("  every Algebra II lesson validates and the counts did not move (39,999; no beat added)",
           all(ok for les in L.LESSONS if les["course"] == "algebra2" for ok, _l, _d in L.validate(les))
@@ -20341,6 +20348,95 @@ def part3mr_the_third_precalc_sweep():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-17ww-' in notes("main.py") and "2026-09-17  BUILD ww" in notes("lessonscripts.py")
           and "2026-09-17  BUILD ww" in notes("lessons/precalc.py") and "2026-09-17  BUILD ww" in notes("ruletests.py"), "")
+
+
+def part3ms_the_second_algebra2_sweep():
+    """PART 3ms (build wx, 2026-09-18) -- THE SECOND ALGEBRA II SWEEP: 43 findings on 35 of 36
+    (one lesson lost to a transient 520 -- the sweep went on, as wv intends), 14 clean, 5
+    generator-owned on five ops; the first sweep (wk, read on wk) was 73. The class is the
+    upper courses' own: a law without its condition -- squares are never negative (REAL
+    ones), a cubic has three answers (THIS one, with three different factors), more factors
+    more crossings (different ones of the form x take away a number), a full turn changes
+    nothing (about where the arrow points)."""
+    print("\nPART 3ms — the second Algebra II sweep (build wx)")
+    import lessonscripts as L
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for _s, b in les["teach"]) + " ".join(pr["worked"][1] for pr in les["pairs"])
+    S = lambda p, lv="abstract": L.spoken_for(p, lv)
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+    W = lambda p: L._worked_for(p)
+
+    # ---- the generator ---------------------------------------------------------
+    check("⭐ disc's walk-back says what the sign says in the right words -- 2 crossings, 1 TOUCH, 0 crossings -- and the graph's caption agrees",
+          W({"a": 3, "b": 1, "op": "disc"})[0].endswith("only what its sign says: 2 crossings.")
+          and W({"a": 8, "b": 16, "op": "disc"})[0].endswith("only what its sign says: 1 touch.")
+          and W({"a": 2, "b": 7, "op": "disc"})[0].endswith("only what its sign says: 0 crossings.")
+          and 'caption="y = x² + 8x + 16 — 1 touch"' in W({"a": 8, "b": 16, "op": "disc"})[1]
+          and "1 crossings" not in W({"a": 8, "b": 16, "op": "disc"})[0], "")
+    check("⭐ expv's ask is a chance ('about 2 times out of every 3 plays'), as its board and praise always were (HIGH); rsum3's walk-back names THIS cubic with three different factors (HIGH)",
+          "you win 4 tokens about 2 times out of every 3 plays" in S({"a": 2, "b": 3, "c": 4, "op": "expv"})
+          and "exactly" not in S({"a": 2, "b": 3, "c": 4, "op": "expv"})
+          and "this cubic, with three different factors, has three answers" in W({"a": 1, "b": 3, "c": 6, "op": "rsum3"})[0]
+          and "a cubic has three answers" not in W({"a": 1, "b": 3, "c": 6, "op": "rsum3"})[0], "")
+    check("  gaus's praise pairs the list with a reversed copy (two copies of the sum, halved); rsol's praise checks forward, as its board does",
+          PR("gaus", {"a": 11, "b": 0}) == "Pair the list with a reversed copy of itself: 11 pairs, each 12. That is 11 times 12 for two copies of the sum, so halve it — 66."
+          and PR("rsol", {"a": 10, "b": 5}).endswith("Check it forward: 10 divided by 2 is 5.")
+          and "2 times 5" not in PR("rsol", {"a": 10, "b": 5}), "")
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ laws with their condition: REAL-number squares (HIGH); the root of the positive part (HIGH); the sign in front of i; meetings, not crossings; in this form; without a table; a rule Calculus explains; different factors like these (HIGH); for x not zero; the divide-by-the-answer rule (HIGH); the exponent of the nearer power; positive a and b in one base (HIGH); a full turn and where the arrow points; a category is a slot",
+          "real-number squares are never negative" in spoken(E("alg2-u2-a-new-number"))
+          and "A real-number square can never be negative" in spoken(E("alg2-u2-a-new-number"))
+          and "x squared equals negative a, for a positive a, is solved by plus or minus the root of a, times i" in spoken(E("alg2-u2-a-new-number"))
+          and "Today we take the one with the positive number in front of i." in spoken(E("alg2-u2-a-new-number"))
+          and "its sign tells you how many times the curve meets the x line" in spoken(E("alg2-u2-the-test-number"))
+          and "Report the meetings with the x line, never the messenger." in spoken(E("alg2-u2-the-test-number"))
+          and "In this form — a squared bracket plus a number — the vertex's x hides behind the opposite sign" in spoken(E("alg2-u2-where-it-turns"))
+          and "The formula answers without a table" in spoken(E("alg2-u2-where-it-turns"))
+          and "a rule for these graphs that Calculus will explain" in spoken(E("alg2-u3-the-wiggle-count"))
+          and "More different factors like these, more crossings." in spoken(E("alg2-u3-three-crossings"))
+          and "because three different factors give three roots, all added" == E("alg2-u3-three-crossings")["explain"]["answer"]
+          and "For x not equal to zero, split the top" in spoken(E("alg2-u4-the-survivor"))
+          and "when a number divided by x equals an answer, divide the number by the answer" in spoken(E("alg2-u4-which-x-was-fed"))
+          and "the exponent of that power is the closest whole-number log" in spoken(E("alg2-u6-between-the-powers"))
+          and "for positive a and b, in one base, the log of a times b is log a plus log b" in spoken(E("alg2-u6-logs-add"))
+          and '[[step eq="for a, b > 0, one base: log(a · b) = log a + log b"]]' in E("alg2-u6-logs-add")["recap"][-1][1]
+          and "a full turn changes NOTHING about where the arrow points" in spoken(E("alg2-u8-spin-once-more"))
+          and "adding it keeps the arrow in the same place" in spoken(E("alg2-u8-spin-once-more"))
+          and "every category is a slot" in spoken(E("alg2-u9-three-slots"))
+          and "Every category is a slot, and the choices in each slot times together" in spoken(E("alg2-u9-three-slots")), "")
+    check("⭐ words and board: the reason boards write what they ask (the two trips; 20 and 60); the worked lines draw their setups (10/30, 15/45); the test value written; the curve BREAKS at x = 4 (HIGH); the √30 check drawn; the closing boards read (the root, the height, the sample x2, the tripling pond); the dangling dot gone",
+          E("alg2-u1-the-bananas-cancel")["explain"]["board"].startswith('[[step eq="3 apples + 2 bananas = 14"]][[step eq="1 apple + 2 bananas = 8"]]')
+          and E("alg2-u9-the-sample-speaks")["explain"]["board"].startswith('[[step eq="20 asked, 5 yes · school 60 = 3 × 20"]]')
+          and '[[step eq="10 asked, 4 yes · school 30 = 3 × 10"]]' in boards(E("alg2-u9-the-sample-speaks"))
+          and '[[step eq="15 asked, 6 yes · school 45 = 3 × 15"]]' in boards(E("alg2-u9-the-sample-speaks"))
+          and '[[step eq="3² − 4·1 = 5, positive"]]' in boards(E("alg2-u2-the-test-number"))
+          and 'caption="the curve breaks at x = 4 — no point there"' in E("alg2-u4-the-forbidden-x")["explain"]["board"]
+          and '[[step eq="√30 is between 5 and 6 — not 15"]]' in boards(E("alg2-u5-undo-the-root"))
+          and "undone: x is 15 squared — 225" in spoken(E("alg2-u5-undo-the-root"))
+          and "up gives 1, down gives negative 1, and flat gives 0" in spoken(E("alg2-u8-the-height"))
+          and "Twenty asked, 5 said yes, a school of 60." in spoken(E("alg2-u9-the-sample-speaks"))
+          and "the sample speaks — 5 times 3, about 15" in spoken(E("alg2-u9-the-sample-speaks"))
+          and "the pond that triples, riding a ratio: 2 times 81 is 162" in spoken(E("alg2-u7-times-again"))
+          and '[[step eq="−2x means take away; the sign stays"]]' in boards(E("alg2-u3-feed-the-cube"))
+          and "take away · the sign stays" not in boards(E("alg2-u3-feed-the-cube")), "")
+    check("  unclear: the cube's reason says what a cube is; the hidden exponent's reason example has base 5 and log 3; 'the brick you were handed'; the survivor recap and the slots picture in short sentences; 'multiplied', not 'timesed', in the logs recap",
+          E("alg2-u3-feed-the-cube")["explain"]["answer"] == "because 5 cubed means 5 times 5 times 5, minus kept"
+          and "5 raised to what power equals 125? The logarithm is 3." in E("alg2-u6-the-hidden-exponent")["explain"]["spoken"]
+          and "because the base, 5, is the logarithm" in E("alg2-u6-the-hidden-exponent")["explain"]["choices"]
+          and '[[bars data="5¹:5 | 5²:25 | 5³:125" caption="5^3 = 125 — log = 3"]]' == E("alg2-u6-the-hidden-exponent")["explain"]["board"]
+          and "not one divide, and not the brick you were handed" in spoken(E("alg2-u6-the-hidden-exponent"))
+          and "split it into its parts. Whatever sits over x fades as x grows huge. Whatever rides on x survives." in spoken(E("alg2-u4-the-survivor"))
+          and "Here is the first pair of slots as a grid. A row for each of the 2 shirts" in spoken(E("alg2-u9-three-slots"))
+          and "When two values are multiplied, their stacks of layers join" in spoken(E("alg2-u6-logs-add")), "")
+    check("  every lesson validates; the course list is 39,999; no dot joins two equations in Algebra II",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 39999
+          and not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', b) for les in L.LESSONS if les["course"] == "algebra2"
+                      for b in [boards(les), les["explain"]["board"]] + [r[1] for r in les.get("recap", [])]), str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-18wx-' in notes("main.py") and "2026-09-18  BUILD wx" in notes("lessonscripts.py")
+          and "2026-09-18  BUILD wx" in notes("lessons/algebra2.py") and "2026-09-18  BUILD wx" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -34167,9 +34263,9 @@ def part3jh_algebra_two_units_one_to_three_to_the_shape():
           "[[graph" not in L.board_for(disc, "abstract") and "[[bars" not in L.board_for(disc, "abstract")
           and '[[bars data="4²:16 | 4 · 3:12" caption="16 against 12 — the test number is positive"]]' in _W(disc)[1]
           and '[[graph func="x^2+4*x+3" range="-7..3" caption="y = x² + 4x + 3 — 2 crossings"]]' in _W(disc)[1]
-          and "only its sign" in _W(disc)[0], "")
+          and "only what its sign says" in _W(disc)[0], "")  # (wx) "only its sign: 2 crossings" -> "only what its sign says: 2 crossings"
     check("  ...and the walk-back speaks the judgment for zero and for below zero too",
-          "exactly zero" in _W({"a": 4, "b": 4, "op": "disc"})[0] and "1 crossings" in _W({"a": 4, "b": 4, "op": "disc"})[0]
+          "exactly zero" in _W({"a": 4, "b": 4, "op": "disc"})[0] and "1 touch" in _W({"a": 4, "b": 4, "op": "disc"})[0]  # (wx) a touch, not "1 crossings"
           and "below zero" in _W({"a": 2, "b": 5, "op": "disc"})[0] and "0 crossings" in _W({"a": 2, "b": 5, "op": "disc"})[0], "")
     imag = {"a": 16, "b": 0, "op": "imag"}
     check("⭐ a new number: the blank on its own line (rule 44 -- the old line carried an unspoken number); the square on the array in the walk-back",
@@ -34190,7 +34286,7 @@ def part3jh_algebra_two_units_one_to_three_to_the_shape():
     rsum3 = {"a": 1, "b": 3, "c": 6, "op": "rsum3"}
     check("  three crossings: the cubic captioned; all three crossings marked in the walk-back",
           'caption="y = (x − 1)(x − 3)(x − 6) — three crossings; put together they equal?"' in L.board_for(rsum3, "abstract")
-          and 'points="(1,0),(3,0),(6,0)"' in _W(rsum3)[1] and "a cubic has three answers" in _W(rsum3)[0], "")
+          and 'points="(1,0),(3,0),(6,0)"' in _W(rsum3)[1] and "this cubic, with three different factors, has three answers" in _W(rsum3)[0], "")  # (wx)
     pval = {"a": 1, "b": 2, "c": 2, "op": "pval"}
     check("⭐ feed the cube: the machine with its door blank on the ask; answered in the walk-back",
           '[[machine input="2" rule="x³ − 1x + 2" output="?" caption=' in L.board_for(pval, "abstract")
@@ -47242,6 +47338,7 @@ def main():
     part3mp_the_second_precalc_sweep()
     part3mq_the_sweep_says_why_it_stopped()
     part3mr_the_third_precalc_sweep()
+    part3ms_the_second_algebra2_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

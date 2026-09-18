@@ -2,6 +2,19 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-18  BUILD wx -- THE SECOND ALGEBRA II SWEEP (43 findings on 35 of 36, 14 clean, 5
+#               generator-owned on five ops; the first sweep was 73). (1) disc's walk-back
+#               said "1 crossings" for a zero test number -- a TOUCH, and no grammar; the
+#               sign's verdict is now "2 crossings", "1 touch" or "0 crossings", and the
+#               graph's caption agrees. (2) expv's ask said you win "exactly 2 times out of
+#               every 3 plays" (HIGH) -- a chance, so "about", as its board and praise
+#               always said. (3) gaus's praise paired "11 numbers end to end" (the middle 6
+#               has no partner) -- now the list is paired with a reversed copy: 11 pairs of
+#               12, two copies of the sum, halved. (4) rsol's praise checked "2 times 5" while
+#               its board checks forward "10 ÷ 2 = 5" -- the praise checks forward too. (5)
+#               rsum3's walk-back: "a cubic has three answers" (HIGH) -> "this cubic, with
+#               three different factors, has three answers". Counts unchanged (course 39,999;
+#               speechmap 2,244; drift 1,938).
 #   2026-09-17  BUILD ww -- THE THIRD PRE-CALC SWEEP (60 findings on all 36, 15 clean, 28
 #               generator-owned). Twenty-five of the 28 were one shape that wt had CREATED:
 #               the praise beat spoke its working ("halve and count: 28, then 14, then 7 --
@@ -3798,11 +3811,13 @@ def _disc_worked(p):
                "exactly zero — the curve touches the x line once" if sq == fb else
                "below zero — the curve never reaches the x line")
     n = 2 if sq > fb else 1 if sq == fb else 0
+    # (wx) the sign's verdict in the right words: two crossings, ONE TOUCH, no crossings
+    meets = {2: "2 crossings", 1: "1 touch", 0: "0 crossings"}[n]
     return (f"Here it is, step by step: {a} squared is {sq}, and 4 times {b} is {fb}. The test "
-            f"number is {verdict}. You never report the test number, only its sign: "
-            f"{n} crossings.",
+            f"number is {verdict}. You never report the test number, only what its sign "
+            f"says: {meets}.",
             f'[[bars data="{a}²:{sq} | 4 · {b}:{fb}" caption="{sq} against {fb} — the test number is {verdict.split(" — ")[0]}"]]'
-            f'[[graph func="x^2+{a}*x+{b}" range="{-a - 3}..{3}" caption="y = x² + {a}x + {b} — {n} crossings"]]')
+            f'[[graph func="x^2+{a}*x+{b}" range="{-a - 3}..{3}" caption="y = x² + {a}x + {b} — {meets}"]]')
 
 
 def _imag_board(p):
@@ -3857,7 +3872,7 @@ def _rsum3_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     return (f"Here it is, step by step: three factors, three crossings — {a}, {b} and {c}. Put "
             f"together, {a} plus {b} plus {c} equals {a + b + c}. Not the product, and not "
-            f"two of three: a cubic has three answers.",
+            f"two of three: this cubic, with three different factors, has three answers.",
             f'[[graph func="(x-{a})*(x-{b})*(x-{c})" points="({a},0),({b},0),({c},0)" range="-1..{c + 2}" caption="crossings at {a}, {b} and {c} — {a} + {b} + {c} = {a + b + c}"]]'
             f'[[step eq="{a} + {b} + {c} = {a + b + c}"]]')
 
@@ -10426,9 +10441,9 @@ OP_EXT = {
         "worked": _rsol_worked,       # (tm) the input found and checked
         "praise": lambda p: (f"x times {p['b']} must rebuild {p['a']}, so x "
                              f"is {p['a']} divided by {p['b']} — "
-                             f"{p['a'] // p['b']}. Check: "
-                             f"{p['a'] // p['b']} times {p['b']} equals "
-                             f"{p['a']}."),
+                             f"{p['a'] // p['b']}. Check it forward: "
+                             f"{p['a']} divided by {p['a'] // p['b']} is "
+                             f"{p['b']}."),
         "key": lambda p: p["a"],
         # The errors: grabbing TIMES as the undo (a times b), and take away.
         "choices": lambda p: [p["a"] // p["b"], p["a"] * p["b"],
@@ -10800,9 +10815,10 @@ OP_EXT = {
                              f"to {p['a']}. What is the sum?"),
         "board": _gaus_board,         # (tn) 1 up to n on the number line, captioned
         "worked": _gaus_worked,       # (tn) the staircase rectangle, half of it the sum (bars past 19)
-        "praise": lambda p: (f"{p['a']} numbers, paired end to end, each pair "
-                             f"{p['a'] + 1}: the sum is {p['a']} times "
-                             f"{p['a'] + 1}, halved — "
+        "praise": lambda p: (f"Pair the list with a reversed copy of itself: "
+                             f"{p['a']} pairs, each {p['a'] + 1}. That is "
+                             f"{p['a']} times {p['a'] + 1} for two copies of "
+                             f"the sum, so halve it — "
                              f"{p['a'] * (p['a'] + 1) // 2}."),
         "key": lambda p: p["a"],
         # The errors: squaring ("n numbers, about n each"), and the last
@@ -11011,7 +11027,7 @@ OP_EXT = {
     },
     "expv": {  # expected value in child clothes: a wins of c tokens per b plays
         "ans": lambda p: p["a"] * p["c"],
-        "spoken": lambda p: (f"In a game, you win {p['c']} tokens exactly "
+        "spoken": lambda p: (f"In a game, you win {p['c']} tokens about "
                              f"{p['a']} times out of every {p['b']} plays. "
                              f"You play {p['b']} times. How many tokens "
                              f"should you EXPECT to win in all?"),
