@@ -6,6 +6,11 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-18  APP_BUILD -> "2026-09-18wz-the-second-basic-sweep". The second Basic reading
+#               (41 findings on all 36, 14 clean; 67 at wg): four generator ops in
+#               lessonscripts.py, 27 authored edits in lessons/basic.py, the table lesson's
+#               problem-space line in coursesweep.py, PART 3mu. Nothing in this file changed
+#               but the stamp.
 #   2026-09-18  APP_BUILD -> "2026-09-18wy-the-fifth-entry-sweep". The fifth Entry reading (19
 #               findings on all 36, 29 clean; 14 at wf): the story walk-backs name what the
 #               stars stand for, tens-and-ones' walk-back works the sum, cube keeps its unit,
@@ -9764,7 +9769,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-18wy-the-fifth-entry-sweep"
+APP_BUILD = "2026-09-18wz-the-second-basic-sweep"
 
 
 @app.get("/health")

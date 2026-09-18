@@ -4,15 +4,15 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk, the newest: **`2026-09-18wy-the-fifth-entry-sweep`**. Battery
-12,704 passed, 0 failed, 3 skipped (frozen copy, 2026-09-18). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
+On Jim's disk, the newest: **`2026-09-18wz-the-second-basic-sweep`**. Battery
+12,714 passed, 0 failed, 3 skipped (frozen copy, 2026-09-18). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
 half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
-whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18). Jim pushes and prewarms
+whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18). Jim pushes and prewarms
 each; check `/health`. The first round is over: every lesson in every course has been read
 once. **The second round has begun, and the cycle converges: Diffeq went 119 → 62 findings,
-0 → 8 clean, on one fix build; Pre-Calc 76 → 34 → (60 with wt's praise-board shape, fixed in the engine) 15 clean; Algebra II 73 → 43, 14 clean; Entry 14 → 19 (sixteen of them one engine consequence of ww, closed in wy) with 29 clean — the most any course has had.**
+0 → 8 clean, on one fix build; Pre-Calc 76 → 34 → (60 with wt's praise-board shape, fixed in the engine) 15 clean; Algebra II 73 → 43, 14 clean; Entry 14 → 19 (sixteen of them one engine consequence of ww, closed in wy) with 29 clean — the most any course has had; Basic 67 → 41, 7 → 14 clean.**
 
 **OpenAI credits were topped up on the evening of 09-17** (the cap is not the balance —
 an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes the card say
@@ -22,12 +22,12 @@ an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes t
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`.
 
 | course | sweeps so far | last result |
 |---|---|---|
 | Entry | wa (219) → wc (70) → wd (47) → we (15) → wf (14) → wg fixes → wx (19, all 36) → wy fixes, unswept | 19 findings (16 of them ww's praise-board consequence), 29 clean |
-| Basic | wg (67) → wh fixes, unswept | 67 findings, 7 clean |
+| Basic | wg (67) → wh fixes → wy (41, all 36) → wz fixes, unswept | 41 findings, 14 clean |
 | Pre-Algebra | wh (69) → wi fixes, unswept | 69 findings, 6 clean |
 | Algebra I | wi (72) → wk fixes, unswept | 72 findings, 8 clean |
 | Geometry | wk (63) → wl fixes, unswept | 63 findings, 7 clean |
@@ -39,10 +39,10 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 
 ## What to do next
 
-1. Jim pushes `wy`, confirms `/health`, runs the **prewarm** (three Entry ops' lines, five
-   credit lines in Pre-Calc and Prob/Stat, eight Entry rewrites).
-2. **Basic** next, against `wg`'s floor of 67 findings and 7 clean (fixed in `wh`); the report
-   becomes `wz`. Then Pre-Algebra, Algebra I, Geometry, Prob/Stat in first-round order. Expect the praise beats to read differently now: in a walk-back lesson
+1. Jim pushes `wz`, confirms `/health`, runs the **prewarm** (four Basic ops' lines and
+   roughly thirty Basic rewrites).
+2. **Pre-Algebra** next, against `wh`'s floor of 69 findings and 6 clean (fixed in `wi`); the
+   report becomes `xa`. Then Algebra I, Geometry, Prob/Stat in first-round order. Expect the praise beats to read differently now: in a walk-back lesson
    the praise carries the WORKED board (ww), so "the praise says N and the board shows only
    the answer" should be gone everywhere — if a sweep still raises it, it is a wrong-path
    number the worked board does not draw (draw it with a ✗, as ww did for four ops). And
@@ -79,11 +79,21 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
    "when a group follows a bell curve", "when no dot lands on the line". Entry's version
    (wy): a rule stated for the lesson's numbers as if it were general ("any number up to
    999", "add the carried ten") — scope it ("a three-digit number", "if there is one").
+   Basic's second reading (wz) was the same class one layer down ("one part is the
+   answer" → "for a fraction with 1 on top"; "every number" → "every whole number") plus a
+   generator shape: **a walk-back that says "step by step" and draws only the end** (wpc's
+   grid, simp's pie) — draw the steps it speaks as `[[step]]` lines above the picture.
 5. The night watch: paste any report; truth/HIGH gets built, the rest goes to the triage
    doc's ledger. `wj` added referee 101 (`aligndemo`, truth) and pendingzero's second shape.
 
 ## House decisions still open
 
+- **The times-table lesson's PROBLEM SPACE line says the pass (wz).** The sweep read "12
+  problems" on that lesson and called the intro's "all 81 facts" false (HIGH). The line
+  was wrong: the lesson practises as an 81-fact pass (sz) and its bank only feeds the
+  worked pairs, the quiz and the drill. `problem_space()` now says so for any lesson whose
+  `mastery` is "table". When a HIGH contradicts something the engine is known to do, check
+  what the reviewer was *told* before changing the lesson.
 - **The praise beat and the walk-back are two different sentences (wy).** The praise is a
   credit line — the answer and its one reason, every number of it on the board it carries;
   the walk-back is the steps, over the same board. Where an op's praise WAS its walk-back
@@ -140,7 +150,7 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 - Asserted string replacements (`assert s.count(a) == 1`) into `lessons/<course>.py` and
   `lessonscripts.py`; `L.validate` all 360 (the validator's canon: "what is left", never
   "remain"; a lesson's `symbols` must appear as the bare word — "cross", not "crossing"); `python3 tools/genspeechmap.py`; note the counts
-  (course **40,010** since wy; closure 40,264; speechmap 2,244 of 40,316; forSpeech drift 1,938;
+  (course **40,010** since wy; closure 40,264; speechmap 2,245 of 40,316; forSpeech drift 1,939 — both moved by one in wz for the tenths recap's "0.3 plus 0.4 is 0.7";
   referees **101**, truth class **12**, falsehood rows **25**; methodology tile 101).
 - **New trap (counts, wy):** a generated line that shares text across lessons is ONE course
   line — make it differ per lesson (a story noun) and the count moves by the number of

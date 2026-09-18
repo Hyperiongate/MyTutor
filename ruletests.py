@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-18  BUILD wz -- PART 3mu, THE SECOND BASIC SWEEP (41 findings on all 36, 14 clean;
+#               67 and 7 at wg). wpc and simp walk-backs draw the steps they say; the
+#               fraction-line captions say "1 fourth"; mtz's praise counts its zeros; the
+#               table lesson's PROBLEM SPACE line says the pass is 81 facts (the reviewer's
+#               "all 81 facts is false" was the line's fault); the authored classes. One pin
+#               moved (3mg's different-bottoms reason answer) and one tb simp pin (the walk-back
+#               board starts with the written divide); speechmap 2,244 -> 2,245 and
+#               drift 1,938 -> 1,939 (the tenths recap now says "0.3 plus 0.4 is 0.7").
 #   2026-09-18  BUILD wy -- PART 3mt, THE FIFTH ENTRY SWEEP (19 findings on all 36, 29 clean;
 #               14 at wf). The star walk-backs say what the stars stand for in a story
 #               problem ("each star stands for one of the rocks"); tens-and-ones' walk-back
@@ -14585,7 +14593,9 @@ def part3kx_the_next_line_is_already_loaded():
               # (wu) 1,939 -> 1,938: the ellipse's second worked line no longer says "over 196:
               # 14 each way" (the digit-colon-digit forSpeech read as a ratio) -- it reads the
               # whole equation, "over 36, equals 1: un-square 196"; speechmap 2,245 -> 2,244.
-              n == 1938, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
+              # (wz) 1,938 -> 1,939: the tenths recap says "0.3 plus 0.4 is 0.7" (the decimals
+              # are tidied); the same line moved speechmap 2,244 -> 2,245.
+              n == 1939, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
         check("  ⭐⭐ ...and not one of them is a mismatch any more: the label the server "
               "files under equals the label the page asks for, on every line",
               all(_M._spoken(t) == t or _M._spoken(t) != t for t in lines[:1])
@@ -14690,7 +14700,7 @@ def part3ky_one_label_for_every_clip():
         # (wl) 2,246 of 40,305: the fourth corner's second picture beat ("at (7, 6) — and the
         # box closes") joined the closure, and its coordinates re-key.
         check("  ...and it still holds the differences it was built for (2,246 since wl; 2,245 at wh; 2,244 at vx; 2,246 at vs; 2,245 at vm; 2,249 at vc)",
-              len(mapping) == 2244 and scanned == 40316,  # (wy) of 40,305 -> 40,316: the story walk-backs; nothing new re-keys  # (wo) 2,246 -> 2,245: the related-rates second worked line lost its "2 times 9 times 5"; (wu) -> 2,244: the ellipse's "over 196: 14" ratio-tidy
+              len(mapping) == 2245 and scanned == 40316,  # (wz) 2,244 -> 2,245: the tenths recap's "0.3 plus 0.4 is 0.7"; (wy) of 40,305 -> 40,316: the story walk-backs; nothing new re-keys  # (wo) 2,246 -> 2,245: the related-rates second worked line lost its "2 times 9 times 5"; (wu) -> 2,244: the ellipse's "over 196: 14" ratio-tidy
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
@@ -18653,7 +18663,7 @@ def part3mc_the_first_basic_sweep():
           and 'n="460"' in E("basic-u2-times-by-ten")["picture"][1][1], "")
     check("  different bottoms: the recap says one bottom fits inside the other, and the reason answer says ADD",
           "one bottom fits inside the other" in spoken(E("basic-u6-add-fractions-different-bottoms"))
-          and E("basic-u6-add-fractions-different-bottoms")["explain"]["answer"] == "because you can only add pieces that are the same size", "")
+          and E("basic-u6-add-fractions-different-bottoms")["explain"]["answer"] == "because the tops add only once the pieces match in size", "")   # (wz) the tops, once the pieces match
     check("  percent-of is scoped to its three percents; the LCM caption says 'before 12'; area is how much carpet COVERS",
           "For the percents we use today" in spoken(E("basic-u8-percent-of"))
           and "for these three, split into equal parts and take one" in spoken(E("basic-u8-percent-of"))
@@ -20538,6 +20548,90 @@ def part3mt_the_fifth_entry_sweep():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-18wy-' in notes("main.py") and "2026-09-18  BUILD wy" in notes("lessonscripts.py")
           and "2026-09-18  BUILD wy" in notes("lessons/entry.py") and "2026-09-18  BUILD wy" in notes("ruletests.py"), "")
+
+
+def part3mu_the_second_basic_sweep():
+    """PART 3mu (build wz, 2026-09-18) -- THE SECOND BASIC SWEEP: 41 findings on all 36, 14
+    clean (67 and 7 at wg, fixed in wh), 12 generator-owned on four ops. The generator's
+    class was the WALK-BACK THAT PROMISES STEPS AND DRAWS ONLY THE END (wpc's grid, simp's
+    pie); the authored class was Basic's own -- a rule for the lesson's numbers said as a
+    law ("one part is the answer", "every number", "any repeat", "you need what one
+    costs"). One reviewer mistake became a tool fix: the table lesson's PROBLEM SPACE line
+    said "12 problems", so "all 81 facts" read as false; the line now says the pass."""
+    print("\nPART 3mu — the second Basic sweep (build wz)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for _s, b in les["teach"]) + " ".join(pr["worked"][1] for pr in les["pairs"])
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+    W = lambda p: L._worked_for(p)
+    B = lambda p: L.board_for(p, "abstract")
+
+    # ---- the generator ---------------------------------------------------------
+    check("⭐ wpc's walk-back DRAWS the two multiplications it says, above the hundred grid",
+          W({"a": 7, "b": 10, "op": "wpc"})[1].startswith('[[step eq="10 × 10 = 100"]][[step eq="7 × 10 = 70"]][[hundredgrid shaded="70"')
+          and W({"a": 9, "b": 25, "op": "wpc"})[1].startswith('[[step eq="25 × 4 = 100"]][[step eq="9 × 4 = 36"]]')
+          and "9 times 4 is 36" in W({"a": 9, "b": 25, "op": "wpc"})[0], "")
+    check("⭐ simp's walk-back WRITES the divide, top and bottom, before the pies -- and the worked line in the lesson does the same",
+          W({"a": 14, "b": 21, "op": "simp"})[1].startswith('[[step eq="top: 14 ÷ 7 = 2"]][[step eq="bottom: 21 ÷ 7 = 3"]][[pie')
+          and W({"a": 8, "b": 12, "op": "simp"})[1].startswith('[[step eq="top: 8 ÷ 4 = 2"]][[step eq="bottom: 12 ÷ 4 = 3"]][[pie parts="12" shaded="8"')
+          and '[[step eq="top: 8 ÷ 4 = 2"]][[step eq="bottom: 12 ÷ 4 = 3"]][[pie parts="12" shaded="8" caption="8/12"]]' in boards(E("basic-u5-simplest-form")), "")
+    check("⭐ the fraction-line captions say '1 fourth', not '1 fourths' -- taking away and adding -- and the plural stays for more than one",
+          'hop back 1 fourth"' in B({"a": 3, "b": 1, "c": 4, "op": "fs"}) and 'hop back 2 sixths"' in B({"a": 5, "b": 2, "c": 6, "op": "fs"})
+          and 'hop 1 more eighth"' in B({"a": 2, "b": 1, "c": 8, "op": "fa"}) and 'hop 3 more eighths"' in B({"a": 2, "b": 3, "c": 8, "op": "fa"}), "")
+    check("⭐ mtz's praise counts its zeros: ONE holds the ones for times ten, TWO for a hundred -- the walk-back's own words",
+          PR("mtz", {"a": 27, "b": 10}) == "27 times 10 is 270 — every digit moved up, and a zero holds the ones."
+          and PR("mtz", {"a": 27, "b": 100}) == "27 times 100 is 2700 — every digit moved up, and two zeros hold the tens and the ones."
+          and "zeros" not in PR("mtz", {"a": 27, "b": 10}), "")
+    check("⭐ the table lesson's PROBLEM SPACE line says the pass -- all 81 facts -- not its bank's 12; every other lesson's line is as before",
+          C.problem_space(E("basic-u2-times-tables")).startswith("PROBLEM SPACE: a times-table pass -- all 81 facts, 1 × 1 to 9 × 9")
+          and "12 problems" not in C.problem_space(E("basic-u2-times-tables"))
+          and C.problem_space(E("basic-u2-what-multiplying-means")).startswith("PROBLEM SPACE: ") and "problems;" in C.problem_space(E("basic-u2-what-multiplying-means"))
+          and C.problem_space({"bank": [], "pairs": []}).startswith("PROBLEM SPACE: (none")
+          and "all 81 facts, one after another" in E("basic-u2-times-tables")["practice_intro"], "")
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ laws with their condition: most bigger sums; halfway hops up; the tens piece with its tens; every WHOLE number (HIGH); EQUAL groups shared EQUALLY; the buses arrive now, regular repeats; a fraction with 1 on top (HIGH x2); the tops once the pieces match (HIGH); the same whole; bunches of different sizes; for a rectangle",
+          "carry you through most bigger sums and take-aways" in spoken(E("basic-u1-multi-digit-review"))
+          and "a number exactly halfway hops up" in spoken(E("basic-u1-rounding-hundreds"))
+          and "the tens piece is the same fact with its tens" in spoken(E("basic-u2-multiply-two-digit"))
+          and "it works for every whole number" in spoken(E("basic-u2-times-by-ten"))
+          and "Equal groups put together — that is times. A pile shared out equally — that is divided by." in spoken(E("basic-u3-story-problems"))
+          and "Two buses arrive now; one comes every 2 minutes, the other every 3. When do they arrive together again?" in spoken(E("basic-u4-least-common-multiple"))
+          and "regular repeats on two different beats, like every 2 minutes and every 3" in spoken(E("basic-u4-least-common-multiple"))
+          and "for a fraction with 1 on top, the bottom says how many equal parts" in spoken(E("basic-u5-fraction-of-a-group"))
+          and "A fraction with 1 on top, of a group: the bottom says" in spoken(E("basic-u5-fraction-of-a-group"))
+          and "You cannot count the tops together yet; halves and fourths are different-sized pieces." in spoken(E("basic-u6-add-fractions-different-bottoms"))
+          and "When two fractions of the same whole have the SAME bottom" in spoken(E("basic-u6-add-fractions-same-bottom"))
+          and "When the bunches are different sizes, the fair way to compare is what ONE costs" in spoken(E("basic-u8-one-costs"))
+          and "For a rectangle, area is long times wide, not long plus wide." in E("basic-u9-area")["explain"]["spoken"], "")
+    check("⭐ words and board: the closing boards are read (3 × 4; 0.3 + 0.4; the perimeter); 0.43 is drawn; the other shop's price is drawn; the shared-out groups are drawn; the three hops are drawn; the 65-percent steps are drawn",
+          "4 plus 4 plus 4 is 3 times 4, and both equal 12" in spoken(E("basic-u2-what-multiplying-means"))
+          and "0.3 plus 0.4 is 0.7" in spoken(E("basic-u7-tenths"))
+          and "5 plus 3 plus 5 plus 3, 16 all the way round" in spoken(E("basic-u9-perimeter"))
+          and E("basic-u7-tenths-and-hundredths")["recap"][-1][1] == '[[step eq="0.43 = 4 tenths + 3 hundredths = 43 hundredths"]]'
+          and E("basic-u8-one-costs")["recap"][-1][1] == '[[step eq="12 ÷ 6 = 2 dollars each"]][[step eq="9 ÷ 3 = 3 dollars each"]]'
+          and "3 apples for 9 dollars is 3 dollars for one — so the first shop is cheaper" in spoken(E("basic-u8-one-costs"))
+          and E("basic-u4-missing-factors")["picture"][0][1].endswith('[[array rows="3" cols="4" view="groups" eq="3 × 4 = 12" caption="shared out: every box gets 4"]]')
+          and 'hops="0,0.25,0.375,0.5,0.625"' in E("basic-u6-add-fractions-same-bottom")["picture"][0][1]
+          and '[[step eq="20 × 5 = 100"]][[step eq="13 × 5 = 65, so 65 percent"]]' in boards(E("basic-u8-what-percent-is-it")), "")
+    check("  the reason questions have one right answer: the ones column, the outside edges (no 'perimeter' before it is taught), a quarter turn is 45; the tone line; the picture in short sentences",
+          "because it sits in the ones column" in E("basic-u1-place-value-to-1000")["explain"]["choices"]
+          and "because it comes second" not in E("basic-u1-place-value-to-1000")["explain"]["choices"]
+          and "because plus counts the outside edges" in E("basic-u9-area")["explain"]["choices"] and "perimeter" not in E("basic-u9-area")["explain"]["choices"]
+          and "because a quarter turn is 45 degrees" in E("basic-u9-quarter-turns")["explain"]["choices"] and "half of 360" not in E("basic-u9-quarter-turns")["explain"]["choices"]
+          and "Practise them, and the next lessons will feel familiar." in spoken(E("basic-u1-multi-digit-review"))
+          and "Get them quick" not in spoken(E("basic-u1-multi-digit-review"))
+          and "Every digit slides up one column. The 4 tens become 4 hundreds. The 6 ones become 6 tens." in spoken(E("basic-u2-times-by-ten")), "")
+    check("  every lesson validates; the course list is 40,010 (no beat added); no dot joins two equations in Basic",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40010
+          and not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', b) for les in L.LESSONS if les["course"] == "basic"
+                      for b in [boards(les), les.get("explain", {}).get("board", "")] + [r[1] for r in les.get("recap", [])]), str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-18wz-' in notes("main.py") and "2026-09-18  BUILD wz" in notes("lessonscripts.py")
+          and "2026-09-18  BUILD wz" in notes("lessons/basic.py") and "2026-09-18  BUILD wz" in notes("ruletests.py")
+          and "2026-09-18  BUILD wz" in notes("coursesweep.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -32478,7 +32572,7 @@ def part3iq_basic_unit_five_to_the_shape():
           '[[pie parts="12" shaded="9"' in L.board_for(sm, "abstract")
           and '[[pie parts="4" shaded="3"' in _W(sm)[1] and "divide both by 3" in _W(sm)[0]
           and L.board_for(sb, "abstract") == '[[step eq="22/24 → ?/…"]]'
-          and _W(sb)[1] == '[[pie parts="12" shaded="11" caption="11 out of 12 — the same amount, simplest form"]]', _W(sb)[1])
+          and _W(sb)[1] == '[[step eq="top: 22 ÷ 2 = 11"]][[step eq="bottom: 24 ÷ 2 = 12"]][[pie parts="12" shaded="11" caption="11 out of 12 — the same amount, simplest form"]]', _W(sb)[1])   # (wz) the divide is written first
     check("  no pie in Unit 5 asks for more than 12 parts (the figure's cap)",
           all(int(m.group(1)) <= 12
               for lid in U5 for p in list(L.LESSON_BY_ID[lid]["bank"]) + [pr["ask"] for pr in L.LESSON_BY_ID[lid]["pairs"]]
@@ -47441,6 +47535,7 @@ def main():
     part3mr_the_third_precalc_sweep()
     part3ms_the_second_algebra2_sweep()
     part3mt_the_fifth_entry_sweep()
+    part3mu_the_second_basic_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

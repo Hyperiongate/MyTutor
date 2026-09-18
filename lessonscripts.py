@@ -2,6 +2,16 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-18  BUILD wz -- THE SECOND BASIC SWEEP (41 findings on all 36, 14 clean, 12
+#               generator-owned on four ops; 67 at wg). (1) wpc's walk-back promised steps
+#               and drew only the hundred grid: the two multiplications ("10 × 10 = 100",
+#               "7 × 10 = 70") are drawn above it, and the praise carries the same board.
+#               (2) simp's walk-back drew only the pies: the divide is written top and
+#               bottom ("top: 14 ÷ 7 = 2", "bottom: 21 ÷ 7 = 3") before them. (3) The
+#               fraction-line ask captions said "hop back 1 fourths" -- singular for one
+#               hop, in fs and fa. (4) mtz's praise said "the gap was filled with zeros"
+#               for 270 -- it counts them now, as the walk-back does ("a zero holds the
+#               ones"; "two zeros hold the tens and the ones"). No count moved.
 #   2026-09-18  BUILD wy -- THE FIFTH ENTRY SWEEP (19 findings on all 36, 29 clean, 11
 #               generator-owned on three ops; 14 at wf). (1) The star walk-backs said
 #               "count every star" for a story about rocks or shells: _story_noun reads
@@ -1463,7 +1473,8 @@ def _simp_worked(p):
     a, b = p["a"], p["b"]
     g = _gcd(a, b)
     na, nb = a // g, b // g
-    board = ""
+    # (wz, 2026-09-18) the divide-by-g step is WRITTEN, top and bottom, before the pies
+    board = f'[[step eq="top: {a} ÷ {g} = {na}"]][[step eq="bottom: {b} ÷ {g} = {nb}"]]'
     if b <= 12:
         board += f'[[pie parts="{b}" shaded="{a}" caption="{a} out of {b}"]]'
     board += f'[[pie parts="{nb}" shaded="{na}" caption="{na} out of {nb} — the same amount, simplest form"]]'
@@ -1488,7 +1499,7 @@ def _fl(c, hops=None, points=None, caption=""):
 
 def _fa_board(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (_fl(c, points=[a], caption=f"start at {a}/{c} — hop {b} more {_FRACWORD[c][1]}")
+    return (_fl(c, points=[a], caption=f"start at {a}/{c} — hop {b} more {_FRACWORD[c][b != 1]}")
             + f'[[step eq="{a}/{c} + {b}/{c} = ?/{c}"]]')
 
 
@@ -1503,7 +1514,7 @@ def _fa_worked(p):
 
 def _fs_board(p):
     a, b, c = p["a"], p["b"], p["c"]
-    return (_fl(c, points=[a], caption=f"start at {a}/{c} — hop back {b} {_FRACWORD[c][1]}")
+    return (_fl(c, points=[a], caption=f"start at {a}/{c} — hop back {b} {_FRACWORD[c][b != 1]}")
             + f'[[step eq="{a}/{c} − {b}/{c} = ?/{c}"]]')
 
 
@@ -1634,9 +1645,11 @@ def _wpc_worked(p):
     a, b = p["a"], p["b"]
     k = 100 // b
     pct = 100 * a // b
+    # (wz, 2026-09-18) the two multiplications the words say are drawn above the grid
     return (f"Here it is, step by step: percent means out of a hundred. {b} times {k} is a "
             f"hundred, so do the same to the top — {a} times {k} is {pct}. {a} out of "
             f"{b} is {pct} percent.",
+            f'[[step eq="{b} × {k} = 100"]][[step eq="{a} × {k} = {pct}"]]'
             f'[[hundredgrid shaded="{pct}" unit="percent" caption="{a} out of {b} = {pct} out of 100 = {pct}%"]]')
 
 
@@ -6671,7 +6684,9 @@ OP_EXT = {
                             f'digit up"]][[step eq="{p["a"]} × {p["b"]} = ?"]]'),
         "worked": _mtz_worked,
         "praise": lambda p: (f"{p['a']} times {p['b']} is {p['a'] * p['b']} — every "
-                             f"digit moved up, and the gap was filled with zeros."),
+                             f"digit moved up, and "
+                             + ("a zero holds the ones." if p["b"] == 10 else
+                                "two zeros hold the tens and the ones.")),
         "key": lambda p: p["a"] * p["b"],
         "check": lambda p: (2 <= p["a"] <= 99 and p["b"] in (10, 100)
                             and p["a"] % 10 != 0,

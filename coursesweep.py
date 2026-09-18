@@ -3,6 +3,12 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-18  BUILD wz -- THE TABLE LESSON'S PROBLEM SPACE IS THE PASS. The second Basic
+#               sweep read "PROBLEM SPACE: 12 problems" on the times-table lesson and called
+#               the intro's "all 81 facts" false (HIGH). The line was wrong, not the intro:
+#               that lesson practises as an 81-fact pass and its bank only feeds the worked
+#               pairs, the quiz and the drill. problem_space() now says so for any lesson
+#               whose mastery is "table".
 #   2026-09-17  BUILD wv -- THE SWEEP SAYS WHY IT STOPPED. With the reader's credits at zero,
 #               a Pre-Calc sweep "finished" in 7.7 s: 36 identical 429s, "0 findings in 36
 #               lessons" on the card, read as a hung sweep. run_sweep now stops after
@@ -295,6 +301,13 @@ def problem_space(lesson, L=None) -> str:
     if L is None:
         import lessonscripts as L  # noqa: N812
     probs = list(lesson.get("bank") or []) + [pr["ask"] for pr in (lesson.get("pairs") or [])]
+    # (wz, 2026-09-18) a times-table lesson practices as a PASS -- all 81 facts -- and its
+    # bank is only the worked pairs' asks; the second Basic sweep read "12 problems" and
+    # called the intro's "all 81 facts" false. The line says what the pass is.
+    if lesson.get("mastery") == "table":
+        return ("PROBLEM SPACE: a times-table pass -- all 81 facts, 1 × 1 to 9 × 9, one after "
+                "another (the transcript shows the first few); the bank's facts are the worked "
+                "pairs' asks, not the pass")
     if not probs:
         return "PROBLEM SPACE: (none -- a table pass)"
     parts = []
