@@ -2,6 +2,24 @@
 # lessons/algebra1.py  --  ALGEBRA I: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-19  BUILD xb -- THE SECOND ALGEBRA I SWEEP (50 findings on all 36, 10 clean; 44
+#               authored, 42 answered here). The equation AS GIVEN on the board: two-steps-
+#               back's worked line and reason board open with the balance as given; the
+#               closing "3x + 2 = 3 × 4 + 2 = 14" carries "x = 4" first (HIGH); "x + 4 < 11"
+#               before its undo; the x | y bar before the swap; y = 3x + 2 on the closing
+#               board; the bracketed rule on both lowest-point boards; trip two on the
+#               eraser board. Laws with their condition: x bigger than 3; a function gives
+#               ONE output for each input it is allowed (HIGH, why and recap); the rising
+#               lines in this lesson; the buys differ by one pencil (HIGH); "two prices";
+#               powers of the SAME base add their counts (HIGH); whole-number powers; a rule
+#               LIKE y = x squared plus a number. Words and board: f(3) MEANS; the closing
+#               boards read (x + 2y, x < 7, y at 4, x squared is 25, the middle term); "2
+#               times the whole of 5 x plus 2"; half of 25 is 12.5, said and drawn; "in one
+#               line"; "5 pencils each". Unclear and tone: the input defined first; the two
+#               machines named; "the number timesed by 3"; "multiplies the 3"; "a common
+#               mix-up"; "multiply the climb by x"; "the bigger answer"; seven long
+#               sentences split. Declined: two "reason choices are never read aloud" lines
+#               (tap-only by design, the wx ruling).
 #   2026-09-16  BUILD wk -- THE FIRST ALGEBRA I SWEEP: 63 authored findings, 56 answered
 #               here (the generator's in lessonscripts.py's note; two were ruled in
 #               coursesweep.py). By class:
@@ -157,9 +175,9 @@ _ALGEBRA1_U1 = [
              "the plus comes last. For a line like this one, with no brackets: two "
              "moves, in that order.",
              '[[step eq="x = 4"]][[step eq="3x + 2 = 3 × 4 + 2 = 12 + 2 = 14"]]'),
-            ("The order is the whole game. If you add first — 4 plus 2 is 6, then "
-             "times 3; the brackets on the board mean 4 plus 2 was done first — you "
-             "get 18, and 18 is wrong. The 2 is added after the three "
+            ("The order is the whole game. If you add first, 4 plus 2 is 6. Then 3 "
+             "times 6 is 18, and 18 is wrong. The brackets on the board mean 4 plus 2 "
+             "was done first. The 2 is added after the three "
              "copies are counted, not to each copy. Look at the bar: the 2 is one "
              "piece on the end, not three.",
              '[[step eq="3 × 4 + 2 = 14 ✓"]][[step eq="3 × (4 + 2) = 18 ✗"]][[tape parts="4 | 4 | 4 | 2" total="14" caption="the 2 is one piece on the end, not three"]]'),
@@ -192,7 +210,7 @@ _ALGEBRA1_U1 = [
              "plus waits its turn.",
              '[[tape parts="4 | 4 | 4 | 2" total="14" caption="x = 4 · 3x + 2 = 14"]]'),
             ("And that is two old moves, working together for the first time.",
-             '[[step eq="3x + 2 = 3 × 4 + 2 = 14"]]'),
+             '[[step eq="x = 4"]][[step eq="3x + 2 = 3 × 4 + 2 = 14"]]'),
         ],
         "bank": [
             {"a": 2, "b": 3, "c": 5, "op": "ev2"},
@@ -267,7 +285,8 @@ _ALGEBRA1_U1 = [
              "its own. A number against a letter is copies of THAT letter only. "
              "Times first, then add.",
              '[[tape parts="3 | 4 | 4" total="11" caption="x = 3, y = 4 · x + 2y = 11"]]'),
-            ("And that is a price and a count, side by side in one expression.",
+            ("And that is two letters side by side in one expression — a price and a "
+             "count, say: x is 3, two y's are 8, and together they make 11.",
              '[[step eq="x + 2y = 3 + 2 × 4 = 11"]]'),
         ],
         "bank": [
@@ -377,7 +396,8 @@ _ALGEBRA1_U1 = [
              '[[goal text="The minus goes through too"]]'),
         ],
         "picture": [
-            ("Here is a rectangle 4 tall and x take away 3 wide. The rooms are 4 "
+            ("Here is a rectangle 4 tall and x take away 3 wide — x is bigger than 3 "
+             "here, so the width is a real one. The rooms are 4 "
              "times x, and 4 times 3, which equals 12 — and that room is TAKEN AWAY, "
              "because the width was x with 3 taken off. So 4 times the whole of x "
              "take away 3 comes to 4 x take away 12.",
@@ -410,10 +430,10 @@ _ALGEBRA1_U1 = [
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. 4 times the whole "
                        "of x take away 3 is 4 x take away 12. Tap the reason why."),
-            "choices": ("because the 4 times the 3 too, and that room comes off | "
+            "choices": ("because the 4 multiplies the 3 too, and that room comes off | "
                         "because the 4 stops at the minus, so the 3 stays | "
                         "because a minus inside turns the answer into 4 x plus 12"),
-            "answer": "because the 4 times the 3 too, and that room comes off",
+            "answer": "because the 4 multiplies the 3 too, and that room comes off",
             "board": '[[areamodel rows="4" cols="x,-3" caption="4(x − 3) = 4x − 12"]]',
         },
         "recap": [
@@ -514,8 +534,8 @@ _ALGEBRA1_U2 = [
         },
         "recap": [
             ("So, here it is again. An equation is a balance, and equals means level. "
-             "To find x, undo what was done to it — the undo of a plus is a take away "
-             "— and do it to BOTH sides so the scale stays level.",
+             "To find x, undo what was done to x. The undo of a plus is a take away. "
+             "Do it to BOTH sides so the scale stays level.",
              '[[balance left="x + 4" right="11" caption="x + 4 = 11 · 4 off both sides · x = 7"]]'),
             ("And that is the first kind of equation you solved today.",
              '[[step eq="x + 4 = 11, so x = 7"]]'),
@@ -646,7 +666,7 @@ _ALGEBRA1_U2 = [
              "ask": {'a': 2, 'b': 4, 'c': 14, 'op': 'un3'}},
             {"worked": ("One more together. 5 x plus 2 equals 27. Take the 2 off: 5 x "
                         "equals 25. Share between 5: x equals 5.",
-                        '[[balance left="5x" right="25" caption="2 off both sides"]][[balance left="x" right="5" caption="shared between 5: x = 5"]][[step eq="5x = 25"]][[step eq="x = 5"]]'),
+                        '[[balance left="5x + 2" right="27" caption="as given: 5x + 2 = 27"]][[balance left="5x" right="25" caption="2 off both sides"]][[balance left="x" right="5" caption="shared between 5: x = 5"]][[step eq="5x = 27 − 2 = 25"]][[step eq="x = 5"]]'),
              "ask": {'a': 5, 'b': 3, 'c': 38, 'op': 'un3'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
@@ -659,7 +679,7 @@ _ALGEBRA1_U2 = [
                         "because 8 is left after the 3, so x equals 8 | because "
                         "you share by 2 first, then take 3 off"),
             "answer": "because the 3 comes off first, then 8 is shared by 2",
-            "board": '[[balance left="2x" right="8" caption="3 off both sides"]][[balance left="x" right="4" caption="shared between 2: x = 4"]]',
+            "board": '[[balance left="2x + 3" right="11" caption="as given: 2x + 3 = 11"]][[balance left="2x" right="8" caption="3 off both sides"]][[balance left="x" right="4" caption="shared between 2: x = 4"]]',
         },
         "recap": [
             ("So, here it is again. Two disguises, two undos, and last on comes off "
@@ -708,8 +728,8 @@ _ALGEBRA1_U2 = [
         "teach": [
             ("That is the method. Undo it exactly like an equation: take 3 from both "
              "sides. x is less than 7. On the number line, that is everything to the "
-             "left of 7 — and 7 itself is not included, because x plus 3 has to stay "
-             "under 10, not land on it.",
+             "left of 7. The 7 itself is not included, because 7 plus 3 lands on 10 "
+             "instead of staying under it.",
              '[[step eq="x + 3 < 10"]][[step eq="x < 10 − 3 = 7"]][[numberline min="0" max="9" ineq="x<7" caption="everything to the left of 7 — 7 is shut out"]]'),
             ("So what is the biggest WHOLE number x can hold? Not 7 — less than shuts "
              "the door on 7 itself. Try it: 7 plus 3 equals 10, and 10 is not less "
@@ -719,7 +739,7 @@ _ALGEBRA1_U2 = [
         "pairs": [
             {"worked": ("Here is one more, done for you. x plus 4 is less than 11. Take "
                         "4 off: x is less than 7, so the biggest whole number is 6.",
-                        '[[numberline min="0" max="9" ineq="x<7" points="6" caption="x < 7 — the biggest whole number is 6"]][[step eq="x < 11 − 4 = 7"]][[step eq="biggest whole number: 6"]]'),
+                        '[[step eq="x + 4 < 11"]][[numberline min="0" max="9" ineq="x<7" points="6" caption="x < 7 — the biggest whole number is 6"]][[step eq="x < 11 − 4 = 7"]][[step eq="biggest whole number: 6"]]'),
              "ask": {'a': 3, 'b': 9, 'op': 'ineq'}},
             {"worked": ("One more together. x plus 5 is less than 14. x is less than 9 "
                         "— the biggest whole number x can hold is 8.",
@@ -742,11 +762,12 @@ _ALGEBRA1_U2 = [
         },
         "recap": [
             ("So, here it is again. Undo a plus in a less-than exactly like an "
-             "equation: take it off both sides. What you get is a boundary, not x "
-             "itself — and less than shuts the door on the boundary, so the biggest "
-             "whole number is the one just below it.",
+             "equation: take it off both sides. What you get is a boundary — a "
+             "stopping point — not x itself. Less than shuts the door on that boundary, "
+             "so the biggest whole number is the one just below it.",
              '[[numberline min="0" max="9" ineq="x<7" points="6" caption="x + 3 < 10 · x < 7 · biggest whole number 6"]]'),
-            ("And that is a crowd of answers, with a fence at one end.",
+            ("And that is a crowd of answers, with a fence at one end: x plus 3 is "
+             "less than 10, so x is less than 7.",
              '[[step eq="x + 3 < 10, so x < 7"]]'),
         ],
         "bank": [
@@ -794,13 +815,14 @@ _ALGEBRA1_U3 = [
              "that turns one number into another. A price into a price with tax, a "
              "temperature into another scale, a time into a distance. A machine that "
              "eats numbers is the honest picture of that: one rule painted on its "
-             "side, followed on whatever you feed it, no exceptions. That is all a "
-             "function is.",
+             "side, and for every number it is allowed to eat, exactly one number "
+             "comes out. That is all a function is.",
              '[[goal text="The number machine"]]'),
         ],
         "picture": [
-            ("Here is the machine. Its rule is painted on the box: times the input "
-             "by 2, then add 1 — written two x plus one, where x is whatever goes in. "
+            ("Here is the machine. The input is the number that goes in. Its rule is "
+             "painted on the box: times the input by 2, then add 1 — written two x "
+             "plus one, where x is whatever goes in. "
              "A 4 goes in the left door. Inside, the rule runs in "
              "order — 2 times 4 is 8, then 8 plus 1 is 9 — and a 9 comes out the "
              "right door.",
@@ -812,8 +834,8 @@ _ALGEBRA1_U3 = [
              "9. Out comes 9.",
              '[[machine input="4" rule="2x + 1" output="9" caption="in 4, out 9"]][[step eq="2 × 4 = 8"]][[step eq="8 + 1 = 9"]]'),
             ("The rule says its steps in order, and the order is part of the rule. "
-             "Times by 2 THEN add 1 is not the same machine as add 1 then times by 2 "
-             "— feed them both a 4 and one puts out 9, the other 10.",
+             "Times by 2 THEN add 1 is not the same machine as add 1 then times by 2. "
+             "Feed them both a 4: the first machine puts out 9, the second puts out 10.",
              '[[step eq="2 × 4 + 1 = 9 ✓"]][[step eq="(4 + 1) × 2 = 10 — a DIFFERENT machine"]]'),
         ],
         "pairs": [
@@ -840,7 +862,8 @@ _ALGEBRA1_U3 = [
             "board": '[[machine input="4" rule="2x + 1" output="9" caption="in 4, out 9"]]',
         },
         "recap": [
-            ("So, here it is again. A function is a machine with one rule. Feed it a "
+            ("So, here it is again. A function is a machine with one rule: each number "
+             "it is allowed to eat gives exactly one number out. Feed it a "
              "number, run the rule in the order it says, and read what comes out. "
              "Change the order and you have a different machine.",
              '[[machine input="4" rule="2x + 1" output="9" caption="in 4, out 9"]]'),
@@ -893,7 +916,7 @@ _ALGEBRA1_U3 = [
              "number against parentheses meant TIMES. Here, f followed by 3 in parentheses does NOT "
              "mean f times 3 — there is no timesing anywhere. It is the machine\'s "
              "name and its meal. Same marks, different job.",
-             '[[step eq="f(3) = feed f the number 3 ✓"]][[step eq="f × 3 ✗ — nothing is being timesed"]]'),
+             '[[step eq="f(3) means: feed f the number 3 ✓"]][[step eq="f × 3 ✗ — nothing is being timesed"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you — a new machine, still called f. f of x equals x plus 4. f of "
@@ -955,8 +978,8 @@ _ALGEBRA1_U3 = [
         ],
         "picture": [
             ("Here are two machines, nose to tail. The first adds 2; the second times "
-             "by 3. Feed a 4 into the first: 4 plus 2 is 6, and that 6 does not stop "
-             "— it rolls straight into the second machine, where 6 times 3 is 18. In "
+             "by 3. Feed a 4 into the first: 4 plus 2 is 6. That 6 does not stop — "
+             "it rolls straight into the second machine. There, 6 times 3 is 18. In "
              "4, out 18.",
              '[[machine input="4" rule="x + 2" output="6" caption="machine one: in 4, out 6"]][[machine input="6" rule="3x" output="18" fname="g" caption="machine two: in 6, out 18"]]'),
         ],
@@ -988,10 +1011,10 @@ _ALGEBRA1_U3 = [
             "spoken": ("One more thing — not the answer, the reason. Back to our first two machines: the first machine "
                        "adds 2, the second times by 3, and a 4 goes in. Out comes 18. "
                        "Tap the reason why."),
-            "choices": ("because the 6 from machine one is what gets timesed | "
+            "choices": ("because the 6 from machine one is the number timesed by 3 | "
                         "because the 4 is timesed first, then the 2 goes on | because "
                         "both machines run on the 4 and the answers add"),
-            "answer": "because the 6 from machine one is what gets timesed",
+            "answer": "because the 6 from machine one is the number timesed by 3",
             "board": '[[machine input="4" rule="x + 2" output="6" caption="in 4, out 6"]][[machine input="6" rule="3x" output="18" fname="g" caption="in 6, out 18"]]',
         },
         "recap": [
@@ -1045,7 +1068,7 @@ _ALGEBRA1_U3 = [
              "take away 3 equals 7. The input was 7.",
              '[[machine input="?" rule="x + 3" output="10" fname="f" caption="in ?, out 10 — run it backwards"]][[step eq="? + 3 = 10"]][[step eq="? = 10 − 3 = 7"]]'),
             ("Check it by running the machine forwards: feed 7, and 7 plus 3 equals "
-             "10. It fits. The careless move is running the machine forwards with "
+             "10. It fits. A common mix-up is running the machine forwards with "
              "the OUTPUT — feeding it the 10 and getting 13. The 10 came out of the "
              "machine; it never went in.",
              '[[step eq="f(7) = 10 ✓"]][[step eq="10 + 3 = 13 ✗ — the 10 came OUT, it never went in"]]'),
@@ -1198,8 +1221,9 @@ _ALGEBRA1_U4 = [
         "symbols": ("slope", "line"),
         "advance_line": "Three in a row, and you can say why — you've got it! The slope is the climb, not the height.",
         "why": [
-            ("Why the climb? Because lines are straight, and straight means FAIR: "
-             "every time x steps one to the right, y climbs by the same amount. That "
+            ("Why the climb? Because lines are straight, and straight means FAIR. For "
+             "the rising lines in this lesson, every time x steps one to the right, y "
+             "climbs by the same amount. That "
              "amount — the climb per step — is called the slope. It is the line\'s "
              "personality: big slope, steep line; small slope, gentle line.",
              '[[goal text="The climb of a line"]]'),
@@ -1398,11 +1422,12 @@ _ALGEBRA1_U4 = [
         },
         "recap": [
             ("So, here it is again. y equals 3 x plus 2 means start at 2 and climb 3 "
-             "per step. For any x, times the climb by the steps, then add the start "
+             "per step. For any x, multiply the climb by x, then add the start "
              "— and land on the x you were asked about, not one short.",
              '[[graph lines="y=3x+2" points="(4,14)" range="0..6" caption="3 × 4 + 2 = 14"]]'),
-            ("And that is the whole line, answering any x you like.",
-             '[[step eq="y = 3 × 4 + 2 = 14"]]'),
+            ("And that is the whole line, answering any x you like — at x equals 4, "
+             "3 times 4 plus 2 is 14.",
+             '[[step eq="y = 3x + 2"]][[step eq="y = 3 × 4 + 2 = 14"]]'),
         ],
         "bank": [
             {"a": 2, "b": 2, "c": 2, "op": "lin2"},
@@ -1462,9 +1487,9 @@ _ALGEBRA1_U5 = [
         ],
         "teach": [
             ("That is the method. The crossing is the one x where both lines stand at "
-             "the same height. You can find it without the picture too: if both "
-             "rules give the same y, then x plus 2 EQUALS 3 x — an equation, and you "
-             "know what to do with equations. It is true at x equals 1: both sides "
+             "the same height. You can find it without the picture too. Both rules "
+             "give the same y there, so x plus 2 EQUALS 3 x. That is an equation, and "
+             "you know what to do with equations. It is true at x equals 1: both sides "
              "are 3, so 3 equals 3.",
              '[[graph lines="y=x+2; y=3x" range="0..4" caption="they cross at (1, 3)"]][[step eq="x + 2 = 3x"]][[step eq="true at x = 1: 3 = 3"]]'),
             ("Keep the question straight. The answer asked for is the x of the "
@@ -1534,7 +1559,7 @@ _ALGEBRA1_U5 = [
              "y is x plus 2 — so the y piece is really an x piece and a 2. Swap it "
              "in, and the bar holds two x\'s and a 2. Take the 2 off and two x\'s "
              "are 8, so one x is 4.",
-             '[[tape parts="x | x | 2" total="10" caption="x + y = 10, and y = x + 2 — two x\'s and a 2"]][[tape parts="4 | 4 | 2" total="10" caption="x = 4 · y = 6"]]'),
+             '[[tape parts="x | y" total="10" caption="x + y = 10"]][[tape parts="x | x | 2" total="10" caption="y = x + 2 swapped in — two x\'s and a 2"]][[tape parts="4 | 4 | 2" total="10" caption="x = 4 · y = 6"]]'),
         ],
         "teach": [
             ("That is the method. y equals x plus 2. Also, x plus y equals 10. Swap "
@@ -1566,7 +1591,7 @@ _ALGEBRA1_U5 = [
                        "and x plus y equals 10, so x is 4. Tap the reason why."),
             "choices": ("because swapping y in leaves two x\'s and a 2 weighing 10 | "
                         "because 10 shared between x and y is 5 each | because y is 6, "
-                        "and 6 is the bigger letter"),
+                        "and 6 is the bigger answer"),
             "answer": "because swapping y in leaves two x\'s and a 2 weighing 10",
             "board": '[[tape parts="4 | 4 | 2" total="10" caption="x = 4 · y = 6 · 4 + 6 = 10"]]',
         },
@@ -1698,9 +1723,9 @@ _ALGEBRA1_U5 = [
              '[[tape parts="5 | 5 | eraser" total="14" caption="pencil 5, pencil 5, and the eraser"]][[step eq="difference: 1 pencil = 14 − 9 = 5"]]'),
             ("And the eraser? Put the pencil back into trip two: 5 plus eraser "
              "equals 9, so the eraser is 4 cents. Careful when you tap — 4 is the "
-             "ERASER\'S price, and the question asked for the pencil. A system holds "
-             "two answers, and only one of them is yours.",
-             '[[step eq="pencil = 5 ✓"]][[step eq="eraser = 4 — the other unknown"]][[step eq="check: 2 × 5 + 4 = 14 ✓"]]'),
+             "ERASER\'S price, and the question asked for the pencil. This shopping "
+             "system has two prices, and only one of them is yours.",
+             '[[step eq="pencil = 5 ✓"]][[step eq="trip two: 5 + eraser = 9, so eraser = 4"]][[step eq="check: 2 × 5 + 4 = 14 ✓"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Two pencils and an eraser, 12 "
@@ -1729,8 +1754,9 @@ _ALGEBRA1_U5 = [
         },
         "recap": [
             ("So, here it is again. Two buys with the same amount of one unknown in "
-             "both: take one away from the other and that unknown vanishes, leaving "
-             "the other one alone. Then answer with the one you were asked for.",
+             "both: take one away from the other and that unknown vanishes. In these "
+             "problems the buys differ by one pencil, so one pencil is left alone. Then "
+             "answer with the one you were asked for.",
              '[[tape parts="5 | 5 | 4" total="14" caption="trip one: 14"]][[tape parts="5 | 4" total="9" caption="trip two: 9 — take it away: one pencil = 5"]]'),
             ("And that is a price found with no price ever told.",
              '[[step eq="1 pencil = 14 − 9 = 5"]]'),
@@ -1773,12 +1799,12 @@ _ALGEBRA1_U6 = [
         "op": "exadd", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("power", "x"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Multiplying powers ADDS the counts.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Multiplying powers of the same base ADDS the counts.",
         "why": [
             ("Why count copies? Because you know x to the power 3 means three x\'s "
              "multiplied. So what is x to the 3, times x to the 2? Do not guess — "
-             "WRITE IT OUT and count. A power is just a count of copies, and counts "
-             "you can see.",
+             "WRITE IT OUT and count. For whole-number powers like these, a power is "
+             "just a count of copies, and counts you can see.",
              '[[goal text="Counting the copies"]]'),
         ],
         "picture": [
@@ -2109,8 +2135,8 @@ _ALGEBRA1_U7 = [
              "which equals 6. So x plus 2, times x plus 3, comes to x squared plus 5 "
              "x plus 6.",
              '[[areamodel rows="x,2" cols="x,3" caption="read the rooms"]][[step eq="(x + 2)(x + 3) = x² + 5x + 6"]]'),
-            ("Two different jobs in one picture: the MIDDLE rooms add the two numbers "
-             "— 2 plus 3 equals 5 — and the CORNER room times them — 2 times 3 equals "
+            ("Two different jobs in one picture. The MIDDLE rooms add the two numbers "
+             "— 2 plus 3 equals 5, the middle term 5 x. The CORNER room times them — 2 times 3 equals "
              "6. Mixing those two jobs up is the whole danger of this unit, so say "
              "them apart: middles add, corner times.",
              '[[step eq="middles: 2 + 3 = 5"]][[step eq="middle term: 5x"]][[step eq="corner: 2 × 3 = 6"]]'),
@@ -2144,7 +2170,7 @@ _ALGEBRA1_U7 = [
              "TIMES the two numbers. Middles add, corner times.",
              '[[areamodel rows="x,2" cols="x,3" caption="(x + 2)(x + 3) = x² + 5x + 6"]]'),
             ("And that is every pair of two-piece brackets like these, in one "
-             "picture.",
+             "line.",
              '[[step eq="(x + 2)(x + 3) = x² + 5x + 6"]]'),
         ],
         "bank": [
@@ -2272,11 +2298,11 @@ _ALGEBRA1_U7 = [
              '[[step eq="3(2x + 3) ✓"]][[step eq="3(2x + 9) ✗ — that is 6x + 27"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. 10 x plus 4 equals 2 times, 5 x "
-                        "plus 2. Both the 10 and the 4 gave up their 2.",
+            {"worked": ("Here is one more, done for you. 10 x plus 4 equals 2 times the "
+                        "whole of 5 x plus 2. Both the 10 and the 4 gave up their 2.",
                         '[[areamodel rows="2" cols="5x,2" caption="10x + 4 = 2(5x + 2)"]][[step eq="10x + 4 = 2(5x + 2)"]]'),
              "ask": {'a': 3, 'b': 5, 'c': 2, 'op': 'gcfx'}},
-            {"worked": ("One more together. 15 x plus 10 equals 5 times, 3 x plus 2.",
+            {"worked": ("One more together. 15 x plus 10 equals 5 times the whole of 3 x plus 2.",
                         '[[areamodel rows="5" cols="3x,2" caption="15x + 10 = 5(3x + 2)"]][[step eq="15x + 10 = 5(3x + 2)"]]'),
              "ask": {'a': 7, 'b': 2, 'c': 3, 'op': 'gcfx'}},
         ],
@@ -2460,7 +2486,7 @@ _ALGEBRA1_U8 = [
             "board": '[[graph func="x^2+2" points="(3,11)" range="-4..4" caption="the point (3, 11)"]]',
         },
         "recap": [
-            ("So, here it is again. A rule with x squared in it bends into a bowl. "
+            ("So, here it is again. A rule like y equals x squared plus a number bends into a bowl. "
              "Read it like any rule — swap in the x, square it by timesing it by "
              "itself, then add the rest. Squared is never times two.",
              '[[graph func="x^2+2" points="(3,11)" range="-4..4" caption="3² + 2 = 11"]]'),
@@ -2489,8 +2515,8 @@ _ALGEBRA1_U8 = [
         "symbols": ("zero", "x"),
         "advance_line": "Three in a row, and you can say why — you've got it! A product is zero only when a factor is zero.",
         "why": [
-            ("Why two answers? Because here is a fact so plain it hides its power: "
-             "zero times ANYTHING is zero — and a product only ever lands on zero "
+            ("Why two answers? Because here is a fact so plain it hides its power. "
+             "Zero times ANYTHING is zero. A product only ever lands on zero "
              "when one of the things multiplied is zero. So if two brackets multiply to zero, one of the brackets "
              "MUST be zero. There is no other way.",
              '[[goal text="Zero times anything"]]'),
@@ -2590,7 +2616,7 @@ _ALGEBRA1_U8 = [
              "curved. The 3 says WHERE the low point sits, left and right. The 2 says "
              "HOW LOW the curve goes. Asked for the lowest y, the answer is the plus "
              "number, not the number inside the brackets.",
-             '[[step eq="lowest y = 2 ✓"]][[step eq="3 ✗ — that is where it sits, not how low"]]'),
+             '[[step eq="y = (x − 3)² + 2"]][[step eq="lowest y = 2 ✓"]][[step eq="3 ✗ — that is where it sits, not how low"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. y equals: x take away 5, "
@@ -2621,7 +2647,7 @@ _ALGEBRA1_U8 = [
              "part bottoms out at 0 and the plus number is the floor. The number "
              "inside the brackets says where the floor sits; the plus number says "
              "how low.",
-             '[[graph func="(x-3)^2+2" points="(3,2)" range="0..6" caption="lowest y = 0 + 2 = 2"]]'),
+             '[[step eq="y = (x − 3)² + 2"]][[graph func="(x-3)^2+2" points="(3,2)" range="0..6" caption="lowest y = 0 + 2 = 2"]]'),
             ("And that is a floor no bowl ever goes under.",
              '[[step eq="lowest y = 0 + 2 = 2"]]'),
         ],
@@ -2668,10 +2694,11 @@ _ALGEBRA1_U8 = [
              "x equals 5.",
              '[[graph func="25-x^2" points="(5,0)" range="0..6" caption="the ground at x = 5"]][[step eq="25 − x² = 0"]][[step eq="x² = 25"]][[step eq="x = 5"]]'),
             ("That backwards question has a name: 5 is the square root of 25 — the "
-             "positive number that squares to it. It is not half of 25. Halving undoes "
+             "positive number that squares to it. It is not half of 25, which would be "
+             "12 and a half. Halving undoes "
              "doubling; the square root undoes SQUARING, and we saw in the curve "
              "lesson that those are different beasts.",
-             '[[step eq="x = 5 ✓ (5² = 25)"]][[step eq="x = 12 ✗ — half undoes DOUBLING, not squaring"]]'),
+             '[[step eq="x = 5 ✓ (5² = 25)"]][[step eq="x = 12.5 ✗ — half undoes DOUBLING, not squaring"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. y equals 36 take away x "
@@ -2702,7 +2729,8 @@ _ALGEBRA1_U8 = [
              "the rule to zero and ask what number squared equals the starting height. That "
              "number is the square root — and it undoes squaring, not doubling.",
              '[[graph func="25-x^2" points="(5,0)" range="0..6" caption="25 − x² = 0 at x = 5"]]'),
-            ("And that is how the world falls, read off a curve.",
+            ("And that is how the world falls, read off a curve: x squared is 25, so "
+             "x is 5.",
              '[[step eq="x² = 25, so x = 5"]]'),
         ],
         "bank": [
@@ -3010,7 +3038,7 @@ _ALGEBRA1_U9 = [
         "show_work_on_correct": True,
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. Four children have "
-                       "5 pencils and one has 45, and the median is 5. Tap the reason "
+                       "5 pencils each, one has 45, and the median is 5. Tap the reason "
                        "why."),
             "choices": ("because the middle child, counting in from both ends, has 5 | "
                         "because 65 shared between 5 is 13, so the median is 13 | "

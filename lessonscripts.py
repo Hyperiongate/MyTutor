@@ -2,6 +2,13 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-19  BUILD xb -- THE SECOND ALGEBRA I SWEEP (50 findings on all 36, 10 clean, 6
+#               generator-owned on three ops; 72 at wi). (1) exmul said "3 times 4" in the
+#               praise over a caption that wrote "4 × 3": b copies of a x's is "b times a"
+#               everywhere now -- the ask's step line, the praise, the walk-back and its
+#               caption. (2) sumd's walk-back opened with a thirty-word sentence; three
+#               short ones. Declined: roots' "the choices are not read aloud" (every tap
+#               question is tap-only by design, the wx ruling). No count moved.
 #   2026-09-18  BUILD xa -- THE SECOND PRE-ALGEBRA SWEEP (58 findings on all 36, 9 clean,
 #               14 generator-owned on five ops; 69 at wh). (1) THE NEAR-REPEAT CLASS. wy
 #               closed the praise that was its walk-back word for word; parf and tba were
@@ -2861,8 +2868,9 @@ def _sumd_worked(p):
     a, b = p["a"], p["b"]
     big = (a + b) // 2
     small = (a - b) // 2
-    return (f"Here it is, step by step: add the two clues and the smaller cancels itself away — two "
-            f"bigs equal {a} plus {b}, which is {a + b}, so the bigger is {big}. The smaller "
+    # (xb) short sentences after a miss
+    return (f"Here it is, step by step: add the two clues. The smaller cancels itself away. "
+            f"Two bigs equal {a} plus {b}, which is {a + b}, so the bigger is {big}. The smaller "
             f"is what is left: {small}. Check both: {big} plus {small} is {a}, and {big} take "
             f"away {small} is {b}.",
             f'[[tape parts="{big} | {small}" total="{a}" caption="{big} + {small} = {a} · {big} − {small} = {b}"]]')
@@ -2912,7 +2920,7 @@ def _exmul_board(p):
             f'caption="{b} copies of x{_sup(a)} — {b} groups of {a} x\'s"]]'
             f'[[step eq="(x{_sup(a)}){_sup(b)}"]]'
             f'[[step eq="{b} copies of {a} x\'s"]]'
-            f'[[step eq="{a} × {b} = ? x\'s"]]')
+            f'[[step eq="{b} × {a} = ? x\'s"]]')   # (xb) b groups of a: the walk-back's order
 
 
 def _exmul_worked(p):
@@ -8931,8 +8939,9 @@ OP_EXT = {
                              f"is that?"),
         "board": _exmul_board,        # (tg) b copies of x^a as a bar
         "worked": _exmul_worked,      # (tg) the copies counted
-        "praise": lambda p: (f"{p['b']} copies of {p['a']} x's each: {p['a']} times "
-                             f"{p['b']} equals {p['a'] * p['b']} x's. Copies of "
+        # (xb) b groups of a is "b times a" -- the order the worked board's caption writes
+        "praise": lambda p: (f"{p['b']} copies of {p['a']} x's each: {p['b']} times "
+                             f"{p['a']} equals {p['a'] * p['b']} x's. Copies of "
                              f"copies TIMES."),
         "key": lambda p: p["a"] * p["b"],
         # The mirror of exadd's error: ADDING here, where copies of copies times.

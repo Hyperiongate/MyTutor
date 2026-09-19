@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-19  BUILD xb -- PART 3mw, THE SECOND ALGEBRA I SWEEP (50 findings on all 36, 10
+#               clean; 72 and 8 at wi). exmul's one factor order (b times a, everywhere);
+#               sumd's walk-back in short sentences; the authored classes -- the equation
+#               as given on the board (two-steps-back's worked line and reason board, the
+#               x = 4 condition, x + 4 < 11), the function's one-output rule, the bracketed
+#               rule on the lowest-point boards, "the whole of" for the common factor's
+#               bracket, 12.5. No count moved; two wk pins moved to the split sentences
+#               ("A product only ever lands on zero", "The brackets on the board mean").
 #   2026-09-18  BUILD xa -- PART 3mv, THE SECOND PRE-ALGEBRA SWEEP (58 findings on all 36, 9
 #               clean; 69 and 6 at wh). The NEAR-repeat class: wy's pin caught a praise that
 #               was its walk-back word for word; this sweep caught two that were its
@@ -19001,7 +19009,7 @@ def part3mf_the_first_algebra1_sweep():
           and "3 → 5 → 7 → 9 ✗" in boards(E("alg1-u6-the-doubling-pond"))
           and "pull away from a straight line" not in spoken(E("alg1-u6-the-doubling-pond")), "")
     check("  zero-product: a product lands on zero only when a factor is zero; the worked line says 'equals zero'; the square root is the POSITIVE number",
-          "a product only ever lands on zero when one of the things multiplied is zero" in spoken(E("alg1-u8-two-answers"))
+          "A product only ever lands on zero when one of the things multiplied is zero" in spoken(E("alg1-u8-two-answers"))   # (xb) its own sentence
           and "NOTHING ELSE" not in spoken(E("alg1-u8-two-answers"))
           and "times x take away 7, equals zero: the answers are 4 and 7" in spoken(E("alg1-u8-two-answers"))
           and "the positive number that squares to it" in spoken(E("alg1-u8-the-ball-comes-down"))
@@ -19020,7 +19028,7 @@ def part3mf_the_first_algebra1_sweep():
           and '[[step eq="2 + 3 = 5 ✗"]]' in boards(E("alg1-u7-factoring-backwards"))
           and '[[step eq="5 + 5 + 5 + 5 + 45 = 65"]][[step eq="65 ÷ 5 = 13"]]' in boards(E("alg1-u9-the-odd-one-out"))
           and "written two x plus one, where x is whatever goes in" in spoken(E("alg1-u3-the-number-machine"))
-          and "the brackets on the board mean 4 plus 2 was done first" in spoken(E("alg1-u1-two-steps-with-a-letter")), "")
+          and "The brackets on the board mean 4 plus 2 was done first" in spoken(E("alg1-u1-two-steps-with-a-letter")), "")   # (xb) its own sentence
     _second = {"alg1-u3-the-number-machine": "2 times 4 plus 1 is 9",
                "alg1-u3-two-machines": "add 2, then times 3, 18",
                "alg1-u5-sum-and-difference": "10 plus 4, shared by 2 — 7",
@@ -20783,6 +20791,91 @@ def part3mv_the_second_prealgebra_sweep():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-18xa-' in notes("main.py") and "2026-09-18  BUILD xa" in notes("lessonscripts.py")
           and "2026-09-18  BUILD xa" in notes("lessons/prealgebra.py") and "2026-09-18  BUILD xa" in notes("ruletests.py"), "")
+
+
+def part3mw_the_second_algebra1_sweep():
+    """PART 3mw (build xb, 2026-09-19) -- THE SECOND ALGEBRA I SWEEP: 50 findings on all 36,
+    10 clean (72 and 8 at wi, fixed in wk), 6 generator-owned on three ops. Two generator
+    fixes (exmul's factor order; sumd's sentences), one decline (roots' "choices not read
+    aloud" -- tap-only by design), and 44 authored: the equation AS GIVEN on the board
+    before its undo pictures, a condition on a substituted board, the function's one
+    output per allowed input, the rule with its brackets where the words point at them,
+    "the whole of" for a spoken bracket, and the long sentences split."""
+    print("\nPART 3mw — the second Algebra I sweep (build xb)")
+    import lessonscripts as L
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for _s, b in les["teach"]) + " ".join(pr["worked"][1] for pr in les["pairs"])
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+    W = lambda p: L._worked_for(p)
+    B = lambda p: L.board_for(p, "abstract")
+
+    # ---- the generator ---------------------------------------------------------
+    check("⭐ exmul says ONE order everywhere -- b copies of a x's is 'b times a' in the ask's step, the praise and the walk-back's caption",
+          '[[step eq="4 × 3 = ? x\'s"]]' in B({"a": 3, "b": 4, "op": "exmul"})
+          and PR("exmul", {"a": 3, "b": 4}) == "4 copies of 3 x's each: 4 times 3 equals 12 x's. Copies of copies TIMES."
+          and 'caption="4 × 3 = 12 x\'s — x¹²"' in W({"a": 3, "b": 4, "op": "exmul"})[1]
+          and "4 groups of 3 is 4 times 3" in W({"a": 3, "b": 4, "op": "exmul"})[0], "")
+    check("⭐ sumd's walk-back opens in short sentences after a miss",
+          W({"a": 8, "b": 6, "op": "sumd"})[0].startswith("Here it is, step by step: add the two clues. The smaller cancels itself away. Two bigs equal 8 plus 6, which is 14, so the bigger is 7."), "")
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ the equation AS GIVEN is on the board: two-steps-back's worked line and reason board; x = 4 before the substituted line (HIGH); x + 4 < 11 before its undo; the x | y bar before the swap; y = 3x + 2 on the closing board; the bracketed rule on both lowest-point boards; trip two on the eraser board",
+          '[[balance left="5x + 2" right="27" caption="as given: 5x + 2 = 27"]][[balance left="5x" right="25"' in boards(E("alg1-u2-two-steps-back"))
+          and '[[step eq="5x = 27 − 2 = 25"]]' in boards(E("alg1-u2-two-steps-back"))
+          and E("alg1-u2-two-steps-back")["explain"]["board"].startswith('[[balance left="2x + 3" right="11" caption="as given: 2x + 3 = 11"]]')
+          and E("alg1-u1-two-steps-with-a-letter")["recap"][-1][1] == '[[step eq="x = 4"]][[step eq="3x + 2 = 3 × 4 + 2 = 14"]]'
+          and E("alg1-u2-the-biggest-x")["pairs"][0]["worked"][1].startswith('[[step eq="x + 4 < 11"]]')
+          and E("alg1-u5-swapping-in")["picture"][0][1].startswith('[[tape parts="x | y" total="10" caption="x + y = 10"]][[tape parts="x | x | 2"')
+          and E("alg1-u4-start-and-climb")["recap"][-1][1] == '[[step eq="y = 3x + 2"]][[step eq="y = 3 × 4 + 2 = 14"]]'
+          and '[[step eq="y = (x − 3)² + 2"]][[step eq="lowest y = 2 ✓"]]' in boards(E("alg1-u8-the-lowest-point"))
+          and E("alg1-u8-the-lowest-point")["recap"][0][1].startswith('[[step eq="y = (x − 3)² + 2"]][[graph')
+          and '[[step eq="trip two: 5 + eraser = 9, so eraser = 4"]]' in boards(E("alg1-u5-the-eraser-vanishes")), "")
+    check("⭐ laws with their condition: x bigger than 3; one output per allowed input (HIGH, why and recap); the rising lines in this lesson; the buys differ by one pencil (HIGH); two prices; the same base (HIGH); whole-number powers; a rule LIKE these bends into a bowl",
+          "x is bigger than 3 here, so the width is a real one" in spoken(E("alg1-u1-minus-goes-through"))
+          and "for every number it is allowed to eat, exactly one number comes out" in spoken(E("alg1-u3-the-number-machine"))
+          and "each number it is allowed to eat gives exactly one number out" in spoken(E("alg1-u3-the-number-machine"))
+          and "For the rising lines in this lesson, every time x steps one to the right" in spoken(E("alg1-u4-the-climb"))
+          and "In these problems the buys differ by one pencil, so one pencil is left alone" in spoken(E("alg1-u5-the-eraser-vanishes"))
+          and "This shopping system has two prices, and only one of them is yours" in spoken(E("alg1-u5-the-eraser-vanishes"))
+          and "Multiplying powers of the same base ADDS the counts." in E("alg1-u6-counting-the-copies")["advance_line"]
+          and "For whole-number powers like these, a power is just a count of copies" in spoken(E("alg1-u6-counting-the-copies"))
+          and "A rule like y equals x squared plus a number bends into a bowl" in spoken(E("alg1-u8-the-curve")), "")
+    check("⭐ words and board: f(3) MEANS; the boards read (x + 2y; x < 7; y at 4; x² = 25; the middle term); 'the whole of' for the common factor's bracket, twice; 12.5 said and drawn; 'in one line'; 5 pencils EACH",
+          '[[step eq="f(3) means: feed f the number 3 ✓"]]' in boards(E("alg1-u3-f-of-x"))
+          and "x is 3, two y's are 8, and together they make 11" in spoken(E("alg1-u1-two-letters"))
+          and "x plus 3 is less than 10, so x is less than 7" in spoken(E("alg1-u2-the-biggest-x"))
+          and "at x equals 4, 3 times 4 plus 2 is 14" in spoken(E("alg1-u4-start-and-climb"))
+          and "read off a curve: x squared is 25, so x is 5" in spoken(E("alg1-u8-the-ball-comes-down"))
+          and "2 plus 3 equals 5, the middle term 5 x" in spoken(E("alg1-u7-the-four-rooms"))
+          and "2 times the whole of 5 x plus 2" in spoken(E("alg1-u7-the-common-factor"))
+          and "5 times the whole of 3 x plus 2" in spoken(E("alg1-u7-the-common-factor"))
+          and "which would be 12 and a half" in spoken(E("alg1-u8-the-ball-comes-down"))
+          and '[[step eq="x = 12.5 ✗ — half undoes DOUBLING, not squaring"]]' in boards(E("alg1-u8-the-ball-comes-down"))
+          and "two-piece brackets like these, in one line" in spoken(E("alg1-u7-the-four-rooms"))
+          and "Four children have 5 pencils each, one has 45" in E("alg1-u9-the-odd-one-out")["explain"]["spoken"], "")
+    check("  unclear, untaught and tone: the input defined first; the machines named; 'the number timesed by 3'; 'multiplies the 3'; 'a common mix-up'; 'multiply the climb by x'; 'the bigger answer'; the long sentences split (two-steps, biggest-x x2, undoing-a-plus, two-machines, where-two-rules-agree, two-answers)",
+          "The input is the number that goes in. Its rule is painted on the box" in spoken(E("alg1-u3-the-number-machine"))
+          and "Feed them both a 4: the first machine puts out 9, the second puts out 10." in spoken(E("alg1-u3-the-number-machine"))
+          and E("alg1-u3-two-machines")["explain"]["answer"] == "because the 6 from machine one is the number timesed by 3"
+          and E("alg1-u1-minus-goes-through")["explain"]["answer"] == "because the 4 multiplies the 3 too, and that room comes off"
+          and "A common mix-up is running the machine forwards" in spoken(E("alg1-u3-which-input")) and "careless" not in spoken(E("alg1-u3-which-input"))
+          and "For any x, multiply the climb by x, then add the start" in spoken(E("alg1-u4-start-and-climb"))
+          and "and 6 is the bigger answer" in E("alg1-u5-swapping-in")["explain"]["choices"]
+          and "If you add first, 4 plus 2 is 6. Then 3 times 6 is 18, and 18 is wrong." in spoken(E("alg1-u1-two-steps-with-a-letter"))
+          and "The 7 itself is not included, because 7 plus 3 lands on 10 instead of staying under it." in spoken(E("alg1-u2-the-biggest-x"))
+          and "What you get is a boundary — a stopping point — not x itself. Less than shuts the door" in spoken(E("alg1-u2-the-biggest-x"))
+          and "To find x, undo what was done to x. The undo of a plus is a take away. Do it to BOTH sides" in spoken(E("alg1-u2-undoing-a-plus"))
+          and "4 plus 2 is 6. That 6 does not stop — it rolls straight into the second machine. There, 6 times 3 is 18." in spoken(E("alg1-u3-two-machines"))
+          and "Both rules give the same y there, so x plus 2 EQUALS 3 x. That is an equation" in spoken(E("alg1-u5-where-two-rules-agree"))
+          and "Zero times ANYTHING is zero. A product only ever lands on zero" in spoken(E("alg1-u8-two-answers")), "")
+    check("  every lesson validates; the course list is 40,005 (no beat added); no dot joins two equations in Algebra I",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40005
+          and not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', b) for les in L.LESSONS if les["course"] == "algebra1"
+                      for b in [boards(les), les.get("explain", {}).get("board", "")] + [r[1] for r in les.get("recap", [])]), str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-19xb-' in notes("main.py") and "2026-09-19  BUILD xb" in notes("lessonscripts.py")
+          and "2026-09-19  BUILD xb" in notes("lessons/algebra1.py") and "2026-09-19  BUILD xb" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -47688,6 +47781,7 @@ def main():
     part3mt_the_fifth_entry_sweep()
     part3mu_the_second_basic_sweep()
     part3mv_the_second_prealgebra_sweep()
+    part3mw_the_second_algebra1_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
