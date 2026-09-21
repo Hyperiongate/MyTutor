@@ -2,6 +2,12 @@
 # lessons/algebra1.py  --  ALGEBRA I: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
+#               reader seat). xe's two classes, applied to this course ahead of its next
+#               reading: (1) every closing recap board whose equation the words did not read is read now -- 21 lessons; 
+#               (2) every sentence of 27 words or more in a why, picture, teach, worked or
+#               recap beat is split -- 26 sentences. Numbers said in words ("four plus four
+#               is eight") count as read. No beat added, no number changed, no board changed.
 #   2026-09-19  BUILD xb -- THE SECOND ALGEBRA I SWEEP (50 findings on all 36, 10 clean; 44
 #               authored, 42 answered here). The equation AS GIVEN on the board: two-steps-
 #               back's worked line and reason board open with the balance as given; the
@@ -285,8 +291,7 @@ _ALGEBRA1_U1 = [
              "its own. A number against a letter is copies of THAT letter only. "
              "Times first, then add.",
              '[[tape parts="3 | 4 | 4" total="11" caption="x = 3, y = 4 · x + 2y = 11"]]'),
-            ("And that is two letters side by side in one expression — a price and a "
-             "count, say: x is 3, two y's are 8, and together they make 11.",
+            ("And that is two letters side by side in one expression — a price and a count, say. x is 3, two y's are 8, and together they make 11.",
              '[[step eq="x + 2y = 3 + 2 × 4 = 11"]]'),
         ],
         "bank": [
@@ -363,7 +368,7 @@ _ALGEBRA1_U1 = [
              "letter collects. Count the x's past the y; the y stays as it is, "
              "beside them.",
              '[[tape parts="7x | 2y" caption="3x + 2y + 4x = 7x + 2y"]]'),
-            ("And that is apples counted with apples, and oranges left as oranges.",
+            ("And that is apples counted with apples, and oranges left as oranges: 3 x plus 2 y plus 4 x is 7 x plus 2 y.",
              '[[step eq="3x + 2y + 4x = 7x + 2y"]]'),
         ],
         "bank": [
@@ -397,9 +402,7 @@ _ALGEBRA1_U1 = [
         ],
         "picture": [
             ("Here is a rectangle 4 tall and x take away 3 wide — x is bigger than 3 "
-             "here, so the width is a real one. The rooms are 4 "
-             "times x, and 4 times 3, which equals 12 — and that room is TAKEN AWAY, "
-             "because the width was x with 3 taken off. So 4 times the whole of x "
+             "here, so the width is a real one. The rooms are 4 times x, and 4 times 3, which equals 12. That room is TAKEN AWAY, because the width was x with 3 taken off. So 4 times the whole of x "
              "take away 3 comes to 4 x take away 12.",
              '[[areamodel rows="4" cols="x,-3" caption="a 4 by (x − 3) rectangle — the second room comes off"]]'),
         ],
@@ -537,7 +540,7 @@ _ALGEBRA1_U2 = [
              "To find x, undo what was done to x. The undo of a plus is a take away. "
              "Do it to BOTH sides so the scale stays level.",
              '[[balance left="x + 4" right="11" caption="x + 4 = 11 · 4 off both sides · x = 7"]]'),
-            ("And that is the first kind of equation you solved today.",
+            ("And that is the first kind of equation you solved today: x plus 4 equals 11, so x is 7.",
              '[[step eq="x + 4 = 11, so x = 7"]]'),
         ],
         "bank": [
@@ -612,7 +615,7 @@ _ALGEBRA1_U2 = [
              "undo is a share — both sides, between the same number — and the scale "
              "stays level. Nothing was added, so nothing comes off.",
              '[[balance left="3x" right="12" caption="3x = 12 · share both sides between 3 · x = 4"]]'),
-            ("And that is the second undo, and the pair of them is most of solving.",
+            ("And that is the second undo, and the pair of them is most of solving: 3 x equals 12, so x is 4.",
              '[[step eq="3x = 12, so x = 4"]]'),
         ],
         "bank": [
@@ -687,7 +690,7 @@ _ALGEBRA1_U2 = [
              "Stop after one undo and you have what all the x\'s weigh together, "
              "not one.",
              '[[balance left="2x + 3" right="11" caption="2x + 3 = 11 · 3 off · shared by 2 · x = 4"]]'),
-            ("And that is socks and shoes, in algebra.",
+            ("And that is socks and shoes, in algebra: 2 x plus 3 equals 11, so x is 4.",
              '[[step eq="2x + 3 = 11, so x = 4"]]'),
         ],
         "bank": [
@@ -813,19 +816,12 @@ _ALGEBRA1_U3 = [
         "why": [
             ("Why a machine? Because half of the maths you will ever meet is a rule "
              "that turns one number into another. A price into a price with tax, a "
-             "temperature into another scale, a time into a distance. A machine that "
-             "eats numbers is the honest picture of that: one rule painted on its "
-             "side, and for every number it is allowed to eat, exactly one number "
-             "comes out. That is all a function is.",
+             "temperature into another scale, a time into a distance. A machine that eats numbers is the honest picture of that: one rule painted on its side. For every number it is allowed to eat, exactly one number comes out. That is all a function is.",
              '[[goal text="The number machine"]]'),
         ],
         "picture": [
-            ("Here is the machine. The input is the number that goes in. Its rule is "
-             "painted on the box: times the input by 2, then add 1 — written two x "
-             "plus one, where x is whatever goes in. "
-             "A 4 goes in the left door. Inside, the rule runs in "
-             "order — 2 times 4 is 8, then 8 plus 1 is 9 — and a 9 comes out the "
-             "right door.",
+            ("Here is the machine. The input is the number that goes in. Its rule is painted on the box: times the input by 2, then add 1. It is written two x plus one, where x is whatever goes in. "
+             "A 4 goes in the left door. Inside, the rule runs in order — 2 times 4 is 8, then 8 plus 1 is 9. A 9 comes out the right door.",
              '[[machine input="4" rule="2x + 1" output="9" caption="in 4 — times by 2, then add 1 — out 9"]]'),
         ],
         "teach": [
@@ -867,8 +863,7 @@ _ALGEBRA1_U3 = [
              "number, run the rule in the order it says, and read what comes out. "
              "Change the order and you have a different machine.",
              '[[machine input="4" rule="2x + 1" output="9" caption="in 4, out 9"]]'),
-            ("And that is a price into a price with tax, and a time into a distance "
-             "— one rule, followed: 2 times 4 plus 1 is 9.",
+            ("And that is a price into a price with tax, and a time into a distance — one rule, followed. 2 times 4 plus 1 is 9.",
              '[[step eq="2 × 4 + 1 = 9"]]'),
         ],
         "bank": [
@@ -902,9 +897,7 @@ _ALGEBRA1_U3 = [
         ],
         "picture": [
             ("Here is machine f. Its rule is x plus 5. Feed it 3, and 3 plus 5 comes "
-             "out: 8. Under the machine the board writes it the short way — f of 3 "
-             "equals 8 — the name, the number that went in, and the number that came "
-             "out.",
+             "out: 8. Under the machine the board writes it the short way — f of 3 equals 8. The name, the number that went in, and the number that came out.",
              '[[machine input="3" rule="x + 5" output="8" fname="f" caption="in 3, out 8 — written f(3) = 8"]]'),
         ],
         "teach": [
@@ -945,7 +938,7 @@ _ALGEBRA1_U3 = [
              "it 3. The parentheses hold the meal — nothing is timesed. Run the rule "
              "and write what came out: f of 3 equals 8.",
              '[[machine input="3" rule="x + 5" output="8" fname="f" caption="f(3) = 3 + 5 = 8"]]'),
-            ("And that is the code every textbook after this one speaks.",
+            ("And that is the code every textbook after this one speaks: f of 3 equals 8.",
              '[[step eq="f(3) = 8"]]'),
         ],
         "bank": [
@@ -1098,11 +1091,9 @@ _ALGEBRA1_U3 = [
             "board": '[[machine input="7" rule="x + 3" output="10" fname="f" caption="f(7) = 10 ✓"]]',
         },
         "recap": [
-            ("So, here it is again, back to our first machine. Told the output, undo the rule to walk back to "
-             "the input — the undo of a plus is a take away — then run the machine "
-             "forwards to check. The output came out; it never went in.",
+            ("So, here it is again, back to our first machine. Told the output, undo the rule to walk back to the input — the undo of a plus is a take away. Then run the machine forwards to check. The output came out; it never went in.",
              '[[machine input="7" rule="x + 3" output="10" fname="f" caption="? + 3 = 10 · ? = 7 · f(7) = 10"]]'),
-            ("And that is the price before tax, found from the bill.",
+            ("And that is the price before tax, found from the bill: f of what equals 10? The input was 7.",
              '[[step eq="f(?) = 10, so ? = 7"]]'),
         ],
         "bank": [
@@ -1196,7 +1187,7 @@ _ALGEBRA1_U4 = [
              "the input standing under its output, and the answer is the second "
              "number.",
              '[[graph lines="y=x+2" points="(5,7)" range="0..9" caption="x = 5 · climb · y = 7"]]'),
-            ("And that is every input answered at once, on one picture.",
+            ("And that is every input answered at once, on one picture: y equals x plus 2, and at x equals 5, y is 7.",
              '[[step eq="y = x + 2 at x = 5: y = 7"]]'),
         ],
         "bank": [
@@ -1274,7 +1265,7 @@ _ALGEBRA1_U4 = [
              "never a height, and it is the same between every pair of steps on the "
              "line.",
              '[[graph lines="y=2x-1" points="(2,3),(3,5)" range="0..5" caption="slope = 5 − 3 = 2"]]'),
-            ("And that is a line\'s personality in one number.",
+            ("And that is a line's personality in one number: the slope is 5 take away 3, 2.",
              '[[step eq="slope = 5 − 3 = 2"]]'),
         ],
         "bank": [
@@ -1349,7 +1340,7 @@ _ALGEBRA1_U4 = [
              "starting height. The other number is the climb, and it has a different "
              "job.",
              '[[graph lines="y=2x+3" points="(0,3)" range="0..5" caption="y = 2 × 0 + 3 = 3"]]'),
-            ("And that is a line read at its left wall, with no drawing needed.",
+            ("And that is a line read at its left wall, with no drawing needed: y equals 2 times 0 plus 3, which is 3.",
              '[[step eq="y = 2 × 0 + 3 = 3"]]'),
         ],
         "bank": [
@@ -1758,7 +1749,7 @@ _ALGEBRA1_U5 = [
              "problems the buys differ by one pencil, so one pencil is left alone. Then "
              "answer with the one you were asked for.",
              '[[tape parts="5 | 5 | 4" total="14" caption="trip one: 14"]][[tape parts="5 | 4" total="9" caption="trip two: 9 — take it away: one pencil = 5"]]'),
-            ("And that is a price found with no price ever told.",
+            ("And that is a price found with no price ever told: 1 pencil is 14 take away 9, 5.",
              '[[step eq="1 pencil = 14 − 9 = 5"]]'),
         ],
         "bank": [
@@ -1808,8 +1799,7 @@ _ALGEBRA1_U6 = [
              '[[goal text="Counting the copies"]]'),
         ],
         "picture": [
-            ("Here is x to the 3 times x to the 2 written out as a bar: three x\'s "
-             "multiplied, then two more x\'s multiplied, all in one row. Count them "
+            ("Here is x to the 3 times x to the 2 written out as a bar. Three x's multiplied, then two more x's multiplied, all in one row. Count them "
              "along the bar: one, two, three, four, five. Five x\'s — x to the "
              "power 5.",
              '[[tape parts="x | x | x | x | x" total="x⁵" caption="x³ · x² written out — 3 x\'s then 2 more: 5 x\'s"]]'),
@@ -1851,8 +1841,7 @@ _ALGEBRA1_U6 = [
              "multiply, the piles join and the counts add — write them out and count "
              "if you are ever unsure.",
              '[[tape parts="x | x | x | x | x" total="x⁵" caption="x³ · x² = x⁵"]]'),
-            ("And that is like 3 apples and 2 apples: 3 copies of x and 2 copies of "
-             "x make 5 copies — x cubed times x squared is x to the power 5.",
+            ("And that is like 3 apples and 2 apples: 3 copies of x and 2 copies of x make 5 copies. x cubed times x squared is x to the power 5.",
              '[[step eq="x³ · x² = x⁵"]]'),
         ],
         "bank": [
@@ -1884,8 +1873,7 @@ _ALGEBRA1_U6 = [
              '[[goal text="Copies of copies"]]'),
         ],
         "picture": [
-            ("Here is x to the 3, all of it, raised to the power 2, as a bar: two "
-             "groups side by side, and each group is three x\'s. Two groups of three "
+            ("Here is x to the 3, all of it, raised to the power 2, as a bar. Two groups side by side, and each group is three x's. Two groups of three "
              "is 3 times 2, which equals 6 x\'s. x to the power 6.",
              '[[tape parts="x³ | x³" total="x⁶" caption="(x³)² — two copies of three x\'s: 6 x\'s"]]'),
         ],
@@ -1894,8 +1882,7 @@ _ALGEBRA1_U6 = [
              "copies of copies, and copies of copies is exactly what timesing "
              "counts. Two copies of three x\'s: 3 times 2 equals 6.",
              '[[tape parts="x³ | x³" total="x⁶" caption="2 copies of 3 x\'s"]][[step eq="(x³)² = (x · x · x) · (x · x · x)"]][[step eq="(x³)² = x⁶"]]'),
-            ("Yesterday, multiplying two powers of x ADDED the counts; today a power of a power TIMES them — "
-             "and telling the two apart is the entire skill. Ask one question: am I "
+            ("Yesterday, multiplying two powers of x ADDED the counts; today a power of a power TIMES them. Telling the two apart is the entire skill. Ask one question: am I "
              "JOINING two piles, or COPYING a whole pile? Joining adds. Copying "
              "times.",
              '[[step eq="x³ · x² = x⁵ — joining, ADD"]][[step eq="(x³)² = x⁶ — copying, TIMES"]]'),
@@ -1967,9 +1954,7 @@ _ALGEBRA1_U6 = [
              '[[placevalue n="6" caption="6 in the ones"]][[placevalue n="600" caption="6 × 10² = 600 — two places up, two zeros behind"]]'),
         ],
         "teach": [
-            ("That is the method. Put a digit in front of a power of ten: 6 times 10 "
-             "to the power 2 is 6 times 100, which equals 600 — the 6 with two zeros "
-             "behind it. The power says how many places the digit moves.",
+            ("That is the method. Put a digit in front of a power of ten. 6 times 10 to the power 2 is 6 times 100, which equals 600 — the 6 with two zeros behind it. The power says how many places the digit moves.",
              '[[placevalue n="600" caption="6 × 10² = 600"]][[step eq="6 × 10² = 6 × 100 = 600"]]'),
             ("The trap is reading the power as a TIMES: 6 times 10 times 2 equals "
              "120, and 120 is nowhere near 600. The 2 up there is not a number to "
@@ -2003,7 +1988,7 @@ _ALGEBRA1_U6 = [
              "digit times it moves that many places up the chart. The power counts "
              "the zeros — it is never a number to times by.",
              '[[placevalue n="600" caption="6 × 10² = 600"]]'),
-            ("And that is how a scientist writes a huge number in a small space.",
+            ("And that is how a scientist writes a huge number in a small space: 6 times 10 squared is 600.",
              '[[step eq="6 × 10² = 600"]]'),
         ],
         "bank": [
@@ -2036,9 +2021,7 @@ _ALGEBRA1_U6 = [
         ],
         "picture": [
             ("Here are the days as bars. Day zero: 3 pads. Day one: 6. Day two: 12. "
-             "Day three: 24. Each bar is twice the one before it, because each day "
-             "doubles EVERYTHING there is — and look how each bar leaps further than "
-             "the one before.",
+             "Day three: 24. Each bar is twice the one before it, because each day doubles EVERYTHING there is. Look how each bar leaps further than the one before.",
              '[[bars data="day 0:3 | day 1:6 | day 2:12 | day 3:24" caption="3 pads doubling — 3, 6, 12, 24"]]'),
         ],
         "teach": [
@@ -2079,7 +2062,7 @@ _ALGEBRA1_U6 = [
              "multiplier is a power of 2: the start, times 2 for every day. It is not walking "
              "up by the same amount — it feeds on itself and pulls away.",
              '[[bars data="day 0:3 | day 1:6 | day 2:12 | day 3:24" caption="3 × 2³ = 24"]]'),
-            ("And that is exponential growth, in a pond.",
+            ("And that is exponential growth, in a pond: 3 times 2 cubed is 24.",
              '[[step eq="3 × 2³ = 24"]]'),
         ],
         "bank": [
@@ -2165,9 +2148,7 @@ _ALGEBRA1_U7 = [
             "board": '[[areamodel rows="x,2" cols="x,3" caption="(x + 2)(x + 3) = x² + 5x + 6"]]',
         },
         "recap": [
-            ("So, here it is again. Two brackets, each x plus a number, make a rectangle with four rooms: x "
-             "squared, two middle rooms that ADD to the x count, and a corner that "
-             "TIMES the two numbers. Middles add, corner times.",
+            ("So, here it is again. Two brackets, each x plus a number, make a rectangle with four rooms. x squared, two middle rooms that ADD to the x count, and a corner that TIMES the two numbers. Middles add, corner times.",
              '[[areamodel rows="x,2" cols="x,3" caption="(x + 2)(x + 3) = x² + 5x + 6"]]'),
             ("And that is every pair of two-piece brackets like these, in one "
              "line.",
@@ -2288,8 +2269,7 @@ _ALGEBRA1_U7 = [
         ],
         "teach": [
             ("That is the method. Pull the 3 out: 6 x plus 9 equals 3 times the whole "
-             "of 2 x plus 3. Check it with the distributive lesson\'s own rule — the 3 reaches "
-             "both rooms: 3 times 2 x is 6 x, and 3 times 3 is 9. It all comes back.",
+             "of 2 x plus 3. Check it with the distributive lesson's own rule — the 3 reaches both rooms. 3 times 2 x is 6 x, and 3 times 3 is 9. It all comes back.",
              '[[areamodel rows="3" cols="2x,3" caption="6x + 9 = 3(2x + 3)"]][[step eq="6x + 9 = 3(2x + 3)"]][[step eq="check: 3 × 2x = 6x ✓"]][[step eq="3 × 3 = 9 ✓"]]'),
             ("The mistake is pulling the factor from ONE part only: 3 times the whole of 2 x plus "
              "9. Multiply that back and you get 6 x plus 27, not 6 x plus 9. A common "
@@ -2323,7 +2303,7 @@ _ALGEBRA1_U7 = [
              "out front and divide EVERY part by it — then check by timesing it "
              "back in: the factor reaches both rooms.",
              '[[areamodel rows="3" cols="2x,3" caption="6x + 9 = 3(2x + 3)"]]'),
-            ("And that is the distributive lesson, run in reverse.",
+            ("And that is the distributive lesson, run in reverse: 6 x plus 9 is 3 times the whole of 2 x plus 3.",
              '[[step eq="6x + 9 = 3(2x + 3)"]]'),
         ],
         "bank": [
@@ -2354,9 +2334,7 @@ _ALGEBRA1_U7 = [
              '[[goal text="The vanishing middle"]]'),
         ],
         "picture": [
-            ("Here is the rectangle: x plus 3 tall, x take away 3 wide. The rooms: x "
-             "squared; a middle room of take away 3 x; a middle room of plus 3 x; and "
-             "a corner of 3 times 3, taken away — 9. The two middles are the same "
+            ("Here is the rectangle: x plus 3 tall, x take away 3 wide. The rooms: x squared; a middle room of take away 3 x; a middle room of plus 3 x. And a corner of 3 times 3, taken away — 9. The two middles are the same "
              "size with opposite signs, so they cancel, and the sum is x squared take "
              "away 9.",
              '[[areamodel rows="x,3" cols="x,-3" caption="(x + 3) by (x − 3) — the middles cancel: x² − 9"]]'),
@@ -2396,12 +2374,9 @@ _ALGEBRA1_U7 = [
             "board": '[[areamodel rows="x,3" cols="x,-3" caption="(x + 3)(x − 3) = x² − 9"]]',
         },
         "recap": [
-            ("So, here it is again. Plus a number on one side and take away the same "
-             "number on the other: the middle rooms cancel, and only x squared and "
-             "the corner survive — the number squared, taken away.",
+            ("So, here it is again. Plus a number on one side and take away the same number on the other: the middle rooms cancel. Only x squared and the corner survive — the number squared, taken away.",
              '[[areamodel rows="x,3" cols="x,-3" caption="(x + 3)(x − 3) = x² − 9"]]'),
-            ("And that is the difference of squares, the one pair that vanishes in "
-             "the middle.",
+            ("And that is the difference of squares, the one pair that vanishes in the middle. x plus 3, times x take away 3, is x squared take away 9.",
              '[[step eq="(x + 3)(x − 3) = x² − 9"]]'),
         ],
         "bank": [
@@ -2439,9 +2414,7 @@ _ALGEBRA1_U8 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Squared means times itself, never times two.",
         "why": [
             ("Why a curve? Because every line you have drawn was straight. Meet the "
-             "first rule that bends: y equals x squared. Feed it 1, 2, 3, 4 and out "
-             "come 1, 4, 9, 16 — each step up costs more than the last, so the graph "
-             "bends into a curve, shaped like a bowl.",
+             "first rule that bends: y equals x squared. Feed it 1, 2, 3, 4 and out come 1, 4, 9, 16. Each step up costs more than the last, so the graph bends into a curve, shaped like a bowl.",
              '[[goal text="The curve"]]'),
         ],
         "picture": [
@@ -2457,9 +2430,7 @@ _ALGEBRA1_U8 = [
              "11.",
              '[[graph func="x^2+2" points="(3,11)" range="-4..4" caption="the point (3, 11)"]][[step eq="y = 3² + 2 = 9 + 2 = 11"]]'),
             ("The one error to burn away now: squared means TIMES ITSELF, not times "
-             "two. 3 squared is 9, not 6. At x equals 2 the two happen to agree — 2 "
-             "times 2 and 2 plus 2 are both 4 — and that coincidence at 2 is exactly "
-             "what plants the habit. Everywhere else it breaks.",
+             "two. 3 squared is 9, not 6. At x equals 2 the two happen to agree — 2 times 2 and 2 plus 2 are both 4. That coincidence at 2 is exactly what plants the habit. Everywhere else it breaks.",
              '[[step eq="3² = 3 × 3 = 9 ✓"]][[step eq="3² = 6 ✗ — that is doubling"]]'),
         ],
         "pairs": [
@@ -2490,7 +2461,7 @@ _ALGEBRA1_U8 = [
              "Read it like any rule — swap in the x, square it by timesing it by "
              "itself, then add the rest. Squared is never times two.",
              '[[graph func="x^2+2" points="(3,11)" range="-4..4" caption="3² + 2 = 11"]]'),
-            ("And that is the first rule that bends, read straight.",
+            ("And that is the first rule that bends, read straight: y equals 3 squared plus 2, which is 11.",
              '[[step eq="y = 3² + 2 = 11"]]'),
         ],
         "bank": [
@@ -2534,8 +2505,7 @@ _ALGEBRA1_U8 = [
              "5. So the equation has TWO answers, 3 and 5 — a bending curve can touch "
              "the ground twice.",
              '[[graph func="(x-3)*(x-5)" points="(3,0),(5,0)" range="0..7" caption="the ground at 3 and 5"]][[step eq="(x − 3)(x − 5) = 0"]][[step eq="x = 3 or x = 5"]]'),
-            ("Do not do arithmetic on the two numbers — they are not asking to be "
-             "added or timesed: x equals 8 and x equals 15 are not answers. Each one "
+            ("Do not do arithmetic on the two numbers — they are not asking to be added or timesed. x equals 8 and x equals 15 are not answers. Each one "
              "answers its own bracket. Check: at x equals 5, the second bracket is "
              "zero, and zero times anything wipes out the whole thing.",
              '[[step eq="x = 3, x = 5 ✓"]][[step eq="x = 8 ✗"]][[step eq="x = 15 ✗ — nobody asked for 3 + 5 or 3 × 5"]]'),
@@ -2568,8 +2538,7 @@ _ALGEBRA1_U8 = [
              "them is zero. Each bracket names its own x, so a curve touches the "
              "ground twice — two answers, and no arithmetic between them.",
              '[[graph func="(x-3)*(x-5)" points="(3,0),(5,0)" range="0..7" caption="x = 3 or x = 5"]]'),
-            ("And that is zero times anything, doing all the work: x take away 3, "
-             "times x take away 5, equals zero, so x is 3 or x is 5.",
+            ("And that is zero times anything, doing all the work. x take away 3, times x take away 5, equals zero, so x is 3 or x is 5.",
              '[[step eq="(x − 3)(x − 5) = 0, so x = 3 or x = 5"]]'),
         ],
         "bank": [
@@ -2643,12 +2612,9 @@ _ALGEBRA1_U8 = [
             "board": '[[graph func="(x-3)^2+2" points="(3,2)" range="0..6" caption="the lowest point (3, 2)"]]',
         },
         "recap": [
-            ("So, here it is again. A square is never below zero, so the squared "
-             "part bottoms out at 0 and the plus number is the floor. The number "
-             "inside the brackets says where the floor sits; the plus number says "
-             "how low.",
+            ("So, here it is again. A square is never below zero, so the squared part bottoms out at 0 and the plus number is the floor. The number inside the brackets says where the floor sits — here, at x equals 3. The plus number says how low — here, 2.",
              '[[step eq="y = (x − 3)² + 2"]][[graph func="(x-3)^2+2" points="(3,2)" range="0..6" caption="lowest y = 0 + 2 = 2"]]'),
-            ("And that is a floor no bowl ever goes under.",
+            ("And that is a floor no bowl ever goes under: the lowest y is 0 plus 2, 2.",
              '[[step eq="lowest y = 0 + 2 = 2"]]'),
         ],
         "bank": [
@@ -2774,14 +2740,11 @@ _ALGEBRA1_U9 = [
         "advance_line": "Three in a row, and you can say why — you've got it! The mean shares everything out equally.",
         "why": [
             ("Why the mean? Because it is what everybody would have if you piled all "
-             "of it together and shared it out equally. Five children with 3, 5, 5, "
-             "6 and 6 sweets have 25 sweets between them — and the mean asks what "
-             "each would hold if that pile were dealt out fairly.",
+             "of it together and shared it out equally. Five children with 3, 5, 5, 6 and 6 sweets have 25 sweets between them. The mean asks what each would hold if that pile were dealt out fairly.",
              '[[goal text="The mean"]]'),
         ],
         "picture": [
-            ("Here are the five amounts as dots — 3, 5, 5, 6 and 6 — and here is "
-             "the whole pile of 25 as a bar, shared into five equal parts. Every "
+            ("Here are the five amounts as dots — 3, 5, 5, 6 and 6. And here is the whole pile of 25 as a bar, shared into five equal parts. Every "
              "part is 5. That is the mean: 25 shared between 5 is 5 each.",
              '[[dotplot values="3,5,5,6,6" caption="one dot per value — 25 in all"]][[tape parts="5 | 5 | 5 | 5 | 5" total="25" caption="25 shared between 5 — the mean is 5"]]'),
         ],
@@ -2820,11 +2783,9 @@ _ALGEBRA1_U9 = [
             "board": '[[tape parts="5 | 5 | 5 | 5 | 5" total="25" caption="25 ÷ 5 = 5 — the mean is 5"]]',
         },
         "recap": [
-            ("So, here it is again. The mean is the pile shared out equally: add "
-             "everything to find how much in all, then divide by how many there "
-             "are — the count, never anything else.",
+            ("So, here it is again. The mean is the pile shared out equally: add everything to find how much in all, then divide by how many there are. The count, never anything else.",
              '[[tape parts="5 | 5 | 5 | 5 | 5" total="25" caption="25 ÷ 5 = 5"]]'),
-            ("And that is one number standing for the whole set, fairly.",
+            ("And that is one number standing for the whole set, fairly: the mean is 25 divided by 5, 5.",
              '[[step eq="mean = 25 ÷ 5 = 5"]]'),
         ],
         "bank": [
@@ -2897,7 +2858,7 @@ _ALGEBRA1_U9 = [
              "both ends at once. Where you meet is the median — the middle number, "
              "with as many below it as above it.",
              '[[dotplot values="4,5,6,7,8" caption="the median is 6"]]'),
-            ("And that is the middle of the queue, found by counting in.",
+            ("And that is the middle of the queue, found by counting in: the median is 6.",
              '[[step eq="median = 6"]]'),
         ],
         "bank": [
@@ -2973,7 +2934,7 @@ _ALGEBRA1_U9 = [
              "biggest take away the smallest. It says nothing about where the data "
              "sits, and gives one honest measure of how spread out it is.",
              '[[numberline min="0" max="21" points="4,19" caption="range = 19 − 4 = 15"]]'),
-            ("And that is the spread, in one take away.",
+            ("And that is the spread, in one take away: the range is 19 take away 4, 15.",
              '[[step eq="range = 19 − 4 = 15"]]'),
         ],
         "bank": [
@@ -3051,8 +3012,7 @@ _ALGEBRA1_U9 = [
              "room and leaves the median standing where the middle is. When an "
              "average sounds strange, ask which middle it is.",
              '[[dotplot values="5,5,5,5,45" caption="median 5 · mean 13"]]'),
-            ("And that is the point of having three middles — and the end of "
-             "Algebra 1.",
+            ("And that is the point of having three middles — a median of 5 beside a mean of 13 — and the end of Algebra 1.",
              '[[step eq="median = 5"]][[step eq="mean = 13"]]'),
         ],
         "bank": [

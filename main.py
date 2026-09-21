@@ -6,6 +6,20 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-19  APP_BUILD -> "2026-09-19xf-the-pre-sweep-the-other-eight". xe's two classes over
+#               the other eight courses: 114 closing recap boards read aloud and 173 long
+#               sentences split, all in lessons/<course>.py (Entry, Basic, Pre-Algebra, Algebra I,
+#               Geometry, Algebra II, Pre-Calc, Diffeq). PART 3na measures both over ALL TEN
+#               courses now. Nothing in this file changed but the stamp.
+#   2026-09-19  APP_BUILD -> "2026-09-19xe-the-pre-sweep". Prob/Stat and Calculus read their
+#               closing boards aloud (41 lessons) and speak in sentences under 27 words (88
+#               splits) -- lessons/probstat.py and lessons/calculus.py, ahead of their second
+#               sweep readings. PART 3mz. Nothing in this file changed but the stamp.
+#   2026-09-19  APP_BUILD -> "2026-09-19xd-the-colon-is-not-a-ratio". static/speech-text.js's
+#               ratio tidy matches the tight "3:2" only, so "Factors of 8: 1, 2" is no longer
+#               spoken "8 to 1" (1,183 closure lines were); speechmap.py regenerated (2,184 ->
+#               1,001 re-keys). Those 1,183 clips re-render on the prewarm with the right
+#               words. PART 3my. Nothing in this file changed but the stamp.
 #   2026-09-19  APP_BUILD -> "2026-09-19xc-the-second-geometry-sweep". The second Geometry
 #               reading (36 findings on all 36, 16 clean; 63 at wk): three generator ops in
 #               lessonscripts.py, 29 authored edits in lessons/geometry.py, PART 3mx.
@@ -9782,7 +9796,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-19xc-the-second-geometry-sweep"
+APP_BUILD = "2026-09-19xf-the-pre-sweep-the-other-eight"
 
 
 @app.get("/health")

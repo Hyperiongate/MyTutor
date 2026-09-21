@@ -4,12 +4,16 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk, the newest: **`2026-09-19xc-the-second-geometry-sweep`**. Battery
-12,739 passed, 0 failed, 3 skipped (frozen copy, 2026-09-19). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
+On Jim's disk, the newest: **`2026-09-19xc-the-second-geometry-sweep`** (battery 12,739
+passed, 0 failed, 3 skipped, frozen copy, 2026-09-19). **Built after it, in the cloud
+workspace, NOT yet on Jim's disk:** `xd` (`2026-09-19xd-the-colon-is-not-a-ratio`, 12,745)
+`xe` (`2026-09-19xe-the-pre-sweep`, 12,751) and `xf` (`2026-09-19xf-the-pre-sweep-the-other-eight`, 12,759). Jim was away from his computer for two
+days (phone only); all three were built without a sweep report, on his word from his phone ("work on whatever you can work on"). See **Pending commit** below —
+it is the first thing to do when his computer is back. The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
 half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
-whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19). Jim pushes and prewarms
+whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19) → `xd` (the colon is not a ratio, 12,745, 09-19, pending) → `xe` (the pre-sweep, 12,751, 09-19, pending) → `xf` (the pre-sweep, the other eight, 12,759, 09-19, pending). Jim pushes and prewarms
 each; check `/health`. The first round is over: every lesson in every course has been read
 once. **The second round has begun, and the cycle converges: Diffeq went 119 → 62 findings,
 0 → 8 clean, on one fix build; Pre-Calc 76 → 34 → (60 with wt's praise-board shape, fixed in the engine) 15 clean; Algebra II 73 → 43, 14 clean; Entry 14 → 19 (sixteen of them one engine consequence of ww, closed in wy) with 29 clean — the most any course has had; Basic 67 → 41, 7 → 14 clean; Pre-Algebra 69 → 58, 6 → 9 clean (ten of the 58 were the near-repeat praise class, closed across 25 ops in xa); Algebra I 72 → 50, 8 → 10 clean — the first reading after xa, and the praise class did not come up once; Geometry 63 → 36, 7 → 16 clean.**
@@ -22,28 +26,57 @@ an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes t
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`.
+
+## Pending commit to D:\MyTutor (xd + xe + xf, built 2026-09-19 while Jim was away)
+
+The complete files live in the cloud workspace of the chat that built them (and were sent
+into that chat as file cards). When Jim's computer is back: `device_list_dir` D:\MyTutor,
+`D:\MyTutor\lessons`, `D:\MyTutor\changelog` and `D:\MyTutor\static` for fresh mtimes, then
+`device_commit_files` these eighteen with `expectedMtimeMs`, in one go, so Jim pushes once:
+
+- `static/speech-text.js` (xd: the ratio rule matches the TIGHT `digit:digit` only)
+- `speechmap.py` (regenerated in xd and again in xf: 1,001 of 40,311)
+- `ruletests.py` (PARTs 3my, 3mz and 3na; pins moved)
+- `main.py` (stamp `2026-09-19xf-the-pre-sweep-the-other-eight`)
+- `lessons/probstat.py` (xe: 22 boards read, 43 splits, 3 follow-ups)
+- `lessons/calculus.py` (xe: 19 boards read, 45 splits)
+- `lessons/entry.py`, `lessons/basic.py`, `lessons/prealgebra.py`, `lessons/algebra1.py`, `lessons/geometry.py`, `lessons/algebra2.py`, `lessons/precalc.py`, `lessons/diffeq.py` (xf: 114 boards read, 173 splits)
+- `changelog/Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`
+- `changelog/Build_xe_The_Pre_Sweep_2026-09-19.md`
+- `changelog/Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`
+- `changelog/START_HERE_Handoff_2026-09-19.md` (this file)
+
+If the chat that built them is gone, the docs are in the project and the code changes are
+described in them line by line; rebuilding from the docs is a session's work, so prefer
+the file cards. After the push and `/health` = `2026-09-19xf-the-pre-sweep-the-other-eight`, run the
+**prewarm**: about 1,183 clips whose text carried a colon before a number re-render with the
+right words (xd), plus the ~130 Prob/Stat and Calculus lines xe rewrote and the ~290 lines
+xf rewrote across the other eight courses.
 
 | course | sweeps so far | last result |
 |---|---|---|
-| Entry | wa (219) → wc (70) → wd (47) → we (15) → wf (14) → wg fixes → wx (19, all 36) → wy fixes, unswept | 19 findings (16 of them ww's praise-board consequence), 29 clean |
-| Basic | wg (67) → wh fixes → wy (41, all 36) → wz fixes, unswept | 41 findings, 14 clean |
-| Pre-Algebra | wh (69) → wi fixes → wz (58, all 36) → xa fixes, unswept | 58 findings, 9 clean |
-| Algebra I | wi (72) → wk fixes → xa (50, all 36) → xb fixes, unswept | 50 findings, 10 clean |
-| Geometry | wk (63) → wl fixes → xb (36, all 36) → xc fixes, unswept | 36 findings, 16 clean |
-| Algebra II | wk (73) → wm fixes → ww (43, 35 of 36) → wx fixes, unswept | 43 findings, 14 clean |
-| Pre-Calc | wl (76) → wn fixes → ws (34, 27 of 36) → wu fixes → wv (60, all 36) → ww fixes, unswept | 60 findings (25 of them wt's praise-board shape, fixed in the engine), 15 clean |
-| Calculus | wm (46, 19 of 36) → wo fixes → wq (88, all 36) → wr fixes, unswept | 88 findings, 4 clean |
-| Diffeq | wo (119) → wp fixes → wr (62) → ws fixes, unswept | 62 findings, 8 clean (was 119, 0) |
-| Prob/Stat | wo (92) → wq fixes, unswept | 92 findings, 1 clean |
+| Entry | wa (219) → wc (70) → wd (47) → we (15) → wf (14) → wg fixes → wx (19, all 36) → wy fixes → xf pre-sweep, unswept | 19 findings (16 of them ww's praise-board consequence), 29 clean |
+| Basic | wg (67) → wh fixes → wy (41, all 36) → wz fixes → xf pre-sweep, unswept | 41 findings, 14 clean |
+| Pre-Algebra | wh (69) → wi fixes → wz (58, all 36) → xa fixes → xf pre-sweep, unswept | 58 findings, 9 clean |
+| Algebra I | wi (72) → wk fixes → xa (50, all 36) → xb fixes → xf pre-sweep, unswept | 50 findings, 10 clean |
+| Geometry | wk (63) → wl fixes → xb (36, all 36) → xc fixes → xf pre-sweep, unswept | 36 findings, 16 clean |
+| Algebra II | wk (73) → wm fixes → ww (43, 35 of 36) → wx fixes → xf pre-sweep, unswept | 43 findings, 14 clean |
+| Pre-Calc | wl (76) → wn fixes → ws (34, 27 of 36) → wu fixes → wv (60, all 36) → ww fixes → xf pre-sweep, unswept | 60 findings (25 of them wt's praise-board shape, fixed in the engine), 15 clean |
+| Calculus | wm (46, 19 of 36) → wo fixes → wq (88, all 36) → wr fixes → xe pre-sweep, unswept | 88 findings, 4 clean |
+| Diffeq | wo (119) → wp fixes → wr (62) → ws fixes → xf pre-sweep, unswept | 62 findings, 8 clean (was 119, 0) |
+| Prob/Stat | wo (92) → wq fixes → xe pre-sweep, unswept | 92 findings, 1 clean |
 
 ## What to do next
 
-1. Jim pushes `xc`, confirms `/health`, runs the **prewarm** (insc/outc/alen's lines,
-   ~30 Geometry rewrites).
-2. **Prob/Stat** next, against `wo`'s floor of 92 findings and 1 clean (fixed in `wq`); the
-   report becomes `xd`. Then Calculus's second reading (`wq`'s 88, 4 clean, fixed in `wr`)
-   → `xe`. After that every course has had two readings, and the third round (Entry's
+1. Commit the **pending** eighteen files above to D:\MyTutor; Jim pushes once, confirms
+   `/health` shows `2026-09-19xf-the-pre-sweep-the-other-eight`, runs the **prewarm** (the 1,183 colon
+   clips of xd, xc's ~30 Geometry rewrites if not yet done, xe's ~130 lines, xf's ~290).
+2. **Prob/Stat** next, against `wo`'s floor of 92 findings and 1 clean (fixed in `wq`, and
+   pre-swept in `xe` for unread closing boards and long sentences); the report becomes
+   `xg`. Then Calculus's second reading (`wq`'s 88, 4 clean, fixed in `wr`, pre-swept in
+   `xe`) → `xh`. If any sweep still raises an unread recap board or a 27-word sentence,
+   PART 3na's measurement missed it — widen the measurement (it now covers all ten courses). After that every course has had two readings, and the third round (Entry's
    sixth, Pre-Calc's fourth, …) can start with the courses whose second reading was
    highest. Geometry's class (xc): **the picture the words describe is not on the
    board** — an exterior angle over a plain triangle, a segment over two dots, a table's
@@ -171,7 +204,9 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 - Asserted string replacements (`assert s.count(a) == 1`) into `lessons/<course>.py` and
   `lessonscripts.py`; `L.validate` all 360 (the validator's canon: "what is left", never
   "remain"; a lesson's `symbols` must appear as the bare word — "cross", not "crossing"); `python3 tools/genspeechmap.py`; note the counts
-  (course **40,005** since xa; closure 40,259; speechmap 2,184 of 40,311; forSpeech drift 1,878 — both dropped by 61 in xa when iqrw's praise stopped saying "to 34: 34" and the area line's colon became a dash;
+  (course **40,005** since xa; closure 40,259; speechmap **1,001** of 40,311 and forSpeech
+  drift **695** since xd — they were 2,184 and 1,878 until the colon rule was tightened; the
+  "closure is in it" floor pin is now `> 900`;
   referees **101**, truth class **12**, falsehood rows **25**; methodology tile 101).
 - **New trap (counts, wy):** a generated line that shares text across lessons is ONE course
   line — make it differ per lesson (a story noun) and the count moves by the number of
@@ -198,12 +233,22 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 - **New trap (D: drive):** the device bridge lost D:\MyTutor twice on 09-16 ("could not
   stat", then "does not exist") for a few minutes each time; a write that times out has NOT
   landed — list the folder and compare sizes before retrying, and never `force`.
-- **New trap (forSpeech):** "up 12: 25 plus 144" re-keys as a ratio (digit-colon-digit) and
-  moves the speechmap and drift pins by one each — use a dash, not a colon, before a number.
-  It is not only a count: the voice really says "to" ("height 3: 8 times 3" was read
-  "height 3 to 8 times 3" until xa). A generated praise with the pattern re-keys once per
-  problem per prefix (iqrw's cost sixty lines). Diff `speechmap.MAP` against the delivered
-  copy before moving the pin, and read what the tidy did.
+- **Closed trap (forSpeech, xd):** "up 12: 25 plus 144" used to re-key as a ratio and the
+  voice really said "to" ("Factors of 8: 1, 2" → "8 to 1, 2"; 287 turns across the ten
+  courses). The rule now matches the tight `digit:digit` only; a colon with a space after it
+  is a pause. Colons before numbers are fine again in scripted text; the tight form is never
+  scripted (PART 3my pins it) and still reads "to" for the live model's ratios. Still diff
+  `speechmap.MAP` against the delivered copy before moving its pin, and read what the tidy did.
+- **New tool (xe):** `srep.py` in the scratchpad — `Editor(path).rep(old_sentence,
+  new_sentence)` finds a spoken sentence in `lessons/<course>.py` even when the source
+  splits it across adjacent string literals, and asserts exactly one match. It is what let
+  xe make 130 authored edits without hand-hunting each split. Recreate it from the xe doc's
+  description if the scratchpad is gone (30 lines).
+- **New measurement (xe, xf):** the two scans — a recap beat whose `[[step]]` numbers the
+  words never say (digits or number words), and a why/picture/teach/worked/recap sentence
+  of 27+ words — are the two cheapest classes to close before a sweep. PART 3na pins both
+  at zero over ALL TEN courses; a new beat that trips either fails the battery. The scan
+  script is `presweep_measure.py` in the scratchpad (`--show` lists each hit with its text).
 - **New trap (headers):** PART 3ke fails a file whose header passes 100 KB. wp rolled
   `ruletests.py` and `lessonscripts.py` out a second time (`python3 notes_rollout.py --root
   . --cutoff 2026-09-10 --build xx --apply FILE`); 3ke now reads each header's newest pointer
@@ -219,6 +264,10 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
   phrase went back in, truer.
 - **New trap:** `[[pie parts=N shaded=K]]` clamps K to N — it cannot draw an improper
   fraction. Use the written form.
+- **New trap closed (xf):** before the battery, scan every `"..." in spoken(E("id"))` pin in
+  `ruletests.py` (and the `advance_line`/`explain` forms) against the edited lessons with a
+  regex and move the misses first — xf moved thirteen that way and the battery ran clean
+  once. A capital letter at the start of a newly split sentence is the usual miss.
 - A new PART's checks can be smoke-run alone before the 25-minute battery: exec the
   function's source with a stub `check` and `notes` (scratch pattern in this session). It
   caught a missing `rd`, a wrong op name, and (wy) a capitalisation change before they
@@ -239,7 +288,10 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
   `README.md` — the battery needs all of those to reach 0 failed.
 - Deliver: cp to `/mnt/user-data/outputs/MyTutor/...` → SendUserFile → `device_commit_files`
   with `expectedMtimeMs` from a fresh `device_list_dir` → `project_write` the build doc. Jim reviews with
-  `git diff` and pushes; I never commit.
+  `git diff` and pushes; I never commit. **When his computer is not connected (09-19: two
+  days on a phone):** build anyway on the workspace copy, send the file cards, put the docs
+  and this handoff in the project with a pending-commit list, and commit everything in one
+  go when the bridge is back — never a partial commit that leaves the disk between builds.
 
 ## Open items carried forward
 

@@ -2,6 +2,20 @@
    speech-text.js  --  WHAT THE TUTOR SAYS OUT LOUD  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-19  A COLON WITH A SPACE AFTER IT IS NOT A RATIO (build xd). The ratio
+                 rule matched "digit, any spaces, colon, any spaces, digit", so every
+                 authored line that used a colon as punctuation before a number --
+                 "Factors of 8: 1, 2, 4, 8", "Set the speed equal to 144: 12 t
+                 equals 144", "Count by five until you reach 20: 5, 10, 15, 20" --
+                 was spoken "8 to 1", "144 to 12", "20 to 5". Measured over every
+                 scripted line of all ten courses: 287 lines misread, and NOT ONE
+                 genuine ratio written with a colon (the courses say "2 to 3" in
+                 words; the tight form lives only in the live model's text and the
+                 board). Jim heard it live on 08-26 ("Question 3: 20 students" ->
+                 "three to twenty"); build ol patched that one shape in the model's
+                 text (referee 54) and left the root. The rule now matches the TIGHT
+                 form only, "3:2" -> "3 to 2"; a colon followed by a space is left
+                 for the voice to pause on. speechmap regenerated (2,184 -> 1,897).
      2026-09-08  A QUOTATION IS NOT A PRIME MARK (build uq, Jim's live flag 22:03:
                  '"two x" is two times x' was spoken as "two x double prime"). A
                  quotation -- an opening quote at a word start, its closing quote
@@ -176,7 +190,7 @@ function forSpeech(text) {
     .replace(/(\d+)\s+(\d+)\s*\/\s*(\d+)\b/g, mixedWords)         // 2 1/2 -> two and one half
     .replace(/\b(\d+)\s*\/\s*(\d+)\b/g, fracWords)                // 1/2 -> one half
     .replace(/\s*%/g, " percent ")                                  // 20% -> 20 percent
-    .replace(/(\d)\s*:\s*(\d)/g, "$1 to $2")                       // 3:2 -> 3 to 2         // $1.85 -> 1 dollar and 85 cents
+    .replace(/(\d):(\d)/g, "$1 to $2")                             // 3:2 -> 3 to 2 (xd: TIGHT only -- "Factors of 8: 1, 2" is punctuation, never a ratio)
     .replace(/(\d)\.(\d+)/g, (m, a, b) => a + " point " + b.split("").join(" "))  // 3.75 -> 3 point 7 5
     .replace(/([A-Za-z])\s*\(\s*([A-Za-z0-9]+)\s*\)/g, "$1 of $2")  // f(x) -> f of x
     // build ga (2026-08-14): parentheses used to be DELETED, so the screen's "narrower

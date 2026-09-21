@@ -2,6 +2,12 @@
 # lessons/diffeq.py  --  DIFFERENTIAL EQUATIONS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
+#               reader seat). xe's two classes, applied to this course ahead of its next
+#               reading: (1) no closing recap board went unread here; 
+#               (2) every sentence of 27 words or more in a why, picture, teach, worked or
+#               recap beat is split -- 23 sentences. Numbers said in words ("four plus four
+#               is eight") count as read. No beat added, no number changed, no board changed.
 #   2026-09-17  BUILD ws -- THE SECOND DIFFEQ SWEEP (62 findings, 51 authored, 8 of 36
 #               lessons clean; the first sweep was 119 and 0 -- the cycle converges). 47
 #               edits here, plus five sentence splits the validator asked for. The class is
@@ -112,7 +118,7 @@ _DIFFEQ_U1 = [
         "symbols": ("slope field", "order"),
         "advance_line": "Three in a row — you've got it! Feed the point into the equation and read the slope.",
         "teach": [
-            ["A differential equation is classified by its highest derivative: an equation with d y d x is first order, and one with d squared y over d x squared is second order. This whole first unit stays first order — and asks what such an equation LOOKS like. Here is one: d y d x equals x plus y.",
+            ["A differential equation is classified by its highest derivative. An equation with d y d x is first order, and one with d squared y over d x squared is second order. This whole first unit stays first order — and asks what such an equation LOOKS like. Here is one: d y d x equals x plus y.",
              '[[goal text="A dash at every point"]][[step eq="dy/dx = x + y"]]'],
             ["Here is the trick that turns it into a picture. Take d y d x equals x plus y. Pick a point: x is 7 and y is 5. The equation hands you a number: 7 plus 5 is 12. The dash at that point leans 12 steep — the board draws it through the point.",
              '[[graph lines="y=12x-79" points="(7,5)" range="4..10" yrange="0..20" caption="the dash at (7, 5), leaning 12 steep — 12 up for every 1 across"]][[step eq="at (7, 5): slope 7 + 5 = 12"]]'],
@@ -141,7 +147,7 @@ _DIFFEQ_U1 = [
         "symbols": ("law", "field"),
         "advance_line": "Three in a row — you've got it! Square the x first, then take the y off it.",
         "teach": [
-            ["For this comparison, keep the same plane and the same points. Change the equation, and wherever the slope changes the dash swings to a new angle — so the field is a picture of the law drawn on that plane, not of the paper.",
+            ["For this comparison, keep the same plane and the same points. Change the equation, and wherever the slope changes the dash swings to a new angle. So the field is a picture of the law drawn on that plane, not of the paper.",
              '[[goal text="Change the law, change the field"]][[step eq="dy/dx = x² − y"]]'],
             ["This one says d y d x equals x squared, take away y. At the point where x is 5 and y is 9: square the 5 first, giving 25, then take the 9 off it. The dash there has slope 16.",
              '[[step eq="5² − 9 = 25 − 9 = 16"]]'],
@@ -201,7 +207,7 @@ _DIFFEQ_U1 = [
         "teach": [
             ["Now the payoff. A solution of a differential equation is not a number. It is a whole curve, and on a slope field you can see it: start somewhere and walk, always following the dash under your feet. Here is the easiest field there is — every dash leans at 3 — with a walk drawn on it.",
              '[[goal text="Joining the dashes"]][[graph lines="y=3x+5" points="(0,5),(4,17)" range="0..5" yrange="0..20" caption="every dash leans at 3 — start at height 5 and walk 4 across"]][[step eq="start at y = 5, slope 3 all the way"]]'],
-            ["Take an easy field where every dash leans at 3. Start at height 5 and walk 4 across: a slope of 3 climbs 3 for every 1 across, so 4 across is 12 of climb, landing at 17.",
+            ["Take an easy field where every dash leans at 3. Start at height 5 and walk 4 across. A slope of 3 climbs 3 for every 1 across, so 4 across is 12 of climb, landing at 17.",
              '[[step eq="3 × 4 = 12"]][[step eq="5 + 12 = 17"]]'],
             ["The dashes were never a picture OF a solution — joining them is what creates one. Answering 12 gives the climb with no starting height, and 8 climbs a single step and stops.",
              '[[step eq="17 ✓"]][[step eq="12 ✗ climb only · 8 ✗ one step"]]'],
@@ -300,11 +306,11 @@ _DIFFEQ_U2 = [
         "symbols": ("cooling", "gap"),
         "advance_line": "Three in a row — you've got it! Find the gap, then share it out.",
         "teach": [
-            ["Separable equations were the first kind. Now another important kind: the LINEAR ones, and here is the situation the first linear equation everybody meets describes — a hot drink cooling in a room. Coffee at 50 degrees, a room at 20.",
+            ["Separable equations were the first kind. Now another important kind: the LINEAR ones. Here is the situation the first linear equation everybody meets describes — a hot drink cooling in a room. Coffee at 50 degrees, a room at 20.",
              '[[goal text="The cooling cup"]][[step eq="coffee 50° · room 20°"]]'],
             ["Newton's law of cooling says the speed is in proportion to the gap: a constant tells you how fast each degree of gap cools. Say the coffee drops 1 degree a minute for every 5 degrees it stands above the room. Coffee at 50 in a room at 20 has a gap of 30, so it is cooling at 6 degrees a minute.",
              '[[step eq="50 − 20 = 30"]][[step eq="30 ÷ 5 = 6"]]'],
-            ["Now notice what that means. As it cools the gap shrinks, so the cooling itself slows — which is why coffee goes lukewarm quickly, then changes more and more slowly as it nears the room. Answering 30 hands back the gap, and 5 is only the degrees of gap it takes to cool 1 degree a minute — the share, not the rate.",
+            ["Now notice what that means. As it cools the gap shrinks, so the cooling itself slows. That is why coffee goes lukewarm quickly, then changes more and more slowly as it nears the room. Answering 30 hands back the gap. And 5 is only the degrees of gap it takes to cool 1 degree a minute — the share, not the rate.",
              '[[step eq="6 ✓"]][[step eq="30 ✗ the gap · 5 ✗ the constant"]]'],
         ],
         "pairs": [
@@ -404,7 +410,7 @@ _DIFFEQ_U3 = [
         "teach": [
             ["Since the rate dies at both ends, it must peak somewhere in between — and here is the fact almost everybody gets wrong. For this logistic law, it peaks exactly halfway to the ceiling, not near the top: with a ceiling of 60, the fastest growth is at 30.",
              '[[goal text="Where growth peaks"]][[step eq="ceiling 60 · fastest at 30"]]'],
-            ["A pond with a ceiling of 60 grows fastest when it holds 30. If it holds 22 today, then 8 more fish take it to its fastest-growing size — and after that the pond keeps filling but the filling slows.",
+            ["A pond with a ceiling of 60 grows fastest when it holds 30. If it holds 22 today, then 8 more fish take it to its fastest-growing size. After that the pond keeps filling but the filling slows.",
              '[[step eq="30 − 22 = 8 more"]]'],
             ["The tempting wrong answer is the distance to the CEILING, 38, as though a nearly full pond were a fast one. It is the opposite: a crowd gets in its own way. And 30 is the halfway size itself, not the distance to it.",
              '[[step eq="8 ✓"]][[step eq="38 ✗ to the ceiling · 30 ✗ the halfway size"]]'],
@@ -431,9 +437,9 @@ _DIFFEQ_U3 = [
         "symbols": ("peak", "quarter"),
         "advance_line": "Three in a row — you've got it! Ceiling times constant, then a quarter of it.",
         "teach": [
-            ["Knowing WHERE the peak sits is half of it. The other half is how big that peak is, and for our logistic pond the answer is one of the tidiest in the subject: the ceiling times the growth constant, divided by 4.",
+            ["Knowing WHERE the peak sits is half of it. The other half is how big that peak is, and for our logistic pond the answer is one of the tidiest in the subject. The ceiling times the growth constant, divided by 4.",
              '[[goal text="How big the peak is"]][[step eq="peak rate = ceiling × constant ÷ 4"]][[step eq="ceiling 40 · constant 4"]]'],
-            ["A ceiling of 40 with a growth constant of 4: 40 times 4 is 160, and a quarter of that is 40 fish a year at the very fastest moment.",
+            ["A ceiling of 40 with a growth constant of 4: 40 times 4 is 160. A quarter of that is 40 fish a year at the very fastest moment.",
              '[[step eq="40 × 4 ÷ 4 = 40"]]'],
             ["Where does the quarter come from? Two halvings at once — half the fish and half the room, at the same instant. Never taking the quarter leaves 160, and halving only once gives 80.",
              '[[step eq="40 ✓"]][[step eq="160 ✗ no quarter · 80 ✗ halved once"]]'],
@@ -503,7 +509,7 @@ _DIFFEQ_U4 = [
         "symbols": ("method", "step"),
         "advance_line": "Three in a row — you've got it! For d y d x equals 2 x from zero: nothing on the first step, then twice the step squared.",
         "teach": [
-            ["Most differential equations cannot be solved on paper at all. So a computer does what Unit 1 did by eye: it walks the slope field. The oldest such method is Euler's, and it is exactly that walk — here on d y d x equals 2 x, starting at 5, in steps of 3.",
+            ["Most differential equations cannot be solved on paper at all. So a computer does what Unit 1 did by eye: it walks the slope field. The oldest such method is Euler's, and it is exactly that walk. Here it is on d y d x equals 2 x, starting at 5, in steps of 3.",
              '[[goal text="Walking it in straight steps"]][[step eq="dy/dx = 2x · start 5 · steps of 3"]]'],
             ["Here is Euler's one rule: read the slope at the START of a step, then hold it for the whole width. Take d y d x equals 2 x from height 5, in two steps of 3. The first step starts at x equals zero, where the slope is nothing, so it climbs nothing.",
              '[[step eq="step 1: slope 0 → no climb"]]'],
@@ -534,9 +540,9 @@ _DIFFEQ_U4 = [
         "teach": [
             ["Euler carries an error, so the obvious repair is smaller steps. The question is what that buys — and there is a clean answer, which is why Euler is called a first order method.",
              '[[goal text="The deal Euler offers"]][[step eq="step 10 → error 90"]]'],
-            ["First order means the main part of the error is proportional to the step size, and in this lesson we scale the error by exactly that. A step of 10 left an error of 90; go to a step of 4 and the error follows it down by the same factor, to 36.",
+            ["First order means the main part of the error is proportional to the step size, and in this lesson we scale the error by exactly that. A step of 10 left an error of 90. Go to a step of 4 and the error follows it down by the same factor, to 36.",
              '[[step eq="90 × 4 ÷ 10 = 36"]]'],
-            ["So for a first order estimate, ten times the work buys about a tenth of the error. Leaving the error at 90 pretends smaller steps are free of any gain, and halving it to 45 out of habit ignores what the step actually did.",
+            ["So for a first order estimate, ten times the work buys about a tenth of the error. Leaving the error at 90 pretends smaller steps are free of any gain. Halving it to 45 out of habit ignores what the step actually did.",
              '[[step eq="36 ✓"]][[step eq="90 ✗ unchanged · 45 ✗ halved by habit"]]'],
         ],
         "pairs": [
@@ -690,7 +696,7 @@ _DIFFEQ_U5 = [
         "teach": [
             ["Now take the damping away completely — no friction, no air, nothing to steal the motion. The wobble that was dying out now never dies, and the spring rocks for ever. We write that as y double-prime plus 9 y equals zero.",
              '[[goal text="The spring that never stops"]][[step eq="y″ + 9y = 0"]]'],
-            ["Such a spring rocks at one particular speed, its natural frequency. For equations in this form — y double-prime plus a number times y equals zero — that frequency is simply the square root of the number sitting on the y. For 9 the frequency is 3 — 3 radians a second, for ever.",
+            ["Such a spring rocks at one particular speed, its natural frequency. For equations in this form — y double-prime plus a number times y equals zero — the rule is simple. That frequency is the square root of the number sitting on the y. For 9 the frequency is 3 — 3 radians a second, for ever.",
              '[[step eq="√9 = 3 radians a second"]]'],
             ["Many objects have natural frequencies like this: a bridge, a wine glass, a building. Handing back 9 forgets the root, and doubling it to 6 undoes a square the wrong way. The next unit is about what happens when something else finds that number.",
              '[[step eq="3 ✓"]][[step eq="9 ✗ not rooted · 6 ✗ doubled"]]'],
@@ -720,7 +726,7 @@ _DIFFEQ_U5 = [
              '[[goal text="Damping slows the rocking"]][[step eq="y″ + 8y′ + 25y = 0"]]'],
             ["The damped frequency is 4 times the last number, take away the middle squared, then rooted and halved. For 8 and 25: 100 take away 64 is 36, whose root is 6, and half of that is 3.",
              '[[step eq="4×25 − 8² = 36"]][[step eq="√36 ÷ 2 = 3"]]'],
-            ["Undamped it would have rocked at the root of 25 — that is 5 — so the damping really did slow it, from 5 down to 3. Skipping the halving gives 6, and 4 is half the damping, which is a real number here but not this one.",
+            ["Undamped it would have rocked at the root of 25 — that is 5. So the damping really did slow it, from 5 down to 3. Skipping the halving gives 6, and 4 is half the damping, which is a real number here but not this one.",
              '[[step eq="3 ✓"]][[step eq="6 ✗ not halved · 4 ✗ half the damping"]]'],
         ],
         "pairs": [
@@ -762,7 +768,7 @@ _DIFFEQ_U6 = [
              '[[goal text="Somebody is pushing"]][[step eq="y″ + 5y = 40"]]'],
             ["Guess that one particular solution is steady — a flat height that never moves. A flat height has no curvature, so the y double-prime is nothing, and 5 y has to equal 40 all by itself. So y is 8.",
              '[[step eq="5y = 40"]] [[step eq="y = 8"]]'],
-            ["That is a particular solution, and for these steady pushes the method is the same every time: guess the SHAPE the push has, then let the equation fix the size. Timesing instead of sharing gives 200, and 40 is the push, not a height.",
+            ["That is a particular solution, and for these steady pushes the method is the same every time. Guess the SHAPE the push has, then let the equation fix the size. Timesing instead of sharing gives 200, and 40 is the push, not a height.",
              '[[step eq="8 ✓"]][[step eq="200 ✗ timesed · 40 ✗ the push"]]'],
         ],
         "pairs": [
@@ -789,7 +795,7 @@ _DIFFEQ_U6 = [
         "teach": [
             ["A pushed spring with damping does two things at once. This is the shape of the answers in this lesson: a steady part that stays, plus a transient part that fades away to nothing. Here, the steady part is 40 and the spring starts at 65.",
              '[[goal text="The part that fades"]][[step eq="steady 40 · starts at 65"]]'],
-            ["Suppose it settles at 40 in the long run but you let it go from 65. The steady part only explains 40 of that, so the other 25 must be the transient — and 25 is exactly how much has to die away.",
+            ["Suppose it settles at 40 in the long run but you let it go from 65. The steady part only explains 40 of that, so the other 25 must be the transient. And 25 is exactly how much has to die away.",
              '[[step eq="65 − 40 = 25"]]'],
             ["In these damped, settling problems, wait long enough and that piece is gone, leaving 40 no matter where you let go from. A damped spring forgets how it started. Adding gives 105, and 40 is the part that stays, not the part that goes.",
              '[[step eq="25 ✓"]][[step eq="105 ✗ added · 40 ✗ the steady part"]]'],
@@ -981,7 +987,7 @@ _DIFFEQ_U7 = [
              '[[goal text="Reading the ending"]][[step eq="Y = 96/(s(s + 8))"]]'],
             ["Suppose Y is 96, with two things underneath it: a lone s, and s plus 8. Multiply by s, which clears that lone s, and then let s fall away to zero. The s plus 8 becomes just 8, and 96 over 8 is 12. That is the final value.",
              '[[step eq="Y = 96/(s(s + 8))"]][[step eq="s → 0: 96 ÷ 8 = 12"]]'],
-            ["Handing back 96 answers with the top, and 88 takes the 8 away rather than sharing. The theorem is worth its weight for settling transforms like these ones: where a thing ends up, read straight off the transform, with no inverting at all.",
+            ["Handing back 96 answers with the top, and 88 takes the 8 away rather than sharing. The theorem is worth its weight for settling transforms like these ones. Where a thing ends up, read straight off the transform, with no inverting at all.",
              '[[step eq="12 ✓"]][[step eq="96 ✗ the top · 88 ✗ taken away"]]'],
         ],
         "pairs": [
@@ -1052,7 +1058,7 @@ _DIFFEQ_U8 = [
              '[[goal text="Where an arrow goes flat"]][[step eq="x′ = 0 where y = 5x"]]'],
             ["For our system x stops changing exactly where 5 x equals y. That is a straight line through the origin, and it is called a nullcline — the x one, since x is what has stopped. At x equals 12, it sits at y equals 60.",
              '[[step eq="5 × 12 = 60"]]'],
-            ["Along that whole line the arrows point straight up or straight down, since x is going nowhere — except where it crosses the other nullcline, the y one. Adding gives 17, and 25 is the slope squared rather than a height. Later, with the y-nullcline drawn too, the point where the two cross is where nothing moves at all — an equilibrium.",
+            ["Along that whole line the arrows point straight up or straight down, since x is going nowhere. The exception is where it crosses the other nullcline, the y one. Adding gives 17, and 25 is the slope squared rather than a height. Later, with the y-nullcline drawn too, the point where the two cross is where nothing moves at all — an equilibrium.",
              '[[step eq="60 ✓"]][[step eq="17 ✗ added · 25 ✗ slope squared"]]'],
         ],
         "pairs": [
@@ -1107,7 +1113,7 @@ _DIFFEQ_U8 = [
         "symbols": ("eigenvalues", "trace"),
         "advance_line": "Three in a row — you've got it! Take the one you know off the trace.",
         "teach": [
-            ["The determinant was the two eigenvalues multiplied. Their SUM has a name too — the trace, the sum down the diagonal — and between the sum and the product you can always recover both.",
+            ["The determinant was the two eigenvalues multiplied. Their SUM has a name too — the trace, the sum down the diagonal. Between the sum and the product you can always recover both.",
              '[[goal text="Two numbers decide the picture"]][[step eq="trace 60 = λ₁ + λ₂"]]'],
             ["Suppose the trace is 60 and the work has already turned up one eigenvalue, 14. The two must add to 60, so the other is 46. No further algebra needed.",
              '[[step eq="60 − 14 = 46"]]'],
@@ -1150,11 +1156,11 @@ _DIFFEQ_U9 = [
         "symbols": ("nonlinear", "tangent"),
         "advance_line": "Three in a row — you've got it! For these laws, a square take away P squared: double the equilibrium, then times the distance.",
         "teach": [
-            ["Almost nothing in the world is linear. Many real rate laws bend, so Unit 8's neat straight-line systems can look like a special case — until you notice the trick that rescues all of it.",
+            ["Almost nothing in the world is linear. Many real rate laws bend, so Unit 8's neat straight-line systems can look like a special case. Then you notice the trick that rescues all of it.",
              '[[goal text="Up close it is a line"]][[step eq="rate = 9 − P²"]]'],
-            ["Zoom in far enough on a smooth curve and it looks almost exactly like its own tangent. The nonlinear law 9 take away P squared sits still at P equals 3. Its slope there is negative 2 P — negative 6 — so near there the straight-line estimate pulls back at 2 times 3 for every 1 of distance. Sitting 4 out, that estimate is 24.",
+            ["Zoom in far enough on a smooth curve and it looks almost exactly like its own tangent. The nonlinear law 9 take away P squared sits still at P equals 3. Its slope there is negative 2 P — negative 6. So near there the straight-line estimate pulls back at 2 times 3 for every 1 of distance. Sitting 4 out, that estimate is 24.",
              '[[step eq="slope at P = 3: −2 × 3 = −6"]][[step eq="estimate: 6 per 1, × 4 = 24"]]'],
-            ["So close to a smooth equilibrium, a curved law behaves very nearly like a straight one — which is exactly why the last unit was worth learning. Forgetting to double gives 12, and adding the two gives 7.",
+            ["So close to a smooth equilibrium, a curved law behaves very nearly like a straight one. That is exactly why the last unit was worth learning. Forgetting to double gives 12, and adding the two gives 7.",
              '[[step eq="24 ✓"]][[step eq="12 ✗ not doubled · 7 ✗ added"]]'],
         ],
         "pairs": [
@@ -1210,7 +1216,7 @@ _DIFFEQ_U9 = [
         "symbols": ("cycle", "quarter"),
         "advance_line": "Three in a row — you've got it! The foxes lag by a quarter of the cycle.",
         "teach": [
-            ["Start rabbits and foxes exactly on the balance point and they stay there. Nudge them off it, and in this model they circle it, for ever, in a closed loop — one that takes, say, 60 months to go round.",
+            ["Start rabbits and foxes exactly on the balance point and they stay there. Nudge them off it, and in this model they circle it, for ever, in a closed loop. It is one that takes, say, 60 months to go round.",
              '[[goal text="Round and round"]][[step eq="cycle 60 months"]]'],
             ["And the loop has a shape. Plenty of rabbits feed more foxes; more foxes eat the rabbits down; fewer rabbits starve the foxes; fewer foxes let the rabbits back. So in this lesson's tidy cycle, the foxes peak a quarter of a cycle after the rabbits. In a 60-month cycle, that is 15 months.",
              '[[step eq="60 ÷ 4 = 15 months"]]'],

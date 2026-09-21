@@ -2,6 +2,12 @@
 # lessons/basic.py  --  BASIC MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
+#               reader seat). xe's two classes, applied to this course ahead of its next
+#               reading: (1) every closing recap board whose equation the words did not read is read now -- 12 lessons; 
+#               (2) every sentence of 27 words or more in a why, picture, teach, worked or
+#               recap beat is split -- 15 sentences. Numbers said in words ("four plus four
+#               is eight") count as read. No beat added, no number changed, no board changed.
 #   2026-09-18  BUILD wz -- THE SECOND BASIC SWEEP (41 findings on all 36, 14 clean; 67 and
 #               7 at wg). Twenty-seven edits. Laws with their condition: "most bigger sums";
 #               a halfway number hops up; the tens piece is the fact with its tens; "every
@@ -174,17 +180,12 @@ _BASIC_MORE = [
         "levels": ("abstract",), "symbols": ("factor", "pair"),
         "advance_line": "Three in a row, and you can say why — you've got it! Factors come in pairs.",
         "why": [
-            ("Factors never arrive alone. Every time you find one factor of a "
-             "number, you have found a second one for free, because the two of "
-             "them times each other make the number. That is why it is worth "
-             "seeing what a pair looks like — you will use pairs to simplify "
-             "fractions and to share things out for years.",
+            ("Factors never arrive alone. Every time you find one factor of a number, you have found a second one for free. The two of them times each other make the number. That is why it is worth seeing what a pair looks like. You will use pairs to simplify fractions and to share things out for years.",
              '[[goal text="Factor pairs"]]'),
         ],
         "picture": [
             ("Here is 18 laid out in 2 rows: 9 in each. A rectangle, 2 by 9, "
-             "holding 18. The two sides of the rectangle are a factor pair — 2 and "
-             "9 — and every factor pair of 18 is a rectangle like this one.",
+             "holding 18. The two sides of the rectangle are a factor pair — 2 and 9. Every factor pair of 18 is a rectangle like this one.",
              '[[array rows="2" cols="9" view="groups" eq="2 × 9 = 18" caption="a 2 by 9 rectangle holds 18"]]'),
         ],
         "teach": [
@@ -224,8 +225,7 @@ _BASIC_MORE = [
              "other make the number — the two sides of a rectangle that holds it. "
              "Divide to find the partner, and check with times.",
              '[[array rows="2" cols="9" view="groups" eq="2 × 9 = 18" caption="the sides of the rectangle are the pair"]]'),
-            ("18 has three pairs — 2 and 9, 3 and 6, 1 and 18 — and pairs are what "
-             "you will reach for to simplify fractions and share things out.",
+            ("18 has three pairs — 2 and 9, 3 and 6, 1 and 18. Pairs are what you will reach for to simplify fractions and share things out.",
              '[[step eq="18 = 2 × 9 = 3 × 6 = 1 × 18"]]'),
         ],
         "bank": [{"a": 12, "b": 2, "op": "fpr"}, {"a": 27, "b": 3, "op": "fpr"}, {"a": 38, "b": 19, "op": "fpr"}, {"a": 48, "b": 12, "op": "fpr"}, {"a": 58, "b": 29, "op": "fpr"}, {"a": 68, "b": 2, "op": "fpr"}, {"a": 76, "b": 19, "op": "fpr"}, {"a": 84, "b": 28, "op": "fpr"}, {"a": 92, "b": 46, "op": "fpr"}, {"a": 100, "b": 50, "op": "fpr"}],
@@ -289,8 +289,7 @@ _BASIC_MORE = [
              "same amount. If they still share something, divide again. Do it to "
              "both, never to one.",
              '[[pie parts="12" shaded="9" caption="9/12"]][[pie parts="4" shaded="3" caption="3/4 — the same amount"]]'),
-            ("And the shortest name is the one we write, because it is the easiest "
-             "to read and compare.",
+            ("And the shortest name is the one we write, because it is the easiest to read and compare: nine twelfths is three fourths.",
              '[[step eq="9/12 = 3/4"]]'),
         ],
         "bank": [{"a": 2, "b": 4, "op": "simp"}, {"a": 5, "b": 10, "op": "simp"}, {"a": 2, "b": 14, "op": "simp"}, {"a": 10, "b": 15, "op": "simp"}, {"a": 4, "b": 18, "op": "simp"}, {"a": 4, "b": 20, "op": "simp"}, {"a": 6, "b": 21, "op": "simp"}, {"a": 10, "b": 22, "op": "simp"}, {"a": 6, "b": 24, "op": "simp"}, {"a": 22, "b": 24, "op": "simp"}],
@@ -355,7 +354,7 @@ _BASIC_MORE = [
              "then take away the tops and keep the bottom. On the line: find the "
              "first fraction on the line with the smaller pieces, then hop back.",
              '[[numberline min="0" max="1" denom="8" hops="0.5,0.375" points="0.375" caption="1/2 − 1/8 = 3/8"]]'),
-            ("And it is the same move adding used — match first, then count.",
+            ("And it is the same move adding used — match first, then count: one half is four eighths, take away one eighth, three eighths.",
              '[[step eq="1/2 − 1/8 = 4/8 − 1/8 = 3/8"]]'),
         ],
         "bank": [{"a": 1, "b": 2, "c": 4, "op": "fus"}, {"a": 1, "b": 3, "c": 6, "op": "fus"}, {"a": 2, "b": 2, "c": 8, "op": "fus"}, {"a": 1, "b": 2, "c": 10, "op": "fus"}, {"a": 3, "b": 2, "c": 10, "op": "fus"}, {"a": 1, "b": 2, "c": 12, "op": "fus"}, {"a": 3, "b": 2, "c": 12, "op": "fus"}, {"a": 1, "b": 3, "c": 12, "op": "fus"}, {"a": 3, "b": 3, "c": 12, "op": "fus"}, {"a": 1, "b": 6, "c": 12, "op": "fus"}],
@@ -488,8 +487,7 @@ _BASIC_MORE = [
              "as a percent, turn the bottom into 100 and do the same to the top — "
              "that top is your percent.",
              '[[hundredgrid shaded="75" unit="percent" caption="3 out of 4 = 75%"]]'),
-            ("And percent is how the world compares parts — scores, sales, "
-             "batteries.",
+            ("And percent is how the world compares parts — scores, sales, batteries: 3 out of 4 is 75 percent.",
              '[[step eq="3 out of 4 = 75 percent"]]'),
         ],
         "bank": [{"a": 1, "b": 100, "op": "wpc"}, {"a": 12, "b": 100, "op": "wpc"}, {"a": 6, "b": 25, "op": "wpc"}, {"a": 34, "b": 100, "op": "wpc"}, {"a": 9, "b": 20, "op": "wpc"}, {"a": 55, "b": 100, "op": "wpc"}, {"a": 33, "b": 50, "op": "wpc"}, {"a": 76, "b": 100, "op": "wpc"}, {"a": 22, "b": 25, "op": "wpc"}, {"a": 99, "b": 100, "op": "wpc"}],
@@ -765,8 +763,7 @@ _BASIC_MORE = [
              "twelve divided by three is 12 shared into 3 groups, 4 in each. And "
              "it is multiplying turned around: 3 groups of 4 is 12.",
              '[[array rows="3" cols="4" view="groups" eq="12 ÷ 3 = 4" caption="12 ÷ 3 = 4 · 3 × 4 = 12"]]'),
-            ("And it is for sharing fairly — knowing the answer before you deal a "
-             "single cookie.",
+            ("And it is for sharing fairly — knowing the answer before you deal a single cookie: 12 divided by 3 is 4.",
              '[[step eq="12 ÷ 3 = 4"]]'),
         ],
         "bank": [{'a': 6, 'b': 2, 'op': '/'}, {'a': 9, 'b': 3, 'op': '/'}, {'a': 12, 'b': 4, 'op': '/'}, {'a': 16, 'b': 4, 'op': '/'}, {'a': 18, 'b': 3, 'op': '/'}, {'a': 24, 'b': 6, 'op': '/'}, {'a': 28, 'b': 4, 'op': '/'}, {'a': 35, 'b': 7, 'op': '/'}, {'a': 36, 'b': 6, 'op': '/'}, {'a': 45, 'b': 9, 'op': '/'}],
@@ -832,7 +829,7 @@ _BASIC_MORE = [
              "that away from what you started with. What is left is the "
              "left-over — always smaller than a group.",
              '[[array rows="3" cols="4" extra="1" eq="13 ÷ 4 = 3 left over 1" caption="the red dot is the left-over"]]'),
-            ("And it is for real life, where sharing rarely comes out even.",
+            ("And it is for real life, where sharing rarely comes out even: 13 divided by 4 is 3, left over 1.",
              '[[step eq="13 ÷ 4 = 3 left over 1"]]'),
         ],
         "bank": [{'a': 7, 'b': 2, 'op': 'rem'}, {'a': 9, 'b': 4, 'op': 'rem'}, {'a': 11, 'b': 4, 'op': 'rem'}, {'a': 14, 'b': 3, 'op': 'rem'}, {'a': 17, 'b': 4, 'op': 'rem'}, {'a': 19, 'b': 5, 'op': 'rem'}, {'a': 23, 'b': 5, 'op': 'rem'}, {'a': 26, 'b': 6, 'op': 'rem'}, {'a': 31, 'b': 7, 'op': 'rem'}, {'a': 38, 'b': 8, 'op': 'rem'}],
@@ -969,8 +966,7 @@ _BASIC_MORE = [
              "they share, and take the greatest — the biggest number in the "
              "overlap.",
              '[[venn left="Factors of 12" right="Factors of 18" a="4, 12" both="1, 2, 3, 6" b="9, 18" caption="the greatest in the overlap is 6"]]'),
-            ("And it is the number you will use to simplify fractions and to make "
-             "the biggest equal groups.",
+            ("And it is the number you will use to simplify fractions and to make the biggest equal groups: the GCF of 12 and 18 is 6.",
              '[[step eq="GCF of 12 and 18 = 6"]]'),
         ],
         "bank": [{'a': 4, 'b': 6, 'op': 'gcf'}, {'a': 6, 'b': 10, 'op': 'gcf'}, {'a': 8, 'b': 12, 'op': 'gcf'}, {'a': 9, 'b': 12, 'op': 'gcf'}, {'a': 14, 'b': 21, 'op': 'gcf'}, {'a': 18, 'b': 24, 'op': 'gcf'}, {'a': 10, 'b': 25, 'op': 'gcf'}, {'a': 20, 'b': 30, 'op': 'gcf'}, {'a': 24, 'b': 36, 'op': 'gcf'}, {'a': 32, 'b': 48, 'op': 'gcf'}],
@@ -1036,8 +1032,7 @@ _BASIC_MORE = [
              "many equal parts to share into, and one part is the answer. One "
              "third of 12 is 4.",
              '[[array rows="3" cols="4" view="groups" eq="1/3 of 12 = 4" caption="share into 3, take one part"]]'),
-            ("And that is how fractions show up in real life — a fraction of a "
-             "group of things: one third of 12 is 12 divided by 3, which is 4.",
+            ("And that is how fractions show up in real life — a fraction of a group of things. One third of 12 is 12 divided by 3, which is 4.",
              '[[step eq="1/3 of 12 = 12 ÷ 3 = 4"]]'),
         ],
         "bank": [{'a': 4, 'b': 2, 'op': 'of'}, {'a': 6, 'b': 2, 'op': 'of'}, {'a': 6, 'b': 3, 'op': 'of'}, {'a': 10, 'b': 2, 'op': 'of'}, {'a': 9, 'b': 3, 'op': 'of'}, {'a': 12, 'b': 2, 'op': 'of'}, {'a': 12, 'b': 3, 'op': 'of'}, {'a': 16, 'b': 4, 'op': 'of'}, {'a': 20, 'b': 5, 'op': 'of'}, {'a': 24, 'b': 6, 'op': 'of'}],
@@ -1102,8 +1097,7 @@ _BASIC_MORE = [
              "different pieces. Cut every piece the same way and the shaded amount "
              "never changes — one half is two fourths is three sixths.",
              '[[pie parts="2" shaded="1" caption="1/2"]][[pie parts="4" shaded="2" caption="2/4"]][[pie parts="6" shaded="3" caption="3/6"]]'),
-            ("And spotting equal fractions is what lets you compare and add them "
-             "later.",
+            ("And spotting equal fractions is what lets you compare and add them later: one half is two fourths is three sixths.",
              '[[step eq="1/2 = 2/4 = 3/6"]]'),
         ],
         "bank": [{'a': 1, 'b': 2, 'c': 4, 'op': 'eqf'}, {'a': 1, 'b': 3, 'c': 6, 'op': 'eqf'}, {'a': 1, 'b': 2, 'c': 6, 'op': 'eqf'}, {'a': 1, 'b': 4, 'c': 8, 'op': 'eqf'}, {'a': 1, 'b': 5, 'c': 10, 'op': 'eqf'}, {'a': 1, 'b': 6, 'c': 12, 'op': 'eqf'}, {'a': 1, 'b': 4, 'c': 12, 'op': 'eqf'}, {'a': 1, 'b': 3, 'c': 12, 'op': 'eqf'}, {'a': 1, 'b': 2, 'c': 12, 'op': 'eqf'}],
@@ -1168,8 +1162,7 @@ _BASIC_MORE = [
              "tops, keep the bottom. On the line, start at the first fraction and "
              "hop by the second.",
              '[[numberline min="0" max="1" denom="8" hops="0,0.25,0.625" points="0.625" caption="2/8 + 3/8 = 5/8"]]'),
-            ("And it is for adding up pieces of the same whole — pizza, an hour, a "
-             "mile.",
+            ("And it is for adding up pieces of the same whole — pizza, an hour, a mile: two eighths plus three eighths is five eighths.",
              '[[step eq="2/8 + 3/8 = 5/8"]]'),
         ],
         "bank": [{'a': 1, 'b': 1, 'c': 4, 'op': 'fa'}, {'a': 1, 'b': 2, 'c': 5, 'op': 'fa'}, {'a': 2, 'b': 2, 'c': 6, 'op': 'fa'}, {'a': 1, 'b': 4, 'c': 6, 'op': 'fa'}, {'a': 2, 'b': 3, 'c': 8, 'op': 'fa'}, {'a': 3, 'b': 3, 'c': 8, 'op': 'fa'}, {'a': 2, 'b': 5, 'c': 8, 'op': 'fa'}, {'a': 4, 'b': 3, 'c': 10, 'op': 'fa'}, {'a': 3, 'b': 5, 'c': 10, 'op': 'fa'}, {'a': 5, 'b': 4, 'c': 12, 'op': 'fa'}],
@@ -1236,8 +1229,7 @@ _BASIC_MORE = [
              "the tops, keep the bottom. On the line, start at the first fraction "
              "and hop back by the second.",
              '[[numberline min="0" max="1" denom="8" hops="0.625,0.375" points="0.375" caption="5/8 − 2/8 = 3/8"]]'),
-            ("And it is for finding what is left of a whole — the pizza, the hour, "
-             "the tank of gas.",
+            ("And it is for finding what is left of a whole — the pizza, the hour, the tank of gas. Five eighths take away two eighths is three eighths.",
              '[[step eq="5/8 − 2/8 = 3/8"]]'),
         ],
         "bank": [{'a': 3, 'b': 1, 'c': 4, 'op': 'fs'}, {'a': 4, 'b': 2, 'c': 5, 'op': 'fs'}, {'a': 5, 'b': 1, 'c': 6, 'op': 'fs'}, {'a': 5, 'b': 3, 'c': 6, 'op': 'fs'}, {'a': 6, 'b': 2, 'c': 8, 'op': 'fs'}, {'a': 7, 'b': 3, 'c': 8, 'op': 'fs'}, {'a': 7, 'b': 5, 'c': 8, 'op': 'fs'}, {'a': 8, 'b': 3, 'c': 10, 'op': 'fs'}, {'a': 9, 'b': 4, 'c': 10, 'op': 'fs'}, {'a': 11, 'b': 5, 'c': 12, 'op': 'fs'}],
@@ -1369,7 +1361,7 @@ _BASIC_MORE = [
              "coins like a two-digit number — dimes first, then pennies — and you "
              "have the cents.",
              '[[placevalue t="3" o="4" caption="3 dimes + 4 pennies = 34 cents"]]'),
-            ("And it is the place-value chart in your pocket.",
+            ("And it is the place-value chart in your pocket: 3 dimes and 4 pennies is 34 cents.",
              '[[step eq="3 dimes + 4 pennies = 34 cents"]]'),
         ],
         "bank": [{'a': 1, 'b': 2, 'op': 'm'}, {'a': 1, 'b': 5, 'op': 'm'}, {'a': 2, 'b': 3, 'op': 'm'}, {'a': 3, 'b': 1, 'op': 'm'}, {'a': 3, 'b': 6, 'op': 'm'}, {'a': 5, 'b': 4, 'op': 'm'}, {'a': 6, 'b': 2, 'op': 'm'}, {'a': 7, 'b': 5, 'op': 'm'}, {'a': 8, 'b': 8, 'op': 'm'}, {'a': 9, 'b': 9, 'op': 'm'}],
@@ -1435,8 +1427,7 @@ _BASIC_MORE = [
              "half, 25 a fourth, 10 a tenth. A percent of a number is that share of "
              "it — for these three, split into equal parts and take one.",
              '[[hundredgrid shaded="25" unit="percent" caption="25% is one fourth of the square"]]'),
-            ("And it is how you work out a tip, a tax, or the battery left: 50 "
-             "percent of 8 is 4, 25 percent of 8 is 2, 10 percent of 40 is 4.",
+            ("And it is how you work out a tip, a tax, or the battery left. 50 percent of 8 is 4, 25 percent of 8 is 2, 10 percent of 40 is 4.",
              '[[step eq="50% of 8 = 4"]][[step eq="25% of 8 = 2"]][[step eq="10% of 40 = 4"]]'),
         ],
         "bank": [{'a': 50, 'b': 2, 'op': 'pc'}, {'a': 50, 'b': 4, 'op': 'pc'}, {'a': 25, 'b': 4, 'op': 'pc'}, {'a': 50, 'b': 6, 'op': 'pc'}, {'a': 50, 'b': 10, 'op': 'pc'}, {'a': 25, 'b': 16, 'op': 'pc'}, {'a': 50, 'b': 18, 'op': 'pc'}, {'a': 10, 'b': 20, 'op': 'pc'}, {'a': 10, 'b': 30, 'op': 'pc'}, {'a': 10, 'b': 50, 'op': 'pc'}],
@@ -1452,8 +1443,7 @@ _BASIC_MORE = [
         "advance_line": "Three in a row, and you can say why — you've got it! You can find what one costs.",
         "why": [
             ("Prices often come in bunches: six apples for twelve dollars, three "
-             "pens for nine. When the bunches are different sizes, the fair way to compare "
-             "is what ONE costs — and that is sharing the dollars over the things, which is dividing.",
+             "pens for nine. When the bunches are different sizes, the fair way to compare is what ONE costs. That is sharing the dollars over the things, which is dividing.",
              '[[goal text="What one costs"]]'),
         ],
         "picture": [
@@ -2035,7 +2025,7 @@ _BASIC_MORE = [
              "tens and ones and multiply each piece. The ones piece is a times table "
              "fact; the tens piece is the same fact with its tens. Then put the pieces together.",
              '[[areamodel rows="2" cols="30,4" caption="34 × 2 = 60 + 8 = 68"]]'),
-            ("And that is how the times tables reach past nine — in pieces.",
+            ("And that is how the times tables reach past nine — in pieces: 34 times 2 is 30 times 2 plus 4 times 2, 68.",
              '[[step eq="34 × 2 = 30 × 2 + 4 × 2 = 68"]]'),
         ],
         "bank": [
@@ -2104,13 +2094,9 @@ _BASIC_MORE = [
             "board": '[[areamodel rows="4" cols="20,1" caption="84 ÷ 4 = 20 + 1 = 21"]]',
         },
         "recap": [
-            ("So, here it is again. A two-digit number divided by a digit: split it "
-             "into pieces you know how to divide — here, the tens and the ones — "
-             "divide each piece, then put the answers together.",
+            ("So, here it is again. A two-digit number divided by a digit: split it into pieces you know how to divide — here, the tens and the ones. Divide each piece, then put the answers together.",
              '[[areamodel rows="4" cols="20,1" caption="84 ÷ 4 = 20 + 1 = 21"]]'),
-            ("And that is how dividing reaches past the times tables — in pieces, "
-             "the same way multiplying did: 84 divided by 4 is 80 divided by 4 "
-             "plus 4 divided by 4, 21.",
+            ("And that is how dividing reaches past the times tables — in pieces, the same way multiplying did. 84 divided by 4 is 80 divided by 4 plus 4 divided by 4, 21.",
              '[[step eq="84 ÷ 4 = 80 ÷ 4 + 4 ÷ 4 = 21"]]'),
         ],
         "bank": [
@@ -2178,12 +2164,9 @@ _BASIC_MORE = [
             "board": '[[numberline min="0" max="1" denom="4" hops="0,0.25,0.5,0.75" points="0.75" caption="4 hops to 1, take 3"]]',
         },
         "recap": [
-            ("So, here it is again. A fraction is a number on the line: the bottom "
-             "cuts 0 to 1 into equal hops, the top says how many hops to take, and "
-             "top equals bottom means the whole line.",
+            ("So, here it is again. A fraction is a number on the line: the bottom cuts 0 to 1 into equal hops, and the top says how many hops to take. Top equals bottom means the whole line.",
              '[[numberline min="0" max="1" denom="4" hops="0,0.25,0.5,0.75,1" points="0.75,1" caption="3/4 and 4/4 = 1"]]'),
-            ("And once you can see where a fraction lives — 3 out of 4 is 3 hops "
-             "of one fourth — comparing and adding fractions stop being a mystery.",
+            ("And once you can see where a fraction lives — 3 out of 4 is 3 hops of one fourth — the mystery is gone. Comparing and adding fractions come next.",
              '[[step eq="3/4 → 3 hops of 1/4"]]'),
         ],
         "bank": [
@@ -2266,9 +2249,7 @@ _BASIC_MORE = [
              "is, and the sign follows.",
              '[[array rows="3" cols="4" view="groups" caption="groups put together — times"]]'
              '[[array total="12" rows="3" ask="1" caption="a pile shared out — divided by"]]'),
-            ("And that is the skill real life actually asks for: three boxes of "
-             "four is 4 times 3, twelve; twelve cookies in three bags is 12 "
-             "divided by 3, four.",
+            ("And that is the skill real life actually asks for. Three boxes of four is 4 times 3, twelve. Twelve cookies in three bags is 12 divided by 3, four.",
              '[[step eq="4 × 3 = 12"]][[step eq="12 ÷ 3 = 4"]]'),
         ],
         "bank": [
@@ -2315,8 +2296,7 @@ _BASIC_MORE = [
         "advance_line": ("Three in a row, and you can say why — you've got it! "
                          "You can find the least common multiple."),
         "why": [
-            ("A multiple of a number is what you land on when you count by it — "
-             "the multiples of 3 are 3, 6, 9, 12, and so on. Two numbers sometimes "
+            ("A multiple of a number is what you land on when you count by it. The multiples of 3 are 3, 6, 9, 12, and so on. Two numbers sometimes "
              "land on the same spot. Two buses arrive now; one comes every 2 minutes, "
              "the other every 3. When do they arrive together again? That question is today's lesson.",
              '[[goal text="Least common multiple"]]'),
@@ -2671,8 +2651,7 @@ _BASIC_MORE = [
             ("So, here it is again. Volume is the cubes that fill a box: cubes in "
              "one layer — long times wide — then times the number of layers.",
              '[[solid kind="prism" w="3" d="2" h="2" caption="3 × 2 × 2 = 12 cubes"]]'),
-            ("And it is how much fits in a box, or fills a tank — space counted in "
-             "cubes, as area was counted in squares.",
+            ("And it is how much fits in a box, or fills a tank — space counted in cubes, as area was counted in squares. 3 times 2 times 2 is 12 cubes.",
              '[[step eq="3 × 2 × 2 = 12 cubes"]]'),
         ],
         "bank": [

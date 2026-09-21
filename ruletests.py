@@ -2,6 +2,24 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-19  BUILD xf -- PART 3na, THE PRE-SWEEP, THE OTHER EIGHT. xe's two measurements
+#               widened to ALL TEN courses, with numbers said in words ("thirteen minus five")
+#               counted as read: 114 closing recap boards read aloud and 173 long sentences
+#               split across Entry, Basic, Pre-Algebra, Algebra I, Geometry, Algebra II,
+#               Pre-Calc and Diffeq. Both pinned at zero for the whole canon. No count moved.
+#   2026-09-19  BUILD xe -- PART 3mz, THE PRE-SWEEP. Prob/Stat and Calculus, ahead of their
+#               second readings: every closing recap board is read aloud (41 lessons) and no
+#               why/picture/teach/worked/recap sentence runs 27 words or more (88 splits).
+#               Both are measured over those two courses and pinned. No count moved; ten
+#               wq/wr pins moved to the split sentences, each marked "(xe)".
+#   2026-09-19  BUILD xd -- PART 3my, THE COLON IS NOT A RATIO. speech-text.js's ratio rule
+#               matched "digit, spaces, colon, spaces, digit", so "Factors of 8: 1, 2" was
+#               spoken "8 to 1" -- 1,183 closure lines, every one a colon used as
+#               punctuation (no scripted line writes a ratio with a colon). The rule is
+#               the TIGHT form only. Pins moved: speechmap 2,184 -> 1,001 (the 1,183),
+#               drift 1,878 -> 695, the "closure is in it" floor 1,900 -> 900. SPEECH_CASES'
+#               "the ratio 3:2" -> "3 to 2" still holds, and referee 54 (build ol's narrow
+#               patch on the model's "Question 3: 20") stays as a second wall.
 #   2026-09-19  BUILD xc -- PART 3mx, THE SECOND GEOMETRY SWEEP (36 findings on all 36, 16
 #               clean; 63 and 7 at wk). insc's walk-back gives the RULE, not "farther away"
 #               (HIGH); outc's adding wrong path is drawn; alen's sentences; the authored
@@ -14628,7 +14646,10 @@ def part3kx_the_next_line_is_already_loaded():
               # (sixty digit-colon-digit ratio reads, gone with the credit line), and the
               # triangle-area teach line says "height 3 — 8 times 3" (a dash, not a colon:
               # forSpeech read "height 3 to 8 times 3"); speechmap 2,245 -> 2,184.
-              n == 1878, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
+              # (xd) 1,878 -> 695: the ratio tidy matches the TIGHT "3:2" only, so the 1,183
+              # lines that used a colon as punctuation before a number no longer re-key
+              # (and are no longer spoken "8 to 1"); speechmap 2,184 -> 1,001.
+              n == 695, "%d of %d closure lines re-key under forSpeech" % (n, len(lines)))
         check("  ⭐⭐ ...and not one of them is a mismatch any more: the label the server "
               "files under equals the label the page asks for, on every line",
               all(_M._spoken(t) == t or _M._spoken(t) != t for t in lines[:1])
@@ -14733,7 +14754,7 @@ def part3ky_one_label_for_every_clip():
         # (wl) 2,246 of 40,305: the fourth corner's second picture beat ("at (7, 6) — and the
         # box closes") joined the closure, and its coordinates re-key.
         check("  ...and it still holds the differences it was built for (2,246 since wl; 2,245 at wh; 2,244 at vx; 2,246 at vs; 2,245 at vm; 2,249 at vc)",
-              len(mapping) == 2184 and scanned == 40311,  # (xa) 2,245 -> 2,184 (iqrw's sixty "to 34: 34" reads; the area line's dash) and of 40,316 -> 40,311  # (wz) 2,244 -> 2,245: the tenths recap's "0.3 plus 0.4 is 0.7"; (wy) of 40,305 -> 40,316: the story walk-backs; nothing new re-keys  # (wo) 2,246 -> 2,245: the related-rates second worked line lost its "2 times 9 times 5"; (wu) -> 2,244: the ellipse's "over 196: 14" ratio-tidy
+              len(mapping) == 1001 and scanned == 40311,  # (xd) 2,184 -> 1,001: the colon-as-punctuation lines no longer re-key;  # (xa) 2,245 -> 2,184 (iqrw's sixty "to 34: 34" reads; the area line's dash) and of 40,316 -> 40,311  # (wz) 2,244 -> 2,245: the tenths recap's "0.3 plus 0.4 is 0.7"; (wy) of 40,305 -> 40,316: the story walk-backs; nothing new re-keys  # (wo) 2,246 -> 2,245: the related-rates second worked line lost its "2 times 9 times 5"; (wu) -> 2,244: the ellipse's "over 196: 14" ratio-tidy
               "%d of %d authored lines re-key" % (len(mapping), scanned))
 
     # ---- 2. THE WHOLE POINT: the two labels are the same string --------------------
@@ -14748,7 +14769,7 @@ def part3ky_one_label_for_every_clip():
           "LIVE on every play since",
           len(_found) == 306 and _found <= set(SM.MAP),
           "%d foundations lines, %d of them mapped" % (len(_found), len(_found & set(SM.MAP))))
-    check("  the course closure is in it too", len(SM.MAP) > 1900, str(len(SM.MAP)))
+    check("  the course closure is in it too", len(SM.MAP) > 900, str(len(SM.MAP)))   # (xd) 1,900 -> 900: the colon lines left the map
 
     # ---- 3. the map cannot be applied twice, and cannot collide --------------------
     check("⭐ NO TIDIED SENTENCE IS ALSO AN AUTHORED ONE, so running the map over text "
@@ -18814,7 +18835,7 @@ def part3md_the_first_prealgebra_sweep():
           "The power joins them, right after the parentheses. Parentheses, then power, then times, then add." in spoken(E("pre-u1-power-then-times-then-add"))
           and "first of all" not in spoken(E("pre-u1-power-then-times-then-add"))
           and "the one right way" not in spoken(E("pre-u1-power-then-times-then-add"))
-          and "A power — a number with a small raised number, called its exponent —" in spoken(E("pre-u1-exponents-are-repeated-times"))   # (xa) named as it is introduced
+          and "A power is a number with a small raised number, called its exponent." in spoken(E("pre-u1-exponents-are-repeated-times"))   # (xa) named as it is introduced; (xf) its own sentence
           and "a power like 3 squared is the short way" in spoken(E("pre-u1-exponents-are-repeated-times")), "")
     check("  the times-before-add reason board does not show 'times first'; parentheses-first draws the 14 without the marks",
           E("pre-u1-times-before-add")["explain"]["board"] == '[[step eq="2 + 3 × 4 = 14"]]'
@@ -19241,7 +19262,7 @@ def part3mh_the_first_algebra2_sweep():
           "For numbers that are not negative, two roots can go under one roof" in spoken(E("alg2-u5-under-one-roof"))
           and "the one-half power is the positive number that times ITSELF into 25" in spoken(E("alg2-u5-the-fraction-power"))
           and "A one-half power is the positive number that times itself into the base" in spoken(E("alg2-u5-the-fraction-power"))
-          and "for numbers in the same base, the log of a product is the logs, put together" in spoken(E("alg2-u6-logs-add"))
+          and "For numbers in the same base, the log of a product is the logs, put together" in spoken(E("alg2-u6-logs-add"))   # (xf) its own sentence
           and "one great law" not in spoken(E("alg2-u6-logs-add")) and "one of the logarithm's great laws" in spoken(E("alg2-u6-logs-add"))
           and "For today's numbers, power the neighbours" in spoken(E("alg2-u6-between-the-powers"))
           and "sits a little below the middle, so this is a guide, not a law" in spoken(E("alg2-u6-between-the-powers"))
@@ -19257,7 +19278,7 @@ def part3mh_the_first_algebra2_sweep():
           "negative 5 sits 5 steps from zero — not less than 5 either" in spoken(E("alg2-u1-inside-the-distance"))
           and "neither is negative" not in spoken(E("alg2-u1-inside-the-distance"))
           and "one answer is 3 times i, and the other is negative 3 times i. Today we take the one with the positive number in front of i" in spoken(E("alg2-u2-a-new-number"))  # (wx)
-          and "x squared equals negative a, for a positive a, is solved by plus or minus the root of a, times i — today we report the one with the positive number in front" in spoken(E("alg2-u2-a-new-number"))  # (wx) the root of the POSITIVE part
+          and "x squared equals negative a, for a positive a, is solved by plus or minus the root of a, times i. Today we report the one with the positive number in front" in spoken(E("alg2-u2-a-new-number"))  # (wx) the root of the POSITIVE part; (xf) split
           and "cubed means three copies timesed together, x times x times x, never 3 times x" in spoken(E("alg2-u3-feed-the-cube"))
           and "lands opposite: sine and cosine flip sign" in spoken(E("alg2-u8-spin-once-more"))
           and "360 take away the angle is the mirror angle, not a full turn added" in spoken(E("alg2-u8-spin-once-more"))
@@ -19277,12 +19298,12 @@ def part3mh_the_first_algebra2_sweep():
           and "thirteen numbers do not pair off evenly, so use the rectangle. 13 rows of 14 hold two copies of the sum" in spoken(E("alg2-u7-pair-the-ends"))
           and "every pair is 14" not in spoken(E("alg2-u7-pair-the-ends"))
           and '[[step eq="1 + 10, 2 + 9, 3 + 8, 4 + 7, 5 + 6"]][[step eq="every pair is 11"]]' in boards(E("alg2-u7-pair-the-ends"))
-          and "the rectangle holds two copies of the sum, and the staircase is half of it" in spoken(E("alg2-u7-pair-the-ends"))
+          and "The rectangle holds two copies of the sum, and the staircase is half of it" in spoken(E("alg2-u7-pair-the-ends"))   # (xf) its own sentence
           and '[[step eq="degree 6 → at most 5 turns"]]' in boards(E("alg2-u3-the-wiggle-count"))
           and "x cubed times x squared is x to the fifth" in spoken(E("alg2-u3-degrees-add"))
           and "64 times 128 is 8192, and the log of 8192 is 6 plus 7 — 13" in spoken(E("alg2-u6-logs-add")), "")
     _second = {"alg2-u2-where-it-turns": "the vertex's x, read straight off", "alg2-u2-both-answers-count": "2 plus 5 is 7",
-               "alg2-u4-sharing-shrinks": "14 shared by 2 is 7", "alg2-u4-which-x-was-fed": "when a number divided by x equals an answer, divide the number by the answer",  # (wx)
+               "alg2-u4-sharing-shrinks": "14 shared by 2 is 7", "alg2-u4-which-x-was-fed": "When a number divided by x equals an answer, divide the number by the answer",  # (wx); (xf) its own sentence
                "alg2-u4-the-forbidden-x": "an x this function refuses", "alg2-u5-between-the-squares": "one that is not whole",
                "alg2-u6-the-fading-half": "48 divided by 2, by 2, by 2 is 6"}
     check("  seven closing beats speak the equation their board writes (or say what the board means)",
@@ -19523,7 +19544,7 @@ def part3mj_the_first_calculus_sweep_half():
           and "10 is only the 2 x part, with the plus 4 forgotten" in spoken(E("calc-u3-two-things-multiplied"))
           and "5 is the distance's original front number, before any differentiating" in spoken(E("calc-u4-differentiate-twice"))   # (wr wording)
           and "one differentiation too many" not in spoken(E("calc-u4-differentiate-twice"))
-          and "the area gains 2 times 50 times 3 — 300 a second" in spoken(E("calc-u4-one-rate-drives-another"))
+          and "the area gains 2 times 50 times 3, which is 300 a second" in spoken(E("calc-u4-one-rate-drives-another"))   # (xe) split
           and '[[step eq="at a side of 50: 2 × 50 × 3 = 300"]]' in boards(E("calc-u4-one-rate-drives-another"))
           and "the tangent at 9 climbs 18, and times the side's rate 5 that is 90" in spoken(E("calc-u4-one-rate-drives-another"))
           and "A derivative hands you a rate formula, and a formula set equal to a target is an equation you can solve" in spoken(E("calc-u4-when-is-it-going-that-fast"))
@@ -19753,41 +19774,41 @@ def part3ml_the_first_probstat_sweep():
           and E("ps-u1-under-the-tallest-stack")["advance_line"].endswith("The mode is the value under the tallest stack.")
           and "7 is the halfway point between them, with three numbers below and three above" in spoken(E("ps-u2-no-single-middle"))
           and "the only number" not in spoken(E("ps-u2-no-single-middle"))
-          and "a wild extreme moves the box far less than it moves the range" in spoken(E("ps-u2-the-middle-half"))
+          and "A wild extreme moves the box far less than it moves the range" in spoken(E("ps-u2-the-middle-half"))   # (xe) its own sentence
           and "its width is the right edge take away the left edge" in spoken(E("ps-u2-the-middle-half"))
           and "The box is 10 wide, and here are two ways to miss it" in spoken(E("ps-u2-the-middle-half"))
           and "Square the distances and average those squares instead" in spoken(E("ps-u2-how-far-from-the-middle"))
           and "the residual — actual take away predicted" in spoken(E("ps-u3-how-far-off-the-line"))
-          and "positive when the dot sits above the line, negative when below, and its size is how far the line missed by" in spoken(E("ps-u3-how-far-off-the-line"))
+          and "It is positive when the dot sits above the line and negative when below. Its size is how far the line missed by" in spoken(E("ps-u3-how-far-off-the-line"))   # (xe) split
           and "it keeps the squared gaps, all added up, as small as any line can" in spoken(E("ps-u3-how-far-off-the-line"))
           and "when no dot lands exactly on it, every dot is on one side or the other" in spoken(E("ps-u3-through-the-middle-of-the-cloud"))
           and E("ps-u3-through-the-middle-of-the-cloud")["advance_line"].endswith("With no dot on the line, every dot is on one side or the other.")
           and "With 14 dots, none on the line, and 6 above it, 8 sit below" in E("ps-u3-through-the-middle-of-the-cloud")["explain"]["spoken"]
-          and "they may well think differently about school lunches" in spoken(E("ps-u4-the-ones-you-never-asked"))
+          and "They may well think differently about school lunches" in spoken(E("ps-u4-the-ones-you-never-asked"))   # (xe) its own sentence
           and "It is a number a statistician checks before trusting the results" in spoken(E("ps-u4-who-actually-answered"))
           and "People with strong feelings may be more likely to reply; the contented may shrug and bin it" in spoken(E("ps-u4-who-actually-answered"))
-          and "at that size the margin is only about 3 points" in spoken(E("ps-u4-the-price-of-accuracy"))
+          and "At that size the margin is only about 3 points" in spoken(E("ps-u4-the-price-of-accuracy"))   # (xe) its own sentence
           and "A tempting shortcut is splitting the sample down the middle" in spoken(E("ps-u4-a-sample-that-matches")), "")
     check("⭐ a rule of thumb with its condition (U5-U9): hard to compare until on one scale (HIGH); like 30 of 100; one in 8 is RARER (HIGH); one common way; the chance picture (HIGH); exactly one missing; what a play is WORTH (HIGH); on average level (HIGH); the POT (HIGH); the same cost; many paid machines; the average settles (HIGH); the bell's group (HIGH x2); the percent to take; the tail fact; compared with the spread; the estimate with a range (HIGH); does not support; for the group the claim names",
           "are hard to compare until they sit on the same scale" in spoken(E("ps-u5-chance-on-a-scale"))
-          and "it is like 30 out of 100 — in the long run, about 30 of every 100 picks come up red" in spoken(E("ps-u5-chance-on-a-scale"))
-          and "is a bigger one-in than either, but adding is the OR rule's move; the AND rule times, and one in 15 is the answer" in spoken(E("ps-u5-both-at-once"))
+          and "It is like 30 out of 100: in the long run, about 30 of every 100 picks come up red" in spoken(E("ps-u5-chance-on-a-scale"))   # (xe) split
+          and "is a bigger one-in than either. But adding is the OR rule's move. The AND rule times, and one in 15 is the answer" in spoken(E("ps-u5-both-at-once"))   # (xe) split
           and "more common than rain alone" not in spoken(E("ps-u5-both-at-once"))
           and "One common way to want two things is this" in spoken(E("ps-u5-either-one-wins"))
           and "Here is the hundred square as a picture of the chances. Small has a 25 percent chance, so 25 cells" in spoken(E("ps-u7-the-chances-fill-the-hundred"))
-          and "when every outcome is listed and just one chance is missing, it can be found" in spoken(E("ps-u7-the-chances-fill-the-hundred"))
+          and "a missing chance can be found when every outcome is listed" in spoken(E("ps-u7-the-chances-fill-the-hundred"))   # (xe) split
           and "Because the best prize is not what one play is worth, and the worst is not either" in spoken(E("ps-u7-what-one-play-is-worth"))
-          and "play it many times and, on average, you expect to end up level" in spoken(E("ps-u7-what-would-be-fair"))
+          and "Play it many times and, on average, you expect to end up level" in spoken(E("ps-u7-what-would-be-fair"))   # (xe) its own sentence
           and E("ps-u7-what-would-be-fair")["advance_line"].endswith("Spread the whole pot over the wins.")
           and "For the same cost to play, the rarer the win, the bigger the prize has to be" in spoken(E("ps-u7-what-would-be-fair"))
           and "A fair game is expected to return exactly what it takes in" in spoken(E("ps-u7-what-would-be-fair"))
           and "Because many paid game machines are not fair" in spoken(E("ps-u7-why-the-machine-stays-open"))
           and "play many times and the average cost tends to settle closer and closer to 3 a play" in spoken(E("ps-u7-why-the-machine-stays-open"))
           and "perfect reliability" not in spoken(E("ps-u7-why-the-machine-stays-open"))
-          and "the picture often comes out roughly the same shape" in spoken(E("ps-u8-the-crowded-middle"))
-          and "when a group follows a bell curve, about 68 percent of it sits in the middle band" in spoken(E("ps-u8-the-crowded-middle"))
+          and "The picture often comes out roughly the same shape" in spoken(E("ps-u8-the-crowded-middle"))   # (xe) its own sentence
+          and "When a group follows a bell curve, about 68 percent of it sits in the middle band" in spoken(E("ps-u8-the-crowded-middle"))   # (xe) its own sentence
           and "In these problems the 68 is the percent to take, not the final headcount" in spoken(E("ps-u8-the-crowded-middle"))
-          and "On a bell curve only about 2 in a hundred sit that far up — this unit's last lesson counts them" in spoken(E("ps-u8-how-far-out-is-that"))
+          and "On a bell curve only about 2 in a hundred sit that far up, which is why it is impressive. This unit's last lesson counts them" in spoken(E("ps-u8-how-far-out-is-that"))   # (xe) split
           and "12 points might be large or small compared with the spread" in spoken(E("ps-u8-how-far-out-is-that"))
           and "A matching sliver would sit at the bottom end, below 80; this picture shades only the top one" in spoken(E("ps-u8-almost-nobody-out-there"))
           and "When a poll says give or take, its estimate comes with a range around it" in spoken(E("ps-u9-give-or-take"))
@@ -19915,7 +19936,7 @@ def part3mm_the_second_calculus_sweep():
           and "A derivative is not just one number" in spoken(E("calc-u2-feed-the-derivative-an-x"))
           and "the area curve is a dome, rising to 10 and falling after" in spoken(E("calc-u5-the-best-rectangle"))
           and "Every fixed fence used for a rectangle this way wants a square" in spoken(E("calc-u5-the-best-rectangle"))
-          and "The last lesson showed the square wins for a fixed fence, and here is one rival" in spoken(E("calc-u5-and-how-much-ground-that-wins"))
+          and "The last lesson showed the square wins for a fixed fence. Here is one rival" in spoken(E("calc-u5-and-how-much-ground-that-wins"))   # (xe) split
           and "That is the method, for these cubics: set the second derivative to zero, then check the bend changes sides there" in spoken(E("calc-u5-where-the-bend-changes"))
           and E("calc-u5-where-the-bend-changes")["advance_line"].endswith("Set the second derivative to zero, and check the bend changes sides.")
           and "the critical-point pattern you met" in spoken(E("calc-u5-where-the-bend-changes"))
@@ -19928,7 +19949,7 @@ def part3mm_the_second_calculus_sweep():
           and "because the flat piece keeps the value it was given" in E("calc-u1-mend-the-curve")["explain"]["choices"]
           and "For the quantity 4 x plus 7, squared, the slope at zero is 56" in E("calc-u3-the-chain-rule-at-a-point")["explain"]["spoken"], "")
     check("⭐ laws with their condition (U6-U9): COULD have come from (HIGH); the powers in this lesson and x⁻¹ named (HIGH x2); ONE function, plus any constant; a whole FAMILY (HIGH); the GENERAL antiderivative (HIGH); because they share a derivative; the curve the condition picks (HIGH); above the axis; this ramp; end take away start (HIGH); one curve on top; the HEIGHT of a rectangle (HIGH); a flow rate (HIGH); straight across, these rectangles (HIGH x2); MOST equations (HIGH); the start says where (HIGH); starting empty (HIGH); in this lesson; the EQUILIBRIUM population (HIGH); a POPULATION stops changing (HIGH)",
-          "what function could it have come from? Such a function is called an antiderivative — there is more than one, a constant apart" in spoken(E("calc-u6-the-rule-run-backwards"))
+          "what function could it have come from? Such a function is called an antiderivative. There is more than one, a constant apart" in spoken(E("calc-u6-the-rule-run-backwards"))   # (xe) split
           and "For the whole-number powers in this lesson the reverse move is the same shape" in spoken(E("calc-u6-raise-then-divide"))
           and "x to the negative 1, waits for a later course" in spoken(E("calc-u6-raise-then-divide"))
           and "To reverse the power rule on the powers in this lesson" in spoken(E("calc-u6-raise-then-divide"))
@@ -19962,7 +19983,7 @@ def part3mm_the_second_calculus_sweep():
           and "evaluating a derivative: 10 times 6 is 60" in spoken(E("calc-u2-feed-the-derivative-an-x"))
           and "the front-number part of the power rule: 3 times 6 is 18" in spoken(E("calc-u2-the-power-comes-down-front"))
           and '[[step eq="x² → 2x"]]' in boards(E("calc-u2-the-power-comes-down-front"))
-          and "and the power drops to 3, so the derivative is 36 x to the power 3" in spoken(E("calc-u2-the-power-comes-down-front"))
+          and "The power drops to 3, so the derivative is 36 x to the power 3" in spoken(E("calc-u2-the-power-comes-down-front"))   # (xe) split
           and "Adding the slope to the lift — the crossed-out 8 — is not the derivative either" in spoken(E("calc-u2-a-line-has-one-slope"))
           and '[[step eq="2x − 6 = 0"]][[step eq="2x = 6"]][[step eq="x = 3"]]' in boards(E("calc-u4-where-the-curve-levels-off"))
           and "how much the best rectangle wins: 10 times 10, 100 square" in spoken(E("calc-u5-and-how-much-ground-that-wins"))
@@ -20035,7 +20056,7 @@ def part3mn_the_second_diffeq_sweep():
 
     # ---- the authored pile, by class ---------------------------------------------
     check("⭐ laws with their condition (U1-U4): classified by its HIGHEST derivative, said plainly; for this comparison; three calculations; the share, not the rate; a ceiling of 60; a WEIGHTED average; this lesson's cost measure",
-          "classified by its highest derivative: an equation with d y d x is first order, and one with d squared y over d x squared is second order" in spoken(E("diffeq-u1-a-dash-at-every-point"))
+          "classified by its highest derivative. An equation with d y d x is first order, and one with d squared y over d x squared is second order" in spoken(E("diffeq-u1-a-dash-at-every-point"))   # (xf) split
           and "deepest derivative" not in spoken(E("diffeq-u1-a-dash-at-every-point"))
           and "For this comparison, keep the same plane and the same points." in spoken(E("diffeq-u1-change-the-law-change-the-field"))
           and "Same point, three different calculations, and only one of them matches the equation" in spoken(E("diffeq-u1-change-the-law-change-the-field"))
@@ -20054,7 +20075,7 @@ def part3mn_the_second_diffeq_sweep():
           and "Y equals 96 over s times the quantity s plus 8" in spoken(E("diffeq-u7-reading-the-ending"))
           and "it tells you how the answer behaves, as the last beat will say" in spoken(E("diffeq-u7-the-shift-rule"))
           and "the number in front of t in the exponent" in E("diffeq-u7-the-shift-rule")["advance_line"]
-          and "except where it crosses the other nullcline, the y one" in spoken(E("diffeq-u8-where-an-arrow-goes-flat"))
+          and "The exception is where it crosses the other nullcline, the y one" in spoken(E("diffeq-u8-where-an-arrow-goes-flat"))   # (xf) its own sentence
           and "the point where the two cross is where nothing moves at all" in spoken(E("diffeq-u8-where-an-arrow-goes-flat"))
           and "For these squares with matching corners" in E("diffeq-u8-the-number-in-the-corner")["advance_line"]
           and "in this lesson the two corner numbers always match" in spoken(E("diffeq-u8-the-number-in-the-corner"))
@@ -20219,7 +20240,7 @@ def part3mp_the_second_precalc_sweep():
           and "For these equations — log base a of x equals b — run the log backwards" in spoken(E("pc-u3-rebuild-the-number"))
           and "the exponential in the same base, each un-doing the other" in spoken(E("pc-u3-the-power-comes-down"))
           and "And for 1024 squared, that million-sized number was never built: log of 1024 squared is 2 times 10 — 20." in spoken(E("pc-u3-the-power-comes-down"))  # (ww) the board's numbers read
-          and "add full turns of 360 until it comes out positive — for the angles in this lesson, one turn does it" in spoken(E("pc-u4-the-backwards-spin"))
+          and "add full turns of 360 until it comes out positive. For the angles in this lesson, one turn does it" in spoken(E("pc-u4-the-backwards-spin"))   # (xf) split
           and "Every place the wave touches that line after the start is one answer." in spoken(E("pc-u5-count-the-crossings"))
           and "On the unit circle, height squared plus across squared — one whole, every single time." in spoken(E("pc-u5-one-whole-between-them")), "")
     check("  words and board: 'sides of the border' (no untaught 'neighborhoods'); the '?' on the reference gap is explicit; the shared side said plainly; Unit Two's minus parade named; a readable wrong reason; the ellipse lines read '= 1' and the second draws its equation; the reason board writes 225; the circle's worked line reads 'equals 16'; the sliding graphs named",
@@ -20380,7 +20401,7 @@ def part3mr_the_third_precalc_sweep():
           and "log of 1024 squared is 2 times 10 — 20" in spoken(E("pc-u3-the-power-comes-down"))
           and '[[step eq="log 1024² = 2 × 10 = 20"]]' in E("pc-u3-the-power-comes-down")["recap"][-1][1]
           and '[[step eq="1024² = 1,048,576 — past a million"]]' in boards(E("pc-u3-the-power-comes-down"))
-          and "cosine of negative a equals cosine of a, and sine of negative a equals negative sine of a" in spoken(E("pc-u5-the-mirror-knows"))
+          and "Cosine of negative a equals cosine of a, and sine of negative a equals negative sine of a" in spoken(E("pc-u5-the-mirror-knows"))   # (xf) its own sentence
           and "rise 32 over run 4 is 8, which is 2 plus 6" in spoken(E("pc-u9-the-shrinking-window"))
           and '[[step eq="350 − 40 = 310 ✗ turned the wrong way"]]' in boards(E("pc-u6-past-the-full-turn"))
           and '[[step eq="56 ÷ 7 = 8 = 2 × 2 × 2 · 3 halvings"]]' in E("pc-u3-count-the-halvings")["recap"][0][1]
@@ -20453,9 +20474,9 @@ def part3ms_the_second_algebra2_sweep():
           and "More different factors like these, more crossings." in spoken(E("alg2-u3-three-crossings"))
           and "because three different factors give three roots, all added" == E("alg2-u3-three-crossings")["explain"]["answer"]
           and "For x not equal to zero, split the top" in spoken(E("alg2-u4-the-survivor"))
-          and "when a number divided by x equals an answer, divide the number by the answer" in spoken(E("alg2-u4-which-x-was-fed"))
+          and "When a number divided by x equals an answer, divide the number by the answer" in spoken(E("alg2-u4-which-x-was-fed"))   # (xf) its own sentence
           and "the exponent of that power is the closest whole-number log" in spoken(E("alg2-u6-between-the-powers"))
-          and "for positive a and b, in one base, the log of a times b is log a plus log b" in spoken(E("alg2-u6-logs-add"))
+          and "For a and b above zero, in one base, the log of a times b is log a plus log b" in spoken(E("alg2-u6-logs-add"))   # (xf) the board's "> 0" read as words
           and '[[step eq="for a, b > 0, one base: log(a · b) = log a + log b"]]' in E("alg2-u6-logs-add")["recap"][-1][1]
           and "a full turn changes NOTHING about where the arrow points" in spoken(E("alg2-u8-spin-once-more"))
           and "adding it keeps the arrow in the same place" in spoken(E("alg2-u8-spin-once-more"))
@@ -20748,7 +20769,7 @@ def part3mv_the_second_prealgebra_sweep():
     # ---- the authored pile, by class ---------------------------------------------------
     check("⭐ laws with their condition: one agreed order; apart from the order (HIGH); the smallest factor ABOVE 1 (HIGH); whole numbers above 1; today's numbers keep whole; past 1 on the line; compare as hundredths; timesed by (HIGH x2); a ratio like 2 to 3 (HIGH); when the rate stays the same (HIGH); percents under 100 (HIGH); a straight ANGLE; a right triangle like this one (HIGH); while x is unknown (HIGH)",
           "one agreed order through it: power, then times, then add" in spoken(E("pre-u1-power-then-times-then-add"))
-          and "apart from the order you write them in, there is only one way to do it" in spoken(E("pre-u2-breaking-into-primes"))
+          and "Apart from the order you write them in, there is only one way to do it" in spoken(E("pre-u2-breaking-into-primes"))   # (xf) its own sentence
           and E("pre-u2-the-biggest-factor")["explain"]["answer"] == "because 45 divided by its smallest factor above 1, 3, gives 15"
           and "breaking a whole number above 1 into primes" in spoken(E("pre-u2-the-smallest-factor"))
           and "Try the prime candidates in order — 2, then 3, then 5, then 7" in spoken(E("pre-u2-the-smallest-factor"))
@@ -20841,7 +20862,7 @@ def part3mw_the_second_algebra1_sweep():
           and '[[step eq="trip two: 5 + eraser = 9, so eraser = 4"]]' in boards(E("alg1-u5-the-eraser-vanishes")), "")
     check("⭐ laws with their condition: x bigger than 3; one output per allowed input (HIGH, why and recap); the rising lines in this lesson; the buys differ by one pencil (HIGH); two prices; the same base (HIGH); whole-number powers; a rule LIKE these bends into a bowl",
           "x is bigger than 3 here, so the width is a real one" in spoken(E("alg1-u1-minus-goes-through"))
-          and "for every number it is allowed to eat, exactly one number comes out" in spoken(E("alg1-u3-the-number-machine"))
+          and "For every number it is allowed to eat, exactly one number comes out" in spoken(E("alg1-u3-the-number-machine"))   # (xf) its own sentence
           and "each number it is allowed to eat gives exactly one number out" in spoken(E("alg1-u3-the-number-machine"))
           and "For the rising lines in this lesson, every time x steps one to the right" in spoken(E("alg1-u4-the-climb"))
           and "In these problems the buys differ by one pencil, so one pencil is left alone" in spoken(E("alg1-u5-the-eraser-vanishes"))
@@ -20952,6 +20973,169 @@ def part3mx_the_second_geometry_sweep():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-19xc-' in notes("main.py") and "2026-09-19  BUILD xc" in notes("lessonscripts.py")
           and "2026-09-19  BUILD xc" in notes("lessons/geometry.py") and "2026-09-19  BUILD xc" in notes("ruletests.py"), "")
+
+
+def part3my_the_colon_is_not_a_ratio():
+    """PART 3my (build xd, 2026-09-19) -- THE COLON IS NOT A RATIO. speech-text.js turned any
+    "digit, spaces, colon, spaces, digit" into "digit to digit", meant for the ratio 3:2 --
+    and fired on every colon used as punctuation before a number: "Factors of 8: 1, 2, 4, 8"
+    was spoken "Factors of 8 to 1, 2, 4, 8"; "Set the speed equal to 144: 12 t equals 144"
+    was "144 to 12 t". Measured over every scripted line of all ten courses: 287 turns
+    misread, 1,183 closure lines re-keyed for it, and not one genuine ratio written with a
+    colon (the courses say "2 to 3" in words). Jim heard the shape live on 08-26 ("Question
+    3: 20 students" -> "three to twenty"); build ol patched the model's text (referee 54)
+    and the root stayed. The rule is the TIGHT form only now."""
+    print("\nPART 3my — the colon is not a ratio (build xd)")
+    import lessonscripts as L
+    import coursesweep as C
+    import speechmap as SM
+    here = os.path.dirname(os.path.abspath(__file__))
+    js = open(os.path.join(here, "static", "speech-text.js"), encoding="utf-8").read()
+    check("⭐ the ratio rule matches the TIGHT form only: (\\d):(\\d), never (\\d)\\s*:\\s*(\\d)",
+          '.replace(/(\\d):(\\d)/g, "$1 to $2")' in js and '.replace(/(\\d)\\s*:\\s*(\\d)/g, "$1 to $2")' not in js, "")
+    import shutil as _sh, subprocess as _sp, json as _j
+    if not _sh.which("node"):
+        skip("the colon cases through forSpeech", "node is not installed")
+    else:
+        cases = ["the ratio 3:2", "Factors of 8: 1, 2, 4, 8", "Question 3: 20 students", "Count by five until you reach 20: 5, 10, 15, 20",
+                 "Set the speed equal to 144: 12 t equals 144", "3 : 2"]
+        prog = js + "\nconst c = %s; console.log(JSON.stringify(c.map(forSpeech)));" % _j.dumps(cases)
+        out = _sp.run(["node", "-e", prog], capture_output=True, text=True, timeout=60)
+        got = _j.loads(out.stdout.strip() or "[]")
+        check("⭐ a tight 3:2 is still 'three to two'; a colon with a space after it is left for the voice to pause on -- 'Factors of 8: 1, 2, 4, 8', 'Question 3: 20', 'reach 20: 5, 10', 'equal to 144: 12 t'",
+              got == ["the ratio 3 to 2", "Factors of 8: 1, 2, 4, 8", "Question 3: 20 students", "Count by five until you reach 20: 5, 10, 15, 20",
+                      "Set the speed equal to 144: 12 t equals 144", "3: 2"], str(got)[:200])
+    # ---- the measurement: no scripted line writes a ratio with a colon, and no tidied line invents a "to"
+    tight = []; invented = []
+    for les in L.LESSONS:
+        for t in C.transcript_for(les, L):
+            sp = t["spoken"]
+            if re.search(r"\d:\d", sp):
+                tight.append((les["id"], t["n"]))
+            v = SM.MAP.get(sp)
+            if v and re.search(r"\d to \d", v) and not re.search(r"\d to \d", sp):
+                invented.append((les["id"], t["n"]))
+    check("⭐⭐ NO SCRIPTED LINE IS SPOKEN WITH AN INVENTED 'TO': over every turn of every course, the tidied line never carries a 'digit to digit' the authored line did not (287 did at xc)",
+          not invented, str(invented[:4]))
+    check("  ...and no scripted line writes a ratio with a tight colon (so the tight rule touches nothing scripted; it serves the live model's text)",
+          not tight, str(tight[:4]))
+    check("  the speechmap is regenerated for the new rule: 1,001 of 40,311 (2,184 at xc); the closure drift 695",
+          len(SM.MAP) == 1001 and SM.SCANNED == 40311, "%d of %d" % (len(SM.MAP), SM.SCANNED))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-19xd-' in notes("main.py") and "2026-09-19  A COLON WITH A SPACE AFTER IT IS NOT A RATIO" in notes("static/speech-text.js")
+          and "2026-09-19  BUILD xd" in notes("ruletests.py"), "")
+
+
+def part3mz_the_pre_sweep():
+    """PART 3mz (build xe, 2026-09-19) -- THE PRE-SWEEP. With Jim away from his computer and
+    no reader seat to run, the two classes every second-round sweep has raised were applied
+    ahead of Prob/Stat's and Calculus's second readings: a closing recap board whose
+    equation the words never read (the reviewer's "words-board" on turn 38, 41 lessons),
+    and a sentence of 27 words or more in a teaching beat (its "unclear", 88 sentences).
+    Both are measured over the two courses and pinned; nothing else in the lessons moved."""
+    print("\nPART 3mz — the pre-sweep (build xe)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    sents = lambda s: [x for x in re.split(r"(?<=[.!?])\s+", s) if x]
+    unread = []; longs = []
+    for c in ("probstat", "calculus"):
+        for les in C.lessons_for(c, L):
+            for t in C.transcript_for(les, L):
+                if t["kind"] == "recap":
+                    nums = set(re.findall(r"\d+(?:\.\d+)?", " ".join(re.findall(r'\[\[step eq="([^"]*)"', t["board"]))))
+                    if nums and not any(n in t["spoken"] for n in nums):
+                        unread.append((les["id"], t["n"]))
+                if t["kind"] in ("why", "picture", "teach", "recap", "worked-example"):
+                    for sn in sents(t["spoken"]):
+                        if len(sn.split()) >= 27:
+                            longs.append((les["id"], t["n"], len(sn.split())))
+    check("⭐⭐ EVERY CLOSING BOARD IS READ: in Prob/Stat and Calculus, no recap beat carries a [[step]] equation none of whose numbers the words say (42 did at xd)",
+          not unread, str(unread[:5]))
+    check("⭐⭐ NO TEACHING SENTENCE RUNS LONG: in Prob/Stat and Calculus, no why/picture/teach/worked/recap sentence has 27 words or more (88 did at xd)",
+          not longs, str(longs[:5]))
+    check("  the readings say the board's numbers in the board's order",
+          "in plain clothes: 9 plus 3 plus 3 plus 9, shared by 4, is 6" in spoken(E("ps-u2-how-far-from-the-middle"))
+          and "expected value: 1100 tokens shared over 100 plays is 11 a play" in spoken(E("ps-u7-what-one-play-is-worth"))
+          and "the chain rule: 6 times 5 is 30" in spoken(E("calc-u3-do-not-forget-the-inside"))
+          and "the biggest idea in the subject: 5 squared take away 3 squared is 16" in spoken(E("calc-u7-end-take-away-start"))
+          and "answers WHEN: 8 t equals 40, so t is 5" in spoken(E("calc-u4-when-is-it-going-that-fast")), "")
+    check("  the splits keep every number: the box plot's three parts; the AND rule's one in 15; the trapezium's 7 and 35",
+          "A whisker reaches out left to 4. The box sits in the middle, from 10 to 20, with the median line inside it. A whisker reaches right to 26." in spoken(E("ps-u2-the-middle-half"))
+          and "But adding is the OR rule's move. The AND rule times, and one in 15 is the answer." in spoken(E("ps-u5-both-at-once"))
+          and "halfway between 4 and 10: that is 7. And 7 metres a second for 5 seconds is 35 metres." in spoken(E("calc-u8-a-speed-that-climbs")), "")
+    check("  every lesson validates; the course list is 40,005 (no beat added); the referees refuse nothing new in the two courses",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40005, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-19xe-' in notes("main.py") and "2026-09-19  BUILD xe" in notes("lessons/probstat.py")
+          and "2026-09-19  BUILD xe" in notes("lessons/calculus.py") and "2026-09-19  BUILD xe" in notes("ruletests.py"), "")
+
+
+def part3na_the_pre_sweep_the_other_eight():
+    """PART 3na (build xf, 2026-09-19) -- THE PRE-SWEEP, THE OTHER EIGHT. xe closed two classes
+    in Prob/Stat and Calculus ahead of their second readings; this build closes the same two
+    in the other eight courses (114 unread closing boards, 173 sentences of 27 words or more)
+    and widens the measurement to the whole canon. One refinement over 3mz: Entry and Basic
+    say their numbers in words ("thirteen minus five equals eight" over 13 - 5 = 8), so a
+    number counts as read when its digits OR its words are in the sentence (numwords.py's
+    tables, run backwards, up to 999). A board whose only number is a condition ("a, b > 0")
+    is read as "above zero"."""
+    print("\nPART 3na — the pre-sweep, the other eight (build xf)")
+    import lessonscripts as L
+    import coursesweep as C
+    import numwords as NW
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    sents = lambda s: [x for x in re.split(r"(?<=[.!?])\s+", s) if x]
+    ONES_R = {v: k for k, v in NW.ONES.items()}; TENS_R = {v: k for k, v in NW.TENS.items()}
+    def words(n):
+        if n < 20: return ONES_R[n]
+        if n < 100: return TENS_R[n - n % 10] + ("" if n % 10 == 0 else "-" + ONES_R[n % 10])
+        return ONES_R[n // 100] + " hundred" + ("" if n % 100 == 0 else " " + words(n % 100))
+    def read(num, sp):
+        if num in sp: return True
+        if "." in num or int(num) >= 1000: return False
+        w = words(int(num)); lo = sp.lower()
+        return w in lo or w.replace("-", " ") in lo
+    check("  the number-word reader: 8, 13, 34, 44, 100, 136 come back as their words; 'one half' reads the 1 of 1/2",
+          words(8) == "eight" and words(13) == "thirteen" and words(34) == "thirty-four" and words(44) == "forty-four"
+          and words(100) == "one hundred" and words(136) == "one hundred thirty-six"
+          and read("13", "thirteen minus five equals eight") and read("34", "thirty four plus ten") and not read("13", "three plus ten"), "")
+    ALL = ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc", "calculus", "diffeq", "probstat")
+    unread = []; longs = []
+    for c in ALL:
+        for les in C.lessons_for(c, L):
+            for t in C.transcript_for(les, L):
+                if t["kind"] == "recap":
+                    nums = set(re.findall(r"\d+(?:\.\d+)?", " ".join(re.findall(r'\[\[step eq="([^"]*)"', t["board"]))))
+                    if nums and not any(read(x, t["spoken"]) for x in nums):
+                        unread.append((les["id"], t["n"]))
+                if t["kind"] in ("why", "picture", "teach", "recap", "worked-example"):
+                    for sn in sents(t["spoken"]):
+                        if len(sn.split()) >= 27:
+                            longs.append((les["id"], t["n"], len(sn.split())))
+    check("⭐⭐ EVERY CLOSING BOARD IS READ, ALL TEN COURSES: no recap beat carries a [[step]] equation none of whose numbers the words say, in digits or in words (114 did at xe)",
+          not unread, str(unread[:5]))
+    check("⭐⭐ NO TEACHING SENTENCE RUNS LONG, ALL TEN COURSES: no why/picture/teach/worked/recap sentence has 27 words or more (173 did at xe)",
+          not longs, str(longs[:5]))
+    check("  the readings say the board's numbers in the board's order: Entry's double, Basic's left-over, Algebra I's socks and shoes, Geometry's Pythagoras, Pre-Calc's limit with a side",
+          "a sum you never have to count: four plus four is eight" in spoken(E("entry-u2-doubles"))
+          and "sharing rarely comes out even: 13 divided by 4 is 3, left over 1" in spoken(E("basic-u3-left-overs"))
+          and "socks and shoes, in algebra: 2 x plus 3 equals 11, so x is 4" in spoken(E("alg1-u2-two-steps-back"))
+          and "still true in every corner: 5 squared plus 12 squared is 13 squared" in spoken(E("geo-u5-the-longest-side"))
+          and "a limit with a side: from the left, 3; from the right, 9" in spoken(E("pc-u9-the-two-sides-disagree")), "")
+    check("  the splits keep every number and every idea: the factor pairs of 18; the four rooms; the cooling cup's 30 and 5",
+          "18 has three pairs — 2 and 9, 3 and 6, 1 and 18. Pairs are what you will reach for" in spoken(E("basic-u4-factor-pairs"))
+          and "make a rectangle with four rooms. x squared, two middle rooms that ADD to the x count" in spoken(E("alg1-u7-the-four-rooms"))
+          and "Answering 30 hands back the gap. And 5 is only the degrees of gap it takes to cool 1 degree a minute" in spoken(E("diffeq-u2-the-cooling-cup")), "")
+    check("  a board whose only number is a condition is read as words: the log law's 'above zero'",
+          "For a and b above zero, in one base, the log of a times b is log a plus log b" in spoken(E("alg2-u6-logs-add")), "")
+    check("  every lesson validates; the course list is 40,005 (no beat added); the closure and speechmap did not move",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40005, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-19xf-' in notes("main.py") and "2026-09-19  BUILD xf" in notes("ruletests.py")
+          and all("2026-09-19  BUILD xf" in notes("lessons/%s.py" % c) for c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc", "diffeq")), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -47859,6 +48043,9 @@ def main():
     part3mv_the_second_prealgebra_sweep()
     part3mw_the_second_algebra1_sweep()
     part3mx_the_second_geometry_sweep()
+    part3my_the_colon_is_not_a_ratio()
+    part3mz_the_pre_sweep()
+    part3na_the_pre_sweep_the_other_eight()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

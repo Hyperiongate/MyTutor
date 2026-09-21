@@ -2,6 +2,12 @@
 # lessons/entry.py  --  ENTRY-LEVEL MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
+#               reader seat). xe's two classes, applied to this course ahead of its next
+#               reading: (1) every closing recap board whose equation the words did not read is read now -- 1 lessons; 
+#               (2) every sentence of 27 words or more in a why, picture, teach, worked or
+#               recap beat is split -- 1 sentences. Numbers said in words ("four plus four
+#               is eight") count as read. No beat added, no number changed, no board changed.
 #   2026-09-18  BUILD wy -- THE FIFTH ENTRY SWEEP (19 findings on all 36, 29 clean; 8 of
 #               them authored). add-past-ten: both worked captions draw the count-on the
 #               words say ("start at six and count on: 7, 8, 9, 10, 11"), and the recap is
@@ -1328,8 +1334,7 @@ _ENTRY_MORE = [
             ("So, here it is again. A double is a number added to itself — the same "
              "number twice, not the number and one more. Four and four is eight.",
              '[[objects emoji="⭐" groups="4" add="4" count="1" caption="the same number, twice"]]'),
-            ("And doubles are worth knowing by heart, because a double you know is "
-             "a sum you never have to count.",
+            ("And doubles are worth knowing by heart, because a double you know is a sum you never have to count: four plus four is eight.",
              '[[step eq="4 + 4 = 8"]]'),
         ],
         # (va) the walk-back is ON: this lesson's op draws a picture after a
@@ -1620,8 +1625,7 @@ _ENTRY_MORE = [
         "advance_line": "Three in a row — you've got it! You can solve story problems.",
         "why": [
             ("Why story problems? Because outside this lesson nobody hands you a sum. "
-             "They hand you a story — someone got some more, someone ate three, some "
-             "flew away — and a plus or a minus is hiding inside it. Finding which "
+             "They hand you a story — someone got some more, someone ate three, some flew away. A plus or a minus is hiding inside it. Finding which "
              "one is the first job; then you do the sum.",
              '[[goal text="Story problems"]]'),
         ],

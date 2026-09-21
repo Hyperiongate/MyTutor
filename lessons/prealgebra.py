@@ -2,6 +2,12 @@
 # lessons/prealgebra.py  --  PRE-ALGEBRA: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
+#               reader seat). xe's two classes, applied to this course ahead of its next
+#               reading: (1) every closing recap board whose equation the words did not read is read now -- 17 lessons; 
+#               (2) every sentence of 27 words or more in a why, picture, teach, worked or
+#               recap beat is split -- 14 sentences. Numbers said in words ("four plus four
+#               is eight") count as read. No beat added, no number changed, no board changed.
 #   2026-09-18  BUILD xa -- THE SECOND PRE-ALGEBRA SWEEP (58 findings on all 36, 9 clean;
 #               44 authored, 43 answered here). Laws with their condition: one AGREED
 #               order; primes are one list "apart from the order"; the smallest factor
@@ -178,7 +184,7 @@ _PREALGEBRA_MORE = [
              "the two sides of one rectangle. Find the smallest factor above 1, divide "
              "by it, and you are holding the biggest.",
              '[[areamodel rows="3" cols="15" caption="3 × 15 = 45"]]'),
-            ("And never the number just below — that one almost never divides at all.",
+            ("And never the number just below — that one almost never divides at all. 45 is 3 times 15.",
              '[[step eq="45 = 3 × 15"]]'),
         ],
         "bank": [{"a": 4, "b": 0, "op": "bfac"}, {"a": 14, "b": 0, "op": "bfac"}, {"a": 22, "b": 0, "op": "bfac"}, {"a": 91, "b": 0, "op": "bfac"}, {"a": 36, "b": 0, "op": "bfac"}, {"a": 46, "b": 0, "op": "bfac"}, {"a": 56, "b": 0, "op": "bfac"}, {"a": 99, "b": 0, "op": "bfac"}, {"a": 82, "b": 0, "op": "bfac"}, {"a": 98, "b": 0, "op": "bfac"}],
@@ -336,7 +342,7 @@ _PREALGEBRA_U1 = [
             ("So, here it is again. Parentheses beat everything: whatever is inside "
              "them goes first, then the rest of the line follows the usual order.",
              '[[solve start="(2 + 3) × 4" steps="inside first : 5 × 4 | then times : 20" caption="inside first"]]'),
-            ("And they are how you tell the math which part to do first.",
+            ("And they are how you tell the math which part to do first: 2 plus 3 in brackets, times 4, is 20.",
              '[[step eq="(2 + 3) × 4 = 20"]]'),
         ],
         "bank": [
@@ -363,8 +369,7 @@ _PREALGEBRA_U1 = [
         "why": [
             ("Why exponents? Because multiplying the same number again and again is "
              "slow to write. A square floor 3 tiles by 3 tiles; a box 2 cubes wide, 2 "
-             "deep, 2 high. A power — a number with a small raised number, called its "
-             "exponent — is the short way to say: multiply this number by itself, this many times.",
+             "deep, 2 high. A power is a number with a small raised number, called its exponent. It is the short way to say: multiply this number by itself, this many times.",
              '[[goal text="Exponents are repeated times"]]'),
         ],
         "picture": [
@@ -483,7 +488,7 @@ _PREALGEBRA_U1 = [
             ("So, here it is again. One order for the whole line: parentheses, then "
              "the power, then the times, then the add.",
              '[[solve start="3² + 2 × 4" steps="power first : 9 + 2 × 4 | times next : 9 + 8 | add last : 17" caption="power, times, add"]]'),
-            ("And it is the order to take through any line that mixes them.",
+            ("And it is the order to take through any line that mixes them: 3 squared plus 2 times 4 is 17.",
              '[[step eq="3² + 2 × 4 = 17"]]'),
         ],
         "bank": [
@@ -525,14 +530,11 @@ _PREALGEBRA_U23 = [
         "advance_line": "Three in a row, and you can say why — you've got it! You can count a number's factors.",
         "why": [
             ("Why count factors? Because the factors are the row sizes that split a "
-             "number into equal rows. Twelve chairs can stand in 1 row of 12, 2 rows of 6, "
-             "or 3 rows of 4 — and knowing every way is what lets you share, arrange "
-             "and simplify without guessing.",
+             "number into equal rows. Twelve chairs can stand in 1 row of 12, 2 rows of 6, or 3 rows of 4. Knowing every way is what lets you share, arrange and simplify without guessing.",
              '[[goal text="How many factors a number has"]]'),
         ],
         "picture": [
-            ("Here are the ways to arrange 6 in equal rows, counting a turned-around "
-             "rectangle as the same one: 1 row of 6, and 2 rows of 3. Those two rectangles "
+            ("Here are the ways to arrange 6 in equal rows, counting a turned-around rectangle as the same one. 1 row of 6, and 2 rows of 3. Those two rectangles "
              "hold every factor of 6 — 1, 2, 3 and 6. Four factors.",
              '[[write lines="1 × 6 | 2 × 3" caption="the factors of 6: 1, 2, 3, 6 — four"]][[array rows="1" cols="6" caption="1 row of 6"]][[array rows="2" cols="3" caption="2 rows of 3 = 6"]]'),
         ],
@@ -672,9 +674,7 @@ _PREALGEBRA_U23 = [
         "symbols": ("prime", "factor"),
         "advance_line": "Three in a row, and you can say why — you've got it! Every number above 1 breaks down into primes.",
         "why": [
-            ("Why break a number into primes? Because primes are the building blocks "
-             "— every whole number above 1 is primes multiplied, and apart from the order "
-             "you write them in, there is only one way to do it. Once you can see the blocks, sharing fractions, finding what "
+            ("Why break a number into primes? Because primes are the building blocks — every whole number above 1 is primes multiplied. Apart from the order you write them in, there is only one way to do it. Once you can see the blocks, sharing fractions, finding what "
              "two numbers have in common and simplifying all get easier.",
              '[[goal text="Breaking a number into primes"]]'),
         ],
@@ -721,7 +721,7 @@ _PREALGEBRA_U23 = [
              "again, until every number on the rung is prime. Then count the primes, "
              "repeats included.",
              '[[solve start="24" steps="pull out 2 : 2 × 12 | pull out 2 : 2 × 2 × 6 | pull out 2 : 2 × 2 × 2 × 3" caption="24 = 2 × 2 × 2 × 3"]]'),
-            ("And those primes are the blocks every number is built from.",
+            ("And those primes are the blocks every number is built from: 24 is 2 times 2 times 2 times 3.",
              '[[step eq="24 = 2 × 2 × 2 × 3"]]'),
         ],
         "bank": [
@@ -796,8 +796,7 @@ _PREALGEBRA_U23 = [
              "keeps going past zero. Count to zero, then count the rest of the hops "
              "— that is how far below zero you land, and the answer is negative.",
              '''[[numberline min="-10" max="10" points="3" hops="3,-4" caption="3 − 7 = −4"]]'''),
-            ("And below zero is a real place — a cold morning, a floor under the "
-             "ground, money owed.",
+            ("And below zero is a real place — a cold morning, a floor under the ground, money owed: 3 take away 7 is negative 4.",
              '[[step eq="3 − 7 = −4"]]'),
         ],
         "bank": [
@@ -872,7 +871,7 @@ _PREALGEBRA_U23 = [
              "— the same move as counting back. The negative sets the direction, "
              "not the plus.",
              '''[[numberline min="-10" max="10" points="5" hops="5,-2" caption="5 + (−7) = −2"]]'''),
-            ("And that is how a penalty on the score gets written down.",
+            ("And that is how a penalty on the score gets written down: 5 plus negative 7 is negative 2.",
              '[[step eq="5 + (−7) = −2"]]'),
         ],
         "bank": [
@@ -952,8 +951,7 @@ _PREALGEBRA_U23 = [
              "the two negatives cancel, and the answer grows. Swap the pair for a "
              "plus.",
              '''[[numberline min="-10" max="10" points="3" hops="3,5" caption="3 − (−2) = 5"]]'''),
-            ("And that is a penalty being cancelled — taking away what pulled you down "
-             "pushes you up.",
+            ("And that is a penalty being cancelled — taking away what pulled you down pushes you up. 3 take away negative 2 is 3 plus 2, 5.",
              '[[step eq="3 − (−2) = 3 + 2 = 5"]]'),
         ],
         "bank": [
@@ -1027,7 +1025,7 @@ _PREALGEBRA_U23 = [
              "to the left. Multiply the numbers, then look at the signs: one negative "
              "turns the answer negative.",
              '[[numberline min="-17" max="5" hops="0,-3,-6,-9,-12" caption="(−3) × 4 = −12"]]'),
-            ("And that is a loss repeated — the short way to add it again and again.",
+            ("And that is a loss repeated — the short way to add it again and again: negative 3 times 4 is negative 12.",
              '[[step eq="(−3) × 4 = −12"]]'),
         ],
         "bank": [
@@ -1441,7 +1439,7 @@ _PREALGEBRA_U5 = [
              "Count two-place decimals as hundredths — and a tenth as ten hundredths — "
              "and you can compare them.",
              '[[hundredgrid shaded="37" caption="0.37 = 37 hundredths"]]'),
-            ("And that is why 0 point 6 beats 0 point 3 7, digits or no digits.",
+            ("And that is why 0 point 6 beats 0 point 3 7, digits or no digits: 60 hundredths is more than 37 hundredths.",
              '[[step eq="0.6 = 60 hundredths"]][[step eq="0.37 = 37 hundredths"]]'),
         ],
         "bank": [
@@ -1482,9 +1480,7 @@ _PREALGEBRA_U5 = [
              '[[placevalue t="3" o="7" d="0" caption="3.7 × 10 = 37: every digit one place left"]]'),
         ],
         "teach": [
-            ("That is the rule. Timesing by ten moves every digit one place to the "
-             "left on the chart — the tenths cross the decimal point to become ones, "
-             "the ones become tens. Nothing is dropped and nothing is invented.",
+            ("That is the rule. Timesing by ten moves every digit one place to the left on the chart. The tenths cross the decimal point to become ones, the ones become tens. Nothing is dropped and nothing is invented.",
              '[[placevalue o="3" d="7" caption="3.7: three ones and seven tenths"]][[step eq="3.7 × 10 = 37"]]'),
             ("One more. 5 point 2 times 10 equals 52. Careful — the answer is not 50. "
              "The tenths digit moves too; it does not get left behind.",
@@ -1591,8 +1587,7 @@ _PREALGEBRA_U5 = [
             ("So, here it is again. Say the decimal as tenths, times the tenths like "
              "whole numbers, and the answer stays in tenths.",
              '[[numberline min="0" max="2" denom="10" hops="0,0.3,0.6,0.9,1.2" caption="3 tenths × 4 = 12 tenths"]]'),
-            ("And that is four bags of 0 point 3 of a kilo — 3 tenths times 4, 12 "
-             "tenths — using a times table you already know.",
+            ("And that is four bags of 0 point 3 of a kilo — 3 tenths times 4, 12 tenths. It uses a times table you already know.",
              '[[step eq="3 tenths × 4 = 12 tenths"]]'),
         ],
         "bank": [
@@ -1832,8 +1827,7 @@ _PREALGEBRA_U6 = [
             ("So, here it is again. Divide to reach one hour — that is the rate. "
              "Then times by the hours you were asked about. Two steps, that order.",
              '[[array rows="3" cols="6" view="groups" eq="18 ÷ 3 = 6" label="hours" caption="18 ÷ 3 = 6 an hour, then 6 × 4 = 24"]]'),
-            ("And that is how a price per hour, or a speed, is used when you know the "
-             "hours: 18 divided by 3 is 6, then 6 times 4 is 24.",
+            ("And that is how a price per hour, or a speed, is used when you know the hours. 18 divided by 3 is 6, then 6 times 4 is 24.",
              '[[step eq="18 ÷ 3 = 6"]][[step eq="6 × 4 = 24"]]'),
         ],
         "bank": [
@@ -1910,8 +1904,7 @@ _PREALGEBRA_U6 = [
              "proportion. Whatever the bottom was timesed by, times the top by the "
              "same — never add.",
              '[[pie parts="4" shaded="3" caption="3/4"]][[pie parts="8" shaded="6" caption="6/8"]]'),
-            ("And that is the same slice, cut finer — a photo made bigger, a map "
-             "read right.",
+            ("And that is the same slice, cut finer — a photo made bigger, a map read right: three fourths is six eighths.",
              '[[step eq="3/4 = 6/8"]]'),
         ],
         "bank": [
@@ -2032,9 +2025,7 @@ _PREALGEBRA_U7 = [
         "symbols": ("percent", "of"),
         "advance_line": "Three in a row, and you can say why — you've got it! Ten percent first, then count the tens.",
         "why": [
-            ("Why any percent? Because you already know 50 percent is half and 10 "
-             "percent is a tenth — but sale signs say 30 percent off, and a test says "
-             "70 percent. Half and a fourth are no help there. Here is one way that "
+            ("Why any percent? Because you already know 50 percent is half and 10 percent is a tenth. But sale signs say 30 percent off, and a test says 70 percent. Half and a fourth are no help there. Here is one way that "
              "works for every percent made of whole tens, of every number.",
              '[[goal text="Any percent, ten at a time"]]'),
         ],
@@ -2082,7 +2073,7 @@ _PREALGEBRA_U7 = [
              "first — a tenth — then count how many tens the percent is, and times "
              "by that. Two steps, and the first one is not the answer.",
              '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40" caption="10% of 40 = 4 · 30% = 3 × 4 = 12"]]'),
-            ("And that is the sale sign read, and the test score understood.",
+            ("And that is the sale sign read, and the test score understood: 30 percent of 40 is 12.",
              '[[step eq="30% of 40 = 12"]]'),
         ],
         "bank": [
@@ -2160,8 +2151,7 @@ _PREALGEBRA_U7 = [
              "of 100: whatever the bottom was timesed by to reach 100, times the top "
              "by the same. And answer with the part you HAD, not the part you missed.",
              '[[tape parts="15 | 5" total="20" caption="15 out of 20"]][[hundredgrid shaded="75" unit="percent" caption="15/20 = 75/100"]]'),
-            ("And that is two test scores, compared at a glance: 15 out of 20 is 75 "
-             "percent, 21 out of 30 is 70 percent — the first test went better.",
+            ("And that is two test scores, compared at a glance. 15 out of 20 is 75 percent, 21 out of 30 is 70 percent — the first test went better.",
              '[[step eq="15/20 = 75%"]][[step eq="21/30 = 70%"]]'),
         ],
         "bank": [
@@ -2238,12 +2228,9 @@ _PREALGEBRA_U7 = [
             "board": '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40" caption="ten parts of 4 — 3 of them are the 12"]]',
         },
         "recap": [
-            ("So, here it is again. Told a part and its percent, step down to ten "
-             "percent — divide the part by how many tens — then step up to the whole: "
-             "times by 10. And for these percents, all under 100, the whole is bigger than the part.",
+            ("So, here it is again. Told a part and its percent, step down to ten percent — divide the part by how many tens. Then step up to the whole: times by 10. And for these percents, all under 100, the whole is bigger than the part.",
              '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40" caption="10% = 12 ÷ 3 = 4 · 100% = 4 × 10 = 40"]]'),
-            ("And that is the full price found from the sale, and the school counted "
-             "from one class.",
+            ("And that is the full price found from the sale, and the school counted from one class: 30 percent is 12, so 100 percent is 40.",
              '[[step eq="30% = 12, so 100% = 40"]]'),
         ],
         "bank": [
@@ -2317,13 +2304,10 @@ _PREALGEBRA_U7 = [
             "board": '[[tape parts="60 | 6" total="66" caption="60 + 6 = 66 dollars"]]',
         },
         "recap": [
-            ("So, here it is again. A price goes up or down by a percent: first work "
-             "out the change — that percent OF the price — then put it on or take it "
-             "off. The percent is never dollars on its own: 10 percent of 60 is 6, and "
+            ("So, here it is again. A price goes up or down by a percent. First work out the change — that percent OF the price — then put it on or take it off. The percent is never dollars on its own: 10 percent of 60 is 6, and "
              "60 plus 6 is 66.",
              '[[tape parts="60 | 6" total="66" caption="10% of 60 = 6 · 60 + 6 = 66"]]'),
-            ("And that is the sale sign turned into the price you pay: 60 plus 6 is 66 "
-             "going up, and 60 take away 6 is 54 coming down.",
+            ("And that is the sale sign turned into the price you pay. 60 plus 6 is 66 going up, and 60 take away 6 is 54 coming down.",
              '[[step eq="60 + 6 = 66"]][[step eq="60 − 6 = 54"]]'),
         ],
         "bank": [
@@ -2500,7 +2484,7 @@ _PREALGEBRA_U8 = [
              "triangle; the triangle is half of it. Times, then halve — and the "
              "halving is the step people forget.",
              '[[rectangle w="8" h="3" half="1" caption="8 × 3 = 24 · 24 ÷ 2 = 12"]]'),
-            ("And that is the sail measured, and the pizza slice shared fairly.",
+            ("And that is the sail measured, and the pizza slice shared fairly: 8 times 3, divided by 2, is 12.",
              '[[step eq="8 × 3 ÷ 2 = 12"]]'),
         ],
         "bank": [
@@ -2760,7 +2744,7 @@ _PREALGEBRA_U9 = [
              "sum. Swap first — the plus keeps the numbers apart. When x is 5, x plus 3 "
              "becomes 5 plus 3, which equals 8.",
              '[[tape parts="5 | 3" total="8" caption="x = 5 · x + 3 = 5 + 3 = 8"]]'),
-            ("And that is the doorway to algebra, one letter wide.",
+            ("And that is the doorway to algebra, one letter wide: x is 5, so x plus 3 is 8.",
              '[[step eq="x = 5, so x + 3 = 8"]]'),
         ],
         "bank": [
@@ -2835,7 +2819,7 @@ _PREALGEBRA_U9 = [
              "that many copies of the letter. 3 x is three x's, and with x equal to 9 "
              "it is 27. The times sign is invisible, but it is there.",
              '[[tape parts="9 | 9 | 9" total="27" caption="3x = 3 × 9 = 27"]]'),
-            ("And that is a shorthand you will see on nearly every line of algebra.",
+            ("And that is a shorthand you will see on nearly every line of algebra: 3 x means 3 times x.",
              '[[step eq="3x = 3 × x"]]'),
         ],
         "bank": [
@@ -2909,7 +2893,7 @@ _PREALGEBRA_U9 = [
              "of them is 5 of them, so 3 x plus 2 x is 5 x. The counts add — they "
              "never times.",
              '[[tape parts="x | x | x | x | x" total="5x" caption="3x + 2x = 5x"]]'),
-            ("And that is apples and apples, with a letter in place of the apple.",
+            ("And that is apples and apples, with a letter in place of the apple: 3 x plus 2 x is 5 x.",
              '[[step eq="3x + 2x = 5x"]]'),
         ],
         "bank": [
@@ -2943,8 +2927,7 @@ _PREALGEBRA_U9 = [
         ],
         "picture": [
             ("Here is a rectangle 4 tall and x plus 3 wide. Its area is 4 times the "
-             "whole of x plus 3. A wall splits it into two rooms: one room is 4 by x "
-             "— that is 4 x — and the other is 4 by 3, which is 12. Both rooms "
+             "whole of x plus 3. A wall splits it into two rooms. One room is 4 by x — that is 4 x — and the other is 4 by 3, which is 12. Both rooms "
              "together: 4 x plus 12.",
              '[[areamodel rows="4" cols="x,3" caption="a 4 by (x + 3) rectangle — two rooms: 4x and 12"]]'),
         ],
@@ -2985,7 +2968,7 @@ _PREALGEBRA_U9 = [
              "reaches both rooms: it times the x, and it times the number. 4 times "
              "the whole of x plus 3 is 4 x plus 12 — never 4 x plus 3.",
              '[[areamodel rows="4" cols="x,3" caption="4(x + 3) = 4x + 12"]]'),
-            ("And that is the last prealgebra lesson, and the first line of algebra.",
+            ("And that is the last prealgebra lesson, and the first line of algebra: 4 times the whole of x plus 3 is 4 x plus 12.",
              '[[step eq="4(x + 3) = 4x + 12"]]'),
         ],
         "bank": [
