@@ -4,15 +4,15 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk, the newest: **`2026-09-19xb-the-second-algebra1-sweep`**. Battery
-12,732 passed, 0 failed, 3 skipped (frozen copy, 2026-09-19). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
+On Jim's disk, the newest: **`2026-09-19xc-the-second-geometry-sweep`**. Battery
+12,739 passed, 0 failed, 3 skipped (frozen copy, 2026-09-19). The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
 half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
-whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19). Jim pushes and prewarms
+whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19). Jim pushes and prewarms
 each; check `/health`. The first round is over: every lesson in every course has been read
 once. **The second round has begun, and the cycle converges: Diffeq went 119 → 62 findings,
-0 → 8 clean, on one fix build; Pre-Calc 76 → 34 → (60 with wt's praise-board shape, fixed in the engine) 15 clean; Algebra II 73 → 43, 14 clean; Entry 14 → 19 (sixteen of them one engine consequence of ww, closed in wy) with 29 clean — the most any course has had; Basic 67 → 41, 7 → 14 clean; Pre-Algebra 69 → 58, 6 → 9 clean (ten of the 58 were the near-repeat praise class, closed across 25 ops in xa); Algebra I 72 → 50, 8 → 10 clean — the first reading after xa, and the praise class did not come up once.**
+0 → 8 clean, on one fix build; Pre-Calc 76 → 34 → (60 with wt's praise-board shape, fixed in the engine) 15 clean; Algebra II 73 → 43, 14 clean; Entry 14 → 19 (sixteen of them one engine consequence of ww, closed in wy) with 29 clean — the most any course has had; Basic 67 → 41, 7 → 14 clean; Pre-Algebra 69 → 58, 6 → 9 clean (ten of the 58 were the near-repeat praise class, closed across 25 ops in xa); Algebra I 72 → 50, 8 → 10 clean — the first reading after xa, and the praise class did not come up once; Geometry 63 → 36, 7 → 16 clean.**
 
 **OpenAI credits were topped up on the evening of 09-17** (the cap is not the balance —
 an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes the card say
@@ -22,7 +22,7 @@ an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes t
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`.
 
 | course | sweeps so far | last result |
 |---|---|---|
@@ -30,7 +30,7 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 | Basic | wg (67) → wh fixes → wy (41, all 36) → wz fixes, unswept | 41 findings, 14 clean |
 | Pre-Algebra | wh (69) → wi fixes → wz (58, all 36) → xa fixes, unswept | 58 findings, 9 clean |
 | Algebra I | wi (72) → wk fixes → xa (50, all 36) → xb fixes, unswept | 50 findings, 10 clean |
-| Geometry | wk (63) → wl fixes, unswept | 63 findings, 7 clean |
+| Geometry | wk (63) → wl fixes → xb (36, all 36) → xc fixes, unswept | 36 findings, 16 clean |
 | Algebra II | wk (73) → wm fixes → ww (43, 35 of 36) → wx fixes, unswept | 43 findings, 14 clean |
 | Pre-Calc | wl (76) → wn fixes → ws (34, 27 of 36) → wu fixes → wv (60, all 36) → ww fixes, unswept | 60 findings (25 of them wt's praise-board shape, fixed in the engine), 15 clean |
 | Calculus | wm (46, 19 of 36) → wo fixes → wq (88, all 36) → wr fixes, unswept | 88 findings, 4 clean |
@@ -39,11 +39,15 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 
 ## What to do next
 
-1. Jim pushes `xb`, confirms `/health`, runs the **prewarm** (exmul's lines, sumd's
-   walk-backs, ~40 Algebra I rewrites).
-2. **Geometry** next, against `wk`'s floor of 63 findings and 7 clean (fixed in `wl`); the
-   report becomes `xc`. Then Prob/Stat (`wo`'s 92, 1 clean) and Calculus's second reading
-   (`wq`'s 88, 4 clean). Algebra I's class, which Algebra II and up will share: **the
+1. Jim pushes `xc`, confirms `/health`, runs the **prewarm** (insc/outc/alen's lines,
+   ~30 Geometry rewrites).
+2. **Prob/Stat** next, against `wo`'s floor of 92 findings and 1 clean (fixed in `wq`); the
+   report becomes `xd`. Then Calculus's second reading (`wq`'s 88, 4 clean, fixed in `wr`)
+   → `xe`. After that every course has had two readings, and the third round (Entry's
+   sixth, Pre-Calc's fourth, …) can start with the courses whose second reading was
+   highest. Geometry's class (xc): **the picture the words describe is not on the
+   board** — an exterior angle over a plain triangle, a segment over two dots, a table's
+   traps over three step lines. Draw what the words point at. Algebra I's class, which Algebra II and up will share: **the
    equation as given is missing from the board** — the undo pictures start one step in,
    a substituted line has no "x = 4" beside it, the words point at brackets the board
    does not show. Put the given line first. Expect the praise beats to read differently now: in a walk-back lesson
@@ -93,6 +97,10 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 
 ## House decisions still open
 
+- **A walk-back can keep a reason the lesson dropped (xc).** wl fixed the half-the-arc
+  lesson's "from farther away things look smaller" in the authored beats; the generator's
+  walk-back kept it for three more builds. When a sweep finding names a *reason*, grep the
+  op's `_worked` too.
 - **Reason choices and answer choices are tap-only by design (wx, xa, xb).** Three sweeps in a row
   have raised "the choices are never read aloud" — decline it every time; it is not a
   finding. If it keeps costing findings, a charter line in `coursesweep.py` would stop it.

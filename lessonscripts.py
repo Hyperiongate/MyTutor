@@ -2,6 +2,14 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-19  BUILD xc -- THE SECOND GEOMETRY SWEEP (36 findings on all 36, 16 clean, 8
+#               generator-owned on three ops; 63 at wk). (1) insc's walk-back said the arc
+#               "looks exactly half" from the rim because the rim "is farther away" -- a
+#               false reason for a true rule (HIGH; the lesson itself was fixed in wl). It
+#               gives the rule now: an angle on the rim opening onto an arc is half that
+#               arc, and the middle angle equals it. (2) outc's walk-back said "adding
+#               gives 8 things, not outfits" over a board that drew only 6 × 2: the wrong
+#               path is drawn as a ✗ line. (3) alen's first sentence split. No count moved.
 #   2026-09-19  BUILD xb -- THE SECOND ALGEBRA I SWEEP (50 findings on all 36, 10 clean, 6
 #               generator-owned on three ops; 72 at wi). (1) exmul said "3 times 4" in the
 #               praise over a caption that wrote "4 × 3": b copies of a x's is "b times a"
@@ -3538,9 +3546,11 @@ def _insc_board(p):
 
 def _insc_worked(p):
     a = p["a"]
-    return (f"Here it is, step by step: from the rim the arc looks half. {a} divided by 2 equals "
-            f"{a // 2} degrees. From the middle the same arc would be {a}; the rim is farther "
-            f"away, and from farther away it looks exactly half.",
+    # (xc) the rule, not the distance: an angle on the rim opening onto an arc is half
+    # that arc; the angle at the middle equals it. "Farther away" was never the reason.
+    return (f"Here it is, step by step: an angle on the rim opening onto an arc is half that arc. "
+            f"{a} divided by 2 equals {a // 2} degrees. From the middle the same arc would be "
+            f"{a}: the middle angle equals its arc, and the rim angle is half of it.",
             f'[[circle center="O" inscribed="{a}" caption="arc {a}° — from the rim it looks {a // 2}°"]]'
             f'[[step eq="{a}° ÷ 2 = {a // 2}°"]]')
 
@@ -3571,8 +3581,9 @@ def _alen_board(p):
 def _alen_worked(p):
     a, b = p["a"], p["b"]
     n = 360 // a
-    return (f"Here it is, step by step: {a} degrees goes into 360 {n} times, so the circle is {n} "
-            f"equal parts and the arc is one of them. The whole distance around is {b}, so "
+    # (xc) short sentences after a miss
+    return (f"Here it is, step by step: {a} degrees goes into 360 {n} times. So the circle is {n} "
+            f"equal parts, and the arc is one of them. The whole distance around is {b}, so "
             f"the arc is {b} divided by {n} — {b // n}. Degrees say how far it turns; the "
             f"length says how far it runs.",
             f'[[pie parts="{n}" shaded="1" caption="{n} equal parts of {b} — the arc is {b // n}"]]'
@@ -3753,7 +3764,8 @@ def _outc_worked(p):
             f"choices times up. {a} rows of {b} boxes is {a} times {b}, which equals "
             f"{a * b} outfits. Adding gives {a + b} things, not outfits.",
             f'[[array rows="{a}" cols="{b}" caption="{a} × {b} = {a * b} outfits"]]'
-            f'[[step eq="{a} × {b} = {a * b}"]]')
+            f'[[step eq="{a} × {b} = {a * b}"]]'
+            f'[[step eq="{a} + {b} = {a + b} ✗ things, not outfits"]]')   # (xc) the wrong path drawn
 
 
 def _twop_board(p):

@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-19  BUILD xc -- PART 3mx, THE SECOND GEOMETRY SWEEP (36 findings on all 36, 16
+#               clean; 63 and 7 at wk). insc's walk-back gives the RULE, not "farther away"
+#               (HIGH); outc's adding wrong path is drawn; alen's sentences; the authored
+#               classes -- the picture the words describe (the exterior angle's straight
+#               line, the segment's line, the table on the traps beat), the conditions
+#               (a slant with an across AND an up; one of the sharp angles), the boards
+#               read. Three pins moved (tk's insc reason; wl's fourth-corner sentence and
+#               "stand at" clause), each marked "(xc)". No count moved.
 #   2026-09-19  BUILD xb -- PART 3mw, THE SECOND ALGEBRA I SWEEP (50 findings on all 36, 10
 #               clean; 72 and 8 at wi). exmul's one factor order (b times a, everywhere);
 #               sumd's walk-back in short sentences; the authored classes -- the equation
@@ -19101,7 +19109,7 @@ def part3mg_the_first_geometry_sweep():
           and "In an isosceles triangle, given the apex" in spoken(E("geo-u3-share-the-rest"))
           and E("geo-u3-share-the-rest")["advance_line"].endswith("In an isosceles triangle, take the apex out first, then share the rest.")
           and "When the shapes are similar, one matching pair of sides is all it takes" in spoken(E("geo-u4-finding-the-factor"))
-          and "in these puzzles the rectangle" in spoken(E("geo-u7-the-fourth-corner"))
+          and "In these puzzles the rectangle" in spoken(E("geo-u7-the-fourth-corner"))   # (xc) its own sentence
           and "For these grid-lined rectangles" in spoken(E("geo-u7-the-fourth-corner")), "")
     check("  turn symmetry comes back BEFORE the full turn; equal, all-alike parts; the exterior shortcut carries its proof; the inscribed angle's arms reach the circle",
           "comes back before the full turn is done" in spoken(E("geo-u2-turns-onto-itself"))
@@ -19142,7 +19150,7 @@ def part3mg_the_first_geometry_sweep():
           and "find the number whose square is the result" in spoken(E("geo-u5-the-missing-leg"))
           and "find the number whose square is that total" in spoken(E("geo-u7-the-straight-path"))
           and '"square back" -- Geometry' in C.SWEEP_SYSTEM
-          and "when you stand at an angle" in spoken(E("geo-u5-the-climb-ratio"))
+          and "when you stand at one of the sharp angles" in spoken(E("geo-u5-the-climb-ratio"))   # (xc) the condition
           and "the reds, 3, out of everything in the bag, 5" in spoken(E("geo-u9-out-of-all")), "")
     check("  every Geometry lesson validates and the course list is 39,999 (the fourth corner's second beat)",
           all(ok for les in L.LESSONS if les["course"] == "geometry" for ok, _l, _d in L.validate(les))
@@ -20876,6 +20884,74 @@ def part3mw_the_second_algebra1_sweep():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-19xb-' in notes("main.py") and "2026-09-19  BUILD xb" in notes("lessonscripts.py")
           and "2026-09-19  BUILD xb" in notes("lessons/algebra1.py") and "2026-09-19  BUILD xb" in notes("ruletests.py"), "")
+
+
+def part3mx_the_second_geometry_sweep():
+    """PART 3mx (build xc, 2026-09-19) -- THE SECOND GEOMETRY SWEEP: 36 findings on all 36,
+    16 clean (63 and 7 at wk, fixed in wl), 8 generator-owned on three ops. The one HIGH on
+    a generator: insc's walk-back said an arc "looks exactly half" from the rim "because it
+    is farther away" -- a false reason for a true rule; the walk-back gives the rule now.
+    outc draws the adding wrong path its words name; alen speaks in short sentences. The
+    authored pile: the picture the words describe (the exterior angle's straight line, the
+    segment's line on the grid, the two-way table under the traps), the conditions (a slant
+    with an across AND an up; one of the sharp angles), the closing boards read."""
+    print("\nPART 3mx — the second Geometry sweep (build xc)")
+    import lessonscripts as L
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join(b for _s, b in les["teach"]) + " ".join(pr["worked"][1] for pr in les["pairs"])
+    W = lambda p: L._worked_for(p)
+
+    # ---- the generator ---------------------------------------------------------
+    check("⭐ insc's walk-back gives the RULE (an angle on the rim opening onto an arc is half that arc; the middle angle equals its arc) and never 'farther away' (HIGH)",
+          W({"a": 36, "b": 0, "op": "insc"})[0] == "Here it is, step by step: an angle on the rim opening onto an arc is half that arc. 36 divided by 2 equals 18 degrees. From the middle the same arc would be 36: the middle angle equals its arc, and the rim angle is half of it."
+          and "farther" not in W({"a": 36, "b": 0, "op": "insc"})[0], "")
+    check("⭐ outc's walk-back DRAWS the adding wrong path it names ('6 + 2 = 8 ✗ things, not outfits'); alen's walk-back opens in short sentences",
+          W({"a": 6, "b": 2, "op": "outc"})[1].endswith('[[step eq="6 + 2 = 8 ✗ things, not outfits"]]')
+          and "Adding gives 8 things, not outfits." in W({"a": 6, "b": 2, "op": "outc"})[0]
+          and W({"a": 90, "b": 20, "op": "alen"})[0].startswith("Here it is, step by step: 90 degrees goes into 360 4 times. So the circle is 4 equal parts, and the arc is one of them."), "")
+
+    # ---- the authored pile, by class ---------------------------------------------
+    check("⭐ the picture the words describe: the exterior angle's straight line (HIGH); the segment's line x = 1; the two-way table on the traps beat; the squares and the check on the hypotenuse worked line; the base angles 'filled in'",
+          E("geo-u3-the-outside-angle")["picture"][0][1].endswith('[[angle deg="180" split="80,100" caption="the opened corner: 80° inside, 100° outside — one straight line"]]')
+          and E("geo-u7-straight-up")["picture"][0][1].startswith('[[graph lines="x=1" points="(1,3),(1,8)"')
+          and E("geo-u9-reading-the-table")["teach"][1][1].startswith('[[twoway rowlabels="boys,girls" collabels="soccer,art" data="4,3|2,6" caption="the crossing holds 2 — the next-door boxes are 4 and 6"]]')
+          and '[[step eq="9² + 12² = 81 + 144 = 225"]][[step eq="15 × 15 = 225, so hyp = 15"]]' in boards(E("geo-u5-the-longest-side"))
+          and "the base angles filled in: 70 and 70. Here is where they came from." in spoken(E("geo-u3-share-the-rest")), "")
+    check("⭐ laws with their condition: the SEGMENT is 8 long; one of the SHARP angles; a slant with an across AND an up (HIGH x2); when every shirt can go with every hat; the long side grew too little; a radius defined before it is used; 'tan' said before it is written",
+          "the segment is 8 long, but it is 6 that sits halfway" in spoken(E("geo-u1-halfway-along"))
+          and "because the segment is 8 long, so the middle is 8" in E("geo-u1-halfway-along")["explain"]["choices"]
+          and "when you stand at one of the sharp angles in a right triangle" in spoken(E("geo-u5-the-climb-ratio"))
+          and "For a slant like this — an across AND an up — the straight path is shorter than the walk around" in spoken(E("geo-u7-the-straight-path"))
+          and "shorter than walking the grid whenever there is both an across and an up" in spoken(E("geo-u7-the-straight-path"))
+          and "ALWAYS shorter" not in spoken(E("geo-u7-the-straight-path")) and "always shorter" not in spoken(E("geo-u7-the-straight-path"))
+          and "When every shirt can go with every hat, choices do not add up; they times up" in spoken(E("geo-u9-how-many-ways"))
+          and '[[step eq="5 + 2 = 7 ✗ — the long side grew too little"]]' in boards(E("geo-u4-the-enlarging-copy"))
+          and "A radius is a line from the middle of a circle to its rim. Draw two radiuses" in spoken(E("geo-u6-the-rest-of-the-circle"))
+          and "The tangent — written tan on the board — is 8 divided by 4: 2." in spoken(E("geo-u5-the-climb-ratio")), "")
+    check("  the closing boards are read (130 next door; the pair's 104; 12 divided by 4; 5 times 4; 3 squared plus 4 squared; 6 times 4; girls row, soccer column, 2) and the long sentences are split (the factor why and teach, the missing leg x2, the tangent recap, the rim teach, the fourth corner x2)",
+          "180 take away 50 is 130 next door, and the twins across match" in spoken(E("geo-u1-when-lines-cross"))
+          and "read from the ticks: 180 take away the pair's 104 leaves 76" in spoken(E("geo-u3-two-equal-sides"))
+          and "one division — 12 divided by 4 is 3 — and the scale factor is known" in spoken(E("geo-u4-finding-the-factor"))
+          and "with no ladder: opposite equals 5 times 4, which is 20" in spoken(E("geo-u5-using-the-tangent"))
+          and "come to the grid: 3 squared plus 4 squared is 5 squared" in spoken(E("geo-u7-the-straight-path"))
+          and "measured honestly: 6 times 4 is 24" in spoken(E("geo-u8-the-true-height"))
+          and "read at the crossing: girls row, soccer column, 2" in spoken(E("geo-u9-reading-the-table"))
+          and "the same shape in two sizes. The number that turns one into the other is the scale factor." in spoken(E("geo-u4-finding-the-factor"))
+          and "From 4 to 12 is 8 more. But 8 is not the factor, because a scale factor is a times, not an add. Every side is timesed by 3." in spoken(E("geo-u4-finding-the-factor"))
+          and "The other leg is 12. Here is why: 13 squared is 169, and 5 squared is 25." in spoken(E("geo-u5-the-missing-leg"))
+          and "instead of the squares. 13 take away 5 equals 8, and 8 is wrong. The rule speaks in squares" in spoken(E("geo-u5-the-missing-leg"))
+          and "times the tangent. A times, never an add — and never the tangent on its own." in spoken(E("geo-u5-using-the-tangent"))
+          and "so the circle is 4 equal parts. The arc is one of them: 12 divided by 4" in spoken(E("geo-u6-a-piece-of-the-rim"))
+          and "run straight along the grid. So every corner shares its x with one neighbour, and its y with the other." in spoken(E("geo-u7-the-fourth-corner"))
+          and "It sits straight above (7, 2), so its x is 7. It sits level with (2, 6), so its y is 6." in spoken(E("geo-u7-the-fourth-corner")), "")
+    check("  every lesson validates; the course list is 40,005 (no beat added); no dot joins two equations in Geometry",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40005
+          and not any(re.search(r'\[\[step eq="[^"]*=[^"]* · [^"]*=[^"]*"', b) for les in L.LESSONS if les["course"] == "geometry"
+                      for b in [boards(les), les.get("explain", {}).get("board", "")] + [r[1] for r in les.get("recap", [])]), str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-19xc-' in notes("main.py") and "2026-09-19  BUILD xc" in notes("lessonscripts.py")
+          and "2026-09-19  BUILD xc" in notes("lessons/geometry.py") and "2026-09-19  BUILD xc" in notes("ruletests.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -34460,7 +34536,7 @@ def part3jf_geometry_units_four_to_six_to_the_shape():
     check("⭐ half the arc: the PLAIN circle on the ask (inscribed= would print the answer); the angle on the rim in the walk-back",
           "inscribed=" not in L.board_for(insc, "abstract") and '[[circle center="O" caption="an arc of 36°' in L.board_for(insc, "abstract")
           and '[[circle center="O" inscribed="36" caption="arc 36° — from the rim it looks 18°"]]' in _W(insc)[1]
-          and "from farther away" in _W(insc)[0], "")
+          and "the middle angle equals its arc, and the rim angle is half of it" in _W(insc)[0], "")   # (xc) the rule, not the distance
     iarc = {"a": 16, "b": 0, "op": "iarc"}
     check("  double it back: the angle drawn on the rim as the GIVEN; the arc named in the walk-back",
           '[[circle center="O" inscribed="32" caption="an angle of 16° standing on the rim' in L.board_for(iarc, "abstract")
@@ -47782,6 +47858,7 @@ def main():
     part3mu_the_second_basic_sweep()
     part3mv_the_second_prealgebra_sweep()
     part3mw_the_second_algebra1_sweep()
+    part3mx_the_second_geometry_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

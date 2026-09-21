@@ -6,6 +6,10 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-19  APP_BUILD -> "2026-09-19xc-the-second-geometry-sweep". The second Geometry
+#               reading (36 findings on all 36, 16 clean; 63 at wk): three generator ops in
+#               lessonscripts.py, 29 authored edits in lessons/geometry.py, PART 3mx.
+#               Nothing in this file changed but the stamp.
 #   2026-09-19  APP_BUILD -> "2026-09-19xb-the-second-algebra1-sweep". The second Algebra I
 #               reading (50 findings on all 36, 10 clean; 72 at wi): two generator ops in
 #               lessonscripts.py, 42 authored edits in lessons/algebra1.py, PART 3mw.
@@ -9778,7 +9782,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-19xb-the-second-algebra1-sweep"
+APP_BUILD = "2026-09-19xc-the-second-geometry-sweep"
 
 
 @app.get("/health")
