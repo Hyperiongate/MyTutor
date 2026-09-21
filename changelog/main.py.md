@@ -1,5 +1,774 @@
 # CHANGELOG -- main.py  (notes rolled out of the file's header)
 
+Moved out of `main.py` on 2026-09-21 (build xg): every CHANGE NOTE dated before 2026-09-10 -- 91 entries, VERBATIM, in the order they sat in the file (newest first). The 61 notes from 2026-09-10 on stay at the top of `main.py` itself, and new notes keep going there. Nothing below was edited; grep this file for a build letter or a date. When the header is rolled out again, the newer block is added ABOVE this one.
+
+```text
+#   2026-09-08  OLDER NOTES (before 2026-09-01) live in changelog/main.py.md
+#               -- moved out on 2026-09-08 (build ui) VERBATIM, 508 entries; 75 stay here.
+#               Keep adding new notes HERE, newest at top; roll them out again
+#               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-09  APP_BUILD -> "2026-09-09uw-entry-units-two-to-four-to-the-shape".
+#               BUILD uw -- NO CODE IN THIS FILE CHANGED, the stamp only. Twelve
+#               Entry-Level lessons (Units 2, 3 and 4) went to the shape, Jim's
+#               ruling (c) landed on the reason question, referee 52 stopped reading
+#               a missing addend as a completed line, and wordaudit.py joined the
+#               repo. ⚠️ 181 NEW VOICE LINES: run the script-prewarm from /admin
+#               after this push.
+#   2026-09-09  APP_BUILD -> "2026-09-09uv-the-board-keeps-up-with-the-voice". BUILD uv --
+#               WHAT HAPPENED LAST TIME, FROM THE RECORD. Jim, 2026-09-09: "They are not
+#               an AI. They don't remember instantly what they did before yesterday. So we
+#               have to familiarize them. This is where we are. Then we have to say, this
+#               is what we're gonna do." us gave every lesson an orientation beat, but it
+#               could only say THAT the previous lesson was finished -- a boolean.
+#               Everything else a returning child needs was already in the store (ue's
+#               script_answers, one row per graded answer; script_done.last_at) and nothing
+#               read it. NEW: _days_ago_phrase ("yesterday", "3 days ago", "last week", ""
+#               when nothing honest can be said) and _orientation_last (the score of their
+#               last sitting at that lesson). script_start hands the prepared dict to
+#               lessonscripts.lesson_orientation, which puts it on the CARD and leaves the
+#               spoken line alone -- a pre-rendered clip, so uv adds NO voice lines and
+#               needs no prewarm. Fail-open at every step: no store, no rows, a bad date or
+#               an impossible score simply drops that part of the line (rule 0: a recap is
+#               a memory, not a guess), and the score is only ever asked for a lesson the
+#               record says was FINISHED. FIRST-TRY answers to REAL questions only -- the
+#               guided pairs are the tutor's own work and would inflate a child's score.
+#   2026-09-09  APP_BUILD -> "2026-09-09uu-the-front-door-quieted". BUILD uu. NO CODE IN
+#               THIS FILE CHANGED -- the stamp only. static/landing.html (served at "/")
+#               is now the quiet front door Jim asked for on 28 Aug and approved as the
+#               1 Sep mockup: one row of nav, one sentence, the pencil, three honest doors
+#               (/demo/lesson, /demo?tour=1, /login), every old nav link in the footer.
+#               No route changed; /demo/lesson and /demo?tour=1 are uh's and rk's doors.
+#               PART 3kq pins it, live at two sizes.
+#   2026-09-09  APP_BUILD -> "2026-09-09ut-the-first-watch-on-the-new-stack". BUILD ut. NO
+#               CODE IN THIS FILE CHANGED -- the stamp only. The 09-09 night watch (the
+#               first on the us stack: 0 errors, every closure line rendered) gave tutor.py
+#               one falsehood row, the times sign in the notation registry, and three narrow
+#               referees (arrowpointer, pictured, problemnumbers); ruletests PART 3kp pins
+#               them. /health reads the new stamp after the push.
+#   2026-09-09  APP_BUILD -> "2026-09-09us-orient-then-one-idea-per-beat". BUILD us -- THE
+#               SHAPE JIM CHOSE: ORIENT, THEN ONE IDEA PER BEAT WITH A CHECK. Jim, after a
+#               live lesson: "if you just sat down for the first time, what do you need?
+#               You need to get oriented. A little review. What we're gonna do today. Then
+#               step by step." IN THIS FILE: script_start inserts the ORIENTATION as the
+#               second step, after the intro -- lessonscripts.lesson_orientation(lesson,
+#               prev_done), where prev_done is the RECORD's word (store.get_script_done)
+#               that the previous lesson in the order was finished; no record, no store,
+#               any error -> the "Today" form, never a lost lesson. _script_clean attaches
+#               `beat` to every say step (lessonscripts.beat_of) so the page can pause on
+#               it: the check after a picture, teach or worked beat and the ready gate
+#               after the practice intro live in session.html. The engine's walk is
+#               unchanged. PART 3ko pins it, live end to end.
+#   2026-09-09  APP_BUILD -> "2026-09-09ur-the-wrong-answer-is-answered-at-once". BUILD ur --
+#               Jim's flag 21:41 (algebra2): "more than 30 second wait after a wrong answer".
+#               The answer endpoint resolved the model's re-teach (verified up to three
+#               times, ~10 s each) BEFORE responding, so the engine's own "Not quite --
+#               let's look at it together" reached the student only after the whole wait.
+#               NEW: ScriptAnswerIn.defer_ai -- the answer turn returns at once (the
+#               verdict, the star, the hold line, an {"kind": "ai_pending"} marker) and
+#               stores the deferred turn on the session; NEW POST /api/script/intervene
+#               (_script_deferred_run) runs it: the same model turn, bookkeeping (mode,
+#               history, redo), askboard floor and fail-open (no reply -> the engine's own
+#               retest) that lived in the answer turn, at both sites (the first
+#               intervention and the wrong-again redo). FAIL-SAFE: an answer that arrives
+#               while a re-teach is still deferred resolves it first, silently; a page
+#               that does not send defer_ai (pilot.html) gets exactly the old shape.
+#               session.html sends defer_ai and speaks the wait (LINE_THINKING). PART 3kn
+#               pins it through the TestClient, statically, and live in a browser with the
+#               re-teach delayed twelve seconds.
+#   2026-09-08  APP_BUILD -> "2026-09-08uq-the-problem-is-always-on-the-board". BUILD uq --
+#               Jim's corrections queue (13 flags from a live precalc/algebra2 session; the
+#               triage is claude/Triage_Corrections_Queue_2026-09-08_...). IN THIS FILE:
+#               _ai_board_floor(board_tags, ask_board) -- an `ai` intervention step whose
+#               reply carries no drawing or writing tag gets the ask's own board (the one
+#               the engine put on the intervene step) prepended, at BOTH ai-step sites
+#               (the first intervention and the wrong-again redo). Jim's flags 22:03/22:05:
+#               the live tutor re-asked "what is f of g of 2?" with no board, and he "had
+#               to guess since there was audio of the problem but no text and no visual".
+#               Event code_repair "askboard". Elsewhere in uq: the practice-intro card and
+#               the absc/fcmp boards (lessonscripts.py), the rewritten graph-slides and
+#               inside-the-distance lessons (lessons/), speech-text.js's quotation rule,
+#               the eighty-first referee's "back to our first machine" phrase (tutor.py).
+#   2026-09-08  APP_BUILD -> "2026-09-08up-a-new-machine-still-called-f". BUILD up. NO
+#               CODE IN THIS FILE CHANGED but the stamp. uo's honest gap closed on Jim's
+#               word: the authored function practice retires the name out loud in every
+#               problem ("A new machine, still called f"), and the eighty-first referee
+#               reads [[machine]] cards as definitions. PART 3kl pins it.
+#   2026-09-08  APP_BUILD -> "2026-09-08uo-one-name-per-function". BUILD uo. NO CODE IN
+#               THIS FILE CHANGED but the stamp. Jim's three rulings on the 09-08 watch:
+#               the eighty-first referee, tutor.function_redefined_conflict (rule 28: one
+#               letter names one function, all conversation -- fed heard_tutor); the
+#               prompt's rule-28 clause; RULED_ALLOWED row seven (rule 48: a board equation
+#               built from introduced symbols is not new notation); mathcheck's
+#               expressions_equal. PART 3kk pins it.
+#   2026-09-08  APP_BUILD -> "2026-09-08un-the-figure-that-never-came". BUILD un. NO CODE
+#               IN THIS FILE CHANGED but the stamp. The 2026-09-08 night watch's truth items
+#               and proven holes, all in tutor.py: the rule-61 referees read the prose with
+#               markdown emphasis stripped (the **division** dodge); two new falsehood rows
+#               (the hundredths place; parentheses never multiply); the story-units grammar
+#               reads "two bags of candy with four pieces each"; postponed_show's branch
+#               three (a figure asked for, only text tags landed); the eightieth referee,
+#               triangle_letters_unspoken_conflict (rule 14). PART 3kj pins it.
+#   2026-09-08  APP_BUILD -> "2026-09-08um-the-tap-unlocks-the-sound". BUILD um. NO CODE IN
+#               THIS FILE CHANGED but the stamp. Jim, on his phone after the push: the demo
+#               lesson had no sound. static/demo-lesson.html never primed the audio inside
+#               a tap and its ?course= door autostarted with no tap at all -- phones play
+#               both silently. The page unlocks the sound inside every tap that starts
+#               speech and ?course= shows a Start door instead. PART 3ki pins it.
+#   2026-09-08  APP_BUILD -> "2026-09-08ul-the-landscape-phone". BUILD ul -- THE LANDSCAPE
+#               PHONE. NO CODE IN THIS FILE CHANGED but the stamp. A release rehearsal of the
+#               whole unpushed stack (tt..uk) on a real Postgres -- every route, a fresh
+#               database and the upgrade path, a family and a teacher, 44 page renders --
+#               found one defect: a phone turned sideways (844x390) showed a 38px board.
+#               session/practice/topic gain a last-declared block for short screens;
+#               cadabra.js rule 33 treats a short window as a phone (the menu's
+#               phone.maxHeight). PART 3kh pins and measures it.
+#   2026-09-08  APP_BUILD -> "2026-09-08uk-the-mark-floor". BUILD uk -- THE MARK FLOOR
+#               (F4 of the 09-06 night watch; Jim ruled 09-07: build it, no retry). NO CODE
+#               IN THIS FILE CHANGED but the stamp. tutor.py: repair_missing_mark at the
+#               shipping door -- a spoken, unambiguous verdict on a numbered quiz answer
+#               that forgot its [[mark]] gets the mark from code (the page posts it to
+#               /api/mark/me exactly as a model-written mark). PART 3kg pins it.
+#   2026-09-08  APP_BUILD -> "2026-09-08uj-one-file-per-course". BUILD uj -- ONE FILE PER
+#               COURSE (housekeeping, second half). NO CODE IN THIS FILE CHANGED but the
+#               stamp. lessonscripts.py's 360 lessons now live in lessons/<course>.py (ten
+#               pure-data files joined by lessons/__init__.py); lessonscripts.py imports
+#               them and keeps every name this file reads (LESSONS, LESSON_BY_ID,
+#               COURSE_ORDER, PILOT_LESSON, start, step, ans ...). The data was proved
+#               deep-equal before and after; PART 3kf pins it.
+#   2026-09-08  APP_BUILD -> "2026-09-08ui-the-notes-move-out". BUILD ui -- THE NOTES MOVE
+#               OUT (housekeeping). NO CODE IN THIS FILE CHANGED but the stamp. This header
+#               was 552 KB -- 48% of the file, 583 dated notes back to 2026-07-19. Every note
+#               dated before 2026-09-01 now lives in changelog/main.py.md, verbatim and in
+#               order (notes_rollout.py, new at the repo root, did the move and proved it
+#               lost nothing); the pointer above says so. Same for tutor.py, store.py,
+#               ruletests.py, lessonscripts.py, prompts.py, session/practice/topic/demo.html.
+#               The battery's dated-note pins now read notes(<file>) -- the header PLUS the
+#               changelog -- instead of a fixed slice that slid as notes were added above
+#               it (PART 3ke). Nothing a student sees changed.
+#   2026-09-08  APP_BUILD -> "2026-09-08uh-the-demo-teaches". BUILD uh -- P3 OF THE DEEP
+#               LOOK. The demo was a tour of the furniture with an empty board; it never
+#               showed a lesson. Now the front door leads to /demo/lesson (NEW route,
+#               static/demo-lesson.html): pick a level, and Mr. Cadabra teaches the
+#               opening of that course's FIRST authored lesson exactly as a student
+#               hears it -- the why, the picture, the rule read off it, the worked
+#               example, one question answered by tap or typed words, the walk-back --
+#               then offers the classroom tour (/demo?tour=1) and the three views
+#               (/demo?views=1). THE DEMO LESSON LANE (/api/demo/lesson/levels, /start,
+#               /answer): the real engine, a fixed seed, _script_clean (never an answer
+#               key), the classroom's three grading doors, NO student, NO store write,
+#               NO model (intervene -> the engine's resume), opaque short-lived tokens,
+#               eight graded answers per token, per-visitor rate limits. THE VOICE: a
+#               "demo" lane on /api/speak-prep -- the drill lane's twin (closure-only,
+#               cache-only: a visitor can never make the paid renderer run), no student
+#               code, rate-limited per visitor. speak_prep gains `request` for that.
+#               session.html: the youngest students get a THREE-stop tour (its own doc).
+#   2026-09-08  APP_BUILD -> "2026-09-08ug-the-phone-classroom". BUILD ug -- P1 OF THE
+#               DEEP LOOK. NO CODE IN THIS FILE CHANGED; this is the stamp. The work is in
+#               static/session.html, practice.html, topic.html, demo.html (a bounded board
+#               and a three-row dock on every screen <=900px; a one-line top row, the icon
+#               nav on its own row, bubbles clear of the pencil and the lesson title
+#               wrapping on phones <=640px; the mic reads "Listen…" while it is dark),
+#               static/cadabra.js (rule 33: small, in the board's corner, no wander on a
+#               phone) and the menu's new `phone` block. ALSO FIXED THERE: on every screen
+#               <=900px the board had no bound on its height, so board.js's top-anchoring
+#               pad grew it without limit (853,422px measured after forty seconds) -- the
+#               app is the viewport now and the board scrolls, as on a desktop.
+#   2026-09-08  APP_BUILD -> "2026-09-08uf-the-per-student-view". BUILD uf -- P2 OF THE
+#               DEEP LOOK, SECOND HALF. The admin console could see totals and 37 tables
+#               but could not answer "how is Sam doing". NEW GET /api/admin/student?code=
+#               (general admin tier, X-Admin-Key header only, rate-limited, 404 for an
+#               unknown code): one student, everything, read-only -- the courses they
+#               touched with every unit's status in the ue words, the lessons done with
+#               dates and the three-in-a-row flag, every graded answer in the authored
+#               lane (script_answers, newest first, the question and the expected
+#               beside the answer), topic quizzes, Unit Quizzes, engaged minutes by day,
+#               awards, the whole-student stats. BY CODE, TYPED: there is deliberately
+#               NO route that lists student codes (F2 closed enumeration). admin.html
+#               gains the "One student" card under the board. store.student_courses is
+#               the one new reader. No teaching, no lane, no store write changed.
+#   2026-09-07  APP_BUILD -> "2026-09-07ue-the-authored-lane-writes-it-down".
+#               BUILD ue -- P2 OF THE DEEP LOOK, FIRST HALF (Jim's order: P0, P2, P1).
+#               The review drove five whole authored lessons and the admin console
+#               read "0 problems practiced": the scripted lane kept one row per
+#               finished lesson (script_done) and the streak, and nothing per answer.
+#               (1) EVERY GRADED ANSWER IS WRITTEN DOWN. _script_note_ask remembers the
+#                   question on screen (a new pending problem resets the try count and
+#                   starts the clock; a re-ask after "unheard" keeps both -- unheard is
+#                   not a try); _script_record_answer writes one script_answers row
+#                   (store.py, new) at each of the lane's THREE grading points -- the
+#                   ordinary ask at the engine's own line, the reason question by its
+#                   label, the intervention redo -- with the verdict the star already
+#                   uses. Fail-open everywhere: a lost row never costs a turn. The
+#                   streak, the engine and the payload are untouched.
+#               (2) "LESSON DONE" IS NOT "MASTERED". Jim's ruling (2026-09-07): "Mastered"
+#                   is the 90% Unit Quiz and nothing else. _script_finish writes "taught"
+#                   for a mastered end (was "mastered"); the passed topic quiz writes
+#                   "taught" (was "mastered"); store.record_check stays the one writer of
+#                   "mastered", and store's one-time migration un-says the historical
+#                   rows. _goal_suggest counts a taught unit as a practice pick.
+#               (3) /api/topics and /api/records units carry lessons_done / lessons_total
+#                   (_lessons_by_unit, from script_done and the course's lessons); the
+#                   dashboard's stats carry lesson_answers / lesson_first_try_pct /
+#                   lessons_done beside the live lane's counters (store.get_mastery),
+#                   never blended -- Jim's apart-from-the-course ruling (mt) stands and
+#                   the pages ADD the lanes and say so.
+#               ENGAGED MINUTES WERE NEVER MISSING: /api/heartbeat counts them from
+#               time-tracker.js on every learning page, scripted lane included; the
+#               review's zero came from driving the lane by API with no page open. No
+#               second clock is added -- it would double-count.
+#   2026-09-07  APP_BUILD -> "2026-09-07ud-the-small-fixes-of-the-deep-look".
+#               BUILD ud -- P0 OF THE DEEP LOOK (claude/Review_Deep_Look_2026-09-07.md;
+#               Jim chose P0, then P2 data, then P1 phone). THIS FILE:
+#               (1) THE OWNER'S TOOLS ARE THE OWNER'S. static/pilot.html (and the /pilot
+#                   route), cadabra-lab.html (the bench), demolab.html (the layout
+#                   concept), avatar-lab.html (the retired stub) and static/mockup/ were
+#                   served to anyone who typed the address. StaticFiles is now
+#                   _OwnerGatedStatic: those paths answer 404 to the public -- the same
+#                   answer a missing file gives -- and open for the X-Admin-Key header or
+#                   the HttpOnly mt_owner cookie that POST /api/owner/unlock sets (admin
+#                   .html calls it as the dashboard unlocks; /api/owner/lock drops it).
+#                   The cookie is HMAC(FORUM_MOD_KEY, label): rotate the key and every
+#                   browser is out; an unset key closes the tools to everyone. shots/
+#                   stays public (the marketing pages show those screenshots).
+#               (2) THE PUBLIC SIGN-IN PAGE STOPS TALKING LIKE A DEV BOX. SHOW_TEST_CODES
+#                   (unset: follows ALLOW_FILE_FALLBACK, so a dev box shows them and
+#                   Render does not) reaches index.html through GET /api/site-flags,
+#                   booleans only; the "not yet security" note is rewritten to what is
+#                   true. health() reports both flags.
+#               ELSEWHERE (no main.py change): the public copy that still sent the
+#               youngest students to the buttons INSTEAD of the microphone (landing,
+#               features, teachers, students, homeschool) reads the uc order; the
+#               methodology prose's "58 separate checks" (the tile said 79) now sits in
+#               <span data-referees> pinned to the count in tutor.py; practice/topic's
+#               "How to answer" line is short and light in their narrow sidebar.
+#               NOT DONE, ON PURPOSE: the drill room keeps its "Abrabot" name -- builds
+#               mh/mt made him a deliberate second character (the browser's voice, no
+#               cost, no mastery) and the tour introduces him as "my helper"; that is a
+#               design choice for Jim, not a defect. PART 3jz pins all of the above.
+#   2026-09-07  APP_BUILD -> "2026-09-07uc-the-youngest-speak-and-the-mic-waits".
+#               BUILD uc -- TWO OF JIM'S CHANGES, both about how the student answers.
+#               (1) Entry-Level and Basic answer the way the other eight courses answer:
+#               say it, type it if you'd rather, tap a button if you like. Jim: "we sent
+#               one out and said nobody has to write the answer, everybody can just speak
+#               the answer ... we should have gone back to the first two courses." Every
+#               instruction that sent them to the buttons FIRST now reads what the other
+#               courses read (session/practice/topic: the answer-bar line, the ready hint,
+#               the tour's last stop, the welcome tip, the composer placeholder), and
+#               prompts.py tells the tutor the same thing. THE BUTTONS ARE UNTOUCHED --
+#               every course ships them, referee 58 and build qw's guarantee still put a
+#               row under every elementary question; what is gone is the instruction to
+#               use them INSTEAD of talking. The two symbol pads stay hidden there.
+#               (2) The microphone waits for the speaker (session.html): a scripted ask
+#               beat opens the taps and the typing box the moment the question lands --
+#               builds nb/pd, unchanged -- and now holds the MIC dim until the spoken line
+#               ends. Jim: "let the speaker do the speaking. And as soon as they're done
+#               ... they light up." No route, engine or lesson change: this build is the
+#               three teaching pages, prompts.py, and their battery.
+#   2026-09-07  APP_BUILD -> "2026-09-07ub-calculus-units-seven-to-nine-to-the-shape".
+#               BUILD ub -- Calculus Units 7-9 (the integral, its uses, differential
+#               equations) rewritten to the shape: twelve lessons, each with a why, a
+#               picture drawn before the rule, the rule read off the picture, two worked
+#               examples drawn on it, every right answer walked back on the picture, a
+#               reason question after the streak, and a recap. ⭐ CALCULUS 36/36. The
+#               area under the graph is SHADED on every integral ask with "?" written in
+#               it and the area written on the walk-back -- static/math-figures.js learns
+#               [[graph shade="lo..hi" label="?"]] and between="1"; every canon graph
+#               draws byte-for-byte as before (1,455 of them). No route change.
+#   2026-09-07  APP_BUILD -> "2026-09-07ua-calculus-units-four-to-six-to-the-shape".
+#               BUILD ua -- Calculus Units 4-6 (derivatives at work, optimisation,
+#               antiderivatives) rewritten to the shape: twelve lessons, each with a why,
+#               a picture drawn before the rule, the rule read off the picture, two worked
+#               examples drawn on it, every right answer walked back on the picture, a
+#               reason question after the streak, and a recap. CALCULUS 24/36. The speed
+#               line, the valley, the hump and the cubic are drawn with the answer
+#               withheld; the fence is a tape and the square a metre grid; the reverse
+#               power rule is a machine. One ask wrote a chain of equals ending in "= ?"
+#               on all twelve of its problems (rule 15) and writes two statements now.
+#               static/math-figures.js: a [[graph]] keeps a five-digit y label whole by
+#               growing its canvas leftward; every canon graph draws byte-for-byte as
+#               before. No route change.
+#   2026-09-07  APP_BUILD -> "2026-09-07tz-calculus-units-one-to-three-to-the-shape".
+#               BUILD tz -- Calculus Units 1-3 (limits, the derivative, the rules)
+#               rewritten to the shape: twelve lessons, each with a why, a picture drawn
+#               before the rule, the rule read off the picture, two worked examples drawn
+#               on it, every right answer walked back on the picture, a reason question
+#               after the streak, and a recap. CALCULUS 12/36. The limit lessons draw the
+#               curves themselves (the hole, the two shelves, the fraction flattening);
+#               the derivative lessons draw the point on the ask and the tangent on the
+#               walk-back; the rule lessons run the power and chain rules as machines.
+#               Every single-curve graph names its legend (the raw "(36*x^2)/..." no
+#               longer prints). No engine or route change: this build is lessonscripts.py
+#               and its battery.
+#   2026-09-07  APP_BUILD -> "2026-09-07ty-probstat-units-seven-to-nine-to-the-shape".
+#               BUILD ty -- Probstat Units 7-9 (expected value, the normal curve,
+#               confidence) rewritten to the shape: twelve lessons, each with a why, a
+#               picture drawn before the rule, the rule read off the picture, two worked
+#               examples drawn on it, every right answer walked back on the picture, a
+#               reason question after the streak, and a recap. ⭐ PROBSTAT 36/36. Two asks
+#               that said "how many students" ask about the whole group now (rule 42);
+#               three that wrote a question inside a step write statements. No engine or
+#               route change: this build is lessonscripts.py and its battery.
+#   2026-09-07  APP_BUILD -> "2026-09-07tx-the-words-and-the-picture-are-the-same-thing".
+#               BUILD tx -- the last two proven holes from the 09-06 watch. THE 79TH
+#               REFEREE, shares_picture_conflict: a story about a chocolate bar drawn as
+#               a [[pie]] (or a pizza drawn as a bar). RULES.md itself recorded that half
+#               of rule 63 as prompt-covered and a scenario candidate; the scenario found
+#               it. And board_count_conflict learns the STORY nouns (bags, candies,
+#               marbles...) and the "plus N loose" claim it had no pattern for at all --
+#               so a drawing that omits the four loose candies the voice just promised is
+#               caught against the tag's own add= attribute. Plus Jim's 2026-09-07 ruling
+#               on N10 as RULED_ALLOWED row six: the money model for decimals is teaching,
+#               not a units defect. Referees 78 -> 79; truth class unchanged at 11.
+#   2026-09-07  APP_BUILD -> "2026-09-07tw-the-say-it-then-write-it-family".
+#               BUILD tw -- three proven holes from the 09-06 and 09-07 watches, all of
+#               them a student looking at something the voice never gave them. (1) The
+#               ask-lists (_VIS_ASKED, _RD_ASKS) learn "give me an example", "an
+#               example?", "like what?" and "show me one" -- they knew only "show me an
+#               example", so the same request in the words a student actually uses went
+#               unrefereed. (2) THE 78TH REFEREE, op_unspoken_conflict: an operation
+#               drawn over both sides ([[step op="- 5"]]) while the voice says only the
+#               goal. Rule 4 was COVERED by prompt words and enforced by nothing.
+#               (3) The credited-method list learns the ARITHMETIC verbs -- it held the
+#               procedure verbs only, so "you carried the 1" fired and "You multiplied 3
+#               times 2 first" did not. Referees 77 -> 78, all three conduct-class; truth
+#               class unchanged at 11. No engine or route change.
+#   2026-09-07  APP_BUILD -> "2026-09-07tv-the-gate-learns-who-wrote-the-symbol".
+#               BUILD tv -- referee 31 (the first-use gate) stops counting the STUDENT'S
+#               own words as evidence that a notation has been met. The 09-06 watch's F2
+#               and the 09-07 watch's N6 are one hole: `heard` joins every message of the
+#               turn, so the function-notation student's opening -- "my book has f(x) in
+#               it and I don't know what that means" -- silenced the referee on the reply
+#               that introduced f(x), on a [[write]] tag and inside a [[machine]] caption
+#               alike. _create_verified now computes heard_tutor from the assistant
+#               messages only and prose_board_conflict carries it to that referee and no
+#               other. A reading the tutor gave in an earlier turn also buys silence now,
+#               which nothing ever tested. No new referee (still 77), no engine or route
+#               change, truth class unchanged at 11.
+#   2026-09-07  APP_BUILD -> "2026-09-07tu-the-truth-trio-and-the-reviewers-list".
+#               BUILD tu -- the 2026-09-07 night watch's three TRUTH-class findings,
+#               and the reviewer's rulings list grown from one row to five. Jim's
+#               ruling, 2026-09-07: truth items first. The 76th referee compares a
+#               pie's caption with the fraction the pie actually shades (the watch's
+#               HIGH: parts="6" shaded="2" captioned "one sixth"); the 77th catches a
+#               listed sequence said to move TOWARD a value its own numbers move away
+#               from; KNOWN_FALSEHOODS row 17 catches factoring DEFINED as pieces that
+#               multiply to zero. Both new referees are truth-class, so a draft
+#               carrying one is withheld rather than shipped least-bad. No engine or
+#               route changed: this build is referees, a falsehood row, four reviewer
+#               rulings and one critic discipline line.
+#   2026-09-06  APP_BUILD -> "2026-09-06tt-probstat-units-four-to-six-to-the-shape".
+#               BUILD tt -- Probstat Units 4-6 (sampling, probability, conditional)
+#               rewritten to the shape on the bars, the tape, the hundred square, the
+#               machine, the pie, the array, the tree and the two-way table. The
+#               undercoverage ask no longer asks "how many students" (rule 42). Stamp
+#               only.
+#   2026-09-06  APP_BUILD -> "2026-09-06ts-the-lesson-introduces-itself".
+#               BUILD ts -- Jim, back after a day: "Welcome back" and then a why beat
+#               with no unit, no lesson, no name. Every scripted lesson now opens with
+#               lessonscripts.lesson_intro(): course, unit and its name, lesson i of
+#               n, topic -- spoken and on a board card -- before the why. Stamp only;
+#               the prewarm has 360 new closure lines to render.
+#   2026-09-06  APP_BUILD -> "2026-09-06tr-probstat-units-one-to-three-to-the-shape".
+#               BUILD tr -- Probstat Units 1-3 (exploring data, describing
+#               distributions, scatterplots) rewritten to the shape on the dot plot,
+#               the histogram, the box plot, the number line, the bars, the hundred
+#               square, the scatter cloud, the machine and the tape. Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06tq-precalc-units-seven-to-nine-to-the-shape".
+#               BUILD tq -- Precalc Units 7-9 (conics, series, limits) rewritten to the
+#               shape on the circle, the conic grid, the tape, the path and the vector,
+#               the machine, the bars, the array, the number line and the grapher's
+#               holes and steps. Precalc is 36/36. Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06tp-precalc-units-four-to-six-to-the-shape".
+#               BUILD tp -- Precalc Units 4-6 (trig functions, identities, applications)
+#               rewritten to the shape on the bars, the unit circle, the split flat
+#               line, the wave in degrees, the hundred square, the right triangle, the
+#               honest SAS triangle, the compass and the vector. Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06to-precalc-units-one-to-three-to-the-shape".
+#               BUILD to -- Precalc Units 1-3 (functions, polynomials, logs and
+#               exponentials) rewritten to the shape on the machine, the grid, the
+#               number line, the array, the area model and the bars. Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06tn-algebra-two-units-seven-to-nine-to-the-shape".
+#               BUILD tn -- Algebra 2 Units 7-9 (patterns, the unit circle, statistics)
+#               rewritten to the shape on the bars, the number line, the staircase
+#               rectangle, the machine, the unit circle, the wave, the array and the
+#               pie. Algebra 2 is 36/36. Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06tm-algebra-two-units-four-to-six-to-the-shape".
+#               BUILD tm -- Algebra 2 Units 4-6 (division moves in, roots, decay and
+#               logs) rewritten to the shape on the grid, the machine, the number line,
+#               the array and the bars. Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06tl-algebra-two-units-one-to-three-to-the-shape".
+#               BUILD tl -- Algebra 2 Units 1-3 (absolute value and clues, the vertex,
+#               roots, the test number and i, polynomials) rewritten to the shape on the
+#               number line, the bars, the tape, the grid, the array and the machine.
+#               Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06tk-geometry-units-seven-to-nine-to-the-shape".
+#               BUILD tk -- Geometry Units 7-9 (the grid, area and volume, chance and
+#               counting) rewritten to the shape on the grid, the right triangle, the
+#               parallelogram with its true height, the rectangle, the cube and the box,
+#               the bars, the pie, the array and the two-way table. Geometry is 36/36.
+#               Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06tj-geometry-units-four-to-six-to-the-shape".
+#               BUILD tj -- Geometry Units 4-6 (similar shapes, the right triangle,
+#               circles) rewritten to the shape on the two triangles, the bars, the
+#               rectangle of squares, the right triangle and the pie of arcs. Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06ti-geometry-units-one-to-three-to-the-shape".
+#               BUILD ti -- Geometry Units 1-3 (angles and the circle, the three moves,
+#               triangles) rewritten to the shape on the angle, the circle, the number
+#               line, the grid, the pie and the triangle. Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06th-algebra-one-units-seven-to-nine-to-the-shape".
+#               BUILD th -- Algebra 1 Units 7-9 (the four rooms, curves, the three
+#               middles) rewritten to the shape on the area model, the grid, the tape,
+#               the dotplot and the number line. Algebra 1 is 36/36. Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06tg-algebra-one-units-four-to-six-to-the-shape".
+#               BUILD tg -- Algebra 1 Units 4-6 (lines, two rules, powers) rewritten to
+#               the shape on the grid, two lines, bars, the place-value chart and the
+#               doubling bars. Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06tf-algebra-one-units-one-to-three-to-the-shape".
+#               BUILD tf -- Algebra 1 Units 1-3 (expressions, equations, functions)
+#               rewritten to the shape on the bar, the area model, the balance, the
+#               number line and the machine. Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06te-prealgebra-units-seven-to-nine-to-the-shape".
+#               BUILD te -- Prealgebra Units 7-9 (percent, measurement and geometry,
+#               the first letters) rewritten to the shape on the tape, the hundred
+#               grid, the rectangle round the triangle, the split line, the triangle
+#               and the area model. Stamp only.
+#   2026-09-06  APP_BUILD -> "2026-09-06td-prealgebra-units-four-to-six-to-the-shape".
+#               BUILD td -- Prealgebra Units 4-6 (fractions, decimals, ratio) rewritten
+#               to the shape on the tape, the fraction line, the hundred grid, the
+#               place-value chart (new tenths column) and two pies. Stamp only.
+#   2026-09-05  APP_BUILD -> "2026-09-05tc-prealgebra-units-one-to-three-to-the-shape".
+#               BUILD tc -- Prealgebra Units 1-3 (order of operations, factors,
+#               integers) rewritten to the shape on the ladder, the rectangle and
+#               the number line with hops. Stamp only.
+#   2026-09-05  APP_BUILD -> "2026-09-05tb-entry-unit-one-to-the-shape".
+#               BUILD tb -- Entry Unit 1 rewritten to the shape (stars counted one at a
+#               time; the number line for before/after and bigger). Stamp only.
+#   2026-09-05  APP_BUILD -> "2026-09-05ta-the-tutor-sees-the-board".
+#               BUILD ta -- Jim's flag 22:31 ("acted like there was a number line when
+#               there wasn't"): the engine's intervene step now carries the ask's board
+#               and tutor.script_intervention reads it (context["board"]); the rule-7
+#               referee holds the reply to the picture it names. THIS FILE: stamp only
+#               -- script_answer already hands the whole intervene step to
+#               _script_intervene as `context`, so the board rides along unchanged.
+#   2026-09-05  APP_BUILD -> "2026-09-05sz-the-times-table-is-a-pass".
+#               BUILD sz -- Jim's flag 22:40 and rulings ⑥ ⑦: the times-table lesson is
+#               mastered by ONE clean pass of all 81 facts, not three in a row. THIS
+#               FILE: script_start draws the pass's shuffle seed (secrets) and hands it
+#               to lessonscripts.start -- the one place chance enters the scripted lane;
+#               the engine does the rest and no path here changed. The slip inside a
+#               pass never reaches _script_intervene (the engine emits no intervene
+#               step for it), so the AI-turn accounting is untouched.
+#   2026-09-05  APP_BUILD -> "2026-09-05sy-basic-unit-nine-to-the-shape".
+#               BUILD sy -- Basic Unit 9 (measuring) rewritten to the shape on the new
+#               rectangle figure, the circle and the box. The whole Basic course -- 36
+#               lessons -- is on the shape. Stamp only.
+#   2026-09-05  APP_BUILD -> "2026-09-05sx-basic-unit-eight-to-the-shape".
+#               BUILD sx -- Basic Unit 8 (percent) rewritten to the shape on the
+#               hundredths square, the sharing picture and the tape. Stamp only.
+#   2026-09-05  APP_BUILD -> "2026-09-05sw-basic-unit-seven-to-the-shape".
+#               BUILD sw -- Basic Unit 7 (decimals and money) rewritten to the shape on
+#               the tenths line, the new hundredths square and the place-value chart.
+#   2026-09-05  APP_BUILD -> "2026-09-05sv-basic-unit-six-to-the-shape".
+#               BUILD sv -- Basic Unit 6 (adding and taking away fractions) rewritten to
+#               the shape on the fraction line. Stamp only.
+#   2026-09-05  APP_BUILD -> "2026-09-05su-basic-unit-five-to-the-shape".
+#               BUILD su -- Basic Unit 5 (fractions) rewritten to the shape on the
+#               fraction line, the shared array and two pies. Stamp only.
+#   2026-09-05  APP_BUILD -> "2026-09-05st-basic-unit-four-to-the-shape".
+#               BUILD st -- Basic Unit 4 (factors and multiples) rewritten to the shape on
+#               the array, the rectangle, the Venn and two number lines. Stamp only.
+#   2026-09-05  APP_BUILD -> "2026-09-05ss-basic-unit-three-to-the-shape".
+#               BUILD ss -- Basic Unit 3 (dividing) rewritten to the shape on the array
+#               read the other way (sharing, left-overs) and the area model backwards.
+#               Stamp only in this file.
+#   2026-09-05  APP_BUILD -> "2026-09-05sr-basic-unit-two-to-the-shape".
+#               BUILD sr -- Basic Unit 2 (multiplying) rewritten to the shape on the
+#               new [[array]] figure, the area model and the place-value chart. Stamp
+#               only in this file.
+#   2026-09-05  APP_BUILD -> "2026-09-05sq-basic-unit-one-to-the-shape".
+#               BUILD sq -- Basic Unit 1 rewritten to the seven-beat shape (Jim's ruling
+#               after running sp: every lesson, taught this way, with a graphic). Stamp
+#               only in this file; the work is in lessonscripts.py, board.js (borrows=),
+#               math-figures.js ([[placevalue]]), tags.py, tutor.py's draw regex, the
+#               three pages' figure lists and script-board.js.
+#   2026-09-05  APP_BUILD -> "2026-09-05sp-the-lesson-learns-to-teach".
+#               BUILD sp -- THE LESSON LEARNS TO TEACH (Jim: "are we really in the
+#               business here of teaching, or are we just trying to create a teaching
+#               app?"). lessonscripts grows the seven-beat shape as optional lesson
+#               fields and a REASON question (beat six, "Say it"): an ask with
+#               reason=True and TEXT options. THIS FILE: _script_clean ships `reason`
+#               on every ask, and /api/script/answer grades a reason tap BY ITS LABEL
+#               in code before read_answer can scan it for a digit -- exact option
+#               match answers, "not sure" gets LINE_UNSURE, anything else is unheard.
+#               No model on that path. The rounding-to-tens lesson is the prototype.
+#   2026-09-04  APP_BUILD -> "2026-09-04so-the-mark-goes-away-and-the-voice-is-counted".
+#               BUILD so -- Jim's live flags, the page-and-eyes cluster. Pages: the
+#               pencil's [[ink]] marks clear at the start of every turn (his "black
+#               line ... still there"); the scripted answer door shows the thinking
+#               state (a wrong answer's model intervention "looked frozen"). Eyes:
+#               voice.js files a voice_fallback event through client-log.js's new
+#               MyTutorReport, and /api/client-error files whitelisted named kinds;
+#               new _closure_render_status() counts closure lines not yet in the TTS
+#               cache and lends the number to the night watch, which prints it beside
+#               "run the prewarm" -- the prewarm is manual, and Jim heard the browser
+#               voice on two closure lines that were simply not rendered yet.
+#   2026-09-04  APP_BUILD -> "2026-09-04sn-the-warm-choice". BUILD sn -- Jim's ruling ③:
+#               a still-learning lesson end offers the student a CHOICE -- go on to the
+#               next lesson, or review this one -- instead of handing the seam to the
+#               live tutor. This supersedes sl's "still learning does not advance",
+#               which Jim softened the same day. Server half here: _script_clean now
+#               puts next_id on EVERY end step that has a next lesson, and `choice`:
+#               True on a still-learning one. lessonscripts owns the spoken line;
+#               session.html renders the two buttons and starts the chosen lesson
+#               inside the scripted lane (review = the same lesson from the start --
+#               ruling #4, resume at a lesson boundary). No model call either way.
+#               A course boundary still falls through to the live tutor until ④.
+#   2026-09-04  APP_BUILD -> "2026-09-04sm-the-board-answers-the-question-asked". BUILD
+#               sm is tutor.py ONLY; this file changes for the STAMP. Jim's ruling ①:
+#               board/words disagreement is truth-class -- boardcount joins the floor's
+#               truth list and the SEVENTY-FIFTH referee (exprswap, qx's probe promoted)
+#               catches the 09-04 HIGH: a board working 2 + 3 x 4 = 14 while the voice
+#               works 3 + 2 x 4 = 11. Referees 74 -> 75. No behaviour here changes.
+#   2026-09-04  BUILD sl -- THE SEAM READS THE COURSE ORDER. Jim's ruling: a MASTERED
+#               lesson advances on its own (no student choice); a "still learning" end
+#               does NOT advance. New _next_lesson_id() reads lessonscripts.COURSE_ORDER --
+#               the authored 360-lesson sequence nothing at this seam had ever read -- and
+#               _script_clean now puts next_id/next_topic on a MASTERED `end` step. That is
+#               the half the page needs to advance INSIDE the scripted lane instead of
+#               asking the live tutor to guess what comes next (the 09-01 "one-less reads
+#               as subtraction" bug: rj made the model announce its guess, this removes the
+#               guess). SERVER ONLY and purely additive -- next_id is "" on a non-mastered
+#               end and at a course boundary, and until session.html reads it NOTHING
+#               changes for a child. The page change is Jim's to approve.
+#               (later, 2026-09-04) APPROVED AND WRITTEN: session.html's seam now
+#               starts next_id inside the scripted lane. APP_BUILD ->
+#               "2026-09-04sl-the-seam-reads-the-course-order" (the sk default-10
+#               change in nightwatch.py rides under this stamp too; it carried none).
+#               Jim's same-day rulings for what this build deliberately leaves to
+#               the live tutor: a STILL-LEARNING end gets a warm choice (go on /
+#               review) and a COURSE END gets a celebration and a certificate --
+#               both their own builds. PART 3ih pins the server half both ways and
+#               the page half's two edits.
+#   2026-09-03  APP_BUILD -> "2026-09-03sj-the-floor". BUILD sj is tutor.py +
+#               nightwatch.py; this file changes for the STAMP. THE FLOOR: a draft
+#               every attempt of which carried a TRUTH-class finding (false board
+#               math, a false law, a named falsehood, a choice list with no right
+#               answer) no longer ships -- the child gets the fallback line, a `floor`
+#               event names the referee, the lesson continues next turn. Conduct
+#               findings ship least-bad exactly as px designed. The 09-03 watch's 148
+#               pass-throughs/week can now only fall. Referees stay 74. PART 3ig.
+#   2026-09-03  APP_BUILD -> "2026-09-03si-the-law-wore-a-different-costume". BUILD
+#               si is tutor.py ONLY -- this file changes for the STAMP. Both rule-61
+#               findings from the 09-03 night watch, neither needing a new referee:
+#               the order-of-operations law found TWICE fourteen days apart in the
+#               same lesson (the 37th referee was NOT dead -- measured -- it was one
+#               missing alternation, "no matter WHICH order"), and the HIGH, "two
+#               solutions because it's a squared equation", as KNOWN_FALSEHOODS row
+#               16. Referees stay 74; falsehoods 15 -> 16. No behaviour in this file
+#               changes. PART 3if.
+#   2026-09-03  APP_BUILD -> "2026-09-03sh-the-watch-says-what-it-was-told-to-do".
+#               BUILD sh is nightwatch.py ONLY -- this file changes for the STAMP, so
+#               /health can prove the report improvements are the ones running. Four
+#               holes in the morning report, each named by a triage that then had to
+#               give up on it: the 10-vs-12 question (three watches running; the report
+#               printed only what HAPPENED, never what it was TOLD to do, so a shrunken
+#               rotation, skipped slots and a changed constant were indistinguishable);
+#               507 referee fires with no names; crash reasons with no clock, so a ghost
+#               and a live regression read alike; and a reviewer never told about Jim's
+#               09-01 rule-42 ruling, which had it re-confirming a settled shape. No
+#               behaviour in this file changes. PART 3ie.
+#   2026-09-02  APP_BUILD -> "2026-09-02sg-the-sweep-stays-out-of-the-code". BUILD
+#               sg: the sd child->student sweep had rewritten CODE identifiers --
+#               feed.children -> feed.students froze Jim's probstat session at the
+#               opener (crash in wipeBoard, swallowed as an unhandled rejection).
+#               13 identifiers restored across 10 static pages; scrNext gains a
+#               crash net (a broken beat skips forward instead of freezing); PART
+#               3id pins it all. No main.py logic change -- the bump is the stamp.
+#   2026-09-02  APP_BUILD -> "2026-09-02sf-spoken-math-is-written-math". BUILD sf:
+#               THE SEVENTY-FOURTH REFEREE (tutor.py's spoken_math_unwritten_
+#               conflict) -- Jim's live rule, verbatim: "if we can write our a
+#               problem... we do." A spoken chain of computations over an empty
+#               board is sent back demanding [[step]] lines AND a continue-check
+#               (his "froze" screenshot was a dead-end turn -- "Nothing to do,
+#               page alive"). No main.py logic change: the bump is the build
+#               stamp, tile 73 -> 74 lives in methodology.html, the PART is 3ic.
+#   2026-09-02  APP_BUILD -> "2026-09-02se-five-flags-from-jims-queue". BUILD se,
+#               Jim's five live flags, one build: ① the entry count-on line drops
+#               its "trap" sentence (lessonscripts); ② rounding is taught
+#               LINE-FIRST (pedagogy -- his flagged reply, canonized); ③ rule 19(d)
+#               forbids handing over past an un-narrated example (prompts);
+#               ④ "8,516" is spoken in WORDS (speech-text.js -- comma numbers only,
+#               so hundreds of fine cached clips keep their keys) and rule 19(f)
+#               keeps the voice from reading a read-it-yourself number at all;
+#               ⑤ THE SEVENTY-THIRD REFEREE, board_flood_conflict (tutor.py):
+#               seven+ drawing tags in one reply = several beats wearing one
+#               turn's clothes -- split, never shrink the font. NO CODE IN THIS
+#               FILE CHANGED -- stamp only. PART 3ib.
+#   2026-09-02  APP_BUILD -> "2026-09-02sd-the-student-is-a-student". BUILD sd,
+#               Jim's wording ruling: the student is "the student / your student",
+#               never "the child" -- 344 visible occurrences across 22 pages +
+#               llms.txt + THIS file's demo voice lines (byte-identical twin) and
+#               its parent-visible email/API strings. Scope his call: ALL BUT LEGAL
+#               (privacy/terms keep the word the law is written in); historical
+#               header notes stay verbatim. PART 3ia holds the whole boundary.
+#   2026-09-02  APP_BUILD -> "2026-09-02sc-the-demo-holds-still-and-shows-its-boards".
+#               BUILD sc, four demo rulings from Jim, this day: ① no page scrolling
+#               in the classroom (a scrolled page moves the target out from under the
+#               pencil); ② he says "board", never "whiteboard" (two DEMO_VOICE_LINES
+#               reworded IDENTICALLY in both lists -- clips regenerate from text on
+#               first play); ③ a new tour stop points at the board-choice chip and
+#               flips white -> back to dark (one line APPENDED to both lists, 253 ->
+#               254); ④ the Abrabot end-stops are gone from all four dashboard tours
+#               (he is introduced once on the main tour and never brought back; his
+#               standalone button stays). Plus the demo's mouth now reads the REAL
+#               audio (the page declares the analyser globals cadabra.js has read
+#               since rt -- it never had them, so the mouth ran on the synthetic
+#               flap). Voice-list edits in THIS file are the byte-identical twin of
+#               demo.html's, per the standing pin. PART 3hz holds it.
+#   2026-09-02  APP_BUILD -> "2026-09-02sb-the-practice-goal". BUILD sb, Jim's
+#               2026-09-02 design: a parent (/family) or teacher (/teacher) may set
+#               a DAILY practice goal -- minutes in the adult's hands, a problem
+#               ring in the child's, only ever skills the record has earned. NEW:
+#               POST /api/parent/student-goal (parent door, _own_student gate) ·
+#               POST /api/class/{code}/goal (teacher door, _own_class +
+#               _resolve_member, same validation via ONE _set_goal_checked) · GET
+#               /api/goal/{code} (the child's read: target/done/kind + a
+#               newest-mastered suggestion for kind=latest; the child never sees
+#               who set it -- Jim: never adversarial). /api/mark responses carry
+#               {goal:{target,done}} when a goal is set so the ring moves on the
+#               answer that earned it; /api/parent/overview and the class roster/
+#               summary rows carry the goal for the adult's view. PART 3hy.
+#   2026-09-02  APP_BUILD -> "2026-09-02sa-the-question-mark-is-a-blank-said-so".
+#               BUILD sa, the 09-02 watch's finding G (rule 14) and its LAST
+#               buildable item: a ? hugging a fraction slash (?/10) is first-use
+#               notation and must be read aloud; the bare "= ?" the canon uses
+#               never matches. A registry row on referee 31 -- count stays 72.
+#               PART 3hx pins it. NO CODE IN THIS FILE CHANGED -- stamp only.
+#   2026-09-02  APP_BUILD -> "2026-09-02rz-a-variables-letter-keeps-its-case". BUILD
+#               rz, the 09-02 watch's finding E (rule 28): the seventy-second referee
+#               -- a variable written X on the board while the words say x is two
+#               names for one thing; clean case splits fire, a/e/i/o never judged.
+#               prompts.py rule 28 carries the case clause; methodology's tiles moved
+#               (72 reply checks, battery count). PART 3hw pins it. NO CODE IN THIS
+#               FILE CHANGED -- stamp only, per the stamp law below.
+#   2026-09-02  APP_BUILD -> "2026-09-02ry-the-accepted-offer-is-honored-and-the-
+#               verdict-is-proven". BUILDS rx + ry, the 09-02 watch's T3 findings
+#               C and D, delivered together: referee 70 gains the acceptance-turn
+#               branch (offer to show + "yes!" + nothing drawn -> fire), the
+#               quiz-verdict referee reads board numbering too, and -- Jim's
+#               ruling, "Retry + code floor" -- repair_missing_verdict at the
+#               shipping door speaks a PROVEN "Correct." + [[mark]] when the
+#               model skipped the verdict (never "Not quite", never unproven).
+#               PARTs 3hu + 3hv pin it. NO CODE IN THIS FILE CHANGED -- stamp
+#               only, per the stamp law below.
+#   2026-09-02  APP_BUILD -> "2026-09-02rw-the-hole-is-drawn-open-and-the-op-tells-
+#               the-truth". BUILDS rv + rw, the 09-02 watch's two HIGHs, delivered
+#               together: mathcheck gains check_graph_claims (a filled point where
+#               the curve provably has no value -> "wrong", nudging hole=) and
+#               check_step_ops (a numeric both-sides op label is APPLIED to the
+#               previous step and compared per side -- the lying "+ 9 to both
+#               sides" fires), and tutor.py gains KNOWN_FALSEHOODS row 15 ("turn
+#               ANY quadratic into a perfect square"). PARTs 3hs + 3ht pin all of
+#               it. NO CODE IN THIS FILE CHANGED -- stamp only, per the stamp law
+#               below.
+#   2026-09-02  APP_BUILD -> "2026-09-02ru-a-comma-makes-a-tuple-not-an-expression".
+#               BUILD ru -- the 09-02 watch's newest crash: mathcheck died on any
+#               comma-bearing board text (parse_expr returns a plain tuple; see
+#               mathcheck.py's ru note) and failed open, unjudging the reply. Fixed
+#               at mathcheck._parse, PART 3hr pins it. NO CODE IN THIS FILE CHANGED.
+#               ⚠️ STAMP NOTE: build rt (cadabra.js lip-sync, 2026-09-02) shipped
+#               WITHOUT bumping this stamp -- /health said "rs" while rt was live.
+#               This bump moves the stamp past rt; the law stands: EVERY build that
+#               touches ANY shipped file bumps APP_BUILD, one-file pencil builds
+#               included -- the stamp exists so Jim never has to wonder.
+#   2026-09-02  APP_BUILD -> "2026-09-02rs-the-demo-three-things-jim-saw". BUILD rs --
+#               ONE line APPENDED to DEMO_VOICE_LINES (252 -> 253), byte-identical to
+#               demo.html's VOICE_LINES: the miniature-dashboard tour line. The old
+#               "here is a corner of it" line stays (append-only). Nothing else.
+#   2026-09-02  APP_BUILD -> "2026-09-02rr-the-pencil-has-feelings-about-your-work".
+#               BUILD rr -- Jim's behaviour list for the pencil, all front-end plus
+#               the tag grammar: [[ink circle=|underline=|bang=]] registered in
+#               tags.py and taught in prompts.py (one paragraph x9); cadabra.js
+#               finds the word by text and marks it, glances at new board work,
+#               comforts a stuck child, throws a party at milestones, waves, and
+#               stops talking when the voice does (voice.js announces mt:silent);
+#               the pages ring the new doorbells; the demo loses the orb circle.
+#               NOTHING in this file changed but the stamp.
+#   2026-09-01  APP_BUILD -> "2026-09-01rn-two-holes-closed-one-ruling-taken". BUILD
+#               rn -- the watch's cluster E one-liners: rule 39's "See how that
+#               works?" and rule 15's spoken-only function rule CLOSED (two
+#               widenings in tutor.py, referees stay 71). Rule 42's "trips a lot of
+#               people up": put to Jim against pq's pinned people/folks cut -- his
+#               ruling: people-forms stay legal; dispositioned allowed-by-ruling.
+#               Rule 44's ordering half + cluster B's rule-4 cousin deferred with
+#               paper trails. NO CODE IN THIS FILE CHANGED.
+#   2026-09-01  APP_BUILD -> "2026-09-01rm-credit-only-what-you-saw". BUILD rm -- the
+#               09-01 watch's cluster C (rules 43/47/62): invented praise ("lined
+#               those up perfectly", no work shown) and unverifiable skill-mastery
+#               claims ("we've already got solid <skill>"). Referee 32's gate widened
+#               in tutor.py (count stays 71); the "two in a row unaided" finding
+#               deferred with reasons (needs turn-structured history).
+#               NO CODE IN THIS FILE CHANGED.
+#   2026-09-01  APP_BUILD -> "2026-09-01rl-the-first-use-list-learns-lim-and-squared".
+#               BUILD rl -- the 09-01 watch's cluster B (rule 48 x2): lim written
+#               before "the limit as x approaches" was said, and a²+b²=c² before
+#               "a squared" was said. Referee 31's gate WIDENED (exponent pattern
+#               gains real superscripts; new limit entry) and notation.py gains the
+#               limit registry row -- see tutor.py/notation.py rl notes.
+#               NO CODE IN THIS FILE CHANGED.
+#   2026-09-01  APP_BUILD -> "2026-09-01rk-the-course-remembers-which-lessons-are-done".
+#               BUILD rk -- Jim: "I keep logging in as student zero zero zero zero, and
+#               it keeps starting over from the beginning." Root cause: no per-LESSON
+#               record existed (topic_progress is per UNIT; topic quizzes only fire on
+#               pilot.html) and scriptPick read payload fields that do not exist
+#               (best_pct/topic_name vs the real passed/name), so its done-set was
+#               always empty and pool[0] repeated forever. THIS FILE: _script_finish
+#               now writes store.record_script_done(code, course, lesson id, mastered)
+#               beside the unit record, and /api/session's progress ships
+#               "script_done" (the mastered lesson ids) for the picker to resume from.
+#               The picker fix itself is session.html's.
+#   2026-09-01  APP_BUILD -> "2026-09-01rj-the-orb-retires-and-the-seam-is-announced".
+#               BUILD rj -- Jim watched ri live and ruled three things: (1) THE SEAM IS
+#               ANNOUNCED ("acted as if we had been working on subtraction. This is
+#               strange"): _SCRIPT_DONE_NOTES remembers the finished lesson at
+#               _script_finish, and the chat route turns __script_done__ /
+#               __script_done_mastered__ into a turn note making the live tutor NAME
+#               the new topic first (the page speaks lessonscripts.LINE_NEW_TOPIC
+#               before handing off). (2) The pencil is 30% larger with a slight float
+#               (menu + cadabra.js). (3) The ORB RETIRES from session/topic/practice
+#               ("he is to be gone everywhere"; demos later) -- the pencil layer is now
+#               wired on all three student pages.
+#   2026-09-01  APP_BUILD -> "2026-09-01ri-three-in-a-row-means-move-on". BUILD ri --
+#               Jim's live catch: "I gave three correct answers and it gave me a 4th
+#               question." His ruling: the promised three-in-a-row IS the advance gate.
+#               lessonscripts.py: gate is streak >= ADVANCE_STREAK alone, MIN_PROBLEMS
+#               removed. Also the pencil now ENTERS ONLY at lesson.start (the menu ran
+#               a joke + tour over the real recorded opening) and every menu target
+#               resolves to a real data-cad name. NO CODE IN THIS FILE CHANGED.
+#   2026-09-01  APP_BUILD -> "2026-09-01rh-the-pencil-wakes-up". BUILD rh -- Jim: "activate
+#               the pencil icon as Mr Cadabra." session.html wired to the Cadabra companion
+#               layer (twelve additive edits, re-applied onto the current page) and the
+#               switch created: static/cadabra-script.json (delete it to turn him off).
+#               NO CODE IN THIS FILE CHANGED.
+#   2026-09-01  APP_BUILD -> "2026-09-01rg-the-words-point-where-the-column-put-it".
+#               BUILD rg -- the watch's rule-63 finding: "the 6 under the 5" over a
+#               column that draws it above. REFEREE 71, column_words_conflict
+#               (tutor.py), computed from the tag's own term order. NO CODE IN THIS
+#               FILE CHANGED.
+#   2026-09-01  APP_BUILD -> "2026-09-01rf-the-asked-for-picture-is-drawn-now". BUILD rf
+#               -- the watch's other HIGH (geometry, rule 65): the requested drawing
+#               postponed into an offer. REFEREE 70, postponed_show_conflict (tutor.py):
+#               asked-to-see + the final ask offers to show/draw; offers of MORE stay
+#               silent. NO CODE IN THIS FILE CHANGED.
+#   2026-09-01  APP_BUILD -> "2026-09-01re-the-factors-are-checked-by-expanding-them".
+#               BUILD re -- the watch's HIGH: a spoken factor pair contradicting the
+#               board's quadratic. KNOWN_FALSEHOODS row 14 + REFEREE 69 (tutor.py,
+#               factor_claim_conflict -- expand the pair, compare to the reply's one
+#               quadratic, computed never guessed). NO CODE IN THIS FILE CHANGED.
+```
+
+---
+
 Moved out of `main.py` on 2026-09-08 (build ui): every CHANGE NOTE dated before 2026-09-01 -- 508 entries, VERBATIM, in the order they sat in the file (newest first). The 75 notes from 2026-09-01 on stay at the top of `main.py` itself, and new notes keep going there. Nothing below was edited; grep this file for a build letter or a date. When the header is rolled out again, the newer block is added ABOVE this one.
 
 ```text

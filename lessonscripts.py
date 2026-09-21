@@ -2,6 +2,21 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-21  BUILD xg -- THE SECOND PROB/STAT SWEEP: THE PRAISE IS A CREDIT LINE, AND
+#               NOW IT IS MEASURED BY LENGTH. 18 of the sweep's 60 findings were "repeats":
+#               a praise that explains, then a walk-back a breath later explaining the same
+#               thing. 3mt (word for word) and 3mv (same numbers, six words in ten) both
+#               missed them -- one extra sentence on either side defeats both tests. What
+#               actually separates them is length, so all 24 Prob/Stat praises over 26
+#               words became credit lines (the answer and its one reason). Where an older
+#               pin guarded a phrase (hedg, por, zsco), the phrase moved to the walk-back,
+#               which says it anyway. Also: hedg's walk-back says "a play on average"
+#               (HIGH), ppct's grid says "about ... in the long run" (HIGH), resd's board
+#               writes the SIGNED residual, merr draws its doubling ✗, resp draws the
+#               silent count and speaks in short sentences, sblw's walk-back is three
+#               steps, indp's ask is three sentences, iqrw's 20 is the WIDTH of the middle
+#               half. Course lines 40,005 -> 39,970: a credit line is shared by more
+#               problems than an explanation was.
 #   2026-09-19  BUILD xc -- THE SECOND GEOMETRY SWEEP (36 findings on all 36, 16 clean, 8
 #               generator-owned on three ops; 63 at wk). (1) insc's walk-back said the arc
 #               "looks exactly half" from the rim because the rim "is farther away" -- a
@@ -5283,7 +5298,8 @@ def _resd_worked(p):
             f"predicted — and every dot has one. {b} is what the student scored, not how "
             f"far the line missed by.",
             f'[[numberline min="{max(0, lo - 5)}" max="{hi + 5}" hops="{a},{b}" caption="from predicted {a} to actual {b} — a gap of {g}"]]'
-            f'[[step eq="{hi} − {lo} = {g}"]]')
+            f'[[step eq="actual {b} − predicted {a} = {"−" if b < a else ""}{g}"]]'
+            f'[[step eq="size of the residual = {g}"]]')
 
 
 def _sblw_board(p):
@@ -5295,8 +5311,8 @@ def _sblw_board(p):
 
 def _sblw_worked(p):
     a, b = p["a"], p["b"]; n = a - b
-    return (f"Here it is, step by step: the line runs THROUGH the cloud, so every dot is on one "
-            f"side or the other — {a} take away {b} leaves {n} below. {b} is the side you "
+    return (f"Here it is, step by step: no dot lands on the line. So every dot is above it or "
+            f"below it. {a} take away {b} leaves {n} below. {b} is the side you "
             f"were told about, and {a} is every dot on the plot.",
             f'[[tape parts="{b} above|{n} below" total="{a} dots" caption="{a} − {b} = {n} below the line"]]'
             f'[[step eq="{a} − {b} = {n}"]]')
@@ -5338,11 +5354,12 @@ def _resp_board(p):
 
 def _resp_worked(p):
     a, b = p["a"], p["b"]; r = 100 * b // a
-    return (f"Here it is, step by step: {b} out of {a} is {r} percent — the response rate. {b} is "
-            f"a count of surveys and {a - b} is how many never came back; the rate is the "
-            f"percent, and a low one warns that the silent may not think like the answerers.",
+    return (f"Here it is, step by step: {b} out of {a} is {r} percent — the response rate. "
+            f"{b} is a count of surveys, and {a - b} never came back. The rate is the percent, "
+            f"and a low one warns that the silent may not think like the answerers.",
             f'[[hundredgrid shaded="{r}" unit="percent" eq="{b} of {a} → {r}%" caption="{r} of every 100 surveys came back"]]'
-            f'[[step eq="{b} ÷ {a} = {r}%"]]')
+            f'[[step eq="{b} ÷ {a} = {r}%"]]'
+            f'[[step eq="{a} − {b} = {a - b} silent"]]')
 
 
 def _bias_board(p):
@@ -5374,7 +5391,8 @@ def _merr_worked(p):
             f"not halve the margin — it only shaves it — and {b} is the margin itself, not a "
             f"headcount. Every extra bit of certainty costs far more people than the last.",
             f'[[bars data="now:{a} | four times:{4 * a}" caption="{a} people to {4 * a} — and the margin of {b} points halves"]]'
-            f'[[step eq="{a} × 4 = {4 * a}"]]')
+            f'[[step eq="{a} × 4 = {4 * a}"]]'
+            f'[[step eq="{2 * a} ✗ doubling only shaves the margin"]]')
 
 
 def _ppct_board(p):
@@ -5389,7 +5407,7 @@ def _ppct_worked(p):
     return (f"Here it is, step by step: {a} out of {b} is {r} percent — a chance on the scale from "
             f"0, never, to 100, always. {a} is a count of marbles and {b - a} is how many are "
             f"not red; the question asked for the percent.",
-            f'[[hundredgrid shaded="{r}" unit="percent" eq="{a} of {b} → {r}%" caption="{r} of every 100 picks would be red"]]'
+            f'[[hundredgrid shaded="{r}" unit="percent" eq="{a} of {b} → {r}%" caption="about {r} of every 100 picks, in the long run"]]'
             f'[[step eq="{a} ÷ {b} = {r}%"]]')
 
 
@@ -5403,7 +5421,9 @@ def _por_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     return (f"Here it is, step by step: a marble cannot be red and blue at once, so the two piles "
             f"join — {a} plus {b} is {a + b} winners out of {a + b + c}. Timesing gives "
-            f"{a * b}, which counts pairs of marbles, and {a + b + c} counts the green losers in.",
+            f"{a * b}, which counts pairs of marbles: timesing belongs to the AND rule for "
+            f"separate events, not to this OR question. And {a + b + c} counts the green "
+            f"losers in.",
             f'[[tape parts="{a} red|{b} blue|{c} green" total="{a + b + c} marbles" caption="the red and blue parts side by side — {a + b} winners"]]'
             f'[[step eq="{a} + {b} = {a + b}"]]')
 
@@ -5579,7 +5599,7 @@ def _hedg_board(p):
 
 def _hedg_worked(p):
     a, b = p["a"], p["b"]; g = a - b
-    return (f"Here it is, step by step: {a} out and {b} back leaves {g} tokens gone on every play. "
+    return (f"Here it is, step by step: {a} out and {b} back leaves {g} tokens gone a play on average. "
             f"One play can bounce either way; over many plays the average gap is what keeps "
             f"the machine open. {b} is what comes back, "
             f"and adding the two is nothing a play ever costs.",
@@ -12184,11 +12204,9 @@ OP_EXT = {
                              "MODE — the number that happened most often?"),
         "board": _dotm_board,         # (tr) the dot plot, captioned (it had no caption -- rule 41)
         "worked": _dotm_worked,       # (tr) the tallest stack named
-        "praise": lambda p: (f"The tallest stack sits over {p['a']}, and it "
-                             f"holds {p['b']} dots — so {p['b']} readers "
-                             f"read {p['a']} books each. The mode is the "
-                             f"value UNDER the stack, {p['a']}, never the "
-                             f"{p['b']} readers standing on it."),
+        "praise": lambda p: (f"{p['a']} — the value UNDER the tallest "
+                             f"stack, never the {p['b']} readers standing "
+                             f"on it."),
         "key": lambda p: p["a"],
         # The errors: the COUNT answered instead of the value (the classic),
         # and the biggest value on the line.
@@ -12278,12 +12296,9 @@ OP_EXT = {
                              f"median?"),
         "board": _medv_board,         # (tr) the even list as a dot plot, captioned
         "worked": _medv_worked,       # (tr) the two middles on the number line with the halfway mark
-        "praise": lambda p: (f"An even count has no one middle: {p['b']} "
-                             f"and {p['b'] + 2} both sit there, with the "
-                             f"rest split evenly either side of the pair. "
-                             f"The median is halfway between them — "
-                             f"{p['b'] + 1} — and neither middle on its own "
-                             f"is the answer."),
+        "praise": lambda p: (f"{p['b'] + 1} — halfway between the two "
+                             f"middles, {p['b']} and {p['b'] + 2}, because "
+                             f"an even count has no one middle."),
         "key": lambda p: p["b"],
         # The errors: the lower middle, and the upper one.
         "choices": lambda p: [p["b"] + 1, p["b"], p["b"] + 2],
@@ -12305,7 +12320,8 @@ OP_EXT = {
         "worked": _iqrw_worked,       # (tr) the box measured
         # (xa) a credit line; the walk-back has the steps
         "praise": lambda p: (f"{p['b'] - p['a']} — the box's width, "
-                             f"{p['b']} take away {p['a']}, is the middle half."),
+                             f"{p['b']} take away {p['a']}, is the WIDTH of "
+                             f"the middle half."),
         "key": lambda p: p["b"] - p["a"],
         # The errors: the WHOLE range (whisker to whisker), and the box's
         # right edge read as its width.
@@ -12330,12 +12346,8 @@ OP_EXT = {
                              f"that mean does a number sit?"),
         "board": _madv_board,         # (tr) the four numbers as a dot plot, captioned
         "worked": _madv_worked,       # (tr) the four distances as bars
-        "praise": lambda p: (f"The four distances are {3 * p['b']}, "
-                             f"{p['b']}, {p['b']} and {3 * p['b']} — put "
-                             f"together {8 * p['b']}, shared between 4: "
-                             f"{2 * p['b']}. The farthest number sits "
-                             f"{3 * p['b']} away and the nearest {p['b']}, "
-                             f"so the average distance lies between them."),
+        "praise": lambda p: (f"{2 * p['b']} — the four distances put "
+                             f"together, {8 * p['b']}, shared between 4."),
         "key": lambda p: 2 * p["b"],
         # The errors: the FARTHEST distance, and the nearest -- the typical
         # distance mistaken for one of the extremes.
@@ -12428,13 +12440,9 @@ OP_EXT = {
                              f"far off was the prediction?"),
         "board": _resd_board,         # (tr) predicted beside actual as bars
         "worked": _resd_worked,       # (tr) the gap as a hop on the number line
-        "praise": lambda p: (f"The gap between {p['a']} and {p['b']} is "
-                             f"{abs(p['b'] - p['a'])} — that is the size of "
-                             f"the residual, actual take away predicted, "
-                             f"and every dot has one. "
-                             f"{p['b']} is what Sam scored, not how far the "
-                             f"line missed by, and putting the two numbers "
-                             f"together answers nothing at all."),
+        "praise": lambda p: (f"{abs(p['b'] - p['a'])} — the gap between "
+                             f"{p['a']} and {p['b']}, and that is the size "
+                             f"of the residual, actual take away predicted."),
         "key": lambda p: abs(p["b"] - p["a"]),
         # The errors: the actual score handed back, and the two numbers
         # added.
@@ -12475,14 +12483,9 @@ OP_EXT = {
                              f"it include?"),
         "board": _strf_board,         # (tt) the school as bars, the sample as a tape cut the same way
         "worked": _strf_worked,       # (tt) the tape filled in
-        "praise": lambda p: (f"Girls are {p['a']} of {p['a'] + p['b']} in "
-                             f"the school, so the sample keeps that share: "
-                             f"{p['c']} times {p['a']} divided by "
-                             f"{p['a'] + p['b']} equals "
-                             f"{p['c'] * p['a'] // (p['a'] + p['b'])} "
-                             f"girls. Splitting the sample down the middle "
-                             f"would say {p['c'] // 2}, which only matches "
-                             f"a school that is half and half."),
+        "praise": lambda p: (f"{p['c'] * p['a'] // (p['a'] + p['b'])} "
+                             f"girls — the sample keeps the school's own "
+                             f"share, {p['a']} of {p['a'] + p['b']}."),
         "key": lambda p: p["c"] * p["a"] // (p["a"] + p["b"]),
         # The errors: half and half whatever the school looks like, and the
         # school's own girl count copied into the sample.
@@ -12533,11 +12536,9 @@ OP_EXT = {
                              f"had a chance to be asked?"),
         "board": _bias_board,         # (tt) the asked and the never-asked as a tape, the second part blank
         "worked": _bias_worked,       # (tt) both parts
-        "praise": lambda p: (f"{p['b']} take away {p['a']} leaves "
-                             f"{p['b'] - p['a']} it could never reach — and "
-                             f"the ones who bring lunch from home are just "
-                             f"the ones it misses. A sample that cannot reach "
-                             f"everyone is biased."),
+        "praise": lambda p: (f"{p['b'] - p['a']} — the ones the survey "
+                             f"could never reach, and a sample that cannot "
+                             f"reach everyone is biased."),
         "key": lambda p: p["b"] - p["a"],
         # The errors: the asked group, and the whole school.
         "choices": lambda p: [p["b"] - p["a"], p["a"], p["b"]],
@@ -12557,12 +12558,9 @@ OP_EXT = {
                              f"many people. How many people is that?"),
         "board": _merr_board,         # (tt) the people machine, its output blank; the pending line a statement
         "worked": _merr_worked,       # (tt) now beside four times, as bars
-        "praise": lambda p: (f"Four times {p['a']} is {4 * p['a']} people. "
-                             f"Accuracy comes slowly: doubling to "
-                             f"{2 * p['a']} does NOT halve the margin, it "
-                             f"only shaves it a little. Every extra digit "
-                             f"of certainty costs far more people than the "
-                             f"last one did."),
+        "praise": lambda p: (f"{4 * p['a']} people — four times the "
+                             f"{p['a']}, because halving the margin costs "
+                             f"four times the people, not twice."),
         "key": lambda p: p["a"],
         # The errors: DOUBLING (the linear guess, and the whole lesson), and
         # the margin itself answered instead of a headcount.
@@ -12582,12 +12580,9 @@ OP_EXT = {
                              f"What percent chance is it red?"),
         "board": _ppct_board,         # (tt) the bag as bars, red beside not red
         "worked": _ppct_worked,       # (tt) the chance on the hundred square
-        "praise": lambda p: (f"{p['a']} out of {p['b']} is "
-                             f"{100 * p['a'] // p['b']} percent — chance "
-                             f"lives on a scale from 0 to 100, where 0 never "
-                             f"happens and 100 always does. {p['a']} is a "
-                             f"count of marbles, and {p['b'] - p['a']} is "
-                             f"how many are not red."),
+        "praise": lambda p: (f"{100 * p['a'] // p['b']} percent — "
+                             f"{p['a']} out of {p['b']}, placed on the "
+                             f"scale that runs from 0 to 100."),
         "key": lambda p: 100 * p["a"] // p["b"],
         # The errors: the COUNT of red handed back as a percent, and the
         # count of everything else.
@@ -12609,14 +12604,10 @@ OP_EXT = {
                              f"winners?"),
         "board": _por_board,          # (tt) the bars captioned (they had none -- rule 41); the pending line a statement (the old "how many winners?" was a question inside a step)
         "worked": _por_worked,        # (tt) the piles joined on a tape
-        "praise": lambda p: (f"A marble cannot be red AND blue at once, so "
-                             f"the two piles just join: {p['a']} plus "
-                             f"{p['b']} equals {p['a'] + p['b']} winners out "
-                             f"of {p['a'] + p['b'] + p['c']}. Timesing them "
-                             f"would say {p['a'] * p['b']}, which counts "
-                             f"PAIRS of marbles — timesing belongs to the "
-                             f"AND rule for separate events, not to this "
-                             f"OR question."),
+        "praise": lambda p: (f"{p['a'] + p['b']} winners out of "
+                             f"{p['a'] + p['b'] + p['c']} — a marble cannot "
+                             f"be red AND blue at once, so the two piles "
+                             f"just join."),
         "key": lambda p: p["a"] + p["b"],
         # The errors: TIMESING (the and/or mix-up -- pand is the other half
         # of this pair), and counting the whole bag.
@@ -12638,12 +12629,9 @@ OP_EXT = {
                              f"one in what?"),
         "board": _pand_board,         # (tt) two pies, one slice each
         "worked": _pand_worked,       # (tt) days by buses as an array
-        "praise": lambda p: (f"One day in {p['a']} is rainy, and one bus "
-                             f"in {p['b']} is late, so both together turn up "
-                             f"one time in {p['a']} times {p['b']} — one in "
-                             f"{p['a'] * p['b']}. Wanting BOTH is always "
-                             f"rarer, never one in "
-                             f"{p['a'] + p['b']}."),
+        "praise": lambda p: (f"One in {p['a'] * p['b']} — one day in "
+                             f"{p['a']} rainy, and on that day one bus in "
+                             f"{p['b']} late."),
         "key": lambda p: p["a"] * p["b"],
         # The errors: ADDING (por's rule, borrowed wrongly), and the rarer
         # of the two chances kept as if the other did nothing.
@@ -12667,13 +12655,10 @@ OP_EXT = {
         # product, which is the answer. The teach beats show it instead.
         "board": _ptre_board,         # (tt) the spinner as a pie with its winners shaded
         "worked": _ptre_worked,       # (tt) the tree of paths (it prints the products -- walk-back only)
-        "praise": lambda p: (f"Each winning first spin can be followed by "
-                             f"each winning second spin: {p['b']} times "
-                             f"{p['b']} equals {p['b'] * p['b']} winning "
-                             f"paths out of {p['a'] * p['a']}. "
-                             f"{p['b'] * p['a']} would count the paths that "
-                             f"win the FIRST spin and then do anything at "
-                             f"all."),
+        "praise": lambda p: (f"{p['b'] * p['b']} winning paths out of "
+                             f"{p['a'] * p['a']} — each of the {p['b']} "
+                             f"winning first spins meets each of the "
+                             f"{p['b']} winning seconds."),
         "key": lambda p: p["b"],
         # The errors: win-then-anything (the second spin left free), and the
         # two spins added instead of paired.
@@ -12695,13 +12680,8 @@ OP_EXT = {
                              f"soccer is out of how many?"),
         "board": _cbse_board,         # (tt) the four groups as bars
         "worked": _cbse_worked,       # (tt) the two-way table with its row totals
-        "praise": lambda p: (f"Asking about the girls only shrinks the "
-                             f"world to the girls: {p['a']} plus "
-                             f"{p['b']} equals {p['a'] + p['b']}. The whole "
-                             f"class of "
-                             f"{2 * p['c'] + 3 + p['a'] + p['b']} answers a "
-                             f"different question, and {p['a']} alone is "
-                             f"the soccer girls."),
+        "praise": lambda p: (f"{p['a'] + p['b']} — the girls are the whole "
+                             f"now, so it is {p['a']} plus {p['b']}."),
         "key": lambda p: p["a"] + p["b"],
         # The errors: the WHOLE class (conditioning ignored -- the heart of
         # the unit), and the cell itself.
@@ -12747,18 +12727,15 @@ OP_EXT = {
     "indp": {  # independent means the group's rate IS the overall rate
         "ans": lambda p: p["a"],
         "spoken": lambda p: (f"In a school, {p['a']} percent of students "
-                             f"like maths, and among the {p['b']} "
-                             f"left-handers {p['c']} percent do. If "
-                             f"left-handedness had nothing to do with liking "
-                             f"maths, what percent of the left-handers would "
-                             f"like it?"),
+                             f"like maths. Among the {p['b']} left-handers, "
+                             f"{p['c']} percent do. If the two had nothing "
+                             f"to do with each other, what percent of the "
+                             f"left-handers would like it?"),
         "board": _indp_board,         # (tt) the school beside the group as bars
         "worked": _indp_worked,       # (tt) predicted beside measured
-        "praise": lambda p: (f"Independent means the left-handers would "
-                             f"look just like the school: {p['a']} percent. "
-                             f"They came in at {p['c']}, so the two are NOT "
-                             f"independent — and {p['b']} is a headcount, "
-                             f"not a rate."),
+        "praise": lambda p: (f"{p['a']} percent — independent means the "
+                             f"left-handers would look just like the "
+                             f"school."),
         "key": lambda p: p["a"],
         # The errors: the MEASURED rate (the question asked what it would be
         # IF independent), and the size of the group.
@@ -12803,12 +12780,10 @@ OP_EXT = {
                              f"What percent of the time is it large?"),
         "board": _pdis_board,         # (ty) the ask picture, answer withheld
         "worked": _pdis_worked,       # (ty) the walk-back, filled in
-        "praise": lambda p: (f"All the chances of one machine add to the "
-                             f"whole 100: {p['a']} plus {p['b']} is "
-                             f"{p['a'] + p['b']}, so large takes what is "
-                             f"left — {100 - p['a'] - p['b']} percent. "
-                             f"Something has to happen every time, and "
-                             f"these three are the only choices."),
+        "praise": lambda p: (f"{100 - p['a'] - p['b']} percent — the "
+                             f"three chances fill the whole 100, and "
+                             f"{p['a']} and {p['b']} take "
+                             f"{p['a'] + p['b']} of it."),
         "key": lambda p: 100 - p["a"] - p["b"],
         # The errors: the two given chances added (the leftover forgotten),
         # and the whole 100 handed back.
@@ -12829,13 +12804,10 @@ OP_EXT = {
                              f"is a single play worth on average?"),
         "board": _evwa_board,         # (ty) the ask picture, answer withheld
         "worked": _evwa_worked,       # (ty) the walk-back, filled in
-        "praise": lambda p: (f"Weighed by how often each turns up, "
-                             f"{p['a']} tokens {p['c']} percent of the time "
-                             f"and {p['b']} the rest averages "
-                             f"{(p['a'] * p['c'] + p['b'] * (100 - p['c'])) // 100} "
-                             f"a play. The plain average "
-                             f"{(p['a'] + p['b']) // 2} would need both to "
-                             f"come up equally often."),
+        "praise": lambda p: (f"{(p['a'] * p['c'] + p['b'] * (100 - p['c'])) // 100} "
+                             f"a play — the {p['a']} comes up only "
+                             f"{p['c']} times in a hundred, so it weighs "
+                             f"less."),
         "key": lambda p: (p["a"] * p["c"] + p["b"] * (100 - p["c"])) // 100,
         # The errors: the PLAIN average of the two prizes (the classic --
         # weights ignored), and the big prize taken as the value.
@@ -12864,12 +12836,9 @@ OP_EXT = {
                              f"worth just what it costs?"),
         "board": _fair_board,         # (ty) the ask picture, answer withheld
         "worked": _fair_worked,       # (ty) the walk-back, filled in
-        "praise": lambda p: (f"You pay on all hundred plays but collect "
-                             f"on {p['b']}: {100 * p['a']} tokens in, "
-                             f"shared over {p['b']} wins — "
-                             f"{100 * p['a'] // p['b']} tokens a prize. "
-                             f"Just your stake back, {p['a']}, still loses "
-                             f"you every play you do not win."),
+        "praise": lambda p: (f"{100 * p['a'] // p['b']} tokens a prize "
+                             f"— {100 * p['a']} paid in, shared over the "
+                             f"{p['b']} plays that win."),
         "key": lambda p: 100 * p["a"] // p["b"],
         # The errors: the stake handed back as the prize (a fair-looking
         # trade that ignores the losses), and the percent read as tokens.
@@ -12891,11 +12860,8 @@ OP_EXT = {
                              f"tokens does each play really cost you?"),
         "board": _hedg_board,         # (ty) the ask picture, answer withheld
         "worked": _hedg_worked,       # (ty) the walk-back, filled in
-        "praise": lambda p: (f"Money out, money back: {p['a']} take away "
-                             f"{p['b']} leaves {p['a'] - p['b']} tokens "
-                             f"gone a play. One play can bounce either way, "
-                             f"but over many plays the average gap is what "
-                             f"keeps the machine open."),
+        "praise": lambda p: (f"{p['a'] - p['b']} tokens a play on "
+                             f"average — {p['a']} out, {p['b']} back."),
         "key": lambda p: p["a"],
         # The errors: the two amounts added, and the winnings read as the
         # cost.
@@ -12917,12 +12883,9 @@ OP_EXT = {
                              f"About how many of the whole group is that?"),
         "board": _n68_board,         # (ty) the ask picture, answer withheld
         "worked": _n68_worked,       # (ty) the walk-back, filled in
-        "praise": lambda p: (f"68 percent of {p['a']} is "
-                             f"{68 * p['a'] // 100} — most of a "
-                             f"bell curve crowds close to the middle, and "
-                             f"that is what gives it the shape. The 68 is "
-                             f"the percent to take, not the headcount, and "
-                             f"{p['a']} is everybody."),
+        "praise": lambda p: (f"{68 * p['a'] // 100} — 68 percent of the "
+                             f"{p['a']}, because the 68 is the percent to "
+                             f"take, not the headcount."),
         "key": lambda p: p["a"],
         # The errors: the 68 answered as if it were people, and the whole
         # group.
@@ -12944,13 +12907,9 @@ OP_EXT = {
         # every standard deviation, so the picture counts them for you.
         "board": _zsco_board,         # (ty) the ask picture, answer withheld
         "worked": _zsco_worked,       # (ty) the walk-back, filled in
-        "praise": lambda p: (f"{p['c']} sits {p['c'] - p['a']} above the "
-                             f"mean, and each standard deviation is "
-                             f"{p['b']} — so that gap holds "
-                             f"{(p['c'] - p['a']) // p['b']} of them. "
-                             f"Counting deviations gives two different "
-                             f"measurements a common scale: how far each "
-                             f"sits from its own mean."),
+        "praise": lambda p: (f"{(p['c'] - p['a']) // p['b']} — the "
+                             f"{p['c'] - p['a']} above the mean holds that "
+                             f"many steps of {p['b']}."),
         "key": lambda p: p["a"],
         # The errors: the RAW gap (deviations never counted), and the
         # standard deviation itself.
@@ -12975,13 +12934,9 @@ OP_EXT = {
                              f"the mean?"),
         "board": _zval_board,         # (ty) the ask picture, answer withheld
         "worked": _zval_worked,       # (ty) the walk-back, filled in
-        "praise": lambda p: (f"Two deviations is {p['b']} twice — "
-                             f"{2 * p['b']} — laid on top of the mean: "
-                             f"{p['a']} plus {2 * p['b']} equals "
-                             f"{p['a'] + 2 * p['b']}. Only about 2 students "
-                             f"in a hundred ever get out that far. "
-                             f"{p['a'] + p['b']} is one deviation, and "
-                             f"{2 * p['b']} forgot to start from the mean."),
+        "praise": lambda p: (f"{p['a'] + 2 * p['b']} — two deviations "
+                             f"of {p['b']} is {2 * p['b']}, laid on top of "
+                             f"the mean."),
         "key": lambda p: p["a"],
         # The errors: ONE deviation counted, and the distance answered
         # without ever leaving from the mean.
@@ -13004,12 +12959,9 @@ OP_EXT = {
                              f"mean?"),
         "board": _ntal_board,         # (ty) the ask picture, answer withheld
         "worked": _ntal_worked,       # (ty) the walk-back, filled in
-        "praise": lambda p: (f"5 percent of {p['a']} is {p['a'] // 20} "
-                             f"people out at the ends, and they split "
-                             f"evenly: {p['a'] // 40} above and "
-                             f"{p['a'] // 40} below. That is why a value "
-                             f"two deviations out is worth remarking on — "
-                             f"almost nobody is there."),
+        "praise": lambda p: (f"{p['a'] // 40} — the {p['a'] // 20} out "
+                             f"at the ends split evenly between the two "
+                             f"tails."),
         "key": lambda p: p["a"],
         # The errors: BOTH ends counted (the split forgotten), and half the
         # group -- the bell read as though its ends were huge.
@@ -13030,11 +12982,9 @@ OP_EXT = {
                              f"percent the true answer might be?"),
         "board": _cint_board,         # (ty) the ask picture, answer withheld
         "worked": _cint_worked,       # (ty) the walk-back, filled in
-        "praise": lambda p: (f"Give or take {p['b']} means {p['b']} either "
-                             f"way, so the low end is {p['a']} take away "
-                             f"{p['b']} — {p['a'] - p['b']} percent. "
-                             f"{p['a'] + p['b']} is the HIGH end, the same "
-                             f"step in the other direction."),
+        "praise": lambda p: (f"{p['a'] - p['b']} percent — give or take "
+                             f"{p['b']} means {p['b']} either way, and this "
+                             f"is the step down."),
         "key": lambda p: p["a"] - p["b"],
         # The errors: the high end, and the margin on its own.
         "choices": lambda p: [p["a"] - p["b"], p["a"] + p["b"], p["b"]],
@@ -13053,12 +13003,9 @@ OP_EXT = {
                              f"range?"),
         "board": _cwid_board,         # (ty) the ask picture, answer withheld
         "worked": _cwid_worked,       # (ty) the walk-back, filled in
-        "praise": lambda p: (f"The range runs {p['b']} below and {p['b']} "
-                             f"above, so it is {p['b']} twice — "
-                             f"{2 * p['b']} points wide, from "
-                             f"{p['a'] - p['b']} to {p['a'] + p['b']}. The "
-                             f"margin {p['b']} is only half the story, one "
-                             f"side of the middle."),
+        "praise": lambda p: (f"{2 * p['b']} points wide — the margin "
+                             f"{p['b']} reaches below AND above the "
+                             f"middle."),
         "key": lambda p: p["b"],
         # The errors: the margin answered as the width (one side only), and
         # the estimate itself.
@@ -13079,13 +13026,9 @@ OP_EXT = {
                              f"claim?"),
         "board": _inci_board,         # (ty) the ask picture, answer withheld
         "worked": _inci_worked,       # (ty) the walk-back, filled in
-        "praise": lambda p: (f"Your range reaches {p['a'] + p['b']} at the "
-                             f"very most, and they claim {p['c']}: that is "
-                             f"{p['c'] - (p['a'] + p['b'])} points past "
-                             f"anything your poll can support. Measuring "
-                             f"from {p['a']} instead gives "
-                             f"{p['c'] - p['a']} and forgets that your own "
-                             f"estimate has room in it."),
+        "praise": lambda p: (f"{p['c'] - (p['a'] + p['b'])} points — "
+                             f"your range reaches {p['a'] + p['b']} at the "
+                             f"very most, and they claim {p['c']}."),
         "key": lambda p: p["c"] - (p["a"] + p["b"]),
         # The errors: measured from the ESTIMATE (the margin ignored), and
         # the margin itself.
