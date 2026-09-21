@@ -8,13 +8,14 @@ On Jim's disk: **`2026-09-19xf-the-pre-sweep-the-other-eight`** (battery 12,759 
 failed, 3 skipped). `xd`, `xe` and `xf` were built on 09-19 while Jim was away from his
 computer for two days (phone only), on his word from his phone ("work on whatever you can
 work on"), and all three were written to D:\MyTutor in one commit on 09-21 — his `/health`
-had still read `xc` until then. **Built after them and NOT yet on his disk: `xg`
-(`2026-09-21xg-the-second-probstat-sweep`, 12,778)** — see **Pending commit** below.
+had still read `xc` until then. `xg` (`2026-09-21xg-the-second-probstat-sweep`, 12,778) went to his disk the same day.
+**Built after it and NOT yet on his disk: `xh`
+(`2026-09-21xh-the-credit-line-everywhere`, 12,785)** — see **Pending commit** below.
 The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
 half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
-whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19) → `xd` (the colon is not a ratio, 12,745, 09-19, pending) → `xe` (the pre-sweep, 12,751, 09-19, pending) → `xf` (the pre-sweep, the other eight, 12,759, 09-19) → `xg` (the second Prob/Stat sweep, 12,778, 09-21, pending). Jim pushes and prewarms
+whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19) → `xd` (the colon is not a ratio, 12,745, 09-19, pending) → `xe` (the pre-sweep, 12,751, 09-19, pending) → `xf` (the pre-sweep, the other eight, 12,759, 09-19) → `xg` (the second Prob/Stat sweep, 12,778, 09-21) → `xh` (the credit line everywhere, 12,785, 09-21, pending). Jim pushes and prewarms
 each; check `/health`. The first round is over: every lesson in every course has been read
 once. **The second round has begun, and the cycle converges: Diffeq went 119 → 62 findings,
 0 → 8 clean, on one fix build; Pre-Calc 76 → 34 → (60 with wt's praise-board shape, fixed in the engine) 15 clean; Algebra II 73 → 43, 14 clean; Entry 14 → 19 (sixteen of them one engine consequence of ww, closed in wy) with 29 clean — the most any course has had; Basic 67 → 41, 7 → 14 clean; Pre-Algebra 69 → 58, 6 → 9 clean (ten of the 58 were the near-repeat praise class, closed across 25 ops in xa); Algebra I 72 → 50, 8 → 10 clean — the first reading after xa, and the praise class did not come up once; Geometry 63 → 36, 7 → 16 clean.**
@@ -27,29 +28,25 @@ an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes t
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`.
 
-## Pending commit to D:\MyTutor (xg, built 2026-09-21)
+## Pending commit to D:\MyTutor (xh, built 2026-09-21)
 
 The complete files live in the cloud workspace of the chat that built them (and were sent
-into that chat as file cards). `device_list_dir` D:\MyTutor and `D:\MyTutor\lessons` and
-`D:\MyTutor\changelog` for fresh mtimes, then `device_commit_files` these eight with
-`expectedMtimeMs`, in one go, so Jim pushes once:
+into that chat as file cards). `device_list_dir` D:\MyTutor and `D:\MyTutor\changelog` for
+fresh mtimes, then `device_commit_files` these five with `expectedMtimeMs`, in one go:
 
-- `lessonscripts.py` (xg: 24 Prob/Stat praises are credit lines; hedg, ppct, resd, merr,
-  resp, sblw, indp, iqrw, por)
-- `lessons/probstat.py` (xg: 38 authored edits)
-- `ruletests.py` (PART 3nb; the three count pins moved; six older pins moved)
-- `main.py` (stamp `2026-09-21xg-the-second-probstat-sweep`)
-- `speechmap.py` (regenerated: 1,001 of 40,276)
-- `changelog/main.py.md` (xg: main.py's header passed 100 KB — 91 notes rolled out at
-  cutoff 2026-09-10, header 100,069 -> 37,219 B)
-- `changelog/Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`
+- `lessonscripts.py` (xh: the last 59 explaining praises are credit lines; ftc's and lhol's
+  guarded sentences moved into their walk-backs)
+- `ruletests.py` (PART 3nc; 3nb's ratchet is now zero; nine pins moved; the counts)
+- `main.py` (stamp `2026-09-21xh-the-credit-line-everywhere`)
+- `speechmap.py` (regenerated: 941 of 40,226)
+- `changelog/Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`
 - `changelog/START_HERE_Handoff_2026-09-21.md` (this file)
 
-After the push and `/health` = `2026-09-21xg-the-second-probstat-sweep`, run the
-**prewarm**: roughly 1,500 Prob/Stat praise and walk-back lines re-render (the credit
-lines), and the old ones fall out of the closure.
+After the push and `/health` = `2026-09-21xh-the-credit-line-everywhere`, run the
+**prewarm**: roughly 2,500 praise and walk-back lines re-render across Calculus, Pre-Calc,
+Algebra I, Algebra II and Geometry.
 
 | course | sweeps so far | last result |
 |---|---|---|
@@ -70,11 +67,12 @@ lines), and the old ones fall out of the closure.
    `/health` shows `2026-09-21xg-the-second-probstat-sweep`, runs the **prewarm**
    (~1,500 Prob/Stat praise and walk-back lines).
 2. **Calculus** next — the last course without a second reading (`wq`'s 88 findings and 4
-   clean, fixed in `wr`, pre-swept in `xe`); the report becomes `xh`. **Expect the praise
-   class to be most of it: Calculus has 32 ops whose praise still explains, the highest of
-   any course** (PART 3nb's ratchet measures it). Doing those 32 before the sweep, the way
-   `xe` pre-swept the boards, would cost the reading its biggest pile — and the same for
-   Pre-Calc's 19 before its fourth. After that every course has had two readings, and the third round (Entry's
+   clean, fixed in `wr`); the report becomes `xi`. It has now been pre-swept twice over:
+   `xe` read its closing boards and split its long sentences, and **`xh` turned all 32 of
+   its explaining praises into credit lines** — the class that was 18 of Prob/Stat's 60
+   findings. If the reading still raises "the walk-back repeats the praise", the 26-word
+   measure is not the whole story: widen PART 3nb, do not move the pin.
+   After that every course has had two readings, and the third round (Entry's
    sixth, Pre-Calc's fourth, …) can start with the courses whose second reading was
    highest. Geometry's class (xc): **the picture the words describe is not on the
    board** — an exterior angle over a plain triangle, a segment over two dots, a table's
@@ -133,9 +131,11 @@ lines), and the old ones fall out of the closure.
   numbers, six words in ten) are both defeated by one extra sentence. What separates the
   ops a reviewer flags from the ones it leaves alone is plain length: every flagged praise
   ran past 30 words, every credit line xa wrote is under 21. PART 3nb pins **no praise over
-  26 words** at zero for Prob/Stat and as a falling ratchet for the canon: **59 left —
-  Calculus 32, Pre-Calc 19, Algebra I 3, Algebra II 3, Geometry 2.** Entry, Basic,
-  Pre-Algebra and Prob/Stat are at zero. Drive it down before each course's next reading.
+  26 words** at **zero for every course since xh** — the 59 that were left (Calculus 32,
+  Pre-Calc 19, Algebra I 3, Algebra II 3, Geometry 2) are all credit lines now, and a new
+  op's praise must be one too or the battery fails. When a pin guards a phrase inside a
+  praise: if the phrase is the answer's REASON it stays; if it is the EXPLAINING it moves
+  into the walk-back (xh moved four, and had to ADD two that were not there at all).
 - **A closing credit line inherits the recap above it (xg).** xe gave every closing recap a
   line that reads its board; two of them dropped the condition the recap had just stated
   ("3, every play" under "on average"; "that is what give or take means" under a margin
@@ -220,8 +220,8 @@ lines), and the old ones fall out of the closure.
 - Asserted string replacements (`assert s.count(a) == 1`) into `lessons/<course>.py` and
   `lessonscripts.py`; `L.validate` all 360 (the validator's canon: "what is left", never
   "remain"; a lesson's `symbols` must appear as the bare word — "cross", not "crossing"); `python3 tools/genspeechmap.py`; note the counts
-  (course **39,970** since xg; closure 40,224; speechmap **1,001** of 40,276 and forSpeech
-  drift **695** since xd — they were 2,184 and 1,878 until the colon rule was tightened; the
+  (course **39,920** since xh; closure 40,174; speechmap **941** of 40,226 and forSpeech
+  drift **635** since xh — they were 2,184 and 1,878 until the colon rule was tightened; the
   "closure is in it" floor pin is now `> 900`. **A count can FALL: xg's credit lines took
   35 course lines off, because a short praise is shared by more problems than a long one
   was. Diff `course_audio_lines()` against the frozen copy and read the diff before moving
@@ -285,10 +285,20 @@ lines), and the old ones fall out of the closure.
   phrase went back in, truer.
 - **New trap:** `[[pie parts=N shaded=K]]` clamps K to N — it cannot draw an improper
   fraction. Use the written form.
-- **New trap closed (xf):** before the battery, scan every `"..." in spoken(E("id"))` pin in
-  `ruletests.py` (and the `advance_line`/`explain` forms) against the edited lessons with a
-  regex and move the misses first — xf moved thirteen that way and the battery ran clean
-  once. A capital letter at the start of a newly split sentence is the usual miss.
+- **New trap closed (xf, widened at xh):** before the battery, scan every pin in
+  `ruletests.py` that quotes generated or authored text against the rebuilt lessons with a
+  regex, and move the misses first. Cover ALL the spellings, not just the PART you are
+  writing in: `"..." in spoken(E("id"))`, the `advance_line`/`explain` forms, `PR(op, {...})`
+  and `W({...})[i]` — **and `L.OP_EXT["op"]["praise"]({...})`, `L.praise_for(p, 0)` and the
+  `_W` alias, which older PARTs use**. A capital letter at the start of a newly split
+  sentence is the usual miss.
+- **The pre-flight that actually catches it (xh):** a text scan cannot see a pin whose
+  ALIAS is wrong for the PART it now sits in — xh moved lhol's pin into 3mo, which defines
+  no `_W`, and the battery died on a NameError twenty minutes in. After the regex scan,
+  **execute** every PART that touches the generator with a stub `check` that records
+  pass/fail, skipping the NameErrors the harness itself causes (module-level helpers the
+  battery has and a bare exec does not), and fix what really fails. The scratch pattern is
+  in this session; it found the last two misses before the third run, which was clean.
 - A new PART's checks can be smoke-run alone before the 25-minute battery: exec the
   function's source with a stub `check` and `notes` (scratch pattern in this session). It
   caught a missing `rd`, a wrong op name, and (wy) a capitalisation change before they
