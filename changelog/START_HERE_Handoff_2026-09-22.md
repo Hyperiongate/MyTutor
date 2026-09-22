@@ -10,13 +10,15 @@ computer for two days (phone only), on his word from his phone ("work on whateve
 work on"), and all three were written to D:\MyTutor in one commit on 09-21 — his `/health`
 had still read `xc` until then. `xg` (`2026-09-21xg-the-second-probstat-sweep`, 12,778) and `xh`
 (`2026-09-21xh-the-credit-line-everywhere`, 12,785) followed, both committed the same day.
-**Built after them and NOT yet on his disk: `xi`
-(`2026-09-22xi-the-second-calculus-sweep`, 12,801)** — see **Pending commit** below.
-**With xi, every one of the ten courses has had two readings.** The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
+`xi` (`2026-09-22xi-the-second-calculus-sweep`, 12,801) followed and is pushed — **with it
+every one of the ten courses has had two readings.** **Built after it and written to
+D:\MyTutor on 09-22, waiting on Jim's push: `xj`
+(`2026-09-22xj-the-spoken-beat-is-short-everywhere`, 12,809)** — see **On his disk, not yet
+pushed** below. The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
 half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
-whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19) → `xd` (the colon is not a ratio, 12,745, 09-19, pending) → `xe` (the pre-sweep, 12,751, 09-19, pending) → `xf` (the pre-sweep, the other eight, 12,759, 09-19) → `xg` (the second Prob/Stat sweep, 12,778, 09-21) → `xh` (the credit line everywhere, 12,785, 09-21) → `xi` (the second Calculus sweep, 12,801, 09-22, pending). Jim pushes and prewarms
+whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19) → `xd` (the colon is not a ratio, 12,745, 09-19, pending) → `xe` (the pre-sweep, 12,751, 09-19, pending) → `xf` (the pre-sweep, the other eight, 12,759, 09-19) → `xg` (the second Prob/Stat sweep, 12,778, 09-21) → `xh` (the credit line everywhere, 12,785, 09-21) → `xi` (the second Calculus sweep, 12,801, 09-22) → `xj` (the spoken beat is short everywhere, 12,809, 09-22, on disk, awaiting push). Jim pushes and prewarms
 each; check `/health`. The first round is over: every lesson in every course has been read
 once. **The second round has begun, and the cycle converges: Diffeq went 119 → 62 findings,
 0 → 8 clean, on one fix build; Pre-Calc 76 → 34 → (60 with wt's praise-board shape, fixed in the engine) 15 clean; Algebra II 73 → 43, 14 clean; Entry 14 → 19 (sixteen of them one engine consequence of ww, closed in wy) with 29 clean — the most any course has had; Basic 67 → 41, 7 → 14 clean; Pre-Algebra 69 → 58, 6 → 9 clean (ten of the 58 were the near-repeat praise class, closed across 25 ops in xa); Algebra I 72 → 50, 8 → 10 clean — the first reading after xa, and the praise class did not come up once; Geometry 63 → 36, 7 → 16 clean.**
@@ -29,24 +31,22 @@ an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes t
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`.
 
-## Pending commit to D:\MyTutor (xi, built 2026-09-22)
+## On his disk, not yet pushed (xj, built and committed 2026-09-22)
 
-`device_list_dir` D:\MyTutor, `D:\MyTutor\lessons` and `D:\MyTutor\changelog` for fresh
-mtimes, then `device_commit_files` these five with `expectedMtimeMs`, in one go:
+These five were written to D:\MyTutor on 09-22 with `device_commit_files`; nothing is
+outstanding on the disk side. Jim reviews with `git diff` and pushes himself:
 
-- `lessonscripts.py` (xi: 18 Calculus walk-backs split after the opener; sumx, vsol, antp,
-  dfeq, pgrw)
-- `lessons/calculus.py` (xi: 28 authored edits)
-- `ruletests.py` (PART 3nd; five pins moved)
-- `main.py` (stamp `2026-09-22xi-the-second-calculus-sweep`)
-- `changelog/Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`
+- `lessonscripts.py` (xj: the last 47 long generated walk-backs and asks, split)
+- `ruletests.py` (PART 3ne; 3nd's ratchet is now zero; ten pins moved)
+- `main.py` (stamp `2026-09-22xj-the-spoken-beat-is-short-everywhere`)
+- `changelog/Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`
 - `changelog/START_HERE_Handoff_2026-09-22.md` (this file)
 
-`speechmap.py` did NOT change — every edit is inside a beat that already existed, so no
-count moved. After the push and `/health` = `2026-09-22xi-the-second-calculus-sweep`, run
-the **prewarm**: roughly 700 Calculus walk-back and ask lines re-render.
+`speechmap.py` did not change. After the push and `/health` =
+`2026-09-22xj-the-spoken-beat-is-short-everywhere`, run the **prewarm**: roughly 1,900
+walk-back and ask lines re-render across eight courses.
 
 | course | sweeps so far | last result |
 |---|---|---|
@@ -64,17 +64,18 @@ the **prewarm**: roughly 700 Calculus walk-back and ask lines re-render.
 ## What to do next
 
 1. Commit the **pending** files above to D:\MyTutor; Jim pushes once, confirms
-   `/health` shows `2026-09-22xi-the-second-calculus-sweep`, runs the **prewarm**
-   (~700 Calculus walk-back and ask lines).
-2. **The second round is complete — all ten courses read twice.** The third round starts
-   with whichever second reading was highest: Diffeq 62, Prob/Stat 60, Pre-Calc 60 (its
-   third), Pre-Algebra 58, Algebra I 50, Calculus 46, Algebra II 43, Basic 41, Geometry 36,
-   Entry 19. **Before any of them, spend the build the way `xh` did: drive PART 3nd's
-   ratchet down for that course first** (Algebra II 60 long spoken beats, Prob/Stat 54,
-   Pre-Calc 48, Algebra I 36, Geometry 24, Pre-Algebra 13, Basic 11, Diffeq 10; Entry and
-   Calculus are at zero). On this reading's evidence a pre-sweep is worth about a quarter
-   of the findings: xi's Calculus raised ZERO of the praise class xh had closed, and 12 of
-   its 46 were the walk-back class no scan had covered yet. Geometry's class (xc): **the picture the words describe is not on the
+   `/health` shows `2026-09-22xj-the-spoken-beat-is-short-everywhere`, runs the
+   **prewarm** (~1,900 walk-back and ask lines across eight courses).
+2. **The second round is complete — all ten courses read twice — and every measured class
+   is closed canon-wide.** Nothing needs pre-sweeping before the third round: the unread
+   closing board, the long authored sentence, the explaining praise and the long spoken
+   beat all read zero in all ten courses (PARTs 3na, 3nb, 3nd, 3ne). So just run the next
+   sweep and build from what it finds. Start with whichever second reading was highest:
+   Diffeq 62, Prob/Stat 60, Pre-Calc 60 (its third), Pre-Algebra 58, Algebra I 50,
+   Calculus 46, Algebra II 43, Basic 41, Geometry 36, Entry 19. **What to watch for: the
+   next reading is the first with no known class pre-closed, so whatever it raises most is
+   a NEW class — measure it across the canon before fixing the instances it quotes.** That
+   is the pattern that took Calculus from 88 findings to 46 and Prob/Stat from 92 to 60. Geometry's class (xc): **the picture the words describe is not on the
    board** — an exterior angle over a plain triangle, a segment over two dots, a table's
    traps over three step lines. Draw what the words point at. Algebra I's class, which Algebra II and up will share: **the
    equation as given is missing from the board** — the undo pictures start one step in,
@@ -126,6 +127,15 @@ the **prewarm**: roughly 700 Calculus walk-back and ask lines re-render.
 
 ## House decisions still open
 
+- **Four measured classes, all at zero in all ten courses (xj).** Each was found by a
+  sweep, then measured across the canon and driven to zero rather than fixed where the
+  reviewer happened to quote it: the unread closing recap board and the 27-word authored
+  teaching sentence (found xe, closed xf, PART 3na); the praise that explains instead of
+  crediting, measured as a praise over 26 words (found xg, closed xh, PART 3nb); the
+  generated spoken beat of 27+ words in a walk-back, ask or advance line (found xi, closed
+  xj, PARTs 3nd and 3ne). PART 3ne also checks all three scans together, so no new beat can
+  quietly reintroduce one. **The next sweep is the first with no known class pre-closed —
+  whatever it raises most is a new class, and the move is to measure it canon-wide first.**
 - **A generated walk-back is a spoken beat too (xi).** The xe/xf sentence scan reads only
   the authored kinds — why, picture, teach, worked-example, recap. Every one of Calculus's
   12 "unclear" findings was in a generated WALK-BACK or ASK, which no scan had ever
@@ -142,8 +152,9 @@ the **prewarm**: roughly 700 Calculus walk-back and ask lines re-render.
 - **The pre-flight is `pinscan.py` (xi).** It checks every pin that quotes generated or
   authored text, in all the spellings the PARTs use — `PR`, `L.OP_EXT[...]["praise"]`,
   `L.praise_for`, `W`, `_W`, `S`/`L.spoken_for`, `B`/`L.board_for`, `spoken(E(...))`,
-  `advance_line`, `explain` — **and with the problem written as a dict OR as a variable
-  assigned in the same PART** (`_W(derv)[0]`). Scoping those variables per PART is what
+  `advance_line`, `explain`, **and `.startswith(...)`/`.endswith(...)` on any of them** —
+  **with the problem written as a dict OR as a variable assigned in the same PART**
+  (`_W(derv)[0]`). Scoping those variables per PART is what
   makes it usable: a global map gave 38 false alarms on a correct tree, per PART it gives
   zero. Run it (`PYTHONPATH=. python3 pinscan.py`) before every battery; it found fourteen
   stale pins across xi. Executing every PART instead was tried and abandoned — it takes

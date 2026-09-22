@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  BUILD xj -- PART 3ne, THE SPOKEN BEAT IS SHORT EVERYWHERE. xi measured the
+#               class Calculus's reading found -- a generated walk-back or ask too long to
+#               follow by ear -- fixed Calculus's 18 ops and left a ratchet of 256 spoken
+#               instances. All of them are gone: 47 more ops split after the opener, and
+#               3nd's ratchet is a pin at ZERO over all ten courses. With it, the three
+#               measurements a sweep keeps finding -- the unread closing board, the long
+#               authored sentence, the long spoken beat -- all read zero in every course.
 #   2026-09-22  BUILD xi -- PART 3nd, THE SECOND CALCULUS SWEEP (46 findings on all 36, 13
 #               clean; 88 and 4 at wq). ZERO "repeats": xh's credit lines closed the class
 #               that every earlier sweep raised. The new biggest class is the same shape one
@@ -18820,7 +18827,7 @@ def part3md_the_first_prealgebra_sweep():
           and '10% of the whole = 12 ÷ 3 = 4' in B({"a": 30, "b": 12, "op": "pwh"}), B({"a": 20, "b": 40, "c": 0, "op": "pup"}))
     asp = {"a": 22, "b": 40, "op": "asp"}
     check("⭐ asp's long way is said as two steps and drawn as two steps; 'go through 1' is gone from asp and prop",
-          "go the long way — times the top by 100, then divide by 40" in _W(asp)[0]
+          "So go the long way: times the top by 100, then divide by 40" in _W(asp)[0]   # (xj) split after the opener
           and '[[step eq="22 × 100 = 2200"]][[step eq="2200 ÷ 40 = 55"]]' in _W(asp)[1]
           and "go through 1" not in _W(asp)[0]
           and "go through 1" not in _W({"a": 2, "b": 3, "c": 8, "op": "prop"})[0], _W(asp)[0])
@@ -19152,7 +19159,7 @@ def part3mg_the_first_geometry_sweep():
           and "the angles along a straight line make 180" in spoken(E("geo-u1-two-make-a-corner"))
           and "along a straight line make 180" in spoken(E("geo-u3-the-outside-angle"))
           and "the angles along a straight line make 180 degrees" in _W({"a": 50, "b": 0, "op": "sla"})[0]
-          and "the angles along a straight line make 180" in _W({"a": 50, "b": 0, "op": "vert"})[0]
+          and "The angles along a straight line make 180, so 180 take away 50 equals 130" in _W({"a": 50, "b": 0, "op": "vert"})[0]   # (xj) split after the opener
           and L.OP_EXT["sla"]["praise"]({"a": 50}).startswith("The angles along a straight line make 180"), "")
     check("  laws with their condition: line segment; every point except the middle; the slides we used / a flip across an axis; isosceles (recap and advance); similar shapes; grid-lined rectangles",
           "every line segment — a line with two ends — has an exact middle" in spoken(E("geo-u1-halfway-along"))
@@ -20070,7 +20077,7 @@ def part3mn_the_second_diffeq_sweep():
 
     # ---- the generator ---------------------------------------------------------
     check("⭐ estp: it is the MAIN part of the error that scales with the step (ask and praise); rk4 is 'very common' and counts halvings, never 'a thousand times'",
-          S({"a": 110, "b": 10, "c": 6, "op": "estp"}).startswith("For a first-order method like Euler, the main part of the error is proportional to the step size — shrink the step and that main error shrinks by the same factor.")
+          S({"a": 110, "b": 10, "c": 6, "op": "estp"}).startswith("For a first-order method like Euler, the main part of the error is proportional to the step size. Shrink the step and that main error shrinks by the same factor.")   # (xj) split after the first stop
           and "and the main error scales the same way: 110 becomes 66" in PR("estp", {"a": 110, "b": 10, "c": 6})
           and "the error follows it exactly" not in PR("estp", {"a": 110, "b": 10, "c": 6})
           and S({"a": 80, "b": 0, "op": "rk4"}).startswith("Fourth-order Runge-Kutta is a very common method.")
@@ -20080,7 +20087,7 @@ def part3mn_the_second_diffeq_sweep():
     check("  conc: the concentration is the FIRST number a mixing problem needs; cycl nudges THIS model off the balance point and speaks of this tidy cycle",
           S({"a": 120, "b": 6, "op": "conc"}).startswith("The first number a mixing problem needs is the concentration.")
           and "always turns on one number" not in S({"a": 120, "b": 6, "op": "conc"})
-          and S({"a": 60, "b": 0, "op": "cycl"}).startswith("Nudge this model off the balance point and rabbits and foxes never settle — they go round and round, and in this tidy cycle the foxes peak a quarter of a cycle after the rabbits.")
+          and S({"a": 60, "b": 0, "op": "cycl"}).startswith("Nudge this model off the balance point and rabbits and foxes never settle — they go round and round. In this tidy cycle the foxes peak a quarter of a cycle after the rabbits.")   # (xj) split after the first stop
           and "always peak" not in S({"a": 60, "b": 0, "op": "cycl"}), "")
     check("  lder's rule is for the equations in this unit; natf: MANY objects, and something DRIVES one; prey claims only the rabbit half; sysx's answer is the x PART of the arrow",
           "For the equations in this unit, that rule turns differentiating into timesing by s, so the differential equation becomes ordinary algebra." in PR("lder", {"a": 29, "b": 14, "c": 10})
@@ -20416,7 +20423,7 @@ def part3mr_the_third_precalc_sweep():
           and W({"a": 512, "b": 2, "op": "logp"})[1].endswith('[[step eq="9^2 = 81 ✗ the log raised to the power"]]'), "")
     check("  negp says '1 pair'; lhol's cancellation carries 'for x ≠ 14'; gser's praise settles THIS halving run; cctr's walk-back is short sentences",
           "2 minus signs pair up — 1 pair, none left over" in W({"a": 2, "b": 0, "op": "negp"})[0]
-          and "3 minus signs pair up — 1 pair, and one lone" in W({"a": 3, "b": 0, "op": "negp"})[0]
+          and "3 minus signs pair up — 1 pair. And one lone" in W({"a": 3, "b": 0, "op": "negp"})[0]   # (xj) split after the opener
           and "4 minus signs pair up — 2 pairs, none left over" in W({"a": 4, "b": 0, "op": "negp"})[0]
           and '[[step eq="for x ≠ 14: (x − 14)(x + 14) ÷ (x − 14) = x + 14"]]' in W({"a": 14, "b": 0, "op": "lhol"})[1]
           and "Add this halving run forever and it still settles" in PR("gser", {"a": 16, "b": 0})   # (xh) after the answer now
@@ -21496,6 +21503,105 @@ def part3nd_the_second_calculus_sweep():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-22xi-' in notes("main.py") and "2026-09-22  BUILD xi" in notes("lessonscripts.py")
           and "2026-09-22  BUILD xi" in notes("lessons/calculus.py") and "2026-09-22  BUILD xi" in notes("ruletests.py"), "")
+
+
+def part3ne_the_spoken_beat_is_short_everywhere():
+    """PART 3ne (build xj, 2026-09-22) -- THE SPOKEN BEAT IS SHORT EVERYWHERE. xi found the
+    class in Calculus's second reading (12 of 46 findings), fixed that course's 18 ops and
+    left a falling ratchet of 256 spoken instances in the other eight. This build closes
+    them: 47 more ops, split after the opener, so no walk-back, ask or advance line in the
+    canon speaks 27 words in one breath.
+
+    THREE MEASUREMENTS NOW READ ZERO IN EVERY COURSE: the closing recap board whose numbers
+    the words never say (3na, since xf), the authored teaching sentence of 27 words or more
+    (3na), and the generated spoken beat of the same length (3nd, and this PART). Each was
+    found by a sweep, measured, then closed canon-wide rather than course by course.
+
+    The split rule, which the walk-back's own shape forces: the opener must stay the literal
+    "Here it is, step by step: " with lower-case text after the colon, so the first sentence
+    ends at the first natural stop AFTER that phrase -- never at the colon itself."""
+    print("\nPART 3ne — the spoken beat is short everywhere (build xj)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    sents = lambda t: [x for x in re.split(r"(?<=[.!?])\s+", t) if x]
+    W = lambda p: L._worked_for(p)
+    S = lambda p, lv="abstract": L.spoken_for(p, lv)
+    KINDS = ("walk-back", "ask", "advance", "second-look", "fresh-one")
+
+    long_by_course = {}
+    for les in L.LESSONS:
+        for t in C.transcript_for(les, L):
+            if t["kind"] not in KINDS:
+                continue
+            for sn in sents(t["spoken"]):
+                if len(sn.split()) >= 27:
+                    long_by_course.setdefault(les["course"], []).append((les["id"], t["n"], len(sn.split())))
+    check("⭐⭐ NO SPOKEN BEAT RUNS LONG, IN ANY COURSE: not one walk-back, ask or advance line anywhere in the canon speaks a sentence of 27 words or more, counting the opener as the child hears it (388 instances at xh, 256 after xi's Calculus, 0 now)",
+          not long_by_course, str({k: len(v) for k, v in sorted(long_by_course.items())}))
+    check("⭐ the opener is untouched: every generated walk-back still begins with the literal phrase and keeps its lower-case text, because the engine's walk-back detection and a count pin key on it",
+          all(w.startswith("Here it is, step by step: ") and not w[26:27].isupper()   # a digit is fine; a capital is what the wd/we pins forbid
+              for w in (W({"a": 3, "b": 2, "op": "yint"})[0], W({"a": 12, "b": 0, "op": "rbet"})[0],
+                        W({"a": 2, "b": 3, "op": "lsol"})[0], W({"a": 80, "b": 0, "op": "ntal"})[0],
+                        W({"a": 7, "b": 2, "op": "rem"})[0], W({"a": 2, "b": 3, "c": 6, "op": "prop"})[0])), "")
+    check("  a split of each kind, by text: Algebra I's y-intercept, Algebra II's between-the-squares, Basic's left-overs, Pre-Calc's rebuilt number, Prob/Stat's tails, Geometry's crossing lines",
+          "3 times zero is zero. The whole times part vanishes" in W({"a": 3, "b": 2, "op": "yint"})[0]
+          and "short of 16. So it leans toward 9" in W({"a": 12, "b": 0, "op": "rbet"})[0]
+          and "fills 3 groups — 3 times 2 equals 6. Then 7 take away 6 leaves 1." in W({"a": 7, "b": 2, "op": "rem"})[0]
+          and "the log counted 3 layers of 2. So rebuild the number" in W({"a": 2, "b": 3, "op": "lsol"})[0]
+          and "is 4 out at the ends. The bell is symmetric" in W({"a": 80, "b": 0, "op": "ntal"})[0]
+          and "on one straight line. The angles along a straight line make 180" in W({"a": 70, "b": 0, "op": "vert"})[0], "")
+    check("  and the two Diffeq ASKS, which no walk-back split would have reached",
+          "round and round. In this tidy cycle the foxes peak a quarter of a cycle after the rabbits." in S({"a": 60, "b": 0, "op": "cycl"})
+          and "proportional to the step size. Shrink the step and that main error shrinks by the same factor." in S({"a": 90, "b": 10, "c": 4, "op": "estp"}), "")
+    check("  nothing was lost with the breath: every wrong-path note the splits ran through is still spoken",
+          "Not 4 plus 3; adding the same difference bends the shape." in W({"a": 3, "b": 4, "c": 2, "op": "mside"})[0]
+          and "Square the neighbours, then see who is nearer; never halve." in W({"a": 12, "b": 0, "op": "rbet"})[0]
+          and "Not 6: a single times cannot reach 3 whole layers." in W({"a": 2, "b": 3, "op": "lsol"})[0]
+          and "4 counts both ends when the question asked for one." in W({"a": 80, "b": 0, "op": "ntal"})[0]
+          and "The angle opposite is 70 again — the twin — but next to was what was asked." in W({"a": 70, "b": 0, "op": "vert"})[0], "")
+
+    # ---- the three measurements together -------------------------------------------------
+    unread, longs = [], []
+    for les in L.LESSONS:
+        for t in C.transcript_for(les, L):
+            if t["kind"] == "recap":
+                eqs = re.findall(r'\[\[step eq="([^"]*)"', t["board"])
+                nums = set(re.findall(r"\d+(?:\.\d+)?", " ".join(eqs)))
+                if nums and not any(n in t["spoken"] for n in nums) and not _reads_in_words(nums, t["spoken"], L):
+                    unread.append((les["id"], t["n"]))
+            if t["kind"] in ("why", "picture", "teach", "recap", "worked-example"):
+                for sn in sents(t["spoken"]):
+                    if len(sn.split()) >= 27:
+                        longs.append((les["id"], t["n"]))
+    check("⭐⭐ ALL THREE MEASUREMENTS READ ZERO IN ALL TEN COURSES: no closing board goes unread, no authored teaching sentence runs long, no spoken beat runs long. Each was found by a sweep, measured, and closed canon-wide",
+          not unread and not longs and not long_by_course,
+          "unread %d, authored %d, spoken %d" % (len(unread), len(longs), sum(len(v) for v in long_by_course.values())))
+    check("  every lesson validates; the course list is 39,920 -- unchanged, because every edit is inside a beat that was already there",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 39920,
+          str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-22xj-' in notes("main.py") and "2026-09-22  BUILD xj" in notes("lessonscripts.py")
+          and "2026-09-22  BUILD xj" in notes("ruletests.py"), "")
+
+
+def _reads_in_words(nums, spoken, L):
+    """True when every number on the board is spoken in WORDS (Entry and Basic do) -- the
+    refinement xf added to the closing-board scan, reused by PART 3ne."""
+    import numwords as NW
+    ONES = {v: k for k, v in NW.ONES.items()}; TENS = {v: k for k, v in NW.TENS.items()}
+    def words(n):
+        if n < 20: return ONES[n]
+        if n < 100: return TENS[n - n % 10] + ("" if n % 10 == 0 else "-" + ONES[n % 10])
+        return ONES[n // 100] + " hundred" + ("" if n % 100 == 0 else " " + words(n % 100))
+    lo = spoken.lower()
+    for num in nums:
+        if "." in num or int(num) >= 1000:
+            continue
+        w = words(int(num))
+        if w in lo or w.replace("-", " ") in lo:
+            return True
+    return False
 
 
 def part3he_the_main_road_moves_the_star():
@@ -34719,7 +34825,7 @@ def part3jc_algebra_one_units_four_to_six_to_the_shape():
     yint = {"a": 2, "b": 3, "op": "yint"}
     check("  the start is asked at the left wall and walked back with (0, b) marked",
           "at the left wall, x = 0?" in L.board_for(yint, "abstract") and 'points="(0,3)"' in _W(yint)[1]
-          and "the whole times part vanishes" in _W(yint)[0], "")
+          and "The whole times part vanishes" in _W(yint)[0], "")   # (xj) split after the opener
     lin2 = {"a": 3, "b": 2, "c": 4, "op": "lin2"}
     check("  start-and-climb is asked with the vertical line at x = c and walked back with the point reached",
           'lines="y=3x+2; x=4"' in L.board_for(lin2, "abstract") and 'points="(4,14)"' in _W(lin2)[1]
@@ -35044,7 +35150,7 @@ def part3jf_geometry_units_four_to_six_to_the_shape():
     check("  the matching side: the small triangle with the match named; both triangles in the walk-back",
           'sides="5,4," caption="the small triangle — 5 matches 10 in the big one; what matches 4?"' in L.board_for(mside, "abstract")
           and '[[triangle v="D,E,F" sides="10,8," caption="big × 2: 10 and 8"]]' in _W(mside)[1]
-          and "then times to cross over" in _W(mside)[0], "")
+          and "Then times to cross over" in _W(mside)[0], "")   # (xj) split after the opener
     sare = {"a": 10, "b": 2, "op": "sare"}
     check("  the area surprise: the rectangle of squares on the ask, the one square scaled in the walk-back",
           '[[rectangle w="2" h="2" caption=' in L.board_for(sare, "abstract") and '[[step eq="10 × 2 × 2 = ?"]]' in L.board_for(sare, "abstract")
@@ -35897,7 +36003,7 @@ def part3jl_precalc_units_four_to_six_to_the_shape():
     ramp = {"a": 32, "b": 0, "op": "ramp"}
     check("  the thirty-degree ramp: the ramp triangle captioned on the ask (it had no caption); the height filled in the walk-back",
           '[[triangle v="A,B,C" right="B" sides=",?,32" angles="30,," caption=' in L.board_for(ramp, "abstract")
-          and 'sides=",16,32"' in _W(ramp)[1] and "half of 32 is 16 feet" in _W(ramp)[0], "")
+          and 'sides=",16,32"' in _W(ramp)[1] and "Half of 32 is 16 feet" in _W(ramp)[0], "")   # (xj) split after the opener
     brng = {"a": 290, "b": 125, "op": "brng"}
     check("⭐ past the full turn: the compass with the turn arc on the ask, its far end unnamed; the compass at the new bearing in the walk-back",
           '[[unitcircle bearing="290" turn="125" caption=' in L.board_for(brng, "abstract")
@@ -37102,7 +37208,7 @@ def part3ju_probstat_units_seven_to_nine_to_the_shape():
           and "hops=" not in L.board_for(zsco, "abstract")
           and '[[step eq="deviations above the mean = ?"]]' in L.board_for(zsco, "abstract")
           and '[[numberline min="8" max="18" points="10,16" hops="10,12,14,16" caption=' in _W(zsco)[1]
-          and "so that gap holds 3 of them" in _W(zsco)[0], "")
+          and "So that gap holds 3 of them" in _W(zsco)[0], "")   # (xj) split after the opener
     zval = {"a": 10, "b": 2, "op": "zval"}
     check("  which value sits out there: ONE hop shown on the ask, the target withheld; two hops walked in the walk-back",
           '[[numberline min="8" max="16" points="10" hops="10,12" caption=' in L.board_for(zval, "abstract")
@@ -37131,7 +37237,7 @@ def part3ju_probstat_units_seven_to_nine_to_the_shape():
           '[[numberline min="19" max="31" points="24,27,29" caption=' in L.board_for(inci, "abstract")
           and "hops=" not in L.board_for(inci, "abstract")
           and '[[numberline min="19" max="31" points="24,27,29" hops="27,29" caption=' in _W(inci)[1]
-          and "that is 2 points past anything" in _W(inci)[0], "")
+          and "That is 2 points past anything" in _W(inci)[0], "")   # (xj) split after the opener
     npop = {"a": 20, "b": 10, "c": 200, "op": "npop"}
     check("⭐ the range in real people: the ask asks about \"the whole school\" (rule 42 -- \"how many students\" was live) and its praise counts no students; the three percents as bars on the ask; the people MACHINE in the walk-back, its input the school",
           "how many students" not in L.spoken_for(npop, "abstract").lower()
@@ -48411,6 +48517,7 @@ def main():
     part3nb_the_second_probstat_sweep()
     part3nc_the_praise_is_a_credit_line_everywhere()
     part3nd_the_second_calculus_sweep()
+    part3ne_the_spoken_beat_is_short_everywhere()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
