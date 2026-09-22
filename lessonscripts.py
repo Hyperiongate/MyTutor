@@ -2,6 +2,20 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  BUILD xk -- THE PRAISE IS NOT THE WALK-BACK IN SHORT. A child who answers
+#               CORRECTLY hears the praise and then the step-by-step (_correct_beats, sp).
+#               Eight ops had a praise that already taught, so the walk-back said it again,
+#               in the same breath: dst, tba, parf, uic, mlx (Pre-Algebra), fnot (Algebra I),
+#               pyid, arsn (Pre-Calc). All eight are credit lines now -- the answer, then
+#               the ONE reason -- with the method left to the walk-back, which is also the
+#               branch a child who MISSED hears. Nothing was dropped: every idea the old
+#               praises carried is still spoken there, including arsn's 150-shares-its-sine-
+#               with-30 and fnot's f-is-not-times. Same medicine as xh, one threshold lower:
+#               every one of these sat just UNDER the 26-word line xh drew. The 09-22
+#               Pre-Algebra sweep found this on ONE op (dst, five times, called "repeats");
+#               it was never a dst bug. PART 3nf pins the measure at zero, with vol the one
+#               named exception. Course lines 39,920 -> 39,915: five parf praises merged,
+#               two problems that both answer 21 now sharing one line. Nothing was lost.
 #   2026-09-22  BUILD xj -- THE SPOKEN BEAT IS SHORT EVERYWHERE. xi split Calculus's 18
 #               long generated walk-backs and left 256 spoken instances in the other eight
 #               courses. All 47 remaining ops are split after the opener now: Algebra II 10
@@ -7728,9 +7742,10 @@ OP_EXT = {
         "board": lambda p: f'[[step eq="{p["a"]} + {p["b"]} × {p["c"]} = ?"]]',
         "worked": _tba_worked,        # (tc) the order marches down the board
         # (xa) a credit line; the walk-back has the steps
-        "praise": lambda p: (f"{p['a'] + p['b'] * p['c']}. The times went first — "
-                             f"{p['b']} times {p['c']} is {p['b'] * p['c']} — and "
-                             f"the add came after."),
+        # (xk) ...and it still said the walk-back's two steps back to a child who
+        # had just got it right. The answer and ONE reason; the steps are the
+        # walk-back's job, in both branches.
+        "praise": lambda p: f"{p['a'] + p['b'] * p['c']}. The times went first.",
         "key": lambda p: p["b"] * p["c"],
         "choices": lambda p: [p["a"] + p["b"] * p["c"] - p["c"],
                               p["a"] + p["b"] * p["c"],
@@ -7746,9 +7761,9 @@ OP_EXT = {
         "board": lambda p: f'[[step eq="({p["a"]} + {p["b"]}) × {p["c"]} = ?"]]',
         "worked": _parf_worked,       # (tc) inside first, then the times, marching down
         # (xa) a credit line; the walk-back has the steps
-        "praise": lambda p: (f"{(p['a'] + p['b']) * p['c']}. The parentheses went "
-                             f"first, so {p['a']} plus {p['b']} became "
-                             f"{p['a'] + p['b']} before the times."),
+        # (xk) the "so 3 plus 3 became 6" clause was the walk-back's first step,
+        # said twice in a row. The reason stays; the arithmetic goes.
+        "praise": lambda p: f"{(p['a'] + p['b']) * p['c']}. The parentheses went first.",
         "key": lambda p: (p["a"] + p["b"]) * p["c"],
         "choices": lambda p: [(p["a"] + p["b"]) * p["c"],
                               p["a"] + p["b"] * p["c"],
@@ -7961,8 +7976,9 @@ OP_EXT = {
                              f"there in {p['b']} wholes?"),
         "board": _uic_board,       # (td) the picture, the answer withheld
         "worked": _uic_worked,     # (td) the picture filled in
-        "praise": lambda p: (f"Each whole holds {p['a']}, so {p['b']} wholes hold "
-                             f"{p['a'] * p['b']}."),
+        # (xk) the walk-back says each whole holds a, counts the wholes and times
+        # them. The praise kept all three. Now: the answer, then the one reason.
+        "praise": lambda p: f"{p['a'] * p['b']}. Each whole holds {p['a']} of them.",
         "key": lambda p: p["a"] * p["b"],
         # (xa) the third option is one whole short -- unless that collides with a + b
         # (2 halves in 4 wholes: 8, 6, 6), in which case it is one whole over
@@ -8449,8 +8465,12 @@ OP_EXT = {
                              f"when x is equal to {p['a']}?"),
         "board": _mlx_board,          # (te) b copies of x as a bar
         "worked": _mlx_worked,        # (te) every copy is a, the total bracketed
-        "praise": lambda p: (f"{p['b']} x means {p['b']} times x, and {p['b']} times "
-                             f"{p['a']} equals {p['a'] * p['b']}."),
+        # (xk) the walk-back says "b x means b times x" and then does the sum, so
+        # the praise was the walk-back's first and last lines with the middle cut
+        # out. The praise credits the answer and names the reading; "copies of it,
+        # not beside it" -- the wrong path -- stays in the walk-back, where a child
+        # who missed it is the one who needs it.
+        "praise": lambda p: f"{p['a'] * p['b']}. {p['b']} x means {p['b']} times x.",
         "key": lambda p: p["a"] * p["b"],
         # The error is reading the written-together 3x as 3 PLUS x -- adding where the
         # notation quietly means times.
@@ -8491,10 +8511,12 @@ OP_EXT = {
         # not told the rule -- the child is shown the two rooms of the rectangle.
         "board": _dst_board,          # (te) the two rooms, the number room asked
         "worked": _dst_worked,        # (te) the rooms read
-        "praise": lambda p: (f"The {p['a']} reaches BOTH rooms: {p['a']} times x, and "
-                             f"{p['a']} times {p['b']}, which equals "
-                             f"{p['a'] * p['b']}. So it is {p['a']} x plus "
-                             f"{p['a'] * p['b']}."),
+        # (xk) THE beat the 09-22 Pre-Algebra sweep found five times: this praise
+        # walked both rooms, and then the walk-back walked them again. The rule --
+        # the times reaches BOTH -- is the reason and stays; the rooms are walked
+        # once, in the walk-back.
+        "praise": lambda p: (f"{p['a']} x plus {p['a'] * p['b']}. The {p['a']} "
+                             f"reaches BOTH rooms."),
         "key": lambda p: p["a"] * p["b"],
         # THE distributive error: the times reaches the x and never the number --
         # 4(x + 3) read as 4x + 3. The wrong tap is the untouched 3.
@@ -8728,8 +8750,12 @@ OP_EXT = {
                              f"What is f of {p['b']}?"),   # (up) the name retired out loud, every problem
         "board": _fnot_board,         # (tf) machine f with its output blank
         "worked": _fnot_worked,       # (tf) f(b) filled
-        "praise": lambda p: (f"f of {p['b']} means: feed the machine {p['b']}. "
-                             f"{p['b']} plus {p['a']} equals {p['b'] + p['a']}."),
+        # (xk) the walk-back opens with "f of b means feed the machine b" and then
+        # does the sum -- both of which the praise had already said. The praise now
+        # credits the answer and names the machine's rule, which the walk-back does
+        # not state in those words.
+        "praise": lambda p: (f"{p['b'] + p['a']}. The machine adds {p['a']} to "
+                             f"whatever you feed it."),
         "key": lambda p: p["b"] + p["a"],
         # THE notation error: reading f(3) as f TIMES 3 -- the parentheses have meant
         # "times" since the distributive lesson, and here they suddenly do not. The
@@ -11632,10 +11658,12 @@ OP_EXT = {
                              f"many of the 100 hundredths is cosine squared?"),
         "board": _pyid_board,         # (tp) the hundred square, sine squared shaded
         "worked": _pyid_worked,       # (tp) the split named
-        "praise": lambda p: (f"Sine squared plus cosine squared equals 1 — "
-                             f"the whole hundred: 100 take away {p['a']} "
-                             f"equals {100 - p['a']}. The pair always "
-                             f"splits one whole between them."),
+        # (xk) the worst of the class at 94%: the walk-back said this praise back
+        # almost word for word, adding only the word "hundredths". The identity and
+        # the subtraction are the walk-back's; the praise keeps the one idea worth
+        # hearing twice.
+        "praise": lambda p: (f"{100 - p['a']} hundredths. The pair always splits "
+                             f"one whole between them."),
         "key": lambda p: p["a"],
         # The errors: sine's share copied, and the whole 100 handed back.
         "choices": lambda p: [100 - p["a"], p["a"], 100],
@@ -11759,16 +11787,15 @@ OP_EXT = {
         # for the 90-degree case, where the drawing is honest.
         "board": _arsn_board,         # (tp) the honest SAS triangle (sas=); the schematic layout drew 150 looking sharp
         "worked": _arsn_worked,       # (tp) the same triangle with its area
+        # (xk) the walk-back carries the halving, the arithmetic AND the 150-shares-
+        # its-sine-with-30 note; the praise carried all three too. The praise now
+        # credits the answer and the sine that decided it -- the rest is spoken
+        # once, in the walk-back, where a child who MISSED also hears it.
         "praise": lambda p: ((f"{p['a'] * p['b'] // 2} — the sine of 90 "
-                              f"degrees is 1, so the area is half of "
-                              f"{p['a']} times {p['b']}.")
+                              f"degrees is 1.")
                              if p["c"] == 90 else
                              (f"{p['a'] * p['b'] // 4} — the sine of "
-                              f"{p['c']} degrees is one half, so half the "
-                              f"product is halved again."
-                              + (" And 150 shares its sine with 30, so this "
-                                 "wide triangle covers what the sharp one "
-                                 "covers." if p["c"] == 150 else ""))),
+                              f"{p['c']} degrees is one half.")),
         "key": lambda p: (p["a"] * p["b"] // 2 if p["c"] == 90
                           else p["a"] * p["b"] // 4),
         # The errors: the half forgotten (the whole rectangle), and the

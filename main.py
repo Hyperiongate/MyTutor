@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  APP_BUILD -> "2026-09-22xk-the-praise-is-not-the-walk-back". The third
+#               round's first reading (Pre-Algebra, 29 findings, 18 lessons clean -- 58 and
+#               9 at xa). Eight generator praises that taught, and were then taught again by
+#               the walk-back a correct answer also hears, are credit lines now; 27 authored
+#               one-offs in lessons/prealgebra.py, 14 of them a rule missing its condition.
+#               PART 3nf. Course lines 39,920 -> 39,915 (five parf praises merged), closure
+#               40,174 -> 40,169, speechmap 941 of 40,221, drift 635.
 #   2026-09-21  OLDER NOTES (before 2026-09-10) live in changelog/main.py.md
 #               -- moved out on 2026-09-21 (build xg) VERBATIM, 91 entries; 61 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
@@ -9063,7 +9070,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-22xj-the-spoken-beat-is-short-everywhere"
+APP_BUILD = "2026-09-22xk-the-praise-is-not-the-walk-back"
 
 
 @app.get("/health")

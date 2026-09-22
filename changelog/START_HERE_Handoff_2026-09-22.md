@@ -11,14 +11,15 @@ work on"), and all three were written to D:\MyTutor in one commit on 09-21 — h
 had still read `xc` until then. `xg` (`2026-09-21xg-the-second-probstat-sweep`, 12,778) and `xh`
 (`2026-09-21xh-the-credit-line-everywhere`, 12,785) followed, both committed the same day.
 `xi` (`2026-09-22xi-the-second-calculus-sweep`, 12,801) followed and is pushed — **with it
-every one of the ten courses has had two readings.** **Built after it and written to
-D:\MyTutor on 09-22, waiting on Jim's push: `xj`
-(`2026-09-22xj-the-spoken-beat-is-short-everywhere`, 12,809)** — see **On his disk, not yet
-pushed** below. The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
+every one of the ten courses has had two readings.** `xj`
+(`2026-09-22xj-the-spoken-beat-is-short-everywhere`, 12,809) followed and is pushed, with its
+prewarm done. **Built after it and NOT yet on his disk: `xk`
+(`2026-09-22xk-the-praise-is-not-the-walk-back`, 12,821)** — the third round's first reading
+(Pre-Algebra, 29 findings, 18 clean). See **Pending commit** below. The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
 half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
-whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19) → `xd` (the colon is not a ratio, 12,745, 09-19, pending) → `xe` (the pre-sweep, 12,751, 09-19, pending) → `xf` (the pre-sweep, the other eight, 12,759, 09-19) → `xg` (the second Prob/Stat sweep, 12,778, 09-21) → `xh` (the credit line everywhere, 12,785, 09-21) → `xi` (the second Calculus sweep, 12,801, 09-22) → `xj` (the spoken beat is short everywhere, 12,809, 09-22, on disk, awaiting push). Jim pushes and prewarms
+whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19) → `xd` (the colon is not a ratio, 12,745, 09-19, pending) → `xe` (the pre-sweep, 12,751, 09-19, pending) → `xf` (the pre-sweep, the other eight, 12,759, 09-19) → `xg` (the second Prob/Stat sweep, 12,778, 09-21) → `xh` (the credit line everywhere, 12,785, 09-21) → `xi` (the second Calculus sweep, 12,801, 09-22) → `xj` (the spoken beat is short everywhere, 12,809, 09-22) → `xk` (the praise is not the walk-back, 12,821, 09-22, pending). Jim pushes and prewarms
 each; check `/health`. The first round is over: every lesson in every course has been read
 once. **The second round has begun, and the cycle converges: Diffeq went 119 → 62 findings,
 0 → 8 clean, on one fix build; Pre-Calc 76 → 34 → (60 with wt's praise-board shape, fixed in the engine) 15 clean; Algebra II 73 → 43, 14 clean; Entry 14 → 19 (sixteen of them one engine consequence of ww, closed in wy) with 29 clean — the most any course has had; Basic 67 → 41, 7 → 14 clean; Pre-Algebra 69 → 58, 6 → 9 clean (ten of the 58 were the near-repeat praise class, closed across 25 ops in xa); Algebra I 72 → 50, 8 → 10 clean — the first reading after xa, and the praise class did not come up once; Geometry 63 → 36, 7 → 16 clean.**
@@ -31,28 +32,44 @@ an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes t
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`.
 
-## On his disk, not yet pushed (xj, built and committed 2026-09-22)
+## Pending commit to D:\MyTutor (xk, built 2026-09-22)
 
-These five were written to D:\MyTutor on 09-22 with `device_commit_files`; nothing is
-outstanding on the disk side. Jim reviews with `git diff` and pushes himself:
+`device_list_dir` D:\MyTutor and `D:\MyTutor\changelog` for fresh mtimes, then
+`device_commit_files` these six with `expectedMtimeMs`:
 
-- `lessonscripts.py` (xj: the last 47 long generated walk-backs and asks, split)
-- `ruletests.py` (PART 3ne; 3nd's ratchet is now zero; ten pins moved)
-- `main.py` (stamp `2026-09-22xj-the-spoken-beat-is-short-everywhere`)
-- `changelog/Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`
+- `lessonscripts.py` (xk: eight praises that taught, rebuilt as credit lines)
+- `lessons/prealgebra.py` (27 authored fixes; 14 of them a rule missing its condition)
+- `ruletests.py` (PART 3nf; seven pins moved; the counts)
+- `speechmap.py` (regenerated: 941 of 40,221)
+- `main.py` (stamp `2026-09-22xk-the-praise-is-not-the-walk-back`)
+- `changelog/Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`
 - `changelog/START_HERE_Handoff_2026-09-22.md` (this file)
 
-`speechmap.py` did not change. After the push and `/health` =
-`2026-09-22xj-the-spoken-beat-is-short-everywhere`, run the **prewarm**: roughly 1,900
-walk-back and ask lines re-render across eight courses.
+After the push and `/health` = `2026-09-22xk-the-praise-is-not-the-walk-back`, run the
+**prewarm**: about 500 praise lines re-render across four courses.
+
+## What the third round has changed about the plan
+
+The 09-22 ruling (`claude/Ruling_2026-09-22_When_The_Sweeps_Stop.md`) estimated two more
+full rounds and set the stopping rule: **stop when a reading stops producing a class.**
+Pre-Algebra produced one, so the round continues — and the ruling's grading is now in use
+(class / one-off / refused), recorded in each build doc.
+
+One thing the ruling did NOT anticipate, and the next session should know: **not every class
+can be pre-closed.** The four classes closed at `xf`, `xh` and `xj` were all structural — an
+unread number, a word count, a sentence length — countable without understanding the
+sentence. The condition class (a rule stated without what makes it true) was measured twice,
+before and after this sweep, and both attempts produced 90% noise; see
+`claude/Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md` and `xk`'s build doc.
+That class has to be READ. The remaining rounds are the instrument, not a formality.
 
 | course | sweeps so far | last result |
 |---|---|---|
 | Entry | wa (219) → wc (70) → wd (47) → we (15) → wf (14) → wg fixes → wx (19, all 36) → wy fixes → xf pre-sweep, unswept | 19 findings (16 of them ww's praise-board consequence), 29 clean |
 | Basic | wg (67) → wh fixes → wy (41, all 36) → wz fixes → xf pre-sweep, unswept | 41 findings, 14 clean |
-| Pre-Algebra | wh (69) → wi fixes → wz (58, all 36) → xa fixes → xf pre-sweep, unswept | 58 findings, 9 clean |
+| Pre-Algebra | wh (69) → wi fixes → wz (58, all 36) → xa fixes → xf pre-sweep → **xk's reading (29, all 36)** → xk fixes, unswept | 29 findings, 18 clean (was 58, 9) |
 | Algebra I | wi (72) → wk fixes → xa (50, all 36) → xb fixes → xf pre-sweep, unswept | 50 findings, 10 clean |
 | Geometry | wk (63) → wl fixes → xb (36, all 36) → xc fixes → xf pre-sweep, unswept | 36 findings, 16 clean |
 | Algebra II | wk (73) → wm fixes → ww (43, 35 of 36) → wx fixes → xf pre-sweep, unswept | 43 findings, 14 clean |
