@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  BUILD xm -- PART 3nh, THE ANGLE CARRIES ITS UNIT. Pins the trig-without-
+#               degrees measure at zero canon-wide, the brng/fdom/parm/lhol/cofn/negp
+#               generator fixes by text, the eleven Pre-Calc one-offs (four of them the
+#               missing condition), the spoken-beat measure still at zero, and the counts.
+#               Pins moved (xm): 3mp's cofn praise, 3mv's brng praise, 3nc's and 3jl's lhol
+#               and brng walk-back fragments -- all found by the pre-scan, none by the battery.
 #   2026-09-22  BUILD xl -- PART 3ng, THE WATCH POLICY. Pins is_actionable's definition,
 #               the report's three shapes (mixed / ledger-only / empty), the email's
 #               silence, the ledger row and the monthly view, the route, the card, and
@@ -20247,7 +20253,7 @@ def part3mo_the_referee_pile():
           and "how many more?" not in B({"a": 130, "b": 30, "op": "carr"})
           and '[[step eq="√576 ÷ 2 = ?"]]' in B({"a": 14, "b": 193, "op": "oscf"})
           and "The board has the inside: 576. Root it, then halve it. What is that?" in S({"a": 14, "b": 193, "op": "oscf"})
-          and "The simplified x plus 14 is defined there, so it is a hole: y never reaches 28, and the limit says where it was headed." in L._worked_for({"a": 14, "b": 0, "op": "lhol"})[0]   # (xh) moved with the credit line
+          and "The fraction is undefined there, but x plus 14 is not, so the missing point is a hole. y never reaches 28, and the limit says where it was headed." in L._worked_for({"a": 14, "b": 0, "op": "lhol"})[0]   # (xh) moved with the credit line; (xm) "it" no longer points at the line
           and L.audio_cost_estimate(L.LESSON_BY_ID["pc-u9-the-hole-in-the-curve"])["chars"] < 25000, "")
 
     # ---- the measurement itself --------------------------------------------------------
@@ -20299,7 +20305,7 @@ def part3mp_the_second_precalc_sweep():
           and "the area is half of" not in PR("arsn", a9)
           and "rectangle" not in PR("arsn", a9) and "rectangle" not in W(a9)[0], "")
     check("  cofn's praise is a credit line (xh); its walk-back says the shared side plainly; fshf's praise carries no back-reference",
-          PR("cofn", {"a": 25, "b": 0}) == "The cosine of 65 — sine and cosine are partners across 90, and 25 plus 65 equals 90."
+          PR("cofn", {"a": 25, "b": 0}) == "The cosine of 65 degrees — sine and cosine are partners across 90 degrees, and 25 plus 65 equals 90."   # (xm) the angle carries its unit
           and "the side opposite one corner sits beside the other" in W({"a": 25, "b": 0, "op": "cofn"})[0]
           and PR("fshf", {"a": 3, "b": 5, "c": 2}) == "The minus points OPPOSITE: take away 3 inside slides the graph RIGHT — the point lands at x equals 8."
           and "vertex lesson" not in PR("fshf", {"a": 3, "b": 5, "c": 2}), "")
@@ -20817,7 +20823,7 @@ def part3mv_the_second_prealgebra_sweep():
           and PR("vprd", {"a": 2, "b": 8}) == "16 — the end number is the roots multiplied, 2 times 8."
           and PR("refq", {"a": 125, "b": 0}) == "55 degrees — the gap from 125 to the flat line at 180."
           and PR("wper", {"a": 20, "b": 0}) == "18 degrees — 360 divided by 20, because a faster wave's first repeat comes SOONER, not later."
-          and PR("brng", {"a": 290, "b": 125}) == "55 degrees — the turn went past a full circle, so 360 comes off 415."
+          and PR("brng", {"a": 290, "b": 125}) == "55 degrees — the bearing count went past 360, so 360 comes off 415."   # (xm) the TURN never passes a full circle; the count does
           and PR("ramp", {"a": 32, "b": 0}) == "16 feet — half of 32, because the sine of 30 degrees is one half."
           and PR("lsid", {"a": 11, "b": 19, "c": 0}) == "11 — from the left, y reads 11 the whole way in."
           and PR("lsid", {"a": 11, "b": 19, "c": 1}) == "19 — from the right, y reads 19 the whole way in."
@@ -21390,7 +21396,7 @@ def part3nc_the_praise_is_a_credit_line_everywhere():
           and PR("excl", {"a": 2, "b": 3}) == "x equals 2 — the one x where the bottom is zero, and dividing by zero is never allowed.", "")
     check("⭐ the two sentences that had to MOVE, not go: ftc's antidifferentiating and lhol's hole are in the walk-backs now, and the walk-backs still carry every wrong path",
           "ANTIDIFFERENTIATING, then end take away start" in W({"a": 3, "b": 5, "op": "ftc"})[0]
-          and "The simplified x plus 14 is defined there, so it is a hole" in W({"a": 14, "b": 0, "op": "lhol"})[0]
+          and "but x plus 14 is not, so the missing point is a hole" in W({"a": 14, "b": 0, "op": "lhol"})[0]   # (xm)
           and "4 squares the gap instead" in W({"a": 3, "b": 5, "op": "ftc"})[0]
           and "the limit says where it was headed" in W({"a": 14, "b": 0, "op": "lhol"})[0], "")
     check("  every op's praise still renders for every problem the courses actually pose (the bank and both guided asks of all 360 lessons)",
@@ -21903,6 +21909,138 @@ def part3ng_the_watch_policy():
     check("  the dated notes are in",
           "2026-09-22  BUILD xl" in notes("nightwatch.py") and "2026-09-22  BUILD xl" in notes("lessonaudit.py")
           and 'APP_BUILD -> "2026-09-22xl-' in notes("main.py") and "2026-09-22  BUILD xl" in notes("ruletests.py"), "")
+
+def part3nh_the_angle_carries_its_unit():
+    """PART 3nh (build xm, 2026-09-22) -- THE ANGLE CARRIES ITS UNIT, and the second
+    Pre-Calc reading of the third round: 28 findings, 24 lessons clean (60 and 15 at wv).
+
+    THE READER CONFIRMED xk: pc-u5-one-whole-between-them (pyid) and pc-u6-two-sides-and-
+    the-angle (arsn) -- two of the eight praises xk rebuilt -- came back clean. The one
+    "repeats" it did raise, negp, is a repeat of IDEA and not of words: 3nf's measure read
+    it at 47% coverage with eight new ideas, and stays as it is. negp's praise is a credit
+    line now by the same medicine, and the limit of the measure is written here so nobody
+    widens it to chase paraphrase.
+
+    THE CLASS THIS READING FOUND: "the sine of 30" with no unit. In Pre-Calc a bare number
+    inside a trig function reads as radians, so the sentence is not literally true as
+    spoken. Measured across the canon -- sine/cosine/tangent of a special angle, spoken,
+    with no "degrees" following, and not "sine of 30 x" (a function of x) -- it stood at
+    23 lines in two courses: negf's praise and walk-back, cofn's ask/praise/walk-back, two
+    reason-question choice rows, and eight authored lines in Pre-Calc and Algebra II.
+    Zero now, and pinned.
+
+    The rest: brng's praise and walk-back said "the turn went past a full circle" -- FALSE,
+    the turn is 20 to 170 degrees; it is the bearing COUNT that passes 360 -- five times in
+    one lesson, and once more in the authored why. fdom's praise (HIGH) said "the root goes
+    negative"; the root of a real number never is -- what sits under it would. parm's walk-
+    back explained two wrong-path numbers its board did not carry; they stand on it now,
+    crossed, as sumx's and merr's do. lhol's "it" pointed at the simplified line instead of
+    the missing point. cofn asked for "one special angle" -- a phrase with its own meaning
+    in trigonometry -- where the lesson had taught "partner". negp's captions said "1
+    pairs". And eleven authored one-offs, four of them the missing condition."""
+    print("\nPART 3nh — the angle carries its unit (build xm)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+    W = lambda p: L._worked_for(p)
+    S = lambda p: L.spoken_for(p, "abstract")
+
+    # ---- the class, at zero -------------------------------------------------------------
+    TRIG = re.compile(r"\b(?:the )?(sine|cosine|tangent) of (?:negative )?"
+                      r"(0|30|45|60|90|120|135|150|180|210|225|240|270|300|315|330|360)\b"
+                      r"(?! degrees)(?! x\b)", re.I)
+    bare = []
+    for les in L.LESSONS:
+        for t in C.transcript_for(les, L):
+            if t["kind"] == "student":
+                continue
+            for sn in re.split(r"(?<=[.?!])\s+", t["spoken"] or ""):
+                if TRIG.search(sn):
+                    bare.append((les["id"], t["n"]))
+        for ch in ((les.get("explain") or {}).get("choices") or "").split("|"):
+            if TRIG.search(ch):
+                bare.append((les["id"], "choices"))
+    check("⭐⭐ NO SPOKEN TRIG OF A SPECIAL ANGLE GOES WITHOUT ITS UNIT, IN ANY COURSE: sine, cosine "
+          "or tangent of 0/30/45/60/90/.../360 is always followed by 'degrees' (23 lines at xl; 0 now)",
+          not bare, str(bare[:5]))
+    check("  the generated lines that said it: negf's praise and walk-back (both branches), cofn's praise "
+          "and walk-back",
+          "cosine of negative 180 degrees equals the cosine of 180 degrees" in PR("negf", {"a": 180, "b": 0, "c": 0})
+          and "sine of negative 90 degrees is the opposite of the sine of 90 degrees" in PR("negf", {"a": 90, "b": 0, "c": 1})
+          and "cosine of 90 degrees — even" in W({"a": 90, "b": 0, "c": 0, "op": "negf"})[0]
+          and "sine of 270 degrees — odd" in W({"a": 270, "b": 0, "c": 1, "op": "negf"})[0]
+          and PR("cofn", {"a": 25, "b": 0}) == "The cosine of 65 degrees — sine and cosine are partners across 90 degrees, and 25 plus 65 equals 90."
+          and "the sine of 25 degrees equals the cosine of 65 degrees" in W({"a": 25, "b": 0, "op": "cofn"})[0], "")
+    check("  and the authored ones: Algebra II's height and across, Pre-Calc's cofunction recap and mirror "
+          "teach, and both reason-question rows -- the answer still in its choices",
+          "The sine of 90 degrees is 1" in spoken(E("alg2-u8-the-height"))
+          and "The cosine of 0 degrees is 1" in spoken(E("alg2-u8-the-across"))
+          and "cosine of 90 degrees take away that angle" in spoken(E("pc-u5-partners-across-ninety"))
+          and "the sine of negative 90 degrees is the opposite of the sine of 90 degrees" in spoken(E("pc-u5-the-mirror-knows"))
+          and E("pc-u6-the-thirty-degree-ramp")["explain"]["answer"] == "because the sine of 30 degrees is a half"
+          and E("pc-u6-the-thirty-degree-ramp")["explain"]["answer"] in E("pc-u6-the-thirty-degree-ramp")["explain"]["choices"]
+          and E("pc-u6-two-sides-and-the-angle")["explain"]["answer"] == "because the sine of 30 degrees halves the half product again"
+          and E("pc-u6-two-sides-and-the-angle")["explain"]["answer"] in E("pc-u6-two-sides-and-the-angle")["explain"]["choices"], "")
+    check("  'the sine of 30 x' -- a function of x, not an angle -- was left alone on purpose",
+          "The sine of 30 x repeats every 12 degrees" in spoken(E("pc-u4-the-faster-wave")), "")
+
+    # ---- the falsehoods --------------------------------------------------------------------
+    check("⭐ brng: the TURN never passes a full circle -- the bearing COUNT does -- praise, walk-back and the authored why",
+          PR("brng", {"a": 290, "b": 125}) == "55 degrees — the bearing count went past 360, so 360 comes off 415."
+          and "the count is past 360. Take away 360: the new bearing is 55 degrees." in W({"a": 290, "b": 125, "op": "brng"})[0]
+          and "past a full circle" not in PR("brng", {"a": 290, "b": 125})
+          and "a bearing count that passes it wraps back to zero" in spoken(E("pc-u6-past-the-full-turn"))
+          and "starts counting again from zero" not in spoken(E("pc-u6-past-the-full-turn")), "")
+    check("⭐ fdom (the HIGH): the root never goes negative; what sits under it would",
+          PR("fdom", {"a": 11, "b": 0}) == "11 — below it, what sits under the root goes negative, and zero under a root is welcome."
+          and "below it the root goes negative" not in PR("fdom", {"a": 11, "b": 0}), "")
+    check("  parm's board carries the two wrong-path numbers its walk-back explains, crossed",
+          '[[step eq="13 ✗ one second only"]][[step eq="15 + 36 = 51 ✗ the corner walked"]]' in W({"a": 5, "b": 12, "c": 3, "op": "parm"})[1]
+          and "51 walks the corner" in W({"a": 5, "b": 12, "c": 3, "op": "parm"})[0], "")
+    check("  lhol's 'it' points at the missing point; cofn asks for a PARTNER angle; negp's captions say '1 pair'",
+          "but x plus 14 is not, so the missing point is a hole. y never reaches 28" in W({"a": 14, "b": 0, "op": "lhol"})[0]
+          and "cosine of one partner angle" in S({"a": 25, "b": 0, "op": "cofn"}) and "special angle" not in S({"a": 25, "b": 0, "op": "cofn"})
+          and 'caption="2 minus signs — 1 pair, all cancel: 1"' in W({"a": 2, "b": 0, "op": "negp"})[1]
+          and 'caption="3 minus signs — 1 pair cancels, one survives: −1"' in W({"a": 3, "b": 0, "op": "negp"})[1]
+          and 'caption="12 minus signs — 6 pairs, all cancel: 1"' in W({"a": 12, "b": 0, "op": "negp"})[1], "")
+    check("  negp's praise is a credit line -- the answer and the parity; the pairing is the walk-back's -- "
+          "and 3nf's word measure was RIGHT not to flag it (47% covered, eight new ideas): the repeat "
+          "the reader saw was of idea, not of words, and that is a reader's call, not a scan's",
+          PR("negp", {"a": 12, "b": 0}) == "1 — the power 12 is even, so every minus sign has a partner."
+          and PR("negp", {"a": 3, "b": 0}) == "Negative 1 — the power 3 is odd, so one minus sign is left without a partner."
+          and "6 pairs, none left over" in W({"a": 12, "b": 0, "op": "negp"})[0], "")
+
+    # ---- the authored one-offs ---------------------------------------------------------------
+    check("⭐ the four conditions: two machines 'in this lesson'; 'between two different x's'; the cofunction "
+          "rule 'for these angles'; the log trap 'is not the method' rather than 'cannot reach'",
+          "machines linked on one belt — two, in this lesson" in spoken(E("pc-u1-machines-in-a-row"))
+          and "between two different x's, the average rate is the two x's put together" in spoken(E("pc-u9-the-shrinking-window"))
+          and "For these angles, do not keep the same angle, and do not add 90" in spoken(E("pc-u5-partners-across-ninety"))
+          and "A single times is not the method — here it lands on 40, not 10 thousand." in spoken(E("pc-u3-rebuild-the-number"))
+          and "cannot reach them" not in spoken(E("pc-u3-rebuild-the-number"))   # the recap said it too -- fixed with the teach beat
+          and "a single times is not the way to rebuild them" in spoken(E("pc-u3-rebuild-the-number")), "")
+    check("  the others: f of THE QUANTITY x take away 3; f(5) = 8 on the board; the line's STEEPNESS is the "
+          "average climb; outfit slots have different jobs; 'undefined does not mean zero' is said",
+          "f of the quantity x take away 3 slides everything right 3" in spoken(E("pc-u1-the-graph-slides"))
+          and '[[step eq="f(5) = 8"]][[step eq="g(8) = 16 ✗ the order flipped"]]' in E("pc-u1-machines-in-a-row")["teach"][1][1]
+          and "the steepness of the straight line joining the two ends is the average climb" in spoken(E("pc-u9-the-shrinking-window"))
+          and "every slot had its own job: shirt, pants, hat" in spoken(E("pc-u8-when-order-does-not-matter"))
+          and "And undefined does not mean zero." in spoken(E("pc-u9-the-hole-in-the-curve")), "")
+
+    # ---- the five measures together, and the counts ------------------------------------------
+    n_long = sum(1 for les in L.LESSONS for t in C.transcript_for(les, L)
+                 if t["kind"] in ("walk-back", "ask", "advance", "second-look", "fresh-one")
+                 for sn in re.split(r"(?<=[.!?])\s+", t["spoken"] or "") if len(sn.split()) >= 27)
+    check("  the spoken-beat measure is still zero -- the two lines this build lengthened were split at a full stop",
+          n_long == 0, str(n_long))
+    check("  every lesson validates; the counts are unchanged (39,915 / 941 of 40,221) -- every edit is one line for one line",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les))
+          and len(L.course_audio_lines()) == 39915, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-22xm-' in notes("main.py") and "2026-09-22  BUILD xm" in notes("lessonscripts.py")
+          and "2026-09-22  BUILD xm" in notes("ruletests.py"), "")
 
 def _reads_in_words(nums, spoken, L):
     """True when every number on the board is spoken in WORDS (Entry and Basic do) -- the
@@ -36326,7 +36464,7 @@ def part3jl_precalc_units_four_to_six_to_the_shape():
     brng = {"a": 290, "b": 125, "op": "brng"}
     check("⭐ past the full turn: the compass with the turn arc on the ask, its far end unnamed; the compass at the new bearing in the walk-back",
           '[[unitcircle bearing="290" turn="125" caption=' in L.board_for(brng, "abstract")
-          and '[[unitcircle bearing="55" caption=' in _W(brng)[1] and "take away 360: the new bearing is 55" in _W(brng)[0], "")
+          and '[[unitcircle bearing="55" caption=' in _W(brng)[1] and "Take away 360: the new bearing is 55" in _W(brng)[0], "")   # (xm) the split: "— the count is past 360. Take away 360: ..."
     vmag = {"a": 12, "b": 35, "c": 37, "op": "vmag"}
     check("  the arrow and its steps: the two steps captioned on the ask (it had no caption); the vector with its length in the walk-back",
           '[[triangle v="A,B,C" right="B" sides="12,35,?" caption=' in L.board_for(vmag, "abstract")
@@ -48839,6 +48977,7 @@ def main():
     part3ne_the_spoken_beat_is_short_everywhere()
     part3nf_the_praise_is_not_the_walk_back()
     part3ng_the_watch_policy()
+    part3nh_the_angle_carries_its_unit()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

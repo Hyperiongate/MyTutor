@@ -157,7 +157,7 @@ _PRECALC_U1 = [
              "first.",
              # (uq) Jim's flag 21:56: "without being able to see the original functions
              # unless I scrolled up" -- the two rules ride this beat's board too.
-             '[[step eq="f(x) = x + 3"]][[step eq="g(x) = 2x"]][[step eq="f(g(5)) = 13 ✓"]][[step eq="g(f(5)) = 16 ✗ — the order flipped"]]'),
+             '[[step eq="f(x) = x + 3"]][[step eq="g(x) = 2x"]][[step eq="f(g(5)) = 13 ✓"]][[step eq="f(5) = 8"]][[step eq="g(8) = 16 ✗ the order flipped"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you — two new machines, still called f and g. f adds 4, g times by 3. f of g of "
@@ -182,8 +182,7 @@ _PRECALC_U1 = [
             "board": '[[machine input="5" rule="2x" output="10" fname="g" caption="g first"]][[machine input="10" rule="x + 3" output="13" fname="f" caption="then f"]]',
         },
         "recap": [
-            ("So, here it is again, back to our first two machines. A composition is two machines on one belt, and the "
-             "notation is a map: whatever sits deepest runs first. Run the inner "
+            ("So, here it is again, back to our first two machines. A composition is machines linked on one belt — two, in this lesson — and the notation is a map: whatever sits deepest runs first. Run the inner "
              "machine, hand its answer to the outer one — never the other way round.",
              '[[machine input="5" rule="2x" output="10" fname="g" caption="inside first"]][[machine input="10" rule="x + 3" output="13" fname="f" caption="then the outer machine"]]'),
             ("And that is composition: machines in a row. f of g of 5 is 13.",
@@ -270,7 +269,7 @@ _PRECALC_U1 = [
             ("So, here it is again. Take a number away inside the parentheses and the whole graph slides right by that much. The minus is a delay, and inside the parentheses signs point opposite. Every point keeps its height and "
              "moves across.",
              '[[graph func="sqrt(x) | sqrt(x-3)" names="y = f(x) | y = f(x − 3)" points="(4,2),(7,2)" range="0..12" yrange="0..4" caption="the minus inside slides the graph right"]]'),
-            ("And that is one rule for every graph written as y equals f of x: f of x take away 3 slides everything right 3.",
+            ("And that is one rule for every graph written as y equals f of x. f of the quantity x take away 3 slides everything right 3.",
              '[[step eq="f(x − 3): everything slides right 3"]]'),
         ],
         "bank": [
@@ -864,8 +863,7 @@ _PRECALC_U3 = [
              "confirmed.",
              '[[bars data="2¹:2 | 2²:4 | 2³:8 | 2⁴:16 | 2⁵:32 | 2⁶:64 | 2⁷:128 | 2⁸:256 | 2⁹:512 | 2¹⁰:1024" caption="10 layers of 2 — the mystery number is 1024"]][[step eq="? = 2 stacked 10 times = 1024"]][[step eq="log₂ 1024 = 10 ✓"]]'),
             ("The base matters: log base 10 of the mystery equals 4 rebuilds to 10 "
-             "thousand — never 40. The trap is timesing base and answer when the base "
-             "must STACK: layers power upward; a single times cannot reach them.",
+             "thousand — never 40. The trap is timesing base and answer when the base must STACK: layers power upward. A single times is not the method — here it lands on 40, not 10 thousand.",
              '[[step eq="log₁₀ ? = 4"]][[step eq="? = 10000 ✓"]][[step eq="10 × 4 = 40 ✗"]]'),
         ],
         "pairs": [
@@ -891,8 +889,7 @@ _PRECALC_U3 = [
             "board": '[[machine input="1024" rule="log base 2 of x" output="10" caption="log₂ 1024 = 10 ✓"]]',
         },
         "recap": [
-            ("So, here it is again. For these equations — log base a of x equals b — run the log backwards. The log counted the layers, so stack the base that many times and the number is rebuilt. Layers power upward — a single times cannot "
-             "reach them.",
+            ("So, here it is again. For these equations — log base a of x equals b — run the log backwards. The log counted the layers, so stack the base that many times and the number is rebuilt. Layers power upward — a single times is not the way to rebuild them.",
              '[[machine input="1024" rule="log base 2 of x" output="10" caption="stack the base and rebuild"]]'),
             ("And that is the exponential, un-doing the logarithm: 2 stacked 10 times is 1024.",
              '[[step eq="2 stacked 10 times = 1024"]]'),
@@ -1528,9 +1525,9 @@ _PRECALC_U5 = [
             "board": '[[step eq="sin 35° = cos 55°"]][[triangle v="A,B,C" right="B" angles="35,90,55" caption="partners across ninety"]]',
         },
         "recap": [
-            ("So, here it is again. Sine and cosine are partners: the sine of an angle equals the cosine of 90 take away that angle. They are the two sharp corners of one right triangle. Never keep the same angle, and never add 90.",
+            ("So, here it is again. Sine and cosine are partners: the sine of an angle equals the cosine of 90 degrees take away that angle. They are the two sharp corners of one right triangle. For these angles, do not keep the same angle, and do not add 90 — the partner is 90 take away it.",
              '[[triangle v="A,B,C" right="B" angles="35,90,55" caption="partners finish 90 together"]]'),
-            ("And that is what the CO in cosine means: the sine of a equals the cosine of 90 take away a.",
+            ("And that is what the CO in cosine means: the sine of a equals the cosine of 90 degrees take away a.",
              '[[step eq="sin a° = cos (90 − a)°"]]'),
         ],
         "bank": [
@@ -1570,12 +1567,11 @@ _PRECALC_U5 = [
         ],
         "teach": [
             ("That is the method. Cosine — the across — ignores the minus completely: "
-             "the cosine of negative 180 equals the cosine of 180, flat left, negative "
+             "the cosine of negative 180 degrees equals the cosine of 180 degrees, flat left, negative "
              "1. Cosine is called an even function, like the even powers in Unit Two\'s minus "
              "parade: the minus vanishes.",
              '[[unitcircle angle="-180" caption="−180° — flat left either way: across −1"]][[step eq="cos(−180°) = cos(180°) = −1"]][[step eq="even: the minus vanishes"]]'),
-            ("Sine — the height — FLIPS: the sine of negative 90 is the opposite of "
-             "the sine of 90. Straight up becomes straight down: 1 becomes negative 1. "
+            ("Sine — the height — FLIPS: the sine of negative 90 degrees is the opposite of the sine of 90 degrees. Straight up becomes straight down: 1 becomes negative 1. "
              "Sine is an odd function — one minus survives, just like an odd power. The "
              "mirror knows which is which.",
              '[[unitcircle angle="-90" caption="−90° — straight DOWN: height −1"]][[step eq="sin(−90°) = −sin(90°) = −1"]][[step eq="odd: one minus survives"]]'),
@@ -1766,9 +1762,9 @@ _PRECALC_U6 = [
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. Sides 10 and 4 with "
                        "30 degrees between them cover an area of 10. Tap the reason why."),
-            "choices": ("because the sine of 30 halves the half product again | because "
-                        "the sine of 30 is 1 | because multiplying the two sides gives the area"),
-            "answer": "because the sine of 30 halves the half product again",
+            "choices": ("because the sine of 30 degrees halves the half product again | because "
+                        "the sine of 30 degrees is 1 | because multiplying the two sides gives the area"),
+            "answer": "because the sine of 30 degrees halves the half product again",
             "board": '[[triangle v="A,B,C" sas="10,4,30" sides="10,,4" angles="30,," caption="¼ · 40 = 10"]]',
         },
         "recap": [
@@ -1841,9 +1837,9 @@ _PRECALC_U6 = [
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. A 22-foot ramp at 30 "
                        "degrees rises 11 feet. Tap the reason why."),
-            "choices": ("because the sine of 30 is a half | because the rise of a ramp "
+            "choices": ("because the sine of 30 degrees is a half | because the rise of a ramp "
                         "equals its length | because the rise is the length doubled"),
-            "answer": "because the sine of 30 is a half",
+            "answer": "because the sine of 30 degrees is a half",
             "board": '[[triangle v="A,B,C" right="B" sides=",11,22" angles="30,," caption="half of 22 is 11"]]',
         },
         "recap": [
@@ -1876,9 +1872,7 @@ _PRECALC_U6 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Add the turn, then wrap at 360.",
         "why": [
             ("Why past the full turn? Sailors and pilots steer by a bearing: degrees "
-             "measured clockwise from north, from 0 up to 360. Turn clockwise and the "
-             "bearing grows — but the circle stops at 360, and a turn that passes it "
-             "starts counting again from zero.",
+             "measured clockwise from north, from 0 up to 360. Turn clockwise and the bearing grows — but the circle stops at 360, and a bearing count that passes it wraps back to zero.",
              '[[goal text="Past the full turn"]][[step eq="bearing: 0° → 360°, clockwise from north"]]'),
         ],
         "picture": [
@@ -2511,8 +2505,7 @@ _PRECALC_U8 = [
         "symbols": ("order", "teams"),
         "advance_line": "Three in a row, and you can say why — you've got it! Count the line-ups, then divide the orders away.",
         "why": [
-            ("Why divide the orders away? Algebra Two counted outfits by timesing the "
-             "slots — and there, order mattered: shirt, then pants, then hat. Choosing "
+            ("Why divide the orders away? Algebra Two counted outfits by timesing the slots — and there, every slot had its own job: shirt, pants, hat. Choosing "
              "a team is different. Ana and Ben is the same team as Ben and Ana, so "
              "counting line-ups counts every team more than once.",
              '[[goal text="When order does not matter"]][[step eq="Ana & Ben = Ben & Ana — one team"]]'),
@@ -2774,8 +2767,7 @@ _PRECALC_U9 = [
              '[[graph func="(x^2-25)/(x-5)" hole="5" range="2..8" yrange="4..16" caption="headed for 10 from both sides — the hole sits right there"]][[step eq="for x ≠ 5: (x−5)(x+5) ÷ (x−5) = x + 5"]][[step eq="x → 5 · y → 10"]]'),
             ("That is the whole point of a limit: it reports where the curve was "
              "HEADED, and never asks what happens at the point itself. The function "
-             "truly has no value at 5. It still has a heading — 10 — and 5 is only "
-             "where the hole sits.",
+             "truly has no value at 5. It still has a heading — 10 — and 5 is only where the hole sits. And undefined does not mean zero.",
              '[[step eq="10 ✓ the heading"]][[step eq="5 ✗ that is the hole · 0 ✗ undefined is not zero"]]'),
         ],
         "pairs": [
@@ -2918,14 +2910,11 @@ _PRECALC_U9 = [
         ],
         "picture": [
             ("Here is the curve y equals x squared with a window on it, from x equals "
-             "2 to x equals 6. Between those two walls the curve climbs — and the "
-             "straight line joining the two ends is the average climb across the "
-             "window. Its steepness is the number we want.",
+             "2 to x equals 6. Between those two walls the curve climbs — and the steepness of the straight line joining the two ends is the average climb across the window. That steepness is the number we want.",
              '[[graph func="x^2" lines="x=2; x=6; y=8x-12" points="(2,4),(6,36)" range="0..7" yrange="0..50" caption="y = x² — the window from x = 2 to x = 6, and the line joining its two ends"]]'),
         ],
         "teach": [
-            ("That is the method: rise divided by run. And 8 is simply 2 plus 6. On "
-             "this curve the average rate is always the two x\'s put together. That is because "
+            ("That is the method: rise divided by run. And 8 is simply 2 plus 6. On this curve, between two different x's, the average rate is the two x's put together. That is because "
              "b squared take away a squared is b take away a, times b plus a — and the "
              "run divides out. Try 3 to 5: rise 16, run 2, and 8 again, which is 3 plus 5.",
              '[[graph func="x^2" lines="y=8x-12" points="(2,4),(6,36)" range="0..7" yrange="0..50" caption="the line through the two ends climbs 8 per step — 2 + 6"]][[step eq="rise 32 ÷ run 4 = 8"]][[step eq="2 + 6 = 8"]][[step eq="3 → 5: rise 16 ÷ run 2 = 8"]][[step eq="3 + 5 = 8"]]'),

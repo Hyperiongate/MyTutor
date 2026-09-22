@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  APP_BUILD -> "2026-09-22xm-the-angle-carries-its-unit". The third round's
+#               Pre-Calc reading (28 findings, 24 clean): six generator ops and eleven
+#               authored beats in lessons/precalc.py, three lines in lessons/algebra2.py.
+#               The class -- a trig function of a bare special angle -- is zero canon-wide.
+#               PART 3nh. Counts unchanged: 39,915 / 40,169 / 941 of 40,221 / 635.
 #   2026-09-22  APP_BUILD -> "2026-09-22xl-the-watch-policy". Project 2 of the 09-14 deep
 #               dive: the night watch's report leads with truth-class and HIGH, ledgers
 #               the rest, emails for actionable only. NEW GET /api/admin/nightwatch/ledger
@@ -9090,7 +9095,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-22xl-the-watch-policy"
+APP_BUILD = "2026-09-22xm-the-angle-carries-its-unit"
 
 
 @app.get("/health")

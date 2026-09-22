@@ -2359,12 +2359,12 @@ _ALGEBRA2_U8 = [
         "picture": [
             ("Here is the circle with the arrow at 90 degrees, pointing straight up. "
              "Its tip sits at the very top: height 1. Read the pair at the tip — the "
-             "second number is the height, and it says 1. The sine of 90 is 1.",
+             "second number is the height, and it says 1. The sine of 90 degrees is 1.",
              '[[unitcircle angle="90" caption="the arrow at 90° — straight up, height 1: sine 1"]]'),
         ],
         "teach": [
             ("That is the method. At 90 degrees the arrow points straight up: its tip "
-             "sits at height 1 — the sine of 90 is 1. Straight down would be height "
+             "sits at height 1 — the sine of 90 degrees is 1. Straight down would be height "
              "negative 1. And flat, left or right, the tip has no height at all: sine "
              "0. Four directions, three heights.",
              '[[unitcircle angle="90" caption="straight up → height 1"]][[step eq="up → 1 · down → −1 · flat → 0"]]'),
@@ -2431,7 +2431,7 @@ _ALGEBRA2_U8 = [
         "picture": [
             ("Here is the arrow at 0 degrees, lying flat to the right. Its tip sits "
              "fully across — read the pair at the tip: the first number is the across, "
-             "and it says 1. The cosine of 0 is 1, while its height, the second "
+             "and it says 1. The cosine of 0 degrees is 1, while its height, the second "
              "number, is 0.",
              '[[unitcircle angle="0" caption="the arrow at 0° — flat right, across 1: cosine 1"]]'),
         ],

@@ -2,6 +2,20 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  BUILD xm -- THE ANGLE CARRIES ITS UNIT (the third round's Pre-Calc
+#               reading: 28 findings, 24 clean -- 60 and 15 at wv; pyid and arsn, rebuilt
+#               in xk, came back CLEAN). The class: "the sine of 30" with no unit reads as
+#               radians in Pre-Calc -- 23 lines canon-wide, zero now: negf's praise and
+#               walk-back, cofn's praise and walk-back, plus authored lines. brng's praise
+#               and walk-back said "the turn went past a full circle" (FALSE: the turn is
+#               20-170; the bearing COUNT passes 360) -> "the bearing count went past 360".
+#               fdom (HIGH): "the root goes negative" -> "what sits under the root goes
+#               negative". parm's board gains the two crossed wrong-path lines its walk-
+#               back explains. lhol's "it" -> "the missing point is a hole". cofn asks for
+#               a "partner angle", not a "special angle". negp: "1 pairs" -> "1 pair" /
+#               "1 pair cancels", and its praise is a credit line (the reader saw a repeat
+#               of IDEA that 3nf's word measure rightly does not flag). Two walk-backs
+#               split at a full stop to stay under 27 words. Counts unchanged. PART 3nh.
 #   2026-09-22  BUILD xk -- THE PRAISE IS NOT THE WALK-BACK IN SHORT. A child who answers
 #               CORRECTLY hears the praise and then the step-by-step (_correct_beats, sp).
 #               Eight ops had a praise that already taught, so the walk-back said it again,
@@ -4578,12 +4592,12 @@ def _negp_worked(p):
         return (f"Here it is, step by step: {a} minus signs pair up — {pairs} {'pair' if pairs == 1 else 'pairs'}. "
                 f"And one lone minus sign is left over at the end of the parade. The pairs cancel; the "
                 f"survivor stays. Odd power, answer negative 1.",
-                f'[[array rows="2" cols="{pairs}"{extra} caption="{a} minus signs — {pairs} pairs cancel, one survives: −1"]]'
+                f'[[array rows="2" cols="{pairs}"{extra} caption="{a} minus signs — {"1 pair cancels" if pairs == 1 else f"{pairs} pairs cancel"}, one survives: −1"]]'
                 f'[[step eq="(−1)^{a} = −1"]]')
     return (f"Here it is, step by step: {a} minus signs pair up — {pairs} {'pair' if pairs == 1 else 'pairs'}, none left over — "
             f"and every pair cancels. Even power, answer 1: the minus is wiped away "
             f"completely.",
-            f'[[array rows="2" cols="{pairs}" caption="{a} minus signs — {pairs} pairs, all cancel: 1"]]'
+            f'[[array rows="2" cols="{pairs}" caption="{a} minus signs — {pairs} {"pair" if pairs == 1 else "pairs"}, all cancel: 1"]]'
             f'[[step eq="(−1)^{a} = 1"]]')
 
 
@@ -4802,8 +4816,8 @@ def _cofn_board(p):
 
 def _cofn_worked(p):
     a = p["a"]
-    return (f"Here it is, step by step: {a} plus {90 - a} equals 90, so the sine of {a} equals the "
-            f"cosine of {90 - a}. One triangle, two sharp corners — the side opposite one "
+    return (f"Here it is, step by step: {a} plus {90 - a} equals 90, so the sine of {a} degrees equals the "
+            f"cosine of {90 - a} degrees. One triangle, two sharp corners — the side opposite one "
             f"corner sits beside the other.",
             f'[[triangle v="A,B,C" right="B" angles="{a},90,{90 - a}" caption="{a} + {90 - a} = 90 — partners across ninety"]]'
             f'[[step eq="sin {a}° = cos {90 - a}°"]]')
@@ -4823,12 +4837,12 @@ def _negf_worked(p):
     if c == 0:
         spoken = (f"Here it is, step by step: the mirror flips height, never across. {strip} "
                   f"points {_COMPASS[base]}, and its across is {vs}. The cosine of negative "
-                  f"{a} equals the cosine of {a} — even: the minus vanishes.")
+                  f"{a} degrees equals the cosine of {a} degrees — even: the minus vanishes.")
         tail = f"cosine = across = {vb}"
     else:
         spoken = (f"Here it is, step by step: the mirror flips the height. {strip} points "
-                  f"{_COMPASS[base]}, and its height is {vs}. The sine of negative {a} is the "
-                  f"opposite of the sine of {a} — odd: one minus survives.")
+                  f"{_COMPASS[base]}, and its height is {vs}. The sine of negative {a} degrees is the "
+                  f"opposite of the sine of {a} degrees — odd: one minus survives.")
         tail = f"sine = height = {vb}"
     return (spoken,
             f'[[unitcircle angle="-{a}" caption="−{a}° — the arrow points {_COMPASS[base]}: {tail}"]]'
@@ -4925,8 +4939,8 @@ def _brng_board(p):
 
 def _brng_worked(p):
     a, b = p["a"], p["b"]; tot = a + b; ans = tot - 360
-    return (f"Here it is, step by step: {a} plus {b} equals {tot} — past a full turn, so take away "
-            f"360: the new bearing is {ans} degrees. The ship swung around through north. "
+    return (f"Here it is, step by step: {a} plus {b} equals {tot} — the count is past 360. "
+            f"Take away 360: the new bearing is {ans} degrees. The ship swung around through north. "
             f"{tot} names no bearing, and {a - b} is where the backwards turn would point.",
             f'[[unitcircle bearing="{ans}" caption="{a} + {b} = {tot}, past 360 — the new bearing is {ans}°"]]'
             f'[[step eq="{a} + {b} = {tot}"]][[step eq="{tot} − 360 = {ans}"]]'
@@ -5024,7 +5038,10 @@ def _parm_worked(p):
             f"{b * c} squared, which is {h * c}. Each second covers {h}, so "
             f"{h} alone is one second's worth, and {(a + b) * c} walks the corner.",
             f'[[vector v="{a * c},{b * c}" caption="at t = {c}: ({a * c}, {b * c}) — {h * c} from the start"]]'
-            f'[[step eq="t = {c}: x = {a * c}"]][[step eq="y = {b * c}"]][[step eq="√({a * c}² + {b * c}²) = {h * c}"]]')
+            f'[[step eq="t = {c}: x = {a * c}"]][[step eq="y = {b * c}"]][[step eq="√({a * c}² + {b * c}²) = {h * c}"]]'
+            # (xm) the walk-back explains two wrong-path numbers -- the one-second distance and
+            # the walked corner -- so the board shows them, crossed, as sumx and merr do
+            f'[[step eq="{h} ✗ one second only"]][[step eq="{a * c} + {b * c} = {(a + b) * c} ✗ the corner walked"]]')
 
 
 def _gsum_terms(p):
@@ -5128,8 +5145,8 @@ def _lhol_worked(p):
     a = p["a"]
     return (f"Here it is, step by step: everywhere except {a}, that fraction quietly equals x plus "
             f"{a} — a straight line with one hole. As x creeps toward {a}, y creeps toward "
-            f"{2 * a}. The simplified x plus {a} is defined there, so it is a hole: y never "
-            f"reaches {2 * a}, and the limit says where it was headed.",
+            f"{2 * a}. The fraction is undefined there, but x plus {a} is not, so the missing "
+            f"point is a hole. y never reaches {2 * a}, and the limit says where it was headed.",
             f'[[graph func="(x^2-{a * a})/(x-{a})" hole="{a}" range="{a - 3}..{a + 3}" yrange="{2 * a - 6}..{2 * a + 6}" caption="a straight line with a hole at x = {a} — headed for {2 * a}"]]'
             f'[[step eq="for x ≠ {a}: (x − {a})(x + {a}) ÷ (x − {a}) = x + {a}"]][[step eq="x → {a} · y → {2 * a}"]]')
 
@@ -11322,8 +11339,10 @@ OP_EXT = {
                             f'[[step eq="under the root must not go negative '
                             f'· smallest x = ?"]]'),
         "worked": _fdom_worked,       # (to) the curve starting at the doorway (no picture on the ask: the curve starts at the answer)
-        "praise": lambda p: (f"{p['a']} — below it the root goes negative, "
-                             f"and zero under a root is welcome."),
+        # (xm) HIGH in the 09-22 Pre-Calc sweep: "the root goes negative" is false -- the
+        # root of a real number never is; it is what sits UNDER the root that would.
+        "praise": lambda p: (f"{p['a']} — below it, what sits under the root goes "
+                             f"negative, and zero under a root is welcome."),
         "key": lambda p: p["a"],
         # The errors: the sign flip (excl's cousin, by design), and "zero is
         # always the edge".
@@ -11377,13 +11396,14 @@ OP_EXT = {
                              f"{p['a']}?"),
         "board": lambda p: f'[[step eq="(−1)^{p["a"]} = ?"]]',
         "worked": _negp_worked,       # (to) the minus signs paired on the array (the pairing is the answer -- walk-back only)
-        "praise": lambda p: ((f"The power {p['a']} is even: the minus signs "
-                              f"cancel two at a time, none survive, and the "
-                              f"answer is 1.")
+        # (xm) the sweep read this praise and its walk-back as one explanation given
+        # twice -- not word for word (3nf's measure is clean here) but idea for idea. The
+        # praise credits the answer and the parity; the pairing is the walk-back's.
+        "praise": lambda p: ((f"1 — the power {p['a']} is even, so every minus "
+                              f"sign has a partner.")
                              if p["a"] % 2 == 0 else
-                             (f"The power {p['a']} is odd: the minus signs "
-                              f"cancel two at a time, and one lone minus "
-                              f"sign survives. The answer is negative 1.")),
+                             (f"Negative 1 — the power {p['a']} is odd, so one "
+                              f"minus sign is left without a partner.")),
         "key": lambda p: p["a"],
         # The errors: the other parity, and "the minus signs all vanish to 0".
         "choices": lambda p: [1, -1, 0],
@@ -11676,12 +11696,12 @@ OP_EXT = {
     "cofn": {  # cofunction: sin(a) = cos(90 - a)
         "ans": lambda p: 90 - p["a"],
         "spoken": lambda p: (f"The sine of {p['a']} degrees equals the "
-                             f"cosine of one special angle. Which angle?"),
+                             f"cosine of one partner angle. Which angle?"),   # (xm) "partner" is the lesson's word; "special angle" means something else in trigonometry
         "board": _cofn_board,         # (tp) the right triangle, its second sharp corner blank
         "worked": _cofn_worked,       # (tp) both sharp corners labelled
-        "praise": lambda p: (f"The cosine of {90 - p['a']} — sine and "
-                             f"cosine are partners across 90, and {p['a']} "
-                             f"plus {90 - p['a']} equals 90."),
+        "praise": lambda p: (f"The cosine of {90 - p['a']} degrees — sine and "
+                             f"cosine are partners across 90 degrees, and {p['a']} "
+                             f"plus {90 - p['a']} equals 90."),   # (xm) the angle carries its unit
         "key": lambda p: p["a"],
         # The errors: the same angle kept, and 90 ADDED instead of shared.
         "choices": lambda p: [90 - p["a"], p["a"], 90 + p["a"]],
@@ -11706,14 +11726,13 @@ OP_EXT = {
                                'tip"]]')),
         "worked": _negf_worked,       # (tp) the arrow wound backwards with its values (the pointed arrow is the answer -- walk-back only)
         "praise": lambda p: (lambda v, w:
-                             ((f"Backwards or forwards, the across is the "
-                               f"same — the mirror flips height, never "
-                               f"across. The cosine of negative {p['a']} "
-                               f"equals the cosine of {p['a']}: {w}.")
+                             ((f"{w} — the mirror flips height, never across. "
+                               f"The cosine of negative {p['a']} degrees equals "
+                               f"the cosine of {p['a']} degrees.")   # (xm) the angle carries its unit; the answer leads, and the praise stays under 26 words
                               if p["c"] == 0 else
                               (f"The mirror flips the height: the sine of "
-                               f"negative {p['a']} is the opposite of the "
-                               f"sine of {p['a']} — {w}.")))
+                               f"negative {p['a']} degrees is the opposite of the "
+                               f"sine of {p['a']} degrees — {w}.")))
                             (0, ("negative 1" if
                                  ({0: 1, 90: 0, 180: -1, 270: 0}
                                   [p["a"] % 360] if p["c"] == 0 else
@@ -11846,8 +11865,10 @@ OP_EXT = {
         "board": _brng_board,         # (tp) the compass: the ship's arrow and the turn arc, its far end unnamed
         "worked": _brng_worked,       # (tp) the compass at the new bearing
         # (xa) a credit line; the walk-back has the steps
-        "praise": lambda p: (f"{p['a'] + p['b'] - 360} degrees — the turn "
-                             f"went past a full circle, so 360 comes off "
+        # (xm) the 09-22 Pre-Calc sweep, five times: "the turn went past a full circle" is
+        # FALSE -- the turn is 20 to 170 degrees; it is the bearing COUNT that passes 360.
+        "praise": lambda p: (f"{p['a'] + p['b'] - 360} degrees — the bearing "
+                             f"count went past 360, so 360 comes off "
                              f"{p['a'] + p['b']}."),
         "key": lambda p: p["a"] + p["b"],
         # The errors: the wrap forgotten (a bearing past 360), and the turn
