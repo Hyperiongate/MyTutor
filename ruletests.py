@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  BUILD xn -- PART 3ni, THE MISS HAS A FACE (project 4 of the 09-14 deep
+#               dive; the second gate build interleaved with the sweep). Pins the page's
+#               markLastAnswer, the CSS (cross, tick, shake under reduced motion), the
+#               scripted grade marking the bubble BEFORE ringing the pencil, the live
+#               lane's three doorbells, the once-per-miss problem.fresh, the menu (comfort
+#               at `miss`, hush + point at board.latest, both copies identical, version
+#               xn), cadabra.js's name-resolved targets, and that the tap row is still
+#               cleared as before. Proven headless before the battery (prove_xn2.py).
 #   2026-09-22  BUILD xm -- PART 3nh, THE ANGLE CARRIES ITS UNIT. Pins the trig-without-
 #               degrees measure at zero canon-wide, the brng/fdom/parm/lhol/cofn/negp
 #               generator fixes by text, the eleven Pre-Calc one-offs (four of them the
@@ -22042,6 +22050,93 @@ def part3nh_the_angle_carries_its_unit():
           'APP_BUILD -> "2026-09-22xm-' in notes("main.py") and "2026-09-22  BUILD xm" in notes("lessonscripts.py")
           and "2026-09-22  BUILD xm" in notes("ruletests.py"), "")
 
+def part3ni_the_miss_has_a_face():
+    """PART 3ni (build xn, 2026-09-22) -- THE MISS HAS A FACE. Project 4 of the 09-14 deep
+    dive, the second gate build interleaved with the sweep. The 09-14 read of the
+    classroom through a child's eyes: "a wrong tap gets no visible reaction on the
+    board. The button does not shake, the answer is not marked, and the pencil does not
+    look at it. The correction arrives in words a second later." The 09-22 deep dive
+    checked and found it unchanged.
+
+    THE DESIGN. The tap button is cleared the moment it is tapped (board.js showChoices,
+    and handleTags' "stale answer buttons never survive a new turn" -- both deliberate,
+    both untouched). What survives is the student's own bubble: typed, spoken or tapped,
+    it is the one record all three doors share. So the bubble is what reacts: a miss
+    SHAKES it and stamps a cross, a right answer stamps a tick, and the stamp stays
+    through the explanation so the child sees WHICH answer the words are about. The
+    missed bubble becomes the pencil's `miss` target and his answer.wrong move is now a
+    COMFORT at it -- he flies to the crossed answer and says the nudge there. The first
+    ask after a miss is the fresh problem (vz), and a new problem.fresh moment has him
+    point at its board. Colours are the demo's, so both players speak one language.
+    Reduced motion is honoured by dz's global rule. Page-only: no engine change, no
+    audio, no referee.
+
+    PROVEN in a headless browser before the battery (scratch prove_xn2.py): the bubble
+    carries the classes, the shake animation and the cross; the pencil's comfort lands
+    beside it saying a nudge line; the point lands at the fresh board; no page errors."""
+    print("\nPART 3ni — the miss has a face (build xn)")
+    import json as _j
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    sess = rd("static/session.html"); cad = rd("static/cadabra.js")
+    menu = rd("static/cadabra-script.json"); menu_ex = rd("static/cadabra-script.example.json")
+    _m = _j.loads(menu)
+
+    # ---- the page ----------------------------------------------------------------------
+    check("⭐⭐ THE STUDENT'S BUBBLE IS THE RECORD, AND IT REACTS: markLastAnswer() finds the newest "
+          "student bubble, stamps it graded wrong/right, and makes a miss the pencil's `miss` target",
+          "function markLastAnswer(kind)" in sess
+          and 'feed.querySelectorAll(".bubble.student")' in sess
+          and 'b.classList.add("graded", kind === "wrong" ? "wrong" : "right")' in sess
+          and 'if (kind === "wrong") b.setAttribute("data-cad", "miss")' in sess
+          and "void b.offsetWidth;" in sess, "")
+    check("  the CSS: a cross on a miss, a tick on a right answer, a shake that obeys reduced motion",
+          ".feed .bubble.student.graded.wrong { box-shadow: 0 0 0 2.5px var(--bd-e0392b); }" in sess
+          and '.feed .bubble.student.graded.wrong::after { content: "\\2717"; color: var(--bd-e0392b); }' in sess
+          and '.feed .bubble.student.graded.right::after { content: "\\2713"; color: var(--bd-0e9f6e); }' in sess
+          and "--bd-e0392b:" in rd("static/board-theme.css") and "--bd-0e9f6e:" in rd("static/board-theme.css")
+          and "@keyframes missshake" in sess and "@keyframes rightpop" in sess
+          and sess.index("@keyframes missshake") > sess.index("@media (prefers-reduced-motion: no-preference) {\n      .feed .bubble.student.graded.wrong")
+          and "prefers-reduced-motion: reduce" in sess, "")
+    check("⭐ THE SCRIPTED GRADE MARKS THE BUBBLE BEFORE IT RINGS THE PENCIL, so his comfort finds its target; "
+          "a miss arms the fresh-problem point",
+          'if (_now > _prev) { markLastAnswer("right"); cadFire("answer.correct", { hard: true }); cadSlip("right"); }' in sess
+          and 'else { markLastAnswer("wrong"); SCR.afterMiss = true; cadFire("answer.wrong"); cadSlip("wrong"); }' in sess
+          and "afterMiss: false };" in sess, "")
+    check("  the live lane's three doorbells mark it too: [[mark]], [[miss]], [[nice]]",
+          'markLastAnswer(_c > 0 ? "right" : "wrong"); if (_c > 0) cadFire("answer.correct", { hard: true });' in sess
+          and 'markLastAnswer("wrong"); cadFire("answer.wrong"); cadSlip("wrong"); }   /* (xn)' in sess
+          and 'else if (name === "nice") { markLastAnswer("right");' in sess, "")
+    check("  the fresh problem is rung ONCE, on the first ask after a miss, from the ask branch of the scripted player",
+          'if (SCR.afterMiss) { SCR.afterMiss = false; cadFire("problem.fresh"); }' in sess
+          and sess.count('cadFire("problem.fresh")') == 1
+          and sess.index('cadFire("problem.fresh")') > sess.index("const isAsk = (step.kind === \"ask\" || step.kind === \"ai\");"), "")
+    check("  DO NO HARM: the tap row is still cleared on tap and on every new turn -- the record is the bubble, not a stale button",
+          "ensureAudioGraph(); clearChoices(); sendToTutor(message);" in rd("static/board.js")
+          and "clearChoices();                            // stale answer buttons never survive a new turn" in sess
+          and "if (!boardTaps && !step.choices) clearChoices();" in sess, "")
+
+    # ---- the pencil ------------------------------------------------------------------------
+    pg = _m.get("pages", {}).get("session", {})
+    check("⭐ the menu: answer.wrong is a COMFORT at the miss, saying a nudge there; problem.fresh hushes and points at the latest board; both copies identical; version xn",
+          menu == menu_ex and _m.get("version") == "2026-09-22xn"
+          and pg.get("answer.wrong") == [{"do": "expression", "to": "thinking"}, {"do": "comfort", "target": "miss", "from": "nudges", "ms": 3200}]
+          and pg.get("problem.fresh") == [{"do": "hush"}, {"do": "point", "target": "board.latest", "ms": 1800}]
+          and (_m.get("lines") or {}).get("nudges"), "")
+    check("  cadabra.js resolves a data-cad target by NAME, so `miss` needs no new code there; comfort takes a target and a `from`; a hush is LIGHT",
+          "document.querySelector('[data-cad=\"' + String(name).replace(/\"/g, \"\") + '\"]')" in cad
+          and "comfort: function (o, done, id) {" in cad and 'var T = target(o.target || "answer");' in cad
+          and 'fresh(o.from || "empathy", (M.script.lines || {})[o.from || "empathy"])' in cad
+          and "var LIGHT = { expression: true, think: true, hush: true };" in cad, "")
+    check("  the other pages are untouched: no other page rings problem.fresh or marks a bubble, and the demo keeps its own button marks",
+          all('cadFire("problem.fresh")' not in rd(f"static/{p}") and "markLastAnswer" not in rd(f"static/{p}")
+              for p in ("topic.html", "practice.html", "demo-lesson.html"))
+          and ".opt.wrong{background:#fdf0ee;border-color:#e0392b !important;color:#b3402e}" in rd("static/demo-lesson.html"), "")
+    check("  the dated notes are in (Jim's rule 8): session.html, the menu's change notes, main.py",
+          "2026-09-22 (build xn) THE MISS HAS A FACE" in sess
+          and any("2026-09-22 (xn): THE MISS HAS A FACE" in n for n in _m.get("_CHANGE_NOTES", []))
+          and 'APP_BUILD -> "2026-09-22xn-' in notes("main.py") and "2026-09-22  BUILD xn" in notes("ruletests.py"), "")
+
 def _reads_in_words(nums, spoken, L):
     """True when every number on the board is spoken in WORDS (Entry and Basic do) -- the
     refinement xf added to the closing-board scan, reused by PART 3ne."""
@@ -22717,6 +22812,13 @@ def part3hj_three_in_a_row_means_move_on():
     page = open(os.path.join(here, "static", "session.html"),
                 encoding="utf-8").read()
     names = set(re.findall(r'data-cad="([a-z]+)"', page))
+    # (xn) two targets are real without being in the markup: `miss` is SET at runtime --
+    # markLastAnswer puts data-cad="miss" on the student's graded bubble -- and
+    # `board.latest` is resolved by cadabra.js itself (target(): latestBlock()). Each is
+    # admitted only on the evidence of the code that provides it, never by name alone.
+    names |= {m for m in re.findall(r'setAttribute\("data-cad", "([a-z]+)"\)', page)}
+    if "(name === \"board.latest\") ? latestBlock()" in open(os.path.join(here, "static", "cadabra.js"), encoding="utf-8").read():
+        names.add("board.latest")
     wanted = set()
     for stop in (menu.get("tours") or {}).get("session", []):
         wanted.add(stop["target"])
@@ -40619,7 +40721,7 @@ def part3hq_the_pencil_has_feelings_about_your_work():
           and 'queueMoment("goodbye"); cadFire("lesson.end");' in sess, "")
     check("  session: the SCRIPTED lane finally rings answer.correct / answer.wrong, off the server's streak",
           "const _prev = _LAST_TODAY_STREAK, _now = parseInt(j.streak.today_streak, 10) || 0;" in sess
-          and 'if (_now > _prev) { cadFire("answer.correct", { hard: true }); cadSlip("right"); }' in sess,
+          and 'if (_now > _prev) { markLastAnswer("right"); cadFire("answer.correct", { hard: true }); cadSlip("right"); }' in sess,   # (xn) the bubble is marked first
           "a scripted problem celebrated nothing before rr")
 
     # ---- 6. the grammar and the prompt -----------------------------------------
@@ -48978,6 +49080,7 @@ def main():
     part3nf_the_praise_is_not_the_walk_back()
     part3ng_the_watch_policy()
     part3nh_the_angle_carries_its_unit()
+    part3ni_the_miss_has_a_face()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

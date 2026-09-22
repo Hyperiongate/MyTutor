@@ -889,6 +889,31 @@
     .feed .bubble.student { align-self: flex-end; background: var(--accent); color: var(--bd-fff-text);
       border-bottom-right-radius: 5px; }
     .feed .bubble.student .mvar { color: var(--bd-ffe08a); }
+    /* ===== 2026-09-22 (build xn) THE MISS HAS A FACE -- project 4 of the 09-14 deep dive.
+       A wrong tap used to get no visible reaction at all: the button vanished, the
+       correction arrived in words a second later, and the board never moved. The
+       student's own bubble is the record of what they said, so it is what reacts: a
+       miss SHAKES it and stamps it with a cross; a right answer stamps it with a tick.
+       The stamp stays through the explanation, so the student can see WHICH answer the
+       words are about. The shake obeys the reduced-motion rule above (dz). Colours are
+       the demo's (demo-lesson.html .opt.right/.wrong) so both players speak one
+       language -- as TOKENS (rp: no colour literals on the board), which also gives the
+       dark board its own red and green. */
+    .feed .bubble.student.graded { position: relative; padding-right: 40px; }
+    .feed .bubble.student.graded::after { position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      width: 24px; height: 24px; border-radius: 50%; font-size: 15px; font-weight: 900; line-height: 24px;
+      text-align: center; background: var(--bd-ffffff); }
+    .feed .bubble.student.graded.wrong { box-shadow: 0 0 0 2.5px var(--bd-e0392b); }
+    .feed .bubble.student.graded.wrong::after { content: "\2717"; color: var(--bd-e0392b); }
+    .feed .bubble.student.graded.right { box-shadow: 0 0 0 2.5px var(--bd-0e9f6e); }
+    .feed .bubble.student.graded.right::after { content: "\2713"; color: var(--bd-0e9f6e); }
+    @media (prefers-reduced-motion: no-preference) {
+      .feed .bubble.student.graded.wrong { animation: missshake .5s cubic-bezier(.36,.07,.19,.97) both; }
+      .feed .bubble.student.graded.right { animation: rightpop .28s ease both; }
+      @keyframes missshake { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); }
+        30%, 50%, 70% { transform: translateX(-6px); } 40%, 60% { transform: translateX(6px); } }
+      @keyframes rightpop { 0% { transform: scale(1); } 45% { transform: scale(1.06); } 100% { transform: scale(1); } }
+    }
     .feed .bubble.system { align-self: center; background: transparent; border: none; color: var(--muted);
       font-size: 13px; padding: 2px; }
     .feed .mblock { align-self: center; width: 100%; display: flex; flex-direction: column;
@@ -2099,9 +2124,9 @@
         else if (name === "todaydone") markTodayDone(attrs);
         else if (name === "unitplan") showUnitPlan(attrs);
         else if (name === "finalexam") showFinalExam(attrs);
-        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }).then(function (r) { if (r) renderStreakChips({ streak_days: r.streak_days, today_streak: r.today_streak }); }); if (_c > 0) bumpTodayProgress(2); if (_c > 0) cadFire("answer.correct", { hard: true }); cadSlip(_c > 0 ? "right" : "wrong"); sawMark = true; }   /* (rj) the gold ring retired with the orb -- the PENCIL celebrates now */   /* (rh) the doorbell rings twice -- rule 11's tiered celebration */   /* build qz: the streak chips update from the SERVER's fresh count, not a client guess */   /* build oy: a finished problem is worth two nudges */   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
-        else if (name === "miss") { postJSON("/api/mark/me", { miss: 1 }).then(function (r) { if (r) renderStreakChips({ streak_days: r.streak_days, today_streak: r.today_streak }); }); cadFire("answer.wrong"); cadSlip("wrong"); }   /* (rc) the star falls the MOMENT they slip -- Jim's ruling: a miss is any wrong tap. The SERVER's fresh number feeds the chips, never a client guess. */
-        else if (name === "nice") { cadSlip("right"); bumpTodayProgress(1); cadFire("answer.correct"); }   /* (rj) the small ring retired with the orb */   /* build oy: and the day's bar moves */   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
+        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }).then(function (r) { if (r) renderStreakChips({ streak_days: r.streak_days, today_streak: r.today_streak }); }); if (_c > 0) bumpTodayProgress(2); markLastAnswer(_c > 0 ? "right" : "wrong"); if (_c > 0) cadFire("answer.correct", { hard: true }); cadSlip(_c > 0 ? "right" : "wrong"); sawMark = true; }   /* (xn) the live lane's grade marks the bubble too */   /* (rj) the gold ring retired with the orb -- the PENCIL celebrates now */   /* (rh) the doorbell rings twice -- rule 11's tiered celebration */   /* build qz: the streak chips update from the SERVER's fresh count, not a client guess */   /* build oy: a finished problem is worth two nudges */   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
+        else if (name === "miss") { postJSON("/api/mark/me", { miss: 1 }).then(function (r) { if (r) renderStreakChips({ streak_days: r.streak_days, today_streak: r.today_streak }); }); markLastAnswer("wrong"); cadFire("answer.wrong"); cadSlip("wrong"); }   /* (xn) the miss has a face on the live lane too */   /* (rc) the star falls the MOMENT they slip -- Jim's ruling: a miss is any wrong tap. The SERVER's fresh number feeds the chips, never a client guess. */
+        else if (name === "nice") { markLastAnswer("right"); cadSlip("right"); bumpTodayProgress(1); cadFire("answer.correct"); }   /* (xn) */   /* (rj) the small ring retired with the orb */   /* build oy: and the day's bar moves */   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
         else if (["triangle","angle","circle","transversal","polygon","solid","segment"].indexOf(name) >= 0) showGeo(name, attrs);   /* build ot: +transversal/polygon/solid */
         else if (name === "choices") showChoices(attrs);
         else if (name === "objects") showObjects(attrs);
@@ -2128,6 +2153,25 @@
     /* (rh) one guarded door to the Cadabra layer: safe when cadabra.js is absent,
        failed, or dark (its own methods are no-ops without the menu). */
     function cadFire(ev, opts) { try { if (window.Cadabra) Cadabra.fire(ev, opts); } catch (e) {} }
+    // (xn, 2026-09-22) THE MISS HAS A FACE. The newest student bubble is the answer that
+    // was just graded -- typed, spoken or tapped, it is the one record all three doors
+    // share. A miss shakes it and stamps a cross; a right answer stamps a tick. The
+    // missed bubble also becomes the pencil's `miss` target (data-cad), so his comfort
+    // move goes to the answer itself and not to the composer. Never throws: a feed with
+    // no student bubble yet (a [[miss]] on an opener) is a no-op.
+    function markLastAnswer(kind) {
+      try {
+        const all = feed.querySelectorAll(".bubble.student");
+        const b = all.length ? all[all.length - 1] : null;
+        if (!b) return null;
+        Array.prototype.forEach.call(feed.querySelectorAll('[data-cad="miss"]'), (x) => { x.removeAttribute("data-cad"); });
+        b.classList.remove("graded", "wrong", "right");
+        void b.offsetWidth;                      // restart the animation if the same bubble is graded twice
+        b.classList.add("graded", kind === "wrong" ? "wrong" : "right");
+        if (kind === "wrong") b.setAttribute("data-cad", "miss");
+        return b;
+      } catch (e) { return null; }
+    }
     /* (rr) [[ink]]: the tutor asks for a mark on a word. Guarded like cadFire. */
     function cadInk(a) { try { if (window.Cadabra && Cadabra.ink) Cadabra.ink({ circle: a.circle, underline: a.underline, bang: a.bang, kind: a.kind }); } catch (e) {} }
     // (so, 2026-09-04) THE MARK GOES AWAY WHEN THE BOARD MOVES ON. Jim, live on Entry:
@@ -3268,7 +3312,8 @@
     const SCR = { on: false, id: "", lesson: "", pending: false, queue: [], all: null,
                   beat: 0,     // (pd) which beat is on stage, so a late callback knows
                   aiFetch: null, lastAnswer: "",     // (ur) the re-teach in flight, and the answer that earned it
-                  check: null, lastWorked: null };   // (us) the check on screen, and the last worked example (for "show me that again")
+                  check: null, lastWorked: null,     // (us) the check on screen, and the last worked example (for "show me that again")
+                  afterMiss: false };                // (xn) the next ask is the fresh problem after a miss -- the pencil points at it
 
     async function scriptLessons() {
       if (SCR.all) return SCR.all;
@@ -3587,6 +3632,9 @@
         // `if (busy) return;`. That is build ka's "when I click on anything, nothing
         // happens" reintroduced by the fix for a different complaint. The door opens
         // the moment the question is on the board; his voice carries on underneath.
+        // (xn) the first ask after a miss is the fresh problem (vz): the pencil points at it.
+        // Rung BEFORE the door opens, so nothing sits between the open door and his line (pd).
+        if (SCR.afterMiss) { SCR.afterMiss = false; cadFire("problem.fresh"); }
         busy = false; setPhase("ready");
         // (uc) ...and the MIC alone waits for him to finish the question -- see micHold().
         // The taps and the typing box opened on the line above and stay open.
@@ -3820,8 +3868,9 @@
              Rung BEFORE the chips re-render so the comparison sees the previous count. */
           const _prev = _LAST_TODAY_STREAK, _now = parseInt(j.streak.today_streak, 10) || 0;
           if (_prev !== null) {
-            if (_now > _prev) { cadFire("answer.correct", { hard: true }); cadSlip("right"); }
-            else { cadFire("answer.wrong"); cadSlip("wrong"); }   /* a graded tap either bumps or resets; a reset from 0 is still a miss */
+            if (_now > _prev) { markLastAnswer("right"); cadFire("answer.correct", { hard: true }); cadSlip("right"); }
+            else { markLastAnswer("wrong"); SCR.afterMiss = true; cadFire("answer.wrong"); cadSlip("wrong"); }   /* a graded tap either bumps or resets; a reset from 0 is still a miss */
+            /* (xn) the bubble is marked BEFORE the pencil is rung, so his comfort move finds its `miss` target */
           }
           renderStreakChips({ streak_days: j.streak.streak_days, today_streak: j.streak.today_streak });
         }   /* (rd) the scripted lane's own grade feeds the chips -- the server's number, never a guess */

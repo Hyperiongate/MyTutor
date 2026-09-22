@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  APP_BUILD -> "2026-09-22xn-the-miss-has-a-face". Project 4 of the 09-14
+#               deep dive, page-only: static/session.html (the student's bubble shakes
+#               and is stamped on a miss, ticked on a right answer; the miss becomes the
+#               pencil's target; the first ask after a miss rings problem.fresh) and
+#               static/cadabra-script.json + .example.json (answer.wrong is a comfort at
+#               the miss; problem.fresh hushes and points at the fresh board). No engine
+#               change, no audio, no referee, nothing to prewarm. PART 3ni.
 #   2026-09-22  APP_BUILD -> "2026-09-22xm-the-angle-carries-its-unit". The third round's
 #               Pre-Calc reading (28 findings, 24 clean): six generator ops and eleven
 #               authored beats in lessons/precalc.py, three lines in lessons/algebra2.py.
@@ -9095,7 +9102,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-22xm-the-angle-carries-its-unit"
+APP_BUILD = "2026-09-22xn-the-miss-has-a-face"
 
 
 @app.get("/health")

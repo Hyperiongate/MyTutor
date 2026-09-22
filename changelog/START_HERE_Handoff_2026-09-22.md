@@ -17,14 +17,16 @@ prewarm done. `xk`
 (`2026-09-22xk-the-praise-is-not-the-walk-back`, 12,821) — the third round's first reading
 (Pre-Algebra, 29 findings, 18 clean) — is pushed and prewarmed. `xl`
 (`2026-09-22xl-the-watch-policy`, 12,841) — project 2 of the 09-14 deep dive, the first gate
-build interleaved with the sweep — was written to his disk on 09-22. **Built after it and
-NOT yet on his disk: `xm` (`2026-09-22xm-the-angle-carries-its-unit`, 12,855)** — the third
-round's Pre-Calc reading (28 findings, 24 clean; pyid and arsn, rebuilt in xk, came back
-CLEAN). See **Pending commit** below. The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
+build interleaved with the sweep — was written to his disk on 09-22. `xm`
+(`2026-09-22xm-the-angle-carries-its-unit`, 12,855) — the third round's Pre-Calc reading
+(28 findings, 24 clean; pyid and arsn, rebuilt in xk, came back CLEAN) — was written to
+his disk on 09-22. **Built after it and NOT yet on his disk: `xn`
+(`2026-09-22xn-the-miss-has-a-face`, 12,865)** — project 4 of the 09-14 deep dive, the
+second gate build. See **Pending commit** below. The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
 half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
-whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19) → `xd` (the colon is not a ratio, 12,745, 09-19, pending) → `xe` (the pre-sweep, 12,751, 09-19, pending) → `xf` (the pre-sweep, the other eight, 12,759, 09-19) → `xg` (the second Prob/Stat sweep, 12,778, 09-21) → `xh` (the credit line everywhere, 12,785, 09-21) → `xi` (the second Calculus sweep, 12,801, 09-22) → `xj` (the spoken beat is short everywhere, 12,809, 09-22) → `xk` (the praise is not the walk-back, 12,821, 09-22) → `xl` (the watch policy, 12,841, 09-22) → `xm` (the angle carries its unit, 12,855, 09-22, pending). Jim pushes and prewarms
+whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19) → `xd` (the colon is not a ratio, 12,745, 09-19, pending) → `xe` (the pre-sweep, 12,751, 09-19, pending) → `xf` (the pre-sweep, the other eight, 12,759, 09-19) → `xg` (the second Prob/Stat sweep, 12,778, 09-21) → `xh` (the credit line everywhere, 12,785, 09-21) → `xi` (the second Calculus sweep, 12,801, 09-22) → `xj` (the spoken beat is short everywhere, 12,809, 09-22) → `xk` (the praise is not the walk-back, 12,821, 09-22) → `xl` (the watch policy, 12,841, 09-22) → `xm` (the angle carries its unit, 12,855, 09-22) → `xn` (the miss has a face, 12,865, 09-22, pending). Jim pushes and prewarms
 each; check `/health`. The first round is over: every lesson in every course has been read
 once. **The second round has begun, and the cycle converges: Diffeq went 119 → 62 findings,
 0 → 8 clean, on one fix build; Pre-Calc 76 → 34 → (60 with wt's praise-board shape, fixed in the engine) 15 clean; Algebra II 73 → 43, 14 clean; Entry 14 → 19 (sixteen of them one engine consequence of ww, closed in wy) with 29 clean — the most any course has had; Basic 67 → 41, 7 → 14 clean; Pre-Algebra 69 → 58, 6 → 9 clean (ten of the 58 were the near-repeat praise class, closed across 25 ops in xa); Algebra I 72 → 50, 8 → 10 clean — the first reading after xa, and the praise class did not come up once; Geometry 63 → 36, 7 → 16 clean.**
@@ -37,26 +39,24 @@ an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes t
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`, `Deep_Dive_2026-09-22_Eight_Days_Of_One_Project.md`, `Build_xl_The_Watch_Policy_2026-09-22.md`, `Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`, `Deep_Dive_2026-09-22_Eight_Days_Of_One_Project.md`, `Build_xl_The_Watch_Policy_2026-09-22.md`, `Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`, `Build_xn_The_Miss_Has_A_Face_2026-09-22.md`.
 
-## Pending commit to D:\MyTutor (xl and xm, built 2026-09-22)
+## Pending commit to D:\MyTutor (xl, xm and xn, built 2026-09-22)
 
-`xl`'s seven files were written to D:\MyTutor on 09-22 (Jim had not yet pushed them when
-`xm` was built). `device_list_dir` for fresh mtimes, then `device_commit_files` `xm`'s:
+`xl`'s and `xm`'s files were written to D:\MyTutor on 09-22 and were not yet pushed when
+`xn` was built. `device_list_dir` for fresh mtimes, then `device_commit_files` `xn`'s:
 
-- `lessonscripts.py` (xm: negf, cofn, brng, fdom, parm, lhol, negp)
-- `lessons/precalc.py` (11 one-offs + the degrees lines + the log recap)
-- `lessons/algebra2.py` (three "degrees" lines)
-- `ruletests.py` (PART 3nh; six pins moved)
-- `main.py` (stamp `2026-09-22xm-the-angle-carries-its-unit`)
-- `changelog/Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`
+- `static/session.html` (the student's bubble shakes and is stamped; the miss is the pencil's target; problem.fresh)
+- `static/cadabra-script.json` and `static/cadabra-script.example.json` (identical; answer.wrong is a comfort at `miss`; problem.fresh; version xn)
+- `ruletests.py` (PART 3ni; two pins taught the runtime targets; one rr pin moved)
+- `main.py` (stamp `2026-09-22xn-the-miss-has-a-face`)
+- `changelog/Build_xn_The_Miss_Has_A_Face_2026-09-22.md`
 - `changelog/START_HERE_Handoff_2026-09-22.md` (this file)
 
-`speechmap.py` did not change (941 of 40,221 — regenerated, identical). After the push and
-`/health` = `2026-09-22xm-the-angle-carries-its-unit`, run the **prewarm**: about 150
-lines re-render (negf's and cofn's praise/walk-back lines, brng's, fdom's, negp's, lhol's,
-and the authored Pre-Calc and Algebra II lines). If `xl` and `xm` are pushed together, one
-prewarm covers both (`xl` has nothing to render).
+If all three are pushed together: `/health` = `2026-09-22xn-the-miss-has-a-face`, then ONE
+prewarm (for `xm`'s ~150 lines; `xl` and `xn` render nothing). Then, on a lesson, answer one
+wrong on purpose and watch: the bubble shakes and is crossed, the pencil comes to it, and he
+points at the fresh problem.
 
 ## The 09-22 deep dive, and the schedule it set
 
@@ -69,8 +69,8 @@ the child's screen unchanged — a wrong tap moves nothing on the board, and the
 moves have zero callers in 360 lessons.
 
 **The schedule: alternate — one sweep build, one gate build.** Gate order: watch policy
-(`xl`, done) → **the miss has a face (S) — NEXT, before the next sweep report is read**  → Phase C, Diffeq's 36 worked generators first, then
-Entry's 12 (M) → the pencil in the scripted lane (M) → the voice-cache reclaim card (S) →
+(`xl`, done) → the miss has a face (`xn`, done) → **Phase C — NEXT gate build: Diffeq's 36 worked generators first, then
+Entry's 12 (M)** → the pencil in the scripted lane (M) → the voice-cache reclaim card (S) →
 child-mode skin → screencheck's two rules. **Diffeq's third reading waits for Phase C**, so
 it is the first reading that sees the miss path at all.
 
@@ -403,7 +403,7 @@ That class has to be READ. The remaining rounds are the instrument, not a formal
 
 Notation repair floor; the voice-cache reclaim card (well past the 812 MB of 09-14 — every
 sweep build orphans the clips it replaces); the watch's `__open__` turn; screencheck rules
-(below the fold, figure sizes); the miss has a face; the pencil in the scripted lane; the
+(below the fold, figure sizes); the pencil in the scripted lane; the
 child-mode skin; Phase C (worked generators for the 48 lessons without one — **36 Diffeq +
 12 Entry**, not "the Entry course"); Phase B deferred; the prefetch-shelf counter; the tour
 button. (`EST_USD_PER_LESSON` corrected in ws; **the critic charter with the "done for the
