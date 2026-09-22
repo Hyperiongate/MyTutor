@@ -6,6 +6,12 @@
 #               -- moved out on 2026-09-21 (build xg) VERBATIM, 91 entries; 61 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-22  APP_BUILD -> "2026-09-22xi-the-second-calculus-sweep". The second Calculus
+#               reading (46 findings on all 36, 13 clean; 88 and 4 at wq) -- and the LAST
+#               course to get a second reading. Zero "repeats". 18 generator walk-backs
+#               split in lessonscripts.py, 28 authored edits in lessons/calculus.py, PART
+#               3nd. Counts unchanged: course 39,920, closure 40,174, speechmap 941 of
+#               40,226. Nothing in this file changed but the stamp.
 #   2026-09-21  APP_BUILD -> "2026-09-21xh-the-credit-line-everywhere". The last 59 ops whose
 #               praise still explained became credit lines -- Calculus 32, Pre-Calc 19,
 #               Algebra I 3, Algebra II 3, Geometry 2 -- ahead of Calculus's second reading.
@@ -9050,7 +9056,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-21xh-the-credit-line-everywhere"
+APP_BUILD = "2026-09-22xi-the-second-calculus-sweep"
 
 
 @app.get("/health")

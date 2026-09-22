@@ -2,6 +2,18 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  BUILD xi -- THE SECOND CALCULUS SWEEP: THE WALK-BACK IS A SPOKEN BEAT TOO.
+#               Zero "repeats" findings this reading -- xh's credit lines closed that class
+#               for good. The new biggest one is the same idea one beat over: a generated
+#               WALK-BACK or ASK of 27 words or more, which xe's and xf's scan never saw
+#               because it reads only the authored kinds. All 12 "unclear" findings were
+#               there. Calculus's 18 ops are split after the opener (ftc, derv, optr, jump,
+#               init, triz, chan, trap, vsol, plusc, dfeq, cnst, infl, evat, crit, revo,
+#               mixr, eqbm) -- 132 spoken instances, one fix each. Also: revo's walk-back
+#               says squaring makes a SLICE and stacking makes the solid (HIGH); sumx draws
+#               the pulled-apart pair it names; vsol's ask draws the distance formula;
+#               antp's board says which way the derivative runs; dfeq's and pgrw's asks READ
+#               the board's dV/dt as "d V over d t" and split. No count moved.
 #   2026-09-21  BUILD xh -- THE PRAISE IS A CREDIT LINE EVERYWHERE. xg measured the class
 #               (a praise over 26 words is still an explanation, and the walk-back repeats
 #               it a breath later) and left 59 ops: Calculus 32, Pre-Calc 19, Algebra I 3,
@@ -5810,8 +5822,8 @@ def _jump_board(p):
 
 def _jump_worked(p):
     a, b = p["a"], p["b"]; j = b - a
-    return (f"Here it is, step by step: from the left the curve heads for {a} and from the right "
-            f"for {b}, so it leaps {j} in no distance at all — a jump of {j}. {b} is only "
+    return (f"Here it is, step by step: from the left the curve heads for {a}, and from the right "
+            f"for {b}. So it leaps {j} in no distance at all — a jump of {j}. {b} is only "
             f"where it lands, and {a + b} adds two heights that the curve never adds.",
             f'[[graph func="{a} for x<6; {b} for x>=6" lines="x=6" points="(6,{a}),(6,{b})" range="0..12" yrange="0..{b + 4}" caption="the leap at x = 6 — from {a} up to {b} is {j}"]]'
             f'[[step eq="{b} − {a} = {j}"]]')
@@ -5843,8 +5855,8 @@ def _derv_board(p):
 
 def _derv_worked(p):
     a = p["a"]; m = 2 * a; r = a + 2
-    return (f"Here it is, step by step: the average rate is the two x\'s put together, so sliding "
-            f"both onto {a} gives {m} — the derivative at {a}, the slope of the curve at "
+    return (f"Here it is, step by step: the average rate is the two x\'s put together. Slide both "
+            f"onto {a} and it gives {m} — the derivative at {a}, the slope of the curve at "
             f"that single point. {a * a} is how high the curve sits there, not how steep.",
             f'[[graph func="x^2" names="y = x²" lines="y={m}x-{a * a}" points="({a},{a * a})" range="0..{r}" yrange="0..{r * r}" caption="the tangent at x = {a} climbs {m} for every step across"]]'
             f'[[step eq="slope at {a} = {m}"]]')
@@ -5878,7 +5890,7 @@ def _cnst_board(p):
 def _cnst_worked(p):
     a, b = p["a"], p["b"]; top = 4 * a + b + 2
     return (f"Here it is, step by step: the line climbs {a} for every step across, at every point "
-            f"on it, so its derivative is {a} — one number, true everywhere. The {b} only "
+            f"on it. So its derivative is {a} — one number, true everywhere. The {b} only "
             f"lifts the whole line up the page and never tilts it, and {a + b} adds a height "
             f"to a slope.",
             f'[[graph lines="y={a}x+{b}" points="(1,{a + b}),(2,{2 * a + b})" range="0..4" yrange="0..{top}" caption="one step right, {a} up — the slope is {a} wherever you stand"]]'
@@ -5894,7 +5906,7 @@ def _evat_board(p):
 
 def _evat_worked(p):
     a, c = p["a"], p["c"]; m = 2 * a * c; h = a * c * c; r = c + 2
-    return (f"Here it is, step by step: the derivative is a machine of its own — feed it {c} and "
+    return (f"Here it is, step by step: the derivative is a machine of its own. Feed it {c} and "
             f"it hands back {2 * a} times {c}, which is {m}. That is the slope right at that "
             f"point. {h} is how high the curve sits there, and {2 * a} is the machine\'s "
             f"front number before any x went in.",
@@ -5929,8 +5941,8 @@ def _chan_board(p):
 
 def _chan_worked(p):
     a, b = p["a"], p["b"]; t = a * b
-    return (f"Here it is, step by step: two things are multiplied — the power {b} comes down, and "
-            f"the inside\'s derivative {a} comes out to meet it — and {b} times {a} is {t}. "
+    return (f"Here it is, step by step: two things are multiplied. The power {b} comes down, and "
+            f"the inside\'s derivative {a} comes out to meet it — {b} times {a} is {t}. "
             f"Forgetting the inside leaves {b}, "
             f"the commonest mistake in Calculus, and {a + b} adds what should be timesed.",
             f'[[machine input="{b}" rule="× {a}" output="{t}" caption="the power {b} meets the inside\'s {a} — {t}"]]'
@@ -5987,14 +5999,15 @@ def _quot_worked(p):
 def _vsol_board(p):
     a, b = p["a"], p["b"]; m = 2 * a; t = b // m; r = t + 2
     return (f'[[graph lines="y={m}x" names="speed = {m}t" range="0..{r}" yrange="0..{m * r}" caption="the speed line — {m} metres a second faster every second; somewhere along it the speed reaches {b}"]]'
+            f'[[step eq="fallen {a}t² metres"]]'
             f'[[step eq="speed = {m}t"]]'
             f'[[step eq="speed = {b} at t = ?"]]')
 
 
 def _vsol_worked(p):
     a, b = p["a"], p["b"]; m = 2 * a; t = b // m; r = t + 2
-    return (f"Here it is, step by step: the speed is {m} t, so set it equal to {b} — {m} t equals "
-            f"{b}, and t is {b} over {m}, which is {t} seconds. That is the moment the line "
+    return (f"Here it is, step by step: the speed is {m} t, so set it equal to {b}. Then {m} t "
+            f"equals {b}, and t is {b} over {m} — {t} seconds. That is the moment the line "
             f"reaches the height {b}. {b} is the speed itself, not a time, and {b // a} "
             f"divides by the distance's number instead of the speed's.",
             f'[[graph lines="y={m}x; y={b}" names="speed = {m}t; speed = {b}" points="({t},{b})" range="0..{r}" yrange="0..{m * r}" caption="the speed line meets the height {b} at t = {t}"]]'
@@ -6029,7 +6042,7 @@ def _crit_board(p):
 
 def _crit_worked(p):
     a = p["a"]; h = a // 2; pad = max(2, h * h // 4)
-    return (f"Here it is, step by step: set the slope to zero — 2 x take away {a} equals zero, so "
+    return (f"Here it is, step by step: set the slope to zero. 2 x take away {a} equals zero, so "
             f"2 x is {a} and x is {h}. There the curve is flat for an instant, the bottom of "
             f"its valley, {h * h} below the axis. {a} is the number in the slope, not the x "
             f"that solves it, and {2 * a} doubles when the equation halves.",
@@ -6064,7 +6077,7 @@ def _optr_board(p):
 
 def _optr_worked(p):
     a = p["a"]; q = a // 4
-    return (f"Here it is, step by step: the area is biggest when the rectangle is a square, so the "
+    return (f"Here it is, step by step: the area is biggest when the rectangle is a square. So the "
             f"{a} metres of fence are shared four ways — {a} over 4 is {q} metres a side. "
             f"Walk round it: {q} plus {q} plus {q} plus {q} uses the fence exactly. "
             f"{a // 2} is half the fence, two sides at once, and {a} is the whole fence "
@@ -6104,7 +6117,8 @@ def _sumx_worked(p):
             f"{a - 1} give only {a - 1}. {h} is one of the halves, not their product, and "
             f"{a} is the sum you started with.",
             f'[[graph func="x*({a}-x)" names="product = x({a} − x); the peak" lines="y={P}" points="({h},{P})" range="0..{a}" yrange="0..{top}" caption="the peak sits at {h} and {h} — a product of {P}"]]'
-            f'[[step eq="{h} × {h} = {P}"]]')
+            f'[[step eq="{h} × {h} = {P}"]]'
+            f'[[step eq="1 × {a - 1} = {a - 1} ✗ pulled apart"]]')
 
 
 def _infl_board(p):
@@ -6116,7 +6130,7 @@ def _infl_board(p):
 
 def _infl_worked(p):
     a = p["a"]; x0 = a // 3; lo = -(4 * a * a * a) // 27; lo = lo - max(4, (-lo) // 8); top = max(4, (-lo) // 6)
-    return (f"Here it is, step by step: set the second derivative to zero — 6 x take away {2 * a} "
+    return (f"Here it is, step by step: set the second derivative to zero. 6 x take away {2 * a} "
             f"equals zero, so 6 x is {2 * a} and x is {x0}. There the curve stops bending "
             f"like a dome and starts bending like a cup: the inflection point. {a // 2} "
             f"halves out of the first-derivative habit, and {a} is the equation's own "
@@ -6148,7 +6162,7 @@ def _antp_board(p):
     a, b = p["a"], p["b"]; n = a + 1
     return (f'[[write text="derivative = {b}x^{a}"]]'
             f'[[machine input="{b}" rule="÷ {n}" output="?" caption="the power climbs from {a} to {n}, and the front number is divided by that new exponent"]]'
-            f'[[step eq="? x^{n} came from it"]]')
+            f'[[step eq="{b}x^{a} came from ?x^{n}"]]')
 
 
 def _antp_worked(p):
@@ -6175,8 +6189,8 @@ def _plusc_worked(p):
     a, b = p["a"], p["b"]; k = a - 16; kk = k + b
     lo = f"x^2+{k}" if k >= 0 else f"x^2-{-k}"; hi = f"x^2+{kk}" if kk >= 0 else f"x^2-{-kk}"
     ymin = min(0, k) - 2; top = 36 + kk + 4
-    return (f"Here it is, step by step: the two curves run parallel, {b} apart at every single x, "
-            f"so above the lower one's {a} the higher one reads {a} plus {b} — {a + b}. "
+    return (f"Here it is, step by step: the two curves run parallel, {b} apart at every single x. "
+            f"So above the lower one's {a} the higher one reads {a} plus {b} — {a + b}. "
             f"That gap is the plus C: an antiderivative is a whole family, stacked up the "
             f"page. {a - b} takes the gap away and lands below the curve you were given, "
             f"and {b} is the gap alone, not a height.",
@@ -6193,7 +6207,7 @@ def _init_board(p):
 
 def _init_worked(p):
     a, c = p["a"], p["c"]; r = c + 1; q = c * c; ans = q + a
-    return (f"Here it is, step by step: slope 2 x comes from x squared plus a constant, and at x "
+    return (f"Here it is, step by step: slope 2 x comes from x squared plus a constant. At x "
             f"equals zero the x squared is nothing, so the constant is the starting height, "
             f"{a}. Then at x equals {c}: {c} squared is {q}, plus {a} — {ans}. {q} forgets "
             f"the constant the point gave you, and {a} pretends the curve never climbed.",
@@ -6237,10 +6251,10 @@ def _triz_board(p):
 
 def _triz_worked(p):
     a = p["a"]; d = a * a // 2
-    return (f"Here it is, step by step: after {a} seconds the triangle is {a} wide and {a} tall, and "
-            f"a triangle takes half the rectangle round it — {a} times {a} halved is {d} "
+    return (f"Here it is, step by step: after {a} seconds the triangle is {a} wide and {a} tall. "
+            f"A triangle takes half the rectangle round it — {a} times {a} halved is {d} "
             f"metres. {a * a} forgets the half and claims the whole rectangle, as if the car "
-            f"had gone flat out from the first second, and {a} is the time, not a distance.",
+            f"had gone flat out from the first second. And {a} is the time, not a distance.",
             f'[[graph lines="y=x" names="speed = t" shade="0..{a}" label="{d}" range="0..{a + 2}" yrange="0..{a + 2}" caption="{a} by {a}, halved — {d} metres"]]'
             f'[[step eq="{a} × {a} ÷ 2 = {d} m"]]')
 
@@ -6254,8 +6268,8 @@ def _ftc_board(p):
 
 def _ftc_worked(p):
     a, b = p["a"], p["b"]; d = b * b - a * a
-    return (f"Here it is, step by step: 2 x comes from x squared, so work x squared out at both ends "
-            f"and take one from the other — {b} squared is {b * b}, {a} squared is {a * a}, "
+    return (f"Here it is, step by step: 2 x comes from x squared. Work x squared out at both ends "
+            f"and take one from the other. {b} squared is {b * b}, {a} squared is {a * a}, "
             f"and {b * b} take away {a * a} is {d}. That is the shaded strip's area: it came "
             f"from ANTIDIFFERENTIATING, then end take away start. "
             f"{(b - a) * (b - a)} squares the gap instead, and {b - a} is "
@@ -6308,7 +6322,7 @@ def _trap_board(p):
 
 def _trap_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; d = (a + b) * c // 2; mid = (a + b) / 2
-    return (f"Here it is, step by step: the speed climbs steadily, so its average is halfway between "
+    return (f"Here it is, step by step: the speed climbs steadily. So its average is halfway between "
             f"{a} and {b} — {mid:g} — and {mid:g} metres a second for {c} seconds is {d} "
             f"metres. The halfway speed is the height of an equal-area rectangle. "
             f"{(a + b) * c} forgets the halving and holds both speeds at once. And {b * c} "
@@ -6345,10 +6359,11 @@ def _revo_board(p):
 
 def _revo_worked(p):
     a, b = p["a"], p["b"]; q = a * a; v = q * b
-    return (f"Here it is, step by step: every slice through the cylinder is a circle of radius {a}, "
-            f"and its area is pi times {a} squared — {q} pi. Stack {b} lengths of that and "
-            f"the volume is {v} pi. Squaring the radius is what turns a flat area into a "
-            f"solid: {a * b} leaves the squaring out, and {2 * a * b} doubles the radius "
+    return (f"Here it is, step by step: every slice through the cylinder is a circle of radius {a}. "
+            f"Its area is pi times {a} squared — {q} pi. Stack {b} lengths of that and "
+            f"the volume is {v} pi. Squaring the radius gives each slice its area, and "
+            f"stacking those slices along the length turns it into a solid. "
+            f"{a * b} leaves the squaring out, and {2 * a * b} doubles the radius "
             f"where it should be squared.",
             f'[[solid kind="cylinder" r="{a}" h="{b}" caption="a circle of area {q}π, stacked {b} long — {v}π"]]'
             f'[[step eq="{a}² = {q}"]]'
@@ -6364,7 +6379,7 @@ def _dfeq_board(p):
 
 def _dfeq_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; g = b * c; left = a - g
-    return (f"Here it is, step by step: the rate has to meet the clock — {b} litres a minute for {c} "
+    return (f"Here it is, step by step: the rate has to meet the clock. {b} litres a minute for {c} "
             f"minutes is {g} gone, and {a} take away {g} leaves {left}. The line drops from "
             f"{a} to {left} over the {c} minutes. {a - b} takes away only one minute's worth, "
             f"and {g} is what drained, not what is left in the tank.",
@@ -6382,7 +6397,7 @@ def _mixr_board(p):
 
 def _mixr_worked(p):
     a, b, c = p["a"], p["b"], p["c"]; n = a - b; t = n * c
-    return (f"Here it is, step by step: settle the fight first — {a} in and {b} out means the tank "
+    return (f"Here it is, step by step: settle the fight first. {a} in and {b} out means the tank "
             f"truly gains {n} litres a minute, the net rate. Then let the clock work on that "
             f"one number: {n} times {c} is {t} litres. {(a + b) * c} adds the two rates as if "
             f"the drain were helping, and {a * c} counts the inflow alone.",
@@ -6418,8 +6433,8 @@ def _eqbm_board(p):
 
 def _eqbm_worked(p):
     a, b = p["a"], p["b"]; q = a // b
-    return (f"Here it is, step by step: set the rate to zero — {b} P has to equal {a}, so P is {a} "
-            f"over {b}, which is {q}. That is where the line crosses the axis: sit the "
+    return (f"Here it is, step by step: set the rate to zero. {b} P has to equal {a}, so P is {a} "
+            f"over {b} — {q}. That is where the line crosses the axis: sit the "
             f"population there and nothing moves. Above it the rate is negative and pulls "
             f"down; below it the rate pushes up. {a - b} takes away instead of dividing, and "
             f"{a} is the equation's own number.",
@@ -13633,10 +13648,10 @@ OP_EXT = {
     },
     "ftc": {  # the fundamental theorem: end value take away start value
         "ans": lambda p: p["b"] * p["b"] - p["a"] * p["a"],
-        "spoken": lambda p: (f"The area under y equals 2 x, from x equals "
-                             f"{p['a']} to x equals {p['b']}, is found by "
-                             f"working out x squared at both ends and "
-                             f"taking one from the other. What is it?"),
+        "spoken": lambda p: (f"Take the area under y equals 2 x, from x "
+                             f"equals {p['a']} to x equals {p['b']}. Work x "
+                             f"squared out at both ends and take one from "
+                             f"the other. What is it?"),
         "board": _ftc_board,         # (ub) the ask picture, answer withheld
         "worked": _ftc_worked,       # (ub) the walk-back, filled in
         "praise": lambda p: (f"{p['b'] * p['b'] - p['a'] * p['a']} — end "
@@ -13781,7 +13796,7 @@ OP_EXT = {
         "spoken": lambda p: (f"A differential equation says how fast "
                              f"something changes. This one says the tank "
                              f"loses {p['b']} litres every minute — written "
-                             f"d V d t equals negative {p['b']}, the rate "
+                             f"d V over d t equals negative {p['b']}. That is the rate "
                              f"the volume V changes with time. It starts "
                              f"with {p['a']} litres. How many are left "
                              f"after {p['c']} minutes?"),
@@ -13835,7 +13850,7 @@ OP_EXT = {
                              f"the colony gains {p['b']} bacteria a minute "
                              f"for every single bacterium already there. "
                              f"Call the colony's size P; the board writes "
-                             f"d P d t equals {p['b']} P — the rate is "
+                             f"d P over d t equals {p['b']} P — the rate is "
                              f"{p['b']} times the amount. Right now there "
                              f"are {p['a']}. How fast is it growing at this "
                              f"moment?"),
